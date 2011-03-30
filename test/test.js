@@ -16,3 +16,10 @@
 function testTest() {
 }
 
+// jsunit auto-detection of tests won't work with in browser compiled code
+// because it is on an onload event which runs before compilation completes
+// this will force test auto detection and start the tests running
+var test = new goog.testing.TestCase(document.title);
+test.autoDiscoverTests();
+G_testRunner.initialize(test);
+
