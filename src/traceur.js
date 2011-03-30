@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strict';
+
 (function () {
   function compileAll() {
     // Code to handle automatically loading and running all scripts with type
@@ -55,7 +57,7 @@
             entry.contents = script.textContent;
             entry.name = document.location + ':' + i;
           } else {
-            function loadFile(boundEntry) {
+            (function (boundEntry) {
               numPending++;
               var xhr = new XMLHttpRequest();
               xhr.open('GET', script.src);
@@ -74,8 +76,7 @@
               xhr.addEventListener('error', onFailure);
               xhr.addEventListener('abort', onFailure);
               xhr.send();
-            };
-            loadFile(entry);
+            })(entry);
           }
         }
       }
@@ -85,8 +86,8 @@
     function compileScripts() {
       for (var i = 0; i < scriptsToRun.length; i++) {
         var entry = scriptsToRun[i];
-        // TODO: invoke compiler here
-        var result = entry.contents;
+        var compiler = new $Traceur.Compiler();
+        var result = compiler.compile(entry.contents);
 
         var scriptElement = document.createElement('script');
         scriptElement.setAttribute('data-traceur-src-url', entry.name);
