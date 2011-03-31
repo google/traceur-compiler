@@ -14,6 +14,7 @@
 
 'use strict';
 
+var traceur = traceur || {};
 traceur.PredefinedName = traceur.PredefinedName || {};
 
 traceur.PredefinedName.ADD_CONTINUATION = 'addContinuation';
@@ -77,7 +78,7 @@ traceur.PredefinedName.VALUE = 'value';
 traceur.PredefinedName.WAIT_TASK = '$waitTask';
 traceur.PredefinedName.WRITABLE = 'writable';
 
-traceur.PredefinedName.getParameterName(index) {
+traceur.PredefinedName.getParameterName = function(index) {
   // TODO: consider caching these
   return '$' + index.toString();
-}
+};
