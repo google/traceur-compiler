@@ -86,12 +86,17 @@
     function compileScripts() {
       for (var i = 0; i < scriptsToRun.length; i++) {
         var entry = scriptsToRun[i];
-        var compiler = new $Traceur.Compiler();
+        var compiler = new traceur.Compiler();
         var result = compiler.compile(entry.contents);
+        
+        if (result.errors.length > 0) {
+          console.warn("Traceur compilation errors", result.errors);
+          continue;
+        }
 
         var scriptElement = document.createElement('script');
         scriptElement.setAttribute('data-traceur-src-url', entry.name);
-        scriptElement.textContent = result;
+        scriptElement.textContent = result.result;
 
         var parent = entry.parentElement;
         parent.insertBefore(scriptElement,

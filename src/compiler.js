@@ -14,13 +14,31 @@
 
 'use strict';
 
-var $Traceur = $Traceur || {};
+var traceur = traceur || {};
 
-$Traceur.Compiler = function() {
+traceur.Compiler = function() {
 };
 
-$Traceur.Compiler.prototype = { constructor : $Traceur.Compiler };
+traceur.Compiler.prototype.compile = function(script) {
+  var errors = [];
+  
+  // parse
+  var parser = new traceur.Parser();
+  var result = parser.parse(script, errors);
 
-$Traceur.Compiler.prototype.compile = function(script) {
+  if (errors.length > 0) {
+    return { result: null, errors: errors };
+  }
+  
+  // transform
+  
+  return { result: result, errors: errors };
+};
+
+traceur.Parser = function() {
+};
+
+traceur.Parser.prototype.parse = function(script, errors) {
   return script;
 };
+
