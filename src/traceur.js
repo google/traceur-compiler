@@ -27,7 +27,7 @@
       }
     }
 
-    window.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function() {
       var scripts = document.scripts;
 
       if (scripts.length <= 0) {
@@ -95,7 +95,7 @@
 
         var parent = entry.parentElement;
         parent.insertBefore(scriptElement,
-                            entry.scriptElement || parent.getFirstChild());
+                            entry.scriptElement || parent.firstChild);
       }
     }
   }
