@@ -1,6 +1,3 @@
-<!DOCTYPE html>
-<!--
-
 // Copyright 2011 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,20 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
--->
-<html>
-<head>
-<title></title>
-<script src="../third_party/closure/closure/goog/base.js"></script>
-<script>
-// NOTE: base.js and all goog.require statements must be in JS script blocks
-// NOTE: because they use document.write to add new script tags in place
-goog.require('goog.testing.jsunit');
-</script>
-<script src="../src/compiler.js"></script>
-<script src="../src/traceur.js"></script>
-<script src="test.js" type="text/traceur"></script>
-</head>
-<body>
-</body>
-</html>
+traceur.define('syntax', function() {
+  'use strict';
+
+  var Token = traceur.syntax.Token;
+  var TokenType = traceur.syntax.TokenType;
+
+  /**
+   * A token representing an identifier.
+   */
+  function IdentifierToken(location, value) {
+    Token.call(this, TokenType.IDENTIFIER, location);
+    this.value = value
+  }
+
+  IdentifierToken.prototype = {
+    __proto__: Token.prototype,
+    toString: function() {
+      return this.value;
+    }
+  };
+
+  return {
+    IdentifierToken: IdentifierToken
+  };
+});

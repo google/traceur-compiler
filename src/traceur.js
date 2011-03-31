@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-'use strict';
+var traceur = (function () {
+  'use strict';
 
-(function () {
   function compileAll() {
     // Code to handle automatically loading and running all scripts with type
     // text/traceur after the DOMContentLoaded event has fired.
@@ -105,4 +105,54 @@
     }
   }
   compileAll();
+
+  /**
+   * Builds an object structure for the provided namespace path,
+   * ensuring that names that already exist are not overwritten. For
+   * example:
+   * "a.b.c" -> a = {};a.b={};a.b.c={};
+   * @param {string} name Name of the object that this file defines.
+   * @private
+   */
+  function exportPath(name) {
+    var parts = name.split('.');
+    var cur = traceur;
+
+    for (var part; parts.length && (part = parts.shift());) {
+      if (part in cur) {
+        cur = cur[part];
+      } else {
+        cur = cur[part] = {};
+      }
+    }
+    return cur;
+  };
+
+  /**
+   * @param {string} name
+   * @param {!Function} fun
+   */
+  function define(name, fun) {
+    var obj = exportPath(name);
+    var exports = fun();
+    for (var propertyName in exports) {
+      // Maybe we should check the prototype chain here? The current usage
+      // pattern is always using an object literal so we only care about own
+      // properties.
+      var propertyDescriptor = Object.getOwnPropertyDescriptor(exports,
+                                                               propertyName);
+      if (propertyDescriptor)
+        Object.defineProperty(obj, propertyName, propertyDescriptor);
+    }
+  }
+
+  function assert(b) {
+    if (!b)
+      throw Error('Assertion failed');
+  }
+
+  return {
+    define: define,
+    assert: assert
+  };
 })();
