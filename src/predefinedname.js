@@ -12,73 +12,78 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-'use strict';
-
-var traceur = traceur || {};
-traceur.PredefinedName = traceur.PredefinedName || {};
-
-traceur.PredefinedName.ADD_CONTINUATION = 'addContinuation';
-traceur.PredefinedName.APPLY = 'apply';
-traceur.PredefinedName.ARGUMENTS = 'arguments';
-traceur.PredefinedName.ARRAY = 'Array';
-traceur.PredefinedName.BIND = 'bind';
-traceur.PredefinedName.CALL = 'call';
-traceur.PredefinedName.CAPTURED_ARGUMENTS = '$arguments';
-traceur.PredefinedName.CAPTURED_THIS = '$this';
-traceur.PredefinedName.CAUGHT_EXCEPTION = '$caughtException';
-traceur.PredefinedName.CLOSE = 'close';
-traceur.PredefinedName.COMPLETE = 'complete';
-traceur.PredefinedName.COMPLETE_EXCEPTION = 'completeException';
-traceur.PredefinedName.CONFIGURABLE = 'configurable';
-traceur.PredefinedName.CONSTRUCTOR = 'constructor';
-traceur.PredefinedName.CONTINUATION = '$continuation';
-traceur.PredefinedName.CREATE = 'create';
-traceur.PredefinedName.CREATE_CLASS = 'createClass';
-traceur.PredefinedName.CURRENT = 'current';
-traceur.PredefinedName.DEFINE_GETTER = '__defineGetter__';
-traceur.PredefinedName.DEFINE_PROPERTY = 'defineProperty';
-traceur.PredefinedName.DEFINE_SETTER = '__defineSetter__';
-traceur.PredefinedName.ENUMERABLE = 'enumerable';
-traceur.PredefinedName.FINALLY_FALL_THROUGH = '$finallyFallThrough';
-traceur.PredefinedName.FIELD_INITIALIZER_METHOD = '$field_initializer_';
-traceur.PredefinedName.FREEZE = 'freeze';
-traceur.PredefinedName.GET = 'get';
-traceur.PredefinedName.INIT = '$init';
-traceur.PredefinedName.IS_DONE = 'isDone';
-traceur.PredefinedName.ITERATOR = '__iterator__';
-traceur.PredefinedName.JSPP = 'jspp';
-traceur.PredefinedName.LENGTH = 'length';
-traceur.PredefinedName.LOOKUP_GETTER = '__lookupGetter__';
-traceur.PredefinedName.LOOKUP_SETTER = '__lookupSetter__';
-traceur.PredefinedName.MIXIN = 'mixin';
-traceur.PredefinedName.MODULE = 'module';
-traceur.PredefinedName.MOVE_NEXT = 'moveNext';
-traceur.PredefinedName.NEW_FACTORY = '$new';
-traceur.PredefinedName.OBJECT = 'Object';
-traceur.PredefinedName.OBJECT_NAME = 'Object';
-traceur.PredefinedName.PARAM = '$param';
-traceur.PredefinedName.PROTO = '__proto__';
-traceur.PredefinedName.PROTOTYPE = 'prototype';
-traceur.PredefinedName.PUSH = 'push';
-traceur.PredefinedName.REQUIRES = 'requires';
-traceur.PredefinedName.RESULT = '$result';
-traceur.PredefinedName.SET = 'set';
-traceur.PredefinedName.SLICE = 'slice';
-traceur.PredefinedName.STATE = '$state';
-traceur.PredefinedName.STATIC = '$static';
-traceur.PredefinedName.STORED_EXCEPTION = '$storedException';
-traceur.PredefinedName.SUPER_CALL = 'superCall';
-traceur.PredefinedName.SUPER_GET = 'superGet';
-traceur.PredefinedName.TASK = 'Task';
-traceur.PredefinedName.THAT = '$that';
-traceur.PredefinedName.TRAIT = 'trait';
-traceur.PredefinedName.TYPE_ERROR = 'TypeError';
-traceur.PredefinedName.UNDEFINED = 'undefined';
-traceur.PredefinedName.VALUE = 'value';
-traceur.PredefinedName.WAIT_TASK = '$waitTask';
-traceur.PredefinedName.WRITABLE = 'writable';
-
-traceur.PredefinedName.getParameterName = function(index) {
-  // TODO: consider caching these
-  return '$' + index.toString();
-};
+traceur.define('syntax', function() {
+  'use strict';
+  
+  PredefinedName = {
+    ADD_CONTINUATION: 'addContinuation',
+    APPLY: 'apply',
+    ARGUMENTS: 'arguments',
+    ARRAY: 'Array',
+    BIND: 'bind',
+    CALL: 'call',
+    CAPTURED_ARGUMENTS: '$arguments',
+    CAPTURED_THIS: '$this',
+    CAUGHT_EXCEPTION: '$caughtException',
+    CLOSE: 'close',
+    COMPLETE: 'complete',
+    COMPLETE_EXCEPTION: 'completeException',
+    CONFIGURABLE: 'configurable',
+    CONSTRUCTOR: 'constructor',
+    CONTINUATION: '$continuation',
+    CREATE: 'create',
+    CREATE_CLASS: 'createClass',
+    CURRENT: 'current',
+    DEFINE_GETTER: '__defineGetter__',
+    DEFINE_PROPERTY: 'defineProperty',
+    DEFINE_SETTER: '__defineSetter__',
+    ENUMERABLE: 'enumerable',
+    FINALLY_FALL_THROUGH: '$finallyFallThrough',
+    FIELD_INITIALIZER_METHOD: '$field_initializer_',
+    FREEZE: 'freeze',
+    GET: 'get',
+    INIT: '$init',
+    IS_DONE: 'isDone',
+    ITERATOR: '__iterator__',
+    JSPP: 'jspp',
+    LENGTH: 'length',
+    LOOKUP_GETTER: '__lookupGetter__',
+    LOOKUP_SETTER: '__lookupSetter__',
+    MIXIN: 'mixin',
+    MODULE: 'module',
+    MOVE_NEXT: 'moveNext',
+    NEW_FACTORY: '$new',
+    OBJECT: 'Object',
+    OBJECT_NAME: 'Object',
+    PARAM: '$param',
+    PROTO: '__proto__',
+    PROTOTYPE: 'prototype',
+    PUSH: 'push',
+    REQUIRES: 'requires',
+    RESULT: '$result',
+    SET: 'set',
+    SLICE: 'slice',
+    STATE: '$state',
+    STATIC: '$static',
+    STORED_EXCEPTION: '$storedException',
+    SUPER_CALL: 'superCall',
+    SUPER_GET: 'superGet',
+    TASK: 'Task',
+    THAT: '$that',
+    TRAIT: 'trait',
+    TYPE_ERROR: 'TypeError',
+    UNDEFINED: 'undefined',
+    VALUE: 'value',
+    WAIT_TASK: '$waitTask',
+    WRITABLE: 'writable',
+    getParameterName: function(index) {
+      // TODO: consider caching these
+      return '$' + index.toString();
+    }
+  };
+  
+  // Export
+  return {
+    PredefinedName: PredefinedName
+  };
+})();

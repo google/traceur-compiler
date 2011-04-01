@@ -12,33 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-'use strict';
+(function() {
+  'use strict';
 
-var traceur = traceur || {};
-
-traceur.Compiler = function() {
-};
-
-traceur.Compiler.prototype.compile = function(script) {
-  var errors = [];
+  traceur.Compiler = function() {
+  };
   
-  // parse
-  var parser = new traceur.Parser();
-  var result = parser.parse(script, errors);
-
-  if (errors.length > 0) {
-    return { result: null, errors: errors };
-  }
+  traceur.Compiler.prototype.compile = function(script) {
+    var errors = [];
+    
+    // parse
+    var parser = new traceur.Parser();
+    var result = parser.parse(script, errors);
   
-  // transform
+    if (errors.length > 0) {
+      return { result: null, errors: errors };
+    }
+    
+    // transform
+    
+    return { result: result, errors: errors };
+  };
   
-  return { result: result, errors: errors };
-};
+  traceur.Parser = function() {
+  };
+  
+  traceur.Parser.prototype.parse = function(script, errors) {
+    return script;
+  };
 
-traceur.Parser = function() {
-};
-
-traceur.Parser.prototype.parse = function(script, errors) {
-  return script;
-};
-
+})();
