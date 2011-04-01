@@ -16,6 +16,9 @@ traceur.define('syntax', function() {
   'use strict';
 
   // 7.5 Tokens
+  /**
+   * @enum {string}
+   */
   var TokenType = {
     END_OF_FILE: 'End of File',
     ERROR: 'error',

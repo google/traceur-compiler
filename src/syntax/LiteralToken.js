@@ -28,6 +28,13 @@ traceur.define('syntax', function() {
 
   var Token = traceur.syntax.Token;
 
+  /**
+   * @param {traceur.syntax.TokenType} type
+   * @param {string} value
+   * @param {traceur.util.SourceRange} location
+   * @constructor
+   * @extends {Token}
+   */
   function LiteralToken(type, value, location) {
     Token.call(this, type, location);
     this.value = value;

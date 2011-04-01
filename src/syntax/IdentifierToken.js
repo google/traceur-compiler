@@ -20,6 +20,10 @@ traceur.define('syntax', function() {
 
   /**
    * A token representing an identifier.
+   * @param {traceur.util.SourceRange} location
+   * @param {string} value
+   * @constructor
+   * @extends {Token}
    */
   function IdentifierToken(location, value) {
     Token.call(this, TokenType.IDENTIFIER, location);

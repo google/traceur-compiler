@@ -22,6 +22,9 @@ traceur.define('syntax', function() {
    * Immutable.
    * A plain old data structure. Should contain data members and simple
    * accessors only.
+   * @param {traceur.syntax.TokenType} type
+   * @param {traceur.util.SourceRange} location
+   * @constructor
    */
   function Token(type, location) {
     this.type = type;
@@ -29,6 +32,7 @@ traceur.define('syntax', function() {
   }
 
   Token.prototype = {
+    /** @return {traceur.util.SourcePosition} */
     getStart: function() {
       return this.location.start;
     },
@@ -37,11 +41,13 @@ traceur.define('syntax', function() {
       return this.type.toString();
     },
 
+    /** @return {traceur.syntax.IdentifierToken} */
     asIdentifier: function() {
       assert(this instanceof traceur.syntax.IdentifierToken);
       return this;
     },
 
+    /** @return {traceur.syntax.LiteralToken} */
     asLiteral: function() {
       assert(this instanceof traceur.syntax.LiteralToken);
       return this;
