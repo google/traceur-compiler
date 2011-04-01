@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<!--
+
+// Copyright 2011 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+-->
+<html>
+<head>
+<title></title>
+<script src="../../../third_party/closure/closure/goog/base.js"></script>
+<script>
+// NOTE: base.js and all goog.require statements must be in JS script blocks
+// NOTE: because they use document.write to add new script tags in place
+goog.require('goog.testing.jsunit');
+</script>
+<script src="../../compiler.js"></script>
+<script src="../../traceur.js"></script>
+<script src="ParseTreeType.js"></script>
+<script src="ParseTree.js"></script>
+
+</head>
+<body>
+<script>
+
+var ParseTree = traceur.syntax.trees.ParseTree;
+var ParseTreeType = traceur.syntax.trees.ParseTreeType;
+
+function testParseTreeType() {
+  assertEquals('PROGRAM', ParseTreeType.PROGRAM);
+}
+
+function testParseTree() {
+  var tree = new ParseTree('type', 'location');
+  assertEquals('type', tree.type);
+  assertEquals('location', tree.location);
+}
+
+function testParseTree2() {
+  var tree = new ParseTree(ParseTreeType.NULL, 'location');
+  assertEquals(ParseTreeType.NULL, tree.type);
+  assertEquals(true, tree.isNull());
+  assertEquals(false, tree.isPattern());
+}
+
+</script>
+</body>
+</html>
