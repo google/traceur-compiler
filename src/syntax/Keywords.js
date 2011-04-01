@@ -15,6 +15,8 @@
 traceur.define('syntax', function() {
   'use strict';
 
+  var TokenType = traceur.syntax.TokenType;
+
   /**
    * The javascript keywords.
    */
@@ -92,7 +94,7 @@ traceur.define('syntax', function() {
   };
 
   keywords.forEach(function(value) {
-    var uc = keyword.toUpperCase();
+    var uc = value.toUpperCase();
     var kw = new Keyword(value, TokenType[uc]);
 
     Keywords[uc] = kw;
@@ -101,14 +103,21 @@ traceur.define('syntax', function() {
   });
 
   Keywords.isKeyword = function(value) {
-    return value in keywordsByName;
+    return value !== '__proto__' && value in keywordsByName;
   };
 
+  /**
+   * @return {TokenType}
+   */
   Keywords.getTokenType = function(value) {
+    if (value == '__proto__')
+      return null;
     return keywordsByName[value].type;
   };
 
   Keywords.get = function(value) {
+    if (value == '__proto__')
+      return null;
     return keywordsByName[value];
   };
 

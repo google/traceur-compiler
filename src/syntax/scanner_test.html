@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<!--
+
+// Copyright 2011 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+-->
+<html>
+<head>
+<title></title>
+<script src="../../third_party/closure/closure/goog/base.js"></script>
+<script data-scan>
+// NOTE: base.js and all goog.require statements must be in JS script blocks
+// NOTE: because they use document.write to add new script tags in place
+goog.require('goog.testing.jsunit');
+</script>
+<script src="../traceur.js" data-scan></script>
+<script src="../util/SourceRange.js" data-scan></script>
+<script src="../util/SourcePosition.js" data-scan></script>
+
+<script src="Token.js" data-scan></script>
+<script src="TokenType.js" data-scan></script>
+<script src="LiteralToken.js" data-scan></script>
+<script src="IdentifierToken.js" data-scan></script>
+<script src="Keywords.js" data-scan></script>
+<script src="LineNumberTable.js" data-scan></script>
+<script src="SourceFile.js" data-scan></script>
+<script src="Scanner.js" data-scan></script>
+</head>
+<body>
+<script data-scan>
+
+var errorReporter = {
+  reportError: function(position, message) {
+    fail(message + ', ' + position);
+  }
+};
+
+function testScanner() {
+  var program = 'null';
+  var sourceFile = new traceur.syntax.SourceFile('Name', program);
+  var scanner = new traceur.syntax.Scanner(errorReporter, sourceFile);
+
+  var token = scanner.peekToken();
+  assertEquals(traceur.syntax.TokenType.NULL, token.type);
+}
+
+function scanScript(scriptElement) {
+  var source;
+  var name;
+  if (scriptElement.src) {
+    name = scriptElement.src;
+    var xhr = new XMLHttpRequest();
+    // Synchronous load but these are already loaded when we get here so it
+    // should be fast.
+    xhr.open('GET', scriptElement.src, false);
+    xhr.send();
+    source = xhr.responseText;
+  } else {
+    name = 'inline-script';
+    source = scriptElement.textContent;
+  }
+
+  var sourceFile = new traceur.syntax.SourceFile(name, source);
+  var scanner = new traceur.syntax.Scanner(errorReporter, sourceFile);
+
+  console.log('Scanning ', name);
+
+  return scanToString(scanner);
+}
+
+function scanToString(scanner) {
+  var next;
+  var s = '';
+  while ((next = scanner.nextToken()) &&
+         next.type !== traceur.syntax.TokenType.END_OF_FILE) {
+    s += next;
+  }
+  return s;
+}
+
+function testScanAllScripts() {
+  // We cannot scan all scripts due to regular expression literals which
+  // requires a parser.
+  for (var i = 0, script; script = document.scripts[i]; i++) {
+    if (script.hasAttribute('data-scan'))
+      scanScript(script);
+  }
+}
+
+function testScanner2() {
+  // Note the florin unicode character in the function name.
+  var source = 'function ƒ(x) { return x + 42; }\n' +
+      'var world = true - "hello";\n';
+  var sourceFile = new traceur.syntax.SourceFile(name, source);
+  var scanner = new traceur.syntax.Scanner(errorReporter, sourceFile);
+
+  assertEquals('functionƒ(x){returnx+42;}varworld=true-"hello";',
+               scanToString(scanner));
+}
+
+</script>
+</body>
+</html>
