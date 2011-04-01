@@ -21,10 +21,30 @@ traceur.define('syntax.trees', function() {
   //TODO: var ParenExpressionTree = traceur.syntax.trees.ParenExpressionTree;
   
   /**
-   * A Token in a javascript file.
+   * An abstract syntax tree for JavaScript parse trees.
    * Immutable.
-   * A plain old data structure. Should contain data members and simple
+   * A plain old data structure. Should include data members and simple
    * accessors only.
+   *
+   * Derived classes should have a 'Tree' suffix. Each concrete derived class
+   * should have a ParseTreeType whose name matches the derived class name.
+   *
+   * A parse tree derived from source should have a non-null location. A parse
+   * tree that is synthesized by the compiler may have a null location.
+   *
+   * When adding a new subclass of ParseTree you must also do the following:
+   *   - add a new entry to ParseTreeType
+   *   - add ParseTree.asXTree()
+   *   - modify ParseTreeVisitor.visit(ParseTree) for new ParseTreeType
+   *   - add ParseTreeVisitor.visit(XTree)
+   *   - modify ParseTreeTransformer.transform(ParseTree) for new ParseTreeType
+   *   - add ParseTreeTransformer.transform(XTree)
+   *   - add ParseTreeWriter.visit(XTree)
+   *   - add ParseTreeValidator.visit(XTree)
+   *
+   * @param {traceur.syntax.trees.ParseTreeType} type
+   * @param {traceur.util.SourceRange} location
+   * @constructor
    */
   function ParseTree(type, location) {
     this.type = type;
@@ -32,20 +52,24 @@ traceur.define('syntax.trees', function() {
   }
 
   ParseTree.prototype = {
+    /** @return {traceur.syntax.trees.NewExpressionTree} */    
     asNewExpression: function() {
       assert(this instanceof NewExpressionTree);
       return this;
     },
     
+    /** @return {traceur.syntax.trees.ParenExpressionTree} */    
     asParenExpression: function() {
       assert(this instanceof ParenExpressionTree);
       return this;
     },
     
+    /** @return {boolean} */    
     isNull: function() {
       return this.type === ParseTreeType.NULL;
     },
 
+    /** @return {boolean} */    
     isPattern: function() {
       switch (this.type) {
         case ParseTreeType.ARRAY_PATTERN:
@@ -58,6 +82,7 @@ traceur.define('syntax.trees', function() {
       }
     },
         
+    /** @return {boolean} */    
     isLeftHandSideExpression: function() {
       switch (this.type) {
         case ParseTreeType.THIS_EXPRESSION:
@@ -81,6 +106,7 @@ traceur.define('syntax.trees', function() {
     },
   
     // TODO: enable classes and traits
+    /** @return {boolean} */    
     isAssignmentExpression: function() {
       switch (this.type) {
         case ParseTreeType.FUNCTION_DECLARATION:
@@ -113,6 +139,7 @@ traceur.define('syntax.trees', function() {
     //    MemberExpression [ Expression ]
     //    MemberExpression . IdentifierName
     //    new MemberExpression Arguments
+    /** @return {boolean} */        
     isMemberExpression: function() {
       switch (this.type) {
         // PrimaryExpression
@@ -143,20 +170,24 @@ traceur.define('syntax.trees', function() {
       return false;
     },
   
+    /** @return {boolean} */    
     isExpression: function() {
       return isAssignmentExpression() ||
         this.type == ParseTreeType.COMMA_EXPRESSION;
     },
   
+    /** @return {boolean} */    
     isAssignmentOrSpread: function() {
       return isAssignmentExpression() ||
         this.type == ParseTreeType.SPREAD_EXPRESSION;
     },
   
+    /** @return {boolean} */    
     isRestParameter: function() {
       return this.type == ParseTreeType.REST_PARAMETER;
     },
   
+    /** @return {boolean} */    
     isSpreadPatternElement: function() {
       return this.type == ParseTreeType.SPREAD_PATTERN_ELEMENT;
     },
@@ -164,6 +195,7 @@ traceur.define('syntax.trees', function() {
     /**
      * In V8 any source element may appear where statement appears in the ECMA
      * grammar.
+     * @return {boolean}
      */
     isStatement: function() {
       return this.isSourceElement();
@@ -173,6 +205,7 @@ traceur.define('syntax.trees', function() {
      * This function reflects the ECMA standard, or what we would expect to
      * become the ECMA standard. Most places use isStatement instead which
      * reflects where code on the web diverges from the standard.
+     * @return {boolean}
      */
     isStatementStandard: function() {
       switch (this.type) {
@@ -203,6 +236,7 @@ traceur.define('syntax.trees', function() {
       }
     },
   
+    /** @return {boolean} */    
     isSourceElement: function() {
       return isStatementStandard() || this.type == ParseTreeType.FUNCTION_DECLARATION;
     }

@@ -16,26 +16,12 @@ traceur.define('syntax.trees', function() {
   'use strict';
 
   /**
-   * An abstract syntax tree for JavaScript parse trees.
-   * Immutable.
-   * A plain old data structure. Should include data members and simple
-   * accessors only.
+   * The types of concrete parse trees.
    *
-   * Derived classes should have a 'Tree' suffix. Each concrete derived class
-   * should have a ParseTreeType whose name matches the derived class name.
-   *
-   * A parse tree derived from source should have a non-null location. A parse
-   * tree that is synthesized by the compiler may have a null location.
-   *
-   * When adding a new subclass of ParseTree you must also do the following:
-   *   - add a new entry to ParseTreeType
-   *   - add ParseTree.asXTree()
-   *   - modify ParseTreeVisitor.visit(ParseTree) for new ParseTreeType
-   *   - add ParseTreeVisitor.visit(XTree)
-   *   - modify ParseTreeTransformer.transform(ParseTree) for new ParseTreeType
-   *   - add ParseTreeTransformer.transform(XTree)
-   *   - add ParseTreeWriter.visit(XTree)
-   *   - add ParseTreeValidator.visit(XTree)
+   * The name of the ParseTreeType must match the name of the class that it applies to.
+   * For example the DerivedTree class should use ParseTreeType.DERIVED.
+   * 
+   * @enum {string}
    */
   var ParseTreeType = {
     PROGRAM: 'PROGRAM',

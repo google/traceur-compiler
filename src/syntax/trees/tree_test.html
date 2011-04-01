@@ -29,7 +29,19 @@ goog.require('goog.testing.jsunit');
 <script src="../../traceur.js"></script>
 <script src="ParseTreeType.js"></script>
 <script src="ParseTree.js"></script>
-
+<script src="BinaryOperatorTree.js"></script>
+<script src="BlockTree.js"></script>
+<script src="EmptyStatementTree.js"></script>
+<script src="ExpressionStatementTree.js"></script>
+<script src="FormalParameterListTree.js"></script>
+<script src="IdentifierExpressionTree.js"></script>
+<script src="LiteralExpressionTree.js"></script>
+<script src="ProgramTree.js"></script>
+<script src="RestParameterTree.js"></script>
+<script src="UnaryExpressionTree.js"></script>
+<script src="VariableDeclarationListTree.js"></script>
+<script src="VariableDeclarationTree.js"></script>
+<script src="VariableStatementTree.js"></script>
 </head>
 <body>
 <script>
@@ -52,6 +64,65 @@ function testParseTree2() {
   assertEquals(ParseTreeType.NULL, tree.type);
   assertEquals(true, tree.isNull());
   assertEquals(false, tree.isPattern());
+}
+
+function validateTree(type, fields) {
+  function TestTree() {
+    type.apply(this, fields);
+  }
+    
+  // Compute the expected UNDERSCORE_CASE type
+  var expected = type.name;
+  expected = expected.replace(/([A-Z])/g, function($1) { return '_' + $1 });
+  expected = expected.substring(1, expected.length - 5).toUpperCase();
+  
+  var tree = new TestTree();
+  assertEquals(expected, tree.type);
+  
+  // Verify that each of the fields has been set to the correct value
+  for (var i = 0; i < fields.length; i++) {
+    var f = fields[i];
+    assertEquals(f, tree[f]);
+  }
+}
+
+function testTreeConstructors() {
+  validateTree(traceur.syntax.trees.BinaryOperatorTree,
+      ['location', 'left', 'operator', 'right']);
+    
+  validateTree(traceur.syntax.trees.BlockTree, ['location', 'statements']);
+  
+  validateTree(traceur.syntax.trees.EmptyStatementTree, ['location']);
+  
+  validateTree(traceur.syntax.trees.ExpressionStatementTree,
+      ['location', 'expression']);
+    
+  validateTree(traceur.syntax.trees.FormalParameterListTree,
+      ['location', 'parameters']);
+    
+  validateTree(traceur.syntax.trees.IdentifierExpressionTree,
+      ['location', 'identifierToken']);
+    
+  validateTree(traceur.syntax.trees.LiteralExpressionTree,
+      ['location', 'literalToken']);
+    
+  validateTree(traceur.syntax.trees.ProgramTree,
+      ['location', 'sourceElements']);
+    
+  validateTree(traceur.syntax.trees.RestParameterTree,
+      ['location', 'identifier']);
+    
+  validateTree(traceur.syntax.trees.UnaryExpressionTree,
+      ['location', 'operator', 'operand']);
+  
+  validateTree(traceur.syntax.trees.VariableDeclarationListTree,
+      ['location', 'declarationType', 'declarations']);
+    
+  validateTree(traceur.syntax.trees.VariableDeclarationTree,
+      ['location', 'lvalue', 'initializer']);
+    
+  validateTree(traceur.syntax.trees.VariableStatementTree,
+      ['location', 'declarations']);
 }
 
 </script>
