@@ -267,6 +267,14 @@ traceur.define('syntax.trees', function() {
 
     /**
      * @param {traceur.util.SourceRange} location
+     * @param {Array.<ParseTree>} declarations
+     * @constructor
+     * @extends {ParseTree}
+     */
+    FormalParameterListTree: create(ParseTreeType.FORMAL_PARAMETER_LIST, 'declarations'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
      * @param {ParseTree} variables
      * @param {ParseTree} condition
      * @param {ParseTree} increment
@@ -278,6 +286,17 @@ traceur.define('syntax.trees', function() {
 
     /**
      * @param {traceur.util.SourceRange} location
+     * @param {traceur.syntax.IdentifierToken} name
+     * @param {Boolean} isStatic
+     * @param {traceur.syntax.trees.FormalParameterListTree} formalParameterList
+     * @param {traceur.syntax.trees.BlockTree} functionBody
+     * @constructor
+     * @extends {ParseTree}
+     */
+    FunctionDeclarationTree: create(ParseTreeType.FUNCTION_DECLARATION, 'name', 'isStatic', 'formalParameterList', 'functionBody'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
      * @param {traceur.syntax.Token} propertyName
      * @param {boolean} isStatic
      * @param {BlockTree} body
@@ -285,6 +304,14 @@ traceur.define('syntax.trees', function() {
      * @extends {ParseTree}
      */
     GetAccessorTree: create(ParseTreeType.GET_ACCESSOR, 'propertyName', 'isStatic', 'body'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
+     * @param {traceur.syntax.IdentifierToken} identifierToken
+     * @constructor
+     * @extends {ParseTree}
+     */
+    IdentifierExpressionTree: create(ParseTreeType.IDENTIFIER_EXPRESSION, 'identifierToken'),
 
     /**
      * @param {traceur.util.SourceRange} location
@@ -321,6 +348,14 @@ traceur.define('syntax.trees', function() {
      * @extends {ParseTree}
      */
     LabelledStatementTree: create(ParseTreeType.LABELLED_STATEMENT, 'name', 'statement'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
+     * @param {traceur.syntax.Token} literalToken
+     * @constructor
+     * @extends {ParseTree}
+     */
+    LiteralExpressionTree: create(ParseTreeType.LITERAL_EXPRESSION, 'literalToken'),
 
     /**
      * @param {traceur.util.SourceRange} location
@@ -436,6 +471,14 @@ traceur.define('syntax.trees', function() {
 
     /**
      * @param {traceur.util.SourceRange} location
+     * @param {Array.<ParseTree>} sourceElements
+     * @constructor
+     * @extends {ParseTree}
+     */
+    ProgramTree: create(ParseTreeType.PROGRAM, 'sourceElements'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
      * @param {traceur.syntax.Token} name
      * @param {ParseTree} value
      * @constructor
@@ -450,6 +493,14 @@ traceur.define('syntax.trees', function() {
      * @extends {ParseTree}
      */
     RequiresMemberTree: create(ParseTreeType.REQUIRES_MEMBER, 'name'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
+     * @param {traceur.syntax.IdentifierToken} identifier
+     * @constructor
+     * @extends {ParseTree}
+     */
+    RestParameterTree: create(ParseTreeType.REST_PARAMETER, 'identifier'),
 
     /**
      * @param {traceur.util.SourceRange} location
@@ -535,6 +586,50 @@ traceur.define('syntax.trees', function() {
      * @extends {ParseTree}
      */
     TryStatementTree: create(ParseTreeType.TRY_STATEMENT, 'body', 'catchBlock', 'finallyBlock'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
+     * @param {traceur.syntax.Token} operator
+     * @param {ParseTree} operand
+     * @constructor
+     * @extends {ParseTree}
+     */
+    UnaryExpressionTree: create(ParseTreeType.UNARY_EXPRESSION, 'operator', 'operand'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
+     * @param {traceur.syntax.TokenType} declarationType
+     * @param {Array.<traceur.syntax.trees.VariableDeclarationTree>} declarations
+     * @constructor
+     * @extends {ParseTree}
+     */
+    VariableDeclarationListTree: create(ParseTreeType.VARIABLE_DECLARATION_LIST, 'declarationType', 'declarations'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
+     * @param {ParseTree} lvalue
+     * @param {ParseTree} initializer
+     * @constructor
+     * @extends {ParseTree}
+     */
+    VariableDeclarationTree: create(ParseTreeType.VARIABLE_DECLARATION, 'lvalue', 'initializer'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
+     * @param {traceur.syntax.trees.VariableDeclarationListTree} declarations
+     * @constructor
+     * @extends {ParseTree}
+     */
+    VariableStatementTree: create(ParseTreeType.VARIABLE_STATEMENT, 'declarations'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
+     * @param {ParseTree} condition
+     * @param {ParseTree} body
+     * @constructor
+     * @extends {ParseTree}
+     */
+    WhileStatementTree: create(ParseTreeType.WHILE_STATEMENT, 'condition', 'body'),
 
     /**
      * @param {traceur.util.SourceRange} location

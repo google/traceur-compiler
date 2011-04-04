@@ -214,13 +214,25 @@ function testTreeConstructors() {
       ParseTreeType.FOR_IN_STATEMENT,
       ['location', 'initializer', 'collection', 'body']);
 
+  validateTree(traceur.syntax.trees.FormalParameterListTree,
+      ParseTreeType.FORMAL_PARAMETER_LIST,
+      ['location', 'declarations']);
+
   validateTree(traceur.syntax.trees.ForStatementTree,
       ParseTreeType.FOR_STATEMENT,
       ['location', 'variables', 'condition', 'increment', 'body']);
 
+  validateTree(traceur.syntax.trees.FunctionDeclarationTree,
+      ParseTreeType.FUNCTION_DECLARATION,
+      ['location', 'name', 'isStatic', 'formalParameterList', 'functionBody']);
+
   validateTree(traceur.syntax.trees.GetAccessorTree,
       ParseTreeType.GET_ACCESSOR,
       ['location', 'propertyName', 'isStatic', 'body']);
+
+  validateTree(traceur.syntax.trees.IdentifierExpressionTree,
+      ParseTreeType.IDENTIFIER_EXPRESSION,
+      ['location', 'identifierToken']);
 
   validateTree(traceur.syntax.trees.IfStatementTree,
       ParseTreeType.IF_STATEMENT,
@@ -237,6 +249,10 @@ function testTreeConstructors() {
   validateTree(traceur.syntax.trees.LabelledStatementTree,
       ParseTreeType.LABELLED_STATEMENT,
       ['location', 'name', 'statement']);
+
+  validateTree(traceur.syntax.trees.LiteralExpressionTree,
+      ParseTreeType.LITERAL_EXPRESSION,
+      ['location', 'literalToken']);
 
   validateTree(traceur.syntax.trees.MemberExpressionTree,
       ParseTreeType.MEMBER_EXPRESSION,
@@ -290,6 +306,10 @@ function testTreeConstructors() {
       ParseTreeType.POSTFIX_EXPRESSION,
       ['location', 'operand', 'operator']);
 
+  validateTree(traceur.syntax.trees.ProgramTree,
+      ParseTreeType.PROGRAM,
+      ['location', 'sourceElements']);
+
   validateTree(traceur.syntax.trees.PropertyNameAssignmentTree,
       ParseTreeType.PROPERTY_NAME_ASSIGNMENT,
       ['location', 'name', 'value']);
@@ -297,6 +317,10 @@ function testTreeConstructors() {
   validateTree(traceur.syntax.trees.RequiresMemberTree,
       ParseTreeType.REQUIRES_MEMBER,
       ['location', 'name']);
+
+  validateTree(traceur.syntax.trees.RestParameterTree,
+      ParseTreeType.REST_PARAMETER,
+      ['location', 'identifier']);
 
   validateTree(traceur.syntax.trees.ReturnStatementTree,
       ParseTreeType.RETURN_STATEMENT,
@@ -337,6 +361,26 @@ function testTreeConstructors() {
   validateTree(traceur.syntax.trees.TryStatementTree,
       ParseTreeType.TRY_STATEMENT,
       ['location', 'body', 'catchBlock', 'finallyBlock']);
+
+  validateTree(traceur.syntax.trees.UnaryExpressionTree,
+      ParseTreeType.UNARY_EXPRESSION,
+      ['location', 'operator', 'operand']);
+
+  validateTree(traceur.syntax.trees.VariableDeclarationListTree,
+      ParseTreeType.VARIABLE_DECLARATION_LIST,
+      ['location', 'declarationType', 'declarations']);
+
+  validateTree(traceur.syntax.trees.VariableDeclarationTree,
+      ParseTreeType.VARIABLE_DECLARATION,
+      ['location', 'lvalue', 'initializer']);
+
+  validateTree(traceur.syntax.trees.VariableStatementTree,
+      ParseTreeType.VARIABLE_STATEMENT,
+      ['location', 'declarations']);
+
+  validateTree(traceur.syntax.trees.WhileStatementTree,
+      ParseTreeType.WHILE_STATEMENT,
+      ['location', 'condition', 'body']);
 
   validateTree(traceur.syntax.trees.WithStatementTree,
       ParseTreeType.WITH_STATEMENT,
