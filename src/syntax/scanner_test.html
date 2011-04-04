@@ -101,13 +101,35 @@ function testScanAllScripts() {
 
 function testScanner2() {
   // Note the florin unicode character in the function name.
-  var source = 'function ƒ(x) { return x + 42; }\n' +
+  var source = 'function ƒ(x, y) { return x + 42; }\n' +
       'var world = true - "hello";\n';
   var sourceFile = new traceur.syntax.SourceFile(name, source);
   var scanner = new traceur.syntax.Scanner(errorReporter, sourceFile);
 
-  assertEquals('functionƒ(x){returnx+42;}varworld=true-"hello";',
+  assertEquals('functionƒ(x,y){returnx+42;}varworld=true-"hello";',
                scanToString(scanner));
+}
+
+function testScanner3() {
+  // Regression test...
+  var source = '[format].concat(args);\n';
+  var sourceFile = new traceur.syntax.SourceFile(name, source);
+  var scanner = new traceur.syntax.Scanner(errorReporter, sourceFile);
+
+  function next() {
+    return String(scanner.nextToken());
+  }
+
+  assertEquals('[', next());
+  assertEquals('format', next());
+  assertEquals(']', next());
+  assertEquals('.', next());
+  assertEquals('concat', next());
+  assertEquals('(', next());
+  assertEquals('args', next());
+  assertEquals(')', next());
+  assertEquals(';', next());
+  assertEquals('End of File', next());
 }
 
 </script>
