@@ -30,78 +30,9 @@ goog.require('goog.testing.jsunit');
 <script src="ParseTreeType.js"></script>
 <script src="ParseTree.js"></script>
 
-<script src="ArgumentListTree.js"></script>
-<script src="ArrayLiteralExpressionTree.js"></script>
-<script src="ArrayPatternTree.js"></script>
-<script src="AsyncStatementTree.js"></script>
-<script src="BinaryOperatorTree.js"></script>
-<script src="BlockTree.js"></script>
-<script src="BreakStatementTree.js"></script>
-<script src="CallExpressionTree.js"></script>
-<script src="CaseClauseTree.js"></script>
-<script src="CatchTree.js"></script>
-<script src="ClassDeclarationTree.js"></script>
-<script src="ClassExpressionTree.js"></script>
-<script src="CommaExpressionTree.js"></script>
-<script src="ConditionalExpressionTree.js"></script>
-<script src="ContinueStatementTree.js"></script>
-<script src="DebuggerStatementTree.js"></script>
-<script src="DefaultClauseTree.js"></script>
-<script src="DefaultParamterTree.js"></script>
-<script src="DoWhileStatementTree.js"></script>
-<script src="EmptyStatementTree.js"></script>
-<script src="ExportDeclarationTree.js"></script>
-<script src="ExpressionStatementTree.js"></script>
-<script src="FieldDeclarationTree.js"></script>
-<script src="FinallyTree.js"></script>
-<script src="ForEachStatementTree.js"></script>
-<script src="ForInStatementTree.js"></script>
-<script src="ForStatementTree.js"></script>
-<script src="FormalParameterListTree.js"></script>
-<script src="FunctionDeclarationTree.js"></script>
-<script src="GetAccessorTree.js"></script>
-<script src="IdentifierExpressionTree.js"></script>
-<script src="IfStatementTree.js"></script>
-<script src="ImportDeclarationTree.js"></script>
+<script src="../trees.js"></script>
 <script src="ImportPathTree.js"></script>
-<script src="ImportSpecifierTree.js"></script>
-<script src="LabelledStatementTree.js"></script>
-<script src="LiteralExpressionTree.js"></script>
-<script src="MemberExpressionTree.js"></script>
-<script src="MemberLookupExpressionTree.js"></script>
-<script src="MissingPrimaryExpressionTree.js"></script>
-<script src="MixinResolveListTree.js"></script>
-<script src="MixinResolveTree.js"></script>
-<script src="MixinTree.js"></script>
-<script src="ModuleDefinitionTree.js"></script>
-<script src="NewExpressionTree.js"></script>
 <script src="NullTree.js"></script>
-<script src="ObjectLiteralExpressionTree.js"></script>
-<script src="ObjectPatternFieldTree.js"></script>
-<script src="ObjectPatternTree.js"></script>
-<script src="ParenExpressionTree.js"></script>
-<script src="PostfixExpressionTree.js"></script>
-<script src="ProgramTree.js"></script>
-<script src="PropertyNameAssignmentTree.js"></script>
-<script src="RequiresMemberTree.js"></script>
-<script src="RestParameterTree.js"></script>
-<script src="ReturnStatementTree.js"></script>
-<script src="SetAccessorTree.js"></script>
-<script src="SpreadExpressionTree.js"></script>
-<script src="SpreadPatternElementTree.js"></script>
-<script src="SuperExpressionTree.js"></script>
-<script src="SwitchStatementTree.js"></script>
-<script src="ThisExpressionTree.js"></script>
-<script src="ThrowStatementTree.js"></script>
-<script src="TraitDeclarationTree.js"></script>
-<script src="TryStatementTree.js"></script>
-<script src="UnaryExpressionTree.js"></script>
-<script src="VariableDeclarationListTree.js"></script>
-<script src="VariableDeclarationTree.js"></script>
-<script src="VariableStatementTree.js"></script>
-<script src="WhileStatementTree.js"></script>
-<script src="WithStatementTree.js"></script>
-<script src="YieldStatementTree.js"></script>
 
 </head>
 <body>
@@ -127,19 +58,14 @@ function testParseTree2() {
   assertEquals(false, tree.isPattern());
 }
 
-function validateTree(type, fields) {
+function validateTree(constr, type, fields) {
   function TestTree() {
-    type.apply(this, fields);
+    constr.apply(this, fields);
   }
-    
-  // Compute the expected UNDERSCORE_CASE type
-  var expected = type.name;
-  expected = expected.replace(/([A-Z])/g, function($1) { return '_' + $1 });
-  expected = expected.substring(1, expected.length - 5).toUpperCase();
-  
+
   var tree = new TestTree();
-  assertEquals(expected, tree.type);
-  
+  assertEquals(type, tree.type);
+
   // Verify that each of the fields has been set to the correct value
   for (var i = 0; i < fields.length; i++) {
     var f = fields[i];
@@ -149,15 +75,17 @@ function validateTree(type, fields) {
 
 function testNullTree() {
   // NullTree is a singleton so it needs its own test
-  var tree = traceur.syntax.trees.NullTree.instance;
+  var tree = new traceur.syntax.trees.NullTree();
   assertEquals('NULL', tree.type);
   assertEquals(null, tree.location);
+  var tree2 = new traceur.syntax.trees.NullTree();
+  assertEquals(tree, tree2);
 }
 
 function testImportPathTree() {
   // ImportPathTree has different construction logic
   var ImportPathTree = traceur.syntax.trees.ImportPathTree;
-  
+
   var specifiers = ['importSpecifierSet'];
   var tree = new ImportPathTree('location', 'qualifiedPath', specifiers)
   assertEquals('IMPORT_PATH', tree.type);
@@ -165,228 +93,258 @@ function testImportPathTree() {
   assertEquals('qualifiedPath', tree.qualifiedPath);
   assertEquals(specifiers, tree.importSpecifierSet);
   assertEquals(ImportPathTree.Kind.SET, tree.kind);
-  
+
   tree = new ImportPathTree('location', 'qualifiedPath', ImportPathTree.Kind.ALL)
   assertEquals('IMPORT_PATH', tree.type);
   assertEquals('location', tree.location);
   assertEquals('qualifiedPath', tree.qualifiedPath);
   assertEquals(null, tree.importSpecifierSet);
-  assertEquals(ImportPathTree.Kind.ALL, tree.kind);  
+  assertEquals(ImportPathTree.Kind.ALL, tree.kind);
 
   tree = new ImportPathTree('location', 'qualifiedPath', ImportPathTree.Kind.NONE)
   assertEquals('IMPORT_PATH', tree.type);
   assertEquals('location', tree.location);
   assertEquals('qualifiedPath', tree.qualifiedPath);
   assertEquals(null, tree.importSpecifierSet);
-  assertEquals(ImportPathTree.Kind.NONE, tree.kind);  
+  assertEquals(ImportPathTree.Kind.NONE, tree.kind);
 }
 
 function testTreeConstructors() {
   validateTree(traceur.syntax.trees.ArgumentListTree,
+      ParseTreeType.ARGUMENT_LIST,
       ['location', 'args']);
 
   validateTree(traceur.syntax.trees.ArrayLiteralExpressionTree,
+      ParseTreeType.ARRAY_LITERAL_EXPRESSION,
       ['location', 'elements']);
-      
+
   validateTree(traceur.syntax.trees.ArrayPatternTree,
+      ParseTreeType.ARRAY_PATTERN,
       ['location', 'elements']);
 
   validateTree(traceur.syntax.trees.AsyncStatementTree,
+      ParseTreeType.ASYNC_STATEMENT,
       ['location', 'identifier', 'expression']);
 
   validateTree(traceur.syntax.trees.BinaryOperatorTree,
+      ParseTreeType.BINARY_OPERATOR,
       ['location', 'left', 'operator', 'right']);
-    
-  validateTree(traceur.syntax.trees.BlockTree, ['location', 'statements']);
+
+  validateTree(traceur.syntax.trees.BlockTree,
+      ParseTreeType.BLOCK,
+      ['location', 'statements']);
 
   validateTree(traceur.syntax.trees.BreakStatementTree,
+      ParseTreeType.BREAK_STATEMENT,
       ['location', 'name']);
-  
+
   validateTree(traceur.syntax.trees.CallExpressionTree,
-      ['location', 'operand', 'args']);
+      ParseTreeType.CALL_EXPRESSION,
+      ['location', 'operand', 'arguments']);
 
   validateTree(traceur.syntax.trees.CaseClauseTree,
+      ParseTreeType.CASE_CLAUSE,
       ['location', 'expression', 'statements']);
-      
+
   validateTree(traceur.syntax.trees.CatchTree,
+      ParseTreeType.CATCH,
       ['location', 'exceptionName', 'catchBody']);
-      
+
   validateTree(traceur.syntax.trees.ClassDeclarationTree,
+      ParseTreeType.CLASS_DECLARATION,
       ['location', 'name', 'superClass', 'elements']);
 
-  validateTree(traceur.syntax.trees.ClassExpressionTree, ['location']);
+  validateTree(traceur.syntax.trees.ClassExpressionTree,
+      ParseTreeType.CLASS_EXPRESSION,
+      ['location']);
 
   validateTree(traceur.syntax.trees.CommaExpressionTree,
+      ParseTreeType.COMMA_EXPRESSION,
       ['location', 'expressions']);
 
-  validateTree(traceur.syntax.trees.ContinueStatementTree,
-      ['location', 'name']);
-
   validateTree(traceur.syntax.trees.ConditionalExpressionTree,
+      ParseTreeType.CONDITIONAL_EXPRESSION,
       ['location', 'condition', 'left', 'right']);
 
-  validateTree(traceur.syntax.trees.DebuggerStatementTree, ['location']);
+  validateTree(traceur.syntax.trees.ContinueStatementTree,
+      ParseTreeType.CONTINUE_STATEMENT,
+      ['location', 'name']);
+
+  validateTree(traceur.syntax.trees.DebuggerStatementTree,
+      ParseTreeType.DEBUGGER_STATEMENT,
+      ['location']);
 
   validateTree(traceur.syntax.trees.DefaultClauseTree,
+      ParseTreeType.DEFAULT_CLAUSE,
       ['location', 'statements']);
 
   validateTree(traceur.syntax.trees.DefaultParameterTree,
+      ParseTreeType.DEFAULT_PARAMETER,
       ['location', 'identifier', 'expression']);
 
   validateTree(traceur.syntax.trees.DoWhileStatementTree,
+      ParseTreeType.DO_WHILE_STATEMENT,
       ['location', 'body', 'condition']);
 
-  validateTree(traceur.syntax.trees.EmptyStatementTree, ['location']);
-  
+  validateTree(traceur.syntax.trees.EmptyStatementTree,
+      ParseTreeType.EMPTY_STATEMENT,
+      ['location']);
+
   validateTree(traceur.syntax.trees.ExportDeclarationTree,
+      ParseTreeType.EXPORT_DECLARATION,
       ['location', 'declaration']);
-  
+
   validateTree(traceur.syntax.trees.ExpressionStatementTree,
+      ParseTreeType.EXPRESSION_STATEMENT,
       ['location', 'expression']);
-    
+
   validateTree(traceur.syntax.trees.FieldDeclarationTree,
+      ParseTreeType.FIELD_DECLARATION,
       ['location', 'isStatic', 'isConst', 'declarations']);
 
   validateTree(traceur.syntax.trees.FinallyTree,
+      ParseTreeType.FINALLY,
       ['location', 'block']);
 
   validateTree(traceur.syntax.trees.ForEachStatementTree,
+      ParseTreeType.FOR_EACH_STATEMENT,
       ['location', 'initializer', 'collection', 'body']);
 
   validateTree(traceur.syntax.trees.ForInStatementTree,
+      ParseTreeType.FOR_IN_STATEMENT,
       ['location', 'initializer', 'collection', 'body']);
-    
-  validateTree(traceur.syntax.trees.FormalParameterListTree,
-      ['location', 'parameters']);
 
   validateTree(traceur.syntax.trees.ForStatementTree,
+      ParseTreeType.FOR_STATEMENT,
       ['location', 'variables', 'condition', 'increment', 'body']);
 
-  validateTree(traceur.syntax.trees.FunctionDeclarationTree,
-      ['location', 'name', 'isStatic', 'formalParameterList', 'functionBody']);
-
   validateTree(traceur.syntax.trees.GetAccessorTree,
+      ParseTreeType.GET_ACCESSOR,
       ['location', 'propertyName', 'isStatic', 'body']);
-    
-  validateTree(traceur.syntax.trees.IdentifierExpressionTree,
-      ['location', 'identifierToken']);
-    
+
   validateTree(traceur.syntax.trees.IfStatementTree,
+      ParseTreeType.IF_STATEMENT,
       ['location', 'condition', 'ifClause', 'elseClause']);
-      
+
   validateTree(traceur.syntax.trees.ImportDeclarationTree,
+      ParseTreeType.IMPORT_DECLARATION,
       ['location', 'importPathList']);
 
   validateTree(traceur.syntax.trees.ImportSpecifierTree,
+      ParseTreeType.IMPORT_SPECIFIER,
       ['location', 'importedName', 'destinationName']);
 
   validateTree(traceur.syntax.trees.LabelledStatementTree,
+      ParseTreeType.LABELLED_STATEMENT,
       ['location', 'name', 'statement']);
 
-  validateTree(traceur.syntax.trees.LiteralExpressionTree,
-      ['location', 'literalToken']);
-    
   validateTree(traceur.syntax.trees.MemberExpressionTree,
+      ParseTreeType.MEMBER_EXPRESSION,
       ['location', 'operand', 'memberName']);
 
   validateTree(traceur.syntax.trees.MemberLookupExpressionTree,
+      ParseTreeType.MEMBER_LOOKUP_EXPRESSION,
       ['location', 'operand', 'memberExpression']);
 
   validateTree(traceur.syntax.trees.MissingPrimaryExpressionTree,
+      ParseTreeType.MISSING_PRIMARY_EXPRESSION,
       ['location', 'nextToken']);
 
   validateTree(traceur.syntax.trees.MixinResolveListTree,
+      ParseTreeType.MIXIN_RESOLVE_LIST,
       ['location', 'resolves']);
 
   validateTree(traceur.syntax.trees.MixinResolveTree,
+      ParseTreeType.MIXIN_RESOLVE,
       ['location', 'from', 'to']);
 
   validateTree(traceur.syntax.trees.MixinTree,
+      ParseTreeType.MIXIN,
       ['location', 'name', 'mixinResolves']);
 
   validateTree(traceur.syntax.trees.ModuleDefinitionTree,
+      ParseTreeType.MODULE_DEFINITION,
       ['location', 'name', 'elements']);
 
   validateTree(traceur.syntax.trees.NewExpressionTree,
+      ParseTreeType.NEW_EXPRESSION,
       ['location', 'operand', 'args']);
-  
+
   validateTree(traceur.syntax.trees.ObjectLiteralExpressionTree,
+      ParseTreeType.OBJECT_LITERAL_EXPRESSION,
       ['location', 'propertyNameAndValues']);
 
   validateTree(traceur.syntax.trees.ObjectPatternFieldTree,
+      ParseTreeType.OBJECT_PATTERN_FIELD,
       ['location', 'identifier', 'element']);
 
   validateTree(traceur.syntax.trees.ObjectPatternTree,
+      ParseTreeType.OBJECT_PATTERN,
       ['location', 'fields']);
 
   validateTree(traceur.syntax.trees.ParenExpressionTree,
+      ParseTreeType.PAREN_EXPRESSION,
       ['location', 'expression']);
 
   validateTree(traceur.syntax.trees.PostfixExpressionTree,
+      ParseTreeType.POSTFIX_EXPRESSION,
       ['location', 'operand', 'operator']);
 
-  validateTree(traceur.syntax.trees.ProgramTree,
-      ['location', 'sourceElements']);
-    
   validateTree(traceur.syntax.trees.PropertyNameAssignmentTree,
+      ParseTreeType.PROPERTY_NAME_ASSIGNMENT,
       ['location', 'name', 'value']);
-      
+
   validateTree(traceur.syntax.trees.RequiresMemberTree,
+      ParseTreeType.REQUIRES_MEMBER,
       ['location', 'name']);
 
-  validateTree(traceur.syntax.trees.RestParameterTree,
-      ['location', 'identifier']);      
-
   validateTree(traceur.syntax.trees.ReturnStatementTree,
+      ParseTreeType.RETURN_STATEMENT,
       ['location', 'expression']);
 
   validateTree(traceur.syntax.trees.SetAccessorTree,
+      ParseTreeType.SET_ACCESSOR,
       ['location', 'propertyName', 'isStatic', 'parameter', 'body']);
 
   validateTree(traceur.syntax.trees.SpreadExpressionTree,
+      ParseTreeType.SPREAD_EXPRESSION,
       ['location', 'expression']);
 
   validateTree(traceur.syntax.trees.SpreadPatternElementTree,
+      ParseTreeType.SPREAD_PATTERN_ELEMENT,
       ['location', 'lvalue']);
 
   validateTree(traceur.syntax.trees.SuperExpressionTree,
+      ParseTreeType.SUPER_EXPRESSION,
       ['location']);
 
   validateTree(traceur.syntax.trees.SwitchStatementTree,
+      ParseTreeType.SWITCH_STATEMENT,
       ['location', 'expression', 'caseClauses']);
 
   validateTree(traceur.syntax.trees.ThisExpressionTree,
+      ParseTreeType.THIS_EXPRESSION,
       ['location']);
 
   validateTree(traceur.syntax.trees.ThrowStatementTree,
+      ParseTreeType.THROW_STATEMENT,
       ['location', 'value']);
 
   validateTree(traceur.syntax.trees.TraitDeclarationTree,
+      ParseTreeType.TRAIT_DECLARATION,
       ['location', 'name', 'elements']);
 
   validateTree(traceur.syntax.trees.TryStatementTree,
+      ParseTreeType.TRY_STATEMENT,
       ['location', 'body', 'catchBlock', 'finallyBlock']);
-    
-  validateTree(traceur.syntax.trees.UnaryExpressionTree,
-      ['location', 'operator', 'operand']);
-  
-  validateTree(traceur.syntax.trees.VariableDeclarationListTree,
-      ['location', 'declarationType', 'declarations']);
-    
-  validateTree(traceur.syntax.trees.VariableDeclarationTree,
-      ['location', 'lvalue', 'initializer']);
-    
-  validateTree(traceur.syntax.trees.VariableStatementTree,
-      ['location', 'declarations']);
-      
-  validateTree(traceur.syntax.trees.WhileStatementTree,
-      ['location', 'condition', 'body']);
 
   validateTree(traceur.syntax.trees.WithStatementTree,
+      ParseTreeType.WITH_STATEMENT,
       ['location', 'expression', 'body']);
 
   validateTree(traceur.syntax.trees.YieldStatementTree,
-      ['location', 'expression']);      
+      ParseTreeType.YIELD_STATEMENT,
+      ['location', 'expression']);
 }
 
 </script>

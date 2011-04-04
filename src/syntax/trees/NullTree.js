@@ -18,22 +18,32 @@ traceur.define('syntax.trees', function() {
   var ParseTree = traceur.syntax.trees.ParseTree;
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
 
+  var instance;
+
   /**
-   * @param {traceur.util.SourceRange} location  
    * @constructor
    * @extends {ParseTree}
    */
-  function NullTree(location) {
-    ParseTree.call(this, ParseTreeType.NULL, location);
+  function NullTree() {
+    if (instance)
+      return instance;
+    ParseTree.call(this, ParseTreeType.NULL, null);
+    instance = this;
   }
-  
+
   NullTree.prototype = {
     __proto__: ParseTree.prototype
   };
 
-  return {
-    NullTree: {
-      instance: new NullTree(null)
+  // TODO(arv): Remove static instance property.
+  Object.defineProperty(NullTree, 'instance', {
+    get: function() {
+      console.warn('Do not use NullTree.instance. Just use new NullTree()');
+      return new NullTree();
     }
+  });
+
+  return {
+    NullTree: NullTree
   };
 });
