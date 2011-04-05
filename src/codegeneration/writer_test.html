@@ -28,10 +28,12 @@ goog.require('goog.testing.jsunit');
 <script src="../traceur.js"></script>
 
 <script src="../syntax/TokenType.js"></script>
-<script src="../syntax/ParseTreeVisitor.js"></script>
-
+<script src="../syntax/Token.js"></script>
+<script src="../syntax/LiteralToken.js"></script>
+<script src="../syntax/IdentifierToken.js"></script>
 <script src="../syntax/trees/ParseTreeType.js"></script>
 <script src="../syntax/trees/ParseTree.js"></script>
+<script src="../syntax/ParseTreeVisitor.js"></script>
 <script src="../syntax/trees.js"></script>
 <script src="../syntax/trees/ImportPathTree.js"></script>
 <script src="../syntax/trees/NullTree.js"></script>
@@ -43,17 +45,47 @@ goog.require('goog.testing.jsunit');
 <body>
 <script>
 
-var ParseTreeWriter = traceur.syntax.trees.ParseTree;
+var IdentifierToken = traceur.syntax.IdentifierToken;
+var LiteralToken = traceur.syntax.LiteralToken;
+var TokenType = traceur.syntax.TokenType;
+var Token = traceur.syntax.Token;
+
+var ParseTreeWriter = traceur.codegeneration.ParseTreeWriter;
 var trees = traceur.syntax.trees;
 
 function testWriteStatement() {
-  var tree = new trees.BlockTree([
-    new trees.Variable
-    new trees.IfStatementTree()
+  var tree = new trees.ProgramTree([
+    'loc',
+    new trees.VariableStatementTree(
+      'loc',
+      new trees.VariableDeclarationListTree(
+        'loc',
+        'var',
+        [new trees.VariableDeclarationTree(
+          'loc',
+          new IdentifierToken('loc', 'x'),
+          new trees.LiteralExpressionTree('loc', new LiteralToken(TokenType.NUMBER, '1', 'loc')))]          
+      )
+    ),
+    new trees.IfStatementTree(
+      'loc',
+      new trees.BinaryOperatorTree(
+        'loc',
+        new trees.IdentifierExpressionTree('loc', new IdentifierToken('loc', 'x')),
+        new Token(TokenType.CLOSE_ANGLE, 'loc'),
+        new trees.LiteralExpressionTree('loc', new LiteralToken(TokenType.NUMBER, '0', 'loc'))
+      ),
+      new trees.PostfixExpressionTree(
+        'loc',
+        new trees.IdentifierExpressionTree('loc', new IdentifierToken('loc', 'x')),
+        new Token(TokenType.PLUS_PLUS, 'loc')
+      )
+    )
   ]);
   var actual = ParseTreeWriter.write(tree);
+  var expected = 'var x = 1;\nif (x > 0) {\n  x++;\n}'
+  assertEquals(expected, actual);
 }
-
 
 </script>
 </body>

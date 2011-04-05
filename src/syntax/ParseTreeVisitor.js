@@ -14,6 +14,8 @@
 
 traceur.define('syntax', function() {
   'use strict';
+  
+  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
 
   /**
    * A base class for traversing a ParseTree in top down (pre-Order) traversal.

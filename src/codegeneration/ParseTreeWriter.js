@@ -1,18 +1,18 @@
 // Copyright 2011 Google Inc.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
 //      http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
+// distributed under the License is distributed on an 'AS IS' BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('syntax.codegeneration', function() {
+traceur.define('codegeneration', function() {
   'use strict';
   
   var ParseTreeVisitor = traceur.syntax.ParseTreeVisitor;
@@ -31,7 +31,7 @@ traceur.define('syntax.codegeneration', function() {
   }
   
   // constants
-  var NEW_LINE = "\n";
+  var NEW_LINE = '\n';
   var PRETTY_PRINT = true;
   
   ParseTreeWriter.write = function(tree, var_args) {
@@ -84,17 +84,17 @@ traceur.define('syntax.codegeneration', function() {
     visitAny: function(tree) {
       // set background color to red if tree is highlighted
       if (tree != null && tree == this.HIGHLIGHTED) {
-        this.write_("\033[41m");
+        this.write_('\x1B[41m');
       }
   
       if (tree != null && tree.location != null && tree.location.start != null && this.SHOW_LINE_NUMBERS) {
-        this.currentLineComment_ = "Line: " + (tree.location.start.line + 1);
+        this.currentLineComment_ = 'Line: ' + (tree.location.start.line + 1);
       }
       ParseTreeVisitor.prototype.visitAny.call(this, tree);
   
       // set background color to normal
       if (tree != null && tree == this.HIGHLIGHTED) {
-        this.write_("\033[0m");
+        this.write_('\x1B[0m');
       }
     },
   
@@ -526,7 +526,7 @@ traceur.define('syntax.codegeneration', function() {
      * @param {MissingPrimaryExpressionTree} tree
      */
     visitMissingPrimaryExpressionTree: function(tree) {
-      this.write_("MissingPrimaryExpressionTree");
+      this.write_('MissingPrimaryExpressionTree');
     },
   
     /**
@@ -712,7 +712,7 @@ traceur.define('syntax.codegeneration', function() {
      * @param {StateMachineTree} tree
      */
     visitStateMachineTree: function(tree) {
-      throw new RuntimeException("State machines cannot be converted to source");
+      throw new RuntimeException('State machines cannot be converted to source');
     },
   
     /**
@@ -843,7 +843,7 @@ traceur.define('syntax.codegeneration', function() {
         while (this.currentLine_.length() < 80) {
           this.currentLine_.append(' ');
         }
-        this.currentLine_.append(" // ").append(this.currentLineComment_);
+        this.currentLine_.append(' // ').append(this.currentLineComment_);
         this.currentLineComment_ = null;
       }
       this.result_.append(this.currentLine_.toString());
