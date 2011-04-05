@@ -14,8 +14,8 @@
 
 traceur.define('syntax', function() {
   'use strict';
-  
-  PredefinedName = {
+
+  var PredefinedName = {
     ADD_CONTINUATION: 'addContinuation',
     APPLY: 'apply',
     ARGUMENTS: 'arguments',
@@ -81,9 +81,9 @@ traceur.define('syntax', function() {
       return '$' + index.toString();
     }
   };
-  
+
   // Export
   return {
     PredefinedName: PredefinedName
   };
-})();
+});

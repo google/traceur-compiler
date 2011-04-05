@@ -27,16 +27,16 @@ traceur.define('syntax.trees', function() {
    */
   function create(type, var_args) {
     var args = arguments;
-    var c = function(location) {
+    var Tree = function(location) {
       traceur.syntax.trees.ParseTree.call(this, type, location);
       for (var i = 1; i < args.length; i++) {
         this[args[i]] = arguments[i];
       }
     };
-    c.prototype = {
+    Tree.prototype = {
       __proto__: ParseTree.prototype
     };
-    return c;
+    return Tree;
   }
 
   // All trees but NullTree and ImportPathTree
@@ -104,11 +104,11 @@ traceur.define('syntax.trees', function() {
     /**
      * @param {traceur.util.SourceRange} location
      * @param {ParseTree} operand
-     * @param {ArgumentListTree} arguments
+     * @param {ArgumentListTree} args
      * @constructor
      * @extends {ParseTree}
      */
-    CallExpressionTree: create(ParseTreeType.CALL_EXPRESSION, 'operand', 'arguments'),
+    CallExpressionTree: create(ParseTreeType.CALL_EXPRESSION, 'operand', 'args'),
 
     /**
      * @param {traceur.util.SourceRange} location
@@ -267,11 +267,11 @@ traceur.define('syntax.trees', function() {
 
     /**
      * @param {traceur.util.SourceRange} location
-     * @param {Array.<ParseTree>} declarations
+     * @param {Array.<ParseTree>} parameters
      * @constructor
      * @extends {ParseTree}
      */
-    FormalParameterListTree: create(ParseTreeType.FORMAL_PARAMETER_LIST, 'declarations'),
+    FormalParameterListTree: create(ParseTreeType.FORMAL_PARAMETER_LIST, 'parameters'),
 
     /**
      * @param {traceur.util.SourceRange} location

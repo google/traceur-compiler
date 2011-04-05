@@ -200,7 +200,7 @@ traceur.define('syntax', function() {
     },
 
     clearTokenLookahead_: function() {
-      this.index_ = getOffset();
+      this.index_ = this.getOffset();
       this.currentTokens_.length = 0;
     },
 
@@ -211,7 +211,7 @@ traceur.define('syntax', function() {
       var beginToken = this.index_;
 
       // leading '/'
-      this.this.nextChar_();
+      this.nextChar_();
 
       // body
       if (!this.skipRegularExpressionBody_()) {

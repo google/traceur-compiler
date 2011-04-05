@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<!--
+
+// Copyright 2011 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+-->
+<html>
+<head>
+<title></title>
+<script src="../../third_party/closure-library/closure/goog/base.js"></script>
+<script>
+// NOTE: base.js and all goog.require statements must be in JS script blocks
+// NOTE: because they use document.write to add new script tags in place
+goog.require('goog.testing.jsunit');
+</script>
+<script src="../traceur.js"></script>
+<script src="../util/SourceRange.js"></script>
+<script src="../util/SourcePosition.js"></script>
+
+<script src="Token.js"></script>
+<script src="TokenType.js"></script>
+<script src="LiteralToken.js"></script>
+<script src="IdentifierToken.js"></script>
+<script src="Keywords.js"></script>
+<script src="LineNumberTable.js"></script>
+<script src="SourceFile.js"></script>
+<script src="Scanner.js"></script>
+<script src="PredefinedName.js"></script>
+
+<script src="trees/ParseTreeType.js"></script>
+<script src="trees/ParseTree.js"></script>
+
+<script src="trees.js"></script>
+<script src="trees/ImportPathTree.js"></script>
+<script src="trees/NullTree.js"></script>
+
+
+<script src="../util/ErrorReporter.js"></script>
+<script src="../util/MutedErrorReporter.js"></script>
+<script src="Parser.js"></script>
+</head>
+<body>
+<script>
+
+var errorReporter = {
+  reportError: function(position, message) {
+    fail(message + ', ' + position);
+  }
+};
+
+function testParser() {
+  var program = 'function f() {}\n';
+  var sourceFile = new traceur.syntax.SourceFile('Name', program);
+  var scanner = new traceur.syntax.Scanner(errorReporter, sourceFile);
+  var parser = new traceur.syntax.Parser(errorReporter, scanner);
+
+  parser.parseProgram();
+}
+
+function parseScript(scriptElement) {
+  var source;
+  var name;
+  if (scriptElement.src) {
+    name = scriptElement.src;
+    var xhr = new XMLHttpRequest();
+    // Synchronous load but these are already loaded when we get here so it
+    // should be fast.
+    xhr.open('GET', scriptElement.src, false);
+    xhr.send();
+    source = xhr.responseText;
+  } else {
+    name = 'inline-script';
+    source = scriptElement.textContent;
+  }
+
+  var sourceFile = new traceur.syntax.SourceFile(name, source);
+  var scanner = new traceur.syntax.Scanner(errorReporter, sourceFile);
+  var parser = new traceur.syntax.Parser(errorReporter, scanner);
+  console.log('Parsing', name);
+
+  var tree = parser.parseProgram();
+  console.log('tree', tree);
+}
+
+function testParserAllScripts() {
+  for (var i = 0, script; script = document.scripts[i]; i++) {
+    parseScript(script);
+  }
+}
+
+
+</script>
+
+</body>
+</html>
