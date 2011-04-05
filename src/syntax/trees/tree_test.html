@@ -220,7 +220,7 @@ function testTreeConstructors() {
 
   validateTree(traceur.syntax.trees.ForStatementTree,
       ParseTreeType.FOR_STATEMENT,
-      ['location', 'variables', 'condition', 'increment', 'body']);
+      ['location', 'initializer', 'condition', 'increment', 'body']);
 
   validateTree(traceur.syntax.trees.FunctionDeclarationTree,
       ParseTreeType.FUNCTION_DECLARATION,

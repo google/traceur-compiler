@@ -27,8 +27,16 @@ goog.require('goog.testing.jsunit');
 </script>
 <script src="../traceur.js"></script>
 
+<script src="../util/StringBuilder.js"></script>
+<script src="../util/SourceRange.js"></script>
+<script src="../util/SourcePosition.js"></script>
+<script src="../util/ErrorReporter.js"></script>
+<script src="../util/MutedErrorReporter.js"></script>
+
 <script src="../syntax/TokenType.js"></script>
 <script src="../syntax/Token.js"></script>
+<script src="../syntax/Keywords.js"></script>
+<script src="../syntax/PredefinedName.js"></script>
 <script src="../syntax/LiteralToken.js"></script>
 <script src="../syntax/IdentifierToken.js"></script>
 <script src="../syntax/trees/ParseTreeType.js"></script>
@@ -37,8 +45,10 @@ goog.require('goog.testing.jsunit');
 <script src="../syntax/trees.js"></script>
 <script src="../syntax/trees/ImportPathTree.js"></script>
 <script src="../syntax/trees/NullTree.js"></script>
-
-<script src="../util/StringBuilder.js"></script>
+<script src="../syntax/LineNumberTable.js"></script>
+<script src="../syntax/SourceFile.js"></script>
+<script src="../syntax/Scanner.js"></script>
+<script src="../syntax/Parser.js"></script>
 
 <script src="ParseTreeWriter.js"></script>
 </head>
@@ -64,7 +74,7 @@ function testWriteStatement() {
         [new trees.VariableDeclarationTree(
           'loc',
           new trees.IdentifierExpressionTree('loc', new IdentifierToken('loc', 'x')),
-          new trees.LiteralExpressionTree('loc', new LiteralToken(TokenType.NUMBER, '1', 'loc')))]          
+          new trees.LiteralExpressionTree('loc', new LiteralToken(TokenType.NUMBER, '1', 'loc')))]
       )
     ),
     new trees.IfStatementTree(
@@ -86,9 +96,46 @@ function testWriteStatement() {
     )
   ]);
   var actual = ParseTreeWriter.write(tree);
-  
+
   var expected = '\nvar x = 1; \nif(x > 0) { \n  x ++ \n} \n';
   assertEquals(expected, actual);
+}
+
+var errorReporter = {
+  reportError: function(position, message) {
+    fail(message + ', ' + position);
+  }
+};
+
+function parseScriptAndWrite(scriptElement) {
+  var source;
+  var name;
+  if (scriptElement.src) {
+    name = scriptElement.src;
+    var xhr = new XMLHttpRequest();
+    // Synchronous load but these are already loaded when we get here so it
+    // should be fast.
+    xhr.open('GET', scriptElement.src, false);
+    xhr.send();
+    source = xhr.responseText;
+  } else {
+    name = 'inline-script';
+    source = scriptElement.textContent;
+  }
+
+  var sourceFile = new traceur.syntax.SourceFile(name, source);
+  var scanner = new traceur.syntax.Scanner(errorReporter, sourceFile);
+  var parser = new traceur.syntax.Parser(errorReporter, scanner);
+  console.log('Parsing', name);
+
+  var tree = parser.parseProgram();
+  console.log(ParseTreeWriter.write(tree));
+}
+
+function testParserAndWriteAllScripts() {
+  for (var i = 0, script; script = document.scripts[i]; i++) {
+    parseScriptAndWrite(script);
+  }
 }
 
 </script>

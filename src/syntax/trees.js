@@ -282,7 +282,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    ForStatementTree: create(ParseTreeType.FOR_STATEMENT, 'variables', 'condition', 'increment', 'body'),
+    ForStatementTree: create(ParseTreeType.FOR_STATEMENT, 'initializer', 'condition', 'increment', 'body'),
 
     /**
      * @param {traceur.util.SourceRange} location

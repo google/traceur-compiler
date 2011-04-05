@@ -29,15 +29,16 @@ traceur.define('util', function() {
       str = str.toString();
       this.length += str.length
       this.strings_.push(str);
+      return this;
     },
-  
+
     toString: function() {
       return this.strings_.join('');
     },
-    
+
     // Instead of supporting charAt and deleteCharAt, implement lastChar and deleteLastChar
     // These can be implemented in constant time with no additional data structures
-    
+
     lastChar: function() {
       var last = this.strings_[this.strings_.length - 1];
       if (last) {
@@ -50,7 +51,7 @@ traceur.define('util', function() {
       var lastString = this.strings_.length - 1;
       var last = this.strings_[lastString];
       if (last) {
-        this.strings_[lastString] = last.substring(0, last.length - 1);        
+        this.strings_[lastString] = last.substring(0, last.length - 1);
       }
     }
   };

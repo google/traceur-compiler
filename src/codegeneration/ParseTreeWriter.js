@@ -14,11 +14,13 @@
 
 traceur.define('codegeneration', function() {
   'use strict';
-  
+
   var ParseTreeVisitor = traceur.syntax.ParseTreeVisitor;
+  var Keywords = traceur.syntax.Keywords;
   var TokenType = traceur.syntax.TokenType;
   var StringBuilder = traceur.util.StringBuilder;
-  
+
+
   /**
    * Converts a ParseTree to text.
    * @param {ParseTree} highlighted
@@ -26,16 +28,16 @@ traceur.define('codegeneration', function() {
    */
   function ParseTreeWriter(highlighted, showLineNumbers) {
     ParseTreeVisitor.call(this);
-    this.highlighted_ = highlighted;      
+    this.highlighted_ = highlighted;
     this.showLineNumbers_ = showLineNumbers;
     this.result_ = new StringBuilder();
     this.currentLine_ = new StringBuilder();
   }
-  
+
   // constants
   var NEW_LINE = '\n';
   var PRETTY_PRINT = true;
-  
+
   ParseTreeWriter.write = function(tree, var_args) {
     var showLineNumbers, highlighted;
     if (arguments.length <= 2) {
@@ -45,15 +47,15 @@ traceur.define('codegeneration', function() {
       showLineNumbers = arguments[2];
       highlighted = arguments[1];
     }
-  
+
     var writer = new ParseTreeWriter(highlighted, showLineNumbers);
     writer.visitAny(tree);
     if (writer.currentLine_.length > 0) {
       writer.writeln_();
     }
-    return writer.result_.toString(); 
+    return writer.result_.toString();
   }
-   
+
   ParseTreeWriter.prototype = {
      __proto__:  ParseTreeVisitor.prototype,
 
@@ -66,9 +68,9 @@ traceur.define('codegeneration', function() {
     /**
      * @type {number}
      * @private
-     */  
+     */
     indentDepth_ : 0,
-  
+
     /**
      * @param {ParseTree} tree
      */
@@ -77,27 +79,27 @@ traceur.define('codegeneration', function() {
       if (tree != null && tree == this.highlighted_) {
         this.write_('\x1B[41m');
       }
-  
+
       if (tree != null && tree.location != null && tree.location.start != null && this.showLineNumbers_) {
         this.currentLineComment_ = 'Line: ' + (tree.location.start.line + 1);
       }
       ParseTreeVisitor.prototype.visitAny.call(this, tree);
-  
+
       // set background color to normal
       if (tree != null && tree == this.highlighted_) {
         this.write_('\x1B[0m');
       }
     },
-  
+
     /**
      * @param {ArgumentListTree} tree
      */
     visitArgumentListTree: function(tree) {
       this.write_(TokenType.OPEN_PAREN);
-      this.writeList_(tree.arguments, TokenType.COMMA, false);
+      this.writeList_(tree.args, TokenType.COMMA, false);
       this.write_(TokenType.CLOSE_PAREN);
     },
-  
+
     /**
      * @param {ArrayLiteralExpressionTree} tree
      */
@@ -106,7 +108,7 @@ traceur.define('codegeneration', function() {
       this.writeList_(tree.elements, TokenType.COMMA, false);
       this.write_(TokenType.CLOSE_SQUARE);
     },
-  
+
     /**
      * @param {ArrayPatternTree} tree
      */
@@ -115,7 +117,7 @@ traceur.define('codegeneration', function() {
       this.writeList_(tree.elements, TokenType.COMMA, false);
       this.write_(TokenType.CLOSE_SQUARE);
     },
-  
+
     /**
      * @param {AsyncStatementTree} tree
      */
@@ -128,7 +130,7 @@ traceur.define('codegeneration', function() {
       this.visitAny(tree.expression);
       this.write_(TokenType.SEMI_COLON);
     },
-  
+
     /**
      * @param {BinaryOperatorTree} tree
      */
@@ -137,7 +139,7 @@ traceur.define('codegeneration', function() {
       this.write_(tree.operator);
       this.visitAny(tree.right);
     },
-  
+
     /**
      * @param {BlockTree} tree
      */
@@ -146,7 +148,7 @@ traceur.define('codegeneration', function() {
       this.writelnList_(tree.statements);
       this.write_(TokenType.CLOSE_CURLY);
     },
-  
+
     /**
      * @param {BreakStatementTree} tree
      */
@@ -157,15 +159,15 @@ traceur.define('codegeneration', function() {
       }
       this.write_(TokenType.SEMI_COLON);
     },
-  
+
     /**
      * @param {CallExpressionTree} tree
      */
     visitCallExpressionTree: function(tree) {
       this.visitAny(tree.operand);
-      this.visitAny(tree.arguments);
+      this.visitAny(tree.args);
     },
-  
+
     /**
      * @param {CaseClauseTree} tree
      */
@@ -177,7 +179,7 @@ traceur.define('codegeneration', function() {
       this.writelnList_(tree.statements);
       this.indentDepth_--;
     },
-  
+
     /**
      * @param {CatchTree} tree
      */
@@ -188,7 +190,7 @@ traceur.define('codegeneration', function() {
       this.write_(TokenType.CLOSE_PAREN);
       this.visitAny(tree.catchBody);
     },
-  
+
     /**
      * @param {ClassDeclarationTree} tree
      */
@@ -203,21 +205,21 @@ traceur.define('codegeneration', function() {
       this.writelnList_(tree.elements);
       this.write_(TokenType.CLOSE_CURLY);
     },
-  
+
     /**
      * @param {ClassExpressionTree} tree
      */
     visitClassExpressionTree: function(tree) {
       this.write_(TokenType.CLASS);
     },
-  
+
     /**
      * @param {CommaExpressionTree} tree
      */
     visitCommaExpressionTree: function(tree) {
       this.writeList_(tree.expressions, TokenType.COMMA, false);
     },
-  
+
     /**
      * @param {ConditionalExpressionTree} tree
      */
@@ -228,7 +230,7 @@ traceur.define('codegeneration', function() {
       this.write_(TokenType.COLON);
       this.visitAny(tree.right);
     },
-  
+
     /**
      * @param {ContinueStatementTree} tree
      */
@@ -239,7 +241,7 @@ traceur.define('codegeneration', function() {
       }
       this.write_(TokenType.SEMI_COLON);
     },
-  
+
     /**
      * @param {DebuggerStatementTree} tree
      */
@@ -247,7 +249,7 @@ traceur.define('codegeneration', function() {
       this.write_(TokenType.DEBUGGER);
       this.write_(TokenType.SEMI_COLON);
     },
-  
+
     /**
      * @param {DefaultClauseTree} tree
      */
@@ -258,7 +260,7 @@ traceur.define('codegeneration', function() {
       this.writelnList_(tree.statements);
       this.indentDepth_--;
     },
-  
+
     /**
      * @param {DefaultParameterTree} tree
      */
@@ -267,7 +269,7 @@ traceur.define('codegeneration', function() {
       this.write_(TokenType.EQUAL);
       this.visitAny(tree.expression);
     },
-  
+
     /**
      * @param {DoWhileStatementTree} tree
      */
@@ -280,14 +282,14 @@ traceur.define('codegeneration', function() {
       this.write_(TokenType.CLOSE_PAREN);
       this.write_(TokenType.SEMI_COLON);
     },
-  
+
     /**
      * @param {EmptyStatementTree} tree
      */
     visitEmptyStatementTree: function(tree) {
       this.write_(TokenType.SEMI_COLON);
     },
-  
+
     /**
      * @param {ExportDeclarationTree} tree
      */
@@ -295,7 +297,7 @@ traceur.define('codegeneration', function() {
       this.write_(TokenType.EXPORT);
       this.visitAny(tree.declaration);
     },
-  
+
     /**
      * @param {ExpressionStatementTree} tree
      */
@@ -303,7 +305,7 @@ traceur.define('codegeneration', function() {
       this.visitAny(tree.expression);
       this.write_(TokenType.SEMI_COLON);
     },
-  
+
     /**
      * @param {FieldDeclarationTree} tree
      */
@@ -317,7 +319,7 @@ traceur.define('codegeneration', function() {
       this.writeList_(tree.declarations, TokenType.COMMA, false);
       this.write_(TokenType.SEMI_COLON);
     },
-  
+
     /**
      * @param {FinallyTree} tree
      */
@@ -325,7 +327,7 @@ traceur.define('codegeneration', function() {
       this.write_(TokenType.FINALLY);
       this.visitAny(tree.block);
     },
-  
+
     /**
      * @param {ForEachStatementTree} tree
      */
@@ -338,7 +340,7 @@ traceur.define('codegeneration', function() {
       this.write_(TokenType.CLOSE_PAREN);
       this.visitAny(tree.body);
     },
-  
+
     /**
      * @param {ForInStatementTree} tree
      */
@@ -351,7 +353,7 @@ traceur.define('codegeneration', function() {
       this.write_(TokenType.CLOSE_PAREN);
       this.visitAny(tree.body);
     },
-  
+
     /**
      * @param {ForStatementTree} tree
      */
@@ -366,26 +368,26 @@ traceur.define('codegeneration', function() {
       this.write_(TokenType.CLOSE_PAREN);
       this.visitAny(tree.body);
     },
-  
+
     /**
      * @param {FormalParameterListTree} tree
      */
     visitFormalParameterListTree: function(tree) {
       var first = true;
-  
+
       for (var i = 0; i < tree.parameters.length; i++) {
         var parameter = tree.parameters[i];
-        
+
         if (first) {
           first = false;
         } else {
           this.write_(TokenType.COMMA);
         }
-  
+
         this.visitAny(parameter);
       }
     },
-  
+
     /**
      * @param {FunctionDeclarationTree} tree
      */
@@ -402,7 +404,7 @@ traceur.define('codegeneration', function() {
       this.write_(TokenType.CLOSE_PAREN);
       this.visitAny(tree.functionBody);
     },
-  
+
     /**
      * @param {GetAccessorTree} tree
      */
@@ -416,14 +418,14 @@ traceur.define('codegeneration', function() {
       this.write_(TokenType.CLOSE_PAREN);
       this.visitAny(tree.body);
     },
-  
+
     /**
      * @param {IdentifierExpressionTree} tree
      */
     visitIdentifierExpressionTree: function(tree) {
       this.write_(tree.identifierToken);
     },
-  
+
     /**
      * @param {IfStatementTree} tree
      */
@@ -438,7 +440,7 @@ traceur.define('codegeneration', function() {
         this.visitAny(tree.elseClause);
       }
     },
-  
+
     /**
      * @param {ImportDeclarationTree} tree
      */
@@ -447,7 +449,7 @@ traceur.define('codegeneration', function() {
       this.writeList_(tree.importPathList, TokenType.COMMA, false);
       this.write_(TokenType.SEMI_COLON);
     },
-  
+
     /**
      * @param {ImportPathTree} tree
      */
@@ -468,7 +470,7 @@ traceur.define('codegeneration', function() {
         break;
       }
     },
-  
+
     /**
      * @param {ImportSpecifierTree} tree
      */
@@ -479,7 +481,7 @@ traceur.define('codegeneration', function() {
         this.write_(tree.destinationName);
       }
     },
-  
+
     /**
      * @param {LabelledStatementTree} tree
      */
@@ -488,14 +490,14 @@ traceur.define('codegeneration', function() {
       this.write_(TokenType.COLON);
       this.visitAny(tree.statement);
     },
-  
+
     /**
      * @param {LiteralExpressionTree} tree
      */
     visitLiteralExpressionTree: function(tree) {
       this.write_(tree.literalToken);
     },
-  
+
     /**
      * @param {MemberExpressionTree} tree
      */
@@ -504,7 +506,7 @@ traceur.define('codegeneration', function() {
       this.write_(TokenType.PERIOD);
       this.write_(tree.memberName);
     },
-  
+
     /**
      * @param {MemberLookupExpressionTree} tree
      */
@@ -514,14 +516,14 @@ traceur.define('codegeneration', function() {
       this.visitAny(tree.memberExpression);
       this.write_(TokenType.CLOSE_SQUARE);
     },
-  
+
     /**
      * @param {MissingPrimaryExpressionTree} tree
      */
     visitMissingPrimaryExpressionTree: function(tree) {
       this.write_('MissingPrimaryExpressionTree');
     },
-  
+
     /**
      * @param {MixinTree} tree
      */
@@ -531,7 +533,7 @@ traceur.define('codegeneration', function() {
       this.visitAny(tree.mixinResolves);
       this.write_(TokenType.SEMI_COLON);
     },
-  
+
     /**
      * @param {MixinResolveTree} tree
      */
@@ -540,7 +542,7 @@ traceur.define('codegeneration', function() {
       this.write_(TokenType.COLON);
       this.write_(tree.to);
     },
-  
+
     /**
      * @param {MixinResolveListTree} tree
      */
@@ -549,7 +551,7 @@ traceur.define('codegeneration', function() {
       this.writeList_(tree.resolves, TokenType.COMMA, false);
       this.write_(TokenType.CLOSE_CURLY);
     },
-  
+
     /**
      * @param {ModuleDefinitionTree} tree
      */
@@ -562,35 +564,35 @@ traceur.define('codegeneration', function() {
       this.write_(TokenType.CLOSE_CURLY);
       this.writeln_();
     },
-  
+
     /**
      * @param {NewExpressionTree} tree
      */
     visitNewExpressionTree: function(tree) {
       this.write_(TokenType.NEW);
       this.visitAny(tree.operand);
-      this.visitAny(tree.arguments);
+      this.visitAny(tree.args);
     },
-  
+
     /**
      * @param {NullTree} tree
      */
     visitNullTree: function(tree) {
     },
-  
+
     /**
      * @param {ObjectLiteralExpressionTree} tree
      */
     visitObjectLiteralExpressionTree: function(tree) {
       this.write_(TokenType.OPEN_CURLY);
-      if (tree.propertyNameAndValues.size() > 1)
+      if (tree.propertyNameAndValues.length > 1)
         this.writeln_();
       this.writelnList_(tree.propertyNameAndValues, TokenType.COMMA);
-      if (tree.propertyNameAndValues.size() > 1)
+      if (tree.propertyNameAndValues.length > 1)
         this.writeln_();
       this.write_(TokenType.CLOSE_CURLY);
     },
-  
+
     /**
      * @param {ObjectPatternTree} tree
      */
@@ -599,7 +601,7 @@ traceur.define('codegeneration', function() {
       this.writelnList_(tree.fields, TokenType.COMMA);
       this.write_(TokenType.CLOSE_CURLY);
     },
-  
+
     /**
      * @param {ObjectPatternFieldTree} tree
      */
@@ -610,7 +612,7 @@ traceur.define('codegeneration', function() {
         this.visitAny(tree.element);
       }
     },
-  
+
     /**
      * @param {ParenExpressionTree} tree
      */
@@ -619,7 +621,7 @@ traceur.define('codegeneration', function() {
       ParseTreeVisitor.prototype.visitParenExpressionTree.call(this, tree);
       this.write_(TokenType.CLOSE_PAREN);
     },
-  
+
     /**
      * @param {PostfixExpressionTree} tree
      */
@@ -627,14 +629,14 @@ traceur.define('codegeneration', function() {
       this.visitAny(tree.operand);
       this.write_(tree.operator);
     },
-  
+
     /**
      * @param {ProgramTree} tree
      */
     visitProgramTree: function(tree) {
       this.writelnList_(tree.sourceElements);
     },
-  
+
     /**
      * @param {PropertyNameAssignmentTree} tree
      */
@@ -643,7 +645,7 @@ traceur.define('codegeneration', function() {
       this.write_(TokenType.COLON);
       this.visitAny(tree.value);
     },
-  
+
     /**
      * @param {RequiresMemberTree} tree
      */
@@ -652,7 +654,7 @@ traceur.define('codegeneration', function() {
       this.write_(tree.name);
       this.write_(TokenType.SEMI_COLON);
     },
-  
+
     /**
      * @param {ReturnStatementTree} tree
      */
@@ -661,7 +663,7 @@ traceur.define('codegeneration', function() {
       this.visitAny(tree.expression);
       this.write_(TokenType.SEMI_COLON);
     },
-  
+
     /**
      * @param {RestParameterTree} tree
      */
@@ -669,7 +671,7 @@ traceur.define('codegeneration', function() {
       this.write_(TokenType.SPREAD);
       this.write_(tree.identifier);
     },
-  
+
     /**
      * @param {SetAccessorTree} tree
      */
@@ -684,7 +686,7 @@ traceur.define('codegeneration', function() {
       this.write_(TokenType.CLOSE_PAREN);
       this.visitAny(tree.body);
     },
-  
+
     /**
      * @param {SpreadExpressionTree} tree
      */
@@ -692,7 +694,7 @@ traceur.define('codegeneration', function() {
       this.write_(TokenType.SPREAD);
       this.visitAny(tree.expression);
     },
-  
+
     /**
      * @param {SpreadPatternElementTree} tree
      */
@@ -700,21 +702,21 @@ traceur.define('codegeneration', function() {
       this.write_(TokenType.SPREAD);
       this.visitAny(tree.lvalue);
     },
-  
+
     /**
      * @param {StateMachineTree} tree
      */
     visitStateMachineTree: function(tree) {
       throw new Error('State machines cannot be converted to source');
     },
-  
+
     /**
      * @param {SuperExpressionTree} tree
      */
     visitSuperExpressionTree: function(tree) {
       this.write_(TokenType.SUPER);
     },
-  
+
     /**
      * @param {SwitchStatementTree} tree
      */
@@ -727,14 +729,14 @@ traceur.define('codegeneration', function() {
       this.writelnList_(tree.caseClauses);
       this.write_(TokenType.CLOSE_CURLY);
     },
-  
+
     /**
      * @param {ThisExpressionTree} tree
      */
     visitThisExpressionTree: function(tree) {
       this.write_(TokenType.THIS);
     },
-  
+
     /**
      * @param {TraitDeclarationTree} tree
      */
@@ -745,7 +747,7 @@ traceur.define('codegeneration', function() {
       visitList(tree.elements);
       this.write_(TokenType.CLOSE_CURLY);
     },
-  
+
     /**
      * @param {ThrowStatementTree} tree
      */
@@ -754,7 +756,7 @@ traceur.define('codegeneration', function() {
       this.visitAny(tree.value);
       this.write_(TokenType.SEMI_COLON);
     },
-  
+
     /**
      * @param {TryStatementTree} tree
      */
@@ -764,7 +766,7 @@ traceur.define('codegeneration', function() {
       this.visitAny(tree.catchBlock);
       this.visitAny(tree.finallyBlock);
     },
-  
+
     /**
      * @param {UnaryExpressionTree} tree
      */
@@ -772,7 +774,7 @@ traceur.define('codegeneration', function() {
       this.write_(tree.operator);
       this.visitAny(tree.operand);
     },
-  
+
     /**
      * @param {VariableDeclarationListTree} tree
      */
@@ -780,7 +782,7 @@ traceur.define('codegeneration', function() {
       this.write_(tree.declarationType);
       this.writeList_(tree.declarations, TokenType.COMMA, false);
     },
-  
+
     /**
      * @param {VariableDeclarationTree} tree
      */
@@ -791,7 +793,7 @@ traceur.define('codegeneration', function() {
         this.visitAny(tree.initializer);
       }
     },
-  
+
     /**
      * @param {VariableStatementTree} tree
      */
@@ -799,7 +801,7 @@ traceur.define('codegeneration', function() {
       ParseTreeVisitor.prototype.visitVariableStatementTree.call(this, tree);
       this.write_(TokenType.SEMI_COLON);
     },
-  
+
     /**
      * @param {WhileStatementTree} tree
      */
@@ -810,7 +812,7 @@ traceur.define('codegeneration', function() {
       this.write_(TokenType.CLOSE_PAREN);
       this.visitAny(tree.body);
     },
-  
+
     /**
      * @param {WithStatementTree} tree
      */
@@ -821,7 +823,7 @@ traceur.define('codegeneration', function() {
       this.write_(TokenType.CLOSE_PAREN);
       this.visitAny(tree.body);
     },
-  
+
     /**
      * @param {YieldStatementTree} tree
      */
@@ -830,7 +832,7 @@ traceur.define('codegeneration', function() {
       this.visitAny(tree.expression);
       this.write_(TokenType.SEMI_COLON);
     },
-    
+
     writeln_: function() {
       if (this.currentLineComment_ != null) {
         while (this.currentLine_.length < 80) {
@@ -842,8 +844,8 @@ traceur.define('codegeneration', function() {
       this.result_.append(this.currentLine_.toString());
       this.result_.append(NEW_LINE);
       this.currentLine_ = new StringBuilder();
-    },  
-  
+    },
+
     /**
      * @param {Array.<ParseTree>} list
      * @param {TokenType} delimiter
@@ -852,7 +854,7 @@ traceur.define('codegeneration', function() {
     writelnList_: function(list, delimiter) {
       if (delimiter) {
         this.writeList_(list, delimiter, true);
-      } else {    
+      } else {
         if (list.length > 0)
           this.writeln_();
         this.writeList_(list, null, true);
@@ -860,7 +862,7 @@ traceur.define('codegeneration', function() {
           this.writeln_();
       }
     },
-    
+
     /**
      * @param {Array.<ParseTree>} list
      * @param {TokenType} delimiter
@@ -884,7 +886,7 @@ traceur.define('codegeneration', function() {
         this.visitAny(element);
       }
     },
-  
+
     writeTokenList_: function(list, delimiter, writeNewLine) {
       var first = true;
       for (var i = 0; i < list.length; i++) {
@@ -902,16 +904,16 @@ traceur.define('codegeneration', function() {
         this.write_(element);
       }
     },
-  
+
     /**
      * @param {string|Token|TokenType|Keywords} value
      * @private
      */
     write_: function(value) {
       if (value === TokenType.CLOSE_CURLY) {
-        this.indentDepth_--;      
+        this.indentDepth_--;
       }
-      
+
       // Imperfect but good enough spacing rules to make output readable.
       var spaceBefore = true;
       var spaceAfter = true;
@@ -930,7 +932,7 @@ traceur.define('codegeneration', function() {
           spaceBefore = false;
           break;
       }
-      
+
       if (value != null) {
         if (PRETTY_PRINT) {
           if (this.currentLine_.length == 0) {
@@ -951,10 +953,10 @@ traceur.define('codegeneration', function() {
 
       if (value === TokenType.OPEN_CURLY) {
         this.indentDepth_++;
-      }      
+      }
     }
   }
-  
+
   return {
     ParseTreeWriter: ParseTreeWriter
   };
