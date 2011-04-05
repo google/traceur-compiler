@@ -22,12 +22,14 @@ traceur.define('codegeneration', function() {
   /**
    * Converts a ParseTree to text.
    * @param {ParseTree} highlighted
-   * @param {Boolean} showLineNumbers
+   * @param {boolean} showLineNumbers
    */
   function ParseTreeWriter(highlighted, showLineNumbers) {
-      ParseTreeVisitor.call(this);
-      this.highlighted_ = highlighted;      
-      this.showLineNumbers_ = showLineNumbers;
+    ParseTreeVisitor.call(this);
+    this.highlighted_ = highlighted;      
+    this.showLineNumbers_ = showLineNumbers;
+    this.result_ = new StringBuilder();
+    this.currentLine_ = new StringBuilder();
   }
   
   // constants
@@ -54,27 +56,15 @@ traceur.define('codegeneration', function() {
    
   ParseTreeWriter.prototype = {
      __proto__:  ParseTreeVisitor.prototype,
-  
-    /**
-     * @type {StringBuilder}
-     * @private
-     */
-    result_ : new StringBuilder(),
 
     /**
-     * @type {StringBuilder}
-     * @private
-     */
-    currentLine_ : new StringBuilder(),
-
-    /**
-     * @type {String}
+     * @type {string}
      * @private
      */
     currentLineComment_ : null,
 
     /**
-     * @type {Number}
+     * @type {number}
      * @private
      */  
     indentDepth_ : 0,
@@ -117,19 +107,19 @@ traceur.define('codegeneration', function() {
       this.write_(TokenType.CLOSE_SQUARE);
     },
   
-   /**
-    * @param {ArrayPatternTree} tree
-    */
-   visitArrayPatternTree: function(tree) {
+    /**
+     * @param {ArrayPatternTree} tree
+     */
+    visitArrayPatternTree: function(tree) {
       this.write_(TokenType.OPEN_SQUARE);
       this.writeList_(tree.elements, TokenType.COMMA, false);
       this.write_(TokenType.CLOSE_SQUARE);
     },
   
-   /**
-    * @param {AsyncStatementTree} tree
-    */
-   visitAsyncStatementTree: function(tree) {
+    /**
+     * @param {AsyncStatementTree} tree
+     */
+    visitAsyncStatementTree: function(tree) {
       this.write_(TokenType.ASYNC);
       if (tree.identifier != null) {
         this.write_(tree.identifier);
@@ -715,7 +705,7 @@ traceur.define('codegeneration', function() {
      * @param {StateMachineTree} tree
      */
     visitStateMachineTree: function(tree) {
-      throw new RuntimeException('State machines cannot be converted to source');
+      throw new Error('State machines cannot be converted to source');
     },
   
     /**
@@ -874,7 +864,7 @@ traceur.define('codegeneration', function() {
     /**
      * @param {Array.<ParseTree>} list
      * @param {TokenType} delimiter
-     * @param {Boolean} writeNewLine
+     * @param {boolean} writeNewLine
      * @private
      */
     writeList_: function(list, delimiter, writeNewLine) {
@@ -914,7 +904,7 @@ traceur.define('codegeneration', function() {
     },
   
     /**
-     * @param {String|Token|TokenType|Keywords} value
+     * @param {string|Token|TokenType|Keywords} value
      * @private
      */
     write_: function(value) {

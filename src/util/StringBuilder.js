@@ -16,7 +16,7 @@ traceur.define('util', function() {
   'use strict';
 
   /**
-   * A position in a source string - includes offset, line and column.
+   * Builds strings by appending them.
    * @constructor
    */
   function StringBuilder() {
