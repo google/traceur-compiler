@@ -382,7 +382,9 @@ traceur.define('codegeneration', function() {
     visitFormalParameterListTree: function(tree) {
       var first = true;
   
-      for (parameter in tree.parameters) {
+      for (var i = 0; i < tree.parameters.length; i++) {
+        var parameter = tree.parameters[i];
+        
         if (first) {
           first = false;
         } else {
@@ -623,7 +625,7 @@ traceur.define('codegeneration', function() {
      */
     visitParenExpressionTree: function(tree) {
       this.write_(TokenType.OPEN_PAREN);
-      ParseTreeVisitor.prototype.visitParenExpressionTree.call(tree);
+      ParseTreeVisitor.prototype.visitParenExpressionTree.call(this, tree);
       this.write_(TokenType.CLOSE_PAREN);
     },
   
@@ -803,7 +805,7 @@ traceur.define('codegeneration', function() {
      * @param {VariableStatementTree} tree
      */
     visitVariableStatementTree: function(tree) {
-      ParseTreeVisitor.prototype.visitVariableStatementTree.call(tree);
+      ParseTreeVisitor.prototype.visitVariableStatementTree.call(this, tree);
       this.write_(TokenType.SEMI_COLON);
     },
   
@@ -858,12 +860,12 @@ traceur.define('codegeneration', function() {
      */
     writelnList_: function(list, delimiter) {
       if (delimiter) {
-        this.writeList_(list, delimiter, true);     
+        this.writeList_(list, delimiter, true);
       } else {    
-        if (!list.isEmpty())
+        if (list.length > 0)
           this.writeln_();
-        this.writelnList_(list, null);
-        if (!list.isEmpty())
+        this.writeList_(list, null, true);
+        if (list.length > 0)
           this.writeln_();
       }
     },
@@ -876,7 +878,8 @@ traceur.define('codegeneration', function() {
      */
     writeList_: function(list, delimiter, writeNewLine) {
       var first = true;
-      for (var element in list) {
+      for (var i = 0; i < list.length; i++) {
+        var element = list[i];
         if (first) {
           first = false;
         } else {
@@ -893,7 +896,8 @@ traceur.define('codegeneration', function() {
   
     writeTokenList_: function(list, delimiter, writeNewLine) {
       var first = true;
-      for (var element in list) {
+      for (var i = 0; i < list.length; i++) {
+        var element = list[i];
         if (first) {
           first = false;
         } else {
@@ -944,7 +948,7 @@ traceur.define('codegeneration', function() {
             }
           } else {
             if (spaceBefore == false && this.currentLine_.lastChar() == ' ') {
-              this.currentLine_.deleteLastChar(lastIndex);
+              this.currentLine_.deleteLastChar();
             }
           }
         }
@@ -954,7 +958,7 @@ traceur.define('codegeneration', function() {
         }
       }
 
-      if (type == TokenType.OPEN_CURLY) {
+      if (value === TokenType.OPEN_CURLY) {
         this.indentDepth_++;
       }      
     }

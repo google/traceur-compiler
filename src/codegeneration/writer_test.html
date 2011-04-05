@@ -54,16 +54,16 @@ var ParseTreeWriter = traceur.codegeneration.ParseTreeWriter;
 var trees = traceur.syntax.trees;
 
 function testWriteStatement() {
-  var tree = new trees.ProgramTree([
+  var tree = new trees.ProgramTree(
     'loc',
-    new trees.VariableStatementTree(
+    [new trees.VariableStatementTree(
       'loc',
       new trees.VariableDeclarationListTree(
         'loc',
         'var',
         [new trees.VariableDeclarationTree(
           'loc',
-          new IdentifierToken('loc', 'x'),
+          new trees.IdentifierExpressionTree('loc', new IdentifierToken('loc', 'x')),
           new trees.LiteralExpressionTree('loc', new LiteralToken(TokenType.NUMBER, '1', 'loc')))]          
       )
     ),
@@ -75,15 +75,19 @@ function testWriteStatement() {
         new Token(TokenType.CLOSE_ANGLE, 'loc'),
         new trees.LiteralExpressionTree('loc', new LiteralToken(TokenType.NUMBER, '0', 'loc'))
       ),
-      new trees.PostfixExpressionTree(
+      new trees.BlockTree(
         'loc',
-        new trees.IdentifierExpressionTree('loc', new IdentifierToken('loc', 'x')),
-        new Token(TokenType.PLUS_PLUS, 'loc')
+        [new trees.PostfixExpressionTree(
+          'loc',
+          new trees.IdentifierExpressionTree('loc', new IdentifierToken('loc', 'x')),
+          new Token(TokenType.PLUS_PLUS, 'loc')
+        )]
       )
     )
   ]);
   var actual = ParseTreeWriter.write(tree);
-  var expected = 'var x = 1;\nif (x > 0) {\n  x++;\n}'
+  
+  var expected = '\nvar x = 1 ; \nif (x > 0 ) { \n  x ++ \n} \n';
   assertEquals(expected, actual);
 }
 

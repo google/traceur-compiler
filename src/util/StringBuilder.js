@@ -43,7 +43,7 @@ traceur.define('util', function() {
     // These can be implemented in constant time with no additional data structures
     
     lastChar: function() {
-      var last = this.strings_[this.strings.length_ - 1];
+      var last = this.strings_[this.strings_.length - 1];
       if (last) {
         last = last[last.length - 1];
       }
@@ -51,7 +51,7 @@ traceur.define('util', function() {
     },
 
     deleteLastChar: function() {
-      var last = this.strings_[this.strings.length_ - 1];
+      var last = this.strings_[this.strings_.length - 1];
       if (last && last.length > 0) {
         last.length -= 1;
       }
