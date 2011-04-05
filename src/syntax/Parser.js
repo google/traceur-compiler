@@ -246,8 +246,8 @@ traceur.define('syntax', function() {
     */
     peekModuleDefinition_: function() {
       return this.peekPredefinedString_(PredefinedName.MODULE) &&
-          this.peek_(1, TokenType.IDENTIFIER) &&
-          this.peek_(2, TokenType.OPEN_CURLY);
+          this.peek_(TokenType.IDENTIFIER, 1) &&
+          this.peek_(TokenType.OPEN_CURLY, 2);
     },
 
     /**
@@ -345,7 +345,7 @@ traceur.define('syntax', function() {
       var start = this.getTreeStartLocation_();
       var qualifiedPath = [];
       qualifiedPath.push(this.eatId_());
-      while (this.peek_(TokenType.PERIOD) && this.peek_(1, TokenType.IDENTIFIER)) {
+      while (this.peek_(TokenType.PERIOD) && this.peek_(TokenType.IDENTIFIER, 1)) {
         this.eat_(TokenType.PERIOD);
         qualifiedPath.push(this.eatId_());
       }
@@ -551,7 +551,7 @@ traceur.define('syntax', function() {
      * @private
      */
     peekRequiresMember_: function() {
-      return this.peekPredefinedString_(PredefinedName.REQUIRES) && this.peek_(1, TokenType.IDENTIFIER);
+      return this.peekPredefinedString_(PredefinedName.REQUIRES) && this.peek_(TokenType.IDENTIFIER, 1);
     },
 
     /**
@@ -571,7 +571,7 @@ traceur.define('syntax', function() {
      * @private
      */
     peekMixin_: function() {
-      return this.peekPredefinedString_(PredefinedName.MIXIN) && this.peek_(1, TokenType.IDENTIFIER);
+      return this.peekPredefinedString_(PredefinedName.MIXIN) && this.peek_(TokenType.IDENTIFIER, 1);
     },
 
     /**
@@ -761,7 +761,7 @@ traceur.define('syntax', function() {
      */
     peekMethodDeclaration_: function() {
       var index = this.peek_(TokenType.STATIC) ? 1 : 0;
-      return this.peekFunction_(index) || (this.peek_(index, TokenType.IDENTIFIER) && this.peek_(index + 1, TokenType.OPEN_PAREN));
+      return this.peekFunction_(index) || (this.peek_(TokenType.IDENTIFIER, index) && this.peek_(TokenType.OPEN_PAREN, index + 1));
     },
 
     /**
@@ -797,7 +797,7 @@ traceur.define('syntax', function() {
      */
     peekFunction_: function(opt_index) {
       var index = opt_index || 0;
-      return this.peek_(index, TokenType.FUNCTION) || this.peek_(index, TokenType.POUND);
+      return this.peek_(TokenType.FUNCTION, index) || this.peek_(TokenType.POUND, index);
     },
 
     // 13 Function Definition
@@ -872,7 +872,7 @@ traceur.define('syntax', function() {
 
           // Once we have seen a default parameter all remaining params must either be default or
           // rest parameters.
-          if (hasDefaultParameters || this.peek_(1, TokenType.EQUAL)) {
+          if (hasDefaultParameters || this.peek_(TokenType.EQUAL, 1)) {
             result.push(this.parseDefaultParameter_());
             hasDefaultParameters = true;
           } else {
@@ -1481,7 +1481,7 @@ traceur.define('syntax', function() {
       var start = this.getTreeStartLocation_();
       this.eat_(TokenType.ASYNC);
       var identifier = null;
-      if (this.peek_(TokenType.IDENTIFIER) && this.peek_(1, TokenType.EQUAL)) {
+      if (this.peek_(TokenType.IDENTIFIER) && this.peek_(TokenType.EQUAL, 1)) {
         identifier = this.eatId_();
         this.eat_(TokenType.EQUAL);
       }
@@ -1582,7 +1582,7 @@ traceur.define('syntax', function() {
      */
     peekLabelledStatement_: function() {
       return this.peek_(TokenType.IDENTIFIER) &&
-          this.peek_(1, TokenType.COLON);
+          this.peek_(TokenType.COLON, 1);
     },
 
     // 12.13 Throw Statement
@@ -1881,23 +1881,16 @@ traceur.define('syntax', function() {
      */
     peekGetAccessor_: function(allowStatic) {
       var index = allowStatic && this.peek_(TokenType.STATIC) ? 1 : 0;
-      return this.peekPredefinedString_(index, PredefinedName.GET) && this.peekPropertyName_(index + 1);
+      return this.peekPredefinedString_(PredefinedName.GET, index) && this.peekPropertyName_(index + 1);
     },
 
     /**
      * @return {boolean}
      * @private
      */
-    peekPredefinedString_: function(var_args) {
-      var index, string;
-      if (arguments.length == 1) {
-        index = 0;
-        string = arguments[0];
-      } else {
-        index = arguments[0];
-        string = arguments[1];
-      }
-      return this.peek_(index, TokenType.IDENTIFIER) && this.peekToken_(index).value === string;
+    peekPredefinedString_: function(string, opt_index) {
+      var index = opt_index || 0;
+      return this.peek_(TokenType.IDENTIFIER, index) && this.peekToken_(index).value === string;
     },
 
     /**
@@ -1922,7 +1915,7 @@ traceur.define('syntax', function() {
      */
     peekSetAccessor_: function(allowStatic) {
       var index = allowStatic && this.peek_(TokenType.STATIC) ? 1 : 0;
-      return this.peekPredefinedString_(index, PredefinedName.SET) && this.peekPropertyName_(index + 1);
+      return this.peekPredefinedString_(PredefinedName.SET, index) && this.peekPropertyName_(index + 1);
     },
 
     /**
@@ -2643,7 +2636,7 @@ traceur.define('syntax', function() {
      */
     peekParenPatternStart_: function() {
       var index = 0;
-      while (this.peek_(index, TokenType.OPEN_PAREN)) {
+      while (this.peek_(TokenType.OPEN_PAREN, index)) {
         index++;
       }
       return this.peekPatternStart_(index);
@@ -2655,7 +2648,7 @@ traceur.define('syntax', function() {
      */
     peekPatternStart_: function(opt_index) {
       var index = opt_index || 0;
-      return this.peek_(index, TokenType.OPEN_SQUARE) || this.peek_(index, TokenType.OPEN_CURLY);
+      return this.peek_(TokenType.OPEN_SQUARE, index) || this.peek_(TokenType.OPEN_CURLY, index);
     },
 
     /**
@@ -3024,19 +3017,13 @@ traceur.define('syntax', function() {
     /**
      * Returns true if the index-th next token is of the expected type. Does not consume any tokens.
      *
+     * @param {TokenType} expectedType
+     * @param {number=} opt_index
      * @return {boolean}
      * @private
      */
-    peek_: function(var_args) {
-      var index, expectedType;
-      if (arguments.length == 1) {
-        index = 0;
-        expectedType = arguments[0];
-      } else {
-        index = arguments[0];
-        expectedType = arguments[1];
-      }
-      return this.peekType_(index) == expectedType;
+    peek_: function(expectedType, opt_index) {
+      return this.peekType_(opt_index || 0) == expectedType;
     },
 
     /**
