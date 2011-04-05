@@ -333,11 +333,7 @@ traceur.define('syntax', function() {
     },
 
     isAtEnd_: function() {
-      return !this.isValidIndex_(this.index_);
-    },
-
-    isValidIndex_: function(index) {
-      return index >= 0 && index < this.source_.contents.length;
+      return this.index_ >= this.source_.contents.length;
     },
 
     // 7.2 White Space
@@ -847,9 +843,7 @@ traceur.define('syntax', function() {
     },
 
     peekChar_: function(opt_offset) {
-      var offset = opt_offset || 0;
-      return !this.isValidIndex_(this.index_ + offset) ?
-          '\0' : this.source_.contents.charAt(this.index_ + offset);
+      return this.source_.contents.charAt(this.index_ + (opt_offset || 0)) || '\0';
     },
 
     reportError_: function(var_args) {
