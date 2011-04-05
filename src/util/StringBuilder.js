@@ -21,22 +21,18 @@ traceur.define('util', function() {
    */
   function StringBuilder() {
     this.strings_ = [];
-    this.length_ = 0;
+    this.length = 0;
   }
 
   StringBuilder.prototype = {
     append: function(str) {
       str = str.toString();
-      this.length_ += str.length
+      this.length += str.length
       this.strings_.push(str);
     },
   
     toString: function() {
       return this.strings_.join('');
-    },
-    
-    length: function() {
-      return this.length_;
     },
     
     // Instead of supporting charAt and deleteCharAt, implement lastChar and deleteLastChar
@@ -51,9 +47,10 @@ traceur.define('util', function() {
     },
 
     deleteLastChar: function() {
-      var last = this.strings_[this.strings_.length - 1];
-      if (last && last.length > 0) {
-        last.length -= 1;
+      var lastString = this.strings_.length - 1;
+      var last = this.strings_[lastString];
+      if (last) {
+        this.strings_[lastString] = last.substring(0, last.length - 1);        
       }
     }
   };

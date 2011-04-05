@@ -87,7 +87,7 @@ function testWriteStatement() {
   ]);
   var actual = ParseTreeWriter.write(tree);
   
-  var expected = '\nvar x = 1 ; \nif (x > 0 ) { \n  x ++ \n} \n';
+  var expected = '\nvar x = 1; \nif(x > 0) { \n  x ++ \n} \n';
   assertEquals(expected, actual);
 }
 

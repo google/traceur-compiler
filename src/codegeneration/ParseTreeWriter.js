@@ -26,8 +26,8 @@ traceur.define('codegeneration', function() {
    */
   function ParseTreeWriter(highlighted, showLineNumbers) {
       ParseTreeVisitor.call(this);
-      this.HIGHLIGHTED = highlighted;      
-      this.SHOW_LINE_NUMBERS = showLineNumbers;
+      this.highlighted_ = highlighted;      
+      this.showLineNumbers_ = showLineNumbers;
   }
   
   // constants
@@ -35,6 +35,7 @@ traceur.define('codegeneration', function() {
   var PRETTY_PRINT = true;
   
   ParseTreeWriter.write = function(tree, var_args) {
+    var showLineNumbers, highlighted;
     if (arguments.length <= 2) {
       showLineNumbers = arguments[1] || true;
       highlighted = null;
@@ -45,14 +46,14 @@ traceur.define('codegeneration', function() {
   
     var writer = new ParseTreeWriter(highlighted, showLineNumbers);
     writer.visitAny(tree);
-    if (writer.currentLine_.length() > 0) {
+    if (writer.currentLine_.length > 0) {
       writer.writeln_();
     }
     return writer.result_.toString(); 
   }
    
   ParseTreeWriter.prototype = {
-     __proto__:  ParseTreeVisitor,
+     __proto__:  ParseTreeVisitor.prototype,
   
     /**
      * @type {StringBuilder}
@@ -83,17 +84,17 @@ traceur.define('codegeneration', function() {
      */
     visitAny: function(tree) {
       // set background color to red if tree is highlighted
-      if (tree != null && tree == this.HIGHLIGHTED) {
+      if (tree != null && tree == this.highlighted_) {
         this.write_('\x1B[41m');
       }
   
-      if (tree != null && tree.location != null && tree.location.start != null && this.SHOW_LINE_NUMBERS) {
+      if (tree != null && tree.location != null && tree.location.start != null && this.showLineNumbers_) {
         this.currentLineComment_ = 'Line: ' + (tree.location.start.line + 1);
       }
       ParseTreeVisitor.prototype.visitAny.call(this, tree);
   
       // set background color to normal
-      if (tree != null && tree == this.HIGHLIGHTED) {
+      if (tree != null && tree == this.highlighted_) {
         this.write_('\x1B[0m');
       }
     },
@@ -842,7 +843,7 @@ traceur.define('codegeneration', function() {
     
     writeln_: function() {
       if (this.currentLineComment_ != null) {
-        while (this.currentLine_.length() < 80) {
+        while (this.currentLine_.length < 80) {
           this.currentLine_.append(' ');
         }
         this.currentLine_.append(' // ').append(this.currentLineComment_);
@@ -942,7 +943,7 @@ traceur.define('codegeneration', function() {
       
       if (value != null) {
         if (PRETTY_PRINT) {
-          if (this.currentLine_.length() == 0) {
+          if (this.currentLine_.length == 0) {
             for (var i = 0, indent = this.indentDepth_ * 2; i < indent; ++i) {
               this.currentLine_.append(' ');
             }
