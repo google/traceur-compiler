@@ -87,7 +87,7 @@
       for (var i = 0; i < scriptsToRun.length; i++) {
         var entry = scriptsToRun[i];
         var compiler = new traceur.Compiler();
-        var result = compiler.compile(entry.contents);
+        var result = compiler.compile(entry.name, entry.contents);
         
         if (result.errors.length > 0) {
           console.warn("Traceur compilation errors", result.errors);

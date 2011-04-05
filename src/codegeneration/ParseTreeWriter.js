@@ -19,8 +19,8 @@ traceur.define('codegeneration', function() {
   var Keywords = traceur.syntax.Keywords;
   var TokenType = traceur.syntax.TokenType;
   var StringBuilder = traceur.util.StringBuilder;
-
-
+  var Keywords = traceur.syntax.Keywords;
+  
   /**
    * Converts a ParseTree to text.
    * @param {ParseTree} highlighted

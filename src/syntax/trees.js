@@ -275,7 +275,7 @@ traceur.define('syntax.trees', function() {
 
     /**
      * @param {traceur.util.SourceRange} location
-     * @param {ParseTree} variables
+     * @param {ParseTree} initializer
      * @param {ParseTree} condition
      * @param {ParseTree} increment
      * @param {ParseTree} body

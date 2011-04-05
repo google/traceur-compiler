@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<!--
+Copyright 2009 The Closure Library Authors. All Rights Reserved.
+
+Use of this source code is governed by the Apache License, Version 2.0.
+See the COPYING file for details.
+-->
+<head>
+<title>Closure - All JsUnit Tests - Run with Traceur</title>
+<script src="../src/traceur.js"></script>
+<script src="../src/compiler.js"></script>
+<script src="../src/bootstrap.js"></script>
+<script src="../src/util/SourceRange.js"></script>
+<script src="../src/util/SourcePosition.js"></script>
+<script src="../src/syntax/Token.js"></script>
+<script src="../src/syntax/TokenType.js"></script>
+<script src="../src/syntax/LiteralToken.js"></script>
+<script src="../src/syntax/IdentifierToken.js"></script>
+<script src="../src/syntax/Keywords.js"></script>
+<script src="../src/syntax/LineNumberTable.js"></script>
+<script src="../src/syntax/SourceFile.js"></script>
+<script src="../src/syntax/Scanner.js"></script>
+<script src="../src/syntax/PredefinedName.js"></script>
+<script src="../src/syntax/trees/ParseTreeType.js"></script>
+<script src="../src/syntax/trees/ParseTree.js"></script>
+<script src="../src/syntax/trees.js"></script>
+<script src="../src/syntax/trees/ImportPathTree.js"></script>
+<script src="../src/syntax/trees/NullTree.js"></script>
+<script src="../src/util/ErrorReporter.js"></script>
+<script src="../src/util/MutedErrorReporter.js"></script>
+<script src="../src/syntax/Parser.js"></script>
+<script src="../src/syntax/ParseTreeVisitor.js"></script>
+<script src="../src/util/StringBuilder.js"></script>
+<script src="../src/codegeneration/ParseTreeWriter.js"></script>
+<script>
+  // hook import to load closure with traceur
+  this.CLOSURE_IMPORT_SCRIPT = function(src) {
+    if (goog.inHtmlDocument_()) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', src, false);
+      xhr.send(null);
+      console.log("traceur", "compiled file " + src);
+      var compiler = new traceur.Compiler();
+      var result = compiler.compile(src, xhr.responseText);
+      if (result.errors.length > 0) {
+        throw new Error("Traceur compilation errors: " + result.errors);
+      }
+
+      var doc = goog.global.document;
+      var script = doc.createElement('script');
+      script.textContent = result.result;
+      document.head.appendChild(script);
+      return true;
+    } else {
+      return false;
+    }
+  };
+</script>
+<script src="../third_party/closure-library/closure/goog/base.js"></script>
+<script src="../third_party/closure-library/alltests.js"></script>
+<script>
+goog.require('goog.userAgent.product');
+goog.require('goog.testing.MultiTestRunner');
+</script>
+<link rel="stylesheet" href="../third_party/closure-library/closure/goog/css/multitestrunner.css" type="text/css">
+<style>
+h1 {
+  font: normal x-large arial, helvetica, sans-serif;
+  margin: 0;
+}
+p, form {
+  font: normal small sans-serif;
+  margin: 0;
+}
+#header {
+  position: absolute;
+  right: 10px;
+  top: 13px;
+}
+#footer {
+  margin-top: 8px;
+}
+a {
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+.warning {
+  font-size: 14px;
+  font-weight: bold;
+  width: 80%;
+}
+</style>
+</head>
+<body>
+
+<script>
+  for (var i = 0; i < _allTests.length; i++) {
+    _allTests[i] = '../third_party/closure-library/' + _allTests[i];
+  }
+    
+  if (goog.userAgent.product.CHROME &&
+      window.location.toString().indexOf('file:') == 0) {
+    document.write(
+        '<div class="warning">' +
+        'WARNING: Due to Chrome\'s security restrictions ' +
+        'this test will not be able to load files off your local disk ' +
+        'unless you start Chrome with:<br>' +
+        '<code>--allow-file-access-from-files</code></div><br>');
+  }
+</script>
+
+<h1>Closure - All JsUnit Tests - Run with Traceur</h1>
+<p id="header">
+  <a href="http://wiki/Main/ClosureUnitTests">Closure JS Testing HOWTO</a>
+</p>
+<div id="runner"></div>
+<!--  Use a form so browser persists input values -->
+<form id="footer" onsubmit="return false">
+  Settings:<br>
+  <input type="checkbox" name="hidepasses" id="hidepasses" checked>
+  <label for="hidepasses">Hide passes</label><br>
+  <input type="checkbox" name="parallel" id="parallel" checked>
+  <label for="parallel">Run in parallel</label>
+  <small>(timing stats not available if enabled)</small><br>
+  <input type="text" name="filter" id="filter" value="">
+  <label for="filter">Run only tests for path</label>
+</form>
+<script>
+  var hidePassesInput = document.getElementById('hidepasses');
+  var parallelInput = document.getElementById('parallel');
+  var filterInput = document.getElementById('filter');
+
+  function setFilterFunction() {
+    var matchValue = filterInput.value || '';
+    testRunner.setFilterFunction(function(testPath) {
+      return testPath.indexOf(matchValue) > -1;
+    });
+  }
+
+  // Create a test runner and render it.
+  var testRunner = new goog.testing.MultiTestRunner()
+      .setName(document.title)
+      .setBasePath('./')
+      .setPoolSize(parallelInput.checked ? 8 : 1)
+      .setStatsBucketSizes(5, 500)
+      .setHidePasses(hidePassesInput.checked)
+      //.setVerbosePasses(true)
+      .addTests(_allTests);
+  testRunner.render(document.getElementById('runner'));
+
+  goog.events.listen(hidePassesInput, 'click', function(e) {
+    testRunner.setHidePasses(e.target.checked);
+  });
+
+  goog.events.listen(parallelInput, 'click', function(e) {
+    testRunner.setPoolSize(e.target.checked ? 8 : 1);
+  });
+
+  goog.events.listen(filterInput, 'keyup', setFilterFunction);
+  setFilterFunction();
+</script>
+</body>
+</html>
