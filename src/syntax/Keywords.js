@@ -78,7 +78,7 @@ traceur.define('syntax', function() {
     'async'
   ];
 
-  var Keywords = Object.create(null);
+  var Keywords = { };
 
   var keywordsByName = Object.create(null);
   var keywordsByType = Object.create(null);

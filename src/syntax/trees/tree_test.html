@@ -140,7 +140,7 @@ function testTreeConstructors() {
 
   validateTree(traceur.syntax.trees.CallExpressionTree,
       ParseTreeType.CALL_EXPRESSION,
-      ['location', 'operand', 'arguments']);
+      ['location', 'operand', 'args']);
 
   validateTree(traceur.syntax.trees.CaseClauseTree,
       ParseTreeType.CASE_CLAUSE,
@@ -216,7 +216,7 @@ function testTreeConstructors() {
 
   validateTree(traceur.syntax.trees.FormalParameterListTree,
       ParseTreeType.FORMAL_PARAMETER_LIST,
-      ['location', 'declarations']);
+      ['location', 'parameters']);
 
   validateTree(traceur.syntax.trees.ForStatementTree,
       ParseTreeType.FOR_STATEMENT,
