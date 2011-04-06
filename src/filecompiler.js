@@ -14,10 +14,10 @@
 
 (function() {
   'use strict';
-  
+
   var fs = require('fs');
   var path = require('path');
-    
+
   /**
    * Reads a script and eval's it into the global scope.
    * TODO: this is needed for now because of how our scripts are designed.
@@ -33,7 +33,7 @@
     data = data.toString('utf8');
     eval.call(global, data);
   }
-  
+
   importScript('./traceur.js');
   importScript('./compiler.js');
   importScript('./util/SourceRange.js');
@@ -58,7 +58,7 @@
   importScript('./syntax/ParseTreeVisitor.js');
   importScript('./util/StringBuilder.js');
   importScript('./codegeneration/ParseTreeWriter.js');
-  
+
   /**
    * A command-line precompiler for a traceur JS file.
    * @param {string} filename
@@ -70,24 +70,24 @@
       return;
     }
     data = data.toString('utf8');
-  
+
     var compiler = new global.traceur.Compiler();
     var result = compiler.compile(filename, data);
-  
+
     if (result.errors.hadError()) {
       console.log('Compilation of ' + filename + ' failed.');
       return;
     }
-  
+
     filename = path.basename(filename, '.js') + '.traceur.js';
     fs.writeFileSync(filename, new Buffer(result.result));
     console.log('Compilation of ' + filename + ' successful.');
   }
-  
+
   if (process.argv.length <= 2) {
     console.log('Usage: node ' + process.argv[1] + ' filename.js...');
     process.exit(1);
   }
-  
+
   process.argv.slice(2).forEach(compile);
 })();
