@@ -14,7 +14,7 @@
 
 traceur.define('syntax', function() {
   'use strict';
-  
+
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
 
   /**
@@ -110,7 +110,7 @@ traceur.define('syntax', function() {
         case ParseTreeType.YIELD_STATEMENT: this.visitYieldStatementTree(tree.asYieldStatement()); break;
         case ParseTreeType.NULL: this.visitNullTree(tree.asNull()); break;
         default:
-          throw new Error('unimplemented node type: ' + tree.type);
+          throw Error('unimplemented node type: ' + tree.type);
       }
     },
 
@@ -555,7 +555,7 @@ traceur.define('syntax', function() {
      * @param {traceur.syntax.trees.StateMachineTree} tree
      */
     visitStateMachineTree: function(tree) {
-      throw {}; // State machines should not live outside of the GeneratorTransformer.
+      throw Error('State machines should not live outside of the GeneratorTransformer.');
     },
 
     /**
@@ -652,7 +652,7 @@ traceur.define('syntax', function() {
     visitYieldStatementTree: function(tree) {
       this.visitAny(tree.expression);
     }
-  }
+  };
 
   // Export
   return {

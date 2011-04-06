@@ -18,9 +18,10 @@ traceur.define('syntax.trees', function() {
   /**
    * The types of concrete parse trees.
    *
-   * The name of the ParseTreeType must match the name of the class that it applies to.
-   * For example the DerivedTree class should use ParseTreeType.DERIVED.
-   * 
+   * The name of the ParseTreeType must match the name of the class that it
+   * applies to. For example the DerivedTree class should use
+   * ParseTreeType.DERIVED.
+   *
    * @enum {string}
    */
   var ParseTreeType = {

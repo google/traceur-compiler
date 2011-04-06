@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function () {
+(function() {
   'use strict';
 
   function compileAll() {
@@ -46,10 +46,10 @@
         var script = scripts[i];
         if (script.type == 'text/traceur' && !script.$jsppLoaded) {
           var entry = {
-             scriptElement: script,
-             parentElement: script.parentElement,
-             name: script.src,
-             contents: ''
+            scriptElement: script,
+            parentElement: script.parentElement,
+            name: script.src,
+            contents: ''
           };
 
           scriptsToRun.push(entry);
@@ -57,7 +57,7 @@
             entry.contents = script.textContent;
             entry.name = document.location + ':' + i;
           } else {
-            (function (boundEntry) {
+            (function(boundEntry) {
               numPending++;
               var xhr = new XMLHttpRequest();
               xhr.open('GET', script.src);
@@ -88,9 +88,9 @@
         var entry = scriptsToRun[i];
         var compiler = new traceur.Compiler();
         var result = compiler.compile(entry.name, entry.contents);
-        
+
         if (result.errors.length > 0) {
-          console.warn("Traceur compilation errors", result.errors);
+          console.warn('Traceur compilation errors', result.errors);
           continue;
         }
 

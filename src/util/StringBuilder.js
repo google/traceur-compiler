@@ -27,7 +27,7 @@ traceur.define('util', function() {
   StringBuilder.prototype = {
     append: function(str) {
       str = str.toString();
-      this.length += str.length
+      this.length += str.length;
       this.strings_.push(str);
       return this;
     },
@@ -36,8 +36,9 @@ traceur.define('util', function() {
       return this.strings_.join('');
     },
 
-    // Instead of supporting charAt and deleteCharAt, implement lastChar and deleteLastChar
-    // These can be implemented in constant time with no additional data structures
+    // Instead of supporting charAt and deleteCharAt, implement lastChar and
+    // deleteLastChar. These can be implemented in constant time with no
+    // additional data structures
 
     lastChar: function() {
       var last = this.strings_[this.strings_.length - 1];

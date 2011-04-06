@@ -27,7 +27,7 @@ traceur.define('syntax', function() {
    */
   function IdentifierToken(location, value) {
     Token.call(this, TokenType.IDENTIFIER, location);
-    this.value = value
+    this.value = value;
   }
 
   IdentifierToken.prototype = {

@@ -221,11 +221,11 @@ traceur.define('syntax', function() {
     }
   */
 
-  /**
+    /**
    * @return {ParseTree}
    * @private
    */
-  parseScriptElement_: function() {
+    parseScriptElement_: function() {
       if (this.peekClassDeclaration_()) {
         return this.parseClassDeclaration_();
       }
@@ -360,7 +360,7 @@ traceur.define('syntax', function() {
     //                      |  '*'
     /**
      * @param {SourcePosition} start
-     * @param {Array.<IdentifierToken> qualifiedPath
+     * @param {Array.<IdentifierToken>} qualifiedPath
      * @return {ParseTree}
      * @private
      */
@@ -369,7 +369,7 @@ traceur.define('syntax', function() {
         var elements = [];
         this.eat_(TokenType.OPEN_CURLY);
         elements.push(this.parseImportSpecifier_());
-        while (this.peek_(TokenType.COMMA)){
+        while (this.peek_(TokenType.COMMA)) {
           this.eat_(TokenType.COMMA);
           elements.push(this.parseImportSpecifier_());
         }
@@ -390,7 +390,7 @@ traceur.define('syntax', function() {
       var start = this.getTreeStartLocation_();
       var importedName = this.eatId_();
       var destinationName = null;
-      if (this.peek_(TokenType.COLON)){
+      if (this.peek_(TokenType.COLON)) {
         this.eat_(TokenType.COLON);
         destinationName = this.eatId_();
       }
@@ -439,7 +439,7 @@ traceur.define('syntax', function() {
           } else if (this.peekTraitDeclaration_()) {
             exportVar = this.parseTraitDeclaration_();
           } else {
-            throw new Error("UNDONE: export ModuleLoad | ExportPath");
+            throw Error('UNDONE: export ModuleLoad | ExportPath');
           }
           break;
         default:
@@ -638,7 +638,7 @@ traceur.define('syntax', function() {
      * @private
      */
     parseClassElement_: function() {
-      if (this.peekMethodDeclaration_()){
+      if (this.peekMethodDeclaration_()) {
         return this.parseMethodDeclaration_(true);
       }
       // TODO: access modifiers
@@ -718,7 +718,7 @@ traceur.define('syntax', function() {
       this.eat_(TokenType.OPEN_CURLY);
       while (this.peek_(TokenType.IDENTIFIER)) {
         result.push(this.parseMixinResolve_());
-        if (null == this.eatOpt_(TokenType.COMMA)){
+        if (null == this.eatOpt_(TokenType.COMMA)) {
           break;
         }
       }
@@ -876,7 +876,7 @@ traceur.define('syntax', function() {
             result.push(this.parseDefaultParameter_());
             hasDefaultParameters = true;
           } else {
-             result.push(this.parseIdentifierExpression_());
+            result.push(this.parseIdentifierExpression_());
           }
         }
 
@@ -1128,7 +1128,7 @@ traceur.define('syntax', function() {
           this.eat_(token);
           break;
         default:
-          throw new Error("unreachable");
+          throw Error('unreachable');
       }
 
       var start = this.getTreeStartLocation_();
@@ -1162,9 +1162,9 @@ traceur.define('syntax', function() {
       if (this.peek_(TokenType.EQUAL)) {
         initializer = this.parseInitializer_(expressionIn);
       } else if (binding == TokenType.CONST) {
-        this.reportError_("const variables must have an initializer");
+        this.reportError_('const variables must have an initializer');
       } else if (lvalue.isPattern()) {
-        this.reportError_("destructuring must have an initializer");
+        this.reportError_('destructuring must have an initializer');
       }
       return new VariableDeclarationTree(this.getTreeLocation_(start), lvalue, initializer);
     },
@@ -1271,14 +1271,14 @@ traceur.define('syntax', function() {
         if (this.peek_(TokenType.IN)) {
           // for-in: only one declaration allowed
           if (variables.declarations.length > 1) {
-            this.reportError_("for-in statement may not have more than one variable declaration");
+            this.reportError_('for-in statement may not have more than one variable declaration');
           }
           // for-in: if let/const binding used, initializer is illegal
           if ((variables.declarationType == TokenType.LET ||
                variables.declarationType == TokenType.CONST)) {
             var declaration = variables.declarations.get(0);
             if (declaration.initializer != null) {
-              this.reportError_("let/const in for-in statement may not have initializer");
+              this.reportError_('let/const in for-in statement may not have initializer');
             }
           }
 
@@ -1286,12 +1286,12 @@ traceur.define('syntax', function() {
         } else if (this.peek_(TokenType.COLON)) {
           // for-in: only one declaration allowed
           if (variables.declarations.length > 1) {
-            this.reportError_("for-each statement may not have more than one variable declaration");
+            this.reportError_('for-each statement may not have more than one variable declaration');
           }
           // for-each: initializer is illegal
           var declaration = variables.declarations.get(0);
           if (declaration.initializer != null) {
-            this.reportError_("for-each statement may not have initializer");
+            this.reportError_('for-each statement may not have initializer');
           }
 
           return this.parseForEachStatement_(start, variables);
@@ -1343,7 +1343,7 @@ traceur.define('syntax', function() {
         for (var i = 0; i < variables.declarations.length; i++) {
           var declaration = variables.declarations[i];
           if (declaration.initializer == null) {
-            this.reportError_("let/const in for statement must have an initializer");
+            this.reportError_('let/const in for statement must have an initializer');
             break;
           }
         }
@@ -1542,7 +1542,7 @@ traceur.define('syntax', function() {
             break;
           case TokenType.DEFAULT:
             if (foundDefaultClause) {
-              this.reportError_("Switch statements may have at most one default clause");
+              this.reportError_('Switch statements may have at most one default clause');
             } else {
               foundDefaultClause = true;
             }
@@ -1870,7 +1870,7 @@ traceur.define('syntax', function() {
         case TokenType.NUMBER:
           return this.parsePropertyNameAssignment_();
         default:
-          throw new Error("unreachable");
+          throw Error('unreachable');
       }
     },
 
@@ -1964,7 +1964,7 @@ traceur.define('syntax', function() {
      */
     parseMissingPrimaryExpression_: function() {
       var start = this.getTreeStartLocation_();
-      this.reportError_("primary expression expected");
+      this.reportError_('primary expression expected');
       var token = this.nextToken_();
       return new MissingPrimaryExpressionTree(this.getTreeLocation_(start), token);
     },
@@ -2074,7 +2074,7 @@ traceur.define('syntax', function() {
 
       if (this.peekAssignmentOperator_()) {
         if (!left.isLeftHandSideExpression() && !left.isPattern()) {
-          this.reportError_("Left hand side of assignment must be new, call, member, function, primary expressions or destructuring pattern");
+          this.reportError_('Left hand side of assignment must be new, call, member, function, primary expressions or destructuring pattern');
         }
         var operator = this.nextToken_();
         var right = this.parseAssignment_(expressionIn);
@@ -2135,7 +2135,7 @@ traceur.define('syntax', function() {
     parseLogicalOR_: function(expressionIn) {
       var start = this.getTreeStartLocation_();
       var left = this.parseLogicalAND_(expressionIn);
-      while (this.peek_(TokenType.OR)){
+      while (this.peek_(TokenType.OR)) {
         var operator = this.eat_(TokenType.OR);
         var right = this.parseLogicalAND_(expressionIn);
         left = new BinaryOperatorTree(this.getTreeLocation_(start), left, operator, right);
@@ -2152,7 +2152,7 @@ traceur.define('syntax', function() {
     parseLogicalAND_: function(expressionIn) {
       var start = this.getTreeStartLocation_();
       var left = this.parseBitwiseOR_(expressionIn);
-      while (this.peek_(TokenType.AND)){
+      while (this.peek_(TokenType.AND)) {
         var operator = this.eat_(TokenType.AND);
         var right = this.parseBitwiseOR_(expressionIn);
         left = new BinaryOperatorTree(this.getTreeLocation_(start), left, operator, right);
@@ -2169,7 +2169,7 @@ traceur.define('syntax', function() {
     parseBitwiseOR_: function(expressionIn) {
       var start = this.getTreeStartLocation_();
       var left = this.parseBitwiseXOR_(expressionIn);
-      while (this.peek_(TokenType.BAR)){
+      while (this.peek_(TokenType.BAR)) {
         var operator = this.eat_(TokenType.BAR);
         var right = this.parseBitwiseXOR_(expressionIn);
         left = new BinaryOperatorTree(this.getTreeLocation_(start), left, operator, right);
@@ -2186,7 +2186,7 @@ traceur.define('syntax', function() {
     parseBitwiseXOR_: function(expressionIn) {
       var start = this.getTreeStartLocation_();
       var left = this.parseBitwiseAND_(expressionIn);
-      while (this.peek_(TokenType.CARET)){
+      while (this.peek_(TokenType.CARET)) {
         var operator = this.eat_(TokenType.CARET);
         var right = this.parseBitwiseAND_(expressionIn);
         left = new BinaryOperatorTree(this.getTreeLocation_(start), left, operator, right);
@@ -2203,7 +2203,7 @@ traceur.define('syntax', function() {
     parseBitwiseAND_: function(expressionIn) {
       var start = this.getTreeStartLocation_();
       var left = this.parseEquality_(expressionIn);
-      while (this.peek_(TokenType.AMPERSAND)){
+      while (this.peek_(TokenType.AMPERSAND)) {
         var operator = this.eat_(TokenType.AMPERSAND);
         var right = this.parseEquality_(expressionIn);
         left = new BinaryOperatorTree(this.getTreeLocation_(start), left, operator, right);
@@ -2220,7 +2220,7 @@ traceur.define('syntax', function() {
     parseEquality_: function(expressionIn) {
       var start = this.getTreeStartLocation_();
       var left = this.parseRelational_(expressionIn);
-      while (this.peekEqualityOperator_()){
+      while (this.peekEqualityOperator_()) {
         var operator = this.nextToken_();
         var right = this.parseRelational_(expressionIn);
         left = new BinaryOperatorTree(this.getTreeLocation_(start), left, operator, right);
@@ -2253,7 +2253,7 @@ traceur.define('syntax', function() {
     parseRelational_: function(expressionIn) {
       var start = this.getTreeStartLocation_();
       var left = this.parseShiftExpression_();
-      while (this.peekRelationalOperator_(expressionIn)){
+      while (this.peekRelationalOperator_(expressionIn)) {
         var operator = this.nextToken_();
         var right = this.parseShiftExpression_();
         left = new BinaryOperatorTree(this.getTreeLocation_(start), left, operator, right);
@@ -2289,7 +2289,7 @@ traceur.define('syntax', function() {
     parseShiftExpression_: function() {
       var start = this.getTreeStartLocation_();
       var left = this.parseAdditiveExpression_();
-      while (this.peekShiftOperator_()){
+      while (this.peekShiftOperator_()) {
         var operator = this.nextToken_();
         var right = this.parseAdditiveExpression_();
         left = new BinaryOperatorTree(this.getTreeLocation_(start), left, operator, right);
@@ -2320,7 +2320,7 @@ traceur.define('syntax', function() {
     parseAdditiveExpression_: function() {
       var start = this.getTreeStartLocation_();
       var left = this.parseMultiplicativeExpression_();
-      while (this.peekAdditiveOperator_()){
+      while (this.peekAdditiveOperator_()) {
         var operator = this.nextToken_();
         var right = this.parseMultiplicativeExpression_();
         left = new BinaryOperatorTree(this.getTreeLocation_(start), left, operator, right);
@@ -2350,7 +2350,7 @@ traceur.define('syntax', function() {
     parseMultiplicativeExpression_: function() {
       var start = this.getTreeStartLocation_();
       var left = this.parseUnaryExpression_();
-      while (this.peekMultiplicativeOperator_()){
+      while (this.peekMultiplicativeOperator_()) {
         var operator = this.nextToken_();
         var right = this.parseUnaryExpression_();
         left = new BinaryOperatorTree(this.getTreeLocation_(start), left, operator, right);
@@ -2746,9 +2746,9 @@ traceur.define('syntax', function() {
 
       var lvalue = this.parseLeftHandSideExpression_();
 
-      if (kind == PatternKind.INITIALIZER
-          && lvalue.type != ParseTreeType.IDENTIFIER_EXPRESSION) {
-        this.reportError_("lvalues in initializer patterns must be identifiers");
+      if (kind == PatternKind.INITIALIZER &&
+          lvalue.type != ParseTreeType.IDENTIFIER_EXPRESSION) {
+        this.reportError_('lvalues in initializer patterns must be identifiers');
       }
 
       return spread ?
@@ -2838,7 +2838,7 @@ traceur.define('syntax', function() {
         element = this.parsePatternElement_(kind, objectSubPatternFollowSet);
 
         if (element.isSpreadPatternElement()) {
-          this.reportError_("Rest can not be used in object patterns");
+          this.reportError_('Rest can not be used in object patterns');
         }
       }
       return new ObjectPatternFieldTree(this.getTreeLocation_(start),
@@ -2860,7 +2860,7 @@ traceur.define('syntax', function() {
         return;
       }
 
-      this.reportError_("Semi-colon expected");
+      this.reportError_('Semi-colon expected');
     },
 
     /**
@@ -3071,8 +3071,8 @@ traceur.define('syntax', function() {
 
     /**
      * Reports an error message at a given token.
-     * @param token The location to report the message at.
-     * @param message The message to report in String.format style.
+     * @param {traceur.util.SourcePostion} token The location to report the message at.
+     * @param {string} message The message to report in String.format style.
      *
      * @return {void}
      * @private

@@ -20,7 +20,7 @@ traceur.define('codegeneration', function() {
   var TokenType = traceur.syntax.TokenType;
   var StringBuilder = traceur.util.StringBuilder;
   var Keywords = traceur.syntax.Keywords;
-  
+
   /**
    * Converts a ParseTree to text.
    * @param {ParseTree} highlighted
@@ -57,19 +57,19 @@ traceur.define('codegeneration', function() {
   }
 
   ParseTreeWriter.prototype = {
-     __proto__:  ParseTreeVisitor.prototype,
+    __proto__: ParseTreeVisitor.prototype,
 
     /**
      * @type {string}
      * @private
      */
-    currentLineComment_ : null,
+    currentLineComment_: null,
 
     /**
      * @type {number}
      * @private
      */
-    indentDepth_ : 0,
+    indentDepth_: 0,
 
     /**
      * @param {ParseTree} tree
@@ -80,7 +80,8 @@ traceur.define('codegeneration', function() {
         this.write_('\x1B[41m');
       }
 
-      if (tree != null && tree.location != null && tree.location.start != null && this.showLineNumbers_) {
+      if (tree != null && tree.location != null &&
+          tree.location.start != null && this.showLineNumbers_) {
         this.currentLineComment_ = 'Line: ' + (tree.location.start.line + 1);
       }
       ParseTreeVisitor.prototype.visitAny.call(this, tree);
@@ -456,18 +457,18 @@ traceur.define('codegeneration', function() {
     visitImportPathTree: function(tree) {
       this.writeTokenList_(tree.qualifiedPath, TokenType.PERIOD, false);
       switch (tree.kind) {
-      case ALL:
-        this.write_(TokenType.PERIOD);
-        this.write_(TokenType.STAR);
-        break;
-      case NONE:
-        break;
-      case SET:
-        this.write_(TokenType.PERIOD);
-        this.write_(TokenType.OPEN_CURLY);
-        this.writeList_(tree.importSpecifierSet, TokenType.COMMA, false);
-        this.write_(TokenType.CLOSE_CURLY);
-        break;
+        case ALL:
+          this.write_(TokenType.PERIOD);
+          this.write_(TokenType.STAR);
+          break;
+        case NONE:
+          break;
+        case SET:
+          this.write_(TokenType.PERIOD);
+          this.write_(TokenType.OPEN_CURLY);
+          this.writeList_(tree.importSpecifierSet, TokenType.COMMA, false);
+          this.write_(TokenType.CLOSE_CURLY);
+          break;
       }
     },
 
@@ -955,7 +956,7 @@ traceur.define('codegeneration', function() {
         this.indentDepth_++;
       }
     }
-  }
+  };
 
   return {
     ParseTreeWriter: ParseTreeWriter

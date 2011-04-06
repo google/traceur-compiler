@@ -17,25 +17,25 @@ traceur.define('', function() {
 
   function Compiler() {
   }
-  
+
   Compiler.prototype.compile = function(scriptName, script) {
-    var errors = new traceur.util.ErrorReporter();    
+    var errors = new traceur.util.ErrorReporter();
     var sourceFile = new traceur.syntax.SourceFile(scriptName, script);
     var parser = new traceur.syntax.Parser(errors, sourceFile);
     var tree = parser.parseProgram();
-  
+
     if (errors.length > 0) {
       return { result: null, errors: errors };
     }
-    
+
     // TODO: transform
-    
+
     // Write out
     var result = traceur.codegeneration.ParseTreeWriter.write(tree);
-    
+
     return { result: result, errors: errors };
   };
-  
+
   return {
     Compiler: Compiler
   };

@@ -21,20 +21,20 @@ traceur.define('syntax.trees', function() {
   var Kind = {
     ALL: 'ALL',
     SET: 'SET',
-    NONE: 'NONE',
+    NONE: 'NONE'
   };
 
   /**
    * @param {traceur.util.SourceRange} location
    * @param {Array.<traceur.syntax.IdentifierToken>} qualifiedPath
-   * @param {Kind|Array.<traceur.syntax.IdentifierToken>} kindOrImportSpecifierSet  
+   * @param {Kind|Array.<traceur.syntax.IdentifierToken>} kindOrImportSpecifierSet
    * @constructor
    * @extends {ParseTree}
    */
   function ImportPathTree(location, qualifiedPath, kindOrImportSpecifierSet) {
     ParseTree.call(this, ParseTreeType.IMPORT_PATH, location);
     this.qualifiedPath = qualifiedPath;
-    
+
     if (kindOrImportSpecifierSet instanceof Array) {
       this.kind = Kind.SET;
       this.importSpecifierSet = kindOrImportSpecifierSet;
@@ -48,7 +48,7 @@ traceur.define('syntax.trees', function() {
   ImportPathTree.prototype = {
     __proto__: ParseTree.prototype
   };
-  
+
   return {
     ImportPathTree: ImportPathTree
   };

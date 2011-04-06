@@ -438,7 +438,7 @@ traceur.define('syntax.trees', function() {
     /**
      * @param {traceur.util.SourceRange} location
      * @param {traceur.syntax.IdentifierToken} identifier
-     * @param {ParseTree|null} element
+     * @param {?ParseTree} element
      * @constructor
      * @extends {ParseTree}
      */

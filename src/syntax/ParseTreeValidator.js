@@ -66,12 +66,12 @@ traceur.define('syntax', function() {
       var locationString = location !== null ?
           location.start.toString() :
           '(unknown)';
-      throw Error('Parse tree validation failure \'' + e.message + '\' at '
-          + locationString
-          + ':\n\n'
+      throw Error('Parse tree validation failure \'' + e.message + '\' at ' +
+          locationString +
+          ':\n\n' +
           // TODO(cburrows): uncomment when writer is available
-          // + ParseTreeWriter.write(tree, validator.lastVisited, true)
-          + '\n');
+          // ParseTreeWriter.write(tree, validator.lastVisited, true) +
+          '\n');
     }
   };
 
@@ -147,16 +147,16 @@ traceur.define('syntax', function() {
     visitArrayPatternTree: function(tree) {
       for (var i = 0; i < tree.elements.length; i++) {
         var element = tree.elements[i];
-        this.checkVisit_(element.isNull()
-            || element.isLeftHandSideExpression()
-            || element.isPattern()
-            || element.isSpreadPatternElement(),
+        this.checkVisit_(element.isNull() ||
+            element.isLeftHandSideExpression() ||
+            element.isPattern() ||
+            element.isSpreadPatternElement(),
             element,
             'null, sub pattern, left hand side expression or spread expected');
 
         if (element.isSpreadPatternElement()) {
           this.check_(i === (tree.elements.length - 1), element,
-                'spread in array patterns must be the last element');
+              'spread in array patterns must be the last element');
         }
       }
     },
@@ -186,8 +186,8 @@ traceur.define('syntax', function() {
         case TokenType.AMPERSAND_EQUAL:
         case TokenType.CARET_EQUAL:
         case TokenType.BAR_EQUAL:
-          this.check_(tree.left.isLeftHandSideExpression()
-              || tree.left.isPattern(),
+          this.check_(tree.left.isLeftHandSideExpression() ||
+              tree.left.isPattern(),
               tree.left,
               'left hand side expression or pattern expected');
           this.check_(tree.right.isAssignmentExpression(),
@@ -362,7 +362,7 @@ traceur.define('syntax', function() {
         case ParseTreeType.TRAIT_DECLARATION:
           break;
         default:
-            this.fail_(tree.declaration, 'expected valid export tree');
+          this.fail_(tree.declaration, 'expected valid export tree');
       }
       this.visitAny(tree.declaration);
     },
@@ -556,13 +556,13 @@ traceur.define('syntax', function() {
       for (var i = 0; i < tree.elements.length; i++) {
         var element = tree.elements[i];
         this.check_((element.isStatement() && element.type !== ParseTreeType.BLOCK) ||
-              element.type === ParseTreeType.CLASS_DECLARATION ||
-              element.type === ParseTreeType.EXPORT_DECLARATION ||
-              element.type === ParseTreeType.IMPORT_DECLARATION ||
-              element.type === ParseTreeType.MODULE_DEFINITION ||
-              element.type === ParseTreeType.TRAIT_DECLARATION,
-              element,
-              'module element expected');
+            element.type === ParseTreeType.CLASS_DECLARATION ||
+            element.type === ParseTreeType.EXPORT_DECLARATION ||
+            element.type === ParseTreeType.IMPORT_DECLARATION ||
+            element.type === ParseTreeType.MODULE_DEFINITION ||
+            element.type === ParseTreeType.TRAIT_DECLARATION,
+            element,
+            'module element expected');
       }
     },
 
@@ -610,8 +610,8 @@ traceur.define('syntax', function() {
      */
     visitObjectPatternFieldTree: function(tree) {
       if (tree.element !== null) {
-        this.checkVisit_(tree.element.isLeftHandSideExpression()
-            || tree.element.isPattern(),
+        this.checkVisit_(tree.element.isLeftHandSideExpression() ||
+            tree.element.isPattern(),
             tree.element,
             'left hand side expression or pattern expected');
       }
@@ -643,10 +643,10 @@ traceur.define('syntax', function() {
     visitProgramTree: function(tree) {
       for (var i = 0; i < tree.sourceElements.length; i++) {
         var sourceElement = tree.sourceElements[i];
-        this.checkVisit_(sourceElement.isSourceElement()
-            || sourceElement.type === ParseTreeType.CLASS_DECLARATION
-            || sourceElement.type === ParseTreeType.TRAIT_DECLARATION
-            || sourceElement.type === ParseTreeType.MODULE_DEFINITION,
+        this.checkVisit_(sourceElement.isSourceElement() ||
+            sourceElement.type === ParseTreeType.CLASS_DECLARATION ||
+            sourceElement.type === ParseTreeType.TRAIT_DECLARATION ||
+            sourceElement.type === ParseTreeType.MODULE_DEFINITION,
             sourceElement,
             'global source element expected');
       }
