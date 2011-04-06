@@ -16,7 +16,8 @@
   'use strict';
   
   var fs = require('fs');
-  
+  var path = require('path');
+    
   /**
    * Reads a script and eval's it into the global scope.
    * TODO: this is needed for now because of how our scripts are designed.
@@ -24,6 +25,7 @@
    * @param {string} filename
    */
   function importScript(filename) {
+    filename = path.join(path.dirname(process.argv[1]), filename);
     var data = fs.readFileSync(filename);
     if (!data) {
       throw new Error('Failed to import ' + filename);
@@ -72,18 +74,18 @@
     var compiler = new global.traceur.Compiler();
     var result = compiler.compile(filename, data);
   
-    if (result.errors.length > 0) {
-      console.warn('Traceur compilation errors', result.errors);
+    if (result.errors.hadError()) {
+      console.log('Compilation of ' + filename + ' failed.');
       return;
     }
   
-    fs.writeFileSync(filename, new Buffer(result.result));
+    filename = path.basename(filename, 'js') + '.traceur.js';
+    fs.writeFileSync(filename + '.traceur', new Buffer(result.result));
     console.log('Compilation of ' + filename + ' successful.');
   }
   
   if (process.argv.length <= 2) {
     console.log('Usage: node ' + process.argv[1] + ' filename.js...');
-    console.log('WARNING: files are modified in place.');
     process.exit(1);
   }
   
