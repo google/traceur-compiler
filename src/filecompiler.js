@@ -79,8 +79,8 @@
       return;
     }
   
-    filename = path.basename(filename, 'js') + '.traceur.js';
-    fs.writeFileSync(filename + '.traceur', new Buffer(result.result));
+    filename = path.basename(filename, '.js') + '.traceur.js';
+    fs.writeFileSync(filename, new Buffer(result.result));
     console.log('Compilation of ' + filename + ' successful.');
   }
   
