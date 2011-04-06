@@ -36,25 +36,20 @@ See the COPYING file for details.
 <script>
   // hook import to load closure with traceur
   this.CLOSURE_IMPORT_SCRIPT = function(src) {
-    if (goog.inHtmlDocument_()) {
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', src, false);
-      xhr.send(null);
-      console.log("traceur", "compiled file " + src);
-      var compiler = new traceur.Compiler();
-      var result = compiler.compile(src, xhr.responseText);
-      if (result.errors.length > 0) {
-        throw new Error("Traceur compilation errors: " + result.errors);
-      }
-
-      var doc = goog.global.document;
-      var script = doc.createElement('script');
-      script.textContent = result.result;
-      document.head.appendChild(script);
-      return true;
-    } else {
-      return false;
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', src, false);
+    xhr.send(null);
+    console.log('traceur', 'compiled file ' + src);
+    var compiler = new traceur.Compiler();
+    var result = compiler.compile(src, xhr.responseText);
+    if (result.errors.length > 0) {
+      throw new Error('Traceur compilation errors: ' + result.errors);
     }
+
+    var script = document.createElement('script');
+    script.textContent = result.result;
+    document.head.appendChild(script);
+    return true;
   };
 </script>
 <script src="../third_party/closure-library/closure/goog/base.js"></script>

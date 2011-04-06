@@ -19,12 +19,7 @@ traceur.define('', function() {
   }
   
   Compiler.prototype.compile = function(scriptName, script) {
-    var errors = {
-      reportError: function(position, message) {
-        fail(message + ', ' + position);
-      }
-    };
-    
+    var errors = new traceur.util.ErrorReporter();    
     var sourceFile = new traceur.syntax.SourceFile(scriptName, script);
     var parser = new traceur.syntax.Parser(errors, sourceFile);
     var tree = parser.parseProgram();
