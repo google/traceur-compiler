@@ -42,6 +42,7 @@ traceur.define('syntax.trees', function() {
       this.kind = kindOrImportSpecifierSet;
       this.importSpecifierSet = null;
     }
+    Object.freeze(this);
   }
 
   ImportPathTree.Kind = Kind;

@@ -28,20 +28,13 @@ traceur.define('syntax.trees', function() {
     if (instance)
       return instance;
     ParseTree.call(this, ParseTreeType.NULL, null);
+    Object.freeze(this);
     instance = this;
   }
 
   NullTree.prototype = {
     __proto__: ParseTree.prototype
   };
-
-  // TODO(arv): Remove static instance property.
-  Object.defineProperty(NullTree, 'instance', {
-    get: function() {
-      console.warn('Do not use NullTree.instance. Just use new NullTree()');
-      return new NullTree();
-    }
-  });
 
   return {
     NullTree: NullTree

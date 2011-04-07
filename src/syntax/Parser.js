@@ -1792,7 +1792,7 @@ traceur.define('syntax', function() {
       this.eat_(TokenType.OPEN_SQUARE);
       while (this.peek_(TokenType.COMMA) || this.peek_(TokenType.SPREAD) || this.peekAssignmentExpression_()) {
         if (this.peek_(TokenType.COMMA)) {
-          elements.push(NullTree.Instance);
+          elements.push(new NullTree());
         } else {
           if (this.peek_(TokenType.SPREAD)) {
             elements.push(this.parseSpreadExpression_());

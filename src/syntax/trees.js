@@ -32,6 +32,7 @@ traceur.define('syntax.trees', function() {
       for (var i = 1; i < args.length; i++) {
         this[args[i]] = arguments[i];
       }
+      Object.freeze(this);
     };
     Tree.prototype = {
       __proto__: ParseTree.prototype

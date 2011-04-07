@@ -51,6 +51,20 @@ traceur.define('syntax.trees', function() {
     this.location = location;
   }
 
+  /**
+   * This replacer is for use to when converting to a JSON string if you
+   * don't want location. Call JSON.stringfy(tree, ParseTree.stripLocation)
+   * @param {string} key
+   * @param {*} value
+   * @return {*}
+   */
+  ParseTree.stripLocation = function(key, value) {
+    if (key === 'location') {
+      return undefined;
+    }
+    return value;
+  };
+
   ParseTree.prototype = {
     /** @return {traceur.syntax.trees.ArgumentListTree} */
     asArgumentList: function() {

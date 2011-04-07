@@ -65,11 +65,20 @@ function validateTree(constr, type, fields) {
 
   var tree = new TestTree();
   assertEquals(type, tree.type);
+  assert(Object.isFrozen(tree));
 
   // Verify that each of the fields has been set to the correct value
   for (var i = 0; i < fields.length; i++) {
     var f = fields[i];
     assertEquals(f, tree[f]);
+  }
+
+  // Test JSON (and location stripping)
+  var roundtrip = JSON.parse(JSON.stringify(tree, ParseTree.stripLocation));
+  assert(roundtrip.location === undefined);
+  for (var i = 1; i < fields.length; i++) {
+    var f = fields[i];
+    assertEquals(f, roundtrip[f]);
   }
 }
 
@@ -80,6 +89,7 @@ function testNullTree() {
   assertEquals(null, tree.location);
   var tree2 = new traceur.syntax.trees.NullTree();
   assertEquals(tree, tree2);
+  assert(Object.isFrozen(tree));
 }
 
 function testImportPathTree() {
@@ -87,26 +97,30 @@ function testImportPathTree() {
   var ImportPathTree = traceur.syntax.trees.ImportPathTree;
 
   var specifiers = ['importSpecifierSet'];
-  var tree = new ImportPathTree('location', 'qualifiedPath', specifiers)
+  var tree = new ImportPathTree('location', 'qualifiedPath', specifiers);
   assertEquals('IMPORT_PATH', tree.type);
   assertEquals('location', tree.location);
   assertEquals('qualifiedPath', tree.qualifiedPath);
   assertEquals(specifiers, tree.importSpecifierSet);
   assertEquals(ImportPathTree.Kind.SET, tree.kind);
 
-  tree = new ImportPathTree('location', 'qualifiedPath', ImportPathTree.Kind.ALL)
+  tree = new ImportPathTree('location', 'qualifiedPath',
+      ImportPathTree.Kind.ALL);
   assertEquals('IMPORT_PATH', tree.type);
   assertEquals('location', tree.location);
   assertEquals('qualifiedPath', tree.qualifiedPath);
   assertEquals(null, tree.importSpecifierSet);
   assertEquals(ImportPathTree.Kind.ALL, tree.kind);
+  assert(Object.isFrozen(tree));
 
-  tree = new ImportPathTree('location', 'qualifiedPath', ImportPathTree.Kind.NONE)
+  tree = new ImportPathTree('location', 'qualifiedPath',
+      ImportPathTree.Kind.NONE);
   assertEquals('IMPORT_PATH', tree.type);
   assertEquals('location', tree.location);
   assertEquals('qualifiedPath', tree.qualifiedPath);
   assertEquals(null, tree.importSpecifierSet);
   assertEquals(ImportPathTree.Kind.NONE, tree.kind);
+  assert(Object.isFrozen(tree));
 }
 
 function testTreeConstructors() {
