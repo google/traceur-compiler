@@ -15,6 +15,11 @@
 (function() {
   'use strict';
 
+  if (process.argv.length <= 2) {
+    console.log('Usage: node ' + process.argv[1] + ' filename.js...');
+    process.exit(1);
+  }
+
   var fs = require('fs');
   var path = require('path');
 
@@ -34,30 +39,10 @@
     eval.call(global, data);
   }
 
+  // Allow traceur.js to use importScript.
+  global.importScript = importScript;
+
   importScript('./traceur.js');
-  importScript('./compiler.js');
-  importScript('./util/SourceRange.js');
-  importScript('./util/SourcePosition.js');
-  importScript('./syntax/Token.js');
-  importScript('./syntax/TokenType.js');
-  importScript('./syntax/LiteralToken.js');
-  importScript('./syntax/IdentifierToken.js');
-  importScript('./syntax/Keywords.js');
-  importScript('./syntax/LineNumberTable.js');
-  importScript('./syntax/SourceFile.js');
-  importScript('./syntax/Scanner.js');
-  importScript('./syntax/PredefinedName.js');
-  importScript('./syntax/trees/ParseTreeType.js');
-  importScript('./syntax/trees/ParseTree.js');
-  importScript('./syntax/trees.js');
-  importScript('./syntax/trees/ImportPathTree.js');
-  importScript('./syntax/trees/NullTree.js');
-  importScript('./util/ErrorReporter.js');
-  importScript('./util/MutedErrorReporter.js');
-  importScript('./syntax/Parser.js');
-  importScript('./syntax/ParseTreeVisitor.js');
-  importScript('./util/StringBuilder.js');
-  importScript('./codegeneration/ParseTreeWriter.js');
 
   /**
    * A command-line precompiler for a traceur JS file.
@@ -82,11 +67,6 @@
     filename = path.basename(filename, '.js') + '.traceur.js';
     fs.writeFileSync(filename, new Buffer(result.result));
     console.log('Compilation of ' + filename + ' successful.');
-  }
-
-  if (process.argv.length <= 2) {
-    console.log('Usage: node ' + process.argv[1] + ' filename.js...');
-    process.exit(1);
   }
 
   process.argv.slice(2).forEach(compile);

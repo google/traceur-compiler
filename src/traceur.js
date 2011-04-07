@@ -60,8 +60,55 @@ var traceur = (function() {
       throw Error('Assertion failed');
   }
 
-  return {
+  // Cached path to the current script file in an HTML hosting environment.
+  var path;
+
+  // Use comma expression to use global eval.
+  var global = ('global', eval)('this');
+
+  // Allow script before this one to define a global importScript function.
+  var importScript = global.importScript || function(file) {
+    if (!path) {
+      // Find path to this js file
+      var src = document.scripts[document.scripts.length - 1].src
+      path = src.substring(0, src.lastIndexOf('/') + 1);
+    }
+
+    document.write('<script src="' + path + file + '"></script>');
+  };
+
+  global.traceur = {
     define: define,
     assert: assert
   };
+
+  var scripts = [
+    'compiler.js',
+    'util/SourceRange.js',
+    'util/SourcePosition.js',
+    'syntax/Token.js',
+    'syntax/TokenType.js',
+    'syntax/LiteralToken.js',
+    'syntax/IdentifierToken.js',
+    'syntax/Keywords.js',
+    'syntax/LineNumberTable.js',
+    'syntax/SourceFile.js',
+    'syntax/Scanner.js',
+    'syntax/PredefinedName.js',
+    'syntax/trees/ParseTreeType.js',
+    'syntax/trees/ParseTree.js',
+    'syntax/trees.js',
+    'syntax/trees/ImportPathTree.js',
+    'syntax/trees/NullTree.js',
+    'util/ErrorReporter.js',
+    'util/MutedErrorReporter.js',
+    'syntax/Parser.js',
+    'syntax/ParseTreeVisitor.js',
+    'syntax/ParseTreeValidator.js',
+    'util/StringBuilder.js',
+    'codegeneration/ParseTreeWriter.js'
+  ];
+  scripts.forEach(importScript);
+
+  return global.traceur;
 })();
