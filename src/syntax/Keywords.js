@@ -75,7 +75,7 @@ traceur.define('syntax', function() {
     'false',
 
     // Traceur Specific
-    'async'
+    '__await'
   ];
 
   var Keywords = { };
@@ -95,6 +95,10 @@ traceur.define('syntax', function() {
 
   keywords.forEach(function(value) {
     var uc = value.toUpperCase();
+    if (uc.indexOf('__') === 0) {
+      uc = uc.substring(2);
+    }
+    
     var kw = new Keyword(value, TokenType[uc]);
 
     Keywords[uc] = kw;

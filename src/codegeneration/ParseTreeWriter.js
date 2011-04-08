@@ -123,10 +123,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {AsyncStatementTree} tree
+     * @param {AwaitStatementTree} tree
      */
-    visitAsyncStatementTree: function(tree) {
-      this.write_(TokenType.ASYNC);
+    visitAwaitStatementTree: function(tree) {
+      this.write_(TokenType.AWAIT);
       if (tree.identifier != null) {
         this.write_(tree.identifier);
         this.write_(TokenType.EQUAL);

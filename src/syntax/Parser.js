@@ -25,7 +25,7 @@ traceur.define('syntax', function() {
   var ArgumentListTree = traceur.syntax.trees.ArgumentListTree;
   var ArrayLiteralExpressionTree = traceur.syntax.trees.ArrayLiteralExpressionTree;
   var ArrayPatternTree = traceur.syntax.trees.ArrayPatternTree;
-  var AsyncStatementTree = traceur.syntax.trees.AsyncStatementTree;
+  var AwaitStatementTree = traceur.syntax.trees.AwaitStatementTree;
   var BinaryOperatorTree = traceur.syntax.trees.BinaryOperatorTree;
   var BlockTree = traceur.syntax.trees.BlockTree;
   var BreakStatementTree = traceur.syntax.trees.BreakStatementTree;
@@ -960,8 +960,8 @@ traceur.define('syntax', function() {
       switch (this.peekType_()) {
         case TokenType.OPEN_CURLY:
           return this.parseBlock_();
-        case TokenType.ASYNC:
-          return this.parseAsyncStatement_();
+        case TokenType.AWAIT:
+          return this.parseAwaitStatement_();
         case TokenType.CONST:
         case TokenType.VAR:
           return this.parseVariableStatement_();
@@ -1020,7 +1020,7 @@ traceur.define('syntax', function() {
     peekStatementStandard_: function() {
       switch (this.peekType_()) {
         case TokenType.OPEN_CURLY:
-        case TokenType.ASYNC:
+        case TokenType.AWAIT:
         case TokenType.VAR:
         case TokenType.CONST:
         case TokenType.SEMI_COLON:
@@ -1471,16 +1471,16 @@ traceur.define('syntax', function() {
       return new YieldStatementTree(this.getTreeLocation_(start), expression);
     },
 
-    // Harmony?: The async Statement
-    // TODO: async should be an expression, not a statement
-    // async [ identifier = ] expression;
+    // Harmony?: The await Statement
+    // TODO: await should be an expression, not a statement
+    // await[ identifier = ] expression;
     /**
      * @return {ParseTree}
      * @private
      */
-    parseAsyncStatement_: function() {
+    parseAwaitStatement_: function() {
       var start = this.getTreeStartLocation_();
-      this.eat_(TokenType.ASYNC);
+      this.eat_(TokenType.AWAIT);
       var identifier = null;
       if (this.peek_(TokenType.IDENTIFIER) && this.peek_(TokenType.EQUAL, 1)) {
         identifier = this.eatId_();
@@ -1488,7 +1488,7 @@ traceur.define('syntax', function() {
       }
       var expression = this.parseExpression_();
       this.eatPossibleImplicitSemiColon_();
-      return new AsyncStatementTree(this.getTreeLocation_(start), identifier, expression);
+      return new AwaitStatementTree(this.getTreeLocation_(start), identifier, expression);
     },
 
     // 12.10 The with Statement

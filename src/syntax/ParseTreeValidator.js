@@ -162,10 +162,10 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.AsyncStatementTree} tree
+     * @param {traceur.syntax.trees.AwaitStatementTree} tree
      */
-    visitAsyncStatementTree: function(tree) {
-      this.checkVisit_(tree.expression.isExpression(), tree.expression, 'async must be expression');
+    visitAwaitStatementTree: function(tree) {
+      this.checkVisit_(tree.expression.isExpression(), tree.expression, 'await must be expression');
     },
 
     /**

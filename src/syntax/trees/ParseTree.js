@@ -84,9 +84,9 @@ traceur.define('syntax.trees', function() {
       return this;
     },
 
-    /** @return {traceur.syntax.trees.AsyncStatementTree} */
-    asAsyncStatement: function() {
-      assert(this instanceof traceur.syntax.trees.AsyncStatementTree);
+    /** @return {traceur.syntax.trees.AwaitStatementTree} */
+    asAwaitStatement: function() {
+      assert(this instanceof traceur.syntax.trees.AwaitStatementTree);
       return this;
     },
 
@@ -651,7 +651,7 @@ traceur.define('syntax.trees', function() {
     isStatementStandard: function() {
       switch (this.type) {
         case ParseTreeType.BLOCK:
-        case ParseTreeType.ASYNC_STATEMENT:
+        case ParseTreeType.AWAIT_STATEMENT:
         case ParseTreeType.VARIABLE_STATEMENT:
         case ParseTreeType.EMPTY_STATEMENT:
         case ParseTreeType.EXPRESSION_STATEMENT:

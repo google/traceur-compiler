@@ -74,7 +74,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    AsyncStatementTree: create(ParseTreeType.ASYNC_STATEMENT, 'identifier', 'expression'),
+    AwaitStatementTree: create(ParseTreeType.AWAIT_STATEMENT, 'identifier', 'expression'),
 
     /**
      * @param {traceur.util.SourceRange} location

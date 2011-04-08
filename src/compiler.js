@@ -31,7 +31,7 @@ traceur.define('', function() {
     // TODO: transform
 
     // Write out
-    var result = traceur.codegeneration.ParseTreeWriter.write(tree);
+    var result = traceur.codegeneration.ParseTreeWriter.write(tree, false);
 
     return { result: result, errors: errors };
   };

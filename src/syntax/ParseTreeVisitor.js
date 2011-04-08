@@ -39,7 +39,7 @@ traceur.define('syntax', function() {
         case ParseTreeType.ARGUMENT_LIST: this.visitArgumentListTree(tree.asArgumentList()); break;
         case ParseTreeType.ARRAY_LITERAL_EXPRESSION: this.visitArrayLiteralExpressionTree(tree.asArrayLiteralExpression()); break;
         case ParseTreeType.ARRAY_PATTERN: this.visitArrayPatternTree(tree.asArrayPattern()); break;
-        case ParseTreeType.ASYNC_STATEMENT: this.visitAsyncStatementTree(tree.asAsyncStatement()); break;
+        case ParseTreeType.AWAIT_STATEMENT: this.visitAwaitStatementTree(tree.asAwaitStatement()); break;
         case ParseTreeType.BINARY_OPERATOR: this.visitBinaryOperatorTree(tree.asBinaryOperator()); break;
         case ParseTreeType.BLOCK: this.visitBlockTree(tree.asBlock()); break;
         case ParseTreeType.BREAK_STATEMENT: this.visitBreakStatementTree(tree.asBreakStatement()); break;
@@ -152,9 +152,9 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.AsyncStatementTree} tree
+     * @param {traceur.syntax.trees.AwaitStatementTree} tree
      */
-    visitAsyncStatementTree: function(tree) {
+    visitAwaitStatementTree: function(tree) {
       this.visitAny(tree.expression);
     },
 

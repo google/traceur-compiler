@@ -45,6 +45,39 @@
   importScript('./traceur.js');
 
   /**
+   * Recursively makes all directoires, similar to mkdir -p
+   * @param {string} dir
+   */
+  function mkdirRecursive(dir) {
+    var parts = path.normalize(dir).split('/');
+
+    dir = '';
+    for (var i = 0; i < parts.length; i++) {
+      dir += parts[i] + '/';
+      if (!path.existsSync(dir)) {
+        console.log(dir);
+        fs.mkdirSync(dir, 0x1FF);
+      }
+    }
+  }
+
+  /**
+   * Removes the common prefix of basedir and filedir from filedir
+   * @param {string} basedir
+   * @param {string} filedir
+   */
+  function removeCommonPrefix(basedir, filedir) {
+    var baseparts = basedir.split('/');
+    var fileparts = filedir.split('/');
+
+    var i = 0;
+    while (i < fileparts.length && fileparts[i] === baseparts[i]) {
+      i++;
+    }
+    return fileparts.slice(i).join('/');
+  }
+
+  /**
    * A command-line precompiler for a traceur JS file.
    * @param {string} filename
    */
@@ -52,7 +85,7 @@
     var data = fs.readFileSync(filename);
     if (!data) {
       console.log('Failed to read ' + filename);
-      return;
+      return false;
     }
     data = data.toString('utf8');
 
@@ -61,13 +94,28 @@
 
     if (result.errors.hadError()) {
       console.log('Compilation of ' + filename + ' failed.');
-      return;
+      return false;
     }
 
-    filename = path.basename(filename, '.js') + '.traceur.js';
-    fs.writeFileSync(filename, new Buffer(result.result));
+    // Compute the output path
+    var outputdir = fs.realpathSync(process.cwd());
+    var filedir = fs.realpathSync(path.dirname(filename));
+    filedir = removeCommonPrefix(outputdir, filedir);
+    outputdir = path.join(outputdir, 'out', filedir);
+
+    mkdirRecursive(outputdir);
+    var outputfile = path.join(outputdir, path.basename(filename));
+    fs.writeFileSync(outputfile, new Buffer(result.result));
     console.log('Compilation of ' + filename + ' successful.');
+    return true;
+  }
+  
+  function idFunction(x) {
+    return x;
   }
 
-  process.argv.slice(2).forEach(compile);
+  var success = process.argv.slice(2).map(compile).every(idFunction);
+  if (!success) {
+    process.exit(2);
+  }
 })();

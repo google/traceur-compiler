@@ -122,6 +122,23 @@ function testScanner3() {
   assertEquals('End of File', next());
 }
 
+function testScannerAwait() {
+  var source = '__await x;\n';
+  var sourceFile = new traceur.syntax.SourceFile(name, source);
+  var scanner = new traceur.syntax.Scanner(errorReporter, sourceFile);
+
+  function next() {
+    return scanner.nextToken().type;
+  }
+  
+  var TokenType = traceur.syntax.TokenType;
+
+  assertEquals(TokenType.AWAIT, next());
+  assertEquals(TokenType.IDENTIFIER, next());
+  assertEquals(TokenType.SEMI_COLON, next());
+  assertEquals(TokenType.END_OF_FILE, next());
+}
+
 </script>
 </body>
 </html>
