@@ -107,6 +107,18 @@ var errorReporter = {
   }
 };
 
+function parseAndWrite(name, source) {
+  var sourceFile = new traceur.syntax.SourceFile(name, source);
+  var scanner = new traceur.syntax.Scanner(errorReporter, sourceFile);
+  var parser = new traceur.syntax.Parser(errorReporter, scanner);
+  console.log('Parsing', name);
+
+  var tree = parser.parseProgram();
+  var result = ParseTreeWriter.write(tree, false);
+  console.log(result);
+  return result;
+}
+
 function parseScriptAndWrite(scriptElement) {
   var source;
   var name;
@@ -122,20 +134,20 @@ function parseScriptAndWrite(scriptElement) {
     name = 'inline-script';
     source = scriptElement.textContent;
   }
-
-  var sourceFile = new traceur.syntax.SourceFile(name, source);
-  var scanner = new traceur.syntax.Scanner(errorReporter, sourceFile);
-  var parser = new traceur.syntax.Parser(errorReporter, scanner);
-  console.log('Parsing', name);
-
-  var tree = parser.parseProgram();
-  console.log(ParseTreeWriter.write(tree));
+  parseAndWrite(name, source);
 }
 
 function testParserAndWriteAllScripts() {
   for (var i = 0, script; script = document.scripts[i]; i++) {
     parseScriptAndWrite(script);
   }
+}
+
+function testParseAndWriteKeywords() {
+  var result = parseAndWrite('test', 'x.case = 5;\n');
+  assertEquals('\nx.case = 5; \n', result);
+  var result = parseAndWrite('test', 'var obj = { var: 42 };\n');
+  assertEquals('\nvar obj = { var: 42 }; \n', result);
 }
 
 </script>

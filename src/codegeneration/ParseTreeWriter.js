@@ -39,15 +39,18 @@ traceur.define('codegeneration', function() {
   var PRETTY_PRINT = true;
 
   ParseTreeWriter.write = function(tree, var_args) {
-    var showLineNumbers, highlighted;
-    if (arguments.length <= 2) {
-      showLineNumbers = arguments[1] || true;
-      highlighted = null;
+    var showLineNumbers;
+    var highlighted = null;
+  
+    // TODO: can we make this argument order more sane?
+    if (arguments.length === 1) {
+      showLineNumbers = true;
+    } else if (arguments.length === 2) {
+      showLineNumbers = arguments[1];
     } else {
       showLineNumbers = arguments[2];
       highlighted = arguments[1];
     }
-
     var writer = new ParseTreeWriter(highlighted, showLineNumbers);
     writer.visitAny(tree);
     if (writer.currentLine_.length > 0) {

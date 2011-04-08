@@ -20,6 +20,7 @@ traceur.define('syntax', function() {
   var TokenType = traceur.syntax.TokenType;
   var PredefinedName = traceur.syntax.PredefinedName;
   var MutedErrorReporter = traceur.util.MutedErrorReporter;
+  var Keywords = traceur.syntax.Keywords;
 
   var ArgumentListTree = traceur.syntax.trees.ArgumentListTree;
   var ArrayLiteralExpressionTree = traceur.syntax.trees.ArrayLiteralExpressionTree;
@@ -1842,13 +1843,14 @@ traceur.define('syntax', function() {
      * @private
      */
     peekPropertyName_: function(tokenIndex) {
-      switch (this.peekType_(tokenIndex)) {
+      var type = this.peekType_(tokenIndex);
+      switch (type) {
         case TokenType.IDENTIFIER:
         case TokenType.STRING:
         case TokenType.NUMBER:
           return true;
         default:
-          return false;
+          return Keywords.isKeyword(type);
       }
     },
 
@@ -1857,8 +1859,14 @@ traceur.define('syntax', function() {
      * @private
      */
     parsePropertyAssignment_: function() {
-      switch (this.peekType_()) {
-        case TokenType.IDENTIFIER:
+      var type = this.peekType_();
+      switch (type) {
+        case TokenType.STRING:
+        case TokenType.NUMBER:
+          return this.parsePropertyNameAssignment_();
+        default:
+          traceur.assert(type == TokenType.IDENTIFIER ||
+              Keywords.isKeyword(type));
           if (this.peekGetAccessor_(false)) {
             return this.parseGetAccessor_();
           } else if (this.peekSetAccessor_(false)) {
@@ -1866,11 +1874,6 @@ traceur.define('syntax', function() {
           } else {
             return this.parsePropertyNameAssignment_();
           }
-        case TokenType.STRING:
-        case TokenType.NUMBER:
-          return this.parsePropertyNameAssignment_();
-        default:
-          throw Error('unreachable');
       }
     },
 
@@ -2471,7 +2474,7 @@ traceur.define('syntax', function() {
               break;
             case TokenType.PERIOD:
               this.eat_(TokenType.PERIOD);
-              operand = new MemberExpressionTree(this.getTreeLocation_(start), operand, this.eatId_());
+              operand = new MemberExpressionTree(this.getTreeLocation_(start), operand, this.eatIdName_());
               break;
           }
         }
@@ -2510,7 +2513,7 @@ traceur.define('syntax', function() {
           operand = new MemberLookupExpressionTree(this.getTreeLocation_(start), operand, member);
         } else {
           this.eat_(TokenType.PERIOD);
-          operand = new MemberExpressionTree(this.getTreeLocation_(start), operand, this.eatId_());
+          operand = new MemberExpressionTree(this.getTreeLocation_(start), operand, this.eatIdName_());
         }
       }
       return operand;
@@ -2927,6 +2930,21 @@ traceur.define('syntax', function() {
     eatId_: function() {
       var result = this.eat_(TokenType.IDENTIFIER);
       return result;
+    },
+
+    /**
+     * Eats an identifier or keyword. Equivalent to IdentifierName in the spec.
+     *
+     * @return {Token}
+     * @private
+     */
+    eatIdName_: function() {
+      var t = this.nextToken_();
+      if (t.type != TokenType.IDENTIFIER && !Keywords.isKeyword(t.type)) {
+        this.reportExpectedError_(t, 'identifier');
+        return null;
+      }
+      return t;
     },
 
     /**
