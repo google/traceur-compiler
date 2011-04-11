@@ -106,7 +106,10 @@ var traceur = (function() {
     'syntax/ParseTreeVisitor.js',
     'syntax/ParseTreeValidator.js',
     'util/StringBuilder.js',
-    'codegeneration/ParseTreeWriter.js'
+    'codegeneration/ParseTreeWriter.js',
+    'codegeneration/ParseTreeFactory.js',
+    'codegeneration/ParseTreeTransformer.js',
+    'codegeneration/DefaultParametersTransformer.js',
   ];
   scripts.forEach(importScript);
 

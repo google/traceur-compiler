@@ -136,8 +136,8 @@ function testTreeConstructors() {
       ParseTreeType.ARRAY_PATTERN,
       ['location', 'elements']);
 
-  validateTree(traceur.syntax.trees.AsyncStatementTree,
-      ParseTreeType.ASYNC_STATEMENT,
+  validateTree(traceur.syntax.trees.AwaitStatementTree,
+      ParseTreeType.AWAIT_STATEMENT,
       ['location', 'identifier', 'expression']);
 
   validateTree(traceur.syntax.trees.BinaryOperatorTree,
