@@ -768,7 +768,7 @@ traceur.define('codegeneration', function() {
 
     var tree = new MemberExpressionTree(null, operand, memberName);
     for (var i = 2; i < arguments.length; i++) {
-      tree = createMemberExpression(tree, name);
+      tree = createMemberExpression(tree, arguments[i]);
     }
     return tree;
   }

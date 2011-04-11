@@ -44,7 +44,9 @@ traceur.define('codegeneration', function() {
    * @constructor
    * @extends {ParseTreeTransformer}
    */
-  function DefaultParametersTransformer() {}
+  function DefaultParametersTransformer() {
+    ParseTreeTransformer.call(this);
+  }
 
   /**
    * @param {ParseTree} tree

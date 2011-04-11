@@ -110,6 +110,7 @@ var traceur = (function() {
     'codegeneration/ParseTreeFactory.js',
     'codegeneration/ParseTreeTransformer.js',
     'codegeneration/DefaultParametersTransformer.js',
+    'codegeneration/RestParameterTransformer.js',
   ];
   scripts.forEach(importScript);
 
