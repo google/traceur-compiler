@@ -18,6 +18,7 @@ traceur.define('codegeneration', function() {
   var IdentifierToken = traceur.syntax.IdentifierToken;
   var LiteralToken = traceur.syntax.LiteralToken;
   var ParseTreeType = traceur.syntax.ParseTreeType;
+  var PredefinedName = traceur.syntax.PredefinedName;
   var Token = traceur.syntax.Token;
   var TokenType = traceur.syntax.TokenType;
 
@@ -660,6 +661,16 @@ traceur.define('codegeneration', function() {
                                        functionBody);
   }
 
+  /**
+   * @param {FormalParameterListTree} formalParameterList
+   * @param {BlockTree} functionBody
+   * @return {FunctionDeclarationTree}
+   */
+  function createFunctionExpression(formalParameterList, functionBody) {
+    return new FunctionDeclarationTree(null, null, false, formalParameterList,
+                                       functionBody);
+  }
+
   // [static] get propertyName () { ... }
   /**
    * @param {string|Token} propertyName
@@ -693,11 +704,12 @@ traceur.define('codegeneration', function() {
   /**
    * @param {ParseTree} condition
    * @param {ParseTree} ifClause
-   * @param {ParseTree} opt_elseClause
+   * @param {ParseTree=} opt_elseClause
    * @return {IfStatementTree}
    */
   function createIfStatement(condition, ifClause, opt_elseClause) {
-    return new IfStatementTree(null, condition, ifClause, elseClause);
+    return new IfStatementTree(null, condition, ifClause,
+                               opt_elseClause || null);
   }
 
   /**
@@ -888,7 +900,7 @@ traceur.define('codegeneration', function() {
   function createPropertyNameAssignment(identifier, value) {
     if (typeof identifier == 'string')
       identifier = createIdentifierToken(identifier);
-    return new PropertyNameAssignmentTree(null, propertyName, value);
+    return new PropertyNameAssignmentTree(null, identifier, value);
   }
 
   /**
@@ -1121,6 +1133,7 @@ traceur.define('codegeneration', function() {
       createForInStatement: createForInStatement,
       createForStatement: createForStatement,
       createFunctionDeclaration: createFunctionDeclaration,
+      createFunctionExpression: createFunctionExpression,
       createFunctionExpressionFormals: createFunctionExpressionFormals,
       createGetAccessor: createGetAccessor,
       createIdentifierExpression: createIdentifierExpression,

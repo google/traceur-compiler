@@ -111,6 +111,7 @@ var traceur = (function() {
     'codegeneration/ParseTreeTransformer.js',
     'codegeneration/DefaultParametersTransformer.js',
     'codegeneration/RestParameterTransformer.js',
+    'codegeneration/SpreadTransformer.js',
   ];
   scripts.forEach(importScript);
 
