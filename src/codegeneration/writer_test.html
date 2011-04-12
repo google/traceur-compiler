@@ -138,7 +138,8 @@ function parseScriptAndWrite(scriptElement) {
 }
 
 function testParserAndWriteAllScripts() {
-  for (var i = 0, script; script = document.scripts[i]; i++) {
+  var scripts = document.querySelectorAll('script');
+  for (var i = 0, script; script = scripts[i]; i++) {
     parseScriptAndWrite(script);
   }
 }

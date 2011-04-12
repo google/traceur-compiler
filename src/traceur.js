@@ -70,7 +70,8 @@ var traceur = (function() {
   var importScript = global.importScript || function(file) {
     if (!path) {
       // Find path to this js file
-      var src = document.scripts[document.scripts.length - 1].src;
+      var scripts = document.querySelectorAll('script');
+      var src = scripts[scripts.length - 1].src;
       path = src.substring(0, src.lastIndexOf('/') + 1);
     }
 

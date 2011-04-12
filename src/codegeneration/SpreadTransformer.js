@@ -26,6 +26,7 @@ traceur.define('codegeneration', function() {
   var createCallExpression = traceur.codegeneration.ParseTreeFactory.createCallExpression;
   var createCallStatement = traceur.codegeneration.ParseTreeFactory.createCallStatement;
   var createConditionalExpression = traceur.codegeneration.ParseTreeFactory.createConditionalExpression;
+  var createContinueStatement = traceur.codegeneration.ParseTreeFactory.createContinueStatement;
   var createForStatement = traceur.codegeneration.ParseTreeFactory.createForStatement;
   var createFunctionExpression = traceur.codegeneration.ParseTreeFactory.createFunctionExpression;
   var createIdentifierExpression = traceur.codegeneration.ParseTreeFactory.createIdentifierExpression;
@@ -89,7 +90,9 @@ traceur.define('codegeneration', function() {
       //   var rv = [];
       //   for (var i = 0; i < xs.length; i += 2) {
       //     if (xs[i]) {
-      //       if (typeof xs[i + 1] != 'object' && xs[i + 1] !== undefined)
+      //       if (xs[i + 1] == null)
+      //         continue;
+      //       if (typeof xs[i + 1] != 'object')
       //         throw TypeError('Spread expression has wrong type');
       //       rv.push.apply(rv, toArray(xs[i + 1]));
       //     } else {
@@ -131,19 +134,18 @@ traceur.define('codegeneration', function() {
           createMemberExpression(rvExpression, PUSH),
           createArgumentList(xsLookup));
 
-      // typeof xs[i + 1] != 'object' && xs[i + 1] !== undefined
+      var isNullExpression = createBinaryOperator(
+          xsLookup,
+          createOperatorToken(TokenType.EQUAL_EQUAL),
+          createNullLiteral());
+
+      // typeof xs[i + 1] != 'object'
       var invalidObjectExpression = createBinaryOperator(
-          createBinaryOperator(
-              createUnaryExpression(
-                  createOperatorToken(TokenType.TYPEOF),
-                  xsLookup),
-              createOperatorToken(TokenType.NOT_EQUAL),
-              createStringLiteral('object')),
-          createOperatorToken(TokenType.AND),
-          createBinaryOperator(
-              xsLookup,
-              createOperatorToken(TokenType.NOT_EQUAL_EQUAL),
-              createUndefinedExpression()));
+          createUnaryExpression(
+              createOperatorToken(TokenType.TYPEOF),
+              xsLookup),
+          createOperatorToken(TokenType.NOT_EQUAL),
+          createStringLiteral('object'));
 
       // throw TypeError('Spread expression has wrong type');
       var throwStatement = createThrowStatement(
@@ -156,7 +158,11 @@ traceur.define('codegeneration', function() {
           createMemberLookupExpression(xsExpression, iExpression),
           // {
           createBlock(
-              // if (typeof ...
+              // f (xs[i + 1] == null)
+              createIfStatement(
+                  isNullExpression,
+                  createContinueStatement()),
+              // if (typeof xs[i + 1] != 'object')
               createIfStatement(
                   invalidObjectExpression,
                   throwStatement,
@@ -188,6 +194,7 @@ traceur.define('codegeneration', function() {
           createFunctionExpression(createParameterList(1),
                                    createBlock(statements)));
     }
+
     return expandFunction;
   }
 

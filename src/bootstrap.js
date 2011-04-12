@@ -28,7 +28,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-      var scripts = document.scripts;
+      var scripts = document.querySelectorAll('script[type="text/traceur"]');
 
       if (scripts.length <= 0) {
         return; // nothing to do
@@ -37,17 +37,19 @@
       /* TODO: add traceur runtime library here
       scriptsToRun.push(
         { scriptElement: null,
-          parentElement: scripts[0].parentElement,
+          parentNode: scripts[0].parentNode,
           name: 'Runtime Library',
           contents: runtime });
       */
 
+
+
       for (var i = 0, length = scripts.length; i < length; i++) {
         var script = scripts[i];
-        if (script.type == 'text/traceur' && !script.$jsppLoaded) {
+        if (script.type == 'text/traceur') {
           var entry = {
             scriptElement: script,
-            parentElement: script.parentElement,
+            parentNode: script.parentNode,
             name: script.src,
             contents: ''
           };
@@ -67,21 +69,21 @@
                 }
                 numPending--;
                 compileScriptsIfNonePending();
-              });
+              }, false);
               var onFailure = function() {
                 numPending--;
                 console.warn('Failed to load', script.src);
                 compileScriptsIfNonePending();
               };
-              xhr.addEventListener('error', onFailure);
-              xhr.addEventListener('abort', onFailure);
+              xhr.addEventListener('error', onFailure, false);
+              xhr.addEventListener('abort', onFailure, false);
               xhr.send();
             })(entry);
           }
         }
       }
       compileScriptsIfNonePending();
-    });
+    }, false);
 
     function compileScripts() {
       for (var i = 0; i < scriptsToRun.length; i++) {
@@ -98,7 +100,7 @@
         scriptElement.setAttribute('data-traceur-src-url', entry.name);
         scriptElement.textContent = result.result;
 
-        var parent = entry.parentElement;
+        var parent = entry.parentNode;
         parent.insertBefore(scriptElement,
                             entry.scriptElement || parent.firstChild);
       }

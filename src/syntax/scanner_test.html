@@ -22,8 +22,6 @@
 <title></title>
 <script src="../../third_party/closure-library/closure/goog/base.js"></script>
 <script data-scan>
-// NOTE: base.js and all goog.require statements must be in JS script blocks
-// NOTE: because they use document.write to add new script tags in place
 goog.require('goog.testing.jsunit');
 </script>
 <script src="../traceur.js" data-scan></script>
@@ -83,7 +81,8 @@ function scanToString(scanner) {
 function testScanAllScripts() {
   // We cannot scan all scripts due to regular expression literals which
   // requires a parser.
-  for (var i = 0, script; script = document.scripts[i]; i++) {
+  var scripts = document.querySelectorAll('script');
+  for (var i = 0, script; script = scripts[i]; i++) {
     if (script.hasAttribute('data-scan'))
       scanScript(script);
   }
@@ -130,7 +129,7 @@ function testScannerAwait() {
   function next() {
     return scanner.nextToken().type;
   }
-  
+
   var TokenType = traceur.syntax.TokenType;
 
   assertEquals(TokenType.AWAIT, next());

@@ -26,7 +26,7 @@ goog.require('goog.testing.jsunit');
 <script src="../traceur.js"></script>
 </head>
 <body>
-<script type="text/harmony">
+<script type="text/traceur">
 
 function testRestParameter() {
   function f(...p) {
@@ -73,7 +73,7 @@ function evalScript(scriptElement) {
 }
 
 function evalAllScripts() {
-  var scripts = document.querySelectorAll('script[type="text/harmony"]');
+  var scripts = document.querySelectorAll('script[type="text/traceur"]');
   Array.prototype.forEach.call(scripts, evalScript);
 }
 
