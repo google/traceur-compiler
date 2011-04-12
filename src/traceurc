@@ -1,0 +1,36 @@
+#!/bin/sh
+
+DIR="$(dirname $0)"
+FILECOMPILER="$DIR/filecompiler.js"
+
+# Check node is installed
+
+NODE=`which node 2>&1`
+RET=$?
+if [ $RET -ne 0 ] || ! [ -x $NODE ]; then
+  echo "traceurc requires that node.js is installed." >&2
+  echo "Exiting..." >&2
+  exit $RET
+fi
+
+# Check usage
+
+if [ "x$1" = "x" ] || [ $# -lt 1 ]; then
+  echo "Usage: $0 FILE [FILE]..." >&2
+  exit -1
+fi
+
+# Check arguments exist on disk and are not -parameters
+
+for FILE; do
+  if [ "-" = "${FILE:0:1}" ]; then
+    echo "Error: Command line parameters are not currently supported ('$FILE')." >&2
+    exit -1
+  fi
+  if ! [ -r $FILE ]; then
+    echo "Error: '$FILE' does not exist or is not readable." >&2
+    exit -1
+  fi
+done
+
+node "$FILECOMPILER" $@
