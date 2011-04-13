@@ -39,7 +39,7 @@ traceur.define('semantics.symbols', function() {
      * @return {boolean}
      */
     isConstructor: function() {
-      return this.name.equals(PredefinedName.CONSTRUCTOR);
+      return this.name == PredefinedName.CONSTRUCTOR;
     }
   };
 

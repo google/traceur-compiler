@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<!--
+
+// Copyright 2011 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+-->
+<html>
+<head>
+<title></title>
+<script src="../../third_party/closure-library/closure/goog/base.js"></script>
+<script>
+goog.require('goog.testing.jsunit');
+</script>
+<script src="../traceur.js"></script>
+</head>
+<body>
+<script type="text/traceur">
+
+function destructArray() {
+  var a, b, c, d;
+  [a, [b], c, d] = ['hello', [',', 'junk'], ['world']];
+  return {
+    a: a,
+    b: b,
+    c: c,
+    d: d
+  };
+}
+
+function destructScopeThis() {
+  var x;
+  var o = {
+    f: function() {
+      [this.x] = [1];
+    }
+  };
+  o.f();
+  return {
+    x: x,
+    o_x: o.x
+  };
+}
+
+function destructScopeArguments(x, y) {
+  [arguments[0]] = ['foo'];
+  ({a: arguments[1]}) = {a: 'bar'};
+  return {x: x, y: y};
+}
+
+// Destructuring bind alpha-renames 'arguments'; this ensures that
+// renaming doesn't rename in nested scopes.
+function destructNestedScopeArguments(x) {
+  [(function () { return arguments[1]; })(null, x)[0]] = [42];
+}
+
+function destructEvaluationOrder() {
+  var a;
+  [a, a, a] = [1, 2, 3, 4];
+  return a;
+}
+
+function destructEvaluatesToRvalue() {
+  var a;
+  return [a] = [1, 2, 3];
+}
+
+function destructObject() {
+  var a, b, c, d;
+  ({a, x: b, y: {c, z: [,d]}} = {
+    a: 7,  // field with shorthand a => a: a syntax
+    x: 8,  // typical syntax
+    y: {   // nested object destructuring
+           // missing binding 'c'
+      z: [10, 11, 12]  // nested array destructuring
+    }
+  });
+  return {
+    a: a,
+    b: b,
+    c: c,
+    d: d
+  };
+}
+
+function destructVarDecl() {
+  // Const; and an array inside an object literal inside an array.
+  const a = 0, [b, {c, x: [d]}] = [1, {c: 2, x: [3]}];
+
+  // Now an object literal inside an array inside an object literal.
+  var {x: [{e}, f], g} = {x: [{e:4}, 5], g: 6};
+
+  // Two patterns in one var.
+  var {h} = {h: 7}, {i} = {i: 8};
+
+  return { a: a, b: b, c: c, d: d, e: e, f: f, g: g, h: h, i: i };
+}
+
+function destructRest() {
+  var a, b, c, d, e;
+  [...a] = [1, 2, 3];
+  [b, ...c] = [1, 2, 3];
+  [,,, ...d] = [1, 2, 3];
+  [...e] = {x: 'boom'};
+  return {a: a, b: b, c: c, d: d, e: e};
+}
+
+function testDestructure() {
+  var result = destructArray();
+  assertEquals('hello', result.a);
+  assertEquals(',', result.b);
+  assertArrayEquals(['world'], result.c);
+  assertUndefined(result.d);
+
+  result = destructScopeThis();
+  assertUndefined(result.x);
+  assertEquals(1, result.o_x);
+
+  result = destructScopeArguments('dee', 'dum');
+  assertEquals('foo', result.x);
+  assertEquals('bar', result.y);
+
+  result = [];
+  destructNestedScopeArguments(result);
+  assertEquals(42, result[0]);
+
+  result = destructEvaluationOrder();
+  assertEquals(3, result);
+
+  result = destructEvaluatesToRvalue();
+  assertArrayEquals([1, 2, 3], result);
+
+  result = destructObject();
+  assertEquals(7, result.a);
+  assertEquals(8, result.b);
+  assertUndefined(result.c);
+  assertEquals(11, result.d);
+
+  result = destructVarDecl();
+  assertEquals(0, result.a);
+  assertEquals(1, result.b);
+  assertEquals(2, result.c);
+  assertEquals(3, result.d);
+  assertEquals(4, result.e);
+  assertEquals(5, result.f);
+  assertEquals(6, result.g);
+  assertEquals(7, result.h);
+  assertEquals(8, result.i);
+
+  result = destructRest();
+  assertArrayEquals([1, 2, 3], result.a);
+  assertEquals(1, result.b);
+  assertArrayEquals([2, 3], result.c);
+  assertArrayEquals([], result.d);
+  assertArrayEquals([], result.e);
+}
+
+</script>
+<script>
+
+function evalScript(scriptElement) {
+  var source;
+  var name;
+  if (scriptElement.src) {
+    name = scriptElement.src;
+    var xhr = new XMLHttpRequest();
+    // Synchronous load but these are already loaded when we get here so it
+    // should be fast.
+    xhr.open('GET', scriptElement.src, false);
+    xhr.send();
+    source = xhr.responseText;
+  } else {
+    name = 'inline-script';
+    source = scriptElement.textContent;
+  }
+
+  var errorReporter = new traceur.util.ErrorReporter();
+  var tree = transform(errorReporter, name, source);
+  var code = traceur.codegeneration.ParseTreeWriter.write(tree);
+  console.log(code);
+  ('global', eval)(code);
+  assertFalse(errorReporter.hadError());
+}
+
+function evalAllScripts() {
+  var scripts = document.querySelectorAll('script[type="text/traceur"]');
+  Array.prototype.forEach.call(scripts, evalScript);
+}
+
+function transform(errorReporter, name, source) {
+  function chainTransforms(tree, transformers) {
+    assertFalse(errorReporter.hadError());
+
+    if (transformers.length == 0)
+      return tree;
+    tree = transformers.shift().transformTree(tree);
+    return chainTransforms(tree, transformers);
+  }
+
+  var sourceFile = new traceur.syntax.SourceFile(name, source);
+  var scanner = new traceur.syntax.Scanner(errorReporter, sourceFile);
+  var parser = new traceur.syntax.Parser(errorReporter, scanner);
+  var tree = parser.parseProgram();
+
+  return chainTransforms(tree, [
+    traceur.codegeneration.DestructuringTransformer,
+  ]);
+}
+
+evalAllScripts();
+
+</script>
+</body>
+</html>

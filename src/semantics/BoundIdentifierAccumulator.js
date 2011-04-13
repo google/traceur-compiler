@@ -136,8 +136,7 @@ traceur.define('semantics', function() {
     var accumulator = new BoundIdentifierAccumulator(false, tree.functionBody);
     accumulator.accumulateBoundIdentifiersInFunction_(tree);
     return accumulator.identifiers_;
-  };
-  
+  };  
 
   /**
    * Gets the identifier <em>additionally</em> bound in the context of

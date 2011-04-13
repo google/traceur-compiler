@@ -613,13 +613,13 @@ traceur.define('syntax.trees', function() {
 
     /** @return {boolean} */
     isExpression: function() {
-      return isAssignmentExpression() ||
+      return this.isAssignmentExpression() ||
           this.type == ParseTreeType.COMMA_EXPRESSION;
     },
 
     /** @return {boolean} */
     isAssignmentOrSpread: function() {
-      return isAssignmentExpression() ||
+      return this.isAssignmentExpression() ||
           this.type == ParseTreeType.SPREAD_EXPRESSION;
     },
 
@@ -679,7 +679,7 @@ traceur.define('syntax.trees', function() {
 
     /** @return {boolean} */
     isSourceElement: function() {
-      return isStatementStandard() ||
+      return this.isStatementStandard() ||
           this.type == ParseTreeType.FUNCTION_DECLARATION;
     }
   };

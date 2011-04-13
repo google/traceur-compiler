@@ -836,12 +836,7 @@ traceur.define('codegeneration.generator', function() {
       }
 
       // Sort identifiers to produce a stable output order
-      var liftedIdentifierList = [];
-      for (var k in liftedIdentifiers) {
-        liftedIdentifierList.push(k);
-      }
-      liftedIdentifierList.sort();
-
+      var liftedIdentifierList = Object.keys(liftedIdentifiers).sort();
       for (var i = 0; i < liftedIdentifierList.length; i++) {
         var liftedIdentifier = liftedIdentifierList[i];
         statements.push(createVariableStatement(TokenType.VAR, liftedIdentifier, null));

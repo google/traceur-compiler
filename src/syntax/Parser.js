@@ -21,6 +21,7 @@ traceur.define('syntax', function() {
   var PredefinedName = traceur.syntax.PredefinedName;
   var MutedErrorReporter = traceur.util.MutedErrorReporter;
   var Keywords = traceur.syntax.Keywords;
+  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
 
   var ArgumentListTree = traceur.syntax.trees.ArgumentListTree;
   var ArrayLiteralExpressionTree = traceur.syntax.trees.ArrayLiteralExpressionTree;
@@ -67,6 +68,7 @@ traceur.define('syntax', function() {
   var MixinTree = traceur.syntax.trees.MixinTree;
   var ModuleDefinitionTree = traceur.syntax.trees.ModuleDefinitionTree;
   var NewExpressionTree = traceur.syntax.trees.NewExpressionTree;
+  var NullTree = traceur.syntax.trees.NullTree;
   var ObjectLiteralExpressionTree = traceur.syntax.trees.ObjectLiteralExpressionTree;
   var ObjectPatternFieldTree = traceur.syntax.trees.ObjectPatternFieldTree;
   var ObjectPatternTree = traceur.syntax.trees.ObjectPatternTree;

@@ -29,21 +29,29 @@ traceur.define('', function() {
     }
  
     var idGen = new traceur.codegeneration.UniqueIdentifierGenerator();
-    console.log('foreach transform');
+    
+    //TODO(jmesserly): traceur.syntax.ParseTreeValidator.validate(tree);
     tree = traceur.codegeneration.ForEachTransformer.transformTree(idGen, tree);
     if (errors.hadError()) {
       return { result: null, errors: errors };
     }
   
-    console.log('yield transform');
+    //TODO(jmesserly): traceur.syntax.ParseTreeValidator.validate(tree);
     tree = traceur.codegeneration.GeneratorTransformPass.transformTree(
       idGen, errors, tree);
     if (errors.hadError()) {
       return { result: null, errors: errors };
     }
 
+    // destructuring must come after foreach and before block binding
+    //TODO(jmesserly): traceur.syntax.ParseTreeValidator.validate(tree);
+    tree = traceur.codegeneration.DestructuringTransformer.transformTree(tree);
+    if (errors.hadError()) {
+      return { result: null, errors: errors };
+    }
+
     // Write out
-    console.log('writing output');
+    //TODO(jmesserly): traceur.syntax.ParseTreeValidator.validate(tree);
     var result = traceur.codegeneration.ParseTreeWriter.write(tree, false);
     return { result: result, errors: errors };
   };
