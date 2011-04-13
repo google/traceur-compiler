@@ -1,0 +1,202 @@
+// Copyright 2011 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+traceur.define('codegeneration.generator', function() {
+  'use strict';
+
+  var PredefinedName = traceur.syntax.PredefinedName;
+  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
+  var createCaseClause = ParseTreeFactory.createCaseClause;
+  var createStatementList = ParseTreeFactory.createStatementList;
+  var createBreakStatement = ParseTreeFactory.createBreakStatement;
+  var createStatementList = ParseTreeFactory.createStatementList;
+  var createAssignmentStatement = ParseTreeFactory.createAssignmentStatement;
+  var createAssignStateStatement = ParseTreeFactory.createAssignStateStatement;
+  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
+  var createNumberLiteral = ParseTreeFactory.createNumberLiteral;
+
+  /**
+   * A State in the generator state machine.
+   *
+   * The id in the state is unique across all machines in the function body.
+   *
+   * States are immutable.
+   *
+   * When knitting StateMachines together the states in one machine may need
+   * renumbering in the new machine. replaceState() is used to create an equivalent state with
+   * different state ids.
+   *
+   * @param {number} id
+   * @constructor
+   */
+  function State(id) {
+    this.id = id;
+  }
+
+  State.INVALID_STATE = -1;
+
+  /**
+   * Returns a list of statements which jumps to a given destination state. If transfering control
+   * to the destination state requires exiting a try of a try/finally then the finally block must
+   * be executed along the way.
+   *
+   * @param {FinallyState} enclosingFinally
+   * @param {number} fallThroughState
+   * @return {Array.<ParseTree>}
+   */
+  State.generateJump = function(enclosingFinally, fallThroughState) {
+    return createStatementList(
+        State.generateAssignState(enclosingFinally, fallThroughState),
+        createBreakStatement());
+  }
+
+  /**
+   * Returns a list of statements which jumps to a given destination state, through a finally
+   * block.
+   * @param {number} finallyState
+   * @param {number} destination
+   * @return {Array.<ParseTree>}
+   */
+  State.generateJumpThroughFinally = function(finallyState, destination) {
+    return createStatementList(
+        State.generateAssignStateOutOfFinally_(destination, finallyState),
+        createBreakStatement());
+  }
+
+  /**
+   * @param {FinallyState} enclosingFinally
+   * @param {number} fallThroughState
+   * @return {Array.<ParseTree>}
+   */
+  State.generateAssignState = function(enclosingFinally, fallThroughState) {
+    var assignState;
+    if (isFinallyExit(enclosingFinally, fallThroughState)) {
+      assignState = State.generateAssignStateOutOfFinally(enclosingFinally, fallThroughState);
+    } else {
+      assignState = createStatementList(createAssignStateStatement(fallThroughState));
+    }
+    return assignState;
+  }
+
+  /**
+   * @param {FinallyState} enclosingFinally
+   * @param {number} fallThroughState
+   * @return {boolean}
+   */
+  function isFinallyExit(enclosingFinally, destination) {
+    return enclosingFinally != null && enclosingFinally.tryStates.indexOf(destination) < 0;
+  }
+
+  /**
+   * Generate code for a jump out of a finally block.
+   * @param {FinallyState} enclosingFinally
+   * @param {number} destination
+   * @return {Array.<ParseTree>}
+   */
+  State.generateAssignStateOutOfFinally = function(enclosingFinally, destination) {
+    return State.generateAssignStateOutOfFinally_(destination, enclosingFinally.finallyState);
+  }
+
+  /**
+   * @param {number} destination
+   * @param {number} enclosingFinally
+   * @return {Array.<ParseTree>}
+   */
+  State.generateAssignStateOutOfFinally_ = function(destination, finallyState) {
+    // $state = finallyState;
+    // $fallThrough = destination;
+    return createStatementList(
+        createAssignStateStatement(finallyState),
+        createAssignmentStatement(
+            createIdentifierExpression(PredefinedName.FINALLY_FALL_THROUGH),
+            createNumberLiteral(destination)));
+  }
+
+  /**
+   * Helper for replaceState.
+   * @param {Array.<number>} oldStates
+   * @param {number} oldState
+   * @param {number} newState
+   */
+  State.replaceStateList = function(oldStates, oldState,  newState) {
+    var states = [];
+    for (var i = 0; i < oldStates.length; i++) {
+      states.push(State.replaceStateId(oldStates[i], oldState, newState));
+    }
+    return states;
+  }
+
+  /**
+   * Helper for replaceState.
+   * @param {number} current
+   * @param {number} oldState
+   * @param {number} newState
+   */
+  State.replaceStateId = function(current, oldState, newState) {
+    return current == oldState ? newState : current;
+  }
+
+  /**
+   * Helper for replaceState.
+   * @param {Array.<TryState>} exceptionBlocks
+   * @param {number} oldState
+   * @param {number} newState
+   * @return {Array.<TryState>}
+   */
+  State.replaceAllStates = function(exceptionBlocks, oldState, newState) {
+    var result = [];
+    for (var i = 0; i < exceptionBlocks.length; i++) {
+      result.push(exceptionBlocks[i].replaceState(oldState, newState));
+    }
+    return result;
+  }
+
+  State.prototype = {
+    /**
+     * Transforms a state into a case clause during the final code generation pass
+     * @param {FinallyState} enclosingFinally
+     * @param {number} machineEndState
+     * @param {ErrorReporter} reporter
+     * @return {CaseClauseTree}
+     */
+    transformMachineState: function(enclosingFinally, machineEndState, reporter) {
+      return createCaseClause(createNumberLiteral(this.id),
+          this.transform(enclosingFinally, machineEndState, reporter));
+    },
+
+    /**
+     * @param {Object} labelSet    set of label strings.
+     * @param {number} breakState
+     * @return {State}
+     */
+    transformBreak: function(labelSet, breakState) {
+      return this;
+    },
+
+    /**
+     * @param {Object} labelSet    set of label strings.
+     * @param {number} breakState
+     * @param {number} continueState
+     * @return {State}
+     */
+    transformBreakOrContinue: function(labelSet, breakState, continueState) {
+      return this;
+    }
+  };
+
+  // Export
+  return {
+    State: State
+  };
+});

@@ -23,12 +23,14 @@ traceur.define('codegeneration', function() {
   var TokenType = traceur.syntax.TokenType;
 
   var ParseTree = traceur.syntax.trees.ParseTree;
+  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
 
   var ArgumentListTree = traceur.syntax.trees.ArgumentListTree;
   var ArrayLiteralExpressionTree = traceur.syntax.trees.ArrayLiteralExpressionTree;
   var ArrayPatternTree = traceur.syntax.trees.ArrayPatternTree;
   var BinaryOperatorTree = traceur.syntax.trees.BinaryOperatorTree;
   var BlockTree = traceur.syntax.trees.BlockTree;
+  var BreakStatementTree = traceur.syntax.trees.BreakStatementTree;
   var CallExpressionTree = traceur.syntax.trees.CallExpressionTree;
   var CaseClauseTree = traceur.syntax.trees.CaseClauseTree;
   var CatchTree = traceur.syntax.trees.CatchTree;
@@ -39,6 +41,7 @@ traceur.define('codegeneration', function() {
   var DefaultClauseTree = traceur.syntax.trees.DefaultClauseTree;
   var DefaultParameterTree = traceur.syntax.trees.DefaultParameterTree;
   var DoWhileStatementTree = traceur.syntax.trees.DoWhileStatementTree;
+  var EmptyStatementTree = traceur.syntax.trees.EmptyStatementTree;
   var ExpressionStatementTree = traceur.syntax.trees.ExpressionStatementTree;
   var FieldDeclarationTree = traceur.syntax.trees.FieldDeclarationTree;
   var FinallyTree = traceur.syntax.trees.FinallyTree;
@@ -161,13 +164,23 @@ traceur.define('codegeneration', function() {
   }
 
   /**
+   * Either creates an array from the arguments, or if the first argument is an
+   * array, creates a new array with its elements followed by the other
+   * arguments.
+   *
+   * TODO(jmesserly): this API is a bit goofy. Can we replace it with something
+   * simpler? In most use cases, square brackets could replace calls to this.
+   * 
    * @param {Array.<ParseTree>|ParseTree} statementsOrHead
    * @param {...ParseTree} var_args
    * @return {Array.<ParseTree>}
    */
   function createStatementList(statementsOrHead, var_args) {
-    if (statementsOrHead instanceof Array)
-      return statementsOrHead;
+    if (statementsOrHead instanceof Array) {
+      var result = statementsOrHead.slice();
+      result.push.apply(result, slice(arguments, 1));
+      return result;
+    }
     return slice(arguments);
   }
 
@@ -797,7 +810,7 @@ traceur.define('codegeneration', function() {
    * @return {ParseTree}
    */
   function createThisExpression(memberName) {
-    if (opt_memberName)
+    if (memberName)
       return createMemberExpression(createThisExpression(), memberName);
     return new ThisExpressionTree(null);
   }

@@ -1277,7 +1277,7 @@ traceur.define('syntax', function() {
           // for-in: if let/const binding used, initializer is illegal
           if ((variables.declarationType == TokenType.LET ||
                variables.declarationType == TokenType.CONST)) {
-            var declaration = variables.declarations.get(0);
+            var declaration = variables.declarations[0];
             if (declaration.initializer != null) {
               this.reportError_('let/const in for-in statement may not have initializer');
             }
@@ -1290,7 +1290,7 @@ traceur.define('syntax', function() {
             this.reportError_('for-each statement may not have more than one variable declaration');
           }
           // for-each: initializer is illegal
-          var declaration = variables.declarations.get(0);
+          var declaration = variables.declarations[0];
           if (declaration.initializer != null) {
             this.reportError_('for-each statement may not have initializer');
           }

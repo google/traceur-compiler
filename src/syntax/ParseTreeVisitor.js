@@ -134,7 +134,7 @@ traceur.define('syntax', function() {
      * @param {traceur.syntax.trees.ArgumentListTree} tree
      */
     visitArgumentListTree: function(tree) {
-      this.visitList(tree.arguments);
+      this.visitList(tree.args);
     },
 
     /**
@@ -184,7 +184,7 @@ traceur.define('syntax', function() {
      */
     visitCallExpressionTree: function(tree) {
       this.visitAny(tree.operand);
-      this.visitAny(tree.arguments);
+      this.visitAny(tree.args);
     },
 
     /**
@@ -453,7 +453,7 @@ traceur.define('syntax', function() {
      */
     visitNewExpressionTree: function(tree) {
       this.visitAny(tree.operand);
-      this.visitAny(tree.arguments);
+      this.visitAny(tree.args);
     },
 
     /**

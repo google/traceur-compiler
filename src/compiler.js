@@ -24,15 +24,27 @@ traceur.define('', function() {
     var parser = new traceur.syntax.Parser(errors, sourceFile);
     var tree = parser.parseProgram();
 
-    if (errors.length > 0) {
+    if (errors.hadError()) {
+      return { result: null, errors: errors };
+    }
+ 
+    var idGen = new traceur.codegeneration.UniqueIdentifierGenerator();
+    console.log('foreach transform');
+    tree = traceur.codegeneration.ForEachTransformer.transformTree(idGen, tree);
+    if (errors.hadError()) {
+      return { result: null, errors: errors };
+    }
+  
+    console.log('yield transform');
+    tree = traceur.codegeneration.GeneratorTransformPass.transformTree(
+      idGen, errors, tree);
+    if (errors.hadError()) {
       return { result: null, errors: errors };
     }
 
-    // TODO: transform
-
     // Write out
+    console.log('writing output');
     var result = traceur.codegeneration.ParseTreeWriter.write(tree, false);
-
     return { result: result, errors: errors };
   };
 

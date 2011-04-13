@@ -135,7 +135,7 @@ traceur.define('syntax', function() {
 
     // Harmony extensions
     SPREAD: '...',
-    AWAIT: '__await'
+    AWAIT: 'await'
   };
 
   return {

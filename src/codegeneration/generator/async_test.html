@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<!--
+
+// Copyright 2011 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+-->
+<html>
+<head>
+<title></title>
+<script src="../../../third_party/closure-library/closure/goog/base.js"></script>
+<script>
+goog.require('goog.testing.jsunit');
+</script>
+<script src="../../traceur.js"></script>
+<script src="../../runtimebootstrap.js"></script>
+</head>
+<body>
+<script type="text/traceur">
+
+function asyncTimeout(ms) {
+  var task = new Deferred();
+  window.setTimeout(function() {
+    task.callback(undefined);
+  }, ms);
+  return task.createPromise();
+}
+
+function asyncYield() {
+  return asyncTimeout(0);
+}
+
+function asyncComplete() {
+  var task = new Deferred();
+  task.callback('complete');
+  return task.createPromise();
+}
+
+function asyncValue(value) {
+  if (true)
+    return value;
+  await asyncYield();
+}
+
+function asyncThrow(e) {
+  if (true)
+    throw e;
+  await asyncYield();
+}
+
+function testAsync() {
+  var value;
+
+  asyncTestCase.waitForAsync('already complete value');
+  await value = asyncComplete();
+  asyncTestCase.continueTesting();
+  assertEquals('complete', value);
+
+  asyncTestCase.waitForAsync('await no assignment');
+  await asyncYield();
+  asyncTestCase.continueTesting();
+
+  try {
+    asyncTestCase.waitForAsync('await that throws');
+    await value = asyncThrow(1);
+    asyncTestCase.continueTesting();
+    fail("shouldn't get here");
+  } catch (e) {
+    asyncTestCase.continueTesting();
+    assertEquals(1, e);
+  }
+
+  asyncTestCase.waitForAsync('async with assignment');
+  await value = asyncValue(42);
+  asyncTestCase.continueTesting();
+  assertEquals(42, value);
+}
+
+</script>
+<script>
+
+function evalScript(scriptElement) {
+  var source;
+  var name;
+  if (scriptElement.src) {
+    name = scriptElement.src;
+    var xhr = new XMLHttpRequest();
+    // Synchronous load but these are already loaded when we get here so it
+    // should be fast.
+    xhr.open('GET', scriptElement.src, false);
+    xhr.send();
+    source = xhr.responseText;
+  } else {
+    name = 'inline-script';
+    source = scriptElement.textContent;
+  }
+
+  var errorReporter = new traceur.util.ErrorReporter();
+  var tree = transform(errorReporter, name, source);
+  var code = traceur.codegeneration.ParseTreeWriter.write(tree);
+  console.log(code);
+  ('global', eval)(code);
+  assertFalse(errorReporter.hadError());
+}
+
+function evalAllScripts() {
+  var scripts = document.querySelectorAll('script[type="text/traceur"]');
+  Array.prototype.forEach.call(scripts, evalScript);
+}
+
+function transform(errorReporter, name, source) {
+  var sourceFile = new traceur.syntax.SourceFile(name, source);
+  var scanner = new traceur.syntax.Scanner(errorReporter, sourceFile);
+  var parser = new traceur.syntax.Parser(errorReporter, scanner);
+  var tree = parser.parseProgram();
+  assertFalse(errorReporter.hadError());
+
+  var idGen = new traceur.codegeneration.UniqueIdentifierGenerator();
+  tree = traceur.codegeneration.GeneratorTransformPass.transformTree(
+    idGen, errorReporter, tree);
+  assertFalse(errorReporter.hadError());
+  
+  return tree;
+}
+
+evalAllScripts();
+
+</script>
+</body>
+</html>

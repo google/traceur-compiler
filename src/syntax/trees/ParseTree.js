@@ -240,9 +240,9 @@ traceur.define('syntax.trees', function() {
       return this;
     },
 
-    /** @return {traceur.syntax.trees.StateMachineTree} */
+    /** @return {traceur.codegeneration.generator.StateMachineTree} */
     asStateMachine: function() {
-      assert(this instanceof traceur.syntax.trees.StateMachineTree);
+      assert(this instanceof traceur.codegeneration.generator.StateMachineTree);
       return this;
     },
 

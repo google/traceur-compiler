@@ -75,7 +75,7 @@ traceur.define('syntax', function() {
     'false',
 
     // Traceur Specific
-    '__await'
+    'await'
   ];
 
   var Keywords = { };

@@ -25,6 +25,7 @@ traceur.define('codegeneration', function() {
    * Converts a ParseTree to text.
    * @param {ParseTree} highlighted
    * @param {boolean} showLineNumbers
+   * @constructor
    */
   function ParseTreeWriter(highlighted, showLineNumbers) {
     ParseTreeVisitor.call(this);
@@ -41,7 +42,7 @@ traceur.define('codegeneration', function() {
   ParseTreeWriter.write = function(tree, var_args) {
     var showLineNumbers;
     var highlighted = null;
-  
+
     // TODO: can we make this argument order more sane?
     if (arguments.length === 1) {
       showLineNumbers = true;
