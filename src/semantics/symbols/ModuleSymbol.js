@@ -90,7 +90,7 @@ traceur.define('semantics.symbols', function() {
      */
     getExports: function() {
       var exps = this.exports_;
-      return Object.keys(exports).map(function (key) {
+      return Object.keys(exports).map(function(key) {
         return exports[key];
       });
     }

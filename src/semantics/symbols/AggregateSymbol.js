@@ -17,6 +17,8 @@ traceur.define('semantics.symbols', function() {
 
   var Symbol = traceur.semantics.symbols.Symbol;
   var PredefinedName = traceur.syntax.PredefinedName;
+  var FieldSymbol = traceur.semantics.symbols.FieldSymbol;
+  var MethodSymbol = traceur.semantics.symbols.MethodSymbol;
 
   function values(object) {
     return Object.keys(object).map(function(key) {
@@ -56,14 +58,14 @@ traceur.define('semantics.symbols', function() {
     this.staticMembers = Object.create(null);
   }
 
-  AggregateSymbol.protptype = {
+  AggregateSymbol.prototype = {
     __proto__: Symbol.prototype,
 
     /**
      * @return {boolean}
      */
     isDeclaringMembers: function() {
-      return this.state == State.BeginDeclaringMembers;
+      return this.state_ == State.BeginDeclaringMembers;
     },
 
     /**
@@ -187,21 +189,21 @@ traceur.define('semantics.symbols', function() {
      * @return {MethodSymbol}
      */
     getConstructor: function() {
-      return this.getInstanceMember(PredefinedName.CONSTRUCTOR).asMethodSymbol();
+      return this.getInstanceMember(PredefinedName.NEW);
     },
 
     /**
      * @return {MethodSymbol}
      */
     getNewFactory: function() {
-      return this.getStaticMember(PredefinedName.NEW_FACTORY).asMethodSymbol();
+      return this.getStaticMember(PredefinedName.NEW_FACTORY);
     },
 
     /**
      * @return {boolean}
      */
     hasConstructor: function() {
-      return this.getConstructor() != null;
+      return !!this.getConstructor();
     }
   };
 

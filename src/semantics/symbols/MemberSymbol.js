@@ -64,7 +64,7 @@ traceur.define('semantics.symbols', function() {
      * @return {string}
      */
     getQualifiedName: function() {
-      return this.containingAggregate.name + "." + name;
+      return this.containingAggregate.name + '.' + name;
     }
   };
 

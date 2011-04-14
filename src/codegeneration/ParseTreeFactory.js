@@ -153,7 +153,7 @@ traceur.define('codegeneration', function() {
 
     var builder = [];
 
-    parameters.parameters.forEach(function(parameter) {
+    parameter.parameters.forEach(function(parameter) {
       if (!parameter.isRestParameter()) {
         // TODO: array and object patterns
         builder.push(parameter.asIdentifierExpression().identifierToken.value);
@@ -657,7 +657,7 @@ traceur.define('codegeneration', function() {
   function createFunctionExpressionFormals(formalParameters, functionBody) {
     if (formalParameters instanceof Array)
       formalParameters = createParameterList(formalParameters);
-    return new FunctionDeclarationTree(null, null, false, formalParameterList,
+    return new FunctionDeclarationTree(null, null, false, formalParameters,
                                        functionBody);
   }
 

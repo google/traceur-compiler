@@ -27,6 +27,12 @@ traceur.define('', function() {
     if (errors.hadError()) {
       return { result: null, errors: errors };
     }
+
+    //TODO(jmesserly): traceur.syntax.ParseTreeValidator.validate(tree);
+    tree = traceur.codegeneration.ClassTransformer.transformClasses(errors, tree);
+    if (errors.hadError()) {
+      return { result: null, errors: errors };
+    }
  
     var idGen = new traceur.codegeneration.UniqueIdentifierGenerator();
     

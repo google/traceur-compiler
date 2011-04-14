@@ -17,6 +17,7 @@ traceur.define('semantics.symbols', function() {
 
   var PropertyAccessor = traceur.semantics.symbols.AggregateSymbol;
   var SymbolType = traceur.semantics.symbols.SymbolType;
+  var PropertyAccessor = traceur.semantics.symbols.PropertyAccessor;
 
   /**
    * A get accessor of a property.

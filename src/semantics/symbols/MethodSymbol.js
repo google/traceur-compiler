@@ -17,6 +17,7 @@ traceur.define('semantics.symbols', function() {
 
   var MemberSymbol = traceur.semantics.symbols.MemberSymbol;
   var SymbolType = traceur.semantics.symbols.SymbolType;
+  var PredefinedName = traceur.syntax.PredefinedName;
 
   /**
    * @param {FunctionDeclarationTree} tree
@@ -39,7 +40,7 @@ traceur.define('semantics.symbols', function() {
      * @return {boolean}
      */
     isConstructor: function() {
-      return this.name == PredefinedName.CONSTRUCTOR;
+      return this.name == PredefinedName.NEW;
     }
   };
 

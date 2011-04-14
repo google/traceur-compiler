@@ -20,6 +20,7 @@ traceur.define('codegeneration', function() {
   var TokenType = traceur.syntax.TokenType;
   var StringBuilder = traceur.util.StringBuilder;
   var Keywords = traceur.syntax.Keywords;
+  var PredefinedName = traceur.syntax.PredefinedName;
 
   /**
    * Converts a ParseTree to text.
@@ -45,7 +46,7 @@ traceur.define('codegeneration', function() {
 
     // TODO: can we make this argument order more sane?
     if (arguments.length === 1) {
-      showLineNumbers = true;
+      showLineNumbers = false;
     } else if (arguments.length === 2) {
       showLineNumbers = arguments[1];
     } else {

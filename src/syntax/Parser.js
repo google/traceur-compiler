@@ -22,6 +22,7 @@ traceur.define('syntax', function() {
   var MutedErrorReporter = traceur.util.MutedErrorReporter;
   var Keywords = traceur.syntax.Keywords;
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
+  var IdentifierToken = traceur.syntax.IdentifierToken;
 
   var ArgumentListTree = traceur.syntax.trees.ArgumentListTree;
   var ArrayLiteralExpressionTree = traceur.syntax.trees.ArrayLiteralExpressionTree;
@@ -630,6 +631,7 @@ traceur.define('syntax', function() {
         case TokenType.VAR:
         case TokenType.CONST:
         case TokenType.STATIC:
+        case TokenType.NEW:
           return true;
         default:
           return false;
@@ -641,6 +643,9 @@ traceur.define('syntax', function() {
      * @private
      */
     parseClassElement_: function() {
+      if (this.peekConstructorDeclaration_()) {
+        return this.parseConstructorDeclaration_();
+      }
       if (this.peekMethodDeclaration_()) {
         return this.parseMethodDeclaration_(true);
       }
@@ -755,7 +760,7 @@ traceur.define('syntax', function() {
       if (this.peekFunction_()) {
         this.nextToken_(); // function or #
       }
-      return this.parseFunctionDeclarationTail_(start, isStatic);
+      return this.parseFunctionDeclarationTail_(start, isStatic, this.eatId_());
     },
 
     /**
@@ -764,7 +769,25 @@ traceur.define('syntax', function() {
      */
     peekMethodDeclaration_: function() {
       var index = this.peek_(TokenType.STATIC) ? 1 : 0;
-      return this.peekFunction_(index) || (this.peek_(TokenType.IDENTIFIER, index) && this.peek_(TokenType.OPEN_PAREN, index + 1));
+      return this.peekFunction_(index) ||
+          (this.peek_(TokenType.IDENTIFIER, index) && this.peek_(TokenType.OPEN_PAREN, index + 1));
+    },
+
+    /**
+     * @return {ParseTree}
+     * @private
+     */
+    parseConstructorDeclaration_: function() {
+      var start = this.getTreeStartLocation_();
+      return this.parseFunctionDeclarationTail_(start, false, this.eatIdName_());
+    },
+
+    /**
+     * @return {boolean}
+     * @private
+     */
+    peekConstructorDeclaration_: function() {
+      return this.peek_(TokenType.NEW) && this.peek_(TokenType.OPEN_PAREN, 1);
     },
 
     /**
@@ -811,17 +834,17 @@ traceur.define('syntax', function() {
     parseFunctionDeclaration_: function() {
       var start = this.getTreeStartLocation_();
       this.nextToken_(); // function or #
-      return this.parseFunctionDeclarationTail_(start, false);
+      return this.parseFunctionDeclarationTail_(start, false, this.eatId_());
     },
 
     /**
      * @param {SourcePosition} start
      * @param {boolean} isStatic
+     * @param {IdentifierToken} name
      * @return {ParseTree}
      * @private
      */
-    parseFunctionDeclarationTail_: function(start, isStatic) {
-      var name = this.eatId_();
+    parseFunctionDeclarationTail_: function(start, isStatic, name) {
       this.eat_(TokenType.OPEN_PAREN);
       var formalParameterList = this.parseFormalParameterList_();
       this.eat_(TokenType.CLOSE_PAREN);
@@ -2942,9 +2965,12 @@ traceur.define('syntax', function() {
      */
     eatIdName_: function() {
       var t = this.nextToken_();
-      if (t.type != TokenType.IDENTIFIER && !Keywords.isKeyword(t.type)) {
-        this.reportExpectedError_(t, 'identifier');
-        return null;
+      if (t.type != TokenType.IDENTIFIER) {
+        if (!Keywords.isKeyword(t.type)) {
+          this.reportExpectedError_(t, 'identifier');
+          return null;
+        }
+        return new IdentifierToken(t.location, t.type);
       }
       return t;
     },

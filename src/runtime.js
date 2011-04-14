@@ -33,7 +33,7 @@ traceur.runtime = (function() {
     map[name] = make;
   }
 
-  // AUTO-GENERATED (tools/jspp/tools/gen_class_stubs.html)
+  // AUTO-GENERATED
   try {add(map, 'Array', Array, function() {return new Array();});}catch (e) {}
   try {add(map, 'Date', Date, function() {return new Date();});}catch (e) {}
   try {add(map, 'Event', Event, function() {return document.createEvent('Event');});}catch (e) {}
@@ -114,9 +114,10 @@ traceur.runtime = (function() {
   // base: the base class
   // make: the function to create instance of the class
   //       i.e. function() { document.createEvent('div'); }
+  // ctor: the constructor function
   // proto: the prototype object (containing instance methods, properties)
   // initS: the function to initialize class static members
-  function createClass(name, base, make, init, proto, initS) {
+  function createClass(name, base, make, ctor, init, proto, initS) {
     if (base) {
       if (typeof base != 'function') {
         throw new TypeError(
@@ -139,10 +140,12 @@ traceur.runtime = (function() {
     var finit = binit
       ? (init ? function() { binit.call(this); init.call(this); } : binit)
       : init;
-    var ctor = proto.hasOwnProperty('constructor')
-      ? proto.constructor
-      : null;
-
+    if (ctor) {
+      proto.constructor = ctor;
+    } else {
+      ctor = proto.constructor;
+    }
+    
     function TheClass() {
       var $this = make ? make() : this;
       $this.__proto__ = TheClass.prototype;

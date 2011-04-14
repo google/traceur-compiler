@@ -1,6 +1,6 @@
 // TODO(jmesserly): remove this file.
 // It's needed for now because we don't support classes in traceur
-// It was generated with the JSPP compiler from runtime.js
+// It was generated with the old compiler from runtime.js
 
 function HTMLH1HeadingElement() { }
 function HTMLH2HeadingElement() { }
@@ -392,7 +392,7 @@ traceur.runtime = (function() {
       return document.createEvent('UIEvents');
     });
   } catch (e) { }
-  function createClass(name, base, make, init, proto, initS) {
+  function createClass(name, base, make, ctor, init, proto, initS) {
     if (base) {
       if (typeof base != 'function') {
         throw new TypeError('Base class of ' + name + ' must be a function (' + typeof base + ')');
@@ -412,7 +412,13 @@ traceur.runtime = (function() {
       binit.call(this);
       init.call(this);
     } : binit) : init;
-    var ctor = proto.hasOwnProperty('constructor') ? proto.constructor : null;
+    
+    if (ctor) {
+      proto.constructor = ctor;
+    } else {
+      ctor = proto.constructor;
+    }    
+    
     function TheClass() {
       var $this = make ? make() : this;
       $this.__proto__ = TheClass.prototype;
@@ -426,6 +432,7 @@ traceur.runtime = (function() {
     }
     proto.__proto__ = base.prototype;
     TheClass.prototype = proto;
+    
     Object.defineProperty(TheClass, '$className', {
       value: name,
       writable: false,

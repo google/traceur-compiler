@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<!--
+
+// Copyright 2011 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+-->
+<html>
+<head>
+<title></title>
+<script src="../../third_party/closure-library/closure/goog/base.js"></script>
+<script>
+goog.require('goog.testing.jsunit');
+</script>
+<script src="../traceur.js"></script>
+<script src="../runtimebootstrap.js"></script>
+<script src="../../test/features/Constructor.js" type="text/traceur"></script>
+<script src="../../test/features/DeriveFromObject.js" type="text/traceur"></script>
+<script src="../../test/features/DerivedButton.js" type="text/traceur"></script>
+<script src="../../test/features/EmptyClass.js" type="text/traceur"></script>
+<script src="../../test/features/FieldInitializers.js" type="text/traceur"></script>
+<script src="../../test/features/FieldInitializersAndConstructorParameters.js" type="text/traceur"></script>
+<script src="../../test/features/FieldInitializersAndInheritance.js" type="text/traceur"></script>
+<script src="../../test/features/Fields.js" type="text/traceur"></script>
+<script src="../../test/features/Inheritance.js" type="text/traceur"></script>
+<script src="../../test/features/InheritanceNameBinding.js" type="text/traceur"></script>
+<script src="../../test/features/Method.js" type="text/traceur"></script>
+<script src="../../test/features/NameBinding.js" type="text/traceur"></script>
+<script src="../../test/features/PropertyAccessors.js" type="text/traceur"></script>
+<script src="../../test/features/SimpleConst.js" type="text/traceur"></script>
+<script src="../../test/features/SimpleSuper.js" type="text/traceur"></script>
+<script src="../../test/features/StaticMembers.js" type="text/traceur"></script>
+<script src="../../test/features/classes.js" type="text/traceur"></script>
+</head>
+<body>
+<script type="text/traceur">
+
+// more tests
+
+function testEmptyClass() {
+  var e = new EmptyClass();
+  assertNotNull(e);
+  for (var element in e) {
+    fail("Empty class contains :" + element);
+  }
+  for (var element in EmptyClass) {
+    fail("EmptyClass contains static member : " + element);
+  }
+  var e2 = new EmptyClass();
+  assertNotEquals(e, e2);
+}
+
+function testFields() {
+  var p = new PointWithFields();
+  var foundX = false;
+  var foundY = false;
+  for (var element in p) {
+    if (element == "x") {
+      assertFalse(foundX);
+      foundX = true;
+    } else if (element == "y") {
+      assertFalse(foundY);
+      foundY = true;
+    } else {
+      fail("found field " + element);
+    }
+  }
+
+  assertTrue(foundX);
+  assertTrue(foundY);
+}
+
+function testFieldInitializers() {
+  var p = new PointWithFieldInitializers();
+  assertEquals(0, p.x);
+  assertEquals(0, p.y);
+  p.x = 1;
+  assertEquals(1, p.x);
+
+  var p2 = new PointWithFieldInitializers();
+  assertEquals(0, p2.x);
+  assertEquals(0, p2.y);
+  assertEquals(1, p.x);
+
+  for (var element in PointWithFieldInitializers) {
+    fail("PointWithFieldInitializers contains static member : " + element);
+  }
+}
+
+function testFieldInitializersAndConstructorParameters() {
+  constructorArg = 12;
+  var obj = new FieldInitializersAndConstructorParameters(42);
+  assertEquals(12, obj.field);
+}
+
+function testFieldInitializersAndInheritance() {
+  var obj = new DerivedFieldInitializers();
+  assertEquals(0, obj.b);
+  assertEquals(1, obj.d);
+  assertEquals(2, obj.de);
+  assertEquals(3, obj.be);
+
+  DerivedFieldInitializers.prototype.constructor.call(obj);
+  assertEquals(0, obj.b);
+  assertEquals(1, obj.d);
+  assertEquals(4, obj.de);
+  assertEquals(5, obj.be);
+
+  DerivedFieldInitializers.call(obj);
+  assertEquals(6, obj.b);
+  assertEquals(7, obj.d);
+  assertEquals(8, obj.de);
+  assertEquals(9, obj.be);
+}
+
+function testConstructor() {
+  var p = new PointWithConstructor(1, 2);
+  assertEquals(1, p.x);
+  assertEquals(2, p.y);
+  var p2 = new PointWithConstructor(3, 4);
+  assertEquals(3, p2.x);
+  assertEquals(4, p2.y);
+  assertEquals(1, p.x);
+  assertEquals(2, p.y);
+
+  for (var element in PointWithConstructor) {
+    fail("PointWithConstructor contains static member : " + element);
+  }
+}
+
+function testMethod() {
+  var obj = new ClassWithMethod();
+  assertEquals(42, obj.m());
+
+  for (var element in obj) {
+    assertEquals("m", element);
+  }
+
+  for (var element in ClassWithMethod) {
+    fail("ClassWithMethod contains static member : " + element);
+  }
+}
+
+function testNameBinding() {
+  var obj = new ElementHolder();
+
+  obj.element = 40;
+  assertEquals(40, obj.getElement());
+  assertTrue(obj.makeFilterCapturedThis()(40));
+  assertFalse(obj.makeFilterLostThis()(40));
+
+  obj.element = 39;
+  assertFalse(obj.makeFilterCapturedThis()(40));
+  assertTrue(obj.makeFilterCapturedThis()(39));
+
+  assertFalse(obj.makeFilterHidden(41)(40));
+  assertTrue(obj.makeFilterHidden(41)(41));
+}
+
+function testPropertyAccessors() {
+  var immutable = new ImmutablePoint();
+  assertEquals(undefined, immutable.x);
+  assertEquals(undefined, immutable.y);
+  immutable.x_ = 10;
+  immutable.y_ = 20;
+  assertEquals(10, immutable.x);
+  assertEquals(20, immutable.y);
+  assertEquals(10, immutable.x_);
+  assertEquals(20, immutable.y_);
+
+  try {
+    immutable.x = 11;
+    fail("should not be able to set a get only property");
+  } catch (except) {
+  }
+  try {
+    immutable.y = 11;
+    fail("should not be able to set a get only property");
+  } catch (except) {
+  }
+  assertEquals(10, immutable.x);
+  assertEquals(20, immutable.y);
+
+  var mutable = new MutablePoint();
+  assertEquals(undefined, mutable.x);
+  assertEquals(undefined, mutable.y);
+  mutable.x_ = 10;
+  mutable.y_ = 20;
+  assertEquals(10, mutable.x);
+  assertEquals(20, mutable.y);
+  assertEquals(10, mutable.x_);
+  assertEquals(20, mutable.y_);
+
+  try {
+    mutable.x = 11;
+  } catch (except) {
+    fail("should be able to set a read/write property");
+  }
+  try {
+    mutable.y = 12;
+  } catch (except) {
+    fail("should be able to set a read/write property");
+  }
+  assertEquals(11, mutable.x);
+  assertEquals(12, mutable.y);
+}
+
+function testSimpleInstanceOf() {
+  var derived = new SimpleDerived();
+  assertTrue(derived instanceof SimpleDerived);
+  assertTrue(derived instanceof SimpleBase);
+  assertTrue(derived instanceof Object);
+}
+
+function testInheritanceNameBinding() {
+  var derived = new NameBindingDerived();
+  derived.x = 12;
+  assertEquals(12, derived.getX());
+}
+
+function testSimpleSuper() {
+  var obj = new SuperDerived();
+  assertEquals(41, obj.m());
+  assertEquals(40, obj.superM());
+  assertEquals(4, obj.baseX);
+  // TODO: code.google.com/p/v8/issues/detail?id=687
+  // assertEquals(10, obj.x);
+  assertEquals(4, obj.superX());
+  assertEquals(1, obj.baseF);
+  assertEquals(2, obj.baseC);
+  assertEquals(3, obj.derC);
+}
+
+function testSimpleConst() {
+  'use strict';
+
+  var obj = new ConstClass();
+  assertEquals(3.14, obj.PI);
+  try {
+    obj.PI = 4;
+    fail("modified const");
+  } catch (e) {
+  }
+  assertEquals(3.14, obj.PI);
+}
+
+function testStaticMembers() {
+  assertEquals(1, StaticMembers.staticField);
+  assertEquals(1, StaticMembers.staticProp);
+  assertEquals(1, StaticMembers.getStaticProp());
+  StaticMembers.staticMethod(2);
+  assertEquals(2, StaticMembers.staticField);
+  assertEquals(2, StaticMembers.staticProp);
+  assertEquals(2, StaticMembers.getStaticProp());
+  StaticMembers.staticProp = 3;
+  assertEquals(3, StaticMembers.staticField);
+  assertEquals(3, StaticMembers.staticProp);
+  assertEquals(3, StaticMembers.getStaticProp());
+  StaticMembers.setStaticProp(4);
+  assertEquals(4, StaticMembers.staticField);
+  assertEquals(4, StaticMembers.staticProp);
+  assertEquals(4, StaticMembers.getStaticProp());
+
+  assertUndefined(StaticMembers.instanceField);
+
+  var obj = new StaticMembers();
+  assertUndefined(obj.instanceField);
+  obj.instanceMethod(5);
+  assertEquals(7, obj.instanceField);
+  assertEquals(6, StaticMembers.staticField);
+  assertEquals(6, StaticMembers.staticProp);
+  assertEquals(6, StaticMembers.getStaticProp());
+}
+
+function testDerivedButton() {
+  var button = new CustomButton();
+  document.body.appendChild(button);
+  document.body.appendChild(new CustomSelect());
+  document.body.appendChild(new CustomInput());
+  document.body.appendChild(new CustomDiv());
+  // document.body.appendChild(new CustomSpan());
+  document.body.appendChild(new CustomTableRow());
+  document.body.appendChild(new CustomHeading());
+  document.body.appendChild(new CustomElement());
+  document.body.appendChild(new CustomUList());
+  document.body.appendChild(new CustomLI());
+  document.body.appendChild(new CustomMenu());
+  document.body.appendChild(new CustomTextArea());
+}
+
+</script>
+<script>
+
+function evalScript(scriptElement) {
+  var source;
+  var name;
+  if (scriptElement.src) {
+    name = scriptElement.src;
+    var xhr = new XMLHttpRequest();
+    // Synchronous load but these are already loaded when we get here so it
+    // should be fast.
+    xhr.open('GET', scriptElement.src, false);
+    xhr.send();
+    source = xhr.responseText;
+  } else {
+    name = 'inline-script';
+    source = scriptElement.textContent;
+  }
+
+  var errorReporter = new traceur.util.ErrorReporter();
+  var tree = transform(errorReporter, name, source);
+  var code = traceur.codegeneration.ParseTreeWriter.write(tree);
+  console.log(code);
+  ('global', eval)(code);
+  assertFalse(errorReporter.hadError());
+}
+
+function evalAllScripts() {
+  var scripts = document.querySelectorAll('script[type="text/traceur"]');
+  Array.prototype.forEach.call(scripts, evalScript);
+}
+
+function transform(errorReporter, name, source) {
+  var sourceFile = new traceur.syntax.SourceFile(name, source);
+  var scanner = new traceur.syntax.Scanner(errorReporter, sourceFile);
+  var parser = new traceur.syntax.Parser(errorReporter, scanner);
+  var tree = parser.parseProgram();
+  assertFalse(errorReporter.hadError());
+
+  tree = traceur.codegeneration.ClassTransformer.transformClasses(errorReporter, tree);
+  assertFalse(errorReporter.hadError());
+  
+  return tree;
+}
+
+evalAllScripts();
+
+</script>
+</body>
+</html>

@@ -40,7 +40,7 @@ traceur.define('semantics.symbols', function() {
      * @return {boolean}
      */
     isConst: function() {
-      return field.isConst;
+      return this.field.isConst;
     }
   };
 
