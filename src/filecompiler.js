@@ -109,7 +109,7 @@
     console.log('Compilation of ' + filename + ' successful.');
     return true;
   }
-  
+
   function idFunction(x) {
     return x;
   }

@@ -412,13 +412,13 @@ traceur.runtime = (function() {
       binit.call(this);
       init.call(this);
     } : binit) : init;
-    
+
     if (ctor) {
       proto.constructor = ctor;
     } else {
       ctor = proto.constructor;
-    }    
-    
+    }
+
     function TheClass() {
       var $this = make ? make() : this;
       $this.__proto__ = TheClass.prototype;
@@ -432,7 +432,7 @@ traceur.runtime = (function() {
     }
     proto.__proto__ = base.prototype;
     TheClass.prototype = proto;
-    
+
     Object.defineProperty(TheClass, '$className', {
       value: name,
       writable: false,

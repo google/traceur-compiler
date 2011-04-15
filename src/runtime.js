@@ -145,7 +145,7 @@ traceur.runtime = (function() {
     } else {
       ctor = proto.constructor;
     }
-    
+
     function TheClass() {
       var $this = make ? make() : this;
       $this.__proto__ = TheClass.prototype;

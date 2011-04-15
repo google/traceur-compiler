@@ -77,7 +77,7 @@ traceur.define('syntax', function() {
     SUPER_GET: 'superGet',
     THAT: '$that',
     THEN: 'then',
-    TRACEUR: 'traceur',    
+    TRACEUR: 'traceur',
     TRAIT: 'trait',
     TYPE_ERROR: 'TypeError',
     UNDEFINED: 'undefined',

@@ -98,7 +98,7 @@ traceur.define('syntax', function() {
     if (uc.indexOf('__') === 0) {
       uc = uc.substring(2);
     }
-    
+
     var kw = new Keyword(value, TokenType[uc]);
 
     Keywords[uc] = kw;

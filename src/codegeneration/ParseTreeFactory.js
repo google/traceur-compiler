@@ -170,7 +170,7 @@ traceur.define('codegeneration', function() {
    *
    * TODO(jmesserly): this API is a bit goofy. Can we replace it with something
    * simpler? In most use cases, square brackets could replace calls to this.
-   * 
+   *
    * @param {Array.<ParseTree>|ParseTree} statementsOrHead
    * @param {...ParseTree} var_args
    * @return {Array.<ParseTree>}

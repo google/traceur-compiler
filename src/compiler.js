@@ -33,15 +33,15 @@ traceur.define('', function() {
     if (errors.hadError()) {
       return { result: null, errors: errors };
     }
- 
+
     var idGen = new traceur.codegeneration.UniqueIdentifierGenerator();
-    
+
     //TODO(jmesserly): traceur.syntax.ParseTreeValidator.validate(tree);
     tree = traceur.codegeneration.ForEachTransformer.transformTree(idGen, tree);
     if (errors.hadError()) {
       return { result: null, errors: errors };
     }
-  
+
     //TODO(jmesserly): traceur.syntax.ParseTreeValidator.validate(tree);
     tree = traceur.codegeneration.GeneratorTransformPass.transformTree(
       idGen, errors, tree);

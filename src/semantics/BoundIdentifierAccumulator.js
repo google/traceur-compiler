@@ -40,27 +40,27 @@ traceur.define('semantics', function() {
    */
   function BoundIdentifierAccumulator(includeFunctionScope, scope) {
     ParseTreeVisitor.call(this);
-    
+
     // Should we include:
     // * all "var" declarations
-    // * all block scoped declarations occurring in the top level function block.    
+    // * all block scoped declarations occurring in the top level function block.
     this.includeFunctionScope_ = includeFunctionScope;
-    
+
     // Block within which we are looking for declarations:
     // * block scoped declaration occurring in this block.
-    // If function != null this refers to the top level function block.    
+    // If function != null this refers to the top level function block.
     this.scope_ = scope || null;
-    
+
     // Block currently being processed
     this.block_ = null;
-        
+
     this.identifiers_ = Object.create(null);
   }
-  
+
   // TODO: Add entry more entry points:
   //    for..in statment
   //    for statement
-  
+
   /**
    * @param {BlockTree} tree
    * @param {boolean=} includeFunctionScope
@@ -84,7 +84,7 @@ traceur.define('semantics', function() {
    *
    * Then only {@code "f"} is bound; {@code "x"} and {@code "y"} are
    * bound in the separate lexical scope of {@code f}.
-   * 
+   *
    * @param {ParseTree} tree
    * @returns {Object}
    */
@@ -93,7 +93,7 @@ traceur.define('semantics', function() {
     accumulator.visitAny(tree);
     return accumulator.identifiers_;
   };
-  
+
   /**
    * Gets the identifiers bound in the context of a function,
    * {@code tree}. For example, if {@code tree} is:
@@ -136,7 +136,7 @@ traceur.define('semantics', function() {
     var accumulator = new BoundIdentifierAccumulator(false, tree.functionBody);
     accumulator.accumulateBoundIdentifiersInFunction_(tree);
     return accumulator.identifiers_;
-  };  
+  };
 
   /**
    * Gets the identifier <em>additionally</em> bound in the context of
@@ -153,11 +153,11 @@ traceur.define('semantics', function() {
     result[tree.exceptionName.value] = true;
     return result;
   }
-  
+
   var proto = ParseTreeVisitor.prototype;
   BoundIdentifierAccumulator.prototype = {
     __proto__: proto,
-    
+
     /** @param {FunctionDeclarationTree} tree */
     accumulateBoundIdentifiersInFunction_: function(tree) {
       var parameters = tree.formalParameterList.parameters;
@@ -166,20 +166,20 @@ traceur.define('semantics', function() {
       }
       this.visitAny(tree.functionBody);
     },
-      
+
     /** @param {BlockTree} tree */
     visitBlockTree: function(tree) {
       // Save and set current block
       var parentBlock = this.block_;
       this.block_ = tree;
-  
+
       // visit the statements
       proto.visitBlockTree.call(this, tree);
-  
+
       // restore current block
       this.block_ = parentBlock;
     },
-  
+
     /** @param {ForInStatementTree} tree */
     visitForInStatementTree: function(tree) {
       if (tree.initializer != null &&
@@ -188,12 +188,12 @@ traceur.define('semantics', function() {
       } else {
         this.visitAny(tree.initializer);
       }
-  
+
       // visit the rest of the for..in statement
       this.visitAny(tree.collection);
       this.visitAny(tree.body);
     },
-  
+
     /** @param {ForStatementTree} tree */
     visitForStatementTree: function(tree) {
       if (tree.initializer != null &&
@@ -202,13 +202,13 @@ traceur.define('semantics', function() {
       } else {
         this.visitAny(tree.initializer);
       }
-  
+
       // visit the rest of the for statement
       this.visitAny(tree.condition);
       this.visitAny(tree.increment);
       this.visitAny(tree.body);
     },
-  
+
     /** @param {VariableDeclarationListTree} declarations */
     visitForDeclarations_: function(declarations) {
       if (declarations.declarationType == TokenType.VAR) {
@@ -223,7 +223,7 @@ traceur.define('semantics', function() {
         }
       }
     },
-  
+
     /** @param {FunctionDeclarationTree} tree */
     visitFunctionDeclarationTree: function(tree) {
       // functions follow the binding rules of 'let'
@@ -233,7 +233,7 @@ traceur.define('semantics', function() {
       // We don't recurse into function bodies, because they create
       // their own lexical scope.
     },
-  
+
     /** @param {VariableDeclarationListTree} tree */
     visitVariableDeclarationListTree: function(tree) {
       // "var" variables are bound if we are scanning the whole function only
@@ -249,21 +249,21 @@ traceur.define('semantics', function() {
         var decls = tree.declarations;
         for (var i = 0; i < decls.length; i++) {
           this.visitAny(decls[i].initializer);
-        }        
+        }
       }
     },
-  
+
     /** @param {VariableDeclarationTree} tree */
     visitVariableDeclarationTree: function(tree) {
       this.bindVariableDeclaration_(tree.lvalue);
       proto.visitVariableDeclarationTree.call(this, tree);
     },
-  
+
     /** @param {IdentifierToken} identifier */
     bind_: function(identifier) {
       this.identifiers_[identifier.value] = true;
     },
-  
+
     /** @param {ParseTree} parameter */
     bindParameter_: function(parameter) {
       if (parameter.isRestParameter()) {
@@ -274,32 +274,32 @@ traceur.define('semantics', function() {
         this.bindVariableDeclaration_(parameter);
       }
     },
-  
+
     /** @param {ParseTree} parameter */
     bindVariableDeclaration_: function(tree) {
       switch (tree.type) {
         case ParseTreeType.IDENTIFIER_EXPRESSION:
           this.bind_(tree.asIdentifierExpression().identifierToken);
           break;
-  
+
         case ParseTreeType.ARRAY_PATTERN:
           var i = tree.asArrayPattern().elements;
           for (var i = 0; i < elements.length; i++) {
             this.bindVariableDeclaration_(elements[i]);
           }
           break;
-  
+
         case ParseTreeType.SPREAD_PATTERN_ELEMENT:
           this.bindVariableDeclaration_(tree.asSpreadPatternElement().lvalue);
           break;
-  
+
         case ParseTreeType.OBJECT_PATTERN:
           var fields = tree.asObjectPattern().fields;
           for (var i = 0; i < fields.length; i++) {
             this.bindVariableDeclaration_(fields[i]);
           }
           break;
-  
+
         case ParseTreeType.OBJECT_PATTERN_FIELD:
           var field = tree.asObjectPatternField();
           if (field.element == null) {
@@ -308,15 +308,15 @@ traceur.define('semantics', function() {
             this.bindVariableDeclaration_(field.element);
           }
           break;
-  
+
         case ParseTreeType.PAREN_EXPRESSION:
           this.bindVariableDeclaration_(tree.asParenExpression().expression);
           break;
-  
+
         default:
           throw new Error('unreachable');
       }
-    }    
+    }
   };
 
   return {

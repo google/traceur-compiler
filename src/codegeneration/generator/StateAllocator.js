@@ -26,7 +26,7 @@ traceur.define('codegeneration.generator', function() {
 
   StateAllocator.prototype = {
     nextState_: State.INVALID_STATE + 1,
-    
+
     /** @return {number} */
     allocateState: function() {
       return this.nextState_++;
