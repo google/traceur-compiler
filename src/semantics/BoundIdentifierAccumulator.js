@@ -64,10 +64,10 @@ traceur.define('semantics', function() {
   /**
    * @param {BlockTree} tree
    * @param {boolean=} includeFunctionScope
-   * @returns {Object}
+   * @return {Object}
    */
   BoundIdentifierAccumulator.boundIdentifiersInBlock = function(tree,
-        includeFunctionScope) {
+      includeFunctionScope) {
     var accumulator = new BoundIdentifierAccumulator(includeFunctionScope, tree);
     accumulator.visitAny(tree);
     return accumulator.identifiers_;
@@ -86,7 +86,7 @@ traceur.define('semantics', function() {
    * bound in the separate lexical scope of {@code f}.
    *
    * @param {ParseTree} tree
-   * @returns {Object}
+   * @return {Object}
    */
   BoundIdentifierAccumulator.boundIdentifiersInExpression = function(tree) {
     var accumulator = new BoundIdentifierAccumulator(false);
@@ -130,7 +130,7 @@ traceur.define('semantics', function() {
    * invocation.
    *
    * @param {FunctionDeclarationTree} tree
-   * @returns {Object}
+   * @return {Object}
    */
   BoundIdentifierAccumulator.boundIdentifiersInFunction = function(tree) {
     var accumulator = new BoundIdentifierAccumulator(false, tree.functionBody);
@@ -146,7 +146,7 @@ traceur.define('semantics', function() {
    * block.
    *
    * @param {Object} tree
-   * @returns {Object}
+   * @return {Object}
    */
   BoundIdentifierAccumulator.boundIdentifiersInCatch = function(tree) {
     var result = Object.create(null);

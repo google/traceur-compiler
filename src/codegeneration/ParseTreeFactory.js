@@ -144,7 +144,7 @@ traceur.define('codegeneration', function() {
   }
 
   /**
-   * @param {IdentifierToken|FormalParameterListTree}
+   * @param {IdentifierToken|FormalParameterListTree} parameter
    * @return {Array.<string>}
    */
   function createParameters(parameter) {
@@ -316,7 +316,7 @@ traceur.define('codegeneration', function() {
   }
 
   /**
-   * @param {Array.<ParseTree> list
+   * @param {Array.<ParseTree>} list
    * @return {ArrayLiteralExpressionTree}
    */
   function createArrayLiteralExpression(list) {
@@ -331,7 +331,7 @@ traceur.define('codegeneration', function() {
   }
 
   /**
-   * @param {Array.<ParseTree> list
+   * @param {Array.<ParseTree>} list
    * @return {ArrayPatternTree}
    */
   function createArrayPattern(list) {
@@ -407,12 +407,12 @@ traceur.define('codegeneration', function() {
     return createCallCall(
         createParenExpression(
             createFunctionExpression(createEmptyParameterList(), block)),
-            createThisExpression());
+        createThisExpression());
   }
 
   /**
    * @param {ParseTree} operand
-   * @parm {ArgumentListTree=} opt_args
+   * @param {ArgumentListTree=} opt_args
    * @return {CallExpressionTree}
    */
   function createCallExpression(operand, opt_args) {
@@ -493,7 +493,7 @@ traceur.define('codegeneration', function() {
 
   /**
    * @param {ParseTree} expression
-   * @param Array.<ParseTree>} statements
+   * @param {Array.<ParseTree>} statements
    * @return {CaseClauseTree}
    */
   function createCaseClause(expression, statements) {
@@ -512,7 +512,7 @@ traceur.define('codegeneration', function() {
   /**
    * @param {IdentifierToken} name
    * @param {ParseTree} superClass
-   * @param {Array.<ParseTree> elements
+   * @param {Array.<ParseTree>} elements
    * @return {ClassDeclarationTree}
    */
   function createClassDeclaration(name, superClass, elements) {
@@ -520,7 +520,7 @@ traceur.define('codegeneration', function() {
   }
 
   /**
-   * @param {Array.<ParseTree> expressions
+   * @param {Array.<ParseTree>} expressions
    * @return {CommaExpressionTree}
    */
   function createCommaExpression(expressions) {
@@ -545,7 +545,7 @@ traceur.define('codegeneration', function() {
   }
 
   /**
-   * @param Array.<ParseTree>} statements
+   * @param {Array.<ParseTree>} statements
    * @return {DefaultClauseTree}
    */
   function createDefaultClause(statements) {
@@ -665,7 +665,7 @@ traceur.define('codegeneration', function() {
    * @param {string|IdentifierToken} name
    * @param {FormalParameterListTree} formalParameterList
    * @param {BlockTree} functionBody
-   * @return FunctionDeclarationTree}
+   * @return {FunctionDeclarationTree}
    */
   function createFunctionDeclaration(name, formalParameterList, functionBody) {
     if (typeof name == 'string')
@@ -817,7 +817,7 @@ traceur.define('codegeneration', function() {
 
   /**
    * @param {IdentifierToken} name
-   * @param {MixinResolveListTree mixinResolves
+   * @param {MixinResolveListTree} mixinResolves
    * @return {MixinTree}
    */
   function createMixin(name, mixinResolves) {
@@ -991,7 +991,7 @@ traceur.define('codegeneration', function() {
   }
 
   /**
-   * @pararm {IdentifierToken} name
+   * @param {IdentifierToken} name
    * @param {Array.<ParseTree>} elements
    * @return {TraitDeclarationTree}
    */
@@ -1045,7 +1045,7 @@ traceur.define('codegeneration', function() {
       identifier = createIdentifierToken(identifier);
 
     return createVariableDeclarationList(
-          binding, [createVariableDeclaration(identifier, initializer)]);
+        binding, [createVariableDeclaration(identifier, initializer)]);
   }
 
   /**

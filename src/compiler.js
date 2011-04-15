@@ -44,7 +44,7 @@ traceur.define('', function() {
 
     //TODO(jmesserly): traceur.syntax.ParseTreeValidator.validate(tree);
     tree = traceur.codegeneration.GeneratorTransformPass.transformTree(
-      idGen, errors, tree);
+        idGen, errors, tree);
     if (errors.hadError()) {
       return { result: null, errors: errors };
     }

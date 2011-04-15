@@ -129,7 +129,7 @@ traceur.define('codegeneration', function() {
 
     /**
      * @param {ParseTree} classInstance
-     * @param {ClassSymbol}
+     * @param {ClassSymbol} sym
      * @return {Array.<ParseTree>}
      */
     createStaticMembers_: function(classInstance, sym) {
@@ -448,7 +448,7 @@ traceur.define('codegeneration', function() {
 
     /**
      * Helper to create a FunctionTransformer
-     * @param {Symbol}
+     * @param {Symbol} sym
      * @return {FunctionTransformer}
      */
     createFunctionTransformer_: function(sym) {

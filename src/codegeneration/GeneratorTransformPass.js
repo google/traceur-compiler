@@ -49,17 +49,17 @@ traceur.define('codegeneration', function() {
       return this.hasYield || this.hasAsync;
     },
 
-    /** @param {YieldStatementTree} */
+    /** @param {YieldStatementTree} tree */
     visitYieldStatementTree: function(tree) {
       this.hasYield = true;
     },
 
-    /** @param {AwaitStatementTree} */
+    /** @param {AwaitStatementTree} tree */
     visitAwaitStatementTree: function(tree) {
       this.hasAsync = true;
     },
 
-    /** @param {ForInStatementTree} */
+    /** @param {ForInStatementTree} tree */
     visitForInStatementTree: function(tree) {
       this.hasForIn = true;
       ParseTreeVisitor.prototype.visitForInStatementTree.call(this, tree);

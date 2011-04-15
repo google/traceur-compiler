@@ -722,8 +722,8 @@ traceur.define('codegeneration', function() {
       var parameters =
           this.transformAny(tree.formalParameterList).asFormalParameterList();
       var functionBody = this.transformAny(tree.functionBody).asBlock();
-      if (parameters == tree.formalParameterList
-          && functionBody == tree.functionBody) {
+      if (parameters == tree.formalParameterList &&
+          functionBody == tree.functionBody) {
         return tree;
       }
       return createFunctionDeclaration(tree.name, parameters, functionBody);

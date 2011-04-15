@@ -232,7 +232,7 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {VariableDeclarationTree}
+     * @param {VariableDeclarationTree} tree
      * @return {Array.<VariableDeclarationTree>}
      */
     desugarVariableDeclaration_: function(tree) {

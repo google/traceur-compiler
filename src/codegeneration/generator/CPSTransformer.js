@@ -214,9 +214,9 @@ traceur.define('codegeneration.generator', function() {
     transformCaseClauseTree: function(tree) {
       var result = proto.transformCaseClauseTree.call(this, tree).asCaseClause();
       var machine = this.transformStatementList_(result.statements);
-      return machine == null
-          ? result
-          : new CaseClauseTree(null, result.expression, createStatementList(machine));
+      return machine == null ?
+          result :
+          new CaseClauseTree(null, result.expression, createStatementList(machine));
     },
 
     /**

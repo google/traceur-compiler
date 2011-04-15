@@ -70,7 +70,7 @@ traceur.define('codegeneration.generator', function() {
      * @return {SwitchState}
      */
     replaceState: function(oldState, newState) {
-      var clauses = this.clauses.map(function (clause) {
+      var clauses = this.clauses.map(function(clause) {
         return new SwitchClause(clause.first,
             State.replaceStateId(clause.second, oldState, newState));
       });

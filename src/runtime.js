@@ -137,9 +137,9 @@ traceur.runtime = (function() {
     }
 
     var binit = base.$init;
-    var finit = binit
-      ? (init ? function() { binit.call(this); init.call(this); } : binit)
-      : init;
+    var finit = binit ?
+        (init ? function() { binit.call(this); init.call(this); } : binit) :
+        init;
     if (ctor) {
       proto.constructor = ctor;
     } else {
@@ -330,3 +330,4 @@ class Deferred {
     }
   }
 }
+
