@@ -112,7 +112,7 @@ traceur.define('codegeneration', function() {
                   // base
                   baseClass,
                   // $new
-                  this.createNewMethod_(sym),
+                  this.createStaticConstructor_(sym),
                   // ctor
                   this.createConstructor_(sym),
                   // $init
@@ -378,8 +378,8 @@ traceur.define('codegeneration', function() {
      * @param {AggregateSymbol} sym
      * @return {ParseTree}
      */
-    createNewMethod_: function(sym) {
-      var method = sym.getNewFactory();
+    createStaticConstructor_: function(sym) {
+      var method = sym.getStaticConstructor();
       if (!method) {
         return createNullLiteral();
       } else {

@@ -630,7 +630,7 @@ traceur.define('syntax', function() {
         case TokenType.IDENTIFIER:
         case TokenType.VAR:
         case TokenType.CONST:
-        case TokenType.STATIC:
+        case TokenType.CLASS:
         case TokenType.NEW:
           return true;
         default:
@@ -673,7 +673,7 @@ traceur.define('syntax', function() {
     parseFieldDeclaration_: function() {
       var start = this.getTreeStartLocation_();
 
-      var isStatic = this.eatOpt_(TokenType.STATIC) != null;
+      var isStatic = this.eatOpt_(TokenType.CLASS) != null;
 
       var binding = this.peekType_();
       var isConst = false;
@@ -756,7 +756,7 @@ traceur.define('syntax', function() {
      */
     parseMethodDeclaration_: function(allowStatic) {
       var start = this.getTreeStartLocation_();
-      var isStatic = allowStatic && this.eatOpt_(TokenType.STATIC) != null;
+      var isStatic = allowStatic && this.eatOpt_(TokenType.CLASS) != null;
       if (this.peekFunction_()) {
         this.nextToken_(); // function or #
       }
@@ -768,7 +768,7 @@ traceur.define('syntax', function() {
      * @private
      */
     peekMethodDeclaration_: function() {
-      var index = this.peek_(TokenType.STATIC) ? 1 : 0;
+      var index = this.peek_(TokenType.CLASS) ? 1 : 0;
       return this.peekFunction_(index) ||
           (this.peek_(TokenType.IDENTIFIER, index) && this.peek_(TokenType.OPEN_PAREN, index + 1));
     },
@@ -779,7 +779,8 @@ traceur.define('syntax', function() {
      */
     parseConstructorDeclaration_: function() {
       var start = this.getTreeStartLocation_();
-      return this.parseFunctionDeclarationTail_(start, false, this.eatIdName_());
+      var isStatic = this.eatOpt_(TokenType.CLASS) != null;
+      return this.parseFunctionDeclarationTail_(start, isStatic, this.eatIdName_());
     },
 
     /**
@@ -787,7 +788,9 @@ traceur.define('syntax', function() {
      * @private
      */
     peekConstructorDeclaration_: function() {
-      return this.peek_(TokenType.NEW) && this.peek_(TokenType.OPEN_PAREN, 1);
+      var index = this.peek_(TokenType.CLASS) ? 1 : 0;
+      return this.peek_(TokenType.NEW, index) &&
+          this.peek_(TokenType.OPEN_PAREN, index +1);
     },
 
     /**
@@ -1908,7 +1911,7 @@ traceur.define('syntax', function() {
      * @private
      */
     peekGetAccessor_: function(allowStatic) {
-      var index = allowStatic && this.peek_(TokenType.STATIC) ? 1 : 0;
+      var index = allowStatic && this.peek_(TokenType.CLASS) ? 1 : 0;
       return this.peekPredefinedString_(PredefinedName.GET, index) && this.peekPropertyName_(index + 1);
     },
 
@@ -1927,7 +1930,7 @@ traceur.define('syntax', function() {
      */
     parseGetAccessor_: function() {
       var start = this.getTreeStartLocation_();
-      var isStatic = this.eatOpt_(TokenType.STATIC) != null;
+      var isStatic = this.eatOpt_(TokenType.CLASS) != null;
       this.eatId_(); // get
       var propertyName = this.nextToken_();
       this.eat_(TokenType.OPEN_PAREN);
@@ -1942,7 +1945,7 @@ traceur.define('syntax', function() {
      * @private
      */
     peekSetAccessor_: function(allowStatic) {
-      var index = allowStatic && this.peek_(TokenType.STATIC) ? 1 : 0;
+      var index = allowStatic && this.peek_(TokenType.CLASS) ? 1 : 0;
       return this.peekPredefinedString_(PredefinedName.SET, index) && this.peekPropertyName_(index + 1);
     },
 
@@ -1952,7 +1955,7 @@ traceur.define('syntax', function() {
      */
     parseSetAccessor_: function() {
       var start = this.getTreeStartLocation_();
-      var isStatic = this.eatOpt_(TokenType.STATIC) != null;
+      var isStatic = this.eatOpt_(TokenType.CLASS) != null;
       this.eatId_(); // set
       var propertyName = this.nextToken_();
       this.eat_(TokenType.OPEN_PAREN);

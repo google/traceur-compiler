@@ -57,7 +57,6 @@ traceur.define('syntax', function() {
     MODULE: 'module',
     MOVE_NEXT: 'moveNext',
     NEW: 'new',
-    NEW_FACTORY: '$new',
     NEW_STATE: '$newState',
     OBJECT: 'Object',
     OBJECT_NAME: 'Object',

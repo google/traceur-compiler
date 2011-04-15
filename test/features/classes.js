@@ -45,15 +45,15 @@ function testInheritanceChecks() {
   assertEquals(true, b instanceof EmptyB);
 }
 
-// Singletons used to test $new behavior.
+// Singletons used to test new behavior.
 
 var SingletonInstance = { }
 var SingletonInstanceTwo = { }
 
-// Test $new() behavior.
+// Test new() behavior.
 
 class NewA {
-  static $new() { return SingletonInstance; }
+  class new() { return SingletonInstance; }
 }
 
 class NewB : NewA {
@@ -67,17 +67,17 @@ function testCustomNew() {
   assertEquals(true, b === SingletonInstance);
 }
 
-// Test the correct $new being called in the inheritance chain. 
+// Test the correct new being called in the inheritance chain. 
 
 class SkipNewA {
-  static $new() { return SingletonInstance; }
+  class new() { return SingletonInstance; }
 }
 
 class SkipNewB : SkipNewA {
 }
 
 class SkipNewC : SkipNewB {
-  static $new() { return SingletonInstanceTwo; }
+  class new() { return SingletonInstanceTwo; }
 }
 
 class SkipNewD : SkipNewC {
@@ -89,10 +89,10 @@ function testSkipNew() {
   var c = new SkipNewC();
   var d = new SkipNewD();
 
-  assert("own $new", SingletonInstance === a);
-  assert("base $new", SingletonInstance === b);
-  assert("overriden $new", SingletonInstanceTwo === c);
-  assert("inherited overriden $new", SingletonInstanceTwo === d);
+  assert("own new", SingletonInstance === a);
+  assert("base new", SingletonInstance === b);
+  assert("overriden new", SingletonInstanceTwo === c);
+  assert("inherited overriden new", SingletonInstanceTwo === d);
 }
 
 // Test inherited fields.
@@ -168,21 +168,21 @@ function testInheritedGetter() {
   assertEquals("getter y", c.y);
 }
 
-// Test static members and functions.
+// Test class members and functions.
 
 class StaticA {
-  static sa = "sa";
-  static function sma() {}
+  class sa = "sa";
+  class function sma() {}
 }
 
 class StaticB : StaticA {
-  static sb = "sb";
-  static function smb() {}
+  class sb = "sb";
+  class function smb() {}
 }
 
 class StaticC : StaticB {
-  static sc = "sc";
-  static function smc() {}
+  class sc = "sc";
+  class function smc() {}
 }
 
 function testStaticMembers() {
@@ -203,21 +203,21 @@ function testStaticMembers() {
   checkObjectHasNot(StaticC, "sa", "sma", "sb", "smb");
 }
 
-// Test static and instance methods.
+// Test class and instance methods.
 
 class MethodsA {
   function ma() {}
-  static function sma() {}
+  class function sma() {}
 }
 
 class MethodsB : MethodsA {
   function mb() {}
-  static function smb() {}
+  class function smb() {}
 }
 
 class MethodsC : MethodsB {
   function mc() {}
-  static function smc() {}
+  class function smc() {}
 }
 
 function testInheritedMethods() {

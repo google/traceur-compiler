@@ -1,10 +1,10 @@
 class StaticMembers {
-  static var staticField = 1;
-  static staticMethod(value) {
+  class var staticField = 1;
+  class staticMethod(value) {
     StaticMembers.staticField = value;
   }
-  static get staticProp () { return StaticMembers.staticField; }
-  static set staticProp(value) { StaticMembers.staticField = value; }
+  class get staticProp () { return StaticMembers.staticField; }
+  class set staticProp(value) { StaticMembers.staticField = value; }
 
   var instanceField;
   instanceMethod(value) {
@@ -12,6 +12,6 @@ class StaticMembers {
     this.instanceField = StaticMembers.staticField + 1;
   }
   
-  static getStaticProp() { return StaticMembers.staticProp; }
-  static setStaticProp(value) { StaticMembers.staticProp = value; } 
+  class getStaticProp() { return StaticMembers.staticProp; }
+  class setStaticProp(value) { StaticMembers.staticProp = value; } 
 }

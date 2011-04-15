@@ -195,8 +195,8 @@ traceur.define('semantics.symbols', function() {
     /**
      * @return {MethodSymbol}
      */
-    getNewFactory: function() {
-      return this.getStaticMember(PredefinedName.NEW_FACTORY);
+    getStaticConstructor: function() {
+      return this.getStaticMember(PredefinedName.NEW);
     },
 
     /**
