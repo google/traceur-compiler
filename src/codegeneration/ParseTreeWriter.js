@@ -16,6 +16,7 @@ traceur.define('codegeneration', function() {
   'use strict';
 
   var ParseTreeVisitor = traceur.syntax.ParseTreeVisitor;
+  var PredefinedName = traceur.syntax.PredefinedName;
   var Keywords = traceur.syntax.Keywords;
   var TokenType = traceur.syntax.TokenType;
   var StringBuilder = traceur.util.StringBuilder;

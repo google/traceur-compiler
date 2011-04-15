@@ -118,7 +118,7 @@ traceur.define('syntax', function() {
    * the beginning of an X appears at the current location. There are also this.peek_() methods which
    * examine the next token. this.peek_() methods must not consume any tokens.
    *
-   * The this.eat__() method consumes a token and reports an error if the consumed token is not of the
+   * The this.eat_() method consumes a token and reports an error if the consumed token is not of the
    * expected type. The this.eatOpt_() methods consume the next token iff the next token is of the expected
    * type and return the consumed token or null if no token was consumed.
    *

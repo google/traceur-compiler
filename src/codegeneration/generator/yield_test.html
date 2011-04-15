@@ -157,7 +157,7 @@ function forGenerator() {
     var t1 = a + b;
     a = t0;
     b = t1;
-    
+
     yield a;
   }
 }
@@ -214,13 +214,13 @@ function statementTestGenerator() {
   } finally {}
   do {} while (false);
   for (;false;) {}
-  
+
   //TODO(jmesserly): this had to be changed to "var" until we get BlockBindingTransformer
   //for (let x in {}) {}
   //for (let x : simpleGenerator()) {}
   for (var x in {}) {}
   for (var x : simpleGenerator()) {}
-  
+
   if (false) {} else {}
   //TODO(jmesserly): this had to be changed to "var" until we get BlockBindingTransformer
   //{ let x = 1; }
@@ -371,7 +371,7 @@ function transform(errorReporter, name, source) {
   tree = traceur.codegeneration.GeneratorTransformPass.transformTree(
     idGen, errorReporter, tree);
   assertFalse(errorReporter.hadError());
-  
+
   return tree;
 }
 

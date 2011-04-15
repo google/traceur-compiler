@@ -12,31 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('semantics.symbols', function() {
+traceur.define('codegeneration', function() {
   'use strict';
 
-  var PropertyAccessor = traceur.semantics.symbols.PropertyAccessor;
-  var SymbolType = traceur.semantics.symbols.SymbolType;
-  var PropertyAccessor = traceur.semantics.symbols.PropertyAccessor;
+  var ParseTreeWriter = traceur.codegeneration.ParseTreeWriter;
 
   /**
-   * A get accessor of a property.
-   *
-   * @param {PropertySymbol} property
-   * @param {GetAccessorTree} tree
-   * @constructor
-   * @extends {PropertyAccessor}
+   * Writes all the files in the project to a stream.
    */
-  function GetAccessor(property, tree) {
-    PropertyAccessor.call(this, property);
-    this.tree = tree;
+  function ProjectWriter() {}
+
+  /**
+   * @param {traceur.util.ObjectMap} results
+   * @return {string}
+   */
+  ProjectWriter.write = function(results) {
+    var sb = [];
+    results.keys().forEach(function(file) {
+      sb.push('// ' + file.name,
+              ParseTreeWriter.write(results.get(file)));
+    });
+    return sb.join('\n') + '\n';
   }
 
-  GetAccessor.prototype = {
-    __proto__: PropertyAccessor.prototype
-  };
-
   return {
-    GetAccessor: GetAccessor
+    ProjectWriter: ProjectWriter
   };
 });

@@ -78,13 +78,24 @@ var traceur = (function() {
     document.write('<script src="' + path + file + '"></script>');
   };
 
+  var uidCounter = 0;
+
+  /**
+   * Returns a new unique ID.
+   * @return {number}
+   */
+  function getUid() {
+    return ++uidCounter;
+  }
+
   global.traceur = {
     define: define,
-    assert: assert
+    assert: assert,
+    getUid: getUid
   };
 
   var scripts = [
-    'compiler.js',
+    'util/ObjectMap.js',
     'util/SourceRange.js',
     'util/SourcePosition.js',
     'syntax/Token.js',
@@ -112,6 +123,8 @@ var traceur = (function() {
     'semantics/symbols/Symbol.js',
     'semantics/symbols/MemberSymbol.js',
     'semantics/symbols/MethodSymbol.js',
+    'semantics/symbols/ModuleSymbol.js',
+    'semantics/symbols/ExportSymbol.js',
     'semantics/symbols/FieldSymbol.js',
     'semantics/symbols/PropertyAccessor.js',
     'semantics/symbols/GetAccessor.js',
@@ -119,6 +132,7 @@ var traceur = (function() {
     'semantics/symbols/PropertySymbol.js',
     'semantics/symbols/AggregateSymbol.js',
     'semantics/symbols/ClassSymbol.js',
+    'semantics/symbols/Project.js',
     'semantics/ClassAnalyzer.js',
     'codegeneration/ParseTreeWriter.js',
     'codegeneration/ParseTreeFactory.js',
@@ -130,6 +144,7 @@ var traceur = (function() {
     'codegeneration/SpreadTransformer.js',
     'codegeneration/UniqueIdentifierGenerator.js',
     'codegeneration/ForEachTransformer.js',
+    'codegeneration/ModuleTransformer.js',
     'codegeneration/FunctionTransformer.js',
     'codegeneration/ClassTransformer.js',
     'codegeneration/generator/ForInTransformPass.js',
@@ -151,7 +166,11 @@ var traceur = (function() {
     'codegeneration/generator/CPSTransformer.js',
     'codegeneration/generator/GeneratorTransformer.js',
     'codegeneration/generator/AsyncTransformer.js',
-    'codegeneration/GeneratorTransformPass.js'
+    'codegeneration/GeneratorTransformPass.js',
+    'codegeneration/ProgramTransformer.js',
+    'codegeneration/ProjectWriter.js',
+    'semantics/SemanticAnalyzer.js',
+    'codegeneration/Compiler.js',
   ];
   scripts.forEach(importScript);
 

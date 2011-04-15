@@ -55,7 +55,6 @@
     for (var i = 0; i < parts.length; i++) {
       dir += parts[i] + '/';
       if (!path.existsSync(dir)) {
-        console.log(dir);
         fs.mkdirSync(dir, 0x1FF);
       }
     }
@@ -77,44 +76,58 @@
     return fileparts.slice(i).join('/');
   }
 
-  /**
-   * A command-line precompiler for a traceur JS file.
-   * @param {string} filename
-   */
-  function compile(filename) {
-    var data = fs.readFileSync(filename);
-    if (!data) {
-      console.log('Failed to read ' + filename);
+  function compileFiles(filenames) {
+    var reporter = new traceur.util.ErrorReporter();
+    var project = new traceur.semantics.symbols.Project();
+
+    console.log('Reading files...');
+    var success = filenames.every(function(filename) {
+      var data = fs.readFileSync(filename);
+      if (!data) {
+        console.log('Failed to read ' + filename);
+        return false;
+      }
+      data = data.toString('utf8');
+      var sourceFile = new traceur.syntax.SourceFile(filename, data);
+      project.addFile(sourceFile);
+      return true;
+    });
+
+    if (!success) {
       return false;
     }
-    data = data.toString('utf8');
 
-    var compiler = new global.traceur.Compiler();
-    var result = compiler.compile(filename, data);
-
-    if (result.errors.hadError()) {
-      console.log('Compilation of ' + filename + ' failed.');
+    console.log('Compiling...');
+    var results = traceur.codegeneration.Compiler.compile(reporter, project,
+                                                          false);
+    if (reporter.hadError()) {
+      console.log('Compilation failed.');
       return false;
     }
 
-    // Compute the output path
-    var outputdir = fs.realpathSync(process.cwd());
-    var filedir = fs.realpathSync(path.dirname(filename));
-    filedir = removeCommonPrefix(outputdir, filedir);
-    outputdir = path.join(outputdir, 'out', filedir);
+    console.log('Compilation successful');
 
-    mkdirRecursive(outputdir);
-    var outputfile = path.join(outputdir, path.basename(filename));
-    fs.writeFileSync(outputfile, new Buffer(result.result));
-    console.log('Compilation of ' + filename + ' successful.');
+    results.keys().forEach(function(file) {
+      var tree = results.get(file);
+      var filename = file.name;
+      var result = traceur.codegeneration.ParseTreeWriter.write(tree, false);
+
+      // Compute the output path
+      var outputdir = fs.realpathSync(process.cwd());
+      var filedir = fs.realpathSync(path.dirname(filename));
+      filedir = removeCommonPrefix(outputdir, filedir);
+      outputdir = path.join(outputdir, 'out', filedir);
+
+      mkdirRecursive(outputdir);
+      var outputfile = path.join(outputdir, path.basename(filename));
+      fs.writeFileSync(outputfile, new Buffer(result));
+      console.log('Writing of out/' + filename + ' successful.');
+    });
+
     return true;
   }
 
-  function idFunction(x) {
-    return x;
-  }
-
-  var success = process.argv.slice(2).map(compile).every(idFunction);
+  var success = compileFiles(process.argv.slice(2));
   if (!success) {
     process.exit(2);
   }

@@ -86,10 +86,10 @@ traceur.define('semantics.symbols', function() {
     },
 
     /**
-     * @return {Collection<ExportSymbol>}
+     * @return {Array.<ExportSymbol>}
      */
     getExports: function() {
-      var exps = this.exports_;
+      var exports = this.exports_;
       return Object.keys(exports).map(function(key) {
         return exports[key];
       });

@@ -46,64 +46,74 @@
 
       for (var i = 0, length = scripts.length; i < length; i++) {
         var script = scripts[i];
-        if (script.type == 'text/traceur') {
-          var entry = {
-            scriptElement: script,
-            parentNode: script.parentNode,
-            name: script.src,
-            contents: ''
-          };
+        var entry = {
+          scriptElement: script,
+          parentNode: script.parentNode,
+          name: script.src,
+          contents: ''
+        };
 
-          scriptsToRun.push(entry);
-          if (script.src.length == 0) {
-            entry.contents = script.textContent;
-            entry.name = document.location + ':' + i;
-          } else {
-            (function(boundEntry) {
-              numPending++;
-              var xhr = new XMLHttpRequest();
-              xhr.open('GET', script.src);
-              xhr.addEventListener('load', function(e) {
-                if (xhr.status == 200 || xhr.status == 0) {
-                  boundEntry.contents = xhr.responseText;
-                }
-                numPending--;
-                compileScriptsIfNonePending();
-              }, false);
-              var onFailure = function() {
-                numPending--;
-                console.warn('Failed to load', script.src);
-                compileScriptsIfNonePending();
-              };
-              xhr.addEventListener('error', onFailure, false);
-              xhr.addEventListener('abort', onFailure, false);
-              xhr.send();
-            })(entry);
-          }
+        scriptsToRun.push(entry);
+        if (!script.src) {
+          entry.contents = script.textContent;
+          entry.name = document.location + ':' + i;
+        } else {
+          (function(boundEntry) {
+            numPending++;
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', script.src);
+            xhr.addEventListener('load', function(e) {
+              if (xhr.status == 200 || xhr.status == 0) {
+                boundEntry.contents = xhr.responseText;
+              }
+              numPending--;
+              compileScriptsIfNonePending();
+            }, false);
+            var onFailure = function() {
+              numPending--;
+              console.warn('Failed to load', script.src);
+              compileScriptsIfNonePending();
+            };
+            xhr.addEventListener('error', onFailure, false);
+            xhr.addEventListener('abort', onFailure, false);
+            xhr.send();
+          })(entry);
         }
       }
       compileScriptsIfNonePending();
     }, false);
 
     function compileScripts() {
+      var reporter = new traceur.util.ErrorReporter();
+      var project = new traceur.semantics.symbols.Project();
+
+      var fileToEntry = new traceur.util.ObjectMap();
+
       for (var i = 0; i < scriptsToRun.length; i++) {
         var entry = scriptsToRun[i];
-        var compiler = new traceur.Compiler();
-        var result = compiler.compile(entry.name, entry.contents);
+        var file = new traceur.syntax.SourceFile(entry.name, entry.contents);
+        project.addFile(file);
+        fileToEntry.put(file, entry);
+      }
 
-        if (result.errors.length > 0) {
-          console.warn('Traceur compilation errors', result.errors);
-          continue;
-        }
+      var results = traceur.codegeneration.Compiler.compile(reporter, project,
+                                                            false);
+      if (reporter.hadError()) {
+        console.warn('Traceur compilation errors', reporter);
+        return;
+      }
 
+      results.keys().forEach(function(file) {
+        var tree = results.get(file);
+        var result = traceur.codegeneration.ParseTreeWriter.write(tree, false);
+        var entry = fileToEntry.get(file);
         var scriptElement = document.createElement('script');
         scriptElement.setAttribute('data-traceur-src-url', entry.name);
-        scriptElement.textContent = result.result;
+        scriptElement.textContent = result;
 
         var parent = entry.parentNode;
-        parent.insertBefore(scriptElement,
-                            entry.scriptElement || parent.firstChild);
-      }
+        parent.insertBefore(scriptElement, entry.scriptElement || null);
+      });
     }
   };
   compileAll();
