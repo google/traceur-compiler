@@ -144,10 +144,10 @@ traceur.define('codegeneration', function() {
         // TODO(arv): ParseTreeValidator.validate(tree);
         tree = SpreadTransformer.transformTree(tree).asProgram();
       }
-      //if (!this.reporter_.hadError()) {
-      //  // TODO(arv): ParseTreeValidator.validate(tree);
-      //  tree = BlockBindingTransformer.transformTree(tree);
-      //}
+      if (!this.reporter_.hadError()) {
+        // TODO(arv): ParseTreeValidator.validate(tree);
+        tree = BlockBindingTransformer.transformTree(tree);
+      }
       if (!this.reporter_.hadError()) {
         // TODO(arv): ParseTreeValidator.validate(tree);
       }

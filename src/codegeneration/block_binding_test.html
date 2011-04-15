@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<!--
+
+// Copyright 2011 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+-->
+<html>
+<head>
+<title></title>
+<script src="../../third_party/closure-library/closure/goog/base.js"></script>
+<script>
+goog.require('goog.testing.jsunit');
+</script>
+<script src="../traceur.js"></script>
+<script src="../runtimebootstrap.js"></script>
+<script src="../../test/features/BlockBinding.js" type="text/traceur"></script>
+</head>
+<body>
+<script type="text/traceur">
+
+function testBlockBinding1() {
+  var a = blockBindingTest1();
+  assertEquals('hello a', a[0]());
+  assertEquals('hello b', a[1]());
+  assertEquals('hello c', a[2]());
+}
+
+function testBlockBinding2() {
+  var r = blockBindingTest2();
+  assertEquals('blockBindingTest2_PASS', r);
+}
+
+function testBlockBinding3() {
+  var a = blockBindingTest3();
+  assertEquals("z1 value", a[0]());
+  assertEquals("z2 value", a[1]());
+}
+
+function testBlockBinding4() {
+  var a = blockBindingTest4();
+  assertEquals("for 1", a[0]());
+  assertEquals("for 2", a[1]());
+  assertEquals(2, a.length);
+}
+
+function testBlockBinding5() {
+  var a = blockBindingTest5();
+  assertEquals("1:9", a[0]());
+  assertEquals("1:8", a[1]());
+  assertEquals("2:9", a[2]());
+  assertEquals("2:8", a[3]());
+  assertEquals(4, a.length);
+}
+
+function testBlockBinding6() {
+  var a = blockBindingTest6();
+  assertEquals("g", a());
+}
+
+function testBlockBinding7() {
+  var a = blockBindingTest7();
+  assertEquals("let x value", a());
+}
+
+</script>
+<script>
+
+function evalScript(scriptElement) {
+  var source;
+  var name;
+  if (scriptElement.src) {
+    name = scriptElement.src;
+    var xhr = new XMLHttpRequest();
+    // Synchronous load but these are already loaded when we get here so it
+    // should be fast.
+    xhr.open('GET', scriptElement.src, false);
+    xhr.send();
+    source = xhr.responseText;
+  } else {
+    name = 'inline-script';
+    source = scriptElement.textContent;
+  }
+
+  var errorReporter = new traceur.util.ErrorReporter();
+  var tree = transform(errorReporter, name, source);
+  var code = traceur.codegeneration.ParseTreeWriter.write(tree);
+  console.log(code);
+  ('global', eval)(code);
+  assertFalse(errorReporter.hadError());
+}
+
+function evalAllScripts() {
+  var scripts = document.querySelectorAll('script[type="text/traceur"]');
+  Array.prototype.forEach.call(scripts, evalScript);
+}
+
+function transform(errorReporter, name, source) {
+  var sourceFile = new traceur.syntax.SourceFile(name, source);
+  var scanner = new traceur.syntax.Scanner(errorReporter, sourceFile);
+  var parser = new traceur.syntax.Parser(errorReporter, scanner);
+  var tree = parser.parseProgram();
+  assertFalse(errorReporter.hadError());
+
+  tree = traceur.codegeneration.ClassTransformer.transformClasses(errorReporter, tree);
+  assertFalse(errorReporter.hadError());
+
+  // destructuring must come after foreach and before block binding
+  tree = traceur.codegeneration.DestructuringTransformer.transformTree(tree);
+  assertFalse(errorReporter.hadError());
+
+  tree = traceur.codegeneration.BlockBindingTransformer.transformTree(tree);
+  assertFalse(errorReporter.hadError());
+  return tree;
+}
+
+evalAllScripts();
+
+</script>
+</body>
+</html>

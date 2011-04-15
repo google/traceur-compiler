@@ -147,6 +147,7 @@ var traceur = (function() {
     'codegeneration/ModuleTransformer.js',
     'codegeneration/FunctionTransformer.js',
     'codegeneration/ClassTransformer.js',
+    'codegeneration/BlockBindingTransformer.js',
     'codegeneration/generator/ForInTransformPass.js',
     'codegeneration/generator/State.js',
     'codegeneration/generator/FallThroughState.js',

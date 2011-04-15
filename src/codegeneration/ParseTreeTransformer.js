@@ -25,6 +25,7 @@ traceur.define('codegeneration', function() {
   var createCaseClause = ParseTreeFactory.createCaseClause;
   var createCatch = ParseTreeFactory.createCatch;
   var createClassDeclaration = ParseTreeFactory.createClassDeclaration;
+  var createCommaExpression = ParseTreeFactory.createCommaExpression;
   var createConditionalExpression = ParseTreeFactory.createConditionalExpression;
   var createDefaultClause = ParseTreeFactory.createDefaultClause;
   var createDefaultParameter = ParseTreeFactory.createDefaultParameter;
