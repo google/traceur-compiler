@@ -12,55 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// TODO(arv): This should probably use a runtime library to reduce code
-// duplication.
-
 traceur.define('codegeneration', function() {
   'use strict';
 
   var createArgumentList = traceur.codegeneration.ParseTreeFactory.createArgumentList;
   var createArrayLiteralExpression = traceur.codegeneration.ParseTreeFactory.createArrayLiteralExpression;
-  var createBinaryOperator = traceur.codegeneration.ParseTreeFactory.createBinaryOperator;
   var createBlock = traceur.codegeneration.ParseTreeFactory.createBlock;
   var createBooleanLiteral = traceur.codegeneration.ParseTreeFactory.createBooleanLiteral;
   var createCallExpression = traceur.codegeneration.ParseTreeFactory.createCallExpression;
-  var createCallStatement = traceur.codegeneration.ParseTreeFactory.createCallStatement;
-  var createConditionalExpression = traceur.codegeneration.ParseTreeFactory.createConditionalExpression;
-  var createContinueStatement = traceur.codegeneration.ParseTreeFactory.createContinueStatement;
-  var createForStatement = traceur.codegeneration.ParseTreeFactory.createForStatement;
   var createFunctionExpression = traceur.codegeneration.ParseTreeFactory.createFunctionExpression;
-  var createIdentifierExpression = traceur.codegeneration.ParseTreeFactory.createIdentifierExpression;
-  var createIfStatement = traceur.codegeneration.ParseTreeFactory.createIfStatement;
   var createMemberExpression = traceur.codegeneration.ParseTreeFactory.createMemberExpression;
   var createMemberLookupExpression = traceur.codegeneration.ParseTreeFactory.createMemberLookupExpression;
   var createNullLiteral = traceur.codegeneration.ParseTreeFactory.createNullLiteral;
-  var createNumberLiteral = traceur.codegeneration.ParseTreeFactory.createNumberLiteral;
-  var createOperatorToken = traceur.codegeneration.ParseTreeFactory.createOperatorToken;
   var createParameterList = traceur.codegeneration.ParseTreeFactory.createParameterList;
   var createParameterReference = traceur.codegeneration.ParseTreeFactory.createParameterReference;
   var createParenExpression = traceur.codegeneration.ParseTreeFactory.createParenExpression;
   var createReturnStatement = traceur.codegeneration.ParseTreeFactory.createReturnStatement;
-  var createStringLiteral = traceur.codegeneration.ParseTreeFactory.createStringLiteral;
-  var createThrowStatement = traceur.codegeneration.ParseTreeFactory.createThrowStatement;
-  var createUnaryExpression = traceur.codegeneration.ParseTreeFactory.createUnaryExpression;
-  var createUndefinedExpression = traceur.codegeneration.ParseTreeFactory.createUndefinedExpression;
-  var createVariableDeclarationList = traceur.codegeneration.ParseTreeFactory.createVariableDeclarationList;
-  var createVariableStatement = traceur.codegeneration.ParseTreeFactory.createVariableStatement;
 
   var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
 
   var APPLY = traceur.syntax.PredefinedName.APPLY;
   var ARRAY = traceur.syntax.PredefinedName.ARRAY;
   var CALL = traceur.syntax.PredefinedName.CALL;
-  var CREATE = traceur.syntax.PredefinedName.CREATE;
-  var LENGTH = traceur.syntax.PredefinedName.LENGTH;
-  var OBJECT = traceur.syntax.PredefinedName.OBJECT;
-  var PROTOTYPE = traceur.syntax.PredefinedName.PROTOTYPE;
-  var PUSH = traceur.syntax.PredefinedName.PUSH;
+  var RUNTIME = traceur.syntax.PredefinedName.RUNTIME;
   var SLICE = traceur.syntax.PredefinedName.SLICE;
-  var TYPE_ERROR = traceur.syntax.PredefinedName.TYPE_ERROR;
-  var getParameterName = traceur.syntax.PredefinedName.getParameterName;
-  var TokenType = traceur.syntax.TokenType;
+  var SPREAD = traceur.syntax.PredefinedName.SPREAD;
+  var SPREAD_NEW = traceur.syntax.PredefinedName.SPREAD_NEW;
+  var TRACEUR = traceur.syntax.PredefinedName.TRACEUR;
 
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
 
@@ -79,123 +57,9 @@ traceur.define('codegeneration', function() {
         createArgumentList(tree));
   }
 
-
-  var expandFunction;
-
   function getExpandFunction() {
-    if (!expandFunction) {
-      // TODO(arv): Remove toArray work around for V8 bug: https://code.google.com/p/v8/issues/detail?id=917
-
-      // (function(xs)) {
-      //   var rv = [];
-      //   for (var i = 0; i < xs.length; i += 2) {
-      //     if (xs[i]) {
-      //       if (xs[i + 1] == null)
-      //         continue;
-      //       if (typeof xs[i + 1] != 'object')
-      //         throw TypeError('Spread expression has wrong type');
-      //       rv.push.apply(rv, toArray(xs[i + 1]));
-      //     } else {
-      //       rv.push(xs[i + 1]);
-      //     }
-      //   }
-      //   return rv;
-      // })
-
-      var xs = 0;
-      var rv = 1;
-      var i = 2;
-      var xsExpression = createParameterReference(xs);
-      var rvExpression = createParameterReference(rv);
-      var iExpression = createParameterReference(i);
-
-      var statements = [];
-
-      // var rv = [];
-      statements.push(createVariableStatement(
-          TokenType.VAR, getParameterName(rv),
-          createArrayLiteralExpression([])));
-
-      // xs[i + 1]
-      var xsLookup = createMemberLookupExpression(
-          xsExpression,
-          createBinaryOperator(
-              iExpression,
-              createOperatorToken(TokenType.PLUS),
-              createNumberLiteral(1)));
-
-      // rv.push.apply(rv, toArray(xs[i + 1]));
-      var ifClause = createCallStatement(
-          createMemberExpression(rvExpression, PUSH, APPLY),
-          createArgumentList(rvExpression, toArray(xsLookup)));
-
-      // rv.push(xs[i + 1]);
-      var elseClause = createCallStatement(
-          createMemberExpression(rvExpression, PUSH),
-          createArgumentList(xsLookup));
-
-      var isNullExpression = createBinaryOperator(
-          xsLookup,
-          createOperatorToken(TokenType.EQUAL_EQUAL),
-          createNullLiteral());
-
-      // typeof xs[i + 1] != 'object'
-      var invalidObjectExpression = createBinaryOperator(
-          createUnaryExpression(
-              createOperatorToken(TokenType.TYPEOF),
-              xsLookup),
-          createOperatorToken(TokenType.NOT_EQUAL),
-          createStringLiteral('object'));
-
-      // throw TypeError('Spread expression has wrong type');
-      var throwStatement = createThrowStatement(
-          createCallExpression(
-              createIdentifierExpression(TYPE_ERROR),
-              createArgumentList(createStringLiteral('Spread expression has wrong type'))));
-
-      // if (xs[i])
-      var ifStatement = createIfStatement(
-          createMemberLookupExpression(xsExpression, iExpression),
-          // {
-          createBlock(
-              // f (xs[i + 1] == null)
-              createIfStatement(
-                  isNullExpression,
-                  createContinueStatement()),
-              // if (typeof xs[i + 1] != 'object')
-              createIfStatement(
-                  invalidObjectExpression,
-                  throwStatement,
-                  null),
-              ifClause),
-          elseClause);
-
-      // for (var i = 0; i < xs.length; i += 2) {
-      var forStatement = createForStatement(
-          createVariableDeclarationList(
-              TokenType.VAR,
-              getParameterName(i),
-              createNumberLiteral(0)),
-          createBinaryOperator(
-              iExpression,
-              createOperatorToken(TokenType.OPEN_ANGLE),
-              createMemberExpression(xsExpression, LENGTH)),
-          createBinaryOperator(
-              iExpression,
-              createOperatorToken(TokenType.PLUS_EQUAL),
-              createNumberLiteral(2)),
-          ifStatement);
-
-      statements.push(forStatement);
-      // return rv;
-      statements.push(createReturnStatement(rvExpression));
-
-      expandFunction = createParenExpression(
-          createFunctionExpression(createParameterList(1),
-                                   createBlock(statements)));
-    }
-
-    return expandFunction;
+    // traceur.runtime.spread
+    return createMemberExpression(TRACEUR, RUNTIME, SPREAD);
   }
 
   function desugarArraySpread(tree) {
@@ -205,7 +69,7 @@ traceur.define('codegeneration', function() {
     return createExpandCall(tree.elements);
   }
 
-  function createExpandCall(elements) {
+  function createInterleavedArgumentsArray(elements) {
     var args = [];
     elements.forEach(function(element) {
       if (element.type == ParseTreeType.SPREAD_EXPRESSION) {
@@ -216,10 +80,14 @@ traceur.define('codegeneration', function() {
         args.push(element);
       }
     });
+    return createArrayLiteralExpression(args);
+  }
+
+  function createExpandCall(elements) {
+    var args = createInterleavedArgumentsArray(elements);
     return createCallExpression(
         getExpandFunction(),
-        createArgumentList(
-            createArrayLiteralExpression(args)));
+        createArgumentList(args));
   }
 
   function desugarCallSpread(tree) {
@@ -295,49 +163,12 @@ traceur.define('codegeneration', function() {
   function desugarNewSpread(tree) {
     // new Fun(a, ...b, c)
     //
-    // (function($0, $1) {
-    //   var $2 = Object.create($0.prototype);
-    //   var $3 = $0.apply($2, $1);
-    //   return typeof $3 == 'object' ? $3 : $2;
-    // })(Fun, (expandFunction)([false, a, true, b, false, c]))
-
-    var body = createBlock(
-        createVariableStatement(
-            TokenType.VAR,
-            getParameterName(2),
-            createCallExpression(
-                createMemberExpression(OBJECT, CREATE),
-                createArgumentList(
-                    createMemberExpression(getParameterName(0), PROTOTYPE)))),
-        createVariableStatement(
-            TokenType.VAR,
-            getParameterName(3),
-            createCallExpression(
-                createMemberExpression(getParameterName(0), APPLY),
-                createArgumentList(
-                    createParameterReference(2),
-                    createParameterReference(1)))),
-        createReturnStatement(
-            createConditionalExpression(
-                createBinaryOperator(
-                    createUnaryExpression(
-                        createOperatorToken(TokenType.TYPEOF),
-                        createParameterReference(3)),
-                    createOperatorToken(TokenType.EQUAL_EQUAL),
-                    createStringLiteral('object')),
-                createParameterReference(3),
-                createParameterReference(2))));
-
-    var func = createParenExpression(
-        createFunctionExpression(
-            createParameterList(2),
-            body));
-
+    // traceur.runtime.newWithSpread(Fun, [false, a, true, b, false, c])
     return createCallExpression(
-        func,
+        createMemberExpression(TRACEUR, RUNTIME, SPREAD_NEW),
         createArgumentList(
             tree.operand,
-            createExpandCall(tree.args.args)));
+            createInterleavedArgumentsArray(tree.args.args)));
   }
 
   /**

@@ -71,6 +71,8 @@ traceur.define('syntax', function() {
     RESULT: '$result',
     RUNTIME: 'runtime',
     SET: 'set',
+    SPREAD: 'spread',
+    SPREAD_NEW: 'spreadNew',
     SLICE: 'slice',
     STATE: '$state',
     STATIC: '$static',

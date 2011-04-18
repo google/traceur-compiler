@@ -286,58 +286,63 @@ traceur.runtime = (function() {
     writable: true
   });
 
-  // Return the traceur namespace.
-  return {
-    createClass: createClass,
-    createTrait: createTrait,
-    superCall: superCall,
-    superGet: superGet
+  var pushItem = Array.prototype.push.call.bind(Array.prototype.push);
+  var pushArray = Array.prototype.push.apply.bind(Array.prototype.push);
+  var slice = Array.prototype.slice.call.bind(Array.prototype.slice);
+
+  /**
+   * Spreads the elements in {@code items} into a single array.
+   * @param {Array} items Array of interleaving booleans and values.
+   * @return {Array}
+   */
+  function spread(items) {
+    var retval = [];
+    for (var i = 0; i < items.length; i += 2) {
+      if(items[i]) {
+        if (items[i + 1] == null)
+          continue;
+        if (typeof items[i + 1] != 'object')
+          throw TypeError('Spread expression has wrong type');
+        pushArray(retval, slice(items[i + 1]));
+      } else {
+        pushItem(retval, items[i + 1]);
+      }
+    }
+    return retval;
+  }
+
+  /**
+   * @param {Function} ctor
+   * @param {Array} items Array of interleaving booleans and values.
+   * @return {Object}
+   */
+  function spreadNew(ctor, items) {
+    var object = Object.create(ctor.prototype);
+    var retval = ctor.apply(object, spread(items));
+    return retval && typeof retval == 'object' ? retval: object;
   };
-})();
 
-class Deferred {
-  var fired_;
-  var result_;
-  var listeners_ = [];
-  var canceller_;
-
-  new(canceller) {
+  /**
+   * @param {Function} canceller
+   * @constructor
+   */
+  function Deferred(canceller) {
     this.canceller_ = canceller;
+    this.listeners_ = [];
   }
 
-  createPromise() {
-    return {then: this.then.bind(this), cancel: this.cancel.bind(this)};
-  }
-
-  callback(value) {
-    this.fire_(value, false);
-  }
-
-  errback(err) {
-    this.fire_(err, true);
-  }
-
-  fire_(value, isError) {
-    if (this.fired_)
-      throw new Error('already fired');
-
-    this.fired_ = true;
-    this.result_ = [value, isError];
-    this.notify_();
-  }
-
-  notify_() {
-    while (this.listeners_.length > 0) {
-      var current = this.listeners_.shift();
+  function notify(self) {
+    while (self.listeners_.length > 0) {
+      var current = self.listeners_.shift();
       var currentResult = undefined;
       try {
         try {
-          if (this.result_[1]) {
+          if (self.result_[1]) {
             if (current.errback)
-              currentResult = current.errback.call(undefined, this.result_[0]);
+              currentResult = current.errback.call(undefined, self.result_[0]);
           } else {
             if (current.callback)
-              currentResult = current.callback.call(undefined, this.result_[0]);
+              currentResult = current.callback.call(undefined, self.result_[0]);
           }
           current.deferred.callback(currentResult);
         } catch (err) {
@@ -347,32 +352,71 @@ class Deferred {
     }
   }
 
-  then(callback, errback) {
-    var result = new Deferred(this.cancel.bind(this));
-    this.listeners_.push({
-      deferred: result,
-      callback: callback,
-      errback: errback
-    });
-    if (this.fired_)
-      this.notify_();
-    return result.createPromise();
+  function fire(self, value, isError) {
+    if (self.fired_)
+      throw new Error('already fired');
+
+    self.fired_ = true;
+    self.result_ = [value, isError];
+    notify(self);
   }
 
-  cancel() {
-    if (this.fired_)
-      throw new Error('already finished');
-    var result;
-    if (this.canceller_) {
-      result = this.canceller_(this);
-      if (!result instanceof Error)
-        result = new Error(result);
-    } else {
-      result = new Error('cancelled');
+  Deferred.prototype = {
+    fired_: false,
+    result_: undefined,
+
+    createPromise: function() {
+      return {then: this.then.bind(this), cancel: this.cancel.bind(this)};
+    },
+
+    callback: function(value) {
+      fire(this, value, false);
+    },
+
+    errback: function(err) {
+      fire(this, err, true);
+    },
+
+    then: function(callback, errback) {
+      var result = new Deferred(this.cancel.bind(this));
+      this.listeners_.push({
+        deferred: result,
+        callback: callback,
+        errback: errback
+      });
+      if (this.fired_)
+        notify(this);
+      return result.createPromise();
+    },
+
+    cancel: function() {
+      if (this.fired_)
+        throw new Error('already finished');
+      var result;
+      if (this.canceller_) {
+        result = this.canceller_(this);
+        if (!result instanceof Error)
+          result = new Error(result);
+      } else {
+        result = new Error('cancelled');
+      }
+      if (!this.fired_) {
+        this.result_ = [result, true];
+        notify(this);
+      }
     }
-    if (!this.fired_) {
-      this.result_ = [result, true];
-      this.notify_();
-    }
-  }
-}
+  };
+
+  // Return the traceur namespace.
+  return {
+    createClass: createClass,
+    createTrait: createTrait,
+    Deferred: Deferred,
+    spread: spread,
+    spreadNew: spreadNew,
+    superCall: superCall,
+    superGet: superGet
+  };
+})();
+
+var Deferred = traceur.runtime.Deferred;
