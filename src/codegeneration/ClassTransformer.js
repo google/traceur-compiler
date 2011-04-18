@@ -57,7 +57,7 @@ traceur.define('codegeneration', function() {
   var createVariableStatement = ParseTreeFactory.createVariableStatement;
 
   /**
-   * Transforms a Traceur class to JS.
+   * Transforms a Traceur class or trait to JS.
    *
    * @param {ErrorReporter} reporter
    * @constructor
@@ -67,13 +67,13 @@ traceur.define('codegeneration', function() {
   }
 
   /**
-   * Transforms all classes in the program
+   * Transforms all classes and traits in the program
    *
    * @param {ErrorReporter} errors
    * @param {ProgramTree} tree
    * @return {ProgramTree}
    */
-  ClassTransformer.transformClasses = function(reporter, tree) {
+  ClassTransformer.transform = function(reporter, tree) {
     var elements = tree.sourceElements.map(function(element) {
       if (element.type == ParseTreeType.CLASS_DECLARATION) {
         var sym = ClassAnalyzer.analyzeClass(reporter, element);
@@ -95,11 +95,6 @@ traceur.define('codegeneration', function() {
         PredefinedName.RUNTIME,
         PredefinedName.TRAIT,
         PredefinedName.REQUIRED);
-  }
-
-  ClassTransformer.transform = function(reporter, project, tree) {
-    var sym = ClassAnalyzer.analyzeClass(reporter, tree);
-    return new ClassTransformer(reporter).transformClass_(sym);
   }
 
   ClassTransformer.prototype = {

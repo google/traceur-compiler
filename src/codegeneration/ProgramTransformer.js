@@ -169,34 +169,6 @@ traceur.define('codegeneration', function() {
      * @private
      */
     transformAggregates_: function(tree) {
-      var elements = tree.sourceElements.map(function(element) {
-        switch (element.type) {
-          case CLASS_DECLARATION:
-            return this.transformClass_(element.asClassDeclaration());
-          case TRAIT_DECLARATION:
-            return this.transformTrait_(element.asTraitDeclaration());
-          default:
-            return element;
-          }
-      }, this);
-      return new ProgramTree(tree.location, elements);
-    },
-
-    /**
-     * @param {TraitDeclarationTree} tree
-     * @return {ParseTree}
-     * @private
-     */
-    transformTrait_: function(tree) {
-      return TraitTransformer.transform(reporter, project, tree);
-    },
-
-    /**
-     * @param {ClassDeclarationTree} tree
-     * @return {ParseTree}
-     * @private
-     */
-    transformClass_: function(tree) {
       return ClassTransformer.transform(this.reporter_, this.project_, tree);
     }
   };

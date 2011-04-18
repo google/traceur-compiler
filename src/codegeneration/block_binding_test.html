@@ -24,7 +24,7 @@
 goog.require('goog.testing.jsunit');
 </script>
 <script src="../traceur.js"></script>
-<script src="../runtimebootstrap.js"></script>
+<script src="../runtime.js" type="text/traceur"></script>
 <script src="../../test/features/BlockBinding.js" type="text/traceur"></script>
 </head>
 <body>
@@ -113,7 +113,7 @@ function transform(errorReporter, name, source) {
   var tree = parser.parseProgram();
   assertFalse(errorReporter.hadError());
 
-  tree = traceur.codegeneration.ClassTransformer.transformClasses(errorReporter, tree);
+  tree = traceur.codegeneration.ClassTransformer.transform(errorReporter, tree);
   assertFalse(errorReporter.hadError());
 
   // destructuring must come after foreach and before block binding

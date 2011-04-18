@@ -121,7 +121,7 @@ function transform(errorReporter, name, source) {
   var tree = parser.parseProgram();
   assertFalse(errorReporter.hadError());
 
-  tree = traceur.codegeneration.ClassTransformer.transformClasses(errorReporter, tree);
+  tree = traceur.codegeneration.ClassTransformer.transform(errorReporter, tree);
   assertFalse(errorReporter.hadError());
 
   return tree;
