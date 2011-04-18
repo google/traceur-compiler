@@ -169,7 +169,7 @@ traceur.define('codegeneration', function() {
      * @private
      */
     transformAggregates_: function(tree) {
-      return ClassTransformer.transform(this.reporter_, this.project_, tree);
+      return ClassTransformer.transform(this.reporter_, tree);
     }
   };
 
