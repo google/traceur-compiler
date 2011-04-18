@@ -30,6 +30,7 @@ traceur.define('codegeneration', function() {
 
   var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
   var createArgumentList = ParseTreeFactory.createArgumentList;
+  var createArrayLiteralExpression = ParseTreeFactory.createArrayLiteralExpression;
   var createAssignmentStatement = ParseTreeFactory.createAssignmentStatement;
   var createBlock = ParseTreeFactory.createBlock;
   var createBooleanLiteral = ParseTreeFactory.createBooleanLiteral;
@@ -42,6 +43,7 @@ traceur.define('codegeneration', function() {
   var createFunctionExpression = ParseTreeFactory.createFunctionExpression;
   var createFunctionExpressionFormals = ParseTreeFactory.createFunctionExpressionFormals;
   var createGetAccessor = ParseTreeFactory.createGetAccessor;
+  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
   var createMemberExpression = ParseTreeFactory.createMemberExpression;
   var createNullLiteral = ParseTreeFactory.createNullLiteral;
   var createObjectLiteralExpression = ParseTreeFactory.createObjectLiteralExpression;
@@ -76,6 +78,9 @@ traceur.define('codegeneration', function() {
       if (element.type == ParseTreeType.CLASS_DECLARATION) {
         var sym = ClassAnalyzer.analyzeClass(reporter, element);
         return new ClassTransformer(reporter).transformClass_(sym);
+      } else if (element.type == ParseTreeType.TRAIT_DECLARATION) {
+        var sym = ClassAnalyzer.analyzeTrait(reporter, element);
+        return new ClassTransformer(reporter).transformTrait_(sym);
       }
       return element;
     });
@@ -83,12 +88,43 @@ traceur.define('codegeneration', function() {
     return new ProgramTree(tree.location, elements);
   };
 
+  function createRequiresExpression() {
+    // traceur.truntime.trait.required
+    return createMemberExpression(
+        PredefinedName.TRACEUR,
+        PredefinedName.RUNTIME,
+        PredefinedName.TRAIT,
+        PredefinedName.REQUIRED);
+  }
+
   ClassTransformer.transform = function(reporter, project, tree) {
     var sym = ClassAnalyzer.analyzeClass(reporter, tree);
     return new ClassTransformer(reporter).transformClass_(sym);
   }
 
   ClassTransformer.prototype = {
+
+    /**
+     * Transforms a single trait declaration
+     *
+     * @param {TraitSymbol} sym
+     * @return {ParseTree}
+     */
+    transformTrait_: function(sym) {
+      //var <traitName> = traceur.truntime.createTrait(<prototype>, <mixins>)
+      return createVariableStatement(
+          TokenType.VAR,
+          sym.name,
+          createCallExpression(
+              createMemberExpression(
+                  PredefinedName.TRACEUR,
+                  PredefinedName.RUNTIME,
+                  PredefinedName.CREATE_TRAIT),
+              createArgumentList(
+                  createObjectLiteralExpression(this.transformInstanceMembers_(sym)),
+                  this.createMixins_(sym))));
+    },
+
     /**
      * Transforms a single class declaration
      *
@@ -102,7 +138,8 @@ traceur.define('codegeneration', function() {
         baseClass = createNullLiteral();
       }
 
-      // traceur.runtime.createClass(base, <new>, <ctor>, <field init>, prototype, <static init>)
+      // var <className> = traceur.runtime.createClass(base, <new>, <ctor>,
+      //     <field init>, <prototype>, <static init>, <mixins>)
       return createVariableStatement(
           TokenType.VAR,
           sym.name,
@@ -129,7 +166,49 @@ traceur.define('codegeneration', function() {
                   createFunctionDeclaration(
                       PredefinedName.STATIC,
                       createEmptyParameterList(),
-                      createBlock(this.createStaticMembers_(classInstance, sym))))));
+                      createBlock(this.createStaticMembers_(classInstance, sym))),
+                  this.createMixins_(sym))));
+    },
+
+    /**
+     * @param {AggregateSymbol}
+     * @return {ParseTree}
+     */
+    createMixins_: function(sym) {
+      if (sym.mixins.length == 0) {
+        return createNullLiteral();
+      }
+      return createArrayLiteralExpression(
+          sym.mixins.map(this.createMixin_, this));
+    },
+
+    /**
+     * @param {MixinTree} mixin
+     * @return {ParseTree}
+     */
+    createMixin_: function(mixin) {
+      var trait = createIdentifierExpression(mixin.name);
+      var resolves = mixin.mixinResolves;
+      if (!resolves || resolves.resolves.length == 0) {
+        return trait;
+      }
+
+      resolves = resolves.resolves.map(function(r) {
+        return createPropertyNameAssignment(r.from,
+            r.to == PredefinedName.REQUIRES ?
+                createRequiresExpression() :
+                createStringLiteral(r.to));
+      });
+
+      return createCallExpression(
+          createMemberExpression(
+              PredefinedName.TRACEUR,
+              PredefinedName.RUNTIME,
+              PredefinedName.TRAIT,
+              PredefinedName.RESOLVE),
+          createArgumentList(
+              createObjectLiteralExpression(resolves),
+              trait));
     },
 
     /**
@@ -151,7 +230,6 @@ traceur.define('codegeneration', function() {
             break;
           case SymbolType.FIELD:
             break;
-          case SymbolType.MIXIN_MEMBER:
           case SymbolType.REQUIRES:
           default:
             throw new Error('Unexpected member type');
@@ -167,7 +245,6 @@ traceur.define('codegeneration', function() {
           case SymbolType.FIELD:
             result.push(this.transformStaticField_(classInstance, member.asField()));
             break;
-          case SymbolType.MIXIN_MEMBER:
           case SymbolType.REQUIRES:
           default:
             throw new Error('Unexpected member type');
@@ -306,9 +383,9 @@ traceur.define('codegeneration', function() {
             break;
           case SymbolType.FIELD:
             break;
-          case SymbolType.MIXIN_MEMBER:
-            throw new Error('transformMixinMember not implemented');
           case SymbolType.REQUIRES:
+            result.push(createPropertyNameAssignment(
+                member.name, createRequiresExpression()));
             break;
           default:
             throw new Error('Unexpected member type');

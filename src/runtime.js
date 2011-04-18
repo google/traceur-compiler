@@ -109,6 +109,35 @@ traceur.runtime = (function() {
   try {add(map, 'UIEvent', UIEvent, function() {return document.createEvent('UIEvents');});}catch (e) {}
   // END AUTO-GENERATED
 
+  /**
+   * Combines mixins with the current class, issuing errors for conflicts or
+   * missing requires.
+   *
+   * @param {Object} proto the prototype for the class we're creating.
+   * @param {Array.<Object>} mixins the set of traits to mix in.
+   * @return {Object} the trait to set into new instances with defineProperties.
+   */
+  function analyzeMixins(proto, mixins) {
+    var trait = traceur.runtime.trait;
+    mixins = trait.compose.apply(null, mixins);
+    var properties = {};
+    Object.getOwnPropertyNames(mixins).forEach(function(name) {
+      var pd = mixins[name];
+      // check for remaining 'required' properties
+      // Note: it's OK for the prototype to provide the properties
+      if (pd.required) {
+        if (!(name in proto)) {
+          throw new TypeError('Missing required property: ' + name);
+        }
+      } else if (pd.conflict) { // check for remaining conflicting properties
+        throw new TypeError('Remaining conflicting property: ' + name);
+      } else {
+        properties[name] = pd;
+      }
+    });
+    return properties;
+  }
+
   // The createClass function
   // name: the class name
   // base: the base class
@@ -117,7 +146,8 @@ traceur.runtime = (function() {
   // ctor: the constructor function
   // proto: the prototype object (containing instance methods, properties)
   // initS: the function to initialize class static members
-  function createClass(name, base, make, ctor, init, proto, initS) {
+  // mixins: Traits to mixin to this class
+  function createClass(name, base, make, ctor, init, proto, initS, mixins) {
     if (base) {
       if (typeof base != 'function') {
         throw new TypeError(
@@ -146,15 +176,21 @@ traceur.runtime = (function() {
       ctor = proto.constructor;
     }
 
+    proto.__proto__ = base.prototype;
+
+    if (mixins) {
+      mixins = analyzeMixins(proto, mixins);
+    }
+
     function TheClass() {
       var $this = make ? make() : this;
       $this.__proto__ = TheClass.prototype;
+      if (mixins) { Object.defineProperties($this, mixins); }
       if (finit) { finit.call($this); }
       if (ctor) { ctor.apply($this, arguments); }
       return $this;
     }
 
-    proto.__proto__ = base.prototype;
     TheClass.prototype = proto;
 
     Object.defineProperty(TheClass, '$className', {
@@ -181,6 +217,15 @@ traceur.runtime = (function() {
     }
     if (initS) { initS.call(TheClass); }
     return TheClass;
+  }
+
+  function createTrait(parts, mixins) {
+    var trait = traceur.runtime.trait;
+    parts = trait(parts);
+    if (mixins) {
+      parts = trait.override(parts, trait.compose.apply(null, mixins));
+    }
+    return parts;
   }
 
   function superCall($class, name, args) {
@@ -244,6 +289,7 @@ traceur.runtime = (function() {
   // Return the traceur namespace.
   return {
     createClass: createClass,
+    createTrait: createTrait,
     superCall: superCall,
     superGet: superGet
   };
@@ -255,7 +301,7 @@ class Deferred {
   var listeners_ = [];
   var canceller_;
 
-  constructor(canceller) {
+  new(canceller) {
     this.canceller_ = canceller;
   }
 
@@ -330,4 +376,3 @@ class Deferred {
     }
   }
 }
-

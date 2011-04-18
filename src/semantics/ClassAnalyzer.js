@@ -37,6 +37,7 @@ traceur.define('semantics', function() {
   var VariableStatementTree = traceur.syntax.trees.VariableStatementTree;
   var ErrorReporter = traceur.util.ErrorReporter;
   var ClassSymbol = traceur.semantics.symbols.ClassSymbol;
+  var TraitSymbol = traceur.semantics.symbols.TraitSymbol;
   var SymbolType = traceur.semantics.symbols.SymbolType;
   var MethodSymbol = traceur.semantics.symbols.MethodSymbol;
   var PropertySymbol = traceur.semantics.symbols.PropertySymbol;
@@ -44,9 +45,14 @@ traceur.define('semantics', function() {
   var AggregateSymbol = traceur.semantics.symbols.AggregateSymbol;
   var GetAccessor = traceur.semantics.symbols.GetAccessor;
   var SetAccessor = traceur.semantics.symbols.SetAccessor;
+  var RequiresSymbol = traceur.semantics.symbols.RequiresSymbol;
 
   /**
-   * Analyzes a class and creates a ClassSymbol
+   * Analyzes a class or trait and creates an AggregateSymbol. This class just
+   * collects data for use later by ClassTransformer. The analysis isn't much
+   * more than duplicate member checking--so it could quite possibly be folded
+   * into ClassTransformer.
+   *
    * @param {ErrorReporter} reporter
    * @constructor
    */
@@ -61,24 +67,35 @@ traceur.define('semantics', function() {
    * @return {ClassSymbol}
    */
   ClassAnalyzer.analyzeClass = function(reporter, tree) {
-    return new ClassAnalyzer(reporter).declareClass_(tree);
+    return new ClassAnalyzer(reporter).declareAggregate_(tree, ClassSymbol);
+  }
+
+  /**
+   * Analyzes a trait and creates a TraitSymbol
+   * @param {ErrorReporter} reporter
+   * @param {TraitDeclarationTree} tree
+   * @return {TraitSymbol}
+   */
+  ClassAnalyzer.analyzeTrait = function(reporter, tree) {
+    return new ClassAnalyzer(reporter).declareAggregate_(tree, TraitSymbol);
   }
 
   ClassAnalyzer.prototype = {
     /**
-     * @param {ClassDeclarationTree} classTree
-     * @return {ClassSymbol}
+     * @param {ClassDeclarationTree|TraitDeclarationTree} tree
+     * @param {Function} symbolType
+     * @return {AggregateSymbol}
      */
-    declareClass_: function(classTree) {
-      var classSymbol = new ClassSymbol(classTree.name.value, classTree);
-      this.declareClassMembers_(classSymbol);
-      return classSymbol;
+    declareAggregate_: function(tree, symbolType) {
+      var symbol = new symbolType(tree.name.value, tree);
+      this.declareAggregateMembers_(symbol);
+      return symbol;
     },
 
-    /** @param {ClassSymbol} classSymbol */
-    declareClassMembers_: function(classSymbol) {
-      classSymbol.tree.elements.forEach(function(memberTree) {
-        this.declareAggregateMember_(classSymbol, memberTree);
+    /** @param {AggregateSymbol} symbol */
+    declareAggregateMembers_: function(symbol) {
+      symbol.tree.elements.forEach(function(memberTree) {
+        this.declareAggregateMember_(symbol, memberTree);
       }, this);
     },
 
@@ -100,15 +117,31 @@ traceur.define('semantics', function() {
         case ParseTreeType.SET_ACCESSOR:
           this.declareAccessor_(aggregate, memberTree.asSetAccessor(), 'set', SetAccessor);
           break;
+        case ParseTreeType.MIXIN:
+          aggregate.mixins.push(memberTree);
+          break;
+        case ParseTreeType.REQUIRES_MEMBER:
+          this.declareRequiresMember_(aggregate, memberTree.asRequiresMember());
+          break;
         default:
-          throw new Error('Unrecognized parse tree in class declaration');
+          throw new Error('Unrecognized parse tree in class declaration:' + memberTree.type);
+      }
+    },
+
+    /**
+     * @param {AggregateSymbol} aggregate
+     * @param {RequiresMemberTree} tree
+     */
+    declareRequiresMember_: function(aggregate, tree) {
+      var name = tree.name.value;
+      if (!this.checkForDuplicateMemberDeclaration_(aggregate, tree, name, false)) {
+        new RequiresSymbol(tree, name, aggregate);
       }
     },
 
     /**
      * @param {AggregateSymbol} aggregate
      * @param {FieldDeclarationTree} tree
-     * @return {MethodSymbol}
      */
     declareFieldMembers_: function(aggregate, tree) {
       tree.declarations.forEach(function(declarationTree) {
@@ -144,7 +177,7 @@ traceur.define('semantics', function() {
     /**
      * @param {AggregateSymbol} aggregate
      * @param {string} kind
-     * @param {function} ctor
+     * @param {Function} ctor
      * @param {ParseTree} tree
      */
     declareAccessor_: function(aggregate, tree, kind, ctor) {

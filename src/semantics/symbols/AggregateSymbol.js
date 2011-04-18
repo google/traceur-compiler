@@ -56,6 +56,7 @@ traceur.define('semantics.symbols', function() {
     this.state_ = State.Declared;
     this.instanceMembers = Object.create(null);
     this.staticMembers = Object.create(null);
+    this.mixins = [];
   }
 
   AggregateSymbol.prototype = {

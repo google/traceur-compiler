@@ -133,6 +133,8 @@ var traceur = (function() {
     'semantics/symbols/AggregateSymbol.js',
     'semantics/symbols/ClassSymbol.js',
     'semantics/symbols/Project.js',
+    'semantics/symbols/TraitSymbol.js',
+    'semantics/symbols/RequiresSymbol.js',
     'semantics/ClassAnalyzer.js',
     'codegeneration/ParseTreeWriter.js',
     'codegeneration/ParseTreeFactory.js',

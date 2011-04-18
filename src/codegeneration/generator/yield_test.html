@@ -24,7 +24,7 @@
 goog.require('goog.testing.jsunit');
 </script>
 <script src="../../traceur.js"></script>
-<script src="../../runtimebootstrap.js"></script>
+<script src="../../runtime.js" type="text/traceur"></script>
 </head>
 <body>
 <script type="text/traceur">
@@ -363,8 +363,10 @@ function transform(errorReporter, name, source) {
   var tree = parser.parseProgram();
   assertFalse(errorReporter.hadError());
 
-  var idGen = new traceur.codegeneration.UniqueIdentifierGenerator();
+  tree = traceur.codegeneration.ClassTransformer.transformClasses(errorReporter, tree);
+  assertFalse(errorReporter.hadError());
 
+  var idGen = new traceur.codegeneration.UniqueIdentifierGenerator();
   tree = traceur.codegeneration.ForEachTransformer.transformTree(idGen, tree);
   assertFalse(errorReporter.hadError());
 

@@ -20,10 +20,8 @@ traceur.define('semantics.symbols', function() {
     CLASS: 'CLASS',
     FIELD: 'FIELD',
     METHOD: 'METHOD',
-    MIXIN_MEMBER: 'MIXIN_MEMBER',
     PROPERTY: 'PROPERTY',
     TRAIT: 'TRAIT',
-    MIXIN: 'MIXIN',
     REQUIRES: 'REQUIRES',
     MODULE: 'MODULE',
     EXPORT: 'EXPORT'

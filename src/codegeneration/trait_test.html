@@ -19,72 +19,67 @@
 <html>
 <head>
 <title></title>
-<script src="../../../third_party/closure-library/closure/goog/base.js"></script>
+<script src="../../third_party/closure-library/closure/goog/base.js"></script>
 <script>
 goog.require('goog.testing.jsunit');
 </script>
-<script src="../../traceur.js"></script>
-<script src="../../runtime.js" type="text/traceur"></script>
+<script src="../traceur.js"></script>
+<script src="../runtime.js" type="text/traceur"></script>
+<script src="../util/traits.js" type="text/traceur"></script>
+<!-- TODO(jmesserly): need to run this so we can catch the expected exception
+<script src="../../test/features/DeriveFromTrait.js" type="text/traceur"></script>
+-->
+<script src="../../test/features/DiamondMixin.js" type="text/traceur"></script>
+<script src="../../test/features/PropertyTrait.js" type="text/traceur"></script>
+<script src="../../test/features/RequiresAndInheritance.js" type="text/traceur"></script>
+<script src="../../test/features/RequiresMember.js" type="text/traceur"></script>
+<script src="../../test/features/SimpleTrait.js" type="text/traceur"></script>
+<script src="../../test/features/TraitMixin.js" type="text/traceur"></script>
 </head>
 <body>
 <script type="text/traceur">
 
-function asyncTimeout(ms) {
-  var task = new Deferred();
-  window.setTimeout(function() {
-    task.callback(undefined);
-  }, ms);
-  return task.createPromise();
+// more tests
+function testSimpleTrait() {
+  var p1 = new MixinPoint();
+  var p2 = new MixinPoint();
+  assertTrue(p1.equals(p2));
+  assertFalse(p2.notEquals(p1));
+  p2.x = 1;
+  assertFalse(p2.equals(p1));
+  assertTrue(p2.notEquals(p1));
 }
 
-function asyncYield() {
-  return asyncTimeout(0);
+function testPropertyTrait() {
+  var obj = new MixinSimpleValue();
+  obj.v = 5;
+  assertEquals(5, obj.value);
+  obj.setValue(7);
+  assertEquals(7, obj.v);
 }
 
-function asyncComplete() {
-  var task = new Deferred();
-  task.callback('complete');
-  return task.createPromise();
+function testRequiresMember() {
+  var obj = new ClassMixinRequires();
+  assertEquals(42, obj.member());
+  assertEquals(42, obj.requiresMember());
 }
 
-function asyncValue(value) {
-  if (true)
-    return value;
-  await asyncYield();
+function testTraitMixin() {
+  var obj = new MixinOfMixinClass();
+  assertEquals('first', obj.first());
+  assertEquals('second', obj.second());
 }
 
-function asyncThrow(e) {
-  if (true)
-    throw e;
-  await asyncYield();
+function testDiamondMixin() {
+  var obj = new DiamondMixinClass();
+  assertEquals('common', obj.common());
+  assertEquals('first', obj.first());
+  assertEquals('second', obj.second());
 }
 
-function testAsync() {
-  var value;
-
-  asyncTestCase.waitForAsync('already complete value');
-  await value = asyncComplete();
-  asyncTestCase.continueTesting();
-  assertEquals('complete', value);
-
-  asyncTestCase.waitForAsync('await no assignment');
-  await asyncYield();
-  asyncTestCase.continueTesting();
-
-  try {
-    asyncTestCase.waitForAsync('await that throws');
-    await value = asyncThrow(1);
-    asyncTestCase.continueTesting();
-    fail("shouldn't get here");
-  } catch (e) {
-    asyncTestCase.continueTesting();
-    assertEquals(1, e);
-  }
-
-  asyncTestCase.waitForAsync('async with assignment');
-  await value = asyncValue(42);
-  asyncTestCase.continueTesting();
-  assertEquals(42, value);
+function testRequiresAndInheritance() {
+  var obj = new DerivedWithRequires();
+  assertEquals('base r', obj.callR());
 }
 
 </script>
@@ -129,11 +124,6 @@ function transform(errorReporter, name, source) {
   tree = traceur.codegeneration.ClassTransformer.transformClasses(errorReporter, tree);
   assertFalse(errorReporter.hadError());
 
-  var idGen = new traceur.codegeneration.UniqueIdentifierGenerator();
-  tree = traceur.codegeneration.GeneratorTransformPass.transformTree(
-    idGen, errorReporter, tree);
-  assertFalse(errorReporter.hadError());
-  
   return tree;
 }
 
