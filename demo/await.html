@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Await Demo</title>
+<style>
+
+#box {
+  position: absolute;
+  left: 0;
+  top: 0;
+  white-space: nowrap;
+  border-radius: 5px;
+  text-shadow: 0 0 5px yellow;
+  padding: 1px 30px;
+  font: 25px sans-serif;
+  text-align: center;
+  line-height: 22px;
+  letter-spacing: -2px;
+}
+
+</style>
+<script src="../src/traceur.js"></script>
+<script src="../src/bootstrap.js"></script>
+</head>
+<body>
+
+<div id="box">Traceur<br>Rocks!</div>
+
+<script type="text/traceur">
+
+function awaitTimeout(ms) {
+  var d = new Deferred();
+  window.setTimeout(function() {
+    d.callback(undefined);
+  }, ms);
+  return d.createPromise();
+}
+
+function animateAsync() {
+  var box = document.getElementById('box');
+  var timeout = 10;
+  while (true) {
+    for (var left = 0; left < 400; left++) {
+      box.style.left = left + 'px';
+      await awaitTimeout(timeout);
+    }
+    for (; left > 0; left--) {
+      box.style.left = left + 'px';
+      await awaitTimeout(timeout);
+    }
+  }
+}
+
+function animateAsyncVertical() {
+  var box = document.getElementById('box');
+  var timeout = 15;
+  while (true) {
+    for (var top = 0; top < 300; top++) {
+      box.style.top = top + 'px';
+      await awaitTimeout(timeout);
+    }
+    for (; top > 0; top--) {
+      box.style.top = top + 'px';
+      await awaitTimeout(timeout);
+    }
+  }
+}
+
+animateAsync();
+animateAsyncVertical();
+
+</script>
+</body>
+</html>
