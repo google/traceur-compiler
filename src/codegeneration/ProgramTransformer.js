@@ -197,7 +197,7 @@ traceur.define('codegeneration', function() {
      * @private
      */
     transformClass_: function(tree) {
-      return ClassTransformer.transform(reporter, project, tree);
+      return ClassTransformer.transform(this.reporter_, this.project_, tree);
     }
   };
 

@@ -83,6 +83,11 @@ traceur.define('codegeneration', function() {
     return new ProgramTree(tree.location, elements);
   };
 
+  ClassTransformer.transform = function(reporter, project, tree) {
+    var sym = ClassAnalyzer.analyzeClass(reporter, tree);
+    return new ClassTransformer(reporter).transformClass_(sym);
+  }
+
   ClassTransformer.prototype = {
     /**
      * Transforms a single class declaration
