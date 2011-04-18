@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<!--
+
+// Copyright 2011 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+-->
+<html>
+<head>
+<title>Traceur</title>
+<script src="traceur.js"></script>
+<style>
+
+textarea {
+  display: block;
+  font-family: monospace;
+  width: 80%;
+  height: 300px;
+}
+
+.error {
+  color: red;
+}
+
+</style>
+</head>
+<body>
+<textarea class="input"></textarea>
+<pre class="error"></pre>
+<label><input class="eval" type="checkbox" checked> Evaluate</label>
+<pre class="eval"></pre>
+<label><input class="output" type="checkbox" checked> Show generated code</label>
+<pre class="output"></pre>
+
+<script>
+
+(function() {
+  var hasError = false;
+  var input = document.querySelector('.input');
+  var outputCheckbox = document.querySelector('input.output');
+  var output = document.querySelector('pre.output');
+  var evalCheckbox = document.querySelector('input.eval');
+  var evalElement = document.querySelector('pre.eval');
+  var errorElement = document.querySelector('pre.error');
+
+  evalCheckbox.addEventListener('click', function(e) {
+    evalElement.hidden = !evalCheckbox.checked;
+  }, false);
+
+  outputCheckbox.addEventListener('click', function(e) {
+    output.hidden = !outputCheckbox.checked;
+  }, false);
+
+  function compile() {
+    hasError = false;
+    output.textContent = errorElement.textContent = '';
+
+    var reporter = new traceur.util.ErrorReporter();
+    reporter.reportMessageInternal = function(location, kind, format, args) {
+      if (location)
+        format = location + ': ' + format;
+      //console[kind].apply(console, [format].concat(args));
+      errorElement.textContent += format + '\n';
+    };
+
+    var project = new traceur.semantics.symbols.Project();
+    var name = 'repl';
+    var contents = input.value;
+    var sourceFile = new traceur.syntax.SourceFile(name, contents);
+    project.addFile(sourceFile);
+    var res = traceur.codegeneration.Compiler.compile(reporter, project, false);
+    if (reporter.hadError()) {
+      hasError = true;
+    } else {
+      var source = output.textContent =
+          traceur.codegeneration.ProjectWriter.write(res);
+
+      if (evalCheckbox.checked) {
+        try {
+          evalElement.textContent = ('global', eval)(source);
+        } catch(ex) {
+          errorElement.textContent = ex;
+        }
+      }
+    }
+
+    errorElement.hidden = !hasError;
+  }
+
+  input.addEventListener('input', compile, false);
+})();
+
+</script>
+</body>
+</html>
