@@ -247,7 +247,8 @@ traceur.define('syntax', function() {
       if (!this.skipRegularExpressionChar_()) {
         return false;
       }
-      while (this.isRegularExpressionChar_(this.peekChar_())) {
+      while (!this.isAtEnd_() &&
+             this.isRegularExpressionChar_(this.peekChar_())) {
         if (!this.skipRegularExpressionChar_()) {
           return false;
         }

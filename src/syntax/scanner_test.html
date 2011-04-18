@@ -44,6 +44,15 @@ function testScanner() {
   assertEquals(traceur.syntax.TokenType.NULL, token.type);
 }
 
+function testEmpty() {
+  var program = '';
+  var sourceFile = new traceur.syntax.SourceFile('Name', program);
+  var scanner = new traceur.syntax.Scanner(errorReporter, sourceFile);
+
+  var token = scanner.peekToken();
+  assertEquals(traceur.syntax.TokenType.END_OF_FILE, token.type);
+}
+
 function scanScript(scriptElement) {
   var source;
   var name;
@@ -122,7 +131,7 @@ function testScanner3() {
 }
 
 function testScannerAwait() {
-  var source = '__await x;\n';
+  var source = 'await x;\n';
   var sourceFile = new traceur.syntax.SourceFile(name, source);
   var scanner = new traceur.syntax.Scanner(errorReporter, sourceFile);
 
