@@ -552,6 +552,18 @@ traceur.define('syntax', function() {
     /**
      * @param {traceur.syntax.trees.ModuleDefinitionTree} tree
      */
+    visitModuleDeclarationTree: function(tree) {
+      for (var i = 0; i < tree.specifiers.length; i++) {
+        var specifier = tree.specifiers[i];
+        this.checkVisit_(specifier.type = ParseTreeType.MODULE_SPECIER,
+                         specifier,
+                         'module specifier expected');
+      }
+    },
+
+    /**
+     * @param {traceur.syntax.trees.ModuleDefinitionTree} tree
+     */
     visitModuleDefinitionTree: function(tree) {
       for (var i = 0; i < tree.elements.length; i++) {
         var element = tree.elements[i];
@@ -564,6 +576,23 @@ traceur.define('syntax', function() {
             element,
             'module element expected');
       }
+    },
+
+    /**
+     * @param {traceur.syntax.trees.ModuleRequireTree} tree
+     */
+    visitModuleRequireTree: function(tree) {
+      this.check_(tree.url.type == TokenType.STRING, tree.url,
+                  'string expected');
+    },
+
+    /**
+     * @param {traceur.syntax.trees.ModuleSpecifierTree} tree
+     */
+    visitModuleSpecifierTree: function(tree) {
+      this.checkVisit_(tree.expression.type == ParseTreeType.MODULE_EXPRESSION,
+                       tree.expression,
+                       'module expression expected');
     },
 
     /**

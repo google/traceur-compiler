@@ -67,7 +67,11 @@ traceur.define('syntax', function() {
   var MixinResolveListTree = traceur.syntax.trees.MixinResolveListTree;
   var MixinResolveTree = traceur.syntax.trees.MixinResolveTree;
   var MixinTree = traceur.syntax.trees.MixinTree;
+  var ModuleDeclarationTree = traceur.syntax.trees.ModuleDeclarationTree;
   var ModuleDefinitionTree = traceur.syntax.trees.ModuleDefinitionTree;
+  var ModuleExpressionTree = traceur.syntax.trees.ModuleExpressionTree;
+  var ModuleRequireTree = traceur.syntax.trees.ModuleRequireTree;
+  var ModuleSpecifierTree = traceur.syntax.trees.ModuleSpecifierTree;
   var NewExpressionTree = traceur.syntax.trees.NewExpressionTree;
   var NullTree = traceur.syntax.trees.NullTree;
   var ObjectLiteralExpressionTree = traceur.syntax.trees.ObjectLiteralExpressionTree;
@@ -182,12 +186,15 @@ traceur.define('syntax', function() {
      */
     lastToken_: null,
 
+    load_: false,
+
     // 14 Program
     /**
      * @return {ProgramTree}
      */
-    parseProgram: function() {
+    parseProgram: function(opt_load) {
       //var t = new Timer("Parse Program");
+      this.load_ = !!opt_load;
       var start = this.getTreeStartLocation_();
       var sourceElements = this.parseGlobalSourceElements_();
       this.eat_(TokenType.END_OF_FILE);
@@ -259,6 +266,12 @@ traceur.define('syntax', function() {
      * @private
      */
     parseModuleDefinition_: function() {
+
+      // ModuleDeclaration ::= "module" ModuleSpecifier(load) ("," ModuleSpecifier(load))* ";"
+      //              | ModuleDefinition(load)
+      // ModuleDefinition(load) ::= "module" Identifier "{" ModuleBody(load) "}"
+      // ModuleSpecifier(load) ::= Identifier "=" ModuleExpression(load)
+
       var start = this.getTreeStartLocation_();
       this.eatId_(); // module
       var name = this.eatId_();
@@ -269,6 +282,49 @@ traceur.define('syntax', function() {
       }
       this.eat_(TokenType.CLOSE_CURLY);
       return new ModuleDefinitionTree(this.getTreeLocation_(start), name, result);
+    },
+
+    // ModuleSpecifier(load) ::= Identifier "=" ModuleExpression(load)
+    parseModuleSpecifier_: function() {
+      var start = this.getTreeStartLocation_();
+      var identifier = this.eatId_();
+      this.eat_(TokenType.EQUAL);
+      var expression = this.parseModuleExpression_();
+      return new ModuleSpecifierTree(this.getTreeLocation_(start), identifier,
+                                     expression);
+    },
+
+    parseModuleExpression_: function() {
+      // ModuleExpression(load) ::= ModuleReference(load)
+      //                         | ModuleExpression(load) "." IdentifierName
+      var start = this.getTreeStartLocation_();
+      var reference = this.parseModuleReference_();
+      var identifierNames = [];
+      while (this.peek_(TokenType.PERIOD)) {
+        this.eat_(TokenType.PERIOD);
+        identifierNames.push(this.eatIdName_());
+      }
+      return new ModuleExpressionTree(this.getTreeLocation_(start), reference,
+                                      identifierNames);
+    },
+
+    /**
+     * @private
+     * @return {ModeuleRequireTree|IdentifierExpressionTree}
+     */
+    parseModuleReference_: function() {
+      // ModuleReference(load) ::= Identifier
+      //                        | [load = true] "require" "(" StringLiteral ")"
+
+      var start = this.getTreeStartLocation_();
+      if (this.load_ && this.peekPredefinedString_(PredefinedName.REQUIRE)) {
+        this.eat_(TokenType.IDENTIFIER); // require
+        this.eat_(TokenType.OPEN_PAREN);
+        var url = this.eat_(TokenType.STRING);
+        this.eat_(TokenType.CLOSE_PAREN);
+        return new ModuleRequireTree(this.getTreeLocation_(start), url);
+      }
+      return this.parseIdentifierExpression_();
     },
 
     // ClassDeclaration
@@ -461,7 +517,14 @@ traceur.define('syntax', function() {
      * @private
      */
     peekModuleDeclaration_: function() {
-      return this.peekModuleDefinition_();
+      // ModuleDeclaration ::= "module" ModuleSpecifier(load) ("," ModuleSpecifier(load))* ";"
+      //                    | ModuleDefinition(load)
+      // ModuleDefinition(load) ::= "module" Identifier "{" ModuleBody(load) "}"
+      // ModuleSpecifier(load) ::= Identifier "=" ModuleExpression(load)
+      return this.peekPredefinedString_(PredefinedName.MODULE) &&
+          this.peek_(TokenType.IDENTIFIER, 1) &&
+          (this.peek_(TokenType.EQUAL, 2) ||
+           this.peek_(TokenType.OPEN_CURLY, 2));
     },
 
     /**
@@ -469,7 +532,20 @@ traceur.define('syntax', function() {
      * @private
      */
     parseModuleDeclaration_: function() {
-      return this.parseModuleDefinition_();
+      if (this.peekModuleDefinition_())
+        return this.parseModuleDefinition_();
+
+      var start = this.getTreeStartLocation_();
+      this.eatId_(); // module
+
+      var specifiers = [this.parseModuleSpecifier_()];
+      while (this.peek_(TokenType.COMMA)) {
+        this.eat_(TokenType.COMMA);
+        specifiers.push(this.parseModuleSpecifier_())
+      }
+      this.eatPossibleImplicitSemiColon_();
+      return new ModuleDeclarationTree(this.getTreeLocation_(start),
+                                       specifiers);
     },
 
     /**

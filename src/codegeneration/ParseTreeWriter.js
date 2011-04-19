@@ -560,6 +560,15 @@ traceur.define('codegeneration', function() {
     },
 
     /**
+     * @param {ModuleDeclarationfinitionTree} tree
+     */
+    visitModuleDeclarationTree: function(tree) {
+      this.write_(PredefinedName.MODULE);
+      this.writeList_(tree.specifiers, TokenType.COMMA, false);
+      this.write_(TokenType.SEMI_COLON);
+    },
+
+    /**
      * @param {ModuleDefinitionTree} tree
      */
     visitModuleDefinitionTree: function(tree) {
@@ -570,6 +579,36 @@ traceur.define('codegeneration', function() {
       this.writeList_(tree.elements, null, true);
       this.write_(TokenType.CLOSE_CURLY);
       this.writeln_();
+    },
+
+    /**
+     * @param {ModuleExpressionTree} tree
+     */
+    visitModuleExpressionTree: function(tree) {
+      this.visitAny(tree.reference);
+      for (var i = 0; i < tree.identifiers.length; i++) {
+        this.write_(TokenType.PERIOD);
+        this.write_(tree.identifiers[i]);
+      }
+    },
+
+    /**
+     * @param {ModuleRequireTree} tree
+     */
+    visitModuleRequireTree: function(tree) {
+      this.write_(PredefinedName.REQUIRE);
+      this.write_(TokenType.OPEN_PAREN);
+      this.write_(tree.url);
+      this.write_(TokenType.CLOSE_PAREN);
+    },
+
+    /**
+     * @param {ModuleRequireTree} tree
+     */
+    visitModuleSpecifierTree: function(tree) {
+      this.write_(tree.identifier);
+      this.write_(TokenType.EQUAL);
+      this.visitAny(tree.expression);
     },
 
     /**

@@ -80,6 +80,10 @@ traceur.define('syntax', function() {
         case ParseTreeType.MIXIN_RESOLVE: this.visitMixinResolveTree(tree.asMixinResolve()); break;
         case ParseTreeType.MIXIN_RESOLVE_LIST: this.visitMixinResolveListTree(tree.asMixinResolveList()); break;
         case ParseTreeType.MODULE_DEFINITION: this.visitModuleDefinitionTree(tree.asModuleDefinition()); break;
+        case ParseTreeType.MODULE_DECLARATION: this.visitModuleDeclarationTree(tree.asModuleDeclaration()); break;
+        case ParseTreeType.MODULE_EXPRESSION: this.visitModuleExpressionTree(tree.asModuleExpression()); break;
+        case ParseTreeType.MODULE_REQUIRE: this.visitModuleRequireTree(tree.asModuleRequire()); break;
+        case ParseTreeType.MODULE_SPECIFIER: this.visitModuleSpecifierTree(tree.asModuleSpecifier()); break;
         case ParseTreeType.NEW_EXPRESSION: this.visitNewExpressionTree(tree.asNewExpression()); break;
         case ParseTreeType.OBJECT_LITERAL_EXPRESSION: this.visitObjectLiteralExpressionTree(tree.asObjectLiteralExpression()); break;
         case ParseTreeType.OBJECT_PATTERN: this.visitObjectPatternTree(tree.asObjectPattern()); break;
@@ -442,10 +446,37 @@ traceur.define('syntax', function() {
     },
 
     /**
+     * @param {traceur.syntax.trees.ModuleDeclarationTree} tree
+     */
+    visitModuleDeclarationTree: function(tree) {
+      this.visitList(tree.specifiers);
+    },
+
+    /**
      * @param {traceur.syntax.trees.ModuleDefinitionTree} tree
      */
     visitModuleDefinitionTree: function(tree) {
       this.visitList(tree.elements);
+    },
+
+    /**
+     * @param {traceur.syntax.trees.ModuleExpressionTree} tree
+     */
+    visitModuleExpressionTree: function(tree) {
+      this.visitAny(tree.reference);
+    },
+
+    /**
+     * @param {traceur.syntax.trees.ModuleRequireTree} tree
+     */
+    visitModuleRequireTree: function(tree) {
+    },
+
+    /**
+     * @param {traceur.syntax.trees.ModuleSpecifierTree} tree
+     */
+    visitModuleSpecifierTree: function(tree) {
+      this.visitAny(tree.expression);
     },
 
     /**

@@ -73,7 +73,10 @@ traceur.define('codegeneration', function() {
   var ExportDeclarationTree = traceur.syntax.trees.ExportDeclarationTree;
   var ImportDeclarationTree = traceur.syntax.trees.ImportDeclarationTree;
   var ImportPathTree = traceur.syntax.trees.ImportPathTree;
+  var ModuleDeclarationTree = traceur.syntax.trees.ModuleDeclarationTree;
   var ModuleDefinitionTree = traceur.syntax.trees.ModuleDefinitionTree;
+  var ModuleExpressionTree = traceur.syntax.trees.ModuleExpressionTree;
+  var ModuleSpecifierTree = traceur.syntax.trees.ModuleSpecifierTree;
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
   var ProgramTree = traceur.syntax.trees.ProgramTree;
 
@@ -120,7 +123,11 @@ traceur.define('codegeneration', function() {
   var MIXIN = ParseTreeType.MIXIN;
   var MIXIN_RESOLVE = ParseTreeType.MIXIN_RESOLVE;
   var MIXIN_RESOLVE_LIST = ParseTreeType.MIXIN_RESOLVE_LIST;
+  var MODULE_DECLARATION = ParseTreeType.MODULE_DECLARATION;
   var MODULE_DEFINITION = ParseTreeType.MODULE_DEFINITION;
+  var MODULE_EXPRESSION = ParseTreeType.MODULE_EXPRESSION;
+  var MODULE_REQUIRE = ParseTreeType.MODULE_REQUIRE;
+  var MODULE_SPECIFIER = ParseTreeType.MODULE_SPECIFIER;
   var NEW_EXPRESSION = ParseTreeType.NEW_EXPRESSION;
   var NULL = ParseTreeType.NULL;
   var OBJECT_LITERAL_EXPRESSION = ParseTreeType.OBJECT_LITERAL_EXPRESSION;
@@ -259,8 +266,16 @@ traceur.define('codegeneration', function() {
           return this.transformMixinResolveTree(tree.asMixinResolve());
         case MIXIN_RESOLVE_LIST:
           return this.transformMixinResolveListTree(tree.asMixinResolveList());
+        case MODULE_DECLARATION:
+          return this.transformModuleDeclarationTree(tree.asModuleDeclaration());
         case MODULE_DEFINITION:
           return this.transformModuleDefinitionTree(tree.asModuleDefinition());
+        case MODULE_EXPRESSION:
+          return this.transformModuleExpressionTree(tree.asModuleExpression());
+        case MODULE_REQUIRE:
+          return this.transformModuleRequireTree(tree.asModuleRequire());
+        case MODULE_SPECIFIER:
+          return this.transformModuleSpecifierTree(tree.asModuleSpecifier());
         case NEW_EXPRESSION:
           return this.transformNewExpressionTree(tree.asNewExpression());
         case NULL:
@@ -887,6 +902,19 @@ traceur.define('codegeneration', function() {
     },
 
     /**
+     * @param {ModuleDeclarationTree} tree
+     * @return {ParseTree}
+     */
+    transformModuleDeclarationTree: function(tree) {
+      var specifiers = this.transformList(tree.specifiers);
+      if (specifiers == tree.specifiers) {
+        return tree;
+      }
+
+      return new ModuleDeclarationTree(null, specifiers);
+    },
+
+    /**
      * @param {ModuleDefinitionTree} tree
      * @return {ParseTree}
      */
@@ -897,6 +925,38 @@ traceur.define('codegeneration', function() {
       }
 
       return new ModuleDefinitionTree(null, tree.name, elements);
+    },
+
+    /**
+     * @param {ModuleExpressionTree} tree
+     * @return {ParseTree}
+     */
+    transformModuleExpressionTree: function(tree) {
+      var reference = this.transformAny(tree.reference);
+      if (reference == tree.reference) {
+        return tree;
+      }
+      return new ModuleExpressionTree(null, reference, tree.identifiers);
+    },
+
+    /**
+     * @param {ModuleRequireTree} tree
+     * @return {ParseTree}
+     */
+    transformModuleRequireTree: function(tree) {
+      return tree;
+    },
+
+    /**
+     * @param {ModuleSpecifierTree} tree
+     * @return {ParseTree}
+     */
+    transformModuleSpecifierTree: function(tree) {
+      var expression = this.transformAny(tree.expression);
+      if (expression == tree.expression) {
+        return tree;
+      }
+      return new ModuleSpecifierTree(null, tree.identifier, expression);
     },
 
     /**

@@ -65,6 +65,7 @@ traceur.define('syntax', function() {
     PROTO: '__proto__',
     PROTOTYPE: 'prototype',
     PUSH: 'push',
+    REQUIRE: 'require',
     RESOLVE: 'resolve',
     REQUIRES: 'requires',
     REQUIRED: 'required',
@@ -91,7 +92,7 @@ traceur.define('syntax', function() {
     WRITABLE: 'writable',
     getParameterName: function(index) {
       // TODO: consider caching these
-      return '$' + index.toString();
+      return '$' + index;
     }
   };
 

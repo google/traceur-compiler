@@ -21,32 +21,22 @@ traceur.define('semantics', function() {
 
   var SymbolType = traceur.semantics.symbols.SymbolType;
   var Symbol = traceur.semantics.symbols.Symbol;
-  var ClassSymbol = traceur.semantics.symbols.ClassSymbol;
   var ExportSymbol = traceur.semantics.symbols.ExportSymbol;
-  var FieldSymbol = traceur.semantics.symbols.FieldSymbol;
-  var MethodSymbol = traceur.semantics.symbols.MethodSymbol;
-  var MixinMemberSymbol = traceur.semantics.symbols.MixinMemberSymbol;
-  var MixinSymbol = traceur.semantics.symbols.MixinSymbol;
   var ModuleSymbol = traceur.semantics.symbols.ModuleSymbol;
-  var PropertySymbol = traceur.semantics.symbols.PropertySymbol;
-  var RequiresSymbol = traceur.semantics.symbols.RequiresSymbol;
-  var TraitSymbol = traceur.semantics.symbols.TraitSymbol;
+  var MODULE_DECLARATION = traceur.syntax.trees.ParseTreeType.MODULE_DECLARATION;
   var MODULE_DEFINITION = traceur.syntax.trees.ParseTreeType.MODULE_DEFINITION;
   var EXPORT_DECLARATION = traceur.syntax.trees.ParseTreeType.EXPORT_DECLARATION;
-  var GET_ACCESSOR = ParseTreeType.GET_ACCESSOR;
   var VARIABLE_STATEMENT = ParseTreeType.VARIABLE_STATEMENT;
   var FUNCTION_DECLARATION = ParseTreeType.FUNCTION_DECLARATION;
   var CLASS_DECLARATION = ParseTreeType.CLASS_DECLARATION;
-  var SET_ACCESSOR = ParseTreeType.SET_ACCESSOR;
   var TRAIT_DECLARATION = ParseTreeType.TRAIT_DECLARATION;
-  var MIXIN = ParseTreeType.MIXIN;
-  var REQUIRES_MEMBER = ParseTreeType.REQUIRES_MEMBER;
   var IDENTIFIER = TokenType.IDENTIFIER;
   var STRING = TokenType.STRING;
   var NUMBER = TokenType.NUMBER;
   var IDENTIFIER_EXPRESSION = ParseTreeType.IDENTIFIER_EXPRESSION;
-  var SetAccessor = traceur.semantics.symbols.SetAccessor;
-  var GetAccessor = traceur.semantics.symbols.GetAccessor;
+
+  // TODO(arv): Update comment and name since this is only used for modules at
+  // the moment.
 
   /**
    * Builds up all symbols for a project and reports all semantic errors.
@@ -86,7 +76,9 @@ traceur.define('semantics', function() {
      * @return {void}
      */
     analyze: function() {
-      this.declareAllModules_();
+      this.declareAllModuleDefinitions_();
+      this.declareAllModuleDeclarations_();
+      this.validateAllModules_();
     },
 
     /**
@@ -94,20 +86,43 @@ traceur.define('semantics', function() {
      * @return {void}
      * @private
      */
-    declareAllModules_: function(opt_tree) {
+    declareAllModuleDefinitions_: function(opt_tree) {
       if (opt_tree) {
         opt_tree.sourceElements.forEach(function(element) {
           switch (element.type) {
             case MODULE_DEFINITION:
-              this.declareModule_(this.project_.getRootModule(),
-                                  element.asModuleDefinition());
+              this.declareModuleDefinition_(this.project_.getRootModule(),
+                                            element.asModuleDefinition());
               break;
           }
         }, this);
       } else {
-        this.project_.getSourceTrees().forEach(this.declareAllModules_, this);
+        this.project_.getSourceTrees().forEach(
+            this.declareAllModuleDefinitions_, this);
       }
     },
+
+    /**
+     * @param {ProgramTree=} opt_tree
+     * @return {void}
+     * @private
+     */
+    declareAllModuleDeclarations_: function(opt_tree) {
+      if (opt_tree) {
+        opt_tree.sourceElements.forEach(function(element) {
+          switch (element.type) {
+            case MODULE_DECLARATION:
+              this.declareModuleDeclaration_(this.project_.getRootModule(),
+                                             element.asModuleDeclaration());
+              break;
+          }
+        }, this);
+      } else {
+        this.project_.getSourceTrees().forEach(
+            this.declareAllModuleDeclarations_, this);
+      }
+    },
+
 
     /**
      * @param {ModuleSymbol} module
@@ -118,7 +133,7 @@ traceur.define('semantics', function() {
       module.tree.elements.forEach(function(element) {
         switch (element.type) {
           case MODULE_DEFINITION:
-            this.declareModule_(module, element.asModuleDefinition());
+            this.declareModuleDefinition_(module, element.asModuleDefinition());
             break;
           case EXPORT_DECLARATION:
             this.declareExport_(module, element.asExportDeclaration());
@@ -189,7 +204,7 @@ traceur.define('semantics', function() {
         return;
       }
       if (tree.type == ParseTreeType.MODULE_DEFINITION) {
-        this.declareModule_(module, tree.asModuleDefinition());
+        this.declareModuleDefinition_(module, tree.asModuleDefinition());
       }
       module.addExport(name, new ExportSymbol(tree, name));
     },
@@ -197,18 +212,83 @@ traceur.define('semantics', function() {
     /**
      * @param {ModuleSymbol} parent
      * @param {ModuleDefinitionTree} tree
-     * @return {ModuleSymbol}
      * @private
      */
-    declareModule_: function(parent, tree) {
+    declareModuleDefinition_: function(parent, tree) {
       var name = tree.name.value;
       if (!this.checkForDuplicateModule_(tree, parent, name)) {
-        return null;
+        return;
       }
       var module = new ModuleSymbol(name, parent, tree);
       parent.addModule(module);
       this.declareSubModulesAndExports_(module);
-      return module;
+    },
+
+    /**
+     * @param {ModuleSymbol} parent
+     * @param {ModuleDeclarationTree} tree
+     * @private
+     */
+    declareModuleDeclaration_: function(parent, tree) {
+      tree.specifiers.forEach(function(specifier) {
+        var name = specifier.identifier.value;
+        if (!this.checkForDuplicateModule_(tree, parent, name)) {
+          return;
+        }
+
+        var module = this.getModuleSymbolFromModuleExpression_(
+            parent, specifier.expression);
+        if (!module)
+          return;
+
+        var name = specifier.identifier.value;
+        parent.addModuleWithName(module, name);
+      }, this);
+    },
+
+    /**
+     * Returns the module symbol for the RHS in a module specifier. For example
+     *
+     *   m = n.o
+     *
+     * as in
+     *
+     *   module m = n.o
+     *
+     * will return the module o inside n.
+     *
+     * @param {ModuleSymbol} parent
+     * @param {ModuleExpression} tree
+     * @return {ModuleSymbol}
+     * @private
+     */
+    getModuleSymbolFromModuleExpression_: function(parent, tree) {
+      if (tree.reference.type == ParseTreeType.MODULE_REQUIRE)
+        throw Error('Not implemented');
+
+      var self = this;
+      function getNext(parent, identifierToken) {
+        var name = identifierToken.value;
+        if (!parent.hasModule(name)) {
+          // This will get reported in the anylize phase.
+          return null;
+        }
+        return parent.getModule(name);
+      }
+
+      parent = getNext(parent, tree.reference.identifierToken);
+      if (!parent) {
+        // TODO(arv): Walk up lexical scope?
+        return null;
+      }
+
+      for (var i = 0; i < tree.identifiers.length; i++) {
+        parent = getNext(parent, tree.identifiers[i]);
+        if (!parent)
+          return null;
+      }
+
+      return parent;
     },
 
     /**
@@ -239,6 +319,100 @@ traceur.define('semantics', function() {
      */
     analyzeFile: function(sourceFile) {
       // TODO(arv): Remove or keep?
+    },
+
+
+    /**
+     * @param {ProgramTree=} opt_tree
+     * @return {void}
+     * @private
+     */
+    validateAllModules_: function(opt_tree) {
+      if (opt_tree) {
+        var parent = this.project_.getRootModule();
+        this.validateModuleElements_(parent, opt_tree.sourceElements);
+      } else {
+        this.project_.getSourceTrees().forEach(this.validateAllModules_, this);
+      }
+    },
+
+    /**
+     * @param {ModuleSymbol} parent
+     * @param {Array.<ParseTree>} elements
+     * @private
+     */
+    validateModuleElements_: function(parent, elements) {
+      elements.forEach(function(element) {
+        switch (element.type) {
+          case MODULE_DECLARATION:
+            this.validateModuleDeclaration_(parent, element);
+            break;
+          case MODULE_DEFINITION:
+            var name = element.name.value;
+            var module = parent.getModule(name);
+            this.validateModuleElements_(module, element.elements);
+            break;
+        }
+      }, this);
+    },
+
+    /**
+     * Validates that the RHS is all modules.
+     * @param {ModuleDeclarationTree} tree
+     * @param {ModuleSymbol} parent
+     * @private
+     */
+    validateModuleDeclaration_: function(parent, tree) {
+      // module m = a.b.c, n = d.e;
+      tree.specifiers.forEach(function(specifier) {
+        this.validateModuleExpression_(parent, specifier.expression);
+      }, this);
+    },
+
+    /**
+     * Validates that the RHS is all modules references.
+     * @param {ModuleSpecifierTree} tree
+     * @param {ModuleSymbol} parent
+     * @private
+     */
+    validateModuleExpression_: function(parent, tree) {;
+      // require("url").b.c
+      if (tree.reference.type == ParseTreeType.MODULE_REQUIRE)
+        throw Error('Not implemented');
+
+      // a.b.c
+
+      var self = this;
+      function getNext(parent, identifierToken) {
+        var name = identifierToken.value;
+        if (!parent.hasModule(name)) {
+          self.reportError_(tree, '\'%s\' is not a module', name);
+          return null;
+        }
+        return parent.getModule(name);
+      }
+
+      function validateNext(identifierToken) {
+        var name = identifierToken.value;
+        if (!parent.hasModule(name)) {
+          self.reportError_(tree, '\'%s\' is not a module', name);
+          return false;
+        }
+        parent = parent.getModule(name);
+        return true;
+      }
+
+      parent = getNext(parent, tree.reference.identifierToken);
+      if (!parent) {
+        // TODO(arv): Walk up lexical scope?
+        return;
+      }
+
+      for (var i = 0; i < tree.identifiers.length; i++) {
+        parent = getNext(parent, tree.identifiers[i]);
+        if (!parent)
+          return;
+      }
     },
 
     /**

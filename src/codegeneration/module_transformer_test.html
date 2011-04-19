@@ -48,6 +48,9 @@ function testExports() {
 module b {
   export module c {
     export var d = 42;
+    export module c2 {
+      export var d2 = 43;
+    }
   }
 }
 
@@ -55,8 +58,92 @@ function testNestedExports() {
   assertEquals(42, b.c.d);
 }
 
+module b2 = b;
+
+function testDeclarationAlias() {
+  assertEquals(42, b2.c.d);
+}
+
+module c = b.c;
+
+function testNestedDeclarations() {
+  assertEquals(42, c.d);
+}
+
+module d = c;
+
+function testNestedDeclarationorts() {
+  assertEquals(42, d.d);
+}
+
+module d2 = c.c2;
+
+function testNestedDeclarationorts() {
+  assertEquals(43, d2.d2);
+}
+
 </script>
 <script>
+
+function compileAndReturnErrors(contents, name) {
+  var sourceFile = new traceur.syntax.SourceFile(name, contents);
+  var reporter = new traceur.util.ErrorReporter();
+  var errors = [];
+  reporter.reportError = function() {
+    errors.push(arguments);
+  };
+  var project = new traceur.semantics.symbols.Project();
+  project.addFile(sourceFile)
+  traceur.codegeneration.Compiler.compile(reporter, project, false);
+  return errors;
+}
+
+function testInvalidModuleDeclaration() {
+  var contents = 'module a {}\n' +
+      'module b = c;\n';
+  var name = 'testInvalidModuleDeclaration';
+  var errors = compileAndReturnErrors(contents, name);
+
+  assertEquals(1, errors.length);
+  assertEquals('\'%s\' is not a module', errors[0][1]);
+  assertEquals('c', errors[0][2]);
+}
+
+function testInvalidModuleDeclaration2() {
+  var contents = 'module a {}\n' +
+      'module b = a.c;\n';
+  var name = 'testInvalidModuleDeclaration2';
+  var errors = compileAndReturnErrors(contents, name);
+
+  assertEquals(1, errors.length);
+  assertEquals('\'%s\' is not a module', errors[0][1]);
+  assertEquals('c', errors[0][2]);
+}
+
+function testInvalidModuleDeclaration3() {
+  var contents = 'module a {\n' +
+      '  module b = c;\n' +
+      '}\n';
+  var name = 'testInvalidModuleDeclaration3';
+  var errors = compileAndReturnErrors(contents, name);
+
+  assertEquals(1, errors.length);
+  assertEquals('\'%s\' is not a module', errors[0][1]);
+  assertEquals('c', errors[0][2]);
+}
+
+function testInvalidModuleDeclaration4() {
+  var contents = 'module a {\n' +
+      '  module b {}\n' +
+      '  module c = b.d;\n' +
+      '}\n';
+  var name = 'testInvalidModuleDeclaration4';
+  var errors = compileAndReturnErrors(contents, name);
+
+  assertEquals(1, errors.length);
+  assertEquals('\'%s\' is not a module', errors[0][1]);
+  assertEquals('d', errors[0][2]);
+}
 
 function evalScript(scriptElement) {
   var contents;
@@ -80,7 +167,7 @@ function evalScript(scriptElement) {
   project.addFile(sourceFile)
   var trees = traceur.codegeneration.Compiler.compile(
           reporter, project, false);
-
+  assertFalse(reporter.hadError());
   var result = traceur.codegeneration.ProjectWriter.write(trees);
   ('global', eval)(result);
   assertFalse(reporter.hadError());

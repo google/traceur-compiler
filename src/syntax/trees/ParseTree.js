@@ -330,9 +330,33 @@ traceur.define('syntax.trees', function() {
       return this;
     },
 
+    /** @return {traceur.syntax.trees.ModuleDeclarationTree} */
+    asModuleDeclaration: function() {
+      assert(this instanceof traceur.syntax.trees.ModuleDeclarationTree);
+      return this;
+    },
+
     /** @return {traceur.syntax.trees.ModuleDefinitionTree} */
     asModuleDefinition: function() {
       assert(this instanceof traceur.syntax.trees.ModuleDefinitionTree);
+      return this;
+    },
+
+    /** @return {traceur.syntax.trees.ModuleExpressionTree} */
+    asModuleExpression: function() {
+      assert(this instanceof traceur.syntax.trees.ModuleExpressionTree);
+      return this;
+    },
+
+    /** @return {traceur.syntax.trees.ModuleRequireTree} */
+    asModuleRequire: function() {
+      assert(this instanceof traceur.syntax.trees.ModuleRequireTree);
+      return this;
+    },
+
+    /** @return {traceur.syntax.trees.ModuleSpecifierTree} */
+    asModuleSpecifier: function() {
+      assert(this instanceof traceur.syntax.trees.ModuleSpecifierTree);
       return this;
     },
 

@@ -41,7 +41,16 @@ traceur.define('semantics.symbols', function() {
      * @return {void}
      */
     addModule: function(module) {
-      this.children_[module.name] = module;
+      this.addModuleWithName(module, module.name); 
+    },
+
+    /**
+     * @param {ModuleSymbol} module
+     * @param {string} name
+     * @return {void}
+     */
+    addModuleWithName: function(module, name) {
+      this.children_[name] = module;
     },
 
     /**

@@ -410,6 +410,15 @@ traceur.define('syntax.trees', function() {
      */
     MixinTree: create(ParseTreeType.MIXIN, 'name', 'mixinResolves'),
 
+
+    /**
+     * @param {traceur.util.SourceRange} location
+     * @param {Array.<ParseTree>} specifiers
+     * @constructor
+     * @extends {ParseTree}
+     */
+    ModuleDeclarationTree: create(ParseTreeType.MODULE_DECLARATION, 'specifiers'),
+
     /**
      * @param {traceur.util.SourceRange} location
      * @param {traceur.syntax.IdentifierToken} name
@@ -418,6 +427,32 @@ traceur.define('syntax.trees', function() {
      * @extends {ParseTree}
      */
     ModuleDefinitionTree: create(ParseTreeType.MODULE_DEFINITION, 'name', 'elements'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
+     * @param {traceur.syntax.trees.ParseTree} reference
+     * @param {Array.<traceur.syntax.IdentifierToken>} identifiers
+     * @constructor
+     * @extends {ParseTree}
+     */
+    ModuleExpressionTree: create(ParseTreeType.MODULE_EXPRESSION, 'reference', 'identifiers'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
+     * @param {traceur.syntax.Token} url
+     * @constructor
+     * @extends {ParseTree}
+     */
+    ModuleRequireTree: create(ParseTreeType.MODULE_REQUIRE, 'url'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
+     * @param {traceur.syntax.IdentifierToken} identifier
+     * @param {ParseTree} expression
+     * @constructor
+     * @extends {ParseTree}
+     */
+    ModuleSpecifierTree: create(ParseTreeType.MODULE_SPECIFIER, 'identifier', 'expression'),
 
     /**
      * @param {traceur.util.SourceRange} location

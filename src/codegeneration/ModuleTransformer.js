@@ -17,11 +17,15 @@ traceur.define('codegeneration', function() {
 
   var TokenType = traceur.syntax.TokenType;
   var PredefinedName = traceur.syntax.PredefinedName;
+  var ParseTreeVisitor = traceur.syntax.ParseTreeVisitor;
+  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
   var ProgramTree = traceur.syntax.trees.ProgramTree;
+
 
   var EXPORT_DECLARATION = traceur.syntax.trees.ParseTreeType.EXPORT_DECLARATION;
   var IMPORT_DECLARATION = traceur.syntax.trees.ParseTreeType.IMPORT_DECLARATION;
   var MODULE_DEFINITION = traceur.syntax.trees.ParseTreeType.MODULE_DEFINITION;
+  var MODULE_DECLARATION = traceur.syntax.trees.ParseTreeType.MODULE_DECLARATION;
 
   var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
 
@@ -45,6 +49,8 @@ traceur.define('codegeneration', function() {
   var createStringLiteral = traceur.codegeneration.ParseTreeFactory.createStringLiteral;
   var createThisExpression = traceur.codegeneration.ParseTreeFactory.createThisExpression;
   var createTrueLiteral = traceur.codegeneration.ParseTreeFactory.createTrueLiteral;
+  var createVariableDeclaration = traceur.codegeneration.ParseTreeFactory.createVariableDeclaration;
+  var createVariableDeclarationList = traceur.codegeneration.ParseTreeFactory.createVariableDeclarationList;
   var createVariableStatement = traceur.codegeneration.ParseTreeFactory.createVariableStatement;
 
   // Object.defineProperty(this, 'NAME', {
@@ -95,7 +101,9 @@ traceur.define('codegeneration', function() {
     var elements = tree.sourceElements.map(function(element) {
       switch (element.type) {
         case MODULE_DEFINITION:
-          return transformModule(module, element.asModuleDefinition());
+          return transformDefinition(module, element.asModuleDefinition());
+        case MODULE_DECLARATION:
+          return transformDeclaration(module, element.asModuleDeclaration());
         default:
           return element;
       }
@@ -108,7 +116,7 @@ traceur.define('codegeneration', function() {
    * @param {ModuleDefinitionTree} tree
    * @return {ParseTree}
    */
-  function transformModule(parent, tree) {
+  function transformDefinition(parent, tree) {
     var module = parent.getModule(tree.name.value);
 
     var statements = [];
@@ -129,14 +137,14 @@ traceur.define('codegeneration', function() {
     tree.elements.forEach(function(element) {
       switch (element.type) {
         case MODULE_DEFINITION:
-          statements.push(transformModule(module,
-                                          element.asModuleDefinition()));
+          statements.push(transformDefinition(module,
+                                              element.asModuleDefinition()));
           break;
         case EXPORT_DECLARATION:
           var declaration = element.asExportDeclaration().declaration;
           if (declaration.type == MODULE_DEFINITION) {
-            declaration = transformModule(module,
-                                          declaration.asModuleDefinition());
+            declaration = transformDefinition(module,
+                                              declaration.asModuleDefinition());
           }
           statements.push(declaration);
           break;
@@ -166,6 +174,56 @@ traceur.define('codegeneration', function() {
                 createFunctionExpression(createEmptyParameterList(),
                                          createBlock(statements))),
             thisObject));
+  }
+
+  /**
+   * @param {ModuleSymbol} parent
+   * @param {ModuleDeclarationTree} tree
+   * @return {ParseTree}
+   */
+  function transformDeclaration(parent, tree) {
+    // module m = n, o = p.q, ...;
+    // module m = require('url).n.o.p;
+
+    var list = tree.specifiers.map(transformModuleSpecifier);
+
+    // const a = b.c, d = e.f;
+    // TODO(arv): const is not allowed in ES5 strict
+    var variableDeclarationList = createVariableDeclarationList(TokenType.VAR,
+                                                                list);
+
+    return createVariableStatement(variableDeclarationList);
+  }
+
+  /**
+   * @param {ModuleSpecifierTree}
+   * @return {VariableDeclarationTree}
+   */
+  function transformModuleSpecifier(specifier) {
+    var expression = transformModuleExpression(specifier.expression);
+    return createVariableDeclaration(specifier.identifier, expression);
+  }
+
+  /**
+   * @param {ModuleExpressionTree}
+   * @return {ParseTree}
+   */
+  function transformModuleExpression(tree) {
+    var reference = tree.reference;
+    if (reference.type == ParseTreeType.MODULE_REQUIRE) {
+      throw Error('Not implemented');
+    }
+
+    traceur.assert(reference.type == ParseTreeType.IDENTIFIER_EXPRESSION);
+
+    if (tree.identifiers.length == 0)
+      return reference;
+
+    var idents = tree.identifiers.map(function(token) {
+      return token.value;
+    });
+
+    return createMemberExpression(reference, idents);
   }
 
   ModuleTransformer.prototype = {

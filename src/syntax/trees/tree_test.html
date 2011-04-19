@@ -292,9 +292,25 @@ function testTreeConstructors() {
       ParseTreeType.MIXIN,
       ['location', 'name', 'mixinResolves']);
 
+  validateTree(traceur.syntax.trees.ModuleDeclarationTree,
+      ParseTreeType.MODULE_DECLARATION,
+      ['location', 'specifiers']);
+
   validateTree(traceur.syntax.trees.ModuleDefinitionTree,
       ParseTreeType.MODULE_DEFINITION,
       ['location', 'name', 'elements']);
+
+  validateTree(traceur.syntax.trees.ModuleExpressionTree,
+      ParseTreeType.MODULE_EXPRESSION,
+      ['location', 'reference', 'identifiers']);
+
+  validateTree(traceur.syntax.trees.ModuleRequireTree,
+      ParseTreeType.MODULE_REQUIRE,
+      ['location', 'url']);
+
+  validateTree(traceur.syntax.trees.ModuleSpecifierTree,
+      ParseTreeType.MODULE_SPECIFIER,
+      ['location', 'identifier', 'expression']);
 
   validateTree(traceur.syntax.trees.NewExpressionTree,
       ParseTreeType.NEW_EXPRESSION,
