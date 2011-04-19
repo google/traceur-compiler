@@ -82,6 +82,18 @@ function testNestedDeclarationorts() {
   assertEquals(43, d2.d2);
 }
 
+module m {
+  module n {
+    export var val = 44;
+  }
+  export module o = n, o2 = n;
+}
+
+function testExportModuleDeclaration() {
+  assertEquals(44, m.o.val);
+  assertEquals(44, m.o2.val);
+}
+
 </script>
 <script>
 
@@ -138,6 +150,32 @@ function testInvalidModuleDeclaration4() {
       '  module c = b.d;\n' +
       '}\n';
   var name = 'testInvalidModuleDeclaration4';
+  var errors = compileAndReturnErrors(contents, name);
+
+  assertEquals(1, errors.length);
+  assertEquals('\'%s\' is not a module', errors[0][1]);
+  assertEquals('d', errors[0][2]);
+}
+
+function testInvalidModuleDeclaration5() {
+  var contents = 'module a {\n' +
+      '  export module b = c;\n' +
+      '}\n';
+  var name = 'testInvalidModuleDeclaration5';
+  var errors = compileAndReturnErrors(contents, name);
+
+  assertEquals(1, errors.length);
+  assertEquals('\'%s\' is not a module', errors[0][1]);
+  assertEquals('c', errors[0][2]);
+}
+
+function testInvalidModuleDeclaration6() {
+  var contents = 'module a {\n' +
+      '  export module b {\n' +
+      '    module c = d;\n' +
+      '  }\n' +
+      '}\n';
+  var name = 'testInvalidModuleDeclaration6';
   var errors = compileAndReturnErrors(contents, name);
 
   assertEquals(1, errors.length);

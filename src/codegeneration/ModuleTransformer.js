@@ -142,9 +142,15 @@ traceur.define('codegeneration', function() {
           break;
         case EXPORT_DECLARATION:
           var declaration = element.asExportDeclaration().declaration;
-          if (declaration.type == MODULE_DEFINITION) {
-            declaration = transformDefinition(module,
-                                              declaration.asModuleDefinition());
+          switch (declaration.type) {
+            case MODULE_DEFINITION:
+              declaration = transformDefinition(
+                  module, declaration.asModuleDefinition());
+              break;
+            case MODULE_DECLARATION:
+              declaration = transformDeclaration(
+                  module, declaration.asModuleDeclaration());
+              break;
           }
           statements.push(declaration);
           break;

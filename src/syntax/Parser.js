@@ -480,34 +480,35 @@ traceur.define('syntax', function() {
     parseExportDeclaration_: function() {
       var start = this.getTreeStartLocation_();
       this.eat_(TokenType.EXPORT);
-      var exportVar;
+      var exportTree;
       switch (this.peekType_()) {
         case TokenType.VAR:
         case TokenType.CONST:
-          exportVar = this.parseVariableStatement_();
+          exportTree = this.parseVariableStatement_();
           break;
         case TokenType.FUNCTION:
         case TokenType.POUND:
-          exportVar = this.parseFunctionDeclaration_();
+          exportTree = this.parseFunctionDeclaration_();
           break;
         case TokenType.CLASS:
-          exportVar = this.parseClassDeclaration_();
+          exportTree = this.parseClassDeclaration_();
           break;
         case TokenType.IDENTIFIER:
-          if (this.peekModuleDefinition_()) {
-            exportVar = this.parseModuleDefinition_();
+          if (this.peekModuleDeclaration_()) {
+            exportTree = this.parseModuleDeclaration_();
           } else if (this.peekTraitDeclaration_()) {
-            exportVar = this.parseTraitDeclaration_();
+            exportTree = this.parseTraitDeclaration_();
           } else {
             throw Error('UNDONE: export ModuleLoad | ExportPath');
           }
           break;
         default:
           // unreachable
-          exportVar = null;
+          exportTree = null;
           break;
       }
-      return new ExportDeclarationTree(this.getTreeLocation_(start), exportVar);
+      return new ExportDeclarationTree(this.getTreeLocation_(start),
+                                       exportTree);
     },
 
     // TODO: ModuleLoadRedeclarationList

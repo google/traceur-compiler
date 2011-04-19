@@ -167,6 +167,11 @@ traceur.define('semantics', function() {
                 identifierToken.value);
           }, this);
           break;
+        case MODULE_DECLARATION:
+          exp.specifiers.forEach(function(specifier) {
+            this.declareExport_(module, specifier, specifier.identifier.value);
+          }, this);
+          break;
         case MODULE_DEFINITION:
           this.declareExport_(module, exp, exp.asModuleDefinition().name.value);
           break;
@@ -338,21 +343,33 @@ traceur.define('semantics', function() {
 
     /**
      * @param {ModuleSymbol} parent
+     * @param {ParseTree} element
+     * @private
+     */
+    validateModuleElement_: function(parent, tree) {
+      switch (tree.type) {
+        case MODULE_DECLARATION:
+          this.validateModuleDeclaration_(parent, tree);
+          break;
+        case MODULE_DEFINITION:
+          var name = tree.name.value;
+          var module = parent.getModule(name);
+          this.validateModuleElements_(module, tree.elements);
+          break;
+        case EXPORT_DECLARATION:
+          this.validateModuleElement_(parent, tree.declaration);
+          break;
+      }
+    },
+
+    /**
+     * @param {ModuleSymbol} parent
      * @param {Array.<ParseTree>} elements
      * @private
      */
     validateModuleElements_: function(parent, elements) {
       elements.forEach(function(element) {
-        switch (element.type) {
-          case MODULE_DECLARATION:
-            this.validateModuleDeclaration_(parent, element);
-            break;
-          case MODULE_DEFINITION:
-            var name = element.name.value;
-            var module = parent.getModule(name);
-            this.validateModuleElements_(module, element.elements);
-            break;
-        }
+        this.validateModuleElement_(parent, element);
       }, this);
     },
 
