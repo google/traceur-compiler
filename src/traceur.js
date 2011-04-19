@@ -175,6 +175,7 @@ var traceur = (function() {
     'semantics/SemanticAnalyzer.js',
     'codegeneration/Compiler.js',
     'runtime.js',
+    'util/traits.js',
   ];
   scripts.forEach(importScript);
 

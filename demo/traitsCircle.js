@@ -4,7 +4,7 @@
 // *** Original Trait.js version
 
 var TEquality = Trait({
-   equals: Trait.required,
+  equals: Trait.required,
   differs: function(x) { return !this.equals(x); }
 });
 
@@ -25,17 +25,17 @@ function TColor(rgb) {
 
 function TCircle(center, radius, rgb) {
   return Trait.compose(
-    TMagnitude,
-    TEquality,
-    Trait.resolve({ equals: 'equalColors' }, TColor(rgb)),
-    Trait({
-       center: center,
-       radius: radius,
-         area: function() { return Math.PI * this.radius * this.radius; },
-       equals: function(c) { return c.center === this.center &&
-                                    r.radius === this.radius },
-      smaller: function(c) { return this.radius < c.radius }
-  }));
+      TMagnitude,
+      TEquality,
+      Trait.resolve({ equals: 'equalColors' }, TColor(rgb)),
+      Trait({
+        center: center,
+        radius: radius,
+        area: function() { return Math.PI * this.radius * this.radius; },
+        equals: function(c) { return c.center === this.center &&
+              r.radius === this.radius },
+        smaller: function(c) { return this.radius < c.radius }
+      }));
 }
 
 function Circle(center, radius, rgb) {
@@ -43,10 +43,10 @@ function Circle(center, radius, rgb) {
                        TCircle(center, radius, rgb));
 }
 
-var c1 = Circle(new Point(0,0), 1, new Color(255,0,0));
-var c2 = Circle(new Point(0,0), 2, new Color(255,0,0));
-c1.smaller(c2) // true
-c1.differs(c2) // true
+var c1 = Circle(new Point(0, 0), 1, new Color(255, 0, 0));
+var c2 = Circle(new Point(0, 0), 2, new Color(255, 0, 0));
+c1.smaller(c2); // true
+c1.differs(c2); // true
 
 
 // *** Traceur version:
@@ -55,7 +55,9 @@ c1.differs(c2) // true
 
 trait TEquality {
   requires equals;
-  function differs(x) { return !this.equals(x); }
+  function differs(x) {
+    return !this.equals(x);
+  }
 }
 
 trait TMagnitude {
@@ -63,7 +65,9 @@ trait TMagnitude {
     mixin TEquality;
   }
   requires smaller;
-  function greater(x) { return !this.smaller(x) && this.differs(x) }
+  function greater(x) {
+    return !this.smaller(x) && this.differs(x);
+  }
   function between(min, max) {
     return min.smaller(this) && this.smaller(max);
   }
@@ -87,13 +91,18 @@ class Circle {
     this.radius = radius;
   }
 
-  function area() { return Math.PI * this.radius * this.radius; }
-  function equals(c) { return c.center === this.center &&
-                                    r.radius === this.radius }
-  function smaller(c) { return this.radius < c.radius }
+  function area() {
+    return Math.PI * this.radius * this.radius;
+  }
+  function equals(c) {
+    return c.center === this.center && r.radius === this.radius;
+  }
+  function smaller(c) {
+    return this.radius < c.radius;
+  }
 }
 
-var c1 = Circle(new Point(0,0), 1, new Color(255,0,0));
-var c2 = Circle(new Point(0,0), 2, new Color(255,0,0));
-c1.smaller(c2) // true
-c1.differs(c2) // true
+var c1 = new Circle(new Point(0, 0), 1, new Color(255, 0, 0));
+var c2 = new Circle(new Point(0, 0), 2, new Color(255, 0, 0));
+c1.smaller(c2); // true
+c1.differs(c2); // true
