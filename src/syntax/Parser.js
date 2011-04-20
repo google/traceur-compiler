@@ -542,7 +542,7 @@ traceur.define('syntax', function() {
       var specifiers = [this.parseModuleSpecifier_()];
       while (this.peek_(TokenType.COMMA)) {
         this.eat_(TokenType.COMMA);
-        specifiers.push(this.parseModuleSpecifier_())
+        specifiers.push(this.parseModuleSpecifier_());
       }
       this.eatPossibleImplicitSemiColon_();
       return new ModuleDeclarationTree(this.getTreeLocation_(start),
@@ -867,7 +867,7 @@ traceur.define('syntax', function() {
     peekConstructorDeclaration_: function() {
       var index = this.peek_(TokenType.CLASS) ? 1 : 0;
       return this.peek_(TokenType.NEW, index) &&
-          this.peek_(TokenType.OPEN_PAREN, index +1);
+          this.peek_(TokenType.OPEN_PAREN, index + 1);
     },
 
     /**

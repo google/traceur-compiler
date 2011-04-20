@@ -123,7 +123,7 @@ traceur.define('codegeneration', function() {
 
       return tree;
     }
-  }
+  };
 
   /**
    * This pass just finds function bodies with yields in them and passes them off to

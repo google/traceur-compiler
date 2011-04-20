@@ -133,7 +133,7 @@ traceur.define('codegeneration', function() {
         // TODO(arv): ParseTreeValidator.validate(tree);
         // generator must come after foreach and rest parameters
         tree = GeneratorTransformPass.transformTree(
-              this.identifierGenerator_, this.reporter_, tree).asProgram();
+            this.identifierGenerator_, this.reporter_, tree).asProgram();
       }
       if (!this.reporter_.hadError()) {
         // TODO(arv): ParseTreeValidator.validate(tree);

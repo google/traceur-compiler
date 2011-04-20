@@ -114,9 +114,9 @@ traceur.define('codegeneration', function() {
    * @constructor
    */
   function Scope(parent, type) {
-      //
-      this.parent = parent;
-      this.type = type;
+    //
+    this.parent = parent;
+    this.type = type;
   }
   Scope.prototype = {
     /** Block scoped variables accumulated within the block. */
@@ -560,8 +560,8 @@ traceur.define('codegeneration', function() {
                       // let x = $x;
                       createVariableDeclarationList(
                           TokenType.LET, copyFwd)),
-                      // try { ... } finally { copyBak }
-                      createTryStatement(
+          // try { ... } finally { copyBak }
+          createTryStatement(
                           // try - the original for loop body
                           tree.body,
                           // catch (none)
@@ -594,7 +594,7 @@ traceur.define('codegeneration', function() {
             createAssignmentExpression(
                 createIdentifierExpression(tree.name),
                 createFunctionExpression(tree.formalParameterList, body)));
-      } else if (body != tree.functionBody){
+      } else if (body != tree.functionBody) {
         return createFunctionDeclaration(
             tree.name, tree.formalParameterList, body);
       } else {
@@ -756,7 +756,7 @@ traceur.define('codegeneration', function() {
           return createExpressionStatement(comma[0]);
         default:
           // Turn comma into statements
-          for (var i = 0; i < comma.length; i ++) {
+          for (var i = 0; i < comma.length; i++) {
             comma[i] = createExpressionStatement(comma[i]);
           }
           return createBlock(comma);

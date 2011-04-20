@@ -18,6 +18,10 @@ try {
 } catch (e) {
 }
 
+
+/**
+ * The traceur runtime.
+ */
 traceur.runtime = (function() {
   var map = {};
 
@@ -298,7 +302,7 @@ traceur.runtime = (function() {
   function spread(items) {
     var retval = [];
     for (var i = 0; i < items.length; i += 2) {
-      if(items[i]) {
+      if (items[i]) {
         if (items[i + 1] == null)
           continue;
         if (typeof items[i + 1] != 'object')
@@ -319,7 +323,7 @@ traceur.runtime = (function() {
   function spreadNew(ctor, items) {
     var object = Object.create(ctor.prototype);
     var retval = ctor.apply(object, spread(items));
-    return retval && typeof retval == 'object' ? retval: object;
+    return retval && typeof retval == 'object' ? retval : object;
   };
 
   /**

@@ -24,7 +24,7 @@ traceur.define('semantics.symbols', function() {
   function addAll(self, other) {
     for (key in other) {
       self[key] = other[key];
-    };
+    }
   }
 
   function values(map) {

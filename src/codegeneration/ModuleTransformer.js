@@ -66,17 +66,17 @@ traceur.define('codegeneration', function() {
                 createIdentifierExpression(name))));
     // { get: ... }
     var objectLiteral = createObjectLiteralExpression(
-      createPropertyNameAssignment(PredefinedName.GET, fun),
-      createPropertyNameAssignment(PredefinedName.ENUMERABLE,
-                                   createTrueLiteral()));
+        createPropertyNameAssignment(PredefinedName.GET, fun),
+        createPropertyNameAssignment(PredefinedName.ENUMERABLE,
+        createTrueLiteral()));
 
     return createCallExpression(
-      createMemberExpression(PredefinedName.OBJECT,
-                             PredefinedName.DEFINE_PROPERTY),
-      createArgumentList(
-          createThisExpression(),
-          createStringLiteral(name),
-          objectLiteral));
+        createMemberExpression(PredefinedName.OBJECT,
+        PredefinedName.DEFINE_PROPERTY),
+        createArgumentList(
+        createThisExpression(),
+        createStringLiteral(name),
+        objectLiteral));
   }
 
   /**
@@ -168,9 +168,9 @@ traceur.define('codegeneration', function() {
 
     // Object.create(null)
     var thisObject = createCallExpression(
-      createMemberExpression(PredefinedName.OBJECT,
-                             PredefinedName.CREATE),
-      createArgumentList(createNullLiteral()));
+        createMemberExpression(PredefinedName.OBJECT,
+        PredefinedName.CREATE),
+        createArgumentList(createNullLiteral()));
 
     // const M = (function() { statements }).call(thisObject);
     // TODO(arv): const is not allowed in ES5 strict
@@ -202,7 +202,7 @@ traceur.define('codegeneration', function() {
   }
 
   /**
-   * @param {ModuleSpecifierTree}
+   * @param {ModuleSpecifierTree} specifier
    * @return {VariableDeclarationTree}
    */
   function transformModuleSpecifier(specifier) {
@@ -211,7 +211,7 @@ traceur.define('codegeneration', function() {
   }
 
   /**
-   * @param {ModuleExpressionTree}
+   * @param {ModuleExpressionTree} tree
    * @return {ParseTree}
    */
   function transformModuleExpression(tree) {

@@ -166,7 +166,7 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {AggregateSymbol}
+     * @param {AggregateSymbol} sym
      * @return {ParseTree}
      */
     createMixins_: function(sym) {

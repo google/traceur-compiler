@@ -41,7 +41,7 @@ traceur.define('semantics.symbols', function() {
      * @return {void}
      */
     addModule: function(module) {
-      this.addModuleWithName(module, module.name); 
+      this.addModuleWithName(module, module.name);
     },
 
     /**

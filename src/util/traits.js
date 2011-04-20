@@ -15,6 +15,10 @@
 // See http://code.google.com/p/es-lab/wiki/Traits
 // for background on traits and a description of this library
 
+
+/**
+ * The traceur runtime (trait).
+ */
 traceur.runtime.trait = (function() {
 
   var call = Function.prototype.call;
@@ -39,7 +43,7 @@ traceur.runtime.trait = (function() {
 
   function makeConflictAccessor(name) {
     var accessor = function(var_args) {
-      throw new Error('Conflicting property: '+ name);
+      throw new Error('Conflicting property: ' + name);
     };
     freeze(accessor.prototype);
     return freeze(accessor);
@@ -88,12 +92,12 @@ traceur.runtime.trait = (function() {
     if (desc1.conflict && desc2.conflict) {
       return true;
     } else {
-      return (desc1.get === desc2.get
-              && desc1.set === desc2.set
-              && identical(desc1.value, desc2.value)
-              && desc1.enumerable === desc2.enumerable
-              && desc1.required === desc2.required
-              && desc1.conflict === desc2.conflict);
+      return (desc1.get === desc2.get &&
+              desc1.set === desc2.set &&
+              identical(desc1.value, desc2.value) &&
+              desc1.enumerable === desc2.enumerable &&
+              desc1.required === desc2.required &&
+              desc1.conflict === desc2.conflict);
     }
   }
 
@@ -130,9 +134,9 @@ traceur.runtime.trait = (function() {
   /**
    * var newTrait = trait({ foo:required, ... })
    *
-   * @param object an object record (in principle an object literal).
-   * @return a new trait describing all of the own properties of the object
-   *          (both enumerable and non-enumerable)
+   * @param {Object} object an object record (in principle an object literal).
+   * @return {Object} a new trait describing all of the own
+   *     properties of the object (both enumerable and non-enumerable).
    *
    * As a general rule, 'trait' should be invoked with an object
    * literal, since the object merely serves as a record
@@ -175,8 +179,8 @@ traceur.runtime.trait = (function() {
   /**
    * var newTrait = compose(trait_1, trait_2, ..., trait_N)
    *
-   * @param trait_i a trait object.
-   * @return a new trait containing the combined own properties of
+   * @param {Object} trait_i a trait object.
+   * @return {Object} a new trait containing the combined own properties of
    *          all the trait_i.
    *
    * If two or more traits have own properties with the same name, the new
@@ -202,14 +206,15 @@ traceur.runtime.trait = (function() {
           // defined this is not a conflict if pd represents a
           // 'required' property itself:
           if (pd.required) {
-            return; // skip this property, the required property is
-   	            // now present
+            // skip this property, the required property is
+            // now present
+            return;
           }
 
           if (!isSameDesc(newTrait[name], pd)) {
             // a distinct, non-required property with the same name
             // was previously defined by another trait => mark as
-	    // conflicting property
+            // conflicting property
             newTrait[name] = makeConflictingPropDesc(name);
           } // else,
           // properties are not in conflict if they refer to the same value
@@ -253,7 +258,7 @@ traceur.runtime.trait = (function() {
   /**
    * var newTrait = override(trait_1, trait_2, ..., trait_N)
    *
-   * @return a new trait with all of the combined properties of the
+   * @return {Object} a new trait with all of the combined properties of the
    *          argument traits.  In contrast to 'compose', 'override'
    *          immediately resolves all conflicts resulting from this
    *          composition by overriding the properties of later
@@ -289,8 +294,8 @@ traceur.runtime.trait = (function() {
   /**
    * var newTrait = override(dominantTrait, recessiveTrait)
    *
-   * @return a new trait with all of the properties of dominantTrait
-   *          and all of the properties of recessiveTrait not in dominantTrait
+   * @return {Object} a new trait with all of the properties of dominantTrait
+   *          and all of the properties of recessiveTrait not in dominantTrait.
    *
    * Note: override is associative:
    *   override(t1, override(t2, t3)) is equivalent to
@@ -317,17 +322,17 @@ traceur.runtime.trait = (function() {
   /**
    * var newTrait = rename(map, trait)
    *
-   * @param map an object whose own properties serve as a mapping from
+   * @param {Object} map an object whose own properties serve as a mapping from
             old names to new names.
-   * @param trait a trait object.
-   * @return a new trait with the same properties as the original trait,
-   *          except that all properties whose name is an own property
-   *          of map will be renamed to map[name], and a 'required' property
-   *          for name will be added instead.
+   * @param {Object} trait a trait object.
+   * @return {Object} a new trait with the same properties as the original
+   *         trait, except that all properties whose name is an own property
+   *         of map will be renamed to map[name], and a 'required' property
+   *         for name will be added instead.
    *
-   * rename({a: 'b'}, t) eqv compose(exclude(['a'],t),
+   * rename( {a: 'b'} , t) eqv compose(exclude(['a'],t),
    *                                 { a: { required: true },
-   *                                   b: t[a] })
+   *                                   b: t[a] }).
    *
    * For each renamed property, a required property is generated.  If
    * the map renames two properties to the same name, a conflict is
@@ -345,7 +350,7 @@ traceur.runtime.trait = (function() {
       if (hasOwnProperty(map, name) && !trait[name].required) {
         var alias = map[name]; // alias defined in map
         if (hasOwnProperty(renamedTrait, alias) &&
-	    !renamedTrait[alias].required) {
+            !renamedTrait[alias].required) {
           // could happen if 2 props are mapped to the same alias
           renamedTrait[alias] = makeConflictingPropDesc(alias);
         } else {
@@ -386,11 +391,11 @@ traceur.runtime.trait = (function() {
    * mappings from oldName to newName and exclusions is an array of
    * all the keys that map to undefined (or another falsy value).
    *
-   * @param resolutions an object whose own properties serve as a
+   * @param {Object} resolutions an object whose own properties serve as a
             mapping from old names to new names, or to undefined if
             the property should be excluded.
-   * @param trait a trait object.
-   * @return a resolved trait with the same own properties as the
+   * @param {Object} trait a trait object.
+   * @return {Object} a resolved trait with the same own properties as the
    * original trait.
    *
    * In a resolved trait, all own properties whose name is an own property
@@ -400,9 +405,9 @@ traceur.runtime.trait = (function() {
    *
    * Note, it's important to _first_ exclude, _then_ rename, since exclude
    * and rename are not associative, for example:
-   * rename({a: 'b'}, exclude(['b'], trait({ a:1,b:2 }))) eqv trait({b:1})
+   * rename( {a: 'b'} , exclude(['b'], trait({ a:1,b:2 }))) eqv trait({b:1})
    * exclude(['b'], rename({a: 'b'}, trait({ a:1,b:2 }))) eqv
-   * trait({b:Trait.required})
+   * trait({b:Trait.required}).
    *
    * writing resolve({a:'b', b: undefined},trait({a:1,b:2})) makes it
    * clear that what is meant is to simply drop the old 'b' and rename
@@ -427,9 +432,10 @@ traceur.runtime.trait = (function() {
   /**
    * var obj = create(proto, trait)
    *
-   * @param proto denotes the prototype of the completed object.
-   * @param trait a trait object to be turned into a complete object.
-   * @return an object with all of the properties described by the trait.
+   * @param {Object} proto denotes the prototype of the completed object.
+   * @param {Object} trait a trait object to be turned into a complete object.
+   * @return {Object} an object with all of the properties described by the
+   *         trait.
    * @throws 'Missing required property' the trait still contains a
    *         required property.
    * @throws 'Remaining conflicting property' if the trait still
@@ -508,7 +514,9 @@ traceur.runtime.trait = (function() {
    * names n, T1[n] is equivalent to T2[n]. Two property descriptors are
    * equivalent if they have the same value, accessors and attributes.
    *
-   * @return a boolean indicating whether the two argument traits are
+   * @param {Object} trait1 a trait object.
+   * @param {Object} trait2 a trait object.
+   * @return {boolean} a boolean indicating whether the two argument traits are
    *         equivalent.
    */
   function eqv(trait1, trait2) {
