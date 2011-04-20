@@ -19,6 +19,9 @@
   var SourceRange = traceur.util.SourceRange;
   var TokenType = traceur.syntax.TokenType;
   var PredefinedName = traceur.syntax.PredefinedName;
+  var ErrorReporter = traceur.util.ErrorReporter;
+  var SourceFile = traceur.syntax.SourceFile;
+  var Keywords = traceur.syntax.Keywords;
 
   var Classification = {
     ERROR: 'error',
@@ -46,7 +49,10 @@
 
   /**
    * Classifies javascript tokens into their token category. This can be used
-   * for colorization
+   * for colorization.
+   *
+   * TODO(jmesserly): regex and contextual keywords need a parse to be colorized
+   * correctly.
    *
    * @param {ErrorReport} errorReporter
    * @param {SourceFile} file
@@ -128,61 +134,6 @@
           }
           break;
 
-        case TokenType.BREAK:
-        case TokenType.CASE:
-        case TokenType.CATCH:
-        case TokenType.CONTINUE:
-        case TokenType.DEBUGGER:
-        case TokenType.DEFAULT:
-        case TokenType.DELETE:
-        case TokenType.DO:
-        case TokenType.ELSE:
-        case TokenType.FINALLY:
-        case TokenType.FOR:
-        case TokenType.FUNCTION:
-        case TokenType.IF:
-        case TokenType.IN:
-        case TokenType.INSTANCEOF:
-        case TokenType.NEW:
-        case TokenType.RETURN:
-        case TokenType.SWITCH:
-        case TokenType.THIS:
-        case TokenType.THROW:
-        case TokenType.TRY:
-        case TokenType.TYPEOF:
-        case TokenType.VAR:
-        case TokenType.VOID:
-        case TokenType.WHILE:
-        case TokenType.WITH:
-        case TokenType.CLASS:
-        case TokenType.CONST:
-        case TokenType.ENUM:
-        case TokenType.EXPORT:
-        case TokenType.EXTENDS:
-        case TokenType.IMPORT:
-        case TokenType.SUPER:
-        case TokenType.IMPLEMENTS:
-        case TokenType.INTERFACE:
-        case TokenType.LET:
-        case TokenType.PACKAGE:
-        case TokenType.PRIVATE:
-        case TokenType.PROTECTED:
-        case TokenType.PUBLIC:
-        case TokenType.STATIC:
-        case TokenType.YIELD:
-        case TokenType.AWAIT:
-
-        // These are treated as keywords in other colorizers
-        case TokenType.NULL:
-        case TokenType.TRUE:
-        case TokenType.FALSE:
-
-        // Seems like this should be colorized as a keyword, since it's a
-        // short form of "function"
-        case TokenType.POUND:
-          c = Classification.KEYWORD;
-          break;
-
         case TokenType.OPEN_CURLY:
         case TokenType.CLOSE_CURLY:
         case TokenType.OPEN_PAREN:
@@ -248,9 +199,24 @@
           c = Classification.REGEX;
           break;
 
+        // These are treated as keywords in other colorizers
+        case TokenType.NULL:
+        case TokenType.TRUE:
+        case TokenType.FALSE:
+
+        // Seems like this should be colorized as a keyword, since it's a
+        // short form of "function"
+        case TokenType.POUND:
+          c = Classification.KEYWORD;
+          break;
+
         case TokenType.END_OF_FILE:
         default:
-          // We're done, or we didn't understand something. Exit.
+          if (Keywords.isKeyword(token.type)) {
+            c = Classification.KEYWORD;
+            break;
+          }
+          // EOF, or we didn't understand something. Exit.
           return token;
       }
       this.pushResult_(c, token.location);
@@ -263,9 +229,8 @@
    * @return {Array.<Classification>}
    */
   function getClassifiedTokens(source) {
-    var errors = new traceur.util.ErrorReporter();
-    var sourceFile = new traceur.syntax.SourceFile('inline-script', source);
-    var classifier = new Classifier(errors, sourceFile);
+    var sourceFile = new SourceFile('inline-script', source);
+    var classifier = new Classifier(new ErrorReporter(), sourceFile);
 
     while (classifier.nextToken().type !== TokenType.END_OF_FILE) {
     }
@@ -294,6 +259,8 @@
     Array.prototype.forEach.call(scripts, function(preElement) {
       // get textContent to strip out existing <span >tags
       var source = preElement.textContent;
+
+      source = classifySource(source);
 
       // write it back as innerHTML to preserve <span> tags
       preElement.innerHTML = classifySource(source);
