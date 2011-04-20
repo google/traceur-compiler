@@ -679,9 +679,10 @@ traceur.define('syntax.trees', function() {
     /**
      * @param {traceur.util.SourceRange} location
      * @param {ParseTree} expression
+     * @param {boolean} isYieldFor
      * @constructor
      * @extends {ParseTree}
      */
-    YieldStatementTree: create(ParseTreeType.YIELD_STATEMENT, 'expression')
+    YieldStatementTree: create(ParseTreeType.YIELD_STATEMENT, 'expression', 'isYieldFor')
   };
 });

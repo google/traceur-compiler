@@ -1569,11 +1569,17 @@ traceur.define('syntax', function() {
       var start = this.getTreeStartLocation_();
       this.eat_(TokenType.YIELD);
       var expression = null;
+      var isYieldFor = false;
+      if (this.peek_(TokenType.FOR)) {
+        this.eat_(TokenType.FOR);
+        isYieldFor = true;
+      }
       if (!this.peekImplicitSemiColon_()) {
         expression = this.parseExpression_();
       }
       this.eatPossibleImplicitSemiColon_();
-      return new YieldStatementTree(this.getTreeLocation_(start), expression);
+      return new YieldStatementTree(
+          this.getTreeLocation_(start), expression, isYieldFor);
     },
 
     // Harmony?: The await Statement

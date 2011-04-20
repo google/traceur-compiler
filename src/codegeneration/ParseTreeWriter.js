@@ -875,6 +875,9 @@ traceur.define('codegeneration', function() {
      */
     visitYieldStatementTree: function(tree) {
       this.write_(TokenType.YIELD);
+      if (tree.isYieldFor) {
+        this.write_(TokenType.FOR);
+      }
       this.visitAny(tree.expression);
       this.write_(TokenType.SEMI_COLON);
     },

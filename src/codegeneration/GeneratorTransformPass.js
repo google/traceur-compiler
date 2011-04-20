@@ -21,10 +21,18 @@ traceur.define('codegeneration', function() {
   var SetAccessorTree = traceur.syntax.trees.SetAccessorTree;
 
   var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
+  var ForEachTransformer = traceur.codegeneration.ForEachTransformer;
 
   var ForInTransformPass = traceur.codegeneration.generator.ForInTransformPass;
   var GeneratorTransformer = traceur.codegeneration.generator.GeneratorTransformer;
   var AsyncTransformer = traceur.codegeneration.generator.AsyncTransformer;
+
+  var createForEachStatement = traceur.codegeneration.ParseTreeFactory.createForEachStatement;
+  var createVariableDeclarationList = traceur.codegeneration.ParseTreeFactory.createVariableDeclarationList;
+  var createYieldStatement = traceur.codegeneration.ParseTreeFactory.createYieldStatement;
+  var createIdentifierExpression = traceur.codegeneration.ParseTreeFactory.createIdentifierExpression;
+
+  var TokenType = traceur.syntax.TokenType;
 
   /**
    * Can tell you if function body contains a yield statement. Does not search into
@@ -41,6 +49,7 @@ traceur.define('codegeneration', function() {
     __proto__: ParseTreeVisitor.prototype,
 
     hasYield: false,
+    hasYieldFor: false,
     hasForIn: false,
     hasAsync: false,
 
@@ -52,6 +61,7 @@ traceur.define('codegeneration', function() {
     /** @param {YieldStatementTree} tree */
     visitYieldStatementTree: function(tree) {
       this.hasYield = true;
+      this.hasYieldFor = tree.isYieldFor;
     },
 
     /** @param {AwaitStatementTree} tree */
@@ -71,6 +81,49 @@ traceur.define('codegeneration', function() {
     visitGetAccessorTree: function(tree) {}
   };
 
+  /**
+   * This transformer turns "yield for E" into a ForEach that
+   * contains a yield and is lowered by the ForEachTransformer.
+   */
+  function YieldForTransformer(identifierGenerator) {
+    ParseTreeTransformer.call(this);
+    this.identifierGenerator_ = identifierGenerator;
+  }
+
+  YieldForTransformer.transformTree = function(identifierGenerator, tree) {
+    return new YieldForTransformer(identifierGenerator).transformAny(tree);
+  };
+
+  YieldForTransformer.prototype = {
+    __proto__: ParseTreeTransformer.prototype,
+
+    transformYieldStatementTree: function(tree) {
+      if (tree.isYieldFor) {
+        // yield for E
+        //   becomes
+        // for (var $TEMP : E) { yield $TEMP; }
+
+        var id = createIdentifierExpression(this.identifierGenerator_.generateUniqueIdentifier());
+
+        var forEach = createForEachStatement(
+            createVariableDeclarationList(
+                TokenType.VAR,
+                id,
+                null // initializer
+            ),
+            tree.expression,
+            createYieldStatement(id, false /* isYieldFor */));
+
+        var result = ForEachTransformer.transformTree(
+            this.identifierGenerator_,
+            forEach);
+
+        return result;
+      }
+
+      return tree;
+    }
+  }
 
   /**
    * This pass just finds function bodies with yields in them and passes them off to
@@ -128,6 +181,10 @@ traceur.define('codegeneration', function() {
       // We need to transform for-in loops because the object key iteration cannot be interrupted.
       if (finder.hasForIn) {
         body = ForInTransformPass.transformTree(this.identifierGenerator_, body).asBlock();
+      }
+
+      if (finder.hasYieldFor) {
+        body = YieldForTransformer.transformTree(this.identifierGenerator_, body).asBlock();
       }
 
       var transformed;

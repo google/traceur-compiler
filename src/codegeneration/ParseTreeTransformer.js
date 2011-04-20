@@ -1287,10 +1287,11 @@ traceur.define('codegeneration', function() {
      */
     transformYieldStatementTree: function(tree) {
       var expression = this.transformAny(tree.expression);
+      var isYieldFor = tree.isYieldFor;
       if (expression == tree.expression) {
         return tree;
       }
-      return createYieldStatement(expression);
+      return createYieldStatement(expression, isYieldFor);
     }
   };
 

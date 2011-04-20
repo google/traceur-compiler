@@ -936,10 +936,11 @@ traceur.define('codegeneration', function() {
 
   /**
    * @param {ParseTree} expression
+   * @param {boolean} isYieldFor
    * @return {YieldStatementTree}
    */
-  function createYieldStatement(expression) {
-    return new YieldStatementTree(null, expression);
+  function createYieldStatement(expression, isYieldFor) {
+    return new YieldStatementTree(null, expression, isYieldFor);
   }
 
   /**
