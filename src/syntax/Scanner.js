@@ -834,7 +834,8 @@ traceur.define('syntax', function() {
 
     nextChar_: function() {
       if (this.isAtEnd_()) {
-        return '\0';
+        // Work around strict mode bug in Chrome.
+        return '\x00';
       }
       return this.source_.contents.charAt(this.index_++);
     },
@@ -844,7 +845,8 @@ traceur.define('syntax', function() {
     },
 
     peekChar_: function(opt_offset) {
-      return this.source_.contents.charAt(this.index_ + (opt_offset || 0)) || '\0';
+      // Work around strict mode bug in Chrome.
+      return this.source_.contents.charAt(this.index_ + (opt_offset || 0)) || '\x00';
     },
 
     reportError_: function(var_args) {
