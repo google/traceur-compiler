@@ -69,16 +69,16 @@ traceur.define('codegeneration', function() {
   var createYieldStatement = ParseTreeFactory.createYieldStatement;
 
 
-  var AwaitStatementTree = traceur.syntax.trees.AwaitStatementTree;
-  var ExportDeclarationTree = traceur.syntax.trees.ExportDeclarationTree;
-  var ImportDeclarationTree = traceur.syntax.trees.ImportDeclarationTree;
+  var AwaitStatement = traceur.syntax.trees.AwaitStatement;
+  var ExportDeclaration = traceur.syntax.trees.ExportDeclaration;
+  var ImportDeclaration = traceur.syntax.trees.ImportDeclaration;
   var ImportPathTree = traceur.syntax.trees.ImportPathTree;
-  var ModuleDeclarationTree = traceur.syntax.trees.ModuleDeclarationTree;
-  var ModuleDefinitionTree = traceur.syntax.trees.ModuleDefinitionTree;
-  var ModuleExpressionTree = traceur.syntax.trees.ModuleExpressionTree;
-  var ModuleSpecifierTree = traceur.syntax.trees.ModuleSpecifierTree;
+  var ModuleDeclaration = traceur.syntax.trees.ModuleDeclaration;
+  var ModuleDefinition = traceur.syntax.trees.ModuleDefinition;
+  var ModuleExpression = traceur.syntax.trees.ModuleExpression;
+  var ModuleSpecifier = traceur.syntax.trees.ModuleSpecifier;
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var ProgramTree = traceur.syntax.trees.ProgramTree;
+  var Program = traceur.syntax.trees.Program;
 
   var ARGUMENT_LIST = ParseTreeType.ARGUMENT_LIST;
   var ARRAY_LITERAL_EXPRESSION = ParseTreeType.ARRAY_LITERAL_EXPRESSION;
@@ -181,159 +181,159 @@ traceur.define('codegeneration', function() {
 
       switch (tree.type) {
         case ARGUMENT_LIST:
-          return this.transformArgumentListTree(tree.asArgumentList());
+          return this.transformArgumentList(tree.asArgumentList());
         case ARRAY_LITERAL_EXPRESSION:
-          return this.transformArrayLiteralExpressionTree(tree.asArrayLiteralExpression());
+          return this.transformArrayLiteralExpression(tree.asArrayLiteralExpression());
         case ARRAY_PATTERN:
-          return this.transformArrayPatternTree(tree.asArrayPattern());
+          return this.transformArrayPattern(tree.asArrayPattern());
         case AWAIT_STATEMENT:
-          return this.transformAwaitStatementTree(tree.asAwaitStatement());
+          return this.transformAwaitStatement(tree.asAwaitStatement());
         case BINARY_OPERATOR:
-          return this.transformBinaryOperatorTree(tree.asBinaryOperator());
+          return this.transformBinaryOperator(tree.asBinaryOperator());
         case BLOCK:
-          return this.transformBlockTree(tree.asBlock());
+          return this.transformBlock(tree.asBlock());
         case BREAK_STATEMENT:
-          return this.transformBreakStatementTree(tree.asBreakStatement());
+          return this.transformBreakStatement(tree.asBreakStatement());
         case CALL_EXPRESSION:
-          return this.transformCallExpressionTree(tree.asCallExpression());
+          return this.transformCallExpression(tree.asCallExpression());
         case CASE_CLAUSE:
-          return this.transformCaseClauseTree(tree.asCaseClause());
+          return this.transformCaseClause(tree.asCaseClause());
         case CATCH:
-          return this.transformCatchTree(tree.asCatch());
+          return this.transformCatch(tree.asCatch());
         case CLASS_DECLARATION:
-          return this.transformClassDeclarationTree(tree.asClassDeclaration());
+          return this.transformClassDeclaration(tree.asClassDeclaration());
         case CLASS_EXPRESSION:
-          return this.transformClassExpressionTree(tree.asClassExpression());
+          return this.transformClassExpression(tree.asClassExpression());
         case COMMA_EXPRESSION:
-          return this.transformCommaExpressionTree(tree.asCommaExpression());
+          return this.transformCommaExpression(tree.asCommaExpression());
         case CONDITIONAL_EXPRESSION:
-          return this.transformConditionalExpressionTree(tree.asConditionalExpression());
+          return this.transformConditionalExpression(tree.asConditionalExpression());
         case CONTINUE_STATEMENT:
-          return this.transformContinueStatementTree(tree.asContinueStatement());
+          return this.transformContinueStatement(tree.asContinueStatement());
         case DEBUGGER_STATEMENT:
-          return this.transformDebuggerStatementTree(tree.asDebuggerStatement());
+          return this.transformDebuggerStatement(tree.asDebuggerStatement());
         case DEFAULT_CLAUSE:
-          return this.transformDefaultClauseTree(tree.asDefaultClause());
+          return this.transformDefaultClause(tree.asDefaultClause());
         case DEFAULT_PARAMETER:
-          return this.transformDefaultParameterTree(tree.asDefaultParameter());
+          return this.transformDefaultParameter(tree.asDefaultParameter());
         case DO_WHILE_STATEMENT:
-          return this.transformDoWhileStatementTree(tree.asDoWhileStatement());
+          return this.transformDoWhileStatement(tree.asDoWhileStatement());
         case EMPTY_STATEMENT:
-          return this.transformEmptyStatementTree(tree.asEmptyStatement());
+          return this.transformEmptyStatement(tree.asEmptyStatement());
         case EXPORT_DECLARATION:
-          return this.transformExportDeclarationTree(tree.asExportDeclaration());
+          return this.transformExportDeclaration(tree.asExportDeclaration());
         case EXPRESSION_STATEMENT:
-          return this.transformExpressionStatementTree(tree.asExpressionStatement());
+          return this.transformExpressionStatement(tree.asExpressionStatement());
         case FIELD_DECLARATION:
-          return this.transformFieldDeclarationTree(tree.asFieldDeclaration());
+          return this.transformFieldDeclaration(tree.asFieldDeclaration());
         case FINALLY:
-          return this.transformFinallyTree(tree.asFinally());
+          return this.transformFinally(tree.asFinally());
         case FOR_EACH_STATEMENT:
-          return this.transformForEachStatementTree(tree.asForEachStatement());
+          return this.transformForEachStatement(tree.asForEachStatement());
         case FOR_IN_STATEMENT:
-          return this.transformForInStatementTree(tree.asForInStatement());
+          return this.transformForInStatement(tree.asForInStatement());
         case FOR_STATEMENT:
-          return this.transformForStatementTree(tree.asForStatement());
+          return this.transformForStatement(tree.asForStatement());
         case FORMAL_PARAMETER_LIST:
-          return this.transformFormalParameterListTree(tree.asFormalParameterList());
+          return this.transformFormalParameterList(tree.asFormalParameterList());
         case FUNCTION_DECLARATION:
-          return this.transformFunctionDeclarationTree(tree.asFunctionDeclaration());
+          return this.transformFunctionDeclaration(tree.asFunctionDeclaration());
         case GET_ACCESSOR:
-          return this.transformGetAccessorTree(tree.asGetAccessor());
+          return this.transformGetAccessor(tree.asGetAccessor());
         case IDENTIFIER_EXPRESSION:
-          return this.transformIdentifierExpressionTree(tree.asIdentifierExpression());
+          return this.transformIdentifierExpression(tree.asIdentifierExpression());
         case IF_STATEMENT:
-          return this.transformIfStatementTree(tree.asIfStatement());
+          return this.transformIfStatement(tree.asIfStatement());
         case IMPORT_DECLARATION:
-          return this.transformImportDeclarationTree(tree.asImportDeclaration());
+          return this.transformImportDeclaration(tree.asImportDeclaration());
         case IMPORT_PATH:
           return this.transformImportPathTree(tree.asImportPath());
         case IMPORT_SPECIFIER:
-          return this.transformImportSpecifierTree(tree.asImportSpecifier());
+          return this.transformImportSpecifier(tree.asImportSpecifier());
         case LABELLED_STATEMENT:
-          return this.transformLabelledStatementTree(tree.asLabelledStatement());
+          return this.transformLabelledStatement(tree.asLabelledStatement());
         case LITERAL_EXPRESSION:
-          return this.transformLiteralExpressionTree(tree.asLiteralExpression());
+          return this.transformLiteralExpression(tree.asLiteralExpression());
         case MEMBER_EXPRESSION:
-          return this.transformMemberExpressionTree(tree.asMemberExpression());
+          return this.transformMemberExpression(tree.asMemberExpression());
         case MEMBER_LOOKUP_EXPRESSION:
-          return this.transformMemberLookupExpressionTree(tree.asMemberLookupExpression());
+          return this.transformMemberLookupExpression(tree.asMemberLookupExpression());
         case MISSING_PRIMARY_EXPRESSION:
-          return this.transformMissingPrimaryExpressionTree(tree.asMissingPrimaryExpression());
+          return this.transformMissingPrimaryExpression(tree.asMissingPrimaryExpression());
         case MIXIN:
-          return this.transformMixinTree(tree.asMixin());
+          return this.transformMixin(tree.asMixin());
         case MIXIN_RESOLVE:
-          return this.transformMixinResolveTree(tree.asMixinResolve());
+          return this.transformMixinResolve(tree.asMixinResolve());
         case MIXIN_RESOLVE_LIST:
-          return this.transformMixinResolveListTree(tree.asMixinResolveList());
+          return this.transformMixinResolveList(tree.asMixinResolveList());
         case MODULE_DECLARATION:
-          return this.transformModuleDeclarationTree(tree.asModuleDeclaration());
+          return this.transformModuleDeclaration(tree.asModuleDeclaration());
         case MODULE_DEFINITION:
-          return this.transformModuleDefinitionTree(tree.asModuleDefinition());
+          return this.transformModuleDefinition(tree.asModuleDefinition());
         case MODULE_EXPRESSION:
-          return this.transformModuleExpressionTree(tree.asModuleExpression());
+          return this.transformModuleExpression(tree.asModuleExpression());
         case MODULE_REQUIRE:
-          return this.transformModuleRequireTree(tree.asModuleRequire());
+          return this.transformModuleRequire(tree.asModuleRequire());
         case MODULE_SPECIFIER:
-          return this.transformModuleSpecifierTree(tree.asModuleSpecifier());
+          return this.transformModuleSpecifier(tree.asModuleSpecifier());
         case NEW_EXPRESSION:
-          return this.transformNewExpressionTree(tree.asNewExpression());
+          return this.transformNewExpression(tree.asNewExpression());
         case NULL:
           return this.transformNullTree(tree.asNull());
         case OBJECT_LITERAL_EXPRESSION:
-          return this.transformObjectLiteralExpressionTree(tree.asObjectLiteralExpression());
+          return this.transformObjectLiteralExpression(tree.asObjectLiteralExpression());
         case OBJECT_PATTERN:
-          return this.transformObjectPatternTree(tree.asObjectPattern());
+          return this.transformObjectPattern(tree.asObjectPattern());
         case OBJECT_PATTERN_FIELD:
-          return this.transformObjectPatternFieldTree(tree.asObjectPatternField());
+          return this.transformObjectPatternField(tree.asObjectPatternField());
         case PAREN_EXPRESSION:
-          return this.transformParenExpressionTree(tree.asParenExpression());
+          return this.transformParenExpression(tree.asParenExpression());
         case POSTFIX_EXPRESSION:
-          return this.transformPostfixExpressionTree(tree.asPostfixExpression());
+          return this.transformPostfixExpression(tree.asPostfixExpression());
         case PROGRAM:
-          return this.transformProgramTree(tree.asProgram());
+          return this.transformProgram(tree.asProgram());
         case PROPERTY_NAME_ASSIGNMENT:
-          return this.transformPropertyNameAssignmentTree(tree.asPropertyNameAssignment());
+          return this.transformPropertyNameAssignment(tree.asPropertyNameAssignment());
         case REQUIRES_MEMBER:
-          return this.transformRequiresMemberTree(tree.asRequiresMember());
+          return this.transformRequiresMember(tree.asRequiresMember());
         case REST_PARAMETER:
-          return this.transformRestParameterTree(tree.asRestParameter());
+          return this.transformRestParameter(tree.asRestParameter());
         case RETURN_STATEMENT:
-          return this.transformReturnStatementTree(tree.asReturnStatement());
+          return this.transformReturnStatement(tree.asReturnStatement());
         case SET_ACCESSOR:
-          return this.transformSetAccessorTree(tree.asSetAccessor());
+          return this.transformSetAccessor(tree.asSetAccessor());
         case SPREAD_EXPRESSION:
-          return this.transformSpreadExpressionTree(tree.asSpreadExpression());
+          return this.transformSpreadExpression(tree.asSpreadExpression());
         case SPREAD_PATTERN_ELEMENT:
-          return this.transformSpreadPatternElementTree(tree.asSpreadPatternElement());
+          return this.transformSpreadPatternElement(tree.asSpreadPatternElement());
         case STATE_MACHINE:
           return this.transformStateMachineTree(tree.asStateMachine());
         case SUPER_EXPRESSION:
-          return this.transformSuperExpressionTree(tree.asSuperExpression());
+          return this.transformSuperExpression(tree.asSuperExpression());
         case SWITCH_STATEMENT:
-          return this.transformSwitchStatementTree(tree.asSwitchStatement());
+          return this.transformSwitchStatement(tree.asSwitchStatement());
         case THIS_EXPRESSION:
-          return this.transformThisExpressionTree(tree.asThisExpression());
+          return this.transformThisExpression(tree.asThisExpression());
         case THROW_STATEMENT:
-          return this.transformThrowStatementTree(tree.asThrowStatement());
+          return this.transformThrowStatement(tree.asThrowStatement());
         case TRAIT_DECLARATION:
-          return this.transformTraitDeclarationTree(tree.asTraitDeclaration());
+          return this.transformTraitDeclaration(tree.asTraitDeclaration());
         case TRY_STATEMENT:
-          return this.transformTryStatementTree(tree.asTryStatement());
+          return this.transformTryStatement(tree.asTryStatement());
         case UNARY_EXPRESSION:
-          return this.transformUnaryExpressionTree(tree.asUnaryExpression());
+          return this.transformUnaryExpression(tree.asUnaryExpression());
         case VARIABLE_DECLARATION:
-          return this.transformVariableDeclarationTree(tree.asVariableDeclaration());
+          return this.transformVariableDeclaration(tree.asVariableDeclaration());
         case VARIABLE_DECLARATION_LIST:
-          return this.transformVariableDeclarationListTree(tree.asVariableDeclarationList());
+          return this.transformVariableDeclarationList(tree.asVariableDeclarationList());
         case VARIABLE_STATEMENT:
-          return this.transformVariableStatementTree(tree.asVariableStatement());
+          return this.transformVariableStatement(tree.asVariableStatement());
         case WHILE_STATEMENT:
-          return this.transformWhileStatementTree(tree.asWhileStatement());
+          return this.transformWhileStatement(tree.asWhileStatement());
         case WITH_STATEMENT:
-          return this.transformWithStatementTree(tree.asWithStatement());
+          return this.transformWithStatement(tree.asWithStatement());
         case YIELD_STATEMENT:
-          return this.transformYieldStatementTree(tree.asYieldStatement());
+          return this.transformYieldStatement(tree.asYieldStatement());
         default:
           throw new Error('Should never get here!');
       }
@@ -400,10 +400,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ArgumentListTree} tree
+     * @param {ArgumentList} tree
      * @return {ParseTree}
      */
-    transformArgumentListTree: function(tree) {
+    transformArgumentList: function(tree) {
       var args = this.transformList(tree.args);
       if (args == tree.args) {
         return tree;
@@ -412,10 +412,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ArrayLiteralExpressionTree} tree
+     * @param {ArrayLiteralExpression} tree
      * @return {ParseTree}
      */
-    transformArrayLiteralExpressionTree: function(tree) {
+    transformArrayLiteralExpression: function(tree) {
       var elements = this.transformList(tree.elements);
       if (elements == tree.elements) {
         return tree;
@@ -424,10 +424,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ArrayPatternTree} tree
+     * @param {ArrayPattern} tree
      * @return {ParseTree}
      */
-    transformArrayPatternTree: function(tree) {
+    transformArrayPattern: function(tree) {
       var elements = this.transformList(tree.elements);
       if (elements == tree.elements) {
         return tree;
@@ -436,22 +436,22 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {AwaitStatementTree} tree
+     * @param {AwaitStatement} tree
      * @return {ParseTree}
      */
-    transformAwaitStatementTree: function(tree) {
+    transformAwaitStatement: function(tree) {
       var expression = this.transformAny(tree.expression);
       if (tree.expression == expression) {
         return tree;
       }
-      return new AwaitStatementTree(null, tree.identifier, expression);
+      return new AwaitStatement(null, tree.identifier, expression);
     },
 
     /**
-     * @param {BinaryOperatorTree} tree
+     * @param {BinaryOperator} tree
      * @return {ParseTree}
      */
-    transformBinaryOperatorTree: function(tree) {
+    transformBinaryOperator: function(tree) {
       var left = this.transformAny(tree.left);
       var right = this.transformAny(tree.right);
       if (left == tree.left && right == tree.right) {
@@ -461,10 +461,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {BlockTree} tree
+     * @param {Block} tree
      * @return {ParseTree}
      */
-    transformBlockTree: function(tree) {
+    transformBlock: function(tree) {
       var elements = this.transformList(tree.statements);
       if (elements == tree.statements) {
         return tree;
@@ -473,18 +473,18 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {BreakStatementTree} tree
+     * @param {BreakStatement} tree
      * @return {ParseTree}
      */
-    transformBreakStatementTree: function(tree) {
+    transformBreakStatement: function(tree) {
       return tree;
     },
 
     /**
-     * @param {CallExpressionTree} tree
+     * @param {CallExpression} tree
      * @return {ParseTree}
      */
-    transformCallExpressionTree: function(tree) {
+    transformCallExpression: function(tree) {
       var operand = this.transformAny(tree.operand);
       var args = this.transformAny(tree.args).asArgumentList();
       if (operand == tree.operand && args == tree.args) {
@@ -494,10 +494,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {CaseClauseTree} tree
+     * @param {CaseClause} tree
      * @return {ParseTree}
      */
-    transformCaseClauseTree: function(tree) {
+    transformCaseClause: function(tree) {
       var expression = this.transformAny(tree.expression);
       var statements = this.transformList(tree.statements);
       if (expression == tree.expression && statements == tree.statements) {
@@ -507,10 +507,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {CatchTree} tree
+     * @param {Catch} tree
      * @return {ParseTree}
      */
-    transformCatchTree: function(tree) {
+    transformCatch: function(tree) {
       var catchBody = this.transformAny(tree.catchBody);
       if (catchBody == tree.catchBody) {
         return tree;
@@ -519,10 +519,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ClassDeclarationTree} tree
+     * @param {ClassDeclaration} tree
      * @return {ParseTree}
      */
-    transformClassDeclarationTree: function(tree) {
+    transformClassDeclaration: function(tree) {
       var superClass = this.transformAny(tree.superClass);
       var elements = this.transformList(tree.elements);
 
@@ -533,18 +533,18 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ClassExpressionTree} tree
+     * @param {ClassExpression} tree
      * @return {ParseTree}
      */
-    transformClassExpressionTree: function(tree) {
+    transformClassExpression: function(tree) {
       return tree;
     },
 
     /**
-     * @param {CommaExpressionTree} tree
+     * @param {CommaExpression} tree
      * @return {ParseTree}
      */
-    transformCommaExpressionTree: function(tree) {
+    transformCommaExpression: function(tree) {
       var expressions = this.transformList(tree.expressions);
       if (expressions == tree.expressions) {
         return tree;
@@ -553,10 +553,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ConditionalExpressionTree} tree
+     * @param {ConditionalExpression} tree
      * @return {ParseTree}
      */
-    transformConditionalExpressionTree: function(tree) {
+    transformConditionalExpression: function(tree) {
       var condition = this.transformAny(tree.condition);
       var left = this.transformAny(tree.left);
       var right = this.transformAny(tree.right);
@@ -567,26 +567,26 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ContinueStatementTree} tree
+     * @param {ContinueStatement} tree
      * @return {ParseTree}
      */
-    transformContinueStatementTree: function(tree) {
+    transformContinueStatement: function(tree) {
       return tree;
     },
 
     /**
-     * @param {DebuggerStatementTree} tree
+     * @param {DebuggerStatement} tree
      * @return {ParseTree}
      */
-    transformDebuggerStatementTree: function(tree) {
+    transformDebuggerStatement: function(tree) {
       return tree;
     },
 
     /**
-     * @param {DefaultClauseTree} tree
+     * @param {DefaultClause} tree
      * @return {ParseTree}
      */
-    transformDefaultClauseTree: function(tree) {
+    transformDefaultClause: function(tree) {
       var statements = this.transformList(tree.statements);
       if (statements == tree.statements) {
         return tree;
@@ -595,10 +595,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {DefaultParameterTree} tree
+     * @param {DefaultParameter} tree
      * @return {ParseTree}
      */
-    transformDefaultParameterTree: function(tree) {
+    transformDefaultParameter: function(tree) {
       var expression = this.transformAny(tree.expression);
       if (expression == tree.expression) {
         return tree;
@@ -607,10 +607,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {DoWhileStatementTree} tree
+     * @param {DoWhileStatement} tree
      * @return {ParseTree}
      */
-    transformDoWhileStatementTree: function(tree) {
+    transformDoWhileStatement: function(tree) {
       var body = this.transformAny(tree.body);
       var condition = this.transformAny(tree.condition);
       if (body == tree.body && condition == tree.condition) {
@@ -620,30 +620,30 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {EmptyStatementTree} tree
+     * @param {EmptyStatement} tree
      * @return {ParseTree}
      */
-    transformEmptyStatementTree: function(tree) {
+    transformEmptyStatement: function(tree) {
       return tree;
     },
 
     /**
-     * @param {ExportDeclarationTree} tree
+     * @param {ExportDeclaration} tree
      * @return {ParseTree}
      */
-    transformExportDeclarationTree: function(tree) {
+    transformExportDeclaration: function(tree) {
       var declaration = this.transformAny(tree.declaration);
       if (tree.declaration == declaration) {
         return tree;
       }
-      return new ExportDeclarationTree(null, declaration);
+      return new ExportDeclaration(null, declaration);
     },
 
     /**
-     * @param {ExpressionStatementTree} tree
+     * @param {ExpressionStatement} tree
      * @return {ParseTree}
      */
-    transformExpressionStatementTree: function(tree) {
+    transformExpressionStatement: function(tree) {
       var expression = this.transformAny(tree.expression);
       if (expression == tree.expression) {
         return tree;
@@ -652,10 +652,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {FieldDeclarationTree} tree
+     * @param {FieldDeclaration} tree
      * @return {ParseTree}
      */
-    transformFieldDeclarationTree: function(tree) {
+    transformFieldDeclaration: function(tree) {
       var declarations = this.transformList(tree.declarations);
       if (declarations == tree.declarations) {
         return tree;
@@ -664,10 +664,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {FinallyTree} tree
+     * @param {Finally} tree
      * @return {ParseTree}
      */
-    transformFinallyTree: function(tree) {
+    transformFinally: function(tree) {
       var block = this.transformAny(tree.block);
       if (block == tree.block) {
         return tree;
@@ -676,10 +676,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ForEachStatementTree} tree
+     * @param {ForEachStatement} tree
      * @return {ParseTree}
      */
-    transformForEachStatementTree: function(tree) {
+    transformForEachStatement: function(tree) {
       var initializer = this.transformAny(tree.initializer);
       var collection = this.transformAny(tree.collection);
       var body = this.transformAny(tree.body);
@@ -692,10 +692,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ForInStatementTree} tree
+     * @param {ForInStatement} tree
      * @return {ParseTree}
      */
-    transformForInStatementTree: function(tree) {
+    transformForInStatement: function(tree) {
       var initializer = this.transformAny(tree.initializer);
       var collection = this.transformAny(tree.collection);
       var body = this.transformAny(tree.body);
@@ -707,10 +707,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ForStatementTree} tree
+     * @param {ForStatement} tree
      * @return {ParseTree}
      */
-    transformForStatementTree: function(tree) {
+    transformForStatement: function(tree) {
       var initializer = this.transformAny(tree.initializer);
       var condition = this.transformAny(tree.condition);
       var increment = this.transformAny(tree.increment);
@@ -723,18 +723,18 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {FormalParameterListTree} tree
+     * @param {FormalParameterList} tree
      * @return {ParseTree}
      */
-    transformFormalParameterListTree: function(tree) {
+    transformFormalParameterList: function(tree) {
       return tree;
     },
 
     /**
-     * @param {FunctionDeclarationTree} tree
+     * @param {FunctionDeclaration} tree
      * @return {ParseTree}
      */
-    transformFunctionDeclarationTree: function(tree) {
+    transformFunctionDeclaration: function(tree) {
       var parameters =
           this.transformAny(tree.formalParameterList).asFormalParameterList();
       var functionBody = this.transformAny(tree.functionBody).asBlock();
@@ -746,10 +746,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {GetAccessorTree} tree
+     * @param {GetAccessor} tree
      * @return {ParseTree}
      */
-    transformGetAccessorTree: function(tree) {
+    transformGetAccessor: function(tree) {
       var body = this.transformAny(tree.body).asBlock();
       if (body == tree.body) {
         return tree;
@@ -758,18 +758,18 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {IdentifierExpressionTree} tree
+     * @param {IdentifierExpression} tree
      * @return {ParseTree}
      */
-    transformIdentifierExpressionTree: function(tree) {
+    transformIdentifierExpression: function(tree) {
       return tree;
     },
 
     /**
-     * @param {IfStatementTree} tree
+     * @param {IfStatement} tree
      * @return {ParseTree}
      */
-    transformIfStatementTree: function(tree) {
+    transformIfStatement: function(tree) {
       var condition = this.transformAny(tree.condition);
       var ifClause = this.transformAny(tree.ifClause);
       var elseClause = this.transformAny(tree.elseClause);
@@ -780,15 +780,15 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ImportDeclarationTree} tree
+     * @param {ImportDeclaration} tree
      * @return {ParseTree}
      */
-    transformImportDeclarationTree: function(tree) {
+    transformImportDeclaration: function(tree) {
       var importPathList = this.transformList(tree.importPathList);
       if (importPathList == tree.importPathList) {
         return tree;
       }
-      return new ImportDeclarationTree(null, importPathList);
+      return new ImportDeclaration(null, importPathList);
     },
 
     /**
@@ -808,18 +808,18 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ImportSpecifierTree} tree
+     * @param {ImportSpecifier} tree
      * @return {ParseTree}
      */
-    transformImportSpecifierTree: function(tree) {
+    transformImportSpecifier: function(tree) {
       return tree;
     },
 
     /**
-     * @param {LabelledStatementTree} tree
+     * @param {LabelledStatement} tree
      * @return {ParseTree}
      */
-    transformLabelledStatementTree: function(tree) {
+    transformLabelledStatement: function(tree) {
       var statement = this.transformAny(tree.statement);
       if (statement == tree.statement) {
         return tree;
@@ -828,18 +828,18 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {LiteralExpressionTree} tree
+     * @param {LiteralExpression} tree
      * @return {ParseTree}
      */
-    transformLiteralExpressionTree: function(tree) {
+    transformLiteralExpression: function(tree) {
       return tree;
     },
 
     /**
-     * @param {MemberExpressionTree} tree
+     * @param {MemberExpression} tree
      * @return {ParseTree}
      */
-    transformMemberExpressionTree: function(tree) {
+    transformMemberExpression: function(tree) {
       var operand = this.transformAny(tree.operand);
       if (operand == tree.operand) {
         return tree;
@@ -848,10 +848,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {MemberLookupExpressionTree} tree
+     * @param {MemberLookupExpression} tree
      * @return {ParseTree}
      */
-    transformMemberLookupExpressionTree: function(tree) {
+    transformMemberLookupExpression: function(tree) {
       var operand = this.transformAny(tree.operand);
       var memberExpression = this.transformAny(tree.memberExpression);
       if (operand == tree.operand &&
@@ -862,18 +862,18 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {MissingPrimaryExpressionTree} tree
+     * @param {MissingPrimaryExpression} tree
      * @return {ParseTree}
      */
-    transformMissingPrimaryExpressionTree: function(tree) {
+    transformMissingPrimaryExpression: function(tree) {
       throw new Error('Should never transform trees that had errors during parse');
     },
 
     /**
-     * @param {MixinTree} tree
+     * @param {Mixin} tree
      * @return {ParseTree}
      */
-    transformMixinTree: function(tree) {
+    transformMixin: function(tree) {
       var mixinResolves = this.transformAny(tree.mixinResolves);
       if (mixinResolves == tree.mixinResolves) {
         return tree;
@@ -882,18 +882,18 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {MixinResolveTree} tree
+     * @param {MixinResolve} tree
      * @return {ParseTree}
      */
-    transformMixinResolveTree: function(tree) {
+    transformMixinResolve: function(tree) {
       return tree;
     },
 
     /**
-     * @param {MixinResolveListTree} tree
+     * @param {MixinResolveList} tree
      * @return {ParseTree}
      */
-    transformMixinResolveListTree: function(tree) {
+    transformMixinResolveList: function(tree) {
       var resolves = this.transformList(tree.resolves);
       if (resolves == tree.resolves) {
         return tree;
@@ -902,68 +902,68 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ModuleDeclarationTree} tree
+     * @param {ModuleDeclaration} tree
      * @return {ParseTree}
      */
-    transformModuleDeclarationTree: function(tree) {
+    transformModuleDeclaration: function(tree) {
       var specifiers = this.transformList(tree.specifiers);
       if (specifiers == tree.specifiers) {
         return tree;
       }
 
-      return new ModuleDeclarationTree(null, specifiers);
+      return new ModuleDeclaration(null, specifiers);
     },
 
     /**
-     * @param {ModuleDefinitionTree} tree
+     * @param {ModuleDefinition} tree
      * @return {ParseTree}
      */
-    transformModuleDefinitionTree: function(tree) {
+    transformModuleDefinition: function(tree) {
       var elements = this.transformList(tree.elements);
       if (elements == tree.elements) {
         return tree;
       }
 
-      return new ModuleDefinitionTree(null, tree.name, elements);
+      return new ModuleDefinition(null, tree.name, elements);
     },
 
     /**
-     * @param {ModuleExpressionTree} tree
+     * @param {ModuleExpression} tree
      * @return {ParseTree}
      */
-    transformModuleExpressionTree: function(tree) {
+    transformModuleExpression: function(tree) {
       var reference = this.transformAny(tree.reference);
       if (reference == tree.reference) {
         return tree;
       }
-      return new ModuleExpressionTree(null, reference, tree.identifiers);
+      return new ModuleExpression(null, reference, tree.identifiers);
     },
 
     /**
-     * @param {ModuleRequireTree} tree
+     * @param {ModuleRequire} tree
      * @return {ParseTree}
      */
-    transformModuleRequireTree: function(tree) {
+    transformModuleRequire: function(tree) {
       return tree;
     },
 
     /**
-     * @param {ModuleSpecifierTree} tree
+     * @param {ModuleSpecifier} tree
      * @return {ParseTree}
      */
-    transformModuleSpecifierTree: function(tree) {
+    transformModuleSpecifier: function(tree) {
       var expression = this.transformAny(tree.expression);
       if (expression == tree.expression) {
         return tree;
       }
-      return new ModuleSpecifierTree(null, tree.identifier, expression);
+      return new ModuleSpecifier(null, tree.identifier, expression);
     },
 
     /**
-     * @param {NewExpressionTree} tree
+     * @param {NewExpression} tree
      * @return {ParseTree}
      */
-    transformNewExpressionTree: function(tree) {
+    transformNewExpression: function(tree) {
       var operand = this.transformAny(tree.operand);
       var args = this.transformAny(tree.args);
 
@@ -982,10 +982,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ObjectLiteralExpressionTree} tree
+     * @param {ObjectLiteralExpression} tree
      * @return {ParseTree}
      */
-    transformObjectLiteralExpressionTree: function(tree) {
+    transformObjectLiteralExpression: function(tree) {
       var propertyNameAndValues = this.transformList(tree.propertyNameAndValues);
       if (propertyNameAndValues == tree.propertyNameAndValues) {
         return tree;
@@ -994,10 +994,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ObjectPatternTree} tree
+     * @param {ObjectPattern} tree
      * @return {ParseTree}
      */
-    transformObjectPatternTree: function(tree) {
+    transformObjectPattern: function(tree) {
       var fields = this.transformList(tree.fields);
       if (fields == tree.fields) {
         return tree;
@@ -1006,10 +1006,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ObjectPatternFieldTree} tree
+     * @param {ObjectPatternField} tree
      * @return {ParseTree}
      */
-    transformObjectPatternFieldTree: function(tree) {
+    transformObjectPatternField: function(tree) {
       var element = this.transformAny(tree.element);
       if (element == tree.element) {
         return tree;
@@ -1018,10 +1018,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ParenExpressionTree} tree
+     * @param {ParenExpression} tree
      * @return {ParseTree}
      */
-    transformParenExpressionTree: function(tree) {
+    transformParenExpression: function(tree) {
       var expression = this.transformAny(tree.expression);
       if (expression == tree.expression) {
         return tree;
@@ -1030,10 +1030,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {PostfixExpressionTree} tree
+     * @param {PostfixExpression} tree
      * @return {ParseTree}
      */
-    transformPostfixExpressionTree: function(tree) {
+    transformPostfixExpression: function(tree) {
       var operand = this.transformAny(tree.operand);
       if (operand == tree.operand) {
         return tree;
@@ -1042,22 +1042,22 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ProgramTree} tree
+     * @param {Program} tree
      * @return {ParseTree}
      */
-    transformProgramTree: function(tree) {
+    transformProgram: function(tree) {
       var elements = this.transformList(tree.sourceElements);
       if (elements == tree.sourceElements) {
         return tree;
       }
-      return new ProgramTree(null, elements);
+      return new Program(null, elements);
     },
 
     /**
-     * @param {PropertyNameAssignmentTree} tree
+     * @param {PropertyNameAssignment} tree
      * @return {ParseTree}
      */
-    transformPropertyNameAssignmentTree: function(tree) {
+    transformPropertyNameAssignment: function(tree) {
       var value = this.transformAny(tree.value);
       if (value == tree.value) {
         return tree;
@@ -1066,26 +1066,26 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {RequiresMemberTree} tree
+     * @param {RequiresMember} tree
      * @return {ParseTree}
      */
-    transformRequiresMemberTree: function(tree) {
+    transformRequiresMember: function(tree) {
       return tree;
     },
 
     /**
-     * @param {RestParameterTree} tree
+     * @param {RestParameter} tree
      * @return {ParseTree}
      */
-    transformRestParameterTree: function(tree) {
+    transformRestParameter: function(tree) {
       return tree;
     },
 
     /**
-     * @param {ReturnStatementTree} tree
+     * @param {ReturnStatement} tree
      * @return {ParseTree}
      */
-    transformReturnStatementTree: function(tree) {
+    transformReturnStatement: function(tree) {
       var expression = this.transformAny(tree.expression);
       if (expression == tree.expression) {
         return tree;
@@ -1094,10 +1094,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {SetAccessorTree} tree
+     * @param {SetAccessor} tree
      * @return {ParseTree}
      */
-    transformSetAccessorTree: function(tree) {
+    transformSetAccessor: function(tree) {
       var body = this.transformAny(tree.body).asBlock();
       if (body == tree.body) {
         return tree;
@@ -1106,10 +1106,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {SpreadExpressionTree} tree
+     * @param {SpreadExpression} tree
      * @return {ParseTree}
      */
-    transformSpreadExpressionTree: function(tree) {
+    transformSpreadExpression: function(tree) {
       var expression = this.transformAny(tree.expression);
       if (expression == tree.expression) {
         return tree;
@@ -1118,10 +1118,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {SpreadPatternElementTree} tree
+     * @param {SpreadPatternElement} tree
      * @return {ParseTree}
      */
-    transformSpreadPatternElementTree: function(tree) {
+    transformSpreadPatternElement: function(tree) {
       var lvalue = this.transformAny(tree.lvalue);
       if (lvalue == tree.lvalue) {
         return tree;
@@ -1138,18 +1138,18 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {SuperExpressionTree} tree
+     * @param {SuperExpression} tree
      * @return {ParseTree}
      */
-    transformSuperExpressionTree: function(tree) {
+    transformSuperExpression: function(tree) {
       return tree;
     },
 
     /**
-     * @param {SwitchStatementTree} tree
+     * @param {SwitchStatement} tree
      * @return {ParseTree}
      */
-    transformSwitchStatementTree: function(tree) {
+    transformSwitchStatement: function(tree) {
       var expression = this.transformAny(tree.expression);
       var caseClauses = this.transformList(tree.caseClauses);
       if (expression == tree.expression && caseClauses == tree.caseClauses) {
@@ -1159,18 +1159,18 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ThisExpressionTree} tree
+     * @param {ThisExpression} tree
      * @return {ParseTree}
      */
-    transformThisExpressionTree: function(tree) {
+    transformThisExpression: function(tree) {
       return tree;
     },
 
     /**
-     * @param {ThrowStatementTree} tree
+     * @param {ThrowStatement} tree
      * @return {ParseTree}
      */
-    transformThrowStatementTree: function(tree) {
+    transformThrowStatement: function(tree) {
       var value = this.transformAny(tree.value);
       if (value == tree.value) {
         return tree;
@@ -1179,10 +1179,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {TraitDeclarationTree} tree
+     * @param {TraitDeclaration} tree
      * @return {ParseTree}
      */
-    transformTraitDeclarationTree: function(tree) {
+    transformTraitDeclaration: function(tree) {
       var elements = this.transformList(tree.elements);
       if (elements == tree.elements) {
         return tree;
@@ -1191,10 +1191,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {TryStatementTree} tree
+     * @param {TryStatement} tree
      * @return {ParseTree}
      */
-    transformTryStatementTree: function(tree) {
+    transformTryStatement: function(tree) {
       var body = this.transformAny(tree.body);
       var catchBlock = this.transformAny(tree.catchBlock);
       var finallyBlock = this.transformAny(tree.finallyBlock);
@@ -1206,10 +1206,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {UnaryExpressionTree} tree
+     * @param {UnaryExpression} tree
      * @return {ParseTree}
      */
-    transformUnaryExpressionTree: function(tree) {
+    transformUnaryExpression: function(tree) {
       var operand = this.transformAny(tree.operand);
       if (operand == tree.operand) {
         return tree;
@@ -1218,10 +1218,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {VariableDeclarationTree} tree
+     * @param {VariableDeclaration} tree
      * @return {ParseTree}
      */
-    transformVariableDeclarationTree: function(tree) {
+    transformVariableDeclaration: function(tree) {
       var lvalue = this.transformAny(tree.lvalue);
       var initializer = this.transformAny(tree.initializer);
       if (lvalue == tree.lvalue && initializer == tree.initializer) {
@@ -1231,10 +1231,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {VariableDeclarationListTree} tree
+     * @param {VariableDeclarationList} tree
      * @return {ParseTree}
      */
-    transformVariableDeclarationListTree: function(tree) {
+    transformVariableDeclarationList: function(tree) {
       var declarations = this.transformList(tree.declarations);
       if (declarations == tree.declarations) {
         return tree;
@@ -1243,10 +1243,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {VariableStatementTree} tree
+     * @param {VariableStatement} tree
      * @return {ParseTree}
      */
-    transformVariableStatementTree: function(tree) {
+    transformVariableStatement: function(tree) {
       var declarations = this.transformAny(tree.declarations).
           asVariableDeclarationList();
       if (declarations == tree.declarations) {
@@ -1256,10 +1256,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {WhileStatementTree} tree
+     * @param {WhileStatement} tree
      * @return {ParseTree}
      */
-    transformWhileStatementTree: function(tree) {
+    transformWhileStatement: function(tree) {
       var condition = this.transformAny(tree.condition);
       var body = this.transformAny(tree.body);
       if (condition == tree.condition && body == tree.body) {
@@ -1269,10 +1269,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {WithStatementTree} tree
+     * @param {WithStatement} tree
      * @return {ParseTree}
      */
-    transformWithStatementTree: function(tree) {
+    transformWithStatement: function(tree) {
       var expression = this.transformAny(tree.expression);
       var body = this.transformAny(tree.body);
       if (expression == tree.expression && body == tree.body) {
@@ -1282,10 +1282,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {YieldStatementTree} tree
+     * @param {YieldStatement} tree
      * @return {ParseTree}
      */
-    transformYieldStatementTree: function(tree) {
+    transformYieldStatement: function(tree) {
       var expression = this.transformAny(tree.expression);
       var isYieldFor = tree.isYieldFor;
       if (expression == tree.expression) {

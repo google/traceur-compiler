@@ -84,8 +84,8 @@ traceur.define('codegeneration.generator', function() {
 
   /**
    * @param {ErrorReporter} reporter
-   * @param {BlockTree} body
-   * @return {BlockTree}
+   * @param {Block} body
+   * @return {Block}
    */
   AsyncTransformer.transformAsyncBody = function(reporter, body) {
     return new AsyncTransformer(reporter).transformAsyncBody(body);
@@ -96,20 +96,20 @@ traceur.define('codegeneration.generator', function() {
 
     /**
      * Yield statements are translated into a state machine with a single state.
-     * @param {YieldStatementTree} tree
+     * @param {YieldStatement} tree
      * @return {ParseTree}
      */
-    transformYieldStatementTree: function(tree) {
+    transformYieldStatement: function(tree) {
       reporter.reportError(tree.location.start,
           'Async function may not have a yield statement.');
       return tree;
     },
 
     /**
-     * @param {AwaitStatementTree} tree
+     * @param {AwaitStatement} tree
      * @return {ParseTree}
      */
-    transformAwaitStatementTree: function(tree) {
+    transformAwaitStatement: function(tree) {
       var createTaskState = this.allocateState();
       var callbackState = this.allocateState();
       var errbackState = this.allocateState();
@@ -155,11 +155,11 @@ traceur.define('codegeneration.generator', function() {
     },
 
     /**
-     * @param {FinallyTree} tree
+     * @param {Finally} tree
      * @return {ParseTree}
      */
-    transformFinallyTree: function(tree) {
-      var result = proto.transformFinallyTree.call(this, tree).asFinally();
+    transformFinally: function(tree) {
+      var result = proto.transformFinally.call(this, tree).asFinally();
       if (result.block.type != ParseTreeType.STATE_MACHINE) {
         return result;
       }
@@ -169,10 +169,10 @@ traceur.define('codegeneration.generator', function() {
     },
 
     /**
-     * @param {ReturnStatementTree} tree
+     * @param {ReturnStatement} tree
      * @return {ParseTree}
      */
-    transformReturnStatementTree: function(tree) {
+    transformReturnStatement: function(tree) {
       var result = tree.expression;
       if (result == null) {
         result = createUndefinedExpression();
@@ -224,8 +224,8 @@ traceur.define('codegeneration.generator', function() {
      *   return $result.createPromise();
      * }
      * TODO: add close() method which executes pending finally clauses
-     * @param {BlockTree} tree
-     * @return {BlockTree}
+     * @param {Block} tree
+     * @return {Block}
      */
     transformAsyncBody: function(tree) {
       // transform to a state machine

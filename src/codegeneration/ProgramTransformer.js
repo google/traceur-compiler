@@ -19,7 +19,7 @@ traceur.define('codegeneration', function() {
 
   // var ParseTreeValidator = ...;
 
-  var ProgramTree = traceur.syntax.trees.ProgramTree;
+  var Program = traceur.syntax.trees.Program;
   var UniqueIdentifierGenerator = traceur.codegeneration.UniqueIdentifierGenerator;
   var ForEachTransformer = traceur.codegeneration.ForEachTransformer;
   var RestParameterTransformer = traceur.codegeneration.RestParameterTransformer;
@@ -100,7 +100,7 @@ traceur.define('codegeneration', function() {
      * Each pass translates one contruct from Traceur to standard JS constructs.
      * The order of the passes matters.
      *
-     * @param {ProgramTree} tree
+     * @param {Program} tree
      * @return {ParseTree}
      */
     transform: function(tree) {
@@ -155,8 +155,8 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ProgramTree} tree
-     * @return {ProgramTree}
+     * @param {Program} tree
+     * @return {Program}
      * @private
      */
     transformModules_: function(tree) {
@@ -164,8 +164,8 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ProgramTree} tree
-     * @return {ProgramTree}
+     * @param {Program} tree
+     * @return {Program}
      * @private
      */
     transformAggregates_: function(tree) {

@@ -29,7 +29,7 @@ traceur.define('codegeneration', function() {
   var PredefinedName = traceur.syntax.PredefinedName;
   var TokenType = traceur.syntax.TokenType;
 
-  var FormalParameterListTree = traceur.syntax.trees.FormalParameterListTree;
+  var FormalParameterList = traceur.syntax.trees.FormalParameterList;
 
   /**
    * Desugars rest parameters.
@@ -60,17 +60,17 @@ traceur.define('codegeneration', function() {
   RestParameterTransformer.prototype = {
     __proto__: ParseTreeTransformer.prototype,
 
-    transformFunctionDeclarationTree: function(tree) {
+    transformFunctionDeclaration: function(tree) {
       if (hasRestParameter(tree.formalParameterList)) {
         return this.desugarRestParameters_(tree);
       } else {
-        return ParseTreeTransformer.prototype.transformFunctionDeclarationTree.
+        return ParseTreeTransformer.prototype.transformFunctionDeclaration.
             call(this, tree);
       }
     },
 
     /**
-     * @param {FunctionDeclarationTree} tree
+     * @param {FunctionDeclaration} tree
      * @private
      * @return {ParseTree}
      */
@@ -85,7 +85,7 @@ traceur.define('codegeneration', function() {
       // }
 
       var parametersWithoutRestParam =
-          new FormalParameterListTree(
+          new FormalParameterList(
               tree.formalParameterList.location,
               tree.formalParameterList.parameters.slice(
                   0,

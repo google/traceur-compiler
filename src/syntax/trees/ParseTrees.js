@@ -49,7 +49,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    ArgumentListTree: create(
+    ArgumentList: create(
         ParseTreeType.ARGUMENT_LIST,
         'args'),
 
@@ -59,7 +59,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    ArrayLiteralExpressionTree: create(
+    ArrayLiteralExpression: create(
         ParseTreeType.ARRAY_LITERAL_EXPRESSION,
         'elements'),
 
@@ -69,7 +69,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    ArrayPatternTree: create(
+    ArrayPattern: create(
         ParseTreeType.ARRAY_PATTERN,
         'elements'),
 
@@ -80,7 +80,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    AwaitStatementTree: create(
+    AwaitStatement: create(
         ParseTreeType.AWAIT_STATEMENT,
         'identifier',
         'expression'),
@@ -93,7 +93,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    BinaryOperatorTree: create(
+    BinaryOperator: create(
         ParseTreeType.BINARY_OPERATOR,
         'left',
         'operator',
@@ -105,7 +105,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    BlockTree: create(
+    Block: create(
         ParseTreeType.BLOCK,
         'statements'),
 
@@ -115,18 +115,18 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    BreakStatementTree: create(
+    BreakStatement: create(
         ParseTreeType.BREAK_STATEMENT,
         'name'),
 
     /**
      * @param {traceur.util.SourceRange} location
      * @param {ParseTree} operand
-     * @param {ArgumentListTree} args
+     * @param {ArgumentList} args
      * @constructor
      * @extends {ParseTree}
      */
-    CallExpressionTree: create(
+    CallExpression: create(
         ParseTreeType.CALL_EXPRESSION,
         'operand',
         'args'),
@@ -138,7 +138,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    CaseClauseTree: create(
+    CaseClause: create(
         ParseTreeType.CASE_CLAUSE,
         'expression',
         'statements'),
@@ -150,7 +150,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    CatchTree: create(
+    Catch: create(
         ParseTreeType.CATCH,
         'exceptionName',
         'catchBody'),
@@ -163,7 +163,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    ClassDeclarationTree: create(
+    ClassDeclaration: create(
         ParseTreeType.CLASS_DECLARATION,
         'name',
         'superClass',
@@ -174,7 +174,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    ClassExpressionTree: create(ParseTreeType.CLASS_EXPRESSION),
+    ClassExpression: create(ParseTreeType.CLASS_EXPRESSION),
 
     /**
      * @param {traceur.util.SourceRange} location
@@ -182,7 +182,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    CommaExpressionTree: create(
+    CommaExpression: create(
         ParseTreeType.COMMA_EXPRESSION,
         'expressions'),
 
@@ -194,7 +194,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    ConditionalExpressionTree: create(
+    ConditionalExpression: create(
         ParseTreeType.CONDITIONAL_EXPRESSION,
         'condition',
         'left',
@@ -206,7 +206,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    ContinueStatementTree: create(
+    ContinueStatement: create(
         ParseTreeType.CONTINUE_STATEMENT,
         'name'),
 
@@ -215,7 +215,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    DebuggerStatementTree: create(ParseTreeType.DEBUGGER_STATEMENT),
+    DebuggerStatement: create(ParseTreeType.DEBUGGER_STATEMENT),
 
     /**
      * @param {traceur.util.SourceRange} location
@@ -223,18 +223,18 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    DefaultClauseTree: create(
+    DefaultClause: create(
         ParseTreeType.DEFAULT_CLAUSE,
         'statements'),
 
     /**
      * @param {traceur.util.SourceRange} location
-     * @param {traceur.syntax.trees.IdentifierExpressionTree} identifier
+     * @param {traceur.syntax.trees.IdentifierExpression} identifier
      * @param {ParseTree} expression
      * @constructor
      * @extends {ParseTree}
      */
-    DefaultParameterTree: create(
+    DefaultParameter: create(
         ParseTreeType.DEFAULT_PARAMETER,
         'identifier',
         'expression'),
@@ -246,7 +246,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    DoWhileStatementTree: create(
+    DoWhileStatement: create(
         ParseTreeType.DO_WHILE_STATEMENT,
         'body',
         'condition'),
@@ -256,7 +256,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    EmptyStatementTree: create(ParseTreeType.EMPTY_STATEMENT),
+    EmptyStatement: create(ParseTreeType.EMPTY_STATEMENT),
 
     /**
      * @param {traceur.util.SourceRange} location
@@ -264,7 +264,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    ExportDeclarationTree: create(
+    ExportDeclaration: create(
         ParseTreeType.EXPORT_DECLARATION,
         'declaration'),
 
@@ -274,7 +274,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    ExpressionStatementTree: create(
+    ExpressionStatement: create(
         ParseTreeType.EXPRESSION_STATEMENT,
         'expression'),
 
@@ -282,12 +282,12 @@ traceur.define('syntax.trees', function() {
      * @param {traceur.util.SourceRange} location
      * @param {boolean} isStatic
      * @param {boolean} isConst
-     * @param {Array.<traceur.syntax.trees.VariableDeclarationTree>}
+     * @param {Array.<traceur.syntax.trees.VariableDeclaration>}
      *     declarations
      * @constructor
      * @extends {ParseTree}
      */
-    FieldDeclarationTree: create(
+    FieldDeclaration: create(
         ParseTreeType.FIELD_DECLARATION,
         'isStatic',
         'isConst',
@@ -299,19 +299,19 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    FinallyTree: create(
+    Finally: create(
         ParseTreeType.FINALLY,
         'block'),
 
     /**
      * @param {traceur.util.SourceRange} location
-     * @param {traceur.syntax.trees.VariableDeclarationListTree} initializer
+     * @param {traceur.syntax.trees.VariableDeclarationList} initializer
      * @param {ParseTree} collection
      * @param {ParseTree} body
      * @constructor
      * @extends {ParseTree}
      */
-    ForEachStatementTree: create(
+    ForEachStatement: create(
         ParseTreeType.FOR_EACH_STATEMENT,
         'initializer',
         'collection',
@@ -325,7 +325,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    ForInStatementTree: create(
+    ForInStatement: create(
         ParseTreeType.FOR_IN_STATEMENT,
         'initializer',
         'collection',
@@ -337,7 +337,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    FormalParameterListTree: create(
+    FormalParameterList: create(
         ParseTreeType.FORMAL_PARAMETER_LIST,
         'parameters'),
 
@@ -350,7 +350,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    ForStatementTree: create(
+    ForStatement: create(
         ParseTreeType.FOR_STATEMENT,
         'initializer',
         'condition',
@@ -361,12 +361,12 @@ traceur.define('syntax.trees', function() {
      * @param {traceur.util.SourceRange} location
      * @param {traceur.syntax.IdentifierToken} name
      * @param {Boolean} isStatic
-     * @param {traceur.syntax.trees.FormalParameterListTree} formalParameterList
-     * @param {traceur.syntax.trees.BlockTree} functionBody
+     * @param {traceur.syntax.trees.FormalParameterList} formalParameterList
+     * @param {traceur.syntax.trees.Block} functionBody
      * @constructor
      * @extends {ParseTree}
      */
-    FunctionDeclarationTree: create(
+    FunctionDeclaration: create(
         ParseTreeType.FUNCTION_DECLARATION,
         'name',
         'isStatic',
@@ -377,11 +377,11 @@ traceur.define('syntax.trees', function() {
      * @param {traceur.util.SourceRange} location
      * @param {traceur.syntax.Token} propertyName
      * @param {boolean} isStatic
-     * @param {BlockTree} body
+     * @param {Block} body
      * @constructor
      * @extends {ParseTree}
      */
-    GetAccessorTree: create(
+    GetAccessor: create(
         ParseTreeType.GET_ACCESSOR,
         'propertyName',
         'isStatic',
@@ -393,7 +393,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    IdentifierExpressionTree: create(
+    IdentifierExpression: create(
         ParseTreeType.IDENTIFIER_EXPRESSION,
         'identifierToken'),
 
@@ -405,7 +405,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    IfStatementTree: create(
+    IfStatement: create(
         ParseTreeType.IF_STATEMENT,
         'condition',
         'ifClause',
@@ -417,7 +417,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    ImportDeclarationTree: create(
+    ImportDeclaration: create(
         ParseTreeType.IMPORT_DECLARATION,
         'importPathList'),
 
@@ -428,7 +428,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    ImportSpecifierTree: create(
+    ImportSpecifier: create(
         ParseTreeType.IMPORT_SPECIFIER,
         'importedName',
         'destinationName'),
@@ -440,7 +440,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    LabelledStatementTree: create(
+    LabelledStatement: create(
         ParseTreeType.LABELLED_STATEMENT,
         'name',
         'statement'),
@@ -451,7 +451,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    LiteralExpressionTree: create(
+    LiteralExpression: create(
         ParseTreeType.LITERAL_EXPRESSION,
         'literalToken'),
 
@@ -462,7 +462,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    MemberExpressionTree: create(
+    MemberExpression: create(
         ParseTreeType.MEMBER_EXPRESSION,
         'operand',
         'memberName'),
@@ -474,7 +474,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    MemberLookupExpressionTree: create(
+    MemberLookupExpression: create(
         ParseTreeType.MEMBER_LOOKUP_EXPRESSION,
         'operand',
         'memberExpression'),
@@ -485,7 +485,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    MissingPrimaryExpressionTree: create(
+    MissingPrimaryExpression: create(
         ParseTreeType.MISSING_PRIMARY_EXPRESSION,
         'nextToken'),
 
@@ -495,7 +495,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    MixinResolveListTree: create(
+    MixinResolveList: create(
         ParseTreeType.MIXIN_RESOLVE_LIST,
         'resolves'),
 
@@ -506,7 +506,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    MixinResolveTree: create(
+    MixinResolve: create(
         ParseTreeType.MIXIN_RESOLVE,
         'from',
         'to'),
@@ -514,11 +514,11 @@ traceur.define('syntax.trees', function() {
     /**
      * @param {traceur.util.SourceRange} location
      * @param {traceur.syntax.IdentifierToken} name
-     * @param {traceur.syntax.trees.MixinResolveListTree} mixinResolves
+     * @param {traceur.syntax.trees.MixinResolveList} mixinResolves
      * @constructor
      * @extends {ParseTree}
      */
-    MixinTree: create(
+    Mixin: create(
         ParseTreeType.MIXIN,
         'name',
         'mixinResolves'),
@@ -530,7 +530,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    ModuleDeclarationTree: create(
+    ModuleDeclaration: create(
         ParseTreeType.MODULE_DECLARATION,
         'specifiers'),
 
@@ -541,7 +541,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    ModuleDefinitionTree: create(
+    ModuleDefinition: create(
         ParseTreeType.MODULE_DEFINITION,
         'name',
         'elements'),
@@ -553,7 +553,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    ModuleExpressionTree: create(
+    ModuleExpression: create(
         ParseTreeType.MODULE_EXPRESSION,
         'reference',
         'identifiers'),
@@ -564,7 +564,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    ModuleRequireTree: create(
+    ModuleRequire: create(
         ParseTreeType.MODULE_REQUIRE,
         'url'),
 
@@ -575,7 +575,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    ModuleSpecifierTree: create(
+    ModuleSpecifier: create(
         ParseTreeType.MODULE_SPECIFIER,
         'identifier',
         'expression'),
@@ -583,11 +583,11 @@ traceur.define('syntax.trees', function() {
     /**
      * @param {traceur.util.SourceRange} location
      * @param {ParseTree} operand
-     * @param {traceur.syntax.trees.ArgumentListTree} args
+     * @param {traceur.syntax.trees.ArgumentList} args
      * @constructor
      * @extends {ParseTree}
      */
-    NewExpressionTree: create(
+    NewExpression: create(
         ParseTreeType.NEW_EXPRESSION,
         'operand',
         'args'),
@@ -598,7 +598,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    ObjectLiteralExpressionTree: create(
+    ObjectLiteralExpression: create(
         ParseTreeType.OBJECT_LITERAL_EXPRESSION,
         'propertyNameAndValues'),
 
@@ -609,7 +609,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    ObjectPatternFieldTree: create(
+    ObjectPatternField: create(
         ParseTreeType.OBJECT_PATTERN_FIELD,
         'identifier',
         'element'),
@@ -620,7 +620,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    ObjectPatternTree: create(
+    ObjectPattern: create(
         ParseTreeType.OBJECT_PATTERN,
         'fields'),
 
@@ -630,7 +630,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    ParenExpressionTree: create(
+    ParenExpression: create(
         ParseTreeType.PAREN_EXPRESSION,
         'expression'),
 
@@ -641,7 +641,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    PostfixExpressionTree: create(
+    PostfixExpression: create(
         ParseTreeType.POSTFIX_EXPRESSION,
         'operand',
         'operator'),
@@ -652,7 +652,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    ProgramTree: create(
+    Program: create(
         ParseTreeType.PROGRAM,
         'sourceElements'),
 
@@ -663,7 +663,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    PropertyNameAssignmentTree: create(
+    PropertyNameAssignment: create(
         ParseTreeType.PROPERTY_NAME_ASSIGNMENT,
         'name',
         'value'),
@@ -674,7 +674,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    RequiresMemberTree: create(
+    RequiresMember: create(
         ParseTreeType.REQUIRES_MEMBER,
         'name'),
 
@@ -684,7 +684,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    RestParameterTree: create(
+    RestParameter: create(
         ParseTreeType.REST_PARAMETER,
         'identifier'),
 
@@ -694,7 +694,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    ReturnStatementTree: create(
+    ReturnStatement: create(
         ParseTreeType.RETURN_STATEMENT,
         'expression'),
 
@@ -703,11 +703,11 @@ traceur.define('syntax.trees', function() {
      * @param {traceur.syntax.Token} propertyName
      * @param {boolean} isStatic
      * @param {traceur.syntax.IdentifierToken} parameter
-     * @param {traceur.syntax.trees.BlockTree} body
+     * @param {traceur.syntax.trees.Block} body
      * @constructor
      * @extends {ParseTree}
      */
-    SetAccessorTree: create(
+    SetAccessor: create(
         ParseTreeType.SET_ACCESSOR,
         'propertyName',
         'isStatic',
@@ -720,7 +720,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    SpreadExpressionTree: create(
+    SpreadExpression: create(
         ParseTreeType.SPREAD_EXPRESSION,
         'expression'),
 
@@ -730,7 +730,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    SpreadPatternElementTree: create(
+    SpreadPatternElement: create(
         ParseTreeType.SPREAD_PATTERN_ELEMENT,
         'lvalue'),
 
@@ -739,7 +739,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    SuperExpressionTree: create(ParseTreeType.SUPER_EXPRESSION),
+    SuperExpression: create(ParseTreeType.SUPER_EXPRESSION),
 
     /**
      * @param {traceur.util.SourceRange} location
@@ -748,7 +748,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    SwitchStatementTree: create(
+    SwitchStatement: create(
         ParseTreeType.SWITCH_STATEMENT,
         'expression',
         'caseClauses'),
@@ -758,7 +758,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    ThisExpressionTree: create(ParseTreeType.THIS_EXPRESSION),
+    ThisExpression: create(ParseTreeType.THIS_EXPRESSION),
 
     /**
      * @param {traceur.util.SourceRange} location
@@ -766,7 +766,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    ThrowStatementTree: create(
+    ThrowStatement: create(
         ParseTreeType.THROW_STATEMENT,
         'value'),
 
@@ -777,7 +777,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    TraitDeclarationTree: create(
+    TraitDeclaration: create(
         ParseTreeType.TRAIT_DECLARATION,
         'name',
         'elements'),
@@ -790,7 +790,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    TryStatementTree: create(
+    TryStatement: create(
         ParseTreeType.TRY_STATEMENT,
         'body',
         'catchBlock',
@@ -803,7 +803,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    UnaryExpressionTree: create(
+    UnaryExpression: create(
         ParseTreeType.UNARY_EXPRESSION,
         'operator',
         'operand'),
@@ -811,12 +811,12 @@ traceur.define('syntax.trees', function() {
     /**
      * @param {traceur.util.SourceRange} location
      * @param {traceur.syntax.TokenType} declarationType
-     * @param {Array.<traceur.syntax.trees.VariableDeclarationTree>}
+     * @param {Array.<traceur.syntax.trees.VariableDeclaration>}
      *     declarations
      * @constructor
      * @extends {ParseTree}
      */
-    VariableDeclarationListTree: create(
+    VariableDeclarationList: create(
         ParseTreeType.VARIABLE_DECLARATION_LIST,
         'declarationType',
         'declarations'),
@@ -828,18 +828,18 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    VariableDeclarationTree: create(
+    VariableDeclaration: create(
         ParseTreeType.VARIABLE_DECLARATION,
         'lvalue',
         'initializer'),
 
     /**
      * @param {traceur.util.SourceRange} location
-     * @param {traceur.syntax.trees.VariableDeclarationListTree} declarations
+     * @param {traceur.syntax.trees.VariableDeclarationList} declarations
      * @constructor
      * @extends {ParseTree}
      */
-    VariableStatementTree: create(
+    VariableStatement: create(
         ParseTreeType.VARIABLE_STATEMENT,
         'declarations'),
 
@@ -850,7 +850,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    WhileStatementTree: create(
+    WhileStatement: create(
         ParseTreeType.WHILE_STATEMENT,
         'condition',
         'body'),
@@ -862,7 +862,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    WithStatementTree: create(
+    WithStatement: create(
         ParseTreeType.WITH_STATEMENT,
         'expression',
         'body'),
@@ -874,7 +874,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    YieldStatementTree: create(
+    YieldStatement: create(
         ParseTreeType.YIELD_STATEMENT,
         'expression',
         'isYieldFor')

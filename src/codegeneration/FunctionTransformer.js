@@ -20,7 +20,7 @@ traceur.define('codegeneration', function() {
   var PredefinedName = traceur.syntax.PredefinedName;
   var TokenType = traceur.syntax.TokenType;
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var FunctionDeclarationTree = traceur.syntax.trees.FunctionDeclarationTree;
+  var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
 
   var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
   var createArrayLiteralExpression = ParseTreeFactory.createArrayLiteralExpression;
@@ -61,24 +61,24 @@ traceur.define('codegeneration', function() {
     __proto__: proto,
 
     /**
-     * @param {FunctionDeclarationTree} tree
+     * @param {FunctionDeclaration} tree
      * @return {ParseTree}
      */
-    transformFunctionDeclarationTree: function(tree) {
+    transformFunctionDeclaration: function(tree) {
       var nested = new FunctionTransformer(this.context_);
-      return new FunctionDeclarationTree(
+      return new FunctionDeclaration(
           null,
           tree.name,
           tree.isStatic,
           tree.formalParameterList,
-          nested.transformBlockTree(tree.functionBody));
+          nested.transformBlock(tree.functionBody));
     },
 
     /**
-     * @param {CallExpressionTree} tree
+     * @param {CallExpression} tree
      * @return {ParseTree}
      */
-    transformCallExpressionTree: function(tree) {
+    transformCallExpression: function(tree) {
       if (tree.operand.type == ParseTreeType.SUPER_EXPRESSION &&
           this.method_ && !this.method_.isStatic) {
         // We have: super(args)
@@ -122,14 +122,14 @@ traceur.define('codegeneration', function() {
             createArrayLiteralExpression(tree.args.args));
       }
 
-      return proto.transformCallExpressionTree.call(this, tree);
+      return proto.transformCallExpression.call(this, tree);
     },
 
     /**
-     * @param {MemberExpressionTree} tree
+     * @param {MemberExpression} tree
      * @return {ParseTree}
      */
-    transformMemberExpressionTree: function(tree) {
+    transformMemberExpression: function(tree) {
       switch (tree.operand.type) {
         case ParseTreeType.SUPER_EXPRESSION:
           this.validateSuperMember_(tree);
@@ -153,13 +153,13 @@ traceur.define('codegeneration', function() {
             this.reportError_(tree, 'Class "%s" does not contain a member named "%s"', classSymbol.name, memberName);
             return null;
           }
-          return proto.transformMemberExpressionTree.call(this, tree);
+          return proto.transformMemberExpression.call(this, tree);
         default:
-          return proto.transformMemberExpressionTree.call(this, tree);
+          return proto.transformMemberExpression.call(this, tree);
       }
     },
 
-    /** @param {MemberExpressionTree} tree */
+    /** @param {MemberExpression} tree */
     validateSuperMember_: function(memberExpression) {
       if (this.aggregate_ == null) {
         this.reportError_(memberExpression.operand, '"super" expression not allowed outside a class declaration');
@@ -170,10 +170,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {SuperExpressionTree} tree
+     * @param {SuperExpression} tree
      * @return {ParseTree}
      */
-    transformSuperExpressionTree: function(tree) {
+    transformSuperExpression: function(tree) {
       // TODO: super.property = ...;
       // TODO: super.property op= ...;
       this.reportError_(tree, '"super" may only be used on the LHS of a member access expression before a call (TODO wording)');
@@ -181,10 +181,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ClassExpressionTree} tree
+     * @param {ClassExpression} tree
      * @return {ParseTree}
      */
-    transformClassExpressionTree: function(tree) {
+    transformClassExpression: function(tree) {
       var classSymbol = this.getClassExpression_(tree);
       if (classSymbol == null) {
         return null;
@@ -193,7 +193,7 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ClassExpressionTree } tree
+     * @param {ClassExpression } tree
      * @return {ClassSymbol}
      */
     getClassExpression_: function(tree) {

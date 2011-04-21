@@ -189,27 +189,27 @@ traceur.define('codegeneration', function() {
   SpreadTransformer.prototype = {
     __proto__: ParseTreeTransformer.prototype,
 
-    transformArrayLiteralExpressionTree: function(tree) {
+    transformArrayLiteralExpression: function(tree) {
       if (hasSpreadMember(tree.elements)) {
         return desugarArraySpread(tree);
       }
       return ParseTreeTransformer.prototype.
-          transformArrayLiteralExpressionTree.call(this, tree);
+          transformArrayLiteralExpression.call(this, tree);
     },
 
-    transformCallExpressionTree: function(tree) {
+    transformCallExpression: function(tree) {
       if (hasSpreadMember(tree.args.args)) {
         return desugarCallSpread(tree);
       }
-      return ParseTreeTransformer.prototype.transformCallExpressionTree.
+      return ParseTreeTransformer.prototype.transformCallExpression.
           call(this, tree);
     },
 
-    transformNewExpressionTree: function(tree) {
+    transformNewExpression: function(tree) {
       if (tree.args != null && hasSpreadMember(tree.args.args)) {
         return desugarNewSpread(tree);
       }
-      return ParseTreeTransformer.prototype.transformNewExpressionTree.
+      return ParseTreeTransformer.prototype.transformNewExpression.
           call(this, tree);
     }
   };

@@ -82,7 +82,7 @@ traceur.define('semantics', function() {
     },
 
     /**
-     * @param {ProgramTree=} opt_tree
+     * @param {Program=} opt_tree
      * @return {void}
      * @private
      */
@@ -103,7 +103,7 @@ traceur.define('semantics', function() {
     },
 
     /**
-     * @param {ProgramTree=} opt_tree
+     * @param {Program=} opt_tree
      * @return {void}
      * @private
      */
@@ -144,7 +144,7 @@ traceur.define('semantics', function() {
 
     /**
      * @param {ModuleSymbol} module
-     * @param {ExportDeclarationTree} tree
+     * @param {ExportDeclaration} tree
      * @param {string} opt_name
      * @return {void}
      * @private
@@ -160,7 +160,7 @@ traceur.define('semantics', function() {
         case VARIABLE_STATEMENT:
           var statement = exp.asVariableStatement();
           statement.declarations.declarations.forEach(function(declaration) {
-            // An IdentifierExpressionTree, UNDONE: ArrayPatternTree or
+            // An IdentifierExpression, UNDONE: ArrayPattern or
             // UNDONE ObjectLiteralTree
             this.declareExport_(module, declaration,
                 declaration.lvalue.asIdentifierExpression().
@@ -216,7 +216,7 @@ traceur.define('semantics', function() {
 
     /**
      * @param {ModuleSymbol} parent
-     * @param {ModuleDefinitionTree} tree
+     * @param {ModuleDefinition} tree
      * @private
      */
     declareModuleDefinition_: function(parent, tree) {
@@ -231,7 +231,7 @@ traceur.define('semantics', function() {
 
     /**
      * @param {ModuleSymbol} parent
-     * @param {ModuleDeclarationTree} tree
+     * @param {ModuleDeclaration} tree
      * @private
      */
     declareModuleDeclaration_: function(parent, tree) {
@@ -297,7 +297,7 @@ traceur.define('semantics', function() {
     },
 
     /**
-     * @param {ModuleDefinitionTree} tree
+     * @param {ModuleDefinition} tree
      * @param {ModuleSymbol} parent
      * @param {string} name
      * @return {boolean}
@@ -328,7 +328,7 @@ traceur.define('semantics', function() {
 
 
     /**
-     * @param {ProgramTree=} opt_tree
+     * @param {Program=} opt_tree
      * @return {void}
      * @private
      */
@@ -375,7 +375,7 @@ traceur.define('semantics', function() {
 
     /**
      * Validates that the RHS is all modules.
-     * @param {ModuleDeclarationTree} tree
+     * @param {ModuleDeclaration} tree
      * @param {ModuleSymbol} parent
      * @private
      */
@@ -388,7 +388,7 @@ traceur.define('semantics', function() {
 
     /**
      * Validates that the RHS is all modules references.
-     * @param {ModuleSpecifierTree} tree
+     * @param {ModuleSpecifier} tree
      * @param {ModuleSymbol} parent
      * @private
      */

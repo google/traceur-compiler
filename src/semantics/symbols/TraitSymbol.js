@@ -22,7 +22,7 @@ traceur.define('semantics.symbols', function() {
    * A symbol representing a trait definition.
    *
    * @param {string} name
-   * @param {TraitDeclarationTree} tree
+   * @param {TraitDeclaration} tree
    * @constructor
    * @extends {AggregateSymbol}
    */

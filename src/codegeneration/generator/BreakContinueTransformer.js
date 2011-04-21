@@ -18,15 +18,15 @@ traceur.define('codegeneration.generator', function() {
   var ParseTree = traceur.syntax.trees.ParseTree;
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
   var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
-  var BreakStatementTree = traceur.syntax.trees.BreakStatementTree;
-  var ContinueStatementTree = traceur.syntax.trees.ContinueStatementTree;
-  var DoWhileStatementTree = traceur.syntax.trees.DoWhileStatementTree;
-  var ForEachStatementTree = traceur.syntax.trees.ForEachStatementTree;
-  var ForStatementTree = traceur.syntax.trees.ForStatementTree;
-  var FunctionDeclarationTree = traceur.syntax.trees.FunctionDeclarationTree;
+  var BreakStatement = traceur.syntax.trees.BreakStatement;
+  var ContinueStatement = traceur.syntax.trees.ContinueStatement;
+  var DoWhileStatement = traceur.syntax.trees.DoWhileStatement;
+  var ForEachStatement = traceur.syntax.trees.ForEachStatement;
+  var ForStatement = traceur.syntax.trees.ForStatement;
+  var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
   var ParseTree = traceur.syntax.trees.ParseTree;
-  var SwitchStatementTree = traceur.syntax.trees.SwitchStatementTree;
-  var WhileStatementTree = traceur.syntax.trees.WhileStatementTree;
+  var SwitchStatement = traceur.syntax.trees.SwitchStatement;
+  var WhileStatement = traceur.syntax.trees.WhileStatement;
 
   var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
 
@@ -58,7 +58,7 @@ traceur.define('codegeneration.generator', function() {
   }
 
   /**
-   * @param {BreakStatementTree|ContinueStatementTree} tree
+   * @param {BreakStatement|ContinueStatement} tree
    * @return {string}
    */
   function safeGetLabel(tree) {
@@ -86,52 +86,52 @@ traceur.define('codegeneration.generator', function() {
     },
 
     /**
-     * @param {BreakStatementTree} tree
+     * @param {BreakStatement} tree
      * @return {ParseTree}
      */
-    transformBreakStatementTree: function(tree) {
+    transformBreakStatement: function(tree) {
       return this.transformBreaks_ ?
           this.stateToStateMachine_(new BreakState(this.allocateState_(), safeGetLabel(tree))) :
           tree;
     },
 
     /**
-     * @param {ContinueStatementTree} tree
+     * @param {ContinueStatement} tree
      * @return {ParseTree}
      */
-    transformContinueStatementTree: function(tree) {
+    transformContinueStatement: function(tree) {
       return this.stateToStateMachine_(new ContinueState(this.allocateState_(), safeGetLabel(tree)));
     },
 
     /**
-     * @param {DoWhileStatementTree} tree
+     * @param {DoWhileStatement} tree
      * @return {ParseTree}
      */
-    transformDoWhileStatementTree: function(tree) {
+    transformDoWhileStatement: function(tree) {
       return tree;
     },
 
     /**
-     * @param {ForEachStatementTree} tree
+     * @param {ForEachStatement} tree
      * @return {ParseTree}
      */
-    transformForEachStatementTree: function(tree) {
+    transformForEachStatement: function(tree) {
       return tree;
     },
 
     /**
-     * @param {ForStatementTree} tree
+     * @param {ForStatement} tree
      * @return {ParseTree}
      */
-    transformForStatementTree: function(tree) {
+    transformForStatement: function(tree) {
       return tree;
     },
 
     /**
-     * @param {FunctionDeclarationTree} tree
+     * @param {FunctionDeclaration} tree
      * @return {ParseTree}
      */
-    transformFunctionDeclarationTree: function(tree) {
+    transformFunctionDeclaration: function(tree) {
       return tree;
     },
 
@@ -144,22 +144,22 @@ traceur.define('codegeneration.generator', function() {
     },
 
     /**
-     * @param {SwitchStatementTree} tree
+     * @param {SwitchStatement} tree
      * @return {ParseTree}
      */
-    transformSwitchStatementTree: function(tree) {
+    transformSwitchStatement: function(tree) {
       var oldState = this.transformBreaks_;
       this.transformBreaks = false;
-      var result = proto.transformSwitchStatementTree.call(this, tree);
+      var result = proto.transformSwitchStatement.call(this, tree);
       this.transformBreaks_ = oldState;
       return result;
     },
 
     /**
-     * @param {WhileStatementTree} tree
+     * @param {WhileStatement} tree
      * @return {ParseTree}
      */
-    transformWhileStatementTree: function(tree) {
+    transformWhileStatement: function(tree) {
       return tree;
     }
   };

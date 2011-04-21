@@ -22,10 +22,10 @@ traceur.define('codegeneration', function() {
   var boundIdentifiersInBlock = BoundIdentifierAccumulator.boundIdentifiersInBlock;
   var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
   var PredefinedName = traceur.syntax.PredefinedName;
-  var BlockTree = traceur.syntax.trees.BlockTree;
-  var CatchTree = traceur.syntax.trees.CatchTree;
-  var FunctionDeclarationTree = traceur.syntax.trees.FunctionDeclarationTree;
-  var IdentifierExpressionTree = traceur.syntax.trees.IdentifierExpressionTree;
+  var Block = traceur.syntax.trees.Block;
+  var Catch = traceur.syntax.trees.Catch;
+  var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
+  var IdentifierExpression = traceur.syntax.trees.IdentifierExpression;
   var ParseTree = traceur.syntax.trees.ParseTree;
 
   /**
@@ -86,23 +86,23 @@ traceur.define('codegeneration', function() {
     __proto__: proto,
 
     /**
-     * @param {BlockTree} tree
+     * @param {Block} tree
      * @return {ParseTree}
      */
-    transformBlockTree: function(tree) {
+    transformBlock: function(tree) {
       if (this.oldName_ in boundIdentifiersInBlock(tree)) {
         // the old name is bound in the block, skip rename
         return tree;
       } else {
-        return proto.transformBlockTree.call(this, tree);
+        return proto.transformBlock.call(this, tree);
       }
     },
 
     /**
-     * @param {IdentifierExpressionTree} tree
+     * @param {IdentifierExpression} tree
      * @return {ParseTree}
      */
-    transformIdentifierExpressionTree: function(tree) {
+    transformIdentifierExpression: function(tree) {
       if (this.oldName_ == tree.identifierToken.value) {
         return createIdentifierExpression(this.newName_);
       } else {
@@ -111,10 +111,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {FunctionDeclarationTree} tree
+     * @param {FunctionDeclaration} tree
      * @return {ParseTree}
      */
-    transformFunctionDeclarationTree: function(tree) {
+    transformFunctionDeclaration: function(tree) {
       if (this.oldName_ == tree.name) {
         // it is the function that is being renamed
         tree = createFunctionDeclaration(this.newName_,
@@ -127,20 +127,20 @@ traceur.define('codegeneration', function() {
           PredefinedName.ARGUMENTS == this.oldName_) {
         return tree;
       } else {
-        return proto.transformFunctionDeclarationTree.call(this, tree);
+        return proto.transformFunctionDeclaration.call(this, tree);
       }
     },
 
     /**
-     * @param {CatchTree} tree
+     * @param {Catch} tree
      * @return {ParseTree}
      */
-    transformCatchTree: function(tree) {
+    transformCatch: function(tree) {
       if (this.oldName_ == tree.exceptionName.value) {
         // this.oldName_ is rebound in the catch block, so don't recurse
         return tree;
       } else {
-        return proto.transformCatchTree.call(this, tree);
+        return proto.transformCatch.call(this, tree);
       }
     }
   };

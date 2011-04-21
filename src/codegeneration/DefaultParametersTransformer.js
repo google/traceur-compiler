@@ -19,7 +19,7 @@ traceur.define('codegeneration', function() {
   var PredefinedName = traceur.syntax.PredefinedName;
 
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var FormalParameterListTree = traceur.syntax.trees.FormalParameterListTree;
+  var FormalParameterList = traceur.syntax.trees.FormalParameterList;
 
   var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
 
@@ -59,9 +59,9 @@ traceur.define('codegeneration', function() {
   DefaultParametersTransformer.prototype = {
     __proto__: ParseTreeTransformer.prototype,
 
-    transformFunctionDeclarationTree: function(tree) {
+    transformFunctionDeclaration: function(tree) {
       var transformedTree = ParseTreeTransformer.prototype.
-          transformFunctionDeclarationTree.call(this, tree).
+          transformFunctionDeclaration.call(this, tree).
           asFunctionDeclaration();
       if (this.hasDefaultParameters_(transformedTree.formalParameterList)) {
         return this.desugarDefaultParameters_(tree);
@@ -91,7 +91,7 @@ traceur.define('codegeneration', function() {
       });
 
       var parametersWithoutDefault =
-          new FormalParameterListTree(
+          new FormalParameterList(
               tree.formalParameterList.location, params);
 
       var statements = [];

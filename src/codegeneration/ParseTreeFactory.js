@@ -25,65 +25,65 @@ traceur.define('codegeneration', function() {
   var ParseTree = traceur.syntax.trees.ParseTree;
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
 
-  var ArgumentListTree = traceur.syntax.trees.ArgumentListTree;
-  var ArrayLiteralExpressionTree = traceur.syntax.trees.ArrayLiteralExpressionTree;
-  var ArrayPatternTree = traceur.syntax.trees.ArrayPatternTree;
-  var BinaryOperatorTree = traceur.syntax.trees.BinaryOperatorTree;
-  var BlockTree = traceur.syntax.trees.BlockTree;
-  var BreakStatementTree = traceur.syntax.trees.BreakStatementTree;
-  var CallExpressionTree = traceur.syntax.trees.CallExpressionTree;
-  var CaseClauseTree = traceur.syntax.trees.CaseClauseTree;
-  var CatchTree = traceur.syntax.trees.CatchTree;
-  var ClassDeclarationTree = traceur.syntax.trees.ClassDeclarationTree;
-  var CommaExpressionTree = traceur.syntax.trees.CommaExpressionTree;
-  var ConditionalExpressionTree = traceur.syntax.trees.ConditionalExpressionTree;
-  var ContinueStatementTree = traceur.syntax.trees.ContinueStatementTree;
-  var DefaultClauseTree = traceur.syntax.trees.DefaultClauseTree;
-  var DefaultParameterTree = traceur.syntax.trees.DefaultParameterTree;
-  var DoWhileStatementTree = traceur.syntax.trees.DoWhileStatementTree;
-  var EmptyStatementTree = traceur.syntax.trees.EmptyStatementTree;
-  var ExpressionStatementTree = traceur.syntax.trees.ExpressionStatementTree;
-  var FieldDeclarationTree = traceur.syntax.trees.FieldDeclarationTree;
-  var FinallyTree = traceur.syntax.trees.FinallyTree;
-  var ForEachStatementTree = traceur.syntax.trees.ForEachStatementTree;
-  var ForInStatementTree = traceur.syntax.trees.ForInStatementTree;
-  var ForStatementTree = traceur.syntax.trees.ForStatementTree;
-  var FormalParameterListTree = traceur.syntax.trees.FormalParameterListTree;
-  var FunctionDeclarationTree = traceur.syntax.trees.FunctionDeclarationTree;
-  var GetAccessorTree = traceur.syntax.trees.GetAccessorTree;
-  var IdentifierExpressionTree = traceur.syntax.trees.IdentifierExpressionTree;
-  var IfStatementTree = traceur.syntax.trees.IfStatementTree;
-  var LabelledStatementTree = traceur.syntax.trees.LabelledStatementTree;
-  var LiteralExpressionTree = traceur.syntax.trees.LiteralExpressionTree;
-  var MemberExpressionTree = traceur.syntax.trees.MemberExpressionTree;
-  var MemberLookupExpressionTree = traceur.syntax.trees.MemberLookupExpressionTree;
-  var MixinTree = traceur.syntax.trees.MixinTree;
-  var MixinResolveListTree = traceur.syntax.trees.MixinResolveListTree;
-  var NewExpressionTree = traceur.syntax.trees.NewExpressionTree;
-  var ObjectLiteralExpressionTree = traceur.syntax.trees.ObjectLiteralExpressionTree;
-  var ObjectPatternTree = traceur.syntax.trees.ObjectPatternTree;
-  var ObjectPatternFieldTree = traceur.syntax.trees.ObjectPatternFieldTree;
-  var ParenExpressionTree = traceur.syntax.trees.ParenExpressionTree;
-  var PostfixExpressionTree = traceur.syntax.trees.PostfixExpressionTree;
-  var ProgramTree = traceur.syntax.trees.ProgramTree;
-  var PropertyNameAssignmentTree = traceur.syntax.trees.PropertyNameAssignmentTree;
-  var RestParameterTree = traceur.syntax.trees.RestParameterTree;
-  var ReturnStatementTree = traceur.syntax.trees.ReturnStatementTree;
-  var YieldStatementTree = traceur.syntax.trees.YieldStatementTree;
-  var SetAccessorTree = traceur.syntax.trees.SetAccessorTree;
-  var SpreadExpressionTree = traceur.syntax.trees.SpreadExpressionTree;
-  var SpreadPatternElementTree = traceur.syntax.trees.SpreadPatternElementTree;
-  var SwitchStatementTree = traceur.syntax.trees.SwitchStatementTree;
-  var ThisExpressionTree = traceur.syntax.trees.ThisExpressionTree;
-  var ThrowStatementTree = traceur.syntax.trees.ThrowStatementTree;
-  var TraitDeclarationTree = traceur.syntax.trees.TraitDeclarationTree;
-  var TryStatementTree = traceur.syntax.trees.TryStatementTree;
-  var UnaryExpressionTree = traceur.syntax.trees.UnaryExpressionTree;
-  var VariableDeclarationListTree = traceur.syntax.trees.VariableDeclarationListTree;
-  var VariableDeclarationTree = traceur.syntax.trees.VariableDeclarationTree;
-  var VariableStatementTree = traceur.syntax.trees.VariableStatementTree;
-  var WhileStatementTree = traceur.syntax.trees.WhileStatementTree;
-  var WithStatementTree = traceur.syntax.trees.WithStatementTree;
+  var ArgumentList = traceur.syntax.trees.ArgumentList;
+  var ArrayLiteralExpression = traceur.syntax.trees.ArrayLiteralExpression;
+  var ArrayPattern = traceur.syntax.trees.ArrayPattern;
+  var BinaryOperator = traceur.syntax.trees.BinaryOperator;
+  var Block = traceur.syntax.trees.Block;
+  var BreakStatement = traceur.syntax.trees.BreakStatement;
+  var CallExpression = traceur.syntax.trees.CallExpression;
+  var CaseClause = traceur.syntax.trees.CaseClause;
+  var Catch = traceur.syntax.trees.Catch;
+  var ClassDeclaration = traceur.syntax.trees.ClassDeclaration;
+  var CommaExpression = traceur.syntax.trees.CommaExpression;
+  var ConditionalExpression = traceur.syntax.trees.ConditionalExpression;
+  var ContinueStatement = traceur.syntax.trees.ContinueStatement;
+  var DefaultClause = traceur.syntax.trees.DefaultClause;
+  var DefaultParameter = traceur.syntax.trees.DefaultParameter;
+  var DoWhileStatement = traceur.syntax.trees.DoWhileStatement;
+  var EmptyStatement = traceur.syntax.trees.EmptyStatement;
+  var ExpressionStatement = traceur.syntax.trees.ExpressionStatement;
+  var FieldDeclaration = traceur.syntax.trees.FieldDeclaration;
+  var Finally = traceur.syntax.trees.Finally;
+  var ForEachStatement = traceur.syntax.trees.ForEachStatement;
+  var ForInStatement = traceur.syntax.trees.ForInStatement;
+  var ForStatement = traceur.syntax.trees.ForStatement;
+  var FormalParameterList = traceur.syntax.trees.FormalParameterList;
+  var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
+  var GetAccessor = traceur.syntax.trees.GetAccessor;
+  var IdentifierExpression = traceur.syntax.trees.IdentifierExpression;
+  var IfStatement = traceur.syntax.trees.IfStatement;
+  var LabelledStatement = traceur.syntax.trees.LabelledStatement;
+  var LiteralExpression = traceur.syntax.trees.LiteralExpression;
+  var MemberExpression = traceur.syntax.trees.MemberExpression;
+  var MemberLookupExpression = traceur.syntax.trees.MemberLookupExpression;
+  var Mixin = traceur.syntax.trees.Mixin;
+  var MixinResolveList = traceur.syntax.trees.MixinResolveList;
+  var NewExpression = traceur.syntax.trees.NewExpression;
+  var ObjectLiteralExpression = traceur.syntax.trees.ObjectLiteralExpression;
+  var ObjectPattern = traceur.syntax.trees.ObjectPattern;
+  var ObjectPatternField = traceur.syntax.trees.ObjectPatternField;
+  var ParenExpression = traceur.syntax.trees.ParenExpression;
+  var PostfixExpression = traceur.syntax.trees.PostfixExpression;
+  var Program = traceur.syntax.trees.Program;
+  var PropertyNameAssignment = traceur.syntax.trees.PropertyNameAssignment;
+  var RestParameter = traceur.syntax.trees.RestParameter;
+  var ReturnStatement = traceur.syntax.trees.ReturnStatement;
+  var YieldStatement = traceur.syntax.trees.YieldStatement;
+  var SetAccessor = traceur.syntax.trees.SetAccessor;
+  var SpreadExpression = traceur.syntax.trees.SpreadExpression;
+  var SpreadPatternElement = traceur.syntax.trees.SpreadPatternElement;
+  var SwitchStatement = traceur.syntax.trees.SwitchStatement;
+  var ThisExpression = traceur.syntax.trees.ThisExpression;
+  var ThrowStatement = traceur.syntax.trees.ThrowStatement;
+  var TraitDeclaration = traceur.syntax.trees.TraitDeclaration;
+  var TryStatement = traceur.syntax.trees.TryStatement;
+  var UnaryExpression = traceur.syntax.trees.UnaryExpression;
+  var VariableDeclarationList = traceur.syntax.trees.VariableDeclarationList;
+  var VariableDeclaration = traceur.syntax.trees.VariableDeclaration;
+  var VariableStatement = traceur.syntax.trees.VariableStatement;
+  var WhileStatement = traceur.syntax.trees.WhileStatement;
+  var WithStatement = traceur.syntax.trees.WithStatement;
 
   // Helpers so we can use these on Arguments objects.
   var slice = Array.prototype.slice.call.bind(Array.prototype.slice);
@@ -144,7 +144,7 @@ traceur.define('codegeneration', function() {
   }
 
   /**
-   * @param {IdentifierToken|FormalParameterListTree} parameter
+   * @param {IdentifierToken|FormalParameterList} parameter
    * @return {Array.<string>}
    */
   function createParameters(parameter) {
@@ -189,33 +189,33 @@ traceur.define('codegeneration', function() {
    *
    * @param {string|number|IdentifierToken|Array.<string>} arg0
    * @param {...string} var_args
-   * @return {FormalParameterListTree}
+   * @return {FormalParameterList}
    */
   function createParameterList(arg0, var_args) {
     if (typeof arg0 == 'string') {
       // var_args of strings
       var parameterList = map(arguments, createIdentifierExpression);
-      return new FormalParameterListTree(null, parameterList);
+      return new FormalParameterList(null, parameterList);
     }
 
     if (typeof arg0 == 'number')
       return createParameterListHelper(arg0, false);
 
     if (arg0 instanceof IdentifierToken) {
-      return new FormalParameterListTree(
+      return new FormalParameterList(
           null, [createIdentifierExpression(arg0)]);
     }
 
     // Array.<string>
     var builder = arg0.map(createIdentifierExpression);
-    return new FormalParameterListTree(null, builder);
+    return new FormalParameterList(null, builder);
   }
 
   /**
    * Helper for building parameter lists with and without rest params.
    * @param {number} numberOfParameters
    * @param {boolean} hasRestParams
-   * @return {FormalParameterListTree}
+   * @return {FormalParameterList}
    */
   function createParameterListHelper(numberOfParameters, hasRestParams) {
     var builder = [];
@@ -229,12 +229,12 @@ traceur.define('codegeneration', function() {
               createIdentifierExpression(parameterName));
     }
 
-    return new FormalParameterListTree(null, builder);
+    return new FormalParameterList(null, builder);
   }
 
   /**
    * @param {number} numberOfParameters
-   * @return {FormalParameterListTree}
+   * @return {FormalParameterList}
    */
   function createParameterListWithRestParams(numberOfParameters) {
     return createParameterListHelper(numberOfParameters, true);
@@ -247,17 +247,17 @@ traceur.define('codegeneration', function() {
    * @see PredefinedName#getParameterName
    *
    * @param {number} index
-   * @return {IdentifierExpressionTree}
+   * @return {IdentifierExpression}
    */
   function createParameterReference(index) {
     return createIdentifierExpression(PredefinedName.getParameterName(index));
   }
 
   /**
-   * @return {FormalParameterListTree}
+   * @return {FormalParameterList}
    */
   function createEmptyParameterList() {
-    return new FormalParameterListTree(null, []);
+    return new FormalParameterList(null, []);
   }
 
   // Tree Lists
@@ -272,7 +272,7 @@ traceur.define('codegeneration', function() {
   /**
    * @param {Array.<ParseTree>|ParseTree|number} numberListOrFirst
    * @param {...ParseTree} var_args
-   * @return {ArgumentListTree}
+   * @return {ArgumentList}
    */
   function createArgumentList(numberListOrFirst, var_args) {
     if (typeof numberListOrFirst == 'number') {
@@ -286,12 +286,12 @@ traceur.define('codegeneration', function() {
     else
       list = slice(arguments);
 
-    return new ArgumentListTree(null, list);
+    return new ArgumentList(null, list);
   }
 
   /**
-   * @param {FormalParameterListTree} formalParameterList
-   * @return {ArgumentListTree}
+   * @param {FormalParameterList} formalParameterList
+   * @return {ArgumentList}
    */
   function createArgumentListFromParameterList(formalParameterList) {
     var builder = formalParameterList.parameters.map(function(parameter) {
@@ -305,26 +305,26 @@ traceur.define('codegeneration', function() {
       }
     });
 
-    return new ArgumentListTree(null, builder);
+    return new ArgumentList(null, builder);
   }
 
   /**
-   * @return {ArgumentListTree}
+   * @return {ArgumentList}
    */
   function createEmptyArgumentList() {
-    return new ArgumentListTree(null, createEmptyList());
+    return new ArgumentList(null, createEmptyList());
   }
 
   /**
    * @param {Array.<ParseTree>} list
-   * @return {ArrayLiteralExpressionTree}
+   * @return {ArrayLiteralExpression}
    */
   function createArrayLiteralExpression(list) {
-    return new ArrayLiteralExpressionTree(null, list);
+    return new ArrayLiteralExpression(null, list);
   }
 
   /**
-   * @return {ArrayLiteralExpressionTree}
+   * @return {ArrayLiteralExpression}
    */
   function createEmptyArrayLiteralExpression() {
     return createArrayLiteralExpression(createEmptyList());
@@ -332,38 +332,38 @@ traceur.define('codegeneration', function() {
 
   /**
    * @param {Array.<ParseTree>} list
-   * @return {ArrayPatternTree}
+   * @return {ArrayPattern}
    */
   function createArrayPattern(list) {
-    return new ArrayPatternTree(null, list);
+    return new ArrayPattern(null, list);
   }
 
   /**
    * @param {ParseTree} lhs
    * @param {ParseTree} rhs
-   * @return {BinaryOperatorTree}
+   * @return {BinaryOperator}
    */
   function createAssignmentExpression(lhs, rhs) {
-    return new BinaryOperatorTree(null, lhs,
-                                  createOperatorToken(TokenType.EQUAL), rhs);
+    return new BinaryOperator(null, lhs,
+        createOperatorToken(TokenType.EQUAL), rhs);
   }
 
   /**
-   * @return {BinaryOperatorTree}
+   * @return {BinaryOperator}
    */
   function createBinaryOperator(left, operator, right) {
-    return new BinaryOperatorTree(null, left, operator, right);
+    return new BinaryOperator(null, left, operator, right);
   }
 
   /**
-   * @return {EmptyStatementTree}
+   * @return {EmptyStatement}
    */
   function createEmptyStatement() {
-    return new EmptyStatementTree(null);
+    return new EmptyStatement(null);
   }
 
   /**
-   * @return {BlockTree}
+   * @return {Block}
    */
   function createEmptyBlock() {
     return createBlock(createEmptyList());
@@ -372,12 +372,12 @@ traceur.define('codegeneration', function() {
   /**
    * @param {Array.<ParseTree>|ParseTree} statements
    * @param {...ParseTree} var_args
-   * @return {BlockTree}
+   * @return {Block}
    */
   function createBlock(statements) {
     if (statements instanceof ParseTree)
       statements = slice(arguments);
-    return new BlockTree(null, statements);
+    return new Block(null, statements);
   }
 
   /**
@@ -392,7 +392,7 @@ traceur.define('codegeneration', function() {
   }
 
   /**
-   * @param {BlockTree} block
+   * @param {Block} block
    * @return {ParseTree}
    */
   function createScopedBlock(block) {
@@ -400,8 +400,8 @@ traceur.define('codegeneration', function() {
   }
 
   /**
-   * @param {BlockTree} block
-   * @return {CallExpressionTree}
+   * @param {Block} block
+   * @return {CallExpression}
    */
   function createScopedExpression(block) {
     return createCallCall(
@@ -412,18 +412,18 @@ traceur.define('codegeneration', function() {
 
   /**
    * @param {ParseTree} operand
-   * @param {ArgumentListTree=} opt_args
-   * @return {CallExpressionTree}
+   * @param {ArgumentList=} opt_args
+   * @return {CallExpression}
    */
   function createCallExpression(operand, opt_args) {
     var args = opt_args || createEmptyArgumentList();
-    return new CallExpressionTree(null, operand, args);
+    return new CallExpression(null, operand, args);
   }
 
   /**
    * @param {ParseTree} func
    * @param {ParseTree} thisTree
-   * @return {CallExpressionTree}
+   * @return {CallExpression}
    */
   function createBoundCall(func, thisTree) {
     return createCallExpression(
@@ -438,7 +438,7 @@ traceur.define('codegeneration', function() {
   /**
    * @param {string} aggregateName
    * @param {string} propertyName
-   * @return {CallExpressionTree}
+   * @return {CallExpression}
    */
   function createLookupGetter(aggregateName, propertyName) {
     // TODO(arv): Use ES5 method instead of relying on propriatary extensions.
@@ -451,10 +451,10 @@ traceur.define('codegeneration', function() {
   }
 
   /**
-   * @return {BreakStatementTree}
+   * @return {BreakStatement}
    */
   function createBreakStatement() {
-    return new BreakStatementTree(null, null);
+    return new BreakStatement(null, null);
   }
 
   // function.call(this, arguments)
@@ -463,7 +463,7 @@ traceur.define('codegeneration', function() {
    * @param {ParseTree} thisExpression
    * @param {ParseTree|Array.<ParseTree>} args
    * @param {...ParseTree} var_args
-   * @return {CallExpressionTree}
+   * @return {CallExpression}
    */
   function createCallCall(func, thisExpression, args, var_args) {
     if (args instanceof ParseTree)
@@ -494,86 +494,86 @@ traceur.define('codegeneration', function() {
   /**
    * @param {ParseTree} expression
    * @param {Array.<ParseTree>} statements
-   * @return {CaseClauseTree}
+   * @return {CaseClause}
    */
   function createCaseClause(expression, statements) {
-    return new CaseClauseTree(null, expression, statements);
+    return new CaseClause(null, expression, statements);
   }
 
   /**
    * @param {IdentifierToken} exceptionName
    * @param {ParseTree} catchBody
-   * @return {CatchTree}
+   * @return {Catch}
    */
   function createCatch(exceptionName, catchBody) {
-    return new CatchTree(null, exceptionName, catchBody);
+    return new Catch(null, exceptionName, catchBody);
   }
 
   /**
    * @param {IdentifierToken} name
    * @param {ParseTree} superClass
    * @param {Array.<ParseTree>} elements
-   * @return {ClassDeclarationTree}
+   * @return {ClassDeclaration}
    */
   function createClassDeclaration(name, superClass, elements) {
-    return new ClassDeclarationTree(null, name, superClass, elements);
+    return new ClassDeclaration(null, name, superClass, elements);
   }
 
   /**
    * @param {Array.<ParseTree>} expressions
-   * @return {CommaExpressionTree}
+   * @return {CommaExpression}
    */
   function createCommaExpression(expressions) {
-    return new CommaExpressionTree(null, expressions);
+    return new CommaExpression(null, expressions);
   }
 
   /**
    * @param {ParseTree} condition
    * @param {ParseTree} left
    * @param {ParseTree} right
-   * @return {ConditionalExpressionTree}
+   * @return {ConditionalExpression}
    */
   function createConditionalExpression(condition, left, right) {
-    return new ConditionalExpressionTree(null, condition, left, right);
+    return new ConditionalExpression(null, condition, left, right);
   }
 
   /**
-   * @return {ContinueStatementTree}
+   * @return {ContinueStatement}
    */
   function createContinueStatement() {
-    return new ContinueStatementTree(null, null);
+    return new ContinueStatement(null, null);
   }
 
   /**
    * @param {Array.<ParseTree>} statements
-   * @return {DefaultClauseTree}
+   * @return {DefaultClause}
    */
   function createDefaultClause(statements) {
-    return new DefaultClauseTree(null, statements);
+    return new DefaultClause(null, statements);
   }
 
   /**
-   * @param {IdentifierExpressionTree} identifier
+   * @param {IdentifierExpression} identifier
    * @param {ParseTree} expression
-   * @return {DefaultParameterTree}
+   * @return {DefaultParameter}
    */
   function createDefaultParameter(identifier, expression) {
-    return new DefaultParameterTree(null, identifier, expression);
+    return new DefaultParameter(null, identifier, expression);
   }
 
   /**
    * @param {ParseTree} body
    * @param {ParseTree} condition
-   * @return {DoWhileStatementTree}
+   * @return {DoWhileStatement}
    */
   function createDoWhileStatement(body, condition) {
-    return new DoWhileStatementTree(null, body, condition);
+    return new DoWhileStatement(null, body, condition);
   }
 
   /**
    * @param {ParseTree} lhs
    * @param {ParseTree} rhs
-   * @return {ExpressionStatementTree}
+   * @return {ExpressionStatement}
    */
   function createAssignmentStatement(lhs, rhs) {
     return createExpressionStatement(createAssignmentExpression(lhs, rhs));
@@ -581,8 +581,8 @@ traceur.define('codegeneration', function() {
 
   /**
    * @param {ParseTree} operand
-   * @param {ArgumentListTree=} opt_args
-   * @return {ExpressionStatementTree}
+   * @param {ArgumentList=} opt_args
+   * @return {ExpressionStatement}
    */
   function createCallStatement(operand, opt_args) {
     if (opt_args) {
@@ -594,48 +594,48 @@ traceur.define('codegeneration', function() {
 
   /**
    * @param {ParseTree} expression
-   * @return {ExpressionStatementTree}
+   * @return {ExpressionStatement}
    */
   function createExpressionStatement(expression) {
-    return new ExpressionStatementTree(null, expression);
+    return new ExpressionStatement(null, expression);
   }
 
   /**
    * @param {boolean} isStatic
    * @param {boolean} isConst
-   * @param {Array.<VariableDeclarationTree} expression
-   * @return {FieldDeclarationTree}
+   * @param {Array.<VariableDeclaration} expression
+   * @return {FieldDeclaration}
    */
   function createFieldDeclaration(isStatic, isConst, declarations) {
-    return new FieldDeclarationTree(null, isStatic, isConst, declarations);
+    return new FieldDeclaration(null, isStatic, isConst, declarations);
   }
 
   /**
    * @param {ParseTree} block
-   * @return {FinallyTree}
+   * @return {Finally}
    */
   function createFinally(block) {
-    return new FinallyTree(null, block);
+    return new Finally(null, block);
   }
 
   /**
-   * @param {VariableDeclarationListTree} initializer
+   * @param {VariableDeclarationList} initializer
    * @param {ParseTree} collection
    * @param {ParseTree} body
-   * @return {ForEachStatementTree}
+   * @return {ForEachStatement}
    */
   function createForEachStatement(initializer, collection, body) {
-    return new ForEachStatementTree(null, initializer, collection, body);
+    return new ForEachStatement(null, initializer, collection, body);
   }
 
   /**
    * @param {ParseTree} initializer
    * @param {ParseTree} collection
    * @param {ParseTree} body
-   * @return {ForInStatementTree}
+   * @return {ForInStatement}
    */
   function createForInStatement(initializer, collection, body) {
-    return new ForInStatementTree(null, initializer, collection, body);
+    return new ForInStatement(null, initializer, collection, body);
   }
 
   /**
@@ -643,72 +643,72 @@ traceur.define('codegeneration', function() {
    * @param {ParseTree} condition
    * @param {ParseTree} increment
    * @param {ParseTree} body
-   * @return {ForStatementTree}
+   * @return {ForStatement}
    */
   function createForStatement(variables, condition, increment, body) {
-    return new ForStatementTree(null, variables, condition, increment, body);
+    return new ForStatement(null, variables, condition, increment, body);
   }
 
   /**
-   * @param {Array.<string>|FormalParameterListTree} formalParameterList
-   * @param {BlockTree} functionBody
-   * @return {FunctionDeclarationTree}
+   * @param {Array.<string>|FormalParameterList} formalParameterList
+   * @param {Block} functionBody
+   * @return {FunctionDeclaration}
    */
   function createFunctionExpressionFormals(formalParameters, functionBody) {
     if (formalParameters instanceof Array)
       formalParameters = createParameterList(formalParameters);
-    return new FunctionDeclarationTree(null, null, false, formalParameters,
-                                       functionBody);
+    return new FunctionDeclaration(null, null, false, formalParameters,
+        functionBody);
   }
 
   /**
    * @param {string|IdentifierToken} name
-   * @param {FormalParameterListTree} formalParameterList
-   * @param {BlockTree} functionBody
-   * @return {FunctionDeclarationTree}
+   * @param {FormalParameterList} formalParameterList
+   * @param {Block} functionBody
+   * @return {FunctionDeclaration}
    */
   function createFunctionDeclaration(name, formalParameterList, functionBody) {
     if (typeof name == 'string')
       name = createIdentifierToken(name);
-    return new FunctionDeclarationTree(null, name, false, formalParameterList,
-                                       functionBody);
+    return new FunctionDeclaration(null, name, false, formalParameterList,
+        functionBody);
   }
 
   /**
-   * @param {FormalParameterListTree} formalParameterList
-   * @param {BlockTree} functionBody
-   * @return {FunctionDeclarationTree}
+   * @param {FormalParameterList} formalParameterList
+   * @param {Block} functionBody
+   * @return {FunctionDeclaration}
    */
   function createFunctionExpression(formalParameterList, functionBody) {
-    return new FunctionDeclarationTree(null, null, false, formalParameterList,
-                                       functionBody);
+    return new FunctionDeclaration(null, null, false, formalParameterList,
+        functionBody);
   }
 
   // [static] get propertyName () { ... }
   /**
    * @param {string|Token} propertyName
    * @param {boolean} isStatic
-   * @param {BlockTree} body
-   * @return {GetAccessorTree}
+   * @param {Block} body
+   * @return {GetAccessor}
    */
   function createGetAccessor(propertyName, isStatic, body) {
     if (typeof propertyName == 'string')
       propertyName = createPropertyNameToken(propertyName);
-    return new GetAccessorTree(null, propertyName, isStatic, body);
+    return new GetAccessor(null, propertyName, isStatic, body);
   }
 
   /**
    * @param {string|IdentifierToken} identifier
-   * @return {IdentifierExpressionTree}
+   * @return {IdentifierExpression}
    */
   function createIdentifierExpression(identifier) {
     if (typeof identifier == 'string')
       identifier = createIdentifierToken(identifier);
-    return new IdentifierExpressionTree(null, identifier);
+    return new IdentifierExpression(null, identifier);
   }
 
   /**
-   * @return {IdentifierExpressionTree}
+   * @return {IdentifierExpression}
    */
   function createUndefinedExpression() {
     return createIdentifierExpression(PredefinedName.UNDEFINED);
@@ -718,20 +718,20 @@ traceur.define('codegeneration', function() {
    * @param {ParseTree} condition
    * @param {ParseTree} ifClause
    * @param {ParseTree=} opt_elseClause
-   * @return {IfStatementTree}
+   * @return {IfStatement}
    */
   function createIfStatement(condition, ifClause, opt_elseClause) {
-    return new IfStatementTree(null, condition, ifClause,
-                               opt_elseClause || null);
+    return new IfStatement(null, condition, ifClause,
+        opt_elseClause || null);
   }
 
   /**
    * @param {IdentifierToken} name
    * @param {ParseTree} statement
-   * @return {LabelledStatementTree}
+   * @return {LabelledStatement}
    */
   function createLabelledStatement(name, statement) {
-    return new LabelledStatementTree(null, name, statement);
+    return new LabelledStatement(null, name, statement);
   }
 
   /**
@@ -739,7 +739,7 @@ traceur.define('codegeneration', function() {
    * @return {ParseTree}
    */
   function createStringLiteral(value) {
-    return new LiteralExpressionTree(null, createStringLiteralToken(value));
+    return new LiteralExpression(null, createStringLiteralToken(value));
   }
 
   /**
@@ -747,7 +747,7 @@ traceur.define('codegeneration', function() {
    * @return {ParseTree}
    */
   function createBooleanLiteral(value) {
-    return new LiteralExpressionTree(null, createBooleanLiteralToken(value));
+    return new LiteralExpression(null, createBooleanLiteralToken(value));
   }
 
   /**
@@ -768,7 +768,7 @@ traceur.define('codegeneration', function() {
    * @return {ParseTree}
    */
   function createNullLiteral() {
-    return new LiteralExpressionTree(null, createNullLiteralToken());
+    return new LiteralExpression(null, createNullLiteralToken());
   }
 
   /**
@@ -776,14 +776,14 @@ traceur.define('codegeneration', function() {
    * @return {ParseTree}
    */
   function createNumberLiteral(value) {
-    return new LiteralExpressionTree(null, createNumberLiteralToken(value));
+    return new LiteralExpression(null, createNumberLiteralToken(value));
   }
 
   /**
    * @param {string|ParseTree} operand
    * @param {string|IdentifierToken} memberName
    * @param {...string} memberNames
-   * @return {MemberExpressionTree}
+   * @return {MemberExpression}
    */
   function createMemberExpression(operand, memberName, memberNames) {
     if (typeof operand == 'string')
@@ -791,7 +791,7 @@ traceur.define('codegeneration', function() {
     if (typeof memberName == 'string')
       memberName = createIdentifierToken(memberName);
 
-    var tree = new MemberExpressionTree(null, operand, memberName);
+    var tree = new MemberExpression(null, operand, memberName);
     for (var i = 2; i < arguments.length; i++) {
       tree = createMemberExpression(tree, arguments[i]);
     }
@@ -799,10 +799,10 @@ traceur.define('codegeneration', function() {
   }
 
   /**
-   * @return {MemberLookupExpressionTree}
+   * @return {MemberLookupExpression}
    */
   function createMemberLookupExpression(operand,  memberExpression) {
-    return new MemberLookupExpressionTree(null, operand, memberExpression);
+    return new MemberLookupExpression(null, operand, memberExpression);
   }
 
   /**
@@ -812,33 +812,33 @@ traceur.define('codegeneration', function() {
   function createThisExpression(memberName) {
     if (memberName)
       return createMemberExpression(createThisExpression(), memberName);
-    return new ThisExpressionTree(null);
+    return new ThisExpression(null);
   }
 
   /**
    * @param {IdentifierToken} name
-   * @param {MixinResolveListTree} mixinResolves
-   * @return {MixinTree}
+   * @param {MixinResolveList} mixinResolves
+   * @return {Mixin}
    */
   function createMixin(name, mixinResolves) {
-    return new MixinTree(null, name, mixinResolves);
+    return new Mixin(null, name, mixinResolves);
   }
 
   /**
    * @param {Array.<ParseTree>} resolves
-   * @return {MixinResolveListTree}
+   * @return {MixinResolveList}
    */
   function createMixinResolveList(resolves) {
-    return new MixinResolveListTree(null, resolves);
+    return new MixinResolveList(null, resolves);
   }
 
   /**
    * @param {ParseTree} operand
-   * @param {ArgumentListTree} args
-   * @return {NewExpressionTree}
+   * @param {ArgumentList} args
+   * @return {NewExpression}
    */
   function createNewExpression(operand, args) {
-    return new NewExpressionTree(null, operand, args);
+    return new NewExpression(null, operand, args);
   }
 
   /**
@@ -855,156 +855,156 @@ traceur.define('codegeneration', function() {
   /**
    * @param {Array.<ParseTree>|ParseTree} propertyNameAndValues
    * @param {...ParseTree} var_args
-   * @return {ObjectLiteralExpressionTree}
+   * @return {ObjectLiteralExpression}
    */
   function createObjectLiteralExpression(propertyNameAndValues) {
     if (propertyNameAndValues instanceof ParseTree)
       propertyNameAndValues = slice(arguments);
-    return new ObjectLiteralExpressionTree(null, propertyNameAndValues);
+    return new ObjectLiteralExpression(null, propertyNameAndValues);
   }
 
   /**
    * @param {Array.<ParseTree>} list
-   * @return {ObjectPatternTree}
+   * @return {ObjectPattern}
    */
   function createObjectPattern(list) {
-    return new ObjectPatternTree(null, list);
+    return new ObjectPattern(null, list);
   }
 
   /**
    * @param {IdentifierToken} identifier
    * @param {ParseTree} element
-   * @return {ObjectPatternFieldTree}
+   * @return {ObjectPatternField}
    */
   function createObjectPatternField(identifier, element) {
-    return new ObjectPatternFieldTree(null, identifier, element);
+    return new ObjectPatternField(null, identifier, element);
   }
 
   /**
    * @param {ParseTree} expression
-   * @return {ParenExpressionTree}
+   * @return {ParenExpression}
    */
   function createParenExpression(expression) {
-    return new ParenExpressionTree(null, expression);
+    return new ParenExpression(null, expression);
   }
 
   /**
    * @param {ParseTree} operand
    * @param {ParseTree} operator
-   * @return {PostfixExpressionTree}
+   * @return {PostfixExpression}
    */
   function createPostfixExpression(operand, operator) {
-    return new PostfixExpressionTree(null, operand, operator);
+    return new PostfixExpression(null, operand, operator);
   }
 
   /**
    * @param {Array.<ParseTree>} sourceElements
-   * @return {ProgramTree}
+   * @return {Program}
    */
-  function createProgramTree(ourceElements) {
-    return new ProgramTree(null, sourceElements);
+  function createProgram(ourceElements) {
+    return new Program(null, sourceElements);
   }
 
   /**
    * @param {string|IdentifierToken} identifier
    * @param {ParseTree} value
-   * @return {PropertyNameAssignmentTree}
+   * @return {PropertyNameAssignment}
    */
   function createPropertyNameAssignment(identifier, value) {
     if (typeof identifier == 'string')
       identifier = createIdentifierToken(identifier);
-    return new PropertyNameAssignmentTree(null, identifier, value);
+    return new PropertyNameAssignment(null, identifier, value);
   }
 
   /**
    * @param {string|IdentifierToken} identifier
-   * @return {RestParameterTree}
+   * @return {RestParameter}
    */
   function createRestParameter(identifier) {
     if (typeof identifier == 'string')
       identifier = createIdentifierToken(identifier);
-    return new RestParameterTree(null, identifier);
+    return new RestParameter(null, identifier);
   }
 
   /**
    * @param {ParseTree} expression
-   * @return {ReturnStatementTree}
+   * @return {ReturnStatement}
    */
   function createReturnStatement(expression) {
-    return new ReturnStatementTree(null, expression);
+    return new ReturnStatement(null, expression);
   }
 
   /**
    * @param {ParseTree} expression
    * @param {boolean} isYieldFor
-   * @return {YieldStatementTree}
+   * @return {YieldStatement}
    */
   function createYieldStatement(expression, isYieldFor) {
-    return new YieldStatementTree(null, expression, isYieldFor);
+    return new YieldStatement(null, expression, isYieldFor);
   }
 
   /**
    * @param {string|Token} propertyName
    * @param {boolean} isStatic
    * @param {string|IdentifierToken} parameter
-   * @param {BlockTree} body
-   * @return {SetAccessorTree}
+   * @param {Block} body
+   * @return {SetAccessor}
    */
   function createSetAccessor(propertyName, isStatic, parameter, body) {
     if (typeof propertyName == 'string')
       propertyName = createPropertyNameToken(propertyName);
     if (typeof parameter == 'string')
       parameter = createIdentifierToken(parameter);
-    return new SetAccessorTree(null, propertyName, isStatic, parameter, body);
+    return new SetAccessor(null, propertyName, isStatic, parameter, body);
   }
 
   /**
    * @param {ParseTree} expression
-   * @return {SpreadExpressionTree}
+   * @return {SpreadExpression}
    */
   function createSpreadExpression(expression) {
-    return new SpreadExpressionTree(null, expression);
+    return new SpreadExpression(null, expression);
   }
 
   /**
    * @param {ParseTree} lvalue
-   * @return {SpreadPatternElementTree}
+   * @return {SpreadPatternElement}
    */
   function createSpreadPatternElement(lvalue) {
-    return new SpreadPatternElementTree(null, lvalue);
+    return new SpreadPatternElement(null, lvalue);
   }
 
   /**
    * @param {ParseTree} expression
    * @param {Array.<ParseTree>} caseClauses
-   * @return {SwitchStatementTree}
+   * @return {SwitchStatement}
    */
   function createSwitchStatement(expression, caseClauses) {
-    return new SwitchStatementTree(null, expression, caseClauses);
+    return new SwitchStatement(null, expression, caseClauses);
   }
 
   /**
    * @param {ParseTree} value
-   * @return {ThrowStatementTree}
+   * @return {ThrowStatement}
    */
   function createThrowStatement(value) {
-    return new ThrowStatementTree(null, value);
+    return new ThrowStatement(null, value);
   }
 
   /**
    * @param {IdentifierToken} name
    * @param {Array.<ParseTree>} elements
-   * @return {TraitDeclarationTree}
+   * @return {TraitDeclaration}
    */
   function createTraitDeclaration(name, elements) {
-    return new TraitDeclarationTree(null, name, elements);
+    return new TraitDeclaration(null, name, elements);
   }
 
   /**
    * @param {ParseTree} body
    * @param {ParseTree} catchOrFinallyBlock
    * @param {ParseTree=} opt_finallyBlock
-   * @return {TryStatementTree}
+   * @return {TryStatement}
    */
   function createTryStatement(body, catchOrFinallyBlock, opt_finallyBlock) {
     // TODO(arv): Remove 2 params case and enforce a catchBlack (may be null).
@@ -1017,28 +1017,28 @@ traceur.define('codegeneration', function() {
       finallyBlock = arguments[1];
     }
 
-    return new TryStatementTree(null, body, catchBlock, finallyBlock);
+    return new TryStatement(null, body, catchBlock, finallyBlock);
   }
 
   /**
    * @param {Token} operator
    * @param {ParseTree} operand
-   * @return {UnaryExpressionTree}
+   * @return {UnaryExpression}
    */
   function createUnaryExpression(operator, operand) {
-    return new UnaryExpressionTree(null, operator, operand);
+    return new UnaryExpression(null, operator, operand);
   }
 
   /**
    * @param {TokenType} binding
-   * @param {IdentifierToken|Array.<VariableDeclarationTree>} identifierOrDeclarations
+   * @param {IdentifierToken|Array.<VariableDeclaration>} identifierOrDeclarations
    * @param {ParseTree=} initializer
-   * @return {VariableDeclarationListTree}
+   * @return {VariableDeclarationList}
    */
   function createVariableDeclarationList(binding, identifierOrDeclarations, initializer) {
     if (identifierOrDeclarations instanceof Array) {
       var declarations = identifierOrDeclarations;
-      return new VariableDeclarationListTree(null, binding, declarations);
+      return new VariableDeclarationList(null, binding, declarations);
     }
 
     var identifier = identifierOrDeclarations;
@@ -1052,23 +1052,23 @@ traceur.define('codegeneration', function() {
   /**
    * @param {string|IdentifierToken|ParseTree} identifier
    * @param {ParseTree} initializer
-   * @return {VariableDeclarationTree}
+   * @return {VariableDeclaration}
    */
   function createVariableDeclaration(identifier, initializer) {
     if (typeof identifier == 'string' || identifier instanceof IdentifierToken)
       identifier = createIdentifierExpression(identifier);
-    return new VariableDeclarationTree(null, identifier, initializer);
+    return new VariableDeclaration(null, identifier, initializer);
   }
 
   /**
-   * @param {VariableDeclarationListTree|TokenType} listOrBinding
+   * @param {VariableDeclarationList|TokenType} listOrBinding
    * @param {string|IdentifierToken=} identifier
    * @param {ParseTree=} initializer
-   * @return {VariableStatementTree}
+   * @return {VariableStatement}
    */
   function createVariableStatement(listOrBinding, identifier, initializer) {
-    if (listOrBinding instanceof VariableDeclarationListTree)
-      return new VariableStatementTree(null, listOrBinding);
+    if (listOrBinding instanceof VariableDeclarationList)
+      return new VariableStatement(null, listOrBinding);
     var binding = listOrBinding;
     if (typeof identifier == 'string')
       identifier = createIdentifierToken(identifier);
@@ -1079,24 +1079,24 @@ traceur.define('codegeneration', function() {
   /**
    * @param {ParseTree} condition
    * @param {ParseTree} body
-   * @return {WhileStatementTree}
+   * @return {WhileStatement}
    */
   function createWhileStatement(condition, body) {
-    return new WhileStatementTree(null, condition, body);
+    return new WhileStatement(null, condition, body);
   }
 
   /**
    * @param {ParseTree} expression
    * @param {ParseTree} body
-   * @return {WithStatementTree}
+   * @return {WithStatement}
    */
   function createWithStatement(expression, body) {
-    return new WithStatementTree(null, expression, body);
+    return new WithStatement(null, expression, body);
   }
 
   /**
    * @param {number} state
-   * @return {ExpressionStatementTree}
+   * @return {ExpressionStatement}
    */
   function createAssignStateStatement(state) {
     return createAssignmentStatement(
@@ -1175,7 +1175,7 @@ traceur.define('codegeneration', function() {
       createParameters: createParameters,
       createParenExpression: createParenExpression,
       createPostfixExpression: createPostfixExpression,
-      createProgramTree: createProgramTree,
+      createProgram: createProgram,
       createPropertyNameAssignment: createPropertyNameAssignment,
       createPropertyNameToken: createPropertyNameToken,
       createRestParameter: createRestParameter,

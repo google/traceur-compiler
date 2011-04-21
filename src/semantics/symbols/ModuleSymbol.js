@@ -21,7 +21,7 @@ traceur.define('semantics.symbols', function() {
   /**
    * @param {string} name
    * @param {ModuleSymbol} parent
-   * @param {ModuleDefinitionTree} tree
+   * @param {ModuleDefinition} tree
    * @constructor
    * @extends {Symbol}
    */

@@ -9,30 +9,7 @@ See the COPYING file for details.
 <head>
 <title>Closure - All JsUnit Tests - Run with Traceur</title>
 <script src="../src/traceur.js"></script>
-<script src="../src/compiler.js"></script>
 <script src="../src/bootstrap.js"></script>
-<script src="../src/util/SourceRange.js"></script>
-<script src="../src/util/SourcePosition.js"></script>
-<script src="../src/syntax/Token.js"></script>
-<script src="../src/syntax/TokenType.js"></script>
-<script src="../src/syntax/LiteralToken.js"></script>
-<script src="../src/syntax/IdentifierToken.js"></script>
-<script src="../src/syntax/Keywords.js"></script>
-<script src="../src/syntax/LineNumberTable.js"></script>
-<script src="../src/syntax/SourceFile.js"></script>
-<script src="../src/syntax/Scanner.js"></script>
-<script src="../src/syntax/PredefinedName.js"></script>
-<script src="../src/syntax/trees/ParseTreeType.js"></script>
-<script src="../src/syntax/trees/ParseTree.js"></script>
-<script src="../src/syntax/trees.js"></script>
-<script src="../src/syntax/trees/ImportPathTree.js"></script>
-<script src="../src/syntax/trees/NullTree.js"></script>
-<script src="../src/util/ErrorReporter.js"></script>
-<script src="../src/util/MutedErrorReporter.js"></script>
-<script src="../src/syntax/Parser.js"></script>
-<script src="../src/syntax/ParseTreeVisitor.js"></script>
-<script src="../src/util/StringBuilder.js"></script>
-<script src="../src/codegeneration/ParseTreeWriter.js"></script>
 <script>
   // hook import to load closure with traceur
   this.CLOSURE_IMPORT_SCRIPT = function(src) {
@@ -40,14 +17,17 @@ See the COPYING file for details.
     xhr.open('GET', src, false);
     xhr.send(null);
     console.log('traceur', 'compiled file ' + src);
-    var compiler = new traceur.Compiler();
-    var result = compiler.compile(src, xhr.responseText);
-    if (result.errors.length > 0) {
-      throw new Error('Traceur compilation errors: ' + result.errors);
+    var reporter = new traceur.util.ErrorReporter();
+    var project = new traceur.semantics.symbols.Project();
+    var file = new traceur.syntax.SourceFile(src, xhr.responseText);
+    project.addFile(file);
+    var result = traceur.codegeneration.Compiler.compile(reporter, project, false);
+    if (reporter.hadError)
+      throw new Error('Traceur compilation errors');
     }
 
     var script = document.createElement('script');
-    script.textContent = result.result;
+    script.textContent = traceur.codegeneration.ParseTreeWriter.write(result);
     document.head.appendChild(script);
     return true;
   };

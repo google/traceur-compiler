@@ -42,7 +42,7 @@ goog.require('goog.testing.jsunit');
 <script src="../syntax/trees/ParseTreeType.js"></script>
 <script src="../syntax/trees/ParseTree.js"></script>
 <script src="../syntax/ParseTreeVisitor.js"></script>
-<script src="../syntax/trees.js"></script>
+<script src="../syntax/trees/ParseTrees.js"></script>
 <script src="../syntax/trees/ImportPathTree.js"></script>
 <script src="../syntax/trees/NullTree.js"></script>
 <script src="../syntax/LineNumberTable.js"></script>
@@ -64,32 +64,32 @@ var ParseTreeWriter = traceur.codegeneration.ParseTreeWriter;
 var trees = traceur.syntax.trees;
 
 function testWriteStatement() {
-  var tree = new trees.ProgramTree(
+  var tree = new trees.Program(
     'loc',
-    [new trees.VariableStatementTree(
+    [new trees.VariableStatement(
       'loc',
-      new trees.VariableDeclarationListTree(
+      new trees.VariableDeclarationList(
         'loc',
         'var',
-        [new trees.VariableDeclarationTree(
+        [new trees.VariableDeclaration(
           'loc',
-          new trees.IdentifierExpressionTree('loc', new IdentifierToken('loc', 'x')),
-          new trees.LiteralExpressionTree('loc', new LiteralToken(TokenType.NUMBER, '1', 'loc')))]
+          new trees.IdentifierExpression('loc', new IdentifierToken('loc', 'x')),
+          new trees.LiteralExpression('loc', new LiteralToken(TokenType.NUMBER, '1', 'loc')))]
       )
     ),
-    new trees.IfStatementTree(
+    new trees.IfStatement(
       'loc',
-      new trees.BinaryOperatorTree(
+      new trees.BinaryOperator(
         'loc',
-        new trees.IdentifierExpressionTree('loc', new IdentifierToken('loc', 'x')),
+        new trees.IdentifierExpression('loc', new IdentifierToken('loc', 'x')),
         new Token(TokenType.CLOSE_ANGLE, 'loc'),
-        new trees.LiteralExpressionTree('loc', new LiteralToken(TokenType.NUMBER, '0', 'loc'))
+        new trees.LiteralExpression('loc', new LiteralToken(TokenType.NUMBER, '0', 'loc'))
       ),
-      new trees.BlockTree(
+      new trees.Block(
         'loc',
-        [new trees.PostfixExpressionTree(
+        [new trees.PostfixExpression(
           'loc',
-          new trees.IdentifierExpressionTree('loc', new IdentifierToken('loc', 'x')),
+          new trees.IdentifierExpression('loc', new IdentifierToken('loc', 'x')),
           new Token(TokenType.PLUS_PLUS, 'loc')
         )]
       )

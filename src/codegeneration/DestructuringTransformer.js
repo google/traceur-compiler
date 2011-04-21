@@ -22,13 +22,13 @@ traceur.define('codegeneration', function() {
   var PredefinedName = traceur.syntax.PredefinedName;
   var TokenType = traceur.syntax.TokenType;
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var ArrayPatternTree = traceur.syntax.trees.ArrayPatternTree;
-  var BinaryOperatorTree = traceur.syntax.trees.BinaryOperatorTree;
-  var ObjectPatternFieldTree = traceur.syntax.trees.ObjectPatternFieldTree;
-  var ObjectPatternTree = traceur.syntax.trees.ObjectPatternTree;
+  var ArrayPattern = traceur.syntax.trees.ArrayPattern;
+  var BinaryOperator = traceur.syntax.trees.BinaryOperator;
+  var ObjectPatternField = traceur.syntax.trees.ObjectPatternField;
+  var ObjectPattern = traceur.syntax.trees.ObjectPattern;
   var ParseTree = traceur.syntax.trees.ParseTree;
-  var VariableDeclarationListTree = traceur.syntax.trees.VariableDeclarationListTree;
-  var VariableDeclarationTree = traceur.syntax.trees.VariableDeclarationTree;
+  var VariableDeclarationList = traceur.syntax.trees.VariableDeclarationList;
+  var VariableDeclaration = traceur.syntax.trees.VariableDeclaration;
 
   var createArgumentList = ParseTreeFactory.createArgumentList;
   var createAssignmentStatement = ParseTreeFactory.createAssignmentStatement;
@@ -116,19 +116,19 @@ traceur.define('codegeneration', function() {
     __proto__: proto,
 
     /**
-     * @param {ArrayPatternTree} tree
+     * @param {ArrayPattern} tree
      * @return {ParseTree}
      */
-    transformArrayPatternTree: function(tree) {
+    transformArrayPattern: function(tree) {
       // Patterns should be desugared by their parent nodes.
       throw new Error('unreachable');
     },
 
     /**
-     * @param {ObjectPatternTree} tree
+     * @param {ObjectPattern} tree
      * @return {ParseTree}
      */
-    transformObjectPatternTree: function(tree) {
+    transformObjectPattern: function(tree) {
       // Patterns should be desugard by their parent nodes.
       throw new Error('unreachable');
     },
@@ -144,14 +144,14 @@ traceur.define('codegeneration', function() {
      *
      * Nested patterns are desugared by recursive calls to transform.
      *
-     * @param {BinaryOperatorTree} tree
+     * @param {BinaryOperator} tree
      * @return {ParseTree}
      */
-    transformBinaryOperatorTree: function(tree) {
+    transformBinaryOperator: function(tree) {
       if (tree.operator.type == TokenType.EQUAL && tree.left.isPattern()) {
         return this.transformAny(this.desugarAssignment_(tree.left, tree.right));
       } else {
-        return proto.transformBinaryOperatorTree.call(this, tree);
+        return proto.transformBinaryOperator.call(this, tree);
       }
     },
 
@@ -194,13 +194,13 @@ traceur.define('codegeneration', function() {
      *
      * Nested patterns are desugared by recursive calls to transform.
      *
-     * @param {VariableDeclarationListTree} tree
+     * @param {VariableDeclarationList} tree
      * @return {ParseTree}
      */
-    transformVariableDeclarationListTree: function(tree) {
+    transformVariableDeclarationList: function(tree) {
       if (!this.destructuringInDeclaration_(tree)) {
         // No lvalues to desugar.
-        return proto.transformVariableDeclarationListTree.call(this, tree);
+        return proto.transformVariableDeclarationList.call(this, tree);
       }
 
       // Desugar one level of patterns.
@@ -215,14 +215,14 @@ traceur.define('codegeneration', function() {
       }, this);
 
       // Desugar more.
-      return this.transformVariableDeclarationListTree(
+      return this.transformVariableDeclarationList(
           createVariableDeclarationList(
               tree.declarationType,
               desugaredDeclarations));
     },
 
     /**
-     * @param {VariableDeclarationListTree} tree
+     * @param {VariableDeclarationList} tree
      * @return {boolean}
      */
     destructuringInDeclaration_: function(tree) {
@@ -232,8 +232,8 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {VariableDeclarationTree} tree
-     * @return {Array.<VariableDeclarationTree>}
+     * @param {VariableDeclaration} tree
+     * @return {Array.<VariableDeclaration>}
      */
     desugarVariableDeclaration_: function(tree) {
       var desugaring =

@@ -67,11 +67,11 @@ traceur.define('codegeneration', function() {
     //     $it.close();
     // }
     /**
-     * @param {ForEachStatementTree} original
+     * @param {ForEachStatement} original
      * @return {ParseTree}
      */
-    transformForEachStatementTree: function(original) {
-      var tree = ParseTreeTransformer.prototype.transformForEachStatementTree.call(
+    transformForEachStatement: function(original) {
+      var tree = ParseTreeTransformer.prototype.transformForEachStatement.call(
           this, original).asForEachStatement();
 
       //   let $it = collection.__iterator__();

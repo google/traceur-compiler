@@ -19,22 +19,22 @@ traceur.define('semantics', function() {
   var SourceFile = traceur.syntax.SourceFile;
   var Token = traceur.syntax.Token;
   var TokenType = traceur.syntax.TokenType;
-  var ClassDeclarationTree = traceur.syntax.trees.ClassDeclarationTree;
-  var ExportDeclarationTree = traceur.syntax.trees.ExportDeclarationTree;
-  var FieldDeclarationTree = traceur.syntax.trees.FieldDeclarationTree;
-  var FunctionDeclarationTree = traceur.syntax.trees.FunctionDeclarationTree;
-  var GetAccessorTree = traceur.syntax.trees.GetAccessorTree;
-  var MixinResolveTree = traceur.syntax.trees.MixinResolveTree;
-  var MixinTree = traceur.syntax.trees.MixinTree;
-  var ModuleDefinitionTree = traceur.syntax.trees.ModuleDefinitionTree;
+  var ClassDeclaration = traceur.syntax.trees.ClassDeclaration;
+  var ExportDeclaration = traceur.syntax.trees.ExportDeclaration;
+  var FieldDeclaration = traceur.syntax.trees.FieldDeclaration;
+  var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
+  var GetAccessor = traceur.syntax.trees.GetAccessor;
+  var MixinResolve = traceur.syntax.trees.MixinResolve;
+  var Mixin = traceur.syntax.trees.Mixin;
+  var ModuleDefinition = traceur.syntax.trees.ModuleDefinition;
   var ParseTree = traceur.syntax.trees.ParseTree;
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var ProgramTree = traceur.syntax.trees.ProgramTree;
-  var RequiresMemberTree = traceur.syntax.trees.RequiresMemberTree;
-  var SetAccessorTree = traceur.syntax.trees.SetAccessorTree;
-  var TraitDeclarationTree = traceur.syntax.trees.TraitDeclarationTree;
-  var VariableDeclarationTree = traceur.syntax.trees.VariableDeclarationTree;
-  var VariableStatementTree = traceur.syntax.trees.VariableStatementTree;
+  var Program = traceur.syntax.trees.Program;
+  var RequiresMember = traceur.syntax.trees.RequiresMember;
+  var SetAccessor = traceur.syntax.trees.SetAccessor;
+  var TraitDeclaration = traceur.syntax.trees.TraitDeclaration;
+  var VariableDeclaration = traceur.syntax.trees.VariableDeclaration;
+  var VariableStatement = traceur.syntax.trees.VariableStatement;
   var ErrorReporter = traceur.util.ErrorReporter;
   var ClassSymbol = traceur.semantics.symbols.ClassSymbol;
   var TraitSymbol = traceur.semantics.symbols.TraitSymbol;
@@ -63,7 +63,7 @@ traceur.define('semantics', function() {
   /**
    * Analyzes a class and creates a ClassSymbol
    * @param {ErrorReporter} reporter
-   * @param {ClassDeclarationTree} tree
+   * @param {ClassDeclaration} tree
    * @return {ClassSymbol}
    */
   ClassAnalyzer.analyzeClass = function(reporter, tree) {
@@ -73,7 +73,7 @@ traceur.define('semantics', function() {
   /**
    * Analyzes a trait and creates a TraitSymbol
    * @param {ErrorReporter} reporter
-   * @param {TraitDeclarationTree} tree
+   * @param {TraitDeclaration} tree
    * @return {TraitSymbol}
    */
   ClassAnalyzer.analyzeTrait = function(reporter, tree) {
@@ -82,7 +82,7 @@ traceur.define('semantics', function() {
 
   ClassAnalyzer.prototype = {
     /**
-     * @param {ClassDeclarationTree|TraitDeclarationTree} tree
+     * @param {ClassDeclaration|TraitDeclaration} tree
      * @param {Function} symbolType
      * @return {AggregateSymbol}
      */
@@ -130,7 +130,7 @@ traceur.define('semantics', function() {
 
     /**
      * @param {AggregateSymbol} aggregate
-     * @param {RequiresMemberTree} tree
+     * @param {RequiresMember} tree
      */
     declareRequiresMember_: function(aggregate, tree) {
       var name = tree.name.value;
@@ -141,7 +141,7 @@ traceur.define('semantics', function() {
 
     /**
      * @param {AggregateSymbol} aggregate
-     * @param {FieldDeclarationTree} tree
+     * @param {FieldDeclaration} tree
      */
     declareFieldMembers_: function(aggregate, tree) {
       tree.declarations.forEach(function(declarationTree) {
@@ -151,8 +151,8 @@ traceur.define('semantics', function() {
 
     /**
      * @param {AggregateSymbol} aggregate
-     * @param {FieldDeclarationTree} field
-     * @param {VariableDeclarationTree} tree
+     * @param {FieldDeclaration} field
+     * @param {VariableDeclaration} tree
      */
     declareFieldMember_: function(aggregate, field, tree) {
       var name = null;
@@ -245,7 +245,7 @@ traceur.define('semantics', function() {
 
     /**
      * @param {AggregateSymbol} aggregate
-     * @param {FunctionDeclarationTree} tree
+     * @param {FunctionDeclaration} tree
      * @return {MethodSymbol}
      */
     declareFunctionMember_: function(aggregate, tree) {

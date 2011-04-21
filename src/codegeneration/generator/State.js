@@ -168,7 +168,7 @@ traceur.define('codegeneration.generator', function() {
      * @param {FinallyState} enclosingFinally
      * @param {number} machineEndState
      * @param {ErrorReporter} reporter
-     * @return {CaseClauseTree}
+     * @return {CaseClause}
      */
     transformMachineState: function(enclosingFinally, machineEndState, reporter) {
       return createCaseClause(createNumberLiteral(this.id),

@@ -19,8 +19,8 @@ traceur.define('semantics.symbols', function() {
   var SymbolType = traceur.semantics.symbols.SymbolType;
 
   /**
-   * @param {FieldDeclarationTree} field
-   * @param {VariableDeclarationTree} tree
+   * @param {FieldDeclaration} field
+   * @param {VariableDeclaration} tree
    * @param {string} name
    * @param {AggregateSymbol} containingAggregate
    * @constructor

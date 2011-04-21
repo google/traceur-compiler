@@ -19,7 +19,7 @@ traceur.define('codegeneration', function() {
   var PredefinedName = traceur.syntax.PredefinedName;
   var ParseTreeVisitor = traceur.syntax.ParseTreeVisitor;
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var ProgramTree = traceur.syntax.trees.ProgramTree;
+  var Program = traceur.syntax.trees.Program;
 
 
   var EXPORT_DECLARATION = traceur.syntax.trees.ParseTreeType.EXPORT_DECLARATION;
@@ -93,8 +93,8 @@ traceur.define('codegeneration', function() {
 
   /**
    * @param {Project} project
-   * @param {ProgramTree} tree
-   * @return {ProgramTree}
+   * @param {Program} tree
+   * @return {Program}
    */
   ModuleTransformer.transform = function(project, tree) {
     var module = project.getRootModule();
@@ -108,12 +108,12 @@ traceur.define('codegeneration', function() {
           return element;
       }
     });
-    return new ProgramTree(tree.location, elements);
+    return new Program(tree.location, elements);
   };
 
   /**
    * @param {ModuleSymbol} parent
-   * @param {ModuleDefinitionTree} tree
+   * @param {ModuleDefinition} tree
    * @return {ParseTree}
    */
   function transformDefinition(parent, tree) {
@@ -184,7 +184,7 @@ traceur.define('codegeneration', function() {
 
   /**
    * @param {ModuleSymbol} parent
-   * @param {ModuleDeclarationTree} tree
+   * @param {ModuleDeclaration} tree
    * @return {ParseTree}
    */
   function transformDeclaration(parent, tree) {
@@ -202,8 +202,8 @@ traceur.define('codegeneration', function() {
   }
 
   /**
-   * @param {ModuleSpecifierTree} specifier
-   * @return {VariableDeclarationTree}
+   * @param {ModuleSpecifier} specifier
+   * @return {VariableDeclaration}
    */
   function transformModuleSpecifier(specifier) {
     var expression = transformModuleExpression(specifier.expression);
@@ -211,7 +211,7 @@ traceur.define('codegeneration', function() {
   }
 
   /**
-   * @param {ModuleExpressionTree} tree
+   * @param {ModuleExpression} tree
    * @return {ParseTree}
    */
   function transformModuleExpression(tree) {

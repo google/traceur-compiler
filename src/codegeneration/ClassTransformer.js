@@ -18,7 +18,7 @@ traceur.define('codegeneration', function() {
   var TokenType = traceur.syntax.TokenType;
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
   var PredefinedName = traceur.syntax.PredefinedName;
-  var ProgramTree = traceur.syntax.trees.ProgramTree;
+  var Program = traceur.syntax.trees.Program;
   var ClassAnalyzer = traceur.semantics.ClassAnalyzer;
   var FunctionTransformer = traceur.codegeneration.FunctionTransformer;
   var ClassSymbol = traceur.semantics.symbols.ClassSymbol;
@@ -70,8 +70,8 @@ traceur.define('codegeneration', function() {
    * Transforms all classes and traits in the program
    *
    * @param {ErrorReporter} errors
-   * @param {ProgramTree} tree
-   * @return {ProgramTree}
+   * @param {Program} tree
+   * @return {Program}
    */
   ClassTransformer.transform = function(reporter, tree) {
     var elements = tree.sourceElements.map(function(element) {
@@ -85,7 +85,7 @@ traceur.define('codegeneration', function() {
       return element;
     });
 
-    return new ProgramTree(tree.location, elements);
+    return new Program(tree.location, elements);
   };
 
   function createRequiresExpression() {
@@ -178,7 +178,7 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {MixinTree} mixin
+     * @param {Mixin} mixin
      * @return {ParseTree}
      */
     createMixin_: function(mixin) {
@@ -315,13 +315,13 @@ traceur.define('codegeneration', function() {
     /**
      * @param {AggregateSymbol} aggregate
      * @param {Array.<string>} formalParameters
-     * @param {BlockTree} functionBody
-     * @return {FunctionDeclarationTree}
+     * @param {Block} functionBody
+     * @return {FunctionDeclaration}
      */
     transformStaticMethod_: function(aggregate, formalParameters, functionBody) {
       return createFunctionExpressionFormals(
           formalParameters,
-          this.createFunctionTransformer_(aggregate).transformBlockTree(functionBody));
+          this.createFunctionTransformer_(aggregate).transformBlock(functionBody));
     },
 
     /**
@@ -398,7 +398,7 @@ traceur.define('codegeneration', function() {
       return createGetAccessor(
           get.getName(),
           false,
-          transformer.transformBlockTree(get.tree.body));
+          transformer.transformBlock(get.tree.body));
     },
 
     /**
@@ -411,7 +411,7 @@ traceur.define('codegeneration', function() {
           set.getName(),
           false,
           set.tree.parameter,
-          transformer.transformBlockTree(set.tree.body));
+          transformer.transformBlock(set.tree.body));
     },
 
     /**
@@ -428,11 +428,11 @@ traceur.define('codegeneration', function() {
 
     /**
      * @param {MethodSymbol} method
-     * @return {BlockTree}
+     * @return {Block}
      */
     transformMethodBody_: function(method) {
       var body = method.tree.functionBody;
-      return this.createFunctionTransformer_(method).transformBlockTree(body);
+      return this.createFunctionTransformer_(method).transformBlock(body);
     },
 
     /**

@@ -17,8 +17,8 @@ traceur.define('syntax.trees', function() {
 
   var assert = traceur.assert;
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  //TODO: var NewExpressionTree = traceur.syntax.trees.NewExpressionTree;
-  //TODO: var ParenExpressionTree = traceur.syntax.trees.ParenExpressionTree;
+  //TODO: var NewExpression = traceur.syntax.trees.NewExpression;
+  //TODO: var ParenExpression = traceur.syntax.trees.ParenExpression;
 
   /**
    * An abstract syntax tree for JavaScript parse trees.
@@ -66,177 +66,177 @@ traceur.define('syntax.trees', function() {
   };
 
   ParseTree.prototype = {
-    /** @return {traceur.syntax.trees.ArgumentListTree} */
+    /** @return {traceur.syntax.trees.ArgumentList} */
     asArgumentList: function() {
-      assert(this instanceof traceur.syntax.trees.ArgumentListTree);
+      assert(this instanceof traceur.syntax.trees.ArgumentList);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.ArrayLiteralExpressionTree} */
+    /** @return {traceur.syntax.trees.ArrayLiteralExpression} */
     asArrayLiteralExpression: function() {
-      assert(this instanceof traceur.syntax.trees.ArrayLiteralExpressionTree);
+      assert(this instanceof traceur.syntax.trees.ArrayLiteralExpression);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.ArrayPatternTree} */
+    /** @return {traceur.syntax.trees.ArrayPattern} */
     asArrayPattern: function() {
-      assert(this instanceof traceur.syntax.trees.ArrayPatternTree);
+      assert(this instanceof traceur.syntax.trees.ArrayPattern);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.AwaitStatementTree} */
+    /** @return {traceur.syntax.trees.AwaitStatement} */
     asAwaitStatement: function() {
-      assert(this instanceof traceur.syntax.trees.AwaitStatementTree);
+      assert(this instanceof traceur.syntax.trees.AwaitStatement);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.BinaryOperatorTree} */
+    /** @return {traceur.syntax.trees.BinaryOperator} */
     asBinaryOperator: function() {
-      assert(this instanceof traceur.syntax.trees.BinaryOperatorTree);
+      assert(this instanceof traceur.syntax.trees.BinaryOperator);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.BlockTree} */
+    /** @return {traceur.syntax.trees.Block} */
     asBlock: function() {
-      assert(this instanceof traceur.syntax.trees.BlockTree);
+      assert(this instanceof traceur.syntax.trees.Block);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.BreakStatementTree} */
+    /** @return {traceur.syntax.trees.BreakStatement} */
     asBreakStatement: function() {
-      assert(this instanceof traceur.syntax.trees.BreakStatementTree);
+      assert(this instanceof traceur.syntax.trees.BreakStatement);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.CallExpressionTree} */
+    /** @return {traceur.syntax.trees.CallExpression} */
     asCallExpression: function() {
-      assert(this instanceof traceur.syntax.trees.CallExpressionTree);
+      assert(this instanceof traceur.syntax.trees.CallExpression);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.CaseClauseTree} */
+    /** @return {traceur.syntax.trees.CaseClause} */
     asCaseClause: function() {
-      assert(this instanceof traceur.syntax.trees.CaseClauseTree);
+      assert(this instanceof traceur.syntax.trees.CaseClause);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.CatchTree} */
+    /** @return {traceur.syntax.trees.Catch} */
     asCatch: function() {
-      assert(this instanceof traceur.syntax.trees.CatchTree);
+      assert(this instanceof traceur.syntax.trees.Catch);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.ClassDeclarationTree} */
+    /** @return {traceur.syntax.trees.ClassDeclaration} */
     asClassDeclaration: function() {
-      assert(this instanceof traceur.syntax.trees.ClassDeclarationTree);
+      assert(this instanceof traceur.syntax.trees.ClassDeclaration);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.ClassExpressionTree} */
+    /** @return {traceur.syntax.trees.ClassExpression} */
     asClassExpression: function() {
-      assert(this instanceof traceur.syntax.trees.ClassExpressionTree);
+      assert(this instanceof traceur.syntax.trees.ClassExpression);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.CommaExpressionTree} */
+    /** @return {traceur.syntax.trees.CommaExpression} */
     asCommaExpression: function() {
-      assert(this instanceof traceur.syntax.trees.CommaExpressionTree);
+      assert(this instanceof traceur.syntax.trees.CommaExpression);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.ConditionalExpressionTree} */
+    /** @return {traceur.syntax.trees.ConditionalExpression} */
     asConditionalExpression: function() {
-      assert(this instanceof traceur.syntax.trees.ConditionalExpressionTree);
+      assert(this instanceof traceur.syntax.trees.ConditionalExpression);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.ContinueStatementTree} */
+    /** @return {traceur.syntax.trees.ContinueStatement} */
     asContinueStatement: function() {
-      assert(this instanceof traceur.syntax.trees.ContinueStatementTree);
+      assert(this instanceof traceur.syntax.trees.ContinueStatement);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.DebuggerStatementTree} */
+    /** @return {traceur.syntax.trees.DebuggerStatement} */
     asDebuggerStatement: function() {
-      assert(this instanceof traceur.syntax.trees.DebuggerStatementTree);
+      assert(this instanceof traceur.syntax.trees.DebuggerStatement);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.DefaultClauseTree} */
+    /** @return {traceur.syntax.trees.DefaultClause} */
     asDefaultClause: function() {
-      assert(this instanceof traceur.syntax.trees.DefaultClauseTree);
+      assert(this instanceof traceur.syntax.trees.DefaultClause);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.DefaultParameterTree} */
+    /** @return {traceur.syntax.trees.DefaultParameter} */
     asDefaultParameter: function() {
-      assert(this instanceof traceur.syntax.trees.DefaultParameterTree);
+      assert(this instanceof traceur.syntax.trees.DefaultParameter);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.DoWhileStatementTree} */
+    /** @return {traceur.syntax.trees.DoWhileStatement} */
     asDoWhileStatement: function() {
-      assert(this instanceof traceur.syntax.trees.DoWhileStatementTree);
+      assert(this instanceof traceur.syntax.trees.DoWhileStatement);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.EmptyStatementTree} */
+    /** @return {traceur.syntax.trees.EmptyStatement} */
     asEmptyStatement: function() {
-      assert(this instanceof traceur.syntax.trees.EmptyStatementTree);
+      assert(this instanceof traceur.syntax.trees.EmptyStatement);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.ExportDeclarationTree} */
+    /** @return {traceur.syntax.trees.ExportDeclaration} */
     asExportDeclaration: function() {
-      assert(this instanceof traceur.syntax.trees.ExportDeclarationTree);
+      assert(this instanceof traceur.syntax.trees.ExportDeclaration);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.ExpressionStatementTree} */
+    /** @return {traceur.syntax.trees.ExpressionStatement} */
     asExpressionStatement: function() {
-      assert(this instanceof traceur.syntax.trees.ExpressionStatementTree);
+      assert(this instanceof traceur.syntax.trees.ExpressionStatement);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.FieldDeclarationTree} */
+    /** @return {traceur.syntax.trees.FieldDeclaration} */
     asFieldDeclaration: function() {
-      assert(this instanceof traceur.syntax.trees.FieldDeclarationTree);
+      assert(this instanceof traceur.syntax.trees.FieldDeclaration);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.FinallyTree} */
+    /** @return {traceur.syntax.trees.Finally} */
     asFinally: function() {
-      assert(this instanceof traceur.syntax.trees.FinallyTree);
+      assert(this instanceof traceur.syntax.trees.Finally);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.ForEachStatementTree} */
+    /** @return {traceur.syntax.trees.ForEachStatement} */
     asForEachStatement: function() {
-      assert(this instanceof traceur.syntax.trees.ForEachStatementTree);
+      assert(this instanceof traceur.syntax.trees.ForEachStatement);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.ForInStatementTree} */
+    /** @return {traceur.syntax.trees.ForInStatement} */
     asForInStatement: function() {
-      assert(this instanceof traceur.syntax.trees.ForInStatementTree);
+      assert(this instanceof traceur.syntax.trees.ForInStatement);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.FormalParameterListTree} */
+    /** @return {traceur.syntax.trees.FormalParameterList} */
     asFormalParameterList: function() {
-      assert(this instanceof traceur.syntax.trees.FormalParameterListTree);
+      assert(this instanceof traceur.syntax.trees.FormalParameterList);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.ForStatementTree} */
+    /** @return {traceur.syntax.trees.ForStatement} */
     asForStatement: function() {
-      assert(this instanceof traceur.syntax.trees.ForStatementTree);
+      assert(this instanceof traceur.syntax.trees.ForStatement);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.FunctionDeclarationTree} */
+    /** @return {traceur.syntax.trees.FunctionDeclaration} */
     asFunctionDeclaration: function() {
-      assert(this instanceof traceur.syntax.trees.FunctionDeclarationTree);
+      assert(this instanceof traceur.syntax.trees.FunctionDeclaration);
       return this;
     },
 
@@ -246,27 +246,27 @@ traceur.define('syntax.trees', function() {
       return this;
     },
 
-    /** @return {traceur.syntax.trees.GetAccessorTree} */
+    /** @return {traceur.syntax.trees.GetAccessor} */
     asGetAccessor: function() {
-      assert(this instanceof traceur.syntax.trees.GetAccessorTree);
+      assert(this instanceof traceur.syntax.trees.GetAccessor);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.IdentifierExpressionTree} */
+    /** @return {traceur.syntax.trees.IdentifierExpression} */
     asIdentifierExpression: function() {
-      assert(this instanceof traceur.syntax.trees.IdentifierExpressionTree);
+      assert(this instanceof traceur.syntax.trees.IdentifierExpression);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.IfStatementTree} */
+    /** @return {traceur.syntax.trees.IfStatement} */
     asIfStatement: function() {
-      assert(this instanceof traceur.syntax.trees.IfStatementTree);
+      assert(this instanceof traceur.syntax.trees.IfStatement);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.ImportDeclarationTree} */
+    /** @return {traceur.syntax.trees.ImportDeclaration} */
     asImportDeclaration: function() {
-      assert(this instanceof traceur.syntax.trees.ImportDeclarationTree);
+      assert(this instanceof traceur.syntax.trees.ImportDeclaration);
       return this;
     },
 
@@ -276,93 +276,93 @@ traceur.define('syntax.trees', function() {
       return this;
     },
 
-    /** @return {traceur.syntax.trees.ImportSpecifierTree} */
+    /** @return {traceur.syntax.trees.ImportSpecifier} */
     asImportSpecifier: function() {
-      assert(this instanceof traceur.syntax.trees.ImportSpecifierTree);
+      assert(this instanceof traceur.syntax.trees.ImportSpecifier);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.LabelledStatementTree} */
+    /** @return {traceur.syntax.trees.LabelledStatement} */
     asLabelledStatement: function() {
-      assert(this instanceof traceur.syntax.trees.LabelledStatementTree);
+      assert(this instanceof traceur.syntax.trees.LabelledStatement);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.LiteralExpressionTree} */
+    /** @return {traceur.syntax.trees.LiteralExpression} */
     asLiteralExpression: function() {
-      assert(this instanceof traceur.syntax.trees.LiteralExpressionTree);
+      assert(this instanceof traceur.syntax.trees.LiteralExpression);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.MemberExpressionTree} */
+    /** @return {traceur.syntax.trees.MemberExpression} */
     asMemberExpression: function() {
-      assert(this instanceof traceur.syntax.trees.MemberExpressionTree);
+      assert(this instanceof traceur.syntax.trees.MemberExpression);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.MemberLookupExpressionTree} */
+    /** @return {traceur.syntax.trees.MemberLookupExpression} */
     asMemberLookupExpression: function() {
-      assert(this instanceof traceur.syntax.trees.MemberLookupExpressionTree);
+      assert(this instanceof traceur.syntax.trees.MemberLookupExpression);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.MissingPrimaryExpressionTree} */
+    /** @return {traceur.syntax.trees.MissingPrimaryExpression} */
     asMissingPrimaryExpression: function() {
-      assert(this instanceof traceur.syntax.trees.MissingPrimaryExpressionTree);
+      assert(this instanceof traceur.syntax.trees.MissingPrimaryExpression);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.MixinTree} */
+    /** @return {traceur.syntax.trees.Mixin} */
     asMixin: function() {
-      assert(this instanceof traceur.syntax.trees.MixinTree);
+      assert(this instanceof traceur.syntax.trees.Mixin);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.MixinResolveTree} */
+    /** @return {traceur.syntax.trees.MixinResolve} */
     asMixinResolve: function() {
-      assert(this instanceof traceur.syntax.trees.MixinResolveTree);
+      assert(this instanceof traceur.syntax.trees.MixinResolve);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.MixinResolveListTree} */
+    /** @return {traceur.syntax.trees.MixinResolveList} */
     asMixinResolveList: function() {
-      assert(this instanceof traceur.syntax.trees.MixinResolveListTree);
+      assert(this instanceof traceur.syntax.trees.MixinResolveList);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.ModuleDeclarationTree} */
+    /** @return {traceur.syntax.trees.ModuleDeclaration} */
     asModuleDeclaration: function() {
-      assert(this instanceof traceur.syntax.trees.ModuleDeclarationTree);
+      assert(this instanceof traceur.syntax.trees.ModuleDeclaration);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.ModuleDefinitionTree} */
+    /** @return {traceur.syntax.trees.ModuleDefinition} */
     asModuleDefinition: function() {
-      assert(this instanceof traceur.syntax.trees.ModuleDefinitionTree);
+      assert(this instanceof traceur.syntax.trees.ModuleDefinition);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.ModuleExpressionTree} */
+    /** @return {traceur.syntax.trees.ModuleExpression} */
     asModuleExpression: function() {
-      assert(this instanceof traceur.syntax.trees.ModuleExpressionTree);
+      assert(this instanceof traceur.syntax.trees.ModuleExpression);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.ModuleRequireTree} */
+    /** @return {traceur.syntax.trees.ModuleRequire} */
     asModuleRequire: function() {
-      assert(this instanceof traceur.syntax.trees.ModuleRequireTree);
+      assert(this instanceof traceur.syntax.trees.ModuleRequire);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.ModuleSpecifierTree} */
+    /** @return {traceur.syntax.trees.ModuleSpecifier} */
     asModuleSpecifier: function() {
-      assert(this instanceof traceur.syntax.trees.ModuleSpecifierTree);
+      assert(this instanceof traceur.syntax.trees.ModuleSpecifier);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.NewExpressionTree} */
+    /** @return {traceur.syntax.trees.NewExpression} */
     asNewExpression: function() {
-      assert(this instanceof traceur.syntax.trees.NewExpressionTree);
+      assert(this instanceof traceur.syntax.trees.NewExpression);
       return this;
     },
 
@@ -372,159 +372,159 @@ traceur.define('syntax.trees', function() {
       return this;
     },
 
-    /** @return {traceur.syntax.trees.ObjectLiteralExpressionTree} */
+    /** @return {traceur.syntax.trees.ObjectLiteralExpression} */
     asObjectLiteralExpression: function() {
-      assert(this instanceof traceur.syntax.trees.ObjectLiteralExpressionTree);
+      assert(this instanceof traceur.syntax.trees.ObjectLiteralExpression);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.ObjectPatternTree} */
+    /** @return {traceur.syntax.trees.ObjectPattern} */
     asObjectPattern: function() {
-      assert(this instanceof traceur.syntax.trees.ObjectPatternTree);
+      assert(this instanceof traceur.syntax.trees.ObjectPattern);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.ObjectPatternFieldTree} */
+    /** @return {traceur.syntax.trees.ObjectPatternField} */
     asObjectPatternField: function() {
-      assert(this instanceof traceur.syntax.trees.ObjectPatternFieldTree);
+      assert(this instanceof traceur.syntax.trees.ObjectPatternField);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.ParenExpressionTree} */
+    /** @return {traceur.syntax.trees.ParenExpression} */
     asParenExpression: function() {
-      assert(this instanceof traceur.syntax.trees.ParenExpressionTree);
+      assert(this instanceof traceur.syntax.trees.ParenExpression);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.PostfixExpressionTree} */
+    /** @return {traceur.syntax.trees.PostfixExpression} */
     asPostfixExpression: function() {
-      assert(this instanceof traceur.syntax.trees.PostfixExpressionTree);
+      assert(this instanceof traceur.syntax.trees.PostfixExpression);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.ProgramTree} */
+    /** @return {traceur.syntax.trees.Program} */
     asProgram: function() {
-      assert(this instanceof traceur.syntax.trees.ProgramTree);
+      assert(this instanceof traceur.syntax.trees.Program);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.PropertyNameAssignmentTree} */
+    /** @return {traceur.syntax.trees.PropertyNameAssignment} */
     asPropertyNameAssignment: function() {
-      assert(this instanceof traceur.syntax.trees.PropertyNameAssignmentTree);
+      assert(this instanceof traceur.syntax.trees.PropertyNameAssignment);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.RequiresMemberTree} */
+    /** @return {traceur.syntax.trees.RequiresMember} */
     asRequiresMember: function() {
-      assert(this instanceof traceur.syntax.trees.RequiresMemberTree);
+      assert(this instanceof traceur.syntax.trees.RequiresMember);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.RestParameterTree} */
+    /** @return {traceur.syntax.trees.RestParameter} */
     asRestParameter: function() {
-      assert(this instanceof traceur.syntax.trees.RestParameterTree);
+      assert(this instanceof traceur.syntax.trees.RestParameter);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.ReturnStatementTree} */
+    /** @return {traceur.syntax.trees.ReturnStatement} */
     asReturnStatement: function() {
-      assert(this instanceof traceur.syntax.trees.ReturnStatementTree);
+      assert(this instanceof traceur.syntax.trees.ReturnStatement);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.SetAccessorTree} */
+    /** @return {traceur.syntax.trees.SetAccessor} */
     asSetAccessor: function() {
-      assert(this instanceof traceur.syntax.trees.SetAccessorTree);
+      assert(this instanceof traceur.syntax.trees.SetAccessor);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.SpreadExpressionTree} */
+    /** @return {traceur.syntax.trees.SpreadExpression} */
     asSpreadExpression: function() {
-      assert(this instanceof traceur.syntax.trees.SpreadExpressionTree);
+      assert(this instanceof traceur.syntax.trees.SpreadExpression);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.SpreadPatternElementTree} */
+    /** @return {traceur.syntax.trees.SpreadPatternElement} */
     asSpreadPatternElement: function() {
-      assert(this instanceof traceur.syntax.trees.SpreadPatternElementTree);
+      assert(this instanceof traceur.syntax.trees.SpreadPatternElement);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.SuperExpressionTree} */
+    /** @return {traceur.syntax.trees.SuperExpression} */
     asSuperExpression: function() {
-      assert(this instanceof traceur.syntax.trees.SuperExpressionTree);
+      assert(this instanceof traceur.syntax.trees.SuperExpression);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.SwitchStatementTree} */
+    /** @return {traceur.syntax.trees.SwitchStatement} */
     asSwitchStatement: function() {
-      assert(this instanceof traceur.syntax.trees.SwitchStatementTree);
+      assert(this instanceof traceur.syntax.trees.SwitchStatement);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.ThisExpressionTree} */
+    /** @return {traceur.syntax.trees.ThisExpression} */
     asThisExpression: function() {
-      assert(this instanceof traceur.syntax.trees.ThisExpressionTree);
+      assert(this instanceof traceur.syntax.trees.ThisExpression);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.ThrowStatementTree} */
+    /** @return {traceur.syntax.trees.ThrowStatement} */
     asThrowStatement: function() {
-      assert(this instanceof traceur.syntax.trees.ThrowStatementTree);
+      assert(this instanceof traceur.syntax.trees.ThrowStatement);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.TraitDeclarationTree} */
+    /** @return {traceur.syntax.trees.TraitDeclaration} */
     asTraitDeclaration: function() {
-      assert(this instanceof traceur.syntax.trees.TraitDeclarationTree);
+      assert(this instanceof traceur.syntax.trees.TraitDeclaration);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.TryStatementTree} */
+    /** @return {traceur.syntax.trees.TryStatement} */
     asTryStatement: function() {
-      assert(this instanceof traceur.syntax.trees.TryStatementTree);
+      assert(this instanceof traceur.syntax.trees.TryStatement);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.UnaryExpressionTree} */
+    /** @return {traceur.syntax.trees.UnaryExpression} */
     asUnaryExpression: function() {
-      assert(this instanceof traceur.syntax.trees.UnaryExpressionTree);
+      assert(this instanceof traceur.syntax.trees.UnaryExpression);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.VariableDeclarationListTree} */
+    /** @return {traceur.syntax.trees.VariableDeclarationList} */
     asVariableDeclarationList: function() {
-      assert(this instanceof traceur.syntax.trees.VariableDeclarationListTree);
+      assert(this instanceof traceur.syntax.trees.VariableDeclarationList);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.VariableDeclarationTree} */
+    /** @return {traceur.syntax.trees.VariableDeclaration} */
     asVariableDeclaration: function() {
-      assert(this instanceof traceur.syntax.trees.VariableDeclarationTree);
+      assert(this instanceof traceur.syntax.trees.VariableDeclaration);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.VariableStatementTree} */
+    /** @return {traceur.syntax.trees.VariableStatement} */
     asVariableStatement: function() {
-      assert(this instanceof traceur.syntax.trees.VariableStatementTree);
+      assert(this instanceof traceur.syntax.trees.VariableStatement);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.WhileStatementTree} */
+    /** @return {traceur.syntax.trees.WhileStatement} */
     asWhileStatement: function() {
-      assert(this instanceof traceur.syntax.trees.WhileStatementTree);
+      assert(this instanceof traceur.syntax.trees.WhileStatement);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.WithStatementTree} */
+    /** @return {traceur.syntax.trees.WithStatement} */
     asWithStatement: function() {
-      assert(this instanceof traceur.syntax.trees.WithStatementTree);
+      assert(this instanceof traceur.syntax.trees.WithStatement);
       return this;
     },
 
-    /** @return {traceur.syntax.trees.YieldStatementTree} */
+    /** @return {traceur.syntax.trees.YieldStatement} */
     asYieldStatement: function() {
-      assert(this instanceof traceur.syntax.trees.YieldStatementTree);
+      assert(this instanceof traceur.syntax.trees.YieldStatement);
       return this;
     },
 

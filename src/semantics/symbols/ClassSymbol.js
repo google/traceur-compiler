@@ -24,7 +24,7 @@ traceur.define('semantics.symbols', function() {
    * Classes can be user defined or predefined(defined by the compiler/DOM).
    *
    * @param {string} name
-   * @param {ClassDeclarationTree} tree
+   * @param {ClassDeclaration} tree
    * @constructor
    * @extends {AggregateSymbol}
    */

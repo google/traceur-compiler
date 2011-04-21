@@ -78,10 +78,10 @@ traceur.define('codegeneration.generator', function() {
     //   statement
     // }
     /**
-     * @param {ForInStatementTree} original
+     * @param {ForInStatement} original
      * @return {ParseTree}
      */
-    transformForInStatementTree: function(original) {
+    transformForInStatement: function(original) {
       var tree = original;
 
       // Transform body first

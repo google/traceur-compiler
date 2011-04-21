@@ -99,36 +99,36 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ArgumentListTree} tree
+     * @param {ArgumentList} tree
      */
-    visitArgumentListTree: function(tree) {
+    visitArgumentList: function(tree) {
       this.write_(TokenType.OPEN_PAREN);
       this.writeList_(tree.args, TokenType.COMMA, false);
       this.write_(TokenType.CLOSE_PAREN);
     },
 
     /**
-     * @param {ArrayLiteralExpressionTree} tree
+     * @param {ArrayLiteralExpression} tree
      */
-    visitArrayLiteralExpressionTree: function(tree) {
+    visitArrayLiteralExpression: function(tree) {
       this.write_(TokenType.OPEN_SQUARE);
       this.writeList_(tree.elements, TokenType.COMMA, false);
       this.write_(TokenType.CLOSE_SQUARE);
     },
 
     /**
-     * @param {ArrayPatternTree} tree
+     * @param {ArrayPattern} tree
      */
-    visitArrayPatternTree: function(tree) {
+    visitArrayPattern: function(tree) {
       this.write_(TokenType.OPEN_SQUARE);
       this.writeList_(tree.elements, TokenType.COMMA, false);
       this.write_(TokenType.CLOSE_SQUARE);
     },
 
     /**
-     * @param {AwaitStatementTree} tree
+     * @param {AwaitStatement} tree
      */
-    visitAwaitStatementTree: function(tree) {
+    visitAwaitStatement: function(tree) {
       this.write_(TokenType.AWAIT);
       if (tree.identifier != null) {
         this.write_(tree.identifier);
@@ -139,27 +139,27 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {BinaryOperatorTree} tree
+     * @param {BinaryOperator} tree
      */
-    visitBinaryOperatorTree: function(tree) {
+    visitBinaryOperator: function(tree) {
       this.visitAny(tree.left);
       this.write_(tree.operator);
       this.visitAny(tree.right);
     },
 
     /**
-     * @param {BlockTree} tree
+     * @param {Block} tree
      */
-    visitBlockTree: function(tree) {
+    visitBlock: function(tree) {
       this.write_(TokenType.OPEN_CURLY);
       this.writelnList_(tree.statements);
       this.write_(TokenType.CLOSE_CURLY);
     },
 
     /**
-     * @param {BreakStatementTree} tree
+     * @param {BreakStatement} tree
      */
-    visitBreakStatementTree: function(tree) {
+    visitBreakStatement: function(tree) {
       this.write_(TokenType.BREAK);
       if (tree.name != null) {
         this.write_(tree.name);
@@ -168,17 +168,17 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {CallExpressionTree} tree
+     * @param {CallExpression} tree
      */
-    visitCallExpressionTree: function(tree) {
+    visitCallExpression: function(tree) {
       this.visitAny(tree.operand);
       this.visitAny(tree.args);
     },
 
     /**
-     * @param {CaseClauseTree} tree
+     * @param {CaseClause} tree
      */
-    visitCaseClauseTree: function(tree) {
+    visitCaseClause: function(tree) {
       this.write_(TokenType.CASE);
       this.visitAny(tree.expression);
       this.write_(TokenType.COLON);
@@ -188,9 +188,9 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {CatchTree} tree
+     * @param {Catch} tree
      */
-    visitCatchTree: function(tree) {
+    visitCatch: function(tree) {
       this.write_(TokenType.CATCH);
       this.write_(TokenType.OPEN_PAREN);
       this.write_(tree.exceptionName);
@@ -199,9 +199,9 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ClassDeclarationTree} tree
+     * @param {ClassDeclaration} tree
      */
-    visitClassDeclarationTree: function(tree) {
+    visitClassDeclaration: function(tree) {
       this.write_(TokenType.CLASS);
       this.write_(tree.name);
       if (tree.superClass != null) {
@@ -214,23 +214,23 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ClassExpressionTree} tree
+     * @param {ClassExpression} tree
      */
-    visitClassExpressionTree: function(tree) {
+    visitClassExpression: function(tree) {
       this.write_(TokenType.CLASS);
     },
 
     /**
-     * @param {CommaExpressionTree} tree
+     * @param {CommaExpression} tree
      */
-    visitCommaExpressionTree: function(tree) {
+    visitCommaExpression: function(tree) {
       this.writeList_(tree.expressions, TokenType.COMMA, false);
     },
 
     /**
-     * @param {ConditionalExpressionTree} tree
+     * @param {ConditionalExpression} tree
      */
-    visitConditionalExpressionTree: function(tree) {
+    visitConditionalExpression: function(tree) {
       this.visitAny(tree.condition);
       this.write_(TokenType.QUESTION);
       this.visitAny(tree.left);
@@ -239,9 +239,9 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ContinueStatementTree} tree
+     * @param {ContinueStatement} tree
      */
-    visitContinueStatementTree: function(tree) {
+    visitContinueStatement: function(tree) {
       this.write_(TokenType.CONTINUE);
       if (tree.name != null) {
         this.write_(tree.name);
@@ -250,17 +250,17 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {DebuggerStatementTree} tree
+     * @param {DebuggerStatement} tree
      */
-    visitDebuggerStatementTree: function(tree) {
+    visitDebuggerStatement: function(tree) {
       this.write_(TokenType.DEBUGGER);
       this.write_(TokenType.SEMI_COLON);
     },
 
     /**
-     * @param {DefaultClauseTree} tree
+     * @param {DefaultClause} tree
      */
-    visitDefaultClauseTree: function(tree) {
+    visitDefaultClause: function(tree) {
       this.write_(TokenType.DEFAULT);
       this.write_(TokenType.COLON);
       this.indentDepth_++;
@@ -269,18 +269,18 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {DefaultParameterTree} tree
+     * @param {DefaultParameter} tree
      */
-    visitDefaultParameterTree: function(tree) {
+    visitDefaultParameter: function(tree) {
       this.visitAny(tree.identifier);
       this.write_(TokenType.EQUAL);
       this.visitAny(tree.expression);
     },
 
     /**
-     * @param {DoWhileStatementTree} tree
+     * @param {DoWhileStatement} tree
      */
-    visitDoWhileStatementTree: function(tree) {
+    visitDoWhileStatement: function(tree) {
       this.write_(TokenType.DO);
       this.visitAny(tree.body);
       this.write_(TokenType.WHILE);
@@ -291,32 +291,32 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {EmptyStatementTree} tree
+     * @param {EmptyStatement} tree
      */
-    visitEmptyStatementTree: function(tree) {
+    visitEmptyStatement: function(tree) {
       this.write_(TokenType.SEMI_COLON);
     },
 
     /**
-     * @param {ExportDeclarationTree} tree
+     * @param {ExportDeclaration} tree
      */
-    visitExportDeclarationTree: function(tree) {
+    visitExportDeclaration: function(tree) {
       this.write_(TokenType.EXPORT);
       this.visitAny(tree.declaration);
     },
 
     /**
-     * @param {ExpressionStatementTree} tree
+     * @param {ExpressionStatement} tree
      */
-    visitExpressionStatementTree: function(tree) {
+    visitExpressionStatement: function(tree) {
       this.visitAny(tree.expression);
       this.write_(TokenType.SEMI_COLON);
     },
 
     /**
-     * @param {FieldDeclarationTree} tree
+     * @param {FieldDeclaration} tree
      */
-    visitFieldDeclarationTree: function(tree) {
+    visitFieldDeclaration: function(tree) {
       if (tree.isStatic) {
         this.write_(TokenType.CLASS);
       }
@@ -328,17 +328,17 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {FinallyTree} tree
+     * @param {Finally} tree
      */
-    visitFinallyTree: function(tree) {
+    visitFinally: function(tree) {
       this.write_(TokenType.FINALLY);
       this.visitAny(tree.block);
     },
 
     /**
-     * @param {ForEachStatementTree} tree
+     * @param {ForEachStatement} tree
      */
-    visitForEachStatementTree: function(tree) {
+    visitForEachStatement: function(tree) {
       this.write_(TokenType.FOR);
       this.write_(TokenType.OPEN_PAREN);
       this.visitAny(tree.initializer);
@@ -349,9 +349,9 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ForInStatementTree} tree
+     * @param {ForInStatement} tree
      */
-    visitForInStatementTree: function(tree) {
+    visitForInStatement: function(tree) {
       this.write_(TokenType.FOR);
       this.write_(TokenType.OPEN_PAREN);
       this.visitAny(tree.initializer);
@@ -362,9 +362,9 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ForStatementTree} tree
+     * @param {ForStatement} tree
      */
-    visitForStatementTree: function(tree) {
+    visitForStatement: function(tree) {
       this.write_(TokenType.FOR);
       this.write_(TokenType.OPEN_PAREN);
       this.visitAny(tree.initializer);
@@ -377,9 +377,9 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {FormalParameterListTree} tree
+     * @param {FormalParameterList} tree
      */
-    visitFormalParameterListTree: function(tree) {
+    visitFormalParameterList: function(tree) {
       var first = true;
 
       for (var i = 0; i < tree.parameters.length; i++) {
@@ -396,9 +396,9 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {FunctionDeclarationTree} tree
+     * @param {FunctionDeclaration} tree
      */
-    visitFunctionDeclarationTree: function(tree) {
+    visitFunctionDeclaration: function(tree) {
       if (tree.isStatic) {
         this.write_(TokenType.CLASS);
       }
@@ -413,9 +413,9 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {GetAccessorTree} tree
+     * @param {GetAccessor} tree
      */
-    visitGetAccessorTree: function(tree) {
+    visitGetAccessor: function(tree) {
       if (tree.isStatic) {
         this.write_(TokenType.CLASS);
       }
@@ -427,16 +427,16 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {IdentifierExpressionTree} tree
+     * @param {IdentifierExpression} tree
      */
-    visitIdentifierExpressionTree: function(tree) {
+    visitIdentifierExpression: function(tree) {
       this.write_(tree.identifierToken);
     },
 
     /**
-     * @param {IfStatementTree} tree
+     * @param {IfStatement} tree
      */
-    visitIfStatementTree: function(tree) {
+    visitIfStatement: function(tree) {
       this.write_(TokenType.IF);
       this.write_(TokenType.OPEN_PAREN);
       this.visitAny(tree.condition);
@@ -449,9 +449,9 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ImportDeclarationTree} tree
+     * @param {ImportDeclaration} tree
      */
-    visitImportDeclarationTree: function(tree) {
+    visitImportDeclaration: function(tree) {
       this.write_(TokenType.IMPORT);
       this.writeList_(tree.importPathList, TokenType.COMMA, false);
       this.write_(TokenType.SEMI_COLON);
@@ -479,9 +479,9 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ImportSpecifierTree} tree
+     * @param {ImportSpecifier} tree
      */
-    visitImportSpecifierTree: function(tree) {
+    visitImportSpecifier: function(tree) {
       this.write_(tree.importedName);
       if (tree.destinationName != null) {
         this.write_(TokenType.COLON);
@@ -490,34 +490,34 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {LabelledStatementTree} tree
+     * @param {LabelledStatement} tree
      */
-    visitLabelledStatementTree: function(tree) {
+    visitLabelledStatement: function(tree) {
       this.write_(tree.name);
       this.write_(TokenType.COLON);
       this.visitAny(tree.statement);
     },
 
     /**
-     * @param {LiteralExpressionTree} tree
+     * @param {LiteralExpression} tree
      */
-    visitLiteralExpressionTree: function(tree) {
+    visitLiteralExpression: function(tree) {
       this.write_(tree.literalToken);
     },
 
     /**
-     * @param {MemberExpressionTree} tree
+     * @param {MemberExpression} tree
      */
-    visitMemberExpressionTree: function(tree) {
+    visitMemberExpression: function(tree) {
       this.visitAny(tree.operand);
       this.write_(TokenType.PERIOD);
       this.write_(tree.memberName);
     },
 
     /**
-     * @param {MemberLookupExpressionTree} tree
+     * @param {MemberLookupExpression} tree
      */
-    visitMemberLookupExpressionTree: function(tree) {
+    visitMemberLookupExpression: function(tree) {
       this.visitAny(tree.operand);
       this.write_(TokenType.OPEN_SQUARE);
       this.visitAny(tree.memberExpression);
@@ -525,16 +525,16 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {MissingPrimaryExpressionTree} tree
+     * @param {MissingPrimaryExpression} tree
      */
-    visitMissingPrimaryExpressionTree: function(tree) {
-      this.write_('MissingPrimaryExpressionTree');
+    visitMissingPrimaryExpression: function(tree) {
+      this.write_('MissingPrimaryExpression');
     },
 
     /**
-     * @param {MixinTree} tree
+     * @param {Mixin} tree
      */
-    visitMixinTree: function(tree) {
+    visitMixin: function(tree) {
       this.write_(PredefinedName.MIXIN);
       this.write_(tree.name);
       this.visitAny(tree.mixinResolves);
@@ -542,18 +542,18 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {MixinResolveTree} tree
+     * @param {MixinResolve} tree
      */
-    visitMixinResolveTree: function(tree) {
+    visitMixinResolve: function(tree) {
       this.write_(tree.from);
       this.write_(TokenType.COLON);
       this.write_(tree.to);
     },
 
     /**
-     * @param {MixinResolveListTree} tree
+     * @param {MixinResolveList} tree
      */
-    visitMixinResolveListTree: function(tree) {
+    visitMixinResolveList: function(tree) {
       this.write_(TokenType.OPEN_CURLY);
       this.writeList_(tree.resolves, TokenType.COMMA, false);
       this.write_(TokenType.CLOSE_CURLY);
@@ -562,16 +562,16 @@ traceur.define('codegeneration', function() {
     /**
      * @param {ModuleDeclarationfinitionTree} tree
      */
-    visitModuleDeclarationTree: function(tree) {
+    visitModuleDeclaration: function(tree) {
       this.write_(PredefinedName.MODULE);
       this.writeList_(tree.specifiers, TokenType.COMMA, false);
       this.write_(TokenType.SEMI_COLON);
     },
 
     /**
-     * @param {ModuleDefinitionTree} tree
+     * @param {ModuleDefinition} tree
      */
-    visitModuleDefinitionTree: function(tree) {
+    visitModuleDefinition: function(tree) {
       this.write_(PredefinedName.MODULE);
       this.write_(tree.name);
       this.write_(TokenType.OPEN_CURLY);
@@ -582,9 +582,9 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ModuleExpressionTree} tree
+     * @param {ModuleExpression} tree
      */
-    visitModuleExpressionTree: function(tree) {
+    visitModuleExpression: function(tree) {
       this.visitAny(tree.reference);
       for (var i = 0; i < tree.identifiers.length; i++) {
         this.write_(TokenType.PERIOD);
@@ -593,9 +593,9 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ModuleRequireTree} tree
+     * @param {ModuleRequire} tree
      */
-    visitModuleRequireTree: function(tree) {
+    visitModuleRequire: function(tree) {
       this.write_(PredefinedName.REQUIRE);
       this.write_(TokenType.OPEN_PAREN);
       this.write_(tree.url);
@@ -603,18 +603,18 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ModuleRequireTree} tree
+     * @param {ModuleRequire} tree
      */
-    visitModuleSpecifierTree: function(tree) {
+    visitModuleSpecifier: function(tree) {
       this.write_(tree.identifier);
       this.write_(TokenType.EQUAL);
       this.visitAny(tree.expression);
     },
 
     /**
-     * @param {NewExpressionTree} tree
+     * @param {NewExpression} tree
      */
-    visitNewExpressionTree: function(tree) {
+    visitNewExpression: function(tree) {
       this.write_(TokenType.NEW);
       this.visitAny(tree.operand);
       this.visitAny(tree.args);
@@ -627,9 +627,9 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ObjectLiteralExpressionTree} tree
+     * @param {ObjectLiteralExpression} tree
      */
-    visitObjectLiteralExpressionTree: function(tree) {
+    visitObjectLiteralExpression: function(tree) {
       this.write_(TokenType.OPEN_CURLY);
       if (tree.propertyNameAndValues.length > 1)
         this.writeln_();
@@ -640,18 +640,18 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ObjectPatternTree} tree
+     * @param {ObjectPattern} tree
      */
-    visitObjectPatternTree: function(tree) {
+    visitObjectPattern: function(tree) {
       this.write_(TokenType.OPEN_CURLY);
       this.writelnList_(tree.fields, TokenType.COMMA);
       this.write_(TokenType.CLOSE_CURLY);
     },
 
     /**
-     * @param {ObjectPatternFieldTree} tree
+     * @param {ObjectPatternField} tree
      */
-    visitObjectPatternFieldTree: function(tree) {
+    visitObjectPatternField: function(tree) {
       this.write_(tree.identifier);
       if (tree.element != null) {
         this.write_(TokenType.COLON);
@@ -660,68 +660,68 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ParenExpressionTree} tree
+     * @param {ParenExpression} tree
      */
-    visitParenExpressionTree: function(tree) {
+    visitParenExpression: function(tree) {
       this.write_(TokenType.OPEN_PAREN);
-      ParseTreeVisitor.prototype.visitParenExpressionTree.call(this, tree);
+      ParseTreeVisitor.prototype.visitParenExpression.call(this, tree);
       this.write_(TokenType.CLOSE_PAREN);
     },
 
     /**
-     * @param {PostfixExpressionTree} tree
+     * @param {PostfixExpression} tree
      */
-    visitPostfixExpressionTree: function(tree) {
+    visitPostfixExpression: function(tree) {
       this.visitAny(tree.operand);
       this.write_(tree.operator);
     },
 
     /**
-     * @param {ProgramTree} tree
+     * @param {Program} tree
      */
-    visitProgramTree: function(tree) {
+    visitProgram: function(tree) {
       this.writelnList_(tree.sourceElements);
     },
 
     /**
-     * @param {PropertyNameAssignmentTree} tree
+     * @param {PropertyNameAssignment} tree
      */
-    visitPropertyNameAssignmentTree: function(tree) {
+    visitPropertyNameAssignment: function(tree) {
       this.write_(tree.name);
       this.write_(TokenType.COLON);
       this.visitAny(tree.value);
     },
 
     /**
-     * @param {RequiresMemberTree} tree
+     * @param {RequiresMember} tree
      */
-    visitRequiresMemberTree: function(tree) {
+    visitRequiresMember: function(tree) {
       this.write_(PredefinedName.REQUIRES);
       this.write_(tree.name);
       this.write_(TokenType.SEMI_COLON);
     },
 
     /**
-     * @param {ReturnStatementTree} tree
+     * @param {ReturnStatement} tree
      */
-    visitReturnStatementTree: function(tree) {
+    visitReturnStatement: function(tree) {
       this.write_(TokenType.RETURN);
       this.visitAny(tree.expression);
       this.write_(TokenType.SEMI_COLON);
     },
 
     /**
-     * @param {RestParameterTree} tree
+     * @param {RestParameter} tree
      */
-    visitRestParameterTree: function(tree) {
+    visitRestParameter: function(tree) {
       this.write_(TokenType.SPREAD);
       this.write_(tree.identifier);
     },
 
     /**
-     * @param {SetAccessorTree} tree
+     * @param {SetAccessor} tree
      */
-    visitSetAccessorTree: function(tree) {
+    visitSetAccessor: function(tree) {
       if (tree.isStatic) {
         this.write_(TokenType.CLASS);
       }
@@ -734,17 +734,17 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {SpreadExpressionTree} tree
+     * @param {SpreadExpression} tree
      */
-    visitSpreadExpressionTree: function(tree) {
+    visitSpreadExpression: function(tree) {
       this.write_(TokenType.SPREAD);
       this.visitAny(tree.expression);
     },
 
     /**
-     * @param {SpreadPatternElementTree} tree
+     * @param {SpreadPatternElement} tree
      */
-    visitSpreadPatternElementTree: function(tree) {
+    visitSpreadPatternElement: function(tree) {
       this.write_(TokenType.SPREAD);
       this.visitAny(tree.lvalue);
     },
@@ -757,16 +757,16 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {SuperExpressionTree} tree
+     * @param {SuperExpression} tree
      */
-    visitSuperExpressionTree: function(tree) {
+    visitSuperExpression: function(tree) {
       this.write_(TokenType.SUPER);
     },
 
     /**
-     * @param {SwitchStatementTree} tree
+     * @param {SwitchStatement} tree
      */
-    visitSwitchStatementTree: function(tree) {
+    visitSwitchStatement: function(tree) {
       this.write_(TokenType.SWITCH);
       this.write_(TokenType.OPEN_PAREN);
       this.visitAny(tree.expression);
@@ -777,16 +777,16 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ThisExpressionTree} tree
+     * @param {ThisExpression} tree
      */
-    visitThisExpressionTree: function(tree) {
+    visitThisExpression: function(tree) {
       this.write_(TokenType.THIS);
     },
 
     /**
-     * @param {TraitDeclarationTree} tree
+     * @param {TraitDeclaration} tree
      */
-    visitTraitDeclarationTree: function(tree) {
+    visitTraitDeclaration: function(tree) {
       this.write_(PredefinedName.TRAIT);
       this.write_(tree.name);
       this.write_(TokenType.OPEN_CURLY);
@@ -795,18 +795,18 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ThrowStatementTree} tree
+     * @param {ThrowStatement} tree
      */
-    visitThrowStatementTree: function(tree) {
+    visitThrowStatement: function(tree) {
       this.write_(TokenType.THROW);
       this.visitAny(tree.value);
       this.write_(TokenType.SEMI_COLON);
     },
 
     /**
-     * @param {TryStatementTree} tree
+     * @param {TryStatement} tree
      */
-    visitTryStatementTree: function(tree) {
+    visitTryStatement: function(tree) {
       this.write_(TokenType.TRY);
       this.visitAny(tree.body);
       this.visitAny(tree.catchBlock);
@@ -814,25 +814,25 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {UnaryExpressionTree} tree
+     * @param {UnaryExpression} tree
      */
-    visitUnaryExpressionTree: function(tree) {
+    visitUnaryExpression: function(tree) {
       this.write_(tree.operator);
       this.visitAny(tree.operand);
     },
 
     /**
-     * @param {VariableDeclarationListTree} tree
+     * @param {VariableDeclarationList} tree
      */
-    visitVariableDeclarationListTree: function(tree) {
+    visitVariableDeclarationList: function(tree) {
       this.write_(tree.declarationType);
       this.writeList_(tree.declarations, TokenType.COMMA, false);
     },
 
     /**
-     * @param {VariableDeclarationTree} tree
+     * @param {VariableDeclaration} tree
      */
-    visitVariableDeclarationTree: function(tree) {
+    visitVariableDeclaration: function(tree) {
       this.visitAny(tree.lvalue);
       if (tree.initializer != null) {
         this.write_(TokenType.EQUAL);
@@ -841,17 +841,17 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {VariableStatementTree} tree
+     * @param {VariableStatement} tree
      */
-    visitVariableStatementTree: function(tree) {
-      ParseTreeVisitor.prototype.visitVariableStatementTree.call(this, tree);
+    visitVariableStatement: function(tree) {
+      ParseTreeVisitor.prototype.visitVariableStatement.call(this, tree);
       this.write_(TokenType.SEMI_COLON);
     },
 
     /**
-     * @param {WhileStatementTree} tree
+     * @param {WhileStatement} tree
      */
-    visitWhileStatementTree: function(tree) {
+    visitWhileStatement: function(tree) {
       this.write_(TokenType.WHILE);
       this.write_(TokenType.OPEN_PAREN);
       this.visitAny(tree.condition);
@@ -860,9 +860,9 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {WithStatementTree} tree
+     * @param {WithStatement} tree
      */
-    visitWithStatementTree: function(tree) {
+    visitWithStatement: function(tree) {
       this.write_(TokenType.WITH);
       this.write_(TokenType.OPEN_PAREN);
       this.visitAny(tree.expression);
@@ -871,9 +871,9 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {YieldStatementTree} tree
+     * @param {YieldStatement} tree
      */
-    visitYieldStatementTree: function(tree) {
+    visitYieldStatement: function(tree) {
       this.write_(TokenType.YIELD);
       if (tree.isYieldFor) {
         this.write_(TokenType.FOR);

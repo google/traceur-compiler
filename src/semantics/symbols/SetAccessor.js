@@ -23,7 +23,7 @@ traceur.define('semantics.symbols', function() {
    * A set property acccessor.
    *
    * @param {PropertySymbol} property
-   * @param {SetAccessorTree} tree
+   * @param {SetAccessor} tree
    * @constructor
    * @extends {PropertyAccessor}
    */

@@ -15,9 +15,9 @@
 traceur.define('codegeneration.generator', function() {
   'use strict';
 
-  var CaseClauseTree = traceur.syntax.trees.CaseClauseTree;
-  var DefaultClauseTree = traceur.syntax.trees.DefaultClauseTree;
-  var SwitchStatementTree = traceur.syntax.trees.SwitchStatementTree;
+  var CaseClause = traceur.syntax.trees.CaseClause;
+  var DefaultClause = traceur.syntax.trees.DefaultClause;
+  var SwitchStatement = traceur.syntax.trees.SwitchStatement;
 
   var State = traceur.codegeneration.generator.State;
   var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
@@ -91,15 +91,15 @@ traceur.define('codegeneration.generator', function() {
       for (var i = 0; i < this.clauses.length; i++) {
         var clause = this.clauses[i];
         if (clause.first == null) {
-          clauses.push(new DefaultClauseTree(null,
+          clauses.push(new DefaultClause(null,
               State.generateJump(enclosingFinally, clause.second)));
         } else {
-          clauses.push(new CaseClauseTree(null, clause.first,
+          clauses.push(new CaseClause(null, clause.first,
               State.generateJump(enclosingFinally, clause.second)));
         }
       }
       return createStatementList(
-          new SwitchStatementTree(null, this.expression, clauses),
+          new SwitchStatement(null, this.expression, clauses),
           createBreakStatement());
     }
   };

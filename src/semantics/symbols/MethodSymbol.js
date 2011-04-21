@@ -20,7 +20,7 @@ traceur.define('semantics.symbols', function() {
   var PredefinedName = traceur.syntax.PredefinedName;
 
   /**
-   * @param {FunctionDeclarationTree} tree
+   * @param {FunctionDeclaration} tree
    * @param {string} name
    * @param {AggregateSymbol} containingAggregate
    * @param {boolean} isStatic

@@ -16,9 +16,9 @@ traceur.define('codegeneration', function() {
   'use strict';
 
   var ParseTreeVisitor = traceur.syntax.ParseTreeVisitor;
-  var FunctionDeclarationTree = traceur.syntax.trees.FunctionDeclarationTree;
-  var GetAccessorTree = traceur.syntax.trees.GetAccessorTree;
-  var SetAccessorTree = traceur.syntax.trees.SetAccessorTree;
+  var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
+  var GetAccessor = traceur.syntax.trees.GetAccessor;
+  var SetAccessor = traceur.syntax.trees.SetAccessor;
 
   var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
   var ForEachTransformer = traceur.codegeneration.ForEachTransformer;
@@ -58,27 +58,27 @@ traceur.define('codegeneration', function() {
       return this.hasYield || this.hasAsync;
     },
 
-    /** @param {YieldStatementTree} tree */
-    visitYieldStatementTree: function(tree) {
+    /** @param {YieldStatement} tree */
+    visitYieldStatement: function(tree) {
       this.hasYield = true;
       this.hasYieldFor = tree.isYieldFor;
     },
 
-    /** @param {AwaitStatementTree} tree */
-    visitAwaitStatementTree: function(tree) {
+    /** @param {AwaitStatement} tree */
+    visitAwaitStatement: function(tree) {
       this.hasAsync = true;
     },
 
-    /** @param {ForInStatementTree} tree */
-    visitForInStatementTree: function(tree) {
+    /** @param {ForInStatement} tree */
+    visitForInStatement: function(tree) {
       this.hasForIn = true;
-      ParseTreeVisitor.prototype.visitForInStatementTree.call(this, tree);
+      ParseTreeVisitor.prototype.visitForInStatement.call(this, tree);
     },
 
     // don't visit function children or bodies
-    visitFunctionDeclarationTree: function(tree) {},
-    visitSetAccessorTree: function(tree) {},
-    visitGetAccessorTree: function(tree) {}
+    visitFunctionDeclaration: function(tree) {},
+    visitSetAccessor: function(tree) {},
+    visitGetAccessor: function(tree) {}
   };
 
   /**
@@ -97,7 +97,7 @@ traceur.define('codegeneration', function() {
   YieldForTransformer.prototype = {
     __proto__: ParseTreeTransformer.prototype,
 
-    transformYieldStatementTree: function(tree) {
+    transformYieldStatement: function(tree) {
       if (tree.isYieldFor) {
         // yield for E
         //   becomes
@@ -148,15 +148,15 @@ traceur.define('codegeneration', function() {
     __proto__: ParseTreeTransformer.prototype,
 
     /**
-     * @param {FunctionDeclarationTree} tree
+     * @param {FunctionDeclaration} tree
      * @return {ParseTree}
      */
-    transformFunctionDeclarationTree: function(tree) {
+    transformFunctionDeclaration: function(tree) {
       var body = this.transformBody_(tree.functionBody);
       if (body == tree.functionBody) {
         return tree;
       }
-      return new FunctionDeclarationTree(
+      return new FunctionDeclaration(
           null,
           tree.name,
           tree.isStatic,
@@ -165,14 +165,14 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {BlockTree} tree
-     * @return {BlockTree}
+     * @param {Block} tree
+     * @return {Block}
      */
     transformBody_: function(tree) {
       var finder = new YieldFinder(tree);
 
       // transform nested functions
-      var body = ParseTreeTransformer.prototype.transformBlockTree.call(this, tree).asBlock();
+      var body = ParseTreeTransformer.prototype.transformBlock.call(this, tree).asBlock();
 
       if (!finder.hasAnyGenerator()) {
         return body;
@@ -197,15 +197,15 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {GetAccessorTree} tree
+     * @param {GetAccessor} tree
      * @return {ParseTree}
      */
-    transformGetAccessorTree: function(tree) {
+    transformGetAccessor: function(tree) {
       var body = this.transformBody_(tree.body);
       if (body == tree.body) {
         return tree;
       }
-      return new GetAccessorTree(
+      return new GetAccessor(
           null,
           tree.propertyName,
           tree.isStatic,
@@ -213,15 +213,15 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {SetAccessorTree} tree
+     * @param {SetAccessor} tree
      * @return {ParseTree}
      */
-    transformSetAccessorTree: function(tree) {
+    transformSetAccessor: function(tree) {
       var body = this.transformBody_(tree.body);
       if (body == tree.body) {
         return tree;
       }
-      return new SetAccessorTree(
+      return new SetAccessor(
           null,
           tree.propertyName,
           tree.isStatic,

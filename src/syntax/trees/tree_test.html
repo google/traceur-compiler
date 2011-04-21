@@ -29,8 +29,7 @@ goog.require('goog.testing.jsunit');
 
 <script src="ParseTreeType.js"></script>
 <script src="ParseTree.js"></script>
-
-<script src="../trees.js"></script>
+<script src="ParseTrees.js"></script>
 <script src="ImportPathTree.js"></script>
 <script src="NullTree.js"></script>
 
@@ -124,299 +123,299 @@ function testImportPathTree() {
 }
 
 function testTreeConstructors() {
-  validateTree(traceur.syntax.trees.ArgumentListTree,
+  validateTree(traceur.syntax.trees.ArgumentList,
       ParseTreeType.ARGUMENT_LIST,
       ['location', 'args']);
 
-  validateTree(traceur.syntax.trees.ArrayLiteralExpressionTree,
+  validateTree(traceur.syntax.trees.ArrayLiteralExpression,
       ParseTreeType.ARRAY_LITERAL_EXPRESSION,
       ['location', 'elements']);
 
-  validateTree(traceur.syntax.trees.ArrayPatternTree,
+  validateTree(traceur.syntax.trees.ArrayPattern,
       ParseTreeType.ARRAY_PATTERN,
       ['location', 'elements']);
 
-  validateTree(traceur.syntax.trees.AwaitStatementTree,
+  validateTree(traceur.syntax.trees.AwaitStatement,
       ParseTreeType.AWAIT_STATEMENT,
       ['location', 'identifier', 'expression']);
 
-  validateTree(traceur.syntax.trees.BinaryOperatorTree,
+  validateTree(traceur.syntax.trees.BinaryOperator,
       ParseTreeType.BINARY_OPERATOR,
       ['location', 'left', 'operator', 'right']);
 
-  validateTree(traceur.syntax.trees.BlockTree,
+  validateTree(traceur.syntax.trees.Block,
       ParseTreeType.BLOCK,
       ['location', 'statements']);
 
-  validateTree(traceur.syntax.trees.BreakStatementTree,
+  validateTree(traceur.syntax.trees.BreakStatement,
       ParseTreeType.BREAK_STATEMENT,
       ['location', 'name']);
 
-  validateTree(traceur.syntax.trees.CallExpressionTree,
+  validateTree(traceur.syntax.trees.CallExpression,
       ParseTreeType.CALL_EXPRESSION,
       ['location', 'operand', 'args']);
 
-  validateTree(traceur.syntax.trees.CaseClauseTree,
+  validateTree(traceur.syntax.trees.CaseClause,
       ParseTreeType.CASE_CLAUSE,
       ['location', 'expression', 'statements']);
 
-  validateTree(traceur.syntax.trees.CatchTree,
+  validateTree(traceur.syntax.trees.Catch,
       ParseTreeType.CATCH,
       ['location', 'exceptionName', 'catchBody']);
 
-  validateTree(traceur.syntax.trees.ClassDeclarationTree,
+  validateTree(traceur.syntax.trees.ClassDeclaration,
       ParseTreeType.CLASS_DECLARATION,
       ['location', 'name', 'superClass', 'elements']);
 
-  validateTree(traceur.syntax.trees.ClassExpressionTree,
+  validateTree(traceur.syntax.trees.ClassExpression,
       ParseTreeType.CLASS_EXPRESSION,
       ['location']);
 
-  validateTree(traceur.syntax.trees.CommaExpressionTree,
+  validateTree(traceur.syntax.trees.CommaExpression,
       ParseTreeType.COMMA_EXPRESSION,
       ['location', 'expressions']);
 
-  validateTree(traceur.syntax.trees.ConditionalExpressionTree,
+  validateTree(traceur.syntax.trees.ConditionalExpression,
       ParseTreeType.CONDITIONAL_EXPRESSION,
       ['location', 'condition', 'left', 'right']);
 
-  validateTree(traceur.syntax.trees.ContinueStatementTree,
+  validateTree(traceur.syntax.trees.ContinueStatement,
       ParseTreeType.CONTINUE_STATEMENT,
       ['location', 'name']);
 
-  validateTree(traceur.syntax.trees.DebuggerStatementTree,
+  validateTree(traceur.syntax.trees.DebuggerStatement,
       ParseTreeType.DEBUGGER_STATEMENT,
       ['location']);
 
-  validateTree(traceur.syntax.trees.DefaultClauseTree,
+  validateTree(traceur.syntax.trees.DefaultClause,
       ParseTreeType.DEFAULT_CLAUSE,
       ['location', 'statements']);
 
-  validateTree(traceur.syntax.trees.DefaultParameterTree,
+  validateTree(traceur.syntax.trees.DefaultParameter,
       ParseTreeType.DEFAULT_PARAMETER,
       ['location', 'identifier', 'expression']);
 
-  validateTree(traceur.syntax.trees.DoWhileStatementTree,
+  validateTree(traceur.syntax.trees.DoWhileStatement,
       ParseTreeType.DO_WHILE_STATEMENT,
       ['location', 'body', 'condition']);
 
-  validateTree(traceur.syntax.trees.EmptyStatementTree,
+  validateTree(traceur.syntax.trees.EmptyStatement,
       ParseTreeType.EMPTY_STATEMENT,
       ['location']);
 
-  validateTree(traceur.syntax.trees.ExportDeclarationTree,
+  validateTree(traceur.syntax.trees.ExportDeclaration,
       ParseTreeType.EXPORT_DECLARATION,
       ['location', 'declaration']);
 
-  validateTree(traceur.syntax.trees.ExpressionStatementTree,
+  validateTree(traceur.syntax.trees.ExpressionStatement,
       ParseTreeType.EXPRESSION_STATEMENT,
       ['location', 'expression']);
 
-  validateTree(traceur.syntax.trees.FieldDeclarationTree,
+  validateTree(traceur.syntax.trees.FieldDeclaration,
       ParseTreeType.FIELD_DECLARATION,
       ['location', 'isStatic', 'isConst', 'declarations']);
 
-  validateTree(traceur.syntax.trees.FinallyTree,
+  validateTree(traceur.syntax.trees.Finally,
       ParseTreeType.FINALLY,
       ['location', 'block']);
 
-  validateTree(traceur.syntax.trees.ForEachStatementTree,
+  validateTree(traceur.syntax.trees.ForEachStatement,
       ParseTreeType.FOR_EACH_STATEMENT,
       ['location', 'initializer', 'collection', 'body']);
 
-  validateTree(traceur.syntax.trees.ForInStatementTree,
+  validateTree(traceur.syntax.trees.ForInStatement,
       ParseTreeType.FOR_IN_STATEMENT,
       ['location', 'initializer', 'collection', 'body']);
 
-  validateTree(traceur.syntax.trees.FormalParameterListTree,
+  validateTree(traceur.syntax.trees.FormalParameterList,
       ParseTreeType.FORMAL_PARAMETER_LIST,
       ['location', 'parameters']);
 
-  validateTree(traceur.syntax.trees.ForStatementTree,
+  validateTree(traceur.syntax.trees.ForStatement,
       ParseTreeType.FOR_STATEMENT,
       ['location', 'initializer', 'condition', 'increment', 'body']);
 
-  validateTree(traceur.syntax.trees.FunctionDeclarationTree,
+  validateTree(traceur.syntax.trees.FunctionDeclaration,
       ParseTreeType.FUNCTION_DECLARATION,
       ['location', 'name', 'isStatic', 'formalParameterList', 'functionBody']);
 
-  validateTree(traceur.syntax.trees.GetAccessorTree,
+  validateTree(traceur.syntax.trees.GetAccessor,
       ParseTreeType.GET_ACCESSOR,
       ['location', 'propertyName', 'isStatic', 'body']);
 
-  validateTree(traceur.syntax.trees.IdentifierExpressionTree,
+  validateTree(traceur.syntax.trees.IdentifierExpression,
       ParseTreeType.IDENTIFIER_EXPRESSION,
       ['location', 'identifierToken']);
 
-  validateTree(traceur.syntax.trees.IfStatementTree,
+  validateTree(traceur.syntax.trees.IfStatement,
       ParseTreeType.IF_STATEMENT,
       ['location', 'condition', 'ifClause', 'elseClause']);
 
-  validateTree(traceur.syntax.trees.ImportDeclarationTree,
+  validateTree(traceur.syntax.trees.ImportDeclaration,
       ParseTreeType.IMPORT_DECLARATION,
       ['location', 'importPathList']);
 
-  validateTree(traceur.syntax.trees.ImportSpecifierTree,
+  validateTree(traceur.syntax.trees.ImportSpecifier,
       ParseTreeType.IMPORT_SPECIFIER,
       ['location', 'importedName', 'destinationName']);
 
-  validateTree(traceur.syntax.trees.LabelledStatementTree,
+  validateTree(traceur.syntax.trees.LabelledStatement,
       ParseTreeType.LABELLED_STATEMENT,
       ['location', 'name', 'statement']);
 
-  validateTree(traceur.syntax.trees.LiteralExpressionTree,
+  validateTree(traceur.syntax.trees.LiteralExpression,
       ParseTreeType.LITERAL_EXPRESSION,
       ['location', 'literalToken']);
 
-  validateTree(traceur.syntax.trees.MemberExpressionTree,
+  validateTree(traceur.syntax.trees.MemberExpression,
       ParseTreeType.MEMBER_EXPRESSION,
       ['location', 'operand', 'memberName']);
 
-  validateTree(traceur.syntax.trees.MemberLookupExpressionTree,
+  validateTree(traceur.syntax.trees.MemberLookupExpression,
       ParseTreeType.MEMBER_LOOKUP_EXPRESSION,
       ['location', 'operand', 'memberExpression']);
 
-  validateTree(traceur.syntax.trees.MissingPrimaryExpressionTree,
+  validateTree(traceur.syntax.trees.MissingPrimaryExpression,
       ParseTreeType.MISSING_PRIMARY_EXPRESSION,
       ['location', 'nextToken']);
 
-  validateTree(traceur.syntax.trees.MixinResolveListTree,
+  validateTree(traceur.syntax.trees.MixinResolveList,
       ParseTreeType.MIXIN_RESOLVE_LIST,
       ['location', 'resolves']);
 
-  validateTree(traceur.syntax.trees.MixinResolveTree,
+  validateTree(traceur.syntax.trees.MixinResolve,
       ParseTreeType.MIXIN_RESOLVE,
       ['location', 'from', 'to']);
 
-  validateTree(traceur.syntax.trees.MixinTree,
+  validateTree(traceur.syntax.trees.Mixin,
       ParseTreeType.MIXIN,
       ['location', 'name', 'mixinResolves']);
 
-  validateTree(traceur.syntax.trees.ModuleDeclarationTree,
+  validateTree(traceur.syntax.trees.ModuleDeclaration,
       ParseTreeType.MODULE_DECLARATION,
       ['location', 'specifiers']);
 
-  validateTree(traceur.syntax.trees.ModuleDefinitionTree,
+  validateTree(traceur.syntax.trees.ModuleDefinition,
       ParseTreeType.MODULE_DEFINITION,
       ['location', 'name', 'elements']);
 
-  validateTree(traceur.syntax.trees.ModuleExpressionTree,
+  validateTree(traceur.syntax.trees.ModuleExpression,
       ParseTreeType.MODULE_EXPRESSION,
       ['location', 'reference', 'identifiers']);
 
-  validateTree(traceur.syntax.trees.ModuleRequireTree,
+  validateTree(traceur.syntax.trees.ModuleRequire,
       ParseTreeType.MODULE_REQUIRE,
       ['location', 'url']);
 
-  validateTree(traceur.syntax.trees.ModuleSpecifierTree,
+  validateTree(traceur.syntax.trees.ModuleSpecifier,
       ParseTreeType.MODULE_SPECIFIER,
       ['location', 'identifier', 'expression']);
 
-  validateTree(traceur.syntax.trees.NewExpressionTree,
+  validateTree(traceur.syntax.trees.NewExpression,
       ParseTreeType.NEW_EXPRESSION,
       ['location', 'operand', 'args']);
 
-  validateTree(traceur.syntax.trees.ObjectLiteralExpressionTree,
+  validateTree(traceur.syntax.trees.ObjectLiteralExpression,
       ParseTreeType.OBJECT_LITERAL_EXPRESSION,
       ['location', 'propertyNameAndValues']);
 
-  validateTree(traceur.syntax.trees.ObjectPatternFieldTree,
+  validateTree(traceur.syntax.trees.ObjectPatternField,
       ParseTreeType.OBJECT_PATTERN_FIELD,
       ['location', 'identifier', 'element']);
 
-  validateTree(traceur.syntax.trees.ObjectPatternTree,
+  validateTree(traceur.syntax.trees.ObjectPattern,
       ParseTreeType.OBJECT_PATTERN,
       ['location', 'fields']);
 
-  validateTree(traceur.syntax.trees.ParenExpressionTree,
+  validateTree(traceur.syntax.trees.ParenExpression,
       ParseTreeType.PAREN_EXPRESSION,
       ['location', 'expression']);
 
-  validateTree(traceur.syntax.trees.PostfixExpressionTree,
+  validateTree(traceur.syntax.trees.PostfixExpression,
       ParseTreeType.POSTFIX_EXPRESSION,
       ['location', 'operand', 'operator']);
 
-  validateTree(traceur.syntax.trees.ProgramTree,
+  validateTree(traceur.syntax.trees.Program,
       ParseTreeType.PROGRAM,
       ['location', 'sourceElements']);
 
-  validateTree(traceur.syntax.trees.PropertyNameAssignmentTree,
+  validateTree(traceur.syntax.trees.PropertyNameAssignment,
       ParseTreeType.PROPERTY_NAME_ASSIGNMENT,
       ['location', 'name', 'value']);
 
-  validateTree(traceur.syntax.trees.RequiresMemberTree,
+  validateTree(traceur.syntax.trees.RequiresMember,
       ParseTreeType.REQUIRES_MEMBER,
       ['location', 'name']);
 
-  validateTree(traceur.syntax.trees.RestParameterTree,
+  validateTree(traceur.syntax.trees.RestParameter,
       ParseTreeType.REST_PARAMETER,
       ['location', 'identifier']);
 
-  validateTree(traceur.syntax.trees.ReturnStatementTree,
+  validateTree(traceur.syntax.trees.ReturnStatement,
       ParseTreeType.RETURN_STATEMENT,
       ['location', 'expression']);
 
-  validateTree(traceur.syntax.trees.SetAccessorTree,
+  validateTree(traceur.syntax.trees.SetAccessor,
       ParseTreeType.SET_ACCESSOR,
       ['location', 'propertyName', 'isStatic', 'parameter', 'body']);
 
-  validateTree(traceur.syntax.trees.SpreadExpressionTree,
+  validateTree(traceur.syntax.trees.SpreadExpression,
       ParseTreeType.SPREAD_EXPRESSION,
       ['location', 'expression']);
 
-  validateTree(traceur.syntax.trees.SpreadPatternElementTree,
+  validateTree(traceur.syntax.trees.SpreadPatternElement,
       ParseTreeType.SPREAD_PATTERN_ELEMENT,
       ['location', 'lvalue']);
 
-  validateTree(traceur.syntax.trees.SuperExpressionTree,
+  validateTree(traceur.syntax.trees.SuperExpression,
       ParseTreeType.SUPER_EXPRESSION,
       ['location']);
 
-  validateTree(traceur.syntax.trees.SwitchStatementTree,
+  validateTree(traceur.syntax.trees.SwitchStatement,
       ParseTreeType.SWITCH_STATEMENT,
       ['location', 'expression', 'caseClauses']);
 
-  validateTree(traceur.syntax.trees.ThisExpressionTree,
+  validateTree(traceur.syntax.trees.ThisExpression,
       ParseTreeType.THIS_EXPRESSION,
       ['location']);
 
-  validateTree(traceur.syntax.trees.ThrowStatementTree,
+  validateTree(traceur.syntax.trees.ThrowStatement,
       ParseTreeType.THROW_STATEMENT,
       ['location', 'value']);
 
-  validateTree(traceur.syntax.trees.TraitDeclarationTree,
+  validateTree(traceur.syntax.trees.TraitDeclaration,
       ParseTreeType.TRAIT_DECLARATION,
       ['location', 'name', 'elements']);
 
-  validateTree(traceur.syntax.trees.TryStatementTree,
+  validateTree(traceur.syntax.trees.TryStatement,
       ParseTreeType.TRY_STATEMENT,
       ['location', 'body', 'catchBlock', 'finallyBlock']);
 
-  validateTree(traceur.syntax.trees.UnaryExpressionTree,
+  validateTree(traceur.syntax.trees.UnaryExpression,
       ParseTreeType.UNARY_EXPRESSION,
       ['location', 'operator', 'operand']);
 
-  validateTree(traceur.syntax.trees.VariableDeclarationListTree,
+  validateTree(traceur.syntax.trees.VariableDeclarationList,
       ParseTreeType.VARIABLE_DECLARATION_LIST,
       ['location', 'declarationType', 'declarations']);
 
-  validateTree(traceur.syntax.trees.VariableDeclarationTree,
+  validateTree(traceur.syntax.trees.VariableDeclaration,
       ParseTreeType.VARIABLE_DECLARATION,
       ['location', 'lvalue', 'initializer']);
 
-  validateTree(traceur.syntax.trees.VariableStatementTree,
+  validateTree(traceur.syntax.trees.VariableStatement,
       ParseTreeType.VARIABLE_STATEMENT,
       ['location', 'declarations']);
 
-  validateTree(traceur.syntax.trees.WhileStatementTree,
+  validateTree(traceur.syntax.trees.WhileStatement,
       ParseTreeType.WHILE_STATEMENT,
       ['location', 'condition', 'body']);
 
-  validateTree(traceur.syntax.trees.WithStatementTree,
+  validateTree(traceur.syntax.trees.WithStatement,
       ParseTreeType.WITH_STATEMENT,
       ['location', 'expression', 'body']);
 
-  validateTree(traceur.syntax.trees.YieldStatementTree,
+  validateTree(traceur.syntax.trees.YieldStatement,
       ParseTreeType.YIELD_STATEMENT,
       ['location', 'expression', 'isYieldFor']);
 }

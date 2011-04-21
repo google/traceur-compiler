@@ -18,23 +18,23 @@ traceur.define('semantics', function() {
   var IdentifierToken = traceur.syntax.IdentifierToken;
   var ParseTreeVisitor = traceur.syntax.ParseTreeVisitor;
   var TokenType = traceur.syntax.TokenType;
-  var BlockTree = traceur.syntax.trees.BlockTree;
-  var CatchTree = traceur.syntax.trees.CatchTree;
-  var ForInStatementTree = traceur.syntax.trees.ForInStatementTree;
-  var ForStatementTree = traceur.syntax.trees.ForStatementTree;
-  var FunctionDeclarationTree = traceur.syntax.trees.FunctionDeclarationTree;
-  var ObjectPatternFieldTree = traceur.syntax.trees.ObjectPatternFieldTree;
+  var Block = traceur.syntax.trees.Block;
+  var Catch = traceur.syntax.trees.Catch;
+  var ForInStatement = traceur.syntax.trees.ForInStatement;
+  var ForStatement = traceur.syntax.trees.ForStatement;
+  var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
+  var ObjectPatternField = traceur.syntax.trees.ObjectPatternField;
   var ParseTree = traceur.syntax.trees.ParseTree;
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var VariableDeclarationListTree = traceur.syntax.trees.VariableDeclarationListTree;
-  var VariableDeclarationTree = traceur.syntax.trees.VariableDeclarationTree;
+  var VariableDeclarationList = traceur.syntax.trees.VariableDeclarationList;
+  var VariableDeclaration = traceur.syntax.trees.VariableDeclaration;
 
   /**
    * Finds the identifiers that are bound in a given scope. Identifiers
    * can be bound by function declarations, formal parameter lists,
    * variable declarations, and catch headers.
    * @param {boolean} inFunctionScope
-   * @param {BlockTree=} scope
+   * @param {Block=} scope
    * @extends {ParseTreeVisitor}
    * @constructor
    */
@@ -62,7 +62,7 @@ traceur.define('semantics', function() {
   //    for statement
 
   /**
-   * @param {BlockTree} tree
+   * @param {Block} tree
    * @param {boolean=} includeFunctionScope
    * @return {Object}
    */
@@ -129,7 +129,7 @@ traceur.define('semantics', function() {
    * {@code "arguments"} is implicitly bound during function
    * invocation.
    *
-   * @param {FunctionDeclarationTree} tree
+   * @param {FunctionDeclaration} tree
    * @return {Object}
    */
   BoundIdentifierAccumulator.boundIdentifiersInFunction = function(tree) {
@@ -158,7 +158,7 @@ traceur.define('semantics', function() {
   BoundIdentifierAccumulator.prototype = {
     __proto__: proto,
 
-    /** @param {FunctionDeclarationTree} tree */
+    /** @param {FunctionDeclaration} tree */
     accumulateBoundIdentifiersInFunction_: function(tree) {
       var parameters = tree.formalParameterList.parameters;
       for (var i = 0; i < parameters.length; i++) {
@@ -167,21 +167,21 @@ traceur.define('semantics', function() {
       this.visitAny(tree.functionBody);
     },
 
-    /** @param {BlockTree} tree */
-    visitBlockTree: function(tree) {
+    /** @param {Block} tree */
+    visitBlock: function(tree) {
       // Save and set current block
       var parentBlock = this.block_;
       this.block_ = tree;
 
       // visit the statements
-      proto.visitBlockTree.call(this, tree);
+      proto.visitBlock.call(this, tree);
 
       // restore current block
       this.block_ = parentBlock;
     },
 
-    /** @param {ForInStatementTree} tree */
-    visitForInStatementTree: function(tree) {
+    /** @param {ForInStatement} tree */
+    visitForInStatement: function(tree) {
       if (tree.initializer != null &&
           tree.initializer.type == ParseTreeType.VARIABLE_DECLARATION_LIST) {
         this.visitForDeclarations_(tree.initializer.asVariableDeclarationList());
@@ -194,8 +194,8 @@ traceur.define('semantics', function() {
       this.visitAny(tree.body);
     },
 
-    /** @param {ForStatementTree} tree */
-    visitForStatementTree: function(tree) {
+    /** @param {ForStatement} tree */
+    visitForStatement: function(tree) {
       if (tree.initializer != null &&
           tree.initializer.type == ParseTreeType.VARIABLE_DECLARATION_LIST) {
         this.visitForDeclarations_(tree.initializer.asVariableDeclarationList());
@@ -209,7 +209,7 @@ traceur.define('semantics', function() {
       this.visitAny(tree.body);
     },
 
-    /** @param {VariableDeclarationListTree} declarations */
+    /** @param {VariableDeclarationList} declarations */
     visitForDeclarations_: function(declarations) {
       if (declarations.declarationType == TokenType.VAR) {
         this.visitAny(declarations);
@@ -224,8 +224,8 @@ traceur.define('semantics', function() {
       }
     },
 
-    /** @param {FunctionDeclarationTree} tree */
-    visitFunctionDeclarationTree: function(tree) {
+    /** @param {FunctionDeclaration} tree */
+    visitFunctionDeclaration: function(tree) {
       // functions follow the binding rules of 'let'
       if (tree.name != null && this.block_ == this.scope_) {
         this.bind_(tree.name);
@@ -234,8 +234,8 @@ traceur.define('semantics', function() {
       // their own lexical scope.
     },
 
-    /** @param {VariableDeclarationListTree} tree */
-    visitVariableDeclarationListTree: function(tree) {
+    /** @param {VariableDeclarationList} tree */
+    visitVariableDeclarationList: function(tree) {
       // "var" variables are bound if we are scanning the whole function only
       // "let/const" are bound if (we are scanning block scope or function) AND
       //   the scope currently processed is the scope we care about
@@ -243,7 +243,7 @@ traceur.define('semantics', function() {
       if ((tree.declarationType == TokenType.VAR && this.includeFunctionScope_) ||
           (tree.declarationType != TokenType.VAR && this.block_ == this.scope_)) {
         // declare the variables
-        proto.visitVariableDeclarationListTree.call(this, tree);
+        proto.visitVariableDeclarationList.call(this, tree);
       } else {
         // skipping let/const declarations in nested blocks
         var decls = tree.declarations;
@@ -253,10 +253,10 @@ traceur.define('semantics', function() {
       }
     },
 
-    /** @param {VariableDeclarationTree} tree */
-    visitVariableDeclarationTree: function(tree) {
+    /** @param {VariableDeclaration} tree */
+    visitVariableDeclaration: function(tree) {
       this.bindVariableDeclaration_(tree.lvalue);
-      proto.visitVariableDeclarationTree.call(this, tree);
+      proto.visitVariableDeclaration.call(this, tree);
     },
 
     /** @param {IdentifierToken} identifier */

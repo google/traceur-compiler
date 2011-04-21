@@ -157,7 +157,7 @@ traceur.define('semantics.symbols', function() {
     },
 
     /**
-     * @return {Array.<ProgramTree>}
+     * @return {Array.<Program>}
      */
     getSourceTrees: function() {
       return this.parseTrees_.values();
@@ -165,7 +165,7 @@ traceur.define('semantics.symbols', function() {
 
     /**
      * @param {SourceFile} file
-     * @param {ProgramTree} tree
+     * @param {Program} tree
      * @return {void}
      */
     setParseTree: function(file, tree) {
@@ -177,7 +177,7 @@ traceur.define('semantics.symbols', function() {
 
     /**
      * @param {SourceFile} file
-     * @return {ProgramTree}
+     * @return {Program}
      */
     getParseTree: function(file) {
       return this.parseTrees_.get(file);

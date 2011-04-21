@@ -21,9 +21,9 @@ traceur.define('codegeneration.generator', function() {
   var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
   var PredefinedName = traceur.syntax.PredefinedName;
 
-  var CaseClauseTree = traceur.syntax.trees.CaseClauseTree;
+  var CaseClause = traceur.syntax.trees.CaseClause;
   var StateMachineTree = traceur.syntax.trees.StateMachineTree;
-  var SwitchStatementTree = traceur.syntax.trees.SwitchStatementTree;
+  var SwitchStatement = traceur.syntax.trees.SwitchStatement;
 
   var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
 
@@ -142,13 +142,13 @@ traceur.define('codegeneration.generator', function() {
      * If a block contains a statement which has been transformed into a state machine, then
      * all statements are forcibly transformed into a state machine, then the machines are
      * knitted together.
-     * @param {BlockTree} tree
+     * @param {Block} tree
      * @return {ParseTree}
      */
-    transformBlockTree: function(tree) {
+    transformBlock: function(tree) {
       // NOTE: tree may contain state machines already ...
       this.clearLabels_();
-      var transformedTree = proto.transformBlockTree.call(this, tree).asBlock();
+      var transformedTree = proto.transformBlock.call(this, tree).asBlock();
       var machine = this.transformStatementList_(transformedTree.statements);
       return machine == null ? transformedTree : machine;
     },
@@ -178,7 +178,7 @@ traceur.define('codegeneration.generator', function() {
     },
 
     /**
-     * @param {Array.<ParseTree>|SwitchStatementTree} statements
+     * @param {Array.<ParseTree>|SwitchStatement} statements
      * @return {boolean}
      */
     containsStateMachine_: function(statements) {
@@ -191,7 +191,7 @@ traceur.define('codegeneration.generator', function() {
         return false;
       }
 
-      traceur.assert(statements instanceof SwitchStatementTree);
+      traceur.assert(statements instanceof SwitchStatement);
       for (var i = 0; i < statements.caseClauses.length; i++) {
         var clause = statements.caseClauses[i];
         if (clause.type == ParseTreeType.CASE_CLAUSE) {
@@ -208,25 +208,25 @@ traceur.define('codegeneration.generator', function() {
     },
 
     /**
-     * @param {CaseClauseTree} tree
+     * @param {CaseClause} tree
      * @return {ParseTree}
      */
-    transformCaseClauseTree: function(tree) {
-      var result = proto.transformCaseClauseTree.call(this, tree).asCaseClause();
+    transformCaseClause: function(tree) {
+      var result = proto.transformCaseClause.call(this, tree).asCaseClause();
       var machine = this.transformStatementList_(result.statements);
       return machine == null ?
           result :
-          new CaseClauseTree(null, result.expression, createStatementList(machine));
+          new CaseClause(null, result.expression, createStatementList(machine));
     },
 
     /**
-     * @param {DoWhileStatementTree} tree
+     * @param {DoWhileStatement} tree
      * @return {ParseTree}
      */
-    transformDoWhileStatementTree: function(tree) {
+    transformDoWhileStatement: function(tree) {
       var labels = this.clearLabels_();
 
-      var result = proto.transformDoWhileStatementTree.call(this, tree).asDoWhileStatement();
+      var result = proto.transformDoWhileStatement.call(this, tree).asDoWhileStatement();
       if (result.body.type != ParseTreeType.STATE_MACHINE) {
         return result;
       }
@@ -263,13 +263,13 @@ traceur.define('codegeneration.generator', function() {
     },
 
     /**
-     * @param {ForStatementTree} tree
+     * @param {ForStatement} tree
      * @return {ParseTree}
      */
-    transformForStatementTree: function(tree) {
+    transformForStatement: function(tree) {
       var labels = this.clearLabels_();
 
-      var result = proto.transformForStatementTree.call(this, tree).asForStatement();
+      var result = proto.transformForStatement.call(this, tree).asForStatement();
       if (result.body.type != ParseTreeType.STATE_MACHINE) {
         return result;
       }
@@ -317,30 +317,30 @@ traceur.define('codegeneration.generator', function() {
     },
 
     /**
-     * @param {ForInStatementTree} tree
+     * @param {ForInStatement} tree
      * @return {ParseTree}
      */
-    transformForInStatementTree: function(tree) {
+    transformForInStatement: function(tree) {
       // The only for in statement left is from the ForInTransformPass. Just pass it through.
       return tree;
     },
 
     /**
-     * @param {ForEachStatementTree} tree
+     * @param {ForEachStatement} tree
      * @return {ParseTree}
      */
-    transformForEachStatementTree: function(tree) {
+    transformForEachStatement: function(tree) {
       throw new Error('foreach\'s should be transformed before this pass');
     },
 
     /**
-     * @param {IfStatementTree} tree
+     * @param {IfStatement} tree
      * @return {ParseTree}
      */
-    transformIfStatementTree: function(tree) {
+    transformIfStatement: function(tree) {
       this.clearLabels_();
 
-      var result = proto.transformIfStatementTree.call(this, tree).asIfStatement();
+      var result = proto.transformIfStatement.call(this, tree).asIfStatement();
       if (result.ifClause.type != ParseTreeType.STATE_MACHINE &&
           (result.elseClause == null || result.elseClause.type != ParseTreeType.STATE_MACHINE)) {
         return result;
@@ -393,10 +393,10 @@ traceur.define('codegeneration.generator', function() {
     },
 
     /**
-     * @param {LabelledStatementTree} tree
+     * @param {LabelledStatement} tree
      * @return {ParseTree}
      */
-    transformLabelledStatementTree: function(tree) {
+    transformLabelledStatement: function(tree) {
       var oldLabels = this.addLabel_(tree.name.value);
 
       var result = this.transformAny(tree.statement);
@@ -435,13 +435,13 @@ traceur.define('codegeneration.generator', function() {
     },
 
     /**
-     * @param {SwitchStatementTree} tree
+     * @param {SwitchStatement} tree
      * @return {ParseTree}
      */
-    transformSwitchStatementTree: function(tree) {
+    transformSwitchStatement: function(tree) {
       var labels = this.clearLabels_();
 
-      var result = proto.transformSwitchStatementTree.call(this, tree).asSwitchStatement();
+      var result = proto.transformSwitchStatement.call(this, tree).asSwitchStatement();
       if (!this.containsStateMachine_(result)) {
         return result;
       }
@@ -501,13 +501,13 @@ traceur.define('codegeneration.generator', function() {
     },
 
     /**
-     * @param {TryStatementTree} tree
+     * @param {TryStatement} tree
      * @return {ParseTree}
      */
-    transformTryStatementTree: function(tree) {
+    transformTryStatement: function(tree) {
       this.clearLabels_();
 
-      var result = proto.transformTryStatementTree.call(this, tree).asTryStatement();
+      var result = proto.transformTryStatement.call(this, tree).asTryStatement();
       if (result.body.type != ParseTreeType.STATE_MACHINE && (result.catchBlock == null ||
           result.catchBlock.asCatch().catchBody.type != ParseTreeType.STATE_MACHINE)) {
         return result;
@@ -581,11 +581,11 @@ traceur.define('codegeneration.generator', function() {
      * Because of this there's no good way to codegen block scoped let/const variables where there
      * is a yield in the scope of the block scoped variable.
      *
-     * @param {VariableStatementTree} tree
+     * @param {VariableStatement} tree
      * @return {ParseTree}
      */
-    transformVariableStatementTree: function(tree) {
-      var declarations = this.transformVariableDeclarationListTree(tree.declarations);
+    transformVariableStatement: function(tree) {
+      var declarations = this.transformVariableDeclarationList(tree.declarations);
       if (declarations == tree.declarations) {
         return tree;
       }
@@ -602,10 +602,10 @@ traceur.define('codegeneration.generator', function() {
     /**
      * This is the initializer of a for loop. Convert into an expression containing the initializers.
      *
-     * @param {VariableDeclarationListTree} tree
+     * @param {VariableDeclarationList} tree
      * @return {ParseTree}
      */
-    transformVariableDeclarationListTree: function(tree) {
+    transformVariableDeclarationList: function(tree) {
       if (tree.declarationType == TokenType.VAR) {
         var expressions = [];
         for (var i = 0; i < tree.declarations.length; i++) {
@@ -627,17 +627,17 @@ traceur.define('codegeneration.generator', function() {
         }
       }
       // let/const - just transform for now
-      return proto.transformVariableDeclarationListTree.call(this, tree);
+      return proto.transformVariableDeclarationList.call(this, tree);
     },
 
     /**
-     * @param {WhileStatementTree} tree
+     * @param {WhileStatement} tree
      * @return {ParseTree}
      */
-    transformWhileStatementTree: function(tree) {
+    transformWhileStatement: function(tree) {
       var labels = this.clearLabels_();
 
-      var result = proto.transformWhileStatementTree.call(this, tree).asWhileStatement();
+      var result = proto.transformWhileStatement.call(this, tree).asWhileStatement();
       if (result.body.type != ParseTreeType.STATE_MACHINE) {
         return result;
       }
@@ -661,11 +661,11 @@ traceur.define('codegeneration.generator', function() {
     },
 
     /**
-     * @param {WithStatementTree} tree
+     * @param {WithStatement} tree
      * @return {ParseTree}
      */
-    transformWithStatementTree: function(tree) {
-      var result = proto.transformWithStatementTree.call(this, tree).asWithStatement();
+    transformWithStatement: function(tree) {
+      var result = proto.transformWithStatement.call(this, tree).asWithStatement();
       if (result.body.type != ParseTreeType.STATE_MACHINE) {
         return result;
       }
@@ -673,10 +673,10 @@ traceur.define('codegeneration.generator', function() {
     },
 
     /**
-     * @param {ThisExpressionTree} tree
+     * @param {ThisExpression} tree
      * @return {ParseTree}
      */
-    transformThisExpressionTree: function(tree) {
+    transformThisExpression: function(tree) {
       // TODO: this can be removed...
       return createIdentifierExpression(PredefinedName.THAT);
     },
@@ -711,7 +711,7 @@ traceur.define('codegeneration.generator', function() {
     //     }).bind($that)
     /**
      * @param {StateMachineTree} machine
-     * @return {CallExpressionTree}
+     * @return {CallExpression}
      */
     generateMachineMethod: function(machine) {
       //  (function() {
@@ -727,7 +727,7 @@ traceur.define('codegeneration.generator', function() {
           createIdentifierExpression(PredefinedName.THAT));
     },
 
-    /** @return {VariableStatementTree} */
+    /** @return {VariableStatement} */
     generateHoistedThis: function() {
       // Hoist 'this' argument for later bind-ing.
       //   var $that = this;
@@ -804,7 +804,7 @@ traceur.define('codegeneration.generator', function() {
     //   ... lifted local variables ...
     //   ... caught exception variables ...
     /**
-     * @param {BlockTree} tree
+     * @param {Block} tree
      * @param {StateMachineTree} machine
      * @return {Array.<ParseTree>}
      */
@@ -907,29 +907,29 @@ traceur.define('codegeneration.generator', function() {
     },
 
     /**
-     * @param {FunctionDeclarationTree} tree
+     * @param {FunctionDeclaration} tree
      * @return {ParseTree}
      */
-    transformFunctionDeclarationTree: function(tree) {
+    transformFunctionDeclaration: function(tree) {
       this.clearLabels_();
       // nested functions have already been transformed
       return tree;
     },
 
     /**
-     * @param {GetAccessorTree} tree
+     * @param {GetAccessor} tree
      * @return {ParseTree}
      */
-    transformGetAccessorTree: function(tree) {
+    transformGetAccessor: function(tree) {
       // nested functions have already been transformed
       return tree;
     },
 
     /**
-     * @param {SetAccessorTree} tree
+     * @param {SetAccessor} tree
      * @return {ParseTree}
      */
-    transformSetAccessorTree: function(tree) {
+    transformSetAccessor: function(tree) {
       // nested functions have already been transformed
       return tree;
     },
