@@ -74,7 +74,7 @@ traceur.define('codegeneration.generator', function() {
   var TryState = traceur.codegeneration.generator.TryState;
   var YieldState = traceur.codegeneration.generator.YieldState;
 
-  var BoundIdentifierAccumulator = traceur.semantics.BoundIdentifierAccumulator;
+  var VariableBinder = traceur.semantics.VariableBinder;
 
   /**
    * Performs a CPS transformation on a method body.
@@ -330,7 +330,7 @@ traceur.define('codegeneration.generator', function() {
      * @return {ParseTree}
      */
     transformForEachStatement: function(tree) {
-      throw new Error('foreach\'s should be transformed before this pass');
+      throw new Error('foreach statements should be transformed before this pass');
     },
 
     /**
@@ -825,7 +825,7 @@ traceur.define('codegeneration.generator', function() {
 
       // Lift locals ...
       var liftedIdentifiers =
-          BoundIdentifierAccumulator.boundIdentifiersInBlock(tree, true);
+          VariableBinder.boundIdentifiersInBlock(tree, true);
 
       // ... and caught exceptions
       // TODO: this changes the scope of caught exception variables from 'let to 'var'.

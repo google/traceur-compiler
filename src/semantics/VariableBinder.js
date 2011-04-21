@@ -16,6 +16,7 @@ traceur.define('semantics', function() {
   'use strict';
 
   var IdentifierToken = traceur.syntax.IdentifierToken;
+  var ParseTreeType = traceur.syntax.ParseTreeType;
   var ParseTreeVisitor = traceur.syntax.ParseTreeVisitor;
   var TokenType = traceur.syntax.TokenType;
   var Block = traceur.syntax.trees.Block;
@@ -38,7 +39,7 @@ traceur.define('semantics', function() {
    * @extends {ParseTreeVisitor}
    * @constructor
    */
-  function BoundIdentifierAccumulator(includeFunctionScope, scope) {
+  function VariableBinder(includeFunctionScope, scope) {
     ParseTreeVisitor.call(this);
 
     // Should we include:
@@ -62,50 +63,50 @@ traceur.define('semantics', function() {
   //    for statement
 
   /**
+   * Gets the identifiers bound in {@code tree}. The tree should be a block
+   * statement. This means if {@code tree} is:
+   *
+   * <pre>
+   * { function f(x) { var y; } }
+   * </pre>
+   *
+   * Then only {@code "f"} is bound; {@code "x"} and {@code "y"} are bound in
+   * the separate lexical scope of {@code f}. Note that only const/let bound
+   * variables (such as {@code "f"} in this example) are returned. Variables
+   * declared with "var" are only returned when {@code includeFunctionScope} is
+   * set to true.
+   *
+   * If {@code tree} was instead:
+   * <pre>
+   * { var z = function f(x) { var y; }; }
+   * </pre>
+   *
+   * Then only {@code "z"} is bound
+   *
    * @param {Block} tree
    * @param {boolean=} includeFunctionScope
    * @return {Object}
    */
-  BoundIdentifierAccumulator.boundIdentifiersInBlock = function(tree,
+  VariableBinder.boundIdentifiersInBlock = function(tree,
       includeFunctionScope) {
-    var accumulator = new BoundIdentifierAccumulator(includeFunctionScope, tree);
-    accumulator.visitAny(tree);
-    return accumulator.identifiers_;
-  };
-
-  /**
-   * Gets the identifiers bound in {@code tree}. The tree is treated
-   * in an expression/statement context. This means if {@code tree}
-   * is:
-   *
-   * <pre>
-   * function f(x) { var y; }
-   * </pre>
-   *
-   * Then only {@code "f"} is bound; {@code "x"} and {@code "y"} are
-   * bound in the separate lexical scope of {@code f}.
-   *
-   * @param {ParseTree} tree
-   * @return {Object}
-   */
-  BoundIdentifierAccumulator.boundIdentifiersInExpression = function(tree) {
-    var accumulator = new BoundIdentifierAccumulator(false);
-    accumulator.visitAny(tree);
-    return accumulator.identifiers_;
+    var binder = new VariableBinder(includeFunctionScope, tree);
+    binder.visitAny(tree);
+    return binder.identifiers_;
   };
 
   /**
    * Gets the identifiers bound in the context of a function,
-   * {@code tree}. For example, if {@code tree} is:
+   * {@code tree}, other than the function name itself. For example, if
+   * {@code tree} is:
    *
    * <pre>
    * function f(x) { var y; f(); }
    * </pre>
    *
-   * Then a set containing only {@code "x"} and {@code "y"} is
-   * returned. Note that we treat {@code "f"} as free in the body of
-   * {@code f}, even though it is trivially resolved from the
-   * enclosing scope.
+   * Then a set containing only {@code "x"} and {@code "y"} is returned. Note
+   * that we treat {@code "f"} as free in the body of {@code f}, because
+   * AlphaRenamer uses this fact to determine if the function name is shadowed
+   * by another name in the body of the function.
    *
    * <p>Only identifiers that are bound <em>throughout</em> the
    * specified tree are returned, for example:
@@ -119,10 +120,9 @@ traceur.define('semantics', function() {
    * }
    * </pre>
    *
-   * Reports {@code "g"} as being bound, because the function
-   * declaration is hoisted to the scope of {@code f}. {@code "x"} is
-   * only bound in the scope of the catch block; {@code "y"} is only
-   * bound in the scope of {@code g}.
+   * Reports nothing as being bound, because {@code "x"} is only bound in the
+   * scope of the catch block; {@code "g"} is let bound to the catch block, and
+   * {@code "y"} is only bound in the scope of {@code g}.
    *
    * <p>{@code "arguments"} is only reported as bound if it is
    * explicitly bound in the function. If it is not explicitly bound,
@@ -132,34 +132,18 @@ traceur.define('semantics', function() {
    * @param {FunctionDeclaration} tree
    * @return {Object}
    */
-  BoundIdentifierAccumulator.boundIdentifiersInFunction = function(tree) {
-    var accumulator = new BoundIdentifierAccumulator(false, tree.functionBody);
-    accumulator.accumulateBoundIdentifiersInFunction_(tree);
-    return accumulator.identifiers_;
+  VariableBinder.boundIdentifiersInFunction = function(tree) {
+    var binder = new VariableBinder(true, tree.functionBody);
+    binder.bindVariablesInFunction_(tree);
+    return binder.identifiers_;
   };
 
-  /**
-   * Gets the identifier <em>additionally</em> bound in the context of
-   * a {@code catch} block. Because variable and function declarations
-   * are hoisted to their enclosing function scope, only the exception
-   * being bound is additionally bound in the context of a catch
-   * block.
-   *
-   * @param {Object} tree
-   * @return {Object}
-   */
-  BoundIdentifierAccumulator.boundIdentifiersInCatch = function(tree) {
-    var result = Object.create(null);
-    result[tree.exceptionName.value] = true;
-    return result;
-  }
-
   var proto = ParseTreeVisitor.prototype;
-  BoundIdentifierAccumulator.prototype = {
+  VariableBinder.prototype = {
     __proto__: proto,
 
     /** @param {FunctionDeclaration} tree */
-    accumulateBoundIdentifiersInFunction_: function(tree) {
+    bindVariablesInFunction_: function(tree) {
       var parameters = tree.formalParameterList.parameters;
       for (var i = 0; i < parameters.length; i++) {
         this.bindParameter_(parameters[i]);
@@ -174,10 +158,37 @@ traceur.define('semantics', function() {
       this.block_ = tree;
 
       // visit the statements
-      proto.visitBlock.call(this, tree);
+      tree.statements.forEach(function (s) {
+        if (s.type == ParseTreeType.FUNCTION_DECLARATION) {
+          this.bindFunctionDeclaration_(s.asFunctionDeclaration());
+        } else {
+          this.visitAny(s);
+        }
+      }, this);
 
       // restore current block
       this.block_ = parentBlock;
+    },
+
+    /** @param {FunctionDeclaration} tree */
+    bindFunctionDeclaration_: function(tree) {
+      // functions follow the binding rules of 'let'
+      if (tree.name != null && this.block_ == this.scope_) {
+        this.bind_(tree.name);
+      }
+      // We don't recurse into function bodies, because they create
+      // their own lexical scope.
+    },
+
+    /** @param {FunctionDeclaration} tree */
+    visitFunctionDeclaration: function(tree) {
+      // We don't recurse into function bodies, because they create
+      // their own lexical scope.
+    },
+
+    /** @param {ForEachStatement} tree */
+    visitForEachStatement: function(tree) {
+      throw new Error('foreach statements should be transformed before this pass');
     },
 
     /** @param {ForInStatement} tree */
@@ -223,17 +234,7 @@ traceur.define('semantics', function() {
         }
       }
     },
-
-    /** @param {FunctionDeclaration} tree */
-    visitFunctionDeclaration: function(tree) {
-      // functions follow the binding rules of 'let'
-      if (tree.name != null && this.block_ == this.scope_) {
-        this.bind_(tree.name);
-      }
-      // We don't recurse into function bodies, because they create
-      // their own lexical scope.
-    },
-
+    
     /** @param {VariableDeclarationList} tree */
     visitVariableDeclarationList: function(tree) {
       // "var" variables are bound if we are scanning the whole function only
@@ -320,6 +321,6 @@ traceur.define('semantics', function() {
   };
 
   return {
-    BoundIdentifierAccumulator: BoundIdentifierAccumulator
+    VariableBinder: VariableBinder
   };
 });

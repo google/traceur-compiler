@@ -17,9 +17,9 @@ traceur.define('codegeneration', function() {
 
   var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
   var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
-  var BoundIdentifierAccumulator = traceur.semantics.BoundIdentifierAccumulator;
-  var boundIdentifiersInFunction = BoundIdentifierAccumulator.boundIdentifiersInFunction;
-  var boundIdentifiersInBlock = BoundIdentifierAccumulator.boundIdentifiersInBlock;
+  var VariableBinder = traceur.semantics.VariableBinder;
+  var boundIdentifiersInFunction = VariableBinder.boundIdentifiersInFunction;
+  var boundIdentifiersInBlock = VariableBinder.boundIdentifiersInBlock;
   var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
   var PredefinedName = traceur.syntax.PredefinedName;
   var Block = traceur.syntax.trees.Block;

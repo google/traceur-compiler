@@ -36,7 +36,7 @@ traceur.define('codegeneration.generator', function() {
   var StateAllocator = traceur.codegeneration.generator.StateAllocator;
   var StateMachineTree = traceur.codegeneration.generator.StateMachineTree;
 
-  var BoundIdentifierAccumulator = traceur.semantics.BoundIdentifierAccumulator;
+  var VariableBinder = traceur.semantics.VariableBinder;
 
   /**
    * Converts statements which do not contain a yield, to a state machine. Always called from a

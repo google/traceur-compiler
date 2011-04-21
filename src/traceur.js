@@ -118,7 +118,7 @@ var traceur = (function() {
     'syntax/ParseTreeVisitor.js',
     'syntax/ParseTreeValidator.js',
     'util/StringBuilder.js',
-    'semantics/BoundIdentifierAccumulator.js',
+    'semantics/VariableBinder.js',
     'semantics/symbols/SymbolType.js',
     'semantics/symbols/Symbol.js',
     'semantics/symbols/MemberSymbol.js',

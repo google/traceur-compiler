@@ -114,7 +114,8 @@ traceur.define('codegeneration', function() {
       }
       if (!this.reporter_.hadError()) {
         // TODO(arv): ParseTreeValidator.validate(tree);
-        // foreach must come before destructuring and generator.
+        // foreach must come before destructuring and generator, or anything
+        // that wants to use VariableBinder
         tree = ForEachTransformer.transformTree(
             this.identifierGenerator_, tree).asProgram();
       }
