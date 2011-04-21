@@ -825,7 +825,7 @@ traceur.define('codegeneration.generator', function() {
 
       // Lift locals ...
       var liftedIdentifiers =
-          VariableBinder.boundIdentifiersInBlock(tree, true);
+          VariableBinder.variablesInBlock(tree, true);
 
       // ... and caught exceptions
       // TODO: this changes the scope of caught exception variables from 'let to 'var'.

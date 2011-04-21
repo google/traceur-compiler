@@ -18,8 +18,8 @@ traceur.define('codegeneration', function() {
   var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
   var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
   var VariableBinder = traceur.semantics.VariableBinder;
-  var boundIdentifiersInFunction = VariableBinder.boundIdentifiersInFunction;
-  var boundIdentifiersInBlock = VariableBinder.boundIdentifiersInBlock;
+  var variablesInFunction = VariableBinder.variablesInFunction;
+  var variablesInBlock = VariableBinder.variablesInBlock;
   var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
   var PredefinedName = traceur.syntax.PredefinedName;
   var Block = traceur.syntax.trees.Block;
@@ -90,7 +90,7 @@ traceur.define('codegeneration', function() {
      * @return {ParseTree}
      */
     transformBlock: function(tree) {
-      if (this.oldName_ in boundIdentifiersInBlock(tree)) {
+      if (this.oldName_ in variablesInBlock(tree)) {
         // the old name is bound in the block, skip rename
         return tree;
       } else {
@@ -122,7 +122,7 @@ traceur.define('codegeneration', function() {
       }
 
       if (// this.oldName_ is rebound in the new nested scope, so don't recurse
-          this.oldName_ in boundIdentifiersInFunction(tree) ||
+          this.oldName_ in variablesInFunction(tree) ||
           // 'arguments' is implicitly bound in function bodies; don't recurse
           PredefinedName.ARGUMENTS == this.oldName_) {
         return tree;

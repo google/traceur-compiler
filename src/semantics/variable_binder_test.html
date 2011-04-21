@@ -48,24 +48,24 @@ function idsToString(identifiers) {
 }
 
 function testBoundIdentifiersInBlock() {
-  assertEquals('f', idsToString(VariableBinder.boundIdentifiersInBlock(parse(
+  assertEquals('f', idsToString(VariableBinder.variablesInBlock(parse(
       '{ function f(x) { var y; }; }'), false)));
-  assertEquals('', idsToString(VariableBinder.boundIdentifiersInBlock(parse(
+  assertEquals('', idsToString(VariableBinder.variablesInBlock(parse(
       '{ var x = function f() {}; }'), false)));
-  assertEquals('x', idsToString(VariableBinder.boundIdentifiersInBlock(parse(
+  assertEquals('x', idsToString(VariableBinder.variablesInBlock(parse(
       '{ let x = function f() {}; }'), false)));
 
   // Now set includeFunctionScope = true
-  assertEquals('f', idsToString(VariableBinder.boundIdentifiersInBlock(parse(
+  assertEquals('f', idsToString(VariableBinder.variablesInBlock(parse(
       '{ function f(x) { var y; }; }'), true)));
-  assertEquals('x', idsToString(VariableBinder.boundIdentifiersInBlock(parse(
+  assertEquals('x', idsToString(VariableBinder.variablesInBlock(parse(
       '{ var x = function f() {}; }'), true)));
 }
 
 function testBoundIdentifiersInFunction() {
-  assertEquals('x,y', idsToString(VariableBinder.boundIdentifiersInFunction(parse(
+  assertEquals('x,y', idsToString(VariableBinder.variablesInFunction(parse(
       'function f(x) { var y; f(); }'))));
-  assertEquals('', idsToString(VariableBinder.boundIdentifiersInFunction(parse(
+  assertEquals('', idsToString(VariableBinder.variablesInFunction(parse(
       'function f() { try { } catch (x) { function g(y) { } } }'))));
 }
 

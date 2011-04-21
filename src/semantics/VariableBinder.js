@@ -87,7 +87,7 @@ traceur.define('semantics', function() {
    * @param {boolean=} includeFunctionScope
    * @return {Object}
    */
-  VariableBinder.boundIdentifiersInBlock = function(tree,
+  VariableBinder.variablesInBlock = function(tree,
       includeFunctionScope) {
     var binder = new VariableBinder(includeFunctionScope, tree);
     binder.visitAny(tree);
@@ -132,7 +132,7 @@ traceur.define('semantics', function() {
    * @param {FunctionDeclaration} tree
    * @return {Object}
    */
-  VariableBinder.boundIdentifiersInFunction = function(tree) {
+  VariableBinder.variablesInFunction = function(tree) {
     var binder = new VariableBinder(true, tree.functionBody);
     binder.bindVariablesInFunction_(tree);
     return binder.identifiers_;
@@ -234,7 +234,7 @@ traceur.define('semantics', function() {
         }
       }
     },
-    
+
     /** @param {VariableDeclarationList} tree */
     visitVariableDeclarationList: function(tree) {
       // "var" variables are bound if we are scanning the whole function only
