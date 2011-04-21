@@ -17,9 +17,8 @@ traceur.define('codegeneration', function() {
 
   var ObjectMap = traceur.util.ObjectMap;
 
-  // var ParseTreeValidator = ...;
-
-  var Program = traceur.syntax.trees.Program;
+  var ParseTreeValidator = traceur.syntax.ParseTreeValidator;
+  var ProgramTree = traceur.syntax.trees.ProgramTree;
   var UniqueIdentifierGenerator = traceur.codegeneration.UniqueIdentifierGenerator;
   var ForEachTransformer = traceur.codegeneration.ForEachTransformer;
   var RestParameterTransformer = traceur.codegeneration.RestParameterTransformer;
@@ -105,52 +104,52 @@ traceur.define('codegeneration', function() {
      */
     transform: function(tree) {
       if (!this.reporter_.hadError()) {
-        // TODO(arv): ParseTreeValidator.validate(tree);
+        ParseTreeValidator.validate(tree);
         tree = this.transformModules_(tree);
       }
       if (!this.reporter_.hadError()) {
-        // TODO(arv): ParseTreeValidator.validate(tree);
+        ParseTreeValidator.validate(tree);
         tree = this.transformAggregates_(tree);
       }
       if (!this.reporter_.hadError()) {
-        // TODO(arv): ParseTreeValidator.validate(tree);
+        ParseTreeValidator.validate(tree);
         // foreach must come before destructuring and generator, or anything
         // that wants to use VariableBinder
         tree = ForEachTransformer.transformTree(
             this.identifierGenerator_, tree).asProgram();
       }
       if (!this.reporter_.hadError()) {
-        // TODO(arv): ParseTreeValidator.validate(tree);
+        ParseTreeValidator.validate(tree);
         // rest parameters must come before generator
         tree = RestParameterTransformer.transformTree(tree).asProgram();
       }
       if (!this.reporter_.hadError()) {
-        // TODO(arv): ParseTreeValidator.validate(tree);
+        ParseTreeValidator.validate(tree);
         // default parameters should come after rest parameter to get the
         // expected order in the transformed code.
         tree = DefaultParametersTransformer.transformTree(tree).asProgram();
       }
       if (!this.reporter_.hadError()) {
-        // TODO(arv): ParseTreeValidator.validate(tree);
+        ParseTreeValidator.validate(tree);
         // generator must come after foreach and rest parameters
         tree = GeneratorTransformPass.transformTree(
             this.identifierGenerator_, this.reporter_, tree).asProgram();
       }
       if (!this.reporter_.hadError()) {
-        // TODO(arv): ParseTreeValidator.validate(tree);
+        ParseTreeValidator.validate(tree);
         // destructuring must come after foreach and before block binding
         tree = DestructuringTransformer.transformTree(tree).asProgram();
       }
       if (!this.reporter_.hadError()) {
-        // TODO(arv): ParseTreeValidator.validate(tree);
+        ParseTreeValidator.validate(tree);
         tree = SpreadTransformer.transformTree(tree).asProgram();
       }
       if (!this.reporter_.hadError()) {
-        // TODO(arv): ParseTreeValidator.validate(tree);
+        ParseTreeValidator.validate(tree);
         tree = BlockBindingTransformer.transformTree(tree);
       }
       if (!this.reporter_.hadError()) {
-        // TODO(arv): ParseTreeValidator.validate(tree);
+        ParseTreeValidator.validate(tree);
       }
       return tree;
     },

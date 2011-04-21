@@ -629,7 +629,7 @@ traceur.define('syntax.trees', function() {
 
         // new MemberExpression Arguments
         case ParseTreeType.NEW_EXPRESSION:
-          return asNewExpression().arguments != null;
+          return this.asNewExpression().args != null;
       }
 
       return false;

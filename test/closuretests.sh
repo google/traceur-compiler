@@ -4,10 +4,13 @@ set -e # abort on errors
 pushd $(dirname $0) > /dev/null
 
 # compile all files into output
-find ../third_party/closure-library -name \*.js | xargs ../src/traceurc
+for i in `find ../third_party/closure-library -name \*.js`
+do
+    ../src/traceurc $i
+done
 
 # diff baseline with the output
-diff -r closurebaseline/ out/
+diff -r -u closurebaseline/ out/
 
 echo PASSED
 

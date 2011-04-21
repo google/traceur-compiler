@@ -17,9 +17,9 @@ traceur.define('syntax', function() {
 
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
   var ParseTreeVisitor = traceur.syntax.ParseTreeVisitor;
-  // TODO(cburrows): uncomment when writer is available
-  //var ParseTreeWriter = traceur.codegeneration.ParseTreeWriter;
+  var ParseTreeWriter = traceur.codegeneration.ParseTreeWriter;
   var TokenType = traceur.syntax.TokenType;
+  var NewExpression = traceur.syntax.trees.NewExpression;
 
   /*
   TODO: add contextual information to the validator so we can check
@@ -41,8 +41,24 @@ traceur.define('syntax', function() {
    */
   function ParseTreeValidator() {
     ParseTreeVisitor.call(this);
-    this.lastVisited = null;
   }
+
+  /**
+   * An error thrown when an invalid parse tree is encountered. This error is
+   * used internally to distinguish between errors in the Validator itself vs
+   * errors it threw to unwind the call stack.
+   *
+   * @param {traceur.syntax.trees.ParseTree} tree
+   * @param {string} message
+   * @constructor
+   */
+  function ValidationError(tree, message) {
+    this.tree = tree;
+    this.message = message;
+  }
+  ValidationError.prototype = {
+    __proto__: Error.prototype
+  };
 
   /**
    * Validates a parse tree.  Validation failures are compiler bugs.
@@ -56,9 +72,13 @@ traceur.define('syntax', function() {
     try {
       validator.visitAny(tree);
     } catch (e) {
+      if (!(e instanceof ValidationError)) {
+        throw e;
+      }
+
       var location = null;
-      if (validator.lastVisited !== null) {
-        location = validator.lastVisited.location;
+      if (e.tree !== null) {
+        location = e.tree.location;
       }
       if (location === null) {
         location = tree.location;
@@ -69,8 +89,7 @@ traceur.define('syntax', function() {
       throw Error('Parse tree validation failure \'' + e.message + '\' at ' +
           locationString +
           ':\n\n' +
-          // TODO(cburrows): uncomment when writer is available
-          // ParseTreeWriter.write(tree, validator.lastVisited, true) +
+          ParseTreeWriter.write(tree, e.tree, true) +
           '\n');
     }
   };
@@ -83,10 +102,7 @@ traceur.define('syntax', function() {
      * @param {string} message
      */
     fail_: function(tree, message) {
-      if (tree !== null) {
-        this.lastVisited = tree;
-      }
-      throw Error(message);
+      throw new ValidationError(tree, message);
     },
 
     /**
@@ -114,7 +130,6 @@ traceur.define('syntax', function() {
      * @param {traceur.syntax.trees.ParseTree} tree
      */
     visitAny: function(tree) {
-      this.lastVisited = tree;
       ParseTreeVisitor.prototype.visitAny.call(this, tree);
     },
 
