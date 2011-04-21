@@ -66,6 +66,7 @@ function testBlockBinding5() {
 function testBlockBinding6() {
   var a = blockBindingTest6();
   assertEquals("g", a());
+  assertEquals("g", a.name);
 }
 
 function testBlockBinding7() {

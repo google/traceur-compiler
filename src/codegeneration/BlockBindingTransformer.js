@@ -589,11 +589,12 @@ traceur.define('codegeneration', function() {
         // block scoped variable for it.
         this.scope_.addBlockScopedVariable(tree.name.value);
 
-        // f = function( ... ) { ... }
+        // f = function f( ... ) { ... }
         return createParenExpression(
             createAssignmentExpression(
                 createIdentifierExpression(tree.name),
-                createFunctionExpression(tree.formalParameterList, body)));
+                createFunctionDeclaration(tree.name,
+                    tree.formalParameterList, body)));
       } else if (body != tree.functionBody) {
         return createFunctionDeclaration(
             tree.name, tree.formalParameterList, body);
