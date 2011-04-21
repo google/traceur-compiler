@@ -1030,6 +1030,13 @@ traceur.define('codegeneration', function() {
   }
 
   /**
+   * @return {ParseTree}
+   */
+  function createUseStrictDirective() {
+    return createExpressionStatement(createStringLiteral('use strict'));
+  }
+
+  /**
    * @param {TokenType} binding
    * @param {IdentifierToken|Array.<VariableDeclaration>} identifierOrDeclarations
    * @param {ParseTree=} initializer
@@ -1197,6 +1204,7 @@ traceur.define('codegeneration', function() {
       createTryStatement: createTryStatement,
       createUnaryExpression: createUnaryExpression,
       createUndefinedExpression: createUndefinedExpression,
+      createUseStrictDirective: createUseStrictDirective,
       createVariableDeclaration: createVariableDeclaration,
       createVariableDeclarationList: createVariableDeclarationList,
       createVariableStatement: createVariableStatement,

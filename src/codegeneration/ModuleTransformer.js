@@ -34,6 +34,7 @@ traceur.define('codegeneration', function() {
   var createCallCall = traceur.codegeneration.ParseTreeFactory.createCallCall;
   var createCallExpression = traceur.codegeneration.ParseTreeFactory.createCallExpression;
   var createEmptyParameterList = traceur.codegeneration.ParseTreeFactory.createEmptyParameterList;
+  var createExpressionStatement = traceur.codegeneration.ParseTreeFactory.createExpressionStatement;
   var createFunctionExpression = traceur.codegeneration.ParseTreeFactory.createFunctionExpression;
   var createGetAccessor = traceur.codegeneration.ParseTreeFactory.createGetAccessor;
   var createIdentifierExpression = traceur.codegeneration.ParseTreeFactory.createIdentifierExpression;
@@ -49,6 +50,7 @@ traceur.define('codegeneration', function() {
   var createStringLiteral = traceur.codegeneration.ParseTreeFactory.createStringLiteral;
   var createThisExpression = traceur.codegeneration.ParseTreeFactory.createThisExpression;
   var createTrueLiteral = traceur.codegeneration.ParseTreeFactory.createTrueLiteral;
+  var createUseStrictDirective = traceur.codegeneration.ParseTreeFactory.createUseStrictDirective;
   var createVariableDeclaration = traceur.codegeneration.ParseTreeFactory.createVariableDeclaration;
   var createVariableDeclarationList = traceur.codegeneration.ParseTreeFactory.createVariableDeclarationList;
   var createVariableStatement = traceur.codegeneration.ParseTreeFactory.createVariableStatement;
@@ -70,13 +72,14 @@ traceur.define('codegeneration', function() {
         createPropertyNameAssignment(PredefinedName.ENUMERABLE,
         createTrueLiteral()));
 
-    return createCallExpression(
-        createMemberExpression(PredefinedName.OBJECT,
-        PredefinedName.DEFINE_PROPERTY),
-        createArgumentList(
-        createThisExpression(),
-        createStringLiteral(name),
-        objectLiteral));
+    return createExpressionStatement(
+        createCallExpression(
+          createMemberExpression(PredefinedName.OBJECT,
+          PredefinedName.DEFINE_PROPERTY),
+          createArgumentList(
+          createThisExpression(),
+          createStringLiteral(name),
+          objectLiteral)));
   }
 
   /**
@@ -122,7 +125,7 @@ traceur.define('codegeneration', function() {
     var statements = [];
 
     // use strict
-    statements.push(createStringLiteral('use strict'));
+    statements.push(createUseStrictDirective());
 
     // Add exports
     module.getExports().forEach(function(exp) {
@@ -131,7 +134,8 @@ traceur.define('codegeneration', function() {
     });
 
     // Object.freeze(this)
-    statements.push(createObjectFreeze(createThisExpression()));
+    statements.push(
+        createExpressionStatement(createObjectFreeze(createThisExpression())));
 
     // Add original body statements
     tree.elements.forEach(function(element) {
