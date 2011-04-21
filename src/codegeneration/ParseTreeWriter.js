@@ -790,7 +790,7 @@ traceur.define('codegeneration', function() {
       this.write_(PredefinedName.TRAIT);
       this.write_(tree.name);
       this.write_(TokenType.OPEN_CURLY);
-      visitList(tree.elements);
+      this.visitList(tree.elements);
       this.write_(TokenType.CLOSE_CURLY);
     },
 
