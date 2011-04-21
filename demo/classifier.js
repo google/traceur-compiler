@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+var classifyTraceurTokens = function() {};
+
 (function() {
   'use strict';
 
@@ -253,6 +255,8 @@
     });
     return result.join('');
   }
+
+  classifyTraceurTokens = classifySource;
 
   function classifyAllScripts() {
     var scripts = document.querySelectorAll('pre');
