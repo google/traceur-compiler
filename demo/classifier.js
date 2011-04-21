@@ -259,11 +259,10 @@
     Array.prototype.forEach.call(scripts, function(preElement) {
       // get textContent to strip out existing <span >tags
       var source = preElement.textContent;
-
-      source = classifySource(source);
+      var classifiedSource = classifySource(source);
 
       // write it back as innerHTML to preserve <span> tags
-      preElement.innerHTML = classifySource(source);
+      preElement.innerHTML = classifiedSource;
     });
   }
 
