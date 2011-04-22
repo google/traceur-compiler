@@ -270,9 +270,9 @@ traceur.define('syntax.trees', function() {
       return this;
     },
 
-    /** @return {traceur.syntax.trees.ImportPathTree} */
+    /** @return {traceur.syntax.trees.ImportPath} */
     asImportPath: function() {
-      assert(this instanceof traceur.syntax.trees.ImportPathTree);
+      assert(this instanceof traceur.syntax.trees.ImportPath);
       return this;
     },
 

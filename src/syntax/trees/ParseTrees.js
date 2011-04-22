@@ -40,7 +40,7 @@ traceur.define('syntax.trees', function() {
     return Tree;
   }
 
-  // All trees but NullTree and ImportPathTree
+  // All trees but NullTree and ImportPath
 
   return {
     /**

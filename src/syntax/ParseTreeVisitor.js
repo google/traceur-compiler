@@ -137,7 +137,7 @@ traceur.define('syntax', function() {
           this.visitImportDeclaration(tree.asImportDeclaration());
           break;
         case ParseTreeType.IMPORT_PATH:
-          this.visitImportPathTree(tree.asImportPath());
+          this.visitImportPath(tree.asImportPath());
           break;
         case ParseTreeType.IMPORT_SPECIFIER:
           this.visitImportSpecifier(tree.asImportSpecifier());
@@ -532,9 +532,9 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ImportPathTree} tree
+     * @param {traceur.syntax.trees.ImportPath} tree
      */
-    visitImportPathTree: function(tree) {
+    visitImportPath: function(tree) {
       if (tree.importSpecifierSet !== null) {
         this.visitList(tree.importSpecifierSet);
       }

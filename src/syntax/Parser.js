@@ -57,7 +57,7 @@ traceur.define('syntax', function() {
   var IdentifierExpression = traceur.syntax.trees.IdentifierExpression;
   var IfStatement = traceur.syntax.trees.IfStatement;
   var ImportDeclaration = traceur.syntax.trees.ImportDeclaration;
-  var ImportPathTree = traceur.syntax.trees.ImportPathTree;
+  var ImportPath = traceur.syntax.trees.ImportPath;
   var ImportSpecifier = traceur.syntax.trees.ImportSpecifier;
   var LabelledStatement = traceur.syntax.trees.LabelledStatement;
   var LiteralExpression = traceur.syntax.trees.LiteralExpression;
@@ -405,7 +405,7 @@ traceur.define('syntax', function() {
         this.eat_(TokenType.PERIOD);
         return this.parseImportSpecifierSet_(start, qualifiedPath);
       }
-      return new ImportPathTree(this.getTreeLocation_(start), qualifiedPath, ImportPathTree.Kind.NONE);
+      return new ImportPath(this.getTreeLocation_(start), qualifiedPath, ImportPath.Kind.NONE);
     },
 
     //  ImportSpecifierSet ::= '{' (ImportSpecifier (',' ImportSpecifier)*)? '}'
@@ -426,10 +426,10 @@ traceur.define('syntax', function() {
           elements.push(this.parseImportSpecifier_());
         }
         this.eat_(TokenType.CLOSE_CURLY);
-        return new ImportPathTree(this.getTreeLocation_(start), qualifiedPath, elements);
+        return new ImportPath(this.getTreeLocation_(start), qualifiedPath, elements);
       } else {
         this.eat_(TokenType.STAR);
-        return new ImportPathTree(this.getTreeLocation_(start), qualifiedPath, ImportPathTree.Kind.ALL);
+        return new ImportPath(this.getTreeLocation_(start), qualifiedPath, ImportPath.Kind.ALL);
       }
     },
 

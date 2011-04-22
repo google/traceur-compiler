@@ -26,13 +26,6 @@
 goog.require('goog.testing.jsunit');
 </script>
 <script src="../../traceur.js"></script>
-
-<script src="ParseTreeType.js"></script>
-<script src="ParseTree.js"></script>
-<script src="ParseTrees.js"></script>
-<script src="ImportPathTree.js"></script>
-<script src="NullTree.js"></script>
-
 </head>
 <body>
 <script>
@@ -91,34 +84,34 @@ function testNullTree() {
   assert(Object.isFrozen(tree));
 }
 
-function testImportPathTree() {
-  // ImportPathTree has different construction logic
-  var ImportPathTree = traceur.syntax.trees.ImportPathTree;
+function testImportPath() {
+  // ImportPath has different construction logic
+  var ImportPath = traceur.syntax.trees.ImportPath;
 
   var specifiers = ['importSpecifierSet'];
-  var tree = new ImportPathTree('location', 'qualifiedPath', specifiers);
+  var tree = new ImportPath('location', 'qualifiedPath', specifiers);
   assertEquals('IMPORT_PATH', tree.type);
   assertEquals('location', tree.location);
   assertEquals('qualifiedPath', tree.qualifiedPath);
   assertEquals(specifiers, tree.importSpecifierSet);
-  assertEquals(ImportPathTree.Kind.SET, tree.kind);
+  assertEquals(ImportPath.Kind.SET, tree.kind);
 
-  tree = new ImportPathTree('location', 'qualifiedPath',
-      ImportPathTree.Kind.ALL);
+  tree = new ImportPath('location', 'qualifiedPath',
+      ImportPath.Kind.ALL);
   assertEquals('IMPORT_PATH', tree.type);
   assertEquals('location', tree.location);
   assertEquals('qualifiedPath', tree.qualifiedPath);
   assertEquals(null, tree.importSpecifierSet);
-  assertEquals(ImportPathTree.Kind.ALL, tree.kind);
+  assertEquals(ImportPath.Kind.ALL, tree.kind);
   assert(Object.isFrozen(tree));
 
-  tree = new ImportPathTree('location', 'qualifiedPath',
-      ImportPathTree.Kind.NONE);
+  tree = new ImportPath('location', 'qualifiedPath',
+      ImportPath.Kind.NONE);
   assertEquals('IMPORT_PATH', tree.type);
   assertEquals('location', tree.location);
   assertEquals('qualifiedPath', tree.qualifiedPath);
   assertEquals(null, tree.importSpecifierSet);
-  assertEquals(ImportPathTree.Kind.NONE, tree.kind);
+  assertEquals(ImportPath.Kind.NONE, tree.kind);
   assert(Object.isFrozen(tree));
 }
 

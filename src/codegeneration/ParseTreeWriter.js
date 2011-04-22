@@ -458,9 +458,9 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ImportPathTree} tree
+     * @param {ImportPath} tree
      */
-    visitImportPathTree: function(tree) {
+    visitImportPath: function(tree) {
       this.writeTokenList_(tree.qualifiedPath, TokenType.PERIOD, false);
       switch (tree.kind) {
         case ALL:

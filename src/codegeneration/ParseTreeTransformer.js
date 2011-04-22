@@ -72,7 +72,7 @@ traceur.define('codegeneration', function() {
   var AwaitStatement = traceur.syntax.trees.AwaitStatement;
   var ExportDeclaration = traceur.syntax.trees.ExportDeclaration;
   var ImportDeclaration = traceur.syntax.trees.ImportDeclaration;
-  var ImportPathTree = traceur.syntax.trees.ImportPathTree;
+  var ImportPath = traceur.syntax.trees.ImportPath;
   var ModuleDeclaration = traceur.syntax.trees.ModuleDeclaration;
   var ModuleDefinition = traceur.syntax.trees.ModuleDefinition;
   var ModuleExpression = traceur.syntax.trees.ModuleExpression;
@@ -247,7 +247,7 @@ traceur.define('codegeneration', function() {
         case IMPORT_DECLARATION:
           return this.transformImportDeclaration(tree.asImportDeclaration());
         case IMPORT_PATH:
-          return this.transformImportPathTree(tree.asImportPath());
+          return this.transformImportPath(tree.asImportPath());
         case IMPORT_SPECIFIER:
           return this.transformImportSpecifier(tree.asImportSpecifier());
         case LABELLED_STATEMENT:
@@ -792,14 +792,14 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ImportPathTree} tree
+     * @param {ImportPath} tree
      * @return {ParseTree}
      */
-    transformImportPathTree: function(tree) {
+    transformImportPath: function(tree) {
       if (tree.importSpecifierSet != null) {
         var importSpecifierSet = this.transformList(tree.importSpecifierSet);
         if (importSpecifierSet != tree.importSpecifierSet) {
-          return new ImportPathTree(null, tree.qualifiedPath,
+          return new ImportPath(null, tree.qualifiedPath,
                                     importSpecifierSet);
         }
       }

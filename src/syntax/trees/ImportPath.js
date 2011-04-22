@@ -31,7 +31,7 @@ traceur.define('syntax.trees', function() {
    * @constructor
    * @extends {ParseTree}
    */
-  function ImportPathTree(location, qualifiedPath, kindOrImportSpecifierSet) {
+  function ImportPath(location, qualifiedPath, kindOrImportSpecifierSet) {
     ParseTree.call(this, ParseTreeType.IMPORT_PATH, location);
     this.qualifiedPath = qualifiedPath;
 
@@ -45,12 +45,12 @@ traceur.define('syntax.trees', function() {
     Object.freeze(this);
   }
 
-  ImportPathTree.Kind = Kind;
-  ImportPathTree.prototype = {
+  ImportPath.Kind = Kind;
+  ImportPath.prototype = {
     __proto__: ParseTree.prototype
   };
 
   return {
-    ImportPathTree: ImportPathTree
+    ImportPath: ImportPath
   };
 });
