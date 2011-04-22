@@ -101,13 +101,20 @@ function compileAndReturnErrors(contents, name) {
   var sourceFile = new traceur.syntax.SourceFile(name, contents);
   var reporter = new traceur.util.ErrorReporter();
   var errors = [];
-  reporter.reportError = function() {
+  reporter.reportMessageInternal = function() {
     errors.push(arguments);
   };
+
   var project = new traceur.semantics.symbols.Project();
   project.addFile(sourceFile)
   traceur.codegeneration.Compiler.compile(reporter, project);
   return errors;
+}
+
+function assertErrorMessage(errors, moduleName) {
+  assertEquals(1, errors.length);
+  assertEquals('\'%s\' is not a module', errors[0][2]);
+  assertEquals(moduleName, errors[0][3][0]);
 }
 
 function testInvalidModuleDeclaration() {
@@ -116,9 +123,7 @@ function testInvalidModuleDeclaration() {
   var name = 'testInvalidModuleDeclaration';
   var errors = compileAndReturnErrors(contents, name);
 
-  assertEquals(1, errors.length);
-  assertEquals('\'%s\' is not a module', errors[0][1]);
-  assertEquals('c', errors[0][2]);
+  assertErrorMessage(errors, 'c');
 }
 
 function testInvalidModuleDeclaration2() {
@@ -126,10 +131,7 @@ function testInvalidModuleDeclaration2() {
       'module b = a.c;\n';
   var name = 'testInvalidModuleDeclaration2';
   var errors = compileAndReturnErrors(contents, name);
-
-  assertEquals(1, errors.length);
-  assertEquals('\'%s\' is not a module', errors[0][1]);
-  assertEquals('c', errors[0][2]);
+  assertErrorMessage(errors, 'c');
 }
 
 function testInvalidModuleDeclaration3() {
@@ -138,10 +140,7 @@ function testInvalidModuleDeclaration3() {
       '}\n';
   var name = 'testInvalidModuleDeclaration3';
   var errors = compileAndReturnErrors(contents, name);
-
-  assertEquals(1, errors.length);
-  assertEquals('\'%s\' is not a module', errors[0][1]);
-  assertEquals('c', errors[0][2]);
+  assertErrorMessage(errors, 'c');
 }
 
 function testInvalidModuleDeclaration4() {
@@ -151,10 +150,7 @@ function testInvalidModuleDeclaration4() {
       '}\n';
   var name = 'testInvalidModuleDeclaration4';
   var errors = compileAndReturnErrors(contents, name);
-
-  assertEquals(1, errors.length);
-  assertEquals('\'%s\' is not a module', errors[0][1]);
-  assertEquals('d', errors[0][2]);
+assertErrorMessage(errors, 'd');
 }
 
 function testInvalidModuleDeclaration5() {
@@ -163,10 +159,7 @@ function testInvalidModuleDeclaration5() {
       '}\n';
   var name = 'testInvalidModuleDeclaration5';
   var errors = compileAndReturnErrors(contents, name);
-
-  assertEquals(1, errors.length);
-  assertEquals('\'%s\' is not a module', errors[0][1]);
-  assertEquals('c', errors[0][2]);
+  assertErrorMessage(errors, 'c');
 }
 
 function testInvalidModuleDeclaration6() {
@@ -177,10 +170,7 @@ function testInvalidModuleDeclaration6() {
       '}\n';
   var name = 'testInvalidModuleDeclaration6';
   var errors = compileAndReturnErrors(contents, name);
-
-  assertEquals(1, errors.length);
-  assertEquals('\'%s\' is not a module', errors[0][1]);
-  assertEquals('d', errors[0][2]);
+  assertErrorMessage(errors, 'd');
 }
 
 function evalScript(scriptElement) {
