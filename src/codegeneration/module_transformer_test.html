@@ -106,7 +106,7 @@ function compileAndReturnErrors(contents, name) {
   };
   var project = new traceur.semantics.symbols.Project();
   project.addFile(sourceFile)
-  traceur.codegeneration.Compiler.compile(reporter, project, false);
+  traceur.codegeneration.Compiler.compile(reporter, project);
   return errors;
 }
 
@@ -203,8 +203,7 @@ function evalScript(scriptElement) {
   var reporter = new traceur.util.ErrorReporter();
   var project = new traceur.semantics.symbols.Project();
   project.addFile(sourceFile)
-  var trees = traceur.codegeneration.Compiler.compile(
-          reporter, project, false);
+  var trees = traceur.codegeneration.Compiler.compile(reporter, project);
   assertFalse(reporter.hadError());
   var result = traceur.codegeneration.ProjectWriter.write(trees);
   ('global', eval)(result);

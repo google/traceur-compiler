@@ -703,8 +703,13 @@ traceur.define('syntax.trees', function() {
 
     /** @return {boolean} */
     isSourceElement: function() {
-      return this.isStatementStandard() ||
-          this.type == ParseTreeType.FUNCTION_DECLARATION;
+      switch (this.type) {
+        case ParseTreeType.FUNCTION_DECLARATION:
+        case ParseTreeType.CLASS_DECLARATION:
+        case ParseTreeType.TRAIT_DECLARATION:
+          return true;
+      }
+      return this.isStatementStandard();
     }
   };
 

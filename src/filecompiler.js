@@ -98,8 +98,7 @@
     }
 
     console.log('Compiling...');
-    var results = traceur.codegeneration.Compiler.compile(reporter, project,
-                                                          false);
+    var results = traceur.codegeneration.Compiler.compile(reporter, project);
     if (reporter.hadError()) {
       console.log('Compilation failed.');
       return false;

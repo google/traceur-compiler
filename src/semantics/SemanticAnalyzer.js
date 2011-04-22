@@ -62,7 +62,6 @@ traceur.define('semantics', function() {
    *
    * @param {ErrorReporter} reporter
    * @param {Project} project
-   * @param {boolean} inOrder
    * @constructor
    */
   function SemanticAnalyzer(reporter, project) {

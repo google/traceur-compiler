@@ -372,10 +372,11 @@ traceur.define('syntax', function() {
      * @param {traceur.syntax.trees.ExportDeclaration} tree
      */
     visitExportDeclaration: function(tree) {
-      switch (tree.type) {
+      switch (tree.declaration.type) {
         case ParseTreeType.VARIABLE_STATEMENT:
         case ParseTreeType.FUNCTION_DECLARATION:
         case ParseTreeType.MODULE_DEFINITION:
+        case ParseTreeType.MODULE_DECLARATION:
         case ParseTreeType.CLASS_DECLARATION:
         case ParseTreeType.TRAIT_DECLARATION:
           break;
@@ -583,7 +584,7 @@ traceur.define('syntax', function() {
     visitModuleDeclaration: function(tree) {
       for (var i = 0; i < tree.specifiers.length; i++) {
         var specifier = tree.specifiers[i];
-        this.checkVisit_(specifier.type = ParseTreeType.MODULE_SPECIER,
+        this.checkVisit_(specifier.type == ParseTreeType.MODULE_SPECIFIER,
                          specifier,
                          'module specifier expected');
       }
@@ -601,6 +602,7 @@ traceur.define('syntax', function() {
             element.type === ParseTreeType.EXPORT_DECLARATION ||
             element.type === ParseTreeType.IMPORT_DECLARATION ||
             element.type === ParseTreeType.MODULE_DEFINITION ||
+            element.type === ParseTreeType.MODULE_DECLARATION ||
             element.type === ParseTreeType.TRAIT_DECLARATION,
             element,
             'module element expected');
@@ -703,9 +705,8 @@ traceur.define('syntax', function() {
       for (var i = 0; i < tree.sourceElements.length; i++) {
         var sourceElement = tree.sourceElements[i];
         this.checkVisit_(sourceElement.isSourceElement() ||
-            sourceElement.type === ParseTreeType.CLASS_DECLARATION ||
-            sourceElement.type === ParseTreeType.TRAIT_DECLARATION ||
-            sourceElement.type === ParseTreeType.MODULE_DEFINITION,
+            sourceElement.type === ParseTreeType.MODULE_DEFINITION ||
+            sourceElement.type === ParseTreeType.MODULE_DECLARATION,
             sourceElement,
             'global source element expected');
       }

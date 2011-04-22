@@ -20,6 +20,7 @@ traceur.define('codegeneration', function() {
   var PredefinedName = traceur.syntax.PredefinedName;
   var Program = traceur.syntax.trees.Program;
   var ClassAnalyzer = traceur.semantics.ClassAnalyzer;
+  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
   var FunctionTransformer = traceur.codegeneration.FunctionTransformer;
   var ClassSymbol = traceur.semantics.symbols.ClassSymbol;
   var SymbolType = traceur.semantics.symbols.SymbolType;
@@ -61,6 +62,7 @@ traceur.define('codegeneration', function() {
    *
    * @param {ErrorReporter} reporter
    * @constructor
+   * @extends {ParseTreeTransformer}
    */
   function ClassTransformer(reporter) {
     this.reporter_ = reporter;
@@ -74,18 +76,7 @@ traceur.define('codegeneration', function() {
    * @return {Program}
    */
   ClassTransformer.transform = function(reporter, tree) {
-    var elements = tree.sourceElements.map(function(element) {
-      if (element.type == ParseTreeType.CLASS_DECLARATION) {
-        var sym = ClassAnalyzer.analyzeClass(reporter, element);
-        return new ClassTransformer(reporter).transformClass_(sym);
-      } else if (element.type == ParseTreeType.TRAIT_DECLARATION) {
-        var sym = ClassAnalyzer.analyzeTrait(reporter, element);
-        return new ClassTransformer(reporter).transformTrait_(sym);
-      }
-      return element;
-    });
-
-    return new Program(tree.location, elements);
+    return new ClassTransformer(reporter).transformAny(tree);
   };
 
   function createRequiresExpression() {
@@ -97,18 +88,23 @@ traceur.define('codegeneration', function() {
         PredefinedName.REQUIRED);
   }
 
+  var proto = ParseTreeTransformer.prototype;
   ClassTransformer.prototype = {
+    __proto__: proto,
 
     /**
      * Transforms a single trait declaration
      *
-     * @param {TraitSymbol} sym
+     * @param {TraitDeclaration} tree
      * @return {ParseTree}
      */
-    transformTrait_: function(sym) {
+    transformTraitDeclaration: function(tree) {
+      tree = proto.transformTraitDeclaration.call(this, tree);
+      var sym = ClassAnalyzer.analyzeTrait(this.reporter_, tree);
+
       //var <traitName> = traceur.truntime.createTrait(<prototype>, <mixins>)
       return createVariableStatement(
-          TokenType.VAR,
+          TokenType.LET,
           sym.name,
           createCallExpression(
               createMemberExpression(
@@ -123,10 +119,13 @@ traceur.define('codegeneration', function() {
     /**
      * Transforms a single class declaration
      *
-     * @param {ClassSymbol} sym
+     * @param {ClassDeclaration} tree
      * @return {ParseTree}
      */
-    transformClass_: function(sym) {
+    transformClassDeclaration: function(tree) {
+      tree = proto.transformClassDeclaration.call(this, tree);
+      var sym = ClassAnalyzer.analyzeClass(this.reporter_, tree);
+
       var classInstance = createThisExpression();
       var baseClass = sym.tree.superClass;
       if (!baseClass) {
@@ -136,7 +135,7 @@ traceur.define('codegeneration', function() {
       // var <className> = traceur.runtime.createClass(base, <new>, <ctor>,
       //     <field init>, <prototype>, <static init>, <mixins>)
       return createVariableStatement(
-          TokenType.VAR,
+          TokenType.LET,
           sym.name,
           createCallExpression(
               createMemberExpression(

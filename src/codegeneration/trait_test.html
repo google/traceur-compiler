@@ -80,6 +80,33 @@ function testRequiresAndInheritance() {
   assertEquals('base r', obj.callR());
 }
 
+function testTraitDefinedInBlock() {
+  trait Equality2 {
+    equals(other) {
+      return this === other;
+    }
+    notEquals(other) {
+      return !this.equals(other);
+    }
+  }
+
+  class MixinPoint2 {
+    mixin Equality2 { equals : requires };
+    x = 0, y = 0;
+    equals(other) {
+      return this.x === other.x && this.y === other.y;
+    }
+  }
+
+  var p1 = new MixinPoint2();
+  var p2 = new MixinPoint2();
+  assertTrue(p1.equals(p2));
+  assertFalse(p2.notEquals(p1));
+  p2.x = 1;
+  assertFalse(p2.equals(p1));
+  assertTrue(p2.notEquals(p1));
+}
+
 </script>
 <script>
 
@@ -99,30 +126,18 @@ function evalScript(scriptElement) {
     source = scriptElement.textContent;
   }
 
-  var errorReporter = new traceur.util.ErrorReporter();
-  var tree = transform(errorReporter, name, source);
+  var errors = new traceur.util.ErrorReporter();
+  var sourceFile = new traceur.syntax.SourceFile(name, source);
+  var tree = traceur.codegeneration.Compiler.compileFile(errors, sourceFile);
   var code = traceur.codegeneration.ParseTreeWriter.write(tree);
   console.log(code);
   ('global', eval)(code);
-  assertFalse(errorReporter.hadError());
+  assertFalse(errors.hadError());
 }
 
 function evalAllScripts() {
   var scripts = document.querySelectorAll('script[type="text/traceur"]');
   Array.prototype.forEach.call(scripts, evalScript);
-}
-
-function transform(errorReporter, name, source) {
-  var sourceFile = new traceur.syntax.SourceFile(name, source);
-  var scanner = new traceur.syntax.Scanner(errorReporter, sourceFile);
-  var parser = new traceur.syntax.Parser(errorReporter, scanner);
-  var tree = parser.parseProgram();
-  assertFalse(errorReporter.hadError());
-
-  tree = traceur.codegeneration.ClassTransformer.transform(errorReporter, tree);
-  assertFalse(errorReporter.hadError());
-
-  return tree;
 }
 
 evalAllScripts();

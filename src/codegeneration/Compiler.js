@@ -25,49 +25,43 @@ traceur.define('codegeneration', function() {
   var Parser = traceur.syntax.Parser;
 
   var SemanticAnalyzer = traceur.semantics.SemanticAnalyzer;
+  var Project = traceur.semantics.symbols.Project;
 
   /**
    * @param {ErrorReporter} reporter Where to report compile errors.
    * @param {Project} project The project to compile.
-   * @param {boolean} inOrder Should the compiler translates the results in
-   *     source order. If false then the compiler will compile in an optimistic
-   *     order.
-   * @return {LinkedHashMap<SourceFile,ParseTree>} A map from input file name to
+   * @return {ObjectMap} A map from input file name to
    *     translated results. Returns null if there was a compile error.
    */
-  Compiler.compile = function(reporter, project, inOrder) {
-    return new Compiler(reporter, project, inOrder).compile_();
+  Compiler.compile = function(reporter, project) {
+    return new Compiler(reporter, project).compile_();
   };
 
   /**
    * @param {ErrorReporter} reporter Where to report compile errors.
-   * @param {Project} project The project to compile.
-   * @param {boolean} inOrder Should the compiler translates the results in
-   *     source order. If false then the compiler will compile in an optimistic
-   *     order.
    * @param {SourceFile} sourceFile file to compile.
-   * @return {LinkedHashMap<SourceFile,ParseTree>} A map from input file name to
+   * @return {ParseTree} A map from input file name to
    *     translated results. Returns null if there was a compile error.
    */
-  Compiler.compileFile = function(reporter, project, inOrder, sourceFile) {
-    return new Compiler(reporter, project, inOrder).compileFile_(sourceFile);
+  Compiler.compileFile = function(reporter, sourceFile) {
+    var project = new Project();
+    project.addFile(sourceFile);
+    return new Compiler(reporter, project).compileFile_(sourceFile);
   };
 
   /**
    * @param {ErrorReporter} reporter
    * @param {Project} project
-   * @param {boolean} inOrder
    * @constructor
    */
-  function Compiler(reporter, project, inOrder) {
+  function Compiler(reporter, project) {
     this.reporter_ = reporter;
     this.project_ = project;
-    this.inOrder_ = inOrder;
   }
 
   Compiler.prototype = {
     /**
-     * @return {LinkedHashMap<SourceFile,ParseTree>}
+     * @return {ObjectMap}
      * @private
      */
     compile_: function() {
@@ -83,7 +77,7 @@ traceur.define('codegeneration', function() {
 
     /**
      * @param {SourceFile} file
-     * @return {LinkedHashMap<SourceFile,ParseTree>}
+     * @return {ParseTree}
      * @private
      */
     compileFile_: function(file) {
@@ -94,7 +88,7 @@ traceur.define('codegeneration', function() {
       if (this.hadError_()) {
         return null;
       }
-      return this.results_;
+      return this.results_.get(file);
     },
 
     /**
@@ -137,8 +131,7 @@ traceur.define('codegeneration', function() {
       if (this.hadError_()) {
         return;
       }
-      var analyzer = new SemanticAnalyzer(this.reporter_, this.project_,
-                                          this.inOrder_);
+      var analyzer = new SemanticAnalyzer(this.reporter_, this.project_);
       analyzer.analyze();
     },
 
@@ -153,8 +146,7 @@ traceur.define('codegeneration', function() {
       if (this.hadError_()) {
         return;
       }
-      var analyzer = new SemanticAnalyzer(this.reporter_, this.project_,
-                                          this.inOrder_);
+      var analyzer = new SemanticAnalyzer(this.reporter_, this.project_);
       analyzer.analyzeFile(sourceFile);
     },
 

@@ -96,8 +96,7 @@
         fileToEntry.put(file, entry);
       }
 
-      var results = traceur.codegeneration.Compiler.compile(reporter, project,
-                                                            false);
+      var results = traceur.codegeneration.Compiler.compile(reporter, project);
       if (reporter.hadError()) {
         console.warn('Traceur compilation errors', reporter);
         return;

@@ -225,24 +225,16 @@ traceur.define('syntax', function() {
     // FunctionDeclaration
     /*
     peekScriptElement_: function() {
-      return this.peekClassDeclaration_() ||
-              this.peekTraitDeclaration_() ||
-              this.peekModuleDeclaration_() ||
+      return this.peekModuleDeclaration_() ||
               this.peekSourceElement_();
     }
   */
 
     /**
-   * @return {ParseTree}
-   * @private
-   */
+     * @return {ParseTree}
+     * @private
+     */
     parseScriptElement_: function() {
-      if (this.peekClassDeclaration_()) {
-        return this.parseClassDeclaration_();
-      }
-      if (this.peekTraitDeclaration_()) {
-        return this.parseTraitDeclaration_();
-      }
       if (this.peekModuleDeclaration_()) {
         return this.parseModuleDeclaration_();
       }
@@ -878,6 +870,12 @@ traceur.define('syntax', function() {
       if (this.peekFunction_()) {
         return this.parseFunctionDeclaration_();
       }
+      if (this.peekClassDeclaration_()) {
+        return this.parseClassDeclaration_();
+      }
+      if (this.peekTraitDeclaration_()) {
+        return this.parseTraitDeclaration_();
+      }
 
       // Harmony let block scoped bindings. let can only appear in
       // a block, not as a standalone statement: if() let x ... illegal
@@ -894,7 +892,9 @@ traceur.define('syntax', function() {
      * @private
      */
     peekSourceElement_: function() {
-      return this.peekFunction_() || this.peekStatementStandard_() || this.peek_(TokenType.LET);
+      return this.peekFunction_() || this.peekClassDeclaration_() ||
+        this.peekTraitDeclaration_() || this.peekStatementStandard_() ||
+        this.peek_(TokenType.LET);
     },
 
     /**
