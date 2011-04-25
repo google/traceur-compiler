@@ -34,14 +34,14 @@ traceur.define('codegeneration.generator', function() {
   var ContinueState = traceur.codegeneration.generator.ContinueState;
   var State = traceur.codegeneration.generator.State;
   var StateAllocator = traceur.codegeneration.generator.StateAllocator;
-  var StateMachineTree = traceur.codegeneration.generator.StateMachineTree;
+  var StateMachine = traceur.syntax.trees.StateMachine;
 
   var VariableBinder = traceur.semantics.VariableBinder;
 
   /**
    * Converts statements which do not contain a yield, to a state machine. Always called from a
    * context where the containing block contains a yield. Normally this just wraps the statement into
-   * a single state StateMachineTree. However, if the statement contains a break or continue which
+   * a single state StateMachine. However, if the statement contains a break or continue which
    * exits the statement, then the non-local break/continue must be converted into state machines.
    *
    * Note that parents of non-local break/continue statements are themselves translated into
@@ -82,7 +82,7 @@ traceur.define('codegeneration.generator', function() {
       // TODO: this shouldn't be required, but removing it requires making consumers resilient
       // TODO: to a machine with INVALID fallThroughState
       var fallThroughState = this.allocateState_();
-      return new StateMachineTree(newState.id, fallThroughState, [newState], []);
+      return new StateMachine(newState.id, fallThroughState, [newState], []);
     },
 
     /**
@@ -136,10 +136,10 @@ traceur.define('codegeneration.generator', function() {
     },
 
     /**
-     * @param {StateMachineTree} tree
+     * @param {StateMachine} tree
      * @return {ParseTree}
      */
-    transformStateMachineTree: function(tree) {
+    transformStateMachine: function(tree) {
       return tree;
     },
 

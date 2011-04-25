@@ -750,9 +750,9 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {StateMachineTree} tree
+     * @param {StateMachine} tree
      */
-    visitStateMachineTree: function(tree) {
+    visitStateMachine: function(tree) {
       throw new Error('State machines cannot be converted to source');
     },
 

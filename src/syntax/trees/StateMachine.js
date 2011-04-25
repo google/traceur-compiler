@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration.generator', function() {
+traceur.define('syntax.trees', function() {
   'use strict';
 
   var ParseTree = traceur.syntax.trees.ParseTree;
@@ -21,7 +21,7 @@ traceur.define('codegeneration.generator', function() {
 
   /**
    * A state machine tree is the result of transforming a set of statements that contain a yield,
-   * either directly or indirectly. StateMachineTree's break many of the design invariants in
+   * either directly or indirectly. StateMachine's break many of the design invariants in
    * the compiler around parse trees. They are only valid only as temporary entities during the
    * generator transform pass. They are not convertible (directly) to javascript code.
    *
@@ -46,7 +46,7 @@ traceur.define('codegeneration.generator', function() {
    * @constructor
    * @extends {ParseTree}
    */
-  function StateMachineTree(startState, fallThroughState, states, exceptionBlocks) {
+  function StateMachine(startState, fallThroughState, states, exceptionBlocks) {
     ParseTree.call(this, ParseTreeType.STATE_MACHINE, null);
 
     this.startState = startState;
@@ -89,7 +89,7 @@ traceur.define('codegeneration.generator', function() {
     }
   }
 
-  StateMachineTree.prototype = {
+  StateMachine.prototype = {
     __proto__: ParseTree.prototype,
 
     /**
@@ -141,6 +141,6 @@ traceur.define('codegeneration.generator', function() {
   };
 
   return {
-    StateMachineTree: StateMachineTree
+    StateMachine: StateMachine
   };
 });

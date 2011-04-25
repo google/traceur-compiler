@@ -22,7 +22,7 @@ traceur.define('codegeneration.generator', function() {
   var PredefinedName = traceur.syntax.PredefinedName;
 
   var CaseClause = traceur.syntax.trees.CaseClause;
-  var StateMachineTree = traceur.syntax.trees.StateMachineTree;
+  var StateMachine = traceur.syntax.trees.StateMachine;
   var SwitchStatement = traceur.syntax.trees.SwitchStatement;
 
   var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
@@ -68,7 +68,7 @@ traceur.define('codegeneration.generator', function() {
   var ForInTransformPass = traceur.codegeneration.generator.ForInTransformPass;
   var State = traceur.codegeneration.generator.State;
   var StateAllocator = traceur.codegeneration.generator.StateAllocator;
-  var StateMachineTree = traceur.codegeneration.generator.StateMachineTree;
+  var StateMachine = traceur.syntax.trees.StateMachine;
   var SwitchState = traceur.codegeneration.generator.SwitchState;
   var SwitchClause = traceur.codegeneration.generator.SwitchClause;
   var TryState = traceur.codegeneration.generator.TryState;
@@ -155,7 +155,7 @@ traceur.define('codegeneration.generator', function() {
 
     /**
      * @param {Array.<ParseTree>} someTransformed
-     * @return {StateMachineTree}
+     * @return {StateMachine}
      */
     transformStatementList_: function(someTransformed) {
       // This block has undergone some transformation but may only be variable transforms
@@ -166,7 +166,7 @@ traceur.define('codegeneration.generator', function() {
       }
 
       // this block contains at least 1 yield statement which has been transformed into a
-      // StateMachineTree. Transform all remaining statements into StateMachineTrees then sequence
+      // StateMachine. Transform all remaining statements into StateMachines then sequence
       // them together.
       var currentMachine = this.ensureTransformed_(someTransformed[0]);
       for (var index = 1; index < someTransformed.length; index++) {
@@ -243,12 +243,12 @@ traceur.define('codegeneration.generator', function() {
       states.push(new ConditionalState(conditionState, startState, fallThroughState,
           result.condition));
 
-      return new StateMachineTree(startState, fallThroughState, states,
+      return new StateMachine(startState, fallThroughState, states,
           loopBodyMachine.exceptionBlocks);
     },
 
     /**
-     * @param {StateMachineTree} loopBodyMachine
+     * @param {StateMachine} loopBodyMachine
      * @param {number} continueState
      * @param {number} breakState
      * @param {Object} labels
@@ -312,7 +312,7 @@ traceur.define('codegeneration.generator', function() {
                 createExpressionStatement(result.increment))));
       }
       this.addLoopBodyStates_(loopBodyMachine, incrementState, fallThroughState, labels, states);
-      return new StateMachineTree(startState, fallThroughState, states,
+      return new StateMachine(startState, fallThroughState, states,
           loopBodyMachine.exceptionBlocks);
     },
 
@@ -376,7 +376,7 @@ traceur.define('codegeneration.generator', function() {
             elseClause.fallThroughState, fallThroughState));
       }
 
-      return new StateMachineTree(startState, fallThroughState, states,
+      return new StateMachine(startState, fallThroughState, states,
           exceptionBlocks);
     },
 
@@ -475,7 +475,7 @@ traceur.define('codegeneration.generator', function() {
       }
       states.push(new SwitchState(startState, result.expression, clauses.reverse()));
 
-      return new StateMachineTree(startState, fallThroughState, states.reverse(),
+      return new StateMachine(startState, fallThroughState, states.reverse(),
           tryStates);
     },
 
@@ -538,7 +538,7 @@ traceur.define('codegeneration.generator', function() {
         this.replaceAndAddStates_(catchMachine.states, catchMachine.fallThroughState, fallThroughState,
             states);
 
-        tryMachine = new StateMachineTree(
+        tryMachine = new StateMachine(
             startState,
             fallThroughState,
             states,
@@ -562,7 +562,7 @@ traceur.define('codegeneration.generator', function() {
 
         // NOTE: finallyMachine.fallThroughState == FinallyState.fallThroughState is code generated
         // NOTE: in addFinallyFallThroughDispatches
-        tryMachine = new StateMachineTree(
+        tryMachine = new StateMachine(
             startState,
             fallThroughState,
             states,
@@ -656,7 +656,7 @@ traceur.define('codegeneration.generator', function() {
           result.condition));
       this.addLoopBodyStates_(loopBodyMachine, startState, fallThroughState, labels, states);
 
-      return new StateMachineTree(startState, fallThroughState, states,
+      return new StateMachine(startState, fallThroughState, states,
           loopBodyMachine.exceptionBlocks);
     },
 
@@ -710,7 +710,7 @@ traceur.define('codegeneration.generator', function() {
     //       }
     //     }).bind($that)
     /**
-     * @param {StateMachineTree} machine
+     * @param {StateMachine} machine
      * @return {CallExpression}
      */
     generateMachineMethod: function(machine) {
@@ -736,7 +736,7 @@ traceur.define('codegeneration.generator', function() {
     },
 
     /**
-     * @param {StateMachineTree} machine
+     * @param {StateMachine} machine
      * @return {ParseTree}
      */
     generateMachine: function(machine) {
@@ -805,7 +805,7 @@ traceur.define('codegeneration.generator', function() {
     //   ... caught exception variables ...
     /**
      * @param {Block} tree
-     * @param {StateMachineTree} machine
+     * @param {StateMachine} machine
      * @return {Array.<ParseTree>}
      */
     getMachineVariables: function(tree, machine) {
@@ -935,10 +935,10 @@ traceur.define('codegeneration.generator', function() {
     },
 
     /**
-     * @param {StateMachineTree} tree
+     * @param {StateMachine} tree
      * @return {ParseTree}
      */
-    transformStateMachineTree: function(tree) {
+    transformStateMachine: function(tree) {
       return tree;
     },
 
@@ -946,7 +946,7 @@ traceur.define('codegeneration.generator', function() {
      * Converts a statement into a state machine. The statement may not contain a yield
      * statement directly or indirectly.
      * @param {ParseTree} statements
-     * @return {StateMachineTree}
+     * @return {StateMachine}
      */
     statementToStateMachine_: function(statement) {
       return this.statementsToStateMachine_([statement]);
@@ -956,7 +956,7 @@ traceur.define('codegeneration.generator', function() {
      * Converts a list of statements into a state machine. The statements may not contain a yield
      * statement directly or indirectly.
      * @param {Array.<ParseTree>} statements
-     * @return {StateMachineTree}
+     * @return {StateMachine}
      */
     statementsToStateMachine_: function(statements) {
       var startState = this.allocateState();
@@ -975,7 +975,7 @@ traceur.define('codegeneration.generator', function() {
      * @return {StateMachibneTree}
      */
     stateToStateMachine_: function(newState, fallThroughState) {
-      return new StateMachineTree(newState.id, fallThroughState,
+      return new StateMachine(newState.id, fallThroughState,
           [newState], []);
     },
 
@@ -983,7 +983,7 @@ traceur.define('codegeneration.generator', function() {
      * Transforms all the machine states into a list of case clauses. Adds a rethrow clause if the
      * machine has any try blocks. Also adds a 'default' clause which indicates a compiler bug in
      * the state machine generation.
-     * @param {StateMachineTree} machine
+     * @param {StateMachine} machine
      * @param {number} machineEndState
      * @param {number} rethrowState
      * @param {Object} enclosingFinallyState
@@ -1124,9 +1124,9 @@ traceur.define('codegeneration.generator', function() {
 
     /**
      * Returns a new state machine which will run head, then run tail.
-     * @param {StateMachineTree} head
-     * @param {StateMachineTree} tail
-     * @return {StateMachineTree}
+     * @param {StateMachine} head
+     * @param {StateMachine} tail
+     * @return {StateMachine}
      */
     createSequence_: function(head, tail) {
       var states = [];
@@ -1144,7 +1144,7 @@ traceur.define('codegeneration.generator', function() {
         exceptionBlocks.push(tryState.replaceState(tail.startState, head.fallThroughState));
       }
 
-      return new StateMachineTree(
+      return new StateMachine(
           head.startState,
           tail.fallThroughState,
           states,
@@ -1182,7 +1182,7 @@ traceur.define('codegeneration.generator', function() {
     /**
      * Ensure that a statement has been transformed into a state machine.
      * @param {ParseTree} statement
-     * @return {StateMachineTree}
+     * @return {StateMachine}
      */
     ensureTransformed_: function(statement) {
       if (statement == null) {
@@ -1197,7 +1197,7 @@ traceur.define('codegeneration.generator', function() {
     /**
      * Ensure that a statement has been transformed into a state machine.
      * @param {Array.<ParseTree>} statements
-     * @return {StateMachineTree}
+     * @return {StateMachine}
      */
     ensureTransformedList_: function(statements) {
       var maybeTransformedStatements = [];

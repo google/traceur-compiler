@@ -748,9 +748,9 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.StateMachineTree} tree
+     * @param {traceur.syntax.trees.StateMachine} tree
      */
-    visitStateMachineTree: function(tree) {
+    visitStateMachine: function(tree) {
       this.fail_(tree, 'State machines are never valid outside of the ' +
           'GeneratorTransformer pass.');
     },

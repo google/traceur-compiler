@@ -24,7 +24,7 @@ traceur.define('codegeneration.generator', function() {
   var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
 
   var CPSTransformer = traceur.codegeneration.generator.CPSTransformer;
-  var StateMachineTree = traceur.codegeneration.generator.StateMachineTree;
+  var StateMachine = traceur.syntax.trees.StateMachine;
   var AsyncState = traceur.codegeneration.generator.AsyncState;
   var EndState = traceur.codegeneration.generator.EndState;
   var FallThroughState = traceur.codegeneration.generator.FallThroughState;
@@ -151,7 +151,7 @@ traceur.define('codegeneration.generator', function() {
       states.push(new FallThroughState(errbackState, fallThroughState, createStatementList(
           createThrowStatement(createIdentifierExpression(PredefinedName.ERR)))));
 
-      return new StateMachineTree(createTaskState, fallThroughState, states, []);
+      return new StateMachine(createTaskState, fallThroughState, states, []);
     },
 
     /**
@@ -183,7 +183,7 @@ traceur.define('codegeneration.generator', function() {
           // $result.callback(result);
           createStatementList(this.createCompleteTask_(result)));
       var end = new EndState(endState);
-      return new StateMachineTree(
+      return new StateMachine(
           startState,
           // TODO: this should not be required, but removing requires making consumers resilient
           // TODO: to INVALID fallThroughState

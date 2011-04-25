@@ -26,7 +26,7 @@ traceur.define('codegeneration.generator', function() {
   var CPSTransformer = traceur.codegeneration.generator.CPSTransformer;
   var EndState = traceur.codegeneration.generator.EndState;
   var YieldState = traceur.codegeneration.generator.YieldState;
-  var StateMachineTree = traceur.codegeneration.generator.StateMachineTree;
+  var StateMachine = traceur.syntax.trees.StateMachine;
 
   var createAssignStateStatement = ParseTreeFactory.createAssignStateStatement;
   var createBlock = ParseTreeFactory.createBlock;
@@ -92,7 +92,7 @@ traceur.define('codegeneration.generator', function() {
             fallThroughState);
       }
       var stateId = this.allocateState();
-      return new StateMachineTree(
+      return new StateMachine(
           stateId,
           // TODO: this should not be required, but removing requires making consumers resilient
           // TODO: to INVALID fallThroughState

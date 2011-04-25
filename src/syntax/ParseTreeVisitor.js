@@ -507,9 +507,9 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.StateMachineTree} tree
+     * @param {traceur.syntax.trees.StateMachine} tree
      */
-    visitStateMachineTree: function(tree) {
+    visitStateMachine: function(tree) {
       throw Error('State machines should not live outside of the' +
           ' GeneratorTransformer.');
     },

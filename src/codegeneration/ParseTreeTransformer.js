@@ -897,10 +897,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {StateMachineTree} tree
+     * @param {StateMachine} tree
      * @return {ParseTree}
      */
-    transformStateMachineTree: function(tree) {
+    transformStateMachine: function(tree) {
       throw new Error();
     },
 

@@ -24,7 +24,7 @@ traceur.define('codegeneration.generator', function() {
 
   /**
    * TryStates represent try catch/finally blocks which contain a yield. They
-   * are stored as a forest of trees hung off of the StateMachineTree.
+   * are stored as a forest of trees hung off of the StateMachine.
    *
    * TryStates are immutable.
    *

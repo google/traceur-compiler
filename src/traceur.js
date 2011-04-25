@@ -164,7 +164,7 @@ var traceur = (function() {
     'codegeneration/generator/SwitchState.js',
     'codegeneration/generator/YieldState.js',
     'codegeneration/generator/StateAllocator.js',
-    'codegeneration/generator/StateMachineTree.js',
+    'syntax/trees/StateMachine.js',
     'codegeneration/generator/BreakContinueTransformer.js',
     'codegeneration/generator/CPSTransformer.js',
     'codegeneration/generator/GeneratorTransformer.js',

@@ -42,7 +42,7 @@ traceur.define('codegeneration.generator', function() {
 
   /**
    * Represents the dispatch portion of a switch statement that has been added
-   * to a StateMachineTree.
+   * to a StateMachine.
    *
    * SwitchStates are immutable.
    *
