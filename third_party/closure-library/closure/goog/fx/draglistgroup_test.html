@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<!--
+Copyright 2011 The Closure Library Authors. All Rights Reserved.
+
+Use of this source code is governed by the Apache License, Version 2.0.
+See the COPYING file for details.
+
+-->
+<head>
+<title>Closure Unit Tests - goog.fx.DragListGroup</title>
+<script src="../base.js"></script>
+<script>
+  goog.require('goog.dom');
+  goog.require('goog.events.BrowserEvent');
+  goog.require('goog.events.BrowserFeature');
+  goog.require('goog.fx.DragEvent');
+  goog.require('goog.fx.DragListGroup');
+  goog.require('goog.testing.jsunit');
+</script>
+<style>
+  .opacity-40 {
+    opacity: 0.4;
+    -moz-opacity: 0.4;
+    filter: alpha(opacity=40);
+  }
+  .cursor_move {
+    cursor: move;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+  }
+  .cursor_pointer {
+    cursor: pointer;
+  }
+  .blue_bg {
+    background-color: #0000CC;
+  }
+</style>
+</head>
+
+<body>
+
+<div id="sandbox"></div>
+
+<script>
+  var $ = goog.dom.getElement;
+  var classes = goog.dom.classes;
+  /** @type {goog.fx.DragListGroup} */
+  var dlg;
+  /** @type {goog.dom.Element} */
+  var list;
+  /** @type {goog.events.BrowserEvent} */
+  var event;
+
+  function setUp() {
+    var sandbox = $('sandbox');
+    list = goog.dom.createDom('div', {'id':'horiz_div'});
+    list.appendChild(
+        goog.dom.createDom('div', null, goog.dom.createTextNode('1')));
+    list.appendChild(
+        goog.dom.createDom('div', null, goog.dom.createTextNode('2')));
+    list.appendChild(
+        goog.dom.createDom('div', null, goog.dom.createTextNode('3')));
+    sandbox.appendChild(list);
+
+    dlg = new goog.fx.DragListGroup();
+    dlg.setDragItemHoverClass('opacity_40', 'cursor_move');
+    dlg.setDragItemHandleHoverClass('opacity_40', 'cursor_pointer');
+    dlg.setCurrDragItemClass('blue_bg', 'opacity_40');
+    dlg.setDraggerElClass('cursor_move', 'blue_bg');
+    dlg.addDragList(list, goog.fx.DragListDirection.RIGHT);
+    dlg.init();
+
+    event = new goog.events.BrowserEvent();
+    event.currentTarget = list.getElementsByTagName('div')[0];
+  }
+
+  function tearDown() {
+    dlg.dispose();
+    $('sandbox').innerHTML = '';
+    goog.events.removeAll();
+  }
+
+  /**
+   * Test the initial assumptions.
+   *
+   * Verify that the setter methods work properly, i.e., the CSS classes are
+   * stored in the private arrays after init() but are not added yet to target.
+   * (Since initially, we are not yet hovering over any list, in particular,
+   * over this target.)
+   */
+  function testSettersAfterInit() {
+    assertTrue(goog.array.equals(dlg.dragItemHoverClasses_,
+        ['opacity_40', 'cursor_move']));
+    assertTrue(goog.array.equals(dlg.dragItemHandleHoverClasses_,
+        ['opacity_40', 'cursor_pointer']));
+    assertTrue(goog.array.equals(dlg.currDragItemClasses_,
+        ['blue_bg', 'opacity_40']));
+
+    assertFalse('Should have no cursor_move class after init',
+        classes.has(event.currentTarget, 'cursor_move'));
+    assertFalse('Should have no cursor_pointer class after init',
+        classes.has(event.currentTarget, 'cursor_pointer'));
+    assertFalse('Should have no opacity_40 class after init',
+        classes.has(event.currentTarget, 'opacity_40'));
+    assertFalse('Should not have blue_bg class after init',
+        classes.has(event.currentTarget, 'blue_bg'));
+  }
+
+  /**
+   * Test the effect of hovering over a list.
+   *
+   * Check that after the MOUSEOVER browser event these classes are added to
+   * the current target of the event.
+   */
+  function testAddDragItemHoverClasses() {
+    dlg.handleDragItemMouseover_(event);
+
+    assertTrue('Should have cursor_move class after MOUSEOVER',
+        classes.has(event.currentTarget, 'cursor_move'));
+    assertTrue('Should have opacity_40 class after MOUSEOVER',
+        classes.has(event.currentTarget, 'opacity_40'));
+    assertFalse('Should not have cursor_pointer class after MOUSEOVER',
+        classes.has(event.currentTarget, 'cursor_pointer'));
+    assertFalse('Should not have blue_bg class after MOUSEOVER',
+        classes.has(event.currentTarget, 'blue_bg'));
+  }
+
+  function testAddDragItemHandleHoverClasses() {
+    dlg.handleDragItemHandleMouseover_(event);
+
+    assertFalse('Should not have cursor_move class after MOUSEOVER',
+        classes.has(event.currentTarget, 'cursor_move'));
+    assertTrue('Should have opacity_40 class after MOUSEOVER',
+        classes.has(event.currentTarget, 'opacity_40'));
+    assertTrue('Should have cursor_pointer class after MOUSEOVER',
+        classes.has(event.currentTarget, 'cursor_pointer'));
+    assertFalse('Should not have blue_bg class after MOUSEOVER',
+        classes.has(event.currentTarget, 'blue_bg'));
+  }
+
+  /**
+   * Test the effect of stopping hovering over a list.
+   *
+   * Check that after the MOUSEOUT browser event all CSS classes are removed
+   * from the target (as we are no longer hovering over the it).
+   */
+  function testRemoveDragItemHoverClasses() {
+    dlg.handleDragItemMouseover_(event);
+    dlg.handleDragItemMouseout_(event);
+
+    assertFalse('Should have no cursor_move class after MOUSEOUT',
+        classes.has(event.currentTarget, 'cursor_move'));
+    assertFalse('Should have no cursor_pointer class after MOUSEOUT',
+        classes.has(event.currentTarget, 'cursor_pointer'));
+    assertFalse('Should have no opacity_40 class after MOUSEOUT',
+        classes.has(event.currentTarget, 'opacity_40'));
+    assertFalse('Should have no blue_bg class after MOUSEOUT',
+        classes.has(event.currentTarget, 'blue_bg'));
+  }
+
+  function testRemoveDragItemHandleHoverClasses() {
+    dlg.handleDragItemHandleMouseover_(event);
+    dlg.handleDragItemHandleMouseout_(event);
+
+    assertFalse('Should have no cursor_move class after MOUSEOUT',
+        classes.has(event.currentTarget, 'cursor_move'));
+    assertFalse('Should have no cursor_pointer class after MOUSEOUT',
+        classes.has(event.currentTarget, 'cursor_pointer'));
+    assertFalse('Should have no opacity_40 class after MOUSEOUT',
+        classes.has(event.currentTarget, 'opacity_40'));
+    assertFalse('Should have no blue_bg class after MOUSEOUT',
+        classes.has(event.currentTarget, 'blue_bg'));
+  }
+
+  /**
+   * Test the effect of dragging an item. (DRAGSTART event.)
+   *
+   * Check that after the MOUSEDOWN browser event is handled by the
+   * handleDragStart_() method the currDragItem has the CSS classes set by
+   * the setter method.
+   */
+  function testAddCurrentDragItemClasses() {
+    var be = new goog.events.BrowserEvent({
+      type: goog.events.EventType.MOUSEDOWN,
+      button: goog.events.BrowserFeature.HAS_W3C_BUTTON ? 0 : 1
+    });
+    event.event_ = be;
+
+    dlg.handleDragStart_(event);
+
+    assertFalse('Should have no cursor_move class after MOUSEDOWN',
+        classes.has(dlg.currDragItem_, 'cursor_move'));
+    assertFalse('Should have no cursor_pointer class after MOUSEDOWN',
+        classes.has(dlg.currDragItem_, 'cursor_pointer'));
+    assertTrue('Should have opacity_40 class after MOUSEDOWN',
+        classes.has(dlg.currDragItem_, 'opacity_40'));
+    assertTrue('Should have blue_bg class after MOUSEDOWN',
+        classes.has(dlg.currDragItem_, 'blue_bg'));
+   }
+
+  /**
+   * Test the effect of dragging an item. (DRAGEND event.)
+   *
+   * Check that after the MOUSEUP browser event handled by the handleDragEnd_()
+   * method the currDragItem has no CSS classes set in the dispatched event.
+   */
+  function testRemoveCurrentDragItemClasses() {
+    var be = new goog.events.BrowserEvent({
+      type: goog.events.EventType.MOUSEDOWN,
+      button: goog.events.BrowserFeature.HAS_W3C_BUTTON ? 0 : 1
+    });
+    event.event_ = be;
+    dlg.handleDragStart_(event);
+
+    // Need to catch the dispatched event because the temporary fields
+    // including dlg.currentDragItem_ are cleared after the dragging has ended.
+    var currDragItem = goog.dom.createDom(
+        'div', ['cursor_move', 'blue_bg'], goog.dom.createTextNode('4'));
+    goog.events.listen(dlg, goog.fx.DragListGroup.EventType.DRAGEND,
+        function(e) {currDragItem = dlg.currDragItem_;});
+
+    var dragger = new goog.fx.Dragger(event.currentTarget);
+    be.type = goog.events.EventType.MOUSEUP;
+    be.clientX = 1;
+    be.clientY = 2;
+    var dragEvent = new goog.fx.DragEvent(
+        goog.fx.Dragger.EventType.END, dragger, be.clientX, be.clientY, be);
+    dlg.handleDragEnd_(dragEvent); // this method dispatches the DRAGEND event
+
+    assertFalse('Should have no cursor_move class after MOUSEUP',
+        classes.has(currDragItem, 'cursor_move'));
+    assertFalse('Should have no cursor_pointer class after MOUSEUP',
+        classes.has(currDragItem, 'cursor_pointer'));
+    assertFalse('Should have no opacity_40 class after MOUSEUP',
+        classes.has(currDragItem, 'opacity_40'));
+    assertFalse('Should have no blue_bg class after MOUSEUP',
+        classes.has(currDragItem, 'blue_bg'));
+   }
+</script>
+</body>
+</html>
