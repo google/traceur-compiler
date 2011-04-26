@@ -188,7 +188,7 @@ traceur.define('codegeneration.module', function() {
                                                    this);
       }
     }
-  }
+  };
   return {
     ModuleVisitor: ModuleVisitor
   };

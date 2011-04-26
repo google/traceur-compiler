@@ -79,7 +79,7 @@ traceur.define('codegeneration', function() {
     switch (tree.type) {
       case EXPORT_SPECIFIER:
         returnExpression = transformQualifiedReferenceParts(symbol.relatedTree,
-                                                        tree.rhs || tree.lhs);
+            tree.rhs || tree.lhs);
         break;
       case EXPORT_PATH_SPECIFIER:
         returnExpression = new ModuleTransformer().transformAny(tree.specifier);
@@ -89,7 +89,7 @@ traceur.define('codegeneration', function() {
           returnExpression = tree;
         else
           returnExpression = transformQualifiedReferenceParts(symbol.relatedTree,
-                                                          tree.identifierToken);
+              tree.identifierToken);
         break;
       case QUALIFIED_REFERENCE:
         returnExpression = new ModuleTransformer().transformAny(tree);
@@ -112,12 +112,12 @@ traceur.define('codegeneration', function() {
 
     return createExpressionStatement(
         createCallExpression(
-          createMemberExpression(PredefinedName.OBJECT,
-          PredefinedName.DEFINE_PROPERTY),
-          createArgumentList(
-          createThisExpression(),
-          createStringLiteral(name),
-          objectLiteral)));
+            createMemberExpression(PredefinedName.OBJECT,
+                PredefinedName.DEFINE_PROPERTY),
+            createArgumentList(
+                createThisExpression(),
+                createStringLiteral(name),
+                objectLiteral)));
   }
 
   /**
@@ -173,8 +173,8 @@ traceur.define('codegeneration', function() {
      * @return {ParseTree}
      */
     transformQualifiedReference: function(tree) {
-        return transformQualifiedReferenceParts(tree.moduleExpression,
-                                                tree.identifier);
+      return transformQualifiedReferenceParts(tree.moduleExpression,
+          tree.identifier);
     }
   };
 

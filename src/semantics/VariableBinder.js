@@ -158,7 +158,7 @@ traceur.define('semantics', function() {
       this.block_ = tree;
 
       // visit the statements
-      tree.statements.forEach(function (s) {
+      tree.statements.forEach(function(s) {
         if (s.type == ParseTreeType.FUNCTION_DECLARATION) {
           this.bindFunctionDeclaration_(s.asFunctionDeclaration());
         } else {

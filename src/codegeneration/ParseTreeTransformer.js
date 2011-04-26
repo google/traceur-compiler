@@ -71,7 +71,7 @@ traceur.define('codegeneration', function() {
   var AwaitStatement = traceur.syntax.trees.AwaitStatement;
   var ExportDeclaration = traceur.syntax.trees.ExportDeclaration;
   var ExportPathList = traceur.syntax.trees.ExportPathList;
-  var ExportPath = traceur.syntax.trees.ExportPath
+  var ExportPath = traceur.syntax.trees.ExportPath;
   var ExportPathSpecifierSet = traceur.syntax.trees.ExportPathSpecifierSet;
   var ExportPathSpecifier = traceur.syntax.trees.ExportPathSpecifier;
   var ExportSpecifier = traceur.syntax.trees.ExportSpecifier;
@@ -642,7 +642,7 @@ traceur.define('codegeneration', function() {
         var importSpecifierSet = this.transformList(tree.importSpecifierSet);
         if (importSpecifierSet != tree.importSpecifierSet) {
           return new ImportPath(null, tree.qualifiedPath,
-                                    importSpecifierSet);
+              importSpecifierSet);
         }
       }
 

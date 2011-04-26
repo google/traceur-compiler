@@ -520,7 +520,7 @@ traceur.define('syntax', function() {
         this.eat_(TokenType.COMMA);
         paths.push(this.parseExportPath_());
       }
-      return new ExportPathList(this.getTreeEndLocation_(start), paths)
+      return new ExportPathList(this.getTreeEndLocation_(start), paths);
     },
 
     peekExportPath_: function() {
@@ -550,7 +550,7 @@ traceur.define('syntax', function() {
           this.eat_(TokenType.PERIOD);
           var specifierSet = this.parseExportSpecifierSet_();
           return new ExportPath(this.getTreeLocation_(start), expression,
-                                   specifierSet);
+              specifierSet);
         }
         // Fixup
         var identifier =
@@ -592,7 +592,7 @@ traceur.define('syntax', function() {
       this.eat_(TokenType.CLOSE_CURLY);
 
       return new ExportSpecifierSet(this.getTreeLocation_(start),
-                                        specifiers);
+          specifiers);
     },
 
     parseExportSpecifier_: function() {
@@ -711,7 +711,7 @@ traceur.define('syntax', function() {
       var specifiers = [this.parseModuleSpecifier_(load)];
       while (this.peek_(TokenType.COMMA)) {
         this.eat_(TokenType.COMMA);
-        specifiers.push(this.parseModuleSpecifier_(load))
+        specifiers.push(this.parseModuleSpecifier_(load));
       }
       this.eatPossibleImplicitSemiColon_();
       return new ModuleDeclaration(this.getTreeLocation_(start),
@@ -1070,8 +1070,8 @@ traceur.define('syntax', function() {
      */
     peekSourceElement_: function() {
       return this.peekFunction_() || this.peekClassDeclaration_() ||
-        this.peekTraitDeclaration_() || this.peekStatementStandard_() ||
-        this.peek_(TokenType.LET);
+          this.peekTraitDeclaration_() || this.peekStatementStandard_() ||
+          this.peek_(TokenType.LET);
     },
 
     /**

@@ -428,7 +428,7 @@ traceur.define('syntax', function() {
      */
     visitExportSpecifierSet: function(tree) {
       this.check_(tree.specifiers.length > 0, tree,
-            'expected at least one identifier');
+          'expected at least one identifier');
       for (var i = 0; i < tree.specifiers.length; i++) {
         var specifier = tree.specifiers[i];
         this.checkVisit_(
