@@ -272,8 +272,9 @@ traceur.define('syntax', function() {
      * @param {traceur.syntax.trees.CallExpression} tree
      */
     visitCallExpression: function(tree) {
-      this.check_(tree.operand.isLeftHandSideExpression(), tree.operand,
-          'left hand side expression expected');
+      this.check_(tree.operand.isLeftHandSideExpression() ||
+                  tree.operand.isMemberExpression(),
+                  'left hand side expression or member expression expected');
       if (tree.operand instanceof NewExpression) {
         this.check_(tree.operand.asNewExpression().args !== null, tree.operand,
             'new args expected');
