@@ -24,7 +24,7 @@ traceur.define('codegeneration', function() {
   var ProgramTransformer = traceur.codegeneration.ProgramTransformer;
   var Parser = traceur.syntax.Parser;
 
-  var SemanticAnalyzer = traceur.semantics.SemanticAnalyzer;
+  var ModuleAnalyzer = traceur.semantics.ModuleAnalyzer;
   var Project = traceur.semantics.symbols.Project;
 
   /**
@@ -131,7 +131,7 @@ traceur.define('codegeneration', function() {
       if (this.hadError_()) {
         return;
       }
-      var analyzer = new SemanticAnalyzer(this.reporter_, this.project_);
+      var analyzer = new ModuleAnalyzer(this.reporter_, this.project_);
       analyzer.analyze();
     },
 
@@ -146,7 +146,7 @@ traceur.define('codegeneration', function() {
       if (this.hadError_()) {
         return;
       }
-      var analyzer = new SemanticAnalyzer(this.reporter_, this.project_);
+      var analyzer = new ModuleAnalyzer(this.reporter_, this.project_);
       analyzer.analyzeFile(sourceFile);
     },
 

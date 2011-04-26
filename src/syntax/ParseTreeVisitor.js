@@ -209,6 +209,50 @@ traceur.define('syntax', function() {
     },
 
     /**
+     * @param {traceur.syntax.trees.ExportPath} tree
+     */
+    visitExportPath: function(tree) {
+      //if (tree.moduleExpression)
+      this.visitAny(tree.moduleExpression);
+      this.visitAny(tree.specifier);
+    },
+
+    /**
+     * @param {traceur.syntax.trees.ExportPathList} tree
+     */
+    visitExportPathList: function(tree) {
+      this.visitList(tree.paths);
+    },
+
+    /**
+     * @param {traceur.syntax.trees.ExportPathSpecifier} tree
+     */
+    visitExportPathSpecifier: function(tree) {
+      this.visitAny(tree.specifier);
+    },
+
+    /**
+     * @param {traceur.syntax.trees.ExportPathSpecifierSet} tree
+     */
+    visitExportPathSpecifierSet: function(tree) {
+      this.visitList(tree.specifiers);
+    },
+
+    /**
+     * @param {traceur.syntax.trees.ExportSpecifier} tree
+     */
+    visitExportSpecifier: function(tree) {
+
+    },
+
+    /**
+     * @param {traceur.syntax.trees.ExportSpecifierSet} tree
+     */
+    visitExportSpecifierSet: function(tree) {
+      this.visitList(tree.specifiers);
+    },
+
+    /**
      * @param {traceur.syntax.trees.ExpressionStatement} tree
      */
     visitExpressionStatement: function(tree) {
@@ -464,6 +508,13 @@ traceur.define('syntax', function() {
      */
     visitPropertyNameAssignment: function(tree) {
       this.visitAny(tree.value);
+    },
+
+    /**
+     * @param {traceur.syntax.trees.QualifiedReference} tree
+     */
+    visitQualifiedReference: function(tree) {
+      this.visitAny(tree.moduleExpression);
     },
 
     /**

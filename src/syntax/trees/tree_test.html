@@ -200,6 +200,30 @@ function testTreeConstructors() {
       ParseTreeType.EXPORT_DECLARATION,
       ['location', 'declaration']);
 
+  validateTree(traceur.syntax.trees.ExportPathList,
+    ParseTreeType.EXPORT_PATH_LIST,
+    ['location', 'paths']);
+
+  validateTree(traceur.syntax.trees.ExportPathSpecifierSet,
+    ParseTreeType.EXPORT_PATH_SPECIFIER_SET,
+    ['location', 'specifiers']);
+
+  validateTree(traceur.syntax.trees.ExportPath,
+    ParseTreeType.EXPORT_PATH,
+    ['location', 'moduleExpression', 'specifier']);
+
+  validateTree(traceur.syntax.trees.ExportPathSpecifier,
+    ParseTreeType.EXPORT_PATH_SPECIFIER,
+    ['location', 'identifier', 'specifier']);
+
+  validateTree(traceur.syntax.trees.ExportSpecifier,
+    ParseTreeType.EXPORT_SPECIFIER,
+    ['location', 'lhs', 'rhs']);
+
+  validateTree(traceur.syntax.trees.ExportSpecifierSet,
+    ParseTreeType.EXPORT_SPECIFIER_SET,
+    ['location', 'specifiers']);
+
   validateTree(traceur.syntax.trees.ExpressionStatement,
       ParseTreeType.EXPRESSION_STATEMENT,
       ['location', 'expression']);
@@ -335,6 +359,10 @@ function testTreeConstructors() {
   validateTree(traceur.syntax.trees.PropertyNameAssignment,
       ParseTreeType.PROPERTY_NAME_ASSIGNMENT,
       ['location', 'name', 'value']);
+
+  validateTree(traceur.syntax.trees.QualifiedReference,
+      ParseTreeType.QUALIFIED_REFERENCE,
+      ['location', 'moduleExpression', 'identifier']);
 
   validateTree(traceur.syntax.trees.RequiresMember,
       ParseTreeType.REQUIRES_MEMBER,

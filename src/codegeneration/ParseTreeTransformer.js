@@ -68,9 +68,14 @@ traceur.define('codegeneration', function() {
   var createWithStatement = ParseTreeFactory.createWithStatement;
   var createYieldStatement = ParseTreeFactory.createYieldStatement;
 
-
   var AwaitStatement = traceur.syntax.trees.AwaitStatement;
   var ExportDeclaration = traceur.syntax.trees.ExportDeclaration;
+  var ExportPathList = traceur.syntax.trees.ExportPathList;
+  var ExportPath = traceur.syntax.trees.ExportPath
+  var ExportPathSpecifierSet = traceur.syntax.trees.ExportPathSpecifierSet;
+  var ExportPathSpecifier = traceur.syntax.trees.ExportPathSpecifier;
+  var ExportSpecifier = traceur.syntax.trees.ExportSpecifier;
+  var ExportSpecifierSet = traceur.syntax.trees.ExportSpecifierSet;
   var ImportDeclaration = traceur.syntax.trees.ImportDeclaration;
   var ImportPath = traceur.syntax.trees.ImportPath;
   var ModuleDeclaration = traceur.syntax.trees.ModuleDeclaration;
@@ -79,6 +84,7 @@ traceur.define('codegeneration', function() {
   var ModuleSpecifier = traceur.syntax.trees.ModuleSpecifier;
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
   var Program = traceur.syntax.trees.Program;
+  var QualifiedReference = traceur.syntax.trees.QualifiedReference;
 
   var getTreeNameForType = traceur.syntax.trees.getTreeNameForType;
 
@@ -404,6 +410,75 @@ traceur.define('codegeneration', function() {
         return tree;
       }
       return new ExportDeclaration(null, declaration);
+    },
+
+    /**
+     * @param {ExportPathList} tree
+     * @return {ParseTree}
+     */
+    transformExportPathList: function(tree) {
+      var paths = this.transformList(tree.paths);
+      if (paths == tree.paths) {
+        return tree;
+      }
+
+      return new ExportPathList(null, paths);
+    },
+
+    /**
+     * @param {ExportPath} tree
+     * @return {ParseTree}
+     */
+    transformExportPath: function(tree) {
+      var moduleExpresion = this.transformAny(tree.moduleExpresion);
+      var specifier = this.transformAny(tree.specifier);
+      if (moduleExpresion == tree.moduleExpresion &&
+          specifier == tree.specifier) {
+        return tree;
+      }
+      return new ExportPath(null, moduleExpresion, specifier);
+    },
+
+    /**
+     * @param {ExportSpecifier} tree
+     * @return {ParseTree}
+     */
+    transformExportSpecifier: function(tree) {
+      return tree;
+    },
+
+    /**
+     * @param {ExportSpecifierSet} tree
+     * @return {ParseTree}
+     */
+    transformExportSpecifierSet: function(tree) {
+      var specifiers = this.transformList(tree.specifiers);
+      if (specifiers == tree.specifiers) {
+        return tree;
+      }
+
+      return new ExportSpecifierSet(null, specifiers);
+    },
+
+    /**
+     * @param {ExportPathSpecifierSet} tree
+     * @return {ParseTree}
+     */
+    transformExportPathSpecifierSet: function(tree) {
+      var specifiers = this.transformList(tree.specifiers);
+      if (specifiers == tree.specifiers) {
+        return tree;
+      }
+
+      return new ExportPathSpecifierSet(null, specifiers);
+    },
+
+    /**
+     * @param {ExportPathSpecifier} tree
+     * @return {ParseTree}
+     */
+    transformExportPathSpecifier: function(tree) {
+      return tree;
     },
 
     /**
@@ -830,6 +905,18 @@ traceur.define('codegeneration', function() {
         return tree;
       }
       return createPropertyNameAssignment(tree.name, value);
+    },
+
+    /**
+     * @param {QualifiedReference} tree
+     * @return {ParseTree}
+     */
+    transformQualifiedReference: function(tree) {
+      var moduleExpression = this.transformAny(tree.moduleExpression);
+      if (moduleExpression == tree.moduleExpression) {
+        return tree;
+      }
+      return new QualifiedReference(null, moduleExpression, tree.identifier);
     },
 
     /**

@@ -306,6 +306,64 @@ traceur.define('codegeneration', function() {
     },
 
     /**
+     * @param {traceur.syntax.trees.ExportPathList} tree
+     */
+    visitExportPathList: function(tree) {
+      this.writeList_(tree.paths, TokenType.COMMA, false);
+    },
+
+    /**
+     * @param {traceur.syntax.trees.ExportPath} tree
+     */
+    visitExportPath: function(tree) {
+      if (tree.moduleExpression) {
+        this.visitAny(tree.moduleExpression);
+        this.write_(TokenType.PERIOD);
+      }
+      this.visitAny(tree.specifier);
+    },
+
+    /**
+     * @param {traceur.syntax.trees.ExportPathSpecifier} tree
+     */
+    visitExportPathSpecifier: function(tree) {
+      this.write_(tree.identifier);
+      if (tree.specifier) {
+        this.write_(TokenType.COLON);
+        this.visitAny(tree.specifier);
+      }
+    },
+
+    /**
+     * @param {traceur.syntax.trees.ExportSpecifier} tree
+     */
+    visitExportSpecifier: function(tree) {
+      this.write_(tree.lhs);
+      if (tree.rhs) {
+        this.write_(TokenType.COLON);
+        this.write_(tree.rhs);
+      }
+    },
+
+    /**
+     * @param {traceur.syntax.trees.ExportSpecifierSet} tree
+     */
+    visitExportSpecifierSet: function(tree) {
+      this.write_(TokenType.OPEN_CURLY);
+      this.writeList_(tree.specifiers, TokenType.COMMA, false);
+      this.write_(TokenType.CLOSE_CURLY);
+    },
+
+    /**
+     * @param {traceur.syntax.trees.ExportPathSpecifierSet} tree
+     */
+    visitExportPathSpecifierSet: function(tree) {
+      this.write_(TokenType.OPEN_CURLY);
+      this.writeList_(tree.specifiers, TokenType.COMMA, false);
+      this.write_(TokenType.CLOSE_CURLY);
+    },
+
+    /**
      * @param {ExpressionStatement} tree
      */
     visitExpressionStatement: function(tree) {
@@ -690,6 +748,15 @@ traceur.define('codegeneration', function() {
       this.write_(tree.name);
       this.write_(TokenType.COLON);
       this.visitAny(tree.value);
+    },
+
+    /**
+     * @param {traceur.syntax.trees.QualifiedReference} tree
+     */
+    visitQualifiedReference: function(tree) {
+      this.visitAny(tree.moduleExpression);
+      this.write_(TokenType.PERIOD);
+      this.write_(tree.identifier);
     },
 
     /**

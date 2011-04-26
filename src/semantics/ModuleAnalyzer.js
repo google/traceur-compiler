@@ -26,6 +26,7 @@ traceur.define('semantics', function() {
   var MODULE_DECLARATION = traceur.syntax.trees.ParseTreeType.MODULE_DECLARATION;
   var MODULE_DEFINITION = traceur.syntax.trees.ParseTreeType.MODULE_DEFINITION;
   var EXPORT_DECLARATION = traceur.syntax.trees.ParseTreeType.EXPORT_DECLARATION;
+  var EXPORT_PATH_LIST = traceur.syntax.trees.ParseTreeType.EXPORT_PATH_LIST;
   var VARIABLE_STATEMENT = ParseTreeType.VARIABLE_STATEMENT;
   var FUNCTION_DECLARATION = ParseTreeType.FUNCTION_DECLARATION;
   var CLASS_DECLARATION = ParseTreeType.CLASS_DECLARATION;
@@ -64,13 +65,13 @@ traceur.define('semantics', function() {
    * @param {Project} project
    * @constructor
    */
-  function SemanticAnalyzer(reporter, project) {
+  function ModuleAnalyzer(reporter, project) {
     this.reporter_ = reporter;
     this.project_ = project;
     this.typesBeingDeclared_ = [];
   }
 
-  SemanticAnalyzer.prototype = {
+  ModuleAnalyzer.prototype = {
     /**
      * @return {void}
      */
@@ -122,7 +123,6 @@ traceur.define('semantics', function() {
       }
     },
 
-
     /**
      * @param {ModuleSymbol} module
      * @return {void}
@@ -150,7 +150,7 @@ traceur.define('semantics', function() {
      */
     declareExport_: function(module, tree, opt_name) {
       if (opt_name) {
-        this.declareExportWithName_(module, tree, opt_name);
+        this.declareExportWithName_(module, opt_name, tree);
         return;
       }
 
@@ -184,6 +184,11 @@ traceur.define('semantics', function() {
         case TRAIT_DECLARATION:
           this.declareExport_(module, exp, exp.asTraitDeclaration().name.value);
           break;
+        case EXPORT_PATH_LIST:
+          exp.paths.forEach(function(exportPath) {
+            this.declareExportForExportPath_(module, exportPath);
+          }, this);
+          break;
         default:
           throw new Error('Not implemented: ModuleLoad | ExportPath');
       }
@@ -191,17 +196,14 @@ traceur.define('semantics', function() {
 
     /**
      * @param {ModuleSymbol} module
-     * @param {ParseTree} tree
      * @param {string} name
+     * @param {ParseTree} tree
+     * @param {ParseTree=} relatedTree
+
      * @return {void}
      * @private
      */
-    declareExportWithName_: function(module, tree, name) {
-      if (module.hasModule(name)) {
-        this.reportError_(tree, 'Export \'%s\' conflicts with module', name);
-        this.reportRelatedError_(module.getModule(name).tree);
-        return;
-      }
+    declareExportWithName_: function(module, name, tree, relatedTree) {
       if (module.hasExport(name)) {
         this.reportError_(tree, 'Export \'%s\' conflicts with export', name);
         this.reportRelatedError_(module.getExport(name));
@@ -210,7 +212,73 @@ traceur.define('semantics', function() {
       if (tree.type == ParseTreeType.MODULE_DEFINITION) {
         this.declareModuleDefinition_(module, tree.asModuleDefinition());
       }
-      module.addExport(name, new ExportSymbol(tree, name));
+      module.addExport(name, new ExportSymbol(tree, name, relatedTree));
+    },
+
+    /**
+     * @param {ModuleSymbol} module
+     * @param {ParseTree} tree
+     * @return {void}
+     * @private
+     */
+    declareExportForExportPath_: function(module, tree) {
+      switch (tree.type) {
+        case ParseTreeType.IDENTIFIER_EXPRESSION:
+          var name = tree.identifierToken.value;
+          this.declareExportWithName_(module, name, tree);
+          break;
+
+        case ParseTreeType.EXPORT_PATH_SPECIFIER_SET:
+          tree.specifiers.forEach(function(specifier) {
+            this.declareExportForExportPathSpecifier_(module, specifier);
+          },this);
+          break;
+
+        case ParseTreeType.EXPORT_PATH:
+          this.declareExportForExportSpecifier_(module, tree.specifier,
+                                                tree.moduleExpression);
+          break;
+
+        default:
+          throw new Error('unreachable');
+      }
+    },
+
+    declareExportForExportSpecifier_: function(module, tree, moduleExpression) {
+      switch (tree.type) {
+        case ParseTreeType.EXPORT_SPECIFIER_SET:
+          tree.specifiers.forEach(function(specifier) {
+            this.declareExportForExportSpecifier_(module, specifier,
+                                                  moduleExpression);
+          }, this);
+          break;
+        case ParseTreeType.EXPORT_SPECIFIER:
+          var name = tree.lhs.value;
+          this.declareExportWithName_(module, name, tree, moduleExpression);
+          break;
+        case ParseTreeType.IDENTIFIER_EXPRESSION:
+          var name = tree.identifierToken.value;
+          this.declareExportWithName_(module, name, tree, moduleExpression);
+          break;
+        default:
+          throw Error('unreachable');
+      }
+    },
+
+    declareExportForExportPathSpecifier_: function(module, tree) {
+      switch (tree.type) {
+        case ParseTreeType.IDENTIFIER_EXPRESSION:
+          var name = tree.identifierToken.value;
+          this.declareExportWithName_(module, name, tree);
+          break;
+        case ParseTreeType.EXPORT_PATH_SPECIFIER:
+          // TODO(arv): Unify?
+          var name = tree.identifier.value;
+          this.declareExportWithName_(module, name, tree);
+          break;
+        default:
+          throw Error('Unreachable');
+      }
     },
 
     /**
@@ -467,6 +535,6 @@ traceur.define('semantics', function() {
   };
 
   return {
-    SemanticAnalyzer: SemanticAnalyzer
+    ModuleAnalyzer: ModuleAnalyzer
   };
 });

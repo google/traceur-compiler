@@ -40,7 +40,7 @@ traceur.define('syntax.trees', function() {
     return Tree;
   }
 
-  // All trees but NullTree and ImportPath
+  // All trees but NullTree and ImportPath tree
 
   return {
     /**
@@ -267,6 +267,57 @@ traceur.define('syntax.trees', function() {
     ExportDeclaration: create(
         ParseTreeType.EXPORT_DECLARATION,
         'declaration'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
+     * @param {Array.<ParseTree>} paths
+     * @constructor
+     * @extends {ParseTree}
+     */
+    ExportPathList: create(ParseTreeType.EXPORT_PATH_LIST, 'paths'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
+     * @param {Array.<ParseTree>} specifiers
+     * @constructor
+     * @extends {ParseTree}
+     */
+    ExportPathSpecifierSet: create(ParseTreeType.EXPORT_PATH_SPECIFIER_SET, 'specifiers'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
+     * @param {Token} identifier
+     * @param {ParseTree} specifier
+     * @constructor
+     * @extends {ParseTree}
+     */
+    ExportPathSpecifier: create(ParseTreeType.EXPORT_PATH_SPECIFIER, 'identifier', 'specifier'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
+     * @param {ParseTree} moduleExpression
+     * @param {ParseTree} specifier
+     * @constructor
+     * @extends {ParseTree}
+     */
+    ExportPath: create(ParseTreeType.EXPORT_PATH, 'moduleExpression', 'specifier'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
+     * @param {Token} lhs
+     * @param {Token} rhs
+     * @constructor
+     * @extends {ParseTree}
+     */
+    ExportSpecifier: create(ParseTreeType.EXPORT_SPECIFIER, 'lhs', 'rhs'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
+     * @param {Array.<ParseTree>} specifiers
+     * @constructor
+     * @extends {ParseTree}
+     */
+    ExportSpecifierSet: create(ParseTreeType.EXPORT_SPECIFIER_SET, 'specifiers'),
 
     /**
      * @param {traceur.util.SourceRange} location
@@ -667,6 +718,16 @@ traceur.define('syntax.trees', function() {
         ParseTreeType.PROPERTY_NAME_ASSIGNMENT,
         'name',
         'value'),
+
+
+    /**
+     * @param {traceur.util.SourceRange} location
+     * @param {ParseTree} moduleExpression
+     * @param {Token} identifier
+     * @constructor
+     * @extends {ParseTree}
+     */
+    QualifiedReference: create(ParseTreeType.QUALIFIED_REFERENCE, 'moduleExpression', 'identifier'),
 
     /**
      * @param {traceur.util.SourceRange} location

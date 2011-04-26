@@ -780,13 +780,13 @@ traceur.define('codegeneration', function() {
   }
 
   /**
-   * @param {string|ParseTree} operand
+   * @param {string|IdentifierToken|ParseTree} operand
    * @param {string|IdentifierToken} memberName
-   * @param {...string} memberNames
+   * @param {...string|IdentifierToken} memberNames
    * @return {MemberExpression}
    */
   function createMemberExpression(operand, memberName, memberNames) {
-    if (typeof operand == 'string')
+    if (typeof operand == 'string' || operand instanceof IdentifierToken)
       operand = createIdentifierExpression(operand);
     if (typeof memberName == 'string')
       memberName = createIdentifierToken(memberName);

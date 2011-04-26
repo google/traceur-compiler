@@ -21,13 +21,14 @@ traceur.define('semantics.symbols', function() {
   /**
    * @param {ParseTree} tree
    * @param {string} name
+   * @param {ParseTree=} relatedTree
    * @constructor
    * @extends {Symbol}
    */
-  function ExportSymbol(tree, name) {
+  function ExportSymbol(tree, name, relatedTree) {
     Symbol.call(this, SymbolType.EXPORT, tree, name);
+    this.relatedTree = relatedTree;
   }
-
 
   ExportSymbol.prototype = {
     __proto__: Symbol.prototype

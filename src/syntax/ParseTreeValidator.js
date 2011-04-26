@@ -127,13 +127,6 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ParseTree} tree
-     */
-    visitAny: function(tree) {
-      ParseTreeVisitor.prototype.visitAny.call(this, tree);
-    },
-
-    /**
      * @param {traceur.syntax.trees.ArgumentList} tree
      */
     visitArgumentList: function(tree) {
@@ -373,18 +366,75 @@ traceur.define('syntax', function() {
      * @param {traceur.syntax.trees.ExportDeclaration} tree
      */
     visitExportDeclaration: function(tree) {
-      switch (tree.declaration.type) {
-        case ParseTreeType.VARIABLE_STATEMENT:
-        case ParseTreeType.FUNCTION_DECLARATION:
-        case ParseTreeType.MODULE_DEFINITION:
-        case ParseTreeType.MODULE_DECLARATION:
-        case ParseTreeType.CLASS_DECLARATION:
-        case ParseTreeType.TRAIT_DECLARATION:
-          break;
-        default:
-          this.fail_(tree.declaration, 'expected valid export tree');
+      var declType = tree.declaration.type;
+      this.checkVisit_(
+          declType == ParseTreeType.VARIABLE_STATEMENT ||
+          declType == ParseTreeType.FUNCTION_DECLARATION ||
+          declType == ParseTreeType.MODULE_DEFINITION ||
+          declType == ParseTreeType.MODULE_DECLARATION ||
+          declType == ParseTreeType.CLASS_DECLARATION ||
+          declType == ParseTreeType.TRAIT_DECLARATION ||
+          declType == ParseTreeType.EXPORT_PATH_LIST,
+          tree.declaration,
+          'expected valid export tree');
+    },
+
+    /**
+     * @param {traceur.syntax.trees.ExportPath} tree
+     */
+    visitExportPath: function(tree) {
+      this.checkVisit_(
+          tree.moduleExpression.type == ParseTreeType.MODULE_EXPRESSION,
+          tree.moduleExpression,
+          'module expression expected');
+
+      var specifierType = tree.specifier.type;
+      this.checkVisit_(specifierType == ParseTreeType.EXPORT_SPECIFIER_SET ||
+                       specifierType == ParseTreeType.IDENTIFIER_EXPRESSION,
+                       tree.specifier,
+                       'specifier set or identifier expected');
+    },
+
+    /**
+     * @param {traceur.syntax.trees.ExportPath} tree
+     */
+    visitExportPathList: function(tree) {
+      this.check_(tree.paths.length > 0, tree,
+                  'expected at least one path');
+      for (var i = 0; i < tree.paths.length; i++) {
+        var path = tree.paths[i];
+        var type = path.type;
+        this.checkVisit_(
+            type == ParseTreeType.EXPORT_PATH ||
+            type == ParseTreeType.EXPORT_PATH_SPECIFIER_SET ||
+            type == ParseTreeType.IDENTIFIER_EXPRESSION,
+            path,
+            'expected valid export path');
       }
-      this.visitAny(tree.declaration);
+    },
+
+    /**
+     * @param {traceur.syntax.trees.ExportPathSpecifierSet} tree
+     */
+    visitExportPathSpecifierSet: function(tree) {
+      this.check_(tree.specifiers.length > 0, tree,
+                  'expected at least one specifier');
+      this.visitList(tree.specifiers);
+    },
+
+    /**
+     * @param {traceur.syntax.trees.ExportSpecifierSet} tree
+     */
+    visitExportSpecifierSet: function(tree) {
+      this.check_(tree.specifiers.length > 0, tree,
+            'expected at least one identifier');
+      for (var i = 0; i < tree.specifiers.length; i++) {
+        var specifier = tree.specifiers[i];
+        this.checkVisit_(
+            specifier.type == ParseTreeType.EXPORT_SPECIFIER,
+            specifier,
+            'expected valid export specifier');
+      }
     },
 
     /**
@@ -597,7 +647,7 @@ traceur.define('syntax', function() {
     visitModuleDefinition: function(tree) {
       for (var i = 0; i < tree.elements.length; i++) {
         var element = tree.elements[i];
-        this.check_(
+        this.checkVisit_(
             (element.isStatement() && element.type !== ParseTreeType.BLOCK) ||
             element.type === ParseTreeType.CLASS_DECLARATION ||
             element.type === ParseTreeType.EXPORT_DECLARATION ||
@@ -719,6 +769,16 @@ traceur.define('syntax', function() {
     visitPropertyNameAssignment: function(tree) {
       this.checkVisit_(tree.value.isAssignmentExpression(), tree.value,
           'assignment expression expected');
+    },
+
+    /**
+     * @param {traceur.syntax.trees.QualifiedReference} tree
+     */
+    visitQualifiedReference: function(tree) {
+      this.checkVisit_(
+          tree.moduleExpression.type == ParseTreeType.MODULE_EXPRESSION,
+          tree.moduleExpression,
+          'module expression expected');
     },
 
     /**

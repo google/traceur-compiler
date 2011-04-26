@@ -82,7 +82,7 @@ function testNestedDeclarationorts() {
   assertEquals(43, d2.d2);
 }
 
-module m {
+module e {
   module n {
     export var val = 44;
   }
@@ -90,8 +90,50 @@ module m {
 }
 
 function testExportModuleDeclaration() {
-  assertEquals(44, m.o.val);
-  assertEquals(44, m.o2.val);
+  assertEquals(44, e.o.val);
+  assertEquals(44, e.o2.val);
+}
+
+</script>
+<script type="text/traceur">
+
+module f {
+  var g = 'g';
+  export g;
+}
+
+function testExportIdentifier() {
+  assertEquals('g', f.g);
+}
+
+module h {
+  module i {
+    export var j = 'j';
+    export var l = 'l';
+  }
+  export i.j, i.{k: j, l};
+}
+
+function testExportModuleExpression() {
+  assertEquals('j', h.j);
+  assertEquals('j', h.k);
+  assertEquals('l', h.l);
+}
+
+module m {
+  var n = 'n';
+
+  module o {
+    export var q = 'q';
+  }
+
+  export {n, o: n, p: o.q};
+}
+
+function testExportPathSpecifierSet() {
+  assertEquals('n', m.n);
+  assertEquals('n', m.o);
+  assertEquals('q', m.p);
 }
 
 </script>
