@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<!--
+Copyright 2011 The Closure Library Authors. All Rights Reserved.
+
+Use of this source code is governed by the Apache License, Version 2.0.
+See the COPYING file for details.
+-->
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Closure Unit Tests - goog.ui.LabelInput</title>
+<script src="../base.js"></script>
+<script>
+  goog.require('goog.ui.LabelInput');
+  goog.require('goog.testing.MockClock');
+  goog.require('goog.testing.jsunit');
+</script>
+</head>
+<body>
+<script>
+
+var labelInput;
+var mockClock;
+
+function setUp() {
+  mockClock = new goog.testing.MockClock(true);
+}
+
+function tearDown() {
+  mockClock.dispose();
+  labelInput.dispose();
+}
+
+function testGetLabel() {
+  labelInput = new goog.ui.LabelInput();
+  assertEquals('no label', '', labelInput.getLabel());
+
+  labelInput = new goog.ui.LabelInput('search');
+  assertEquals('label is given in the ctor', 'search', labelInput.getLabel());
+}
+
+function testSetLabel() {
+  labelInput = new goog.ui.LabelInput();
+  labelInput.setLabel('search');
+  assertEquals('label is set', 'search', labelInput.getLabel());
+
+  labelInput.createDom();
+  labelInput.enterDocument();
+  mockClock.tick(10);
+  assertEquals('label is rendered', 'search', labelInput.getElement().value);
+
+  labelInput.setLabel('new label');
+  assertEquals('label is updated', 'new label', labelInput.getElement().value);
+}
+
+</script>
+</body>
+</html>
