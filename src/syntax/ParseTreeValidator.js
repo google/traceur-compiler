@@ -267,6 +267,7 @@ traceur.define('syntax', function() {
     visitCallExpression: function(tree) {
       this.check_(tree.operand.isLeftHandSideExpression() ||
                   tree.operand.isMemberExpression(),
+                  tree.operand,
                   'left hand side expression or member expression expected');
       if (tree.operand instanceof NewExpression) {
         this.check_(tree.operand.asNewExpression().args !== null, tree.operand,
