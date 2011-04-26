@@ -212,7 +212,6 @@ traceur.define('syntax', function() {
      * @param {traceur.syntax.trees.ExportPath} tree
      */
     visitExportPath: function(tree) {
-      //if (tree.moduleExpression)
       this.visitAny(tree.moduleExpression);
       this.visitAny(tree.specifier);
     },

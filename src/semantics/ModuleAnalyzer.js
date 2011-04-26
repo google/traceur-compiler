@@ -19,6 +19,9 @@ traceur.define('semantics', function() {
   var ParseTree = traceur.syntax.trees.ParseTree;
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
 
+  var ParseTreeVisitor = traceur.syntax.ParseTreeVisitor;
+  var Project = traceur.semantics.symbols.Project;
+
   var SymbolType = traceur.semantics.symbols.SymbolType;
   var Symbol = traceur.semantics.symbols.Symbol;
   var ExportSymbol = traceur.semantics.symbols.ExportSymbol;
@@ -36,467 +39,133 @@ traceur.define('semantics', function() {
   var NUMBER = TokenType.NUMBER;
   var IDENTIFIER_EXPRESSION = ParseTreeType.IDENTIFIER_EXPRESSION;
 
-  // TODO(arv): Update comment and name since this is only used for modules at
-  // the moment.
-
   /**
-   * Builds up all symbols for a project and reports all semantic errors.
-   *
-   * Ordinarily Javascript is processed in the order that script tags/source
-   * files are encountered. In normal ordered mode it is an error to reference
-   * a symbol before it is defined.
-   *
-   * The semantic analyzer can also operate in optimistic/unordered mode. In
-   * this mode it will resolve symbols in order of base class to super class or
-   * it will report an error if no such ordering exists. Unordered mode is
-   * useful when you just want to throw a directory of files at the compiler and
-   * you want the compiler to just compile them all. It is then up to the user
-   * to reference the generated compiler output in an order that defines symbols
-   * before they are referenced.
-   *
-   * Semantic analysis proceeds in phases. Currently the phases are:
-   *   declare aggregates - just create the symbols for all classes and traits.
-   *   resolve inheritance - resolve the inheritance for all classes and detect
-   *                         inheritance cycles
-   *   declare members - declare all members of classes and traits. Mixin all
-   *                     trait members into classes.
-   *
-   * @param {ErrorReporter} reporter
-   * @param {Project} project
+   * A specialized parse tree visitor for use with modules.
+   * @param {traceur.util.ErrorReporter} reporter
+   * @param {ModuleSymbol} module The root of the module system.
    * @constructor
+   * @extends {ParseTreeVisitor}
    */
-  function ModuleAnalyzer(reporter, project) {
+  function ModuleVisitor(reporter, module) {
+    ParseTreeVisitor.call(this);
     this.reporter_ = reporter;
-    this.project_ = project;
-    this.typesBeingDeclared_ = [];
+    this.currentModule_ = module;
   }
 
-  ModuleAnalyzer.prototype = {
-    /**
-     * @return {void}
-     */
-    analyze: function() {
-      this.declareAllModuleDefinitions_();
-      this.declareAllModuleDeclarations_();
-      this.validateAllModules_();
+  ModuleVisitor.prototype = {
+    __proto__: ParseTreeVisitor.prototype,
+
+    get currentModule() {
+      return this.currentModule_;
     },
 
     /**
-     * @param {Program=} opt_tree
-     * @return {void}
-     * @private
-     */
-    declareAllModuleDefinitions_: function(opt_tree) {
-      if (opt_tree) {
-        opt_tree.sourceElements.forEach(function(element) {
-          switch (element.type) {
-            case MODULE_DEFINITION:
-              this.declareModuleDefinition_(this.project_.getRootModule(),
-                                            element.asModuleDefinition());
-              break;
-          }
-        }, this);
-      } else {
-        this.project_.getSourceTrees().forEach(
-            this.declareAllModuleDefinitions_, this);
-      }
-    },
-
-    /**
-     * @param {Program=} opt_tree
-     * @return {void}
-     * @private
-     */
-    declareAllModuleDeclarations_: function(opt_tree) {
-      if (opt_tree) {
-        opt_tree.sourceElements.forEach(function(element) {
-          switch (element.type) {
-            case MODULE_DECLARATION:
-              this.declareModuleDeclaration_(this.project_.getRootModule(),
-                                             element.asModuleDeclaration());
-              break;
-          }
-        }, this);
-      } else {
-        this.project_.getSourceTrees().forEach(
-            this.declareAllModuleDeclarations_, this);
-      }
-    },
-
-    /**
-     * @param {ModuleSymbol} module
-     * @return {void}
-     * @private
-     */
-    declareSubModulesAndExports_: function(module) {
-      module.tree.elements.forEach(function(element) {
-        switch (element.type) {
-          case MODULE_DEFINITION:
-            this.declareModuleDefinition_(module, element.asModuleDefinition());
-            break;
-          case EXPORT_DECLARATION:
-            this.declareExport_(module, element.asExportDeclaration());
-            break;
-        }
-      }, this);
-    },
-
-    /**
-     * @param {ModuleSymbol} module
-     * @param {ExportDeclaration} tree
-     * @param {string} opt_name
-     * @return {void}
-     * @private
-     */
-    declareExport_: function(module, tree, opt_name) {
-      if (opt_name) {
-        this.declareExportWithName_(module, opt_name, tree);
-        return;
-      }
-
-      var exp = tree.declaration;
-      switch (exp.type) {
-        case VARIABLE_STATEMENT:
-          var statement = exp.asVariableStatement();
-          statement.declarations.declarations.forEach(function(declaration) {
-            // An IdentifierExpression, UNDONE: ArrayPattern or
-            // UNDONE ObjectLiteralTree
-            this.declareExport_(module, declaration,
-                declaration.lvalue.asIdentifierExpression().
-                identifierToken.value);
-          }, this);
-          break;
-        case MODULE_DECLARATION:
-          exp.specifiers.forEach(function(specifier) {
-            this.declareExport_(module, specifier, specifier.identifier.value);
-          }, this);
-          break;
-        case MODULE_DEFINITION:
-          this.declareExport_(module, exp, exp.asModuleDefinition().name.value);
-          break;
-        case FUNCTION_DECLARATION:
-          this.declareExport_(module, exp,
-                              exp.asFunctionDeclaration().name.value);
-          break;
-        case CLASS_DECLARATION:
-          this.declareExport_(module, exp, exp.asClassDeclaration().name.value);
-          break;
-        case TRAIT_DECLARATION:
-          this.declareExport_(module, exp, exp.asTraitDeclaration().name.value);
-          break;
-        case EXPORT_PATH_LIST:
-          exp.paths.forEach(function(exportPath) {
-            this.declareExportForExportPath_(module, exportPath);
-          }, this);
-          break;
-        default:
-          throw new Error('Not implemented: ModuleLoad | ExportPath');
-      }
-    },
-
-    /**
-     * @param {ModuleSymbol} module
+     * Finds a module by name. This walks the lexical scope chain of the
+     * {@code currentModule} and returns first matching module or null if none
+     * is found.
      * @param {string} name
-     * @param {ParseTree} tree
-     * @param {ParseTree=} relatedTree
-
-     * @return {void}
-     * @private
-     */
-    declareExportWithName_: function(module, name, tree, relatedTree) {
-      if (module.hasExport(name)) {
-        this.reportError_(tree, 'Export \'%s\' conflicts with export', name);
-        this.reportRelatedError_(module.getExport(name));
-        return;
-      }
-      if (tree.type == ParseTreeType.MODULE_DEFINITION) {
-        this.declareModuleDefinition_(module, tree.asModuleDefinition());
-      }
-      module.addExport(name, new ExportSymbol(tree, name, relatedTree));
-    },
-
-    /**
-     * @param {ModuleSymbol} module
-     * @param {ParseTree} tree
-     * @return {void}
-     * @private
-     */
-    declareExportForExportPath_: function(module, tree) {
-      switch (tree.type) {
-        case ParseTreeType.IDENTIFIER_EXPRESSION:
-          var name = tree.identifierToken.value;
-          this.declareExportWithName_(module, name, tree);
-          break;
-
-        case ParseTreeType.EXPORT_PATH_SPECIFIER_SET:
-          tree.specifiers.forEach(function(specifier) {
-            this.declareExportForExportPathSpecifier_(module, specifier);
-          },this);
-          break;
-
-        case ParseTreeType.EXPORT_PATH:
-          this.declareExportForExportSpecifier_(module, tree.specifier,
-                                                tree.moduleExpression);
-          break;
-
-        default:
-          throw new Error('unreachable');
-      }
-    },
-
-    declareExportForExportSpecifier_: function(module, tree, moduleExpression) {
-      switch (tree.type) {
-        case ParseTreeType.EXPORT_SPECIFIER_SET:
-          tree.specifiers.forEach(function(specifier) {
-            this.declareExportForExportSpecifier_(module, specifier,
-                                                  moduleExpression);
-          }, this);
-          break;
-        case ParseTreeType.EXPORT_SPECIFIER:
-          var name = tree.lhs.value;
-          this.declareExportWithName_(module, name, tree, moduleExpression);
-          break;
-        case ParseTreeType.IDENTIFIER_EXPRESSION:
-          var name = tree.identifierToken.value;
-          this.declareExportWithName_(module, name, tree, moduleExpression);
-          break;
-        default:
-          throw Error('unreachable');
-      }
-    },
-
-    declareExportForExportPathSpecifier_: function(module, tree) {
-      switch (tree.type) {
-        case ParseTreeType.IDENTIFIER_EXPRESSION:
-          var name = tree.identifierToken.value;
-          this.declareExportWithName_(module, name, tree);
-          break;
-        case ParseTreeType.EXPORT_PATH_SPECIFIER:
-          // TODO(arv): Unify?
-          var name = tree.identifier.value;
-          this.declareExportWithName_(module, name, tree);
-          break;
-        default:
-          throw Error('Unreachable');
-      }
-    },
-
-    /**
-     * @param {ModuleSymbol} parent
-     * @param {ModuleDefinition} tree
-     * @private
-     */
-    declareModuleDefinition_: function(parent, tree) {
-      var name = tree.name.value;
-      if (!this.checkForDuplicateModule_(tree, parent, name)) {
-        return;
-      }
-      var module = new ModuleSymbol(name, parent, tree);
-      parent.addModule(module);
-      this.declareSubModulesAndExports_(module);
-    },
-
-    /**
-     * @param {ModuleSymbol} parent
-     * @param {ModuleDeclaration} tree
-     * @private
-     */
-    declareModuleDeclaration_: function(parent, tree) {
-      tree.specifiers.forEach(function(specifier) {
-        var name = specifier.identifier.value;
-        if (!this.checkForDuplicateModule_(tree, parent, name)) {
-          return;
-        }
-
-        var module = this.getModuleSymbolFromModuleExpression_(
-            parent, specifier.expression);
-        if (!module)
-          return;
-
-        var name = specifier.identifier.value;
-        parent.addModuleWithName(module, name);
-      }, this);
-    },
-
-    /**
-     * Returns the module symbol for the RHS in a module specifier. For example
-     *
-     *   m = n.o
-     *
-     * as in
-     *
-     *   module m = n.o
-     *
-     * will return the module o inside n.
-     *
-     * @param {ModuleSymbol} parent
-     * @param {ModuleExpression} tree
      * @return {ModuleSymbol}
-     * @private
      */
-    getModuleSymbolFromModuleExpression_: function(parent, tree) {
-      if (tree.reference.type == ParseTreeType.MODULE_REQUIRE)
-        throw Error('Not implemented');
-
-      var self = this;
-      function getNext(parent, identifierToken) {
-        var name = identifierToken.value;
-        if (!parent.hasModule(name)) {
-          // This will get reported in the anylize phase.
-          return null;
+    getModuleByName: function(name) {
+      var module = this.currentModule;
+      while (module) {
+        if (module.hasModule(name)) {
+          return module.getModule(name);
         }
-        return parent.getModule(name);
+        module = module.parent;
       }
-
-      parent = getNext(parent, tree.reference.identifierToken);
-      if (!parent) {
-        // TODO(arv): Walk up lexical scope?
-        return null;
-      }
-
-      for (var i = 0; i < tree.identifiers.length; i++) {
-        parent = getNext(parent, tree.identifiers[i]);
-        if (!parent)
-          return null;
-      }
-
-      return parent;
+      return null;
     },
 
     /**
-     * @param {ModuleDefinition} tree
-     * @param {ModuleSymbol} parent
-     * @param {string} name
-     * @return {boolean}
-     * @private
+     * @param {ModuleExpression} tree
+     * @param {boolean=} reportErorrors If false no errors are reported.
+     * @return {ModuleSymbol}
      */
-    checkForDuplicateModule_: function(tree, parent, name) {
-      if (parent.hasModule(name)) {
-        this.reportError_(tree, 'Duplicate module declaration \'%s\'', name);
-        this.reportRelatedError_(parent.getModule(name).tree);
-        return false;
-      }
-      if (parent.hasExport(name)) {
-        this.reportError_(tree, 'Module \'%s\' has the same name as an export',
-                          name);
-        this.reportRelatedError_(parent.getExport(name));
-        return false;
-      }
-      return true;
-    },
-
-    /**
-     * @param {SourceFile} sourceFile
-     * @return {void}
-     */
-    analyzeFile: function(sourceFile) {
-      // TODO(arv): Remove or keep?
-    },
-
-
-    /**
-     * @param {Program=} opt_tree
-     * @return {void}
-     * @private
-     */
-    validateAllModules_: function(opt_tree) {
-      if (opt_tree) {
-        var parent = this.project_.getRootModule();
-        this.validateModuleElements_(parent, opt_tree.sourceElements);
-      } else {
-        this.project_.getSourceTrees().forEach(this.validateAllModules_, this);
-      }
-    },
-
-    /**
-     * @param {ModuleSymbol} parent
-     * @param {ParseTree} element
-     * @private
-     */
-    validateModuleElement_: function(parent, tree) {
-      switch (tree.type) {
-        case MODULE_DECLARATION:
-          this.validateModuleDeclaration_(parent, tree);
-          break;
-        case MODULE_DEFINITION:
-          var name = tree.name.value;
-          var module = parent.getModule(name);
-          this.validateModuleElements_(module, tree.elements);
-          break;
-        case EXPORT_DECLARATION:
-          this.validateModuleElement_(parent, tree.declaration);
-          break;
-      }
-    },
-
-    /**
-     * @param {ModuleSymbol} parent
-     * @param {Array.<ParseTree>} elements
-     * @private
-     */
-    validateModuleElements_: function(parent, elements) {
-      elements.forEach(function(element) {
-        this.validateModuleElement_(parent, element);
-      }, this);
-    },
-
-    /**
-     * Validates that the RHS is all modules.
-     * @param {ModuleDeclaration} tree
-     * @param {ModuleSymbol} parent
-     * @private
-     */
-    validateModuleDeclaration_: function(parent, tree) {
-      // module m = a.b.c, n = d.e;
-      tree.specifiers.forEach(function(specifier) {
-        this.validateModuleExpression_(parent, specifier.expression);
-      }, this);
-    },
-
-    /**
-     * Validates that the RHS is all modules references.
-     * @param {ModuleSpecifier} tree
-     * @param {ModuleSymbol} parent
-     * @private
-     */
-    validateModuleExpression_: function(parent, tree) {;
+    getModuleForModuleExpression: function(tree, reportErrors) {
       // require("url").b.c
-      if (tree.reference.type == ParseTreeType.MODULE_REQUIRE)
+      if (tree.reference.type == ParseTreeType.MODULE_REQUIRE) {
         throw Error('Not implemented');
+      }
 
       // a.b.c
 
       var self = this;
       function getNext(parent, identifierToken) {
         var name = identifierToken.value;
+
         if (!parent.hasModule(name)) {
-          self.reportError_(tree, '\'%s\' is not a module', name);
+          if (reportErrors) {
+            self.reportError_(tree, '\'%s\' is not a module', name);
+          }
           return null;
         }
+
+        if (!parent.hasExport(name)) {
+          if (reportErrors) {
+            self.reportError_(tree, '\'%s\' is not exported', name);
+          }
+          return null;
+        }
+
         return parent.getModule(name);
       }
 
-      function validateNext(identifierToken) {
-        var name = identifierToken.value;
-        if (!parent.hasModule(name)) {
-          self.reportError_(tree, '\'%s\' is not a module', name);
-          return false;
-        }
-        parent = parent.getModule(name);
-        return true;
-      }
-
-      parent = getNext(parent, tree.reference.identifierToken);
+      var name = tree.reference.identifierToken.value;
+      var parent = this.getModuleByName(name);
       if (!parent) {
-        // TODO(arv): Walk up lexical scope?
-        return;
+        if (reportErrors) {
+          this.reportError_(tree, '\'%s\' is not a module', name);
+        }
+        return null;
       }
 
       for (var i = 0; i < tree.identifiers.length; i++) {
         parent = getNext(parent, tree.identifiers[i]);
-        if (!parent)
-          return;
+        if (!parent) {
+          return null;
+        }
       }
+
+      return parent;
+    },
+
+    // Limit the trees to visit.
+    visitFunctionDeclaration: function(tree) {},
+    visitSetAccessor: function(tree) {},
+    visitGetAccessor: function(tree) {},
+
+    visitModuleElement_: function(element) {
+      switch (element.type) {
+        case MODULE_DECLARATION:
+        case MODULE_DEFINITION:
+        case EXPORT_DECLARATION:
+          this.visitAny(element);
+      }
+    },
+
+    visitProgram: function(tree) {
+      tree.sourceElements.forEach(this.visitModuleElement_, this);
+    },
+
+    visitModuleDefinition: function(tree) {
+      var current = this.currentModule_;
+      var name = tree.name.value;
+      var module = current.getModule(name);
+      traceur.assert(module);
+      this.currentModule_ = module;
+      tree.elements.forEach(this.visitModuleElement_, this);
+      this.currentModule_ = current;
+    },
+
+    checkForDuplicateModule_: function(name, tree) {
+      var parent = this.currentModule;
+      if (parent.hasModule(name)) {
+        this.reportError_(tree, 'Duplicate module declaration \'%s\'', name);
+        this.reportRelatedError_(parent.getModule(name).tree);
+        return false;
+      }
+      return true;
     },
 
     /**
@@ -508,10 +177,11 @@ traceur.define('semantics', function() {
      */
     reportError_: function(symbolOrTree, format, var_args) {
       var tree;
-      if (symbolOrTree instanceof Symbol)
+      if (symbolOrTree instanceof Symbol) {
         tree = symbol.tree;
-      else
+      } else {
         tree = symbolOrTree;
+      }
 
       var args = Array.prototype.slice.call(arguments);
       args[0] = tree;
@@ -531,6 +201,289 @@ traceur.define('semantics', function() {
         symbolOrTree.getRelatedLocations().forEach(this.reportRelatedError_,
                                                    this);
       }
+    }
+  }
+
+  /**
+   * Visits a parse tree and adds all the module definitions.
+   *
+   *   module m { ... }
+   *
+   * @param {traceur.util.ErrorReporter} reporter
+   * @param {ModuleSymbol} module The root of the module system.
+   * @constructor
+   * @extends {ModuleVisitor}
+   */
+  function ModuleDefinitionVisitor(reporter, module) {
+    ModuleVisitor.call(this, reporter, module);
+  }
+
+  ModuleDefinitionVisitor.prototype = {
+    __proto__: ModuleVisitor.prototype,
+
+    visitModuleDefinition: function(tree) {
+      var name = tree.name.value;
+      if (this.checkForDuplicateModule_(name, tree)) {
+        var parent = this.currentModule;
+        var module = new ModuleSymbol(name, parent, tree);
+        parent.addModule(module);
+      }
+
+      ModuleVisitor.prototype.visitModuleDefinition.call(this, tree);
+    }
+  };
+
+  /**
+   * Visits a parse tree and adds all the module definitions.
+   *
+   *   module m { ... }
+   *
+   * @param {traceur.util.ErrorReporter} reporter
+   * @param {ModuleSymbol} module The root of the module system.
+   * @constructor
+   * @extends {ModuleVisitor}
+   */
+  function ExportVisitor(reporter, module) {
+    ModuleVisitor.call(this, reporter, module);
+    this.inExport_ = false;
+    this.relatedTree_ = null;
+  }
+
+  ExportVisitor.prototype = {
+    __proto__: ModuleVisitor.prototype,
+
+    addExport_: function(name, tree) {
+      if (!this.inExport_) {
+        return;
+      }
+
+      traceur.assert(typeof name == 'string');
+
+      var parent = this.currentModule;
+      if (parent.hasExport(name)) {
+        this.reportError_(tree, 'Duplicate export declaration \'%s\'', name);
+        this.reportRelatedError_(parent.getExport(name));
+        return;
+      }
+      parent.addExport(name, new ExportSymbol(tree, name, this.relatedTree_));
+    },
+
+    visitClassDeclaration: function(tree) {
+      this.addExport_(tree.name.value, tree);
+    },
+
+    visitExportDeclaration: function(tree) {
+      this.inExport_ = true;
+      this.visitAny(tree.declaration);
+      this.inExport_ = false;
+    },
+
+    visitExportPath: function(tree) {
+      this.relatedTree_ = tree.moduleExpression;
+      this.visitAny(tree.specifier);
+      this.relatedTree_ = null;
+    },
+
+    visitExportPathList: function(tree) {
+      for (var i = 0; i < tree.paths.length; i++) {
+        var path = tree.paths[i];
+        if (path.type == ParseTreeType.IDENTIFIER_EXPRESSION) {
+          this.addExport_(path.identifierToken.value, path);
+        } else {
+          this.visitAny(path);
+        }
+      }
+    },
+
+    visitExportPathSpecifier: function(tree) {
+      this.addExport_(tree.identifier.value, tree.specifier);
+    },
+
+    visitExportSpecifier: function(tree) {
+      this.addExport_(tree.lhs.value, tree);
+    },
+
+    visitFunctionDeclaration: function(tree) {
+      if (tree.name) {
+        this.addExport_(tree.name.value, tree);
+      }
+    },
+
+    visitIdentifierExpression: function(tree) {
+      this.addExport_(tree.identifierToken.value, tree);
+    },
+
+    // TODO(arv): visitImport
+
+    visitModuleDefinition: function(tree) {
+      this.addExport_(tree.name.value, tree);
+      var inExport = this.inExport_;
+      this.inExport_ = false;
+      ModuleVisitor.prototype.visitModuleDefinition.call(this, tree);
+      this.inExport_ = inExport;
+    },
+
+    visitModuleSpecifier: function(tree) {
+      this.addExport_(tree.identifier.value, tree);
+    },
+
+    visitTraitDeclaration: function(tree) {
+      this.addExport_(tree.name.value, tree);
+    },
+
+    visitVariableDeclaration: function(tree) {
+      this.addExport_(tree.lvalue.identifierToken.value, tree);
+    }
+  };
+
+  /**
+   * Visits a parse tree and adds all the module declarations.
+   *
+   *   module m = n, o = p.q.r
+   *
+   * @param {traceur.util.ErrorReporter} reporter
+   * @param {ModuleSymbol} module The root of the module system.
+   * @constructor
+   * @extends {ModuleVisitor}
+   */
+  function ModuleDeclarationVisitor(reporter, module) {
+    ModuleVisitor.call(this, reporter, module);
+  }
+
+  ModuleDeclarationVisitor.prototype = {
+    __proto__: ModuleVisitor.prototype,
+
+    visitModuleSpecifier: function(tree) {
+      var name = tree.identifier.value;
+      var parent = this.currentModule;
+      var module = this.getModuleForModuleExpression(tree.expression);
+      if (!module) {
+        return;
+      }
+      parent.addModuleWithName(module, name);
+    }
+  };
+
+  /**
+   * Visits a parse tree and validates all module expressions.
+   *
+   *   module m = n, o = p.q.r
+   *
+   * @param {traceur.util.ErrorReporter} reporter
+   * @param {ModuleSymbol} module The root of the module system.
+   * @constructor
+   * @extends {ModuleVisitor}
+   */
+  function ValidationVisitor(reporter, module) {
+    ModuleVisitor.call(this, reporter, module);
+  }
+
+  ValidationVisitor.prototype = {
+    __proto__: ModuleVisitor.prototype,
+
+    checkExport_: function(tree, name) {
+      if (this.validatingModule_ && !this.validatingModule_.hasExport(name)) {
+        this.reportError_(tree, '\'%s\' is not exported', name);
+        this.reportRelatedError_(this.validatingModule_);
+      }
+    },
+
+    /**
+     * @param {ModuleSymbol} module
+     * @param {ParseTree} tree
+     * @param {string=} name
+     */
+    visitAndValidate_: function(module, tree, name) {
+      var validatingModule = this.validatingModule_;
+      this.validatingModule_ = module;
+      if (name) {
+        this.checkExport_(tree, name);
+      } else {
+        this.visitAny(tree);
+      }
+      this.validatingModule_ = validatingModule;
+    },
+
+    /**
+     * @param {traceur.syntax.trees.ExportPath} tree
+     */
+    visitExportPath: function(tree) {
+      this.visitAny(tree.moduleExpression);
+      var module = this.getModuleForModuleExpression(tree.moduleExpression);
+      this.visitAndValidate_(module, tree.specifier);
+    },
+
+    visitExportSpecifier: function(tree) {
+      var token = tree.rhs || tree.lhs;
+      this.checkExport_(tree, token.value);
+    },
+
+    visitIdentifierExpression: function(tree) {
+      this.checkExport_(tree, tree.identifierToken.value);
+    },
+
+    visitModuleExpression: function(tree) {
+      this.getModuleForModuleExpression(tree, true /* reportErrors */);
+    },
+
+    /**
+     * @param {traceur.syntax.trees.QualifiedReference} tree
+     */
+    visitQualifiedReference: function(tree) {
+      this.visitAny(tree.moduleExpression);
+      var module = this.getModuleForModuleExpression(tree.moduleExpression);
+      this.visitAndValidate_(module, tree, tree.identifier.value);
+    }
+  };
+
+  // TODO(arv): import
+  // TODO(arv): Validate that there are no free variables
+  // TODO(arv): Validate that the exported reference exists
+
+  /**
+   * Builds up all module symbols and validates them.
+   *
+   * @param {ErrorReporter} reporter
+   * @param {Project} project
+   * @constructor
+   */
+  function ModuleAnalyzer(reporter, project) {
+    this.reporter_ = reporter;
+    this.project_ = project;
+  }
+
+  ModuleAnalyzer.prototype = {
+    /**
+     * @return {void}
+     */
+    analyze: function() {
+      var root = this.project_.getRootModule();
+      var visitor = new ModuleDefinitionVisitor(this.reporter_, root);
+      this.project_.getSourceTrees().forEach(visitor.visitAny, visitor);
+
+      if (!this.reporter_.hadError()) {
+        visitor = new ExportVisitor(this.reporter_, root);
+        this.project_.getSourceTrees().forEach(visitor.visitAny, visitor);
+      }
+
+      if (!this.reporter_.hadError()) {
+        visitor = new ModuleDeclarationVisitor(this.reporter_, root);
+        this.project_.getSourceTrees().forEach(visitor.visitAny, visitor);
+      }
+
+      if (!this.reporter_.hadError()) {
+        visitor = new ValidationVisitor(this.reporter_, root);
+        this.project_.getSourceTrees().forEach(visitor.visitAny, visitor);
+      }
+    },
+
+    /**
+     * @param {SourceFile} sourceFile
+     * @return {void}
+     */
+    analyzeFile: function(sourceFile) {
+      // TODO(arv): Remove or keep?
+      console.error('Fix me');
     }
   };
 

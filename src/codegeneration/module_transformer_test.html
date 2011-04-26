@@ -94,6 +94,32 @@ function testExportModuleDeclaration() {
   assertEquals(44, e.o2.val);
 }
 
+module m2 {
+  module n {
+    export var name = 'n';
+  }
+  export module n2 {
+    export module o2 = n;
+  }
+}
+
+function testExportLexicalModule() {
+  assertEquals('n', m2.n2.o2.name);
+}
+
+module p2 {
+  module q {
+    export var name = 'q';
+  }
+  export module q2 {
+    export {name: q.name};
+  }
+}
+
+function testExportLexicalModule2() {
+  assertEquals('q', p2.q2.name);
+}
+
 </script>
 <script type="text/traceur">
 
@@ -153,9 +179,10 @@ function compileAndReturnErrors(contents, name) {
   return errors;
 }
 
-function assertErrorMessage(errors, moduleName) {
-  assertEquals(1, errors.length);
-  assertEquals('\'%s\' is not a module', errors[0][2]);
+function assertErrorMessage(errors, moduleName, opt_expectedError) {
+  var expectedError = opt_expectedError || '\'%s\' is not a module';
+  assertTrue(errors.length > 0);
+  assertEquals(expectedError, errors[0][2]);
   assertEquals(moduleName, errors[0][3][0]);
 }
 
@@ -213,6 +240,42 @@ function testInvalidModuleDeclaration6() {
   var name = 'testInvalidModuleDeclaration6';
   var errors = compileAndReturnErrors(contents, name);
   assertErrorMessage(errors, 'd');
+}
+
+function testInvalidExport() {
+  var contents = 'module a {\n' +
+      '  module b {\n' +
+      '    module c {};\n' +
+      '  }\n' +
+      '  export b.c;\n' +
+      '}\n';
+  var name = 'testInvalidExport';
+  var errors = compileAndReturnErrors(contents, name);
+  assertErrorMessage(errors, 'c', '\'%s\' is not exported');
+}
+
+function testInvalidExport2() {
+  var contents = 'module a {\n' +
+      '  module b {\n' +
+      '    module c {};\n' +
+      '  }\n' +
+      '  export b.{c};\n' +
+      '}\n';
+  var name = 'testInvalidExport2';
+  var errors = compileAndReturnErrors(contents, name);
+  assertErrorMessage(errors, 'c', '\'%s\' is not exported');
+}
+
+function testInvalidExport3() {
+  var contents = 'module a {\n' +
+      '  module b {\n' +
+      '    module c {};\n' +
+      '  }\n' +
+      '  export {d: b.c};\n' +
+      '}\n';
+  var name = 'testInvalidExport3';
+  var errors = compileAndReturnErrors(contents, name);
+  assertErrorMessage(errors, 'c', '\'%s\' is not exported');
 }
 
 function evalScript(scriptElement) {
