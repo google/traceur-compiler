@@ -10,7 +10,7 @@ See the COPYING file for details.
 <title>Traceur - All JsUnit Tests</title>
 <script src="../src/traceur.js"></script>
 <script src="../third_party/closure-library/closure/goog/base.js"></script>
-<script src="../src/alltests.js"></script>
+<script src="unit/alltests.js"></script>
 <script>
 goog.require('goog.userAgent.product');
 goog.require('goog.testing.MultiTestRunner');
@@ -49,10 +49,6 @@ a:hover {
 <body>
 
 <script>
-  for (var i = 0; i < _allTests.length; i++) {
-    _allTests[i] = '../src/' + _allTests[i];
-  }
-    
   if (goog.userAgent.product.CHROME &&
       window.location.toString().indexOf('file:') == 0) {
     document.write(
@@ -95,7 +91,7 @@ a:hover {
   // Create a test runner and render it.
   var testRunner = new goog.testing.MultiTestRunner()
       .setName(document.title)
-      .setBasePath('./')
+      .setBasePath('unit/')
       .setPoolSize(parallelInput.checked ? 8 : 1)
       .setStatsBucketSizes(5, 500)
       .setHidePasses(hidePassesInput.checked)

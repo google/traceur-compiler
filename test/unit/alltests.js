@@ -14,7 +14,7 @@
 
 // Update this list with the output of
 //     find . -name \*_test.html -exec echo "'{}'," \;
-// run from src.
+// run from test/unit/
 var _allTests = [
   './codegeneration/block_binding_test.html',
   './codegeneration/class_test.html',
