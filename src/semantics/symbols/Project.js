@@ -16,10 +16,7 @@ traceur.define('semantics.symbols', function() {
   'use strict';
 
   var ObjectMap = traceur.util.ObjectMap;
-  var Symbol = traceur.semantics.symbols.Symbol;
   var ModuleSymbol = traceur.semantics.symbols.ModuleSymbol;
-  var PredefinedName = traceur.syntax.PredefinedName;
-  var SourceFile = traceur.syntax.SourceFile;
 
   function addAll(self, other) {
     for (key in other) {
@@ -42,8 +39,6 @@ traceur.define('semantics.symbols', function() {
   function Project() {
     this.sourceFiles_ = Object.create(null);
     this.parseTrees_ = new ObjectMap();
-    this.aggregatesByName_ = Object.create(null);
-    this.userDefinedAggregates_ = [];
     this.rootModule_ = new ModuleSymbol(null, null, null);
   }
 
@@ -55,22 +50,9 @@ traceur.define('semantics.symbols', function() {
       var p = new Project();
       addAll(p.sourceFiles_, this.sourceFiles_);
       p.parseTrees_.addAll(this.parseTrees_);
-      addAll(p.aggregatesByName_, aggregatesByName_);
       // push(...)
-      p.userDefinedAggregates_.push.apply(p.userDefinedAggregates_,
-                                          userDefinedAggregates_);
       p.objectClass_ = objectClass_;
       return p;
-    },
-
-    /**
-     * @param {Array.<AggregateSymbol>} syms
-     * @return {void}
-     */
-    addAllPredefinedAggregates: function(syms) {
-      syms.forEach(function(symbol) {
-        this.addAggregate(symbol);
-      }, this);
     },
 
     /**
@@ -102,58 +84,6 @@ traceur.define('semantics.symbols', function() {
      */
     getSourceFiles: function() {
       return values(this.sourceFiles_);
-    },
-
-    /**
-     * @param {AggregateSymbol} symbol
-     * @return {void}
-     */
-    addUserDefinedAggregate: function(symbol) {
-      this.addAggregate_(symbol);
-      this.userDefinedAggregates_.push(symbol);
-    },
-
-    /**
-     * @param {AggregateSymbol} symbol
-     * @return {void}
-     * @private
-     */
-    addAggregate_: function(symbol) {
-      this.aggregatesByName_[symbol.name] = symbol;
-    },
-
-    /**
-     * @param {string} name
-     * @return {boolean}
-     */
-    hasAggregate: function(name) {
-      return name in this.aggregatesByName_;
-    },
-
-    /**
-     * @param {string} name
-     * @return {AggregateSymbol}
-     */
-    getAggregate: function(name) {
-      return this.aggregatesByName_[name];
-    },
-
-    /**
-     * @return {ClassSymbol}
-     */
-    getObjectClass: function() {
-      if (this.objectClass_ != null) {
-        return this.objectClass_;
-      }
-      return this.objectClass_ =
-          this.aggregatesByName_[PredefinedName.OBJECT_NAME];
-    },
-
-    /**
-     * @return {Array.<AggregateSymbol>}
-     */
-    getUserDefinedAggregates: function() {
-      return this.userDefinedAggregates_;
     },
 
     /**
