@@ -1,0 +1,52 @@
+
+goog.provide('goog.editor.BrowserFeature'); 
+goog.require('goog.editor.defines'); 
+goog.require('goog.userAgent'); 
+goog.require('goog.userAgent.product'); 
+goog.require('goog.userAgent.product.isVersion'); 
+goog.editor.BrowserFeature = { 
+  HAS_IE_RANGES: goog.userAgent.IE && ! goog.userAgent.isDocumentMode(9), 
+  HAS_W3C_RANGES: goog.userAgent.GECKO || goog.userAgent.WEBKIT || goog.userAgent.OPERA ||(goog.userAgent.IE && goog.userAgent.isDocumentMode(9)), 
+  HAS_CONTENT_EDITABLE: goog.userAgent.IE || goog.userAgent.WEBKIT || goog.userAgent.OPERA ||(goog.editor.defines.USE_CONTENTEDITABLE_IN_FIREFOX_3 && goog.userAgent.GECKO && goog.userAgent.isVersion('1.9')), 
+  USE_MUTATION_EVENTS: goog.userAgent.GECKO, 
+  HAS_DOM_SUBTREE_MODIFIED_EVENT: goog.userAgent.WEBKIT ||(goog.editor.defines.USE_CONTENTEDITABLE_IN_FIREFOX_3 && goog.userAgent.GECKO && goog.userAgent.isVersion('1.9')), 
+  HAS_DOCUMENT_INDEPENDENT_NODES: goog.userAgent.GECKO, 
+  PUTS_CURSOR_BEFORE_FIRST_BLOCK_ELEMENT_ON_FOCUS: goog.userAgent.GECKO, 
+  CLEARS_SELECTION_WHEN_FOCUS_LEAVES: goog.userAgent.IE || goog.userAgent.WEBKIT || goog.userAgent.OPERA, 
+  HAS_UNSELECTABLE_STYLE: goog.userAgent.GECKO || goog.userAgent.WEBKIT, 
+  FORMAT_BLOCK_WORKS_FOR_BLOCKQUOTES: goog.userAgent.GECKO || goog.userAgent.WEBKIT || goog.userAgent.OPERA, 
+  CREATES_MULTIPLE_BLOCKQUOTES: goog.userAgent.WEBKIT || goog.userAgent.OPERA, 
+  WRAPS_BLOCKQUOTE_IN_DIVS: goog.userAgent.OPERA, 
+  PREFERS_READY_STATE_CHANGE_EVENT: goog.userAgent.IE, 
+  TAB_FIRES_KEYPRESS: ! goog.userAgent.IE, 
+  NEEDS_99_WIDTH_IN_STANDARDS_MODE: goog.userAgent.IE, 
+  USE_DOCUMENT_FOR_KEY_EVENTS: goog.userAgent.GECKO && ! goog.editor.defines.USE_CONTENTEDITABLE_IN_FIREFOX_3, 
+  SHOWS_CUSTOM_ATTRS_IN_INNER_HTML: goog.userAgent.IE, 
+  COLLAPSES_EMPTY_NODES: goog.userAgent.GECKO || goog.userAgent.WEBKIT || goog.userAgent.OPERA, 
+  CONVERT_TO_B_AND_I_TAGS: goog.userAgent.GECKO || goog.userAgent.OPERA, 
+  TABS_THROUGH_IMAGES: goog.userAgent.IE, 
+  UNESCAPES_URLS_WITHOUT_ASKING: goog.userAgent.IE && ! goog.userAgent.isVersion('7.0'), 
+  HAS_STYLE_WITH_CSS: goog.userAgent.GECKO && goog.userAgent.isVersion('1.8') || goog.userAgent.WEBKIT || goog.userAgent.OPERA, 
+  FOLLOWS_EDITABLE_LINKS: goog.userAgent.WEBKIT, 
+  HAS_ACTIVE_ELEMENT: goog.userAgent.IE || goog.userAgent.OPERA || goog.userAgent.GECKO && goog.userAgent.isVersion('1.9'), 
+  HAS_SET_CAPTURE: goog.userAgent.IE, 
+  EATS_EMPTY_BACKGROUND_COLOR: goog.userAgent.GECKO || goog.userAgent.WEBKIT, 
+  SUPPORTS_FOCUSIN: goog.userAgent.IE || goog.userAgent.OPERA, 
+  SELECTS_IMAGES_ON_CLICK: goog.userAgent.IE || goog.userAgent.OPERA, 
+  MOVES_STYLE_TO_HEAD: goog.userAgent.WEBKIT, 
+  COLLAPSES_SELECTION_ONMOUSEDOWN: false, 
+  CARET_INSIDE_SELECTION: goog.userAgent.OPERA, 
+  FOCUSES_EDITABLE_BODY_ON_HTML_CLICK: true, 
+  USES_KEYDOWN: goog.userAgent.IE || goog.userAgent.WEBKIT && goog.userAgent.isVersion('525'), 
+  ADDS_NBSPS_IN_REMOVE_FORMAT: goog.userAgent.WEBKIT && ! goog.userAgent.isVersion('531'), 
+  GETS_STUCK_IN_LINKS: goog.userAgent.WEBKIT && ! goog.userAgent.isVersion('528'), 
+  NORMALIZE_CORRUPTS_EMPTY_TEXT_NODES: goog.userAgent.GECKO && goog.userAgent.isVersion('1.9') || goog.userAgent.IE || goog.userAgent.OPERA || goog.userAgent.WEBKIT && goog.userAgent.isVersion('531'), 
+  NORMALIZE_CORRUPTS_ALL_TEXT_NODES: goog.userAgent.IE, 
+  NESTS_SUBSCRIPT_SUPERSCRIPT: goog.userAgent.IE || goog.userAgent.GECKO || goog.userAgent.OPERA, 
+  CAN_SELECT_EMPTY_ELEMENT: ! goog.userAgent.IE && ! goog.userAgent.WEBKIT, 
+  FORGETS_FORMATTING_WHEN_LISTIFYING: goog.userAgent.GECKO || goog.userAgent.WEBKIT && ! goog.userAgent.isVersion('526'), 
+  LEAVES_P_WHEN_REMOVING_LISTS: goog.userAgent.IE || goog.userAgent.OPERA, 
+  CAN_LISTIFY_BR: ! goog.userAgent.IE && ! goog.userAgent.OPERA, 
+  DOESNT_OVERRIDE_FONT_SIZE_IN_STYLE_ATTR: ! goog.userAgent.WEBKIT, 
+  SUPPORTS_HTML5_FILE_DRAGGING:(goog.userAgent.product.CHROME && goog.userAgent.product.isVersion('4')) ||(goog.userAgent.product.SAFARI && goog.userAgent.isVersion('533')) 
+}; 
