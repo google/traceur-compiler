@@ -66,8 +66,25 @@ traceur.define('semantics', function() {
      * @return {void}
      */
     analyzeFile: function(sourceFile) {
-      // TODO(arv): Remove or keep?
-      console.error('Fix me');
+      var root = this.project_.getRootModule();
+      var visitor = new ModuleDefinitionVisitor(this.reporter_, root);
+      var tree = this.project_.getParseTree(sourceFile);
+      visitor.visitAny(tree);
+
+      if (!this.reporter_.hadError()) {
+        visitor = new ExportVisitor(this.reporter_, root);
+        visitor.visitAny(tree);
+      }
+
+      if (!this.reporter_.hadError()) {
+        visitor = new ModuleDeclarationVisitor(this.reporter_, root);
+        visitor.visitAny(tree);
+      }
+
+      if (!this.reporter_.hadError()) {
+        visitor = new ValidationVisitor(this.reporter_, root);
+        visitor.visitAny(tree);
+      }
     }
   };
 
