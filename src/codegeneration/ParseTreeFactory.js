@@ -898,11 +898,11 @@ traceur.define('codegeneration', function() {
   }
 
   /**
-   * @param {Array.<ParseTree>} sourceElements
+   * @param {Array.<ParseTree>} programElements
    * @return {Program}
    */
-  function createProgram(ourceElements) {
-    return new Program(null, sourceElements);
+  function createProgram(programElements) {
+    return new Program(null, programElements);
   }
 
   /**

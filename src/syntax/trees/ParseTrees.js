@@ -699,13 +699,13 @@ traceur.define('syntax.trees', function() {
 
     /**
      * @param {traceur.util.SourceRange} location
-     * @param {Array.<ParseTree>} sourceElements
+     * @param {Array.<ParseTree>} programElements
      * @constructor
      * @extends {ParseTree}
      */
     Program: create(
         ParseTreeType.PROGRAM,
-        'sourceElements'),
+        'programElements'),
 
     /**
      * @param {traceur.util.SourceRange} location
@@ -718,7 +718,6 @@ traceur.define('syntax.trees', function() {
         ParseTreeType.PROPERTY_NAME_ASSIGNMENT,
         'name',
         'value'),
-
 
     /**
      * @param {traceur.util.SourceRange} location

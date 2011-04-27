@@ -275,6 +275,22 @@ traceur.define('syntax.trees', function() {
           return true;
       }
       return this.isStatementStandard();
+    },
+
+    /** @return {boolean} */
+    isProgramElement: function() {
+      switch (this.type) {
+        case ParseTreeType.VARIABLE_DECLARATION:
+        case ParseTreeType.FUNCTION_DECLARATION:
+        case ParseTreeType.IMPORT_DECLARATION:
+        case ParseTreeType.MODULE_DECLARATION:
+        case ParseTreeType.MODULE_DEFINITION:
+        case ParseTreeType.EXPORT_DECLARATION:
+        case ParseTreeType.CLASS_DECLARATION:
+        case ParseTreeType.TRAIT_DECLARATION:
+          return true;
+      }
+      return this.isStatementStandard();
     }
   };
 

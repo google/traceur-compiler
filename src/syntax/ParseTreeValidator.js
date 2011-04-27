@@ -754,13 +754,11 @@ traceur.define('syntax', function() {
      * @param {traceur.syntax.trees.Program} tree
      */
     visitProgram: function(tree) {
-      for (var i = 0; i < tree.sourceElements.length; i++) {
-        var sourceElement = tree.sourceElements[i];
-        this.checkVisit_(sourceElement.isSourceElement() ||
-            sourceElement.type === ParseTreeType.MODULE_DEFINITION ||
-            sourceElement.type === ParseTreeType.MODULE_DECLARATION,
-            sourceElement,
-            'global source element expected');
+      for (var i = 0; i < tree.programElements.length; i++) {
+        var programElement = tree.programElements[i];
+        this.checkVisit_(programElement.isProgramElement(),
+            programElement,
+            'global program element expected');
       }
     },
 

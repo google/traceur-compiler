@@ -499,7 +499,7 @@ traceur.define('syntax', function() {
      * @param {traceur.syntax.trees.Program} tree
      */
     visitProgram: function(tree) {
-      this.visitList(tree.sourceElements);
+      this.visitList(tree.programElements);
     },
 
     /**

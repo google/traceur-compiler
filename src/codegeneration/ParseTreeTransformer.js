@@ -888,8 +888,8 @@ traceur.define('codegeneration', function() {
      * @return {ParseTree}
      */
     transformProgram: function(tree) {
-      var elements = this.transformList(tree.sourceElements);
-      if (elements == tree.sourceElements) {
+      var elements = this.transformList(tree.programElements);
+      if (elements == tree.programElements) {
         return tree;
       }
       return new Program(null, elements);

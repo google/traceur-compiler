@@ -131,7 +131,7 @@ traceur.define('codegeneration.module', function() {
     },
 
     visitProgram: function(tree) {
-      tree.sourceElements.forEach(this.visitModuleElement_, this);
+      tree.programElements.forEach(this.visitModuleElement_, this);
     },
 
     visitModuleDefinition: function(tree) {

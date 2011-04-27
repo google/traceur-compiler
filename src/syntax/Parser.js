@@ -199,24 +199,62 @@ traceur.define('syntax', function() {
     parseProgram: function(opt_load) {
       //var t = new Timer("Parse Program");
       var start = this.getTreeStartLocation_();
-      var sourceElements = this.parseGlobalSourceElements_(!!opt_load);
+      var programElements = this.parseProgramElements_(!!opt_load);
       this.eat_(TokenType.END_OF_FILE);
       //t.end();
-      return new Program(this.getTreeLocation_(start), sourceElements);
+      return new Program(this.getTreeLocation_(start), programElements);
     },
 
     /**
      * @return {Array.<ParseTree>}
      * @private
      */
-    parseGlobalSourceElements_: function(load) {
+    parseProgramElements_: function(load) {
       var result = [];
 
       while (!this.peek_(TokenType.END_OF_FILE)) {
-        result.push(this.parseScriptElement_(load));
+        result.push(this.parseProgramElement_(load));
       }
 
       return result;
+    },
+
+    /**
+     * @return {boolean}
+     * @private
+     */
+    peekProgramElement_: function() {
+      return this.peekFunction_() ||
+             this.peekVariableDeclarationList_() ||
+             this.peekImportDeclaration_() ||
+             this.peekExportDeclaration_() ||
+             this.peekModuleDeclaration_() ||
+             this.peekClassDeclaration_() ||
+             this.peekTraitDeclaration_() ||
+             this.peekStatement_();
+    },
+
+    /**
+     * @return {ParseTree}
+     * @private
+     */
+    parseProgramElement_: function(load) {
+      if (this.peekVariableDeclarationList_()) {
+        return this.parseVariableStatement_();
+      }
+      // Function is handled in parseStatement_
+      // Class is handled in parseStatement_
+      // Trait is handled in parseStatement_
+      if (this.peekImportDeclaration_()) {
+        return this.parseImportDeclaration_();
+      }
+      if (this.peekExportDeclaration_(load)) {
+        return this.parseExportDeclaration_(load);
+      }
+      if (this.peekModuleDeclaration_(load)) {
+        return this.parseModuleDeclaration_(load);
+      }
+      return this.parseStatement_();
     },
 
     // ClassDeclaration
@@ -232,18 +270,6 @@ traceur.define('syntax', function() {
               this.peekSourceElement_();
     }
   */
-
-    /**
-     * @return {ParseTree}
-     * @private
-     */
-    parseScriptElement_: function(load) {
-      if (this.peekModuleDeclaration_(load)) {
-        return this.parseModuleDeclaration_(load);
-      }
-
-      return this.parseSourceElement_();
-    },
 
     // module  identifier { ModuleElement* }
     /**
@@ -330,17 +356,14 @@ traceur.define('syntax', function() {
     // TODO: ModuleBlock
     // Statement (other than BlockStatement)
     // FunctionDeclaration
+
     /**
      * @return {boolean}
      * @private
      */
     peekModuleElement_: function() {
-      return this.peekClassDeclaration_() ||
-             this.peekTraitDeclaration_() ||
-             this.peekImportDeclaration_() ||
-             this.peekExportDeclaration_() ||
-             this.peekModuleDeclaration_() ||
-             this.peekSourceElement_();
+      // ModuleElement is currently same as ProgramElement.
+      return this.peekProgramElement_();
     },
 
     /**
@@ -348,18 +371,9 @@ traceur.define('syntax', function() {
      * @private
      */
     parseModuleElement_: function(load) {
-      if (this.peekModuleDeclaration_(load)) {
-        return this.parseModuleDeclaration_(load);
-      }
-      if (this.peekImportDeclaration_(load)) {
-        return this.parseImportDeclaration_(load);
-      }
-      if (this.peekExportDeclaration_(load)) {
-        return this.parseExportDeclaration_(load);
-      }
-      return this.parseScriptElement_(load);
+      // ModuleElement is currently same as ProgramElement.
+      return this.parseProgramElement_(load);
     },
-
 
     //  ImportDeclaration ::= 'import' ImportPath (',' ImportPath)* ';'
     /**

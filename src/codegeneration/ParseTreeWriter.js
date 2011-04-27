@@ -738,7 +738,7 @@ traceur.define('codegeneration', function() {
      * @param {Program} tree
      */
     visitProgram: function(tree) {
-      this.writelnList_(tree.sourceElements);
+      this.writelnList_(tree.programElements);
     },
 
     /**

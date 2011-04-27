@@ -185,7 +185,7 @@ traceur.define('codegeneration', function() {
    */
   ModuleTransformer.transform = function(project, tree) {
     var module = project.getRootModule();
-    var elements = tree.sourceElements.map(function(element) {
+    var elements = tree.programElements.map(function(element) {
       switch (element.type) {
         case MODULE_DEFINITION:
           return transformDefinition(module, element.asModuleDefinition());
