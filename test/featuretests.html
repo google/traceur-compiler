@@ -25,22 +25,34 @@ goog.require('goog.testing.jsunit');
 </script>
 <script src="../src/traceur.js"></script>
 
+<script src="feature/Classes/ClassMembers.js" type="text/traceur"></script>
 <script src="feature/Classes/Constructor.js" type="text/traceur"></script>
+<script src="feature/Classes/ConstructorChaining.js" type="text/traceur"></script>
+<script src="feature/Classes/ConstructorReturn.js" type="text/traceur"></script>
 <script src="feature/Classes/DerivedButton.js" type="text/traceur"></script>
 <script src="feature/Classes/DeriveFromObject.js" type="text/traceur"></script>
 <script src="feature/Classes/EmptyClass.js" type="text/traceur"></script>
+<script src="feature/Classes/FieldInheritance.js" type="text/traceur"></script>
 <script src="feature/Classes/FieldInitializers.js" type="text/traceur"></script>
 <script src="feature/Classes/FieldInitializersAndConstructorParameters.js" type="text/traceur"></script>
 <script src="feature/Classes/FieldInitializersAndInheritance.js" type="text/traceur"></script>
+<script src="feature/Classes/FieldLookup.js" type="text/traceur"></script>
 <script src="feature/Classes/Fields.js" type="text/traceur"></script>
+<script src="feature/Classes/Getters.js" type="text/traceur"></script>
 <script src="feature/Classes/Inheritance.js" type="text/traceur"></script>
+<script src="feature/Classes/InheritanceFromMemberExpression.js" type="text/traceur"></script>
+<script src="feature/Classes/InheritanceFromNonclass.js" type="text/traceur"></script>
 <script src="feature/Classes/InheritanceNameBinding.js" type="text/traceur"></script>
 <script src="feature/Classes/Method.js" type="text/traceur"></script>
+<script src="feature/Classes/MethodLookup.js" type="text/traceur"></script>
+<script src="feature/Classes/MethodInheritance.js" type="text/traceur"></script>
 <script src="feature/Classes/NameBinding.js" type="text/traceur"></script>
 <script src="feature/Classes/PropertyAccessors.js" type="text/traceur"></script>
 <script src="feature/Classes/SimpleConst.js" type="text/traceur"></script>
 <script src="feature/Classes/SimpleSuper.js" type="text/traceur"></script>
 <script src="feature/Classes/StaticMembers.js" type="text/traceur"></script>
+<script src="feature/Classes/SuperChaining.js" type="text/traceur"></script>
+<script src="feature/Classes/SuperMissing.js" type="text/traceur"></script>
 </head>
 <body>
 <script>
@@ -59,6 +71,36 @@ function makeTestName(path) {
 
   return 'test' + name;
 }
+
+// Define some helper methods that the feature scripts can use:
+
+function assertNoOwnProperties(o) {
+  var m = Object.getOwnPropertyNames(o);
+  if (m.length) {
+    fail('Unexpected members found:' + m.join(', '));
+  }
+}
+
+function assertHasOwnProperty(o) {
+  var args = Array.prototype.slice.call(arguments, 1);
+  for (var i = 0; i < args.length; i ++) {
+    var m = args[i];
+    if (!o.hasOwnProperty(m)) {
+      fail('Expected member ' + m + ' not found.');
+    }
+  }
+}
+
+function assertLacksOwnProperty(o) {
+  var args = Array.prototype.slice.call(arguments, 1);
+  for (var i = 0; i < args.length; i ++) {
+    var m = args[i];
+    if (o.hasOwnProperty(m)) {
+      fail('Unxpected member ' + m + ' found.');
+    }
+  }
+}
+
 
 function evalScript(scriptElement) {
   var source;

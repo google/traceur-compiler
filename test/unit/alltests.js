@@ -17,7 +17,6 @@
 // run from test/unit/
 var _allTests = [
   './codegeneration/block_binding_test.html',
-  './codegeneration/class_test.html',
   './codegeneration/default_parameters_transformer_test.html',
   './codegeneration/destructuring_test.html',
   './codegeneration/generator/async_test.html',

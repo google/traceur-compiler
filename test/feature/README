@@ -1,0 +1,3 @@
+This directory contains the "feature" tests. Each script here is a Traceur
+script that uses a feature and then validates its behavior. These scripts can
+be executed by running "/test/featuretests.html".
