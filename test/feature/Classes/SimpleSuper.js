@@ -23,3 +23,14 @@ class SuperDerived : SuperBase {
   }
 }
 
+// ----------------------------------------------------------------------------
+
+var obj = new SuperDerived();
+assertEquals(41, obj.m());
+assertEquals(40, obj.superM());
+assertEquals(4, obj.baseX);
+assertEquals(10, obj.x);
+assertEquals(4, obj.superX());
+assertEquals(1, obj.baseF);
+assertEquals(2, obj.baseC);
+assertEquals(3, obj.derC);

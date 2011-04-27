@@ -1,3 +1,0 @@
-class PointWithFields {
-  x, y;
-}

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<!--
+
+// Copyright 2011 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+-->
+<html>
+<head>
+<title></title>
+<script src="../third_party/closure-library/closure/goog/base.js"></script>
+<script>
+goog.require('goog.testing.jsunit');
+</script>
+<script src="../src/traceur.js"></script>
+
+<script src="feature/Classes/Constructor.js" type="text/traceur"></script>
+<script src="feature/Classes/DerivedButton.js" type="text/traceur"></script>
+<script src="feature/Classes/DeriveFromObject.js" type="text/traceur"></script>
+<script src="feature/Classes/EmptyClass.js" type="text/traceur"></script>
+<script src="feature/Classes/FieldInitializers.js" type="text/traceur"></script>
+<script src="feature/Classes/FieldInitializersAndConstructorParameters.js" type="text/traceur"></script>
+<script src="feature/Classes/FieldInitializersAndInheritance.js" type="text/traceur"></script>
+<script src="feature/Classes/Fields.js" type="text/traceur"></script>
+<script src="feature/Classes/Inheritance.js" type="text/traceur"></script>
+<script src="feature/Classes/InheritanceNameBinding.js" type="text/traceur"></script>
+<script src="feature/Classes/Method.js" type="text/traceur"></script>
+<script src="feature/Classes/NameBinding.js" type="text/traceur"></script>
+<script src="feature/Classes/PropertyAccessors.js" type="text/traceur"></script>
+<script src="feature/Classes/SimpleConst.js" type="text/traceur"></script>
+<script src="feature/Classes/SimpleSuper.js" type="text/traceur"></script>
+<script src="feature/Classes/StaticMembers.js" type="text/traceur"></script>
+</head>
+<body>
+<script>
+
+/**
+ * Given a path like "feature/Foo/Bar" makes a function name to test that
+ * feature: "testFooBar".
+ */
+function makeTestName(path) {
+  var pathStart = 'feature/';
+  var start = path.indexOf(pathStart) + pathStart.length;
+
+  var name = path.substring(start);
+  name = name.replace('/', '');
+  name = name.replace('.js', '');
+
+  return 'test' + name;
+}
+
+function evalScript(scriptElement) {
+  var source;
+  var name;
+  if (scriptElement.src) {
+    name = scriptElement.src;
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', scriptElement.src, false);
+    xhr.send();
+    source = xhr.responseText;
+  } else {
+    name = 'inline-script';
+    source = scriptElement.textContent;
+  }
+
+  // For each Traceur .js file, we'll create a top-level "test___" function
+  // that compiles and evaluates it. JsUnit will then find and run those
+  // functions for us.
+  // We eval each file in the scope of its own function so we don't have to
+  // worry about name clashes across the different feature scripts.
+  var testName = makeTestName(name);
+  window[testName] = function() {
+    var errors = new traceur.util.ErrorReporter();
+    var sourceFile = new traceur.syntax.SourceFile(name, source);
+    var tree = traceur.codegeneration.Compiler.compileFile(errors, sourceFile);
+    var code = traceur.codegeneration.ParseTreeWriter.write(tree);
+
+    eval(code);
+
+    assertFalse('Error compiling ' + name + '.', errors.hadError());
+  }
+}
+
+function evalAllScripts() {
+  var scripts = document.querySelectorAll('script[type="text/traceur"]');
+  Array.prototype.forEach.call(scripts, evalScript);
+}
+
+evalAllScripts();
+
+</script>
+</body>
+</html>
