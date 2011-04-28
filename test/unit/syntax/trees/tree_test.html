@@ -84,37 +84,6 @@ function testNullTree() {
   assert(Object.isFrozen(tree));
 }
 
-function testImportPath() {
-  // ImportPath has different construction logic
-  var ImportPath = traceur.syntax.trees.ImportPath;
-
-  var specifiers = ['importSpecifierSet'];
-  var tree = new ImportPath('location', 'qualifiedPath', specifiers);
-  assertEquals('IMPORT_PATH', tree.type);
-  assertEquals('location', tree.location);
-  assertEquals('qualifiedPath', tree.qualifiedPath);
-  assertEquals(specifiers, tree.importSpecifierSet);
-  assertEquals(ImportPath.Kind.SET, tree.kind);
-
-  tree = new ImportPath('location', 'qualifiedPath',
-      ImportPath.Kind.ALL);
-  assertEquals('IMPORT_PATH', tree.type);
-  assertEquals('location', tree.location);
-  assertEquals('qualifiedPath', tree.qualifiedPath);
-  assertEquals(null, tree.importSpecifierSet);
-  assertEquals(ImportPath.Kind.ALL, tree.kind);
-  assert(Object.isFrozen(tree));
-
-  tree = new ImportPath('location', 'qualifiedPath',
-      ImportPath.Kind.NONE);
-  assertEquals('IMPORT_PATH', tree.type);
-  assertEquals('location', tree.location);
-  assertEquals('qualifiedPath', tree.qualifiedPath);
-  assertEquals(null, tree.importSpecifierSet);
-  assertEquals(ImportPath.Kind.NONE, tree.kind);
-  assert(Object.isFrozen(tree));
-}
-
 function testTreeConstructors() {
   validateTree(traceur.syntax.trees.ArgumentList,
       ParseTreeType.ARGUMENT_LIST,
@@ -272,9 +241,17 @@ function testTreeConstructors() {
       ParseTreeType.IMPORT_DECLARATION,
       ['location', 'importPathList']);
 
+  validateTree(traceur.syntax.trees.ImportPath,
+      ParseTreeType.IMPORT_PATH,
+      ['location', 'moduleExpression', 'importSpecifierSet']);
+
   validateTree(traceur.syntax.trees.ImportSpecifier,
       ParseTreeType.IMPORT_SPECIFIER,
-      ['location', 'importedName', 'destinationName']);
+      ['location', 'lhs', 'rhs']);
+
+  validateTree(traceur.syntax.trees.ImportSpecifierSet,
+      ParseTreeType.IMPORT_SPECIFIER_SET,
+      ['location', 'specifiers']);
 
   validateTree(traceur.syntax.trees.LabelledStatement,
       ParseTreeType.LABELLED_STATEMENT,
@@ -296,13 +273,13 @@ function testTreeConstructors() {
       ParseTreeType.MISSING_PRIMARY_EXPRESSION,
       ['location', 'nextToken']);
 
-  validateTree(traceur.syntax.trees.MixinResolveList,
-      ParseTreeType.MIXIN_RESOLVE_LIST,
-      ['location', 'resolves']);
-
   validateTree(traceur.syntax.trees.MixinResolve,
       ParseTreeType.MIXIN_RESOLVE,
       ['location', 'from', 'to']);
+
+  validateTree(traceur.syntax.trees.MixinResolveList,
+      ParseTreeType.MIXIN_RESOLVE_LIST,
+      ['location', 'resolves']);
 
   validateTree(traceur.syntax.trees.Mixin,
       ParseTreeType.MIXIN,
@@ -354,7 +331,7 @@ function testTreeConstructors() {
 
   validateTree(traceur.syntax.trees.Program,
       ParseTreeType.PROGRAM,
-      ['location', 'sourceElements']);
+      ['location', 'programElements']);
 
   validateTree(traceur.syntax.trees.PropertyNameAssignment,
       ParseTreeType.PROPERTY_NAME_ASSIGNMENT,

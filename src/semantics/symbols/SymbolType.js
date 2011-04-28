@@ -18,13 +18,13 @@ traceur.define('semantics.symbols', function() {
   /** @enum {string} */
   var SymbolType = {
     CLASS: 'CLASS',
+    EXPORT: 'EXPORT',
     FIELD: 'FIELD',
     METHOD: 'METHOD',
-    PROPERTY: 'PROPERTY',
-    TRAIT: 'TRAIT',
-    REQUIRES: 'REQUIRES',
     MODULE: 'MODULE',
-    EXPORT: 'EXPORT'
+    PROPERTY: 'PROPERTY',
+    REQUIRES: 'REQUIRES',
+    TRAIT: 'TRAIT'
   };
 
   return {

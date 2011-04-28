@@ -174,7 +174,7 @@ traceur.define('codegeneration', function() {
       }
 
       this.project_.setParseTree(
-          file, new Parser(this.reporter_, file).parseProgram());
+          file, new Parser(this.reporter_, file).parseProgram(true));
     },
 
     /**

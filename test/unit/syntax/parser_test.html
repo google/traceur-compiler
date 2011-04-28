@@ -52,6 +52,20 @@ function testParserEmpty() {
   parser.parseProgram();
 }
 
+function testModule() {
+  var program = 'module Foo { export var x = 42; ' +
+	  'module M = require(\'url\'); ' +
+	  'import require(\'x\').y.z; ' +
+	  'import M.*; ' +
+	  'import M.x.{a:b,c};' +
+          '};\n';
+  var sourceFile = new traceur.syntax.SourceFile('Name', program);
+  var scanner = new traceur.syntax.Scanner(errorReporter, sourceFile);
+  var parser = new traceur.syntax.Parser(errorReporter, scanner);
+
+  parser.parseProgram(true);
+}
+
 function testParserNonClosedRegExp() {
   var program = '/';
   var name = 'testParserNonClosedRegExp';

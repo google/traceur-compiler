@@ -64,6 +64,7 @@ traceur.define('syntax', function() {
   var ImportDeclaration = traceur.syntax.trees.ImportDeclaration;
   var ImportPath = traceur.syntax.trees.ImportPath;
   var ImportSpecifier = traceur.syntax.trees.ImportSpecifier;
+  var ImportSpecifierSet = traceur.syntax.trees.ImportSpecifierSet;
   var LabelledStatement = traceur.syntax.trees.LabelledStatement;
   var LiteralExpression = traceur.syntax.trees.LiteralExpression;
   var MemberExpression = traceur.syntax.trees.MemberExpression;
@@ -245,8 +246,8 @@ traceur.define('syntax', function() {
       // Function is handled in parseStatement_
       // Class is handled in parseStatement_
       // Trait is handled in parseStatement_
-      if (this.peekImportDeclaration_()) {
-        return this.parseImportDeclaration_();
+      if (this.peekImportDeclaration_(load)) {
+        return this.parseImportDeclaration_(load);
       }
       if (this.peekExportDeclaration_(load)) {
         return this.parseExportDeclaration_(load);
@@ -310,18 +311,21 @@ traceur.define('syntax', function() {
       var start = this.getTreeStartLocation_();
       var identifier = this.eatId_();
       this.eat_(TokenType.EQUAL);
-      var expression = this.parseModuleExpression_(load);
+      var expression = this.parseModuleExpression_(load, false);
       return new ModuleSpecifier(this.getTreeLocation_(start), identifier,
                                  expression);
     },
 
-    parseModuleExpression_: function(load) {
+    parseModuleExpression_: function(load, leaveTrailingIdentifier) {
       // ModuleExpression(load) ::= ModuleReference(load)
       //                         | ModuleExpression(load) "." IdentifierName
       var start = this.getTreeStartLocation_();
       var reference = this.parseModuleReference_(load);
       var identifierNames = [];
       while (this.peek_(TokenType.PERIOD) && this.peekIdName_(1)) {
+        if (leaveTrailingIdentifier && !this.peek_(TokenType.PERIOD, 2)) {
+          break;
+        }
         this.eat_(TokenType.PERIOD);
         identifierNames.push(this.eatIdName_());
       }
@@ -384,86 +388,93 @@ traceur.define('syntax', function() {
       return this.peek_(TokenType.IMPORT);
     },
 
+    // ImportDeclaration(load) ::= "import" ImportPath(load)
+    //                                     ("," ImportPath(load))* ";"
     /**
      * @return {ParseTree}
      * @private
      */
-    parseImportDeclaration_: function() {
+    parseImportDeclaration_: function(load) {
       var start = this.getTreeStartLocation_();
       this.eat_(TokenType.IMPORT);
-      var result = [];
+      var importPathList = [];
 
-      result.push(this.parseImportPath_());
+      importPathList.push(this.parseImportPath_(load));
       while (this.peek_(TokenType.COMMA)) {
         this.eat_(TokenType.COMMA);
-        result.push(this.parseImportPath_());
+        importPathList.push(this.parseImportPath_(load));
       }
       this.eatPossibleImplicitSemiColon_();
 
-      return new ImportDeclaration(this.getTreeLocation_(start), result);
+      return new ImportDeclaration(this.getTreeLocation_(start),
+          importPathList);
     },
 
-    //  ImportPath ::= QualifiedPath ('.' ImportSpecifierSet)?
-    //  QualifiedPath ::= Identifier
-    //                 |  QualifiedPath '.' Identifier
+    // ImportPath(load) ::= ModuleExpression(load) "." ImportSpecifierSet
     /**
      * @return {ParseTree}
      * @private
      */
-    parseImportPath_: function() {
+    parseImportPath_: function(load) {
       var start = this.getTreeStartLocation_();
-      var qualifiedPath = [];
-      qualifiedPath.push(this.eatId_());
-      while (this.peek_(TokenType.PERIOD) && this.peek_(TokenType.IDENTIFIER, 1)) {
-        this.eat_(TokenType.PERIOD);
-        qualifiedPath.push(this.eatId_());
-      }
-      if (this.peek_(TokenType.PERIOD)) {
-        this.eat_(TokenType.PERIOD);
-        return this.parseImportSpecifierSet_(start, qualifiedPath);
-      }
-      return new ImportPath(this.getTreeLocation_(start), qualifiedPath, ImportPath.Kind.NONE);
+
+      var moduleExpression = this.parseModuleExpression_(load, true);
+      this.eat_(TokenType.PERIOD);
+      var importSpecifierSet = this.parseImportSpecifierSet_();
+
+      return new ImportPath(this.getTreeLocation_(start),
+          moduleExpression, importSpecifierSet);
     },
 
-    //  ImportSpecifierSet ::= '{' (ImportSpecifier (',' ImportSpecifier)*)? '}'
-    //                      |  '*'
+    //ImportSpecifierSet ::= "*"
+    //                  | IdentifierName
+    //                  | "{" (ImportSpecifier ("," ImportSpecifier)*)? ","? "}"
     /**
      * @param {SourcePosition} start
      * @param {Array.<IdentifierToken>} qualifiedPath
-     * @return {ParseTree}
+     * @return {ParseTree|Token|Array.<Token>}
      * @private
      */
-    parseImportSpecifierSet_: function(start, qualifiedPath) {
+    parseImportSpecifierSet_: function() {
       if (this.peek_(TokenType.OPEN_CURLY)) {
-        var elements = [];
+        var start = this.getTreeStartLocation_();
         this.eat_(TokenType.OPEN_CURLY);
-        elements.push(this.parseImportSpecifier_());
+
+        var specifiers = [this.parseImportSpecifier_()];
         while (this.peek_(TokenType.COMMA)) {
           this.eat_(TokenType.COMMA);
-          elements.push(this.parseImportSpecifier_());
+          if (this.peek_(TokenType.CLOSE_CURLY))
+            break;
+          specifiers.push(this.parseImportSpecifier_());
         }
         this.eat_(TokenType.CLOSE_CURLY);
-        return new ImportPath(this.getTreeLocation_(start), qualifiedPath, elements);
-      } else {
-        this.eat_(TokenType.STAR);
-        return new ImportPath(this.getTreeLocation_(start), qualifiedPath, ImportPath.Kind.ALL);
+
+        return new ImportSpecifierSet(this.getTreeLocation_(start), specifiers);
       }
+
+      if (this.peek_(TokenType.STAR)) {
+        var star = this.eat_(TokenType.STAR);
+        return new ImportSpecifierSet(this.getTreeLocation_(start), star);
+      }
+
+      return this.parseIdentifierExpression_();
     },
 
-    //  ImportSpecifier ::= Identifier (':' Identifier)?
+    // ImportSpecifier ::= IdentifierName (":" Identifier)?
     /**
      * @return {ParseTree}
      * @private
      */
     parseImportSpecifier_: function() {
       var start = this.getTreeStartLocation_();
-      var importedName = this.eatId_();
-      var destinationName = null;
+      var lhs = this.eatIdName_();
+      var rhs = null;
       if (this.peek_(TokenType.COLON)) {
         this.eat_(TokenType.COLON);
-        destinationName = this.eatId_();
+        rhs = this.eatId_();
       }
-      return new ImportSpecifier(this.getTreeLocation_(start), importedName, destinationName);
+      return new ImportSpecifier(this.getTreeLocation_(start),
+          lhs, rhs);
     },
 
     // export  VariableStatement
@@ -550,33 +561,11 @@ traceur.define('syntax', function() {
         return this.parseExportPathSpecifierSet_();
 
       if (this.peek_(TokenType.PERIOD, 1)) {
-        // Both ModuleExpression and Identifier can be a single Identifier
-        // Since we have ModuleExpression(false) ModuleExpression will be
-        // equivalent to:
-        //    Identifier ("." IdentifierName)*
-        //
-        // But SpecifierSet can also be a IdentiferName. So we have to fixup the
-        // module expression.
-
         var start = this.getTreeStartLocation_();
-        var expression = this.parseModuleExpression_(false);
-        if (this.peek_(TokenType.PERIOD)) {
-          this.eat_(TokenType.PERIOD);
-          var specifierSet = this.parseExportSpecifierSet_();
-          return new ExportPath(this.getTreeLocation_(start), expression,
-              specifierSet);
-        }
-        // Fixup
-        var identifier =
-            expression.identifiers[expression.identifiers.length - 1];
-        var identifiers = expression.identifiers.slice(0, -1);
-        expression = new ModuleExpression(this.getTreeLocation_(start),
-                                          expression.reference, identifiers);
-
-        var identifierExpression =
-            new IdentifierExpression(identifier.getStart(), identifier);
-        return new ExportPath(this.getTreeLocation_(start), expression,
-                              identifierExpression);
+        var expression = this.parseModuleExpression_(false, true);
+        this.eat_(TokenType.PERIOD);
+        var specifierSet = this.parseExportSpecifierSet_();
+        return new ExportPath(start, expression, specifierSet);
       }
 
       return this.parseIdentifierExpression_();
@@ -683,15 +672,12 @@ traceur.define('syntax', function() {
       // QualifiedReference ::= ModuleExpression(false) "." IdentifierName
 
       var start = this.getTreeStartLocation_();
-      // ModuleExpression(false) will eat the identfier name too so move
-      // the last identifier out.
-      var tmp = this.parseModuleExpression_();
-
-      var moduleExpression = new ModuleExpression(
-          tmp.location, tmp.reference, tmp.identifiers.slice(0, -1));
+      var moduleExpression = this.parseModuleExpression_(false, true);
+      this.eat_(TokenType.PERIOD);
+      var identifierName = this.eatIdName_();
 
       return new QualifiedReference(this.getTreeLocation_(start),
-          moduleExpression, tmp.identifiers[tmp.identifiers.length - 1]);
+          moduleExpression, identifierName);
     },
 
     // TODO: ModuleLoadRedeclarationList

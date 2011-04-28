@@ -39,8 +39,8 @@ function parse(code) {
   var errors = new ErrorReporter();
   var tree = new Parser(errors, new SourceFile('inline', code)).parseProgram();
   assertFalse(errors.hadError());
-  assertEquals(1, tree.sourceElements.length);
-  return tree.sourceElements[0];
+  assertEquals(1, tree.programElements.length);
+  return tree.programElements[0];
 }
 
 function idsToString(identifiers) {

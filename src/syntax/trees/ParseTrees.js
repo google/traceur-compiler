@@ -40,7 +40,7 @@ traceur.define('syntax.trees', function() {
     return Tree;
   }
 
-  // All trees but NullTree and ImportPath tree
+  // All trees but NullTree
 
   return {
     /**
@@ -474,15 +474,38 @@ traceur.define('syntax.trees', function() {
 
     /**
      * @param {traceur.util.SourceRange} location
-     * @param {traceur.syntax.IdentifierToken} importedName
-     * @param {traceur.syntax.IdentifierToken} destinationName
+     * @param {traceur.syntax.trees.ModuleExpression} moduleExpression
+     * @param {traceur.syntax.trees.ImportSpecifierSet} importSpecifierSet
+     * @constructor
+     * @extends {ParseTree}
+     */
+    ImportPath: create(
+        ParseTreeType.IMPORT_PATH,
+        'moduleExpression',
+        'importSpecifierSet'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
+     * @param {traceur.syntax.IdentifierToken} lhs
+     * @param {traceur.syntax.IdentifierToken} rhs
      * @constructor
      * @extends {ParseTree}
      */
     ImportSpecifier: create(
         ParseTreeType.IMPORT_SPECIFIER,
-        'importedName',
-        'destinationName'),
+        'lhs',
+        'rhs'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
+     * @param {trauce.syntax.Token|
+     *     traceur.syntax.IdentifierToken|Array.<ImportSpecifier>} specifiers
+     * @constructor
+     * @extends {ParseTree}
+     */
+    ImportSpecifierSet: create(
+        ParseTreeType.IMPORT_SPECIFIER_SET,
+        'specifiers'),
 
     /**
      * @param {traceur.util.SourceRange} location

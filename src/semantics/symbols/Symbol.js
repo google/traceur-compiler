@@ -46,6 +46,14 @@ traceur.define('semantics.symbols', function() {
     },
 
     /**
+     * @return {ExportSymbol}
+     */
+    asExport: function() {
+      assert(this instanceof traceur.semantics.symbols.ExportSymbol);
+      return this;
+    },
+
+    /**
      * @return {FieldSymbol}
      */
     asField: function() {
@@ -70,10 +78,26 @@ traceur.define('semantics.symbols', function() {
     },
 
     /**
+     * @return {ModuleSymbol}
+     */
+    asModuleSymbol: function() {
+      assert(this instanceof traceur.semantics.symbols.ModuleSymbol);
+      return this;
+    },
+
+    /**
      * @return {PropertySymbol}
      */
     asProperty: function() {
       assert(this instanceof traceur.semantics.symbols.PropertySymbol);
+      return this;
+    },
+
+    /**
+     * @return {RequiresSymbol}
+     */
+    asRequires: function() {
+      assert(this instanceof traceur.semantics.symbols.RequiresSymbol);
       return this;
     },
 
