@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+
+<meta charset='utf-8'>
+<title>JavaScript</title>
+<script src='../src/traceur.js'></script>
+<script src='../src/bootstrap.js'></script>
+<script type='text/traceur' src='script.js'></script>
+<link href='style.css' rel='stylesheet'>
+<link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+
+<div id='presentation' class='with-notes'>
+  <header>
+    JavaScript: Say it like you mean it
+  </header>
+
+  <footer>
+    <div class='icon'>
+      <div class='green'></div>
+      <div class='yellow'></div>
+      <div class='blue'></div>
+      <div class='red'></div>
+    </div>
+  </footer>
+
+  <div class='slide'>
+    <div class='content'>
+      <h1>
+        JavaScript:<br/>Say it like you mean it
+      </h1>
+    </div>
+    <div class='note'>
+      <p>
+        Welcome.
+        Traceur project's goal is to evolve JavaScript to make writing web
+        applications more fun.
+      </p>
+      <p>
+        Use the arrow keys to advance slides. Press N to toggle speaker notes. If the notes don't fit on screen, zoom out with Cmd/Ctrl - (minus).
+      </p>
+      <p>
+        (We took a few implementation shortcuts to build this presentation
+        quickly, so it only works in Google Chrome at the moment.)
+      </p>
+    </div>
+  </div>
+
+  <div class='slide'>
+    <div class='content'>
+      <img src='http://cdn.babble.com/famecrawler/wp-content/uploads/2011/02/pacman-google.jpg' class='center'>
+    </div>
+    <div class='note'>
+      <p>
+        Web is open and empowering.
+        People have built amazing Web Apps.
+      </p>
+      <p>
+        You have to be a gluton for punishment.
+      </p>
+      <p>
+        Its not just a programmer hacking a web site. Its 50 strong team
+        engineering gmail frontend.
+      </p>
+      <p>
+        Creative in attempts to build large apps. Notably GWT.
+      </p>
+    </div>
+  </div>
+
+  <div class='slide'>
+    <div class='content'>
+      <img src='http://a5.mzstatic.com/us/r1000/030/Purple/45/28/f7/mzl.yagtukvx.320x480-75.jpg' class='center'>
+    </div>
+    <div class='note'>
+      <p>
+        Still, its easier to do rich apps for closed platforms rather than
+        the open web platform.
+      </p>
+    </div>
+  </div>
+
+  <div class='slide'>
+    <div class='content'>
+      <h1>
+        What is needed?
+      </h1>
+    </div>
+    <div class='note'>
+      <p>
+        We need to improve the web platform to keep the web vibrant.
+      </p>
+      <p>
+        Adding features to JS that enables large software development.
+      </p>
+    </div>
+  </div>
+
+  <div class='slide'>
+    <div class='content'>
+      <div>
+        <h1>
+          Components:
+        </h1>
+        <h2>
+          Classes
+        </h2>
+        <h2>
+          Inheritance
+        </h2>
+      </div>
+    </div>
+    <div class='note'>
+      <p>
+        Differentiating factors between large applications and small is the
+        need for components.
+      </p>
+      <p>
+        Reusable pieces of software with well defined boundaries.
+      </p>
+      <p>
+        Classes are small units of reusable software.
+      </p>
+      <p>
+        We're going to look at just one aspect of classes - inheritance.
+      </p>
+    </div>
+  </div>
+
+
+  <div class='slide'>
+    <div class='content'>
+      <div>
+        <h3>
+          Prototypes &amp; Inheritance
+        </h3>
+<pre data-part='1'>
+function Actor() { ... }
+Actor.prototype.moveTo = function (pos) { ... };
+</pre>
+<pre data-part='2'>
+function PacMan() { }
+PacMan.prototype = new Actor();
+PacMan.prototype.eat = function() { ... };
+</pre>
+<pre data-part='3'>
+var pac = new PacMan();
+assertTrue(pac instanceof Actor);
+</pre>
+      </div>
+    </div>
+    <div class='note'>
+    <p data-part='0'>
+      JS has prototypal inheritance - let's take a look.
+    </p>
+    <p data-part='1'>
+      This is a class, or more specifically a constructor function.
+      The word "function" doesn’t mean what you think it means… unless you
+      know that this is being written in a particular style.
+    </p>
+    <p data-part='2'>
+      This is how you do inheritance.
+      Set the prototype of the derived to be an instance of the base.
+    </p>
+    <p>
+      Which allows you to create instances of the derived which are
+      also instances of the base.
+      Works great...
+      ... Except when your base constructor has side effects!
+    </p>
+    <p>
+      So let's look at what really happens in practice ...
+    </p>
+    </div>
+  </div>
+
+  <div class='slide'>
+    <div class='content'>
+      <div>
+        <h3>
+          Inheritance
+        </h3>
+<pre data-part='0'>
+function Actor() { ... }
+Actor.prototype.moveTo = function (pos) { ... };
+
+function PacMan() { }
+</pre>
+<pre data-part='1'>
+PacMan.prototype = (function() {
+    function tempCtor() {};
+    tempCtor.prototype = Actor.prototype;
+    var proto = new tempCtor();
+    proto.constructor = PacMan;
+    return proto;
+  })();
+
+PacMan.prototype.eat = function() { ... };
+</pre>
+      </div>
+    </div>
+    <div class='note'>
+      <p data-part='0'>
+        So let's look at how prototypal inheritance is really done.
+      </p>
+      <p data-part='1'>
+        Now that says - inheritance to me.
+      </p>
+      <p data-part='1'>
+        Just to be clear. I am not making this up - this is actual best
+        practice.
+      </p>
+    </div>
+  </div>
+
+  <div class='slide'>
+    <div class='content'>
+      <div>
+        <h3>
+          Inheritance - Mozilla
+        </h3>
+<pre data-part='0'>
+function Actor() { ... }
+Actor.prototype.moveTo = function (pos) { ... };
+</pre>
+<pre data-part='1'>
+function PacMan() { }
+PacMan.prototype = { __proto__: Actor.prototype };
+PacMan.prototype.eat = function() { ... };
+</pre>
+<p data-part='2'>
+"We will work to get rid of writable __proto__ and then __proto__ altogether..."
+</pre>
+<p data-part='3'>
+" ... but that will take time and require browser vendor cooperation."
+</p>
+      </div>
+    </div>
+    <div class='note'>
+      <p>
+        Which does enable deriving from DOM nodes - an important scenario.
+        Which made optimizing JS significantly harder.
+      </p>
+    </div>
+  </div>
+
+  <div class='slide'>
+    <div class='content'>
+      <div>
+        <h3>
+          Inheritance - ES5
+        </h3>
+<pre data-part='0'>
+function Actor() { ... }
+Actor.prototype.moveTo = function (pos) { ... };
+
+</pre>
+<pre data-part='1'>
+function PacMan() { }
+PacMan.prototype = Object.create(
+    Actor.prototype,
+    {
+      eat: {
+        enumerable: true,
+        configurable: true,
+        value: function() { ... },
+        writable: true
+      },
+    });
+</pre>
+      </div>
+    </div>
+    <div class='note'>
+    </div>
+  </div>
+
+  <div class='slide'>
+    <div class='content'>
+      <div>
+        <h3>
+          Inheritance - Libraries
+        </h3>
+        <pre data-part='1'>goog.inherits(Actor, PacMan);</pre>
+        <pre data-part='2'>PacMan = Class.create(Actor, ... );</pre>
+        <pre data-part='3'>PacMan = Actor.extend(...);</pre>
+      </div>
+    </div>
+    <div class='note'>
+    <p data-part='0'>
+      So the library authors decided to fix the problem once and for all.
+    <p>
+    <p data-part='1'>
+      Once for closure ...
+    </p>
+    <p data-part='2'>
+      Once for prototype ...
+    </p>
+    <p data-part='3'>
+      ... and Once for base2.
+      All great solutions. None of them interoperable.
+    </p>
+    </div>
+  </div>
+
+  <div class='slide'>
+    <div class='content'>
+      <div>
+        <h3>
+          Classes &amp; Inheritance
+        </h3>
+<pre data-part='1'>
+class Actor {
+  new() { ... }
+  moveTo: function (pos) { ... }
+}
+
+class PacMan : Actor {
+  new() { ... }
+  eat: function() { ... }
+}
+</pre>
+      </div>
+    </div>
+    <div class='note'>
+    <p>
+      Say what you mean...
+      Note that you can see that it’s <em>actually a class</em> just
+      by looking at it.
+      This looks easy, but its actually really, really hard.
+      Good designs look easy.
+      There's a lot more to classes than just inheritance.
+    </p>
+    </div>
+  </div>
+
+  <div class='slide'>
+    <div class='content'>
+      <div>
+        <h1>
+          Components:
+        </h1>
+        <h2>
+          Modules
+        </h2>
+        <h2>
+          Code Loading
+        </h2>
+      </div>
+    </div>
+    <div class='note'>
+      <p>
+        Another part of reusable components is code distribution.
+      </p>
+    </div>
+  </div>
+
+  <div class='slide'>
+    <div class='content'>
+      <div>
+        <h3>
+          Modules &amp; Code Loading
+        </h3>
+<pre data-part='1'>
+goog.provide('goog.ui.tree.TreeControl');
+
+goog.require('goog.events.EventType');
+goog.require('goog.events.FocusHandler');
+goog.require('goog.events.KeyHandler');
+goog.require('goog.ui.tree.BaseNode');
+goog.require('goog.ui.tree.TreeNode');
+goog.require('goog.ui.tree.TypeAhead');
+
+goog.ui.tree.TreeControl = ...;
+</pre>
+      </div>
+    </div>
+    <div class='note'>
+      This is how we do "modules" today. Requiring a module pulls in everything
+      from it, there’s no automatic local aliasing, and no way to prevent
+      polluting the global scope.
+    </div>
+  </div>
+
+
+  <div class='slide'>
+    <div class='content'>
+      <div>
+        <h3>
+          Modules &amp; Code Loading
+        </h3>
+<pre data-part='1'>
+define("dijit/Tree",
+  ["dojo",
+   "dijit",
+   "text!dijit/templates/TreeNode.html",
+   "text!dijit/templates/Tree.html",
+   "dijit/_Widget",
+   "dijit/_Container",
+   "dijit/_Contained"],
+    function(dojo, dijit) {
+      dojo.declare("dijit.Tree", ... );
+      return dijit.Tree;
+    });
+</pre>
+      </div>
+    </div>
+    <div class='note'>
+      The “modern” version doesn’t even look like a “module”. JS really needs a
+      module system of its own.
+    </div>
+  </div>
+
+  <div class='slide'>
+    <div class='content'>
+      <div>
+        <h3>
+          Modules &amp; Code Loading
+        </h3>
+<pre>
+// goog/ui/tree/TreeControl.js
+module Events = require('goog/events');
+import Events.{EventType, FocusHandler, KeyHandler};
+
+module Tree = require('goog/ui/tree');
+import Tree.{BaseNode, TreeNode, TypeAhead};
+
+export TreeControl = ...;
+</pre>
+      </div>
+    </div>
+    <div class='note'>
+      <p data-part='0'>
+        Files are modules when they’re included as modules, and they can
+        contain many exports. The sync/async tension in requires is handled by
+        the language runtime and doesn’t necessarily need extra magic or a
+        compiler to make it perform adequately in most cases.
+      </p>
+      <p data-part='1'>
+        The syntax for this isn’t final, and we’re working inside of TC39 to
+        improve it, but we like the semantics of this new system.
+      </p>
+    </div>
+  </div>
+
+  <div class='slide'>
+    <div class='content'>
+      <div>
+        <h1>
+          Components:
+        </h1>
+        <h2>
+          Scoped Object Extensions
+        </h2>
+      </div>
+    </div>
+    <div class='note'>
+      <p>
+      </p>
+    </div>
+  </div>
+
+  <div class='slide'>
+    <div class='content'>
+      <div>
+        <h3>Monkey Patching</h3>
+<pre data-part='0'>
+  Object.extend(Array.prototype, {
+    clear:     clear,
+    compact:   compact,
+    flatten:   flatten,
+    reverse:   reverse,
+    uniq:      uniq,
+    intersect: intersect,
+    clone:     clone
+  });
+</pre>
+<pre data-part='1'>
+  var dots = allDots.clone();
+</pre>
+<pre data-part='2'>
+  var dots = goog.array.clone(allDots);
+</pre>
+      </div>
+    </div>
+    <div class='note'>
+      <p data-part='0'>
+      Monkey patching is used extensively in real libraries. This example
+      comes from the prototype library. Note they monkey patch by using a
+      monkey patch.
+      </p>
+      <p data-part='1'>
+      This is handy because you can add helpers that can be called quite
+      naturally.
+      </p>
+      <p data-part='2'>
+      But monkey patching in large applications leads to subtle conflicts
+      between libraries. Other libraries go to great pains to not monkey patch.
+      This avoids conflicts between libraries, but has a singificant cost
+      to the usability of the API.
+      </p>
+    </div>
+  </div>
+
+  <div class='slide'>
+    <div class='content'>
+      <div>
+        <h3>Scoped Object Extensions</h3>
+<pre data-part='0'>
+  module Prototype {
+    export extension Extensions = Array.prototype {
+      clone: function () { ... }
+    }
+
+    ... [a, b, c].clone() ...
+  }
+</pre>
+<pre data-part='1'>
+  assertUndefined([].clone);
+</pre>
+<pre data-part='2'>
+  import Prototype.Extensions;
+  var dots = allDots.clone();
+</pre>
+      </div>
+    </div>
+    <div class='note'>
+      <p data-part='0'>
+      Extensions are defined as part of a module. And are available
+      inside that module.
+      </p>
+      <p data-part='1'>
+      Outside of their defining module, extensions are not visible.
+      </p>
+      <p data-part='2'>
+      But they can be imported across module boundaries.
+      </p>
+    </div>
+  </div>
+
+  <div class='slide'>
+    <div class='content'>
+      <div>
+        <h1>
+          Productivity:
+        </h1>
+        <h2>
+          Iteration
+        </h2>
+      </div>
+    </div>
+    <div class='note'>
+      <p>
+      </p>
+    </div>
+  </div>
+
+  <div class='slide'>
+    <div class='content'>
+      <div>
+        <h3>
+          Iterators
+        </h3>
+<pre data-part='0'>
+/* Positions of energizers (big dots that allow Pac-Man to eat ghosts). */
+var PM_ENERGIZERS = [
+  { x: 5, y: 15 },
+  ...
+  { x: 60, y: 15 }
+];
+
+for (var i in PM_ENERGIZERS) {
+  var energizer = PM_ENERGIZERS[i];  ...
+}
+</pre>
+<pre data-part='1'>
+PM_ENERGIZERS.printAll = function() { ... }
+</pre>
+<pre data-part='2'>
+Array.prototype.isEmpty = function() { return this.length == 0; };
+Object.prototype.fancyToString = function() { ... };
+</pre>
+      </div>
+    </div>
+    <div class='note'>
+      <p data-part='0'>
+      The first attempt at iteration through an array. Commonly used, but dangerous.
+      for..in iterates through all properties, and all properties of all prototypes.
+      </p>
+      <p data-part='1'>
+      So all properties will be enumerated.
+      </p>
+      <p data-part='2'>
+      And so will be any monkey-patched properties in the prototype chain.
+      </p>
+    </div>
+  </div>
+
+  <div class='slide'>
+    <div class='content'>
+      <div>
+        <h3>
+          Iterators
+        </h3>
+<pre data-part='0'>
+/* Positions of energizers (big dots that allow Pac-Man to eat ghosts). */
+var PM_ENERGIZERS = [ ... ];
+
+for (var i = 0; i < PM_ENERGIZERS.length; i++) {
+  var energizer = PM_ENERGIZERS[i];  ...
+}
+</pre>
+      </div>
+    </div>
+    <div class='note'>
+      <p data-part='0'>
+        Works for arrays but not for arbitrary collections.
+      </p>
+    </div>
+  </div>
+
+  <div class='slide'>
+    <div class='content'>
+      <div>
+        <h3>
+          Iterators
+        </h3>
+<pre data-part='0'>
+/* Positions of energizers (big dots that allow Pac-Man to eat ghosts). */
+var PM_ENERGIZERS = [ ... ];
+
+for (var energizer: PM_ENERGIZERS) {
+  ...
+}
+</pre>
+<pre data-part='1'>
+var iterator = PM_ENERGIZERS.getIterator();
+while (iterator.moveNext()) {
+  var energizer = iterator.current;
+  ...
+}
+</pre>
+      </div>
+    </div>
+    <div class='note'>
+      <p data-part='0'>
+        We want to add a clean syntax for iterating over all the elements
+        of a collection.
+        This should look familiar to folks with recent Java experience.
+      </p>
+      <p data-part='1'>
+        Which is equivalent to ...
+        ... so this syntax works for any object which supports the iterator
+        protocol. Not just arrays.
+        getIterator, moveNext, current
+      </p>
+    </div>
+  </div>
+
+<!--
+  <div class='slide'>
+    <div class='content'>
+      <div>
+        <h3>
+          Iterator Protocol
+        </h3>
+<pre>
+function fib(n) {
+  function iterator() {
+    var m = 0, a = 0, b = 1;
+    function moveNext() {
+      if (m >= n) return false;
+      this.current = b;
+      var c = a + b; a = b; b = c;
+      m++;
+      return true;
+    }
+    return { moveNext: moveNext };
+  }
+  return { getIterator: iterator };
+}
+
+for (var i: fib(10)) { print(i); }
+</pre>
+      </div>
+    </div>
+    <div class='note'>
+    Dynamically generated collections can implement iterator protocol and be
+    enumerated using for: construct just like arrays.
+    </div>
+  </div>
+-->
+
+  <div class='slide'>
+    <div class='content'>
+      <div>
+        <h3>
+          DOM Node Iterator
+        </h3>
+<pre>
+function allNodes(node) {
+  var result = [node];
+  var children = node.childNodes;
+  if (children) {
+    for (var i = 0; i < children.length; i ++) {
+      result = result.concat(allNodes(children[i]));
+    }
+  }
+  return result;
+}
+for (var node: allNodes(document)) {
+  ...
+}
+</pre>
+      </div>
+    </div>
+    <div class='note'>
+    Very wasteful. Generates lot of garbage in addition to the resulting list of nodes.
+    </div>
+  </div>
+
+<!--
+  <div class='slide'>
+    <div class='content'>
+      <div>
+        <h3>
+          DOM Node Iterator
+        </h3>
+<pre>
+function allNodes(root) {
+  var result = [];
+
+  function collect(n) {
+    result.push(n);
+    var children = n.childNodes;
+    if (children) {
+      for (var i = 0; i < children.length; i ++) {
+        collect(children[i]);
+      }
+    }
+  }
+
+  collect(root);
+  return result;
+}
+var nodes = allNodes(document);
+</pre>
+      </div>
+    </div>
+    <div class='note'>
+    Still wasteful allocation of the result array but better.
+    Can we return 1 node at a time using iterator protocol?
+    </div>
+  </div>
+-->
+
+  <div class='slide'>
+    <div class='content'>
+      <div>
+        <h3>
+          DOM Node Iterator
+        </h3>
+<pre>
+function allNodes(node) {
+  // ?? return node
+  for (var child : node.childNodes || [])
+    // ?? return each of allNodes(child);
+}
+
+for (var node: allNodes(document)) {
+  ...
+}
+</pre>
+      </div>
+    </div>
+    <div class='note'>
+    How do we implement this without collecting all nodes in an array?
+    </div>
+  </div>
+
+  <div class='slide'>
+    <div class='content'>
+      <div>
+        <h3>
+          DOM Node Iterator
+        </h3>
+<pre class='big'>
+function allNodes(node) {
+  function iterator() {
+    var next = []; // Continuations
+
+    process(node);
+
+    function process(node) {
+      next.push(function() {
+        var child = 0;
+        var children = node.childNodes;
+        function processChild() {
+          if (child < children.length) {
+            var cnode = children[child++];
+            if (child < children.length) {
+              next.push(processChild);
+            }
+            process(cnode);
+          }
+        };
+        next.push(processChild);
+        return { value: node };
+      });
+    }
+
+    function moveNext() {
+      for (;;) {
+        if (next.length <= 0) return false;
+        var r = next.pop()();
+        if (r) {
+          this.current = r.value;
+          return true;
+        }
+      }
+    }
+    return { moveNext: moveNext };
+  }
+  return { getIterator: iterator };
+}
+</pre>
+      </div>
+    </div>
+    <div class='note'>
+    Using continuations, easy to get lost and head-ache.
+    A well-known CPS compiler transformation.
+    A great interview question!
+    </div>
+  </div>
+
+  <div class='slide'>
+    <div class='content'>
+      <div>
+        <h3>
+          DOM Node Iterator
+        </h3>
+<pre>
+function allNodes(node) {
+  // ?? return node
+  for (var child : node.childNodes || [])
+    // ?? return each of allNodes(child);
+}
+
+for (var node: allNodes(document)) {
+  ...
+}
+</pre>
+      </div>
+    </div>
+    <div class='note'>
+    But this is really the way we want to think about this problem.
+    </div>
+  </div>
+
+  <div class='slide'>
+    <div class='content'>
+      <div>
+        <h3>DOM Node Generator</h3>
+        <pre>
+function allNodes(node) {
+  yield node;
+  for (var child : node.childNodes || [])
+    yield for allNodes(child);
+}
+
+for (var node: allNodes(document)) {
+  ...
+}
+        </pre>
+      </div>
+    </div>
+    <div class='note'>
+     Compiler gets it right every time.
+    </div>
+  </div>
+
+  <div class='slide'>
+    <div class='content'>
+      <div>
+        <h1>
+          Productivity:
+        </h1>
+        <h2>
+          Async Programming
+        </h2>
+      </div>
+    </div>
+    <div class='note'>
+      <p>
+      </p>
+    </div>
+  </div>
+
+  <div class='slide'>
+    <div class='content'>
+      <div>
+        <h3>
+          Callbacks
+        </h3>
+<pre>
+function animate(element, callback) {
+  var left = -1;
+  function next() {
+    left++;
+    if (left < 350) {
+      element.style.marginLeft = left + 'px';
+      window.setTimeout(next, 5);
+    } else {
+      callback();
+    }
+  }
+  next();
+}
+animate(document.getElementById('now'), function() { alert('done!'); });
+</pre>
+      </div>
+    </div>
+    <div class='note'>
+      <p>
+      JS is embedded in an environment where blocking calls are bad.
+      So all long running APIs use callbacks. Examples include setTimeout and
+      XHRs.
+      </p>
+      <p>
+      The callback infects your API in a non-composable way.
+      </p>
+    </div>
+  </div>
+
+  <div class='slide'>
+    <div class='content'>
+      <div>
+        <h3>
+          Deferred Pattern
+        </h3>
+<pre>
+function deferTimeout(ms) {
+  var deferred = new Deferred();
+  window.setTimeout(function() { deferred.callback(); }, ms);
+  return deferred;
+}
+function animate(element) {
+  var left = -1, deferred = new Deferred();
+  function next() {
+    if (++left < 350) {
+      element.style.marginLeft = left + 'px';
+      deferTimeout(5).then(next);
+    } else {
+      deferred.callback();
+    }
+  }
+  next(); return deferred;
+}
+animate(document.getElementById('now')).then(function() { alert('done!'); });
+</pre>
+      </div>
+    </div>
+    <div class='note'>
+      <p>
+      Library authors invented the Deferred pattern to alleviate the
+      composability issue. It moves the callback from the argument list to the
+      return value. Since the return value is first class it enables
+      composability.
+      </p>
+      <p>
+      The implementation is still twisted into CPS however.
+      </p>
+    </div>
+  </div>
+
+  <div class='slide'>
+    <div class='content'>
+      <div>
+        <h3>
+          Deferred Functions
+        </h3>
+<pre>
+function deferTimeout(ms) {
+  var deferred = new Deferred();
+  window.setTimeout(function() { deferred.callback(); }, ms);
+  return deferred;
+}
+function animate(element) {
+  for (var left = 0; left < 350; left++) {
+    element.style.marginLeft = left + 'px';
+    await deferTimeout(5);
+  }
+}
+animate(document.getElementById('now')).then(function() { alert('Traceur!'); });
+</pre>
+      </div>
+    </div>
+    <div class='note'>
+      <p>
+      Deferred functions allow writing callback heavy code in a natural linear
+      style. Let the compiler do the CPS transform for you.
+      </p>
+      <p>
+      It takes some getting used to.
+      </p>
+    </div>
+  </div>
+
+  <div class='slide'>
+    <div class='content'>
+      <div>
+        <h1>
+          Is that it?
+        </h1>
+      </div>
+    </div>
+    <div class='note'>
+      <p>
+      </p>
+    </div>
+  </div>
+
+  <div class='slide'>
+    <div class='content'>
+      <div>
+        <h3>Features</h3>
+        <table>
+          <tr>
+            <td>classes and traits</td>
+            <td>modules</td>
+          </tr>
+          <tr>
+            <td>scoped monkey patching</td>
+            <td>iterators/generators</td>
+          </tr>
+          <tr>
+            <td>async/callbacks</td>
+            <td>DOM constructors</td>
+          </tr>
+          <tr>
+            <td>lightweight function syntax</td>
+            <td>proper tailcalls</td>
+          </tr>
+          <tr>
+            <td>type system</td>
+            <td>block scoped binding</td>
+          </tr>
+          <tr>
+            <td>proxies</td>
+            <td>weak maps</td>
+          </tr>
+          <tr>
+            <td>destructuring assignment</td>
+            <td>rest parameters</td>
+          </tr>
+          <tr>
+            <td>spread operator</td>
+            <td>default parameter values</td>
+          </tr>
+          <tr>
+            <td>binary data/typed arrays</td>
+            <td>standard library</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div class='note'>
+      The first set of features.
+      We still don't know what else we'll need.
+    </div>
+  </div>
+
+  <div class='slide'>
+    <div class='content'>
+      <div>
+        <h1>When can I use this stuff?</h1>
+      </div>
+    </div>
+    <div class='note'>
+    </div>
+  </div>
+
+  <div class='slide'>
+    <div class='content'>
+      <div style='width:100%;'>
+        <input id='traceur_eval' type='button' value='eval'/>
+        <h3 id="now">Now!</h3>
+        <textarea id='traceur' spellcheck='false'></textarea>
+        <pre id='traceur_out'></pre>
+      </div>
+    </div>
+    <div class='note'>
+var done = false;
+
+function animate(element) {
+  for (var left = 0; left < 350; left++) {
+    element.style.marginLeft = left + 'px';
+    await deferTimeout(5);
+  }
+}
+function animateicon() {
+  while (!done) {
+    advanceIcon();
+    await deferTimeout(600);
+  }
+}
+animate(document.getElementById('now')).then(function() { done = true; alert('Traceur!'); });
+animateicon();
+    </div>
+  </div>
+
+  <div class='slide'>
+    <div class='content'>
+      <h1>
+        <a href='http://code.google.com/p/traceur-compiler' target='_blank'>Traceur</a>
+      </h1>
+    </div>
+    <div class='note'>
+        You can find more information on the Traceur Google Code site.
+    </div>
+  </div>
+</div>
+
+<script src='../demo/classifier.js'></script>
+<script type='text/traceur'>
+  initialize();
+</script>
