@@ -5,10 +5,14 @@ trait TraitRequiresAndInheritance {
 }
 
 class BaseImplementsRequires {
-  function r() { return "base r"; }
+  function r() { return 'base r'; }
 }
 
 class DerivedWithRequires : BaseImplementsRequires {
   mixin TraitRequiresAndInheritance;
 }
 
+// ----------------------------------------------------------------------------
+
+var obj = new DerivedWithRequires();
+assertEquals('base r', obj.callR());

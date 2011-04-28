@@ -11,3 +11,9 @@ class ClassMixinRequires {
 
   requiresMember () { return 42; }
 }
+
+// ----------------------------------------------------------------------------
+
+var obj = new ClassMixinRequires();
+assertEquals(42, obj.member());
+assertEquals(42, obj.requiresMember());

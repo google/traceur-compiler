@@ -53,6 +53,13 @@ goog.require('goog.testing.jsunit');
 <script src="feature/Classes/StaticMembers.js" type="text/traceur"></script>
 <script src="feature/Classes/SuperChaining.js" type="text/traceur"></script>
 <script src="feature/Classes/SuperMissing.js" type="text/traceur"></script>
+<script src="feature/Traits/DiamondMixin.js" type="text/traceur"></script>
+<script src="feature/Traits/Error_DeriveFromTrait.js" type="text/traceur"></script>
+<script src="feature/Traits/PropertyTrait.js" type="text/traceur"></script>
+<script src="feature/Traits/RequiresAndInheritance.js" type="text/traceur"></script>
+<script src="feature/Traits/RequiresMember.js" type="text/traceur"></script>
+<script src="feature/Traits/SimpleTrait.js" type="text/traceur"></script>
+<script src="feature/Traits/TraitMixin.js" type="text/traceur"></script>
 </head>
 <body>
 <script>
@@ -128,9 +135,16 @@ function evalScript(scriptElement) {
     var tree = traceur.codegeneration.Compiler.compileFile(errors, sourceFile);
     var code = traceur.codegeneration.ParseTreeWriter.write(tree);
 
-    eval(code);
+    if (source.indexOf('// Should not compile') == 0) {
+      // Script should not compile.
+      assertTrue('Expected error compiling ' + name + ', but got none.',
+          errors.hadError());
+    } else {
+      assertFalse('Error compiling ' + name + '.', errors.hadError());
 
-    assertFalse('Error compiling ' + name + '.', errors.hadError());
+      // Script compiled, so run it.
+      eval(code);
+    }
   }
 }
 

@@ -24,7 +24,6 @@ var _allTests = [
   './codegeneration/module_transformer_test.html',
   './codegeneration/rest_parameter_transformer_test.html',
   './codegeneration/spread_transformer_test.html',
-  './codegeneration/trait_test.html',
   './codegeneration/writer_test.html',
   './semantics/variable_binder_test.html',
   './syntax/parser_test.html',
