@@ -119,6 +119,10 @@ function evalAllScripts() {
   Array.prototype.forEach.call(scripts, evalScript);
 }
 
+// TODO(jmessery): this lets the compiler know that this variable will be
+// created later by the test framework.
+var asyncTestCase;
+
 evalAllScripts();
 
 </script>

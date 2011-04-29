@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<!--
+
+// Copyright 2011 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+-->
+<html>
+<head>
+<title></title>
+<script src="../../../third_party/closure-library/closure/goog/base.js"></script>
+<script>
+
+goog.require('goog.testing.jsunit');
+
+</script>
+<script src="../../../src/traceur.js"></script>
+</head>
+<body>
+
+<script type="text/traceur">
+
+function testFreeVariables2() {
+  // Make sure these don't cause an error
+  var x = [1, 2];
+  var y = [0, ...x, 3];
+  assertEquals('0,1,2,3', y.join(','));
+}
+
+</script>
+<script>
+
+function compileAndReturnErrors(contents, name) {
+  var sourceFile = new traceur.syntax.SourceFile(name, contents);
+  var reporter = new traceur.util.ErrorReporter();
+  var errors = [];
+  reporter.reportMessageInternal = function() {
+    errors.push(arguments);
+  };
+
+  var project = new traceur.semantics.symbols.Project();
+  project.addFile(sourceFile)
+  traceur.codegeneration.Compiler.compile(reporter, project);
+  return errors;
+}
+
+function assertErrorMessage(errors, expectedError, expectedErrorArg) {
+  assertTrue(errors.length > 0);
+  assertEquals(expectedError, errors[0][2]);
+  assertEquals(expectedErrorArg, errors[0][3][0]);
+}
+
+function assertCompileError(contents, expectedError, expectedErrorArg) {
+  var errors = compileAndReturnErrors(contents, 'code');
+  assertErrorMessage(errors, expectedError, expectedErrorArg);
+}
+
+function testFreeVariables() {
+  assertCompileError('var y = x;', '%s is not defined', 'x');
+  assertCompileError('x(1,2,3);', '%s is not defined', 'x');
+  assertCompileError('function foo() { return x; }', '%s is not defined', 'x');
+  assertCompileError('if (true) { console.log(y); }', '%s is not defined', 'y');
+  assertCompileError('function foo() { { let y = 5; }; return y; }',
+      '%s is not defined', 'y');
+  assertCompileError('x = 42;', '%s is not defined', 'x');
+  assertCompileError('x.y = 42;', '%s is not defined', 'x');
+  assertCompileError('f(42);', '%s is not defined', 'f');
+  assertCompileError('x.f(42);', '%s is not defined', 'x');
+  assertCompileError('traceur.runtime = {};', '%s is not defined', 'traceur');
+}
+
+</script>
+</body>
+</html>

@@ -17,8 +17,6 @@ traceur.define('syntax.trees', function() {
 
   var assert = traceur.assert;
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  //TODO: var NewExpression = traceur.syntax.trees.NewExpression;
-  //TODO: var ParenExpression = traceur.syntax.trees.ParenExpression;
 
   var typeToNameMap = Object.create(null);
 

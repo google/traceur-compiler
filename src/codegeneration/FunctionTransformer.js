@@ -210,8 +210,9 @@ traceur.define('codegeneration', function() {
      * @param {...Object} var_args
      */
     reportError_: function(tree, format, var_args) {
-      var_args = Array.prototype.slice.call(arguments, 2);
-      this.reporter_.reportError(tree.location.start, format, var_args);
+      var args = Array.prototype.slice.call(arguments);
+      args[0] = tree.location.start;
+      this.reporter_.reportError.apply(this.reporter_, args);
     }
   };
 

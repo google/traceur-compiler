@@ -292,8 +292,8 @@ traceur.define('semantics', function() {
       if (treeOrSymbol instanceof Symbol) {
         treeOrSymbol = treeOrSymbol.tree;
       }
-      var_args = Array.prototype.slice.call(arguments, 2);
-      this.reporter_.reportError(treeOrSymbol.location.start, format, var_args);
+      var args = Array.prototype.slice.call(arguments, 2);
+      this.reporter_.reportError(treeOrSymbol.location.start, format, args);
     },
 
     /** @param {Symbol|ParseTree} treeOrSymbol*/

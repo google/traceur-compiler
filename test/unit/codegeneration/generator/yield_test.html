@@ -286,7 +286,7 @@ function forInGenerator3() {
   };
   for (var key in object) {
     yield key;
-    for (key2 in object[key]) {
+    for (var key2 in object[key]) {
       yield key2;
     }
   }
@@ -317,7 +317,7 @@ class Tree {
     if (this.left) {
       yield for this.left;
     }
-    yield t.label;
+    yield this.label;
     if (this.right) {
       yield for this.right;
     }

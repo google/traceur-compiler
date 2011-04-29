@@ -31,6 +31,7 @@ traceur.define('codegeneration', function() {
   var ClassTransformer = traceur.codegeneration.ClassTransformer;
   var ModuleTransformer = traceur.codegeneration.ModuleTransformer;
   var GeneratorTransformPass = traceur.codegeneration.GeneratorTransformPass;
+  var FreeVariableChecker = traceur.semantics.FreeVariableChecker;
 
   var CLASS_DECLARATION = traceur.syntax.trees.ParseTreeType.CLASS_DECLARATION;
   var TRAIT_DECLARATION = traceur.syntax.trees.ParseTreeType.TRAIT_DECLARATION;
@@ -150,6 +151,9 @@ traceur.define('codegeneration', function() {
       }
       if (!this.reporter_.hadError()) {
         ParseTreeValidator.validate(tree);
+
+        // Issue errors for any unbound variables
+        FreeVariableChecker.checkProgram(this.reporter_, tree);
       }
       return tree;
     },
