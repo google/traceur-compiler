@@ -67,6 +67,7 @@ goog.require('goog.testing.jsunit');
 <script src="feature/Scope/DeepNestedLetVarNoInit.js" type="text/traceur"></script>
 <script src="feature/Scope/LetForInInitializers1.js" type="text/traceur"></script>
 <script src="feature/Scope/LetForInitializers1.js" type="text/traceur"></script>
+<script src="feature/Scope/LetInBlock.js" type="text/traceur"></script>
 <script src="feature/Scope/LetInClass.js" type="text/traceur"></script>
 <script src="feature/Scope/LetInClosure.js" type="text/traceur"></script>
 <script src="feature/Scope/LetInFor.js" type="text/traceur"></script>
@@ -119,6 +120,7 @@ function makeTestName(path) {
 }
 
 // Define some helper methods that the feature scripts can use:
+var IN_BROWSER = true;
 
 function assertNoOwnProperties(o) {
   var m = Object.getOwnPropertyNames(o);
