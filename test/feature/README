@@ -1,6 +1,6 @@
 This directory contains the "feature" tests. Each script here is a Traceur
 script that uses a feature and then validates its behavior. These scripts can
-be executed by running "/test/featuretests.html".
+be executed by running "/test/alltests.html".
 
 If the first line of a feature script starts with "// Should not compile."
 then that script intentionally contains an error that should *not*

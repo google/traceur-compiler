@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<!--
+
+// Copyright 2011 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+-->
+<html>
+<head>
+<title></title>
+<script src="../../third_party/closure-library/closure/goog/base.js"></script>
+<script>
+goog.require('goog.testing.jsunit');
+</script>
+<script src="../../src/traceur.js"></script>
+
+<script src="Classes/ClassMembers.js" type="text/traceur"></script>
+<script src="Classes/Constructor.js" type="text/traceur"></script>
+<script src="Classes/ConstructorChaining.js" type="text/traceur"></script>
+<script src="Classes/ConstructorReturn.js" type="text/traceur"></script>
+<script src="Classes/DerivedButton.js" type="text/traceur"></script>
+<script src="Classes/DeriveFromObject.js" type="text/traceur"></script>
+<script src="Classes/EmptyClass.js" type="text/traceur"></script>
+<script src="Classes/FieldInheritance.js" type="text/traceur"></script>
+<script src="Classes/FieldInitializers.js" type="text/traceur"></script>
+<script src="Classes/FieldInitializersAndConstructorParameters.js" type="text/traceur"></script>
+<script src="Classes/FieldInitializersAndInheritance.js" type="text/traceur"></script>
+<script src="Classes/FieldLookup.js" type="text/traceur"></script>
+<script src="Classes/Fields.js" type="text/traceur"></script>
+<script src="Classes/Getters.js" type="text/traceur"></script>
+<script src="Classes/Inheritance.js" type="text/traceur"></script>
+<script src="Classes/InheritanceFromMemberExpression.js" type="text/traceur"></script>
+<script src="Classes/InheritanceFromNonclass.js" type="text/traceur"></script>
+<script src="Classes/InheritanceNameBinding.js" type="text/traceur"></script>
+<script src="Classes/Method.js" type="text/traceur"></script>
+<script src="Classes/MethodLookup.js" type="text/traceur"></script>
+<script src="Classes/MethodInheritance.js" type="text/traceur"></script>
+<script src="Classes/NameBinding.js" type="text/traceur"></script>
+<script src="Classes/PropertyAccessors.js" type="text/traceur"></script>
+<script src="Classes/SimpleConst.js" type="text/traceur"></script>
+<script src="Classes/SimpleSuper.js" type="text/traceur"></script>
+<script src="Classes/StaticMembers.js" type="text/traceur"></script>
+<script src="Classes/SuperChaining.js" type="text/traceur"></script>
+<script src="Classes/SuperMissing.js" type="text/traceur"></script>
+<script src="Scope/BlockBinding1.js" type="text/traceur"></script>
+<script src="Scope/BlockBinding2.js" type="text/traceur"></script>
+<script src="Scope/BlockBinding3.js" type="text/traceur"></script>
+<script src="Scope/BlockBinding4.js" type="text/traceur"></script>
+<script src="Scope/BlockBinding5.js" type="text/traceur"></script>
+<script src="Scope/BlockBinding6.js" type="text/traceur"></script>
+<script src="Scope/BlockBinding7.js" type="text/traceur"></script>
+<script src="Scope/DeconstructingBlockBinding.js" type="text/traceur"></script>
+<script src="Scope/DeepNestedLet.js" type="text/traceur"></script>
+<script src="Scope/DeepNestedLetConst.js" type="text/traceur"></script>
+<script src="Scope/DeepNestedLetVar.js" type="text/traceur"></script>
+<script src="Scope/DeepNestedLetVarNoInit.js" type="text/traceur"></script>
+<script src="Scope/LetForInInitializers1.js" type="text/traceur"></script>
+<script src="Scope/LetForInitializers1.js" type="text/traceur"></script>
+<script src="Scope/LetInClass.js" type="text/traceur"></script>
+<script src="Scope/LetInClosure.js" type="text/traceur"></script>
+<script src="Scope/LetInFor.js" type="text/traceur"></script>
+<script src="Scope/LetInForBreak.js" type="text/traceur"></script>
+<script src="Scope/LetInForBreakInner.js" type="text/traceur"></script>
+<script src="Scope/LetInForBreakNamed.js" type="text/traceur"></script>
+<script src="Scope/LetInForContinue.js" type="text/traceur"></script>
+<script src="Scope/LetInForContinueInner.js" type="text/traceur"></script>
+<script src="Scope/LetInForContinueNamed.js" type="text/traceur"></script>
+<script src="Scope/LetInitializerFor1.js" type="text/traceur"></script>
+<script src="Scope/LetInitializerFor2.js" type="text/traceur"></script>
+<script src="Scope/LetInitializerFor3.js" type="text/traceur"></script>
+<script src="Scope/LetInitializerForIn.js" type="text/traceur"></script>
+<script src="Scope/LetInProperties.js" type="text/traceur"></script>
+<script src="Scope/LetWithFor.js" type="text/traceur"></script>
+<script src="Scope/LetWithForIn.js" type="text/traceur"></script>
+<script src="Scope/LetWithSwitch.js" type="text/traceur"></script>
+<script src="Scope/LetWithSwitch2.js" type="text/traceur"></script>
+<script src="Scope/NestedFunction1.js" type="text/traceur"></script>
+<script src="Scope/NestedFunction2.js" type="text/traceur"></script>
+<script src="Scope/NestedFunction3.js" type="text/traceur"></script>
+<script src="Scope/NestedLet.js" type="text/traceur"></script>
+<script src="Scope/TopLevelLet.js" type="text/traceur"></script>
+<script src="Scope/TopLevelLetConst.js" type="text/traceur"></script>
+<script src="Scope/TopLevelLetVar.js" type="text/traceur"></script>
+<script src="Traits/DiamondMixin.js" type="text/traceur"></script>
+<script src="Traits/Error_DeriveFromTrait.js" type="text/traceur"></script>
+<script src="Traits/PropertyTrait.js" type="text/traceur"></script>
+<script src="Traits/RequiresAndInheritance.js" type="text/traceur"></script>
+<script src="Traits/RequiresMember.js" type="text/traceur"></script>
+<script src="Traits/SimpleTrait.js" type="text/traceur"></script>
+<script src="Traits/TraitMixin.js" type="text/traceur"></script>
+</head>
+<body>
+<script>
+
+/**
+ * Given a path like "feature/Foo/Bar" makes a function name to test that
+ * feature: "testFooBar".
+ */
+function makeTestName(path) {
+  var pathStart = 'feature/';
+  var start = path.indexOf(pathStart) + pathStart.length;
+
+  var name = path.substring(start);
+  name = name.replace('/', '');
+  name = name.replace('.js', '');
+
+  return 'test' + name;
+}
+
+// Define some helper methods that the feature scripts can use:
+var IN_BROWSER = true;
+
+function assertNoOwnProperties(o) {
+  var m = Object.getOwnPropertyNames(o);
+  if (m.length) {
+    fail('Unexpected members found:' + m.join(', '));
+  }
+}
+
+function assertHasOwnProperty(o) {
+  var args = Array.prototype.slice.call(arguments, 1);
+  for (var i = 0; i < args.length; i ++) {
+    var m = args[i];
+    if (!o.hasOwnProperty(m)) {
+      fail('Expected member ' + m + ' not found.');
+    }
+  }
+}
+
+function assertLacksOwnProperty(o) {
+  var args = Array.prototype.slice.call(arguments, 1);
+  for (var i = 0; i < args.length; i ++) {
+    var m = args[i];
+    if (o.hasOwnProperty(m)) {
+      fail('Unxpected member ' + m + ' found.');
+    }
+  }
+}
+
+
+function evalScript(scriptElement) {
+  var source;
+  var name;
+  if (scriptElement.src) {
+    name = scriptElement.src;
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', scriptElement.src, false);
+    xhr.send();
+    source = xhr.responseText;
+  } else {
+    name = 'inline-script';
+    source = scriptElement.textContent;
+  }
+
+  // For each Traceur .js file, we'll create a top-level "test___" function
+  // that compiles and evaluates it. JsUnit will then find and run those
+  // functions for us.
+  // We eval each file in the scope of its own function so we don't have to
+  // worry about name clashes across the different feature scripts.
+  var testName = makeTestName(name);
+  window[testName] = function() {
+    var errors = new traceur.util.ErrorReporter();
+    var sourceFile = new traceur.syntax.SourceFile(name, source);
+    var tree = traceur.codegeneration.Compiler.compileFile(errors, sourceFile);
+    var code = traceur.codegeneration.ParseTreeWriter.write(tree);
+    
+    if (source.indexOf('// Should not compile') == 0) {
+      // Script should not compile.
+      assertTrue('Expected error compiling ' + name + ', but got none.',
+          errors.hadError());
+    } else {
+      if (errors.hadError()) {
+        fail('Error compiling ' + name + '.');
+        return;
+      }
+
+      // Script compiled, so run it.
+      eval(code);
+    }
+  }
+}
+
+function evalAllScripts() {
+  var scripts = document.querySelectorAll('script[type="text/traceur"]');
+  Array.prototype.forEach.call(scripts, evalScript);
+}
+
+evalAllScripts();
+
+</script>
+</body>
+</html>

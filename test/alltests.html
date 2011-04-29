@@ -10,7 +10,6 @@ See the COPYING file for details.
 <title>Traceur - All JsUnit Tests</title>
 <script src="../src/traceur.js"></script>
 <script src="../third_party/closure-library/closure/goog/base.js"></script>
-<script src="unit/alltests.js"></script>
 <script>
 goog.require('goog.userAgent.product');
 goog.require('goog.testing.MultiTestRunner');
@@ -77,6 +76,29 @@ a:hover {
   <label for="filter">Run only tests for path</label>
 </form>
 <script>
+  // Update this list with the output of
+  //     find . -name \*_test.html -exec echo "'{}'," \;
+  // run from test/
+  var testPaths = [
+    './feature/feature_test.html',
+    './unit/codegeneration/default_parameters_transformer_test.html',
+    './unit/codegeneration/destructuring_test.html',
+    './unit/codegeneration/generator/async_test.html',
+    './unit/codegeneration/generator/yield_test.html',
+    './unit/codegeneration/module_transformer_test.html',
+    './unit/codegeneration/rest_parameter_transformer_test.html',
+    './unit/codegeneration/spread_transformer_test.html',
+    './unit/codegeneration/writer_test.html',
+    './unit/semantics/free_variable_checker_test.html',
+    './unit/semantics/variable_binder_test.html',
+    './unit/syntax/parser_test.html',
+    './unit/syntax/parsetreevalidator_test.html',
+    './unit/syntax/scanner_test.html',
+    './unit/syntax/token_test.html',
+    './unit/syntax/trees/tree_test.html',
+    './unit/util/error_reporter_test.html'
+  ];
+
   var hidePassesInput = document.getElementById('hidepasses');
   var parallelInput = document.getElementById('parallel');
   var filterInput = document.getElementById('filter');
@@ -91,12 +113,11 @@ a:hover {
   // Create a test runner and render it.
   var testRunner = new goog.testing.MultiTestRunner()
       .setName(document.title)
-      .setBasePath('unit/')
+      .setBasePath('./')
       .setPoolSize(parallelInput.checked ? 8 : 1)
       .setStatsBucketSizes(5, 500)
       .setHidePasses(hidePassesInput.checked)
-      //.setVerbosePasses(true)
-      .addTests(_allTests);
+      .addTests(testPaths);
   testRunner.render(document.getElementById('runner'));
 
   goog.events.listen(hidePassesInput, 'click', function(e) {
