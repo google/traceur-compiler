@@ -22,6 +22,7 @@ try {
 /**
  * The traceur runtime.
  */
+var traceur = traceur || {};
 traceur.runtime = (function() {
   var map = {};
 
