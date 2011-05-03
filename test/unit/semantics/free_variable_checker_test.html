@@ -38,6 +38,11 @@ function testFreeVariables2() {
   assertEquals('0,1,2,3', y.join(','));
 }
 
+function testFreeVariables3() {
+  // Regression test.
+  assertEquals('function', typeof alert);
+}
+
 </script>
 <script>
 
@@ -79,6 +84,38 @@ function testFreeVariables() {
   assertCompileError('x.f(42);', '%s is not defined', 'x');
   assertCompileError('traceur.runtime = {};', '%s is not defined', 'traceur');
 }
+
+function evalScript(scriptElement) {
+  var source;
+  var name;
+  if (scriptElement.src) {
+    name = scriptElement.src;
+    var xhr = new XMLHttpRequest();
+    // Synchronous load but these are already loaded when we get here so it
+    // should be fast.
+    xhr.open('GET', scriptElement.src, false);
+    xhr.send();
+    source = xhr.responseText;
+  } else {
+    name = 'inline-script';
+    source = scriptElement.textContent;
+  }
+
+  var errors = new traceur.util.ErrorReporter();
+  var sourceFile = new traceur.syntax.SourceFile(name, source);
+  var tree = traceur.codegeneration.Compiler.compileFile(errors, sourceFile);
+  var code = traceur.codegeneration.ParseTreeWriter.write(tree);
+  console.log(code);
+  ('global', eval)(code);
+  assertFalse(errors.hadError());
+}
+
+function evalAllScripts() {
+  var scripts = document.querySelectorAll('script[type="text/traceur"]');
+  Array.prototype.forEach.call(scripts, evalScript);
+}
+
+evalAllScripts();
 
 </script>
 </body>
