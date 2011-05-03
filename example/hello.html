@@ -1,0 +1,27 @@
+<html> 
+  <head>
+    <title>Hello, World!</title>
+    <script src="http://traceur-compiler.googlecode.com/svn/branches/v0.10/src/traceur.js"
+        type="text/javascript"></script> 
+    <script src="http://traceur-compiler.googlecode.com/svn/branches/v0.10/src/bootstrap.js"
+        type="text/javascript"></script> 
+  </head> 
+  <body>
+    <script type="text/traceur">
+      class Greeter {
+        new(message) {
+          this.message = message;
+        }
+
+        greet() {
+          let element = document.querySelector('#message');
+          element.innerHTML = this.message;
+        }
+      };
+
+      let greeter = new Greeter('Hello, world!');
+      greeter.greet();
+    </script>
+    <h1 id="message"></h1>
+  </body> 
+</html>
