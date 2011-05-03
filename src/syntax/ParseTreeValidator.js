@@ -270,7 +270,7 @@ traceur.define('syntax', function() {
                   tree.operand,
                   'left hand side expression or member expression expected');
       if (tree.operand instanceof NewExpression) {
-        this.check_(tree.operand.asNewExpression().args !== null, tree.operand,
+        this.check_(tree.operand.args !== null, tree.operand,
             'new args expected');
       }
       this.visitAny(tree.operand);
@@ -486,7 +486,7 @@ traceur.define('syntax', function() {
     visitForInStatement: function(tree) {
       if (tree.initializer.type === ParseTreeType.VARIABLE_DECLARATION_LIST) {
         this.checkVisit_(
-            tree.initializer.asVariableDeclarationList().declarations.length <=
+            tree.initializer.declarations.length <=
                 1,
             tree.initializer,
             'for-in statement may not have more than one variable declaration');
@@ -593,7 +593,7 @@ traceur.define('syntax', function() {
       this.check_(tree.operand.isMemberExpression(), tree.operand,
           'member expression expected');
       if (tree.operand instanceof NewExpression) {
-        this.check_(tree.operand.asNewExpression().args !== null, tree.operand,
+        this.check_(tree.operand.args !== null, tree.operand,
             'new args expected');
       }
       this.visitAny(tree.operand);
@@ -606,7 +606,7 @@ traceur.define('syntax', function() {
       this.check_(tree.operand.isLeftHandSideExpression(), tree.operand,
           'left hand side expression expected');
       if (tree.operand instanceof NewExpression) {
-        this.check_(tree.operand.asNewExpression().args !== null, tree.operand,
+        this.check_(tree.operand.args !== null, tree.operand,
             'new args expected');
       }
       this.visitAny(tree.operand);

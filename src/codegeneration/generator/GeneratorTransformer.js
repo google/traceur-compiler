@@ -116,7 +116,7 @@ traceur.define('codegeneration.generator', function() {
      * @return {ParseTree}
      */
     transformFinally: function(tree) {
-      var result = CPSTransformer.prototype.transformFinally.call(this, tree).asFinally();
+      var result = CPSTransformer.prototype.transformFinally.call(this, tree);
       if (result.block.type != ParseTreeType.STATE_MACHINE) {
         return result;
       }
@@ -160,7 +160,7 @@ traceur.define('codegeneration.generator', function() {
       if (this.reporter.hadError()) {
         return tree;
       }
-      var machine = transformedTree.asStateMachine();
+      var machine = transformedTree;
 
       var statements = [];
 

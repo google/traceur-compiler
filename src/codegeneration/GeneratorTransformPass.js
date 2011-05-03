@@ -172,7 +172,7 @@ traceur.define('codegeneration', function() {
       var finder = new YieldFinder(tree);
 
       // transform nested functions
-      var body = ParseTreeTransformer.prototype.transformBlock.call(this, tree).asBlock();
+      var body = ParseTreeTransformer.prototype.transformBlock.call(this, tree);
 
       if (!finder.hasAnyGenerator()) {
         return body;
@@ -180,11 +180,11 @@ traceur.define('codegeneration', function() {
 
       // We need to transform for-in loops because the object key iteration cannot be interrupted.
       if (finder.hasForIn) {
-        body = ForInTransformPass.transformTree(this.identifierGenerator_, body).asBlock();
+        body = ForInTransformPass.transformTree(this.identifierGenerator_, body);
       }
 
       if (finder.hasYieldFor) {
-        body = YieldForTransformer.transformTree(this.identifierGenerator_, body).asBlock();
+        body = YieldForTransformer.transformTree(this.identifierGenerator_, body);
       }
 
       var transformed;

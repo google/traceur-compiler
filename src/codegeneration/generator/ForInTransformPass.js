@@ -88,7 +88,7 @@ traceur.define('codegeneration.generator', function() {
       var bodyStatements = [];
       var body = this.transformAny(tree.body);
       if (body.type == ParseTreeType.BLOCK) {
-        bodyStatements.push.apply(bodyStatements, body.asBlock().statements);
+        bodyStatements.push.apply(bodyStatements, body.statements);
       } else {
         bodyStatements.push(body);
       }
@@ -127,13 +127,13 @@ traceur.define('codegeneration.generator', function() {
 
       var originalKey, assignOriginalKey;
       if (tree.initializer.type == ParseTreeType.VARIABLE_DECLARATION_LIST) {
-        var decList = tree.initializer.asVariableDeclarationList();
-        originalKey = decList.declarations[0].lvalue.asIdentifierExpression();
+        var decList = tree.initializer;
+        originalKey = decList.declarations[0].lvalue;
         // var key = $keys[$i];
         assignOriginalKey = createVariableStatement(decList.declarationType,
             originalKey.identifierToken, lookup);
       } else if (tree.initializer.type == ParseTreeType.IDENTIFIER_EXPRESSION) {
-        originalKey = tree.initializer.asIdentifierExpression();
+        originalKey = tree.initializer;
         // key = $keys[$i];
         assignOriginalKey = createAssignmentStatement(tree.initializer, lookup);
       } else {

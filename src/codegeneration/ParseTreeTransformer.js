@@ -109,7 +109,7 @@ traceur.define('codegeneration', function() {
       }
 
       var name = getTreeNameForType(tree.type);
-      return this['transform' + name](tree['as' + name]());
+      return this['transform' + name](tree);
     },
 
     /**
@@ -259,7 +259,7 @@ traceur.define('codegeneration', function() {
      */
     transformCallExpression: function(tree) {
       var operand = this.transformAny(tree.operand);
-      var args = this.transformAny(tree.args).asArgumentList();
+      var args = this.transformAny(tree.args);
       if (operand == tree.operand && args == tree.args) {
         return tree;
       }
@@ -529,7 +529,7 @@ traceur.define('codegeneration', function() {
           body == tree.body) {
         return tree;
       }
-      return createForEachStatement(initializer.asVariableDeclarationList(),
+      return createForEachStatement(initializer,
                                     collection, body);
     },
 
@@ -578,8 +578,8 @@ traceur.define('codegeneration', function() {
      */
     transformFunctionDeclaration: function(tree) {
       var parameters =
-          this.transformAny(tree.formalParameterList).asFormalParameterList();
-      var functionBody = this.transformAny(tree.functionBody).asBlock();
+          this.transformAny(tree.formalParameterList);
+      var functionBody = this.transformAny(tree.functionBody);
       if (parameters == tree.formalParameterList &&
           functionBody == tree.functionBody) {
         return tree;
@@ -592,7 +592,7 @@ traceur.define('codegeneration', function() {
      * @return {ParseTree}
      */
     transformGetAccessor: function(tree) {
-      var body = this.transformAny(tree.body).asBlock();
+      var body = this.transformAny(tree.body);
       if (body == tree.body) {
         return tree;
       }
@@ -952,7 +952,7 @@ traceur.define('codegeneration', function() {
      * @return {ParseTree}
      */
     transformSetAccessor: function(tree) {
-      var body = this.transformAny(tree.body).asBlock();
+      var body = this.transformAny(tree.body);
       if (body == tree.body) {
         return tree;
       }
@@ -1101,8 +1101,7 @@ traceur.define('codegeneration', function() {
      * @return {ParseTree}
      */
     transformVariableStatement: function(tree) {
-      var declarations = this.transformAny(tree.declarations).
-          asVariableDeclarationList();
+      var declarations = this.transformAny(tree.declarations);
       if (declarations == tree.declarations) {
         return tree;
       }

@@ -156,7 +156,7 @@ traceur.define('codegeneration', function() {
     parameter.parameters.forEach(function(parameter) {
       if (!parameter.isRestParameter()) {
         // TODO: array and object patterns
-        builder.push(parameter.asIdentifierExpression().identifierToken.value);
+        builder.push(parameter.identifierToken.value);
       }
     });
 
@@ -298,7 +298,7 @@ traceur.define('codegeneration', function() {
       if (parameter.isRestParameter()) {
         return createSpreadExpression(
             createIdentifierExpression(
-                parameter.asRestParameter().identifier));
+                parameter.identifier));
       } else {
         // TODO: implement pattern -> array, object literal translation
         return parameter;

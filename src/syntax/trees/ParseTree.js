@@ -60,7 +60,6 @@ traceur.define('syntax.trees', function() {
    *
    * When adding a new subclass of ParseTree you must also do the following:
    *   - add a new entry to ParseTreeType
-   *   - add ParseTree.asXTree()
    *   - modify ParseTreeVisitor.visit(ParseTree) for new ParseTreeType
    *   - add ParseTreeVisitor.visit(XTree)
    *   - modify ParseTreeTransformer.transform(ParseTree) for new ParseTreeType
@@ -104,7 +103,7 @@ traceur.define('syntax.trees', function() {
         case ParseTreeType.OBJECT_PATTERN:
           return true;
         case ParseTreeType.PAREN_EXPRESSION:
-          return this.asParenExpression().expression.isPattern();
+          return this.expression.isPattern();
         default:
           return false;
       }
@@ -127,7 +126,7 @@ traceur.define('syntax.trees', function() {
         case ParseTreeType.FUNCTION_DECLARATION:
           return true;
         case ParseTreeType.PAREN_EXPRESSION:
-          return this.asParenExpression().expression.isLeftHandSideExpression();
+          return this.expression.isLeftHandSideExpression();
         default:
           return false;
       }
@@ -192,7 +191,7 @@ traceur.define('syntax.trees', function() {
 
         // new MemberExpression Arguments
         case ParseTreeType.NEW_EXPRESSION:
-          return this.asNewExpression().args != null;
+          return this.args != null;
       }
 
       return false;
@@ -291,15 +290,6 @@ traceur.define('syntax.trees', function() {
       return this.isStatementStandard();
     }
   };
-
-  // Create the asParseTreeType methods.
-  Object.keys(traceur.syntax.trees.ParseTreeType).forEach(function(type) {
-    var name = getTreeNameForType(type);
-    ParseTree.prototype['as' + name] = function() {
-      assert(this instanceof traceur.syntax.trees[name]);
-      return this;
-    };
-  });
 
   return {
     getTreeNameForType: getTreeNameForType,

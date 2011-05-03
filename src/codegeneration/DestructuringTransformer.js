@@ -173,7 +173,7 @@ traceur.define('codegeneration', function() {
           AlphaRenamer.rename(
               createBlock(desugaring.statements),
               PredefinedName.ARGUMENTS,
-              PredefinedName.CAPTURED_ARGUMENTS).asBlock());
+              PredefinedName.CAPTURED_ARGUMENTS));
 
       return createCallCall(
           createParenExpression(func),
@@ -252,7 +252,7 @@ traceur.define('codegeneration', function() {
     desugarPattern_: function(desugaring, tree) {
       switch (tree.type) {
         case ParseTreeType.ARRAY_PATTERN: {
-          var pattern = tree.asArrayPattern();
+          var pattern = tree;
 
           for (var i = 0; i < pattern.elements.length; i++) {
             var lvalue = pattern.elements[i];
@@ -262,7 +262,7 @@ traceur.define('codegeneration', function() {
             } else if (lvalue.isSpreadPatternElement()) {
               // Rest of the array, for example [x, ...y] = [1, 2, 3]
               desugaring.assign(
-                  lvalue.asSpreadPatternElement().lvalue,
+                  lvalue.lvalue,
                   createCallExpression(
                       createMemberExpression(
                           PredefinedName.ARRAY, PredefinedName.PROTOTYPE,
@@ -282,7 +282,7 @@ traceur.define('codegeneration', function() {
         }
 
         case ParseTreeType.OBJECT_PATTERN: {
-          var pattern = tree.asObjectPattern();
+          var pattern = tree;
 
           pattern.fields.forEach(function(field) {
             var lookup =
@@ -298,7 +298,7 @@ traceur.define('codegeneration', function() {
         }
 
         case ParseTreeType.PAREN_EXPRESSION:
-          this.desugarPattern_(desugaring, tree.asParenExpression().expression);
+          this.desugarPattern_(desugaring, tree.expression);
           break;
 
         default:
@@ -328,17 +328,17 @@ traceur.define('codegeneration', function() {
 
       switch (tree.type) {
         case ParseTreeType.IDENTIFIER_EXPRESSION:
-          identifiers[tree.asIdentifierExpression().identifierToken.value] = true;
+          identifiers[tree.identifierToken.value] = true;
           break;
 
         case ParseTreeType.ARRAY_PATTERN:
-          tree.asArrayPattern().elements.forEach(function(e) {
+          tree.elements.forEach(function(e) {
             this.collectLvalueIdentifiers_(identifiers, e);
           }, this);
           break;
 
         case ParseTreeType.OBJECT_PATTERN:
-          tree.asObjectPattern().fields.forEach(function(f) {
+          tree.fields.forEach(function(f) {
             if (f.element == null) {
               identifiers[f.identifier.value] = true;
             } else {
@@ -349,7 +349,7 @@ traceur.define('codegeneration', function() {
 
         case ParseTreeType.PAREN_EXPRESSION:
           this.collectLvalueIdentifiers_(identifiers,
-              tree.asParenExpression().expression);
+              tree.expression);
           break;
 
         default:

@@ -160,7 +160,7 @@ traceur.define('semantics', function() {
       // visit the statements
       tree.statements.forEach(function(s) {
         if (s.type == ParseTreeType.FUNCTION_DECLARATION) {
-          this.bindFunctionDeclaration_(s.asFunctionDeclaration());
+          this.bindFunctionDeclaration_(s);
         } else {
           this.visitAny(s);
         }
@@ -195,7 +195,7 @@ traceur.define('semantics', function() {
     visitForInStatement: function(tree) {
       if (tree.initializer != null &&
           tree.initializer.type == ParseTreeType.VARIABLE_DECLARATION_LIST) {
-        this.visitForDeclarations_(tree.initializer.asVariableDeclarationList());
+        this.visitForDeclarations_(tree.initializer);
       } else {
         this.visitAny(tree.initializer);
       }
@@ -209,7 +209,7 @@ traceur.define('semantics', function() {
     visitForStatement: function(tree) {
       if (tree.initializer != null &&
           tree.initializer.type == ParseTreeType.VARIABLE_DECLARATION_LIST) {
-        this.visitForDeclarations_(tree.initializer.asVariableDeclarationList());
+        this.visitForDeclarations_(tree.initializer);
       } else {
         this.visitAny(tree.initializer);
       }
@@ -268,7 +268,7 @@ traceur.define('semantics', function() {
     /** @param {ParseTree} parameter */
     bindParameter_: function(parameter) {
       if (parameter.isRestParameter()) {
-        this.bind_(parameter.asRestParameter().identifier);
+        this.bind_(parameter.identifier);
       } else {
         // Formal parameters are otherwise like variable
         // declarations--identifier expressions and patterns
@@ -280,29 +280,29 @@ traceur.define('semantics', function() {
     bindVariableDeclaration_: function(tree) {
       switch (tree.type) {
         case ParseTreeType.IDENTIFIER_EXPRESSION:
-          this.bind_(tree.asIdentifierExpression().identifierToken);
+          this.bind_(tree.identifierToken);
           break;
 
         case ParseTreeType.ARRAY_PATTERN:
-          var i = tree.asArrayPattern().elements;
+          var i = tree.elements;
           for (var i = 0; i < elements.length; i++) {
             this.bindVariableDeclaration_(elements[i]);
           }
           break;
 
         case ParseTreeType.SPREAD_PATTERN_ELEMENT:
-          this.bindVariableDeclaration_(tree.asSpreadPatternElement().lvalue);
+          this.bindVariableDeclaration_(tree.lvalue);
           break;
 
         case ParseTreeType.OBJECT_PATTERN:
-          var fields = tree.asObjectPattern().fields;
+          var fields = tree.fields;
           for (var i = 0; i < fields.length; i++) {
             this.bindVariableDeclaration_(fields[i]);
           }
           break;
 
         case ParseTreeType.OBJECT_PATTERN_FIELD:
-          var field = tree.asObjectPatternField();
+          var field = tree;
           if (field.element == null) {
             this.bind_(field.identifier);
           } else {
@@ -311,7 +311,7 @@ traceur.define('semantics', function() {
           break;
 
         case ParseTreeType.PAREN_EXPRESSION:
-          this.bindVariableDeclaration_(tree.asParenExpression().expression);
+          this.bindVariableDeclaration_(tree.expression);
           break;
 
         default:

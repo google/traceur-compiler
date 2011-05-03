@@ -76,10 +76,10 @@ traceur.define('semantics', function() {
 
   function getIdentifier(tree) {
     while (tree.type == ParseTreeType.PAREN_EXPRESSION) {
-      tree = tree.asParenExpression().expression;
+      tree = tree.expression;
     }
     if (tree.type == ParseTreeType.IDENTIFIER_EXPRESSION) {
-      return tree.asIdentifierExpression();
+      return tree;
     }
     return null;
   }
@@ -150,7 +150,7 @@ traceur.define('semantics', function() {
           // We need to do this here, and not inside visitFunctionDeclaration,
           // because function expressions shouldn't have their names added. Only
           // in statement contexts does this happen.
-          this.declareVariable_(s.asFunctionDeclaration().name);
+          this.declareVariable_(s.name);
         }
         this.visitAny(s);
       }, this);

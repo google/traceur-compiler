@@ -188,9 +188,9 @@ traceur.define('codegeneration', function() {
     var elements = tree.programElements.map(function(element) {
       switch (element.type) {
         case MODULE_DEFINITION:
-          return transformDefinition(module, element.asModuleDefinition());
+          return transformDefinition(module, element);
         case MODULE_DECLARATION:
-          return transformDeclaration(module, element.asModuleDeclaration());
+          return transformDeclaration(module, element);
         default:
           return element;
       }
@@ -225,23 +225,19 @@ traceur.define('codegeneration', function() {
     tree.elements.forEach(function(element) {
       switch (element.type) {
         case MODULE_DECLARATION:
-          statements.push(transformDeclaration(
-              module, element.asModuleDeclaration()));
+          statements.push(transformDeclaration(module, element));
           break;
         case MODULE_DEFINITION:
-          statements.push(transformDefinition(module,
-                                              element.asModuleDefinition()));
+          statements.push(transformDefinition(module, element));
           break;
         case EXPORT_DECLARATION:
-          var declaration = element.asExportDeclaration().declaration;
+          var declaration = element.declaration;
           switch (declaration.type) {
             case MODULE_DEFINITION:
-              statements.push(transformDefinition(
-                  module, declaration.asModuleDefinition()));
+              statements.push(transformDefinition(module, declaration));
               break;
             case MODULE_DECLARATION:
-              statements.push(transformDeclaration(
-                  module, declaration.asModuleDeclaration()));
+              statements.push(transformDeclaration(module, declaration));
               break;
             case EXPORT_PATH_LIST:
               // These do not generate any statement here. It is all taken

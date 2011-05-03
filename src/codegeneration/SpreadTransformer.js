@@ -74,7 +74,7 @@ traceur.define('codegeneration', function() {
     elements.forEach(function(element) {
       if (element.type == ParseTreeType.SPREAD_EXPRESSION) {
         args.push(createBooleanLiteral(true));
-        args.push(element.asSpreadExpression().expression);
+        args.push(element.expression);
       } else {
         args.push(createBooleanLiteral(false));
         args.push(element);
@@ -100,7 +100,7 @@ traceur.define('codegeneration', function() {
       //   return $0.fun.apply($0, $1);
       // })(expr, (expandFunction)([false, a, true, b, false, c]))
 
-      var expression = tree.operand.asMemberExpression();
+      var expression = tree.operand;
       return desugarSpreadMethodCall(
           tree,
           expression.operand,
@@ -117,7 +117,7 @@ traceur.define('codegeneration', function() {
       //   return $0[fun].apply($0, $1);
       // })(expr, (expandFunction)([false, a, true, b, false, c]))
 
-      var lookupExpression = tree.operand.asMemberLookupExpression();
+      var lookupExpression = tree.operand;
       return desugarSpreadMethodCall(
           tree,
           lookupExpression.operand,

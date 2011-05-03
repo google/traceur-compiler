@@ -98,7 +98,7 @@ traceur.define('codegeneration', function() {
    * @return {Program}
    */
   BlockBindingTransformer.transformTree = function(tree) {
-    return new BlockBindingTransformer().transformAny(tree).asProgram();
+    return new BlockBindingTransformer().transformAny(tree);
   };
 
   var ScopeType = {
@@ -323,7 +323,7 @@ traceur.define('codegeneration', function() {
           tree.initializer.type == ParseTreeType.VARIABLE_DECLARATION_LIST) {
 
         // for (var/let/const x [ = ...] in ...)
-        var variables = tree.initializer.asVariableDeclarationList();
+        var variables = tree.initializer;
 
         // Only one declaration allowed.
         if (variables.declarations.length != 1) {
@@ -396,7 +396,7 @@ traceur.define('codegeneration', function() {
      */
     prependToBlock_: function(statement, body) {
       if (body.type == ParseTreeType.BLOCK) {
-        var block = body.asBlock();
+        var block = body;
         var list = [];
         list.push(statement);
         list.push.apply(list, block.statements);
@@ -417,7 +417,7 @@ traceur.define('codegeneration', function() {
           tree.initializer.type == ParseTreeType.VARIABLE_DECLARATION_LIST) {
 
         // for (var/let/const ... ; ; ) { ... }
-        var variables = tree.initializer.asVariableDeclarationList();
+        var variables = tree.initializer;
 
         switch (variables.declarationType) {
           case LET:
@@ -846,7 +846,7 @@ traceur.define('codegeneration', function() {
     getVariableName_: function(variable) {
       var lvalue = variable.lvalue;
       if (lvalue.type == ParseTreeType.IDENTIFIER_EXPRESSION) {
-        return lvalue.asIdentifierExpression().identifierToken.value;
+        return lvalue.identifierToken.value;
       } else {
         throw new Error('Unexpected destructuring declaration found.');
       }

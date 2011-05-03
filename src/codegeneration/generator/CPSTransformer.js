@@ -148,7 +148,7 @@ traceur.define('codegeneration.generator', function() {
     transformBlock: function(tree) {
       // NOTE: tree may contain state machines already ...
       this.clearLabels_();
-      var transformedTree = proto.transformBlock.call(this, tree).asBlock();
+      var transformedTree = proto.transformBlock.call(this, tree);
       var machine = this.transformStatementList_(transformedTree.statements);
       return machine == null ? transformedTree : machine;
     },
@@ -195,11 +195,11 @@ traceur.define('codegeneration.generator', function() {
       for (var i = 0; i < statements.caseClauses.length; i++) {
         var clause = statements.caseClauses[i];
         if (clause.type == ParseTreeType.CASE_CLAUSE) {
-          if (this.containsStateMachine_(clause.asCaseClause().statements)) {
+          if (this.containsStateMachine_(clause.statements)) {
             return true;
           }
         } else {
-          if (this.containsStateMachine_(clause.asDefaultClause().statements)) {
+          if (this.containsStateMachine_(clause.statements)) {
             return true;
           }
         }
@@ -212,7 +212,7 @@ traceur.define('codegeneration.generator', function() {
      * @return {ParseTree}
      */
     transformCaseClause: function(tree) {
-      var result = proto.transformCaseClause.call(this, tree).asCaseClause();
+      var result = proto.transformCaseClause.call(this, tree);
       var machine = this.transformStatementList_(result.statements);
       return machine == null ?
           result :
@@ -226,13 +226,13 @@ traceur.define('codegeneration.generator', function() {
     transformDoWhileStatement: function(tree) {
       var labels = this.clearLabels_();
 
-      var result = proto.transformDoWhileStatement.call(this, tree).asDoWhileStatement();
+      var result = proto.transformDoWhileStatement.call(this, tree);
       if (result.body.type != ParseTreeType.STATE_MACHINE) {
         return result;
       }
 
       // a yield within a do/while loop
-      var loopBodyMachine = result.body.asStateMachine();
+      var loopBodyMachine = result.body;
       var startState = loopBodyMachine.startState;
       var conditionState = loopBodyMachine.fallThroughState;
       var fallThroughState = this.allocateState();
@@ -269,13 +269,13 @@ traceur.define('codegeneration.generator', function() {
     transformForStatement: function(tree) {
       var labels = this.clearLabels_();
 
-      var result = proto.transformForStatement.call(this, tree).asForStatement();
+      var result = proto.transformForStatement.call(this, tree);
       if (result.body.type != ParseTreeType.STATE_MACHINE) {
         return result;
       }
 
       // a yield within the body of a 'for' statement
-      var loopBodyMachine = result.body.asStateMachine();
+      var loopBodyMachine = result.body;
 
       var incrementState = loopBodyMachine.fallThroughState;
       var conditionState = result.increment == null && result.condition != null ?
@@ -340,7 +340,7 @@ traceur.define('codegeneration.generator', function() {
     transformIfStatement: function(tree) {
       this.clearLabels_();
 
-      var result = proto.transformIfStatement.call(this, tree).asIfStatement();
+      var result = proto.transformIfStatement.call(this, tree);
       if (result.ifClause.type != ParseTreeType.STATE_MACHINE &&
           (result.elseClause == null || result.elseClause.type != ParseTreeType.STATE_MACHINE)) {
         return result;
@@ -441,7 +441,7 @@ traceur.define('codegeneration.generator', function() {
     transformSwitchStatement: function(tree) {
       var labels = this.clearLabels_();
 
-      var result = proto.transformSwitchStatement.call(this, tree).asSwitchStatement();
+      var result = proto.transformSwitchStatement.call(this, tree);
       if (!this.containsStateMachine_(result)) {
         return result;
       }
@@ -458,13 +458,13 @@ traceur.define('codegeneration.generator', function() {
       for (var index = result.caseClauses.length - 1; index >= 0; index--) {
         var clause = result.caseClauses[index];
         if (clause.type == ParseTreeType.CASE_CLAUSE) {
-          var caseClause = clause.asCaseClause();
+          var caseClause = clause;
           nextState = this.addSwitchClauseStates_(nextState, fallThroughState,
               labels, caseClause.statements, states, tryStates);
           clauses.push(new SwitchClause(caseClause.expression, nextState));
         } else {
           hasDefault = true;
-          var defaultClause = clause.asDefaultClause();
+          var defaultClause = clause;
           nextState = this.addSwitchClauseStates_(nextState, fallThroughState,
               labels, defaultClause.statements, states, tryStates);
           clauses.push(new SwitchClause(null, nextState));
@@ -507,16 +507,16 @@ traceur.define('codegeneration.generator', function() {
     transformTryStatement: function(tree) {
       this.clearLabels_();
 
-      var result = proto.transformTryStatement.call(this, tree).asTryStatement();
+      var result = proto.transformTryStatement.call(this, tree);
       if (result.body.type != ParseTreeType.STATE_MACHINE && (result.catchBlock == null ||
-          result.catchBlock.asCatch().catchBody.type != ParseTreeType.STATE_MACHINE)) {
+          result.catchBlock.catchBody.type != ParseTreeType.STATE_MACHINE)) {
         return result;
       }
       // NOTE: yield inside finally caught in FinallyBlock transform methods
 
       var tryMachine = this.ensureTransformed_(result.body);
       if (result.catchBlock != null) {
-        var catchBlock = result.catchBlock.asCatch();
+        var catchBlock = result.catchBlock;
         var exceptionName = catchBlock.exceptionName.value;
         var catchMachine = this.ensureTransformed_(catchBlock.catchBody);
         var startState = tryMachine.startState;
@@ -550,7 +550,7 @@ traceur.define('codegeneration.generator', function() {
                 tryMachine.exceptionBlocks)]);
       }
       if (result.finallyBlock != null) {
-        var finallyBlock = result.finallyBlock.asFinally();
+        var finallyBlock = result.finallyBlock;
         var finallyMachine = this.ensureTransformed_(finallyBlock.block);
         var startState = tryMachine.startState;
         var fallThroughState = tryMachine.fallThroughState;
@@ -594,7 +594,7 @@ traceur.define('codegeneration.generator', function() {
       }
       if (declarations.type == ParseTreeType.VARIABLE_DECLARATION_LIST) {
         // let/const - just transform for now
-        return createVariableStatement(declarations.asVariableDeclarationList());
+        return createVariableStatement(declarations);
       }
       return createExpressionStatement(declarations);
     },
@@ -637,13 +637,13 @@ traceur.define('codegeneration.generator', function() {
     transformWhileStatement: function(tree) {
       var labels = this.clearLabels_();
 
-      var result = proto.transformWhileStatement.call(this, tree).asWhileStatement();
+      var result = proto.transformWhileStatement.call(this, tree);
       if (result.body.type != ParseTreeType.STATE_MACHINE) {
         return result;
       }
 
       // a yield within a while loop
-      var loopBodyMachine = result.body.asStateMachine();
+      var loopBodyMachine = result.body;
       var startState = loopBodyMachine.fallThroughState;
       var fallThroughState = this.allocateState();
 
@@ -665,7 +665,7 @@ traceur.define('codegeneration.generator', function() {
      * @return {ParseTree}
      */
     transformWithStatement: function(tree) {
-      var result = proto.transformWithStatement.call(this, tree).asWithStatement();
+      var result = proto.transformWithStatement.call(this, tree);
       if (result.body.type != ParseTreeType.STATE_MACHINE) {
         return result;
       }
@@ -1161,7 +1161,7 @@ traceur.define('codegeneration.generator', function() {
       // Check for block scoped variables in a block containing a yield. There's
       // no way to codegen that with a precompiler but could be implemented directly in a VM.
       if (maybeTransformedStatement.type == ParseTreeType.VARIABLE_STATEMENT &&
-          maybeTransformedStatement.asVariableStatement().declarations.declarationType !=
+          maybeTransformedStatement.declarations.declarationType !=
               TokenType.VAR) {
         this.reporter.reportError(
             maybeTransformedStatement.location != null ?
@@ -1190,7 +1190,7 @@ traceur.define('codegeneration.generator', function() {
       }
       var maybeTransformed = this.maybeTransformStatement_(statement);
       return maybeTransformed.type == ParseTreeType.STATE_MACHINE ?
-          maybeTransformed.asStateMachine() :
+          maybeTransformed :
           this.statementToStateMachine_(maybeTransformed);
     },
 

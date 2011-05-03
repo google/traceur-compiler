@@ -106,22 +106,22 @@ traceur.define('semantics', function() {
     declareAggregateMember_: function(aggregate, memberTree) {
       switch (memberTree.type) {
         case ParseTreeType.FUNCTION_DECLARATION:
-          this.declareFunctionMember_(aggregate, memberTree.asFunctionDeclaration());
+          this.declareFunctionMember_(aggregate, memberTree);
           break;
         case ParseTreeType.FIELD_DECLARATION:
-          this.declareFieldMembers_(aggregate, memberTree.asFieldDeclaration());
+          this.declareFieldMembers_(aggregate, memberTree);
           break;
         case ParseTreeType.GET_ACCESSOR:
-          this.declareAccessor_(aggregate, memberTree.asGetAccessor(), 'get', GetAccessor);
+          this.declareAccessor_(aggregate, memberTree, 'get', GetAccessor);
           break;
         case ParseTreeType.SET_ACCESSOR:
-          this.declareAccessor_(aggregate, memberTree.asSetAccessor(), 'set', SetAccessor);
+          this.declareAccessor_(aggregate, memberTree, 'set', SetAccessor);
           break;
         case ParseTreeType.MIXIN:
           aggregate.mixins.push(memberTree);
           break;
         case ParseTreeType.REQUIRES_MEMBER:
-          this.declareRequiresMember_(aggregate, memberTree.asRequiresMember());
+          this.declareRequiresMember_(aggregate, memberTree);
           break;
         default:
           throw new Error('Unrecognized parse tree in class declaration:' + memberTree.type);
@@ -158,7 +158,7 @@ traceur.define('semantics', function() {
       var name = null;
       switch (tree.lvalue.type) {
         case ParseTreeType.IDENTIFIER_EXPRESSION:
-          name = tree.lvalue.asIdentifierExpression().identifierToken.value;
+          name = tree.lvalue.identifierToken.value;
           break;
         default:
           // TODO: Should destructuring be allowed in a field declaration?
@@ -214,7 +214,7 @@ traceur.define('semantics', function() {
         this.reportDuplicateMember_(aggregate, tree, name);
         return null;
       }
-      return member.asProperty();
+      return member;
     },
 
     /**
@@ -226,10 +226,10 @@ traceur.define('semantics', function() {
       var name;
       switch (propertyName.type) {
         case TokenType.IDENTIFIER:
-          name = propertyName.asIdentifier().value;
+          name = propertyName.value;
           break;
         case TokenType.STRING:
-          name = propertyName.asLiteral().value;
+          name = propertyName.value;
           break;
         case TokenType.NUMBER:
           throw new Error('TODO: Property with numeric names');

@@ -39,7 +39,7 @@ traceur.define('syntax', function() {
       }
 
       var name = getTreeNameForType(tree.type);
-      this['visit' + name](tree['as' + name]());
+      this['visit' + name](tree);
     },
 
     /**

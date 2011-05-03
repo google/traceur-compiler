@@ -72,7 +72,7 @@ traceur.define('codegeneration', function() {
      */
     transformForEachStatement: function(original) {
       var tree = ParseTreeTransformer.prototype.transformForEachStatement.call(
-          this, original).asForEachStatement();
+          this, original);
 
       //   let $it = collection.__iterator__();
       // TODO: use 'var' instead of 'let' to enable yield's from within foreach statements
@@ -87,7 +87,7 @@ traceur.define('codegeneration', function() {
       var body = createBlock(
           createVariableStatement(
               tree.initializer.declarationType,
-              tree.initializer.declarations[0].lvalue.asIdentifierExpression().identifierToken,
+              tree.initializer.declarations[0].lvalue.identifierToken,
               createMemberExpression(iter, PredefinedName.CURRENT)),
           tree.body);
 

@@ -217,10 +217,10 @@ traceur.define('codegeneration', function() {
       sym.getStaticMembers().forEach(function(member) {
         switch (member.type) {
           case SymbolType.METHOD:
-            result.push(this.transformStaticMethodAssignment_(classInstance, member.asMethod()));
+            result.push(this.transformStaticMethodAssignment_(classInstance, member));
             break;
           case SymbolType.PROPERTY:
-            result.push(this.transformStaticAccessor_(classInstance, member.asProperty()));
+            result.push(this.transformStaticAccessor_(classInstance, member));
             break;
           case SymbolType.FIELD:
             break;
@@ -237,7 +237,7 @@ traceur.define('codegeneration', function() {
           case SymbolType.PROPERTY:
             break;
           case SymbolType.FIELD:
-            result.push(this.transformStaticField_(classInstance, member.asField()));
+            result.push(this.transformStaticField_(classInstance, member));
             break;
           case SymbolType.REQUIRES:
           default:
@@ -363,11 +363,11 @@ traceur.define('codegeneration', function() {
         switch (member.type) {
           case SymbolType.METHOD:
             if (!member.isConstructor()) {
-              result.push(this.transformInstanceMethod_(member.asMethod()));
+              result.push(this.transformInstanceMethod_(member));
             }
             break;
           case SymbolType.PROPERTY:
-            var property = member.asProperty();
+            var property = member;
             if (property.get != null) {
               result.push(this.transformInstanceGetAccessor_(property.get));
             }

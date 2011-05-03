@@ -117,33 +117,33 @@ traceur.define('codegeneration', function() {
         // foreach must come before destructuring and generator, or anything
         // that wants to use VariableBinder
         tree = ForEachTransformer.transformTree(
-            this.identifierGenerator_, tree).asProgram();
+            this.identifierGenerator_, tree);
       }
       if (!this.reporter_.hadError()) {
         ParseTreeValidator.validate(tree);
         // rest parameters must come before generator
-        tree = RestParameterTransformer.transformTree(tree).asProgram();
+        tree = RestParameterTransformer.transformTree(tree);
       }
       if (!this.reporter_.hadError()) {
         ParseTreeValidator.validate(tree);
         // default parameters should come after rest parameter to get the
         // expected order in the transformed code.
-        tree = DefaultParametersTransformer.transformTree(tree).asProgram();
+        tree = DefaultParametersTransformer.transformTree(tree);
       }
       if (!this.reporter_.hadError()) {
         ParseTreeValidator.validate(tree);
         // generator must come after foreach and rest parameters
         tree = GeneratorTransformPass.transformTree(
-            this.identifierGenerator_, this.reporter_, tree).asProgram();
+            this.identifierGenerator_, this.reporter_, tree);
       }
       if (!this.reporter_.hadError()) {
         ParseTreeValidator.validate(tree);
         // destructuring must come after foreach and before block binding
-        tree = DestructuringTransformer.transformTree(tree).asProgram();
+        tree = DestructuringTransformer.transformTree(tree);
       }
       if (!this.reporter_.hadError()) {
         ParseTreeValidator.validate(tree);
-        tree = SpreadTransformer.transformTree(tree).asProgram();
+        tree = SpreadTransformer.transformTree(tree);
       }
       if (!this.reporter_.hadError()) {
         ParseTreeValidator.validate(tree);

@@ -104,10 +104,10 @@ traceur.define('codegeneration', function() {
       }
 
       if (tree.operand.type == ParseTreeType.MEMBER_EXPRESSION &&
-          tree.operand.asMemberExpression().operand.type == ParseTreeType.SUPER_EXPRESSION) {
+          tree.operand.operand.type == ParseTreeType.SUPER_EXPRESSION) {
         // We have: super.member(args)
 
-        var memberExpression = tree.operand.asMemberExpression();
+        var memberExpression = tree.operand;
         this.validateSuperMember_(memberExpression);
 
         // traceur.runtime.superCall(this, class, "name", <args>)
@@ -143,7 +143,7 @@ traceur.define('codegeneration', function() {
               createIdentifierExpression(this.aggregate_.name),
               createStringLiteral(tree.memberName.value));
         case ParseTreeType.CLASS_EXPRESSION:
-          var classSymbol = getClassExpression(tree.operand.asClassExpression());
+          var classSymbol = getClassExpression(tree.operand);
           if (classSymbol == null) {
             return null;
           }
@@ -201,7 +201,7 @@ traceur.define('codegeneration', function() {
         this.reportError_(tree, 'Cannot use "class" primary expressions outside of a class declaration.');
         return null;
       }
-      return this.aggregate_.asClass();
+      return this.aggregate_;
     },
 
     /**
