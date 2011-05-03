@@ -68,18 +68,6 @@
 
   <div class='slide'>
     <div class='content'>
-      <img src='http://a5.mzstatic.com/us/r1000/030/Purple/45/28/f7/mzl.yagtukvx.320x480-75.jpg' class='center'>
-    </div>
-    <div class='note'>
-      <p>
-        Still, its easier to do rich apps for closed platforms rather than
-        the open web platform.
-      </p>
-    </div>
-  </div>
-
-  <div class='slide'>
-    <div class='content'>
       <h1>
         What is needed?
       </h1>
@@ -211,6 +199,7 @@ PacMan.prototype.eat = function() { ... };
     </div>
   </div>
 
+<!--
   <div class='slide'>
     <div class='content'>
       <div>
@@ -271,6 +260,7 @@ PacMan.prototype = Object.create(
     <div class='note'>
     </div>
   </div>
+-->
 
   <div class='slide'>
     <div class='content'>
@@ -1108,9 +1098,12 @@ animateicon();
 
   <div class='slide'>
     <div class='content'>
-      <h1>
-        <a href='http://code.google.com/p/traceur-compiler' target='_blank'>Traceur</a>
-      </h1>
+      <div>
+        <h1>
+          <a href='http://code.google.com/p/traceur-compiler' target='_blank'>Traceur</a>
+        </h1>
+        <h3>http://code.google.com/p/traceur-compiler</h3>
+      </div>
     </div>
     <div class='note'>
         You can find more information on the Traceur Google Code site.
@@ -1120,5 +1113,6 @@ animateicon();
 
 <script src='../demo/classifier.js'></script>
 <script type='text/traceur'>
+  var initialize; // need this for modules
   initialize();
 </script>

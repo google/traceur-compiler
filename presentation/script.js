@@ -1,8 +1,11 @@
 var AFTERIMAGE_COUNT = 3;
 
 var curSlide;
-
 var animateStep;
+var iconEl;
+var presentationEl;
+var slideEls;
+var iconAnimateStep;
 
 function advanceIcon() {
   iconEl.classList.add('animate');

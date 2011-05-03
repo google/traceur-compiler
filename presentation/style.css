@@ -461,7 +461,7 @@ pre {
   line-height: 24px;
   font-family: 'Droid Sans Mono', 'Courier New', monospace;
   color: black;
-  background: rgba(255, 255, 255, .4);
+  background: rgba(255, 255, 255, 1);
 
   text-shadow: 0 1px 3px rgba(0, 0, 0, .2);
   width: 1004px;
