@@ -164,7 +164,8 @@ traceur.define('semantics', function() {
     visitFunctionDeclaration: function(tree) {
       var scope = this.pushScope_();
 
-      // Declare the function name and formal parameters inside the function
+      // Declare the function name, 'arguments' and formal parameters inside the
+      // function
       this.declareVariable_(tree.name);
       this.declareVariable_(PredefinedName.ARGUMENTS);
       tree.formalParameterList.parameters.forEach(this.declareVariable_, this);
