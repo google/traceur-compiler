@@ -136,7 +136,11 @@ traceur.define('semantics', function() {
       // TODO(jmesserly): this should be done through the module loaders, and by
       // providing the user the option to import URLs like '@dom', but for now
       // just bind against everything in the global scope.
-      Object.getOwnPropertyNames(global).forEach(this.declareVariable_, this);
+      var object = global;
+      while (object) {
+        Object.getOwnPropertyNames(object).forEach(this.declareVariable_, this);
+        object = Object.getPrototypeOf(object);
+      }
 
       this.visitStatements_(tree.programElements);
 
