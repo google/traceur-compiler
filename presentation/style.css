@@ -61,8 +61,8 @@ table {
 
   border-radius: 30px;
 
-  background: -webkit-linear-gradient(transparent, rgba(0, 0, 0, .2)),
-              -webkit-radial-gradient(rgb(250, 250, 250), rgb(180, 180, 180));
+  background: -webkit-linear-gradient(transparent, rgba(0, 0, 0, .1)),
+              -webkit-radial-gradient(rgb(250, 250, 250), rgb(220, 220, 220));
 
   background-size: 100% 2px, 100% 100%;
 
