@@ -22,6 +22,7 @@ traceur.define('semantics', function() {
   var IdentifierToken = traceur.syntax.IdentifierToken;
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
   var SourcePosition = traceur.syntax.SourcePosition;
+  var PredefinedName = traceur.syntax.PredefinedName;
 
   /**
    * Finds the identifiers that are not bound in a program. Run this after all
@@ -165,6 +166,7 @@ traceur.define('semantics', function() {
 
       // Declare the function name and formal parameters inside the function
       this.declareVariable_(tree.name);
+      this.declareVariable_(PredefinedName.ARGUMENTS);
       tree.formalParameterList.parameters.forEach(this.declareVariable_, this);
 
       this.visitAny(tree.functionBody);
