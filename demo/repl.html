@@ -68,8 +68,12 @@ textarea {
 
     var reporter = new traceur.util.ErrorReporter();
     reporter.reportMessageInternal = function(location, kind, format, args) {
+      var i = 0;
+      var message = format.replace(/%s/g, function() {
+        return args[i++];
+      });
       if (location)
-        format = location + ': ' + format;
+        format = location + ': ' + message;
       //console[kind].apply(console, [format].concat(args));
       errorElement.textContent += format + '\n';
     };
