@@ -94,6 +94,7 @@ textarea {
         try {
           evalElement.textContent = ('global', eval)(source);
         } catch(ex) {
+          hasError = true;
           errorElement.textContent = ex;
         }
       }
