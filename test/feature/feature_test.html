@@ -92,13 +92,22 @@ goog.require('goog.testing.jsunit');
 <script src="Scope/TopLevelLet.js" type="text/traceur"></script>
 <script src="Scope/TopLevelLetConst.js" type="text/traceur"></script>
 <script src="Scope/TopLevelLetVar.js" type="text/traceur"></script>
+<script src="Spread/Array.js" type="text/traceur"></script>
+<script src="Spread/Call.js" type="text/traceur"></script>
+<script src="Spread/CallWithUndefined.js" type="text/traceur"></script>
+<script src="Spread/Class.js" type="text/traceur"></script>
+<script src="Spread/MethodCall.js" type="text/traceur"></script>
+<script src="Spread/MethodCallQutodName.js" type="text/traceur"></script>
+<script src="Spread/New.js" type="text/traceur"></script>
+<script src="Spread/New2.js" type="text/traceur"></script>
+<script src="Spread/NewBuiltin.js" type="text/traceur"></script>
+<script src="Spread/Type.js" type="text/traceur"></script>
 <script src="Traits/DiamondMixin.js" type="text/traceur"></script>
 <script src="Traits/Error_DeriveFromTrait.js" type="text/traceur"></script>
 <script src="Traits/PropertyTrait.js" type="text/traceur"></script>
 <script src="Traits/RequiresAndInheritance.js" type="text/traceur"></script>
 <script src="Traits/RequiresMember.js" type="text/traceur"></script>
 <script src="Traits/SimpleTrait.js" type="text/traceur"></script>
-<script src="Traits/TraitMixin.js" type="text/traceur"></script>
 </head>
 <body>
 <script>
@@ -148,6 +157,12 @@ function assertLacksOwnProperty(o) {
   }
 }
 
+// Replace the Closure-provided array comparer with our own that doesn't barf
+// because Array.prototype has a __iterator__ method.
+function assertArrayEquals(expected, actual) {
+  assertEquals(JSON.stringify(expected, null, 2),
+               JSON.stringify(actual, null, 2));
+}
 
 function evalScript(scriptElement) {
   var source;
@@ -174,7 +189,7 @@ function evalScript(scriptElement) {
     var sourceFile = new traceur.syntax.SourceFile(name, source);
     var tree = traceur.codegeneration.Compiler.compileFile(errors, sourceFile);
     var code = traceur.codegeneration.ParseTreeWriter.write(tree);
-    
+
     if (source.indexOf('// Should not compile') == 0) {
       // Script should not compile.
       assertTrue('Expected error compiling ' + name + ', but got none.',

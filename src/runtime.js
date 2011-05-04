@@ -316,14 +316,17 @@ traceur.runtime = (function() {
     return retval;
   }
 
+  var bind = Function.prototype.bind;
+
   /**
    * @param {Function} ctor
    * @param {Array} items Array of interleaving booleans and values.
    * @return {Object}
    */
   function spreadNew(ctor, items) {
-    var object = Object.create(ctor.prototype);
-    var retval = ctor.apply(object, spread(items));
+    var args = spread(items);
+    args.unshift(null);
+    var retval = new (bind.apply(ctor, args));
     return retval && typeof retval == 'object' ? retval : object;
   };
 
