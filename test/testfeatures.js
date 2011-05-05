@@ -25,6 +25,86 @@ function failScript(script, message) {
   console.log('     ' + message);
 }
 
+// Define some rudimentary versions of the JSUnit assertions that the
+// feature tests use.
+var asserts = {
+
+  fail: function(message) {
+    throw new UnitTestError(message);
+  },
+
+  assertEquals: function(expected, actual) {
+    if (actual !== expected) {
+      fail('Expected ' + expected + ' but was ' + actual + '.');
+    }
+  },
+
+  assertNotEquals: function(expected, actual) {
+    if (actual === expected) {
+      fail('Expected ' + expected + ' to not be ' + actual + '.');
+    }
+  },
+
+  assertNotNull: function(actual) {
+    if (actual === null) {
+      fail('Unexpected null.');
+    }
+  },
+
+  assertFalse: function(actual) {
+    assertEquals(false, actual);
+  },
+
+  assertTrue: function(actual) {
+    assertEquals(true, actual);
+  },
+
+  assertUndefined: function(actual) {
+    assertEquals(undefined, actual);
+  },
+
+  assertThrows: function (fn) {
+    try {
+      fn();
+      fail('Function should have thrown and did not.');
+    } catch (e) {
+      // Do nothing.
+    }
+  },
+
+  assertNoOwnProperties: function(o) {
+    var m = Object.getOwnPropertyNames(o);
+    if (m.length) {
+      fail('Unexpected members found:' + m.join(', '));
+    }
+  },
+
+  assertHasOwnProperty: function(o) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    for (var i = 0; i < args.length; i ++) {
+      var m = args[i];
+      if (!o.hasOwnProperty(m)) {
+        fail('Expected member ' + m + ' not found.');
+      }
+    }
+  },
+
+  assertLacksOwnProperty: function(o) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    for (var i = 0; i < args.length; i ++) {
+      var m = args[i];
+      if (o.hasOwnProperty(m)) {
+        fail('Unxpected member ' + m + ' found.');
+      }
+    }
+  },
+
+  assertArrayEquals: function(expected, actual) {
+    assertEquals(JSON.stringify(expected, null, 2),
+                 JSON.stringify(actual, null, 2));
+  }
+};
+
 /**
  * Load, compile, and execute the feature script at the given path.
  */
@@ -38,7 +118,7 @@ function testScript(filePath) {
   var reporter = new traceur.util.ErrorReporter();
   var sourceFile = new traceur.syntax.SourceFile(filePath, script);
   var tree = traceur.codegeneration.Compiler.compileFile(reporter, sourceFile);
-  
+
   if (reporter.hadError()) {
     failScript(filePath, 'Unexpected compile error in script.');
     return false;
@@ -76,78 +156,6 @@ function testScriptInContext(javascript) {
   // Define this so that scripts that use the DOM know not to run.
   var IN_BROWSER = false;
 
-  // Define some rudimentary versions of the JSUnit assertions that the
-  // feature tests use.
-  function fail(message) {
-    throw new UnitTestError(message);
-  }
-
-  function assertEquals(expected, actual) {
-    if (actual !== expected) {
-      fail('Expected ' + expected + ' but was ' + actual + '.');
-    }
-  }
-
-  function assertNotEquals(expected, actual) {
-    if (actual === expected) {
-      fail('Expected ' + expected + ' to not be ' + actual + '.');
-    }
-  }
-
-  function assertNotNull(actual) {
-    if (actual === null) {
-      fail('Unexpected null.');
-    }
-  }
-
-  function assertFalse(actual) {
-    assertEquals(false, actual);
-  }
-
-  function assertTrue(actual) {
-    assertEquals(true, actual);
-  }
-
-  function assertUndefined(actual) {
-    assertEquals(undefined, actual);
-  }
-
-  function assertThrows(fn) {
-    try {
-      fn();
-      fail('Function should have thrown and did not.');
-    } catch (e) {
-      // Do nothing.
-    }
-  }
-
-  function assertNoOwnProperties(o) {
-    var m = Object.getOwnPropertyNames(o);
-    if (m.length) {
-      fail('Unexpected members found:' + m.join(', '));
-    }
-  }
-
-  function assertHasOwnProperty(o) {
-    var args = Array.prototype.slice.call(arguments, 1);
-    for (var i = 0; i < args.length; i ++) {
-      var m = args[i];
-      if (!o.hasOwnProperty(m)) {
-        fail('Expected member ' + m + ' not found.');
-      }
-    }
-  }
-
-  function assertLacksOwnProperty(o) {
-    var args = Array.prototype.slice.call(arguments, 1);
-    for (var i = 0; i < args.length; i ++) {
-      var m = args[i];
-      if (o.hasOwnProperty(m)) {
-        fail('Unxpected member ' + m + ' found.');
-      }
-    }
-  }
-
   // TODO(rnystrom): Hack. Don't let Traceur spew all over our beautiful
   // test results.
   var console = {
@@ -155,7 +163,7 @@ function testScriptInContext(javascript) {
     info: function() {},
     error: function() {}
   };
-  
+
   eval(javascript);
 }
 
@@ -178,6 +186,12 @@ function runFeatureScripts(dir) {
 
 // Allow traceur.js to use importScript.
 global.importScript = importScript;
+
+// Add assert methods to global so that our FreeVariableChecker does not think
+// they are undefined.
+for (var key in asserts) {
+  global[key] = asserts[key];
+}
 
 // Load the compiler.
 importScript('traceur.js');
