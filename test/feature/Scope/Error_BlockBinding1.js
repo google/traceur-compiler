@@ -1,16 +1,12 @@
+// Should not compile.
+
 function testBlock() {
   {
     let z = 'z value';
   }
 
-  try {
-    var x = z;
-  } catch (e) {
-    return 'pass';
-  }
-  return 'fail';
+  var x = z;
 }
 
 // ----------------------------------------------------------------------------
 
-assertEquals('pass', testBlock());

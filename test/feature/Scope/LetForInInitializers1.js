@@ -7,10 +7,14 @@ var result;
     let let_value = let_array[let_index];
     let_result.push(
         function() {
-          return [let_ott, let_index, let_value];
+          return [let_index, let_value];
         });
   }
   result = let_result;
 }
 
 // ----------------------------------------------------------------------------
+
+assertArrayEquals(['0', 'one'], result[0]());
+assertArrayEquals(['1', 'two'], result[1]());
+assertArrayEquals(['2', 'three'], result[2]());

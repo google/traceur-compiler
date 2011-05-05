@@ -53,7 +53,7 @@ goog.require('goog.testing.jsunit');
 <script src="Classes/StaticMembers.js" type="text/traceur"></script>
 <script src="Classes/SuperChaining.js" type="text/traceur"></script>
 <script src="Classes/SuperMissing.js" type="text/traceur"></script>
-<script src="Scope/BlockBinding1.js" type="text/traceur"></script>
+<script src="Scope/Error_BlockBinding1.js" type="text/traceur"></script>
 <script src="Scope/BlockBinding2.js" type="text/traceur"></script>
 <script src="Scope/BlockBinding3.js" type="text/traceur"></script>
 <script src="Scope/BlockBinding4.js" type="text/traceur"></script>
@@ -185,7 +185,8 @@ function evalScript(scriptElement) {
   // worry about name clashes across the different feature scripts.
   var testName = makeTestName(name);
   window[testName] = function() {
-    assertNotEquals('Failed to load file', '', source)
+    assertNotEquals('Failed to load file', '', source);
+
     var errors = new traceur.util.ErrorReporter();
     var sourceFile = new traceur.syntax.SourceFile(name, source);
     var tree = traceur.codegeneration.Compiler.compileFile(errors, sourceFile);
