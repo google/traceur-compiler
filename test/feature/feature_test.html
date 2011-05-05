@@ -97,7 +97,7 @@ goog.require('goog.testing.jsunit');
 <script src="Spread/CallWithUndefined.js" type="text/traceur"></script>
 <script src="Spread/Class.js" type="text/traceur"></script>
 <script src="Spread/MethodCall.js" type="text/traceur"></script>
-<script src="Spread/MethodCallQutodName.js" type="text/traceur"></script>
+<script src="Spread/MethodCallQuotedName.js" type="text/traceur"></script>
 <script src="Spread/New.js" type="text/traceur"></script>
 <script src="Spread/New2.js" type="text/traceur"></script>
 <script src="Spread/NewBuiltin.js" type="text/traceur"></script>
@@ -185,6 +185,7 @@ function evalScript(scriptElement) {
   // worry about name clashes across the different feature scripts.
   var testName = makeTestName(name);
   window[testName] = function() {
+    assertNotEquals('Failed to load file', '', source)
     var errors = new traceur.util.ErrorReporter();
     var sourceFile = new traceur.syntax.SourceFile(name, source);
     var tree = traceur.codegeneration.Compiler.compileFile(errors, sourceFile);
