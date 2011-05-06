@@ -115,9 +115,23 @@ function testScript(filePath) {
     return false;
   }
 
+  if (script.indexOf('// Only in browser') == 0) {
+    return true;
+  }
+
   var reporter = new traceur.util.ErrorReporter();
   var sourceFile = new traceur.syntax.SourceFile(filePath, script);
   var tree = traceur.codegeneration.Compiler.compileFile(reporter, sourceFile);
+
+
+  if (script.indexOf('// Should not compile') == 0) {
+    if (!reporter.hadError()) {
+      // Script should not compile.
+      failScript(filePath, 'Compile error expected.');
+      return false;
+    }
+    return true;
+  }
 
   if (reporter.hadError()) {
     failScript(filePath, 'Unexpected compile error in script.');
@@ -153,8 +167,7 @@ function UnitTestError(message) {
  * the functions that the scripts need access to.
  */
 function testScriptInContext(javascript) {
-  // Define this so that scripts that use the DOM know not to run.
-  var IN_BROWSER = false;
+  'use strict';
 
   // TODO(rnystrom): Hack. Don't let Traceur spew all over our beautiful
   // test results.

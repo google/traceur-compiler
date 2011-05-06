@@ -19,5 +19,5 @@ assertEquals(0, object.x);
 assertEquals(1, object.y);
 assertEquals(2, object.z);
 assertFalse(object instanceof object.F);
-assertTrue('object should be a G', object instanceof object.G);
-assertTrue('object.f should be a F', object.f instanceof object.F);
+assertTrue(object instanceof object.G);
+assertTrue(object.f instanceof object.F);

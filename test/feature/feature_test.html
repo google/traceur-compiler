@@ -127,9 +127,6 @@ function makeTestName(path) {
   return 'test' + name;
 }
 
-// Define some helper methods that the feature scripts can use:
-var IN_BROWSER = true;
-
 function assertNoOwnProperties(o) {
   var m = Object.getOwnPropertyNames(o);
   if (m.length) {
@@ -165,6 +162,8 @@ function assertArrayEquals(expected, actual) {
 }
 
 function evalScript(scriptElement) {
+  'use strict';
+
   var source;
   var name;
   if (scriptElement.src) {
