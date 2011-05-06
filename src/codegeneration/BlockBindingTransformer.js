@@ -686,8 +686,7 @@ traceur.define('codegeneration', function() {
     /**
      * Transforms the variable statement. Inside a block const and let
      * are transformed into block-scoped variables.
-     * Outside of the block, const stays the same, let becomes regular
-     * variable.
+     * Outside of the block, const and let becomes regular variables.
      * @param {VariableStatement} tree
      * @return {ParseTree}
      */
@@ -796,9 +795,9 @@ traceur.define('codegeneration', function() {
       }
 
       // Package up in the declaration list.
-      if (transformed != null || tree.declarationType == TokenType.LET) {
+      if (transformed != null || tree.declarationType != TokenType.VAR) {
         var declarations = transformed != null ? transformed : tree.declarations;
-        var declarationType = tree.declarationType == TokenType.LET ?
+        var declarationType = tree.declarationType != TokenType.VAR ?
             TokenType.VAR :
             tree.declarationType;
 
