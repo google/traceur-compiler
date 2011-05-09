@@ -143,7 +143,7 @@ traceur.define('codegeneration', function() {
               createIdentifierExpression(this.aggregate_.name),
               createStringLiteral(tree.memberName.value));
         case ParseTreeType.CLASS_EXPRESSION:
-          var classSymbol = getClassExpression(tree.operand);
+          var classSymbol = this.getClassExpression_(tree.operand);
           if (classSymbol == null) {
             return null;
           }

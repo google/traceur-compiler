@@ -1,19 +1,19 @@
 class StaticMembers {
   class var staticField = 1;
   class staticMethod(value) {
-    StaticMembers.staticField = value;
+    class.staticField = value;
   }
-  class get staticProp () { return StaticMembers.staticField; }
-  class set staticProp(value) { StaticMembers.staticField = value; }
+  class get staticProp () { return class.staticField; }
+  class set staticProp(value) { class.staticField = value; }
 
   var instanceField;
   instanceMethod(value) {
-    StaticMembers.staticMethod(value + 1);
-    this.instanceField = StaticMembers.staticField + 1;
+    class.staticMethod(value + 1);
+    this.instanceField = class.staticField + 1;
   }
 
-  class getStaticProp() { return StaticMembers.staticProp; }
-  class setStaticProp(value) { StaticMembers.staticProp = value; }
+  class getStaticProp() { return class.staticProp; }
+  class setStaticProp(value) { class.staticProp = value; }
 }
 
 // ----------------------------------------------------------------------------

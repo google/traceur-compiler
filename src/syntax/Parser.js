@@ -612,8 +612,8 @@ traceur.define('syntax', function() {
       return new ExportSpecifier(this.getTreeLocation_(start), lhs, rhs);
     },
 
-    peekId_: function() {
-      return this.peek_(TokenType.IDENTIFIER);
+    peekId_: function(opt_index) {
+      return this.peek_(TokenType.IDENTIFIER, opt_index);
     },
 
     peekIdName_: function(opt_index) {
@@ -830,7 +830,7 @@ traceur.define('syntax', function() {
      * @private
      */
     peekClassDeclaration_: function() {
-      return this.peek_(TokenType.CLASS);
+      return this.peek_(TokenType.CLASS) && this.peekId_(1);
     },
 
     /**
