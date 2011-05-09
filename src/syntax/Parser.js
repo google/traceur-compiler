@@ -88,6 +88,7 @@ traceur.define('syntax', function() {
   var PostfixExpression = traceur.syntax.trees.PostfixExpression;
   var Program = traceur.syntax.trees.Program;
   var PropertyNameAssignment = traceur.syntax.trees.PropertyNameAssignment;
+  var PropertyNameShorthand = traceur.syntax.trees.PropertyNameShorthand;
   var QualifiedReference = traceur.syntax.trees.QualifiedReference;
   var RequiresMember = traceur.syntax.trees.RequiresMember;
   var RestParameter = traceur.syntax.trees.RestParameter;
@@ -2231,10 +2232,26 @@ traceur.define('syntax', function() {
      */
     parsePropertyNameAssignment_: function() {
       var start = this.getTreeStartLocation_();
-      var name = this.nextToken_();
-      this.eat_(TokenType.COLON);
-      var value = this.parseAssignmentExpression_();
-      return new PropertyNameAssignment(this.getTreeLocation_(start), name, value);
+      // http://wiki.ecmascript.org/doku.php?id=strawman:object_initialiser_shorthand
+      if (this.peek_(TokenType.COLON, 1)) {
+        var name = this.nextToken_();
+        this.eat_(TokenType.COLON);
+        var value = this.parseAssignmentExpression_();
+        return new PropertyNameAssignment(this.getTreeLocation_(start), name,
+                                          value);
+      } else {
+        return this.parsePropertyNameShorthand_();
+      }
+    },
+
+    /**
+     * @return {ParseTree}
+     * @private
+     */
+    parsePropertyNameShorthand_:function() {
+      var start = this.getTreeStartLocation_();
+      var name = this.eatId_();
+      return new PropertyNameShorthand(this.getTreeLocation_(start), name);
     },
 
     /**

@@ -337,6 +337,10 @@ function testTreeConstructors() {
       ParseTreeType.PROPERTY_NAME_ASSIGNMENT,
       ['location', 'name', 'value']);
 
+  validateTree(traceur.syntax.trees.PropertyNameShorthand,
+      ParseTreeType.PROPERTY_NAME_SHORTHAND,
+      ['location', 'name']);
+
   validateTree(traceur.syntax.trees.QualifiedReference,
       ParseTreeType.QUALIFIED_REFERENCE,
       ['location', 'moduleExpression', 'identifier']);

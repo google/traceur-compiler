@@ -908,6 +908,14 @@ traceur.define('codegeneration', function() {
     },
 
     /**
+     * @param {PropertyNameShorthand} tree
+     * @return {ParseTree}
+     */
+    transformPropertyNameShorthand: function(tree) {
+      return tree;
+    },
+
+    /**
      * @param {QualifiedReference} tree
      * @return {ParseTree}
      */

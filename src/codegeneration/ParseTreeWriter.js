@@ -751,6 +751,13 @@ traceur.define('codegeneration', function() {
     },
 
     /**
+     * @param {PropertyNameShorthand} tree
+     */
+    visitPropertyNameShorthand: function(tree) {
+      this.write_(tree.name);
+    },
+
+    /**
      * @param {traceur.syntax.trees.QualifiedReference} tree
      */
     visitQualifiedReference: function(tree) {

@@ -21,6 +21,7 @@ traceur.define('codegeneration', function() {
   var ProgramTree = traceur.syntax.trees.ProgramTree;
   var UniqueIdentifierGenerator = traceur.codegeneration.UniqueIdentifierGenerator;
   var ForEachTransformer = traceur.codegeneration.ForEachTransformer;
+  var PropertyNameShorthandTransformer = traceur.codegeneration.PropertyNameShorthandTransformer;
   var RestParameterTransformer = traceur.codegeneration.RestParameterTransformer;
   var DefaultParametersTransformer = traceur.codegeneration.DefaultParametersTransformer;
   var GeneratorTransformPass = traceur.codegeneration.GeneratorTransformPass;
@@ -107,6 +108,10 @@ traceur.define('codegeneration', function() {
       if (!this.reporter_.hadError()) {
         ParseTreeValidator.validate(tree);
         tree = this.transformModules_(tree);
+      }
+      if (!this.reporter_.hadError()) {
+        ParseTreeValidator.validate(tree);
+        tree = PropertyNameShorthandTransformer.transformTree(tree);
       }
       if (!this.reporter_.hadError()) {
         ParseTreeValidator.validate(tree);

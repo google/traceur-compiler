@@ -510,6 +510,12 @@ traceur.define('syntax', function() {
     },
 
     /**
+     * @param {traceur.syntax.trees.PropertyNameShorthand} tree
+     */
+    visitPropertyNameShorthand: function(tree) {
+    },
+
+    /**
      * @param {traceur.syntax.trees.QualifiedReference} tree
      */
     visitQualifiedReference: function(tree) {

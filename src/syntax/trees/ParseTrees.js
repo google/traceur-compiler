@@ -744,12 +744,23 @@ traceur.define('syntax.trees', function() {
 
     /**
      * @param {traceur.util.SourceRange} location
+     * @param {traceur.syntax.Token} name
+     * @constructor
+     * @extends {ParseTree}
+     */
+    PropertyNameShorthand: create(
+        ParseTreeType.PROPERTY_NAME_SHORTHAND,
+        'name'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
      * @param {ParseTree} moduleExpression
      * @param {Token} identifier
      * @constructor
      * @extends {ParseTree}
      */
-    QualifiedReference: create(ParseTreeType.QUALIFIED_REFERENCE, 'moduleExpression', 'identifier'),
+    QualifiedReference: create(ParseTreeType.QUALIFIED_REFERENCE,
+                               'moduleExpression', 'identifier'),
 
     /**
      * @param {traceur.util.SourceRange} location

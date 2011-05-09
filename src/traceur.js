@@ -138,6 +138,7 @@ var traceur = (function() {
     'syntax/ParseTreeValidator.js',
     'codegeneration/ParseTreeFactory.js',
     'codegeneration/ParseTreeTransformer.js',
+    'codegeneration/PropertyNameShorthandTransformer.js',
     'codegeneration/AlphaRenamer.js',
     'codegeneration/DestructuringTransformer.js',
     'codegeneration/DefaultParametersTransformer.js',

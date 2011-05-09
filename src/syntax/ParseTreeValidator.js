@@ -697,6 +697,7 @@ traceur.define('syntax', function() {
           case ParseTreeType.GET_ACCESSOR:
           case ParseTreeType.SET_ACCESSOR:
           case ParseTreeType.PROPERTY_NAME_ASSIGNMENT:
+          case ParseTreeType.PROPERTY_NAME_SHORTHAND:
             break;
           default:
             this.fail_(propertyNameAndValue,
@@ -768,6 +769,12 @@ traceur.define('syntax', function() {
     visitPropertyNameAssignment: function(tree) {
       this.checkVisit_(tree.value.isAssignmentExpression(), tree.value,
           'assignment expression expected');
+    },
+
+    /**
+     * @param {traceur.syntax.trees.PropertyNameShorthand} tree
+     */
+    visitPropertyNameShorthand: function(tree) {
     },
 
     /**
