@@ -33,7 +33,7 @@ traceur.define('util', function() {
     get: function(key) {
       return this.values_[key.uid];
     },
-    containsKey: function(key) {
+    has: function(key) {
       return key.uid in this.keys_;
     },
     addAll: function(other) {

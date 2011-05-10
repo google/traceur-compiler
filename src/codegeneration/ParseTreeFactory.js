@@ -117,8 +117,7 @@ traceur.define('codegeneration', function() {
   }
 
   function createStringLiteralToken(value) {
-    // TODO: escape string literal token
-    return new LiteralToken(TokenType.STRING, '"' + value + '"', null);
+    return new LiteralToken(TokenType.STRING, JSON.stringify(value), null);
   }
 
   function createBooleanLiteralToken(value) {

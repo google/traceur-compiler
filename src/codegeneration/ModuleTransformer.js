@@ -37,6 +37,8 @@ traceur.define('codegeneration', function() {
 
   var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
 
+  var LiteralExpression = traceur.syntax.trees.LiteralExpression;
+
   var createArgumentList = traceur.codegeneration.ParseTreeFactory.createArgumentList;
   var createBlock = traceur.codegeneration.ParseTreeFactory.createBlock;
   var createCallCall = traceur.codegeneration.ParseTreeFactory.createCallCall;
@@ -52,6 +54,7 @@ traceur.define('codegeneration', function() {
   var createObjectLiteralExpression = traceur.codegeneration.ParseTreeFactory.createObjectLiteralExpression;
   var createParameterList = traceur.codegeneration.ParseTreeFactory.createParameterList;
   var createParenExpression = traceur.codegeneration.ParseTreeFactory.createParenExpression;
+  var createProgram = traceur.codegeneration.ParseTreeFactory.createProgram;
   var createPropertyNameAssignment = traceur.codegeneration.ParseTreeFactory.createPropertyNameAssignment;
   var createReturnStatement = traceur.codegeneration.ParseTreeFactory.createReturnStatement;
   var createScopedExpression = traceur.codegeneration.ParseTreeFactory.createScopedExpression;
@@ -150,7 +153,14 @@ traceur.define('codegeneration', function() {
     transformModuleExpression: function(tree) {
       var reference = tree.reference;
       if (reference.type == MODULE_REQUIRE) {
-        throw Error('Not implemented');
+        // traceur.runtime.getModuleInstanceByUrl(url)
+        return createCallExpression(
+            createMemberExpression(
+                PredefinedName.TRACEUR,
+                PredefinedName.RUNTIME,
+                PredefinedName.GET_MODULE_INSTANCE_BY_URL),
+            createArgumentList(
+                new LiteralExpression(null, reference.url)));
       }
 
       if (tree.identifiers.length == 0)
@@ -199,13 +209,22 @@ traceur.define('codegeneration', function() {
   };
 
   /**
-   * @param {ModuleSymbol} parent
-   * @param {ModuleDefinition} tree
-   * @return {ParseTree}
+   * @param {Module} module
+   * @param {Program} tree
+   * @return {Program}
    */
-  function transformDefinition(parent, tree) {
-    var module = parent.getModule(tree.name.value);
+  ModuleTransformer.transformAsModule = function(module, tree) {
+    var callExpression = transformModuleElements(module, tree.programElements);
+    return createProgram([createExpressionStatement(callExpression)]);
+  };
 
+  /**
+   * Transforms a module into a call expression.
+   * @param {ModuleSymbol} module
+   * @param {Array.<ParseTree>} elements
+   * @return {CallExpression}
+   */
+  function transformModuleElements(module, elements) {
     var statements = [];
 
     // use strict
@@ -222,7 +241,7 @@ traceur.define('codegeneration', function() {
         createExpressionStatement(createObjectFreeze(createThisExpression())));
 
     // Add original body statements
-    tree.elements.forEach(function(element) {
+    elements.forEach(function(element) {
       switch (element.type) {
         case MODULE_DECLARATION:
           statements.push(transformDeclaration(module, element));
@@ -273,12 +292,34 @@ traceur.define('codegeneration', function() {
 
     // const M = (function() { statements }).call(thisObject);
     // TODO(arv): const is not allowed in ES5 strict
-    return createVariableStatement(TokenType.VAR, module.name,
-        createCallCall(
-            createParenExpression(
-                createFunctionExpression(createEmptyParameterList(),
-                                         createBlock(statements))),
-            thisObject));
+    return createCallCall(
+        createParenExpression(
+            createFunctionExpression(createEmptyParameterList(),
+                                     createBlock(statements))),
+        thisObject);
+  }
+
+  /**
+   * Transforms a module definition into a variable statement.
+   *
+   *   module m { ... }
+   *
+   * becomes
+   *
+   *   var m = (function() { ... })(...);
+   *
+   * @param {ModuleSymbol} parent
+   * @param {ModuleDefinition} tree
+   * @return {ParseTree}
+   */
+  function transformDefinition(parent, tree) {
+    var module = parent.getModule(tree.name.value);
+
+    var callExpression = transformModuleElements(module, tree.elements);
+
+    // const M = (function() { statements }).call(thisObject);
+    // TODO(arv): const is not allowed in ES5 strict
+    return createVariableStatement(TokenType.VAR, module.name, callExpression);
   }
 
   /**

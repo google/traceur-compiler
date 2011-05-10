@@ -48,6 +48,7 @@ traceur.define('syntax', function() {
     FIELD_INITIALIZER_METHOD: '$field_initializer_',
     FREEZE: 'freeze',
     GET: 'get',
+    GET_MODULE_INSTANCE_BY_URL: 'getModuleInstanceByUrl',
     INIT: '$init',
     IS_DONE: 'isDone',
     ITERATOR: '__iterator__',

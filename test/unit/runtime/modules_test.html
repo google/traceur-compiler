@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<!--
+
+// Copyright 2011 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+-->
+<html>
+<head>
+<title></title>
+<script src="../../../third_party/closure-library/closure/goog/base.js"></script>
+<script>
+goog.require('goog.testing.jsunit');
+goog.require('goog.testing.AsyncTestCase');
+</script>
+<script src="../../../src/traceur.js"></script>
+</head>
+<body>
+<script>
+
+var asyncTestCase = goog.testing.AsyncTestCase.createAndInstall();
+
+var reporter;
+
+function setUp() {
+  reporter = new traceur.util.ErrorReporter();
+}
+
+function tearDown() {
+  assertFalse(reporter.hadError());
+}
+
+function getLoader(opt_reporter) {
+  var project = new traceur.semantics.symbols.Project(window.location.href);
+  var parentLoader = null;
+  var resolver = null;
+  return new traceur.runtime.CodeLoader(opt_reporter || reporter, project,
+                                        parentLoader, resolver);
+}
+
+function testLoaderEval() {
+  var result = getLoader().eval('(function(x = 42) { return x; })()');
+  assertEquals(42, result);
+}
+
+function testLoaderEvalLoad() {
+  var code =
+      'module a = require("test_a.js");\n' +
+      'module b = require("test_b.js");\n' +
+      'module c = require("test_c.js");\n' +
+      '\n' +
+      '[\'test\', a.name, b.name, c.name];\n';
+
+  asyncTestCase.waitForAsync('loader evalLoad');
+
+  var result = getLoader().evalLoad(code, function(value) {
+    asyncTestCase.continueTesting();
+    assertEquals('test', value[0]);
+    assertEquals('A', value[1]);
+    assertEquals('B', value[2]);
+    assertEquals('C', value[3]);
+  }, function(error) {
+    asyncTestCase.continueTesting();
+    fail(error);
+  });
+}
+
+function testLoaderEvalLoadWithSubdir() {
+  var code =
+      'module d = require("subdir/test_d.js");\n' +
+      '\n' +
+      '[d.name, d.e.name];\n';
+
+  asyncTestCase.waitForAsync('loader evalLoad');
+
+  var result = getLoader().evalLoad(code, function(value) {
+    asyncTestCase.continueTesting();
+    assertEquals('D', value[0]);
+    assertEquals('E', value[1]);
+  }, function(error) {
+    asyncTestCase.continueTesting();
+    fail(error);
+  });
+}
+
+function testLoaderEvalLoadFail() {
+  var code =
+      'module a = require("test_a.js");\n' +
+      'module b = require("test_b.js");\n' +
+      'module c = require("test_c.js");\n' +
+      '\n' +
+      '[\'test\', SYNTAX ERROR a.name, b.name, c.name];\n';
+
+  var reporter = new traceur.util.ErrorReporter();
+
+  asyncTestCase.waitForAsync('loader evalLoad');
+
+  var result = getLoader(reporter).evalLoad(code, function(value) {
+    asyncTestCase.continueTesting();
+    fail('Should not have succeeded');
+  }, function(error) {
+    asyncTestCase.continueTesting();
+    // We should probably get some meaningful error here.
+
+    //assertTrue(reporter.hadError());
+    assertTrue(true);
+  });
+}
+
+function testLoaderLoad() {
+  asyncTestCase.waitForAsync('loader load');
+
+  getLoader().load('test.js', function(mod) {
+    asyncTestCase.continueTesting();
+    assertEquals('test', mod.name);
+    assertEquals('A', mod.a);
+    assertEquals('B', mod.b);
+    assertEquals('C', mod.c);
+  }, function(error) {
+    asyncTestCase.continueTesting();
+    fail(error);
+  });
+}
+
+</script>
+</body>
+</html>

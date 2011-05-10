@@ -19,7 +19,8 @@
 /**
  * The traceur runtime (trait).
  */
-traceur.runtime.trait = (function() {
+traceur.define('runtime', function() {
+  'use strict';
 
   var call = Function.prototype.call;
 
@@ -559,6 +560,8 @@ traceur.runtime.trait = (function() {
   Trait.create = freeze(create);
   Trait.eqv = freeze(eqv);
   Trait.object = freeze(object); // not essential, cf. create + trait
-  return freeze(Trait);
 
-})();
+  return {
+    trait: freeze(Trait)
+  };
+});

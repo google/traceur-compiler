@@ -27,12 +27,13 @@ traceur.define('codegeneration.module', function() {
    *   module m { ... }
    *
    * @param {traceur.util.ErrorReporter} reporter
+   * @param {ProjectSymbol} project
    * @param {ModuleSymbol} module The root of the module system.
    * @constructor
    * @extends {ModuleVisitor}
    */
-  function ExportVisitor(reporter, module) {
-    ModuleVisitor.call(this, reporter, module);
+  function ExportVisitor(reporter, project, module) {
+    ModuleVisitor.call(this, reporter, project, module);
     this.inExport_ = false;
     this.relatedTree_ = null;
   }

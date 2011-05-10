@@ -88,6 +88,7 @@ var traceur = (function() {
     return ++uidCounter;
   }
 
+  // Do the export before we execute the rest.
   global.traceur = {
     define: define,
     assert: assert,
@@ -95,9 +96,12 @@ var traceur = (function() {
   };
 
   var scripts = [
+    'util/util.js',
+    'util/ArrayMap.js',
     'util/ObjectMap.js',
     'util/SourceRange.js',
     'util/SourcePosition.js',
+    'util/url.js',
     'syntax/Token.js',
     'syntax/TokenType.js',
     'syntax/LiteralToken.js',
@@ -178,10 +182,12 @@ var traceur = (function() {
     'codegeneration/module/ExportVisitor.js',
     'codegeneration/module/ModuleDeclarationVisitor.js',
     'codegeneration/module/ValidationVisitor.js',
+    'codegeneration/module/ModuleRequireVisitor.js',
     'semantics/ModuleAnalyzer.js',
     'codegeneration/Compiler.js',
-    'runtime.js',
-    'util/traits.js'
+    'runtime/runtime.js',
+    'runtime/traits.js',
+    'runtime/modules.js'
   ];
   scripts.forEach(importScript);
 

@@ -44,7 +44,7 @@ traceur.define('codegeneration', function() {
    *     translated results. Returns null if there was a compile error.
    */
   Compiler.compileFile = function(reporter, sourceFile) {
-    var project = new Project();
+    var project = new Project(null);
     project.addFile(sourceFile);
     return new Compiler(reporter, project).compileFile_(sourceFile);
   };

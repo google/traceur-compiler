@@ -25,12 +25,17 @@ traceur.define('semantics.symbols', function() {
    * @constructor
    * @extends {Symbol}
    */
-  function ModuleSymbol(name, parent, tree) {
+  function ModuleSymbol(name, parent, tree, url) {
     Symbol.call(this, SymbolType.MODULE, tree, name);
     this.children_ = Object.create(null);
     this.exports_ = Object.create(null);
     this.parent = parent;
     this.tree = tree;
+    if (!url) {
+      // TODO(arv): Find offensive callers.
+      console.error('Missing URL');
+    }
+    this.url = url;
   }
 
   ModuleSymbol.prototype = {

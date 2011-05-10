@@ -41,24 +41,7 @@ traceur.define('semantics', function() {
      * @return {void}
      */
     analyze: function() {
-      var root = this.project_.getRootModule();
-      var visitor = new ModuleDefinitionVisitor(this.reporter_, root);
-      this.project_.getSourceTrees().forEach(visitor.visitAny, visitor);
-
-      if (!this.reporter_.hadError()) {
-        visitor = new ExportVisitor(this.reporter_, root);
-        this.project_.getSourceTrees().forEach(visitor.visitAny, visitor);
-      }
-
-      if (!this.reporter_.hadError()) {
-        visitor = new ModuleDeclarationVisitor(this.reporter_, root);
-        this.project_.getSourceTrees().forEach(visitor.visitAny, visitor);
-      }
-
-      if (!this.reporter_.hadError()) {
-        visitor = new ValidationVisitor(this.reporter_, root);
-        this.project_.getSourceTrees().forEach(visitor.visitAny, visitor);
-      }
+      this.analyzeTrees(this.project_.getSourceTrees());
     },
 
     /**
@@ -66,25 +49,43 @@ traceur.define('semantics', function() {
      * @return {void}
      */
     analyzeFile: function(sourceFile) {
-      var root = this.project_.getRootModule();
-      var visitor = new ModuleDefinitionVisitor(this.reporter_, root);
-      var tree = this.project_.getParseTree(sourceFile);
-      visitor.visitAny(tree);
+      var trees = [this.project_.getParseTree(sourceFile)];
+      this.analyzeTrees(trees);
+    },
 
-      if (!this.reporter_.hadError()) {
-        visitor = new ExportVisitor(this.reporter_, root);
-        visitor.visitAny(tree);
+    /**
+     * @param {Array.<ParseTree>} trees
+     * @return {void}
+     */
+    analyzeTrees: function(trees) {
+      this.analyzeModuleTrees(trees);
+    },
+
+    /**
+     * @param {ParseTree} tree
+     * @param {ModuleSymbol} root
+     * @return {void}
+     */
+    analyzeModuleTrees: function(trees, opt_roots) {
+      var reporter = this.reporter_;
+      var project = this.project_;
+      var root = project.getRootModule();
+
+      function getRoot(i) {
+        return opt_roots ? opt_roots[i] : root;
       }
 
-      if (!this.reporter_.hadError()) {
-        visitor = new ModuleDeclarationVisitor(this.reporter_, root);
-        visitor.visitAny(tree);
+      function doVisit(ctor) {
+        for (var i = 0; i < trees.length; i++) {
+          var visitor = new ctor(reporter, project, getRoot(i));
+          visitor.visitAny(trees[i]);
+        }
       }
 
-      if (!this.reporter_.hadError()) {
-        visitor = new ValidationVisitor(this.reporter_, root);
-        visitor.visitAny(tree);
-      }
+      doVisit(ModuleDefinitionVisitor);
+      doVisit(ExportVisitor);
+      doVisit(ModuleDeclarationVisitor);
+      doVisit(ValidationVisitor);
     }
   };
 

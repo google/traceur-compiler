@@ -24,6 +24,7 @@ try {
  */
 var traceur = traceur || {};
 traceur.runtime = (function() {
+  'use strict';
   var map = {};
 
   // Associates the instance maker with the class.

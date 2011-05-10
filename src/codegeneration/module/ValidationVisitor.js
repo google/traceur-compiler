@@ -23,12 +23,13 @@ traceur.define('codegeneration.module', function() {
    *   module m = n, o = p.q.r
    *
    * @param {traceur.util.ErrorReporter} reporter
+   * @param {ProjectSymbol} project
    * @param {ModuleSymbol} module The root of the module system.
    * @constructor
    * @extends {ModuleVisitor}
    */
-  function ValidationVisitor(reporter, module) {
-    ModuleVisitor.call(this, reporter, module);
+  function ValidationVisitor(reporter, project, module) {
+    ModuleVisitor.call(this, reporter, project, module);
   }
 
   ValidationVisitor.prototype = {

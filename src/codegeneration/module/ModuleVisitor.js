@@ -16,8 +16,9 @@ traceur.define('codegeneration.module', function() {
   'use strict';
 
   var Symbol = traceur.semantics.symbols.Symbol;
-
   var ParseTreeVisitor = traceur.syntax.ParseTreeVisitor;
+  var evaluateStringLiteral = traceur.util.evaluateStringLiteral;
+  var resolveUrl = traceur.util.resolveUrl;
 
   var ParseTree = traceur.syntax.trees.ParseTree;
   var MODULE_DECLARATION = traceur.syntax.trees.ParseTreeType.MODULE_DECLARATION;
@@ -28,13 +29,15 @@ traceur.define('codegeneration.module', function() {
   /**
    * A specialized parse tree visitor for use with modules.
    * @param {traceur.util.ErrorReporter} reporter
+   * @param {ProjectSymbol} project
    * @param {ModuleSymbol} module The root of the module system.
    * @constructor
    * @extends {ParseTreeVisitor}
    */
-  function ModuleVisitor(reporter, module) {
+  function ModuleVisitor(reporter, project, module) {
     ParseTreeVisitor.call(this);
     this.reporter_ = reporter;
+    this.project_ = project;
     this.currentModule_ = module;
   }
 
@@ -71,7 +74,9 @@ traceur.define('codegeneration.module', function() {
     getModuleForModuleExpression: function(tree, reportErrors) {
       // require("url").b.c
       if (tree.reference.type == MODULE_REQUIRE) {
-        throw Error('Not implemented');
+        var url = evaluateStringLiteral(tree.reference.url);
+        url = resolveUrl(this.currentModule.url, url);
+        return this.project_.getModuleForUrl(url);
       }
 
       // a.b.c

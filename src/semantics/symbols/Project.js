@@ -18,6 +18,8 @@ traceur.define('semantics.symbols', function() {
   var ObjectMap = traceur.util.ObjectMap;
   var ModuleSymbol = traceur.semantics.symbols.ModuleSymbol;
 
+  var resolveUrl = traceur.util.resolveUrl;
+
   function addAll(self, other) {
     for (key in other) {
       self[key] = other[key];
@@ -33,21 +35,27 @@ traceur.define('semantics.symbols', function() {
   /**
    * The root data structure for all semantic and syntactic information for a
    * single compilation.
-   *
+   * @param {string} url The base URL of the project. This is used for resolving
+   *    URLs for external modules.
    * @constructor
    */
-  function Project() {
+  function Project(url) {
     this.sourceFiles_ = Object.create(null);
     this.parseTrees_ = new ObjectMap();
-    this.rootModule_ = new ModuleSymbol(null, null, null);
+    this.rootModule_ = new ModuleSymbol(null, null, null, url);
+    this.modulesByUrl_ = Object.create(null);
   }
 
   Project.prototype = {
+    get url() {
+      return this.rootModule_.url;
+    },
+
     /**
      * @return {Project}
      */
     createClone: function() {
-      var p = new Project();
+      var p = new Project(this.url);
       addAll(p.sourceFiles_, this.sourceFiles_);
       p.parseTrees_.addAll(this.parseTrees_);
       // push(...)
@@ -118,6 +126,22 @@ traceur.define('semantics.symbols', function() {
      */
     getRootModule: function() {
       return this.rootModule_;
+    },
+
+    addExternalModule: function(module) {
+      traceur.assert(!this.hasModuleForUrl(module.url));
+      this.modulesByUrl_[module.url] = module;
+    },
+
+    getModuleForUrl: function(url) {
+      url = resolveUrl(this.url, url);
+      traceur.assert(this.hasModuleForUrl(url));
+      return this.modulesByUrl_[url];
+    },
+
+    hasModuleForUrl: function(url) {
+      url = resolveUrl(this.url, url);
+      return url in this.modulesByUrl_;
     }
   };
 

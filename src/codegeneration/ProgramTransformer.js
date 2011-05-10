@@ -73,7 +73,21 @@ traceur.define('codegeneration', function() {
     var transformer = new ProgramTransformer(reporter, project);
     transformer.transformFile_(sourceFile);
     return transformer.results_;
-  }
+  };
+
+  /**
+   * @param {ErrorReporter} reporter
+   * @param {Project} project
+   * @param {ModuleSymbol}
+   * @param {SourceFile} sourceFile
+   * @return {ObjectMap}
+   */
+  ProgramTransformer.transformFileAsModule = function(reporter, project,
+                                                      module, sourceFile) {
+    var transformer = new ProgramTransformer(reporter, project);
+    transformer.transformFileAsModule_(module, sourceFile);
+    return transformer.results_;
+  };
 
   ProgramTransformer.prototype = {
     /**
@@ -97,6 +111,18 @@ traceur.define('codegeneration', function() {
     },
 
     /**
+     * @param {ModuleSymbol} module
+     * @param {SourceFile} file
+     * @return {void}
+     * @private
+     */
+    transformFileAsModule_: function(module, file) {
+      var result = this.transformTree_(this.project_.getParseTree(file),
+                                       module);
+      this.results_.put(file, result);
+    },
+
+    /**
      * This is the root of the code generation pass.
      * Each pass translates one contruct from Traceur to standard JS constructs.
      * The order of the passes matters.
@@ -105,9 +131,13 @@ traceur.define('codegeneration', function() {
      * @return {ParseTree}
      */
     transform: function(tree) {
+      return this.transformTree_(tree);
+    },
+
+    transformTree_: function(tree, opt_module) {
       if (!this.reporter_.hadError()) {
         ParseTreeValidator.validate(tree);
-        tree = this.transformModules_(tree);
+        tree = this.transformModules_(tree, opt_module);
       }
       if (!this.reporter_.hadError()) {
         ParseTreeValidator.validate(tree);
@@ -164,12 +194,19 @@ traceur.define('codegeneration', function() {
     },
 
     /**
+     * Transforms a program tree. If an optional module is passed in the
+     * program is treated as a module body.
      * @param {Program} tree
+     * @param {ModuleSymbol} module
      * @return {Program}
      * @private
      */
-    transformModules_: function(tree) {
-      return ModuleTransformer.transform(this.project_, tree);
+    transformModules_: function(tree, opt_module) {
+      if (opt_module) {
+        return ModuleTransformer.transformAsModule(opt_module, tree);
+      } else {
+        return ModuleTransformer.transform(this.project_, tree);
+      }
     },
 
     /**
