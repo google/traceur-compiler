@@ -57,8 +57,8 @@ traceur.define('codegeneration', function() {
     return parameters[parameters.length - 1];
   }
 
-  RestParameterTransformer.prototype = {
-    __proto__: ParseTreeTransformer.prototype,
+  RestParameterTransformer.prototype = traceur.createObject(
+      ParseTreeTransformer.prototype, {
 
     transformFunctionDeclaration: function(tree) {
       if (hasRestParameter(tree.formalParameterList)) {
@@ -112,7 +112,7 @@ traceur.define('codegeneration', function() {
           tree.name, parametersWithoutRestParam,
           this.transformAny(createBlock(statements)));
     }
-  };
+  });
 
   return {
     RestParameterTransformer: RestParameterTransformer

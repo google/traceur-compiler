@@ -59,8 +59,7 @@ traceur.define('semantics.symbols', function() {
     this.mixins = [];
   }
 
-  AggregateSymbol.prototype = {
-    __proto__: Symbol.prototype,
+  AggregateSymbol.prototype = traceur.createObject(Symbol.prototype, {
 
     /**
      * @return {boolean}
@@ -206,7 +205,7 @@ traceur.define('semantics.symbols', function() {
     hasConstructor: function() {
       return !!this.getConstructor();
     }
-  };
+  });
 
   return {
     AggregateSymbol: AggregateSymbol

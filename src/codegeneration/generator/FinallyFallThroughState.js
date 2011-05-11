@@ -29,8 +29,7 @@ traceur.define('codegeneration.generator', function() {
     State.call(this, id);
   }
 
-  FinallyFallThroughState.prototype = {
-    __proto__: State.prototype,
+  FinallyFallThroughState.prototype = traceur.createObject(State.prototype, {
 
     /**
      * @param {number} oldState
@@ -61,7 +60,7 @@ traceur.define('codegeneration.generator', function() {
     transform: function(enclosingFinally, machineEndState, reporter) {
       throw new Error('these are generated in addFinallyFallThroughDispatches');
     }
-  };
+  });
 
   return {
     FinallyFallThroughState: FinallyFallThroughState

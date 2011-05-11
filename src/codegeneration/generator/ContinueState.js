@@ -31,8 +31,7 @@ traceur.define('codegeneration.generator', function() {
     this.label = label;
   }
 
-  ContinueState.prototype = {
-    __proto__: State.prototype,
+  ContinueState.prototype = traceur.createObject(State.prototype, {
 
     /**
      * @param {number} oldState
@@ -65,7 +64,7 @@ traceur.define('codegeneration.generator', function() {
       }
       return this;
     }
-  };
+  });
 
   return {
     ContinueState: ContinueState

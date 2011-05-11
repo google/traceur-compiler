@@ -33,9 +33,7 @@ traceur.define('semantics.symbols', function() {
     this.tree = tree;
   }
 
-  SetAccessor.prototype = {
-    __proto__: PropertyAccessor.prototype
-  };
+  SetAccessor.prototype = Object.create(PropertyAccessor.prototype);
 
   return {
     SetAccessor: SetAccessor

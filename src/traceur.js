@@ -60,6 +60,23 @@ var traceur = (function() {
       throw Error('Assertion failed');
   }
 
+  /**
+   * Similar to {@code Object.create} but instead of taking a property
+   * descriptor it takes an ordinary object.
+   * @param {Object} proto The object acting as the proto.
+   * @param {Object} obj The object describing the fields of the object.
+   * @return {Object} A new object that has the same propertieas as {@code obj}
+   *     and its proto set to {@code proto}.
+   */
+  function createObject(proto, obj) {
+    var newObject = Object.create(proto);
+    Object.getOwnPropertyNames(obj).forEach(function(name) {
+      Object.defineProperty(newObject, name,
+                            Object.getOwnPropertyDescriptor(obj, name));
+    });
+    return newObject;
+  }
+
   // Cached path to the current script file in an HTML hosting environment.
   var path;
 
@@ -90,8 +107,9 @@ var traceur = (function() {
 
   // Do the export before we execute the rest.
   global.traceur = {
-    define: define,
     assert: assert,
+    createObject: createObject,
+    define: define,
     getUid: getUid
   };
 

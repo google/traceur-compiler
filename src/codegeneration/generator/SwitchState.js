@@ -58,8 +58,7 @@ traceur.define('codegeneration.generator', function() {
     this.clauses = clauses;
   }
 
-  SwitchState.prototype = {
-    __proto__: State.prototype,
+  SwitchState.prototype = traceur.createObject(State.prototype, {
 
     /**
      * Represents the dispatch portion of an if/else block.
@@ -102,7 +101,7 @@ traceur.define('codegeneration.generator', function() {
           new SwitchStatement(null, this.expression, clauses),
           createBreakStatement());
     }
-  };
+  });
 
   return {
     SwitchClause: SwitchClause,

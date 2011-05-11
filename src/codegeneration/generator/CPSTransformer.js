@@ -130,8 +130,7 @@ traceur.define('codegeneration.generator', function() {
   }
 
   var proto = ParseTreeTransformer.prototype;
-  CPSTransformer.prototype = {
-    __proto__: proto,
+  CPSTransformer.prototype = traceur.createObject(proto, {
 
     /** @return {number} */
     allocateState: function() {
@@ -1216,7 +1215,7 @@ traceur.define('codegeneration.generator', function() {
 
       return this.transformStatementList_(maybeTransformedStatements);
     }
-  };
+  });
 
   return {
     CPSTransformer: CPSTransformer

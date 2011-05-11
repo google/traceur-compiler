@@ -166,8 +166,7 @@ traceur.define('codegeneration', function() {
   }
 
   var proto = ParseTreeTransformer.prototype;
-  BlockBindingTransformer.prototype = {
-    __proto__: proto,
+  BlockBindingTransformer.prototype = traceur.createObject(proto, {
 
     /**
      * Current scope (block, program)
@@ -850,7 +849,7 @@ traceur.define('codegeneration', function() {
         throw new Error('Unexpected destructuring declaration found.');
       }
     }
-  };
+  });
 
   return {
     BlockBindingTransformer: BlockBindingTransformer

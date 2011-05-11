@@ -41,12 +41,11 @@ traceur.define('syntax', function() {
     this.value = value;
   }
 
-  LiteralToken.prototype = {
-    __proto__: Token.prototype,
+  LiteralToken.prototype = traceur.createObject(Token.prototype, {
     toString: function() {
       return this.value;
     }
-  };
+  });
 
   return {
     LiteralToken: LiteralToken

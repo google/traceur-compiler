@@ -32,9 +32,7 @@ traceur.define('semantics.symbols', function() {
     this.tree = tree;
   }
 
-  TraitSymbol.prototype = {
-    __proto__: AggregateSymbol.prototype
-  };
+  TraitSymbol.prototype = Object.create(AggregateSymbol.prototype);
 
   return {
     TraitSymbol: TraitSymbol

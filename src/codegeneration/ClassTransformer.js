@@ -89,8 +89,7 @@ traceur.define('codegeneration', function() {
   }
 
   var proto = ParseTreeTransformer.prototype;
-  ClassTransformer.prototype = {
-    __proto__: proto,
+  ClassTransformer.prototype = traceur.createObject(proto, {
 
     /**
      * Transforms a single trait declaration
@@ -530,7 +529,7 @@ traceur.define('codegeneration', function() {
     createFunctionTransformer_: function(sym) {
       return new FunctionTransformer(this.reporter_, sym);
     }
-  };
+  });
 
   return {
     ClassTransformer: ClassTransformer

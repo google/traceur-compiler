@@ -38,8 +38,7 @@ traceur.define('semantics.symbols', function() {
     this.url = url;
   }
 
-  ModuleSymbol.prototype = {
-    __proto__: Symbol.prototype,
+  ModuleSymbol.prototype = traceur.createObject(Symbol.prototype, {
 
     /**
      * @param {ModuleSymbol} module
@@ -108,7 +107,7 @@ traceur.define('semantics.symbols', function() {
         return exports[key];
       });
     }
-  };
+  });
 
   return {
     ModuleSymbol: ModuleSymbol

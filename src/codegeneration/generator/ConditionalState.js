@@ -35,8 +35,7 @@ traceur.define('codegeneration.generator', function() {
     this.condition = condition;
   }
 
-  ConditionalState.prototype = {
-    __proto__: State.prototype,
+  ConditionalState.prototype = traceur.createObject(State.prototype, {
 
     /**
      * Represents the dispatch portion of an if/else block.
@@ -66,7 +65,7 @@ traceur.define('codegeneration.generator', function() {
             createBlock(State.generateJump(enclosingFinally, this.ifState)),
             createBlock(State.generateJump(enclosingFinally, this.elseState)))];
     }
-  };
+  });
 
   return {
     ConditionalState: ConditionalState

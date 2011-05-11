@@ -66,8 +66,7 @@ traceur.define('codegeneration.generator', function() {
   }
 
   var proto = ParseTreeTransformer.prototype;
-  BreakContinueTransformer.prototype = {
-    __proto__: proto,
+  BreakContinueTransformer.prototype = traceur.createObject(proto, {
 
     /** @return {number} */
     allocateState_: function() {
@@ -162,7 +161,7 @@ traceur.define('codegeneration.generator', function() {
     transformWhileStatement: function(tree) {
       return tree;
     }
-  };
+  });
 
   return {
     BreakContinueTransformer: BreakContinueTransformer

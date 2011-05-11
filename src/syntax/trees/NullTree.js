@@ -32,9 +32,7 @@ traceur.define('syntax.trees', function() {
     instance = this;
   }
 
-  NullTree.prototype = {
-    __proto__: ParseTree.prototype
-  };
+  NullTree.prototype = Object.create(ParseTree.prototype);
 
   return {
     NullTree: NullTree

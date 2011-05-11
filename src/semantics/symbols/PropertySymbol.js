@@ -33,9 +33,7 @@ traceur.define('semantics.symbols', function() {
                       containingAggregate, isStatic);
   }
 
-  PropertySymbol.prototype = {
-    __proto__: MemberSymbol.prototype
-  };
+  PropertySymbol.prototype = Object.create(MemberSymbol.prototype);
 
   return {
     PropertySymbol: PropertySymbol

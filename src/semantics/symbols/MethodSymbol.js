@@ -33,8 +33,7 @@ traceur.define('semantics.symbols', function() {
     this.tree = tree;
   }
 
-  MethodSymbol.prototype = {
-    __proto__: MemberSymbol.prototype,
+  MethodSymbol.prototype = traceur.createObject(MemberSymbol.prototype, {
 
     /**
      * @return {boolean}
@@ -42,7 +41,7 @@ traceur.define('semantics.symbols', function() {
     isConstructor: function() {
       return this.name == PredefinedName.NEW;
     }
-  };
+  });
 
   return {
     MethodSymbol: MethodSymbol

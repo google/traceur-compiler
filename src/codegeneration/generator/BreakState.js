@@ -31,9 +31,8 @@ traceur.define('codegeneration.generator', function() {
     this.label = label;
   }
 
-  BreakState.prototype = {
-    __proto__: State.prototype,
-
+  BreakState.prototype = traceur.createObject(State.prototype, {
+    
     /**
      * @param {number} oldState
      * @param {number} newState
@@ -74,7 +73,7 @@ traceur.define('codegeneration.generator', function() {
     transformBreakOrContinue: function(labelSet, breakState, continueState) {
       return this.transformBreak(labelSet, breakState);
     }
-  };
+  });
 
   return {
     BreakState: BreakState

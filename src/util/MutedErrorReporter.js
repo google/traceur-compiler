@@ -27,13 +27,13 @@ traceur.define('util', function() {
    */
   function MutedErrorReporter() {}
 
-  MutedErrorReporter.prototype = {
-    __proto__: ErrorReporter.prototype,
+  MutedErrorReporter.prototype = traceur.createObject(
+      ErrorReporter.prototype, {
 
     reportMessageInternal: function(location, message) {
       // message.dropOn(floor);
     }
-  };
+  });
 
   return {
     MutedErrorReporter: MutedErrorReporter

@@ -192,8 +192,7 @@ traceur.define('runtime', function() {
     CodeUnit.call(this, loader, url, NOT_STARTED);
   }
 
-  LoadCodeUnit.prototype = {
-    __proto__: CodeUnit.prototype,
+  LoadCodeUnit.prototype = traceur.createObject(CodeUnit.prototype, {
     allowLoad: true,
 
     get moduleSymbol() {
@@ -224,7 +223,7 @@ traceur.define('runtime', function() {
       return ProgramTransformer.transformFileAsModule(this.reporter,
           this.project, this.moduleSymbol, this.file);
     }
-  };
+  });
 
   /**
    * CodeUnit used for {@code Loader.eval}.
@@ -238,10 +237,9 @@ traceur.define('runtime', function() {
     this.text = code;
   }
 
-  EvalCodeUnit.prototype = {
-    __proto__: CodeUnit.prototype,
+  EvalCodeUnit.prototype = traceur.createObject(CodeUnit.prototype, {
     allowLoad: false
-  };
+  });
 
   /**
    * CodeUnit used for {@code Loader.evalLoad}.
@@ -255,10 +253,9 @@ traceur.define('runtime', function() {
     this.text = code;
   }
 
-  EvalLoadCodeUnit.prototype = {
-    __proto__: CodeUnit.prototype,
+  EvalLoadCodeUnit.prototype = traceur.createObject(CodeUnit.prototype, {
     allowLoad: true
-  };
+  })
 
 
   /**

@@ -41,8 +41,7 @@ traceur.define('codegeneration.generator', function() {
     this.expression = expression;
   }
 
-  YieldState.prototype = {
-    __proto__: State.prototype,
+  YieldState.prototype = traceur.createObject(State.prototype, {
 
     /**
      * @param {number} oldState
@@ -82,7 +81,7 @@ traceur.define('codegeneration.generator', function() {
       result.push(createReturnStatement(createTrueLiteral()));
       return result;
     }
-  };
+  });
 
   return {
     YieldState: YieldState

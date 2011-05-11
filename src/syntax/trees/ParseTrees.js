@@ -34,9 +34,7 @@ traceur.define('syntax.trees', function() {
       }
       Object.freeze(this);
     };
-    Tree.prototype = {
-      __proto__: ParseTree.prototype
-    };
+    Tree.prototype = Object.create(ParseTree.prototype);
     return Tree;
   }
 

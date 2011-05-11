@@ -32,8 +32,8 @@ traceur.define('codegeneration.module', function() {
     ModuleVisitor.call(this, reporter, project, module);
   }
 
-  ModuleDeclarationVisitor.prototype = {
-    __proto__: ModuleVisitor.prototype,
+  ModuleDeclarationVisitor.prototype = traceur.createObject(
+      ModuleVisitor.prototype, {
 
     visitModuleSpecifier: function(tree) {
       var name = tree.identifier.value;
@@ -44,7 +44,7 @@ traceur.define('codegeneration.module', function() {
       }
       parent.addModuleWithName(module, name);
     }
-  };
+  });
 
   return {
     ModuleDeclarationVisitor: ModuleDeclarationVisitor

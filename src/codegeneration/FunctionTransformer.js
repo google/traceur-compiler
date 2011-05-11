@@ -57,8 +57,7 @@ traceur.define('codegeneration', function() {
   }
 
   var proto = ParseTreeTransformer.prototype;
-  FunctionTransformer.prototype = {
-    __proto__: proto,
+  FunctionTransformer.prototype = traceur.createObject(proto, {
 
     /**
      * @param {FunctionDeclaration} tree
@@ -214,7 +213,7 @@ traceur.define('codegeneration', function() {
       args[0] = tree.location.start;
       this.reporter_.reportError.apply(this.reporter_, args);
     }
-  };
+  });
 
   return {
     FunctionTransformer: FunctionTransformer

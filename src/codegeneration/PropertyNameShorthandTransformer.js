@@ -33,8 +33,8 @@ traceur.define('codegeneration', function() {
     return new PropertyNameShorthandTransformer().transformAny(tree);
   };
 
-  PropertyNameShorthandTransformer.prototype = {
-    __proto__: ParseTreeTransformer.prototype,
+  PropertyNameShorthandTransformer.prototype = traceur.createObject(
+      ParseTreeTransformer.prototype, {
 
     transformPropertyNameShorthand: function(tree) {
       // We need to pass along the location for the FreeVariableChecker to not
@@ -42,7 +42,7 @@ traceur.define('codegeneration', function() {
       return new PropertyNameAssignment(tree.location,
           tree.name, new IdentifierExpression(tree.location, tree.name));
     }
-  };
+  });
 
   return {
     PropertyNameShorthandTransformer: PropertyNameShorthandTransformer

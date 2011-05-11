@@ -82,8 +82,7 @@ traceur.define('codegeneration', function() {
   };
 
   var proto = ParseTreeTransformer.prototype;
-  AlphaRenamer.prototype = {
-    __proto__: proto,
+  AlphaRenamer.prototype = traceur.createObject(proto, {
 
     /**
      * @param {Block} tree
@@ -143,7 +142,7 @@ traceur.define('codegeneration', function() {
         return proto.transformCatch.call(this, tree);
       }
     }
-  };
+  });
 
   return {
     AlphaRenamer: AlphaRenamer

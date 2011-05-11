@@ -45,8 +45,7 @@ traceur.define('codegeneration', function() {
     this.visitAny(tree);
   }
 
-  YieldFinder.prototype = {
-    __proto__: ParseTreeVisitor.prototype,
+  YieldFinder.prototype = traceur.createObject(ParseTreeVisitor.prototype, {
 
     hasYield: false,
     hasYieldFor: false,
@@ -79,7 +78,7 @@ traceur.define('codegeneration', function() {
     visitFunctionDeclaration: function(tree) {},
     visitSetAccessor: function(tree) {},
     visitGetAccessor: function(tree) {}
-  };
+  });
 
   /**
    * This transformer turns "yield for E" into a ForEach that
@@ -94,8 +93,8 @@ traceur.define('codegeneration', function() {
     return new YieldForTransformer(identifierGenerator).transformAny(tree);
   };
 
-  YieldForTransformer.prototype = {
-    __proto__: ParseTreeTransformer.prototype,
+  YieldForTransformer.prototype = traceur.createObject(
+      ParseTreeTransformer.prototype, {
 
     transformYieldStatement: function(tree) {
       if (tree.isYieldFor) {
@@ -123,7 +122,7 @@ traceur.define('codegeneration', function() {
 
       return tree;
     }
-  };
+  });
 
   /**
    * This pass just finds function bodies with yields in them and passes them off to
@@ -144,8 +143,8 @@ traceur.define('codegeneration', function() {
     return new GeneratorTransformPass(identifierGenerator, reporter).transformAny(tree);
   }
 
-  GeneratorTransformPass.prototype = {
-    __proto__: ParseTreeTransformer.prototype,
+  GeneratorTransformPass.prototype = traceur.createObject(
+      ParseTreeTransformer.prototype, {
 
     /**
      * @param {FunctionDeclaration} tree
@@ -228,7 +227,7 @@ traceur.define('codegeneration', function() {
           tree.parameter,
           body);
     }
-  };
+  });
 
   return {
     GeneratorTransformPass: GeneratorTransformPass

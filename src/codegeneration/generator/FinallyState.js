@@ -36,8 +36,7 @@ traceur.define('codegeneration.generator', function() {
     this.fallThroughState = fallThroughState;
   }
 
-  FinallyState.prototype = {
-    __proto__: TryState.prototype,
+  FinallyState.prototype = traceur.createObject(TryState.prototype, {
 
     /**
      * @param {number} oldState
@@ -51,7 +50,7 @@ traceur.define('codegeneration.generator', function() {
           this.replaceAllStates(oldState, newState),
           this.replaceNestedTrys(oldState, newState));
     }
-  };
+  });
 
   return {
     FinallyState: FinallyState

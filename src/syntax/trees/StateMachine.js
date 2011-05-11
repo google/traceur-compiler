@@ -89,8 +89,7 @@ traceur.define('syntax.trees', function() {
     }
   }
 
-  StateMachine.prototype = {
-    __proto__: ParseTree.prototype,
+  StateMachine.prototype = traceur.createObject(ParseTree.prototype, {
 
     /**
      * Does this machine include any try statements.
@@ -138,7 +137,7 @@ traceur.define('syntax.trees', function() {
       addAllCatchStates(this.exceptionBlocks, catches);
       return catches;
     }
-  };
+  });
 
   return {
     StateMachine: StateMachine

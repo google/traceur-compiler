@@ -51,8 +51,8 @@ traceur.define('codegeneration', function() {
     return new ForEachTransformer(identifierGenerator).transformAny(tree);
   };
 
-  ForEachTransformer.prototype = {
-    __proto__: ParseTreeTransformer.prototype,
+  ForEachTransformer.prototype = traceur.createObject(
+      ParseTreeTransformer.prototype, {
 
     // for ( initializer : collection ) statement
     //
@@ -104,7 +104,7 @@ traceur.define('codegeneration', function() {
       return createBlock(initializer,
           createTryStatement(createBlock(loop), null, createFinally(createBlock(finallyBody))));
     }
-  };
+  });
 
   return {
     ForEachTransformer: ForEachTransformer

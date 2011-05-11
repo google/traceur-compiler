@@ -56,8 +56,8 @@ traceur.define('codegeneration', function() {
     return new DefaultParametersTransformer().transformAny(tree);
   };
 
-  DefaultParametersTransformer.prototype = {
-    __proto__: ParseTreeTransformer.prototype,
+  DefaultParametersTransformer.prototype = traceur.createObject(
+      ParseTreeTransformer.prototype, {
 
     transformFunctionDeclaration: function(tree) {
       var transformedTree = ParseTreeTransformer.prototype.
@@ -123,7 +123,7 @@ traceur.define('codegeneration', function() {
           tree.name, parametersWithoutDefault,
           createBlock(statements));
     }
-  };
+  });
 
   return {
     DefaultParametersTransformer: DefaultParametersTransformer

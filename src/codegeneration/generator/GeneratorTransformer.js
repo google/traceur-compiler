@@ -72,8 +72,8 @@ traceur.define('codegeneration.generator', function() {
     return new GeneratorTransformer(reporter).transformGeneratorBody(body);
   };
 
-  GeneratorTransformer.prototype = {
-    __proto__: CPSTransformer.prototype,
+  GeneratorTransformer.prototype = traceur.createObject(
+      CPSTransformer.prototype, {
 
     /**
      * Yield statements are translated into a state machine with a single state.
@@ -219,7 +219,7 @@ traceur.define('codegeneration.generator', function() {
     machineEndStatements: function() {
       return [createReturnStatement(createFalseLiteral())];
     }
-  };
+  });
 
   return {
     GeneratorTransformer: GeneratorTransformer

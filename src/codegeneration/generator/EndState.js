@@ -26,8 +26,7 @@ traceur.define('codegeneration.generator', function() {
     State.call(this, id);
   }
 
-  EndState.prototype = {
-    __proto__: State.prototype,
+  EndState.prototype = traceur.createObject(State.prototype, {
 
     /**
      * @param {number} oldState
@@ -47,7 +46,7 @@ traceur.define('codegeneration.generator', function() {
     transform: function(enclosingFinally, machineEndState, reporter) {
       return State.generateJump(enclosingFinally, machineEndState);
     }
-  };
+  });
 
   return {
     EndState: EndState

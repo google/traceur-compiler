@@ -37,8 +37,8 @@ traceur.define('codegeneration.module', function() {
     this.urls_ = Object.create(null);
   }
 
-  ModuleRequireVisitor.prototype = {
-    __proto__: ParseTreeVisitor.prototype,
+  ModuleRequireVisitor.prototype = traceur.createObject(
+      ParseTreeVisitor.prototype, {
 
     get requireUrls() {
       return Object.keys(this.urls_);
@@ -48,7 +48,8 @@ traceur.define('codegeneration.module', function() {
       // TODO(arv): This is kind of ugly but we need the value of the string.
       this.urls_[canonicalizeUrl(evaluateStringLiteral(tree.url))] = true;
     }
-  };
+  });
+
   return {
     ModuleRequireVisitor: ModuleRequireVisitor
   };

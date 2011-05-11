@@ -91,8 +91,7 @@ traceur.define('codegeneration.generator', function() {
     return new AsyncTransformer(reporter).transformAsyncBody(body);
   };
 
-  AsyncTransformer.prototype = {
-    __proto__: CPSTransformer.prototype,
+  AsyncTransformer.prototype = traceur.createObject(CPSTransformer.prototype, {
 
     /**
      * Yield statements are translated into a state machine with a single state.
@@ -360,7 +359,7 @@ traceur.define('codegeneration.generator', function() {
           // break;
           createBreakStatement());
     }
-  };
+  });
 
   return {
     AsyncTransformer: AsyncTransformer

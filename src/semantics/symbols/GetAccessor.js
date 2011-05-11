@@ -32,9 +32,7 @@ traceur.define('semantics.symbols', function() {
     this.tree = tree;
   }
 
-  GetAccessor.prototype = {
-    __proto__: PropertyAccessor.prototype
-  };
+  GetAccessor.prototype = Object.create(PropertyAccessor.prototype);
 
   return {
     GetAccessor: GetAccessor

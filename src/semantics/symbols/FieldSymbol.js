@@ -33,8 +33,7 @@ traceur.define('semantics.symbols', function() {
     this.tree = tree;
   }
 
-  FieldSymbol.prototype = {
-    __proto__: MemberSymbol.prototype,
+  FieldSymbol.prototype = traceur.createObject(MemberSymbol.prototype, {
 
     /**
      * @return {boolean}
@@ -42,7 +41,7 @@ traceur.define('semantics.symbols', function() {
     isConst: function() {
       return this.field.isConst;
     }
-  };
+  });
 
   return {
     FieldSymbol: FieldSymbol

@@ -186,8 +186,8 @@ traceur.define('codegeneration', function() {
     return new SpreadTransformer().transformAny(tree);
   };
 
-  SpreadTransformer.prototype = {
-    __proto__: ParseTreeTransformer.prototype,
+  SpreadTransformer.prototype = traceur.createObject(
+      ParseTreeTransformer.prototype, {
 
     transformArrayLiteralExpression: function(tree) {
       if (hasSpreadMember(tree.elements)) {
@@ -212,7 +212,7 @@ traceur.define('codegeneration', function() {
       return ParseTreeTransformer.prototype.transformNewExpression.
           call(this, tree);
     }
-  };
+  });
 
   return {
     SpreadTransformer: SpreadTransformer
