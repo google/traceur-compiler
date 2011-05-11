@@ -46,8 +46,6 @@ textarea {
 <script>
 
 (function() {
-  'use strict';
-
   var hasError = false;
   var input = document.querySelector('.input');
   var outputCheckbox = document.querySelector('input.output');
@@ -76,6 +74,7 @@ textarea {
       });
       if (location)
         format = location + ': ' + message;
+      //console[kind].apply(console, [format].concat(args));
       errorElement.textContent += format + '\n';
     };
 

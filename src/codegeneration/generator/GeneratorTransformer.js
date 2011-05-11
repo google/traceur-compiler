@@ -48,7 +48,7 @@ traceur.define('codegeneration.generator', function() {
    *
    * {
    *   var $that = this;
-   *   return { __traceurIterator__ : function() {
+   *   return { __iterator__ : function() {
    *     machine variables
    *     var $result = { moveNext : machineMethod };
    *     return $result;
@@ -143,7 +143,7 @@ traceur.define('codegeneration.generator', function() {
      *
      * {
      *   var $that = this;
-     *   return { __traceurIterator__ : function() {
+     *   return { __iterator__ : function() {
      *     machine variables
      *     var $result = { moveNext : machineMethod };
      *     return $result;
@@ -180,7 +180,7 @@ traceur.define('codegeneration.generator', function() {
       return createBlock(
           //   var $that = this;
           this.generateHoistedThis(),
-          //   return { __traceurIterator__ = function() { ... };
+          //   return { __iterator__ = function() { ... };
           createReturnStatement(
               createObjectLiteralExpression(createPropertyNameAssignment(
                   PredefinedName.ITERATOR,
