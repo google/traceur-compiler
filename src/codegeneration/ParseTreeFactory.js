@@ -435,21 +435,6 @@ traceur.define('codegeneration', function() {
   }
 
   /**
-   * @param {string} aggregateName
-   * @param {string} propertyName
-   * @return {CallExpression}
-   */
-  function createLookupGetter(aggregateName, propertyName) {
-    // TODO(arv): Use ES5 method instead of relying on propriatary extensions.
-    return createCallExpression(
-        createMemberExpression(
-            aggregateName,
-            PredefinedName.PROTOTYPE,
-            PredefinedName.LOOKUP_GETTER),
-        createArgumentList(createStringLiteral(propertyName)));
-  }
-
-  /**
    * @return {BreakStatement}
    */
   function createBreakStatement() {
@@ -1160,7 +1145,6 @@ traceur.define('codegeneration', function() {
       createIdentifierToken: createIdentifierToken,
       createIfStatement: createIfStatement,
       createLabelledStatement: createLabelledStatement,
-      createLookupGetter: createLookupGetter,
       createMemberExpression: createMemberExpression,
       createMemberLookupExpression: createMemberLookupExpression,
       createMixin: createMixin,
