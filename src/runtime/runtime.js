@@ -25,94 +25,96 @@ try {
 var traceur = traceur || {};
 traceur.runtime = (function() {
   'use strict';
-  var map = {};
+  var defineProperty = Object.defineProperty;
+  var bind = Function.prototype.bind;
+  var map = Object.create(null);
 
   // Associates the instance maker with the class.
   // Used below for classes inherited from DOM elements.
-  function add(map, name, cls, make) {
-    Object.defineProperty(make, '$class', {
-      value: cls,
-      writable: false,
-      enumerable: false,
-      configurable: false
-    });
+  function add(name, cls, make) {
+    defineProperty(make, '$class', {value: cls});
+    // Firefox does not treat DOM constructors as functions so they do not have
+    // a name property.
+    if (!cls.name) {
+      defineProperty(cls, 'name', {value: name});
+    }
     map[name] = make;
   }
 
   // AUTO-GENERATED
-  try {add(map, 'Array', Array, function() {return new Array();});}catch (e) {}
-  try {add(map, 'Date', Date, function() {return new Date();});}catch (e) {}
-  try {add(map, 'Event', Event, function() {return document.createEvent('Event');});}catch (e) {}
-  try {add(map, 'HTMLAnchorElement', HTMLAnchorElement, function() {return document.createElement('a');});}catch (e) {}
-  try {add(map, 'HTMLAreaElement', HTMLAreaElement, function() {return document.createElement('area');});}catch (e) {}
-  try {add(map, 'HTMLAudioElement', HTMLAudioElement, function() {return document.createElement('audio');});}catch (e) {}
-  try {add(map, 'HTMLBRElement', HTMLBRElement, function() {return document.createElement('br');});}catch (e) {}
-  try {add(map, 'HTMLBaseElement', HTMLBaseElement, function() {return document.createElement('base');});}catch (e) {}
-  try {add(map, 'HTMLBlockquoteElement', HTMLBlockquoteElement, function() {return document.createElement('blockquote');});}catch (e) {}
-  try {add(map, 'HTMLBodyElement', HTMLBodyElement, function() {return document.createElement('body');});}catch (e) {}
-  try {add(map, 'HTMLButtonElement', HTMLButtonElement, function() {return document.createElement('button');});}catch (e) {}
-  try {add(map, 'HTMLCanvasElement', HTMLCanvasElement, function() {return document.createElement('canvas');});}catch (e) {}
-  try {add(map, 'HTMLDListElement', HTMLDListElement, function() {return document.createElement('dl');});}catch (e) {}
-  try {add(map, 'HTMLDivElement', HTMLDivElement, function() {return document.createElement('div');});}catch (e) {}
-  try {add(map, 'HTMLElement', HTMLElement, function() {return document.createElement('span');});}catch (e) {}
-  try {add(map, 'HTMLEmbedElement', HTMLEmbedElement, function() {return document.createElement('embed');});}catch (e) {}
-  try {add(map, 'HTMLFieldSetElement', HTMLFieldSetElement, function() {return document.createElement('fieldset');});}catch (e) {}
-  try {add(map, 'HTMLFormElement', HTMLFormElement, function() {return document.createElement('form');});}catch (e) {}
-  try {add(map, 'HTMLH1HeadingElement', HTMLH1HeadingElement, function() {return document.createElement('h1');});}catch (e) {}
-  try {add(map, 'HTMLH2HeadingElement', HTMLH2HeadingElement, function() {return document.createElement('h2');});}catch (e) {}
-  try {add(map, 'HTMLH3HeadingElement', HTMLH3HeadingElement, function() {return document.createElement('h3');});}catch (e) {}
-  try {add(map, 'HTMLH4HeadingElement', HTMLH4HeadingElement, function() {return document.createElement('h4');});}catch (e) {}
-  try {add(map, 'HTMLH5HeadingElement', HTMLH5HeadingElement, function() {return document.createElement('h5');});}catch (e) {}
-  try {add(map, 'HTMLH6HeadingElement', HTMLH6HeadingElement, function() {return document.createElement('h6');});}catch (e) {}
-  try {add(map, 'HTMLHRElement', HTMLHRElement, function() {return document.createElement('hr');});}catch (e) {}
-  try {add(map, 'HTMLHeadElement', HTMLHeadElement, function() {return document.createElement('head');});}catch (e) {}
-  try {add(map, 'HTMLHeadingElement', HTMLHeadingElement, function() {return document.createElement('h1');});}catch (e) {}
-  try {add(map, 'HTMLHtmlElement', HTMLHtmlElement, function() {return document.createElement('html');});}catch (e) {}
-  try {add(map, 'HTMLIFrameElement', HTMLIFrameElement, function() {return document.createElement('iframe');});}catch (e) {}
-  try {add(map, 'HTMLImageElement', HTMLImageElement, function() {return document.createElement('img');});}catch (e) {}
-  try {add(map, 'HTMLInputElement', HTMLInputElement, function() {return document.createElement('input');});}catch (e) {}
-  try {add(map, 'HTMLLIElement', HTMLLIElement, function() {return document.createElement('li');});}catch (e) {}
-  try {add(map, 'HTMLLabelElement', HTMLLabelElement, function() {return document.createElement('label');});}catch (e) {}
-  try {add(map, 'HTMLLegendElement', HTMLLegendElement, function() {return document.createElement('legend');});}catch (e) {}
-  try {add(map, 'HTMLLinkElement', HTMLLinkElement, function() {return document.createElement('link');});}catch (e) {}
-  try {add(map, 'HTMLMapElement', HTMLMapElement, function() {return document.createElement('map');});}catch (e) {}
-  try {add(map, 'HTMLMenuElement', HTMLMenuElement, function() {return document.createElement('menu');});}catch (e) {}
-  try {add(map, 'HTMLMetaElement', HTMLMetaElement, function() {return document.createElement('meta');});}catch (e) {}
-  try {add(map, 'HTMLMeterElement', HTMLMeterElement, function() {return document.createElement('meter');});}catch (e) {}
-  try {add(map, 'HTMLModElement', HTMLModElement, function() {return document.createElement('del');});}catch (e) {}
-  try {add(map, 'HTMLOListElement', HTMLOListElement, function() {return document.createElement('ol');});}catch (e) {}
-  try {add(map, 'HTMLObjectElement', HTMLObjectElement, function() {return document.createElement('object');});}catch (e) {}
-  try {add(map, 'HTMLOptGroupElement', HTMLOptGroupElement, function() {return document.createElement('optgroup');});}catch (e) {}
-  try {add(map, 'HTMLOptionElement', HTMLOptionElement, function() {return document.createElement('option');});}catch (e) {}
-  try {add(map, 'HTMLOutputElement', HTMLOutputElement, function() {return document.createElement('output');});}catch (e) {}
-  try {add(map, 'HTMLParagraphElement', HTMLParagraphElement, function() {return document.createElement('p');});}catch (e) {}
-  try {add(map, 'HTMLParamElement', HTMLParamElement, function() {return document.createElement('param');});}catch (e) {}
-  try {add(map, 'HTMLPreElement', HTMLPreElement, function() {return document.createElement('pre');});}catch (e) {}
-  try {add(map, 'HTMLProgressElement', HTMLProgressElement, function() {return document.createElement('progress');});}catch (e) {}
-  try {add(map, 'HTMLQuoteElement', HTMLQuoteElement, function() {return document.createElement('q');});}catch (e) {}
-  try {add(map, 'HTMLScriptElement', HTMLScriptElement, function() {return document.createElement('script');});}catch (e) {}
-  try {add(map, 'HTMLSelectElement', HTMLSelectElement, function() {return document.createElement('select');});}catch (e) {}
-  try {add(map, 'HTMLSourceElement', HTMLSourceElement, function() {return document.createElement('source');});}catch (e) {}
-  try {add(map, 'HTMLStyleElement', HTMLStyleElement, function() {return document.createElement('style');});}catch (e) {}
-  try {add(map, 'HTMLTableCaptionElement', HTMLTableCaptionElement, function() {return document.createElement('caption');});}catch (e) {}
-  try {add(map, 'HTMLTableCellElement', HTMLTableCellElement, function() {return document.createElement('td');});}catch (e) {}
-  try {add(map, 'HTMLTableColElement', HTMLTableColElement, function() {return document.createElement('col');});}catch (e) {}
-  try {add(map, 'HTMLTableElement', HTMLTableElement, function() {return document.createElement('table');});}catch (e) {}
-  try {add(map, 'HTMLTableRowElement', HTMLTableRowElement, function() {return document.createElement('tr');});}catch (e) {}
-  try {add(map, 'HTMLTableSectionElement', HTMLTableSectionElement, function() {return document.createElement('tbody');});}catch (e) {}
-  try {add(map, 'HTMLTextAreaElement', HTMLTextAreaElement, function() {return document.createElement('textarea');});}catch (e) {}
-  try {add(map, 'HTMLTitleElement', HTMLTitleElement, function() {return document.createElement('title');});}catch (e) {}
-  try {add(map, 'HTMLUListElement', HTMLUListElement, function() {return document.createElement('ul');});}catch (e) {}
-  try {add(map, 'HTMLVideoElement', HTMLVideoElement, function() {return document.createElement('video');});}catch (e) {}
-  try {add(map, 'KeyboardEvent', KeyboardEvent, function() {return document.createEvent('KeyboardEvent');});}catch (e) {}
-  try {add(map, 'MouseEvent', MouseEvent, function() {return document.createEvent('MouseEvents');});}catch (e) {}
-  try {add(map, 'MutationEvent', MutationEvent, function() {return document.createEvent('MutationEvents');});}catch (e) {}
-  try {add(map, 'RegExp', RegExp, function() {return new RegExp();});}catch (e) {}
-  try {add(map, 'SVGZoomEvent', SVGZoomEvent, function() {return document.createEvent('SVGZoomEvents');});}catch (e) {}
-  try {add(map, 'String', String, function() {return new String();});}catch (e) {}
-  try {add(map, 'Text', Text, function() {return document.createTextNode('');});}catch (e) {}
-  try {add(map, 'TextEvent', TextEvent, function() {return document.createEvent('TextEvent');});}catch (e) {}
-  try {add(map, 'UIEvent', UIEvent, function() {return document.createEvent('UIEvents');});}catch (e) {}
+  try {add('Array', Array, function() {return new Array();});}catch (e) {}
+  try {add('Date', Date, function() {return new Date();});}catch (e) {}
+  try {add('Event', Event, function() {return document.createEvent('Event');});}catch (e) {}
+  try {add('HTMLAnchorElement', HTMLAnchorElement, function() {return document.createElement('a');});}catch (e) {}
+  try {add('HTMLAreaElement', HTMLAreaElement, function() {return document.createElement('area');});}catch (e) {}
+  try {add('HTMLAudioElement', HTMLAudioElement, function() {return document.createElement('audio');});}catch (e) {}
+  try {add('HTMLBRElement', HTMLBRElement, function() {return document.createElement('br');});}catch (e) {}
+  try {add('HTMLBaseElement', HTMLBaseElement, function() {return document.createElement('base');});}catch (e) {}
+  try {add('HTMLBlockquoteElement', HTMLBlockquoteElement, function() {return document.createElement('blockquote');});}catch (e) {}
+  try {add('HTMLBodyElement', HTMLBodyElement, function() {return document.createElement('body');});}catch (e) {}
+  try {add('HTMLButtonElement', HTMLButtonElement, function() {return document.createElement('button');});}catch (e) {}
+  try {add('HTMLCanvasElement', HTMLCanvasElement, function() {return document.createElement('canvas');});}catch (e) {}
+  try {add('HTMLDListElement', HTMLDListElement, function() {return document.createElement('dl');});}catch (e) {}
+  try {add('HTMLDivElement', HTMLDivElement, function() {return document.createElement('div');});}catch (e) {}
+  try {add('HTMLElement', HTMLElement, function() {return document.createElement('span');});}catch (e) {}
+  try {add('HTMLEmbedElement', HTMLEmbedElement, function() {return document.createElement('embed');});}catch (e) {}
+  try {add('HTMLFieldSetElement', HTMLFieldSetElement, function() {return document.createElement('fieldset');});}catch (e) {}
+  try {add('HTMLFormElement', HTMLFormElement, function() {return document.createElement('form');});}catch (e) {}
+  try {add('HTMLH1HeadingElement', HTMLH1HeadingElement, function() {return document.createElement('h1');});}catch (e) {}
+  try {add('HTMLH2HeadingElement', HTMLH2HeadingElement, function() {return document.createElement('h2');});}catch (e) {}
+  try {add('HTMLH3HeadingElement', HTMLH3HeadingElement, function() {return document.createElement('h3');});}catch (e) {}
+  try {add('HTMLH4HeadingElement', HTMLH4HeadingElement, function() {return document.createElement('h4');});}catch (e) {}
+  try {add('HTMLH5HeadingElement', HTMLH5HeadingElement, function() {return document.createElement('h5');});}catch (e) {}
+  try {add('HTMLH6HeadingElement', HTMLH6HeadingElement, function() {return document.createElement('h6');});}catch (e) {}
+  try {add('HTMLHRElement', HTMLHRElement, function() {return document.createElement('hr');});}catch (e) {}
+  try {add('HTMLHeadElement', HTMLHeadElement, function() {return document.createElement('head');});}catch (e) {}
+  try {add('HTMLHeadingElement', HTMLHeadingElement, function() {return document.createElement('h1');});}catch (e) {}
+  try {add('HTMLHtmlElement', HTMLHtmlElement, function() {return document.createElement('html');});}catch (e) {}
+  try {add('HTMLIFrameElement', HTMLIFrameElement, function() {return document.createElement('iframe');});}catch (e) {}
+  try {add('HTMLImageElement', HTMLImageElement, function() {return document.createElement('img');});}catch (e) {}
+  try {add('HTMLInputElement', HTMLInputElement, function() {return document.createElement('input');});}catch (e) {}
+  try {add('HTMLLIElement', HTMLLIElement, function() {return document.createElement('li');});}catch (e) {}
+  try {add('HTMLLabelElement', HTMLLabelElement, function() {return document.createElement('label');});}catch (e) {}
+  try {add('HTMLLegendElement', HTMLLegendElement, function() {return document.createElement('legend');});}catch (e) {}
+  try {add('HTMLLinkElement', HTMLLinkElement, function() {return document.createElement('link');});}catch (e) {}
+  try {add('HTMLMapElement', HTMLMapElement, function() {return document.createElement('map');});}catch (e) {}
+  try {add('HTMLMenuElement', HTMLMenuElement, function() {return document.createElement('menu');});}catch (e) {}
+  try {add('HTMLMetaElement', HTMLMetaElement, function() {return document.createElement('meta');});}catch (e) {}
+  try {add('HTMLMeterElement', HTMLMeterElement, function() {return document.createElement('meter');});}catch (e) {}
+  try {add('HTMLModElement', HTMLModElement, function() {return document.createElement('del');});}catch (e) {}
+  try {add('HTMLOListElement', HTMLOListElement, function() {return document.createElement('ol');});}catch (e) {}
+  try {add('HTMLObjectElement', HTMLObjectElement, function() {return document.createElement('object');});}catch (e) {}
+  try {add('HTMLOptGroupElement', HTMLOptGroupElement, function() {return document.createElement('optgroup');});}catch (e) {}
+  try {add('HTMLOptionElement', HTMLOptionElement, function() {return document.createElement('option');});}catch (e) {}
+  try {add('HTMLOutputElement', HTMLOutputElement, function() {return document.createElement('output');});}catch (e) {}
+  try {add('HTMLParagraphElement', HTMLParagraphElement, function() {return document.createElement('p');});}catch (e) {}
+  try {add('HTMLParamElement', HTMLParamElement, function() {return document.createElement('param');});}catch (e) {}
+  try {add('HTMLPreElement', HTMLPreElement, function() {return document.createElement('pre');});}catch (e) {}
+  try {add('HTMLProgressElement', HTMLProgressElement, function() {return document.createElement('progress');});}catch (e) {}
+  try {add('HTMLQuoteElement', HTMLQuoteElement, function() {return document.createElement('q');});}catch (e) {}
+  try {add('HTMLScriptElement', HTMLScriptElement, function() {return document.createElement('script');});}catch (e) {}
+  try {add('HTMLSelectElement', HTMLSelectElement, function() {return document.createElement('select');});}catch (e) {}
+  try {add('HTMLSourceElement', HTMLSourceElement, function() {return document.createElement('source');});}catch (e) {}
+  try {add('HTMLStyleElement', HTMLStyleElement, function() {return document.createElement('style');});}catch (e) {}
+  try {add('HTMLTableCaptionElement', HTMLTableCaptionElement, function() {return document.createElement('caption');});}catch (e) {}
+  try {add('HTMLTableCellElement', HTMLTableCellElement, function() {return document.createElement('td');});}catch (e) {}
+  try {add('HTMLTableColElement', HTMLTableColElement, function() {return document.createElement('col');});}catch (e) {}
+  try {add('HTMLTableElement', HTMLTableElement, function() {return document.createElement('table');});}catch (e) {}
+  try {add('HTMLTableRowElement', HTMLTableRowElement, function() {return document.createElement('tr');});}catch (e) {}
+  try {add('HTMLTableSectionElement', HTMLTableSectionElement, function() {return document.createElement('tbody');});}catch (e) {}
+  try {add('HTMLTextAreaElement', HTMLTextAreaElement, function() {return document.createElement('textarea');});}catch (e) {}
+  try {add('HTMLTitleElement', HTMLTitleElement, function() {return document.createElement('title');});}catch (e) {}
+  try {add('HTMLUListElement', HTMLUListElement, function() {return document.createElement('ul');});}catch (e) {}
+  try {add('HTMLVideoElement', HTMLVideoElement, function() {return document.createElement('video');});}catch (e) {}
+  try {add('KeyboardEvent', KeyboardEvent, function() {return document.createEvent('KeyboardEvent');});}catch (e) {}
+  try {add('MouseEvent', MouseEvent, function() {return document.createEvent('MouseEvents');});}catch (e) {}
+  try {add('MutationEvent', MutationEvent, function() {return document.createEvent('MutationEvents');});}catch (e) {}
+  try {add('RegExp', RegExp, function() {return new RegExp();});}catch (e) {}
+  try {add('SVGZoomEvent', SVGZoomEvent, function() {return document.createEvent('SVGZoomEvents');});}catch (e) {}
+  try {add('String', String, function() {return new String();});}catch (e) {}
+  try {add('Text', Text, function() {return document.createTextNode('');});}catch (e) {}
+  try {add('TextEvent', TextEvent, function() {return document.createEvent('TextEvent');});}catch (e) {}
+  try {add('UIEvent', UIEvent, function() {return document.createEvent('UIEvents');});}catch (e) {}
   // END AUTO-GENERATED
 
   /**
@@ -148,14 +150,14 @@ traceur.runtime = (function() {
   // name: the class name
   // base: the base class
   // make: the function to create instance of the class
-  //       i.e. function() { document.createEvent('div'); }
+  //       i.e. function() { return document.createElement('div'); }
   // ctor: the constructor function
   // proto: the prototype object (containing instance methods, properties)
   // initS: the function to initialize class static members
   // mixins: Traits to mixin to this class
   function createClass(name, base, make, ctor, init, proto, initS, mixins) {
     if (base) {
-      if (typeof base != 'function') {
+      if (typeof base != 'function' && typeof base.prototype != 'object') {
         throw new TypeError(
             'Base class of ' + name +
             ' must be a function (' + typeof base + ')');
@@ -199,27 +201,12 @@ traceur.runtime = (function() {
 
     TheClass.prototype = proto;
 
-    Object.defineProperty(TheClass, '$className', {
-      value: name,
-      writable: false,
-      enumerable: false,
-      configurable: false
-    });
+    defineProperty(TheClass, '$className', {value: name});
     if (finit) {
-      Object.defineProperty(TheClass, '$init', {
-        value: finit,
-        writable: false,
-        enumerable: false,
-        configurable: false
-      });
+      defineProperty(TheClass, '$init', {value: finit});
     }
     if (make) {
-      Object.defineProperty(TheClass, '$new', {
-        value: make,
-        writable: false,
-        enumerable: false,
-        configurable: false
-      });
+      defineProperty(TheClass, '$new', {value: make});
     }
     if (initS) { initS.call(TheClass); }
     return TheClass;
@@ -269,7 +256,7 @@ traceur.runtime = (function() {
   }
 
   // Add iterator support to arrays.
-  Object.defineProperty(Array.prototype, '__iterator__', {
+  defineProperty(Array.prototype, '__iterator__', {
     value: function() {
       var index = 0;
       var array = this;
@@ -316,8 +303,6 @@ traceur.runtime = (function() {
     }
     return retval;
   }
-
-  var bind = Function.prototype.bind;
 
   /**
    * @param {Function} ctor
