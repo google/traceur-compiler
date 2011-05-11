@@ -49,7 +49,7 @@ traceur.define('syntax', function() {
     GET_MODULE_INSTANCE_BY_URL: 'getModuleInstanceByUrl',
     INIT: '$init',
     IS_DONE: 'isDone',
-    ITERATOR: '__iterator__',
+    ITERATOR: '__traceurIterator__',
     LENGTH: 'length',
     MIXIN: 'mixin',
     MODULE: 'module',

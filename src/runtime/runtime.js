@@ -256,7 +256,7 @@ traceur.runtime = (function() {
   }
 
   // Add iterator support to arrays.
-  defineProperty(Array.prototype, '__iterator__', {
+  defineProperty(Array.prototype, '__traceurIterator__', {
     value: function() {
       var index = 0;
       var array = this;
