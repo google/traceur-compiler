@@ -10,4 +10,3 @@ function testBlock() {
 
 var result = testBlock();
 assertEquals('g', result());
-assertEquals('g', result.name);
