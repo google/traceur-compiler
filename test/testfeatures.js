@@ -14,7 +14,7 @@ function importScript(filename) {
   if (!script) {
     throw new Error('Failed to import ' + filename);
   }
-  eval.call(global, script);
+  ('global', eval)('"use strict";' + script);
 }
 
 /**
@@ -121,7 +121,9 @@ function testScript(filePath) {
 
   var reporter = new traceur.util.ErrorReporter();
   var sourceFile = new traceur.syntax.SourceFile(filePath, script);
-  var tree = traceur.codegeneration.Compiler.compileFile(reporter, sourceFile);
+  var tree = traceur.codegeneration.Compiler.compileFile(reporter,
+                                                         sourceFile,
+                                                         filePath);
 
 
   if (script.indexOf('// Should not compile') == 0) {
@@ -171,13 +173,19 @@ function testScriptInContext(javascript) {
 
   // TODO(rnystrom): Hack. Don't let Traceur spew all over our beautiful
   // test results.
-  var console = {
+  var oldConsole = global.console;
+
+  console = global.console = {
     log: function() {},
     info: function() {},
     error: function() {}
   };
 
-  eval(javascript);
+  try {
+    traceur.strictGlobalEval(javascript);
+  } finally {
+    global.console = oldConsole;
+  }
 }
 
 /**

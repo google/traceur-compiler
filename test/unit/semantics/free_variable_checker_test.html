@@ -89,12 +89,13 @@ function testFreeVariables() {
 function evalScript(scriptElement) {
   var source;
   var name;
+  var url = scriptElement.src || window.location.href;
   if (scriptElement.src) {
     name = scriptElement.src;
     var xhr = new XMLHttpRequest();
     // Synchronous load but these are already loaded when we get here so it
     // should be fast.
-    xhr.open('GET', scriptElement.src, false);
+    xhr.open('GET', url, false);
     xhr.send();
     source = xhr.responseText;
   } else {
@@ -104,10 +105,11 @@ function evalScript(scriptElement) {
 
   var errors = new traceur.util.ErrorReporter();
   var sourceFile = new traceur.syntax.SourceFile(name, source);
-  var tree = traceur.codegeneration.Compiler.compileFile(errors, sourceFile);
+  var tree = traceur.codegeneration.Compiler.compileFile(errors,
+                                                         sourceFile,
+                                                         url);
   var code = traceur.codegeneration.ParseTreeWriter.write(tree);
-  console.log(code);
-  ('global', eval)(code);
+  traceur.strictGlobalEval(code);
   assertFalse(errors.hadError());
 }
 

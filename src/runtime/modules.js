@@ -476,7 +476,7 @@ traceur.define('runtime', function() {
 
         try {
           // TODO(arv): Eval in the right context.
-          result = ('global', eval)(
+          result = traceur.strictGlobalEval(
               ParseTreeWriter.write(codeUnit.transformedTree));
         } catch (ex) {
           codeUnit.error = ex.message

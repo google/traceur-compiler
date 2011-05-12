@@ -301,7 +301,7 @@ function evalScript(scriptElement) {
   var trees = traceur.codegeneration.Compiler.compile(reporter, project);
   assertFalse(reporter.hadError());
   var result = traceur.codegeneration.ProjectWriter.write(trees);
-  ('global', eval)(result);
+  traceur.strictGlobalEval(result);
   assertFalse(reporter.hadError());
 }
 

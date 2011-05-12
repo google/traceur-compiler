@@ -75,7 +75,7 @@ function evalScript(scriptElement) {
 
   var errorReporter = new traceur.util.ErrorReporter();
   var tree = transform(errorReporter, name, source);
-  ('global', eval)(traceur.codegeneration.ParseTreeWriter.write(tree));
+  traceur.strictGlobalEval(traceur.codegeneration.ParseTreeWriter.write(tree));
   assertFalse(errorReporter.hadError());
 }
 

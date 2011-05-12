@@ -40,11 +40,13 @@ traceur.define('codegeneration', function() {
   /**
    * @param {ErrorReporter} reporter Where to report compile errors.
    * @param {SourceFile} sourceFile file to compile.
+   * @param {string} url The URL of the file to compile or the URL of the
+   *     document in case of an eval or inline script.
    * @return {ParseTree} A map from input file name to
    *     translated results. Returns null if there was a compile error.
    */
-  Compiler.compileFile = function(reporter, sourceFile) {
-    var project = new Project(null);
+  Compiler.compileFile = function(reporter, sourceFile, url) {
+    var project = new Project(url);
     project.addFile(sourceFile);
     return new Compiler(reporter, project).compileFile_(sourceFile);
   };

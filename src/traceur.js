@@ -61,6 +61,15 @@ var traceur = (function() {
   }
 
   /**
+   * Evaluates some code in a strict global context.
+   * @param {string} code
+   * @return {*} The continuation value of the code.
+   */
+  function strictGlobalEval(code) {
+    return ('global', eval)('"use strict";' + code);
+  }
+
+  /**
    * Similar to {@code Object.create} but instead of taking a property
    * descriptor it takes an ordinary object.
    * @param {Object} proto The object acting as the proto.
@@ -110,7 +119,8 @@ var traceur = (function() {
     assert: assert,
     createObject: createObject,
     define: define,
-    getUid: getUid
+    getUid: getUid,
+    strictGlobalEval: strictGlobalEval
   };
 
   var scripts = [
