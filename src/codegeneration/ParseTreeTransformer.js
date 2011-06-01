@@ -69,6 +69,8 @@ traceur.define('codegeneration', function() {
   var createYieldStatement = ParseTreeFactory.createYieldStatement;
 
   var AwaitStatement = traceur.syntax.trees.AwaitStatement;
+  var ArrowFunctionExpression = traceur.syntax.trees.ArrowFunctionExpression;
+  var BindThisParameter = traceur.syntax.trees.BindThisParameter;
   var ExportDeclaration = traceur.syntax.trees.ExportDeclaration;
   var ExportPathList = traceur.syntax.trees.ExportPathList;
   var ExportPath = traceur.syntax.trees.ExportPath;
@@ -208,6 +210,19 @@ traceur.define('codegeneration', function() {
       return createArrayPattern(elements);
     },
 
+   /**
+     * @param {ArrowFunctionExpression} tree
+     * @return {ParseTree}
+     */
+    transformArrowFunctionExpression: function(tree) {
+      var parameters = this.transformAny(tree.formalParameters);
+      var body = this.transformAny(tree.functionBody);
+      if (parameters == tree.formalParameters && body == tree.functionBody) {
+        return tree;
+      }
+      return new ArrowFunctionExpression(null, parameters, tree.arrow, body);
+    },
+
     /**
      * @param {AwaitStatement} tree
      * @return {ParseTree}
@@ -231,6 +246,18 @@ traceur.define('codegeneration', function() {
         return tree;
       }
       return createBinaryOperator(left, tree.operator, right);
+    },
+
+    /**
+     * @param {BindThisParameter} tree
+     * @return {ParseTree}
+     */
+    transformBindThisParameter: function(tree) {
+      var expression = this.transformAny(tree.expression);
+      if (tree.expression == expression) {
+        return tree;
+      }
+      return new BindThisParameter(null, expression);
     },
 
     /**

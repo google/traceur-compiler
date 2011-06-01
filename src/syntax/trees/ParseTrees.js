@@ -73,6 +73,20 @@ traceur.define('syntax.trees', function() {
 
     /**
      * @param {traceur.util.SourceRange} location
+     * @param {traceur.syntax.trees.FormalParameterList} formalParameters
+     * @param {TokenType} arrow
+     * @param {ParseTree} functionBody
+     * @constructor
+     * @extends {ParseTree}
+     */
+    ArrowFunctionExpression: create(
+        ParseTreeType.ARROW_FUNCTION_EXPRESSION,
+        'formalParameters',
+        'arrow',
+        'functionBody'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
      * @param {IdentifierToken} identifier
      * @param {ParseTree} expression
      * @constructor
@@ -96,6 +110,16 @@ traceur.define('syntax.trees', function() {
         'left',
         'operator',
         'right'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
+     * @param {ParseTree} expression
+     * @constructor
+     * @extends {ParseTree}
+     */
+    BindThisParameter: create(
+        ParseTreeType.BIND_THIS_PARAMETER,
+        'expression'),
 
     /**
      * @param {traceur.util.SourceRange} location

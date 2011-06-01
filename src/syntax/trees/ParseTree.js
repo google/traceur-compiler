@@ -134,8 +134,9 @@ traceur.define('syntax.trees', function() {
 
     // TODO: enable classes and traits
     /** @return {boolean} */
-    isAssignmentExpression: function() {
+    isArrowFunctionExpression: function() {
       switch (this.type) {
+        case ParseTreeType.ARROW_FUNCTION_EXPRESSION:
         case ParseTreeType.FUNCTION_DECLARATION:
         case ParseTreeType.BINARY_OPERATOR:
         case ParseTreeType.THIS_EXPRESSION:
@@ -199,13 +200,13 @@ traceur.define('syntax.trees', function() {
 
     /** @return {boolean} */
     isExpression: function() {
-      return this.isAssignmentExpression() ||
+      return this.isArrowFunctionExpression() ||
           this.type == ParseTreeType.COMMA_EXPRESSION;
     },
 
     /** @return {boolean} */
     isAssignmentOrSpread: function() {
-      return this.isAssignmentExpression() ||
+      return this.isArrowFunctionExpression() ||
           this.type == ParseTreeType.SPREAD_EXPRESSION;
     },
 

@@ -24,6 +24,11 @@
 goog.require('goog.testing.jsunit');
 </script>
 <script src="../../src/traceur.js"></script>
+<script src="ArrowFunctions/ArrowFunctions.js" type="text/traceur"></script>
+<script src="ArrowFunctions/Skip_Frozen.js" type="text/traceur"></script>
+<script src="ArrowFunctions/Skip_InitialiserShorthand.js" type="text/traceur"></script>
+<script src="ArrowFunctions/Skip_SoftBind.js" type="text/traceur"></script>
+<script src="ArrowFunctions/ThisBindings.js" type="text/traceur"></script>
 <script src="Await/Complete.js" type="text/traceur"></script>
 <script src="Await/Throw.js" type="text/traceur"></script>
 <script src="Await/Timeout.js" type="text/traceur"></script>
@@ -236,7 +241,7 @@ function evalScript(scriptElement) {
       // Script should not compile.
       assertTrue('Expected error compiling ' + name + ', but got none.',
           errors.hadError());
-    } else {
+    } else if (source.indexOf('// Skip.') != 0) {
       if (errors.hadError()) {
         fail('Error compiling ' + name + '.');
         return;

@@ -123,7 +123,6 @@ traceur.define('syntax', function() {
     CARET_EQUAL: '^=',
     SLASH: '/',
     SLASH_EQUAL: '/=',
-    POUND: '#',
 
     // 7.8 Literals
     NULL: 'null',
@@ -135,7 +134,9 @@ traceur.define('syntax', function() {
 
     // Harmony extensions
     SPREAD: '...',
-    AWAIT: 'await'
+    AWAIT: 'await',
+    FAT_ARROW: '=>',
+    THIN_ARROW: '->'
   };
 
   return {

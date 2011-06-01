@@ -573,6 +573,10 @@ traceur.define('syntax', function() {
             }
             return this.createToken_(TokenType.EQUAL_EQUAL, beginToken);
           }
+          if (this.peek_('>')) {
+            this.nextChar_();
+            return this.createToken_(TokenType.FAT_ARROW, beginToken);
+          }
           return this.createToken_(TokenType.EQUAL, beginToken);
         case '!':
           if (this.peek_('=')) {
@@ -627,6 +631,9 @@ traceur.define('syntax', function() {
             case '=':
               this.nextChar_();
               return this.createToken_(TokenType.MINUS_EQUAL, beginToken);
+            case '>':
+              this.nextChar_();
+              return this.createToken_(TokenType.THIN_ARROW, beginToken);
             default:
               return this.createToken_(TokenType.MINUS, beginToken);
           }
@@ -652,8 +659,7 @@ traceur.define('syntax', function() {
             default:
               return this.createToken_(TokenType.BAR, beginToken);
           }
-        case '#':
-          return this.createToken_(TokenType.POUND, beginToken);
+
           // TODO: add NumberToken
           // TODO: character following NumericLiteral must not be an
           //       IdentifierStart or DecimalDigit

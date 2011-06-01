@@ -33,6 +33,7 @@ traceur.define('codegeneration', function() {
   var ModuleTransformer = traceur.codegeneration.ModuleTransformer;
   var GeneratorTransformPass = traceur.codegeneration.GeneratorTransformPass;
   var FreeVariableChecker = traceur.semantics.FreeVariableChecker;
+  var ArrowFunctionTransformer = traceur.codegeneration.ArrowFunctionTransformer;
 
   var CLASS_DECLARATION = traceur.syntax.trees.ParseTreeType.CLASS_DECLARATION;
   var TRAIT_DECLARATION = traceur.syntax.trees.ParseTreeType.TRAIT_DECLARATION;
@@ -138,6 +139,12 @@ traceur.define('codegeneration', function() {
       if (!this.reporter_.hadError()) {
         ParseTreeValidator.validate(tree);
         tree = this.transformModules_(tree, opt_module);
+      }
+      // TODO: many of these simple, local transforms could happen in the same
+      // tree pass
+      if (!this.reporter_.hadError()) {
+        ParseTreeValidator.validate(tree);
+        tree = ArrowFunctionTransformer.transformTree(this.reporter_, tree);
       }
       if (!this.reporter_.hadError()) {
         ParseTreeValidator.validate(tree);

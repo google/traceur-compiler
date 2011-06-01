@@ -6,7 +6,7 @@ pushd $(dirname $0) > /dev/null
 # compile all files into output
 for i in `find ../third_party/closure-library -name \*.js`
 do
-    ../src/traceurc $i
+    ../traceurc $i
 done
 
 # diff baseline with the output

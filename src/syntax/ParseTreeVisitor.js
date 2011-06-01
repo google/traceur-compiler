@@ -80,6 +80,14 @@ traceur.define('syntax', function() {
     },
 
     /**
+     * @param {traceur.syntax.trees.ArrowFunctionExpression} tree
+     */
+    visitArrowFunctionExpression: function(tree) {
+      this.visitAny(tree.formalParameters);
+      this.visitAny(tree.functionBody);
+    },
+
+    /**
      * @param {traceur.syntax.trees.AwaitStatement} tree
      */
     visitAwaitStatement: function(tree) {
@@ -92,6 +100,13 @@ traceur.define('syntax', function() {
     visitBinaryOperator: function(tree) {
       this.visitAny(tree.left);
       this.visitAny(tree.right);
+    },
+
+    /**
+     * @param {traceur.syntax.trees.BindThisParameter} tree
+     */
+    visitBindThisParameter: function(tree) {
+      this.visitAny(tree.expression);
     },
 
     /**

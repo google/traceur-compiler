@@ -32,11 +32,6 @@ traceur.define('syntax', function() {
   }
 
   Token.prototype = {
-    /** @return {traceur.util.SourcePosition} */
-    getStart: function() {
-      return this.location.start;
-    },
-
     toString: function() {
       return this.type.toString();
     },

@@ -21,6 +21,7 @@ traceur.define('syntax.trees', function() {
   var instance;
 
   /**
+   * TODO: this was a Java-ism. Remove and use 'null' instead.
    * @constructor
    * @extends {ParseTree}
    */
