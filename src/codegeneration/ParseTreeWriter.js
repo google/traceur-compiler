@@ -762,6 +762,17 @@ traceur.define('codegeneration', function() {
     },
 
     /**
+     * @param {PropertyMethodAssignment} tree
+     */
+    visitPropertyMethodAssignment: function(tree) {
+      this.write_(tree.name);
+      this.write_(TokenType.OPEN_PAREN);
+      this.visitAny(tree.formalParameterList);
+      this.write_(TokenType.CLOSE_PAREN);
+      this.visitAny(tree.functionBody);
+    },
+
+    /**
      * @param {PropertyNameAssignment} tree
      */
     visitPropertyNameAssignment: function(tree) {

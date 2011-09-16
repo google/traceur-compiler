@@ -51,6 +51,7 @@ traceur.define('syntax', function() {
     IS_DONE: 'isDone',
     ITERATOR: '__traceurIterator__',
     LENGTH: 'length',
+    MARK_METHODS: 'markMethods',
     MIXIN: 'mixin',
     MODULE: 'module',
     MOVE_NEXT: 'moveNext',

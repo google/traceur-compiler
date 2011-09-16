@@ -699,12 +699,13 @@ traceur.define('syntax', function() {
         switch (propertyNameAndValue.type) {
           case ParseTreeType.GET_ACCESSOR:
           case ParseTreeType.SET_ACCESSOR:
+          case ParseTreeType.PROPERTY_METHOD_ASSIGNMENT:
           case ParseTreeType.PROPERTY_NAME_ASSIGNMENT:
           case ParseTreeType.PROPERTY_NAME_SHORTHAND:
             break;
           default:
             this.fail_(propertyNameAndValue,
-                'accessor or property name assignment expected');
+                'accessor, property name assignment or property method assigment expected');
         }
         this.visitAny(propertyNameAndValue);
       }
