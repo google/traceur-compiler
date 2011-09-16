@@ -120,6 +120,7 @@ traceur.define('codegeneration', function() {
 
     transformPropertyMethodAssignment: function(tree) {
       addMethod(tree.name);
+
       var parameters = this.transformAny(tree.formalParameterList);
       var functionBody = this.transformAny(tree.functionBody);
 
