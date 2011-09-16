@@ -90,6 +90,7 @@ traceur.define('syntax', function() {
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
   var PostfixExpression = traceur.syntax.trees.PostfixExpression;
   var Program = traceur.syntax.trees.Program;
+  var PropertyMethodAssignment = traceur.syntax.trees.PropertyMethodAssignment;
   var PropertyNameAssignment = traceur.syntax.trees.PropertyNameAssignment;
   var PropertyNameShorthand = traceur.syntax.trees.PropertyNameShorthand;
   var QualifiedReference = traceur.syntax.trees.QualifiedReference;
@@ -2235,6 +2236,10 @@ traceur.define('syntax', function() {
         var value = this.parseArrowFunction_();
         return new PropertyNameAssignment(this.getTreeLocation_(start), name,
                                           value);
+
+      // http://wiki.ecmascript.org/doku.php?id=harmony:concise_object_literal_extensions#methods
+      } else if (this.peek_(TokenType.OPEN_PAREN, 1)) {
+        return this.parsePropertyMethodAssignment_();
       } else {
         return this.parsePropertyNameShorthand_();
       }
@@ -2244,7 +2249,22 @@ traceur.define('syntax', function() {
      * @return {ParseTree}
      * @private
      */
-    parsePropertyNameShorthand_:function() {
+    parsePropertyMethodAssignment_: function() {
+      var start = this.getTreeStartLocation_();
+      // Note that parsePropertyAssignment_ already limits name to String & IdentfierName.
+      var name = this.nextToken_();
+      this.eat_(TokenType.OPEN_PAREN);
+      var formalParameterList = this.parseFormalParameterList_();
+      this.eat_(TokenType.CLOSE_PAREN);
+      var functionBody = this.parseFunctionBody_();
+      return new PropertyMethodAssignment(this.getTreeLocation_(start), name, formalParameterList, functionBody);
+    },
+
+    /**
+     * @return {ParseTree}
+     * @private
+     */
+    parsePropertyNameShorthand_: function() {
       var start = this.getTreeStartLocation_();
       var name = this.eatId_();
       return new PropertyNameShorthand(this.getTreeLocation_(start), name);

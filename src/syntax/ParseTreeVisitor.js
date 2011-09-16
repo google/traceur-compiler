@@ -518,6 +518,14 @@ traceur.define('syntax', function() {
     },
 
     /**
+     * @param {traceur.syntax.trees.PropertyMethodAssignment} tree
+     */
+    visitPropertyMethodAssignment: function(tree) {
+      this.visitAny(tree.formalParameterList);
+      this.visitAny(tree.functionBody);
+    },
+
+    /**
      * @param {traceur.syntax.trees.PropertyNameAssignment} tree
      */
     visitPropertyNameAssignment: function(tree) {

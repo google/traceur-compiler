@@ -86,6 +86,7 @@ traceur.define('codegeneration', function() {
   var ModuleSpecifier = traceur.syntax.trees.ModuleSpecifier;
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
   var Program = traceur.syntax.trees.Program;
+  var PropertyMethodAssignment = traceur.syntax.trees.PropertyMethodAssignment;
   var QualifiedReference = traceur.syntax.trees.QualifiedReference;
 
   var getTreeNameForType = traceur.syntax.trees.getTreeNameForType;
@@ -920,6 +921,28 @@ traceur.define('codegeneration', function() {
         return tree;
       }
       return new Program(null, elements);
+    },
+
+    /**
+     * @param {PropertyMethodAssignment} tree
+     * @return {ParseTree}
+     */
+    transformPropertyMethodAssignment: function(tree) {
+      var parameters =
+          this.transformAny(tree.formalParameterList);
+      var functionBody = this.transformAny(tree.functionBody);
+      if (parameters == tree.formalParameterList &&
+          functionBody == tree.functionBody) {
+        return tree;
+      }
+      return new PropertyMethodAssignment(null, tree.name, parameters, functionBody);
+
+
+      var value = this.transformAny(tree.value);
+      if (value == tree.value) {
+        return tree;
+      }
+      return createPropertyNameAssignment(tree.name, value);
     },
 
     /**
