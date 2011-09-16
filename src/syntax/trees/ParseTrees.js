@@ -755,20 +755,6 @@ traceur.define('syntax.trees', function() {
     /**
      * @param {traceur.util.SourceRange} location
      * @param {traceur.syntax.Token} name
-     * @param {traceur.syntax.trees.FormalParameterList} formalParameterList
-     * @param {traceur.syntax.trees.Block} functionBody
-     * @constructor
-     * @extends {ParseTree}
-     */
-    PropertyMethodAssignment: create(
-        ParseTreeType.PROPERTY_METHOD_ASSIGNMENT,
-        'name',
-        'formalParameterList',
-        'functionBody'),
-
-    /**
-     * @param {traceur.util.SourceRange} location
-     * @param {traceur.syntax.Token} name
      * @param {ParseTree} value
      * @constructor
      * @extends {ParseTree}

@@ -171,7 +171,6 @@ var traceur = (function() {
     'codegeneration/ParseTreeFactory.js',
     'codegeneration/ParseTreeTransformer.js',
     'codegeneration/ArrowFunctionTransformer.js',
-    'codegeneration/PropertyMethodAssignmentTransformer.js',
     'codegeneration/PropertyNameShorthandTransformer.js',
     'codegeneration/AlphaRenamer.js',
     'codegeneration/DestructuringTransformer.js',

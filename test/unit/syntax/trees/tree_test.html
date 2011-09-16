@@ -333,10 +333,6 @@ function testTreeConstructors() {
       ParseTreeType.PROGRAM,
       ['location', 'programElements']);
 
-  validateTree(traceur.syntax.trees.PropertyMethodAssignment,
-      ParseTreeType.PROPERTY_METHOD_ASSIGNMENT,
-      ['location', 'name', 'formalParameterList', 'functionBody']);
-
   validateTree(traceur.syntax.trees.PropertyNameAssignment,
       ParseTreeType.PROPERTY_NAME_ASSIGNMENT,
       ['location', 'name', 'value']);
