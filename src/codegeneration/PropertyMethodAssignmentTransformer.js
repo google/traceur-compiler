@@ -62,9 +62,8 @@ traceur.define('codegeneration', function() {
 
     // Transform all the tokens to string expressions parse trees.
     var methodNames = methodTokens.map(function(token) {
-      if (token.type == TokenType.STRING) {
+      if (token.type == TokenType.STRING)
         return new LiteralExpression(null, token);
-      }
       return createStringLiteral(token.toString());
     });
 
