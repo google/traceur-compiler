@@ -317,6 +317,19 @@ traceur.runtime = (function() {
   };
 
   /**
+   * Marks properties as non enumerable.
+   * @param {Object} object
+   * @param {Array.<string>} names
+   * @return {Object}
+   */
+  function markMethods(object, names) {
+    names.forEach(function(name) {
+      Object.defineProperty(object, name, {enumerable: false});
+    });
+    return object;
+  }
+
+  /**
    * @param {Function} canceller
    * @constructor
    */
@@ -406,6 +419,7 @@ traceur.runtime = (function() {
     createClass: createClass,
     createTrait: createTrait,
     Deferred: Deferred,
+    markMethods: markMethods,
     spread: spread,
     spreadNew: spreadNew,
     superCall: superCall,

@@ -2251,13 +2251,15 @@ traceur.define('syntax', function() {
      */
     parsePropertyMethodAssignment_: function() {
       var start = this.getTreeStartLocation_();
-      // Note that parsePropertyAssignment_ already limits name to String & IdentfierName.
+      // Note that parsePropertyAssignment_ already limits name to String,
+      // Number & IdentfierName.
       var name = this.nextToken_();
       this.eat_(TokenType.OPEN_PAREN);
       var formalParameterList = this.parseFormalParameterList_();
       this.eat_(TokenType.CLOSE_PAREN);
       var functionBody = this.parseFunctionBody_();
-      return new PropertyMethodAssignment(this.getTreeLocation_(start), name, formalParameterList, functionBody);
+      return new PropertyMethodAssignment(this.getTreeLocation_(start), name,
+                                          formalParameterList, functionBody);
     },
 
     /**
