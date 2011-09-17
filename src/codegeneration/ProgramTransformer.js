@@ -137,71 +137,53 @@ traceur.define('codegeneration', function() {
     },
 
     transformTree_: function(tree, opt_module) {
+      var reporter = this.reporter_;
+
+      function chain(transformer) {
+        if (!reporter.hadError()) {
+          ParseTreeValidator.validate(tree);
+          tree = transformer(tree) || tree;
+        }
+      }
+
       if (!this.reporter_.hadError()) {
         ParseTreeValidator.validate(tree);
         tree = this.transformModules_(tree, opt_module);
       }
+
       // TODO: many of these simple, local transforms could happen in the same
       // tree pass
-      if (!this.reporter_.hadError()) {
-        ParseTreeValidator.validate(tree);
-        tree = ArrowFunctionTransformer.transformTree(this.reporter_, tree);
-      }
-      if (!this.reporter_.hadError()) {
-        ParseTreeValidator.validate(tree);
-        tree = PropertyMethodAssignmentTransformer.transformTree(tree);
-      }
-      if (!this.reporter_.hadError()) {
-        ParseTreeValidator.validate(tree);
-        tree = PropertyNameShorthandTransformer.transformTree(tree);
-      }
-      if (!this.reporter_.hadError()) {
-        ParseTreeValidator.validate(tree);
-        tree = this.transformAggregates_(tree);
-      }
-      if (!this.reporter_.hadError()) {
-        ParseTreeValidator.validate(tree);
-        // foreach must come before destructuring and generator, or anything
-        // that wants to use VariableBinder
-        tree = ForEachTransformer.transformTree(
-            this.identifierGenerator_, tree);
-      }
-      if (!this.reporter_.hadError()) {
-        ParseTreeValidator.validate(tree);
-        // rest parameters must come before generator
-        tree = RestParameterTransformer.transformTree(tree);
-      }
-      if (!this.reporter_.hadError()) {
-        ParseTreeValidator.validate(tree);
-        // default parameters should come after rest parameter to get the
-        // expected order in the transformed code.
-        tree = DefaultParametersTransformer.transformTree(tree);
-      }
-      if (!this.reporter_.hadError()) {
-        ParseTreeValidator.validate(tree);
-        // generator must come after foreach and rest parameters
-        tree = GeneratorTransformPass.transformTree(
-            this.identifierGenerator_, this.reporter_, tree);
-      }
-      if (!this.reporter_.hadError()) {
-        ParseTreeValidator.validate(tree);
-        // destructuring must come after foreach and before block binding
-        tree = DestructuringTransformer.transformTree(tree);
-      }
-      if (!this.reporter_.hadError()) {
-        ParseTreeValidator.validate(tree);
-        tree = SpreadTransformer.transformTree(tree);
-      }
-      if (!this.reporter_.hadError()) {
-        ParseTreeValidator.validate(tree);
-        tree = BlockBindingTransformer.transformTree(tree);
-      }
-      if (!this.reporter_.hadError()) {
-        ParseTreeValidator.validate(tree);
 
-        // Issue errors for any unbound variables
-        FreeVariableChecker.checkProgram(this.reporter_, tree);
-      }
+      chain(ArrowFunctionTransformer.transformTree.bind(null, this.reporter_));
+      chain(PropertyMethodAssignmentTransformer.transformTree);
+      chain(PropertyNameShorthandTransformer.transformTree);
+      chain(ClassTransformer.transform.bind(null, this.reporter_));
+
+      // foreach must come before destructuring and generator, or anything
+      // that wants to use VariableBinder
+      chain(ForEachTransformer.transformTree.bind(null,
+                                                  this.identifierGenerator_));
+
+      // rest parameters must come before generator
+      chain(RestParameterTransformer.transformTree);
+
+      // default parameters should come after rest parameter to get the
+      // expected order in the transformed code.
+      chain(DefaultParametersTransformer.transformTree);
+
+      // generator must come after foreach and rest parameters
+      chain(GeneratorTransformPass.transformTree.bind(null,
+                                                      this.identifierGenerator_,
+                                                      this.reporter_));
+
+      // destructuring must come after foreach and before block binding
+      chain(DestructuringTransformer.transformTree);
+      chain(SpreadTransformer.transformTree);
+      chain(BlockBindingTransformer.transformTree);
+
+      // Issue errors for any unbound variables
+      chain(FreeVariableChecker.checkProgram.bind(null, this.reporter_));
+
       return tree;
     },
 
@@ -219,15 +201,6 @@ traceur.define('codegeneration', function() {
       } else {
         return ModuleTransformer.transform(this.project_, tree);
       }
-    },
-
-    /**
-     * @param {Program} tree
-     * @return {Program}
-     * @private
-     */
-    transformAggregates_: function(tree) {
-      return ClassTransformer.transform(this.reporter_, tree);
     }
   };
 
