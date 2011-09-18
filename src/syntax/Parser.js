@@ -2107,9 +2107,25 @@ traceur.define('syntax', function() {
 
       this.eat_(TokenType.OPEN_CURLY);
       while (this.peekPropertyAssignment_()) {
-        result.push(this.parsePropertyAssignment_());
-        if (this.eatOpt_(TokenType.COMMA) == null) {
-          break;
+        if (this.peekGetAccessor_(false)) {
+          result.push(this.parseGetAccessor_());
+          this.eatOpt_(TokenType.COMMA);
+
+        } else if (this.peekSetAccessor_(false)) {
+          result.push(this.parseSetAccessor_());
+          this.eatOpt_(TokenType.COMMA);
+
+        // http://wiki.ecmascript.org/doku.php?id=harmony:concise_object_literal_extensions#methods
+        } else if (this.peekPropertyMethodAssignment_()) {
+          result.push(this.parsePropertyMethodAssignment_());
+          this.eatOpt_(TokenType.COMMA);
+
+        } else {
+          result.push(this.parsePropertyNameAssignment_());
+          // Comma is required after name assignment.
+          if (this.eatOpt_(TokenType.COMMA) == null) {
+            break;
+          }
         }
       }
       this.eat_(TokenType.CLOSE_CURLY);
@@ -2137,29 +2153,6 @@ traceur.define('syntax', function() {
           return true;
         default:
           return Keywords.isKeyword(type);
-      }
-    },
-
-    /**
-     * @return {ParseTree}
-     * @private
-     */
-    parsePropertyAssignment_: function() {
-      var type = this.peekType_();
-      switch (type) {
-        case TokenType.STRING:
-        case TokenType.NUMBER:
-          return this.parsePropertyNameAssignment_();
-        default:
-          traceur.assert(type == TokenType.IDENTIFIER ||
-              Keywords.isKeyword(type));
-          if (this.peekGetAccessor_(false)) {
-            return this.parseGetAccessor_();
-          } else if (this.peekSetAccessor_(false)) {
-            return this.parseSetAccessor_();
-          } else {
-            return this.parsePropertyNameAssignment_();
-          }
       }
     },
 
@@ -2236,13 +2229,14 @@ traceur.define('syntax', function() {
         var value = this.parseArrowFunction_();
         return new PropertyNameAssignment(this.getTreeLocation_(start), name,
                                           value);
-
-      // http://wiki.ecmascript.org/doku.php?id=harmony:concise_object_literal_extensions#methods
-      } else if (this.peek_(TokenType.OPEN_PAREN, 1)) {
-        return this.parsePropertyMethodAssignment_();
       } else {
         return this.parsePropertyNameShorthand_();
       }
+    },
+
+    peekPropertyMethodAssignment_: function() {
+      return this.peekPropertyName_() &&
+          this.peek_(TokenType.OPEN_PAREN, 1);
     },
 
     /**
