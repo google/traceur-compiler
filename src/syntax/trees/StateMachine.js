@@ -19,6 +19,8 @@ traceur.define('syntax.trees', function() {
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
   var TryState = traceur.codegeneration.generator.TryState;
 
+  ParseTreeType.STATE_MACHINE = 'STATE_MACHINE';
+
   /**
    * A state machine tree is the result of transforming a set of statements that contain a yield,
    * either directly or indirectly. StateMachine's break many of the design invariants in

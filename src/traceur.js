@@ -139,7 +139,6 @@ var traceur = (function() {
     'syntax/SourceFile.js',
     'syntax/Scanner.js',
     'syntax/PredefinedName.js',
-    'syntax/trees/ParseTreeType.js',
     'syntax/trees/ParseTree.js',
     'syntax/trees/NullTree.js',
     'syntax/trees/ParseTrees.js',

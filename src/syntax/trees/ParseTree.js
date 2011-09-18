@@ -16,13 +16,9 @@ traceur.define('syntax.trees', function() {
   'use strict';
 
   var assert = traceur.assert;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
+  var ParseTreeType = {};
 
   var typeToNameMap = Object.create(null);
-
-  // Add the exceptions
-  typeToNameMap[ParseTreeType.NULL] = 'NullTree';
-  typeToNameMap[ParseTreeType.IMPORT_PATH] = 'ImportPath';
 
   function getCapitalizedName(type) {
     var name = type.toString();
@@ -93,7 +89,7 @@ traceur.define('syntax.trees', function() {
   ParseTree.prototype = {
     /** @return {boolean} */
     isNull: function() {
-      return this.type === ParseTreeType.NULL;
+      return this.type === ParseTreeType.NULL_TREE;
     },
 
     /** @return {boolean} */
@@ -294,6 +290,7 @@ traceur.define('syntax.trees', function() {
 
   return {
     getTreeNameForType: getTreeNameForType,
-    ParseTree: ParseTree
+    ParseTree: ParseTree,
+    ParseTreeType: ParseTreeType
   };
 });
