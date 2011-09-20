@@ -390,7 +390,8 @@ function initializeTraceurSlide() {
       error = error ? error + e : e;
     };
 
-    var project = new traceur.semantics.symbols.Project();
+    var url = window.location.href;
+    var project = new traceur.semantics.symbols.Project(url);
     var name = 'traceur';
     var contents = input.value;
     var sourceFile = new traceur.syntax.SourceFile(name, contents);

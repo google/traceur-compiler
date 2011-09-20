@@ -78,7 +78,7 @@
 
   function compileFiles(filenames) {
     var reporter = new traceur.util.ErrorReporter();
-    var project = new traceur.semantics.symbols.Project();
+    var project = new traceur.semantics.symbols.Project(process.cwd());
 
     console.log('Reading files...');
     var success = filenames.every(function(filename) {

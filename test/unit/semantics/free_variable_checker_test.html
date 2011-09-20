@@ -54,7 +54,8 @@ function compileAndReturnErrors(contents, name) {
     errors.push(arguments);
   };
 
-  var project = new traceur.semantics.symbols.Project();
+  var url = window.location.href;
+  var project = new traceur.semantics.symbols.Project(url);
   project.addFile(sourceFile)
   traceur.codegeneration.Compiler.compile(reporter, project);
   return errors;

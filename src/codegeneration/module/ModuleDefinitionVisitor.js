@@ -41,7 +41,7 @@ traceur.define('codegeneration.module', function() {
       var name = tree.name.value;
       if (this.checkForDuplicateModule_(name, tree)) {
         var parent = this.currentModule;
-        var module = new ModuleSymbol(name, parent, tree);
+        var module = new ModuleSymbol(name, parent, tree, parent.url);
         parent.addModule(module);
       }
 

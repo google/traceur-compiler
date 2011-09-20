@@ -173,7 +173,8 @@ function compileAndReturnErrors(contents, name) {
     errors.push(arguments);
   };
 
-  var project = new traceur.semantics.symbols.Project();
+  var url = window.location.href;
+  var project = new traceur.semantics.symbols.Project(url);
   project.addFile(sourceFile)
   traceur.codegeneration.Compiler.compile(reporter, project);
   return errors;
@@ -281,6 +282,7 @@ function testInvalidExport3() {
 function evalScript(scriptElement) {
   var contents;
   var name;
+  var url = scriptElement.src || window.location.href;
   if (scriptElement.src) {
     name = scriptElement.src;
     var xhr = new XMLHttpRequest();
@@ -296,7 +298,7 @@ function evalScript(scriptElement) {
 
   var sourceFile = new traceur.syntax.SourceFile(name, contents);
   var reporter = new traceur.util.ErrorReporter();
-  var project = new traceur.semantics.symbols.Project();
+  var project = new traceur.semantics.symbols.Project(url);
   project.addFile(sourceFile)
   var trees = traceur.codegeneration.Compiler.compile(reporter, project);
   assertFalse(reporter.hadError());

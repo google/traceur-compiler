@@ -42,7 +42,8 @@ function tearDown() {
 }
 
 function getLoader(opt_reporter) {
-  var project = new traceur.semantics.symbols.Project(window.location.href);
+  var url = window.location.href;
+  var project = new traceur.semantics.symbols.Project(url);
   var parentLoader = null;
   var resolver = null;
   return new traceur.runtime.CodeLoader(opt_reporter || reporter, project,
