@@ -48,7 +48,7 @@ traceur.define('codegeneration', function() {
   var createMemberExpression = ParseTreeFactory.createMemberExpression;
   var createNullLiteral = ParseTreeFactory.createNullLiteral;
   var createObjectLiteralExpression = ParseTreeFactory.createObjectLiteralExpression;
-  var createParameters = ParseTreeFactory.createParameters;
+  var createParameterList = ParseTreeFactory.createParameterList;
   var createPropertyNameAssignment = ParseTreeFactory.createPropertyNameAssignment;
   var createSetAccessor = ParseTreeFactory.createSetAccessor;
   var createStringLiteral = ParseTreeFactory.createStringLiteral;
@@ -283,7 +283,7 @@ traceur.define('codegeneration', function() {
         fields.push(createPropertyNameAssignment(PredefinedName.SET,
             this.transformStaticMethod_(
                 aggregate,
-                createParameters(set.tree.parameter),
+                createParameterList(set.tree.parameter),
                 set.tree.body)));
       }
 
@@ -306,13 +306,13 @@ traceur.define('codegeneration', function() {
           createMemberExpression(classInstance, method.name),
           this.transformStaticMethod_(
               method.containingAggregate,
-              createParameters(method.tree.formalParameterList),
+              method.tree.formalParameterList,
               method.tree.functionBody));
     },
 
     /**
      * @param {AggregateSymbol} aggregate
-     * @param {Array.<string>} formalParameters
+     * @param {FormalParameterList} formalParameters
      * @param {Block} functionBody
      * @return {FunctionDeclaration}
      */
@@ -461,7 +461,7 @@ traceur.define('codegeneration', function() {
         var methodTree = method.tree;
         return this.transformStaticMethod_(
             sym,
-            createParameters(methodTree.formalParameterList),
+            methodTree.formalParameterList,
             methodTree.functionBody);
       }
     },

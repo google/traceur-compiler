@@ -143,26 +143,6 @@ traceur.define('codegeneration', function() {
   }
 
   /**
-   * @param {IdentifierToken|FormalParameterList} parameter
-   * @return {Array.<string>}
-   */
-  function createParameters(parameter) {
-    if (parameter instanceof IdentifierToken)
-      return [parameter.value];
-
-    var builder = [];
-
-    parameter.parameters.forEach(function(parameter) {
-      if (!parameter.isRestParameter()) {
-        // TODO: array and object patterns
-        builder.push(parameter.identifierToken.value);
-      }
-    });
-
-    return builder;
-  }
-
-  /**
    * Either creates an array from the arguments, or if the first argument is an
    * array, creates a new array with its elements followed by the other
    * arguments.
@@ -1162,7 +1142,6 @@ traceur.define('codegeneration', function() {
       createParameterList: createParameterList,
       createParameterListWithRestParams: createParameterListWithRestParams,
       createParameterReference: createParameterReference,
-      createParameters: createParameters,
       createParenExpression: createParenExpression,
       createPostfixExpression: createPostfixExpression,
       createProgram: createProgram,
