@@ -19,6 +19,7 @@ traceur.define('codegeneration', function() {
   var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
   var AlphaRenamer = traceur.codegeneration.AlphaRenamer;
 
+  var ParseTreeVisitor = traceur.syntax.ParseTreeVisitor;
   var PredefinedName = traceur.syntax.PredefinedName;
   var TokenType = traceur.syntax.TokenType;
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
@@ -95,6 +96,48 @@ traceur.define('codegeneration', function() {
   });
 
   /**
+   * This is used to see if a function body contains a reference to arguments.
+   * Does not search into nested functions.
+   * @param {ParseTree} tree
+   * @extends {ParseTreeVisitor}
+   * @constructor
+   */
+  function ArgumentsFinder(tree) {
+    try {
+      this.visitAny(tree);
+    } catch (ex) {
+      // This uses an exception to do early exits.
+      if (ex !== foundSentinel) {
+        throw ex;
+      }
+    }
+  }
+
+  // Object used as a sentinel. This is thrown to abort visiting the rest of the
+  // tree.
+  var foundSentinel = {};
+
+  ArgumentsFinder.prototype = traceur.createObject(ParseTreeVisitor.prototype, {
+    hasArguments: false,
+
+    /**
+     * @param {IdentifierExpression} tree
+     */
+    visitIdentifierExpression: function(tree) {
+      if (tree.identifierToken.value === PredefinedName.ARGUMENTS) {
+        this.hasArguments = true;
+        // Exit early.
+        throw foundSentinel;
+      }
+    },
+
+    // don't visit function children or bodies
+    visitFunctionDeclaration: function(tree) {},
+    visitSetAccessor: function(tree) {},
+    visitGetAccessor: function(tree) {}
+  });
+
+  /**
    * Desugars destructuring assignment.
    *
    * @see <a href="http://wiki.ecmascript.org/doku.php?id=harmony:destructuring#assignments">harmony:destructuring</a>
@@ -166,20 +209,36 @@ traceur.define('codegeneration', function() {
       this.desugarPattern_(desugaring, lvalue);
       desugaring.statements.push(createReturnStatement(desugaring.rvalue));
 
-      var func = createFunctionExpression(
-          createParameterList(
-              PredefinedName.getParameterName(0),
-              PredefinedName.CAPTURED_ARGUMENTS),
-          AlphaRenamer.rename(
-              createBlock(desugaring.statements),
-              PredefinedName.ARGUMENTS,
-              PredefinedName.CAPTURED_ARGUMENTS));
+      var finder = new ArgumentsFinder(lvalue);
+      if (finder.hasArguments) {
+        // function($0, $arguments) { alpha renamed body }
+        var func = createFunctionExpression(
+            createParameterList(
+                PredefinedName.getParameterName(0),
+                PredefinedName.CAPTURED_ARGUMENTS),
+            AlphaRenamer.rename(
+                createBlock(desugaring.statements),
+                PredefinedName.ARGUMENTS,
+                PredefinedName.CAPTURED_ARGUMENTS));
 
+        // (func).call(this, rvalue, arguments)
+        return createCallCall(
+            createParenExpression(func),
+            createThisExpression(),
+            rvalue,
+            createIdentifierExpression(PredefinedName.ARGUMENTS));
+      }
+
+      // function($0) { body }
+      var func = createFunctionExpression(
+            createParameterList(PredefinedName.getParameterName(0)),
+            createBlock(desugaring.statements));
+
+      // (func).call(this, rvalue)
       return createCallCall(
           createParenExpression(func),
           createThisExpression(),
-          rvalue,
-          createIdentifierExpression(PredefinedName.ARGUMENTS));
+          rvalue);
     },
 
     /**
