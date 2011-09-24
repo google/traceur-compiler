@@ -189,14 +189,14 @@ traceur.define('semantics.symbols', function() {
      * @return {MethodSymbol}
      */
     getConstructor: function() {
-      return this.getInstanceMember(PredefinedName.NEW);
+      return this.getInstanceMember(PredefinedName.CONSTRUCTOR);
     },
 
     /**
      * @return {MethodSymbol}
      */
     getStaticConstructor: function() {
-      return this.getStaticMember(PredefinedName.NEW);
+      return this.getStaticMember(PredefinedName.CONSTRUCTOR);
     },
 
     /**

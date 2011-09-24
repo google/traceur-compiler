@@ -879,7 +879,7 @@ traceur.define('syntax', function() {
         case TokenType.VAR:
         case TokenType.CONST:
         case TokenType.CLASS:
-        case TokenType.NEW:
+        case TokenType.CONSTRUCTOR:
           return true;
         default:
           return false;
@@ -1037,7 +1037,7 @@ traceur.define('syntax', function() {
      */
     peekConstructorDeclaration_: function() {
       var index = this.peek_(TokenType.CLASS) ? 1 : 0;
-      return this.peek_(TokenType.NEW, index) &&
+      return this.peek_(TokenType.CONSTRUCTOR, index) &&
           this.peek_(TokenType.OPEN_PAREN, index + 1);
     },
 

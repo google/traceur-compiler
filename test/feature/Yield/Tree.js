@@ -1,6 +1,6 @@
 // A binary tree class.
 class Tree {
-  new(label, left, right) {
+  constructor(label, left, right) {
     this.label = label;
     this.left = left;
     this.right = right;

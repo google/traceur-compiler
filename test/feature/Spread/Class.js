@@ -3,7 +3,7 @@ class SpreadTestClass {
   x = null;
   y = null;
   SpreadTestClass = SpreadTestClass;
-  new(x, y) {
+  constructor(x, y) {
     this.self = this;
     this.x = x;
     this.y = y;

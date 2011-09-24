@@ -1,5 +1,5 @@
 class RestParams {
-  new(...rest) {
+  constructor(...rest) {
     this.rest = rest;
   }
   instanceMethod(...rest) {

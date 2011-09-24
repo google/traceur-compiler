@@ -165,8 +165,8 @@ traceur.define('semantics', function() {
           this.reportError_(tree, 'Cannot use destructuring in a field declaration');
           break;
       }
-      if (PredefinedName.NEW == name) {
-        this.reportError_(tree, 'Cannot name a field "new"');
+      if (PredefinedName.CONSTRUCTOR == name) {
+        this.reportError_(tree, 'Cannot name a field "constructor"');
         return;
       }
       if (!this.checkForDuplicateMemberDeclaration_(aggregate, tree, name, field.isStatic)) {
@@ -236,8 +236,8 @@ traceur.define('semantics', function() {
         default:
           throw new Error('Unexpected property name type');
       }
-      if (name == PredefinedName.NEW) {
-        this.reportError_(tree, 'Cannot name a property "new"');
+      if (name == PredefinedName.CONSTRUCTOR) {
+        this.reportError_(tree, 'Cannot name a property "constructor"');
         return null;
       }
       return name;

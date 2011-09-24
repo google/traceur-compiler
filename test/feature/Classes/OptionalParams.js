@@ -1,5 +1,5 @@
 class OptionalParams {
-  new(opt = 1) {
+  constructor(opt = 1) {
     this.opt = opt;
   }
   instanceMethod(opt = 2) {

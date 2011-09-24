@@ -9,8 +9,8 @@ class BaseFieldInitializers {
   var b = counter.next();
 
   var be;
-  
-  new() {
+
+  constructor() {
     this.be = counter.next();
   }
 }
@@ -18,7 +18,7 @@ class BaseFieldInitializers {
 class DerivedFieldInitializers : BaseFieldInitializers {
   var d = counter.next();
   var de;
-  new() {
+  constructor() {
     this.de = counter.next();
     BaseFieldInitializers.prototype.constructor.call(this);
   }

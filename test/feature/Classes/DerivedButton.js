@@ -1,7 +1,7 @@
 // Only in browser.
 
 class CustomButton : HTMLButtonElement {
-  new() {
+  constructor() {
     this.value = 'Custom Button';
   }
 }

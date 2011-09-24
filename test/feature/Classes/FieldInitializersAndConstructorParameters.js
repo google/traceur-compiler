@@ -1,6 +1,6 @@
 class FieldInitializersAndConstructorParameters {
   field = constructorArg;
-  new(constructorArg) { }
+  constructor(constructorArg) { }
 }
 
 // ----------------------------------------------------------------------------
