@@ -2,20 +2,20 @@ var SingletonInstance = { }
 var SingletonInstanceTwo = { }
 
 class NewA {
-  class constructor() { return SingletonInstance; }
+  static constructor() { return SingletonInstance; }
 }
 
 class NewB : NewA {
 }
 
 class SkipNewA {
-  class constructor() { return SingletonInstance; }
+  static constructor() { return SingletonInstance; }
 }
 
 class SkipNewB : SkipNewA {}
 
 class SkipNewC : SkipNewB {
-  class constructor() { return SingletonInstanceTwo; }
+  static constructor() { return SingletonInstanceTwo; }
 }
 
 class SkipNewD : SkipNewC {}

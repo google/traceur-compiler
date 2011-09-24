@@ -1,16 +1,16 @@
 class MethodsA {
   function ma() {}
-  class function sma() {}
+  static function sma() {}
 }
 
 class MethodsB : MethodsA {
   function mb() {}
-  class function smb() {}
+  static function smb() {}
 }
 
 class MethodsC : MethodsB {
   function mc() {}
-  class function smc() {}
+  static function smc() {}
 }
 
 // ----------------------------------------------------------------------------

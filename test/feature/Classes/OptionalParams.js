@@ -5,7 +5,7 @@ class OptionalParams {
   instanceMethod(opt = 2) {
     return opt;
   }
-  class staticMethod(opt = 3) {
+  static staticMethod(opt = 3) {
     return opt;
   }
 }

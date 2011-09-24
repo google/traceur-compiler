@@ -5,7 +5,7 @@ class RestParams {
   instanceMethod(...rest) {
     return rest;
   }
-  class staticMethod(...rest) {
+  static staticMethod(...rest) {
     return rest;
   }
 }
