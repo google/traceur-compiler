@@ -15,7 +15,7 @@ class BaseFieldInitializers {
   }
 }
 
-class DerivedFieldInitializers : BaseFieldInitializers {
+class DerivedFieldInitializers extends BaseFieldInitializers {
   var d = counter.next();
   var de;
   constructor() {

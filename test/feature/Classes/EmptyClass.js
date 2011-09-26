@@ -1,6 +1,6 @@
 class Empty {}
 
-class EmptyB : Empty {
+class EmptyB extends Empty {
 }
 
 // ----------------------------------------------------------------------------

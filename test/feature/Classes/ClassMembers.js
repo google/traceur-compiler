@@ -3,12 +3,12 @@ class StaticA {
   static function sma() {}
 }
 
-class StaticB : StaticA {
+class StaticB extends StaticA {
   static sb = 'sb';
   static function smb() {}
 }
 
-class StaticC : StaticB {
+class StaticC extends StaticB {
   static sc = 'sc';
   static function smc() {}
 }

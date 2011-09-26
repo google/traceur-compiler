@@ -1,6 +1,6 @@
 class MissingSuperA {}
 
-class MissingSuperB : MissingSuperA {
+class MissingSuperB extends MissingSuperA {
   function method() {
     return super.foo();
   }

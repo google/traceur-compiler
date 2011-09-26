@@ -8,7 +8,7 @@ class BaseImplementsRequires {
   function r() { return 'base r'; }
 }
 
-class DerivedWithRequires : BaseImplementsRequires {
+class DerivedWithRequires extends BaseImplementsRequires {
   mixin TraitRequiresAndInheritance;
 }
 

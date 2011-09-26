@@ -1,5 +1,5 @@
 class SimpleBase {}
-class SimpleDerived : SimpleBase {}
+class SimpleDerived extends SimpleBase {}
 
 // ----------------------------------------------------------------------------
 

@@ -4,7 +4,7 @@ class ConstructorA {
   }
 }
 
-class ConstructorB : ConstructorA {
+class ConstructorB extends ConstructorA {
   constructor(x, y) {
     super(x);
     this.y = y;

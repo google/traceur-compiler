@@ -23,7 +23,7 @@ fieldLookupB.prototype = {
   baz : "B.baz.value",
 }
 
-class FieldLookupC : fieldLookupB {
+class FieldLookupC extends fieldLookupB {
   function x() {
     return super.foo;
   }

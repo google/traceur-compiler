@@ -7,7 +7,7 @@ baseContainer.base.prototype = {
   constructor: function() { this.y = 'base y'; }
 }
 
-class MemberExprBase : baseContainer.base {
+class MemberExprBase extends baseContainer.base {
   var z = 'var z';
   constructor(w) { super(); this.w = w; }
 }

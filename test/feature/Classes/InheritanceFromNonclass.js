@@ -3,7 +3,7 @@ noClassA.prototype = {
   ma: function() { return 'ma'; }
 }
 
-class NoClassB : noClassA {
+class NoClassB extends noClassA {
   mb() {
     return 'mb ' + super.ma();
   }

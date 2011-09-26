@@ -3,7 +3,7 @@ class Point2D {
   var y = 2;
 }
 
-class Point3D : Point2D {
+class Point3D extends Point2D {
   var z = 3;
 }
 

@@ -8,7 +8,7 @@ class MethodLookupA {
   set bar(value) { }
 }
 
-class MethodLookupB : MethodLookupA {
+class MethodLookupB extends MethodLookupA {
   get foo() {
     return "B.foo.get";
   }
@@ -18,7 +18,7 @@ class MethodLookupB : MethodLookupA {
   }
 }
 
-class MethodLookupC : MethodLookupB {
+class MethodLookupC extends MethodLookupB {
   function x() {
     return super.foo();
   }

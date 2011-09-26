@@ -3,11 +3,11 @@ class GetterA {
   get y() { return 'getter y'; }
 }
 
-class GetterB : GetterA {
+class GetterB extends GetterA {
   get x() { return super.x; }
 }
 
-class GetterC : GetterB {
+class GetterC extends GetterB {
   get y() { return super.y; }
 }
 

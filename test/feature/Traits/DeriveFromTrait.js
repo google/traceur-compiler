@@ -1,7 +1,7 @@
 trait Trait {}
 
 function deriveFromTrait() {
-  class ClassDerivingFromTrait : Trait {}
+  class ClassDerivingFromTrait extends Trait {}
 }
 
 // ----------------------------------------------------------------------------

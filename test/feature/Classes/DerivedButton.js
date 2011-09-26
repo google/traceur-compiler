@@ -1,23 +1,23 @@
 // Only in browser.
 
-class CustomButton : HTMLButtonElement {
+class CustomButton extends HTMLButtonElement {
   constructor() {
     this.value = 'Custom Button';
   }
 }
 
-class CustomSelect : HTMLSelectElement {}
-class CustomInput : HTMLInputElement {}
-class CustomDiv : HTMLDivElement {}
-class CustomUIEvent : UIEvent {}
-// class CustomSpan : HTMLSpanElement {}
-class CustomTableRow : HTMLTableRowElement {}
-class CustomHeading : HTMLHeadingElement {}
-class CustomElement : HTMLElement {}
-class CustomUList : HTMLUListElement {}
-class CustomLI : HTMLLIElement {}
-class CustomMenu : HTMLMenuElement {}
-class CustomTextArea : HTMLTextAreaElement {}
+class CustomSelect extends HTMLSelectElement {}
+class CustomInput extends HTMLInputElement {}
+class CustomDiv extends HTMLDivElement {}
+class CustomUIEvent extends UIEvent {}
+// class CustomSpan extends HTMLSpanElement {}
+class CustomTableRow extends HTMLTableRowElement {}
+class CustomHeading extends HTMLHeadingElement {}
+class CustomElement extends HTMLElement {}
+class CustomUList extends HTMLUListElement {}
+class CustomLI extends HTMLLIElement {}
+class CustomMenu extends HTMLMenuElement {}
+class CustomTextArea extends HTMLTextAreaElement {}
 
 // ----------------------------------------------------------------------------
 

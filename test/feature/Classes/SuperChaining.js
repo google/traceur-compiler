@@ -4,19 +4,19 @@ class ChainA {
   }
 }
 
-class ChainB : ChainA {
+class ChainB extends ChainA {
   function foo() {
     return super.foo() + ' B';
   }
 }
 
-class ChainC : ChainB {
+class ChainC extends ChainB {
   function foo() {
     return super.foo() + ' C';
   }
 }
 
-class ChainD : ChainC {
+class ChainD extends ChainC {
   function foo() {
     return super.foo() + ' D';
   }

@@ -5,20 +5,20 @@ class NewA {
   static constructor() { return SingletonInstance; }
 }
 
-class NewB : NewA {
+class NewB extends NewA {
 }
 
 class SkipNewA {
   static constructor() { return SingletonInstance; }
 }
 
-class SkipNewB : SkipNewA {}
+class SkipNewB extends SkipNewA {}
 
-class SkipNewC : SkipNewB {
+class SkipNewC extends SkipNewB {
   static constructor() { return SingletonInstanceTwo; }
 }
 
-class SkipNewD : SkipNewC {}
+class SkipNewD extends SkipNewC {}
 
 // ----------------------------------------------------------------------------
 

@@ -1,4 +1,4 @@
-class DerivedFromObject : Object {
+class DerivedFromObject extends Object {
 }
 
 // ----------------------------------------------------------------------------

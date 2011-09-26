@@ -844,8 +844,8 @@ traceur.define('syntax', function() {
       this.eat_(TokenType.CLASS);
       var name = this.eatId_();
       var superClass = null;
-      if (this.peek_(TokenType.COLON)) {
-        this.eat_(TokenType.COLON);
+      if (this.peek_(TokenType.EXTENDS)) {
+        this.eat_(TokenType.EXTENDS);
         superClass = this.parseExpression_();
       }
       this.eat_(TokenType.OPEN_CURLY);

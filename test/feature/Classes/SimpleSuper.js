@@ -11,7 +11,7 @@ class SuperBase {
   }
 }
 
-class SuperDerived : SuperBase {
+class SuperDerived extends SuperBase {
   m() { return 41; }
   superM() { return super.m(); }
   var x = 10;
