@@ -56,7 +56,17 @@ traceur.runtime = (function() {
   try {add('HTMLCanvasElement', HTMLCanvasElement, function() {return document.createElement('canvas');});}catch (e) {}
   try {add('HTMLDListElement', HTMLDListElement, function() {return document.createElement('dl');});}catch (e) {}
   try {add('HTMLDivElement', HTMLDivElement, function() {return document.createElement('div');});}catch (e) {}
-  try {add('HTMLElement', HTMLElement, function() {return document.createElement('span');});}catch (e) {}
+  try {
+    try {
+      // Feature test for native Component Model subclassing.
+      HTMLElement.call =  Function.prototype.call;
+      HTMLElement.apply = Function.prototype.apply;
+      new HTMLElement();
+    }catch(featureTestException) {
+      // Else, hack in "generic" element support for constructing HTMLElement.
+      add('HTMLElement', HTMLElement, function() {return document.createElement('span');});
+    }
+  }catch (e) {}
   try {add('HTMLEmbedElement', HTMLEmbedElement, function() {return document.createElement('embed');});}catch (e) {}
   try {add('HTMLFieldSetElement', HTMLFieldSetElement, function() {return document.createElement('fieldset');});}catch (e) {}
   try {add('HTMLFormElement', HTMLFormElement, function() {return document.createElement('form');});}catch (e) {}
@@ -201,6 +211,11 @@ traceur.runtime = (function() {
 
     TheClass.prototype = proto;
 
+    defineProperty(proto, 'constructor', {
+      value: TheClass,
+      writable: true,
+      configurable: true
+    });
     defineProperty(TheClass, '$className', {value: name});
     if (finit) {
       defineProperty(TheClass, '$init', {value: finit});
