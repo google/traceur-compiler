@@ -189,7 +189,12 @@ traceur.runtime = (function() {
         (init ? function() { binit.call(this); init.call(this); } : binit) :
         init;
     if (ctor) {
-      proto.constructor = ctor;
+      defineProperty(proto, 'constructor', {
+        value: ctor,
+        enumerable: false,
+        configurable: true,
+        writable: true
+      });
     } else {
       ctor = proto.constructor;
     }
@@ -211,16 +216,14 @@ traceur.runtime = (function() {
 
     TheClass.prototype = proto;
 
-    defineProperty(proto, 'constructor', {
-      value: TheClass,
-      writable: true,
-      configurable: true
-    });
+    // TODO(arv): Remove?
     defineProperty(TheClass, '$className', {value: name});
     if (finit) {
+      // TODO(arv): Remove?
       defineProperty(TheClass, '$init', {value: finit});
     }
     if (make) {
+      // TODO(arv): Remove?
       defineProperty(TheClass, '$new', {value: make});
     }
     if (initS) { initS.call(TheClass); }
