@@ -216,8 +216,6 @@ traceur.runtime = (function() {
 
     TheClass.prototype = proto;
 
-    // TODO(arv): Remove?
-    defineProperty(TheClass, '$className', {value: name});
     if (finit) {
       // TODO(arv): Remove?
       defineProperty(TheClass, '$init', {value: finit});
