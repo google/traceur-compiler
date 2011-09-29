@@ -1,11 +1,11 @@
 function mapFilterGenerator() {
   function map(list, fun) {
-    for (var item : list) {
+    for (var item of list) {
       yield fun(item);
     }
   }
   function filter(list, fun) {
-    for (var item : list) {
+    for (var item of list) {
       if (fun(item)) {
         yield item;
       }
@@ -20,7 +20,7 @@ function mapFilterGenerator() {
 
 function accumulate(iterator) {
   var result = '';
-  for (var value : iterator) {
+  for (var value of iterator) {
     result = result + String(value);
   }
   return result;

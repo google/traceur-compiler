@@ -241,7 +241,7 @@ traceur.define('syntax.trees', function() {
         case ParseTreeType.IF_STATEMENT:
         case ParseTreeType.DO_WHILE_STATEMENT:
         case ParseTreeType.WHILE_STATEMENT:
-        case ParseTreeType.FOR_EACH_STATEMENT:
+        case ParseTreeType.FOR_OF_STATEMENT:
         case ParseTreeType.FOR_IN_STATEMENT:
         case ParseTreeType.FOR_STATEMENT:
         case ParseTreeType.CONTINUE_STATEMENT:

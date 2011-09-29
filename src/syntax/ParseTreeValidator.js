@@ -466,9 +466,9 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ForEachStatement} tree
+     * @param {traceur.syntax.trees.ForOfStatement} tree
      */
-    visitForEachStatement: function(tree) {
+    visitForOfStatement: function(tree) {
       this.checkVisit_(tree.initializer.declarations.length <= 1,
           tree.initializer,
           'for-each statement may not have more than one variable declaration');

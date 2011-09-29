@@ -414,13 +414,13 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ForEachStatement} tree
+     * @param {ForOfStatement} tree
      */
-    visitForEachStatement: function(tree) {
+    visitForOfStatement: function(tree) {
       this.write_(TokenType.FOR);
       this.write_(TokenType.OPEN_PAREN);
       this.visitAny(tree.initializer);
-      this.write_(TokenType.COLON);
+      this.write_(PredefinedName.OF);
       this.visitAny(tree.collection);
       this.write_(TokenType.CLOSE_PAREN);
       this.visitAny(tree.body);

@@ -288,9 +288,9 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ForEachStatement} tree
+     * @param {traceur.syntax.trees.ForOfStatement} tree
      */
-    visitForEachStatement: function(tree) {
+    visitForOfStatement: function(tree) {
       this.visitAny(tree.initializer);
       this.visitAny(tree.collection);
       this.visitAny(tree.body);

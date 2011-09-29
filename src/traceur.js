@@ -178,7 +178,7 @@ var traceur = (function() {
     'codegeneration/RestParameterTransformer.js',
     'codegeneration/SpreadTransformer.js',
     'codegeneration/UniqueIdentifierGenerator.js',
-    'codegeneration/ForEachTransformer.js',
+    'codegeneration/ForOfTransformer.js',
     'codegeneration/ModuleTransformer.js',
     'codegeneration/FunctionTransformer.js',
     'codegeneration/ClassTransformer.js',

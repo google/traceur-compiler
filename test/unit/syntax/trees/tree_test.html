@@ -206,8 +206,8 @@ function testTreeConstructors() {
       ParseTreeType.FINALLY,
       ['location', 'block']);
 
-  validateTree(traceur.syntax.trees.ForEachStatement,
-      ParseTreeType.FOR_EACH_STATEMENT,
+  validateTree(traceur.syntax.trees.ForOfStatement,
+      ParseTreeType.FOR_OF_STATEMENT,
       ['location', 'initializer', 'collection', 'body']);
 
   validateTree(traceur.syntax.trees.ForInStatement,

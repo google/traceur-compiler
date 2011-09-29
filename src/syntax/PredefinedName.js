@@ -59,6 +59,7 @@ traceur.define('syntax', function() {
     NEW_STATE: '$newState',
     OBJECT: 'Object',
     OBJECT_NAME: 'Object',
+    OF: 'of',
     PARAM: '$param',
     PROTO: '__proto__',
     PROTOTYPE: 'prototype',

@@ -185,9 +185,9 @@ traceur.define('semantics', function() {
       // their own lexical scope.
     },
 
-    /** @param {ForEachStatement} tree */
-    visitForEachStatement: function(tree) {
-      throw new Error('foreach statements should be transformed before this pass');
+    /** @param {ForOfStatement} tree */
+    visitForOfStatement: function(tree) {
+      throw new Error('for of statements should be transformed before this pass');
     },
 
     /** @param {ForInStatement} tree */

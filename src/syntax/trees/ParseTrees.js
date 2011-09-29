@@ -324,7 +324,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    ForEachStatement: create('initializer', 'collection', 'body'),
+    ForOfStatement: create('initializer', 'collection', 'body'),
 
     /**
      * @param {traceur.util.SourceRange} location

@@ -20,7 +20,7 @@ traceur.define('codegeneration', function() {
   var ParseTreeValidator = traceur.syntax.ParseTreeValidator;
   var ProgramTree = traceur.syntax.trees.ProgramTree;
   var UniqueIdentifierGenerator = traceur.codegeneration.UniqueIdentifierGenerator;
-  var ForEachTransformer = traceur.codegeneration.ForEachTransformer;
+  var ForOfTransformer = traceur.codegeneration.ForOfTransformer;
   var PropertyMethodAssignmentTransformer = traceur.codegeneration.PropertyMethodAssignmentTransformer;
   var PropertyNameShorthandTransformer = traceur.codegeneration.PropertyNameShorthandTransformer;
   var RestParameterTransformer = traceur.codegeneration.RestParameterTransformer;
@@ -159,9 +159,9 @@ traceur.define('codegeneration', function() {
       chain(PropertyNameShorthandTransformer.transformTree);
       chain(ClassTransformer.transform.bind(null, this.reporter_));
 
-      // foreach must come before destructuring and generator, or anything
+      // for of must come before destructuring and generator, or anything
       // that wants to use VariableBinder
-      chain(ForEachTransformer.transformTree.bind(null,
+      chain(ForOfTransformer.transformTree.bind(null,
                                                   this.identifierGenerator_));
 
       // rest parameters must come before generator
@@ -171,12 +171,12 @@ traceur.define('codegeneration', function() {
       // expected order in the transformed code.
       chain(DefaultParametersTransformer.transformTree);
 
-      // generator must come after foreach and rest parameters
+      // generator must come after for of and rest parameters
       chain(GeneratorTransformPass.transformTree.bind(null,
                                                       this.identifierGenerator_,
                                                       this.reporter_));
 
-      // destructuring must come after foreach and before block binding
+      // destructuring must come after for of and before block binding
       chain(DestructuringTransformer.transformTree);
       chain(SpreadTransformer.transformTree);
       chain(BlockBindingTransformer.transformTree);

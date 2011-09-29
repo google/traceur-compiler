@@ -34,7 +34,7 @@ traceur.define('codegeneration', function() {
   var createExpressionStatement = ParseTreeFactory.createExpressionStatement;
   var createFieldDeclaration = ParseTreeFactory.createFieldDeclaration;
   var createFinally = ParseTreeFactory.createFinally;
-  var createForEachStatement = ParseTreeFactory.createForEachStatement;
+  var createForOfStatement = ParseTreeFactory.createForOfStatement;
   var createForInStatement = ParseTreeFactory.createForInStatement;
   var createForStatement = ParseTreeFactory.createForStatement;
   var createFunctionDeclaration = ParseTreeFactory.createFunctionDeclaration;
@@ -546,10 +546,10 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ForEachStatement} tree
+     * @param {ForOfStatement} tree
      * @return {ParseTree}
      */
-    transformForEachStatement: function(tree) {
+    transformForOfStatement: function(tree) {
       var initializer = this.transformAny(tree.initializer);
       var collection = this.transformAny(tree.collection);
       var body = this.transformAny(tree.body);
@@ -557,7 +557,7 @@ traceur.define('codegeneration', function() {
           body == tree.body) {
         return tree;
       }
-      return createForEachStatement(initializer,
+      return createForOfStatement(initializer,
                                     collection, body);
     },
 

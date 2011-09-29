@@ -33,11 +33,11 @@ traceur.define('codegeneration', function() {
   var createWhileStatement = ParseTreeFactory.createWhileStatement;
 
   /**
-   * Desugars foreach statement.
+   * Desugars for of statement.
    * @param {UniqueIdentifierGenerator} identifierGenerator
    * @constructor
    */
-  function ForEachTransformer(identifierGenerator) {
+  function ForOfTransformer(identifierGenerator) {
     ParseTreeTransformer.call(this);
     this.identifierGenerator_ = identifierGenerator;
     Object.freeze(this);
@@ -47,14 +47,14 @@ traceur.define('codegeneration', function() {
    * @param {UniqueIdentifierGenerator} identifierGenerator
    * @param {ParseTree} tree
    */
-  ForEachTransformer.transformTree = function(identifierGenerator, tree) {
-    return new ForEachTransformer(identifierGenerator).transformAny(tree);
+  ForOfTransformer.transformTree = function(identifierGenerator, tree) {
+    return new ForOfTransformer(identifierGenerator).transformAny(tree);
   };
 
-  ForEachTransformer.prototype = traceur.createObject(
+  ForOfTransformer.prototype = traceur.createObject(
       ParseTreeTransformer.prototype, {
 
-    // for ( initializer : collection ) statement
+    // for ( initializer of collection ) statement
     //
     // let $it = collection.__traceurIterator__();
     // try {
@@ -67,15 +67,15 @@ traceur.define('codegeneration', function() {
     //     $it.close();
     // }
     /**
-     * @param {ForEachStatement} original
+     * @param {ForOfStatement} original
      * @return {ParseTree}
      */
-    transformForEachStatement: function(original) {
-      var tree = ParseTreeTransformer.prototype.transformForEachStatement.call(
+    transformForOfStatement: function(original) {
+      var tree = ParseTreeTransformer.prototype.transformForOfStatement.call(
           this, original);
 
       //   let $it = collection.__traceurIterator__();
-      // TODO: use 'var' instead of 'let' to enable yield's from within foreach statements
+      // TODO: use 'var' instead of 'let' to enable yield's from within for of statements
       var iter = this.identifierGenerator_.generateUniqueIdentifier();
       var initializer = createVariableStatement(TokenType.VAR, iter,
           createCallExpression(createMemberExpression(tree.collection, PredefinedName.ITERATOR)));
@@ -107,6 +107,6 @@ traceur.define('codegeneration', function() {
   });
 
   return {
-    ForEachTransformer: ForEachTransformer
+    ForOfTransformer: ForOfTransformer
   };
 });

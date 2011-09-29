@@ -32,7 +32,7 @@ traceur.define('semantics', function() {
    * particular we can ignore:
    *   - module imports
    *   - block scope (let/const)
-   *   - foreach
+   *   - for of
    *   - generators
    *   - destructuring/rest
    *   - classes/traits

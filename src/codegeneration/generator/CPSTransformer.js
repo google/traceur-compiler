@@ -325,11 +325,11 @@ traceur.define('codegeneration.generator', function() {
     },
 
     /**
-     * @param {ForEachStatement} tree
+     * @param {ForOfStatement} tree
      * @return {ParseTree}
      */
-    transformForEachStatement: function(tree) {
-      throw new Error('foreach statements should be transformed before this pass');
+    transformForOfStatement: function(tree) {
+      throw new Error('for of statements should be transformed before this pass');
     },
 
     /**

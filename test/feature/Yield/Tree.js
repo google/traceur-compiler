@@ -30,11 +30,11 @@ function tree(list) {
 // A recursive generator that generates Tree labels in in-order.
 function inorder1(t) {
   if (t) {
-    for (var x : inorder1(t.left)) {
+    for (var x of inorder1(t.left)) {
       yield x;
     }
     yield t.label;
-    for (var x : inorder1(t.right)) {
+    for (var x of inorder1(t.right)) {
       yield x;
     }
   }
@@ -59,7 +59,7 @@ function inorder2(node) {
 
 function accumulate(iterator) {
   var result = '';
-  for (var value : iterator) {
+  for (var value of iterator) {
     result = result + String(value);
   }
   return result;

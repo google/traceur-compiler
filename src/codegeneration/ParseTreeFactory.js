@@ -45,7 +45,7 @@ traceur.define('codegeneration', function() {
   var ExpressionStatement = traceur.syntax.trees.ExpressionStatement;
   var FieldDeclaration = traceur.syntax.trees.FieldDeclaration;
   var Finally = traceur.syntax.trees.Finally;
-  var ForEachStatement = traceur.syntax.trees.ForEachStatement;
+  var ForOfStatement = traceur.syntax.trees.ForOfStatement;
   var ForInStatement = traceur.syntax.trees.ForInStatement;
   var ForStatement = traceur.syntax.trees.ForStatement;
   var FormalParameterList = traceur.syntax.trees.FormalParameterList;
@@ -586,10 +586,10 @@ traceur.define('codegeneration', function() {
    * @param {VariableDeclarationList} initializer
    * @param {ParseTree} collection
    * @param {ParseTree} body
-   * @return {ForEachStatement}
+   * @return {ForOfStatement}
    */
-  function createForEachStatement(initializer, collection, body) {
-    return new ForEachStatement(null, initializer, collection, body);
+  function createForOfStatement(initializer, collection, body) {
+    return new ForOfStatement(null, initializer, collection, body);
   }
 
   /**
@@ -1114,7 +1114,7 @@ traceur.define('codegeneration', function() {
       createFalseLiteral: createFalseLiteral,
       createFieldDeclaration: createFieldDeclaration,
       createFinally: createFinally,
-      createForEachStatement: createForEachStatement,
+      createForOfStatement: createForOfStatement,
       createForInStatement: createForInStatement,
       createForStatement: createForStatement,
       createFunctionDeclaration: createFunctionDeclaration,

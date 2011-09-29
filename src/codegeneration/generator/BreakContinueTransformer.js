@@ -21,7 +21,7 @@ traceur.define('codegeneration.generator', function() {
   var BreakStatement = traceur.syntax.trees.BreakStatement;
   var ContinueStatement = traceur.syntax.trees.ContinueStatement;
   var DoWhileStatement = traceur.syntax.trees.DoWhileStatement;
-  var ForEachStatement = traceur.syntax.trees.ForEachStatement;
+  var ForOfStatement = traceur.syntax.trees.ForOfStatement;
   var ForStatement = traceur.syntax.trees.ForStatement;
   var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
   var ParseTree = traceur.syntax.trees.ParseTree;
@@ -111,10 +111,10 @@ traceur.define('codegeneration.generator', function() {
     },
 
     /**
-     * @param {ForEachStatement} tree
+     * @param {ForOfStatement} tree
      * @return {ParseTree}
      */
-    transformForEachStatement: function(tree) {
+    transformForOfStatement: function(tree) {
       return tree;
     },
 

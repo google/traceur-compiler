@@ -628,7 +628,7 @@ for (var i = 0; i < PM_ENERGIZERS.length; i++) {
 /* Positions of energizers (big dots that allow Pac-Man to eat ghosts). */
 var PM_ENERGIZERS = [ ... ];
 
-for (var energizer: PM_ENERGIZERS) {
+for (var energizer of PM_ENERGIZERS) {
   ...
 }
 </pre>
@@ -678,7 +678,7 @@ function fib(n) {
   return { getIterator: iterator };
 }
 
-for (var i: fib(10)) { print(i); }
+for (var i of fib(10)) { print(i); }
 </pre>
       </div>
     </div>
@@ -705,7 +705,7 @@ function allNodes(node) {
   }
   return result;
 }
-for (var node: allNodes(document)) {
+for (var node of allNodes(document)) {
   ...
 }
 </pre>
@@ -758,11 +758,11 @@ var nodes = allNodes(document);
 <pre>
 function allNodes(node) {
   // ?? return node
-  for (var child : node.childNodes || [])
+  for (var child of node.childNodes || [])
     // ?? return each of allNodes(child);
 }
 
-for (var node: allNodes(document)) {
+for (var node of allNodes(document)) {
   ...
 }
 </pre>
@@ -837,11 +837,11 @@ function allNodes(node) {
 <pre>
 function allNodes(node) {
   // ?? return node
-  for (var child : node.childNodes || [])
+  for (var child of node.childNodes || [])
     // ?? return each of allNodes(child);
 }
 
-for (var node: allNodes(document)) {
+for (var node of allNodes(document)) {
   ...
 }
 </pre>
@@ -859,11 +859,11 @@ for (var node: allNodes(document)) {
         <pre>
 function allNodes(node) {
   yield node;
-  for (var child : node.childNodes || [])
+  for (var child of node.childNodes || [])
     yield for allNodes(child);
 }
 
-for (var node: allNodes(document)) {
+for (var node of allNodes(document)) {
   ...
 }
         </pre>

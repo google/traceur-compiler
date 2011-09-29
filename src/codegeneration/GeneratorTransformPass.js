@@ -21,13 +21,13 @@ traceur.define('codegeneration', function() {
   var SetAccessor = traceur.syntax.trees.SetAccessor;
 
   var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
-  var ForEachTransformer = traceur.codegeneration.ForEachTransformer;
+  var ForOfTransformer = traceur.codegeneration.ForOfTransformer;
 
   var ForInTransformPass = traceur.codegeneration.generator.ForInTransformPass;
   var GeneratorTransformer = traceur.codegeneration.generator.GeneratorTransformer;
   var AsyncTransformer = traceur.codegeneration.generator.AsyncTransformer;
 
-  var createForEachStatement = traceur.codegeneration.ParseTreeFactory.createForEachStatement;
+  var createForOfStatement = traceur.codegeneration.ParseTreeFactory.createForOfStatement;
   var createVariableDeclarationList = traceur.codegeneration.ParseTreeFactory.createVariableDeclarationList;
   var createYieldStatement = traceur.codegeneration.ParseTreeFactory.createYieldStatement;
   var createIdentifierExpression = traceur.codegeneration.ParseTreeFactory.createIdentifierExpression;
@@ -81,8 +81,8 @@ traceur.define('codegeneration', function() {
   });
 
   /**
-   * This transformer turns "yield for E" into a ForEach that
-   * contains a yield and is lowered by the ForEachTransformer.
+   * This transformer turns "yield for E" into a ForOf that
+   * contains a yield and is lowered by the ForOfTransformer.
    */
   function YieldForTransformer(identifierGenerator) {
     ParseTreeTransformer.call(this);
@@ -100,11 +100,11 @@ traceur.define('codegeneration', function() {
       if (tree.isYieldFor) {
         // yield for E
         //   becomes
-        // for (var $TEMP : E) { yield $TEMP; }
+        // for (var $TEMP of E) { yield $TEMP; }
 
         var id = createIdentifierExpression(this.identifierGenerator_.generateUniqueIdentifier());
 
-        var forEach = createForEachStatement(
+        var forEach = createForOfStatement(
             createVariableDeclarationList(
                 TokenType.VAR,
                 id,
@@ -113,7 +113,7 @@ traceur.define('codegeneration', function() {
             tree.expression,
             createYieldStatement(id, false /* isYieldFor */));
 
-        var result = ForEachTransformer.transformTree(
+        var result = ForOfTransformer.transformTree(
             this.identifierGenerator_,
             forEach);
 
