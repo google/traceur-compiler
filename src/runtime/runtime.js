@@ -161,7 +161,7 @@ traceur.runtime = (function() {
   Object.defineProperties(String.prototype, {
     startsWith: {
       value: function(s) {
-        return this.indexOf(s) === 0;
+       return this.lastIndexOf(s, 0) === 0;
       },
       enumerable: false,
       configurable: true,
@@ -170,8 +170,8 @@ traceur.runtime = (function() {
     endsWith: {
       value: function(s) {
         var t = String(s);
-        var index = this.lastIndexOf(t);
-        return index >= 0 && index === this.length - t.length;
+        var l = this.length - t.length;
+        return l >= 0 && this.indexOf(t, l) === l;
       },
       enumerable: false,
       configurable: true,
