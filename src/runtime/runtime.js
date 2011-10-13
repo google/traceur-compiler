@@ -156,6 +156,45 @@ traceur.runtime = (function() {
     return properties;
   }
 
+  // Harmony String Extras
+  // http://wiki.ecmascript.org/doku.php?id=harmony:string_extras
+  Object.defineProperties(String.prototype, {
+    startsWith: {
+      value: function(s) {
+        return this.indexOf(s) === 0;
+      },
+      enumerable: false,
+      configurable: true,
+      writable: true
+    },
+    endsWith: {
+      value: function(s) {
+        var t = String(s);
+        var index = this.lastIndexOf(t);
+        return index >= 0 && index === this.length - t.length;
+      },
+      enumerable: false,
+      configurable: true,
+      writable: true
+    },
+    contains: {
+      value: function(s) {
+        return this.indexOf(s) !== -1;
+      },
+      enumerable: false,
+      configurable: true,
+      writable: true
+    },
+    toArray: {
+      value: function() {
+        return this.split('');
+      },
+      enumerable: false,
+      configurable: true,
+      writable: true
+    }
+  });
+
   // The createClass function
   // name: the class name
   // base: the base class
