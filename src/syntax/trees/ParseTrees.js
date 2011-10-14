@@ -582,9 +582,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    ParenExpression: create(
-        
-        'expression'),
+    ParenExpression: create('expression'),
 
     /**
      * @param {traceur.util.SourceRange} location
@@ -639,6 +637,31 @@ traceur.define('syntax.trees', function() {
      * @extends {ParseTree}
      */
     QualifiedReference: create('moduleExpression', 'identifier'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
+     * @param {string} name
+     * @param {Array.<ParseTree>} elements
+     * @constructor
+     * @extends {ParseTree}
+     */
+    QuasiLiteralExpression: create('name', 'elements'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
+     * @param {Token} value
+     * @constructor
+     * @extends {ParseTree}
+     */
+    QuasiLiteralPortion: create('value'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
+     * @param {ParseTree} expression
+     * @constructor
+     * @extends {ParseTree}
+     */
+    QuasiSubstitution: create('expression'),
 
     /**
      * @param {traceur.util.SourceRange} location

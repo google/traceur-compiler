@@ -385,6 +385,22 @@ traceur.runtime = (function() {
   }
 
   /**
+   * The default quasi function which just concats the quasi literal parts.
+   * @param {{raw: Array.<string>, cooked: Array.<string>}} callSiteId
+   * @param {...} var_args Values from the quasi substitutions.
+   * @return {string}
+   */
+  function defaultQuasi(callSiteId, var_args) {
+    var rawStrs = callSiteId.cooked;
+    var out = [];
+    for (var i = 0, k = -1, n = rawStrs.length; i < n;) {
+      out[++k] = rawStrs[i];
+      out[++k] = arguments[++i];
+    }
+    return out.join('');
+  }
+
+  /**
    * @param {Function} canceller
    * @constructor
    */
@@ -474,6 +490,7 @@ traceur.runtime = (function() {
     createClass: createClass,
     createTrait: createTrait,
     Deferred: Deferred,
+    defaultQuasi: defaultQuasi,
     markMethods: markMethods,
     spread: spread,
     spreadNew: spreadNew,

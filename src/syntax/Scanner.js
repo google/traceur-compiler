@@ -23,6 +23,11 @@ traceur.define('syntax', function() {
 
   var SourcePosition = traceur.util.SourcePosition;
 
+  var QuasiTag = {
+    ALLOW: true,
+    NO: false
+  };
+
   /**
    * Scans javascript source code into tokens. All entrypoints assume the
    * caller is not expecting a regular expression literal except for
@@ -421,6 +426,87 @@ traceur.define('syntax', function() {
     },
 
     /**
+     * Called by the parser while parsing a quasi literal. Quasi literal
+     * portions are the part between the substitions.
+     */
+    nextQuasiLiteralPortionToken: function() {
+      this.clearTokenLookahead_();
+      var beginToken = this.index_;
+
+      if (this.isAtEnd_()) {
+        return this.createToken_(TokenType.END_OF_FILE, beginToken);
+      }
+
+      this.skipQuasiLiteralPortion_();
+      return new LiteralToken(TokenType.QUASI_LITERAL_PORTION,
+                                this.getTokenString_(beginToken),
+                                this.getTokenRange_(beginToken));
+    },
+
+    /**
+     * Called by the parser while parsing a quasi literal.
+     */
+    nextQuasiSubstitutionToken: function() {
+      this.clearTokenLookahead_();
+      var beginToken = this.index_;
+      var ch = this.nextChar_();
+      traceur.assert(ch == '$');
+      return this.createToken_(TokenType.DOLLAR, beginToken);
+    },
+
+    nextQuasiIdentifier: function() {
+      this.clearTokenLookahead_();
+      var beginToken = this.index_;
+      var ch = this.nextChar_();
+      return this.scanIdentifierOrKeyword(beginToken, ch, QuasiTag.NO);
+    },
+
+    peekQuasiToken: function(type) {
+      this.clearTokenLookahead_();
+
+      var ch = this.peekChar_();
+      switch (type) {
+        case TokenType.IDENTIFIER:
+          return isIdentifierStart(ch);
+        case TokenType.END_OF_FILE:
+          return ch == '\x00';
+        default:
+          return ch == type;
+      }
+    },
+
+    // LiteralPortion ::
+    //   LiteralCharacter LiteralPortion
+    //   ε
+    //
+    // LiteralCharacter ::
+    //   SourceCharacter but not back quote ` or LineTerminator or back slash \ or dollar-sign $
+    //   LineTerminatorSequence
+    //   LineContinuation
+    //   \ EscapeSequence
+    //   $ lookahead ∉ {, IdentifierStart
+
+    skipQuasiLiteralPortion_: function() {
+      while (!this.isAtEnd_()) {
+        if (this.peek_('`')) {
+          break;
+        }
+        if (this.peek_('$')) {
+          var ch = this.peekChar_(1);
+          if (ch == '{' || isIdentifierStart(ch)) {
+            break;
+          }
+        }
+
+        if (this.peek_('\\')) {
+          this.skipStringLiteralEscapeSequence_();
+        } else {
+          this.nextChar_();
+        }
+      }
+    },
+
+    /**
      * @return {Token}
      */
     peekToken: function(opt_index) {
@@ -659,6 +745,8 @@ traceur.define('syntax', function() {
             default:
               return this.createToken_(TokenType.BAR, beginToken);
           }
+        case '`':
+          return this.createToken_(TokenType.BACK_QUOTE, beginToken);
 
           // TODO: add NumberToken
           // TODO: character following NumericLiteral must not be an
@@ -679,7 +767,7 @@ traceur.define('syntax', function() {
         case '\'':
           return this.scanStringLiteral_(beginToken, ch);
         default:
-          return this.scanIdentifierOrKeyword_(beginToken, ch);
+          return this.scanIdentifierOrKeyword(beginToken, ch, QuasiTag.ALLOW);
       }
     },
 
@@ -749,10 +837,12 @@ traceur.define('syntax', function() {
     },
 
     /**
+     * @param {number} beginToken
+     * @param {string} ch
+     * @param {QuasiTag} allowQuasiTag
      * @return {Token}
-     * @private
      */
-    scanIdentifierOrKeyword_: function(beginToken, ch) {
+    scanIdentifierOrKeyword: function(beginToken, ch, allowQuasiTag) {
       if (ch == '\\') {
         // TODO: Unicode escape sequence
         throw Error('Unicode escape sequence at line ' +
@@ -776,9 +866,24 @@ traceur.define('syntax', function() {
       }
 
       var value = this.source_.contents.substring(beginToken, this.index_);
+
       if (Keywords.isKeyword(value)) {
         return new Token(Keywords.getTokenType(value),
                          this.getTokenRange_(beginToken));
+      }
+
+      // If we allow a quasi tag and the next character is ` we know this
+      // identifier is a quasi tag. For example: raw`\n`
+      if (allowQuasiTag) {
+        if (this.peekChar_() === '/' &&
+            this.peekChar_(1) === '*') {
+          this.skipMultiLineComment_();
+        }
+
+        if (this.peekChar_() === '`') {
+          return new LiteralToken(TokenType.QUASI_TAG, value,
+                                  this.getTokenRange_(beginToken));
+        }
       }
 
       return new IdentifierToken(this.getTokenRange_(beginToken), value);

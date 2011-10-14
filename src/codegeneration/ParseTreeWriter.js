@@ -798,6 +798,34 @@ traceur.define('codegeneration', function() {
     },
 
     /**
+     * @param {traceur.syntax.trees.QuasiLiteralExpression} tree
+     */
+    visitQuasiLiteralExpression: function(tree) {
+      // Quasi Literals have important whitespace semantics.
+      this.writeRaw_(tree.name);
+      this.writeRaw_(TokenType.BACK_QUOTE);
+      this.visitList(tree.elements);
+      this.writeRaw_(TokenType.BACK_QUOTE);
+    },
+
+    /**
+     * @param {traceur.syntax.trees.QuasiLiteralPortion} tree
+     */
+    visitQuasiLiteralPortion: function(tree) {
+      this.writeRaw_(tree.value);
+    },
+
+    /**
+     * @param {traceur.syntax.trees.QuasiSubstitution} tree
+     */
+    visitQuasiSubstitution: function(tree) {
+      this.writeRaw_(TokenType.DOLLAR);
+      this.writeRaw_(TokenType.OPEN_CURLY);
+      this.visitAny(tree.expression);
+      this.writeRaw_(TokenType.CLOSE_CURLY);
+    },
+
+    /*
      * @param {RequiresMember} tree
      */
     visitRequiresMember: function(tree) {
@@ -1056,6 +1084,16 @@ traceur.define('codegeneration', function() {
           }
         }
         this.write_(element);
+      }
+    },
+
+    /**
+     * @param {string|Token|TokenType|Keywords} value
+     * @private
+     */
+    writeRaw_: function(value) {
+      if (value != null) {
+        this.currentLine_.append(value.toString());
       }
     },
 

@@ -546,6 +546,26 @@ traceur.define('syntax', function() {
     },
 
     /**
+     * @param {traceur.syntax.trees.QuasiLiteralExpression} tree
+     */
+    visitQuasiLiteralExpression: function(tree) {
+      this.visitList(tree.elements);
+    },
+
+    /**
+     * @param {traceur.syntax.trees.QuasiLiteralPortion} tree
+     */
+    visitQuasiLiteralPortion: function(tree) {
+    },
+
+    /**
+     * @param {traceur.syntax.trees.QuasiSubstitution} tree
+     */
+    visitQuasiSubstitution: function(tree) {
+      this.visitAny(tree.expression);
+    },
+
+    /**
      * @param {traceur.syntax.trees.RequiresMember} tree
      */
     visitRequiresMember: function(tree) {

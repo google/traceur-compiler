@@ -792,6 +792,27 @@ traceur.define('syntax', function() {
     },
 
     /**
+     * @param {traceur.syntax.trees.QualifiedReference} tree
+     */
+    visitQuasiLiteralExpression: function(tree) {
+      // The elements are alternating between QuasiLiteralPortion and
+      // QuasiSubstitution.
+      for (var i = 0; i < tree.elements.length; i++) {
+        var element = tree.elements[i];
+        if (i % 2) {
+          this.checkVisit_(element.type == ParseTreeType.QUASI_SUBSTITUTION,
+                           element,
+                           'Quasi substitution expexted');
+        } else {
+          this.checkVisit_(element.type == ParseTreeType.QUASI_LITERAL_PORTION,
+                           element,
+                           'Quasi literal portion expexted');
+
+        }
+      }
+    },
+
+    /**
      * @param {traceur.syntax.trees.ReturnStatement} tree
      */
     visitReturnStatement: function(tree) {

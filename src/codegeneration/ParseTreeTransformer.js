@@ -88,6 +88,8 @@ traceur.define('codegeneration', function() {
   var Program = traceur.syntax.trees.Program;
   var PropertyMethodAssignment = traceur.syntax.trees.PropertyMethodAssignment;
   var QualifiedReference = traceur.syntax.trees.QualifiedReference;
+  var QuasiLiteralExpression = traceur.syntax.trees.QuasiLiteralExpression;
+  var QuasiSubstitution = traceur.syntax.trees.QuasiSubstitution;
 
   var getTreeNameForType = traceur.syntax.trees.getTreeNameForType;
 
@@ -968,6 +970,39 @@ traceur.define('codegeneration', function() {
         return tree;
       }
       return new QualifiedReference(null, moduleExpression, tree.identifier);
+    },
+
+    /**
+     * @param {QuasiLiteralExpression} tree
+     * @return {ParseTree}
+     */
+    transformQuasiLiteralExpression: function(tree) {
+      var elements = this.transformList(tree.elements);
+      if (elements == tree.elements) {
+        return tree;
+      }
+      return new QuasiLiteralExpression(null, tree.name, elements);
+    },
+
+    /**
+     * @param {QuasiLiteralPortion} tree
+     * @return {ParseTree}
+     */
+    transformQuasiLiteralPortion: function(tree) {
+      return tree;
+    },
+
+
+    /**
+     * @param {QuasiSubstitution} tree
+     * @return {ParseTree}
+     */
+    transformQuasiSubstitution: function(tree) {
+      var expression = this.transformAny(tree.expression);
+      if (expression == tree.expression) {
+        return tree;
+      }
+      return new QuasiSubstitution(null, expression);
     },
 
     /**

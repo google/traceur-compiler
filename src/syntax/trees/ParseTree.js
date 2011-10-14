@@ -120,6 +120,7 @@ traceur.define('syntax.trees', function() {
         case ParseTreeType.MEMBER_LOOKUP_EXPRESSION:
         case ParseTreeType.CALL_EXPRESSION:
         case ParseTreeType.FUNCTION_DECLARATION:
+        case ParseTreeType.QUASI_LITERAL_EXPRESSION:
           return true;
         case ParseTreeType.PAREN_EXPRESSION:
           return this.expression.isLeftHandSideExpression();
@@ -132,24 +133,25 @@ traceur.define('syntax.trees', function() {
     /** @return {boolean} */
     isArrowFunctionExpression: function() {
       switch (this.type) {
+        case ParseTreeType.ARRAY_LITERAL_EXPRESSION:
         case ParseTreeType.ARROW_FUNCTION_EXPRESSION:
-        case ParseTreeType.FUNCTION_DECLARATION:
         case ParseTreeType.BINARY_OPERATOR:
-        case ParseTreeType.THIS_EXPRESSION:
+        case ParseTreeType.CALL_EXPRESSION:
+        case ParseTreeType.CONDITIONAL_EXPRESSION:
+        case ParseTreeType.FUNCTION_DECLARATION:
         case ParseTreeType.IDENTIFIER_EXPRESSION:
         case ParseTreeType.LITERAL_EXPRESSION:
-        case ParseTreeType.ARRAY_LITERAL_EXPRESSION:
-        case ParseTreeType.OBJECT_LITERAL_EXPRESSION:
-        case ParseTreeType.MISSING_PRIMARY_EXPRESSION:
-        case ParseTreeType.CONDITIONAL_EXPRESSION:
-        case ParseTreeType.UNARY_EXPRESSION:
-        case ParseTreeType.POSTFIX_EXPRESSION:
         case ParseTreeType.MEMBER_EXPRESSION:
-        case ParseTreeType.NEW_EXPRESSION:
-        case ParseTreeType.CALL_EXPRESSION:
         case ParseTreeType.MEMBER_LOOKUP_EXPRESSION:
+        case ParseTreeType.MISSING_PRIMARY_EXPRESSION:
+        case ParseTreeType.NEW_EXPRESSION:
+        case ParseTreeType.OBJECT_LITERAL_EXPRESSION:
         case ParseTreeType.PAREN_EXPRESSION:
+        case ParseTreeType.POSTFIX_EXPRESSION:
+        case ParseTreeType.QUASI_LITERAL_EXPRESSION:
         case ParseTreeType.SUPER_EXPRESSION:
+        case ParseTreeType.THIS_EXPRESSION:
+        case ParseTreeType.UNARY_EXPRESSION:
           return true;
         default:
           return false;
@@ -175,6 +177,7 @@ traceur.define('syntax.trees', function() {
         case ParseTreeType.ARRAY_LITERAL_EXPRESSION:
         case ParseTreeType.OBJECT_LITERAL_EXPRESSION:
         case ParseTreeType.PAREN_EXPRESSION:
+        case ParseTreeType.QUASI_LITERAL_EXPRESSION:
         // FunctionExpression
         case ParseTreeType.FUNCTION_DECLARATION:
         // MemberExpression [ Expression ]

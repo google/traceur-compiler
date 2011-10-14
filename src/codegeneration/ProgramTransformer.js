@@ -35,6 +35,7 @@ traceur.define('codegeneration', function() {
   var GeneratorTransformPass = traceur.codegeneration.GeneratorTransformPass;
   var FreeVariableChecker = traceur.semantics.FreeVariableChecker;
   var ArrowFunctionTransformer = traceur.codegeneration.ArrowFunctionTransformer;
+  var QuasiLiteralTransformer = traceur.codegeneration.QuasiLiteralTransformer;
 
   var CLASS_DECLARATION = traceur.syntax.trees.ParseTreeType.CLASS_DECLARATION;
   var TRAIT_DECLARATION = traceur.syntax.trees.ParseTreeType.TRAIT_DECLARATION;
@@ -154,6 +155,8 @@ traceur.define('codegeneration', function() {
       // TODO: many of these simple, local transforms could happen in the same
       // tree pass
 
+      chain(QuasiLiteralTransformer.transformTree.bind(
+          null, this.identifierGenerator_));
       chain(ArrowFunctionTransformer.transformTree.bind(null, this.reporter_));
       chain(PropertyMethodAssignmentTransformer.transformTree);
       chain(PropertyNameShorthandTransformer.transformTree);
@@ -162,7 +165,7 @@ traceur.define('codegeneration', function() {
       // for of must come before destructuring and generator, or anything
       // that wants to use VariableBinder
       chain(ForOfTransformer.transformTree.bind(null,
-                                                  this.identifierGenerator_));
+                                                this.identifierGenerator_));
 
       // rest parameters must come before generator
       chain(RestParameterTransformer.transformTree);

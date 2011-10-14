@@ -136,7 +136,11 @@ traceur.define('syntax', function() {
     SPREAD: '...',
     AWAIT: 'await',
     FAT_ARROW: '=>',
-    THIN_ARROW: '->'
+    THIN_ARROW: '->',
+    BACK_QUOTE: '`',
+    DOLLAR: '$',
+    QUASI_TAG: 'quasi tag',
+    QUASI_LITERAL_PORTION: 'quasi literal portion'
   };
 
   return {

@@ -94,6 +94,9 @@ traceur.define('syntax', function() {
   var PropertyNameAssignment = traceur.syntax.trees.PropertyNameAssignment;
   var PropertyNameShorthand = traceur.syntax.trees.PropertyNameShorthand;
   var QualifiedReference = traceur.syntax.trees.QualifiedReference;
+  var QuasiLiteralExpression = traceur.syntax.trees.QuasiLiteralExpression;
+  var QuasiLiteralPortion = traceur.syntax.trees.QuasiLiteralPortion;
+  var QuasiSubstitution = traceur.syntax.trees.QuasiSubstitution;
   var RequiresMember = traceur.syntax.trees.RequiresMember;
   var RestParameter = traceur.syntax.trees.RestParameter;
   var ReturnStatement = traceur.syntax.trees.ReturnStatement;
@@ -1985,6 +1988,9 @@ traceur.define('syntax', function() {
         case TokenType.SLASH:
         case TokenType.SLASH_EQUAL:
           return this.parseRegularExpressionLiteral_();
+        case TokenType.BACK_QUOTE:
+        case TokenType.QUASI_TAG:
+          return this.parseQuasiLiteral_();
         default:
           return this.parseMissingPrimaryExpression_();
       }
@@ -2312,6 +2318,7 @@ traceur.define('syntax', function() {
      */
     peekExpression_: function() {
       switch (this.peekType_()) {
+        case TokenType.BACK_QUOTE:
         case TokenType.BANG:
         case TokenType.CLASS:
         case TokenType.DELETE:
@@ -2328,6 +2335,7 @@ traceur.define('syntax', function() {
         case TokenType.OPEN_SQUARE:
         case TokenType.PLUS:
         case TokenType.PLUS_PLUS:
+        case TokenType.QUASI_TAG:
         case TokenType.SLASH: // regular expression literal
         case TokenType.SLASH_EQUAL:
         case TokenType.STRING:
@@ -3316,6 +3324,68 @@ traceur.define('syntax', function() {
     },
 
     /**
+     * Quasi Literals
+     * http://wiki.ecmascript.org/doku.php?id=harmony:quasis
+     * We diverge from the harmony wiki by allowing arbitrary expressions inside
+     * ${ ... }, even nested quasi literals.
+     * @return {QuasiLiteralExpression}
+     * @private
+     */
+    parseQuasiLiteral_: function() {
+
+      function pushSubst(tree) {
+        elements.push(new QuasiSubstitution(tree.location, tree));
+      }
+
+      var start = this.getTreeStartLocation_();
+      var name = null;
+      if (this.peekType_() === TokenType.QUASI_TAG) {
+        name = this.eat_(TokenType.QUASI_TAG).value;
+      }
+
+      this.eat_(TokenType.BACK_QUOTE);
+
+      var elements = [];
+
+      while (!this.peekEndOfQuasiLiteral_()) {
+        var token = this.nextQuasiLiteralPortionToken_();
+        // start is not the right SourcePosition but we cannot use
+        // getTreeStartLocation_ here since it uses peek_ which is not safe to
+        // use inside parseQuasiLiteral_.
+        elements.push(new QuasiLiteralPortion(this.getTreeLocation_(start),
+                                              token));
+
+        if (!this.peekQuasiToken_(TokenType.DOLLAR)) {
+          break;
+        }
+
+        token = this.nextQuasiSubstitutionToken_();
+        traceur.assert(token.type == TokenType.DOLLAR);
+
+        if (this.peekQuasiToken_(TokenType.OPEN_CURLY)) {
+          this.eat_(TokenType.OPEN_CURLY);
+          // The Harmony proposal only allows ident ('.' ident)*
+          var expression = this.parseExpression_();
+          if (!expression) {
+            return this.parseMissingPrimaryExpression_();
+          }
+          pushSubst(expression);
+          this.eat_(TokenType.CLOSE_CURLY);
+        } else {
+          token = this.nextQuasiIdentifier_();
+          traceur.assert(token.type == TokenType.IDENTIFIER);
+          pushSubst(new IdentifierExpression(this.getTreeLocation_(start),
+                                             token));
+        }
+      }
+
+      this.eat_(TokenType.BACK_QUOTE);
+
+      return new QuasiLiteralExpression(this.getTreeLocation_(start),
+                                        name, elements);
+    },
+
+    /**
      * Consume a (possibly implicit) semi-colon. Reports an error if a semi-colon is not present.
      *
      * @return {void}
@@ -3489,8 +3559,7 @@ traceur.define('syntax', function() {
      * @private
      */
     nextToken_: function() {
-      this.lastToken_ = this.scanner_.nextToken();
-      return this.lastToken_;
+      return this.lastToken_ = this.scanner_.nextToken();
     },
 
     /**
@@ -3500,9 +3569,28 @@ traceur.define('syntax', function() {
      * @private
      */
     nextRegularExpressionLiteralToken_: function() {
-      var lastToken = this.scanner_.nextRegularExpressionLiteralToken();
-      this.lastToken_ = lastToken;
-      return lastToken;
+      return this.lastToken_ = this.scanner_.nextRegularExpressionLiteralToken();
+    },
+
+    nextQuasiLiteralPortionToken_: function() {
+      return this.lastToken_ = this.scanner_.nextQuasiLiteralPortionToken();
+    },
+
+    nextQuasiIdentifier_: function() {
+      return this.scanner_.nextQuasiIdentifier();
+    },
+
+    nextQuasiSubstitutionToken_: function() {
+      return this.lastToken_ = this.scanner_.nextQuasiSubstitutionToken();
+    },
+
+    peekEndOfQuasiLiteral_: function() {
+      return this.peekQuasiToken_(TokenType.BACK_QUOTE) ||
+          this.peekQuasiToken_(TokenType.END_OF_FILE);
+    },
+
+    peekQuasiToken_: function(type) {
+      return this.scanner_.peekQuasiToken(type);
     },
 
     /**
