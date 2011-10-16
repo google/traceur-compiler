@@ -8,15 +8,15 @@ const obj = {
     return => this;
   }
 };
-assert(obj.method()() === obj);
+assertEquals(obj.method()(), obj);
 
 // And *only* lexical ''this'' for => functions
 let fake = {steal: obj.method()};
-assert(fake.steal() === obj);
+assertEquals(fake.steal(), obj);
 
 // But ''function'' still has dynamic ''this''
 let real = {borrow: obj.method};
-assert(real.borrow()() === real);
+assertEquals(real.borrow()(), real);
 
 // Recap:
 //  use ''->'' instead of ''function'' for lighter syntax
@@ -24,13 +24,13 @@ assert(real.borrow()() === real);
 const obj2 = {
   method: () -> (=> this)
 };
-assert(obj2.method()() === obj2);
+assertEquals(obj2.method()(), obj2);
 
 let fake2 = {steal: obj2.method()};
-assert(fake2.steal() === obj2);
+assertEquals(fake2.steal(), obj2);
 
 let real2 = {borrow: obj2.method};
-assert(real2.borrow()() === real2);
+assertEquals(real2.borrow()(), real2);
 
 // An explicit ''this'' parameter can have an initializer
 // Semantics are as in the "parameter default values" Harmony proposal
@@ -39,12 +39,12 @@ const self_bound = (this = self, a, b) -> {
   this.c = a * b;
 };
 self_bound(2, 3);
-assert(self.c === 6);
+assertEquals(self.c, 6);
 
 const other = {c: "not set"};
 self_bound.call(other, 4, 5);
-assert(other.c === "not set");
-assert(self.c === 20);
+assertEquals(other.c, "not set");
+assertEquals(self.c, 20);
 
 // ''=>'' is short for ''->'' with an explicit ''this'' parameter
 function outer() {
@@ -64,15 +64,15 @@ const t = {},
 
 const v = outer.call(t);
 
-assert(v[0]() === t);
-assert(v[1]() === t);
+assertEquals(v[0](), t);
+assertEquals(v[1](), t);
 // TODO: softBind?
-//assert(v[2]() === t);
-//assert(v[3]() === t);
-assert(v[2]() === v);
-assert(v[3]() === v);
+//assertEquals(v[2](), t);
+//assertEquals(v[3](), t);
+assertEquals(v[2](), v);
+assertEquals(v[3](), v);
 
-assert(v[0].call(u) === t);
-assert(v[1].call(u) === t);
-assert(v[2].call(u) === u);
-assert(v[3].call(u) === u);
+assertEquals(v[0].call(u), t);
+assertEquals(v[1].call(u), t);
+assertEquals(v[2].call(u), u);
+assertEquals(v[3].call(u), u);

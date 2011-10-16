@@ -115,7 +115,8 @@ function testScript(filePath) {
     return false;
   }
 
-  if (script.indexOf('// Only in browser') == 0) {
+  if (script.indexOf('// Only in browser') == 0 ||
+      script.indexOf('// Skip') == 0) {
     return true;
   }
 

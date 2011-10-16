@@ -5,15 +5,15 @@
 // Empty arrow function is minimal-length
 // let empty = ->;
 let empty = -> undefined;
-assert(empty() === undefined);
+assertEquals(empty(), undefined);
 
 // Expression bodies needs no parentheses or braces
 let identity = (x) -> x;
-assert(identity(empty) === empty);
+assertEquals(identity(empty), empty);
 
 // Fix: object initialiser need not be parenthesized, see Grammar Changes
 let key_maker = (val) -> {key: val};
-assert(key_maker(empty).key === empty);
+assertEquals(key_maker(empty).key, empty);
 
 // Nullary arrow function starts with arrow (cannot begin statement)
 const preamble = 'hello';

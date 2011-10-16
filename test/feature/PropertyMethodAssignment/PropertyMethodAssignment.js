@@ -15,7 +15,7 @@ var object = {
   false() {},
   function() {},
   var() {},
-  class() {}
+  'class'() {}  // NodeJS incorrectly flags {class: ...} as an error.
 };
 
 // ----------------------------------------------------------------------------
