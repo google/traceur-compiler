@@ -133,7 +133,7 @@ traceur.define('syntax', function() {
     REGULAR_EXPRESSION: 'regular expression literal',
 
     // Harmony extensions
-    SPREAD: '...',
+    DOT_DOT_DOT: '...',
     AWAIT: 'await',
     FAT_ARROW: '=>',
     THIN_ARROW: '->',

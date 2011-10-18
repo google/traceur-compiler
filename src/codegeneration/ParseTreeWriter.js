@@ -847,7 +847,7 @@ traceur.define('codegeneration', function() {
      * @param {RestParameter} tree
      */
     visitRestParameter: function(tree) {
-      this.write_(TokenType.SPREAD);
+      this.write_(TokenType.DOT_DOT_DOT);
       this.write_(tree.identifier);
     },
 
@@ -870,7 +870,7 @@ traceur.define('codegeneration', function() {
      * @param {SpreadExpression} tree
      */
     visitSpreadExpression: function(tree) {
-      this.write_(TokenType.SPREAD);
+      this.write_(TokenType.DOT_DOT_DOT);
       this.visitAny(tree.expression);
     },
 
@@ -878,7 +878,7 @@ traceur.define('codegeneration', function() {
      * @param {SpreadPatternElement} tree
      */
     visitSpreadPatternElement: function(tree) {
-      this.write_(TokenType.SPREAD);
+      this.write_(TokenType.DOT_DOT_DOT);
       this.visitAny(tree.lvalue);
     },
 

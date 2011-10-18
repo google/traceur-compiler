@@ -597,7 +597,7 @@ traceur.define('syntax', function() {
           if (this.peek_('.') && this.peekChar_(1) == '.') {
             this.nextChar_();
             this.nextChar_();
-            return this.createToken_(TokenType.SPREAD, beginToken);
+            return this.createToken_(TokenType.DOT_DOT_DOT, beginToken);
           }
 
           return this.createToken_(TokenType.PERIOD, beginToken);

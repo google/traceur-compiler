@@ -184,7 +184,7 @@ var classifyTraceurTokens = function() {};
         case TokenType.CARET_EQUAL:
         case TokenType.SLASH:
         case TokenType.SLASH_EQUAL:
-        case TokenType.SPREAD:
+        case TokenType.DOT_DOT_DOT:
           c = Classification.OPERATOR;
           break;
 

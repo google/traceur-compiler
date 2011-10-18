@@ -1147,10 +1147,10 @@ traceur.define('syntax', function() {
 
       var hasDefaultParameters = false;
 
-      while (this.peek_(TokenType.IDENTIFIER) || this.peek_(TokenType.SPREAD)) {
-        if (this.peek_(TokenType.SPREAD)) {
+      while (this.peek_(TokenType.IDENTIFIER) || this.peek_(TokenType.DOT_DOT_DOT)) {
+        if (this.peek_(TokenType.DOT_DOT_DOT)) {
           var start = this.getTreeStartLocation_();
-          this.eat_(TokenType.SPREAD);
+          this.eat_(TokenType.DOT_DOT_DOT);
           result.push(new RestParameter(this.getTreeLocation_(start), this.eatId_()));
 
           // Rest parameters must be the last parameter; so we must be done.
@@ -1220,7 +1220,7 @@ traceur.define('syntax', function() {
      */
     parseSpreadExpression_: function() {
       var start = this.getTreeStartLocation_();
-      this.eat_(TokenType.SPREAD);
+      this.eat_(TokenType.DOT_DOT_DOT);
       var operand = this.parseArrowFunction_();
       return new SpreadExpression(this.getTreeLocation_(start), operand);
     },
@@ -2087,7 +2087,7 @@ traceur.define('syntax', function() {
       var elements = [];
 
       this.eat_(TokenType.OPEN_SQUARE);
-      while (this.peek_(TokenType.COMMA) || this.peek_(TokenType.SPREAD) || this.peekAssignmentExpression_()) {
+      while (this.peek_(TokenType.COMMA) || this.peek_(TokenType.DOT_DOT_DOT) || this.peekAssignmentExpression_()) {
         if (this.peek_(TokenType.COMMA)) {
           elements.push(new NullTree());
         } else {
@@ -2910,7 +2910,7 @@ traceur.define('syntax', function() {
      * @private
      */
     peekAssignmentOrSpread_: function() {
-      return this.peek_(TokenType.SPREAD) || this.peekAssignmentExpression_();
+      return this.peek_(TokenType.DOT_DOT_DOT) || this.peekAssignmentExpression_();
     },
 
     /**
@@ -2918,7 +2918,7 @@ traceur.define('syntax', function() {
      * @private
      */
     parseAssignmentOrSpread_: function() {
-      if (this.peek_(TokenType.SPREAD)) {
+      if (this.peek_(TokenType.DOT_DOT_DOT)) {
         return this.parseSpreadExpression_();
       }
       return this.parseArrowFunction_();
@@ -3197,7 +3197,7 @@ traceur.define('syntax', function() {
      * @private
      */
     peekPatternElement_: function() {
-      return this.peekExpression_() || this.peek_(TokenType.SPREAD);
+      return this.peekExpression_() || this.peek_(TokenType.DOT_DOT_DOT);
     },
 
     // Element ::= Pattern | LValue | ... LValue
@@ -3217,8 +3217,8 @@ traceur.define('syntax', function() {
 
       var spread = false;
       var start = this.getTreeStartLocation_();
-      if (this.peek_(TokenType.SPREAD)) {
-        this.eat_(TokenType.SPREAD);
+      if (this.peek_(TokenType.DOT_DOT_DOT)) {
+        this.eat_(TokenType.DOT_DOT_DOT);
         spread = true;
       }
 
