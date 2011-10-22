@@ -22,15 +22,77 @@
 <script src="../src/traceur.js"></script>
 <style>
 
+@import url(http://fonts.googleapis.com/css?family=Droid+Sans+Mono);
+@import url(http://fonts.googleapis.com/css?family=Droid+Sans);
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
 textarea {
   display: block;
-  font-family: monospace;
-  width: 80%;
-  height: 300px;
+  width: 100%;
+  height: 50%;
+  margin: 0;
+  border:  0;
+  border-bottom: 1px solid #aaa;
+  box-sizing: border-box;
+  padding: 5px;
+}
+
+textarea,
+pre {
+  font: 12px 'Droid Sans Mono', sans-serif;
 }
 
 .error {
   color: red;
+}
+
+pre{
+  margin: 5px;
+}
+
+.option-button {
+  background: black;
+  border: 0;
+  border-bottom-left-radius: 5px;
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, .5);
+  color: white;
+  font: 13px/20px 'Droid Sans', sans-serif;
+  height: 25px;
+  margin: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.options {
+  background: black;
+  border-radius: 5px 0 5px 5px;
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, .5);
+  color: white;
+  font: 13px/20px 'Droid Sans', sans-serif;
+  padding: 10px;
+  position: absolute;
+  right: 0;
+  top: 20px;
+}
+
+.options label {
+  display: block;
+}
+
+.options label > input {
+  vertical-align: -2px;
+  margin: 0 1ex 0 0;
+}
+
+.options hr {
+  background: white;
+  border: 0;
+  height: 1px;
 }
 
 </style>
@@ -38,10 +100,16 @@ textarea {
 <body>
 <textarea class="input"></textarea>
 <pre class="error"></pre>
-<label><input class="eval" type="checkbox" checked> Evaluate</label>
 <pre class="eval"></pre>
-<label><input class="output" type="checkbox" checked> Show generated code</label>
+
 <pre class="output"></pre>
+<button class="option-button">Options</button>
+<div class="options" hidden>
+<label><input class="eval" type="checkbox" checked>Evaluate</label>
+<label><input class="output" type="checkbox" checked>Show generated code</label>
+<hr>
+<div class="traceur-options"></div>
+</div>
 
 <script>
 
@@ -106,6 +174,42 @@ textarea {
   }
 
   input.addEventListener('input', compile, false);
+
+  function createOptionRow(name) {
+    var label = document.createElement('label');
+    label.textContent = name;
+    var cb = label.insertBefore(document.createElement('input'),
+                                label.firstChild);
+    cb.type = 'checkbox';
+    var checked = traceur.options[name];
+    cb.checked = checked;
+    cb.indeterminate = checked === null;
+    cb.onclick = function() {
+      traceur.options[name] = cb.checked;
+      createOptions();
+      compile();
+    };
+    return label;
+  }
+
+  function createOptions() {
+    var optionsDiv = document.querySelector('.traceur-options');
+    optionsDiv.textContent = '';
+    Object.keys(traceur.options).forEach(function(name) {
+      if (name === 'spread' || name == 'freeVariableChecker') {
+        optionsDiv.appendChild(document.createElement('hr'));
+      }
+      optionsDiv.appendChild(createOptionRow(name));
+    });
+  }
+
+  createOptions();
+
+  document.querySelector('.option-button').addEventListener('click',
+      function() {
+        var optionsDiv = document.querySelector('.options');
+        optionsDiv.hidden = !optionsDiv.hidden;
+      });
 })();
 
 </script>

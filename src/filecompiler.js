@@ -16,7 +16,7 @@
   'use strict';
 
   if (process.argv.length <= 2) {
-    console.log('Usage: node ' + process.argv[1] + ' filename.js...');
+    console.log('Usage: node ' + process.argv[1] + ' [OPTIONS] filename.js...');
     process.exit(1);
   }
 
@@ -126,7 +126,13 @@
     return true;
   }
 
-  var success = compileFiles(process.argv.slice(2));
+  var args = process.argv.slice(2);
+  var files = args.filter(function(value) {
+    return !/^--/.test(value);
+  });
+  traceur.options.fromArgv(args);
+
+  var success = compileFiles(files);
   if (!success) {
     process.exit(2);
   }

@@ -117,6 +117,8 @@ traceur.define('syntax', function() {
   var WithStatement = traceur.syntax.trees.WithStatement;
   var YieldStatement = traceur.syntax.trees.YieldStatement;
 
+  var options = traceur.options.parse;
+
   /**
    * Parses a javascript file.
    *
@@ -222,7 +224,11 @@ traceur.define('syntax', function() {
       var result = [];
 
       while (!this.peek_(TokenType.END_OF_FILE)) {
-        result.push(this.parseProgramElement_(load));
+        var programElement = this.parseProgramElement_(load);
+        if (!programElement) {
+          return null;
+        }
+        result.push(programElement);
       }
 
       return result;
@@ -393,7 +399,7 @@ traceur.define('syntax', function() {
      * @private
      */
     peekImportDeclaration_: function() {
-      return this.peek_(TokenType.IMPORT);
+      return options.modules && this.peek_(TokenType.IMPORT);
     },
 
     // ImportDeclaration(load) ::= "import" ImportPath(load)
@@ -498,7 +504,7 @@ traceur.define('syntax', function() {
      * @private
      */
     peekExportDeclaration_: function(load) {
-      return this.peek_(TokenType.EXPORT);
+      return options.modules && this.peek_(TokenType.EXPORT);
     },
 
     /**
@@ -698,7 +704,8 @@ traceur.define('syntax', function() {
       //                    | ModuleDefinition(load)
       // ModuleDefinition(load) ::= "module" Identifier "{" ModuleBody(load) "}"
       // ModuleSpecifier(load) ::= Identifier "=" ModuleExpression(load)
-      return this.peekPredefinedString_(PredefinedName.MODULE) &&
+      return options.modules &&
+          this.peekPredefinedString_(PredefinedName.MODULE) &&
           this.peek_(TokenType.IDENTIFIER, 1) &&
           (this.peek_(TokenType.EQUAL, 2) ||
            this.peek_(TokenType.OPEN_CURLY, 2));
@@ -730,7 +737,8 @@ traceur.define('syntax', function() {
      * @private
      */
     peekTraitDeclaration_: function() {
-      return this.peekPredefinedString_(PredefinedName.TRAIT);
+      return options.traceurClasses &&
+          this.peekPredefinedString_(PredefinedName.TRAIT);
     },
 
     /**
@@ -835,7 +843,8 @@ traceur.define('syntax', function() {
      * @private
      */
     peekClassDeclaration_: function() {
-      return this.peek_(TokenType.CLASS) && this.peekId_(1);
+      return options.traceurClasses &&
+          this.peek_(TokenType.CLASS) && this.peekId_(1);
     },
 
     /**
@@ -843,6 +852,10 @@ traceur.define('syntax', function() {
      * @private
      */
     parseClassDeclaration_: function() {
+      if (!options.traceurClasses) {
+        this.reportUnexpectedToken_();
+        return null;
+      }
       var start = this.getTreeStartLocation_();
       this.eat_(TokenType.CLASS);
       var name = this.eatId_();
@@ -1061,12 +1074,20 @@ traceur.define('syntax', function() {
 
       // Harmony let block scoped bindings. let can only appear in
       // a block, not as a standalone statement: if() let x ... illegal
-      if (this.peek_(TokenType.LET)) {
+      if (this.peekLet_()) {
         return this.parseVariableStatement_();
       }
       // const and var are handled inside parseStatement
 
       return this.parseStatementStandard_();
+    },
+
+    peekLet_: function() {
+      return options.blockBinding && this.peek_(TokenType.LET);
+    },
+
+    peekConst_: function() {
+      return options.blockBinding && this.peek_(TokenType.CONST);
     },
 
     /**
@@ -1076,7 +1097,7 @@ traceur.define('syntax', function() {
     peekSourceElement_: function() {
       return this.peekFunction_() || this.peekClassDeclaration_() ||
           this.peekTraitDeclaration_() || this.peekStatementStandard_() ||
-          this.peek_(TokenType.LET);
+          this.peekLet_();
     },
 
     /**
@@ -1147,8 +1168,8 @@ traceur.define('syntax', function() {
 
       var hasDefaultParameters = false;
 
-      while (this.peek_(TokenType.IDENTIFIER) || this.peek_(TokenType.DOT_DOT_DOT)) {
-        if (this.peek_(TokenType.DOT_DOT_DOT)) {
+      while (this.peek_(TokenType.IDENTIFIER) || this.peekRest_()) {
+        if (this.peekRest_()) {
           var start = this.getTreeStartLocation_();
           this.eat_(TokenType.DOT_DOT_DOT);
           result.push(new RestParameter(this.getTreeLocation_(start), this.eatId_()));
@@ -1160,7 +1181,7 @@ traceur.define('syntax', function() {
 
           // Once we have seen a default parameter all remaining params must either be default or
           // rest parameters.
-          if (hasDefaultParameters || this.peek_(TokenType.EQUAL, 1)) {
+          if (hasDefaultParameters || this.peekDefaultParameter_()) {
             result.push(this.parseDefaultParameter_());
             hasDefaultParameters = true;
           } else {
@@ -1174,6 +1195,10 @@ traceur.define('syntax', function() {
       }
 
       return new FormalParameterList(null, result);
+    },
+
+    peekDefaultParameter_: function() {
+      return options.defaultParameters && this.peek_(TokenType.EQUAL, 1);
     },
 
     /**
@@ -1208,7 +1233,11 @@ traceur.define('syntax', function() {
       var result = [];
 
       while (this.peekSourceElement_()) {
-        result.push(this.parseSourceElement_());
+        var sourceElement = this.parseSourceElement_();
+        if (!sourceElement) {
+          return null;
+        }
+        result.push(sourceElement);
       }
 
       return result;
@@ -1219,6 +1248,9 @@ traceur.define('syntax', function() {
      * @private
      */
     parseSpreadExpression_: function() {
+      if (!options.spread) {
+        return this.parseMissingPrimaryExpression_();
+      }
       var start = this.getTreeStartLocation_();
       this.eat_(TokenType.DOT_DOT_DOT);
       var operand = this.parseArrowFunction_();
@@ -1250,6 +1282,11 @@ traceur.define('syntax', function() {
         case TokenType.AWAIT:
           return this.parseAwaitStatement_();
         case TokenType.CONST:
+          if (!options.blockBinding) {
+            this.reportUnexpectedToken_();
+            return null;
+          }
+          // Fall through.
         case TokenType.VAR:
           return this.parseVariableStatement_();
         case TokenType.SEMI_COLON:
@@ -1306,10 +1343,14 @@ traceur.define('syntax', function() {
      */
     peekStatementStandard_: function() {
       switch (this.peekType_()) {
-        case TokenType.OPEN_CURLY:
-        case TokenType.AWAIT:
-        case TokenType.VAR:
         case TokenType.CONST:
+          return options.blockBinding;
+        case TokenType.YIELD:
+          return options.generators;
+        case TokenType.AWAIT:
+          return options.deferredFunctions;
+        case TokenType.OPEN_CURLY:
+        case TokenType.VAR:
         case TokenType.SEMI_COLON:
         case TokenType.IF:
         case TokenType.DO:
@@ -1318,7 +1359,6 @@ traceur.define('syntax', function() {
         case TokenType.CONTINUE:
         case TokenType.BREAK:
         case TokenType.RETURN:
-        case TokenType.YIELD:
         case TokenType.WITH:
         case TokenType.SWITCH:
         case TokenType.THROW:
@@ -1412,6 +1452,8 @@ traceur.define('syntax', function() {
       switch (token) {
         case TokenType.CONST:
         case TokenType.LET:
+          if (!options.blockBinding)
+            debugger;
         case TokenType.VAR:
           this.eat_(token);
           break;
@@ -1562,7 +1604,8 @@ traceur.define('syntax', function() {
             this.reportError_('for-in statement may not have more than one variable declaration');
           }
           // for-in: if let/const binding used, initializer is illegal
-          if ((variables.declarationType == TokenType.LET ||
+          if (options.blockBinding &&
+              (variables.declarationType == TokenType.LET ||
                variables.declarationType == TokenType.CONST)) {
             var declaration = variables.declarations[0];
             if (declaration.initializer != null) {
@@ -1571,7 +1614,7 @@ traceur.define('syntax', function() {
           }
 
           return this.parseForInStatement_(start, variables);
-        } else if (this.peekPredefinedString_(PredefinedName.OF)) {
+        } else if (this.peekOf_()) {
           // for-of: only one declaration allowed
           if (variables.declarations.length > 1) {
             this.reportError_('for-of statement may not have more than one variable declaration');
@@ -1602,6 +1645,10 @@ traceur.define('syntax', function() {
       return this.parseForStatement2_(start, initializer);
     },
 
+    peekOf_: function() {
+      return options.forOf && this.peekPredefinedString_(PredefinedName.OF);
+    },
+
     // The for-each Statement
     // for  (  { let | var }  identifier  of  expression  )  statement
     /**
@@ -1626,8 +1673,9 @@ traceur.define('syntax', function() {
      * @private
      */
     checkInitializers_: function(variables) {
-      if (variables.declarationType == TokenType.LET ||
-          variables.declarationType == TokenType.CONST) {
+      if (options.blockBinding &&
+          (variables.declarationType == TokenType.LET ||
+           variables.declarationType == TokenType.CONST)) {
         for (var i = 0; i < variables.declarations.length; i++) {
           var declaration = variables.declarations[i];
           if (declaration.initializer == null) {
@@ -1645,9 +1693,10 @@ traceur.define('syntax', function() {
     peekVariableDeclarationList_: function() {
       switch (this.peekType_()) {
         case TokenType.VAR:
+          return true;
         case TokenType.CONST:
         case TokenType.LET:
-          return true;
+          return options.blockBinding;
         default:
           return false;
       }
@@ -2001,6 +2050,9 @@ traceur.define('syntax', function() {
      * @private
      */
     parseClassExpression_: function() {
+      if (!options.traceurClasses) {
+        return this.parseMissingPrimaryExpression_();
+      }
       var start = this.getTreeStartLocation_();
       this.eat_(TokenType.CLASS);
       return new ClassExpression(this.getTreeLocation_(start));
@@ -2064,6 +2116,10 @@ traceur.define('syntax', function() {
       return new LiteralExpression(this.getTreeLocation_(start), literal);
     },
 
+    peekSpread_: function() {
+      return this.peek_(TokenType.DOT_DOT_DOT);
+    },
+
     // 11.1.4 Array Literal Expression
     /**
      * @return {ParseTree}
@@ -2087,7 +2143,9 @@ traceur.define('syntax', function() {
       var elements = [];
 
       this.eat_(TokenType.OPEN_SQUARE);
-      while (this.peek_(TokenType.COMMA) || this.peek_(TokenType.DOT_DOT_DOT) || this.peekAssignmentExpression_()) {
+      while (this.peek_(TokenType.COMMA) ||
+             this.peekSpread_() ||
+             this.peekAssignmentExpression_()) {
         if (this.peek_(TokenType.COMMA)) {
           elements.push(new NullTree());
         } else {
@@ -2115,16 +2173,16 @@ traceur.define('syntax', function() {
       while (this.peekPropertyAssignment_()) {
         if (this.peekGetAccessor_(false)) {
           result.push(this.parseGetAccessor_());
-          this.eatOpt_(TokenType.COMMA);
+          this.eatPropertyOptionalComma_();
 
         } else if (this.peekSetAccessor_(false)) {
           result.push(this.parseSetAccessor_());
-          this.eatOpt_(TokenType.COMMA);
+          this.eatPropertyOptionalComma_();
 
         // http://wiki.ecmascript.org/doku.php?id=harmony:concise_object_literal_extensions#methods
         } else if (this.peekPropertyMethodAssignment_()) {
           result.push(this.parsePropertyMethodAssignment_());
-          this.eatOpt_(TokenType.COMMA);
+          this.eatPropertyOptionalComma_();
 
         } else {
           result.push(this.parsePropertyNameAssignment_());
@@ -2136,6 +2194,14 @@ traceur.define('syntax', function() {
       }
       this.eat_(TokenType.CLOSE_CURLY);
       return new ObjectLiteralExpression(this.getTreeLocation_(start), result);
+    },
+
+    eatPropertyOptionalComma_: function() {
+      if (options.propertyOptionalComma) {
+        this.eatOpt_(TokenType.COMMA);
+      } else {
+        this.eat_(TokenType.COMMA);
+      }
     },
 
     /**
@@ -2241,7 +2307,8 @@ traceur.define('syntax', function() {
     },
 
     peekPropertyMethodAssignment_: function() {
-      return this.peekPropertyName_() &&
+      return options.propertyMethods &&
+          this.peekPropertyName_() &&
           this.peek_(TokenType.OPEN_PAREN, 1);
     },
 
@@ -2269,6 +2336,11 @@ traceur.define('syntax', function() {
     parsePropertyNameShorthand_: function() {
       var start = this.getTreeStartLocation_();
       var name = this.eatId_();
+      if (!options.propertyNameShorthand) {
+        this.eat_(TokenType.COLON);
+        return null;
+      }
+
       return new PropertyNameShorthand(this.getTreeLocation_(start), name);
     },
 
@@ -2319,6 +2391,8 @@ traceur.define('syntax', function() {
     peekExpression_: function() {
       switch (this.peekType_()) {
         case TokenType.BACK_QUOTE:
+        case TokenType.QUASI_TAG:
+          return options.quasi;
         case TokenType.BANG:
         case TokenType.CLASS:
         case TokenType.DELETE:
@@ -2335,7 +2409,6 @@ traceur.define('syntax', function() {
         case TokenType.OPEN_SQUARE:
         case TokenType.PLUS:
         case TokenType.PLUS_PLUS:
-        case TokenType.QUASI_TAG:
         case TokenType.SLASH: // regular expression literal
         case TokenType.SLASH_EQUAL:
         case TokenType.STRING:
@@ -2889,7 +2962,7 @@ traceur.define('syntax', function() {
       var args = [];
 
       this.eat_(TokenType.OPEN_PAREN);
-      while (this.peekAssignmentOrSpread_()) {
+      while (this.peekAssignmentOrRest_()) {
         args.push(this.parseAssignmentOrSpread_());
 
         if (!this.peek_(TokenType.CLOSE_PAREN)) {
@@ -2898,6 +2971,10 @@ traceur.define('syntax', function() {
       }
       this.eat_(TokenType.CLOSE_PAREN);
       return new ArgumentList(this.getTreeLocation_(start), args);
+    },
+
+    peekRest_: function() {
+      return options.restParameters && this.peek_(TokenType.DOT_DOT_DOT);
     },
 
     /**
@@ -2909,8 +2986,8 @@ traceur.define('syntax', function() {
      * @return {boolean}
      * @private
      */
-    peekAssignmentOrSpread_: function() {
-      return this.peek_(TokenType.DOT_DOT_DOT) || this.peekAssignmentExpression_();
+    peekAssignmentOrRest_: function() {
+      return this.peekRest_() || this.peekAssignmentExpression_();
     },
 
     /**
@@ -2918,7 +2995,7 @@ traceur.define('syntax', function() {
      * @private
      */
     parseAssignmentOrSpread_: function() {
-      if (this.peek_(TokenType.DOT_DOT_DOT)) {
+      if (this.peekSpread_()) {
         return this.parseSpreadExpression_();
       }
       return this.parseArrowFunction_();
@@ -2977,6 +3054,9 @@ traceur.define('syntax', function() {
 
     /** @returns {TokenType} */
     peekArrow_: function(opt_index) {
+      if (options.arrowFuncions) {
+        return false;
+      }
       var arrow = this.peekType_(opt_index);
       if (arrow == TokenType.FAT_ARROW || arrow == TokenType.THIN_ARROW) {
         return arrow;
@@ -3113,6 +3193,10 @@ traceur.define('syntax', function() {
      * @private
      */
     peekParenPatternStart_: function() {
+      if (!options.destructuring) {
+        return false;
+      }
+
       var index = 0;
       while (this.peek_(TokenType.OPEN_PAREN, index)) {
         index++;
@@ -3154,7 +3238,7 @@ traceur.define('syntax', function() {
      * @private
      */
     peekPattern_: function(kind, follow) {
-      if (!this.peekPatternStart_()) {
+      if (!options.destructuring || !this.peekPatternStart_()) {
         return false;
       }
       var p = this.createLookaheadParser_();
@@ -3332,6 +3416,9 @@ traceur.define('syntax', function() {
      * @private
      */
     parseQuasiLiteral_: function() {
+      if (!options.quasi) {
+        return this.parseMissingPrimaryExpression_();
+      }
 
       function pushSubst(tree) {
         elements.push(new QuasiSubstitution(tree.location, tree));
@@ -3650,7 +3737,8 @@ traceur.define('syntax', function() {
 
     /**
      * Reports an error message at a given token.
-     * @param {traceur.util.SourcePostion|Token} token The location to report the message at.
+     * @param {traceur.util.SourcePostion|Token} token The location to report
+     *     the message at.
      * @param {string} message The message to report in String.format style.
      *
      * @return {void}
@@ -3658,7 +3746,8 @@ traceur.define('syntax', function() {
      */
     reportError_: function(var_args) {
       if (arguments.length == 1) {
-        this.errorReporter_.reportError(this.scanner_.getPosition(), arguments[0]);
+        this.errorReporter_.reportError(this.scanner_.getPosition(),
+                                        arguments[0]);
       } else {
         var location = arguments[0];
         if (location instanceof Token) {
@@ -3666,6 +3755,10 @@ traceur.define('syntax', function() {
         }
         this.errorReporter_.reportError(location.start, arguments[1]);
       }
+    },
+
+    reportUnexpectedToken_: function() {
+      this.reportError_(this.peekToken_(), 'Unexpected token');
     }
   };
 

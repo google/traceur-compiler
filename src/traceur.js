@@ -56,7 +56,7 @@ var traceur = (function() {
   }
 
   function assert(b) {
-    if (!b)
+    if (!b && traceur.options.debug)
       throw Error('Assertion failed');
   }
 
@@ -124,6 +124,7 @@ var traceur = (function() {
   };
 
   var scripts = [
+    'options.js',
     'util/util.js',
     'util/ArrayMap.js',
     'util/ObjectMap.js',

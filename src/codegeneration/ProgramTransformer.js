@@ -32,13 +32,14 @@ traceur.define('codegeneration', function() {
   var TraitTransformer = traceur.codegeneration.TraitTransformer;
   var ClassTransformer = traceur.codegeneration.ClassTransformer;
   var ModuleTransformer = traceur.codegeneration.ModuleTransformer;
-  var GeneratorTransformPass = traceur.codegeneration.GeneratorTransformPass;
   var FreeVariableChecker = traceur.semantics.FreeVariableChecker;
   var ArrowFunctionTransformer = traceur.codegeneration.ArrowFunctionTransformer;
   var QuasiLiteralTransformer = traceur.codegeneration.QuasiLiteralTransformer;
 
   var CLASS_DECLARATION = traceur.syntax.trees.ParseTreeType.CLASS_DECLARATION;
   var TRAIT_DECLARATION = traceur.syntax.trees.ParseTreeType.TRAIT_DECLARATION;
+
+  var options = traceur.options.transform;
 
   /**
    * Transforms a Traceur file's ParseTree to a JS ParseTree.
@@ -140,52 +141,66 @@ traceur.define('codegeneration', function() {
     transformTree_: function(tree, opt_module) {
       var reporter = this.reporter_;
 
-      function chain(transformer) {
+      function chain(enabled, transformer) {
+        if (!enabled)
+          return;
+
         if (!reporter.hadError()) {
-          ParseTreeValidator.validate(tree);
+          if (traceur.options.validate) {
+            ParseTreeValidator.validate(tree);
+          }
           tree = transformer(tree) || tree;
         }
       }
 
-      if (!this.reporter_.hadError()) {
-        ParseTreeValidator.validate(tree);
+      if (options.modules && !this.reporter_.hadError()) {
+        if (traceur.options.validate) {
+          ParseTreeValidator.validate(tree);
+        }
         tree = this.transformModules_(tree, opt_module);
       }
 
       // TODO: many of these simple, local transforms could happen in the same
       // tree pass
 
-      chain(QuasiLiteralTransformer.transformTree.bind(
+      chain(options.quasi, QuasiLiteralTransformer.transformTree.bind(
           null, this.identifierGenerator_));
-      chain(ArrowFunctionTransformer.transformTree.bind(null, this.reporter_));
-      chain(PropertyMethodAssignmentTransformer.transformTree);
-      chain(PropertyNameShorthandTransformer.transformTree);
-      chain(ClassTransformer.transform.bind(null, this.reporter_));
+      chain(options.arrowFunctions,
+            ArrowFunctionTransformer.transformTree.bind(null, this.reporter_));
+      chain(options.propertyMethods,
+            PropertyMethodAssignmentTransformer.transformTree);
+      chain(options.propertyNameShorthand,
+            PropertyNameShorthandTransformer.transformTree);
+      chain(options.traceurClasses,
+            ClassTransformer.transform.bind(null, this.reporter_));
 
       // for of must come before destructuring and generator, or anything
       // that wants to use VariableBinder
-      chain(ForOfTransformer.transformTree.bind(null,
-                                                this.identifierGenerator_));
+      chain(options.forOf, ForOfTransformer.transformTree.bind(
+          null, this.identifierGenerator_));
 
       // rest parameters must come before generator
-      chain(RestParameterTransformer.transformTree);
+      chain(options.restParameters, RestParameterTransformer.transformTree);
 
       // default parameters should come after rest parameter to get the
       // expected order in the transformed code.
-      chain(DefaultParametersTransformer.transformTree);
+      chain(options.defaultParameters,
+            DefaultParametersTransformer.transformTree);
 
       // generator must come after for of and rest parameters
-      chain(GeneratorTransformPass.transformTree.bind(null,
-                                                      this.identifierGenerator_,
-                                                      this.reporter_));
+      chain(options.generators || options.deferredFunctions,
+           GeneratorTransformPass.transformTree.bind(null,
+                                                     this.identifierGenerator_,
+                                                     this.reporter_));
 
       // destructuring must come after for of and before block binding
-      chain(DestructuringTransformer.transformTree);
-      chain(SpreadTransformer.transformTree);
-      chain(BlockBindingTransformer.transformTree);
+      chain(options.destructuring, DestructuringTransformer.transformTree);
+      chain(options.spread, SpreadTransformer.transformTree);
+      chain(options.blockBinding, BlockBindingTransformer.transformTree);
 
       // Issue errors for any unbound variables
-      chain(FreeVariableChecker.checkProgram.bind(null, this.reporter_));
+      chain(traceur.options.freeVariableChecker,
+            FreeVariableChecker.checkProgram.bind(null, this.reporter_));
 
       return tree;
     },

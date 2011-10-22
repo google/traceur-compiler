@@ -16,18 +16,14 @@ fi
 # Check usage
 
 if [ "x$1" = "x" ] || [ $# -lt 1 ]; then
-  echo "Usage: $0 FILE [FILE]..." >&2
+  echo "Usage: $0 [OPTIONS] FILE [FILE]..." >&2
   exit -1
 fi
 
 # Check arguments exist on disk and are not -parameters
 
 for FILE; do
-  if [ "-" = "${FILE:0:1}" ]; then
-    echo "Error: Command line parameters are not currently supported ('$FILE')." >&2
-    exit -1
-  fi
-  if ! [ -r $FILE ]; then
+  if [ "--" != "${FILE:0:2}" ] && ! [ -r $FILE ]; then
     echo "Error: '$FILE' does not exist or is not readable." >&2
     exit -1
   fi

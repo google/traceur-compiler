@@ -25,11 +25,13 @@ goog.require('goog.testing.jsunit');
 </script>
 <script src="../../src/traceur.js"></script>
 <script src="ArrowFunctions/ArrowFunctions.js" type="text/traceur"></script>
+<script src="ArrowFunctions/Error_Disabled.js" type="text/traceur"></script>
 <script src="ArrowFunctions/Skip_Frozen.js" type="text/traceur"></script>
 <script src="ArrowFunctions/Skip_InitialiserShorthand.js" type="text/traceur"></script>
 <script src="ArrowFunctions/Skip_SoftBind.js" type="text/traceur"></script>
 <script src="ArrowFunctions/ThisBindings.js" type="text/traceur"></script>
 <script src="Await/Complete.js" type="text/traceur"></script>
+<script src="Await/Error_Disabled.js" type="text/traceur"></script>
 <script src="Await/Throw.js" type="text/traceur"></script>
 <script src="Await/Timeout.js" type="text/traceur"></script>
 <script src="Await/Value.js" type="text/traceur"></script>
@@ -42,6 +44,7 @@ goog.require('goog.testing.jsunit');
 <script src="Classes/DerivedButton.js" type="text/traceur"></script>
 <script src="Classes/DeriveFromObject.js" type="text/traceur"></script>
 <script src="Classes/EmptyClass.js" type="text/traceur"></script>
+<script src="Classes/Error_Disabled.js" type="text/traceur"></script>
 <script src="Classes/FieldInheritance.js" type="text/traceur"></script>
 <script src="Classes/FieldInitializers.js" type="text/traceur"></script>
 <script src="Classes/FieldInitializersAndConstructorParameters.js" type="text/traceur"></script>
@@ -68,6 +71,7 @@ goog.require('goog.testing.jsunit');
 <script src="Classes/SuperMissing.js" type="text/traceur"></script>
 <script src="Destructuring/Arguments.js" type="text/traceur"></script>
 <script src="Destructuring/Array.js" type="text/traceur"></script>
+<script src="Destructuring/Error_Disabled.js" type="text/traceur"></script>
 <script src="Destructuring/EvaluatesToRvalue.js" type="text/traceur"></script>
 <script src="Destructuring/EvaluationOrder.js" type="text/traceur"></script>
 <script src="Destructuring/NestedScopeArguments.js" type="text/traceur"></script>
@@ -76,16 +80,20 @@ goog.require('goog.testing.jsunit');
 <script src="Destructuring/ScopeThis.js" type="text/traceur"></script>
 <script src="Destructuring/TopLevel.js" type="text/traceur"></script>
 <script src="Destructuring/VarDecl.js" type="text/traceur"></script>
+<script src="ObjectInitialiserShorthand/Error_Disabled.js" type="text/traceur"></script>
 <script src="ObjectInitialiserShorthand/Error_Keyword.js" type="text/traceur"></script>
 <script src="ObjectInitialiserShorthand/Error_MissingVar.js" type="text/traceur"></script>
 <script src="ObjectInitialiserShorthand/Ok.js" type="text/traceur"></script>
 <script src="PropertyMethodAssignment/PropertyMethodAssignment.js" type="text/traceur"></script>
+<script src="PropertyMethodAssignment/Error_Disabled.js" type="text/traceur"></script>
 <script src="PropertyMethodAssignment/Error_NotNamed.js" type="text/traceur"></script>
+<script src="PropertyOptionalComma/Error_Disabled.js" type="text/traceur"></script>
 <script src="PropertyOptionalComma/Error_MissingComma.js" type="text/traceur"></script>
 <script src="PropertyOptionalComma/Error_TooManyCommas.js" type="text/traceur"></script>
 <script src="PropertyOptionalComma/Error_TooManyCommas2.js" type="text/traceur"></script>
 <script src="PropertyOptionalComma/Ok.js" type="text/traceur"></script>
 <script src="QuasiLiterals/Default.js" type="text/traceur"></script>
+<script src="QuasiLiterals/Error_Disabled.js" type="text/traceur"></script>
 <script src="QuasiLiterals/Error_InvalidSubstitution.js" type="text/traceur"></script>
 <script src="QuasiLiterals/Error_InvalidSubstitution2.js" type="text/traceur"></script>
 <script src="QuasiLiterals/Error_NoWhitespaceAllowed.js" type="text/traceur"></script>
@@ -103,6 +111,7 @@ goog.require('goog.testing.jsunit');
 <script src="Scope/DeepNestedLetConst.js" type="text/traceur"></script>
 <script src="Scope/DeepNestedLetVar.js" type="text/traceur"></script>
 <script src="Scope/DeepNestedLetVarNoInit.js" type="text/traceur"></script>
+<script src="Scope/Error_Disabled.js" type="text/traceur"></script>
 <script src="Scope/LetForInInitializers1.js" type="text/traceur"></script>
 <script src="Scope/LetForInitializers1.js" type="text/traceur"></script>
 <script src="Scope/LetInClass.js" type="text/traceur"></script>
@@ -134,6 +143,7 @@ goog.require('goog.testing.jsunit');
 <script src="Spread/Call.js" type="text/traceur"></script>
 <script src="Spread/CallWithUndefined.js" type="text/traceur"></script>
 <script src="Spread/Class.js" type="text/traceur"></script>
+<script src="Spread/Error_Disabled.js" type="text/traceur"></script>
 <script src="Spread/MethodCall.js" type="text/traceur"></script>
 <script src="Spread/MethodCallQuotedName.js" type="text/traceur"></script>
 <script src="Spread/New.js" type="text/traceur"></script>
@@ -152,6 +162,8 @@ goog.require('goog.testing.jsunit');
 <script src="Traits/SimpleTrait.js" type="text/traceur"></script>
 <script src="Yield/DoGenerator.js" type="text/traceur"></script>
 <script src="Yield/EndYieldGenerator.js" type="text/traceur"></script>
+<script src="Yield/Error_Disabled.js" type="text/traceur"></script>
+<script src="Yield/Error_Disabled2.js" type="text/traceur"></script>
 <script src="Yield/ForOfGenerator.js" type="text/traceur"></script>
 <script src="Yield/ForEmptyGenerator.js" type="text/traceur"></script>
 <script src="Yield/ForGenerator.js" type="text/traceur"></script>
@@ -251,25 +263,61 @@ function evalScript(scriptElement) {
   window[testName] = function() {
     assertNotEquals('Failed to load file', '', source);
 
-    var errors = new traceur.util.ErrorReporter();
-    var sourceFile = new traceur.syntax.SourceFile(name, source);
-    var tree = traceur.codegeneration.Compiler.compileFile(errors,
-                                                           sourceFile,
-                                                           url);
-    var code = traceur.codegeneration.ParseTreeWriter.write(tree);
+    var skip = false;
+    var shouldCompile = true;
 
-    if (source.indexOf('// Should not compile') == 0) {
-      // Script should not compile.
-      assertTrue('Expected error compiling ' + name + ', but got none.',
-          errors.hadError());
-    } else if (source.indexOf('// Skip.') != 0) {
-      if (errors.hadError()) {
-        fail('Error compiling ' + name + '.');
-        return;
+    forEachPrologLine(source, function(line) {
+      var m;
+      if (line.indexOf('// Should not compile.') === 0) {
+        shouldCompile = false;
+      } else if (line.indexOf('// Skip.') === 0) {
+        skip = true;
+      } else if ((m = /\/\ Options:\s*(.+)/.exec(line))) {
+        traceur.options.fromString(m[1]);
+      }
+    });
+
+    try {
+      var errors = new traceur.util.ErrorReporter();
+      var sourceFile = new traceur.syntax.SourceFile(name, source);
+      var tree = traceur.codegeneration.Compiler.compileFile(errors,
+                                                             sourceFile,
+                                                             url);
+      var code = traceur.codegeneration.ParseTreeWriter.write(tree);
+
+      if (!shouldCompile) {
+        assertTrue('Expected error compiling ' + name + ', but got none.',
+                   errors.hadError());
+        skip = true;
       }
 
-      // Script compiled, so run it.
-      traceur.strictGlobalEval(code);
+      if (!skip) {
+          if (errors.hadError()) {
+            fail('Error compiling ' + name + '.');
+            return;
+          }
+
+        // Script compiled, so run it.
+        traceur.strictGlobalEval(code);
+      }
+    } finally {
+      traceur.options.reset();
+    }
+  }
+}
+
+function forEachPrologLine(s, f) {
+  var inProlog = true;
+  for (var i = 0; inProlog && i < s.length; ) {
+    var j = s.indexOf('\n', i);
+    if (j == -1)
+      break;
+    if (s[i] === '/' && s[i + 1] === '/') {
+      var line = s.slice(i, j);
+      f(line);
+      i = j + 1;
+    } else {
+      inProlog = false;
     }
   }
 }
