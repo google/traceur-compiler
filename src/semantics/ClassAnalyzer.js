@@ -22,7 +22,6 @@ traceur.define('semantics', function() {
   var ClassDeclaration = traceur.syntax.trees.ClassDeclaration;
   var ExportDeclaration = traceur.syntax.trees.ExportDeclaration;
   var FieldDeclaration = traceur.syntax.trees.FieldDeclaration;
-  var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
   var GetAccessor = traceur.syntax.trees.GetAccessor;
   var MixinResolve = traceur.syntax.trees.MixinResolve;
   var Mixin = traceur.syntax.trees.Mixin;

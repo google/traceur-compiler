@@ -83,7 +83,7 @@ traceur.define('codegeneration', function() {
   });
 
   /**
-   * This transformer turns "yield for E" into a ForOf that
+   * This transformer turns "yield* E" into a ForOf that
    * contains a yield and is lowered by the ForOfTransformer.
    */
   function YieldForTransformer(identifierGenerator) {
@@ -100,7 +100,7 @@ traceur.define('codegeneration', function() {
 
     transformYieldStatement: function(tree) {
       if (tree.isYieldFor) {
-        // yield for E
+        // yield* E
         //   becomes
         // for (var $TEMP of E) { yield $TEMP; }
 
@@ -162,6 +162,7 @@ traceur.define('codegeneration', function() {
       return new FunctionDeclaration(
           null,
           tree.name,
+          false, // The generator has been transformed away.
           tree.isStatic,
           tree.formalParameterList,
           body);

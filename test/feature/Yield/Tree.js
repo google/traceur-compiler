@@ -6,13 +6,13 @@ class Tree {
     this.right = right;
   }
 
-  function __iterator__() {
+  function* __iterator__() {
     if (this.left) {
-      yield for this.left;
+      yield* this.left;
     }
     yield this.label;
     if (this.right) {
-      yield for this.right;
+      yield* this.right;
     }
   }
 }
@@ -28,7 +28,7 @@ function tree(list) {
 }
 
 // A recursive generator that generates Tree labels in in-order.
-function inorder1(t) {
+function* inorder1(t) {
   if (t) {
     for (var x of inorder1(t.left)) {
       yield x;
@@ -41,7 +41,7 @@ function inorder1(t) {
 }
 
 // A non-recursive generator.
-function inorder2(node) {
+function* inorder2(node) {
   var stack = [];
   while (node) {
     while (node.left) {

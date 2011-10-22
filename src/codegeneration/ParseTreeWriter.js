@@ -481,6 +481,9 @@ traceur.define('codegeneration', function() {
         this.write_(TokenType.STATIC);
       }
       this.write_(Keywords.FUNCTION);
+      if (tree.isGenerator) {
+        this.write_(TokenType.STAR);
+      }
       if (tree.name != null) {
         this.write_(tree.name);
       }
@@ -1009,7 +1012,7 @@ traceur.define('codegeneration', function() {
     visitYieldStatement: function(tree) {
       this.write_(TokenType.YIELD);
       if (tree.isYieldFor) {
-        this.write_(TokenType.FOR);
+        this.write_(TokenType.STAR);
       }
       this.visitAny(tree.expression);
       this.write_(TokenType.SEMI_COLON);

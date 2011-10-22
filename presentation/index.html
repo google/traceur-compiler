@@ -857,10 +857,10 @@ for (var node of allNodes(document)) {
       <div>
         <h3>DOM Node Generator</h3>
         <pre>
-function allNodes(node) {
+function* allNodes(node) {
   yield node;
   for (var child of node.childNodes || [])
-    yield for allNodes(child);
+    yield* allNodes(child);
 }
 
 for (var node of allNodes(document)) {

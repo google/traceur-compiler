@@ -1,4 +1,4 @@
-function simpleGenerator() {
+function* simpleGenerator() {
   yield 1;
 }
 

@@ -1,5 +1,5 @@
 // finally inside a try finally
-function tryFinallyFinallyGenerator() {
+function* tryFinallyFinallyGenerator() {
   var y;
 
   try {

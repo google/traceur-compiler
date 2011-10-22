@@ -1,9 +1,9 @@
-function forEachGenerator() {
-  yield for forInGenerator3();
-  yield for forInGenerator2();
+function* forEachGenerator() {
+  yield* forInGenerator3();
+  yield* forInGenerator2();
 }
 
-function forInGenerator3() {
+function* forInGenerator3() {
   var object = {
     a: 0,
     b: {
@@ -19,7 +19,7 @@ function forInGenerator3() {
   }
 }
 
-function forInGenerator2() {
+function* forInGenerator2() {
   var object = {
     a: 0,
     b: 1,

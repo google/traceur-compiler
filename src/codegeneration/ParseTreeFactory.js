@@ -621,7 +621,7 @@ traceur.define('codegeneration', function() {
   function createFunctionExpressionFormals(formalParameters, functionBody) {
     if (formalParameters instanceof Array)
       formalParameters = createParameterList(formalParameters);
-    return new FunctionDeclaration(null, null, false, formalParameters,
+    return new FunctionDeclaration(null, null, false, false, formalParameters,
         functionBody);
   }
 
@@ -634,7 +634,7 @@ traceur.define('codegeneration', function() {
   function createFunctionDeclaration(name, formalParameterList, functionBody) {
     if (typeof name == 'string')
       name = createIdentifierToken(name);
-    return new FunctionDeclaration(null, name, false, formalParameterList,
+    return new FunctionDeclaration(null, name, false, false, formalParameterList,
         functionBody);
   }
 
@@ -644,8 +644,8 @@ traceur.define('codegeneration', function() {
    * @return {FunctionDeclaration}
    */
   function createFunctionExpression(formalParameterList, functionBody) {
-    return new FunctionDeclaration(null, null, false, formalParameterList,
-        functionBody);
+    return new FunctionDeclaration(null, null, false, false,
+                                   formalParameterList, functionBody);
   }
 
   // [static] get propertyName () { ... }

@@ -1,5 +1,5 @@
 // yield form within a catch block
-function tryCatchYieldGenerator() {
+function* tryCatchYieldGenerator() {
   var x = 3;
   try {
     throw 5;

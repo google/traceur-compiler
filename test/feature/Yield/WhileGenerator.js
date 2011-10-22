@@ -1,4 +1,4 @@
-function whileGenerator(max, continueValue, breakValue) {
+function* whileGenerator(max, continueValue, breakValue) {
   var i = 0;
   while (i < max) {
     i++;

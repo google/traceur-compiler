@@ -1,4 +1,4 @@
-function switchGenerator(val) {
+function* switchGenerator(val) {
   switch (val) {
     case 1:
       yield val;

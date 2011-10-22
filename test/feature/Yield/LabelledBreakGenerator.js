@@ -1,4 +1,4 @@
-function labelledBreakGenerator() {
+function* labelledBreakGenerator() {
   var x = 1;
   var y = 2;
 label:

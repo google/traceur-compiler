@@ -1,4 +1,4 @@
-function tryFinallyGenerator() {
+function* tryFinallyGenerator() {
   var x = 1;
   var y;
 

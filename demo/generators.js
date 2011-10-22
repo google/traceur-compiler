@@ -22,7 +22,7 @@ function iterateElements(array) {
   };
 }
 
-function iterateElements2(array) {
+function* iterateElements2(array) {
   for (var index = 0; index < array.length; index++) {
     yield array[index];
   }
@@ -42,7 +42,7 @@ function fib(max) {
 }
 
 // infinite list
-function fib2() {
+function* fib2() {
   var a = 0, b = 1;
   while (true) {
     yield b;
@@ -71,7 +71,7 @@ function tree(list) {
 }
 
 // A recursive generator that generates Tree labels in in-order.
-function inorder1(t) {
+function* inorder1(t) {
   if (t) {
     for (var x of inorder1(t.left)) {
       yield x;
@@ -93,7 +93,7 @@ for (let x of inorder1(root)) {
 alert(result);
 
 // A non-recursive generator.
-function inorder2(node) {
+function* inorder2(node) {
   var stack = [];
   while (node) {
     while (node.left) {
@@ -119,12 +119,12 @@ alert(result);
 // Example 4. map and filter
 
 // These can be combined without creating intermediate arrays
-function map(list, fun) {
+function* map(list, fun) {
   for (var item of list) {
     yield fun(item);
   }
 }
-function filter(list, fun) {
+function* filter(list, fun) {
   for (var item of list) {
     if (fun(item)) {
       yield item;

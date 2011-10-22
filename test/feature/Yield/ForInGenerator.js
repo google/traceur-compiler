@@ -1,4 +1,4 @@
-function forInGenerator() {
+function* forInGenerator() {
   var object = {
     a: 0,
     b: 1,

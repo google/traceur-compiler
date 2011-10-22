@@ -1,4 +1,4 @@
-function endYieldGenerator() {
+function* endYieldGenerator() {
   yield 1;
   yield;
   yield 2;

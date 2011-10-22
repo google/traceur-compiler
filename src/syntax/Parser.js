@@ -203,6 +203,13 @@ traceur.define('syntax', function() {
      */
     lastToken_: null,
 
+    /**
+     * Keeps track of whether we currently allow yield expressions.
+     * @type {boolean}
+     * @private
+     */
+    allowYield_: false,
+
     // 14 Program
     /**
      * @return {Program}
@@ -1024,7 +1031,9 @@ traceur.define('syntax', function() {
       if (this.peekFunction_()) {
         this.nextToken_(); // function or #
       }
-      return this.parseFunctionDeclarationTail_(start, isStatic, this.eatId_());
+      var isGenerator = this.eatOpt_(TokenType.STAR) != null;
+      return this.parseFunctionDeclarationTail_(start, isGenerator, isStatic,
+                                                this.eatId_());
     },
 
     /**
@@ -1033,8 +1042,18 @@ traceur.define('syntax', function() {
      */
     peekMethodDeclaration_: function() {
       var index = this.peek_(TokenType.STATIC) ? 1 : 0;
-      return this.peekFunction_(index) ||
-          (this.peek_(TokenType.IDENTIFIER, index) && this.peek_(TokenType.OPEN_PAREN, index + 1));
+      if (this.peekFunction_(index)) {
+        return true;
+      }
+
+      // TODO: Should we allow this? The Traceur classes are going away so this
+      // is not a big deal to resolve at this point.
+      if (this.peek_(TokenType.STAR, index)) {
+        index++;
+      }
+
+      return this.peek_(TokenType.IDENTIFIER, index) &&
+          this.peek_(TokenType.OPEN_PAREN, index + 1);
     },
 
     /**
@@ -1044,7 +1063,9 @@ traceur.define('syntax', function() {
     parseConstructorDeclaration_: function() {
       var start = this.getTreeStartLocation_();
       var isStatic = this.eatOpt_(TokenType.STATIC) != null;
-      return this.parseFunctionDeclarationTail_(start, isStatic, this.eatIdName_());
+      var isGenerator = false;
+      return this.parseFunctionDeclarationTail_(start, isGenerator, isStatic,
+                                                this.eatIdName_());
     },
 
     /**
@@ -1106,6 +1127,7 @@ traceur.define('syntax', function() {
      */
     peekFunction_: function(opt_index) {
       var index = opt_index || 0;
+      // TODO: Remove # functions
       return this.peek_(TokenType.FUNCTION, index) || this.peek_(TokenType.POUND, index);
     },
 
@@ -1117,7 +1139,9 @@ traceur.define('syntax', function() {
     parseFunctionDeclaration_: function() {
       var start = this.getTreeStartLocation_();
       this.nextToken_(); // function or #
-      return this.parseFunctionDeclarationTail_(start, false, this.eatId_());
+      var isGenerator = this.eatOpt_(TokenType.STAR) != null;
+      return this.parseFunctionDeclarationTail_(start, isGenerator,
+                                                false, this.eatId_());
     },
 
     /**
@@ -1127,12 +1151,15 @@ traceur.define('syntax', function() {
      * @return {ParseTree}
      * @private
      */
-    parseFunctionDeclarationTail_: function(start, isStatic, name) {
+    parseFunctionDeclarationTail_: function(start, isGenerator,
+                                            isStatic, name) {
       this.eat_(TokenType.OPEN_PAREN);
       var formalParameterList = this.parseFormalParameterList_();
       this.eat_(TokenType.CLOSE_PAREN);
-      var functionBody = this.parseFunctionBody_();
-      return new FunctionDeclaration(this.getTreeLocation_(start), name, isStatic, formalParameterList, functionBody);
+      var functionBody = this.parseFunctionBody_(isGenerator);
+      return new FunctionDeclaration(this.getTreeLocation_(start), name,
+                                     isGenerator, isStatic, formalParameterList,
+                                     functionBody);
     },
 
     /**
@@ -1142,12 +1169,15 @@ traceur.define('syntax', function() {
     parseFunctionExpression_: function() {
       var start = this.getTreeStartLocation_();
       this.nextToken_(); // function or #
+      var isGenerator = this.eatOpt_(TokenType.STAR) != null;
       var name = this.eatIdOpt_();
       this.eat_(TokenType.OPEN_PAREN);
       var formalParameterList = this.parseFormalParameterList_();
       this.eat_(TokenType.CLOSE_PAREN);
-      var functionBody = this.parseFunctionBody_();
-      return new FunctionDeclaration(this.getTreeLocation_(start), name, false, formalParameterList, functionBody);
+      var functionBody = this.parseFunctionBody_(isGenerator);
+      return new FunctionDeclaration(this.getTreeLocation_(start), name,
+                                     isGenerator, false, formalParameterList,
+                                     functionBody);
     },
 
     /**
@@ -1217,10 +1247,15 @@ traceur.define('syntax', function() {
      * @return {Block}
      * @private
      */
-    parseFunctionBody_: function() {
+    parseFunctionBody_: function(isGenerator) {
       var start = this.getTreeStartLocation_();
       this.eat_(TokenType.OPEN_CURLY);
+
+      var allowYield = this.allowYield_;
+      this.allowYield_ = isGenerator;
       var result = this.parseSourceElementList_();
+      this.allowYield_ = allowYield;
+
       this.eat_(TokenType.CLOSE_CURLY);
       return new Block(this.getTreeLocation_(start), result);
     },
@@ -1797,14 +1832,15 @@ traceur.define('syntax', function() {
      * @private
      */
     parseYieldStatement_: function() {
+      if (!this.allowYield_) {
+        return this.parseMissingPrimaryExpression_(
+            "'yield' expressions are only allowed inside 'function*'");
+      }
+
       var start = this.getTreeStartLocation_();
       this.eat_(TokenType.YIELD);
       var expression = null;
-      var isYieldFor = false;
-      if (this.peek_(TokenType.FOR)) {
-        this.eat_(TokenType.FOR);
-        isYieldFor = true;
-      }
+      var isYieldFor = this.eatOpt_(TokenType.STAR) != null;
       if (!this.peekImplicitSemiColon_()) {
         expression = this.parseExpression_();
       }
@@ -1916,7 +1952,8 @@ traceur.define('syntax', function() {
       var start = this.getTreeStartLocation_();
       var name = this.eatId_();
       this.eat_(TokenType.COLON);
-      return new LabelledStatement(this.getTreeLocation_(start), name, this.parseStatement_());
+      return new LabelledStatement(this.getTreeLocation_(start), name,
+                                   this.parseStatement_());
     },
 
     /**
@@ -2258,7 +2295,7 @@ traceur.define('syntax', function() {
       var propertyName = this.nextToken_();
       this.eat_(TokenType.OPEN_PAREN);
       this.eat_(TokenType.CLOSE_PAREN);
-      var body = this.parseFunctionBody_();
+      var body = this.parseFunctionBody_(false);
       return new GetAccessor(this.getTreeLocation_(start), propertyName, isStatic, body);
     },
 
@@ -2284,7 +2321,7 @@ traceur.define('syntax', function() {
       this.eat_(TokenType.OPEN_PAREN);
       var parameter = this.eatId_();
       this.eat_(TokenType.CLOSE_PAREN);
-      var body = this.parseFunctionBody_();
+      var body = this.parseFunctionBody_(false);
       return new SetAccessor(this.getTreeLocation_(start), propertyName, isStatic, parameter, body);
     },
 
@@ -2320,11 +2357,12 @@ traceur.define('syntax', function() {
       var start = this.getTreeStartLocation_();
       // Note that parsePropertyAssignment_ already limits name to String,
       // Number & IdentfierName.
+      // TODO: Should we allow * here?
       var name = this.nextToken_();
       this.eat_(TokenType.OPEN_PAREN);
       var formalParameterList = this.parseFormalParameterList_();
       this.eat_(TokenType.CLOSE_PAREN);
-      var functionBody = this.parseFunctionBody_();
+      var functionBody = this.parseFunctionBody_(false);
       return new PropertyMethodAssignment(this.getTreeLocation_(start), name,
                                           formalParameterList, functionBody);
     },
@@ -2357,12 +2395,13 @@ traceur.define('syntax', function() {
     },
 
     /**
+     * @param {string=} opt_message Error message to report.
      * @return {ParseTree}
      * @private
      */
-    parseMissingPrimaryExpression_: function() {
+    parseMissingPrimaryExpression_: function(opt_message) {
       var start = this.getTreeStartLocation_();
-      this.reportError_('primary expression expected');
+      this.reportError_(opt_message || 'primary expression expected');
       var token = this.nextToken_();
       return new MissingPrimaryExpression(this.getTreeLocation_(start), token);
     },

@@ -1,4 +1,4 @@
-function ifGenerator(condition) {
+function* ifGenerator(condition) {
   if (condition) {
     yield 1;
   }

@@ -1,4 +1,4 @@
-function statementTestGenerator() {
+function* statementTestGenerator() {
   // all of these statement constructs should be allowed
   // provided that they contain no yield statements
   switch (1) {
@@ -28,7 +28,7 @@ function statementTestGenerator() {
 }
 
 
-function simpleGenerator() {
+function* simpleGenerator() {
   yield 1;
 }
 

@@ -1,4 +1,4 @@
-function sequenceGenerator() {
+function* sequenceGenerator() {
   var i = 1;
   yield i;
   i = 3;

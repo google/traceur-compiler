@@ -68,6 +68,7 @@ traceur.define('codegeneration', function() {
       return new FunctionDeclaration(
           null,
           tree.name,
+          tree.isGenerator,
           tree.isStatic,
           tree.formalParameterList,
           nested.transformBlock(tree.functionBody));

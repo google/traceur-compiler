@@ -1,10 +1,10 @@
 function mapFilterGenerator() {
-  function map(list, fun) {
+  function* map(list, fun) {
     for (var item of list) {
       yield fun(item);
     }
   }
-  function filter(list, fun) {
+  function* filter(list, fun) {
     for (var item of list) {
       if (fun(item)) {
         yield item;

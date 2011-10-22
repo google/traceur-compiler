@@ -1,4 +1,4 @@
-function tryCatchGenerator() {
+function* tryCatchGenerator() {
   var x;
   try {
     yield 1;

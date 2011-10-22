@@ -358,13 +358,15 @@ traceur.define('syntax.trees', function() {
     /**
      * @param {traceur.util.SourceRange} location
      * @param {traceur.syntax.IdentifierToken} name
-     * @param {Boolean} isStatic
+     * @param {boolean} isGenerator
+     * @param {boolean} isStatic
      * @param {traceur.syntax.trees.FormalParameterList} formalParameterList
      * @param {traceur.syntax.trees.Block} functionBody
      * @constructor
      * @extends {ParseTree}
      */
-    FunctionDeclaration: create('name', 'isStatic', 'formalParameterList',
+    FunctionDeclaration: create('name', 'isGenerator',
+                                'isStatic', 'formalParameterList',
                                 'functionBody'),
 
     /**

@@ -1,5 +1,5 @@
-function forEmptyGenerator() {
-  yield for [];
+function* forEmptyGenerator() {
+  yield* [];
 }
 
 function accumulate(iterator) {

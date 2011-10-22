@@ -1,4 +1,4 @@
-function forGenerator() {
+function* forGenerator() {
   var a = 1, b = 1;
   for (var i = 0; i < 4; i++) {
     // TODO(jmesserly): this was changed until we get destructing

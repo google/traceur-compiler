@@ -224,7 +224,8 @@ function testTreeConstructors() {
 
   validateTree(traceur.syntax.trees.FunctionDeclaration,
       ParseTreeType.FUNCTION_DECLARATION,
-      ['location', 'name', 'isStatic', 'formalParameterList', 'functionBody']);
+      ['location', 'name', 'isGenerator',
+       'isStatic', 'formalParameterList', 'functionBody']);
 
   validateTree(traceur.syntax.trees.GetAccessor,
       ParseTreeType.GET_ACCESSOR,

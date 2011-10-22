@@ -1,5 +1,5 @@
-function forLexicallyNestedGenerator() {
-  yield for (function() { yield [1,2,3]; yield for [4,5,6]; })();
+function* forLexicallyNestedGenerator() {
+  yield* (function*() { yield [1,2,3]; yield* [4,5,6]; })();
 }
 
 function accumulate(iterator) {
