@@ -6,7 +6,7 @@ class Tree {
     this.right = right;
   }
 
-  function* __iterator__() {
+  function* __traceurIterator__() {
     if (this.left) {
       yield* this.left;
     }

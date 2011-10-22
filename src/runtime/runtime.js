@@ -311,7 +311,11 @@ traceur.runtime = (function() {
   }
 
   // Add iterator support to arrays.
-  defineProperty(Array.prototype, traceur.syntax.PredefinedName.ITERATOR, {
+  // HACK: We don't want runtime to have to depend on
+  // traceur.syntax.PredefinedName.ITERATOR so we hard code its value here.
+  var iterator = '__traceurIterator__';
+
+  defineProperty(Array.prototype, iterator, {
     value: function() {
       var index = 0;
       var array = this;
