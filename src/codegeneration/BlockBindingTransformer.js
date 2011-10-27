@@ -45,11 +45,9 @@ traceur.define('codegeneration', function() {
   var createForInStatement = ParseTreeFactory.createForInStatement;
   var createForStatement = ParseTreeFactory.createForStatement;
   var createFunctionDeclaration = ParseTreeFactory.createFunctionDeclaration;
-  var createFunctionExpression = ParseTreeFactory.createFunctionExpression;
   var createGetAccessor = ParseTreeFactory.createGetAccessor;
   var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
   var createIdentifierToken = ParseTreeFactory.createIdentifierToken;
-  var createParenExpression = ParseTreeFactory.createParenExpression;
   var createSetAccessor = ParseTreeFactory.createSetAccessor;
   var createThrowStatement = ParseTreeFactory.createThrowStatement;
   var createTryStatement = ParseTreeFactory.createTryStatement;
@@ -243,7 +241,14 @@ traceur.define('codegeneration', function() {
       var scope = this.push_(this.createBlockScope_());
 
       // Transform the block contents
-      var statements = this.transformSourceElements(tree.statements);
+      var statements = tree.statements.map(function(statement) {
+        switch (statement.type) {
+          case ParseTreeType.FUNCTION_DECLARATION:
+            return this.transformFunctionDeclarationStatement_(statement);
+          default:
+            return this.transformAny(statement);
+        }
+      }, this);
 
       if (scope.blockVariables != null) {
         // rewrite into catch construct
@@ -573,13 +578,14 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * Transforms a function. Function name in the block scope
-     * is scoped to the block only, so the same rewrite applies.
+     * Transforms a function declaration statement. Function name in the block
+     * scope is scoped to the block only, so the same rewrite applies.
      *
      * @param {FunctionDeclaration} tree
      * @return {ParseTree}
+     * @private
      */
-    transformFunctionDeclaration: function(tree) {
+    transformFunctionDeclarationStatement_: function(tree) {
       var body = this.transformFunctionBody_(tree.functionBody);
 
       if (tree.name != null && this.scope_.type == ScopeType.BLOCK) {
@@ -589,7 +595,7 @@ traceur.define('codegeneration', function() {
         this.scope_.addBlockScopedVariable(tree.name.value);
 
         // f = function f( ... ) { ... }
-        return createParenExpression(
+        return createExpressionStatement(
             createAssignmentExpression(
                 createIdentifierExpression(tree.name),
                 createFunctionDeclaration(tree.name,
