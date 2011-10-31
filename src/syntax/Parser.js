@@ -959,11 +959,16 @@ traceur.define('syntax', function() {
       }
 
       var declarations = [];
-
-      declarations.push(this.parseVariableDeclaration_(isStatic, binding, Expression.NORMAL));
+      var declaration = this.parseVariableDeclaration_(isStatic, binding,
+                                                       Expression.NORMAL);
+      this.checkInitializer_(binding, declaration);
+      declarations.push(declaration);
       while (this.peek_(TokenType.COMMA)) {
         this.eat_(TokenType.COMMA);
-        declarations.push(this.parseVariableDeclaration_(isStatic, binding, Expression.NORMAL));
+        declaration = this.parseVariableDeclaration_(isStatic, binding,
+                                                     Expression.NORMAL);
+        this.checkInitializer_(binding, declaration);
+        declarations.push(declaration);
       }
       this.eat_(TokenType.SEMI_COLON);
       return new FieldDeclaration(
@@ -1526,8 +1531,6 @@ traceur.define('syntax', function() {
       var initializer = null;
       if (this.peek_(TokenType.EQUAL)) {
         initializer = this.parseInitializer_(expressionIn);
-      } else if (binding == TokenType.CONST) {
-        this.reportError_('const variables must have an initializer');
       } else if (lvalue.isPattern()) {
         this.reportError_('destructuring must have an initializer');
       }
@@ -1709,16 +1712,31 @@ traceur.define('syntax', function() {
      */
     checkInitializers_: function(variables) {
       if (options.blockBinding &&
-          (variables.declarationType == TokenType.LET ||
-           variables.declarationType == TokenType.CONST)) {
+          variables.declarationType == TokenType.CONST) {
+        var type = variables.declarationType;
         for (var i = 0; i < variables.declarations.length; i++) {
-          var declaration = variables.declarations[i];
-          if (declaration.initializer == null) {
-            this.reportError_('let/const in for statement must have an initializer');
+          if (!this.checkInitializer_(type, variables.declarations[i])) {
             break;
           }
         }
       }
+    },
+
+    /**
+     * Checks variable declaration
+     *
+     * @param {TokenType} type
+     * @param {VariableDeclaration} declaration
+     * @return {boolan} Whether the initializer is correct.
+     * @private
+     */
+    checkInitializer_: function(type, declaration) {
+      if (options.blockBinding && type == TokenType.CONST &&
+          declaration.initializer == null) {
+        this.reportError_('const variables must have an initializer');
+        return false;
+      }
+      return true;
     },
 
     /**
