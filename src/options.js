@@ -256,6 +256,7 @@
   addFeatureOption('forOf', Kind.harmony);
   addFeatureOption('generators', Kind.harmony);
   addFeatureOption('quasi', Kind.harmony);
+  addFeatureOption('typeof', Kind.harmony);
 
   addFeatureOption('arrowFunctions', Kind.experimental);
   addFeatureOption('deferredFunctions', Kind.experimental);

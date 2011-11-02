@@ -388,6 +388,10 @@ traceur.runtime = (function() {
     return object;
   }
 
+  function typeOf(val) {
+    return val === null ? 'null' : typeof val;
+  }
+
   /**
    * The default quasi function which just concats the quasi literal parts.
    * @param {{raw: Array.<string>, cooked: Array.<string>}} callSiteId
@@ -499,7 +503,8 @@ traceur.runtime = (function() {
     spread: spread,
     spreadNew: spreadNew,
     superCall: superCall,
-    superGet: superGet
+    superGet: superGet,
+    typeof: typeOf
   };
 })();
 

@@ -206,6 +206,7 @@ var traceur = (function() {
     'codegeneration/generator/AsyncTransformer.js',
     'codegeneration/GeneratorTransformPass.js',
     'semantics/FreeVariableChecker.js',
+    'codegeneration/TypeofTransformer.js',
     'codegeneration/ProgramTransformer.js',
     'codegeneration/ProjectWriter.js',
     'codegeneration/module/ModuleVisitor.js',

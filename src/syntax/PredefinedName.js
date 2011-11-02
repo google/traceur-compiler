@@ -87,6 +87,7 @@ traceur.define('syntax', function() {
     TRACEUR: 'traceur',
     TRAIT: 'trait',
     TYPE_ERROR: 'TypeError',
+    TYPEOF: 'typeof',
     UNDEFINED: 'undefined',
     VALUE: 'value',
     $VALUE: '$value',
