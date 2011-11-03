@@ -21,8 +21,10 @@ function importScript(filename) {
  * Show a failure message for the given script.
  */
 function failScript(script, message) {
-  console.log('\x1B[31mFAIL\x1B[0m ' + script);
-  console.log('     ' + message);
+  clearLastLine();
+  print(red('FAIL ') + script);
+  print('     ' + message);
+  print();
 }
 
 // Define some rudimentary versions of the JSUnit assertions that the
@@ -221,6 +223,22 @@ function UnitTestError(message) {
   this.message = message;
 }
 
+function print(s) {
+  (originalConsole || console).log(s);
+}
+
+function green(s) {
+  return '\x1B[32m' + s + '\x1B[0m';
+}
+
+function red(s) {
+  return '\x1B[31m' + s + '\x1B[0m';
+}
+
+function clearLastLine() {
+  print('\x1B[1A\x1B[K\x1B[1A');
+}
+
 /**
  * Recursively walk the "feature" directory and run each feature script found.
  */
@@ -232,8 +250,17 @@ function runFeatureScripts(dir) {
     if (stat.isDirectory()) {
       runFeatureScripts(filePath);
     } else if (path.extname(filePath) == '.js') {
+      clearLastLine();
+      if (passes === tests) {
+        print('Passed ' + green(passes) + ' so far. Testing: ' + filePath);
+      } else {
+        print('Passed ' + green(passes) + ' and failed ' +
+              red(tests - passes) + ' Testing: ' + filePath);
+      }
+
       tests++;
-      if (testScript(filePath)) passes++;
+      if (testScript(filePath))
+        passes++;
     }
   }
 }
@@ -255,10 +282,11 @@ var tests  = 0;
 var passes = 0;
 runFeatureScripts('feature');
 
+clearLastLine();
 if (passes == tests) {
-  console.log('Passed all \x1B[32m' + tests + '\x1B[0m tests.');
+  print('Passed all ' + green(tests) + ' tests.');
 } else {
-  console.log();
-  console.log('Passed \x1B[32m' + passes + '\x1B[0m and failed \x1B[31m' +
-      (tests - passes) + '\x1B[0m out of ' + tests + ' tests.');
+  print('');
+  print('Passed ' + green(passes) + ' and failed ' + red(tests - passes) +
+        ' out of ' + tests + ' tests.');
 }
