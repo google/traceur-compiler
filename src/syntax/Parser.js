@@ -3111,7 +3111,7 @@ traceur.define('syntax', function() {
 
     /** @returns {TokenType} */
     peekArrow_: function(opt_index) {
-      if (options.arrowFuncions) {
+      if (!options.arrowFunctions) {
         return false;
       }
       var arrow = this.peekType_(opt_index);

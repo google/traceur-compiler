@@ -160,18 +160,36 @@ traceur.define('semantics', function() {
       }, this);
     },
 
-    visitFunctionDeclaration: function(tree) {
+    /**
+     * Helper function for visitFunctionDeclaration and
+     * visitArrowFunctionExpression.
+     * @param {IdentifierToken} name This is null for the arrow function.
+     * @param {FormalParameterList} formalParameterList
+     * @param {Block} body
+     * @private
+     */
+    visitFunction_: function(name, formalParameterList, body) {
       var scope = this.pushScope_();
 
       // Declare the function name, 'arguments' and formal parameters inside the
       // function
-      this.declareVariable_(tree.name);
+      if (name)
+        this.declareVariable_(name);
       this.declareVariable_(PredefinedName.ARGUMENTS);
-      tree.formalParameterList.parameters.forEach(this.declareVariable_, this);
+      formalParameterList.parameters.forEach(this.declareVariable_, this);
 
-      this.visitAny(tree.functionBody);
+      this.visitAny(body);
 
       this.pop_(scope);
+    },
+
+    visitFunctionDeclaration: function(tree) {
+      this.visitFunction_(tree.name, tree.formalParameterList,
+                          tree.functionBody);
+    },
+
+    visitArrowFunctionExpression: function(tree) {
+      this.visitFunction_(null, tree.formalParameters, tree.functionBody);
     },
 
     visitGetAccessor: function(tree) {
