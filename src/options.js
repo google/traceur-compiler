@@ -246,28 +246,29 @@
     options[name] = true;
   }
 
-  addFeatureOption('spread', Kind.es6);
-  addFeatureOption('defaultParameters', Kind.es6);
-  addFeatureOption('restParameters', Kind.es6);
-  addFeatureOption('destructuring', Kind.es6);
   addFeatureOption('blockBinding', Kind.es6);
+  addFeatureOption('defaultParameters', Kind.es6);
+  addFeatureOption('destructuring', Kind.es6);
+  addFeatureOption('restParameters', Kind.es6);
+  addFeatureOption('spread', Kind.es6);
 
-  addFeatureOption('modules', Kind.harmony);
   addFeatureOption('forOf', Kind.harmony);
   addFeatureOption('generators', Kind.harmony);
+  addFeatureOption('modules', Kind.harmony);
   addFeatureOption('quasi', Kind.harmony);
   addFeatureOption('typeof', Kind.harmony);
 
   addFeatureOption('arrowFunctions', Kind.experimental);
+  addFeatureOption('collections', Kind.experimental);
   addFeatureOption('deferredFunctions', Kind.experimental);
   addFeatureOption('propertyMethods', Kind.experimental);
   addFeatureOption('propertyNameShorthand', Kind.experimental);
   addFeatureOption('propertyOptionalComma', Kind.experimental);
   addFeatureOption('traceurClasses', Kind.experimental);
 
+  addBoolOption('debug');
   addBoolOption('freeVariableChecker');
   addBoolOption('validate');
-  addBoolOption('debug');
 
   traceur.options = options;
 })();

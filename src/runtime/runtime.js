@@ -383,7 +383,7 @@ traceur.runtime = (function() {
    */
   function markMethods(object, names) {
     names.forEach(function(name) {
-      Object.defineProperty(object, name, {enumerable: false});
+      defineProperty(object, name, {enumerable: false});
     });
     return object;
   }
@@ -407,6 +407,79 @@ traceur.runtime = (function() {
     }
     return out.join('');
   }
+
+  function method(value) {
+    return {
+      configurable: true,
+      enumerable: false,
+      value: value,
+      writable: true
+    }
+  }
+
+  // Collection getters and setters
+  var elementDeleteName = ' @elementDelete ';
+  var elementGetName = ' @elementGet ';
+  var elementSetName = ' @elementSet ';
+
+  function elementDelete(object, name) {
+    if (elementDeleteName in Object(object))
+      return object[elementDeleteName](name);
+    return delete object[name];
+  }
+
+  function elementGet(object, name) {
+    if (elementGetName in Object(object))
+      return object[elementGetName](name);
+    return object[name];
+  }
+
+  function elementGetCall(object, name, args) {
+    return elementGet(object, name).apply(object, args);
+  }
+
+  function elementSet(object, name, value) {
+    if (elementSetName in object)
+      object[elementSetName](name, value);
+    else
+      object[name] = value;
+    return value;
+  }
+
+  function defineElementDelete(object, fun) {
+    defineProperty(object, elementDeleteName, method(fun));
+  }
+
+  function defineElementGet(object, fun) {
+    defineProperty(object, elementGetName, method(fun));
+  }
+
+  function defineElementSet(object, fun) {
+    defineProperty(object, elementSetName, method(fun));
+  }
+
+  function deleteProperty(object, name) {
+    return delete object[name];
+  }
+
+  function getProperty(object, name) {
+    return object[name];
+  }
+
+  // This is a bit simplistic.
+  // http://wiki.ecmascript.org/doku.php?id=strawman:refactoring_put#object._get_set_property_built-ins
+  function setProperty(object, name, value) {
+    object[name] = value;
+  }
+
+  // These should be exposed as private names instead.
+  defineProperty(Object, 'defineElementGet', method(defineElementGet));
+  defineProperty(Object, 'defineElementDelete', method(defineElementDelete));
+  defineProperty(Object, 'defineElementSet', method(defineElementSet));
+
+  defineProperty(Object, 'deleteProperty', method(deleteProperty));
+  defineProperty(Object, 'getProperty', method(getProperty));
+  defineProperty(Object, 'setProperty', method(setProperty));
 
   /**
    * @param {Function} canceller
@@ -497,8 +570,12 @@ traceur.runtime = (function() {
   return {
     createClass: createClass,
     createTrait: createTrait,
-    Deferred: Deferred,
     defaultQuasi: defaultQuasi,
+    Deferred: Deferred,
+    elementDelete: elementDelete,
+    elementGet: elementGet,
+    elementGetCall: elementGetCall,
+    elementSet: elementSet,
     markMethods: markMethods,
     spread: spread,
     spreadNew: spreadNew,

@@ -185,6 +185,7 @@ var traceur = (function() {
     'codegeneration/ClassTransformer.js',
     'codegeneration/BlockBindingTransformer.js',
     'codegeneration/QuasiLiteralTransformer.js',
+    'codegeneration/CollectionTransformer.js',
     'codegeneration/generator/ForInTransformPass.js',
     'codegeneration/generator/State.js',
     'codegeneration/generator/FallThroughState.js',

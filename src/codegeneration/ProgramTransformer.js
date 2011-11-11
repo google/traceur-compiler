@@ -36,6 +36,7 @@ traceur.define('codegeneration', function() {
   var ArrowFunctionTransformer = traceur.codegeneration.ArrowFunctionTransformer;
   var QuasiLiteralTransformer = traceur.codegeneration.QuasiLiteralTransformer;
   var TypeofTransformer = traceur.codegeneration.TypeofTransformer;
+  var CollectionTransformer = traceur.codegeneration.CollectionTransformer;
 
   var CLASS_DECLARATION = traceur.syntax.trees.ParseTreeType.CLASS_DECLARATION;
   var TRAIT_DECLARATION = traceur.syntax.trees.ParseTreeType.TRAIT_DECLARATION;
@@ -199,6 +200,7 @@ traceur.define('codegeneration', function() {
       chain(options.spread, SpreadTransformer.transformTree);
       chain(options.blockBinding, BlockBindingTransformer.transformTree);
       chain(options.typeof, TypeofTransformer.transformTree);
+      chain(options.collections, CollectionTransformer.transformTree);
 
       // Issue errors for any unbound variables
       chain(traceur.options.freeVariableChecker,
