@@ -18,6 +18,9 @@ assertEquals('$', `$`);
 assertEquals('$ a', `$ a`);
 assertEquals('$ {a}', `$ {a}`);
 
+assertEquals('undefined', `${ undefined }`);
+assertEquals('null', `${ null }`);
+
 {
   let $ = 'DOLLAR';
   let $$ = 'DD'

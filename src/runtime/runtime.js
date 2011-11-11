@@ -399,11 +399,14 @@ traceur.runtime = (function() {
    * @return {string}
    */
   function defaultQuasi(callSiteId, var_args) {
-    var rawStrs = callSiteId.cooked;
-    var out = [];
-    for (var i = 0, k = -1, n = rawStrs.length; i < n;) {
-      out[++k] = rawStrs[i];
-      out[++k] = arguments[++i];
+    var cookedStrings = callSiteId.cooked;
+    var cookedStringsLength = cookedStrings.length;
+    var out = [], k = 0;
+    var argumentLength = arguments.length;
+    for (var i = 0; i < cookedStringsLength;) {
+      out[k++] = cookedStrings[i];
+      if (++i < argumentLength)
+        out[k++] = String(arguments[i]);
     }
     return out.join('');
   }
