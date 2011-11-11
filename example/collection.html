@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Hello, World!</title>
+    <script src="../src/traceur.js"></script>
+    <script src="../src/bootstrap.js"></script>
+  </head>
+  <body>
+    <p>This example shows how to use element set/get/delete meta operations.
+
+    <pre id="out"></pre>
+
+    <script type="text/traceur">
+
+      function print(s) {
+        var out = document.getElementById('out');
+        out.appendChild(document.createTextNode(`$s\n`));
+      }
+
+      function StringMap() {
+        Object.defineProperty(this, '_storage', {value: Object.create(null)});
+        Object.defineProperty(this, '_size', {value: 0, writable: true});
+      }
+
+      StringMap.prototype = {
+        get size() {
+          return this._size;
+        }
+        has(name) {
+          return name in this._storage;
+        }
+        keys() {
+          var storage = this._storage;
+          return (function* () {
+            for (var name in storage) {
+              yield name;
+            }
+          })();
+        }
+        values() {
+          var storage = this._storage;
+          return (function* () {
+            for (var name in storage) {
+              yield storage[name];
+            }
+          })();
+        }
+        items() {
+          var storage = this._storage;
+          return (function* () {
+            for (var name in storage) {
+              yield [name, storage[name]];
+            }
+          })();
+        }
+      };
+
+      Object.defineElementGet(StringMap.prototype, function(name) {
+        return this._storage[name];
+      });
+
+      Object.defineElementSet(StringMap.prototype, function(name, value) {
+        if (!this.has(name))
+          this._size++;
+        this._storage[name] = value;
+      });
+
+      Object.defineElementDelete(StringMap.prototype, function(name) {
+        if (!this.has(name))
+          return false;
+        delete this._storage[name];
+        return true;
+      });
+
+      var map = new StringMap;
+      map['a'] = 1;
+      print(map['a']);
+      print(map.a);
+      print(map.size);
+      map['b'] = 2;
+      print(map['b']);
+      print(map.size);
+
+      print(map.has('size'));
+      map['size'] = 'Hello World';
+      print(map['size']);
+      print(map.size);
+
+      delete map['b'];
+      print(map['b']);
+
+      for (var key of map.keys()) {
+        print(key);
+      }
+
+      for (var value of map.values()) {
+        print(value);
+      }
+
+      // for (var [name, value] of map.items()) {
+      // http://code.google.com/p/traceur-compiler/issues/detail?id=42
+      for (var item of map.items()) {
+        var [key, value] = item;
+        print(`$key = $value`);
+      }
+
+    </script>
+  </body>
+</html>

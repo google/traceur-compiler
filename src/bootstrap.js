@@ -85,7 +85,7 @@
 
     function compileScripts() {
       var reporter = new traceur.util.ErrorReporter();
-      var project = new traceur.semantics.symbols.Project();
+      var project = new traceur.semantics.symbols.Project(document.location.href);
 
       var fileToEntry = new traceur.util.ObjectMap();
 
