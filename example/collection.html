@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Hello, World!</title>
+    <title>Collection Demo</title>
     <script src="../src/traceur.js"></script>
     <script src="../src/bootstrap.js"></script>
   </head>
@@ -15,6 +15,13 @@
       function print(s) {
         var out = document.getElementById('out');
         out.appendChild(document.createTextNode(`$s\n`));
+      }
+
+      function assertEquals(expected, actual) {
+        if (expected === actual)
+          print(`PASS: $actual`);
+        else
+          print(`FAIL: Expected $expected, got $actual`);
       }
 
       function StringMap() {
@@ -69,25 +76,29 @@
         if (!this.has(name))
           return false;
         delete this._storage[name];
+        this._size--;
         return true;
       });
 
       var map = new StringMap;
       map['a'] = 1;
-      print(map['a']);
-      print(map.a);
-      print(map.size);
+      assertEquals(1, map['a']);
+      assertEquals(undefined, map.a);
+      assertEquals(1, map.size);
       map['b'] = 2;
-      print(map['b']);
-      print(map.size);
+      assertEquals(2, map['b']);
+      assertEquals(2, map.size);
 
-      print(map.has('size'));
+      assertEquals(false, map.has('size'));
       map['size'] = 'Hello World';
-      print(map['size']);
-      print(map.size);
+      assertEquals('Hello World', map['size']);
+      assertEquals(3, map.size);
 
       delete map['b'];
-      print(map['b']);
+      assertEquals(undefined, map['b']);
+      assertEquals(2, map.size);
+
+      print('\nTesting iteration');
 
       for (var key of map.keys()) {
         print(key);
