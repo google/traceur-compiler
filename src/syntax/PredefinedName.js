@@ -44,6 +44,7 @@ traceur.define('syntax', function() {
     ELEMENT_DELETE: 'elementDelete',
     ELEMENT_GET: 'elementGet',
     ELEMENT_GET_CALL: 'elementGetCall',
+    ELEMENT_HAS: 'elementHas',
     ELEMENT_SET: 'elementSet',
     ENUMERABLE: 'enumerable',
     ERR: '$err',

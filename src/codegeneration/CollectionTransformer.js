@@ -30,24 +30,34 @@ traceur.define('codegeneration', function() {
   var ELEMENT_DELETE = traceur.syntax.PredefinedName.ELEMENT_DELETE;
   var ELEMENT_GET = traceur.syntax.PredefinedName.ELEMENT_GET;
   var ELEMENT_GET_CALL = traceur.syntax.PredefinedName.ELEMENT_GET_CALL;
+  var ELEMENT_HAS = traceur.syntax.PredefinedName.ELEMENT_HAS;
   var ELEMENT_SET = traceur.syntax.PredefinedName.ELEMENT_SET;
 
 
   /**
-   * Allows an object to have a collection set and get trap. For example:
+   * Transforms expr[expr] into traceur.runtime.elementGet(expr, expr). It also
+   * transforms []=, delete and the in operator in similar fashion.
    *
+   * This pass is used for private names as well as for the reformed object
+   * model.
+   *
+   * http://wiki.ecmascript.org/doku.php?id=harmony:private_name_objects
+   * http://wiki.ecmascript.org/doku.php?id=strawman:object_model_reformation
+   *
+   * The reformed object model allows user defined traps for [], []= and delete.
+   * For example:
+   *
+   *   module Name from '@name';
    *   var storage = Object.create(null);
    *   var object = {};
-   *   Object.defineElementSet(object, function(key, value) {
-   *     storage[hashCode(key)] = value;
-   *   });
-   *   Object.defineElementGet(object, function(key) {
+   *   object[Name.elementGet] = function(key) {
    *     return storage[hashCode(key)];
-   *   });
+   *   };
+   *   object[Name.elementSet] = function(key, value) {
+   *     storage[hashCode(key)] = value;
+   *   };
    *   var key = {};
    *   object[key] = 42;
-   *
-   * @see <a href="https://mail.mozilla.org/pipermail/es-discuss/2011-October/017468.html">es-dsicuss</a>
    *
    * @extends {ParseTreeTransformer}
    * @constructor
@@ -67,21 +77,32 @@ traceur.define('codegeneration', function() {
   var proto = ParseTreeTransformer.prototype;
   CollectionTransformer.prototype = traceur.createObject(proto, {
     transformBinaryOperator: function(tree) {
-      if (tree.operator.type !== TokenType.EQUAL ||
-          tree.left.type !== ParseTreeType.MEMBER_LOOKUP_EXPRESSION) {
-        return proto.transformBinaryOperator.call(this, tree);
+      if (tree.operator.type === TokenType.IN) {
+        var name = this.transformAny(tree.left);
+        var object = this.transformAny(tree.right);
+        // name in object
+        // =>
+        // traceur.runtime.elementHas(object, name)
+        return createCallExpression(
+            createMemberExpression(TRACEUR, RUNTIME, ELEMENT_HAS),
+            createArgumentList(object, name));
       }
 
-      var operand = this.transformAny(tree.left.operand);
-      var memberExpression = this.transformAny(tree.left.memberExpression);
-      var value = this.transformAny(tree.right);
+      if (tree.operator.type === TokenType.EQUAL &&
+          tree.left.type === ParseTreeType.MEMBER_LOOKUP_EXPRESSION) {
+        var operand = this.transformAny(tree.left.operand);
+        var memberExpression = this.transformAny(tree.left.memberExpression);
+        var value = this.transformAny(tree.right);
 
-      // operand[memberExpr] = value
-      // =>
-      // traceur.runtime.elementSet(operand, memberExpr, value)
-      return createCallExpression(
-          createMemberExpression(TRACEUR, RUNTIME, ELEMENT_SET),
-          createArgumentList(operand, memberExpression, value));
+        // operand[memberExpr] = value
+        // =>
+        // traceur.runtime.elementSet(operand, memberExpr, value)
+        return createCallExpression(
+            createMemberExpression(TRACEUR, RUNTIME, ELEMENT_SET),
+            createArgumentList(operand, memberExpression, value));
+      }
+
+      return proto.transformBinaryOperator.call(this, tree);
     },
 
     transformCallExpression: function(tree) {

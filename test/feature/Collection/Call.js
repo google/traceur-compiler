@@ -1,15 +1,16 @@
 {
   var getLog = [];
   var object = {};
+  var Name = traceur.runtime.modules['@name'];
 
-  Object.defineElementGet(object, function(index) {
+  object[Name.elementGet] = function(index) {
     assertEquals(object, this);
     getLog.push(index);
     return function() {
       assertEquals(object, this);
       return index;
     };
-  });
+  };
 
   var tmp = {};
   function f() {}

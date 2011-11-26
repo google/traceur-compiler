@@ -200,7 +200,8 @@ traceur.define('codegeneration', function() {
       chain(options.spread, SpreadTransformer.transformTree);
       chain(options.blockBinding, BlockBindingTransformer.transformTree);
       chain(options.typeof, TypeofTransformer.transformTree);
-      chain(options.collections, CollectionTransformer.transformTree);
+      chain(options.collections || options.privateNames,
+            CollectionTransformer.transformTree);
 
       // Issue errors for any unbound variables
       chain(traceur.options.freeVariableChecker,

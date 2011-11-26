@@ -25,18 +25,24 @@ try {
 var traceur = traceur || {};
 traceur.runtime = (function() {
   'use strict';
-  var defineProperty = Object.defineProperty;
+  var $create = Object.create;
+  var $defineProperty = Object.defineProperty;
+  var $freeze = Object.freeze;
+  var $getOwnPropertyNames = Object.getOwnPropertyNames;
+  var $call = Function.prototype.call.bind(Function.prototype.call);
+  var $hasOwnProperty = Object.prototype.hasOwnProperty;
+
   var bind = Function.prototype.bind;
-  var map = Object.create(null);
+  var map = $create(null);
 
   // Associates the instance maker with the class.
   // Used below for classes inherited from DOM elements.
   function add(name, cls, make) {
-    defineProperty(make, '$class', {value: cls});
+    $defineProperty(make, '$class', {value: cls});
     // Firefox does not treat DOM constructors as functions so they do not have
     // a name property.
     if (!cls.name) {
-      defineProperty(cls, 'name', {value: name});
+      $defineProperty(cls, 'name', {value: name});
     }
     map[name] = make;
   }
@@ -156,43 +162,34 @@ traceur.runtime = (function() {
     return properties;
   }
 
+  function nonEnum(value) {
+    return {
+      configurable: true,
+      enumerable: false,
+      value: value,
+      writable: true
+    };
+  }
+
+  var method = nonEnum;
+
   // Harmony String Extras
   // http://wiki.ecmascript.org/doku.php?id=harmony:string_extras
   Object.defineProperties(String.prototype, {
-    startsWith: {
-      value: function(s) {
-       return this.lastIndexOf(s, 0) === 0;
-      },
-      enumerable: false,
-      configurable: true,
-      writable: true
-    },
-    endsWith: {
-      value: function(s) {
-        var t = String(s);
-        var l = this.length - t.length;
-        return l >= 0 && this.indexOf(t, l) === l;
-      },
-      enumerable: false,
-      configurable: true,
-      writable: true
-    },
-    contains: {
-      value: function(s) {
-        return this.indexOf(s) !== -1;
-      },
-      enumerable: false,
-      configurable: true,
-      writable: true
-    },
-    toArray: {
-      value: function() {
-        return this.split('');
-      },
-      enumerable: false,
-      configurable: true,
-      writable: true
-    }
+    startsWith: method(function(s) {
+     return this.lastIndexOf(s, 0) === 0;
+    }),
+    endsWith: method(function(s) {
+      var t = String(s);
+      var l = this.length - t.length;
+      return l >= 0 && this.indexOf(t, l) === l;
+    }),
+    contains: method(function(s) {
+      return this.indexOf(s) !== -1;
+    }),
+    toArray: method(function() {
+      return this.split('');
+    })
   });
 
   // The createClass function
@@ -228,12 +225,7 @@ traceur.runtime = (function() {
         (init ? function() { binit.call(this); init.call(this); } : binit) :
         init;
     if (ctor) {
-      defineProperty(proto, 'constructor', {
-        value: ctor,
-        enumerable: false,
-        configurable: true,
-        writable: true
-      });
+      $defineProperty(proto, 'constructor', method(ctor));
     } else {
       ctor = proto.constructor;
     }
@@ -257,11 +249,11 @@ traceur.runtime = (function() {
 
     if (finit) {
       // TODO(arv): Remove?
-      defineProperty(TheClass, '$init', {value: finit});
+      $defineProperty(TheClass, '$init', {value: finit});
     }
     if (make) {
       // TODO(arv): Remove?
-      defineProperty(TheClass, '$new', {value: make});
+      $defineProperty(TheClass, '$new', {value: make});
     }
     if (initS) { initS.call(TheClass); }
     return TheClass;
@@ -315,32 +307,28 @@ traceur.runtime = (function() {
   // traceur.syntax.PredefinedName.ITERATOR so we hard code its value here.
   var iterator = '__traceurIterator__';
 
-  defineProperty(Array.prototype, iterator, {
-    value: function() {
-      var index = 0;
-      var array = this;
-      var current;
-      return {
-        get current() {
-          return current;
-        },
-        moveNext: function() {
-          if (index < array.length) {
-            current = array[index++];
-            return true;
-          }
-          return false;
+  $defineProperty(Array.prototype, iterator, method(function() {
+    var index = 0;
+    var array = this;
+    var current;
+    return {
+      get current() {
+        return current;
+      },
+      moveNext: function() {
+        if (index < array.length) {
+          current = array[index++];
+          return true;
         }
-      };
-    },
-    enumerable: false,
-    configurable: true,
-    writable: true
-  });
+        return false;
+      }
+    };
+  }));
 
   var pushItem = Array.prototype.push.call.bind(Array.prototype.push);
   var pushArray = Array.prototype.push.apply.bind(Array.prototype.push);
   var slice = Array.prototype.slice.call.bind(Array.prototype.slice);
+  var filter = Array.prototype.filter.call.bind(Array.prototype.filter);
 
   /**
    * Spreads the elements in {@code items} into a single array.
@@ -383,7 +371,7 @@ traceur.runtime = (function() {
    */
   function markMethods(object, names) {
     names.forEach(function(name) {
-      defineProperty(object, name, {enumerable: false});
+      $defineProperty(object, name, {enumerable: false});
     });
     return object;
   }
@@ -411,78 +399,196 @@ traceur.runtime = (function() {
     return out.join('');
   }
 
-  function method(value) {
-    return {
-      configurable: true,
-      enumerable: false,
-      value: value,
-      writable: true
-    }
+  var counter = 0;
+
+  /**
+   * Generates a new unique string.
+   * @return {string}
+   */
+  function newUniqueString() {
+    return ' @' + ++counter + Math.random();
   }
 
+  var internalStringValueName = newUniqueString();
+
+  /**
+   * Creates a new private name object.
+   * @param {string=} string Optional string used for toString.
+   * @constructor
+   */
+  function Name(string) {
+    if (!string)
+      string = newUniqueString();
+    $defineProperty(this, internalStringValueName, {value: newUniqueString()});
+
+    function toString() {
+      return string;
+    }
+    $freeze(toString);
+    $freeze(toString.prototype);
+    var toStringDescr = method(toString);
+    $defineProperty(this, 'toString', toStringDescr);
+
+    this.public = $freeze($create(null, {
+      toString: method($freeze(function toString() {
+        return string;
+      }))
+    }));
+    $freeze(this.public.toString.prototype);
+
+    $freeze(this);
+  };
+  $freeze(Name);
+  $freeze(Name.prototype);
+
+  // Private name.
+
   // Collection getters and setters
-  var elementDeleteName = ' @elementDelete ';
-  var elementGetName = ' @elementGet ';
-  var elementSetName = ' @elementSet ';
+  var elementDeleteName = new Name();
+  var elementGetName = new Name();
+  var elementSetName = new Name();
+
+  // HACK: We should use runtime/modules/std/name.js or something like that.
+  var NameModule = $freeze({
+    create: function(str) {
+      return new Name(str);
+    },
+    isName: function(x) {
+      return x instanceof Name;
+    },
+    elementGet: elementGetName,
+    elementSet: elementSetName,
+    elementDelete: elementDeleteName
+  });
+
+  var nameRe = /^ @/;
+
+  // Override getOwnPropertyNames to filter out private name keys.
+  function getOwnPropertyNames(object) {
+    return filter($getOwnPropertyNames(object), function(str) {
+      return !nameRe.test(str);
+    });
+  }
+
+  // Override Object.prototpe.hasOwnProperty to always return false for
+  // private names.
+  function hasOwnProperty(name) {
+    if (NameModule.isName(name) || nameRe.test(name))
+      return false;
+    return $hasOwnProperty.call(this, name);
+  }
 
   function elementDelete(object, name) {
-    if (elementDeleteName in Object(object))
-      return object[elementDeleteName](name);
-    return delete object[name];
+    if (hasPrivateNameProperty(object, elementDeleteName))
+      return getProperty(object, elementDeleteName).call(object, name);
+    return deleteProperty(object, name);
   }
 
   function elementGet(object, name) {
-    if (elementGetName in Object(object))
-      return object[elementGetName](name);
-    return object[name];
+    if (hasPrivateNameProperty(object, elementGetName))
+      return getProperty(object, elementGetName).call(object, name);
+    return getProperty(object, name);
   }
 
   function elementGetCall(object, name, args) {
     return elementGet(object, name).apply(object, args);
   }
 
+  function elementHas(object, name) {
+    // Should we allow trapping this too?
+    return has(object, name);
+  }
+
   function elementSet(object, name, value) {
-    if (elementSetName in object)
-      object[elementSetName](name, value);
+    if (hasPrivateNameProperty(object, elementSetName))
+      getProperty(object, elementSetName).call(object, name, value);
     else
-      object[name] = value;
+      setProperty(object, name, value);
     return value;
   }
 
-  function defineElementDelete(object, fun) {
-    defineProperty(object, elementDeleteName, method(fun));
-  }
-
-  function defineElementGet(object, fun) {
-    defineProperty(object, elementGetName, method(fun));
-  }
-
-  function defineElementSet(object, fun) {
-    defineProperty(object, elementSetName, method(fun));
+  function assertNotName(s) {
+    if (nameRe.test(s))
+      throw Error('Invalid access to private name');
   }
 
   function deleteProperty(object, name) {
+    if (NameModule.isName(name))
+      return delete object[name[internalStringValueName]];
+    if (nameRe.test(name))
+      return true;
     return delete object[name];
   }
 
   function getProperty(object, name) {
+    if (NameModule.isName(name))
+      return object[name[internalStringValueName]];
+    if (nameRe.test(name))
+      return undefined;
     return object[name];
+  }
+
+  function hasPrivateNameProperty(object, name) {
+    return name[internalStringValueName] in Object(object);
+  }
+
+  function has(object, name) {
+    if (NameModule.isName(name) || nameRe.test(name))
+      return false;
+    return name in Object(object);
   }
 
   // This is a bit simplistic.
   // http://wiki.ecmascript.org/doku.php?id=strawman:refactoring_put#object._get_set_property_built-ins
   function setProperty(object, name, value) {
-    object[name] = value;
+    if (NameModule.isName(name)) {
+      var descriptor = $getPropertyDescriptor(object, 
+                                              [name[internalStringValueName]]);
+      if (descriptor)
+        object[name[internalStringValueName]] = value;
+      else
+        $defineProperty(object, name[internalStringValueName], nonEnum(value));
+    } else {
+      assertNotName(name);
+      object[name] = value;
+    }
   }
 
-  // These should be exposed as private names instead.
-  defineProperty(Object, 'defineElementGet', method(defineElementGet));
-  defineProperty(Object, 'defineElementDelete', method(defineElementDelete));
-  defineProperty(Object, 'defineElementSet', method(defineElementSet));
+  function defineProperty(object, name, descriptor) {
+    if (NameModule.isName(name)) {
+      $defineProperty(object, name[internalStringValueName], descriptor);
+    } else {
+      assertNotName(name);
+      $defineProperty(object, name, descriptor);
+    }
+  }
 
-  defineProperty(Object, 'deleteProperty', method(deleteProperty));
-  defineProperty(Object, 'getProperty', method(getProperty));
-  defineProperty(Object, 'setProperty', method(setProperty));
+  function $getPropertyDescriptor(obj, name) {
+    while (obj !== null) {
+      var result = Object.getOwnPropertyDescriptor(obj, name);
+      if (result)
+        return result;
+      obj = Object.getPrototypeOf(obj);
+    }
+    return undefined;
+  }
+
+  function getPropertyDescriptor(obj, name) {
+    if (NameModule.isName(name))
+      return undefined;
+    assertNotName(name);
+    return $getPropertyDescriptor(obj, name);
+  }
+
+  $defineProperty(Object, 'defineProperty', {value: defineProperty});
+  $defineProperty(Object, 'deleteProperty', method(deleteProperty));
+  $defineProperty(Object, 'getOwnPropertyNames', {value: getOwnPropertyNames});
+  $defineProperty(Object, 'getProperty', method(getProperty));
+  $defineProperty(Object, 'getPropertyDescriptor',
+                  method(getPropertyDescriptor));
+  $defineProperty(Object, 'has', method(has));
+  $defineProperty(Object, 'setProperty', method(setProperty));
+  $defineProperty(Object.prototype, 'hasOwnProperty', {value: hasOwnProperty});
 
   /**
    * @param {Function} canceller
@@ -569,6 +675,12 @@ traceur.runtime = (function() {
     }
   };
 
+  var modules = $freeze({
+    get '@name'() {
+      return NameModule;
+    }
+  });
+
   // Return the traceur namespace.
   return {
     createClass: createClass,
@@ -578,8 +690,10 @@ traceur.runtime = (function() {
     elementDelete: elementDelete,
     elementGet: elementGet,
     elementGetCall: elementGetCall,
+    elementHas: elementHas,
     elementSet: elementSet,
     markMethods: markMethods,
+    modules: modules,
     spread: spread,
     spreadNew: spreadNew,
     superCall: superCall,
@@ -589,3 +703,4 @@ traceur.runtime = (function() {
 })();
 
 var Deferred = traceur.runtime.Deferred;
+

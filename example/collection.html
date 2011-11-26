@@ -62,23 +62,26 @@
         }
       };
 
-      Object.defineElementGet(StringMap.prototype, function(name) {
+      var Name = traceur.runtime.modules['@name'];
+      var {elementGet, elementSet, elementDelete} = Name;
+
+      StringMap.prototype[elementGet] = function(name) {
         return this._storage[name];
-      });
+      };
 
-      Object.defineElementSet(StringMap.prototype, function(name, value) {
-        if (!this.has(name))
-          this._size++;
-        this._storage[name] = value;
-      });
-
-      Object.defineElementDelete(StringMap.prototype, function(name) {
+      StringMap.prototype[elementDelete] = function(name) {
         if (!this.has(name))
           return false;
         delete this._storage[name];
         this._size--;
         return true;
-      });
+      };
+
+      StringMap.prototype[elementSet] = function(name, value) {
+        if (!this.has(name))
+          this._size++;
+        this._storage[name] = value;
+      };
 
       var map = new StringMap;
       map['a'] = 1;

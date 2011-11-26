@@ -1,4 +1,6 @@
 {
+  let Name = traceur.runtime.modules['@name'];
+
   function isIndex(s) {
     // toUint32: s >>> 0
     return s == String(s >>> 0);
@@ -20,14 +22,14 @@
     }
   });
 
-  Object.defineElementSet(ArrayLike.prototype, function(name, value) {
+  ArrayLike.prototype[Name.elementSet] = function(name, value) {
     if (isIndex(name) && +name >= this.length) {
       this._length = +name + 1;
     }
     Object.setProperty(this, name, value);
-  });
+  };
 
-  var a = new ArrayLike;
+  let a = new ArrayLike;
   a[0] = 0;
   assertEquals(1, a.length);
   a[5] = 5;

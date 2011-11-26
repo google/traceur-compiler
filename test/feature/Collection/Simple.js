@@ -3,12 +3,14 @@
   var getLog = [];
   var deleteLog = [];
   var object = {};
+  var Name = traceur.runtime.modules['@name'];
+  var {elementGet, elementSet, elementDelete} = Name;
 
-  Object.defineElementGet(object, function(name) {
+  object[elementGet] = function(name) {
     assertEquals(object, this);
     getLog.push(name);
     return name;
-  });
+  };
 
   var tmp = {};
   function f() {}
@@ -26,11 +28,29 @@
 
   assertArrayEquals([0, null, undefined, true, false, tmp, f, re], getLog);
 
-  Object.defineElementSet(object, function(name, value) {
+  object[elementDelete] = function(name) {
+    assertEquals(object, this);
+    deleteLog.push(name);
+    return true;
+  };
+
+  assertTrue(delete object[0]);
+  assertTrue(delete object[null]);
+  assertTrue(delete object[undefined]);
+  assertTrue(delete object[true]);
+  assertTrue(delete object[false]);
+  assertTrue(delete object[tmp]);
+  assertTrue(delete object[f]);
+  assertTrue(delete object[re]);
+  assertTrue(delete object.shouldNotCallCollectionSetter);
+
+  assertArrayEquals([0, null, undefined, true, false, tmp, f, re], deleteLog);
+
+  object[elementSet] = function(name, value) {
     assertEquals(object, this);
     assertEquals(name, value);
     setLog.push(name);
-  });
+  };
 
   assertEquals(0, object[0] = 0);
   assertEquals(null, object[null] = null);
@@ -45,21 +65,4 @@
 
   assertArrayEquals([0, null, undefined, true, false, tmp, f, re], setLog);
 
-  Object.defineElementDelete(object, function(name) {
-    assertEquals(object, this);
-    deleteLog.push(name);
-    return true;
-  });
-
-  assertTrue(delete object[0]);
-  assertTrue(delete object[null]);
-  assertTrue(delete object[undefined]);
-  assertTrue(delete object[true]);
-  assertTrue(delete object[false]);
-  assertTrue(delete object[tmp]);
-  assertTrue(delete object[f]);
-  assertTrue(delete object[re]);
-  assertTrue(delete object.shouldNotCallCollectionSetter);
-
-  assertArrayEquals([0, null, undefined, true, false, tmp, f, re], deleteLog);
 }

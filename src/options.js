@@ -255,6 +255,7 @@
   addFeatureOption('forOf', Kind.harmony);
   addFeatureOption('generators', Kind.harmony);
   addFeatureOption('modules', Kind.harmony);
+  addFeatureOption('privateNames', Kind.harmony);
   addFeatureOption('quasi', Kind.harmony);
   addFeatureOption('typeof', Kind.harmony);
 
