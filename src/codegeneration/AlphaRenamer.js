@@ -135,7 +135,7 @@ traceur.define('codegeneration', function() {
      * @return {ParseTree}
      */
     transformCatch: function(tree) {
-      if (this.oldName_ == tree.exceptionName.value) {
+      if (this.oldName_ == tree.identifier.identifierToken.value) {
         // this.oldName_ is rebound in the catch block, so don't recurse
         return tree;
       } else {

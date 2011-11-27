@@ -52,9 +52,9 @@ traceur.define('codegeneration', function() {
         parameters[parameters.length - 1].isRestParameter();
   }
 
-  function getRestParameter(formalParameterList) {
+  function getRestParameterName(formalParameterList) {
     var parameters = formalParameterList.parameters;
-    return parameters[parameters.length - 1];
+    return parameters[parameters.length - 1].identifier.identifierToken.value;
   }
 
   RestParameterTransformer.prototype = traceur.createObject(
@@ -101,7 +101,7 @@ traceur.define('codegeneration', function() {
 
       var variable = createVariableStatement(
           TokenType.VAR,
-          getRestParameter(tree.formalParameterList).identifier.value,
+          getRestParameterName(tree.formalParameterList),
           sliceExpression);
 
       var statements = [];

@@ -124,7 +124,7 @@ function testTreeConstructors() {
 
   validateTree(traceur.syntax.trees.Catch,
       ParseTreeType.CATCH,
-      ['location', 'exceptionName', 'catchBody']);
+      ['location', 'identifier', 'catchBody']);
 
   validateTree(traceur.syntax.trees.ClassDeclaration,
       ParseTreeType.CLASS_DECLARATION,

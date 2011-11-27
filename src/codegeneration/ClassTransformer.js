@@ -283,7 +283,7 @@ traceur.define('codegeneration', function() {
         fields.push(createPropertyNameAssignment(PredefinedName.SET,
             this.transformStaticMethod_(
                 aggregate,
-                createParameterList(set.tree.parameter),
+                createParameterList(set.tree.parameter.identifierToken),
                 set.tree.body)));
       }
 

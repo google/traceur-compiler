@@ -264,6 +264,14 @@ traceur.define('codegeneration', function() {
     },
 
     /**
+     * @param {BindingIdentifier} tree
+     * @return {ParseTree}
+     */
+    transformBindingIdentifier: function(tree) {
+      return tree;
+    },
+
+    /**
      * @param {Block} tree
      * @return {ParseTree}
      */
@@ -315,10 +323,11 @@ traceur.define('codegeneration', function() {
      */
     transformCatch: function(tree) {
       var catchBody = this.transformAny(tree.catchBody);
-      if (catchBody == tree.catchBody) {
+      var identifier = this.transformAny(tree.identifier);
+      if (catchBody == tree.catchBody && identifier == tree.identifier) {
         return tree;
       }
-      return createCatch(tree.exceptionName, catchBody);
+      return createCatch(identifier, catchBody);
     },
 
     /**

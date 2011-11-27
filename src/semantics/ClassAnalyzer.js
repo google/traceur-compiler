@@ -45,6 +45,7 @@ traceur.define('semantics', function() {
   var GetAccessor = traceur.semantics.symbols.GetAccessor;
   var SetAccessor = traceur.semantics.symbols.SetAccessor;
   var RequiresSymbol = traceur.semantics.symbols.RequiresSymbol;
+  var Symbol = traceur.semantics.symbols.Symbol;
 
   /**
    * Analyzes a class or trait and creates an AggregateSymbol. This class just
@@ -156,7 +157,7 @@ traceur.define('semantics', function() {
     declareFieldMember_: function(aggregate, field, tree) {
       var name = null;
       switch (tree.lvalue.type) {
-        case ParseTreeType.IDENTIFIER_EXPRESSION:
+        case ParseTreeType.BINDING_IDENTIFIER:
           name = tree.lvalue.identifierToken.value;
           break;
         default:
@@ -249,7 +250,7 @@ traceur.define('semantics', function() {
      */
     declareFunctionMember_: function(aggregate, tree) {
       // TODO: validate super constructor call
-      var name = tree.name.value;
+      var name = tree.name.identifierToken.value;
       if (!this.checkForDuplicateMemberDeclaration_(aggregate, tree, name, tree.isStatic)) {
         return new MethodSymbol(tree, name, aggregate, tree.isStatic);
       }

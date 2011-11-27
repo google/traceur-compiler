@@ -37,6 +37,7 @@ traceur.define('codegeneration', function() {
   var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
   var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
   var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression;
+  var createBindingIdentifier = ParseTreeFactory.createBindingIdentifier;
   var createBlock = ParseTreeFactory.createBlock;
   var createCatch = ParseTreeFactory.createCatch;
   var createEmptyStatement = ParseTreeFactory.createEmptyStatement;
@@ -294,7 +295,7 @@ traceur.define('codegeneration', function() {
                     createThrowStatement(
                         createUndefinedExpression())),
                 createCatch(                  // catch
-                    createIdentifierToken(variable),
+                    createBindingIdentifier(variable),
                     toBlock(statement)),
                 null);                       // finally
       }
@@ -592,12 +593,12 @@ traceur.define('codegeneration', function() {
         // Named function in a block scope is only scoped to the block.
         // Add function name into variable hash to later 'declare' the
         // block scoped variable for it.
-        this.scope_.addBlockScopedVariable(tree.name.value);
+        this.scope_.addBlockScopedVariable(tree.name.identifierToken.value);
 
         // f = function f( ... ) { ... }
         return createExpressionStatement(
             createAssignmentExpression(
-                createIdentifierExpression(tree.name),
+                createIdentifierExpression(tree.name.identifierToken),
                 createFunctionDeclaration(tree.name,
                     tree.formalParameterList, body)));
       } else if (body != tree.functionBody) {
@@ -848,12 +849,12 @@ traceur.define('codegeneration', function() {
      * @return {string}
      */
     getVariableName_: function(variable) {
+      // TODO(arv): This should just be a visitor visiting BindingIdentifier
       var lvalue = variable.lvalue;
-      if (lvalue.type == ParseTreeType.IDENTIFIER_EXPRESSION) {
+      if (lvalue.type == ParseTreeType.BINDING_IDENTIFIER) {
         return lvalue.identifierToken.value;
-      } else {
-        throw new Error('Unexpected destructuring declaration found.');
       }
+      throw new Error('Unexpected destructuring declaration found.');
     }
   });
 

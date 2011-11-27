@@ -30,6 +30,7 @@ traceur.define('syntax', function() {
   var AwaitStatement = traceur.syntax.trees.AwaitStatement;
   var BinaryOperator = traceur.syntax.trees.BinaryOperator;
   var BindThisParameter = traceur.syntax.trees.BindThisParameter;
+  var BindingIdentifier = traceur.syntax.trees.BindingIdentifier;
   var Block = traceur.syntax.trees.Block;
   var BreakStatement = traceur.syntax.trees.BreakStatement;
   var CallExpression = traceur.syntax.trees.CallExpression;
@@ -1038,7 +1039,7 @@ traceur.define('syntax', function() {
       }
       var isGenerator = this.eatOpt_(TokenType.STAR) != null;
       return this.parseFunctionDeclarationTail_(start, isGenerator, isStatic,
-                                                this.eatId_());
+                                                this.parseBindingIdentifier_());
     },
 
     /**
@@ -1070,7 +1071,7 @@ traceur.define('syntax', function() {
       var isStatic = this.eatOpt_(TokenType.STATIC) != null;
       var isGenerator = false;
       return this.parseFunctionDeclarationTail_(start, isGenerator, isStatic,
-                                                this.eatIdName_());
+                                                this.parseBindingIdentifier_());
     },
 
     /**
@@ -1145,8 +1146,8 @@ traceur.define('syntax', function() {
       var start = this.getTreeStartLocation_();
       this.nextToken_(); // function or #
       var isGenerator = this.eatOpt_(TokenType.STAR) != null;
-      return this.parseFunctionDeclarationTail_(start, isGenerator,
-                                                false, this.eatId_());
+      return this.parseFunctionDeclarationTail_(start, isGenerator, false,
+                                                this.parseBindingIdentifier_());
     },
 
     /**
@@ -1175,7 +1176,10 @@ traceur.define('syntax', function() {
       var start = this.getTreeStartLocation_();
       this.nextToken_(); // function or #
       var isGenerator = this.eatOpt_(TokenType.STAR) != null;
-      var name = this.eatIdOpt_();
+      var name = null;
+      if (this.peekBindingIdentifier_()) {
+        name = this.parseBindingIdentifier_();
+      }
       this.eat_(TokenType.OPEN_PAREN);
       var formalParameterList = this.parseFormalParameterList_();
       this.eat_(TokenType.CLOSE_PAREN);
@@ -1207,7 +1211,8 @@ traceur.define('syntax', function() {
         if (this.peekRest_()) {
           var start = this.getTreeStartLocation_();
           this.eat_(TokenType.DOT_DOT_DOT);
-          result.push(new RestParameter(this.getTreeLocation_(start), this.eatId_()));
+          result.push(new RestParameter(this.getTreeLocation_(start),
+                                        this.parseBindingIdentifier_()));
 
           // Rest parameters must be the last parameter; so we must be done.
           break;
@@ -1220,7 +1225,7 @@ traceur.define('syntax', function() {
             result.push(this.parseDefaultParameter_());
             hasDefaultParameters = true;
           } else {
-            result.push(this.parseIdentifierExpression_());
+            result.push(this.parseBindingIdentifier_());
           }
         }
 
@@ -1242,7 +1247,7 @@ traceur.define('syntax', function() {
      */
     parseDefaultParameter_: function() {
       var start = this.getTreeStartLocation_();
-      var ident = this.parseIdentifierExpression_();
+      var ident = this.parseBindingIdentifier_();
       this.eat_(TokenType.EQUAL);
       var expr = this.parseArrowFunction_();
       return new DefaultParameter(this.getTreeLocation_(start), ident, expr);
@@ -1526,7 +1531,7 @@ traceur.define('syntax', function() {
       if (this.peekPattern_(PatternKind.INITIALIZER, declarationDestructuringFollow)) {
         lvalue = this.parsePattern_(PatternKind.INITIALIZER);
       } else {
-        lvalue = this.parseIdentifierExpression_();
+        lvalue = this.parseBindingIdentifier_();
       }
       var initializer = null;
       if (this.peek_(TokenType.EQUAL)) {
@@ -2031,10 +2036,11 @@ traceur.define('syntax', function() {
       var catchBlock;
       this.eat_(TokenType.CATCH);
       this.eat_(TokenType.OPEN_PAREN);
-      var exceptionName = this.eatId_();
+      var identifier = this.parseBindingIdentifier_();
       this.eat_(TokenType.CLOSE_PAREN);
       var catchBody = this.parseBlock_();
-      catchBlock = new Catch(this.getTreeLocation_(start), exceptionName, catchBody);
+      catchBlock = new Catch(this.getTreeLocation_(start), identifier,
+                             catchBody);
       return catchBlock;
     },
 
@@ -2131,6 +2137,16 @@ traceur.define('syntax', function() {
       var start = this.getTreeStartLocation_();
       this.eat_(TokenType.THIS);
       return new ThisExpression(this.getTreeLocation_(start));
+    },
+
+    peekBindingIdentifier_: function() {
+      return this.peekId_();
+    },
+
+    parseBindingIdentifier_: function() {
+      var start = this.getTreeStartLocation_();
+      var identifier = this.eatId_();
+      return new BindingIdentifier(this.getTreeLocation_(start), identifier);
     },
 
     /**
@@ -2337,7 +2353,7 @@ traceur.define('syntax', function() {
       this.eatId_(); // set
       var propertyName = this.nextToken_();
       this.eat_(TokenType.OPEN_PAREN);
-      var parameter = this.eatId_();
+      var parameter = this.parseBindingIdentifier_();
       this.eat_(TokenType.CLOSE_PAREN);
       var body = this.parseFunctionBody_(false);
       return new SetAccessor(this.getTreeLocation_(start), propertyName, isStatic, parameter, body);
@@ -3190,13 +3206,20 @@ traceur.define('syntax', function() {
      * @return {ParseTree} the parameter
      */
     transformArrowFormalParameter_: function(e) {
+
+      function toBindingIdentifier(tree) {
+        return new BindingIdentifier(tree.location, tree.identifierToken);
+      }
+
       switch (e.type) {
         case ParseTreeType.IDENTIFIER_EXPRESSION:
-          return e;
+          return toBindingIdentifier(e);
         case ParseTreeType.BINARY_OPERATOR:
           if (e.operator == TokenType.EQUAL && e.left) {
             if (e.left.type == ParseTreeType.IDENTIFIER_EXPRESSION) {
-              return new DefaultParameter(e.location, e.left, e.right);
+              return new DefaultParameter(e.location,
+                                          toBindingIdentifier(e.left),
+                                          e.right);
             }
             if (e.left.type == ParseTreeType.THIS_EXPRESSION) {
               return new BindThisParameter(e.location, e.right);
@@ -3206,7 +3229,8 @@ traceur.define('syntax', function() {
         case ParseTreeType.SPREAD_EXPRESSION:
           if (e.expression &&
               e.expression.type == ParseTreeType.IDENTIFIER_EXPRESSION) {
-            return new RestParameter(e.location, e.expression.identifierToken);
+            return new RestParameter(e.location,
+                                     toBindingIdentifier(e.expression));
           }
       }
       return null;

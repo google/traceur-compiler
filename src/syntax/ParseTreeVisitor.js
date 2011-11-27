@@ -110,6 +110,13 @@ traceur.define('syntax', function() {
     },
 
     /**
+     * @param {traceur.syntax.trees.BindingIdentifier} tree
+     */
+    visitBindingIdentifier: function(tree) {
+      // noop
+    },
+
+    /**
      * @param {traceur.syntax.trees.Block} tree
      */
     visitBlock: function(tree) {
@@ -142,6 +149,7 @@ traceur.define('syntax', function() {
      * @param {traceur.syntax.trees.Catch} tree
      */
     visitCatch: function(tree) {
+      this.visitAny(tree.identifier);
       this.visitAny(tree.catchBody);
     },
 
@@ -319,12 +327,14 @@ traceur.define('syntax', function() {
      * @param {traceur.syntax.trees.FormalParameterList} tree
      */
     visitFormalParameterList: function(tree) {
+      this.visitList(tree.parameters);
     },
 
     /**
      * @param {traceur.syntax.trees.FunctionDeclaration} tree
      */
     visitFunctionDeclaration: function(tree) {
+      this.visitAny(tree.name);
       this.visitAny(tree.formalParameterList);
       this.visitAny(tree.functionBody);
     },

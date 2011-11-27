@@ -93,7 +93,7 @@ traceur.define('codegeneration.module', function() {
 
     visitFunctionDeclaration: function(tree) {
       if (tree.name) {
-        this.addExport_(tree.name.value, tree);
+        this.addExport_(tree.name.identifierToken.value, tree);
       }
     },
 

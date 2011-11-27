@@ -15,11 +15,12 @@
 traceur.define('codegeneration.generator', function() {
   'use strict';
 
-  var TokenType = traceur.syntax.TokenType;
+  var IdentifierExpression = traceur.syntax.trees.IdentifierExpression;
   var ParseTree = traceur.syntax.trees.ParseTree;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
   var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
+  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
   var PredefinedName = traceur.syntax.PredefinedName;
+  var TokenType = traceur.syntax.TokenType;
 
   var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
   var createArgumentList = ParseTreeFactory.createArgumentList;
@@ -128,7 +129,7 @@ traceur.define('codegeneration.generator', function() {
       var originalKey, assignOriginalKey;
       if (tree.initializer.type == ParseTreeType.VARIABLE_DECLARATION_LIST) {
         var decList = tree.initializer;
-        originalKey = decList.declarations[0].lvalue;
+        originalKey = createIdentifierExpression(decList.declarations[0].lvalue);
         // var key = $keys[$i];
         assignOriginalKey = createVariableStatement(decList.declarationType,
             originalKey.identifierToken, lookup);

@@ -30,6 +30,8 @@ traceur.define('semantics', function() {
   var VariableDeclarationList = traceur.syntax.trees.VariableDeclarationList;
   var VariableDeclaration = traceur.syntax.trees.VariableDeclaration;
 
+  // TODO: Update once destructuring has been refactored.
+
   /**
    * Finds the identifiers that are bound in a given scope. Identifiers
    * can be bound by function declarations, formal parameter lists,
@@ -150,6 +152,12 @@ traceur.define('semantics', function() {
       this.visitAny(tree.functionBody);
     },
 
+    // TODO(arv): This is where we should do the binding but I need to refactor
+    // destructuring first.
+    // visitBindingIdentifier: function(tree) {
+    //
+    // },
+
     /** @param {Block} tree */
     visitBlock: function(tree) {
       // Save and set current block
@@ -173,7 +181,7 @@ traceur.define('semantics', function() {
     bindFunctionDeclaration_: function(tree) {
       // functions follow the binding rules of 'let'
       if (tree.name != null && this.block_ == this.scope_) {
-        this.bind_(tree.name);
+        this.bind_(tree.name.identifierToken);
       }
       // We don't recurse into function bodies, because they create
       // their own lexical scope.
@@ -183,55 +191,6 @@ traceur.define('semantics', function() {
     visitFunctionDeclaration: function(tree) {
       // We don't recurse into function bodies, because they create
       // their own lexical scope.
-    },
-
-    /** @param {ForOfStatement} tree */
-    visitForOfStatement: function(tree) {
-      throw new Error('for of statements should be transformed before this pass');
-    },
-
-    /** @param {ForInStatement} tree */
-    visitForInStatement: function(tree) {
-      if (tree.initializer != null &&
-          tree.initializer.type == ParseTreeType.VARIABLE_DECLARATION_LIST) {
-        this.visitForDeclarations_(tree.initializer);
-      } else {
-        this.visitAny(tree.initializer);
-      }
-
-      // visit the rest of the for..in statement
-      this.visitAny(tree.collection);
-      this.visitAny(tree.body);
-    },
-
-    /** @param {ForStatement} tree */
-    visitForStatement: function(tree) {
-      if (tree.initializer != null &&
-          tree.initializer.type == ParseTreeType.VARIABLE_DECLARATION_LIST) {
-        this.visitForDeclarations_(tree.initializer);
-      } else {
-        this.visitAny(tree.initializer);
-      }
-
-      // visit the rest of the for statement
-      this.visitAny(tree.condition);
-      this.visitAny(tree.increment);
-      this.visitAny(tree.body);
-    },
-
-    /** @param {VariableDeclarationList} declarations */
-    visitForDeclarations_: function(declarations) {
-      if (declarations.declarationType == TokenType.VAR) {
-        this.visitAny(declarations);
-      } else {
-        // let and const declare in the nested scope, not the outer scope
-        // so we need to bypass them (but walk the initializers)
-        var decls = declarations.declarations;
-        for (var i = 0; i < decls.length; i++) {
-          // skipping lvalue, visit only initializer
-          this.visitAny(decls[i].initializer);
-        }
-      }
     },
 
     /** @param {VariableDeclarationList} tree */
@@ -261,6 +220,7 @@ traceur.define('semantics', function() {
 
     /** @param {IdentifierToken} identifier */
     bind_: function(identifier) {
+      traceur.assert(typeof identifier.value == 'string');
       this.identifiers_[identifier.value] = true;
     },
 
@@ -277,8 +237,10 @@ traceur.define('semantics', function() {
 
     /** @param {ParseTree} parameter */
     bindVariableDeclaration_: function(tree) {
+      // TODO(arv): This should just visit all the BindingIdentifiers once
+      // destructuring has been refactored.
       switch (tree.type) {
-        case ParseTreeType.IDENTIFIER_EXPRESSION:
+        case ParseTreeType.BINDING_IDENTIFIER:
           this.bind_(tree.identifierToken);
           break;
 

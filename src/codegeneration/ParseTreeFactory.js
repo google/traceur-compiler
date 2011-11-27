@@ -29,6 +29,7 @@ traceur.define('codegeneration', function() {
   var ArrayLiteralExpression = traceur.syntax.trees.ArrayLiteralExpression;
   var ArrayPattern = traceur.syntax.trees.ArrayPattern;
   var BinaryOperator = traceur.syntax.trees.BinaryOperator;
+  var BindingIdentifier = traceur.syntax.trees.BindingIdentifier;
   var Block = traceur.syntax.trees.Block;
   var BreakStatement = traceur.syntax.trees.BreakStatement;
   var CallExpression = traceur.syntax.trees.CallExpression;
@@ -173,7 +174,7 @@ traceur.define('codegeneration', function() {
   function createParameterList(arg0, var_args) {
     if (typeof arg0 == 'string') {
       // var_args of strings
-      var parameterList = map(arguments, createIdentifierExpression);
+      var parameterList = map(arguments, createBindingIdentifier);
       return new FormalParameterList(null, parameterList);
     }
 
@@ -182,11 +183,11 @@ traceur.define('codegeneration', function() {
 
     if (arg0 instanceof IdentifierToken) {
       return new FormalParameterList(
-          null, [createIdentifierExpression(arg0)]);
+          null, [createBindingIdentifier(arg0)]);
     }
 
     // Array.<string>
-    var builder = arg0.map(createIdentifierExpression);
+    var builder = arg0.map(createBindingIdentifier);
     return new FormalParameterList(null, builder);
   }
 
@@ -205,7 +206,7 @@ traceur.define('codegeneration', function() {
       builder.push(
           isRestParameter ?
               createRestParameter(parameterName) :
-              createIdentifierExpression(parameterName));
+              createBindingIdentifier(parameterName));
     }
 
     return new FormalParameterList(null, builder);
@@ -332,6 +333,17 @@ traceur.define('codegeneration', function() {
    */
   function createBinaryOperator(left, operator, right) {
     return new BinaryOperator(null, left, operator, right);
+  }
+
+  /**
+   * @param {string|IdentifierToken} identifier
+   * @return {BindingIdentifier}
+   */
+  function createBindingIdentifier(identifier) {
+    if (typeof identifier == 'string') {
+      identifier = createIdentifierToken(identifier);
+    }
+    return new BindingIdentifier(null, identifier);
   }
 
   /**
@@ -465,12 +477,16 @@ traceur.define('codegeneration', function() {
   }
 
   /**
-   * @param {IdentifierToken} exceptionName
+   * @param {BindingIdentifier|IdentifierToken} identifier
    * @param {ParseTree} catchBody
    * @return {Catch}
    */
-  function createCatch(exceptionName, catchBody) {
-    return new Catch(null, exceptionName, catchBody);
+  function createCatch(identifier, catchBody) {
+    if (identifier instanceof IdentifierToken) {
+      identifier = createBindingIdentifier(exceptionName);
+    }
+
+    return new Catch(null, identifier, catchBody);
   }
 
   /**
@@ -626,14 +642,15 @@ traceur.define('codegeneration', function() {
   }
 
   /**
-   * @param {string|IdentifierToken} name
+   * @param {string|IdentifierToken|BindingIdentifier} name
    * @param {FormalParameterList} formalParameterList
    * @param {Block} functionBody
    * @return {FunctionDeclaration}
    */
   function createFunctionDeclaration(name, formalParameterList, functionBody) {
-    if (typeof name == 'string')
-      name = createIdentifierToken(name);
+    if (!(name instanceof BindingIdentifier)) {
+      name = createBindingIdentifier(name);
+    }
     return new FunctionDeclaration(null, name, false, false, formalParameterList,
         functionBody);
   }
@@ -668,6 +685,8 @@ traceur.define('codegeneration', function() {
   function createIdentifierExpression(identifier) {
     if (typeof identifier == 'string')
       identifier = createIdentifierToken(identifier);
+    else if (identifier instanceof BindingIdentifier)
+      identifier = identifier.identifierToken;
     return new IdentifierExpression(null, identifier);
   }
 
@@ -1013,9 +1032,6 @@ traceur.define('codegeneration', function() {
     }
 
     var identifier = identifierOrDeclarations;
-    if (typeof identifier == 'string')
-      identifier = createIdentifierToken(identifier);
-
     return createVariableDeclarationList(
         binding, [createVariableDeclaration(identifier, initializer)]);
   }
@@ -1027,7 +1043,7 @@ traceur.define('codegeneration', function() {
    */
   function createVariableDeclaration(identifier, initializer) {
     if (typeof identifier == 'string' || identifier instanceof IdentifierToken)
-      identifier = createIdentifierExpression(identifier);
+      identifier = createBindingIdentifier(identifier);
     return new VariableDeclaration(null, identifier, initializer);
   }
 
@@ -1041,8 +1057,6 @@ traceur.define('codegeneration', function() {
     if (listOrBinding instanceof VariableDeclarationList)
       return new VariableStatement(null, listOrBinding);
     var binding = listOrBinding;
-    if (typeof identifier == 'string')
-      identifier = createIdentifierToken(identifier);
     var list = createVariableDeclarationList(binding, identifier, initializer);
     return createVariableStatement(list);
   }
@@ -1085,6 +1099,7 @@ traceur.define('codegeneration', function() {
       createAssignmentExpression: createAssignmentExpression,
       createAssignmentStatement: createAssignmentStatement,
       createBinaryOperator: createBinaryOperator,
+      createBindingIdentifier: createBindingIdentifier,
       createBlock: createBlock,
       createBooleanLiteral: createBooleanLiteral,
       createBooleanLiteralToken: createBooleanLiteralToken,

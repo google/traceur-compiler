@@ -18,8 +18,9 @@ traceur.define('semantics', function() {
 
   var TokenType = traceur.syntax.TokenType;
   var ParseTreeVisitor = traceur.syntax.ParseTreeVisitor;
-  var IdentifierExpression = traceur.syntax.trees.IdentifierExpression;
   var IdentifierToken = traceur.syntax.IdentifierToken;
+  var IdentifierExpression = traceur.syntax.trees.IdentifierExpression;
+  var BindingIdentifier = traceur.syntax.trees.BindingIdentifier;
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
   var SourcePosition = traceur.syntax.SourcePosition;
   var PredefinedName = traceur.syntax.PredefinedName;
@@ -62,24 +63,26 @@ traceur.define('semantics', function() {
 
   /**
    * Gets the name of an identifier expression or token
-   * @param {IdentifierExpression|IdentifierToken|string} name
+   * @param {BindingIdentifier|IdentifierToken|string} name
    * @returns {string}
    */
   function getVariableName(name) {
-      if (name instanceof IdentifierExpression) {
-        name = name.identifierToken;
-      }
-      if (name instanceof IdentifierToken) {
-        name = name.value;
-      }
-      return name;
+    if (name instanceof IdentifierExpression) {
+      name = name.identifierToken;
+    } else if (name instanceof BindingIdentifier) {
+      name = name.identifierToken;
+    }
+    if (name instanceof IdentifierToken) {
+      name = name.value;
+    }
+    return name;
   }
 
   function getIdentifier(tree) {
     while (tree.type == ParseTreeType.PAREN_EXPRESSION) {
       tree = tree.expression;
     }
-    if (tree.type == ParseTreeType.IDENTIFIER_EXPRESSION) {
+    if (tree.type == ParseTreeType.BINDING_IDENTIFIER) {
       return tree;
     }
     return null;
@@ -176,7 +179,7 @@ traceur.define('semantics', function() {
       if (name)
         this.declareVariable_(name);
       this.declareVariable_(PredefinedName.ARGUMENTS);
-      formalParameterList.parameters.forEach(this.declareVariable_, this);
+      this.visitAny(formalParameterList);
 
       this.visitAny(body);
 
@@ -212,8 +215,7 @@ traceur.define('semantics', function() {
     visitCatch: function(tree) {
       var scope = this.pushScope_();
 
-      this.declareVariable_(tree.exceptionName);
-
+      this.visitAny(tree.identifier);
       this.visitAny(tree.catchBody);
 
       this.pop_(scope);
@@ -228,6 +230,10 @@ traceur.define('semantics', function() {
         this.declareVariable_(d.lvalue);
         this.visitAny(d.initializer);
       }, this);
+    },
+
+    visitBindingIdentifier: function(tree) {
+      this.declareVariable_(tree);
     },
 
     visitIdentifierExpression: function(tree) {

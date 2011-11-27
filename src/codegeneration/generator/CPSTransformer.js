@@ -22,6 +22,7 @@ traceur.define('codegeneration.generator', function() {
   var PredefinedName = traceur.syntax.PredefinedName;
 
   var CaseClause = traceur.syntax.trees.CaseClause;
+  var IdentifierExpression = traceur.syntax.trees.IdentifierExpression;
   var StateMachine = traceur.syntax.trees.StateMachine;
   var SwitchStatement = traceur.syntax.trees.SwitchStatement;
 
@@ -32,6 +33,7 @@ traceur.define('codegeneration.generator', function() {
   var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression;
   var createAssignmentStatement = ParseTreeFactory.createAssignmentStatement;
   var createBinaryOperator = ParseTreeFactory.createBinaryOperator;
+  var createBindingIdentifier = ParseTreeFactory.createBindingIdentifier;
   var createBlock = ParseTreeFactory.createBlock;
   var createBoundCall = ParseTreeFactory.createBoundCall;
   var createBreakStatement = ParseTreeFactory.createBreakStatement;
@@ -516,7 +518,7 @@ traceur.define('codegeneration.generator', function() {
       var tryMachine = this.ensureTransformed_(result.body);
       if (result.catchBlock != null) {
         var catchBlock = result.catchBlock;
-        var exceptionName = catchBlock.exceptionName.value;
+        var exceptionName = catchBlock.identifier.identifierToken.value;
         var catchMachine = this.ensureTransformed_(catchBlock.catchBody);
         var startState = tryMachine.startState;
         var fallThroughState = tryMachine.fallThroughState;
@@ -611,7 +613,8 @@ traceur.define('codegeneration.generator', function() {
           var declaration = tree.declarations[i];
           if (declaration.initializer != null) {
             expressions.push(createAssignmentExpression(
-                this.transformAny(declaration.lvalue),
+                createIdentifierExpression(
+                    this.transformAny(declaration.lvalue)),
                 this.transformAny(declaration.initializer)));
           }
         }
@@ -784,7 +787,7 @@ traceur.define('codegeneration.generator', function() {
       body = createTryStatement(
           createBlock(body),
           createCatch(
-              createIdentifierToken(PredefinedName.CAUGHT_EXCEPTION),
+              createBindingIdentifier(PredefinedName.CAUGHT_EXCEPTION),
               createBlock(
                   createAssignmentStatement(
                       createIdentifierExpression(PredefinedName.STORED_EXCEPTION),

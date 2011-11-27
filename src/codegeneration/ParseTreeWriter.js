@@ -168,6 +168,13 @@ traceur.define('codegeneration', function() {
     },
 
     /**
+     * @param {BindingIdentifier} tree
+     */
+    visitBindingIdentifier: function(tree) {
+      this.write_(tree.identifierToken);
+    },
+
+    /**
      * @param {Block} tree
      */
     visitBlock: function(tree) {
@@ -213,7 +220,7 @@ traceur.define('codegeneration', function() {
     visitCatch: function(tree) {
       this.write_(TokenType.CATCH);
       this.write_(TokenType.OPEN_PAREN);
-      this.write_(tree.exceptionName);
+      this.visitAny(tree.identifier);
       this.write_(TokenType.CLOSE_PAREN);
       this.visitAny(tree.catchBody);
     },
@@ -484,9 +491,7 @@ traceur.define('codegeneration', function() {
       if (tree.isGenerator) {
         this.write_(TokenType.STAR);
       }
-      if (tree.name != null) {
-        this.write_(tree.name);
-      }
+      this.visitAny(tree.name);
       this.write_(TokenType.OPEN_PAREN);
       this.visitAny(tree.formalParameterList);
       this.write_(TokenType.CLOSE_PAREN);
@@ -864,7 +869,7 @@ traceur.define('codegeneration', function() {
       this.write_(PredefinedName.SET);
       this.write_(tree.propertyName);
       this.write_(TokenType.OPEN_PAREN);
-      this.write_(tree.parameter);
+      this.visitAny(tree.parameter);
       this.write_(TokenType.CLOSE_PAREN);
       this.visitAny(tree.body);
     },

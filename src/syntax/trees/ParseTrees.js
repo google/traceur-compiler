@@ -106,6 +106,14 @@ traceur.define('syntax.trees', function() {
 
     /**
      * @param {traceur.util.SourceRange} location
+     * @param {IdentifierToken} identifierToken
+     * @constructor
+     * @extends {ParseTree}
+     */
+    BindingIdentifier: create('identifierToken'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
      * @param {Array.<ParseTree>} statements
      * @constructor
      * @extends {ParseTree}
@@ -140,12 +148,12 @@ traceur.define('syntax.trees', function() {
 
     /**
      * @param {traceur.util.SourceRange} location
-     * @param {traceur.syntax.IdentifierToken} exceptionName
+     * @param {BindingIdentifier} identifier
      * @param {ParseTree} catchBody
      * @constructor
      * @extends {ParseTree}
      */
-    Catch: create('exceptionName', 'catchBody'),
+    Catch: create('identifier', 'catchBody'),
 
     /**
      * @param {traceur.util.SourceRange} location
@@ -207,7 +215,7 @@ traceur.define('syntax.trees', function() {
 
     /**
      * @param {traceur.util.SourceRange} location
-     * @param {traceur.syntax.trees.IdentifierExpression} identifier
+     * @param {BindingIdentifier} identifier
      * @param {ParseTree} expression
      * @constructor
      * @extends {ParseTree}
@@ -357,7 +365,7 @@ traceur.define('syntax.trees', function() {
 
     /**
      * @param {traceur.util.SourceRange} location
-     * @param {traceur.syntax.IdentifierToken} name
+     * @param {traceur.syntax.trees.BindingIdentifier} name
      * @param {boolean} isGenerator
      * @param {boolean} isStatic
      * @param {traceur.syntax.trees.FormalParameterList} formalParameterList
@@ -675,7 +683,7 @@ traceur.define('syntax.trees', function() {
 
     /**
      * @param {traceur.util.SourceRange} location
-     * @param {traceur.syntax.IdentifierToken} identifier
+     * @param {BindingIdentifier} identifier
      * @constructor
      * @extends {ParseTree}
      */

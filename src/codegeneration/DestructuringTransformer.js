@@ -25,6 +25,7 @@ traceur.define('codegeneration', function() {
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
   var ArrayPattern = traceur.syntax.trees.ArrayPattern;
   var BinaryOperator = traceur.syntax.trees.BinaryOperator;
+  var BindingIdentifier = traceur.syntax.trees.BindingIdentifier;
   var ObjectPatternField = traceur.syntax.trees.ObjectPatternField;
   var ObjectPattern = traceur.syntax.trees.ObjectPattern;
   var ParseTree = traceur.syntax.trees.ParseTree;
@@ -48,6 +49,10 @@ traceur.define('codegeneration', function() {
   var createThisExpression = ParseTreeFactory.createThisExpression;
   var createVariableDeclaration = ParseTreeFactory.createVariableDeclaration;
   var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList;
+
+  function toBindingIdentifier(tree) {
+    return new BindingIdentifier(tree.location, tree.identifierToken);
+  }
 
   /**
    * Collects assignments in the desugaring of a pattern.
@@ -91,6 +96,9 @@ traceur.define('codegeneration', function() {
   VariableDeclarationDesugaring.prototype = traceur.createObject(
       Desugaring.prototype, {
     assign: function(lvalue, rvalue) {
+      // TODO(arv): This should go away when destructuring is refactored.
+      if (lvalue.type == ParseTreeType.IDENTIFIER_EXPRESSION)
+        lvalue = toBindingIdentifier(lvalue);
       this.declarations.push(createVariableDeclaration(lvalue, rvalue));
     }
   });
