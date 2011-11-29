@@ -22,12 +22,14 @@ traceur.define('codegeneration', function() {
   var PredefinedName = traceur.syntax.PredefinedName;
 
   var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
+  var createArgumentList = ParseTreeFactory.createArgumentList;
   var createBlock = ParseTreeFactory.createBlock;
   var createCallExpression = ParseTreeFactory.createCallExpression;
   var createCallStatement = ParseTreeFactory.createCallStatement;
   var createFinally = ParseTreeFactory.createFinally;
   var createIfStatement = ParseTreeFactory.createIfStatement;
   var createMemberExpression = ParseTreeFactory.createMemberExpression;
+  var createStringLiteral = ParseTreeFactory.createStringLiteral;
   var createTryStatement = ParseTreeFactory.createTryStatement;
   var createVariableStatement = ParseTreeFactory.createVariableStatement;
   var createWhileStatement = ParseTreeFactory.createWhileStatement;
@@ -56,7 +58,7 @@ traceur.define('codegeneration', function() {
 
     // for ( initializer of collection ) statement
     //
-    // let $it = collection.__traceurIterator__();
+    // let $it = traceur.runtime.getIterator(collection);
     // try {
     //   while ($it.moveNext()) {
     //     initializer = $it.current;
@@ -74,11 +76,15 @@ traceur.define('codegeneration', function() {
       var tree = ParseTreeTransformer.prototype.transformForOfStatement.call(
           this, original);
 
-      //   let $it = collection.__traceurIterator__();
+      //   let $it = traceur.runtime.getIterator(collection);
       // TODO: use 'var' instead of 'let' to enable yield's from within for of statements
       var iter = this.identifierGenerator_.generateUniqueIdentifier();
       var initializer = createVariableStatement(TokenType.VAR, iter,
-          createCallExpression(createMemberExpression(tree.collection, PredefinedName.ITERATOR)));
+          createCallExpression(
+              createMemberExpression(PredefinedName.TRACEUR,
+                                     PredefinedName.RUNTIME,
+                                     PredefinedName.GET_ITERATOR),
+              createArgumentList(tree.collection)));
 
       // {
       //   initializer = $it.current;

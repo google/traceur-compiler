@@ -302,29 +302,6 @@ traceur.runtime = (function() {
     return undefined;
   }
 
-  // Add iterator support to arrays.
-  // HACK: We don't want runtime to have to depend on
-  // traceur.syntax.PredefinedName.ITERATOR so we hard code its value here.
-  var iterator = '__traceurIterator__';
-
-  $defineProperty(Array.prototype, iterator, method(function() {
-    var index = 0;
-    var array = this;
-    var current;
-    return {
-      get current() {
-        return current;
-      },
-      moveNext: function() {
-        if (index < array.length) {
-          current = array[index++];
-          return true;
-        }
-        return false;
-      }
-    };
-  }));
-
   var pushItem = Array.prototype.push.call.bind(Array.prototype.push);
   var pushArray = Array.prototype.push.apply.bind(Array.prototype.push);
   var slice = Array.prototype.slice.call.bind(Array.prototype.slice);
@@ -556,6 +533,12 @@ traceur.runtime = (function() {
 
   function defineProperty(object, name, descriptor) {
     if (NameModule.isName(name)) {
+      // Private names should never be enumerable.
+      if (descriptor.enumerable) {
+        descriptor = Object.create(descriptor, {
+          enumerable: {value: false}
+        });
+      }
       $defineProperty(object, name[internalStringValueName], descriptor);
     } else {
       assertNotName(name);
@@ -589,6 +572,54 @@ traceur.runtime = (function() {
   $defineProperty(Object, 'has', method(has));
   $defineProperty(Object, 'setProperty', method(setProperty));
   $defineProperty(Object.prototype, 'hasOwnProperty', {value: hasOwnProperty});
+
+  // Iterators.
+  var iteratorName = NameModule.create('iterator');
+
+  /**
+   * This is used to tag the return value from a generator.
+   * @type Name
+   */
+  var generatorName = NameModule.create();
+
+  var IterModule = {
+    get iterator() {
+      return iteratorName;
+    }
+    // TODO: Implement the rest of @iter and move it to a different file that
+    // gets compiled.
+  };
+
+  function getIterator(collection) {
+    // TODO: Keep an eye on the future spec to see whether this should
+    // do "duck typing"?
+    if (getProperty(collection, generatorName))
+      return collection;
+    return getProperty(collection, iteratorName).call(collection);
+  }
+
+  function markAsGenerator(object) {
+    setProperty(object, generatorName, true);
+  }
+
+  // Make arrays iterable.
+  defineProperty(Array.prototype, IterModule.iterator, method(function() {
+    var index = 0;
+    var array = this;
+    var current;
+    return {
+      get current() {
+        return current;
+      },
+      moveNext: function() {
+        if (index < array.length) {
+          current = array[index++];
+          return true;
+        }
+        return false;
+      }
+    };
+  }));
 
   /**
    * @param {Function} canceller
@@ -678,6 +709,9 @@ traceur.runtime = (function() {
   var modules = $freeze({
     get '@name'() {
       return NameModule;
+    },
+    get '@iter'() {
+      return IterModule;
     }
   });
 
@@ -692,6 +726,8 @@ traceur.runtime = (function() {
     elementGetCall: elementGetCall,
     elementHas: elementHas,
     elementSet: elementSet,
+    getIterator: getIterator,
+    markAsGenerator: markAsGenerator,
     markMethods: markMethods,
     modules: modules,
     spread: spread,

@@ -28,16 +28,23 @@ traceur.define('codegeneration.generator', function() {
   var YieldState = traceur.codegeneration.generator.YieldState;
   var StateMachine = traceur.syntax.trees.StateMachine;
 
+  var createArgumentList = ParseTreeFactory.createArgumentList;
+  var createAssignmentStatement = ParseTreeFactory.createAssignmentStatement;
   var createAssignStateStatement = ParseTreeFactory.createAssignStateStatement;
   var createBlock = ParseTreeFactory.createBlock;
+  var createCallExpression = ParseTreeFactory.createCallExpression;
   var createEmptyParameterList = ParseTreeFactory.createEmptyParameterList;
+  var createExpressionStatement = ParseTreeFactory.createExpressionStatement;
   var createFalseLiteral = ParseTreeFactory.createFalseLiteral;
   var createFunctionExpression = ParseTreeFactory.createFunctionExpression;
   var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
+  var createMemberExpression = ParseTreeFactory.createMemberExpression;
   var createObjectLiteralExpression = ParseTreeFactory.createObjectLiteralExpression;
   var createPropertyNameAssignment = ParseTreeFactory.createPropertyNameAssignment;
   var createReturnStatement = ParseTreeFactory.createReturnStatement;
   var createStatementList = ParseTreeFactory.createStatementList;
+  var createStringLiteral = ParseTreeFactory.createStringLiteral;
+  var createThisExpression = ParseTreeFactory.createThisExpression;
   var createThrowStatement = ParseTreeFactory.createThrowStatement;
   var createVariableStatement = ParseTreeFactory.createVariableStatement;
 
@@ -48,11 +55,10 @@ traceur.define('codegeneration.generator', function() {
    *
    * {
    *   var $that = this;
-   *   return { __traceurIterator__ : function() {
-   *     machine variables
-   *     var $result = { moveNext : machineMethod };
-   *     return $result;
-   *   };
+   *   machine variables
+   *   var $result = { moveNext : machineMethod };
+   *   $result[iterator] = function() { return this; };
+   *   return $result;
    * }
    *
    * @param {ErrorReporter} reporter
@@ -143,11 +149,10 @@ traceur.define('codegeneration.generator', function() {
      *
      * {
      *   var $that = this;
-     *   return { __traceurIterator__ : function() {
-     *     machine variables
-     *     var $result = { moveNext : machineMethod };
-     *     return $result;
-     *   };
+     *   machine variables
+     *   var $result = { moveNext : machineMethod };
+     *   $result[iterator] = function() { return this; };
+     *   return $result;
      * }
      * TODO: add close() method which executes pending finally clauses
      *
@@ -164,9 +169,12 @@ traceur.define('codegeneration.generator', function() {
 
       var statements = [];
 
+      //   var $that = this;
+      statements.push(this.generateHoistedThis());
+
       //     lifted machine variables
       statements.push.apply(statements, this.getMachineVariables(tree, machine));
-      //     var $result = { moveNext : machineMethod };
+      //     var $result = {moveNext : machineMethod};
       statements.push(createVariableStatement(
           TokenType.VAR,
           PredefinedName.RESULT,
@@ -174,19 +182,20 @@ traceur.define('codegeneration.generator', function() {
               createPropertyNameAssignment(
                   PredefinedName.MOVE_NEXT,
                   this.generateMachineMethod(machine)))));
+
+      // traceur.runtime.markAsGenerator($result)
+      statements.push(createExpressionStatement(
+          createCallExpression(
+              createMemberExpression(PredefinedName.TRACEUR,
+                                     PredefinedName.RUNTIME,
+                                     PredefinedName.MARK_AS_GENERATOR),
+              createArgumentList(
+                  createIdentifierExpression(PredefinedName.RESULT)))));
+
       //     return $result;
       statements.push(createReturnStatement(createIdentifierExpression(PredefinedName.RESULT)));
 
-      return createBlock(
-          //   var $that = this;
-          this.generateHoistedThis(),
-          //   return { __traceurIterator__ = function() { ... };
-          createReturnStatement(
-              createObjectLiteralExpression(createPropertyNameAssignment(
-                  PredefinedName.ITERATOR,
-                  createFunctionExpression(
-                      createEmptyParameterList(),
-                      createBlock(statements))))));
+      return createBlock(statements);
     },
 
     /**

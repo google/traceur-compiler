@@ -5,17 +5,20 @@ class Tree {
     this.left = left;
     this.right = right;
   }
-
-  function* __traceurIterator__() {
-    if (this.left) {
-      yield* this.left;
-    }
-    yield this.label;
-    if (this.right) {
-      yield* this.right;
-    }
-  }
 }
+
+// We don't yet support any syntax to set private named fields in classes.
+var {iterator} = traceur.runtime.modules['@iter'];
+
+Tree.prototype[iterator] = function*() {
+  if (this.left) {
+    yield* this.left;
+  }
+  yield this.label;
+  if (this.right) {
+    yield* this.right;
+  }
+};
 
 // Create a Tree from a list.
 function tree(list) {
@@ -71,4 +74,4 @@ var alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 var root = tree(alphabet);
 assertEquals(alphabet, accumulate(inorder1(root)));
 assertEquals(alphabet, accumulate(inorder2(root)));
-// TODO(jmesserly) assertEquals(alphabet, accumulate(root));
+assertEquals(alphabet, accumulate(root));
