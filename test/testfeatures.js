@@ -22,9 +22,7 @@ function importScript(filename) {
  */
 function failScript(script, message) {
   clearLastLine();
-  print(red('FAIL ') + script);
-  print('     ' + message);
-  print();
+  print(red('FAIL ') + script + '\n     ' + message + '\n\n');
 }
 
 // Define some rudimentary versions of the JSUnit assertions that the
@@ -203,20 +201,31 @@ function forEachPrologLine(s, f) {
   }
 }
 
-var originalConsole = global.console;
+var originalConsole;
 
 function silenceConsole() {
   // TODO(rnystrom): Hack. Don't let Traceur spew all over our beautiful
   // test results.
-  console = global.console = {
-    log: function() {},
-    info: function() {},
-    error: function() {}
+  if (originalConsole)
+    throw new Error('Unbalanced call to silenceConsole');
+
+  originalConsole = {
+    log: console.log,
+    info: console.info,
+    error: console.error
   };
+
+  console.log = console.info = console.error = function() {};
 }
 
 function restoreConsole() {
-  console = global.console = originalConsole;
+  if (!originalConsole)
+    throw new Error('Unbalanced call to restoreConsole');
+
+  console.log = originalConsole.log;
+  console.info = originalConsole.info;
+  console.error = originalConsole.error;
+  originalConsole = null;
 }
 
 function UnitTestError(message) {
@@ -224,7 +233,7 @@ function UnitTestError(message) {
 }
 
 function print(s) {
-  (originalConsole || console).log(s);
+  process.stdout.write(s);
 }
 
 function green(s) {
@@ -236,7 +245,7 @@ function red(s) {
 }
 
 function clearLastLine() {
-  print('\x1B[1A\x1B[K\x1B[1A');
+  print('\x1B[1A\x1B[K');
 }
 
 /**
@@ -257,6 +266,7 @@ function runFeatureScripts(dir) {
         print('Passed ' + green(passes) + ' and failed ' +
               red(tests - passes) + ' Testing: ' + filePath);
       }
+      print('\n');
 
       tests++;
       if (testScript(filePath))
@@ -284,9 +294,8 @@ runFeatureScripts('feature');
 
 clearLastLine();
 if (passes == tests) {
-  print('Passed all ' + green(tests) + ' tests.');
+  print('Passed all ' + green(tests) + ' tests.\n');
 } else {
-  print('');
-  print('Passed ' + green(passes) + ' and failed ' + red(tests - passes) +
-        ' out of ' + tests + ' tests.');
+  print('\nPassed ' + green(passes) + ' and failed ' + red(tests - passes) +
+        ' out of ' + tests + ' tests.\n');
 }
