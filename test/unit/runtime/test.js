@@ -1,9 +1,9 @@
-module a = require("test_a.js");
-module b = require("test_b.js");
-module c = require("test_c.js");
+module a from 'test_a.js';
+module b from 'test_b.js';
+module c from 'test_c.js';
 
-export a.{a: name};
-export b.{b: name};
-export c.{c: name};
+export {name: a} from a;
+export {name: b} from b;
+export {name: c} from c;
 
 export var name = 'test';

@@ -54,11 +54,11 @@ function testParserEmpty() {
 
 function testModule() {
   var program = 'module Foo { export var x = 42; ' +
-	  'module M = require(\'url\'); ' +
-	  'import require(\'x\').y.z; ' +
-	  'import M.*; ' +
-	  'import M.x.{a:b,c};' +
-          '};\n';
+                  'module M from \'url\'; ' +
+                  'import z from \'x\'.y; ' +
+                  'import * from M; ' +
+                  'import {a:b,c} from M.x;' +
+                '};\n';
   var sourceFile = new traceur.syntax.SourceFile('Name', program);
   var scanner = new traceur.syntax.Scanner(errorReporter, sourceFile);
   var parser = new traceur.syntax.Parser(errorReporter, scanner);

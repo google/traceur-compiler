@@ -58,27 +58,27 @@ function testNestedExports() {
   assertEquals(42, b.c.d);
 }
 
-module b2 = b;
+module b2 from b;
 
 function testDeclarationAlias() {
   assertEquals(42, b2.c.d);
 }
 
-module c = b.c;
+module c from b.c;
 
 function testNestedDeclarations() {
   assertEquals(42, c.d);
 }
 
-module d = c;
+module d from c;
 
-function testNestedDeclarationorts() {
+function testNestedDeclarations() {
   assertEquals(42, d.d);
 }
 
-module d2 = c.c2;
+module d2 from c.c2;
 
-function testNestedDeclarationorts() {
+function testNestedDeclarations2() {
   assertEquals(43, d2.d2);
 }
 
@@ -86,7 +86,7 @@ module e {
   module n {
     export var val = 44;
   }
-  export module o = n, o2 = n;
+  export module o from n, o2 from n;
 }
 
 function testExportModuleDeclaration() {
@@ -99,7 +99,7 @@ module m2 {
     export var name = 'n';
   }
   export module n2 {
-    export module o2 = n;
+    export module o2 from n;
   }
 }
 
@@ -112,7 +112,7 @@ module p2 {
     export var name = 'q';
   }
   export module q2 {
-    export {name: q.name};
+    export {name: name} from q;
   }
 }
 
@@ -137,7 +137,7 @@ module h {
     export var j = 'j';
     export var l = 'l';
   }
-  export i.j, i.{k: j, l};
+  export j from i, {j: k, l} from i;
 }
 
 function testExportModuleExpression() {
@@ -153,13 +153,14 @@ module m {
     export var q = 'q';
   }
 
-  export {n, o: n, p: o.q};
+  export n, {o: n2}, q from o,  {q: p} from o;
 }
 
-function testExportPathSpecifierSet() {
+function testExportSpecifierSet() {
   assertEquals('n', m.n);
-  assertEquals('n', m.o);
+  assertEquals('q', m.n2.q);
   assertEquals('q', m.p);
+  assertEquals('q', m.q);
 }
 
 </script>
@@ -189,7 +190,7 @@ function assertErrorMessage(errors, moduleName, opt_expectedError) {
 
 function testInvalidModuleDeclaration() {
   var contents = 'module a {}\n' +
-      'module b = c;\n';
+      'module b from c;\n';
   var name = 'testInvalidModuleDeclaration';
   var errors = compileAndReturnErrors(contents, name);
 
@@ -198,7 +199,7 @@ function testInvalidModuleDeclaration() {
 
 function testInvalidModuleDeclaration2() {
   var contents = 'module a {}\n' +
-      'module b = a.c;\n';
+      'module b from a.c;\n';
   var name = 'testInvalidModuleDeclaration2';
   var errors = compileAndReturnErrors(contents, name);
   assertErrorMessage(errors, 'c');
@@ -206,7 +207,7 @@ function testInvalidModuleDeclaration2() {
 
 function testInvalidModuleDeclaration3() {
   var contents = 'module a {\n' +
-      '  module b = c;\n' +
+      '  module b from c;\n' +
       '}\n';
   var name = 'testInvalidModuleDeclaration3';
   var errors = compileAndReturnErrors(contents, name);
@@ -216,7 +217,7 @@ function testInvalidModuleDeclaration3() {
 function testInvalidModuleDeclaration4() {
   var contents = 'module a {\n' +
       '  module b {}\n' +
-      '  module c = b.d;\n' +
+      '  module c from b.d;\n' +
       '}\n';
   var name = 'testInvalidModuleDeclaration4';
   var errors = compileAndReturnErrors(contents, name);
@@ -225,7 +226,7 @@ assertErrorMessage(errors, 'd');
 
 function testInvalidModuleDeclaration5() {
   var contents = 'module a {\n' +
-      '  export module b = c;\n' +
+      '  export module b from c;\n' +
       '}\n';
   var name = 'testInvalidModuleDeclaration5';
   var errors = compileAndReturnErrors(contents, name);
@@ -235,7 +236,7 @@ function testInvalidModuleDeclaration5() {
 function testInvalidModuleDeclaration6() {
   var contents = 'module a {\n' +
       '  export module b {\n' +
-      '    module c = d;\n' +
+      '    module c from d;\n' +
       '  }\n' +
       '}\n';
   var name = 'testInvalidModuleDeclaration6';
@@ -248,7 +249,7 @@ function testInvalidExport() {
       '  module b {\n' +
       '    module c {};\n' +
       '  }\n' +
-      '  export b.c;\n' +
+      '  export c from b;\n' +
       '}\n';
   var name = 'testInvalidExport';
   var errors = compileAndReturnErrors(contents, name);
@@ -260,7 +261,7 @@ function testInvalidExport2() {
       '  module b {\n' +
       '    module c {};\n' +
       '  }\n' +
-      '  export b.{c};\n' +
+      '  export {c} from b;\n' +
       '}\n';
   var name = 'testInvalidExport2';
   var errors = compileAndReturnErrors(contents, name);
@@ -272,7 +273,7 @@ function testInvalidExport3() {
       '  module b {\n' +
       '    module c {};\n' +
       '  }\n' +
-      '  export {d: b.c};\n' +
+      '  export {c: d} from b;\n' +
       '}\n';
   var name = 'testInvalidExport3';
   var errors = compileAndReturnErrors(contents, name);

@@ -384,52 +384,43 @@ traceur.define('syntax', function() {
           declType == ParseTreeType.MODULE_DECLARATION ||
           declType == ParseTreeType.CLASS_DECLARATION ||
           declType == ParseTreeType.TRAIT_DECLARATION ||
-          declType == ParseTreeType.EXPORT_PATH_LIST,
+          declType == ParseTreeType.EXPORT_MAPPING_LIST,
           tree.declaration,
           'expected valid export tree');
     },
 
     /**
-     * @param {traceur.syntax.trees.ExportPath} tree
+     * @param {traceur.syntax.trees.ExportMapping} tree
      */
-    visitExportPath: function(tree) {
-      this.checkVisit_(
-          tree.moduleExpression.type == ParseTreeType.MODULE_EXPRESSION,
-          tree.moduleExpression,
-          'module expression expected');
+    visitExportMapping: function(tree) {
+      if (tree.moduleExpression) {
+        this.checkVisit_(
+            tree.moduleExpression.type == ParseTreeType.MODULE_EXPRESSION,
+            tree.moduleExpression,
+            'module expression expected');
+      }
 
-      var specifierType = tree.specifier.type;
+      var specifierType = tree.specifierSet.type;
       this.checkVisit_(specifierType == ParseTreeType.EXPORT_SPECIFIER_SET ||
                        specifierType == ParseTreeType.IDENTIFIER_EXPRESSION,
-                       tree.specifier,
+                       tree.specifierSet,
                        'specifier set or identifier expected');
     },
 
     /**
-     * @param {traceur.syntax.trees.ExportPath} tree
+     * @param {traceur.syntax.trees.ExportMapping} tree
      */
-    visitExportPathList: function(tree) {
+    visitExportMappingList: function(tree) {
       this.check_(tree.paths.length > 0, tree,
                   'expected at least one path');
       for (var i = 0; i < tree.paths.length; i++) {
         var path = tree.paths[i];
         var type = path.type;
         this.checkVisit_(
-            type == ParseTreeType.EXPORT_PATH ||
-            type == ParseTreeType.EXPORT_PATH_SPECIFIER_SET ||
-            type == ParseTreeType.IDENTIFIER_EXPRESSION,
+            type == ParseTreeType.EXPORT_MAPPING,
             path,
-            'expected valid export path');
+            'expected export mapping');
       }
-    },
-
-    /**
-     * @param {traceur.syntax.trees.ExportPathSpecifierSet} tree
-     */
-    visitExportPathSpecifierSet: function(tree) {
-      this.check_(tree.specifiers.length > 0, tree,
-                  'expected at least one specifier');
-      this.visitList(tree.specifiers);
     },
 
     /**
@@ -441,7 +432,8 @@ traceur.define('syntax', function() {
       for (var i = 0; i < tree.specifiers.length; i++) {
         var specifier = tree.specifiers[i];
         this.checkVisit_(
-            specifier.type == ParseTreeType.EXPORT_SPECIFIER,
+            specifier.type == ParseTreeType.EXPORT_SPECIFIER ||
+            specifier.type == ParseTreeType.IDENTIFIER_EXPRESSION,
             specifier,
             'expected valid export specifier');
       }
@@ -813,16 +805,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.QualifiedReference} tree
-     */
-    visitQualifiedReference: function(tree) {
-      this.checkType_(ParseTreeType.MODULE_EXPRESSION,
-                      tree.moduleExpression,
-                      'module expression expected');
-    },
-
-    /**
-     * @param {traceur.syntax.trees.QualifiedReference} tree
+     * @param {traceur.syntax.trees.QuasiLiteralExpression} tree
      */
     visitQuasiLiteralExpression: function(tree) {
       // The elements are alternating between QuasiLiteralPortion and

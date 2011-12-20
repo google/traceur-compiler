@@ -510,7 +510,7 @@ traceur.define('runtime', function() {
   var currentCodeUnit;
 
   /**
-   * This is used to find the module for a require(url) ModuleExpression.
+   * This is used to find the module for a require url ModuleExpression.
    * @param {string} url
    * @return {Object} A module instance object for the given url in the current
    *     code loader.

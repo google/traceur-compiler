@@ -333,32 +333,21 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ExportPathList} tree
+     * @param {traceur.syntax.trees.ExportMappingList} tree
      */
-    visitExportPathList: function(tree) {
+    visitExportMappingList: function(tree) {
       this.writeList_(tree.paths, TokenType.COMMA, false);
     },
 
     /**
-     * @param {traceur.syntax.trees.ExportPath} tree
+     * @param {traceur.syntax.trees.ExportMapping} tree
      */
-    visitExportPath: function(tree) {
+    visitExportMapping: function(tree) {
       if (tree.moduleExpression) {
         this.visitAny(tree.moduleExpression);
         this.write_(TokenType.PERIOD);
       }
-      this.visitAny(tree.specifier);
-    },
-
-    /**
-     * @param {traceur.syntax.trees.ExportPathSpecifier} tree
-     */
-    visitExportPathSpecifier: function(tree) {
-      this.write_(tree.identifier);
-      if (tree.specifier) {
-        this.write_(TokenType.COLON);
-        this.visitAny(tree.specifier);
-      }
+      this.visitAny(tree.specifierSet);
     },
 
     /**
@@ -376,15 +365,6 @@ traceur.define('codegeneration', function() {
      * @param {traceur.syntax.trees.ExportSpecifierSet} tree
      */
     visitExportSpecifierSet: function(tree) {
-      this.write_(TokenType.OPEN_CURLY);
-      this.writeList_(tree.specifiers, TokenType.COMMA, false);
-      this.write_(TokenType.CLOSE_CURLY);
-    },
-
-    /**
-     * @param {traceur.syntax.trees.ExportPathSpecifierSet} tree
-     */
-    visitExportPathSpecifierSet: function(tree) {
       this.write_(TokenType.OPEN_CURLY);
       this.writeList_(tree.specifiers, TokenType.COMMA, false);
       this.write_(TokenType.CLOSE_CURLY);
@@ -544,23 +524,13 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ImportPath} tree
+     * @param {ImportBinding} tree
      */
-    visitImportPath: function(tree) {
-      this.writeTokenList_(tree.qualifiedPath, TokenType.PERIOD, false);
-      switch (tree.kind) {
-        case ALL:
-          this.write_(TokenType.PERIOD);
-          this.write_(TokenType.STAR);
-          break;
-        case NONE:
-          break;
-        case SET:
-          this.write_(TokenType.PERIOD);
-          this.write_(TokenType.OPEN_CURLY);
-          this.writeList_(tree.importSpecifierSet, TokenType.COMMA, false);
-          this.write_(TokenType.CLOSE_CURLY);
-          break;
+    visitImportBinding: function(tree) {
+      this.visitAny(tree.importSpecifierSet);
+      if (tree.moduleExpression) {
+        this.write_(PredefinedName.FROM);
+        this.visitAny(tree.moduleExpression);
       }
     },
 
@@ -682,10 +652,7 @@ traceur.define('codegeneration', function() {
      * @param {ModuleRequire} tree
      */
     visitModuleRequire: function(tree) {
-      this.write_(PredefinedName.REQUIRE);
-      this.write_(TokenType.OPEN_PAREN);
-      this.write_(tree.url);
-      this.write_(TokenType.CLOSE_PAREN);
+      this.visitAny(tree.url);
     },
 
     /**
@@ -693,7 +660,7 @@ traceur.define('codegeneration', function() {
      */
     visitModuleSpecifier: function(tree) {
       this.write_(tree.identifier);
-      this.write_(TokenType.EQUAL);
+      this.write_(PredefinedName.FROM);
       this.visitAny(tree.expression);
     },
 
@@ -794,15 +761,6 @@ traceur.define('codegeneration', function() {
      */
     visitPropertyNameShorthand: function(tree) {
       this.write_(tree.name);
-    },
-
-    /**
-     * @param {traceur.syntax.trees.QualifiedReference} tree
-     */
-    visitQualifiedReference: function(tree) {
-      this.visitAny(tree.moduleExpression);
-      this.write_(TokenType.PERIOD);
-      this.write_(tree.identifier);
     },
 
     /**

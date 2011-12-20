@@ -232,32 +232,18 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ExportPath} tree
+     * @param {traceur.syntax.trees.ExportMapping} tree
      */
-    visitExportPath: function(tree) {
+    visitExportMapping: function(tree) {
       this.visitAny(tree.moduleExpression);
-      this.visitAny(tree.specifier);
+      this.visitAny(tree.specifierSet);
     },
 
     /**
-     * @param {traceur.syntax.trees.ExportPathList} tree
+     * @param {traceur.syntax.trees.ExportMappingList} tree
      */
-    visitExportPathList: function(tree) {
+    visitExportMappingList: function(tree) {
       this.visitList(tree.paths);
-    },
-
-    /**
-     * @param {traceur.syntax.trees.ExportPathSpecifier} tree
-     */
-    visitExportPathSpecifier: function(tree) {
-      this.visitAny(tree.specifier);
-    },
-
-    /**
-     * @param {traceur.syntax.trees.ExportPathSpecifierSet} tree
-     */
-    visitExportPathSpecifierSet: function(tree) {
-      this.visitList(tree.specifiers);
     },
 
     /**
@@ -369,9 +355,9 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ImportPath} tree
+     * @param {traceur.syntax.trees.ImportBinding} tree
      */
-    visitImportPath: function(tree) {
+    visitImportBinding: function(tree) {
       if (tree.importSpecifierSet !== null) {
         this.visitList(tree.importSpecifierSet);
       }
@@ -546,13 +532,6 @@ traceur.define('syntax', function() {
      * @param {traceur.syntax.trees.PropertyNameShorthand} tree
      */
     visitPropertyNameShorthand: function(tree) {
-    },
-
-    /**
-     * @param {traceur.syntax.trees.QualifiedReference} tree
-     */
-    visitQualifiedReference: function(tree) {
-      this.visitAny(tree.moduleExpression);
     },
 
     /**

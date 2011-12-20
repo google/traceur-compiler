@@ -26,7 +26,7 @@ traceur.define('codegeneration.module', function() {
   /**
    * Visits a parse tree and finds all required URLs in it.
    *
-   *   ... require("url")
+   *   module m from "url"
    *
    * @param {traceur.util.ErrorReporter} reporter
    * @constructor

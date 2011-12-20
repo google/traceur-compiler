@@ -22,8 +22,7 @@ traceur.define('codegeneration', function() {
 
   var CLASS_DECLARATION = traceur.syntax.trees.ParseTreeType.CLASS_DECLARATION;
   var EXPORT_DECLARATION = traceur.syntax.trees.ParseTreeType.EXPORT_DECLARATION;
-  var EXPORT_PATH_LIST = traceur.syntax.trees.ParseTreeType.EXPORT_PATH_LIST;
-  var EXPORT_PATH_SPECIFIER = traceur.syntax.trees.ParseTreeType.EXPORT_PATH_SPECIFIER;
+  var EXPORT_MAPPING_LIST = traceur.syntax.trees.ParseTreeType.EXPORT_MAPPING_LIST;
   var EXPORT_SPECIFIER = traceur.syntax.trees.ParseTreeType.EXPORT_SPECIFIER;
   var FUNCTION_DECLARATION = traceur.syntax.trees.ParseTreeType.FUNCTION_DECLARATION;
   var IDENTIFIER_EXPRESSION = traceur.syntax.trees.ParseTreeType.IDENTIFIER_EXPRESSION;
@@ -31,7 +30,6 @@ traceur.define('codegeneration', function() {
   var MODULE_DECLARATION = traceur.syntax.trees.ParseTreeType.MODULE_DECLARATION;
   var MODULE_DEFINITION = traceur.syntax.trees.ParseTreeType.MODULE_DEFINITION;
   var MODULE_REQUIRE = traceur.syntax.trees.ParseTreeType.MODULE_REQUIRE;
-  var QUALIFIED_REFERENCE = traceur.syntax.trees.ParseTreeType.QUALIFIED_REFERENCE;
   var TRAIT_DECLARATION = traceur.syntax.trees.ParseTreeType.TRAIT_DECLARATION;
   var VARIABLE_STATEMENT = traceur.syntax.trees.ParseTreeType.VARIABLE_STATEMENT;
 
@@ -81,21 +79,15 @@ traceur.define('codegeneration', function() {
     var returnExpression;
     switch (tree.type) {
       case EXPORT_SPECIFIER:
-        returnExpression = transformQualifiedReferenceParts(symbol.relatedTree,
-            tree.rhs || tree.lhs);
-        break;
-      case EXPORT_PATH_SPECIFIER:
-        returnExpression = new ModuleTransformer().transformAny(tree.specifier);
+        returnExpression = transformSpecifier(tree.lhs, symbol.relatedTree);
         break;
       case IDENTIFIER_EXPRESSION:
-        if (!symbol.relatedTree)
+        if (!symbol.relatedTree) {
           returnExpression = tree;
-        else
-          returnExpression = transformQualifiedReferenceParts(symbol.relatedTree,
-              tree.identifierToken);
-        break;
-      case QUALIFIED_REFERENCE:
-        returnExpression = new ModuleTransformer().transformAny(tree);
+        } else {
+          returnExpression = transformSpecifier(tree.identifierToken,
+              symbol.relatedTree);
+        }
         break;
       default:
         returnExpression = createIdentifierExpression(name);
@@ -126,14 +118,19 @@ traceur.define('codegeneration', function() {
   /**
    * Transforms a module expression and an identifier. This is used to create
    * a member expression for something like a.b.c.{d, e, f}.
-   * @param {ParseTree} moduleExpression
    * @param {IdentifierToken} identifierToken
+   * @param {ParseTree=} moduleExpression
    * @return {ParseTree}
    */
-  function transformQualifiedReferenceParts(moduleExpression, identifierToken) {
-    var operand = new ModuleTransformer().transformAny(moduleExpression);
-    return createMemberExpression(operand, identifierToken);
+  function transformSpecifier(identifierToken, moduleExpression) {
+    if (moduleExpression) {
+      var operand = new ModuleTransformer().transformAny(moduleExpression);
+      return createMemberExpression(operand, identifierToken);
+    }
+
+    return createIdentifierExpression(identifierToken);
   }
+
 
   /**
    * @constructor
@@ -176,15 +173,6 @@ traceur.define('codegeneration', function() {
     transformModuleSpecifier: function(tree) {
       var expression = this.transformAny(tree.expression);
       return createVariableDeclaration(tree.identifier, expression);
-    },
-
-    /**
-     * @param {QualifiedReference} tree
-     * @return {ParseTree}
-     */
-    transformQualifiedReference: function(tree) {
-      return transformQualifiedReferenceParts(tree.moduleExpression,
-          tree.identifier);
     }
   });
 
@@ -258,7 +246,7 @@ traceur.define('codegeneration', function() {
             case MODULE_DECLARATION:
               statements.push(transformDeclaration(module, declaration));
               break;
-            case EXPORT_PATH_LIST:
+            case EXPORT_MAPPING_LIST:
               // These do not generate any statement here. It is all taken
               // care of in the export getter.
               break;
@@ -328,8 +316,8 @@ traceur.define('codegeneration', function() {
    * @return {ParseTree}
    */
   function transformDeclaration(parent, tree) {
-    // module m = n, o = p.q, ...;
-    // module m = require('url').n.o.p;
+    // module m from n, o from p.q, ...;
+    // module m from 'url'.n.o.p;
 
     var transformer = new ModuleTransformer();
     var list = tree.specifiers.map(transformer.transformAny, transformer);

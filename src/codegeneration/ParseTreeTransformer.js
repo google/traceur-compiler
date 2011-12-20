@@ -72,14 +72,12 @@ traceur.define('codegeneration', function() {
   var ArrowFunctionExpression = traceur.syntax.trees.ArrowFunctionExpression;
   var BindThisParameter = traceur.syntax.trees.BindThisParameter;
   var ExportDeclaration = traceur.syntax.trees.ExportDeclaration;
-  var ExportPathList = traceur.syntax.trees.ExportPathList;
-  var ExportPath = traceur.syntax.trees.ExportPath;
-  var ExportPathSpecifierSet = traceur.syntax.trees.ExportPathSpecifierSet;
-  var ExportPathSpecifier = traceur.syntax.trees.ExportPathSpecifier;
+  var ExportMappingList = traceur.syntax.trees.ExportMappingList;
+  var ExportMapping = traceur.syntax.trees.ExportMapping;
   var ExportSpecifier = traceur.syntax.trees.ExportSpecifier;
   var ExportSpecifierSet = traceur.syntax.trees.ExportSpecifierSet;
   var ImportDeclaration = traceur.syntax.trees.ImportDeclaration;
-  var ImportPath = traceur.syntax.trees.ImportPath;
+  var ImportBinding = traceur.syntax.trees.ImportBinding;
   var ModuleDeclaration = traceur.syntax.trees.ModuleDeclaration;
   var ModuleDefinition = traceur.syntax.trees.ModuleDefinition;
   var ModuleExpression = traceur.syntax.trees.ModuleExpression;
@@ -87,7 +85,6 @@ traceur.define('codegeneration', function() {
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
   var Program = traceur.syntax.trees.Program;
   var PropertyMethodAssignment = traceur.syntax.trees.PropertyMethodAssignment;
-  var QualifiedReference = traceur.syntax.trees.QualifiedReference;
   var QuasiLiteralExpression = traceur.syntax.trees.QuasiLiteralExpression;
   var QuasiSubstitution = traceur.syntax.trees.QuasiSubstitution;
 
@@ -452,30 +449,30 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ExportPathList} tree
+     * @param {ExportMappingList} tree
      * @return {ParseTree}
      */
-    transformExportPathList: function(tree) {
+    transformExportMappingList: function(tree) {
       var paths = this.transformList(tree.paths);
       if (paths == tree.paths) {
         return tree;
       }
 
-      return new ExportPathList(null, paths);
+      return new ExportMappingList(null, paths);
     },
 
     /**
-     * @param {ExportPath} tree
+     * @param {ExportMapping} tree
      * @return {ParseTree}
      */
-    transformExportPath: function(tree) {
+    transformExportMapping: function(tree) {
       var moduleExpresion = this.transformAny(tree.moduleExpresion);
-      var specifier = this.transformAny(tree.specifier);
+      var specifierSet = this.transformAny(tree.specifierSet);
       if (moduleExpresion == tree.moduleExpresion &&
-          specifier == tree.specifier) {
+          specifierSet == tree.specifierSet) {
         return tree;
       }
-      return new ExportPath(null, moduleExpresion, specifier);
+      return new ExportMapping(null, moduleExpresion, specifierSet);
     },
 
     /**
@@ -497,27 +494,6 @@ traceur.define('codegeneration', function() {
       }
 
       return new ExportSpecifierSet(null, specifiers);
-    },
-
-    /**
-     * @param {ExportPathSpecifierSet} tree
-     * @return {ParseTree}
-     */
-    transformExportPathSpecifierSet: function(tree) {
-      var specifiers = this.transformList(tree.specifiers);
-      if (specifiers == tree.specifiers) {
-        return tree;
-      }
-
-      return new ExportPathSpecifierSet(null, specifiers);
-    },
-
-    /**
-     * @param {ExportPathSpecifier} tree
-     * @return {ParseTree}
-     */
-    transformExportPathSpecifier: function(tree) {
-      return tree;
     },
 
     /**
@@ -673,14 +649,14 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ImportPath} tree
+     * @param {ImportBinding} tree
      * @return {ParseTree}
      */
-    transformImportPath: function(tree) {
+    transformImportBinding: function(tree) {
       if (tree.importSpecifierSet != null) {
         var importSpecifierSet = this.transformList(tree.importSpecifierSet);
         if (importSpecifierSet != tree.importSpecifierSet) {
-          return new ImportPath(null, tree.qualifiedPath,
+          return new ImportBinding(null, tree.qualifiedPath,
               importSpecifierSet);
         }
       }
@@ -967,18 +943,6 @@ traceur.define('codegeneration', function() {
      */
     transformPropertyNameShorthand: function(tree) {
       return tree;
-    },
-
-    /**
-     * @param {QualifiedReference} tree
-     * @return {ParseTree}
-     */
-    transformQualifiedReference: function(tree) {
-      var moduleExpression = this.transformAny(tree.moduleExpression);
-      if (moduleExpression == tree.moduleExpression) {
-        return tree;
-      }
-      return new QualifiedReference(null, moduleExpression, tree.identifier);
     },
 
     /**

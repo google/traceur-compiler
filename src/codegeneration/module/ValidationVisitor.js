@@ -20,7 +20,7 @@ traceur.define('codegeneration.module', function() {
   /**
    * Visits a parse tree and validates all module expressions.
    *
-   *   module m = n, o = p.q.r
+   *   module m from n, o from p.q.r
    *
    * @param {traceur.util.ErrorReporter} reporter
    * @param {ProjectSymbol} project
@@ -59,16 +59,22 @@ traceur.define('codegeneration.module', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ExportPath} tree
+     * @param {traceur.syntax.trees.ExportMapping} tree
      */
-    visitExportPath: function(tree) {
-      this.visitAny(tree.moduleExpression);
-      var module = this.getModuleForModuleExpression(tree.moduleExpression);
-      this.visitAndValidate_(module, tree.specifier);
+    visitExportMapping: function(tree) {
+      // Ensures that the module expression exports the names we want to
+      // re-export.
+      if (tree.moduleExpression) {
+        this.visitAny(tree.moduleExpression);
+        var module = this.getModuleForModuleExpression(tree.moduleExpression);
+        this.visitAndValidate_(module, tree.specifierSet);
+      }
+      // The else case is checked else where and duplicate exports are caught
+      // as well as undefined variables.
     },
 
     visitExportSpecifier: function(tree) {
-      var token = tree.rhs || tree.lhs;
+      var token = tree.lhs;
       this.checkExport_(tree, token.value);
     },
 
@@ -78,15 +84,6 @@ traceur.define('codegeneration.module', function() {
 
     visitModuleExpression: function(tree) {
       this.getModuleForModuleExpression(tree, true /* reportErrors */);
-    },
-
-    /**
-     * @param {traceur.syntax.trees.QualifiedReference} tree
-     */
-    visitQualifiedReference: function(tree) {
-      this.visitAny(tree.moduleExpression);
-      var module = this.getModuleForModuleExpression(tree.moduleExpression);
-      this.visitAndValidate_(module, tree, tree.identifier.value);
     }
   });
 

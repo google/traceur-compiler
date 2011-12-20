@@ -252,33 +252,16 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    ExportPathList: create('paths'),
+    ExportMappingList: create('paths'),
 
     /**
      * @param {traceur.util.SourceRange} location
-     * @param {Array.<ParseTree>} specifiers
+     * @param {ModuleExpression} moduleExpression
+     * @param {ExportSpecifierSet|IdentifierExpression} specifierSet
      * @constructor
      * @extends {ParseTree}
      */
-    ExportPathSpecifierSet: create('specifiers'),
-
-    /**
-     * @param {traceur.util.SourceRange} location
-     * @param {Token} identifier
-     * @param {ParseTree} specifier
-     * @constructor
-     * @extends {ParseTree}
-     */
-    ExportPathSpecifier: create('identifier', 'specifier'),
-
-    /**
-     * @param {traceur.util.SourceRange} location
-     * @param {ParseTree} moduleExpression
-     * @param {ParseTree} specifier
-     * @constructor
-     * @extends {ParseTree}
-     */
-    ExportPath: create('moduleExpression', 'specifier'),
+    ExportMapping: create('moduleExpression', 'specifierSet'),
 
     /**
      * @param {traceur.util.SourceRange} location
@@ -420,7 +403,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    ImportPath: create('moduleExpression', 'importSpecifierSet'),
+    ImportBinding: create('moduleExpression', 'importSpecifierSet'),
 
     /**
      * @param {traceur.util.SourceRange} location
@@ -638,15 +621,6 @@ traceur.define('syntax.trees', function() {
      * @extends {ParseTree}
      */
     PropertyNameShorthand: create('name'),
-
-    /**
-     * @param {traceur.util.SourceRange} location
-     * @param {ParseTree} moduleExpression
-     * @param {Token} identifier
-     * @constructor
-     * @extends {ParseTree}
-     */
-    QualifiedReference: create('moduleExpression', 'identifier'),
 
     /**
      * @param {traceur.util.SourceRange} location

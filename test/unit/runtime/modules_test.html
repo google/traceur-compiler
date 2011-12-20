@@ -57,9 +57,9 @@ function testLoaderEval() {
 
 function testLoaderEvalLoad() {
   var code =
-      'module a = require("test_a.js");\n' +
-      'module b = require("test_b.js");\n' +
-      'module c = require("test_c.js");\n' +
+      'module a from "test_a.js";\n' +
+      'module b from "test_b.js";\n' +
+      'module c from "test_c.js";\n' +
       '\n' +
       '[\'test\', a.name, b.name, c.name];\n';
 
@@ -79,7 +79,7 @@ function testLoaderEvalLoad() {
 
 function testLoaderEvalLoadWithSubdir() {
   var code =
-      'module d = require("subdir/test_d.js");\n' +
+      'module d from "subdir/test_d.js";\n' +
       '\n' +
       '[d.name, d.e.name];\n';
 
@@ -97,9 +97,9 @@ function testLoaderEvalLoadWithSubdir() {
 
 function testLoaderEvalLoadFail() {
   var code =
-      'module a = require("test_a.js");\n' +
-      'module b = require("test_b.js");\n' +
-      'module c = require("test_c.js");\n' +
+      'module a from "test_a.js";\n' +
+      'module b from "test_b.js";\n' +
+      'module c from "test_c.js";\n' +
       '\n' +
       '[\'test\', SYNTAX ERROR a.name, b.name, c.name];\n';
 
@@ -121,7 +121,6 @@ function testLoaderEvalLoadFail() {
 
 function testLoaderLoad() {
   asyncTestCase.waitForAsync('loader load');
-
   getLoader().load('test.js', function(mod) {
     asyncTestCase.continueTesting();
     assertEquals('test', mod.name);

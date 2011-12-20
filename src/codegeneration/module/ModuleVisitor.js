@@ -71,7 +71,7 @@ traceur.define('codegeneration.module', function() {
      * @return {ModuleSymbol}
      */
     getModuleForModuleExpression: function(tree, reportErrors) {
-      // require("url").b.c
+      // "url".b.c
       if (tree.reference.type == MODULE_REQUIRE) {
         var url = evaluateStringLiteral(tree.reference.url);
         url = resolveUrl(this.currentModule.url, url);

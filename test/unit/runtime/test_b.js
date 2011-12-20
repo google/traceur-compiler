@@ -1,3 +1,3 @@
-module c = require('test_c.js');
+module c from 'test_c.js';
 
 export var name = 'B';

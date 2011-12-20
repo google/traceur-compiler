@@ -20,7 +20,7 @@ traceur.define('codegeneration.module', function() {
   /**
    * Visits a parse tree and adds all the module declarations.
    *
-   *   module m = n, o = p.q.r
+   *   module m from n, o from p.q.r
    *
    * @param {traceur.util.ErrorReporter} reporter
    * @param {ProjectSymbol} project
