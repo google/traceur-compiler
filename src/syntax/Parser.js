@@ -431,7 +431,7 @@ traceur.define('syntax', function() {
     parseImportBinding_: function(load) {
       var start = this.getTreeStartLocation_();
       var importSpecifierSet = this.parseImportSpecifierSet_();
-    this.eatId_(PredefinedName.FROM);
+      this.eatId_(PredefinedName.FROM);
       var moduleExpression = this.parseModuleExpression_(load);
 
       return new ImportBinding(this.getTreeLocation_(start),
@@ -469,7 +469,7 @@ traceur.define('syntax', function() {
         return new ImportSpecifierSet(this.getTreeLocation_(start), star);
       }
 
-      return this.parseIdentifierExpression_();
+      return this.parseIdentifierNameExpression_();
     },
 
     // ImportSpecifier ::= IdentifierName (":" Identifier)?
@@ -527,16 +527,12 @@ traceur.define('syntax', function() {
             exportTree = this.parseModuleDeclaration_(load);
           } else if (this.peekTraitDeclaration_()) {
             exportTree = this.parseTraitDeclaration_();
-          } else if (this.peekExportMapping_()) {
-            exportTree = this.parseExportMappingList_();
-            this.eatPossibleImplicitSemiColon_();
           } else {
-            throw Error('unreached');
+            exportTree = this.parseExportMappingList_();
           }
           break;
         case TokenType.OPEN_CURLY:
           exportTree = this.parseExportMappingList_();
-          this.eatPossibleImplicitSemiColon_();
           break;
         default:
           this.reportError_('Unexpected symbol \'' + this.peekToken_() + '\'');
@@ -554,6 +550,7 @@ traceur.define('syntax', function() {
         this.eat_(TokenType.COMMA);
         mappings.push(this.parseExportMapping_());
       }
+      this.eatPossibleImplicitSemiColon_();
       return new ExportMappingList(this.getTreeEndLocation_(start), mappings);
     },
 
@@ -2083,6 +2080,18 @@ traceur.define('syntax', function() {
       var identifier = this.eatId_();
       return new IdentifierExpression(this.getTreeLocation_(start), identifier);
     },
+
+    /**
+     * Special case of parseIdentifierExpression_ which allows keywords.
+     * @return {IdentifierExpression}
+     * @private
+     */
+    parseIdentifierNameExpression_: function() {
+      var start = this.getTreeStartLocation_();
+      var identifier = this.eatIdName_();
+      return new IdentifierExpression(this.getTreeLocation_(start), identifier);
+    },
+
 
     /**
      * @return {LiteralExpression}

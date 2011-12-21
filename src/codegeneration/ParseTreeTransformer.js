@@ -653,15 +653,13 @@ traceur.define('codegeneration', function() {
      * @return {ParseTree}
      */
     transformImportBinding: function(tree) {
-      if (tree.importSpecifierSet != null) {
-        var importSpecifierSet = this.transformList(tree.importSpecifierSet);
-        if (importSpecifierSet != tree.importSpecifierSet) {
-          return new ImportBinding(null, tree.qualifiedPath,
-              importSpecifierSet);
-        }
+      var moduleExpression = this.transformAny(tree.moduleExpresion);
+      var importSpecifierSet = this.transformList(tree.importSpecifierSet);
+      if (moduleExpresion == tree.moduleExpresion &&
+          importSpecifierSet == tree.importSpecifierSet) {
+        return tree;
       }
-
-      return tree;
+      return new ImportBinding(null, moduleExpresion, importSpecifierSet);
     },
 
     /**

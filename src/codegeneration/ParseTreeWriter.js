@@ -343,11 +343,11 @@ traceur.define('codegeneration', function() {
      * @param {traceur.syntax.trees.ExportMapping} tree
      */
     visitExportMapping: function(tree) {
-      if (tree.moduleExpression) {
-        this.visitAny(tree.moduleExpression);
-        this.write_(TokenType.PERIOD);
-      }
       this.visitAny(tree.specifierSet);
+      if (tree.moduleExpression) {
+        this.write_(PredefinedName.FROM);
+        this.visitAny(tree.moduleExpression);
+      }
     },
 
     /**
@@ -656,7 +656,7 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {ModuleRequire} tree
+     * @param {ModuleSpecifier} tree
      */
     visitModuleSpecifier: function(tree) {
       this.write_(tree.identifier);
