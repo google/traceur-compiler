@@ -139,6 +139,15 @@ traceur.define('syntax.trees', function() {
 
     /**
      * @param {traceur.util.SourceRange} location
+     * @param {ParseTree} operand
+     * @param {Array.<ParseTree>} expressions
+     * @constructor
+     * @extends {ParseTree}
+     */
+    CascadeExpression: create('operand', 'expressions'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
      * @param {ParseTree} expression
      * @param {Array.<ParseTree>} statements
      * @constructor

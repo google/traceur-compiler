@@ -226,6 +226,16 @@ traceur.define('codegeneration', function() {
     },
 
     /**
+     * @param {ChaineExpression} tree
+     */
+    visitCascadeExpression: function(tree) {
+      this.visitAny(tree.operand);
+      this.write_(TokenType.PERIOD_OPEN_CURLY);
+      this.writelnList_(tree.expressions, TokenType.SEMI_COLON, false);
+      this.write_(TokenType.CLOSE_CURLY);
+    },
+
+    /**
      * @param {ClassDeclaration} tree
      */
     visitClassDeclaration: function(tree) {

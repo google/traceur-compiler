@@ -82,6 +82,7 @@ traceur.define('syntax', function() {
     OPEN_SQUARE: '[',
     CLOSE_SQUARE: ']',
     PERIOD: '.',
+    PERIOD_OPEN_CURLY: '.{',
     SEMI_COLON: ';',
     COMMA: ',',
     OPEN_ANGLE: '<',

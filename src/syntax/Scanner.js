@@ -600,6 +600,12 @@ traceur.define('syntax', function() {
             return this.createToken_(TokenType.DOT_DOT_DOT, beginToken);
           }
 
+          // .{ chain operator
+          if (this.peek_('{')) {
+            this.nextChar_();
+            return this.createToken_(TokenType.PERIOD_OPEN_CURLY, beginToken);
+          }
+
           return this.createToken_(TokenType.PERIOD, beginToken);
         case ';': return this.createToken_(TokenType.SEMI_COLON, beginToken);
         case ',': return this.createToken_(TokenType.COMMA, beginToken);

@@ -137,6 +137,7 @@ traceur.define('syntax.trees', function() {
         case ParseTreeType.ARROW_FUNCTION_EXPRESSION:
         case ParseTreeType.BINARY_OPERATOR:
         case ParseTreeType.CALL_EXPRESSION:
+        case ParseTreeType.CASCADE_EXPRESSION:
         case ParseTreeType.CONDITIONAL_EXPRESSION:
         case ParseTreeType.FUNCTION_DECLARATION:
         case ParseTreeType.IDENTIFIER_EXPRESSION:
@@ -187,6 +188,7 @@ traceur.define('syntax.trees', function() {
         // CallExpression:
         //   CallExpression . IdentifierName
         case ParseTreeType.CALL_EXPRESSION:
+        case ParseTreeType.CASCADE_EXPRESSION:
           return true;
 
         // new MemberExpression Arguments

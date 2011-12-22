@@ -24,6 +24,7 @@ traceur.define('codegeneration', function() {
   var createCallExpression = ParseTreeFactory.createCallExpression;
   var createCaseClause = ParseTreeFactory.createCaseClause;
   var createCatch = ParseTreeFactory.createCatch;
+  var createCascadeExpression = ParseTreeFactory.createCascadeExpression;
   var createClassDeclaration = ParseTreeFactory.createClassDeclaration;
   var createCommaExpression = ParseTreeFactory.createCommaExpression;
   var createConditionalExpression = ParseTreeFactory.createConditionalExpression;
@@ -325,6 +326,19 @@ traceur.define('codegeneration', function() {
         return tree;
       }
       return createCatch(identifier, catchBody);
+    },
+
+    /**
+     * @param {CascadeExpression} tree
+     * @return {ParseTree}
+     */
+    transformCascadeExpression: function(tree) {
+      var operand = this.transformAny(tree.operand);
+      var expressions = this.transformList(tree.expressions);
+      if (operand == tree.operand && expressions == tree.expressions) {
+        return tree;
+      }
+      return createCascadeExpression(operand, expressions);
     },
 
     /**

@@ -15,22 +15,22 @@
 traceur.define('codegeneration', function() {
   'use strict';
 
-  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
-  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
   var AlphaRenamer = traceur.codegeneration.AlphaRenamer;
-
-  var ParseTreeVisitor = traceur.syntax.ParseTreeVisitor;
-  var PredefinedName = traceur.syntax.PredefinedName;
-  var TokenType = traceur.syntax.TokenType;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
+  var ArgumentsFinder = traceur.codegeneration.ArgumentsFinder;
   var ArrayPattern = traceur.syntax.trees.ArrayPattern;
   var BinaryOperator = traceur.syntax.trees.BinaryOperator;
   var BindingIdentifier = traceur.syntax.trees.BindingIdentifier;
-  var ObjectPatternField = traceur.syntax.trees.ObjectPatternField;
   var ObjectPattern = traceur.syntax.trees.ObjectPattern;
+  var ObjectPatternField = traceur.syntax.trees.ObjectPatternField;
   var ParseTree = traceur.syntax.trees.ParseTree;
-  var VariableDeclarationList = traceur.syntax.trees.VariableDeclarationList;
+  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
+  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
+  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
+  var ParseTreeVisitor = traceur.syntax.ParseTreeVisitor;
+  var PredefinedName = traceur.syntax.PredefinedName;
+  var TokenType = traceur.syntax.TokenType;
   var VariableDeclaration = traceur.syntax.trees.VariableDeclaration;
+  var VariableDeclarationList = traceur.syntax.trees.VariableDeclarationList;
 
   var createArgumentList = ParseTreeFactory.createArgumentList;
   var createAssignmentStatement = ParseTreeFactory.createAssignmentStatement;
@@ -101,48 +101,6 @@ traceur.define('codegeneration', function() {
         lvalue = toBindingIdentifier(lvalue);
       this.declarations.push(createVariableDeclaration(lvalue, rvalue));
     }
-  });
-
-  /**
-   * This is used to see if a function body contains a reference to arguments.
-   * Does not search into nested functions.
-   * @param {ParseTree} tree
-   * @extends {ParseTreeVisitor}
-   * @constructor
-   */
-  function ArgumentsFinder(tree) {
-    try {
-      this.visitAny(tree);
-    } catch (ex) {
-      // This uses an exception to do early exits.
-      if (ex !== foundSentinel) {
-        throw ex;
-      }
-    }
-  }
-
-  // Object used as a sentinel. This is thrown to abort visiting the rest of the
-  // tree.
-  var foundSentinel = {};
-
-  ArgumentsFinder.prototype = traceur.createObject(ParseTreeVisitor.prototype, {
-    hasArguments: false,
-
-    /**
-     * @param {IdentifierExpression} tree
-     */
-    visitIdentifierExpression: function(tree) {
-      if (tree.identifierToken.value === PredefinedName.ARGUMENTS) {
-        this.hasArguments = true;
-        // Exit early.
-        throw foundSentinel;
-      }
-    },
-
-    // don't visit function children or bodies
-    visitFunctionDeclaration: function(tree) {},
-    visitSetAccessor: function(tree) {},
-    visitGetAccessor: function(tree) {}
   });
 
   /**

@@ -36,6 +36,7 @@ traceur.define('syntax', function() {
   var CallExpression = traceur.syntax.trees.CallExpression;
   var CaseClause = traceur.syntax.trees.CaseClause;
   var Catch = traceur.syntax.trees.Catch;
+  var CascadeExpression = traceur.syntax.trees.CascadeExpression;
   var ClassDeclaration = traceur.syntax.trees.ClassDeclaration;
   var ClassExpression = traceur.syntax.trees.ClassExpression;
   var CommaExpression = traceur.syntax.trees.CommaExpression;
@@ -2496,7 +2497,16 @@ traceur.define('syntax', function() {
      * @private
      */
     peekAssignmentOperator_: function() {
-      switch (this.peekType_()) {
+      return this.isAssignmentOperator_(this.peekType_());
+    },
+
+    /**
+     * @param {TokenType} tokenType
+     * @return {boolean}
+     * @private
+     */
+    isAssignmentOperator_: function(tokenType) {
+      switch (tokenType) {
         case TokenType.EQUAL:
         case TokenType.STAR_EQUAL:
         case TokenType.SLASH_EQUAL:
@@ -2861,25 +2871,32 @@ traceur.define('syntax', function() {
       var operand = this.parseNewExpression_();
 
       // this test is equivalent to is member expression
-      if (!(operand instanceof NewExpression) ||
-          operand.args != null) {
+      if (!(operand instanceof NewExpression) || operand.args != null) {
 
         // The Call expression productions
         while (this.peekCallSuffix_()) {
           switch (this.peekType_()) {
             case TokenType.OPEN_PAREN:
               var args = this.parseArguments_();
-              operand = new CallExpression(this.getTreeLocation_(start), operand, args);
+              operand = new CallExpression(this.getTreeLocation_(start),
+                                           operand, args);
               break;
             case TokenType.OPEN_SQUARE:
               this.eat_(TokenType.OPEN_SQUARE);
               var member = this.parseExpression_();
               this.eat_(TokenType.CLOSE_SQUARE);
-              operand = new MemberLookupExpression(this.getTreeLocation_(start), operand, member);
+              operand = new MemberLookupExpression(this.getTreeLocation_(start),
+                                                   operand, member);
               break;
             case TokenType.PERIOD:
               this.eat_(TokenType.PERIOD);
-              operand = new MemberExpression(this.getTreeLocation_(start), operand, this.eatIdName_());
+              operand = new MemberExpression(this.getTreeLocation_(start),
+                                             operand, this.eatIdName_());
+              break;
+            case TokenType.PERIOD_OPEN_CURLY:
+              var expressions = this.parseCascadeExpressions_();
+              operand = new CascadeExpression(this.getTreeLocation_(start),
+                                              operand, expressions);
               break;
           }
         }
@@ -2894,7 +2911,8 @@ traceur.define('syntax', function() {
     peekCallSuffix_: function() {
       return this.peek_(TokenType.OPEN_PAREN) ||
           this.peek_(TokenType.OPEN_SQUARE) ||
-          this.peek_(TokenType.PERIOD);
+          this.peek_(TokenType.PERIOD) ||
+          options.cascadeExpression && this.peek_(TokenType.PERIOD_OPEN_CURLY);
     },
 
     // 11.2 Member Expression without the new production
@@ -2910,18 +2928,82 @@ traceur.define('syntax', function() {
       } else {
         operand = this.parsePrimaryExpression_();
       }
+
       while (this.peekMemberExpressionSuffix_()) {
-        if (this.peek_(TokenType.OPEN_SQUARE)) {
-          this.eat_(TokenType.OPEN_SQUARE);
-          var member = this.parseExpression_();
-          this.eat_(TokenType.CLOSE_SQUARE);
-          operand = new MemberLookupExpression(this.getTreeLocation_(start), operand, member);
-        } else {
-          this.eat_(TokenType.PERIOD);
-          operand = new MemberExpression(this.getTreeLocation_(start), operand, this.eatIdName_());
+        switch (this.peekType_()) {
+          case TokenType.OPEN_SQUARE:
+            this.eat_(TokenType.OPEN_SQUARE);
+            var member = this.parseExpression_();
+            this.eat_(TokenType.CLOSE_SQUARE);
+            operand = new MemberLookupExpression(this.getTreeLocation_(start),
+                                                 operand, member);
+            break;
+
+          case TokenType.PERIOD:
+            this.eat_(TokenType.PERIOD);
+            operand = new MemberExpression(this.getTreeLocation_(start),
+                                           operand, this.eatIdName_());
+            break;
+
+          case TokenType.PERIOD_OPEN_CURLY:
+            var expressions = this.parseCascadeExpressions_();
+            operand = new CascadeExpression(this.getTreeLocation_(start),
+                                            operand, expressions);
+            break;
         }
       }
       return operand;
+    },
+
+    parseCascadeExpressions_: function() {
+      this.eat_(TokenType.PERIOD_OPEN_CURLY);
+      var expressions = [];
+      while (this.peekId_() && this.peekAssignmentExpression_()) {
+        expressions.push(this.parseCascadeExpression_());
+        this.eatPossibleImplicitSemiColon_();
+      }
+      this.eat_(TokenType.CLOSE_CURLY);
+      return expressions;
+    },
+
+    parseCascadeExpression_: function() {
+      var expr = this.parseAssignmentExpression_();
+      var operand;
+      switch (expr.type) {
+        case ParseTreeType.CALL_EXPRESSION:
+        case ParseTreeType.MEMBER_EXPRESSION:
+        case ParseTreeType.MEMBER_LOOKUP_EXPRESSION:
+        case ParseTreeType.CASCADE_EXPRESSION:
+          operand = expr.operand;
+          break;
+        case ParseTreeType.BINARY_OPERATOR:
+          operand = expr.left;
+          break;
+        default:
+          this.reportError_(expr.location,
+                            'Invalid expression. Type: ' + expr.type);
+      }
+
+      if (operand) {
+        switch (operand.type) {
+          case ParseTreeType.MEMBER_EXPRESSION:
+          case ParseTreeType.MEMBER_LOOKUP_EXPRESSION:
+          case ParseTreeType.CALL_EXPRESSION:
+          case ParseTreeType.CASCADE_EXPRESSION:
+          case ParseTreeType.IDENTIFIER_EXPRESSION:
+            break;
+          default:
+            this.reportError_(operand.location,
+                              'Invalid expression: ' + operand.type);
+        }
+      }
+
+      if (expr.type == ParseTreeType.BINARY_OPERATOR &&
+          !this.isAssignmentOperator_(expr.operator.type)) {
+        this.reportError_(expr.operator, 'Invalid operator: ' + expr.operator);
+      }
+
+      return expr;
     },
 
     /**
@@ -2929,7 +3011,9 @@ traceur.define('syntax', function() {
      * @private
      */
     peekMemberExpressionSuffix_: function() {
-      return this.peek_(TokenType.OPEN_SQUARE) || this.peek_(TokenType.PERIOD);
+      return this.peek_(TokenType.OPEN_SQUARE) ||
+          this.peek_(TokenType.PERIOD) ||
+          options.cascadeExpression && this.peek_(TokenType.PERIOD_OPEN_CURLY);
     },
 
     // 11.2 New Expression

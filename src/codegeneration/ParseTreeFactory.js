@@ -35,6 +35,7 @@ traceur.define('codegeneration', function() {
   var CallExpression = traceur.syntax.trees.CallExpression;
   var CaseClause = traceur.syntax.trees.CaseClause;
   var Catch = traceur.syntax.trees.Catch;
+  var CascadeExpression = traceur.syntax.trees.CascadeExpression;
   var ClassDeclaration = traceur.syntax.trees.ClassDeclaration;
   var CommaExpression = traceur.syntax.trees.CommaExpression;
   var ConditionalExpression = traceur.syntax.trees.ConditionalExpression;
@@ -487,6 +488,10 @@ traceur.define('codegeneration', function() {
     }
 
     return new Catch(null, identifier, catchBody);
+  }
+
+  function createCascadeExpression(operand, expressions) {
+    return new CascadeExpression(null, operand, expressions)
   }
 
   /**
@@ -1111,6 +1116,7 @@ traceur.define('codegeneration', function() {
       createCallStatement: createCallStatement,
       createCaseClause: createCaseClause,
       createCatch: createCatch,
+      createCascadeExpression: createCascadeExpression,
       createClassDeclaration: createClassDeclaration,
       createCommaExpression: createCommaExpression,
       createConditionalExpression: createConditionalExpression,

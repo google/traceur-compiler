@@ -154,6 +154,14 @@ traceur.define('syntax', function() {
     },
 
     /**
+     * @param {traceur.syntax.trees.CascadeExpression} tree
+     */
+    visitCascadeExpression: function(tree) {
+      this.visitAny(tree.operand);
+      this.visitList(tree.expressions);
+    },
+
+    /**
      * @param {traceur.syntax.trees.ClassDeclaration} tree
      */
     visitClassDeclaration: function(tree) {

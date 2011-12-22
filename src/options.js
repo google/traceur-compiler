@@ -260,6 +260,7 @@
   addFeatureOption('typeof', Kind.harmony);
 
   addFeatureOption('arrowFunctions', Kind.experimental);
+  addFeatureOption('cascadeExpression', Kind.experimental);
   addFeatureOption('collections', Kind.experimental);
   addFeatureOption('deferredFunctions', Kind.experimental);
   addFeatureOption('propertyMethods', Kind.experimental);
