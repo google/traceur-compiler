@@ -257,7 +257,6 @@
   addFeatureOption('modules', Kind.harmony);
   addFeatureOption('privateNames', Kind.harmony);
   addFeatureOption('quasi', Kind.harmony);
-  addFeatureOption('typeof', Kind.harmony);
 
   addFeatureOption('arrowFunctions', Kind.experimental);
   addFeatureOption('cascadeExpression', Kind.experimental);

@@ -35,7 +35,6 @@ traceur.define('codegeneration', function() {
   var FreeVariableChecker = traceur.semantics.FreeVariableChecker;
   var ArrowFunctionTransformer = traceur.codegeneration.ArrowFunctionTransformer;
   var QuasiLiteralTransformer = traceur.codegeneration.QuasiLiteralTransformer;
-  var TypeofTransformer = traceur.codegeneration.TypeofTransformer;
   var CollectionTransformer = traceur.codegeneration.CollectionTransformer;
   var CascadeExpressionTransformer = traceur.codegeneration.CascadeExpressionTransformer;
 
@@ -200,7 +199,6 @@ traceur.define('codegeneration', function() {
       chain(options.destructuring, DestructuringTransformer.transformTree);
       chain(options.spread, SpreadTransformer.transformTree);
       chain(options.blockBinding, BlockBindingTransformer.transformTree);
-      chain(options.typeof, TypeofTransformer.transformTree);
 
       // Cascade must come before CollectionTransformer.
       chain(options.cascadeExpression,
