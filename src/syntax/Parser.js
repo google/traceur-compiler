@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -196,12 +196,6 @@ traceur.define('syntax', function() {
   }
 
   Parser.prototype = {
-    /**
-     * @type {Token}
-     * @private
-     */
-    lastToken_: null,
-
     /**
      * Keeps track of whether we currently allow yield expressions.
      * @type {boolean}
@@ -2658,7 +2652,12 @@ traceur.define('syntax', function() {
         case TokenType.NOT_EQUAL_EQUAL:
           return true;
         default:
-          return false;
+          if (!options.isExpression)
+            return false;
+          var token = this.peekTokenNoLineTerminator_();
+          return token && token.type === TokenType.IDENTIFIER &&
+              (token.value === PredefinedName.IS ||
+               token.value === PredefinedName.ISNT);
       }
     },
 
@@ -3609,7 +3608,7 @@ traceur.define('syntax', function() {
      * @private
      */
     getLastLine_: function() {
-      return this.lastToken_.location.end.line;
+      return this.scanner_.lastToken.location.end.line;
     },
 
     /**
@@ -3728,7 +3727,7 @@ traceur.define('syntax', function() {
      * @private
      */
     getTreeEndLocation_: function() {
-      return this.lastToken_.location.end;
+      return this.scanner_.lastToken.location.end;
     },
 
     /**
@@ -3751,7 +3750,7 @@ traceur.define('syntax', function() {
      * @private
      */
     nextToken_: function() {
-      return this.lastToken_ = this.scanner_.nextToken();
+      return this.scanner_.nextToken();
     },
 
     /**
@@ -3761,11 +3760,11 @@ traceur.define('syntax', function() {
      * @private
      */
     nextRegularExpressionLiteralToken_: function() {
-      return this.lastToken_ = this.scanner_.nextRegularExpressionLiteralToken();
+      return this.scanner_.nextRegularExpressionLiteralToken();
     },
 
     nextQuasiLiteralPortionToken_: function() {
-      return this.lastToken_ = this.scanner_.nextQuasiLiteralPortionToken();
+      return this.scanner_.nextQuasiLiteralPortionToken();
     },
 
     nextQuasiIdentifier_: function() {
@@ -3773,7 +3772,7 @@ traceur.define('syntax', function() {
     },
 
     nextQuasiSubstitutionToken_: function() {
-      return this.lastToken_ = this.scanner_.nextQuasiSubstitutionToken();
+      return this.scanner_.nextQuasiSubstitutionToken();
     },
 
     peekEndOfQuasiLiteral_: function() {
@@ -3815,6 +3814,18 @@ traceur.define('syntax', function() {
      */
     peekToken_: function(opt_index) {
       return this.scanner_.peekToken(opt_index || 0);
+    },
+
+    /**
+     * Returns the index-th next token. Does not allow any line terminator
+     * before the next token. Does not consume any tokens. This returns null if
+     * no token was found before the next line terminator.
+     *
+     * @return {Token}
+     * @private
+     */
+    peekTokenNoLineTerminator_: function(opt_index) {
+      return this.scanner_.peekTokenNoLineTerminator(opt_index || 0);
     },
 
     /**

@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
@@ -58,7 +58,9 @@ traceur.define('syntax', function() {
     GET_MODULE_INSTANCE_BY_URL: 'getModuleInstanceByUrl',
     GET_PROPERTY: 'getProperty',
     INIT: '$init',
+    IS: 'is',
     IS_DONE: 'isDone',
+    ISNT: 'isnt',
     ITERATOR: 'iterator',
     LENGTH: 'length',
     MARK_AS_GENERATOR: 'markAsGenerator',

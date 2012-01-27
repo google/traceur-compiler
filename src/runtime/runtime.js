@@ -1,3 +1,17 @@
+// Copyright 2012 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 // Shim for DOM class declarations to be included before
 // including compiled classes which derive from the DOM
 
@@ -515,7 +529,7 @@ traceur.runtime = (function() {
   // http://wiki.ecmascript.org/doku.php?id=strawman:refactoring_put#object._get_set_property_built-ins
   function setProperty(object, name, value) {
     if (NameModule.isName(name)) {
-      var descriptor = $getPropertyDescriptor(object, 
+      var descriptor = $getPropertyDescriptor(object,
                                               [name[internalStringValueName]]);
       if (descriptor)
         object[name[internalStringValueName]] = value;
@@ -568,6 +582,21 @@ traceur.runtime = (function() {
   $defineProperty(Object, 'has', method(has));
   $defineProperty(Object, 'setProperty', method(setProperty));
   $defineProperty(Object.prototype, 'hasOwnProperty', {value: hasOwnProperty});
+
+  // is and isnt
+
+  // Unlike === this returns true for (NaN, NaN) and false for (0, -0).
+  function is(left, right) {
+    if (left === right)
+      return left !== 0 || 1 / left === 1 / right;
+    return left !== left && right !== right;
+  }
+
+  function isnt(left, right) {
+    return !is(left, right);
+  }
+
+  $defineProperty(Object, 'is', method(is));
 
   // Iterators.
   var iteratorName = NameModule.create('iterator');
@@ -723,6 +752,8 @@ traceur.runtime = (function() {
     elementHas: elementHas,
     elementSet: elementSet,
     getIterator: getIterator,
+    is: is,
+    isnt: isnt,
     markAsGenerator: markAsGenerator,
     markMethods: markMethods,
     modules: modules,

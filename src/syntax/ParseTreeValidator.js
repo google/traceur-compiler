@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,11 +15,12 @@
 traceur.define('syntax', function() {
   'use strict';
 
+  var NewExpression = traceur.syntax.trees.NewExpression;
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
   var ParseTreeVisitor = traceur.syntax.ParseTreeVisitor;
   var ParseTreeWriter = traceur.codegeneration.ParseTreeWriter;
+  var PredefinedName = traceur.syntax.PredefinedName;
   var TokenType = traceur.syntax.TokenType;
-  var NewExpression = traceur.syntax.trees.NewExpression;
 
   /*
   TODO: add contextual information to the validator so we can check
@@ -249,6 +250,16 @@ traceur.define('syntax', function() {
           this.check_(tree.right.isArrowFunctionExpression(), tree.right,
               'assignment expression expected');
           break;
+
+        case TokenType.IDENTIFIER:
+          var foundIsIdentifier = false;
+          switch (tree.operator.value) {
+            case PredefinedName.IS:
+            case PredefinedName.ISNT:
+              foundIsIdentifier = true;
+          }
+          if (foundIsIdentifier)
+            break;
 
         default:
           this.fail_(tree, 'unexpected binary operator');

@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ traceur.define('codegeneration', function() {
   var QuasiLiteralTransformer = traceur.codegeneration.QuasiLiteralTransformer;
   var CollectionTransformer = traceur.codegeneration.CollectionTransformer;
   var CascadeExpressionTransformer = traceur.codegeneration.CascadeExpressionTransformer;
+  var IsExpressionTransformer = traceur.codegeneration.IsExpressionTransformer;
 
   var CLASS_DECLARATION = traceur.syntax.trees.ParseTreeType.CLASS_DECLARATION;
   var TRAIT_DECLARATION = traceur.syntax.trees.ParseTreeType.TRAIT_DECLARATION;
@@ -175,6 +176,7 @@ traceur.define('codegeneration', function() {
             PropertyNameShorthandTransformer.transformTree);
       chain(options.traceurClasses,
             ClassTransformer.transform.bind(null, this.reporter_));
+      chain(options.isExpression, IsExpressionTransformer.transformTree);
 
       // for of must come before destructuring and generator, or anything
       // that wants to use VariableBinder
