@@ -587,7 +587,7 @@ traceur.define('codegeneration', function() {
      * @private
      */
     transformFunctionDeclarationStatement_: function(tree) {
-      var body = this.transformFunctionBody_(tree.functionBody);
+      var body = this.transformFunctionBody(tree.functionBody);
 
       if (tree.name != null && this.scope_.type == ScopeType.BLOCK) {
         // Named function in a block scope is only scoped to the block.
@@ -607,20 +607,6 @@ traceur.define('codegeneration', function() {
       } else {
         return tree;
       }
-    },
-
-    /**
-     * @param {GetAccessor} tree
-     * @return {ParseTree}
-     */
-    transformGetAccessor: function(tree) {
-      var body = this.transformFunctionBody_(tree.body);
-
-      if (body != tree.body) {
-        tree = createGetAccessor(tree.propertyName, tree.isStatic, body);
-      }
-
-      return tree;
     },
 
     /**
@@ -645,20 +631,6 @@ traceur.define('codegeneration', function() {
 
       this.pop_(scope);
       return result;
-    },
-
-    /**
-     * @param {SetAccessor} tree
-     * @return {ParseTree}
-     */
-    transformSetAccessor: function(tree) {
-      var body = this.transformFunctionBody_(tree.body);
-
-      if (body != tree.body) {
-        tree = createSetAccessor(
-            tree.propertyName, tree.isStatic, tree.parameter, body);
-      }
-      return tree;
     },
 
     /** Trait should be transformed away by now. */
@@ -816,7 +788,7 @@ traceur.define('codegeneration', function() {
      * @param {Block} tree
      * @return {Block}
      */
-    transformFunctionBody_: function(body) {
+    transformFunctionBody: function(body) {
       // Push new function context
       var scope = this.push_(this.createFunctionScope_());
 

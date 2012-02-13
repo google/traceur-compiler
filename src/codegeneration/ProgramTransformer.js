@@ -198,13 +198,16 @@ traceur.define('codegeneration', function() {
                                                      this.reporter_));
 
       // destructuring must come after for of and before block binding
-      chain(options.destructuring, DestructuringTransformer.transformTree);
+      chain(options.destructuring,
+            DestructuringTransformer.transformTree.bind(
+                null, this.identifierGenerator_));
       chain(options.spread, SpreadTransformer.transformTree);
       chain(options.blockBinding, BlockBindingTransformer.transformTree);
 
       // Cascade must come before CollectionTransformer.
       chain(options.cascadeExpression,
             CascadeExpressionTransformer.transformTree.bind(null,
+            this.identifierGenerator_,
             this.reporter_));
 
       chain(options.collections || options.privateNames,

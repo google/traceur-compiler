@@ -175,6 +175,7 @@ var traceur = (function() {
     'codegeneration/PropertyNameShorthandTransformer.js',
     'codegeneration/AlphaRenamer.js',
     'codegeneration/ArgumentsFinder.js',
+    'codegeneration/TempVarTransformer.js',
     'codegeneration/DestructuringTransformer.js',
     'codegeneration/DefaultParametersTransformer.js',
     'codegeneration/RestParameterTransformer.js',

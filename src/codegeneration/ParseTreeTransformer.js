@@ -608,7 +608,7 @@ traceur.define('codegeneration', function() {
     transformFunctionDeclaration: function(tree) {
       var parameters =
           this.transformAny(tree.formalParameterList);
-      var functionBody = this.transformAny(tree.functionBody);
+      var functionBody = this.transformFunctionBody(tree.functionBody);
       if (parameters == tree.formalParameterList &&
           functionBody == tree.functionBody) {
         return tree;
@@ -617,11 +617,21 @@ traceur.define('codegeneration', function() {
     },
 
     /**
+     * Even though function bodies are just Block trees the transformer calls
+     * transformFunctionBody when transforming functions bodies.
+     * @param  {Body} tree
+     * @return {ParseTree}
+     */
+    transformFunctionBody: function(tree) {
+      return this.transformAny(tree);
+    },
+
+    /**
      * @param {GetAccessor} tree
      * @return {ParseTree}
      */
     transformGetAccessor: function(tree) {
-      var body = this.transformAny(tree.body);
+      var body = this.transformFunctionBody(tree.body);
       if (body == tree.body) {
         return tree;
       }
@@ -1023,7 +1033,7 @@ traceur.define('codegeneration', function() {
      * @return {ParseTree}
      */
     transformSetAccessor: function(tree) {
-      var body = this.transformAny(tree.body);
+      var body = this.transformFunctionBody(tree.body);
       if (body == tree.body) {
         return tree;
       }

@@ -15,38 +15,25 @@
 traceur.define('codegeneration', function() {
   'use strict';
 
-  var AlphaRenamer = traceur.codegeneration.AlphaRenamer;
-  var ArgumentsFinder = traceur.codegeneration.ArgumentsFinder;
-  var ArrayPattern = traceur.syntax.trees.ArrayPattern;
-  var BinaryOperator = traceur.syntax.trees.BinaryOperator;
   var BindingIdentifier = traceur.syntax.trees.BindingIdentifier;
-  var ObjectPattern = traceur.syntax.trees.ObjectPattern;
-  var ObjectPatternField = traceur.syntax.trees.ObjectPatternField;
   var ParseTree = traceur.syntax.trees.ParseTree;
   var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
-  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var ParseTreeVisitor = traceur.syntax.ParseTreeVisitor;
   var PredefinedName = traceur.syntax.PredefinedName;
+  var TempVarTransformer = traceur.codegeneration.TempVarTransformer;
   var TokenType = traceur.syntax.TokenType;
   var VariableDeclaration = traceur.syntax.trees.VariableDeclaration;
   var VariableDeclarationList = traceur.syntax.trees.VariableDeclarationList;
 
   var createArgumentList = ParseTreeFactory.createArgumentList;
-  var createAssignmentStatement = ParseTreeFactory.createAssignmentStatement;
-  var createBlock = ParseTreeFactory.createBlock;
-  var createCallCall = ParseTreeFactory.createCallCall;
+  var createAssignmentExpression= ParseTreeFactory.createAssignmentExpression;
   var createCallExpression = ParseTreeFactory.createCallExpression;
-  var createFunctionExpression = ParseTreeFactory.createFunctionExpression;
+  var createCommaExpression = ParseTreeFactory.createCommaExpression;
   var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
   var createMemberExpression = ParseTreeFactory.createMemberExpression;
   var createMemberLookupExpression = ParseTreeFactory.createMemberLookupExpression;
   var createNumberLiteral = ParseTreeFactory.createNumberLiteral;
-  var createParameterList = ParseTreeFactory.createParameterList;
-  var createParameterReference = ParseTreeFactory.createParameterReference;
   var createParenExpression = ParseTreeFactory.createParenExpression;
-  var createReturnStatement = ParseTreeFactory.createReturnStatement;
-  var createThisExpression = ParseTreeFactory.createThisExpression;
   var createVariableDeclaration = ParseTreeFactory.createVariableDeclaration;
   var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList;
 
@@ -64,21 +51,21 @@ traceur.define('codegeneration', function() {
   }
 
   /**
-   * Collects assignments as assignment statements. This is the
-   * desugaring for assignment statements.
+   * Collects assignments as assignment expressions. This is the
+   * desugaring for assignment expressions.
    * @param {ParseTree} rvalue
    * @constructor
    * @extends {Desugaring}
    */
-  function AssignmentStatementDesugaring(rvalue) {
+  function AssignmentExpressionDesugaring(rvalue) {
     Desugaring.call(this, rvalue);
-    this.statements = [];
+    this.expressions = [];
   }
-  AssignmentStatementDesugaring.prototype = traceur.createObject(
+  AssignmentExpressionDesugaring.prototype = traceur.createObject(
       Desugaring.prototype, {
 
     assign: function(lvalue, rvalue) {
-      this.statements.push(createAssignmentStatement(lvalue, rvalue));
+      this.expressions.push(createAssignmentExpression(lvalue, rvalue));
     }
   });
 
@@ -107,21 +94,25 @@ traceur.define('codegeneration', function() {
    * Desugars destructuring assignment.
    *
    * @see <a href="http://wiki.ecmascript.org/doku.php?id=harmony:destructuring#assignments">harmony:destructuring</a>
+   * 
+   * @param {UniqueIdentifierGenerator} identifierGenerator
    * @constructor
-   * @extends {ParseTreeTransformer}
+   * @extends {TempVarTransformer}
    */
-  function DestructuringTransformer() {
+  function DestructuringTransformer(identifierGenerator) {
+    TempVarTransformer.call(this, identifierGenerator);
   }
 
   /**
+   * @param {UniqueIdentifierGenerator} identifierGenerator
    * @param {ParseTree} tree
    * @return {ParseTree}
    */
-  DestructuringTransformer.transformTree = function(tree) {
-    return new DestructuringTransformer().transformAny(tree);
+  DestructuringTransformer.transformTree = function(identifierGenerator, tree) {
+    return new DestructuringTransformer(identifierGenerator).transformAny(tree);
   };
 
-  var proto = ParseTreeTransformer.prototype;
+  var proto = TempVarTransformer.prototype;
   DestructuringTransformer.prototype = traceur.createObject(proto, {
 
     /**
@@ -170,41 +161,14 @@ traceur.define('codegeneration', function() {
      * @return {ParseTree}
      */
     desugarAssignment_: function(lvalue, rvalue) {
-      var desugaring =
-          new AssignmentStatementDesugaring(createParameterReference(0));
+      var tempIdent = createIdentifierExpression(this.addTempVar());
+      var desugaring = new AssignmentExpressionDesugaring(tempIdent);
       this.desugarPattern_(desugaring, lvalue);
-      desugaring.statements.push(createReturnStatement(desugaring.rvalue));
+      desugaring.expressions.unshift(createAssignmentExpression(tempIdent, rvalue));
+      desugaring.expressions.push(tempIdent);
 
-      var finder = new ArgumentsFinder(lvalue);
-      if (finder.hasArguments) {
-        // function($0, $arguments) { alpha renamed body }
-        var func = createFunctionExpression(
-            createParameterList(
-                PredefinedName.getParameterName(0),
-                PredefinedName.CAPTURED_ARGUMENTS),
-            AlphaRenamer.rename(
-                createBlock(desugaring.statements),
-                PredefinedName.ARGUMENTS,
-                PredefinedName.CAPTURED_ARGUMENTS));
-
-        // (func).call(this, rvalue, arguments)
-        return createCallCall(
-            createParenExpression(func),
-            createThisExpression(),
-            rvalue,
-            createIdentifierExpression(PredefinedName.ARGUMENTS));
-      }
-
-      // function($0) { body }
-      var func = createFunctionExpression(
-            createParameterList(PredefinedName.getParameterName(0)),
-            createBlock(desugaring.statements));
-
-      // (func).call(this, rvalue)
-      return createCallCall(
-          createParenExpression(func),
-          createThisExpression(),
-          rvalue);
+      return createParenExpression(
+          createCommaExpression(desugaring.expressions));
     },
 
     /**
