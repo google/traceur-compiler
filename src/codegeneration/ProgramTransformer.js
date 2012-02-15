@@ -142,9 +142,10 @@ traceur.define('codegeneration', function() {
     },
 
     transformTree_: function(tree, opt_module) {
+      var identifierGenerator = this.identifierGenerator_;
       var reporter = this.reporter_;
 
-      function chain(enabled, transformer) {
+      function chain(enabled, transformer, var_args) {
         if (!enabled)
           return;
 
@@ -152,11 +153,13 @@ traceur.define('codegeneration', function() {
           if (traceur.options.validate) {
             ParseTreeValidator.validate(tree);
           }
-          tree = transformer(tree) || tree;
+          var args = Array.prototype.slice.call(arguments, 2);
+          args.push(tree);
+          tree = transformer.apply(null, args) || tree;
         }
       }
 
-      if (options.modules && !this.reporter_.hadError()) {
+      if (options.modules && !reporter.hadError()) {
         if (traceur.options.validate) {
           ParseTreeValidator.validate(tree);
         }
@@ -166,22 +169,20 @@ traceur.define('codegeneration', function() {
       // TODO: many of these simple, local transforms could happen in the same
       // tree pass
 
-      chain(options.quasi, QuasiLiteralTransformer.transformTree.bind(
-          null, this.identifierGenerator_));
+      chain(options.quasi, QuasiLiteralTransformer.transformTree, identifierGenerator);
       chain(options.arrowFunctions,
-            ArrowFunctionTransformer.transformTree.bind(null, this.reporter_));
+            ArrowFunctionTransformer.transformTree, reporter);
       chain(options.propertyMethods,
             PropertyMethodAssignmentTransformer.transformTree);
       chain(options.propertyNameShorthand,
             PropertyNameShorthandTransformer.transformTree);
       chain(options.traceurClasses,
-            ClassTransformer.transform.bind(null, this.reporter_));
+            ClassTransformer.transform, reporter);
       chain(options.isExpression, IsExpressionTransformer.transformTree);
 
       // for of must come before destructuring and generator, or anything
       // that wants to use VariableBinder
-      chain(options.forOf, ForOfTransformer.transformTree.bind(
-          null, this.identifierGenerator_));
+      chain(options.forOf, ForOfTransformer.transformTree, identifierGenerator);
 
       // rest parameters must come before generator
       chain(options.restParameters, RestParameterTransformer.transformTree);
@@ -193,29 +194,28 @@ traceur.define('codegeneration', function() {
 
       // generator must come after for of and rest parameters
       chain(options.generators || options.deferredFunctions,
-           GeneratorTransformPass.transformTree.bind(null,
-                                                     this.identifierGenerator_,
-                                                     this.reporter_));
+            GeneratorTransformPass.transformTree,
+            identifierGenerator,
+            reporter);
 
       // destructuring must come after for of and before block binding
       chain(options.destructuring,
-            DestructuringTransformer.transformTree.bind(
-                null, this.identifierGenerator_));
+            DestructuringTransformer.transformTree, identifierGenerator);
       chain(options.spread, SpreadTransformer.transformTree);
       chain(options.blockBinding, BlockBindingTransformer.transformTree);
 
       // Cascade must come before CollectionTransformer.
       chain(options.cascadeExpression,
-            CascadeExpressionTransformer.transformTree.bind(null,
-            this.identifierGenerator_,
-            this.reporter_));
+            CascadeExpressionTransformer.transformTree,
+            identifierGenerator,
+            reporter);
 
       chain(options.collections || options.privateNames,
             CollectionTransformer.transformTree);
 
       // Issue errors for any unbound variables
       chain(traceur.options.freeVariableChecker,
-            FreeVariableChecker.checkProgram.bind(null, this.reporter_));
+            FreeVariableChecker.checkProgram, reporter);
 
       return tree;
     },
