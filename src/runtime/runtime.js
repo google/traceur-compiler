@@ -15,6 +15,7 @@
 // Shim for DOM class declarations to be included before
 // including compiled classes which derive from the DOM
 
+function HTMLBlockquoteElement() {}
 function HTMLH1HeadingElement() {}
 function HTMLH2HeadingElement() {}
 function HTMLH3HeadingElement() {}
@@ -23,6 +24,7 @@ function HTMLH5HeadingElement() {}
 function HTMLH6HeadingElement() {}
 
 try {
+  HTMLBlockquoteElement.prototype = HTMLQuoteElement.prototype;
   HTMLH1HeadingElement.prototype = HTMLHeadingElement.prototype;
   HTMLH2HeadingElement.prototype = HTMLHeadingElement.prototype;
   HTMLH3HeadingElement.prototype = HTMLHeadingElement.prototype;
@@ -61,81 +63,93 @@ traceur.runtime = (function() {
     map[name] = make;
   }
 
-  // AUTO-GENERATED
+  function addHtmlElement(interfaceName, tagName) {
+    if (typeof window !== 'undefined' && typeof document !== 'undefined' &&
+        interfaceName in window) {
+      add(interfaceName, window[interfaceName], function() {
+        return document.createElement(tagName);
+      });
+    }
+  }
+
+  // Semi auto-generated
   try {add('Array', Array, function() {return new Array();});}catch (e) {}
   try {add('Date', Date, function() {return new Date();});}catch (e) {}
   try {add('Event', Event, function() {return document.createEvent('Event');});}catch (e) {}
-  try {add('HTMLAnchorElement', HTMLAnchorElement, function() {return document.createElement('a');});}catch (e) {}
-  try {add('HTMLAreaElement', HTMLAreaElement, function() {return document.createElement('area');});}catch (e) {}
-  try {add('HTMLAudioElement', HTMLAudioElement, function() {return document.createElement('audio');});}catch (e) {}
-  try {add('HTMLBRElement', HTMLBRElement, function() {return document.createElement('br');});}catch (e) {}
-  try {add('HTMLBaseElement', HTMLBaseElement, function() {return document.createElement('base');});}catch (e) {}
-  try {add('HTMLBlockquoteElement', HTMLBlockquoteElement, function() {return document.createElement('blockquote');});}catch (e) {}
-  try {add('HTMLBodyElement', HTMLBodyElement, function() {return document.createElement('body');});}catch (e) {}
-  try {add('HTMLButtonElement', HTMLButtonElement, function() {return document.createElement('button');});}catch (e) {}
-  try {add('HTMLCanvasElement', HTMLCanvasElement, function() {return document.createElement('canvas');});}catch (e) {}
-  try {add('HTMLDListElement', HTMLDListElement, function() {return document.createElement('dl');});}catch (e) {}
-  try {add('HTMLDivElement', HTMLDivElement, function() {return document.createElement('div');});}catch (e) {}
+  addHtmlElement('HTMLAnchorElement', 'a');
+  addHtmlElement('HTMLAreaElement', 'area');
+  addHtmlElement('HTMLAudioElement', 'audio');
+  addHtmlElement('HTMLBRElement', 'br');
+  addHtmlElement('HTMLBaseElement', 'base');
+  addHtmlElement('HTMLBlockquoteElement', 'blockquote');
+  addHtmlElement('HTMLBodyElement', 'body');
+  addHtmlElement('HTMLButtonElement', 'button');
+  addHtmlElement('HTMLCanvasElement', 'canvas');
+  addHtmlElement('HTMLDListElement', 'dl');
+  addHtmlElement('HTMLDivElement', 'div');
   try {
     try {
       // Feature test for native Component Model subclassing.
       HTMLElement.call =  Function.prototype.call;
       HTMLElement.apply = Function.prototype.apply;
       new HTMLElement();
-    }catch(featureTestException) {
+    } catch(featureTestException) {
       // Else, hack in "generic" element support for constructing HTMLElement.
-      add('HTMLElement', HTMLElement, function() {return document.createElement('span');});
+      addHtmlElement('HTMLElement', 'span');
     }
   }catch (e) {}
-  try {add('HTMLEmbedElement', HTMLEmbedElement, function() {return document.createElement('embed');});}catch (e) {}
-  try {add('HTMLFieldSetElement', HTMLFieldSetElement, function() {return document.createElement('fieldset');});}catch (e) {}
-  try {add('HTMLFormElement', HTMLFormElement, function() {return document.createElement('form');});}catch (e) {}
-  try {add('HTMLH1HeadingElement', HTMLH1HeadingElement, function() {return document.createElement('h1');});}catch (e) {}
-  try {add('HTMLH2HeadingElement', HTMLH2HeadingElement, function() {return document.createElement('h2');});}catch (e) {}
-  try {add('HTMLH3HeadingElement', HTMLH3HeadingElement, function() {return document.createElement('h3');});}catch (e) {}
-  try {add('HTMLH4HeadingElement', HTMLH4HeadingElement, function() {return document.createElement('h4');});}catch (e) {}
-  try {add('HTMLH5HeadingElement', HTMLH5HeadingElement, function() {return document.createElement('h5');});}catch (e) {}
-  try {add('HTMLH6HeadingElement', HTMLH6HeadingElement, function() {return document.createElement('h6');});}catch (e) {}
-  try {add('HTMLHRElement', HTMLHRElement, function() {return document.createElement('hr');});}catch (e) {}
-  try {add('HTMLHeadElement', HTMLHeadElement, function() {return document.createElement('head');});}catch (e) {}
-  try {add('HTMLHeadingElement', HTMLHeadingElement, function() {return document.createElement('h1');});}catch (e) {}
-  try {add('HTMLHtmlElement', HTMLHtmlElement, function() {return document.createElement('html');});}catch (e) {}
-  try {add('HTMLIFrameElement', HTMLIFrameElement, function() {return document.createElement('iframe');});}catch (e) {}
-  try {add('HTMLImageElement', HTMLImageElement, function() {return document.createElement('img');});}catch (e) {}
-  try {add('HTMLInputElement', HTMLInputElement, function() {return document.createElement('input');});}catch (e) {}
-  try {add('HTMLLIElement', HTMLLIElement, function() {return document.createElement('li');});}catch (e) {}
-  try {add('HTMLLabelElement', HTMLLabelElement, function() {return document.createElement('label');});}catch (e) {}
-  try {add('HTMLLegendElement', HTMLLegendElement, function() {return document.createElement('legend');});}catch (e) {}
-  try {add('HTMLLinkElement', HTMLLinkElement, function() {return document.createElement('link');});}catch (e) {}
-  try {add('HTMLMapElement', HTMLMapElement, function() {return document.createElement('map');});}catch (e) {}
-  try {add('HTMLMenuElement', HTMLMenuElement, function() {return document.createElement('menu');});}catch (e) {}
-  try {add('HTMLMetaElement', HTMLMetaElement, function() {return document.createElement('meta');});}catch (e) {}
-  try {add('HTMLMeterElement', HTMLMeterElement, function() {return document.createElement('meter');});}catch (e) {}
-  try {add('HTMLModElement', HTMLModElement, function() {return document.createElement('del');});}catch (e) {}
-  try {add('HTMLOListElement', HTMLOListElement, function() {return document.createElement('ol');});}catch (e) {}
-  try {add('HTMLObjectElement', HTMLObjectElement, function() {return document.createElement('object');});}catch (e) {}
-  try {add('HTMLOptGroupElement', HTMLOptGroupElement, function() {return document.createElement('optgroup');});}catch (e) {}
-  try {add('HTMLOptionElement', HTMLOptionElement, function() {return document.createElement('option');});}catch (e) {}
-  try {add('HTMLOutputElement', HTMLOutputElement, function() {return document.createElement('output');});}catch (e) {}
-  try {add('HTMLParagraphElement', HTMLParagraphElement, function() {return document.createElement('p');});}catch (e) {}
-  try {add('HTMLParamElement', HTMLParamElement, function() {return document.createElement('param');});}catch (e) {}
-  try {add('HTMLPreElement', HTMLPreElement, function() {return document.createElement('pre');});}catch (e) {}
-  try {add('HTMLProgressElement', HTMLProgressElement, function() {return document.createElement('progress');});}catch (e) {}
-  try {add('HTMLQuoteElement', HTMLQuoteElement, function() {return document.createElement('q');});}catch (e) {}
-  try {add('HTMLScriptElement', HTMLScriptElement, function() {return document.createElement('script');});}catch (e) {}
-  try {add('HTMLSelectElement', HTMLSelectElement, function() {return document.createElement('select');});}catch (e) {}
-  try {add('HTMLSourceElement', HTMLSourceElement, function() {return document.createElement('source');});}catch (e) {}
-  try {add('HTMLStyleElement', HTMLStyleElement, function() {return document.createElement('style');});}catch (e) {}
-  try {add('HTMLTableCaptionElement', HTMLTableCaptionElement, function() {return document.createElement('caption');});}catch (e) {}
-  try {add('HTMLTableCellElement', HTMLTableCellElement, function() {return document.createElement('td');});}catch (e) {}
-  try {add('HTMLTableColElement', HTMLTableColElement, function() {return document.createElement('col');});}catch (e) {}
-  try {add('HTMLTableElement', HTMLTableElement, function() {return document.createElement('table');});}catch (e) {}
-  try {add('HTMLTableRowElement', HTMLTableRowElement, function() {return document.createElement('tr');});}catch (e) {}
-  try {add('HTMLTableSectionElement', HTMLTableSectionElement, function() {return document.createElement('tbody');});}catch (e) {}
-  try {add('HTMLTextAreaElement', HTMLTextAreaElement, function() {return document.createElement('textarea');});}catch (e) {}
-  try {add('HTMLTitleElement', HTMLTitleElement, function() {return document.createElement('title');});}catch (e) {}
-  try {add('HTMLUListElement', HTMLUListElement, function() {return document.createElement('ul');});}catch (e) {}
-  try {add('HTMLVideoElement', HTMLVideoElement, function() {return document.createElement('video');});}catch (e) {}
+  addHtmlElement('HTMLEmbedElement', 'embed');
+  addHtmlElement('HTMLFieldSetElement', 'fieldset');
+  addHtmlElement('HTMLFormElement', 'form');
+  addHtmlElement('HTMLH1HeadingElement', 'h1');
+  addHtmlElement('HTMLH2HeadingElement', 'h2');
+  addHtmlElement('HTMLH3HeadingElement', 'h3');
+  addHtmlElement('HTMLH4HeadingElement', 'h4');
+  addHtmlElement('HTMLH5HeadingElement', 'h5');
+  addHtmlElement('HTMLH6HeadingElement', 'h6');
+  addHtmlElement('HTMLHRElement', 'hr');
+  addHtmlElement('HTMLHeadElement', 'head');
+  addHtmlElement('HTMLHeadingElement', 'h1');
+  addHtmlElement('HTMLHtmlElement', 'html');
+  addHtmlElement('HTMLIFrameElement', 'iframe');
+  addHtmlElement('HTMLImageElement', 'img');
+  addHtmlElement('HTMLInputElement', 'input');
+  addHtmlElement('HTMLKeygenElement', 'keygen');
+  addHtmlElement('HTMLLIElement', 'li');
+  addHtmlElement('HTMLLabelElement', 'label');
+  addHtmlElement('HTMLLegendElement', 'legend');
+  addHtmlElement('HTMLLinkElement', 'link');
+  addHtmlElement('HTMLMapElement', 'map');
+  addHtmlElement('HTMLMenuElement', 'menu');
+  addHtmlElement('HTMLMetaElement', 'meta');
+  addHtmlElement('HTMLMeterElement', 'meter');
+  addHtmlElement('HTMLModElement', 'del');
+  addHtmlElement('HTMLOListElement', 'ol');
+  addHtmlElement('HTMLObjectElement', 'object');
+  addHtmlElement('HTMLOptGroupElement', 'optgroup');
+  addHtmlElement('HTMLOptionElement', 'option');
+  addHtmlElement('HTMLOutputElement', 'output');
+  addHtmlElement('HTMLParagraphElement', 'p');
+  addHtmlElement('HTMLParamElement', 'param');
+  addHtmlElement('HTMLPreElement', 'pre');
+  addHtmlElement('HTMLProgressElement', 'progress');
+  addHtmlElement('HTMLQuoteElement', 'q');
+  addHtmlElement('HTMLScriptElement', 'script');
+  addHtmlElement('HTMLSelectElement', 'select');
+  addHtmlElement('HTMLSourceElement', 'source');
+  addHtmlElement('HTMLSpanElement', 'span');
+  addHtmlElement('HTMLStyleElement', 'style');
+  addHtmlElement('HTMLTableCaptionElement', 'caption');
+  addHtmlElement('HTMLTableCellElement', 'td');
+  addHtmlElement('HTMLTableColElement', 'col');
+  addHtmlElement('HTMLTableElement', 'table');
+  addHtmlElement('HTMLTableRowElement', 'tr');
+  addHtmlElement('HTMLTableSectionElement', 'tbody');
+  addHtmlElement('HTMLTextAreaElement', 'textarea');
+  addHtmlElement('HTMLTitleElement', 'title');
+  addHtmlElement('HTMLTrackElement', 'track');
+  addHtmlElement('HTMLUListElement', 'ul');
+  addHtmlElement('HTMLVideoElement', 'video');
   try {add('KeyboardEvent', KeyboardEvent, function() {return document.createEvent('KeyboardEvent');});}catch (e) {}
   try {add('MouseEvent', MouseEvent, function() {return document.createEvent('MouseEvents');});}catch (e) {}
   try {add('MutationEvent', MutationEvent, function() {return document.createEvent('MutationEvents');});}catch (e) {}
@@ -145,7 +159,7 @@ traceur.runtime = (function() {
   try {add('Text', Text, function() {return document.createTextNode('');});}catch (e) {}
   try {add('TextEvent', TextEvent, function() {return document.createEvent('TextEvent');});}catch (e) {}
   try {add('UIEvent', UIEvent, function() {return document.createEvent('UIEvents');});}catch (e) {}
-  // END AUTO-GENERATED
+  // End auto-generated
 
   /**
    * Combines mixins with the current class, issuing errors for conflicts or
