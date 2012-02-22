@@ -24,16 +24,17 @@ traceur.define('codegeneration', function() {
 
   /**
    * @param {traceur.util.ObjectMap} results
+   * @param {Object} options to ParseTreeWriter.write
    * @return {string}
    */
-  ProjectWriter.write = function(results) {
+  ProjectWriter.write = function(results, options) {
     var sb = [];
     results.keys().forEach(function(file) {
       sb.push('// ' + file.name,
-              ParseTreeWriter.write(results.get(file)));
+              ParseTreeWriter.write(results.get(file), options));
     });
     return sb.join('\n') + '\n';
-  }
+  };
 
   return {
     ProjectWriter: ProjectWriter

@@ -41,19 +41,22 @@ traceur.define('codegeneration', function() {
   var NEW_LINE = '\n';
   var PRETTY_PRINT = true;
 
-  ParseTreeWriter.write = function(tree, var_args) {
+  /*
+   * Create a ParseTreeWriter configured with opt_options, apply it to tree
+   * @param {ParseTree} tree
+   * @param {Object} opt_options:
+   *   highlighted: {ParseTree} branch of tree to highlight
+   *   showLineNumbers: {boolean} add comments giving input line numbers
+   */
+
+  ParseTreeWriter.write = function(tree, opt_options) {
     var showLineNumbers;
     var highlighted = null;
-
-    // TODO: can we make this argument order more sane?
-    if (arguments.length === 1) {
-      showLineNumbers = false;
-    } else if (arguments.length === 2) {
-      showLineNumbers = arguments[1];
-    } else {
-      showLineNumbers = arguments[2];
-      highlighted = arguments[1];
+    if (opt_options) {
+      showLineNumbers = opt_options.showLineNumbers;
+      highlighted = opt_options.highlighted || null;
     }
+    
     var writer = new ParseTreeWriter(highlighted, showLineNumbers);
     writer.visitAny(tree);
     if (writer.currentLine_.length > 0) {
