@@ -252,17 +252,16 @@ traceur.runtime = (function() {
     var finit = binit ?
         (init ? function() { binit.call(this); init.call(this); } : binit) :
         init;
-    if (ctor) {
+
+    if (ctor)
       $defineProperty(proto, 'constructor', method(ctor));
-    } else {
+    else
       ctor = proto.constructor;
-    }
 
     proto.__proto__ = base.prototype;
 
-    if (mixins) {
+    if (mixins)
       mixins = analyzeMixins(proto, mixins);
-    }
 
     function TheClass() {
       var $this = make ? make() : this;
