@@ -109,6 +109,8 @@ pre{
 <label><input class="output" type="checkbox" checked>Show generated code</label>
 <hr>
 <div class="traceur-options"></div>
+<button class="all-on">All Options On</button>
+<button class="all-off">All Options Off</button>
 </div>
 
 <script>
@@ -205,6 +207,24 @@ pre{
 
   createOptions();
 
+  function rebuildOptions() {
+    var optionsDiv = document.querySelector('.traceur-options');
+    optionsDiv.innerHTML = '';
+    createOptions();
+  }
+  
+  document.querySelector('.all-on').addEventListener('click',
+      function() {
+        traceur.options.reset();
+        rebuildOptions();
+      });
+
+  document.querySelector('.all-off').addEventListener('click', 
+    function() {
+      traceur.options.reset(true);
+      rebuildOptions();
+    });
+  
   document.querySelector('.option-button').addEventListener('click',
       function() {
         var optionsDiv = document.querySelector('.options');

@@ -116,11 +116,12 @@
 
 
   /**
-   * Resets all options to true.
+   * Resets all options to true by default, or false if allOff is true.
+   *@param {boolean=} opt_allOff
    */
-  function reset() {
+  function reset(opt_allOff) {
     Object.keys(this).forEach(function(name) {
-      this[name] = true;
+      this[name] = !opt_allOff;
     }, this);
   }
 
