@@ -109,8 +109,8 @@
     results.keys().forEach(function(file) {
       var tree = results.get(file);
       var filename = file.name;
-      var writer = traceur.codegeneration.ParseTreeWriter;
-      var result = writer.write(tree, {showLineNumbers: false});
+      var options = {showLineNumbers: false};
+      var result = traceur.codegeneration.ParseTreeWriter.write(tree, options);
 
       // Compute the output path
       var outputdir = fs.realpathSync(process.cwd());

@@ -20,8 +20,6 @@ traceur.define('codegeneration', function() {
   var Keywords = traceur.syntax.Keywords;
   var TokenType = traceur.syntax.TokenType;
   var StringBuilder = traceur.util.StringBuilder;
-  var Keywords = traceur.syntax.Keywords;
-  var PredefinedName = traceur.syntax.PredefinedName;
 
   /**
    * Converts a ParseTree to text.
@@ -36,34 +34,63 @@ traceur.define('codegeneration', function() {
     this.result_ = new StringBuilder();
     this.currentLine_ = new StringBuilder();
   }
-
+  /**
+   * Converts a ParseTree to text and a source Map
+   * @param {ParseTree} highlighted
+   * @param {boolean} showLineNumbers
+   * @constructor
+   */
+  function ParseTreeMapWriter(highlighted, showLineNumbers, 
+      sourceMapGenerator, file) {
+    ParseTreeWriter.call(this, highlighted, showLineNumbers);
+    this.sourceMapGenerator_ = sourceMapGenerator;
+    this.file_ = file;
+    this.outputLineCount = 0;
+  }
+  
   // constants
   var NEW_LINE = '\n';
   var PRETTY_PRINT = true;
 
   /*
-   * Create a ParseTreeWriter configured with opt_options, apply it to tree
+   * Create a ParseTreeWriter configured with options, apply it to tree
    * @param {ParseTree} tree
-   * @param {Object} opt_options:
+   * @param {Object} options:
    *   highlighted: {ParseTree} branch of tree to highlight
    *   showLineNumbers: {boolean} add comments giving input line numbers
    */
 
-  ParseTreeWriter.write = function(tree, opt_options) {
+  ParseTreeWriter.write = function(tree, options) {
     var showLineNumbers;
     var highlighted = null;
-    if (opt_options) {
-      showLineNumbers = opt_options.showLineNumbers;
-      highlighted = opt_options.highlighted || null;
+    var sourceMapGenerator;
+    var file;
+    if (options) {
+      showLineNumbers = options.showLineNumbers;
+      highlighted = options.highlighted || null;
+      sourceMapGenerator = options.sourceMapGenerator;
+      file = options.file || {name: 'unknown'};
     }
     
-    var writer = new ParseTreeWriter(highlighted, showLineNumbers);
+    var writer;
+    if (sourceMapGenerator) {
+      writer = new ParseTreeMapWriter(highlighted, showLineNumbers, 
+          sourceMapGenerator, file);
+    } else {
+      writer = new ParseTreeWriter(highlighted, showLineNumbers);
+    }
+    
     writer.visitAny(tree);
     if (writer.currentLine_.length > 0) {
       writer.writeln_();
     }
+    
+    if (sourceMapGenerator) {
+      options.sourceMap = sourceMapGenerator.toString();
+    }
+    
     return writer.result_.toString();
-  }
+  };
 
   ParseTreeWriter.prototype = traceur.createObject(
       ParseTreeVisitor.prototype, {
@@ -84,19 +111,28 @@ traceur.define('codegeneration', function() {
      * @param {ParseTree} tree
      */
     visitAny: function(tree) {
+      if (!tree) {
+        return;
+      }
+        
       // set background color to red if tree is highlighted
-      if (tree != null && tree == this.highlighted_) {
+      if (tree === this.highlighted_) {
         this.write_('\x1B[41m');
       }
 
-      if (tree != null && tree.location != null &&
-          tree.location.start != null && this.showLineNumbers_) {
-        this.currentLineComment_ = 'Line: ' + (tree.location.start.line + 1);
+      if (tree.location !== null &&
+          tree.location.start !== null && this.showLineNumbers_) {
+          var line = tree.location.start.line + 1;
+          var column = tree.location.start.column;
+        this.currentLineComment_ = 'Line: ' + line + '.' + column;
       }
+      
+      this.currentLocation = tree.location;
+      
       ParseTreeVisitor.prototype.visitAny.call(this, tree);
 
       // set background color to normal
-      if (tree != null && tree == this.highlighted_) {
+      if (tree === this.highlighted_) {
         this.write_('\x1B[0m');
       }
     },
@@ -144,7 +180,7 @@ traceur.define('codegeneration', function() {
      */
     visitAwaitStatement: function(tree) {
       this.write_(TokenType.AWAIT);
-      if (tree.identifier != null) {
+      if (tree.identifier !== null) {
         this.write_(tree.identifier);
         this.write_(TokenType.EQUAL);
       }
@@ -191,7 +227,7 @@ traceur.define('codegeneration', function() {
      */
     visitBreakStatement: function(tree) {
       this.write_(TokenType.BREAK);
-      if (tree.name != null) {
+      if (tree.name !== null) {
         this.write_(tree.name);
       }
       this.write_(TokenType.SEMI_COLON);
@@ -244,7 +280,7 @@ traceur.define('codegeneration', function() {
     visitClassDeclaration: function(tree) {
       this.write_(TokenType.CLASS);
       this.write_(tree.name);
-      if (tree.superClass != null) {
+      if (tree.superClass !== null) {
         this.write_(TokenType.COLON);
         this.visitAny(tree.superClass);
       }
@@ -283,7 +319,7 @@ traceur.define('codegeneration', function() {
      */
     visitContinueStatement: function(tree) {
       this.write_(TokenType.CONTINUE);
-      if (tree.name != null) {
+      if (tree.name !== null) {
         this.write_(tree.name);
       }
       this.write_(TokenType.SEMI_COLON);
@@ -521,7 +557,7 @@ traceur.define('codegeneration', function() {
       this.visitAny(tree.condition);
       this.write_(TokenType.CLOSE_PAREN);
       this.visitAny(tree.ifClause);
-      if (tree.elseClause != null) {
+      if (tree.elseClause) {
         this.write_(TokenType.ELSE);
         this.visitAny(tree.elseClause);
       }
@@ -552,7 +588,7 @@ traceur.define('codegeneration', function() {
      */
     visitImportSpecifier: function(tree) {
       this.write_(tree.importedName);
-      if (tree.destinationName != null) {
+      if (tree.destinationName !== null) {
         this.write_(TokenType.COLON);
         this.write_(tree.destinationName);
       }
@@ -719,7 +755,7 @@ traceur.define('codegeneration', function() {
      */
     visitObjectPatternField: function(tree) {
       this.write_(tree.identifier);
-      if (tree.element != null) {
+      if (tree.element !== null) {
         this.write_(TokenType.COLON);
         this.visitAny(tree.element);
       }
@@ -946,7 +982,7 @@ traceur.define('codegeneration', function() {
      */
     visitVariableDeclaration: function(tree) {
       this.visitAny(tree.lvalue);
-      if (tree.initializer != null) {
+      if (tree.initializer !== null) {
         this.write_(TokenType.EQUAL);
         this.visitAny(tree.initializer);
       }
@@ -995,7 +1031,7 @@ traceur.define('codegeneration', function() {
     },
 
     writeln_: function() {
-      if (this.currentLineComment_ != null) {
+      if (this.currentLineComment_ !== null) {
         while (this.currentLine_.length < 80) {
           this.currentLine_.append(' ');
         }
@@ -1004,6 +1040,7 @@ traceur.define('codegeneration', function() {
       }
       this.result_.append(this.currentLine_.toString());
       this.result_.append(NEW_LINE);
+      this.outputLineCount++;
       this.currentLine_ = new StringBuilder();
     },
 
@@ -1037,7 +1074,7 @@ traceur.define('codegeneration', function() {
         if (first) {
           first = false;
         } else {
-          if (delimiter != null) {
+          if (delimiter !== null) {
             this.write_(delimiter);
           }
           if (writeNewLine) {
@@ -1047,7 +1084,8 @@ traceur.define('codegeneration', function() {
         this.visitAny(element);
       }
     },
-
+    
+    // TODO(jjb) not called 
     writeTokenList_: function(list, delimiter, writeNewLine) {
       var first = true;
       for (var i = 0; i < list.length; i++) {
@@ -1055,7 +1093,7 @@ traceur.define('codegeneration', function() {
         if (first) {
           first = false;
         } else {
-          if (delimiter != null) {
+          if (delimiter !== null) {
             this.write_(delimiter);
           }
           if (writeNewLine) {
@@ -1071,7 +1109,7 @@ traceur.define('codegeneration', function() {
      * @private
      */
     writeRaw_: function(value) {
-      if (value != null) {
+      if (value !== null) {
         this.currentLine_.append(value.toString());
       }
     },
@@ -1104,14 +1142,14 @@ traceur.define('codegeneration', function() {
           break;
       }
 
-      if (value != null) {
+      if (value !== null) {
         if (PRETTY_PRINT) {
-          if (this.currentLine_.length == 0) {
+          if (this.currentLine_.length === 0) {
             for (var i = 0, indent = this.indentDepth_ * 2; i < indent; ++i) {
               this.currentLine_.append(' ');
             }
           } else {
-            if (spaceBefore == false && this.currentLine_.lastChar() == ' ') {
+            if (spaceBefore === false && this.currentLine_.lastChar() === ' ') {
               this.currentLine_.deleteLastChar();
             }
           }
@@ -1126,9 +1164,39 @@ traceur.define('codegeneration', function() {
         this.indentDepth_++;
       }
     }
+    
   });
-
+  
+  ParseTreeMapWriter.prototype = traceur.createObject(
+      ParseTreeWriter.prototype, {
+    
+    write_: function(value) {
+      if (this.currentLocation) {
+        this.addMapping();
+      }
+      ParseTreeWriter.prototype.write_.apply(this,[value]);
+    },
+    
+    addMapping: function() {
+      var mapping = {
+        generated: {
+          // +1 because PROGRAM puts a newline before the first stmt
+          line: this.outputLineCount + 1,  
+          column: this.currentLine_.length
+        },
+        original: {
+          // +1 because line is zero based
+          line: this.currentLocation.start.line + 1,
+          column: this.currentLocation.start.column
+         },   
+         source: this.file_.name
+      };
+      this.sourceMapGenerator_.addMapping(mapping);
+    }
+  });
+  
   return {
-    ParseTreeWriter: ParseTreeWriter
+    ParseTreeWriter: ParseTreeWriter,
+    ParseTreeMapWriter: ParseTreeMapWriter
   };
 });

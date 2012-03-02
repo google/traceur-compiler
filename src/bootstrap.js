@@ -15,6 +15,8 @@
 (function() {
   'use strict';
 
+  var ParseTreeWriter = traceur.codegeneration.ParseTreeWriter;
+
   function compileAll() {
     // Code to handle automatically loading and running all scripts with type
     // text/traceur after the DOMContentLoaded event has fired.
@@ -104,7 +106,7 @@
 
       results.keys().forEach(function(file) {
         var tree = results.get(file);
-        var result = traceur.codegeneration.ParseTreeWriter.write(tree, {showLineNumbers: false});
+        var result = ParseTreeWriter.write(tree, {showLineNumbers: false});
         var entry = fileToEntry.get(file);
         var scriptElement = document.createElement('script');
         scriptElement.setAttribute('data-traceur-src-url', entry.name);

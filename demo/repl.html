@@ -19,6 +19,7 @@
 <html>
 <head>
 <title>Traceur</title>
+
 <script src="../src/traceur.js"></script>
 <style>
 
@@ -103,6 +104,7 @@ pre{
 <pre class="eval"></pre>
 
 <pre class="output"></pre>
+<pre class="source-map"></pre>
 <button class="option-button">Options</button>
 <div class="options" hidden>
 <label><input class="eval" type="checkbox" checked>Evaluate</label>
@@ -118,6 +120,10 @@ pre{
 (function() {
   'use strict';
 
+  var SourceMapConsumer = traceur.codegeneration.sourceMap.SourceMapConsumer;
+  var SourceMapGenerator = traceur.codegeneration.sourceMap.SourceMapGenerator;
+  var ProjectWriter = traceur.codegeneration.ProjectWriter;
+
   var hasError = false;
   var input = document.querySelector('.input');
   var outputCheckbox = document.querySelector('input.output');
@@ -125,6 +131,7 @@ pre{
   var evalCheckbox = document.querySelector('input.eval');
   var evalElement = document.querySelector('pre.eval');
   var errorElement = document.querySelector('pre.error');
+  var sourceMapElement = document.querySelector('pre.source-map');
 
   evalCheckbox.addEventListener('click', function(e) {
     evalElement.hidden = !evalCheckbox.checked;
@@ -159,9 +166,14 @@ pre{
     if (reporter.hadError()) {
       hasError = true;
     } else {
-      var source = output.textContent =
-          traceur.codegeneration.ProjectWriter.write(res);
-
+      var options;
+      if (traceur.options.sourceMaps) {
+        var config = {file: 'traceured.js'};
+        var sourceMapGenerator = new SourceMapGenerator(config);
+        options = {sourceMapGenerator: sourceMapGenerator};
+      } 
+      var source = output.textContent = ProjectWriter.write(res, options);
+          
       if (evalCheckbox.checked) {
         try {
           evalElement.textContent = ('global', eval)(source);
@@ -169,6 +181,11 @@ pre{
           hasError = true;
           errorElement.textContent = ex;
         }
+      }
+      
+      if (traceur.options.sourceMaps) {
+        var renderedMap = renderSourceMap(source, options.sourceMap);
+        sourceMapElement.textContent = renderedMap;
       }
     }
 
@@ -230,6 +247,22 @@ pre{
         var optionsDiv = document.querySelector('.options');
         optionsDiv.hidden = !optionsDiv.hidden;
       });
+      
+  function renderSourceMap(source, sourceMap) {
+    var consumer = new SourceMapConsumer(sourceMap);
+    var lines = source.split('\n');
+    var lineNumberTable = lines.map(function(line, lineNo) {
+      var generatedPosition = {
+        line: lineNo + 1, 
+        column: 0
+      };
+      var position = consumer.originalPositionFor(generatedPosition);
+      var lineDotColumn = position.line + '.' + position.column;
+      return (lineNo + 1) + ': ' + line + ' -> ' + lineDotColumn;
+    });
+    return 'SourceMap:\n' + lineNumberTable.join('\n');
+  }
+  
 })();
 
 </script>

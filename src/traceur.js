@@ -123,6 +123,24 @@ var traceur = (function() {
     strictGlobalEval: strictGlobalEval
   };
 
+  
+  var sourceMapFiles =  [
+    'source-map/array-set',
+    'source-map/base64',
+    'source-map/base64-vlq',
+    'source-map/binary-search',
+    'source-map/util',
+    'source-map/source-map-generator',
+    'source-map/source-map-consumer',
+    'source-map/source-node'
+  ];
+  
+  sourceMapFiles.forEach(function(file) {
+    importScript('../third_party/source-map/lib/'+file+'.js');
+  });
+
+  importScript('../src/codegeneration/SourceMapIntegration.js');
+
   var scripts = [
     'options.js',
     'util/util.js',

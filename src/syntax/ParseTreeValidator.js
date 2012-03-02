@@ -85,12 +85,10 @@ traceur.define('syntax', function() {
       var locationString = location !== null ?
           location.start.toString() :
           '(unknown)';
-      
-      var options = {highlighted: e.tree, showLineNumbers: true};
       throw Error('Parse tree validation failure \'' + e.message + '\' at ' +
           locationString +
           ':\n\n' +
-          ParseTreeWriter.write(tree, options) +
+          ParseTreeWriter.write(tree, {highlighted: e.tree, showLineNumbers: true}) +
           '\n');
     }
   };
