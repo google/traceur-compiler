@@ -158,8 +158,9 @@ function testScript(filePath) {
       failScript(filePath, 'Unexpected compile error in script.');
       return false;
     }
-
-    var javascript = traceur.codegeneration.ParseTreeWriter.write(tree, false);
+    
+    var ParseTreeWriter = traceur.outputgeneration.ParseTreeWriter;
+    var javascript = ParseTreeWriter.write(tree, false);
 
     try {
       traceur.strictGlobalEval(javascript);

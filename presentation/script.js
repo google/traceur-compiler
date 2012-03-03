@@ -400,7 +400,7 @@ function initializeTraceurSlide() {
     if (reporter.hadError()) {
       output.innerHTML = error;
     } else {
-      var compiled = traceur.codegeneration.ProjectWriter.write(res);
+      var compiled = traceur.outputgeneration.ProjectWriter.write(res);
       output.innerHTML = classifyTraceurTokens(compiled);
     }
   }

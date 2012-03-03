@@ -15,7 +15,7 @@
 (function() {
   'use strict';
 
-  var ParseTreeWriter = traceur.codegeneration.ParseTreeWriter;
+  var ParseTreeWriter = traceur.outputgeneration.ParseTreeWriter;
 
   function compileAll() {
     // Code to handle automatically loading and running all scripts with type

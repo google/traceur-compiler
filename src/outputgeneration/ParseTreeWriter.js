@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration', function() {
+traceur.define('outputgeneration', function() {
   'use strict';
 
   var ParseTreeVisitor = traceur.syntax.ParseTreeVisitor;

@@ -25,7 +25,7 @@ traceur.define('runtime', function() {
 
   var ModuleTransformer = traceur.codegeneration.ModuleTransformer;
   var ProgramTransformer = traceur.codegeneration.ProgramTransformer;
-  var ParseTreeWriter = traceur.codegeneration.ParseTreeWriter;
+  var ParseTreeWriter = traceur.outputgeneration.ParseTreeWriter;
   var ModuleRequireVisitor = traceur.codegeneration.module.ModuleRequireVisitor;
 
   var canonicalizeUrl = traceur.util.canonicalizeUrl;

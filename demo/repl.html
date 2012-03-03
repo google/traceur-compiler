@@ -122,7 +122,7 @@ pre{
 
   var SourceMapConsumer = traceur.codegeneration.sourceMap.SourceMapConsumer;
   var SourceMapGenerator = traceur.codegeneration.sourceMap.SourceMapGenerator;
-  var ProjectWriter = traceur.codegeneration.ProjectWriter;
+  var ProjectWriter = traceur.outputgeneration.ProjectWriter;
 
   var hasError = false;
   var input = document.querySelector('.input');
@@ -172,6 +172,7 @@ pre{
         var sourceMapGenerator = new SourceMapGenerator(config);
         options = {sourceMapGenerator: sourceMapGenerator};
       } 
+
       var source = output.textContent = ProjectWriter.write(res, options);
           
       if (evalCheckbox.checked) {

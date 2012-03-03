@@ -18,7 +18,7 @@ traceur.define('syntax', function() {
   var NewExpression = traceur.syntax.trees.NewExpression;
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
   var ParseTreeVisitor = traceur.syntax.ParseTreeVisitor;
-  var ParseTreeWriter = traceur.codegeneration.ParseTreeWriter;
+  var ParseTreeWriter = traceur.outputgeneration.ParseTreeWriter;
   var PredefinedName = traceur.syntax.PredefinedName;
   var TokenType = traceur.syntax.TokenType;
 

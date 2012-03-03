@@ -318,7 +318,7 @@ function evalScript(scriptElement) {
       var tree = traceur.codegeneration.Compiler.compileFile(errors,
                                                              sourceFile,
                                                              url);
-      var code = traceur.codegeneration.ParseTreeWriter.write(tree);
+      var code = traceur.outputgeneration.ParseTreeWriter.write(tree);
 
       if (!shouldCompile) {
         assertTrue('Expected error compiling ' + name + ', but got none.',
