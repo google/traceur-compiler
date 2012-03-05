@@ -159,8 +159,8 @@ function testScript(filePath) {
       return false;
     }
     
-    var ParseTreeWriter = traceur.outputgeneration.ParseTreeWriter;
-    var javascript = ParseTreeWriter.write(tree, false);
+    var TreeWriter = traceur.outputgeneration.TreeWriter;
+    var javascript = TreeWriter.write(tree, false);
 
     try {
       traceur.strictGlobalEval(javascript);

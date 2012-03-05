@@ -15,7 +15,7 @@
 traceur.define('outputgeneration', function() {
   'use strict';
 
-  var ParseTreeWriter = traceur.outputgeneration.ParseTreeWriter;
+  var TreeWriter = traceur.outputgeneration.TreeWriter;
 
   /**
    * Writes all the files in the project to a stream.
@@ -34,7 +34,7 @@ traceur.define('outputgeneration', function() {
         opt_options.file = file;
       }
       sb.push('// ' + file.name,
-              ParseTreeWriter.write(results.get(file), opt_options));
+              TreeWriter.write(results.get(file), opt_options));
     });
     return sb.join('\n') + '\n';
   };

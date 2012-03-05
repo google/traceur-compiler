@@ -25,7 +25,7 @@ traceur.define('runtime', function() {
 
   var ModuleTransformer = traceur.codegeneration.ModuleTransformer;
   var ProgramTransformer = traceur.codegeneration.ProgramTransformer;
-  var ParseTreeWriter = traceur.outputgeneration.ParseTreeWriter;
+  var TreeWriter = traceur.outputgeneration.TreeWriter;
   var ModuleRequireVisitor = traceur.codegeneration.module.ModuleRequireVisitor;
 
   var canonicalizeUrl = traceur.util.canonicalizeUrl;
@@ -477,7 +477,7 @@ traceur.define('runtime', function() {
         try {
           // TODO(arv): Eval in the right context.
           result = traceur.strictGlobalEval(
-              ParseTreeWriter.write(codeUnit.transformedTree));
+              TreeWriter.write(codeUnit.transformedTree));
         } catch (ex) {
           codeUnit.error = ex.message
           this.abortAll();

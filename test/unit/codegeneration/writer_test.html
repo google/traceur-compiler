@@ -35,7 +35,7 @@ var LiteralToken = traceur.syntax.LiteralToken;
 var TokenType = traceur.syntax.TokenType;
 var Token = traceur.syntax.Token;
 
-var ParseTreeWriter = traceur.outputgeneration.ParseTreeWriter;
+var TreeWriter = traceur.outputgeneration.TreeWriter;
 var trees = traceur.syntax.trees;
 
 function testWriteStatement() {
@@ -70,7 +70,7 @@ function testWriteStatement() {
       )
     )
   ]);
-  var actual = ParseTreeWriter.write(tree);
+  var actual = TreeWriter.write(tree);
 
   var expected = '\nvar x = 1; \nif(x > 0) { \n  x ++ \n} \n';
   assertEquals(expected, actual);
@@ -89,7 +89,7 @@ function parseAndWrite(name, source) {
   console.log('Parsing', name);
 
   var tree = parser.parseProgram();
-  var result = ParseTreeWriter.write(tree, false);
+  var result = TreeWriter.write(tree, false);
   console.log(result);
   return result;
 }

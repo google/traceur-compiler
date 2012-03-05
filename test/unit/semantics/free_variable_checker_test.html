@@ -109,7 +109,7 @@ function evalScript(scriptElement) {
   var tree = traceur.codegeneration.Compiler.compileFile(errors,
                                                          sourceFile,
                                                          url);
-  var code = traceur.outputgeneration.ParseTreeWriter.write(tree);
+  var code = traceur.outputgeneration.TreeWriter.write(tree);
   traceur.strictGlobalEval(code);
   assertFalse(errors.hadError());
 }

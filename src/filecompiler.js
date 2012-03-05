@@ -110,7 +110,7 @@
       var tree = results.get(file);
       var filename = file.name;
       var options = {showLineNumbers: false};
-      var result = traceur.outputgeneration.ParseTreeWriter.write(tree, options);
+      var result = traceur.outputgeneration.TreeWriter.write(tree, options);
 
       // Compute the output path
       var outputdir = fs.realpathSync(process.cwd());

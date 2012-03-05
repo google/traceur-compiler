@@ -34,63 +34,10 @@ traceur.define('outputgeneration', function() {
     this.result_ = new StringBuilder();
     this.currentLine_ = new StringBuilder();
   }
-  /**
-   * Converts a ParseTree to text and a source Map
-   * @param {ParseTree} highlighted
-   * @param {boolean} showLineNumbers
-   * @constructor
-   */
-  function ParseTreeMapWriter(highlighted, showLineNumbers, 
-      sourceMapGenerator, file) {
-    ParseTreeWriter.call(this, highlighted, showLineNumbers);
-    this.sourceMapGenerator_ = sourceMapGenerator;
-    this.file_ = file;
-    this.outputLineCount = 0;
-  }
-  
+
   // constants
   var NEW_LINE = '\n';
   var PRETTY_PRINT = true;
-
-  /*
-   * Create a ParseTreeWriter configured with options, apply it to tree
-   * @param {ParseTree} tree
-   * @param {Object} options:
-   *   highlighted: {ParseTree} branch of tree to highlight
-   *   showLineNumbers: {boolean} add comments giving input line numbers
-   */
-
-  ParseTreeWriter.write = function(tree, options) {
-    var showLineNumbers;
-    var highlighted = null;
-    var sourceMapGenerator;
-    var file;
-    if (options) {
-      showLineNumbers = options.showLineNumbers;
-      highlighted = options.highlighted || null;
-      sourceMapGenerator = options.sourceMapGenerator;
-      file = options.file || {name: 'unknown'};
-    }
-    
-    var writer;
-    if (sourceMapGenerator) {
-      writer = new ParseTreeMapWriter(highlighted, showLineNumbers, 
-          sourceMapGenerator, file);
-    } else {
-      writer = new ParseTreeWriter(highlighted, showLineNumbers);
-    }
-    
-    writer.visitAny(tree);
-    if (writer.currentLine_.length > 0) {
-      writer.writeln_();
-    }
-    
-    if (sourceMapGenerator) {
-      options.sourceMap = sourceMapGenerator.toString();
-    }
-    
-    return writer.result_.toString();
-  };
 
   ParseTreeWriter.prototype = traceur.createObject(
       ParseTreeVisitor.prototype, {
@@ -1167,36 +1114,7 @@ traceur.define('outputgeneration', function() {
     
   });
   
-  ParseTreeMapWriter.prototype = traceur.createObject(
-      ParseTreeWriter.prototype, {
-    
-    write_: function(value) {
-      if (this.currentLocation) {
-        this.addMapping();
-      }
-      ParseTreeWriter.prototype.write_.apply(this,[value]);
-    },
-    
-    addMapping: function() {
-      var mapping = {
-        generated: {
-          // +1 because PROGRAM puts a newline before the first stmt
-          line: this.outputLineCount + 1,  
-          column: this.currentLine_.length
-        },
-        original: {
-          // +1 because line is zero based
-          line: this.currentLocation.start.line + 1,
-          column: this.currentLocation.start.column
-         },   
-         source: this.file_.name
-      };
-      this.sourceMapGenerator_.addMapping(mapping);
-    }
-  });
-  
   return {
-    ParseTreeWriter: ParseTreeWriter,
-    ParseTreeMapWriter: ParseTreeMapWriter
+    ParseTreeWriter: ParseTreeWriter
   };
 });

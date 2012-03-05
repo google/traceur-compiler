@@ -15,7 +15,7 @@
 (function() {
   'use strict';
 
-  var ParseTreeWriter = traceur.outputgeneration.ParseTreeWriter;
+  var TreeWriter = traceur.outputgeneration.TreeWriter;
 
   function compileAll() {
     // Code to handle automatically loading and running all scripts with type
@@ -106,7 +106,7 @@
 
       results.keys().forEach(function(file) {
         var tree = results.get(file);
-        var result = ParseTreeWriter.write(tree, {showLineNumbers: false});
+        var result = TreeWriter.write(tree, {showLineNumbers: false});
         var entry = fileToEntry.get(file);
         var scriptElement = document.createElement('script');
         scriptElement.setAttribute('data-traceur-src-url', entry.name);

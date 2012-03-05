@@ -185,6 +185,8 @@ var traceur = (function() {
     'semantics/symbols/RequiresSymbol.js',
     'semantics/ClassAnalyzer.js',
     'outputgeneration/ParseTreeWriter.js',
+    'outputgeneration/ParseTreeMapWriter.js',
+    'outputgeneration/TreeWriter.js',
     'syntax/ParseTreeValidator.js',
     'codegeneration/ParseTreeFactory.js',
     'codegeneration/ParseTreeTransformer.js',

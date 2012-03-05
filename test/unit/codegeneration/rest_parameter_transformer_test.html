@@ -57,7 +57,7 @@ function assertArrayEquals(expected, actual) {
                JSON.stringify(actual, null, 2));
 }
 
-var ParseTreeWriter = traceur.outputgeneration.ParseTreeWriter;
+var TreeWriter = traceur.outputgeneration.TreeWriter;
 
 function evalScript(scriptElement) {
   var source;
@@ -77,7 +77,7 @@ function evalScript(scriptElement) {
 
   var errorReporter = new traceur.util.ErrorReporter();
   var tree = transform(errorReporter, name, source);
-  traceur.strictGlobalEval(ParseTreeWriter.write(tree));
+  traceur.strictGlobalEval(TreeWriter.write(tree));
   assertFalse(errorReporter.hadError());
 }
 

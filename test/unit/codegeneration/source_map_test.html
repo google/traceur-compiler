@@ -31,7 +31,7 @@ goog.require('goog.testing.jsunit');
 <body>
 <script>
 
-var ParseTreeWriter = traceur.outputgeneration.ParseTreeWriter;
+var TreeWriter = traceur.outputgeneration.TreeWriter;
 var SourceMapConsumer = traceur.codegeneration.sourceMap.SourceMapConsumer;
 var SourceMapGenerator = traceur.codegeneration.sourceMap.SourceMapGenerator;
 
@@ -75,7 +75,7 @@ function testSourceMap() {
   
   var generator = new SourceMapGenerator({file:filename});
   var options = {sourceMapGenerator: generator , showLineNumbers: true};
-  var actual = ParseTreeWriter.write(tree, options);
+  var actual = TreeWriter.write(tree, options);
   
   console.log('generated:');
   actual.split('\n').forEach(dumpLine);

@@ -18,7 +18,7 @@ traceur.define('syntax', function() {
   var NewExpression = traceur.syntax.trees.NewExpression;
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
   var ParseTreeVisitor = traceur.syntax.ParseTreeVisitor;
-  var ParseTreeWriter = traceur.outputgeneration.ParseTreeWriter;
+  var TreeWriter = traceur.outputgeneration.TreeWriter;
   var PredefinedName = traceur.syntax.PredefinedName;
   var TokenType = traceur.syntax.TokenType;
 
@@ -88,7 +88,7 @@ traceur.define('syntax', function() {
       throw Error('Parse tree validation failure \'' + e.message + '\' at ' +
           locationString +
           ':\n\n' +
-          ParseTreeWriter.write(tree, {highlighted: e.tree, showLineNumbers: true}) +
+          TreeWriter.write(tree, {highlighted: e.tree, showLineNumbers: true}) +
           '\n');
     }
   };
