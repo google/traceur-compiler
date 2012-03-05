@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration', function() {
+traceur.define('outputgeneration', function() {
   'use strict';
  
   var sourceMap = {};
@@ -34,7 +34,6 @@ traceur.define('codegeneration', function() {
     sourceMap[camel] = module;
   });
     
-  return {
-    sourceMap: sourceMap
-  };
+  return sourceMap;
+  
 });

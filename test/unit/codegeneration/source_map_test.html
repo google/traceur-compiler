@@ -26,14 +26,13 @@
 goog.require('goog.testing.jsunit');
 </script>
 <script src="../../../src/traceur.js"></script>
-<script src="../../../src/traceurSourceMaps.js"></script>
 </head>
 <body>
 <script>
 
 var TreeWriter = traceur.outputgeneration.TreeWriter;
-var SourceMapConsumer = traceur.codegeneration.sourceMap.SourceMapConsumer;
-var SourceMapGenerator = traceur.codegeneration.sourceMap.SourceMapGenerator;
+var SourceMapConsumer = traceur.outputgeneration.SourceMapConsumer;
+var SourceMapGenerator = traceur.outputgeneration.SourceMapGenerator;
 
 var errorReporter = {
   reportError: function(position, message) {

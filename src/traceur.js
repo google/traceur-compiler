@@ -139,7 +139,7 @@ var traceur = (function() {
     importScript('../third_party/source-map/lib/'+file+'.js');
   });
 
-  importScript('../src/codegeneration/SourceMapIntegration.js');
+  importScript('../src/outputgeneration/SourceMapIntegration.js');
 
   var scripts = [
     'options.js',
