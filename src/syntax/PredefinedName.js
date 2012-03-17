@@ -43,7 +43,6 @@ traceur.define('syntax', function() {
     DEFINE_PROPERTY: 'defineProperty',
     ELEMENT_DELETE: 'elementDelete',
     ELEMENT_GET: 'elementGet',
-    ELEMENT_GET_CALL: 'elementGetCall',
     ELEMENT_HAS: 'elementHas',
     ELEMENT_SET: 'elementSet',
     ENUMERABLE: 'enumerable',

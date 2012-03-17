@@ -211,7 +211,8 @@ traceur.define('codegeneration', function() {
             reporter);
 
       chain(options.collections || options.privateNames,
-            CollectionTransformer.transformTree);
+            CollectionTransformer.transformTree,
+            identifierGenerator);
 
       // Issue errors for any unbound variables
       chain(traceur.options.freeVariableChecker,

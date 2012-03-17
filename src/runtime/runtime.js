@@ -490,10 +490,6 @@ traceur.runtime = (function() {
     return getProperty(object, name);
   }
 
-  function elementGetCall(object, name, args) {
-    return elementGet(object, name).apply(object, args);
-  }
-
   function elementHas(object, name) {
     // Should we allow trapping this too?
     return has(object, name);
@@ -761,7 +757,6 @@ traceur.runtime = (function() {
     Deferred: Deferred,
     elementDelete: elementDelete,
     elementGet: elementGet,
-    elementGetCall: elementGetCall,
     elementHas: elementHas,
     elementSet: elementSet,
     getIterator: getIterator,
