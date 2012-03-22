@@ -212,7 +212,7 @@
     assert.deepEqual(map.names, ['bar', 'baz', 'n']);
     assert.deepEqual(map.sources, ['one.js', 'two.js']);
     assert.equal(map.sourceRoot, '/the/root');
-    assert.equal(map.mappings, 'CACC,IAAI,IAAM,SAAUA,GAClB,OAAOC,IAAID;CCDb,IAAI,IAAM,SAAUE,GAClB,OAAOA');
+    assert.equal(map.mappings, 'CAAC,IAAI,IAAM,SAAUA,GAClB,OAAOC,IAAID;CCDb,IAAI,IAAM,SAAUE,GAClB,OAAOA');
   };
 
   return exports;

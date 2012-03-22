@@ -134,6 +134,8 @@
             temp = base64VLQ.decode(str);
             mapping.originalLine = previousOriginalLine + temp.value;
             previousOriginalLine = mapping.originalLine;
+            // Lines are stored 0-based
+            mapping.originalLine += 1;
             str = temp.rest;
             if (str.length === 0 || mappingSeparator.test(str.charAt(0))) {
               throw new Error('Found a source and line, but no column');

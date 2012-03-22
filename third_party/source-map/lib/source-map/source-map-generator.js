@@ -162,9 +162,10 @@
                                      - previousSource);
           previousSource = this._sources.indexOf(mapping.source);
 
-          result += base64VLQ.encode(mapping.original.line
+          // lines are stored 0-based in SourceMap spec version 3
+          result += base64VLQ.encode(mapping.original.line - 1
                                      - previousOriginalLine);
-          previousOriginalLine = mapping.original.line;
+          previousOriginalLine = mapping.original.line - 1;
 
           result += base64VLQ.encode(mapping.original.column
                                      - previousOriginalColumn);

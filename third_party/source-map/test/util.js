@@ -77,7 +77,7 @@
     names: ['bar', 'baz', 'n'],
     sources: ['one.js', 'two.js'],
     sourceRoot: '/the/root',
-    mappings: 'CACC,IAAI,IAAM,SAAUA,GAClB,OAAOC,IAAID;CCDb,IAAI,IAAM,SAAUE,GAClB,OAAOA'
+    mappings: 'CAAC,IAAI,IAAM,SAAUA,GAClB,OAAOC,IAAID;CCDb,IAAI,IAAM,SAAUE,GAClB,OAAOA'
   };
 
   function assertMapping(generatedLine, generatedColumn, originalSource,
