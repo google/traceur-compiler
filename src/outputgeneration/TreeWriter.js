@@ -23,21 +23,23 @@ traceur.define('outputgeneration', function() {
   /*
    * Create a ParseTreeWriter configured with options, apply it to tree
    * @param {ParseTree} tree
-   * @param {Object} options:
+   * @param {Object} opt_options:
    *   highlighted: {ParseTree} branch of tree to highlight
    *   showLineNumbers: {boolean} add comments giving input line numbers
+   *   sourceMapGenerator: {SourceMapGenerator} see third-party/source-maps
+   * @return source code; optional side-effect opt_options.sourceMap set
    */
 
-  TreeWriter.write = function(tree, options) {
+  TreeWriter.write = function(tree, opt_options) {
     var showLineNumbers;
     var highlighted = null;
     var sourceMapGenerator;
     var file;
-    if (options) {
-      showLineNumbers = options.showLineNumbers;
-      highlighted = options.highlighted || null;
-      sourceMapGenerator = options.sourceMapGenerator;
-      file = options.file || {name: 'unknown'};
+    if (opt_options) {
+      showLineNumbers = opt_options.showLineNumbers;
+      highlighted = opt_options.highlighted || null;
+      sourceMapGenerator = opt_options.sourceMapGenerator;
+      file = opt_options.file || {name: 'unknown'};
     }
     
     var writer;
@@ -54,7 +56,7 @@ traceur.define('outputgeneration', function() {
     }
     
     if (sourceMapGenerator) {
-      options.sourceMap = sourceMapGenerator.toString();
+      opt_options.sourceMap = sourceMapGenerator.toString();
     }
     
     return writer.result_.toString();
