@@ -52,6 +52,23 @@ function testParserEmpty() {
   parser.parseProgram();
 }
 
+function testUnicodeEscape() {
+  var program = '\\';
+  var sourceFile = new traceur.syntax.SourceFile('Name', program);
+  var errors = [];
+  var errorReporter = {
+    reportError: function(position, message) {
+      errors.push(message);
+    }
+  };
+  var scanner = new traceur.syntax.Scanner(errorReporter, sourceFile);
+  var parser = new traceur.syntax.Parser(errorReporter, scanner);
+
+  parser.parseProgram();
+  
+  assertEquals('Unimplemented: Unicode escape sequence', errors[0]);
+}
+
 function testModule() {
   var program = 'module Foo { export var x = 42; ' +
                   'module M from \'url\'; ' +
