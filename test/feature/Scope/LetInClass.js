@@ -1,6 +1,4 @@
 class LetInClass {
-  x, y;
-
   get z() {
     let let_z = 10;
     return let_z;
@@ -10,7 +8,7 @@ class LetInClass {
     let let_zv = v;
   }
 
-  function distance() {
+  distance() {
     let dist = this.y - this.x;
     return dist;
   }

@@ -4,12 +4,17 @@ var baseContainer = {
 
 baseContainer.base.prototype = {
   x: 'proto x',
-  constructor: function() { this.y = 'base y'; }
+  constructor: function() {
+    this.y = 'base y';
+  }
 }
 
 class MemberExprBase extends baseContainer.base {
-  var z = 'var z';
-  constructor(w) { super(); this.w = w; }
+  constructor(w) {
+    super();
+    this.z = 'var z';
+    this.w = w;
+  }
 }
 
 // ----------------------------------------------------------------------------

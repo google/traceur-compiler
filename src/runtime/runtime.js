@@ -12,28 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Shim for DOM class declarations to be included before
-// including compiled classes which derive from the DOM
-
-function HTMLBlockquoteElement() {}
-function HTMLH1HeadingElement() {}
-function HTMLH2HeadingElement() {}
-function HTMLH3HeadingElement() {}
-function HTMLH4HeadingElement() {}
-function HTMLH5HeadingElement() {}
-function HTMLH6HeadingElement() {}
-
-try {
-  HTMLBlockquoteElement.prototype = HTMLQuoteElement.prototype;
-  HTMLH1HeadingElement.prototype = HTMLHeadingElement.prototype;
-  HTMLH2HeadingElement.prototype = HTMLHeadingElement.prototype;
-  HTMLH3HeadingElement.prototype = HTMLHeadingElement.prototype;
-  HTMLH4HeadingElement.prototype = HTMLHeadingElement.prototype;
-  HTMLH5HeadingElement.prototype = HTMLHeadingElement.prototype;
-  HTMLH6HeadingElement.prototype = HTMLHeadingElement.prototype;
-} catch (e) {
-}
-
 
 /**
  * The traceur runtime.
@@ -45,150 +23,10 @@ traceur.runtime = (function() {
   var $defineProperty = Object.defineProperty;
   var $freeze = Object.freeze;
   var $getOwnPropertyNames = Object.getOwnPropertyNames;
+  var $getPrototypeOf = Object.getPrototypeOf;
   var $call = Function.prototype.call.bind(Function.prototype.call);
   var $hasOwnProperty = Object.prototype.hasOwnProperty;
-
   var bind = Function.prototype.bind;
-  var map = $create(null);
-
-  // Associates the instance maker with the class.
-  // Used below for classes inherited from DOM elements.
-  function add(name, cls, make) {
-    $defineProperty(make, '$class', {value: cls});
-    // Firefox does not treat DOM constructors as functions so they do not have
-    // a name property.
-    if (!cls.name) {
-      $defineProperty(cls, 'name', {value: name});
-    }
-    map[name] = make;
-  }
-
-  function addHtmlElement(interfaceName, tagName) {
-    if (typeof window !== 'undefined' && typeof document !== 'undefined' &&
-        interfaceName in window) {
-      add(interfaceName, window[interfaceName], function() {
-        return document.createElement(tagName);
-      });
-    }
-  }
-
-  // Semi auto-generated
-  try {add('Array', Array, function() {return new Array();});}catch (e) {}
-  try {add('Date', Date, function() {return new Date();});}catch (e) {}
-  try {add('Event', Event, function() {return document.createEvent('Event');});}catch (e) {}
-  addHtmlElement('HTMLAnchorElement', 'a');
-  addHtmlElement('HTMLAreaElement', 'area');
-  addHtmlElement('HTMLAudioElement', 'audio');
-  addHtmlElement('HTMLBRElement', 'br');
-  addHtmlElement('HTMLBaseElement', 'base');
-  addHtmlElement('HTMLBlockquoteElement', 'blockquote');
-  addHtmlElement('HTMLBodyElement', 'body');
-  addHtmlElement('HTMLButtonElement', 'button');
-  addHtmlElement('HTMLCanvasElement', 'canvas');
-  addHtmlElement('HTMLDListElement', 'dl');
-  addHtmlElement('HTMLDivElement', 'div');
-  try {
-    try {
-      // Feature test for native Component Model subclassing.
-      HTMLElement.call =  Function.prototype.call;
-      HTMLElement.apply = Function.prototype.apply;
-      new HTMLElement();
-    } catch(featureTestException) {
-      // Else, hack in "generic" element support for constructing HTMLElement.
-      addHtmlElement('HTMLElement', 'span');
-    }
-  }catch (e) {}
-  addHtmlElement('HTMLEmbedElement', 'embed');
-  addHtmlElement('HTMLFieldSetElement', 'fieldset');
-  addHtmlElement('HTMLFormElement', 'form');
-  addHtmlElement('HTMLH1HeadingElement', 'h1');
-  addHtmlElement('HTMLH2HeadingElement', 'h2');
-  addHtmlElement('HTMLH3HeadingElement', 'h3');
-  addHtmlElement('HTMLH4HeadingElement', 'h4');
-  addHtmlElement('HTMLH5HeadingElement', 'h5');
-  addHtmlElement('HTMLH6HeadingElement', 'h6');
-  addHtmlElement('HTMLHRElement', 'hr');
-  addHtmlElement('HTMLHeadElement', 'head');
-  addHtmlElement('HTMLHeadingElement', 'h1');
-  addHtmlElement('HTMLHtmlElement', 'html');
-  addHtmlElement('HTMLIFrameElement', 'iframe');
-  addHtmlElement('HTMLImageElement', 'img');
-  addHtmlElement('HTMLInputElement', 'input');
-  addHtmlElement('HTMLKeygenElement', 'keygen');
-  addHtmlElement('HTMLLIElement', 'li');
-  addHtmlElement('HTMLLabelElement', 'label');
-  addHtmlElement('HTMLLegendElement', 'legend');
-  addHtmlElement('HTMLLinkElement', 'link');
-  addHtmlElement('HTMLMapElement', 'map');
-  addHtmlElement('HTMLMenuElement', 'menu');
-  addHtmlElement('HTMLMetaElement', 'meta');
-  addHtmlElement('HTMLMeterElement', 'meter');
-  addHtmlElement('HTMLModElement', 'del');
-  addHtmlElement('HTMLOListElement', 'ol');
-  addHtmlElement('HTMLObjectElement', 'object');
-  addHtmlElement('HTMLOptGroupElement', 'optgroup');
-  addHtmlElement('HTMLOptionElement', 'option');
-  addHtmlElement('HTMLOutputElement', 'output');
-  addHtmlElement('HTMLParagraphElement', 'p');
-  addHtmlElement('HTMLParamElement', 'param');
-  addHtmlElement('HTMLPreElement', 'pre');
-  addHtmlElement('HTMLProgressElement', 'progress');
-  addHtmlElement('HTMLQuoteElement', 'q');
-  addHtmlElement('HTMLScriptElement', 'script');
-  addHtmlElement('HTMLSelectElement', 'select');
-  addHtmlElement('HTMLSourceElement', 'source');
-  addHtmlElement('HTMLSpanElement', 'span');
-  addHtmlElement('HTMLStyleElement', 'style');
-  addHtmlElement('HTMLTableCaptionElement', 'caption');
-  addHtmlElement('HTMLTableCellElement', 'td');
-  addHtmlElement('HTMLTableColElement', 'col');
-  addHtmlElement('HTMLTableElement', 'table');
-  addHtmlElement('HTMLTableRowElement', 'tr');
-  addHtmlElement('HTMLTableSectionElement', 'tbody');
-  addHtmlElement('HTMLTextAreaElement', 'textarea');
-  addHtmlElement('HTMLTitleElement', 'title');
-  addHtmlElement('HTMLTrackElement', 'track');
-  addHtmlElement('HTMLUListElement', 'ul');
-  addHtmlElement('HTMLVideoElement', 'video');
-  try {add('KeyboardEvent', KeyboardEvent, function() {return document.createEvent('KeyboardEvent');});}catch (e) {}
-  try {add('MouseEvent', MouseEvent, function() {return document.createEvent('MouseEvents');});}catch (e) {}
-  try {add('MutationEvent', MutationEvent, function() {return document.createEvent('MutationEvents');});}catch (e) {}
-  try {add('RegExp', RegExp, function() {return new RegExp();});}catch (e) {}
-  try {add('SVGZoomEvent', SVGZoomEvent, function() {return document.createEvent('SVGZoomEvents');});}catch (e) {}
-  try {add('String', String, function() {return new String();});}catch (e) {}
-  try {add('Text', Text, function() {return document.createTextNode('');});}catch (e) {}
-  try {add('TextEvent', TextEvent, function() {return document.createEvent('TextEvent');});}catch (e) {}
-  try {add('UIEvent', UIEvent, function() {return document.createEvent('UIEvents');});}catch (e) {}
-  // End auto-generated
-
-  /**
-   * Combines mixins with the current class, issuing errors for conflicts or
-   * missing requires.
-   *
-   * @param {Object} proto the prototype for the class we're creating.
-   * @param {Array.<Object>} mixins the set of traits to mix in.
-   * @return {Object} the trait to set into new instances with defineProperties.
-   */
-  function analyzeMixins(proto, mixins) {
-    var trait = traceur.runtime.trait;
-    mixins = trait.compose.apply(null, mixins);
-    var properties = {};
-    Object.getOwnPropertyNames(mixins).forEach(function(name) {
-      var pd = mixins[name];
-      // check for remaining 'required' properties
-      // Note: it's OK for the prototype to provide the properties
-      if (pd.required) {
-        if (!(name in proto)) {
-          throw new TypeError('Missing required property: ' + name);
-        }
-      } else if (pd.conflict) { // check for remaining conflicting properties
-        throw new TypeError('Remaining conflicting property: ' + name);
-      } else {
-        properties[name] = pd;
-      }
-    });
-    return properties;
-  }
 
   function nonEnum(value) {
     return {
@@ -220,113 +58,56 @@ traceur.runtime = (function() {
     })
   });
 
-  // The createClass function
-  // name: the class name
-  // base: the base class
-  // make: the function to create instance of the class
-  //       i.e. function() { return document.createElement('div'); }
-  // ctor: the constructor function
-  // proto: the prototype object (containing instance methods, properties)
-  // initS: the function to initialize class static members
-  // mixins: Traits to mixin to this class
-  function createClass(name, base, make, ctor, init, proto, initS, mixins) {
-    if (base) {
-      if (typeof base != 'function' && typeof base.prototype != 'object') {
-        throw new TypeError(
-            'Base class of ' + name +
-            ' must be a function (' + typeof base + ')');
-      }
+  function createClass(ctor, proto, extendsExpr) {
+    if (extendsExpr !== null && Object(extendsExpr) !== extendsExpr)
+      throw new TypeError('Can only extend objects or null');
+
+    $defineProperty(proto, 'constructor', {value: ctor});
+
+    var superPrototype;
+    if (extendsExpr === null || !('prototype' in extendsExpr)) {
+      superPrototype = extendsExpr;
     } else {
-      base = Object;
-    }
-    make = make || base.$new;
-
-    if (!make && base.name) {
-      var dom = map[base.name];
-      if (dom && dom.$class === base) {
-        make = dom;
-      }
+      ctor.__proto__ = extendsExpr;
+      superPrototype = extendsExpr.prototype;
     }
 
-    var binit = base.$init;
-    var finit = binit ?
-        (init ? function() { binit.call(this); init.call(this); } : binit) :
-        init;
-
-    if (ctor)
-      $defineProperty(proto, 'constructor', method(ctor));
-    else
-      ctor = proto.constructor;
-
-    proto.__proto__ = base.prototype;
-
-    if (mixins)
-      mixins = analyzeMixins(proto, mixins);
-
-    function TheClass() {
-      var $this = make ? make() : this;
-      $this.__proto__ = TheClass.prototype;
-      if (mixins) { Object.defineProperties($this, mixins); }
-      if (finit) { finit.call($this); }
-      if (ctor) { ctor.apply($this, arguments); }
-      return $this;
-    }
-
-    TheClass.prototype = proto;
-
-    if (finit) {
-      // TODO(arv): Remove?
-      $defineProperty(TheClass, '$init', {value: finit});
-    }
-    if (make) {
-      // TODO(arv): Remove?
-      $defineProperty(TheClass, '$new', {value: make});
-    }
-    if (initS) { initS.call(TheClass); }
-    return TheClass;
+    ctor.prototype = traceur.createObject(superPrototype, proto);
+    return ctor;
   }
 
-  function createTrait(parts, mixins) {
-    var trait = traceur.runtime.trait;
-    parts = trait(parts);
-    if (mixins) {
-      parts = trait.override(parts, trait.compose.apply(null, mixins));
-    }
-    return parts;
-  }
-
-  function superCall($class, name, args) {
-    var proto = Object.getPrototypeOf($class.prototype);
-    while (proto) {
-      var p = Object.getOwnPropertyDescriptor(proto, name);
-      if (p) {
-        if (p.hasOwnProperty('value')) {
-          return p.value.apply(this, args);
-        }
-        if (p.hasOwnProperty('get')) {
-          return p.get.apply(this, args);
-        }
-      }
-      proto = Object.getPrototypeOf(proto);
+  function superCall(self, ctor, name, args) {
+    var proto = $getPrototypeOf(ctor.prototype);
+    var descriptor = $getPropertyDescriptor(proto, name);
+    if (descriptor) {
+      if (descriptor.value)
+        return descriptor.value.apply(self, args);
+      if (descriptor.get)
+        return descriptor.get.call(self).apply(self, args);
     }
     throw new TypeError("Object has no method '" + name + "'.");
   }
 
-  function superGet($class, name) {
-    var proto = Object.getPrototypeOf($class.prototype);
-    while (proto) {
-      var p = Object.getOwnPropertyDescriptor(proto, name);
-      if (p) {
-        if (p.hasOwnProperty('value')) {
-          return p.value;
-        }
-        if (p.hasOwnProperty('get')) {
-          return p.get.call(this);
-        }
-      }
-      proto = Object.getPrototypeOf(proto);
+  function superGet(self, ctor, name) {
+    var proto = $getPrototypeOf(ctor.prototype);
+    var descriptor = $getPropertyDescriptor(proto, name);
+    if (descriptor) {
+      if (descriptor.get)
+        return descriptor.get.call(self);
+      else if ('value' in descriptor)
+        return descriptor.value;
     }
     return undefined;
+  }
+
+  function superSet(self, ctor, name, value) {
+    var proto = $getPrototypeOf(ctor.prototype);
+    var descriptor = $getPropertyDescriptor(proto, name);
+    if (descriptor && descriptor.set) {
+      descriptor.set.call(self, value);
+      return;
+    }
+    throw new TypeError("Object has no setter '" + name + "'.");
   }
 
   var pushItem = Array.prototype.push.call.bind(Array.prototype.push);
@@ -570,7 +351,7 @@ traceur.runtime = (function() {
       var result = Object.getOwnPropertyDescriptor(obj, name);
       if (result)
         return result;
-      obj = Object.getPrototypeOf(obj);
+      obj = $getPrototypeOf(obj);
     }
     return undefined;
   }
@@ -752,7 +533,6 @@ traceur.runtime = (function() {
   // Return the traceur namespace.
   return {
     createClass: createClass,
-    createTrait: createTrait,
     defaultQuasi: defaultQuasi,
     Deferred: Deferred,
     elementDelete: elementDelete,
@@ -768,7 +548,8 @@ traceur.runtime = (function() {
     spread: spread,
     spreadNew: spreadNew,
     superCall: superCall,
-    superGet: superGet
+    superGet: superGet,
+    superSet: superSet
   };
 })();
 

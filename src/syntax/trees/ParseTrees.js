@@ -32,7 +32,6 @@ traceur.define('syntax.trees', function() {
       for (var i = 0; i < args.length; i++) {
         this[args[i]] = arguments[i + 1];
       }
-      Object.freeze(this);
     };
     Tree.prototype = Object.create(ParseTree.prototype);
     return Tree;
@@ -176,10 +175,13 @@ traceur.define('syntax.trees', function() {
 
     /**
      * @param {traceur.util.SourceRange} location
+     * @param {traceur.syntax.IdentifierToken} name
+     * @param {ParseTree} superClass
+     * @param {Array.<ParseTree>} elements
      * @constructor
      * @extends {ParseTree}
      */
-    ClassExpression: create(),
+    ClassExpression: create('name', 'superClass', 'elements'),
 
     /**
      * @param {traceur.util.SourceRange} location
@@ -299,17 +301,6 @@ traceur.define('syntax.trees', function() {
 
     /**
      * @param {traceur.util.SourceRange} location
-     * @param {boolean} isStatic
-     * @param {boolean} isConst
-     * @param {Array.<traceur.syntax.trees.VariableDeclaration>}
-     *     declarations
-     * @constructor
-     * @extends {ParseTree}
-     */
-    FieldDeclaration: create('isStatic', 'isConst', 'declarations'),
-
-    /**
-     * @param {traceur.util.SourceRange} location
      * @param {ParseTree} block
      * @constructor
      * @extends {ParseTree}
@@ -359,25 +350,23 @@ traceur.define('syntax.trees', function() {
      * @param {traceur.util.SourceRange} location
      * @param {traceur.syntax.trees.BindingIdentifier} name
      * @param {boolean} isGenerator
-     * @param {boolean} isStatic
      * @param {traceur.syntax.trees.FormalParameterList} formalParameterList
      * @param {traceur.syntax.trees.Block} functionBody
      * @constructor
      * @extends {ParseTree}
      */
     FunctionDeclaration: create('name', 'isGenerator',
-                                'isStatic', 'formalParameterList',
+                                'formalParameterList',
                                 'functionBody'),
 
     /**
      * @param {traceur.util.SourceRange} location
      * @param {traceur.syntax.Token} propertyName
-     * @param {boolean} isStatic
      * @param {Block} body
      * @constructor
      * @extends {ParseTree}
      */
-    GetAccessor: create('propertyName', 'isStatic', 'body'),
+    GetAccessor: create('propertyName', 'body'),
 
     /**
      * @param {traceur.util.SourceRange} location
@@ -474,32 +463,6 @@ traceur.define('syntax.trees', function() {
      * @extends {ParseTree}
      */
     MissingPrimaryExpression: create('nextToken'),
-
-    /**
-     * @param {traceur.util.SourceRange} location
-     * @param {Array.<ParseTree>} resolves
-     * @constructor
-     * @extends {ParseTree}
-     */
-    MixinResolveList: create('resolves'),
-
-    /**
-     * @param {traceur.util.SourceRange} location
-     * @param {traceur.syntax.IdentifierToken} from
-     * @param {traceur.syntax.IdentifierToken} to
-     * @constructor
-     * @extends {ParseTree}
-     */
-    MixinResolve: create('from', 'to'),
-
-    /**
-     * @param {traceur.util.SourceRange} location
-     * @param {traceur.syntax.IdentifierToken} name
-     * @param {traceur.syntax.trees.MixinResolveList} mixinResolves
-     * @constructor
-     * @extends {ParseTree}
-     */
-    Mixin: create('name', 'mixinResolves'),
 
     /**
      * @param {traceur.util.SourceRange} location
@@ -606,13 +569,14 @@ traceur.define('syntax.trees', function() {
     /**
      * @param {traceur.util.SourceRange} location
      * @param {traceur.syntax.Token} name
+     * @param {boolean} isGenerator
      * @param {traceur.syntax.trees.FormalParameterList} formalParameterList
      * @param {traceur.syntax.trees.Block} functionBody
      * @constructor
      * @extends {ParseTree}
      */
-    PropertyMethodAssignment: create('name', 'formalParameterList',
-                                     'functionBody'),
+    PropertyMethodAssignment: create('name', 'isGenerator', 
+                                     'formalParameterList', 'functionBody'),
 
     /**
      * @param {traceur.util.SourceRange} location
@@ -683,13 +647,12 @@ traceur.define('syntax.trees', function() {
     /**
      * @param {traceur.util.SourceRange} location
      * @param {traceur.syntax.Token} propertyName
-     * @param {boolean} isStatic
      * @param {traceur.syntax.IdentifierToken} parameter
      * @param {traceur.syntax.trees.Block} body
      * @constructor
      * @extends {ParseTree}
      */
-    SetAccessor: create('propertyName', 'isStatic', 'parameter', 'body'),
+    SetAccessor: create('propertyName', 'parameter', 'body'),
 
     /**
      * @param {traceur.util.SourceRange} location
@@ -737,15 +700,6 @@ traceur.define('syntax.trees', function() {
      * @extends {ParseTree}
      */
     ThrowStatement: create('value'),
-
-    /**
-     * @param {traceur.util.SourceRange} location
-     * @param {traceur.syntax.IdentifierToken} name
-     * @param {Array.<ParseTree>} elements
-     * @constructor
-     * @extends {ParseTree}
-     */
-    TraitDeclaration: create('name', 'elements'),
 
     /**
      * @param {traceur.util.SourceRange} location

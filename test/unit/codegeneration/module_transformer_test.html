@@ -27,7 +27,6 @@ goog.require('goog.testing.jsunit');
 </head>
 <body>
 <script type="text/traceur">
-
 module a {
   export var i = 0;
   export function inc() {
@@ -36,6 +35,9 @@ module a {
 }
 
 function testExports() {
+  // TODO(arv): Modules are strict. The codegen for modules should ensure that
+  // they are strict.
+  'use strict';
   assertEquals(0, a.i);
   a.inc();
   assertEquals(1, a.i);
@@ -72,7 +74,7 @@ function testNestedDeclarations() {
 
 module d from c;
 
-function testNestedDeclarations() {
+function testNestedDeclarations1() {
   assertEquals(42, d.d);
 }
 
@@ -156,12 +158,12 @@ module m {
   export n, {o: n2}, q from o,  {q: p} from o;
 }
 
-function testExportSpecifierSet() {
+window.testExportSpecifierSet = function() {
   assertEquals('n', m.n);
   assertEquals('q', m.n2.q);
   assertEquals('q', m.p);
   assertEquals('q', m.q);
-}
+};
 
 </script>
 <script>
@@ -304,7 +306,8 @@ function evalScript(scriptElement) {
   var trees = traceur.codegeneration.Compiler.compile(reporter, project);
   assertFalse(reporter.hadError());
   var result = traceur.outputgeneration.ProjectWriter.write(trees);
-  traceur.strictGlobalEval(result);
+  //traceur.strictGlobalEval(result);
+  ('global', eval)(result);
   assertFalse(reporter.hadError());
 }
 

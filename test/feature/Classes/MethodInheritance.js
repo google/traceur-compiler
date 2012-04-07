@@ -1,16 +1,13 @@
 class MethodsA {
-  function ma() {}
-  static function sma() {}
+  ma() {}
 }
 
 class MethodsB extends MethodsA {
-  function mb() {}
-  static function smb() {}
+  mb() {}
 }
 
 class MethodsC extends MethodsB {
-  function mc() {}
-  static function smc() {}
+  mc() {}
 }
 
 // ----------------------------------------------------------------------------
@@ -28,15 +25,8 @@ assertNoOwnProperties(b);
 assertNoOwnProperties(c);
 
 assertHasOwnProperty(pa, 'ma');
-assertLacksOwnProperty(pa, 'mb', 'mc', 'sma', 'smb', 'smc');
+assertLacksOwnProperty(pa, 'mb', 'mc');
 assertHasOwnProperty(pb, 'mb');
-assertLacksOwnProperty(pb, 'ma', 'mc', 'sma', 'smb', 'smc');
+assertLacksOwnProperty(pb, 'ma', 'mc');
 assertHasOwnProperty(pc, 'mc');
-assertLacksOwnProperty(pc, 'ma', 'mb', 'sma', 'smb', 'smc');
-
-assertHasOwnProperty(MethodsA, 'sma');
-assertLacksOwnProperty(MethodsA, 'smb', 'smc');
-assertHasOwnProperty(MethodsB, 'smb');
-assertLacksOwnProperty(MethodsB, 'sma', 'smc');
-assertHasOwnProperty(MethodsC, 'smc');
-assertLacksOwnProperty(MethodsC, 'sma', 'smb');
+assertLacksOwnProperty(pc, 'ma', 'mb');

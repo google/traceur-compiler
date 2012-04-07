@@ -67,7 +67,8 @@ function testWriteStatement() {
           new trees.IdentifierExpression('loc', new IdentifierToken('loc', 'x')),
           new Token(TokenType.PLUS_PLUS, 'loc')
         )]
-      )
+      ),
+      null
     )
   ]);
   var actual = TreeWriter.write(tree);

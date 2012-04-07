@@ -122,13 +122,11 @@ var classifyTraceurTokens = function() {};
           // contextual keywords
           switch (token.value) {
             case PredefinedName.GET:
-            case PredefinedName.MIXIN:
             case PredefinedName.MODULE:
             case PredefinedName.MODULE:
             case PredefinedName.REQUIRE:
             case PredefinedName.REQUIRES:
             case PredefinedName.SET:
-            case PredefinedName.TRAIT:
               c = Classification.CONTEXTUAL;
               break;
             default: // otherwise, identifier

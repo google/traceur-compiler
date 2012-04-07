@@ -1,6 +1,4 @@
-class NameBindingBase {
-  x;
-}
+class NameBindingBase {}
 
 class NameBindingDerived extends NameBindingBase {
   getX() { return this.x; }

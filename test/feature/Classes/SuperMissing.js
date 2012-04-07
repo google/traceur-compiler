@@ -1,10 +1,10 @@
 class MissingSuperA {}
 
 class MissingSuperB extends MissingSuperA {
-  function method() {
+  method() {
     return super.foo();
   }
-  function field() {
+  field() {
     return super.foo;
   }
 }

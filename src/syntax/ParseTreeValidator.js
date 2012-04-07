@@ -325,12 +325,9 @@ traceur.define('syntax', function() {
       for (var i = 0; i < tree.elements.length; i++) {
         var element = tree.elements[i];
         switch (element.type) {
-          case ParseTreeType.FUNCTION_DECLARATION:
           case ParseTreeType.GET_ACCESSOR:
           case ParseTreeType.SET_ACCESSOR:
-          case ParseTreeType.MIXIN:
-          case ParseTreeType.REQUIRES_MEMBER:
-          case ParseTreeType.FIELD_DECLARATION:
+          case ParseTreeType.PROPERTY_METHOD_ASSIGNMENT:
             break;
           default:
             this.fail_(element, 'class element expected');
@@ -394,7 +391,6 @@ traceur.define('syntax', function() {
           declType == ParseTreeType.MODULE_DEFINITION ||
           declType == ParseTreeType.MODULE_DECLARATION ||
           declType == ParseTreeType.CLASS_DECLARATION ||
-          declType == ParseTreeType.TRAIT_DECLARATION ||
           declType == ParseTreeType.EXPORT_MAPPING_LIST,
           tree.declaration,
           'expected valid export tree');
@@ -456,19 +452,6 @@ traceur.define('syntax', function() {
     visitExpressionStatement: function(tree) {
       this.checkVisit_(tree.expression.isExpression(), tree.expression,
           'expression expected');
-    },
-
-    /**
-     * @param {traceur.syntax.trees.FieldDeclaration} tree
-     */
-    visitFieldDeclaration: function(tree) {
-      for (var i = 0; i < tree.declarations.length; i++) {
-        var declaration = tree.declarations[i];
-        this.checkVisit_(
-            declaration.type === ParseTreeType.VARIABLE_DECLARATION,
-            declaration,
-            'variable declaration expected');
-      }
     },
 
     /**
@@ -657,17 +640,6 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.MixinResolveList} tree
-     */
-    visitMixinResolveList: function(tree) {
-      for (var i = 0; i < tree.resolves.length; i++) {
-        var resolve = tree.resolves[i];
-        this.check_(resolve.type === ParseTreeType.MIXIN_RESOLVE, resolve,
-            'mixin resolve expected');
-      }
-    },
-
-    /**
      * @param {traceur.syntax.trees.ModuleDefinition} tree
      */
     visitModuleDeclaration: function(tree) {
@@ -691,8 +663,7 @@ traceur.define('syntax', function() {
             element.type === ParseTreeType.EXPORT_DECLARATION ||
             element.type === ParseTreeType.IMPORT_DECLARATION ||
             element.type === ParseTreeType.MODULE_DEFINITION ||
-            element.type === ParseTreeType.MODULE_DECLARATION ||
-            element.type === ParseTreeType.TRAIT_DECLARATION,
+            element.type === ParseTreeType.MODULE_DECLARATION,
             element,
             'module element expected');
       }
@@ -887,26 +858,6 @@ traceur.define('syntax', function() {
           this.checkType_(ParseTreeType.CASE_CLAUSE,
                           caseClause, 'case or default clause expected');
         }
-      }
-    },
-
-    /**
-     * @param {traceur.syntax.trees.TraitDeclaration} tree
-     */
-    visitTraitDeclaration: function(tree) {
-      for (var i = 0; i < tree.elements.length; i++) {
-        var element = tree.elements[i];
-        switch (element.type) {
-          case ParseTreeType.FUNCTION_DECLARATION:
-          case ParseTreeType.GET_ACCESSOR:
-          case ParseTreeType.SET_ACCESSOR:
-          case ParseTreeType.MIXIN:
-          case ParseTreeType.REQUIRES_MEMBER:
-            break;
-          default:
-            this.fail_(element, 'trait element expected');
-        }
-        this.visitAny(element);
       }
     },
 

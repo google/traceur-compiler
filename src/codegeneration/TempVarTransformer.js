@@ -45,6 +45,13 @@ traceur.define('codegeneration', function() {
     return transformedStatements;
   }
 
+  function getVars(self) {
+      var vars = self.tempVarStack_[self.tempVarStack_.length - 1];
+      if (!vars)
+        throw new Error('Invalid use of addTempVar');
+      return vars;
+  }
+
   /**
    * A generic transformer that allows you to easily create a expression with
    * temporary variables.
@@ -81,13 +88,24 @@ traceur.define('codegeneration', function() {
      * @return {string} The name of the temporary variable.
      */
     addTempVar: function() {
-      var vars = this.tempVarStack_[this.tempVarStack_.length - 1];
-      if (!vars)
-        throw new Error('Invalid use of addTempVar');
+      var vars = getVars(this);
       var uid = this.identifierGenerator_.generateUniqueIdentifier();
       vars.push(createVariableDeclaration(uid, null));
       return uid;
-    }
+    },
+
+    removeTempVar: function(name) {
+      var vars = getVars(this);
+      var index = -1;
+      for (var i = 0; i < vars.length; i++) {
+        if (vars[i].lvalue.identifierToken.value === name) {
+          index = i;
+          break;
+        }
+      }
+      if (index !== -1)
+        vars.splice(index, 1);
+    },
   });
 
   return {

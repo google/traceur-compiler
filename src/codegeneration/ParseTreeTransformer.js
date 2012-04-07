@@ -26,6 +26,7 @@ traceur.define('codegeneration', function() {
   var createCatch = ParseTreeFactory.createCatch;
   var createCascadeExpression = ParseTreeFactory.createCascadeExpression;
   var createClassDeclaration = ParseTreeFactory.createClassDeclaration;
+  var createClassExpression = ParseTreeFactory.createClassExpression;
   var createCommaExpression = ParseTreeFactory.createCommaExpression;
   var createConditionalExpression = ParseTreeFactory.createConditionalExpression;
   var createDefaultClause = ParseTreeFactory.createDefaultClause;
@@ -33,19 +34,15 @@ traceur.define('codegeneration', function() {
   var createDoWhileStatement = ParseTreeFactory.createDoWhileStatement;
   var createExpressionStatement = ParseTreeFactory.createExpressionStatement;
   var createExpressionStatement = ParseTreeFactory.createExpressionStatement;
-  var createFieldDeclaration = ParseTreeFactory.createFieldDeclaration;
   var createFinally = ParseTreeFactory.createFinally;
   var createForOfStatement = ParseTreeFactory.createForOfStatement;
   var createForInStatement = ParseTreeFactory.createForInStatement;
   var createForStatement = ParseTreeFactory.createForStatement;
   var createFunctionDeclaration = ParseTreeFactory.createFunctionDeclaration;
-  var createGetAccessor = ParseTreeFactory.createGetAccessor;
   var createIfStatement = ParseTreeFactory.createIfStatement;
   var createLabelledStatement = ParseTreeFactory.createLabelledStatement;
   var createMemberExpression = ParseTreeFactory.createMemberExpression;
   var createMemberLookupExpression = ParseTreeFactory.createMemberLookupExpression;
-  var createMixin = ParseTreeFactory.createMixin;
-  var createMixinResolveList = ParseTreeFactory.createMixinResolveList;
   var createNewExpression = ParseTreeFactory.createNewExpression;
   var createObjectLiteralExpression = ParseTreeFactory.createObjectLiteralExpression;
   var createObjectPattern = ParseTreeFactory.createObjectPattern;
@@ -54,12 +51,10 @@ traceur.define('codegeneration', function() {
   var createPostfixExpression = ParseTreeFactory.createPostfixExpression;
   var createPropertyNameAssignment = ParseTreeFactory.createPropertyNameAssignment;
   var createReturnStatement = ParseTreeFactory.createReturnStatement;
-  var createSetAccessor = ParseTreeFactory.createSetAccessor;
   var createSpreadExpression = ParseTreeFactory.createSpreadExpression;
   var createSpreadPatternElement = ParseTreeFactory.createSpreadPatternElement;
   var createSwitchStatement = ParseTreeFactory.createSwitchStatement;
   var createThrowStatement = ParseTreeFactory.createThrowStatement;
-  var createTraitDeclaration = ParseTreeFactory.createTraitDeclaration;
   var createTryStatement = ParseTreeFactory.createTryStatement;
   var createUnaryExpression = ParseTreeFactory.createUnaryExpression;
   var createVariableDeclaration = ParseTreeFactory.createVariableDeclaration;
@@ -69,16 +64,19 @@ traceur.define('codegeneration', function() {
   var createWithStatement = ParseTreeFactory.createWithStatement;
   var createYieldStatement = ParseTreeFactory.createYieldStatement;
 
-  var AwaitStatement = traceur.syntax.trees.AwaitStatement;
   var ArrowFunctionExpression = traceur.syntax.trees.ArrowFunctionExpression;
+  var AwaitStatement = traceur.syntax.trees.AwaitStatement;
   var BindThisParameter = traceur.syntax.trees.BindThisParameter;
+  var ClassDeclaration = traceur.syntax.trees.ClassDeclaration;
+  var ClassExpression = traceur.syntax.trees.ClassExpression;
   var ExportDeclaration = traceur.syntax.trees.ExportDeclaration;
-  var ExportMappingList = traceur.syntax.trees.ExportMappingList;
   var ExportMapping = traceur.syntax.trees.ExportMapping;
+  var ExportMappingList = traceur.syntax.trees.ExportMappingList;
   var ExportSpecifier = traceur.syntax.trees.ExportSpecifier;
   var ExportSpecifierSet = traceur.syntax.trees.ExportSpecifierSet;
-  var ImportDeclaration = traceur.syntax.trees.ImportDeclaration;
+  var GetAccessor = traceur.syntax.trees.GetAccessor;
   var ImportBinding = traceur.syntax.trees.ImportBinding;
+  var ImportDeclaration = traceur.syntax.trees.ImportDeclaration;
   var ModuleDeclaration = traceur.syntax.trees.ModuleDeclaration;
   var ModuleDefinition = traceur.syntax.trees.ModuleDefinition;
   var ModuleExpression = traceur.syntax.trees.ModuleExpression;
@@ -88,6 +86,7 @@ traceur.define('codegeneration', function() {
   var PropertyMethodAssignment = traceur.syntax.trees.PropertyMethodAssignment;
   var QuasiLiteralExpression = traceur.syntax.trees.QuasiLiteralExpression;
   var QuasiSubstitution = traceur.syntax.trees.QuasiSubstitution;
+  var SetAccessor = traceur.syntax.trees.SetAccessor;
 
   var getTreeNameForType = traceur.syntax.trees.getTreeNameForType;
 
@@ -348,11 +347,10 @@ traceur.define('codegeneration', function() {
     transformClassDeclaration: function(tree) {
       var superClass = this.transformAny(tree.superClass);
       var elements = this.transformList(tree.elements);
-
-      if (superClass == tree.superClass && elements == tree.elements) {
+      if (superClass == tree.superClass && elements == tree.elements)
         return tree;
-      }
-      return createClassDeclaration(tree.name, superClass, elements);
+      return new ClassDeclaration(tree.location, tree.name, superClass,
+                                  elements);
     },
 
     /**
@@ -360,7 +358,12 @@ traceur.define('codegeneration', function() {
      * @return {ParseTree}
      */
     transformClassExpression: function(tree) {
-      return tree;
+      var superClass = this.transformAny(tree.superClass);
+      var elements = this.transformList(tree.elements);
+      if (superClass == tree.superClass && elements == tree.elements)
+        return tree;
+      return new ClassExpression(tree.location, tree.name, superClass,
+                                 elements);
     },
 
     /**
@@ -523,18 +526,6 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {FieldDeclaration} tree
-     * @return {ParseTree}
-     */
-    transformFieldDeclaration: function(tree) {
-      var declarations = this.transformList(tree.declarations);
-      if (declarations == tree.declarations) {
-        return tree;
-      }
-      return createFieldDeclaration(tree.isStatic, tree.isConst, declarations);
-    },
-
-    /**
      * @param {Finally} tree
      * @return {ParseTree}
      */
@@ -632,10 +623,9 @@ traceur.define('codegeneration', function() {
      */
     transformGetAccessor: function(tree) {
       var body = this.transformFunctionBody(tree.body);
-      if (body == tree.body) {
+      if (body == tree.body)
         return tree;
-      }
-      return createGetAccessor(tree.propertyName, tree.isStatic, body);
+      return new GetAccessor(tree.location, tree.propertyName, body);
     },
 
     /**
@@ -746,38 +736,6 @@ traceur.define('codegeneration', function() {
      */
     transformMissingPrimaryExpression: function(tree) {
       throw new Error('Should never transform trees that had errors during parse');
-    },
-
-    /**
-     * @param {Mixin} tree
-     * @return {ParseTree}
-     */
-    transformMixin: function(tree) {
-      var mixinResolves = this.transformAny(tree.mixinResolves);
-      if (mixinResolves == tree.mixinResolves) {
-        return tree;
-      }
-      return createMixin(tree.name, mixinResolves);
-    },
-
-    /**
-     * @param {MixinResolve} tree
-     * @return {ParseTree}
-     */
-    transformMixinResolve: function(tree) {
-      return tree;
-    },
-
-    /**
-     * @param {MixinResolveList} tree
-     * @return {ParseTree}
-     */
-    transformMixinResolveList: function(tree) {
-      var resolves = this.transformList(tree.resolves);
-      if (resolves == tree.resolves) {
-        return tree;
-      }
-      return createMixinResolveList(resolves);
     },
 
     /**
@@ -943,8 +901,9 @@ traceur.define('codegeneration', function() {
           functionBody == tree.functionBody) {
         return tree;
       }
-      return new PropertyMethodAssignment(null, tree.name, parameters,
-                                          functionBody);
+      return new PropertyMethodAssignment(tree.location, tree.name,
+                                          tree.isGenerator,
+                                          parameters, functionBody);
     },
 
     /**
@@ -1034,10 +993,10 @@ traceur.define('codegeneration', function() {
      */
     transformSetAccessor: function(tree) {
       var body = this.transformFunctionBody(tree.body);
-      if (body == tree.body) {
+      if (body == tree.body)
         return tree;
-      }
-      return createSetAccessor(tree.propertyName, tree.isStatic, tree.parameter, body);
+      return new SetAccessor(tree.location, tree.propertyName, tree.parameter,
+                             body);
     },
 
     /**
@@ -1111,18 +1070,6 @@ traceur.define('codegeneration', function() {
         return tree;
       }
       return createThrowStatement(value);
-    },
-
-    /**
-     * @param {TraitDeclaration} tree
-     * @return {ParseTree}
-     */
-    transformTraitDeclaration: function(tree) {
-      var elements = this.transformList(tree.elements);
-      if (elements == tree.elements) {
-        return tree;
-      }
-      return createTraitDeclaration(tree.name, elements);
     },
 
     /**

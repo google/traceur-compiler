@@ -111,10 +111,6 @@ traceur.define('codegeneration.module', function() {
       this.addExport_(tree.identifier.value, tree);
     },
 
-    visitTraitDeclaration: function(tree) {
-      this.addExport_(tree.name.value, tree);
-    },
-
     visitVariableDeclaration: function(tree) {
       this.addExport_(tree.lvalue.identifierToken.value, tree);
     }

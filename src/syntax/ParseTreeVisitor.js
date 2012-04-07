@@ -276,13 +276,6 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.FieldDeclaration} tree
-     */
-    visitFieldDeclaration: function(tree) {
-      this.visitList(tree.declarations);
-    },
-
-    /**
      * @param {traceur.syntax.trees.Finally} tree
      */
     visitFinally: function(tree) {
@@ -409,26 +402,6 @@ traceur.define('syntax', function() {
      * @param {traceur.syntax.trees.MissingPrimaryExpression} tree
      */
     visitMissingPrimaryExpression: function(tree) {
-    },
-
-    /**
-     * @param {traceur.syntax.trees.Mixin} tree
-     */
-    visitMixin: function(tree) {
-      this.visitAny(tree.mixinResolves);
-    },
-
-    /**
-     * @param {traceur.syntax.trees.MixinResolve} tree
-     */
-    visitMixinResolve: function(tree) {
-    },
-
-    /**
-     * @param {traceur.syntax.trees.MixinResolveList} tree
-     */
-    visitMixinResolveList: function(tree) {
-      this.visitList(tree.resolves);
     },
 
     /**
@@ -635,13 +608,6 @@ traceur.define('syntax', function() {
      */
     visitThrowStatement: function(tree) {
       this.visitAny(tree.value);
-    },
-
-    /**
-     * @param {traceur.syntax.trees.TraitDeclaration} tree
-     */
-    visitTraitDeclaration: function(tree) {
-      this.visitList(tree.elements);
     },
 
     /**

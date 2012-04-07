@@ -1,9 +1,6 @@
 class SpreadTestClass {
-  self = null;
-  x = null;
-  y = null;
-  SpreadTestClass = SpreadTestClass;
   constructor(x, y) {
+    this.SpreadTestClass = SpreadTestClass;
     this.self = this;
     this.x = x;
     this.y = y;

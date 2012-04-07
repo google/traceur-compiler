@@ -1,6 +1,4 @@
 // Should not compile.
-// Options: --traceurClasses=false
+// Options: --classes=false
 
 class C {}
-
-trait T {}

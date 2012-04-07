@@ -30,7 +30,6 @@ traceur.define('codegeneration', function() {
   var MODULE_DECLARATION = traceur.syntax.trees.ParseTreeType.MODULE_DECLARATION;
   var MODULE_DEFINITION = traceur.syntax.trees.ParseTreeType.MODULE_DEFINITION;
   var MODULE_REQUIRE = traceur.syntax.trees.ParseTreeType.MODULE_REQUIRE;
-  var TRAIT_DECLARATION = traceur.syntax.trees.ParseTreeType.TRAIT_DECLARATION;
   var VARIABLE_STATEMENT = traceur.syntax.trees.ParseTreeType.VARIABLE_STATEMENT;
 
   var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
@@ -252,7 +251,6 @@ traceur.define('codegeneration', function() {
               break;
             case CLASS_DECLARATION:
             case FUNCTION_DECLARATION:
-            case TRAIT_DECLARATION:
             case VARIABLE_STATEMENT:
               statements.push(declaration);
               break;
@@ -264,7 +262,7 @@ traceur.define('codegeneration', function() {
           throw new Error('Not implemented');
           break;
         default:
-          // class, trait, statement, function declaration
+          // class, statement, function declaration
           statements.push(element);
       }
     });

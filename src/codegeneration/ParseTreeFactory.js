@@ -45,7 +45,6 @@ traceur.define('codegeneration', function() {
   var DoWhileStatement = traceur.syntax.trees.DoWhileStatement;
   var EmptyStatement = traceur.syntax.trees.EmptyStatement;
   var ExpressionStatement = traceur.syntax.trees.ExpressionStatement;
-  var FieldDeclaration = traceur.syntax.trees.FieldDeclaration;
   var Finally = traceur.syntax.trees.Finally;
   var ForOfStatement = traceur.syntax.trees.ForOfStatement;
   var ForInStatement = traceur.syntax.trees.ForInStatement;
@@ -59,8 +58,6 @@ traceur.define('codegeneration', function() {
   var LiteralExpression = traceur.syntax.trees.LiteralExpression;
   var MemberExpression = traceur.syntax.trees.MemberExpression;
   var MemberLookupExpression = traceur.syntax.trees.MemberLookupExpression;
-  var Mixin = traceur.syntax.trees.Mixin;
-  var MixinResolveList = traceur.syntax.trees.MixinResolveList;
   var NewExpression = traceur.syntax.trees.NewExpression;
   var ObjectLiteralExpression = traceur.syntax.trees.ObjectLiteralExpression;
   var ObjectPattern = traceur.syntax.trees.ObjectPattern;
@@ -78,7 +75,6 @@ traceur.define('codegeneration', function() {
   var SwitchStatement = traceur.syntax.trees.SwitchStatement;
   var ThisExpression = traceur.syntax.trees.ThisExpression;
   var ThrowStatement = traceur.syntax.trees.ThrowStatement;
-  var TraitDeclaration = traceur.syntax.trees.TraitDeclaration;
   var TryStatement = traceur.syntax.trees.TryStatement;
   var UnaryExpression = traceur.syntax.trees.UnaryExpression;
   var VariableDeclarationList = traceur.syntax.trees.VariableDeclarationList;
@@ -586,16 +582,6 @@ traceur.define('codegeneration', function() {
   }
 
   /**
-   * @param {boolean} isStatic
-   * @param {boolean} isConst
-   * @param {Array.<VariableDeclaration} expression
-   * @return {FieldDeclaration}
-   */
-  function createFieldDeclaration(isStatic, isConst, declarations) {
-    return new FieldDeclaration(null, isStatic, isConst, declarations);
-  }
-
-  /**
    * @param {ParseTree} block
    * @return {Finally}
    */
@@ -642,7 +628,7 @@ traceur.define('codegeneration', function() {
   function createFunctionExpressionFormals(formalParameters, functionBody) {
     if (formalParameters instanceof Array)
       formalParameters = createParameterList(formalParameters);
-    return new FunctionDeclaration(null, null, false, false, formalParameters,
+    return new FunctionDeclaration(null, null, false, formalParameters,
         functionBody);
   }
 
@@ -656,7 +642,7 @@ traceur.define('codegeneration', function() {
     if (!(name instanceof BindingIdentifier)) {
       name = createBindingIdentifier(name);
     }
-    return new FunctionDeclaration(null, name, false, false, formalParameterList,
+    return new FunctionDeclaration(null, name, false, formalParameterList,
         functionBody);
   }
 
@@ -666,21 +652,20 @@ traceur.define('codegeneration', function() {
    * @return {FunctionDeclaration}
    */
   function createFunctionExpression(formalParameterList, functionBody) {
-    return new FunctionDeclaration(null, null, false, false,
+    return new FunctionDeclaration(null, null, false,
                                    formalParameterList, functionBody);
   }
 
-  // [static] get propertyName () { ... }
+  // get propertyName () { ... }
   /**
    * @param {string|Token} propertyName
-   * @param {boolean} isStatic
    * @param {Block} body
    * @return {GetAccessor}
    */
-  function createGetAccessor(propertyName, isStatic, body) {
+  function createGetAccessor(propertyName, body) {
     if (typeof propertyName == 'string')
       propertyName = createPropertyNameToken(propertyName);
-    return new GetAccessor(null, propertyName, isStatic, body);
+    return new GetAccessor(null, propertyName, body);
   }
 
   /**
@@ -804,23 +789,6 @@ traceur.define('codegeneration', function() {
   }
 
   /**
-   * @param {IdentifierToken} name
-   * @param {MixinResolveList} mixinResolves
-   * @return {Mixin}
-   */
-  function createMixin(name, mixinResolves) {
-    return new Mixin(null, name, mixinResolves);
-  }
-
-  /**
-   * @param {Array.<ParseTree>} resolves
-   * @return {MixinResolveList}
-   */
-  function createMixinResolveList(resolves) {
-    return new MixinResolveList(null, resolves);
-  }
-
-  /**
    * @param {ParseTree} operand
    * @param {ArgumentList} args
    * @return {NewExpression}
@@ -933,17 +901,16 @@ traceur.define('codegeneration', function() {
 
   /**
    * @param {string|Token} propertyName
-   * @param {boolean} isStatic
    * @param {string|IdentifierToken} parameter
    * @param {Block} body
    * @return {SetAccessor}
    */
-  function createSetAccessor(propertyName, isStatic, parameter, body) {
+  function createSetAccessor(propertyName, parameter, body) {
     if (typeof propertyName == 'string')
       propertyName = createPropertyNameToken(propertyName);
     if (typeof parameter == 'string')
       parameter = createIdentifierToken(parameter);
-    return new SetAccessor(null, propertyName, isStatic, parameter, body);
+    return new SetAccessor(null, propertyName, parameter, body);
   }
 
   /**
@@ -977,15 +944,6 @@ traceur.define('codegeneration', function() {
    */
   function createThrowStatement(value) {
     return new ThrowStatement(null, value);
-  }
-
-  /**
-   * @param {IdentifierToken} name
-   * @param {Array.<ParseTree>} elements
-   * @return {TraitDeclaration}
-   */
-  function createTraitDeclaration(name, elements) {
-    return new TraitDeclaration(null, name, elements);
   }
 
   /**
@@ -1133,7 +1091,6 @@ traceur.define('codegeneration', function() {
       createEmptyStatement: createEmptyStatement,
       createExpressionStatement: createExpressionStatement,
       createFalseLiteral: createFalseLiteral,
-      createFieldDeclaration: createFieldDeclaration,
       createFinally: createFinally,
       createForOfStatement: createForOfStatement,
       createForInStatement: createForInStatement,
@@ -1148,8 +1105,6 @@ traceur.define('codegeneration', function() {
       createLabelledStatement: createLabelledStatement,
       createMemberExpression: createMemberExpression,
       createMemberLookupExpression: createMemberLookupExpression,
-      createMixin: createMixin,
-      createMixinResolveList: createMixinResolveList,
       createNewExpression: createNewExpression,
       createNullLiteral: createNullLiteral,
       createNullLiteralToken: createNullLiteralToken,
@@ -1182,7 +1137,6 @@ traceur.define('codegeneration', function() {
       createSwitchStatement: createSwitchStatement,
       createThisExpression: createThisExpression,
       createThrowStatement: createThrowStatement,
-      createTraitDeclaration: createTraitDeclaration,
       createTrueLiteral: createTrueLiteral,
       createTryStatement: createTryStatement,
       createUnaryExpression: createUnaryExpression,

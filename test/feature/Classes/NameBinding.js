@@ -1,6 +1,4 @@
 class ElementHolder {
-  element;
-
   getElement() { return this.element; }
 
   makeFilterCapturedThis() {

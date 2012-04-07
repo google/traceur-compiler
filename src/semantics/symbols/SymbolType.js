@@ -17,14 +17,8 @@ traceur.define('semantics.symbols', function() {
 
   /** @enum {string} */
   var SymbolType = {
-    CLASS: 'CLASS',
     EXPORT: 'EXPORT',
-    FIELD: 'FIELD',
-    METHOD: 'METHOD',
-    MODULE: 'MODULE',
-    PROPERTY: 'PROPERTY',
-    REQUIRES: 'REQUIRES',
-    TRAIT: 'TRAIT'
+    MODULE: 'MODULE'
   };
 
   return {

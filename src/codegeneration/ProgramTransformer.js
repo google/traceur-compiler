@@ -29,7 +29,6 @@ traceur.define('codegeneration', function() {
   var DestructuringTransformer = traceur.codegeneration.DestructuringTransformer;
   var SpreadTransformer = traceur.codegeneration.SpreadTransformer;
   var BlockBindingTransformer = traceur.codegeneration.BlockBindingTransformer;
-  var TraitTransformer = traceur.codegeneration.TraitTransformer;
   var ClassTransformer = traceur.codegeneration.ClassTransformer;
   var ModuleTransformer = traceur.codegeneration.ModuleTransformer;
   var FreeVariableChecker = traceur.semantics.FreeVariableChecker;
@@ -38,9 +37,7 @@ traceur.define('codegeneration', function() {
   var CollectionTransformer = traceur.codegeneration.CollectionTransformer;
   var CascadeExpressionTransformer = traceur.codegeneration.CascadeExpressionTransformer;
   var IsExpressionTransformer = traceur.codegeneration.IsExpressionTransformer;
-
-  var CLASS_DECLARATION = traceur.syntax.trees.ParseTreeType.CLASS_DECLARATION;
-  var TRAIT_DECLARATION = traceur.syntax.trees.ParseTreeType.TRAIT_DECLARATION;
+  var ClassTransformer = traceur.codegeneration.ClassTransformer;
 
   var options = traceur.options.transform;
 
@@ -169,15 +166,20 @@ traceur.define('codegeneration', function() {
       // TODO: many of these simple, local transforms could happen in the same
       // tree pass
 
-      chain(options.quasi, QuasiLiteralTransformer.transformTree, identifierGenerator);
+      chain(options.quasi, QuasiLiteralTransformer.transformTree,
+            identifierGenerator);
       chain(options.arrowFunctions,
             ArrowFunctionTransformer.transformTree, reporter);
+
+      // ClassTransformer needs to come before
+      // PropertyMethodAssignmentTransformer.
+      chain(options.classes, ClassTransformer.transform, identifierGenerator,
+            reporter);
+
       chain(options.propertyMethods,
             PropertyMethodAssignmentTransformer.transformTree);
       chain(options.propertyNameShorthand,
             PropertyNameShorthandTransformer.transformTree);
-      chain(options.traceurClasses,
-            ClassTransformer.transform, reporter);
       chain(options.isExpression, IsExpressionTransformer.transformTree);
 
       // for of must come before destructuring and generator, or anything

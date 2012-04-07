@@ -58,7 +58,6 @@ function validateTree(constr, type, fields) {
 
   var tree = new TestTree();
   assertEquals(type, tree.type);
-  assert(Object.isFrozen(tree));
 
   // Verify that each of the fields has been set to the correct value
   for (var i = 0; i < fields.length; i++) {
@@ -82,7 +81,6 @@ function testNullTree() {
   assertEquals(null, tree.location);
   var tree2 = new traceur.syntax.trees.NullTree();
   assertEquals(tree, tree2);
-  assert(Object.isFrozen(tree));
 }
 
 function testTreeConstructors() {
@@ -132,7 +130,7 @@ function testTreeConstructors() {
 
   validateTree(traceur.syntax.trees.ClassExpression,
       ParseTreeType.CLASS_EXPRESSION,
-      ['location']);
+      ['location', 'name', 'superClass', 'elements']);
 
   validateTree(traceur.syntax.trees.CommaExpression,
       ParseTreeType.COMMA_EXPRESSION,
@@ -190,10 +188,6 @@ function testTreeConstructors() {
       ParseTreeType.EXPRESSION_STATEMENT,
       ['location', 'expression']);
 
-  validateTree(traceur.syntax.trees.FieldDeclaration,
-      ParseTreeType.FIELD_DECLARATION,
-      ['location', 'isStatic', 'isConst', 'declarations']);
-
   validateTree(traceur.syntax.trees.Finally,
       ParseTreeType.FINALLY,
       ['location', 'block']);
@@ -217,11 +211,11 @@ function testTreeConstructors() {
   validateTree(traceur.syntax.trees.FunctionDeclaration,
       ParseTreeType.FUNCTION_DECLARATION,
       ['location', 'name', 'isGenerator',
-       'isStatic', 'formalParameterList', 'functionBody']);
+       'formalParameterList', 'functionBody']);
 
   validateTree(traceur.syntax.trees.GetAccessor,
       ParseTreeType.GET_ACCESSOR,
-      ['location', 'propertyName', 'isStatic', 'body']);
+      ['location', 'propertyName', 'body']);
 
   validateTree(traceur.syntax.trees.IdentifierExpression,
       ParseTreeType.IDENTIFIER_EXPRESSION,
@@ -266,18 +260,6 @@ function testTreeConstructors() {
   validateTree(traceur.syntax.trees.MissingPrimaryExpression,
       ParseTreeType.MISSING_PRIMARY_EXPRESSION,
       ['location', 'nextToken']);
-
-  validateTree(traceur.syntax.trees.MixinResolve,
-      ParseTreeType.MIXIN_RESOLVE,
-      ['location', 'from', 'to']);
-
-  validateTree(traceur.syntax.trees.MixinResolveList,
-      ParseTreeType.MIXIN_RESOLVE_LIST,
-      ['location', 'resolves']);
-
-  validateTree(traceur.syntax.trees.Mixin,
-      ParseTreeType.MIXIN,
-      ['location', 'name', 'mixinResolves']);
 
   validateTree(traceur.syntax.trees.ModuleDeclaration,
       ParseTreeType.MODULE_DECLARATION,
@@ -329,7 +311,8 @@ function testTreeConstructors() {
 
   validateTree(traceur.syntax.trees.PropertyMethodAssignment,
       ParseTreeType.PROPERTY_METHOD_ASSIGNMENT,
-      ['location', 'name', 'formalParameterList', 'functionBody']);
+      ['location', 'name', 'isGenerator', 'formalParameterList',
+       'functionBody']);
 
   validateTree(traceur.syntax.trees.PropertyNameAssignment,
       ParseTreeType.PROPERTY_NAME_ASSIGNMENT,
@@ -353,7 +336,7 @@ function testTreeConstructors() {
 
   validateTree(traceur.syntax.trees.SetAccessor,
       ParseTreeType.SET_ACCESSOR,
-      ['location', 'propertyName', 'isStatic', 'parameter', 'body']);
+      ['location', 'propertyName', 'parameter', 'body']);
 
   validateTree(traceur.syntax.trees.SpreadExpression,
       ParseTreeType.SPREAD_EXPRESSION,
@@ -378,10 +361,6 @@ function testTreeConstructors() {
   validateTree(traceur.syntax.trees.ThrowStatement,
       ParseTreeType.THROW_STATEMENT,
       ['location', 'value']);
-
-  validateTree(traceur.syntax.trees.TraitDeclaration,
-      ParseTreeType.TRAIT_DECLARATION,
-      ['location', 'name', 'elements']);
 
   validateTree(traceur.syntax.trees.TryStatement,
       ParseTreeType.TRY_STATEMENT,

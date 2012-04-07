@@ -1,21 +1,26 @@
 class Point2D {
-  var x = 1;
-  var y = 2;
+  constructor() {
+    this.x = 1;
+    this.y = 2;
+  }
 }
 
 class Point3D extends Point2D {
-  var z = 3;
+  constructor() {
+    super();
+    this.z = 3;
+  }
 }
 
 // ----------------------------------------------------------------------------
 
 var a = new Point2D();
-assertEquals(true, a.hasOwnProperty('x'));
-assertEquals(true, a.hasOwnProperty('y'));
-assertEquals(false, a.hasOwnProperty('z'));
+assertTrue(a.hasOwnProperty('x'));
+assertTrue(a.hasOwnProperty('y'));
+assertFalse(a.hasOwnProperty('z'));
 assertUndefined(a.z);
 
 var b = new Point3D();
-assertEquals(true, b.hasOwnProperty('x'));
-assertEquals(true, b.hasOwnProperty('y'));
-assertEquals(true, b.hasOwnProperty('z'));
+assertTrue(b.hasOwnProperty('x'));
+assertTrue(b.hasOwnProperty('y'));
+assertTrue(b.hasOwnProperty('z'));

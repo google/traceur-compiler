@@ -53,7 +53,6 @@ traceur.define('syntax', function() {
   var ExportSpecifier = traceur.syntax.trees.ExportSpecifier;
   var ExportSpecifierSet = traceur.syntax.trees.ExportSpecifierSet;
   var ExpressionStatement = traceur.syntax.trees.ExpressionStatement;
-  var FieldDeclaration = traceur.syntax.trees.FieldDeclaration;
   var Finally = traceur.syntax.trees.Finally;
   var ForOfStatement = traceur.syntax.trees.ForOfStatement;
   var ForInStatement = traceur.syntax.trees.ForInStatement;
@@ -73,9 +72,6 @@ traceur.define('syntax', function() {
   var MemberExpression = traceur.syntax.trees.MemberExpression;
   var MemberLookupExpression = traceur.syntax.trees.MemberLookupExpression;
   var MissingPrimaryExpression = traceur.syntax.trees.MissingPrimaryExpression;
-  var Mixin = traceur.syntax.trees.Mixin;
-  var MixinResolve = traceur.syntax.trees.MixinResolve;
-  var MixinResolveList = traceur.syntax.trees.MixinResolveList;
   var ModuleDeclaration = traceur.syntax.trees.ModuleDeclaration;
   var ModuleDefinition = traceur.syntax.trees.ModuleDefinition;
   var ModuleExpression = traceur.syntax.trees.ModuleExpression;
@@ -96,7 +92,6 @@ traceur.define('syntax', function() {
   var QuasiLiteralExpression = traceur.syntax.trees.QuasiLiteralExpression;
   var QuasiLiteralPortion = traceur.syntax.trees.QuasiLiteralPortion;
   var QuasiSubstitution = traceur.syntax.trees.QuasiSubstitution;
-  var RequiresMember = traceur.syntax.trees.RequiresMember;
   var RestParameter = traceur.syntax.trees.RestParameter;
   var ReturnStatement = traceur.syntax.trees.ReturnStatement;
   var SetAccessor = traceur.syntax.trees.SetAccessor;
@@ -106,7 +101,6 @@ traceur.define('syntax', function() {
   var SwitchStatement = traceur.syntax.trees.SwitchStatement;
   var ThisExpression = traceur.syntax.trees.ThisExpression;
   var ThrowStatement = traceur.syntax.trees.ThrowStatement;
-  var TraitDeclaration = traceur.syntax.trees.TraitDeclaration;
   var TryStatement = traceur.syntax.trees.TryStatement;
   var UnaryExpression = traceur.syntax.trees.UnaryExpression;
   var VariableDeclaration = traceur.syntax.trees.VariableDeclaration;
@@ -245,7 +239,6 @@ traceur.define('syntax', function() {
              this.peekExportDeclaration_() ||
              this.peekModuleDeclaration_() ||
              this.peekClassDeclaration_() ||
-             this.peekTraitDeclaration_() ||
              this.peekStatement_();
     },
 
@@ -259,7 +252,6 @@ traceur.define('syntax', function() {
       }
       // Function is handled in parseStatement_
       // Class is handled in parseStatement_
-      // Trait is handled in parseStatement_
       if (this.peekImportDeclaration_(load)) {
         return this.parseImportDeclaration_(load);
       }
@@ -273,7 +265,6 @@ traceur.define('syntax', function() {
     },
 
     // ClassDeclaration
-    // TraitDeclaration
     // ModuleDeclaration
     // TODO: ImportDeclaration
     // TODO: ScriptBlock
@@ -361,7 +352,6 @@ traceur.define('syntax', function() {
     },
 
     // ClassDeclaration
-    // TraitDeclaration
     // ImportDeclaration
     // ExportDeclaration
     // ModuleDeclaration
@@ -488,7 +478,6 @@ traceur.define('syntax', function() {
     // export  FunctionDeclaration
     // export  ConstStatement
     // export  ClassDeclaration
-    // export  TraitDeclaration
     // export  module ModuleDefinition
     /**
      * @return {boolean}
@@ -520,8 +509,6 @@ traceur.define('syntax', function() {
         case TokenType.IDENTIFIER:
           if (this.peekModuleDeclaration_(load)) {
             exportTree = this.parseModuleDeclaration_(load);
-          } else if (this.peekTraitDeclaration_()) {
-            exportTree = this.parseTraitDeclaration_();
           } else {
             exportTree = this.parseExportMappingList_();
           }
@@ -661,115 +648,29 @@ traceur.define('syntax', function() {
      * @return {boolean}
      * @private
      */
-    peekTraitDeclaration_: function() {
-      return options.traceurClasses &&
-          this.peekPredefinedString_(PredefinedName.TRAIT);
-    },
-
-    /**
-     * @return {ParseTree}
-     * @private
-     */
-    parseTraitDeclaration_: function() {
-      var start = this.getTreeStartLocation_();
-      this.eatId_(); // trait
-      var name = this.eatId_();
-      this.eat_(TokenType.OPEN_CURLY);
-      var elements = this.parseTraitElements_();
-      this.eat_(TokenType.CLOSE_CURLY);
-      return new TraitDeclaration(this.getTreeLocation_(start), name, elements);
-    },
-
-    /**
-     * @return {Array.<ParseTree>}
-     * @private
-     */
-    parseTraitElements_: function() {
-      var result = [];
-
-      while (this.peekTraitElement_()) {
-        result.push(this.parseTraitElement_());
-      }
-
-      return result;
-    },
-
-    /**
-     * @return {boolean}
-     * @private
-     */
-    peekTraitElement_: function() {
-      // TODO: require statement
-      // TODO: mixin statement
-      // TODO: access modifiers
-      switch (this.peekType_()) {
-        case TokenType.FUNCTION:
-        case TokenType.IDENTIFIER:
-          return true;
-        default:
-          return false;
-      }
-    },
-
-    /**
-     * @return {ParseTree}
-     * @private
-     */
-    parseTraitElement_: function() {
-      // TODO: fields?
-      // TODO: allow static in traits?
-      // TODO: access modifiers
-      if (this.peekGetAccessor_(false)) {
-        return this.parseGetAccessor_();
-      }
-      if (this.peekSetAccessor_(false)) {
-        return this.parseSetAccessor_();
-      }
-      if (this.peekMixin_()) {
-        return this.parseMixin_();
-      }
-      if (this.peekRequiresMember_()) {
-        return this.parseRequiresMember_();
-      }
-
-      return this.parseMethodDeclaration_(false);
-    },
-
-    /**
-     * @return {boolean}
-     * @private
-     */
-    peekRequiresMember_: function() {
-      return this.peekPredefinedString_(PredefinedName.REQUIRES) && this.peek_(TokenType.IDENTIFIER, 1);
-    },
-
-    /**
-     * @return {ParseTree}
-     * @private
-     */
-    parseRequiresMember_: function() {
-      var start = this.getTreeStartLocation_();
-      this.eatId_(); // requires
-      var name = this.eatId_();
-      this.eat_(TokenType.SEMI_COLON);
-      return new RequiresMember(this.getTreeLocation_(start), name);
-    },
-
-    /**
-     * @return {boolean}
-     * @private
-     */
-    peekMixin_: function() {
-      return this.peekPredefinedString_(PredefinedName.MIXIN) && this.peek_(TokenType.IDENTIFIER, 1);
-    },
-
-    /**
-     * @return {boolean}
-     * @private
-     */
     peekClassDeclaration_: function() {
-      return options.traceurClasses &&
-          this.peek_(TokenType.CLASS) && this.peekId_(1);
+      return options.classes && this.peek_(TokenType.CLASS) && this.peekId_(1);
+    },
+
+    parseClassShared_: function(constr) {
+      var start = this.getTreeStartLocation_();
+      this.eat_(TokenType.CLASS);
+      var name = null;
+      // Name is optional for ClassExpression
+      if (constr == ClassDeclaration || 
+          !this.peek_(TokenType.EXTENDS) && !this.peek_(TokenType.OPEN_CURLY)) {
+        name = this.parseBindingIdentifier_();
+      }
+      var superClass = null;
+      if (this.peek_(TokenType.EXTENDS)) {
+        this.eat_(TokenType.EXTENDS);
+        superClass = this.parseAssignmentExpression_();
+      }
+      this.eat_(TokenType.OPEN_CURLY);
+      var elements = this.parseClassElements_();
+      this.eat_(TokenType.CLOSE_CURLY);
+      return new constr(this.getTreeLocation_(start), name, superClass,
+                        elements);
     },
 
     /**
@@ -777,22 +678,15 @@ traceur.define('syntax', function() {
      * @private
      */
     parseClassDeclaration_: function() {
-      if (!options.traceurClasses) {
-        this.reportUnexpectedToken_();
-        return null;
-      }
-      var start = this.getTreeStartLocation_();
-      this.eat_(TokenType.CLASS);
-      var name = this.eatId_();
-      var superClass = null;
-      if (this.peek_(TokenType.EXTENDS)) {
-        this.eat_(TokenType.EXTENDS);
-        superClass = this.parseExpression_();
-      }
-      this.eat_(TokenType.OPEN_CURLY);
-      var elements = this.parseClassElements_();
-      this.eat_(TokenType.CLOSE_CURLY);
-      return new ClassDeclaration(this.getTreeLocation_(start), name, superClass, elements);
+      return this.parseClassShared_(ClassDeclaration);
+    },
+
+    /**
+     * @return {ParseTree}
+     * @private
+     */
+    parseClassExpression_: function() {
+      return this.parseClassShared_(ClassExpression);
     },
 
     /**
@@ -814,17 +708,8 @@ traceur.define('syntax', function() {
      * @private
      */
     peekClassElement_: function() {
-      switch (this.peekType_()) {
-        case TokenType.FUNCTION:
-        case TokenType.IDENTIFIER:
-        case TokenType.VAR:
-        case TokenType.CONST:
-        case TokenType.STATIC:
-        case TokenType.CONSTRUCTOR:
-          return true;
-        default:
-          return false;
-      }
+      return options.classes && (this.peekPropertyMethodAssignment_() ||
+          this.peekGetAccessor_() || this.peekSetAccessor_());
     },
 
     /**
@@ -832,173 +717,18 @@ traceur.define('syntax', function() {
      * @private
      */
     parseClassElement_: function() {
-      if (this.peekConstructorDeclaration_()) {
-        return this.parseConstructorDeclaration_();
-      }
-      if (this.peekMethodDeclaration_()) {
-        return this.parseMethodDeclaration_(true);
-      }
-      // TODO: access modifiers
-      if (this.peekGetAccessor_(true)) {
+      if (this.peekGetAccessor_())
         return this.parseGetAccessor_();
-      }
-      if (this.peekSetAccessor_(true)) {
+      if (this.peekSetAccessor_())
         return this.parseSetAccessor_();
-      }
-      if (this.peekMixin_()) {
-        return this.parseMixin_();
-      }
-      if (this.peekRequiresMember_()) {
-        return this.parseRequiresMember_();
-      }
-
-      return this.parseFieldDeclaration_();
+      return this.parsePropertyMethodAssignment_();
     },
 
-    /**
-     * @return {ParseTree}
-     * @private
-     */
-    parseFieldDeclaration_: function() {
+    parseSafetyConstructorDeclaration_: function() {
       var start = this.getTreeStartLocation_();
-
-      var isStatic = this.eatOpt_(TokenType.STATIC) != null;
-
-      var binding = this.peekType_();
-      var isConst = false;
-      switch (binding) {
-        case TokenType.CONST:
-          this.eat_(TokenType.CONST);
-          isConst = true;
-          break;
-        case TokenType.VAR:
-          this.eat_(TokenType.VAR);
-          break;
-      }
-
-      var declarations = [];
-      var declaration = this.parseVariableDeclaration_(isStatic, binding,
-                                                       Expression.NORMAL);
-      this.checkInitializer_(binding, declaration);
-      declarations.push(declaration);
-      while (this.peek_(TokenType.COMMA)) {
-        this.eat_(TokenType.COMMA);
-        declaration = this.parseVariableDeclaration_(isStatic, binding,
-                                                     Expression.NORMAL);
-        this.checkInitializer_(binding, declaration);
-        declarations.push(declaration);
-      }
-      this.eat_(TokenType.SEMI_COLON);
-      return new FieldDeclaration(
-          this.getTreeLocation_(start), isStatic, isConst, declarations);
-    },
-
-    /**
-     * @return {ParseTree}
-     * @private
-     */
-    parseMixin_: function() {
-      var start = this.getTreeStartLocation_();
-      this.eatId_(); // mixin
-      var name = this.eatId_();
-      var mixinResolves = null;
-      if (this.peek_(TokenType.OPEN_CURLY)) {
-        mixinResolves = this.parseMixinResolves_();
-      }
-      this.eat_(TokenType.SEMI_COLON);
-      return new Mixin(this.getTreeLocation_(start), name, mixinResolves);
-    },
-
-    /**
-     * @return {MixinResolveList}
-     * @private
-     */
-    parseMixinResolves_: function() {
-      var start = this.getTreeStartLocation_();
-      var result = [];
-
-      this.eat_(TokenType.OPEN_CURLY);
-      while (this.peek_(TokenType.IDENTIFIER)) {
-        result.push(this.parseMixinResolve_());
-        if (null == this.eatOpt_(TokenType.COMMA)) {
-          break;
-        }
-      }
-      this.eat_(TokenType.CLOSE_CURLY);
-
-      return new MixinResolveList(this.getTreeLocation_(start), result);
-    },
-
-    /**
-     * @return {ParseTree}
-     * @private
-     */
-    parseMixinResolve_: function() {
-      var start = this.getTreeStartLocation_();
-      // TODO: need distinguishing syntax for 'requires' resolves
-      // requires x,
-      var from = this.eatId_();
-      this.eat_(TokenType.COLON);
-      var to = this.eatId_();
-      return new MixinResolve(this.getTreeLocation_(start), from, to);
-    },
-
-    /**
-     * @param {boolean} allowStatic
-     * @return {ParseTree}
-     * @private
-     */
-    parseMethodDeclaration_: function(allowStatic) {
-      var start = this.getTreeStartLocation_();
-      var isStatic = allowStatic && this.eatOpt_(TokenType.STATIC) != null;
-      if (this.peekFunction_()) {
-        this.nextToken_(); // function or #
-      }
-      var isGenerator = this.eatOpt_(TokenType.STAR) != null;
-      return this.parseFunctionDeclarationTail_(start, isGenerator, isStatic,
-                                                this.parseBindingIdentifier_());
-    },
-
-    /**
-     * @return {boolean}
-     * @private
-     */
-    peekMethodDeclaration_: function() {
-      var index = this.peek_(TokenType.STATIC) ? 1 : 0;
-      if (this.peekFunction_(index)) {
-        return true;
-      }
-
-      // TODO: Should we allow this? The Traceur classes are going away so this
-      // is not a big deal to resolve at this point.
-      if (this.peek_(TokenType.STAR, index)) {
-        index++;
-      }
-
-      return this.peek_(TokenType.IDENTIFIER, index) &&
-          this.peek_(TokenType.OPEN_PAREN, index + 1);
-    },
-
-    /**
-     * @return {ParseTree}
-     * @private
-     */
-    parseConstructorDeclaration_: function() {
-      var start = this.getTreeStartLocation_();
-      var isStatic = this.eatOpt_(TokenType.STATIC) != null;
       var isGenerator = false;
-      return this.parseFunctionDeclarationTail_(start, isGenerator, isStatic,
+      return this.parseFunctionDeclarationTail_(start, isGenerator,
                                                 this.parseBindingIdentifier_());
-    },
-
-    /**
-     * @return {boolean}
-     * @private
-     */
-    peekConstructorDeclaration_: function() {
-      var index = this.peek_(TokenType.STATIC) ? 1 : 0;
-      return this.peek_(TokenType.CONSTRUCTOR, index) &&
-          this.peek_(TokenType.OPEN_PAREN, index + 1);
     },
 
     /**
@@ -1011,9 +741,6 @@ traceur.define('syntax', function() {
       }
       if (this.peekClassDeclaration_()) {
         return this.parseClassDeclaration_();
-      }
-      if (this.peekTraitDeclaration_()) {
-        return this.parseTraitDeclaration_();
       }
 
       // Harmony let block scoped bindings. let can only appear in
@@ -1040,8 +767,7 @@ traceur.define('syntax', function() {
      */
     peekSourceElement_: function() {
       return this.peekFunction_() || this.peekClassDeclaration_() ||
-          this.peekTraitDeclaration_() || this.peekStatementStandard_() ||
-          this.peekLet_();
+          this.peekStatementStandard_() || this.peekLet_();
     },
 
     /**
@@ -1063,25 +789,23 @@ traceur.define('syntax', function() {
       var start = this.getTreeStartLocation_();
       this.nextToken_(); // function or #
       var isGenerator = this.eatOpt_(TokenType.STAR) != null;
-      return this.parseFunctionDeclarationTail_(start, isGenerator, false,
+      return this.parseFunctionDeclarationTail_(start, isGenerator,
                                                 this.parseBindingIdentifier_());
     },
 
     /**
      * @param {SourcePosition} start
-     * @param {boolean} isStatic
      * @param {IdentifierToken} name
      * @return {ParseTree}
      * @private
      */
-    parseFunctionDeclarationTail_: function(start, isGenerator,
-                                            isStatic, name) {
+    parseFunctionDeclarationTail_: function(start, isGenerator, name) {
       this.eat_(TokenType.OPEN_PAREN);
       var formalParameterList = this.parseFormalParameterList_();
       this.eat_(TokenType.CLOSE_PAREN);
       var functionBody = this.parseFunctionBody_(isGenerator);
       return new FunctionDeclaration(this.getTreeLocation_(start), name,
-                                     isGenerator, isStatic, formalParameterList,
+                                     isGenerator, formalParameterList,
                                      functionBody);
     },
 
@@ -1102,7 +826,7 @@ traceur.define('syntax', function() {
       this.eat_(TokenType.CLOSE_PAREN);
       var functionBody = this.parseFunctionBody_(isGenerator);
       return new FunctionDeclaration(this.getTreeLocation_(start), name,
-                                     isGenerator, false, formalParameterList,
+                                     isGenerator, formalParameterList,
                                      functionBody);
     },
 
@@ -1436,13 +1160,12 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {boolean} isStatic
      * @param {TokenType} binding
      * @param {Expression} expressionIn
      * @return {VariableDeclaration}
      * @private
      */
-    parseVariableDeclaration_: function(isStatic, binding, expressionIn) {
+    parseVariableDeclaration_: function(binding, expressionIn) {
       var start = this.getTreeStartLocation_();
       var lvalue;
       if (this.peekPattern_(PatternKind.INITIALIZER, declarationDestructuringFollow)) {
@@ -1993,7 +1716,9 @@ traceur.define('syntax', function() {
     parsePrimaryExpression_: function() {
       switch (this.peekType_()) {
         case TokenType.CLASS:
-          return this.parseClassExpression_();
+          return options.classes ?
+              this.parseClassExpression_() :
+              this.parseMissingPrimaryExpression_();
         case TokenType.SUPER:
           return this.parseSuperExpression_();
         case TokenType.THIS:
@@ -2021,19 +1746,6 @@ traceur.define('syntax', function() {
         default:
           return this.parseMissingPrimaryExpression_();
       }
-    },
-
-    /**
-     * @return {ParseTree}
-     * @private
-     */
-    parseClassExpression_: function() {
-      if (!options.traceurClasses) {
-        return this.parseMissingPrimaryExpression_();
-      }
-      var start = this.getTreeStartLocation_();
-      this.eat_(TokenType.CLASS);
-      return new ClassExpression(this.getTreeLocation_(start));
     },
 
     /**
@@ -2171,11 +1883,11 @@ traceur.define('syntax', function() {
 
       this.eat_(TokenType.OPEN_CURLY);
       while (this.peekPropertyAssignment_()) {
-        if (this.peekGetAccessor_(false)) {
+        if (this.peekGetAccessor_()) {
           result.push(this.parseGetAccessor_());
           this.eatPropertyOptionalComma_();
 
-        } else if (this.peekSetAccessor_(false)) {
+        } else if (this.peekSetAccessor_()) {
           result.push(this.parseSetAccessor_());
           this.eatPropertyOptionalComma_();
 
@@ -2209,7 +1921,8 @@ traceur.define('syntax', function() {
      * @private
      */
     peekPropertyAssignment_: function() {
-      return this.peekPropertyName_(0);
+      var index = +this.peek_(TokenType.STAR);
+      return this.peekPropertyName_(index);
     },
 
     /**
@@ -2229,13 +1942,12 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {boolean} allowStatic
      * @return {boolean}
      * @private
      */
-    peekGetAccessor_: function(allowStatic) {
-      var index = allowStatic && this.peek_(TokenType.STATIC) ? 1 : 0;
-      return this.peekPredefinedString_(PredefinedName.GET, index) && this.peekPropertyName_(index + 1);
+    peekGetAccessor_: function() {
+      return this.peekPredefinedString_(PredefinedName.GET) &&
+          this.peekPropertyName_(1);
     },
 
     /**
@@ -2253,23 +1965,22 @@ traceur.define('syntax', function() {
      */
     parseGetAccessor_: function() {
       var start = this.getTreeStartLocation_();
-      var isStatic = this.eatOpt_(TokenType.STATIC) != null;
+
       this.eatId_(); // get
       var propertyName = this.nextToken_();
       this.eat_(TokenType.OPEN_PAREN);
       this.eat_(TokenType.CLOSE_PAREN);
       var body = this.parseFunctionBody_(false);
-      return new GetAccessor(this.getTreeLocation_(start), propertyName, isStatic, body);
+      return new GetAccessor(this.getTreeLocation_(start), propertyName, body);
     },
 
     /**
-     *@param {boolean} allowStatic
      * @return {boolean}
      * @private
      */
-    peekSetAccessor_: function(allowStatic) {
-      var index = allowStatic && this.peek_(TokenType.STATIC) ? 1 : 0;
-      return this.peekPredefinedString_(PredefinedName.SET, index) && this.peekPropertyName_(index + 1);
+    peekSetAccessor_: function() {
+      return this.peekPredefinedString_(PredefinedName.SET) &&
+          this.peekPropertyName_(1);
     },
 
     /**
@@ -2278,14 +1989,14 @@ traceur.define('syntax', function() {
      */
     parseSetAccessor_: function() {
       var start = this.getTreeStartLocation_();
-      var isStatic = this.eatOpt_(TokenType.STATIC) != null;
       this.eatId_(); // set
       var propertyName = this.nextToken_();
       this.eat_(TokenType.OPEN_PAREN);
       var parameter = this.parseBindingIdentifier_();
       this.eat_(TokenType.CLOSE_PAREN);
       var body = this.parseFunctionBody_(false);
-      return new SetAccessor(this.getTreeLocation_(start), propertyName, isStatic, parameter, body);
+      return new SetAccessor(this.getTreeLocation_(start), propertyName,
+                             parameter, body);
     },
 
     /**
@@ -2307,9 +2018,10 @@ traceur.define('syntax', function() {
     },
 
     peekPropertyMethodAssignment_: function() {
+      var index = +this.peek_(TokenType.STAR);
       return options.propertyMethods &&
-          this.peekPropertyName_() &&
-          this.peek_(TokenType.OPEN_PAREN, 1);
+          this.peekPropertyName_(index) &&
+          this.peek_(TokenType.OPEN_PAREN, index + 1);
     },
 
     /**
@@ -2320,14 +2032,14 @@ traceur.define('syntax', function() {
       var start = this.getTreeStartLocation_();
       // Note that parsePropertyAssignment_ already limits name to String,
       // Number & IdentfierName.
-      // TODO: Should we allow * here?
+      var isGenerator = this.eatOpt_(TokenType.STAR) != null;
       var name = this.nextToken_();
       this.eat_(TokenType.OPEN_PAREN);
       var formalParameterList = this.parseFormalParameterList_();
       this.eat_(TokenType.CLOSE_PAREN);
-      var functionBody = this.parseFunctionBody_(false);
-      return new PropertyMethodAssignment(this.getTreeLocation_(start), name,
-                                          formalParameterList, functionBody);
+      var functionBody = this.parseFunctionBody_(isGenerator);
+      return new PropertyMethodAssignment(this.getTreeLocation_(start),
+          name, isGenerator, formalParameterList, functionBody);
     },
 
     /**

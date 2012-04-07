@@ -96,6 +96,7 @@ traceur.define('codegeneration', function() {
 
       if (tree.operator.type === TokenType.EQUAL &&
           tree.left.type === ParseTreeType.MEMBER_LOOKUP_EXPRESSION) {
+        // TODO(arv): operand[memberExpr] += value
         var operand = this.transformAny(tree.left.operand);
         var memberExpression = this.transformAny(tree.left.memberExpression);
         var value = this.transformAny(tree.right);

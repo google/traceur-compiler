@@ -1,23 +1,23 @@
 class ChainA {
-  function foo() {
+  foo() {
     return 'A';
   }
 }
 
 class ChainB extends ChainA {
-  function foo() {
+  foo() {
     return super.foo() + ' B';
   }
 }
 
 class ChainC extends ChainB {
-  function foo() {
+  foo() {
     return super.foo() + ' C';
   }
 }
 
 class ChainD extends ChainC {
-  function foo() {
+  foo() {
     return super.foo() + ' D';
   }
 }

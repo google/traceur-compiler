@@ -129,7 +129,6 @@ traceur.define('syntax.trees', function() {
       }
     },
 
-    // TODO: enable classes and traits
     /** @return {boolean} */
     isArrowFunctionExpression: function() {
       switch (this.type) {
@@ -138,6 +137,7 @@ traceur.define('syntax.trees', function() {
         case ParseTreeType.BINARY_OPERATOR:
         case ParseTreeType.CALL_EXPRESSION:
         case ParseTreeType.CASCADE_EXPRESSION:
+        case ParseTreeType.CLASS_EXPRESSION:
         case ParseTreeType.CONDITIONAL_EXPRESSION:
         case ParseTreeType.FUNCTION_DECLARATION:
         case ParseTreeType.IDENTIFIER_EXPRESSION:
@@ -270,7 +270,6 @@ traceur.define('syntax.trees', function() {
       switch (this.type) {
         case ParseTreeType.FUNCTION_DECLARATION:
         case ParseTreeType.CLASS_DECLARATION:
-        case ParseTreeType.TRAIT_DECLARATION:
           return true;
       }
       return this.isStatementStandard();
@@ -286,7 +285,6 @@ traceur.define('syntax.trees', function() {
         case ParseTreeType.MODULE_DEFINITION:
         case ParseTreeType.EXPORT_DECLARATION:
         case ParseTreeType.CLASS_DECLARATION:
-        case ParseTreeType.TRAIT_DECLARATION:
           return true;
       }
       return this.isStatementStandard();

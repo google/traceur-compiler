@@ -221,14 +221,12 @@ traceur.define('outputgeneration', function() {
       this.write_(TokenType.CLOSE_CURLY);
     },
 
-    /**
-     * @param {ClassDeclaration} tree
-     */
-    visitClassDeclaration: function(tree) {
+    visitClassShared_: function(tree) {
       this.write_(TokenType.CLASS);
-      this.write_(tree.name);
+      if (tree.name) 
+        this.write_(tree.name);
       if (tree.superClass !== null) {
-        this.write_(TokenType.COLON);
+        this.write_(TokenType.EXTENDS);
         this.visitAny(tree.superClass);
       }
       this.write_(TokenType.OPEN_CURLY);
@@ -237,10 +235,17 @@ traceur.define('outputgeneration', function() {
     },
 
     /**
+     * @param {ClassDeclaration} tree
+     */
+    visitClassDeclaration: function(tree) {
+      this.visitClassShared_(tree);
+    },
+
+    /**
      * @param {ClassExpression} tree
      */
     visitClassExpression: function(tree) {
-      this.write_(TokenType.CLASS);
+      this.visitClassShared_(tree);
     },
 
     /**
@@ -375,20 +380,6 @@ traceur.define('outputgeneration', function() {
     },
 
     /**
-     * @param {FieldDeclaration} tree
-     */
-    visitFieldDeclaration: function(tree) {
-      if (tree.isStatic) {
-        this.write_(TokenType.STATIC);
-      }
-      if (tree.isConst) {
-        this.write_(TokenType.CONST);
-      }
-      this.writeList_(tree.declarations, TokenType.COMMA, false);
-      this.write_(TokenType.SEMI_COLON);
-    },
-
-    /**
      * @param {Finally} tree
      */
     visitFinally: function(tree) {
@@ -460,9 +451,6 @@ traceur.define('outputgeneration', function() {
      * @param {FunctionDeclaration} tree
      */
     visitFunctionDeclaration: function(tree) {
-      if (tree.isStatic) {
-        this.write_(TokenType.STATIC);
-      }
       this.write_(Keywords.FUNCTION);
       if (tree.isGenerator) {
         this.write_(TokenType.STAR);
@@ -478,9 +466,6 @@ traceur.define('outputgeneration', function() {
      * @param {GetAccessor} tree
      */
     visitGetAccessor: function(tree) {
-      if (tree.isStatic) {
-        this.write_(TokenType.STATIC);
-      }
       this.write_(PredefinedName.GET);
       this.write_(tree.propertyName);
       this.write_(TokenType.OPEN_PAREN);
@@ -581,34 +566,6 @@ traceur.define('outputgeneration', function() {
      */
     visitMissingPrimaryExpression: function(tree) {
       this.write_('MissingPrimaryExpression');
-    },
-
-    /**
-     * @param {Mixin} tree
-     */
-    visitMixin: function(tree) {
-      this.write_(PredefinedName.MIXIN);
-      this.write_(tree.name);
-      this.visitAny(tree.mixinResolves);
-      this.write_(TokenType.SEMI_COLON);
-    },
-
-    /**
-     * @param {MixinResolve} tree
-     */
-    visitMixinResolve: function(tree) {
-      this.write_(tree.from);
-      this.write_(TokenType.COLON);
-      this.write_(tree.to);
-    },
-
-    /**
-     * @param {MixinResolveList} tree
-     */
-    visitMixinResolveList: function(tree) {
-      this.write_(TokenType.OPEN_CURLY);
-      this.writeList_(tree.resolves, TokenType.COMMA, false);
-      this.write_(TokenType.CLOSE_CURLY);
     },
 
     /**
@@ -736,6 +693,8 @@ traceur.define('outputgeneration', function() {
      * @param {PropertyMethodAssignment} tree
      */
     visitPropertyMethodAssignment: function(tree) {
+      if (tree.isGenerator)
+        this.write_(TokenType.STAR);
       this.write_(tree.name);
       this.write_(TokenType.OPEN_PAREN);
       this.visitAny(tree.formalParameterList);
@@ -817,9 +776,6 @@ traceur.define('outputgeneration', function() {
      * @param {SetAccessor} tree
      */
     visitSetAccessor: function(tree) {
-      if (tree.isStatic) {
-        this.write_(TokenType.STATIC);
-      }
       this.write_(PredefinedName.SET);
       this.write_(tree.propertyName);
       this.write_(TokenType.OPEN_PAREN);
@@ -876,17 +832,6 @@ traceur.define('outputgeneration', function() {
      */
     visitThisExpression: function(tree) {
       this.write_(TokenType.THIS);
-    },
-
-    /**
-     * @param {TraitDeclaration} tree
-     */
-    visitTraitDeclaration: function(tree) {
-      this.write_(PredefinedName.TRAIT);
-      this.write_(tree.name);
-      this.write_(TokenType.OPEN_CURLY);
-      this.visitList(tree.elements);
-      this.write_(TokenType.CLOSE_CURLY);
     },
 
     /**

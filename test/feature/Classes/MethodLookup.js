@@ -1,28 +1,28 @@
 class MethodLookupA {
-  function foo() {
-    return "A.foo()";
+  foo() {
+    return 'A.foo()';
   }
   get bar() {
-    return "A.get.bar";
+    return 'A.get.bar';
   }
   set bar(value) { }
 }
 
 class MethodLookupB extends MethodLookupA {
   get foo() {
-    return "B.foo.get";
+    return 'B.foo.get';
   }
   set foo(value) { }
-  function bar() {
-    return "B.bar()";
+  bar() {
+    return 'B.bar()';
   }
 }
 
 class MethodLookupC extends MethodLookupB {
-  function x() {
-    return super.foo();
+  x() {
+    return super.foo;
   }
-  function y() {
+  y() {
     return super.bar();
   }
 }
@@ -30,5 +30,5 @@ class MethodLookupC extends MethodLookupB {
 // ----------------------------------------------------------------------------
 
 var c = new MethodLookupC();
-assertEquals("B.foo.get", c.x());
-assertEquals("B.bar()", c.y());
+assertEquals('B.foo.get', c.x());
+assertEquals('B.bar()', c.y());

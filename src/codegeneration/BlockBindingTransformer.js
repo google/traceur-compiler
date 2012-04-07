@@ -22,13 +22,11 @@ traceur.define('codegeneration', function() {
   var ForStatement = traceur.syntax.trees.ForStatement;
   var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
   var GetAccessor = traceur.syntax.trees.GetAccessor;
-  var Mixin = traceur.syntax.trees.Mixin;
   var NullTree = traceur.syntax.trees.NullTree;
   var ParseTree = traceur.syntax.trees.ParseTree;
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
   var Program = traceur.syntax.trees.Program;
   var SetAccessor = traceur.syntax.trees.SetAccessor;
-  var TraitDeclaration = traceur.syntax.trees.TraitDeclaration;
   var VariableDeclarationList = traceur.syntax.trees.VariableDeclarationList;
   var VariableDeclaration = traceur.syntax.trees.VariableDeclaration;
   var VariableStatement = traceur.syntax.trees.VariableStatement;
@@ -610,15 +608,6 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * Mixin should be compiled away by now.
-     * @param {Mixin} tree
-     * @return {ParseTree}
-     */
-    transformMixin: function(tree) {
-      throw new Error('Mixin should be transformed away.');
-    },
-
-    /**
      * Transforms the whole program.
      * @param {Program} tree
      * @return {ParseTree}
@@ -631,16 +620,6 @@ traceur.define('codegeneration', function() {
 
       this.pop_(scope);
       return result;
-    },
-
-    /** Trait should be transformed away by now. */
-    /**
-     * @param {TraitDeclaration} tree
-     * @return {ParseTree}
-     */
-    transformTraitDeclaration: function(tree) {
-      // This should be rewritten away by now.
-      throw new Error('Trait should be transformed away.');
     },
 
     /**

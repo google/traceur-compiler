@@ -1,23 +1,19 @@
 class Point {
-  x, y;
+  constructor() {
+    this.x = 0;
+    this.y = 0;
+  }
 }
 
 // ----------------------------------------------------------------------------
 
 var p = new Point();
-var foundX = false;
-var foundY = false;
-for (var element in p) {
-  if (element == 'x') {
-    assertFalse(foundX);
-    foundX = true;
-  } else if (element == 'y') {
-    assertFalse(foundY);
-    foundY = true;
-  } else {
-    fail('found field ' + element);
-  }
+
+var keys = [];
+for (var key in p) {
+  keys.push(key);
 }
 
-assertTrue(foundX);
-assertTrue(foundY);
+assertTrue(keys.indexOf('x') !== -1);
+assertTrue(keys.indexOf('y') !== -1);
+assertTrue(keys.indexOf('constructor') === -1);

@@ -163,7 +163,6 @@ traceur.define('codegeneration', function() {
           null,
           tree.name,
           false, // The generator has been transformed away.
-          tree.isStatic,
           tree.formalParameterList,
           body);
     },
@@ -218,7 +217,6 @@ traceur.define('codegeneration', function() {
       return new GetAccessor(
           null,
           tree.propertyName,
-          tree.isStatic,
           body);
     },
 
@@ -234,7 +232,6 @@ traceur.define('codegeneration', function() {
       return new SetAccessor(
           null,
           tree.propertyName,
-          tree.isStatic,
           tree.parameter,
           body);
     }

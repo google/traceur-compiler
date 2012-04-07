@@ -18,22 +18,22 @@ fieldLookupB.prototype = {
     return "B.get.foo";
   },
   set foo(value) { },
-  bar : "B.value",
-  boo : undefined,
-  baz : "B.baz.value",
+  bar: "B.value",
+  boo: undefined,
+  baz: "B.baz.value",
 }
 
 class FieldLookupC extends fieldLookupB {
-  function x() {
+  x() {
     return super.foo;
   }
-  function y() {
+  y() {
     return super.bar;
   }
-  function z() {
+  z() {
     return super.boo;
   }
-  function w() {
+  w() {
     return super.baz;
   }
 }

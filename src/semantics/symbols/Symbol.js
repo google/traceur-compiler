@@ -18,8 +18,7 @@ traceur.define('semantics.symbols', function() {
   var assert = traceur.assert;
 
   /**
-   * A symbol is a named program element. Currently symbols include classes, traits, fields,
-   * methods and properties.
+   * A symbol is a named program element.
    *
    * Symbols are plain old data structures only. They have methods for querying their contents, but
    * symbols do not implement more sophisticated semantics than simple data access.
@@ -38,14 +37,6 @@ traceur.define('semantics.symbols', function() {
   Symbol.prototype = {
 
     /**
-     * @return {ClassSymbol}
-     */
-    asClass: function() {
-      assert(this instanceof traceur.semantics.symbols.ClassSymbol);
-      return this;
-    },
-
-    /**
      * @return {ExportSymbol}
      */
     asExport: function() {
@@ -54,58 +45,10 @@ traceur.define('semantics.symbols', function() {
     },
 
     /**
-     * @return {FieldSymbol}
-     */
-    asField: function() {
-      assert(this instanceof traceur.semantics.symbols.FieldSymbol);
-      return this;
-    },
-
-    /**
-     * @return {MethodSymbol}
-     */
-    asMethod: function() {
-      assert(this instanceof traceur.semantics.symbols.MethodSymbol);
-      return this;
-    },
-
-    /**
-     * @return {MixinMemberSymbol}
-     */
-    asMixinMember: function() {
-      assert(this instanceof traceur.semantics.symbols.MixinMemberSymbol);
-      return this;
-    },
-
-    /**
      * @return {ModuleSymbol}
      */
     asModuleSymbol: function() {
       assert(this instanceof traceur.semantics.symbols.ModuleSymbol);
-      return this;
-    },
-
-    /**
-     * @return {PropertySymbol}
-     */
-    asProperty: function() {
-      assert(this instanceof traceur.semantics.symbols.PropertySymbol);
-      return this;
-    },
-
-    /**
-     * @return {RequiresSymbol}
-     */
-    asRequires: function() {
-      assert(this instanceof traceur.semantics.symbols.RequiresSymbol);
-      return this;
-    },
-
-    /**
-     * @return {TraitSymbol}
-     */
-    asTrait: function() {
-      assert(this instanceof traceur.semantics.symbols.TraitSymbol);
       return this;
     },
 
