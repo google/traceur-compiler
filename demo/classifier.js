@@ -46,7 +46,6 @@ var classifyTraceurTokens = function() {};
   function ClassifiedText(category, text) {
     this.category = category;
     this.text = text;
-    Object.freeze(this);
   }
 
   /**

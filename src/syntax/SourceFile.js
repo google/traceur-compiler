@@ -31,7 +31,6 @@ traceur.define('syntax', function() {
     this.contents = contents;
     this.lineNumberTable = new LineNumberTable(this);
     this.uid = traceur.getUid();
-    Object.freeze(this);
   }
 
   return {

@@ -53,7 +53,6 @@ traceur.define('codegeneration', function() {
     this.reporter_ = reporter;
     this.results_ = new ObjectMap();
     this.identifierGenerator_ = new UniqueIdentifierGenerator();
-    Object.freeze(this);
   }
 
   /**

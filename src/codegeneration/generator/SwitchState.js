@@ -37,7 +37,6 @@ traceur.define('codegeneration.generator', function() {
   function SwitchClause(first, second) {
     this.first = first;
     this.second = second;
-    Object.freeze(this);
   }
 
   /**

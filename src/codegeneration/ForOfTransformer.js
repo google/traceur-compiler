@@ -42,7 +42,6 @@ traceur.define('codegeneration', function() {
   function ForOfTransformer(identifierGenerator) {
     ParseTreeTransformer.call(this);
     this.identifierGenerator_ = identifierGenerator;
-    Object.freeze(this);
   }
 
   /*

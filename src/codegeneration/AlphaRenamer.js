@@ -48,7 +48,6 @@ traceur.define('codegeneration', function() {
     ParseTreeTransformer.call(this);
     this.oldName_ = oldName;
     this.newName_ = newName;
-    Object.freeze(this);
   }
 
   /**

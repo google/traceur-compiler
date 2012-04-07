@@ -31,7 +31,6 @@ traceur.define('syntax.trees', function() {
     if (instance)
       return instance;
     ParseTree.call(this, ParseTreeType.NULL_TREE, null);
-    Object.freeze(this);
     instance = this;
   }
 

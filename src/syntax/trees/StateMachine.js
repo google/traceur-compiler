@@ -55,8 +55,6 @@ traceur.define('syntax.trees', function() {
     this.fallThroughState = fallThroughState;
     this.states = states;
     this.exceptionBlocks = exceptionBlocks;
-
-    Object.freeze(this);
   }
 
   /**
