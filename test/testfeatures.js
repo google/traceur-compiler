@@ -9,7 +9,7 @@ var path = require('path');
  */
 function importScript(filename) {
   // TODO(rnystrom): Hack. Assumes this is being run from a sibling of src/.
-  filename = path.join('../src/', filename);
+  filename = path.join(__dirname, '../src/', filename);
   var script = fs.readFileSync(filename, 'utf8');
   if (!script) {
     throw new Error('Failed to import ' + filename);
@@ -291,7 +291,7 @@ importScript('traceur.js');
 // Run all of the feature scripts.
 var tests  = 0;
 var passes = 0;
-runFeatureScripts('feature');
+runFeatureScripts(path.join(__dirname, 'feature'));
 
 clearLastLine();
 if (passes == tests) {
