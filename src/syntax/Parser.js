@@ -2818,65 +2818,47 @@ traceur.define('syntax', function() {
      */
     parseArrowFunction_: function(expressionIn) {
       var start = this.getTreeStartLocation_();
-
-      var arrow;
       var formals;
 
       // Special case: "()" followed by arrow is allowed as the argument list,
       // but not if we try to parse it as a ParenExpression. So check now.
       if (this.peek_(TokenType.OPEN_PAREN) &&
           this.peek_(TokenType.CLOSE_PAREN, 1) &&
-          (arrow = this.peekArrow_(2))) {
+          this.peekArrow_(2)) {
 
         this.eat_(TokenType.OPEN_PAREN);
         this.eat_(TokenType.CLOSE_PAREN);
         formals = new FormalParameterList(null, []);
+      } else if (this.peekId_() && this.peekArrow_(1)) {
+        var id = this.parseBindingIdentifier_();
+        formals = new FormalParameterList(null, [id]);
       } else {
-        var left = null;
-        arrow = this.peekArrow_();
-        if (!arrow) {
-          left = this.parseAssignment_(expressionIn || Expression.NORMAL);
-          arrow = this.peekArrow_();
-        }
-
-        if (!arrow) {
+        var left = this.parseAssignment_(expressionIn || Expression.NORMAL);
+        if (!this.peekArrow_())
           return left; // not an arrow expression
-        }
 
         // Transform the left expression to a formal parameters tree
-        formals = this.transformArrowFormalParameters_(left, arrow);
+        formals = this.transformArrowFormalParameters_(left);
       }
 
-      this.eat_(arrow);
+      this.eat_(TokenType.ARROW);
 
       var body = this.parseArrowExpressionBody_();
       return new ArrowFunctionExpression(this.getTreeLocation_(start),
-          formals, arrow, body);
+          formals, body);
     },
 
     /** @returns {TokenType} */
     peekArrow_: function(opt_index) {
-      if (!options.arrowFunctions) {
-        return false;
-      }
-      var arrow = this.peekType_(opt_index);
-      if (arrow == TokenType.FAT_ARROW || arrow == TokenType.THIN_ARROW) {
-        return arrow;
-      }
-      return null;
+      return options.arrowFunctions && this.peek_(TokenType.ARROW, opt_index);
     },
 
     /** @return {ParseTree} */
     parseArrowExpressionBody_: function() {
-      // The body can be a block, an expression, or ommitted.
-
-      if (this.peek_(TokenType.OPEN_CURLY)) {
-        var p = this.createLookaheadParser_();
-        if (p.parseObjectLiteral_() && !p.errorReporter_.hadError()) {
-          return this.parseObjectLiteral_();
-        }
+      // The body can be a block or an expression. A '{' is always treated as
+      // the beginning of a block.
+      if (this.peek_(TokenType.OPEN_CURLY))
         return this.parseBlock_();
-      }
       return this.parseArrowFunction_();
     },
 
@@ -2886,16 +2868,16 @@ traceur.define('syntax', function() {
      * formal parameters.
      *
      * @param {ParseTree} left
-     * @param {TokenType} arrow
      * @return {ArrowFormalParameterList}
      */
-    transformArrowFormalParameters_: function(left, arrow) {
+    transformArrowFormalParameters_: function(left) {
       if (!left) {
         return null; // omitted argument list
       }
 
+      var nextToken = this.peekToken_();
       if (left.type != ParseTreeType.PAREN_EXPRESSION) {
-        this.reportError_(arrow, "'" + arrow +
+        this.reportError_(nextToken, "'" + nextToken +
             "' unexpected after non-formal parameter list");
         return null;
       }
@@ -2914,12 +2896,7 @@ traceur.define('syntax', function() {
         var p = this.transformArrowFormalParameter_(e);
         if (!p) {
           this.reportError_(e.location, 'invalid formal parameter for "' +
-              arrow + '" expression');
-          return null;
-        }
-        if (i != 0 && p.type == ParseTreeType.BIND_THIS_PARAMETER) {
-          this.reportError_(e.location, 'assignment to "this" ' +
-              'must occur before other parameters');
+              nextToken + '" expression');
           return null;
         }
         parameters.push(p);

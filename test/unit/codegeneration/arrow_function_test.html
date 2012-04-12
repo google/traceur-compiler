@@ -50,30 +50,12 @@ function compileAndReturnErrors(source) {
   return errors;
 }
 
-function testInvalidFatArrow() {
-  var source = 'var f = (this = this, a, b) => a + b;';
-  var errors = compileAndReturnErrors(source);
-  assertEquals(1, errors.length);
-  assertEquals('test(1, 10)', errors[0].position);
-  assertEquals('"this" parameter cannot be used with "=>", use "->" instead',
-               errors[0].message);
-}
-
 function testInvalidFormalParameters() {
   var source = 'var f = (a, b + 5) => a + b;';
   var errors = compileAndReturnErrors(source);
   assertEquals(1, errors.length);
   assertEquals('test(1, 13)', errors[0].position);
   assertEquals('invalid formal parameter for "=>" expression', errors[0].message);
-}
-
-function testInvalidThisBindingLocation() {
-  var source = 'var f = (a, this = this, b) => a + b;';
-  var errors = compileAndReturnErrors(source);
-  assertEquals(1, errors.length);
-  assertEquals('test(1, 13)', errors[0].position);
-  assertEquals('assignment to "this" must occur before other parameters',
-               errors[0].message);
 }
 
 </script>

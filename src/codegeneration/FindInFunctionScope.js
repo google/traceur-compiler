@@ -16,23 +16,27 @@ traceur.define('codegeneration', function() {
   'use strict';
 
   var ParseTreeVisitor = traceur.syntax.ParseTreeVisitor;
-  var PredefinedName = traceur.syntax.PredefinedName;
 
   /**
-   * This is used to see if a function body contains a reference to arguments.
+   * This is used to find something in a tree. Extend this class and override
+   * the desired visit functions to find what you are looking for. When the tree
+   * you are looking for is found set |this.found| to true. This will abort the
+   * search of the remaining sub trees.
+   *
    * Does not search into nested functions.
+   *
    * @param {ParseTree} tree
    * @extends {ParseTreeVisitor}
    * @constructor
    */
-  function ArgumentsFinder(tree) {
+  function FindInFunctionScope(tree) {
     try {
       this.visitAny(tree);
     } catch (ex) {
       // This uses an exception to do early exits.
-      if (ex !== foundSentinel) {
+      if (ex !== foundSentinel)
         throw ex;
-      }
+      this.found_ = true;
     }
   }
 
@@ -40,27 +44,31 @@ traceur.define('codegeneration', function() {
   // tree.
   var foundSentinel = {};
 
-  ArgumentsFinder.prototype = traceur.createObject(ParseTreeVisitor.prototype, {
-    hasArguments: false,
+  FindInFunctionScope.prototype = traceur.createObject(
+      ParseTreeVisitor.prototype, {
+    found_: false,
 
     /**
-     * @param {IdentifierExpression} tree
+     * Whether the searched for tree was found. Setting this to true aborts the
+     * search.
+     * @type {boolean}
      */
-    visitIdentifierExpression: function(tree) {
-      if (tree.identifierToken.value === PredefinedName.ARGUMENTS) {
-        this.hasArguments = true;
-        // Exit early.
+    get found() {
+      return this.found_;
+    },
+    set found(v) {
+      if (v)
         throw foundSentinel;
-      }
     },
 
     // don't visit function children or bodies
     visitFunctionDeclaration: function(tree) {},
     visitSetAccessor: function(tree) {},
-    visitGetAccessor: function(tree) {}
+    visitGetAccessor: function(tree) {},
+    visitPropertyMethodAssignment: function(tree) {}
   });
 
   return {
-    ArgumentsFinder: ArgumentsFinder
+    FindInFunctionScope: FindInFunctionScope
   };
 });

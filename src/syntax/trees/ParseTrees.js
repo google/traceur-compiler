@@ -73,8 +73,7 @@ traceur.define('syntax.trees', function() {
      * @constructor
      * @extends {ParseTree}
      */
-    ArrowFunctionExpression: create('formalParameters', 'arrow',
-                                    'functionBody'),
+    ArrowFunctionExpression: create('formalParameters', 'functionBody'),
 
     /**
      * @param {traceur.util.SourceRange} location

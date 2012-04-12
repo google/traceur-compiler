@@ -136,8 +136,7 @@ traceur.define('syntax', function() {
     // Harmony extensions
     DOT_DOT_DOT: '...',
     AWAIT: 'await',
-    FAT_ARROW: '=>',
-    THIN_ARROW: '->',
+    ARROW: '=>',
     BACK_QUOTE: '`',
     DOLLAR: '$',
     QUASI_TAG: 'quasi tag',

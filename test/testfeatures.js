@@ -156,6 +156,7 @@ function testScript(filePath) {
 
     if (reporter.hadError()) {
       failScript(filePath, 'Unexpected compile error in script.');
+      print(red(errorMessages.join('\n')) + '\n\n');
       return false;
     }
     
@@ -203,6 +204,7 @@ function forEachPrologLine(s, f) {
 }
 
 var originalConsole;
+var errorMessages = [];
 
 function silenceConsole() {
   // TODO(rnystrom): Hack. Don't let Traceur spew all over our beautiful
@@ -217,6 +219,9 @@ function silenceConsole() {
   };
 
   console.log = console.info = console.error = function() {};
+  console.error = function() {
+    errorMessages.push(Array.prototype.slice.call(arguments));
+  }
 }
 
 function restoreConsole() {
@@ -226,6 +231,7 @@ function restoreConsole() {
   console.log = originalConsole.log;
   console.info = originalConsole.info;
   console.error = originalConsole.error;
+  errorMessages = [];
   originalConsole = null;
 }
 

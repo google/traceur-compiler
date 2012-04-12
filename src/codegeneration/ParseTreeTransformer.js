@@ -220,7 +220,7 @@ traceur.define('codegeneration', function() {
       if (parameters == tree.formalParameters && body == tree.functionBody) {
         return tree;
       }
-      return new ArrowFunctionExpression(null, parameters, tree.arrow, body);
+      return new ArrowFunctionExpression(null, parameters, body);
     },
 
     /**

@@ -118,7 +118,7 @@ traceur.define('outputgeneration', function() {
       this.write_(TokenType.OPEN_PAREN);
       this.visitAny(tree.formalParameters);
       this.write_(TokenType.CLOSE_PAREN);
-      this.write_(tree.arrow);
+      this.write_(TokenType.ARROW);
       this.visitAny(tree.functionBody);
     },
 

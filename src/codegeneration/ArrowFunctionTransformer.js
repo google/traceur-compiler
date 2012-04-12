@@ -15,13 +15,15 @@
 traceur.define('codegeneration', function() {
   'use strict';
 
-  var TokenType = traceur.syntax.TokenType;
+  var FindInFunctionScope = traceur.codegeneration.FindInFunctionScope;
+  var FormalParameterList = traceur.syntax.trees.FormalParameterList;
+  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
+  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
+  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
   var PredefinedName = traceur.syntax.PredefinedName;
   var ThisExpression = traceur.syntax.trees.ThisExpression;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var FormalParameterList = traceur.syntax.trees.FormalParameterList;
-  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
-  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
+  var TokenType = traceur.syntax.TokenType;
+
   var createArgumentList = ParseTreeFactory.createArgumentList;
   var createBlock = ParseTreeFactory.createBlock;
   var createCallExpression = ParseTreeFactory.createCallExpression;
@@ -29,6 +31,23 @@ traceur.define('codegeneration', function() {
   var createMemberExpression = ParseTreeFactory.createMemberExpression;
   var createParenExpression = ParseTreeFactory.createParenExpression;
   var createReturnStatement = ParseTreeFactory.createReturnStatement;
+  var createThisExpression = ParseTreeFactory.createThisExpression;
+
+  /**
+   * This is used to find whether a function contains a reference to 'this'.
+   * @extend {FindInFunctionScope}
+   * @param {ParseTree} tree The tree to search.
+   */
+  function ThisFinder(tree) {
+    FindInFunctionScope.call(this, tree);
+  }
+  ThisFinder.prototype = traceur.createObject(
+      FindInFunctionScope.prototype, {
+
+    visitThisExpression: function(tree) {
+      this.found = true;
+    }
+  });
 
   /**
    * Desugars arrow function expressions
@@ -56,29 +75,11 @@ traceur.define('codegeneration', function() {
      * block and return statement if needed.
      */
     transformArrowFunctionExpression: function(tree) {
-      var thisBinding = null;
       var parameters;
       if (tree.formalParameters) {
         parameters = this.transformAny(tree.formalParameters).parameters;
       } else {
         parameters = [];
-      }
-
-      if (parameters.length > 0 &&
-          parameters[0].type == ParseTreeType.BIND_THIS_PARAMETER) {
-
-        if (tree.arrow == TokenType.FAT_ARROW) {
-          this.reporter_.reportError(parameters[0].location.start,
-              '"this" parameter cannot be used with "=>", use "->" instead');
-        }
-
-        thisBinding = parameters[0].expression;
-        parameters = parameters.slice(1);
-      }
-
-      if (tree.arrow == TokenType.FAT_ARROW) {
-        // "(params) => body" is equivalent to "(this = this, params) -> body"
-        thisBinding = new ThisExpression(null);
       }
 
       var functionBody = this.transformAny(tree.functionBody);
@@ -88,16 +89,19 @@ traceur.define('codegeneration', function() {
       }
 
       // function(params) { ... }
-      var result = createFunctionExpression(
-          new FormalParameterList(null, parameters), functionBody);
+      var result = createParenExpression(
+          createFunctionExpression(
+              new FormalParameterList(null, parameters), functionBody));
 
-      if (thisBinding) {
+      // If we have a reference to 'this' in the body we need to bind this.
+      var finder = new ThisFinder(functionBody);
+      if (finder.found) {
         // (function(params) { ... }).bind(thisBinding);
-        result = createCallExpression(
+        return createCallExpression(
             createMemberExpression(
-                createParenExpression(result),
+                result,
                 PredefinedName.BIND),
-            createArgumentList(thisBinding));
+            createArgumentList(createThisExpression()));
       }
 
       return result;

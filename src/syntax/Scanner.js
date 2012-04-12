@@ -702,7 +702,7 @@ traceur.define('syntax', function() {
           }
           if (this.peek_('>')) {
             this.nextChar_();
-            return this.createToken_(TokenType.FAT_ARROW, beginToken);
+            return this.createToken_(TokenType.ARROW, beginToken);
           }
           return this.createToken_(TokenType.EQUAL, beginToken);
         case '!':
@@ -758,9 +758,6 @@ traceur.define('syntax', function() {
             case '=':
               this.nextChar_();
               return this.createToken_(TokenType.MINUS_EQUAL, beginToken);
-            case '>':
-              this.nextChar_();
-              return this.createToken_(TokenType.THIN_ARROW, beginToken);
             default:
               return this.createToken_(TokenType.MINUS, beginToken);
           }
