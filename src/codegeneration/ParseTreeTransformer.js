@@ -15,78 +15,73 @@
 traceur.define('codegeneration', function() {
   'use strict';
 
-  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
-  var createArgumentList = ParseTreeFactory.createArgumentList;
-  var createArrayLiteralExpression = ParseTreeFactory.createArrayLiteralExpression;
-  var createArrayPattern = ParseTreeFactory.createArrayPattern;
-  var createBinaryOperator = ParseTreeFactory.createBinaryOperator;
-  var createBlock = ParseTreeFactory.createBlock;
-  var createCallExpression = ParseTreeFactory.createCallExpression;
-  var createCaseClause = ParseTreeFactory.createCaseClause;
-  var createCatch = ParseTreeFactory.createCatch;
-  var createCascadeExpression = ParseTreeFactory.createCascadeExpression;
-  var createClassDeclaration = ParseTreeFactory.createClassDeclaration;
-  var createClassExpression = ParseTreeFactory.createClassExpression;
-  var createCommaExpression = ParseTreeFactory.createCommaExpression;
-  var createConditionalExpression = ParseTreeFactory.createConditionalExpression;
-  var createDefaultClause = ParseTreeFactory.createDefaultClause;
-  var createDefaultParameter = ParseTreeFactory.createDefaultParameter;
-  var createDoWhileStatement = ParseTreeFactory.createDoWhileStatement;
-  var createExpressionStatement = ParseTreeFactory.createExpressionStatement;
-  var createExpressionStatement = ParseTreeFactory.createExpressionStatement;
-  var createFinally = ParseTreeFactory.createFinally;
-  var createForOfStatement = ParseTreeFactory.createForOfStatement;
-  var createForInStatement = ParseTreeFactory.createForInStatement;
-  var createForStatement = ParseTreeFactory.createForStatement;
-  var createFunctionDeclaration = ParseTreeFactory.createFunctionDeclaration;
-  var createIfStatement = ParseTreeFactory.createIfStatement;
-  var createLabelledStatement = ParseTreeFactory.createLabelledStatement;
-  var createMemberExpression = ParseTreeFactory.createMemberExpression;
-  var createMemberLookupExpression = ParseTreeFactory.createMemberLookupExpression;
-  var createNewExpression = ParseTreeFactory.createNewExpression;
-  var createObjectLiteralExpression = ParseTreeFactory.createObjectLiteralExpression;
-  var createObjectPattern = ParseTreeFactory.createObjectPattern;
-  var createObjectPatternField = ParseTreeFactory.createObjectPatternField;
-  var createParenExpression = ParseTreeFactory.createParenExpression;
-  var createPostfixExpression = ParseTreeFactory.createPostfixExpression;
-  var createPropertyNameAssignment = ParseTreeFactory.createPropertyNameAssignment;
-  var createReturnStatement = ParseTreeFactory.createReturnStatement;
-  var createSpreadExpression = ParseTreeFactory.createSpreadExpression;
-  var createSpreadPatternElement = ParseTreeFactory.createSpreadPatternElement;
-  var createSwitchStatement = ParseTreeFactory.createSwitchStatement;
-  var createThrowStatement = ParseTreeFactory.createThrowStatement;
-  var createTryStatement = ParseTreeFactory.createTryStatement;
-  var createUnaryExpression = ParseTreeFactory.createUnaryExpression;
-  var createVariableDeclaration = ParseTreeFactory.createVariableDeclaration;
-  var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList;
-  var createVariableStatement = ParseTreeFactory.createVariableStatement;
-  var createWhileStatement = ParseTreeFactory.createWhileStatement;
-  var createWithStatement = ParseTreeFactory.createWithStatement;
-  var createYieldStatement = ParseTreeFactory.createYieldStatement;
-
+  var ArgumentList = traceur.syntax.trees.ArgumentList;
+  var ArrayLiteralExpression = traceur.syntax.trees.ArrayLiteralExpression;
+  var ArrayPattern = traceur.syntax.trees.ArrayPattern;
   var ArrowFunctionExpression = traceur.syntax.trees.ArrowFunctionExpression;
   var AwaitStatement = traceur.syntax.trees.AwaitStatement;
+  var BinaryOperator = traceur.syntax.trees.BinaryOperator;
   var BindThisParameter = traceur.syntax.trees.BindThisParameter;
+  var Block = traceur.syntax.trees.Block;
+  var CallExpression = traceur.syntax.trees.CallExpression;
+  var CascadeExpression = traceur.syntax.trees.CascadeExpression;
+  var CaseClause = traceur.syntax.trees.CaseClause;
+  var Catch = traceur.syntax.trees.Catch;
   var ClassDeclaration = traceur.syntax.trees.ClassDeclaration;
   var ClassExpression = traceur.syntax.trees.ClassExpression;
+  var CommaExpression = traceur.syntax.trees.CommaExpression;
+  var ConditionalExpression = traceur.syntax.trees.ConditionalExpression;
+  var DefaultClause = traceur.syntax.trees.DefaultClause;
+  var DefaultParameter = traceur.syntax.trees.DefaultParameter;
+  var DoWhileStatement = traceur.syntax.trees.DoWhileStatement;
   var ExportDeclaration = traceur.syntax.trees.ExportDeclaration;
   var ExportMapping = traceur.syntax.trees.ExportMapping;
   var ExportMappingList = traceur.syntax.trees.ExportMappingList;
   var ExportSpecifier = traceur.syntax.trees.ExportSpecifier;
   var ExportSpecifierSet = traceur.syntax.trees.ExportSpecifierSet;
+  var ExpressionStatement = traceur.syntax.trees.ExpressionStatement;
+  var Finally = traceur.syntax.trees.Finally;
+  var ForInStatement = traceur.syntax.trees.ForInStatement;
+  var ForOfStatement = traceur.syntax.trees.ForOfStatement;
+  var ForStatement = traceur.syntax.trees.ForStatement;
+  var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
   var GetAccessor = traceur.syntax.trees.GetAccessor;
+  var IfStatement = traceur.syntax.trees.IfStatement;
   var ImportBinding = traceur.syntax.trees.ImportBinding;
   var ImportDeclaration = traceur.syntax.trees.ImportDeclaration;
+  var LabelledStatement = traceur.syntax.trees.LabelledStatement;
+  var MemberExpression = traceur.syntax.trees.MemberExpression;
+  var MemberLookupExpression = traceur.syntax.trees.MemberLookupExpression;
   var ModuleDeclaration = traceur.syntax.trees.ModuleDeclaration;
   var ModuleDefinition = traceur.syntax.trees.ModuleDefinition;
   var ModuleExpression = traceur.syntax.trees.ModuleExpression;
   var ModuleSpecifier = traceur.syntax.trees.ModuleSpecifier;
+  var NewExpression = traceur.syntax.trees.NewExpression;
+  var ObjectLiteralExpression = traceur.syntax.trees.ObjectLiteralExpression;
+  var ObjectPattern = traceur.syntax.trees.ObjectPattern;
+  var ObjectPatternField = traceur.syntax.trees.ObjectPatternField;
+  var ParenExpression = traceur.syntax.trees.ParenExpression;
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
+  var PostfixExpression = traceur.syntax.trees.PostfixExpression;
   var Program = traceur.syntax.trees.Program;
   var PropertyMethodAssignment = traceur.syntax.trees.PropertyMethodAssignment;
+  var PropertyNameAssignment = traceur.syntax.trees.PropertyNameAssignment;
   var QuasiLiteralExpression = traceur.syntax.trees.QuasiLiteralExpression;
   var QuasiSubstitution = traceur.syntax.trees.QuasiSubstitution;
+  var ReturnStatement = traceur.syntax.trees.ReturnStatement;
   var SetAccessor = traceur.syntax.trees.SetAccessor;
+  var SpreadExpression = traceur.syntax.trees.SpreadExpression;
+  var SpreadPatternElement = traceur.syntax.trees.SpreadPatternElement;
+  var SwitchStatement = traceur.syntax.trees.SwitchStatement;
+  var ThrowStatement = traceur.syntax.trees.ThrowStatement;
+  var TryStatement = traceur.syntax.trees.TryStatement;
+  var UnaryExpression = traceur.syntax.trees.UnaryExpression;
+  var VariableDeclaration = traceur.syntax.trees.VariableDeclaration;
+  var VariableDeclarationList = traceur.syntax.trees.VariableDeclarationList;
+  var VariableStatement = traceur.syntax.trees.VariableStatement;
+  var WhileStatement = traceur.syntax.trees.WhileStatement;
+  var WithStatement = traceur.syntax.trees.WithStatement;
+  var YieldStatement = traceur.syntax.trees.YieldStatement;
 
   var getTreeNameForType = traceur.syntax.trees.getTreeNameForType;
 
@@ -145,7 +140,8 @@ traceur.define('codegeneration', function() {
      * @return {ParseTree}
      */
     toSourceElement: function(tree) {
-      return tree.isSourceElement() ? tree : createExpressionStatement(tree);
+      return tree.isSourceElement() ?
+          tree : new ExpressionStatement(tree.location, tree);
     },
 
     /**
@@ -183,7 +179,7 @@ traceur.define('codegeneration', function() {
       if (args == tree.args) {
         return tree;
       }
-      return createArgumentList(args);
+      return new ArgumentList(tree.location, args);
     },
 
     /**
@@ -195,7 +191,7 @@ traceur.define('codegeneration', function() {
       if (elements == tree.elements) {
         return tree;
       }
-      return createArrayLiteralExpression(elements);
+      return new ArrayLiteralExpression(tree.location, elements)
     },
 
     /**
@@ -207,7 +203,7 @@ traceur.define('codegeneration', function() {
       if (elements == tree.elements) {
         return tree;
       }
-      return createArrayPattern(elements);
+      return new ArrayPattern(tree.location, elements);
     },
 
    /**
@@ -232,7 +228,7 @@ traceur.define('codegeneration', function() {
       if (tree.expression == expression) {
         return tree;
       }
-      return new AwaitStatement(null, tree.identifier, expression);
+      return new AwaitStatement(tree.location, tree.identifier, expression);
     },
 
     /**
@@ -245,7 +241,7 @@ traceur.define('codegeneration', function() {
       if (left == tree.left && right == tree.right) {
         return tree;
       }
-      return createBinaryOperator(left, tree.operator, right);
+      return new BinaryOperator(tree.location, left, tree.operator, right);
     },
 
     /**
@@ -257,7 +253,7 @@ traceur.define('codegeneration', function() {
       if (tree.expression == expression) {
         return tree;
       }
-      return new BindThisParameter(null, expression);
+      return new BindThisParameter(tree.location, expression);
     },
 
     /**
@@ -277,7 +273,7 @@ traceur.define('codegeneration', function() {
       if (elements == tree.statements) {
         return tree;
       }
-      return createBlock(elements);
+      return new Block(tree.location, elements);
     },
 
     /**
@@ -298,7 +294,7 @@ traceur.define('codegeneration', function() {
       if (operand == tree.operand && args == tree.args) {
         return tree;
       }
-      return createCallExpression(operand, args);
+      return new CallExpression(tree.location, operand, args);
     },
 
     /**
@@ -311,7 +307,7 @@ traceur.define('codegeneration', function() {
       if (expression == tree.expression && statements == tree.statements) {
         return tree;
       }
-      return createCaseClause(expression, statements);
+      return new CaseClause(tree.location, expression, statements);
     },
 
     /**
@@ -324,7 +320,7 @@ traceur.define('codegeneration', function() {
       if (catchBody == tree.catchBody && identifier == tree.identifier) {
         return tree;
       }
-      return createCatch(identifier, catchBody);
+      return new Catch(tree.location, identifier, catchBody);
     },
 
     /**
@@ -337,7 +333,7 @@ traceur.define('codegeneration', function() {
       if (operand == tree.operand && expressions == tree.expressions) {
         return tree;
       }
-      return createCascadeExpression(operand, expressions);
+      return new CascadeExpression(tree.location, operand, expressions);
     },
 
     /**
@@ -375,7 +371,7 @@ traceur.define('codegeneration', function() {
       if (expressions == tree.expressions) {
         return tree;
       }
-      return createCommaExpression(expressions);
+      return new CommaExpression(tree.location, expressions);
     },
 
     /**
@@ -389,7 +385,7 @@ traceur.define('codegeneration', function() {
       if (condition == tree.condition && left == tree.left && right == tree.right) {
         return tree;
       }
-      return createConditionalExpression(condition, left, right);
+      return new ConditionalExpression(tree.location, condition, left, right);
     },
 
     /**
@@ -417,7 +413,7 @@ traceur.define('codegeneration', function() {
       if (statements == tree.statements) {
         return tree;
       }
-      return createDefaultClause(statements);
+      return new DefaultClause(tree.location, statements);
     },
 
     /**
@@ -429,7 +425,7 @@ traceur.define('codegeneration', function() {
       if (expression == tree.expression) {
         return tree;
       }
-      return createDefaultParameter(tree.identifier, expression);
+      return new DefaultParameter(tree.location, tree.identifier, expression);
     },
 
     /**
@@ -442,7 +438,7 @@ traceur.define('codegeneration', function() {
       if (body == tree.body && condition == tree.condition) {
         return tree;
       }
-      return createDoWhileStatement(body, condition);
+      return new DoWhileStatement(tree.location, body, condition);
     },
 
     /**
@@ -462,7 +458,7 @@ traceur.define('codegeneration', function() {
       if (tree.declaration == declaration) {
         return tree;
       }
-      return new ExportDeclaration(null, declaration);
+      return new ExportDeclaration(tree.location, declaration);
     },
 
     /**
@@ -475,7 +471,7 @@ traceur.define('codegeneration', function() {
         return tree;
       }
 
-      return new ExportMappingList(null, paths);
+      return new ExportMappingList(tree.location, paths);
     },
 
     /**
@@ -489,7 +485,7 @@ traceur.define('codegeneration', function() {
           specifierSet == tree.specifierSet) {
         return tree;
       }
-      return new ExportMapping(null, moduleExpresion, specifierSet);
+      return new ExportMapping(tree.location, moduleExpresion, specifierSet);
     },
 
     /**
@@ -510,7 +506,7 @@ traceur.define('codegeneration', function() {
         return tree;
       }
 
-      return new ExportSpecifierSet(null, specifiers);
+      return new ExportSpecifierSet(tree.location, specifiers);
     },
 
     /**
@@ -522,7 +518,7 @@ traceur.define('codegeneration', function() {
       if (expression == tree.expression) {
         return tree;
       }
-      return createExpressionStatement(expression);
+      return new ExpressionStatement(tree.location, expression);
     },
 
     /**
@@ -534,7 +530,7 @@ traceur.define('codegeneration', function() {
       if (block == tree.block) {
         return tree;
       }
-      return createFinally(block);
+      return new Finally(tree.location, block);
     },
 
     /**
@@ -549,8 +545,7 @@ traceur.define('codegeneration', function() {
           body == tree.body) {
         return tree;
       }
-      return createForOfStatement(initializer,
-                                    collection, body);
+      return new ForOfStatement(tree.location, initializer, collection, body);
     },
 
     /**
@@ -565,7 +560,7 @@ traceur.define('codegeneration', function() {
           body == tree.body) {
         return tree;
       }
-      return createForInStatement(initializer, collection, body);
+      return new ForInStatement(tree.location, initializer, collection, body);
     },
 
     /**
@@ -581,7 +576,8 @@ traceur.define('codegeneration', function() {
           increment == tree.increment && body == tree.body) {
         return tree;
       }
-      return createForStatement(initializer, condition, increment, body);
+      return new ForStatement(tree.location, initializer, condition, increment,
+                              body);
     },
 
     /**
@@ -597,14 +593,15 @@ traceur.define('codegeneration', function() {
      * @return {ParseTree}
      */
     transformFunctionDeclaration: function(tree) {
-      var parameters =
+      var formalParameterList =
           this.transformAny(tree.formalParameterList);
       var functionBody = this.transformFunctionBody(tree.functionBody);
-      if (parameters == tree.formalParameterList &&
+      if (formalParameterList == tree.formalParameterList &&
           functionBody == tree.functionBody) {
         return tree;
       }
-      return createFunctionDeclaration(tree.name, parameters, functionBody);
+      return new FunctionDeclaration(tree.location, tree.name, tree.isGenerator,
+                                     formalParameterList, functionBody);
     },
 
     /**
@@ -647,7 +644,7 @@ traceur.define('codegeneration', function() {
       if (condition == tree.condition && ifClause == tree.ifClause && elseClause == tree.elseClause) {
         return tree;
       }
-      return createIfStatement(condition, ifClause, elseClause);
+      return new IfStatement(tree.location, condition, ifClause, elseClause);
     },
 
     /**
@@ -659,7 +656,7 @@ traceur.define('codegeneration', function() {
       if (importPathList == tree.importPathList) {
         return tree;
       }
-      return new ImportDeclaration(null, importPathList);
+      return new ImportDeclaration(tree.location, importPathList);
     },
 
     /**
@@ -673,7 +670,7 @@ traceur.define('codegeneration', function() {
           importSpecifierSet == tree.importSpecifierSet) {
         return tree;
       }
-      return new ImportBinding(null, moduleExpresion, importSpecifierSet);
+      return new ImportBinding(tree.location, moduleExpresion, importSpecifierSet);
     },
 
     /**
@@ -693,7 +690,7 @@ traceur.define('codegeneration', function() {
       if (statement == tree.statement) {
         return tree;
       }
-      return createLabelledStatement(tree.name, statement);
+      return new LabelledStatement(tree.location, tree.name, statement);
     },
 
     /**
@@ -713,7 +710,7 @@ traceur.define('codegeneration', function() {
       if (operand == tree.operand) {
         return tree;
       }
-      return createMemberExpression(operand, tree.memberName);
+      return new MemberExpression(tree.location, operand, tree.memberName);
     },
 
     /**
@@ -727,7 +724,8 @@ traceur.define('codegeneration', function() {
           memberExpression == tree.memberExpression) {
         return tree;
       }
-      return createMemberLookupExpression(operand, memberExpression);
+      return new MemberLookupExpression(tree.location, operand,
+                                        memberExpression);
     },
 
     /**
@@ -748,7 +746,7 @@ traceur.define('codegeneration', function() {
         return tree;
       }
 
-      return new ModuleDeclaration(null, specifiers);
+      return new ModuleDeclaration(tree.location, specifiers);
     },
 
     /**
@@ -761,7 +759,7 @@ traceur.define('codegeneration', function() {
         return tree;
       }
 
-      return new ModuleDefinition(null, tree.name, elements);
+      return new ModuleDefinition(tree.location, tree.name, elements);
     },
 
     /**
@@ -773,7 +771,7 @@ traceur.define('codegeneration', function() {
       if (reference == tree.reference) {
         return tree;
       }
-      return new ModuleExpression(null, reference, tree.identifiers);
+      return new ModuleExpression(tree.location, reference, tree.identifiers);
     },
 
     /**
@@ -793,7 +791,7 @@ traceur.define('codegeneration', function() {
       if (expression == tree.expression) {
         return tree;
       }
-      return new ModuleSpecifier(null, tree.identifier, expression);
+      return new ModuleSpecifier(tree.location, tree.identifier, expression);
     },
 
     /**
@@ -807,7 +805,7 @@ traceur.define('codegeneration', function() {
       if (operand == tree.operand && args == tree.args) {
         return tree;
       }
-      return createNewExpression(operand, args);
+      return new NewExpression(tree.location, operand, args);
     },
 
     /**
@@ -827,7 +825,7 @@ traceur.define('codegeneration', function() {
       if (propertyNameAndValues == tree.propertyNameAndValues) {
         return tree;
       }
-      return createObjectLiteralExpression(propertyNameAndValues);
+      return new ObjectLiteralExpression(tree.location, propertyNameAndValues);
     },
 
     /**
@@ -839,7 +837,7 @@ traceur.define('codegeneration', function() {
       if (fields == tree.fields) {
         return tree;
       }
-      return createObjectPattern(fields);
+      return new ObjectPattern(tree.location, fields);
     },
 
     /**
@@ -851,7 +849,7 @@ traceur.define('codegeneration', function() {
       if (element == tree.element) {
         return tree;
       }
-      return createObjectPatternField(tree.identifier, element);
+      return new ObjectPatternField(tree.location, tree.identifier, element);
     },
 
     /**
@@ -863,7 +861,7 @@ traceur.define('codegeneration', function() {
       if (expression == tree.expression) {
         return tree;
       }
-      return createParenExpression(expression);
+      return new ParenExpression(tree.location, expression);
     },
 
     /**
@@ -875,7 +873,7 @@ traceur.define('codegeneration', function() {
       if (operand == tree.operand) {
         return tree;
       }
-      return createPostfixExpression(operand, tree.operator);
+      return new PostfixExpression(tree.location, operand, tree.operator);
     },
 
     /**
@@ -887,7 +885,7 @@ traceur.define('codegeneration', function() {
       if (elements == tree.programElements) {
         return tree;
       }
-      return new Program(null, elements);
+      return new Program(tree.location, elements);
     },
 
     /**
@@ -915,7 +913,7 @@ traceur.define('codegeneration', function() {
       if (value == tree.value) {
         return tree;
       }
-      return createPropertyNameAssignment(tree.name, value);
+      return new PropertyNameAssignment(tree.location, tree.name, value);
     },
 
     /**
@@ -935,7 +933,7 @@ traceur.define('codegeneration', function() {
       if (elements == tree.elements) {
         return tree;
       }
-      return new QuasiLiteralExpression(null, tree.name, elements);
+      return new QuasiLiteralExpression(tree.location, tree.name, elements);
     },
 
     /**
@@ -956,7 +954,7 @@ traceur.define('codegeneration', function() {
       if (expression == tree.expression) {
         return tree;
       }
-      return new QuasiSubstitution(null, expression);
+      return new QuasiSubstitution(tree.location, expression);
     },
 
     /**
@@ -984,7 +982,7 @@ traceur.define('codegeneration', function() {
       if (expression == tree.expression) {
         return tree;
       }
-      return createReturnStatement(expression);
+      return new ReturnStatement(tree.location, expression);
     },
 
     /**
@@ -1008,7 +1006,7 @@ traceur.define('codegeneration', function() {
       if (expression == tree.expression) {
         return tree;
       }
-      return createSpreadExpression(expression);
+      return new SpreadExpression(tree.location, expression);
     },
 
     /**
@@ -1020,7 +1018,7 @@ traceur.define('codegeneration', function() {
       if (lvalue == tree.lvalue) {
         return tree;
       }
-      return createSpreadPatternElement(lvalue);
+      return new SpreadPatternElement(tree.location, lvalue);
     },
 
     /**
@@ -1049,7 +1047,7 @@ traceur.define('codegeneration', function() {
       if (expression == tree.expression && caseClauses == tree.caseClauses) {
         return tree;
       }
-      return createSwitchStatement(expression, caseClauses);
+      return new SwitchStatement(tree.location, expression, caseClauses);
     },
 
     /**
@@ -1069,7 +1067,7 @@ traceur.define('codegeneration', function() {
       if (value == tree.value) {
         return tree;
       }
-      return createThrowStatement(value);
+      return new ThrowStatement(tree.location, value);
     },
 
     /**
@@ -1084,7 +1082,7 @@ traceur.define('codegeneration', function() {
           finallyBlock == tree.finallyBlock) {
         return tree;
       }
-      return createTryStatement(body, catchBlock, finallyBlock);
+      return new TryStatement(tree.location, body, catchBlock, finallyBlock);
     },
 
     /**
@@ -1096,7 +1094,7 @@ traceur.define('codegeneration', function() {
       if (operand == tree.operand) {
         return tree;
       }
-      return createUnaryExpression(tree.operator, operand);
+      return new UnaryExpression(tree.location, tree.operator, operand);
     },
 
     /**
@@ -1109,7 +1107,7 @@ traceur.define('codegeneration', function() {
       if (lvalue == tree.lvalue && initializer == tree.initializer) {
         return tree;
       }
-      return createVariableDeclaration(lvalue, initializer);
+      return new VariableDeclaration(tree.location, lvalue, initializer);
     },
 
     /**
@@ -1121,7 +1119,8 @@ traceur.define('codegeneration', function() {
       if (declarations == tree.declarations) {
         return tree;
       }
-      return createVariableDeclarationList(tree.declarationType, declarations);
+      return new VariableDeclarationList(tree.location, tree.declarationType,
+                                         declarations);
     },
 
     /**
@@ -1133,7 +1132,7 @@ traceur.define('codegeneration', function() {
       if (declarations == tree.declarations) {
         return tree;
       }
-      return createVariableStatement(declarations);
+      return new VariableStatement(tree.location, declarations);
     },
 
     /**
@@ -1146,7 +1145,7 @@ traceur.define('codegeneration', function() {
       if (condition == tree.condition && body == tree.body) {
         return tree;
       }
-      return createWhileStatement(condition, body);
+      return new WhileStatement(tree.location, condition, body);
     },
 
     /**
@@ -1159,7 +1158,7 @@ traceur.define('codegeneration', function() {
       if (expression == tree.expression && body == tree.body) {
         return tree;
       }
-      return createWithStatement(expression, body);
+      return new WithStatement(tree.location, expression, body);
     },
 
     /**
@@ -1172,7 +1171,7 @@ traceur.define('codegeneration', function() {
       if (expression == tree.expression) {
         return tree;
       }
-      return createYieldStatement(expression, isYieldFor);
+      return new YieldStatement(tree.location, expression, isYieldFor);
     }
   };
 
