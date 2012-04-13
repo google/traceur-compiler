@@ -28,6 +28,8 @@ traceur.define('codegeneration', function() {
   var IdentifierExpression = traceur.syntax.trees.IdentifierExpression;
   var ParseTree = traceur.syntax.trees.ParseTree;
 
+  var createFunctionDeclaration = ParseTreeFactory.createFunctionDeclaration;
+
   /**
    * Replaces one identifier with another identifier (alpha
    * renaming). This transformation is safe to use for renaming a

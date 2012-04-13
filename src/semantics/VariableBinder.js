@@ -245,7 +245,7 @@ traceur.define('semantics', function() {
           break;
 
         case ParseTreeType.ARRAY_PATTERN:
-          var i = tree.elements;
+          var elements = tree.elements;
           for (var i = 0; i < elements.length; i++) {
             this.bindVariableDeclaration_(elements[i]);
           }

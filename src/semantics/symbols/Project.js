@@ -21,7 +21,7 @@ traceur.define('semantics.symbols', function() {
   var resolveUrl = traceur.util.resolveUrl;
 
   function addAll(self, other) {
-    for (key in other) {
+    for (var key in other) {
       self[key] = other[key];
     }
   }
@@ -59,7 +59,7 @@ traceur.define('semantics.symbols', function() {
       addAll(p.sourceFiles_, this.sourceFiles_);
       p.parseTrees_.addAll(this.parseTrees_);
       // push(...)
-      p.objectClass_ = objectClass_;
+      p.objectClass_ = this.objectClass_;
       return p;
     },
 

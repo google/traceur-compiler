@@ -480,7 +480,7 @@ traceur.define('codegeneration', function() {
    */
   function createCatch(identifier, catchBody) {
     if (identifier instanceof IdentifierToken) {
-      identifier = createBindingIdentifier(exceptionName);
+      identifier = createBindingIdentifier(identifier);
     }
 
     return new Catch(null, identifier, catchBody);

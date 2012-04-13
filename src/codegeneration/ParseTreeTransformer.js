@@ -479,13 +479,13 @@ traceur.define('codegeneration', function() {
      * @return {ParseTree}
      */
     transformExportMapping: function(tree) {
-      var moduleExpresion = this.transformAny(tree.moduleExpresion);
+      var moduleExpression = this.transformAny(tree.moduleExpression);
       var specifierSet = this.transformAny(tree.specifierSet);
-      if (moduleExpresion == tree.moduleExpresion &&
+      if (moduleExpression == tree.moduleExpression &&
           specifierSet == tree.specifierSet) {
         return tree;
       }
-      return new ExportMapping(tree.location, moduleExpresion, specifierSet);
+      return new ExportMapping(tree.location, moduleExpression, specifierSet);
     },
 
     /**
@@ -664,13 +664,13 @@ traceur.define('codegeneration', function() {
      * @return {ParseTree}
      */
     transformImportBinding: function(tree) {
-      var moduleExpression = this.transformAny(tree.moduleExpresion);
+      var moduleExpression = this.transformAny(tree.moduleExpression);
       var importSpecifierSet = this.transformList(tree.importSpecifierSet);
-      if (moduleExpresion == tree.moduleExpresion &&
+      if (moduleExpression == tree.moduleExpression &&
           importSpecifierSet == tree.importSpecifierSet) {
         return tree;
       }
-      return new ImportBinding(tree.location, moduleExpresion, importSpecifierSet);
+      return new ImportBinding(tree.location, moduleExpression, importSpecifierSet);
     },
 
     /**

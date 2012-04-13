@@ -100,7 +100,7 @@ traceur.define('codegeneration.generator', function() {
      * @return {ParseTree}
      */
     transformYieldStatement: function(tree) {
-      reporter.reportError(tree.location.start,
+      this.reporter.reportError(tree.location.start,
           'Async function may not have a yield statement.');
       return tree;
     },
@@ -164,7 +164,7 @@ traceur.define('codegeneration.generator', function() {
         return result;
       }
       // TODO: is this a reasonable restriction?
-      reporter.reportError(tree.location.start, 'async not permitted within a finally block.');
+      this.reporter.reportError(tree.location.start, 'async not permitted within a finally block.');
       return result;
     },
 

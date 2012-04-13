@@ -48,15 +48,6 @@ traceur.define('codegeneration', function() {
     });
   }
 
-  /**
-   * Array.prototype.slice.call(tree)
-   */
-  function toArray(tree) {
-    return createCallExpression(createMemberExpression(
-        ARRAY, PROTOTYPE, SLICE, CALL),
-        createArgumentList(tree));
-  }
-
   function getExpandFunction() {
     // traceur.runtime.spread
     return createMemberExpression(TRACEUR, RUNTIME, SPREAD);

@@ -168,7 +168,7 @@ traceur.define('codegeneration.module', function() {
     reportError_: function(symbolOrTree, format, var_args) {
       var tree;
       if (symbolOrTree instanceof Symbol) {
-        tree = symbol.tree;
+        tree = symbolOrTree.tree;
       } else {
         tree = symbolOrTree;
       }
