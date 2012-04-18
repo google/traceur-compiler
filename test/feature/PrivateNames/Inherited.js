@@ -1,6 +1,6 @@
-module Name from '@name';
+import Name from '@name';
 
-var n = Name.create();
+var n = new Name;
 var p = {};
 Object.defineProperty(p, n, {
   get: function() {

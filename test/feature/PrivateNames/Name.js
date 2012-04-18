@@ -13,9 +13,9 @@ function assertNameFrozen(n) {
   ].forEach(assertFrozen);
 }
 
-import {create, isName} from '@name';
+import {Name, isName} from '@name';
 
-var n = create();
+var n = new Name;
 assertTrue(isName(n));
 assertFalse(isName(n.public));
 assertEquals('object', typeof n.public);
@@ -24,7 +24,7 @@ assertFalse(isName(n.public));
 assertEquals(n + '', n.public + '');
 assertNameFrozen(n);
 
-var n2 = create('abc');
+var n2 = new Name('abc');
 assertTrue(isName(n2));
 assertFalse(isName(n2.public));
 assertEquals('object', typeof n2.public);

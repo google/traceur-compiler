@@ -187,8 +187,10 @@ traceur.runtime = (function() {
    * @return {string}
    */
   function newUniqueString() {
-    return ' @' + ++counter + Math.random();
+    return '__$' + Math.floor(Math.random() * 1e9) + '$' + ++counter + '$__';
   }
+
+  var nameRe = /^__\$(?:\d+)\$(?:\d+)\$__$/;
 
   var internalStringValueName = newUniqueString();
 
@@ -231,7 +233,7 @@ traceur.runtime = (function() {
 
   // HACK: We should use runtime/modules/std/name.js or something like that.
   var NameModule = $freeze({
-    create: function(str) {
+    Name: function(str) {
       return new Name(str);
     },
     isName: function(x) {
@@ -241,8 +243,6 @@ traceur.runtime = (function() {
     elementSet: elementSetName,
     elementDelete: elementDeleteName
   });
-
-  var nameRe = /^ @/;
 
   // Override getOwnPropertyNames to filter out private name keys.
   function getOwnPropertyNames(object) {
@@ -389,13 +389,13 @@ traceur.runtime = (function() {
   $defineProperty(Object, 'is', method(is));
 
   // Iterators.
-  var iteratorName = NameModule.create('iterator');
+  var iteratorName = new Name('iterator');
 
   /**
    * This is used to tag the return value from a generator.
    * @type Name
    */
-  var generatorName = NameModule.create();
+  var generatorName = new Name('generator');
 
   var IterModule = {
     get iterator() {

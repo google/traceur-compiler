@@ -1,5 +1,5 @@
-import {create} from '@name';
-var n = create();
+import Name from '@name';
+var n = new Name;
 var object = {};
 object[n] = 42;
 assertEquals(42, object[n]);
