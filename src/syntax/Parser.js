@@ -496,8 +496,9 @@ traceur.define('syntax', function() {
       this.eat_(TokenType.EXPORT);
       var exportTree;
       switch (this.peekType_()) {
-        case TokenType.VAR:
         case TokenType.CONST:
+        case TokenType.LET:
+        case TokenType.VAR:
           exportTree = this.parseVariableStatement_();
           break;
         case TokenType.FUNCTION:
@@ -3344,7 +3345,9 @@ traceur.define('syntax', function() {
     eatId_: function(opt_expected) {
       var result = this.eat_(TokenType.IDENTIFIER);
       if (opt_expected) {
-        if (result.value !== opt_expected) {
+        if (!result || result.value !== opt_expected) {
+          if (!result)
+            result = this.peekToken_();
           this.reportError_(result, 'expected "' + opt_expected + '"');
           return null;
         }

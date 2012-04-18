@@ -15,12 +15,12 @@
 traceur.define('semantics', function() {
   'use strict';
 
-  var ModuleDefinitionVisitor = traceur.codegeneration.module.ModuleDefinitionVisitor;
   var ExportVisitor = traceur.codegeneration.module.ExportVisitor;
+  var ImportStarVisitor = traceur.codegeneration.module.ImportStarVisitor;
   var ModuleDeclarationVisitor = traceur.codegeneration.module.ModuleDeclarationVisitor;
+  var ModuleDefinitionVisitor = traceur.codegeneration.module.ModuleDefinitionVisitor;
   var ValidationVisitor = traceur.codegeneration.module.ValidationVisitor;
 
-  // TODO(arv): import
   // TODO(arv): Validate that there are no free variables
   // TODO(arv): Validate that the exported reference exists
 
@@ -86,6 +86,7 @@ traceur.define('semantics', function() {
       doVisit(ExportVisitor);
       doVisit(ModuleDeclarationVisitor);
       doVisit(ValidationVisitor);
+      doVisit(ImportStarVisitor);
     }
   };
 

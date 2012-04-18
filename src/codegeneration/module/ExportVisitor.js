@@ -57,7 +57,7 @@ traceur.define('codegeneration.module', function() {
     },
 
     visitClassDeclaration: function(tree) {
-      this.addExport_(tree.name.value, tree);
+      this.addExport_(tree.name.identifierToken.value, tree);
     },
 
     visitExportDeclaration: function(tree) {
@@ -96,8 +96,6 @@ traceur.define('codegeneration.module', function() {
     visitIdentifierExpression: function(tree) {
       this.addExport_(tree.identifierToken.value, tree);
     },
-
-    // TODO(arv): visitImport
 
     visitModuleDefinition: function(tree) {
       this.addExport_(tree.name.value, tree);

@@ -17,6 +17,10 @@ traceur.define('codegeneration.module', function() {
 
   var ModuleVisitor = traceur.codegeneration.module.ModuleVisitor;
 
+  function getFriendlyName(module) {
+    return module.name || "'" + module.url + "'";
+  }
+
   /**
    * Visits a parse tree and validates all module expressions.
    *
@@ -37,24 +41,19 @@ traceur.define('codegeneration.module', function() {
 
     checkExport_: function(tree, name) {
       if (this.validatingModule_ && !this.validatingModule_.hasExport(name)) {
-        this.reportError_(tree, '\'%s\' is not exported', name);
-        this.reportRelatedError_(this.validatingModule_);
+        this.reportError_(tree, '\'%s\' is not exported by %s', name,
+            getFriendlyName(this.validatingModule_));
       }
     },
 
     /**
      * @param {ModuleSymbol} module
      * @param {ParseTree} tree
-     * @param {string=} name
      */
-    visitAndValidate_: function(module, tree, name) {
+    visitAndValidate_: function(module, tree) {
       var validatingModule = this.validatingModule_;
       this.validatingModule_ = module;
-      if (name) {
-        this.checkExport_(tree, name);
-      } else {
-        this.visitAny(tree);
-      }
+      this.visitAny(tree);
       this.validatingModule_ = validatingModule;
     },
 
@@ -74,8 +73,7 @@ traceur.define('codegeneration.module', function() {
     },
 
     visitExportSpecifier: function(tree) {
-      var token = tree.lhs;
-      this.checkExport_(tree, token.value);
+      this.checkExport_(tree, tree.lhs.value);
     },
 
     visitIdentifierExpression: function(tree) {
@@ -84,6 +82,16 @@ traceur.define('codegeneration.module', function() {
 
     visitModuleExpression: function(tree) {
       this.getModuleForModuleExpression(tree, true /* reportErrors */);
+    },
+
+    visitImportBinding: function(tree) {
+      var module = this.getModuleForModuleExpression(tree.moduleExpression,
+          true /* reportErrors */);
+      this.visitAndValidate_(module, tree.importSpecifierSet);
+    },
+
+    visitImportSpecifier: function(tree) {
+      this.checkExport_(tree, tree.lhs.value);
     }
   });
 

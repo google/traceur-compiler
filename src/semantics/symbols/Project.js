@@ -15,8 +15,10 @@
 traceur.define('semantics.symbols', function() {
   'use strict';
 
-  var ObjectMap = traceur.util.ObjectMap;
+  var ExportSymbol = traceur.semantics.symbols.ExportSymbol;
   var ModuleSymbol = traceur.semantics.symbols.ModuleSymbol;
+  var ObjectMap = traceur.util.ObjectMap;
+  var ArrayMap = traceur.util.ArrayMap;
 
   var resolveUrl = traceur.util.resolveUrl;
 
@@ -32,6 +34,27 @@ traceur.define('semantics.symbols', function() {
     });
   }
 
+  var standardModuleUrlRegExp = /^@\w+$/;
+  var standardModuleCache = Object.create(null);
+
+  /**
+   * Gets a ModuleSymbol for a standard module. We cache the Symbol so that
+   * future accesses to this returns the same symbol.
+   * @param  {string} url
+   * @return {ModuleSymbol}
+   */
+  function getStandardModule(url) {
+    if (!(url in standardModuleCache)) {
+      var symbol = new ModuleSymbol(null, null, null, url);
+      var moduleInstance = traceur.runtime.modules[url];
+      Object.keys(moduleInstance).forEach(function(name) {
+        symbol.addExport(name, new ExportSymbol(null, name, null));
+      });
+      standardModuleCache[url] = symbol;
+    }
+    return standardModuleCache[url];
+  }
+
   /**
    * The root data structure for all semantic and syntactic information for a
    * single compilation.
@@ -44,6 +67,7 @@ traceur.define('semantics.symbols', function() {
     this.parseTrees_ = new ObjectMap();
     this.rootModule_ = new ModuleSymbol(null, null, null, url);
     this.modulesByUrl_ = Object.create(null);
+    this.moduleExports_ = new ArrayMap();
   }
 
   Project.prototype = {
@@ -136,12 +160,26 @@ traceur.define('semantics.symbols', function() {
     getModuleForUrl: function(url) {
       url = resolveUrl(this.url, url);
       traceur.assert(this.hasModuleForUrl(url));
+      if (standardModuleUrlRegExp.test(url))
+        return getStandardModule(url);
+
       return this.modulesByUrl_[url];
     },
 
     hasModuleForUrl: function(url) {
+      if (standardModuleUrlRegExp.test(url))
+        return url in traceur.runtime.modules;
+
       url = resolveUrl(this.url, url);
       return url in this.modulesByUrl_;
+    },
+
+    setModuleForStarTree: function(tree, symbol) {
+      this.moduleExports_.put(tree, symbol);
+    },
+
+    getModuleForStarTree: function(tree) {
+      return this.moduleExports_.get(tree);
     }
   };
 

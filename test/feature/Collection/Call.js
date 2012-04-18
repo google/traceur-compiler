@@ -1,9 +1,10 @@
+import elementGet from '@name';
+
 {
   var getLog = [];
   var object = {};
-  var Name = traceur.runtime.modules['@name'];
 
-  object[Name.elementGet] = function(index) {
+  object[elementGet] = function(index) {
     assertEquals(object, this);
     getLog.push(index);
     return function() {

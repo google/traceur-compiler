@@ -8,7 +8,7 @@ class Tree {
 }
 
 // We don't yet support any syntax to set private named fields in classes.
-var {iterator} = traceur.runtime.modules['@iter'];
+import iterator from '@iter';
 
 Tree.prototype[iterator] = function*() {
   if (this.left) {

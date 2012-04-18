@@ -62,8 +62,7 @@
         }
       };
 
-      var Name = traceur.runtime.modules['@name'];
-      var {elementGet, elementSet, elementDelete} = Name;
+      import {elementGet, elementSet, elementDelete} from '@name';
 
       StringMap.prototype[elementGet] = function(name) {
         return this._storage[name];

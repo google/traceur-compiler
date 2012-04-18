@@ -50,13 +50,6 @@ traceur.define('semantics.symbols', function() {
     asModuleSymbol: function() {
       assert(this instanceof traceur.semantics.symbols.ModuleSymbol);
       return this;
-    },
-
-    /**
-     * @return {Array.<ParseTree>}
-     */
-    getRelatedLocations: function() {
-      return [this.tree];
     }
   };
 

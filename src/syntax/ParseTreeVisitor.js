@@ -371,6 +371,13 @@ traceur.define('syntax', function() {
     },
 
     /**
+     * @param {traceur.syntax.trees.ImportSpecifierSet} tree
+     */
+    visitImportSpecifierSet: function(tree) {
+      this.visitList(tree.specifiers);
+    },
+
+    /**
      * @param {traceur.syntax.trees.LabelledStatement} tree
      */
     visitLabelledStatement: function(tree) {

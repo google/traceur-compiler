@@ -1,4 +1,4 @@
-var Name = traceur.runtime.modules['@name'];
+module Name from '@name';
 
 var n = Name.create();
 var p = {};

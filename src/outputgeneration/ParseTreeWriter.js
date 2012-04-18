@@ -526,6 +526,13 @@ traceur.define('outputgeneration', function() {
       }
     },
 
+    visitImportSpecifierSet: function(tree) {
+      if (tree.specifiers.type == TokenType.STAR)
+        this.write_(TokenType.STAR);
+      else
+        this.visitList(tree.specifiers);
+    },
+
     /**
      * @param {LabelledStatement} tree
      */

@@ -1,6 +1,6 @@
-{
-  let Name = traceur.runtime.modules['@name'];
+module Name from '@name';
 
+{
   function isIndex(s) {
     // toUint32: s >>> 0
     return s == String(s >>> 0);

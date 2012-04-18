@@ -15,16 +15,16 @@
 traceur.define('codegeneration.module', function() {
   'use strict';
 
-  var Symbol = traceur.semantics.symbols.Symbol;
+  var ParseTree = traceur.syntax.trees.ParseTree;
+  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
   var ParseTreeVisitor = traceur.syntax.ParseTreeVisitor;
+  var Symbol = traceur.semantics.symbols.Symbol;
   var evaluateStringLiteral = traceur.util.evaluateStringLiteral;
   var resolveUrl = traceur.util.resolveUrl;
 
-  var ParseTree = traceur.syntax.trees.ParseTree;
-  var MODULE_DECLARATION = traceur.syntax.trees.ParseTreeType.MODULE_DECLARATION;
-  var MODULE_DEFINITION = traceur.syntax.trees.ParseTreeType.MODULE_DEFINITION;
-  var MODULE_REQUIRE = traceur.syntax.trees.ParseTreeType.MODULE_REQUIRE;
-  var EXPORT_DECLARATION = traceur.syntax.trees.ParseTreeType.EXPORT_DECLARATION;
+  function getFriendlyName(module) {
+    return module.name || module.url;
+  }
 
   /**
    * A specialized parse tree visitor for use with modules.
@@ -37,7 +37,7 @@ traceur.define('codegeneration.module', function() {
   function ModuleVisitor(reporter, project, module) {
     ParseTreeVisitor.call(this);
     this.reporter_ = reporter;
-    this.project_ = project;
+    this.project = project;
     this.currentModule_ = module;
   }
 
@@ -72,10 +72,10 @@ traceur.define('codegeneration.module', function() {
      */
     getModuleForModuleExpression: function(tree, reportErrors) {
       // "url".b.c
-      if (tree.reference.type == MODULE_REQUIRE) {
+      if (tree.reference.type == ParseTreeType.MODULE_REQUIRE) {
         var url = evaluateStringLiteral(tree.reference.url);
         url = resolveUrl(this.currentModule.url, url);
-        return this.project_.getModuleForUrl(url);
+        return this.project.getModuleForUrl(url);
       }
 
       // a.b.c
@@ -93,7 +93,8 @@ traceur.define('codegeneration.module', function() {
 
         if (!parent.hasExport(name)) {
           if (reportErrors) {
-            self.reportError_(tree, '\'%s\' is not exported', name);
+            self.reportError_(tree, '\'%s\' is not exported by %s', name,
+                getFriendlyName(parent));
           }
           return null;
         }
@@ -127,9 +128,10 @@ traceur.define('codegeneration.module', function() {
 
     visitModuleElement_: function(element) {
       switch (element.type) {
-        case MODULE_DECLARATION:
-        case MODULE_DEFINITION:
-        case EXPORT_DECLARATION:
+        case ParseTreeType.MODULE_DECLARATION:
+        case ParseTreeType.MODULE_DEFINITION:
+        case ParseTreeType.EXPORT_DECLARATION:
+        case ParseTreeType.IMPORT_DECLARATION:
           this.visitAny(element);
       }
     },
@@ -174,7 +176,7 @@ traceur.define('codegeneration.module', function() {
       }
 
       var args = Array.prototype.slice.call(arguments);
-      args[0] = tree;
+      args[0] = tree.location.start;
 
       this.reporter_.reportError.apply(this.reporter_, args);
     },
@@ -188,8 +190,13 @@ traceur.define('codegeneration.module', function() {
       if (symbolOrTree instanceof ParseTree) {
         this.reportError_(symbolOrTree, 'Location related to previous error');
       } else {
-        symbolOrTree.getRelatedLocations().forEach(this.reportRelatedError_,
-                                                   this);
+        var tree = symbolOrTree.tree;
+        if (tree) {
+          this.reportRelatedError_(tree);
+        } else {
+          this.reporter_.reportError(null,
+              'Module related to previous error: ' + symbolOrTree.url);
+        }
       }
     }
   });

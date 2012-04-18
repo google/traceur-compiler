@@ -281,6 +281,9 @@ traceur.define('util', function() {
    * @return {string}
    */
   function resolveUrl(base, url) {
+    if (url[0] === '@')
+      return url;
+
     var parts = split(url);
     var baseParts = split(base);
 

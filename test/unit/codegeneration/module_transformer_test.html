@@ -168,43 +168,34 @@ window.testExportSpecifierSet = function() {
 </script>
 <script>
 
-function compileAndReturnErrors(contents, name) {
+function compileAndReturnReporter(contents, name) {
   var sourceFile = new traceur.syntax.SourceFile(name, contents);
-  var reporter = new traceur.util.ErrorReporter();
-  var errors = [];
-  reporter.reportMessageInternal = function() {
-    errors.push(arguments);
-  };
-
+  var reporter = new traceur.util.TestErrorReporter();
   var url = window.location.href;
   var project = new traceur.semantics.symbols.Project(url);
   project.addFile(sourceFile)
   traceur.codegeneration.Compiler.compile(reporter, project);
-  return errors;
+  return reporter;
 }
 
-function assertErrorMessage(errors, moduleName, opt_expectedError) {
-  var expectedError = opt_expectedError || '\'%s\' is not a module';
-  assertTrue(errors.length > 0);
-  assertEquals(expectedError, errors[0][2]);
-  assertEquals(moduleName, errors[0][3][0]);
+function assertHasError(reporter, expected) {
+  assertTrue(reporter.errors.join('\n'), reporter.hasMatchingError(expected));
 }
 
 function testInvalidModuleDeclaration() {
   var contents = 'module a {}\n' +
       'module b from c;\n';
   var name = 'testInvalidModuleDeclaration';
-  var errors = compileAndReturnErrors(contents, name);
-
-  assertErrorMessage(errors, 'c');
+  var reporter = compileAndReturnReporter(contents, name);
+  assertHasError(reporter, "'c' is not a module");
 }
 
 function testInvalidModuleDeclaration2() {
   var contents = 'module a {}\n' +
       'module b from a.c;\n';
   var name = 'testInvalidModuleDeclaration2';
-  var errors = compileAndReturnErrors(contents, name);
-  assertErrorMessage(errors, 'c');
+  var reporter = compileAndReturnReporter(contents, name);
+  assertHasError(reporter, "'c' is not a module");
 }
 
 function testInvalidModuleDeclaration3() {
@@ -212,8 +203,8 @@ function testInvalidModuleDeclaration3() {
       '  module b from c;\n' +
       '}\n';
   var name = 'testInvalidModuleDeclaration3';
-  var errors = compileAndReturnErrors(contents, name);
-  assertErrorMessage(errors, 'c');
+  var reporter = compileAndReturnReporter(contents, name);
+  assertHasError(reporter, "'c' is not a module");
 }
 
 function testInvalidModuleDeclaration4() {
@@ -222,8 +213,8 @@ function testInvalidModuleDeclaration4() {
       '  module c from b.d;\n' +
       '}\n';
   var name = 'testInvalidModuleDeclaration4';
-  var errors = compileAndReturnErrors(contents, name);
-assertErrorMessage(errors, 'd');
+  var reporter = compileAndReturnReporter(contents, name);
+  assertHasError(reporter, "'d' is not a module");
 }
 
 function testInvalidModuleDeclaration5() {
@@ -231,8 +222,8 @@ function testInvalidModuleDeclaration5() {
       '  export module b from c;\n' +
       '}\n';
   var name = 'testInvalidModuleDeclaration5';
-  var errors = compileAndReturnErrors(contents, name);
-  assertErrorMessage(errors, 'c');
+  var reporter = compileAndReturnReporter(contents, name);
+  assertHasError(reporter, "'c' is not a module");
 }
 
 function testInvalidModuleDeclaration6() {
@@ -242,8 +233,8 @@ function testInvalidModuleDeclaration6() {
       '  }\n' +
       '}\n';
   var name = 'testInvalidModuleDeclaration6';
-  var errors = compileAndReturnErrors(contents, name);
-  assertErrorMessage(errors, 'd');
+  var reporter = compileAndReturnReporter(contents, name);
+  assertHasError(reporter, "'d' is not a module");
 }
 
 function testInvalidExport() {
@@ -254,8 +245,8 @@ function testInvalidExport() {
       '  export c from b;\n' +
       '}\n';
   var name = 'testInvalidExport';
-  var errors = compileAndReturnErrors(contents, name);
-  assertErrorMessage(errors, 'c', '\'%s\' is not exported');
+  var reporter = compileAndReturnReporter(contents, name);
+  assertHasError(reporter, "'c' is not exported by b");
 }
 
 function testInvalidExport2() {
@@ -266,8 +257,8 @@ function testInvalidExport2() {
       '  export {c} from b;\n' +
       '}\n';
   var name = 'testInvalidExport2';
-  var errors = compileAndReturnErrors(contents, name);
-  assertErrorMessage(errors, 'c', '\'%s\' is not exported');
+  var reporter = compileAndReturnReporter(contents, name);
+  assertHasError(reporter, "'c' is not exported by b");
 }
 
 function testInvalidExport3() {
@@ -278,8 +269,8 @@ function testInvalidExport3() {
       '  export {c: d} from b;\n' +
       '}\n';
   var name = 'testInvalidExport3';
-  var errors = compileAndReturnErrors(contents, name);
-  assertErrorMessage(errors, 'c', '\'%s\' is not exported');
+  var reporter = compileAndReturnReporter(contents, name);
+  assertHasError(reporter, "'c' is not exported by b");
 }
 
 function evalScript(scriptElement) {

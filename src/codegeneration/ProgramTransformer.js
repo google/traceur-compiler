@@ -232,7 +232,8 @@ traceur.define('codegeneration', function() {
      */
     transformModules_: function(tree, opt_module) {
       if (opt_module) {
-        return ModuleTransformer.transformAsModule(opt_module, tree);
+        return ModuleTransformer.transformAsModule(this.project_, opt_module,
+                                                   tree);
       } else {
         return ModuleTransformer.transform(this.project_, tree);
       }

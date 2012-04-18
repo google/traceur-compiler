@@ -1,5 +1,5 @@
-var Name = traceur.runtime.modules['@name'];
-var n = Name.create();
+import {create} from '@name';
+var n = create();
 var object = {};
 object[n] = 42;
 assertEquals(42, object[n]);

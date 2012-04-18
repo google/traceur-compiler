@@ -509,6 +509,8 @@ traceur.define('runtime', function() {
    */
   var currentCodeUnit;
 
+  var standardModuleUrlRegExp = /^@\w+$/;
+
   /**
    * This is used to find the module for a require url ModuleExpression.
    * @param {string} url
@@ -516,6 +518,9 @@ traceur.define('runtime', function() {
    *     code loader.
    */
   function getModuleInstanceByUrl(url) {
+    if (standardModuleUrlRegExp.test(url))
+      return traceur.runtime.modules[url] || null;
+
     assert(currentCodeUnit);
     url = resolveUrl(currentCodeUnit.url, url);
     for (var i = 0; i < currentCodeUnit.dependencies.length; i++) {

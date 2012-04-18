@@ -15,60 +15,69 @@
 traceur.define('codegeneration', function() {
   'use strict';
 
+  var BindingIdentifier = traceur.syntax.trees.BindingIdentifier;
+  var IdentifierExpression = traceur.syntax.trees.IdentifierExpression;
+  var LiteralExpression = traceur.syntax.trees.LiteralExpression;
+  var ObjectPattern = traceur.syntax.trees.ObjectPattern;
+  var ObjectPatternField = traceur.syntax.trees.ObjectPatternField;
+  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
+  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
   var PredefinedName = traceur.syntax.PredefinedName;
   var Program = traceur.syntax.trees.Program;
   var TokenType = traceur.syntax.TokenType;
 
-  var CLASS_DECLARATION = traceur.syntax.trees.ParseTreeType.CLASS_DECLARATION;
-  var EXPORT_DECLARATION = traceur.syntax.trees.ParseTreeType.EXPORT_DECLARATION;
-  var EXPORT_MAPPING_LIST = traceur.syntax.trees.ParseTreeType.EXPORT_MAPPING_LIST;
-  var EXPORT_SPECIFIER = traceur.syntax.trees.ParseTreeType.EXPORT_SPECIFIER;
-  var FUNCTION_DECLARATION = traceur.syntax.trees.ParseTreeType.FUNCTION_DECLARATION;
-  var IDENTIFIER_EXPRESSION = traceur.syntax.trees.ParseTreeType.IDENTIFIER_EXPRESSION;
-  var IMPORT_DECLARATION = traceur.syntax.trees.ParseTreeType.IMPORT_DECLARATION;
-  var MODULE_DECLARATION = traceur.syntax.trees.ParseTreeType.MODULE_DECLARATION;
-  var MODULE_DEFINITION = traceur.syntax.trees.ParseTreeType.MODULE_DEFINITION;
-  var MODULE_REQUIRE = traceur.syntax.trees.ParseTreeType.MODULE_REQUIRE;
-  var VARIABLE_STATEMENT = traceur.syntax.trees.ParseTreeType.VARIABLE_STATEMENT;
+  var CLASS_DECLARATION = ParseTreeType.CLASS_DECLARATION;
+  var EXPORT_DECLARATION = ParseTreeType.EXPORT_DECLARATION;
+  var EXPORT_MAPPING_LIST = ParseTreeType.EXPORT_MAPPING_LIST;
+  var EXPORT_SPECIFIER = ParseTreeType.EXPORT_SPECIFIER;
+  var FUNCTION_DECLARATION = ParseTreeType.FUNCTION_DECLARATION;
+  var IDENTIFIER_EXPRESSION = ParseTreeType.IDENTIFIER_EXPRESSION;
+  var IMPORT_DECLARATION = ParseTreeType.IMPORT_DECLARATION;
+  var MODULE_DECLARATION = ParseTreeType.MODULE_DECLARATION;
+  var MODULE_DEFINITION = ParseTreeType.MODULE_DEFINITION;
+  var MODULE_REQUIRE = ParseTreeType.MODULE_REQUIRE;
+  var VARIABLE_STATEMENT = ParseTreeType.VARIABLE_STATEMENT;
 
-  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
+  var createArgumentList = ParseTreeFactory.createArgumentList;
+  var createBlock = ParseTreeFactory.createBlock;
+  var createCallCall = ParseTreeFactory.createCallCall;
+  var createCallExpression = ParseTreeFactory.createCallExpression;
+  var createEmptyParameterList = ParseTreeFactory.createEmptyParameterList;
+  var createExpressionStatement = ParseTreeFactory.createExpressionStatement;
+  var createFunctionExpression = ParseTreeFactory.createFunctionExpression;
+  var createGetAccessor = ParseTreeFactory.createGetAccessor;
+  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
+  var createIdentifierToken = ParseTreeFactory.createIdentifierToken;
+  var createMemberExpression = ParseTreeFactory.createMemberExpression;
+  var createNullLiteral = ParseTreeFactory.createNullLiteral;
+  var createObjectFreeze = ParseTreeFactory.createObjectFreeze;
+  var createObjectLiteralExpression = ParseTreeFactory.createObjectLiteralExpression;
+  var createParameterList = ParseTreeFactory.createParameterList;
+  var createParenExpression = ParseTreeFactory.createParenExpression;
+  var createProgram = ParseTreeFactory.createProgram;
+  var createPropertyNameAssignment = ParseTreeFactory.createPropertyNameAssignment;
+  var createReturnStatement = ParseTreeFactory.createReturnStatement;
+  var createScopedExpression = ParseTreeFactory.createScopedExpression;
+  var createStringLiteral = ParseTreeFactory.createStringLiteral;
+  var createThisExpression = ParseTreeFactory.createThisExpression;
+  var createTrueLiteral = ParseTreeFactory.createTrueLiteral;
+  var createUseStrictDirective = ParseTreeFactory.createUseStrictDirective;
+  var createVariableDeclaration = ParseTreeFactory.createVariableDeclaration;
+  var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList;
+  var createVariableStatement = ParseTreeFactory.createVariableStatement;
 
-  var LiteralExpression = traceur.syntax.trees.LiteralExpression;
-
-  var createArgumentList = traceur.codegeneration.ParseTreeFactory.createArgumentList;
-  var createBlock = traceur.codegeneration.ParseTreeFactory.createBlock;
-  var createCallCall = traceur.codegeneration.ParseTreeFactory.createCallCall;
-  var createCallExpression = traceur.codegeneration.ParseTreeFactory.createCallExpression;
-  var createEmptyParameterList = traceur.codegeneration.ParseTreeFactory.createEmptyParameterList;
-  var createExpressionStatement = traceur.codegeneration.ParseTreeFactory.createExpressionStatement;
-  var createFunctionExpression = traceur.codegeneration.ParseTreeFactory.createFunctionExpression;
-  var createGetAccessor = traceur.codegeneration.ParseTreeFactory.createGetAccessor;
-  var createIdentifierExpression = traceur.codegeneration.ParseTreeFactory.createIdentifierExpression;
-  var createMemberExpression = traceur.codegeneration.ParseTreeFactory.createMemberExpression;
-  var createNullLiteral = traceur.codegeneration.ParseTreeFactory.createNullLiteral;
-  var createObjectFreeze = traceur.codegeneration.ParseTreeFactory.createObjectFreeze;
-  var createObjectLiteralExpression = traceur.codegeneration.ParseTreeFactory.createObjectLiteralExpression;
-  var createParameterList = traceur.codegeneration.ParseTreeFactory.createParameterList;
-  var createParenExpression = traceur.codegeneration.ParseTreeFactory.createParenExpression;
-  var createProgram = traceur.codegeneration.ParseTreeFactory.createProgram;
-  var createPropertyNameAssignment = traceur.codegeneration.ParseTreeFactory.createPropertyNameAssignment;
-  var createReturnStatement = traceur.codegeneration.ParseTreeFactory.createReturnStatement;
-  var createScopedExpression = traceur.codegeneration.ParseTreeFactory.createScopedExpression;
-  var createStringLiteral = traceur.codegeneration.ParseTreeFactory.createStringLiteral;
-  var createThisExpression = traceur.codegeneration.ParseTreeFactory.createThisExpression;
-  var createTrueLiteral = traceur.codegeneration.ParseTreeFactory.createTrueLiteral;
-  var createUseStrictDirective = traceur.codegeneration.ParseTreeFactory.createUseStrictDirective;
-  var createVariableDeclaration = traceur.codegeneration.ParseTreeFactory.createVariableDeclaration;
-  var createVariableDeclarationList = traceur.codegeneration.ParseTreeFactory.createVariableDeclarationList;
-  var createVariableStatement = traceur.codegeneration.ParseTreeFactory.createVariableStatement;
+  function toBindingIdentifier(tree) {
+    return new BindingIdentifier(tree.location, tree.identifierToken);
+  }
 
   /**
    * This creates the code that defines the getter for an export.
+   * @param {Project} project
    * @param {ExportSymbol} symbol
    * @return {ParseTree}
    */
-  function getGetterExport(symbol) {
+  function getGetterExport(project, symbol) {
     // Object.defineProperty(this, 'NAME', {
     //   get: function() { return <returnExpression>; },
     //   enumerable: true
@@ -78,13 +87,14 @@ traceur.define('codegeneration', function() {
     var returnExpression;
     switch (tree.type) {
       case EXPORT_SPECIFIER:
-        returnExpression = transformSpecifier(tree.lhs, symbol.relatedTree);
+        returnExpression = transformSpecifier(project, tree.lhs,
+                                              symbol.relatedTree);
         break;
       case IDENTIFIER_EXPRESSION:
         if (!symbol.relatedTree) {
           returnExpression = tree;
         } else {
-          returnExpression = transformSpecifier(tree.identifierToken,
+          returnExpression = transformSpecifier(project, tree.identifierToken,
               symbol.relatedTree);
         }
         break;
@@ -117,26 +127,28 @@ traceur.define('codegeneration', function() {
   /**
    * Transforms a module expression and an identifier. This is used to create
    * a member expression for something like a.b.c.{d, e, f}.
+   * @param {Project} project
    * @param {IdentifierToken} identifierToken
    * @param {ParseTree=} moduleExpression
    * @return {ParseTree}
    */
-  function transformSpecifier(identifierToken, moduleExpression) {
+  function transformSpecifier(project, identifierToken, moduleExpression) {
     if (moduleExpression) {
-      var operand = new ModuleTransformer().transformAny(moduleExpression);
+      var operand = new ModuleTransformer(project).transformAny(moduleExpression);
       return createMemberExpression(operand, identifierToken);
     }
 
     return createIdentifierExpression(identifierToken);
   }
 
-
   /**
+   * @param {Project} project
    * @constructor
    * @extends {ParseTreeTransformer}
    */
-  function ModuleTransformer() {
+  function ModuleTransformer(project) {
     ParseTreeTransformer.call(this);
+    this.project_ = project;
   }
 
   ModuleTransformer.prototype = traceur.createObject(
@@ -172,6 +184,50 @@ traceur.define('codegeneration', function() {
     transformModuleSpecifier: function(tree) {
       var expression = this.transformAny(tree.expression);
       return createVariableDeclaration(tree.identifier, expression);
+    },
+
+    transformImportDeclaration: function(tree) {
+      // import id from module
+      //  =>
+      // var {id} = moduleInstance
+      var declarations = this.transformList(tree.importPathList);
+      return createVariableStatement(createVariableDeclarationList(
+          TokenType.VAR, declarations));
+    },
+
+    transformImportBinding: function(tree) {
+      var importSpecifierSet;
+      // If identifier we need to output the object pattern {id}.
+      if (tree.importSpecifierSet.type == ParseTreeType.IDENTIFIER_EXPRESSION) {
+        var field = new ObjectPatternField(tree.location,
+            tree.importSpecifierSet.identifierToken, null);
+        importSpecifierSet = new ObjectPattern(tree.location, [field]);
+      } else {
+        importSpecifierSet = this.transformAny(tree.importSpecifierSet);
+      }
+
+      var moduleExpression = this.transformAny(tree.moduleExpression);
+      return createVariableDeclaration(importSpecifierSet, moduleExpression);
+    },
+
+    transformImportSpecifierSet: function(tree) {
+      var fields;
+      if (tree.specifiers.type === TokenType.STAR) {
+        var module = this.project_.getModuleForStarTree(tree);
+        var fields = module.getExports().map(function(exportSymbol) {
+          return new ObjectPatternField(tree.location,
+            createIdentifierToken(exportSymbol.name), null);
+        })
+      } else {
+        fields = this.transformList(tree.specifiers);
+      }
+      return new ObjectPattern(null, fields);
+    },
+
+    transformImportSpecifier: function(tree) {
+      var element = tree.rhs ?
+          new IdentifierExpression(tree.location, tree.rhs) : null;
+      return new ObjectPatternField(tree.location, tree.lhs, element);
     }
   });
 
@@ -185,33 +241,38 @@ traceur.define('codegeneration', function() {
     var elements = tree.programElements.map(function(element) {
       switch (element.type) {
         case MODULE_DEFINITION:
-          return transformDefinition(module, element);
+          return transformDefinition(project, module, element);
         case MODULE_DECLARATION:
-          return transformDeclaration(module, element);
+          return transformDeclaration(project, module, element);
+        case IMPORT_DECLARATION:
+          return new ModuleTransformer(project).transformAny(element);
         default:
           return element;
       }
-    });
+    }, this);
     return new Program(tree.location, elements);
   };
 
   /**
+   * @param {Project} project
    * @param {Module} module
    * @param {Program} tree
    * @return {Program}
    */
-  ModuleTransformer.transformAsModule = function(module, tree) {
-    var callExpression = transformModuleElements(module, tree.programElements);
+  ModuleTransformer.transformAsModule = function(project, module, tree) {
+    var callExpression = transformModuleElements(project, module,
+                                                 tree.programElements);
     return createProgram([createExpressionStatement(callExpression)]);
   };
 
   /**
    * Transforms a module into a call expression.
+   * @param {Project} project
    * @param {ModuleSymbol} module
    * @param {Array.<ParseTree>} elements
    * @return {CallExpression}
    */
-  function transformModuleElements(module, elements) {
+  function transformModuleElements(project, module, elements) {
     var statements = [];
 
     // use strict
@@ -220,7 +281,7 @@ traceur.define('codegeneration', function() {
     // Add exports
     module.getExports().forEach(function(exp) {
       // Object.defineProperty(this, 'export_name', ...)
-      statements.push(getGetterExport(exp));
+      statements.push(getGetterExport(project, exp));
     });
 
     // Object.freeze(this)
@@ -231,19 +292,21 @@ traceur.define('codegeneration', function() {
     elements.forEach(function(element) {
       switch (element.type) {
         case MODULE_DECLARATION:
-          statements.push(transformDeclaration(module, element));
+          statements.push(transformDeclaration(project, module, element));
           break;
         case MODULE_DEFINITION:
-          statements.push(transformDefinition(module, element));
+          statements.push(transformDefinition(project, module, element));
           break;
         case EXPORT_DECLARATION:
           var declaration = element.declaration;
           switch (declaration.type) {
             case MODULE_DEFINITION:
-              statements.push(transformDefinition(module, declaration));
+              statements.push(transformDefinition(project, module,
+                                                  declaration));
               break;
             case MODULE_DECLARATION:
-              statements.push(transformDeclaration(module, declaration));
+              statements.push(transformDeclaration(project, module,
+                                                   declaration));
               break;
             case EXPORT_MAPPING_LIST:
               // These do not generate any statement here. It is all taken
@@ -259,7 +322,8 @@ traceur.define('codegeneration', function() {
           }
           break;
         case IMPORT_DECLARATION:
-          throw new Error('Not implemented');
+          var transformer = new ModuleTransformer(project);
+          statements.push(transformer.transformAny(element));
           break;
         default:
           // class, statement, function declaration
@@ -294,14 +358,16 @@ traceur.define('codegeneration', function() {
    *
    *   var m = (function() { ... })(...);
    *
+   * @param {Project} project
    * @param {ModuleSymbol} parent
    * @param {ModuleDefinition} tree
    * @return {ParseTree}
    */
-  function transformDefinition(parent, tree) {
+  function transformDefinition(project, parent, tree) {
     var module = parent.getModule(tree.name.value);
 
-    var callExpression = transformModuleElements(module, tree.elements);
+    var callExpression = transformModuleElements(project, module,
+                                                 tree.elements);
 
     // const M = (function() { statements }).call(thisObject);
     // TODO(arv): const is not allowed in ES5 strict
@@ -309,15 +375,16 @@ traceur.define('codegeneration', function() {
   }
 
   /**
+   * @param {Project} project
    * @param {ModuleSymbol} parent
    * @param {ModuleDeclaration} tree
    * @return {ParseTree}
    */
-  function transformDeclaration(parent, tree) {
+  function transformDeclaration(project, parent, tree) {
     // module m from n, o from p.q, ...;
     // module m from 'url'.n.o.p;
 
-    var transformer = new ModuleTransformer();
+    var transformer = new ModuleTransformer(project);
     var list = tree.specifiers.map(transformer.transformAny, transformer);
 
     // const a = b.c, d = e.f;

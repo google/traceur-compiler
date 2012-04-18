@@ -1,10 +1,10 @@
+import {elementGet, elementSet, elementDelete} from '@name';
+
 {
   var setLog = [];
   var getLog = [];
   var deleteLog = [];
   var object = {};
-  var Name = traceur.runtime.modules['@name'];
-  var {elementGet, elementSet, elementDelete} = Name;
 
   object[elementGet] = function(name) {
     assertEquals(object, this);
