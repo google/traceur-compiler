@@ -118,6 +118,7 @@ function testScript(filePath) {
   var onlyInBrowser = false;
   var skip = false;
   var shouldCompile = true;
+  var expectedErrors = [];
   forEachPrologLine(source, function(line) {
     var m;
     if (line.indexOf('// Only in browser.') === 0) {
@@ -128,6 +129,8 @@ function testScript(filePath) {
       skip = true;
     } else if ((m = /\/\ Options:\s*(.+)/.exec(line))) {
       traceur.options.fromString(m[1]);
+    } else if ((m = /\/\/ Error:\s*(.+)/.exec(line))) {
+      expectedErrors.push(m[1]);
     }
   });
 
@@ -139,7 +142,7 @@ function testScript(filePath) {
   try {
     silenceConsole();
 
-    var reporter = new traceur.util.ErrorReporter();
+    var reporter = new traceur.util.TestErrorReporter();
     var sourceFile = new traceur.syntax.SourceFile(filePath, source);
     var tree = traceur.codegeneration.Compiler.compileFile(reporter,
                                                            sourceFile,
@@ -151,15 +154,26 @@ function testScript(filePath) {
         failScript(filePath, 'Compile error expected.');
         return false;
       }
+
+      var missingExpectations = expectedErrors.filter(function(expected) {
+        return !reporter.hasMatchingError(expected);
+      });
+      if (missingExpectations.length) {
+        failScript(filePath, 'Expected error missing.');
+        print('Expected errors:\n' + expectedErrors.join('\n') + '\n\n');
+        print('Actual errors:\n' + red(reporter.errors.join('\n')) + '\n\n');
+
+        return false;
+      }
       return true;
     }
 
     if (reporter.hadError()) {
       failScript(filePath, 'Unexpected compile error in script.');
-      print(red(errorMessages.join('\n')) + '\n\n');
+      print(red(reporter.errors.join('\n')) + '\n\n');
       return false;
     }
-    
+
     var TreeWriter = traceur.outputgeneration.TreeWriter;
     var javascript = TreeWriter.write(tree, false);
 
@@ -204,7 +218,6 @@ function forEachPrologLine(s, f) {
 }
 
 var originalConsole;
-var errorMessages = [];
 
 function silenceConsole() {
   // TODO(rnystrom): Hack. Don't let Traceur spew all over our beautiful
@@ -219,9 +232,6 @@ function silenceConsole() {
   };
 
   console.log = console.info = console.error = function() {};
-  console.error = function() {
-    errorMessages.push(Array.prototype.slice.call(arguments));
-  }
 }
 
 function restoreConsole() {
@@ -231,7 +241,6 @@ function restoreConsole() {
   console.log = originalConsole.log;
   console.info = originalConsole.info;
   console.error = originalConsole.error;
-  errorMessages = [];
   originalConsole = null;
 }
 

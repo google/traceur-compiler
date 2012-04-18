@@ -163,6 +163,7 @@ var traceur = (function() {
     'syntax/trees/ParseTrees.js',
     'util/ErrorReporter.js',
     'util/MutedErrorReporter.js',
+    'util/TestErrorReporter.js',
     'syntax/Parser.js',
     'syntax/ParseTreeVisitor.js',
     'util/StringBuilder.js',

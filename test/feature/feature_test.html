@@ -292,6 +292,7 @@ function evalScript(scriptElement) {
 
     var skip = false;
     var shouldCompile = true;
+    var expectedErrors = [];
 
     forEachPrologLine(source, function(line) {
       var m;
@@ -301,25 +302,33 @@ function evalScript(scriptElement) {
         skip = true;
       } else if ((m = /\/\ Options:\s*(.+)/.exec(line))) {
         traceur.options.fromString(m[1]);
-      }
+    } else if ((m = /\/\/ Error:\s*(.+)/.exec(line))) {
+      expectedErrors.push(m[1]);
+    }
     });
 
     try {
-      var errors = new traceur.util.ErrorReporter();
+      var reporter = new traceur.util.TestErrorReporter();
       var sourceFile = new traceur.syntax.SourceFile(name, source);
-      var tree = traceur.codegeneration.Compiler.compileFile(errors,
+      var tree = traceur.codegeneration.Compiler.compileFile(reporter,
                                                              sourceFile,
                                                              url);
       var code = traceur.outputgeneration.TreeWriter.write(tree);
 
       if (!shouldCompile) {
         assertTrue('Expected error compiling ' + name + ', but got none.',
-                   errors.hadError());
+                   reporter.hadError());
+
+        var missingExpectations = expectedErrors.forEach(function(expected) {
+          assertTrue('Missing expected error: ' + expected,
+                     reporter.hasMatchingError(expected));
+        });
+
         skip = true;
       }
 
       if (!skip) {
-          if (errors.hadError()) {
+          if (reporter.hadError()) {
             fail('Error compiling ' + name + '.');
             return;
           }

@@ -1,3 +1,4 @@
 // Should not compile.
+// Error: missingVar is not defined
 
-var object = {x};
+var object = {missingVar};
