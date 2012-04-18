@@ -84,6 +84,22 @@ function testMutedErrorReporter() {
   mocks.$verifyAll();
 }
 
+function testFormat() {
+  var  format = traceur.util.ErrorReporter.format;
+  assertEquals('loc: msg', format('loc', 'msg'));
+  assertEquals('msg', format(null, 'msg'));
+
+  assertEquals('1 + 2 = 3', format(null, '%s + %s = %s', [1, 2, 3]));
+  assertEquals('a % b', format(null, 'a % b'));
+  assertEquals('a % b', format(null, 'a %% b'));
+  assertEquals('%', format(null, '%%'));
+  assertEquals('%%', format(null, '%%%'));
+  assertEquals('%%', format(null, '%%%%'));
+  assertEquals('%%%', format(null, '%%%%%'));
+
+  assertEquals('undefined', format(null, '%s'));
+}
+
 </script>
 </body>
 </html>

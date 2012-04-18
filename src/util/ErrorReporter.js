@@ -64,6 +64,33 @@ traceur.define('util', function() {
     }
   };
 
+  /**
+   * Formats an error message.
+   * @param  {SourcePosition} location If present the source position is
+   *     prepended to the message. Use |null| to not include the source
+   *     position.
+   * @param  {string} text The text to output. %s and %% are the only supported
+   *     place holders.
+   * @param  {Array} opt_args Array values to populate the placeholders with.
+   * @return {string} The text where the source position has been prepended and
+   *     where the place holders have been replaced.
+   */
+  ErrorReporter.format = function(location, text, opt_args) {
+    var i = 0;
+    text = text.replace(/%./g, function(s) {
+      switch (s) {
+        case '%s':
+          return opt_args && opt_args[i++];
+        case '%%':
+          return '%';
+      }
+      return s;
+    });
+    if (location)
+      text = location + ': ' + text;
+    return text;
+  };
+
   return {
     ErrorReporter: ErrorReporter
   };

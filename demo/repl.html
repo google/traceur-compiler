@@ -123,6 +123,7 @@ pre{
   var SourceMapConsumer = traceur.outputgeneration.SourceMapConsumer;
   var SourceMapGenerator = traceur.outputgeneration.SourceMapGenerator;
   var ProjectWriter = traceur.outputgeneration.ProjectWriter;
+  var ErrorReporter = traceur.util.ErrorReporter;
 
   var hasError = false;
   var input = document.querySelector('.input');
@@ -145,15 +146,10 @@ pre{
     hasError = false;
     output.textContent = errorElement.textContent = '';
 
-    var reporter = new traceur.util.ErrorReporter();
+    var reporter = new ErrorReporter();
     reporter.reportMessageInternal = function(location, kind, format, args) {
-      var i = 0;
-      var message = format.replace(/%s/g, function() {
-        return args[i++];
-      });
-      if (location)
-        format = location + ': ' + message;
-      errorElement.textContent += format + '\n';
+      errorElement.textContent +=
+         ErrorReporter.format(location, format, args) + '\n';
     };
 
     var url = window.location.href;
