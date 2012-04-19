@@ -34,9 +34,10 @@ assertEquals('3,5,7', oddArray.toString());
 var f = (x = 42) => x;
 assertEquals(42, f());
 
-// TODO(arv): http://code.google.com/p/traceur-compiler/issues/detail?id=86
-// var g = (...xs) => xs;
-// assertArrayEquals([0, 1, true], g(0, 1, true));
+{
+  let g = (...xs) => xs;
+  assertArrayEquals([0, 1, true], g(0, 1, true));
+}
 
 // TODO(arv): We require the arrow function to be wrapped in parens. Is that
 // correct?

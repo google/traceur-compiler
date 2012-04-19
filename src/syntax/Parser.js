@@ -2510,6 +2510,11 @@ traceur.define('syntax', function() {
      */
     parseUnaryExpression_: function() {
       var start = this.getTreeStartLocation_();
+
+      // Arrow functions needs a cover grammar that accepts (...expr)
+      if (this.maybeAllowSpread_ && this.peekRest_())
+        return this.foundSpreadExpression_ = this.parseSpreadExpression_();
+
       if (this.peekUnaryOperator_()) {
         var operator = this.nextToken_();
         var operand = this.parseUnaryExpression_();
@@ -2833,13 +2838,29 @@ traceur.define('syntax', function() {
       } else if (this.peekId_() && this.peekArrow_(1)) {
         var id = this.parseBindingIdentifier_();
         formals = new FormalParameterList(null, [id]);
-      } else {
+      } else if (this.peek_(TokenType.OPEN_PAREN)) {
+        var oldFoundSpread = this.foundSpreadExpression_;
+        var oldMaybeAllowSpread = this.maybeAllowSpread_;
+        this.maybeAllowSpread_ = true;
+        this.foundSpreadExpression_ = null;
         var left = this.parseAssignment_(expressionIn || Expression.NORMAL);
-        if (!this.peekArrow_())
+        var foundSpread = this.foundSpreadExpression_;
+        this.foundSpreadExpression_ = oldFoundSpread;
+        this.maybeAllowSpread_ = oldMaybeAllowSpread;
+        if (!this.peekArrow_()) {
+          if (foundSpread) {
+            this.reportError_(foundSpread.location,
+                              'primary expression expected');
+            return null;
+
+          }
           return left; // not an arrow expression
+        }
 
         // Transform the left expression to a formal parameters tree
         formals = this.transformArrowFormalParameters_(left);
+      } else {
+        return this.parseAssignment_(expressionIn || Expression.NORMAL);
       }
 
       this.eat_(TokenType.ARROW);
@@ -2892,9 +2913,10 @@ traceur.define('syntax', function() {
       }
 
       var parameters = [];
-      for (var i = 0; i < expressions.length; i++) {
+      var length = expressions.length;
+      for (var i = 0; i < length; i++) {
         var e = expressions[i];
-        var p = this.transformArrowFormalParameter_(e);
+        var p = this.transformArrowFormalParameter_(e, i === length - 1);
         if (!p) {
           this.reportError_(e.location, 'invalid formal parameter for "' +
               nextToken + '" expression');
@@ -2910,9 +2932,11 @@ traceur.define('syntax', function() {
      * Returns null if the expression is not legal as a formal parameter.
      *
      * @param {ParseTree} e the expression
+     * @param {number} isLast Whether this is the last parameter. This is used
+     *     to determine if rest is allowed or not.
      * @return {ParseTree} the parameter
      */
-    transformArrowFormalParameter_: function(e) {
+    transformArrowFormalParameter_: function(e, isLast) {
 
       function toBindingIdentifier(tree) {
         return new BindingIdentifier(tree.location, tree.identifierToken);
@@ -2928,17 +2952,16 @@ traceur.define('syntax', function() {
                                           toBindingIdentifier(e.left),
                                           e.right);
             }
-            if (e.left.type == ParseTreeType.THIS_EXPRESSION) {
-              return new BindThisParameter(e.location, e.right);
-            }
           }
           break;
         case ParseTreeType.SPREAD_EXPRESSION:
-          if (e.expression &&
+          if (isLast && e.expression &&
               e.expression.type == ParseTreeType.IDENTIFIER_EXPRESSION) {
             return new RestParameter(e.location,
                                      toBindingIdentifier(e.expression));
           }
+
+        // TODO(arv): Destructuring
       }
       return null;
     },
