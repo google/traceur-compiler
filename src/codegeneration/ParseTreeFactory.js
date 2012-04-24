@@ -172,6 +172,26 @@ traceur.define('codegeneration', function() {
   }
 
   /**
+   * @param {string|IdentifierToken|IdentifierExpression|BindingIdentifier}
+   *           identifier
+   * @return {FormalParameter}
+   */
+  function createFormalParameter(arg) {
+    var binding = new createBindingIdentifier(arg);
+    return new FormalParameter(null, binding, null);
+  }
+
+  /**
+   * @param {string|IdentifierToken|IdentifierExpression|BindingIdentifier}
+   *           identifier
+   * @return {FormalParameter}
+   */
+  function createFormalParameter(arg) {
+    var binding = new createBindingIdentifier(arg);
+    return new FormalParameter(null, binding, null);
+  }
+
+  /**
    * TODO(arv): Make this less overloaded.
    *
    * @param {string|number|IdentifierToken|Array.<string>} arg0
@@ -354,7 +374,6 @@ traceur.define('codegeneration', function() {
     else if (identifier.type === ParseTreeType.IDENTIFIER_EXPRESSION)
       return new BindingIdentifier(identifier.location,
                                    identifier.identifierToken);
-
     return new BindingIdentifier(null, identifier);
   }
 

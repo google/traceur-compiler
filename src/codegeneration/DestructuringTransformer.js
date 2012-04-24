@@ -372,6 +372,7 @@ traceur.define('codegeneration', function() {
     collectLvalueIdentifiers_: function(identifiers, tree) {
 
       switch (tree.type) {
+        case ParseTreeType.BINDING_IDENTIFIER:
         case ParseTreeType.IDENTIFIER_EXPRESSION:
           identifiers[tree.identifierToken.value] = true;
           break;

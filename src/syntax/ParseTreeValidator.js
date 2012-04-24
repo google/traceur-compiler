@@ -164,6 +164,7 @@ traceur.define('syntax', function() {
         var element = tree.elements[i];
         this.checkVisit_(element.isNull() ||
             element.isLeftHandSideExpression() ||
+            element.type === ParseTreeType.BINDING_IDENTIFIER ||
             element.isPattern() ||
             element.isSpreadPatternElement(),
             element,
@@ -736,6 +737,7 @@ traceur.define('syntax', function() {
     visitObjectPatternField: function(tree) {
       if (tree.element !== null) {
         this.checkVisit_(tree.element.isLeftHandSideExpression() ||
+            tree.element.type === ParseTreeType.BINDING_IDENTIFIER ||
             tree.element.isPattern(),
             tree.element,
             'left hand side expression or pattern expected');

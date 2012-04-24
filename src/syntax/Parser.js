@@ -110,6 +110,8 @@ traceur.define('syntax', function() {
   var WithStatement = traceur.syntax.trees.WithStatement;
   var YieldStatement = traceur.syntax.trees.YieldStatement;
 
+  var createBindingIdentifier = traceur.codegeneration.ParseTreeFactory.createBindingIdentifier;
+
   var options = traceur.options.parse;
 
   /**
@@ -2937,39 +2939,128 @@ traceur.define('syntax', function() {
      * Transforms an expression to a formal parameter.
      * Returns null if the expression is not legal as a formal parameter.
      *
-     * @param {ParseTree} e the expression
+     * @param {ParseTree} tree The expression
      * @param {number} isLast Whether this is the last parameter. This is used
      *     to determine if rest is allowed or not.
-     * @return {ParseTree} the parameter
+     * @return {ParseTree} The parse tree transformed into a paramater tree.
+     *     This returns null if the tree cannot be transformed.
      */
-    transformArrowFormalParameter_: function(e, isLast) {
-
-      function toBinding(tree) {
-        if (tree.type === ParseTreeType.IDENTIFIER_EXPRESSION)
-          return new BindingIdentifier(tree.location, tree.identifierToken);
-        return tree;
-      }
-
-      switch (e.type) {
+    transformArrowFormalParameter_: function(tree, isLast) {
+      switch (tree.type) {
         case ParseTreeType.IDENTIFIER_EXPRESSION:
-          return new FormalParameter(e.location, toBinding(e), null);
+          return new FormalParameter(tree.location,
+                                     createBindingIdentifier(tree),
+                                     null);
         case ParseTreeType.BINARY_OPERATOR:
-         if (e.operator == TokenType.EQUAL) {
-            return new FormalParameter(e.location,
-                                       toBinding(e.left),
-                                       e.right);
+          if (tree.operator == TokenType.EQUAL) {
+            var left = this.transformArrowFormalParameterLeftHand_(tree.left);
+            return left && new FormalParameter(tree.location,
+                                               left,
+                                               tree.right);
           }
           break;
-        case ParseTreeType.SPREAD_EXPRESSION:
-          if (isLast && e.expression &&
-              e.expression.type == ParseTreeType.IDENTIFIER_EXPRESSION) {
-            return new RestParameter(e.location,
-                                     toBinding(e.expression));
-          }
 
-        // TODO(arv): Destructuring
+        case ParseTreeType.SPREAD_EXPRESSION:
+          if (isLast &&
+              tree.expression.type == ParseTreeType.IDENTIFIER_EXPRESSION) {
+            return new RestParameter(tree.location,
+                                     createBindingIdentifier(tree.expression));
+          }
+          return null;
+
+        case ParseTreeType.OBJECT_LITERAL_EXPRESSION:
+        var fields = this.transformObjectLiteral_(tree);
+          return fields && new FormalParameter(tree.location,
+                                               fields,
+                                               null);
+          break;
+
+        case ParseTreeType.ARRAY_LITERAL_EXPRESSION:
+          var elements = this.transformArrayLiteral_(tree);
+          return elements && new FormalParameter(tree.location,
+                                                 elements,
+                                                 null);
+          break;
       }
       return null;
+    },
+
+    transformArrowFormalParameterLeftHand_: function(tree) {
+      switch (tree.type) {
+        case ParseTreeType.IDENTIFIER_EXPRESSION:
+          return createBindingIdentifier(tree);
+        case ParseTreeType.OBJECT_LITERAL_EXPRESSION:
+          return this.transformObjectLiteral_(tree);
+        case ParseTreeType.ARRAY_LITERAL_EXPRESSION:
+          return this.transformArrayLiteral_(tree);
+        case ParseTreeType.SPREAD_EXPRESSION:
+          return this.transformSpreadPattern_(tree);
+      }
+      return null;
+    },
+
+    /**
+     * Transfomrs an array literal into an array pattern.
+     * @param  {ArrayLiteral} tree [description]
+     * @return {ArrayPattern} This returns null if no valid transformation is
+     *     possible.
+     */
+    transformArrayLiteral_: function(tree) {
+      var elements = [];
+      var length = tree.elements.length;
+      for (var i = 0; i < length; i++) {
+        var element = this.transformArrayElement_(tree.elements[i]);
+        if (!element)
+          return null;
+
+        // Rest param is only allowed in tail position.
+        if (element.type === ParseTreeType.SPREAD_PATTERN_ELEMENT &&
+            i !== length - 1) {
+          this.reportError_(element.location,
+              'Rest pattern must be the last element of an array pattern');
+          return null;
+        }
+
+        elements[i] = element;
+      }
+      return new ArrayPattern(tree.location, elements);
+    },
+
+    transformArrayElement_: function(tree) {
+      return this.transformArrowFormalParameterLeftHand_(tree);
+    },
+
+    /**
+     * Transforms an object literal into an object pattern.
+     * @param  {ObjectLiteral} tree
+     * @return {ObjectPattern} This returns null if no valid transformation is
+     *     possible.
+     */
+    transformObjectLiteral_: function(tree) {
+      var fields = [];
+      for (var i = 0; i < tree.propertyNameAndValues.length; i++) {
+        var field = this.transformObjectField_(tree.propertyNameAndValues[i]);
+        if (!field)
+          return null;
+        fields[i] = field;
+      }
+      return new ObjectPattern(tree.location, fields);
+    },
+
+    transformObjectField_: function(tree) {
+      switch (tree.type) {
+        case ParseTreeType.PROPERTY_NAME_SHORTHAND:
+          return new ObjectPatternField(tree.location, tree.name, null);
+        case ParseTreeType.PROPERTY_NAME_ASSIGNMENT:
+          return new ObjectPatternField(tree.location, tree.name,
+              this.transformArrowFormalParameterLeftHand_(tree.value));
+      }
+      return null;
+    },
+
+    transformSpreadPattern_: function(tree) {
+      return new SpreadPatternElement(tree.location,
+                                      createBindingIdentifier(tree.expression));
     },
 
     // Destructuring; see

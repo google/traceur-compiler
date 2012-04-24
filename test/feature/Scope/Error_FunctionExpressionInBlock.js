@@ -1,9 +1,10 @@
 // Should not compile.
+// Error: functionExpression is not defined
 
 {
-  (function g() {
+  (function functionExpression() {
     return 'inner';
   });
 
-  g;  // function expression doesn't add name to the scope.
+  functionExpression;  // function expression doesn't add name to the scope.
 }
