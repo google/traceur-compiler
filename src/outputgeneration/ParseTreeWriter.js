@@ -297,15 +297,6 @@ traceur.define('outputgeneration', function() {
     },
 
     /**
-     * @param {DefaultParameter} tree
-     */
-    visitDefaultParameter: function(tree) {
-      this.visitAny(tree.identifier);
-      this.write_(TokenType.EQUAL);
-      this.visitAny(tree.expression);
-    },
-
-    /**
      * @param {DoWhileStatement} tree
      */
     visitDoWhileStatement: function(tree) {
@@ -426,6 +417,17 @@ traceur.define('outputgeneration', function() {
       this.visitAny(tree.increment);
       this.write_(TokenType.CLOSE_PAREN);
       this.visitAny(tree.body);
+    },
+
+    /**
+     * @param {FormalParameter} tree
+     */
+    visitFormalParameter: function(tree) {
+      this.visitAny(tree.binding);
+      if (tree.initializer) {
+        this.write_(TokenType.EQUAL);
+        this.visitAny(tree.initializer);
+      }
     },
 
     /**

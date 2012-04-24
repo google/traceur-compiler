@@ -152,10 +152,6 @@ function testTreeConstructors() {
       ParseTreeType.DEFAULT_CLAUSE,
       ['location', 'statements']);
 
-  validateTree(traceur.syntax.trees.DefaultParameter,
-      ParseTreeType.DEFAULT_PARAMETER,
-      ['location', 'identifier', 'expression']);
-
   validateTree(traceur.syntax.trees.DoWhileStatement,
       ParseTreeType.DO_WHILE_STATEMENT,
       ['location', 'body', 'condition']);

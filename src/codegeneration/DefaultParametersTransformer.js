@@ -15,27 +15,25 @@
 traceur.define('codegeneration', function() {
   'use strict';
 
-  var TokenType = traceur.syntax.TokenType;
-  var PredefinedName = traceur.syntax.PredefinedName;
-
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
   var FormalParameterList = traceur.syntax.trees.FormalParameterList;
-
-  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
-
+  var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
   var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
-  var createVariableStatement = ParseTreeFactory.createVariableStatement;
-  var createConditionalExpression =
-      ParseTreeFactory.createConditionalExpression;
+  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
+  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
+  var PredefinedName = traceur.syntax.PredefinedName;
+  var TokenType = traceur.syntax.TokenType;
+
   var createBinaryOperator = ParseTreeFactory.createBinaryOperator;
-  var createMemberExpression = ParseTreeFactory.createMemberExpression;
-  var createOperatorToken = ParseTreeFactory.createOperatorToken;
-  var createNumberLiteral = ParseTreeFactory.createNumberLiteral;
-  var createMemberLookupExpression =
-      ParseTreeFactory.createMemberLookupExpression;
-  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
-  var createFunctionDeclaration = ParseTreeFactory.createFunctionDeclaration;
   var createBlock = ParseTreeFactory.createBlock;
+  var createConditionalExpression = ParseTreeFactory.createConditionalExpression;
+  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
+  var createMemberExpression = ParseTreeFactory.createMemberExpression;
+  var createMemberLookupExpression = ParseTreeFactory.createMemberLookupExpression;
+  var createNumberLiteral = ParseTreeFactory.createNumberLiteral;
+  var createOperatorToken = ParseTreeFactory.createOperatorToken;
+  var createVariableStatement = ParseTreeFactory.createVariableStatement;
+
+  var stack = [];
 
   /**
    * Desugars default parameters.
@@ -60,50 +58,48 @@ traceur.define('codegeneration', function() {
       ParseTreeTransformer.prototype, {
 
     transformFunctionDeclaration: function(tree) {
+      stack.push([]);
+
       var transformedTree = ParseTreeTransformer.prototype.
           transformFunctionDeclaration.call(this, tree);
-      if (this.hasDefaultParameters_(transformedTree.formalParameterList)) {
-        return this.desugarDefaultParameters_(tree);
-      }
-      return transformedTree;
+
+      var statements = stack.pop();
+      if (!statements.length)
+        return transformedTree;
+
+      // Prepend the var statements to the block.
+      statements.push.apply(statements,
+                            transformedTree.functionBody.statements);
+
+      return new FunctionDeclaration(transformedTree.location,
+                                     transformedTree.name,
+                                     transformedTree.isGenerator,
+                                     transformedTree.formalParameterList,
+                                     createBlock(statements));
     },
 
-    hasDefaultParameters_: function(params) {
-      return params.parameters.some(function(param) {
-        return param.type == ParseTreeType.DEFAULT_PARAMETER;
-      });
-    },
+    transformFormalParameterList: function(tree) {
+      var parameters = [];
+      var statements = stack[stack.length - 1];
+      var changed = false;
+      for (var i = 0; i < tree.parameters.length; i++) {
+        var param = this.transformAny(tree.parameters[i]);
+        if (param !== tree.parameters[i])
+          changed = true;
 
-    desugarDefaultParameters_: function(tree) {
+        if (param.type === ParseTreeType.REST_PARAMETER || !param.initializer) {
+          parameters.push(param);
 
-      // Desugar default parameters as follows:
-      //
-      // function f(x, y = expr1, z = expr2) {}
-      //
-      // function f(x) {
-      //   var y = arguments.length > 0 ? arguments[1] : expr1;
-      //   var z = arguments.length > 1 ? arguments[2] : expr2;
-      // }
-
-      var params = tree.formalParameterList.parameters.filter(function(param) {
-        return param.type != ParseTreeType.DEFAULT_PARAMETER;
-      });
-
-      var parametersWithoutDefault =
-          new FormalParameterList(
-              tree.formalParameterList.location, params);
-
-      var statements = [];
-
-      for (var i = 0; i < tree.formalParameterList.parameters.length; i++) {
-        var param = tree.formalParameterList.parameters[i];
-        if (param.type == ParseTreeType.DEFAULT_PARAMETER) {
-          var defaultParam = param;
-          // var y = arguments.length > i ? arguments[i] : expr;
-          statements.push(
-              createVariableStatement(
+        // binding = initializer
+        //
+        // =>
+        //
+        // var binding = arguments.length > i ? arguments[i] : initializer;
+        } else {
+          changed = true;
+          statements.push(createVariableStatement(
               TokenType.VAR,
-              defaultParam.identifier.identifierToken,
+              param.binding,
               createConditionalExpression(
                   createBinaryOperator(
                       createMemberExpression(PredefinedName.ARGUMENTS,
@@ -113,15 +109,14 @@ traceur.define('codegeneration', function() {
                   createMemberLookupExpression(
                       createIdentifierExpression(PredefinedName.ARGUMENTS),
                       createNumberLiteral(i)),
-                  defaultParam.expression)));
+                  param.initializer)));
         }
       }
 
-      statements.push.apply(statements, tree.functionBody.statements);
+      if (!changed)
+        return tree;
 
-      return createFunctionDeclaration(
-          tree.name, parametersWithoutDefault,
-          createBlock(statements));
+      return new FormalParameterList(tree.location, parameters);
     }
   });
 

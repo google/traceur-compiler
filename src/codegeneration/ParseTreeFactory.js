@@ -41,7 +41,6 @@ traceur.define('codegeneration', function() {
   var ConditionalExpression = traceur.syntax.trees.ConditionalExpression;
   var ContinueStatement = traceur.syntax.trees.ContinueStatement;
   var DefaultClause = traceur.syntax.trees.DefaultClause;
-  var DefaultParameter = traceur.syntax.trees.DefaultParameter;
   var DoWhileStatement = traceur.syntax.trees.DoWhileStatement;
   var EmptyStatement = traceur.syntax.trees.EmptyStatement;
   var ExpressionStatement = traceur.syntax.trees.ExpressionStatement;
@@ -50,6 +49,7 @@ traceur.define('codegeneration', function() {
   var ForInStatement = traceur.syntax.trees.ForInStatement;
   var ForStatement = traceur.syntax.trees.ForStatement;
   var FormalParameterList = traceur.syntax.trees.FormalParameterList;
+  var FormalParameter = traceur.syntax.trees.FormalParameter;
   var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
   var GetAccessor = traceur.syntax.trees.GetAccessor;
   var IdentifierExpression = traceur.syntax.trees.IdentifierExpression;
@@ -162,6 +162,16 @@ traceur.define('codegeneration', function() {
   }
 
   /**
+   * @param {string|IdentifierToken|IdentifierExpression|BindingIdentifier}
+   *           identifier
+   * @return {FormalParameter}
+   */
+  function createFormalParameter(arg) {
+    var binding = new createBindingIdentifier(arg);
+    return new FormalParameter(null, binding, null);
+  }
+
+  /**
    * TODO(arv): Make this less overloaded.
    *
    * @param {string|number|IdentifierToken|Array.<string>} arg0
@@ -171,7 +181,7 @@ traceur.define('codegeneration', function() {
   function createParameterList(arg0, var_args) {
     if (typeof arg0 == 'string') {
       // var_args of strings
-      var parameterList = map(arguments, createBindingIdentifier);
+      var parameterList = map(arguments, createFormalParameter);
       return new FormalParameterList(null, parameterList);
     }
 
@@ -180,11 +190,11 @@ traceur.define('codegeneration', function() {
 
     if (arg0 instanceof IdentifierToken) {
       return new FormalParameterList(
-          null, [createBindingIdentifier(arg0)]);
+          null, [createFormalParameter(arg0)]);
     }
 
     // Array.<string>
-    var builder = arg0.map(createBindingIdentifier);
+    var builder = arg0.map(createFormalParameter);
     return new FormalParameterList(null, builder);
   }
 
@@ -203,7 +213,7 @@ traceur.define('codegeneration', function() {
       builder.push(
           isRestParameter ?
               createRestParameter(parameterName) :
-              createBindingIdentifier(parameterName));
+              createFormalParameter(parameterName));
     }
 
     return new FormalParameterList(null, builder);
@@ -333,13 +343,18 @@ traceur.define('codegeneration', function() {
   }
 
   /**
-   * @param {string|IdentifierToken} identifier
+   * @param {string|IdentifierToken|IdentifierExpression|BindingIdentifier} identifier
    * @return {BindingIdentifier}
    */
   function createBindingIdentifier(identifier) {
-    if (typeof identifier == 'string') {
+    if (typeof identifier === 'string')
       identifier = createIdentifierToken(identifier);
-    }
+    else if (identifier.type === ParseTreeType.BINDING_IDENTIFIER)
+      return identifier;
+    else if (identifier.type === ParseTreeType.IDENTIFIER_EXPRESSION)
+      return new BindingIdentifier(identifier.location,
+                                   identifier.identifierToken);
+
     return new BindingIdentifier(null, identifier);
   }
 
@@ -479,10 +494,7 @@ traceur.define('codegeneration', function() {
    * @return {Catch}
    */
   function createCatch(identifier, catchBody) {
-    if (identifier instanceof IdentifierToken) {
-      identifier = createBindingIdentifier(identifier);
-    }
-
+    identifier = createBindingIdentifier(identifier);
     return new Catch(null, identifier, catchBody);
   }
 
@@ -531,15 +543,6 @@ traceur.define('codegeneration', function() {
    */
   function createDefaultClause(statements) {
     return new DefaultClause(null, statements);
-  }
-
-  /**
-   * @param {IdentifierExpression} identifier
-   * @param {ParseTree} expression
-   * @return {DefaultParameter}
-   */
-  function createDefaultParameter(identifier, expression) {
-    return new DefaultParameter(null, identifier, expression);
   }
 
   /**
@@ -639,9 +642,8 @@ traceur.define('codegeneration', function() {
    * @return {FunctionDeclaration}
    */
   function createFunctionDeclaration(name, formalParameterList, functionBody) {
-    if (!(name instanceof BindingIdentifier)) {
+    if (name !== null)
       name = createBindingIdentifier(name);
-    }
     return new FunctionDeclaration(null, name, false, formalParameterList,
         functionBody);
   }
@@ -1005,8 +1007,13 @@ traceur.define('codegeneration', function() {
    * @return {VariableDeclaration}
    */
   function createVariableDeclaration(identifier, initializer) {
-    if (typeof identifier == 'string' || identifier instanceof IdentifierToken)
+    if (!(identifier instanceof ParseTree) ||
+        identifier.type !== ParseTreeType.BINDING_IDENTIFIER &&
+        identifier.type !== ParseTreeType.OBJECT_PATTERN &&
+        identifier.type !== ParseTreeType.ARRAY_PATTERN) {
       identifier = createBindingIdentifier(identifier);
+    }
+
     return new VariableDeclaration(null, identifier, initializer);
   }
 
@@ -1080,7 +1087,6 @@ traceur.define('codegeneration', function() {
       createConditionalExpression: createConditionalExpression,
       createContinueStatement: createContinueStatement,
       createDefaultClause: createDefaultClause,
-      createDefaultParameter: createDefaultParameter,
       createDoWhileStatement: createDoWhileStatement,
       createEmptyArgumentList: createEmptyArgumentList,
       createEmptyArrayLiteralExpression: createEmptyArrayLiteralExpression,
@@ -1092,9 +1098,10 @@ traceur.define('codegeneration', function() {
       createExpressionStatement: createExpressionStatement,
       createFalseLiteral: createFalseLiteral,
       createFinally: createFinally,
-      createForOfStatement: createForOfStatement,
       createForInStatement: createForInStatement,
+      createForOfStatement: createForOfStatement,
       createForStatement: createForStatement,
+      createFormalParameter: createFormalParameter,
       createFunctionDeclaration: createFunctionDeclaration,
       createFunctionExpression: createFunctionExpression,
       createFunctionExpressionFormals: createFunctionExpressionFormals,

@@ -16,6 +16,8 @@ traceur.define('codegeneration', function() {
   'use strict';
 
   var BindingIdentifier = traceur.syntax.trees.BindingIdentifier;
+  var FormalParameter = traceur.syntax.trees.FormalParameter;
+  var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
   var ParseTree = traceur.syntax.trees.ParseTree;
   var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
@@ -26,7 +28,9 @@ traceur.define('codegeneration', function() {
   var VariableDeclarationList = traceur.syntax.trees.VariableDeclarationList;
 
   var createArgumentList = ParseTreeFactory.createArgumentList;
-  var createAssignmentExpression= ParseTreeFactory.createAssignmentExpression;
+  var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression;
+  var createBlock = ParseTreeFactory.createBlock;
+  var createBindingIdentifier = ParseTreeFactory.createBindingIdentifier;
   var createCallExpression = ParseTreeFactory.createCallExpression;
   var createCommaExpression = ParseTreeFactory.createCommaExpression;
   var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
@@ -36,10 +40,9 @@ traceur.define('codegeneration', function() {
   var createParenExpression = ParseTreeFactory.createParenExpression;
   var createVariableDeclaration = ParseTreeFactory.createVariableDeclaration;
   var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList;
+  var createVariableStatement = ParseTreeFactory.createVariableStatement;
 
-  function toBindingIdentifier(tree) {
-    return new BindingIdentifier(tree.location, tree.identifierToken);
-  }
+  var stack = [];
 
   /**
    * Collects assignments in the desugaring of a pattern.
@@ -85,7 +88,7 @@ traceur.define('codegeneration', function() {
     assign: function(lvalue, rvalue) {
       // TODO(arv): This should go away when destructuring is refactored.
       if (lvalue.type == ParseTreeType.IDENTIFIER_EXPRESSION)
-        lvalue = toBindingIdentifier(lvalue);
+        lvalue = createBindingIdentifier(lvalue);
       this.declarations.push(createVariableDeclaration(lvalue, rvalue));
     }
   });
@@ -208,6 +211,59 @@ traceur.define('codegeneration', function() {
           createVariableDeclarationList(
               tree.declarationType,
               desugaredDeclarations));
+    },
+
+    transformFunctionDeclaration: function(tree) {
+      stack.push([]);
+      var transformedTree = proto.transformFunctionDeclaration.call(this, tree);
+      var statements = stack.pop();
+      if (!statements.length)
+        return transformedTree;
+
+      // Prepend the var statements to the block.
+      statements.push.apply(statements,
+                            transformedTree.functionBody.statements);
+
+      return new FunctionDeclaration(transformedTree.location,
+                                     transformedTree.name,
+                                     transformedTree.isGenerator,
+                                     transformedTree.formalParameterList,
+                                     createBlock(statements));
+    },
+
+    transformFormalParameter: function(tree) {
+      // If this has an initializer the default parameter transformer moves the
+      // pattern into the function body and it will be taken care of by the
+      // variable pass.
+      if (!tree.binding.isPattern() || tree.initializer)
+        return tree;
+
+      // function f(pattern) { }
+      //
+      // =>
+      //
+      // function f($tmp) {
+      //   var pattern = $tmp;
+      // }
+
+      var statements = stack[stack.length - 1];
+      var varName = this.gensym_(tree.binding);
+      var binding = createBindingIdentifier(varName);
+      var identifierExpression = createIdentifierExpression(varName);
+
+      var desugaring = new VariableDeclarationDesugaring(
+              createIdentifierExpression(varName));
+      this.desugarPattern_(desugaring, tree.binding);
+
+      statements.push(
+        createVariableStatement(
+          // Desugar more.
+          this.transformVariableDeclarationList(
+              createVariableDeclarationList(
+                  TokenType.VAR,
+                  desugaring.declarations))));
+
+      return new FormalParameter(null, binding, null);
     },
 
     /**
@@ -337,8 +393,11 @@ traceur.define('codegeneration', function() {
           break;
 
         case ParseTreeType.PAREN_EXPRESSION:
-          this.collectLvalueIdentifiers_(identifiers,
-              tree.expression);
+          this.collectLvalueIdentifiers_(identifiers, tree.expression);
+          break;
+
+        case ParseTreeType.SPREAD_PATTERN_ELEMENT:
+          this.collectLvalueIdentifiers_(identifiers, tree.lvalue);
           break;
 
         default:

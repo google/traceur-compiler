@@ -32,7 +32,6 @@ traceur.define('codegeneration', function() {
   var CommaExpression = traceur.syntax.trees.CommaExpression;
   var ConditionalExpression = traceur.syntax.trees.ConditionalExpression;
   var DefaultClause = traceur.syntax.trees.DefaultClause;
-  var DefaultParameter = traceur.syntax.trees.DefaultParameter;
   var DoWhileStatement = traceur.syntax.trees.DoWhileStatement;
   var ExportDeclaration = traceur.syntax.trees.ExportDeclaration;
   var ExportMapping = traceur.syntax.trees.ExportMapping;
@@ -44,6 +43,8 @@ traceur.define('codegeneration', function() {
   var ForInStatement = traceur.syntax.trees.ForInStatement;
   var ForOfStatement = traceur.syntax.trees.ForOfStatement;
   var ForStatement = traceur.syntax.trees.ForStatement;
+  var FormalParameter = traceur.syntax.trees.FormalParameter;
+  var FormalParameterList = traceur.syntax.trees.FormalParameterList;
   var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
   var GetAccessor = traceur.syntax.trees.GetAccessor;
   var IfStatement = traceur.syntax.trees.IfStatement;
@@ -417,18 +418,6 @@ traceur.define('codegeneration', function() {
     },
 
     /**
-     * @param {DefaultParameter} tree
-     * @return {ParseTree}
-     */
-    transformDefaultParameter: function(tree) {
-      var expression = this.transformAny(tree.expression);
-      if (expression == tree.expression) {
-        return tree;
-      }
-      return new DefaultParameter(tree.location, tree.identifier, expression);
-    },
-
-    /**
      * @param {DoWhileStatement} tree
      * @return {ParseTree}
      */
@@ -581,11 +570,26 @@ traceur.define('codegeneration', function() {
     },
 
     /**
+     * @param {FormalParameter} tree
+     * @return {ParseTree}
+     */
+    transformFormalParameter: function(tree) {
+      var binding = this.transformAny(tree.binding);
+      var initializer = this.transformAny(tree.initializer);
+      if (binding == tree.binding && initializer == tree.initializer)
+        return tree;
+      return new FormalParameter(tree.location, binding, initializer);
+    },
+
+    /**
      * @param {FormalParameterList} tree
      * @return {ParseTree}
      */
     transformFormalParameterList: function(tree) {
-      return tree;
+      var parameters = this.transformList(tree.parameters);
+      if (parameters == tree.parameters)
+        return tree;
+      return new FormalParameterList(tree.location, parameters);
     },
 
     /**

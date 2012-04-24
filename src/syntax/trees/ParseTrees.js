@@ -225,15 +225,6 @@ traceur.define('syntax.trees', function() {
 
     /**
      * @param {traceur.util.SourceRange} location
-     * @param {BindingIdentifier} identifier
-     * @param {ParseTree} expression
-     * @constructor
-     * @extends {ParseTree}
-     */
-    DefaultParameter: create('identifier', 'expression'),
-
-    /**
-     * @param {traceur.util.SourceRange} location
      * @param {ParseTree} body
      * @param {ParseTree} condition
      * @constructor
@@ -325,6 +316,15 @@ traceur.define('syntax.trees', function() {
      * @extends {ParseTree}
      */
     ForInStatement: create('initializer', 'collection', 'body'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
+     * @param {ParseTree} binding
+     * @param {ParseTree} initializer
+     * @constructor
+     * @extends {ParseTree}
+     */
+    FormalParameter: create('binding', 'initializer'),
 
     /**
      * @param {traceur.util.SourceRange} location

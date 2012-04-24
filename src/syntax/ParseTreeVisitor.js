@@ -211,14 +211,6 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.DefaultParameter} tree
-     */
-    visitDefaultParameter: function(tree) {
-      this.visitAny(tree.identifier);
-      this.visitAny(tree.expression);
-    },
-
-    /**
      * @param {traceur.syntax.trees.DoWhileStatement} tree
      */
     visitDoWhileStatement: function(tree) {
@@ -308,6 +300,14 @@ traceur.define('syntax', function() {
       this.visitAny(tree.condition);
       this.visitAny(tree.increment);
       this.visitAny(tree.body);
+    },
+
+    /**
+     * @param {traceur.syntax.trees.FormalParameter} tree
+     */
+    visitFormalParameter: function(tree) {
+      this.visitAny(tree.binding);
+      this.visitAny(tree.initializer);
     },
 
     /**

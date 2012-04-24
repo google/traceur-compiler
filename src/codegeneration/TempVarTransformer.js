@@ -61,7 +61,7 @@ traceur.define('codegeneration', function() {
    * @extends {ParseTreeTransformer}
    */
   function TempVarTransformer(identifierGenerator) {
-    this.identifierGenerator_ = identifierGenerator
+    this.identifierGenerator = identifierGenerator
     this.tempVarStack_ = [];
   }
 
@@ -89,7 +89,7 @@ traceur.define('codegeneration', function() {
      */
     addTempVar: function() {
       var vars = getVars(this);
-      var uid = this.identifierGenerator_.generateUniqueIdentifier();
+      var uid = this.identifierGenerator.generateUniqueIdentifier();
       vars.push(createVariableDeclaration(uid, null));
       return uid;
     },

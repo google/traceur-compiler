@@ -44,7 +44,6 @@ traceur.define('syntax', function() {
   var ContinueStatement = traceur.syntax.trees.ContinueStatement;
   var DebuggerStatement = traceur.syntax.trees.DebuggerStatement;
   var DefaultClause = traceur.syntax.trees.DefaultClause;
-  var DefaultParameter = traceur.syntax.trees.DefaultParameter;
   var DoWhileStatement = traceur.syntax.trees.DoWhileStatement;
   var EmptyStatement = traceur.syntax.trees.EmptyStatement;
   var ExportDeclaration = traceur.syntax.trees.ExportDeclaration;
@@ -57,6 +56,7 @@ traceur.define('syntax', function() {
   var ForOfStatement = traceur.syntax.trees.ForOfStatement;
   var ForInStatement = traceur.syntax.trees.ForInStatement;
   var ForStatement = traceur.syntax.trees.ForStatement;
+  var FormalParameter = traceur.syntax.trees.FormalParameter;
   var FormalParameterList = traceur.syntax.trees.FormalParameterList;
   var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
   var GetAccessor = traceur.syntax.trees.GetAccessor;
@@ -725,13 +725,6 @@ traceur.define('syntax', function() {
       return this.parsePropertyMethodAssignment_();
     },
 
-    parseSafetyConstructorDeclaration_: function() {
-      var start = this.getTreeStartLocation_();
-      var isGenerator = false;
-      return this.parseFunctionDeclarationTail_(start, isGenerator,
-                                                this.parseBindingIdentifier_());
-    },
-
     /**
      * @return {ParseTree}
      * @private
@@ -838,61 +831,73 @@ traceur.define('syntax', function() {
     parseFormalParameterList_: function() {
       // FormalParameterList :
       //   ... Identifier
-      //   FormalParameterListNoRest
-      //   FormalParameterListNoRest , ... Identifier
+      //   FormalsList
+      //   FormalsList , ... Identifier
       //
-      // FormalParameterListNoRest :
-      //   Identifier
-      //   Identifier = AssignmentExprssion
-      //   FormalParameterListNoRest , Identifier
+      // FormalsList :
+      //   FormalParameter
+      //   FormalsList , FormalParameter
+      //
+      //   FormalParameter :
+      //     BindingIdentifier Initialiser?
+      //     BindingPattern Initialiser?
       var result = [];
-
       var hasDefaultParameters = false;
+      var hasRest = false;
 
-      while (this.peek_(TokenType.IDENTIFIER) || this.peekRest_()) {
-        if (this.peekRest_()) {
-          var start = this.getTreeStartLocation_();
-          this.eat_(TokenType.DOT_DOT_DOT);
-          result.push(new RestParameter(this.getTreeLocation_(start),
-                                        this.parseBindingIdentifier_()));
-
-          // Rest parameters must be the last parameter; so we must be done.
-          break;
+      var self = this;
+      function parseParam() {
+        var p;
+        if (self.peekRest_()) {
+          p = self.parseRestParameter_();
+          hasRest = true;
         } else {
-          // TODO: implement pattern parsing here
-
-          // Once we have seen a default parameter all remaining params must either be default or
-          // rest parameters.
-          if (hasDefaultParameters || this.peekDefaultParameter_()) {
-            result.push(this.parseDefaultParameter_());
+          p = self.parseFormalParameter_(hasDefaultParameters);
+          if (p.initializer)
             hasDefaultParameters = true;
-          } else {
-            result.push(this.parseBindingIdentifier_());
-          }
         }
+        result.push(p);
+      }
 
-        if (!this.peek_(TokenType.CLOSE_PAREN)) {
+      if (this.peekBindingIdentifier_() || this.peekRest_() || 
+          this.peekPatternStart_()) {
+        parseParam();
+        while (!hasRest && this.peek_(TokenType.COMMA)) {
           this.eat_(TokenType.COMMA);
+          parseParam();
         }
       }
 
       return new FormalParameterList(null, result);
     },
 
-    peekDefaultParameter_: function() {
-      return options.defaultParameters && this.peek_(TokenType.EQUAL, 1);
+    parseRestParameter_: function() {
+      var start = this.getTreeStartLocation_();
+      this.eat_(TokenType.DOT_DOT_DOT);
+      return new RestParameter(this.getTreeLocation_(start),
+                               this.parseBindingIdentifier_());
     },
 
-    /**
-     * @return {DefaultParameter}
-     * @private
-     */
-    parseDefaultParameter_: function() {
+    parseFormalParameter_: function(requireInitializer) {
       var start = this.getTreeStartLocation_();
-      var ident = this.parseBindingIdentifier_();
-      this.eat_(TokenType.EQUAL);
-      var expr = this.parseArrowFunction_();
-      return new DefaultParameter(this.getTreeLocation_(start), ident, expr);
+      var binding;
+      if (options.destructuring && this.peek_(TokenType.OPEN_CURLY)) {
+        binding = this.parseObjectPattern_();
+      } else if (options.destructuring &&
+                 this.peek_(TokenType.OPEN_SQUARE)) {
+        binding = this.parseArrayPattern_();
+      } else {
+        binding = this.parseBindingIdentifier_();
+      }
+
+      var initializer = null;
+      if (requireInitializer ||
+          options.defaultParameters  && this.peek_(TokenType.EQUAL)) {
+        initializer = this.parseInitializer_();
+      }
+
+      return new FormalParameter(this.getTreeLocation_(start),
+                                 binding, initializer);
     },
 
     /**
@@ -2837,7 +2842,8 @@ traceur.define('syntax', function() {
         formals = new FormalParameterList(null, []);
       } else if (this.peekId_() && this.peekArrow_(1)) {
         var id = this.parseBindingIdentifier_();
-        formals = new FormalParameterList(null, [id]);
+        formals = new FormalParameterList(null,
+            [new FormalParameter(id.location, id, null)]);
       } else if (this.peek_(TokenType.OPEN_PAREN)) {
         var oldFoundSpread = this.foundSpreadExpression_;
         var oldMaybeAllowSpread = this.maybeAllowSpread_;
@@ -2938,27 +2944,27 @@ traceur.define('syntax', function() {
      */
     transformArrowFormalParameter_: function(e, isLast) {
 
-      function toBindingIdentifier(tree) {
-        return new BindingIdentifier(tree.location, tree.identifierToken);
+      function toBinding(tree) {
+        if (tree.type === ParseTreeType.IDENTIFIER_EXPRESSION)
+          return new BindingIdentifier(tree.location, tree.identifierToken);
+        return tree;
       }
 
       switch (e.type) {
         case ParseTreeType.IDENTIFIER_EXPRESSION:
-          return toBindingIdentifier(e);
+          return new FormalParameter(e.location, toBinding(e), null);
         case ParseTreeType.BINARY_OPERATOR:
-          if (e.operator == TokenType.EQUAL && e.left) {
-            if (e.left.type == ParseTreeType.IDENTIFIER_EXPRESSION) {
-              return new DefaultParameter(e.location,
-                                          toBindingIdentifier(e.left),
-                                          e.right);
-            }
+         if (e.operator == TokenType.EQUAL) {
+            return new FormalParameter(e.location,
+                                       toBinding(e.left),
+                                       e.right);
           }
           break;
         case ParseTreeType.SPREAD_EXPRESSION:
           if (isLast && e.expression &&
               e.expression.type == ParseTreeType.IDENTIFIER_EXPRESSION) {
             return new RestParameter(e.location,
-                                     toBindingIdentifier(e.expression));
+                                     toBinding(e.expression));
           }
 
         // TODO(arv): Destructuring
@@ -3021,7 +3027,9 @@ traceur.define('syntax', function() {
      */
     peekPatternStart_: function(opt_index) {
       var index = opt_index || 0;
-      return this.peek_(TokenType.OPEN_SQUARE, index) || this.peek_(TokenType.OPEN_CURLY, index);
+      return options.destructuring &&
+          (this.peek_(TokenType.OPEN_SQUARE, index) ||
+           this.peek_(TokenType.OPEN_CURLY, index));
     },
 
     /**
@@ -3095,7 +3103,7 @@ traceur.define('syntax', function() {
       return this.peekExpression_() || this.peek_(TokenType.DOT_DOT_DOT);
     },
 
-    // Element ::= Pattern | LValue | ... LValue
+    // Element ::= Pattern | LValue | ... Pattern
     /**
      * @param {PatternKind} kind
      * @param {function(TokenType) : boolean} follow
@@ -3108,25 +3116,32 @@ traceur.define('syntax', function() {
         return this.parseParenPattern_(kind);
       }
 
-      // An element that's not a sub-pattern
+      var self = this;
+      var lvalue;
+      function validate() {
+        if (kind == PatternKind.INITIALIZER &&
+            lvalue.type != ParseTreeType.IDENTIFIER_EXPRESSION) {
+          self.reportError_(
+              'lvalues in initializer patterns must be identifiers');
+        }
+      }
 
-      var spread = false;
-      var start = this.getTreeStartLocation_();
       if (this.peek_(TokenType.DOT_DOT_DOT)) {
+        var start = this.getTreeStartLocation_();
         this.eat_(TokenType.DOT_DOT_DOT);
-        spread = true;
+        if (this.peekPatternStart_()) {
+          lvalue = this.parsePattern_(kind);
+        } else {
+          lvalue = this.parseLeftHandSideExpression_();
+          validate();
+        }
+        return new SpreadPatternElement(this.getTreeLocation_(start),
+                                        lvalue);
       }
 
-      var lvalue = this.parseLeftHandSideExpression_();
-
-      if (kind == PatternKind.INITIALIZER &&
-          lvalue.type != ParseTreeType.IDENTIFIER_EXPRESSION) {
-        this.reportError_('lvalues in initializer patterns must be identifiers');
-      }
-
-      return spread ?
-          new SpreadPatternElement(this.getTreeLocation_(start), lvalue) :
-          lvalue;
+      lvalue = this.parseLeftHandSideExpression_();
+      validate();
+      return lvalue;
     },
 
     // Pattern ::= ... | "[" Element? ("," Element?)* "]"

@@ -231,7 +231,7 @@ traceur.define('semantics', function() {
       } else {
         // Formal parameters are otherwise like variable
         // declarations--identifier expressions and patterns
-        this.bindVariableDeclaration_(parameter);
+        this.bindVariableDeclaration_(parameter.binding);
       }
     },
 

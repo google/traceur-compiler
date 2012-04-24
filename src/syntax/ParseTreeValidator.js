@@ -496,12 +496,29 @@ traceur.define('syntax', function() {
     },
 
     /**
+     * @param {traceur.syntax.trees.FormalParameter} tree
+     */
+    visitFormalParameter: function(tree) {
+      var binding = tree.binding;
+      this.checkVisit_(
+          binding.type == ParseTreeType.BINDING_IDENTIFIER ||
+          binding.type == ParseTreeType.OBJECT_PATTERN ||
+          binding.type == ParseTreeType.ARRAY_PATTERN,
+          binding,
+          'expected valid formal parameter');
+      this.visitAny(tree.initializer);
+    },
+
+    /**
      * @param {traceur.syntax.trees.FormalParameterList} tree
      */
     visitFormalParameterList: function(tree) {
       for (var i = 0; i < tree.parameters.length; i++) {
         var parameter = tree.parameters[i];
         switch (parameter.type) {
+          case ParseTreeType.FORMAL_PARAMETER:
+            break;
+
           case ParseTreeType.REST_PARAMETER:
             this.checkVisit_(
                 i === tree.parameters.length - 1, parameter,
@@ -510,26 +527,11 @@ traceur.define('syntax', function() {
             this.checkType_(ParseTreeType.BINDING_IDENTIFIER,
                             parameter.identifier,
                             'binding identifier expected');
-            // Fall through
-
-          case ParseTreeType.BINDING_IDENTIFIER:
-            // TODO(dominicc): Add array and object patterns here when
-            // desugaring them is supported.
-            break;
-
-          case ParseTreeType.DEFAULT_PARAMETER:
-            // TODO(arv): There must not be a parameter after this one that is
-            // not a rest or another default parameter.
-            break;
-
-          case ParseTreeType.BIND_THIS_PARAMETER:
-            // TODO: this must be the first parameter, and is only legal in an
-            // arrow expression (->)
-            break;
+            break
 
           default:
             this.fail_(parameter, 'parameters must be identifiers or rest' +
-                ' parameters');
+                ' parameters. Found: ' + parameter.type);
             break;
         }
         this.visitAny(parameter);

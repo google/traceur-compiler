@@ -1,4 +1,5 @@
 // Should not compile.
+// Error: z is not defined
 
 function testBlock() {
   {
