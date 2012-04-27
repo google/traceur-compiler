@@ -179,16 +179,30 @@ traceur.define('syntax', function() {
     ANY: 'ANY'
   };
 
-  function declarationDestructuringFollow(token) {
-    return token === TokenType.EQUAL;
+  /**
+   * Enum for determining if the initializer is needed in a variable declaration
+   * with a destructuring pattern.
+   * @enum {string}
+   */
+  var DestructuringInitializer = {
+    REQUIRED: 'REQUIRED',
+    OPTIONAL: 'OPTIONAL'
+  };
+
+  function followedByCommaOrCloseSquare(token) {
+    return token.type === TokenType.COMMA ||
+        token.type === TokenType.CLOSE_SQUARE;
   }
 
-  function arraySubPatternFollowSet(token) {
-    return token === TokenType.COMMA || token === TokenType.CLOSE_SQUARE;
+  function followedByCommaOrCloseCurly(token) {
+    return token.type === TokenType.COMMA ||
+        token.type === TokenType.CLOSE_CURLY;
   }
 
-  function objectSubPatternFollowSet(token) {
-    return token === TokenType.COMMA || token === TokenType.CLOSE_CURLY;
+  function followedByInOrOf(token) {
+    return token.type === TokenType.IN ||
+        token.type === TokenType.IDENTIFIER &&
+        token.value === PredefinedName.OF;
   }
 
   Parser.prototype = {
@@ -660,7 +674,7 @@ traceur.define('syntax', function() {
       this.eat_(TokenType.CLASS);
       var name = null;
       // Name is optional for ClassExpression
-      if (constr == ClassDeclaration || 
+      if (constr == ClassDeclaration ||
           !this.peek_(TokenType.EXTENDS) && !this.peek_(TokenType.OPEN_CURLY)) {
         name = this.parseBindingIdentifier_();
       }
@@ -861,7 +875,7 @@ traceur.define('syntax', function() {
         result.push(p);
       }
 
-      if (this.peekBindingIdentifier_() || this.peekRest_() || 
+      if (this.peekBindingIdentifier_() || this.peekRest_() ||
           this.peekPatternStart_()) {
         parseParam();
         while (!hasRest && this.peek_(TokenType.COMMA)) {
@@ -1127,20 +1141,15 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @return {VariableDeclarationList}
-     * @private
-     */
-    parseVariableDeclarationListNoIn_: function() {
-      return this.parseVariableDeclarationList_(Expression.NO_IN);
-    },
-
-    /**
      * @param {Expression=} opt_expressionIn
+     * @param {DestructuringInitializer} opt_initializer Whether destructuring
+     *     requires an initializer
      * @return {VariableDeclarationList}
      * @private
      */
-    parseVariableDeclarationList_: function(opt_expressionIn) {
+    parseVariableDeclarationList_: function(opt_expressionIn, opt_initializer) {
       var expressionIn = opt_expressionIn || Expression.NORMAL;
+      var initializer = opt_initializer || DestructuringInitializer.REQUIRED;
       var token = this.peekType_();
 
       switch (token) {
@@ -1158,10 +1167,12 @@ traceur.define('syntax', function() {
       var start = this.getTreeStartLocation_();
       var declarations = [];
 
-      declarations.push(this.parseVariableDeclaration_(false, token, expressionIn));
+      declarations.push(this.parseVariableDeclaration_(token, expressionIn,
+                                                       initializer));
       while (this.peek_(TokenType.COMMA)) {
         this.eat_(TokenType.COMMA);
-        declarations.push(this.parseVariableDeclaration_(false, token, expressionIn));
+        declarations.push(this.parseVariableDeclaration_(token, expressionIn,
+                                                         initializer));
       }
       return new VariableDeclarationList(
           this.getTreeLocation_(start), token, declarations);
@@ -1170,23 +1181,27 @@ traceur.define('syntax', function() {
     /**
      * @param {TokenType} binding
      * @param {Expression} expressionIn
+     * @param {DestructuringInitializer=} opt_initializer
      * @return {VariableDeclaration}
      * @private
      */
-    parseVariableDeclaration_: function(binding, expressionIn) {
+    parseVariableDeclaration_: function(binding, expressionIn,
+                                        opt_initializer) {
+      var initRequired = opt_initializer !== DestructuringInitializer.OPTIONAL;
       var start = this.getTreeStartLocation_();
+
       var lvalue;
-      if (this.peekPattern_(PatternKind.INITIALIZER, declarationDestructuringFollow)) {
+      if (this.peekPattern_(PatternKind.INITIALIZER))
         lvalue = this.parsePattern_(PatternKind.INITIALIZER);
-      } else {
+      else
         lvalue = this.parseBindingIdentifier_();
-      }
+
       var initializer = null;
-      if (this.peek_(TokenType.EQUAL)) {
+      if (this.peek_(TokenType.EQUAL))
         initializer = this.parseInitializer_(expressionIn);
-      } else if (lvalue.isPattern()) {
+      else if (lvalue.isPattern() && initRequired)
         this.reportError_('destructuring must have an initializer');
-      }
+
       return new VariableDeclaration(this.getTreeLocation_(start), lvalue, initializer);
     },
 
@@ -1287,29 +1302,44 @@ traceur.define('syntax', function() {
       var start = this.getTreeStartLocation_();
       this.eat_(TokenType.FOR);
       this.eat_(TokenType.OPEN_PAREN);
+
+      var self = this;
+      function validate(variables, kind) {
+        if (variables.declarations.length > 1) {
+          self.reportError_(kind +
+              ' statement may not have more than one variable declaration');
+        }
+        var declaration = variables.declarations[0];
+        if (declaration.lvalue.isPattern() && declaration.initializer) {
+          self.reportError_(declaration.initializer.location,
+              'initializer is not allowed in ' + kind + ' loop with pattern');
+        }
+
+      }
+
       if (this.peekVariableDeclarationList_()) {
-        var variables = this.parseVariableDeclarationListNoIn_();
+        var variables =
+           this.parseVariableDeclarationList_(
+              Expression.NO_IN, DestructuringInitializer.OPTIONAL);
         if (this.peek_(TokenType.IN)) {
           // for-in: only one declaration allowed
-          if (variables.declarations.length > 1) {
-            this.reportError_('for-in statement may not have more than one variable declaration');
-          }
+          validate(variables, 'for-in');
+
+          var declaration = variables.declarations[0];
           // for-in: if let/const binding used, initializer is illegal
           if (options.blockBinding &&
               (variables.declarationType == TokenType.LET ||
                variables.declarationType == TokenType.CONST)) {
-            var declaration = variables.declarations[0];
             if (declaration.initializer != null) {
-              this.reportError_('let/const in for-in statement may not have initializer');
+               this.reportError_('let/const in for-in statement may not have initializer');
             }
           }
 
           return this.parseForInStatement_(start, variables);
         } else if (this.peekOf_()) {
           // for-of: only one declaration allowed
-          if (variables.declarations.length > 1) {
-            this.reportError_('for-of statement may not have more than one variable declaration');
-          }
+          validate(variables, 'for-of');
+
           // for-of: initializer is illegal
           var declaration = variables.declarations[0];
           if (declaration.initializer != null) {
@@ -1328,10 +1358,17 @@ traceur.define('syntax', function() {
         return this.parseForStatement2_(start, null);
       }
 
-      var initializer = this.parseExpressionNoIn_();
-      if (this.peek_(TokenType.IN)) {
+      var initializer;
+      if (this.peekPattern_(PatternKind.ANY, followedByInOrOf))
+         initializer = this.parsePattern_(PatternKind.ANY);
+      else
+        initializer = this.parseExpressionNoIn_();
+
+      if (this.peek_(TokenType.IN))
         return this.parseForInStatement_(start, initializer);
-      }
+
+      if (this.peekOf_())
+        return this.parseForOfStatement_(start, initializer);
 
       return this.parseForStatement2_(start, initializer);
     },
@@ -1344,7 +1381,7 @@ traceur.define('syntax', function() {
     // for  (  { let | var }  identifier  of  expression  )  statement
     /**
      * @param {SourcePosition} start
-     * @param {VariableDeclarationList} initializer
+     * @param {ParseTree} initializer
      * @return {ParseTree}
      * @private
      */
@@ -1512,7 +1549,7 @@ traceur.define('syntax', function() {
       this.eat_(TokenType.YIELD);
       var expression = null;
       var isYieldFor = this.eatOpt_(TokenType.STAR) != null;
-      if (!this.peekImplicitSemiColon_()) {
+      if (isYieldFor || !this.peekImplicitSemiColon_()) {
         expression = this.parseExpression_();
       }
       this.eatPossibleImplicitSemiColon_();
@@ -3143,22 +3180,23 @@ traceur.define('syntax', function() {
 
     /**
      * @param {PatternKind} kind
-     * @param {function(TokenType) : boolean} follow
+     * @param {function(Token) : boolean} follow
      * @return {boolean}
      * @private
      */
-    peekPattern_: function(kind, follow) {
+    peekPattern_: function(kind, opt_follow) {
       if (!options.destructuring || !this.peekPatternStart_()) {
         return false;
       }
       var p = this.createLookaheadParser_();
       p.parsePattern_(kind);
-      return !p.errorReporter_.hadError() && follow(p.peekType_());
+      return !p.errorReporter_.hadError() &&
+          (!opt_follow || opt_follow(p.peekToken_()));
     },
 
     /**
      * @param {PatternKind} kind
-     * @param {function(TokenType) : boolean} follow
+     * @param {function(Token) : boolean} follow
      * @return {boolean}
      * @private
      */
@@ -3168,7 +3206,7 @@ traceur.define('syntax', function() {
       }
       var p = this.createLookaheadParser_();
       p.parsePattern_(kind);
-      return !p.errorReporter_.hadError() && follow(p.peekType_());
+      return !p.errorReporter_.hadError() && follow(p.peekToken_());
     },
 
     /**
@@ -3230,6 +3268,7 @@ traceur.define('syntax', function() {
                                         lvalue);
       }
 
+      // TODO(arv): Fixme. This is not right.
       lvalue = this.parseLeftHandSideExpression_();
       validate();
       return lvalue;
@@ -3250,7 +3289,9 @@ traceur.define('syntax', function() {
           this.eat_(TokenType.COMMA);
           elements.push(new NullTree());
         } else {
-          var element = this.parsePatternElement_(kind, arraySubPatternFollowSet);
+          // TODO(arv): Is this follow needed?
+          var element = this.parsePatternElement_(kind,
+                                                  followedByCommaOrCloseSquare);
           elements.push(element);
 
           if (element.isSpreadPatternElement()) {
@@ -3314,7 +3355,8 @@ traceur.define('syntax', function() {
       var element = null;
       if (this.peek_(TokenType.COLON)) {
         this.eat_(TokenType.COLON);
-        element = this.parsePatternElement_(kind, objectSubPatternFollowSet);
+        // TODO(arv): Is this follow needed?
+        element = this.parsePatternElement_(kind, followedByCommaOrCloseCurly);
 
         if (element.isSpreadPatternElement()) {
           this.reportError_('Rest can not be used in object patterns');

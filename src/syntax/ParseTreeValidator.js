@@ -467,7 +467,11 @@ traceur.define('syntax', function() {
      * @param {traceur.syntax.trees.ForOfStatement} tree
      */
     visitForOfStatement: function(tree) {
-      this.checkVisit_(tree.initializer.declarations.length <= 1,
+      this.checkVisit_(
+        tree.initializer.isPattern() ||
+        tree.initializer.type === ParseTreeType.IDENTIFIER_EXPRESSION ||
+        tree.initializer.type === ParseTreeType.VARIABLE_DECLARATION_LIST &&
+        tree.initializer.declarations.length === 1,
           tree.initializer,
           'for-each statement may not have more than one variable declaration');
       this.checkVisit_(tree.collection.isExpression(), tree.collection,
@@ -487,8 +491,11 @@ traceur.define('syntax', function() {
             tree.initializer,
             'for-in statement may not have more than one variable declaration');
       } else {
-        this.checkVisit_(tree.initializer.isExpression(),
-            tree.initializer, 'variable declaration or expression expected');
+        this.checkVisit_(tree.initializer.isPattern() ||
+                         tree.initializer.isExpression(),
+                         tree.initializer,
+                         'variable declaration, expression or ' +
+                         'pattern expected');
       }
       this.checkVisit_(tree.collection.isExpression(), tree.collection,
           'expression expected');

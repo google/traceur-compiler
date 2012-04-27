@@ -41,8 +41,8 @@ traceur.define('syntax.trees', function() {
    *
    * States and StateMachineTrees are immutable.
    *
-   * @param {tnumber} startState
-   * @param {tnumber} fallThroughState
+   * @param {number} startState
+   * @param {number} fallThroughState
    * @param {Array.<State>} states
    * @param {Array.<TryState>} exceptionBlocks
    * @constructor

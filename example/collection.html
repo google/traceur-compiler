@@ -120,15 +120,11 @@
         print(value);
       }
 
-      // for (var [name, value] of map.items()) {
-      // http://code.google.com/p/traceur-compiler/issues/detail?id=42
-      for (var item of map.items()) {
-        var [key, value] = item;
+      for (var [key, value] of map.items()) {
         print(`$key = $value`);
       }
 
-      for (var item of map) {
-        var [key, value] = item;
+      for (var [key, value] of map) {
         print(`$key = $value`);
       }
 

@@ -16,6 +16,8 @@ traceur.define('codegeneration', function() {
   'use strict';
 
   var BindingIdentifier = traceur.syntax.trees.BindingIdentifier;
+  var ForInStatement = traceur.syntax.trees.ForInStatement;
+  var ForOfStatement = traceur.syntax.trees.ForOfStatement;
   var FormalParameter = traceur.syntax.trees.FormalParameter;
   var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
   var ParseTree = traceur.syntax.trees.ParseTree;
@@ -29,10 +31,11 @@ traceur.define('codegeneration', function() {
 
   var createArgumentList = ParseTreeFactory.createArgumentList;
   var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression;
-  var createBlock = ParseTreeFactory.createBlock;
   var createBindingIdentifier = ParseTreeFactory.createBindingIdentifier;
+  var createBlock = ParseTreeFactory.createBlock;
   var createCallExpression = ParseTreeFactory.createCallExpression;
   var createCommaExpression = ParseTreeFactory.createCommaExpression;
+  var createExpressionStatement = ParseTreeFactory.createExpressionStatement;
   var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
   var createMemberExpression = ParseTreeFactory.createMemberExpression;
   var createMemberLookupExpression = ParseTreeFactory.createMemberLookupExpression;
@@ -213,6 +216,113 @@ traceur.define('codegeneration', function() {
               desugaredDeclarations));
     },
 
+    transformForInStatement: function(tree) {
+      return this.transformForInOrOf_(tree,
+                                      proto.transformForInStatement,
+                                      ForInStatement);
+    },
+
+    transformForOfStatement: function(tree) {
+      return this.transformForInOrOf_(tree,
+                                      proto.transformForOfStatement,
+                                      ForOfStatement);
+    },
+
+    /**
+     * Transforms for-in and for-of loops.
+     * @param  {ForInStatement|ForOfStatement} tree The for-in or for-of loop.
+     * @param  {Function} superMethod The super method to call if no pattern is
+     *     present.
+     * @param  {Function} constr The constructor used to create the transformed
+     *     tree.
+     * @return {ForInStatement|ForOfStatement} The transformed tree.
+     * @private
+     */
+    transformForInOrOf_: function(tree, superMethod, constr) {
+      if (tree.initializer.isPattern())
+        return this.transformForInOrOf2_(tree, superMethod, constr);
+
+      if (tree.initializer.type !== ParseTreeType.VARIABLE_DECLARATION_LIST ||
+          !this.destructuringInDeclaration_(tree.initializer)) {
+        return superMethod.call(this, tree);
+      }
+
+      // for (var pattern in coll) {
+      //   ...
+      // }
+      //
+      // =>
+      //
+      // for (var $tmp in coll) {
+      //   var pattern = $tmp;
+      //   ...
+      // }
+
+      var binding = tree.initializer.declarations[0].lvalue;
+      var varName = this.gensym_(binding);
+      var initializer = createVariableDeclarationList(TokenType.VAR,
+          createBindingIdentifier(varName), null);
+      var declarationType = tree.initializer.declarationType;
+
+      var desugaring = new VariableDeclarationDesugaring(
+              createIdentifierExpression(varName));
+      this.desugarPattern_(desugaring, binding);
+
+      var statements = [];
+      statements.push(createVariableStatement(
+          // Desugar more.
+          this.transformVariableDeclarationList(
+              createVariableDeclarationList(
+                  declarationType,
+                  desugaring.declarations))));
+
+      var collection = this.transformAny(tree.collection);
+      var body = this.transformAny(tree.body);
+      if (body.type !== ParseTreeType.BLOCK)
+        body = createBlock(body);
+
+      statements.push.apply(statements, body.statements);
+      body = createBlock(statements);
+
+      return new constr(tree.location, initializer, collection, body);
+    },
+
+    transformForInOrOf2_: function(tree, superMethod, constr) {
+      // for (pattern in coll) {
+      //   ...
+      // }
+      //
+      // =>
+      //
+      // for (var $tmp in coll) {
+      //   pattern = $tmp;
+      //   ...
+      // }
+
+      var binding = tree.initializer;
+      var varName = this.gensym_(binding);
+      var initializer = createVariableDeclarationList(TokenType.VAR,
+          createBindingIdentifier(varName), null);
+
+      var desugaring = new AssignmentExpressionDesugaring(
+              createIdentifierExpression(varName));
+      this.desugarPattern_(desugaring, binding);
+
+      var statements = [];
+      statements.push(createExpressionStatement(
+          createCommaExpression(desugaring.expressions)));
+
+      var collection = this.transformAny(tree.collection);
+      var body = this.transformAny(tree.body);
+      if (body.type !== ParseTreeType.BLOCK)
+        body = createBlock(body);
+
+      statements.push.apply(statements, body.statements);
+      body = createBlock(statements);
+
+      return new constr(tree.location, initializer, collection, body);
+    },
+
     transformFunctionDeclaration: function(tree) {
       stack.push([]);
       var transformedTree = proto.transformFunctionDeclaration.call(this, tree);
@@ -249,7 +359,6 @@ traceur.define('codegeneration', function() {
       var statements = stack[stack.length - 1];
       var varName = this.gensym_(tree.binding);
       var binding = createBindingIdentifier(varName);
-      var identifierExpression = createIdentifierExpression(varName);
 
       var desugaring = new VariableDeclarationDesugaring(
               createIdentifierExpression(varName));
