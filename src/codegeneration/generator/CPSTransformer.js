@@ -518,7 +518,7 @@ traceur.define('codegeneration.generator', function() {
       var tryMachine = this.ensureTransformed_(result.body);
       if (result.catchBlock != null) {
         var catchBlock = result.catchBlock;
-        var exceptionName = catchBlock.identifier.identifierToken.value;
+        var exceptionName = catchBlock.binding.identifierToken.value;
         var catchMachine = this.ensureTransformed_(catchBlock.catchBody);
         var startState = tryMachine.startState;
         var fallThroughState = tryMachine.fallThroughState;

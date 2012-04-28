@@ -122,7 +122,7 @@ function testTreeConstructors() {
 
   validateTree(traceur.syntax.trees.Catch,
       ParseTreeType.CATCH,
-      ['location', 'identifier', 'catchBody']);
+      ['location', 'binding', 'catchBody']);
 
   validateTree(traceur.syntax.trees.ClassDeclaration,
       ParseTreeType.CLASS_DECLARATION,

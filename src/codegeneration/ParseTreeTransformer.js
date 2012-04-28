@@ -317,11 +317,11 @@ traceur.define('codegeneration', function() {
      */
     transformCatch: function(tree) {
       var catchBody = this.transformAny(tree.catchBody);
-      var identifier = this.transformAny(tree.identifier);
-      if (catchBody == tree.catchBody && identifier == tree.identifier) {
+      var binding = this.transformAny(tree.binding);
+      if (catchBody == tree.catchBody && binding == tree.binding) {
         return tree;
       }
-      return new Catch(tree.location, identifier, catchBody);
+      return new Catch(tree.location, binding, catchBody);
     },
 
     /**

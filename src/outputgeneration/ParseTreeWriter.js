@@ -206,7 +206,7 @@ traceur.define('outputgeneration', function() {
     visitCatch: function(tree) {
       this.write_(TokenType.CATCH);
       this.write_(TokenType.OPEN_PAREN);
-      this.visitAny(tree.identifier);
+      this.visitAny(tree.binding);
       this.write_(TokenType.CLOSE_PAREN);
       this.visitAny(tree.catchBody);
     },

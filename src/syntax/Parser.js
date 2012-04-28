@@ -1721,10 +1721,14 @@ traceur.define('syntax', function() {
       var catchBlock;
       this.eat_(TokenType.CATCH);
       this.eat_(TokenType.OPEN_PAREN);
-      var identifier = this.parseBindingIdentifier_();
+      var binding;
+      if (this.peekPatternStart_())
+        binding = this.parsePattern_();
+      else
+        binding = this.parseBindingIdentifier_();
       this.eat_(TokenType.CLOSE_PAREN);
       var catchBody = this.parseBlock_();
-      catchBlock = new Catch(this.getTreeLocation_(start), identifier,
+      catchBlock = new Catch(this.getTreeLocation_(start), binding,
                              catchBody);
       return catchBlock;
     },

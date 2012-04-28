@@ -136,12 +136,14 @@ traceur.define('codegeneration', function() {
      * @return {ParseTree}
      */
     transformCatch: function(tree) {
-      if (this.oldName_ == tree.identifier.identifierToken.value) {
+      if (!tree.binding.isPattern() &&
+          this.oldName_ === tree.binding.identifierToken.value) {
         // this.oldName_ is rebound in the catch block, so don't recurse
         return tree;
-      } else {
-        return proto.transformCatch.call(this, tree);
       }
+
+      // TODO(arv): Compare the old name to the bindings in the pattern.
+      return proto.transformCatch.call(this, tree);
     }
   });
 

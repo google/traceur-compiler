@@ -313,8 +313,9 @@ traceur.define('syntax', function() {
      * @param {traceur.syntax.trees.Catch} tree
      */
     visitCatch: function(tree) {
-      this.checkVisit_(tree.identifier.type == ParseTreeType.BINDING_IDENTIFIER,
-            tree.identifier, 'binding identifier expexted');
+      this.checkVisit_(tree.binding.isPattern() ||
+          tree.binding.type == ParseTreeType.BINDING_IDENTIFIER,
+          tree.binding, 'binding identifier expexted');
       this.checkVisit_(tree.catchBody.type === ParseTreeType.BLOCK,
           tree.catchBody, 'block expected');
     },

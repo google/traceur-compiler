@@ -215,7 +215,7 @@ traceur.define('semantics', function() {
     visitCatch: function(tree) {
       var scope = this.pushScope_();
 
-      this.visitAny(tree.identifier);
+      this.visitAny(tree.binding);
       this.visitAny(tree.catchBody);
 
       this.pop_(scope);

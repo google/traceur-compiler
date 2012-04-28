@@ -155,12 +155,12 @@ traceur.define('syntax.trees', function() {
 
     /**
      * @param {traceur.util.SourceRange} location
-     * @param {BindingIdentifier} identifier
+     * @param {ParseTree} binding
      * @param {ParseTree} catchBody
      * @constructor
      * @extends {ParseTree}
      */
-    Catch: create('identifier', 'catchBody'),
+    Catch: create('binding', 'catchBody'),
 
     /**
      * @param {traceur.util.SourceRange} location

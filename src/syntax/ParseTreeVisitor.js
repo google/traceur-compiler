@@ -149,7 +149,7 @@ traceur.define('syntax', function() {
      * @param {traceur.syntax.trees.Catch} tree
      */
     visitCatch: function(tree) {
-      this.visitAny(tree.identifier);
+      this.visitAny(tree.binding);
       this.visitAny(tree.catchBody);
     },
 
