@@ -206,7 +206,7 @@ traceur.define('semantics', function() {
     visitSetAccessor: function(tree) {
       var scope = this.pushScope_();
 
-      this.declareVariable_(tree.parameter);
+      this.declareVariable_(tree.parameter.binding);
       this.visitAny(tree.body);
 
       this.pop_(scope);

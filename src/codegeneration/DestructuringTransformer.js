@@ -25,6 +25,7 @@ traceur.define('codegeneration', function() {
   var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
   var PredefinedName = traceur.syntax.PredefinedName;
+  var SetAccessor = traceur.syntax.trees.SetAccessor;
   var TempVarTransformer = traceur.codegeneration.TempVarTransformer;
   var TokenType = traceur.syntax.TokenType;
   var VariableDeclaration = traceur.syntax.trees.VariableDeclaration;
@@ -303,6 +304,23 @@ traceur.define('codegeneration', function() {
                                      transformedTree.isGenerator,
                                      transformedTree.formalParameterList,
                                      createBlock(statements));
+    },
+
+    transformSetAccessor: function(tree) {
+      stack.push([]);
+      var transformedTree = proto.transformSetAccessor.call(this, tree);
+      var statements = stack.pop();
+      if (!statements.length)
+        return transformedTree;
+
+      // Prepend the var statements to the block.
+      statements.push.apply(statements,
+                            transformedTree.body.statements);
+
+      return new SetAccessor(transformedTree.location,
+                             transformedTree.propertyName,
+                             transformedTree.parameter,
+                             createBlock(statements));
     },
 
     transformFormalParameter: function(tree) {

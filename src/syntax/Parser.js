@@ -205,6 +205,16 @@ traceur.define('syntax', function() {
         token.value === PredefinedName.OF;
   }
 
+  /**
+   * Enum used to determine if an initializer is allowed or not.
+   * @enum {string}
+   */
+  var Initializer = {
+    ALLOWED: 'ALLOWED',
+    REQUIRED: 'REQUIRED',
+    DISALLOWED: 'DISALLOWED'
+  };
+
   Parser.prototype = {
     /**
      * Keeps track of whether we currently allow yield expressions.
@@ -858,8 +868,8 @@ traceur.define('syntax', function() {
       //     BindingIdentifier Initialiser?
       //     BindingPattern Initialiser?
       var result = [];
-      var hasDefaultParameters = false;
       var hasRest = false;
+      var initializerAllowed = Initializer.ALLOWED;
 
       var self = this;
       function parseParam() {
@@ -868,9 +878,9 @@ traceur.define('syntax', function() {
           p = self.parseRestParameter_();
           hasRest = true;
         } else {
-          p = self.parseFormalParameter_(hasDefaultParameters);
+          p = self.parseFormalParameter_(initializerAllowed);
           if (p.initializer)
-            hasDefaultParameters = true;
+            initializerAllowed = Initializer.REQUIRED;
         }
         result.push(p);
       }
@@ -894,21 +904,27 @@ traceur.define('syntax', function() {
                                this.parseBindingIdentifier_());
     },
 
-    parseFormalParameter_: function(requireInitializer) {
+    /**
+     * @param {Initializer} initializerAllowed
+     * @return {FormalParameter}
+     * @private
+     */
+    parseFormalParameter_: function(initializerAllowed) {
       var start = this.getTreeStartLocation_();
       var binding;
       if (options.destructuring && this.peek_(TokenType.OPEN_CURLY)) {
-        binding = this.parseObjectPattern_();
+        binding = this.parseObjectPattern_(PatternKind.INITIALIZER);
       } else if (options.destructuring &&
                  this.peek_(TokenType.OPEN_SQUARE)) {
-        binding = this.parseArrayPattern_();
+        binding = this.parseArrayPattern_(PatternKind.INITIALIZER);
       } else {
         binding = this.parseBindingIdentifier_();
       }
 
       var initializer = null;
-      if (requireInitializer ||
-          options.defaultParameters  && this.peek_(TokenType.EQUAL)) {
+      if (initializerAllowed === Initializer.REQUIRED ||
+          initializerAllowed !== Initializer.DISALLOWED &&
+          options.defaultParameters && this.peek_(TokenType.EQUAL)) {
         initializer = this.parseInitializer_();
       }
 
@@ -2041,7 +2057,7 @@ traceur.define('syntax', function() {
       this.eatId_(); // set
       var propertyName = this.nextToken_();
       this.eat_(TokenType.OPEN_PAREN);
-      var parameter = this.parseBindingIdentifier_();
+      var parameter = this.parseFormalParameter_(Initializer.DISALLOWED);
       this.eat_(TokenType.CLOSE_PAREN);
       var body = this.parseFunctionBody_(false);
       return new SetAccessor(this.getTreeLocation_(start), propertyName,

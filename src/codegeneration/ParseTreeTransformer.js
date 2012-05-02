@@ -994,11 +994,11 @@ traceur.define('codegeneration', function() {
      * @return {ParseTree}
      */
     transformSetAccessor: function(tree) {
+      var parameter = this.transformAny(tree.parameter);
       var body = this.transformFunctionBody(tree.body);
-      if (body == tree.body)
+      if (parameter === tree.parameter && body === tree.body)
         return tree;
-      return new SetAccessor(tree.location, tree.propertyName, tree.parameter,
-                             body);
+      return new SetAccessor(tree.location, tree.propertyName, parameter, body);
     },
 
     /**
