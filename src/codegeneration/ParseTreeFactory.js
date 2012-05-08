@@ -440,8 +440,8 @@ traceur.define('codegeneration', function() {
   /**
    * @return {BreakStatement}
    */
-  function createBreakStatement() {
-    return new BreakStatement(null, null);
+  function createBreakStatement(opt_name) {
+    return new BreakStatement(null, opt_name || null);
   }
 
   // function.call(this, arguments)
@@ -532,8 +532,8 @@ traceur.define('codegeneration', function() {
   /**
    * @return {ContinueStatement}
    */
-  function createContinueStatement() {
-    return new ContinueStatement(null, null);
+  function createContinueStatement(opt_name) {
+    return new ContinueStatement(null, opt_name || null);
   }
 
   /**
