@@ -2035,7 +2035,7 @@ traceur.define('syntax', function() {
       var propertyName = this.nextToken_();
       this.eat_(TokenType.OPEN_PAREN);
       this.eat_(TokenType.CLOSE_PAREN);
-      var body = this.parseFunctionBody_(false);
+      var body = this.parseConciseBody_(false);
       return new GetAccessor(this.getTreeLocation_(start), propertyName, body);
     },
 
@@ -2059,7 +2059,7 @@ traceur.define('syntax', function() {
       this.eat_(TokenType.OPEN_PAREN);
       var parameter = this.parseFormalParameter_(Initializer.DISALLOWED);
       this.eat_(TokenType.CLOSE_PAREN);
-      var body = this.parseFunctionBody_(false);
+      var body = this.parseConciseBody_(false);
       return new SetAccessor(this.getTreeLocation_(start), propertyName,
                              parameter, body);
     },
@@ -2102,7 +2102,7 @@ traceur.define('syntax', function() {
       this.eat_(TokenType.OPEN_PAREN);
       var formalParameterList = this.parseFormalParameterList_();
       this.eat_(TokenType.CLOSE_PAREN);
-      var functionBody = this.parseFunctionBody_(isGenerator);
+      var functionBody = this.parseConciseBody_(isGenerator);
       return new PropertyMethodAssignment(this.getTreeLocation_(start),
           name, isGenerator, formalParameterList, functionBody);
     },
@@ -2930,7 +2930,7 @@ traceur.define('syntax', function() {
 
       this.eat_(TokenType.ARROW);
 
-      var body = this.parseArrowExpressionBody_();
+      var body = this.parseConciseBody_(false);
       return new ArrowFunctionExpression(this.getTreeLocation_(start),
           formals, body);
     },
@@ -2940,13 +2940,26 @@ traceur.define('syntax', function() {
       return options.arrowFunctions && this.peek_(TokenType.ARROW, opt_index);
     },
 
-    /** @return {ParseTree} */
-    parseArrowExpressionBody_: function() {
+    /**
+     * ConciseBody :
+     *   [lookahead does not include {] AssignmentExpression
+     *   { FunctionBody }
+     *
+     * @param {boolean} isGenerator
+     * @return {ParseTree}
+     */
+    parseConciseBody_: function(isGenerator) {
       // The body can be a block or an expression. A '{' is always treated as
       // the beginning of a block.
-      if (this.peek_(TokenType.OPEN_CURLY))
-        return this.parseBlock_();
-      return this.parseArrowFunction_();
+      if (this.peek_(TokenType.OPEN_CURLY) || !options.conciseBody)
+        return this.parseFunctionBody_(isGenerator);
+
+      var allowYield = this.allowYield_;
+      this.allowYield_ = isGenerator;
+      var result = this.parseAssignmentExpression_();
+      this.allowYield_ = allowYield;
+
+      return result;
     },
 
     /**
@@ -3529,7 +3542,7 @@ traceur.define('syntax', function() {
 
     /**
      * Shorthand for this.eat_(TokenType.IDENTIFIER)
-     * @param {string=} opt_expexted
+     * @param {string=} opt_expected
      * @return {IdentifierToken}
      * @private
      */

@@ -898,7 +898,7 @@ traceur.define('codegeneration', function() {
      */
     transformPropertyMethodAssignment: function(tree) {
       var parameters = this.transformAny(tree.formalParameterList);
-      var functionBody = this.transformAny(tree.functionBody);
+      var functionBody = this.transformFunctionBody(tree.functionBody);
       if (parameters == tree.formalParameterList &&
           functionBody == tree.functionBody) {
         return tree;

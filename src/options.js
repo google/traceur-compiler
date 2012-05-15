@@ -253,6 +253,7 @@
   addFeatureOption('restParameters', Kind.es6);
   addFeatureOption('spread', Kind.es6);
   addFeatureOption('isExpression', Kind.es6);
+  addFeatureOption('conciseBody', Kind.es6);
 
   addFeatureOption('forOf', Kind.harmony);
   addFeatureOption('generators', Kind.harmony);

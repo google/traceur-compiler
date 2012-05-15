@@ -22,6 +22,8 @@ traceur.define('syntax', function() {
   var PredefinedName = traceur.syntax.PredefinedName;
   var TokenType = traceur.syntax.TokenType;
 
+  var options = traceur.options.parse;
+
   /*
   TODO: add contextual information to the validator so we can check
   non-local grammar rules, such as:
@@ -315,7 +317,7 @@ traceur.define('syntax', function() {
     visitCatch: function(tree) {
       this.checkVisit_(tree.binding.isPattern() ||
           tree.binding.type == ParseTreeType.BINDING_IDENTIFIER,
-          tree.binding, 'binding identifier expexted');
+          tree.binding, 'binding identifier expected');
       this.checkVisit_(tree.catchBody.type === ParseTreeType.BLOCK,
           tree.catchBody, 'block expected');
     },
@@ -585,14 +587,17 @@ traceur.define('syntax', function() {
 
       this.checkType_(ParseTreeType.BLOCK,
                       tree.functionBody,
-                      'block expexted');
+                      'block expected');
     },
 
     /**
      * @param {traceur.syntax.trees.GetAccessor} tree
      */
     visitGetAccessor: function(tree) {
-      this.checkType_(ParseTreeType.BLOCK, tree.body, 'block expected');
+      if (!options.conciseBody)
+        this.checkType_(ParseTreeType.BLOCK, tree.body, 'block expected');
+      else
+        this.visitAny(tree.body);
     },
 
     /**
@@ -809,11 +814,11 @@ traceur.define('syntax', function() {
         if (i % 2) {
           this.checkType_(ParseTreeType.QUASI_SUBSTITUTION,
                           element,
-                          'Quasi substitution expexted');
+                          'Quasi substitution expected');
         } else {
           this.checkType_(ParseTreeType.QUASI_LITERAL_PORTION,
                           element,
-                          'Quasi literal portion expexted');
+                          'Quasi literal portion expected');
 
         }
       }
@@ -833,7 +838,10 @@ traceur.define('syntax', function() {
      * @param {traceur.syntax.trees.SetAccessor} tree
      */
     visitSetAccessor: function(tree) {
-      this.checkType_(ParseTreeType.BLOCK, tree.body, 'block expected');
+      if (!options.conciseBody)
+        this.checkType_(ParseTreeType.BLOCK, tree.body, 'block expected');
+      else
+        this.visitAny(tree.body);
     },
 
     /**

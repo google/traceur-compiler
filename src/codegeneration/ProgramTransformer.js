@@ -15,29 +15,29 @@
 traceur.define('codegeneration', function() {
   'use strict';
 
+  var ArrowFunctionTransformer = traceur.codegeneration.ArrowFunctionTransformer;
+  var BlockBindingTransformer = traceur.codegeneration.BlockBindingTransformer;
+  var CascadeExpressionTransformer = traceur.codegeneration.CascadeExpressionTransformer;
+  var ClassTransformer = traceur.codegeneration.ClassTransformer;
+  var ClassTransformer = traceur.codegeneration.ClassTransformer;
+  var CollectionTransformer = traceur.codegeneration.CollectionTransformer;
+  var ConciseBodyTransformer = traceur.codegeneration.ConciseBodyTransformer;
+  var DefaultParametersTransformer = traceur.codegeneration.DefaultParametersTransformer;
+  var DestructuringTransformer = traceur.codegeneration.DestructuringTransformer;
+  var ForOfTransformer = traceur.codegeneration.ForOfTransformer;
+  var FreeVariableChecker = traceur.semantics.FreeVariableChecker;
+  var GeneratorTransformPass = traceur.codegeneration.GeneratorTransformPass;
+  var IsExpressionTransformer = traceur.codegeneration.IsExpressionTransformer;
+  var ModuleTransformer = traceur.codegeneration.ModuleTransformer;
   var ObjectMap = traceur.util.ObjectMap;
-
   var ParseTreeValidator = traceur.syntax.ParseTreeValidator;
   var ProgramTree = traceur.syntax.trees.ProgramTree;
-  var UniqueIdentifierGenerator = traceur.codegeneration.UniqueIdentifierGenerator;
-  var ForOfTransformer = traceur.codegeneration.ForOfTransformer;
   var PropertyMethodAssignmentTransformer = traceur.codegeneration.PropertyMethodAssignmentTransformer;
   var PropertyNameShorthandTransformer = traceur.codegeneration.PropertyNameShorthandTransformer;
-  var RestParameterTransformer = traceur.codegeneration.RestParameterTransformer;
-  var DefaultParametersTransformer = traceur.codegeneration.DefaultParametersTransformer;
-  var GeneratorTransformPass = traceur.codegeneration.GeneratorTransformPass;
-  var DestructuringTransformer = traceur.codegeneration.DestructuringTransformer;
-  var SpreadTransformer = traceur.codegeneration.SpreadTransformer;
-  var BlockBindingTransformer = traceur.codegeneration.BlockBindingTransformer;
-  var ClassTransformer = traceur.codegeneration.ClassTransformer;
-  var ModuleTransformer = traceur.codegeneration.ModuleTransformer;
-  var FreeVariableChecker = traceur.semantics.FreeVariableChecker;
-  var ArrowFunctionTransformer = traceur.codegeneration.ArrowFunctionTransformer;
   var QuasiLiteralTransformer = traceur.codegeneration.QuasiLiteralTransformer;
-  var CollectionTransformer = traceur.codegeneration.CollectionTransformer;
-  var CascadeExpressionTransformer = traceur.codegeneration.CascadeExpressionTransformer;
-  var IsExpressionTransformer = traceur.codegeneration.IsExpressionTransformer;
-  var ClassTransformer = traceur.codegeneration.ClassTransformer;
+  var RestParameterTransformer = traceur.codegeneration.RestParameterTransformer;
+  var SpreadTransformer = traceur.codegeneration.SpreadTransformer;
+  var UniqueIdentifierGenerator = traceur.codegeneration.UniqueIdentifierGenerator;
 
   var options = traceur.options.transform;
 
@@ -175,6 +175,7 @@ traceur.define('codegeneration', function() {
       chain(options.classes, ClassTransformer.transform, identifierGenerator,
             reporter);
 
+      chain(options.conciseBody, ConciseBodyTransformer.transformTree);
       chain(options.propertyMethods,
             PropertyMethodAssignmentTransformer.transformTree);
       chain(options.propertyNameShorthand,
