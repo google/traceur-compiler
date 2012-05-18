@@ -110,6 +110,14 @@ traceur.define('syntax', function() {
     },
 
     /**
+     * @param {traceur.syntax.trees.BindingElement} tree
+     */
+    visitBindingElement: function(tree) {
+      this.visitAny(tree.binding);
+      this.visitAny(tree.initializer);
+    },
+
+    /**
      * @param {traceur.syntax.trees.BindingIdentifier} tree
      */
     visitBindingIdentifier: function(tree) {
@@ -300,14 +308,6 @@ traceur.define('syntax', function() {
       this.visitAny(tree.condition);
       this.visitAny(tree.increment);
       this.visitAny(tree.body);
-    },
-
-    /**
-     * @param {traceur.syntax.trees.FormalParameter} tree
-     */
-    visitFormalParameter: function(tree) {
-      this.visitAny(tree.binding);
-      this.visitAny(tree.initializer);
     },
 
     /**

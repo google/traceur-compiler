@@ -22,6 +22,7 @@ traceur.define('codegeneration', function() {
   var AwaitStatement = traceur.syntax.trees.AwaitStatement;
   var BinaryOperator = traceur.syntax.trees.BinaryOperator;
   var BindThisParameter = traceur.syntax.trees.BindThisParameter;
+  var BindingElement = traceur.syntax.trees.BindingElement;
   var Block = traceur.syntax.trees.Block;
   var CallExpression = traceur.syntax.trees.CallExpression;
   var CascadeExpression = traceur.syntax.trees.CascadeExpression;
@@ -43,7 +44,6 @@ traceur.define('codegeneration', function() {
   var ForInStatement = traceur.syntax.trees.ForInStatement;
   var ForOfStatement = traceur.syntax.trees.ForOfStatement;
   var ForStatement = traceur.syntax.trees.ForStatement;
-  var FormalParameter = traceur.syntax.trees.FormalParameter;
   var FormalParameterList = traceur.syntax.trees.FormalParameterList;
   var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
   var GetAccessor = traceur.syntax.trees.GetAccessor;
@@ -255,6 +255,18 @@ traceur.define('codegeneration', function() {
         return tree;
       }
       return new BindThisParameter(tree.location, expression);
+    },
+
+    /**
+     * @param {BindingElement} tree
+     * @return {ParseTree}
+     */
+    transformBindingElement: function(tree) {
+      var binding = this.transformAny(tree.binding);
+      var initializer = this.transformAny(tree.initializer);
+      if (binding === tree.binding && initializer === tree.initializer)
+        return tree;
+      return new BindingElement(tree.location, binding, initializer);
     },
 
     /**
@@ -567,18 +579,6 @@ traceur.define('codegeneration', function() {
       }
       return new ForStatement(tree.location, initializer, condition, increment,
                               body);
-    },
-
-    /**
-     * @param {FormalParameter} tree
-     * @return {ParseTree}
-     */
-    transformFormalParameter: function(tree) {
-      var binding = this.transformAny(tree.binding);
-      var initializer = this.transformAny(tree.initializer);
-      if (binding == tree.binding && initializer == tree.initializer)
-        return tree;
-      return new FormalParameter(tree.location, binding, initializer);
     },
 
     /**

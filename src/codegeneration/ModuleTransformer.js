@@ -15,6 +15,7 @@
 traceur.define('codegeneration', function() {
   'use strict';
 
+  var BindingElement = traceur.syntax.trees.BindingElement;
   var BindingIdentifier = traceur.syntax.trees.BindingIdentifier;
   var IdentifierExpression = traceur.syntax.trees.IdentifierExpression;
   var LiteralExpression = traceur.syntax.trees.LiteralExpression;
@@ -40,6 +41,7 @@ traceur.define('codegeneration', function() {
   var VARIABLE_STATEMENT = ParseTreeType.VARIABLE_STATEMENT;
 
   var createArgumentList = ParseTreeFactory.createArgumentList;
+  var createBindingIdentifier = ParseTreeFactory.createBindingIdentifier;
   var createBlock = ParseTreeFactory.createBlock;
   var createCallCall = ParseTreeFactory.createCallCall;
   var createCallExpression = ParseTreeFactory.createCallExpression;
@@ -199,8 +201,9 @@ traceur.define('codegeneration', function() {
       var importSpecifierSet;
       // If identifier we need to output the object pattern {id}.
       if (tree.importSpecifierSet.type == ParseTreeType.IDENTIFIER_EXPRESSION) {
-        var field = new ObjectPatternField(tree.location,
-            tree.importSpecifierSet.identifierToken, null);
+        var field = new BindingElement(tree.location,
+            createBindingIdentifier(tree.importSpecifierSet.identifierToken),
+            null);
         importSpecifierSet = new ObjectPattern(tree.location, [field]);
       } else {
         importSpecifierSet = this.transformAny(tree.importSpecifierSet);
@@ -215,8 +218,8 @@ traceur.define('codegeneration', function() {
       if (tree.specifiers.type === TokenType.STAR) {
         var module = this.project_.getModuleForStarTree(tree);
         var fields = module.getExports().map(function(exportSymbol) {
-          return new ObjectPatternField(tree.location,
-            createIdentifierToken(exportSymbol.name), null);
+          return new BindingElement(tree.location,
+            createBindingIdentifier(exportSymbol.name), null);
         })
       } else {
         fields = this.transformList(tree.specifiers);
@@ -225,9 +228,13 @@ traceur.define('codegeneration', function() {
     },
 
     transformImportSpecifier: function(tree) {
-      var element = tree.rhs ?
-          new IdentifierExpression(tree.location, tree.rhs) : null;
-      return new ObjectPatternField(tree.location, tree.lhs, element);
+      if (tree.rhs) {
+        var binding = new BindingIdentifier(tree.location, tree.rhs);
+        var bindingElement = new BindingElement(tree.location, binding, null);
+        return new ObjectPatternField(tree.location, tree.lhs, bindingElement);
+      }
+      return new BindingElement(tree.location,
+          createBindingIdentifier(tree.lhs), null);
     }
   });
 

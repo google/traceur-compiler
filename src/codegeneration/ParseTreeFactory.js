@@ -29,13 +29,14 @@ traceur.define('codegeneration', function() {
   var ArrayLiteralExpression = traceur.syntax.trees.ArrayLiteralExpression;
   var ArrayPattern = traceur.syntax.trees.ArrayPattern;
   var BinaryOperator = traceur.syntax.trees.BinaryOperator;
+  var BindingElement = traceur.syntax.trees.BindingElement;
   var BindingIdentifier = traceur.syntax.trees.BindingIdentifier;
   var Block = traceur.syntax.trees.Block;
   var BreakStatement = traceur.syntax.trees.BreakStatement;
   var CallExpression = traceur.syntax.trees.CallExpression;
+  var CascadeExpression = traceur.syntax.trees.CascadeExpression;
   var CaseClause = traceur.syntax.trees.CaseClause;
   var Catch = traceur.syntax.trees.Catch;
-  var CascadeExpression = traceur.syntax.trees.CascadeExpression;
   var ClassDeclaration = traceur.syntax.trees.ClassDeclaration;
   var CommaExpression = traceur.syntax.trees.CommaExpression;
   var ConditionalExpression = traceur.syntax.trees.ConditionalExpression;
@@ -45,11 +46,10 @@ traceur.define('codegeneration', function() {
   var EmptyStatement = traceur.syntax.trees.EmptyStatement;
   var ExpressionStatement = traceur.syntax.trees.ExpressionStatement;
   var Finally = traceur.syntax.trees.Finally;
-  var ForOfStatement = traceur.syntax.trees.ForOfStatement;
   var ForInStatement = traceur.syntax.trees.ForInStatement;
+  var ForOfStatement = traceur.syntax.trees.ForOfStatement;
   var ForStatement = traceur.syntax.trees.ForStatement;
   var FormalParameterList = traceur.syntax.trees.FormalParameterList;
-  var FormalParameter = traceur.syntax.trees.FormalParameter;
   var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
   var GetAccessor = traceur.syntax.trees.GetAccessor;
   var IdentifierExpression = traceur.syntax.trees.IdentifierExpression;
@@ -164,11 +164,11 @@ traceur.define('codegeneration', function() {
   /**
    * @param {string|IdentifierToken|IdentifierExpression|BindingIdentifier}
    *           identifier
-   * @return {FormalParameter}
+   * @return {BindingElement}
    */
-  function createFormalParameter(arg) {
+  function createBindingElement(arg) {
     var binding = new createBindingIdentifier(arg);
-    return new FormalParameter(null, binding, null);
+    return new BindingElement(null, binding, null);
   }
 
   /**
@@ -181,7 +181,7 @@ traceur.define('codegeneration', function() {
   function createParameterList(arg0, var_args) {
     if (typeof arg0 == 'string') {
       // var_args of strings
-      var parameterList = map(arguments, createFormalParameter);
+      var parameterList = map(arguments, createBindingElement);
       return new FormalParameterList(null, parameterList);
     }
 
@@ -190,11 +190,11 @@ traceur.define('codegeneration', function() {
 
     if (arg0 instanceof IdentifierToken) {
       return new FormalParameterList(
-          null, [createFormalParameter(arg0)]);
+          null, [createBindingElement(arg0)]);
     }
 
     // Array.<string>
-    var builder = arg0.map(createFormalParameter);
+    var builder = arg0.map(createBindingElement);
     return new FormalParameterList(null, builder);
   }
 
@@ -213,7 +213,7 @@ traceur.define('codegeneration', function() {
       builder.push(
           isRestParameter ?
               createRestParameter(parameterName) :
-              createFormalParameter(parameterName));
+              createBindingElement(parameterName));
     }
 
     return new FormalParameterList(null, builder);
@@ -834,6 +834,7 @@ traceur.define('codegeneration', function() {
    * @return {ObjectPatternField}
    */
   function createObjectPatternField(identifier, element) {
+    identifier = createBindingIdentifier(identifier);
     return new ObjectPatternField(null, identifier, element);
   }
 
@@ -1100,7 +1101,7 @@ traceur.define('codegeneration', function() {
       createForInStatement: createForInStatement,
       createForOfStatement: createForOfStatement,
       createForStatement: createForStatement,
-      createFormalParameter: createFormalParameter,
+      createBindingElement: createBindingElement,
       createFunctionDeclaration: createFunctionDeclaration,
       createFunctionExpression: createFunctionExpression,
       createFunctionExpressionFormals: createFunctionExpressionFormals,

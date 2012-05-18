@@ -16,12 +16,11 @@ traceur.define('syntax', function() {
   'use strict';
 
   var MutedErrorReporter = traceur.util.MutedErrorReporter;
-  var SourceRange = traceur.util.SourceRange;
-
   var Keywords = traceur.syntax.Keywords;
+  var PredefinedName = traceur.syntax.PredefinedName;
+  var SourceRange = traceur.util.SourceRange;
   var Token = traceur.syntax.Token;
   var TokenType = traceur.syntax.TokenType;
-  var PredefinedName = traceur.syntax.PredefinedName;
 
   var ArgumentList = traceur.syntax.trees.ArgumentList;
   var ArrayLiteralExpression = traceur.syntax.trees.ArrayLiteralExpression;
@@ -30,6 +29,7 @@ traceur.define('syntax', function() {
   var AwaitStatement = traceur.syntax.trees.AwaitStatement;
   var BinaryOperator = traceur.syntax.trees.BinaryOperator;
   var BindThisParameter = traceur.syntax.trees.BindThisParameter;
+  var BindingElement = traceur.syntax.trees.BindingElement;
   var BindingIdentifier = traceur.syntax.trees.BindingIdentifier;
   var Block = traceur.syntax.trees.Block;
   var BreakStatement = traceur.syntax.trees.BreakStatement;
@@ -56,7 +56,6 @@ traceur.define('syntax', function() {
   var ForOfStatement = traceur.syntax.trees.ForOfStatement;
   var ForInStatement = traceur.syntax.trees.ForInStatement;
   var ForStatement = traceur.syntax.trees.ForStatement;
-  var FormalParameter = traceur.syntax.trees.FormalParameter;
   var FormalParameterList = traceur.syntax.trees.FormalParameterList;
   var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
   var GetAccessor = traceur.syntax.trees.GetAccessor;
@@ -168,15 +167,6 @@ traceur.define('syntax', function() {
   var Expression = {
     NO_IN: 'NO_IN',
     NORMAL: 'NORMAL'
-  };
-
-  // Kinds of destructuring patterns
-  var PatternKind = {
-    // A var, let, const; catch head; or formal parameter list--only
-    // identifiers are allowed as lvalues
-    INITIALIZER: 'INITIALIZER',
-    // An assignment or for-in initializer--any lvalue is allowed
-    ANY: 'ANY'
   };
 
   /**
@@ -878,7 +868,7 @@ traceur.define('syntax', function() {
           p = self.parseRestParameter_();
           hasRest = true;
         } else {
-          p = self.parseFormalParameter_(initializerAllowed);
+          p = self.parseBindingElement_(initializerAllowed);
           if (p.initializer)
             initializerAllowed = Initializer.REQUIRED;
         }
@@ -886,7 +876,7 @@ traceur.define('syntax', function() {
       }
 
       if (this.peekBindingIdentifier_() || this.peekRest_() ||
-          this.peekPatternStart_()) {
+          this.peekPattern_()) {
         parseParam();
         while (!hasRest && this.peek_(TokenType.COMMA)) {
           this.eat_(TokenType.COMMA);
@@ -902,34 +892,6 @@ traceur.define('syntax', function() {
       this.eat_(TokenType.DOT_DOT_DOT);
       return new RestParameter(this.getTreeLocation_(start),
                                this.parseBindingIdentifier_());
-    },
-
-    /**
-     * @param {Initializer} initializerAllowed
-     * @return {FormalParameter}
-     * @private
-     */
-    parseFormalParameter_: function(initializerAllowed) {
-      var start = this.getTreeStartLocation_();
-      var binding;
-      if (options.destructuring && this.peek_(TokenType.OPEN_CURLY)) {
-        binding = this.parseObjectPattern_(PatternKind.INITIALIZER);
-      } else if (options.destructuring &&
-                 this.peek_(TokenType.OPEN_SQUARE)) {
-        binding = this.parseArrayPattern_(PatternKind.INITIALIZER);
-      } else {
-        binding = this.parseBindingIdentifier_();
-      }
-
-      var initializer = null;
-      if (initializerAllowed === Initializer.REQUIRED ||
-          initializerAllowed !== Initializer.DISALLOWED &&
-          options.defaultParameters && this.peek_(TokenType.EQUAL)) {
-        initializer = this.parseInitializer_();
-      }
-
-      return new FormalParameter(this.getTreeLocation_(start),
-                                 binding, initializer);
     },
 
     /**
@@ -1195,6 +1157,14 @@ traceur.define('syntax', function() {
     },
 
     /**
+     * VariableDeclaration :
+     *   BindingIdentifier Initialiseropt
+     *   BindingPattern Initialiser
+     *
+     * VariableDeclarationNoIn :
+     *   BindingIdentifier InitialiserNoInopt
+     *   BindingPattern InitialiserNoIn
+     *
      * @param {TokenType} binding
      * @param {Expression} expressionIn
      * @param {DestructuringInitializer=} opt_initializer
@@ -1207,8 +1177,8 @@ traceur.define('syntax', function() {
       var start = this.getTreeStartLocation_();
 
       var lvalue;
-      if (this.peekPattern_(PatternKind.INITIALIZER))
-        lvalue = this.parsePattern_(PatternKind.INITIALIZER);
+      if (this.peekPattern_())
+        lvalue = this.parseBindingPattern_();
       else
         lvalue = this.parseBindingIdentifier_();
 
@@ -1374,17 +1344,14 @@ traceur.define('syntax', function() {
         return this.parseForStatement2_(start, null);
       }
 
-      var initializer;
-      if (this.peekPattern_(PatternKind.ANY, followedByInOrOf))
-         initializer = this.parsePattern_(PatternKind.ANY);
-      else
-        initializer = this.parseExpressionNoIn_();
-
-      if (this.peek_(TokenType.IN))
+      var initializer = this.parseExpressionNoIn_();
+      if (initializer.isLeftHandSideExpression() &&
+          (this.peek_(TokenType.IN) || this.peekOf_())) {
+        initializer = this.transformLeftHandSideExpression_(initializer);
+        if (this.peekOf_())
+          return this.parseForOfStatement_(start, initializer);
         return this.parseForInStatement_(start, initializer);
-
-      if (this.peekOf_())
-        return this.parseForOfStatement_(start, initializer);
+      }
 
       return this.parseForStatement2_(start, initializer);
     },
@@ -1729,6 +1696,13 @@ traceur.define('syntax', function() {
     },
 
     /**
+     * Catch :
+     *   catch ( CatchParameter ) Block
+     *
+     * CatchParameter :
+     *   BindingIdentifier
+     *   BindingPattern
+     *
      * @return {ParseTree}
      * @private
      */
@@ -1738,8 +1712,8 @@ traceur.define('syntax', function() {
       this.eat_(TokenType.CATCH);
       this.eat_(TokenType.OPEN_PAREN);
       var binding;
-      if (this.peekPatternStart_())
-        binding = this.parsePattern_();
+      if (this.peekPattern_())
+        binding = this.parseBindingPattern_();
       else
         binding = this.parseBindingIdentifier_();
       this.eat_(TokenType.CLOSE_PAREN);
@@ -2057,11 +2031,28 @@ traceur.define('syntax', function() {
       this.eatId_(); // set
       var propertyName = this.nextToken_();
       this.eat_(TokenType.OPEN_PAREN);
-      var parameter = this.parseFormalParameter_(Initializer.DISALLOWED);
+      var parameter = this.parsePropertySetParameterList_();
       this.eat_(TokenType.CLOSE_PAREN);
       var body = this.parseConciseBody_(false);
       return new SetAccessor(this.getTreeLocation_(start), propertyName,
                              parameter, body);
+    },
+
+    /**
+     * PropertySetParameterList :
+     *   BindingIdentifier
+     *   BindingPattern
+     */
+    parsePropertySetParameterList_: function() {
+      var start = this.getTreeStartLocation_();
+
+      var binding;
+      if (this.peekPattern_())
+        binding = this.parseBindingPattern_();
+      else
+        binding = this.parseBindingIdentifier_();
+
+      return new BindingElement(this.getTreeLocation_(start), binding, null);
     },
 
     /**
@@ -2248,11 +2239,11 @@ traceur.define('syntax', function() {
     parseAssignment_: function(expressionIn) {
       var start = this.getTreeStartLocation_();
 
-      var left = this.peekParenPatternAssignment_() ?
-          this.parseParenPattern_() :
-          this.parseConditional_(expressionIn);
-
+      var left = this.parseConditional_(expressionIn);
       if (this.peekAssignmentOperator_()) {
+        if (this.peek_(TokenType.EQUAL))
+          left = this.transformLeftHandSideExpression_(left);
+
         if (!left.isLeftHandSideExpression() && !left.isPattern()) {
           this.reportError_('Left hand side of assignment must be new, call, member, function, primary expressions or destructuring pattern');
         }
@@ -2261,6 +2252,35 @@ traceur.define('syntax', function() {
         return new BinaryOperator(this.getTreeLocation_(start), left, operator, right);
       }
       return left;
+    },
+
+    /**
+     * Transforms a LeftHandSideExpression into a AssignmentPattern if possible.
+     * This returns the transformed tree if it parses as an AssignmentPattern,
+     * otherwise it returns the original tree.
+     * @param {ParseTree} tree
+     * @return {ParseTree}
+     */
+    transformLeftHandSideExpression_: function(tree) {
+      switch (tree.type) {
+        case ParseTreeType.ARRAY_LITERAL_EXPRESSION:
+        case ParseTreeType.OBJECT_LITERAL_EXPRESSION:
+          var errorReporter = new MutedErrorReporter();
+          var p = new Parser(errorReporter,
+                             this.scanner_.getFile(),
+                             tree.location.start.offset);
+          var transformedTree = p.parseAssignmentPattern_();
+          if (!errorReporter.hadError())
+            return transformedTree;
+          break;
+
+        case ParseTreeType.PAREN_EXPRESSION:
+          var expression =
+              this.transformLeftHandSideExpression_(tree.expression);
+          if (expression !== tree.expression)
+            return new ParenExpression(tree.location, expression);
+      }
+      return tree;
     },
 
     /**
@@ -2643,6 +2663,7 @@ traceur.define('syntax', function() {
     // 11.2 Left hand side expression
     //
     // Also inlines the call expression productions
+
     /**
      * @return {ParseTree}
      * @private
@@ -2902,7 +2923,7 @@ traceur.define('syntax', function() {
       } else if (this.peekId_() && this.peekArrow_(1)) {
         var id = this.parseBindingIdentifier_();
         formals = new FormalParameterList(null,
-            [new FormalParameter(id.location, id, null)]);
+            [new BindingElement(id.location, id, null)]);
       } else if (this.peek_(TokenType.OPEN_PAREN)) {
         var oldFoundSpread = this.foundSpreadExpression_;
         var oldMaybeAllowSpread = this.maybeAllowSpread_;
@@ -3018,15 +3039,15 @@ traceur.define('syntax', function() {
     transformArrowFormalParameter_: function(tree, isLast) {
       switch (tree.type) {
         case ParseTreeType.IDENTIFIER_EXPRESSION:
-          return new FormalParameter(tree.location,
-                                     createBindingIdentifier(tree),
-                                     null);
+          return new BindingElement(tree.location,
+                                    createBindingIdentifier(tree),
+                                    null);
         case ParseTreeType.BINARY_OPERATOR:
           if (tree.operator == TokenType.EQUAL) {
             var left = this.transformArrowFormalParameterLeftHand_(tree.left);
-            return left && new FormalParameter(tree.location,
-                                               left,
-                                               tree.right);
+            return left && new BindingElement(tree.location,
+                                              left,
+                                              tree.right);
           }
           break;
 
@@ -3040,16 +3061,16 @@ traceur.define('syntax', function() {
 
         case ParseTreeType.OBJECT_LITERAL_EXPRESSION:
         var fields = this.transformObjectLiteral_(tree);
-          return fields && new FormalParameter(tree.location,
-                                               fields,
-                                               null);
+          return fields && new BindingElement(tree.location,
+                                              fields,
+                                              null);
           break;
 
         case ParseTreeType.ARRAY_LITERAL_EXPRESSION:
           var elements = this.transformArrayLiteral_(tree);
-          return elements && new FormalParameter(tree.location,
-                                                 elements,
-                                                 null);
+          return elements && new BindingElement(tree.location,
+                                                elements,
+                                                null);
           break;
       }
       return null;
@@ -3097,7 +3118,10 @@ traceur.define('syntax', function() {
     },
 
     transformArrayElement_: function(tree) {
-      return this.transformArrowFormalParameterLeftHand_(tree);
+      var transformedTree = this.transformArrowFormalParameterLeftHand_(tree);
+      if (transformedTree.type === ParseTreeType.SPREAD_PATTERN_ELEMENT)
+        return transformedTree;
+      return new BindingElement(tree.location, transformedTree, null);
     },
 
     /**
@@ -3120,10 +3144,13 @@ traceur.define('syntax', function() {
     transformObjectField_: function(tree) {
       switch (tree.type) {
         case ParseTreeType.PROPERTY_NAME_SHORTHAND:
-          return new ObjectPatternField(tree.location, tree.name, null);
+          return new BindingElement(tree.location,
+               new BindingIdentifier(tree.location, tree.name), null);
         case ParseTreeType.PROPERTY_NAME_ASSIGNMENT:
           return new ObjectPatternField(tree.location, tree.name,
-              this.transformArrowFormalParameterLeftHand_(tree.value));
+              new BindingElement(tree.location,
+                this.transformArrowFormalParameterLeftHand_(tree.value),
+                null));
       }
       return null;
     },
@@ -3141,201 +3168,62 @@ traceur.define('syntax', function() {
     // those inner parentheses aren't allowed in the grammar on the ES
     // wiki. This implementation conservatively only allows parentheses
     // at the top-level of assignment statements.
-    //
-    // Rhino has some destructuring support, but it lags SpiderMonkey;
-    // for example, Rhino crashes parsing ({x: f().foo}) = {x: 123}.
 
-    // TODO: implement numbers and strings as labels in object destructuring
-    // TODO: implement destructuring bind in formal parameter lists
-    // TODO: implement destructuring bind in catch headers
-    // TODO: implement destructuring bind in for-in when iterators are
-    // supported
-    // TODO: implement destructuring bind in let bindings when let
-    // bindings are supported
+    peekPattern_: function() {
+      return options.destructuring && (this.peekObjectPattern_() ||
+          this.peekArrayPattern_());
+    },
 
-    /**
-     * @return {boolean}
-     * @private
-     */
-    peekParenPatternAssignment_: function() {
-      if (!this.peekParenPatternStart_()) {
-        return false;
-      }
-      var p = this.createLookaheadParser_();
-      p.parseParenPattern_();
-      return !p.errorReporter_.hadError() && p.peek_(TokenType.EQUAL);
+    peekArrayPattern_: function() {
+      return this.peek_(TokenType.OPEN_SQUARE);
+    },
+
+    peekObjectPattern_: function() {
+      return this.peek_(TokenType.OPEN_CURLY);
     },
 
     /**
-     * @return {boolean}
-     * @private
+     * BindingPattern :
+     *   ObjectBindingPattern
+     *   ArrayBindingPattern
      */
-    peekParenPatternStart_: function() {
-      if (!options.destructuring) {
-        return false;
-      }
-
-      var index = 0;
-      while (this.peek_(TokenType.OPEN_PAREN, index)) {
-        index++;
-      }
-      return this.peekPatternStart_(index);
+    parseBindingPattern_: function() {
+      if (this.peekArrayPattern_())
+        return this.parseArrayBindingPattern_();
+      return this.parseObjectBindingPattern_();
     },
 
     /**
-     * @return {boolean}
-     * @private
+     * ArrayBindingPattern :
+     *   []
+     *   [ BindingElementList ]
+     *   [ BindingElementList , Elisionopt BindingRestElementopt ]
+     *
+     * BindingElementList :
+     *   Elisionopt BindingElement
+     *   BindingElementList , Elisionopt BindingElement
+     *
+     * Elision :
+     *   ,
+     *   Elision ,
      */
-    peekPatternStart_: function(opt_index) {
-      var index = opt_index || 0;
-      return options.destructuring &&
-          (this.peek_(TokenType.OPEN_SQUARE, index) ||
-           this.peek_(TokenType.OPEN_CURLY, index));
-    },
-
-    /**
-     * @param {PatternKind=} opt_kind
-     * @return {ParseTree}
-     * @private
-     */
-    parseParenPattern_: function(opt_kind) {
-      var kind = opt_kind || PatternKind.ANY;
-      if (this.peek_(TokenType.OPEN_PAREN)) {
-        var start = this.getTreeStartLocation_();
-        this.eat_(TokenType.OPEN_PAREN);
-        var result = this.parseParenPattern_(kind);
-        this.eat_(TokenType.CLOSE_PAREN);
-        return new ParenExpression(this.getTreeLocation_(start), result);
-      } else {
-        return this.parsePattern_(kind);
-      }
-    },
-
-    /**
-     * @param {PatternKind} kind
-     * @param {function(Token) : boolean} follow
-     * @return {boolean}
-     * @private
-     */
-    peekPattern_: function(kind, opt_follow) {
-      if (!options.destructuring || !this.peekPatternStart_()) {
-        return false;
-      }
-      var p = this.createLookaheadParser_();
-      p.parsePattern_(kind);
-      return !p.errorReporter_.hadError() &&
-          (!opt_follow || opt_follow(p.peekToken_()));
-    },
-
-    /**
-     * @param {PatternKind} kind
-     * @param {function(Token) : boolean} follow
-     * @return {boolean}
-     * @private
-     */
-    peekParenPattern_: function(kind, follow) {
-      if (!this.peekParenPatternStart_()) {
-        return false;
-      }
-      var p = this.createLookaheadParser_();
-      p.parsePattern_(kind);
-      return !p.errorReporter_.hadError() && follow(p.peekToken_());
-    },
-
-    /**
-     * @param {PatternKind} kind
-     * @return {ParseTree}
-     * @private
-     */
-    parsePattern_: function(kind) {
-      switch (this.peekType_()) {
-        case TokenType.OPEN_SQUARE:
-          return this.parseArrayPattern_(kind);
-        case TokenType.OPEN_CURLY:
-        default:
-          return this.parseObjectPattern_(kind);
-      }
-    },
-
-    /**
-     * @return {boolean}
-     * @private
-     */
-    peekPatternElement_: function() {
-      return this.peekExpression_() || this.peek_(TokenType.DOT_DOT_DOT);
-    },
-
-    // Element ::= Pattern | LValue | ... Pattern
-    /**
-     * @param {PatternKind} kind
-     * @param {function(TokenType) : boolean} follow
-     * @return {ParseTree}
-     * @private
-     */
-    parsePatternElement_: function(kind, follow) {
-      // [ or { are preferably the start of a sub-pattern
-      if (this.peekParenPattern_(kind, follow)) {
-        return this.parseParenPattern_(kind);
-      }
-
-      var self = this;
-      var lvalue;
-      function validate() {
-        if (kind == PatternKind.INITIALIZER &&
-            lvalue.type != ParseTreeType.IDENTIFIER_EXPRESSION) {
-          self.reportError_(
-              'lvalues in initializer patterns must be identifiers');
-        }
-      }
-
-      if (this.peek_(TokenType.DOT_DOT_DOT)) {
-        var start = this.getTreeStartLocation_();
-        this.eat_(TokenType.DOT_DOT_DOT);
-        if (this.peekPatternStart_()) {
-          lvalue = this.parsePattern_(kind);
-        } else {
-          lvalue = this.parseLeftHandSideExpression_();
-          validate();
-        }
-        return new SpreadPatternElement(this.getTreeLocation_(start),
-                                        lvalue);
-      }
-
-      // TODO(arv): Fixme. This is not right.
-      lvalue = this.parseLeftHandSideExpression_();
-      validate();
-      return lvalue;
-    },
-
-    // Pattern ::= ... | "[" Element? ("," Element?)* "]"
-    /**
-     * @param {PatternKind} kind
-     * @return {ParseTree}
-     * @private
-     */
-    parseArrayPattern_: function(kind) {
+    parseArrayBindingPattern_: function() {
       var start = this.getTreeStartLocation_();
       var elements = [];
       this.eat_(TokenType.OPEN_SQUARE);
-      while (this.peek_(TokenType.COMMA) || this.peekPatternElement_()) {
-        if (this.peek_(TokenType.COMMA)) {
-          this.eat_(TokenType.COMMA);
-          elements.push(new NullTree());
+      while (this.peekBindingElement_() ||
+             this.peek_(TokenType.COMMA) ||
+             this.peek_(TokenType.DOT_DOT_DOT)) {
+        this.parseElisionOpt_(elements);
+        if (this.peek_(TokenType.DOT_DOT_DOT)) {
+          elements.push(this.parseBindingRestElement_());
+          break;
         } else {
-          // TODO(arv): Is this follow needed?
-          var element = this.parsePatternElement_(kind,
-                                                  followedByCommaOrCloseSquare);
-          elements.push(element);
-
-          if (element.isSpreadPatternElement()) {
-            // Spread can only appear in the posterior, so we must be done
-            break;
-          } else if (this.peek_(TokenType.COMMA)) {
-            // Consume the comma separator
+          elements.push(this.parseBindingElement_());
+          // Trailing commas are not allowed in patterns.
+          if (this.peek_(TokenType.COMMA) &&
+              !this.peek_(TokenType.CLOSE_SQUARE, 1)) {
             this.eat_(TokenType.COMMA);
-          } else {
-            // Otherwise we must be done
-            break;
           }
         }
       }
@@ -3343,60 +3231,229 @@ traceur.define('syntax', function() {
       return new ArrayPattern(this.getTreeLocation_(start), elements);
     },
 
-    // Pattern ::= "{" (Field ("," Field)* ","?)? "}" | ...
     /**
-     * @param {PatternKind} kind
-     * @return {ParseTree}
-     * @private
+     * BindingElementList :
+     *   Elisionopt BindingElement
+     *   BindingElementList , Elisionopt BindingElement
      */
-    parseObjectPattern_: function(kind) {
-      var start = this.getTreeStartLocation_();
-      var fields = [];
-      this.eat_(TokenType.OPEN_CURLY);
-      while (this.peekObjectPatternField_(kind)) {
-        fields.push(this.parseObjectPatternField_(kind));
+    parseBindingElementList_: function(elements) {
+      this.parseElisionOpt_(elements);
+      elements.push(this.parseBindingElement_());
+      while (this.peek_(TokenType.COMMA)) {
+        this.eat_(TokenType.COMMA);
+        this.parseElisionOpt_(elements);
+        elements.push(this.parseBindingElement_());
+      }
+    },
 
-        if (this.peek_(TokenType.COMMA)) {
-          // Consume the comma separator
-          this.eat_(TokenType.COMMA);
-        } else {
-          // Otherwise we must be done
+    /**
+     * Parses the elision opt production and appends null to the
+     * {@code elements} array for every empty elision.
+     *
+     * @param {Array} elements The array to append to.
+     */
+    parseElisionOpt_: function(elements) {
+      while (this.peek_(TokenType.COMMA)) {
+        this.eat_(TokenType.COMMA);
+        elements.push(null);
+      }
+    },
+
+    /**
+     * BindingElement :
+     *   SingleNameBinding
+     *   BindingPattern Initialiseropt
+     *
+     * SingleNameBinding :
+     *   BindingIdentifier Initialiseropt
+     */
+    peekBindingElement_: function() {
+      return this.peekBindingIdentifier_() || this.peekPattern_();
+    },
+
+    parseBindingElement_: function() {
+      var start = this.getTreeStartLocation_();
+      var binding;
+      if (this.peekPattern_())
+        binding = this.parseBindingPattern_();
+      else
+        binding = this.parseBindingIdentifier_();
+      var initializer = null;
+      if (this.peek_(TokenType.EQUAL))
+        initializer = this.parseInitializer_();
+      return new BindingElement(this.getTreeLocation_(start), binding,
+                                                      initializer);
+    },
+
+    /**
+     * BindingRestElement :
+     *   ... BindingIdentifier
+     */
+    parseBindingRestElement_: function() {
+      var start = this.getTreeStartLocation_();
+      this.eat_(TokenType.DOT_DOT_DOT);
+      var identifier = this.parseBindingIdentifier_();
+      return new SpreadPatternElement(this.getTreeLocation_(start), identifier);
+    },
+
+    /**
+     * ObjectBindingPattern :
+     *   {}
+     *   { BindingPropertyList }
+     *   { BindingPropertyList , }
+     *
+     * BindingPropertyList :
+     *   BindingProperty
+     *   BindingPropertyList , BindingProperty
+     */
+    parseObjectBindingPattern_: function() {
+      var start = this.getTreeStartLocation_();
+      var elements = [];
+      this.eat_(TokenType.OPEN_CURLY);
+      while (this.peekBindingProperty_()) {
+        elements.push(this.parseBindingProperty_());
+        if (!this.peek_(TokenType.COMMA))
           break;
+        this.eat_(TokenType.COMMA);
+      }
+      this.eat_(TokenType.CLOSE_CURLY);
+      return new ObjectPattern(this.getTreeLocation_(start), elements);
+    },
+
+    /**
+     * BindingProperty :
+     *   SingleNameBinding
+     *   PropertyName : BindingElement
+     *
+     * SingleNameBinding :
+     *   BindingIdentifier Initialiseropt
+     */
+    peekBindingProperty_: function() {
+      return this.peekBindingIdentifier_() || this.peekPropertyName_();
+    },
+
+    parseBindingProperty_: function() {
+      var start = this.getTreeStartLocation_();
+      if (this.peek_(TokenType.COLON, 1)) {
+        var propertyName = this.nextToken_();
+        this.eat_(TokenType.COLON);
+        var binding = this.parseBindingElement_();
+        // TODO(arv): Rename ObjectPatternField to BindingProperty
+        return new ObjectPatternField(this.getTreeLocation_(start),
+                                      propertyName, binding);
+      }
+
+      var binding = this.parseBindingIdentifier_();
+      var initializer = null;
+      if (this.peek_(TokenType.EQUAL))
+        initializer = this.parseInitializer_();
+      return new BindingElement(this.getTreeLocation_(start), binding,
+                                initializer);
+    },
+
+    /**
+     * AssignmentPattern :
+     *   ObjectAssignmentPattern
+     *   ArrayAssignmentPattern
+     */
+    parseAssignmentPattern_: function() {
+      if (this.peekObjectPattern_())
+        return this.parseObjectAssignmentPattern_();
+      return this.parseArrayAssignmentPattern_();
+    },
+
+    /**
+     * ObjectAssignmentPattern :
+     *   {}
+     *   { AssignmentPropertyList }
+     *   { AssignmentPropertyList , }
+     *
+     * AssignmentPropertyList :
+     *   AssignmentProperty
+     *   AssignmentPropertyList , AssignmentProperty
+     *
+     * AssignmentProperty :
+     *   Identifier
+     *   PropertyName : LeftHandSideExpression
+     */
+    parseObjectAssignmentPattern_: function() {
+      var start = this.getTreeStartLocation_();
+      this.eat_(TokenType.OPEN_CURLY);
+      var fields = [];
+      var field;
+      while (this.peekId_() || this.peekPropertyName_()) {
+        if (this.peek_(TokenType.COLON, 1)) {
+          var fieldStart = this.getTreeStartLocation_();
+          var name = this.nextToken_();
+          this.eat_(TokenType.COLON);
+          var left = this.parseLeftHandSideExpression_();
+          left = this.transformLeftHandSideExpression_(left);
+          field = new ObjectPatternField(this.getTreeLocation_(start),
+                                         name, left);
+        } else {
+          field = this.parseIdentifierExpression_();
         }
+        fields.push(field);
+        if (this.peek_(TokenType.COMMA))
+          this.eat_(TokenType.COMMA);
+        else
+          break;
       }
       this.eat_(TokenType.CLOSE_CURLY);
       return new ObjectPattern(this.getTreeLocation_(start), fields);
     },
 
     /**
-     * @param {PatternKind} kind
-     * @return {boolean}
-     * @private
+     * ArrayAssignmentPattern :
+     *   [ Elisionopt AssignmentRestElementopt ]
+     *   [ AssignmentElementList ]
+     *   [ AssignmentElementList , Elisionopt AssignmentRestElementopt ]
+     *
+     * AssignmentElementList :
+     *   Elisionopt AssignmentElement
+     *   AssignmentElementList , Elisionopt AssignmentElement
+     *
+     * AssignmentElement :
+     *   LeftHandSideExpression
+     *
+     * AssignmentRestElement :
+     *   ... LeftHandSideExpression
      */
-    peekObjectPatternField_: function(kind) {
-      return this.peek_(TokenType.IDENTIFIER);
-    },
-
-    /**
-     * @param {PatternKind} kind
-     * @return {ParseTree}
-     * @private
-     */
-    parseObjectPatternField_: function(kind) {
+    parseArrayAssignmentPattern_: function() {
       var start = this.getTreeStartLocation_();
-      var identifier = this.eatId_();
-      var element = null;
-      if (this.peek_(TokenType.COLON)) {
-        this.eat_(TokenType.COLON);
-        // TODO(arv): Is this follow needed?
-        element = this.parsePatternElement_(kind, followedByCommaOrCloseCurly);
-
-        if (element.isSpreadPatternElement()) {
-          this.reportError_('Rest can not be used in object patterns');
+      var elements = [];
+      this.eat_(TokenType.OPEN_SQUARE);
+      while (this.peek_(TokenType.COMMA) ||
+             this.peekRest_() ||
+             this.peekAssignmentExpression_()) {
+        this.parseElisionOpt_(elements);
+        if (this.peek_(TokenType.DOT_DOT_DOT)) {
+          elements.push(this.parseAssignmentRestElement_());
+          break;
+        } else {
+          elements.push(this.parseAssignmentElement_());
+          // Trailing commas are not allowed in patterns.
+          if (this.peek_(TokenType.COMMA) &&
+              !this.peek_(TokenType.CLOSE_SQUARE, 1)) {
+            this.eat_(TokenType.COMMA);
+          }
         }
       }
-      return new ObjectPatternField(this.getTreeLocation_(start),
-          identifier, element);
+      this.eat_(TokenType.CLOSE_SQUARE);
+      return new ArrayPattern(this.getTreeLocation_(start), elements);
+    },
+
+    parseAssignmentRestElement_: function() {
+      var start = this.getTreeStartLocation_();
+      this.eat_(TokenType.DOT_DOT_DOT);
+      var left = this.parseLeftHandSideExpression_();
+      left = this.transformLeftHandSideExpression_(left);
+      return new SpreadPatternElement(this.getTreeLocation_(start), left);
+    },
+
+    parseAssignmentElement_: function() {
+      var tree = this.parseLeftHandSideExpression_();
+      return this.transformLeftHandSideExpression_(tree);
     },
 
     /**
@@ -3722,29 +3779,6 @@ traceur.define('syntax', function() {
      */
     peekTokenNoLineTerminator_: function(opt_index) {
       return this.scanner_.peekTokenNoLineTerminator(opt_index || 0);
-    },
-
-    /**
-     * Forks the parser at the current point and returns a new
-     * parser. The new parser observes but does not report errors. This
-     * can be used for speculative parsing:
-     *
-     * <pre>
-     * var p = this.createLookaheadParser_();
-     * if (p.parseX() != null &amp;&amp; !p.errorReporter_.hadError()) {
-     *   return this.parseX_();  // speculation succeeded, so roll forward
-     * } else {
-     *   return this.parseY_();  // try something else
-     * }
-     * </pre>
-     *
-     * @return {Parser}
-     * @private
-     */
-    createLookaheadParser_: function() {
-      return new Parser(new MutedErrorReporter(),
-                        this.scanner_.getFile(),
-                        this.scanner_.getOffset());
     },
 
     /**

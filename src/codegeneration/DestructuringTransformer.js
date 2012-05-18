@@ -15,12 +15,13 @@
 traceur.define('codegeneration', function() {
   'use strict';
 
+  var BindingElement = traceur.syntax.trees.BindingElement;
   var BindingIdentifier = traceur.syntax.trees.BindingIdentifier;
   var Catch = traceur.syntax.trees.Catch;
   var ForInStatement = traceur.syntax.trees.ForInStatement;
   var ForOfStatement = traceur.syntax.trees.ForOfStatement;
-  var FormalParameter = traceur.syntax.trees.FormalParameter;
   var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
+  var LiteralExpression = traceur.syntax.trees.LiteralExpression;
   var ParseTree = traceur.syntax.trees.ParseTree;
   var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
@@ -33,16 +34,20 @@ traceur.define('codegeneration', function() {
 
   var createArgumentList = ParseTreeFactory.createArgumentList;
   var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression;
+  var createBinaryOperator = ParseTreeFactory.createBinaryOperator;
   var createBindingIdentifier = ParseTreeFactory.createBindingIdentifier;
   var createBlock = ParseTreeFactory.createBlock;
   var createCallExpression = ParseTreeFactory.createCallExpression;
   var createCommaExpression = ParseTreeFactory.createCommaExpression;
+  var createConditionalExpression = ParseTreeFactory.createConditionalExpression;
   var createExpressionStatement = ParseTreeFactory.createExpressionStatement;
   var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
   var createMemberExpression = ParseTreeFactory.createMemberExpression;
   var createMemberLookupExpression = ParseTreeFactory.createMemberLookupExpression;
   var createNumberLiteral = ParseTreeFactory.createNumberLiteral;
+  var createOperatorToken = ParseTreeFactory.createOperatorToken;
   var createParenExpression = ParseTreeFactory.createParenExpression;
+  var createStringLiteral = ParseTreeFactory.createStringLiteral;
   var createVariableDeclaration = ParseTreeFactory.createVariableDeclaration;
   var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList;
   var createVariableStatement = ParseTreeFactory.createVariableStatement;
@@ -91,12 +96,56 @@ traceur.define('codegeneration', function() {
   VariableDeclarationDesugaring.prototype = traceur.createObject(
       Desugaring.prototype, {
     assign: function(lvalue, rvalue) {
-      // TODO(arv): This should go away when destructuring is refactored.
+      if (lvalue.type === ParseTreeType.BINDING_ELEMENT) {
+        this.declarations.push(createVariableDeclaration(lvalue.binding,
+            rvalue));
+        return;
+      }
+
       if (lvalue.type == ParseTreeType.IDENTIFIER_EXPRESSION)
         lvalue = createBindingIdentifier(lvalue);
+
       this.declarations.push(createVariableDeclaration(lvalue, rvalue));
     }
   });
+
+  /**
+   * Creates something like "ident" in rval ? rvalue.ident : initializer
+   */
+  function createConditionalMemberExpression(rvalue, identToken, initializer) {
+    if (identToken.type !== TokenType.IDENTIFIER) {
+      return createConditionalMemberLookupExpression(rvalue,
+          new LiteralExpression(null, identToken),
+          initializer);
+    }
+
+    if (!initializer)
+      return createMemberExpression(rvalue, identToken);
+
+    return createConditionalExpression(
+        createBinaryOperator(
+            createStringLiteral(identToken.value),
+            createOperatorToken(TokenType.IN),
+            rvalue),
+        createMemberExpression(rvalue, identToken),
+        initializer);
+  }
+
+  /**
+   * Creates something like [index] in rval ? rvalue[index] : initializer
+   */
+  function createConditionalMemberLookupExpression(rvalue, index, initializer) {
+    if (!initializer)
+      return createMemberLookupExpression(rvalue, index);
+
+    return createConditionalExpression(
+        createBinaryOperator(
+            index,
+            createOperatorToken(TokenType.IN),
+            rvalue),
+        createMemberLookupExpression(rvalue, index),
+        initializer);
+  }
 
   /**
    * Desugars destructuring assignment.
@@ -323,7 +372,7 @@ traceur.define('codegeneration', function() {
                              createBlock(statements));
     },
 
-    transformFormalParameter: function(tree) {
+    transformBindingElement: function(tree) {
       // If this has an initializer the default parameter transformer moves the
       // pattern into the function body and it will be taken care of by the
       // variable pass.
@@ -342,7 +391,7 @@ traceur.define('codegeneration', function() {
       var binding = this.desugarBinding_(tree.binding, statements,
                                          TokenType.VAR);
 
-      return new FormalParameter(null, binding, null);
+      return new BindingElement(null, binding, null);
     },
 
     transformCatch: function(tree) {
@@ -439,7 +488,7 @@ traceur.define('codegeneration', function() {
 
           for (var i = 0; i < pattern.elements.length; i++) {
             var lvalue = pattern.elements[i];
-            if (lvalue.isNull()) {
+            if (lvalue === null) {
               // A skip, for example [a,,c]
               continue;
             } else if (lvalue.isSpreadPatternElement()) {
@@ -456,9 +505,10 @@ traceur.define('codegeneration', function() {
             } else {
               desugaring.assign(
                   lvalue,
-                  createMemberLookupExpression(
+                  createConditionalMemberLookupExpression(
                       desugaring.rvalue,
-                      createNumberLiteral(i)));
+                      createNumberLiteral(i),
+                      lvalue.initializer));
             }
           }
           break;
@@ -468,14 +518,32 @@ traceur.define('codegeneration', function() {
           var pattern = tree;
 
           pattern.fields.forEach(function(field) {
-            var lookup =
-                createMemberExpression(desugaring.rvalue, field.identifier);
-            desugaring.assign(
-                field.element == null ?
-                    // Just 'a' is sugar for 'a: a'
-                    createIdentifierExpression(field.identifier) :
-                    field.element,
-                lookup);
+            var lookup;
+            switch (field.type) {
+              case ParseTreeType.BINDING_ELEMENT:
+                lookup = createConditionalMemberExpression(desugaring.rvalue,
+                    field.binding.identifierToken, field.initializer);
+                desugaring.assign(
+                    createIdentifierExpression(field.binding),
+                    lookup);
+                break;
+
+              case ParseTreeType.OBJECT_PATTERN_FIELD:
+                lookup = createConditionalMemberExpression(desugaring.rvalue,
+                    field.identifier, field.element.initializer);
+                desugaring.assign(field.element, lookup);
+                break;
+
+              case ParseTreeType.IDENTIFIER_EXPRESSION:
+                lookup = createMemberExpression(
+                    desugaring.rvalue, field.identifierToken);
+
+                desugaring.assign(field, lookup);
+                break
+
+              default:
+                throw Error('unreachable');
+            }
           });
           break;
         }
@@ -508,8 +576,15 @@ traceur.define('codegeneration', function() {
      * @return {Object}
      */
     collectLvalueIdentifiers_: function(identifiers, tree) {
+      // ArrayPatterns can contain null elements.
+      if (tree === null)
+        return;
 
       switch (tree.type) {
+        case ParseTreeType.BINDING_ELEMENT:
+          this.collectLvalueIdentifiers_(identifiers, tree.binding);
+          break;
+
         case ParseTreeType.BINDING_IDENTIFIER:
         case ParseTreeType.IDENTIFIER_EXPRESSION:
           identifiers[tree.identifierToken.value] = true;
@@ -523,11 +598,12 @@ traceur.define('codegeneration', function() {
 
         case ParseTreeType.OBJECT_PATTERN:
           tree.fields.forEach(function(f) {
-            identifiers[f.identifier.value] = true;
-            if (f.element !== null) {
-              this.collectLvalueIdentifiers_(identifiers, f.element);
-            }
+            this.collectLvalueIdentifiers_(identifiers, f);
           }, this);
+          break;
+
+        case ParseTreeType.OBJECT_PATTERN_FIELD:
+          this.collectLvalueIdentifiers_(identifiers, tree.element);
           break;
 
         case ParseTreeType.PAREN_EXPRESSION:

@@ -164,15 +164,16 @@ traceur.define('syntax', function() {
     visitArrayPattern: function(tree) {
       for (var i = 0; i < tree.elements.length; i++) {
         var element = tree.elements[i];
-        this.checkVisit_(element.isNull() ||
+        this.checkVisit_(element === null ||
+            element.type === ParseTreeType.BINDING_ELEMENT ||
+            element.type == ParseTreeType.IDENTIFIER_EXPRESSION ||
             element.isLeftHandSideExpression() ||
-            element.type === ParseTreeType.BINDING_IDENTIFIER ||
             element.isPattern() ||
             element.isSpreadPatternElement(),
             element,
             'null, sub pattern, left hand side expression or spread expected');
 
-        if (element.isSpreadPatternElement()) {
+        if (element && element.isSpreadPatternElement()) {
           this.check_(i === (tree.elements.length - 1), element,
               'spread in array patterns must be the last element');
         }
@@ -270,6 +271,21 @@ traceur.define('syntax', function() {
       this.visitAny(tree.left);
       this.visitAny(tree.right);
     },
+
+    /**
+     * @param {traceur.syntax.trees.BindingElement} tree
+     */
+    visitBindingElement: function(tree) {
+      var binding = tree.binding;
+      this.checkVisit_(
+          binding.type == ParseTreeType.BINDING_IDENTIFIER ||
+          binding.type == ParseTreeType.OBJECT_PATTERN ||
+          binding.type == ParseTreeType.ARRAY_PATTERN,
+          binding,
+          'expected valid binding element');
+      this.visitAny(tree.initializer);
+    },
+
 
     /**
      * @param {traceur.syntax.trees.Block} tree
@@ -507,27 +523,13 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.FormalParameter} tree
-     */
-    visitFormalParameter: function(tree) {
-      var binding = tree.binding;
-      this.checkVisit_(
-          binding.type == ParseTreeType.BINDING_IDENTIFIER ||
-          binding.type == ParseTreeType.OBJECT_PATTERN ||
-          binding.type == ParseTreeType.ARRAY_PATTERN,
-          binding,
-          'expected valid formal parameter');
-      this.visitAny(tree.initializer);
-    },
-
-    /**
      * @param {traceur.syntax.trees.FormalParameterList} tree
      */
     visitFormalParameterList: function(tree) {
       for (var i = 0; i < tree.parameters.length; i++) {
         var parameter = tree.parameters[i];
         switch (parameter.type) {
-          case ParseTreeType.FORMAL_PARAMETER:
+          case ParseTreeType.BINDING_ELEMENT:
             break;
 
           case ParseTreeType.REST_PARAMETER:
@@ -738,9 +740,11 @@ traceur.define('syntax', function() {
     visitObjectPattern: function(tree) {
       for (var i = 0; i < tree.fields.length; i++) {
         var field = tree.fields[i];
-        this.checkType_(ParseTreeType.OBJECT_PATTERN_FIELD,
-                        field,
-                        'object pattern field expected');
+        this.checkVisit_(field.type === ParseTreeType.OBJECT_PATTERN_FIELD ||
+                         field.type === ParseTreeType.BINDING_ELEMENT ||
+                         field.type === ParseTreeType.IDENTIFIER_EXPRESSION,
+                         field,
+                         'object pattern field expected');
       }
     },
 
@@ -748,13 +752,11 @@ traceur.define('syntax', function() {
      * @param {traceur.syntax.trees.ObjectPatternField} tree
      */
     visitObjectPatternField: function(tree) {
-      if (tree.element !== null) {
-        this.checkVisit_(tree.element.isLeftHandSideExpression() ||
-            tree.element.type === ParseTreeType.BINDING_IDENTIFIER ||
-            tree.element.isPattern(),
-            tree.element,
-            'left hand side expression or pattern expected');
-      }
+      this.checkVisit_(tree.element.type === ParseTreeType.BINDING_ELEMENT ||
+                       tree.element.isPattern() ||
+                       tree.element.isLeftHandSideExpression(),
+                       tree.element,
+                       'binding element expected');
     },
 
     /**

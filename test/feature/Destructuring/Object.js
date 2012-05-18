@@ -23,3 +23,11 @@ assertEquals(7, result.a);
 assertEquals(8, result.b);
 assertUndefined(result.c);
 assertEquals(11, result.d);
+
+var {0: x, '1': y, length: z} = [0, 1, 2, 3];
+assertEquals(0, x);
+assertEquals(1, y);
+assertEquals(4, z);
+
+var {x: y,} = {x: 5};
+assertEquals(5, y);

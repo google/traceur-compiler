@@ -111,6 +111,21 @@ traceur.define('syntax.trees', function() {
     BindingIdentifier: create('identifierToken'),
 
     /**
+     * BindingElement is used for formal parameters and destructuring variable
+     * declarations. The binding is either a pattern consisting of other binding
+     * elements or binding identifiers or a binding identifier.
+     *
+     * The initializer may be null in the case when there is no default value.
+     *
+     * @param {traceur.util.SourceRange} location
+     * @param {BindingIdentifier|ObjectPattern|ArrayPattern} binding
+     * @param {ParseTree} initializer
+     * @constructor
+     * @extends {ParseTree}
+     */
+    BindingElement: create('binding', 'initializer'),
+
+    /**
      * @param {traceur.util.SourceRange} location
      * @param {Array.<ParseTree>} statements
      * @constructor
@@ -316,15 +331,6 @@ traceur.define('syntax.trees', function() {
      * @extends {ParseTree}
      */
     ForInStatement: create('initializer', 'collection', 'body'),
-
-    /**
-     * @param {traceur.util.SourceRange} location
-     * @param {ParseTree} binding
-     * @param {ParseTree} initializer
-     * @constructor
-     * @extends {ParseTree}
-     */
-    FormalParameter: create('binding', 'initializer'),
 
     /**
      * @param {traceur.util.SourceRange} location
