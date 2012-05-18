@@ -1,5 +1,5 @@
 // Should not compile.
-// Options: --conciseBody=false
+// Options: --concise-body=false
 // Error: (6, 7): '{' expected
 
 var object = {

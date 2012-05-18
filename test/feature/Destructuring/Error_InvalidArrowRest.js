@@ -1,4 +1,4 @@
 // Should not compile.
-// Error: Rest pattern must be the last element of an array pattern
+// Error: (4, 23): Semi-colon expected
 
 var f = ([...xs, ys]) => xs;

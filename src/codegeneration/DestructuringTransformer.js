@@ -110,7 +110,7 @@ traceur.define('codegeneration', function() {
   });
 
   /**
-   * Creates something like "ident" in rval ? rvalue.ident : initializer
+   * Creates something like "ident" in rvalue ? rvalue.ident : initializer
    */
   function createConditionalMemberExpression(rvalue, identToken, initializer) {
     if (identToken.type !== TokenType.IDENTIFIER) {
@@ -132,7 +132,7 @@ traceur.define('codegeneration', function() {
   }
 
   /**
-   * Creates something like [index] in rval ? rvalue[index] : initializer
+   * Creates something like [index] in rvalue ? rvalue[index] : initializer
    */
   function createConditionalMemberLookupExpression(rvalue, index, initializer) {
     if (!initializer)

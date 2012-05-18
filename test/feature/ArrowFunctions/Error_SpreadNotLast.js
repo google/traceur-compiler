@@ -1,5 +1,6 @@
 // Should not compile.
-// Error: invalid formal parameter for "=>" expression
+// Error: (6, 17): ')' expected
+// Error: (6, 19): '=>' expected
 
 {
   let f = (...xs, x) => xs;
