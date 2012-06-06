@@ -20,6 +20,8 @@ traceur.define('codegeneration', function() {
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
   var PredefinedName = traceur.syntax.PredefinedName;
   var TokenType = traceur.syntax.TokenType;
+  var expandMemberExpression = traceur.codegeneration.expandMemberExpression;
+  var expandMemberLookupExpression = traceur.codegeneration.expandMemberLookupExpression;
 
   var createArgumentList = ParseTreeFactory.createArgumentList;
   var createArrayLiteralExpression = ParseTreeFactory.createArrayLiteralExpression;
@@ -31,13 +33,16 @@ traceur.define('codegeneration', function() {
   /**
    * Transforms super expressions in function bodies.
    *
+   * @param {TempVarTransformer} tempVarTransformer
    * @param {ErrorReporter} reporter
    * @param {ParseTree} method
    * @constructor
    * @extends {ParseTreeTransformer}
    */
-  function SuperTransformer(reporter, className, methodTree) {
+  function SuperTransformer(tempVarTransformer, reporter, className,
+                            methodTree) {
     ParseTreeTransformer.call(this);
+    this.tempVarTransformer_ = tempVarTransformer;
     this.className_ = className;
     this.method_ = methodTree;
     this.reporter_ = reporter;
@@ -142,10 +147,21 @@ traceur.define('codegeneration', function() {
     },
 
     transformBinaryOperator: function(tree) {
-      if (tree.operator.type === TokenType.EQUAL &&
+      if (tree.operator.isAssignmentOperator() &&
           (tree.left.type === ParseTreeType.MEMBER_EXPRESSION ||
            tree.left.type === ParseTreeType.MEMBER_LOOKUP_EXPRESSION) &&
           tree.left.operand.type === ParseTreeType.SUPER_EXPRESSION) {
+
+        if (tree.operator.type !== TokenType.EQUAL) {
+          if (tree.left.type === ParseTreeType.MEMBER_LOOKUP_EXPRESSION) {
+            tree = expandMemberLookupExpression(tree,
+                                                   this.tempVarTransformer_);
+          } else {
+            tree = expandMemberExpression(tree, this.tempVarTransformer_);
+          }
+          return this.transformAny(tree);
+        }
+
         this.superFound_ = true;
         var name = tree.left.type === ParseTreeType.MEMBER_LOOKUP_EXPRESSION ?
             tree.left.memberExpression :
@@ -161,7 +177,7 @@ traceur.define('codegeneration', function() {
               createThisExpression(),
               this.className_,
               name,
-              tree.right));
+              this.transformAny(tree.right)));
       }
 
       // TODO(arv): Implement super.foo op= expr
@@ -173,7 +189,6 @@ traceur.define('codegeneration', function() {
      * @return {ParseTree}
      */
     transformSuperExpression: function(tree) {
-      // TODO(arv): Implement super.property op= ...;
       this.reportError_(tree, '"super" may only be used on the LHS of a member access expression before a call (TODO wording)');
       return tree;
     },

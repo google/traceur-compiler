@@ -7,3 +7,7 @@ assertUndefined(object[n.public]);
 assertUndefined(object[n + '']);
 assertArrayEquals([], Object.getOwnPropertyNames(object));
 assertFalse(object.hasOwnProperty(n));
+
+assertEquals(32, object[n] -= 10);
+assertEquals(16, object[n] /= 2);
+assertEquals(16, object[n]);

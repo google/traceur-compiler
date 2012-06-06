@@ -20,6 +20,7 @@ traceur.define('codegeneration', function() {
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
   var TempVarTransformer = traceur.codegeneration.TempVarTransformer;
   var TokenType = traceur.syntax.TokenType;
+  var expandMemberLookupExpression = traceur.codegeneration.expandMemberLookupExpression;
 
   var createArgumentList = ParseTreeFactory.createArgumentList;
   var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression;
@@ -94,9 +95,14 @@ traceur.define('codegeneration', function() {
             createArgumentList(object, name));
       }
 
-      if (tree.operator.type === TokenType.EQUAL &&
-          tree.left.type === ParseTreeType.MEMBER_LOOKUP_EXPRESSION) {
-        // TODO(arv): operand[memberExpr] += value
+      if (tree.left.type === ParseTreeType.MEMBER_LOOKUP_EXPRESSION &&
+          tree.operator.isAssignmentOperator()) {
+
+        if (tree.operator.type !== TokenType.EQUAL) {
+          tree = expandMemberLookupExpression(tree, this);
+          return this.transformAny(tree);
+        }
+
         var operand = this.transformAny(tree.left.operand);
         var memberExpression = this.transformAny(tree.left.memberExpression);
         var value = this.transformAny(tree.right);
@@ -121,7 +127,7 @@ traceur.define('codegeneration', function() {
 
       // operand[memberExpr](args)
       // =>
-      // ($tmp = operand, 
+      // ($tmp = operand,
       //  traceur.runtime.elementGet($tmp, memberExpr).call($tmp, args))
 
       var ident = createIdentifierExpression(this.addTempVar());

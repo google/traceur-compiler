@@ -15,6 +15,7 @@
 traceur.define('syntax', function() {
   'use strict';
 
+  var TokenType = traceur.syntax.TokenType;
   var assert = traceur.assert;
 
   /**
@@ -46,6 +47,27 @@ traceur.define('syntax', function() {
     asLiteral: function() {
       assert(this instanceof traceur.syntax.LiteralToken);
       return this;
+    },
+
+    /** @return {boolean} */
+    isAssignmentOperator: function() {
+      switch (this.type) {
+        case TokenType.EQUAL:
+        case TokenType.STAR_EQUAL:
+        case TokenType.SLASH_EQUAL:
+        case TokenType.PERCENT_EQUAL:
+        case TokenType.PLUS_EQUAL:
+        case TokenType.MINUS_EQUAL:
+        case TokenType.LEFT_SHIFT_EQUAL:
+        case TokenType.RIGHT_SHIFT_EQUAL:
+        case TokenType.UNSIGNED_RIGHT_SHIFT_EQUAL:
+        case TokenType.AMPERSAND_EQUAL:
+        case TokenType.CARET_EQUAL:
+        case TokenType.BAR_EQUAL:
+          return true;
+        default:
+          return false;
+      }
     }
   };
 

@@ -14,7 +14,7 @@ import {elementGet, elementSet, elementDelete} from '@name';
 
   var tmp = {};
   function f() {}
-  var re = /regexp/
+  var re = /regexp/;
 
   assertEquals(object[0], 0);
   assertEquals(object[null], null);
@@ -65,4 +65,22 @@ import {elementGet, elementSet, elementDelete} from '@name';
 
   assertArrayEquals([0, null, undefined, true, false, tmp, f, re], setLog);
 
+  setLog = [];
+  getLog = [];
+
+  object = {};
+  object[elementGet] = function(name) {
+    getLog.push(name);
+    return name;
+  };
+  object[elementSet] = function(name, value) {
+    setLog.push(name, value);
+  };
+
+  assertEquals(2, object[1] += 1);
+  assertEquals(8, object[2] *= 4);
+  assertEquals('ab', object['a'] += 'b');
+  assertEquals(32, object[8] <<= 2);
+  assertArrayEquals([1, 2, 'a', 8], getLog);
+  assertArrayEquals([1, 2, 2, 8, 'a', 'ab', 8, 32], setLog);
 }

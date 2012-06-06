@@ -86,8 +86,7 @@ traceur.define('codegeneration', function() {
    * @extends {TempVarTransformer}
    */
   function ClassTransformer(identifierGenerator, reporter) {
-    TempVarTransformer.call(this);
-    this.identifierGenerator_ = identifierGenerator;
+    TempVarTransformer.call(this, identifierGenerator);
     this.reporter_ = reporter;
   }
 
@@ -224,7 +223,8 @@ traceur.define('codegeneration', function() {
     transformSuperInBlock_: function(methodTree, tree) {
       var state = peekState();
       var className = state.name;
-      var superTransformer = new SuperTransformer(this.reporter_, className, methodTree);
+      var superTransformer = new SuperTransformer(this, this.reporter_,
+                                                  className, methodTree);
       var transformedTree = superTransformer.transformAny(proto.transformAny.call(this, tree));
       if (superTransformer.hasSuper)
         state.hasSuper = true;

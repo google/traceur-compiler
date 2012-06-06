@@ -2303,32 +2303,8 @@ traceur.define('syntax', function() {
      * @private
      */
     peekAssignmentOperator_: function() {
-      return this.isAssignmentOperator_(this.peekType_());
-    },
-
-    /**
-     * @param {TokenType} tokenType
-     * @return {boolean}
-     * @private
-     */
-    isAssignmentOperator_: function(tokenType) {
-      switch (tokenType) {
-        case TokenType.EQUAL:
-        case TokenType.STAR_EQUAL:
-        case TokenType.SLASH_EQUAL:
-        case TokenType.PERCENT_EQUAL:
-        case TokenType.PLUS_EQUAL:
-        case TokenType.MINUS_EQUAL:
-        case TokenType.LEFT_SHIFT_EQUAL:
-        case TokenType.RIGHT_SHIFT_EQUAL:
-        case TokenType.UNSIGNED_RIGHT_SHIFT_EQUAL:
-        case TokenType.AMPERSAND_EQUAL:
-        case TokenType.CARET_EQUAL:
-        case TokenType.BAR_EQUAL:
-          return true;
-        default:
-          return false;
-      }
+      var token = this.peekToken_();
+      return !!token && token.isAssignmentOperator();
     },
 
     // 11.12 Conditional Expression
@@ -2815,7 +2791,7 @@ traceur.define('syntax', function() {
       }
 
       if (expr.type == ParseTreeType.BINARY_OPERATOR &&
-          !this.isAssignmentOperator_(expr.operator.type)) {
+          !expr.operator.isAssignmentOperator()) {
         this.reportError_(expr.operator, 'Invalid operator: ' + expr.operator);
       }
 
