@@ -21,11 +21,11 @@ traceur.define('codegeneration', function() {
   var ClassTransformer = traceur.codegeneration.ClassTransformer;
   var ClassTransformer = traceur.codegeneration.ClassTransformer;
   var CollectionTransformer = traceur.codegeneration.CollectionTransformer;
-  var ConciseBodyTransformer = traceur.codegeneration.ConciseBodyTransformer;
   var DefaultParametersTransformer = traceur.codegeneration.DefaultParametersTransformer;
   var DestructuringTransformer = traceur.codegeneration.DestructuringTransformer;
   var ForOfTransformer = traceur.codegeneration.ForOfTransformer;
   var FreeVariableChecker = traceur.semantics.FreeVariableChecker;
+  var GeneratorComprehensionTransformer = traceur.codegeneration.GeneratorComprehensionTransformer;
   var GeneratorTransformPass = traceur.codegeneration.GeneratorTransformPass;
   var IsExpressionTransformer = traceur.codegeneration.IsExpressionTransformer;
   var ModuleTransformer = traceur.codegeneration.ModuleTransformer;
@@ -38,7 +38,6 @@ traceur.define('codegeneration', function() {
   var RestParameterTransformer = traceur.codegeneration.RestParameterTransformer;
   var SpreadTransformer = traceur.codegeneration.SpreadTransformer;
   var UniqueIdentifierGenerator = traceur.codegeneration.UniqueIdentifierGenerator;
-  var GeneratorComprehensionTransformer = traceur.codegeneration.GeneratorComprehensionTransformer;
 
   var options = traceur.options.transform;
 
@@ -176,7 +175,6 @@ traceur.define('codegeneration', function() {
       chain(options.classes, ClassTransformer.transform, identifierGenerator,
             reporter);
 
-      chain(options.conciseBody, ConciseBodyTransformer.transformTree);
       chain(options.propertyMethods,
             PropertyMethodAssignmentTransformer.transformTree);
       chain(options.propertyNameShorthand,

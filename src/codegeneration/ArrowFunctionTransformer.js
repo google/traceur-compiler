@@ -15,7 +15,6 @@
 traceur.define('codegeneration', function() {
   'use strict';
 
-  var ConciseBodyTransformer = traceur.codegeneration.ConciseBodyTransformer;
   var FindInFunctionScope = traceur.codegeneration.FindInFunctionScope;
   var FormalParameterList = traceur.syntax.trees.FormalParameterList;
   var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
@@ -84,7 +83,10 @@ traceur.define('codegeneration', function() {
       }
 
       var functionBody = this.transformAny(tree.functionBody);
-      functionBody = ConciseBodyTransformer.transformFunctionBody(functionBody);
+      if (functionBody.type != ParseTreeType.BLOCK) {
+        // { return expr; }
+        functionBody = createBlock(createReturnStatement(functionBody));
+      }
 
       // function(params) { ... }
       var result = createParenExpression(

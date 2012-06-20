@@ -180,7 +180,6 @@ var traceur = (function() {
     'syntax/ParseTreeValidator.js',
     'codegeneration/ParseTreeTransformer.js',
     'codegeneration/FindInFunctionScope.js',
-    'codegeneration/ConciseBodyTransformer.js',
     'codegeneration/ArrowFunctionTransformer.js',
     'codegeneration/PropertyMethodAssignmentTransformer.js',
     'codegeneration/PropertyNameShorthandTransformer.js',

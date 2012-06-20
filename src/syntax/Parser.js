@@ -2020,7 +2020,7 @@ traceur.define('syntax', function() {
       var propertyName = this.nextToken_();
       this.eat_(TokenType.OPEN_PAREN);
       this.eat_(TokenType.CLOSE_PAREN);
-      var body = this.parseConciseBody_(false);
+      var body = this.parseFunctionBody_(false);
       return new GetAccessor(this.getTreeLocation_(start), propertyName, body);
     },
 
@@ -2044,7 +2044,7 @@ traceur.define('syntax', function() {
       this.eat_(TokenType.OPEN_PAREN);
       var parameter = this.parsePropertySetParameterList_();
       this.eat_(TokenType.CLOSE_PAREN);
-      var body = this.parseConciseBody_(false);
+      var body = this.parseFunctionBody_(false);
       return new SetAccessor(this.getTreeLocation_(start), propertyName,
                              parameter, body);
     },
@@ -2104,7 +2104,7 @@ traceur.define('syntax', function() {
       this.eat_(TokenType.OPEN_PAREN);
       var formalParameterList = this.parseFormalParameterList_();
       this.eat_(TokenType.CLOSE_PAREN);
-      var functionBody = this.parseConciseBody_(isGenerator);
+      var functionBody = this.parseFunctionBody_(isGenerator);
       return new PropertyMethodAssignment(this.getTreeLocation_(start),
           name, isGenerator, formalParameterList, functionBody);
     },
@@ -2979,8 +2979,7 @@ traceur.define('syntax', function() {
 
       this.eat_(TokenType.ARROW);
 
-      var allowConciseBody = true;
-      var body = this.parseConciseBody_(false, allowConciseBody);
+      var body = this.parseConciseBody_();
       var startLoc = this.getTreeLocation_(start);
       return new ArrowFunctionExpression(startLoc,
           new FormalParameterList(startLoc, formals),
@@ -3023,12 +3022,12 @@ traceur.define('syntax', function() {
      *
      * @param {boolean} isGenerator
      * @return {ParseTree}
-     */
-    parseConciseBody_: function(isGenerator, opt_allowExpression) {
-      var allowExpression = opt_allowExpression || options.conciseBody;
+     *
+     * @return {ParseTree} */
+    parseConciseBody_: function() {
       // The body can be a block or an expression. A '{' is always treated as
       // the beginning of a block.
-      if (!allowExpression || this.peek_(TokenType.OPEN_CURLY))
+      if (this.peek_(TokenType.OPEN_CURLY))
         return this.parseBlock_();
       return this.parseAssignmentExpression_();
     },
