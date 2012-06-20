@@ -38,6 +38,7 @@ traceur.define('codegeneration', function() {
   var RestParameterTransformer = traceur.codegeneration.RestParameterTransformer;
   var SpreadTransformer = traceur.codegeneration.SpreadTransformer;
   var UniqueIdentifierGenerator = traceur.codegeneration.UniqueIdentifierGenerator;
+  var GeneratorComprehensionTransformer = traceur.codegeneration.GeneratorComprehensionTransformer;
 
   var options = traceur.options.transform;
 
@@ -181,6 +182,12 @@ traceur.define('codegeneration', function() {
       chain(options.propertyNameShorthand,
             PropertyNameShorthandTransformer.transformTree);
       chain(options.isExpression, IsExpressionTransformer.transformTree);
+
+      // GeneratorComprehensionTransformer must come before for-of and
+      // destructuring.
+      chain(options.generatorComprehension,
+            GeneratorComprehensionTransformer.transformTree,
+            identifierGenerator);
 
       // for of must come before destructuring and generator, or anything
       // that wants to use VariableBinder

@@ -92,6 +92,7 @@ traceur.define('syntax', function() {
     SUPER_GET: 'superGet',
     SUPER_SET: 'superSet',
     THAT: '$that',
+    THIS: 'this',
     THEN: 'then',
     TRACEUR: 'traceur',
     TYPE_ERROR: 'TypeError',

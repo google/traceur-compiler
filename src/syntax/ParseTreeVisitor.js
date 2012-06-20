@@ -191,6 +191,14 @@ traceur.define('syntax', function() {
     },
 
     /**
+     * @param {traceur.syntax.trees.ComprehensionFor} tree
+     */
+    visitComprehensionFor: function(tree) {
+      this.visitAny(tree.left);
+      this.visitAny(tree.iterator);
+    },
+
+    /**
      * @param {traceur.syntax.trees.ConditionalExpression} tree
      */
     visitConditionalExpression: function(tree) {
@@ -324,6 +332,15 @@ traceur.define('syntax', function() {
       this.visitAny(tree.name);
       this.visitAny(tree.formalParameterList);
       this.visitAny(tree.functionBody);
+    },
+
+    /**
+     * @param {traceur.syntax.trees.GeneratorComprehension} tree
+     */
+    visitGeneratorComprehension: function(tree) {
+      this.visitAny(tree.expression);
+      this.visitList(tree.comprehensionForList);
+      this.visitAny(tree.ifExpression);
     },
 
     /**

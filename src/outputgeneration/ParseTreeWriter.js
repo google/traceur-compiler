@@ -266,6 +266,13 @@ traceur.define('outputgeneration', function() {
       this.writeList_(tree.expressions, TokenType.COMMA, false);
     },
 
+    visitComprehensionFor: function(tree) {
+      this.write_(TokenType.FOR);
+      this.visitAny(tree.left);
+      this.write_(PredefinedName.OF);
+      this.visitAny(tree.iterator);
+    },
+
     /**
      * @param {ConditionalExpression} tree
      */
@@ -462,6 +469,17 @@ traceur.define('outputgeneration', function() {
       this.visitAny(tree.formalParameterList);
       this.write_(TokenType.CLOSE_PAREN);
       this.visitAny(tree.functionBody);
+    },
+
+    visitGeneratorComprehension: function(tree) {
+      this.write_(TokenType.OPEN_PAREN);
+      this.visitAny(tree.expression);
+      this.visitList(tree.comprehensionForList);
+      if (tree.ifExpression) {
+        this.write_(TokenType.IF);
+        this.visitAny(tree.ifExpression);
+      }
+      this.write_(TokenType.CLOSE_PAREN);
     },
 
     /**

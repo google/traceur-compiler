@@ -207,6 +207,15 @@ traceur.define('syntax.trees', function() {
 
     /**
      * @param {traceur.util.SourceRange} location
+     * @param {ParseTree} left
+     * @param {ParseTree} iterator
+     * @constructor
+     * @extends {ParseTree}
+     */
+    ComprehensionFor: create('left', 'iterator'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
      * @param {ParseTree} condition
      * @param {ParseTree} left
      * @param {ParseTree} right
@@ -363,6 +372,17 @@ traceur.define('syntax.trees', function() {
     FunctionDeclaration: create('name', 'isGenerator',
                                 'formalParameterList',
                                 'functionBody'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
+     * @param {ParseTree} expression
+     * @param {Array.<ParseTree>} comprehensionForList
+     * @param {ParseTree} ifExpression
+     * @constructor
+     * @extends {ParseTree}
+     */
+    GeneratorComprehension: create('expression', 'comprehensionForList',
+                                   'ifExpression'),
 
     /**
      * @param {traceur.util.SourceRange} location

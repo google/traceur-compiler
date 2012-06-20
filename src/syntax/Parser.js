@@ -40,6 +40,7 @@ traceur.define('syntax', function() {
   var ClassDeclaration = traceur.syntax.trees.ClassDeclaration;
   var ClassExpression = traceur.syntax.trees.ClassExpression;
   var CommaExpression = traceur.syntax.trees.CommaExpression;
+  var ComprehensionFor = traceur.syntax.trees.ComprehensionFor;
   var ConditionalExpression = traceur.syntax.trees.ConditionalExpression;
   var ContinueStatement = traceur.syntax.trees.ContinueStatement;
   var DebuggerStatement = traceur.syntax.trees.DebuggerStatement;
@@ -58,6 +59,7 @@ traceur.define('syntax', function() {
   var ForStatement = traceur.syntax.trees.ForStatement;
   var FormalParameterList = traceur.syntax.trees.FormalParameterList;
   var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
+  var GeneratorComprehension = traceur.syntax.trees.GeneratorComprehension;
   var GetAccessor = traceur.syntax.trees.GetAccessor;
   var IdentifierExpression = traceur.syntax.trees.IdentifierExpression;
   var IdentifierToken = traceur.syntax.IdentifierToken;
@@ -2886,13 +2888,15 @@ traceur.define('syntax', function() {
     },
 
     /**
+     * Parses arrow functions and paren expressions as well as delegates to
+     * {@code parseGeneratorComprehension_} if this begins a generator
+     * comprehension.
+     *
      * Arrow function support, see:
      * http://wiki.ecmascript.org/doku.php?id=strawman:arrow_function_syntax
      *
-     * Note: this is parsed differently than in the strawman. Instead of
-     * inserting arrow into many places in the grammar, it's treated like an
-     * operator with lower precedence than assignment but higher precedence than
-     * comma.
+     * Generator comprehensions syntax is in the ES6 draft,
+     * 11.1.7 Generator Comprehensions
      *
      * ArrowFunction :
      *   ArrowParameters => ConciseBody
@@ -2952,6 +2956,12 @@ traceur.define('syntax', function() {
             if (formals)
               formals.push(this.parseRestParameter_());
             this.eat_(TokenType.CLOSE_PAREN);
+
+          // Generator comprehension
+          // ( CoverFormals for
+          } else if (this.peek_(TokenType.FOR) &&
+                     options.generatorComprehension) {
+            return this.parseGeneratorComprehension_(start, coverFormals);
 
           // ( CoverFormals )
           } else {
@@ -3021,6 +3031,58 @@ traceur.define('syntax', function() {
       if (!allowExpression || this.peek_(TokenType.OPEN_CURLY))
         return this.parseBlock_();
       return this.parseAssignmentExpression_();
+    },
+
+    /**
+     * Continues parsing generator exressions. The opening paren and the
+     * expression is parsed by parseArrowFunction_.
+     *
+     * https://bugs.ecmascript.org/show_bug.cgi?id=381
+     *
+     * GeneratorComprehension :
+     *   ( Expression ComprehensionForList )
+     *   ( Expression ComprehensionForList if Expression )
+     *
+     * ComprehensionForList :
+     *   ComprehensionFor
+     *   ComprehensionForList ComprehensionFor
+     *
+     * ComprehensionFor :
+     *   for ForBinding of Expression
+     */
+    parseGeneratorComprehension_: function(start, expression) {
+      var comprehensionForList = [];
+      while (this.peek_(TokenType.FOR)) {
+        this.eat_(TokenType.FOR);
+        var innerStart = this.getTreeStartLocation_();
+        var left = this.parseForBinding_();
+        this.eatId_(PredefinedName.OF);
+        var iterator = this.parseExpression_();
+        comprehensionForList.push(
+            new ComprehensionFor(this.getTreeLocation_(innerStart),
+                                 left, iterator));
+      }
+      var ifExpression = null;
+      if (this.peek_(TokenType.IF)) {
+        this.eat_(TokenType.IF);
+        ifExpression = this.parseExpression_();
+      }
+      this.eat_(TokenType.CLOSE_PAREN);
+      return new GeneratorComprehension(this.getTreeLocation_(start),
+                                        expression,
+                                        comprehensionForList,
+                                        ifExpression);
+    },
+
+    /**
+     * ForBinding :
+     *   BindingIdentifier
+     *   BindingPattern
+     */
+    parseForBinding_: function() {
+      if (this.peekPattern_())
+        return this.parseBindingPattern_();
+      return this.parseBindingIdentifier_();
     },
 
     // Destructuring; see

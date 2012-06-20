@@ -140,6 +140,7 @@ traceur.define('syntax.trees', function() {
         case ParseTreeType.CLASS_EXPRESSION:
         case ParseTreeType.CONDITIONAL_EXPRESSION:
         case ParseTreeType.FUNCTION_DECLARATION:
+        case ParseTreeType.GENERATOR_COMPREHENSION:
         case ParseTreeType.IDENTIFIER_EXPRESSION:
         case ParseTreeType.LITERAL_EXPRESSION:
         case ParseTreeType.MEMBER_EXPRESSION:

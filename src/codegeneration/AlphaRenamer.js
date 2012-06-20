@@ -110,6 +110,12 @@ traceur.define('codegeneration', function() {
       }
     },
 
+    transformThisExpression: function(tree) {
+      if (this.oldName_ !== PredefinedName.THIS)
+        return tree;
+      return createIdentifierExpression(this.newName_);
+    },
+
     /**
      * @param {FunctionDeclaration} tree
      * @return {ParseTree}
@@ -121,14 +127,18 @@ traceur.define('codegeneration', function() {
             tree.formalParameterList, tree.functionBody);
       }
 
-      if (// this.oldName_ is rebound in the new nested scope, so don't recurse
-          this.oldName_ in variablesInFunction(tree) ||
-          // 'arguments' is implicitly bound in function bodies; don't recurse
-          PredefinedName.ARGUMENTS == this.oldName_) {
+      // Do not recurse into functions if:
+      //  - 'arguments' is implicitly bound in function bodies
+      //  - 'this' is implicitly bound in function bodies
+      //  - this.oldName_ is rebound in the new nested scope
+      var doNotRecurse =
+          this.oldName_ === PredefinedName.ARGUMENTS ||
+          this.oldName_ === PredefinedName.THIS ||
+          this.oldName_ in variablesInFunction(tree);
+      if (doNotRecurse)
         return tree;
-      } else {
+      else
         return proto.transformFunctionDeclaration.call(this, tree);
-      }
     },
 
     /**

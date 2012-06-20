@@ -256,6 +256,7 @@
   addFeatureOption('conciseBody', Kind.es6);
 
   addFeatureOption('forOf', Kind.harmony);
+  addFeatureOption('generatorComprehension', Kind.harmony);
   addFeatureOption('generators', Kind.harmony);
   addFeatureOption('modules', Kind.harmony);
   addFeatureOption('privateNames', Kind.harmony);

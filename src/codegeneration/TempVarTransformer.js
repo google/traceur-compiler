@@ -85,12 +85,14 @@ traceur.define('codegeneration', function() {
 
     /**
      * Adds a new temporary variable to the current function scope.
+     * @param {ParseTree=} opt_initializer If present then the variable will
+     *     have this as the initializer expression.
      * @return {string} The name of the temporary variable.
      */
-    addTempVar: function() {
+    addTempVar: function(opt_initializer) {
       var vars = getVars(this);
       var uid = this.identifierGenerator.generateUniqueIdentifier();
-      vars.push(createVariableDeclaration(uid, null));
+      vars.push(createVariableDeclaration(uid, opt_initializer || null));
       return uid;
     },
 
