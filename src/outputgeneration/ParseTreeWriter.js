@@ -93,6 +93,17 @@ traceur.define('outputgeneration', function() {
       this.write_(TokenType.CLOSE_PAREN);
     },
 
+    visitArrayComprehension: function(tree) {
+      this.write_(TokenType.OPEN_SQUARE);
+      this.visitAny(tree.expression);
+      this.visitList(tree.comprehensionForList);
+      if (tree.ifExpression) {
+        this.write_(TokenType.IF);
+        this.visitAny(tree.ifExpression);
+      }
+      this.write_(TokenType.CLOSE_SQUARE);
+    },
+
     /**
      * @param {ArrayLiteralExpression} tree
      */

@@ -16,6 +16,7 @@ traceur.define('codegeneration', function() {
   'use strict';
 
   var ArgumentList = traceur.syntax.trees.ArgumentList;
+  var ArrayComprehension = traceur.syntax.trees.ArrayComprehension;
   var ArrayLiteralExpression = traceur.syntax.trees.ArrayLiteralExpression;
   var ArrayPattern = traceur.syntax.trees.ArrayPattern;
   var ArrowFunctionExpression = traceur.syntax.trees.ArrowFunctionExpression;
@@ -183,6 +184,25 @@ traceur.define('codegeneration', function() {
         return tree;
       }
       return new ArgumentList(tree.location, args);
+    },
+
+    /**
+     * @param {ArrayComprehension} tree
+     * @return {ParseTree}
+     */
+    transformArrayComprehension: function(tree) {
+      var expression = this.transformAny(tree.expression);
+      var comprehensionForList = this.transformList(tree.comprehensionForList);
+      var ifExpression = this.transformAny(tree.ifExpression);
+      if (expression === tree.expression &&
+          comprehensionForList === tree.comprehensionForList &&
+          ifExpression === tree.ifExpression) {
+        return tree;
+      }
+      return new ArrayComprehension(tree.location,
+                                    expression,
+                                    comprehensionForList,
+                                    ifExpression);
     },
 
     /**

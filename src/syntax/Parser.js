@@ -23,6 +23,7 @@ traceur.define('syntax', function() {
   var TokenType = traceur.syntax.TokenType;
 
   var ArgumentList = traceur.syntax.trees.ArgumentList;
+  var ArrayComprehension = traceur.syntax.trees.ArrayComprehension;
   var ArrayLiteralExpression = traceur.syntax.trees.ArrayLiteralExpression;
   var ArrayPattern = traceur.syntax.trees.ArrayPattern;
   var ArrowFunctionExpression = traceur.syntax.trees.ArrowFunctionExpression;
@@ -1884,35 +1885,54 @@ traceur.define('syntax', function() {
 
     // 11.1.4 Array Literal Expression
     /**
+     * Parse array literal and delegates to {@code parseArrayComprehension_} as
+     * needed.
+     *
+     * ArrayLiteral :
+     *   [ Elisionopt ]
+     *   [ ElementList ]
+     *   [ ElementList , Elisionopt ]
+     *
+     * ElementList :
+     *   Elisionopt AssignmentExpression
+     *   Elisionopt ... AssignmentExpression
+     *   ElementList , Elisionopt AssignmentExpression
+     *   ElementList , Elisionopt SpreadElement
+     *
+     * Elision :
+     *   ,
+     *   Elision ,
+     *
+     * SpreadElement :
+     *   ... AssignmentExpression
+     *
      * @return {ParseTree}
      * @private
      */
     parseArrayLiteral_: function() {
-      // ArrayLiteral :
-      //   [ Elisionopt ]
-      //   [ ElementList ]
-      //   [ ElementList , Elisionopt ]
-      //
-      // ElementList :
-      //   Elisionopt AssignmentOrSpreadExpression
-      //   ElementList , Elisionopt AssignmentOrSpreadExpression
-      //
-      // Elision :
-      //   ,
-      //   Elision ,
 
       var start = this.getTreeStartLocation_();
+      var expression;
       var elements = [];
+      var allowFor = options.arrayComprehension;
 
       this.eat_(TokenType.OPEN_SQUARE);
       while (this.peek_(TokenType.COMMA) ||
              this.peekSpread_() ||
              this.peekAssignmentExpression_()) {
         if (this.peek_(TokenType.COMMA)) {
-          elements.push(new NullTree());
+          expression = new NullTree();
+          allowFor = false;
         } else {
-          elements.push(this.parseAssignmentOrSpread_());
+          expression = this.parseAssignmentOrSpread_();
         }
+
+        if (allowFor && this.peek_(TokenType.FOR))
+          return this.parseArrayComprehension_(start, expression);
+
+        allowFor = false;
+        elements.push(expression);
+
         if (!this.peek_(TokenType.CLOSE_SQUARE)) {
           this.eat_(TokenType.COMMA);
         }
@@ -1920,6 +1940,38 @@ traceur.define('syntax', function() {
       this.eat_(TokenType.CLOSE_SQUARE);
       return new ArrayLiteralExpression(
           this.getTreeLocation_(start), elements);
+    },
+
+    /**
+     * Continues parsing array comprehension.
+     *
+     * ArrayComprehension :
+     *   [ Assignment ￼ ComprehensionForList ]
+     *   [ AssignmentExpression ComprehensionForList if
+     *
+     * ComprehensionForList :
+     *   ComprehensionFor
+     *   ComprehensionForList ComprehensionFor
+     *
+     * ComprehensionFor :
+     *   for ForBinding of Expression
+     *
+     * ForBinding :
+     *   BindingIdentifier
+     *   BindingPattern
+     *
+     * @param {Location} start
+     * @param {[ParseTree} expression
+     * @return {ParseTree}
+     */
+    parseArrayComprehension_: function(start, expression) {
+      var comprehensionForList = this.parseComprehensionForList_();
+      var ifExpression = this.parseComprehensionIf_();
+      this.eat_(TokenType.CLOSE_SQUARE);
+      return new ArrayComprehension(this.getTreeLocation_(start),
+                                    expression,
+                                    comprehensionForList,
+                                    ifExpression);
     },
 
     // 11.1.4 Object Literal Expression
@@ -3050,6 +3102,16 @@ traceur.define('syntax', function() {
      *   for ForBinding of Expression
      */
     parseGeneratorComprehension_: function(start, expression) {
+      var comprehensionForList = this.parseComprehensionForList_();
+      var ifExpression = this.parseComprehensionIf_();
+      this.eat_(TokenType.CLOSE_PAREN);
+      return new GeneratorComprehension(this.getTreeLocation_(start),
+                                        expression,
+                                        comprehensionForList,
+                                        ifExpression);
+    },
+
+    parseComprehensionForList_: function() {
       var comprehensionForList = [];
       while (this.peek_(TokenType.FOR)) {
         this.eat_(TokenType.FOR);
@@ -3061,16 +3123,15 @@ traceur.define('syntax', function() {
             new ComprehensionFor(this.getTreeLocation_(innerStart),
                                  left, iterator));
       }
-      var ifExpression = null;
+      return comprehensionForList;
+    },
+
+    parseComprehensionIf_: function() {
       if (this.peek_(TokenType.IF)) {
         this.eat_(TokenType.IF);
-        ifExpression = this.parseExpression_();
+        return this.parseExpression_();
       }
-      this.eat_(TokenType.CLOSE_PAREN);
-      return new GeneratorComprehension(this.getTreeLocation_(start),
-                                        expression,
-                                        comprehensionForList,
-                                        ifExpression);
+      return null;
     },
 
     /**

@@ -132,6 +132,7 @@ traceur.define('syntax.trees', function() {
     /** @return {boolean} */
     isArrowFunctionExpression: function() {
       switch (this.type) {
+        case ParseTreeType.ARRAY_COMPREHENSION:
         case ParseTreeType.ARRAY_LITERAL_EXPRESSION:
         case ParseTreeType.ARROW_FUNCTION_EXPRESSION:
         case ParseTreeType.BINARY_OPERATOR:

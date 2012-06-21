@@ -51,6 +51,17 @@ traceur.define('syntax.trees', function() {
 
     /**
      * @param {traceur.util.SourceRange} location
+     * @param {ParseTree} expression
+     * @param {Array.<ParseTree>} comprehensionForList
+     * @param {ParseTree} ifExpression
+     * @constructor
+     * @extends {ParseTree}
+     */
+    ArrayComprehension: create('expression', 'comprehensionForList',
+                               'ifExpression'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
      * @param {Array.<ParseTree>} elements
      * @constructor
      * @extends {ParseTree}

@@ -15,10 +15,10 @@
 traceur.define('codegeneration', function() {
   'use strict';
 
+  var ArrayComprehensionTransformer = traceur.codegeneration.ArrayComprehensionTransformer;
   var ArrowFunctionTransformer = traceur.codegeneration.ArrowFunctionTransformer;
   var BlockBindingTransformer = traceur.codegeneration.BlockBindingTransformer;
   var CascadeExpressionTransformer = traceur.codegeneration.CascadeExpressionTransformer;
-  var ClassTransformer = traceur.codegeneration.ClassTransformer;
   var ClassTransformer = traceur.codegeneration.ClassTransformer;
   var CollectionTransformer = traceur.codegeneration.CollectionTransformer;
   var DefaultParametersTransformer = traceur.codegeneration.DefaultParametersTransformer;
@@ -181,10 +181,13 @@ traceur.define('codegeneration', function() {
             PropertyNameShorthandTransformer.transformTree);
       chain(options.isExpression, IsExpressionTransformer.transformTree);
 
-      // GeneratorComprehensionTransformer must come before for-of and
+      // Generator/ArrayComprehensionTransformer must come before for-of and
       // destructuring.
       chain(options.generatorComprehension,
             GeneratorComprehensionTransformer.transformTree,
+            identifierGenerator);
+      chain(options.arrayComprehension,
+            ArrayComprehensionTransformer.transformTree,
             identifierGenerator);
 
       // for of must come before destructuring and generator, or anything

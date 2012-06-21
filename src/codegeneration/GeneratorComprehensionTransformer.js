@@ -15,61 +15,8 @@
 traceur.define('codegeneration', function() {
   'use strict';
 
-  var AlphaRenamer = traceur.codegeneration.AlphaRenamer;
-  var FindInFunctionScope = traceur.codegeneration.FindInFunctionScope;
-  var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
-  var ParseTree = traceur.syntax.trees.ParseTree;
-  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var PredefinedName = traceur.syntax.PredefinedName;
-  var TempVarTransformer = traceur.codegeneration.TempVarTransformer;
-  var TokenType = traceur.syntax.TokenType;
-
-  var createBlock = ParseTreeFactory.createBlock;
-  var createCallExpression = ParseTreeFactory.createCallExpression;
-  var createEmptyParameterList = ParseTreeFactory.createEmptyParameterList;
-  var createForOfStatement = ParseTreeFactory.createForOfStatement;
-  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
-  var createIfStatement = ParseTreeFactory.createIfStatement;
-  var createParenExpression = ParseTreeFactory.createParenExpression;
-  var createScopedExpression = ParseTreeFactory.createScopedExpression;
-  var createThisExpression = ParseTreeFactory.createThisExpression;
-  var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList;
-  var createYieldStatement = ParseTreeFactory.createYieldStatement;
-
-  /**
-   * This is used to find whether a function contains a reference to 'this'.
-   * @extend {FindInFunctionScope}
-   * @param {ParseTree} tree The tree to search.
-   */
-  function ThisFinder(tree) {
-    FindInFunctionScope.call(this, tree);
-  }
-  ThisFinder.prototype = traceur.createObject(
-      FindInFunctionScope.prototype, {
-
-    visitThisExpression: function(tree) {
-      this.found = true;
-    }
-  });
-
-  /**
-   * This is used to find whether a function contains a reference to
-   * 'arguments'.
-   * @extend {FindInFunctionScope}
-   * @param {ParseTree} tree The tree to search.
-   */
-  function ArgumentsFinder(tree) {
-    FindInFunctionScope.call(this, tree);
-  }
-  ArgumentsFinder.prototype = traceur.createObject(
-      FindInFunctionScope.prototype, {
-
-    visitIdentifierExpression: function(tree) {
-      if (tree.identifierToken.value === PredefinedName.ARGUMENTS)
-        this.found = true;
-    }
-  });
+  var ComprehensionTransformer = traceur.codegeneration.ComprehensionTransformer;
+  var createYieldStatement = traceur.codegeneration.ParseTreeFactory.createYieldStatement;
 
   /**
    * Generator Comprehension Transformer:
@@ -98,10 +45,10 @@ traceur.define('codegeneration', function() {
    *
    * @param {UniqueIdentifierGenerator} identifierGenerator
    * @constructor
-   * @extends {TempVarTransformer}
+   * @extends {ComprehensionTransformer}
    */
   function GeneratorComprehensionTransformer(identifierGenerator) {
-    TempVarTransformer.call(this, identifierGenerator);
+    ComprehensionTransformer.call(this, identifierGenerator);
   }
 
   /**
@@ -115,47 +62,13 @@ traceur.define('codegeneration', function() {
         transformAny(tree);
   };
 
-  var proto = TempVarTransformer.prototype;
-  GeneratorComprehensionTransformer.prototype = traceur.createObject(proto, {
+  GeneratorComprehensionTransformer.prototype = traceur.createObject(
+      ComprehensionTransformer.prototype, {
     transformGeneratorComprehension: function(tree) {
       var expression = this.transformAny(tree.expression);
       var statement = createYieldStatement(expression);
-      if (tree.ifExpression) {
-        var ifExpression = this.transformAny(tree.ifExpression);
-        statement = createIfStatement(ifExpression, statement);
-      }
-      for (var i = tree.comprehensionForList.length - 1; i >= 0; i--) {
-        var item = tree.comprehensionForList[i];
-        var left = this.transformAny(item.left);
-        var iterator = this.transformAny(item.iterator);
-        // This should really be a let but we don't support let in generators.
-        // https://code.google.com/p/traceur-compiler/issues/detail?id=6
-        var initializer = createVariableDeclarationList(TokenType.VAR,
-                                                        left, null);
-        statement = createForOfStatement(initializer, iterator, statement);
-      }
-
-      var argumentsFinder = new ArgumentsFinder(statement);
-      if (argumentsFinder.found) {
-        var tempVar = this.addTempVar(
-            createIdentifierExpression(PredefinedName.ARGUMENTS));
-        statement = AlphaRenamer.rename(statement, PredefinedName.ARGUMENTS,
-                                        tempVar);
-      }
-
-      var thisFinder = new ThisFinder(statement);
-      if (thisFinder.found) {
-        var tempVar = this.addTempVar(createThisExpression());
-        statement = AlphaRenamer.rename(statement, PredefinedName.THIS,
-                                        tempVar);
-      }
-
       var isGenerator = true;
-      var func = new FunctionDeclaration(null, null, isGenerator,
-                                         createEmptyParameterList(),
-                                         createBlock(statement));
-
-      return createParenExpression(createCallExpression(func));
+      return this.transformComprehension(tree, statement, isGenerator);
     }
   });
 

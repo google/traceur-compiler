@@ -66,6 +66,15 @@ traceur.define('syntax', function() {
     },
 
     /**
+     * @param {traceur.syntax.trees.ArrayComprehension} tree
+     */
+    visitArrayComprehension: function(tree) {
+      this.visitAny(tree.expression);
+      this.visitList(tree.comprehensionForList);
+      this.visitAny(tree.ifExpression);
+    },
+
+    /**
      * @param {traceur.syntax.trees.ArrayLiteralExpression} tree
      */
     visitArrayLiteralExpression: function(tree) {
