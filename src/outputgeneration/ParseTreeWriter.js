@@ -632,7 +632,7 @@ traceur.define('outputgeneration', function() {
      * @param {ModuleRequire} tree
      */
     visitModuleRequire: function(tree) {
-      this.visitAny(tree.url);
+      this.write_(tree.url);
     },
 
     /**

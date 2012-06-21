@@ -379,6 +379,7 @@ traceur.define('syntax', function() {
       if (tree.importSpecifierSet !== null) {
         this.visitList(tree.importSpecifierSet);
       }
+      this.visitAny(tree.moduleExpression);
     },
 
     /**
