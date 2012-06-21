@@ -144,7 +144,8 @@ pre{
 
   function compile() {
     hasError = false;
-    output.textContent = errorElement.textContent = '';
+    output.textContent = errorElement.textContent =
+        sourceMapElement.textContent = '';
 
     var reporter = new ErrorReporter();
     reporter.reportMessageInternal = function(location, kind, format, args) {
@@ -179,7 +180,7 @@ pre{
           errorElement.textContent = ex;
         }
       }
-      
+
       if (traceur.options.sourceMaps) {
         var renderedMap = renderSourceMap(source, options.sourceMap);
         sourceMapElement.textContent = renderedMap;
