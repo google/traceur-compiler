@@ -134,6 +134,9 @@ pre{
   var errorElement = document.querySelector('pre.error');
   var sourceMapElement = document.querySelector('pre.source-map');
 
+  if (location.hash)
+    input.value = decodeURIComponent(location.hash.slice(1));
+
   evalCheckbox.addEventListener('click', function(e) {
     evalElement.hidden = !evalCheckbox.checked;
   }, false);
@@ -153,10 +156,13 @@ pre{
          ErrorReporter.format(location, format, args) + '\n';
     };
 
-    var url = window.location.href;
+    var url = location.href;
     var project = new traceur.semantics.symbols.Project(url);
     var name = 'repl';
     var contents = input.value;
+    if (history.replaceState)
+      history.replaceState(null, document.title,
+                           '#' + encodeURIComponent(contents));
     var sourceFile = new traceur.syntax.SourceFile(name, contents);
     project.addFile(sourceFile);
     var res = traceur.codegeneration.Compiler.compile(reporter, project, false);
@@ -168,10 +174,10 @@ pre{
         var config = {file: 'traceured.js'};
         var sourceMapGenerator = new SourceMapGenerator(config);
         options = {sourceMapGenerator: sourceMapGenerator};
-      } 
+      }
 
       var source = output.textContent = ProjectWriter.write(res, options);
-          
+
       if (evalCheckbox.checked) {
         try {
           evalElement.textContent = ('global', eval)(source);
@@ -227,31 +233,31 @@ pre{
     optionsDiv.innerHTML = '';
     createOptions();
   }
-  
+
   document.querySelector('.all-on').addEventListener('click',
       function() {
         traceur.options.reset();
         rebuildOptions();
       });
 
-  document.querySelector('.all-off').addEventListener('click', 
+  document.querySelector('.all-off').addEventListener('click',
     function() {
       traceur.options.reset(true);
       rebuildOptions();
     });
-  
+
   document.querySelector('.option-button').addEventListener('click',
       function() {
         var optionsDiv = document.querySelector('.options');
         optionsDiv.hidden = !optionsDiv.hidden;
       });
-      
+
   function renderSourceMap(source, sourceMap) {
     var consumer = new SourceMapConsumer(sourceMap);
     var lines = source.split('\n');
     var lineNumberTable = lines.map(function(line, lineNo) {
       var generatedPosition = {
-        line: lineNo + 1, 
+        line: lineNo + 1,
         column: 0
       };
       var position = consumer.originalPositionFor(generatedPosition);
@@ -260,7 +266,7 @@ pre{
     });
     return 'SourceMap:\n' + lineNumberTable.join('\n');
   }
-  
+
 })();
 
 </script>
