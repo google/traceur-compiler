@@ -30,9 +30,6 @@ traceur.define('outputgeneration', function() {
   ProjectWriter.write = function(results, opt_options) {
     var sb = [];
     results.keys().forEach(function(file) {
-      if (opt_options) {
-        opt_options.file = file;
-      }
       sb.push('// ' + file.name,
               TreeWriter.write(results.get(file), opt_options));
     });

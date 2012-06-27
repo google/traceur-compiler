@@ -30,9 +30,9 @@ goog.require('goog.testing.jsunit');
 <body>
 <script>
 
-var TreeWriter = traceur.outputgeneration.TreeWriter;
 var SourceMapConsumer = traceur.outputgeneration.SourceMapConsumer;
 var SourceMapGenerator = traceur.outputgeneration.SourceMapGenerator;
+var TreeWriter = traceur.outputgeneration.TreeWriter;
 
 var errorReporter = {
   reportError: function(position, message) {
@@ -51,19 +51,19 @@ function parse(name, source) {
 }
 
 function testSourceMap() {
-  
-  function dumpLine(line, number) { 
+
+  function dumpLine(line, number) {
       console.log( (number +1 ) + ': ' + line);
   }
 
   var src = 'function foo() { return 5; }\nvar \nf\n=\n5\n;\n';
-  
+
   console.log('original:');
   src.split('\n').forEach(dumpLine);
 
   var filename = 'sourceMapThis.js';
   var tree = parse(filename, src);
-  
+
   var testcases = [
     {generated: {line: 2, column: 0}, original: {line: 1, column: 0}},
     {generated: {line: 3, column: 0}, original: {line: 1, column: 17}},
@@ -71,24 +71,50 @@ function testSourceMap() {
     {generated: {line: 5, column: 0}, original: {line: 3, column: 0}},
     {generated: {line: 6, column: 0}, original: {line: 6, column: 0}}
   ];
-  
-  var generator = new SourceMapGenerator({file:filename});
-  var options = {sourceMapGenerator: generator , showLineNumbers: true};
+
+  var generator = new SourceMapGenerator({file: filename});
+  var options = {sourceMapGenerator: generator, showLineNumbers: true};
   var actual = TreeWriter.write(tree, options);
-  
+
   console.log('generated:');
   actual.split('\n').forEach(dumpLine);
-  
+
   var consumer = new SourceMapConsumer(options.sourceMap);
-  
+
   testcases.forEach(function(testcase, caseNumber) {
     var actual = consumer.originalPositionFor(testcase.generated);
     var shouldBeTrue = actual.line === testcase.original.line;
-    assert(caseNumber +' Line mismatch '+actual.line, shouldBeTrue); 
+    assert(caseNumber + ' Line mismatch ' + actual.line, shouldBeTrue);
     shouldBeTrue = actual.column === testcase.original.column;
-    assert(caseNumber +' Column mismatch '+actual.column, shouldBeTrue); 
+    assert(caseNumber + ' Column mismatch ' + actual.column, shouldBeTrue);
   });
 }
+
+function testMultipleFiles() {
+  var treeA = parse('a.js', 'alert(a);');
+  var treeB = parse('b.js', 'alert(b);');
+  var treeC = parse('c.js', 'alert(c);');
+
+  // Now create a new program that contains these 3.
+  var push = [].push.apply.bind([].push);
+  var newProgramElements = [];
+  push(newProgramElements, treeA.programElements);
+  push(newProgramElements, treeB.programElements);
+  push(newProgramElements, treeC.programElements);
+  var tree = new traceur.syntax.trees.Program(null, newProgramElements);
+
+  var outFilename = 'out.js'
+  var generator = new SourceMapGenerator({file: outFilename});
+  var options = {sourceMapGenerator: generator};
+  var outFileContents = TreeWriter.write(tree, options);
+
+  assertEquals('\nalert(a); \nalert(b); \nalert(c); \n', outFileContents);
+
+  var map = JSON.parse(options.sourceMap);
+  assertEquals(outFilename, map.file);
+  assertArrayEquals(['a.js', 'b.js', 'c.js'], map.sources);
+}
+
 </script>
 </body>
 </html>

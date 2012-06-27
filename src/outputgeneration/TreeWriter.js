@@ -14,12 +14,12 @@
 
 traceur.define('outputgeneration', function() {
   'use strict';
-  
+
   var ParseTreeWriter = traceur.outputgeneration.ParseTreeWriter;
   var ParseTreeMapWriter = traceur.outputgeneration.ParseTreeMapWriter;
-  
+
   function TreeWriter() {}
-  
+
   /*
    * Create a ParseTreeWriter configured with options, apply it to tree
    * @param {ParseTree} tree
@@ -34,34 +34,32 @@ traceur.define('outputgeneration', function() {
     var showLineNumbers;
     var highlighted = null;
     var sourceMapGenerator;
-    var file;
     if (opt_options) {
       showLineNumbers = opt_options.showLineNumbers;
       highlighted = opt_options.highlighted || null;
       sourceMapGenerator = opt_options.sourceMapGenerator;
-      file = opt_options.file || {name: 'unknown'};
     }
-    
+
     var writer;
     if (sourceMapGenerator) {
-      writer = new ParseTreeMapWriter(highlighted, showLineNumbers, 
-          sourceMapGenerator, file);
+      writer = new ParseTreeMapWriter(highlighted, showLineNumbers,
+          sourceMapGenerator);
     } else {
       writer = new ParseTreeWriter(highlighted, showLineNumbers);
     }
-    
+
     writer.visitAny(tree);
     if (writer.currentLine_.length > 0) {
       writer.writeln_();
     }
-    
+
     if (sourceMapGenerator) {
       opt_options.sourceMap = sourceMapGenerator.toString();
     }
-    
+
     return writer.result_.toString();
   };
-  
+
   return {
     TreeWriter: TreeWriter
   };
