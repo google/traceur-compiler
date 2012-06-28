@@ -37,7 +37,6 @@ traceur.define('syntax', function() {
     CREATE_PROMISE: 'createPromise',
     CREATE_CLASS: 'createClass',
     CURRENT: 'current',
-    DEFAULT_QUASI: 'defaultQuasi',
     DEFERRED: 'Deferred',
     DEFINE_PROPERTY: 'defineProperty',
     ELEMENT_DELETE: 'elementDelete',

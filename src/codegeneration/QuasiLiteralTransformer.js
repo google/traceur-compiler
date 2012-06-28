@@ -15,34 +15,29 @@
 traceur.define('codegeneration', function() {
   'use strict';
 
-  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
+  var LiteralExpression = traceur.syntax.trees.LiteralExpression;
+  var LiteralToken = traceur.syntax.LiteralToken;
+  var ParenExpression = traceur.syntax.trees.ParenExpression;
   var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
+  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
+  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
+  var PredefinedName = traceur.syntax.PredefinedName;
+  var Program = traceur.syntax.trees.Program;
+  var TokenType = traceur.syntax.TokenType;
+
+  var createArgumentList = ParseTreeFactory.createArgumentList;
+  var createArrayLiteralExpression = ParseTreeFactory.createArrayLiteralExpression;
+  var createBinaryOperator = ParseTreeFactory.createBinaryOperator;
   var createCallExpression = ParseTreeFactory.createCallExpression;
   var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
   var createMemberExpression = ParseTreeFactory.createMemberExpression;
-  var createArgumentList = ParseTreeFactory.createArgumentList;
-  var createArrayLiteralExpression = ParseTreeFactory.createArrayLiteralExpression;
   var createObjectFreeze = ParseTreeFactory.createObjectFreeze;
   var createObjectLiteralExpression = ParseTreeFactory.createObjectLiteralExpression;
+  var createOperatorToken = ParseTreeFactory.createOperatorToken;
   var createPropertyNameAssignment = ParseTreeFactory.createPropertyNameAssignment;
   var createVariableDeclaration = ParseTreeFactory.createVariableDeclaration;
   var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList;
   var createVariableStatement = ParseTreeFactory.createVariableStatement;
-
-  var LiteralExpression = traceur.syntax.trees.LiteralExpression;
-  var Program = traceur.syntax.trees.Program;
-  var LiteralToken = traceur.syntax.LiteralToken;
-  var PredefinedName = traceur.syntax.PredefinedName;
-  var TokenType = traceur.syntax.TokenType;
-
-  function getQuasiFunction(name) {
-    if (name) {
-      return createIdentifierExpression(name);
-    }
-    return createMemberExpression(PredefinedName.TRACEUR,
-                                  PredefinedName.RUNTIME,
-                                  PredefinedName.DEFAULT_QUASI);
-  }
 
   /**
    * Creates an object like:
@@ -53,21 +48,13 @@ traceur.define('codegeneration', function() {
    */
   function createCallSiteIdObject(tree) {
     var elements = tree.elements;
-    var isDefault = tree.name == null;
-    var cookedProperty = createPropertyNameAssignment(
-        PredefinedName.COOKED,
-        createObjectFreeze(createCookedStringArray(elements)));
-
-    // The default quasi does not need the cooked part.
-    if (isDefault) {
-      return createObjectFreeze(createObjectLiteralExpression(cookedProperty));
-    }
-
     return createObjectFreeze(createObjectLiteralExpression(
       createPropertyNameAssignment(
           PredefinedName.RAW,
           createObjectFreeze(createRawStringArray(elements))),
-      cookedProperty));
+      createPropertyNameAssignment(
+          PredefinedName.COOKED,
+          createObjectFreeze(createCookedStringArray(elements)))));
   }
 
   function createRawStringArray(elements) {
@@ -81,13 +68,16 @@ traceur.define('codegeneration', function() {
     return createArrayLiteralExpression(items);
   }
 
+  function createCookedStringLiteralExpression(tree) {
+    var str = cookString(tree.value.value);
+    return new LiteralExpression(null, new LiteralToken(TokenType.STRING,
+                                                        str, null));
+  }
+
   function createCookedStringArray(elements) {
     var items = [];
     for (var i = 0; i < elements.length; i += 2) {
-      var str = cookString(elements[i].value.value);
-      var expr = new LiteralExpression(null, new LiteralToken(TokenType.STRING,
-                                                              str, null));
-      items.push(expr);
+      items.push(createCookedStringLiteralExpression(elements[i]));
     }
     return createArrayLiteralExpression(items);
   }
@@ -203,15 +193,20 @@ traceur.define('codegeneration', function() {
         return tree;
       }
 
-      traceur.assert(this.callsiteDecls_.length > 0);
-      var varStatement = createVariableStatement(
-          createVariableDeclarationList(TokenType.CONST, this.callsiteDecls_));
-      elements.unshift(varStatement);
+      if (this.callsiteDecls_.length > 0) {
+        var varStatement = createVariableStatement(
+            createVariableDeclarationList(TokenType.CONST,
+                                          this.callsiteDecls_));
+        elements.unshift(varStatement);
+      }
 
-      return new Program(null, elements);
+      return new Program(tree.location, elements);
     },
 
     transformQuasiLiteralExpression: function(tree) {
+      if (!tree.name)
+        return this.createDefaultQuasi(tree);
+
       var elements = tree.elements;
       var args = [];
 
@@ -227,12 +222,55 @@ traceur.define('codegeneration', function() {
       }
 
       return createCallExpression(
-          getQuasiFunction(tree.name),
+          createIdentifierExpression(tree.name),
           createArgumentList(args));
     },
 
     transformQuasiSubstitution: function(tree) {
-      return this.transformAny(tree.expression);
+      var transformedTree = this.transformAny(tree.expression);
+      // Wrap in a paren expression if needed.
+      switch (transformedTree.type) {
+        case ParseTreeType.BINARY_OPERATOR:
+          // Only * / and % have higher priority than +.
+          switch (transformedTree.operator.type) {
+            case TokenType.STAR:
+            case TokenType.PERCENT:
+            case TokenType.SLASH:
+              return transformedTree;
+          }
+          // Fall through.
+        case ParseTreeType.COMMA_EXPRESSION:
+        case ParseTreeType.CONDITIONAL_EXPRESSION:
+          return new ParenExpression(null, transformedTree);
+      }
+
+      return transformedTree;
+    },
+
+    transformQuasiLiteralPortion: function(tree) {
+      return createCookedStringLiteralExpression(tree);
+    },
+
+    createDefaultQuasi: function(tree) {
+      // convert to ("a" + b + "c" + d + "")
+      var length = tree.elements.length;
+      var binaryExpression = this.transformAny(tree.elements[0]);
+      if (length == 1)
+        return binaryExpression;
+
+      var plusToken = createOperatorToken(TokenType.PLUS);
+      for (var i = 1; i < length; i++) {
+        var element = tree.elements[i];
+        if (element.type === ParseTreeType.QUASI_LITERAL_PORTION &&
+            element.value.value === '') {
+          continue;
+        }
+        var transformedTree = this.transformAny(tree.elements[i]);
+        binaryExpression = createBinaryOperator(binaryExpression, plusToken,
+                                                transformedTree);
+      }
+
+      return new ParenExpression(null, binaryExpression);
     }
   });
 

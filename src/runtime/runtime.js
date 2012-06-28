@@ -161,25 +161,6 @@ traceur.runtime = (function() {
     return object;
   }
 
-  /**
-   * The default quasi function which just concats the quasi literal parts.
-   * @param {{raw: Array.<string>, cooked: Array.<string>}} callSiteId
-   * @param {...} var_args Values from the quasi substitutions.
-   * @return {string}
-   */
-  function defaultQuasi(callSiteId, var_args) {
-    var cookedStrings = callSiteId.cooked;
-    var cookedStringsLength = cookedStrings.length;
-    var out = [], k = 0;
-    var argumentLength = arguments.length;
-    for (var i = 0; i < cookedStringsLength;) {
-      out[k++] = cookedStrings[i];
-      if (++i < argumentLength)
-        out[k++] = String(arguments[i]);
-    }
-    return out.join('');
-  }
-
   var counter = 0;
 
   /**
@@ -533,7 +514,6 @@ traceur.runtime = (function() {
   // Return the traceur namespace.
   return {
     createClass: createClass,
-    defaultQuasi: defaultQuasi,
     Deferred: Deferred,
     elementDelete: elementDelete,
     elementGet: elementGet,
