@@ -169,12 +169,26 @@ traceur.define('codegeneration.generator', function() {
 
       var statements = [];
 
-      //   var $that = this;
+      // TODO(arv): Simplify the outputted code by only alpha renaming this and
+      // arguments if needed.
+      // https://code.google.com/p/traceur-compiler/issues/detail?id=108
+      //
+      // var $that = this;
       statements.push(this.generateHoistedThis());
 
-      //     lifted machine variables
+      // var $arguments = arguments;
+      statements.push(this.generateHoistedArguments());
+
+      // TODO(arv): Simplify for the common case where there is no try/catch?
+      // https://code.google.com/p/traceur-compiler/issues/detail?id=110
+      //
+      // Lifted machine variables.
       statements.push.apply(statements, this.getMachineVariables(tree, machine));
-      //     var $result = {moveNext : machineMethod};
+
+      // TODO(arv): The result should be an instance of Generator.
+      // https://code.google.com/p/traceur-compiler/issues/detail?id=109
+      //
+      // var $result = {moveNext : machineMethod};
       statements.push(createVariableStatement(
           TokenType.VAR,
           PredefinedName.RESULT,
