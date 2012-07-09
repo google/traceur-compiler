@@ -121,8 +121,8 @@
    */
   function reset(opt_allOff) {
     Object.keys(this).forEach(function(name) {
-      this[name] = !opt_allOff;
-    }, this);
+      options[name] = !opt_allOff;
+    });
   }
 
   /**
