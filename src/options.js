@@ -120,7 +120,7 @@
    *@param {boolean=} opt_allOff
    */
   function reset(opt_allOff) {
-    Object.keys(this).forEach(function(name) {
+    Object.keys(options).forEach(function(name) {
       options[name] = !opt_allOff;
     });
   }
