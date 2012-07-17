@@ -761,7 +761,7 @@ traceur.define('outputgeneration', function() {
      */
     visitQuasiLiteralExpression: function(tree) {
       // Quasi Literals have important whitespace semantics.
-      this.writeRaw_(tree.name);
+      this.visitAny(tree.operand);
       this.writeRaw_(TokenType.BACK_QUOTE);
       this.visitList(tree.elements);
       this.writeRaw_(TokenType.BACK_QUOTE);

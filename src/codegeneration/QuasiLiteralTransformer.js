@@ -204,9 +204,10 @@ traceur.define('codegeneration', function() {
     },
 
     transformQuasiLiteralExpression: function(tree) {
-      if (!tree.name)
+      if (!tree.operand)
         return this.createDefaultQuasi(tree);
 
+      var operand = this.transformAny(tree.operand);
       var elements = tree.elements;
       var args = [];
 
@@ -221,9 +222,7 @@ traceur.define('codegeneration', function() {
         args.push(this.transformAny(elements[i]));
       }
 
-      return createCallExpression(
-          createIdentifierExpression(tree.name),
-          createArgumentList(args));
+      return createCallExpression(operand, createArgumentList(args));
     },
 
     transformQuasiSubstitution: function(tree) {

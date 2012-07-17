@@ -986,11 +986,11 @@ traceur.define('codegeneration', function() {
      * @return {ParseTree}
      */
     transformQuasiLiteralExpression: function(tree) {
+      var operand = this.transformAny(tree.operand);
       var elements = this.transformList(tree.elements);
-      if (elements == tree.elements) {
+      if (operand === tree.operand && elements == tree.elements)
         return tree;
-      }
-      return new QuasiLiteralExpression(tree.location, tree.name, elements);
+      return new QuasiLiteralExpression(tree.location, operand, elements);
     },
 
     /**
@@ -1000,7 +1000,6 @@ traceur.define('codegeneration', function() {
     transformQuasiLiteralPortion: function(tree) {
       return tree;
     },
-
 
     /**
      * @param {QuasiSubstitution} tree

@@ -804,6 +804,11 @@ traceur.define('syntax', function() {
      * @param {traceur.syntax.trees.QuasiLiteralExpression} tree
      */
     visitQuasiLiteralExpression: function(tree) {
+      if (tree.operand) {
+        this.checkVisit_(tree.operand.isMemberExpression(), tree.operand,
+                         'member or call expression expected');
+      }
+
       // The elements are alternating between QuasiLiteralPortion and
       // QuasiSubstitution.
       for (var i = 0; i < tree.elements.length; i++) {

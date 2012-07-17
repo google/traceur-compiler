@@ -633,12 +633,12 @@ traceur.define('syntax.trees', function() {
 
     /**
      * @param {traceur.util.SourceRange} location
-     * @param {string} name
+     * @param {ParseTree} operand
      * @param {Array.<ParseTree>} elements
      * @constructor
      * @extends {ParseTree}
      */
-    QuasiLiteralExpression: create('name', 'elements'),
+    QuasiLiteralExpression: create('operand', 'elements'),
 
     /**
      * @param {traceur.util.SourceRange} location

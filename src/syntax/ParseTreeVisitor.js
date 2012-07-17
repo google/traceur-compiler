@@ -553,6 +553,7 @@ traceur.define('syntax', function() {
      * @param {traceur.syntax.trees.QuasiLiteralExpression} tree
      */
     visitQuasiLiteralExpression: function(tree) {
+      this.visitAny(tree.operand);
       this.visitList(tree.elements);
     },
 

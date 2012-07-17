@@ -1792,8 +1792,7 @@ traceur.define('syntax', function() {
         case TokenType.SLASH_EQUAL:
           return this.parseRegularExpressionLiteral_();
         case TokenType.BACK_QUOTE:
-        case TokenType.QUASI_TAG:
-          return this.parseQuasiLiteral_();
+          return this.parseQuasiLiteral_(null);
         default:
           return this.parseMissingPrimaryExpression_();
       }
@@ -2207,7 +2206,6 @@ traceur.define('syntax', function() {
     peekExpression_: function(opt_index) {
       switch (this.peekType_(opt_index || 0)) {
         case TokenType.BACK_QUOTE:
-        case TokenType.QUASI_TAG:
           return options.quasi;
         case TokenType.BANG:
         case TokenType.CLASS:
@@ -2744,6 +2742,9 @@ traceur.define('syntax', function() {
               operand = new CascadeExpression(this.getTreeLocation_(start),
                                               operand, expressions);
               break;
+            case TokenType.BACK_QUOTE:
+              operand = this.parseQuasiLiteral_(operand);
+              break;
           }
         }
       }
@@ -2758,6 +2759,7 @@ traceur.define('syntax', function() {
       return this.peek_(TokenType.OPEN_PAREN) ||
           this.peek_(TokenType.OPEN_SQUARE) ||
           this.peek_(TokenType.PERIOD) ||
+          options.quasi && this.peek_(TokenType.BACK_QUOTE) ||
           options.cascadeExpression && this.peek_(TokenType.PERIOD_OPEN_CURLY);
     },
 
@@ -2795,6 +2797,10 @@ traceur.define('syntax', function() {
             var expressions = this.parseCascadeExpressions_();
             operand = new CascadeExpression(this.getTreeLocation_(start),
                                             operand, expressions);
+            break;
+
+          case TokenType.BACK_QUOTE:
+            operand = this.parseQuasiLiteral_(operand);
             break;
         }
       }
@@ -2859,6 +2865,7 @@ traceur.define('syntax', function() {
     peekMemberExpressionSuffix_: function() {
       return this.peek_(TokenType.OPEN_SQUARE) ||
           this.peek_(TokenType.PERIOD) ||
+          options.quasi && this.peek_(TokenType.BACK_QUOTE) ||
           options.cascadeExpression && this.peek_(TokenType.PERIOD_OPEN_CURLY);
     },
 
@@ -3452,13 +3459,41 @@ traceur.define('syntax', function() {
 
     /**
      * Quasi Literals
-     * http://wiki.ecmascript.org/doku.php?id=harmony:quasis
-     * We diverge from the harmony wiki by allowing arbitrary expressions inside
-     * ${ ... }, even nested quasi literals.
-     * @return {QuasiLiteralExpression}
+     *
+     * Quasi ::
+     *   FullQuasi
+     *   QuasiHead
+     *
+     * FullQuasi ::
+     *   ` QuasiCharactersopt `
+     *
+     * QuasiHead ::
+     *   ` QuasiCharactersopt ${
+     *
+     * QuasiSubstitutionTail ::
+     *   QuasiMiddle
+     *   QuasiTail
+     *
+     * QuasiMiddle ::
+     *   } QuasiCharactersopt ${
+     *
+     * QuasiTail ::
+     *   } QuasiCharactersopt `
+     *
+     * QuasiCharacters ::
+     *   QuasiCharacter QuasiCharactersopt
+     *
+     * QuasiCharacter ::
+     *   SourceCharacter but not one of ` or \ or $
+     *   $ [lookahead not { ]
+     *   \ EscapeSequence
+     *   LineContinuation
+     *
+     * @param {ParseTree} operand
+     * @return {ParseTree}
      * @private
      */
-    parseQuasiLiteral_: function() {
+    parseQuasiLiteral_: function(operand) {
       if (!options.quasi) {
         return this.parseMissingPrimaryExpression_();
       }
@@ -3467,11 +3502,8 @@ traceur.define('syntax', function() {
         elements.push(new QuasiSubstitution(tree.location, tree));
       }
 
-      var start = this.getTreeStartLocation_();
-      var name = null;
-      if (this.peekType_() === TokenType.QUASI_TAG) {
-        name = this.eat_(TokenType.QUASI_TAG).value;
-      }
+      var start = operand ?
+          operand.location.start : this.getTreeStartLocation_();
 
       this.eat_(TokenType.BACK_QUOTE);
 
@@ -3494,7 +3526,6 @@ traceur.define('syntax', function() {
 
         if (this.peekQuasiToken_(TokenType.OPEN_CURLY)) {
           this.eat_(TokenType.OPEN_CURLY);
-          // The Harmony proposal only allows ident ('.' ident)*
           var expression = this.parseExpression_();
           if (!expression) {
             return this.parseMissingPrimaryExpression_();
@@ -3512,7 +3543,7 @@ traceur.define('syntax', function() {
       this.eat_(TokenType.BACK_QUOTE);
 
       return new QuasiLiteralExpression(this.getTreeLocation_(start),
-                                        name, elements);
+                                        operand, elements);
     },
 
     /**

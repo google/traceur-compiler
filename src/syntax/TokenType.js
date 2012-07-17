@@ -139,7 +139,6 @@ traceur.define('syntax', function() {
     ARROW: '=>',
     BACK_QUOTE: '`',
     DOLLAR: '$',
-    QUASI_TAG: 'quasi tag',
     QUASI_LITERAL_PORTION: 'quasi literal portion'
   };
 

@@ -23,11 +23,6 @@ traceur.define('syntax', function() {
 
   var SourcePosition = traceur.util.SourcePosition;
 
-  var QuasiTag = {
-    ALLOW: true,
-    NO: false
-  };
-
   /**
    * Scans javascript source code into tokens. All entrypoints assume the
    * caller is not expecting a regular expression literal except for
@@ -477,7 +472,7 @@ traceur.define('syntax', function() {
       this.clearTokenLookahead_();
       var beginToken = this.index_;
       var ch = this.nextChar_();
-      return this.scanIdentifierOrKeyword(beginToken, ch, QuasiTag.NO);
+      return this.scanIdentifierOrKeyword(beginToken, ch);
     },
 
     peekQuasiToken: function(type) {
@@ -805,7 +800,7 @@ traceur.define('syntax', function() {
         case '\'':
           return this.scanStringLiteral_(beginToken, ch);
         default:
-          return this.scanIdentifierOrKeyword(beginToken, ch, QuasiTag.ALLOW);
+          return this.scanIdentifierOrKeyword(beginToken, ch);
       }
     },
 
@@ -884,10 +879,9 @@ traceur.define('syntax', function() {
     /**
      * @param {number} beginToken
      * @param {string} ch
-     * @param {QuasiTag} allowQuasiTag
      * @return {Token}
      */
-    scanIdentifierOrKeyword: function(beginToken, ch, allowQuasiTag) {
+    scanIdentifierOrKeyword: function(beginToken, ch) {
       if (ch == '\\') {
         return this.scanUnicode(beginToken, ch);
       }
@@ -911,20 +905,6 @@ traceur.define('syntax', function() {
       if (Keywords.isKeyword(value)) {
         return new Token(Keywords.getTokenType(value),
                          this.getTokenRange_(beginToken));
-      }
-
-      // If we allow a quasi tag and the next character is ` we know this
-      // identifier is a quasi tag. For example: raw`\n`
-      if (allowQuasiTag) {
-        if (this.peekChar_() === '/' &&
-            this.peekChar_(1) === '*') {
-          this.skipMultiLineComment_();
-        }
-
-        if (this.peekChar_() === '`') {
-          return new LiteralToken(TokenType.QUASI_TAG, value,
-                                  this.getTokenRange_(beginToken));
-        }
       }
 
       return new IdentifierToken(this.getTokenRange_(beginToken), value);

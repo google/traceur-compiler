@@ -253,6 +253,7 @@
   addFeatureOption('restParameters', Kind.es6);
   addFeatureOption('spread', Kind.es6);
   addFeatureOption('isExpression', Kind.es6);
+  addFeatureOption('quasi', Kind.es6);
 
   addFeatureOption('forOf', Kind.harmony);
   addFeatureOption('generatorComprehension', Kind.harmony);
@@ -260,7 +261,6 @@
   addFeatureOption('generators', Kind.harmony);
   addFeatureOption('modules', Kind.harmony);
   addFeatureOption('privateNames', Kind.harmony);
-  addFeatureOption('quasi', Kind.harmony);
 
   addFeatureOption('arrowFunctions', Kind.experimental);
   addFeatureOption('cascadeExpression', Kind.experimental);
