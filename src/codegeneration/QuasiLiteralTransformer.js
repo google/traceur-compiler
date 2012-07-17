@@ -27,34 +27,39 @@ traceur.define('codegeneration', function() {
 
   var createArgumentList = ParseTreeFactory.createArgumentList;
   var createArrayLiteralExpression = ParseTreeFactory.createArrayLiteralExpression;
+  var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression;
   var createBinaryOperator = ParseTreeFactory.createBinaryOperator;
   var createCallExpression = ParseTreeFactory.createCallExpression;
+  var createCommaExpression = ParseTreeFactory.createCommaExpression;
+  var createDefineProperty = ParseTreeFactory.createDefineProperty;
   var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
   var createMemberExpression = ParseTreeFactory.createMemberExpression;
   var createObjectFreeze = ParseTreeFactory.createObjectFreeze;
   var createObjectLiteralExpression = ParseTreeFactory.createObjectLiteralExpression;
   var createOperatorToken = ParseTreeFactory.createOperatorToken;
-  var createPropertyNameAssignment = ParseTreeFactory.createPropertyNameAssignment;
+  var createParenExpression = ParseTreeFactory.createParenExpression;
   var createVariableDeclaration = ParseTreeFactory.createVariableDeclaration;
   var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList;
   var createVariableStatement = ParseTreeFactory.createVariableStatement;
 
   /**
    * Creates an object like:
-   * Object.freeze({
-   *   raw: Object.freeze(["literalPortion\\0 ", "literalPortion1"]),
-   *   cooked: Object.freeze(["literalPortion\u0000 ", "literalPortion1"])
-   * })
+   *
+   * (Object.defineProperty(tmp = CookedArray, 'raw', Object.freeze(RawArray),
+   *  Object.freeze(tmp))
    */
-  function createCallSiteIdObject(tree) {
+  function createCallSiteIdObject(tempVarName, tree) {
     var elements = tree.elements;
-    return createObjectFreeze(createObjectLiteralExpression(
-      createPropertyNameAssignment(
+    var expressions = [
+      createDefineProperty(
+          createAssignmentExpression(
+              createIdentifierExpression(tempVarName),
+              createCookedStringArray(elements)),
           PredefinedName.RAW,
-          createObjectFreeze(createRawStringArray(elements))),
-      createPropertyNameAssignment(
-          PredefinedName.COOKED,
-          createObjectFreeze(createCookedStringArray(elements)))));
+          {value: createObjectFreeze(createRawStringArray(elements))}),
+      createObjectFreeze(createIdentifierExpression(tempVarName))
+    ];
+    return createParenExpression(createCommaExpression(expressions));
   }
 
   function createRawStringArray(elements) {
@@ -171,6 +176,7 @@ traceur.define('codegeneration', function() {
   function QuasiLiteralTransformer(identifierGenerator) {
     ParseTreeTransformer.call(this);
     this.identifierGenerator_ = identifierGenerator;
+    this.tempVarName_ = identifierGenerator.generateUniqueIdentifier();
   }
 
   /*
@@ -186,6 +192,7 @@ traceur.define('codegeneration', function() {
   QuasiLiteralTransformer.prototype = traceur.createObject(proto, {
     transformProgram: function(tree) {
 
+
       this.callsiteDecls_ = [];
 
       var elements = this.transformList(tree.programElements);
@@ -194,10 +201,13 @@ traceur.define('codegeneration', function() {
       }
 
       if (this.callsiteDecls_.length > 0) {
+        var tempVarStatement = createVariableStatement(
+            createVariableDeclarationList(TokenType.VAR, this.tempVarName_,
+                                          null));
         var varStatement = createVariableStatement(
             createVariableDeclarationList(TokenType.CONST,
                                           this.callsiteDecls_));
-        elements.unshift(varStatement);
+        elements.unshift(tempVarStatement, varStatement);
       }
 
       return new Program(tree.location, elements);
@@ -212,7 +222,7 @@ traceur.define('codegeneration', function() {
       var args = [];
 
       var idName = this.identifierGenerator_.generateUniqueIdentifier();
-      var callsiteId = createCallSiteIdObject(tree);
+      var callsiteId = createCallSiteIdObject(this.tempVarName_, tree);
       var variableDecl = createVariableDeclaration(idName, callsiteId);
       this.callsiteDecls_.push(variableDecl);
 

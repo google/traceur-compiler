@@ -810,6 +810,31 @@ traceur.define('codegeneration', function() {
   }
 
   /**
+   * Creates a call expression to Object.defineProperty(tree, name, descr).
+   *
+   * @param {ParseTree} tree
+   * @param {string} name
+   * @param {Object} descr This is a normal js object. The values in the descr
+   *     may be true, false or a ParseTree.
+   * @return {ParseTree}
+   */
+  function createDefineProperty(tree, name, descr) {
+    var propertyNameAndValues = Object.keys(descr).map(function(name) {
+      var value = descr[name];
+      if (!(value instanceof ParseTree))
+        value = createBooleanLiteral(!!value);
+      return createPropertyNameAssignment(name, value)
+    });
+
+    return createCallExpression(
+      createMemberExpression(PredefinedName.OBJECT,
+                             PredefinedName.DEFINE_PROPERTY),
+      createArgumentList(tree,
+          createStringLiteral(name),
+          createObjectLiteralExpression(propertyNameAndValues)));
+  }
+
+  /**
    * @param {Array.<ParseTree>|ParseTree} propertyNameAndValues
    * @param {...ParseTree} var_args
    * @return {ObjectLiteralExpression}
@@ -1087,6 +1112,7 @@ traceur.define('codegeneration', function() {
       createConditionalExpression: createConditionalExpression,
       createContinueStatement: createContinueStatement,
       createDefaultClause: createDefaultClause,
+      createDefineProperty: createDefineProperty,
       createDoWhileStatement: createDoWhileStatement,
       createEmptyArgumentList: createEmptyArgumentList,
       createEmptyArrayLiteralExpression: createEmptyArrayLiteralExpression,

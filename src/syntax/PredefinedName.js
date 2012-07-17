@@ -33,7 +33,6 @@ traceur.define('syntax', function() {
     CONFIGURABLE: 'configurable',
     CONSTRUCTOR: 'constructor',
     CONTINUATION: '$continuation',
-    COOKED: 'cooked',
     CREATE: 'create',
     CREATE_CALLBACK: '$createCallback',
     CREATE_CLASS: 'createClass',
