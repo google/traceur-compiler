@@ -1,3 +1,4 @@
+assertEquals('', ``);
 assertEquals('a', `a`);
 assertEquals('"', `"`);
 assertEquals("'", `'`);

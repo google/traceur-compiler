@@ -66,8 +66,9 @@ traceur.define('codegeneration', function() {
     var items = [];
     for (var i = 0; i < elements.length; i += 2) {
       var str = replaceRaw(JSON.stringify(elements[i].value.value));
-      var expr = new LiteralExpression(null, new LiteralToken(TokenType.STRING,
-                                                              str, null));
+      var loc = elements[i].location;
+      var expr = new LiteralExpression(loc, new LiteralToken(TokenType.STRING,
+                                                             str, loc));
       items.push(expr);
     }
     return createArrayLiteralExpression(items);
@@ -75,8 +76,9 @@ traceur.define('codegeneration', function() {
 
   function createCookedStringLiteralExpression(tree) {
     var str = cookString(tree.value.value);
-    return new LiteralExpression(null, new LiteralToken(TokenType.STRING,
-                                                        str, null));
+    var loc = tree.location;
+    return new LiteralExpression(loc, new LiteralToken(TokenType.STRING,
+                                                       str, loc));
   }
 
   function createCookedStringArray(elements) {
@@ -263,6 +265,12 @@ traceur.define('codegeneration', function() {
     createDefaultQuasi: function(tree) {
       // convert to ("a" + b + "c" + d + "")
       var length = tree.elements.length;
+      if (length === 0) {
+        var loc = tree.location;
+        return new LiteralExpression(loc, new LiteralToken(TokenType.STRING,
+                                                           '""', loc));
+      }
+
       var binaryExpression = this.transformAny(tree.elements[0]);
       if (length == 1)
         return binaryExpression;
