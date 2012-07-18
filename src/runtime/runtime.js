@@ -58,6 +58,27 @@ traceur.runtime = (function() {
     })
   });
 
+  // 15.5.3.4 String.raw ( callSite, ...substitutions)
+  $defineProperty(String, 'raw', {
+    value: function(callsite) {
+      var raw = callsite.raw;
+      var len = raw.length >>> 0;  // ToUint
+      if (len === 0)
+        return '';
+      var s = '';
+      var i = 0;
+      while (true) {
+        s += raw[i];
+        if (i + 1 === len)
+          return s;
+        s += arguments[++i];
+      }
+    },
+    configurable: true,
+    enumerable: false,
+    writable: true
+  });
+
   function createClass(ctor, proto, extendsExpr) {
     if (extendsExpr !== null && Object(extendsExpr) !== extendsExpr)
       throw new TypeError('Can only extend objects or null');
