@@ -15,13 +15,12 @@
 traceur.define('syntax', function() {
   'use strict';
 
-  var Token = traceur.syntax.Token;
-  var TokenType = traceur.syntax.TokenType;
-  var LiteralToken = traceur.syntax.LiteralToken;
   var IdentifierToken = traceur.syntax.IdentifierToken;
   var Keywords = traceur.syntax.Keywords;
-
+  var LiteralToken = traceur.syntax.LiteralToken;
   var SourcePosition = traceur.util.SourcePosition;
+  var Token = traceur.syntax.Token;
+  var TokenType = traceur.syntax.TokenType;
 
   /**
    * Scans javascript source code into tokens. All entrypoints assume the
@@ -507,7 +506,7 @@ traceur.define('syntax', function() {
         }
         if (this.peek_('$')) {
           var ch = this.peekChar_(1);
-          if (ch == '{' || isIdentifierStart(ch)) {
+          if (ch == '{') {
             break;
           }
         }

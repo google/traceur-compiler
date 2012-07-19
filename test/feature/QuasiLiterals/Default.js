@@ -25,27 +25,27 @@ assertEquals('null', `${ null }`);
 {
   let $ = 'DOLLAR';
   let $$ = 'DD'
-  assertEquals('DOLLAR', `$$`);
+  assertEquals('$$', `$$`);
   assertEquals('DOLLAR', `${$}`);
-  assertEquals('DD', `$$$`);
+  assertEquals('$$$', `$$$`);
   assertEquals('DOLLARDOLLAR', `${$}${$}`);
-  assertEquals('DOLLARDOLLAR', `${$}$$`);
-  assertEquals('DD{$}', `$$${$}`);
-  assertEquals('$DOLLAR', `\$$$`);
+  assertEquals('DOLLAR$$', `${$}$$`);
+  assertEquals('$$DOLLAR', `$$${$}`);
+  assertEquals('$$$', `\$$$`);
 
   let a = 'A';
   let b = 'B';
   assertEquals('aAbB', `a${a}b${b}`);
-  assertEquals('aAbB', `a${a}b$b`);
-  assertEquals('A.B', `$a.$b`);
+  assertEquals('aAb$b', `a${a}b$b`);
+  assertEquals('$a.$b', `$a.$b`);
 
   let x = 3;
   let y = 5;
 
-  assertEquals('3 + 5 = 8', `$x + $y = ${ x + y}`);
+  assertEquals('3 + 5 = 8', `${x} + ${y} = ${ x + y}`);
 
   // nested
-  assertEquals('3 + 5 = 8', `$x + ${ `$y = ${ `${x + y}` }` }`);
+  assertEquals('3 + 5 = 8', `${x} + ${ `${y} = ${ `${x + y}` }` }`);
 }
 
 // Line continuations

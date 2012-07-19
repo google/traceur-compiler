@@ -28,9 +28,9 @@
 
   assertEquals(1, expose``.length);
   assertEquals(1, expose`a`.length);
-  assertEquals(2, expose`a$x`.length);
-  assertEquals(2, expose`a$x b`.length);
-  assertEquals(3, expose`a$x $y`.length);
+  assertEquals(2, expose`a${x}`.length);
+  assertEquals(2, expose`a${x} b`.length);
+  assertEquals(3, expose`a${x} ${y}`.length);
   assertEquals(3, expose`${x}${y}`.length);
   assertEquals(2, expose`${x}a`.length);
 

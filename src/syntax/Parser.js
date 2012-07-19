@@ -3517,27 +3517,18 @@ traceur.define('syntax', function() {
         elements.push(new QuasiLiteralPortion(this.getTreeLocation_(start),
                                               token));
 
-        if (!this.peekQuasiToken_(TokenType.DOLLAR)) {
+        if (!this.peekQuasiToken_(TokenType.DOLLAR))
           break;
-        }
 
         token = this.nextQuasiSubstitutionToken_();
         traceur.assert(token.type == TokenType.DOLLAR);
 
-        if (this.peekQuasiToken_(TokenType.OPEN_CURLY)) {
-          this.eat_(TokenType.OPEN_CURLY);
-          var expression = this.parseExpression_();
-          if (!expression) {
-            return this.parseMissingPrimaryExpression_();
-          }
-          pushSubst(expression);
-          this.eat_(TokenType.CLOSE_CURLY);
-        } else {
-          token = this.nextQuasiIdentifier_();
-          traceur.assert(token.type == TokenType.IDENTIFIER);
-          pushSubst(new IdentifierExpression(this.getTreeLocation_(start),
-                                             token));
-        }
+        this.eat_(TokenType.OPEN_CURLY);
+        var expression = this.parseExpression_();
+        if (!expression)
+          return this.parseMissingPrimaryExpression_();
+        pushSubst(expression);
+        this.eat_(TokenType.CLOSE_CURLY);
       }
 
       this.eat_(TokenType.BACK_QUOTE);
