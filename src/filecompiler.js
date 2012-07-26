@@ -40,7 +40,7 @@
   }
 
   // Allow traceur.js to use importScript.
-  global.importScript = importScript;
+  global.traceurImportScript = importScript;
 
   importScript('./traceur.js');
 

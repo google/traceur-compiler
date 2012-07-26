@@ -93,7 +93,10 @@ var traceur = (function() {
   var global = ('global', eval)('this');
 
   // Allow script before this one to define a global importScript function.
-  var importScript = global.importScript || function(file) {
+  var importScript =
+      global.traceurImportScript ||
+      global.importScript ||
+      function(file) {
     if (!path) {
       // Find path to this js file
       var scripts = document.querySelectorAll('script');

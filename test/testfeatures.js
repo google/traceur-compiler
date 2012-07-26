@@ -292,7 +292,7 @@ function runFeatureScripts(dir) {
 }
 
 // Allow traceur.js to use importScript.
-global.importScript = importScript;
+global.traceurImportScript = importScript;
 
 // Add assert methods to global so that our FreeVariableChecker does not think
 // they are undefined.
