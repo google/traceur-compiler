@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# Check node is installed
+NODE=`which node 2>&1`
+RET=$?
+if [ $RET -ne 0 ] || ! [ -x $NODE ]; then
+  echo "building Traceur requires node.js be installed." >&2
+  echo "Exiting..." >&2
+  exit $RET
+fi
+
+node build.js ../bin/traceur.js
