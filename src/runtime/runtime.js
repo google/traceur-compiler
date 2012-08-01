@@ -19,12 +19,13 @@
 var traceur = traceur || {};
 traceur.runtime = (function() {
   'use strict';
+  var $call = Function.prototype.call.bind(Function.prototype.call);
   var $create = Object.create;
   var $defineProperty = Object.defineProperty;
   var $freeze = Object.freeze;
+  var $getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
   var $getOwnPropertyNames = Object.getOwnPropertyNames;
   var $getPrototypeOf = Object.getPrototypeOf;
-  var $call = Function.prototype.call.bind(Function.prototype.call);
   var $hasOwnProperty = Object.prototype.hasOwnProperty;
   var bind = Function.prototype.bind;
 
@@ -80,9 +81,11 @@ traceur.runtime = (function() {
   });
 
   function createClass(ctor, proto, extendsExpr) {
+    // TODO(arv): We should only allow extending null and constructable.
     if (extendsExpr !== null && Object(extendsExpr) !== extendsExpr)
       throw new TypeError('Can only extend objects or null');
 
+    // TODO(arv): Default constructor.
     $defineProperty(proto, 'constructor', {value: ctor});
 
     var superPrototype;
@@ -93,7 +96,12 @@ traceur.runtime = (function() {
       superPrototype = extendsExpr.prototype;
     }
 
-    ctor.prototype = traceur.createObject(superPrototype, proto);
+    var descriptors = {};
+    $getOwnPropertyNames(proto).forEach(function(name) {
+      descriptors[name] = $getOwnPropertyDescriptor(proto, name);
+    });
+    ctor.prototype = $create(superPrototype, descriptors);
+
     return ctor;
   }
 
