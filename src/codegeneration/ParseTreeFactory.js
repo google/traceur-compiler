@@ -1057,6 +1057,17 @@ traceur.define('codegeneration', function() {
   }
 
   /**
+   * Creates a (void 0) expression.
+   * @return {ParenExpression}
+   */
+  function createVoid0() {
+    return createParenExpression(
+      createUnaryExpression(
+        createOperatorToken(TokenType.VOID),
+        createNumberLiteral(0)));
+  }
+
+  /**
    * @param {ParseTree} condition
    * @param {ParseTree} body
    * @return {WhileStatement}
@@ -1178,6 +1189,7 @@ traceur.define('codegeneration', function() {
       createVariableDeclaration: createVariableDeclaration,
       createVariableDeclarationList: createVariableDeclarationList,
       createVariableStatement: createVariableStatement,
+      createVoid0: createVoid0,
       createWhileStatement: createWhileStatement,
       createWithStatement: createWithStatement,
       createYieldStatement: createYieldStatement

@@ -32,6 +32,7 @@ traceur.define('codegeneration', function() {
   var createNumberLiteral = ParseTreeFactory.createNumberLiteral;
   var createOperatorToken = ParseTreeFactory.createOperatorToken;
   var createVariableStatement = ParseTreeFactory.createVariableStatement;
+  var createVoid0 = ParseTreeFactory.createVoid0;
 
   var stack = [];
 
@@ -94,7 +95,7 @@ traceur.define('codegeneration', function() {
         //
         // =>
         //
-        // var binding = arguments.length > i ? arguments[i] : initializer;
+        // var binding = arguments[i] !== (void 0) ? arguments[i] : initializer;
         } else {
           changed = true;
           statements.push(createVariableStatement(
@@ -102,10 +103,11 @@ traceur.define('codegeneration', function() {
               param.binding,
               createConditionalExpression(
                   createBinaryOperator(
-                      createMemberExpression(PredefinedName.ARGUMENTS,
-                                             PredefinedName.LENGTH),
-                      createOperatorToken(TokenType.CLOSE_ANGLE),
-                      createNumberLiteral(i)),
+                      createMemberLookupExpression(
+                          createIdentifierExpression(PredefinedName.ARGUMENTS),
+                          createNumberLiteral(i)),
+                      createOperatorToken(TokenType.NOT_EQUAL_EQUAL),
+                      createVoid0()),
                   createMemberLookupExpression(
                       createIdentifierExpression(PredefinedName.ARGUMENTS),
                       createNumberLiteral(i)),
