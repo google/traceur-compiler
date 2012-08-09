@@ -167,7 +167,7 @@ traceur.define('codegeneration', function() {
    * @return {BindingElement}
    */
   function createBindingElement(arg) {
-    var binding = new createBindingIdentifier(arg);
+    var binding = createBindingIdentifier(arg);
     return new BindingElement(null, binding, null);
   }
 
@@ -900,13 +900,11 @@ traceur.define('codegeneration', function() {
   }
 
   /**
-   * @param {string|IdentifierToken} identifier
+   * @param {string|IdentifierToken|BindingIdentifier} identifier
    * @return {RestParameter}
    */
   function createRestParameter(identifier) {
-    if (typeof identifier == 'string')
-      identifier = createIdentifierToken(identifier);
-    return new RestParameter(null, identifier);
+    return new RestParameter(null, createBindingIdentifier(identifier));
   }
 
   /**

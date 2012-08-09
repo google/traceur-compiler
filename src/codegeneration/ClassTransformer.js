@@ -15,29 +15,36 @@
 traceur.define('codegeneration', function() {
   'use strict';
 
+  var FormalParameterList = traceur.syntax.trees.FormalParameterList;
   var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
   var GetAccessor = traceur.syntax.trees.GetAccessor;
+  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
   var PredefinedName = traceur.syntax.PredefinedName;
   var PropertyMethodAssignment = traceur.syntax.trees.PropertyMethodAssignment;
   var PropertyNameAssignment = traceur.syntax.trees.PropertyNameAssignment;
   var SetAccessor = traceur.syntax.trees.SetAccessor;
+  var SuperExpression = traceur.syntax.trees.SuperExpression;
   var SuperTransformer = traceur.codegeneration.SuperTransformer;
   var TempVarTransformer = traceur.codegeneration.TempVarTransformer;
   var TokenType = traceur.syntax.TokenType;
 
-  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
   var createArgumentList = ParseTreeFactory.createArgumentList;
   var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression;
+  var createBlock = ParseTreeFactory.createBlock;
+  var createBooleanLiteral = ParseTreeFactory.createBooleanLiteral;
   var createCallExpression = ParseTreeFactory.createCallExpression;
-  var createEmptyParameterList = ParseTreeFactory.createEmptyParameterList;
-  var createEmptyBlock = ParseTreeFactory.createEmptyBlock;
+  var createExpressionStatement = ParseTreeFactory.createExpressionStatement;
   var createFunctionDeclaration = ParseTreeFactory.createFunctionDeclaration;
   var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
+  var createIdentifierToken = ParseTreeFactory.createIdentifierToken;
   var createMemberExpression = ParseTreeFactory.createMemberExpression;
+  var createNullLiteral = ParseTreeFactory.createNullLiteral;
   var createObjectLiteralExpression = ParseTreeFactory.createObjectLiteralExpression;
   var createParenExpression = ParseTreeFactory.createParenExpression;
   var createPropertyNameAssignment = ParseTreeFactory.createPropertyNameAssignment;
+  var createRestParameter = ParseTreeFactory.createRestParameter;
+  var createSpreadExpression = ParseTreeFactory.createSpreadExpression;
   var createVariableStatement = ParseTreeFactory.createVariableStatement;
 
   // The state keeps track of the current class tree and class name.
@@ -112,35 +119,38 @@ traceur.define('codegeneration', function() {
       state.name = createIdentifierExpression(name);
 
       var constructor;
-      var elements = [];
-      tree.elements.forEach(function(tree) {
+      var elements = tree.elements.map(function(tree) {
         switch (tree.type) {
           case ParseTreeType.GET_ACCESSOR:
-            elements.push(this.transformGetAccessor_(tree));
-            return;
+            return this.transformGetAccessor_(tree);
           case ParseTreeType.SET_ACCESSOR:
-            elements.push(this.transformSetAccessor_(tree));
+            return this.transformSetAccessor_(tree);
             return;
           case ParseTreeType.PROPERTY_METHOD_ASSIGNMENT:
             if (tree.name.value === PredefinedName.CONSTRUCTOR)
-              constructor = this.transformConstructor_(tree);
-            else
-              elements.push(this.transformPropertyMethodAssignment_(tree));
-            return;
+              return constructor = this.transformConstructor_(tree);
+            return this.transformPropertyMethodAssignment_(tree);
           default:
             throw new Error('Unexpected class element: ' + tree.type);
         }
       }, this);
 
       // Create constructor if it does not already exist.
-      if (!constructor) {
-        constructor = createFunctionDeclaration(tree.name,
-            createEmptyParameterList(), createEmptyBlock());
-      }
+      if (!constructor)
+        elements.push(this.getDefaultConstructor_(tree));
 
       stack.pop();
 
-      // let <className> = traceur.runtime.createClass(proto, superClass)
+      // We need to keep track of whether we have a user defined constructor or
+      // not in case we extend null.
+      var hasConstructor = !!constructor;
+      // A missing extends expression needs to be treated slightly different
+      // from extending Object.
+      var hasExtendsExpression = !!superClass;
+
+      // let <className> = traceur.runtime.createClass(proto, superClass,
+      //                                               hasConstructor,
+      //                                               hasExtendsExpression)
       return [
         createCallExpression(
             createMemberExpression(
@@ -148,9 +158,10 @@ traceur.define('codegeneration', function() {
                 PredefinedName.RUNTIME,
                 PredefinedName.CREATE_CLASS),
             createArgumentList(
-                constructor,
                 createObjectLiteralExpression(elements),
-                superClass || createIdentifierExpression(PredefinedName.OBJECT))),
+                superClass || createNullLiteral(),
+                createBooleanLiteral(hasConstructor),
+                createBooleanLiteral(hasExtendsExpression))),
         state.hasSuper
       ];
     },
@@ -213,11 +224,15 @@ traceur.define('codegeneration', function() {
     },
 
     transformConstructor_: function(tree) {
+      // The constructor is transformed into a property assignment.
+      // constructor: function CLASS_NAME() { }
       var state = peekState();
       var parameters = this.transformAny(tree.formalParameterList);
       var functionBody = this.transformSuperInBlock_(tree, tree.functionBody);
       var name = state.name.identifierToken;
-      return createFunctionDeclaration(name, parameters, functionBody);
+
+      var func = createFunctionDeclaration(name, parameters, functionBody);
+      return createPropertyNameAssignment(PredefinedName.CONSTRUCTOR, func);
     },
 
     transformSuperInBlock_: function(methodTree, tree) {
@@ -225,10 +240,30 @@ traceur.define('codegeneration', function() {
       var className = state.name;
       var superTransformer = new SuperTransformer(this, this.reporter_,
                                                   className, methodTree);
-      var transformedTree = superTransformer.transformAny(proto.transformAny.call(this, tree));
+      var transformedTree =
+          superTransformer.transformAny(proto.transformAny.call(this, tree));
       if (superTransformer.hasSuper)
         state.hasSuper = true;
       return transformedTree;
+    },
+
+    getDefaultConstructor_: function(tree) {
+      // function name(...args) {
+      //   super(...args)
+      // }
+      var restParam = createRestParameter('args');
+      var params = new FormalParameterList(null, [restParam]);
+      var body = createBlock(
+          createExpressionStatement(
+              createCallExpression(
+                  new SuperExpression(null),
+                  createArgumentList(
+                      createSpreadExpression(
+                          createIdentifierExpression('args'))))));
+      var constr = new PropertyMethodAssignment(null,
+          createIdentifierToken(PredefinedName.CONSTRUCTOR), false,
+                                params, body);
+      return this.transformConstructor_(constr);
     }
   });
 

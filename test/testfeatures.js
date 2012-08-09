@@ -66,10 +66,11 @@ var asserts = {
   assertThrows: function (fn) {
     try {
       fn();
-      fail('Function should have thrown and did not.');
     } catch (e) {
       // Do nothing.
+      return;
     }
+    fail('Function should have thrown and did not.');
   },
 
   assertNoOwnProperties: function(o) {
