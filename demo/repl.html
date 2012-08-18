@@ -20,6 +20,9 @@
 <head>
 <title>Traceur</title>
 
+<link rel="stylesheet" href="../third_party/codemirror2/lib/codemirror.css">
+<script src="../third_party/codemirror2/lib/codemirror.js"></script>
+<script src="../third_party/codemirror2/mode/javascript/javascript.js"></script>
 <script src="../src/traceur.js"></script>
 <style>
 
@@ -43,7 +46,8 @@ textarea {
 }
 
 textarea,
-pre {
+pre,
+.CodeMirror {
   font: 12px 'Droid Sans Mono', sans-serif;
 }
 
@@ -126,7 +130,10 @@ pre{
   var ErrorReporter = traceur.util.ErrorReporter;
 
   var hasError = false;
-  var input = document.querySelector('.input');
+  var input = CodeMirror.fromTextArea(document.querySelector('.input'), {
+    onChange: compile,
+    lineNumbers: true
+  });
   var outputCheckbox = document.querySelector('input.output');
   var output = document.querySelector('pre.output');
   var evalCheckbox = document.querySelector('input.eval');
@@ -135,7 +142,7 @@ pre{
   var sourceMapElement = document.querySelector('pre.source-map');
 
   if (location.hash)
-    input.value = decodeURIComponent(location.hash.slice(1));
+    input.setValue(decodeURIComponent(location.hash.slice(1)));
 
   evalCheckbox.addEventListener('click', function(e) {
     evalElement.hidden = !evalCheckbox.checked;
@@ -159,7 +166,7 @@ pre{
     var url = location.href;
     var project = new traceur.semantics.symbols.Project(url);
     var name = 'repl';
-    var contents = input.value;
+    var contents = input.getValue();
     if (history.replaceState)
       history.replaceState(null, document.title,
                            '#' + encodeURIComponent(contents));
@@ -195,8 +202,6 @@ pre{
 
     errorElement.hidden = !hasError;
   }
-
-  input.addEventListener('input', compile, false);
 
   function createOptionRow(name) {
     var label = document.createElement('label');
