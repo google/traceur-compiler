@@ -1085,6 +1085,7 @@ traceur.define('syntax', function() {
         case TokenType.MINUS:
         case TokenType.TILDE:
         case TokenType.BANG:
+        case TokenType.BACK_QUOTE:
           return true;
         default:
           return false;
