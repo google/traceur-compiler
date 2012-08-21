@@ -33,7 +33,7 @@ traceur.define('util', function() {
   SourcePosition.prototype = {
     toString: function() {
       return (this.source ? this.source.name : '') +
-          '(' + (this.line + 1) + ', ' + (this.column + 1) + ')';
+          ':' + (this.line + 1) + ':' + (this.column + 1);
     }
   };
 

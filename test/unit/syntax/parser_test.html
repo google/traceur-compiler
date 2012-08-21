@@ -100,7 +100,7 @@ function testParserNonClosedRegExp() {
   parser.parseProgram();
 
   assertTrue(errors.length > 0);
-  assertEquals('testParserNonClosedRegExp(1, 2)', String(errors[0][0]));
+  assertEquals('testParserNonClosedRegExp:1:2', String(errors[0][0]));
   assertEquals('Expected \'/\' in regular expression literal', errors[0][1]);
 }
 

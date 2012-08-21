@@ -62,8 +62,8 @@ function testErrorReporterWithLocation() {
   var file = new traceur.syntax.SourceFile('test.js', '');
   var location = new traceur.util.SourcePosition(file, 1, 2, 3);
 
-  mockError('test.js(3, 4): a%sc%se', 'b', 'd');
-  mockWarn('test.js(3, 4): a%sc%se', 'b', 'd');
+  mockError('test.js:3:4: a%sc%se', 'b', 'd');
+  mockWarn('test.js:3:4: a%sc%se', 'b', 'd');
 
   mocks.$replayAll();
 
@@ -98,6 +98,16 @@ function testFormat() {
   assertEquals('%%%', format(null, '%%%%%'));
 
   assertEquals('undefined', format(null, '%s'));
+}
+
+function testDevtoolsLink() {
+  var file = new traceur.syntax.SourceFile('error_reporter_test.html', '');
+  var location = new traceur.util.SourcePosition(file, 1, 108, 3);
+  var segments = window.location.href.split('/');
+  segments.pop();
+  segments.push(location.toString());
+  var linkable = segments.join('/');
+  console.log('click on this link in devtools console: ' + linkable + '  ');
 }
 
 </script>
