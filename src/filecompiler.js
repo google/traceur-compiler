@@ -147,12 +147,47 @@
     results.keys().forEach(function(file) {
       var tree = results.get(file);
       var filename = file.name;
-      var options = {showLineNumbers: false};
-      var result = traceur.outputgeneration.TreeWriter.write(tree, options);
-      writeFile(filename, result);
+      writeTreeToFile(tree, filename);
+
+      if (flags.copyOriginals) {
+        var outPath = path.join(outDirName, filename);
+        copyFile(filename, outPath);
+      }
     });
 
     return true;
+  }
+
+  function getSourceMapFileName(name) {
+    return name.replace(/\.js$/, '.map');
+  }
+
+  function copyFile(inPath, outPath) {
+    console.log('Copying %s to %s', inPath, outPath);
+    mkdirRecursive(path.dirname(outPath));
+    var inStream = fs.createReadStream(inPath);
+    var outStream = fs.createWriteStream(outPath);
+    inStream.pipe(outStream);
+  }
+
+  function writeTreeToFile(tree, filename) {
+    var compiledFilePath = filename.replace(/\.js$/, '.compiled.js');
+    var options = null;
+    if (flags.sourceMaps) {
+      var sourceMapFilePath = getSourceMapFileName(filename);
+      var config = {file: path.basename(compiledFilePath)};
+      var sourceMapGenerator = new SourceMapGenerator(config);
+      options = {sourceMapGenerator: sourceMapGenerator};
+    }
+
+    var compiledCode = TreeWriter.write(tree, options);
+    if (flags.sourceMaps) {
+      compiledCode += '\n//@ sourceMappingURL=' +
+          path.basename(sourceMapFilePath);
+    }
+    writeFile(compiledFilePath, compiledCode);
+    if (flags.sourceMaps)
+      writeFile(sourceMapFilePath, options.sourceMap);
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -271,26 +306,15 @@
       var transformer = new ProgramTransformer(reporter, project);
       var tree = transformer.transform(programTree);
 
-      var compiledFilePath = filename.replace(/\.js$/, '.compiled.js');
-      var sourceMapFilePath = filename.replace(/\.js$/, '.map');
-      var config = {file: path.basename(compiledFilePath)};
-      var sourceMapGenerator = new SourceMapGenerator(config);
-      var options = {sourceMapGenerator: sourceMapGenerator};
+      writeTreeToFile(tree, filename);
 
-      var compiledCode = TreeWriter.write(tree, options) +
-          '\n//@ sourceMappingURL=' + path.basename(sourceMapFilePath);
-      writeFile(compiledFilePath, compiledCode);
-      writeFile(sourceMapFilePath, options.sourceMap);
-
-      originalFiles.forEach(function(filename) {
-        var inPath = path.join(dirname, filename);
-        var outPath = path.join(outDirName, dirname, filename);
-        console.log('Copying %s to %s', inPath, outPath);
-        mkdirRecursive(path.dirname(outPath));
-        var inStream = fs.createReadStream(inPath);
-        var outStream = fs.createWriteStream(outPath);
-        inStream.pipe(outStream);
-      });
+      if (flags.copyOriginals) {
+        originalFiles.forEach(function(filename) {
+          var inPath = path.join(dirname, filename);
+          var outPath = path.join(outDirName, dirname, filename);
+          copyFile(inPath, outPath);
+        });
+      }
 
     }, function() {
       console.error(codeUnit.loader.error);
@@ -303,11 +327,18 @@
 
   var args = process.argv.slice(2);
 
-  var inlineModules = false;
-  args = args.filter(function(value) {
-    if (value === '--inline-modules') {
-      inlineModules = true;
-      return false;
+  var flags = {};
+  args = args.filter(function(name) {
+    switch (name) {
+      case '--inline-modules':
+        flags.inlineModules = true;
+        return false;
+      case '--source-maps':
+        flags.sourceMaps = true;
+        return false;
+      case '--copy-originals':
+        flags.copyOriginals = true;
+        return false;
     }
     return true;
   });
@@ -316,7 +347,7 @@
     return !/^--/.test(value);
   });
 
-  if (inlineModules && files.length !== 1) {
+  if (flags.inlineModules && files.length !== 1) {
     console.log('Only one file is supported with --inline-modules. ' +
                 'Use import statements instead');
     console.log('Usage: node ' + process.argv[1] +
@@ -327,7 +358,7 @@
   traceur.options.fromArgv(args);
 
   var success;
-  if (inlineModules)
+  if (flags.inlineModules)
     success = inlineAndCompile(files[0]);
   else
     success = compileFiles(files);
