@@ -12,13 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// This file is sometimes used without traceur.js.
+if (!this.traceur)
+  this.traceur = {};
 
 /**
  * The traceur runtime.
  */
-var traceur = traceur || {};
-traceur.runtime = (function() {
+traceur.runtime = (function(global) {
   'use strict';
+
   var $call = Function.prototype.call.bind(Function.prototype.call);
   var $create = Object.create;
   var $defineProperty = Object.defineProperty;
@@ -557,7 +560,10 @@ traceur.runtime = (function() {
     }
   });
 
-  // Return the traceur namespace.
+  // TODO(arv): Don't export this.
+  global.Deferred = Deferred;
+
+  // Return the runtime namespace.
   return {
     createClass: createClass,
     Deferred: Deferred,
@@ -577,7 +583,4 @@ traceur.runtime = (function() {
     superGet: superGet,
     superSet: superSet
   };
-})();
-
-var Deferred = traceur.runtime.Deferred;
-
+})(this);

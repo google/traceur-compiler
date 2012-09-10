@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var global = this;
 traceur.define('semantics', function() {
   'use strict';
 
@@ -87,6 +86,8 @@ traceur.define('semantics', function() {
     }
     return null;
   }
+
+  var global = ('global', eval)('this');
 
   /**
    * Checks the program for free variables, and reports an error when it
