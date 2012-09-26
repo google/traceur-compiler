@@ -254,6 +254,12 @@ traceur.runtime = (function(global) {
   $freeze(Name);
   $freeze(Name.prototype);
 
+  function assertName(val) {
+    if (!NameModule.isName(val))
+      throw new TypeError(val + ' is not a Name');
+    return val;
+  }
+
   // Private name.
 
   // Collection getters and setters
@@ -565,8 +571,10 @@ traceur.runtime = (function(global) {
 
   // Return the runtime namespace.
   return {
-    createClass: createClass,
     Deferred: Deferred,
+    assertName: assertName,
+    createClass: createClass,
+    createName: NameModule.Name,
     elementDelete: elementDelete,
     elementGet: elementGet,
     elementHas: elementHas,
@@ -581,6 +589,6 @@ traceur.runtime = (function(global) {
     spreadNew: spreadNew,
     superCall: superCall,
     superGet: superGet,
-    superSet: superSet
+    superSet: superSet,
   };
 })(this);

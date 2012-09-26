@@ -20,6 +20,8 @@ traceur.define('codegeneration', function() {
   var ArrayLiteralExpression = traceur.syntax.trees.ArrayLiteralExpression;
   var ArrayPattern = traceur.syntax.trees.ArrayPattern;
   var ArrowFunctionExpression = traceur.syntax.trees.ArrowFunctionExpression;
+  var AtNameExpression = traceur.syntax.trees.AtNameExpression;
+  var AtNameDeclaration = traceur.syntax.trees.AtNameDeclaration;
   var AwaitStatement = traceur.syntax.trees.AwaitStatement;
   var BinaryOperator = traceur.syntax.trees.BinaryOperator;
   var BindThisParameter = traceur.syntax.trees.BindThisParameter;
@@ -60,6 +62,7 @@ traceur.define('codegeneration', function() {
   var ModuleDefinition = traceur.syntax.trees.ModuleDefinition;
   var ModuleExpression = traceur.syntax.trees.ModuleExpression;
   var ModuleSpecifier = traceur.syntax.trees.ModuleSpecifier;
+  var NameStatement = traceur.syntax.trees.NameStatement;
   var NewExpression = traceur.syntax.trees.NewExpression;
   var ObjectLiteralExpression = traceur.syntax.trees.ObjectLiteralExpression;
   var ObjectPattern = traceur.syntax.trees.ObjectPattern;
@@ -240,6 +243,26 @@ traceur.define('codegeneration', function() {
         return tree;
       }
       return new ArrowFunctionExpression(null, parameters, body);
+    },
+
+    /**
+     * @param {AtNameExpression} tree
+     * @return {ParseTree}
+     */
+    transformAtNameExpression: function(tree) {
+      return tree;
+    },
+
+    /**
+     * @param {AtNameDeclaration} tree
+     * @return {ParseTree}
+     */
+    transformAtNameDeclaration: function(tree) {
+      var initializer = this.transformAny(tree.initializer);
+      if (initializer === tree.initializer)
+        return tree;
+      return new AtNameDeclaration(tree.location, tree.atNameToken,
+                                   initializer);
     },
 
     /**
@@ -849,6 +872,17 @@ traceur.define('codegeneration', function() {
         return tree;
       }
       return new ModuleSpecifier(tree.location, tree.identifier, expression);
+    },
+
+    /**
+     * @param {NameStatement} tree
+     * @return {ParseTree}
+     */
+    transformNameStatement: function(tree) {
+      var declarations = this.transformList(tree.declarations);
+      if (declarations === tree.declarations)
+        return tree;
+      return new NameStatement(tree.location, declarations);
     },
 
     /**

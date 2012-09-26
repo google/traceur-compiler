@@ -88,6 +88,23 @@ traceur.define('syntax.trees', function() {
 
     /**
      * @param {traceur.util.SourceRange} location
+     * @param {traceur.syntax.AtNameToken} atNameToken
+     * @constructor
+     * @extends {ParseTree}
+     */
+    AtNameExpression: create('atNameToken'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
+     * @param {traceur.syntax.AtNameToken} atNameToken
+     * @param {ParseTree} initializer
+     * @constructor
+     * @extends {ParseTree}
+     */
+    AtNameDeclaration: create('atNameToken', 'initializer'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
      * @param {IdentifierToken} identifier
      * @param {ParseTree} expression
      * @constructor
@@ -542,6 +559,14 @@ traceur.define('syntax.trees', function() {
      * @extends {ParseTree}
      */
     ModuleSpecifier: create('identifier', 'expression'),
+
+    /**
+     * @param {traceur.util.SourceRange} location
+     * @param {Array.<AtNameDeclaration>} declarations
+     * @constructor
+     * @extends {ParseTree}
+     */
+    NameStatement: create('declarations'),
 
     /**
      * @param {traceur.util.SourceRange} location

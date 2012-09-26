@@ -15,18 +15,25 @@
 
       function print(s) {
         var out = document.getElementById('out');
-        out.appendChild(document.createTextNode(`$s\n`));
+        out.appendChild(document.createTextNode(`${s}\n`));
       }
 
       function assertEquals(expected, actual) {
         if (expected === actual)
-          print(`PASS: $actual`);
+          print(`PASS: ${actual}`);
         else
-          print(`FAIL: Expected $expected, got $actual`);
+          print(`FAIL: Expected ${expected}, got ${actual}`);
       }
 
       import {elementGet, elementSet, elementDelete, Name} from '@name';
       import iterator from '@iter';
+
+      // TODO(arv): Add support for import @name
+      private @elementGet = elementGet,
+          @elementSet = elementSet,
+          @elementDelete = elementDelete,
+          @iterator = iterator;
+
       var storageName = new Name();
       var sizeName = new Name();
       var {setProperty, getProperty} = Object;
@@ -43,54 +50,46 @@
       StringMap.prototype = {
         get size() {
           return getProperty(this, sizeName);
-        }
+        },
         has(name) {
           return name in getStorage(this);
-        }
-        keys() {
+        },
+        *keys() {
           var storage = getStorage(this);
-          return (function* () {
-            for (var name in storage) {
-              yield name;
-            }
-          })();
-        }
-        values() {
+          for (var name in storage) {
+            yield name;
+          }
+        },
+        *values() {
           var storage = getStorage(this);
-          return (function* () {
-            for (var name in storage) {
-              yield storage[name];
-            }
-          })();
-        }
-        items() {
+          for (var name in storage) {
+            yield storage[name];
+          }
+        },
+        *items() {
           var storage = getStorage(this);
-          return (function* () {
-            for (var name in storage) {
-              yield [name, storage[name]];
-            }
-          })();
+          for (var name in storage) {
+            yield [name, storage[name]];
+          }
+        },
+        *@iterator() {
+          yield* this.items();
+        },
+        @elementGet(name) {
+          return getStorage(this)[name];
+        },
+        @elementDelete(name) {
+          if (!this.has(name))
+            return false;
+          delete getStorage(this)[name];
+          setProperty(this, sizeName, getProperty(this, sizeName) - 1);
+          return true;
+        },
+        @elementSet(name, value) {
+          if (!this.has(name))
+            setProperty(this, sizeName, getProperty(this, sizeName) + 1);
+          getStorage(this)[name] = value;
         }
-      };
-
-      StringMap.prototype[iterator] = StringMap.prototype.items;
-
-      StringMap.prototype[elementGet] = function(name) {
-        return getStorage(this)[name];
-      };
-
-      StringMap.prototype[elementDelete] = function(name) {
-        if (!this.has(name))
-          return false;
-        delete getStorage(this)[name];
-        setProperty(this, sizeName, getProperty(this, sizeName) - 1);
-        return true;
-      };
-
-      StringMap.prototype[elementSet] = function(name, value) {
-        if (!this.has(name))
-          setProperty(this, sizeName, getProperty(this, sizeName) + 1);
-        getStorage(this)[name] = value;
       };
 
       var map = new StringMap;
@@ -122,11 +121,11 @@
       }
 
       for (var [key, value] of map.items()) {
-        print(`$key = $value`);
+        print(`${key} = ${value}`);
       }
 
       for (var [key, value] of map) {
-        print(`$key = $value`);
+        print(`${key} = ${value}`);
       }
 
     </script>

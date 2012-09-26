@@ -155,6 +155,7 @@ traceur.define('syntax.trees', function() {
         case ParseTreeType.SUPER_EXPRESSION:
         case ParseTreeType.THIS_EXPRESSION:
         case ParseTreeType.UNARY_EXPRESSION:
+        case ParseTreeType.AT_NAME_EXPRESSION:
           return true;
         default:
           return false;
@@ -272,6 +273,7 @@ traceur.define('syntax.trees', function() {
       switch (this.type) {
         case ParseTreeType.FUNCTION_DECLARATION:
         case ParseTreeType.CLASS_DECLARATION:
+        case ParseTreeType.NAME_STATEMENT:
           return true;
       }
       return this.isStatementStandard();
@@ -280,13 +282,14 @@ traceur.define('syntax.trees', function() {
     /** @return {boolean} */
     isProgramElement: function() {
       switch (this.type) {
-        case ParseTreeType.VARIABLE_DECLARATION:
+        case ParseTreeType.CLASS_DECLARATION:
+        case ParseTreeType.EXPORT_DECLARATION:
         case ParseTreeType.FUNCTION_DECLARATION:
         case ParseTreeType.IMPORT_DECLARATION:
         case ParseTreeType.MODULE_DECLARATION:
         case ParseTreeType.MODULE_DEFINITION:
-        case ParseTreeType.EXPORT_DECLARATION:
-        case ParseTreeType.CLASS_DECLARATION:
+        case ParseTreeType.NAME_STATEMENT:
+        case ParseTreeType.VARIABLE_DECLARATION:
           return true;
       }
       return this.isStatementStandard();

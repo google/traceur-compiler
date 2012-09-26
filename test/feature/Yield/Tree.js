@@ -1,3 +1,7 @@
+import iterator from '@iter';
+// TODO(arv): Add support for import @iterator
+private @iterator = iterator;
+
 // A binary tree class.
 class Tree {
   constructor(label, left, right) {
@@ -5,20 +9,16 @@ class Tree {
     this.left = left;
     this.right = right;
   }
+  *@iterator() {
+    if (this.left) {
+      yield* this.left;
+    }
+    yield this.label;
+    if (this.right) {
+      yield* this.right;
+    }
+  }
 }
-
-// We don't yet support any syntax to set private named fields in classes.
-import iterator from '@iter';
-
-Tree.prototype[iterator] = function*() {
-  if (this.left) {
-    yield* this.left;
-  }
-  yield this.label;
-  if (this.right) {
-    yield* this.right;
-  }
-};
 
 // Create a Tree from a list.
 function tree(list) {

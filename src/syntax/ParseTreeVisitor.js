@@ -97,6 +97,19 @@ traceur.define('syntax', function() {
     },
 
     /**
+     * @param {traceur.syntax.trees.AtNameExpression} tree
+     */
+    visitAtNameExpression: function(tree) {
+    },
+
+    /**
+     * @param {traceur.syntax.trees.AtNameDeclaration} tree
+     */
+    visitAtNameDeclaration: function(tree) {
+      this.visitAny(tree.initializer);
+    },
+
+    /**
      * @param {traceur.syntax.trees.AwaitStatement} tree
      */
     visitAwaitStatement: function(tree) {
@@ -478,6 +491,13 @@ traceur.define('syntax', function() {
     visitNewExpression: function(tree) {
       this.visitAny(tree.operand);
       this.visitAny(tree.args);
+    },
+
+    /**
+     * @param {traceur.syntax.trees.NameStatement} tree
+     */
+    visitNameStatement: function(tree) {
+      this.visitList(tree.declarations);
     },
 
     /**

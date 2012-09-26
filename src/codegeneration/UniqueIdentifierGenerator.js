@@ -17,6 +17,7 @@ traceur.define('codegeneration', function() {
 
   function UniqueIdentifierGenerator() {
     this.identifierIndex = 0;
+    this.nameMap_ = Object.create(null);
   }
 
   UniqueIdentifierGenerator.prototype = {
@@ -25,6 +26,18 @@ traceur.define('codegeneration', function() {
      */
     generateUniqueIdentifier: function() {
       return '$__' + this.identifierIndex++;
+    },
+
+    /**
+     * Gets a unique identifier that is reused based on the name passed in.
+     * @param {string} name
+     * @return {string}
+     */
+    getUniqueIdentifier: function(name) {
+      var newName = this.nameMap_[name];
+      if (!newName)
+        return this.nameMap_[name] = this.generateUniqueIdentifier();
+      return newName;
     }
   };
 

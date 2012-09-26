@@ -15,6 +15,7 @@
 traceur.define('syntax', function() {
   'use strict';
 
+  var AtNameToken = traceur.syntax.AtNameToken;
   var IdentifierToken = traceur.syntax.IdentifierToken;
   var Keywords = traceur.syntax.Keywords;
   var LiteralToken = traceur.syntax.LiteralToken;
@@ -780,6 +781,9 @@ traceur.define('syntax', function() {
         case '`':
           return this.createToken_(TokenType.BACK_QUOTE, beginToken);
 
+        case '@':
+          return this.scanAtName_(beginToken);
+
           // TODO: add NumberToken
           // TODO: character following NumericLiteral must not be an
           //       IdentifierStart or DecimalDigit
@@ -918,6 +922,16 @@ traceur.define('syntax', function() {
       // Zero Width Non-Joiner
       // Zero Width Joiner
       return isIdentifierStart(ch) || isDecimalDigit(ch);
+    },
+
+    scanAtName_: function(beginToken) {
+      // TODO(arv): Refactor to not create an intermediate token.
+      var ch = this.nextChar_();
+      var identifierToken = this.scanIdentifierOrKeyword(beginToken, ch);
+      if (identifierToken.type === TokenType.ERROR)
+        return identifierToken;
+      var value = identifierToken.value;
+      return new AtNameToken(this.getTokenRange_(beginToken), value);
     },
 
     /**

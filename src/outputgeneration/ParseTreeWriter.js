@@ -134,6 +134,24 @@ traceur.define('outputgeneration', function() {
     },
 
     /**
+     * @param {AtNameExpression} tree
+     */
+    visitAtNameExpression: function(tree) {
+      this.write_(tree.atNameToken);
+    },
+
+    /**
+     * @param {AtNameDeclaration} tree
+     */
+    visitAtNameDeclaration: function(tree) {
+      this.write_(tree.atNameToken);
+      if (tree.initializer) {
+        this.write_(TokenType.EQUAL);
+        this.visitAny(tree.initializer);
+      }
+    },
+
+    /**
      * @param {AwaitStatement} tree
      */
     visitAwaitStatement: function(tree) {
@@ -653,6 +671,15 @@ traceur.define('outputgeneration', function() {
       this.write_(tree.identifier);
       this.write_(PredefinedName.FROM);
       this.visitAny(tree.expression);
+    },
+
+    /**
+     * @param {NameStatement} tree
+     */
+    visitNameStatement: function(tree) {
+      this.write_(TokenType.PRIVATE);
+      this.writeList_(tree.declarations, TokenType.COMMA, false);
+      this.write_(TokenType.SEMI_COLON);
     },
 
     /**

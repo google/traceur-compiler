@@ -27,6 +27,8 @@ traceur.define('syntax', function() {
   var ArrayLiteralExpression = traceur.syntax.trees.ArrayLiteralExpression;
   var ArrayPattern = traceur.syntax.trees.ArrayPattern;
   var ArrowFunctionExpression = traceur.syntax.trees.ArrowFunctionExpression;
+  var AtNameDeclaration = traceur.syntax.trees.AtNameDeclaration;
+  var AtNameExpression = traceur.syntax.trees.AtNameExpression;
   var AwaitStatement = traceur.syntax.trees.AwaitStatement;
   var BinaryOperator = traceur.syntax.trees.BinaryOperator;
   var BindThisParameter = traceur.syntax.trees.BindThisParameter;
@@ -79,6 +81,7 @@ traceur.define('syntax', function() {
   var ModuleExpression = traceur.syntax.trees.ModuleExpression;
   var ModuleRequire = traceur.syntax.trees.ModuleRequire;
   var ModuleSpecifier = traceur.syntax.trees.ModuleSpecifier;
+  var NameStatement = traceur.syntax.trees.NameStatement;
   var NewExpression = traceur.syntax.trees.NewExpression;
   var NullTree = traceur.syntax.trees.NullTree;
   var ObjectLiteralExpression = traceur.syntax.trees.ObjectLiteralExpression;
@@ -762,6 +765,9 @@ traceur.define('syntax', function() {
       }
       // const and var are handled inside parseStatement
 
+      if (this.peekNameStatement_())
+        return this.parseNameStatement_();
+
       return this.parseStatementStandard_();
     },
 
@@ -773,13 +779,25 @@ traceur.define('syntax', function() {
       return options.blockBinding && this.peek_(TokenType.CONST);
     },
 
+    peekNameStatement_: function() {
+      return options.privateNameSyntax &&
+          this.peek_(TokenType.PRIVATE) &&
+          this.peek_(TokenType.AT_NAME, 1);
+    },
+
+    peekAtNameExpression_: function() {
+      return options.privateNameSyntax && this.peek_(TokenType.AT_NAME);
+    },
+
     /**
      * @return {boolean}
      * @private
      */
     peekSourceElement_: function() {
       return this.peekFunction_() || this.peekClassDeclaration_() ||
-          this.peekStatementStandard_() || this.peekLet_();
+          this.peekStatementStandard_() || this.peekLet_() ||
+          this.peekAtNameExpression_() ||
+          this.peekNameStatement_();
     },
 
     /**
@@ -1212,6 +1230,40 @@ traceur.define('syntax', function() {
     parseInitializer_: function(expressionIn) {
       this.eat_(TokenType.EQUAL);
       return this.parseAssignmentExpression_(expressionIn);
+    },
+
+    /**
+     * NameStatement :
+     *   name NameDeclarationList
+     *
+     * NameDeclarationList :
+     *   AtName Initializeropt
+     *   AtName Initializeropt , NameDeclarationList
+     *
+     * @return {AtNameDeclaration}
+     */
+    parseNameStatement_: function() {
+      var start = this.getTreeStartLocation_();
+      this.eat_(TokenType.PRIVATE);
+
+      var declarations = [];
+      declarations.push(this.parseAtNameDeclaration_());
+      while (this.peek_(TokenType.COMMA)) {
+        this.eat_(TokenType.COMMA);
+        declarations.push(this.parseAtNameDeclaration_());
+      }
+      this.eatPossibleImplicitSemiColon_();
+      return new NameStatement(this.getTreeLocation_(start), declarations);
+    },
+
+    parseAtNameDeclaration_: function() {
+      var start = this.getTreeStartLocation_();
+      var atName = this.eat_(TokenType.AT_NAME);
+      var initializer = null;
+      if (this.peek_(TokenType.EQUAL))
+        initializer = this.parseInitializer_(Expression.IN);
+      return new AtNameDeclaration(this.getTreeLocation_(start), atName,
+                                   initializer);
     },
 
     // 12.3 Empty Statement
@@ -1794,6 +1846,8 @@ traceur.define('syntax', function() {
           return this.parseRegularExpressionLiteral_();
         case TokenType.BACK_QUOTE:
           return this.parseQuasiLiteral_(null);
+        case TokenType.AT_NAME:
+          return this.parseAtNameExpression_();
         default:
           return this.parseMissingPrimaryExpression_();
       }
@@ -1850,6 +1904,11 @@ traceur.define('syntax', function() {
       return new IdentifierExpression(this.getTreeLocation_(start), identifier);
     },
 
+    parseAtNameExpression_: function() {
+      var start = this.getTreeStartLocation_();
+      var atName = this.eat_(TokenType.AT_NAME);
+      return new AtNameExpression(this.getTreeLocation_(start), atName);
+    },
 
     /**
      * @return {LiteralExpression}
@@ -2034,6 +2093,8 @@ traceur.define('syntax', function() {
     peekPropertyName_: function(tokenIndex) {
       var type = this.peekType_(tokenIndex);
       switch (type) {
+        case TokenType.AT_NAME:
+          return options.privateNameSyntax;
         case TokenType.IDENTIFIER:
         case TokenType.STRING:
         case TokenType.NUMBER:
@@ -2208,6 +2269,8 @@ traceur.define('syntax', function() {
       switch (this.peekType_(opt_index || 0)) {
         case TokenType.BACK_QUOTE:
           return options.quasi;
+        case TokenType.AT_NAME:
+          return options.privateNameSyntax;
         case TokenType.BANG:
         case TokenType.CLASS:
         case TokenType.DELETE:
@@ -2790,8 +2853,13 @@ traceur.define('syntax', function() {
 
           case TokenType.PERIOD:
             this.eat_(TokenType.PERIOD);
+            var name;
+            if (this.peek_(TokenType.AT_NAME))
+              name = this.eat_(TokenType.AT_NAME);
+            else
+              name = this.eatIdName_();
             operand = new MemberExpression(this.getTreeLocation_(start),
-                                           operand, this.eatIdName_());
+                                           operand, name);
             break;
 
           case TokenType.PERIOD_OPEN_CURLY:

@@ -270,6 +270,7 @@
   addFeatureOption('propertyNameShorthand', Kind.experimental);
   addFeatureOption('propertyOptionalComma', Kind.experimental);
   addFeatureOption('classes', Kind.experimental);
+  addFeatureOption('privateNameSyntax', Kind.experimental);
 
   addBoolOption('debug');
   addBoolOption('sourceMaps');

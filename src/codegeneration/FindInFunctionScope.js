@@ -15,7 +15,7 @@
 traceur.define('codegeneration', function() {
   'use strict';
 
-  var ParseTreeVisitor = traceur.syntax.ParseTreeVisitor;
+  var FindVisitor = traceur.codegeneration.FindVisitor;
 
   /**
    * This is used to find something in a tree. Extend this class and override
@@ -26,40 +26,15 @@ traceur.define('codegeneration', function() {
    * Does not search into nested functions.
    *
    * @param {ParseTree} tree
-   * @extends {ParseTreeVisitor}
+   * @extends {FindVisitor}
    * @constructor
    */
   function FindInFunctionScope(tree) {
-    try {
-      this.visitAny(tree);
-    } catch (ex) {
-      // This uses an exception to do early exits.
-      if (ex !== foundSentinel)
-        throw ex;
-      this.found_ = true;
-    }
+    FindVisitor.call(this, tree);
   }
 
-  // Object used as a sentinel. This is thrown to abort visiting the rest of the
-  // tree.
-  var foundSentinel = {};
-
   FindInFunctionScope.prototype = traceur.createObject(
-      ParseTreeVisitor.prototype, {
-    found_: false,
-
-    /**
-     * Whether the searched for tree was found. Setting this to true aborts the
-     * search.
-     * @type {boolean}
-     */
-    get found() {
-      return this.found_;
-    },
-    set found(v) {
-      if (v)
-        throw foundSentinel;
-    },
+      FindVisitor.prototype, {
 
     // don't visit function children or bodies
     visitFunctionDeclaration: function(tree) {},

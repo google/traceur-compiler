@@ -31,8 +31,9 @@ traceur.define('codegeneration', function() {
   var ModuleTransformer = traceur.codegeneration.ModuleTransformer;
   var ObjectMap = traceur.util.ObjectMap;
   var ParseTreeValidator = traceur.syntax.ParseTreeValidator;
+  var PrivateNameSyntaxTransformer = traceur.codegeneration.PrivateNameSyntaxTransformer;
+  var ObjectLiteralTransformer = traceur.codegeneration.ObjectLiteralTransformer;
   var ProgramTree = traceur.syntax.trees.ProgramTree;
-  var PropertyMethodAssignmentTransformer = traceur.codegeneration.PropertyMethodAssignmentTransformer;
   var PropertyNameShorthandTransformer = traceur.codegeneration.PropertyNameShorthandTransformer;
   var QuasiLiteralTransformer = traceur.codegeneration.QuasiLiteralTransformer;
   var RestParameterTransformer = traceur.codegeneration.RestParameterTransformer;
@@ -170,15 +171,16 @@ traceur.define('codegeneration', function() {
       chain(options.arrowFunctions,
             ArrowFunctionTransformer.transformTree, reporter);
 
-      // ClassTransformer needs to come before
-      // PropertyMethodAssignmentTransformer.
+      // ClassTransformer needs to come before ObjectLiteralTransformer.
       chain(options.classes, ClassTransformer.transform, identifierGenerator,
             reporter);
 
-      chain(options.propertyMethods,
-            PropertyMethodAssignmentTransformer.transformTree);
       chain(options.propertyNameShorthand,
             PropertyNameShorthandTransformer.transformTree);
+      chain(options.propertyMethods ||
+                options.privateNameSyntax && options.privateNames,
+            ObjectLiteralTransformer.transformTree, identifierGenerator);
+
       chain(options.isExpression, IsExpressionTransformer.transformTree);
 
       // Generator/ArrayComprehensionTransformer must come before for-of and
@@ -207,6 +209,10 @@ traceur.define('codegeneration', function() {
             GeneratorTransformPass.transformTree,
             identifierGenerator,
             reporter);
+
+      chain(options.privateNames && options.privateNameSyntax,
+            PrivateNameSyntaxTransformer.transformTree,
+            identifierGenerator);
 
       // destructuring must come after for of and before block binding
       chain(options.destructuring,
