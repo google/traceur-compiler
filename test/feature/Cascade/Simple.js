@@ -1,3 +1,5 @@
+// Options: --cascade-expression
+
 var object = {
   a: 'A',
   c: [0, 1, 2],

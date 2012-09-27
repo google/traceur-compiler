@@ -1,4 +1,4 @@
 // Should not compile.
-// Options: --arrowFunctions=false
+// Options: --arrow-functions=false
 
 var identity = (x) -> x;

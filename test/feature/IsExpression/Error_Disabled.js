@@ -1,4 +1,4 @@
 // Should not compile.
-// Options: --isExpression=false
+// Options: --is-expression=false
 
 42 is 42;

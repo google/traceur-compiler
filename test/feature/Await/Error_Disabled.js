@@ -1,5 +1,5 @@
 // Should not compile.
-// Options: --deferredFunctions=false
+// Disabled by default.
 
 function asyncComplete() {
   var task = new Deferred();

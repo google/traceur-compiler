@@ -224,7 +224,7 @@ pre{
     var optionsDiv = document.querySelector('.traceur-options');
     optionsDiv.textContent = '';
     Object.keys(traceur.options).forEach(function(name) {
-      if (name === 'blockBinding' || name == 'debug') {
+      if (name === 'arrowFunctions' || name === 'debug') {
         optionsDiv.appendChild(document.createElement('hr'));
       }
       optionsDiv.appendChild(createOptionRow(name));

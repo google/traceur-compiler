@@ -296,14 +296,18 @@ traceur.runtime = (function(global) {
   }
 
   function elementDelete(object, name) {
-    if (hasPrivateNameProperty(object, elementDeleteName))
+    if (traceur.options.collections &&
+        hasPrivateNameProperty(object, elementDeleteName)) {
       return getProperty(object, elementDeleteName).call(object, name);
+    }
     return deleteProperty(object, name);
   }
 
   function elementGet(object, name) {
-    if (hasPrivateNameProperty(object, elementGetName))
+    if (traceur.options.collections &&
+        hasPrivateNameProperty(object, elementGetName)) {
       return getProperty(object, elementGetName).call(object, name);
+    }
     return getProperty(object, name);
   }
 
@@ -313,10 +317,12 @@ traceur.runtime = (function(global) {
   }
 
   function elementSet(object, name, value) {
-    if (hasPrivateNameProperty(object, elementSetName))
+    if (traceur.options.collections &&
+        hasPrivateNameProperty(object, elementSetName)) {
       getProperty(object, elementSetName).call(object, name, value);
-    else
+    } else {
       setProperty(object, name, value);
+    }
     return value;
   }
 

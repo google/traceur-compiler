@@ -1,5 +1,5 @@
-// Options: --cascade-expression=false
 // Should not compile.
+// Disabled by default.
 
 var object = {};
 object.{

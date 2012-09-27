@@ -1,3 +1,5 @@
+// Options: --cascade-expression
+
 {
   var object = {};
   var self = {};

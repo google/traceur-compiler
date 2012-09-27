@@ -1,5 +1,5 @@
 // Should not compile.
-// Options: --blockBinding=false
+// Options: --block-binding=false
 
 {
   let x = 42;

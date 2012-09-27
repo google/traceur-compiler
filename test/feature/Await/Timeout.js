@@ -1,3 +1,5 @@
+// Options: --deferred-functions
+
 function asyncTimeout(ms) {
   var task = new Deferred();
   messageQueue.push(function() {

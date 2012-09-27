@@ -1,3 +1,5 @@
+// Options: --collections
+
 import elementGet from '@name';
 
 {

@@ -69,6 +69,7 @@
 
   var parseOptions = Object.create(null);
   var transformOptions = Object.create(null);
+  var defaultValues = Object.create(null);
 
   /**
    * The options object.
@@ -116,12 +117,14 @@
 
 
   /**
-   * Resets all options to true by default, or false if allOff is true.
-   *@param {boolean=} opt_allOff
+   * Resets all options to the default value or to false if |opt_allOff| is
+   * true.
+   * @param {boolean=} opt_allOff
    */
   function reset(opt_allOff) {
+    var useDefault = opt_allOff === undefined;
     Object.keys(options).forEach(function(name) {
-      options[name] = !opt_allOff;
+      options[name] = useDefault && defaultValues[name];
     });
   }
 
@@ -236,41 +239,44 @@
       configurable: true
     });
 
-    parseOptions[name] = true;
-    transformOptions[name] = true;
+    var defaultValue = kind !== Kind.experimental;
+    defaultValues[name] = defaultValue;
+    parseOptions[name] = defaultValue;
+    transformOptions[name] = defaultValue;
   }
 
   /**
    * Adds a simple boolean option.
    */
   function addBoolOption(name) {
+    defaultValues[name] = true;
     options[name] = true;
   }
 
+  addFeatureOption('arrowFunctions', Kind.es6);
   addFeatureOption('blockBinding', Kind.es6);
+  addFeatureOption('classes', Kind.es6);
   addFeatureOption('defaultParameters', Kind.es6);
   addFeatureOption('destructuring', Kind.es6);
+  addFeatureOption('isExpression', Kind.es6);
+  addFeatureOption('propertyMethods', Kind.es6);
+  addFeatureOption('propertyNameShorthand', Kind.es6);
+  addFeatureOption('quasi', Kind.es6);
   addFeatureOption('restParameters', Kind.es6);
   addFeatureOption('spread', Kind.es6);
-  addFeatureOption('isExpression', Kind.es6);
-  addFeatureOption('quasi', Kind.es6);
 
+  addFeatureOption('arrayComprehension', Kind.harmony);
   addFeatureOption('forOf', Kind.harmony);
   addFeatureOption('generatorComprehension', Kind.harmony);
-  addFeatureOption('arrayComprehension', Kind.harmony);
   addFeatureOption('generators', Kind.harmony);
   addFeatureOption('modules', Kind.harmony);
+  addFeatureOption('privateNameSyntax', Kind.harmony);
   addFeatureOption('privateNames', Kind.harmony);
 
-  addFeatureOption('arrowFunctions', Kind.experimental);
   addFeatureOption('cascadeExpression', Kind.experimental);
   addFeatureOption('collections', Kind.experimental);
   addFeatureOption('deferredFunctions', Kind.experimental);
-  addFeatureOption('propertyMethods', Kind.experimental);
-  addFeatureOption('propertyNameShorthand', Kind.experimental);
   addFeatureOption('propertyOptionalComma', Kind.experimental);
-  addFeatureOption('classes', Kind.experimental);
-  addFeatureOption('privateNameSyntax', Kind.experimental);
 
   addBoolOption('debug');
   addBoolOption('sourceMaps');

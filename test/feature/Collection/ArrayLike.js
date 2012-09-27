@@ -1,3 +1,5 @@
+// Options: --collections
+
 module Name from '@name';
 
 {

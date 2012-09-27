@@ -1,3 +1,5 @@
+// Options: --property-optional-comma
+
 var object = {
   a() {}
   b() {}

@@ -1,3 +1,5 @@
+// Options: --deferred-functions
+
 function asyncThrow(e) {
   if (true)
     throw e;

@@ -2046,21 +2046,23 @@ traceur.define('syntax', function() {
       while (this.peekPropertyAssignment_()) {
         if (this.peekGetAccessor_()) {
           result.push(this.parseGetAccessor_());
-          this.eatPropertyOptionalComma_();
-
+          if (!this.eatPropertyOptionalComma_())
+            break;
         } else if (this.peekSetAccessor_()) {
           result.push(this.parseSetAccessor_());
-          this.eatPropertyOptionalComma_();
+          if (!this.eatPropertyOptionalComma_())
+            break;
 
         // http://wiki.ecmascript.org/doku.php?id=harmony:concise_object_literal_extensions#methods
         } else if (this.peekPropertyMethodAssignment_()) {
           result.push(this.parsePropertyMethodAssignment_());
-          this.eatPropertyOptionalComma_();
+          if (!this.eatPropertyOptionalComma_())
+            break;
 
         } else {
           result.push(this.parsePropertyNameAssignment_());
           // Comma is required after name assignment.
-          if (this.eatOpt_(TokenType.COMMA) == null) {
+          if (!this.eatOpt_(TokenType.COMMA)) {
             break;
           }
         }
@@ -2070,11 +2072,7 @@ traceur.define('syntax', function() {
     },
 
     eatPropertyOptionalComma_: function() {
-      if (options.propertyOptionalComma) {
-        this.eatOpt_(TokenType.COMMA);
-      } else {
-        this.eat_(TokenType.COMMA);
-      }
+      return this.eatOpt_(TokenType.COMMA) || options.propertyOptionalComma;
     },
 
     /**

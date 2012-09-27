@@ -1,5 +1,5 @@
 // Should not compile.
-// Options: --propertyOptionalComma=false
+// Disabled by default.
 
 var object = {
   get x() {

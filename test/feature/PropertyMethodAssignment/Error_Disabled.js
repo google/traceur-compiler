@@ -1,5 +1,5 @@
 // Should not compile.
-// Options: --propertyMethods=false
+// Options: --property-methods=false
 
 var object = {
   method() {

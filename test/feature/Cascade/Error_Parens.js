@@ -1,3 +1,4 @@
+// Options: --cascade-expression
 // Should not compile.
 
 var object = {};

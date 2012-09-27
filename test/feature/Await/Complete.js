@@ -1,3 +1,5 @@
+// Options: --deferred-functions
+
 function asyncComplete() {
   var task = new Deferred();
   task.callback('complete');

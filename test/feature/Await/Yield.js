@@ -1,3 +1,5 @@
+// Options: --deferred-functions
+
 function asyncYield() {
   return asyncTimeout(0);
 }

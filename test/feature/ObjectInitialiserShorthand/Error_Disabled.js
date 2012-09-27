@@ -1,5 +1,5 @@
 // Should not compile.
-// Options: --propertyNameShorthand=false
+// Options: --property-name-shorthand=false
 
 var x = 42;
 var object = {x};

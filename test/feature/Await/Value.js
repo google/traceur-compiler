@@ -1,3 +1,5 @@
+// Options: --deferred-functions
+
 function asyncValue(value) {
   if (true)
     return value;

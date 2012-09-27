@@ -1,3 +1,5 @@
+// Options: --deferred-functions
+
 var finallyVisited = false;
 
 var d = new Deferred;
