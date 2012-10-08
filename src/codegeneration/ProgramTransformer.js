@@ -17,6 +17,7 @@ traceur.define('codegeneration', function() {
 
   var ArrayComprehensionTransformer = traceur.codegeneration.ArrayComprehensionTransformer;
   var ArrowFunctionTransformer = traceur.codegeneration.ArrowFunctionTransformer;
+  var AtNameMemberTransformer = traceur.codegeneration.AtNameMemberTransformer;
   var BlockBindingTransformer = traceur.codegeneration.BlockBindingTransformer;
   var CascadeExpressionTransformer = traceur.codegeneration.CascadeExpressionTransformer;
   var ClassTransformer = traceur.codegeneration.ClassTransformer;
@@ -29,10 +30,10 @@ traceur.define('codegeneration', function() {
   var GeneratorTransformPass = traceur.codegeneration.GeneratorTransformPass;
   var IsExpressionTransformer = traceur.codegeneration.IsExpressionTransformer;
   var ModuleTransformer = traceur.codegeneration.ModuleTransformer;
+  var ObjectLiteralTransformer = traceur.codegeneration.ObjectLiteralTransformer;
   var ObjectMap = traceur.util.ObjectMap;
   var ParseTreeValidator = traceur.syntax.ParseTreeValidator;
   var PrivateNameSyntaxTransformer = traceur.codegeneration.PrivateNameSyntaxTransformer;
-  var ObjectLiteralTransformer = traceur.codegeneration.ObjectLiteralTransformer;
   var ProgramTree = traceur.syntax.trees.ProgramTree;
   var PropertyNameShorthandTransformer = traceur.codegeneration.PropertyNameShorthandTransformer;
   var QuasiLiteralTransformer = traceur.codegeneration.QuasiLiteralTransformer;
@@ -209,6 +210,10 @@ traceur.define('codegeneration', function() {
             GeneratorTransformPass.transformTree,
             identifierGenerator,
             reporter);
+
+      chain(options.privateNames && options.privateNameSyntax,
+            AtNameMemberTransformer.transformTree,
+            identifierGenerator);
 
       chain(options.privateNames && options.privateNameSyntax,
             PrivateNameSyntaxTransformer.transformTree,

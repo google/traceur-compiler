@@ -15,7 +15,6 @@
 traceur.define('codegeneration', function() {
   'use strict';
 
-  var MemberLookupExpression = traceur.syntax.trees.MemberLookupExpression;
   var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
   var PredefinedName = traceur.syntax.PredefinedName;
   var TempVarTransformer = traceur.codegeneration.TempVarTransformer;
@@ -74,23 +73,6 @@ traceur.define('codegeneration', function() {
       return new VariableStatement(tree.location,
           new VariableDeclarationList(tree.location, TokenType.CONST,
                                       declarations));
-    },
-
-    /**
-     * @param {MemberExpression} tree
-     * @return {ParseTree}
-     */
-    transformMemberExpression: function(tree) {
-      // operand.@name
-      //  =>
-      // operand[__name]
-      if (tree.memberName.type !== TokenType.AT_NAME)
-        return base.transformMemberExpression.call(this, tree);
-
-      var operand = this.transformAny(tree.operand);
-      var transformedName = this.getTransformedName_(tree.memberName);
-      return new MemberLookupExpression(tree.location, operand,
-          createIdentifierExpression(transformedName));
     },
 
     transformAtNameDeclaration: function(tree) {

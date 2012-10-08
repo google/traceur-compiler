@@ -188,6 +188,7 @@
     'codegeneration/GeneratorComprehensionTransformer.js',
     'codegeneration/ArrayComprehensionTransformer.js',
     'codegeneration/ObjectLiteralTransformer.js',
+    'codegeneration/AtNameMemberTransformer.js',
     'codegeneration/PrivateNameSyntaxTransformer.js',
     'codegeneration/generator/ForInTransformPass.js',
     'codegeneration/generator/State.js',
