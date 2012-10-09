@@ -12,80 +12,189 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function() {
-  'use strict';
+'use strict';
 
-  var fs = require('fs');
-  var path = require('path');
-  var http = require('http');
-  var querystring = require('querystring');
+var includes = [
+  // We assume we're always relative to "src/"
+  '../third_party/source-map/lib/source-map/array-set.js',
+  '../third_party/source-map/lib/source-map/base64.js',
+  '../third_party/source-map/lib/source-map/base64-vlq.js',
+  '../third_party/source-map/lib/source-map/binary-search.js',
+  '../third_party/source-map/lib/source-map/util.js',
+  '../third_party/source-map/lib/source-map/source-map-generator.js',
+  '../third_party/source-map/lib/source-map/source-map-consumer.js',
+  '../third_party/source-map/lib/source-map/source-node.js',
+  'traceur.js',
+  'outputgeneration/SourceMapIntegration.js',
+  'options.js',
+  'util/util.js',
+  'util/ArrayMap.js',
+  'util/ObjectMap.js',
+  'util/SourceRange.js',
+  'util/SourcePosition.js',
+  'util/url.js',
+  'syntax/TokenType.js',
+  'syntax/Token.js',
+  'syntax/AtNameToken.js',
+  'syntax/LiteralToken.js',
+  'syntax/IdentifierToken.js',
+  'syntax/Keywords.js',
+  'syntax/LineNumberTable.js',
+  'syntax/SourceFile.js',
+  'syntax/Scanner.js',
+  'syntax/PredefinedName.js',
+  'syntax/trees/ParseTree.js',
+  'syntax/trees/NullTree.js',
+  'syntax/trees/ParseTrees.js',
+  'util/ErrorReporter.js',
+  'util/MutedErrorReporter.js',
+  'util/TestErrorReporter.js',
+  'codegeneration/ParseTreeFactory.js',
+  'syntax/Parser.js',
+  'syntax/ParseTreeVisitor.js',
+  'util/StringBuilder.js',
+  'semantics/VariableBinder.js',
+  'semantics/symbols/SymbolType.js',
+  'semantics/symbols/Symbol.js',
+  'semantics/symbols/ModuleSymbol.js',
+  'semantics/symbols/ExportSymbol.js',
+  'semantics/symbols/Project.js',
+  'outputgeneration/ParseTreeWriter.js',
+  'outputgeneration/ParseTreeMapWriter.js',
+  'outputgeneration/TreeWriter.js',
+  'syntax/ParseTreeValidator.js',
+  'codegeneration/ParseTreeTransformer.js',
+  'codegeneration/FindVisitor.js',
+  'codegeneration/FindInFunctionScope.js',
+  'codegeneration/ArrowFunctionTransformer.js',
+  'codegeneration/PropertyNameShorthandTransformer.js',
+  'codegeneration/AlphaRenamer.js',
+  'codegeneration/TempVarTransformer.js',
+  'codegeneration/DestructuringTransformer.js',
+  'codegeneration/DefaultParametersTransformer.js',
+  'codegeneration/RestParameterTransformer.js',
+  'codegeneration/SpreadTransformer.js',
+  'codegeneration/UniqueIdentifierGenerator.js',
+  'codegeneration/ForOfTransformer.js',
+  'codegeneration/ModuleTransformer.js',
+  'codegeneration/OperatorExpander.js',
+  'codegeneration/SuperTransformer.js',
+  'codegeneration/CascadeExpressionTransformer.js',
+  'codegeneration/ClassTransformer.js',
+  'codegeneration/BlockBindingTransformer.js',
+  'codegeneration/QuasiLiteralTransformer.js',
+  'codegeneration/CollectionTransformer.js',
+  'codegeneration/IsExpressionTransformer.js',
+  'codegeneration/ComprehensionTransformer.js',
+  'codegeneration/GeneratorComprehensionTransformer.js',
+  'codegeneration/ArrayComprehensionTransformer.js',
+  'codegeneration/ObjectLiteralTransformer.js',
+  'codegeneration/AtNameMemberTransformer.js',
+  'codegeneration/PrivateNameSyntaxTransformer.js',
+  'codegeneration/generator/ForInTransformPass.js',
+  'codegeneration/generator/State.js',
+  'codegeneration/generator/FallThroughState.js',
+  'codegeneration/generator/TryState.js',
+  'codegeneration/generator/BreakState.js',
+  'codegeneration/generator/CatchState.js',
+  'codegeneration/generator/ConditionalState.js',
+  'codegeneration/generator/ContinueState.js',
+  'codegeneration/generator/EndState.js',
+  'codegeneration/generator/FinallyFallThroughState.js',
+  'codegeneration/generator/FinallyState.js',
+  'codegeneration/generator/SwitchState.js',
+  'codegeneration/generator/YieldState.js',
+  'codegeneration/generator/StateAllocator.js',
+  'syntax/trees/StateMachine.js',
+  'codegeneration/generator/BreakContinueTransformer.js',
+  'codegeneration/generator/CPSTransformer.js',
+  'codegeneration/generator/GeneratorTransformer.js',
+  'codegeneration/generator/AsyncTransformer.js',
+  'codegeneration/GeneratorTransformPass.js',
+  'semantics/FreeVariableChecker.js',
+  'codegeneration/ProgramTransformer.js',
+  'outputgeneration/ProjectWriter.js',
+  'codegeneration/module/ModuleVisitor.js',
+  'codegeneration/module/ModuleDefinitionVisitor.js',
+  'codegeneration/module/ExportVisitor.js',
+  'codegeneration/module/ModuleDeclarationVisitor.js',
+  'codegeneration/module/ValidationVisitor.js',
+  'codegeneration/module/ModuleRequireVisitor.js',
+  'codegeneration/module/ImportStarVisitor.js',
+  'semantics/ModuleAnalyzer.js',
+  'codegeneration/Compiler.js',
+  'runtime/runtime.js',
+  'runtime/modules.js'
+];
 
-  var dummyImportScript = '(global||this).traceurImportScript = function() {};';
 
-  function build(fileList, outfile) {
-    var src = dummyImportScript;
-    console.log('Reading files...');
-    var success = fileList.every(function(filename) {
-      var data = fs.readFileSync('../src/' + filename);
-      if (!data) {
-        console.error('Failed to read ' + filename);
-        return false;
-      }
-      src += data.toString('utf8');
-      return true;
-    });
+var fs = require('fs');
+var path = require('path');
 
-    if (!success) {
-      return false;
+require('../src/traceur-node.js');
+
+var Compiler = traceur.codegeneration.Compiler;
+var ErrorReporter = traceur.util.ErrorReporter;
+var Program = traceur.syntax.trees.Program;
+var Project = traceur.semantics.symbols.Project;
+var SourceFile = traceur.syntax.SourceFile
+var TreeWriter = traceur.outputgeneration.TreeWriter;
+
+/**
+ * Recursively makes all directoires, similar to mkdir -p
+ * @param {string} dir
+ */
+function mkdirRecursive(dir) {
+  var parts = path.normalize(dir).split('/');
+
+  dir = '';
+  for (var i = 0; i < parts.length; i++) {
+    dir += parts[i] + '/';
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, 0x1FF);
     }
-
-    console.info('Compiling...');
-
-    var postData = querystring.stringify({
-      'compilation_level' : 'SIMPLE_OPTIMIZATIONS',
-      'output_format': 'text',
-      'language': 'ECMASCRIPT5',
-      'output_info': 'compiled_code',
-      'js_code': src,
-    });
-
-    var params = {
-      host: 'closure-compiler.appspot.com',
-      port: '80',
-      path: '/compile',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Content-Length': postData.length
-      }
-    };
-
-    var compiledCode = '';
-    var req = http.request(params, function(res) {
-      res.setEncoding('utf8');
-      res.on('data', function (chunk) {
-        compiledCode += chunk;
-      });
-      res.on('end', function() {
-        console.log('Writing compiled code to:', outfile);
-        fs.writeFileSync(outfile, new Buffer(compiledCode));
-      });
-    });
-
-    req.write(postData);
-    req.end();
   }
+}
 
-  global.traceur = {
-    includes: [
-      'src/traceur.js',
-    ],
-  };
+traceur.options.reset(true);
 
-  var data = fs.readFileSync('../src/traceur.js');
-  data = data.toString('utf8');
-  eval(dummyImportScript + data);
+var srcDir = path.join(path.dirname(process.argv[1]), '..', 'src');
 
-  build(global.traceur.includes,
-        process.argv[2] || 'tmp.js');
-})();
+// Accomulate all programElements into this array.
+var elements = [];
+
+var reporter = new ErrorReporter();
+var project = new Project(srcDir);
+
+var dummyImportScript = 'this.traceurImportScript = function() {};';
+project.addFile(new SourceFile('@dummy', dummyImportScript));
+
+// traceur.includes.unshift('traceur.js');
+
+includes.forEach(function(filename) {
+  var data = fs.readFileSync(path.join(srcDir, filename), 'utf8');
+  if (!data) {
+    console.error('Failed to read ' + filename);
+    process.exit(1);
+  }
+  var sourceFile = new SourceFile(filename, data);
+  project.addFile(sourceFile);
+});
+
+var results = Compiler.compile(reporter, project);
+if (reporter.hadError()) {
+  console.error('Compilation failed.');
+  process.exit(1);
+}
+
+results.keys().forEach(function(file) {
+  var tree = results.get(file);
+  elements.push.apply(elements, tree.programElements);
+});
+
+var programTree = new Program(null, elements);
+var contents = TreeWriter.write(programTree);
+var outputfile = process.argv[2];
+mkdirRecursive(path.dirname(outputfile));
+
+fs.writeFileSync(outputfile, contents, 'utf8');

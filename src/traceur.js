@@ -85,25 +85,7 @@
     });
     return newObject;
   }
-
-  // Cached path to the current script file in an HTML hosting environment.
-  var path;
-
-  // Allow script before this one to define a global importScript function.
-  var importScript =
-      global.traceurImportScript ||
-      global.importScript ||
-      function(file) {
-    if (!path) {
-      // Find path to this js file
-      var scripts = document.querySelectorAll('script');
-      var src = scripts[scripts.length - 1].src;
-      path = src.substring(0, src.lastIndexOf('/') + 1);
-    }
-
-    document.write('<script src="' + path + file + '"></script>');
-  };
-
+  
   var uidCounter = 0;
 
   /**
@@ -114,127 +96,12 @@
     return ++uidCounter;
   }
 
-  var includes = [
-    // We assume we're always relative to "src/"
-    '../third_party/source-map/lib/source-map/array-set.js',
-    '../third_party/source-map/lib/source-map/base64.js',
-    '../third_party/source-map/lib/source-map/base64-vlq.js',
-    '../third_party/source-map/lib/source-map/binary-search.js',
-    '../third_party/source-map/lib/source-map/util.js',
-    '../third_party/source-map/lib/source-map/source-map-generator.js',
-    '../third_party/source-map/lib/source-map/source-map-consumer.js',
-    '../third_party/source-map/lib/source-map/source-node.js',
-    'outputgeneration/SourceMapIntegration.js',
-    'options.js',
-    'util/util.js',
-    'util/ArrayMap.js',
-    'util/ObjectMap.js',
-    'util/SourceRange.js',
-    'util/SourcePosition.js',
-    'util/url.js',
-    'syntax/TokenType.js',
-    'syntax/Token.js',
-    'syntax/AtNameToken.js',
-    'syntax/LiteralToken.js',
-    'syntax/IdentifierToken.js',
-    'syntax/Keywords.js',
-    'syntax/LineNumberTable.js',
-    'syntax/SourceFile.js',
-    'syntax/Scanner.js',
-    'syntax/PredefinedName.js',
-    'syntax/trees/ParseTree.js',
-    'syntax/trees/NullTree.js',
-    'syntax/trees/ParseTrees.js',
-    'util/ErrorReporter.js',
-    'util/MutedErrorReporter.js',
-    'util/TestErrorReporter.js',
-    'codegeneration/ParseTreeFactory.js',
-    'syntax/Parser.js',
-    'syntax/ParseTreeVisitor.js',
-    'util/StringBuilder.js',
-    'semantics/VariableBinder.js',
-    'semantics/symbols/SymbolType.js',
-    'semantics/symbols/Symbol.js',
-    'semantics/symbols/ModuleSymbol.js',
-    'semantics/symbols/ExportSymbol.js',
-    'semantics/symbols/Project.js',
-    'outputgeneration/ParseTreeWriter.js',
-    'outputgeneration/ParseTreeMapWriter.js',
-    'outputgeneration/TreeWriter.js',
-    'syntax/ParseTreeValidator.js',
-    'codegeneration/ParseTreeTransformer.js',
-    'codegeneration/FindVisitor.js',
-    'codegeneration/FindInFunctionScope.js',
-    'codegeneration/ArrowFunctionTransformer.js',
-    'codegeneration/PropertyNameShorthandTransformer.js',
-    'codegeneration/AlphaRenamer.js',
-    'codegeneration/TempVarTransformer.js',
-    'codegeneration/DestructuringTransformer.js',
-    'codegeneration/DefaultParametersTransformer.js',
-    'codegeneration/RestParameterTransformer.js',
-    'codegeneration/SpreadTransformer.js',
-    'codegeneration/UniqueIdentifierGenerator.js',
-    'codegeneration/ForOfTransformer.js',
-    'codegeneration/ModuleTransformer.js',
-    'codegeneration/OperatorExpander.js',
-    'codegeneration/SuperTransformer.js',
-    'codegeneration/CascadeExpressionTransformer.js',
-    'codegeneration/ClassTransformer.js',
-    'codegeneration/BlockBindingTransformer.js',
-    'codegeneration/QuasiLiteralTransformer.js',
-    'codegeneration/CollectionTransformer.js',
-    'codegeneration/IsExpressionTransformer.js',
-    'codegeneration/ComprehensionTransformer.js',
-    'codegeneration/GeneratorComprehensionTransformer.js',
-    'codegeneration/ArrayComprehensionTransformer.js',
-    'codegeneration/ObjectLiteralTransformer.js',
-    'codegeneration/AtNameMemberTransformer.js',
-    'codegeneration/PrivateNameSyntaxTransformer.js',
-    'codegeneration/generator/ForInTransformPass.js',
-    'codegeneration/generator/State.js',
-    'codegeneration/generator/FallThroughState.js',
-    'codegeneration/generator/TryState.js',
-    'codegeneration/generator/BreakState.js',
-    'codegeneration/generator/CatchState.js',
-    'codegeneration/generator/ConditionalState.js',
-    'codegeneration/generator/ContinueState.js',
-    'codegeneration/generator/EndState.js',
-    'codegeneration/generator/FinallyFallThroughState.js',
-    'codegeneration/generator/FinallyState.js',
-    'codegeneration/generator/SwitchState.js',
-    'codegeneration/generator/YieldState.js',
-    'codegeneration/generator/StateAllocator.js',
-    'syntax/trees/StateMachine.js',
-    'codegeneration/generator/BreakContinueTransformer.js',
-    'codegeneration/generator/CPSTransformer.js',
-    'codegeneration/generator/GeneratorTransformer.js',
-    'codegeneration/generator/AsyncTransformer.js',
-    'codegeneration/GeneratorTransformPass.js',
-    'semantics/FreeVariableChecker.js',
-    'codegeneration/ProgramTransformer.js',
-    'outputgeneration/ProjectWriter.js',
-    'codegeneration/module/ModuleVisitor.js',
-    'codegeneration/module/ModuleDefinitionVisitor.js',
-    'codegeneration/module/ExportVisitor.js',
-    'codegeneration/module/ModuleDeclarationVisitor.js',
-    'codegeneration/module/ValidationVisitor.js',
-    'codegeneration/module/ModuleRequireVisitor.js',
-    'codegeneration/module/ImportStarVisitor.js',
-    'semantics/ModuleAnalyzer.js',
-    'codegeneration/Compiler.js',
-    'runtime/runtime.js',
-    'runtime/modules.js'
-  ];
-
   // Do the export before we execute the rest.
   global.traceur = {
     assert: assert,
     createObject: createObject,
     define: define,
     getUid: getUid,
-    strictGlobalEval: strictGlobalEval,
-    includes: includes
+    strictGlobalEval: strictGlobalEval
   };
-
-  includes.forEach(importScript);
 })(this);

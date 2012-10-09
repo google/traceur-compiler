@@ -2,3 +2,6 @@ bin
 out
 .svn
 *.swp
+.DS_Store
+*.sublime-project
+*.sublime-workspace

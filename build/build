@@ -9,4 +9,5 @@ if [ $RET -ne 0 ] || ! [ -x $NODE ]; then
   exit $RET
 fi
 
-node build.js ../bin/traceur.js
+CWD=`dirname ${0}`
+node ${CWD}/build.js ${CWD}/../bin/traceur.js

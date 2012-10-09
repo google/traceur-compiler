@@ -1,21 +1,21 @@
+// Copyright 2012 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+'use strict';
+
 var fs = require('fs');
 var path = require('path');
-
-/**
- * Reads a script and eval's it into the global scope.
- * TODO: this is needed for now because of how our scripts are designed.
- * Change this once we have a module system.
- * @param {string} filename
- */
-function importScript(filename) {
-  // TODO(rnystrom): Hack. Assumes this is being run from a sibling of src/.
-  filename = path.join(__dirname, '../src/', filename);
-  var script = fs.readFileSync(filename, 'utf8');
-  if (!script) {
-    throw new Error('Failed to import ' + filename);
-  }
-  ('global', eval)('"use strict";' + script);
-}
 
 /**
  * Show a failure message for the given script.
@@ -292,9 +292,6 @@ function runFeatureScripts(dir) {
   }
 }
 
-// Allow traceur.js to use importScript.
-global.traceurImportScript = importScript;
-
 // Add assert methods to global so that our FreeVariableChecker does not think
 // they are undefined.
 for (var key in asserts) {
@@ -302,7 +299,7 @@ for (var key in asserts) {
 }
 
 // Load the compiler.
-importScript('traceur.js');
+require('../src/traceur-node.js');
 
 // Run all of the feature scripts.
 var tests  = 0;
