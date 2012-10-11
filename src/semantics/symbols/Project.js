@@ -29,9 +29,7 @@ traceur.define('semantics.symbols', function() {
   }
 
   function values(map) {
-    return Object.keys(map).map(function(key) {
-      return map[key];
-    });
+    return Object.keys(map).map((key) => map[key]);
   }
 
   var standardModuleUrlRegExp = /^@\w+$/;
@@ -47,7 +45,7 @@ traceur.define('semantics.symbols', function() {
     if (!(url in standardModuleCache)) {
       var symbol = new ModuleSymbol(null, null, null, url);
       var moduleInstance = traceur.runtime.modules[url];
-      Object.keys(moduleInstance).forEach(function(name) {
+      Object.keys(moduleInstance).forEach((name) => {
         symbol.addExport(name, new ExportSymbol(null, name, null));
       });
       standardModuleCache[url] = symbol;

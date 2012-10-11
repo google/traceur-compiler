@@ -43,9 +43,7 @@ traceur.define('codegeneration', function() {
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
 
   function hasSpreadMember(trees) {
-    return trees.some(function(tree) {
-      return tree.type == ParseTreeType.SPREAD_EXPRESSION;
-    });
+    return trees.some((tree) => tree.type == ParseTreeType.SPREAD_EXPRESSION);
   }
 
   function getExpandFunction() {
@@ -62,7 +60,7 @@ traceur.define('codegeneration', function() {
 
   function createInterleavedArgumentsArray(elements) {
     var args = [];
-    elements.forEach(function(element) {
+    elements.forEach((element) => {
       if (element.type == ParseTreeType.SPREAD_EXPRESSION) {
         args.push(createBooleanLiteral(true));
         args.push(element.expression);

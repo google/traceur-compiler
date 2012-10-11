@@ -842,7 +842,7 @@ traceur.define('syntax.trees', function() {
   }
 
   // This sets the ParseTreeType for all the trees in this file.
-  Object.keys(parseTrees).forEach(function(name) {
+  Object.keys(parseTrees).forEach((name) => {
     var enumName = getEnumName(name);
     parseTrees[name].prototype.type = ParseTreeType[enumName] = enumName;
   });

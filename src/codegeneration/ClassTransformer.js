@@ -119,13 +119,12 @@ traceur.define('codegeneration', function() {
       state.name = createIdentifierExpression(name);
 
       var constructor;
-      var elements = tree.elements.map(function(tree) {
+      var elements = tree.elements.map((tree) => {
         switch (tree.type) {
           case ParseTreeType.GET_ACCESSOR:
             return this.transformGetAccessor_(tree);
           case ParseTreeType.SET_ACCESSOR:
             return this.transformSetAccessor_(tree);
-            return;
           case ParseTreeType.PROPERTY_METHOD_ASSIGNMENT:
             if (tree.name.value === PredefinedName.CONSTRUCTOR)
               return constructor = this.transformConstructor_(tree);
@@ -133,7 +132,7 @@ traceur.define('codegeneration', function() {
           default:
             throw new Error('Unexpected class element: ' + tree.type);
         }
-      }, this);
+      });
 
       // Create constructor if it does not already exist.
       if (!constructor)

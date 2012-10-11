@@ -152,7 +152,7 @@ traceur.define('semantics', function() {
     },
 
     visitStatements_: function(statements) {
-      statements.forEach(function(s) {
+      statements.forEach((s) => {
         if (s.type == ParseTreeType.FUNCTION_DECLARATION) {
           // Declare the function's name in the outer scope.
           // We need to do this here, and not inside visitFunctionDeclaration,
@@ -161,7 +161,7 @@ traceur.define('semantics', function() {
           this.declareVariable_(s.name);
         }
         this.visitAny(s);
-      }, this);
+      });
     },
 
     /**
@@ -227,10 +227,10 @@ traceur.define('semantics', function() {
         throw new Error('let and const should have been rewritten');
       }
 
-      tree.declarations.forEach(function(d) {
+      tree.declarations.forEach((d) => {
         this.declareVariable_(d.lvalue);
         this.visitAny(d.initializer);
-      }, this);
+      });
     },
 
     visitBindingIdentifier: function(tree) {
@@ -289,8 +289,10 @@ traceur.define('semantics', function() {
 
       if (errors.length) {
         // Issue errors in source order.
-        errors.sort(function(x, y) { return x[0].offset - y[0].offset; });
-        errors.forEach(function(e) { this.reportError_.apply(this, e); }, this);
+        errors.sort((x, y) => x[0].offset - y[0].offset);
+        errors.forEach((e) => {
+          this.reportError_.apply(this, e);
+        });
       }
     },
 

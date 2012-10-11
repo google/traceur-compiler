@@ -346,9 +346,7 @@ traceur.define('runtime', function() {
     },
 
     areAll: function(state) {
-      return this.cache.values().every(function(codeUnit) {
-        return codeUnit.state >= state;
-      });
+      return this.cache.values().every((codeUnit) => codeUnit.state >= state);
     },
 
     /**
@@ -366,10 +364,10 @@ traceur.define('runtime', function() {
       var requireVisitor = new ModuleRequireVisitor(this.reporter);
       requireVisitor.visit(codeUnit.tree);
       var baseUrl = codeUnit.url;
-      codeUnit.dependencies = requireVisitor.requireUrls.map(function(url) {
+      codeUnit.dependencies = requireVisitor.requireUrls.map((url) => {
         url = resolveUrl(baseUrl, url);
         return this.load(url);
-      }, this);
+      });
 
       if (this.areAll(PARSED)) {
         this.analyze();
@@ -391,16 +389,16 @@ traceur.define('runtime', function() {
      * Aborts all loading code units.
      */
     abortAll: function() {
-      this.cache.values().forEach(function(codeUnit) {
+      this.cache.values().forEach((codeUnit) => {
         if (codeUnit.xhr) {
           codeUnit.xhr.abort();
           codeUnit.state = ERROR;
         }
       });
 
-      this.cache.values().forEach(function(codeUnit) {
+      this.cache.values().forEach((codeUnit) => {
         codeUnit.dispatchError(codeUnit.error);
-      }, this);
+      });
     },
 
     analyze: function() {

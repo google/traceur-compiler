@@ -157,6 +157,7 @@ function mkdirRecursive(dir) {
 }
 
 traceur.options.reset(true);
+traceur.options.arrowFunctions = true;
 
 var srcDir = path.join(path.dirname(process.argv[1]), '..', 'src');
 

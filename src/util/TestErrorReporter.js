@@ -34,9 +34,7 @@ traceur.define('util', function() {
     },
 
     hasMatchingError: function(expected) {
-      return this.errors.some(function(error) {
-        return error.indexOf(expected) !== -1;
-      });
+      return this.errors.some((error) => error.indexOf(expected) !== -1);
     }
   });
 

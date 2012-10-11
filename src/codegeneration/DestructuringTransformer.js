@@ -251,14 +251,14 @@ traceur.define('codegeneration', function() {
 
       // Desugar one level of patterns.
       var desugaredDeclarations = [];
-      tree.declarations.forEach(function(declaration) {
+      tree.declarations.forEach((declaration) => {
         if (declaration.lvalue.isPattern()) {
           desugaredDeclarations.push.apply(desugaredDeclarations,
               this.desugarVariableDeclaration_(declaration));
         } else {
           desugaredDeclarations.push(declaration);
         }
-      }, this);
+      });
 
       // Desugar more.
       return this.transformVariableDeclarationList(
@@ -458,9 +458,8 @@ traceur.define('codegeneration', function() {
      * @return {boolean}
      */
     destructuringInDeclaration_: function(tree) {
-      return tree.declarations.some(function(declaration) {
-        return declaration.lvalue.isPattern();
-      });
+      return tree.declarations.some(
+          (declaration) => declaration.lvalue.isPattern());
     },
 
     /**
@@ -517,7 +516,7 @@ traceur.define('codegeneration', function() {
         case ParseTreeType.OBJECT_PATTERN: {
           var pattern = tree;
 
-          pattern.fields.forEach(function(field) {
+          pattern.fields.forEach((field) => {
             var lookup;
             switch (field.type) {
               case ParseTreeType.BINDING_ELEMENT:
@@ -591,15 +590,15 @@ traceur.define('codegeneration', function() {
           break;
 
         case ParseTreeType.ARRAY_PATTERN:
-          tree.elements.forEach(function(e) {
+          tree.elements.forEach((e) => {
             this.collectLvalueIdentifiers_(identifiers, e);
-          }, this);
+          });
           break;
 
         case ParseTreeType.OBJECT_PATTERN:
-          tree.fields.forEach(function(f) {
+          tree.fields.forEach((f) => {
             this.collectLvalueIdentifiers_(identifiers, f);
-          }, this);
+          });
           break;
 
         case ParseTreeType.OBJECT_PATTERN_FIELD:

@@ -110,7 +110,7 @@ traceur.runtime = (function(global) {
     }
 
     var descriptors = {};
-    $getOwnPropertyNames(proto).forEach(function(name) {
+    $getOwnPropertyNames(proto).forEach((name) => {
       descriptors[name] = $getOwnPropertyDescriptor(proto, name);
     });
 
@@ -204,7 +204,7 @@ traceur.runtime = (function(global) {
    * @return {Object}
    */
   function markMethods(object, names) {
-    names.forEach(function(name) {
+    names.forEach((name) => {
       $defineProperty(object, name, {enumerable: false});
     });
     return object;

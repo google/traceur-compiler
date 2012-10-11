@@ -590,9 +590,9 @@ this.traceurImportScript = function() { };
   } 
   function createObject(proto, obj) { 
     var newObject = Object.create(proto); 
-    Object.getOwnPropertyNames(obj).forEach(function(name) { 
+    Object.getOwnPropertyNames(obj).forEach((function(name) { 
       Object.defineProperty(newObject, name, Object.getOwnPropertyDescriptor(obj, name)); 
-    }); 
+    })); 
     return newObject; 
   } 
   var uidCounter = 0; 
@@ -614,14 +614,14 @@ traceur.define('outputgeneration', function() {
   function regUp(str, p1) { 
     return p1.toUpperCase(); 
   } 
-  Object.keys(global.sourceMapModule).forEach(function(prop) { 
+  Object.keys(global.sourceMapModule).forEach((function(prop) { 
     var camel = prop.replace(/-(.)/g, regUp); 
     var module = global.sourceMapModule[prop]; 
     if(typeof module === 'function') { 
       camel = camel.replace(/^(.)/, regUp); 
     } 
     sourceMap[camel]= module; 
-  }); 
+  })); 
   return sourceMap; 
 }); 
 (function() { 
@@ -631,17 +631,17 @@ traceur.define('outputgeneration', function() {
     experimental: 'experimental' 
   }; 
   var kindMapping = Object.create(null); 
-  Object.keys(Kind).forEach(function(kind) { 
+  Object.keys(Kind).forEach((function(kind) { 
     kindMapping[kind]= Object.create(null); 
-  }); 
+  })); 
   function enable(kind, b) { 
-    Object.keys(kindMapping[kind]).forEach(function(name) { 
+    Object.keys(kindMapping[kind]).forEach((function(name) { 
       options[name]= b; 
-    }); 
+    })); 
   } 
   function getValue(kind) { 
     var value; 
-    Object.keys(kindMapping[kind]).every(function(name) { 
+    Object.keys(kindMapping[kind]).every((function(name) { 
       var currentValue = options[name]; 
       if(value === undefined) { 
         value = currentValue; 
@@ -652,7 +652,7 @@ traceur.define('outputgeneration', function() {
         return false; 
       } 
       return true; 
-    }); 
+    })); 
     return value; 
   } 
   var parseOptions = Object.create(null); 
@@ -680,9 +680,9 @@ traceur.define('outputgeneration', function() {
   }; 
   function reset(opt_allOff) { 
     var useDefault = opt_allOff === undefined; 
-    Object.keys(options).forEach(function(name) { 
+    Object.keys(options).forEach((function(name) { 
       options[name]= useDefault && defaultValues[name]; 
-    }); 
+    })); 
   } 
   function fromString(s) { 
     fromArgv(s.split(/\s+/)); 
@@ -691,9 +691,9 @@ traceur.define('outputgeneration', function() {
     args.forEach(parseCommand); 
   } 
   function setFromObject(object) { 
-    Object.keys(object).forEach(function(name) { 
+    Object.keys(object).forEach((function(name) { 
       options[name]= object[name]; 
-    }); 
+    })); 
   } 
   Object.defineProperties(options, { 
     parse: { value: parseOptions }, 
@@ -877,14 +877,14 @@ traceur.define('util', function() {
       } 
     }, 
     keys: function() { 
-      return Object.keys(this.keys_).map(function(uid) { 
+      return Object.keys(this.keys_).map((function(uid) { 
         return this.keys_[uid]; 
-      }, this); 
+      }).bind(this)); 
     }, 
     values: function() { 
-      return Object.keys(this.values_).map(function(uid) { 
+      return Object.keys(this.values_).map((function(uid) { 
         return this.values_[uid]; 
-      }, this); 
+      }).bind(this)); 
     }, 
     remove: function(key) { 
       var uid = key.uid; 
@@ -1234,7 +1234,7 @@ traceur.define('syntax', function() {
   Keyword.prototype = { toString: function() { 
       return this.value; 
     } }; 
-  keywords.forEach(function(value) { 
+  keywords.forEach((function(value) { 
     var uc = value.toUpperCase(); 
     if(uc.indexOf('__') === 0) { 
       uc = uc.substring(2); 
@@ -1243,7 +1243,7 @@ traceur.define('syntax', function() {
     Keywords[uc]= kw; 
     keywordsByName[kw.value]= kw; 
     keywordsByType[kw.type]= kw; 
-  }); 
+  })); 
   Keywords.isKeyword = function(value) { 
     return value !== '__proto__' && value in keywordsByName; 
   }; 
@@ -2572,10 +2572,10 @@ traceur.define('syntax.trees', function() {
   function getEnumName(name) { 
     return name[0]+ name.slice(1).replace(/([A-Z])/g, '_$1').toUpperCase(); 
   } 
-  Object.keys(parseTrees).forEach(function(name) { 
+  Object.keys(parseTrees).forEach((function(name) { 
     var enumName = getEnumName(name); 
     parseTrees[name].prototype.type = ParseTreeType[enumName]= enumName; 
-  }); 
+  })); 
   return parseTrees; 
 }); 
 traceur.define('util', function() { 
@@ -2640,9 +2640,9 @@ traceur.define('util', function() {
       this.errors.push(ErrorReporter.format(location, format, args)); 
     }, 
     hasMatchingError: function(expected) { 
-      return this.errors.some(function(error) { 
+      return this.errors.some((function(error) { 
         return error.indexOf(expected) !== - 1; 
-      }); 
+      })); 
     } 
   }); 
   return { TestErrorReporter: TestErrorReporter }; 
@@ -4003,16 +4003,15 @@ traceur.define('syntax', function() {
       var start = this.getTreeStartLocation_(); 
       this.eat_(TokenType.FOR); 
       this.eat_(TokenType.OPEN_PAREN); 
-      var self = this; 
-      function validate(variables, kind) { 
+      var validate =(function(variables, kind) { 
         if(variables.declarations.length > 1) { 
-          self.reportError_(kind + ' statement may not have more than one variable declaration'); 
+          this.reportError_(kind + ' statement may not have more than one variable declaration'); 
         } 
         var declaration = variables.declarations[0]; 
         if(declaration.lvalue.isPattern() && declaration.initializer) { 
-          self.reportError_(declaration.initializer.location, 'initializer is not allowed in ' + kind + ' loop with pattern'); 
+          this.reportError_(declaration.initializer.location, 'initializer is not allowed in ' + kind + ' loop with pattern'); 
         } 
-      } 
+      }).bind(this); 
       if(this.peekVariableDeclarationList_()) { 
         var variables = this.parseVariableDeclarationList_(Expression.NO_IN, DestructuringInitializer.OPTIONAL); 
         if(this.peek_(TokenType.IN)) { 
@@ -5775,13 +5774,13 @@ traceur.define('semantics', function() {
     visitBlock: function(tree) { 
       var parentBlock = this.block_; 
       this.block_ = tree; 
-      tree.statements.forEach(function(s) { 
+      tree.statements.forEach((function(s) { 
         if(s.type == ParseTreeType.FUNCTION_DECLARATION) { 
           this.bindFunctionDeclaration_(s); 
         } else { 
           this.visitAny(s); 
         } 
-      }, this); 
+      }).bind(this)); 
       this.block_ = parentBlock; 
     }, 
     bindFunctionDeclaration_: function(tree) { 
@@ -5927,9 +5926,9 @@ traceur.define('semantics.symbols', function() {
     }, 
     getExports: function() { 
       var exports = this.exports_; 
-      return Object.keys(exports).map(function(key) { 
+      return Object.keys(exports).map((function(key) { 
         return exports[key]; 
-      }); 
+      })); 
     } 
   }); 
   return { ModuleSymbol: ModuleSymbol }; 
@@ -5958,9 +5957,9 @@ traceur.define('semantics.symbols', function() {
     } 
   } 
   function values(map) { 
-    return Object.keys(map).map(function(key) { 
+    return Object.keys(map).map((function(key) { 
       return map[key]; 
-    }); 
+    })); 
   } 
   var standardModuleUrlRegExp = /^@\w+$/; 
   var standardModuleCache = Object.create(null); 
@@ -5968,9 +5967,9 @@ traceur.define('semantics.symbols', function() {
     if(!(url in standardModuleCache)) { 
       var symbol = new ModuleSymbol(null, null, null, url); 
       var moduleInstance = traceur.runtime.modules[url]; 
-      Object.keys(moduleInstance).forEach(function(name) { 
+      Object.keys(moduleInstance).forEach((function(name) { 
         symbol.addExport(name, new ExportSymbol(null, name, null)); 
-      }); 
+      })); 
       standardModuleCache[url]= symbol; 
     } 
     return standardModuleCache[url]; 
@@ -8298,13 +8297,13 @@ traceur.define('codegeneration', function() {
         return proto.transformVariableDeclarationList.call(this, tree); 
       } 
       var desugaredDeclarations =[]; 
-      tree.declarations.forEach(function(declaration) { 
+      tree.declarations.forEach((function(declaration) { 
         if(declaration.lvalue.isPattern()) { 
           desugaredDeclarations.push.apply(desugaredDeclarations, this.desugarVariableDeclaration_(declaration)); 
         } else { 
           desugaredDeclarations.push(declaration); 
         } 
-      }, this); 
+      }).bind(this)); 
       return this.transformVariableDeclarationList(createVariableDeclarationList(tree.declarationType, desugaredDeclarations)); 
     }, 
     transformForInStatement: function(tree) { 
@@ -8380,9 +8379,9 @@ traceur.define('codegeneration', function() {
       return binding; 
     }, 
     destructuringInDeclaration_: function(tree) { 
-      return tree.declarations.some(function(declaration) { 
+      return tree.declarations.some((function(declaration) { 
         return declaration.lvalue.isPattern(); 
-      }); 
+      })); 
     }, 
     desugarVariableDeclaration_: function(tree) { 
       var desugaring = new VariableDeclarationDesugaring(createIdentifierExpression(this.gensym_(tree.lvalue))); 
@@ -8411,7 +8410,7 @@ traceur.define('codegeneration', function() {
         case ParseTreeType.OBJECT_PATTERN: 
           { 
             var pattern = tree; 
-            pattern.fields.forEach(function(field) { 
+            pattern.fields.forEach((function(field) { 
               var lookup; 
               switch(field.type) { 
                 case ParseTreeType.BINDING_ELEMENT: 
@@ -8433,7 +8432,7 @@ traceur.define('codegeneration', function() {
                   throw Error('unreachable'); 
 
               } 
-            }); 
+            })); 
             break; 
           } 
 
@@ -8464,15 +8463,15 @@ traceur.define('codegeneration', function() {
           break; 
 
         case ParseTreeType.ARRAY_PATTERN: 
-          tree.elements.forEach(function(e) { 
+          tree.elements.forEach((function(e) { 
             this.collectLvalueIdentifiers_(identifiers, e); 
-          }, this); 
+          }).bind(this)); 
           break; 
 
         case ParseTreeType.OBJECT_PATTERN: 
-          tree.fields.forEach(function(f) { 
+          tree.fields.forEach((function(f) { 
             this.collectLvalueIdentifiers_(identifiers, f); 
-          }, this); 
+          }).bind(this)); 
           break; 
 
         case ParseTreeType.OBJECT_PATTERN_FIELD: 
@@ -8625,9 +8624,9 @@ traceur.define('codegeneration', function() {
   var TRACEUR = traceur.syntax.PredefinedName.TRACEUR; 
   var ParseTreeType = traceur.syntax.trees.ParseTreeType; 
   function hasSpreadMember(trees) { 
-    return trees.some(function(tree) { 
+    return trees.some((function(tree) { 
       return tree.type == ParseTreeType.SPREAD_EXPRESSION; 
-    }); 
+    })); 
   } 
   function getExpandFunction() { 
     return createMemberExpression(TRACEUR, RUNTIME, SPREAD); 
@@ -8637,7 +8636,7 @@ traceur.define('codegeneration', function() {
   } 
   function createInterleavedArgumentsArray(elements) { 
     var args =[]; 
-    elements.forEach(function(element) { 
+    elements.forEach((function(element) { 
       if(element.type == ParseTreeType.SPREAD_EXPRESSION) { 
         args.push(createBooleanLiteral(true)); 
         args.push(element.expression); 
@@ -8645,7 +8644,7 @@ traceur.define('codegeneration', function() {
         args.push(createBooleanLiteral(false)); 
         args.push(element); 
       } 
-    }); 
+    })); 
     return createArrayLiteralExpression(args); 
   } 
   function createExpandCall(elements) { 
@@ -8884,9 +8883,9 @@ traceur.define('codegeneration', function() {
       var fields; 
       if(tree.specifiers.type === TokenType.STAR) { 
         var module = this.project_.getModuleForStarTree(tree); 
-        var fields = module.getExports().map(function(exportSymbol) { 
+        var fields = module.getExports().map((function(exportSymbol) { 
           return new BindingElement(tree.location, createBindingIdentifier(exportSymbol.name), null); 
-        }); 
+        })); 
       } else { 
         fields = this.transformList(tree.specifiers); 
       } 
@@ -8903,7 +8902,7 @@ traceur.define('codegeneration', function() {
   }); 
   ModuleTransformer.transform = function(project, tree) { 
     var module = project.getRootModule(); 
-    var elements = tree.programElements.map(function(element) { 
+    var elements = tree.programElements.map((function(element) { 
       switch(element.type) { 
         case MODULE_DEFINITION: 
           return transformDefinition(project, module, element); 
@@ -8918,7 +8917,7 @@ traceur.define('codegeneration', function() {
           return element; 
 
       } 
-    }, this); 
+    })); 
     return new Program(tree.location, elements); 
   }; 
   ModuleTransformer.transformAsModule = function(project, module, tree) { 
@@ -8928,11 +8927,11 @@ traceur.define('codegeneration', function() {
   function transformModuleElements(project, module, elements) { 
     var statements =[]; 
     statements.push(createUseStrictDirective()); 
-    module.getExports().forEach(function(exp) { 
+    module.getExports().forEach((function(exp) { 
       statements.push(getGetterExport(project, exp)); 
-    }); 
+    })); 
     statements.push(createExpressionStatement(createObjectFreeze(createThisExpression()))); 
-    elements.forEach(function(element) { 
+    elements.forEach((function(element) { 
       switch(element.type) { 
         case MODULE_DECLARATION: 
           statements.push(transformDeclaration(project, module, element)); 
@@ -8977,7 +8976,7 @@ traceur.define('codegeneration', function() {
           statements.push(element); 
 
       } 
-    }); 
+    })); 
     statements.push(createReturnStatement(createThisExpression())); 
     var thisObject = createCallExpression(createMemberExpression(PredefinedName.OBJECT, PredefinedName.CREATE), createArgumentList(createNullLiteral())); 
     return createCallCall(createParenExpression(createFunctionExpression(createEmptyParameterList(), createBlock(statements))), thisObject); 
@@ -9318,14 +9317,13 @@ traceur.define('codegeneration', function() {
       stack.push(state); 
       state.name = createIdentifierExpression(name); 
       var constructor; 
-      var elements = tree.elements.map(function(tree) { 
+      var elements = tree.elements.map((function(tree) { 
         switch(tree.type) { 
           case ParseTreeType.GET_ACCESSOR: 
             return this.transformGetAccessor_(tree); 
 
           case ParseTreeType.SET_ACCESSOR: 
             return this.transformSetAccessor_(tree); 
-            return; 
 
           case ParseTreeType.PROPERTY_METHOD_ASSIGNMENT: 
             if(tree.name.value === PredefinedName.CONSTRUCTOR) return constructor = this.transformConstructor_(tree); 
@@ -9335,7 +9333,7 @@ traceur.define('codegeneration', function() {
             throw new Error('Unexpected class element: ' + tree.type); 
 
         } 
-      }, this); 
+      }).bind(this)); 
       if(! constructor) elements.push(this.getDefaultConstructor_(tree)); 
       stack.pop(); 
       var hasConstructor = ! ! constructor; 
@@ -9473,9 +9471,9 @@ traceur.define('codegeneration', function() {
     this.newName = newName; 
   } 
   function renameAll(renames, tree) { 
-    renames.forEach(function(rename) { 
+    renames.forEach((function(rename) { 
       tree = AlphaRenamer.rename(tree, rename.oldName, rename.newName); 
-    }); 
+    })); 
     return tree; 
   } 
   function toBlock(statement) { 
@@ -9511,7 +9509,7 @@ traceur.define('codegeneration', function() {
     }, 
     transformBlock: function(tree) { 
       var scope = this.push_(this.createBlockScope_()); 
-      var statements = tree.statements.map(function(statement) { 
+      var statements = tree.statements.map((function(statement) { 
         switch(statement.type) { 
           case ParseTreeType.FUNCTION_DECLARATION: 
             return this.transformFunctionDeclarationStatement_(statement); 
@@ -9520,7 +9518,7 @@ traceur.define('codegeneration', function() {
             return this.transformAny(statement); 
 
         } 
-      }, this); 
+      }).bind(this)); 
       if(scope.blockVariables != null) { 
         tree = toBlock(this.rewriteAsCatch_(scope.blockVariables, createBlock(statements))); 
       } else if(statements != tree.statements) { 
@@ -9624,7 +9622,7 @@ traceur.define('codegeneration', function() {
       var copyBak =[]; 
       var hoisted =[]; 
       var renames =[]; 
-      variables.declarations.forEach(function(variable) { 
+      variables.declarations.forEach((function(variable) { 
         var variableName = this.getVariableName_(variable); 
         var hoistedName = '$' + variableName; 
         var initializer = renameAll(renames, variable.initializer); 
@@ -9632,7 +9630,7 @@ traceur.define('codegeneration', function() {
         copyFwd.push(createVariableDeclaration(variableName, createIdentifierExpression(hoistedName))); 
         copyBak.push(createExpressionStatement(createAssignmentExpression(createIdentifierExpression(hoistedName), createIdentifierExpression(variableName)))); 
         renames.push(new Rename(variableName, hoistedName)); 
-      }, this); 
+      }).bind(this)); 
       var condition = renameAll(renames, tree.condition); 
       var increment = renameAll(renames, tree.increment); 
       var transformedForLoop = createBlock(createVariableStatement(createVariableDeclarationList(TokenType.LET, hoisted)), createForStatement(new NullTree(), condition, increment, createBlock(createVariableStatement(createVariableDeclarationList(TokenType.LET, copyFwd)), createTryStatement(tree.body, new NullTree(), createFinally(createBlock(copyBak)))))); 
@@ -9682,7 +9680,7 @@ traceur.define('codegeneration', function() {
     transformBlockVariables_: function(tree) { 
       var variables = tree.declarations; 
       var comma =[]; 
-      variables.forEach(function(variable) { 
+      variables.forEach((function(variable) { 
         switch(tree.declarationType) { 
           case LET: 
           case CONST: 
@@ -9698,7 +9696,7 @@ traceur.define('codegeneration', function() {
         if(initializer != null) { 
           comma.push(createAssignmentExpression(createIdentifierExpression(variableName), initializer)); 
         } 
-      }, this); 
+      }).bind(this)); 
       switch(comma.length) { 
         case 0: 
           return createEmptyStatement(); 
@@ -10327,17 +10325,17 @@ traceur.define('codegeneration', function() {
         this.needsTransform = true; 
         this.seenAccessors = Object.create(null); 
         var properties = this.transformList(tree.propertyNameAndValues); 
-        properties = properties.filter(function(tree) { 
+        properties = properties.filter((function(tree) { 
           return tree; 
-        }); 
+        })); 
         if(finder.foundAtName) { 
           var tempVar = this.addTempVar(); 
           var tempVarIdentifierExpression = createIdentifierExpression(tempVar); 
-          var expressions = properties.map(function(property) { 
+          var expressions = properties.map((function(property) { 
             var name = property[0]; 
             var descr = property[1]; 
             return createDefineProperty(tempVarIdentifierExpression, this.getPropertyName_(name), descr); 
-          }, this); 
+          }).bind(this)); 
           var protoExpression = this.transformAny(finder.protoExpression); 
           var objectExpression; 
           if(protoExpression) { 
@@ -10349,12 +10347,12 @@ traceur.define('codegeneration', function() {
           expressions.push(tempVarIdentifierExpression); 
           return createParenExpression(createCommaExpression(expressions)); 
         } else { 
-          properties = properties.map(function(property) { 
+          properties = properties.map((function(property) { 
             var name = property[0]; 
             var descr = property[1]; 
             var descriptorTree = createPropertyDescriptor(descr); 
             return createPropertyNameAssignment(name, descriptorTree); 
-          }); 
+          })); 
           var descriptors = createObjectLiteralExpression(properties); 
           var baseObject, methodName; 
           if(protoExpression) { 
@@ -10899,9 +10897,9 @@ traceur.define('codegeneration.generator', function() {
   } 
   SwitchState.prototype = traceur.createObject(State.prototype, { 
     replaceState: function(oldState, newState) { 
-      var clauses = this.clauses.map(function(clause) { 
+      var clauses = this.clauses.map((function(clause) { 
         return new SwitchClause(clause.first, State.replaceStateId(clause.second, oldState, newState)); 
-      }); 
+      })); 
       return new SwitchState(State.replaceStateId(this.id, oldState, newState), this.expression, clauses); 
     }, 
     transform: function(enclosingFinally, machineEndState, reporter) { 
@@ -12027,12 +12025,12 @@ traceur.define('semantics', function() {
       this.pop_(scope); 
     }, 
     visitStatements_: function(statements) { 
-      statements.forEach(function(s) { 
+      statements.forEach((function(s) { 
         if(s.type == ParseTreeType.FUNCTION_DECLARATION) { 
           this.declareVariable_(s.name); 
         } 
         this.visitAny(s); 
-      }, this); 
+      }).bind(this)); 
     }, 
     visitFunction_: function(name, formalParameterList, body) { 
       var scope = this.pushScope_(); 
@@ -12069,10 +12067,10 @@ traceur.define('semantics', function() {
       if(tree.declarationType != TokenType.VAR) { 
         throw new Error('let and const should have been rewritten'); 
       } 
-      tree.declarations.forEach(function(d) { 
+      tree.declarations.forEach((function(d) { 
         this.declareVariable_(d.lvalue); 
         this.visitAny(d.initializer); 
-      }, this); 
+      }).bind(this)); 
     }, 
     visitBindingIdentifier: function(tree) { 
       this.declareVariable_(tree); 
@@ -12110,12 +12108,12 @@ traceur.define('semantics', function() {
         } 
       } 
       if(errors.length) { 
-        errors.sort(function(x, y) { 
+        errors.sort((function(x, y) { 
           return x[0].offset - y[0].offset; 
-        }); 
-        errors.forEach(function(e) { 
+        })); 
+        errors.forEach((function(e) { 
           this.reportError_.apply(this, e); 
-        }, this); 
+        }).bind(this)); 
       } 
     }, 
     reportError_: function(location, format, var_args) { 
@@ -12177,9 +12175,9 @@ traceur.define('codegeneration', function() {
   }; 
   ProgramTransformer.prototype = { 
     transform_: function() { 
-      this.project_.getSourceFiles().forEach(function(file) { 
+      this.project_.getSourceFiles().forEach((function(file) { 
         this.transformFile_(file); 
-      }, this); 
+      }).bind(this)); 
     }, 
     transformFile_: function(file) { 
       var result = this.transform(this.project_.getParseTree(file)); 
@@ -12250,9 +12248,9 @@ traceur.define('outputgeneration', function() {
   function ProjectWriter() { } 
   ProjectWriter.write = function(results, opt_options) { 
     var sb =[]; 
-    results.keys().forEach(function(file) { 
+    results.keys().forEach((function(file) { 
       sb.push('// ' + file.name, TreeWriter.write(results.get(file), opt_options)); 
-    }); 
+    })); 
     return sb.join('\n') + '\n'; 
   }; 
   return { ProjectWriter: ProjectWriter }; 
@@ -12294,23 +12292,22 @@ traceur.define('codegeneration.module', function() {
         url = resolveUrl(this.currentModule.url, url); 
         return this.project.getModuleForUrl(url); 
       } 
-      var self = this; 
-      function getNext(parent, identifierToken) { 
+      var getNext =(function(parent, identifierToken) { 
         var name = identifierToken.value; 
         if(! parent.hasModule(name)) { 
           if(reportErrors) { 
-            self.reportError_(tree, '\'%s\' is not a module', name); 
+            this.reportError_(tree, '\'%s\' is not a module', name); 
           } 
           return null; 
         } 
         if(! parent.hasExport(name)) { 
           if(reportErrors) { 
-            self.reportError_(tree, '\'%s\' is not exported by %s', name, getFriendlyName(parent)); 
+            this.reportError_(tree, '\'%s\' is not exported by %s', name, getFriendlyName(parent)); 
           } 
           return null; 
         } 
         return parent.getModule(name); 
-      } 
+      }).bind(this); 
       var name = tree.reference.identifierToken.value; 
       var parent = this.getModuleByName(name); 
       if(! parent) { 
@@ -12772,9 +12769,9 @@ traceur.runtime =(function(global) {
       } 
     } 
     var descriptors = { }; 
-    $getOwnPropertyNames(proto).forEach(function(name) { 
+    $getOwnPropertyNames(proto).forEach((function(name) { 
       descriptors[name]= $getOwnPropertyDescriptor(proto, name); 
-    }); 
+    })); 
     descriptors.constructor.value = ctor; 
     descriptors.constructor.enumerable = false; 
     ctor.prototype = $create(superPrototype, descriptors); 
@@ -12833,9 +12830,9 @@ traceur.runtime =(function(global) {
   } 
   ; 
   function markMethods(object, names) { 
-    names.forEach(function(name) { 
+    names.forEach((function(name) { 
       $defineProperty(object, name, { enumerable: false }); 
-    }); 
+    })); 
     return object; 
   } 
   var counter = 0; 
@@ -13339,9 +13336,9 @@ traceur.define('runtime', function() {
       return cacheObject; 
     }, 
     areAll: function(state) { 
-      return this.cache.values().every(function(codeUnit) { 
+      return this.cache.values().every((function(codeUnit) { 
         return codeUnit.state >= state; 
-      }); 
+      })); 
     }, 
     handleCodeUnitLoaded: function(codeUnit) { 
       if(! codeUnit.parse()) { 
@@ -13351,10 +13348,10 @@ traceur.define('runtime', function() {
       var requireVisitor = new ModuleRequireVisitor(this.reporter); 
       requireVisitor.visit(codeUnit.tree); 
       var baseUrl = codeUnit.url; 
-      codeUnit.dependencies = requireVisitor.requireUrls.map(function(url) { 
+      codeUnit.dependencies = requireVisitor.requireUrls.map((function(url) { 
         url = resolveUrl(baseUrl, url); 
         return this.load(url); 
-      }, this); 
+      }).bind(this)); 
       if(this.areAll(PARSED)) { 
         this.analyze(); 
         this.transform(); 
@@ -13366,15 +13363,15 @@ traceur.define('runtime', function() {
       this.abortAll(); 
     }, 
     abortAll: function() { 
-      this.cache.values().forEach(function(codeUnit) { 
+      this.cache.values().forEach((function(codeUnit) { 
         if(codeUnit.xhr) { 
           codeUnit.xhr.abort(); 
           codeUnit.state = ERROR; 
         } 
-      }); 
-      this.cache.values().forEach(function(codeUnit) { 
+      })); 
+      this.cache.values().forEach((function(codeUnit) { 
         codeUnit.dispatchError(codeUnit.error); 
-      }, this); 
+      })); 
     }, 
     analyze: function() { 
       var project = this.project; 

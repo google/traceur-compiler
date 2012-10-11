@@ -1354,19 +1354,17 @@ traceur.define('syntax', function() {
       this.eat_(TokenType.FOR);
       this.eat_(TokenType.OPEN_PAREN);
 
-      var self = this;
-      function validate(variables, kind) {
+      var validate = (variables, kind) => {
         if (variables.declarations.length > 1) {
-          self.reportError_(kind +
+          this.reportError_(kind +
               ' statement may not have more than one variable declaration');
         }
         var declaration = variables.declarations[0];
         if (declaration.lvalue.isPattern() && declaration.initializer) {
-          self.reportError_(declaration.initializer.location,
+          this.reportError_(declaration.initializer.location,
               'initializer is not allowed in ' + kind + ' loop with pattern');
         }
-
-      }
+      };
 
       if (this.peekVariableDeclarationList_()) {
         var variables =

@@ -93,7 +93,7 @@ traceur.define('syntax', function() {
     }
   };
 
-  keywords.forEach(function(value) {
+  keywords.forEach((value) => {
     var uc = value.toUpperCase();
     if (uc.indexOf('__') === 0) {
       uc = uc.substring(2);

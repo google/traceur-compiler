@@ -103,9 +103,7 @@ traceur.define('semantics.symbols', function() {
      */
     getExports: function() {
       var exports = this.exports_;
-      return Object.keys(exports).map(function(key) {
-        return exports[key];
-      });
+      return Object.keys(exports).map((key) => exports[key]);
     }
   });
 

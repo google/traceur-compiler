@@ -14,18 +14,18 @@
 
 traceur.define('outputgeneration', function() {
   'use strict';
- 
+
   var sourceMap = {};
-  
+
   // Use comma expression to use global eval.
   var global = ('global', eval)('this');
-  
+
   function regUp(str, p1) {
     return p1.toUpperCase();
   }
 
   // Copy the global properties set by third party source-map to traceur global
-  Object.keys(global.sourceMapModule).forEach(function(prop) {
+  Object.keys(global.sourceMapModule).forEach((prop) => {
     var camel = prop.replace(/-(.)/g, regUp);
     var module = global.sourceMapModule[prop];
     if (typeof module === 'function') {
@@ -33,7 +33,6 @@ traceur.define('outputgeneration', function() {
     }
     sourceMap[camel] = module;
   });
-    
+
   return sourceMap;
-  
 });

@@ -147,7 +147,7 @@ traceur.define('codegeneration', function() {
    * @return {ParseTree}
    */
   function renameAll(renames, tree) {
-    renames.forEach(function(rename) {
+    renames.forEach((rename) => {
       tree = AlphaRenamer.rename(tree, rename.oldName, rename.newName);
     });
     return tree;
@@ -240,14 +240,14 @@ traceur.define('codegeneration', function() {
       var scope = this.push_(this.createBlockScope_());
 
       // Transform the block contents
-      var statements = tree.statements.map(function(statement) {
+      var statements = tree.statements.map((statement) => {
         switch (statement.type) {
           case ParseTreeType.FUNCTION_DECLARATION:
             return this.transformFunctionDeclarationStatement_(statement);
           default:
             return this.transformAny(statement);
         }
-      }, this);
+      });
 
       if (scope.blockVariables != null) {
         // rewrite into catch construct
@@ -514,7 +514,7 @@ traceur.define('codegeneration', function() {
 
       var renames = [];
 
-      variables.declarations.forEach(function(variable) {
+      variables.declarations.forEach((variable) => {
         var variableName = this.getVariableName_(variable);
         var hoistedName = '$' + variableName;
 
@@ -539,7 +539,7 @@ traceur.define('codegeneration', function() {
 
         // Remember rename for the subsequent initializers
         renames.push(new Rename(variableName, hoistedName));
-      }, this);
+      });
 
       // 'tree.condition' with renamed variables
       var condition = renameAll(renames, tree.condition);
@@ -682,7 +682,7 @@ traceur.define('codegeneration', function() {
       var variables = tree.declarations;
       var comma = [];
 
-      variables.forEach(function(variable) {
+      variables.forEach((variable) => {
         switch (tree.declarationType) {
           case LET:
           case CONST:
@@ -704,7 +704,7 @@ traceur.define('codegeneration', function() {
                   createIdentifierExpression(variableName),
                   initializer));
         }
-      }, this);
+      });
 
       switch (comma.length) {
         case 0:

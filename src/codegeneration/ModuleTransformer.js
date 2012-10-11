@@ -217,10 +217,10 @@ traceur.define('codegeneration', function() {
       var fields;
       if (tree.specifiers.type === TokenType.STAR) {
         var module = this.project_.getModuleForStarTree(tree);
-        var fields = module.getExports().map(function(exportSymbol) {
+        var fields = module.getExports().map((exportSymbol) => {
           return new BindingElement(tree.location,
-            createBindingIdentifier(exportSymbol.name), null);
-        })
+              createBindingIdentifier(exportSymbol.name), null);
+        });
       } else {
         fields = this.transformList(tree.specifiers);
       }
@@ -245,7 +245,7 @@ traceur.define('codegeneration', function() {
    */
   ModuleTransformer.transform = function(project, tree) {
     var module = project.getRootModule();
-    var elements = tree.programElements.map(function(element) {
+    var elements = tree.programElements.map((element) => {
       switch (element.type) {
         case MODULE_DEFINITION:
           return transformDefinition(project, module, element);
@@ -256,7 +256,7 @@ traceur.define('codegeneration', function() {
         default:
           return element;
       }
-    }, this);
+    });
     return new Program(tree.location, elements);
   };
 
@@ -286,7 +286,7 @@ traceur.define('codegeneration', function() {
     statements.push(createUseStrictDirective());
 
     // Add exports
-    module.getExports().forEach(function(exp) {
+    module.getExports().forEach((exp) => {
       // Object.defineProperty(this, 'export_name', ...)
       statements.push(getGetterExport(project, exp));
     });
@@ -296,7 +296,7 @@ traceur.define('codegeneration', function() {
         createExpressionStatement(createObjectFreeze(createThisExpression())));
 
     // Add original body statements
-    elements.forEach(function(element) {
+    elements.forEach((element) => {
       switch (element.type) {
         case MODULE_DECLARATION:
           statements.push(transformDeclaration(project, module, element));

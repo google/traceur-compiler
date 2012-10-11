@@ -40,19 +40,19 @@
   };
 
   var kindMapping = Object.create(null);
-  Object.keys(Kind).forEach(function(kind) {
+  Object.keys(Kind).forEach((kind) => {
     kindMapping[kind] = Object.create(null);
   });
 
   function enable(kind, b) {
-    Object.keys(kindMapping[kind]).forEach(function(name) {
+    Object.keys(kindMapping[kind]).forEach((name) => {
       options[name] = b;
     });
   }
 
   function getValue(kind) {
     var value;
-    Object.keys(kindMapping[kind]).every(function(name) {
+    Object.keys(kindMapping[kind]).every((name) => {
       var currentValue = options[name];
       if (value === undefined) {
         value = currentValue;
@@ -123,7 +123,7 @@
    */
   function reset(opt_allOff) {
     var useDefault = opt_allOff === undefined;
-    Object.keys(options).forEach(function(name) {
+    Object.keys(options).forEach((name) => {
       options[name] = useDefault && defaultValues[name];
     });
   }
@@ -152,7 +152,7 @@
    * });
    */
   function setFromObject(object) {
-    Object.keys(object).forEach(function(name) {
+    Object.keys(object).forEach((name) => {
       options[name] = object[name];
     });
   }

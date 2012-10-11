@@ -80,27 +80,26 @@ traceur.define('codegeneration.module', function() {
 
       // a.b.c
 
-      var self = this;
-      function getNext(parent, identifierToken) {
+      var getNext = (parent, identifierToken) => {
         var name = identifierToken.value;
 
         if (!parent.hasModule(name)) {
           if (reportErrors) {
-            self.reportError_(tree, '\'%s\' is not a module', name);
+            this.reportError_(tree, '\'%s\' is not a module', name);
           }
           return null;
         }
 
         if (!parent.hasExport(name)) {
           if (reportErrors) {
-            self.reportError_(tree, '\'%s\' is not exported by %s', name,
+            this.reportError_(tree, '\'%s\' is not exported by %s', name,
                 getFriendlyName(parent));
           }
           return null;
         }
 
         return parent.getModule(name);
-      }
+      };
 
       var name = tree.reference.identifierToken.value;
       var parent = this.getModuleByName(name);

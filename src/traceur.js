@@ -79,13 +79,13 @@
    */
   function createObject(proto, obj) {
     var newObject = Object.create(proto);
-    Object.getOwnPropertyNames(obj).forEach(function(name) {
+    Object.getOwnPropertyNames(obj).forEach((name) => {
       Object.defineProperty(newObject, name,
                             Object.getOwnPropertyDescriptor(obj, name));
     });
     return newObject;
   }
-  
+
   var uidCounter = 0;
 
   /**

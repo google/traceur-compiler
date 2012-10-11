@@ -100,9 +100,9 @@ traceur.define('codegeneration', function() {
      * @private
      */
     transform_: function() {
-      this.project_.getSourceFiles().forEach(function(file) {
+      this.project_.getSourceFiles().forEach((file) => {
         this.transformFile_(file);
-      }, this);
+      });
     },
 
     /**

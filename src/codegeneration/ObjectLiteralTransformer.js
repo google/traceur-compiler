@@ -208,23 +208,21 @@ traceur.define('codegeneration', function() {
 
         var properties = this.transformList(tree.propertyNameAndValues);
         // Filter out the __proto__ here which is represented as a null value.
-        properties = properties.filter(function(tree) {
-          return tree;
-        });
+        properties = properties.filter((tree) => tree);
 
         // (tmp = ..., Object.defineProperty(...), ..., tmp)
         if (finder.foundAtName) {
           var tempVar = this.addTempVar();
           var tempVarIdentifierExpression = createIdentifierExpression(tempVar);
 
-          var expressions = properties.map(function(property) {
+          var expressions = properties.map((property) => {
             var name = property[0];
             var descr = property[1];
             return createDefineProperty(
                 tempVarIdentifierExpression,
                 this.getPropertyName_(name),
                 descr);
-          }, this);
+          });
 
           var protoExpression = this.transformAny(finder.protoExpression);
           var objectExpression;
@@ -248,7 +246,7 @@ traceur.define('codegeneration', function() {
 
         // Object.create(proto, descriptors)
         } else {
-          properties = properties.map(function(property) {
+          properties = properties.map((property) => {
             var name = property[0];
             var descr = property[1];
             var descriptorTree = createPropertyDescriptor(descr);

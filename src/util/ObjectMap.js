@@ -43,14 +43,10 @@ traceur.define('util', function() {
       }
     },
     keys: function() {
-      return Object.keys(this.keys_).map(function(uid) {
-        return this.keys_[uid];
-      }, this);
+      return Object.keys(this.keys_).map((uid) => this.keys_[uid]);
     },
     values: function() {
-      return Object.keys(this.values_).map(function(uid) {
-        return this.values_[uid];
-      }, this);
+      return Object.keys(this.values_).map((uid) =>this.values_[uid]);
     },
     remove: function(key) {
       var uid = key.uid;
