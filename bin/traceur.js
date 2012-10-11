@@ -6938,7 +6938,7 @@ traceur.define('syntax', function() {
       } 
     }, 
     visitCallExpression: function(tree) { 
-      this.check_(tree.operand.isLeftHandSideExpression() || tree.operand.isMemberExpression(), tree.operand, 'left hand side expression or member expression expected'); 
+      this.check_(tree.operand.isMemberExpression(), tree.operand, 'member expression expected'); 
       if(tree.operand instanceof NewExpression) { 
         this.check_(tree.operand.args !== null, tree.operand, 'new args expected'); 
       } 
@@ -7099,7 +7099,7 @@ traceur.define('syntax', function() {
       this.visitAny(tree.operand); 
     }, 
     visitMemberLookupExpression: function(tree) { 
-      this.check_(tree.operand.isLeftHandSideExpression(), tree.operand, 'left hand side expression expected'); 
+      this.check_(tree.operand.isMemberExpression(), tree.operand, 'member expression expected'); 
       if(tree.operand instanceof NewExpression) { 
         this.check_(tree.operand.args !== null, tree.operand, 'new args expected'); 
       } 
@@ -7127,7 +7127,7 @@ traceur.define('syntax', function() {
       this.checkType_(ParseTreeType.MODULE_EXPRESSION, tree.expression, 'module expression expected'); 
     }, 
     visitNewExpression: function(tree) { 
-      this.checkVisit_(tree.operand.isLeftHandSideExpression(), tree.operand, 'left hand side expression expected'); 
+      this.checkVisit_(tree.operand.isMemberExpression(), tree.operand, 'member expression expected'); 
       this.visitAny(tree.args); 
     }, 
     visitObjectLiteralExpression: function(tree) { 
