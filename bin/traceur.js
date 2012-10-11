@@ -10407,9 +10407,7 @@ traceur.define('codegeneration', function() {
       if(! this.needsTransform) return base.transformPropertyMethodAssignment.call(this, tree); 
       var body = this.transformAny(tree.functionBody); 
       var parameters = this.transformAny(tree.formalParameterList); 
-      var name = null; 
-      if(tree.name.type == TokenType.IDENTIFIER) name = createBindingIdentifier(tree.name); 
-      var func = new FunctionDeclaration(tree.location, name, tree.isGenerator, parameters, body); 
+      var func = new FunctionDeclaration(tree.location, null, tree.isGenerator, parameters, body); 
       return this.createProperty_(tree.name, { 
         value: func, 
         configurable: true, 

@@ -1,11 +1,11 @@
 var object = {
   x: {
     j() {
-      return j;
+      return this.j;
     }
   },
   f() {
-    return f;
+    return this.f;
   },
   'g'() {},
   "h"() {},
@@ -28,6 +28,7 @@ function assertMethod(object, name) {
   assertEquals('object', typeof descriptor);
   assertFalse(descriptor.enumerable);
   assertEquals('function', typeof object[name]);
+  assertEquals('', object[name].name);
 }
 
 assertMethod(object, 'f');

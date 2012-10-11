@@ -337,13 +337,7 @@ traceur.define('codegeneration', function() {
       var body = this.transformAny(tree.functionBody);
       var parameters = this.transformAny(tree.formalParameterList);
 
-      // If the name is an Identifier we use that as the name of the function
-      // so that it is visible inside the function scope.
-      var name = null;
-      if (tree.name.type == TokenType.IDENTIFIER)
-        name = createBindingIdentifier(tree.name);
-
-      var func = new FunctionDeclaration(tree.location, name, tree.isGenerator,
+      var func = new FunctionDeclaration(tree.location, null, tree.isGenerator,
                                          parameters, body);
 
       return this.createProperty_(tree.name,
