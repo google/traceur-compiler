@@ -51,6 +51,10 @@
 
   var outDirName = 'out';
 
+  function existsSync(p) {
+    return fs.existsSync ? fs.existsSync(p) : path.existsSync(p);
+  }
+
   /**
    * Recursively makes all directoires, similar to mkdir -p
    * @param {string} dir
@@ -61,7 +65,7 @@
     dir = '';
     for (var i = 0; i < parts.length; i++) {
       dir += parts[i] + '/';
-      if (!fs.existsSync(dir)) {
+      if (!existsSync(dir)) {
         fs.mkdirSync(dir, 0x1FF);
       }
     }

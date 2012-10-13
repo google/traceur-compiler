@@ -140,6 +140,10 @@ var Project = traceur.semantics.symbols.Project;
 var SourceFile = traceur.syntax.SourceFile
 var TreeWriter = traceur.outputgeneration.TreeWriter;
 
+function existsSync(p) {
+  return fs.existsSync ? fs.existsSync(p) : path.existsSync(p);
+}
+
 /**
  * Recursively makes all directoires, similar to mkdir -p
  * @param {string} dir
@@ -150,7 +154,7 @@ function mkdirRecursive(dir) {
   dir = '';
   for (var i = 0; i < parts.length; i++) {
     dir += parts[i] + '/';
-    if (!fs.existsSync(dir)) {
+    if (!existsSync(dir)) {
       fs.mkdirSync(dir, 0x1FF);
     }
   }
