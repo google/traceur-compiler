@@ -686,7 +686,7 @@ traceur.define('syntax', function() {
       var superClass = null;
       if (this.peek_(TokenType.EXTENDS)) {
         this.eat_(TokenType.EXTENDS);
-        superClass = this.parseAssignmentExpression_();
+        superClass = this.parseAssignmentExpression();
       }
       this.eat_(TokenType.OPEN_CURLY);
       var elements = this.parseClassElements_();
@@ -969,7 +969,7 @@ traceur.define('syntax', function() {
       }
       var start = this.getTreeStartLocation_();
       this.eat_(TokenType.DOT_DOT_DOT);
-      var operand = this.parseAssignmentExpression_();
+      var operand = this.parseAssignmentExpression();
       return new SpreadExpression(this.getTreeLocation_(start), operand);
     },
 
@@ -1229,7 +1229,7 @@ traceur.define('syntax', function() {
      */
     parseInitializer_: function(expressionIn) {
       this.eat_(TokenType.EQUAL);
-      return this.parseAssignmentExpression_(expressionIn);
+      return this.parseAssignmentExpression(expressionIn);
     },
 
     /**
@@ -2185,7 +2185,7 @@ traceur.define('syntax', function() {
       if (this.peek_(TokenType.COLON, 1)) {
         var name = this.nextToken_();
         this.eat_(TokenType.COLON);
-        var value = this.parseAssignmentExpression_();
+        var value = this.parseAssignmentExpression();
         return new PropertyNameAssignment(this.getTreeLocation_(start), name,
                                           value);
       } else {
@@ -2313,7 +2313,7 @@ traceur.define('syntax', function() {
     parseExpression_: function(opt_expressionIn) {
       var expressionIn = opt_expressionIn || Expression.IN;
       var start = this.getTreeStartLocation_();
-      var result = this.parseAssignmentExpression_(expressionIn);
+      var result = this.parseAssignmentExpression(expressionIn);
       if (this.peek_(TokenType.COMMA)) {
         var exprs = [];
         exprs.push(result);
@@ -2321,7 +2321,7 @@ traceur.define('syntax', function() {
         while (this.peek_(TokenType.COMMA) &&
                this.peekAssignmentExpression_(1)) {
           this.eat_(TokenType.COMMA);
-          exprs.push(this.parseAssignmentExpression_(expressionIn));
+          exprs.push(this.parseAssignmentExpression(expressionIn));
         }
         return new CommaExpression(this.getTreeLocation_(start), exprs);
       }
@@ -2355,9 +2355,8 @@ traceur.define('syntax', function() {
      *
      * @param {Expression} expressionIn
      * @return {ParseTree}
-     * @private
      */
-    parseAssignmentExpression_: function(opt_expressionIn) {
+    parseAssignmentExpression: function(opt_expressionIn) {
       if (this.peekBindingIdentifier_() && this.peekArrow_(1))
         return this.parseArrowFunction_();
       // The remaining arrow function cases are handled in
@@ -2375,7 +2374,7 @@ traceur.define('syntax', function() {
           this.reportError_('Left hand side of assignment must be new, call, member, function, primary expressions or destructuring pattern');
         }
         var operator = this.nextToken_();
-        var right = this.parseAssignmentExpression_(expressionIn);
+        var right = this.parseAssignmentExpression(expressionIn);
         return new BinaryOperator(this.getTreeLocation_(start), left, operator, right);
       }
       return left;
@@ -2430,9 +2429,9 @@ traceur.define('syntax', function() {
       var condition = this.parseLogicalOR_(expressionIn);
       if (this.peek_(TokenType.QUESTION)) {
         this.eat_(TokenType.QUESTION);
-        var left = this.parseAssignmentExpression_();
+        var left = this.parseAssignmentExpression();
         this.eat_(TokenType.COLON);
-        var right = this.parseAssignmentExpression_(expressionIn);
+        var right = this.parseAssignmentExpression(expressionIn);
         return new ConditionalExpression(this.getTreeLocation_(start), condition, left, right);
       }
       return condition;
@@ -2884,7 +2883,7 @@ traceur.define('syntax', function() {
     },
 
     parseCascadeExpression_: function() {
-      var expr = this.parseAssignmentExpression_();
+      var expr = this.parseAssignmentExpression();
       var operand;
       switch (expr.type) {
         case ParseTreeType.CALL_EXPRESSION:
@@ -3008,7 +3007,7 @@ traceur.define('syntax', function() {
       if (this.peekSpread_()) {
         return this.parseSpreadExpression_();
       }
-      return this.parseAssignmentExpression_();
+      return this.parseAssignmentExpression();
     },
 
     /**
@@ -3153,7 +3152,7 @@ traceur.define('syntax', function() {
       // the beginning of a block.
       if (this.peek_(TokenType.OPEN_CURLY))
         return this.parseBlock_();
-      return this.parseAssignmentExpression_();
+      return this.parseAssignmentExpression();
     },
 
     /**

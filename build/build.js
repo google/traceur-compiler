@@ -58,12 +58,14 @@ var includes = [
   'semantics/symbols/Symbol.js',
   'semantics/symbols/ModuleSymbol.js',
   'semantics/symbols/ExportSymbol.js',
+  'codegeneration/UniqueIdentifierGenerator.js',
+  'codegeneration/ParseTreeTransformer.js',
+  'codegeneration/RuntimeInliner.js',
   'semantics/symbols/Project.js',
   'outputgeneration/ParseTreeWriter.js',
   'outputgeneration/ParseTreeMapWriter.js',
   'outputgeneration/TreeWriter.js',
   'syntax/ParseTreeValidator.js',
-  'codegeneration/ParseTreeTransformer.js',
   'codegeneration/FindVisitor.js',
   'codegeneration/FindInFunctionScope.js',
   'codegeneration/ArrowFunctionTransformer.js',
@@ -74,7 +76,6 @@ var includes = [
   'codegeneration/DefaultParametersTransformer.js',
   'codegeneration/RestParameterTransformer.js',
   'codegeneration/SpreadTransformer.js',
-  'codegeneration/UniqueIdentifierGenerator.js',
   'codegeneration/ForOfTransformer.js',
   'codegeneration/ModuleTransformer.js',
   'codegeneration/OperatorExpander.js',
@@ -162,6 +163,7 @@ function mkdirRecursive(dir) {
 
 traceur.options.reset(true);
 traceur.options.arrowFunctions = true;
+traceur.options.quasi = true;
 
 var srcDir = path.join(path.dirname(process.argv[1]), '..', 'src');
 

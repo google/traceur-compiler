@@ -39,7 +39,6 @@ traceur.define('codegeneration', function() {
   var QuasiLiteralTransformer = traceur.codegeneration.QuasiLiteralTransformer;
   var RestParameterTransformer = traceur.codegeneration.RestParameterTransformer;
   var SpreadTransformer = traceur.codegeneration.SpreadTransformer;
-  var UniqueIdentifierGenerator = traceur.codegeneration.UniqueIdentifierGenerator;
 
   var options = traceur.options.transform;
 
@@ -54,7 +53,6 @@ traceur.define('codegeneration', function() {
     this.project_ = project;
     this.reporter_ = reporter;
     this.results_ = new ObjectMap();
-    this.identifierGenerator_ = new UniqueIdentifierGenerator();
   }
 
   /**
@@ -140,7 +138,8 @@ traceur.define('codegeneration', function() {
     },
 
     transformTree_: function(tree, opt_module) {
-      var identifierGenerator = this.identifierGenerator_;
+      var identifierGenerator = this.project_.identifierGenerator;
+      var runtimeInliner = this.project_.runtimeInliner;
       var reporter = this.reporter_;
 
       function chain(enabled, transformer, var_args) {
@@ -222,7 +221,10 @@ traceur.define('codegeneration', function() {
       // destructuring must come after for of and before block binding
       chain(options.destructuring,
             DestructuringTransformer.transformTree, identifierGenerator);
-      chain(options.spread, SpreadTransformer.transformTree);
+      chain(options.spread, SpreadTransformer.transformTree, runtimeInliner);
+
+      chain(true, runtimeInliner.transformAny.bind(runtimeInliner));
+
       chain(options.blockBinding, BlockBindingTransformer.transformTree);
 
       // Cascade must come before CollectionTransformer.

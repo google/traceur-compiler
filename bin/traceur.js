@@ -3591,7 +3591,7 @@ traceur.define('syntax', function() {
       var superClass = null; 
       if(this.peek_(TokenType.EXTENDS)) { 
         this.eat_(TokenType.EXTENDS); 
-        superClass = this.parseAssignmentExpression_(); 
+        superClass = this.parseAssignmentExpression(); 
       } 
       this.eat_(TokenType.OPEN_CURLY); 
       var elements = this.parseClassElements_(); 
@@ -3742,7 +3742,7 @@ traceur.define('syntax', function() {
       } 
       var start = this.getTreeStartLocation_(); 
       this.eat_(TokenType.DOT_DOT_DOT); 
-      var operand = this.parseAssignmentExpression_(); 
+      var operand = this.parseAssignmentExpression(); 
       return new SpreadExpression(this.getTreeLocation_(start), operand); 
     }, 
     parseStatement_: function() { 
@@ -3933,7 +3933,7 @@ traceur.define('syntax', function() {
     }, 
     parseInitializer_: function(expressionIn) { 
       this.eat_(TokenType.EQUAL); 
-      return this.parseAssignmentExpression_(expressionIn); 
+      return this.parseAssignmentExpression(expressionIn); 
     }, 
     parseNameStatement_: function() { 
       var start = this.getTreeStartLocation_(); 
@@ -4489,7 +4489,7 @@ traceur.define('syntax', function() {
       if(this.peek_(TokenType.COLON, 1)) { 
         var name = this.nextToken_(); 
         this.eat_(TokenType.COLON); 
-        var value = this.parseAssignmentExpression_(); 
+        var value = this.parseAssignmentExpression(); 
         return new PropertyNameAssignment(this.getTreeLocation_(start), name, value); 
       } else { 
         return this.parsePropertyNameShorthand_(); 
@@ -4570,13 +4570,13 @@ traceur.define('syntax', function() {
     parseExpression_: function(opt_expressionIn) { 
       var expressionIn = opt_expressionIn || Expression.IN; 
       var start = this.getTreeStartLocation_(); 
-      var result = this.parseAssignmentExpression_(expressionIn); 
+      var result = this.parseAssignmentExpression(expressionIn); 
       if(this.peek_(TokenType.COMMA)) { 
         var exprs =[]; 
         exprs.push(result); 
         while(this.peek_(TokenType.COMMA) && this.peekAssignmentExpression_(1)) { 
           this.eat_(TokenType.COMMA); 
-          exprs.push(this.parseAssignmentExpression_(expressionIn)); 
+          exprs.push(this.parseAssignmentExpression(expressionIn)); 
         } 
         return new CommaExpression(this.getTreeLocation_(start), exprs); 
       } 
@@ -4585,7 +4585,7 @@ traceur.define('syntax', function() {
     peekAssignmentExpression_: function(opt_index) { 
       return this.peekExpression_(opt_index || 0); 
     }, 
-    parseAssignmentExpression_: function(opt_expressionIn) { 
+    parseAssignmentExpression: function(opt_expressionIn) { 
       if(this.peekBindingIdentifier_() && this.peekArrow_(1)) return this.parseArrowFunction_(); 
       var expressionIn = opt_expressionIn || Expression.NORMAL; 
       var start = this.getTreeStartLocation_(); 
@@ -4596,7 +4596,7 @@ traceur.define('syntax', function() {
           this.reportError_('Left hand side of assignment must be new, call, member, function, primary expressions or destructuring pattern'); 
         } 
         var operator = this.nextToken_(); 
-        var right = this.parseAssignmentExpression_(expressionIn); 
+        var right = this.parseAssignmentExpression(expressionIn); 
         return new BinaryOperator(this.getTreeLocation_(start), left, operator, right); 
       } 
       return left; 
@@ -4627,9 +4627,9 @@ traceur.define('syntax', function() {
       var condition = this.parseLogicalOR_(expressionIn); 
       if(this.peek_(TokenType.QUESTION)) { 
         this.eat_(TokenType.QUESTION); 
-        var left = this.parseAssignmentExpression_(); 
+        var left = this.parseAssignmentExpression(); 
         this.eat_(TokenType.COLON); 
-        var right = this.parseAssignmentExpression_(expressionIn); 
+        var right = this.parseAssignmentExpression(expressionIn); 
         return new ConditionalExpression(this.getTreeLocation_(start), condition, left, right); 
       } 
       return condition; 
@@ -4939,7 +4939,7 @@ traceur.define('syntax', function() {
       return expressions; 
     }, 
     parseCascadeExpression_: function() { 
-      var expr = this.parseAssignmentExpression_(); 
+      var expr = this.parseAssignmentExpression(); 
       var operand; 
       switch(expr.type) { 
         case ParseTreeType.CALL_EXPRESSION: 
@@ -5016,7 +5016,7 @@ traceur.define('syntax', function() {
       if(this.peekSpread_()) { 
         return this.parseSpreadExpression_(); 
       } 
-      return this.parseAssignmentExpression_(); 
+      return this.parseAssignmentExpression(); 
     }, 
     parseArrowFunction_: function(expressionIn) { 
       var start = this.getTreeStartLocation_(); 
@@ -5068,7 +5068,7 @@ traceur.define('syntax', function() {
     }, 
     parseConciseBody_: function() { 
       if(this.peek_(TokenType.OPEN_CURLY)) return this.parseBlock_(); 
-      return this.parseAssignmentExpression_(); 
+      return this.parseAssignmentExpression(); 
     }, 
     parseGeneratorComprehension_: function(start, expression) { 
       var comprehensionForList = this.parseComprehensionForList_(); 
@@ -5944,12 +5944,813 @@ traceur.define('semantics.symbols', function() {
   ExportSymbol.prototype = Object.create(Symbol.prototype); 
   return { ExportSymbol: ExportSymbol }; 
 }); 
+traceur.define('codegeneration', function() { 
+  'use strict'; 
+  function UniqueIdentifierGenerator() { 
+    this.identifierIndex = 0; 
+    this.nameMap_ = Object.create(null); 
+  } 
+  UniqueIdentifierGenerator.prototype = { 
+    generateUniqueIdentifier: function() { 
+      return '$__' + this.identifierIndex ++; 
+    }, 
+    getUniqueIdentifier: function(name) { 
+      var newName = this.nameMap_[name]; 
+      if(! newName) return this.nameMap_[name]= this.generateUniqueIdentifier(); 
+      return newName; 
+    } 
+  }; 
+  return { UniqueIdentifierGenerator: UniqueIdentifierGenerator }; 
+}); 
+traceur.define('codegeneration', function() { 
+  'use strict'; 
+  var ArgumentList = traceur.syntax.trees.ArgumentList; 
+  var ArrayComprehension = traceur.syntax.trees.ArrayComprehension; 
+  var ArrayLiteralExpression = traceur.syntax.trees.ArrayLiteralExpression; 
+  var ArrayPattern = traceur.syntax.trees.ArrayPattern; 
+  var ArrowFunctionExpression = traceur.syntax.trees.ArrowFunctionExpression; 
+  var AtNameExpression = traceur.syntax.trees.AtNameExpression; 
+  var AtNameDeclaration = traceur.syntax.trees.AtNameDeclaration; 
+  var AwaitStatement = traceur.syntax.trees.AwaitStatement; 
+  var BinaryOperator = traceur.syntax.trees.BinaryOperator; 
+  var BindThisParameter = traceur.syntax.trees.BindThisParameter; 
+  var BindingElement = traceur.syntax.trees.BindingElement; 
+  var Block = traceur.syntax.trees.Block; 
+  var CallExpression = traceur.syntax.trees.CallExpression; 
+  var CascadeExpression = traceur.syntax.trees.CascadeExpression; 
+  var CaseClause = traceur.syntax.trees.CaseClause; 
+  var Catch = traceur.syntax.trees.Catch; 
+  var ClassDeclaration = traceur.syntax.trees.ClassDeclaration; 
+  var ClassExpression = traceur.syntax.trees.ClassExpression; 
+  var CommaExpression = traceur.syntax.trees.CommaExpression; 
+  var ComprehensionFor = traceur.syntax.trees.ComprehensionFor; 
+  var ConditionalExpression = traceur.syntax.trees.ConditionalExpression; 
+  var DefaultClause = traceur.syntax.trees.DefaultClause; 
+  var DoWhileStatement = traceur.syntax.trees.DoWhileStatement; 
+  var ExportDeclaration = traceur.syntax.trees.ExportDeclaration; 
+  var ExportMapping = traceur.syntax.trees.ExportMapping; 
+  var ExportMappingList = traceur.syntax.trees.ExportMappingList; 
+  var ExportSpecifier = traceur.syntax.trees.ExportSpecifier; 
+  var ExportSpecifierSet = traceur.syntax.trees.ExportSpecifierSet; 
+  var ExpressionStatement = traceur.syntax.trees.ExpressionStatement; 
+  var Finally = traceur.syntax.trees.Finally; 
+  var ForInStatement = traceur.syntax.trees.ForInStatement; 
+  var ForOfStatement = traceur.syntax.trees.ForOfStatement; 
+  var ForStatement = traceur.syntax.trees.ForStatement; 
+  var FormalParameterList = traceur.syntax.trees.FormalParameterList; 
+  var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration; 
+  var GeneratorComprehension = traceur.syntax.trees.GeneratorComprehension; 
+  var GetAccessor = traceur.syntax.trees.GetAccessor; 
+  var IfStatement = traceur.syntax.trees.IfStatement; 
+  var ImportBinding = traceur.syntax.trees.ImportBinding; 
+  var ImportDeclaration = traceur.syntax.trees.ImportDeclaration; 
+  var LabelledStatement = traceur.syntax.trees.LabelledStatement; 
+  var MemberExpression = traceur.syntax.trees.MemberExpression; 
+  var MemberLookupExpression = traceur.syntax.trees.MemberLookupExpression; 
+  var ModuleDeclaration = traceur.syntax.trees.ModuleDeclaration; 
+  var ModuleDefinition = traceur.syntax.trees.ModuleDefinition; 
+  var ModuleExpression = traceur.syntax.trees.ModuleExpression; 
+  var ModuleSpecifier = traceur.syntax.trees.ModuleSpecifier; 
+  var NameStatement = traceur.syntax.trees.NameStatement; 
+  var NewExpression = traceur.syntax.trees.NewExpression; 
+  var ObjectLiteralExpression = traceur.syntax.trees.ObjectLiteralExpression; 
+  var ObjectPattern = traceur.syntax.trees.ObjectPattern; 
+  var ObjectPatternField = traceur.syntax.trees.ObjectPatternField; 
+  var ParenExpression = traceur.syntax.trees.ParenExpression; 
+  var ParseTreeType = traceur.syntax.trees.ParseTreeType; 
+  var PostfixExpression = traceur.syntax.trees.PostfixExpression; 
+  var Program = traceur.syntax.trees.Program; 
+  var PropertyMethodAssignment = traceur.syntax.trees.PropertyMethodAssignment; 
+  var PropertyNameAssignment = traceur.syntax.trees.PropertyNameAssignment; 
+  var QuasiLiteralExpression = traceur.syntax.trees.QuasiLiteralExpression; 
+  var QuasiSubstitution = traceur.syntax.trees.QuasiSubstitution; 
+  var ReturnStatement = traceur.syntax.trees.ReturnStatement; 
+  var SetAccessor = traceur.syntax.trees.SetAccessor; 
+  var SpreadExpression = traceur.syntax.trees.SpreadExpression; 
+  var SpreadPatternElement = traceur.syntax.trees.SpreadPatternElement; 
+  var SwitchStatement = traceur.syntax.trees.SwitchStatement; 
+  var ThrowStatement = traceur.syntax.trees.ThrowStatement; 
+  var TryStatement = traceur.syntax.trees.TryStatement; 
+  var UnaryExpression = traceur.syntax.trees.UnaryExpression; 
+  var VariableDeclaration = traceur.syntax.trees.VariableDeclaration; 
+  var VariableDeclarationList = traceur.syntax.trees.VariableDeclarationList; 
+  var VariableStatement = traceur.syntax.trees.VariableStatement; 
+  var WhileStatement = traceur.syntax.trees.WhileStatement; 
+  var WithStatement = traceur.syntax.trees.WithStatement; 
+  var YieldStatement = traceur.syntax.trees.YieldStatement; 
+  var getTreeNameForType = traceur.syntax.trees.getTreeNameForType; 
+  function ParseTreeTransformer() { } 
+  ParseTreeTransformer.prototype = { 
+    transformAny: function(tree) { 
+      if(tree == null) { 
+        return null; 
+      } 
+      var name = getTreeNameForType(tree.type); 
+      return this['transform' + name](tree); 
+    }, 
+    transformList: function(list) { 
+      if(list == null || list.length == 0) { 
+        return list; 
+      } 
+      var builder = null; 
+      for(var index = 0; index < list.length; index ++) { 
+        var element = list[index]; 
+        var transformed = this.transformAny(element); 
+        if(builder != null || element != transformed) { 
+          if(builder == null) { 
+            builder = list.slice(0, index); 
+          } 
+          builder.push(transformed); 
+        } 
+      } 
+      return builder || list; 
+    }, 
+    toSourceElement: function(tree) { 
+      return tree.isSourceElement() ? tree: new ExpressionStatement(tree.location, tree); 
+    }, 
+    transformSourceElements: function(list) { 
+      if(list == null || list.length == 0) { 
+        return list; 
+      } 
+      var builder = null; 
+      for(var index = 0; index < list.length; index ++) { 
+        var element = list[index]; 
+        var transformed = this.toSourceElement(this.transformAny(element)); 
+        if(builder != null || element != transformed) { 
+          if(builder == null) { 
+            builder = list.slice(0, index); 
+          } 
+          builder.push(transformed); 
+        } 
+      } 
+      return builder || list; 
+    }, 
+    transformArgumentList: function(tree) { 
+      var args = this.transformList(tree.args); 
+      if(args == tree.args) { 
+        return tree; 
+      } 
+      return new ArgumentList(tree.location, args); 
+    }, 
+    transformArrayComprehension: function(tree) { 
+      var expression = this.transformAny(tree.expression); 
+      var comprehensionForList = this.transformList(tree.comprehensionForList); 
+      var ifExpression = this.transformAny(tree.ifExpression); 
+      if(expression === tree.expression && comprehensionForList === tree.comprehensionForList && ifExpression === tree.ifExpression) { 
+        return tree; 
+      } 
+      return new ArrayComprehension(tree.location, expression, comprehensionForList, ifExpression); 
+    }, 
+    transformArrayLiteralExpression: function(tree) { 
+      var elements = this.transformList(tree.elements); 
+      if(elements == tree.elements) { 
+        return tree; 
+      } 
+      return new ArrayLiteralExpression(tree.location, elements); 
+    }, 
+    transformArrayPattern: function(tree) { 
+      var elements = this.transformList(tree.elements); 
+      if(elements == tree.elements) { 
+        return tree; 
+      } 
+      return new ArrayPattern(tree.location, elements); 
+    }, 
+    transformArrowFunctionExpression: function(tree) { 
+      var parameters = this.transformAny(tree.formalParameters); 
+      var body = this.transformAny(tree.functionBody); 
+      if(parameters == tree.formalParameters && body == tree.functionBody) { 
+        return tree; 
+      } 
+      return new ArrowFunctionExpression(null, parameters, body); 
+    }, 
+    transformAtNameExpression: function(tree) { 
+      return tree; 
+    }, 
+    transformAtNameDeclaration: function(tree) { 
+      var initializer = this.transformAny(tree.initializer); 
+      if(initializer === tree.initializer) return tree; 
+      return new AtNameDeclaration(tree.location, tree.atNameToken, initializer); 
+    }, 
+    transformAwaitStatement: function(tree) { 
+      var expression = this.transformAny(tree.expression); 
+      if(tree.expression == expression) { 
+        return tree; 
+      } 
+      return new AwaitStatement(tree.location, tree.identifier, expression); 
+    }, 
+    transformBinaryOperator: function(tree) { 
+      var left = this.transformAny(tree.left); 
+      var right = this.transformAny(tree.right); 
+      if(left == tree.left && right == tree.right) { 
+        return tree; 
+      } 
+      return new BinaryOperator(tree.location, left, tree.operator, right); 
+    }, 
+    transformBindThisParameter: function(tree) { 
+      var expression = this.transformAny(tree.expression); 
+      if(tree.expression == expression) { 
+        return tree; 
+      } 
+      return new BindThisParameter(tree.location, expression); 
+    }, 
+    transformBindingElement: function(tree) { 
+      var binding = this.transformAny(tree.binding); 
+      var initializer = this.transformAny(tree.initializer); 
+      if(binding === tree.binding && initializer === tree.initializer) return tree; 
+      return new BindingElement(tree.location, binding, initializer); 
+    }, 
+    transformBindingIdentifier: function(tree) { 
+      return tree; 
+    }, 
+    transformBlock: function(tree) { 
+      var elements = this.transformList(tree.statements); 
+      if(elements == tree.statements) { 
+        return tree; 
+      } 
+      return new Block(tree.location, elements); 
+    }, 
+    transformBreakStatement: function(tree) { 
+      return tree; 
+    }, 
+    transformCallExpression: function(tree) { 
+      var operand = this.transformAny(tree.operand); 
+      var args = this.transformAny(tree.args); 
+      if(operand == tree.operand && args == tree.args) { 
+        return tree; 
+      } 
+      return new CallExpression(tree.location, operand, args); 
+    }, 
+    transformCaseClause: function(tree) { 
+      var expression = this.transformAny(tree.expression); 
+      var statements = this.transformList(tree.statements); 
+      if(expression == tree.expression && statements == tree.statements) { 
+        return tree; 
+      } 
+      return new CaseClause(tree.location, expression, statements); 
+    }, 
+    transformCatch: function(tree) { 
+      var catchBody = this.transformAny(tree.catchBody); 
+      var binding = this.transformAny(tree.binding); 
+      if(catchBody == tree.catchBody && binding == tree.binding) { 
+        return tree; 
+      } 
+      return new Catch(tree.location, binding, catchBody); 
+    }, 
+    transformCascadeExpression: function(tree) { 
+      var operand = this.transformAny(tree.operand); 
+      var expressions = this.transformList(tree.expressions); 
+      if(operand == tree.operand && expressions == tree.expressions) { 
+        return tree; 
+      } 
+      return new CascadeExpression(tree.location, operand, expressions); 
+    }, 
+    transformClassDeclaration: function(tree) { 
+      var superClass = this.transformAny(tree.superClass); 
+      var elements = this.transformList(tree.elements); 
+      if(superClass == tree.superClass && elements == tree.elements) return tree; 
+      return new ClassDeclaration(tree.location, tree.name, superClass, elements); 
+    }, 
+    transformClassExpression: function(tree) { 
+      var superClass = this.transformAny(tree.superClass); 
+      var elements = this.transformList(tree.elements); 
+      if(superClass == tree.superClass && elements == tree.elements) return tree; 
+      return new ClassExpression(tree.location, tree.name, superClass, elements); 
+    }, 
+    transformCommaExpression: function(tree) { 
+      var expressions = this.transformList(tree.expressions); 
+      if(expressions == tree.expressions) { 
+        return tree; 
+      } 
+      return new CommaExpression(tree.location, expressions); 
+    }, 
+    transformComprehensionFor: function(tree) { 
+      var left = this.transformAny(tree.left); 
+      var iterator = this.transformAny(tree.iterator); 
+      if(left === tree.left && iterator === tree.iterator) return tree; 
+      return new ComprehensionFor(tree.location, left, iterator); 
+    }, 
+    transformConditionalExpression: function(tree) { 
+      var condition = this.transformAny(tree.condition); 
+      var left = this.transformAny(tree.left); 
+      var right = this.transformAny(tree.right); 
+      if(condition == tree.condition && left == tree.left && right == tree.right) { 
+        return tree; 
+      } 
+      return new ConditionalExpression(tree.location, condition, left, right); 
+    }, 
+    transformContinueStatement: function(tree) { 
+      return tree; 
+    }, 
+    transformDebuggerStatement: function(tree) { 
+      return tree; 
+    }, 
+    transformDefaultClause: function(tree) { 
+      var statements = this.transformList(tree.statements); 
+      if(statements == tree.statements) { 
+        return tree; 
+      } 
+      return new DefaultClause(tree.location, statements); 
+    }, 
+    transformDoWhileStatement: function(tree) { 
+      var body = this.transformAny(tree.body); 
+      var condition = this.transformAny(tree.condition); 
+      if(body == tree.body && condition == tree.condition) { 
+        return tree; 
+      } 
+      return new DoWhileStatement(tree.location, body, condition); 
+    }, 
+    transformEmptyStatement: function(tree) { 
+      return tree; 
+    }, 
+    transformExportDeclaration: function(tree) { 
+      var declaration = this.transformAny(tree.declaration); 
+      if(tree.declaration == declaration) { 
+        return tree; 
+      } 
+      return new ExportDeclaration(tree.location, declaration); 
+    }, 
+    transformExportMappingList: function(tree) { 
+      var paths = this.transformList(tree.paths); 
+      if(paths == tree.paths) { 
+        return tree; 
+      } 
+      return new ExportMappingList(tree.location, paths); 
+    }, 
+    transformExportMapping: function(tree) { 
+      var moduleExpression = this.transformAny(tree.moduleExpression); 
+      var specifierSet = this.transformAny(tree.specifierSet); 
+      if(moduleExpression == tree.moduleExpression && specifierSet == tree.specifierSet) { 
+        return tree; 
+      } 
+      return new ExportMapping(tree.location, moduleExpression, specifierSet); 
+    }, 
+    transformExportSpecifier: function(tree) { 
+      return tree; 
+    }, 
+    transformExportSpecifierSet: function(tree) { 
+      var specifiers = this.transformList(tree.specifiers); 
+      if(specifiers == tree.specifiers) { 
+        return tree; 
+      } 
+      return new ExportSpecifierSet(tree.location, specifiers); 
+    }, 
+    transformExpressionStatement: function(tree) { 
+      var expression = this.transformAny(tree.expression); 
+      if(expression == tree.expression) { 
+        return tree; 
+      } 
+      return new ExpressionStatement(tree.location, expression); 
+    }, 
+    transformFinally: function(tree) { 
+      var block = this.transformAny(tree.block); 
+      if(block == tree.block) { 
+        return tree; 
+      } 
+      return new Finally(tree.location, block); 
+    }, 
+    transformForOfStatement: function(tree) { 
+      var initializer = this.transformAny(tree.initializer); 
+      var collection = this.transformAny(tree.collection); 
+      var body = this.transformAny(tree.body); 
+      if(initializer == tree.initializer && collection == tree.collection && body == tree.body) { 
+        return tree; 
+      } 
+      return new ForOfStatement(tree.location, initializer, collection, body); 
+    }, 
+    transformForInStatement: function(tree) { 
+      var initializer = this.transformAny(tree.initializer); 
+      var collection = this.transformAny(tree.collection); 
+      var body = this.transformAny(tree.body); 
+      if(initializer == tree.initializer && collection == tree.collection && body == tree.body) { 
+        return tree; 
+      } 
+      return new ForInStatement(tree.location, initializer, collection, body); 
+    }, 
+    transformForStatement: function(tree) { 
+      var initializer = this.transformAny(tree.initializer); 
+      var condition = this.transformAny(tree.condition); 
+      var increment = this.transformAny(tree.increment); 
+      var body = this.transformAny(tree.body); 
+      if(initializer == tree.initializer && condition == tree.condition && increment == tree.increment && body == tree.body) { 
+        return tree; 
+      } 
+      return new ForStatement(tree.location, initializer, condition, increment, body); 
+    }, 
+    transformFormalParameterList: function(tree) { 
+      var parameters = this.transformList(tree.parameters); 
+      if(parameters == tree.parameters) return tree; 
+      return new FormalParameterList(tree.location, parameters); 
+    }, 
+    transformFunctionDeclaration: function(tree) { 
+      var formalParameterList = this.transformAny(tree.formalParameterList); 
+      var functionBody = this.transformFunctionBody(tree.functionBody); 
+      if(formalParameterList == tree.formalParameterList && functionBody == tree.functionBody) { 
+        return tree; 
+      } 
+      return new FunctionDeclaration(tree.location, tree.name, tree.isGenerator, formalParameterList, functionBody); 
+    }, 
+    transformFunctionBody: function(tree) { 
+      return this.transformAny(tree); 
+    }, 
+    transformGeneratorComprehension: function(tree) { 
+      var expression = this.transformAny(tree.expression); 
+      var comprehensionForList = this.transformList(tree.comprehensionForList); 
+      var ifExpression = this.transformAny(tree.ifExpression); 
+      if(expression === tree.expression && comprehensionForList === tree.comprehensionForList && ifExpression === tree.ifExpression) { 
+        return tree; 
+      } 
+      return new GeneratorComprehension(tree.location, expression, comprehensionForList, ifExpression); 
+    }, 
+    transformGetAccessor: function(tree) { 
+      var body = this.transformFunctionBody(tree.body); 
+      if(body == tree.body) return tree; 
+      return new GetAccessor(tree.location, tree.propertyName, body); 
+    }, 
+    transformIdentifierExpression: function(tree) { 
+      return tree; 
+    }, 
+    transformIfStatement: function(tree) { 
+      var condition = this.transformAny(tree.condition); 
+      var ifClause = this.transformAny(tree.ifClause); 
+      var elseClause = this.transformAny(tree.elseClause); 
+      if(condition == tree.condition && ifClause == tree.ifClause && elseClause == tree.elseClause) { 
+        return tree; 
+      } 
+      return new IfStatement(tree.location, condition, ifClause, elseClause); 
+    }, 
+    transformImportDeclaration: function(tree) { 
+      var importPathList = this.transformList(tree.importPathList); 
+      if(importPathList == tree.importPathList) { 
+        return tree; 
+      } 
+      return new ImportDeclaration(tree.location, importPathList); 
+    }, 
+    transformImportBinding: function(tree) { 
+      var moduleExpression = this.transformAny(tree.moduleExpression); 
+      var importSpecifierSet = this.transformList(tree.importSpecifierSet); 
+      if(moduleExpression == tree.moduleExpression && importSpecifierSet == tree.importSpecifierSet) { 
+        return tree; 
+      } 
+      return new ImportBinding(tree.location, moduleExpression, importSpecifierSet); 
+    }, 
+    transformImportSpecifier: function(tree) { 
+      return tree; 
+    }, 
+    transformLabelledStatement: function(tree) { 
+      var statement = this.transformAny(tree.statement); 
+      if(statement == tree.statement) { 
+        return tree; 
+      } 
+      return new LabelledStatement(tree.location, tree.name, statement); 
+    }, 
+    transformLiteralExpression: function(tree) { 
+      return tree; 
+    }, 
+    transformMemberExpression: function(tree) { 
+      var operand = this.transformAny(tree.operand); 
+      if(operand == tree.operand) { 
+        return tree; 
+      } 
+      return new MemberExpression(tree.location, operand, tree.memberName); 
+    }, 
+    transformMemberLookupExpression: function(tree) { 
+      var operand = this.transformAny(tree.operand); 
+      var memberExpression = this.transformAny(tree.memberExpression); 
+      if(operand == tree.operand && memberExpression == tree.memberExpression) { 
+        return tree; 
+      } 
+      return new MemberLookupExpression(tree.location, operand, memberExpression); 
+    }, 
+    transformMissingPrimaryExpression: function(tree) { 
+      throw new Error('Should never transform trees that had errors during parse'); 
+    }, 
+    transformModuleDeclaration: function(tree) { 
+      var specifiers = this.transformList(tree.specifiers); 
+      if(specifiers == tree.specifiers) { 
+        return tree; 
+      } 
+      return new ModuleDeclaration(tree.location, specifiers); 
+    }, 
+    transformModuleDefinition: function(tree) { 
+      var elements = this.transformList(tree.elements); 
+      if(elements == tree.elements) { 
+        return tree; 
+      } 
+      return new ModuleDefinition(tree.location, tree.name, elements); 
+    }, 
+    transformModuleExpression: function(tree) { 
+      var reference = this.transformAny(tree.reference); 
+      if(reference == tree.reference) { 
+        return tree; 
+      } 
+      return new ModuleExpression(tree.location, reference, tree.identifiers); 
+    }, 
+    transformModuleRequire: function(tree) { 
+      return tree; 
+    }, 
+    transformModuleSpecifier: function(tree) { 
+      var expression = this.transformAny(tree.expression); 
+      if(expression == tree.expression) { 
+        return tree; 
+      } 
+      return new ModuleSpecifier(tree.location, tree.identifier, expression); 
+    }, 
+    transformNameStatement: function(tree) { 
+      var declarations = this.transformList(tree.declarations); 
+      if(declarations === tree.declarations) return tree; 
+      return new NameStatement(tree.location, declarations); 
+    }, 
+    transformNewExpression: function(tree) { 
+      var operand = this.transformAny(tree.operand); 
+      var args = this.transformAny(tree.args); 
+      if(operand == tree.operand && args == tree.args) { 
+        return tree; 
+      } 
+      return new NewExpression(tree.location, operand, args); 
+    }, 
+    transformNullTree: function(tree) { 
+      return tree; 
+    }, 
+    transformObjectLiteralExpression: function(tree) { 
+      var propertyNameAndValues = this.transformList(tree.propertyNameAndValues); 
+      if(propertyNameAndValues == tree.propertyNameAndValues) { 
+        return tree; 
+      } 
+      return new ObjectLiteralExpression(tree.location, propertyNameAndValues); 
+    }, 
+    transformObjectPattern: function(tree) { 
+      var fields = this.transformList(tree.fields); 
+      if(fields == tree.fields) { 
+        return tree; 
+      } 
+      return new ObjectPattern(tree.location, fields); 
+    }, 
+    transformObjectPatternField: function(tree) { 
+      var element = this.transformAny(tree.element); 
+      if(element == tree.element) { 
+        return tree; 
+      } 
+      return new ObjectPatternField(tree.location, tree.identifier, element); 
+    }, 
+    transformParenExpression: function(tree) { 
+      var expression = this.transformAny(tree.expression); 
+      if(expression == tree.expression) { 
+        return tree; 
+      } 
+      return new ParenExpression(tree.location, expression); 
+    }, 
+    transformPostfixExpression: function(tree) { 
+      var operand = this.transformAny(tree.operand); 
+      if(operand == tree.operand) { 
+        return tree; 
+      } 
+      return new PostfixExpression(tree.location, operand, tree.operator); 
+    }, 
+    transformProgram: function(tree) { 
+      var elements = this.transformList(tree.programElements); 
+      if(elements == tree.programElements) { 
+        return tree; 
+      } 
+      return new Program(tree.location, elements); 
+    }, 
+    transformPropertyMethodAssignment: function(tree) { 
+      var parameters = this.transformAny(tree.formalParameterList); 
+      var functionBody = this.transformFunctionBody(tree.functionBody); 
+      if(parameters == tree.formalParameterList && functionBody == tree.functionBody) { 
+        return tree; 
+      } 
+      return new PropertyMethodAssignment(tree.location, tree.name, tree.isGenerator, parameters, functionBody); 
+    }, 
+    transformPropertyNameAssignment: function(tree) { 
+      var value = this.transformAny(tree.value); 
+      if(value == tree.value) { 
+        return tree; 
+      } 
+      return new PropertyNameAssignment(tree.location, tree.name, value); 
+    }, 
+    transformPropertyNameShorthand: function(tree) { 
+      return tree; 
+    }, 
+    transformQuasiLiteralExpression: function(tree) { 
+      var operand = this.transformAny(tree.operand); 
+      var elements = this.transformList(tree.elements); 
+      if(operand === tree.operand && elements == tree.elements) return tree; 
+      return new QuasiLiteralExpression(tree.location, operand, elements); 
+    }, 
+    transformQuasiLiteralPortion: function(tree) { 
+      return tree; 
+    }, 
+    transformQuasiSubstitution: function(tree) { 
+      var expression = this.transformAny(tree.expression); 
+      if(expression == tree.expression) { 
+        return tree; 
+      } 
+      return new QuasiSubstitution(tree.location, expression); 
+    }, 
+    transformRequiresMember: function(tree) { 
+      return tree; 
+    }, 
+    transformRestParameter: function(tree) { 
+      return tree; 
+    }, 
+    transformReturnStatement: function(tree) { 
+      var expression = this.transformAny(tree.expression); 
+      if(expression == tree.expression) { 
+        return tree; 
+      } 
+      return new ReturnStatement(tree.location, expression); 
+    }, 
+    transformSetAccessor: function(tree) { 
+      var parameter = this.transformAny(tree.parameter); 
+      var body = this.transformFunctionBody(tree.body); 
+      if(parameter === tree.parameter && body === tree.body) return tree; 
+      return new SetAccessor(tree.location, tree.propertyName, parameter, body); 
+    }, 
+    transformSpreadExpression: function(tree) { 
+      var expression = this.transformAny(tree.expression); 
+      if(expression == tree.expression) { 
+        return tree; 
+      } 
+      return new SpreadExpression(tree.location, expression); 
+    }, 
+    transformSpreadPatternElement: function(tree) { 
+      var lvalue = this.transformAny(tree.lvalue); 
+      if(lvalue == tree.lvalue) { 
+        return tree; 
+      } 
+      return new SpreadPatternElement(tree.location, lvalue); 
+    }, 
+    transformStateMachine: function(tree) { 
+      throw new Error(); 
+    }, 
+    transformSuperExpression: function(tree) { 
+      return tree; 
+    }, 
+    transformSwitchStatement: function(tree) { 
+      var expression = this.transformAny(tree.expression); 
+      var caseClauses = this.transformList(tree.caseClauses); 
+      if(expression == tree.expression && caseClauses == tree.caseClauses) { 
+        return tree; 
+      } 
+      return new SwitchStatement(tree.location, expression, caseClauses); 
+    }, 
+    transformThisExpression: function(tree) { 
+      return tree; 
+    }, 
+    transformThrowStatement: function(tree) { 
+      var value = this.transformAny(tree.value); 
+      if(value == tree.value) { 
+        return tree; 
+      } 
+      return new ThrowStatement(tree.location, value); 
+    }, 
+    transformTryStatement: function(tree) { 
+      var body = this.transformAny(tree.body); 
+      var catchBlock = this.transformAny(tree.catchBlock); 
+      var finallyBlock = this.transformAny(tree.finallyBlock); 
+      if(body == tree.body && catchBlock == tree.catchBlock && finallyBlock == tree.finallyBlock) { 
+        return tree; 
+      } 
+      return new TryStatement(tree.location, body, catchBlock, finallyBlock); 
+    }, 
+    transformUnaryExpression: function(tree) { 
+      var operand = this.transformAny(tree.operand); 
+      if(operand == tree.operand) { 
+        return tree; 
+      } 
+      return new UnaryExpression(tree.location, tree.operator, operand); 
+    }, 
+    transformVariableDeclaration: function(tree) { 
+      var lvalue = this.transformAny(tree.lvalue); 
+      var initializer = this.transformAny(tree.initializer); 
+      if(lvalue == tree.lvalue && initializer == tree.initializer) { 
+        return tree; 
+      } 
+      return new VariableDeclaration(tree.location, lvalue, initializer); 
+    }, 
+    transformVariableDeclarationList: function(tree) { 
+      var declarations = this.transformList(tree.declarations); 
+      if(declarations == tree.declarations) { 
+        return tree; 
+      } 
+      return new VariableDeclarationList(tree.location, tree.declarationType, declarations); 
+    }, 
+    transformVariableStatement: function(tree) { 
+      var declarations = this.transformAny(tree.declarations); 
+      if(declarations == tree.declarations) { 
+        return tree; 
+      } 
+      return new VariableStatement(tree.location, declarations); 
+    }, 
+    transformWhileStatement: function(tree) { 
+      var condition = this.transformAny(tree.condition); 
+      var body = this.transformAny(tree.body); 
+      if(condition == tree.condition && body == tree.body) { 
+        return tree; 
+      } 
+      return new WhileStatement(tree.location, condition, body); 
+    }, 
+    transformWithStatement: function(tree) { 
+      var expression = this.transformAny(tree.expression); 
+      var body = this.transformAny(tree.body); 
+      if(expression == tree.expression && body == tree.body) { 
+        return tree; 
+      } 
+      return new WithStatement(tree.location, expression, body); 
+    }, 
+    transformYieldStatement: function(tree) { 
+      var expression = this.transformAny(tree.expression); 
+      var isYieldFor = tree.isYieldFor; 
+      if(expression == tree.expression) { 
+        return tree; 
+      } 
+      return new YieldStatement(tree.location, expression, isYieldFor); 
+    } 
+  }; 
+  return { ParseTreeTransformer: ParseTreeTransformer }; 
+}); 
+traceur.define('codegeneration', function() { 
+  'use strict'; 
+  var MutedErrorReporter = traceur.util.MutedErrorReporter; 
+  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory; 
+  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer; 
+  ; 
+  var Parser = traceur.syntax.Parser; 
+  var Program = traceur.syntax.trees.Program; 
+  var SourceFile = traceur.syntax.SourceFile; 
+  var TokenType = traceur.syntax.TokenType; 
+  var createVariableStatement = ParseTreeFactory.createVariableStatement; 
+  var createVariableDeclaration = ParseTreeFactory.createVariableDeclaration; 
+  var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList; 
+  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression; 
+  var shared = { toObject: "function(value) {\n          if (value == null)\n            throw TypeError();\n          return Object(value);\n        }" }; 
+  function parse(source, name) { 
+    var file = new SourceFile(name + '@runtime', source); 
+    var errorReporter = new MutedErrorReporter(); 
+    return new Parser(errorReporter, file).parseAssignmentExpression(); 
+  } 
+  function RuntimeInliner(identifierGenerator) { 
+    this.identifierGenerator = identifierGenerator; 
+    this.map_ = Object.create(null); 
+  } 
+  RuntimeInliner.prototype = traceur.createObject(ParseTreeTransformer.prototype, { 
+    transformProgram: function(tree) { 
+      var names = Object.keys(this.map_); 
+      if(! names.length) return tree; 
+      var vars = names.filter(function(name) { 
+        return ! this.map_[name].inserted; 
+      }, this).map(function(name) { 
+        var item = this.map_[name]; 
+        item.inserted = true; 
+        return createVariableDeclaration(item.uid, item.expression); 
+      }, this); 
+      if(! vars.length) return tree; 
+      var variableStatement = createVariableStatement(createVariableDeclarationList(TokenType.VAR, vars)); 
+      var programElements =[variableStatement]; 
+      [].push.apply(programElements, tree.programElements); 
+      return new Program(tree.location, programElements); 
+    }, 
+    register: function(name, source) { 
+      if(name in this.map_) return; 
+      var self = this; 
+      source = source.replace(/%([a-zA-Z0-9_$]+)/g, function(_, name) { 
+        if(name in shared) { 
+          self.register(name, shared[name]); 
+        } 
+        return self.getAsString(name); 
+      }); 
+      var uid = this.identifierGenerator.generateUniqueIdentifier(); 
+      this.map_[name]= { 
+        expression: parse(source, name), 
+        uid: uid, 
+        inserted: false 
+      }; 
+    }, 
+    getAsIdentifierExpression: function(name) { 
+      return createIdentifierExpression(this.map_[name].uid); 
+    }, 
+    getAsString: function(name) { 
+      return this.map_[name].uid; 
+    }, 
+    get: function(name, opt_source) { 
+      if(!(name in this.map_)) { 
+        if(name in shared) opt_source = shared[name]; 
+        traceur.assert(opt_source); 
+        this.register(name, opt_source); 
+      } 
+      return this.getAsIdentifierExpression(name); 
+    } 
+  }); 
+  return { RuntimeInliner: RuntimeInliner }; 
+}); 
 traceur.define('semantics.symbols', function() { 
   'use strict'; 
+  var ArrayMap = traceur.util.ArrayMap; 
   var ExportSymbol = traceur.semantics.symbols.ExportSymbol; 
   var ModuleSymbol = traceur.semantics.symbols.ModuleSymbol; 
   var ObjectMap = traceur.util.ObjectMap; 
-  var ArrayMap = traceur.util.ArrayMap; 
+  var RuntimeInliner = traceur.codegeneration.RuntimeInliner; 
+  var UniqueIdentifierGenerator = traceur.codegeneration.UniqueIdentifierGenerator; 
   var resolveUrl = traceur.util.resolveUrl; 
   function addAll(self, other) { 
     for(var key in other) { 
@@ -5975,6 +6776,8 @@ traceur.define('semantics.symbols', function() {
     return standardModuleCache[url]; 
   } 
   function Project(url) { 
+    this.identifierGenerator = new UniqueIdentifierGenerator(); 
+    this.runtimeInliner = new RuntimeInliner(this.identifierGenerator); 
     this.sourceFiles_ = Object.create(null); 
     this.parseTrees_ = new ObjectMap(); 
     this.rootModule_ = new ModuleSymbol(null, null, null, url); 
@@ -7261,713 +8064,6 @@ traceur.define('syntax', function() {
 }); 
 traceur.define('codegeneration', function() { 
   'use strict'; 
-  var ArgumentList = traceur.syntax.trees.ArgumentList; 
-  var ArrayComprehension = traceur.syntax.trees.ArrayComprehension; 
-  var ArrayLiteralExpression = traceur.syntax.trees.ArrayLiteralExpression; 
-  var ArrayPattern = traceur.syntax.trees.ArrayPattern; 
-  var ArrowFunctionExpression = traceur.syntax.trees.ArrowFunctionExpression; 
-  var AtNameExpression = traceur.syntax.trees.AtNameExpression; 
-  var AtNameDeclaration = traceur.syntax.trees.AtNameDeclaration; 
-  var AwaitStatement = traceur.syntax.trees.AwaitStatement; 
-  var BinaryOperator = traceur.syntax.trees.BinaryOperator; 
-  var BindThisParameter = traceur.syntax.trees.BindThisParameter; 
-  var BindingElement = traceur.syntax.trees.BindingElement; 
-  var Block = traceur.syntax.trees.Block; 
-  var CallExpression = traceur.syntax.trees.CallExpression; 
-  var CascadeExpression = traceur.syntax.trees.CascadeExpression; 
-  var CaseClause = traceur.syntax.trees.CaseClause; 
-  var Catch = traceur.syntax.trees.Catch; 
-  var ClassDeclaration = traceur.syntax.trees.ClassDeclaration; 
-  var ClassExpression = traceur.syntax.trees.ClassExpression; 
-  var CommaExpression = traceur.syntax.trees.CommaExpression; 
-  var ComprehensionFor = traceur.syntax.trees.ComprehensionFor; 
-  var ConditionalExpression = traceur.syntax.trees.ConditionalExpression; 
-  var DefaultClause = traceur.syntax.trees.DefaultClause; 
-  var DoWhileStatement = traceur.syntax.trees.DoWhileStatement; 
-  var ExportDeclaration = traceur.syntax.trees.ExportDeclaration; 
-  var ExportMapping = traceur.syntax.trees.ExportMapping; 
-  var ExportMappingList = traceur.syntax.trees.ExportMappingList; 
-  var ExportSpecifier = traceur.syntax.trees.ExportSpecifier; 
-  var ExportSpecifierSet = traceur.syntax.trees.ExportSpecifierSet; 
-  var ExpressionStatement = traceur.syntax.trees.ExpressionStatement; 
-  var Finally = traceur.syntax.trees.Finally; 
-  var ForInStatement = traceur.syntax.trees.ForInStatement; 
-  var ForOfStatement = traceur.syntax.trees.ForOfStatement; 
-  var ForStatement = traceur.syntax.trees.ForStatement; 
-  var FormalParameterList = traceur.syntax.trees.FormalParameterList; 
-  var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration; 
-  var GeneratorComprehension = traceur.syntax.trees.GeneratorComprehension; 
-  var GetAccessor = traceur.syntax.trees.GetAccessor; 
-  var IfStatement = traceur.syntax.trees.IfStatement; 
-  var ImportBinding = traceur.syntax.trees.ImportBinding; 
-  var ImportDeclaration = traceur.syntax.trees.ImportDeclaration; 
-  var LabelledStatement = traceur.syntax.trees.LabelledStatement; 
-  var MemberExpression = traceur.syntax.trees.MemberExpression; 
-  var MemberLookupExpression = traceur.syntax.trees.MemberLookupExpression; 
-  var ModuleDeclaration = traceur.syntax.trees.ModuleDeclaration; 
-  var ModuleDefinition = traceur.syntax.trees.ModuleDefinition; 
-  var ModuleExpression = traceur.syntax.trees.ModuleExpression; 
-  var ModuleSpecifier = traceur.syntax.trees.ModuleSpecifier; 
-  var NameStatement = traceur.syntax.trees.NameStatement; 
-  var NewExpression = traceur.syntax.trees.NewExpression; 
-  var ObjectLiteralExpression = traceur.syntax.trees.ObjectLiteralExpression; 
-  var ObjectPattern = traceur.syntax.trees.ObjectPattern; 
-  var ObjectPatternField = traceur.syntax.trees.ObjectPatternField; 
-  var ParenExpression = traceur.syntax.trees.ParenExpression; 
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType; 
-  var PostfixExpression = traceur.syntax.trees.PostfixExpression; 
-  var Program = traceur.syntax.trees.Program; 
-  var PropertyMethodAssignment = traceur.syntax.trees.PropertyMethodAssignment; 
-  var PropertyNameAssignment = traceur.syntax.trees.PropertyNameAssignment; 
-  var QuasiLiteralExpression = traceur.syntax.trees.QuasiLiteralExpression; 
-  var QuasiSubstitution = traceur.syntax.trees.QuasiSubstitution; 
-  var ReturnStatement = traceur.syntax.trees.ReturnStatement; 
-  var SetAccessor = traceur.syntax.trees.SetAccessor; 
-  var SpreadExpression = traceur.syntax.trees.SpreadExpression; 
-  var SpreadPatternElement = traceur.syntax.trees.SpreadPatternElement; 
-  var SwitchStatement = traceur.syntax.trees.SwitchStatement; 
-  var ThrowStatement = traceur.syntax.trees.ThrowStatement; 
-  var TryStatement = traceur.syntax.trees.TryStatement; 
-  var UnaryExpression = traceur.syntax.trees.UnaryExpression; 
-  var VariableDeclaration = traceur.syntax.trees.VariableDeclaration; 
-  var VariableDeclarationList = traceur.syntax.trees.VariableDeclarationList; 
-  var VariableStatement = traceur.syntax.trees.VariableStatement; 
-  var WhileStatement = traceur.syntax.trees.WhileStatement; 
-  var WithStatement = traceur.syntax.trees.WithStatement; 
-  var YieldStatement = traceur.syntax.trees.YieldStatement; 
-  var getTreeNameForType = traceur.syntax.trees.getTreeNameForType; 
-  function ParseTreeTransformer() { } 
-  ParseTreeTransformer.prototype = { 
-    transformAny: function(tree) { 
-      if(tree == null) { 
-        return null; 
-      } 
-      var name = getTreeNameForType(tree.type); 
-      return this['transform' + name](tree); 
-    }, 
-    transformList: function(list) { 
-      if(list == null || list.length == 0) { 
-        return list; 
-      } 
-      var builder = null; 
-      for(var index = 0; index < list.length; index ++) { 
-        var element = list[index]; 
-        var transformed = this.transformAny(element); 
-        if(builder != null || element != transformed) { 
-          if(builder == null) { 
-            builder = list.slice(0, index); 
-          } 
-          builder.push(transformed); 
-        } 
-      } 
-      return builder || list; 
-    }, 
-    toSourceElement: function(tree) { 
-      return tree.isSourceElement() ? tree: new ExpressionStatement(tree.location, tree); 
-    }, 
-    transformSourceElements: function(list) { 
-      if(list == null || list.length == 0) { 
-        return list; 
-      } 
-      var builder = null; 
-      for(var index = 0; index < list.length; index ++) { 
-        var element = list[index]; 
-        var transformed = this.toSourceElement(this.transformAny(element)); 
-        if(builder != null || element != transformed) { 
-          if(builder == null) { 
-            builder = list.slice(0, index); 
-          } 
-          builder.push(transformed); 
-        } 
-      } 
-      return builder || list; 
-    }, 
-    transformArgumentList: function(tree) { 
-      var args = this.transformList(tree.args); 
-      if(args == tree.args) { 
-        return tree; 
-      } 
-      return new ArgumentList(tree.location, args); 
-    }, 
-    transformArrayComprehension: function(tree) { 
-      var expression = this.transformAny(tree.expression); 
-      var comprehensionForList = this.transformList(tree.comprehensionForList); 
-      var ifExpression = this.transformAny(tree.ifExpression); 
-      if(expression === tree.expression && comprehensionForList === tree.comprehensionForList && ifExpression === tree.ifExpression) { 
-        return tree; 
-      } 
-      return new ArrayComprehension(tree.location, expression, comprehensionForList, ifExpression); 
-    }, 
-    transformArrayLiteralExpression: function(tree) { 
-      var elements = this.transformList(tree.elements); 
-      if(elements == tree.elements) { 
-        return tree; 
-      } 
-      return new ArrayLiteralExpression(tree.location, elements); 
-    }, 
-    transformArrayPattern: function(tree) { 
-      var elements = this.transformList(tree.elements); 
-      if(elements == tree.elements) { 
-        return tree; 
-      } 
-      return new ArrayPattern(tree.location, elements); 
-    }, 
-    transformArrowFunctionExpression: function(tree) { 
-      var parameters = this.transformAny(tree.formalParameters); 
-      var body = this.transformAny(tree.functionBody); 
-      if(parameters == tree.formalParameters && body == tree.functionBody) { 
-        return tree; 
-      } 
-      return new ArrowFunctionExpression(null, parameters, body); 
-    }, 
-    transformAtNameExpression: function(tree) { 
-      return tree; 
-    }, 
-    transformAtNameDeclaration: function(tree) { 
-      var initializer = this.transformAny(tree.initializer); 
-      if(initializer === tree.initializer) return tree; 
-      return new AtNameDeclaration(tree.location, tree.atNameToken, initializer); 
-    }, 
-    transformAwaitStatement: function(tree) { 
-      var expression = this.transformAny(tree.expression); 
-      if(tree.expression == expression) { 
-        return tree; 
-      } 
-      return new AwaitStatement(tree.location, tree.identifier, expression); 
-    }, 
-    transformBinaryOperator: function(tree) { 
-      var left = this.transformAny(tree.left); 
-      var right = this.transformAny(tree.right); 
-      if(left == tree.left && right == tree.right) { 
-        return tree; 
-      } 
-      return new BinaryOperator(tree.location, left, tree.operator, right); 
-    }, 
-    transformBindThisParameter: function(tree) { 
-      var expression = this.transformAny(tree.expression); 
-      if(tree.expression == expression) { 
-        return tree; 
-      } 
-      return new BindThisParameter(tree.location, expression); 
-    }, 
-    transformBindingElement: function(tree) { 
-      var binding = this.transformAny(tree.binding); 
-      var initializer = this.transformAny(tree.initializer); 
-      if(binding === tree.binding && initializer === tree.initializer) return tree; 
-      return new BindingElement(tree.location, binding, initializer); 
-    }, 
-    transformBindingIdentifier: function(tree) { 
-      return tree; 
-    }, 
-    transformBlock: function(tree) { 
-      var elements = this.transformList(tree.statements); 
-      if(elements == tree.statements) { 
-        return tree; 
-      } 
-      return new Block(tree.location, elements); 
-    }, 
-    transformBreakStatement: function(tree) { 
-      return tree; 
-    }, 
-    transformCallExpression: function(tree) { 
-      var operand = this.transformAny(tree.operand); 
-      var args = this.transformAny(tree.args); 
-      if(operand == tree.operand && args == tree.args) { 
-        return tree; 
-      } 
-      return new CallExpression(tree.location, operand, args); 
-    }, 
-    transformCaseClause: function(tree) { 
-      var expression = this.transformAny(tree.expression); 
-      var statements = this.transformList(tree.statements); 
-      if(expression == tree.expression && statements == tree.statements) { 
-        return tree; 
-      } 
-      return new CaseClause(tree.location, expression, statements); 
-    }, 
-    transformCatch: function(tree) { 
-      var catchBody = this.transformAny(tree.catchBody); 
-      var binding = this.transformAny(tree.binding); 
-      if(catchBody == tree.catchBody && binding == tree.binding) { 
-        return tree; 
-      } 
-      return new Catch(tree.location, binding, catchBody); 
-    }, 
-    transformCascadeExpression: function(tree) { 
-      var operand = this.transformAny(tree.operand); 
-      var expressions = this.transformList(tree.expressions); 
-      if(operand == tree.operand && expressions == tree.expressions) { 
-        return tree; 
-      } 
-      return new CascadeExpression(tree.location, operand, expressions); 
-    }, 
-    transformClassDeclaration: function(tree) { 
-      var superClass = this.transformAny(tree.superClass); 
-      var elements = this.transformList(tree.elements); 
-      if(superClass == tree.superClass && elements == tree.elements) return tree; 
-      return new ClassDeclaration(tree.location, tree.name, superClass, elements); 
-    }, 
-    transformClassExpression: function(tree) { 
-      var superClass = this.transformAny(tree.superClass); 
-      var elements = this.transformList(tree.elements); 
-      if(superClass == tree.superClass && elements == tree.elements) return tree; 
-      return new ClassExpression(tree.location, tree.name, superClass, elements); 
-    }, 
-    transformCommaExpression: function(tree) { 
-      var expressions = this.transformList(tree.expressions); 
-      if(expressions == tree.expressions) { 
-        return tree; 
-      } 
-      return new CommaExpression(tree.location, expressions); 
-    }, 
-    transformComprehensionFor: function(tree) { 
-      var left = this.transformAny(tree.left); 
-      var iterator = this.transformAny(tree.iterator); 
-      if(left === tree.left && iterator === tree.iterator) return tree; 
-      return new ComprehensionFor(tree.location, left, iterator); 
-    }, 
-    transformConditionalExpression: function(tree) { 
-      var condition = this.transformAny(tree.condition); 
-      var left = this.transformAny(tree.left); 
-      var right = this.transformAny(tree.right); 
-      if(condition == tree.condition && left == tree.left && right == tree.right) { 
-        return tree; 
-      } 
-      return new ConditionalExpression(tree.location, condition, left, right); 
-    }, 
-    transformContinueStatement: function(tree) { 
-      return tree; 
-    }, 
-    transformDebuggerStatement: function(tree) { 
-      return tree; 
-    }, 
-    transformDefaultClause: function(tree) { 
-      var statements = this.transformList(tree.statements); 
-      if(statements == tree.statements) { 
-        return tree; 
-      } 
-      return new DefaultClause(tree.location, statements); 
-    }, 
-    transformDoWhileStatement: function(tree) { 
-      var body = this.transformAny(tree.body); 
-      var condition = this.transformAny(tree.condition); 
-      if(body == tree.body && condition == tree.condition) { 
-        return tree; 
-      } 
-      return new DoWhileStatement(tree.location, body, condition); 
-    }, 
-    transformEmptyStatement: function(tree) { 
-      return tree; 
-    }, 
-    transformExportDeclaration: function(tree) { 
-      var declaration = this.transformAny(tree.declaration); 
-      if(tree.declaration == declaration) { 
-        return tree; 
-      } 
-      return new ExportDeclaration(tree.location, declaration); 
-    }, 
-    transformExportMappingList: function(tree) { 
-      var paths = this.transformList(tree.paths); 
-      if(paths == tree.paths) { 
-        return tree; 
-      } 
-      return new ExportMappingList(tree.location, paths); 
-    }, 
-    transformExportMapping: function(tree) { 
-      var moduleExpression = this.transformAny(tree.moduleExpression); 
-      var specifierSet = this.transformAny(tree.specifierSet); 
-      if(moduleExpression == tree.moduleExpression && specifierSet == tree.specifierSet) { 
-        return tree; 
-      } 
-      return new ExportMapping(tree.location, moduleExpression, specifierSet); 
-    }, 
-    transformExportSpecifier: function(tree) { 
-      return tree; 
-    }, 
-    transformExportSpecifierSet: function(tree) { 
-      var specifiers = this.transformList(tree.specifiers); 
-      if(specifiers == tree.specifiers) { 
-        return tree; 
-      } 
-      return new ExportSpecifierSet(tree.location, specifiers); 
-    }, 
-    transformExpressionStatement: function(tree) { 
-      var expression = this.transformAny(tree.expression); 
-      if(expression == tree.expression) { 
-        return tree; 
-      } 
-      return new ExpressionStatement(tree.location, expression); 
-    }, 
-    transformFinally: function(tree) { 
-      var block = this.transformAny(tree.block); 
-      if(block == tree.block) { 
-        return tree; 
-      } 
-      return new Finally(tree.location, block); 
-    }, 
-    transformForOfStatement: function(tree) { 
-      var initializer = this.transformAny(tree.initializer); 
-      var collection = this.transformAny(tree.collection); 
-      var body = this.transformAny(tree.body); 
-      if(initializer == tree.initializer && collection == tree.collection && body == tree.body) { 
-        return tree; 
-      } 
-      return new ForOfStatement(tree.location, initializer, collection, body); 
-    }, 
-    transformForInStatement: function(tree) { 
-      var initializer = this.transformAny(tree.initializer); 
-      var collection = this.transformAny(tree.collection); 
-      var body = this.transformAny(tree.body); 
-      if(initializer == tree.initializer && collection == tree.collection && body == tree.body) { 
-        return tree; 
-      } 
-      return new ForInStatement(tree.location, initializer, collection, body); 
-    }, 
-    transformForStatement: function(tree) { 
-      var initializer = this.transformAny(tree.initializer); 
-      var condition = this.transformAny(tree.condition); 
-      var increment = this.transformAny(tree.increment); 
-      var body = this.transformAny(tree.body); 
-      if(initializer == tree.initializer && condition == tree.condition && increment == tree.increment && body == tree.body) { 
-        return tree; 
-      } 
-      return new ForStatement(tree.location, initializer, condition, increment, body); 
-    }, 
-    transformFormalParameterList: function(tree) { 
-      var parameters = this.transformList(tree.parameters); 
-      if(parameters == tree.parameters) return tree; 
-      return new FormalParameterList(tree.location, parameters); 
-    }, 
-    transformFunctionDeclaration: function(tree) { 
-      var formalParameterList = this.transformAny(tree.formalParameterList); 
-      var functionBody = this.transformFunctionBody(tree.functionBody); 
-      if(formalParameterList == tree.formalParameterList && functionBody == tree.functionBody) { 
-        return tree; 
-      } 
-      return new FunctionDeclaration(tree.location, tree.name, tree.isGenerator, formalParameterList, functionBody); 
-    }, 
-    transformFunctionBody: function(tree) { 
-      return this.transformAny(tree); 
-    }, 
-    transformGeneratorComprehension: function(tree) { 
-      var expression = this.transformAny(tree.expression); 
-      var comprehensionForList = this.transformList(tree.comprehensionForList); 
-      var ifExpression = this.transformAny(tree.ifExpression); 
-      if(expression === tree.expression && comprehensionForList === tree.comprehensionForList && ifExpression === tree.ifExpression) { 
-        return tree; 
-      } 
-      return new GeneratorComprehension(tree.location, expression, comprehensionForList, ifExpression); 
-    }, 
-    transformGetAccessor: function(tree) { 
-      var body = this.transformFunctionBody(tree.body); 
-      if(body == tree.body) return tree; 
-      return new GetAccessor(tree.location, tree.propertyName, body); 
-    }, 
-    transformIdentifierExpression: function(tree) { 
-      return tree; 
-    }, 
-    transformIfStatement: function(tree) { 
-      var condition = this.transformAny(tree.condition); 
-      var ifClause = this.transformAny(tree.ifClause); 
-      var elseClause = this.transformAny(tree.elseClause); 
-      if(condition == tree.condition && ifClause == tree.ifClause && elseClause == tree.elseClause) { 
-        return tree; 
-      } 
-      return new IfStatement(tree.location, condition, ifClause, elseClause); 
-    }, 
-    transformImportDeclaration: function(tree) { 
-      var importPathList = this.transformList(tree.importPathList); 
-      if(importPathList == tree.importPathList) { 
-        return tree; 
-      } 
-      return new ImportDeclaration(tree.location, importPathList); 
-    }, 
-    transformImportBinding: function(tree) { 
-      var moduleExpression = this.transformAny(tree.moduleExpression); 
-      var importSpecifierSet = this.transformList(tree.importSpecifierSet); 
-      if(moduleExpression == tree.moduleExpression && importSpecifierSet == tree.importSpecifierSet) { 
-        return tree; 
-      } 
-      return new ImportBinding(tree.location, moduleExpression, importSpecifierSet); 
-    }, 
-    transformImportSpecifier: function(tree) { 
-      return tree; 
-    }, 
-    transformLabelledStatement: function(tree) { 
-      var statement = this.transformAny(tree.statement); 
-      if(statement == tree.statement) { 
-        return tree; 
-      } 
-      return new LabelledStatement(tree.location, tree.name, statement); 
-    }, 
-    transformLiteralExpression: function(tree) { 
-      return tree; 
-    }, 
-    transformMemberExpression: function(tree) { 
-      var operand = this.transformAny(tree.operand); 
-      if(operand == tree.operand) { 
-        return tree; 
-      } 
-      return new MemberExpression(tree.location, operand, tree.memberName); 
-    }, 
-    transformMemberLookupExpression: function(tree) { 
-      var operand = this.transformAny(tree.operand); 
-      var memberExpression = this.transformAny(tree.memberExpression); 
-      if(operand == tree.operand && memberExpression == tree.memberExpression) { 
-        return tree; 
-      } 
-      return new MemberLookupExpression(tree.location, operand, memberExpression); 
-    }, 
-    transformMissingPrimaryExpression: function(tree) { 
-      throw new Error('Should never transform trees that had errors during parse'); 
-    }, 
-    transformModuleDeclaration: function(tree) { 
-      var specifiers = this.transformList(tree.specifiers); 
-      if(specifiers == tree.specifiers) { 
-        return tree; 
-      } 
-      return new ModuleDeclaration(tree.location, specifiers); 
-    }, 
-    transformModuleDefinition: function(tree) { 
-      var elements = this.transformList(tree.elements); 
-      if(elements == tree.elements) { 
-        return tree; 
-      } 
-      return new ModuleDefinition(tree.location, tree.name, elements); 
-    }, 
-    transformModuleExpression: function(tree) { 
-      var reference = this.transformAny(tree.reference); 
-      if(reference == tree.reference) { 
-        return tree; 
-      } 
-      return new ModuleExpression(tree.location, reference, tree.identifiers); 
-    }, 
-    transformModuleRequire: function(tree) { 
-      return tree; 
-    }, 
-    transformModuleSpecifier: function(tree) { 
-      var expression = this.transformAny(tree.expression); 
-      if(expression == tree.expression) { 
-        return tree; 
-      } 
-      return new ModuleSpecifier(tree.location, tree.identifier, expression); 
-    }, 
-    transformNameStatement: function(tree) { 
-      var declarations = this.transformList(tree.declarations); 
-      if(declarations === tree.declarations) return tree; 
-      return new NameStatement(tree.location, declarations); 
-    }, 
-    transformNewExpression: function(tree) { 
-      var operand = this.transformAny(tree.operand); 
-      var args = this.transformAny(tree.args); 
-      if(operand == tree.operand && args == tree.args) { 
-        return tree; 
-      } 
-      return new NewExpression(tree.location, operand, args); 
-    }, 
-    transformNullTree: function(tree) { 
-      return tree; 
-    }, 
-    transformObjectLiteralExpression: function(tree) { 
-      var propertyNameAndValues = this.transformList(tree.propertyNameAndValues); 
-      if(propertyNameAndValues == tree.propertyNameAndValues) { 
-        return tree; 
-      } 
-      return new ObjectLiteralExpression(tree.location, propertyNameAndValues); 
-    }, 
-    transformObjectPattern: function(tree) { 
-      var fields = this.transformList(tree.fields); 
-      if(fields == tree.fields) { 
-        return tree; 
-      } 
-      return new ObjectPattern(tree.location, fields); 
-    }, 
-    transformObjectPatternField: function(tree) { 
-      var element = this.transformAny(tree.element); 
-      if(element == tree.element) { 
-        return tree; 
-      } 
-      return new ObjectPatternField(tree.location, tree.identifier, element); 
-    }, 
-    transformParenExpression: function(tree) { 
-      var expression = this.transformAny(tree.expression); 
-      if(expression == tree.expression) { 
-        return tree; 
-      } 
-      return new ParenExpression(tree.location, expression); 
-    }, 
-    transformPostfixExpression: function(tree) { 
-      var operand = this.transformAny(tree.operand); 
-      if(operand == tree.operand) { 
-        return tree; 
-      } 
-      return new PostfixExpression(tree.location, operand, tree.operator); 
-    }, 
-    transformProgram: function(tree) { 
-      var elements = this.transformList(tree.programElements); 
-      if(elements == tree.programElements) { 
-        return tree; 
-      } 
-      return new Program(tree.location, elements); 
-    }, 
-    transformPropertyMethodAssignment: function(tree) { 
-      var parameters = this.transformAny(tree.formalParameterList); 
-      var functionBody = this.transformFunctionBody(tree.functionBody); 
-      if(parameters == tree.formalParameterList && functionBody == tree.functionBody) { 
-        return tree; 
-      } 
-      return new PropertyMethodAssignment(tree.location, tree.name, tree.isGenerator, parameters, functionBody); 
-    }, 
-    transformPropertyNameAssignment: function(tree) { 
-      var value = this.transformAny(tree.value); 
-      if(value == tree.value) { 
-        return tree; 
-      } 
-      return new PropertyNameAssignment(tree.location, tree.name, value); 
-    }, 
-    transformPropertyNameShorthand: function(tree) { 
-      return tree; 
-    }, 
-    transformQuasiLiteralExpression: function(tree) { 
-      var operand = this.transformAny(tree.operand); 
-      var elements = this.transformList(tree.elements); 
-      if(operand === tree.operand && elements == tree.elements) return tree; 
-      return new QuasiLiteralExpression(tree.location, operand, elements); 
-    }, 
-    transformQuasiLiteralPortion: function(tree) { 
-      return tree; 
-    }, 
-    transformQuasiSubstitution: function(tree) { 
-      var expression = this.transformAny(tree.expression); 
-      if(expression == tree.expression) { 
-        return tree; 
-      } 
-      return new QuasiSubstitution(tree.location, expression); 
-    }, 
-    transformRequiresMember: function(tree) { 
-      return tree; 
-    }, 
-    transformRestParameter: function(tree) { 
-      return tree; 
-    }, 
-    transformReturnStatement: function(tree) { 
-      var expression = this.transformAny(tree.expression); 
-      if(expression == tree.expression) { 
-        return tree; 
-      } 
-      return new ReturnStatement(tree.location, expression); 
-    }, 
-    transformSetAccessor: function(tree) { 
-      var parameter = this.transformAny(tree.parameter); 
-      var body = this.transformFunctionBody(tree.body); 
-      if(parameter === tree.parameter && body === tree.body) return tree; 
-      return new SetAccessor(tree.location, tree.propertyName, parameter, body); 
-    }, 
-    transformSpreadExpression: function(tree) { 
-      var expression = this.transformAny(tree.expression); 
-      if(expression == tree.expression) { 
-        return tree; 
-      } 
-      return new SpreadExpression(tree.location, expression); 
-    }, 
-    transformSpreadPatternElement: function(tree) { 
-      var lvalue = this.transformAny(tree.lvalue); 
-      if(lvalue == tree.lvalue) { 
-        return tree; 
-      } 
-      return new SpreadPatternElement(tree.location, lvalue); 
-    }, 
-    transformStateMachine: function(tree) { 
-      throw new Error(); 
-    }, 
-    transformSuperExpression: function(tree) { 
-      return tree; 
-    }, 
-    transformSwitchStatement: function(tree) { 
-      var expression = this.transformAny(tree.expression); 
-      var caseClauses = this.transformList(tree.caseClauses); 
-      if(expression == tree.expression && caseClauses == tree.caseClauses) { 
-        return tree; 
-      } 
-      return new SwitchStatement(tree.location, expression, caseClauses); 
-    }, 
-    transformThisExpression: function(tree) { 
-      return tree; 
-    }, 
-    transformThrowStatement: function(tree) { 
-      var value = this.transformAny(tree.value); 
-      if(value == tree.value) { 
-        return tree; 
-      } 
-      return new ThrowStatement(tree.location, value); 
-    }, 
-    transformTryStatement: function(tree) { 
-      var body = this.transformAny(tree.body); 
-      var catchBlock = this.transformAny(tree.catchBlock); 
-      var finallyBlock = this.transformAny(tree.finallyBlock); 
-      if(body == tree.body && catchBlock == tree.catchBlock && finallyBlock == tree.finallyBlock) { 
-        return tree; 
-      } 
-      return new TryStatement(tree.location, body, catchBlock, finallyBlock); 
-    }, 
-    transformUnaryExpression: function(tree) { 
-      var operand = this.transformAny(tree.operand); 
-      if(operand == tree.operand) { 
-        return tree; 
-      } 
-      return new UnaryExpression(tree.location, tree.operator, operand); 
-    }, 
-    transformVariableDeclaration: function(tree) { 
-      var lvalue = this.transformAny(tree.lvalue); 
-      var initializer = this.transformAny(tree.initializer); 
-      if(lvalue == tree.lvalue && initializer == tree.initializer) { 
-        return tree; 
-      } 
-      return new VariableDeclaration(tree.location, lvalue, initializer); 
-    }, 
-    transformVariableDeclarationList: function(tree) { 
-      var declarations = this.transformList(tree.declarations); 
-      if(declarations == tree.declarations) { 
-        return tree; 
-      } 
-      return new VariableDeclarationList(tree.location, tree.declarationType, declarations); 
-    }, 
-    transformVariableStatement: function(tree) { 
-      var declarations = this.transformAny(tree.declarations); 
-      if(declarations == tree.declarations) { 
-        return tree; 
-      } 
-      return new VariableStatement(tree.location, declarations); 
-    }, 
-    transformWhileStatement: function(tree) { 
-      var condition = this.transformAny(tree.condition); 
-      var body = this.transformAny(tree.body); 
-      if(condition == tree.condition && body == tree.body) { 
-        return tree; 
-      } 
-      return new WhileStatement(tree.location, condition, body); 
-    }, 
-    transformWithStatement: function(tree) { 
-      var expression = this.transformAny(tree.expression); 
-      var body = this.transformAny(tree.body); 
-      if(expression == tree.expression && body == tree.body) { 
-        return tree; 
-      } 
-      return new WithStatement(tree.location, expression, body); 
-    }, 
-    transformYieldStatement: function(tree) { 
-      var expression = this.transformAny(tree.expression); 
-      var isYieldFor = tree.isYieldFor; 
-      if(expression == tree.expression) { 
-        return tree; 
-      } 
-      return new YieldStatement(tree.location, expression, isYieldFor); 
-    } 
-  }; 
-  return { ParseTreeTransformer: ParseTreeTransformer }; 
-}); 
-traceur.define('codegeneration', function() { 
-  'use strict'; 
   var ParseTreeVisitor = traceur.syntax.ParseTreeVisitor; 
   function FindVisitor(tree, keepOnGoing) { 
     this.found_ = false; 
@@ -8600,39 +8696,29 @@ traceur.define('codegeneration', function() {
 }); 
 traceur.define('codegeneration', function() { 
   'use strict'; 
-  var createArgumentList = traceur.codegeneration.ParseTreeFactory.createArgumentList; 
-  var createArrayLiteralExpression = traceur.codegeneration.ParseTreeFactory.createArrayLiteralExpression; 
-  var createBlock = traceur.codegeneration.ParseTreeFactory.createBlock; 
-  var createBooleanLiteral = traceur.codegeneration.ParseTreeFactory.createBooleanLiteral; 
-  var createCallExpression = traceur.codegeneration.ParseTreeFactory.createCallExpression; 
-  var createFunctionExpression = traceur.codegeneration.ParseTreeFactory.createFunctionExpression; 
-  var createMemberExpression = traceur.codegeneration.ParseTreeFactory.createMemberExpression; 
-  var createMemberLookupExpression = traceur.codegeneration.ParseTreeFactory.createMemberLookupExpression; 
-  var createNullLiteral = traceur.codegeneration.ParseTreeFactory.createNullLiteral; 
-  var createParameterList = traceur.codegeneration.ParseTreeFactory.createParameterList; 
-  var createParameterReference = traceur.codegeneration.ParseTreeFactory.createParameterReference; 
-  var createParenExpression = traceur.codegeneration.ParseTreeFactory.createParenExpression; 
-  var createReturnStatement = traceur.codegeneration.ParseTreeFactory.createReturnStatement; 
   var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer; 
-  var APPLY = traceur.syntax.PredefinedName.APPLY; 
-  var ARRAY = traceur.syntax.PredefinedName.ARRAY; 
-  var CALL = traceur.syntax.PredefinedName.CALL; 
-  var RUNTIME = traceur.syntax.PredefinedName.RUNTIME; 
-  var SLICE = traceur.syntax.PredefinedName.SLICE; 
-  var SPREAD = traceur.syntax.PredefinedName.SPREAD; 
-  var SPREAD_NEW = traceur.syntax.PredefinedName.SPREAD_NEW; 
-  var TRACEUR = traceur.syntax.PredefinedName.TRACEUR; 
   var ParseTreeType = traceur.syntax.trees.ParseTreeType; 
+  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory; 
+  var createArgumentList = ParseTreeFactory.createArgumentList; 
+  var createArrayLiteralExpression = ParseTreeFactory.createArrayLiteralExpression; 
+  var createBlock = ParseTreeFactory.createBlock; 
+  var createBooleanLiteral = ParseTreeFactory.createBooleanLiteral; 
+  var createCallExpression = ParseTreeFactory.createCallExpression; 
+  var createFunctionExpression = ParseTreeFactory.createFunctionExpression; 
+  var createMemberExpression = ParseTreeFactory.createMemberExpression; 
+  var createMemberLookupExpression = ParseTreeFactory.createMemberLookupExpression; 
+  var createNullLiteral = ParseTreeFactory.createNullLiteral; 
+  var createParameterList = ParseTreeFactory.createParameterList; 
+  var createParameterReference = ParseTreeFactory.createParameterReference; 
+  var createParenExpression = ParseTreeFactory.createParenExpression; 
+  var createReturnStatement = ParseTreeFactory.createReturnStatement; 
+  var APPLY = traceur.syntax.PredefinedName.APPLY; 
+  var SPREAD_CODE = "\n      function(items) {\n        var retval = [];\n        var k = 0;\n        for (var i = 0; i < items.length; i += 2) {\n          var value = items[i + 1];\n          // spread\n          if (items[i]) {\n            value = %toObject(value);\n            for (var j = 0; j < value.length; j++) {\n              retval[k++] = value[j];\n            }\n          } else {\n            retval[k++] = value;\n          }\n        }\n        return retval;\n      }"; 
+  var SPREAD_NEW_CODE = "\n      function(ctor, items) {\n        var args = %spread(items);\n        args.unshift(null);\n        return new (Function.prototype.bind.apply(ctor, args));\n      }"; 
   function hasSpreadMember(trees) { 
     return trees.some((function(tree) { 
       return tree.type == ParseTreeType.SPREAD_EXPRESSION; 
     })); 
-  } 
-  function getExpandFunction() { 
-    return createMemberExpression(TRACEUR, RUNTIME, SPREAD); 
-  } 
-  function desugarArraySpread(tree) { 
-    return createExpandCall(tree.elements); 
   } 
   function createInterleavedArgumentsArray(elements) { 
     var args =[]; 
@@ -8647,71 +8733,72 @@ traceur.define('codegeneration', function() {
     })); 
     return createArrayLiteralExpression(args); 
   } 
-  function createExpandCall(elements) { 
-    var args = createInterleavedArgumentsArray(elements); 
-    return createCallExpression(getExpandFunction(), createArgumentList(args)); 
+  function SpreadTransformer(runtimeInliner) { 
+    ParseTreeTransformer.call(this); 
+    this.runtimeInliner_ = runtimeInliner; 
   } 
-  function desugarCallSpread(tree) { 
-    if(tree.operand.type == ParseTreeType.MEMBER_EXPRESSION) { 
-      var expression = tree.operand; 
-      return desugarSpreadMethodCall(tree, expression.operand, createMemberExpression(createParameterReference(0), expression.memberName)); 
-    } else if(tree.operand.type == ParseTreeType.MEMBER_LOOKUP_EXPRESSION) { 
-      var lookupExpression = tree.operand; 
-      return desugarSpreadMethodCall(tree, lookupExpression.operand, createMemberLookupExpression(createParameterReference(0), lookupExpression.memberExpression)); 
-    } 
-    return createCallExpression(createMemberExpression(tree.operand, APPLY), createArgumentList(createNullLiteral(), createExpandCall(tree.args.args))); 
-  } 
-  function desugarSpreadMethodCall(tree, operand, memberLookup) { 
-    var body = createBlock(createReturnStatement(createCallExpression(createMemberExpression(memberLookup, APPLY), createArgumentList(createParameterReference(0), createParameterReference(1))))); 
-    var func = createParenExpression(createFunctionExpression(createParameterList(2), body)); 
-    return createCallExpression(func, createArgumentList(operand, createExpandCall(tree.args.args))); 
-  } 
-  function desugarNewSpread(tree) { 
-    return createCallExpression(createMemberExpression(TRACEUR, RUNTIME, SPREAD_NEW), createArgumentList(tree.operand, createInterleavedArgumentsArray(tree.args.args))); 
-  } 
-  function SpreadTransformer() { } 
-  SpreadTransformer.transformTree = function(tree) { 
-    return new SpreadTransformer().transformAny(tree); 
+  SpreadTransformer.transformTree = function(runtimeInliner, tree) { 
+    return new SpreadTransformer(runtimeInliner).transformAny(tree); 
   }; 
   SpreadTransformer.prototype = traceur.createObject(ParseTreeTransformer.prototype, { 
+    createExpandCall_: function(elements) { 
+      if(elements.length === 1) { 
+        return createCallExpression(this.toObject_, createArgumentList(elements[0].expression)); 
+      } 
+      var args = createInterleavedArgumentsArray(elements); 
+      return createCallExpression(this.spread_, createArgumentList(args)); 
+    }, 
+    get spread_() { 
+      return this.runtimeInliner_.get('spread', SPREAD_CODE); 
+    }, 
+    get spreadNew_() { 
+      this.runtimeInliner_.register('spread', SPREAD_CODE); 
+      return this.runtimeInliner_.get('spreadNew', SPREAD_NEW_CODE); 
+    }, 
+    get toObject_() { 
+      return this.runtimeInliner_.get('toObject'); 
+    }, 
+    desugarArraySpread_: function(tree) { 
+      return this.createExpandCall_(tree.elements); 
+    }, 
+    desugarCallSpread_: function(tree) { 
+      if(tree.operand.type == ParseTreeType.MEMBER_EXPRESSION) { 
+        var expression = tree.operand; 
+        return this.desugarSpreadMethodCall_(tree, expression.operand, createMemberExpression(createParameterReference(0), expression.memberName)); 
+      } else if(tree.operand.type == ParseTreeType.MEMBER_LOOKUP_EXPRESSION) { 
+        var lookupExpression = tree.operand; 
+        return this.desugarSpreadMethodCall_(tree, lookupExpression.operand, createMemberLookupExpression(createParameterReference(0), lookupExpression.memberExpression)); 
+      } 
+      return createCallExpression(createMemberExpression(tree.operand, APPLY), createArgumentList(createNullLiteral(), this.createExpandCall_(tree.args.args))); 
+    }, 
+    desugarSpreadMethodCall_: function(tree, operand, memberLookup) { 
+      var body = createBlock(createReturnStatement(createCallExpression(createMemberExpression(memberLookup, APPLY), createArgumentList(createParameterReference(0), createParameterReference(1))))); 
+      var func = createParenExpression(createFunctionExpression(createParameterList(2), body)); 
+      return createCallExpression(func, createArgumentList(operand, this.createExpandCall_(tree.args.args))); 
+    }, 
+    desugarNewSpread_: function(tree) { 
+      return createCallExpression(this.spreadNew_, createArgumentList(tree.operand, createInterleavedArgumentsArray(tree.args.args))); 
+    }, 
     transformArrayLiteralExpression: function(tree) { 
       if(hasSpreadMember(tree.elements)) { 
-        return desugarArraySpread(tree); 
+        return this.desugarArraySpread_(tree); 
       } 
       return ParseTreeTransformer.prototype.transformArrayLiteralExpression.call(this, tree); 
     }, 
     transformCallExpression: function(tree) { 
       if(hasSpreadMember(tree.args.args)) { 
-        return desugarCallSpread(tree); 
+        return this.desugarCallSpread_(tree); 
       } 
       return ParseTreeTransformer.prototype.transformCallExpression.call(this, tree); 
     }, 
     transformNewExpression: function(tree) { 
       if(tree.args != null && hasSpreadMember(tree.args.args)) { 
-        return desugarNewSpread(tree); 
+        return this.desugarNewSpread_(tree); 
       } 
       return ParseTreeTransformer.prototype.transformNewExpression.call(this, tree); 
     } 
   }); 
   return { SpreadTransformer: SpreadTransformer }; 
-}); 
-traceur.define('codegeneration', function() { 
-  'use strict'; 
-  function UniqueIdentifierGenerator() { 
-    this.identifierIndex = 0; 
-    this.nameMap_ = Object.create(null); 
-  } 
-  UniqueIdentifierGenerator.prototype = { 
-    generateUniqueIdentifier: function() { 
-      return '$__' + this.identifierIndex ++; 
-    }, 
-    getUniqueIdentifier: function(name) { 
-      var newName = this.nameMap_[name]; 
-      if(! newName) return this.nameMap_[name]= this.generateUniqueIdentifier(); 
-      return newName; 
-    } 
-  }; 
-  return { UniqueIdentifierGenerator: UniqueIdentifierGenerator }; 
 }); 
 traceur.define('codegeneration', function() { 
   'use strict'; 
@@ -12150,13 +12237,11 @@ traceur.define('codegeneration', function() {
   var QuasiLiteralTransformer = traceur.codegeneration.QuasiLiteralTransformer; 
   var RestParameterTransformer = traceur.codegeneration.RestParameterTransformer; 
   var SpreadTransformer = traceur.codegeneration.SpreadTransformer; 
-  var UniqueIdentifierGenerator = traceur.codegeneration.UniqueIdentifierGenerator; 
   var options = traceur.options.transform; 
   function ProgramTransformer(reporter, project) { 
     this.project_ = project; 
     this.reporter_ = reporter; 
     this.results_ = new ObjectMap(); 
-    this.identifierGenerator_ = new UniqueIdentifierGenerator(); 
   } 
   ProgramTransformer.transform = function(reporter, project) { 
     var transformer = new ProgramTransformer(reporter, project); 
@@ -12191,7 +12276,8 @@ traceur.define('codegeneration', function() {
       return this.transformTree_(tree); 
     }, 
     transformTree_: function(tree, opt_module) { 
-      var identifierGenerator = this.identifierGenerator_; 
+      var identifierGenerator = this.project_.identifierGenerator; 
+      var runtimeInliner = this.project_.runtimeInliner; 
       var reporter = this.reporter_; 
       function chain(enabled, transformer, var_args) { 
         if(! enabled) return; 
@@ -12225,7 +12311,8 @@ traceur.define('codegeneration', function() {
       chain(options.privateNames && options.privateNameSyntax, AtNameMemberTransformer.transformTree, identifierGenerator); 
       chain(options.privateNames && options.privateNameSyntax, PrivateNameSyntaxTransformer.transformTree, identifierGenerator); 
       chain(options.destructuring, DestructuringTransformer.transformTree, identifierGenerator); 
-      chain(options.spread, SpreadTransformer.transformTree); 
+      chain(options.spread, SpreadTransformer.transformTree, runtimeInliner); 
+      chain(true, runtimeInliner.transformAny.bind(runtimeInliner)); 
       chain(options.blockBinding, BlockBindingTransformer.transformTree); 
       chain(options.cascadeExpression, CascadeExpressionTransformer.transformTree, identifierGenerator, reporter); 
       chain(options.collections || options.privateNames, CollectionTransformer.transformTree, identifierGenerator); 
@@ -12247,11 +12334,9 @@ traceur.define('outputgeneration', function() {
   var TreeWriter = traceur.outputgeneration.TreeWriter; 
   function ProjectWriter() { } 
   ProjectWriter.write = function(results, opt_options) { 
-    var sb =[]; 
-    results.keys().forEach((function(file) { 
-      sb.push('// ' + file.name, TreeWriter.write(results.get(file), opt_options)); 
-    })); 
-    return sb.join('\n') + '\n'; 
+    return results.keys().map(function(file) { 
+      return TreeWriter.write(results.get(file), opt_options); 
+    }).join(''); 
   }; 
   return { ProjectWriter: ProjectWriter }; 
 }); 
@@ -12805,30 +12890,6 @@ traceur.runtime =(function(global) {
     } 
     throw new TypeError("Object has no setter '" + name + "'."); 
   } 
-  var pushItem = Array.prototype.push.call.bind(Array.prototype.push); 
-  var pushArray = Array.prototype.push.apply.bind(Array.prototype.push); 
-  var slice = Array.prototype.slice.call.bind(Array.prototype.slice); 
-  var filter = Array.prototype.filter.call.bind(Array.prototype.filter); 
-  function spread(items) { 
-    var retval =[]; 
-    for(var i = 0; i < items.length; i += 2) { 
-      if(items[i]) { 
-        if(items[i + 1]== null) continue; 
-        if(typeof items[i + 1]!= 'object') throw TypeError('Spread expression has wrong type'); 
-        pushArray(retval, slice(items[i + 1])); 
-      } else { 
-        pushItem(retval, items[i + 1]); 
-      } 
-    } 
-    return retval; 
-  } 
-  function spreadNew(ctor, items) { 
-    var args = spread(items); 
-    args.unshift(null); 
-    var retval = new(bind.apply(ctor, args)); 
-    return retval && typeof retval == 'object' ? retval: object; 
-  } 
-  ; 
   function markMethods(object, names) { 
     names.forEach((function(name) { 
       $defineProperty(object, name, { enumerable: false }); 
@@ -12878,6 +12939,7 @@ traceur.runtime =(function(global) {
     elementSet: elementSetName, 
     elementDelete: elementDeleteName 
   }); 
+  var filter = Array.prototype.filter.call.bind(Array.prototype.filter); 
   function getOwnPropertyNames(object) { 
     return filter($getOwnPropertyNames(object), function(str) { 
       return ! nameRe.test(str); 
@@ -13104,8 +13166,6 @@ traceur.runtime =(function(global) {
     markMethods: markMethods, 
     modules: modules, 
     setProperty: setProperty, 
-    spread: spread, 
-    spreadNew: spreadNew, 
     superCall: superCall, 
     superGet: superGet, 
     superSet: superSet 

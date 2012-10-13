@@ -159,44 +159,6 @@ traceur.runtime = (function(global) {
     throw new TypeError("Object has no setter '" + name + "'.");
   }
 
-  var pushItem = Array.prototype.push.call.bind(Array.prototype.push);
-  var pushArray = Array.prototype.push.apply.bind(Array.prototype.push);
-  var slice = Array.prototype.slice.call.bind(Array.prototype.slice);
-  var filter = Array.prototype.filter.call.bind(Array.prototype.filter);
-
-  /**
-   * Spreads the elements in {@code items} into a single array.
-   * @param {Array} items Array of interleaving booleans and values.
-   * @return {Array}
-   */
-  function spread(items) {
-    var retval = [];
-    for (var i = 0; i < items.length; i += 2) {
-      if (items[i]) {
-        if (items[i + 1] == null)
-          continue;
-        if (typeof items[i + 1] != 'object')
-          throw TypeError('Spread expression has wrong type');
-        pushArray(retval, slice(items[i + 1]));
-      } else {
-        pushItem(retval, items[i + 1]);
-      }
-    }
-    return retval;
-  }
-
-  /**
-   * @param {Function} ctor
-   * @param {Array} items Array of interleaving booleans and values.
-   * @return {Object}
-   */
-  function spreadNew(ctor, items) {
-    var args = spread(items);
-    args.unshift(null);
-    var retval = new (bind.apply(ctor, args));
-    return retval && typeof retval == 'object' ? retval : object;
-  };
-
   /**
    * Marks properties as non enumerable.
    * @param {Object} object
@@ -279,6 +241,8 @@ traceur.runtime = (function(global) {
     elementSet: elementSetName,
     elementDelete: elementDeleteName
   });
+
+  var filter = Array.prototype.filter.call.bind(Array.prototype.filter);
 
   // Override getOwnPropertyNames to filter out private name keys.
   function getOwnPropertyNames(object) {
@@ -595,8 +559,6 @@ traceur.runtime = (function(global) {
     markMethods: markMethods,
     modules: modules,
     setProperty: setProperty,
-    spread: spread,
-    spreadNew: spreadNew,
     superCall: superCall,
     superGet: superGet,
     superSet: superSet,

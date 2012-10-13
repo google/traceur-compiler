@@ -15,10 +15,12 @@
 traceur.define('semantics.symbols', function() {
   'use strict';
 
+  var ArrayMap = traceur.util.ArrayMap;
   var ExportSymbol = traceur.semantics.symbols.ExportSymbol;
   var ModuleSymbol = traceur.semantics.symbols.ModuleSymbol;
   var ObjectMap = traceur.util.ObjectMap;
-  var ArrayMap = traceur.util.ArrayMap;
+  var RuntimeInliner = traceur.codegeneration.RuntimeInliner;
+  var UniqueIdentifierGenerator = traceur.codegeneration.UniqueIdentifierGenerator;
 
   var resolveUrl = traceur.util.resolveUrl;
 
@@ -61,6 +63,9 @@ traceur.define('semantics.symbols', function() {
    * @constructor
    */
   function Project(url) {
+    this.identifierGenerator = new UniqueIdentifierGenerator();
+    this.runtimeInliner = new RuntimeInliner(this.identifierGenerator);
+
     this.sourceFiles_ = Object.create(null);
     this.parseTrees_ = new ObjectMap();
     this.rootModule_ = new ModuleSymbol(null, null, null, url);

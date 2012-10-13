@@ -28,12 +28,9 @@ traceur.define('outputgeneration', function() {
    * @return {string}
    */
   ProjectWriter.write = function(results, opt_options) {
-    var sb = [];
-    results.keys().forEach((file) => {
-      sb.push('// ' + file.name,
-              TreeWriter.write(results.get(file), opt_options));
-    });
-    return sb.join('\n') + '\n';
+    return results.keys().map(function(file) {
+      return TreeWriter.write(results.get(file), opt_options);
+    }).join('');
   };
 
   return {
