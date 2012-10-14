@@ -1,5 +1,4 @@
 
-this.traceurImportScript = function() { }; 
 (function(global, factory) { 
   if(typeof exports === 'object') { 
     module.exports = factory(); 
@@ -5698,39 +5697,6 @@ traceur.define('syntax', function() {
   }; 
   return { ParseTreeVisitor: ParseTreeVisitor }; 
 }); 
-traceur.define('util', function() { 
-  'use strict'; 
-  function StringBuilder() { 
-    this.strings_ =[]; 
-    this.length = 0; 
-  } 
-  StringBuilder.prototype = { 
-    append: function(str) { 
-      str = str.toString(); 
-      this.length += str.length; 
-      this.strings_.push(str); 
-      return this; 
-    }, 
-    toString: function() { 
-      return this.strings_.join(''); 
-    }, 
-    lastChar: function() { 
-      var last = this.strings_[this.strings_.length - 1]; 
-      if(last) { 
-        last = last[last.length - 1]; 
-      } 
-      return last; 
-    }, 
-    deleteLastChar: function() { 
-      var lastString = this.strings_.length - 1; 
-      var last = this.strings_[lastString]; 
-      if(last) { 
-        this.strings_[lastString]= last.substring(0, last.length - 1); 
-      } 
-    } 
-  }; 
-  return { StringBuilder: StringBuilder }; 
-}); 
 traceur.define('semantics', function() { 
   'use strict'; 
   var IdentifierToken = traceur.syntax.IdentifierToken; 
@@ -6848,13 +6814,53 @@ traceur.define('semantics.symbols', function() {
   }; 
   return { Project: Project }; 
 }); 
+var $src_util_StringBuilder_js =(function() { 
+  "use strict"; 
+  Object.defineProperty(this, "StringBuilder", { 
+    get: function() { 
+      return StringBuilder; 
+    }, 
+    enumerable: true 
+  }); 
+  Object.freeze(this); 
+  function StringBuilder() { 
+    this.strings_ =[]; 
+    this.length = 0; 
+  } 
+  StringBuilder.prototype = { 
+    append: function(str) { 
+      str = str.toString(); 
+      this.length += str.length; 
+      this.strings_.push(str); 
+      return this; 
+    }, 
+    toString: function() { 
+      return this.strings_.join(''); 
+    }, 
+    lastChar: function() { 
+      var last = this.strings_[this.strings_.length - 1]; 
+      if(last) { 
+        last = last[last.length - 1]; 
+      } 
+      return last; 
+    }, 
+    deleteLastChar: function() { 
+      var lastString = this.strings_.length - 1; 
+      var last = this.strings_[lastString]; 
+      if(last) { 
+        this.strings_[lastString]= last.substring(0, last.length - 1); 
+      } 
+    } 
+  }; 
+  return this; 
+}).call(Object.create(null)); 
+var destructuring$StringBuilder = $src_util_StringBuilder_js, StringBuilder = destructuring$StringBuilder.StringBuilder; 
 traceur.define('outputgeneration', function() { 
   'use strict'; 
   var ParseTreeVisitor = traceur.syntax.ParseTreeVisitor; 
   var PredefinedName = traceur.syntax.PredefinedName; 
   var Keywords = traceur.syntax.Keywords; 
   var TokenType = traceur.syntax.TokenType; 
-  var StringBuilder = traceur.util.StringBuilder; 
   function ParseTreeWriter(highlighted, showLineNumbers) { 
     ParseTreeVisitor.call(this); 
     this.highlighted_ = highlighted; 

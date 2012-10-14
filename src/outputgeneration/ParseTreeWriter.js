@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import StringBuilder from '../util/StringBuilder.js';
+
 traceur.define('outputgeneration', function() {
   'use strict';
 
@@ -19,7 +21,6 @@ traceur.define('outputgeneration', function() {
   var PredefinedName = traceur.syntax.PredefinedName;
   var Keywords = traceur.syntax.Keywords;
   var TokenType = traceur.syntax.TokenType;
-  var StringBuilder = traceur.util.StringBuilder;
 
   /**
    * Converts a ParseTree to text.
@@ -61,7 +62,7 @@ traceur.define('outputgeneration', function() {
       if (!tree) {
         return;
       }
-        
+
       // set background color to red if tree is highlighted
       if (tree === this.highlighted_) {
         this.write_('\x1B[41m');
@@ -73,9 +74,9 @@ traceur.define('outputgeneration', function() {
           var column = tree.location.start.column;
         this.currentLineComment_ = 'Line: ' + line + '.' + column;
       }
-      
+
       this.currentLocation = tree.location;
-      
+
       ParseTreeVisitor.prototype.visitAny.call(this, tree);
 
       // set background color to normal
@@ -263,7 +264,7 @@ traceur.define('outputgeneration', function() {
 
     visitClassShared_: function(tree) {
       this.write_(TokenType.CLASS);
-      if (tree.name) 
+      if (tree.name)
         this.write_(tree.name);
       if (tree.superClass !== null) {
         this.write_(TokenType.EXTENDS);
@@ -1041,8 +1042,8 @@ traceur.define('outputgeneration', function() {
         this.visitAny(element);
       }
     },
-    
-    // TODO(jjb) not called 
+
+    // TODO(jjb) not called
     writeTokenList_: function(list, delimiter, writeNewLine) {
       var first = true;
       for (var i = 0; i < list.length; i++) {
@@ -1121,9 +1122,9 @@ traceur.define('outputgeneration', function() {
         this.indentDepth_++;
       }
     }
-    
+
   });
-  
+
   return {
     ParseTreeWriter: ParseTreeWriter
   };

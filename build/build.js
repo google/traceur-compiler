@@ -52,7 +52,6 @@ var includes = [
   'codegeneration/ParseTreeFactory.js',
   'syntax/Parser.js',
   'syntax/ParseTreeVisitor.js',
-  'util/StringBuilder.js',
   'semantics/VariableBinder.js',
   'semantics/symbols/SymbolType.js',
   'semantics/symbols/Symbol.js',
@@ -128,17 +127,13 @@ var includes = [
   'runtime/modules.js'
 ];
 
-
 var fs = require('fs');
 var path = require('path');
 
 require('../src/traceur-node.js');
 
-var Compiler = traceur.codegeneration.Compiler;
 var ErrorReporter = traceur.util.ErrorReporter;
-var Program = traceur.syntax.trees.Program;
 var Project = traceur.semantics.symbols.Project;
-var SourceFile = traceur.syntax.SourceFile
 var TreeWriter = traceur.outputgeneration.TreeWriter;
 
 function existsSync(p) {
@@ -163,45 +158,28 @@ function mkdirRecursive(dir) {
 
 traceur.options.reset(true);
 traceur.options.arrowFunctions = true;
+traceur.options.modules = true;
+traceur.options.destructuring = true;
 traceur.options.quasi = true;
 
 var srcDir = path.join(path.dirname(process.argv[1]), '..', 'src');
 
-// Accomulate all programElements into this array.
-var elements = [];
-
 var reporter = new ErrorReporter();
 var project = new Project(srcDir);
 
-var dummyImportScript = 'this.traceurImportScript = function() {};';
-project.addFile(new SourceFile('@dummy', dummyImportScript));
+var inlineAndCompile = require('./inline-module.js').inlineAndCompile;
 
-// traceur.includes.unshift('traceur.js');
-
-includes.forEach(function(filename) {
-  var data = fs.readFileSync(path.join(srcDir, filename), 'utf8');
-  if (!data) {
-    console.error('Failed to read ' + filename);
-    process.exit(1);
-  }
-  var sourceFile = new SourceFile(filename, data);
-  project.addFile(sourceFile);
+var resolvedIncludes = includes.map(function(include) {
+  return path.join(srcDir, include);
 });
 
-var results = Compiler.compile(reporter, project);
-if (reporter.hadError()) {
-  console.error('Compilation failed.');
+inlineAndCompile(resolvedIncludes, project, reporter, function(tree) {
+  var contents = TreeWriter.write(tree);
+  var outputfile = process.argv[2];
+  mkdirRecursive(path.dirname(outputfile));
+  fs.writeFileSync(outputfile, contents, 'utf8');
   process.exit(1);
-}
-
-results.keys().forEach(function(file) {
-  var tree = results.get(file);
-  elements.push.apply(elements, tree.programElements);
+}, function(err) {
+  console.error(err);
+  process.exit(0);
 });
-
-var programTree = new Program(null, elements);
-var contents = TreeWriter.write(programTree);
-var outputfile = process.argv[2];
-mkdirRecursive(path.dirname(outputfile));
-
-fs.writeFileSync(outputfile, contents, 'utf8');

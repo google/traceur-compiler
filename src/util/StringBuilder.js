@@ -12,52 +12,44 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('util', function() {
-  'use strict';
+/**
+ * Builds strings by appending them.
+ * @constructor
+ */
+export function StringBuilder() {
+  this.strings_ = [];
+  this.length = 0;
+}
 
-  /**
-   * Builds strings by appending them.
-   * @constructor
-   */
-  function StringBuilder() {
-    this.strings_ = [];
-    this.length = 0;
-  }
+StringBuilder.prototype = {
+  append: function(str) {
+    str = str.toString();
+    this.length += str.length;
+    this.strings_.push(str);
+    return this;
+  },
 
-  StringBuilder.prototype = {
-    append: function(str) {
-      str = str.toString();
-      this.length += str.length;
-      this.strings_.push(str);
-      return this;
-    },
+  toString: function() {
+    return this.strings_.join('');
+  },
 
-    toString: function() {
-      return this.strings_.join('');
-    },
+  // Instead of supporting charAt and deleteCharAt, implement lastChar and
+  // deleteLastChar. These can be implemented in constant time with no
+  // additional data structures
 
-    // Instead of supporting charAt and deleteCharAt, implement lastChar and
-    // deleteLastChar. These can be implemented in constant time with no
-    // additional data structures
-
-    lastChar: function() {
-      var last = this.strings_[this.strings_.length - 1];
-      if (last) {
-        last = last[last.length - 1];
-      }
-      return last;
-    },
-
-    deleteLastChar: function() {
-      var lastString = this.strings_.length - 1;
-      var last = this.strings_[lastString];
-      if (last) {
-        this.strings_[lastString] = last.substring(0, last.length - 1);
-      }
+  lastChar: function() {
+    var last = this.strings_[this.strings_.length - 1];
+    if (last) {
+      last = last[last.length - 1];
     }
-  };
+    return last;
+  },
 
-  return {
-    StringBuilder: StringBuilder
-  };
-});
+  deleteLastChar: function() {
+    var lastString = this.strings_.length - 1;
+    var last = this.strings_[lastString];
+    if (last) {
+      this.strings_[lastString] = last.substring(0, last.length - 1);
+    }
+  }
+};
