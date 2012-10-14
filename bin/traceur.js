@@ -958,34 +958,35 @@ traceur.define('util', function() {
     return(uri.match(splitRe)); 
   } 
   function removeDotSegments(path) { 
-    if(path == '..' || path == '.') { 
-      return ''; 
-    } else if(path.indexOf('./') == - 1 && path.indexOf('/.') == - 1) { 
-      return path; 
-    } else { 
-      var leadingSlash = path[0]== '/'; 
-      var segments = path.split('/'); 
-      var out =[]; 
-      for(var pos = 0; pos < segments.length;) { 
-        var segment = segments[pos ++]; 
-        if(segment == '.') { 
-          if(leadingSlash && pos == segments.length) { 
-            out.push(''); 
-          } 
-        } else if(segment == '..') { 
-          if(out.length > 1 || out.length == 1 && out[0]!= '') { 
-            out.pop(); 
-          } 
-          if(leadingSlash && pos == segments.length) { 
-            out.push(''); 
-          } 
-        } else { 
+    if(path === '/') return '/'; 
+    var leadingSlash = path[0]=== '/' ? '/': ''; 
+    var trailingSlash = path.slice(- 1) === '/' ? '/': ''; 
+    var segments = path.split('/'); 
+    var out =[]; 
+    var up = 0; 
+    for(var pos = 0; pos < segments.length; pos ++) { 
+      var segment = segments[pos]; 
+      switch(segment) { 
+        case '': 
+        case '.': 
+          break; 
+
+        case '..': 
+          if(out.length) out.pop(); else up ++; 
+          break; 
+
+        default: 
           out.push(segment); 
-          leadingSlash = true; 
-        } 
+
       } 
-      return out.join('/'); 
     } 
+    if(! leadingSlash) { 
+      while(up -- > 0) { 
+        out.unshift('..'); 
+      } 
+      if(out.length === 0) out.push('.'); 
+    } 
+    return leadingSlash + out.join('/') + trailingSlash; 
   } 
   function joinAndCanonicalizePath(parts) { 
     var path = parts[ComponentIndex.PATH]; 
@@ -1022,6 +1023,7 @@ traceur.define('util', function() {
   } 
   return { 
     canonicalizeUrl: canonicalizeUrl, 
+    removeDotSegments: removeDotSegments, 
     resolveUrl: resolveUrl 
   }; 
 }); 

@@ -204,41 +204,42 @@ traceur.define('util', function() {
    * @return {string} Path component with removed dot segments.
    */
   function removeDotSegments(path) {
-    if (path == '..' || path == '.') {
-      return '';
+    if (path === '/')
+      return '/';
 
-    } else if (path.indexOf('./') == -1 && path.indexOf('/.') == -1) {
-      // This optimization detects uris which do not contain dot-segments,
-      // and as a consequence do not require any processing.
-      return path;
+    var leadingSlash = path[0] === '/' ? '/' : '';
+    var trailingSlash = path.slice(-1) === '/' ? '/' : '';
+    var segments = path.split('/');
 
-    } else {
-      var leadingSlash = path[0] == '/';
-      var segments = path.split('/');
-      var out = [];
-
-      for (var pos = 0; pos < segments.length; ) {
-        var segment = segments[pos++];
-
-        if (segment == '.') {
-          if (leadingSlash && pos == segments.length) {
-            out.push('');
-          }
-        } else if (segment == '..') {
-          if (out.length > 1 || out.length == 1 && out[0] != '') {
+    var out = [];
+    var up = 0;
+    for (var pos = 0; pos < segments.length; pos++) {
+      var segment = segments[pos];
+      switch (segment) {
+        case '':
+        case '.':
+          break;
+        case '..':
+          if (out.length)
             out.pop();
-          }
-          if (leadingSlash && pos == segments.length) {
-            out.push('');
-          }
-        } else {
+          else
+            up++;
+          break;
+        default:
           out.push(segment);
-          leadingSlash = true;
-        }
+      }
+    }
+
+    if (!leadingSlash) {
+      while (up-- > 0) {
+        out.unshift('..');
       }
 
-      return out.join('/');
+      if (out.length === 0)
+        out.push('.');
     }
+
+    return leadingSlash + out.join('/') + trailingSlash;
   }
 
   /**
@@ -312,6 +313,7 @@ traceur.define('util', function() {
 
   return {
     canonicalizeUrl: canonicalizeUrl,
+    removeDotSegments:removeDotSegments,
     resolveUrl: resolveUrl
   };
 });
