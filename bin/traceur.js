@@ -2212,6 +2212,7 @@ traceur.define('syntax', function() {
     OBJECT_NAME: 'Object', 
     OF: 'of', 
     PARAM: '$param', 
+    PREVENT_EXTENSIONS: 'preventExtensions', 
     PROTO: '__proto__', 
     PROTOTYPE: 'prototype', 
     PUSH: 'push', 
@@ -2987,6 +2988,14 @@ traceur.define('codegeneration', function() {
   function createObjectFreeze(value) { 
     return createCallExpression(createMemberExpression(PredefinedName.OBJECT, PredefinedName.FREEZE), createArgumentList(value)); 
   } 
+  function createObjectPreventExtensions(value) { 
+    return createCallExpression(createMemberExpression(PredefinedName.OBJECT, PredefinedName.PREVENT_EXTENSIONS), createArgumentList(value)); 
+  } 
+  function createObjectCreate(protoExpression, descriptors) { 
+    var argumentList =[protoExpression]; 
+    if(descriptors) argumentList.push(descriptors); 
+    return createCallExpression(createMemberExpression(PredefinedName.OBJECT, PredefinedName.CREATE), createArgumentList(argumentList)); 
+  } 
   function createPropertyDescriptor(descr) { 
     var propertyNameAndValues = Object.keys(descr).map(function(name) { 
       var value = descr[name]; 
@@ -3156,10 +3165,12 @@ traceur.define('codegeneration', function() {
       createNullLiteralToken: createNullLiteralToken, 
       createNumberLiteral: createNumberLiteral, 
       createNumberLiteralToken: createNumberLiteralToken, 
+      createObjectCreate: createObjectCreate, 
       createObjectFreeze: createObjectFreeze, 
       createObjectLiteralExpression: createObjectLiteralExpression, 
       createObjectPattern: createObjectPattern, 
       createObjectPatternField: createObjectPatternField, 
+      createObjectPreventExtensions: createObjectPreventExtensions, 
       createOperatorToken: createOperatorToken, 
       createParameterList: createParameterList, 
       createParameterListWithRestParams: createParameterListWithRestParams, 
@@ -6816,13 +6827,6 @@ traceur.define('semantics.symbols', function() {
 }); 
 var $src_util_StringBuilder_js =(function() { 
   "use strict"; 
-  Object.defineProperty(this, "StringBuilder", { 
-    get: function() { 
-      return StringBuilder; 
-    }, 
-    enumerable: true 
-  }); 
-  Object.freeze(this); 
   function StringBuilder() { 
     this.strings_ =[]; 
     this.length = 0; 
@@ -6852,8 +6856,13 @@ var $src_util_StringBuilder_js =(function() {
       } 
     } 
   }; 
-  return this; 
-}).call(Object.create(null)); 
+  return Object.preventExtensions(Object.create(null, { StringBuilder: { 
+      get: function() { 
+        return StringBuilder; 
+      }, 
+      enumerable: true 
+    } })); 
+}).call(this); 
 var destructuring$StringBuilder = $src_util_StringBuilder_js, StringBuilder = destructuring$StringBuilder.StringBuilder; 
 traceur.define('outputgeneration', function() { 
   'use strict'; 
@@ -8881,27 +8890,21 @@ traceur.define('codegeneration', function() {
   var createArgumentList = ParseTreeFactory.createArgumentList; 
   var createBindingIdentifier = ParseTreeFactory.createBindingIdentifier; 
   var createBlock = ParseTreeFactory.createBlock; 
-  var createCallCall = ParseTreeFactory.createCallCall; 
   var createCallExpression = ParseTreeFactory.createCallExpression; 
   var createEmptyParameterList = ParseTreeFactory.createEmptyParameterList; 
   var createExpressionStatement = ParseTreeFactory.createExpressionStatement; 
   var createFunctionExpression = ParseTreeFactory.createFunctionExpression; 
-  var createGetAccessor = ParseTreeFactory.createGetAccessor; 
   var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression; 
-  var createIdentifierToken = ParseTreeFactory.createIdentifierToken; 
   var createMemberExpression = ParseTreeFactory.createMemberExpression; 
   var createNullLiteral = ParseTreeFactory.createNullLiteral; 
-  var createObjectFreeze = ParseTreeFactory.createObjectFreeze; 
+  var createObjectCreate = ParseTreeFactory.createObjectCreate; 
   var createObjectLiteralExpression = ParseTreeFactory.createObjectLiteralExpression; 
-  var createParameterList = ParseTreeFactory.createParameterList; 
-  var createParenExpression = ParseTreeFactory.createParenExpression; 
+  var createObjectPreventExtensions = ParseTreeFactory.createObjectPreventExtensions; 
   var createProgram = ParseTreeFactory.createProgram; 
+  var createPropertyDescriptor = ParseTreeFactory.createPropertyDescriptor; 
   var createPropertyNameAssignment = ParseTreeFactory.createPropertyNameAssignment; 
   var createReturnStatement = ParseTreeFactory.createReturnStatement; 
   var createScopedExpression = ParseTreeFactory.createScopedExpression; 
-  var createStringLiteral = ParseTreeFactory.createStringLiteral; 
-  var createThisExpression = ParseTreeFactory.createThisExpression; 
-  var createTrueLiteral = ParseTreeFactory.createTrueLiteral; 
   var createUseStrictDirective = ParseTreeFactory.createUseStrictDirective; 
   var createVariableDeclaration = ParseTreeFactory.createVariableDeclaration; 
   var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList; 
@@ -8932,8 +8935,11 @@ traceur.define('codegeneration', function() {
 
     } 
     var fun = createFunctionExpression(createEmptyParameterList(), createBlock(createReturnStatement(returnExpression))); 
-    var objectLiteral = createObjectLiteralExpression(createPropertyNameAssignment(PredefinedName.GET, fun), createPropertyNameAssignment(PredefinedName.ENUMERABLE, createTrueLiteral())); 
-    return createExpressionStatement(createCallExpression(createMemberExpression(PredefinedName.OBJECT, PredefinedName.DEFINE_PROPERTY), createArgumentList(createThisExpression(), createStringLiteral(name), objectLiteral))); 
+    var descriptor = createPropertyDescriptor({ 
+      get: fun, 
+      enumerable: true 
+    }); 
+    return createPropertyNameAssignment(name, descriptor); 
   } 
   function transformSpecifier(project, identifierToken, moduleExpression) { 
     if(moduleExpression) { 
@@ -9022,10 +9028,6 @@ traceur.define('codegeneration', function() {
   function transformModuleElements(project, module, elements) { 
     var statements =[]; 
     statements.push(createUseStrictDirective()); 
-    module.getExports().forEach((function(exp) { 
-      statements.push(getGetterExport(project, exp)); 
-    })); 
-    statements.push(createExpressionStatement(createObjectFreeze(createThisExpression()))); 
     elements.forEach((function(element) { 
       switch(element.type) { 
         case MODULE_DECLARATION: 
@@ -9072,9 +9074,12 @@ traceur.define('codegeneration', function() {
 
       } 
     })); 
-    statements.push(createReturnStatement(createThisExpression())); 
-    var thisObject = createCallExpression(createMemberExpression(PredefinedName.OBJECT, PredefinedName.CREATE), createArgumentList(createNullLiteral())); 
-    return createCallCall(createParenExpression(createFunctionExpression(createEmptyParameterList(), createBlock(statements))), thisObject); 
+    var properties = module.getExports().map((function(exp) { 
+      return getGetterExport(project, exp); 
+    })); 
+    var descriptors = createObjectLiteralExpression(properties); 
+    statements.push(createReturnStatement(createObjectPreventExtensions(createObjectCreate(createNullLiteral(), descriptors)))); 
+    return createScopedExpression(createBlock(statements)); 
   } 
   function transformDefinition(project, parent, tree) { 
     var module = parent.getModule(tree.name.value); 
@@ -10325,6 +10330,7 @@ traceur.define('codegeneration', function() {
   var createFunctionExpression = ParseTreeFactory.createFunctionExpression; 
   var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression; 
   var createMemberExpression = ParseTreeFactory.createMemberExpression; 
+  var createObjectCreate = ParseTreeFactory.createObjectCreate; 
   var createObjectLiteralExpression = ParseTreeFactory.createObjectLiteralExpression; 
   var createParenExpression = ParseTreeFactory.createParenExpression; 
   var createPropertyDescriptor = ParseTreeFactory.createPropertyDescriptor; 
@@ -10433,11 +10439,7 @@ traceur.define('codegeneration', function() {
           }).bind(this)); 
           var protoExpression = this.transformAny(finder.protoExpression); 
           var objectExpression; 
-          if(protoExpression) { 
-            objectExpression = createCallExpression(createMemberExpression(PredefinedName.OBJECT, PredefinedName.CREATE), createArgumentList(protoExpression)); 
-          } else { 
-            objectExpression = createObjectLiteralExpression([]); 
-          } 
+          if(protoExpression) objectExpression = createObjectCreate(protoExpression); else objectExpression = createObjectLiteralExpression([]); 
           expressions.unshift(createAssignmentExpression(tempVarIdentifierExpression, objectExpression)); 
           expressions.push(tempVarIdentifierExpression); 
           return createParenExpression(createCommaExpression(expressions)); 

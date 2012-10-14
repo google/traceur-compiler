@@ -78,6 +78,7 @@ traceur.define('syntax', function() {
     OBJECT_NAME: 'Object',
     OF: 'of',
     PARAM: '$param',
+    PREVENT_EXTENSIONS: 'preventExtensions',
     PROTO: '__proto__',
     PROTOTYPE: 'prototype',
     PUSH: 'push',

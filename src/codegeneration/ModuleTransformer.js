@@ -43,27 +43,21 @@ traceur.define('codegeneration', function() {
   var createArgumentList = ParseTreeFactory.createArgumentList;
   var createBindingIdentifier = ParseTreeFactory.createBindingIdentifier;
   var createBlock = ParseTreeFactory.createBlock;
-  var createCallCall = ParseTreeFactory.createCallCall;
   var createCallExpression = ParseTreeFactory.createCallExpression;
   var createEmptyParameterList = ParseTreeFactory.createEmptyParameterList;
   var createExpressionStatement = ParseTreeFactory.createExpressionStatement;
   var createFunctionExpression = ParseTreeFactory.createFunctionExpression;
-  var createGetAccessor = ParseTreeFactory.createGetAccessor;
   var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
-  var createIdentifierToken = ParseTreeFactory.createIdentifierToken;
   var createMemberExpression = ParseTreeFactory.createMemberExpression;
   var createNullLiteral = ParseTreeFactory.createNullLiteral;
-  var createObjectFreeze = ParseTreeFactory.createObjectFreeze;
+  var createObjectCreate = ParseTreeFactory.createObjectCreate;
   var createObjectLiteralExpression = ParseTreeFactory.createObjectLiteralExpression;
-  var createParameterList = ParseTreeFactory.createParameterList;
-  var createParenExpression = ParseTreeFactory.createParenExpression;
+  var createObjectPreventExtensions = ParseTreeFactory.createObjectPreventExtensions;
   var createProgram = ParseTreeFactory.createProgram;
+  var createPropertyDescriptor = ParseTreeFactory.createPropertyDescriptor;
   var createPropertyNameAssignment = ParseTreeFactory.createPropertyNameAssignment;
   var createReturnStatement = ParseTreeFactory.createReturnStatement;
   var createScopedExpression = ParseTreeFactory.createScopedExpression;
-  var createStringLiteral = ParseTreeFactory.createStringLiteral;
-  var createThisExpression = ParseTreeFactory.createThisExpression;
-  var createTrueLiteral = ParseTreeFactory.createTrueLiteral;
   var createUseStrictDirective = ParseTreeFactory.createUseStrictDirective;
   var createVariableDeclaration = ParseTreeFactory.createVariableDeclaration;
   var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList;
@@ -80,10 +74,7 @@ traceur.define('codegeneration', function() {
    * @return {ParseTree}
    */
   function getGetterExport(project, symbol) {
-    // Object.defineProperty(this, 'NAME', {
-    //   get: function() { return <returnExpression>; },
-    //   enumerable: true
-    // });
+    // NAME: {get: function() { return <returnExpression> },
     var name = symbol.name;
     var tree = symbol.tree;
     var returnExpression;
@@ -110,20 +101,13 @@ traceur.define('codegeneration', function() {
         createEmptyParameterList(),
         createBlock(
             createReturnStatement(returnExpression)));
-    // { get: ... }
-    var objectLiteral = createObjectLiteralExpression(
-        createPropertyNameAssignment(PredefinedName.GET, fun),
-        createPropertyNameAssignment(PredefinedName.ENUMERABLE,
-        createTrueLiteral()));
 
-    return createExpressionStatement(
-        createCallExpression(
-            createMemberExpression(PredefinedName.OBJECT,
-                PredefinedName.DEFINE_PROPERTY),
-            createArgumentList(
-                createThisExpression(),
-                createStringLiteral(name),
-                objectLiteral)));
+    // NAME: { get: ... }
+    var descriptor = createPropertyDescriptor({
+      get: fun,
+      enumerable: true
+    });
+    return createPropertyNameAssignment(name, descriptor);
   }
 
   /**
@@ -285,16 +269,6 @@ traceur.define('codegeneration', function() {
     // use strict
     statements.push(createUseStrictDirective());
 
-    // Add exports
-    module.getExports().forEach((exp) => {
-      // Object.defineProperty(this, 'export_name', ...)
-      statements.push(getGetterExport(project, exp));
-    });
-
-    // Object.freeze(this)
-    statements.push(
-        createExpressionStatement(createObjectFreeze(createThisExpression())));
-
     // Add original body statements
     elements.forEach((element) => {
       switch (element.type) {
@@ -338,32 +312,40 @@ traceur.define('codegeneration', function() {
       }
     });
 
-    // return this
-    statements.push(createReturnStatement(createThisExpression()));
+    // Add exports
+    var properties = module.getExports().map((exp) => {
+      // export_name: {get: function() { return export_name },
+      return getGetterExport(project, exp);
+    });
+    var descriptors = createObjectLiteralExpression(properties);
 
-    // Object.create(null)
-    var thisObject = createCallExpression(
-        createMemberExpression(PredefinedName.OBJECT,
-        PredefinedName.CREATE),
-        createArgumentList(createNullLiteral()));
+    // return Object.preventExtensions(Object.create(null, descriptors))
+    statements.push(
+        createReturnStatement(
+            createObjectPreventExtensions(
+                createObjectCreate(createNullLiteral(), descriptors))));
 
-    // const M = (function() { statements }).call(thisObject);
+    // const M = (function() { statements }).call(this);
     // TODO(arv): const is not allowed in ES5 strict
-    return createCallCall(
-        createParenExpression(
-            createFunctionExpression(createEmptyParameterList(),
-                                     createBlock(statements))),
-        thisObject);
+    return createScopedExpression(createBlock(statements));
   }
 
   /**
    * Transforms a module definition into a variable statement.
    *
-   *   module m { ... }
+   *   module m {
+   *     ...
+   *     export x ...
+   *   }
    *
    * becomes
    *
-   *   var m = (function() { ... })(...);
+   *   var m = (function() {
+   *      ...
+   *      return Object.freeze({
+   *        get x() { return x }
+   *      };
+   *   }).call(this);
    *
    * @param {Project} project
    * @param {ModuleSymbol} parent

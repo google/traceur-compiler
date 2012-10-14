@@ -810,6 +810,34 @@ traceur.define('codegeneration', function() {
   }
 
   /**
+   * @param {ParseTree} value
+   * @return {ParseTree}
+   */
+  function createObjectPreventExtensions(value) {
+    // Object.preventExtensions(value)
+    return createCallExpression(
+        createMemberExpression(PredefinedName.OBJECT,
+                               PredefinedName.PREVENT_EXTENSIONS),
+        createArgumentList(value));
+  }
+
+  /**
+   * @param {ParseTree} protoExpression
+   * @param {ObjectLiteralExpression=} descriptors
+   * @return {ParseTree}
+   */
+  function createObjectCreate(protoExpression, descriptors) {
+    var argumentList = [protoExpression];
+    if (descriptors)
+      argumentList.push(descriptors);
+
+    return createCallExpression(
+        createMemberExpression(PredefinedName.OBJECT,
+                               PredefinedName.CREATE),
+        createArgumentList(argumentList));
+  }
+
+  /**
    * Creates an object literal tree representing a property descriptor.
    * @param {Object} descr This is a normal js object. The values in the descr
    *     may be true, false or a ParseTree.
@@ -1164,10 +1192,12 @@ traceur.define('codegeneration', function() {
       createNullLiteralToken: createNullLiteralToken,
       createNumberLiteral: createNumberLiteral,
       createNumberLiteralToken: createNumberLiteralToken,
+      createObjectCreate: createObjectCreate,
       createObjectFreeze: createObjectFreeze,
       createObjectLiteralExpression: createObjectLiteralExpression,
       createObjectPattern: createObjectPattern,
       createObjectPatternField: createObjectPatternField,
+      createObjectPreventExtensions: createObjectPreventExtensions,
       createOperatorToken: createOperatorToken,
       createParameterList: createParameterList,
       createParameterListWithRestParams: createParameterListWithRestParams,

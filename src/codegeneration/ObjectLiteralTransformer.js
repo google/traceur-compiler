@@ -37,6 +37,7 @@ traceur.define('codegeneration', function() {
   var createFunctionExpression = ParseTreeFactory.createFunctionExpression;
   var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
   var createMemberExpression = ParseTreeFactory.createMemberExpression;
+  var createObjectCreate = ParseTreeFactory.createObjectCreate;
   var createObjectLiteralExpression = ParseTreeFactory.createObjectLiteralExpression;
   var createParenExpression = ParseTreeFactory.createParenExpression;
   var createPropertyDescriptor = ParseTreeFactory.createPropertyDescriptor;
@@ -226,16 +227,10 @@ traceur.define('codegeneration', function() {
 
           var protoExpression = this.transformAny(finder.protoExpression);
           var objectExpression;
-          if (protoExpression) {
-            objectExpression =
-                createCallExpression(
-                  createMemberExpression(
-                      PredefinedName.OBJECT,
-                      PredefinedName.CREATE),
-                  createArgumentList(protoExpression));
-          } else {
+          if (protoExpression)
+            objectExpression = createObjectCreate(protoExpression);
+          else
             objectExpression = createObjectLiteralExpression([]);
-          }
 
           expressions.unshift(
               createAssignmentExpression(
