@@ -11,14 +11,6 @@ class A {
   }
 };
 
-var B = class C {
-  classRef() {
-    return C;
-  }
-}
-
-// ----------------------------------------------------------------------------
-
 var p = new Point(1, 2);
 assertEquals(1, p.x);
 assertEquals(2, p.y);
