@@ -5,6 +5,18 @@ class Point {
   }
 }
 
+class A {
+  classRef() {
+    return A;
+  }
+};
+
+var B = class C {
+  classRef() {
+    return C;
+  }
+}
+
 // ----------------------------------------------------------------------------
 
 var p = new Point(1, 2);
@@ -20,3 +32,8 @@ assertEquals(2, p.y);
 for (var element in Point) {
   fail('Point contains static member : ' + element);
 }
+
+// Tests to ensure that we're not binding function identifier per class
+var a = new A();
+A = 42;
+assertEquals(42, a.classRef());

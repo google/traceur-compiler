@@ -35,7 +35,7 @@ var createBlock = ParseTreeFactory.createBlock;
 var createBooleanLiteral = ParseTreeFactory.createBooleanLiteral;
 var createCallExpression = ParseTreeFactory.createCallExpression;
 var createExpressionStatement = ParseTreeFactory.createExpressionStatement;
-var createFunctionDeclaration = ParseTreeFactory.createFunctionDeclaration;
+var createFunctionExpression = ParseTreeFactory.createFunctionExpression;
 var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
 var createIdentifierToken = ParseTreeFactory.createIdentifierToken;
 var createMemberExpression = ParseTreeFactory.createMemberExpression;
@@ -228,9 +228,8 @@ ClassTransformer.prototype = createObject(proto, {
     var state = peekState();
     var parameters = this.transformAny(tree.formalParameterList);
     var functionBody = this.transformSuperInBlock_(tree, tree.functionBody);
-    var name = state.name.identifierToken;
 
-    var func = createFunctionDeclaration(name, parameters, functionBody);
+    var func = createFunctionExpression(parameters, functionBody);
     return createPropertyNameAssignment(PredefinedName.CONSTRUCTOR, func);
   },
 

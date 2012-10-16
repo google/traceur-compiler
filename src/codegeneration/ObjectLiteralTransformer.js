@@ -189,7 +189,7 @@ ObjectLiteralTransformer.prototype = createObject(base, {
   },
 
   transformObjectLiteralExpression: function(tree) {
-    // If the object literal needs to be transforme this cals the
+    // If the object literal needs to be transformed this calls the
     // transformation of the individual transformations of the property names
     // and values and then assembles the result of those into either a call
     // to Object.create or a temporary object that we call defineProperty/ies
