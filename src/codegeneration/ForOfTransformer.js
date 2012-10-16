@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,15 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration', function() {
-  'use strict';
-
-  var ParseTree = traceur.syntax.trees.ParseTree;
-  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
-  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var PredefinedName = traceur.syntax.PredefinedName;
-  var TokenType = traceur.syntax.TokenType;
+import ParseTreeFactory from 'ParseTreeFactory.js';
+import ParseTreeTransformer from 'ParseTreeTransformer.js';
+import ParseTreeType from '../syntax/trees/ParseTree.js';
+import PredefinedName from '../syntax/PredefinedName.js';
+import TokenType from '../syntax/TokenType.js';
+import createObject from '../util/util.js';
 
   var createArgumentList = ParseTreeFactory.createArgumentList;
   var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression;
@@ -41,7 +38,7 @@ traceur.define('codegeneration', function() {
    * @param {UniqueIdentifierGenerator} identifierGenerator
    * @constructor
    */
-  function ForOfTransformer(identifierGenerator) {
+  export function ForOfTransformer(identifierGenerator) {
     ParseTreeTransformer.call(this);
     this.identifierGenerator_ = identifierGenerator;
   }
@@ -54,7 +51,7 @@ traceur.define('codegeneration', function() {
     return new ForOfTransformer(identifierGenerator).transformAny(tree);
   };
 
-  ForOfTransformer.prototype = traceur.createObject(
+  ForOfTransformer.prototype = createObject(
       ParseTreeTransformer.prototype, {
 
     // for ( initializer of collection ) statement
@@ -118,8 +115,3 @@ traceur.define('codegeneration', function() {
           createTryStatement(createBlock(loop), null, createFinally(createBlock(finallyBody))));
     }
   });
-
-  return {
-    ForOfTransformer: ForOfTransformer
-  };
-});

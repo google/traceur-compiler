@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,11 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('syntax.trees', function() {
-  'use strict';
-
-  var ParseTree = traceur.syntax.trees.ParseTree;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
+  import ParseTreeType from 'ParseTree.js';
+  import ParseTree from 'ParseTree.js';
 
   var instance;
 
@@ -27,7 +24,7 @@ traceur.define('syntax.trees', function() {
    * @constructor
    * @extends {ParseTree}
    */
-  function NullTree() {
+  export function NullTree() {
     if (instance)
       return instance;
     ParseTree.call(this, ParseTreeType.NULL_TREE, null);
@@ -35,8 +32,3 @@ traceur.define('syntax.trees', function() {
   }
 
   NullTree.prototype = Object.create(ParseTree.prototype);
-
-  return {
-    NullTree: NullTree
-  };
-});

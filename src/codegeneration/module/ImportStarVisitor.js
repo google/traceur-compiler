@@ -12,12 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration.module', function() {
-  'use strict';
-
-  var ModuleVisitor = traceur.codegeneration.module.ModuleVisitor;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var TokenType = traceur.syntax.TokenType;
+import ModuleVisitor from 'ModuleVisitor.js';
+import ParseTreeType from '../../syntax/trees/ParseTree.js';
+import TokenType from '../../syntax/TokenType.js';
+import createObject from '../../util/util.js';
 
   /**
    * Finds all 'import * from moduleExpression' and associates the tree with
@@ -29,11 +27,11 @@ traceur.define('codegeneration.module', function() {
    * @constructor
    * @extends {ModuleVisitor}
    */
-  function ImportStarVisitor(reporter, project, module) {
+  export function ImportStarVisitor(reporter, project, module) {
     ModuleVisitor.call(this, reporter, project, module);
   }
 
-  ImportStarVisitor.prototype = traceur.createObject(
+  ImportStarVisitor.prototype = createObject(
       ModuleVisitor.prototype, {
 
     visitImportBinding: function(tree) {
@@ -48,8 +46,3 @@ traceur.define('codegeneration.module', function() {
       }
     }
   });
-
-  return {
-    ImportStarVisitor: ImportStarVisitor
-  };
-});

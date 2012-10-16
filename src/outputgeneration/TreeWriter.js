@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
@@ -12,13 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('outputgeneration', function() {
-  'use strict';
+  import ParseTreeWriter from 'ParseTreeWriter.js';
+  import ParseTreeMapWriter from 'ParseTreeMapWriter.js';
 
-  var ParseTreeWriter = traceur.outputgeneration.ParseTreeWriter;
-  var ParseTreeMapWriter = traceur.outputgeneration.ParseTreeMapWriter;
-
-  function TreeWriter() {}
+  export function TreeWriter() {}
 
   /*
    * Create a ParseTreeWriter configured with options, apply it to tree
@@ -59,8 +56,3 @@ traceur.define('outputgeneration', function() {
 
     return writer.result_.toString();
   };
-
-  return {
-    TreeWriter: TreeWriter
-  };
-});

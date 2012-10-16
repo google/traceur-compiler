@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,22 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('syntax', function() {
-  'use strict';
-
-  var TokenType = traceur.syntax.TokenType;
-  var assert = traceur.assert;
+import TokenType from 'TokenType.js';
 
   /**
    * A Token in a javascript file.
    * Immutable.
    * A plain old data structure. Should contain data members and simple
    * accessors only.
-   * @param {traceur.syntax.TokenType} type
-   * @param {traceur.util.SourceRange} location
+   * @param {TokenType} type
+   * @param {SourceRange} location
    * @constructor
    */
-  function Token(type, location) {
+  export function Token(type, location) {
     this.type = type;
     this.location = location;
   }
@@ -35,18 +31,6 @@ traceur.define('syntax', function() {
   Token.prototype = {
     toString: function() {
       return this.type.toString();
-    },
-
-    /** @return {traceur.syntax.IdentifierToken} */
-    asIdentifier: function() {
-      assert(this instanceof traceur.syntax.IdentifierToken);
-      return this;
-    },
-
-    /** @return {traceur.syntax.LiteralToken} */
-    asLiteral: function() {
-      assert(this instanceof traceur.syntax.LiteralToken);
-      return this;
     },
 
     /** @return {boolean} */
@@ -70,9 +54,3 @@ traceur.define('syntax', function() {
       }
     }
   };
-
-  // Export
-  return {
-    Token: Token
-  };
-});

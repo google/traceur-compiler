@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,21 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration', function() {
-  'use strict';
+import ParseTreeFactory from 'ParseTreeFactory.js';
+import ParseTreeTransformer from 'ParseTreeTransformer.js';
+import ParseTreeType from '../syntax/trees/ParseTree.js';
+import PredefinedName from '../syntax/PredefinedName.js';
+import TokenType from '../syntax/TokenType.js';
+import createObject from '../util/util.js';
+import trees from '../syntax/trees/ParseTrees.js';
 
-  var BindingElement = traceur.syntax.trees.BindingElement;
-  var BindingIdentifier = traceur.syntax.trees.BindingIdentifier;
-  var IdentifierExpression = traceur.syntax.trees.IdentifierExpression;
-  var LiteralExpression = traceur.syntax.trees.LiteralExpression;
-  var ObjectPattern = traceur.syntax.trees.ObjectPattern;
-  var ObjectPatternField = traceur.syntax.trees.ObjectPatternField;
-  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
-  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var PredefinedName = traceur.syntax.PredefinedName;
-  var Program = traceur.syntax.trees.Program;
-  var TokenType = traceur.syntax.TokenType;
+  var BindingElement = trees.BindingElement;
+  var BindingIdentifier = trees.BindingIdentifier;
+  var IdentifierExpression = trees.IdentifierExpression;
+  var LiteralExpression = trees.LiteralExpression;
+  var ObjectPattern = trees.ObjectPattern;
+  var ObjectPatternField = trees.ObjectPatternField;
+  var Program = trees.Program;
 
   var CLASS_DECLARATION = ParseTreeType.CLASS_DECLARATION;
   var EXPORT_DECLARATION = ParseTreeType.EXPORT_DECLARATION;
@@ -132,12 +132,12 @@ traceur.define('codegeneration', function() {
    * @constructor
    * @extends {ParseTreeTransformer}
    */
-  function ModuleTransformer(project) {
+  export function ModuleTransformer(project) {
     ParseTreeTransformer.call(this);
     this.project_ = project;
   }
 
-  ModuleTransformer.prototype = traceur.createObject(
+  ModuleTransformer.prototype = createObject(
       ParseTreeTransformer.prototype, {
 
     /**
@@ -383,8 +383,3 @@ traceur.define('codegeneration', function() {
 
     return createVariableStatement(variableDeclarationList);
   }
-
-  return {
-    ModuleTransformer: ModuleTransformer
-  };
-});

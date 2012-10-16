@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,12 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration.module', function() {
-  'use strict';
-
-  var ModuleVisitor = traceur.codegeneration.module.ModuleVisitor;
-
-  var ModuleSymbol = traceur.semantics.symbols.ModuleSymbol;
+import ModuleSymbol from '../../semantics/symbols/ModuleSymbol.js';
+import ModuleVisitor from 'ModuleVisitor.js';
+import createObject from '../../util/util.js';
 
   /**
    * Visits a parse tree and adds all the module definitions.
@@ -30,11 +27,11 @@ traceur.define('codegeneration.module', function() {
    * @constructor
    * @extends {ModuleVisitor}
    */
-  function ModuleDefinitionVisitor(reporter, project, module) {
+  export function ModuleDefinitionVisitor(reporter, project, module) {
     ModuleVisitor.call(this, reporter, project, module);
   }
 
-  ModuleDefinitionVisitor.prototype = traceur.createObject(
+  ModuleDefinitionVisitor.prototype = createObject(
       ModuleVisitor.prototype, {
 
     visitModuleDefinition: function(tree) {
@@ -48,8 +45,3 @@ traceur.define('codegeneration.module', function() {
       ModuleVisitor.prototype.visitModuleDefinition.call(this, tree);
     }
   });
-
-  return {
-    ModuleDefinitionVisitor: ModuleDefinitionVisitor
-  };
-});

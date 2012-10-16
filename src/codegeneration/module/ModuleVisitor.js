@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,15 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration.module', function() {
-  'use strict';
-
-  var ParseTree = traceur.syntax.trees.ParseTree;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var ParseTreeVisitor = traceur.syntax.ParseTreeVisitor;
-  var Symbol = traceur.semantics.symbols.Symbol;
-  var evaluateStringLiteral = traceur.util.evaluateStringLiteral;
-  var resolveUrl = traceur.util.resolveUrl;
+import ParseTree from '../../syntax/trees/ParseTree.js';
+import ParseTreeType from '../../syntax/trees/ParseTree.js';
+import ParseTreeVisitor from '../../syntax/ParseTreeVisitor.js';
+import Symbol from '../../semantics/symbols/Symbol.js';
+import createObject from '../../util/util.js';
+import evaluateStringLiteral from '../../util/util.js';
+import resolveUrl from '../../util/url.js';
 
   function getFriendlyName(module) {
     return module.name || module.url;
@@ -34,14 +32,14 @@ traceur.define('codegeneration.module', function() {
    * @constructor
    * @extends {ParseTreeVisitor}
    */
-  function ModuleVisitor(reporter, project, module) {
+  export function ModuleVisitor(reporter, project, module) {
     ParseTreeVisitor.call(this);
     this.reporter_ = reporter;
     this.project = project;
     this.currentModule_ = module;
   }
 
-  ModuleVisitor.prototype = traceur.createObject(ParseTreeVisitor.prototype, {
+  ModuleVisitor.prototype = createObject(ParseTreeVisitor.prototype, {
 
     get currentModule() {
       return this.currentModule_;
@@ -199,8 +197,3 @@ traceur.define('codegeneration.module', function() {
       }
     }
   });
-
-  return {
-    ModuleVisitor: ModuleVisitor
-  };
-});

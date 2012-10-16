@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,14 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('util', function() {
-  'use strict';
-
   /**
    * A simple O(1) object map. It requires that the key object have a
    * {@code uid} property.
    */
-  function ObjectMap() {
+  export function ObjectMap() {
     this.keys_ = Object.create(null);
     this.values_ = Object.create(null);
   }
@@ -54,8 +51,3 @@ traceur.define('util', function() {
       delete this.values_[uid];
     }
   };
-
-  return {
-    ObjectMap: ObjectMap
-  };
-});

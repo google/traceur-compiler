@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
@@ -12,85 +12,82 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration', function() {
-  'use strict';
+  import getTreeNameForType from '../syntax/trees/ParseTree.js';
+  import trees from '../syntax/trees/ParseTrees.js';
 
-  var ArgumentList = traceur.syntax.trees.ArgumentList;
-  var ArrayComprehension = traceur.syntax.trees.ArrayComprehension;
-  var ArrayLiteralExpression = traceur.syntax.trees.ArrayLiteralExpression;
-  var ArrayPattern = traceur.syntax.trees.ArrayPattern;
-  var ArrowFunctionExpression = traceur.syntax.trees.ArrowFunctionExpression;
-  var AtNameExpression = traceur.syntax.trees.AtNameExpression;
-  var AtNameDeclaration = traceur.syntax.trees.AtNameDeclaration;
-  var AwaitStatement = traceur.syntax.trees.AwaitStatement;
-  var BinaryOperator = traceur.syntax.trees.BinaryOperator;
-  var BindThisParameter = traceur.syntax.trees.BindThisParameter;
-  var BindingElement = traceur.syntax.trees.BindingElement;
-  var Block = traceur.syntax.trees.Block;
-  var CallExpression = traceur.syntax.trees.CallExpression;
-  var CascadeExpression = traceur.syntax.trees.CascadeExpression;
-  var CaseClause = traceur.syntax.trees.CaseClause;
-  var Catch = traceur.syntax.trees.Catch;
-  var ClassDeclaration = traceur.syntax.trees.ClassDeclaration;
-  var ClassExpression = traceur.syntax.trees.ClassExpression;
-  var CommaExpression = traceur.syntax.trees.CommaExpression;
-  var ComprehensionFor = traceur.syntax.trees.ComprehensionFor;
-  var ConditionalExpression = traceur.syntax.trees.ConditionalExpression;
-  var DefaultClause = traceur.syntax.trees.DefaultClause;
-  var DoWhileStatement = traceur.syntax.trees.DoWhileStatement;
-  var ExportDeclaration = traceur.syntax.trees.ExportDeclaration;
-  var ExportMapping = traceur.syntax.trees.ExportMapping;
-  var ExportMappingList = traceur.syntax.trees.ExportMappingList;
-  var ExportSpecifier = traceur.syntax.trees.ExportSpecifier;
-  var ExportSpecifierSet = traceur.syntax.trees.ExportSpecifierSet;
-  var ExpressionStatement = traceur.syntax.trees.ExpressionStatement;
-  var Finally = traceur.syntax.trees.Finally;
-  var ForInStatement = traceur.syntax.trees.ForInStatement;
-  var ForOfStatement = traceur.syntax.trees.ForOfStatement;
-  var ForStatement = traceur.syntax.trees.ForStatement;
-  var FormalParameterList = traceur.syntax.trees.FormalParameterList;
-  var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
-  var GeneratorComprehension = traceur.syntax.trees.GeneratorComprehension;
-  var GetAccessor = traceur.syntax.trees.GetAccessor;
-  var IfStatement = traceur.syntax.trees.IfStatement;
-  var ImportBinding = traceur.syntax.trees.ImportBinding;
-  var ImportDeclaration = traceur.syntax.trees.ImportDeclaration;
-  var LabelledStatement = traceur.syntax.trees.LabelledStatement;
-  var MemberExpression = traceur.syntax.trees.MemberExpression;
-  var MemberLookupExpression = traceur.syntax.trees.MemberLookupExpression;
-  var ModuleDeclaration = traceur.syntax.trees.ModuleDeclaration;
-  var ModuleDefinition = traceur.syntax.trees.ModuleDefinition;
-  var ModuleExpression = traceur.syntax.trees.ModuleExpression;
-  var ModuleSpecifier = traceur.syntax.trees.ModuleSpecifier;
-  var NameStatement = traceur.syntax.trees.NameStatement;
-  var NewExpression = traceur.syntax.trees.NewExpression;
-  var ObjectLiteralExpression = traceur.syntax.trees.ObjectLiteralExpression;
-  var ObjectPattern = traceur.syntax.trees.ObjectPattern;
-  var ObjectPatternField = traceur.syntax.trees.ObjectPatternField;
-  var ParenExpression = traceur.syntax.trees.ParenExpression;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var PostfixExpression = traceur.syntax.trees.PostfixExpression;
-  var Program = traceur.syntax.trees.Program;
-  var PropertyMethodAssignment = traceur.syntax.trees.PropertyMethodAssignment;
-  var PropertyNameAssignment = traceur.syntax.trees.PropertyNameAssignment;
-  var QuasiLiteralExpression = traceur.syntax.trees.QuasiLiteralExpression;
-  var QuasiSubstitution = traceur.syntax.trees.QuasiSubstitution;
-  var ReturnStatement = traceur.syntax.trees.ReturnStatement;
-  var SetAccessor = traceur.syntax.trees.SetAccessor;
-  var SpreadExpression = traceur.syntax.trees.SpreadExpression;
-  var SpreadPatternElement = traceur.syntax.trees.SpreadPatternElement;
-  var SwitchStatement = traceur.syntax.trees.SwitchStatement;
-  var ThrowStatement = traceur.syntax.trees.ThrowStatement;
-  var TryStatement = traceur.syntax.trees.TryStatement;
-  var UnaryExpression = traceur.syntax.trees.UnaryExpression;
-  var VariableDeclaration = traceur.syntax.trees.VariableDeclaration;
-  var VariableDeclarationList = traceur.syntax.trees.VariableDeclarationList;
-  var VariableStatement = traceur.syntax.trees.VariableStatement;
-  var WhileStatement = traceur.syntax.trees.WhileStatement;
-  var WithStatement = traceur.syntax.trees.WithStatement;
-  var YieldStatement = traceur.syntax.trees.YieldStatement;
-
-  var getTreeNameForType = traceur.syntax.trees.getTreeNameForType;
+  var ArgumentList = trees.ArgumentList;
+  var ArrayComprehension = trees.ArrayComprehension;
+  var ArrayLiteralExpression = trees.ArrayLiteralExpression;
+  var ArrayPattern = trees.ArrayPattern;
+  var ArrowFunctionExpression = trees.ArrowFunctionExpression;
+  var AtNameExpression = trees.AtNameExpression;
+  var AtNameDeclaration = trees.AtNameDeclaration;
+  var AwaitStatement = trees.AwaitStatement;
+  var BinaryOperator = trees.BinaryOperator;
+  var BindThisParameter = trees.BindThisParameter;
+  var BindingElement = trees.BindingElement;
+  var Block = trees.Block;
+  var CallExpression = trees.CallExpression;
+  var CascadeExpression = trees.CascadeExpression;
+  var CaseClause = trees.CaseClause;
+  var Catch = trees.Catch;
+  var ClassDeclaration = trees.ClassDeclaration;
+  var ClassExpression = trees.ClassExpression;
+  var CommaExpression = trees.CommaExpression;
+  var ComprehensionFor = trees.ComprehensionFor;
+  var ConditionalExpression = trees.ConditionalExpression;
+  var DefaultClause = trees.DefaultClause;
+  var DoWhileStatement = trees.DoWhileStatement;
+  var ExportDeclaration = trees.ExportDeclaration;
+  var ExportMapping = trees.ExportMapping;
+  var ExportMappingList = trees.ExportMappingList;
+  var ExportSpecifier = trees.ExportSpecifier;
+  var ExportSpecifierSet = trees.ExportSpecifierSet;
+  var ExpressionStatement = trees.ExpressionStatement;
+  var Finally = trees.Finally;
+  var ForInStatement = trees.ForInStatement;
+  var ForOfStatement = trees.ForOfStatement;
+  var ForStatement = trees.ForStatement;
+  var FormalParameterList = trees.FormalParameterList;
+  var FunctionDeclaration = trees.FunctionDeclaration;
+  var GeneratorComprehension = trees.GeneratorComprehension;
+  var GetAccessor = trees.GetAccessor;
+  var IfStatement = trees.IfStatement;
+  var ImportBinding = trees.ImportBinding;
+  var ImportDeclaration = trees.ImportDeclaration;
+  var LabelledStatement = trees.LabelledStatement;
+  var MemberExpression = trees.MemberExpression;
+  var MemberLookupExpression = trees.MemberLookupExpression;
+  var ModuleDeclaration = trees.ModuleDeclaration;
+  var ModuleDefinition = trees.ModuleDefinition;
+  var ModuleExpression = trees.ModuleExpression;
+  var ModuleSpecifier = trees.ModuleSpecifier;
+  var NameStatement = trees.NameStatement;
+  var NewExpression = trees.NewExpression;
+  var ObjectLiteralExpression = trees.ObjectLiteralExpression;
+  var ObjectPattern = trees.ObjectPattern;
+  var ObjectPatternField = trees.ObjectPatternField;
+  var ParenExpression = trees.ParenExpression;
+  var PostfixExpression = trees.PostfixExpression;
+  var Program = trees.Program;
+  var PropertyMethodAssignment = trees.PropertyMethodAssignment;
+  var PropertyNameAssignment = trees.PropertyNameAssignment;
+  var QuasiLiteralExpression = trees.QuasiLiteralExpression;
+  var QuasiSubstitution = trees.QuasiSubstitution;
+  var ReturnStatement = trees.ReturnStatement;
+  var SetAccessor = trees.SetAccessor;
+  var SpreadExpression = trees.SpreadExpression;
+  var SpreadPatternElement = trees.SpreadPatternElement;
+  var SwitchStatement = trees.SwitchStatement;
+  var ThrowStatement = trees.ThrowStatement;
+  var TryStatement = trees.TryStatement;
+  var UnaryExpression = trees.UnaryExpression;
+  var VariableDeclaration = trees.VariableDeclaration;
+  var VariableDeclarationList = trees.VariableDeclarationList;
+  var VariableStatement = trees.VariableStatement;
+  var WhileStatement = trees.WhileStatement;
+  var WithStatement = trees.WithStatement;
+  var YieldStatement = trees.YieldStatement;
 
   /**
    * A base class for transforming parse trees.
@@ -99,7 +96,7 @@ traceur.define('codegeneration', function() {
    * (but not the obligation) to transform every node in a tree. By default the ParseTreeTransformer
    * performs the identity transform.
    */
-  function ParseTreeTransformer() {}
+  export function ParseTreeTransformer() {}
 
   ParseTreeTransformer.prototype = {
 
@@ -1264,8 +1261,3 @@ traceur.define('codegeneration', function() {
       return new YieldStatement(tree.location, expression, isYieldFor);
     }
   };
-
-  return {
-    ParseTreeTransformer: ParseTreeTransformer
-  };
-});

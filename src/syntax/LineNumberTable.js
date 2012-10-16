@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,11 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('syntax', function() {
-  'use strict';
-
-  var SourceRange = traceur.util.SourceRange;
-  var SourcePosition = traceur.util.SourcePosition;
+  import SourcePosition from '../util/SourcePosition.js';
+  import SourceRange from  '../util/SourceRange.js';
 
   /**
    * Maps offsets into a source string into line/column positions.
@@ -26,7 +23,7 @@ traceur.define('syntax', function() {
    * @param {SourceFile} sourceFile
    * @constructor
    */
-  function LineNumberTable(sourceFile) {
+  export function LineNumberTable(sourceFile) {
     this.sourceFile_ = sourceFile;
     this.lineStartOffsets_ = computeLineStartOffsets(sourceFile.contents);
   }
@@ -126,8 +123,3 @@ traceur.define('syntax', function() {
                              this.getSourcePosition(endOffset));
     }
   };
-
-  return {
-    LineNumberTable: LineNumberTable
-  };
-});

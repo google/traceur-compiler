@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration', function() {
-  'use strict';
+import ComprehensionTransformer from 'ComprehensionTransformer.js';
+import ParseTreeFactory from 'ParseTreeFactory.js';
+import createObject from '../util/util.js';
 
-  var ComprehensionTransformer = traceur.codegeneration.ComprehensionTransformer;
-  var createYieldStatement = traceur.codegeneration.ParseTreeFactory.createYieldStatement;
+  var createYieldStatement = ParseTreeFactory.createYieldStatement;
 
   /**
    * Generator Comprehension Transformer:
@@ -47,7 +47,7 @@ traceur.define('codegeneration', function() {
    * @constructor
    * @extends {ComprehensionTransformer}
    */
-  function GeneratorComprehensionTransformer(identifierGenerator) {
+  export function GeneratorComprehensionTransformer(identifierGenerator) {
     ComprehensionTransformer.call(this, identifierGenerator);
   }
 
@@ -62,7 +62,7 @@ traceur.define('codegeneration', function() {
         transformAny(tree);
   };
 
-  GeneratorComprehensionTransformer.prototype = traceur.createObject(
+  GeneratorComprehensionTransformer.prototype = createObject(
       ComprehensionTransformer.prototype, {
     transformGeneratorComprehension: function(tree) {
       var expression = this.transformAny(tree.expression);
@@ -71,8 +71,3 @@ traceur.define('codegeneration', function() {
       return this.transformComprehension(tree, statement, isGenerator);
     }
   });
-
-  return {
-    GeneratorComprehensionTransformer: GeneratorComprehensionTransformer
-  };
-});

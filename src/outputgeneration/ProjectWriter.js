@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,15 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('outputgeneration', function() {
-  'use strict';
-
-  var TreeWriter = traceur.outputgeneration.TreeWriter;
+  import TreeWriter from 'TreeWriter.js';
 
   /**
    * Writes all the files in the project to a stream.
    */
-  function ProjectWriter() {}
+  export function ProjectWriter() {}
 
   /**
    * @param {traceur.util.ObjectMap} results
@@ -33,7 +30,3 @@ traceur.define('outputgeneration', function() {
     }).join('');
   };
 
-  return {
-    ProjectWriter: ProjectWriter
-  };
-});

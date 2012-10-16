@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration.generator', function() {
-  'use strict';
-
-  var State = traceur.codegeneration.generator.State;
-  var TryState = traceur.codegeneration.generator.TryState;
+import State from 'State.js';
+import TryState from 'TryState.js';
+import createObject from '../../util/util.js';
 
   /**
    * Represents the dispatch portion of a try/catch block in a state machine.
@@ -28,7 +26,7 @@ traceur.define('codegeneration.generator', function() {
    * @extends {TryState}
    * @constructor
    */
-  function CatchState(identifier, catchState, fallThroughState, allStates,
+  export function CatchState(identifier, catchState, fallThroughState, allStates,
       nestedTrys) {
     TryState.call(this, TryState.Kind.CATCH, allStates, nestedTrys);
 
@@ -37,7 +35,7 @@ traceur.define('codegeneration.generator', function() {
     this.fallThroughState = fallThroughState;
   }
 
-  CatchState.prototype = traceur.createObject(TryState.prototype, {
+  CatchState.prototype = createObject(TryState.prototype, {
 
     /**
      * @param {number} oldState
@@ -53,8 +51,3 @@ traceur.define('codegeneration.generator', function() {
           this.replaceNestedTrys(oldState, newState));
     }
   });
-
-  return {
-    CatchState: CatchState
-  };
-});

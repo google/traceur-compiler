@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
@@ -12,29 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration', function() {
-  'use strict';
+import AsyncTransformer from 'generator/AsyncTransformer.js';
+import ForInTransformPass from 'generator/ForInTransformPass.js';
+import ForOfTransformer from 'ForOfTransformer.js';
+import GeneratorTransformer from 'generator/GeneratorTransformer.js';
+import ParseTreeFactory from 'ParseTreeFactory.js';
+import ParseTreeTransformer from 'ParseTreeTransformer.js';
+import ParseTreeVisitor from '../syntax/ParseTreeVisitor.js';
+import TokenType from '../syntax/TokenType.js';
+import createObject from '../util/util.js';
+import {options: traceurOptions} from '../options.js';
+import trees from '../syntax/trees/ParseTrees.js';
 
-  var ParseTreeVisitor = traceur.syntax.ParseTreeVisitor;
-  var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
-  var GetAccessor = traceur.syntax.trees.GetAccessor;
-  var SetAccessor = traceur.syntax.trees.SetAccessor;
+  var FunctionDeclaration = trees.FunctionDeclaration;
+  var GetAccessor = trees.GetAccessor;
+  var SetAccessor = trees.SetAccessor;
 
-  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
-  var ForOfTransformer = traceur.codegeneration.ForOfTransformer;
+  var createForOfStatement = ParseTreeFactory.createForOfStatement;
+  var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList;
+  var createYieldStatement = ParseTreeFactory.createYieldStatement;
+  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
 
-  var ForInTransformPass = traceur.codegeneration.generator.ForInTransformPass;
-  var GeneratorTransformer = traceur.codegeneration.generator.GeneratorTransformer;
-  var AsyncTransformer = traceur.codegeneration.generator.AsyncTransformer;
-
-  var createForOfStatement = traceur.codegeneration.ParseTreeFactory.createForOfStatement;
-  var createVariableDeclarationList = traceur.codegeneration.ParseTreeFactory.createVariableDeclarationList;
-  var createYieldStatement = traceur.codegeneration.ParseTreeFactory.createYieldStatement;
-  var createIdentifierExpression = traceur.codegeneration.ParseTreeFactory.createIdentifierExpression;
-
-  var TokenType = traceur.syntax.TokenType;
-
-  var options = traceur.options.transform;
+  var options = traceurOptions.transform;
 
   /**
    * Can tell you if function body contains a yield statement. Does not search into
@@ -47,7 +46,7 @@ traceur.define('codegeneration', function() {
     this.visitAny(tree);
   }
 
-  YieldFinder.prototype = traceur.createObject(ParseTreeVisitor.prototype, {
+  YieldFinder.prototype = createObject(ParseTreeVisitor.prototype, {
 
     hasYield: false,
     hasYieldFor: false,
@@ -95,7 +94,7 @@ traceur.define('codegeneration', function() {
     return new YieldForTransformer(identifierGenerator).transformAny(tree);
   };
 
-  YieldForTransformer.prototype = traceur.createObject(
+  YieldForTransformer.prototype = createObject(
       ParseTreeTransformer.prototype, {
 
     transformYieldStatement: function(tree) {
@@ -135,7 +134,7 @@ traceur.define('codegeneration', function() {
    * @extends {ParseTreeTransformer}
    * @constructor
    */
-  function GeneratorTransformPass(identifierGenerator, reporter) {
+  export function GeneratorTransformPass(identifierGenerator, reporter) {
     ParseTreeTransformer.call(this);
     this.identifierGenerator_ = identifierGenerator;
     this.reporter_ = reporter;
@@ -147,7 +146,7 @@ traceur.define('codegeneration', function() {
         transformAny(tree);
   }
 
-  GeneratorTransformPass.prototype = traceur.createObject(
+  GeneratorTransformPass.prototype = createObject(
       ParseTreeTransformer.prototype, {
 
     /**
@@ -236,8 +235,3 @@ traceur.define('codegeneration', function() {
           body);
     }
   });
-
-  return {
-    GeneratorTransformPass: GeneratorTransformPass
-  };
-});

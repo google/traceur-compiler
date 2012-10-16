@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
@@ -12,22 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration.generator', function() {
-  'use strict';
-
-  var TokenType = traceur.syntax.TokenType;
-  var ParseTree = traceur.syntax.trees.ParseTree;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
-  var PredefinedName = traceur.syntax.PredefinedName;
-
-  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
-
-  var CPSTransformer = traceur.codegeneration.generator.CPSTransformer;
-  var StateMachine = traceur.syntax.trees.StateMachine;
-  var AsyncState = traceur.codegeneration.generator.AsyncState;
-  var EndState = traceur.codegeneration.generator.EndState;
-  var FallThroughState = traceur.codegeneration.generator.FallThroughState;
+import CPSTransformer from 'CPSTransformer.js';
+import EndState from 'EndState.js';
+import FallThroughState from 'FallThroughState.js';
+import ParseTreeFactory from '../ParseTreeFactory.js';
+import ParseTreeType from '../../syntax/trees/ParseTree.js';
+import PredefinedName from '../../syntax/PredefinedName.js';
+import StateMachine from '../../syntax/trees/StateMachine.js';
+import TokenType from '../../syntax/TokenType.js';
+import createObject from '../../util/util.js';
 
   var createArgumentList = ParseTreeFactory.createArgumentList;
   var createAssignStateStatement = ParseTreeFactory.createAssignStateStatement;
@@ -78,7 +71,7 @@ traceur.define('codegeneration.generator', function() {
    * @extends {CPSTransformer}
    * @constructor
    */
-  function AsyncTransformer(reporter) {
+  export function AsyncTransformer(reporter) {
     CPSTransformer.call(this, reporter);
   }
 
@@ -92,7 +85,7 @@ traceur.define('codegeneration.generator', function() {
   };
 
   var proto = CPSTransformer.prototype;
-  AsyncTransformer.prototype = traceur.createObject(proto, {
+  AsyncTransformer.prototype = createObject(proto, {
 
     /**
      * Yield statements are translated into a state machine with a single state.
@@ -361,8 +354,3 @@ traceur.define('codegeneration.generator', function() {
           createBreakStatement());
     }
   });
-
-  return {
-    AsyncTransformer: AsyncTransformer
-  };
-});

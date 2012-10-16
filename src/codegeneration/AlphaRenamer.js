@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
@@ -12,21 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration', function() {
-  'use strict';
+import ParseTreeFactory from 'ParseTreeFactory.js';
+import ParseTreeTransformer from 'ParseTreeTransformer.js';
+import PredefinedName from '../syntax/PredefinedName.js';
+import VariableBinder from '../semantics/VariableBinder.js';
+import createObject from '../util/util.js';
+import trees from '../syntax/trees/ParseTrees.js';
 
-  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
-  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
-  var VariableBinder = traceur.semantics.VariableBinder;
+
   var variablesInFunction = VariableBinder.variablesInFunction;
   var variablesInBlock = VariableBinder.variablesInBlock;
   var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
-  var PredefinedName = traceur.syntax.PredefinedName;
-  var Block = traceur.syntax.trees.Block;
-  var Catch = traceur.syntax.trees.Catch;
-  var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
-  var IdentifierExpression = traceur.syntax.trees.IdentifierExpression;
-  var ParseTree = traceur.syntax.trees.ParseTree;
+  var Block = trees.Block;
+  var Catch = trees.Catch;
+  var FunctionDeclaration = trees.FunctionDeclaration;
+  var IdentifierExpression = trees.IdentifierExpression;
 
   var createFunctionDeclaration = ParseTreeFactory.createFunctionDeclaration;
 
@@ -46,7 +46,7 @@ traceur.define('codegeneration', function() {
    * @extends {ParseTreeTransformer}
    * @constructor
    */
-  function AlphaRenamer(oldName, newName) {
+  export function AlphaRenamer(oldName, newName) {
     ParseTreeTransformer.call(this);
     this.oldName_ = oldName;
     this.newName_ = newName;
@@ -83,7 +83,7 @@ traceur.define('codegeneration', function() {
   };
 
   var proto = ParseTreeTransformer.prototype;
-  AlphaRenamer.prototype = traceur.createObject(proto, {
+  AlphaRenamer.prototype = createObject(proto, {
 
     /**
      * @param {Block} tree
@@ -156,8 +156,3 @@ traceur.define('codegeneration', function() {
       return proto.transformCatch.call(this, tree);
     }
   });
-
-  return {
-    AlphaRenamer: AlphaRenamer
-  };
-});

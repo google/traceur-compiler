@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,28 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('runtime', function() {
-  'use strict';
+import ArrayMap from '../util/ArrayMap.js';
+import ModuleAnalyzer from '../semantics/ModuleAnalyzer.js';
+import ModuleRequireVisitor from '../codegeneration/module/ModuleRequireVisitor.js';
+import ModuleSymbol from '../semantics/symbols/ModuleSymbol.js';
+import ModuleTransformer from '../codegeneration/ModuleTransformer.js';
+import ObjectMap from '../util/ObjectMap.js';
+import Parser from '../syntax/Parser.js';
+import ProgramTransformer from '../codegeneration/ProgramTransformer.js';
+import Project from '../semantics/symbols/Project.js';
+import SourceFile from '../syntax/SourceFile.js';
+import TreeWriter from '../outputgeneration/TreeWriter.js';
+import canonicalizeUrl from '../util/url.js';
+import createObject from '../util/util.js';
+import resolveUrl from '../util/url.js';
 
   // TODO(arv): I stripped the resolvers to make this simpler for now.
-
-  var Parser = traceur.syntax.Parser;
-  var SourceFile = traceur.syntax.SourceFile
-  var ModuleAnalyzer = traceur.semantics.ModuleAnalyzer;
-  var ModuleSymbol = traceur.semantics.symbols.ModuleSymbol;
-  var Project = traceur.semantics.symbols.Project;
-
-  var ModuleTransformer = traceur.codegeneration.ModuleTransformer;
-  var ProgramTransformer = traceur.codegeneration.ProgramTransformer;
-  var TreeWriter = traceur.outputgeneration.TreeWriter;
-  var ModuleRequireVisitor = traceur.codegeneration.module.ModuleRequireVisitor;
-
-  var canonicalizeUrl = traceur.util.canonicalizeUrl;
-  var resolveUrl = traceur.util.resolveUrl;
-  var ObjectMap = traceur.util.ObjectMap;
-  var ArrayMap = traceur.util.ArrayMap;
-
-  var assert = traceur.assert;
 
   // TODO(arv): Implement
   var base = Object.freeze(Object.create(null, {
@@ -192,7 +186,7 @@ traceur.define('runtime', function() {
     CodeUnit.call(this, loader, url, NOT_STARTED);
   }
 
-  LoadCodeUnit.prototype = traceur.createObject(CodeUnit.prototype, {
+  LoadCodeUnit.prototype = createObject(CodeUnit.prototype, {
     allowLoad: true,
 
     get moduleSymbol() {
@@ -237,7 +231,7 @@ traceur.define('runtime', function() {
     this.text = code;
   }
 
-  EvalCodeUnit.prototype = traceur.createObject(CodeUnit.prototype, {
+  EvalCodeUnit.prototype = createObject(CodeUnit.prototype, {
     allowLoad: false
   });
 
@@ -253,7 +247,7 @@ traceur.define('runtime', function() {
     this.text = code;
   }
 
-  EvalLoadCodeUnit.prototype = traceur.createObject(CodeUnit.prototype, {
+  EvalLoadCodeUnit.prototype = createObject(CodeUnit.prototype, {
     allowLoad: true
   })
 
@@ -410,7 +404,7 @@ traceur.define('runtime', function() {
         var codeUnit = dependencies[i];
 
         // We should not have gotten here if not all are PARSED or larget.
-        assert(codeUnit.state >= PARSED);
+        traceur.assert(codeUnit.state >= PARSED);
 
         if (codeUnit.state == PARSED) {
           trees.push(codeUnit.tree);
@@ -480,7 +474,7 @@ traceur.define('runtime', function() {
           continue;
         }
 
-        assert(currentCodeUnit === undefined);
+        traceur.assert(currentCodeUnit === undefined);
         currentCodeUnit = codeUnit;
         var result;
 
@@ -492,7 +486,7 @@ traceur.define('runtime', function() {
           return;
         } finally {
           // Ensure that we always clean up currentCodeUnit.
-          assert(currentCodeUnit === codeUnit);
+          traceur.assert(currentCodeUnit === codeUnit);
           currentCodeUnit = undefined;
         }
 
@@ -531,11 +525,11 @@ traceur.define('runtime', function() {
    * @return {Object} A module instance object for the given url in the current
    *     code loader.
    */
-  function getModuleInstanceByUrl(url) {
+  export function getModuleInstanceByUrl(url) {
     if (standardModuleUrlRegExp.test(url))
       return traceur.runtime.modules[url] || null;
 
-    assert(currentCodeUnit);
+    traceur.assert(currentCodeUnit);
     url = resolveUrl(currentCodeUnit.url, url);
     for (var i = 0; i < currentCodeUnit.dependencies.length; i++) {
       if (currentCodeUnit.dependencies[i].url == url) {
@@ -553,7 +547,7 @@ traceur.define('runtime', function() {
    *     the initial loader.
    * @constructor
    */
-  function CodeLoader(reporter, project, parentLoader, opt_resolver) {
+  export function CodeLoader(reporter, project, parentLoader, opt_resolver) {
     // TODO(arv): Implement parent loader
     // TODO(arv): Implement resolver
     this.internalLoader_ = new InternalLoader(reporter, project)
@@ -664,15 +658,10 @@ traceur.define('runtime', function() {
     }
   };
 
-  return {
-    CodeLoader: CodeLoader,
-    getModuleInstanceByUrl: getModuleInstanceByUrl,
-    internals: {
-      CodeUnit: CodeUnit,
-      EvalCodeUnit: EvalCodeUnit,
-      EvalLoadCodeUnit: EvalLoadCodeUnit,
-      InternalLoader: InternalLoader,
-      LoadCodeUnit: LoadCodeUnit,
-    }
+  export module internals {
+    export CodeUnit;
+    export EvalCodeUnit;
+    export EvalLoadCodeUnit;
+    export InternalLoader;
+    export LoadCodeUnit;
   };
-});

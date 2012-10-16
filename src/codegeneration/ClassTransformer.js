@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
@@ -12,22 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration', function() {
-  'use strict';
+import ParseTreeFactory from 'ParseTreeFactory.js';
+import ParseTreeType from '../syntax/trees/ParseTree.js';
+import PredefinedName from '../syntax/PredefinedName.js';
+import SuperTransformer from 'SuperTransformer.js';
+import TempVarTransformer from 'TempVarTransformer.js';
+import TokenType from '../syntax/TokenType.js';
+import createObject from '../util/util.js';
+import trees from '../syntax/trees/ParseTrees.js';
 
-  var FormalParameterList = traceur.syntax.trees.FormalParameterList;
-  var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
-  var GetAccessor = traceur.syntax.trees.GetAccessor;
-  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var PredefinedName = traceur.syntax.PredefinedName;
-  var PropertyMethodAssignment = traceur.syntax.trees.PropertyMethodAssignment;
-  var PropertyNameAssignment = traceur.syntax.trees.PropertyNameAssignment;
-  var SetAccessor = traceur.syntax.trees.SetAccessor;
-  var SuperExpression = traceur.syntax.trees.SuperExpression;
-  var SuperTransformer = traceur.codegeneration.SuperTransformer;
-  var TempVarTransformer = traceur.codegeneration.TempVarTransformer;
-  var TokenType = traceur.syntax.TokenType;
+  var FormalParameterList = trees.FormalParameterList;
+  var FunctionDeclaration = trees.FunctionDeclaration;
+  var GetAccessor = trees.GetAccessor;
+  var PropertyMethodAssignment = trees.PropertyMethodAssignment;
+  var PropertyNameAssignment = trees.PropertyNameAssignment;
+  var SetAccessor = trees.SetAccessor;
+  var SuperExpression = trees.SuperExpression;
 
   var createArgumentList = ParseTreeFactory.createArgumentList;
   var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression;
@@ -92,7 +92,7 @@ traceur.define('codegeneration', function() {
    * @constructor
    * @extends {TempVarTransformer}
    */
-  function ClassTransformer(identifierGenerator, reporter) {
+  export function ClassTransformer(identifierGenerator, reporter) {
     TempVarTransformer.call(this, identifierGenerator);
     this.reporter_ = reporter;
   }
@@ -109,7 +109,7 @@ traceur.define('codegeneration', function() {
   };
 
   var proto = TempVarTransformer.prototype;
-  ClassTransformer.prototype = traceur.createObject(proto, {
+  ClassTransformer.prototype = createObject(proto, {
 
     transformClassShared_: function(tree, name) {
       var superClass = this.transformAny(tree.superClass);
@@ -265,8 +265,3 @@ traceur.define('codegeneration', function() {
       return this.transformConstructor_(constr);
     }
   });
-
-  return {
-    ClassTransformer: ClassTransformer
-  };
-});

@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
@@ -12,14 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('syntax', function() {
-  'use strict';
-
   // 7.5 Tokens
   /**
    * @enum {string}
    */
-  var TokenType = {
+  export var TokenType = {
     END_OF_FILE: 'End of File',
     ERROR: 'error',
 
@@ -142,8 +139,3 @@ traceur.define('syntax', function() {
     QUASI_LITERAL_PORTION: 'quasi literal portion',
     AT_NAME: 'at name'
   };
-
-  return {
-    TokenType: TokenType
-  };
-});

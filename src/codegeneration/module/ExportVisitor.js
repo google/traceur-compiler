@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,14 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration.module', function() {
-  'use strict';
+import ExportSymbol from '../../semantics/symbols/ExportSymbol.js';
+import ModuleVisitor from 'ModuleVisitor.js';
+import ParseTreeType from '../../syntax/trees/ParseTree.js';
+import createObject from '../../util/util.js';
 
-  var ModuleVisitor = traceur.codegeneration.module.ModuleVisitor;
-
-  var ExportSymbol = traceur.semantics.symbols.ExportSymbol;
-
-  var IDENTIFIER_EXPRESSION = traceur.syntax.trees.ParseTreeType.IDENTIFIER_EXPRESSION;
+  var IDENTIFIER_EXPRESSION = ParseTreeType.IDENTIFIER_EXPRESSION;
 
   /**
    * Visits a parse tree and adds all the module definitions.
@@ -32,13 +30,13 @@ traceur.define('codegeneration.module', function() {
    * @constructor
    * @extends {ModuleVisitor}
    */
-  function ExportVisitor(reporter, project, module) {
+  export function ExportVisitor(reporter, project, module) {
     ModuleVisitor.call(this, reporter, project, module);
     this.inExport_ = false;
     this.relatedTree_ = null;
   }
 
-  ExportVisitor.prototype = traceur.createObject(ModuleVisitor.prototype, {
+  ExportVisitor.prototype = createObject(ModuleVisitor.prototype, {
 
     addExport_: function(name, tree) {
       if (!this.inExport_) {
@@ -113,8 +111,3 @@ traceur.define('codegeneration.module', function() {
       this.addExport_(tree.lvalue.identifierToken.value, tree);
     }
   });
-
-  return {
-    ExportVisitor: ExportVisitor
-  };
-});

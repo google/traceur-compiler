@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
@@ -12,76 +12,72 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration', function() {
-  'use strict';
+  import ParseTreeType from '../syntax/trees/ParseTree.js';
+  import ParseTree from '../syntax/trees/ParseTree.js';
+  import IdentifierToken from '../syntax/IdentifierToken.js';
+  import LiteralToken from '../syntax/LiteralToken.js';
+  import PredefinedName from '../syntax/PredefinedName.js';
+  import trees from '../syntax/trees/ParseTrees.js';
+  import Token from '../syntax/Token.js';
+  import TokenType from '../syntax/TokenType.js';
 
-  var IdentifierToken = traceur.syntax.IdentifierToken;
-  var LiteralToken = traceur.syntax.LiteralToken;
-  var ParseTreeType = traceur.syntax.ParseTreeType;
-  var PredefinedName = traceur.syntax.PredefinedName;
-  var Token = traceur.syntax.Token;
-  var TokenType = traceur.syntax.TokenType;
-
-  var ParseTree = traceur.syntax.trees.ParseTree;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-
-  var ArgumentList = traceur.syntax.trees.ArgumentList;
-  var ArrayLiteralExpression = traceur.syntax.trees.ArrayLiteralExpression;
-  var ArrayPattern = traceur.syntax.trees.ArrayPattern;
-  var BinaryOperator = traceur.syntax.trees.BinaryOperator;
-  var BindingElement = traceur.syntax.trees.BindingElement;
-  var BindingIdentifier = traceur.syntax.trees.BindingIdentifier;
-  var Block = traceur.syntax.trees.Block;
-  var BreakStatement = traceur.syntax.trees.BreakStatement;
-  var CallExpression = traceur.syntax.trees.CallExpression;
-  var CascadeExpression = traceur.syntax.trees.CascadeExpression;
-  var CaseClause = traceur.syntax.trees.CaseClause;
-  var Catch = traceur.syntax.trees.Catch;
-  var ClassDeclaration = traceur.syntax.trees.ClassDeclaration;
-  var CommaExpression = traceur.syntax.trees.CommaExpression;
-  var ConditionalExpression = traceur.syntax.trees.ConditionalExpression;
-  var ContinueStatement = traceur.syntax.trees.ContinueStatement;
-  var DefaultClause = traceur.syntax.trees.DefaultClause;
-  var DoWhileStatement = traceur.syntax.trees.DoWhileStatement;
-  var EmptyStatement = traceur.syntax.trees.EmptyStatement;
-  var ExpressionStatement = traceur.syntax.trees.ExpressionStatement;
-  var Finally = traceur.syntax.trees.Finally;
-  var ForInStatement = traceur.syntax.trees.ForInStatement;
-  var ForOfStatement = traceur.syntax.trees.ForOfStatement;
-  var ForStatement = traceur.syntax.trees.ForStatement;
-  var FormalParameterList = traceur.syntax.trees.FormalParameterList;
-  var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
-  var GetAccessor = traceur.syntax.trees.GetAccessor;
-  var IdentifierExpression = traceur.syntax.trees.IdentifierExpression;
-  var IfStatement = traceur.syntax.trees.IfStatement;
-  var LabelledStatement = traceur.syntax.trees.LabelledStatement;
-  var LiteralExpression = traceur.syntax.trees.LiteralExpression;
-  var MemberExpression = traceur.syntax.trees.MemberExpression;
-  var MemberLookupExpression = traceur.syntax.trees.MemberLookupExpression;
-  var NewExpression = traceur.syntax.trees.NewExpression;
-  var ObjectLiteralExpression = traceur.syntax.trees.ObjectLiteralExpression;
-  var ObjectPattern = traceur.syntax.trees.ObjectPattern;
-  var ObjectPatternField = traceur.syntax.trees.ObjectPatternField;
-  var ParenExpression = traceur.syntax.trees.ParenExpression;
-  var PostfixExpression = traceur.syntax.trees.PostfixExpression;
-  var Program = traceur.syntax.trees.Program;
-  var PropertyNameAssignment = traceur.syntax.trees.PropertyNameAssignment;
-  var RestParameter = traceur.syntax.trees.RestParameter;
-  var ReturnStatement = traceur.syntax.trees.ReturnStatement;
-  var YieldStatement = traceur.syntax.trees.YieldStatement;
-  var SetAccessor = traceur.syntax.trees.SetAccessor;
-  var SpreadExpression = traceur.syntax.trees.SpreadExpression;
-  var SpreadPatternElement = traceur.syntax.trees.SpreadPatternElement;
-  var SwitchStatement = traceur.syntax.trees.SwitchStatement;
-  var ThisExpression = traceur.syntax.trees.ThisExpression;
-  var ThrowStatement = traceur.syntax.trees.ThrowStatement;
-  var TryStatement = traceur.syntax.trees.TryStatement;
-  var UnaryExpression = traceur.syntax.trees.UnaryExpression;
-  var VariableDeclarationList = traceur.syntax.trees.VariableDeclarationList;
-  var VariableDeclaration = traceur.syntax.trees.VariableDeclaration;
-  var VariableStatement = traceur.syntax.trees.VariableStatement;
-  var WhileStatement = traceur.syntax.trees.WhileStatement;
-  var WithStatement = traceur.syntax.trees.WithStatement;
+  var ArgumentList = trees.ArgumentList;
+  var ArrayLiteralExpression = trees.ArrayLiteralExpression;
+  var ArrayPattern = trees.ArrayPattern;
+  var BinaryOperator = trees.BinaryOperator;
+  var BindingElement = trees.BindingElement;
+  var BindingIdentifier = trees.BindingIdentifier;
+  var Block = trees.Block;
+  var BreakStatement = trees.BreakStatement;
+  var CallExpression = trees.CallExpression;
+  var CascadeExpression = trees.CascadeExpression;
+  var CaseClause = trees.CaseClause;
+  var Catch = trees.Catch;
+  var ClassDeclaration = trees.ClassDeclaration;
+  var CommaExpression = trees.CommaExpression;
+  var ConditionalExpression = trees.ConditionalExpression;
+  var ContinueStatement = trees.ContinueStatement;
+  var DefaultClause = trees.DefaultClause;
+  var DoWhileStatement = trees.DoWhileStatement;
+  var EmptyStatement = trees.EmptyStatement;
+  var ExpressionStatement = trees.ExpressionStatement;
+  var Finally = trees.Finally;
+  var ForInStatement = trees.ForInStatement;
+  var ForOfStatement = trees.ForOfStatement;
+  var ForStatement = trees.ForStatement;
+  var FormalParameterList = trees.FormalParameterList;
+  var FunctionDeclaration = trees.FunctionDeclaration;
+  var GetAccessor = trees.GetAccessor;
+  var IdentifierExpression = trees.IdentifierExpression;
+  var IfStatement = trees.IfStatement;
+  var LabelledStatement = trees.LabelledStatement;
+  var LiteralExpression = trees.LiteralExpression;
+  var MemberExpression = trees.MemberExpression;
+  var MemberLookupExpression = trees.MemberLookupExpression;
+  var NewExpression = trees.NewExpression;
+  var ObjectLiteralExpression = trees.ObjectLiteralExpression;
+  var ObjectPattern = trees.ObjectPattern;
+  var ObjectPatternField = trees.ObjectPatternField;
+  var ParenExpression = trees.ParenExpression;
+  var PostfixExpression = trees.PostfixExpression;
+  var Program = trees.Program;
+  var PropertyNameAssignment = trees.PropertyNameAssignment;
+  var RestParameter = trees.RestParameter;
+  var ReturnStatement = trees.ReturnStatement;
+  var YieldStatement = trees.YieldStatement;
+  var SetAccessor = trees.SetAccessor;
+  var SpreadExpression = trees.SpreadExpression;
+  var SpreadPatternElement = trees.SpreadPatternElement;
+  var SwitchStatement = trees.SwitchStatement;
+  var ThisExpression = trees.ThisExpression;
+  var ThrowStatement = trees.ThrowStatement;
+  var TryStatement = trees.TryStatement;
+  var UnaryExpression = trees.UnaryExpression;
+  var VariableDeclarationList = trees.VariableDeclarationList;
+  var VariableDeclaration = trees.VariableDeclaration;
+  var VariableStatement = trees.VariableStatement;
+  var WhileStatement = trees.WhileStatement;
+  var WithStatement = trees.WithStatement;
 
   // Helpers so we can use these on Arguments objects.
   var slice = Array.prototype.slice.call.bind(Array.prototype.slice);
@@ -1133,107 +1129,105 @@ traceur.define('codegeneration', function() {
         createNumberLiteral(state));
   }
 
-  return {
-    ParseTreeFactory: {
-      createArgumentList: createArgumentList,
-      createArgumentListFromParameterList: createArgumentListFromParameterList,
-      createArrayLiteralExpression: createArrayLiteralExpression,
-      createArrayPattern: createArrayPattern,
-      createAssignStateStatement: createAssignStateStatement,
-      createAssignmentExpression: createAssignmentExpression,
-      createAssignmentStatement: createAssignmentStatement,
-      createBinaryOperator: createBinaryOperator,
-      createBindingIdentifier: createBindingIdentifier,
-      createBlock: createBlock,
-      createBooleanLiteral: createBooleanLiteral,
-      createBooleanLiteralToken: createBooleanLiteralToken,
-      createBoundCall: createBoundCall,
-      createBreakStatement: createBreakStatement,
-      createCallCall: createCallCall,
-      createCallCallStatement: createCallCallStatement,
-      createCallExpression: createCallExpression,
-      createCallStatement: createCallStatement,
-      createCaseClause: createCaseClause,
-      createBindingElement: createBindingElement,
-      createCascadeExpression: createCascadeExpression,
-      createCatch: createCatch,
-      createClassDeclaration: createClassDeclaration,
-      createCommaExpression: createCommaExpression,
-      createConditionalExpression: createConditionalExpression,
-      createContinueStatement: createContinueStatement,
-      createDefaultClause: createDefaultClause,
-      createDefineProperty: createDefineProperty,
-      createDoWhileStatement: createDoWhileStatement,
-      createEmptyArgumentList: createEmptyArgumentList,
-      createEmptyArrayLiteralExpression: createEmptyArrayLiteralExpression,
-      createEmptyBlock: createEmptyBlock,
-      createEmptyList: createEmptyList,
-      createEmptyParameterList: createEmptyParameterList,
-      createEmptyParameters: createEmptyParameters,
-      createEmptyStatement: createEmptyStatement,
-      createExpressionStatement: createExpressionStatement,
-      createFalseLiteral: createFalseLiteral,
-      createFinally: createFinally,
-      createForInStatement: createForInStatement,
-      createForOfStatement: createForOfStatement,
-      createForStatement: createForStatement,
-      createFunctionDeclaration: createFunctionDeclaration,
-      createFunctionExpression: createFunctionExpression,
-      createFunctionExpressionFormals: createFunctionExpressionFormals,
-      createGetAccessor: createGetAccessor,
-      createIdentifierExpression: createIdentifierExpression,
-      createIdentifierToken: createIdentifierToken,
-      createIfStatement: createIfStatement,
-      createLabelledStatement: createLabelledStatement,
-      createMemberExpression: createMemberExpression,
-      createMemberLookupExpression: createMemberLookupExpression,
-      createNewExpression: createNewExpression,
-      createNullLiteral: createNullLiteral,
-      createNullLiteralToken: createNullLiteralToken,
-      createNumberLiteral: createNumberLiteral,
-      createNumberLiteralToken: createNumberLiteralToken,
-      createObjectCreate: createObjectCreate,
-      createObjectFreeze: createObjectFreeze,
-      createObjectLiteralExpression: createObjectLiteralExpression,
-      createObjectPattern: createObjectPattern,
-      createObjectPatternField: createObjectPatternField,
-      createObjectPreventExtensions: createObjectPreventExtensions,
-      createOperatorToken: createOperatorToken,
-      createParameterList: createParameterList,
-      createParameterListWithRestParams: createParameterListWithRestParams,
-      createParameterReference: createParameterReference,
-      createParenExpression: createParenExpression,
-      createPostfixExpression: createPostfixExpression,
-      createProgram: createProgram,
-      createPropertyDescriptor: createPropertyDescriptor,
-      createPropertyNameAssignment: createPropertyNameAssignment,
-      createPropertyNameToken: createPropertyNameToken,
-      createRestParameter: createRestParameter,
-      createReturnStatement: createReturnStatement,
-      createScopedBlock: createScopedBlock,
-      createScopedExpression: createScopedExpression,
-      createScopedStatements: createScopedStatements,
-      createSetAccessor: createSetAccessor,
-      createSpreadExpression: createSpreadExpression,
-      createSpreadPatternElement: createSpreadPatternElement,
-      createStatementList: createStatementList,
-      createStringLiteral: createStringLiteral,
-      createStringLiteralToken: createStringLiteralToken,
-      createSwitchStatement: createSwitchStatement,
-      createThisExpression: createThisExpression,
-      createThrowStatement: createThrowStatement,
-      createTrueLiteral: createTrueLiteral,
-      createTryStatement: createTryStatement,
-      createUnaryExpression: createUnaryExpression,
-      createUndefinedExpression: createUndefinedExpression,
-      createUseStrictDirective: createUseStrictDirective,
-      createVariableDeclaration: createVariableDeclaration,
-      createVariableDeclarationList: createVariableDeclarationList,
-      createVariableStatement: createVariableStatement,
-      createVoid0: createVoid0,
-      createWhileStatement: createWhileStatement,
-      createWithStatement: createWithStatement,
-      createYieldStatement: createYieldStatement
-    }
+  // TODO(arv): These should be exported instead.
+  export var ParseTreeFactory = {
+    createArgumentList: createArgumentList,
+    createArgumentListFromParameterList: createArgumentListFromParameterList,
+    createArrayLiteralExpression: createArrayLiteralExpression,
+    createArrayPattern: createArrayPattern,
+    createAssignStateStatement: createAssignStateStatement,
+    createAssignmentExpression: createAssignmentExpression,
+    createAssignmentStatement: createAssignmentStatement,
+    createBinaryOperator: createBinaryOperator,
+    createBindingIdentifier: createBindingIdentifier,
+    createBlock: createBlock,
+    createBooleanLiteral: createBooleanLiteral,
+    createBooleanLiteralToken: createBooleanLiteralToken,
+    createBoundCall: createBoundCall,
+    createBreakStatement: createBreakStatement,
+    createCallCall: createCallCall,
+    createCallCallStatement: createCallCallStatement,
+    createCallExpression: createCallExpression,
+    createCallStatement: createCallStatement,
+    createCaseClause: createCaseClause,
+    createBindingElement: createBindingElement,
+    createCascadeExpression: createCascadeExpression,
+    createCatch: createCatch,
+    createClassDeclaration: createClassDeclaration,
+    createCommaExpression: createCommaExpression,
+    createConditionalExpression: createConditionalExpression,
+    createContinueStatement: createContinueStatement,
+    createDefaultClause: createDefaultClause,
+    createDefineProperty: createDefineProperty,
+    createDoWhileStatement: createDoWhileStatement,
+    createEmptyArgumentList: createEmptyArgumentList,
+    createEmptyArrayLiteralExpression: createEmptyArrayLiteralExpression,
+    createEmptyBlock: createEmptyBlock,
+    createEmptyList: createEmptyList,
+    createEmptyParameterList: createEmptyParameterList,
+    createEmptyParameters: createEmptyParameters,
+    createEmptyStatement: createEmptyStatement,
+    createExpressionStatement: createExpressionStatement,
+    createFalseLiteral: createFalseLiteral,
+    createFinally: createFinally,
+    createForInStatement: createForInStatement,
+    createForOfStatement: createForOfStatement,
+    createForStatement: createForStatement,
+    createFunctionDeclaration: createFunctionDeclaration,
+    createFunctionExpression: createFunctionExpression,
+    createFunctionExpressionFormals: createFunctionExpressionFormals,
+    createGetAccessor: createGetAccessor,
+    createIdentifierExpression: createIdentifierExpression,
+    createIdentifierToken: createIdentifierToken,
+    createIfStatement: createIfStatement,
+    createLabelledStatement: createLabelledStatement,
+    createMemberExpression: createMemberExpression,
+    createMemberLookupExpression: createMemberLookupExpression,
+    createNewExpression: createNewExpression,
+    createNullLiteral: createNullLiteral,
+    createNullLiteralToken: createNullLiteralToken,
+    createNumberLiteral: createNumberLiteral,
+    createNumberLiteralToken: createNumberLiteralToken,
+    createObjectCreate: createObjectCreate,
+    createObjectFreeze: createObjectFreeze,
+    createObjectLiteralExpression: createObjectLiteralExpression,
+    createObjectPattern: createObjectPattern,
+    createObjectPatternField: createObjectPatternField,
+    createObjectPreventExtensions: createObjectPreventExtensions,
+    createOperatorToken: createOperatorToken,
+    createParameterList: createParameterList,
+    createParameterListWithRestParams: createParameterListWithRestParams,
+    createParameterReference: createParameterReference,
+    createParenExpression: createParenExpression,
+    createPostfixExpression: createPostfixExpression,
+    createProgram: createProgram,
+    createPropertyDescriptor: createPropertyDescriptor,
+    createPropertyNameAssignment: createPropertyNameAssignment,
+    createPropertyNameToken: createPropertyNameToken,
+    createRestParameter: createRestParameter,
+    createReturnStatement: createReturnStatement,
+    createScopedBlock: createScopedBlock,
+    createScopedExpression: createScopedExpression,
+    createScopedStatements: createScopedStatements,
+    createSetAccessor: createSetAccessor,
+    createSpreadExpression: createSpreadExpression,
+    createSpreadPatternElement: createSpreadPatternElement,
+    createStatementList: createStatementList,
+    createStringLiteral: createStringLiteral,
+    createStringLiteralToken: createStringLiteralToken,
+    createSwitchStatement: createSwitchStatement,
+    createThisExpression: createThisExpression,
+    createThrowStatement: createThrowStatement,
+    createTrueLiteral: createTrueLiteral,
+    createTryStatement: createTryStatement,
+    createUnaryExpression: createUnaryExpression,
+    createUndefinedExpression: createUndefinedExpression,
+    createUseStrictDirective: createUseStrictDirective,
+    createVariableDeclaration: createVariableDeclaration,
+    createVariableDeclarationList: createVariableDeclarationList,
+    createVariableStatement: createVariableStatement,
+    createVoid0: createVoid0,
+    createWhileStatement: createWhileStatement,
+    createWithStatement: createWithStatement,
+    createYieldStatement: createYieldStatement
   };
-});

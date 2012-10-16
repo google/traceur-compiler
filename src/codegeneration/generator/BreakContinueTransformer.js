@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,31 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration.generator', function() {
-  'use strict';
+import BreakState from 'BreakState.js';
+import ContinueState from 'ContinueState.js';
+import ParseTreeTransformer from '../ParseTreeTransformer.js';
+import StateMachine from '../../syntax/trees/StateMachine.js';
+import createObject from '../../util/util.js';
+import trees from '../../syntax/trees/ParseTrees.js';
 
-  var ParseTree = traceur.syntax.trees.ParseTree;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
-  var BreakStatement = traceur.syntax.trees.BreakStatement;
-  var ContinueStatement = traceur.syntax.trees.ContinueStatement;
-  var DoWhileStatement = traceur.syntax.trees.DoWhileStatement;
-  var ForOfStatement = traceur.syntax.trees.ForOfStatement;
-  var ForStatement = traceur.syntax.trees.ForStatement;
-  var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
-  var ParseTree = traceur.syntax.trees.ParseTree;
-  var SwitchStatement = traceur.syntax.trees.SwitchStatement;
-  var WhileStatement = traceur.syntax.trees.WhileStatement;
-
-  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
-
-  var BreakState = traceur.codegeneration.generator.BreakState;
-  var ContinueState = traceur.codegeneration.generator.ContinueState;
-  var State = traceur.codegeneration.generator.State;
-  var StateAllocator = traceur.codegeneration.generator.StateAllocator;
-  var StateMachine = traceur.syntax.trees.StateMachine;
-
-  var VariableBinder = traceur.semantics.VariableBinder;
+  var BreakStatement = trees.BreakStatement;
+  var ContinueStatement = trees.ContinueStatement;
+  var DoWhileStatement = trees.DoWhileStatement;
+  var ForOfStatement = trees.ForOfStatement;
+  var ForStatement = trees.ForStatement;
+  var FunctionDeclaration = trees.FunctionDeclaration;
+  var SwitchStatement = trees.SwitchStatement;
+  var WhileStatement = trees.WhileStatement;
 
   /**
    * Converts statements which do not contain a yield, to a state machine. Always called from a
@@ -51,7 +41,7 @@ traceur.define('codegeneration.generator', function() {
    * @extends {ParseTreeTransformer}
    * @constructor
    */
-  function BreakContinueTransformer(stateAllocator) {
+  export function BreakContinueTransformer(stateAllocator) {
     ParseTreeTransformer.call(this);
     this.transformBreaks_ = true;
     this.stateAllocator_ = stateAllocator;
@@ -66,7 +56,7 @@ traceur.define('codegeneration.generator', function() {
   }
 
   var proto = ParseTreeTransformer.prototype;
-  BreakContinueTransformer.prototype = traceur.createObject(proto, {
+  BreakContinueTransformer.prototype = createObject(proto, {
 
     /** @return {number} */
     allocateState_: function() {
@@ -162,8 +152,3 @@ traceur.define('codegeneration.generator', function() {
       return tree;
     }
   });
-
-  return {
-    BreakContinueTransformer: BreakContinueTransformer
-  };
-});

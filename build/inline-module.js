@@ -23,7 +23,6 @@ var ModuleRequireVisitor = traceur.codegeneration.module.ModuleRequireVisitor;
 var ModuleSymbol = traceur.semantics.symbols.ModuleSymbol;
 var ModuleTransformer = traceur.codegeneration.ModuleTransformer;
 var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
-var ParseTreeType = traceur.syntax.trees.ParseTreeType;
 var Parser = traceur.syntax.Parser;
 var Program = traceur.syntax.trees.Program;
 var ProgramTransformer = traceur.codegeneration.ProgramTransformer;
@@ -43,11 +42,13 @@ var resolveUrl = traceur.util.resolveUrl;
  * @param  {ProgramTree} tree The original program tree.
  * @param  {string} url The relative URL of the module that the program
  *     represents.
+ * @param {string} commonPath The base path of all the files. This is passed
+ *     along to |generateNameForUrl|.
  * @return {[ProgramTree} A new program tree with only one statement, which is
  *     a module definition.
  */
-function wrapProgram(tree, url) {
-  var name = generateNameForUrl(url);
+function wrapProgram(tree, url, commonPath) {
+  var name = generateNameForUrl(url, commonPath);
   return new Program(null,
       [new ModuleDefinition(null,
           createIdentifierToken(name), tree.programElements)]);
@@ -66,9 +67,13 @@ function findCommonPath(paths) {
   return paths.reduce(longestPrefix, paths[0]);
 }
 
-var commonPath;
-
-function generateNameForUrl(url) {
+/**
+ * Generates an identifier string that represents a URL.
+ * @param {string} url
+ * @param {string} commonPath
+ * @return {string}
+ */
+function generateNameForUrl(url, commonPath) {
   return '$' + url.replace(commonPath, '').replace(/[^\d\w$]/g, '_');
 }
 
@@ -83,10 +88,12 @@ function generateNameForUrl(url) {
  *
  * @param {string} url The base URL that all the modules should be relative
  *     to.
+ * @param {string} commonPath The path that is common for all URLs.
  */
-function ModuleRequireTransformer(url) {
+function ModuleRequireTransformer(url, commonPath) {
   ParseTreeTransformer.call(this);
   this.url = url;
+  this.commonPath = commonPath;
 }
 
 ModuleRequireTransformer.prototype = {
@@ -98,7 +105,7 @@ ModuleRequireTransformer.prototype = {
       return tree;
     url = resolveUrl(this.url, url);
 
-    return createIdentifierExpression(generateNameForUrl(url));
+    return createIdentifierExpression(generateNameForUrl(url, this.commonPath));
   }
 };
 
@@ -108,7 +115,7 @@ var startCodeUnit;
 function InlineCodeLoader(reporter, project, elements) {
   InternalLoader.call(this, reporter, project);
   this.elements = elements;
-  this.dirname = path.dirname(project.url);
+  this.dirname = project.url;
 }
 
 InlineCodeLoader.prototype = {
@@ -121,11 +128,11 @@ InlineCodeLoader.prototype = {
   },
 
   transformCodeUnit: function(codeUnit) {
-    var transformer = new ModuleRequireTransformer(codeUnit.url);
+    var transformer = new ModuleRequireTransformer(codeUnit.url, this.dirname);
     var tree = transformer.transformAny(codeUnit.tree);
     if (codeUnit === startCodeUnit)
       return tree;
-    return wrapProgram(tree, codeUnit.url);
+    return wrapProgram(tree, codeUnit.url, this.dirname);
   },
 
   loadTextFile: function(filename, callback, errback) {
@@ -148,7 +155,8 @@ InlineCodeLoader.prototype = {
   }
 };
 
-function allLoaded(project, reporter, elements) {
+function allLoaded(url, reporter, elements) {
+  var project = new Project(url);
   var programTree = new Program(null, elements);
 
   var file = new SourceFile(project.url, '/* dummy */');
@@ -162,11 +170,13 @@ function allLoaded(project, reporter, elements) {
   return transformer.transform(programTree);
 }
 
-function inlineAndCompile(filenames, project, reporter, callback, errback) {
-  commonPath = findCommonPath(filenames);
+
+function inlineAndCompile(filenames, reporter, callback, errback) {
+  var basePath = findCommonPath(filenames);
 
   var loadCount = 0;
   var elements = [];
+  var project = new Project(basePath);
   var loader = new InlineCodeLoader(reporter, project, elements);
 
   function loadNext() {
@@ -178,7 +188,7 @@ function inlineAndCompile(filenames, project, reporter, callback, errback) {
       if (loadCount < filenames.length) {
         loadNext();
       } else {
-        var tree = allLoaded(project, reporter, elements);
+        var tree = allLoaded(basePath, reporter, elements);
         callback(tree);
       }
     }, function() {

@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,11 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('syntax.trees', function() {
-  'use strict';
-
-  var assert = traceur.assert;
-  var ParseTreeType = {};
+  export var ParseTreeType = {};
 
   var typeToNameMap = Object.create(null);
 
@@ -33,7 +29,7 @@ traceur.define('syntax.trees', function() {
    * @param {ParseTreeType} type
    * @return {string}
    */
-  function getTreeNameForType(type) {
+  export function getTreeNameForType(type) {
     // Cache.
     if (type in typeToNameMap)
       return typeToNameMap[type];
@@ -63,11 +59,11 @@ traceur.define('syntax.trees', function() {
    *   - add ParseTreeWriter.visit(XTree)
    *   - add ParseTreeValidator.visit(XTree)
    *
-   * @param {traceur.syntax.trees.ParseTreeType} type
-   * @param {traceur.util.SourceRange} location
+   * @param {ParseTreeType} type
+   * @param {SourceRange} location
    * @constructor
    */
-  function ParseTree(type, location) {
+  export function ParseTree(type, location) {
     this.type = type;
     this.location = location;
   }
@@ -295,10 +291,3 @@ traceur.define('syntax.trees', function() {
       return this.isStatementStandard();
     }
   };
-
-  return {
-    getTreeNameForType: getTreeNameForType,
-    ParseTree: ParseTree,
-    ParseTreeType: ParseTreeType
-  };
-});

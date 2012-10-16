@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
@@ -12,15 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Keywords from '../syntax/Keywords.js';
+import ParseTreeVisitor from '../syntax/ParseTreeVisitor.js';
+import PredefinedName from '../syntax/PredefinedName.js';
 import StringBuilder from '../util/StringBuilder.js';
-
-traceur.define('outputgeneration', function() {
-  'use strict';
-
-  var ParseTreeVisitor = traceur.syntax.ParseTreeVisitor;
-  var PredefinedName = traceur.syntax.PredefinedName;
-  var Keywords = traceur.syntax.Keywords;
-  var TokenType = traceur.syntax.TokenType;
+import TokenType from '../syntax/TokenType.js';
+import createObject from '../util/util.js';
 
   /**
    * Converts a ParseTree to text.
@@ -28,7 +25,7 @@ traceur.define('outputgeneration', function() {
    * @param {boolean} showLineNumbers
    * @constructor
    */
-  function ParseTreeWriter(highlighted, showLineNumbers) {
+  export function ParseTreeWriter(highlighted, showLineNumbers) {
     ParseTreeVisitor.call(this);
     this.highlighted_ = highlighted;
     this.showLineNumbers_ = showLineNumbers;
@@ -40,7 +37,7 @@ traceur.define('outputgeneration', function() {
   var NEW_LINE = '\n';
   var PRETTY_PRINT = true;
 
-  ParseTreeWriter.prototype = traceur.createObject(
+  ParseTreeWriter.prototype = createObject(
       ParseTreeVisitor.prototype, {
 
     /**
@@ -124,7 +121,7 @@ traceur.define('outputgeneration', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ArrowFunctionExpression} tree
+     * @param {ArrowFunctionExpression} tree
      */
     visitArrowFunctionExpression: function(tree) {
       this.write_(TokenType.OPEN_PAREN);
@@ -373,14 +370,14 @@ traceur.define('outputgeneration', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ExportMappingList} tree
+     * @param {ExportMappingList} tree
      */
     visitExportMappingList: function(tree) {
       this.writeList_(tree.paths, TokenType.COMMA, false);
     },
 
     /**
-     * @param {traceur.syntax.trees.ExportMapping} tree
+     * @param {ExportMapping} tree
      */
     visitExportMapping: function(tree) {
       this.visitAny(tree.specifierSet);
@@ -391,7 +388,7 @@ traceur.define('outputgeneration', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ExportSpecifier} tree
+     * @param {ExportSpecifier} tree
      */
     visitExportSpecifier: function(tree) {
       this.write_(tree.lhs);
@@ -402,7 +399,7 @@ traceur.define('outputgeneration', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ExportSpecifierSet} tree
+     * @param {ExportSpecifierSet} tree
      */
     visitExportSpecifierSet: function(tree) {
       this.write_(TokenType.OPEN_CURLY);
@@ -785,7 +782,7 @@ traceur.define('outputgeneration', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.QuasiLiteralExpression} tree
+     * @param {QuasiLiteralExpression} tree
      */
     visitQuasiLiteralExpression: function(tree) {
       // Quasi Literals have important whitespace semantics.
@@ -796,14 +793,14 @@ traceur.define('outputgeneration', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.QuasiLiteralPortion} tree
+     * @param {QuasiLiteralPortion} tree
      */
     visitQuasiLiteralPortion: function(tree) {
       this.writeRaw_(tree.value);
     },
 
     /**
-     * @param {traceur.syntax.trees.QuasiSubstitution} tree
+     * @param {QuasiSubstitution} tree
      */
     visitQuasiSubstitution: function(tree) {
       this.writeRaw_(TokenType.DOLLAR);
@@ -1124,8 +1121,3 @@ traceur.define('outputgeneration', function() {
     }
 
   });
-
-  return {
-    ParseTreeWriter: ParseTreeWriter
-  };
-});

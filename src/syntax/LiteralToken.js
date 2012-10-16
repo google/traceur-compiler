@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,30 +24,24 @@
  * TODO: Regexp literals should have their own token type.
  * TODO: A way to get the processed value, rather than the raw value.
  */
-traceur.define('syntax', function() {
-  'use strict';
 
-  var Token = traceur.syntax.Token;
+import Token from 'Token.js';
+import createObject from '../util/util.js';
 
   /**
-   * @param {traceur.syntax.TokenType} type
+   * @param {TokenType} type
    * @param {string} value
-   * @param {traceur.util.SourceRange} location
+   * @param {SourceRange} location
    * @constructor
    * @extends {Token}
    */
-  function LiteralToken(type, value, location) {
+  export function LiteralToken(type, value, location) {
     Token.call(this, type, location);
     this.value = value;
   }
 
-  LiteralToken.prototype = traceur.createObject(Token.prototype, {
+  LiteralToken.prototype = createObject(Token.prototype, {
     toString: function() {
       return this.value;
     }
   });
-
-  return {
-    LiteralToken: LiteralToken
-  };
-});

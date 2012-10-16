@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,14 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('util', function() {
-  'use strict';
-
   /**
    * A map backed by arrays. All methods are O(n) so only use this when you
    * cannot change the key object.
    */
-  function ArrayMap() {
+  export function ArrayMap() {
     this.values_ = [];
     this.keys_ = [];
   }
@@ -66,8 +63,3 @@ traceur.define('util', function() {
       return this.values_.concat();
     }
   };
-
-  return {
-    ArrayMap: ArrayMap
-  };
-});

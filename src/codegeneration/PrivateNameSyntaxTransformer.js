@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration', function() {
-  'use strict';
+import ParseTreeFactory from 'ParseTreeFactory.js';
+import PredefinedName from '../syntax/PredefinedName.js';
+import TempVarTransformer from 'TempVarTransformer.js';
+import TokenType from '../syntax/TokenType.js';
+import createObject from '../util/util.js';
+import trees from '../syntax/trees/ParseTrees.js';
 
-  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
-  var PredefinedName = traceur.syntax.PredefinedName;
-  var TempVarTransformer = traceur.codegeneration.TempVarTransformer;
-  var TokenType = traceur.syntax.TokenType;
-  var VariableDeclarationList = traceur.syntax.trees.VariableDeclarationList;
-  var VariableStatement = traceur.syntax.trees.VariableStatement;
+  var VariableDeclarationList = trees.VariableDeclarationList;
+  var VariableStatement = trees.VariableStatement;
 
   var createArgumentList = ParseTreeFactory.createArgumentList;
   var createCallExpression = ParseTreeFactory.createCallExpression;
@@ -38,7 +38,7 @@ traceur.define('codegeneration', function() {
    * @extends {TempVarTransformer}
    * @constructor
    */
-  function PrivateNameSyntaxTransformer(identifierGenerator) {
+  export function PrivateNameSyntaxTransformer(identifierGenerator) {
     TempVarTransformer.call(this, identifierGenerator);
   }
 
@@ -53,7 +53,7 @@ traceur.define('codegeneration', function() {
   };
 
   var base = TempVarTransformer.prototype;
-  PrivateNameSyntaxTransformer.prototype = traceur.createObject(base, {
+  PrivateNameSyntaxTransformer.prototype = createObject(base, {
 
     getTransformedName_: function(token) {
       return this.identifierGenerator.getUniqueIdentifier(token.value);
@@ -96,8 +96,3 @@ traceur.define('codegeneration', function() {
           args));
     }
   });
-
-  return {
-    PrivateNameSyntaxTransformer: PrivateNameSyntaxTransformer
-  };
-});

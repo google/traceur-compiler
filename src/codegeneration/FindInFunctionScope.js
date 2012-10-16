@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
@@ -12,10 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration', function() {
-  'use strict';
-
-  var FindVisitor = traceur.codegeneration.FindVisitor;
+import FindVisitor from 'FindVisitor.js';
+import createObject from '../util/util.js';
 
   /**
    * This is used to find something in a tree. Extend this class and override
@@ -29,11 +27,11 @@ traceur.define('codegeneration', function() {
    * @extends {FindVisitor}
    * @constructor
    */
-  function FindInFunctionScope(tree) {
+  export function FindInFunctionScope(tree) {
     FindVisitor.call(this, tree);
   }
 
-  FindInFunctionScope.prototype = traceur.createObject(
+  FindInFunctionScope.prototype = createObject(
       FindVisitor.prototype, {
 
     // don't visit function children or bodies
@@ -42,8 +40,3 @@ traceur.define('codegeneration', function() {
     visitGetAccessor: function(tree) {},
     visitPropertyMethodAssignment: function(tree) {}
   });
-
-  return {
-    FindInFunctionScope: FindInFunctionScope
-  };
-});

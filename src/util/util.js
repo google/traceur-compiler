@@ -12,21 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('util', function() {
-  'use strict';
-
   /**
    * Returns the string value for a literal token.
    * @param {LiteralToken} token
    * @return {string}
    */
-  function evaluateStringLiteral(token) {
+  export function evaluateStringLiteral(token) {
     // TODO(arv): I feel dirty using eval here. We should just do the right
     // thing!
     return eval(token.value);
   }
 
-  return {
-    evaluateStringLiteral: evaluateStringLiteral
-  };
-});
+/**
+ * Similar to {@code Object.create} but instead of taking a property
+ * descriptor it takes an ordinary object.
+ * @param {Object} proto The object acting as the proto.
+ * @param {Object} obj The object describing the fields of the object.
+ * @return {Object} A new object that has the same propertieas as {@code obj}
+ *     and its proto set to {@code proto}.
+ */
+export function createObject(proto, obj) {
+  var newObject = Object.create(proto);
+  Object.getOwnPropertyNames(obj).forEach((name) => {
+    Object.defineProperty(newObject, name,
+                          Object.getOwnPropertyDescriptor(obj, name));
+  });
+  return newObject;
+}

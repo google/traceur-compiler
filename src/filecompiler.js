@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@
   var ModuleDefinition = traceur.syntax.trees.ModuleDefinition;
   var Program = traceur.syntax.trees.Program;
   var ModuleRequireVisitor = traceur.codegeneration.module.ModuleRequireVisitor;
-  var ModuleSymbol = traceur.semantics.symbols.ModuleSymbol;
   var ModuleTransformer = traceur.codegeneration.ModuleTransformer;
   var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
   var Parser = traceur.syntax.Parser;
@@ -40,7 +39,6 @@
   var Project = traceur.semantics.symbols.Project;
   var SourceFile = traceur.syntax.SourceFile
   var TreeWriter = traceur.outputgeneration.TreeWriter;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
   var SourceMapGenerator = traceur.outputgeneration.SourceMapGenerator;
 
   var canonicalizeUrl = traceur.util.canonicalizeUrl;
@@ -112,7 +110,7 @@
         return false;
       }
       data = data.toString('utf8');
-      var sourceFile = new traceur.syntax.SourceFile(filename, data);
+      var sourceFile = new SourceFile(filename, data);
       project.addFile(sourceFile);
       return true;
     });

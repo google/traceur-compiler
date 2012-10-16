@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
@@ -12,10 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('syntax', function() {
-  'use strict';
-
-  var TokenType = traceur.syntax.TokenType;
+  import TokenType from 'TokenType.js';
 
   /**
    * The javascript keywords.
@@ -78,7 +75,7 @@ traceur.define('syntax', function() {
     'await'
   ];
 
-  var Keywords = { };
+  export var Keywords = {};
 
   var keywordsByName = Object.create(null);
   var keywordsByType = Object.create(null);
@@ -124,13 +121,3 @@ traceur.define('syntax', function() {
       return null;
     return keywordsByName[value];
   };
-
-  //Keywords.get = function(TokenType token) {
-  //  return keywordsByType.get(token);
-  //}
-
-  // Export
-  return {
-    Keywords: Keywords
-  };
-});

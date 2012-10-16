@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,17 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('semantics.symbols', function() {
-  'use strict';
-
-  var ArrayMap = traceur.util.ArrayMap;
-  var ExportSymbol = traceur.semantics.symbols.ExportSymbol;
-  var ModuleSymbol = traceur.semantics.symbols.ModuleSymbol;
-  var ObjectMap = traceur.util.ObjectMap;
-  var RuntimeInliner = traceur.codegeneration.RuntimeInliner;
-  var UniqueIdentifierGenerator = traceur.codegeneration.UniqueIdentifierGenerator;
-
-  var resolveUrl = traceur.util.resolveUrl;
+  import ArrayMap from '../../util/ArrayMap.js';
+  import ExportSymbol from 'ExportSymbol.js';
+  import ModuleSymbol from 'ModuleSymbol.js';
+  import ObjectMap from '../../util/ObjectMap.js';
+  import resolveUrl from '../../util/url.js';
+  import UniqueIdentifierGenerator from '../../codegeneration/UniqueIdentifierGenerator.js';
+  import RuntimeInliner from '../../codegeneration/RuntimeInliner.js';
 
   function addAll(self, other) {
     for (var key in other) {
@@ -62,7 +58,7 @@ traceur.define('semantics.symbols', function() {
    *    URLs for external modules.
    * @constructor
    */
-  function Project(url) {
+  export function Project(url) {
     this.identifierGenerator = new UniqueIdentifierGenerator();
     this.runtimeInliner = new RuntimeInliner(this.identifierGenerator);
 
@@ -185,8 +181,3 @@ traceur.define('semantics.symbols', function() {
       return this.moduleExports_.get(tree);
     }
   };
-
-  return {
-    Project: Project
-  };
-});

@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
@@ -12,12 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration', function() {
-  'use strict';
-
-  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory
+import ParseTreeFactory from 'ParseTreeFactory.js';
+import ParseTreeTransformer from 'ParseTreeTransformer.js';
+import ParseTreeType from '../syntax/trees/ParseTree.js';
+import PredefinedName from '../syntax/PredefinedName.js';
+import createObject from '../util/util.js';
 
   var createArgumentList = ParseTreeFactory.createArgumentList;
   var createArrayLiteralExpression = ParseTreeFactory.createArrayLiteralExpression;
@@ -33,7 +32,7 @@ traceur.define('codegeneration', function() {
   var createParenExpression = ParseTreeFactory.createParenExpression;
   var createReturnStatement = ParseTreeFactory.createReturnStatement;
 
-  var APPLY = traceur.syntax.PredefinedName.APPLY;
+  var APPLY = PredefinedName.APPLY;
 
 
   // Spreads the elements in {@code items} into a single array.
@@ -97,7 +96,7 @@ traceur.define('codegeneration', function() {
    * @extends {ParseTreeTransformer}
    * @constructor
    */
-  function SpreadTransformer(runtimeInliner) {
+  export function SpreadTransformer(runtimeInliner) {
     ParseTreeTransformer.call(this);
     this.runtimeInliner_ = runtimeInliner;
   }
@@ -106,7 +105,7 @@ traceur.define('codegeneration', function() {
     return new SpreadTransformer(runtimeInliner).transformAny(tree);
   };
 
-  SpreadTransformer.prototype = traceur.createObject(
+  SpreadTransformer.prototype = createObject(
       ParseTreeTransformer.prototype, {
 
     createExpandCall_: function(elements) {
@@ -248,8 +247,3 @@ traceur.define('codegeneration', function() {
           call(this, tree);
     }
   });
-
-  return {
-    SpreadTransformer: SpreadTransformer
-  };
-});

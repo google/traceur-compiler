@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration.generator', function() {
-  'use strict';
+  import PredefinedName from '../../syntax/PredefinedName.js';
+  import ParseTreeFactory from '../ParseTreeFactory.js';
 
-  var PredefinedName = traceur.syntax.PredefinedName;
-  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
   var createCaseClause = ParseTreeFactory.createCaseClause;
   var createStatementList = ParseTreeFactory.createStatementList;
   var createBreakStatement = ParseTreeFactory.createBreakStatement;
@@ -40,7 +38,7 @@ traceur.define('codegeneration.generator', function() {
    * @param {number} id
    * @constructor
    */
-  function State(id) {
+  export function State(id) {
     this.id = id;
   }
 
@@ -194,9 +192,3 @@ traceur.define('codegeneration.generator', function() {
       return this;
     }
   };
-
-  // Export
-  return {
-    State: State
-  };
-});

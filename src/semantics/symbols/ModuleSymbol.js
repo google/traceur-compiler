@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('semantics.symbols', function() {
-  'use strict';
-
-  var Symbol = traceur.semantics.symbols.Symbol;
-  var SymbolType = traceur.semantics.symbols.SymbolType;
+import Symbol from 'Symbol.js';
+import SymbolType from 'SymbolType.js';
+import createObject from '../../util/util.js';
 
   /**
    * @param {string} name
@@ -25,7 +23,7 @@ traceur.define('semantics.symbols', function() {
    * @constructor
    * @extends {Symbol}
    */
-  function ModuleSymbol(name, parent, tree, url) {
+  export function ModuleSymbol(name, parent, tree, url) {
     Symbol.call(this, SymbolType.MODULE, tree, name);
     this.children_ = Object.create(null);
     this.exports_ = Object.create(null);
@@ -38,7 +36,7 @@ traceur.define('semantics.symbols', function() {
     this.url = url;
   }
 
-  ModuleSymbol.prototype = traceur.createObject(Symbol.prototype, {
+  ModuleSymbol.prototype = createObject(Symbol.prototype, {
 
     /**
      * @param {ModuleSymbol} module
@@ -106,8 +104,3 @@ traceur.define('semantics.symbols', function() {
       return Object.keys(exports).map((key) => exports[key]);
     }
   });
-
-  return {
-    ModuleSymbol: ModuleSymbol
-  };
-});

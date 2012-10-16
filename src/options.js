@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function() {
-
   /**
    * The options are classified into three categories. This enum represents
    * which kind of category an option belong to.
@@ -283,5 +281,4 @@
   addBoolOption('freeVariableChecker');
   addBoolOption('validate');
 
-  traceur.options = options;
-})();
+  export options;

@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration', function() {
-  'use strict';
+import ParseTreeVisitor from '../syntax/ParseTreeVisitor.js';
+import createObject from '../util/util.js';
 
-  var ParseTreeVisitor = traceur.syntax.ParseTreeVisitor;
 
   /**
    * This is used to find something in a tree. Extend this class and override
@@ -29,7 +28,7 @@ traceur.define('codegeneration', function() {
    * @extends {ParseTreeVisitor}
    * @constructor
    */
-  function FindVisitor(tree, keepOnGoing) {
+  export function FindVisitor(tree, keepOnGoing) {
     this.found_ = false;
     this.keepOnGoing_ = keepOnGoing;
     try {
@@ -45,7 +44,7 @@ traceur.define('codegeneration', function() {
   // tree.
   var foundSentinel = {};
 
-  FindVisitor.prototype = traceur.createObject(
+  FindVisitor.prototype = createObject(
       ParseTreeVisitor.prototype, {
 
     /**
@@ -64,8 +63,3 @@ traceur.define('codegeneration', function() {
       }
     }
   });
-
-  return {
-    FindVisitor: FindVisitor
-  };
-});

@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
@@ -12,26 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('outputgeneration', function() {
-  'use strict';
+import ParseTreeWriter from 'ParseTreeWriter.js';
+import createObject from '../util/util.js';
 
-  var ParseTreeWriter = traceur.outputgeneration.ParseTreeWriter;
-
-    /**
+  /**
    * Converts a ParseTree to text and a source Map
    * @param {ParseTree} highlighted
    * @param {boolean} showLineNumbers
-   * @param { {SourceMapGenerator} sourceMapGenerator
+   * @param {SourceMapGenerator} sourceMapGenerator
    * @constructor
    */
-  function ParseTreeMapWriter(highlighted, showLineNumbers,
+  export function ParseTreeMapWriter(highlighted, showLineNumbers,
                               sourceMapGenerator) {
     ParseTreeWriter.call(this, highlighted, showLineNumbers);
     this.sourceMapGenerator_ = sourceMapGenerator;
     this.outputLineCount = 0;
   }
 
-  ParseTreeMapWriter.prototype = traceur.createObject(
+  ParseTreeMapWriter.prototype = createObject(
       ParseTreeWriter.prototype, {
 
     write_: function(value) {
@@ -59,9 +57,3 @@ traceur.define('outputgeneration', function() {
       this.sourceMapGenerator_.addMapping(mapping);
     }
   });
-
-  return {
-    ParseTreeMapWriter: ParseTreeMapWriter
-  };
-
-});

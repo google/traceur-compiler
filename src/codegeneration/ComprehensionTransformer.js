@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration', function() {
-  'use strict';
+import AlphaRenamer from 'AlphaRenamer.js';
+import FindInFunctionScope from 'FindInFunctionScope.js';
+import ParseTreeFactory from 'ParseTreeFactory.js';
+import PredefinedName from '../syntax/PredefinedName.js';
+import TempVarTransformer from 'TempVarTransformer.js';
+import TokenType from '../syntax/TokenType.js';
+import createObject from '../util/util.js';
+import trees from '../syntax/trees/ParseTrees.js';
 
-  var AlphaRenamer = traceur.codegeneration.AlphaRenamer;
-  var FindInFunctionScope = traceur.codegeneration.FindInFunctionScope;
-  var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
-  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
-  var PredefinedName = traceur.syntax.PredefinedName;
-  var TempVarTransformer = traceur.codegeneration.TempVarTransformer;
-  var TokenType = traceur.syntax.TokenType;
+  var FunctionDeclaration = trees.FunctionDeclaration;
 
   var createBlock = ParseTreeFactory.createBlock;
   var createCallExpression = ParseTreeFactory.createCallExpression;
@@ -41,7 +41,7 @@ traceur.define('codegeneration', function() {
   function ThisFinder(tree) {
     FindInFunctionScope.call(this, tree);
   }
-  ThisFinder.prototype = traceur.createObject(
+  ThisFinder.prototype = createObject(
       FindInFunctionScope.prototype, {
 
     visitThisExpression: function(tree) {
@@ -58,7 +58,7 @@ traceur.define('codegeneration', function() {
   function ArgumentsFinder(tree) {
     FindInFunctionScope.call(this, tree);
   }
-  ArgumentsFinder.prototype = traceur.createObject(
+  ArgumentsFinder.prototype = createObject(
       FindInFunctionScope.prototype, {
 
     visitIdentifierExpression: function(tree) {
@@ -77,12 +77,12 @@ traceur.define('codegeneration', function() {
    * @constructor
    * @extends {TempVarTransformer}
    */
-  function ComprehensionTransformer(identifierGenerator) {
+  export function ComprehensionTransformer(identifierGenerator) {
     TempVarTransformer.call(this, identifierGenerator);
   }
 
   var proto = TempVarTransformer.prototype;
-  ComprehensionTransformer.prototype = traceur.createObject(proto, {
+  ComprehensionTransformer.prototype = createObject(proto, {
     /**
      * transformArrayComprehension and transformGeneratorComprehension calls
      * this
@@ -143,8 +143,3 @@ traceur.define('codegeneration', function() {
       return createParenExpression(createCallExpression(func));
     }
   });
-
-  return {
-    ComprehensionTransformer: ComprehensionTransformer
-  };
-});

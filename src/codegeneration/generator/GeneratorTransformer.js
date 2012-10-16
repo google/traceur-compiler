@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
@@ -12,21 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration.generator', function() {
-  'use strict';
-
-  var TokenType = traceur.syntax.TokenType;
-  var ParseTree = traceur.syntax.trees.ParseTree;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
-  var PredefinedName = traceur.syntax.PredefinedName;
-
-  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
-
-  var CPSTransformer = traceur.codegeneration.generator.CPSTransformer;
-  var EndState = traceur.codegeneration.generator.EndState;
-  var YieldState = traceur.codegeneration.generator.YieldState;
-  var StateMachine = traceur.syntax.trees.StateMachine;
+import CPSTransformer from 'CPSTransformer.js';
+import EndState from 'EndState.js';
+import ParseTreeFactory from '../ParseTreeFactory.js';
+import ParseTreeType from '../../syntax/trees/ParseTree.js';
+import PredefinedName from '../../syntax/PredefinedName.js';
+import StateMachine from '../../syntax/trees/StateMachine.js';
+import TokenType from '../../syntax/TokenType.js';
+import YieldState from 'YieldState.js';
+import createObject from '../../util/util.js';
 
   var createArgumentList = ParseTreeFactory.createArgumentList;
   var createAssignmentStatement = ParseTreeFactory.createAssignmentStatement;
@@ -65,7 +59,7 @@ traceur.define('codegeneration.generator', function() {
    * @extends {CPSTransformer}
    * @constructor
    */
-  function GeneratorTransformer(reporter) {
+  export function GeneratorTransformer(reporter) {
     CPSTransformer.call(this, reporter);
   }
 
@@ -78,7 +72,7 @@ traceur.define('codegeneration.generator', function() {
     return new GeneratorTransformer(reporter).transformGeneratorBody(body);
   };
 
-  GeneratorTransformer.prototype = traceur.createObject(
+  GeneratorTransformer.prototype = createObject(
       CPSTransformer.prototype, {
 
     /**
@@ -243,8 +237,3 @@ traceur.define('codegeneration.generator', function() {
       return [createReturnStatement(createFalseLiteral())];
     }
   });
-
-  return {
-    GeneratorTransformer: GeneratorTransformer
-  };
-});

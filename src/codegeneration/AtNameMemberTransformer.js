@@ -12,15 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration', function() {
-  'use strict';
+import ParseTreeFactory from 'ParseTreeFactory.js';
+import ParseTreeType from '../syntax/trees/ParseTree.js';
+import PredefinedName from '../syntax/PredefinedName.js';
+import TempVarTransformer from 'TempVarTransformer.js';
+import TokenType from '../syntax/TokenType.js';
+import createObject from '../util/util.js';
+import expandMemberExpression from 'OperatorExpander.js';
+import trees from '../syntax/trees/ParseTrees.js';
 
-  var AtNameExpression = traceur.syntax.trees.AtNameExpression;
-  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var TempVarTransformer = traceur.codegeneration.TempVarTransformer;
-  var TokenType = traceur.syntax.TokenType;
-  var expandMemberExpression = traceur.codegeneration.expandMemberExpression;
+  var AtNameExpression = trees.AtNameExpression;
 
   var createArgumentList = ParseTreeFactory.createArgumentList;
   var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression;
@@ -31,11 +32,11 @@ traceur.define('codegeneration', function() {
   var createMemberExpression = ParseTreeFactory.createMemberExpression;
   var createParenExpression = ParseTreeFactory.createParenExpression;
 
-  var DELETE_PROPERTY = traceur.syntax.PredefinedName.DELETE_PROPERTY;
-  var GET_PROPERTY = traceur.syntax.PredefinedName.GET_PROPERTY;
-  var RUNTIME = traceur.syntax.PredefinedName.RUNTIME;
-  var SET_PROPERTY = traceur.syntax.PredefinedName.SET_PROPERTY;
-  var TRACEUR = traceur.syntax.PredefinedName.TRACEUR;
+  var DELETE_PROPERTY = PredefinedName.DELETE_PROPERTY;
+  var GET_PROPERTY = PredefinedName.GET_PROPERTY;
+  var RUNTIME = PredefinedName.RUNTIME;
+  var SET_PROPERTY = PredefinedName.SET_PROPERTY;
+  var TRACEUR = PredefinedName.TRACEUR;
 
   /**
    * Transforms expr.@name into traceur.runtime.getProperty(expr, @name). It
@@ -49,7 +50,7 @@ traceur.define('codegeneration', function() {
    * @extends {TempVarTransformer}
    * @constructor
    */
-  function AtNameMemberTransformer(identifierGenerator) {
+  export function AtNameMemberTransformer(identifierGenerator) {
     TempVarTransformer.call(this, identifierGenerator);
   }
 
@@ -63,7 +64,7 @@ traceur.define('codegeneration', function() {
   };
 
   var base = TempVarTransformer.prototype;
-  AtNameMemberTransformer.prototype = traceur.createObject(base, {
+  AtNameMemberTransformer.prototype = createObject(base, {
     transformBinaryOperator: function(tree) {
 
       if (tree.left.type === ParseTreeType.MEMBER_EXPRESSION &&
@@ -158,8 +159,3 @@ traceur.define('codegeneration', function() {
           createArgumentList(operand, atNameExpression));
     }
   });
-
-  return {
-    AtNameMemberTransformer: AtNameMemberTransformer
-  };
-});

@@ -12,12 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration', function() {
-  'use strict';
-
-  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var TokenType = traceur.syntax.TokenType;
+import ParseTreeFactory from 'ParseTreeFactory.js';
+import ParseTreeType from '../syntax/trees/ParseTree.js';
+import TokenType from '../syntax/TokenType.js';
 
   var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression;
   var createBinaryOperator = ParseTreeFactory.createBinaryOperator;
@@ -74,7 +71,7 @@ traceur.define('codegeneration', function() {
    * @param {TempVarTransformer} tempVarTransformer
    * @return {ParseTree}
    */
-  function expandMemberLookupExpression(tree, tempVarTransformer) {
+  export function expandMemberLookupExpression(tree, tempVarTransformer) {
     var tmp1;
     var expressions = [];
     if (tree.left.operand.type == ParseTreeType.SUPER_EXPRESSION ||
@@ -112,7 +109,7 @@ traceur.define('codegeneration', function() {
    * @param {TempVarTransformer} tempVarTransformer
    * @return {ParseTree}
    */
-  function expandMemberExpression(tree, tempVarTransformer) {
+  export function expandMemberExpression(tree, tempVarTransformer) {
     var tmp;
     var expressions = [];
     if (tree.left.operand.type == ParseTreeType.SUPER_EXPRESSION ||
@@ -132,9 +129,3 @@ traceur.define('codegeneration', function() {
                 tree.right)));
     return createParenExpression(createCommaExpression(expressions));
   }
-
-  return {
-    expandMemberLookupExpression: expandMemberLookupExpression,
-    expandMemberExpression: expandMemberExpression
-  };
-});

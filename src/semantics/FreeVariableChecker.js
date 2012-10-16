@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,17 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('semantics', function() {
-  'use strict';
+import IdentifierToken from '../syntax/IdentifierToken.js';
+import ParseTreeType from '../syntax/trees/ParseTree.js';
+import ParseTreeVisitor from '../syntax/ParseTreeVisitor.js';
+import PredefinedName from '../syntax/PredefinedName.js';
+import SourcePosition from '../util/SourcePosition.js';
+import TokenType from '../syntax/TokenType.js';
+import createObject from '../util/util.js';
+import trees from '../syntax/trees/ParseTrees.js';
 
-  var TokenType = traceur.syntax.TokenType;
-  var ParseTreeVisitor = traceur.syntax.ParseTreeVisitor;
-  var IdentifierToken = traceur.syntax.IdentifierToken;
-  var IdentifierExpression = traceur.syntax.trees.IdentifierExpression;
-  var BindingIdentifier = traceur.syntax.trees.BindingIdentifier;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var SourcePosition = traceur.syntax.SourcePosition;
-  var PredefinedName = traceur.syntax.PredefinedName;
+  var IdentifierExpression = trees.IdentifierExpression;
+  var BindingIdentifier = trees.BindingIdentifier;
 
   /**
    * Finds the identifiers that are not bound in a program. Run this after all
@@ -44,7 +44,7 @@ traceur.define('semantics', function() {
    * @extends {ParseTreeVisitor}
    * @constructor
    */
-  function FreeVariableChecker(reporter) {
+  export function FreeVariableChecker(reporter) {
     ParseTreeVisitor.call(this);
     this.reporter_ = reporter;
   }
@@ -98,10 +98,10 @@ traceur.define('semantics', function() {
    */
   FreeVariableChecker.checkProgram = function(reporter, tree) {
     new FreeVariableChecker(reporter).visitProgram(tree, global);
-  }
+  };
 
   var proto = ParseTreeVisitor.prototype;
-  FreeVariableChecker.prototype = traceur.createObject(proto, {
+  FreeVariableChecker.prototype = createObject(proto, {
 
     /** Current scope (block, program) */
     scope_: null,
@@ -307,8 +307,3 @@ traceur.define('semantics', function() {
       this.reporter_.reportError.apply(this.reporter_, args);
     }
   });
-
-  return {
-    FreeVariableChecker: FreeVariableChecker
-  };
-});

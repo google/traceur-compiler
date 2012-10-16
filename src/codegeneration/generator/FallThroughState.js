@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,10 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration.generator', function() {
-  'use strict';
-
-  var State = traceur.codegeneration.generator.State;
+import State from 'State.js';
+import createObject from '../../util/util.js';
 
   /**
    * @param {number} id
@@ -24,13 +22,13 @@ traceur.define('codegeneration.generator', function() {
    * @constructor
    * @extends {State}
    */
-  function FallThroughState(id, fallThroughState, statements) {
+  export function FallThroughState(id, fallThroughState, statements) {
     State.call(this, id);
     this.fallThroughState = fallThroughState;
     this.statements = statements;
   }
 
-  FallThroughState.prototype = traceur.createObject(State.prototype, {
+  FallThroughState.prototype = createObject(State.prototype, {
 
     /**
      * @param {number} oldState
@@ -58,8 +56,3 @@ traceur.define('codegeneration.generator', function() {
       return statements;
     }
   });
-
-  return {
-    FallThroughState: FallThroughState
-  };
-});

@@ -12,8 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(global) {
-  'use strict';
+module traceur {
+  var global = this;
+
+  // TODO(arv): Remove this hack.
+  var traceurRuntime = global.traceur.runtime;
+  export var runtime = traceurRuntime;
+
+  import options from 'options.js';
+  export options;
+
+  import createObject from 'util/util.js';
+  export createObject;
 
   /**
    * Builds an object structure for the provided namespace path,
@@ -41,7 +51,7 @@
    * @param {string} name
    * @param {!Function} fun
    */
-  function define(name, fun) {
+  export function define(name, fun) {
     var obj = exportPath(name);
     var exports = fun();
     for (var propertyName in exports) {
@@ -55,8 +65,8 @@
     }
   }
 
-  function assert(b) {
-    if (!b && traceur.options.debug)
+  export function assert(b) {
+    if (!b && options.debug)
       throw Error('Assertion failed');
   }
 
@@ -65,25 +75,8 @@
    * @param {string} code
    * @return {*} The continuation value of the code.
    */
-  function strictGlobalEval(code) {
+  export function strictGlobalEval(code) {
     return ('global', eval)('"use strict";' + code);
-  }
-
-  /**
-   * Similar to {@code Object.create} but instead of taking a property
-   * descriptor it takes an ordinary object.
-   * @param {Object} proto The object acting as the proto.
-   * @param {Object} obj The object describing the fields of the object.
-   * @return {Object} A new object that has the same propertieas as {@code obj}
-   *     and its proto set to {@code proto}.
-   */
-  function createObject(proto, obj) {
-    var newObject = Object.create(proto);
-    Object.getOwnPropertyNames(obj).forEach((name) => {
-      Object.defineProperty(newObject, name,
-                            Object.getOwnPropertyDescriptor(obj, name));
-    });
-    return newObject;
   }
 
   var uidCounter = 0;
@@ -92,16 +85,113 @@
    * Returns a new unique ID.
    * @return {number}
    */
-  function getUid() {
+  export function getUid() {
     return ++uidCounter;
   }
 
-  // Do the export before we execute the rest.
-  global.traceur = {
-    assert: assert,
-    createObject: createObject,
-    define: define,
-    getUid: getUid,
-    strictGlobalEval: strictGlobalEval
-  };
-})(this);
+  export module semantics {
+    import ModuleAnalyzer from 'semantics/ModuleAnalyzer.js';
+    export ModuleAnalyzer;
+
+    export module symbols {
+      import Project from 'semantics/symbols/Project.js';
+      export Project;
+    }
+
+    import VariableBinder from 'semantics/VariableBinder.js';
+    export VariableBinder;
+  }
+
+  export module util {
+    import {canonicalizeUrl, resolveUrl} from 'util/url.js';
+    export canonicalizeUrl, resolveUrl;
+
+    import evaluateStringLiteral from 'util/util.js';
+    export evaluateStringLiteral;
+
+    import ErrorReporter from 'util/ErrorReporter.js';
+    export ErrorReporter;
+
+    import TestErrorReporter from 'util/TestErrorReporter.js';
+    export TestErrorReporter;
+
+    import SourcePosition from 'util/SourcePosition.js';
+    export SourcePosition;
+
+    import MutedErrorReporter from 'util/MutedErrorReporter.js';
+    export MutedErrorReporter;
+
+    import removeDotSegments from 'util/url.js';
+    export removeDotSegments;
+  }
+
+  export module syntax {
+    import Scanner from 'syntax/Scanner.js';
+    export Scanner;
+
+    import SourceFile from 'syntax/SourceFile.js';
+    export SourceFile;
+
+    import trees from 'syntax/trees/ParseTrees.js';
+    export trees;
+
+    import Parser from 'syntax/Parser.js';
+    export Parser;
+
+    import Token from 'syntax/Token.js';
+    export Token;
+
+    import TokenType from 'syntax/TokenType.js';
+    export TokenType;
+
+    import IdentifierToken from 'syntax/IdentifierToken.js';
+    export IdentifierToken;
+
+    import LiteralToken from 'syntax/LiteralToken.js';
+    export LiteralToken;
+
+    import ParseTreeValidator from 'syntax/ParseTreeValidator.js';
+    export ParseTreeValidator;
+  }
+
+  export module outputgeneration {
+    import ProjectWriter from 'outputgeneration/ProjectWriter.js';
+    export ProjectWriter;
+
+    import TreeWriter from 'outputgeneration/TreeWriter.js';
+    export TreeWriter;
+
+    import SourceMapConsumer from 'outputgeneration/SourceMapIntegration.js';
+    export SourceMapConsumer;
+
+    import SourceMapGenerator from 'outputgeneration/SourceMapIntegration.js';
+    export SourceMapGenerator;
+  }
+
+  export module codegeneration {
+    import ParseTreeFactory from 'codegeneration/ParseTreeFactory.js';
+    export ParseTreeFactory;
+
+    export module module {
+      import ModuleRequireVisitor from 'codegeneration/module/ModuleRequireVisitor.js';
+      export ModuleRequireVisitor;
+    }
+
+    import ParseTreeTransformer from 'codegeneration/ParseTreeTransformer.js';
+    export ParseTreeTransformer;
+
+    import ModuleTransformer from 'codegeneration/ModuleTransformer.js';
+    export ModuleTransformer;
+
+    import ProgramTransformer from 'codegeneration/ProgramTransformer.js';
+    export ProgramTransformer;
+
+    import Compiler from 'codegeneration/Compiler.js';
+    export Compiler;
+  }
+
+  import {internals, getModuleInstanceByUrl, CodeLoader} from 'runtime/modules.js';
+  runtime.internals = internals;
+  runtime.getModuleInstanceByUrl = getModuleInstanceByUrl;
+  runtime.CodeLoader = CodeLoader;
+}

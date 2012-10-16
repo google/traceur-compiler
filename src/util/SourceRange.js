@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,21 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('util', function() {
-  'use strict';
-
   /**
    * A range of positions in a source string.
    * @param {SourcePosition} start Start is inclusive.
    * @param {SourcePosition} end End is exclusive.
    * @constructor
    */
-  function SourceRange(start, end) {
+  export function SourceRange(start, end) {
     this.start = start;
     this.end = end;
   }
-
-  return {
-    SourceRange: SourceRange
-  };
-});

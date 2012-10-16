@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
@@ -12,15 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration', function() {
-  'use strict';
+import ParseTreeFactory from 'ParseTreeFactory.js';
+import ParseTreeTransformer from 'ParseTreeTransformer.js';
+import TokenType from '../syntax/TokenType.js';
+import createObject from '../util/util.js';
+import trees from '../syntax/trees/ParseTrees.js';
 
-  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
-  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
-  var Program = traceur.syntax.trees.Program;
-
-  var ParseTree = traceur.syntax.trees.ParseTree;
-  var TokenType = traceur.syntax.TokenType;
+  var Program = trees.Program;
 
   var createBlock = ParseTreeFactory.createBlock;
   var createVariableStatement = ParseTreeFactory.createVariableStatement;
@@ -60,13 +58,13 @@ traceur.define('codegeneration', function() {
    * @constructor
    * @extends {ParseTreeTransformer}
    */
-  function TempVarTransformer(identifierGenerator) {
+  export function TempVarTransformer(identifierGenerator) {
     this.identifierGenerator = identifierGenerator
     this.tempVarStack_ = [];
   }
 
   var proto = ParseTreeTransformer.prototype;
-  TempVarTransformer.prototype = traceur.createObject(proto, {
+  TempVarTransformer.prototype = createObject(proto, {
 
     transformProgram: function(tree) {
       var elements = transformStatements(this, tree.programElements);
@@ -109,8 +107,3 @@ traceur.define('codegeneration', function() {
         vars.splice(index, 1);
     },
   });
-
-  return {
-    TempVarTransformer: TempVarTransformer
-  };
-});

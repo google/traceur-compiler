@@ -12,13 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration', function() {
-  'use strict';
-
-  var ComprehensionTransformer = traceur.codegeneration.ComprehensionTransformer;
-  var ParseTree = traceur.syntax.trees.ParseTree;
-  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
-  var TokenType = traceur.syntax.TokenType;
+import ComprehensionTransformer from 'ComprehensionTransformer.js';
+import ParseTreeFactory from 'ParseTreeFactory.js';
+import TokenType from '../syntax/TokenType.js';
+import createObject from '../util/util.js';
 
   var createArrayLiteralExpression = ParseTreeFactory.createArrayLiteralExpression;
   var createAssignmentStatement = ParseTreeFactory.createAssignmentStatement;
@@ -63,7 +60,7 @@ traceur.define('codegeneration', function() {
    * @constructor
    * @extends {ComprehensionTransformer}
    */
-  function ArrayComprehensionTransformer(identifierGenerator) {
+  export function ArrayComprehensionTransformer(identifierGenerator) {
     ComprehensionTransformer.call(this, identifierGenerator);
   }
 
@@ -78,7 +75,7 @@ traceur.define('codegeneration', function() {
         transformAny(tree);
   };
 
-  ArrayComprehensionTransformer.prototype = traceur.createObject(
+  ArrayComprehensionTransformer.prototype = createObject(
       ComprehensionTransformer.prototype, {
     transformArrayComprehension: function(tree) {
       var expression = this.transformAny(tree.expression);
@@ -108,8 +105,3 @@ traceur.define('codegeneration', function() {
                                          initStatement, returnStatement);
     }
   });
-
-  return {
-    ArrayComprehensionTransformer: ArrayComprehensionTransformer
-  };
-});

@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('util', function() {
-  'use strict';
-
   /**
    * A position in a source string - includes offset, line and column.
    * @param {SourceFile} source
@@ -23,7 +20,7 @@ traceur.define('util', function() {
    * @param {number} column
    * @constructor
    */
-  function SourcePosition(source, offset, line, column) {
+  export function SourcePosition(source, offset, line, column) {
     this.source = source;
     this.offset = offset;
     this.line = line;
@@ -36,8 +33,3 @@ traceur.define('util', function() {
           ':' + (this.line + 1) + ':' + (this.column + 1);
     }
   };
-
-  return {
-    SourcePosition: SourcePosition
-  };
-});

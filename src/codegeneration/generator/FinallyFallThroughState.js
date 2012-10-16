@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,10 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration.generator', function() {
-  'use strict';
-
-  var State = traceur.codegeneration.generator.State;
+import State from 'State.js';
+import createObject from '../../util/util.js';
 
   /**
    * These are a placeholder for the fallthrough off the end of a finally block.
@@ -25,11 +23,11 @@ traceur.define('codegeneration.generator', function() {
    * @constructor
    * @extends {State}
    */
-  function FinallyFallThroughState(id) {
+  export function FinallyFallThroughState(id) {
     State.call(this, id);
   }
 
-  FinallyFallThroughState.prototype = traceur.createObject(State.prototype, {
+  FinallyFallThroughState.prototype = createObject(State.prototype, {
 
     /**
      * @param {number} oldState
@@ -61,8 +59,3 @@ traceur.define('codegeneration.generator', function() {
       throw new Error('these are generated in addFinallyFallThroughDispatches');
     }
   });
-
-  return {
-    FinallyFallThroughState: FinallyFallThroughState
-  };
-});

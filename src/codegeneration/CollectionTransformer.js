@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
@@ -12,15 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration', function() {
-  'use strict';
-
-  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
-  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var TempVarTransformer = traceur.codegeneration.TempVarTransformer;
-  var TokenType = traceur.syntax.TokenType;
-  var expandMemberLookupExpression = traceur.codegeneration.expandMemberLookupExpression;
+import ParseTreeFactory from 'ParseTreeFactory.js';
+import ParseTreeType from '../syntax/trees/ParseTree.js';
+import PredefinedName from '../syntax/PredefinedName.js';
+import TempVarTransformer from 'TempVarTransformer.js';
+import TokenType from '../syntax/TokenType.js';
+import createObject from '../util/util.js';
+import expandMemberLookupExpression from 'OperatorExpander.js';
 
   var createArgumentList = ParseTreeFactory.createArgumentList;
   var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression;
@@ -31,12 +29,12 @@ traceur.define('codegeneration', function() {
   var createMemberExpression = ParseTreeFactory.createMemberExpression;
   var createParenExpression = ParseTreeFactory.createParenExpression;
 
-  var RUNTIME = traceur.syntax.PredefinedName.RUNTIME;
-  var TRACEUR = traceur.syntax.PredefinedName.TRACEUR;
-  var ELEMENT_DELETE = traceur.syntax.PredefinedName.ELEMENT_DELETE;
-  var ELEMENT_GET = traceur.syntax.PredefinedName.ELEMENT_GET;
-  var ELEMENT_HAS = traceur.syntax.PredefinedName.ELEMENT_HAS;
-  var ELEMENT_SET = traceur.syntax.PredefinedName.ELEMENT_SET;
+  var RUNTIME = PredefinedName.RUNTIME;
+  var TRACEUR = PredefinedName.TRACEUR;
+  var ELEMENT_DELETE = PredefinedName.ELEMENT_DELETE;
+  var ELEMENT_GET = PredefinedName.ELEMENT_GET;
+  var ELEMENT_HAS = PredefinedName.ELEMENT_HAS;
+  var ELEMENT_SET = PredefinedName.ELEMENT_SET;
 
 
   /**
@@ -65,10 +63,10 @@ traceur.define('codegeneration', function() {
    *   object[key] = 42;
    *
    * @param {UniqueIdentifierGenerator} identifierGenerator
-   * @extends {ParseTreeTransformer}
+   * @extends {TempVarTransformer}
    * @constructor
    */
-  function CollectionTransformer(identifierGenerator) {
+  export function CollectionTransformer(identifierGenerator) {
     TempVarTransformer.call(this, identifierGenerator);
   }
 
@@ -82,7 +80,7 @@ traceur.define('codegeneration', function() {
   };
 
   var proto = TempVarTransformer.prototype;
-  CollectionTransformer.prototype = traceur.createObject(proto, {
+  CollectionTransformer.prototype = createObject(proto, {
     transformBinaryOperator: function(tree) {
       if (tree.operator.type === TokenType.IN) {
         var name = this.transformAny(tree.left);
@@ -173,8 +171,3 @@ traceur.define('codegeneration', function() {
           createArgumentList(operand, memberExpression));
     }
   });
-
-  return {
-    CollectionTransformer: CollectionTransformer
-  };
-});

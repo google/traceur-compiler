@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('util', function() {
-  'use strict';
-
   // The following is taken from Closure Library:
   //
   //   buildFromEncodedParts
@@ -203,7 +200,7 @@ traceur.define('util', function() {
    * @param {string} path A non-empty path component.
    * @return {string} Path component with removed dot segments.
    */
-  function removeDotSegments(path) {
+  export function removeDotSegments(path) {
     if (path === '/')
       return '/';
 
@@ -270,7 +267,7 @@ traceur.define('util', function() {
    * @param {string} url
    * @return {string}
    */
-  function canonicalizeUrl(url) {
+  export function canonicalizeUrl(url) {
     var parts = split(url);
     return joinAndCanonicalizePath(parts);
   }
@@ -281,7 +278,7 @@ traceur.define('util', function() {
    * @param {string} to The URL to resolve.
    * @return {string}
    */
-  function resolveUrl(base, url) {
+  export function resolveUrl(base, url) {
     if (url[0] === '@')
       return url;
 
@@ -310,10 +307,3 @@ traceur.define('util', function() {
     parts[ComponentIndex.PATH] = path;
     return joinAndCanonicalizePath(parts);
   }
-
-  return {
-    canonicalizeUrl: canonicalizeUrl,
-    removeDotSegments:removeDotSegments,
-    resolveUrl: resolveUrl
-  };
-});

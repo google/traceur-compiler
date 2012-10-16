@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration', function() {
-  'use strict';
+import MutedErrorReporter from '../util/MutedErrorReporter.js';
+import ParseTreeFactory from 'ParseTreeFactory.js';
+import ParseTreeTransformer from 'ParseTreeTransformer.js';
+import Parser from '../syntax/Parser.js';
+import SourceFile from '../syntax/SourceFile.js';
+import TokenType from '../syntax/TokenType.js';
+import createObject from '../util/util.js';
+import trees from '../syntax/trees/ParseTrees.js';
 
-  var MutedErrorReporter = traceur.util.MutedErrorReporter;
-  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
-  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;;
-  var Parser = traceur.syntax.Parser;
-  var Program = traceur.syntax.trees.Program;
-  var SourceFile = traceur.syntax.SourceFile;
-  var TokenType = traceur.syntax.TokenType;
+  var Program = trees.Program;
 
   var createVariableStatement = ParseTreeFactory.createVariableStatement;
   var createVariableDeclaration = ParseTreeFactory.createVariableDeclaration;
@@ -49,12 +49,12 @@ traceur.define('codegeneration', function() {
    * do the actual inlining of the function into the head of the program.
    * @param {UniqueIdentifierGenerator} identifierGenerator
    */
-  function RuntimeInliner(identifierGenerator) {
+  export function RuntimeInliner(identifierGenerator) {
     this.identifierGenerator = identifierGenerator;
     this.map_ = Object.create(null);
   }
 
-  RuntimeInliner.prototype = traceur.createObject(
+  RuntimeInliner.prototype = createObject(
       ParseTreeTransformer.prototype, {
 
     /**
@@ -147,8 +147,3 @@ traceur.define('codegeneration', function() {
       return this.getAsIdentifierExpression(name);
     }
   });
-
-  return {
-    RuntimeInliner: RuntimeInliner
-  };
-});

@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,10 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('semantics.symbols', function() {
-  'use strict';
-
-  var assert = traceur.assert;
+  import SymbolType from 'SymbolType.js';
 
   /**
    * A symbol is a named program element.
@@ -28,7 +25,7 @@ traceur.define('semantics.symbols', function() {
    * @param {string} name
    * @constructor
    */
-  function Symbol(type, tree, name) {
+  export function Symbol(type, tree, name) {
     this.type = type;
     this.tree = tree;
     this.name = name;
@@ -40,7 +37,7 @@ traceur.define('semantics.symbols', function() {
      * @return {ExportSymbol}
      */
     asExport: function() {
-      assert(this instanceof traceur.semantics.symbols.ExportSymbol);
+      traceur.assert(this.type == SymbolType.EXPORT);
       return this;
     },
 
@@ -48,12 +45,7 @@ traceur.define('semantics.symbols', function() {
      * @return {ModuleSymbol}
      */
     asModuleSymbol: function() {
-      assert(this instanceof traceur.semantics.symbols.ModuleSymbol);
+      traceur.assert(this.type == SymbolType.MODULE);
       return this;
     }
   };
-
-  return {
-    Symbol: Symbol
-  };
-});

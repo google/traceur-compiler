@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration', function() {
-  'use strict';
+import ParseTreeTransformer from 'ParseTreeTransformer.js';
+import createObject from '../util/util.js';
+import trees from '../syntax/trees/ParseTrees.js';
 
-  var IdentifierExpression = traceur.syntax.trees.IdentifierExpression;
-  var PropertyNameAssignment = traceur.syntax.trees.PropertyNameAssignment;
-  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
+  var IdentifierExpression = trees.IdentifierExpression;
+  var PropertyNameAssignment = trees.PropertyNameAssignment;
 
   /**
    * Desugars property name shorthands
@@ -27,13 +27,13 @@ traceur.define('codegeneration', function() {
    * @extends {ParseTreeTransformer}
    * @constructor
    */
-  function PropertyNameShorthandTransformer() {}
+  export function PropertyNameShorthandTransformer() {}
 
   PropertyNameShorthandTransformer.transformTree = function(tree) {
     return new PropertyNameShorthandTransformer().transformAny(tree);
   };
 
-  PropertyNameShorthandTransformer.prototype = traceur.createObject(
+  PropertyNameShorthandTransformer.prototype = createObject(
       ParseTreeTransformer.prototype, {
 
     transformPropertyNameShorthand: function(tree) {
@@ -43,8 +43,3 @@ traceur.define('codegeneration', function() {
           tree.name, new IdentifierExpression(tree.location, tree.name));
     }
   });
-
-  return {
-    PropertyNameShorthandTransformer: PropertyNameShorthandTransformer
-  };
-});

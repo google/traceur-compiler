@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,10 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration.module', function() {
-  'use strict';
-
-  var ModuleVisitor = traceur.codegeneration.module.ModuleVisitor;
+import ModuleVisitor from 'ModuleVisitor.js';
+import createObject from '../../util/util.js';
 
   /**
    * Visits a parse tree and adds all the module declarations.
@@ -28,11 +26,11 @@ traceur.define('codegeneration.module', function() {
    * @constructor
    * @extends {ModuleVisitor}
    */
-  function ModuleDeclarationVisitor(reporter, project, module) {
+  export function ModuleDeclarationVisitor(reporter, project, module) {
     ModuleVisitor.call(this, reporter, project, module);
   }
 
-  ModuleDeclarationVisitor.prototype = traceur.createObject(
+  ModuleDeclarationVisitor.prototype = createObject(
       ModuleVisitor.prototype, {
 
     visitModuleSpecifier: function(tree) {
@@ -45,8 +43,3 @@ traceur.define('codegeneration.module', function() {
       parent.addModuleWithName(module, name);
     }
   });
-
-  return {
-    ModuleDeclarationVisitor: ModuleDeclarationVisitor
-  };
-});

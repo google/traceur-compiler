@@ -12,112 +12,110 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('syntax', function() {
-  'use strict';
+import IdentifierToken from 'IdentifierToken.js';
+import Keywords from 'Keywords.js';
+import MutedErrorReporter from '../util/MutedErrorReporter.js';
+import NullTree from 'trees/NullTree.js';
+import ParseTreeType from 'trees/ParseTree.js';
+import PredefinedName from 'PredefinedName.js';
+import Scanner from 'Scanner.js';
+import SourceRange from '../util/SourceRange.js';
+import Token from 'Token.js';
+import TokenType from 'TokenType.js';
+import {options: traceurOptions} from '../options.js';
+import trees from 'trees/ParseTrees.js';
 
-  var MutedErrorReporter = traceur.util.MutedErrorReporter;
-  var Keywords = traceur.syntax.Keywords;
-  var PredefinedName = traceur.syntax.PredefinedName;
-  var SourceRange = traceur.util.SourceRange;
-  var Token = traceur.syntax.Token;
-  var TokenType = traceur.syntax.TokenType;
+  var ArgumentList = trees.ArgumentList;
+  var ArrayComprehension = trees.ArrayComprehension;
+  var ArrayLiteralExpression = trees.ArrayLiteralExpression;
+  var ArrayPattern = trees.ArrayPattern;
+  var ArrowFunctionExpression = trees.ArrowFunctionExpression;
+  var AtNameDeclaration = trees.AtNameDeclaration;
+  var AtNameExpression = trees.AtNameExpression;
+  var AwaitStatement = trees.AwaitStatement;
+  var BinaryOperator = trees.BinaryOperator;
+  var BindThisParameter = trees.BindThisParameter;
+  var BindingElement = trees.BindingElement;
+  var BindingIdentifier = trees.BindingIdentifier;
+  var Block = trees.Block;
+  var BreakStatement = trees.BreakStatement;
+  var CallExpression = trees.CallExpression;
+  var CaseClause = trees.CaseClause;
+  var Catch = trees.Catch;
+  var CascadeExpression = trees.CascadeExpression;
+  var ClassDeclaration = trees.ClassDeclaration;
+  var ClassExpression = trees.ClassExpression;
+  var CommaExpression = trees.CommaExpression;
+  var ComprehensionFor = trees.ComprehensionFor;
+  var ConditionalExpression = trees.ConditionalExpression;
+  var ContinueStatement = trees.ContinueStatement;
+  var DebuggerStatement = trees.DebuggerStatement;
+  var DefaultClause = trees.DefaultClause;
+  var DoWhileStatement = trees.DoWhileStatement;
+  var EmptyStatement = trees.EmptyStatement;
+  var ExportDeclaration = trees.ExportDeclaration;
+  var ExportMapping = trees.ExportMapping;
+  var ExportMappingList = trees.ExportMappingList;
+  var ExportSpecifier = trees.ExportSpecifier;
+  var ExportSpecifierSet = trees.ExportSpecifierSet;
+  var ExpressionStatement = trees.ExpressionStatement;
+  var Finally = trees.Finally;
+  var ForOfStatement = trees.ForOfStatement;
+  var ForInStatement = trees.ForInStatement;
+  var ForStatement = trees.ForStatement;
+  var FormalParameterList = trees.FormalParameterList;
+  var FunctionDeclaration = trees.FunctionDeclaration;
+  var GeneratorComprehension = trees.GeneratorComprehension;
+  var GetAccessor = trees.GetAccessor;
+  var IdentifierExpression = trees.IdentifierExpression;
+  var IfStatement = trees.IfStatement;
+  var ImportDeclaration = trees.ImportDeclaration;
+  var ImportBinding = trees.ImportBinding;
+  var ImportSpecifier = trees.ImportSpecifier;
+  var ImportSpecifierSet = trees.ImportSpecifierSet;
+  var LabelledStatement = trees.LabelledStatement;
+  var LiteralExpression = trees.LiteralExpression;
+  var MemberExpression = trees.MemberExpression;
+  var MemberLookupExpression = trees.MemberLookupExpression;
+  var MissingPrimaryExpression = trees.MissingPrimaryExpression;
+  var ModuleDeclaration = trees.ModuleDeclaration;
+  var ModuleDefinition = trees.ModuleDefinition;
+  var ModuleExpression = trees.ModuleExpression;
+  var ModuleRequire = trees.ModuleRequire;
+  var ModuleSpecifier = trees.ModuleSpecifier;
+  var NameStatement = trees.NameStatement;
+  var NewExpression = trees.NewExpression;
+  var ObjectLiteralExpression = trees.ObjectLiteralExpression;
+  var ObjectPattern = trees.ObjectPattern;
+  var ObjectPatternField = trees.ObjectPatternField;
+  var ParenExpression = trees.ParenExpression;
+  var PostfixExpression = trees.PostfixExpression;
+  var Program = trees.Program;
+  var PropertyMethodAssignment = trees.PropertyMethodAssignment;
+  var PropertyNameAssignment = trees.PropertyNameAssignment;
+  var PropertyNameShorthand = trees.PropertyNameShorthand;
+  var QuasiLiteralExpression = trees.QuasiLiteralExpression;
+  var QuasiLiteralPortion = trees.QuasiLiteralPortion;
+  var QuasiSubstitution = trees.QuasiSubstitution;
+  var RestParameter = trees.RestParameter;
+  var ReturnStatement = trees.ReturnStatement;
+  var SetAccessor = trees.SetAccessor;
+  var SpreadExpression = trees.SpreadExpression;
+  var SpreadPatternElement = trees.SpreadPatternElement;
+  var SuperExpression = trees.SuperExpression;
+  var SwitchStatement = trees.SwitchStatement;
+  var ThisExpression = trees.ThisExpression;
+  var ThrowStatement = trees.ThrowStatement;
+  var TryStatement = trees.TryStatement;
+  var UnaryExpression = trees.UnaryExpression;
+  var VariableDeclaration = trees.VariableDeclaration;
+  var VariableDeclarationList = trees.VariableDeclarationList;
+  var VariableStatement = trees.VariableStatement;
+  var WhileStatement = trees.WhileStatement;
+  var WithStatement = trees.WithStatement;
+  var YieldStatement = trees.YieldStatement;
 
-  var ArgumentList = traceur.syntax.trees.ArgumentList;
-  var ArrayComprehension = traceur.syntax.trees.ArrayComprehension;
-  var ArrayLiteralExpression = traceur.syntax.trees.ArrayLiteralExpression;
-  var ArrayPattern = traceur.syntax.trees.ArrayPattern;
-  var ArrowFunctionExpression = traceur.syntax.trees.ArrowFunctionExpression;
-  var AtNameDeclaration = traceur.syntax.trees.AtNameDeclaration;
-  var AtNameExpression = traceur.syntax.trees.AtNameExpression;
-  var AwaitStatement = traceur.syntax.trees.AwaitStatement;
-  var BinaryOperator = traceur.syntax.trees.BinaryOperator;
-  var BindThisParameter = traceur.syntax.trees.BindThisParameter;
-  var BindingElement = traceur.syntax.trees.BindingElement;
-  var BindingIdentifier = traceur.syntax.trees.BindingIdentifier;
-  var Block = traceur.syntax.trees.Block;
-  var BreakStatement = traceur.syntax.trees.BreakStatement;
-  var CallExpression = traceur.syntax.trees.CallExpression;
-  var CaseClause = traceur.syntax.trees.CaseClause;
-  var Catch = traceur.syntax.trees.Catch;
-  var CascadeExpression = traceur.syntax.trees.CascadeExpression;
-  var ClassDeclaration = traceur.syntax.trees.ClassDeclaration;
-  var ClassExpression = traceur.syntax.trees.ClassExpression;
-  var CommaExpression = traceur.syntax.trees.CommaExpression;
-  var ComprehensionFor = traceur.syntax.trees.ComprehensionFor;
-  var ConditionalExpression = traceur.syntax.trees.ConditionalExpression;
-  var ContinueStatement = traceur.syntax.trees.ContinueStatement;
-  var DebuggerStatement = traceur.syntax.trees.DebuggerStatement;
-  var DefaultClause = traceur.syntax.trees.DefaultClause;
-  var DoWhileStatement = traceur.syntax.trees.DoWhileStatement;
-  var EmptyStatement = traceur.syntax.trees.EmptyStatement;
-  var ExportDeclaration = traceur.syntax.trees.ExportDeclaration;
-  var ExportMapping = traceur.syntax.trees.ExportMapping;
-  var ExportMappingList = traceur.syntax.trees.ExportMappingList;
-  var ExportSpecifier = traceur.syntax.trees.ExportSpecifier;
-  var ExportSpecifierSet = traceur.syntax.trees.ExportSpecifierSet;
-  var ExpressionStatement = traceur.syntax.trees.ExpressionStatement;
-  var Finally = traceur.syntax.trees.Finally;
-  var ForOfStatement = traceur.syntax.trees.ForOfStatement;
-  var ForInStatement = traceur.syntax.trees.ForInStatement;
-  var ForStatement = traceur.syntax.trees.ForStatement;
-  var FormalParameterList = traceur.syntax.trees.FormalParameterList;
-  var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
-  var GeneratorComprehension = traceur.syntax.trees.GeneratorComprehension;
-  var GetAccessor = traceur.syntax.trees.GetAccessor;
-  var IdentifierExpression = traceur.syntax.trees.IdentifierExpression;
-  var IdentifierToken = traceur.syntax.IdentifierToken;
-  var IfStatement = traceur.syntax.trees.IfStatement;
-  var ImportDeclaration = traceur.syntax.trees.ImportDeclaration;
-  var ImportBinding = traceur.syntax.trees.ImportBinding;
-  var ImportSpecifier = traceur.syntax.trees.ImportSpecifier;
-  var ImportSpecifierSet = traceur.syntax.trees.ImportSpecifierSet;
-  var LabelledStatement = traceur.syntax.trees.LabelledStatement;
-  var LiteralExpression = traceur.syntax.trees.LiteralExpression;
-  var MemberExpression = traceur.syntax.trees.MemberExpression;
-  var MemberLookupExpression = traceur.syntax.trees.MemberLookupExpression;
-  var MissingPrimaryExpression = traceur.syntax.trees.MissingPrimaryExpression;
-  var ModuleDeclaration = traceur.syntax.trees.ModuleDeclaration;
-  var ModuleDefinition = traceur.syntax.trees.ModuleDefinition;
-  var ModuleExpression = traceur.syntax.trees.ModuleExpression;
-  var ModuleRequire = traceur.syntax.trees.ModuleRequire;
-  var ModuleSpecifier = traceur.syntax.trees.ModuleSpecifier;
-  var NameStatement = traceur.syntax.trees.NameStatement;
-  var NewExpression = traceur.syntax.trees.NewExpression;
-  var NullTree = traceur.syntax.trees.NullTree;
-  var ObjectLiteralExpression = traceur.syntax.trees.ObjectLiteralExpression;
-  var ObjectPattern = traceur.syntax.trees.ObjectPattern;
-  var ObjectPatternField = traceur.syntax.trees.ObjectPatternField;
-  var ParenExpression = traceur.syntax.trees.ParenExpression;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var PostfixExpression = traceur.syntax.trees.PostfixExpression;
-  var Program = traceur.syntax.trees.Program;
-  var PropertyMethodAssignment = traceur.syntax.trees.PropertyMethodAssignment;
-  var PropertyNameAssignment = traceur.syntax.trees.PropertyNameAssignment;
-  var PropertyNameShorthand = traceur.syntax.trees.PropertyNameShorthand;
-  var QuasiLiteralExpression = traceur.syntax.trees.QuasiLiteralExpression;
-  var QuasiLiteralPortion = traceur.syntax.trees.QuasiLiteralPortion;
-  var QuasiSubstitution = traceur.syntax.trees.QuasiSubstitution;
-  var RestParameter = traceur.syntax.trees.RestParameter;
-  var ReturnStatement = traceur.syntax.trees.ReturnStatement;
-  var SetAccessor = traceur.syntax.trees.SetAccessor;
-  var SpreadExpression = traceur.syntax.trees.SpreadExpression;
-  var SpreadPatternElement = traceur.syntax.trees.SpreadPatternElement;
-  var SuperExpression = traceur.syntax.trees.SuperExpression;
-  var SwitchStatement = traceur.syntax.trees.SwitchStatement;
-  var ThisExpression = traceur.syntax.trees.ThisExpression;
-  var ThrowStatement = traceur.syntax.trees.ThrowStatement;
-  var TryStatement = traceur.syntax.trees.TryStatement;
-  var UnaryExpression = traceur.syntax.trees.UnaryExpression;
-  var VariableDeclaration = traceur.syntax.trees.VariableDeclaration;
-  var VariableDeclarationList = traceur.syntax.trees.VariableDeclarationList;
-  var VariableStatement = traceur.syntax.trees.VariableStatement;
-  var WhileStatement = traceur.syntax.trees.WhileStatement;
-  var WithStatement = traceur.syntax.trees.WithStatement;
-  var YieldStatement = traceur.syntax.trees.YieldStatement;
-
-  var createBindingIdentifier = traceur.codegeneration.ParseTreeFactory.createBindingIdentifier;
-
-  var options = traceur.options.parse;
+  var options = traceurOptions.parse;
 
   /**
    * Parses a javascript file.
@@ -154,14 +152,13 @@ traceur.define('syntax', function() {
    *   }
    *   this.eat_(LIST_END);
    */
-  function Parser(errorReporter, var_args) {
+  export function Parser(errorReporter, var_args) {
     this.errorReporter_ = errorReporter;
     var scanner;
-    if (arguments[1] instanceof traceur.syntax.Scanner) {
+    if (arguments[1] instanceof Scanner) {
       scanner = arguments[1];
     } else {
-      scanner = new traceur.syntax.Scanner(errorReporter, arguments[1],
-                                           arguments[2]);
+      scanner = new Scanner(errorReporter, arguments[1], arguments[2]);
     }
     this.scanner_ = scanner;
   }
@@ -3887,8 +3884,3 @@ traceur.define('syntax', function() {
       this.reportError_(this.peekToken_(), 'Unexpected token');
     }
   };
-
-  return {
-    Parser: Parser
-  };
-});

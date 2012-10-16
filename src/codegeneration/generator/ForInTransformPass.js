@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,17 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration.generator', function() {
-  'use strict';
+import ParseTreeFactory from '../ParseTreeFactory.js';
+import ParseTreeTransformer from '../ParseTreeTransformer.js';
+import ParseTreeType from '../../syntax/trees/ParseTree.js';
+import PredefinedName from '../../syntax/PredefinedName.js';
+import TokenType from '../../syntax/TokenType.js';
+import createObject from '../../util/util.js';
+import trees from '../../syntax/trees/ParseTrees.js';
 
-  var IdentifierExpression = traceur.syntax.trees.IdentifierExpression;
-  var ParseTree = traceur.syntax.trees.ParseTree;
-  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var PredefinedName = traceur.syntax.PredefinedName;
-  var TokenType = traceur.syntax.TokenType;
+  var IdentifierExpression = trees.IdentifierExpression;
 
-  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
   var createArgumentList = ParseTreeFactory.createArgumentList;
   var createAssignmentStatement = ParseTreeFactory.createAssignmentStatement;
   var createBinaryOperator = ParseTreeFactory.createBinaryOperator;
@@ -49,7 +48,7 @@ traceur.define('codegeneration.generator', function() {
    * @param {UniqueIdentifierGenerator} identifierGenerator
    * @constructor
    */
-  function ForInTransformPass(identifierGenerator) {
+  export function ForInTransformPass(identifierGenerator) {
     ParseTreeTransformer.call(this);
     this.identifierGenerator_ = identifierGenerator;
   }
@@ -62,7 +61,7 @@ traceur.define('codegeneration.generator', function() {
     return new ForInTransformPass(identifierGenerator).transformAny(tree);
   };
 
-  ForInTransformPass.prototype = traceur.createObject(
+  ForInTransformPass.prototype = createObject(
       ParseTreeTransformer.prototype, {
 
     // for ( var key in object ) statement
@@ -182,8 +181,3 @@ traceur.define('codegeneration.generator', function() {
       return createBlock(elements);
     }
   });
-
-  return {
-    ForInTransformPass: ForInTransformPass
-  };
-});

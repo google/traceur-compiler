@@ -12,10 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('syntax', function() {
-  'use strict';
-
-  var PredefinedName = {
+  export var PredefinedName = {
     $ARGUMENTS: '$arguments',
     $THAT: '$that',
     $VALUE: '$value',
@@ -112,9 +109,3 @@ traceur.define('syntax', function() {
       return '$' + index;
     }
   };
-
-  // Export
-  return {
-    PredefinedName: PredefinedName
-  };
-});

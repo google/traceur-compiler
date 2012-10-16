@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,20 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration.generator', function() {
-  'use strict';
+import BreakContinueTransformer from 'BreakContinueTransformer.js';
+import CatchState from 'CatchState.js';
+import ConditionalState from 'ConditionalState.js';
+import FallThroughState from 'FallThroughState.js';
+import FinallyFallThroughState from 'FinallyFallThroughState.js';
+import FinallyState from 'FinallyState.js';
+import IdentifierToken from '../../syntax/IdentifierToken.js';
+import ParseTreeFactory from '../ParseTreeFactory.js';
+import ParseTreeTransformer from '../ParseTreeTransformer.js';
+import ParseTreeType from '../../syntax/trees/ParseTree.js';
+import PredefinedName from '../../syntax/PredefinedName.js';
+import State from 'State.js';
+import StateAllocator from 'StateAllocator.js';
+import StateMachine from '../../syntax/trees/StateMachine.js';
+import SwitchClause from 'SwitchState.js';
+import SwitchState from 'SwitchState.js';
+import TokenType from '../../syntax/TokenType.js';
+import TryState from 'TryState.js';
+import VariableBinder from '../../semantics/VariableBinder.js';
+import createObject from '../../util/util.js';
+import trees from '../../syntax/trees/ParseTrees.js';
 
-  var CaseClause = traceur.syntax.trees.CaseClause;
-  var IdentifierExpression = traceur.syntax.trees.IdentifierExpression;
-  var IdentifierToken = traceur.syntax.IdentifierToken;
-  var ParseTree = traceur.syntax.trees.ParseTree;
-  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
-  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var PredefinedName = traceur.syntax.PredefinedName;
-  var StateMachine = traceur.syntax.trees.StateMachine;
-  var SwitchStatement = traceur.syntax.trees.SwitchStatement;
-  var TokenType = traceur.syntax.TokenType;
+  var CaseClause = trees.CaseClause;
+  var IdentifierExpression = trees.IdentifierExpression;
+  var SwitchStatement = trees.SwitchStatement;
 
   var createArrayLiteralExpression = ParseTreeFactory.createArrayLiteralExpression;
   var createAssignStateStatement = ParseTreeFactory.createAssignStateStatement;
@@ -56,26 +67,6 @@ traceur.define('codegeneration.generator', function() {
   var createTryStatement = ParseTreeFactory.createTryStatement;
   var createVariableStatement = ParseTreeFactory.createVariableStatement;
   var createWhileStatement = ParseTreeFactory.createWhileStatement;
-
-  var BreakState = traceur.codegeneration.generator.BreakState;
-  var BreakContinueTransformer = traceur.codegeneration.generator.BreakContinueTransformer;
-  var CatchState = traceur.codegeneration.generator.CatchState;
-  var ConditionalState = traceur.codegeneration.generator.ConditionalState;
-  var ContinueState = traceur.codegeneration.generator.ContinueState;
-  var EndState = traceur.codegeneration.generator.EndState;
-  var FallThroughState = traceur.codegeneration.generator.FallThroughState;
-  var FinallyFallThroughState = traceur.codegeneration.generator.FinallyFallThroughState;
-  var FinallyState = traceur.codegeneration.generator.FinallyState;
-  var ForInTransformPass = traceur.codegeneration.generator.ForInTransformPass;
-  var State = traceur.codegeneration.generator.State;
-  var StateAllocator = traceur.codegeneration.generator.StateAllocator;
-  var StateMachine = traceur.syntax.trees.StateMachine;
-  var SwitchState = traceur.codegeneration.generator.SwitchState;
-  var SwitchClause = traceur.codegeneration.generator.SwitchClause;
-  var TryState = traceur.codegeneration.generator.TryState;
-  var YieldState = traceur.codegeneration.generator.YieldState;
-
-  var VariableBinder = traceur.semantics.VariableBinder;
 
   /**
    * Performs a CPS transformation on a method body.
@@ -123,7 +114,7 @@ traceur.define('codegeneration.generator', function() {
    * @extends {ParseTreeTransformer}
    * @constructor
    */
-  function CPSTransformer(reporter) {
+  export function CPSTransformer(reporter) {
     ParseTreeTransformer.call(this);
     this.reporter = reporter;
     this.stateAllocator_ = new StateAllocator();
@@ -131,7 +122,7 @@ traceur.define('codegeneration.generator', function() {
   }
 
   var proto = ParseTreeTransformer.prototype;
-  CPSTransformer.prototype = traceur.createObject(proto, {
+  CPSTransformer.prototype = createObject(proto, {
 
     /** @return {number} */
     allocateState: function() {
@@ -1229,8 +1220,3 @@ traceur.define('codegeneration.generator', function() {
       return this.transformStatementList_(maybeTransformedStatements);
     }
   });
-
-  return {
-    CPSTransformer: CPSTransformer
-  };
-});

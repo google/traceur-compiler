@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration', function() {
-  'use strict';
+import ParseTreeFactory from 'ParseTreeFactory.js';
+import ParseTreeTransformer from 'ParseTreeTransformer.js';
+import ParseTreeType from '../syntax/trees/ParseTree.js';
+import PredefinedName from '../syntax/PredefinedName.js';
+import TokenType from '../syntax/TokenType.js';
+import createObject from '../util/util.js';
+import trees from '../syntax/trees/ParseTrees.js';
 
-  var FormalParameterList = traceur.syntax.trees.FormalParameterList;
-  var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
-  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
-  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var PredefinedName = traceur.syntax.PredefinedName;
-  var TokenType = traceur.syntax.TokenType;
+  var FormalParameterList = trees.FormalParameterList;
+  var FunctionDeclaration = trees.FunctionDeclaration;
 
   var createBinaryOperator = ParseTreeFactory.createBinaryOperator;
   var createBlock = ParseTreeFactory.createBlock;
@@ -43,7 +43,7 @@ traceur.define('codegeneration', function() {
    * @constructor
    * @extends {ParseTreeTransformer}
    */
-  function DefaultParametersTransformer() {
+  export function DefaultParametersTransformer() {
     ParseTreeTransformer.call(this);
   }
 
@@ -55,7 +55,7 @@ traceur.define('codegeneration', function() {
     return new DefaultParametersTransformer().transformAny(tree);
   };
 
-  DefaultParametersTransformer.prototype = traceur.createObject(
+  DefaultParametersTransformer.prototype = createObject(
       ParseTreeTransformer.prototype, {
 
     transformFunctionDeclaration: function(tree) {
@@ -121,8 +121,3 @@ traceur.define('codegeneration', function() {
       return new FormalParameterList(tree.location, parameters);
     }
   });
-
-  return {
-    DefaultParametersTransformer: DefaultParametersTransformer
-  };
-});

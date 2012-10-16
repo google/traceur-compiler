@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,12 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('syntax.trees', function() {
-  'use strict';
-
-  var ParseTree = traceur.syntax.trees.ParseTree;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var TryState = traceur.codegeneration.generator.TryState;
+import ParseTree from 'ParseTree.js';
+import ParseTreeType from 'ParseTree.js';
+import TryState from '../../codegeneration/generator/TryState.js';
+import createObject from '../../util/util.js';
 
   ParseTreeType.STATE_MACHINE = 'STATE_MACHINE';
 
@@ -48,7 +46,7 @@ traceur.define('syntax.trees', function() {
    * @constructor
    * @extends {ParseTree}
    */
-  function StateMachine(startState, fallThroughState, states, exceptionBlocks) {
+  export function StateMachine(startState, fallThroughState, states, exceptionBlocks) {
     ParseTree.call(this, ParseTreeType.STATE_MACHINE, null);
 
     this.startState = startState;
@@ -89,7 +87,7 @@ traceur.define('syntax.trees', function() {
     }
   }
 
-  StateMachine.prototype = traceur.createObject(ParseTree.prototype, {
+  StateMachine.prototype = createObject(ParseTree.prototype, {
 
     /**
      * Does this machine include any try statements.
@@ -138,8 +136,3 @@ traceur.define('syntax.trees', function() {
       return catches;
     }
   });
-
-  return {
-    StateMachine: StateMachine
-  };
-});

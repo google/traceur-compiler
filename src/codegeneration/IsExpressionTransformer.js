@@ -12,23 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration', function() {
-  'use strict';
+import ParseTreeFactory from 'ParseTreeFactory.js';
+import ParseTreeTransformer from 'ParseTreeTransformer.js';
+import ParseTreeType from '../syntax/trees/ParseTree.js';
+import PredefinedName from '../syntax/PredefinedName.js';
+import TokenType from '../syntax/TokenType.js';
+import createObject from '../util/util.js';
 
-  var createArgumentList = traceur.codegeneration.ParseTreeFactory.createArgumentList;
-  var createBinaryOperator = traceur.codegeneration.ParseTreeFactory.createBinaryOperator;
-  var createCallExpression = traceur.codegeneration.ParseTreeFactory.createCallExpression;
-  var createMemberExpression = traceur.codegeneration.ParseTreeFactory.createMemberExpression;
-  var createOperatorToken = traceur.codegeneration.ParseTreeFactory.createOperatorToken;
+  var createArgumentList = ParseTreeFactory.createArgumentList;
+  var createBinaryOperator = ParseTreeFactory.createBinaryOperator;
+  var createCallExpression = ParseTreeFactory.createCallExpression;
+  var createMemberExpression = ParseTreeFactory.createMemberExpression;
+  var createOperatorToken = ParseTreeFactory.createOperatorToken;
 
-  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var TokenType = traceur.syntax.TokenType;
-
-  var IS = traceur.syntax.PredefinedName.IS;
-  var ISNT = traceur.syntax.PredefinedName.ISNT;
-  var RUNTIME = traceur.syntax.PredefinedName.RUNTIME;
-  var TRACEUR = traceur.syntax.PredefinedName.TRACEUR;
+  var IS = PredefinedName.IS;
+  var ISNT = PredefinedName.ISNT;
+  var RUNTIME = PredefinedName.RUNTIME;
+  var TRACEUR = PredefinedName.TRACEUR;
 
   /**
    * Whether the tree is a good literal. A good literal is one that can be used
@@ -53,13 +53,13 @@ traceur.define('codegeneration', function() {
    * @extends {ParseTreeTransformer}
    * @constructor
    */
-  function IsExpressionTransformer() {}
+  export function IsExpressionTransformer() {}
 
   IsExpressionTransformer.transformTree = function(tree) {
     return new IsExpressionTransformer().transformAny(tree);
   };
 
-  IsExpressionTransformer.prototype = traceur.createObject(
+  IsExpressionTransformer.prototype = createObject(
       ParseTreeTransformer.prototype, {
 
     transformBinaryOperator: function(tree) {
@@ -88,8 +88,3 @@ traceur.define('codegeneration', function() {
           createArgumentList(left, right));
     }
   });
-
-  return {
-    IsExpressionTransformer: IsExpressionTransformer
-  };
-});

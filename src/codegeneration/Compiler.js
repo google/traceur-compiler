@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
@@ -12,20 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import ModuleAnalyzer from '../semantics/ModuleAnalyzer.js';;
+import Parser from '../syntax/Parser.js';
+import ProgramTransformer from 'ProgramTransformer.js';
+import Project from '../semantics/symbols/Project.js';
 
 /**
  * @fileoverview Compiles a Traceur Project. Drives the overall compilation
  * process.
  */
-
-traceur.define('codegeneration', function() {
-  'use strict';
-
-  var ProgramTransformer = traceur.codegeneration.ProgramTransformer;
-  var Parser = traceur.syntax.Parser;
-
-  var ModuleAnalyzer = traceur.semantics.ModuleAnalyzer;
-  var Project = traceur.semantics.symbols.Project;
 
   /**
    * @param {ErrorReporter} reporter Where to report compile errors.
@@ -56,7 +51,7 @@ traceur.define('codegeneration', function() {
    * @param {Project} project
    * @constructor
    */
-  function Compiler(reporter, project) {
+  export function Compiler(reporter, project) {
     this.reporter_ = reporter;
     this.project_ = project;
   }
@@ -187,8 +182,3 @@ traceur.define('codegeneration', function() {
       return this.reporter_.hadError();
     }
   };
-
-  return {
-    Compiler: Compiler
-  };
-});

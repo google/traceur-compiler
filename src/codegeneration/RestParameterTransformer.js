@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
@@ -12,24 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration', function() {
-  'use strict';
+import ParseTreeFactory from 'ParseTreeFactory.js';
+import ParseTreeTransformer from 'ParseTreeTransformer.js';
+import PredefinedName from '../syntax/PredefinedName.js';
+import TokenType from '../syntax/TokenType.js';
+import createObject from '../util/util.js';
+import trees from '../syntax/trees/ParseTrees.js';
 
-  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
+  var createArgumentList = ParseTreeFactory.createArgumentList;
+  var createBlock = ParseTreeFactory.createBlock;
+  var createCallExpression = ParseTreeFactory.createCallExpression;
+  var createFunctionDeclaration = ParseTreeFactory.createFunctionDeclaration;
+  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
+  var createMemberExpression = ParseTreeFactory.createMemberExpression;
+  var createNumberLiteral = ParseTreeFactory.createNumberLiteral;
+  var createVariableStatement = ParseTreeFactory.createVariableStatement;
 
-  var createArgumentList = traceur.codegeneration.ParseTreeFactory.createArgumentList;
-  var createBlock = traceur.codegeneration.ParseTreeFactory.createBlock;
-  var createCallExpression = traceur.codegeneration.ParseTreeFactory.createCallExpression;
-  var createFunctionDeclaration = traceur.codegeneration.ParseTreeFactory.createFunctionDeclaration;
-  var createIdentifierExpression = traceur.codegeneration.ParseTreeFactory.createIdentifierExpression;
-  var createMemberExpression = traceur.codegeneration.ParseTreeFactory.createMemberExpression;
-  var createNumberLiteral = traceur.codegeneration.ParseTreeFactory.createNumberLiteral;
-  var createVariableStatement = traceur.codegeneration.ParseTreeFactory.createVariableStatement;
-
-  var PredefinedName = traceur.syntax.PredefinedName;
-  var TokenType = traceur.syntax.TokenType;
-
-  var FormalParameterList = traceur.syntax.trees.FormalParameterList;
+  var FormalParameterList = trees.FormalParameterList;
 
   /**
    * Desugars rest parameters.
@@ -38,7 +37,7 @@ traceur.define('codegeneration', function() {
    * @constructor
    * @extends {ParseTreeTransformer}
    */
-  function RestParameterTransformer() {
+  export function RestParameterTransformer() {
     ParseTreeTransformer.call(this);
   }
 
@@ -57,7 +56,7 @@ traceur.define('codegeneration', function() {
     return parameters[parameters.length - 1].identifier.identifierToken.value;
   }
 
-  RestParameterTransformer.prototype = traceur.createObject(
+  RestParameterTransformer.prototype = createObject(
       ParseTreeTransformer.prototype, {
 
     transformFunctionDeclaration: function(tree) {
@@ -113,8 +112,3 @@ traceur.define('codegeneration', function() {
           this.transformAny(createBlock(statements)));
     }
   });
-
-  return {
-    RestParameterTransformer: RestParameterTransformer
-  };
-});

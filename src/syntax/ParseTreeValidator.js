@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('syntax', function() {
-  'use strict';
+import ParseTreeType from 'trees/ParseTree.js';
+import ParseTreeVisitor from 'ParseTreeVisitor.js';
+import PredefinedName from 'PredefinedName.js';
+import TokenType from 'TokenType.js';
+import TreeWriter from '../outputgeneration/TreeWriter.js';
+import createObject from '../util/util.js';
+import trees from 'trees/ParseTrees.js';
 
-  var NewExpression = traceur.syntax.trees.NewExpression;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var ParseTreeVisitor = traceur.syntax.ParseTreeVisitor;
-  var TreeWriter = traceur.outputgeneration.TreeWriter;
-  var PredefinedName = traceur.syntax.PredefinedName;
-  var TokenType = traceur.syntax.TokenType;
+  var NewExpression = trees.NewExpression;
 
   /*
   TODO: add contextual information to the validator so we can check
@@ -40,7 +40,7 @@ traceur.define('syntax', function() {
    * @constructor
    * @extends {ParseTreeVisitor}
    */
-  function ParseTreeValidator() {
+  export function ParseTreeValidator() {
     ParseTreeVisitor.call(this);
   }
 
@@ -49,7 +49,7 @@ traceur.define('syntax', function() {
    * used internally to distinguish between errors in the Validator itself vs
    * errors it threw to unwind the call stack.
    *
-   * @param {traceur.syntax.trees.ParseTree} tree
+   * @param {ParseTree} tree
    * @param {string} message
    * @constructor
    */
@@ -64,7 +64,7 @@ traceur.define('syntax', function() {
    * When a failure is found, the source file is dumped to standard
    * error output and a runtime exception is thrown.
    *
-   * @param {traceur.syntax.trees.ParseTree} tree
+   * @param {ParseTree} tree
    */
   ParseTreeValidator.validate = function(tree) {
     var validator = new ParseTreeValidator();
@@ -93,11 +93,11 @@ traceur.define('syntax', function() {
     }
   };
 
-  ParseTreeValidator.prototype = traceur.createObject(
+  ParseTreeValidator.prototype = createObject(
       ParseTreeVisitor.prototype, {
 
     /**
-     * @param {traceur.syntax.trees.ParseTree} tree
+     * @param {ParseTree} tree
      * @param {string} message
      */
     fail_: function(tree, message) {
@@ -106,7 +106,7 @@ traceur.define('syntax', function() {
 
     /**
      * @param {boolean} condition
-     * @param {traceur.syntax.trees.ParseTree} tree
+     * @param {ParseTree} tree
      * @param {string} message
      */
     check_: function(condition, tree, message) {
@@ -117,7 +117,7 @@ traceur.define('syntax', function() {
 
     /**
      * @param {boolean} condition
-     * @param {traceur.syntax.trees.ParseTree} tree
+     * @param {ParseTree} tree
      * @param {string} message
      */
     checkVisit_: function(condition, tree, message) {
@@ -127,7 +127,7 @@ traceur.define('syntax', function() {
 
     /**
      * @param {ParseTreeType} type
-     * @param {traceur.syntax.trees.ParseTree} tree
+     * @param {ParseTree} tree
      * @param {string} message
      */
     checkType_: function(type, tree, message) {
@@ -135,7 +135,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ArgumentList} tree
+     * @param {ArgumentList} tree
      */
     visitArgumentList: function(tree) {
       for (var i = 0; i < tree.args.length; i++) {
@@ -146,7 +146,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ArrayLiteralExpression} tree
+     * @param {ArrayLiteralExpression} tree
      */
     visitArrayLiteralExpression: function(tree) {
       for (var i = 0; i < tree.elements.length; i++) {
@@ -157,7 +157,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ArrayPattern} tree
+     * @param {ArrayPattern} tree
      */
     visitArrayPattern: function(tree) {
       for (var i = 0; i < tree.elements.length; i++) {
@@ -179,7 +179,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.AwaitStatement} tree
+     * @param {AwaitStatement} tree
      */
     visitAwaitStatement: function(tree) {
       this.checkVisit_(tree.expression.isExpression(), tree.expression,
@@ -187,7 +187,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.BinaryOperator} tree
+     * @param {BinaryOperator} tree
      */
     visitBinaryOperator: function(tree) {
       switch (tree.operator.type) {
@@ -271,7 +271,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.BindingElement} tree
+     * @param {BindingElement} tree
      */
     visitBindingElement: function(tree) {
       var binding = tree.binding;
@@ -286,7 +286,7 @@ traceur.define('syntax', function() {
 
 
     /**
-     * @param {traceur.syntax.trees.Block} tree
+     * @param {Block} tree
      */
     visitBlock: function(tree) {
       for (var i = 0; i < tree.statements.length; i++) {
@@ -297,7 +297,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.CallExpression} tree
+     * @param {CallExpression} tree
      */
     visitCallExpression: function(tree) {
       this.check_(tree.operand.isMemberExpression(),
@@ -312,7 +312,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.CaseClause} tree
+     * @param {CaseClause} tree
      */
     visitCaseClause: function(tree) {
       this.checkVisit_(tree.expression.isExpression(), tree.expression,
@@ -325,7 +325,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.Catch} tree
+     * @param {Catch} tree
      */
     visitCatch: function(tree) {
       this.checkVisit_(tree.binding.isPattern() ||
@@ -336,7 +336,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ClassDeclaration} tree
+     * @param {ClassDeclaration} tree
      */
     visitClassDeclaration: function(tree) {
       for (var i = 0; i < tree.elements.length; i++) {
@@ -354,7 +354,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.CommaExpression} tree
+     * @param {CommaExpression} tree
      */
     visitCommaExpression: function(tree) {
       for (var i = 0; i < tree.expressions.length; i++) {
@@ -365,7 +365,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ConditionalExpression} tree
+     * @param {ConditionalExpression} tree
      */
     visitConditionalExpression: function(tree) {
       this.checkVisit_(tree.condition.isArrowFunctionExpression(), tree.condition,
@@ -377,7 +377,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.DefaultClause} tree
+     * @param {DefaultClause} tree
      */
     visitDefaultClause: function(tree) {
       for (var i = 0; i < tree.statements.length; i++) {
@@ -388,7 +388,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.DoWhileStatement} tree
+     * @param {DoWhileStatement} tree
      */
     visitDoWhileStatement: function(tree) {
       this.checkVisit_(tree.body.isStatement(), tree.body,
@@ -398,7 +398,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ExportDeclaration} tree
+     * @param {ExportDeclaration} tree
      */
     visitExportDeclaration: function(tree) {
       var declType = tree.declaration.type;
@@ -414,7 +414,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ExportMapping} tree
+     * @param {ExportMapping} tree
      */
     visitExportMapping: function(tree) {
       if (tree.moduleExpression) {
@@ -432,7 +432,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ExportMapping} tree
+     * @param {ExportMapping} tree
      */
     visitExportMappingList: function(tree) {
       this.check_(tree.paths.length > 0, tree,
@@ -448,7 +448,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ExportSpecifierSet} tree
+     * @param {ExportSpecifierSet} tree
      */
     visitExportSpecifierSet: function(tree) {
       this.check_(tree.specifiers.length > 0, tree,
@@ -464,7 +464,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ExpressionStatement} tree
+     * @param {ExpressionStatement} tree
      */
     visitExpressionStatement: function(tree) {
       this.checkVisit_(tree.expression.isExpression(), tree.expression,
@@ -472,7 +472,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.Finally} tree
+     * @param {Finally} tree
      */
     visitFinally: function(tree) {
       this.checkVisit_(tree.block.type === ParseTreeType.BLOCK, tree.block,
@@ -480,7 +480,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ForOfStatement} tree
+     * @param {ForOfStatement} tree
      */
     visitForOfStatement: function(tree) {
       this.checkVisit_(
@@ -497,7 +497,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ForInStatement} tree
+     * @param {ForInStatement} tree
      */
     visitForInStatement: function(tree) {
       if (tree.initializer.type === ParseTreeType.VARIABLE_DECLARATION_LIST) {
@@ -520,7 +520,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.FormalParameterList} tree
+     * @param {FormalParameterList} tree
      */
     visitFormalParameterList: function(tree) {
       for (var i = 0; i < tree.parameters.length; i++) {
@@ -549,7 +549,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ForStatement} tree
+     * @param {ForStatement} tree
      */
     visitForStatement: function(tree) {
       if (tree.initializer !== null && !tree.initializer.isNull()) {
@@ -572,7 +572,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.FunctionDeclaration} tree
+     * @param {FunctionDeclaration} tree
      */
     visitFunctionDeclaration: function(tree) {
       if (tree.name !== null) {
@@ -590,14 +590,14 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.GetAccessor} tree
+     * @param {GetAccessor} tree
      */
     visitGetAccessor: function(tree) {
       this.checkType_(ParseTreeType.BLOCK, tree.body, 'block expected');
     },
 
     /**
-     * @param {traceur.syntax.trees.IfStatement} tree
+     * @param {IfStatement} tree
      */
     visitIfStatement: function(tree) {
       this.checkVisit_(tree.condition.isExpression(), tree.condition,
@@ -611,7 +611,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.LabelledStatement} tree
+     * @param {LabelledStatement} tree
      */
     visitLabelledStatement: function(tree) {
       this.checkVisit_(tree.statement.isStatement(), tree.statement,
@@ -619,7 +619,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.MemberExpression} tree
+     * @param {MemberExpression} tree
      */
     visitMemberExpression: function(tree) {
       this.check_(tree.operand.isMemberExpression(), tree.operand,
@@ -632,7 +632,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.MemberLookupExpression} tree
+     * @param {MemberLookupExpression} tree
      */
     visitMemberLookupExpression: function(tree) {
       this.check_(tree.operand.isMemberExpression(),
@@ -646,14 +646,14 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.MissingPrimaryExpression} tree
+     * @param {MissingPrimaryExpression} tree
      */
     visitMissingPrimaryExpression: function(tree) {
       this.fail_(tree, 'parse tree contains errors');
     },
 
     /**
-     * @param {traceur.syntax.trees.ModuleDefinition} tree
+     * @param {ModuleDefinition} tree
      */
     visitModuleDeclaration: function(tree) {
       for (var i = 0; i < tree.specifiers.length; i++) {
@@ -665,7 +665,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ModuleDefinition} tree
+     * @param {ModuleDefinition} tree
      */
     visitModuleDefinition: function(tree) {
       for (var i = 0; i < tree.elements.length; i++) {
@@ -683,7 +683,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ModuleRequire} tree
+     * @param {ModuleRequire} tree
      */
     visitModuleRequire: function(tree) {
       this.check_(tree.url.type == TokenType.STRING, tree.url,
@@ -691,7 +691,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ModuleSpecifier} tree
+     * @param {ModuleSpecifier} tree
      */
     visitModuleSpecifier: function(tree) {
       this.checkType_(ParseTreeType.MODULE_EXPRESSION,
@@ -700,7 +700,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.NewExpression} tree
+     * @param {NewExpression} tree
      */
     visitNewExpression: function(tree) {
       this.checkVisit_(tree.operand.isMemberExpression(),
@@ -710,7 +710,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ObjectLiteralExpression} tree
+     * @param {ObjectLiteralExpression} tree
      */
     visitObjectLiteralExpression: function(tree) {
       for (var i = 0; i < tree.propertyNameAndValues.length; i++) {
@@ -731,7 +731,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ObjectPattern} tree
+     * @param {ObjectPattern} tree
      */
     visitObjectPattern: function(tree) {
       for (var i = 0; i < tree.fields.length; i++) {
@@ -745,7 +745,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ObjectPatternField} tree
+     * @param {ObjectPatternField} tree
      */
     visitObjectPatternField: function(tree) {
       this.checkVisit_(tree.element.type === ParseTreeType.BINDING_ELEMENT ||
@@ -756,7 +756,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ParenExpression} tree
+     * @param {ParenExpression} tree
      */
     visitParenExpression: function(tree) {
       if (tree.expression.isPattern()) {
@@ -768,7 +768,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.PostfixExpression} tree
+     * @param {PostfixExpression} tree
      */
     visitPostfixExpression: function(tree) {
       this.checkVisit_(tree.operand.isArrowFunctionExpression(), tree.operand,
@@ -776,7 +776,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.Program} tree
+     * @param {Program} tree
      */
     visitProgram: function(tree) {
       for (var i = 0; i < tree.programElements.length; i++) {
@@ -788,7 +788,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.PropertyNameAssignment} tree
+     * @param {PropertyNameAssignment} tree
      */
     visitPropertyNameAssignment: function(tree) {
       this.checkVisit_(tree.value.isArrowFunctionExpression(), tree.value,
@@ -796,13 +796,13 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.PropertyNameShorthand} tree
+     * @param {PropertyNameShorthand} tree
      */
     visitPropertyNameShorthand: function(tree) {
     },
 
     /**
-     * @param {traceur.syntax.trees.QuasiLiteralExpression} tree
+     * @param {QuasiLiteralExpression} tree
      */
     visitQuasiLiteralExpression: function(tree) {
       if (tree.operand) {
@@ -828,7 +828,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ReturnStatement} tree
+     * @param {ReturnStatement} tree
      */
     visitReturnStatement: function(tree) {
       if (tree.expression !== null) {
@@ -838,14 +838,14 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.SetAccessor} tree
+     * @param {SetAccessor} tree
      */
     visitSetAccessor: function(tree) {
       this.checkType_(ParseTreeType.BLOCK, tree.body, 'block expected');
     },
 
     /**
-     * @param {traceur.syntax.trees.SpreadExpression} tree
+     * @param {SpreadExpression} tree
      */
     visitSpreadExpression: function(tree) {
       this.checkVisit_(tree.expression.isArrowFunctionExpression(),
@@ -854,7 +854,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.StateMachine} tree
+     * @param {StateMachine} tree
      */
     visitStateMachine: function(tree) {
       this.fail_(tree, 'State machines are never valid outside of the ' +
@@ -862,7 +862,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.SwitchStatement} tree
+     * @param {SwitchStatement} tree
      */
     visitSwitchStatement: function(tree) {
       this.checkVisit_(tree.expression.isExpression(), tree.expression,
@@ -882,7 +882,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ThrowStatement} tree
+     * @param {ThrowStatement} tree
      */
     visitThrowStatement: function(tree) {
       if (tree.value === null) {
@@ -893,7 +893,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.TryStatement} tree
+     * @param {TryStatement} tree
      */
     visitTryStatement: function(tree) {
       this.checkType_(ParseTreeType.BLOCK, tree.body, 'block expected');
@@ -912,7 +912,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.UnaryExpression} tree
+     * @param {UnaryExpression} tree
      */
     visitUnaryExpression: function(tree) {
       this.checkVisit_(tree.operand.isArrowFunctionExpression(), tree.operand,
@@ -920,7 +920,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.VariableDeclaration} tree
+     * @param {VariableDeclaration} tree
      */
     visitVariableDeclaration: function(tree) {
       this.checkVisit_(tree.lvalue.isPattern() ||
@@ -934,7 +934,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.WhileStatement} tree
+     * @param {WhileStatement} tree
      */
     visitWhileStatement: function(tree) {
       this.checkVisit_(tree.condition.isExpression(), tree.condition,
@@ -944,7 +944,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.WithStatement} tree
+     * @param {WithStatement} tree
      */
     visitWithStatement: function(tree) {
       this.checkVisit_(tree.expression.isExpression(), tree.expression,
@@ -954,7 +954,7 @@ traceur.define('syntax', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.YieldStatement} tree
+     * @param {YieldStatement} tree
      */
     visitYieldStatement: function(tree) {
       if (tree.expression !== null) {
@@ -963,9 +963,3 @@ traceur.define('syntax', function() {
       }
     }
   });
-
-  // Export
-  return {
-    ParseTreeValidator: ParseTreeValidator
-  };
-});

@@ -12,35 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration', function() {
-  'use strict';
+import ArrayComprehensionTransformer from 'ArrayComprehensionTransformer.js';
+import ArrowFunctionTransformer from 'ArrowFunctionTransformer.js';
+import AtNameMemberTransformer from 'AtNameMemberTransformer.js';
+import BlockBindingTransformer from 'BlockBindingTransformer.js';
+import CascadeExpressionTransformer from 'CascadeExpressionTransformer.js';
+import ClassTransformer from 'ClassTransformer.js';
+import CollectionTransformer from 'CollectionTransformer.js';
+import DefaultParametersTransformer from 'DefaultParametersTransformer.js';
+import DestructuringTransformer from 'DestructuringTransformer.js';
+import ForOfTransformer from 'ForOfTransformer.js';
+import FreeVariableChecker from '../semantics/FreeVariableChecker.js'
+import GeneratorComprehensionTransformer from 'GeneratorComprehensionTransformer.js';
+import GeneratorTransformPass from 'GeneratorTransformPass.js';
+import IsExpressionTransformer from 'IsExpressionTransformer.js';
+import ModuleTransformer from 'ModuleTransformer.js';
+import ObjectLiteralTransformer from 'ObjectLiteralTransformer.js';
+import ObjectMap from '../util/ObjectMap.js';
+import ParseTreeValidator from '../syntax/ParseTreeValidator.js';
+import PrivateNameSyntaxTransformer from 'PrivateNameSyntaxTransformer.js';
+import PropertyNameShorthandTransformer from 'PropertyNameShorthandTransformer.js';
+import QuasiLiteralTransformer from 'QuasiLiteralTransformer.js';
+import RestParameterTransformer from 'RestParameterTransformer.js';
+import SpreadTransformer from 'SpreadTransformer.js';
+import {options: traceurOptions} from '../options.js';
+import trees from '../syntax/trees/ParseTrees.js';
 
-  var ArrayComprehensionTransformer = traceur.codegeneration.ArrayComprehensionTransformer;
-  var ArrowFunctionTransformer = traceur.codegeneration.ArrowFunctionTransformer;
-  var AtNameMemberTransformer = traceur.codegeneration.AtNameMemberTransformer;
-  var BlockBindingTransformer = traceur.codegeneration.BlockBindingTransformer;
-  var CascadeExpressionTransformer = traceur.codegeneration.CascadeExpressionTransformer;
-  var ClassTransformer = traceur.codegeneration.ClassTransformer;
-  var CollectionTransformer = traceur.codegeneration.CollectionTransformer;
-  var DefaultParametersTransformer = traceur.codegeneration.DefaultParametersTransformer;
-  var DestructuringTransformer = traceur.codegeneration.DestructuringTransformer;
-  var ForOfTransformer = traceur.codegeneration.ForOfTransformer;
-  var FreeVariableChecker = traceur.semantics.FreeVariableChecker;
-  var GeneratorComprehensionTransformer = traceur.codegeneration.GeneratorComprehensionTransformer;
-  var GeneratorTransformPass = traceur.codegeneration.GeneratorTransformPass;
-  var IsExpressionTransformer = traceur.codegeneration.IsExpressionTransformer;
-  var ModuleTransformer = traceur.codegeneration.ModuleTransformer;
-  var ObjectLiteralTransformer = traceur.codegeneration.ObjectLiteralTransformer;
-  var ObjectMap = traceur.util.ObjectMap;
-  var ParseTreeValidator = traceur.syntax.ParseTreeValidator;
-  var PrivateNameSyntaxTransformer = traceur.codegeneration.PrivateNameSyntaxTransformer;
-  var ProgramTree = traceur.syntax.trees.ProgramTree;
-  var PropertyNameShorthandTransformer = traceur.codegeneration.PropertyNameShorthandTransformer;
-  var QuasiLiteralTransformer = traceur.codegeneration.QuasiLiteralTransformer;
-  var RestParameterTransformer = traceur.codegeneration.RestParameterTransformer;
-  var SpreadTransformer = traceur.codegeneration.SpreadTransformer;
+  var ProgramTree = trees.ProgramTree;
 
-  var options = traceur.options.transform;
+  var options = traceurOptions.transform;
 
   /**
    * Transforms a Traceur file's ParseTree to a JS ParseTree.
@@ -49,7 +49,7 @@ traceur.define('codegeneration', function() {
    * @param {Project} project
    * @constructor
    */
-  function ProgramTransformer(reporter, project) {
+  export function ProgramTransformer(reporter, project) {
     this.project_ = project;
     this.reporter_ = reporter;
     this.results_ = new ObjectMap();
@@ -147,7 +147,7 @@ traceur.define('codegeneration', function() {
           return;
 
         if (!reporter.hadError()) {
-          if (traceur.options.validate) {
+          if (traceurOptions.validate) {
             ParseTreeValidator.validate(tree);
           }
           var args = Array.prototype.slice.call(arguments, 2);
@@ -157,7 +157,7 @@ traceur.define('codegeneration', function() {
       }
 
       if (options.modules && !reporter.hadError()) {
-        if (traceur.options.validate) {
+        if (traceurOptions.validate) {
           ParseTreeValidator.validate(tree);
         }
         tree = this.transformModules_(tree, opt_module);
@@ -238,7 +238,7 @@ traceur.define('codegeneration', function() {
             identifierGenerator);
 
       // Issue errors for any unbound variables
-      chain(traceur.options.freeVariableChecker,
+      chain(traceurOptions.freeVariableChecker,
             FreeVariableChecker.checkProgram, reporter);
 
       return tree;
@@ -261,8 +261,3 @@ traceur.define('codegeneration', function() {
       }
     }
   };
-
-  return {
-    ProgramTransformer: ProgramTransformer
-  };
-});

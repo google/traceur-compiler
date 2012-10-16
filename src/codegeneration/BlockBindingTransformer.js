@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
@@ -12,28 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration', function() {
-  'use strict';
+import AlphaRenamer from 'AlphaRenamer.js';
+import NullTree from '../syntax/trees/NullTree.js';
+import ParseTreeFactory from 'ParseTreeFactory.js';
+import ParseTreeTransformer from 'ParseTreeTransformer.js';
+import ParseTreeType from '../syntax/trees/ParseTree.js';
+import TokenType from '../syntax/TokenType.js';
+import createObject from '../util/util.js';
+import trees from '../syntax/trees/ParseTrees.js';
 
-  var TokenType = traceur.syntax.TokenType;
-  var Block = traceur.syntax.trees.Block;
-  var ClassDeclaration = traceur.syntax.trees.ClassDeclaration;
-  var ForInStatement = traceur.syntax.trees.ForInStatement;
-  var ForStatement = traceur.syntax.trees.ForStatement;
-  var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
-  var GetAccessor = traceur.syntax.trees.GetAccessor;
-  var NullTree = traceur.syntax.trees.NullTree;
-  var ParseTree = traceur.syntax.trees.ParseTree;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var Program = traceur.syntax.trees.Program;
-  var SetAccessor = traceur.syntax.trees.SetAccessor;
-  var VariableDeclarationList = traceur.syntax.trees.VariableDeclarationList;
-  var VariableDeclaration = traceur.syntax.trees.VariableDeclaration;
-  var VariableStatement = traceur.syntax.trees.VariableStatement;
+  var Block = trees.Block;
+  var ClassDeclaration = trees.ClassDeclaration;
+  var ForInStatement = trees.ForInStatement;
+  var ForStatement = trees.ForStatement;
+  var FunctionDeclaration = trees.FunctionDeclaration;
+  var GetAccessor = trees.GetAccessor;
+  var Program = trees.Program;
+  var SetAccessor = trees.SetAccessor;
+  var VariableDeclarationList = trees.VariableDeclarationList;
+  var VariableDeclaration = trees.VariableDeclaration;
+  var VariableStatement = trees.VariableStatement;
 
-  var AlphaRenamer = traceur.codegeneration.AlphaRenamer;
-  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
-  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
   var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression;
   var createBindingIdentifier = ParseTreeFactory.createBindingIdentifier;
   var createBlock = ParseTreeFactory.createBlock;
@@ -86,7 +85,7 @@ traceur.define('codegeneration', function() {
    * @extends {ParseTreeTransformer}
    * @constructor
    */
-  function BlockBindingTransformer(stateAllocator) {
+  export function BlockBindingTransformer(stateAllocator) {
     ParseTreeTransformer.call(this);
   }
 
@@ -163,7 +162,7 @@ traceur.define('codegeneration', function() {
   }
 
   var proto = ParseTreeTransformer.prototype;
-  BlockBindingTransformer.prototype = traceur.createObject(proto, {
+  BlockBindingTransformer.prototype = createObject(proto, {
 
     /**
      * Current scope (block, program)
@@ -808,8 +807,3 @@ traceur.define('codegeneration', function() {
       throw new Error('Unexpected destructuring declaration found.');
     }
   });
-
-  return {
-    BlockBindingTransformer: BlockBindingTransformer
-  };
-});

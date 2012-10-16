@@ -12,16 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration', function() {
-  'use strict';
-
-  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
-  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var PredefinedName = traceur.syntax.PredefinedName;
-  var TokenType = traceur.syntax.TokenType;
-  var expandMemberExpression = traceur.codegeneration.expandMemberExpression;
-  var expandMemberLookupExpression = traceur.codegeneration.expandMemberLookupExpression;
+import ParseTreeFactory from 'ParseTreeFactory.js';
+import ParseTreeTransformer from 'ParseTreeTransformer.js';
+import ParseTreeType from '../syntax/trees/ParseTree.js';
+import PredefinedName from '../syntax/PredefinedName.js';
+import TokenType from '../syntax/TokenType.js';
+import createObject from '../util/util.js';
+import expandMemberExpression from 'OperatorExpander.js';
+import expandMemberLookupExpression from 'OperatorExpander.js';
 
   var createArgumentList = ParseTreeFactory.createArgumentList;
   var createArrayLiteralExpression = ParseTreeFactory.createArrayLiteralExpression;
@@ -39,7 +37,7 @@ traceur.define('codegeneration', function() {
    * @constructor
    * @extends {ParseTreeTransformer}
    */
-  function SuperTransformer(tempVarTransformer, reporter, className,
+  export function SuperTransformer(tempVarTransformer, reporter, className,
                             methodTree) {
     ParseTreeTransformer.call(this);
     this.tempVarTransformer_ = tempVarTransformer;
@@ -49,7 +47,7 @@ traceur.define('codegeneration', function() {
   }
 
   var proto = ParseTreeTransformer.prototype;
-  SuperTransformer.prototype = traceur.createObject(proto, {
+  SuperTransformer.prototype = createObject(proto, {
 
     superFound_: false,
     get hasSuper() {
@@ -204,8 +202,3 @@ traceur.define('codegeneration', function() {
       this.reporter_.reportError.apply(this.reporter_, args);
     }
   });
-
-  return {
-    SuperTransformer: SuperTransformer
-  };
-});

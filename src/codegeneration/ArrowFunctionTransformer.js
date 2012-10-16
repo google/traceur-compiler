@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
@@ -12,17 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration', function() {
-  'use strict';
+import FindInFunctionScope from 'FindInFunctionScope.js';
+import ParseTreeFactory from 'ParseTreeFactory.js';
+import ParseTreeTransformer from 'ParseTreeTransformer.js';
+import ParseTreeType from '../syntax/trees/ParseTree.js';
+import PredefinedName from '../syntax/PredefinedName.js';
+import createObject from '../util/util.js';
+import trees from '../syntax/trees/ParseTrees.js';
 
-  var FindInFunctionScope = traceur.codegeneration.FindInFunctionScope;
-  var FormalParameterList = traceur.syntax.trees.FormalParameterList;
-  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
-  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var PredefinedName = traceur.syntax.PredefinedName;
-  var ThisExpression = traceur.syntax.trees.ThisExpression;
-  var TokenType = traceur.syntax.TokenType;
+  var FormalParameterList = trees.FormalParameterList;
+  var ThisExpression = trees.ThisExpression;
 
   var createArgumentList = ParseTreeFactory.createArgumentList;
   var createBlock = ParseTreeFactory.createBlock;
@@ -41,7 +40,7 @@ traceur.define('codegeneration', function() {
   function ThisFinder(tree) {
     FindInFunctionScope.call(this, tree);
   }
-  ThisFinder.prototype = traceur.createObject(
+  ThisFinder.prototype = createObject(
       FindInFunctionScope.prototype, {
 
     visitThisExpression: function(tree) {
@@ -58,7 +57,7 @@ traceur.define('codegeneration', function() {
    * @extends {ParseTreeTransformer}
    * @constructor
    */
-  function ArrowFunctionTransformer(reporter) {
+  export function ArrowFunctionTransformer(reporter) {
     this.reporter_ = reporter;
   }
 
@@ -66,7 +65,7 @@ traceur.define('codegeneration', function() {
     return new ArrowFunctionTransformer(reporter).transformAny(tree);
   };
 
-  ArrowFunctionTransformer.prototype = traceur.createObject(
+  ArrowFunctionTransformer.prototype = createObject(
       ParseTreeTransformer.prototype, {
 
     /**
@@ -107,8 +106,3 @@ traceur.define('codegeneration', function() {
       return result;
     }
   });
-
-  return {
-    ArrowFunctionTransformer: ArrowFunctionTransformer
-  };
-});

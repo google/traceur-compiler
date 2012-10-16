@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
@@ -12,18 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration', function() {
-  'use strict';
+import LiteralToken from '../syntax/LiteralToken.js';
+import ParseTreeFactory from 'ParseTreeFactory.js';
+import ParseTreeTransformer from 'ParseTreeTransformer.js';
+import ParseTreeType from '../syntax/trees/ParseTree.js';
+import PredefinedName from '../syntax/PredefinedName.js';
+import TokenType from '../syntax/TokenType.js';
+import createObject from '../util/util.js';
+import trees from '../syntax/trees/ParseTrees.js';
 
-  var LiteralExpression = traceur.syntax.trees.LiteralExpression;
-  var LiteralToken = traceur.syntax.LiteralToken;
-  var ParenExpression = traceur.syntax.trees.ParenExpression;
-  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
-  var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var PredefinedName = traceur.syntax.PredefinedName;
-  var Program = traceur.syntax.trees.Program;
-  var TokenType = traceur.syntax.TokenType;
+  var LiteralExpression = trees.LiteralExpression;
+  var ParenExpression = trees.ParenExpression;
+  var Program = trees.Program;
 
   var createArgumentList = ParseTreeFactory.createArgumentList;
   var createArrayLiteralExpression = ParseTreeFactory.createArrayLiteralExpression;
@@ -175,7 +175,7 @@ traceur.define('codegeneration', function() {
    * @param {UniqueIdentifierGenerator} identifierGenerator
    * @extends {ParseTreeTransformer}
    */
-  function QuasiLiteralTransformer(identifierGenerator) {
+  export function QuasiLiteralTransformer(identifierGenerator) {
     ParseTreeTransformer.call(this);
     this.identifierGenerator_ = identifierGenerator;
     this.tempVarName_ = identifierGenerator.generateUniqueIdentifier();
@@ -191,7 +191,7 @@ traceur.define('codegeneration', function() {
   };
 
   var proto = ParseTreeTransformer.prototype;
-  QuasiLiteralTransformer.prototype = traceur.createObject(proto, {
+  QuasiLiteralTransformer.prototype = createObject(proto, {
     transformProgram: function(tree) {
 
 
@@ -290,8 +290,3 @@ traceur.define('codegeneration', function() {
       return new ParenExpression(null, binaryExpression);
     }
   });
-
-  return {
-    QuasiLiteralTransformer: QuasiLiteralTransformer
-  };
-});

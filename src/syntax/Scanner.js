@@ -12,16 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('syntax', function() {
-  'use strict';
-
-  var AtNameToken = traceur.syntax.AtNameToken;
-  var IdentifierToken = traceur.syntax.IdentifierToken;
-  var Keywords = traceur.syntax.Keywords;
-  var LiteralToken = traceur.syntax.LiteralToken;
-  var SourcePosition = traceur.util.SourcePosition;
-  var Token = traceur.syntax.Token;
-  var TokenType = traceur.syntax.TokenType;
+  import SourcePosition from '../util/SourcePosition.js';
+  import AtNameToken from 'AtNameToken.js';
+  import IdentifierToken from 'IdentifierToken.js';
+  import LiteralToken from 'LiteralToken.js';
+  import Keywords from 'Keywords.js';
+  import Token from 'Token.js';
+  import TokenType from 'TokenType.js';
 
   /**
    * Scans javascript source code into tokens. All entrypoints assume the
@@ -37,7 +34,7 @@ traceur.define('syntax', function() {
    * @param {number=} opt_offset
    * @constructor
    */
-  function Scanner(errorReporter, file, opt_offset) {
+  export function Scanner(errorReporter, file, opt_offset) {
     this.errorReporter_ = errorReporter;
     this.source_ = file;
     this.index_ = opt_offset || 0;
@@ -1106,8 +1103,3 @@ traceur.define('syntax', function() {
       this.errorReporter_.reportError(position, message);
     }
   };
-
-  return {
-    Scanner: Scanner
-  };
-});

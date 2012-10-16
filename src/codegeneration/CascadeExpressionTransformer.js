@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
@@ -12,15 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration', function() {
-  'use strict';
+import ParseTreeFactory from 'ParseTreeFactory.js';
+import ParseTreeType from '../syntax/trees/ParseTree.js';
+import TempVarTransformer from 'TempVarTransformer.js';
+import createObject from '../util/util.js';
+import trees from '../syntax/trees/ParseTrees.js';
 
-  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
-
-  var BinaryOperator = traceur.syntax.trees.BinaryOperator;
-  var ParseTree = traceur.syntax.trees.ParseTree;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var TempVarTransformer = traceur.codegeneration.TempVarTransformer;
+  var BinaryOperator = trees.BinaryOperator;
 
   var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression;
   var createBinaryOperator = ParseTreeFactory.createBinaryOperator;
@@ -76,7 +74,7 @@ traceur.define('codegeneration', function() {
    * @constructor
    * @extends {TempVarTransformer}
    */
-  function CascadeExpressionTransformer(identifierGenerator, reporter) {
+  export function CascadeExpressionTransformer(identifierGenerator, reporter) {
     TempVarTransformer.call(this, identifierGenerator);
     this.reporter_ = reporter;
   }
@@ -94,7 +92,7 @@ traceur.define('codegeneration', function() {
   };
 
   var proto = TempVarTransformer.prototype;
-  CascadeExpressionTransformer.prototype = traceur.createObject(proto, {
+  CascadeExpressionTransformer.prototype = createObject(proto, {
 
     /**
      * EXPR.{
@@ -180,8 +178,3 @@ traceur.define('codegeneration', function() {
       return createCascadeExpression(newOperand, tree.expressions);
     }
   });
-
-  return {
-    CascadeExpressionTransformer: CascadeExpressionTransformer
-  };
-});

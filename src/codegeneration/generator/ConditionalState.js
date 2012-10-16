@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,11 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration.generator', function() {
-  'use strict';
+import ParseTreeFactory from '../ParseTreeFactory.js';
+import State from 'State.js';
+import createObject from '../../util/util.js';
 
-  var State = traceur.codegeneration.generator.State;
-  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
   var createBlock = ParseTreeFactory.createBlock;
   var createIfStatement = ParseTreeFactory.createIfStatement;
 
@@ -28,14 +27,14 @@ traceur.define('codegeneration.generator', function() {
    * @constructor
    * @extends {State}
    */
-  function ConditionalState(id, ifState, elseState, condition) {
+  export function ConditionalState(id, ifState, elseState, condition) {
     State.call(this, id);
     this.ifState = ifState;
     this.elseState = elseState;
     this.condition = condition;
   }
 
-  ConditionalState.prototype = traceur.createObject(State.prototype, {
+  ConditionalState.prototype = createObject(State.prototype, {
 
     /**
      * Represents the dispatch portion of an if/else block.
@@ -66,8 +65,3 @@ traceur.define('codegeneration.generator', function() {
             createBlock(State.generateJump(enclosingFinally, this.elseState)))];
     }
   });
-
-  return {
-    ConditionalState: ConditionalState
-  };
-});

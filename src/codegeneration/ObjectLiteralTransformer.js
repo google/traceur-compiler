@@ -12,20 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration', function() {
-  'use strict';
+import FindVisitor from 'FindVisitor.js';
+import Keywords from '../syntax/Keywords.js';
+import ParseTreeFactory from 'ParseTreeFactory.js';
+import PredefinedName from '../syntax/PredefinedName.js';
+import TempVarTransformer from 'TempVarTransformer.js';
+import TokenType from '../syntax/TokenType.js';
+import createObject from '../util/util.js';
+import evaluateStringLiteral from '../util/util.js';
+import {options: traceurOptions} from '../options.js';
+import trees from '../syntax/trees/ParseTrees.js';
 
-  var FindVisitor = traceur.codegeneration.FindVisitor;
-  var FormalParameterList = traceur.syntax.trees.FormalParameterList;
-  var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
-  var IdentifierExpression = traceur.syntax.trees.IdentifierExpression;
-  var Keywords = traceur.syntax.Keywords;
-  var LiteralExpression = traceur.syntax.trees.LiteralExpression;
-  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
-  var PredefinedName = traceur.syntax.PredefinedName;
-  var TempVarTransformer = traceur.codegeneration.TempVarTransformer;
-  var TokenType = traceur.syntax.TokenType;
-  var evaluateStringLiteral = traceur.util.evaluateStringLiteral;
+  var FormalParameterList = trees.FormalParameterList;
+  var FunctionDeclaration = trees.FunctionDeclaration;
+  var IdentifierExpression = trees.IdentifierExpression;
+  var LiteralExpression = trees.LiteralExpression;
 
   var createArgumentList = ParseTreeFactory.createArgumentList;
   var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression;
@@ -44,7 +45,7 @@ traceur.define('codegeneration', function() {
   var createPropertyNameAssignment = ParseTreeFactory.createPropertyNameAssignment;
   var createStringLiteral = ParseTreeFactory.createStringLiteral;
 
-  var options = traceur.options.transform;
+  var options = traceurOptions.transform;
 
   function getAtNameFinder(propertyName) {
     return function(tree) {
@@ -65,7 +66,7 @@ traceur.define('codegeneration', function() {
     this.foundAtName_ = false;
     FindVisitor.call(this, tree, true);
   }
-  Finder.prototype = traceur.createObject(
+  Finder.prototype = createObject(
       FindVisitor.prototype, {
     get foundAtName() {
       return this.foundAtName_;
@@ -117,7 +118,7 @@ traceur.define('codegeneration', function() {
    * @constructor
    * @extends {TempVarTransformer}
    */
-  function ObjectLiteralTransformer(identifierGenerator) {
+  export function ObjectLiteralTransformer(identifierGenerator) {
     TempVarTransformer.call(this, identifierGenerator);
     this.protoExpression = null;
     this.needsTransform = false;
@@ -135,7 +136,7 @@ traceur.define('codegeneration', function() {
   };
 
   var base = TempVarTransformer.prototype;
-  ObjectLiteralTransformer.prototype = traceur.createObject(base, {
+  ObjectLiteralTransformer.prototype = createObject(base, {
 
     /**
      * Creates an intermediate data structure (Array) which is later used to
@@ -355,8 +356,3 @@ traceur.define('codegeneration', function() {
           });
     }
   });
-
-  return {
-    ObjectLiteralTransformer: ObjectLiteralTransformer
-  };
-});

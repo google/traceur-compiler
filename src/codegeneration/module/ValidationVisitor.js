@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,10 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('codegeneration.module', function() {
-  'use strict';
-
-  var ModuleVisitor = traceur.codegeneration.module.ModuleVisitor;
+import ModuleVisitor from 'ModuleVisitor.js';
+import createObject from '../../util/util.js';
 
   function getFriendlyName(module) {
     return module.name || "'" + module.url + "'";
@@ -32,11 +30,11 @@ traceur.define('codegeneration.module', function() {
    * @constructor
    * @extends {ModuleVisitor}
    */
-  function ValidationVisitor(reporter, project, module) {
+  export function ValidationVisitor(reporter, project, module) {
     ModuleVisitor.call(this, reporter, project, module);
   }
 
-  ValidationVisitor.prototype = traceur.createObject(
+  ValidationVisitor.prototype = createObject(
       ModuleVisitor.prototype, {
 
     checkExport_: function(tree, name) {
@@ -58,7 +56,7 @@ traceur.define('codegeneration.module', function() {
     },
 
     /**
-     * @param {traceur.syntax.trees.ExportMapping} tree
+     * @param {ExportMapping} tree
      */
     visitExportMapping: function(tree) {
       // Ensures that the module expression exports the names we want to
@@ -94,8 +92,3 @@ traceur.define('codegeneration.module', function() {
       this.checkExport_(tree, tree.lhs.value);
     }
   });
-
-  return {
-    ValidationVisitor: ValidationVisitor
-  };
-});

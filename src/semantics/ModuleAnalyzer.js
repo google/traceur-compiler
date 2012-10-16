@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,14 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('semantics', function() {
-  'use strict';
-
-  var ExportVisitor = traceur.codegeneration.module.ExportVisitor;
-  var ImportStarVisitor = traceur.codegeneration.module.ImportStarVisitor;
-  var ModuleDeclarationVisitor = traceur.codegeneration.module.ModuleDeclarationVisitor;
-  var ModuleDefinitionVisitor = traceur.codegeneration.module.ModuleDefinitionVisitor;
-  var ValidationVisitor = traceur.codegeneration.module.ValidationVisitor;
+  import ModuleDefinitionVisitor from '../codegeneration/module/ModuleDefinitionVisitor.js';
+  import ExportVisitor from '../codegeneration/module/ExportVisitor.js';
+  import ImportStarVisitor from '../codegeneration/module/ImportStarVisitor.js';
+  import ModuleDeclarationVisitor from '../codegeneration/module/ModuleDeclarationVisitor.js';
+  import ValidationVisitor from '../codegeneration/module/ValidationVisitor.js';
 
   // TODO(arv): Validate that there are no free variables
   // TODO(arv): Validate that the exported reference exists
@@ -31,7 +28,7 @@ traceur.define('semantics', function() {
    * @param {Project} project
    * @constructor
    */
-  function ModuleAnalyzer(reporter, project) {
+  export function ModuleAnalyzer(reporter, project) {
     this.reporter_ = reporter;
     this.project_ = project;
   }
@@ -89,8 +86,3 @@ traceur.define('semantics', function() {
       doVisit(ImportStarVisitor);
     }
   };
-
-  return {
-    ModuleAnalyzer: ModuleAnalyzer
-  };
-});

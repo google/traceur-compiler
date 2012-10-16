@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,23 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-traceur.define('semantics', function() {
-  'use strict';
+import ParseTreeType from '../syntax/trees/ParseTree.js';
+import ParseTreeVisitor from '../syntax/ParseTreeVisitor.js';
+import TokenType from '../syntax/TokenType.js';
+import createObject from '../util/util.js';
+import trees from '../syntax/trees/ParseTrees.js';
 
-  var IdentifierToken = traceur.syntax.IdentifierToken;
-  var ParseTreeType = traceur.syntax.ParseTreeType;
-  var ParseTreeVisitor = traceur.syntax.ParseTreeVisitor;
-  var TokenType = traceur.syntax.TokenType;
-  var Block = traceur.syntax.trees.Block;
-  var Catch = traceur.syntax.trees.Catch;
-  var ForInStatement = traceur.syntax.trees.ForInStatement;
-  var ForStatement = traceur.syntax.trees.ForStatement;
-  var FunctionDeclaration = traceur.syntax.trees.FunctionDeclaration;
-  var ObjectPatternField = traceur.syntax.trees.ObjectPatternField;
-  var ParseTree = traceur.syntax.trees.ParseTree;
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var VariableDeclarationList = traceur.syntax.trees.VariableDeclarationList;
-  var VariableDeclaration = traceur.syntax.trees.VariableDeclaration;
+  var Block = trees.Block;
+  var Catch = trees.Catch;
+  var ForInStatement = trees.ForInStatement;
+  var ForStatement = trees.ForStatement;
+  var FunctionDeclaration = trees.FunctionDeclaration;
+  var ObjectPatternField = trees.ObjectPatternField;
+  var VariableDeclarationList = trees.VariableDeclarationList;
+  var VariableDeclaration = trees.VariableDeclaration;
 
   // TODO: Update once destructuring has been refactored.
 
@@ -41,7 +38,7 @@ traceur.define('semantics', function() {
    * @extends {ParseTreeVisitor}
    * @constructor
    */
-  function VariableBinder(includeFunctionScope, scope) {
+  export function VariableBinder(includeFunctionScope, scope) {
     ParseTreeVisitor.call(this);
 
     // Should we include:
@@ -141,7 +138,7 @@ traceur.define('semantics', function() {
   };
 
   var proto = ParseTreeVisitor.prototype;
-  VariableBinder.prototype = traceur.createObject(proto, {
+  VariableBinder.prototype = createObject(proto, {
 
     /** @param {FunctionDeclaration} tree */
     bindVariablesInFunction_: function(tree) {
@@ -280,8 +277,3 @@ traceur.define('semantics', function() {
       }
     }
   });
-
-  return {
-    VariableBinder: VariableBinder
-  };
-});
