@@ -12,20 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-  import State from 'State.js';
+import State from 'State.js';
 
-  /**
-   * Allocates unique state identifiers.
-   * @constructor
-   */
-  export function StateAllocator() {
+/**
+ * Allocates unique state identifiers.
+ * @constructor
+ */
+export function StateAllocator() {
+}
+
+StateAllocator.prototype = {
+  nextState_: State.INVALID_STATE + 1,
+
+  /** @return {number} */
+  allocateState: function() {
+    return this.nextState_++;
   }
-
-  StateAllocator.prototype = {
-    nextState_: State.INVALID_STATE + 1,
-
-    /** @return {number} */
-    allocateState: function() {
-      return this.nextState_++;
-    }
-  };
+};

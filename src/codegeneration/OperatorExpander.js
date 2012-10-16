@@ -16,116 +16,116 @@ import ParseTreeFactory from 'ParseTreeFactory.js';
 import ParseTreeType from '../syntax/trees/ParseTree.js';
 import TokenType from '../syntax/TokenType.js';
 
-  var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression;
-  var createBinaryOperator = ParseTreeFactory.createBinaryOperator;
-  var createCommaExpression = ParseTreeFactory.createCommaExpression;
-  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
-  var createMemberExpression = ParseTreeFactory.createMemberExpression;
-  var createMemberLookupExpression = ParseTreeFactory.createMemberLookupExpression;
-  var createOperatorToken = ParseTreeFactory.createOperatorToken;
-  var createParenExpression = ParseTreeFactory.createParenExpression;
+var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression;
+var createBinaryOperator = ParseTreeFactory.createBinaryOperator;
+var createCommaExpression = ParseTreeFactory.createCommaExpression;
+var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
+var createMemberExpression = ParseTreeFactory.createMemberExpression;
+var createMemberLookupExpression = ParseTreeFactory.createMemberLookupExpression;
+var createOperatorToken = ParseTreeFactory.createOperatorToken;
+var createParenExpression = ParseTreeFactory.createParenExpression;
 
-  /**
-   * Returns the binary operator that the assignment operator should use. For
-   * example *= should use *.
-   */
-  function getBinaryOperator(type) {
-    switch (type) {
-      case TokenType.STAR_EQUAL:
-        return TokenType.STAR;
-      case TokenType.SLASH_EQUAL:
-        return TokenType.SLASH;
-      case TokenType.PERCENT_EQUAL:
-        return TokenType.PERCENT;
-      case TokenType.PLUS_EQUAL:
-        return TokenType.PLUS;
-      case TokenType.MINUS_EQUAL:
-        return TokenType.MINUS;
-      case TokenType.LEFT_SHIFT_EQUAL:
-        return TokenType.LEFT_SHIFT;
-      case TokenType.RIGHT_SHIFT_EQUAL:
-        return TokenType.RIGHT_SHIFT;
-      case TokenType.UNSIGNED_RIGHT_SHIFT_EQUAL:
-        return TokenType.UNSIGNED_RIGHT_SHIFT;
-      case TokenType.AMPERSAND_EQUAL:
-        return TokenType.AMPERSAND;
-      case TokenType.CARET_EQUAL:
-        return TokenType.CARET;
-      case TokenType.BAR_EQUAL:
-        return TokenType.BAR;
-      default:
-        throw Error('unreachable');
-    }
+/**
+ * Returns the binary operator that the assignment operator should use. For
+ * example *= should use *.
+ */
+function getBinaryOperator(type) {
+  switch (type) {
+    case TokenType.STAR_EQUAL:
+      return TokenType.STAR;
+    case TokenType.SLASH_EQUAL:
+      return TokenType.SLASH;
+    case TokenType.PERCENT_EQUAL:
+      return TokenType.PERCENT;
+    case TokenType.PLUS_EQUAL:
+      return TokenType.PLUS;
+    case TokenType.MINUS_EQUAL:
+      return TokenType.MINUS;
+    case TokenType.LEFT_SHIFT_EQUAL:
+      return TokenType.LEFT_SHIFT;
+    case TokenType.RIGHT_SHIFT_EQUAL:
+      return TokenType.RIGHT_SHIFT;
+    case TokenType.UNSIGNED_RIGHT_SHIFT_EQUAL:
+      return TokenType.UNSIGNED_RIGHT_SHIFT;
+    case TokenType.AMPERSAND_EQUAL:
+      return TokenType.AMPERSAND;
+    case TokenType.CARET_EQUAL:
+      return TokenType.CARET;
+    case TokenType.BAR_EQUAL:
+      return TokenType.BAR;
+    default:
+      throw Error('unreachable');
+  }
+}
+
+/**
+ * Normalizes member lookup expressions with += etc.
+ *
+ * e1[e2] += e3
+ * =>
+ * (tmp1 = e1, tmp2 = e2, tmp1[tmp2] = tmp1[tmp2] + e3)
+ *
+ * If e1 is a single identifier expression then we skip the tmp1 = e1
+ * assignment.
+ * @param {ParseTree} tree
+ * @param {TempVarTransformer} tempVarTransformer
+ * @return {ParseTree}
+ */
+export function expandMemberLookupExpression(tree, tempVarTransformer) {
+  var tmp1;
+  var expressions = [];
+  if (tree.left.operand.type == ParseTreeType.SUPER_EXPRESSION ||
+      tree.left.operand.type == ParseTreeType.IDENTIFIER_EXPRESSION) {
+    tmp1 = tree.left.operand;
+  } else {
+    tmp1 = createIdentifierExpression(tempVarTransformer.addTempVar());
+    expressions.push(createAssignmentExpression(tmp1, tree.left.operand));
   }
 
-  /**
-   * Normalizes member lookup expressions with += etc.
-   *
-   * e1[e2] += e3
-   * =>
-   * (tmp1 = e1, tmp2 = e2, tmp1[tmp2] = tmp1[tmp2] + e3)
-   *
-   * If e1 is a single identifier expression then we skip the tmp1 = e1
-   * assignment.
-   * @param {ParseTree} tree
-   * @param {TempVarTransformer} tempVarTransformer
-   * @return {ParseTree}
-   */
-  export function expandMemberLookupExpression(tree, tempVarTransformer) {
-    var tmp1;
-    var expressions = [];
-    if (tree.left.operand.type == ParseTreeType.SUPER_EXPRESSION ||
-        tree.left.operand.type == ParseTreeType.IDENTIFIER_EXPRESSION) {
-      tmp1 = tree.left.operand;
-    } else {
-      tmp1 = createIdentifierExpression(tempVarTransformer.addTempVar());
-      expressions.push(createAssignmentExpression(tmp1, tree.left.operand));
-    }
+  var tmp2 = createIdentifierExpression(tempVarTransformer.addTempVar());
+  expressions.push(
+    createAssignmentExpression(tmp2, tree.left.memberExpression),
+    createAssignmentExpression(
+        createMemberLookupExpression(tmp1, tmp2),
+        createBinaryOperator(
+            createMemberLookupExpression(tmp1, tmp2),
+            createOperatorToken(getBinaryOperator(tree.operator.type)),
+            tree.right))
+  );
+  return createParenExpression(createCommaExpression(expressions));
+}
 
-    var tmp2 = createIdentifierExpression(tempVarTransformer.addTempVar());
-    expressions.push(
-      createAssignmentExpression(tmp2, tree.left.memberExpression),
+/**
+ * Normalizes member expressions with += etc.
+ *
+ * e1.p += e2
+ * =>
+ * (tmp = e1, tmp.p = tmp.p + e2)
+ *
+ * If e1 is a single identifier expression then we skip the tmp = e1
+ * assignment.
+ *
+ * @param {ParseTree} tree
+ * @param {TempVarTransformer} tempVarTransformer
+ * @return {ParseTree}
+ */
+export function expandMemberExpression(tree, tempVarTransformer) {
+  var tmp;
+  var expressions = [];
+  if (tree.left.operand.type == ParseTreeType.SUPER_EXPRESSION ||
+      tree.left.operand.type == ParseTreeType.IDENTIFIER_EXPRESSION) {
+    tmp = tree.left.operand;
+  } else {
+    tmp = createIdentifierExpression(tempVarTransformer.addTempVar());
+    expressions.push(createAssignmentExpression(tmp, tree.left.operand));
+  }
+
+  expressions.push(
       createAssignmentExpression(
-          createMemberLookupExpression(tmp1, tmp2),
+          createMemberExpression(tmp, tree.left.memberName),
           createBinaryOperator(
-              createMemberLookupExpression(tmp1, tmp2),
+              createMemberExpression(tmp, tree.left.memberName),
               createOperatorToken(getBinaryOperator(tree.operator.type)),
-              tree.right))
-    );
-    return createParenExpression(createCommaExpression(expressions));
-  }
-
-  /**
-   * Normalizes member expressions with += etc.
-   *
-   * e1.p += e2
-   * =>
-   * (tmp = e1, tmp.p = tmp.p + e2)
-   *
-   * If e1 is a single identifier expression then we skip the tmp = e1
-   * assignment.
-   *
-   * @param {ParseTree} tree
-   * @param {TempVarTransformer} tempVarTransformer
-   * @return {ParseTree}
-   */
-  export function expandMemberExpression(tree, tempVarTransformer) {
-    var tmp;
-    var expressions = [];
-    if (tree.left.operand.type == ParseTreeType.SUPER_EXPRESSION ||
-        tree.left.operand.type == ParseTreeType.IDENTIFIER_EXPRESSION) {
-      tmp = tree.left.operand;
-    } else {
-      tmp = createIdentifierExpression(tempVarTransformer.addTempVar());
-      expressions.push(createAssignmentExpression(tmp, tree.left.operand));
-    }
-
-    expressions.push(
-        createAssignmentExpression(
-            createMemberExpression(tmp, tree.left.memberName),
-            createBinaryOperator(
-                createMemberExpression(tmp, tree.left.memberName),
-                createOperatorToken(getBinaryOperator(tree.operator.type)),
-                tree.right)));
-    return createParenExpression(createCommaExpression(expressions));
-  }
+              tree.right)));
+  return createParenExpression(createCommaExpression(expressions));
+}

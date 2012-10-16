@@ -17,97 +17,97 @@ import ModuleVisitor from 'ModuleVisitor.js';
 import ParseTreeType from '../../syntax/trees/ParseTree.js';
 import createObject from '../../util/util.js';
 
-  var IDENTIFIER_EXPRESSION = ParseTreeType.IDENTIFIER_EXPRESSION;
+var IDENTIFIER_EXPRESSION = ParseTreeType.IDENTIFIER_EXPRESSION;
 
-  /**
-   * Visits a parse tree and adds all the module definitions.
-   *
-   *   module m { ... }
-   *
-   * @param {traceur.util.ErrorReporter} reporter
-   * @param {ProjectSymbol} project
-   * @param {ModuleSymbol} module The root of the module system.
-   * @constructor
-   * @extends {ModuleVisitor}
-   */
-  export function ExportVisitor(reporter, project, module) {
-    ModuleVisitor.call(this, reporter, project, module);
-    this.inExport_ = false;
-    this.relatedTree_ = null;
-  }
+/**
+ * Visits a parse tree and adds all the module definitions.
+ *
+ *   module m { ... }
+ *
+ * @param {traceur.util.ErrorReporter} reporter
+ * @param {ProjectSymbol} project
+ * @param {ModuleSymbol} module The root of the module system.
+ * @constructor
+ * @extends {ModuleVisitor}
+ */
+export function ExportVisitor(reporter, project, module) {
+  ModuleVisitor.call(this, reporter, project, module);
+  this.inExport_ = false;
+  this.relatedTree_ = null;
+}
 
-  ExportVisitor.prototype = createObject(ModuleVisitor.prototype, {
+ExportVisitor.prototype = createObject(ModuleVisitor.prototype, {
 
-    addExport_: function(name, tree) {
-      if (!this.inExport_) {
-        return;
-      }
-
-      traceur.assert(typeof name == 'string');
-
-      var parent = this.currentModule;
-      if (parent.hasExport(name)) {
-        this.reportError_(tree, 'Duplicate export declaration \'%s\'', name);
-        this.reportRelatedError_(parent.getExport(name));
-        return;
-      }
-      parent.addExport(name, new ExportSymbol(tree, name, this.relatedTree_));
-    },
-
-    visitClassDeclaration: function(tree) {
-      this.addExport_(tree.name.identifierToken.value, tree);
-    },
-
-    visitExportDeclaration: function(tree) {
-      this.inExport_ = true;
-      this.visitAny(tree.declaration);
-      this.inExport_ = false;
-    },
-
-    visitExportMapping: function(tree) {
-      this.relatedTree_ = tree.moduleExpression;
-      this.visitAny(tree.specifierSet);
-      this.relatedTree_ = null;
-    },
-
-    visitExportMappingList: function(tree) {
-      for (var i = 0; i < tree.paths.length; i++) {
-        var path = tree.paths[i];
-        if (path.type == IDENTIFIER_EXPRESSION) {
-          this.addExport_(path.identifierToken.value, path);
-        } else {
-          this.visitAny(path);
-        }
-      }
-    },
-
-    visitExportSpecifier: function(tree) {
-      this.addExport_((tree.rhs || tree.lhs).value, tree);
-    },
-
-    visitFunctionDeclaration: function(tree) {
-      if (tree.name) {
-        this.addExport_(tree.name.identifierToken.value, tree);
-      }
-    },
-
-    visitIdentifierExpression: function(tree) {
-      this.addExport_(tree.identifierToken.value, tree);
-    },
-
-    visitModuleDefinition: function(tree) {
-      this.addExport_(tree.name.value, tree);
-      var inExport = this.inExport_;
-      this.inExport_ = false;
-      ModuleVisitor.prototype.visitModuleDefinition.call(this, tree);
-      this.inExport_ = inExport;
-    },
-
-    visitModuleSpecifier: function(tree) {
-      this.addExport_(tree.identifier.value, tree);
-    },
-
-    visitVariableDeclaration: function(tree) {
-      this.addExport_(tree.lvalue.identifierToken.value, tree);
+  addExport_: function(name, tree) {
+    if (!this.inExport_) {
+      return;
     }
-  });
+
+    traceur.assert(typeof name == 'string');
+
+    var parent = this.currentModule;
+    if (parent.hasExport(name)) {
+      this.reportError_(tree, 'Duplicate export declaration \'%s\'', name);
+      this.reportRelatedError_(parent.getExport(name));
+      return;
+    }
+    parent.addExport(name, new ExportSymbol(tree, name, this.relatedTree_));
+  },
+
+  visitClassDeclaration: function(tree) {
+    this.addExport_(tree.name.identifierToken.value, tree);
+  },
+
+  visitExportDeclaration: function(tree) {
+    this.inExport_ = true;
+    this.visitAny(tree.declaration);
+    this.inExport_ = false;
+  },
+
+  visitExportMapping: function(tree) {
+    this.relatedTree_ = tree.moduleExpression;
+    this.visitAny(tree.specifierSet);
+    this.relatedTree_ = null;
+  },
+
+  visitExportMappingList: function(tree) {
+    for (var i = 0; i < tree.paths.length; i++) {
+      var path = tree.paths[i];
+      if (path.type == IDENTIFIER_EXPRESSION) {
+        this.addExport_(path.identifierToken.value, path);
+      } else {
+        this.visitAny(path);
+      }
+    }
+  },
+
+  visitExportSpecifier: function(tree) {
+    this.addExport_((tree.rhs || tree.lhs).value, tree);
+  },
+
+  visitFunctionDeclaration: function(tree) {
+    if (tree.name) {
+      this.addExport_(tree.name.identifierToken.value, tree);
+    }
+  },
+
+  visitIdentifierExpression: function(tree) {
+    this.addExport_(tree.identifierToken.value, tree);
+  },
+
+  visitModuleDefinition: function(tree) {
+    this.addExport_(tree.name.value, tree);
+    var inExport = this.inExport_;
+    this.inExport_ = false;
+    ModuleVisitor.prototype.visitModuleDefinition.call(this, tree);
+    this.inExport_ = inExport;
+  },
+
+  visitModuleSpecifier: function(tree) {
+    this.addExport_(tree.identifier.value, tree);
+  },
+
+  visitVariableDeclaration: function(tree) {
+    this.addExport_(tree.lvalue.identifierToken.value, tree);
+  }
+});

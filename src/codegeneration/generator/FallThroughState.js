@@ -15,44 +15,44 @@
 import State from 'State.js';
 import createObject from '../../util/util.js';
 
+/**
+ * @param {number} id
+ * @param {number} fallThroughState
+ * @param {Array.<ParseTree>} statements
+ * @constructor
+ * @extends {State}
+ */
+export function FallThroughState(id, fallThroughState, statements) {
+  State.call(this, id);
+  this.fallThroughState = fallThroughState;
+  this.statements = statements;
+}
+
+FallThroughState.prototype = createObject(State.prototype, {
+
   /**
-   * @param {number} id
-   * @param {number} fallThroughState
-   * @param {Array.<ParseTree>} statements
-   * @constructor
-   * @extends {State}
+   * @param {number} oldState
+   * @param {number} newState
+   * @return {FallThroughState}
    */
-  export function FallThroughState(id, fallThroughState, statements) {
-    State.call(this, id);
-    this.fallThroughState = fallThroughState;
-    this.statements = statements;
+  replaceState: function(oldState, newState) {
+    return new FallThroughState(
+        State.replaceStateId(this.id, oldState, newState),
+        State.replaceStateId(this.fallThroughState, oldState, newState),
+        this.statements);
+  },
+
+  /**
+   * @param {FinallyState} enclosingFinally
+   * @param {number} machineEndState
+   * @param {ErrorReporter} reporter
+   * @return {Array.<ParseTree>}
+   */
+  transform: function(enclosingFinally, machineEndState, reporter) {
+    var statements = [];
+    statements.push.apply(statements, this.statements);
+    statements.push.apply(statements,
+        State.generateJump(enclosingFinally, this.fallThroughState));
+    return statements;
   }
-
-  FallThroughState.prototype = createObject(State.prototype, {
-
-    /**
-     * @param {number} oldState
-     * @param {number} newState
-     * @return {FallThroughState}
-     */
-    replaceState: function(oldState, newState) {
-      return new FallThroughState(
-          State.replaceStateId(this.id, oldState, newState),
-          State.replaceStateId(this.fallThroughState, oldState, newState),
-          this.statements);
-    },
-
-    /**
-     * @param {FinallyState} enclosingFinally
-     * @param {number} machineEndState
-     * @param {ErrorReporter} reporter
-     * @return {Array.<ParseTree>}
-     */
-    transform: function(enclosingFinally, machineEndState, reporter) {
-      var statements = [];
-      statements.push.apply(statements, this.statements);
-      statements.push.apply(statements,
-          State.generateJump(enclosingFinally, this.fallThroughState));
-      return statements;
-    }
-  });
+});

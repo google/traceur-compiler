@@ -17,32 +17,32 @@ import canonicalizeUrl from '../../util/url.js';
 import createObject from '../../util/util.js';
 import evaluateStringLiteral from '../../util/util.js';
 
-  // TODO(arv): This is closer to the ModuleVisitor but we don't care about
-  // modules.
+// TODO(arv): This is closer to the ModuleVisitor but we don't care about
+// modules.
 
-  /**
-   * Visits a parse tree and finds all required URLs in it.
-   *
-   *   module m from "url"
-   *
-   * @param {traceur.util.ErrorReporter} reporter
-   * @constructor
-   * @extends {ParseTreeVisitor}
-   */
-  export function ModuleRequireVisitor(reporter) {
-    ParseTreeVisitor.call(this);
-    this.urls_ = Object.create(null);
+/**
+ * Visits a parse tree and finds all required URLs in it.
+ *
+ *   module m from "url"
+ *
+ * @param {traceur.util.ErrorReporter} reporter
+ * @constructor
+ * @extends {ParseTreeVisitor}
+ */
+export function ModuleRequireVisitor(reporter) {
+  ParseTreeVisitor.call(this);
+  this.urls_ = Object.create(null);
+}
+
+ModuleRequireVisitor.prototype = createObject(
+    ParseTreeVisitor.prototype, {
+
+  get requireUrls() {
+    return Object.keys(this.urls_);
+  },
+
+  visitModuleRequire: function(tree) {
+    // TODO(arv): This is kind of ugly but we need the value of the string.
+    this.urls_[canonicalizeUrl(evaluateStringLiteral(tree.url))] = true;
   }
-
-  ModuleRequireVisitor.prototype = createObject(
-      ParseTreeVisitor.prototype, {
-
-    get requireUrls() {
-      return Object.keys(this.urls_);
-    },
-
-    visitModuleRequire: function(tree) {
-      // TODO(arv): This is kind of ugly but we need the value of the string.
-      this.urls_[canonicalizeUrl(evaluateStringLiteral(tree.url))] = true;
-    }
-  });
+});

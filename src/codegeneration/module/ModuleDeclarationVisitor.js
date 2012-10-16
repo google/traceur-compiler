@@ -15,31 +15,31 @@
 import ModuleVisitor from 'ModuleVisitor.js';
 import createObject from '../../util/util.js';
 
-  /**
-   * Visits a parse tree and adds all the module declarations.
-   *
-   *   module m from n, o from p.q.r
-   *
-   * @param {traceur.util.ErrorReporter} reporter
-   * @param {ProjectSymbol} project
-   * @param {ModuleSymbol} module The root of the module system.
-   * @constructor
-   * @extends {ModuleVisitor}
-   */
-  export function ModuleDeclarationVisitor(reporter, project, module) {
-    ModuleVisitor.call(this, reporter, project, module);
-  }
+/**
+ * Visits a parse tree and adds all the module declarations.
+ *
+ *   module m from n, o from p.q.r
+ *
+ * @param {traceur.util.ErrorReporter} reporter
+ * @param {ProjectSymbol} project
+ * @param {ModuleSymbol} module The root of the module system.
+ * @constructor
+ * @extends {ModuleVisitor}
+ */
+export function ModuleDeclarationVisitor(reporter, project, module) {
+  ModuleVisitor.call(this, reporter, project, module);
+}
 
-  ModuleDeclarationVisitor.prototype = createObject(
-      ModuleVisitor.prototype, {
+ModuleDeclarationVisitor.prototype = createObject(
+    ModuleVisitor.prototype, {
 
-    visitModuleSpecifier: function(tree) {
-      var name = tree.identifier.value;
-      var parent = this.currentModule;
-      var module = this.getModuleForModuleExpression(tree.expression);
-      if (!module) {
-        return;
-      }
-      parent.addModuleWithName(module, name);
+  visitModuleSpecifier: function(tree) {
+    var name = tree.identifier.value;
+    var parent = this.currentModule;
+    var module = this.getModuleForModuleExpression(tree.expression);
+    if (!module) {
+      return;
     }
-  });
+    parent.addModuleWithName(module, name);
+  }
+});

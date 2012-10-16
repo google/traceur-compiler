@@ -15,21 +15,20 @@
 import ErrorReporter from 'ErrorReporter.js';
 import createObject from 'util.js';
 
-  /**
-   * An error reporter that doesn't output errors; it just records
-   * whether an error occurred.
-   *
-   * <p>{@code MutedErrorReporter} instances are used by the parser to
-   * observe whether speculative parses fail before committing to
-   * parsing them.
-   */
-  export function MutedErrorReporter() {}
+/**
+ * An error reporter that doesn't output errors; it just records
+ * whether an error occurred.
+ *
+ * <p>{@code MutedErrorReporter} instances are used by the parser to
+ * observe whether speculative parses fail before committing to
+ * parsing them.
+ */
+export function MutedErrorReporter() {}
 
-  MutedErrorReporter.prototype = createObject(
-      ErrorReporter.prototype, {
+MutedErrorReporter.prototype = createObject(
+    ErrorReporter.prototype, {
 
-    reportMessageInternal: function(location, message) {
-      // message.dropOn(floor);
-    }
-  });
-
+  reportMessageInternal: function(location, message) {
+    // message.dropOn(floor);
+  }
+});

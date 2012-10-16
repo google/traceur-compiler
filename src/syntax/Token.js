@@ -14,43 +14,43 @@
 
 import TokenType from 'TokenType.js';
 
-  /**
-   * A Token in a javascript file.
-   * Immutable.
-   * A plain old data structure. Should contain data members and simple
-   * accessors only.
-   * @param {TokenType} type
-   * @param {SourceRange} location
-   * @constructor
-   */
-  export function Token(type, location) {
-    this.type = type;
-    this.location = location;
-  }
+/**
+ * A Token in a javascript file.
+ * Immutable.
+ * A plain old data structure. Should contain data members and simple
+ * accessors only.
+ * @param {TokenType} type
+ * @param {SourceRange} location
+ * @constructor
+ */
+export function Token(type, location) {
+  this.type = type;
+  this.location = location;
+}
 
-  Token.prototype = {
-    toString: function() {
-      return this.type.toString();
-    },
+Token.prototype = {
+  toString: function() {
+    return this.type.toString();
+  },
 
-    /** @return {boolean} */
-    isAssignmentOperator: function() {
-      switch (this.type) {
-        case TokenType.EQUAL:
-        case TokenType.STAR_EQUAL:
-        case TokenType.SLASH_EQUAL:
-        case TokenType.PERCENT_EQUAL:
-        case TokenType.PLUS_EQUAL:
-        case TokenType.MINUS_EQUAL:
-        case TokenType.LEFT_SHIFT_EQUAL:
-        case TokenType.RIGHT_SHIFT_EQUAL:
-        case TokenType.UNSIGNED_RIGHT_SHIFT_EQUAL:
-        case TokenType.AMPERSAND_EQUAL:
-        case TokenType.CARET_EQUAL:
-        case TokenType.BAR_EQUAL:
-          return true;
-        default:
-          return false;
-      }
+  /** @return {boolean} */
+  isAssignmentOperator: function() {
+    switch (this.type) {
+      case TokenType.EQUAL:
+      case TokenType.STAR_EQUAL:
+      case TokenType.SLASH_EQUAL:
+      case TokenType.PERCENT_EQUAL:
+      case TokenType.PLUS_EQUAL:
+      case TokenType.MINUS_EQUAL:
+      case TokenType.LEFT_SHIFT_EQUAL:
+      case TokenType.RIGHT_SHIFT_EQUAL:
+      case TokenType.UNSIGNED_RIGHT_SHIFT_EQUAL:
+      case TokenType.AMPERSAND_EQUAL:
+      case TokenType.CARET_EQUAL:
+      case TokenType.BAR_EQUAL:
+        return true;
+      default:
+        return false;
     }
-  };
+  }
+};

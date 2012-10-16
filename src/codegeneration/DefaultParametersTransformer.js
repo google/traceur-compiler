@@ -20,104 +20,104 @@ import TokenType from '../syntax/TokenType.js';
 import createObject from '../util/util.js';
 import trees from '../syntax/trees/ParseTrees.js';
 
-  var FormalParameterList = trees.FormalParameterList;
-  var FunctionDeclaration = trees.FunctionDeclaration;
+var FormalParameterList = trees.FormalParameterList;
+var FunctionDeclaration = trees.FunctionDeclaration;
 
-  var createBinaryOperator = ParseTreeFactory.createBinaryOperator;
-  var createBlock = ParseTreeFactory.createBlock;
-  var createConditionalExpression = ParseTreeFactory.createConditionalExpression;
-  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
-  var createMemberExpression = ParseTreeFactory.createMemberExpression;
-  var createMemberLookupExpression = ParseTreeFactory.createMemberLookupExpression;
-  var createNumberLiteral = ParseTreeFactory.createNumberLiteral;
-  var createOperatorToken = ParseTreeFactory.createOperatorToken;
-  var createVariableStatement = ParseTreeFactory.createVariableStatement;
-  var createVoid0 = ParseTreeFactory.createVoid0;
+var createBinaryOperator = ParseTreeFactory.createBinaryOperator;
+var createBlock = ParseTreeFactory.createBlock;
+var createConditionalExpression = ParseTreeFactory.createConditionalExpression;
+var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
+var createMemberExpression = ParseTreeFactory.createMemberExpression;
+var createMemberLookupExpression = ParseTreeFactory.createMemberLookupExpression;
+var createNumberLiteral = ParseTreeFactory.createNumberLiteral;
+var createOperatorToken = ParseTreeFactory.createOperatorToken;
+var createVariableStatement = ParseTreeFactory.createVariableStatement;
+var createVoid0 = ParseTreeFactory.createVoid0;
 
-  var stack = [];
+var stack = [];
 
-  /**
-   * Desugars default parameters.
-   *
-   * @see <a href="http://wiki.ecmascript.org/doku.php?id=harmony:parameter_default_values">harmony:parameter_default_values</a>
-   * @constructor
-   * @extends {ParseTreeTransformer}
-   */
-  export function DefaultParametersTransformer() {
-    ParseTreeTransformer.call(this);
-  }
+/**
+ * Desugars default parameters.
+ *
+ * @see <a href="http://wiki.ecmascript.org/doku.php?id=harmony:parameter_default_values">harmony:parameter_default_values</a>
+ * @constructor
+ * @extends {ParseTreeTransformer}
+ */
+export function DefaultParametersTransformer() {
+  ParseTreeTransformer.call(this);
+}
 
-  /**
-   * @param {ParseTree} tree
-   * @return {ParseTree}
-   */
-  DefaultParametersTransformer.transformTree = function(tree) {
-    return new DefaultParametersTransformer().transformAny(tree);
-  };
+/**
+ * @param {ParseTree} tree
+ * @return {ParseTree}
+ */
+DefaultParametersTransformer.transformTree = function(tree) {
+  return new DefaultParametersTransformer().transformAny(tree);
+};
 
-  DefaultParametersTransformer.prototype = createObject(
-      ParseTreeTransformer.prototype, {
+DefaultParametersTransformer.prototype = createObject(
+    ParseTreeTransformer.prototype, {
 
-    transformFunctionDeclaration: function(tree) {
-      stack.push([]);
+  transformFunctionDeclaration: function(tree) {
+    stack.push([]);
 
-      var transformedTree = ParseTreeTransformer.prototype.
-          transformFunctionDeclaration.call(this, tree);
+    var transformedTree = ParseTreeTransformer.prototype.
+        transformFunctionDeclaration.call(this, tree);
 
-      var statements = stack.pop();
-      if (!statements.length)
-        return transformedTree;
+    var statements = stack.pop();
+    if (!statements.length)
+      return transformedTree;
 
-      // Prepend the var statements to the block.
-      statements.push.apply(statements,
-                            transformedTree.functionBody.statements);
+    // Prepend the var statements to the block.
+    statements.push.apply(statements,
+                          transformedTree.functionBody.statements);
 
-      return new FunctionDeclaration(transformedTree.location,
-                                     transformedTree.name,
-                                     transformedTree.isGenerator,
-                                     transformedTree.formalParameterList,
-                                     createBlock(statements));
-    },
+    return new FunctionDeclaration(transformedTree.location,
+                                   transformedTree.name,
+                                   transformedTree.isGenerator,
+                                   transformedTree.formalParameterList,
+                                   createBlock(statements));
+  },
 
-    transformFormalParameterList: function(tree) {
-      var parameters = [];
-      var statements = stack[stack.length - 1];
-      var changed = false;
-      for (var i = 0; i < tree.parameters.length; i++) {
-        var param = this.transformAny(tree.parameters[i]);
-        if (param !== tree.parameters[i])
-          changed = true;
+  transformFormalParameterList: function(tree) {
+    var parameters = [];
+    var statements = stack[stack.length - 1];
+    var changed = false;
+    for (var i = 0; i < tree.parameters.length; i++) {
+      var param = this.transformAny(tree.parameters[i]);
+      if (param !== tree.parameters[i])
+        changed = true;
 
-        if (param.type === ParseTreeType.REST_PARAMETER || !param.initializer) {
-          parameters.push(param);
+      if (param.type === ParseTreeType.REST_PARAMETER || !param.initializer) {
+        parameters.push(param);
 
-        // binding = initializer
-        //
-        // =>
-        //
-        // var binding = arguments[i] !== (void 0) ? arguments[i] : initializer;
-        } else {
-          changed = true;
-          statements.push(createVariableStatement(
-              TokenType.VAR,
-              param.binding,
-              createConditionalExpression(
-                  createBinaryOperator(
-                      createMemberLookupExpression(
-                          createIdentifierExpression(PredefinedName.ARGUMENTS),
-                          createNumberLiteral(i)),
-                      createOperatorToken(TokenType.NOT_EQUAL_EQUAL),
-                      createVoid0()),
-                  createMemberLookupExpression(
-                      createIdentifierExpression(PredefinedName.ARGUMENTS),
-                      createNumberLiteral(i)),
-                  param.initializer)));
-        }
+      // binding = initializer
+      //
+      // =>
+      //
+      // var binding = arguments[i] !== (void 0) ? arguments[i] : initializer;
+      } else {
+        changed = true;
+        statements.push(createVariableStatement(
+            TokenType.VAR,
+            param.binding,
+            createConditionalExpression(
+                createBinaryOperator(
+                    createMemberLookupExpression(
+                        createIdentifierExpression(PredefinedName.ARGUMENTS),
+                        createNumberLiteral(i)),
+                    createOperatorToken(TokenType.NOT_EQUAL_EQUAL),
+                    createVoid0()),
+                createMemberLookupExpression(
+                    createIdentifierExpression(PredefinedName.ARGUMENTS),
+                    createNumberLiteral(i)),
+                param.initializer)));
       }
-
-      if (!changed)
-        return tree;
-
-      return new FormalParameterList(tree.location, parameters);
     }
-  });
+
+    if (!changed)
+      return tree;
+
+    return new FormalParameterList(tree.location, parameters);
+  }
+});

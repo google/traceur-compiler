@@ -22,163 +22,163 @@ import Project from '../semantics/symbols/Project.js';
  * process.
  */
 
+/**
+ * @param {ErrorReporter} reporter Where to report compile errors.
+ * @param {Project} project The project to compile.
+ * @return {ObjectMap} A map from input file name to
+ *     translated results. Returns null if there was a compile error.
+ */
+Compiler.compile = function(reporter, project) {
+  return new Compiler(reporter, project).compile_();
+};
+
+/**
+ * @param {ErrorReporter} reporter Where to report compile errors.
+ * @param {SourceFile} sourceFile file to compile.
+ * @param {string} url The URL of the file to compile or the URL of the
+ *     document in case of an eval or inline script.
+ * @return {ParseTree} A map from input file name to
+ *     translated results. Returns null if there was a compile error.
+ */
+Compiler.compileFile = function(reporter, sourceFile, url) {
+  var project = new Project(url);
+  project.addFile(sourceFile);
+  return new Compiler(reporter, project).compileFile_(sourceFile);
+};
+
+/**
+ * @param {ErrorReporter} reporter
+ * @param {Project} project
+ * @constructor
+ */
+export function Compiler(reporter, project) {
+  this.reporter_ = reporter;
+  this.project_ = project;
+}
+
+Compiler.prototype = {
   /**
-   * @param {ErrorReporter} reporter Where to report compile errors.
-   * @param {Project} project The project to compile.
-   * @return {ObjectMap} A map from input file name to
-   *     translated results. Returns null if there was a compile error.
+   * @return {ObjectMap}
+   * @private
    */
-  Compiler.compile = function(reporter, project) {
-    return new Compiler(reporter, project).compile_();
-  };
+  compile_: function() {
+    this.parse_();
+    this.analyze_();
+    this.transform_();
 
-  /**
-   * @param {ErrorReporter} reporter Where to report compile errors.
-   * @param {SourceFile} sourceFile file to compile.
-   * @param {string} url The URL of the file to compile or the URL of the
-   *     document in case of an eval or inline script.
-   * @return {ParseTree} A map from input file name to
-   *     translated results. Returns null if there was a compile error.
-   */
-  Compiler.compileFile = function(reporter, sourceFile, url) {
-    var project = new Project(url);
-    project.addFile(sourceFile);
-    return new Compiler(reporter, project).compileFile_(sourceFile);
-  };
-
-  /**
-   * @param {ErrorReporter} reporter
-   * @param {Project} project
-   * @constructor
-   */
-  export function Compiler(reporter, project) {
-    this.reporter_ = reporter;
-    this.project_ = project;
-  }
-
-  Compiler.prototype = {
-    /**
-     * @return {ObjectMap}
-     * @private
-     */
-    compile_: function() {
-      this.parse_();
-      this.analyze_();
-      this.transform_();
-
-      if (this.hadError_()) {
-        return null;
-      }
-      return this.results_;
-    },
-
-    /**
-     * @param {SourceFile} file
-     * @return {ParseTree}
-     * @private
-     */
-    compileFile_: function(file) {
-      this.parseFile_(file);
-      this.analyzeFile_(file);
-      this.transformFile_(file);
-
-      if (this.hadError_()) {
-        return null;
-      }
-      return this.results_.get(file);
-    },
-
-    /**
-     * Transform the analyzed project to standard JS.
-     *
-     * @return {void}
-     * @private
-     */
-    transform_: function() {
-      if (this.hadError_()) {
-        return;
-      }
-      this.results_ = ProgramTransformer.transform(this.reporter_,
-                                                   this.project_);
-    },
-
-    /**
-     * Transform the analyzed project to standard JS.
-     *
-     * @param {SourceFile} sourceFile
-     * @return {void}
-     * @private
-     */
-    transformFile_: function(sourceFile) {
-      if (this.hadError_()) {
-        return;
-      }
-      this.results_ = ProgramTransformer.transformFile(this.reporter_,
-                                                       this.project_,
-                                                       sourceFile);
-    },
-
-    /**
-     * Build all symbols and perform all semantic checks.
-     *
-     * @return {void}
-     * @private
-     */
-    analyze_: function() {
-      if (this.hadError_()) {
-        return;
-      }
-      var analyzer = new ModuleAnalyzer(this.reporter_, this.project_);
-      analyzer.analyze();
-    },
-
-    /**
-     * Build all symbols and perform all semantic checks.
-     *
-     * @param {SourceFile} sourceFile
-     * @return {void}
-     * @private
-     */
-    analyzeFile_: function(sourceFile) {
-      if (this.hadError_()) {
-        return;
-      }
-      var analyzer = new ModuleAnalyzer(this.reporter_, this.project_);
-      analyzer.analyzeFile(sourceFile);
-    },
-
-    /**
-     * Parse all source files in the project.
-     *
-     * @return {void}
-     * @private
-     */
-    parse_: function() {
-      this.project_.getSourceFiles().forEach(this.parseFile_, this);
-    },
-
-    /**
-     * Parse all source files in the project.
-     */
-    /**
-     * @param {SourceFile} file
-     * @return {void}
-     * @private
-     */
-    parseFile_: function(file) {
-      if (this.hadError_()) {
-        return;
-      }
-
-      this.project_.setParseTree(
-          file, new Parser(this.reporter_, file).parseProgram(true));
-    },
-
-    /**
-     * @return {boolean}
-     * @private
-     */
-    hadError_: function() {
-      return this.reporter_.hadError();
+    if (this.hadError_()) {
+      return null;
     }
-  };
+    return this.results_;
+  },
+
+  /**
+   * @param {SourceFile} file
+   * @return {ParseTree}
+   * @private
+   */
+  compileFile_: function(file) {
+    this.parseFile_(file);
+    this.analyzeFile_(file);
+    this.transformFile_(file);
+
+    if (this.hadError_()) {
+      return null;
+    }
+    return this.results_.get(file);
+  },
+
+  /**
+   * Transform the analyzed project to standard JS.
+   *
+   * @return {void}
+   * @private
+   */
+  transform_: function() {
+    if (this.hadError_()) {
+      return;
+    }
+    this.results_ = ProgramTransformer.transform(this.reporter_,
+                                                 this.project_);
+  },
+
+  /**
+   * Transform the analyzed project to standard JS.
+   *
+   * @param {SourceFile} sourceFile
+   * @return {void}
+   * @private
+   */
+  transformFile_: function(sourceFile) {
+    if (this.hadError_()) {
+      return;
+    }
+    this.results_ = ProgramTransformer.transformFile(this.reporter_,
+                                                     this.project_,
+                                                     sourceFile);
+  },
+
+  /**
+   * Build all symbols and perform all semantic checks.
+   *
+   * @return {void}
+   * @private
+   */
+  analyze_: function() {
+    if (this.hadError_()) {
+      return;
+    }
+    var analyzer = new ModuleAnalyzer(this.reporter_, this.project_);
+    analyzer.analyze();
+  },
+
+  /**
+   * Build all symbols and perform all semantic checks.
+   *
+   * @param {SourceFile} sourceFile
+   * @return {void}
+   * @private
+   */
+  analyzeFile_: function(sourceFile) {
+    if (this.hadError_()) {
+      return;
+    }
+    var analyzer = new ModuleAnalyzer(this.reporter_, this.project_);
+    analyzer.analyzeFile(sourceFile);
+  },
+
+  /**
+   * Parse all source files in the project.
+   *
+   * @return {void}
+   * @private
+   */
+  parse_: function() {
+    this.project_.getSourceFiles().forEach(this.parseFile_, this);
+  },
+
+  /**
+   * Parse all source files in the project.
+   */
+  /**
+   * @param {SourceFile} file
+   * @return {void}
+   * @private
+   */
+  parseFile_: function(file) {
+    if (this.hadError_()) {
+      return;
+    }
+
+    this.project_.setParseTree(
+        file, new Parser(this.reporter_, file).parseProgram(true));
+  },
+
+  /**
+   * @return {boolean}
+   * @private
+   */
+  hadError_: function() {
+    return this.reporter_.hadError();
+  }
+};

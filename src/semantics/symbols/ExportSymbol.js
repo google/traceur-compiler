@@ -12,20 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-  import Symbol from 'Symbol.js';
-  import SymbolType from 'SymbolType.js';
+import Symbol from 'Symbol.js';
+import SymbolType from 'SymbolType.js';
 
-  /**
-   * @param {ParseTree} tree
-   * @param {string} name
-   * @param {ParseTree=} relatedTree
-   * @constructor
-   * @extends {Symbol}
-   */
-  export function ExportSymbol(tree, name, relatedTree) {
-    Symbol.call(this, SymbolType.EXPORT, tree, name);
-    this.relatedTree = relatedTree;
-  }
+/**
+ * @param {ParseTree} tree
+ * @param {string} name
+ * @param {ParseTree=} relatedTree
+ * @constructor
+ * @extends {Symbol}
+ */
+export function ExportSymbol(tree, name, relatedTree) {
+  Symbol.call(this, SymbolType.EXPORT, tree, name);
+  this.relatedTree = relatedTree;
+}
 
-  ExportSymbol.prototype = Object.create(Symbol.prototype);
+ExportSymbol.prototype = Object.create(Symbol.prototype);
 

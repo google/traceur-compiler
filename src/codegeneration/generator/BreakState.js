@@ -17,59 +17,59 @@ import ParseTreeFactory from '../ParseTreeFactory.js';
 import State from 'State.js';
 import createObject from '../../util/util.js';
 
-  var createStatementList = ParseTreeFactory.createStatementList;
+var createStatementList = ParseTreeFactory.createStatementList;
+
+/**
+ * @param {number} id
+ * @param {string} label
+ * @constructor
+ * @extends {State}
+ */
+export function BreakState(id, label) {
+  State.call(this, id);
+  this.label = label;
+}
+
+BreakState.prototype = createObject(State.prototype, {
+  
+  /**
+   * @param {number} oldState
+   * @param {number} newState
+   * @return {BreakState}
+   */
+  replaceState: function(oldState, newState) {
+    return new BreakState(State.replaceStateId(this.id, oldState, newState), this.label);
+  },
 
   /**
-   * @param {number} id
-   * @param {string} label
-   * @constructor
-   * @extends {State}
+   * @param {FinallyState} enclosingFinally
+   * @param {number} machineEndState
+   * @param {ErrorReporter} reporter
+   * @return {Array.<ParseTree>}
    */
-  export function BreakState(id, label) {
-    State.call(this, id);
-    this.label = label;
-  }
+  transform: function(enclosingFinally, machineEndState, reporter) {
+    throw new Error('These should be removed before the transform step');
+  },
 
-  BreakState.prototype = createObject(State.prototype, {
-    
-    /**
-     * @param {number} oldState
-     * @param {number} newState
-     * @return {BreakState}
-     */
-    replaceState: function(oldState, newState) {
-      return new BreakState(State.replaceStateId(this.id, oldState, newState), this.label);
-    },
-
-    /**
-     * @param {FinallyState} enclosingFinally
-     * @param {number} machineEndState
-     * @param {ErrorReporter} reporter
-     * @return {Array.<ParseTree>}
-     */
-    transform: function(enclosingFinally, machineEndState, reporter) {
-      throw new Error('These should be removed before the transform step');
-    },
-
-    /**
-     * @param {Object} labelSet
-     * @param {number} breakState
-     * @return {State}
-     */
-    transformBreak: function(labelSet, breakState) {
-      if (this.label == null || this.label in labelSet) {
-        return new FallThroughState(this.id, breakState, createStatementList());
-      }
-      return this;
-    },
-
-    /**
-     * @param {Object} labelSet
-     * @param {number} breakState
-     * @param {number} continueState
-     * @return {State}
-     */
-    transformBreakOrContinue: function(labelSet, breakState, continueState) {
-      return this.transformBreak(labelSet, breakState);
+  /**
+   * @param {Object} labelSet
+   * @param {number} breakState
+   * @return {State}
+   */
+  transformBreak: function(labelSet, breakState) {
+    if (this.label == null || this.label in labelSet) {
+      return new FallThroughState(this.id, breakState, createStatementList());
     }
-  });
+    return this;
+  },
+
+  /**
+   * @param {Object} labelSet
+   * @param {number} breakState
+   * @param {number} continueState
+   * @return {State}
+   */
+  transformBreakOrContinue: function(labelSet, breakState, continueState) {
+    return this.transformBreak(labelSet, breakState);
+  }
+});

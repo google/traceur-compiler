@@ -28,20 +28,20 @@
 import Token from 'Token.js';
 import createObject from '../util/util.js';
 
-  /**
-   * @param {TokenType} type
-   * @param {string} value
-   * @param {SourceRange} location
-   * @constructor
-   * @extends {Token}
-   */
-  export function LiteralToken(type, value, location) {
-    Token.call(this, type, location);
-    this.value = value;
-  }
+/**
+ * @param {TokenType} type
+ * @param {string} value
+ * @param {SourceRange} location
+ * @constructor
+ * @extends {Token}
+ */
+export function LiteralToken(type, value, location) {
+  Token.call(this, type, location);
+  this.value = value;
+}
 
-  LiteralToken.prototype = createObject(Token.prototype, {
-    toString: function() {
-      return this.value;
-    }
-  });
+LiteralToken.prototype = createObject(Token.prototype, {
+  toString: function() {
+    return this.value;
+  }
+});

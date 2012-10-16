@@ -12,40 +12,40 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-  import SymbolType from 'SymbolType.js';
+import SymbolType from 'SymbolType.js';
+
+/**
+ * A symbol is a named program element.
+ *
+ * Symbols are plain old data structures only. They have methods for querying their contents, but
+ * symbols do not implement more sophisticated semantics than simple data access.
+ *
+ * @param {SymbolType} type
+ * @param {ParseTree} tree
+ * @param {string} name
+ * @constructor
+ */
+export function Symbol(type, tree, name) {
+  this.type = type;
+  this.tree = tree;
+  this.name = name;
+}
+
+Symbol.prototype = {
 
   /**
-   * A symbol is a named program element.
-   *
-   * Symbols are plain old data structures only. They have methods for querying their contents, but
-   * symbols do not implement more sophisticated semantics than simple data access.
-   *
-   * @param {SymbolType} type
-   * @param {ParseTree} tree
-   * @param {string} name
-   * @constructor
+   * @return {ExportSymbol}
    */
-  export function Symbol(type, tree, name) {
-    this.type = type;
-    this.tree = tree;
-    this.name = name;
+  asExport: function() {
+    traceur.assert(this.type == SymbolType.EXPORT);
+    return this;
+  },
+
+  /**
+   * @return {ModuleSymbol}
+   */
+  asModuleSymbol: function() {
+    traceur.assert(this.type == SymbolType.MODULE);
+    return this;
   }
-
-  Symbol.prototype = {
-
-    /**
-     * @return {ExportSymbol}
-     */
-    asExport: function() {
-      traceur.assert(this.type == SymbolType.EXPORT);
-      return this;
-    },
-
-    /**
-     * @return {ModuleSymbol}
-     */
-    asModuleSymbol: function() {
-      traceur.assert(this.type == SymbolType.MODULE);
-      return this;
-    }
-  };
+};

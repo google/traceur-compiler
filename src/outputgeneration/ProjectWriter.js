@@ -12,21 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-  import TreeWriter from 'TreeWriter.js';
+import TreeWriter from 'TreeWriter.js';
 
-  /**
-   * Writes all the files in the project to a stream.
-   */
-  export function ProjectWriter() {}
+/**
+ * Writes all the files in the project to a stream.
+ */
+export function ProjectWriter() {}
 
-  /**
-   * @param {traceur.util.ObjectMap} results
-   * @param {Object} opt_options to ParseTreeWriter.write
-   * @return {string}
-   */
-  ProjectWriter.write = function(results, opt_options) {
-    return results.keys().map(function(file) {
-      return TreeWriter.write(results.get(file), opt_options);
-    }).join('');
-  };
+/**
+ * @param {traceur.util.ObjectMap} results
+ * @param {Object} opt_options to ParseTreeWriter.write
+ * @return {string}
+ */
+ProjectWriter.write = function(results, opt_options) {
+  return results.keys().map(function(file) {
+    return TreeWriter.write(results.get(file), opt_options);
+  }).join('');
+};
 

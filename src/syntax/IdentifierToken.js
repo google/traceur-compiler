@@ -16,21 +16,21 @@ import Token from 'Token.js';
 import TokenType from 'TokenType.js';
 import createObject from '../util/util.js';
 
-  /**
-   * A token representing an identifier.
-   * @param {SourceRange} location
-   * @param {string} value
-   * @constructor
-   * @extends {Token}
-   */
-  export function IdentifierToken(location, value) {
-    Token.call(this, TokenType.IDENTIFIER, location);
-    this.value = value;
-  }
+/**
+ * A token representing an identifier.
+ * @param {SourceRange} location
+ * @param {string} value
+ * @constructor
+ * @extends {Token}
+ */
+export function IdentifierToken(location, value) {
+  Token.call(this, TokenType.IDENTIFIER, location);
+  this.value = value;
+}
 
-  IdentifierToken.prototype = createObject(Token.prototype, {
-    toString: function() {
-      return this.value;
-    }
-  });
+IdentifierToken.prototype = createObject(Token.prototype, {
+  toString: function() {
+    return this.value;
+  }
+});
 

@@ -12,112 +12,112 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-  import TokenType from 'TokenType.js';
+import TokenType from 'TokenType.js';
 
-  /**
-   * The javascript keywords.
-   */
-  var keywords = [
-    // 7.6.1.1 Keywords
-    'break',
-    'case',
-    'catch',
-    'continue',
-    'debugger',
-    'default',
-    'delete',
-    'do',
-    'else',
-    'finally',
-    'for',
-    'function',
-    'if',
-    'in',
-    'instanceof',
-    'new',
-    'return',
-    'switch',
-    'this',
-    'throw',
-    'try',
-    'typeof',
-    'var',
-    'void',
-    'while',
-    'with',
+/**
+ * The javascript keywords.
+ */
+var keywords = [
+  // 7.6.1.1 Keywords
+  'break',
+  'case',
+  'catch',
+  'continue',
+  'debugger',
+  'default',
+  'delete',
+  'do',
+  'else',
+  'finally',
+  'for',
+  'function',
+  'if',
+  'in',
+  'instanceof',
+  'new',
+  'return',
+  'switch',
+  'this',
+  'throw',
+  'try',
+  'typeof',
+  'var',
+  'void',
+  'while',
+  'with',
 
-    // 7.6.1.2 Future Reserved Words
-    'class',
-    'const',
-    'enum',
-    'export',
-    'extends',
-    'import',
-    'super',
+  // 7.6.1.2 Future Reserved Words
+  'class',
+  'const',
+  'enum',
+  'export',
+  'extends',
+  'import',
+  'super',
 
-    // Future Reserved Words in a strict context
-    'implements',
-    'interface',
-    'let',
-    'package',
-    'private',
-    'protected',
-    'public',
-    'static',
-    'yield',
+  // Future Reserved Words in a strict context
+  'implements',
+  'interface',
+  'let',
+  'package',
+  'private',
+  'protected',
+  'public',
+  'static',
+  'yield',
 
-    // 7.8 Literals
-    'null',
-    'true',
-    'false',
+  // 7.8 Literals
+  'null',
+  'true',
+  'false',
 
-    // Traceur Specific
-    'await'
-  ];
+  // Traceur Specific
+  'await'
+];
 
-  export var Keywords = {};
+export var Keywords = {};
 
-  var keywordsByName = Object.create(null);
-  var keywordsByType = Object.create(null);
+var keywordsByName = Object.create(null);
+var keywordsByType = Object.create(null);
 
-  function Keyword(value, type) {
-    this.value = value;
-    this.type = type;
+function Keyword(value, type) {
+  this.value = value;
+  this.type = type;
+}
+Keyword.prototype = {
+  toString: function() {
+    return this.value;
   }
-  Keyword.prototype = {
-    toString: function() {
-      return this.value;
-    }
-  };
+};
 
-  keywords.forEach((value) => {
-    var uc = value.toUpperCase();
-    if (uc.indexOf('__') === 0) {
-      uc = uc.substring(2);
-    }
+keywords.forEach((value) => {
+  var uc = value.toUpperCase();
+  if (uc.indexOf('__') === 0) {
+    uc = uc.substring(2);
+  }
 
-    var kw = new Keyword(value, TokenType[uc]);
+  var kw = new Keyword(value, TokenType[uc]);
 
-    Keywords[uc] = kw;
-    keywordsByName[kw.value] = kw;
-    keywordsByType[kw.type] = kw;
-  });
+  Keywords[uc] = kw;
+  keywordsByName[kw.value] = kw;
+  keywordsByType[kw.type] = kw;
+});
 
-  Keywords.isKeyword = function(value) {
-    return value !== '__proto__' && value in keywordsByName;
-  };
+Keywords.isKeyword = function(value) {
+  return value !== '__proto__' && value in keywordsByName;
+};
 
-  /**
-   * @return {TokenType}
-   */
-  Keywords.getTokenType = function(value) {
-    if (value == '__proto__')
-      return null;
-    return keywordsByName[value].type;
-  };
+/**
+ * @return {TokenType}
+ */
+Keywords.getTokenType = function(value) {
+  if (value == '__proto__')
+    return null;
+  return keywordsByName[value].type;
+};
 
-  Keywords.get = function(value) {
-    if (value == '__proto__')
-      return null;
-    return keywordsByName[value];
-  };
+Keywords.get = function(value) {
+  if (value == '__proto__')
+    return null;
+  return keywordsByName[value];
+};

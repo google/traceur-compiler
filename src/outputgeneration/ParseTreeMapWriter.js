@@ -15,45 +15,45 @@
 import ParseTreeWriter from 'ParseTreeWriter.js';
 import createObject from '../util/util.js';
 
-  /**
-   * Converts a ParseTree to text and a source Map
-   * @param {ParseTree} highlighted
-   * @param {boolean} showLineNumbers
-   * @param {SourceMapGenerator} sourceMapGenerator
-   * @constructor
-   */
-  export function ParseTreeMapWriter(highlighted, showLineNumbers,
-                              sourceMapGenerator) {
-    ParseTreeWriter.call(this, highlighted, showLineNumbers);
-    this.sourceMapGenerator_ = sourceMapGenerator;
-    this.outputLineCount = 0;
-  }
+/**
+ * Converts a ParseTree to text and a source Map
+ * @param {ParseTree} highlighted
+ * @param {boolean} showLineNumbers
+ * @param {SourceMapGenerator} sourceMapGenerator
+ * @constructor
+ */
+export function ParseTreeMapWriter(highlighted, showLineNumbers,
+                            sourceMapGenerator) {
+  ParseTreeWriter.call(this, highlighted, showLineNumbers);
+  this.sourceMapGenerator_ = sourceMapGenerator;
+  this.outputLineCount = 0;
+}
 
-  ParseTreeMapWriter.prototype = createObject(
-      ParseTreeWriter.prototype, {
+ParseTreeMapWriter.prototype = createObject(
+    ParseTreeWriter.prototype, {
 
-    write_: function(value) {
-      if (this.currentLocation) {
-        this.addMapping();
-      }
-      ParseTreeWriter.prototype.write_.apply(this,[value]);
-    },
-
-    addMapping: function() {
-      var mapping = {
-        generated: {
-          // http://code.google.com/p/traceur-compiler/issues/detail?id=105
-          // +1 because PROGRAM puts a newline before the first stmt
-          line: this.outputLineCount + 1,
-          column: this.currentLine_.length
-        },
-        original: {
-          // +1 because line is zero based
-          line: this.currentLocation.start.line + 1,
-          column: this.currentLocation.start.column
-         },
-         source: this.currentLocation.start.source.name
-      };
-      this.sourceMapGenerator_.addMapping(mapping);
+  write_: function(value) {
+    if (this.currentLocation) {
+      this.addMapping();
     }
-  });
+    ParseTreeWriter.prototype.write_.apply(this,[value]);
+  },
+
+  addMapping: function() {
+    var mapping = {
+      generated: {
+        // http://code.google.com/p/traceur-compiler/issues/detail?id=105
+        // +1 because PROGRAM puts a newline before the first stmt
+        line: this.outputLineCount + 1,
+        column: this.currentLine_.length
+      },
+      original: {
+        // +1 because line is zero based
+        line: this.currentLocation.start.line + 1,
+        column: this.currentLocation.start.column
+       },
+       source: this.currentLocation.start.source.name
+    };
+    this.sourceMapGenerator_.addMapping(mapping);
+  }
+});

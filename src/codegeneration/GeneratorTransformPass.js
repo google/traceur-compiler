@@ -24,214 +24,214 @@ import createObject from '../util/util.js';
 import {options: traceurOptions} from '../options.js';
 import trees from '../syntax/trees/ParseTrees.js';
 
-  var FunctionDeclaration = trees.FunctionDeclaration;
-  var GetAccessor = trees.GetAccessor;
-  var SetAccessor = trees.SetAccessor;
+var FunctionDeclaration = trees.FunctionDeclaration;
+var GetAccessor = trees.GetAccessor;
+var SetAccessor = trees.SetAccessor;
 
-  var createForOfStatement = ParseTreeFactory.createForOfStatement;
-  var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList;
-  var createYieldStatement = ParseTreeFactory.createYieldStatement;
-  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
+var createForOfStatement = ParseTreeFactory.createForOfStatement;
+var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList;
+var createYieldStatement = ParseTreeFactory.createYieldStatement;
+var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
 
-  var options = traceurOptions.transform;
+var options = traceurOptions.transform;
+
+/**
+ * Can tell you if function body contains a yield statement. Does not search into
+ * nested functions.
+ * @param {ParseTree} tree
+ * @extends {ParseTreeVisitor}
+ * @constructor
+ */
+function YieldFinder(tree) {
+  this.visitAny(tree);
+}
+
+YieldFinder.prototype = createObject(ParseTreeVisitor.prototype, {
+
+  hasYield: false,
+  hasYieldFor: false,
+  hasForIn: false,
+  hasAsync: false,
+
+  /** @return {boolean} */
+  hasAnyGenerator: function() {
+    return this.hasYield || this.hasAsync;
+  },
+
+  /** @param {YieldStatement} tree */
+  visitYieldStatement: function(tree) {
+    this.hasYield = true;
+    this.hasYieldFor = tree.isYieldFor;
+  },
+
+  /** @param {AwaitStatement} tree */
+  visitAwaitStatement: function(tree) {
+    this.hasAsync = true;
+  },
+
+  /** @param {ForInStatement} tree */
+  visitForInStatement: function(tree) {
+    this.hasForIn = true;
+    ParseTreeVisitor.prototype.visitForInStatement.call(this, tree);
+  },
+
+  // don't visit function children or bodies
+  visitFunctionDeclaration: function(tree) {},
+  visitSetAccessor: function(tree) {},
+  visitGetAccessor: function(tree) {}
+});
+
+/**
+ * This transformer turns "yield* E" into a ForOf that
+ * contains a yield and is lowered by the ForOfTransformer.
+ */
+function YieldForTransformer(identifierGenerator) {
+  ParseTreeTransformer.call(this);
+  this.identifierGenerator_ = identifierGenerator;
+}
+
+YieldForTransformer.transformTree = function(identifierGenerator, tree) {
+  return new YieldForTransformer(identifierGenerator).transformAny(tree);
+};
+
+YieldForTransformer.prototype = createObject(
+    ParseTreeTransformer.prototype, {
+
+  transformYieldStatement: function(tree) {
+    if (tree.isYieldFor) {
+      // yield* E
+      //   becomes
+      // for (var $TEMP of E) { yield $TEMP; }
+
+      var id = createIdentifierExpression(
+          this.identifierGenerator_.generateUniqueIdentifier());
+
+      var forEach = createForOfStatement(
+          createVariableDeclarationList(
+              TokenType.VAR,
+              id,
+              null // initializer
+          ),
+          tree.expression,
+          createYieldStatement(id, false /* isYieldFor */));
+
+      var result = ForOfTransformer.transformTree(
+          this.identifierGenerator_,
+          forEach);
+
+      return result;
+    }
+
+    return tree;
+  }
+});
+
+/**
+ * This pass just finds function bodies with yields in them and passes them
+ * off to the GeneratorTransformer for the heavy lifting.
+ * @param {UniqueIdentifierGenerator} identifierGenerator
+ * @param {ErrorReporter} reporter
+ * @extends {ParseTreeTransformer}
+ * @constructor
+ */
+export function GeneratorTransformPass(identifierGenerator, reporter) {
+  ParseTreeTransformer.call(this);
+  this.identifierGenerator_ = identifierGenerator;
+  this.reporter_ = reporter;
+}
+
+GeneratorTransformPass.transformTree = function(identifierGenerator, reporter,
+    tree) {
+  return new GeneratorTransformPass(identifierGenerator, reporter).
+      transformAny(tree);
+}
+
+GeneratorTransformPass.prototype = createObject(
+    ParseTreeTransformer.prototype, {
 
   /**
-   * Can tell you if function body contains a yield statement. Does not search into
-   * nested functions.
-   * @param {ParseTree} tree
-   * @extends {ParseTreeVisitor}
-   * @constructor
+   * @param {FunctionDeclaration} tree
+   * @return {ParseTree}
    */
-  function YieldFinder(tree) {
-    this.visitAny(tree);
-  }
-
-  YieldFinder.prototype = createObject(ParseTreeVisitor.prototype, {
-
-    hasYield: false,
-    hasYieldFor: false,
-    hasForIn: false,
-    hasAsync: false,
-
-    /** @return {boolean} */
-    hasAnyGenerator: function() {
-      return this.hasYield || this.hasAsync;
-    },
-
-    /** @param {YieldStatement} tree */
-    visitYieldStatement: function(tree) {
-      this.hasYield = true;
-      this.hasYieldFor = tree.isYieldFor;
-    },
-
-    /** @param {AwaitStatement} tree */
-    visitAwaitStatement: function(tree) {
-      this.hasAsync = true;
-    },
-
-    /** @param {ForInStatement} tree */
-    visitForInStatement: function(tree) {
-      this.hasForIn = true;
-      ParseTreeVisitor.prototype.visitForInStatement.call(this, tree);
-    },
-
-    // don't visit function children or bodies
-    visitFunctionDeclaration: function(tree) {},
-    visitSetAccessor: function(tree) {},
-    visitGetAccessor: function(tree) {}
-  });
-
-  /**
-   * This transformer turns "yield* E" into a ForOf that
-   * contains a yield and is lowered by the ForOfTransformer.
-   */
-  function YieldForTransformer(identifierGenerator) {
-    ParseTreeTransformer.call(this);
-    this.identifierGenerator_ = identifierGenerator;
-  }
-
-  YieldForTransformer.transformTree = function(identifierGenerator, tree) {
-    return new YieldForTransformer(identifierGenerator).transformAny(tree);
-  };
-
-  YieldForTransformer.prototype = createObject(
-      ParseTreeTransformer.prototype, {
-
-    transformYieldStatement: function(tree) {
-      if (tree.isYieldFor) {
-        // yield* E
-        //   becomes
-        // for (var $TEMP of E) { yield $TEMP; }
-
-        var id = createIdentifierExpression(
-            this.identifierGenerator_.generateUniqueIdentifier());
-
-        var forEach = createForOfStatement(
-            createVariableDeclarationList(
-                TokenType.VAR,
-                id,
-                null // initializer
-            ),
-            tree.expression,
-            createYieldStatement(id, false /* isYieldFor */));
-
-        var result = ForOfTransformer.transformTree(
-            this.identifierGenerator_,
-            forEach);
-
-        return result;
-      }
-
+  transformFunctionDeclaration: function(tree) {
+    var body = this.transformBody_(tree.functionBody);
+    if (body == tree.functionBody) {
       return tree;
     }
-  });
+    return new FunctionDeclaration(
+        null,
+        tree.name,
+        false, // The generator has been transformed away.
+        tree.formalParameterList,
+        body);
+  },
 
   /**
-   * This pass just finds function bodies with yields in them and passes them
-   * off to the GeneratorTransformer for the heavy lifting.
-   * @param {UniqueIdentifierGenerator} identifierGenerator
-   * @param {ErrorReporter} reporter
-   * @extends {ParseTreeTransformer}
-   * @constructor
+   * @param {Block} tree
+   * @return {Block}
    */
-  export function GeneratorTransformPass(identifierGenerator, reporter) {
-    ParseTreeTransformer.call(this);
-    this.identifierGenerator_ = identifierGenerator;
-    this.reporter_ = reporter;
-  }
+  transformBody_: function(tree) {
+    var finder = new YieldFinder(tree);
 
-  GeneratorTransformPass.transformTree = function(identifierGenerator, reporter,
-      tree) {
-    return new GeneratorTransformPass(identifierGenerator, reporter).
-        transformAny(tree);
-  }
+    // transform nested functions
+    var body = ParseTreeTransformer.prototype.transformBlock.call(this, tree);
 
-  GeneratorTransformPass.prototype = createObject(
-      ParseTreeTransformer.prototype, {
-
-    /**
-     * @param {FunctionDeclaration} tree
-     * @return {ParseTree}
-     */
-    transformFunctionDeclaration: function(tree) {
-      var body = this.transformBody_(tree.functionBody);
-      if (body == tree.functionBody) {
-        return tree;
-      }
-      return new FunctionDeclaration(
-          null,
-          tree.name,
-          false, // The generator has been transformed away.
-          tree.formalParameterList,
-          body);
-    },
-
-    /**
-     * @param {Block} tree
-     * @return {Block}
-     */
-    transformBody_: function(tree) {
-      var finder = new YieldFinder(tree);
-
-      // transform nested functions
-      var body = ParseTreeTransformer.prototype.transformBlock.call(this, tree);
-
-      if (!finder.hasAnyGenerator()) {
-        return body;
-      }
-
-      // We need to transform for-in loops because the object key iteration
-      // cannot be interrupted.
-      if (finder.hasForIn &&
-          (options.generators || options.deferredFunctions)) {
-        body = ForInTransformPass.transformTree(this.identifierGenerator_,
-                                                body);
-      }
-
-      if (finder.hasYieldFor && options.generators) {
-        body = YieldForTransformer.transformTree(this.identifierGenerator_,
-                                                 body);
-      }
-
-      if (finder.hasYield) {
-        if (options.generators) {
-          body = GeneratorTransformer.transformGeneratorBody(this.reporter_,
-                                                             body);
-        }
-      } else if (options.deferredFunctions) {
-        body = AsyncTransformer.transformAsyncBody(this.reporter_, body);
-      }
+    if (!finder.hasAnyGenerator()) {
       return body;
-    },
-
-    /**
-     * @param {GetAccessor} tree
-     * @return {ParseTree}
-     */
-    transformGetAccessor: function(tree) {
-      var body = this.transformBody_(tree.body);
-      if (body == tree.body) {
-        return tree;
-      }
-      return new GetAccessor(
-          null,
-          tree.propertyName,
-          body);
-    },
-
-    /**
-     * @param {SetAccessor} tree
-     * @return {ParseTree}
-     */
-    transformSetAccessor: function(tree) {
-      var body = this.transformBody_(tree.body);
-      if (body == tree.body) {
-        return tree;
-      }
-      return new SetAccessor(
-          null,
-          tree.propertyName,
-          tree.parameter,
-          body);
     }
-  });
+
+    // We need to transform for-in loops because the object key iteration
+    // cannot be interrupted.
+    if (finder.hasForIn &&
+        (options.generators || options.deferredFunctions)) {
+      body = ForInTransformPass.transformTree(this.identifierGenerator_,
+                                              body);
+    }
+
+    if (finder.hasYieldFor && options.generators) {
+      body = YieldForTransformer.transformTree(this.identifierGenerator_,
+                                               body);
+    }
+
+    if (finder.hasYield) {
+      if (options.generators) {
+        body = GeneratorTransformer.transformGeneratorBody(this.reporter_,
+                                                           body);
+      }
+    } else if (options.deferredFunctions) {
+      body = AsyncTransformer.transformAsyncBody(this.reporter_, body);
+    }
+    return body;
+  },
+
+  /**
+   * @param {GetAccessor} tree
+   * @return {ParseTree}
+   */
+  transformGetAccessor: function(tree) {
+    var body = this.transformBody_(tree.body);
+    if (body == tree.body) {
+      return tree;
+    }
+    return new GetAccessor(
+        null,
+        tree.propertyName,
+        body);
+  },
+
+  /**
+   * @param {SetAccessor} tree
+   * @return {ParseTree}
+   */
+  transformSetAccessor: function(tree) {
+    var body = this.transformBody_(tree.body);
+    if (body == tree.body) {
+      return tree;
+    }
+    return new SetAccessor(
+        null,
+        tree.propertyName,
+        tree.parameter,
+        body);
+  }
+});

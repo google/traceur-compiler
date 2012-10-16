@@ -16,58 +16,58 @@ import ComprehensionTransformer from 'ComprehensionTransformer.js';
 import ParseTreeFactory from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
 
-  var createYieldStatement = ParseTreeFactory.createYieldStatement;
+var createYieldStatement = ParseTreeFactory.createYieldStatement;
 
-  /**
-   * Generator Comprehension Transformer:
-   *
-   * The desugaring is defined at
-   * http://wiki.ecmascript.org/doku.php?id=harmony:generator_expressions#translation
-   * as something like this:
-   *
-   * ( Expression0 for LHSExpression1 of Expression1 ...
-   *               for LHSExpressionn of Expressionn if ( Expression )opt )
-   *
-   * =>
-   *
-   * (function () {
-   *     for (let LHSExpression1 of Expression1 ) {
-   *         ...
-   *         for (let LHSExpressionn of Expressionn ) {
-   *             if ( Expression )opt
-   *                 yield (Expression0);
-   *             }
-   *         }
-   *     }
-   * })()
-   *
-   * with alpha renaming of this and arguments of course.
-   *
-   * @param {UniqueIdentifierGenerator} identifierGenerator
-   * @constructor
-   * @extends {ComprehensionTransformer}
-   */
-  export function GeneratorComprehensionTransformer(identifierGenerator) {
-    ComprehensionTransformer.call(this, identifierGenerator);
+/**
+ * Generator Comprehension Transformer:
+ *
+ * The desugaring is defined at
+ * http://wiki.ecmascript.org/doku.php?id=harmony:generator_expressions#translation
+ * as something like this:
+ *
+ * ( Expression0 for LHSExpression1 of Expression1 ...
+ *               for LHSExpressionn of Expressionn if ( Expression )opt )
+ *
+ * =>
+ *
+ * (function () {
+ *     for (let LHSExpression1 of Expression1 ) {
+ *         ...
+ *         for (let LHSExpressionn of Expressionn ) {
+ *             if ( Expression )opt
+ *                 yield (Expression0);
+ *             }
+ *         }
+ *     }
+ * })()
+ *
+ * with alpha renaming of this and arguments of course.
+ *
+ * @param {UniqueIdentifierGenerator} identifierGenerator
+ * @constructor
+ * @extends {ComprehensionTransformer}
+ */
+export function GeneratorComprehensionTransformer(identifierGenerator) {
+  ComprehensionTransformer.call(this, identifierGenerator);
+}
+
+/**
+ * @param {UniqueIdentifierGenerator} identifierGenerator
+ * @param {ParseTree} tree
+ * @return {ParseTree}
+ */
+GeneratorComprehensionTransformer.transformTree =
+    function(identifierGenerator, tree) {
+  return new GeneratorComprehensionTransformer(identifierGenerator).
+      transformAny(tree);
+};
+
+GeneratorComprehensionTransformer.prototype = createObject(
+    ComprehensionTransformer.prototype, {
+  transformGeneratorComprehension: function(tree) {
+    var expression = this.transformAny(tree.expression);
+    var statement = createYieldStatement(expression);
+    var isGenerator = true;
+    return this.transformComprehension(tree, statement, isGenerator);
   }
-
-  /**
-   * @param {UniqueIdentifierGenerator} identifierGenerator
-   * @param {ParseTree} tree
-   * @return {ParseTree}
-   */
-  GeneratorComprehensionTransformer.transformTree =
-      function(identifierGenerator, tree) {
-    return new GeneratorComprehensionTransformer(identifierGenerator).
-        transformAny(tree);
-  };
-
-  GeneratorComprehensionTransformer.prototype = createObject(
-      ComprehensionTransformer.prototype, {
-    transformGeneratorComprehension: function(tree) {
-      var expression = this.transformAny(tree.expression);
-      var statement = createYieldStatement(expression);
-      var isGenerator = true;
-      return this.transformComprehension(tree, statement, isGenerator);
-    }
-  });
+});

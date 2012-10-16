@@ -17,67 +17,67 @@ import PredefinedName from '../../syntax/PredefinedName.js';
 import State from 'State.js';
 import createObject from '../../util/util.js';
 
-  var createAssignmentStatement = ParseTreeFactory.createAssignmentStatement;
-  var createMemberExpression = ParseTreeFactory.createMemberExpression;
-  var createReturnStatement = ParseTreeFactory.createReturnStatement;
-  var createTrueLiteral = ParseTreeFactory.createTrueLiteral;
+var createAssignmentStatement = ParseTreeFactory.createAssignmentStatement;
+var createMemberExpression = ParseTreeFactory.createMemberExpression;
+var createReturnStatement = ParseTreeFactory.createReturnStatement;
+var createTrueLiteral = ParseTreeFactory.createTrueLiteral;
+
+/**
+ * Represents the dispatch portion of a switch statement that has been added
+ * to a StateMachine.
+ *
+ * SwitchStates are immutable.
+ *
+ * @param {number} id
+ * @param {number} fallThroughState
+ * @param {ParseTree} expression
+ * @constructor
+ * @extends {State}
+ */
+export function YieldState(id, fallThroughState, expression) {
+  State.call(this, id);
+  this.fallThroughState = fallThroughState;
+  this.expression = expression;
+}
+
+YieldState.prototype = createObject(State.prototype, {
 
   /**
-   * Represents the dispatch portion of a switch statement that has been added
-   * to a StateMachine.
-   *
-   * SwitchStates are immutable.
-   *
-   * @param {number} id
-   * @param {number} fallThroughState
-   * @param {ParseTree} expression
-   * @constructor
-   * @extends {State}
+   * @param {number} oldState
+   * @param {number} newState
+   * @return {YieldState}
    */
-  export function YieldState(id, fallThroughState, expression) {
-    State.call(this, id);
-    this.fallThroughState = fallThroughState;
-    this.expression = expression;
+  replaceState: function(oldState, newState) {
+    return new YieldState(
+        State.replaceStateId(this.id, oldState, newState),
+        State.replaceStateId(this.fallThroughState, oldState, newState),
+        this.expression);
+  },
+
+  /**
+   * @param {FinallyState} enclosingFinally
+   * @param {number} machineEndState
+   * @param {ErrorReporter} reporter
+   * @return {Array.<ParseTree>}
+   */
+  transform: function(enclosingFinally, machineEndState, reporter) {
+    var result = [];
+    // $result.current = expression;
+    result.push(createAssignmentStatement(
+        createMemberExpression(
+            PredefinedName.RESULT,
+            PredefinedName.CURRENT),
+        this.expression));
+    // either:
+    //      $state = this.fallThroughState;
+    //      return true;
+    // or:
+    //      $state = enclosingFinally.finallyState;
+    //      $fallThrough = this.fallThroughState;
+    //      return true;
+    result.push.apply(result,
+        State.generateAssignState(enclosingFinally, this.fallThroughState));
+    result.push(createReturnStatement(createTrueLiteral()));
+    return result;
   }
-
-  YieldState.prototype = createObject(State.prototype, {
-
-    /**
-     * @param {number} oldState
-     * @param {number} newState
-     * @return {YieldState}
-     */
-    replaceState: function(oldState, newState) {
-      return new YieldState(
-          State.replaceStateId(this.id, oldState, newState),
-          State.replaceStateId(this.fallThroughState, oldState, newState),
-          this.expression);
-    },
-
-    /**
-     * @param {FinallyState} enclosingFinally
-     * @param {number} machineEndState
-     * @param {ErrorReporter} reporter
-     * @return {Array.<ParseTree>}
-     */
-    transform: function(enclosingFinally, machineEndState, reporter) {
-      var result = [];
-      // $result.current = expression;
-      result.push(createAssignmentStatement(
-          createMemberExpression(
-              PredefinedName.RESULT,
-              PredefinedName.CURRENT),
-          this.expression));
-      // either:
-      //      $state = this.fallThroughState;
-      //      return true;
-      // or:
-      //      $state = enclosingFinally.finallyState;
-      //      $fallThrough = this.fallThroughState;
-      //      return true;
-      result.push.apply(result,
-          State.generateAssignState(enclosingFinally, this.fallThroughState));
-      result.push(createReturnStatement(createTrueLiteral()));
-      return result;
-    }
-  });
+});

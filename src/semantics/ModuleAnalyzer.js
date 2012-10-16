@@ -12,77 +12,77 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-  import ModuleDefinitionVisitor from '../codegeneration/module/ModuleDefinitionVisitor.js';
-  import ExportVisitor from '../codegeneration/module/ExportVisitor.js';
-  import ImportStarVisitor from '../codegeneration/module/ImportStarVisitor.js';
-  import ModuleDeclarationVisitor from '../codegeneration/module/ModuleDeclarationVisitor.js';
-  import ValidationVisitor from '../codegeneration/module/ValidationVisitor.js';
+import ExportVisitor from '../codegeneration/module/ExportVisitor.js';
+import ImportStarVisitor from '../codegeneration/module/ImportStarVisitor.js';
+import ModuleDeclarationVisitor from '../codegeneration/module/ModuleDeclarationVisitor.js';
+import ModuleDefinitionVisitor from '../codegeneration/module/ModuleDefinitionVisitor.js';
+import ValidationVisitor from '../codegeneration/module/ValidationVisitor.js';
 
-  // TODO(arv): Validate that there are no free variables
-  // TODO(arv): Validate that the exported reference exists
+// TODO(arv): Validate that there are no free variables
+// TODO(arv): Validate that the exported reference exists
+
+/**
+ * Builds up all module symbols and validates them.
+ *
+ * @param {ErrorReporter} reporter
+ * @param {Project} project
+ * @constructor
+ */
+export function ModuleAnalyzer(reporter, project) {
+  this.reporter_ = reporter;
+  this.project_ = project;
+}
+
+ModuleAnalyzer.prototype = {
+  /**
+   * @return {void}
+   */
+  analyze: function() {
+    this.analyzeTrees(this.project_.getSourceTrees());
+  },
 
   /**
-   * Builds up all module symbols and validates them.
-   *
-   * @param {ErrorReporter} reporter
-   * @param {Project} project
-   * @constructor
+   * @param {SourceFile} sourceFile
+   * @return {void}
    */
-  export function ModuleAnalyzer(reporter, project) {
-    this.reporter_ = reporter;
-    this.project_ = project;
-  }
+  analyzeFile: function(sourceFile) {
+    var trees = [this.project_.getParseTree(sourceFile)];
+    this.analyzeTrees(trees);
+  },
 
-  ModuleAnalyzer.prototype = {
-    /**
-     * @return {void}
-     */
-    analyze: function() {
-      this.analyzeTrees(this.project_.getSourceTrees());
-    },
+  /**
+   * @param {Array.<ParseTree>} trees
+   * @return {void}
+   */
+  analyzeTrees: function(trees) {
+    this.analyzeModuleTrees(trees);
+  },
 
-    /**
-     * @param {SourceFile} sourceFile
-     * @return {void}
-     */
-    analyzeFile: function(sourceFile) {
-      var trees = [this.project_.getParseTree(sourceFile)];
-      this.analyzeTrees(trees);
-    },
+  /**
+   * @param {ParseTree} tree
+   * @param {ModuleSymbol} root
+   * @return {void}
+   */
+  analyzeModuleTrees: function(trees, opt_roots) {
+    var reporter = this.reporter_;
+    var project = this.project_;
+    var root = project.getRootModule();
 
-    /**
-     * @param {Array.<ParseTree>} trees
-     * @return {void}
-     */
-    analyzeTrees: function(trees) {
-      this.analyzeModuleTrees(trees);
-    },
-
-    /**
-     * @param {ParseTree} tree
-     * @param {ModuleSymbol} root
-     * @return {void}
-     */
-    analyzeModuleTrees: function(trees, opt_roots) {
-      var reporter = this.reporter_;
-      var project = this.project_;
-      var root = project.getRootModule();
-
-      function getRoot(i) {
-        return opt_roots ? opt_roots[i] : root;
-      }
-
-      function doVisit(ctor) {
-        for (var i = 0; i < trees.length; i++) {
-          var visitor = new ctor(reporter, project, getRoot(i));
-          visitor.visitAny(trees[i]);
-        }
-      }
-
-      doVisit(ModuleDefinitionVisitor);
-      doVisit(ExportVisitor);
-      doVisit(ModuleDeclarationVisitor);
-      doVisit(ValidationVisitor);
-      doVisit(ImportStarVisitor);
+    function getRoot(i) {
+      return opt_roots ? opt_roots[i] : root;
     }
-  };
+
+    function doVisit(ctor) {
+      for (var i = 0; i < trees.length; i++) {
+        var visitor = new ctor(reporter, project, getRoot(i));
+        visitor.visitAny(trees[i]);
+      }
+    }
+
+    doVisit(ModuleDefinitionVisitor);
+    doVisit(ExportVisitor);
+    doVisit(ModuleDeclarationVisitor);
+    doVisit(ValidationVisitor);
+    doVisit(ImportStarVisitor);
+  }
+};

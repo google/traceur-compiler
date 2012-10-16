@@ -12,47 +12,47 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-  import ParseTreeWriter from 'ParseTreeWriter.js';
-  import ParseTreeMapWriter from 'ParseTreeMapWriter.js';
+import ParseTreeMapWriter from 'ParseTreeMapWriter.js';
+import ParseTreeWriter from 'ParseTreeWriter.js';
 
-  export function TreeWriter() {}
+export function TreeWriter() {}
 
-  /*
-   * Create a ParseTreeWriter configured with options, apply it to tree
-   * @param {ParseTree} tree
-   * @param {Object} opt_options:
-   *   highlighted: {ParseTree} branch of tree to highlight
-   *   showLineNumbers: {boolean} add comments giving input line numbers
-   *   sourceMapGenerator: {SourceMapGenerator} see third-party/source-maps
-   * @return source code; optional side-effect opt_options.sourceMap set
-   */
+/*
+ * Create a ParseTreeWriter configured with options, apply it to tree
+ * @param {ParseTree} tree
+ * @param {Object} opt_options:
+ *   highlighted: {ParseTree} branch of tree to highlight
+ *   showLineNumbers: {boolean} add comments giving input line numbers
+ *   sourceMapGenerator: {SourceMapGenerator} see third-party/source-maps
+ * @return source code; optional side-effect opt_options.sourceMap set
+ */
 
-  TreeWriter.write = function(tree, opt_options) {
-    var showLineNumbers;
-    var highlighted = null;
-    var sourceMapGenerator;
-    if (opt_options) {
-      showLineNumbers = opt_options.showLineNumbers;
-      highlighted = opt_options.highlighted || null;
-      sourceMapGenerator = opt_options.sourceMapGenerator;
-    }
+TreeWriter.write = function(tree, opt_options) {
+  var showLineNumbers;
+  var highlighted = null;
+  var sourceMapGenerator;
+  if (opt_options) {
+    showLineNumbers = opt_options.showLineNumbers;
+    highlighted = opt_options.highlighted || null;
+    sourceMapGenerator = opt_options.sourceMapGenerator;
+  }
 
-    var writer;
-    if (sourceMapGenerator) {
-      writer = new ParseTreeMapWriter(highlighted, showLineNumbers,
-          sourceMapGenerator);
-    } else {
-      writer = new ParseTreeWriter(highlighted, showLineNumbers);
-    }
+  var writer;
+  if (sourceMapGenerator) {
+    writer = new ParseTreeMapWriter(highlighted, showLineNumbers,
+        sourceMapGenerator);
+  } else {
+    writer = new ParseTreeWriter(highlighted, showLineNumbers);
+  }
 
-    writer.visitAny(tree);
-    if (writer.currentLine_.length > 0) {
-      writer.writeln_();
-    }
+  writer.visitAny(tree);
+  if (writer.currentLine_.length > 0) {
+    writer.writeln_();
+  }
 
-    if (sourceMapGenerator) {
-      opt_options.sourceMap = sourceMapGenerator.toString();
-    }
+  if (sourceMapGenerator) {
+    opt_options.sourceMap = sourceMapGenerator.toString();
+  }
 
-    return writer.result_.toString();
-  };
+  return writer.result_.toString();
+};

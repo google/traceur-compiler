@@ -19,99 +19,99 @@ import PredefinedName from '../syntax/PredefinedName.js';
 import TokenType from '../syntax/TokenType.js';
 import createObject from '../util/util.js';
 
-  var createArgumentList = ParseTreeFactory.createArgumentList;
-  var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression;
-  var createBlock = ParseTreeFactory.createBlock;
-  var createCallExpression = ParseTreeFactory.createCallExpression;
-  var createCallStatement = ParseTreeFactory.createCallStatement;
-  var createExpressionStatement = ParseTreeFactory.createExpressionStatement;
-  var createFinally = ParseTreeFactory.createFinally;
-  var createIfStatement = ParseTreeFactory.createIfStatement;
-  var createMemberExpression = ParseTreeFactory.createMemberExpression;
-  var createStringLiteral = ParseTreeFactory.createStringLiteral;
-  var createTryStatement = ParseTreeFactory.createTryStatement;
-  var createVariableStatement = ParseTreeFactory.createVariableStatement;
-  var createWhileStatement = ParseTreeFactory.createWhileStatement;
+var createArgumentList = ParseTreeFactory.createArgumentList;
+var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression;
+var createBlock = ParseTreeFactory.createBlock;
+var createCallExpression = ParseTreeFactory.createCallExpression;
+var createCallStatement = ParseTreeFactory.createCallStatement;
+var createExpressionStatement = ParseTreeFactory.createExpressionStatement;
+var createFinally = ParseTreeFactory.createFinally;
+var createIfStatement = ParseTreeFactory.createIfStatement;
+var createMemberExpression = ParseTreeFactory.createMemberExpression;
+var createStringLiteral = ParseTreeFactory.createStringLiteral;
+var createTryStatement = ParseTreeFactory.createTryStatement;
+var createVariableStatement = ParseTreeFactory.createVariableStatement;
+var createWhileStatement = ParseTreeFactory.createWhileStatement;
 
+/**
+ * Desugars for of statement.
+ * @param {UniqueIdentifierGenerator} identifierGenerator
+ * @constructor
+ */
+export function ForOfTransformer(identifierGenerator) {
+  ParseTreeTransformer.call(this);
+  this.identifierGenerator_ = identifierGenerator;
+}
+
+/*
+ * @param {UniqueIdentifierGenerator} identifierGenerator
+ * @param {ParseTree} tree
+ */
+ForOfTransformer.transformTree = function(identifierGenerator, tree) {
+  return new ForOfTransformer(identifierGenerator).transformAny(tree);
+};
+
+ForOfTransformer.prototype = createObject(
+    ParseTreeTransformer.prototype, {
+
+  // for ( initializer of collection ) statement
+  //
+  // let $it = traceur.runtime.getIterator(collection);
+  // try {
+  //   while ($it.moveNext()) {
+  //     initializer = $it.current;
+  //     statement
+  //   }
+  // } finally {
+  //   if ($it.close)
+  //     $it.close();
+  // }
   /**
-   * Desugars for of statement.
-   * @param {UniqueIdentifierGenerator} identifierGenerator
-   * @constructor
+   * @param {ForOfStatement} original
+   * @return {ParseTree}
    */
-  export function ForOfTransformer(identifierGenerator) {
-    ParseTreeTransformer.call(this);
-    this.identifierGenerator_ = identifierGenerator;
-  }
+  transformForOfStatement: function(original) {
+    var tree = ParseTreeTransformer.prototype.transformForOfStatement.call(
+        this, original);
 
-  /*
-   * @param {UniqueIdentifierGenerator} identifierGenerator
-   * @param {ParseTree} tree
-   */
-  ForOfTransformer.transformTree = function(identifierGenerator, tree) {
-    return new ForOfTransformer(identifierGenerator).transformAny(tree);
-  };
+    //   let $it = traceur.runtime.getIterator(collection);
+    // TODO: use 'var' instead of 'let' to enable yield's from within for of statements
+    var iter = this.identifierGenerator_.generateUniqueIdentifier();
+    var initializer = createVariableStatement(TokenType.VAR, iter,
+        createCallExpression(
+            createMemberExpression(PredefinedName.TRACEUR,
+                                   PredefinedName.RUNTIME,
+                                   PredefinedName.GET_ITERATOR),
+            createArgumentList(tree.collection)));
 
-  ForOfTransformer.prototype = createObject(
-      ParseTreeTransformer.prototype, {
-
-    // for ( initializer of collection ) statement
-    //
-    // let $it = traceur.runtime.getIterator(collection);
-    // try {
-    //   while ($it.moveNext()) {
-    //     initializer = $it.current;
-    //     statement
-    //   }
-    // } finally {
-    //   if ($it.close)
-    //     $it.close();
+    // {
+    //   initializer = $it.current;
+    //   statement
     // }
-    /**
-     * @param {ForOfStatement} original
-     * @return {ParseTree}
-     */
-    transformForOfStatement: function(original) {
-      var tree = ParseTreeTransformer.prototype.transformForOfStatement.call(
-          this, original);
-
-      //   let $it = traceur.runtime.getIterator(collection);
-      // TODO: use 'var' instead of 'let' to enable yield's from within for of statements
-      var iter = this.identifierGenerator_.generateUniqueIdentifier();
-      var initializer = createVariableStatement(TokenType.VAR, iter,
-          createCallExpression(
-              createMemberExpression(PredefinedName.TRACEUR,
-                                     PredefinedName.RUNTIME,
-                                     PredefinedName.GET_ITERATOR),
-              createArgumentList(tree.collection)));
-
-      // {
-      //   initializer = $it.current;
-      //   statement
-      // }
-      var statement;
-      if (tree.initializer.type === ParseTreeType.VARIABLE_DECLARATION_LIST) {
-        statement = createVariableStatement(
-            tree.initializer.declarationType,
-            tree.initializer.declarations[0].lvalue,
-            createMemberExpression(iter, PredefinedName.CURRENT));
-      } else {
-        statement = createExpressionStatement(
-            createAssignmentExpression(tree.initializer,
-                createMemberExpression(iter, PredefinedName.CURRENT)));
-      }
-      var body = createBlock(statement, tree.body);
-
-      // while ($it.moveNext()) { body }
-      var loop = createWhileStatement(createCallExpression(
-          createMemberExpression(iter, PredefinedName.MOVE_NEXT)), body);
-
-      // if ($it.close)
-      //   $it.close();
-      var finallyBody = createIfStatement(
-          createMemberExpression(iter, PredefinedName.CLOSE),
-          createCallStatement(createMemberExpression(iter, PredefinedName.CLOSE)));
-
-      return createBlock(initializer,
-          createTryStatement(createBlock(loop), null, createFinally(createBlock(finallyBody))));
+    var statement;
+    if (tree.initializer.type === ParseTreeType.VARIABLE_DECLARATION_LIST) {
+      statement = createVariableStatement(
+          tree.initializer.declarationType,
+          tree.initializer.declarations[0].lvalue,
+          createMemberExpression(iter, PredefinedName.CURRENT));
+    } else {
+      statement = createExpressionStatement(
+          createAssignmentExpression(tree.initializer,
+              createMemberExpression(iter, PredefinedName.CURRENT)));
     }
-  });
+    var body = createBlock(statement, tree.body);
+
+    // while ($it.moveNext()) { body }
+    var loop = createWhileStatement(createCallExpression(
+        createMemberExpression(iter, PredefinedName.MOVE_NEXT)), body);
+
+    // if ($it.close)
+    //   $it.close();
+    var finallyBody = createIfStatement(
+        createMemberExpression(iter, PredefinedName.CLOSE),
+        createCallStatement(createMemberExpression(iter, PredefinedName.CLOSE)));
+
+    return createBlock(initializer,
+        createTryStatement(createBlock(loop), null, createFinally(createBlock(finallyBody))));
+  }
+});

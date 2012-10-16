@@ -20,89 +20,89 @@ import PredefinedName from '../syntax/PredefinedName.js';
 import createObject from '../util/util.js';
 import trees from '../syntax/trees/ParseTrees.js';
 
-  var FormalParameterList = trees.FormalParameterList;
-  var ThisExpression = trees.ThisExpression;
+var FormalParameterList = trees.FormalParameterList;
+var ThisExpression = trees.ThisExpression;
 
-  var createArgumentList = ParseTreeFactory.createArgumentList;
-  var createBlock = ParseTreeFactory.createBlock;
-  var createCallExpression = ParseTreeFactory.createCallExpression;
-  var createFunctionExpression = ParseTreeFactory.createFunctionExpression;
-  var createMemberExpression = ParseTreeFactory.createMemberExpression;
-  var createParenExpression = ParseTreeFactory.createParenExpression;
-  var createReturnStatement = ParseTreeFactory.createReturnStatement;
-  var createThisExpression = ParseTreeFactory.createThisExpression;
+var createArgumentList = ParseTreeFactory.createArgumentList;
+var createBlock = ParseTreeFactory.createBlock;
+var createCallExpression = ParseTreeFactory.createCallExpression;
+var createFunctionExpression = ParseTreeFactory.createFunctionExpression;
+var createMemberExpression = ParseTreeFactory.createMemberExpression;
+var createParenExpression = ParseTreeFactory.createParenExpression;
+var createReturnStatement = ParseTreeFactory.createReturnStatement;
+var createThisExpression = ParseTreeFactory.createThisExpression;
+
+/**
+ * This is used to find whether a function contains a reference to 'this'.
+ * @extend {FindInFunctionScope}
+ * @param {ParseTree} tree The tree to search.
+ */
+function ThisFinder(tree) {
+  FindInFunctionScope.call(this, tree);
+}
+ThisFinder.prototype = createObject(
+    FindInFunctionScope.prototype, {
+
+  visitThisExpression: function(tree) {
+    this.found = true;
+  }
+});
+
+/**
+ * Desugars arrow function expressions
+ *
+ * @see <a href="http://wiki.ecmascript.org/doku.php?id=strawman:arrow_function_syntax">strawman:arrow_function_syntax</a>
+ *
+ * @param {ErrorReporter} reporter
+ * @extends {ParseTreeTransformer}
+ * @constructor
+ */
+export function ArrowFunctionTransformer(reporter) {
+  this.reporter_ = reporter;
+}
+
+ArrowFunctionTransformer.transformTree = function(reporter, tree) {
+  return new ArrowFunctionTransformer(reporter).transformAny(tree);
+};
+
+ArrowFunctionTransformer.prototype = createObject(
+    ParseTreeTransformer.prototype, {
 
   /**
-   * This is used to find whether a function contains a reference to 'this'.
-   * @extend {FindInFunctionScope}
-   * @param {ParseTree} tree The tree to search.
+   * Transforms an arrow function expression into a function declaration.
+   * The main things we need to deal with are the 'this' binding, and adding a
+   * block and return statement if needed.
    */
-  function ThisFinder(tree) {
-    FindInFunctionScope.call(this, tree);
-  }
-  ThisFinder.prototype = createObject(
-      FindInFunctionScope.prototype, {
-
-    visitThisExpression: function(tree) {
-      this.found = true;
+  transformArrowFunctionExpression: function(tree) {
+    var parameters;
+    if (tree.formalParameters) {
+      parameters = this.transformAny(tree.formalParameters).parameters;
+    } else {
+      parameters = [];
     }
-  });
 
-  /**
-   * Desugars arrow function expressions
-   *
-   * @see <a href="http://wiki.ecmascript.org/doku.php?id=strawman:arrow_function_syntax">strawman:arrow_function_syntax</a>
-   *
-   * @param {ErrorReporter} reporter
-   * @extends {ParseTreeTransformer}
-   * @constructor
-   */
-  export function ArrowFunctionTransformer(reporter) {
-    this.reporter_ = reporter;
-  }
-
-  ArrowFunctionTransformer.transformTree = function(reporter, tree) {
-    return new ArrowFunctionTransformer(reporter).transformAny(tree);
-  };
-
-  ArrowFunctionTransformer.prototype = createObject(
-      ParseTreeTransformer.prototype, {
-
-    /**
-     * Transforms an arrow function expression into a function declaration.
-     * The main things we need to deal with are the 'this' binding, and adding a
-     * block and return statement if needed.
-     */
-    transformArrowFunctionExpression: function(tree) {
-      var parameters;
-      if (tree.formalParameters) {
-        parameters = this.transformAny(tree.formalParameters).parameters;
-      } else {
-        parameters = [];
-      }
-
-      var functionBody = this.transformAny(tree.functionBody);
-      if (functionBody.type != ParseTreeType.BLOCK) {
-        // { return expr; }
-        functionBody = createBlock(createReturnStatement(functionBody));
-      }
-
-      // function(params) { ... }
-      var result = createParenExpression(
-          createFunctionExpression(
-              new FormalParameterList(null, parameters), functionBody));
-
-      // If we have a reference to 'this' in the body we need to bind this.
-      var finder = new ThisFinder(functionBody);
-      if (finder.found) {
-        // (function(params) { ... }).bind(thisBinding);
-        return createCallExpression(
-            createMemberExpression(
-                result,
-                PredefinedName.BIND),
-            createArgumentList(createThisExpression()));
-      }
-
-      return result;
+    var functionBody = this.transformAny(tree.functionBody);
+    if (functionBody.type != ParseTreeType.BLOCK) {
+      // { return expr; }
+      functionBody = createBlock(createReturnStatement(functionBody));
     }
-  });
+
+    // function(params) { ... }
+    var result = createParenExpression(
+        createFunctionExpression(
+            new FormalParameterList(null, parameters), functionBody));
+
+    // If we have a reference to 'this' in the body we need to bind this.
+    var finder = new ThisFinder(functionBody);
+    if (finder.found) {
+      // (function(params) { ... }).bind(thisBinding);
+      return createCallExpression(
+          createMemberExpression(
+              result,
+              PredefinedName.BIND),
+          createArgumentList(createThisExpression()));
+    }
+
+    return result;
+  }
+});

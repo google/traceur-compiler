@@ -12,42 +12,42 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-  /**
-   * A simple O(1) object map. It requires that the key object have a
-   * {@code uid} property.
-   */
-  export function ObjectMap() {
-    this.keys_ = Object.create(null);
-    this.values_ = Object.create(null);
-  }
+/**
+ * A simple O(1) object map. It requires that the key object have a
+ * {@code uid} property.
+ */
+export function ObjectMap() {
+  this.keys_ = Object.create(null);
+  this.values_ = Object.create(null);
+}
 
-  ObjectMap.prototype = {
-    put: function(key, value) {
-      var uid = key.uid;
-      this.keys_[uid] = key;
-      this.values_[uid] = value;
-    },
-    get: function(key) {
-      return this.values_[key.uid];
-    },
-    has: function(key) {
-      return key.uid in this.keys_;
-    },
-    addAll: function(other) {
-      for (var uid in other.keys_) {
-        this.keys_[uid] = other.keys_[uid];
-        this.values_[uid] = other.values_[uid];
-      }
-    },
-    keys: function() {
-      return Object.keys(this.keys_).map((uid) => this.keys_[uid]);
-    },
-    values: function() {
-      return Object.keys(this.values_).map((uid) =>this.values_[uid]);
-    },
-    remove: function(key) {
-      var uid = key.uid;
-      delete this.keys_[uid];
-      delete this.values_[uid];
+ObjectMap.prototype = {
+  put: function(key, value) {
+    var uid = key.uid;
+    this.keys_[uid] = key;
+    this.values_[uid] = value;
+  },
+  get: function(key) {
+    return this.values_[key.uid];
+  },
+  has: function(key) {
+    return key.uid in this.keys_;
+  },
+  addAll: function(other) {
+    for (var uid in other.keys_) {
+      this.keys_[uid] = other.keys_[uid];
+      this.values_[uid] = other.values_[uid];
     }
-  };
+  },
+  keys: function() {
+    return Object.keys(this.keys_).map((uid) => this.keys_[uid]);
+  },
+  values: function() {
+    return Object.keys(this.values_).map((uid) =>this.values_[uid]);
+  },
+  remove: function(key) {
+    var uid = key.uid;
+    delete this.keys_[uid];
+    delete this.values_[uid];
+  }
+};

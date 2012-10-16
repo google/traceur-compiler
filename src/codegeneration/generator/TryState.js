@@ -12,53 +12,53 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-  import State from 'State.js';
+import State from 'State.js';
 
-  var Kind = {
-    CATCH: 'catch',
-    FINALLY: 'finally'
-  };
+var Kind = {
+  CATCH: 'catch',
+  FINALLY: 'finally'
+};
+
+/**
+ * TryStates represent try catch/finally blocks which contain a yield. They
+ * are stored as a forest of trees hung off of the StateMachine.
+ *
+ * TryStates are immutable.
+ *
+ * @param {Kind} kind
+ * @param {Array.<number>} tryStates
+ * @param {TryState} nestedTrys
+ * @constructor
+ */
+export function TryState(kind, tryStates, nestedTrys) {
+  this.kind = kind;
+  this.tryStates = tryStates;
+  this.nestedTrys = nestedTrys;
+}
+
+TryState.Kind = Kind;
+TryState.prototype = {
+  /**
+   * Helper for replaceState.
+   * @param {number} oldState
+   * @param {number} newState
+   * @return {Array.<number>}
+   */
+  replaceAllStates: function(oldState, newState) {
+    return State.replaceStateList(this.tryStates, oldState, newState);
+  },
 
   /**
-   * TryStates represent try catch/finally blocks which contain a yield. They
-   * are stored as a forest of trees hung off of the StateMachine.
-   *
-   * TryStates are immutable.
-   *
-   * @param {Kind} kind
-   * @param {Array.<number>} tryStates
-   * @param {TryState} nestedTrys
-   * @constructor
+   * Helper for replaceState.
+   * @param {number} oldState
+   * @param {number} newState
+   * @return {Array.<TryState>}
    */
-  export function TryState(kind, tryStates, nestedTrys) {
-    this.kind = kind;
-    this.tryStates = tryStates;
-    this.nestedTrys = nestedTrys;
-  }
-
-  TryState.Kind = Kind;
-  TryState.prototype = {
-    /**
-     * Helper for replaceState.
-     * @param {number} oldState
-     * @param {number} newState
-     * @return {Array.<number>}
-     */
-    replaceAllStates: function(oldState, newState) {
-      return State.replaceStateList(this.tryStates, oldState, newState);
-    },
-
-    /**
-     * Helper for replaceState.
-     * @param {number} oldState
-     * @param {number} newState
-     * @return {Array.<TryState>}
-     */
-    replaceNestedTrys: function(oldState, newState) {
-      var states = [];
-      for (var i = 0; i < this.nestedTrys.length; i++) {
-        states.push(this.nestedTrys[i].replaceState(oldState, newState));
-      }
-      return states;
+  replaceNestedTrys: function(oldState, newState) {
+    var states = [];
+    for (var i = 0; i < this.nestedTrys.length; i++) {
+      states.push(this.nestedTrys[i].replaceState(oldState, newState));
     }
-  };
+    return states;
+  }
+};

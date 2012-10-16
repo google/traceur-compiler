@@ -12,28 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-  export function UniqueIdentifierGenerator() {
-    this.identifierIndex = 0;
-    this.nameMap_ = Object.create(null);
+export function UniqueIdentifierGenerator() {
+  this.identifierIndex = 0;
+  this.nameMap_ = Object.create(null);
+}
+
+UniqueIdentifierGenerator.prototype = {
+  /**
+   * @return {string}
+   */
+  generateUniqueIdentifier: function() {
+    return '$__' + this.identifierIndex++;
+  },
+
+  /**
+   * Gets a unique identifier that is reused based on the name passed in.
+   * @param {string} name
+   * @return {string}
+   */
+  getUniqueIdentifier: function(name) {
+    var newName = this.nameMap_[name];
+    if (!newName)
+      return this.nameMap_[name] = this.generateUniqueIdentifier();
+    return newName;
   }
-
-  UniqueIdentifierGenerator.prototype = {
-    /**
-     * @return {string}
-     */
-    generateUniqueIdentifier: function() {
-      return '$__' + this.identifierIndex++;
-    },
-
-    /**
-     * Gets a unique identifier that is reused based on the name passed in.
-     * @param {string} name
-     * @return {string}
-     */
-    getUniqueIdentifier: function(name) {
-      var newName = this.nameMap_[name];
-      if (!newName)
-        return this.nameMap_[name] = this.generateUniqueIdentifier();
-      return newName;
-    }
-  };
+};

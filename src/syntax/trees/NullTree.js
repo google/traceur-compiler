@@ -12,23 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-  import ParseTreeType from 'ParseTree.js';
-  import ParseTree from 'ParseTree.js';
+import ParseTree from 'ParseTree.js';
+import ParseTreeType from 'ParseTree.js';
 
-  var instance;
+var instance;
 
-  ParseTreeType.NULL_TREE = 'NULL_TREE';
+ParseTreeType.NULL_TREE = 'NULL_TREE';
 
-  /**
-   * TODO: this was a Java-ism. Remove and use 'null' instead.
-   * @constructor
-   * @extends {ParseTree}
-   */
-  export function NullTree() {
-    if (instance)
-      return instance;
-    ParseTree.call(this, ParseTreeType.NULL_TREE, null);
-    instance = this;
-  }
+/**
+ * TODO: this was a Java-ism. Remove and use 'null' instead.
+ * @constructor
+ * @extends {ParseTree}
+ */
+export function NullTree() {
+  if (instance)
+    return instance;
+  ParseTree.call(this, ParseTreeType.NULL_TREE, null);
+  instance = this;
+}
 
-  NullTree.prototype = Object.create(ParseTree.prototype);
+NullTree.prototype = Object.create(ParseTree.prototype);

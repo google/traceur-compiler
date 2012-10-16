@@ -1,4 +1,4 @@
-// Copyright 2008 The Closure Library Authors. All Rights Reserved.
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-  /**
-   * Returns the string value for a literal token.
-   * @param {LiteralToken} token
-   * @return {string}
-   */
-  export function evaluateStringLiteral(token) {
-    // TODO(arv): I feel dirty using eval here. We should just do the right
-    // thing!
-    return eval(token.value);
-  }
+/**
+ * Returns the string value for a literal token.
+ * @param {LiteralToken} token
+ * @return {string}
+ */
+export function evaluateStringLiteral(token) {
+  // TODO(arv): I feel dirty using eval here. We should just do the right
+  // thing!
+  return eval(token.value);
+}
 
 /**
  * Similar to {@code Object.create} but instead of taking a property

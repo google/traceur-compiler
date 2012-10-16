@@ -16,20 +16,20 @@ import Token from 'Token.js';
 import TokenType from 'TokenType.js';
 import createObject from '../util/util.js';
 
-  /**
-   * A token representing an identifier.
-   * @param {SourceRange} location
-   * @param {string} value
-   * @constructor
-   * @extends {Token}
-   */
-  export function AtNameToken(location, value) {
-    Token.call(this, TokenType.AT_NAME, location);
-    this.value = value;
-  }
+/**
+ * A token representing an identifier.
+ * @param {SourceRange} location
+ * @param {string} value
+ * @constructor
+ * @extends {Token}
+ */
+export function AtNameToken(location, value) {
+  Token.call(this, TokenType.AT_NAME, location);
+  this.value = value;
+}
 
-  AtNameToken.prototype = createObject(Token.prototype, {
-    toString: function() {
-      return this.value;
-    }
-  });
+AtNameToken.prototype = createObject(Token.prototype, {
+  toString: function() {
+    return this.value;
+  }
+});

@@ -16,91 +16,91 @@ import Symbol from 'Symbol.js';
 import SymbolType from 'SymbolType.js';
 import createObject from '../../util/util.js';
 
+/**
+ * @param {string} name
+ * @param {ModuleSymbol} parent
+ * @param {ModuleDefinition} tree
+ * @constructor
+ * @extends {Symbol}
+ */
+export function ModuleSymbol(name, parent, tree, url) {
+  Symbol.call(this, SymbolType.MODULE, tree, name);
+  this.children_ = Object.create(null);
+  this.exports_ = Object.create(null);
+  this.parent = parent;
+  this.tree = tree;
+  if (!url) {
+    // TODO(arv): Find offensive callers.
+    console.error('Missing URL');
+  }
+  this.url = url;
+}
+
+ModuleSymbol.prototype = createObject(Symbol.prototype, {
+
+  /**
+   * @param {ModuleSymbol} module
+   * @return {void}
+   */
+  addModule: function(module) {
+    this.addModuleWithName(module, module.name);
+  },
+
+  /**
+   * @param {ModuleSymbol} module
+   * @param {string} name
+   * @return {void}
+   */
+  addModuleWithName: function(module, name) {
+    this.children_[name] = module;
+  },
+
   /**
    * @param {string} name
-   * @param {ModuleSymbol} parent
-   * @param {ModuleDefinition} tree
-   * @constructor
-   * @extends {Symbol}
+   * @return {boolean}
    */
-  export function ModuleSymbol(name, parent, tree, url) {
-    Symbol.call(this, SymbolType.MODULE, tree, name);
-    this.children_ = Object.create(null);
-    this.exports_ = Object.create(null);
-    this.parent = parent;
-    this.tree = tree;
-    if (!url) {
-      // TODO(arv): Find offensive callers.
-      console.error('Missing URL');
-    }
-    this.url = url;
+  hasModule: function(name) {
+    return name in this.children_;
+  },
+
+  /**
+   * @param {string} name
+   * @return {ModuleSymbol}
+   */
+  getModule: function(name) {
+    return this.children_[name];
+  },
+
+  /**
+   * @param {string} name
+   * @return {boolean}
+   */
+  hasExport: function(name) {
+    return name in this.exports_;
+  },
+
+  /**
+   * @param {string} name
+   * @return {ExportSymbol}
+   */
+  getExport: function(name) {
+    return this.exports_[name];
+  },
+
+  /**
+   * @param {string} name
+   * @param {ExportSymbol} export
+   * @return {void}
+   */
+  addExport: function(name, exp) {
+    this.exports_[name] = exp;
+  },
+
+  /**
+   * @return {Array.<ExportSymbol>}
+   */
+  getExports: function() {
+    var exports = this.exports_;
+    return Object.keys(exports).map((key) => exports[key]);
   }
-
-  ModuleSymbol.prototype = createObject(Symbol.prototype, {
-
-    /**
-     * @param {ModuleSymbol} module
-     * @return {void}
-     */
-    addModule: function(module) {
-      this.addModuleWithName(module, module.name);
-    },
-
-    /**
-     * @param {ModuleSymbol} module
-     * @param {string} name
-     * @return {void}
-     */
-    addModuleWithName: function(module, name) {
-      this.children_[name] = module;
-    },
-
-    /**
-     * @param {string} name
-     * @return {boolean}
-     */
-    hasModule: function(name) {
-      return name in this.children_;
-    },
-
-    /**
-     * @param {string} name
-     * @return {ModuleSymbol}
-     */
-    getModule: function(name) {
-      return this.children_[name];
-    },
-
-    /**
-     * @param {string} name
-     * @return {boolean}
-     */
-    hasExport: function(name) {
-      return name in this.exports_;
-    },
-
-    /**
-     * @param {string} name
-     * @return {ExportSymbol}
-     */
-    getExport: function(name) {
-      return this.exports_[name];
-    },
-
-    /**
-     * @param {string} name
-     * @param {ExportSymbol} export
-     * @return {void}
-     */
-    addExport: function(name, exp) {
-      this.exports_[name] = exp;
-    },
-
-    /**
-     * @return {Array.<ExportSymbol>}
-     */
-    getExports: function() {
-      var exports = this.exports_;
-      return Object.keys(exports).map((key) => exports[key]);
-    }
-  });
+});

@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-  /**
-   * A range of positions in a source string.
-   * @param {SourcePosition} start Start is inclusive.
-   * @param {SourcePosition} end End is exclusive.
-   * @constructor
-   */
-  export function SourceRange(start, end) {
-    this.start = start;
-    this.end = end;
-  }
+/**
+ * A range of positions in a source string.
+ * @param {SourcePosition} start Start is inclusive.
+ * @param {SourcePosition} end End is exclusive.
+ * @constructor
+ */
+export function SourceRange(start, end) {
+  this.start = start;
+  this.end = end;
+}

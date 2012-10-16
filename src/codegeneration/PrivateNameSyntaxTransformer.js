@@ -19,80 +19,80 @@ import TokenType from '../syntax/TokenType.js';
 import createObject from '../util/util.js';
 import trees from '../syntax/trees/ParseTrees.js';
 
-  var VariableDeclarationList = trees.VariableDeclarationList;
-  var VariableStatement = trees.VariableStatement;
+var VariableDeclarationList = trees.VariableDeclarationList;
+var VariableStatement = trees.VariableStatement;
 
-  var createArgumentList = ParseTreeFactory.createArgumentList;
-  var createCallExpression = ParseTreeFactory.createCallExpression;
-  var createEmptyArgumentList = ParseTreeFactory.createEmptyArgumentList;
-  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
-  var createMemberExpression = ParseTreeFactory.createMemberExpression;
-  var createVariableDeclaration = ParseTreeFactory.createVariableDeclaration;
+var createArgumentList = ParseTreeFactory.createArgumentList;
+var createCallExpression = ParseTreeFactory.createCallExpression;
+var createEmptyArgumentList = ParseTreeFactory.createEmptyArgumentList;
+var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
+var createMemberExpression = ParseTreeFactory.createMemberExpression;
+var createVariableDeclaration = ParseTreeFactory.createVariableDeclaration;
 
-  /**
-   * Desugars the private name syntax, @name.
-   *
-   * @see http://wiki.ecmascript.org/doku.php?id=strawman:syntactic_support_for_private_names
-   *
-   * @param {UniqueIdentifierGenerator} identifierGenerator
-   * @extends {TempVarTransformer}
-   * @constructor
-   */
-  export function PrivateNameSyntaxTransformer(identifierGenerator) {
-    TempVarTransformer.call(this, identifierGenerator);
-  }
+/**
+ * Desugars the private name syntax, @name.
+ *
+ * @see http://wiki.ecmascript.org/doku.php?id=strawman:syntactic_support_for_private_names
+ *
+ * @param {UniqueIdentifierGenerator} identifierGenerator
+ * @extends {TempVarTransformer}
+ * @constructor
+ */
+export function PrivateNameSyntaxTransformer(identifierGenerator) {
+  TempVarTransformer.call(this, identifierGenerator);
+}
 
-  /**
-   * @param {UniqueIdentifierGenerator} identifierGenerator
-   * @param {ParseTree} tree
-   */
-  PrivateNameSyntaxTransformer.transformTree = function(identifierGenerator,
-                                                        tree) {
-    return new PrivateNameSyntaxTransformer(identifierGenerator).
-        transformAny(tree);
-  };
+/**
+ * @param {UniqueIdentifierGenerator} identifierGenerator
+ * @param {ParseTree} tree
+ */
+PrivateNameSyntaxTransformer.transformTree = function(identifierGenerator,
+                                                      tree) {
+  return new PrivateNameSyntaxTransformer(identifierGenerator).
+      transformAny(tree);
+};
 
-  var base = TempVarTransformer.prototype;
-  PrivateNameSyntaxTransformer.prototype = createObject(base, {
+var base = TempVarTransformer.prototype;
+PrivateNameSyntaxTransformer.prototype = createObject(base, {
 
-    getTransformedName_: function(token) {
-      return this.identifierGenerator.getUniqueIdentifier(token.value);
-    },
+  getTransformedName_: function(token) {
+    return this.identifierGenerator.getUniqueIdentifier(token.value);
+  },
 
-    transformAtNameExpression: function(tree) {
-      var transformedName = this.getTransformedName_(tree.atNameToken);
-      return createIdentifierExpression(transformedName);
-    },
+  transformAtNameExpression: function(tree) {
+    var transformedName = this.getTransformedName_(tree.atNameToken);
+    return createIdentifierExpression(transformedName);
+  },
 
-    transformNameStatement: function(tree) {
-      // private @a, @b = expr;
-      //  =>
-      // const __a = traceur.runtime.createName(),
-      //       __b = traceur.runtime.assertName(expr)
-      var declarations = this.transformList(tree.declarations);
-      return new VariableStatement(tree.location,
-          new VariableDeclarationList(tree.location, TokenType.CONST,
-                                      declarations));
-    },
+  transformNameStatement: function(tree) {
+    // private @a, @b = expr;
+    //  =>
+    // const __a = traceur.runtime.createName(),
+    //       __b = traceur.runtime.assertName(expr)
+    var declarations = this.transformList(tree.declarations);
+    return new VariableStatement(tree.location,
+        new VariableDeclarationList(tree.location, TokenType.CONST,
+                                    declarations));
+  },
 
-    transformAtNameDeclaration: function(tree) {
-      var transformedName = this.getTransformedName_(tree.atNameToken);
+  transformAtNameDeclaration: function(tree) {
+    var transformedName = this.getTransformedName_(tree.atNameToken);
 
-      var args, name;
-      if (tree.initializer) {
-        args = createArgumentList(this.transformAny(tree.initializer));
-        name = PredefinedName.ASSERT_NAME;
-      } else {
-        args = createEmptyArgumentList();
-        name = PredefinedName.CREATE_NAME;
-      }
-
-      return createVariableDeclaration(transformedName,
-        createCallExpression(
-          createMemberExpression(
-              PredefinedName.TRACEUR,
-              PredefinedName.RUNTIME,
-              name),
-          args));
+    var args, name;
+    if (tree.initializer) {
+      args = createArgumentList(this.transformAny(tree.initializer));
+      name = PredefinedName.ASSERT_NAME;
+    } else {
+      args = createEmptyArgumentList();
+      name = PredefinedName.CREATE_NAME;
     }
-  });
+
+    return createVariableDeclaration(transformedName,
+      createCallExpression(
+        createMemberExpression(
+            PredefinedName.TRACEUR,
+            PredefinedName.RUNTIME,
+            name),
+        args));
+  }
+});

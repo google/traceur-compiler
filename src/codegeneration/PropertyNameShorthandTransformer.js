@@ -16,30 +16,30 @@ import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import createObject from '../util/util.js';
 import trees from '../syntax/trees/ParseTrees.js';
 
-  var IdentifierExpression = trees.IdentifierExpression;
-  var PropertyNameAssignment = trees.PropertyNameAssignment;
+var IdentifierExpression = trees.IdentifierExpression;
+var PropertyNameAssignment = trees.PropertyNameAssignment;
 
-  /**
-   * Desugars property name shorthands
-   *
-   * @see <a href="http://wiki.ecmascript.org/doku.php?id=strawman:object_initialiser_shorthand">strawman:object_initialiser_shorthand</a>
-   *
-   * @extends {ParseTreeTransformer}
-   * @constructor
-   */
-  export function PropertyNameShorthandTransformer() {}
+/**
+ * Desugars property name shorthands
+ *
+ * @see <a href="http://wiki.ecmascript.org/doku.php?id=strawman:object_initialiser_shorthand">strawman:object_initialiser_shorthand</a>
+ *
+ * @extends {ParseTreeTransformer}
+ * @constructor
+ */
+export function PropertyNameShorthandTransformer() {}
 
-  PropertyNameShorthandTransformer.transformTree = function(tree) {
-    return new PropertyNameShorthandTransformer().transformAny(tree);
-  };
+PropertyNameShorthandTransformer.transformTree = function(tree) {
+  return new PropertyNameShorthandTransformer().transformAny(tree);
+};
 
-  PropertyNameShorthandTransformer.prototype = createObject(
-      ParseTreeTransformer.prototype, {
+PropertyNameShorthandTransformer.prototype = createObject(
+    ParseTreeTransformer.prototype, {
 
-    transformPropertyNameShorthand: function(tree) {
-      // We need to pass along the location for the FreeVariableChecker to not
-      // fail.
-      return new PropertyNameAssignment(tree.location,
-          tree.name, new IdentifierExpression(tree.location, tree.name));
-    }
-  });
+  transformPropertyNameShorthand: function(tree) {
+    // We need to pass along the location for the FreeVariableChecker to not
+    // fail.
+    return new PropertyNameAssignment(tree.location,
+        tree.name, new IdentifierExpression(tree.location, tree.name));
+  }
+});

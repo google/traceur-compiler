@@ -12,21 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-  import LineNumberTable from 'LineNumberTable.js';
+import LineNumberTable from 'LineNumberTable.js';
 
-
-  /**
-   * A source file.
-   *
-   * Immutable.
-   *
-   * @param {string} name
-   * @param {string} content
-   * @constructor
-   */
-  export function SourceFile(name, contents) {
-    this.name = name;
-    this.contents = contents;
-    this.lineNumberTable = new LineNumberTable(this);
-    this.uid = traceur.getUid();
-  }
+/**
+ * A source file.
+ *
+ * Immutable.
+ *
+ * @param {string} name
+ * @param {string} content
+ * @constructor
+ */
+export function SourceFile(name, contents) {
+  this.name = name;
+  this.contents = contents;
+  this.lineNumberTable = new LineNumberTable(this);
+  this.uid = traceur.getUid();
+}

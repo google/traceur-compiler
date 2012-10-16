@@ -21,129 +21,129 @@ import TokenType from '../syntax/TokenType.js';
 import createObject from '../util/util.js';
 import trees from '../syntax/trees/ParseTrees.js';
 
-  var Program = trees.Program;
+var Program = trees.Program;
 
-  var createVariableStatement = ParseTreeFactory.createVariableStatement;
-  var createVariableDeclaration = ParseTreeFactory.createVariableDeclaration;
-  var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList;
-  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
+var createVariableStatement = ParseTreeFactory.createVariableStatement;
+var createVariableDeclaration = ParseTreeFactory.createVariableDeclaration;
+var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList;
+var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
 
-  // Some helper functions that other runtime functions may depend on.
-  var shared = {
-    toObject:
-        `function(value) {
-          if (value == null)
-            throw TypeError();
-          return Object(value);
-        }`
-  };
+// Some helper functions that other runtime functions may depend on.
+var shared = {
+  toObject:
+      `function(value) {
+        if (value == null)
+          throw TypeError();
+        return Object(value);
+      }`
+};
 
-  function parse(source, name) {
-    var file = new SourceFile(name + '@runtime', source);
-    var errorReporter = new MutedErrorReporter();
-    return new Parser(errorReporter, file).parseAssignmentExpression();
-  }
+function parse(source, name) {
+  var file = new SourceFile(name + '@runtime', source);
+  var errorReporter = new MutedErrorReporter();
+  return new Parser(errorReporter, file).parseAssignmentExpression();
+}
+
+/**
+ * Class responsible for keeping track of inlined runtime functions and to
+ * do the actual inlining of the function into the head of the program.
+ * @param {UniqueIdentifierGenerator} identifierGenerator
+ */
+export function RuntimeInliner(identifierGenerator) {
+  this.identifierGenerator = identifierGenerator;
+  this.map_ = Object.create(null);
+}
+
+RuntimeInliner.prototype = createObject(
+    ParseTreeTransformer.prototype, {
 
   /**
-   * Class responsible for keeping track of inlined runtime functions and to
-   * do the actual inlining of the function into the head of the program.
-   * @param {UniqueIdentifierGenerator} identifierGenerator
+   * Prepends the program with the function definitions for the runtime
+   * functions.
+   * @param {Program} tree
+   * @return {Program}
    */
-  export function RuntimeInliner(identifierGenerator) {
-    this.identifierGenerator = identifierGenerator;
-    this.map_ = Object.create(null);
-  }
+  transformProgram: function(tree) {
+    var names = Object.keys(this.map_);
+    if (!names.length)
+      return tree;
 
-  RuntimeInliner.prototype = createObject(
-      ParseTreeTransformer.prototype, {
+    var vars = names.filter(function(name) {
+      return !this.map_[name].inserted;
+    }, this).map(function(name) {
+      var item = this.map_[name];
+      item.inserted = true;
+      return createVariableDeclaration(item.uid, item.expression);
+    }, this);
+    if (!vars.length)
+      return tree;
 
-    /**
-     * Prepends the program with the function definitions for the runtime
-     * functions.
-     * @param {Program} tree
-     * @return {Program}
-     */
-    transformProgram: function(tree) {
-      var names = Object.keys(this.map_);
-      if (!names.length)
-        return tree;
+    var variableStatement = createVariableStatement(
+        createVariableDeclarationList(TokenType.VAR, vars));
 
-      var vars = names.filter(function(name) {
-        return !this.map_[name].inserted;
-      }, this).map(function(name) {
-        var item = this.map_[name];
-        item.inserted = true;
-        return createVariableDeclaration(item.uid, item.expression);
-      }, this);
-      if (!vars.length)
-        return tree;
+    var programElements = [variableStatement];
+    [].push.apply(programElements, tree.programElements);
+    return new Program(tree.location, programElements);
+  },
 
-      var variableStatement = createVariableStatement(
-          createVariableDeclarationList(TokenType.VAR, vars));
+  /**
+   * Registers a runtime function.
+   * @param {string} name The name that identifies the runtime function.
+   * @param {string} source
+   */
+  register: function(name, source) {
+    if (name in this.map_)
+      return;
 
-      var programElements = [variableStatement];
-      [].push.apply(programElements, tree.programElements);
-      return new Program(tree.location, programElements);
-    },
-
-    /**
-     * Registers a runtime function.
-     * @param {string} name The name that identifies the runtime function.
-     * @param {string} source
-     */
-    register: function(name, source) {
-      if (name in this.map_)
-        return;
-
-      var self = this;
-      source = source.replace(/%([a-zA-Z0-9_$]+)/g, function(_, name) {
-        if (name in shared) {
-          self.register(name, shared[name]);
-        }
-        return self.getAsString(name);
-      });
-
-      var uid = this.identifierGenerator.generateUniqueIdentifier();
-      this.map_[name] = {
-        expression: parse(source, name),
-        uid: uid,
-        inserted: false,
-      };
-    },
-
-    /**
-     * Gets the identifier expression for the identifier that represents the
-     * runtime function.
-     * @param {string} name
-     * @return {IdentifierExpression}
-     */
-    getAsIdentifierExpression: function(name) {
-      return createIdentifierExpression(this.map_[name].uid);
-    },
-
-    /**
-     * Gets the string of the identifier that represents the runtime function.
-     * @param {string} name
-     * @return {string}
-     */
-    getAsString: function(name) {
-      return this.map_[name].uid;
-    },
-
-    /**
-     * @param {string} name The runtime function.
-     * @param {string=} opt_source The source of the function as a string. If
-     *     |name| has not been registered before then this is a required
-     *     parameter.
-     * @return {IdentifierExpression}
-     */
-    get: function(name, opt_source) {
-      if (!(name in this.map_)) {
-        if (name in shared)
-          opt_source = shared[name];
-        traceur.assert(opt_source);
-        this.register(name, opt_source);
+    var self = this;
+    source = source.replace(/%([a-zA-Z0-9_$]+)/g, function(_, name) {
+      if (name in shared) {
+        self.register(name, shared[name]);
       }
-      return this.getAsIdentifierExpression(name);
+      return self.getAsString(name);
+    });
+
+    var uid = this.identifierGenerator.generateUniqueIdentifier();
+    this.map_[name] = {
+      expression: parse(source, name),
+      uid: uid,
+      inserted: false,
+    };
+  },
+
+  /**
+   * Gets the identifier expression for the identifier that represents the
+   * runtime function.
+   * @param {string} name
+   * @return {IdentifierExpression}
+   */
+  getAsIdentifierExpression: function(name) {
+    return createIdentifierExpression(this.map_[name].uid);
+  },
+
+  /**
+   * Gets the string of the identifier that represents the runtime function.
+   * @param {string} name
+   * @return {string}
+   */
+  getAsString: function(name) {
+    return this.map_[name].uid;
+  },
+
+  /**
+   * @param {string} name The runtime function.
+   * @param {string=} opt_source The source of the function as a string. If
+   *     |name| has not been registered before then this is a required
+   *     parameter.
+   * @return {IdentifierExpression}
+   */
+  get: function(name, opt_source) {
+    if (!(name in this.map_)) {
+      if (name in shared)
+        opt_source = shared[name];
+      traceur.assert(opt_source);
+      this.register(name, opt_source);
     }
-  });
+    return this.getAsIdentifierExpression(name);
+  }
+});

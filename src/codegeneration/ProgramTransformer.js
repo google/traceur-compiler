@@ -38,226 +38,226 @@ import SpreadTransformer from 'SpreadTransformer.js';
 import {options: traceurOptions} from '../options.js';
 import trees from '../syntax/trees/ParseTrees.js';
 
-  var ProgramTree = trees.ProgramTree;
+var ProgramTree = trees.ProgramTree;
 
-  var options = traceurOptions.transform;
+var options = traceurOptions.transform;
+
+/**
+ * Transforms a Traceur file's ParseTree to a JS ParseTree.
+ *
+ * @param {ErrorReporter} reporter
+ * @param {Project} project
+ * @constructor
+ */
+export function ProgramTransformer(reporter, project) {
+  this.project_ = project;
+  this.reporter_ = reporter;
+  this.results_ = new ObjectMap();
+}
+
+/**
+ * @param {ErrorReporter} reporter
+ * @param {Project} project
+ * @return {ObjectMap}
+ */
+ProgramTransformer.transform = function(reporter, project) {
+  var transformer = new ProgramTransformer(reporter, project);
+  transformer.transform_();
+  return transformer.results_;
+};
+
+/**
+ * @param {ErrorReporter} reporter
+ * @param {Project} project
+ * @param {SourceFile} sourceFile
+ * @return {ObjectMap}
+ */
+ProgramTransformer.transformFile = function(reporter, project, sourceFile) {
+  var transformer = new ProgramTransformer(reporter, project);
+  transformer.transformFile_(sourceFile);
+  return transformer.results_;
+};
+
+/**
+ * @param {ErrorReporter} reporter
+ * @param {Project} project
+ * @param {ModuleSymbol}
+ * @param {SourceFile} sourceFile
+ * @return {ObjectMap}
+ */
+ProgramTransformer.transformFileAsModule = function(reporter, project,
+                                                    module, sourceFile) {
+  var transformer = new ProgramTransformer(reporter, project);
+  transformer.transformFileAsModule_(module, sourceFile);
+  return transformer.results_;
+};
+
+ProgramTransformer.prototype = {
+  /**
+   * @return {void}
+   * @private
+   */
+  transform_: function() {
+    this.project_.getSourceFiles().forEach((file) => {
+      this.transformFile_(file);
+    });
+  },
 
   /**
-   * Transforms a Traceur file's ParseTree to a JS ParseTree.
+   * @param {SourceFile} file
+   * @return {void}
+   * @private
+   */
+  transformFile_: function(file) {
+    var result = this.transform(this.project_.getParseTree(file));
+    this.results_.put(file, result);
+  },
+
+  /**
+   * @param {ModuleSymbol} module
+   * @param {SourceFile} file
+   * @return {void}
+   * @private
+   */
+  transformFileAsModule_: function(module, file) {
+    var result = this.transformTree_(this.project_.getParseTree(file),
+                                     module);
+    this.results_.put(file, result);
+  },
+
+  /**
+   * This is the root of the code generation pass.
+   * Each pass translates one contruct from Traceur to standard JS constructs.
+   * The order of the passes matters.
    *
-   * @param {ErrorReporter} reporter
-   * @param {Project} project
-   * @constructor
+   * @param {Program} tree
+   * @return {ParseTree}
    */
-  export function ProgramTransformer(reporter, project) {
-    this.project_ = project;
-    this.reporter_ = reporter;
-    this.results_ = new ObjectMap();
-  }
+  transform: function(tree) {
+    return this.transformTree_(tree);
+  },
 
-  /**
-   * @param {ErrorReporter} reporter
-   * @param {Project} project
-   * @return {ObjectMap}
-   */
-  ProgramTransformer.transform = function(reporter, project) {
-    var transformer = new ProgramTransformer(reporter, project);
-    transformer.transform_();
-    return transformer.results_;
-  };
+  transformTree_: function(tree, opt_module) {
+    var identifierGenerator = this.project_.identifierGenerator;
+    var runtimeInliner = this.project_.runtimeInliner;
+    var reporter = this.reporter_;
 
-  /**
-   * @param {ErrorReporter} reporter
-   * @param {Project} project
-   * @param {SourceFile} sourceFile
-   * @return {ObjectMap}
-   */
-  ProgramTransformer.transformFile = function(reporter, project, sourceFile) {
-    var transformer = new ProgramTransformer(reporter, project);
-    transformer.transformFile_(sourceFile);
-    return transformer.results_;
-  };
+    function chain(enabled, transformer, var_args) {
+      if (!enabled)
+        return;
 
-  /**
-   * @param {ErrorReporter} reporter
-   * @param {Project} project
-   * @param {ModuleSymbol}
-   * @param {SourceFile} sourceFile
-   * @return {ObjectMap}
-   */
-  ProgramTransformer.transformFileAsModule = function(reporter, project,
-                                                      module, sourceFile) {
-    var transformer = new ProgramTransformer(reporter, project);
-    transformer.transformFileAsModule_(module, sourceFile);
-    return transformer.results_;
-  };
-
-  ProgramTransformer.prototype = {
-    /**
-     * @return {void}
-     * @private
-     */
-    transform_: function() {
-      this.project_.getSourceFiles().forEach((file) => {
-        this.transformFile_(file);
-      });
-    },
-
-    /**
-     * @param {SourceFile} file
-     * @return {void}
-     * @private
-     */
-    transformFile_: function(file) {
-      var result = this.transform(this.project_.getParseTree(file));
-      this.results_.put(file, result);
-    },
-
-    /**
-     * @param {ModuleSymbol} module
-     * @param {SourceFile} file
-     * @return {void}
-     * @private
-     */
-    transformFileAsModule_: function(module, file) {
-      var result = this.transformTree_(this.project_.getParseTree(file),
-                                       module);
-      this.results_.put(file, result);
-    },
-
-    /**
-     * This is the root of the code generation pass.
-     * Each pass translates one contruct from Traceur to standard JS constructs.
-     * The order of the passes matters.
-     *
-     * @param {Program} tree
-     * @return {ParseTree}
-     */
-    transform: function(tree) {
-      return this.transformTree_(tree);
-    },
-
-    transformTree_: function(tree, opt_module) {
-      var identifierGenerator = this.project_.identifierGenerator;
-      var runtimeInliner = this.project_.runtimeInliner;
-      var reporter = this.reporter_;
-
-      function chain(enabled, transformer, var_args) {
-        if (!enabled)
-          return;
-
-        if (!reporter.hadError()) {
-          if (traceurOptions.validate) {
-            ParseTreeValidator.validate(tree);
-          }
-          var args = Array.prototype.slice.call(arguments, 2);
-          args.push(tree);
-          tree = transformer.apply(null, args) || tree;
-        }
-      }
-
-      if (options.modules && !reporter.hadError()) {
+      if (!reporter.hadError()) {
         if (traceurOptions.validate) {
           ParseTreeValidator.validate(tree);
         }
-        tree = this.transformModules_(tree, opt_module);
-      }
-
-      // TODO: many of these simple, local transforms could happen in the same
-      // tree pass
-
-      chain(options.quasi, QuasiLiteralTransformer.transformTree,
-            identifierGenerator);
-      chain(options.arrowFunctions,
-            ArrowFunctionTransformer.transformTree, reporter);
-
-      // ClassTransformer needs to come before ObjectLiteralTransformer.
-      chain(options.classes, ClassTransformer.transform, identifierGenerator,
-            reporter);
-
-      chain(options.propertyNameShorthand,
-            PropertyNameShorthandTransformer.transformTree);
-      chain(options.propertyMethods ||
-                options.privateNameSyntax && options.privateNames,
-            ObjectLiteralTransformer.transformTree, identifierGenerator);
-
-      chain(options.isExpression, IsExpressionTransformer.transformTree);
-
-      // Generator/ArrayComprehensionTransformer must come before for-of and
-      // destructuring.
-      chain(options.generatorComprehension,
-            GeneratorComprehensionTransformer.transformTree,
-            identifierGenerator);
-      chain(options.arrayComprehension,
-            ArrayComprehensionTransformer.transformTree,
-            identifierGenerator);
-
-      // for of must come before destructuring and generator, or anything
-      // that wants to use VariableBinder
-      chain(options.forOf, ForOfTransformer.transformTree, identifierGenerator);
-
-      // rest parameters must come before generator
-      chain(options.restParameters, RestParameterTransformer.transformTree);
-
-      // default parameters should come after rest parameter to get the
-      // expected order in the transformed code.
-      chain(options.defaultParameters,
-            DefaultParametersTransformer.transformTree);
-
-      // generator must come after for of and rest parameters
-      chain(options.generators || options.deferredFunctions,
-            GeneratorTransformPass.transformTree,
-            identifierGenerator,
-            reporter);
-
-      chain(options.privateNames && options.privateNameSyntax,
-            AtNameMemberTransformer.transformTree,
-            identifierGenerator);
-
-      chain(options.privateNames && options.privateNameSyntax,
-            PrivateNameSyntaxTransformer.transformTree,
-            identifierGenerator);
-
-      // destructuring must come after for of and before block binding
-      chain(options.destructuring,
-            DestructuringTransformer.transformTree, identifierGenerator);
-      chain(options.spread, SpreadTransformer.transformTree, runtimeInliner);
-
-      chain(true, runtimeInliner.transformAny.bind(runtimeInliner));
-
-      chain(options.blockBinding, BlockBindingTransformer.transformTree);
-
-      // Cascade must come before CollectionTransformer.
-      chain(options.cascadeExpression,
-            CascadeExpressionTransformer.transformTree,
-            identifierGenerator,
-            reporter);
-
-      chain(options.collections || options.privateNames,
-            CollectionTransformer.transformTree,
-            identifierGenerator);
-
-      // Issue errors for any unbound variables
-      chain(traceurOptions.freeVariableChecker,
-            FreeVariableChecker.checkProgram, reporter);
-
-      return tree;
-    },
-
-    /**
-     * Transforms a program tree. If an optional module is passed in the
-     * program is treated as a module body.
-     * @param {Program} tree
-     * @param {ModuleSymbol} module
-     * @return {Program}
-     * @private
-     */
-    transformModules_: function(tree, opt_module) {
-      if (opt_module) {
-        return ModuleTransformer.transformAsModule(this.project_, opt_module,
-                                                   tree);
-      } else {
-        return ModuleTransformer.transform(this.project_, tree);
+        var args = Array.prototype.slice.call(arguments, 2);
+        args.push(tree);
+        tree = transformer.apply(null, args) || tree;
       }
     }
-  };
+
+    if (options.modules && !reporter.hadError()) {
+      if (traceurOptions.validate) {
+        ParseTreeValidator.validate(tree);
+      }
+      tree = this.transformModules_(tree, opt_module);
+    }
+
+    // TODO: many of these simple, local transforms could happen in the same
+    // tree pass
+
+    chain(options.quasi, QuasiLiteralTransformer.transformTree,
+          identifierGenerator);
+    chain(options.arrowFunctions,
+          ArrowFunctionTransformer.transformTree, reporter);
+
+    // ClassTransformer needs to come before ObjectLiteralTransformer.
+    chain(options.classes, ClassTransformer.transform, identifierGenerator,
+          reporter);
+
+    chain(options.propertyNameShorthand,
+          PropertyNameShorthandTransformer.transformTree);
+    chain(options.propertyMethods ||
+              options.privateNameSyntax && options.privateNames,
+          ObjectLiteralTransformer.transformTree, identifierGenerator);
+
+    chain(options.isExpression, IsExpressionTransformer.transformTree);
+
+    // Generator/ArrayComprehensionTransformer must come before for-of and
+    // destructuring.
+    chain(options.generatorComprehension,
+          GeneratorComprehensionTransformer.transformTree,
+          identifierGenerator);
+    chain(options.arrayComprehension,
+          ArrayComprehensionTransformer.transformTree,
+          identifierGenerator);
+
+    // for of must come before destructuring and generator, or anything
+    // that wants to use VariableBinder
+    chain(options.forOf, ForOfTransformer.transformTree, identifierGenerator);
+
+    // rest parameters must come before generator
+    chain(options.restParameters, RestParameterTransformer.transformTree);
+
+    // default parameters should come after rest parameter to get the
+    // expected order in the transformed code.
+    chain(options.defaultParameters,
+          DefaultParametersTransformer.transformTree);
+
+    // generator must come after for of and rest parameters
+    chain(options.generators || options.deferredFunctions,
+          GeneratorTransformPass.transformTree,
+          identifierGenerator,
+          reporter);
+
+    chain(options.privateNames && options.privateNameSyntax,
+          AtNameMemberTransformer.transformTree,
+          identifierGenerator);
+
+    chain(options.privateNames && options.privateNameSyntax,
+          PrivateNameSyntaxTransformer.transformTree,
+          identifierGenerator);
+
+    // destructuring must come after for of and before block binding
+    chain(options.destructuring,
+          DestructuringTransformer.transformTree, identifierGenerator);
+    chain(options.spread, SpreadTransformer.transformTree, runtimeInliner);
+
+    chain(true, runtimeInliner.transformAny.bind(runtimeInliner));
+
+    chain(options.blockBinding, BlockBindingTransformer.transformTree);
+
+    // Cascade must come before CollectionTransformer.
+    chain(options.cascadeExpression,
+          CascadeExpressionTransformer.transformTree,
+          identifierGenerator,
+          reporter);
+
+    chain(options.collections || options.privateNames,
+          CollectionTransformer.transformTree,
+          identifierGenerator);
+
+    // Issue errors for any unbound variables
+    chain(traceurOptions.freeVariableChecker,
+          FreeVariableChecker.checkProgram, reporter);
+
+    return tree;
+  },
+
+  /**
+   * Transforms a program tree. If an optional module is passed in the
+   * program is treated as a module body.
+   * @param {Program} tree
+   * @param {ModuleSymbol} module
+   * @return {Program}
+   * @private
+   */
+  transformModules_: function(tree, opt_module) {
+    if (opt_module) {
+      return ModuleTransformer.transformAsModule(this.project_, opt_module,
+                                                 tree);
+    } else {
+      return ModuleTransformer.transform(this.project_, tree);
+    }
+  }
+};

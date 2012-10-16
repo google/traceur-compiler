@@ -1187,54 +1187,18 @@ var $src_semantics_symbols_Symbol_js =(function() {
       enumerable: true 
     } })); 
 }).call(this); 
-var $src_semantics_symbols_ModuleSymbol_js =(function() { 
+var $src_semantics_symbols_ExportSymbol_js =(function() { 
   "use strict"; 
   var destructuring$Symbol = $src_semantics_symbols_Symbol_js, Symbol = destructuring$Symbol.Symbol; 
   var destructuring$SymbolType = $src_semantics_symbols_SymbolType_js, SymbolType = destructuring$SymbolType.SymbolType; 
-  var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
-  function ModuleSymbol(name, parent, tree, url) { 
-    Symbol.call(this, SymbolType.MODULE, tree, name); 
-    this.children_ = Object.create(null); 
-    this.exports_ = Object.create(null); 
-    this.parent = parent; 
-    this.tree = tree; 
-    if(! url) { 
-      console.error('Missing URL'); 
-    } 
-    this.url = url; 
+  function ExportSymbol(tree, name, relatedTree) { 
+    Symbol.call(this, SymbolType.EXPORT, tree, name); 
+    this.relatedTree = relatedTree; 
   } 
-  ModuleSymbol.prototype = createObject(Symbol.prototype, { 
-    addModule: function(module) { 
-      this.addModuleWithName(module, module.name); 
-    }, 
-    addModuleWithName: function(module, name) { 
-      this.children_[name]= module; 
-    }, 
-    hasModule: function(name) { 
-      return name in this.children_; 
-    }, 
-    getModule: function(name) { 
-      return this.children_[name]; 
-    }, 
-    hasExport: function(name) { 
-      return name in this.exports_; 
-    }, 
-    getExport: function(name) { 
-      return this.exports_[name]; 
-    }, 
-    addExport: function(name, exp) { 
-      this.exports_[name]= exp; 
-    }, 
-    getExports: function() { 
-      var exports = this.exports_; 
-      return Object.keys(exports).map((function(key) { 
-        return exports[key]; 
-      })); 
-    } 
-  }); 
-  return Object.preventExtensions(Object.create(null, { ModuleSymbol: { 
+  ExportSymbol.prototype = Object.create(Symbol.prototype); 
+  return Object.preventExtensions(Object.create(null, { ExportSymbol: { 
       get: function() { 
-        return ModuleSymbol; 
+        return ExportSymbol; 
       }, 
       enumerable: true 
     } })); 
@@ -2024,46 +1988,6 @@ var $src_codegeneration_module_ModuleVisitor_js =(function() {
       enumerable: true 
     } })); 
 }).call(this); 
-var $src_codegeneration_module_ModuleDefinitionVisitor_js =(function() { 
-  "use strict"; 
-  var destructuring$ModuleSymbol = $src_semantics_symbols_ModuleSymbol_js, ModuleSymbol = destructuring$ModuleSymbol.ModuleSymbol; 
-  var destructuring$ModuleVisitor = $src_codegeneration_module_ModuleVisitor_js, ModuleVisitor = destructuring$ModuleVisitor.ModuleVisitor; 
-  var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
-  function ModuleDefinitionVisitor(reporter, project, module) { 
-    ModuleVisitor.call(this, reporter, project, module); 
-  } 
-  ModuleDefinitionVisitor.prototype = createObject(ModuleVisitor.prototype, { visitModuleDefinition: function(tree) { 
-      var name = tree.name.value; 
-      if(this.checkForDuplicateModule_(name, tree)) { 
-        var parent = this.currentModule; 
-        var module = new ModuleSymbol(name, parent, tree, parent.url); 
-        parent.addModule(module); 
-      } 
-      ModuleVisitor.prototype.visitModuleDefinition.call(this, tree); 
-    } }); 
-  return Object.preventExtensions(Object.create(null, { ModuleDefinitionVisitor: { 
-      get: function() { 
-        return ModuleDefinitionVisitor; 
-      }, 
-      enumerable: true 
-    } })); 
-}).call(this); 
-var $src_semantics_symbols_ExportSymbol_js =(function() { 
-  "use strict"; 
-  var destructuring$Symbol = $src_semantics_symbols_Symbol_js, Symbol = destructuring$Symbol.Symbol; 
-  var destructuring$SymbolType = $src_semantics_symbols_SymbolType_js, SymbolType = destructuring$SymbolType.SymbolType; 
-  function ExportSymbol(tree, name, relatedTree) { 
-    Symbol.call(this, SymbolType.EXPORT, tree, name); 
-    this.relatedTree = relatedTree; 
-  } 
-  ExportSymbol.prototype = Object.create(Symbol.prototype); 
-  return Object.preventExtensions(Object.create(null, { ExportSymbol: { 
-      get: function() { 
-        return ExportSymbol; 
-      }, 
-      enumerable: true 
-    } })); 
-}).call(this); 
 var $src_codegeneration_module_ExportVisitor_js =(function() { 
   "use strict"; 
   var destructuring$ExportSymbol = $src_semantics_symbols_ExportSymbol_js, ExportSymbol = destructuring$ExportSymbol.ExportSymbol; 
@@ -2309,6 +2233,82 @@ var $src_codegeneration_module_ModuleDeclarationVisitor_js =(function() {
       enumerable: true 
     } })); 
 }).call(this); 
+var $src_semantics_symbols_ModuleSymbol_js =(function() { 
+  "use strict"; 
+  var destructuring$Symbol = $src_semantics_symbols_Symbol_js, Symbol = destructuring$Symbol.Symbol; 
+  var destructuring$SymbolType = $src_semantics_symbols_SymbolType_js, SymbolType = destructuring$SymbolType.SymbolType; 
+  var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
+  function ModuleSymbol(name, parent, tree, url) { 
+    Symbol.call(this, SymbolType.MODULE, tree, name); 
+    this.children_ = Object.create(null); 
+    this.exports_ = Object.create(null); 
+    this.parent = parent; 
+    this.tree = tree; 
+    if(! url) { 
+      console.error('Missing URL'); 
+    } 
+    this.url = url; 
+  } 
+  ModuleSymbol.prototype = createObject(Symbol.prototype, { 
+    addModule: function(module) { 
+      this.addModuleWithName(module, module.name); 
+    }, 
+    addModuleWithName: function(module, name) { 
+      this.children_[name]= module; 
+    }, 
+    hasModule: function(name) { 
+      return name in this.children_; 
+    }, 
+    getModule: function(name) { 
+      return this.children_[name]; 
+    }, 
+    hasExport: function(name) { 
+      return name in this.exports_; 
+    }, 
+    getExport: function(name) { 
+      return this.exports_[name]; 
+    }, 
+    addExport: function(name, exp) { 
+      this.exports_[name]= exp; 
+    }, 
+    getExports: function() { 
+      var exports = this.exports_; 
+      return Object.keys(exports).map((function(key) { 
+        return exports[key]; 
+      })); 
+    } 
+  }); 
+  return Object.preventExtensions(Object.create(null, { ModuleSymbol: { 
+      get: function() { 
+        return ModuleSymbol; 
+      }, 
+      enumerable: true 
+    } })); 
+}).call(this); 
+var $src_codegeneration_module_ModuleDefinitionVisitor_js =(function() { 
+  "use strict"; 
+  var destructuring$ModuleSymbol = $src_semantics_symbols_ModuleSymbol_js, ModuleSymbol = destructuring$ModuleSymbol.ModuleSymbol; 
+  var destructuring$ModuleVisitor = $src_codegeneration_module_ModuleVisitor_js, ModuleVisitor = destructuring$ModuleVisitor.ModuleVisitor; 
+  var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
+  function ModuleDefinitionVisitor(reporter, project, module) { 
+    ModuleVisitor.call(this, reporter, project, module); 
+  } 
+  ModuleDefinitionVisitor.prototype = createObject(ModuleVisitor.prototype, { visitModuleDefinition: function(tree) { 
+      var name = tree.name.value; 
+      if(this.checkForDuplicateModule_(name, tree)) { 
+        var parent = this.currentModule; 
+        var module = new ModuleSymbol(name, parent, tree, parent.url); 
+        parent.addModule(module); 
+      } 
+      ModuleVisitor.prototype.visitModuleDefinition.call(this, tree); 
+    } }); 
+  return Object.preventExtensions(Object.create(null, { ModuleDefinitionVisitor: { 
+      get: function() { 
+        return ModuleDefinitionVisitor; 
+      }, 
+      enumerable: true 
+    } })); 
+}).call(this); 
 var $src_codegeneration_module_ValidationVisitor_js =(function() { 
   "use strict"; 
   var destructuring$ModuleVisitor = $src_codegeneration_module_ModuleVisitor_js, ModuleVisitor = destructuring$ModuleVisitor.ModuleVisitor; 
@@ -2364,10 +2364,10 @@ var $src_codegeneration_module_ValidationVisitor_js =(function() {
 }).call(this); 
 var $src_semantics_ModuleAnalyzer_js =(function() { 
   "use strict"; 
-  var destructuring$ModuleDefinitionVisitor = $src_codegeneration_module_ModuleDefinitionVisitor_js, ModuleDefinitionVisitor = destructuring$ModuleDefinitionVisitor.ModuleDefinitionVisitor; 
   var destructuring$ExportVisitor = $src_codegeneration_module_ExportVisitor_js, ExportVisitor = destructuring$ExportVisitor.ExportVisitor; 
   var destructuring$ImportStarVisitor = $src_codegeneration_module_ImportStarVisitor_js, ImportStarVisitor = destructuring$ImportStarVisitor.ImportStarVisitor; 
   var destructuring$ModuleDeclarationVisitor = $src_codegeneration_module_ModuleDeclarationVisitor_js, ModuleDeclarationVisitor = destructuring$ModuleDeclarationVisitor.ModuleDeclarationVisitor; 
+  var destructuring$ModuleDefinitionVisitor = $src_codegeneration_module_ModuleDefinitionVisitor_js, ModuleDefinitionVisitor = destructuring$ModuleDefinitionVisitor.ModuleDefinitionVisitor; 
   var destructuring$ValidationVisitor = $src_codegeneration_module_ValidationVisitor_js, ValidationVisitor = destructuring$ValidationVisitor.ValidationVisitor; 
   function ModuleAnalyzer(reporter, project) { 
     this.reporter_ = reporter; 
@@ -2781,8 +2781,8 @@ var $src_syntax_PredefinedName_js =(function() {
 }).call(this); 
 var $src_syntax_trees_NullTree_js =(function() { 
   "use strict"; 
-  var destructuring$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType.ParseTreeType; 
   var destructuring$ParseTree = $src_syntax_trees_ParseTree_js, ParseTree = destructuring$ParseTree.ParseTree; 
+  var destructuring$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType.ParseTreeType; 
   var instance; 
   ParseTreeType.NULL_TREE = 'NULL_TREE'; 
   function NullTree() { 
@@ -2800,9 +2800,9 @@ var $src_syntax_trees_NullTree_js =(function() {
 }).call(this); 
 var $src_syntax_trees_ParseTrees_js =(function() { 
   "use strict"; 
-  var destructuring$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType.ParseTreeType; 
-  var destructuring$ParseTree = $src_syntax_trees_ParseTree_js, ParseTree = destructuring$ParseTree.ParseTree; 
   var destructuring$NullTree = $src_syntax_trees_NullTree_js, NullTree = destructuring$NullTree.NullTree; 
+  var destructuring$ParseTree = $src_syntax_trees_ParseTree_js, ParseTree = destructuring$ParseTree.ParseTree; 
+  var destructuring$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType.ParseTreeType; 
   function create(var_args) { 
     var args = arguments; 
     var Tree = function(location) { 
@@ -2925,14 +2925,14 @@ var $src_syntax_trees_ParseTrees_js =(function() {
 }).call(this); 
 var $src_codegeneration_ParseTreeFactory_js =(function() { 
   "use strict"; 
-  var destructuring$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType.ParseTreeType; 
-  var destructuring$ParseTree = $src_syntax_trees_ParseTree_js, ParseTree = destructuring$ParseTree.ParseTree; 
   var destructuring$IdentifierToken = $src_syntax_IdentifierToken_js, IdentifierToken = destructuring$IdentifierToken.IdentifierToken; 
   var destructuring$LiteralToken = $src_syntax_LiteralToken_js, LiteralToken = destructuring$LiteralToken.LiteralToken; 
+  var destructuring$ParseTree = $src_syntax_trees_ParseTree_js, ParseTree = destructuring$ParseTree.ParseTree; 
+  var destructuring$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType.ParseTreeType; 
   var destructuring$PredefinedName = $src_syntax_PredefinedName_js, PredefinedName = destructuring$PredefinedName.PredefinedName; 
-  var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
   var destructuring$Token = $src_syntax_Token_js, Token = destructuring$Token.Token; 
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
+  var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
   var ArgumentList = trees.ArgumentList; 
   var ArrayLiteralExpression = trees.ArrayLiteralExpression; 
   var ArrayPattern = trees.ArrayPattern; 
@@ -4243,24 +4243,6 @@ var $src_syntax_Keywords_js =(function() {
       enumerable: true 
     } })); 
 }).call(this); 
-var $src_util_SourcePosition_js =(function() { 
-  "use strict"; 
-  function SourcePosition(source, offset, line, column) { 
-    this.source = source; 
-    this.offset = offset; 
-    this.line = line; 
-    this.column = column; 
-  } 
-  SourcePosition.prototype = { toString: function() { 
-      return(this.source ? this.source.name: '') + ':' +(this.line + 1) + ':' +(this.column + 1); 
-    } }; 
-  return Object.preventExtensions(Object.create(null, { SourcePosition: { 
-      get: function() { 
-        return SourcePosition; 
-      }, 
-      enumerable: true 
-    } })); 
-}).call(this); 
 var $src_syntax_AtNameToken_js =(function() { 
   "use strict"; 
   var destructuring$Token = $src_syntax_Token_js, Token = destructuring$Token.Token; 
@@ -4280,13 +4262,31 @@ var $src_syntax_AtNameToken_js =(function() {
       enumerable: true 
     } })); 
 }).call(this); 
+var $src_util_SourcePosition_js =(function() { 
+  "use strict"; 
+  function SourcePosition(source, offset, line, column) { 
+    this.source = source; 
+    this.offset = offset; 
+    this.line = line; 
+    this.column = column; 
+  } 
+  SourcePosition.prototype = { toString: function() { 
+      return(this.source ? this.source.name: '') + ':' +(this.line + 1) + ':' +(this.column + 1); 
+    } }; 
+  return Object.preventExtensions(Object.create(null, { SourcePosition: { 
+      get: function() { 
+        return SourcePosition; 
+      }, 
+      enumerable: true 
+    } })); 
+}).call(this); 
 var $src_syntax_Scanner_js =(function() { 
   "use strict"; 
-  var destructuring$SourcePosition = $src_util_SourcePosition_js, SourcePosition = destructuring$SourcePosition.SourcePosition; 
   var destructuring$AtNameToken = $src_syntax_AtNameToken_js, AtNameToken = destructuring$AtNameToken.AtNameToken; 
   var destructuring$IdentifierToken = $src_syntax_IdentifierToken_js, IdentifierToken = destructuring$IdentifierToken.IdentifierToken; 
-  var destructuring$LiteralToken = $src_syntax_LiteralToken_js, LiteralToken = destructuring$LiteralToken.LiteralToken; 
   var destructuring$Keywords = $src_syntax_Keywords_js, Keywords = destructuring$Keywords.Keywords; 
+  var destructuring$LiteralToken = $src_syntax_LiteralToken_js, LiteralToken = destructuring$LiteralToken.LiteralToken; 
+  var destructuring$SourcePosition = $src_util_SourcePosition_js, SourcePosition = destructuring$SourcePosition.SourcePosition; 
   var destructuring$Token = $src_syntax_Token_js, Token = destructuring$Token.Token; 
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
   function Scanner(errorReporter, file, opt_offset) { 
@@ -7417,7 +7417,7 @@ var $src_codegeneration_RuntimeInliner_js =(function() {
   var createVariableDeclaration = ParseTreeFactory.createVariableDeclaration; 
   var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList; 
   var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression; 
-  var shared = { toObject: "function(value) {\n          if (value == null)\n            throw TypeError();\n          return Object(value);\n        }" }; 
+  var shared = { toObject: "function(value) {\n        if (value == null)\n          throw TypeError();\n        return Object(value);\n      }" }; 
   function parse(source, name) { 
     var file = new SourceFile(name + '@runtime', source); 
     var errorReporter = new MutedErrorReporter(); 
@@ -8512,8 +8512,8 @@ var $src_outputgeneration_ParseTreeMapWriter_js =(function() {
 }).call(this); 
 var $src_outputgeneration_TreeWriter_js =(function() { 
   "use strict"; 
-  var destructuring$ParseTreeWriter = $src_outputgeneration_ParseTreeWriter_js, ParseTreeWriter = destructuring$ParseTreeWriter.ParseTreeWriter; 
   var destructuring$ParseTreeMapWriter = $src_outputgeneration_ParseTreeMapWriter_js, ParseTreeMapWriter = destructuring$ParseTreeMapWriter.ParseTreeMapWriter; 
+  var destructuring$ParseTreeWriter = $src_outputgeneration_ParseTreeWriter_js, ParseTreeWriter = destructuring$ParseTreeWriter.ParseTreeWriter; 
   function TreeWriter() { } 
   TreeWriter.write = function(tree, opt_options) { 
     var showLineNumbers; 
@@ -11104,8 +11104,8 @@ var $src_semantics_FreeVariableChecker_js =(function() {
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
   var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
-  var IdentifierExpression = trees.IdentifierExpression; 
   var BindingIdentifier = trees.BindingIdentifier; 
+  var IdentifierExpression = trees.IdentifierExpression; 
   function FreeVariableChecker(reporter) { 
     ParseTreeVisitor.call(this); 
     this.reporter_ = reporter; 
@@ -11297,16 +11297,16 @@ var $src_codegeneration_GeneratorComprehensionTransformer_js =(function() {
 }).call(this); 
 var $src_codegeneration_generator_State_js =(function() { 
   "use strict"; 
-  var destructuring$PredefinedName = $src_syntax_PredefinedName_js, PredefinedName = destructuring$PredefinedName.PredefinedName; 
   var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
-  var createCaseClause = ParseTreeFactory.createCaseClause; 
-  var createStatementList = ParseTreeFactory.createStatementList; 
-  var createBreakStatement = ParseTreeFactory.createBreakStatement; 
-  var createStatementList = ParseTreeFactory.createStatementList; 
-  var createAssignmentStatement = ParseTreeFactory.createAssignmentStatement; 
+  var destructuring$PredefinedName = $src_syntax_PredefinedName_js, PredefinedName = destructuring$PredefinedName.PredefinedName; 
   var createAssignStateStatement = ParseTreeFactory.createAssignStateStatement; 
+  var createAssignmentStatement = ParseTreeFactory.createAssignmentStatement; 
+  var createBreakStatement = ParseTreeFactory.createBreakStatement; 
+  var createCaseClause = ParseTreeFactory.createCaseClause; 
   var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression; 
   var createNumberLiteral = ParseTreeFactory.createNumberLiteral; 
+  var createStatementList = ParseTreeFactory.createStatementList; 
+  var createStatementList = ParseTreeFactory.createStatementList; 
   function State(id) { 
     this.id = id; 
   } 
@@ -11757,8 +11757,8 @@ var $src_codegeneration_generator_SwitchState_js =(function() {
   var CaseClause = trees.CaseClause; 
   var DefaultClause = trees.DefaultClause; 
   var SwitchStatement = trees.SwitchStatement; 
-  var createStatementList = ParseTreeFactory.createStatementList; 
   var createBreakStatement = ParseTreeFactory.createBreakStatement; 
+  var createStatementList = ParseTreeFactory.createStatementList; 
   function SwitchClause(first, second) { 
     this.first = first; 
     this.second = second; 
@@ -12608,8 +12608,8 @@ var $src_codegeneration_generator_GeneratorTransformer_js =(function() {
   var destructuring$YieldState = $src_codegeneration_generator_YieldState_js, YieldState = destructuring$YieldState.YieldState; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
   var createArgumentList = ParseTreeFactory.createArgumentList; 
-  var createAssignmentStatement = ParseTreeFactory.createAssignmentStatement; 
   var createAssignStateStatement = ParseTreeFactory.createAssignStateStatement; 
+  var createAssignmentStatement = ParseTreeFactory.createAssignmentStatement; 
   var createBlock = ParseTreeFactory.createBlock; 
   var createCallExpression = ParseTreeFactory.createCallExpression; 
   var createEmptyParameterList = ParseTreeFactory.createEmptyParameterList; 
@@ -12872,8 +12872,8 @@ var $src_codegeneration_ObjectLiteralTransformer_js =(function() {
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
   var destructuring$evaluateStringLiteral = $src_util_util_js, evaluateStringLiteral = destructuring$evaluateStringLiteral.evaluateStringLiteral; 
-  var destructuring$traceurOptions = $src_options_js, traceurOptions = destructuring$traceurOptions.options; 
   var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
+  var destructuring$traceurOptions = $src_options_js, traceurOptions = destructuring$traceurOptions.options; 
   var FormalParameterList = trees.FormalParameterList; 
   var FunctionDeclaration = trees.FunctionDeclaration; 
   var IdentifierExpression = trees.IdentifierExpression; 
@@ -13463,8 +13463,8 @@ var $src_codegeneration_SpreadTransformer_js =(function() {
   var createParenExpression = ParseTreeFactory.createParenExpression; 
   var createReturnStatement = ParseTreeFactory.createReturnStatement; 
   var APPLY = PredefinedName.APPLY; 
-  var SPREAD_CODE = "\n      function(items) {\n        var retval = [];\n        var k = 0;\n        for (var i = 0; i < items.length; i += 2) {\n          var value = items[i + 1];\n          // spread\n          if (items[i]) {\n            value = %toObject(value);\n            for (var j = 0; j < value.length; j++) {\n              retval[k++] = value[j];\n            }\n          } else {\n            retval[k++] = value;\n          }\n        }\n        return retval;\n      }"; 
-  var SPREAD_NEW_CODE = "\n      function(ctor, items) {\n        var args = %spread(items);\n        args.unshift(null);\n        return new (Function.prototype.bind.apply(ctor, args));\n      }"; 
+  var SPREAD_CODE = "\n    function(items) {\n      var retval = [];\n      var k = 0;\n      for (var i = 0; i < items.length; i += 2) {\n        var value = items[i + 1];\n        // spread\n        if (items[i]) {\n          value = %toObject(value);\n          for (var j = 0; j < value.length; j++) {\n            retval[k++] = value[j];\n          }\n        } else {\n          retval[k++] = value;\n        }\n      }\n      return retval;\n    }"; 
+  var SPREAD_NEW_CODE = "\n    function(ctor, items) {\n      var args = %spread(items);\n      args.unshift(null);\n      return new (Function.prototype.bind.apply(ctor, args));\n    }"; 
   function hasSpreadMember(trees) { 
     return trees.some((function(tree) { 
       return tree.type == ParseTreeType.SPREAD_EXPRESSION; 

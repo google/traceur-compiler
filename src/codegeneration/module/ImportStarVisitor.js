@@ -17,32 +17,32 @@ import ParseTreeType from '../../syntax/trees/ParseTree.js';
 import TokenType from '../../syntax/TokenType.js';
 import createObject from '../../util/util.js';
 
-  /**
-   * Finds all 'import * from moduleExpression' and associates the tree with
-   * the module symbol.
-   *
-   * @param {traceur.util.ErrorReporter} reporter
-   * @param {ProjectSymbol} project
-   * @param {ModuleSymbol} module The root of the module system.
-   * @constructor
-   * @extends {ModuleVisitor}
-   */
-  export function ImportStarVisitor(reporter, project, module) {
-    ModuleVisitor.call(this, reporter, project, module);
-  }
+/**
+ * Finds all 'import * from moduleExpression' and associates the tree with
+ * the module symbol.
+ *
+ * @param {traceur.util.ErrorReporter} reporter
+ * @param {ProjectSymbol} project
+ * @param {ModuleSymbol} module The root of the module system.
+ * @constructor
+ * @extends {ModuleVisitor}
+ */
+export function ImportStarVisitor(reporter, project, module) {
+  ModuleVisitor.call(this, reporter, project, module);
+}
 
-  ImportStarVisitor.prototype = createObject(
-      ModuleVisitor.prototype, {
+ImportStarVisitor.prototype = createObject(
+    ModuleVisitor.prototype, {
 
-    visitImportBinding: function(tree) {
-      // If we find an 'import * from m' we associate the tree with the module
-      // so that we can have access to it during the transformation phase.
-      var importSpecifierSet = tree.importSpecifierSet;
-      if (importSpecifierSet.type === ParseTreeType.IMPORT_SPECIFIER_SET &&
-          importSpecifierSet.specifiers.type === TokenType.STAR) {
+  visitImportBinding: function(tree) {
+    // If we find an 'import * from m' we associate the tree with the module
+    // so that we can have access to it during the transformation phase.
+    var importSpecifierSet = tree.importSpecifierSet;
+    if (importSpecifierSet.type === ParseTreeType.IMPORT_SPECIFIER_SET &&
+        importSpecifierSet.specifiers.type === TokenType.STAR) {
 
-        var module = this.getModuleForModuleExpression(tree.moduleExpression);
-        this.project.setModuleForStarTree(importSpecifierSet, module);
-      }
+      var module = this.getModuleForModuleExpression(tree.moduleExpression);
+      this.project.setModuleForStarTree(importSpecifierSet, module);
     }
-  });
+  }
+});

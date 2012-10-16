@@ -15,28 +15,28 @@
 import FindVisitor from 'FindVisitor.js';
 import createObject from '../util/util.js';
 
-  /**
-   * This is used to find something in a tree. Extend this class and override
-   * the desired visit functions to find what you are looking for. When the tree
-   * you are looking for is found set |this.found| to true. This will abort the
-   * search of the remaining sub trees.
-   *
-   * Does not search into nested functions.
-   *
-   * @param {ParseTree} tree
-   * @extends {FindVisitor}
-   * @constructor
-   */
-  export function FindInFunctionScope(tree) {
-    FindVisitor.call(this, tree);
-  }
+/**
+ * This is used to find something in a tree. Extend this class and override
+ * the desired visit functions to find what you are looking for. When the tree
+ * you are looking for is found set |this.found| to true. This will abort the
+ * search of the remaining sub trees.
+ *
+ * Does not search into nested functions.
+ *
+ * @param {ParseTree} tree
+ * @extends {FindVisitor}
+ * @constructor
+ */
+export function FindInFunctionScope(tree) {
+  FindVisitor.call(this, tree);
+}
 
-  FindInFunctionScope.prototype = createObject(
-      FindVisitor.prototype, {
+FindInFunctionScope.prototype = createObject(
+    FindVisitor.prototype, {
 
-    // don't visit function children or bodies
-    visitFunctionDeclaration: function(tree) {},
-    visitSetAccessor: function(tree) {},
-    visitGetAccessor: function(tree) {},
-    visitPropertyMethodAssignment: function(tree) {}
-  });
+  // don't visit function children or bodies
+  visitFunctionDeclaration: function(tree) {},
+  visitSetAccessor: function(tree) {},
+  visitGetAccessor: function(tree) {},
+  visitPropertyMethodAssignment: function(tree) {}
+});

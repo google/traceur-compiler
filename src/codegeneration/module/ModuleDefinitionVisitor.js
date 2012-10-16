@@ -16,32 +16,32 @@ import ModuleSymbol from '../../semantics/symbols/ModuleSymbol.js';
 import ModuleVisitor from 'ModuleVisitor.js';
 import createObject from '../../util/util.js';
 
-  /**
-   * Visits a parse tree and adds all the module definitions.
-   *
-   *   module m { ... }
-   *
-   * @param {traceur.util.ErrorReporter} reporter
-   * @param {ProjectSymbol} project
-   * @param {ModuleSymbol} module The root of the module system.
-   * @constructor
-   * @extends {ModuleVisitor}
-   */
-  export function ModuleDefinitionVisitor(reporter, project, module) {
-    ModuleVisitor.call(this, reporter, project, module);
-  }
+/**
+ * Visits a parse tree and adds all the module definitions.
+ *
+ *   module m { ... }
+ *
+ * @param {traceur.util.ErrorReporter} reporter
+ * @param {ProjectSymbol} project
+ * @param {ModuleSymbol} module The root of the module system.
+ * @constructor
+ * @extends {ModuleVisitor}
+ */
+export function ModuleDefinitionVisitor(reporter, project, module) {
+  ModuleVisitor.call(this, reporter, project, module);
+}
 
-  ModuleDefinitionVisitor.prototype = createObject(
-      ModuleVisitor.prototype, {
+ModuleDefinitionVisitor.prototype = createObject(
+    ModuleVisitor.prototype, {
 
-    visitModuleDefinition: function(tree) {
-      var name = tree.name.value;
-      if (this.checkForDuplicateModule_(name, tree)) {
-        var parent = this.currentModule;
-        var module = new ModuleSymbol(name, parent, tree, parent.url);
-        parent.addModule(module);
-      }
-
-      ModuleVisitor.prototype.visitModuleDefinition.call(this, tree);
+  visitModuleDefinition: function(tree) {
+    var name = tree.name.value;
+    if (this.checkForDuplicateModule_(name, tree)) {
+      var parent = this.currentModule;
+      var module = new ModuleSymbol(name, parent, tree, parent.url);
+      parent.addModule(module);
     }
-  });
+
+    ModuleVisitor.prototype.visitModuleDefinition.call(this, tree);
+  }
+});
