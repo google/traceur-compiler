@@ -20,13 +20,21 @@
 var Kind = {
   /**
    * This includes all the implemented features that are also in the ES6
-   * spec draft.
+   * spec draft. See the latest drafts at:
+   *    http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts
    */
   es6: 'es6',
 
   /**
-   * This is used for the Harmony features that are not yet in ES6. These
-   * are classified as proposals on the ES wiki:
+   * This is used for accepted ES6 features that are not yet in a draft of the
+   * spec. See the full list of accepted proposals here:
+   *   http://wiki.ecmascript.org/doku.php?id=harmony:proposals
+   */
+  es6proposal: 'es6proposal',
+
+  /**
+   * This is used for the Harmony features that are not yet in any draft. These
+   * are a subset of the proposals on the ES wiki:
    *   http://wiki.ecmascript.org/doku.php?id=harmony:proposals
    */
   harmony: 'harmony',
@@ -84,6 +92,19 @@ var options = {
   },
   get es6() {
     return getValue(Kind.es6);
+  },
+
+  /**
+   * Meta option. Sets all options that are of Kind.es6proposal
+   * When getting this will return null if not all options of this kind
+   * have the same value.
+   * @type {boolean|null}
+   */
+  set es6proposal(v) {
+    enable(Kind.es6proposal, Boolean(v));
+  },
+  get es6proposal() {
+    return getValue(Kind.es6proposal);
   },
 
   /**
@@ -251,28 +272,28 @@ function addBoolOption(name) {
   options[name] = true;
 }
 
-addFeatureOption('arrowFunctions', Kind.es6);
-addFeatureOption('blockBinding', Kind.es6);
-addFeatureOption('classes', Kind.es6);
-addFeatureOption('defaultParameters', Kind.es6);
-addFeatureOption('destructuring', Kind.es6);
-addFeatureOption('isExpression', Kind.es6);
-addFeatureOption('propertyMethods', Kind.es6);
+addFeatureOption('arrayComprehension', Kind.es6); // 11.4.1.2
+addFeatureOption('arrowFunctions', Kind.es6);     // 13.2
+addFeatureOption('blockBinding', Kind.es6);       // 12.1
+addFeatureOption('classes', Kind.es6);            // 13.5
+addFeatureOption('defaultParameters', Kind.es6);  // Cant find this in the spec
+addFeatureOption('destructuring', Kind.es6);      // 11.13.1
+addFeatureOption('forOf', Kind.es6);              // 12.6.4
+addFeatureOption('isExpression', Kind.es6);       // 11.9
+addFeatureOption('propertyMethods', Kind.es6);    // 13.3
 addFeatureOption('propertyNameShorthand', Kind.es6);
-addFeatureOption('quasi', Kind.es6);
-addFeatureOption('restParameters', Kind.es6);
-addFeatureOption('spread', Kind.es6);
+addFeatureOption('quasi', Kind.es6);              // 7.6.8
+addFeatureOption('restParameters', Kind.es6);     // 13.1
+addFeatureOption('spread', Kind.es6);             // 11.1.4, 11.2.5
 
-addFeatureOption('arrayComprehension', Kind.harmony);
-addFeatureOption('forOf', Kind.harmony);
-addFeatureOption('generatorComprehension', Kind.harmony);
-addFeatureOption('generators', Kind.harmony);
-addFeatureOption('modules', Kind.harmony);
-addFeatureOption('privateNameSyntax', Kind.harmony);
-addFeatureOption('privateNames', Kind.harmony);
+addFeatureOption('generatorComprehension', Kind.es6proposal);
+addFeatureOption('generators', Kind.es6proposal); // 13.4, incomplete
+addFeatureOption('modules', Kind.es6proposal);    // 14
+addFeatureOption('privateNameSyntax', Kind.es6proposal);
+addFeatureOption('privateNames', Kind.es6proposal);
 
 addFeatureOption('cascadeExpression', Kind.experimental);
-addFeatureOption('collections', Kind.experimental);
+addFeatureOption('trapMemberLookup', Kind.experimental);
 addFeatureOption('deferredFunctions', Kind.experimental);
 addFeatureOption('propertyOptionalComma', Kind.experimental);
 

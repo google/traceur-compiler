@@ -743,13 +743,13 @@ traceur.runtime =(function(global) {
     return $hasOwnProperty.call(this, name); 
   } 
   function elementDelete(object, name) { 
-    if(traceur.options.collections && hasPrivateNameProperty(object, elementDeleteName)) { 
+    if(traceur.options.trapMemberLookup && hasPrivateNameProperty(object, elementDeleteName)) { 
       return getProperty(object, elementDeleteName).call(object, name); 
     } 
     return deleteProperty(object, name); 
   } 
   function elementGet(object, name) { 
-    if(traceur.options.collections && hasPrivateNameProperty(object, elementGetName)) { 
+    if(traceur.options.trapMemberLookup && hasPrivateNameProperty(object, elementGetName)) { 
       return getProperty(object, elementGetName).call(object, name); 
     } 
     return getProperty(object, name); 
@@ -758,7 +758,7 @@ traceur.runtime =(function(global) {
     return has(object, name); 
   } 
   function elementSet(object, name, value) { 
-    if(traceur.options.collections && hasPrivateNameProperty(object, elementSetName)) { 
+    if(traceur.options.trapMemberLookup && hasPrivateNameProperty(object, elementSetName)) { 
       getProperty(object, elementSetName).call(object, name, value); 
     } else { 
       setProperty(object, name, value); 
@@ -968,6 +968,7 @@ var $src_options_js =(function() {
   "use strict"; 
   var Kind = { 
     es6: 'es6', 
+    es6proposal: 'es6proposal', 
     harmony: 'harmony', 
     experimental: 'experimental' 
   }; 
@@ -1005,6 +1006,12 @@ var $src_options_js =(function() {
     }, 
     get es6() { 
       return getValue(Kind.es6); 
+    }, 
+    set es6proposal(v) { 
+      enable(Kind.es6proposal, Boolean(v)); 
+    }, 
+    get es6proposal() { 
+      return getValue(Kind.es6proposal); 
     }, 
     set harmony(v) { 
       enable(Kind.harmony, Boolean(v)); 
@@ -1108,26 +1115,26 @@ var $src_options_js =(function() {
     defaultValues[name]= true; 
     options[name]= true; 
   } 
+  addFeatureOption('arrayComprehension', Kind.es6); 
   addFeatureOption('arrowFunctions', Kind.es6); 
   addFeatureOption('blockBinding', Kind.es6); 
   addFeatureOption('classes', Kind.es6); 
   addFeatureOption('defaultParameters', Kind.es6); 
   addFeatureOption('destructuring', Kind.es6); 
+  addFeatureOption('forOf', Kind.es6); 
   addFeatureOption('isExpression', Kind.es6); 
   addFeatureOption('propertyMethods', Kind.es6); 
   addFeatureOption('propertyNameShorthand', Kind.es6); 
   addFeatureOption('quasi', Kind.es6); 
   addFeatureOption('restParameters', Kind.es6); 
   addFeatureOption('spread', Kind.es6); 
-  addFeatureOption('arrayComprehension', Kind.harmony); 
-  addFeatureOption('forOf', Kind.harmony); 
-  addFeatureOption('generatorComprehension', Kind.harmony); 
-  addFeatureOption('generators', Kind.harmony); 
-  addFeatureOption('modules', Kind.harmony); 
-  addFeatureOption('privateNameSyntax', Kind.harmony); 
-  addFeatureOption('privateNames', Kind.harmony); 
+  addFeatureOption('generatorComprehension', Kind.es6proposal); 
+  addFeatureOption('generators', Kind.es6proposal); 
+  addFeatureOption('modules', Kind.es6proposal); 
+  addFeatureOption('privateNameSyntax', Kind.es6proposal); 
+  addFeatureOption('privateNames', Kind.es6proposal); 
   addFeatureOption('cascadeExpression', Kind.experimental); 
-  addFeatureOption('collections', Kind.experimental); 
+  addFeatureOption('trapMemberLookup', Kind.experimental); 
   addFeatureOption('deferredFunctions', Kind.experimental); 
   addFeatureOption('propertyOptionalComma', Kind.experimental); 
   addBoolOption('debug'); 
@@ -13816,7 +13823,7 @@ var $src_codegeneration_ProgramTransformer_js =(function() {
       chain(true, runtimeInliner.transformAny.bind(runtimeInliner)); 
       chain(options.blockBinding, BlockBindingTransformer.transformTree); 
       chain(options.cascadeExpression, CascadeExpressionTransformer.transformTree, identifierGenerator, reporter); 
-      chain(options.collections || options.privateNames, CollectionTransformer.transformTree, identifierGenerator); 
+      chain(options.trapMemberLookup || options.privateNames, CollectionTransformer.transformTree, identifierGenerator); 
       chain(traceurOptions.freeVariableChecker, FreeVariableChecker.checkProgram, reporter); 
       return tree; 
     }, 

@@ -1,4 +1,4 @@
-// Options: --collections
+// Options: --trap-member-lookup
 
 import {elementGet, elementSet, elementDelete} from '@name';
 

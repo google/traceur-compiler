@@ -260,7 +260,7 @@ traceur.runtime = (function(global) {
   }
 
   function elementDelete(object, name) {
-    if (traceur.options.collections &&
+    if (traceur.options.trapMemberLookup &&
         hasPrivateNameProperty(object, elementDeleteName)) {
       return getProperty(object, elementDeleteName).call(object, name);
     }
@@ -268,7 +268,7 @@ traceur.runtime = (function(global) {
   }
 
   function elementGet(object, name) {
-    if (traceur.options.collections &&
+    if (traceur.options.trapMemberLookup &&
         hasPrivateNameProperty(object, elementGetName)) {
       return getProperty(object, elementGetName).call(object, name);
     }
@@ -281,7 +281,7 @@ traceur.runtime = (function(global) {
   }
 
   function elementSet(object, name, value) {
-    if (traceur.options.collections &&
+    if (traceur.options.trapMemberLookup &&
         hasPrivateNameProperty(object, elementSetName)) {
       getProperty(object, elementSetName).call(object, name, value);
     } else {

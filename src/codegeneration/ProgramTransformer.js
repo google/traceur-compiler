@@ -233,7 +233,7 @@ ProgramTransformer.prototype = {
           identifierGenerator,
           reporter);
 
-    chain(options.collections || options.privateNames,
+    chain(options.trapMemberLookup || options.privateNames,
           CollectionTransformer.transformTree,
           identifierGenerator);
 

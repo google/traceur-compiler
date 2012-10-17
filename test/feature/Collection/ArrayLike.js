@@ -1,4 +1,4 @@
-// Options: --collections
+// Options: --trap-member-lookup
 
 module Name from '@name';
 
