@@ -15,12 +15,13 @@
 import ParseTreeFactory from 'ParseTreeFactory.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import PredefinedName from '../syntax/PredefinedName.js';
-import VariableBinder from '../semantics/VariableBinder.js';
+import {
+  variablesInFunction,
+  variablesInBlock
+} from '../semantics/VariableBinder.js';
 import createObject from '../util/util.js';
 import trees from '../syntax/trees/ParseTrees.js';
 
-var variablesInFunction = VariableBinder.variablesInFunction;
-var variablesInBlock = VariableBinder.variablesInBlock;
 var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
 var Block = trees.Block;
 var Catch = trees.Catch;

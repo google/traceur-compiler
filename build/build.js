@@ -61,6 +61,7 @@ traceur.options.arrowFunctions = true;
 traceur.options.modules = true;
 traceur.options.destructuring = true;
 traceur.options.quasi = true;
+traceur.options.spread = true;
 
 var reporter = new ErrorReporter();
 

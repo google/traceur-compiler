@@ -86,8 +86,7 @@ export function VariableBinder(includeFunctionScope, scope) {
  * @param {boolean=} includeFunctionScope
  * @return {Object}
  */
-VariableBinder.variablesInBlock = function(tree,
-    includeFunctionScope) {
+export function variablesInBlock(tree, includeFunctionScope) {
   var binder = new VariableBinder(includeFunctionScope, tree);
   binder.visitAny(tree);
   return binder.identifiers_;
@@ -131,7 +130,7 @@ VariableBinder.variablesInBlock = function(tree,
  * @param {FunctionDeclaration} tree
  * @return {Object}
  */
-VariableBinder.variablesInFunction = function(tree) {
+export function variablesInFunction(tree) {
   var binder = new VariableBinder(true, tree.functionBody);
   binder.bindVariablesInFunction_(tree);
   return binder.identifiers_;

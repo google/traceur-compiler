@@ -30,7 +30,7 @@ import SwitchClause from 'SwitchState.js';
 import SwitchState from 'SwitchState.js';
 import TokenType from '../../syntax/TokenType.js';
 import TryState from 'TryState.js';
-import VariableBinder from '../../semantics/VariableBinder.js';
+import variablesInBlock from '../../semantics/VariableBinder.js';
 import createObject from '../../util/util.js';
 import trees from '../../syntax/trees/ParseTrees.js';
 
@@ -827,8 +827,7 @@ CPSTransformer.prototype = createObject(proto, {
         createVariableStatement(TokenType.VAR, PredefinedName.FINALLY_FALL_THROUGH, null));
 
     // Lift locals ...
-    var liftedIdentifiers =
-        VariableBinder.variablesInBlock(tree, true);
+    var liftedIdentifiers = variablesInBlock(tree, true);
 
     // ... and caught exceptions
     // TODO: this changes the scope of caught exception variables from 'let to 'var'.

@@ -1,4 +1,23 @@
 
+var $__1 = function(value) { 
+  if(value == null) throw TypeError(); 
+  return Object(value); 
+}, $__2 = function(items) { 
+  var retval =[]; 
+  var k = 0; 
+  for(var i = 0; i < items.length; i += 2) { 
+    var value = items[i + 1]; 
+    if(items[i]) { 
+      value = $__1(value); 
+      for(var j = 0; j < value.length; j ++) { 
+        retval[k ++]= value[j]; 
+      } 
+    } else { 
+      retval[k ++]= value; 
+    } 
+  } 
+  return retval; 
+}; 
 (function(global, factory) { 
   if(typeof exports === 'object') { 
     module.exports = factory(); 
@@ -7612,16 +7631,18 @@ var $src_semantics_VariableBinder_js =(function() {
     this.block_ = null; 
     this.identifiers_ = Object.create(null); 
   } 
-  VariableBinder.variablesInBlock = function(tree, includeFunctionScope) { 
+  function variablesInBlock(tree, includeFunctionScope) { 
     var binder = new VariableBinder(includeFunctionScope, tree); 
     binder.visitAny(tree); 
     return binder.identifiers_; 
-  }; 
-  VariableBinder.variablesInFunction = function(tree) { 
+  } 
+  ; 
+  function variablesInFunction(tree) { 
     var binder = new VariableBinder(true, tree.functionBody); 
     binder.bindVariablesInFunction_(tree); 
     return binder.identifiers_; 
-  }; 
+  } 
+  ; 
   var proto = ParseTreeVisitor.prototype; 
   VariableBinder.prototype = createObject(proto, { 
     bindVariablesInFunction_: function(tree) { 
@@ -7717,12 +7738,26 @@ var $src_semantics_VariableBinder_js =(function() {
       } 
     } 
   }); 
-  return Object.preventExtensions(Object.create(null, { VariableBinder: { 
+  return Object.preventExtensions(Object.create(null, { 
+    VariableBinder: { 
       get: function() { 
         return VariableBinder; 
       }, 
       enumerable: true 
-    } })); 
+    }, 
+    variablesInBlock: { 
+      get: function() { 
+        return variablesInBlock; 
+      }, 
+      enumerable: true 
+    }, 
+    variablesInFunction: { 
+      get: function() { 
+        return variablesInFunction; 
+      }, 
+      enumerable: true 
+    } 
+  })); 
 }).call(this); 
 var $src_util_TestErrorReporter_js =(function() { 
   "use strict"; 
@@ -9366,11 +9401,9 @@ var $src_codegeneration_AlphaRenamer_js =(function() {
   var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$ParseTreeTransformer = $src_codegeneration_ParseTreeTransformer_js, ParseTreeTransformer = destructuring$ParseTreeTransformer.ParseTreeTransformer; 
   var destructuring$PredefinedName = $src_syntax_PredefinedName_js, PredefinedName = destructuring$PredefinedName.PredefinedName; 
-  var destructuring$VariableBinder = $src_semantics_VariableBinder_js, VariableBinder = destructuring$VariableBinder.VariableBinder; 
+  var destructuring$variablesInBlock$variablesInFunction = $src_semantics_VariableBinder_js, variablesInFunction = destructuring$variablesInBlock$variablesInFunction.variablesInFunction, variablesInBlock = destructuring$variablesInBlock$variablesInFunction.variablesInBlock; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
   var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
-  var variablesInFunction = VariableBinder.variablesInFunction; 
-  var variablesInBlock = VariableBinder.variablesInBlock; 
   var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression; 
   var Block = trees.Block; 
   var Catch = trees.Catch; 
@@ -11822,7 +11855,7 @@ var $src_codegeneration_generator_CPSTransformer_js =(function() {
   var destructuring$SwitchState = $src_codegeneration_generator_SwitchState_js, SwitchState = destructuring$SwitchState.SwitchState; 
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
   var destructuring$TryState = $src_codegeneration_generator_TryState_js, TryState = destructuring$TryState.TryState; 
-  var destructuring$VariableBinder = $src_semantics_VariableBinder_js, VariableBinder = destructuring$VariableBinder.VariableBinder; 
+  var destructuring$variablesInBlock = $src_semantics_VariableBinder_js, variablesInBlock = destructuring$variablesInBlock.variablesInBlock; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
   var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
   var CaseClause = trees.CaseClause; 
@@ -12182,7 +12215,7 @@ var $src_codegeneration_generator_CPSTransformer_js =(function() {
       statements.push(createVariableStatement(TokenType.VAR, PredefinedName.STATE, createNumberLiteral(machine.startState))); 
       statements.push(createVariableStatement(TokenType.VAR, PredefinedName.STORED_EXCEPTION, null)); 
       statements.push(createVariableStatement(TokenType.VAR, PredefinedName.FINALLY_FALL_THROUGH, null)); 
-      var liftedIdentifiers = VariableBinder.variablesInBlock(tree, true); 
+      var liftedIdentifiers = variablesInBlock(tree, true); 
       var allCatchStates = machine.allCatchStates(); 
       for(var i = 0; i < allCatchStates.length; i ++) { 
         liftedIdentifiers[allCatchStates[i].identifier]= true; 
@@ -14245,6 +14278,14 @@ var traceur =(function() {
     return cur; 
   } 
   ; 
+  function generateNameForUrl(url, commonPath) { 
+    return '$' + url.replace(commonPath, '').replace(/[^\d\w$]/g, '_'); 
+  } 
+  ; 
+  function getModuleForTesting(name) { 
+    return global[$__2([false, '$src', true, name.split('.'), false, 'js']).join('_')]; 
+  } 
+  ; 
   function define(name, fun) { 
     var obj = exportPath(name); 
     var exports = fun(); 
@@ -14535,6 +14576,18 @@ var traceur =(function() {
     createObject: { 
       get: function() { 
         return createObject; 
+      }, 
+      enumerable: true 
+    }, 
+    generateNameForUrl: { 
+      get: function() { 
+        return generateNameForUrl; 
+      }, 
+      enumerable: true 
+    }, 
+    getModuleForTesting: { 
+      get: function() { 
+        return getModuleForTesting; 
       }, 
       enumerable: true 
     }, 

@@ -48,6 +48,31 @@ module traceur {
   };
 
   /**
+   * Generates an identifier string that represents a URL.
+   * @param {string} url
+   * @param {string} commonPath
+   * @return {string}
+   */
+  export function generateNameForUrl(url, commonPath) {
+    return '$' + url.replace(commonPath, '').replace(/[^\d\w$]/g, '_');
+  };
+
+  /**
+   * Maps a module name back from a dotted version under the global traceur
+   * object. Essentially the opposite of generateNameForUrl(url, commonPath)
+   * but specifically used for Traceur-specific code and for use *only in
+   * testing code*.
+   * example:
+   * traceur.getModuleForTesting("semantics.VariableBinder") -> 
+   *    module object of the file src/semantics/VariableBinder.js
+   * @param {string} name Dot-delimited module name.
+   * @protected
+   */
+  export function getModuleForTesting(name) {
+    return global[['$src', ...name.split('.'), 'js'].join('_')];
+  };
+
+  /**
    * @param {string} name
    * @param {!Function} fun
    */

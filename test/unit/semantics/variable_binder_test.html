@@ -30,7 +30,10 @@ goog.require('goog.testing.jsunit');
 <body>
 <script>
 
-var VariableBinder = traceur.semantics.VariableBinder;
+var variablesInBlock =
+    traceur.getModuleForTesting('semantics.VariableBinder').variablesInBlock;
+var variablesInFunction =
+    traceur.getModuleForTesting('semantics.VariableBinder').variablesInFunction;
 var Parser = traceur.syntax.Parser;
 var SourceFile = traceur.syntax.SourceFile;
 var ErrorReporter = traceur.util.ErrorReporter;
@@ -48,24 +51,24 @@ function idsToString(identifiers) {
 }
 
 function testBoundIdentifiersInBlock() {
-  assertEquals('f', idsToString(VariableBinder.variablesInBlock(parse(
+  assertEquals('f', idsToString(variablesInBlock(parse(
       '{ function f(x) { var y; }; }'), false)));
-  assertEquals('', idsToString(VariableBinder.variablesInBlock(parse(
+  assertEquals('', idsToString(variablesInBlock(parse(
       '{ var x = function f() {}; }'), false)));
-  assertEquals('x', idsToString(VariableBinder.variablesInBlock(parse(
+  assertEquals('x', idsToString(variablesInBlock(parse(
       '{ let x = function f() {}; }'), false)));
 
   // Now set includeFunctionScope = true
-  assertEquals('f', idsToString(VariableBinder.variablesInBlock(parse(
+  assertEquals('f', idsToString(variablesInBlock(parse(
       '{ function f(x) { var y; }; }'), true)));
-  assertEquals('x', idsToString(VariableBinder.variablesInBlock(parse(
+  assertEquals('x', idsToString(variablesInBlock(parse(
       '{ var x = function f() {}; }'), true)));
 }
 
 function testBoundIdentifiersInFunction() {
-  assertEquals('x,y', idsToString(VariableBinder.variablesInFunction(parse(
+  assertEquals('x,y', idsToString(variablesInFunction(parse(
       'function f(x) { var y; f(); }'))));
-  assertEquals('', idsToString(VariableBinder.variablesInFunction(parse(
+  assertEquals('', idsToString(variablesInFunction(parse(
       'function f() { try { } catch (x) { function g(y) { } } }'))));
 }
 

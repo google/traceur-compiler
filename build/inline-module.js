@@ -15,6 +15,7 @@
 var fs = require('fs');
 var path = require('path');
 
+var generateNameForUrl = traceur.generateNameForUrl;
 var ErrorReporter = traceur.util.ErrorReporter;
 var InternalLoader = traceur.runtime.internals.InternalLoader;
 var ModuleAnalyzer = traceur.semantics.ModuleAnalyzer;
@@ -68,16 +69,6 @@ function findCommonPath(paths) {
 }
 
 /**
- * Generates an identifier string that represents a URL.
- * @param {string} url
- * @param {string} commonPath
- * @return {string}
- */
-function generateNameForUrl(url, commonPath) {
-  return '$' + url.replace(commonPath, '').replace(/[^\d\w$]/g, '_');
-}
-
-/**
  * This transformer replaces
  *
  *   import * from "url"
@@ -108,7 +99,6 @@ ModuleRequireTransformer.prototype = {
     return createIdentifierExpression(generateNameForUrl(url, this.commonPath));
   }
 };
-
 
 var startCodeUnit;
 
