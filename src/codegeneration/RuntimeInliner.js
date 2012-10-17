@@ -13,20 +13,21 @@
 // limitations under the License.
 
 import MutedErrorReporter from '../util/MutedErrorReporter.js';
-import ParseTreeFactory from 'ParseTreeFactory.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import Parser from '../syntax/Parser.js';
 import SourceFile from '../syntax/SourceFile.js';
 import TokenType from '../syntax/TokenType.js';
+import {
+  createIdentifierExpression,
+  createVariableDeclaration,
+  createVariableDeclarationList,
+  createVariableStatement
+} from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
 import trees from '../syntax/trees/ParseTrees.js';
 
 var Program = trees.Program;
 
-var createVariableStatement = ParseTreeFactory.createVariableStatement;
-var createVariableDeclaration = ParseTreeFactory.createVariableDeclaration;
-var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList;
-var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
 
 // Some helper functions that other runtime functions may depend on.
 var shared = {

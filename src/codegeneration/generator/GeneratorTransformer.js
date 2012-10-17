@@ -14,33 +14,33 @@
 
 import CPSTransformer from 'CPSTransformer.js';
 import EndState from 'EndState.js';
-import ParseTreeFactory from '../ParseTreeFactory.js';
 import ParseTreeType from '../../syntax/trees/ParseTree.js';
 import PredefinedName from '../../syntax/PredefinedName.js';
 import StateMachine from '../../syntax/trees/StateMachine.js';
 import TokenType from '../../syntax/TokenType.js';
 import YieldState from 'YieldState.js';
+import {
+  createArgumentList,
+  createAssignStateStatement,
+  createAssignmentStatement,
+  createBlock,
+  createCallExpression,
+  createEmptyParameterList,
+  createExpressionStatement,
+  createFalseLiteral,
+  createFunctionExpression,
+  createIdentifierExpression,
+  createMemberExpression,
+  createObjectLiteralExpression,
+  createPropertyNameAssignment,
+  createReturnStatement,
+  createStatementList,
+  createStringLiteral,
+  createThisExpression,
+  createThrowStatement,
+  createVariableStatement
+} from '../ParseTreeFactory.js';
 import createObject from '../../util/util.js';
-
-var createArgumentList = ParseTreeFactory.createArgumentList;
-var createAssignStateStatement = ParseTreeFactory.createAssignStateStatement;
-var createAssignmentStatement = ParseTreeFactory.createAssignmentStatement;
-var createBlock = ParseTreeFactory.createBlock;
-var createCallExpression = ParseTreeFactory.createCallExpression;
-var createEmptyParameterList = ParseTreeFactory.createEmptyParameterList;
-var createExpressionStatement = ParseTreeFactory.createExpressionStatement;
-var createFalseLiteral = ParseTreeFactory.createFalseLiteral;
-var createFunctionExpression = ParseTreeFactory.createFunctionExpression;
-var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
-var createMemberExpression = ParseTreeFactory.createMemberExpression;
-var createObjectLiteralExpression = ParseTreeFactory.createObjectLiteralExpression;
-var createPropertyNameAssignment = ParseTreeFactory.createPropertyNameAssignment;
-var createReturnStatement = ParseTreeFactory.createReturnStatement;
-var createStatementList = ParseTreeFactory.createStatementList;
-var createStringLiteral = ParseTreeFactory.createStringLiteral;
-var createThisExpression = ParseTreeFactory.createThisExpression;
-var createThrowStatement = ParseTreeFactory.createThrowStatement;
-var createVariableStatement = ParseTreeFactory.createVariableStatement;
 
 /**
  * Desugars generator function bodies. Generator function bodies contain 'yield' statements.

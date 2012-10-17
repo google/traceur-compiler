@@ -12,26 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeFactory from 'ParseTreeFactory.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import ParseTreeType from '../syntax/trees/ParseTree.js';
 import PredefinedName from '../syntax/PredefinedName.js';
 import TokenType from '../syntax/TokenType.js';
+import {
+  createArgumentList,
+  createAssignmentExpression,
+  createBlock,
+  createCallExpression,
+  createCallStatement,
+  createExpressionStatement,
+  createFinally,
+  createIfStatement,
+  createMemberExpression,
+  createStringLiteral,
+  createTryStatement,
+  createVariableStatement,
+  createWhileStatement
+} from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
-
-var createArgumentList = ParseTreeFactory.createArgumentList;
-var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression;
-var createBlock = ParseTreeFactory.createBlock;
-var createCallExpression = ParseTreeFactory.createCallExpression;
-var createCallStatement = ParseTreeFactory.createCallStatement;
-var createExpressionStatement = ParseTreeFactory.createExpressionStatement;
-var createFinally = ParseTreeFactory.createFinally;
-var createIfStatement = ParseTreeFactory.createIfStatement;
-var createMemberExpression = ParseTreeFactory.createMemberExpression;
-var createStringLiteral = ParseTreeFactory.createStringLiteral;
-var createTryStatement = ParseTreeFactory.createTryStatement;
-var createVariableStatement = ParseTreeFactory.createVariableStatement;
-var createWhileStatement = ParseTreeFactory.createWhileStatement;
 
 /**
  * Desugars for of statement.

@@ -13,10 +13,8 @@
 // limitations under the License.
 
 import ComprehensionTransformer from 'ComprehensionTransformer.js';
-import ParseTreeFactory from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
-
-var createYieldStatement = ParseTreeFactory.createYieldStatement;
+import createYieldStatement from 'ParseTreeFactory.js';
 
 /**
  * Generator Comprehension Transformer:

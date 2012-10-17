@@ -12,22 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeFactory from 'ParseTreeFactory.js';
 import PredefinedName from '../syntax/PredefinedName.js';
 import TempVarTransformer from 'TempVarTransformer.js';
 import TokenType from '../syntax/TokenType.js';
+import {
+  createArgumentList,
+  createCallExpression,
+  createEmptyArgumentList,
+  createIdentifierExpression,
+  createMemberExpression,
+  createVariableDeclaration
+} from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
 import trees from '../syntax/trees/ParseTrees.js';
 
 var VariableDeclarationList = trees.VariableDeclarationList;
 var VariableStatement = trees.VariableStatement;
 
-var createArgumentList = ParseTreeFactory.createArgumentList;
-var createCallExpression = ParseTreeFactory.createCallExpression;
-var createEmptyArgumentList = ParseTreeFactory.createEmptyArgumentList;
-var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
-var createMemberExpression = ParseTreeFactory.createMemberExpression;
-var createVariableDeclaration = ParseTreeFactory.createVariableDeclaration;
 
 /**
  * Desugars the private name syntax, @name.

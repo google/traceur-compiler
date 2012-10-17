@@ -194,8 +194,7 @@ module traceur {
   }
 
   export module codegeneration {
-    import ParseTreeFactory from 'codegeneration/ParseTreeFactory.js';
-    export ParseTreeFactory;
+    export module ParseTreeFactory from 'codegeneration/ParseTreeFactory.js';
 
     export module module {
       import ModuleRequireVisitor from 'codegeneration/module/ModuleRequireVisitor.js';

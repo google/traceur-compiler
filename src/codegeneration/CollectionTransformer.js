@@ -12,22 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeFactory from 'ParseTreeFactory.js';
 import ParseTreeType from '../syntax/trees/ParseTree.js';
 import PredefinedName from '../syntax/PredefinedName.js';
 import TempVarTransformer from 'TempVarTransformer.js';
 import TokenType from '../syntax/TokenType.js';
+import {
+  createArgumentList,
+  createAssignmentExpression,
+  createCallCall,
+  createCallExpression,
+  createCommaExpression,
+  createIdentifierExpression,
+  createMemberExpression,
+  createParenExpression
+} from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
 import expandMemberLookupExpression from 'OperatorExpander.js';
-
-var createArgumentList = ParseTreeFactory.createArgumentList;
-var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression;
-var createCallCall = ParseTreeFactory.createCallCall;
-var createCallExpression = ParseTreeFactory.createCallExpression;
-var createCommaExpression = ParseTreeFactory.createCommaExpression;
-var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
-var createMemberExpression = ParseTreeFactory.createMemberExpression;
-var createParenExpression = ParseTreeFactory.createParenExpression;
 
 var RUNTIME = PredefinedName.RUNTIME;
 var TRACEUR = PredefinedName.TRACEUR;

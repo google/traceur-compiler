@@ -12,18 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeFactory from 'ParseTreeFactory.js';
 import ParseTreeType from '../syntax/trees/ParseTree.js';
 import TokenType from '../syntax/TokenType.js';
-
-var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression;
-var createBinaryOperator = ParseTreeFactory.createBinaryOperator;
-var createCommaExpression = ParseTreeFactory.createCommaExpression;
-var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
-var createMemberExpression = ParseTreeFactory.createMemberExpression;
-var createMemberLookupExpression = ParseTreeFactory.createMemberLookupExpression;
-var createOperatorToken = ParseTreeFactory.createOperatorToken;
-var createParenExpression = ParseTreeFactory.createParenExpression;
+import {
+  createAssignmentExpression,
+  createBinaryOperator,
+  createCommaExpression,
+  createIdentifierExpression,
+  createMemberExpression,
+  createMemberLookupExpression,
+  createOperatorToken,
+  createParenExpression
+} from 'ParseTreeFactory.js';
 
 /**
  * Returns the binary operator that the assignment operator should use. For

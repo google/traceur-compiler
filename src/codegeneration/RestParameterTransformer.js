@@ -12,21 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeFactory from 'ParseTreeFactory.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import PredefinedName from '../syntax/PredefinedName.js';
 import TokenType from '../syntax/TokenType.js';
+import {
+  createArgumentList,
+  createBlock,
+  createCallExpression,
+  createFunctionDeclaration,
+  createIdentifierExpression,
+  createMemberExpression,
+  createNumberLiteral,
+  createVariableStatement
+} from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
 import trees from '../syntax/trees/ParseTrees.js';
-
-var createArgumentList = ParseTreeFactory.createArgumentList;
-var createBlock = ParseTreeFactory.createBlock;
-var createCallExpression = ParseTreeFactory.createCallExpression;
-var createFunctionDeclaration = ParseTreeFactory.createFunctionDeclaration;
-var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
-var createMemberExpression = ParseTreeFactory.createMemberExpression;
-var createNumberLiteral = ParseTreeFactory.createNumberLiteral;
-var createVariableStatement = ParseTreeFactory.createVariableStatement;
 
 var FormalParameterList = trees.FormalParameterList;
 

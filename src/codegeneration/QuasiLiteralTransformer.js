@@ -13,11 +13,28 @@
 // limitations under the License.
 
 import LiteralToken from '../syntax/LiteralToken.js';
-import ParseTreeFactory from 'ParseTreeFactory.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import ParseTreeType from '../syntax/trees/ParseTree.js';
 import PredefinedName from '../syntax/PredefinedName.js';
 import TokenType from '../syntax/TokenType.js';
+import {
+  createArgumentList,
+  createArrayLiteralExpression,
+  createAssignmentExpression,
+  createBinaryOperator,
+  createCallExpression,
+  createCommaExpression,
+  createDefineProperty,
+  createIdentifierExpression,
+  createMemberExpression,
+  createObjectFreeze,
+  createObjectLiteralExpression,
+  createOperatorToken,
+  createParenExpression,
+  createVariableDeclaration,
+  createVariableDeclarationList,
+  createVariableStatement
+} from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
 import trees from '../syntax/trees/ParseTrees.js';
 
@@ -25,22 +42,6 @@ var LiteralExpression = trees.LiteralExpression;
 var ParenExpression = trees.ParenExpression;
 var Program = trees.Program;
 
-var createArgumentList = ParseTreeFactory.createArgumentList;
-var createArrayLiteralExpression = ParseTreeFactory.createArrayLiteralExpression;
-var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression;
-var createBinaryOperator = ParseTreeFactory.createBinaryOperator;
-var createCallExpression = ParseTreeFactory.createCallExpression;
-var createCommaExpression = ParseTreeFactory.createCommaExpression;
-var createDefineProperty = ParseTreeFactory.createDefineProperty;
-var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
-var createMemberExpression = ParseTreeFactory.createMemberExpression;
-var createObjectFreeze = ParseTreeFactory.createObjectFreeze;
-var createObjectLiteralExpression = ParseTreeFactory.createObjectLiteralExpression;
-var createOperatorToken = ParseTreeFactory.createOperatorToken;
-var createParenExpression = ParseTreeFactory.createParenExpression;
-var createVariableDeclaration = ParseTreeFactory.createVariableDeclaration;
-var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList;
-var createVariableStatement = ParseTreeFactory.createVariableStatement;
 
 /**
  * Creates an object like:

@@ -14,24 +14,25 @@
 
 import AlphaRenamer from 'AlphaRenamer.js';
 import FindInFunctionScope from 'FindInFunctionScope.js';
-import ParseTreeFactory from 'ParseTreeFactory.js';
 import PredefinedName from '../syntax/PredefinedName.js';
 import TempVarTransformer from 'TempVarTransformer.js';
 import TokenType from '../syntax/TokenType.js';
+import {
+  createBlock,
+  createCallExpression,
+  createEmptyParameterList,
+  createForOfStatement,
+  createIdentifierExpression,
+  createIfStatement,
+  createParenExpression,
+  createThisExpression,
+  createVariableDeclarationList
+} from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
 import trees from '../syntax/trees/ParseTrees.js';
 
 var FunctionDeclaration = trees.FunctionDeclaration;
 
-var createBlock = ParseTreeFactory.createBlock;
-var createCallExpression = ParseTreeFactory.createCallExpression;
-var createEmptyParameterList = ParseTreeFactory.createEmptyParameterList;
-var createForOfStatement = ParseTreeFactory.createForOfStatement;
-var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
-var createIfStatement = ParseTreeFactory.createIfStatement;
-var createParenExpression = ParseTreeFactory.createParenExpression;
-var createThisExpression = ParseTreeFactory.createThisExpression;
-var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList;
 
 /**
  * This is used to find whether a function contains a reference to 'this'.

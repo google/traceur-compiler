@@ -12,11 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeFactory from 'ParseTreeFactory.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import ParseTreeType from '../syntax/trees/ParseTree.js';
 import PredefinedName from '../syntax/PredefinedName.js';
 import TokenType from '../syntax/TokenType.js';
+import {
+  createArgumentList,
+  createBindingIdentifier,
+  createBlock,
+  createCallExpression,
+  createEmptyParameterList,
+  createExpressionStatement,
+  createFunctionExpression,
+  createIdentifierExpression,
+  createMemberExpression,
+  createNullLiteral,
+  createObjectCreate,
+  createObjectLiteralExpression,
+  createObjectPreventExtensions,
+  createProgram,
+  createPropertyDescriptor,
+  createPropertyNameAssignment,
+  createReturnStatement,
+  createScopedExpression,
+  createUseStrictDirective,
+  createVariableDeclaration,
+  createVariableDeclarationList,
+  createVariableStatement
+} from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
 import trees from '../syntax/trees/ParseTrees.js';
 
@@ -40,28 +63,6 @@ var MODULE_DEFINITION = ParseTreeType.MODULE_DEFINITION;
 var MODULE_REQUIRE = ParseTreeType.MODULE_REQUIRE;
 var VARIABLE_STATEMENT = ParseTreeType.VARIABLE_STATEMENT;
 
-var createArgumentList = ParseTreeFactory.createArgumentList;
-var createBindingIdentifier = ParseTreeFactory.createBindingIdentifier;
-var createBlock = ParseTreeFactory.createBlock;
-var createCallExpression = ParseTreeFactory.createCallExpression;
-var createEmptyParameterList = ParseTreeFactory.createEmptyParameterList;
-var createExpressionStatement = ParseTreeFactory.createExpressionStatement;
-var createFunctionExpression = ParseTreeFactory.createFunctionExpression;
-var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
-var createMemberExpression = ParseTreeFactory.createMemberExpression;
-var createNullLiteral = ParseTreeFactory.createNullLiteral;
-var createObjectCreate = ParseTreeFactory.createObjectCreate;
-var createObjectLiteralExpression = ParseTreeFactory.createObjectLiteralExpression;
-var createObjectPreventExtensions = ParseTreeFactory.createObjectPreventExtensions;
-var createProgram = ParseTreeFactory.createProgram;
-var createPropertyDescriptor = ParseTreeFactory.createPropertyDescriptor;
-var createPropertyNameAssignment = ParseTreeFactory.createPropertyNameAssignment;
-var createReturnStatement = ParseTreeFactory.createReturnStatement;
-var createScopedExpression = ParseTreeFactory.createScopedExpression;
-var createUseStrictDirective = ParseTreeFactory.createUseStrictDirective;
-var createVariableDeclaration = ParseTreeFactory.createVariableDeclaration;
-var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList;
-var createVariableStatement = ParseTreeFactory.createVariableStatement;
 
 function toBindingIdentifier(tree) {
   return new BindingIdentifier(tree.location, tree.identifierToken);
@@ -173,7 +174,7 @@ ModuleTransformer.prototype = createObject(
   },
 
   transformImportDeclaration: function(tree) {
-    // import id from module
+    // import id from module;
     //  =>
     // var {id} = moduleInstance
     var declarations = this.transformList(tree.importPathList);

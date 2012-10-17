@@ -13,8 +13,10 @@
 // limitations under the License.
 
 import NullTree from 'NullTree.js';
-import ParseTree from 'ParseTree.js';
-import ParseTreeType from 'ParseTree.js';
+import {
+  ParseTree,
+  ParseTreeType
+} from 'ParseTree.js';
 
 /**
  * This creates the ParseTree class for the given type and arguments.

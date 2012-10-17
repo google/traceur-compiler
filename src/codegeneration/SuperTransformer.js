@@ -12,21 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeFactory from 'ParseTreeFactory.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import ParseTreeType from '../syntax/trees/ParseTree.js';
 import PredefinedName from '../syntax/PredefinedName.js';
 import TokenType from '../syntax/TokenType.js';
+import {
+  createArgumentList,
+  createArrayLiteralExpression,
+  createCallExpression,
+  createMemberExpression,
+  createStringLiteral,
+  createThisExpression
+} from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
-import expandMemberExpression from 'OperatorExpander.js';
-import expandMemberLookupExpression from 'OperatorExpander.js';
-
-var createArgumentList = ParseTreeFactory.createArgumentList;
-var createArrayLiteralExpression = ParseTreeFactory.createArrayLiteralExpression;
-var createCallExpression = ParseTreeFactory.createCallExpression;
-var createMemberExpression = ParseTreeFactory.createMemberExpression;
-var createStringLiteral = ParseTreeFactory.createStringLiteral;
-var createThisExpression = ParseTreeFactory.createThisExpression;
+import {
+  expandMemberExpression,
+  expandMemberLookupExpression
+} from 'OperatorExpander.js';
 
 /**
  * Transforms super expressions in function bodies.

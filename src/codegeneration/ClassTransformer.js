@@ -12,12 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeFactory from 'ParseTreeFactory.js';
 import ParseTreeType from '../syntax/trees/ParseTree.js';
 import PredefinedName from '../syntax/PredefinedName.js';
 import SuperTransformer from 'SuperTransformer.js';
 import TempVarTransformer from 'TempVarTransformer.js';
 import TokenType from '../syntax/TokenType.js';
+import {
+  createArgumentList,
+  createAssignmentExpression,
+  createBlock,
+  createBooleanLiteral,
+  createCallExpression,
+  createExpressionStatement,
+  createFunctionExpression,
+  createIdentifierExpression,
+  createIdentifierToken,
+  createMemberExpression,
+  createNullLiteral,
+  createObjectLiteralExpression,
+  createParenExpression,
+  createPropertyNameAssignment,
+  createRestParameter,
+  createSpreadExpression,
+  createVariableStatement
+} from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
 import trees from '../syntax/trees/ParseTrees.js';
 
@@ -29,23 +47,6 @@ var PropertyNameAssignment = trees.PropertyNameAssignment;
 var SetAccessor = trees.SetAccessor;
 var SuperExpression = trees.SuperExpression;
 
-var createArgumentList = ParseTreeFactory.createArgumentList;
-var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression;
-var createBlock = ParseTreeFactory.createBlock;
-var createBooleanLiteral = ParseTreeFactory.createBooleanLiteral;
-var createCallExpression = ParseTreeFactory.createCallExpression;
-var createExpressionStatement = ParseTreeFactory.createExpressionStatement;
-var createFunctionExpression = ParseTreeFactory.createFunctionExpression;
-var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
-var createIdentifierToken = ParseTreeFactory.createIdentifierToken;
-var createMemberExpression = ParseTreeFactory.createMemberExpression;
-var createNullLiteral = ParseTreeFactory.createNullLiteral;
-var createObjectLiteralExpression = ParseTreeFactory.createObjectLiteralExpression;
-var createParenExpression = ParseTreeFactory.createParenExpression;
-var createPropertyNameAssignment = ParseTreeFactory.createPropertyNameAssignment;
-var createRestParameter = ParseTreeFactory.createRestParameter;
-var createSpreadExpression = ParseTreeFactory.createSpreadExpression;
-var createVariableStatement = ParseTreeFactory.createVariableStatement;
 
 // The state keeps track of the current class tree and class name.
 var stack = [];

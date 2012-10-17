@@ -12,17 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeFactory from '../ParseTreeFactory.js';
 import PredefinedName from '../../syntax/PredefinedName.js';
-
-var createAssignStateStatement = ParseTreeFactory.createAssignStateStatement;
-var createAssignmentStatement = ParseTreeFactory.createAssignmentStatement;
-var createBreakStatement = ParseTreeFactory.createBreakStatement;
-var createCaseClause = ParseTreeFactory.createCaseClause;
-var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
-var createNumberLiteral = ParseTreeFactory.createNumberLiteral;
-var createStatementList = ParseTreeFactory.createStatementList;
-var createStatementList = ParseTreeFactory.createStatementList;
+import {
+  createAssignStateStatement,
+  createAssignmentStatement,
+  createBreakStatement,
+  createCaseClause,
+  createIdentifierExpression,
+  createNumberLiteral,
+  createStatementList,
+  createStatementList
+} from '../ParseTreeFactory.js';
 
 /**
  * A State in the generator state machine.

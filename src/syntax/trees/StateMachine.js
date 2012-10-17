@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTree from 'ParseTree.js';
-import ParseTreeType from 'ParseTree.js';
+import {
+  ParseTree,
+  ParseTreeType
+} from 'ParseTree.js';
 import TryState from '../../codegeneration/generator/TryState.js';
 import createObject from '../../util/util.js';
 

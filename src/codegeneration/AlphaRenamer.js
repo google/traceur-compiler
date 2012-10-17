@@ -12,23 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeFactory from 'ParseTreeFactory.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import PredefinedName from '../syntax/PredefinedName.js';
 import {
-  variablesInFunction,
-  variablesInBlock
-} from '../semantics/VariableBinder.js';
+  createFunctionDeclaration,
+  createIdentifierExpression
+} from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
 import trees from '../syntax/trees/ParseTrees.js';
+import {
+  variablesInBlock,
+  variablesInFunction
+} from '../semantics/VariableBinder.js';
 
-var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
 var Block = trees.Block;
 var Catch = trees.Catch;
 var FunctionDeclaration = trees.FunctionDeclaration;
 var IdentifierExpression = trees.IdentifierExpression;
-
-var createFunctionDeclaration = ParseTreeFactory.createFunctionDeclaration;
 
 /**
  * Replaces one identifier with another identifier (alpha

@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeFactory from '../ParseTreeFactory.js';
 import PredefinedName from '../../syntax/PredefinedName.js';
 import State from 'State.js';
+import {
+  createAssignmentStatement,
+  createMemberExpression,
+  createReturnStatement,
+  createTrueLiteral
+} from '../ParseTreeFactory.js';
 import createObject from '../../util/util.js';
-
-var createAssignmentStatement = ParseTreeFactory.createAssignmentStatement;
-var createMemberExpression = ParseTreeFactory.createMemberExpression;
-var createReturnStatement = ParseTreeFactory.createReturnStatement;
-var createTrueLiteral = ParseTreeFactory.createTrueLiteral;
 
 /**
  * Represents the dispatch portion of a switch statement that has been added

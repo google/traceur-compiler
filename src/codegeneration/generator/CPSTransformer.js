@@ -19,54 +19,56 @@ import FallThroughState from 'FallThroughState.js';
 import FinallyFallThroughState from 'FinallyFallThroughState.js';
 import FinallyState from 'FinallyState.js';
 import IdentifierToken from '../../syntax/IdentifierToken.js';
-import ParseTreeFactory from '../ParseTreeFactory.js';
 import ParseTreeTransformer from '../ParseTreeTransformer.js';
 import ParseTreeType from '../../syntax/trees/ParseTree.js';
 import PredefinedName from '../../syntax/PredefinedName.js';
 import State from 'State.js';
 import StateAllocator from 'StateAllocator.js';
 import StateMachine from '../../syntax/trees/StateMachine.js';
-import SwitchClause from 'SwitchState.js';
-import SwitchState from 'SwitchState.js';
+import {
+  SwitchClause,
+  SwitchState
+} from 'SwitchState.js';
 import TokenType from '../../syntax/TokenType.js';
 import TryState from 'TryState.js';
-import variablesInBlock from '../../semantics/VariableBinder.js';
+import {
+  createArrayLiteralExpression,
+  createAssignStateStatement,
+  createAssignmentExpression,
+  createAssignmentStatement,
+  createBinaryOperator,
+  createBindingIdentifier,
+  createBlock,
+  createBoundCall,
+  createBreakStatement,
+  createCaseClause,
+  createCatch,
+  createDefaultClause,
+  createEmptyParameterList,
+  createEmptyStatement,
+  createExpressionStatement,
+  createFunctionExpression,
+  createIdentifierExpression,
+  createIdentifierToken,
+  createNumberLiteral,
+  createOperatorToken,
+  createStatementList,
+  createStringLiteral,
+  createSwitchStatement,
+  createThisExpression,
+  createThrowStatement,
+  createTrueLiteral,
+  createTryStatement,
+  createVariableStatement,
+  createWhileStatement
+} from '../ParseTreeFactory.js';
 import createObject from '../../util/util.js';
 import trees from '../../syntax/trees/ParseTrees.js';
+import variablesInBlock from '../../semantics/VariableBinder.js';
 
 var CaseClause = trees.CaseClause;
 var IdentifierExpression = trees.IdentifierExpression;
 var SwitchStatement = trees.SwitchStatement;
-
-var createArrayLiteralExpression = ParseTreeFactory.createArrayLiteralExpression;
-var createAssignStateStatement = ParseTreeFactory.createAssignStateStatement;
-var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression;
-var createAssignmentStatement = ParseTreeFactory.createAssignmentStatement;
-var createBinaryOperator = ParseTreeFactory.createBinaryOperator;
-var createBindingIdentifier = ParseTreeFactory.createBindingIdentifier;
-var createBlock = ParseTreeFactory.createBlock;
-var createBoundCall = ParseTreeFactory.createBoundCall;
-var createBreakStatement = ParseTreeFactory.createBreakStatement;
-var createCaseClause = ParseTreeFactory.createCaseClause;
-var createCatch = ParseTreeFactory.createCatch;
-var createDefaultClause = ParseTreeFactory.createDefaultClause;
-var createEmptyParameterList = ParseTreeFactory.createEmptyParameterList;
-var createEmptyStatement = ParseTreeFactory.createEmptyStatement;
-var createExpressionStatement = ParseTreeFactory.createExpressionStatement;
-var createFunctionExpression = ParseTreeFactory.createFunctionExpression;
-var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
-var createIdentifierToken = ParseTreeFactory.createIdentifierToken;
-var createNumberLiteral = ParseTreeFactory.createNumberLiteral;
-var createOperatorToken = ParseTreeFactory.createOperatorToken;
-var createStatementList = ParseTreeFactory.createStatementList;
-var createStringLiteral = ParseTreeFactory.createStringLiteral;
-var createSwitchStatement = ParseTreeFactory.createSwitchStatement;
-var createThisExpression = ParseTreeFactory.createThisExpression;
-var createThrowStatement = ParseTreeFactory.createThrowStatement;
-var createTrueLiteral = ParseTreeFactory.createTrueLiteral;
-var createTryStatement = ParseTreeFactory.createTryStatement;
-var createVariableStatement = ParseTreeFactory.createVariableStatement;
-var createWhileStatement = ParseTreeFactory.createWhileStatement;
 
 /**
  * Performs a CPS transformation on a method body.

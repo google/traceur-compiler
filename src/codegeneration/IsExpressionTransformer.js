@@ -12,18 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeFactory from 'ParseTreeFactory.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import ParseTreeType from '../syntax/trees/ParseTree.js';
 import PredefinedName from '../syntax/PredefinedName.js';
 import TokenType from '../syntax/TokenType.js';
+import {
+  createArgumentList,
+  createBinaryOperator,
+  createCallExpression,
+  createMemberExpression,
+  createOperatorToken
+} from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
-
-var createArgumentList = ParseTreeFactory.createArgumentList;
-var createBinaryOperator = ParseTreeFactory.createBinaryOperator;
-var createCallExpression = ParseTreeFactory.createCallExpression;
-var createMemberExpression = ParseTreeFactory.createMemberExpression;
-var createOperatorToken = ParseTreeFactory.createOperatorToken;
 
 var IS = PredefinedName.IS;
 var ISNT = PredefinedName.ISNT;

@@ -12,25 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeFactory from 'ParseTreeFactory.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import ParseTreeType from '../syntax/trees/ParseTree.js';
 import PredefinedName from '../syntax/PredefinedName.js';
+import {
+  createArgumentList,
+  createArrayLiteralExpression,
+  createBlock,
+  createBooleanLiteral,
+  createCallExpression,
+  createFunctionExpression,
+  createMemberExpression,
+  createMemberLookupExpression,
+  createNullLiteral,
+  createParameterList,
+  createParameterReference,
+  createParenExpression,
+  createReturnStatement
+} from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
-
-var createArgumentList = ParseTreeFactory.createArgumentList;
-var createArrayLiteralExpression = ParseTreeFactory.createArrayLiteralExpression;
-var createBlock = ParseTreeFactory.createBlock;
-var createBooleanLiteral = ParseTreeFactory.createBooleanLiteral;
-var createCallExpression = ParseTreeFactory.createCallExpression;
-var createFunctionExpression = ParseTreeFactory.createFunctionExpression;
-var createMemberExpression = ParseTreeFactory.createMemberExpression;
-var createMemberLookupExpression = ParseTreeFactory.createMemberLookupExpression;
-var createNullLiteral = ParseTreeFactory.createNullLiteral;
-var createParameterList = ParseTreeFactory.createParameterList;
-var createParameterReference = ParseTreeFactory.createParameterReference;
-var createParenExpression = ParseTreeFactory.createParenExpression;
-var createReturnStatement = ParseTreeFactory.createReturnStatement;
 
 var APPLY = PredefinedName.APPLY;
 

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ModuleAnalyzer from '../semantics/ModuleAnalyzer.js';;
+import ModuleAnalyzer from '../semantics/ModuleAnalyzer.js';
 import Parser from '../syntax/Parser.js';
 import ProgramTransformer from 'ProgramTransformer.js';
 import Project from '../semantics/symbols/Project.js';

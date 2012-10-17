@@ -14,36 +14,39 @@
 
 import FindVisitor from 'FindVisitor.js';
 import Keywords from '../syntax/Keywords.js';
-import ParseTreeFactory from 'ParseTreeFactory.js';
 import PredefinedName from '../syntax/PredefinedName.js';
 import TempVarTransformer from 'TempVarTransformer.js';
 import TokenType from '../syntax/TokenType.js';
-import createObject from '../util/util.js';
-import evaluateStringLiteral from '../util/util.js';
-import trees from '../syntax/trees/ParseTrees.js';
+import {
+  createArgumentList,
+  createAssignmentExpression,
+  createBindingIdentifier,
+  createCallExpression,
+  createCommaExpression,
+  createDefineProperty,
+  createEmptyParameterList,
+  createFunctionExpression,
+  createIdentifierExpression,
+  createMemberExpression,
+  createObjectCreate,
+  createObjectLiteralExpression,
+  createParenExpression,
+  createPropertyDescriptor,
+  createPropertyNameAssignment,
+  createStringLiteral
+} from 'ParseTreeFactory.js';
+import {
+  createObject,
+  evaluateStringLiteral
+} from '../util/util.js';
 import {options: traceurOptions} from '../options.js';
+import trees from '../syntax/trees/ParseTrees.js';
 
 var FormalParameterList = trees.FormalParameterList;
 var FunctionDeclaration = trees.FunctionDeclaration;
 var IdentifierExpression = trees.IdentifierExpression;
 var LiteralExpression = trees.LiteralExpression;
 
-var createArgumentList = ParseTreeFactory.createArgumentList;
-var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression;
-var createBindingIdentifier = ParseTreeFactory.createBindingIdentifier;
-var createCallExpression = ParseTreeFactory.createCallExpression;
-var createCommaExpression = ParseTreeFactory.createCommaExpression;
-var createDefineProperty = ParseTreeFactory.createDefineProperty;
-var createEmptyParameterList = ParseTreeFactory.createEmptyParameterList;
-var createFunctionExpression = ParseTreeFactory.createFunctionExpression;
-var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
-var createMemberExpression = ParseTreeFactory.createMemberExpression;
-var createObjectCreate = ParseTreeFactory.createObjectCreate;
-var createObjectLiteralExpression = ParseTreeFactory.createObjectLiteralExpression;
-var createParenExpression = ParseTreeFactory.createParenExpression;
-var createPropertyDescriptor = ParseTreeFactory.createPropertyDescriptor;
-var createPropertyNameAssignment = ParseTreeFactory.createPropertyNameAssignment;
-var createStringLiteral = ParseTreeFactory.createStringLiteral;
 
 var options = traceurOptions.transform;
 

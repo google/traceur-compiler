@@ -15,37 +15,33 @@
 import CPSTransformer from 'CPSTransformer.js';
 import EndState from 'EndState.js';
 import FallThroughState from 'FallThroughState.js';
-import ParseTreeFactory from '../ParseTreeFactory.js';
 import ParseTreeType from '../../syntax/trees/ParseTree.js';
 import PredefinedName from '../../syntax/PredefinedName.js';
 import StateMachine from '../../syntax/trees/StateMachine.js';
 import TokenType from '../../syntax/TokenType.js';
+import {
+  createArgumentList,
+  createAssignStateStatement,
+  createAssignmentStatement,
+  createBlock,
+  createBreakStatement,
+  createCallExpression,
+  createCallStatement,
+  createEmptyArgumentList,
+  createFunctionExpression,
+  createIdentifierExpression,
+  createMemberExpression,
+  createNewExpression,
+  createNumberLiteral,
+  createParameterList,
+  createParameterReference,
+  createReturnStatement,
+  createStatementList,
+  createThrowStatement,
+  createUndefinedExpression,
+  createVariableStatement
+} from '../ParseTreeFactory.js';
 import createObject from '../../util/util.js';
-
-var createArgumentList = ParseTreeFactory.createArgumentList;
-var createAssignStateStatement = ParseTreeFactory.createAssignStateStatement;
-var createAssignmentStatement = ParseTreeFactory.createAssignmentStatement;
-var createBlock = ParseTreeFactory.createBlock;
-var createBreakStatement = ParseTreeFactory.createBreakStatement;
-var createCallExpression = ParseTreeFactory.createCallExpression;
-var createCallStatement = ParseTreeFactory.createCallStatement;
-var createCallback = ParseTreeFactory.createCallback;
-var createEmptyArgumentList = ParseTreeFactory.createEmptyArgumentList;
-var createErrback = ParseTreeFactory.createErrback;
-var createFunctionExpression = ParseTreeFactory.createFunctionExpression;
-var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
-var createMemberExpression = ParseTreeFactory.createMemberExpression;
-var createNewExpression = ParseTreeFactory.createNewExpression;
-var createNumberLiteral = ParseTreeFactory.createNumberLiteral;
-var createParameterList = ParseTreeFactory.createParameterList;
-var createParameterReference = ParseTreeFactory.createParameterReference;
-var createPromise = ParseTreeFactory.createPromise;
-var createReturnStatement = ParseTreeFactory.createReturnStatement;
-var createStatementList = ParseTreeFactory.createStatementList;
-var createThrowStatement = ParseTreeFactory.createThrowStatement;
-var createUndefinedExpression = ParseTreeFactory.createUndefinedExpression;
-var createVariableStatement = ParseTreeFactory.createVariableStatement;
-
 
 /**
  * Desugars async function bodies. Async function bodies contain 'async' statements.

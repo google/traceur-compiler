@@ -12,23 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeFactory from 'ParseTreeFactory.js';
 import ParseTreeType from '../syntax/trees/ParseTree.js';
 import TempVarTransformer from 'TempVarTransformer.js';
+import {
+  createAssignmentExpression,
+  createBinaryOperator,
+  createCallExpression,
+  createCascadeExpression,
+  createCommaExpression,
+  createIdentifierExpression,
+  createMemberExpression,
+  createMemberLookupExpression,
+  createParenExpression
+} from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
 import trees from '../syntax/trees/ParseTrees.js';
 
 var BinaryOperator = trees.BinaryOperator;
 
-var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression;
-var createBinaryOperator = ParseTreeFactory.createBinaryOperator;
-var createCallExpression = ParseTreeFactory.createCallExpression;
-var createCascadeExpression = ParseTreeFactory.createCascadeExpression;
-var createCommaExpression = ParseTreeFactory.createCommaExpression;
-var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
-var createMemberExpression = ParseTreeFactory.createMemberExpression;
-var createMemberLookupExpression = ParseTreeFactory.createMemberLookupExpression;
-var createParenExpression = ParseTreeFactory.createParenExpression;
 
 /**
  * Member expressions (and member lookup expressions) are built from right to

@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeFactory from '../ParseTreeFactory.js';
 import State from 'State.js';
+import {
+  createBlock,
+  createIfStatement
+} from '../ParseTreeFactory.js';
 import createObject from '../../util/util.js';
-
-var createBlock = ParseTreeFactory.createBlock;
-var createIfStatement = ParseTreeFactory.createIfStatement;
 
 /**
  * @param {number} id

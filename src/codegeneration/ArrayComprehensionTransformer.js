@@ -13,20 +13,20 @@
 // limitations under the License.
 
 import ComprehensionTransformer from 'ComprehensionTransformer.js';
-import ParseTreeFactory from 'ParseTreeFactory.js';
 import TokenType from '../syntax/TokenType.js';
+import {
+  createArrayLiteralExpression,
+  createAssignmentStatement,
+  createIdentifierExpression,
+  createMemberLookupExpression,
+  createNumberLiteral,
+  createPostfixExpression,
+  createReturnStatement,
+  createVariableDeclaration,
+  createVariableDeclarationList,
+  createVariableStatement
+} from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
-
-var createArrayLiteralExpression = ParseTreeFactory.createArrayLiteralExpression;
-var createAssignmentStatement = ParseTreeFactory.createAssignmentStatement;
-var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
-var createMemberLookupExpression = ParseTreeFactory.createMemberLookupExpression;
-var createNumberLiteral = ParseTreeFactory.createNumberLiteral;
-var createPostfixExpression = ParseTreeFactory.createPostfixExpression;
-var createReturnStatement = ParseTreeFactory.createReturnStatement;
-var createVariableDeclaration = ParseTreeFactory.createVariableDeclaration;
-var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList;
-var createVariableStatement = ParseTreeFactory.createVariableStatement;
 
 /**
  * Array Comprehension Transformer:

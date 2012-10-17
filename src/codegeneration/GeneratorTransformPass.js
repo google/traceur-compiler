@@ -16,10 +16,15 @@ import AsyncTransformer from 'generator/AsyncTransformer.js';
 import ForInTransformPass from 'generator/ForInTransformPass.js';
 import ForOfTransformer from 'ForOfTransformer.js';
 import GeneratorTransformer from 'generator/GeneratorTransformer.js';
-import ParseTreeFactory from 'ParseTreeFactory.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import ParseTreeVisitor from '../syntax/ParseTreeVisitor.js';
 import TokenType from '../syntax/TokenType.js';
+import {
+  createForOfStatement,
+  createIdentifierExpression,
+  createVariableDeclarationList,
+  createYieldStatement
+} from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
 import {options: traceurOptions} from '../options.js';
 import trees from '../syntax/trees/ParseTrees.js';
@@ -28,10 +33,6 @@ var FunctionDeclaration = trees.FunctionDeclaration;
 var GetAccessor = trees.GetAccessor;
 var SetAccessor = trees.SetAccessor;
 
-var createForOfStatement = ParseTreeFactory.createForOfStatement;
-var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList;
-var createYieldStatement = ParseTreeFactory.createYieldStatement;
-var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
 
 var options = traceurOptions.transform;
 

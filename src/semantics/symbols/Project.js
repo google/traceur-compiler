@@ -16,9 +16,9 @@ import ArrayMap from '../../util/ArrayMap.js';
 import ExportSymbol from 'ExportSymbol.js';
 import ModuleSymbol from 'ModuleSymbol.js';
 import ObjectMap from '../../util/ObjectMap.js';
-import resolveUrl from '../../util/url.js';
-import UniqueIdentifierGenerator from '../../codegeneration/UniqueIdentifierGenerator.js';
 import RuntimeInliner from '../../codegeneration/RuntimeInliner.js';
+import UniqueIdentifierGenerator from '../../codegeneration/UniqueIdentifierGenerator.js';
+import resolveUrl from '../../util/url.js';
 
 function addAll(self, other) {
   for (var key in other) {

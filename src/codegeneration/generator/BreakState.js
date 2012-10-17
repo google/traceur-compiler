@@ -13,11 +13,9 @@
 // limitations under the License.
 
 import FallThroughState from 'FallThroughState.js';
-import ParseTreeFactory from '../ParseTreeFactory.js';
 import State from 'State.js';
 import createObject from '../../util/util.js';
-
-var createStatementList = ParseTreeFactory.createStatementList;
+import createStatementList from '../ParseTreeFactory.js';
 
 /**
  * @param {number} id

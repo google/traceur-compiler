@@ -12,8 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeFactory from '../ParseTreeFactory.js';
 import State from 'State.js';
+import {
+  createBreakStatement,
+  createStatementList
+} from '../ParseTreeFactory.js';
 import createObject from '../../util/util.js';
 import trees from '../../syntax/trees/ParseTrees.js';
 
@@ -21,8 +24,6 @@ var CaseClause = trees.CaseClause;
 var DefaultClause = trees.DefaultClause;
 var SwitchStatement = trees.SwitchStatement;
 
-var createBreakStatement = ParseTreeFactory.createBreakStatement;
-var createStatementList = ParseTreeFactory.createStatementList;
 
 /**
  * Represents a pair of ParseTree and integer.

@@ -1441,8 +1441,7 @@ var $src_syntax_trees_ParseTree_js =(function() {
 }).call(this); 
 var $src_syntax_ParseTreeVisitor_js =(function() { 
   "use strict"; 
-  var destructuring$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType.ParseTreeType; 
-  var destructuring$getTreeNameForType = $src_syntax_trees_ParseTree_js, getTreeNameForType = destructuring$getTreeNameForType.getTreeNameForType; 
+  var destructuring$ParseTreeType$getTreeNameForType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType$getTreeNameForType.ParseTreeType, getTreeNameForType = destructuring$ParseTreeType$getTreeNameForType.getTreeNameForType; 
   function ParseTreeVisitor() { } 
   ParseTreeVisitor.prototype = { 
     visitAny: function(tree) { 
@@ -1874,12 +1873,10 @@ var $src_util_url_js =(function() {
 }).call(this); 
 var $src_codegeneration_module_ModuleVisitor_js =(function() { 
   "use strict"; 
-  var destructuring$ParseTree = $src_syntax_trees_ParseTree_js, ParseTree = destructuring$ParseTree.ParseTree; 
-  var destructuring$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType.ParseTreeType; 
+  var destructuring$ParseTree$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTree = destructuring$ParseTree$ParseTreeType.ParseTree, ParseTreeType = destructuring$ParseTree$ParseTreeType.ParseTreeType; 
   var destructuring$ParseTreeVisitor = $src_syntax_ParseTreeVisitor_js, ParseTreeVisitor = destructuring$ParseTreeVisitor.ParseTreeVisitor; 
   var destructuring$Symbol = $src_semantics_symbols_Symbol_js, Symbol = destructuring$Symbol.Symbol; 
-  var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
-  var destructuring$evaluateStringLiteral = $src_util_util_js, evaluateStringLiteral = destructuring$evaluateStringLiteral.evaluateStringLiteral; 
+  var destructuring$createObject$evaluateStringLiteral = $src_util_util_js, createObject = destructuring$createObject$evaluateStringLiteral.createObject, evaluateStringLiteral = destructuring$createObject$evaluateStringLiteral.evaluateStringLiteral; 
   var destructuring$resolveUrl = $src_util_url_js, resolveUrl = destructuring$resolveUrl.resolveUrl; 
   function getFriendlyName(module) { 
     return module.name || module.url; 
@@ -2532,29 +2529,6 @@ var $src_util_ObjectMap_js =(function() {
       enumerable: true 
     } })); 
 }).call(this); 
-var $src_codegeneration_UniqueIdentifierGenerator_js =(function() { 
-  "use strict"; 
-  function UniqueIdentifierGenerator() { 
-    this.identifierIndex = 0; 
-    this.nameMap_ = Object.create(null); 
-  } 
-  UniqueIdentifierGenerator.prototype = { 
-    generateUniqueIdentifier: function() { 
-      return '$__' + this.identifierIndex ++; 
-    }, 
-    getUniqueIdentifier: function(name) { 
-      var newName = this.nameMap_[name]; 
-      if(! newName) return this.nameMap_[name]= this.generateUniqueIdentifier(); 
-      return newName; 
-    } 
-  }; 
-  return Object.preventExtensions(Object.create(null, { UniqueIdentifierGenerator: { 
-      get: function() { 
-        return UniqueIdentifierGenerator; 
-      }, 
-      enumerable: true 
-    } })); 
-}).call(this); 
 var $src_util_ErrorReporter_js =(function() { 
   "use strict"; 
   function ErrorReporter() { } 
@@ -2616,192 +2590,9 @@ var $src_util_MutedErrorReporter_js =(function() {
       enumerable: true 
     } })); 
 }).call(this); 
-var $src_syntax_Token_js =(function() { 
-  "use strict"; 
-  var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
-  function Token(type, location) { 
-    this.type = type; 
-    this.location = location; 
-  } 
-  Token.prototype = { 
-    toString: function() { 
-      return this.type.toString(); 
-    }, 
-    isAssignmentOperator: function() { 
-      switch(this.type) { 
-        case TokenType.EQUAL: 
-        case TokenType.STAR_EQUAL: 
-        case TokenType.SLASH_EQUAL: 
-        case TokenType.PERCENT_EQUAL: 
-        case TokenType.PLUS_EQUAL: 
-        case TokenType.MINUS_EQUAL: 
-        case TokenType.LEFT_SHIFT_EQUAL: 
-        case TokenType.RIGHT_SHIFT_EQUAL: 
-        case TokenType.UNSIGNED_RIGHT_SHIFT_EQUAL: 
-        case TokenType.AMPERSAND_EQUAL: 
-        case TokenType.CARET_EQUAL: 
-        case TokenType.BAR_EQUAL: 
-          return true; 
-
-        default: 
-          return false; 
-
-      } 
-    } 
-  }; 
-  return Object.preventExtensions(Object.create(null, { Token: { 
-      get: function() { 
-        return Token; 
-      }, 
-      enumerable: true 
-    } })); 
-}).call(this); 
-var $src_syntax_IdentifierToken_js =(function() { 
-  "use strict"; 
-  var destructuring$Token = $src_syntax_Token_js, Token = destructuring$Token.Token; 
-  var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
-  var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
-  function IdentifierToken(location, value) { 
-    Token.call(this, TokenType.IDENTIFIER, location); 
-    this.value = value; 
-  } 
-  IdentifierToken.prototype = createObject(Token.prototype, { toString: function() { 
-      return this.value; 
-    } }); 
-  return Object.preventExtensions(Object.create(null, { IdentifierToken: { 
-      get: function() { 
-        return IdentifierToken; 
-      }, 
-      enumerable: true 
-    } })); 
-}).call(this); 
-var $src_syntax_LiteralToken_js =(function() { 
-  "use strict"; 
-  var destructuring$Token = $src_syntax_Token_js, Token = destructuring$Token.Token; 
-  var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
-  function LiteralToken(type, value, location) { 
-    Token.call(this, type, location); 
-    this.value = value; 
-  } 
-  LiteralToken.prototype = createObject(Token.prototype, { toString: function() { 
-      return this.value; 
-    } }); 
-  return Object.preventExtensions(Object.create(null, { LiteralToken: { 
-      get: function() { 
-        return LiteralToken; 
-      }, 
-      enumerable: true 
-    } })); 
-}).call(this); 
-var $src_syntax_PredefinedName_js =(function() { 
-  "use strict"; 
-  var PredefinedName = { 
-    $ARGUMENTS: '$arguments', 
-    $THAT: '$that', 
-    $VALUE: '$value', 
-    ADD_CONTINUATION: 'addContinuation', 
-    APPLY: 'apply', 
-    ARGUMENTS: 'arguments', 
-    ARRAY: 'Array', 
-    ASSERT_NAME: 'assertName', 
-    BIND: 'bind', 
-    CALL: 'call', 
-    CALLBACK: 'callback', 
-    CAPTURED_ARGUMENTS: '$arguments', 
-    CAPTURED_THIS: '$this', 
-    CAUGHT_EXCEPTION: '$caughtException', 
-    CLOSE: 'close', 
-    CONFIGURABLE: 'configurable', 
-    CONSTRUCTOR: 'constructor', 
-    CONTINUATION: '$continuation', 
-    CREATE: 'create', 
-    CREATE_CALLBACK: '$createCallback', 
-    CREATE_CLASS: 'createClass', 
-    CREATE_ERRBACK: '$createErrback', 
-    CREATE_NAME: 'createName', 
-    CREATE_PROMISE: 'createPromise', 
-    CURRENT: 'current', 
-    DEFERRED: 'Deferred', 
-    DEFINE_PROPERTIES: 'defineProperties', 
-    DEFINE_PROPERTY: 'defineProperty', 
-    DELETE_PROPERTY: 'deleteProperty', 
-    ELEMENT_DELETE: 'elementDelete', 
-    ELEMENT_GET: 'elementGet', 
-    ELEMENT_HAS: 'elementHas', 
-    ELEMENT_SET: 'elementSet', 
-    ENUMERABLE: 'enumerable', 
-    ERR: '$err', 
-    ERRBACK: 'errback', 
-    FIELD_INITIALIZER_METHOD: '$field_initializer_', 
-    FINALLY_FALL_THROUGH: '$finallyFallThrough', 
-    FREEZE: 'freeze', 
-    FROM: 'from', 
-    GET: 'get', 
-    GET_ITERATOR: 'getIterator', 
-    GET_MODULE_INSTANCE_BY_URL: 'getModuleInstanceByUrl', 
-    GET_PROPERTY: 'getProperty', 
-    HAS: 'has', 
-    INIT: '$init', 
-    IS: 'is', 
-    ISNT: 'isnt', 
-    IS_DONE: 'isDone', 
-    ITERATOR: 'iterator', 
-    LENGTH: 'length', 
-    MARK_AS_GENERATOR: 'markAsGenerator', 
-    MARK_METHODS: 'markMethods', 
-    MODULE: 'module', 
-    MODULES: 'modules', 
-    MOVE_NEXT: 'moveNext', 
-    NEW: 'new', 
-    NEW_STATE: '$newState', 
-    OBJECT: 'Object', 
-    OBJECT_NAME: 'Object', 
-    OF: 'of', 
-    PARAM: '$param', 
-    PREVENT_EXTENSIONS: 'preventExtensions', 
-    PROTO: '__proto__', 
-    PROTOTYPE: 'prototype', 
-    PUSH: 'push', 
-    RAW: 'raw', 
-    REQUIRE: 'require', 
-    REQUIRED: 'required', 
-    REQUIRES: 'requires', 
-    RESOLVE: 'resolve', 
-    RESULT: '$result', 
-    RUNTIME: 'runtime', 
-    SET: 'set', 
-    SET_PROPERTY: 'setProperty', 
-    SLICE: 'slice', 
-    SPREAD: 'spread', 
-    SPREAD_NEW: 'spreadNew', 
-    STATE: '$state', 
-    STORED_EXCEPTION: '$storedException', 
-    SUPER_CALL: 'superCall', 
-    SUPER_GET: 'superGet', 
-    SUPER_SET: 'superSet', 
-    THEN: 'then', 
-    THIS: 'this', 
-    TRACEUR: 'traceur', 
-    TYPE_ERROR: 'TypeError', 
-    UNDEFINED: 'undefined', 
-    VALUE: 'value', 
-    WAIT_TASK: '$waitTask', 
-    WRITABLE: 'writable', 
-    getParameterName: function(index) { 
-      return '$' + index; 
-    } 
-  }; 
-  return Object.preventExtensions(Object.create(null, { PredefinedName: { 
-      get: function() { 
-        return PredefinedName; 
-      }, 
-      enumerable: true 
-    } })); 
-}).call(this); 
 var $src_syntax_trees_NullTree_js =(function() { 
   "use strict"; 
-  var destructuring$ParseTree = $src_syntax_trees_ParseTree_js, ParseTree = destructuring$ParseTree.ParseTree; 
-  var destructuring$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType.ParseTreeType; 
+  var destructuring$ParseTree$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTree = destructuring$ParseTree$ParseTreeType.ParseTree, ParseTreeType = destructuring$ParseTree$ParseTreeType.ParseTreeType; 
   var instance; 
   ParseTreeType.NULL_TREE = 'NULL_TREE'; 
   function NullTree() { 
@@ -2820,8 +2611,7 @@ var $src_syntax_trees_NullTree_js =(function() {
 var $src_syntax_trees_ParseTrees_js =(function() { 
   "use strict"; 
   var destructuring$NullTree = $src_syntax_trees_NullTree_js, NullTree = destructuring$NullTree.NullTree; 
-  var destructuring$ParseTree = $src_syntax_trees_ParseTree_js, ParseTree = destructuring$ParseTree.ParseTree; 
-  var destructuring$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType.ParseTreeType; 
+  var destructuring$ParseTree$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTree = destructuring$ParseTree$ParseTreeType.ParseTree, ParseTreeType = destructuring$ParseTree$ParseTreeType.ParseTreeType; 
   function create(var_args) { 
     var args = arguments; 
     var Tree = function(location) { 
@@ -2938,572 +2728,6 @@ var $src_syntax_trees_ParseTrees_js =(function() {
   return Object.preventExtensions(Object.create(null, { trees: { 
       get: function() { 
         return trees; 
-      }, 
-      enumerable: true 
-    } })); 
-}).call(this); 
-var $src_codegeneration_ParseTreeFactory_js =(function() { 
-  "use strict"; 
-  var destructuring$IdentifierToken = $src_syntax_IdentifierToken_js, IdentifierToken = destructuring$IdentifierToken.IdentifierToken; 
-  var destructuring$LiteralToken = $src_syntax_LiteralToken_js, LiteralToken = destructuring$LiteralToken.LiteralToken; 
-  var destructuring$ParseTree = $src_syntax_trees_ParseTree_js, ParseTree = destructuring$ParseTree.ParseTree; 
-  var destructuring$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType.ParseTreeType; 
-  var destructuring$PredefinedName = $src_syntax_PredefinedName_js, PredefinedName = destructuring$PredefinedName.PredefinedName; 
-  var destructuring$Token = $src_syntax_Token_js, Token = destructuring$Token.Token; 
-  var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
-  var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
-  var ArgumentList = trees.ArgumentList; 
-  var ArrayLiteralExpression = trees.ArrayLiteralExpression; 
-  var ArrayPattern = trees.ArrayPattern; 
-  var BinaryOperator = trees.BinaryOperator; 
-  var BindingElement = trees.BindingElement; 
-  var BindingIdentifier = trees.BindingIdentifier; 
-  var Block = trees.Block; 
-  var BreakStatement = trees.BreakStatement; 
-  var CallExpression = trees.CallExpression; 
-  var CascadeExpression = trees.CascadeExpression; 
-  var CaseClause = trees.CaseClause; 
-  var Catch = trees.Catch; 
-  var ClassDeclaration = trees.ClassDeclaration; 
-  var CommaExpression = trees.CommaExpression; 
-  var ConditionalExpression = trees.ConditionalExpression; 
-  var ContinueStatement = trees.ContinueStatement; 
-  var DefaultClause = trees.DefaultClause; 
-  var DoWhileStatement = trees.DoWhileStatement; 
-  var EmptyStatement = trees.EmptyStatement; 
-  var ExpressionStatement = trees.ExpressionStatement; 
-  var Finally = trees.Finally; 
-  var ForInStatement = trees.ForInStatement; 
-  var ForOfStatement = trees.ForOfStatement; 
-  var ForStatement = trees.ForStatement; 
-  var FormalParameterList = trees.FormalParameterList; 
-  var FunctionDeclaration = trees.FunctionDeclaration; 
-  var GetAccessor = trees.GetAccessor; 
-  var IdentifierExpression = trees.IdentifierExpression; 
-  var IfStatement = trees.IfStatement; 
-  var LabelledStatement = trees.LabelledStatement; 
-  var LiteralExpression = trees.LiteralExpression; 
-  var MemberExpression = trees.MemberExpression; 
-  var MemberLookupExpression = trees.MemberLookupExpression; 
-  var NewExpression = trees.NewExpression; 
-  var ObjectLiteralExpression = trees.ObjectLiteralExpression; 
-  var ObjectPattern = trees.ObjectPattern; 
-  var ObjectPatternField = trees.ObjectPatternField; 
-  var ParenExpression = trees.ParenExpression; 
-  var PostfixExpression = trees.PostfixExpression; 
-  var Program = trees.Program; 
-  var PropertyNameAssignment = trees.PropertyNameAssignment; 
-  var RestParameter = trees.RestParameter; 
-  var ReturnStatement = trees.ReturnStatement; 
-  var YieldStatement = trees.YieldStatement; 
-  var SetAccessor = trees.SetAccessor; 
-  var SpreadExpression = trees.SpreadExpression; 
-  var SpreadPatternElement = trees.SpreadPatternElement; 
-  var SwitchStatement = trees.SwitchStatement; 
-  var ThisExpression = trees.ThisExpression; 
-  var ThrowStatement = trees.ThrowStatement; 
-  var TryStatement = trees.TryStatement; 
-  var UnaryExpression = trees.UnaryExpression; 
-  var VariableDeclarationList = trees.VariableDeclarationList; 
-  var VariableDeclaration = trees.VariableDeclaration; 
-  var VariableStatement = trees.VariableStatement; 
-  var WhileStatement = trees.WhileStatement; 
-  var WithStatement = trees.WithStatement; 
-  var slice = Array.prototype.slice.call.bind(Array.prototype.slice); 
-  var map = Array.prototype.map.call.bind(Array.prototype.map); 
-  function createOperatorToken(operator) { 
-    return new Token(operator, null); 
-  } 
-  function createIdentifierToken(identifier) { 
-    return new IdentifierToken(null, identifier); 
-  } 
-  function createPropertyNameToken(propertyName) { 
-    return createIdentifierToken(propertyName); 
-  } 
-  function createStringLiteralToken(value) { 
-    return new LiteralToken(TokenType.STRING, JSON.stringify(value), null); 
-  } 
-  function createBooleanLiteralToken(value) { 
-    return new Token(value ? TokenType.TRUE: TokenType.FALSE, null); 
-  } 
-  function createNullLiteralToken() { 
-    return new LiteralToken(TokenType.NULL, 'null', null); 
-  } 
-  function createNumberLiteralToken(value) { 
-    return new LiteralToken(TokenType.NUMBER, String(value), null); 
-  } 
-  function createEmptyParameters() { 
-    return[]; 
-  } 
-  function createStatementList(statementsOrHead, var_args) { 
-    if(statementsOrHead instanceof Array) { 
-      var result = statementsOrHead.slice(); 
-      result.push.apply(result, slice(arguments, 1)); 
-      return result; 
-    } 
-    return slice(arguments); 
-  } 
-  function createBindingElement(arg) { 
-    var binding = createBindingIdentifier(arg); 
-    return new BindingElement(null, binding, null); 
-  } 
-  function createParameterList(arg0, var_args) { 
-    if(typeof arg0 == 'string') { 
-      var parameterList = map(arguments, createBindingElement); 
-      return new FormalParameterList(null, parameterList); 
-    } 
-    if(typeof arg0 == 'number') return createParameterListHelper(arg0, false); 
-    if(arg0 instanceof IdentifierToken) { 
-      return new FormalParameterList(null,[createBindingElement(arg0)]); 
-    } 
-    var builder = arg0.map(createBindingElement); 
-    return new FormalParameterList(null, builder); 
-  } 
-  function createParameterListHelper(numberOfParameters, hasRestParams) { 
-    var builder =[]; 
-    for(var index = 0; index < numberOfParameters; index ++) { 
-      var parameterName = PredefinedName.getParameterName(index); 
-      var isRestParameter = index == numberOfParameters - 1 && hasRestParams; 
-      builder.push(isRestParameter ? createRestParameter(parameterName): createBindingElement(parameterName)); 
-    } 
-    return new FormalParameterList(null, builder); 
-  } 
-  function createParameterListWithRestParams(numberOfParameters) { 
-    return createParameterListHelper(numberOfParameters, true); 
-  } 
-  function createParameterReference(index) { 
-    return createIdentifierExpression(PredefinedName.getParameterName(index)); 
-  } 
-  function createEmptyParameterList() { 
-    return new FormalParameterList(null,[]); 
-  } 
-  function createEmptyList() { 
-    return[]; 
-  } 
-  function createArgumentList(numberListOrFirst, var_args) { 
-    if(typeof numberListOrFirst == 'number') { 
-      return createArgumentListFromParameterList(createParameterList(numberListOrFirst)); 
-    } 
-    var list; 
-    if(numberListOrFirst instanceof Array) list = numberListOrFirst; else list = slice(arguments); 
-    return new ArgumentList(null, list); 
-  } 
-  function createArgumentListFromParameterList(formalParameterList) { 
-    var builder = formalParameterList.parameters.map(function(parameter) { 
-      if(parameter.isRestParameter()) { 
-        return createSpreadExpression(createIdentifierExpression(parameter.identifier)); 
-      } else { 
-        return parameter; 
-      } 
-    }); 
-    return new ArgumentList(null, builder); 
-  } 
-  function createEmptyArgumentList() { 
-    return new ArgumentList(null, createEmptyList()); 
-  } 
-  function createArrayLiteralExpression(list) { 
-    return new ArrayLiteralExpression(null, list); 
-  } 
-  function createEmptyArrayLiteralExpression() { 
-    return createArrayLiteralExpression(createEmptyList()); 
-  } 
-  function createArrayPattern(list) { 
-    return new ArrayPattern(null, list); 
-  } 
-  function createAssignmentExpression(lhs, rhs) { 
-    return new BinaryOperator(null, lhs, createOperatorToken(TokenType.EQUAL), rhs); 
-  } 
-  function createBinaryOperator(left, operator, right) { 
-    return new BinaryOperator(null, left, operator, right); 
-  } 
-  function createBindingIdentifier(identifier) { 
-    if(typeof identifier === 'string') identifier = createIdentifierToken(identifier); else if(identifier.type === ParseTreeType.BINDING_IDENTIFIER) return identifier; else if(identifier.type === ParseTreeType.IDENTIFIER_EXPRESSION) return new BindingIdentifier(identifier.location, identifier.identifierToken); 
-    return new BindingIdentifier(null, identifier); 
-  } 
-  function createEmptyStatement() { 
-    return new EmptyStatement(null); 
-  } 
-  function createEmptyBlock() { 
-    return createBlock(createEmptyList()); 
-  } 
-  function createBlock(statements) { 
-    if(statements instanceof ParseTree) statements = slice(arguments); 
-    return new Block(null, statements); 
-  } 
-  function createScopedStatements(statements) { 
-    if(statements instanceof ParseTree) statements = slice(arguments); 
-    return createScopedBlock(createBlock(statements)); 
-  } 
-  function createScopedBlock(block) { 
-    return createExpressionStatement(createScopedExpression(block)); 
-  } 
-  function createScopedExpression(block) { 
-    return createCallCall(createParenExpression(createFunctionExpression(createEmptyParameterList(), block)), createThisExpression()); 
-  } 
-  function createCallExpression(operand, opt_args) { 
-    var args = opt_args || createEmptyArgumentList(); 
-    return new CallExpression(null, operand, args); 
-  } 
-  function createBoundCall(func, thisTree) { 
-    return createCallExpression(createMemberExpression(func.type == ParseTreeType.FUNCTION_DECLARATION ? createParenExpression(func): func, PredefinedName.BIND), createArgumentList(thisTree)); 
-  } 
-  function createBreakStatement(opt_name) { 
-    return new BreakStatement(null, opt_name || null); 
-  } 
-  function createCallCall(func, thisExpression, args, var_args) { 
-    if(args instanceof ParseTree) args = slice(arguments, 2); 
-    var builder =[]; 
-    builder.push(thisExpression); 
-    builder.push.apply(builder, args); 
-    return createCallExpression(createMemberExpression(func, PredefinedName.CALL), createArgumentList(builder)); 
-  } 
-  function createCallCallStatement(func, thisExpression, var_args) { 
-    var args = slice(arguments, 2); 
-    return createExpressionStatement(createCallCall(func, thisExpression, args)); 
-  } 
-  function createCaseClause(expression, statements) { 
-    return new CaseClause(null, expression, statements); 
-  } 
-  function createCatch(identifier, catchBody) { 
-    identifier = createBindingIdentifier(identifier); 
-    return new Catch(null, identifier, catchBody); 
-  } 
-  function createCascadeExpression(operand, expressions) { 
-    return new CascadeExpression(null, operand, expressions); 
-  } 
-  function createClassDeclaration(name, superClass, elements) { 
-    return new ClassDeclaration(null, name, superClass, elements); 
-  } 
-  function createCommaExpression(expressions) { 
-    return new CommaExpression(null, expressions); 
-  } 
-  function createConditionalExpression(condition, left, right) { 
-    return new ConditionalExpression(null, condition, left, right); 
-  } 
-  function createContinueStatement(opt_name) { 
-    return new ContinueStatement(null, opt_name || null); 
-  } 
-  function createDefaultClause(statements) { 
-    return new DefaultClause(null, statements); 
-  } 
-  function createDoWhileStatement(body, condition) { 
-    return new DoWhileStatement(null, body, condition); 
-  } 
-  function createAssignmentStatement(lhs, rhs) { 
-    return createExpressionStatement(createAssignmentExpression(lhs, rhs)); 
-  } 
-  function createCallStatement(operand, opt_args) { 
-    if(opt_args) { 
-      return createExpressionStatement(createCallExpression(operand, opt_args)); 
-    } 
-    return createExpressionStatement(createCallExpression(operand)); 
-  } 
-  function createExpressionStatement(expression) { 
-    return new ExpressionStatement(null, expression); 
-  } 
-  function createFinally(block) { 
-    return new Finally(null, block); 
-  } 
-  function createForOfStatement(initializer, collection, body) { 
-    return new ForOfStatement(null, initializer, collection, body); 
-  } 
-  function createForInStatement(initializer, collection, body) { 
-    return new ForInStatement(null, initializer, collection, body); 
-  } 
-  function createForStatement(variables, condition, increment, body) { 
-    return new ForStatement(null, variables, condition, increment, body); 
-  } 
-  function createFunctionExpressionFormals(formalParameters, functionBody) { 
-    if(formalParameters instanceof Array) formalParameters = createParameterList(formalParameters); 
-    return new FunctionDeclaration(null, null, false, formalParameters, functionBody); 
-  } 
-  function createFunctionDeclaration(name, formalParameterList, functionBody) { 
-    if(name !== null) name = createBindingIdentifier(name); 
-    return new FunctionDeclaration(null, name, false, formalParameterList, functionBody); 
-  } 
-  function createFunctionExpression(formalParameterList, functionBody) { 
-    return new FunctionDeclaration(null, null, false, formalParameterList, functionBody); 
-  } 
-  function createGetAccessor(propertyName, body) { 
-    if(typeof propertyName == 'string') propertyName = createPropertyNameToken(propertyName); 
-    return new GetAccessor(null, propertyName, body); 
-  } 
-  function createIdentifierExpression(identifier) { 
-    if(typeof identifier == 'string') identifier = createIdentifierToken(identifier); else if(identifier instanceof BindingIdentifier) identifier = identifier.identifierToken; 
-    return new IdentifierExpression(null, identifier); 
-  } 
-  function createUndefinedExpression() { 
-    return createIdentifierExpression(PredefinedName.UNDEFINED); 
-  } 
-  function createIfStatement(condition, ifClause, opt_elseClause) { 
-    return new IfStatement(null, condition, ifClause, opt_elseClause || null); 
-  } 
-  function createLabelledStatement(name, statement) { 
-    return new LabelledStatement(null, name, statement); 
-  } 
-  function createStringLiteral(value) { 
-    return new LiteralExpression(null, createStringLiteralToken(value)); 
-  } 
-  function createBooleanLiteral(value) { 
-    return new LiteralExpression(null, createBooleanLiteralToken(value)); 
-  } 
-  function createTrueLiteral() { 
-    return createBooleanLiteral(true); 
-  } 
-  function createFalseLiteral() { 
-    return createBooleanLiteral(false); 
-  } 
-  function createNullLiteral() { 
-    return new LiteralExpression(null, createNullLiteralToken()); 
-  } 
-  function createNumberLiteral(value) { 
-    return new LiteralExpression(null, createNumberLiteralToken(value)); 
-  } 
-  function createMemberExpression(operand, memberName, memberNames) { 
-    if(typeof operand == 'string' || operand instanceof IdentifierToken) operand = createIdentifierExpression(operand); 
-    if(typeof memberName == 'string') memberName = createIdentifierToken(memberName); 
-    var tree = new MemberExpression(null, operand, memberName); 
-    for(var i = 2; i < arguments.length; i ++) { 
-      tree = createMemberExpression(tree, arguments[i]); 
-    } 
-    return tree; 
-  } 
-  function createMemberLookupExpression(operand, memberExpression) { 
-    return new MemberLookupExpression(null, operand, memberExpression); 
-  } 
-  function createThisExpression(memberName) { 
-    if(memberName) return createMemberExpression(createThisExpression(), memberName); 
-    return new ThisExpression(null); 
-  } 
-  function createNewExpression(operand, args) { 
-    return new NewExpression(null, operand, args); 
-  } 
-  function createObjectFreeze(value) { 
-    return createCallExpression(createMemberExpression(PredefinedName.OBJECT, PredefinedName.FREEZE), createArgumentList(value)); 
-  } 
-  function createObjectPreventExtensions(value) { 
-    return createCallExpression(createMemberExpression(PredefinedName.OBJECT, PredefinedName.PREVENT_EXTENSIONS), createArgumentList(value)); 
-  } 
-  function createObjectCreate(protoExpression, descriptors) { 
-    var argumentList =[protoExpression]; 
-    if(descriptors) argumentList.push(descriptors); 
-    return createCallExpression(createMemberExpression(PredefinedName.OBJECT, PredefinedName.CREATE), createArgumentList(argumentList)); 
-  } 
-  function createPropertyDescriptor(descr) { 
-    var propertyNameAndValues = Object.keys(descr).map(function(name) { 
-      var value = descr[name]; 
-      if(!(value instanceof ParseTree)) value = createBooleanLiteral(! ! value); 
-      return createPropertyNameAssignment(name, value); 
-    }); 
-    return createObjectLiteralExpression(propertyNameAndValues); 
-  } 
-  function createDefineProperty(tree, name, descr) { 
-    if(typeof name === 'string') name = createStringLiteral(name); 
-    return createCallExpression(createMemberExpression(PredefinedName.OBJECT, PredefinedName.DEFINE_PROPERTY), createArgumentList(tree, name, createPropertyDescriptor(descr))); 
-  } 
-  function createObjectLiteralExpression(propertyNameAndValues) { 
-    if(propertyNameAndValues instanceof ParseTree) propertyNameAndValues = slice(arguments); 
-    return new ObjectLiteralExpression(null, propertyNameAndValues); 
-  } 
-  function createObjectPattern(list) { 
-    return new ObjectPattern(null, list); 
-  } 
-  function createObjectPatternField(identifier, element) { 
-    identifier = createBindingIdentifier(identifier); 
-    return new ObjectPatternField(null, identifier, element); 
-  } 
-  function createParenExpression(expression) { 
-    return new ParenExpression(null, expression); 
-  } 
-  function createPostfixExpression(operand, operator) { 
-    return new PostfixExpression(null, operand, operator); 
-  } 
-  function createProgram(programElements) { 
-    return new Program(null, programElements); 
-  } 
-  function createPropertyNameAssignment(identifier, value) { 
-    if(typeof identifier == 'string') identifier = createIdentifierToken(identifier); 
-    return new PropertyNameAssignment(null, identifier, value); 
-  } 
-  function createRestParameter(identifier) { 
-    return new RestParameter(null, createBindingIdentifier(identifier)); 
-  } 
-  function createReturnStatement(expression) { 
-    return new ReturnStatement(null, expression); 
-  } 
-  function createYieldStatement(expression, isYieldFor) { 
-    return new YieldStatement(null, expression, isYieldFor); 
-  } 
-  function createSetAccessor(propertyName, parameter, body) { 
-    if(typeof propertyName == 'string') propertyName = createPropertyNameToken(propertyName); 
-    if(typeof parameter == 'string') parameter = createIdentifierToken(parameter); 
-    return new SetAccessor(null, propertyName, parameter, body); 
-  } 
-  function createSpreadExpression(expression) { 
-    return new SpreadExpression(null, expression); 
-  } 
-  function createSpreadPatternElement(lvalue) { 
-    return new SpreadPatternElement(null, lvalue); 
-  } 
-  function createSwitchStatement(expression, caseClauses) { 
-    return new SwitchStatement(null, expression, caseClauses); 
-  } 
-  function createThrowStatement(value) { 
-    return new ThrowStatement(null, value); 
-  } 
-  function createTryStatement(body, catchOrFinallyBlock, opt_finallyBlock) { 
-    var catchBlock, finallyBlock; 
-    if(arguments.length > 2) { 
-      catchBlock = arguments[1]; 
-      finallyBlock = arguments[2]; 
-    } else { 
-      catchBlock = null; 
-      finallyBlock = arguments[1]; 
-    } 
-    return new TryStatement(null, body, catchBlock, finallyBlock); 
-  } 
-  function createUnaryExpression(operator, operand) { 
-    return new UnaryExpression(null, operator, operand); 
-  } 
-  function createUseStrictDirective() { 
-    return createExpressionStatement(createStringLiteral('use strict')); 
-  } 
-  function createVariableDeclarationList(binding, identifierOrDeclarations, initializer) { 
-    if(identifierOrDeclarations instanceof Array) { 
-      var declarations = identifierOrDeclarations; 
-      return new VariableDeclarationList(null, binding, declarations); 
-    } 
-    var identifier = identifierOrDeclarations; 
-    return createVariableDeclarationList(binding,[createVariableDeclaration(identifier, initializer)]); 
-  } 
-  function createVariableDeclaration(identifier, initializer) { 
-    if(!(identifier instanceof ParseTree) || identifier.type !== ParseTreeType.BINDING_IDENTIFIER && identifier.type !== ParseTreeType.OBJECT_PATTERN && identifier.type !== ParseTreeType.ARRAY_PATTERN) { 
-      identifier = createBindingIdentifier(identifier); 
-    } 
-    return new VariableDeclaration(null, identifier, initializer); 
-  } 
-  function createVariableStatement(listOrBinding, identifier, initializer) { 
-    if(listOrBinding instanceof VariableDeclarationList) return new VariableStatement(null, listOrBinding); 
-    var binding = listOrBinding; 
-    var list = createVariableDeclarationList(binding, identifier, initializer); 
-    return createVariableStatement(list); 
-  } 
-  function createVoid0() { 
-    return createParenExpression(createUnaryExpression(createOperatorToken(TokenType.VOID), createNumberLiteral(0))); 
-  } 
-  function createWhileStatement(condition, body) { 
-    return new WhileStatement(null, condition, body); 
-  } 
-  function createWithStatement(expression, body) { 
-    return new WithStatement(null, expression, body); 
-  } 
-  function createAssignStateStatement(state) { 
-    return createAssignmentStatement(createIdentifierExpression(PredefinedName.STATE), createNumberLiteral(state)); 
-  } 
-  var ParseTreeFactory = { 
-    createArgumentList: createArgumentList, 
-    createArgumentListFromParameterList: createArgumentListFromParameterList, 
-    createArrayLiteralExpression: createArrayLiteralExpression, 
-    createArrayPattern: createArrayPattern, 
-    createAssignStateStatement: createAssignStateStatement, 
-    createAssignmentExpression: createAssignmentExpression, 
-    createAssignmentStatement: createAssignmentStatement, 
-    createBinaryOperator: createBinaryOperator, 
-    createBindingIdentifier: createBindingIdentifier, 
-    createBlock: createBlock, 
-    createBooleanLiteral: createBooleanLiteral, 
-    createBooleanLiteralToken: createBooleanLiteralToken, 
-    createBoundCall: createBoundCall, 
-    createBreakStatement: createBreakStatement, 
-    createCallCall: createCallCall, 
-    createCallCallStatement: createCallCallStatement, 
-    createCallExpression: createCallExpression, 
-    createCallStatement: createCallStatement, 
-    createCaseClause: createCaseClause, 
-    createBindingElement: createBindingElement, 
-    createCascadeExpression: createCascadeExpression, 
-    createCatch: createCatch, 
-    createClassDeclaration: createClassDeclaration, 
-    createCommaExpression: createCommaExpression, 
-    createConditionalExpression: createConditionalExpression, 
-    createContinueStatement: createContinueStatement, 
-    createDefaultClause: createDefaultClause, 
-    createDefineProperty: createDefineProperty, 
-    createDoWhileStatement: createDoWhileStatement, 
-    createEmptyArgumentList: createEmptyArgumentList, 
-    createEmptyArrayLiteralExpression: createEmptyArrayLiteralExpression, 
-    createEmptyBlock: createEmptyBlock, 
-    createEmptyList: createEmptyList, 
-    createEmptyParameterList: createEmptyParameterList, 
-    createEmptyParameters: createEmptyParameters, 
-    createEmptyStatement: createEmptyStatement, 
-    createExpressionStatement: createExpressionStatement, 
-    createFalseLiteral: createFalseLiteral, 
-    createFinally: createFinally, 
-    createForInStatement: createForInStatement, 
-    createForOfStatement: createForOfStatement, 
-    createForStatement: createForStatement, 
-    createFunctionDeclaration: createFunctionDeclaration, 
-    createFunctionExpression: createFunctionExpression, 
-    createFunctionExpressionFormals: createFunctionExpressionFormals, 
-    createGetAccessor: createGetAccessor, 
-    createIdentifierExpression: createIdentifierExpression, 
-    createIdentifierToken: createIdentifierToken, 
-    createIfStatement: createIfStatement, 
-    createLabelledStatement: createLabelledStatement, 
-    createMemberExpression: createMemberExpression, 
-    createMemberLookupExpression: createMemberLookupExpression, 
-    createNewExpression: createNewExpression, 
-    createNullLiteral: createNullLiteral, 
-    createNullLiteralToken: createNullLiteralToken, 
-    createNumberLiteral: createNumberLiteral, 
-    createNumberLiteralToken: createNumberLiteralToken, 
-    createObjectCreate: createObjectCreate, 
-    createObjectFreeze: createObjectFreeze, 
-    createObjectLiteralExpression: createObjectLiteralExpression, 
-    createObjectPattern: createObjectPattern, 
-    createObjectPatternField: createObjectPatternField, 
-    createObjectPreventExtensions: createObjectPreventExtensions, 
-    createOperatorToken: createOperatorToken, 
-    createParameterList: createParameterList, 
-    createParameterListWithRestParams: createParameterListWithRestParams, 
-    createParameterReference: createParameterReference, 
-    createParenExpression: createParenExpression, 
-    createPostfixExpression: createPostfixExpression, 
-    createProgram: createProgram, 
-    createPropertyDescriptor: createPropertyDescriptor, 
-    createPropertyNameAssignment: createPropertyNameAssignment, 
-    createPropertyNameToken: createPropertyNameToken, 
-    createRestParameter: createRestParameter, 
-    createReturnStatement: createReturnStatement, 
-    createScopedBlock: createScopedBlock, 
-    createScopedExpression: createScopedExpression, 
-    createScopedStatements: createScopedStatements, 
-    createSetAccessor: createSetAccessor, 
-    createSpreadExpression: createSpreadExpression, 
-    createSpreadPatternElement: createSpreadPatternElement, 
-    createStatementList: createStatementList, 
-    createStringLiteral: createStringLiteral, 
-    createStringLiteralToken: createStringLiteralToken, 
-    createSwitchStatement: createSwitchStatement, 
-    createThisExpression: createThisExpression, 
-    createThrowStatement: createThrowStatement, 
-    createTrueLiteral: createTrueLiteral, 
-    createTryStatement: createTryStatement, 
-    createUnaryExpression: createUnaryExpression, 
-    createUndefinedExpression: createUndefinedExpression, 
-    createUseStrictDirective: createUseStrictDirective, 
-    createVariableDeclaration: createVariableDeclaration, 
-    createVariableDeclarationList: createVariableDeclarationList, 
-    createVariableStatement: createVariableStatement, 
-    createVoid0: createVoid0, 
-    createWhileStatement: createWhileStatement, 
-    createWithStatement: createWithStatement, 
-    createYieldStatement: createYieldStatement 
-  }; 
-  return Object.preventExtensions(Object.create(null, { ParseTreeFactory: { 
-      get: function() { 
-        return ParseTreeFactory; 
       }, 
       enumerable: true 
     } })); 
@@ -4220,6 +3444,65 @@ var $src_codegeneration_ParseTreeTransformer_js =(function() {
       enumerable: true 
     } })); 
 }).call(this); 
+var $src_syntax_Token_js =(function() { 
+  "use strict"; 
+  var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
+  function Token(type, location) { 
+    this.type = type; 
+    this.location = location; 
+  } 
+  Token.prototype = { 
+    toString: function() { 
+      return this.type.toString(); 
+    }, 
+    isAssignmentOperator: function() { 
+      switch(this.type) { 
+        case TokenType.EQUAL: 
+        case TokenType.STAR_EQUAL: 
+        case TokenType.SLASH_EQUAL: 
+        case TokenType.PERCENT_EQUAL: 
+        case TokenType.PLUS_EQUAL: 
+        case TokenType.MINUS_EQUAL: 
+        case TokenType.LEFT_SHIFT_EQUAL: 
+        case TokenType.RIGHT_SHIFT_EQUAL: 
+        case TokenType.UNSIGNED_RIGHT_SHIFT_EQUAL: 
+        case TokenType.AMPERSAND_EQUAL: 
+        case TokenType.CARET_EQUAL: 
+        case TokenType.BAR_EQUAL: 
+          return true; 
+
+        default: 
+          return false; 
+
+      } 
+    } 
+  }; 
+  return Object.preventExtensions(Object.create(null, { Token: { 
+      get: function() { 
+        return Token; 
+      }, 
+      enumerable: true 
+    } })); 
+}).call(this); 
+var $src_syntax_IdentifierToken_js =(function() { 
+  "use strict"; 
+  var destructuring$Token = $src_syntax_Token_js, Token = destructuring$Token.Token; 
+  var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
+  var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
+  function IdentifierToken(location, value) { 
+    Token.call(this, TokenType.IDENTIFIER, location); 
+    this.value = value; 
+  } 
+  IdentifierToken.prototype = createObject(Token.prototype, { toString: function() { 
+      return this.value; 
+    } }); 
+  return Object.preventExtensions(Object.create(null, { IdentifierToken: { 
+      get: function() { 
+        return IdentifierToken; 
+      }, 
+      enumerable: true 
+    } })); 
+}).call(this); 
 var $src_syntax_Keywords_js =(function() { 
   "use strict"; 
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
@@ -4262,6 +3545,111 @@ var $src_syntax_Keywords_js =(function() {
       enumerable: true 
     } })); 
 }).call(this); 
+var $src_syntax_PredefinedName_js =(function() { 
+  "use strict"; 
+  var PredefinedName = { 
+    $ARGUMENTS: '$arguments', 
+    $THAT: '$that', 
+    $VALUE: '$value', 
+    ADD_CONTINUATION: 'addContinuation', 
+    APPLY: 'apply', 
+    ARGUMENTS: 'arguments', 
+    ARRAY: 'Array', 
+    ASSERT_NAME: 'assertName', 
+    BIND: 'bind', 
+    CALL: 'call', 
+    CALLBACK: 'callback', 
+    CAPTURED_ARGUMENTS: '$arguments', 
+    CAPTURED_THIS: '$this', 
+    CAUGHT_EXCEPTION: '$caughtException', 
+    CLOSE: 'close', 
+    CONFIGURABLE: 'configurable', 
+    CONSTRUCTOR: 'constructor', 
+    CONTINUATION: '$continuation', 
+    CREATE: 'create', 
+    CREATE_CALLBACK: '$createCallback', 
+    CREATE_CLASS: 'createClass', 
+    CREATE_ERRBACK: '$createErrback', 
+    CREATE_NAME: 'createName', 
+    CREATE_PROMISE: 'createPromise', 
+    CURRENT: 'current', 
+    DEFERRED: 'Deferred', 
+    DEFINE_PROPERTIES: 'defineProperties', 
+    DEFINE_PROPERTY: 'defineProperty', 
+    DELETE_PROPERTY: 'deleteProperty', 
+    ELEMENT_DELETE: 'elementDelete', 
+    ELEMENT_GET: 'elementGet', 
+    ELEMENT_HAS: 'elementHas', 
+    ELEMENT_SET: 'elementSet', 
+    ENUMERABLE: 'enumerable', 
+    ERR: '$err', 
+    ERRBACK: 'errback', 
+    FIELD_INITIALIZER_METHOD: '$field_initializer_', 
+    FINALLY_FALL_THROUGH: '$finallyFallThrough', 
+    FREEZE: 'freeze', 
+    FROM: 'from', 
+    GET: 'get', 
+    GET_ITERATOR: 'getIterator', 
+    GET_MODULE_INSTANCE_BY_URL: 'getModuleInstanceByUrl', 
+    GET_PROPERTY: 'getProperty', 
+    HAS: 'has', 
+    INIT: '$init', 
+    IS: 'is', 
+    ISNT: 'isnt', 
+    IS_DONE: 'isDone', 
+    ITERATOR: 'iterator', 
+    LENGTH: 'length', 
+    MARK_AS_GENERATOR: 'markAsGenerator', 
+    MARK_METHODS: 'markMethods', 
+    MODULE: 'module', 
+    MODULES: 'modules', 
+    MOVE_NEXT: 'moveNext', 
+    NEW: 'new', 
+    NEW_STATE: '$newState', 
+    OBJECT: 'Object', 
+    OBJECT_NAME: 'Object', 
+    OF: 'of', 
+    PARAM: '$param', 
+    PREVENT_EXTENSIONS: 'preventExtensions', 
+    PROTO: '__proto__', 
+    PROTOTYPE: 'prototype', 
+    PUSH: 'push', 
+    RAW: 'raw', 
+    REQUIRE: 'require', 
+    REQUIRED: 'required', 
+    REQUIRES: 'requires', 
+    RESOLVE: 'resolve', 
+    RESULT: '$result', 
+    RUNTIME: 'runtime', 
+    SET: 'set', 
+    SET_PROPERTY: 'setProperty', 
+    SLICE: 'slice', 
+    SPREAD: 'spread', 
+    SPREAD_NEW: 'spreadNew', 
+    STATE: '$state', 
+    STORED_EXCEPTION: '$storedException', 
+    SUPER_CALL: 'superCall', 
+    SUPER_GET: 'superGet', 
+    SUPER_SET: 'superSet', 
+    THEN: 'then', 
+    THIS: 'this', 
+    TRACEUR: 'traceur', 
+    TYPE_ERROR: 'TypeError', 
+    UNDEFINED: 'undefined', 
+    VALUE: 'value', 
+    WAIT_TASK: '$waitTask', 
+    WRITABLE: 'writable', 
+    getParameterName: function(index) { 
+      return '$' + index; 
+    } 
+  }; 
+  return Object.preventExtensions(Object.create(null, { PredefinedName: { 
+      get: function() { 
+        return PredefinedName; 
+      }, 
+      enumerable: true 
+    } })); 
+}).call(this); 
 var $src_syntax_AtNameToken_js =(function() { 
   "use strict"; 
   var destructuring$Token = $src_syntax_Token_js, Token = destructuring$Token.Token; 
@@ -4277,6 +3665,24 @@ var $src_syntax_AtNameToken_js =(function() {
   return Object.preventExtensions(Object.create(null, { AtNameToken: { 
       get: function() { 
         return AtNameToken; 
+      }, 
+      enumerable: true 
+    } })); 
+}).call(this); 
+var $src_syntax_LiteralToken_js =(function() { 
+  "use strict"; 
+  var destructuring$Token = $src_syntax_Token_js, Token = destructuring$Token.Token; 
+  var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
+  function LiteralToken(type, value, location) { 
+    Token.call(this, type, location); 
+    this.value = value; 
+  } 
+  LiteralToken.prototype = createObject(Token.prototype, { toString: function() { 
+      return this.value; 
+    } }); 
+  return Object.preventExtensions(Object.create(null, { LiteralToken: { 
+      get: function() { 
+        return LiteralToken; 
       }, 
       enumerable: true 
     } })); 
@@ -7421,21 +6827,1071 @@ var $src_syntax_SourceFile_js =(function() {
       enumerable: true 
     } })); 
 }).call(this); 
+var $src_codegeneration_ParseTreeFactory_js =(function() { 
+  "use strict"; 
+  var destructuring$IdentifierToken = $src_syntax_IdentifierToken_js, IdentifierToken = destructuring$IdentifierToken.IdentifierToken; 
+  var destructuring$LiteralToken = $src_syntax_LiteralToken_js, LiteralToken = destructuring$LiteralToken.LiteralToken; 
+  var destructuring$ParseTree$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTree = destructuring$ParseTree$ParseTreeType.ParseTree, ParseTreeType = destructuring$ParseTree$ParseTreeType.ParseTreeType; 
+  var destructuring$PredefinedName = $src_syntax_PredefinedName_js, PredefinedName = destructuring$PredefinedName.PredefinedName; 
+  var destructuring$Token = $src_syntax_Token_js, Token = destructuring$Token.Token; 
+  var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
+  var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
+  var ArgumentList = trees.ArgumentList; 
+  var ArrayLiteralExpression = trees.ArrayLiteralExpression; 
+  var ArrayPattern = trees.ArrayPattern; 
+  var BinaryOperator = trees.BinaryOperator; 
+  var BindingElement = trees.BindingElement; 
+  var BindingIdentifier = trees.BindingIdentifier; 
+  var Block = trees.Block; 
+  var BreakStatement = trees.BreakStatement; 
+  var CallExpression = trees.CallExpression; 
+  var CascadeExpression = trees.CascadeExpression; 
+  var CaseClause = trees.CaseClause; 
+  var Catch = trees.Catch; 
+  var ClassDeclaration = trees.ClassDeclaration; 
+  var CommaExpression = trees.CommaExpression; 
+  var ConditionalExpression = trees.ConditionalExpression; 
+  var ContinueStatement = trees.ContinueStatement; 
+  var DefaultClause = trees.DefaultClause; 
+  var DoWhileStatement = trees.DoWhileStatement; 
+  var EmptyStatement = trees.EmptyStatement; 
+  var ExpressionStatement = trees.ExpressionStatement; 
+  var Finally = trees.Finally; 
+  var ForInStatement = trees.ForInStatement; 
+  var ForOfStatement = trees.ForOfStatement; 
+  var ForStatement = trees.ForStatement; 
+  var FormalParameterList = trees.FormalParameterList; 
+  var FunctionDeclaration = trees.FunctionDeclaration; 
+  var GetAccessor = trees.GetAccessor; 
+  var IdentifierExpression = trees.IdentifierExpression; 
+  var IfStatement = trees.IfStatement; 
+  var LabelledStatement = trees.LabelledStatement; 
+  var LiteralExpression = trees.LiteralExpression; 
+  var MemberExpression = trees.MemberExpression; 
+  var MemberLookupExpression = trees.MemberLookupExpression; 
+  var NewExpression = trees.NewExpression; 
+  var ObjectLiteralExpression = trees.ObjectLiteralExpression; 
+  var ObjectPattern = trees.ObjectPattern; 
+  var ObjectPatternField = trees.ObjectPatternField; 
+  var ParenExpression = trees.ParenExpression; 
+  var PostfixExpression = trees.PostfixExpression; 
+  var Program = trees.Program; 
+  var PropertyNameAssignment = trees.PropertyNameAssignment; 
+  var RestParameter = trees.RestParameter; 
+  var ReturnStatement = trees.ReturnStatement; 
+  var YieldStatement = trees.YieldStatement; 
+  var SetAccessor = trees.SetAccessor; 
+  var SpreadExpression = trees.SpreadExpression; 
+  var SpreadPatternElement = trees.SpreadPatternElement; 
+  var SwitchStatement = trees.SwitchStatement; 
+  var ThisExpression = trees.ThisExpression; 
+  var ThrowStatement = trees.ThrowStatement; 
+  var TryStatement = trees.TryStatement; 
+  var UnaryExpression = trees.UnaryExpression; 
+  var VariableDeclarationList = trees.VariableDeclarationList; 
+  var VariableDeclaration = trees.VariableDeclaration; 
+  var VariableStatement = trees.VariableStatement; 
+  var WhileStatement = trees.WhileStatement; 
+  var WithStatement = trees.WithStatement; 
+  var slice = Array.prototype.slice.call.bind(Array.prototype.slice); 
+  var map = Array.prototype.map.call.bind(Array.prototype.map); 
+  function createOperatorToken(operator) { 
+    return new Token(operator, null); 
+  } 
+  function createIdentifierToken(identifier) { 
+    return new IdentifierToken(null, identifier); 
+  } 
+  function createPropertyNameToken(propertyName) { 
+    return createIdentifierToken(propertyName); 
+  } 
+  function createStringLiteralToken(value) { 
+    return new LiteralToken(TokenType.STRING, JSON.stringify(value), null); 
+  } 
+  function createBooleanLiteralToken(value) { 
+    return new Token(value ? TokenType.TRUE: TokenType.FALSE, null); 
+  } 
+  function createNullLiteralToken() { 
+    return new LiteralToken(TokenType.NULL, 'null', null); 
+  } 
+  function createNumberLiteralToken(value) { 
+    return new LiteralToken(TokenType.NUMBER, String(value), null); 
+  } 
+  function createEmptyParameters() { 
+    return[]; 
+  } 
+  function createStatementList(statementsOrHead, var_args) { 
+    if(statementsOrHead instanceof Array) { 
+      var result = statementsOrHead.slice(); 
+      result.push.apply(result, slice(arguments, 1)); 
+      return result; 
+    } 
+    return slice(arguments); 
+  } 
+  function createBindingElement(arg) { 
+    var binding = createBindingIdentifier(arg); 
+    return new BindingElement(null, binding, null); 
+  } 
+  function createParameterList(arg0, var_args) { 
+    if(typeof arg0 == 'string') { 
+      var parameterList = map(arguments, createBindingElement); 
+      return new FormalParameterList(null, parameterList); 
+    } 
+    if(typeof arg0 == 'number') return createParameterListHelper(arg0, false); 
+    if(arg0 instanceof IdentifierToken) { 
+      return new FormalParameterList(null,[createBindingElement(arg0)]); 
+    } 
+    var builder = arg0.map(createBindingElement); 
+    return new FormalParameterList(null, builder); 
+  } 
+  function createParameterListHelper(numberOfParameters, hasRestParams) { 
+    var builder =[]; 
+    for(var index = 0; index < numberOfParameters; index ++) { 
+      var parameterName = PredefinedName.getParameterName(index); 
+      var isRestParameter = index == numberOfParameters - 1 && hasRestParams; 
+      builder.push(isRestParameter ? createRestParameter(parameterName): createBindingElement(parameterName)); 
+    } 
+    return new FormalParameterList(null, builder); 
+  } 
+  function createParameterListWithRestParams(numberOfParameters) { 
+    return createParameterListHelper(numberOfParameters, true); 
+  } 
+  function createParameterReference(index) { 
+    return createIdentifierExpression(PredefinedName.getParameterName(index)); 
+  } 
+  function createEmptyParameterList() { 
+    return new FormalParameterList(null,[]); 
+  } 
+  function createEmptyList() { 
+    return[]; 
+  } 
+  function createArgumentList(numberListOrFirst, var_args) { 
+    if(typeof numberListOrFirst == 'number') { 
+      return createArgumentListFromParameterList(createParameterList(numberListOrFirst)); 
+    } 
+    var list; 
+    if(numberListOrFirst instanceof Array) list = numberListOrFirst; else list = slice(arguments); 
+    return new ArgumentList(null, list); 
+  } 
+  function createArgumentListFromParameterList(formalParameterList) { 
+    var builder = formalParameterList.parameters.map(function(parameter) { 
+      if(parameter.isRestParameter()) { 
+        return createSpreadExpression(createIdentifierExpression(parameter.identifier)); 
+      } else { 
+        return parameter; 
+      } 
+    }); 
+    return new ArgumentList(null, builder); 
+  } 
+  function createEmptyArgumentList() { 
+    return new ArgumentList(null, createEmptyList()); 
+  } 
+  function createArrayLiteralExpression(list) { 
+    return new ArrayLiteralExpression(null, list); 
+  } 
+  function createEmptyArrayLiteralExpression() { 
+    return createArrayLiteralExpression(createEmptyList()); 
+  } 
+  function createArrayPattern(list) { 
+    return new ArrayPattern(null, list); 
+  } 
+  function createAssignmentExpression(lhs, rhs) { 
+    return new BinaryOperator(null, lhs, createOperatorToken(TokenType.EQUAL), rhs); 
+  } 
+  function createBinaryOperator(left, operator, right) { 
+    return new BinaryOperator(null, left, operator, right); 
+  } 
+  function createBindingIdentifier(identifier) { 
+    if(typeof identifier === 'string') identifier = createIdentifierToken(identifier); else if(identifier.type === ParseTreeType.BINDING_IDENTIFIER) return identifier; else if(identifier.type === ParseTreeType.IDENTIFIER_EXPRESSION) return new BindingIdentifier(identifier.location, identifier.identifierToken); 
+    return new BindingIdentifier(null, identifier); 
+  } 
+  function createEmptyStatement() { 
+    return new EmptyStatement(null); 
+  } 
+  function createEmptyBlock() { 
+    return createBlock(createEmptyList()); 
+  } 
+  function createBlock(statements) { 
+    if(statements instanceof ParseTree) statements = slice(arguments); 
+    return new Block(null, statements); 
+  } 
+  function createScopedStatements(statements) { 
+    if(statements instanceof ParseTree) statements = slice(arguments); 
+    return createScopedBlock(createBlock(statements)); 
+  } 
+  function createScopedBlock(block) { 
+    return createExpressionStatement(createScopedExpression(block)); 
+  } 
+  function createScopedExpression(block) { 
+    return createCallCall(createParenExpression(createFunctionExpression(createEmptyParameterList(), block)), createThisExpression()); 
+  } 
+  function createCallExpression(operand, opt_args) { 
+    var args = opt_args || createEmptyArgumentList(); 
+    return new CallExpression(null, operand, args); 
+  } 
+  function createBoundCall(func, thisTree) { 
+    return createCallExpression(createMemberExpression(func.type == ParseTreeType.FUNCTION_DECLARATION ? createParenExpression(func): func, PredefinedName.BIND), createArgumentList(thisTree)); 
+  } 
+  function createBreakStatement(opt_name) { 
+    return new BreakStatement(null, opt_name || null); 
+  } 
+  function createCallCall(func, thisExpression, args, var_args) { 
+    if(args instanceof ParseTree) args = slice(arguments, 2); 
+    var builder =[]; 
+    builder.push(thisExpression); 
+    builder.push.apply(builder, args); 
+    return createCallExpression(createMemberExpression(func, PredefinedName.CALL), createArgumentList(builder)); 
+  } 
+  function createCallCallStatement(func, thisExpression, var_args) { 
+    var args = slice(arguments, 2); 
+    return createExpressionStatement(createCallCall(func, thisExpression, args)); 
+  } 
+  function createCaseClause(expression, statements) { 
+    return new CaseClause(null, expression, statements); 
+  } 
+  function createCatch(identifier, catchBody) { 
+    identifier = createBindingIdentifier(identifier); 
+    return new Catch(null, identifier, catchBody); 
+  } 
+  function createCascadeExpression(operand, expressions) { 
+    return new CascadeExpression(null, operand, expressions); 
+  } 
+  function createClassDeclaration(name, superClass, elements) { 
+    return new ClassDeclaration(null, name, superClass, elements); 
+  } 
+  function createCommaExpression(expressions) { 
+    return new CommaExpression(null, expressions); 
+  } 
+  function createConditionalExpression(condition, left, right) { 
+    return new ConditionalExpression(null, condition, left, right); 
+  } 
+  function createContinueStatement(opt_name) { 
+    return new ContinueStatement(null, opt_name || null); 
+  } 
+  function createDefaultClause(statements) { 
+    return new DefaultClause(null, statements); 
+  } 
+  function createDoWhileStatement(body, condition) { 
+    return new DoWhileStatement(null, body, condition); 
+  } 
+  function createAssignmentStatement(lhs, rhs) { 
+    return createExpressionStatement(createAssignmentExpression(lhs, rhs)); 
+  } 
+  function createCallStatement(operand, opt_args) { 
+    if(opt_args) { 
+      return createExpressionStatement(createCallExpression(operand, opt_args)); 
+    } 
+    return createExpressionStatement(createCallExpression(operand)); 
+  } 
+  function createExpressionStatement(expression) { 
+    return new ExpressionStatement(null, expression); 
+  } 
+  function createFinally(block) { 
+    return new Finally(null, block); 
+  } 
+  function createForOfStatement(initializer, collection, body) { 
+    return new ForOfStatement(null, initializer, collection, body); 
+  } 
+  function createForInStatement(initializer, collection, body) { 
+    return new ForInStatement(null, initializer, collection, body); 
+  } 
+  function createForStatement(variables, condition, increment, body) { 
+    return new ForStatement(null, variables, condition, increment, body); 
+  } 
+  function createFunctionExpressionFormals(formalParameters, functionBody) { 
+    if(formalParameters instanceof Array) formalParameters = createParameterList(formalParameters); 
+    return new FunctionDeclaration(null, null, false, formalParameters, functionBody); 
+  } 
+  function createFunctionDeclaration(name, formalParameterList, functionBody) { 
+    if(name !== null) name = createBindingIdentifier(name); 
+    return new FunctionDeclaration(null, name, false, formalParameterList, functionBody); 
+  } 
+  function createFunctionExpression(formalParameterList, functionBody) { 
+    return new FunctionDeclaration(null, null, false, formalParameterList, functionBody); 
+  } 
+  function createGetAccessor(propertyName, body) { 
+    if(typeof propertyName == 'string') propertyName = createPropertyNameToken(propertyName); 
+    return new GetAccessor(null, propertyName, body); 
+  } 
+  function createIdentifierExpression(identifier) { 
+    if(typeof identifier == 'string') identifier = createIdentifierToken(identifier); else if(identifier instanceof BindingIdentifier) identifier = identifier.identifierToken; 
+    return new IdentifierExpression(null, identifier); 
+  } 
+  function createUndefinedExpression() { 
+    return createIdentifierExpression(PredefinedName.UNDEFINED); 
+  } 
+  function createIfStatement(condition, ifClause, opt_elseClause) { 
+    return new IfStatement(null, condition, ifClause, opt_elseClause || null); 
+  } 
+  function createLabelledStatement(name, statement) { 
+    return new LabelledStatement(null, name, statement); 
+  } 
+  function createStringLiteral(value) { 
+    return new LiteralExpression(null, createStringLiteralToken(value)); 
+  } 
+  function createBooleanLiteral(value) { 
+    return new LiteralExpression(null, createBooleanLiteralToken(value)); 
+  } 
+  function createTrueLiteral() { 
+    return createBooleanLiteral(true); 
+  } 
+  function createFalseLiteral() { 
+    return createBooleanLiteral(false); 
+  } 
+  function createNullLiteral() { 
+    return new LiteralExpression(null, createNullLiteralToken()); 
+  } 
+  function createNumberLiteral(value) { 
+    return new LiteralExpression(null, createNumberLiteralToken(value)); 
+  } 
+  function createMemberExpression(operand, memberName, memberNames) { 
+    if(typeof operand == 'string' || operand instanceof IdentifierToken) operand = createIdentifierExpression(operand); 
+    if(typeof memberName == 'string') memberName = createIdentifierToken(memberName); 
+    var tree = new MemberExpression(null, operand, memberName); 
+    for(var i = 2; i < arguments.length; i ++) { 
+      tree = createMemberExpression(tree, arguments[i]); 
+    } 
+    return tree; 
+  } 
+  function createMemberLookupExpression(operand, memberExpression) { 
+    return new MemberLookupExpression(null, operand, memberExpression); 
+  } 
+  function createThisExpression(memberName) { 
+    if(memberName) return createMemberExpression(createThisExpression(), memberName); 
+    return new ThisExpression(null); 
+  } 
+  function createNewExpression(operand, args) { 
+    return new NewExpression(null, operand, args); 
+  } 
+  function createObjectFreeze(value) { 
+    return createCallExpression(createMemberExpression(PredefinedName.OBJECT, PredefinedName.FREEZE), createArgumentList(value)); 
+  } 
+  function createObjectPreventExtensions(value) { 
+    return createCallExpression(createMemberExpression(PredefinedName.OBJECT, PredefinedName.PREVENT_EXTENSIONS), createArgumentList(value)); 
+  } 
+  function createObjectCreate(protoExpression, descriptors) { 
+    var argumentList =[protoExpression]; 
+    if(descriptors) argumentList.push(descriptors); 
+    return createCallExpression(createMemberExpression(PredefinedName.OBJECT, PredefinedName.CREATE), createArgumentList(argumentList)); 
+  } 
+  function createPropertyDescriptor(descr) { 
+    var propertyNameAndValues = Object.keys(descr).map(function(name) { 
+      var value = descr[name]; 
+      if(!(value instanceof ParseTree)) value = createBooleanLiteral(! ! value); 
+      return createPropertyNameAssignment(name, value); 
+    }); 
+    return createObjectLiteralExpression(propertyNameAndValues); 
+  } 
+  function createDefineProperty(tree, name, descr) { 
+    if(typeof name === 'string') name = createStringLiteral(name); 
+    return createCallExpression(createMemberExpression(PredefinedName.OBJECT, PredefinedName.DEFINE_PROPERTY), createArgumentList(tree, name, createPropertyDescriptor(descr))); 
+  } 
+  function createObjectLiteralExpression(propertyNameAndValues) { 
+    if(propertyNameAndValues instanceof ParseTree) propertyNameAndValues = slice(arguments); 
+    return new ObjectLiteralExpression(null, propertyNameAndValues); 
+  } 
+  function createObjectPattern(list) { 
+    return new ObjectPattern(null, list); 
+  } 
+  function createObjectPatternField(identifier, element) { 
+    identifier = createBindingIdentifier(identifier); 
+    return new ObjectPatternField(null, identifier, element); 
+  } 
+  function createParenExpression(expression) { 
+    return new ParenExpression(null, expression); 
+  } 
+  function createPostfixExpression(operand, operator) { 
+    return new PostfixExpression(null, operand, operator); 
+  } 
+  function createProgram(programElements) { 
+    return new Program(null, programElements); 
+  } 
+  function createPropertyNameAssignment(identifier, value) { 
+    if(typeof identifier == 'string') identifier = createIdentifierToken(identifier); 
+    return new PropertyNameAssignment(null, identifier, value); 
+  } 
+  function createRestParameter(identifier) { 
+    return new RestParameter(null, createBindingIdentifier(identifier)); 
+  } 
+  function createReturnStatement(expression) { 
+    return new ReturnStatement(null, expression); 
+  } 
+  function createYieldStatement(expression, isYieldFor) { 
+    return new YieldStatement(null, expression, isYieldFor); 
+  } 
+  function createSetAccessor(propertyName, parameter, body) { 
+    if(typeof propertyName == 'string') propertyName = createPropertyNameToken(propertyName); 
+    if(typeof parameter == 'string') parameter = createIdentifierToken(parameter); 
+    return new SetAccessor(null, propertyName, parameter, body); 
+  } 
+  function createSpreadExpression(expression) { 
+    return new SpreadExpression(null, expression); 
+  } 
+  function createSpreadPatternElement(lvalue) { 
+    return new SpreadPatternElement(null, lvalue); 
+  } 
+  function createSwitchStatement(expression, caseClauses) { 
+    return new SwitchStatement(null, expression, caseClauses); 
+  } 
+  function createThrowStatement(value) { 
+    return new ThrowStatement(null, value); 
+  } 
+  function createTryStatement(body, catchOrFinallyBlock, opt_finallyBlock) { 
+    var catchBlock, finallyBlock; 
+    if(arguments.length > 2) { 
+      catchBlock = arguments[1]; 
+      finallyBlock = arguments[2]; 
+    } else { 
+      catchBlock = null; 
+      finallyBlock = arguments[1]; 
+    } 
+    return new TryStatement(null, body, catchBlock, finallyBlock); 
+  } 
+  function createUnaryExpression(operator, operand) { 
+    return new UnaryExpression(null, operator, operand); 
+  } 
+  function createUseStrictDirective() { 
+    return createExpressionStatement(createStringLiteral('use strict')); 
+  } 
+  function createVariableDeclarationList(binding, identifierOrDeclarations, initializer) { 
+    if(identifierOrDeclarations instanceof Array) { 
+      var declarations = identifierOrDeclarations; 
+      return new VariableDeclarationList(null, binding, declarations); 
+    } 
+    var identifier = identifierOrDeclarations; 
+    return createVariableDeclarationList(binding,[createVariableDeclaration(identifier, initializer)]); 
+  } 
+  function createVariableDeclaration(identifier, initializer) { 
+    if(!(identifier instanceof ParseTree) || identifier.type !== ParseTreeType.BINDING_IDENTIFIER && identifier.type !== ParseTreeType.OBJECT_PATTERN && identifier.type !== ParseTreeType.ARRAY_PATTERN) { 
+      identifier = createBindingIdentifier(identifier); 
+    } 
+    return new VariableDeclaration(null, identifier, initializer); 
+  } 
+  function createVariableStatement(listOrBinding, identifier, initializer) { 
+    if(listOrBinding instanceof VariableDeclarationList) return new VariableStatement(null, listOrBinding); 
+    var binding = listOrBinding; 
+    var list = createVariableDeclarationList(binding, identifier, initializer); 
+    return createVariableStatement(list); 
+  } 
+  function createVoid0() { 
+    return createParenExpression(createUnaryExpression(createOperatorToken(TokenType.VOID), createNumberLiteral(0))); 
+  } 
+  function createWhileStatement(condition, body) { 
+    return new WhileStatement(null, condition, body); 
+  } 
+  function createWithStatement(expression, body) { 
+    return new WithStatement(null, expression, body); 
+  } 
+  function createAssignStateStatement(state) { 
+    return createAssignmentStatement(createIdentifierExpression(PredefinedName.STATE), createNumberLiteral(state)); 
+  } 
+  return Object.preventExtensions(Object.create(null, { 
+    createOperatorToken: { 
+      get: function() { 
+        return createOperatorToken; 
+      }, 
+      enumerable: true 
+    }, 
+    createIdentifierToken: { 
+      get: function() { 
+        return createIdentifierToken; 
+      }, 
+      enumerable: true 
+    }, 
+    createPropertyNameToken: { 
+      get: function() { 
+        return createPropertyNameToken; 
+      }, 
+      enumerable: true 
+    }, 
+    createStringLiteralToken: { 
+      get: function() { 
+        return createStringLiteralToken; 
+      }, 
+      enumerable: true 
+    }, 
+    createBooleanLiteralToken: { 
+      get: function() { 
+        return createBooleanLiteralToken; 
+      }, 
+      enumerable: true 
+    }, 
+    createNullLiteralToken: { 
+      get: function() { 
+        return createNullLiteralToken; 
+      }, 
+      enumerable: true 
+    }, 
+    createNumberLiteralToken: { 
+      get: function() { 
+        return createNumberLiteralToken; 
+      }, 
+      enumerable: true 
+    }, 
+    createEmptyParameters: { 
+      get: function() { 
+        return createEmptyParameters; 
+      }, 
+      enumerable: true 
+    }, 
+    createStatementList: { 
+      get: function() { 
+        return createStatementList; 
+      }, 
+      enumerable: true 
+    }, 
+    createBindingElement: { 
+      get: function() { 
+        return createBindingElement; 
+      }, 
+      enumerable: true 
+    }, 
+    createParameterList: { 
+      get: function() { 
+        return createParameterList; 
+      }, 
+      enumerable: true 
+    }, 
+    createParameterListWithRestParams: { 
+      get: function() { 
+        return createParameterListWithRestParams; 
+      }, 
+      enumerable: true 
+    }, 
+    createParameterReference: { 
+      get: function() { 
+        return createParameterReference; 
+      }, 
+      enumerable: true 
+    }, 
+    createEmptyParameterList: { 
+      get: function() { 
+        return createEmptyParameterList; 
+      }, 
+      enumerable: true 
+    }, 
+    createEmptyList: { 
+      get: function() { 
+        return createEmptyList; 
+      }, 
+      enumerable: true 
+    }, 
+    createArgumentList: { 
+      get: function() { 
+        return createArgumentList; 
+      }, 
+      enumerable: true 
+    }, 
+    createArgumentListFromParameterList: { 
+      get: function() { 
+        return createArgumentListFromParameterList; 
+      }, 
+      enumerable: true 
+    }, 
+    createEmptyArgumentList: { 
+      get: function() { 
+        return createEmptyArgumentList; 
+      }, 
+      enumerable: true 
+    }, 
+    createArrayLiteralExpression: { 
+      get: function() { 
+        return createArrayLiteralExpression; 
+      }, 
+      enumerable: true 
+    }, 
+    createEmptyArrayLiteralExpression: { 
+      get: function() { 
+        return createEmptyArrayLiteralExpression; 
+      }, 
+      enumerable: true 
+    }, 
+    createArrayPattern: { 
+      get: function() { 
+        return createArrayPattern; 
+      }, 
+      enumerable: true 
+    }, 
+    createAssignmentExpression: { 
+      get: function() { 
+        return createAssignmentExpression; 
+      }, 
+      enumerable: true 
+    }, 
+    createBinaryOperator: { 
+      get: function() { 
+        return createBinaryOperator; 
+      }, 
+      enumerable: true 
+    }, 
+    createBindingIdentifier: { 
+      get: function() { 
+        return createBindingIdentifier; 
+      }, 
+      enumerable: true 
+    }, 
+    createEmptyStatement: { 
+      get: function() { 
+        return createEmptyStatement; 
+      }, 
+      enumerable: true 
+    }, 
+    createEmptyBlock: { 
+      get: function() { 
+        return createEmptyBlock; 
+      }, 
+      enumerable: true 
+    }, 
+    createBlock: { 
+      get: function() { 
+        return createBlock; 
+      }, 
+      enumerable: true 
+    }, 
+    createScopedStatements: { 
+      get: function() { 
+        return createScopedStatements; 
+      }, 
+      enumerable: true 
+    }, 
+    createScopedBlock: { 
+      get: function() { 
+        return createScopedBlock; 
+      }, 
+      enumerable: true 
+    }, 
+    createScopedExpression: { 
+      get: function() { 
+        return createScopedExpression; 
+      }, 
+      enumerable: true 
+    }, 
+    createCallExpression: { 
+      get: function() { 
+        return createCallExpression; 
+      }, 
+      enumerable: true 
+    }, 
+    createBoundCall: { 
+      get: function() { 
+        return createBoundCall; 
+      }, 
+      enumerable: true 
+    }, 
+    createBreakStatement: { 
+      get: function() { 
+        return createBreakStatement; 
+      }, 
+      enumerable: true 
+    }, 
+    createCallCall: { 
+      get: function() { 
+        return createCallCall; 
+      }, 
+      enumerable: true 
+    }, 
+    createCallCallStatement: { 
+      get: function() { 
+        return createCallCallStatement; 
+      }, 
+      enumerable: true 
+    }, 
+    createCaseClause: { 
+      get: function() { 
+        return createCaseClause; 
+      }, 
+      enumerable: true 
+    }, 
+    createCatch: { 
+      get: function() { 
+        return createCatch; 
+      }, 
+      enumerable: true 
+    }, 
+    createCascadeExpression: { 
+      get: function() { 
+        return createCascadeExpression; 
+      }, 
+      enumerable: true 
+    }, 
+    createClassDeclaration: { 
+      get: function() { 
+        return createClassDeclaration; 
+      }, 
+      enumerable: true 
+    }, 
+    createCommaExpression: { 
+      get: function() { 
+        return createCommaExpression; 
+      }, 
+      enumerable: true 
+    }, 
+    createConditionalExpression: { 
+      get: function() { 
+        return createConditionalExpression; 
+      }, 
+      enumerable: true 
+    }, 
+    createContinueStatement: { 
+      get: function() { 
+        return createContinueStatement; 
+      }, 
+      enumerable: true 
+    }, 
+    createDefaultClause: { 
+      get: function() { 
+        return createDefaultClause; 
+      }, 
+      enumerable: true 
+    }, 
+    createDoWhileStatement: { 
+      get: function() { 
+        return createDoWhileStatement; 
+      }, 
+      enumerable: true 
+    }, 
+    createAssignmentStatement: { 
+      get: function() { 
+        return createAssignmentStatement; 
+      }, 
+      enumerable: true 
+    }, 
+    createCallStatement: { 
+      get: function() { 
+        return createCallStatement; 
+      }, 
+      enumerable: true 
+    }, 
+    createExpressionStatement: { 
+      get: function() { 
+        return createExpressionStatement; 
+      }, 
+      enumerable: true 
+    }, 
+    createFinally: { 
+      get: function() { 
+        return createFinally; 
+      }, 
+      enumerable: true 
+    }, 
+    createForOfStatement: { 
+      get: function() { 
+        return createForOfStatement; 
+      }, 
+      enumerable: true 
+    }, 
+    createForInStatement: { 
+      get: function() { 
+        return createForInStatement; 
+      }, 
+      enumerable: true 
+    }, 
+    createForStatement: { 
+      get: function() { 
+        return createForStatement; 
+      }, 
+      enumerable: true 
+    }, 
+    createFunctionExpressionFormals: { 
+      get: function() { 
+        return createFunctionExpressionFormals; 
+      }, 
+      enumerable: true 
+    }, 
+    createFunctionDeclaration: { 
+      get: function() { 
+        return createFunctionDeclaration; 
+      }, 
+      enumerable: true 
+    }, 
+    createFunctionExpression: { 
+      get: function() { 
+        return createFunctionExpression; 
+      }, 
+      enumerable: true 
+    }, 
+    createGetAccessor: { 
+      get: function() { 
+        return createGetAccessor; 
+      }, 
+      enumerable: true 
+    }, 
+    createIdentifierExpression: { 
+      get: function() { 
+        return createIdentifierExpression; 
+      }, 
+      enumerable: true 
+    }, 
+    createUndefinedExpression: { 
+      get: function() { 
+        return createUndefinedExpression; 
+      }, 
+      enumerable: true 
+    }, 
+    createIfStatement: { 
+      get: function() { 
+        return createIfStatement; 
+      }, 
+      enumerable: true 
+    }, 
+    createLabelledStatement: { 
+      get: function() { 
+        return createLabelledStatement; 
+      }, 
+      enumerable: true 
+    }, 
+    createStringLiteral: { 
+      get: function() { 
+        return createStringLiteral; 
+      }, 
+      enumerable: true 
+    }, 
+    createBooleanLiteral: { 
+      get: function() { 
+        return createBooleanLiteral; 
+      }, 
+      enumerable: true 
+    }, 
+    createTrueLiteral: { 
+      get: function() { 
+        return createTrueLiteral; 
+      }, 
+      enumerable: true 
+    }, 
+    createFalseLiteral: { 
+      get: function() { 
+        return createFalseLiteral; 
+      }, 
+      enumerable: true 
+    }, 
+    createNullLiteral: { 
+      get: function() { 
+        return createNullLiteral; 
+      }, 
+      enumerable: true 
+    }, 
+    createNumberLiteral: { 
+      get: function() { 
+        return createNumberLiteral; 
+      }, 
+      enumerable: true 
+    }, 
+    createMemberExpression: { 
+      get: function() { 
+        return createMemberExpression; 
+      }, 
+      enumerable: true 
+    }, 
+    createMemberLookupExpression: { 
+      get: function() { 
+        return createMemberLookupExpression; 
+      }, 
+      enumerable: true 
+    }, 
+    createThisExpression: { 
+      get: function() { 
+        return createThisExpression; 
+      }, 
+      enumerable: true 
+    }, 
+    createNewExpression: { 
+      get: function() { 
+        return createNewExpression; 
+      }, 
+      enumerable: true 
+    }, 
+    createObjectFreeze: { 
+      get: function() { 
+        return createObjectFreeze; 
+      }, 
+      enumerable: true 
+    }, 
+    createObjectPreventExtensions: { 
+      get: function() { 
+        return createObjectPreventExtensions; 
+      }, 
+      enumerable: true 
+    }, 
+    createObjectCreate: { 
+      get: function() { 
+        return createObjectCreate; 
+      }, 
+      enumerable: true 
+    }, 
+    createPropertyDescriptor: { 
+      get: function() { 
+        return createPropertyDescriptor; 
+      }, 
+      enumerable: true 
+    }, 
+    createDefineProperty: { 
+      get: function() { 
+        return createDefineProperty; 
+      }, 
+      enumerable: true 
+    }, 
+    createObjectLiteralExpression: { 
+      get: function() { 
+        return createObjectLiteralExpression; 
+      }, 
+      enumerable: true 
+    }, 
+    createObjectPattern: { 
+      get: function() { 
+        return createObjectPattern; 
+      }, 
+      enumerable: true 
+    }, 
+    createObjectPatternField: { 
+      get: function() { 
+        return createObjectPatternField; 
+      }, 
+      enumerable: true 
+    }, 
+    createParenExpression: { 
+      get: function() { 
+        return createParenExpression; 
+      }, 
+      enumerable: true 
+    }, 
+    createPostfixExpression: { 
+      get: function() { 
+        return createPostfixExpression; 
+      }, 
+      enumerable: true 
+    }, 
+    createProgram: { 
+      get: function() { 
+        return createProgram; 
+      }, 
+      enumerable: true 
+    }, 
+    createPropertyNameAssignment: { 
+      get: function() { 
+        return createPropertyNameAssignment; 
+      }, 
+      enumerable: true 
+    }, 
+    createRestParameter: { 
+      get: function() { 
+        return createRestParameter; 
+      }, 
+      enumerable: true 
+    }, 
+    createReturnStatement: { 
+      get: function() { 
+        return createReturnStatement; 
+      }, 
+      enumerable: true 
+    }, 
+    createYieldStatement: { 
+      get: function() { 
+        return createYieldStatement; 
+      }, 
+      enumerable: true 
+    }, 
+    createSetAccessor: { 
+      get: function() { 
+        return createSetAccessor; 
+      }, 
+      enumerable: true 
+    }, 
+    createSpreadExpression: { 
+      get: function() { 
+        return createSpreadExpression; 
+      }, 
+      enumerable: true 
+    }, 
+    createSpreadPatternElement: { 
+      get: function() { 
+        return createSpreadPatternElement; 
+      }, 
+      enumerable: true 
+    }, 
+    createSwitchStatement: { 
+      get: function() { 
+        return createSwitchStatement; 
+      }, 
+      enumerable: true 
+    }, 
+    createThrowStatement: { 
+      get: function() { 
+        return createThrowStatement; 
+      }, 
+      enumerable: true 
+    }, 
+    createTryStatement: { 
+      get: function() { 
+        return createTryStatement; 
+      }, 
+      enumerable: true 
+    }, 
+    createUnaryExpression: { 
+      get: function() { 
+        return createUnaryExpression; 
+      }, 
+      enumerable: true 
+    }, 
+    createUseStrictDirective: { 
+      get: function() { 
+        return createUseStrictDirective; 
+      }, 
+      enumerable: true 
+    }, 
+    createVariableDeclarationList: { 
+      get: function() { 
+        return createVariableDeclarationList; 
+      }, 
+      enumerable: true 
+    }, 
+    createVariableDeclaration: { 
+      get: function() { 
+        return createVariableDeclaration; 
+      }, 
+      enumerable: true 
+    }, 
+    createVariableStatement: { 
+      get: function() { 
+        return createVariableStatement; 
+      }, 
+      enumerable: true 
+    }, 
+    createVoid0: { 
+      get: function() { 
+        return createVoid0; 
+      }, 
+      enumerable: true 
+    }, 
+    createWhileStatement: { 
+      get: function() { 
+        return createWhileStatement; 
+      }, 
+      enumerable: true 
+    }, 
+    createWithStatement: { 
+      get: function() { 
+        return createWithStatement; 
+      }, 
+      enumerable: true 
+    }, 
+    createAssignStateStatement: { 
+      get: function() { 
+        return createAssignStateStatement; 
+      }, 
+      enumerable: true 
+    } 
+  })); 
+}).call(this); 
 var $src_codegeneration_RuntimeInliner_js =(function() { 
   "use strict"; 
   var destructuring$MutedErrorReporter = $src_util_MutedErrorReporter_js, MutedErrorReporter = destructuring$MutedErrorReporter.MutedErrorReporter; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$ParseTreeTransformer = $src_codegeneration_ParseTreeTransformer_js, ParseTreeTransformer = destructuring$ParseTreeTransformer.ParseTreeTransformer; 
   var destructuring$Parser = $src_syntax_Parser_js, Parser = destructuring$Parser.Parser; 
   var destructuring$SourceFile = $src_syntax_SourceFile_js, SourceFile = destructuring$SourceFile.SourceFile; 
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
+  var destructuring$createIdentifierExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement = $src_codegeneration_ParseTreeFactory_js, createIdentifierExpression = destructuring$createIdentifierExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createIdentifierExpression, createVariableDeclaration = destructuring$createIdentifierExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createVariableDeclaration, createVariableDeclarationList = destructuring$createIdentifierExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createVariableDeclarationList, createVariableStatement = destructuring$createIdentifierExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createVariableStatement; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
   var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
   var Program = trees.Program; 
-  var createVariableStatement = ParseTreeFactory.createVariableStatement; 
-  var createVariableDeclaration = ParseTreeFactory.createVariableDeclaration; 
-  var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList; 
-  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression; 
   var shared = { toObject: "function(value) {\n        if (value == null)\n          throw TypeError();\n        return Object(value);\n      }" }; 
   function parse(source, name) { 
     var file = new SourceFile(name + '@runtime', source); 
@@ -7501,15 +7957,38 @@ var $src_codegeneration_RuntimeInliner_js =(function() {
       enumerable: true 
     } })); 
 }).call(this); 
+var $src_codegeneration_UniqueIdentifierGenerator_js =(function() { 
+  "use strict"; 
+  function UniqueIdentifierGenerator() { 
+    this.identifierIndex = 0; 
+    this.nameMap_ = Object.create(null); 
+  } 
+  UniqueIdentifierGenerator.prototype = { 
+    generateUniqueIdentifier: function() { 
+      return '$__' + this.identifierIndex ++; 
+    }, 
+    getUniqueIdentifier: function(name) { 
+      var newName = this.nameMap_[name]; 
+      if(! newName) return this.nameMap_[name]= this.generateUniqueIdentifier(); 
+      return newName; 
+    } 
+  }; 
+  return Object.preventExtensions(Object.create(null, { UniqueIdentifierGenerator: { 
+      get: function() { 
+        return UniqueIdentifierGenerator; 
+      }, 
+      enumerable: true 
+    } })); 
+}).call(this); 
 var $src_semantics_symbols_Project_js =(function() { 
   "use strict"; 
   var destructuring$ArrayMap = $src_util_ArrayMap_js, ArrayMap = destructuring$ArrayMap.ArrayMap; 
   var destructuring$ExportSymbol = $src_semantics_symbols_ExportSymbol_js, ExportSymbol = destructuring$ExportSymbol.ExportSymbol; 
   var destructuring$ModuleSymbol = $src_semantics_symbols_ModuleSymbol_js, ModuleSymbol = destructuring$ModuleSymbol.ModuleSymbol; 
   var destructuring$ObjectMap = $src_util_ObjectMap_js, ObjectMap = destructuring$ObjectMap.ObjectMap; 
-  var destructuring$resolveUrl = $src_util_url_js, resolveUrl = destructuring$resolveUrl.resolveUrl; 
-  var destructuring$UniqueIdentifierGenerator = $src_codegeneration_UniqueIdentifierGenerator_js, UniqueIdentifierGenerator = destructuring$UniqueIdentifierGenerator.UniqueIdentifierGenerator; 
   var destructuring$RuntimeInliner = $src_codegeneration_RuntimeInliner_js, RuntimeInliner = destructuring$RuntimeInliner.RuntimeInliner; 
+  var destructuring$UniqueIdentifierGenerator = $src_codegeneration_UniqueIdentifierGenerator_js, UniqueIdentifierGenerator = destructuring$UniqueIdentifierGenerator.UniqueIdentifierGenerator; 
+  var destructuring$resolveUrl = $src_util_url_js, resolveUrl = destructuring$resolveUrl.resolveUrl; 
   function addAll(self, other) { 
     for(var key in other) { 
       self[key]= other[key]; 
@@ -9136,8 +9615,7 @@ var $src_codegeneration_module_ModuleRequireVisitor_js =(function() {
   "use strict"; 
   var destructuring$ParseTreeVisitor = $src_syntax_ParseTreeVisitor_js, ParseTreeVisitor = destructuring$ParseTreeVisitor.ParseTreeVisitor; 
   var destructuring$canonicalizeUrl = $src_util_url_js, canonicalizeUrl = destructuring$canonicalizeUrl.canonicalizeUrl; 
-  var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
-  var destructuring$evaluateStringLiteral = $src_util_util_js, evaluateStringLiteral = destructuring$evaluateStringLiteral.evaluateStringLiteral; 
+  var destructuring$createObject$evaluateStringLiteral = $src_util_util_js, createObject = destructuring$createObject$evaluateStringLiteral.createObject, evaluateStringLiteral = destructuring$createObject$evaluateStringLiteral.evaluateStringLiteral; 
   function ModuleRequireVisitor(reporter) { 
     ParseTreeVisitor.call(this); 
     this.urls_ = Object.create(null); 
@@ -9159,11 +9637,11 @@ var $src_codegeneration_module_ModuleRequireVisitor_js =(function() {
 }).call(this); 
 var $src_codegeneration_ModuleTransformer_js =(function() { 
   "use strict"; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$ParseTreeTransformer = $src_codegeneration_ParseTreeTransformer_js, ParseTreeTransformer = destructuring$ParseTreeTransformer.ParseTreeTransformer; 
   var destructuring$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType.ParseTreeType; 
   var destructuring$PredefinedName = $src_syntax_PredefinedName_js, PredefinedName = destructuring$PredefinedName.PredefinedName; 
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
+  var destructuring$createArgumentList$createBindingIdentifier$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNullLiteral$createObjectCreate$createObjectLiteralExpression$createObjectPreventExtensions$createProgram$createPropertyDescriptor$createPropertyNameAssignment$createReturnStatement$createScopedExpression$createUseStrictDirective$createVariableDeclaration$createVariableDeclarationList$createVariableStatement = $src_codegeneration_ParseTreeFactory_js, createArgumentList = destructuring$createArgumentList$createBindingIdentifier$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNullLiteral$createObjectCreate$createObjectLiteralExpression$createObjectPreventExtensions$createProgram$createPropertyDescriptor$createPropertyNameAssignment$createReturnStatement$createScopedExpression$createUseStrictDirective$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createArgumentList, createBindingIdentifier = destructuring$createArgumentList$createBindingIdentifier$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNullLiteral$createObjectCreate$createObjectLiteralExpression$createObjectPreventExtensions$createProgram$createPropertyDescriptor$createPropertyNameAssignment$createReturnStatement$createScopedExpression$createUseStrictDirective$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createBindingIdentifier, createBlock = destructuring$createArgumentList$createBindingIdentifier$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNullLiteral$createObjectCreate$createObjectLiteralExpression$createObjectPreventExtensions$createProgram$createPropertyDescriptor$createPropertyNameAssignment$createReturnStatement$createScopedExpression$createUseStrictDirective$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createBlock, createCallExpression = destructuring$createArgumentList$createBindingIdentifier$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNullLiteral$createObjectCreate$createObjectLiteralExpression$createObjectPreventExtensions$createProgram$createPropertyDescriptor$createPropertyNameAssignment$createReturnStatement$createScopedExpression$createUseStrictDirective$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createCallExpression, createEmptyParameterList = destructuring$createArgumentList$createBindingIdentifier$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNullLiteral$createObjectCreate$createObjectLiteralExpression$createObjectPreventExtensions$createProgram$createPropertyDescriptor$createPropertyNameAssignment$createReturnStatement$createScopedExpression$createUseStrictDirective$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createEmptyParameterList, createExpressionStatement = destructuring$createArgumentList$createBindingIdentifier$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNullLiteral$createObjectCreate$createObjectLiteralExpression$createObjectPreventExtensions$createProgram$createPropertyDescriptor$createPropertyNameAssignment$createReturnStatement$createScopedExpression$createUseStrictDirective$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createExpressionStatement, createFunctionExpression = destructuring$createArgumentList$createBindingIdentifier$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNullLiteral$createObjectCreate$createObjectLiteralExpression$createObjectPreventExtensions$createProgram$createPropertyDescriptor$createPropertyNameAssignment$createReturnStatement$createScopedExpression$createUseStrictDirective$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createFunctionExpression, createIdentifierExpression = destructuring$createArgumentList$createBindingIdentifier$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNullLiteral$createObjectCreate$createObjectLiteralExpression$createObjectPreventExtensions$createProgram$createPropertyDescriptor$createPropertyNameAssignment$createReturnStatement$createScopedExpression$createUseStrictDirective$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createIdentifierExpression, createMemberExpression = destructuring$createArgumentList$createBindingIdentifier$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNullLiteral$createObjectCreate$createObjectLiteralExpression$createObjectPreventExtensions$createProgram$createPropertyDescriptor$createPropertyNameAssignment$createReturnStatement$createScopedExpression$createUseStrictDirective$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createMemberExpression, createNullLiteral = destructuring$createArgumentList$createBindingIdentifier$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNullLiteral$createObjectCreate$createObjectLiteralExpression$createObjectPreventExtensions$createProgram$createPropertyDescriptor$createPropertyNameAssignment$createReturnStatement$createScopedExpression$createUseStrictDirective$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createNullLiteral, createObjectCreate = destructuring$createArgumentList$createBindingIdentifier$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNullLiteral$createObjectCreate$createObjectLiteralExpression$createObjectPreventExtensions$createProgram$createPropertyDescriptor$createPropertyNameAssignment$createReturnStatement$createScopedExpression$createUseStrictDirective$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createObjectCreate, createObjectLiteralExpression = destructuring$createArgumentList$createBindingIdentifier$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNullLiteral$createObjectCreate$createObjectLiteralExpression$createObjectPreventExtensions$createProgram$createPropertyDescriptor$createPropertyNameAssignment$createReturnStatement$createScopedExpression$createUseStrictDirective$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createObjectLiteralExpression, createObjectPreventExtensions = destructuring$createArgumentList$createBindingIdentifier$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNullLiteral$createObjectCreate$createObjectLiteralExpression$createObjectPreventExtensions$createProgram$createPropertyDescriptor$createPropertyNameAssignment$createReturnStatement$createScopedExpression$createUseStrictDirective$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createObjectPreventExtensions, createProgram = destructuring$createArgumentList$createBindingIdentifier$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNullLiteral$createObjectCreate$createObjectLiteralExpression$createObjectPreventExtensions$createProgram$createPropertyDescriptor$createPropertyNameAssignment$createReturnStatement$createScopedExpression$createUseStrictDirective$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createProgram, createPropertyDescriptor = destructuring$createArgumentList$createBindingIdentifier$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNullLiteral$createObjectCreate$createObjectLiteralExpression$createObjectPreventExtensions$createProgram$createPropertyDescriptor$createPropertyNameAssignment$createReturnStatement$createScopedExpression$createUseStrictDirective$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createPropertyDescriptor, createPropertyNameAssignment = destructuring$createArgumentList$createBindingIdentifier$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNullLiteral$createObjectCreate$createObjectLiteralExpression$createObjectPreventExtensions$createProgram$createPropertyDescriptor$createPropertyNameAssignment$createReturnStatement$createScopedExpression$createUseStrictDirective$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createPropertyNameAssignment, createReturnStatement = destructuring$createArgumentList$createBindingIdentifier$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNullLiteral$createObjectCreate$createObjectLiteralExpression$createObjectPreventExtensions$createProgram$createPropertyDescriptor$createPropertyNameAssignment$createReturnStatement$createScopedExpression$createUseStrictDirective$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createReturnStatement, createScopedExpression = destructuring$createArgumentList$createBindingIdentifier$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNullLiteral$createObjectCreate$createObjectLiteralExpression$createObjectPreventExtensions$createProgram$createPropertyDescriptor$createPropertyNameAssignment$createReturnStatement$createScopedExpression$createUseStrictDirective$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createScopedExpression, createUseStrictDirective = destructuring$createArgumentList$createBindingIdentifier$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNullLiteral$createObjectCreate$createObjectLiteralExpression$createObjectPreventExtensions$createProgram$createPropertyDescriptor$createPropertyNameAssignment$createReturnStatement$createScopedExpression$createUseStrictDirective$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createUseStrictDirective, createVariableDeclaration = destructuring$createArgumentList$createBindingIdentifier$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNullLiteral$createObjectCreate$createObjectLiteralExpression$createObjectPreventExtensions$createProgram$createPropertyDescriptor$createPropertyNameAssignment$createReturnStatement$createScopedExpression$createUseStrictDirective$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createVariableDeclaration, createVariableDeclarationList = destructuring$createArgumentList$createBindingIdentifier$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNullLiteral$createObjectCreate$createObjectLiteralExpression$createObjectPreventExtensions$createProgram$createPropertyDescriptor$createPropertyNameAssignment$createReturnStatement$createScopedExpression$createUseStrictDirective$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createVariableDeclarationList, createVariableStatement = destructuring$createArgumentList$createBindingIdentifier$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNullLiteral$createObjectCreate$createObjectLiteralExpression$createObjectPreventExtensions$createProgram$createPropertyDescriptor$createPropertyNameAssignment$createReturnStatement$createScopedExpression$createUseStrictDirective$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createVariableStatement; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
   var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
   var BindingElement = trees.BindingElement; 
@@ -9184,28 +9662,6 @@ var $src_codegeneration_ModuleTransformer_js =(function() {
   var MODULE_DEFINITION = ParseTreeType.MODULE_DEFINITION; 
   var MODULE_REQUIRE = ParseTreeType.MODULE_REQUIRE; 
   var VARIABLE_STATEMENT = ParseTreeType.VARIABLE_STATEMENT; 
-  var createArgumentList = ParseTreeFactory.createArgumentList; 
-  var createBindingIdentifier = ParseTreeFactory.createBindingIdentifier; 
-  var createBlock = ParseTreeFactory.createBlock; 
-  var createCallExpression = ParseTreeFactory.createCallExpression; 
-  var createEmptyParameterList = ParseTreeFactory.createEmptyParameterList; 
-  var createExpressionStatement = ParseTreeFactory.createExpressionStatement; 
-  var createFunctionExpression = ParseTreeFactory.createFunctionExpression; 
-  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression; 
-  var createMemberExpression = ParseTreeFactory.createMemberExpression; 
-  var createNullLiteral = ParseTreeFactory.createNullLiteral; 
-  var createObjectCreate = ParseTreeFactory.createObjectCreate; 
-  var createObjectLiteralExpression = ParseTreeFactory.createObjectLiteralExpression; 
-  var createObjectPreventExtensions = ParseTreeFactory.createObjectPreventExtensions; 
-  var createProgram = ParseTreeFactory.createProgram; 
-  var createPropertyDescriptor = ParseTreeFactory.createPropertyDescriptor; 
-  var createPropertyNameAssignment = ParseTreeFactory.createPropertyNameAssignment; 
-  var createReturnStatement = ParseTreeFactory.createReturnStatement; 
-  var createScopedExpression = ParseTreeFactory.createScopedExpression; 
-  var createUseStrictDirective = ParseTreeFactory.createUseStrictDirective; 
-  var createVariableDeclaration = ParseTreeFactory.createVariableDeclaration; 
-  var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList; 
-  var createVariableStatement = ParseTreeFactory.createVariableStatement; 
   function toBindingIdentifier(tree) { 
     return new BindingIdentifier(tree.location, tree.identifierToken); 
   } 
@@ -9398,18 +9854,16 @@ var $src_codegeneration_ModuleTransformer_js =(function() {
 }).call(this); 
 var $src_codegeneration_AlphaRenamer_js =(function() { 
   "use strict"; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$ParseTreeTransformer = $src_codegeneration_ParseTreeTransformer_js, ParseTreeTransformer = destructuring$ParseTreeTransformer.ParseTreeTransformer; 
   var destructuring$PredefinedName = $src_syntax_PredefinedName_js, PredefinedName = destructuring$PredefinedName.PredefinedName; 
-  var destructuring$variablesInBlock$variablesInFunction = $src_semantics_VariableBinder_js, variablesInFunction = destructuring$variablesInBlock$variablesInFunction.variablesInFunction, variablesInBlock = destructuring$variablesInBlock$variablesInFunction.variablesInBlock; 
+  var destructuring$createFunctionDeclaration$createIdentifierExpression = $src_codegeneration_ParseTreeFactory_js, createFunctionDeclaration = destructuring$createFunctionDeclaration$createIdentifierExpression.createFunctionDeclaration, createIdentifierExpression = destructuring$createFunctionDeclaration$createIdentifierExpression.createIdentifierExpression; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
   var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
-  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression; 
+  var destructuring$variablesInBlock$variablesInFunction = $src_semantics_VariableBinder_js, variablesInBlock = destructuring$variablesInBlock$variablesInFunction.variablesInBlock, variablesInFunction = destructuring$variablesInBlock$variablesInFunction.variablesInFunction; 
   var Block = trees.Block; 
   var Catch = trees.Catch; 
   var FunctionDeclaration = trees.FunctionDeclaration; 
   var IdentifierExpression = trees.IdentifierExpression; 
-  var createFunctionDeclaration = ParseTreeFactory.createFunctionDeclaration; 
   function AlphaRenamer(oldName, newName) { 
     ParseTreeTransformer.call(this); 
     this.oldName_ = oldName; 
@@ -9513,16 +9967,12 @@ var $src_codegeneration_FindInFunctionScope_js =(function() {
 }).call(this); 
 var $src_codegeneration_TempVarTransformer_js =(function() { 
   "use strict"; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$ParseTreeTransformer = $src_codegeneration_ParseTreeTransformer_js, ParseTreeTransformer = destructuring$ParseTreeTransformer.ParseTreeTransformer; 
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
+  var destructuring$createBlock$createVariableDeclaration$createVariableDeclarationList$createVariableStatement = $src_codegeneration_ParseTreeFactory_js, createBlock = destructuring$createBlock$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createBlock, createVariableDeclaration = destructuring$createBlock$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createVariableDeclaration, createVariableDeclarationList = destructuring$createBlock$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createVariableDeclarationList, createVariableStatement = destructuring$createBlock$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createVariableStatement; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
   var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
   var Program = trees.Program; 
-  var createBlock = ParseTreeFactory.createBlock; 
-  var createVariableStatement = ParseTreeFactory.createVariableStatement; 
-  var createVariableDeclaration = ParseTreeFactory.createVariableDeclaration; 
-  var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList; 
   function transformStatements(self, statements) { 
     self.tempVarStack_.push([]); 
     var transformedStatements = self.transformList(statements); 
@@ -9584,22 +10034,13 @@ var $src_codegeneration_ComprehensionTransformer_js =(function() {
   "use strict"; 
   var destructuring$AlphaRenamer = $src_codegeneration_AlphaRenamer_js, AlphaRenamer = destructuring$AlphaRenamer.AlphaRenamer; 
   var destructuring$FindInFunctionScope = $src_codegeneration_FindInFunctionScope_js, FindInFunctionScope = destructuring$FindInFunctionScope.FindInFunctionScope; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$PredefinedName = $src_syntax_PredefinedName_js, PredefinedName = destructuring$PredefinedName.PredefinedName; 
   var destructuring$TempVarTransformer = $src_codegeneration_TempVarTransformer_js, TempVarTransformer = destructuring$TempVarTransformer.TempVarTransformer; 
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
+  var destructuring$createBlock$createCallExpression$createEmptyParameterList$createForOfStatement$createIdentifierExpression$createIfStatement$createParenExpression$createThisExpression$createVariableDeclarationList = $src_codegeneration_ParseTreeFactory_js, createBlock = destructuring$createBlock$createCallExpression$createEmptyParameterList$createForOfStatement$createIdentifierExpression$createIfStatement$createParenExpression$createThisExpression$createVariableDeclarationList.createBlock, createCallExpression = destructuring$createBlock$createCallExpression$createEmptyParameterList$createForOfStatement$createIdentifierExpression$createIfStatement$createParenExpression$createThisExpression$createVariableDeclarationList.createCallExpression, createEmptyParameterList = destructuring$createBlock$createCallExpression$createEmptyParameterList$createForOfStatement$createIdentifierExpression$createIfStatement$createParenExpression$createThisExpression$createVariableDeclarationList.createEmptyParameterList, createForOfStatement = destructuring$createBlock$createCallExpression$createEmptyParameterList$createForOfStatement$createIdentifierExpression$createIfStatement$createParenExpression$createThisExpression$createVariableDeclarationList.createForOfStatement, createIdentifierExpression = destructuring$createBlock$createCallExpression$createEmptyParameterList$createForOfStatement$createIdentifierExpression$createIfStatement$createParenExpression$createThisExpression$createVariableDeclarationList.createIdentifierExpression, createIfStatement = destructuring$createBlock$createCallExpression$createEmptyParameterList$createForOfStatement$createIdentifierExpression$createIfStatement$createParenExpression$createThisExpression$createVariableDeclarationList.createIfStatement, createParenExpression = destructuring$createBlock$createCallExpression$createEmptyParameterList$createForOfStatement$createIdentifierExpression$createIfStatement$createParenExpression$createThisExpression$createVariableDeclarationList.createParenExpression, createThisExpression = destructuring$createBlock$createCallExpression$createEmptyParameterList$createForOfStatement$createIdentifierExpression$createIfStatement$createParenExpression$createThisExpression$createVariableDeclarationList.createThisExpression, createVariableDeclarationList = destructuring$createBlock$createCallExpression$createEmptyParameterList$createForOfStatement$createIdentifierExpression$createIfStatement$createParenExpression$createThisExpression$createVariableDeclarationList.createVariableDeclarationList; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
   var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
   var FunctionDeclaration = trees.FunctionDeclaration; 
-  var createBlock = ParseTreeFactory.createBlock; 
-  var createCallExpression = ParseTreeFactory.createCallExpression; 
-  var createEmptyParameterList = ParseTreeFactory.createEmptyParameterList; 
-  var createForOfStatement = ParseTreeFactory.createForOfStatement; 
-  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression; 
-  var createIfStatement = ParseTreeFactory.createIfStatement; 
-  var createParenExpression = ParseTreeFactory.createParenExpression; 
-  var createThisExpression = ParseTreeFactory.createThisExpression; 
-  var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList; 
   function ThisFinder(tree) { 
     FindInFunctionScope.call(this, tree); 
   } 
@@ -9656,19 +10097,9 @@ var $src_codegeneration_ComprehensionTransformer_js =(function() {
 var $src_codegeneration_ArrayComprehensionTransformer_js =(function() { 
   "use strict"; 
   var destructuring$ComprehensionTransformer = $src_codegeneration_ComprehensionTransformer_js, ComprehensionTransformer = destructuring$ComprehensionTransformer.ComprehensionTransformer; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
+  var destructuring$createArrayLiteralExpression$createAssignmentStatement$createIdentifierExpression$createMemberLookupExpression$createNumberLiteral$createPostfixExpression$createReturnStatement$createVariableDeclaration$createVariableDeclarationList$createVariableStatement = $src_codegeneration_ParseTreeFactory_js, createArrayLiteralExpression = destructuring$createArrayLiteralExpression$createAssignmentStatement$createIdentifierExpression$createMemberLookupExpression$createNumberLiteral$createPostfixExpression$createReturnStatement$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createArrayLiteralExpression, createAssignmentStatement = destructuring$createArrayLiteralExpression$createAssignmentStatement$createIdentifierExpression$createMemberLookupExpression$createNumberLiteral$createPostfixExpression$createReturnStatement$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createAssignmentStatement, createIdentifierExpression = destructuring$createArrayLiteralExpression$createAssignmentStatement$createIdentifierExpression$createMemberLookupExpression$createNumberLiteral$createPostfixExpression$createReturnStatement$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createIdentifierExpression, createMemberLookupExpression = destructuring$createArrayLiteralExpression$createAssignmentStatement$createIdentifierExpression$createMemberLookupExpression$createNumberLiteral$createPostfixExpression$createReturnStatement$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createMemberLookupExpression, createNumberLiteral = destructuring$createArrayLiteralExpression$createAssignmentStatement$createIdentifierExpression$createMemberLookupExpression$createNumberLiteral$createPostfixExpression$createReturnStatement$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createNumberLiteral, createPostfixExpression = destructuring$createArrayLiteralExpression$createAssignmentStatement$createIdentifierExpression$createMemberLookupExpression$createNumberLiteral$createPostfixExpression$createReturnStatement$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createPostfixExpression, createReturnStatement = destructuring$createArrayLiteralExpression$createAssignmentStatement$createIdentifierExpression$createMemberLookupExpression$createNumberLiteral$createPostfixExpression$createReturnStatement$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createReturnStatement, createVariableDeclaration = destructuring$createArrayLiteralExpression$createAssignmentStatement$createIdentifierExpression$createMemberLookupExpression$createNumberLiteral$createPostfixExpression$createReturnStatement$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createVariableDeclaration, createVariableDeclarationList = destructuring$createArrayLiteralExpression$createAssignmentStatement$createIdentifierExpression$createMemberLookupExpression$createNumberLiteral$createPostfixExpression$createReturnStatement$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createVariableDeclarationList, createVariableStatement = destructuring$createArrayLiteralExpression$createAssignmentStatement$createIdentifierExpression$createMemberLookupExpression$createNumberLiteral$createPostfixExpression$createReturnStatement$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createVariableStatement; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
-  var createArrayLiteralExpression = ParseTreeFactory.createArrayLiteralExpression; 
-  var createAssignmentStatement = ParseTreeFactory.createAssignmentStatement; 
-  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression; 
-  var createMemberLookupExpression = ParseTreeFactory.createMemberLookupExpression; 
-  var createNumberLiteral = ParseTreeFactory.createNumberLiteral; 
-  var createPostfixExpression = ParseTreeFactory.createPostfixExpression; 
-  var createReturnStatement = ParseTreeFactory.createReturnStatement; 
-  var createVariableDeclaration = ParseTreeFactory.createVariableDeclaration; 
-  var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList; 
-  var createVariableStatement = ParseTreeFactory.createVariableStatement; 
   function ArrayComprehensionTransformer(identifierGenerator) { 
     ComprehensionTransformer.call(this, identifierGenerator); 
   } 
@@ -9696,22 +10127,14 @@ var $src_codegeneration_ArrayComprehensionTransformer_js =(function() {
 var $src_codegeneration_ArrowFunctionTransformer_js =(function() { 
   "use strict"; 
   var destructuring$FindInFunctionScope = $src_codegeneration_FindInFunctionScope_js, FindInFunctionScope = destructuring$FindInFunctionScope.FindInFunctionScope; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$ParseTreeTransformer = $src_codegeneration_ParseTreeTransformer_js, ParseTreeTransformer = destructuring$ParseTreeTransformer.ParseTreeTransformer; 
   var destructuring$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType.ParseTreeType; 
   var destructuring$PredefinedName = $src_syntax_PredefinedName_js, PredefinedName = destructuring$PredefinedName.PredefinedName; 
+  var destructuring$createArgumentList$createBlock$createCallExpression$createFunctionExpression$createMemberExpression$createParenExpression$createReturnStatement$createThisExpression = $src_codegeneration_ParseTreeFactory_js, createArgumentList = destructuring$createArgumentList$createBlock$createCallExpression$createFunctionExpression$createMemberExpression$createParenExpression$createReturnStatement$createThisExpression.createArgumentList, createBlock = destructuring$createArgumentList$createBlock$createCallExpression$createFunctionExpression$createMemberExpression$createParenExpression$createReturnStatement$createThisExpression.createBlock, createCallExpression = destructuring$createArgumentList$createBlock$createCallExpression$createFunctionExpression$createMemberExpression$createParenExpression$createReturnStatement$createThisExpression.createCallExpression, createFunctionExpression = destructuring$createArgumentList$createBlock$createCallExpression$createFunctionExpression$createMemberExpression$createParenExpression$createReturnStatement$createThisExpression.createFunctionExpression, createMemberExpression = destructuring$createArgumentList$createBlock$createCallExpression$createFunctionExpression$createMemberExpression$createParenExpression$createReturnStatement$createThisExpression.createMemberExpression, createParenExpression = destructuring$createArgumentList$createBlock$createCallExpression$createFunctionExpression$createMemberExpression$createParenExpression$createReturnStatement$createThisExpression.createParenExpression, createReturnStatement = destructuring$createArgumentList$createBlock$createCallExpression$createFunctionExpression$createMemberExpression$createParenExpression$createReturnStatement$createThisExpression.createReturnStatement, createThisExpression = destructuring$createArgumentList$createBlock$createCallExpression$createFunctionExpression$createMemberExpression$createParenExpression$createReturnStatement$createThisExpression.createThisExpression; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
   var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
   var FormalParameterList = trees.FormalParameterList; 
   var ThisExpression = trees.ThisExpression; 
-  var createArgumentList = ParseTreeFactory.createArgumentList; 
-  var createBlock = ParseTreeFactory.createBlock; 
-  var createCallExpression = ParseTreeFactory.createCallExpression; 
-  var createFunctionExpression = ParseTreeFactory.createFunctionExpression; 
-  var createMemberExpression = ParseTreeFactory.createMemberExpression; 
-  var createParenExpression = ParseTreeFactory.createParenExpression; 
-  var createReturnStatement = ParseTreeFactory.createReturnStatement; 
-  var createThisExpression = ParseTreeFactory.createThisExpression; 
   function ThisFinder(tree) { 
     FindInFunctionScope.call(this, tree); 
   } 
@@ -9751,17 +10174,9 @@ var $src_codegeneration_ArrowFunctionTransformer_js =(function() {
 }).call(this); 
 var $src_codegeneration_OperatorExpander_js =(function() { 
   "use strict"; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType.ParseTreeType; 
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
-  var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression; 
-  var createBinaryOperator = ParseTreeFactory.createBinaryOperator; 
-  var createCommaExpression = ParseTreeFactory.createCommaExpression; 
-  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression; 
-  var createMemberExpression = ParseTreeFactory.createMemberExpression; 
-  var createMemberLookupExpression = ParseTreeFactory.createMemberLookupExpression; 
-  var createOperatorToken = ParseTreeFactory.createOperatorToken; 
-  var createParenExpression = ParseTreeFactory.createParenExpression; 
+  var destructuring$createAssignmentExpression$createBinaryOperator$createCommaExpression$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createOperatorToken$createParenExpression = $src_codegeneration_ParseTreeFactory_js, createAssignmentExpression = destructuring$createAssignmentExpression$createBinaryOperator$createCommaExpression$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createOperatorToken$createParenExpression.createAssignmentExpression, createBinaryOperator = destructuring$createAssignmentExpression$createBinaryOperator$createCommaExpression$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createOperatorToken$createParenExpression.createBinaryOperator, createCommaExpression = destructuring$createAssignmentExpression$createBinaryOperator$createCommaExpression$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createOperatorToken$createParenExpression.createCommaExpression, createIdentifierExpression = destructuring$createAssignmentExpression$createBinaryOperator$createCommaExpression$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createOperatorToken$createParenExpression.createIdentifierExpression, createMemberExpression = destructuring$createAssignmentExpression$createBinaryOperator$createCommaExpression$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createOperatorToken$createParenExpression.createMemberExpression, createMemberLookupExpression = destructuring$createAssignmentExpression$createBinaryOperator$createCommaExpression$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createOperatorToken$createParenExpression.createMemberLookupExpression, createOperatorToken = destructuring$createAssignmentExpression$createBinaryOperator$createCommaExpression$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createOperatorToken$createParenExpression.createOperatorToken, createParenExpression = destructuring$createAssignmentExpression$createBinaryOperator$createCommaExpression$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createOperatorToken$createParenExpression.createParenExpression; 
   function getBinaryOperator(type) { 
     switch(type) { 
       case TokenType.STAR_EQUAL: 
@@ -9844,23 +10259,15 @@ var $src_codegeneration_OperatorExpander_js =(function() {
 }).call(this); 
 var $src_codegeneration_AtNameMemberTransformer_js =(function() { 
   "use strict"; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType.ParseTreeType; 
   var destructuring$PredefinedName = $src_syntax_PredefinedName_js, PredefinedName = destructuring$PredefinedName.PredefinedName; 
   var destructuring$TempVarTransformer = $src_codegeneration_TempVarTransformer_js, TempVarTransformer = destructuring$TempVarTransformer.TempVarTransformer; 
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
+  var destructuring$createArgumentList$createAssignmentExpression$createCallCall$createCallExpression$createCommaExpression$createIdentifierExpression$createMemberExpression$createParenExpression = $src_codegeneration_ParseTreeFactory_js, createArgumentList = destructuring$createArgumentList$createAssignmentExpression$createCallCall$createCallExpression$createCommaExpression$createIdentifierExpression$createMemberExpression$createParenExpression.createArgumentList, createAssignmentExpression = destructuring$createArgumentList$createAssignmentExpression$createCallCall$createCallExpression$createCommaExpression$createIdentifierExpression$createMemberExpression$createParenExpression.createAssignmentExpression, createCallCall = destructuring$createArgumentList$createAssignmentExpression$createCallCall$createCallExpression$createCommaExpression$createIdentifierExpression$createMemberExpression$createParenExpression.createCallCall, createCallExpression = destructuring$createArgumentList$createAssignmentExpression$createCallCall$createCallExpression$createCommaExpression$createIdentifierExpression$createMemberExpression$createParenExpression.createCallExpression, createCommaExpression = destructuring$createArgumentList$createAssignmentExpression$createCallCall$createCallExpression$createCommaExpression$createIdentifierExpression$createMemberExpression$createParenExpression.createCommaExpression, createIdentifierExpression = destructuring$createArgumentList$createAssignmentExpression$createCallCall$createCallExpression$createCommaExpression$createIdentifierExpression$createMemberExpression$createParenExpression.createIdentifierExpression, createMemberExpression = destructuring$createArgumentList$createAssignmentExpression$createCallCall$createCallExpression$createCommaExpression$createIdentifierExpression$createMemberExpression$createParenExpression.createMemberExpression, createParenExpression = destructuring$createArgumentList$createAssignmentExpression$createCallCall$createCallExpression$createCommaExpression$createIdentifierExpression$createMemberExpression$createParenExpression.createParenExpression; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
   var destructuring$expandMemberExpression = $src_codegeneration_OperatorExpander_js, expandMemberExpression = destructuring$expandMemberExpression.expandMemberExpression; 
   var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
   var AtNameExpression = trees.AtNameExpression; 
-  var createArgumentList = ParseTreeFactory.createArgumentList; 
-  var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression; 
-  var createCallCall = ParseTreeFactory.createCallCall; 
-  var createCallExpression = ParseTreeFactory.createCallExpression; 
-  var createCommaExpression = ParseTreeFactory.createCommaExpression; 
-  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression; 
-  var createMemberExpression = ParseTreeFactory.createMemberExpression; 
-  var createParenExpression = ParseTreeFactory.createParenExpression; 
   var DELETE_PROPERTY = PredefinedName.DELETE_PROPERTY; 
   var GET_PROPERTY = PredefinedName.GET_PROPERTY; 
   var RUNTIME = PredefinedName.RUNTIME; 
@@ -9925,10 +10332,10 @@ var $src_codegeneration_BlockBindingTransformer_js =(function() {
   "use strict"; 
   var destructuring$AlphaRenamer = $src_codegeneration_AlphaRenamer_js, AlphaRenamer = destructuring$AlphaRenamer.AlphaRenamer; 
   var destructuring$NullTree = $src_syntax_trees_NullTree_js, NullTree = destructuring$NullTree.NullTree; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$ParseTreeTransformer = $src_codegeneration_ParseTreeTransformer_js, ParseTreeTransformer = destructuring$ParseTreeTransformer.ParseTreeTransformer; 
   var destructuring$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType.ParseTreeType; 
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
+  var destructuring$createAssignmentExpression$createBindingIdentifier$createBlock$createCatch$createEmptyStatement$createExpressionStatement$createFinally$createForInStatement$createForStatement$createFunctionDeclaration$createGetAccessor$createIdentifierExpression$createIdentifierToken$createSetAccessor$createThrowStatement$createTryStatement$createUndefinedExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement = $src_codegeneration_ParseTreeFactory_js, createAssignmentExpression = destructuring$createAssignmentExpression$createBindingIdentifier$createBlock$createCatch$createEmptyStatement$createExpressionStatement$createFinally$createForInStatement$createForStatement$createFunctionDeclaration$createGetAccessor$createIdentifierExpression$createIdentifierToken$createSetAccessor$createThrowStatement$createTryStatement$createUndefinedExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createAssignmentExpression, createBindingIdentifier = destructuring$createAssignmentExpression$createBindingIdentifier$createBlock$createCatch$createEmptyStatement$createExpressionStatement$createFinally$createForInStatement$createForStatement$createFunctionDeclaration$createGetAccessor$createIdentifierExpression$createIdentifierToken$createSetAccessor$createThrowStatement$createTryStatement$createUndefinedExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createBindingIdentifier, createBlock = destructuring$createAssignmentExpression$createBindingIdentifier$createBlock$createCatch$createEmptyStatement$createExpressionStatement$createFinally$createForInStatement$createForStatement$createFunctionDeclaration$createGetAccessor$createIdentifierExpression$createIdentifierToken$createSetAccessor$createThrowStatement$createTryStatement$createUndefinedExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createBlock, createCatch = destructuring$createAssignmentExpression$createBindingIdentifier$createBlock$createCatch$createEmptyStatement$createExpressionStatement$createFinally$createForInStatement$createForStatement$createFunctionDeclaration$createGetAccessor$createIdentifierExpression$createIdentifierToken$createSetAccessor$createThrowStatement$createTryStatement$createUndefinedExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createCatch, createEmptyStatement = destructuring$createAssignmentExpression$createBindingIdentifier$createBlock$createCatch$createEmptyStatement$createExpressionStatement$createFinally$createForInStatement$createForStatement$createFunctionDeclaration$createGetAccessor$createIdentifierExpression$createIdentifierToken$createSetAccessor$createThrowStatement$createTryStatement$createUndefinedExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createEmptyStatement, createExpressionStatement = destructuring$createAssignmentExpression$createBindingIdentifier$createBlock$createCatch$createEmptyStatement$createExpressionStatement$createFinally$createForInStatement$createForStatement$createFunctionDeclaration$createGetAccessor$createIdentifierExpression$createIdentifierToken$createSetAccessor$createThrowStatement$createTryStatement$createUndefinedExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createExpressionStatement, createFinally = destructuring$createAssignmentExpression$createBindingIdentifier$createBlock$createCatch$createEmptyStatement$createExpressionStatement$createFinally$createForInStatement$createForStatement$createFunctionDeclaration$createGetAccessor$createIdentifierExpression$createIdentifierToken$createSetAccessor$createThrowStatement$createTryStatement$createUndefinedExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createFinally, createForInStatement = destructuring$createAssignmentExpression$createBindingIdentifier$createBlock$createCatch$createEmptyStatement$createExpressionStatement$createFinally$createForInStatement$createForStatement$createFunctionDeclaration$createGetAccessor$createIdentifierExpression$createIdentifierToken$createSetAccessor$createThrowStatement$createTryStatement$createUndefinedExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createForInStatement, createForStatement = destructuring$createAssignmentExpression$createBindingIdentifier$createBlock$createCatch$createEmptyStatement$createExpressionStatement$createFinally$createForInStatement$createForStatement$createFunctionDeclaration$createGetAccessor$createIdentifierExpression$createIdentifierToken$createSetAccessor$createThrowStatement$createTryStatement$createUndefinedExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createForStatement, createFunctionDeclaration = destructuring$createAssignmentExpression$createBindingIdentifier$createBlock$createCatch$createEmptyStatement$createExpressionStatement$createFinally$createForInStatement$createForStatement$createFunctionDeclaration$createGetAccessor$createIdentifierExpression$createIdentifierToken$createSetAccessor$createThrowStatement$createTryStatement$createUndefinedExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createFunctionDeclaration, createGetAccessor = destructuring$createAssignmentExpression$createBindingIdentifier$createBlock$createCatch$createEmptyStatement$createExpressionStatement$createFinally$createForInStatement$createForStatement$createFunctionDeclaration$createGetAccessor$createIdentifierExpression$createIdentifierToken$createSetAccessor$createThrowStatement$createTryStatement$createUndefinedExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createGetAccessor, createIdentifierExpression = destructuring$createAssignmentExpression$createBindingIdentifier$createBlock$createCatch$createEmptyStatement$createExpressionStatement$createFinally$createForInStatement$createForStatement$createFunctionDeclaration$createGetAccessor$createIdentifierExpression$createIdentifierToken$createSetAccessor$createThrowStatement$createTryStatement$createUndefinedExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createIdentifierExpression, createIdentifierToken = destructuring$createAssignmentExpression$createBindingIdentifier$createBlock$createCatch$createEmptyStatement$createExpressionStatement$createFinally$createForInStatement$createForStatement$createFunctionDeclaration$createGetAccessor$createIdentifierExpression$createIdentifierToken$createSetAccessor$createThrowStatement$createTryStatement$createUndefinedExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createIdentifierToken, createSetAccessor = destructuring$createAssignmentExpression$createBindingIdentifier$createBlock$createCatch$createEmptyStatement$createExpressionStatement$createFinally$createForInStatement$createForStatement$createFunctionDeclaration$createGetAccessor$createIdentifierExpression$createIdentifierToken$createSetAccessor$createThrowStatement$createTryStatement$createUndefinedExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createSetAccessor, createThrowStatement = destructuring$createAssignmentExpression$createBindingIdentifier$createBlock$createCatch$createEmptyStatement$createExpressionStatement$createFinally$createForInStatement$createForStatement$createFunctionDeclaration$createGetAccessor$createIdentifierExpression$createIdentifierToken$createSetAccessor$createThrowStatement$createTryStatement$createUndefinedExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createThrowStatement, createTryStatement = destructuring$createAssignmentExpression$createBindingIdentifier$createBlock$createCatch$createEmptyStatement$createExpressionStatement$createFinally$createForInStatement$createForStatement$createFunctionDeclaration$createGetAccessor$createIdentifierExpression$createIdentifierToken$createSetAccessor$createThrowStatement$createTryStatement$createUndefinedExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createTryStatement, createUndefinedExpression = destructuring$createAssignmentExpression$createBindingIdentifier$createBlock$createCatch$createEmptyStatement$createExpressionStatement$createFinally$createForInStatement$createForStatement$createFunctionDeclaration$createGetAccessor$createIdentifierExpression$createIdentifierToken$createSetAccessor$createThrowStatement$createTryStatement$createUndefinedExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createUndefinedExpression, createVariableDeclaration = destructuring$createAssignmentExpression$createBindingIdentifier$createBlock$createCatch$createEmptyStatement$createExpressionStatement$createFinally$createForInStatement$createForStatement$createFunctionDeclaration$createGetAccessor$createIdentifierExpression$createIdentifierToken$createSetAccessor$createThrowStatement$createTryStatement$createUndefinedExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createVariableDeclaration, createVariableDeclarationList = destructuring$createAssignmentExpression$createBindingIdentifier$createBlock$createCatch$createEmptyStatement$createExpressionStatement$createFinally$createForInStatement$createForStatement$createFunctionDeclaration$createGetAccessor$createIdentifierExpression$createIdentifierToken$createSetAccessor$createThrowStatement$createTryStatement$createUndefinedExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createVariableDeclarationList, createVariableStatement = destructuring$createAssignmentExpression$createBindingIdentifier$createBlock$createCatch$createEmptyStatement$createExpressionStatement$createFinally$createForInStatement$createForStatement$createFunctionDeclaration$createGetAccessor$createIdentifierExpression$createIdentifierToken$createSetAccessor$createThrowStatement$createTryStatement$createUndefinedExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createVariableStatement; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
   var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
   var Block = trees.Block; 
@@ -9942,26 +10349,6 @@ var $src_codegeneration_BlockBindingTransformer_js =(function() {
   var VariableDeclarationList = trees.VariableDeclarationList; 
   var VariableDeclaration = trees.VariableDeclaration; 
   var VariableStatement = trees.VariableStatement; 
-  var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression; 
-  var createBindingIdentifier = ParseTreeFactory.createBindingIdentifier; 
-  var createBlock = ParseTreeFactory.createBlock; 
-  var createCatch = ParseTreeFactory.createCatch; 
-  var createEmptyStatement = ParseTreeFactory.createEmptyStatement; 
-  var createExpressionStatement = ParseTreeFactory.createExpressionStatement; 
-  var createFinally = ParseTreeFactory.createFinally; 
-  var createForInStatement = ParseTreeFactory.createForInStatement; 
-  var createForStatement = ParseTreeFactory.createForStatement; 
-  var createFunctionDeclaration = ParseTreeFactory.createFunctionDeclaration; 
-  var createGetAccessor = ParseTreeFactory.createGetAccessor; 
-  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression; 
-  var createIdentifierToken = ParseTreeFactory.createIdentifierToken; 
-  var createSetAccessor = ParseTreeFactory.createSetAccessor; 
-  var createThrowStatement = ParseTreeFactory.createThrowStatement; 
-  var createTryStatement = ParseTreeFactory.createTryStatement; 
-  var createUndefinedExpression = ParseTreeFactory.createUndefinedExpression; 
-  var createVariableDeclaration = ParseTreeFactory.createVariableDeclaration; 
-  var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList; 
-  var createVariableStatement = ParseTreeFactory.createVariableStatement; 
   var CONST = TokenType.CONST; 
   var LET = TokenType.LET; 
   var VAR = TokenType.VAR; 
@@ -10289,21 +10676,12 @@ var $src_codegeneration_BlockBindingTransformer_js =(function() {
 }).call(this); 
 var $src_codegeneration_CascadeExpressionTransformer_js =(function() { 
   "use strict"; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType.ParseTreeType; 
   var destructuring$TempVarTransformer = $src_codegeneration_TempVarTransformer_js, TempVarTransformer = destructuring$TempVarTransformer.TempVarTransformer; 
+  var destructuring$createAssignmentExpression$createBinaryOperator$createCallExpression$createCascadeExpression$createCommaExpression$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createParenExpression = $src_codegeneration_ParseTreeFactory_js, createAssignmentExpression = destructuring$createAssignmentExpression$createBinaryOperator$createCallExpression$createCascadeExpression$createCommaExpression$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createParenExpression.createAssignmentExpression, createBinaryOperator = destructuring$createAssignmentExpression$createBinaryOperator$createCallExpression$createCascadeExpression$createCommaExpression$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createParenExpression.createBinaryOperator, createCallExpression = destructuring$createAssignmentExpression$createBinaryOperator$createCallExpression$createCascadeExpression$createCommaExpression$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createParenExpression.createCallExpression, createCascadeExpression = destructuring$createAssignmentExpression$createBinaryOperator$createCallExpression$createCascadeExpression$createCommaExpression$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createParenExpression.createCascadeExpression, createCommaExpression = destructuring$createAssignmentExpression$createBinaryOperator$createCallExpression$createCascadeExpression$createCommaExpression$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createParenExpression.createCommaExpression, createIdentifierExpression = destructuring$createAssignmentExpression$createBinaryOperator$createCallExpression$createCascadeExpression$createCommaExpression$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createParenExpression.createIdentifierExpression, createMemberExpression = destructuring$createAssignmentExpression$createBinaryOperator$createCallExpression$createCascadeExpression$createCommaExpression$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createParenExpression.createMemberExpression, createMemberLookupExpression = destructuring$createAssignmentExpression$createBinaryOperator$createCallExpression$createCascadeExpression$createCommaExpression$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createParenExpression.createMemberLookupExpression, createParenExpression = destructuring$createAssignmentExpression$createBinaryOperator$createCallExpression$createCascadeExpression$createCommaExpression$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createParenExpression.createParenExpression; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
   var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
   var BinaryOperator = trees.BinaryOperator; 
-  var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression; 
-  var createBinaryOperator = ParseTreeFactory.createBinaryOperator; 
-  var createCallExpression = ParseTreeFactory.createCallExpression; 
-  var createCascadeExpression = ParseTreeFactory.createCascadeExpression; 
-  var createCommaExpression = ParseTreeFactory.createCommaExpression; 
-  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression; 
-  var createMemberExpression = ParseTreeFactory.createMemberExpression; 
-  var createMemberLookupExpression = ParseTreeFactory.createMemberLookupExpression; 
-  var createParenExpression = ParseTreeFactory.createParenExpression; 
   function prependMemberExpression(name, rest) { 
     switch(rest.type) { 
       case ParseTreeType.MEMBER_EXPRESSION: 
@@ -10380,20 +10758,13 @@ var $src_codegeneration_CascadeExpressionTransformer_js =(function() {
 }).call(this); 
 var $src_codegeneration_SuperTransformer_js =(function() { 
   "use strict"; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$ParseTreeTransformer = $src_codegeneration_ParseTreeTransformer_js, ParseTreeTransformer = destructuring$ParseTreeTransformer.ParseTreeTransformer; 
   var destructuring$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType.ParseTreeType; 
   var destructuring$PredefinedName = $src_syntax_PredefinedName_js, PredefinedName = destructuring$PredefinedName.PredefinedName; 
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
+  var destructuring$createArgumentList$createArrayLiteralExpression$createCallExpression$createMemberExpression$createStringLiteral$createThisExpression = $src_codegeneration_ParseTreeFactory_js, createArgumentList = destructuring$createArgumentList$createArrayLiteralExpression$createCallExpression$createMemberExpression$createStringLiteral$createThisExpression.createArgumentList, createArrayLiteralExpression = destructuring$createArgumentList$createArrayLiteralExpression$createCallExpression$createMemberExpression$createStringLiteral$createThisExpression.createArrayLiteralExpression, createCallExpression = destructuring$createArgumentList$createArrayLiteralExpression$createCallExpression$createMemberExpression$createStringLiteral$createThisExpression.createCallExpression, createMemberExpression = destructuring$createArgumentList$createArrayLiteralExpression$createCallExpression$createMemberExpression$createStringLiteral$createThisExpression.createMemberExpression, createStringLiteral = destructuring$createArgumentList$createArrayLiteralExpression$createCallExpression$createMemberExpression$createStringLiteral$createThisExpression.createStringLiteral, createThisExpression = destructuring$createArgumentList$createArrayLiteralExpression$createCallExpression$createMemberExpression$createStringLiteral$createThisExpression.createThisExpression; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
-  var destructuring$expandMemberExpression = $src_codegeneration_OperatorExpander_js, expandMemberExpression = destructuring$expandMemberExpression.expandMemberExpression; 
-  var destructuring$expandMemberLookupExpression = $src_codegeneration_OperatorExpander_js, expandMemberLookupExpression = destructuring$expandMemberLookupExpression.expandMemberLookupExpression; 
-  var createArgumentList = ParseTreeFactory.createArgumentList; 
-  var createArrayLiteralExpression = ParseTreeFactory.createArrayLiteralExpression; 
-  var createCallExpression = ParseTreeFactory.createCallExpression; 
-  var createMemberExpression = ParseTreeFactory.createMemberExpression; 
-  var createStringLiteral = ParseTreeFactory.createStringLiteral; 
-  var createThisExpression = ParseTreeFactory.createThisExpression; 
+  var destructuring$expandMemberExpression$expandMemberLookupExpression = $src_codegeneration_OperatorExpander_js, expandMemberExpression = destructuring$expandMemberExpression$expandMemberLookupExpression.expandMemberExpression, expandMemberLookupExpression = destructuring$expandMemberExpression$expandMemberLookupExpression.expandMemberLookupExpression; 
   function SuperTransformer(tempVarTransformer, reporter, className, methodTree) { 
     ParseTreeTransformer.call(this); 
     this.tempVarTransformer_ = tempVarTransformer; 
@@ -10485,12 +10856,12 @@ var $src_codegeneration_SuperTransformer_js =(function() {
 }).call(this); 
 var $src_codegeneration_ClassTransformer_js =(function() { 
   "use strict"; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType.ParseTreeType; 
   var destructuring$PredefinedName = $src_syntax_PredefinedName_js, PredefinedName = destructuring$PredefinedName.PredefinedName; 
   var destructuring$SuperTransformer = $src_codegeneration_SuperTransformer_js, SuperTransformer = destructuring$SuperTransformer.SuperTransformer; 
   var destructuring$TempVarTransformer = $src_codegeneration_TempVarTransformer_js, TempVarTransformer = destructuring$TempVarTransformer.TempVarTransformer; 
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
+  var destructuring$createArgumentList$createAssignmentExpression$createBlock$createBooleanLiteral$createCallExpression$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createMemberExpression$createNullLiteral$createObjectLiteralExpression$createParenExpression$createPropertyNameAssignment$createRestParameter$createSpreadExpression$createVariableStatement = $src_codegeneration_ParseTreeFactory_js, createArgumentList = destructuring$createArgumentList$createAssignmentExpression$createBlock$createBooleanLiteral$createCallExpression$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createMemberExpression$createNullLiteral$createObjectLiteralExpression$createParenExpression$createPropertyNameAssignment$createRestParameter$createSpreadExpression$createVariableStatement.createArgumentList, createAssignmentExpression = destructuring$createArgumentList$createAssignmentExpression$createBlock$createBooleanLiteral$createCallExpression$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createMemberExpression$createNullLiteral$createObjectLiteralExpression$createParenExpression$createPropertyNameAssignment$createRestParameter$createSpreadExpression$createVariableStatement.createAssignmentExpression, createBlock = destructuring$createArgumentList$createAssignmentExpression$createBlock$createBooleanLiteral$createCallExpression$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createMemberExpression$createNullLiteral$createObjectLiteralExpression$createParenExpression$createPropertyNameAssignment$createRestParameter$createSpreadExpression$createVariableStatement.createBlock, createBooleanLiteral = destructuring$createArgumentList$createAssignmentExpression$createBlock$createBooleanLiteral$createCallExpression$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createMemberExpression$createNullLiteral$createObjectLiteralExpression$createParenExpression$createPropertyNameAssignment$createRestParameter$createSpreadExpression$createVariableStatement.createBooleanLiteral, createCallExpression = destructuring$createArgumentList$createAssignmentExpression$createBlock$createBooleanLiteral$createCallExpression$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createMemberExpression$createNullLiteral$createObjectLiteralExpression$createParenExpression$createPropertyNameAssignment$createRestParameter$createSpreadExpression$createVariableStatement.createCallExpression, createExpressionStatement = destructuring$createArgumentList$createAssignmentExpression$createBlock$createBooleanLiteral$createCallExpression$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createMemberExpression$createNullLiteral$createObjectLiteralExpression$createParenExpression$createPropertyNameAssignment$createRestParameter$createSpreadExpression$createVariableStatement.createExpressionStatement, createFunctionExpression = destructuring$createArgumentList$createAssignmentExpression$createBlock$createBooleanLiteral$createCallExpression$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createMemberExpression$createNullLiteral$createObjectLiteralExpression$createParenExpression$createPropertyNameAssignment$createRestParameter$createSpreadExpression$createVariableStatement.createFunctionExpression, createIdentifierExpression = destructuring$createArgumentList$createAssignmentExpression$createBlock$createBooleanLiteral$createCallExpression$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createMemberExpression$createNullLiteral$createObjectLiteralExpression$createParenExpression$createPropertyNameAssignment$createRestParameter$createSpreadExpression$createVariableStatement.createIdentifierExpression, createIdentifierToken = destructuring$createArgumentList$createAssignmentExpression$createBlock$createBooleanLiteral$createCallExpression$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createMemberExpression$createNullLiteral$createObjectLiteralExpression$createParenExpression$createPropertyNameAssignment$createRestParameter$createSpreadExpression$createVariableStatement.createIdentifierToken, createMemberExpression = destructuring$createArgumentList$createAssignmentExpression$createBlock$createBooleanLiteral$createCallExpression$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createMemberExpression$createNullLiteral$createObjectLiteralExpression$createParenExpression$createPropertyNameAssignment$createRestParameter$createSpreadExpression$createVariableStatement.createMemberExpression, createNullLiteral = destructuring$createArgumentList$createAssignmentExpression$createBlock$createBooleanLiteral$createCallExpression$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createMemberExpression$createNullLiteral$createObjectLiteralExpression$createParenExpression$createPropertyNameAssignment$createRestParameter$createSpreadExpression$createVariableStatement.createNullLiteral, createObjectLiteralExpression = destructuring$createArgumentList$createAssignmentExpression$createBlock$createBooleanLiteral$createCallExpression$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createMemberExpression$createNullLiteral$createObjectLiteralExpression$createParenExpression$createPropertyNameAssignment$createRestParameter$createSpreadExpression$createVariableStatement.createObjectLiteralExpression, createParenExpression = destructuring$createArgumentList$createAssignmentExpression$createBlock$createBooleanLiteral$createCallExpression$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createMemberExpression$createNullLiteral$createObjectLiteralExpression$createParenExpression$createPropertyNameAssignment$createRestParameter$createSpreadExpression$createVariableStatement.createParenExpression, createPropertyNameAssignment = destructuring$createArgumentList$createAssignmentExpression$createBlock$createBooleanLiteral$createCallExpression$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createMemberExpression$createNullLiteral$createObjectLiteralExpression$createParenExpression$createPropertyNameAssignment$createRestParameter$createSpreadExpression$createVariableStatement.createPropertyNameAssignment, createRestParameter = destructuring$createArgumentList$createAssignmentExpression$createBlock$createBooleanLiteral$createCallExpression$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createMemberExpression$createNullLiteral$createObjectLiteralExpression$createParenExpression$createPropertyNameAssignment$createRestParameter$createSpreadExpression$createVariableStatement.createRestParameter, createSpreadExpression = destructuring$createArgumentList$createAssignmentExpression$createBlock$createBooleanLiteral$createCallExpression$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createMemberExpression$createNullLiteral$createObjectLiteralExpression$createParenExpression$createPropertyNameAssignment$createRestParameter$createSpreadExpression$createVariableStatement.createSpreadExpression, createVariableStatement = destructuring$createArgumentList$createAssignmentExpression$createBlock$createBooleanLiteral$createCallExpression$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createMemberExpression$createNullLiteral$createObjectLiteralExpression$createParenExpression$createPropertyNameAssignment$createRestParameter$createSpreadExpression$createVariableStatement.createVariableStatement; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
   var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
   var FormalParameterList = trees.FormalParameterList; 
@@ -10500,23 +10871,6 @@ var $src_codegeneration_ClassTransformer_js =(function() {
   var PropertyNameAssignment = trees.PropertyNameAssignment; 
   var SetAccessor = trees.SetAccessor; 
   var SuperExpression = trees.SuperExpression; 
-  var createArgumentList = ParseTreeFactory.createArgumentList; 
-  var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression; 
-  var createBlock = ParseTreeFactory.createBlock; 
-  var createBooleanLiteral = ParseTreeFactory.createBooleanLiteral; 
-  var createCallExpression = ParseTreeFactory.createCallExpression; 
-  var createExpressionStatement = ParseTreeFactory.createExpressionStatement; 
-  var createFunctionExpression = ParseTreeFactory.createFunctionExpression; 
-  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression; 
-  var createIdentifierToken = ParseTreeFactory.createIdentifierToken; 
-  var createMemberExpression = ParseTreeFactory.createMemberExpression; 
-  var createNullLiteral = ParseTreeFactory.createNullLiteral; 
-  var createObjectLiteralExpression = ParseTreeFactory.createObjectLiteralExpression; 
-  var createParenExpression = ParseTreeFactory.createParenExpression; 
-  var createPropertyNameAssignment = ParseTreeFactory.createPropertyNameAssignment; 
-  var createRestParameter = ParseTreeFactory.createRestParameter; 
-  var createSpreadExpression = ParseTreeFactory.createSpreadExpression; 
-  var createVariableStatement = ParseTreeFactory.createVariableStatement; 
   var stack =[]; 
   function State(classTree) { 
     this.tree = classTree; 
@@ -10629,21 +10983,13 @@ var $src_codegeneration_ClassTransformer_js =(function() {
 }).call(this); 
 var $src_codegeneration_CollectionTransformer_js =(function() { 
   "use strict"; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType.ParseTreeType; 
   var destructuring$PredefinedName = $src_syntax_PredefinedName_js, PredefinedName = destructuring$PredefinedName.PredefinedName; 
   var destructuring$TempVarTransformer = $src_codegeneration_TempVarTransformer_js, TempVarTransformer = destructuring$TempVarTransformer.TempVarTransformer; 
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
+  var destructuring$createArgumentList$createAssignmentExpression$createCallCall$createCallExpression$createCommaExpression$createIdentifierExpression$createMemberExpression$createParenExpression = $src_codegeneration_ParseTreeFactory_js, createArgumentList = destructuring$createArgumentList$createAssignmentExpression$createCallCall$createCallExpression$createCommaExpression$createIdentifierExpression$createMemberExpression$createParenExpression.createArgumentList, createAssignmentExpression = destructuring$createArgumentList$createAssignmentExpression$createCallCall$createCallExpression$createCommaExpression$createIdentifierExpression$createMemberExpression$createParenExpression.createAssignmentExpression, createCallCall = destructuring$createArgumentList$createAssignmentExpression$createCallCall$createCallExpression$createCommaExpression$createIdentifierExpression$createMemberExpression$createParenExpression.createCallCall, createCallExpression = destructuring$createArgumentList$createAssignmentExpression$createCallCall$createCallExpression$createCommaExpression$createIdentifierExpression$createMemberExpression$createParenExpression.createCallExpression, createCommaExpression = destructuring$createArgumentList$createAssignmentExpression$createCallCall$createCallExpression$createCommaExpression$createIdentifierExpression$createMemberExpression$createParenExpression.createCommaExpression, createIdentifierExpression = destructuring$createArgumentList$createAssignmentExpression$createCallCall$createCallExpression$createCommaExpression$createIdentifierExpression$createMemberExpression$createParenExpression.createIdentifierExpression, createMemberExpression = destructuring$createArgumentList$createAssignmentExpression$createCallCall$createCallExpression$createCommaExpression$createIdentifierExpression$createMemberExpression$createParenExpression.createMemberExpression, createParenExpression = destructuring$createArgumentList$createAssignmentExpression$createCallCall$createCallExpression$createCommaExpression$createIdentifierExpression$createMemberExpression$createParenExpression.createParenExpression; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
   var destructuring$expandMemberLookupExpression = $src_codegeneration_OperatorExpander_js, expandMemberLookupExpression = destructuring$expandMemberLookupExpression.expandMemberLookupExpression; 
-  var createArgumentList = ParseTreeFactory.createArgumentList; 
-  var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression; 
-  var createCallCall = ParseTreeFactory.createCallCall; 
-  var createCallExpression = ParseTreeFactory.createCallExpression; 
-  var createCommaExpression = ParseTreeFactory.createCommaExpression; 
-  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression; 
-  var createMemberExpression = ParseTreeFactory.createMemberExpression; 
-  var createParenExpression = ParseTreeFactory.createParenExpression; 
   var RUNTIME = PredefinedName.RUNTIME; 
   var TRACEUR = PredefinedName.TRACEUR; 
   var ELEMENT_DELETE = PredefinedName.ELEMENT_DELETE; 
@@ -10707,25 +11053,15 @@ var $src_codegeneration_CollectionTransformer_js =(function() {
 }).call(this); 
 var $src_codegeneration_DefaultParametersTransformer_js =(function() { 
   "use strict"; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$ParseTreeTransformer = $src_codegeneration_ParseTreeTransformer_js, ParseTreeTransformer = destructuring$ParseTreeTransformer.ParseTreeTransformer; 
   var destructuring$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType.ParseTreeType; 
   var destructuring$PredefinedName = $src_syntax_PredefinedName_js, PredefinedName = destructuring$PredefinedName.PredefinedName; 
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
+  var destructuring$createBinaryOperator$createBlock$createConditionalExpression$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createVariableStatement$createVoid0 = $src_codegeneration_ParseTreeFactory_js, createBinaryOperator = destructuring$createBinaryOperator$createBlock$createConditionalExpression$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createVariableStatement$createVoid0.createBinaryOperator, createBlock = destructuring$createBinaryOperator$createBlock$createConditionalExpression$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createVariableStatement$createVoid0.createBlock, createConditionalExpression = destructuring$createBinaryOperator$createBlock$createConditionalExpression$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createVariableStatement$createVoid0.createConditionalExpression, createIdentifierExpression = destructuring$createBinaryOperator$createBlock$createConditionalExpression$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createVariableStatement$createVoid0.createIdentifierExpression, createMemberExpression = destructuring$createBinaryOperator$createBlock$createConditionalExpression$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createVariableStatement$createVoid0.createMemberExpression, createMemberLookupExpression = destructuring$createBinaryOperator$createBlock$createConditionalExpression$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createVariableStatement$createVoid0.createMemberLookupExpression, createNumberLiteral = destructuring$createBinaryOperator$createBlock$createConditionalExpression$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createVariableStatement$createVoid0.createNumberLiteral, createOperatorToken = destructuring$createBinaryOperator$createBlock$createConditionalExpression$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createVariableStatement$createVoid0.createOperatorToken, createVariableStatement = destructuring$createBinaryOperator$createBlock$createConditionalExpression$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createVariableStatement$createVoid0.createVariableStatement, createVoid0 = destructuring$createBinaryOperator$createBlock$createConditionalExpression$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createVariableStatement$createVoid0.createVoid0; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
   var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
   var FormalParameterList = trees.FormalParameterList; 
   var FunctionDeclaration = trees.FunctionDeclaration; 
-  var createBinaryOperator = ParseTreeFactory.createBinaryOperator; 
-  var createBlock = ParseTreeFactory.createBlock; 
-  var createConditionalExpression = ParseTreeFactory.createConditionalExpression; 
-  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression; 
-  var createMemberExpression = ParseTreeFactory.createMemberExpression; 
-  var createMemberLookupExpression = ParseTreeFactory.createMemberLookupExpression; 
-  var createNumberLiteral = ParseTreeFactory.createNumberLiteral; 
-  var createOperatorToken = ParseTreeFactory.createOperatorToken; 
-  var createVariableStatement = ParseTreeFactory.createVariableStatement; 
-  var createVoid0 = ParseTreeFactory.createVoid0; 
   var stack =[]; 
   function DefaultParametersTransformer() { 
     ParseTreeTransformer.call(this); 
@@ -10769,11 +11105,11 @@ var $src_codegeneration_DefaultParametersTransformer_js =(function() {
 }).call(this); 
 var $src_codegeneration_DestructuringTransformer_js =(function() { 
   "use strict"; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType.ParseTreeType; 
   var destructuring$PredefinedName = $src_syntax_PredefinedName_js, PredefinedName = destructuring$PredefinedName.PredefinedName; 
   var destructuring$TempVarTransformer = $src_codegeneration_TempVarTransformer_js, TempVarTransformer = destructuring$TempVarTransformer.TempVarTransformer; 
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
+  var destructuring$createArgumentList$createAssignmentExpression$createBinaryOperator$createBindingIdentifier$createBlock$createCallExpression$createCommaExpression$createConditionalExpression$createExpressionStatement$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createStringLiteral$createVariableDeclaration$createVariableDeclarationList$createVariableStatement = $src_codegeneration_ParseTreeFactory_js, createArgumentList = destructuring$createArgumentList$createAssignmentExpression$createBinaryOperator$createBindingIdentifier$createBlock$createCallExpression$createCommaExpression$createConditionalExpression$createExpressionStatement$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createStringLiteral$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createArgumentList, createAssignmentExpression = destructuring$createArgumentList$createAssignmentExpression$createBinaryOperator$createBindingIdentifier$createBlock$createCallExpression$createCommaExpression$createConditionalExpression$createExpressionStatement$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createStringLiteral$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createAssignmentExpression, createBinaryOperator = destructuring$createArgumentList$createAssignmentExpression$createBinaryOperator$createBindingIdentifier$createBlock$createCallExpression$createCommaExpression$createConditionalExpression$createExpressionStatement$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createStringLiteral$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createBinaryOperator, createBindingIdentifier = destructuring$createArgumentList$createAssignmentExpression$createBinaryOperator$createBindingIdentifier$createBlock$createCallExpression$createCommaExpression$createConditionalExpression$createExpressionStatement$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createStringLiteral$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createBindingIdentifier, createBlock = destructuring$createArgumentList$createAssignmentExpression$createBinaryOperator$createBindingIdentifier$createBlock$createCallExpression$createCommaExpression$createConditionalExpression$createExpressionStatement$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createStringLiteral$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createBlock, createCallExpression = destructuring$createArgumentList$createAssignmentExpression$createBinaryOperator$createBindingIdentifier$createBlock$createCallExpression$createCommaExpression$createConditionalExpression$createExpressionStatement$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createStringLiteral$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createCallExpression, createCommaExpression = destructuring$createArgumentList$createAssignmentExpression$createBinaryOperator$createBindingIdentifier$createBlock$createCallExpression$createCommaExpression$createConditionalExpression$createExpressionStatement$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createStringLiteral$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createCommaExpression, createConditionalExpression = destructuring$createArgumentList$createAssignmentExpression$createBinaryOperator$createBindingIdentifier$createBlock$createCallExpression$createCommaExpression$createConditionalExpression$createExpressionStatement$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createStringLiteral$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createConditionalExpression, createExpressionStatement = destructuring$createArgumentList$createAssignmentExpression$createBinaryOperator$createBindingIdentifier$createBlock$createCallExpression$createCommaExpression$createConditionalExpression$createExpressionStatement$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createStringLiteral$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createExpressionStatement, createIdentifierExpression = destructuring$createArgumentList$createAssignmentExpression$createBinaryOperator$createBindingIdentifier$createBlock$createCallExpression$createCommaExpression$createConditionalExpression$createExpressionStatement$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createStringLiteral$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createIdentifierExpression, createMemberExpression = destructuring$createArgumentList$createAssignmentExpression$createBinaryOperator$createBindingIdentifier$createBlock$createCallExpression$createCommaExpression$createConditionalExpression$createExpressionStatement$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createStringLiteral$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createMemberExpression, createMemberLookupExpression = destructuring$createArgumentList$createAssignmentExpression$createBinaryOperator$createBindingIdentifier$createBlock$createCallExpression$createCommaExpression$createConditionalExpression$createExpressionStatement$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createStringLiteral$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createMemberLookupExpression, createNumberLiteral = destructuring$createArgumentList$createAssignmentExpression$createBinaryOperator$createBindingIdentifier$createBlock$createCallExpression$createCommaExpression$createConditionalExpression$createExpressionStatement$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createStringLiteral$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createNumberLiteral, createOperatorToken = destructuring$createArgumentList$createAssignmentExpression$createBinaryOperator$createBindingIdentifier$createBlock$createCallExpression$createCommaExpression$createConditionalExpression$createExpressionStatement$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createStringLiteral$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createOperatorToken, createParenExpression = destructuring$createArgumentList$createAssignmentExpression$createBinaryOperator$createBindingIdentifier$createBlock$createCallExpression$createCommaExpression$createConditionalExpression$createExpressionStatement$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createStringLiteral$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createParenExpression, createStringLiteral = destructuring$createArgumentList$createAssignmentExpression$createBinaryOperator$createBindingIdentifier$createBlock$createCallExpression$createCommaExpression$createConditionalExpression$createExpressionStatement$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createStringLiteral$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createStringLiteral, createVariableDeclaration = destructuring$createArgumentList$createAssignmentExpression$createBinaryOperator$createBindingIdentifier$createBlock$createCallExpression$createCommaExpression$createConditionalExpression$createExpressionStatement$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createStringLiteral$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createVariableDeclaration, createVariableDeclarationList = destructuring$createArgumentList$createAssignmentExpression$createBinaryOperator$createBindingIdentifier$createBlock$createCallExpression$createCommaExpression$createConditionalExpression$createExpressionStatement$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createStringLiteral$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createVariableDeclarationList, createVariableStatement = destructuring$createArgumentList$createAssignmentExpression$createBinaryOperator$createBindingIdentifier$createBlock$createCallExpression$createCommaExpression$createConditionalExpression$createExpressionStatement$createIdentifierExpression$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createStringLiteral$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createVariableStatement; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
   var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
   var BindingElement = trees.BindingElement; 
@@ -10786,25 +11122,6 @@ var $src_codegeneration_DestructuringTransformer_js =(function() {
   var SetAccessor = trees.SetAccessor; 
   var VariableDeclaration = trees.VariableDeclaration; 
   var VariableDeclarationList = trees.VariableDeclarationList; 
-  var createArgumentList = ParseTreeFactory.createArgumentList; 
-  var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression; 
-  var createBinaryOperator = ParseTreeFactory.createBinaryOperator; 
-  var createBindingIdentifier = ParseTreeFactory.createBindingIdentifier; 
-  var createBlock = ParseTreeFactory.createBlock; 
-  var createCallExpression = ParseTreeFactory.createCallExpression; 
-  var createCommaExpression = ParseTreeFactory.createCommaExpression; 
-  var createConditionalExpression = ParseTreeFactory.createConditionalExpression; 
-  var createExpressionStatement = ParseTreeFactory.createExpressionStatement; 
-  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression; 
-  var createMemberExpression = ParseTreeFactory.createMemberExpression; 
-  var createMemberLookupExpression = ParseTreeFactory.createMemberLookupExpression; 
-  var createNumberLiteral = ParseTreeFactory.createNumberLiteral; 
-  var createOperatorToken = ParseTreeFactory.createOperatorToken; 
-  var createParenExpression = ParseTreeFactory.createParenExpression; 
-  var createStringLiteral = ParseTreeFactory.createStringLiteral; 
-  var createVariableDeclaration = ParseTreeFactory.createVariableDeclaration; 
-  var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList; 
-  var createVariableStatement = ParseTreeFactory.createVariableStatement; 
   var stack =[]; 
   function Desugaring(rvalue) { 
     this.rvalue = rvalue; 
@@ -11078,25 +11395,12 @@ var $src_codegeneration_DestructuringTransformer_js =(function() {
 }).call(this); 
 var $src_codegeneration_ForOfTransformer_js =(function() { 
   "use strict"; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$ParseTreeTransformer = $src_codegeneration_ParseTreeTransformer_js, ParseTreeTransformer = destructuring$ParseTreeTransformer.ParseTreeTransformer; 
   var destructuring$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType.ParseTreeType; 
   var destructuring$PredefinedName = $src_syntax_PredefinedName_js, PredefinedName = destructuring$PredefinedName.PredefinedName; 
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
+  var destructuring$createArgumentList$createAssignmentExpression$createBlock$createCallExpression$createCallStatement$createExpressionStatement$createFinally$createIfStatement$createMemberExpression$createStringLiteral$createTryStatement$createVariableStatement$createWhileStatement = $src_codegeneration_ParseTreeFactory_js, createArgumentList = destructuring$createArgumentList$createAssignmentExpression$createBlock$createCallExpression$createCallStatement$createExpressionStatement$createFinally$createIfStatement$createMemberExpression$createStringLiteral$createTryStatement$createVariableStatement$createWhileStatement.createArgumentList, createAssignmentExpression = destructuring$createArgumentList$createAssignmentExpression$createBlock$createCallExpression$createCallStatement$createExpressionStatement$createFinally$createIfStatement$createMemberExpression$createStringLiteral$createTryStatement$createVariableStatement$createWhileStatement.createAssignmentExpression, createBlock = destructuring$createArgumentList$createAssignmentExpression$createBlock$createCallExpression$createCallStatement$createExpressionStatement$createFinally$createIfStatement$createMemberExpression$createStringLiteral$createTryStatement$createVariableStatement$createWhileStatement.createBlock, createCallExpression = destructuring$createArgumentList$createAssignmentExpression$createBlock$createCallExpression$createCallStatement$createExpressionStatement$createFinally$createIfStatement$createMemberExpression$createStringLiteral$createTryStatement$createVariableStatement$createWhileStatement.createCallExpression, createCallStatement = destructuring$createArgumentList$createAssignmentExpression$createBlock$createCallExpression$createCallStatement$createExpressionStatement$createFinally$createIfStatement$createMemberExpression$createStringLiteral$createTryStatement$createVariableStatement$createWhileStatement.createCallStatement, createExpressionStatement = destructuring$createArgumentList$createAssignmentExpression$createBlock$createCallExpression$createCallStatement$createExpressionStatement$createFinally$createIfStatement$createMemberExpression$createStringLiteral$createTryStatement$createVariableStatement$createWhileStatement.createExpressionStatement, createFinally = destructuring$createArgumentList$createAssignmentExpression$createBlock$createCallExpression$createCallStatement$createExpressionStatement$createFinally$createIfStatement$createMemberExpression$createStringLiteral$createTryStatement$createVariableStatement$createWhileStatement.createFinally, createIfStatement = destructuring$createArgumentList$createAssignmentExpression$createBlock$createCallExpression$createCallStatement$createExpressionStatement$createFinally$createIfStatement$createMemberExpression$createStringLiteral$createTryStatement$createVariableStatement$createWhileStatement.createIfStatement, createMemberExpression = destructuring$createArgumentList$createAssignmentExpression$createBlock$createCallExpression$createCallStatement$createExpressionStatement$createFinally$createIfStatement$createMemberExpression$createStringLiteral$createTryStatement$createVariableStatement$createWhileStatement.createMemberExpression, createStringLiteral = destructuring$createArgumentList$createAssignmentExpression$createBlock$createCallExpression$createCallStatement$createExpressionStatement$createFinally$createIfStatement$createMemberExpression$createStringLiteral$createTryStatement$createVariableStatement$createWhileStatement.createStringLiteral, createTryStatement = destructuring$createArgumentList$createAssignmentExpression$createBlock$createCallExpression$createCallStatement$createExpressionStatement$createFinally$createIfStatement$createMemberExpression$createStringLiteral$createTryStatement$createVariableStatement$createWhileStatement.createTryStatement, createVariableStatement = destructuring$createArgumentList$createAssignmentExpression$createBlock$createCallExpression$createCallStatement$createExpressionStatement$createFinally$createIfStatement$createMemberExpression$createStringLiteral$createTryStatement$createVariableStatement$createWhileStatement.createVariableStatement, createWhileStatement = destructuring$createArgumentList$createAssignmentExpression$createBlock$createCallExpression$createCallStatement$createExpressionStatement$createFinally$createIfStatement$createMemberExpression$createStringLiteral$createTryStatement$createVariableStatement$createWhileStatement.createWhileStatement; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
-  var createArgumentList = ParseTreeFactory.createArgumentList; 
-  var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression; 
-  var createBlock = ParseTreeFactory.createBlock; 
-  var createCallExpression = ParseTreeFactory.createCallExpression; 
-  var createCallStatement = ParseTreeFactory.createCallStatement; 
-  var createExpressionStatement = ParseTreeFactory.createExpressionStatement; 
-  var createFinally = ParseTreeFactory.createFinally; 
-  var createIfStatement = ParseTreeFactory.createIfStatement; 
-  var createMemberExpression = ParseTreeFactory.createMemberExpression; 
-  var createStringLiteral = ParseTreeFactory.createStringLiteral; 
-  var createTryStatement = ParseTreeFactory.createTryStatement; 
-  var createVariableStatement = ParseTreeFactory.createVariableStatement; 
-  var createWhileStatement = ParseTreeFactory.createWhileStatement; 
   function ForOfTransformer(identifierGenerator) { 
     ParseTreeTransformer.call(this); 
     this.identifierGenerator_ = identifierGenerator; 
@@ -11305,9 +11609,8 @@ var $src_semantics_FreeVariableChecker_js =(function() {
 var $src_codegeneration_GeneratorComprehensionTransformer_js =(function() { 
   "use strict"; 
   var destructuring$ComprehensionTransformer = $src_codegeneration_ComprehensionTransformer_js, ComprehensionTransformer = destructuring$ComprehensionTransformer.ComprehensionTransformer; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
-  var createYieldStatement = ParseTreeFactory.createYieldStatement; 
+  var destructuring$createYieldStatement = $src_codegeneration_ParseTreeFactory_js, createYieldStatement = destructuring$createYieldStatement.createYieldStatement; 
   function GeneratorComprehensionTransformer(identifierGenerator) { 
     ComprehensionTransformer.call(this, identifierGenerator); 
   } 
@@ -11329,16 +11632,8 @@ var $src_codegeneration_GeneratorComprehensionTransformer_js =(function() {
 }).call(this); 
 var $src_codegeneration_generator_State_js =(function() { 
   "use strict"; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$PredefinedName = $src_syntax_PredefinedName_js, PredefinedName = destructuring$PredefinedName.PredefinedName; 
-  var createAssignStateStatement = ParseTreeFactory.createAssignStateStatement; 
-  var createAssignmentStatement = ParseTreeFactory.createAssignmentStatement; 
-  var createBreakStatement = ParseTreeFactory.createBreakStatement; 
-  var createCaseClause = ParseTreeFactory.createCaseClause; 
-  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression; 
-  var createNumberLiteral = ParseTreeFactory.createNumberLiteral; 
-  var createStatementList = ParseTreeFactory.createStatementList; 
-  var createStatementList = ParseTreeFactory.createStatementList; 
+  var destructuring$createAssignStateStatement$createAssignmentStatement$createBreakStatement$createCaseClause$createIdentifierExpression$createNumberLiteral$createStatementList = $src_codegeneration_ParseTreeFactory_js, createAssignStateStatement = destructuring$createAssignStateStatement$createAssignmentStatement$createBreakStatement$createCaseClause$createIdentifierExpression$createNumberLiteral$createStatementList.createAssignStateStatement, createAssignmentStatement = destructuring$createAssignStateStatement$createAssignmentStatement$createBreakStatement$createCaseClause$createIdentifierExpression$createNumberLiteral$createStatementList.createAssignmentStatement, createBreakStatement = destructuring$createAssignStateStatement$createAssignmentStatement$createBreakStatement$createCaseClause$createIdentifierExpression$createNumberLiteral$createStatementList.createBreakStatement, createCaseClause = destructuring$createAssignStateStatement$createAssignmentStatement$createBreakStatement$createCaseClause$createIdentifierExpression$createNumberLiteral$createStatementList.createCaseClause, createIdentifierExpression = destructuring$createAssignStateStatement$createAssignmentStatement$createBreakStatement$createCaseClause$createIdentifierExpression$createNumberLiteral$createStatementList.createIdentifierExpression, createNumberLiteral = destructuring$createAssignStateStatement$createAssignmentStatement$createBreakStatement$createCaseClause$createIdentifierExpression$createNumberLiteral$createStatementList.createNumberLiteral, createStatementList = destructuring$createAssignStateStatement$createAssignmentStatement$createBreakStatement$createCaseClause$createIdentifierExpression$createNumberLiteral$createStatementList.createStatementList, createStatementList = destructuring$createAssignStateStatement$createAssignmentStatement$createBreakStatement$createCaseClause$createIdentifierExpression$createNumberLiteral$createStatementList.createStatementList; 
   function State(id) { 
     this.id = id; 
   } 
@@ -11432,10 +11727,9 @@ var $src_codegeneration_generator_FallThroughState_js =(function() {
 var $src_codegeneration_generator_BreakState_js =(function() { 
   "use strict"; 
   var destructuring$FallThroughState = $src_codegeneration_generator_FallThroughState_js, FallThroughState = destructuring$FallThroughState.FallThroughState; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$State = $src_codegeneration_generator_State_js, State = destructuring$State.State; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
-  var createStatementList = ParseTreeFactory.createStatementList; 
+  var destructuring$createStatementList = $src_codegeneration_ParseTreeFactory_js, createStatementList = destructuring$createStatementList.createStatementList; 
   function BreakState(id, label) { 
     State.call(this, id); 
     this.label = label; 
@@ -11467,10 +11761,9 @@ var $src_codegeneration_generator_BreakState_js =(function() {
 var $src_codegeneration_generator_ContinueState_js =(function() { 
   "use strict"; 
   var destructuring$FallThroughState = $src_codegeneration_generator_FallThroughState_js, FallThroughState = destructuring$FallThroughState.FallThroughState; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$State = $src_codegeneration_generator_State_js, State = destructuring$State.State; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
-  var createStatementList = ParseTreeFactory.createStatementList; 
+  var destructuring$createStatementList = $src_codegeneration_ParseTreeFactory_js, createStatementList = destructuring$createStatementList.createStatementList; 
   function ContinueState(id, label) { 
     State.call(this, id); 
     this.label = label; 
@@ -11530,8 +11823,7 @@ var $src_codegeneration_generator_TryState_js =(function() {
 }).call(this); 
 var $src_syntax_trees_StateMachine_js =(function() { 
   "use strict"; 
-  var destructuring$ParseTree = $src_syntax_trees_ParseTree_js, ParseTree = destructuring$ParseTree.ParseTree; 
-  var destructuring$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType.ParseTreeType; 
+  var destructuring$ParseTree$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTree = destructuring$ParseTree$ParseTreeType.ParseTree, ParseTreeType = destructuring$ParseTree$ParseTreeType.ParseTreeType; 
   var destructuring$TryState = $src_codegeneration_generator_TryState_js, TryState = destructuring$TryState.TryState; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
   ParseTreeType.STATE_MACHINE = 'STATE_MACHINE'; 
@@ -11692,11 +11984,9 @@ var $src_codegeneration_generator_CatchState_js =(function() {
 }).call(this); 
 var $src_codegeneration_generator_ConditionalState_js =(function() { 
   "use strict"; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$State = $src_codegeneration_generator_State_js, State = destructuring$State.State; 
+  var destructuring$createBlock$createIfStatement = $src_codegeneration_ParseTreeFactory_js, createBlock = destructuring$createBlock$createIfStatement.createBlock, createIfStatement = destructuring$createBlock$createIfStatement.createIfStatement; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
-  var createBlock = ParseTreeFactory.createBlock; 
-  var createIfStatement = ParseTreeFactory.createIfStatement; 
   function ConditionalState(id, ifState, elseState, condition) { 
     State.call(this, id); 
     this.ifState = ifState; 
@@ -11782,15 +12072,13 @@ var $src_codegeneration_generator_StateAllocator_js =(function() {
 }).call(this); 
 var $src_codegeneration_generator_SwitchState_js =(function() { 
   "use strict"; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$State = $src_codegeneration_generator_State_js, State = destructuring$State.State; 
+  var destructuring$createBreakStatement$createStatementList = $src_codegeneration_ParseTreeFactory_js, createBreakStatement = destructuring$createBreakStatement$createStatementList.createBreakStatement, createStatementList = destructuring$createBreakStatement$createStatementList.createStatementList; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
   var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
   var CaseClause = trees.CaseClause; 
   var DefaultClause = trees.DefaultClause; 
   var SwitchStatement = trees.SwitchStatement; 
-  var createBreakStatement = ParseTreeFactory.createBreakStatement; 
-  var createStatementList = ParseTreeFactory.createStatementList; 
   function SwitchClause(first, second) { 
     this.first = first; 
     this.second = second; 
@@ -11844,52 +12132,22 @@ var $src_codegeneration_generator_CPSTransformer_js =(function() {
   var destructuring$FinallyFallThroughState = $src_codegeneration_generator_FinallyFallThroughState_js, FinallyFallThroughState = destructuring$FinallyFallThroughState.FinallyFallThroughState; 
   var destructuring$FinallyState = $src_codegeneration_generator_FinallyState_js, FinallyState = destructuring$FinallyState.FinallyState; 
   var destructuring$IdentifierToken = $src_syntax_IdentifierToken_js, IdentifierToken = destructuring$IdentifierToken.IdentifierToken; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$ParseTreeTransformer = $src_codegeneration_ParseTreeTransformer_js, ParseTreeTransformer = destructuring$ParseTreeTransformer.ParseTreeTransformer; 
   var destructuring$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType.ParseTreeType; 
   var destructuring$PredefinedName = $src_syntax_PredefinedName_js, PredefinedName = destructuring$PredefinedName.PredefinedName; 
   var destructuring$State = $src_codegeneration_generator_State_js, State = destructuring$State.State; 
   var destructuring$StateAllocator = $src_codegeneration_generator_StateAllocator_js, StateAllocator = destructuring$StateAllocator.StateAllocator; 
   var destructuring$StateMachine = $src_syntax_trees_StateMachine_js, StateMachine = destructuring$StateMachine.StateMachine; 
-  var destructuring$SwitchClause = $src_codegeneration_generator_SwitchState_js, SwitchClause = destructuring$SwitchClause.SwitchClause; 
-  var destructuring$SwitchState = $src_codegeneration_generator_SwitchState_js, SwitchState = destructuring$SwitchState.SwitchState; 
+  var destructuring$SwitchClause$SwitchState = $src_codegeneration_generator_SwitchState_js, SwitchClause = destructuring$SwitchClause$SwitchState.SwitchClause, SwitchState = destructuring$SwitchClause$SwitchState.SwitchState; 
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
   var destructuring$TryState = $src_codegeneration_generator_TryState_js, TryState = destructuring$TryState.TryState; 
-  var destructuring$variablesInBlock = $src_semantics_VariableBinder_js, variablesInBlock = destructuring$variablesInBlock.variablesInBlock; 
+  var destructuring$createArrayLiteralExpression$createAssignStateStatement$createAssignmentExpression$createAssignmentStatement$createBinaryOperator$createBindingIdentifier$createBlock$createBoundCall$createBreakStatement$createCaseClause$createCatch$createDefaultClause$createEmptyParameterList$createEmptyStatement$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createNumberLiteral$createOperatorToken$createStatementList$createStringLiteral$createSwitchStatement$createThisExpression$createThrowStatement$createTrueLiteral$createTryStatement$createVariableStatement$createWhileStatement = $src_codegeneration_ParseTreeFactory_js, createArrayLiteralExpression = destructuring$createArrayLiteralExpression$createAssignStateStatement$createAssignmentExpression$createAssignmentStatement$createBinaryOperator$createBindingIdentifier$createBlock$createBoundCall$createBreakStatement$createCaseClause$createCatch$createDefaultClause$createEmptyParameterList$createEmptyStatement$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createNumberLiteral$createOperatorToken$createStatementList$createStringLiteral$createSwitchStatement$createThisExpression$createThrowStatement$createTrueLiteral$createTryStatement$createVariableStatement$createWhileStatement.createArrayLiteralExpression, createAssignStateStatement = destructuring$createArrayLiteralExpression$createAssignStateStatement$createAssignmentExpression$createAssignmentStatement$createBinaryOperator$createBindingIdentifier$createBlock$createBoundCall$createBreakStatement$createCaseClause$createCatch$createDefaultClause$createEmptyParameterList$createEmptyStatement$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createNumberLiteral$createOperatorToken$createStatementList$createStringLiteral$createSwitchStatement$createThisExpression$createThrowStatement$createTrueLiteral$createTryStatement$createVariableStatement$createWhileStatement.createAssignStateStatement, createAssignmentExpression = destructuring$createArrayLiteralExpression$createAssignStateStatement$createAssignmentExpression$createAssignmentStatement$createBinaryOperator$createBindingIdentifier$createBlock$createBoundCall$createBreakStatement$createCaseClause$createCatch$createDefaultClause$createEmptyParameterList$createEmptyStatement$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createNumberLiteral$createOperatorToken$createStatementList$createStringLiteral$createSwitchStatement$createThisExpression$createThrowStatement$createTrueLiteral$createTryStatement$createVariableStatement$createWhileStatement.createAssignmentExpression, createAssignmentStatement = destructuring$createArrayLiteralExpression$createAssignStateStatement$createAssignmentExpression$createAssignmentStatement$createBinaryOperator$createBindingIdentifier$createBlock$createBoundCall$createBreakStatement$createCaseClause$createCatch$createDefaultClause$createEmptyParameterList$createEmptyStatement$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createNumberLiteral$createOperatorToken$createStatementList$createStringLiteral$createSwitchStatement$createThisExpression$createThrowStatement$createTrueLiteral$createTryStatement$createVariableStatement$createWhileStatement.createAssignmentStatement, createBinaryOperator = destructuring$createArrayLiteralExpression$createAssignStateStatement$createAssignmentExpression$createAssignmentStatement$createBinaryOperator$createBindingIdentifier$createBlock$createBoundCall$createBreakStatement$createCaseClause$createCatch$createDefaultClause$createEmptyParameterList$createEmptyStatement$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createNumberLiteral$createOperatorToken$createStatementList$createStringLiteral$createSwitchStatement$createThisExpression$createThrowStatement$createTrueLiteral$createTryStatement$createVariableStatement$createWhileStatement.createBinaryOperator, createBindingIdentifier = destructuring$createArrayLiteralExpression$createAssignStateStatement$createAssignmentExpression$createAssignmentStatement$createBinaryOperator$createBindingIdentifier$createBlock$createBoundCall$createBreakStatement$createCaseClause$createCatch$createDefaultClause$createEmptyParameterList$createEmptyStatement$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createNumberLiteral$createOperatorToken$createStatementList$createStringLiteral$createSwitchStatement$createThisExpression$createThrowStatement$createTrueLiteral$createTryStatement$createVariableStatement$createWhileStatement.createBindingIdentifier, createBlock = destructuring$createArrayLiteralExpression$createAssignStateStatement$createAssignmentExpression$createAssignmentStatement$createBinaryOperator$createBindingIdentifier$createBlock$createBoundCall$createBreakStatement$createCaseClause$createCatch$createDefaultClause$createEmptyParameterList$createEmptyStatement$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createNumberLiteral$createOperatorToken$createStatementList$createStringLiteral$createSwitchStatement$createThisExpression$createThrowStatement$createTrueLiteral$createTryStatement$createVariableStatement$createWhileStatement.createBlock, createBoundCall = destructuring$createArrayLiteralExpression$createAssignStateStatement$createAssignmentExpression$createAssignmentStatement$createBinaryOperator$createBindingIdentifier$createBlock$createBoundCall$createBreakStatement$createCaseClause$createCatch$createDefaultClause$createEmptyParameterList$createEmptyStatement$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createNumberLiteral$createOperatorToken$createStatementList$createStringLiteral$createSwitchStatement$createThisExpression$createThrowStatement$createTrueLiteral$createTryStatement$createVariableStatement$createWhileStatement.createBoundCall, createBreakStatement = destructuring$createArrayLiteralExpression$createAssignStateStatement$createAssignmentExpression$createAssignmentStatement$createBinaryOperator$createBindingIdentifier$createBlock$createBoundCall$createBreakStatement$createCaseClause$createCatch$createDefaultClause$createEmptyParameterList$createEmptyStatement$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createNumberLiteral$createOperatorToken$createStatementList$createStringLiteral$createSwitchStatement$createThisExpression$createThrowStatement$createTrueLiteral$createTryStatement$createVariableStatement$createWhileStatement.createBreakStatement, createCaseClause = destructuring$createArrayLiteralExpression$createAssignStateStatement$createAssignmentExpression$createAssignmentStatement$createBinaryOperator$createBindingIdentifier$createBlock$createBoundCall$createBreakStatement$createCaseClause$createCatch$createDefaultClause$createEmptyParameterList$createEmptyStatement$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createNumberLiteral$createOperatorToken$createStatementList$createStringLiteral$createSwitchStatement$createThisExpression$createThrowStatement$createTrueLiteral$createTryStatement$createVariableStatement$createWhileStatement.createCaseClause, createCatch = destructuring$createArrayLiteralExpression$createAssignStateStatement$createAssignmentExpression$createAssignmentStatement$createBinaryOperator$createBindingIdentifier$createBlock$createBoundCall$createBreakStatement$createCaseClause$createCatch$createDefaultClause$createEmptyParameterList$createEmptyStatement$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createNumberLiteral$createOperatorToken$createStatementList$createStringLiteral$createSwitchStatement$createThisExpression$createThrowStatement$createTrueLiteral$createTryStatement$createVariableStatement$createWhileStatement.createCatch, createDefaultClause = destructuring$createArrayLiteralExpression$createAssignStateStatement$createAssignmentExpression$createAssignmentStatement$createBinaryOperator$createBindingIdentifier$createBlock$createBoundCall$createBreakStatement$createCaseClause$createCatch$createDefaultClause$createEmptyParameterList$createEmptyStatement$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createNumberLiteral$createOperatorToken$createStatementList$createStringLiteral$createSwitchStatement$createThisExpression$createThrowStatement$createTrueLiteral$createTryStatement$createVariableStatement$createWhileStatement.createDefaultClause, createEmptyParameterList = destructuring$createArrayLiteralExpression$createAssignStateStatement$createAssignmentExpression$createAssignmentStatement$createBinaryOperator$createBindingIdentifier$createBlock$createBoundCall$createBreakStatement$createCaseClause$createCatch$createDefaultClause$createEmptyParameterList$createEmptyStatement$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createNumberLiteral$createOperatorToken$createStatementList$createStringLiteral$createSwitchStatement$createThisExpression$createThrowStatement$createTrueLiteral$createTryStatement$createVariableStatement$createWhileStatement.createEmptyParameterList, createEmptyStatement = destructuring$createArrayLiteralExpression$createAssignStateStatement$createAssignmentExpression$createAssignmentStatement$createBinaryOperator$createBindingIdentifier$createBlock$createBoundCall$createBreakStatement$createCaseClause$createCatch$createDefaultClause$createEmptyParameterList$createEmptyStatement$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createNumberLiteral$createOperatorToken$createStatementList$createStringLiteral$createSwitchStatement$createThisExpression$createThrowStatement$createTrueLiteral$createTryStatement$createVariableStatement$createWhileStatement.createEmptyStatement, createExpressionStatement = destructuring$createArrayLiteralExpression$createAssignStateStatement$createAssignmentExpression$createAssignmentStatement$createBinaryOperator$createBindingIdentifier$createBlock$createBoundCall$createBreakStatement$createCaseClause$createCatch$createDefaultClause$createEmptyParameterList$createEmptyStatement$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createNumberLiteral$createOperatorToken$createStatementList$createStringLiteral$createSwitchStatement$createThisExpression$createThrowStatement$createTrueLiteral$createTryStatement$createVariableStatement$createWhileStatement.createExpressionStatement, createFunctionExpression = destructuring$createArrayLiteralExpression$createAssignStateStatement$createAssignmentExpression$createAssignmentStatement$createBinaryOperator$createBindingIdentifier$createBlock$createBoundCall$createBreakStatement$createCaseClause$createCatch$createDefaultClause$createEmptyParameterList$createEmptyStatement$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createNumberLiteral$createOperatorToken$createStatementList$createStringLiteral$createSwitchStatement$createThisExpression$createThrowStatement$createTrueLiteral$createTryStatement$createVariableStatement$createWhileStatement.createFunctionExpression, createIdentifierExpression = destructuring$createArrayLiteralExpression$createAssignStateStatement$createAssignmentExpression$createAssignmentStatement$createBinaryOperator$createBindingIdentifier$createBlock$createBoundCall$createBreakStatement$createCaseClause$createCatch$createDefaultClause$createEmptyParameterList$createEmptyStatement$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createNumberLiteral$createOperatorToken$createStatementList$createStringLiteral$createSwitchStatement$createThisExpression$createThrowStatement$createTrueLiteral$createTryStatement$createVariableStatement$createWhileStatement.createIdentifierExpression, createIdentifierToken = destructuring$createArrayLiteralExpression$createAssignStateStatement$createAssignmentExpression$createAssignmentStatement$createBinaryOperator$createBindingIdentifier$createBlock$createBoundCall$createBreakStatement$createCaseClause$createCatch$createDefaultClause$createEmptyParameterList$createEmptyStatement$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createNumberLiteral$createOperatorToken$createStatementList$createStringLiteral$createSwitchStatement$createThisExpression$createThrowStatement$createTrueLiteral$createTryStatement$createVariableStatement$createWhileStatement.createIdentifierToken, createNumberLiteral = destructuring$createArrayLiteralExpression$createAssignStateStatement$createAssignmentExpression$createAssignmentStatement$createBinaryOperator$createBindingIdentifier$createBlock$createBoundCall$createBreakStatement$createCaseClause$createCatch$createDefaultClause$createEmptyParameterList$createEmptyStatement$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createNumberLiteral$createOperatorToken$createStatementList$createStringLiteral$createSwitchStatement$createThisExpression$createThrowStatement$createTrueLiteral$createTryStatement$createVariableStatement$createWhileStatement.createNumberLiteral, createOperatorToken = destructuring$createArrayLiteralExpression$createAssignStateStatement$createAssignmentExpression$createAssignmentStatement$createBinaryOperator$createBindingIdentifier$createBlock$createBoundCall$createBreakStatement$createCaseClause$createCatch$createDefaultClause$createEmptyParameterList$createEmptyStatement$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createNumberLiteral$createOperatorToken$createStatementList$createStringLiteral$createSwitchStatement$createThisExpression$createThrowStatement$createTrueLiteral$createTryStatement$createVariableStatement$createWhileStatement.createOperatorToken, createStatementList = destructuring$createArrayLiteralExpression$createAssignStateStatement$createAssignmentExpression$createAssignmentStatement$createBinaryOperator$createBindingIdentifier$createBlock$createBoundCall$createBreakStatement$createCaseClause$createCatch$createDefaultClause$createEmptyParameterList$createEmptyStatement$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createNumberLiteral$createOperatorToken$createStatementList$createStringLiteral$createSwitchStatement$createThisExpression$createThrowStatement$createTrueLiteral$createTryStatement$createVariableStatement$createWhileStatement.createStatementList, createStringLiteral = destructuring$createArrayLiteralExpression$createAssignStateStatement$createAssignmentExpression$createAssignmentStatement$createBinaryOperator$createBindingIdentifier$createBlock$createBoundCall$createBreakStatement$createCaseClause$createCatch$createDefaultClause$createEmptyParameterList$createEmptyStatement$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createNumberLiteral$createOperatorToken$createStatementList$createStringLiteral$createSwitchStatement$createThisExpression$createThrowStatement$createTrueLiteral$createTryStatement$createVariableStatement$createWhileStatement.createStringLiteral, createSwitchStatement = destructuring$createArrayLiteralExpression$createAssignStateStatement$createAssignmentExpression$createAssignmentStatement$createBinaryOperator$createBindingIdentifier$createBlock$createBoundCall$createBreakStatement$createCaseClause$createCatch$createDefaultClause$createEmptyParameterList$createEmptyStatement$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createNumberLiteral$createOperatorToken$createStatementList$createStringLiteral$createSwitchStatement$createThisExpression$createThrowStatement$createTrueLiteral$createTryStatement$createVariableStatement$createWhileStatement.createSwitchStatement, createThisExpression = destructuring$createArrayLiteralExpression$createAssignStateStatement$createAssignmentExpression$createAssignmentStatement$createBinaryOperator$createBindingIdentifier$createBlock$createBoundCall$createBreakStatement$createCaseClause$createCatch$createDefaultClause$createEmptyParameterList$createEmptyStatement$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createNumberLiteral$createOperatorToken$createStatementList$createStringLiteral$createSwitchStatement$createThisExpression$createThrowStatement$createTrueLiteral$createTryStatement$createVariableStatement$createWhileStatement.createThisExpression, createThrowStatement = destructuring$createArrayLiteralExpression$createAssignStateStatement$createAssignmentExpression$createAssignmentStatement$createBinaryOperator$createBindingIdentifier$createBlock$createBoundCall$createBreakStatement$createCaseClause$createCatch$createDefaultClause$createEmptyParameterList$createEmptyStatement$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createNumberLiteral$createOperatorToken$createStatementList$createStringLiteral$createSwitchStatement$createThisExpression$createThrowStatement$createTrueLiteral$createTryStatement$createVariableStatement$createWhileStatement.createThrowStatement, createTrueLiteral = destructuring$createArrayLiteralExpression$createAssignStateStatement$createAssignmentExpression$createAssignmentStatement$createBinaryOperator$createBindingIdentifier$createBlock$createBoundCall$createBreakStatement$createCaseClause$createCatch$createDefaultClause$createEmptyParameterList$createEmptyStatement$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createNumberLiteral$createOperatorToken$createStatementList$createStringLiteral$createSwitchStatement$createThisExpression$createThrowStatement$createTrueLiteral$createTryStatement$createVariableStatement$createWhileStatement.createTrueLiteral, createTryStatement = destructuring$createArrayLiteralExpression$createAssignStateStatement$createAssignmentExpression$createAssignmentStatement$createBinaryOperator$createBindingIdentifier$createBlock$createBoundCall$createBreakStatement$createCaseClause$createCatch$createDefaultClause$createEmptyParameterList$createEmptyStatement$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createNumberLiteral$createOperatorToken$createStatementList$createStringLiteral$createSwitchStatement$createThisExpression$createThrowStatement$createTrueLiteral$createTryStatement$createVariableStatement$createWhileStatement.createTryStatement, createVariableStatement = destructuring$createArrayLiteralExpression$createAssignStateStatement$createAssignmentExpression$createAssignmentStatement$createBinaryOperator$createBindingIdentifier$createBlock$createBoundCall$createBreakStatement$createCaseClause$createCatch$createDefaultClause$createEmptyParameterList$createEmptyStatement$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createNumberLiteral$createOperatorToken$createStatementList$createStringLiteral$createSwitchStatement$createThisExpression$createThrowStatement$createTrueLiteral$createTryStatement$createVariableStatement$createWhileStatement.createVariableStatement, createWhileStatement = destructuring$createArrayLiteralExpression$createAssignStateStatement$createAssignmentExpression$createAssignmentStatement$createBinaryOperator$createBindingIdentifier$createBlock$createBoundCall$createBreakStatement$createCaseClause$createCatch$createDefaultClause$createEmptyParameterList$createEmptyStatement$createExpressionStatement$createFunctionExpression$createIdentifierExpression$createIdentifierToken$createNumberLiteral$createOperatorToken$createStatementList$createStringLiteral$createSwitchStatement$createThisExpression$createThrowStatement$createTrueLiteral$createTryStatement$createVariableStatement$createWhileStatement.createWhileStatement; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
   var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
+  var destructuring$variablesInBlock = $src_semantics_VariableBinder_js, variablesInBlock = destructuring$variablesInBlock.variablesInBlock; 
   var CaseClause = trees.CaseClause; 
   var IdentifierExpression = trees.IdentifierExpression; 
   var SwitchStatement = trees.SwitchStatement; 
-  var createArrayLiteralExpression = ParseTreeFactory.createArrayLiteralExpression; 
-  var createAssignStateStatement = ParseTreeFactory.createAssignStateStatement; 
-  var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression; 
-  var createAssignmentStatement = ParseTreeFactory.createAssignmentStatement; 
-  var createBinaryOperator = ParseTreeFactory.createBinaryOperator; 
-  var createBindingIdentifier = ParseTreeFactory.createBindingIdentifier; 
-  var createBlock = ParseTreeFactory.createBlock; 
-  var createBoundCall = ParseTreeFactory.createBoundCall; 
-  var createBreakStatement = ParseTreeFactory.createBreakStatement; 
-  var createCaseClause = ParseTreeFactory.createCaseClause; 
-  var createCatch = ParseTreeFactory.createCatch; 
-  var createDefaultClause = ParseTreeFactory.createDefaultClause; 
-  var createEmptyParameterList = ParseTreeFactory.createEmptyParameterList; 
-  var createEmptyStatement = ParseTreeFactory.createEmptyStatement; 
-  var createExpressionStatement = ParseTreeFactory.createExpressionStatement; 
-  var createFunctionExpression = ParseTreeFactory.createFunctionExpression; 
-  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression; 
-  var createIdentifierToken = ParseTreeFactory.createIdentifierToken; 
-  var createNumberLiteral = ParseTreeFactory.createNumberLiteral; 
-  var createOperatorToken = ParseTreeFactory.createOperatorToken; 
-  var createStatementList = ParseTreeFactory.createStatementList; 
-  var createStringLiteral = ParseTreeFactory.createStringLiteral; 
-  var createSwitchStatement = ParseTreeFactory.createSwitchStatement; 
-  var createThisExpression = ParseTreeFactory.createThisExpression; 
-  var createThrowStatement = ParseTreeFactory.createThrowStatement; 
-  var createTrueLiteral = ParseTreeFactory.createTrueLiteral; 
-  var createTryStatement = ParseTreeFactory.createTryStatement; 
-  var createVariableStatement = ParseTreeFactory.createVariableStatement; 
-  var createWhileStatement = ParseTreeFactory.createWhileStatement; 
   function CPSTransformer(reporter) { 
     ParseTreeTransformer.call(this); 
     this.reporter = reporter; 
@@ -12394,35 +12652,12 @@ var $src_codegeneration_generator_AsyncTransformer_js =(function() {
   var destructuring$CPSTransformer = $src_codegeneration_generator_CPSTransformer_js, CPSTransformer = destructuring$CPSTransformer.CPSTransformer; 
   var destructuring$EndState = $src_codegeneration_generator_EndState_js, EndState = destructuring$EndState.EndState; 
   var destructuring$FallThroughState = $src_codegeneration_generator_FallThroughState_js, FallThroughState = destructuring$FallThroughState.FallThroughState; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType.ParseTreeType; 
   var destructuring$PredefinedName = $src_syntax_PredefinedName_js, PredefinedName = destructuring$PredefinedName.PredefinedName; 
   var destructuring$StateMachine = $src_syntax_trees_StateMachine_js, StateMachine = destructuring$StateMachine.StateMachine; 
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
+  var destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createBreakStatement$createCallExpression$createCallStatement$createEmptyArgumentList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNewExpression$createNumberLiteral$createParameterList$createParameterReference$createReturnStatement$createStatementList$createThrowStatement$createUndefinedExpression$createVariableStatement = $src_codegeneration_ParseTreeFactory_js, createArgumentList = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createBreakStatement$createCallExpression$createCallStatement$createEmptyArgumentList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNewExpression$createNumberLiteral$createParameterList$createParameterReference$createReturnStatement$createStatementList$createThrowStatement$createUndefinedExpression$createVariableStatement.createArgumentList, createAssignStateStatement = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createBreakStatement$createCallExpression$createCallStatement$createEmptyArgumentList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNewExpression$createNumberLiteral$createParameterList$createParameterReference$createReturnStatement$createStatementList$createThrowStatement$createUndefinedExpression$createVariableStatement.createAssignStateStatement, createAssignmentStatement = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createBreakStatement$createCallExpression$createCallStatement$createEmptyArgumentList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNewExpression$createNumberLiteral$createParameterList$createParameterReference$createReturnStatement$createStatementList$createThrowStatement$createUndefinedExpression$createVariableStatement.createAssignmentStatement, createBlock = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createBreakStatement$createCallExpression$createCallStatement$createEmptyArgumentList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNewExpression$createNumberLiteral$createParameterList$createParameterReference$createReturnStatement$createStatementList$createThrowStatement$createUndefinedExpression$createVariableStatement.createBlock, createBreakStatement = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createBreakStatement$createCallExpression$createCallStatement$createEmptyArgumentList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNewExpression$createNumberLiteral$createParameterList$createParameterReference$createReturnStatement$createStatementList$createThrowStatement$createUndefinedExpression$createVariableStatement.createBreakStatement, createCallExpression = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createBreakStatement$createCallExpression$createCallStatement$createEmptyArgumentList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNewExpression$createNumberLiteral$createParameterList$createParameterReference$createReturnStatement$createStatementList$createThrowStatement$createUndefinedExpression$createVariableStatement.createCallExpression, createCallStatement = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createBreakStatement$createCallExpression$createCallStatement$createEmptyArgumentList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNewExpression$createNumberLiteral$createParameterList$createParameterReference$createReturnStatement$createStatementList$createThrowStatement$createUndefinedExpression$createVariableStatement.createCallStatement, createEmptyArgumentList = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createBreakStatement$createCallExpression$createCallStatement$createEmptyArgumentList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNewExpression$createNumberLiteral$createParameterList$createParameterReference$createReturnStatement$createStatementList$createThrowStatement$createUndefinedExpression$createVariableStatement.createEmptyArgumentList, createFunctionExpression = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createBreakStatement$createCallExpression$createCallStatement$createEmptyArgumentList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNewExpression$createNumberLiteral$createParameterList$createParameterReference$createReturnStatement$createStatementList$createThrowStatement$createUndefinedExpression$createVariableStatement.createFunctionExpression, createIdentifierExpression = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createBreakStatement$createCallExpression$createCallStatement$createEmptyArgumentList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNewExpression$createNumberLiteral$createParameterList$createParameterReference$createReturnStatement$createStatementList$createThrowStatement$createUndefinedExpression$createVariableStatement.createIdentifierExpression, createMemberExpression = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createBreakStatement$createCallExpression$createCallStatement$createEmptyArgumentList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNewExpression$createNumberLiteral$createParameterList$createParameterReference$createReturnStatement$createStatementList$createThrowStatement$createUndefinedExpression$createVariableStatement.createMemberExpression, createNewExpression = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createBreakStatement$createCallExpression$createCallStatement$createEmptyArgumentList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNewExpression$createNumberLiteral$createParameterList$createParameterReference$createReturnStatement$createStatementList$createThrowStatement$createUndefinedExpression$createVariableStatement.createNewExpression, createNumberLiteral = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createBreakStatement$createCallExpression$createCallStatement$createEmptyArgumentList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNewExpression$createNumberLiteral$createParameterList$createParameterReference$createReturnStatement$createStatementList$createThrowStatement$createUndefinedExpression$createVariableStatement.createNumberLiteral, createParameterList = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createBreakStatement$createCallExpression$createCallStatement$createEmptyArgumentList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNewExpression$createNumberLiteral$createParameterList$createParameterReference$createReturnStatement$createStatementList$createThrowStatement$createUndefinedExpression$createVariableStatement.createParameterList, createParameterReference = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createBreakStatement$createCallExpression$createCallStatement$createEmptyArgumentList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNewExpression$createNumberLiteral$createParameterList$createParameterReference$createReturnStatement$createStatementList$createThrowStatement$createUndefinedExpression$createVariableStatement.createParameterReference, createReturnStatement = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createBreakStatement$createCallExpression$createCallStatement$createEmptyArgumentList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNewExpression$createNumberLiteral$createParameterList$createParameterReference$createReturnStatement$createStatementList$createThrowStatement$createUndefinedExpression$createVariableStatement.createReturnStatement, createStatementList = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createBreakStatement$createCallExpression$createCallStatement$createEmptyArgumentList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNewExpression$createNumberLiteral$createParameterList$createParameterReference$createReturnStatement$createStatementList$createThrowStatement$createUndefinedExpression$createVariableStatement.createStatementList, createThrowStatement = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createBreakStatement$createCallExpression$createCallStatement$createEmptyArgumentList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNewExpression$createNumberLiteral$createParameterList$createParameterReference$createReturnStatement$createStatementList$createThrowStatement$createUndefinedExpression$createVariableStatement.createThrowStatement, createUndefinedExpression = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createBreakStatement$createCallExpression$createCallStatement$createEmptyArgumentList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNewExpression$createNumberLiteral$createParameterList$createParameterReference$createReturnStatement$createStatementList$createThrowStatement$createUndefinedExpression$createVariableStatement.createUndefinedExpression, createVariableStatement = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createBreakStatement$createCallExpression$createCallStatement$createEmptyArgumentList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createNewExpression$createNumberLiteral$createParameterList$createParameterReference$createReturnStatement$createStatementList$createThrowStatement$createUndefinedExpression$createVariableStatement.createVariableStatement; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
-  var createArgumentList = ParseTreeFactory.createArgumentList; 
-  var createAssignStateStatement = ParseTreeFactory.createAssignStateStatement; 
-  var createAssignmentStatement = ParseTreeFactory.createAssignmentStatement; 
-  var createBlock = ParseTreeFactory.createBlock; 
-  var createBreakStatement = ParseTreeFactory.createBreakStatement; 
-  var createCallExpression = ParseTreeFactory.createCallExpression; 
-  var createCallStatement = ParseTreeFactory.createCallStatement; 
-  var createCallback = ParseTreeFactory.createCallback; 
-  var createEmptyArgumentList = ParseTreeFactory.createEmptyArgumentList; 
-  var createErrback = ParseTreeFactory.createErrback; 
-  var createFunctionExpression = ParseTreeFactory.createFunctionExpression; 
-  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression; 
-  var createMemberExpression = ParseTreeFactory.createMemberExpression; 
-  var createNewExpression = ParseTreeFactory.createNewExpression; 
-  var createNumberLiteral = ParseTreeFactory.createNumberLiteral; 
-  var createParameterList = ParseTreeFactory.createParameterList; 
-  var createParameterReference = ParseTreeFactory.createParameterReference; 
-  var createPromise = ParseTreeFactory.createPromise; 
-  var createReturnStatement = ParseTreeFactory.createReturnStatement; 
-  var createStatementList = ParseTreeFactory.createStatementList; 
-  var createThrowStatement = ParseTreeFactory.createThrowStatement; 
-  var createUndefinedExpression = ParseTreeFactory.createUndefinedExpression; 
-  var createVariableStatement = ParseTreeFactory.createVariableStatement; 
   function AsyncTransformer(reporter) { 
     CPSTransformer.call(this, reporter); 
   } 
@@ -12516,34 +12751,14 @@ var $src_codegeneration_generator_AsyncTransformer_js =(function() {
 }).call(this); 
 var $src_codegeneration_generator_ForInTransformPass_js =(function() { 
   "use strict"; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$ParseTreeTransformer = $src_codegeneration_ParseTreeTransformer_js, ParseTreeTransformer = destructuring$ParseTreeTransformer.ParseTreeTransformer; 
   var destructuring$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType.ParseTreeType; 
   var destructuring$PredefinedName = $src_syntax_PredefinedName_js, PredefinedName = destructuring$PredefinedName.PredefinedName; 
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
+  var destructuring$createArgumentList$createAssignmentStatement$createBinaryOperator$createBlock$createCallStatement$createContinueStatement$createEmptyArrayLiteralExpression$createForInStatement$createForStatement$createIdentifierExpression$createIfStatement$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createPostfixExpression$createUnaryExpression$createVariableDeclarationList$createVariableStatement = $src_codegeneration_ParseTreeFactory_js, createArgumentList = destructuring$createArgumentList$createAssignmentStatement$createBinaryOperator$createBlock$createCallStatement$createContinueStatement$createEmptyArrayLiteralExpression$createForInStatement$createForStatement$createIdentifierExpression$createIfStatement$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createPostfixExpression$createUnaryExpression$createVariableDeclarationList$createVariableStatement.createArgumentList, createAssignmentStatement = destructuring$createArgumentList$createAssignmentStatement$createBinaryOperator$createBlock$createCallStatement$createContinueStatement$createEmptyArrayLiteralExpression$createForInStatement$createForStatement$createIdentifierExpression$createIfStatement$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createPostfixExpression$createUnaryExpression$createVariableDeclarationList$createVariableStatement.createAssignmentStatement, createBinaryOperator = destructuring$createArgumentList$createAssignmentStatement$createBinaryOperator$createBlock$createCallStatement$createContinueStatement$createEmptyArrayLiteralExpression$createForInStatement$createForStatement$createIdentifierExpression$createIfStatement$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createPostfixExpression$createUnaryExpression$createVariableDeclarationList$createVariableStatement.createBinaryOperator, createBlock = destructuring$createArgumentList$createAssignmentStatement$createBinaryOperator$createBlock$createCallStatement$createContinueStatement$createEmptyArrayLiteralExpression$createForInStatement$createForStatement$createIdentifierExpression$createIfStatement$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createPostfixExpression$createUnaryExpression$createVariableDeclarationList$createVariableStatement.createBlock, createCallStatement = destructuring$createArgumentList$createAssignmentStatement$createBinaryOperator$createBlock$createCallStatement$createContinueStatement$createEmptyArrayLiteralExpression$createForInStatement$createForStatement$createIdentifierExpression$createIfStatement$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createPostfixExpression$createUnaryExpression$createVariableDeclarationList$createVariableStatement.createCallStatement, createContinueStatement = destructuring$createArgumentList$createAssignmentStatement$createBinaryOperator$createBlock$createCallStatement$createContinueStatement$createEmptyArrayLiteralExpression$createForInStatement$createForStatement$createIdentifierExpression$createIfStatement$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createPostfixExpression$createUnaryExpression$createVariableDeclarationList$createVariableStatement.createContinueStatement, createEmptyArrayLiteralExpression = destructuring$createArgumentList$createAssignmentStatement$createBinaryOperator$createBlock$createCallStatement$createContinueStatement$createEmptyArrayLiteralExpression$createForInStatement$createForStatement$createIdentifierExpression$createIfStatement$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createPostfixExpression$createUnaryExpression$createVariableDeclarationList$createVariableStatement.createEmptyArrayLiteralExpression, createForInStatement = destructuring$createArgumentList$createAssignmentStatement$createBinaryOperator$createBlock$createCallStatement$createContinueStatement$createEmptyArrayLiteralExpression$createForInStatement$createForStatement$createIdentifierExpression$createIfStatement$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createPostfixExpression$createUnaryExpression$createVariableDeclarationList$createVariableStatement.createForInStatement, createForStatement = destructuring$createArgumentList$createAssignmentStatement$createBinaryOperator$createBlock$createCallStatement$createContinueStatement$createEmptyArrayLiteralExpression$createForInStatement$createForStatement$createIdentifierExpression$createIfStatement$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createPostfixExpression$createUnaryExpression$createVariableDeclarationList$createVariableStatement.createForStatement, createIdentifierExpression = destructuring$createArgumentList$createAssignmentStatement$createBinaryOperator$createBlock$createCallStatement$createContinueStatement$createEmptyArrayLiteralExpression$createForInStatement$createForStatement$createIdentifierExpression$createIfStatement$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createPostfixExpression$createUnaryExpression$createVariableDeclarationList$createVariableStatement.createIdentifierExpression, createIfStatement = destructuring$createArgumentList$createAssignmentStatement$createBinaryOperator$createBlock$createCallStatement$createContinueStatement$createEmptyArrayLiteralExpression$createForInStatement$createForStatement$createIdentifierExpression$createIfStatement$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createPostfixExpression$createUnaryExpression$createVariableDeclarationList$createVariableStatement.createIfStatement, createMemberExpression = destructuring$createArgumentList$createAssignmentStatement$createBinaryOperator$createBlock$createCallStatement$createContinueStatement$createEmptyArrayLiteralExpression$createForInStatement$createForStatement$createIdentifierExpression$createIfStatement$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createPostfixExpression$createUnaryExpression$createVariableDeclarationList$createVariableStatement.createMemberExpression, createMemberLookupExpression = destructuring$createArgumentList$createAssignmentStatement$createBinaryOperator$createBlock$createCallStatement$createContinueStatement$createEmptyArrayLiteralExpression$createForInStatement$createForStatement$createIdentifierExpression$createIfStatement$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createPostfixExpression$createUnaryExpression$createVariableDeclarationList$createVariableStatement.createMemberLookupExpression, createNumberLiteral = destructuring$createArgumentList$createAssignmentStatement$createBinaryOperator$createBlock$createCallStatement$createContinueStatement$createEmptyArrayLiteralExpression$createForInStatement$createForStatement$createIdentifierExpression$createIfStatement$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createPostfixExpression$createUnaryExpression$createVariableDeclarationList$createVariableStatement.createNumberLiteral, createOperatorToken = destructuring$createArgumentList$createAssignmentStatement$createBinaryOperator$createBlock$createCallStatement$createContinueStatement$createEmptyArrayLiteralExpression$createForInStatement$createForStatement$createIdentifierExpression$createIfStatement$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createPostfixExpression$createUnaryExpression$createVariableDeclarationList$createVariableStatement.createOperatorToken, createParenExpression = destructuring$createArgumentList$createAssignmentStatement$createBinaryOperator$createBlock$createCallStatement$createContinueStatement$createEmptyArrayLiteralExpression$createForInStatement$createForStatement$createIdentifierExpression$createIfStatement$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createPostfixExpression$createUnaryExpression$createVariableDeclarationList$createVariableStatement.createParenExpression, createPostfixExpression = destructuring$createArgumentList$createAssignmentStatement$createBinaryOperator$createBlock$createCallStatement$createContinueStatement$createEmptyArrayLiteralExpression$createForInStatement$createForStatement$createIdentifierExpression$createIfStatement$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createPostfixExpression$createUnaryExpression$createVariableDeclarationList$createVariableStatement.createPostfixExpression, createUnaryExpression = destructuring$createArgumentList$createAssignmentStatement$createBinaryOperator$createBlock$createCallStatement$createContinueStatement$createEmptyArrayLiteralExpression$createForInStatement$createForStatement$createIdentifierExpression$createIfStatement$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createPostfixExpression$createUnaryExpression$createVariableDeclarationList$createVariableStatement.createUnaryExpression, createVariableDeclarationList = destructuring$createArgumentList$createAssignmentStatement$createBinaryOperator$createBlock$createCallStatement$createContinueStatement$createEmptyArrayLiteralExpression$createForInStatement$createForStatement$createIdentifierExpression$createIfStatement$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createPostfixExpression$createUnaryExpression$createVariableDeclarationList$createVariableStatement.createVariableDeclarationList, createVariableStatement = destructuring$createArgumentList$createAssignmentStatement$createBinaryOperator$createBlock$createCallStatement$createContinueStatement$createEmptyArrayLiteralExpression$createForInStatement$createForStatement$createIdentifierExpression$createIfStatement$createMemberExpression$createMemberLookupExpression$createNumberLiteral$createOperatorToken$createParenExpression$createPostfixExpression$createUnaryExpression$createVariableDeclarationList$createVariableStatement.createVariableStatement; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
   var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
   var IdentifierExpression = trees.IdentifierExpression; 
-  var createArgumentList = ParseTreeFactory.createArgumentList; 
-  var createAssignmentStatement = ParseTreeFactory.createAssignmentStatement; 
-  var createBinaryOperator = ParseTreeFactory.createBinaryOperator; 
-  var createBlock = ParseTreeFactory.createBlock; 
-  var createCallStatement = ParseTreeFactory.createCallStatement; 
-  var createContinueStatement = ParseTreeFactory.createContinueStatement; 
-  var createEmptyArrayLiteralExpression = ParseTreeFactory.createEmptyArrayLiteralExpression; 
-  var createForInStatement = ParseTreeFactory.createForInStatement; 
-  var createForStatement = ParseTreeFactory.createForStatement; 
-  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression; 
-  var createIfStatement = ParseTreeFactory.createIfStatement; 
-  var createMemberExpression = ParseTreeFactory.createMemberExpression; 
-  var createMemberLookupExpression = ParseTreeFactory.createMemberLookupExpression; 
-  var createNumberLiteral = ParseTreeFactory.createNumberLiteral; 
-  var createOperatorToken = ParseTreeFactory.createOperatorToken; 
-  var createParenExpression = ParseTreeFactory.createParenExpression; 
-  var createPostfixExpression = ParseTreeFactory.createPostfixExpression; 
-  var createUnaryExpression = ParseTreeFactory.createUnaryExpression; 
-  var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList; 
-  var createVariableStatement = ParseTreeFactory.createVariableStatement; 
   function ForInTransformPass(identifierGenerator) { 
     ParseTreeTransformer.call(this); 
     this.identifierGenerator_ = identifierGenerator; 
@@ -12596,14 +12811,10 @@ var $src_codegeneration_generator_ForInTransformPass_js =(function() {
 }).call(this); 
 var $src_codegeneration_generator_YieldState_js =(function() { 
   "use strict"; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$PredefinedName = $src_syntax_PredefinedName_js, PredefinedName = destructuring$PredefinedName.PredefinedName; 
   var destructuring$State = $src_codegeneration_generator_State_js, State = destructuring$State.State; 
+  var destructuring$createAssignmentStatement$createMemberExpression$createReturnStatement$createTrueLiteral = $src_codegeneration_ParseTreeFactory_js, createAssignmentStatement = destructuring$createAssignmentStatement$createMemberExpression$createReturnStatement$createTrueLiteral.createAssignmentStatement, createMemberExpression = destructuring$createAssignmentStatement$createMemberExpression$createReturnStatement$createTrueLiteral.createMemberExpression, createReturnStatement = destructuring$createAssignmentStatement$createMemberExpression$createReturnStatement$createTrueLiteral.createReturnStatement, createTrueLiteral = destructuring$createAssignmentStatement$createMemberExpression$createReturnStatement$createTrueLiteral.createTrueLiteral; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
-  var createAssignmentStatement = ParseTreeFactory.createAssignmentStatement; 
-  var createMemberExpression = ParseTreeFactory.createMemberExpression; 
-  var createReturnStatement = ParseTreeFactory.createReturnStatement; 
-  var createTrueLiteral = ParseTreeFactory.createTrueLiteral; 
   function YieldState(id, fallThroughState, expression) { 
     State.call(this, id); 
     this.fallThroughState = fallThroughState; 
@@ -12632,32 +12843,13 @@ var $src_codegeneration_generator_GeneratorTransformer_js =(function() {
   "use strict"; 
   var destructuring$CPSTransformer = $src_codegeneration_generator_CPSTransformer_js, CPSTransformer = destructuring$CPSTransformer.CPSTransformer; 
   var destructuring$EndState = $src_codegeneration_generator_EndState_js, EndState = destructuring$EndState.EndState; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType.ParseTreeType; 
   var destructuring$PredefinedName = $src_syntax_PredefinedName_js, PredefinedName = destructuring$PredefinedName.PredefinedName; 
   var destructuring$StateMachine = $src_syntax_trees_StateMachine_js, StateMachine = destructuring$StateMachine.StateMachine; 
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
   var destructuring$YieldState = $src_codegeneration_generator_YieldState_js, YieldState = destructuring$YieldState.YieldState; 
+  var destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFalseLiteral$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectLiteralExpression$createPropertyNameAssignment$createReturnStatement$createStatementList$createStringLiteral$createThisExpression$createThrowStatement$createVariableStatement = $src_codegeneration_ParseTreeFactory_js, createArgumentList = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFalseLiteral$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectLiteralExpression$createPropertyNameAssignment$createReturnStatement$createStatementList$createStringLiteral$createThisExpression$createThrowStatement$createVariableStatement.createArgumentList, createAssignStateStatement = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFalseLiteral$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectLiteralExpression$createPropertyNameAssignment$createReturnStatement$createStatementList$createStringLiteral$createThisExpression$createThrowStatement$createVariableStatement.createAssignStateStatement, createAssignmentStatement = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFalseLiteral$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectLiteralExpression$createPropertyNameAssignment$createReturnStatement$createStatementList$createStringLiteral$createThisExpression$createThrowStatement$createVariableStatement.createAssignmentStatement, createBlock = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFalseLiteral$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectLiteralExpression$createPropertyNameAssignment$createReturnStatement$createStatementList$createStringLiteral$createThisExpression$createThrowStatement$createVariableStatement.createBlock, createCallExpression = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFalseLiteral$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectLiteralExpression$createPropertyNameAssignment$createReturnStatement$createStatementList$createStringLiteral$createThisExpression$createThrowStatement$createVariableStatement.createCallExpression, createEmptyParameterList = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFalseLiteral$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectLiteralExpression$createPropertyNameAssignment$createReturnStatement$createStatementList$createStringLiteral$createThisExpression$createThrowStatement$createVariableStatement.createEmptyParameterList, createExpressionStatement = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFalseLiteral$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectLiteralExpression$createPropertyNameAssignment$createReturnStatement$createStatementList$createStringLiteral$createThisExpression$createThrowStatement$createVariableStatement.createExpressionStatement, createFalseLiteral = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFalseLiteral$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectLiteralExpression$createPropertyNameAssignment$createReturnStatement$createStatementList$createStringLiteral$createThisExpression$createThrowStatement$createVariableStatement.createFalseLiteral, createFunctionExpression = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFalseLiteral$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectLiteralExpression$createPropertyNameAssignment$createReturnStatement$createStatementList$createStringLiteral$createThisExpression$createThrowStatement$createVariableStatement.createFunctionExpression, createIdentifierExpression = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFalseLiteral$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectLiteralExpression$createPropertyNameAssignment$createReturnStatement$createStatementList$createStringLiteral$createThisExpression$createThrowStatement$createVariableStatement.createIdentifierExpression, createMemberExpression = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFalseLiteral$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectLiteralExpression$createPropertyNameAssignment$createReturnStatement$createStatementList$createStringLiteral$createThisExpression$createThrowStatement$createVariableStatement.createMemberExpression, createObjectLiteralExpression = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFalseLiteral$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectLiteralExpression$createPropertyNameAssignment$createReturnStatement$createStatementList$createStringLiteral$createThisExpression$createThrowStatement$createVariableStatement.createObjectLiteralExpression, createPropertyNameAssignment = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFalseLiteral$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectLiteralExpression$createPropertyNameAssignment$createReturnStatement$createStatementList$createStringLiteral$createThisExpression$createThrowStatement$createVariableStatement.createPropertyNameAssignment, createReturnStatement = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFalseLiteral$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectLiteralExpression$createPropertyNameAssignment$createReturnStatement$createStatementList$createStringLiteral$createThisExpression$createThrowStatement$createVariableStatement.createReturnStatement, createStatementList = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFalseLiteral$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectLiteralExpression$createPropertyNameAssignment$createReturnStatement$createStatementList$createStringLiteral$createThisExpression$createThrowStatement$createVariableStatement.createStatementList, createStringLiteral = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFalseLiteral$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectLiteralExpression$createPropertyNameAssignment$createReturnStatement$createStatementList$createStringLiteral$createThisExpression$createThrowStatement$createVariableStatement.createStringLiteral, createThisExpression = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFalseLiteral$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectLiteralExpression$createPropertyNameAssignment$createReturnStatement$createStatementList$createStringLiteral$createThisExpression$createThrowStatement$createVariableStatement.createThisExpression, createThrowStatement = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFalseLiteral$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectLiteralExpression$createPropertyNameAssignment$createReturnStatement$createStatementList$createStringLiteral$createThisExpression$createThrowStatement$createVariableStatement.createThrowStatement, createVariableStatement = destructuring$createArgumentList$createAssignStateStatement$createAssignmentStatement$createBlock$createCallExpression$createEmptyParameterList$createExpressionStatement$createFalseLiteral$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectLiteralExpression$createPropertyNameAssignment$createReturnStatement$createStatementList$createStringLiteral$createThisExpression$createThrowStatement$createVariableStatement.createVariableStatement; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
-  var createArgumentList = ParseTreeFactory.createArgumentList; 
-  var createAssignStateStatement = ParseTreeFactory.createAssignStateStatement; 
-  var createAssignmentStatement = ParseTreeFactory.createAssignmentStatement; 
-  var createBlock = ParseTreeFactory.createBlock; 
-  var createCallExpression = ParseTreeFactory.createCallExpression; 
-  var createEmptyParameterList = ParseTreeFactory.createEmptyParameterList; 
-  var createExpressionStatement = ParseTreeFactory.createExpressionStatement; 
-  var createFalseLiteral = ParseTreeFactory.createFalseLiteral; 
-  var createFunctionExpression = ParseTreeFactory.createFunctionExpression; 
-  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression; 
-  var createMemberExpression = ParseTreeFactory.createMemberExpression; 
-  var createObjectLiteralExpression = ParseTreeFactory.createObjectLiteralExpression; 
-  var createPropertyNameAssignment = ParseTreeFactory.createPropertyNameAssignment; 
-  var createReturnStatement = ParseTreeFactory.createReturnStatement; 
-  var createStatementList = ParseTreeFactory.createStatementList; 
-  var createStringLiteral = ParseTreeFactory.createStringLiteral; 
-  var createThisExpression = ParseTreeFactory.createThisExpression; 
-  var createThrowStatement = ParseTreeFactory.createThrowStatement; 
-  var createVariableStatement = ParseTreeFactory.createVariableStatement; 
   function GeneratorTransformer(reporter) { 
     CPSTransformer.call(this, reporter); 
   } 
@@ -12731,20 +12923,16 @@ var $src_codegeneration_GeneratorTransformPass_js =(function() {
   var destructuring$ForInTransformPass = $src_codegeneration_generator_ForInTransformPass_js, ForInTransformPass = destructuring$ForInTransformPass.ForInTransformPass; 
   var destructuring$ForOfTransformer = $src_codegeneration_ForOfTransformer_js, ForOfTransformer = destructuring$ForOfTransformer.ForOfTransformer; 
   var destructuring$GeneratorTransformer = $src_codegeneration_generator_GeneratorTransformer_js, GeneratorTransformer = destructuring$GeneratorTransformer.GeneratorTransformer; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$ParseTreeTransformer = $src_codegeneration_ParseTreeTransformer_js, ParseTreeTransformer = destructuring$ParseTreeTransformer.ParseTreeTransformer; 
   var destructuring$ParseTreeVisitor = $src_syntax_ParseTreeVisitor_js, ParseTreeVisitor = destructuring$ParseTreeVisitor.ParseTreeVisitor; 
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
+  var destructuring$createForOfStatement$createIdentifierExpression$createVariableDeclarationList$createYieldStatement = $src_codegeneration_ParseTreeFactory_js, createForOfStatement = destructuring$createForOfStatement$createIdentifierExpression$createVariableDeclarationList$createYieldStatement.createForOfStatement, createIdentifierExpression = destructuring$createForOfStatement$createIdentifierExpression$createVariableDeclarationList$createYieldStatement.createIdentifierExpression, createVariableDeclarationList = destructuring$createForOfStatement$createIdentifierExpression$createVariableDeclarationList$createYieldStatement.createVariableDeclarationList, createYieldStatement = destructuring$createForOfStatement$createIdentifierExpression$createVariableDeclarationList$createYieldStatement.createYieldStatement; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
   var destructuring$traceurOptions = $src_options_js, traceurOptions = destructuring$traceurOptions.options; 
   var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
   var FunctionDeclaration = trees.FunctionDeclaration; 
   var GetAccessor = trees.GetAccessor; 
   var SetAccessor = trees.SetAccessor; 
-  var createForOfStatement = ParseTreeFactory.createForOfStatement; 
-  var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList; 
-  var createYieldStatement = ParseTreeFactory.createYieldStatement; 
-  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression; 
   var options = traceurOptions.transform; 
   function YieldFinder(tree) { 
     this.visitAny(tree); 
@@ -12849,17 +13037,12 @@ var $src_codegeneration_GeneratorTransformPass_js =(function() {
 }).call(this); 
 var $src_codegeneration_IsExpressionTransformer_js =(function() { 
   "use strict"; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$ParseTreeTransformer = $src_codegeneration_ParseTreeTransformer_js, ParseTreeTransformer = destructuring$ParseTreeTransformer.ParseTreeTransformer; 
   var destructuring$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType.ParseTreeType; 
   var destructuring$PredefinedName = $src_syntax_PredefinedName_js, PredefinedName = destructuring$PredefinedName.PredefinedName; 
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
+  var destructuring$createArgumentList$createBinaryOperator$createCallExpression$createMemberExpression$createOperatorToken = $src_codegeneration_ParseTreeFactory_js, createArgumentList = destructuring$createArgumentList$createBinaryOperator$createCallExpression$createMemberExpression$createOperatorToken.createArgumentList, createBinaryOperator = destructuring$createArgumentList$createBinaryOperator$createCallExpression$createMemberExpression$createOperatorToken.createBinaryOperator, createCallExpression = destructuring$createArgumentList$createBinaryOperator$createCallExpression$createMemberExpression$createOperatorToken.createCallExpression, createMemberExpression = destructuring$createArgumentList$createBinaryOperator$createCallExpression$createMemberExpression$createOperatorToken.createMemberExpression, createOperatorToken = destructuring$createArgumentList$createBinaryOperator$createCallExpression$createMemberExpression$createOperatorToken.createOperatorToken; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
-  var createArgumentList = ParseTreeFactory.createArgumentList; 
-  var createBinaryOperator = ParseTreeFactory.createBinaryOperator; 
-  var createCallExpression = ParseTreeFactory.createCallExpression; 
-  var createMemberExpression = ParseTreeFactory.createMemberExpression; 
-  var createOperatorToken = ParseTreeFactory.createOperatorToken; 
   var IS = PredefinedName.IS; 
   var ISNT = PredefinedName.ISNT; 
   var RUNTIME = PredefinedName.RUNTIME; 
@@ -12898,34 +13081,17 @@ var $src_codegeneration_ObjectLiteralTransformer_js =(function() {
   "use strict"; 
   var destructuring$FindVisitor = $src_codegeneration_FindVisitor_js, FindVisitor = destructuring$FindVisitor.FindVisitor; 
   var destructuring$Keywords = $src_syntax_Keywords_js, Keywords = destructuring$Keywords.Keywords; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$PredefinedName = $src_syntax_PredefinedName_js, PredefinedName = destructuring$PredefinedName.PredefinedName; 
   var destructuring$TempVarTransformer = $src_codegeneration_TempVarTransformer_js, TempVarTransformer = destructuring$TempVarTransformer.TempVarTransformer; 
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
-  var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
-  var destructuring$evaluateStringLiteral = $src_util_util_js, evaluateStringLiteral = destructuring$evaluateStringLiteral.evaluateStringLiteral; 
-  var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
+  var destructuring$createArgumentList$createAssignmentExpression$createBindingIdentifier$createCallExpression$createCommaExpression$createDefineProperty$createEmptyParameterList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectCreate$createObjectLiteralExpression$createParenExpression$createPropertyDescriptor$createPropertyNameAssignment$createStringLiteral = $src_codegeneration_ParseTreeFactory_js, createArgumentList = destructuring$createArgumentList$createAssignmentExpression$createBindingIdentifier$createCallExpression$createCommaExpression$createDefineProperty$createEmptyParameterList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectCreate$createObjectLiteralExpression$createParenExpression$createPropertyDescriptor$createPropertyNameAssignment$createStringLiteral.createArgumentList, createAssignmentExpression = destructuring$createArgumentList$createAssignmentExpression$createBindingIdentifier$createCallExpression$createCommaExpression$createDefineProperty$createEmptyParameterList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectCreate$createObjectLiteralExpression$createParenExpression$createPropertyDescriptor$createPropertyNameAssignment$createStringLiteral.createAssignmentExpression, createBindingIdentifier = destructuring$createArgumentList$createAssignmentExpression$createBindingIdentifier$createCallExpression$createCommaExpression$createDefineProperty$createEmptyParameterList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectCreate$createObjectLiteralExpression$createParenExpression$createPropertyDescriptor$createPropertyNameAssignment$createStringLiteral.createBindingIdentifier, createCallExpression = destructuring$createArgumentList$createAssignmentExpression$createBindingIdentifier$createCallExpression$createCommaExpression$createDefineProperty$createEmptyParameterList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectCreate$createObjectLiteralExpression$createParenExpression$createPropertyDescriptor$createPropertyNameAssignment$createStringLiteral.createCallExpression, createCommaExpression = destructuring$createArgumentList$createAssignmentExpression$createBindingIdentifier$createCallExpression$createCommaExpression$createDefineProperty$createEmptyParameterList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectCreate$createObjectLiteralExpression$createParenExpression$createPropertyDescriptor$createPropertyNameAssignment$createStringLiteral.createCommaExpression, createDefineProperty = destructuring$createArgumentList$createAssignmentExpression$createBindingIdentifier$createCallExpression$createCommaExpression$createDefineProperty$createEmptyParameterList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectCreate$createObjectLiteralExpression$createParenExpression$createPropertyDescriptor$createPropertyNameAssignment$createStringLiteral.createDefineProperty, createEmptyParameterList = destructuring$createArgumentList$createAssignmentExpression$createBindingIdentifier$createCallExpression$createCommaExpression$createDefineProperty$createEmptyParameterList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectCreate$createObjectLiteralExpression$createParenExpression$createPropertyDescriptor$createPropertyNameAssignment$createStringLiteral.createEmptyParameterList, createFunctionExpression = destructuring$createArgumentList$createAssignmentExpression$createBindingIdentifier$createCallExpression$createCommaExpression$createDefineProperty$createEmptyParameterList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectCreate$createObjectLiteralExpression$createParenExpression$createPropertyDescriptor$createPropertyNameAssignment$createStringLiteral.createFunctionExpression, createIdentifierExpression = destructuring$createArgumentList$createAssignmentExpression$createBindingIdentifier$createCallExpression$createCommaExpression$createDefineProperty$createEmptyParameterList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectCreate$createObjectLiteralExpression$createParenExpression$createPropertyDescriptor$createPropertyNameAssignment$createStringLiteral.createIdentifierExpression, createMemberExpression = destructuring$createArgumentList$createAssignmentExpression$createBindingIdentifier$createCallExpression$createCommaExpression$createDefineProperty$createEmptyParameterList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectCreate$createObjectLiteralExpression$createParenExpression$createPropertyDescriptor$createPropertyNameAssignment$createStringLiteral.createMemberExpression, createObjectCreate = destructuring$createArgumentList$createAssignmentExpression$createBindingIdentifier$createCallExpression$createCommaExpression$createDefineProperty$createEmptyParameterList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectCreate$createObjectLiteralExpression$createParenExpression$createPropertyDescriptor$createPropertyNameAssignment$createStringLiteral.createObjectCreate, createObjectLiteralExpression = destructuring$createArgumentList$createAssignmentExpression$createBindingIdentifier$createCallExpression$createCommaExpression$createDefineProperty$createEmptyParameterList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectCreate$createObjectLiteralExpression$createParenExpression$createPropertyDescriptor$createPropertyNameAssignment$createStringLiteral.createObjectLiteralExpression, createParenExpression = destructuring$createArgumentList$createAssignmentExpression$createBindingIdentifier$createCallExpression$createCommaExpression$createDefineProperty$createEmptyParameterList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectCreate$createObjectLiteralExpression$createParenExpression$createPropertyDescriptor$createPropertyNameAssignment$createStringLiteral.createParenExpression, createPropertyDescriptor = destructuring$createArgumentList$createAssignmentExpression$createBindingIdentifier$createCallExpression$createCommaExpression$createDefineProperty$createEmptyParameterList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectCreate$createObjectLiteralExpression$createParenExpression$createPropertyDescriptor$createPropertyNameAssignment$createStringLiteral.createPropertyDescriptor, createPropertyNameAssignment = destructuring$createArgumentList$createAssignmentExpression$createBindingIdentifier$createCallExpression$createCommaExpression$createDefineProperty$createEmptyParameterList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectCreate$createObjectLiteralExpression$createParenExpression$createPropertyDescriptor$createPropertyNameAssignment$createStringLiteral.createPropertyNameAssignment, createStringLiteral = destructuring$createArgumentList$createAssignmentExpression$createBindingIdentifier$createCallExpression$createCommaExpression$createDefineProperty$createEmptyParameterList$createFunctionExpression$createIdentifierExpression$createMemberExpression$createObjectCreate$createObjectLiteralExpression$createParenExpression$createPropertyDescriptor$createPropertyNameAssignment$createStringLiteral.createStringLiteral; 
+  var destructuring$createObject$evaluateStringLiteral = $src_util_util_js, createObject = destructuring$createObject$evaluateStringLiteral.createObject, evaluateStringLiteral = destructuring$createObject$evaluateStringLiteral.evaluateStringLiteral; 
   var destructuring$traceurOptions = $src_options_js, traceurOptions = destructuring$traceurOptions.options; 
+  var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
   var FormalParameterList = trees.FormalParameterList; 
   var FunctionDeclaration = trees.FunctionDeclaration; 
   var IdentifierExpression = trees.IdentifierExpression; 
   var LiteralExpression = trees.LiteralExpression; 
-  var createArgumentList = ParseTreeFactory.createArgumentList; 
-  var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression; 
-  var createBindingIdentifier = ParseTreeFactory.createBindingIdentifier; 
-  var createCallExpression = ParseTreeFactory.createCallExpression; 
-  var createCommaExpression = ParseTreeFactory.createCommaExpression; 
-  var createDefineProperty = ParseTreeFactory.createDefineProperty; 
-  var createEmptyParameterList = ParseTreeFactory.createEmptyParameterList; 
-  var createFunctionExpression = ParseTreeFactory.createFunctionExpression; 
-  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression; 
-  var createMemberExpression = ParseTreeFactory.createMemberExpression; 
-  var createObjectCreate = ParseTreeFactory.createObjectCreate; 
-  var createObjectLiteralExpression = ParseTreeFactory.createObjectLiteralExpression; 
-  var createParenExpression = ParseTreeFactory.createParenExpression; 
-  var createPropertyDescriptor = ParseTreeFactory.createPropertyDescriptor; 
-  var createPropertyNameAssignment = ParseTreeFactory.createPropertyNameAssignment; 
-  var createStringLiteral = ParseTreeFactory.createStringLiteral; 
   var options = traceurOptions.transform; 
   function getAtNameFinder(propertyName) { 
     return function(tree) { 
@@ -13119,20 +13285,14 @@ var $src_codegeneration_ObjectLiteralTransformer_js =(function() {
 }).call(this); 
 var $src_codegeneration_PrivateNameSyntaxTransformer_js =(function() { 
   "use strict"; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$PredefinedName = $src_syntax_PredefinedName_js, PredefinedName = destructuring$PredefinedName.PredefinedName; 
   var destructuring$TempVarTransformer = $src_codegeneration_TempVarTransformer_js, TempVarTransformer = destructuring$TempVarTransformer.TempVarTransformer; 
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
+  var destructuring$createArgumentList$createCallExpression$createEmptyArgumentList$createIdentifierExpression$createMemberExpression$createVariableDeclaration = $src_codegeneration_ParseTreeFactory_js, createArgumentList = destructuring$createArgumentList$createCallExpression$createEmptyArgumentList$createIdentifierExpression$createMemberExpression$createVariableDeclaration.createArgumentList, createCallExpression = destructuring$createArgumentList$createCallExpression$createEmptyArgumentList$createIdentifierExpression$createMemberExpression$createVariableDeclaration.createCallExpression, createEmptyArgumentList = destructuring$createArgumentList$createCallExpression$createEmptyArgumentList$createIdentifierExpression$createMemberExpression$createVariableDeclaration.createEmptyArgumentList, createIdentifierExpression = destructuring$createArgumentList$createCallExpression$createEmptyArgumentList$createIdentifierExpression$createMemberExpression$createVariableDeclaration.createIdentifierExpression, createMemberExpression = destructuring$createArgumentList$createCallExpression$createEmptyArgumentList$createIdentifierExpression$createMemberExpression$createVariableDeclaration.createMemberExpression, createVariableDeclaration = destructuring$createArgumentList$createCallExpression$createEmptyArgumentList$createIdentifierExpression$createMemberExpression$createVariableDeclaration.createVariableDeclaration; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
   var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
   var VariableDeclarationList = trees.VariableDeclarationList; 
   var VariableStatement = trees.VariableStatement; 
-  var createArgumentList = ParseTreeFactory.createArgumentList; 
-  var createCallExpression = ParseTreeFactory.createCallExpression; 
-  var createEmptyArgumentList = ParseTreeFactory.createEmptyArgumentList; 
-  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression; 
-  var createMemberExpression = ParseTreeFactory.createMemberExpression; 
-  var createVariableDeclaration = ParseTreeFactory.createVariableDeclaration; 
   function PrivateNameSyntaxTransformer(identifierGenerator) { 
     TempVarTransformer.call(this, identifierGenerator); 
   } 
@@ -13196,32 +13356,16 @@ var $src_codegeneration_PropertyNameShorthandTransformer_js =(function() {
 var $src_codegeneration_QuasiLiteralTransformer_js =(function() { 
   "use strict"; 
   var destructuring$LiteralToken = $src_syntax_LiteralToken_js, LiteralToken = destructuring$LiteralToken.LiteralToken; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$ParseTreeTransformer = $src_codegeneration_ParseTreeTransformer_js, ParseTreeTransformer = destructuring$ParseTreeTransformer.ParseTreeTransformer; 
   var destructuring$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType.ParseTreeType; 
   var destructuring$PredefinedName = $src_syntax_PredefinedName_js, PredefinedName = destructuring$PredefinedName.PredefinedName; 
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
+  var destructuring$createArgumentList$createArrayLiteralExpression$createAssignmentExpression$createBinaryOperator$createCallExpression$createCommaExpression$createDefineProperty$createIdentifierExpression$createMemberExpression$createObjectFreeze$createObjectLiteralExpression$createOperatorToken$createParenExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement = $src_codegeneration_ParseTreeFactory_js, createArgumentList = destructuring$createArgumentList$createArrayLiteralExpression$createAssignmentExpression$createBinaryOperator$createCallExpression$createCommaExpression$createDefineProperty$createIdentifierExpression$createMemberExpression$createObjectFreeze$createObjectLiteralExpression$createOperatorToken$createParenExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createArgumentList, createArrayLiteralExpression = destructuring$createArgumentList$createArrayLiteralExpression$createAssignmentExpression$createBinaryOperator$createCallExpression$createCommaExpression$createDefineProperty$createIdentifierExpression$createMemberExpression$createObjectFreeze$createObjectLiteralExpression$createOperatorToken$createParenExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createArrayLiteralExpression, createAssignmentExpression = destructuring$createArgumentList$createArrayLiteralExpression$createAssignmentExpression$createBinaryOperator$createCallExpression$createCommaExpression$createDefineProperty$createIdentifierExpression$createMemberExpression$createObjectFreeze$createObjectLiteralExpression$createOperatorToken$createParenExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createAssignmentExpression, createBinaryOperator = destructuring$createArgumentList$createArrayLiteralExpression$createAssignmentExpression$createBinaryOperator$createCallExpression$createCommaExpression$createDefineProperty$createIdentifierExpression$createMemberExpression$createObjectFreeze$createObjectLiteralExpression$createOperatorToken$createParenExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createBinaryOperator, createCallExpression = destructuring$createArgumentList$createArrayLiteralExpression$createAssignmentExpression$createBinaryOperator$createCallExpression$createCommaExpression$createDefineProperty$createIdentifierExpression$createMemberExpression$createObjectFreeze$createObjectLiteralExpression$createOperatorToken$createParenExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createCallExpression, createCommaExpression = destructuring$createArgumentList$createArrayLiteralExpression$createAssignmentExpression$createBinaryOperator$createCallExpression$createCommaExpression$createDefineProperty$createIdentifierExpression$createMemberExpression$createObjectFreeze$createObjectLiteralExpression$createOperatorToken$createParenExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createCommaExpression, createDefineProperty = destructuring$createArgumentList$createArrayLiteralExpression$createAssignmentExpression$createBinaryOperator$createCallExpression$createCommaExpression$createDefineProperty$createIdentifierExpression$createMemberExpression$createObjectFreeze$createObjectLiteralExpression$createOperatorToken$createParenExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createDefineProperty, createIdentifierExpression = destructuring$createArgumentList$createArrayLiteralExpression$createAssignmentExpression$createBinaryOperator$createCallExpression$createCommaExpression$createDefineProperty$createIdentifierExpression$createMemberExpression$createObjectFreeze$createObjectLiteralExpression$createOperatorToken$createParenExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createIdentifierExpression, createMemberExpression = destructuring$createArgumentList$createArrayLiteralExpression$createAssignmentExpression$createBinaryOperator$createCallExpression$createCommaExpression$createDefineProperty$createIdentifierExpression$createMemberExpression$createObjectFreeze$createObjectLiteralExpression$createOperatorToken$createParenExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createMemberExpression, createObjectFreeze = destructuring$createArgumentList$createArrayLiteralExpression$createAssignmentExpression$createBinaryOperator$createCallExpression$createCommaExpression$createDefineProperty$createIdentifierExpression$createMemberExpression$createObjectFreeze$createObjectLiteralExpression$createOperatorToken$createParenExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createObjectFreeze, createObjectLiteralExpression = destructuring$createArgumentList$createArrayLiteralExpression$createAssignmentExpression$createBinaryOperator$createCallExpression$createCommaExpression$createDefineProperty$createIdentifierExpression$createMemberExpression$createObjectFreeze$createObjectLiteralExpression$createOperatorToken$createParenExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createObjectLiteralExpression, createOperatorToken = destructuring$createArgumentList$createArrayLiteralExpression$createAssignmentExpression$createBinaryOperator$createCallExpression$createCommaExpression$createDefineProperty$createIdentifierExpression$createMemberExpression$createObjectFreeze$createObjectLiteralExpression$createOperatorToken$createParenExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createOperatorToken, createParenExpression = destructuring$createArgumentList$createArrayLiteralExpression$createAssignmentExpression$createBinaryOperator$createCallExpression$createCommaExpression$createDefineProperty$createIdentifierExpression$createMemberExpression$createObjectFreeze$createObjectLiteralExpression$createOperatorToken$createParenExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createParenExpression, createVariableDeclaration = destructuring$createArgumentList$createArrayLiteralExpression$createAssignmentExpression$createBinaryOperator$createCallExpression$createCommaExpression$createDefineProperty$createIdentifierExpression$createMemberExpression$createObjectFreeze$createObjectLiteralExpression$createOperatorToken$createParenExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createVariableDeclaration, createVariableDeclarationList = destructuring$createArgumentList$createArrayLiteralExpression$createAssignmentExpression$createBinaryOperator$createCallExpression$createCommaExpression$createDefineProperty$createIdentifierExpression$createMemberExpression$createObjectFreeze$createObjectLiteralExpression$createOperatorToken$createParenExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createVariableDeclarationList, createVariableStatement = destructuring$createArgumentList$createArrayLiteralExpression$createAssignmentExpression$createBinaryOperator$createCallExpression$createCommaExpression$createDefineProperty$createIdentifierExpression$createMemberExpression$createObjectFreeze$createObjectLiteralExpression$createOperatorToken$createParenExpression$createVariableDeclaration$createVariableDeclarationList$createVariableStatement.createVariableStatement; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
   var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
   var LiteralExpression = trees.LiteralExpression; 
   var ParenExpression = trees.ParenExpression; 
   var Program = trees.Program; 
-  var createArgumentList = ParseTreeFactory.createArgumentList; 
-  var createArrayLiteralExpression = ParseTreeFactory.createArrayLiteralExpression; 
-  var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression; 
-  var createBinaryOperator = ParseTreeFactory.createBinaryOperator; 
-  var createCallExpression = ParseTreeFactory.createCallExpression; 
-  var createCommaExpression = ParseTreeFactory.createCommaExpression; 
-  var createDefineProperty = ParseTreeFactory.createDefineProperty; 
-  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression; 
-  var createMemberExpression = ParseTreeFactory.createMemberExpression; 
-  var createObjectFreeze = ParseTreeFactory.createObjectFreeze; 
-  var createObjectLiteralExpression = ParseTreeFactory.createObjectLiteralExpression; 
-  var createOperatorToken = ParseTreeFactory.createOperatorToken; 
-  var createParenExpression = ParseTreeFactory.createParenExpression; 
-  var createVariableDeclaration = ParseTreeFactory.createVariableDeclaration; 
-  var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList; 
-  var createVariableStatement = ParseTreeFactory.createVariableStatement; 
   function createCallSiteIdObject(tempVarName, tree) { 
     var elements = tree.elements; 
     var expressions =[createDefineProperty(createAssignmentExpression(createIdentifierExpression(tempVarName), createCookedStringArray(elements)), PredefinedName.RAW, { value: createObjectFreeze(createRawStringArray(elements)) }), createObjectFreeze(createIdentifierExpression(tempVarName))]; 
@@ -13420,20 +13564,12 @@ var $src_codegeneration_QuasiLiteralTransformer_js =(function() {
 }).call(this); 
 var $src_codegeneration_RestParameterTransformer_js =(function() { 
   "use strict"; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$ParseTreeTransformer = $src_codegeneration_ParseTreeTransformer_js, ParseTreeTransformer = destructuring$ParseTreeTransformer.ParseTreeTransformer; 
   var destructuring$PredefinedName = $src_syntax_PredefinedName_js, PredefinedName = destructuring$PredefinedName.PredefinedName; 
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
+  var destructuring$createArgumentList$createBlock$createCallExpression$createFunctionDeclaration$createIdentifierExpression$createMemberExpression$createNumberLiteral$createVariableStatement = $src_codegeneration_ParseTreeFactory_js, createArgumentList = destructuring$createArgumentList$createBlock$createCallExpression$createFunctionDeclaration$createIdentifierExpression$createMemberExpression$createNumberLiteral$createVariableStatement.createArgumentList, createBlock = destructuring$createArgumentList$createBlock$createCallExpression$createFunctionDeclaration$createIdentifierExpression$createMemberExpression$createNumberLiteral$createVariableStatement.createBlock, createCallExpression = destructuring$createArgumentList$createBlock$createCallExpression$createFunctionDeclaration$createIdentifierExpression$createMemberExpression$createNumberLiteral$createVariableStatement.createCallExpression, createFunctionDeclaration = destructuring$createArgumentList$createBlock$createCallExpression$createFunctionDeclaration$createIdentifierExpression$createMemberExpression$createNumberLiteral$createVariableStatement.createFunctionDeclaration, createIdentifierExpression = destructuring$createArgumentList$createBlock$createCallExpression$createFunctionDeclaration$createIdentifierExpression$createMemberExpression$createNumberLiteral$createVariableStatement.createIdentifierExpression, createMemberExpression = destructuring$createArgumentList$createBlock$createCallExpression$createFunctionDeclaration$createIdentifierExpression$createMemberExpression$createNumberLiteral$createVariableStatement.createMemberExpression, createNumberLiteral = destructuring$createArgumentList$createBlock$createCallExpression$createFunctionDeclaration$createIdentifierExpression$createMemberExpression$createNumberLiteral$createVariableStatement.createNumberLiteral, createVariableStatement = destructuring$createArgumentList$createBlock$createCallExpression$createFunctionDeclaration$createIdentifierExpression$createMemberExpression$createNumberLiteral$createVariableStatement.createVariableStatement; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
   var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
-  var createArgumentList = ParseTreeFactory.createArgumentList; 
-  var createBlock = ParseTreeFactory.createBlock; 
-  var createCallExpression = ParseTreeFactory.createCallExpression; 
-  var createFunctionDeclaration = ParseTreeFactory.createFunctionDeclaration; 
-  var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression; 
-  var createMemberExpression = ParseTreeFactory.createMemberExpression; 
-  var createNumberLiteral = ParseTreeFactory.createNumberLiteral; 
-  var createVariableStatement = ParseTreeFactory.createVariableStatement; 
   var FormalParameterList = trees.FormalParameterList; 
   function RestParameterTransformer() { 
     ParseTreeTransformer.call(this); 
@@ -13476,24 +13612,11 @@ var $src_codegeneration_RestParameterTransformer_js =(function() {
 }).call(this); 
 var $src_codegeneration_SpreadTransformer_js =(function() { 
   "use strict"; 
-  var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
   var destructuring$ParseTreeTransformer = $src_codegeneration_ParseTreeTransformer_js, ParseTreeTransformer = destructuring$ParseTreeTransformer.ParseTreeTransformer; 
   var destructuring$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType.ParseTreeType; 
   var destructuring$PredefinedName = $src_syntax_PredefinedName_js, PredefinedName = destructuring$PredefinedName.PredefinedName; 
+  var destructuring$createArgumentList$createArrayLiteralExpression$createBlock$createBooleanLiteral$createCallExpression$createFunctionExpression$createMemberExpression$createMemberLookupExpression$createNullLiteral$createParameterList$createParameterReference$createParenExpression$createReturnStatement = $src_codegeneration_ParseTreeFactory_js, createArgumentList = destructuring$createArgumentList$createArrayLiteralExpression$createBlock$createBooleanLiteral$createCallExpression$createFunctionExpression$createMemberExpression$createMemberLookupExpression$createNullLiteral$createParameterList$createParameterReference$createParenExpression$createReturnStatement.createArgumentList, createArrayLiteralExpression = destructuring$createArgumentList$createArrayLiteralExpression$createBlock$createBooleanLiteral$createCallExpression$createFunctionExpression$createMemberExpression$createMemberLookupExpression$createNullLiteral$createParameterList$createParameterReference$createParenExpression$createReturnStatement.createArrayLiteralExpression, createBlock = destructuring$createArgumentList$createArrayLiteralExpression$createBlock$createBooleanLiteral$createCallExpression$createFunctionExpression$createMemberExpression$createMemberLookupExpression$createNullLiteral$createParameterList$createParameterReference$createParenExpression$createReturnStatement.createBlock, createBooleanLiteral = destructuring$createArgumentList$createArrayLiteralExpression$createBlock$createBooleanLiteral$createCallExpression$createFunctionExpression$createMemberExpression$createMemberLookupExpression$createNullLiteral$createParameterList$createParameterReference$createParenExpression$createReturnStatement.createBooleanLiteral, createCallExpression = destructuring$createArgumentList$createArrayLiteralExpression$createBlock$createBooleanLiteral$createCallExpression$createFunctionExpression$createMemberExpression$createMemberLookupExpression$createNullLiteral$createParameterList$createParameterReference$createParenExpression$createReturnStatement.createCallExpression, createFunctionExpression = destructuring$createArgumentList$createArrayLiteralExpression$createBlock$createBooleanLiteral$createCallExpression$createFunctionExpression$createMemberExpression$createMemberLookupExpression$createNullLiteral$createParameterList$createParameterReference$createParenExpression$createReturnStatement.createFunctionExpression, createMemberExpression = destructuring$createArgumentList$createArrayLiteralExpression$createBlock$createBooleanLiteral$createCallExpression$createFunctionExpression$createMemberExpression$createMemberLookupExpression$createNullLiteral$createParameterList$createParameterReference$createParenExpression$createReturnStatement.createMemberExpression, createMemberLookupExpression = destructuring$createArgumentList$createArrayLiteralExpression$createBlock$createBooleanLiteral$createCallExpression$createFunctionExpression$createMemberExpression$createMemberLookupExpression$createNullLiteral$createParameterList$createParameterReference$createParenExpression$createReturnStatement.createMemberLookupExpression, createNullLiteral = destructuring$createArgumentList$createArrayLiteralExpression$createBlock$createBooleanLiteral$createCallExpression$createFunctionExpression$createMemberExpression$createMemberLookupExpression$createNullLiteral$createParameterList$createParameterReference$createParenExpression$createReturnStatement.createNullLiteral, createParameterList = destructuring$createArgumentList$createArrayLiteralExpression$createBlock$createBooleanLiteral$createCallExpression$createFunctionExpression$createMemberExpression$createMemberLookupExpression$createNullLiteral$createParameterList$createParameterReference$createParenExpression$createReturnStatement.createParameterList, createParameterReference = destructuring$createArgumentList$createArrayLiteralExpression$createBlock$createBooleanLiteral$createCallExpression$createFunctionExpression$createMemberExpression$createMemberLookupExpression$createNullLiteral$createParameterList$createParameterReference$createParenExpression$createReturnStatement.createParameterReference, createParenExpression = destructuring$createArgumentList$createArrayLiteralExpression$createBlock$createBooleanLiteral$createCallExpression$createFunctionExpression$createMemberExpression$createMemberLookupExpression$createNullLiteral$createParameterList$createParameterReference$createParenExpression$createReturnStatement.createParenExpression, createReturnStatement = destructuring$createArgumentList$createArrayLiteralExpression$createBlock$createBooleanLiteral$createCallExpression$createFunctionExpression$createMemberExpression$createMemberLookupExpression$createNullLiteral$createParameterList$createParameterReference$createParenExpression$createReturnStatement.createReturnStatement; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
-  var createArgumentList = ParseTreeFactory.createArgumentList; 
-  var createArrayLiteralExpression = ParseTreeFactory.createArrayLiteralExpression; 
-  var createBlock = ParseTreeFactory.createBlock; 
-  var createBooleanLiteral = ParseTreeFactory.createBooleanLiteral; 
-  var createCallExpression = ParseTreeFactory.createCallExpression; 
-  var createFunctionExpression = ParseTreeFactory.createFunctionExpression; 
-  var createMemberExpression = ParseTreeFactory.createMemberExpression; 
-  var createMemberLookupExpression = ParseTreeFactory.createMemberLookupExpression; 
-  var createNullLiteral = ParseTreeFactory.createNullLiteral; 
-  var createParameterList = ParseTreeFactory.createParameterList; 
-  var createParameterReference = ParseTreeFactory.createParameterReference; 
-  var createParenExpression = ParseTreeFactory.createParenExpression; 
-  var createReturnStatement = ParseTreeFactory.createReturnStatement; 
   var APPLY = PredefinedName.APPLY; 
   var SPREAD_CODE = "\n    function(items) {\n      var retval = [];\n      var k = 0;\n      for (var i = 0; i < items.length; i += 2) {\n        var value = items[i + 1];\n        // spread\n        if (items[i]) {\n          value = %toObject(value);\n          for (var j = 0; j < value.length; j++) {\n            retval[k++] = value[j];\n          }\n        } else {\n          retval[k++] = value;\n        }\n      }\n      return retval;\n    }"; 
   var SPREAD_NEW_CODE = "\n    function(ctor, items) {\n      var args = %spread(items);\n      args.unshift(null);\n      return new (Function.prototype.bind.apply(ctor, args));\n    }"; 
@@ -13715,7 +13838,6 @@ var $src_codegeneration_ProgramTransformer_js =(function() {
 var $src_codegeneration_Compiler_js =(function() { 
   "use strict"; 
   var destructuring$ModuleAnalyzer = $src_semantics_ModuleAnalyzer_js, ModuleAnalyzer = destructuring$ModuleAnalyzer.ModuleAnalyzer; 
-  ; 
   var destructuring$Parser = $src_syntax_Parser_js, Parser = destructuring$Parser.Parser; 
   var destructuring$ProgramTransformer = $src_codegeneration_ProgramTransformer_js, ProgramTransformer = destructuring$ProgramTransformer.ProgramTransformer; 
   var destructuring$Project = $src_semantics_symbols_Project_js, Project = destructuring$Project.Project; 
@@ -13809,9 +13931,8 @@ var $src_runtime_modules_js =(function() {
   var destructuring$Project = $src_semantics_symbols_Project_js, Project = destructuring$Project.Project; 
   var destructuring$SourceFile = $src_syntax_SourceFile_js, SourceFile = destructuring$SourceFile.SourceFile; 
   var destructuring$TreeWriter = $src_outputgeneration_TreeWriter_js, TreeWriter = destructuring$TreeWriter.TreeWriter; 
-  var destructuring$canonicalizeUrl = $src_util_url_js, canonicalizeUrl = destructuring$canonicalizeUrl.canonicalizeUrl; 
+  var destructuring$canonicalizeUrl$resolveUrl = $src_util_url_js, canonicalizeUrl = destructuring$canonicalizeUrl$resolveUrl.canonicalizeUrl, resolveUrl = destructuring$canonicalizeUrl$resolveUrl.resolveUrl; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
-  var destructuring$resolveUrl = $src_util_url_js, resolveUrl = destructuring$resolveUrl.resolveUrl; 
   var base = Object.freeze(Object.create(null, { 
     Array: { value: Array }, 
     Boolean: { value: Boolean }, 
@@ -14502,7 +14623,7 @@ var traceur =(function() {
   }).call(this); 
   var codegeneration =(function() { 
     "use strict"; 
-    var destructuring$ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js, ParseTreeFactory = destructuring$ParseTreeFactory.ParseTreeFactory; 
+    var ParseTreeFactory = $src_codegeneration_ParseTreeFactory_js; 
     var module =(function() { 
       "use strict"; 
       var destructuring$ModuleRequireVisitor = $src_codegeneration_module_ModuleRequireVisitor_js, ModuleRequireVisitor = destructuring$ModuleRequireVisitor.ModuleRequireVisitor; 

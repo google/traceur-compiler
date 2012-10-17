@@ -12,12 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTree from '../../syntax/trees/ParseTree.js';
-import ParseTreeType from '../../syntax/trees/ParseTree.js';
+import {
+  ParseTree,
+  ParseTreeType
+} from '../../syntax/trees/ParseTree.js';
 import ParseTreeVisitor from '../../syntax/ParseTreeVisitor.js';
 import Symbol from '../../semantics/symbols/Symbol.js';
-import createObject from '../../util/util.js';
-import evaluateStringLiteral from '../../util/util.js';
+import {
+  createObject,
+  evaluateStringLiteral
+} from '../../util/util.js';
 import resolveUrl from '../../util/url.js';
 
 function getFriendlyName(module) {

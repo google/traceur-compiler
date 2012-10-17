@@ -12,18 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeFactory from 'ParseTreeFactory.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import TokenType from '../syntax/TokenType.js';
+import {
+  createBlock,
+  createVariableDeclaration,
+  createVariableDeclarationList,
+  createVariableStatement
+} from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
 import trees from '../syntax/trees/ParseTrees.js';
 
 var Program = trees.Program;
 
-var createBlock = ParseTreeFactory.createBlock;
-var createVariableStatement = ParseTreeFactory.createVariableStatement;
-var createVariableDeclaration = ParseTreeFactory.createVariableDeclaration;
-var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList;
 
 /**
  * Transforms a an array of statements and adds a new temp var stack.

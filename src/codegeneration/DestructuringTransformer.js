@@ -12,11 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeFactory from 'ParseTreeFactory.js';
 import ParseTreeType from '../syntax/trees/ParseTree.js';
 import PredefinedName from '../syntax/PredefinedName.js';
 import TempVarTransformer from 'TempVarTransformer.js';
 import TokenType from '../syntax/TokenType.js';
+import {
+  createArgumentList,
+  createAssignmentExpression,
+  createBinaryOperator,
+  createBindingIdentifier,
+  createBlock,
+  createCallExpression,
+  createCommaExpression,
+  createConditionalExpression,
+  createExpressionStatement,
+  createIdentifierExpression,
+  createMemberExpression,
+  createMemberLookupExpression,
+  createNumberLiteral,
+  createOperatorToken,
+  createParenExpression,
+  createStringLiteral,
+  createVariableDeclaration,
+  createVariableDeclarationList,
+  createVariableStatement
+} from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
 import trees from '../syntax/trees/ParseTrees.js';
 
@@ -31,25 +51,6 @@ var SetAccessor = trees.SetAccessor;
 var VariableDeclaration = trees.VariableDeclaration;
 var VariableDeclarationList = trees.VariableDeclarationList;
 
-var createArgumentList = ParseTreeFactory.createArgumentList;
-var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression;
-var createBinaryOperator = ParseTreeFactory.createBinaryOperator;
-var createBindingIdentifier = ParseTreeFactory.createBindingIdentifier;
-var createBlock = ParseTreeFactory.createBlock;
-var createCallExpression = ParseTreeFactory.createCallExpression;
-var createCommaExpression = ParseTreeFactory.createCommaExpression;
-var createConditionalExpression = ParseTreeFactory.createConditionalExpression;
-var createExpressionStatement = ParseTreeFactory.createExpressionStatement;
-var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
-var createMemberExpression = ParseTreeFactory.createMemberExpression;
-var createMemberLookupExpression = ParseTreeFactory.createMemberLookupExpression;
-var createNumberLiteral = ParseTreeFactory.createNumberLiteral;
-var createOperatorToken = ParseTreeFactory.createOperatorToken;
-var createParenExpression = ParseTreeFactory.createParenExpression;
-var createStringLiteral = ParseTreeFactory.createStringLiteral;
-var createVariableDeclaration = ParseTreeFactory.createVariableDeclaration;
-var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList;
-var createVariableStatement = ParseTreeFactory.createVariableStatement;
 
 var stack = [];
 

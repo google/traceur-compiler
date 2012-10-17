@@ -23,9 +23,11 @@ import ProgramTransformer from '../codegeneration/ProgramTransformer.js';
 import Project from '../semantics/symbols/Project.js';
 import SourceFile from '../syntax/SourceFile.js';
 import TreeWriter from '../outputgeneration/TreeWriter.js';
-import canonicalizeUrl from '../util/url.js';
+import {
+  canonicalizeUrl,
+  resolveUrl
+} from '../util/url.js';
 import createObject from '../util/util.js';
-import resolveUrl from '../util/url.js';
 
 // TODO(arv): I stripped the resolvers to make this simpler for now.
 

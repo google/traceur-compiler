@@ -12,27 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeFactory from 'ParseTreeFactory.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import ParseTreeType from '../syntax/trees/ParseTree.js';
 import PredefinedName from '../syntax/PredefinedName.js';
 import TokenType from '../syntax/TokenType.js';
+import {
+  createBinaryOperator,
+  createBlock,
+  createConditionalExpression,
+  createIdentifierExpression,
+  createMemberExpression,
+  createMemberLookupExpression,
+  createNumberLiteral,
+  createOperatorToken,
+  createVariableStatement,
+  createVoid0
+} from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
 import trees from '../syntax/trees/ParseTrees.js';
 
 var FormalParameterList = trees.FormalParameterList;
 var FunctionDeclaration = trees.FunctionDeclaration;
 
-var createBinaryOperator = ParseTreeFactory.createBinaryOperator;
-var createBlock = ParseTreeFactory.createBlock;
-var createConditionalExpression = ParseTreeFactory.createConditionalExpression;
-var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
-var createMemberExpression = ParseTreeFactory.createMemberExpression;
-var createMemberLookupExpression = ParseTreeFactory.createMemberLookupExpression;
-var createNumberLiteral = ParseTreeFactory.createNumberLiteral;
-var createOperatorToken = ParseTreeFactory.createOperatorToken;
-var createVariableStatement = ParseTreeFactory.createVariableStatement;
-var createVoid0 = ParseTreeFactory.createVoid0;
 
 var stack = [];
 

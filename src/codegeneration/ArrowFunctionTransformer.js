@@ -13,24 +13,25 @@
 // limitations under the License.
 
 import FindInFunctionScope from 'FindInFunctionScope.js';
-import ParseTreeFactory from 'ParseTreeFactory.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import ParseTreeType from '../syntax/trees/ParseTree.js';
 import PredefinedName from '../syntax/PredefinedName.js';
+import {
+  createArgumentList,
+  createBlock,
+  createCallExpression,
+  createFunctionExpression,
+  createMemberExpression,
+  createParenExpression,
+  createReturnStatement,
+  createThisExpression
+} from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
 import trees from '../syntax/trees/ParseTrees.js';
 
 var FormalParameterList = trees.FormalParameterList;
 var ThisExpression = trees.ThisExpression;
 
-var createArgumentList = ParseTreeFactory.createArgumentList;
-var createBlock = ParseTreeFactory.createBlock;
-var createCallExpression = ParseTreeFactory.createCallExpression;
-var createFunctionExpression = ParseTreeFactory.createFunctionExpression;
-var createMemberExpression = ParseTreeFactory.createMemberExpression;
-var createParenExpression = ParseTreeFactory.createParenExpression;
-var createReturnStatement = ParseTreeFactory.createReturnStatement;
-var createThisExpression = ParseTreeFactory.createThisExpression;
 
 /**
  * This is used to find whether a function contains a reference to 'this'.

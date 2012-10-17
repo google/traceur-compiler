@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeType from 'trees/ParseTree.js';
-import getTreeNameForType from 'trees/ParseTree.js';
+import {
+  ParseTreeType,
+  getTreeNameForType
+} from 'trees/ParseTree.js';
 
 /**
  * A base class for traversing a ParseTree in top down (pre-Order) traversal.

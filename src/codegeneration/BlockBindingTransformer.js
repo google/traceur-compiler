@@ -14,10 +14,31 @@
 
 import AlphaRenamer from 'AlphaRenamer.js';
 import NullTree from '../syntax/trees/NullTree.js';
-import ParseTreeFactory from 'ParseTreeFactory.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import ParseTreeType from '../syntax/trees/ParseTree.js';
 import TokenType from '../syntax/TokenType.js';
+import {
+  createAssignmentExpression,
+  createBindingIdentifier,
+  createBlock,
+  createCatch,
+  createEmptyStatement,
+  createExpressionStatement,
+  createFinally,
+  createForInStatement,
+  createForStatement,
+  createFunctionDeclaration,
+  createGetAccessor,
+  createIdentifierExpression,
+  createIdentifierToken,
+  createSetAccessor,
+  createThrowStatement,
+  createTryStatement,
+  createUndefinedExpression,
+  createVariableDeclaration,
+  createVariableDeclarationList,
+  createVariableStatement
+} from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
 import trees from '../syntax/trees/ParseTrees.js';
 
@@ -33,26 +54,6 @@ var VariableDeclarationList = trees.VariableDeclarationList;
 var VariableDeclaration = trees.VariableDeclaration;
 var VariableStatement = trees.VariableStatement;
 
-var createAssignmentExpression = ParseTreeFactory.createAssignmentExpression;
-var createBindingIdentifier = ParseTreeFactory.createBindingIdentifier;
-var createBlock = ParseTreeFactory.createBlock;
-var createCatch = ParseTreeFactory.createCatch;
-var createEmptyStatement = ParseTreeFactory.createEmptyStatement;
-var createExpressionStatement = ParseTreeFactory.createExpressionStatement;
-var createFinally = ParseTreeFactory.createFinally;
-var createForInStatement = ParseTreeFactory.createForInStatement;
-var createForStatement = ParseTreeFactory.createForStatement;
-var createFunctionDeclaration = ParseTreeFactory.createFunctionDeclaration;
-var createGetAccessor = ParseTreeFactory.createGetAccessor;
-var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
-var createIdentifierToken = ParseTreeFactory.createIdentifierToken;
-var createSetAccessor = ParseTreeFactory.createSetAccessor;
-var createThrowStatement = ParseTreeFactory.createThrowStatement;
-var createTryStatement = ParseTreeFactory.createTryStatement;
-var createUndefinedExpression = ParseTreeFactory.createUndefinedExpression;
-var createVariableDeclaration = ParseTreeFactory.createVariableDeclaration;
-var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList;
-var createVariableStatement = ParseTreeFactory.createVariableStatement;
 
 var CONST = TokenType.CONST;
 var LET = TokenType.LET;

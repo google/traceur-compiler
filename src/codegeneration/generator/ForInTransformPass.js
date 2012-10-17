@@ -12,36 +12,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeFactory from '../ParseTreeFactory.js';
 import ParseTreeTransformer from '../ParseTreeTransformer.js';
 import ParseTreeType from '../../syntax/trees/ParseTree.js';
 import PredefinedName from '../../syntax/PredefinedName.js';
 import TokenType from '../../syntax/TokenType.js';
+import {
+  createArgumentList,
+  createAssignmentStatement,
+  createBinaryOperator,
+  createBlock,
+  createCallStatement,
+  createContinueStatement,
+  createEmptyArrayLiteralExpression,
+  createForInStatement,
+  createForStatement,
+  createIdentifierExpression,
+  createIfStatement,
+  createMemberExpression,
+  createMemberLookupExpression,
+  createNumberLiteral,
+  createOperatorToken,
+  createParenExpression,
+  createPostfixExpression,
+  createUnaryExpression,
+  createVariableDeclarationList,
+  createVariableStatement
+} from '../ParseTreeFactory.js';
 import createObject from '../../util/util.js';
 import trees from '../../syntax/trees/ParseTrees.js';
 
 var IdentifierExpression = trees.IdentifierExpression;
 
-var createArgumentList = ParseTreeFactory.createArgumentList;
-var createAssignmentStatement = ParseTreeFactory.createAssignmentStatement;
-var createBinaryOperator = ParseTreeFactory.createBinaryOperator;
-var createBlock = ParseTreeFactory.createBlock;
-var createCallStatement = ParseTreeFactory.createCallStatement;
-var createContinueStatement = ParseTreeFactory.createContinueStatement;
-var createEmptyArrayLiteralExpression = ParseTreeFactory.createEmptyArrayLiteralExpression;
-var createForInStatement = ParseTreeFactory.createForInStatement;
-var createForStatement = ParseTreeFactory.createForStatement;
-var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
-var createIfStatement = ParseTreeFactory.createIfStatement;
-var createMemberExpression = ParseTreeFactory.createMemberExpression;
-var createMemberLookupExpression = ParseTreeFactory.createMemberLookupExpression;
-var createNumberLiteral = ParseTreeFactory.createNumberLiteral;
-var createOperatorToken = ParseTreeFactory.createOperatorToken;
-var createParenExpression = ParseTreeFactory.createParenExpression;
-var createPostfixExpression = ParseTreeFactory.createPostfixExpression;
-var createUnaryExpression = ParseTreeFactory.createUnaryExpression;
-var createVariableDeclarationList = ParseTreeFactory.createVariableDeclarationList;
-var createVariableStatement = ParseTreeFactory.createVariableStatement;
 
 /**
  * Desugars for-in loops to be compatible with generators.

@@ -22,7 +22,7 @@ import CollectionTransformer from 'CollectionTransformer.js';
 import DefaultParametersTransformer from 'DefaultParametersTransformer.js';
 import DestructuringTransformer from 'DestructuringTransformer.js';
 import ForOfTransformer from 'ForOfTransformer.js';
-import FreeVariableChecker from '../semantics/FreeVariableChecker.js'
+import FreeVariableChecker from '../semantics/FreeVariableChecker.js';
 import GeneratorComprehensionTransformer from 'GeneratorComprehensionTransformer.js';
 import GeneratorTransformPass from 'GeneratorTransformPass.js';
 import IsExpressionTransformer from 'IsExpressionTransformer.js';
