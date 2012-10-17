@@ -5016,10 +5016,8 @@ var $src_syntax_Parser_js =(function() {
     }, 
     parseFormalsList_: function() { 
       var formals =[]; 
-      var initializerAllowed = Initializer.ALLOWED; 
       while(this.peekFormalParameter_()) { 
-        var parameter = this.parseFormalParameter_(initializerAllowed); 
-        if(parameter.initializer) initializerAllowed = Initializer.REQUIRED; 
+        var parameter = this.parseFormalParameter_(); 
         formals.push(parameter); 
         if(this.peek_(TokenType.COMMA) && this.peekFormalParameter_(1)) this.eat_(TokenType.COMMA); 
       } 
@@ -11082,14 +11080,16 @@ var $src_codegeneration_DefaultParametersTransformer_js =(function() {
       var parameters =[]; 
       var statements = stack[stack.length - 1]; 
       var changed = false; 
+      var defaultToUndefined = false; 
       for(var i = 0; i < tree.parameters.length; i ++) { 
         var param = this.transformAny(tree.parameters[i]); 
         if(param !== tree.parameters[i]) changed = true; 
-        if(param.type === ParseTreeType.REST_PARAMETER || ! param.initializer) { 
+        if(param.type === ParseTreeType.REST_PARAMETER || ! param.initializer && ! defaultToUndefined) { 
           parameters.push(param); 
         } else { 
+          defaultToUndefined = true; 
           changed = true; 
-          statements.push(createVariableStatement(TokenType.VAR, param.binding, createConditionalExpression(createBinaryOperator(createMemberLookupExpression(createIdentifierExpression(PredefinedName.ARGUMENTS), createNumberLiteral(i)), createOperatorToken(TokenType.NOT_EQUAL_EQUAL), createVoid0()), createMemberLookupExpression(createIdentifierExpression(PredefinedName.ARGUMENTS), createNumberLiteral(i)), param.initializer))); 
+          statements.push(createVariableStatement(TokenType.VAR, param.binding, createConditionalExpression(createBinaryOperator(createMemberLookupExpression(createIdentifierExpression(PredefinedName.ARGUMENTS), createNumberLiteral(i)), createOperatorToken(TokenType.NOT_EQUAL_EQUAL), createVoid0()), createMemberLookupExpression(createIdentifierExpression(PredefinedName.ARGUMENTS), createNumberLiteral(i)), param.initializer || createVoid0()))); 
         } 
       } 
       if(! changed) return tree; 

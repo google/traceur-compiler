@@ -892,11 +892,8 @@ Parser.prototype = {
 
   parseFormalsList_: function() {
     var formals = [];
-    var initializerAllowed = Initializer.ALLOWED;
     while (this.peekFormalParameter_()) {
-      var parameter = this.parseFormalParameter_(initializerAllowed);
-      if (parameter.initializer)
-          initializerAllowed = Initializer.REQUIRED;
+      var parameter = this.parseFormalParameter_();
       formals.push(parameter);
       // Lookahead to distinguish , ... and , ) which must not be consumed.
       if (this.peek_(TokenType.COMMA) && this.peekFormalParameter_(1))

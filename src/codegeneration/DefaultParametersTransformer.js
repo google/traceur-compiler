@@ -84,20 +84,24 @@ DefaultParametersTransformer.prototype = createObject(
     var parameters = [];
     var statements = stack[stack.length - 1];
     var changed = false;
+    var defaultToUndefined = false;
     for (var i = 0; i < tree.parameters.length; i++) {
       var param = this.transformAny(tree.parameters[i]);
       if (param !== tree.parameters[i])
         changed = true;
 
-      if (param.type === ParseTreeType.REST_PARAMETER || !param.initializer) {
+      if (param.type === ParseTreeType.REST_PARAMETER ||
+          !param.initializer && !defaultToUndefined) {
         parameters.push(param);
 
       // binding = initializer
+      // binding  // with default undefined initializer
       //
       // =>
       //
       // var binding = arguments[i] !== (void 0) ? arguments[i] : initializer;
       } else {
+        defaultToUndefined = true;
         changed = true;
         statements.push(createVariableStatement(
             TokenType.VAR,
@@ -112,7 +116,7 @@ DefaultParametersTransformer.prototype = createObject(
                 createMemberLookupExpression(
                     createIdentifierExpression(PredefinedName.ARGUMENTS),
                     createNumberLiteral(i)),
-                param.initializer)));
+                param.initializer || createVoid0())));
       }
     }
 
