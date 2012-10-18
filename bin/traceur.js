@@ -2450,11 +2450,11 @@ var $src_semantics_ModuleAnalyzer_js =(function() {
 }).call(this); 
 var $src_util_ArrayMap_js =(function() { 
   "use strict"; 
-  function ArrayMap() { 
-    this.values_ =[]; 
-    this.keys_ =[]; 
-  } 
-  ArrayMap.prototype = { 
+  var ArrayMap = traceur.runtime.createClass({ 
+    constructor: function() { 
+      this.values_ =[]; 
+      this.keys_ =[]; 
+    }, 
     has: function(key) { 
       return this.keys_.indexOf(key) != - 1; 
     }, 
@@ -2495,7 +2495,7 @@ var $src_util_ArrayMap_js =(function() {
     values: function() { 
       return this.values_.concat(); 
     } 
-  }; 
+  }, null, true, false); 
   return Object.preventExtensions(Object.create(null, { ArrayMap: { 
       get: function() { 
         return ArrayMap; 
@@ -2505,11 +2505,11 @@ var $src_util_ArrayMap_js =(function() {
 }).call(this); 
 var $src_util_ObjectMap_js =(function() { 
   "use strict"; 
-  function ObjectMap() { 
-    this.keys_ = Object.create(null); 
-    this.values_ = Object.create(null); 
-  } 
-  ObjectMap.prototype = { 
+  var ObjectMap = traceur.runtime.createClass({ 
+    constructor: function() { 
+      this.keys_ = Object.create(null); 
+      this.values_ = Object.create(null); 
+    }, 
     put: function(key, value) { 
       var uid = key.uid; 
       this.keys_[uid]= key; 
@@ -2542,7 +2542,7 @@ var $src_util_ObjectMap_js =(function() {
       delete this.keys_[uid]; 
       delete this.values_[uid]; 
     } 
-  }; 
+  }, null, true, false); 
   return Object.preventExtensions(Object.create(null, { ObjectMap: { 
       get: function() { 
         return ObjectMap; 
@@ -2552,9 +2552,10 @@ var $src_util_ObjectMap_js =(function() {
 }).call(this); 
 var $src_util_ErrorReporter_js =(function() { 
   "use strict"; 
-  function ErrorReporter() { } 
-  ErrorReporter.prototype = { 
-    hadError_: false, 
+  var ErrorReporter = traceur.runtime.createClass({ 
+    constructor: function() { 
+      this.hadError_ = false; 
+    }, 
     reportError: function(location, format, var_args) { 
       this.hadError_ = true; 
       var args = Array.prototype.slice.call(arguments, 2); 
@@ -2574,7 +2575,7 @@ var $src_util_ErrorReporter_js =(function() {
     clearError: function() { 
       this.hadError_ = false; 
     } 
-  }; 
+  }, null, true, false); 
   ErrorReporter.format = function(location, text, opt_args) { 
     var i = 0; 
     text = text.replace(/%./g, function(s) { 
@@ -2602,8 +2603,10 @@ var $src_util_MutedErrorReporter_js =(function() {
   "use strict"; 
   var destructuring$ErrorReporter = $src_util_ErrorReporter_js, ErrorReporter = destructuring$ErrorReporter.ErrorReporter; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
-  function MutedErrorReporter() { } 
-  MutedErrorReporter.prototype = createObject(ErrorReporter.prototype, { reportMessageInternal: function(location, message) { } }); 
+  var MutedErrorReporter = traceur.runtime.createClass({ 
+    constructor: function() { }, 
+    reportMessageInternal: function(location, message) { } 
+  }, ErrorReporter, true, true); 
   return Object.preventExtensions(Object.create(null, { MutedErrorReporter: { 
       get: function() { 
         return MutedErrorReporter; 
@@ -3468,11 +3471,11 @@ var $src_codegeneration_ParseTreeTransformer_js =(function() {
 var $src_syntax_Token_js =(function() { 
   "use strict"; 
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
-  function Token(type, location) { 
-    this.type = type; 
-    this.location = location; 
-  } 
-  Token.prototype = { 
+  var Token = traceur.runtime.createClass({ 
+    constructor: function(type, location) { 
+      this.type = type; 
+      this.location = location; 
+    }, 
     toString: function() { 
       return this.type.toString(); 
     }, 
@@ -3497,7 +3500,7 @@ var $src_syntax_Token_js =(function() {
 
       } 
     } 
-  }; 
+  }, null, true, false); 
   return Object.preventExtensions(Object.create(null, { Token: { 
       get: function() { 
         return Token; 
@@ -3510,13 +3513,15 @@ var $src_syntax_IdentifierToken_js =(function() {
   var destructuring$Token = $src_syntax_Token_js, Token = destructuring$Token.Token; 
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
-  function IdentifierToken(location, value) { 
-    Token.call(this, TokenType.IDENTIFIER, location); 
-    this.value = value; 
-  } 
-  IdentifierToken.prototype = createObject(Token.prototype, { toString: function() { 
+  var IdentifierToken = traceur.runtime.createClass({ 
+    constructor: function(location, value) { 
+      traceur.runtime.superCall(this, IdentifierToken, "constructor",[TokenType.IDENTIFIER, location]); 
+      this.value = value; 
+    }, 
+    toString: function() { 
       return this.value; 
-    } }); 
+    } 
+  }, Token, true, true); 
   return Object.preventExtensions(Object.create(null, { IdentifierToken: { 
       get: function() { 
         return IdentifierToken; 
@@ -3531,13 +3536,15 @@ var $src_syntax_Keywords_js =(function() {
   var Keywords = { }; 
   var keywordsByName = Object.create(null); 
   var keywordsByType = Object.create(null); 
-  function Keyword(value, type) { 
-    this.value = value; 
-    this.type = type; 
-  } 
-  Keyword.prototype = { toString: function() { 
+  var Keyword = traceur.runtime.createClass({ 
+    constructor: function(value, type) { 
+      this.value = value; 
+      this.type = type; 
+    }, 
+    toString: function() { 
       return this.value; 
-    } }; 
+    } 
+  }, null, true, false); 
   keywords.forEach((function(value) { 
     var uc = value.toUpperCase(); 
     if(uc.indexOf('__') === 0) { 
@@ -3676,13 +3683,15 @@ var $src_syntax_AtNameToken_js =(function() {
   var destructuring$Token = $src_syntax_Token_js, Token = destructuring$Token.Token; 
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
-  function AtNameToken(location, value) { 
-    Token.call(this, TokenType.AT_NAME, location); 
-    this.value = value; 
-  } 
-  AtNameToken.prototype = createObject(Token.prototype, { toString: function() { 
+  var AtNameToken = traceur.runtime.createClass({ 
+    constructor: function(location, value) { 
+      traceur.runtime.superCall(this, AtNameToken, "constructor",[TokenType.AT_NAME, location]); 
+      this.value = value; 
+    }, 
+    toString: function() { 
       return this.value; 
-    } }); 
+    } 
+  }, Token, true, true); 
   return Object.preventExtensions(Object.create(null, { AtNameToken: { 
       get: function() { 
         return AtNameToken; 
@@ -3694,13 +3703,15 @@ var $src_syntax_LiteralToken_js =(function() {
   "use strict"; 
   var destructuring$Token = $src_syntax_Token_js, Token = destructuring$Token.Token; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
-  function LiteralToken(type, value, location) { 
-    Token.call(this, type, location); 
-    this.value = value; 
-  } 
-  LiteralToken.prototype = createObject(Token.prototype, { toString: function() { 
+  var LiteralToken = traceur.runtime.createClass({ 
+    constructor: function(type, value, location) { 
+      traceur.runtime.superCall(this, LiteralToken, "constructor",[type, location]); 
+      this.value = value; 
+    }, 
+    toString: function() { 
       return this.value; 
-    } }); 
+    } 
+  }, Token, true, true); 
   return Object.preventExtensions(Object.create(null, { LiteralToken: { 
       get: function() { 
         return LiteralToken; 
@@ -3710,15 +3721,18 @@ var $src_syntax_LiteralToken_js =(function() {
 }).call(this); 
 var $src_util_SourcePosition_js =(function() { 
   "use strict"; 
-  function SourcePosition(source, offset, line, column) { 
-    this.source = source; 
-    this.offset = offset; 
-    this.line = line; 
-    this.column = column; 
-  } 
-  SourcePosition.prototype = { toString: function() { 
-      return(this.source ? this.source.name: '') + ':' +(this.line + 1) + ':' +(this.column + 1); 
-    } }; 
+  var SourcePosition = traceur.runtime.createClass({ 
+    constructor: function(source, offset, line, column) { 
+      this.source = source; 
+      this.offset = offset; 
+      this.line = line; 
+      this.column = column; 
+    }, 
+    toString: function() { 
+      var name = this.source ? this.source.name: ''; 
+      return("" + name + ":" +(this.line + 1) + ":" +(this.column + 1)); 
+    } 
+  }, null, true, false); 
   return Object.preventExtensions(Object.create(null, { SourcePosition: { 
       get: function() { 
         return SourcePosition; 
@@ -3735,12 +3749,6 @@ var $src_syntax_Scanner_js =(function() {
   var destructuring$SourcePosition = $src_util_SourcePosition_js, SourcePosition = destructuring$SourcePosition.SourcePosition; 
   var destructuring$Token = $src_syntax_Token_js, Token = destructuring$Token.Token; 
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
-  function Scanner(errorReporter, file, opt_offset) { 
-    this.errorReporter_ = errorReporter; 
-    this.source_ = file; 
-    this.index_ = opt_offset || 0; 
-    this.currentTokens_ =[]; 
-  } 
   function isWhitespace(ch) { 
     switch(ch) { 
       case '\u0009': 
@@ -3801,12 +3809,14 @@ var $src_syntax_Scanner_js =(function() {
     } 
     return false; 
   } 
-  Scanner.prototype = { 
-    errorReporter_: null, 
-    source_: null, 
-    currentTokens_: null, 
-    index_: - 1, 
-    lastToken_: null, 
+  var Scanner = traceur.runtime.createClass({ 
+    constructor: function(errorReporter, file, opt_offset) { 
+      this.errorReporter_ = errorReporter; 
+      this.source_ = file; 
+      this.index_ = opt_offset || 0; 
+      this.currentTokens_ =[]; 
+      this.lastToken_ = null; 
+    }, 
     get lastToken() { 
       return this.lastToken_; 
     }, 
@@ -4517,7 +4527,7 @@ var $src_syntax_Scanner_js =(function() {
       } 
       this.errorReporter_.reportError(position, message); 
     } 
-  }; 
+  }, null, true, false); 
   return Object.preventExtensions(Object.create(null, { Scanner: { 
       get: function() { 
         return Scanner; 
@@ -4527,10 +4537,10 @@ var $src_syntax_Scanner_js =(function() {
 }).call(this); 
 var $src_util_SourceRange_js =(function() { 
   "use strict"; 
-  function SourceRange(start, end) { 
-    this.start = start; 
-    this.end = end; 
-  } 
+  var SourceRange = traceur.runtime.createClass({ constructor: function(start, end) { 
+      this.start = start; 
+      this.end = end; 
+    } }, null, true, false); 
   return Object.preventExtensions(Object.create(null, { SourceRange: { 
       get: function() { 
         return SourceRange; 
@@ -4641,16 +4651,6 @@ var $src_syntax_Parser_js =(function() {
   var WhileStatement = trees.WhileStatement; 
   var WithStatement = trees.WithStatement; 
   var YieldStatement = trees.YieldStatement; 
-  function Parser(errorReporter, var_args) { 
-    this.errorReporter_ = errorReporter; 
-    var scanner; 
-    if(arguments[1]instanceof Scanner) { 
-      scanner = arguments[1]; 
-    } else { 
-      scanner = new Scanner(errorReporter, arguments[1], arguments[2]); 
-    } 
-    this.scanner_ = scanner; 
-  } 
   var Expression = { 
     NO_IN: 'NO_IN', 
     NORMAL: 'NORMAL' 
@@ -4672,8 +4672,18 @@ var $src_syntax_Parser_js =(function() {
     ALLOWED: 'ALLOWED', 
     REQUIRED: 'REQUIRED' 
   }; 
-  Parser.prototype = { 
-    allowYield_: false, 
+  var Parser = traceur.runtime.createClass({ 
+    constructor: function(errorReporter, var_args) { 
+      this.errorReporter_ = errorReporter; 
+      var scanner; 
+      if(arguments[1]instanceof Scanner) { 
+        scanner = arguments[1]; 
+      } else { 
+        scanner = new Scanner(errorReporter, arguments[1], arguments[2]); 
+      } 
+      this.scanner_ = scanner; 
+      this.allowYield_ = false; 
+    }, 
     parseProgram: function(opt_load) { 
       var start = this.getTreeStartLocation_(); 
       var programElements = this.parseProgramElements_(! ! opt_load); 
@@ -6732,7 +6742,7 @@ var $src_syntax_Parser_js =(function() {
     reportUnexpectedToken_: function() { 
       this.reportError_(this.peekToken_(), 'Unexpected token'); 
     } 
-  }; 
+  }, null, true, false); 
   return Object.preventExtensions(Object.create(null, { Parser: { 
       get: function() { 
         return Parser; 
@@ -6744,10 +6754,6 @@ var $src_syntax_LineNumberTable_js =(function() {
   "use strict"; 
   var destructuring$SourcePosition = $src_util_SourcePosition_js, SourcePosition = destructuring$SourcePosition.SourcePosition; 
   var destructuring$SourceRange = $src_util_SourceRange_js, SourceRange = destructuring$SourceRange.SourceRange; 
-  function LineNumberTable(sourceFile) { 
-    this.sourceFile_ = sourceFile; 
-    this.lineStartOffsets_ = computeLineStartOffsets(sourceFile.contents); 
-  } 
   function binarySearch(arr, target) { 
     var left = 0; 
     var right = arr.length - 1; 
@@ -6792,7 +6798,11 @@ var $src_syntax_LineNumberTable_js =(function() {
 
     } 
   } 
-  LineNumberTable.prototype = { 
+  var LineNumberTable = traceur.runtime.createClass({ 
+    constructor: function(sourceFile) { 
+      this.sourceFile_ = sourceFile; 
+      this.lineStartOffsets_ = computeLineStartOffsets(sourceFile.contents); 
+    }, 
     getSourcePosition: function(offset) { 
       var line = this.getLine(offset); 
       return new SourcePosition(this.sourceFile_, offset, line, this.getColumn(line, offset)); 
@@ -6821,7 +6831,7 @@ var $src_syntax_LineNumberTable_js =(function() {
     getSourceRange: function(startOffset, endOffset) { 
       return new SourceRange(this.getSourcePosition(startOffset), this.getSourcePosition(endOffset)); 
     } 
-  }; 
+  }, null, true, false); 
   return Object.preventExtensions(Object.create(null, { LineNumberTable: { 
       get: function() { 
         return LineNumberTable; 
@@ -6832,12 +6842,12 @@ var $src_syntax_LineNumberTable_js =(function() {
 var $src_syntax_SourceFile_js =(function() { 
   "use strict"; 
   var destructuring$LineNumberTable = $src_syntax_LineNumberTable_js, LineNumberTable = destructuring$LineNumberTable.LineNumberTable; 
-  function SourceFile(name, contents) { 
-    this.name = name; 
-    this.contents = contents; 
-    this.lineNumberTable = new LineNumberTable(this); 
-    this.uid = traceur.getUid(); 
-  } 
+  var SourceFile = traceur.runtime.createClass({ constructor: function(name, contents) { 
+      this.name = name; 
+      this.contents = contents; 
+      this.lineNumberTable = new LineNumberTable(this); 
+      this.uid = traceur.getUid(); 
+    } }, null, true, false); 
   return Object.preventExtensions(Object.create(null, { SourceFile: { 
       get: function() { 
         return SourceFile; 
@@ -8260,10 +8270,10 @@ var $src_util_TestErrorReporter_js =(function() {
   "use strict"; 
   var destructuring$ErrorReporter = $src_util_ErrorReporter_js, ErrorReporter = destructuring$ErrorReporter.ErrorReporter; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
-  function TestErrorReporter() { 
-    this.errors =[]; 
-  } 
-  TestErrorReporter.prototype = createObject(ErrorReporter.prototype, { 
+  var TestErrorReporter = traceur.runtime.createClass({ 
+    constructor: function() { 
+      this.errors =[]; 
+    }, 
     reportMessageInternal: function(location, kind, format, args) { 
       if(kind !== 'error') return; 
       this.errors.push(ErrorReporter.format(location, format, args)); 
@@ -8273,7 +8283,7 @@ var $src_util_TestErrorReporter_js =(function() {
         return error.indexOf(expected) !== - 1; 
       })); 
     } 
-  }); 
+  }, ErrorReporter, true, true); 
   return Object.preventExtensions(Object.create(null, { TestErrorReporter: { 
       get: function() { 
         return TestErrorReporter; 

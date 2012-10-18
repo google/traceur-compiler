@@ -18,14 +18,16 @@ import LineNumberTable from 'LineNumberTable.js';
  * A source file.
  *
  * Immutable.
- *
- * @param {string} name
- * @param {string} content
- * @constructor
  */
-export function SourceFile(name, contents) {
-  this.name = name;
-  this.contents = contents;
-  this.lineNumberTable = new LineNumberTable(this);
-  this.uid = traceur.getUid();
+export class SourceFile {
+  /**
+   * @param {string} name
+   * @param {string} content
+   */
+  constructor(name, contents) {
+    this.name = name;
+    this.contents = contents;
+    this.lineNumberTable = new LineNumberTable(this);
+    this.uid = traceur.getUid();
+  }
 }

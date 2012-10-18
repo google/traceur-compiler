@@ -64,6 +64,7 @@ traceur.options.quasi = true;
 traceur.options.spread = true;
 traceur.options.classes = true;
 traceur.options.propertyMethods = true;  // needed for classes
+traceur.options.restParameters = true;   // needed for classes
 
 var reporter = new ErrorReporter();
 
@@ -81,6 +82,5 @@ inlineAndCompile(resolvedIncludes, reporter, function(tree) {
   fs.writeFileSync(outputfile, contents, 'utf8');
   process.exit(1);
 }, function(err) {
-  console.error(err);
   process.exit(0);
 });

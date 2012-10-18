@@ -14,11 +14,14 @@
 
 /**
  * A range of positions in a source string.
- * @param {SourcePosition} start Start is inclusive.
- * @param {SourcePosition} end End is exclusive.
- * @constructor
  */
-export function SourceRange(start, end) {
-  this.start = start;
-  this.end = end;
+export class SourceRange {
+  /**
+   * @param {SourcePosition} start Start is inclusive.
+   * @param {SourcePosition} end End is exclusive.
+   */
+  constructor(start, end) {
+    this.start = start;
+    this.end = end;
+  }
 }

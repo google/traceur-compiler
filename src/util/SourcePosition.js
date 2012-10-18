@@ -14,22 +14,23 @@
 
 /**
  * A position in a source string - includes offset, line and column.
- * @param {SourceFile} source
- * @param {number} offset
- * @param {number} line
- * @param {number} column
- * @constructor
  */
-export function SourcePosition(source, offset, line, column) {
-  this.source = source;
-  this.offset = offset;
-  this.line = line;
-  this.column = column;
-}
-
-SourcePosition.prototype = {
-  toString: function() {
-    return (this.source ? this.source.name : '') +
-        ':' + (this.line + 1) + ':' + (this.column + 1);
+export class SourcePosition {
+  /**
+   * @param {SourceFile} source
+   * @param {number} offset
+   * @param {number} line
+   * @param {number} column
+   */
+  constructor(source, offset, line, column) {
+    this.source = source;
+    this.offset = offset;
+    this.line = line;
+    this.column = column;
   }
-};
+
+  toString() {
+    var name = this.source ? this.source.name : '';
+    return `${name}:${this.line + 1}:${this.column + 1}`;
+  }
+}

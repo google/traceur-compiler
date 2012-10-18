@@ -80,15 +80,16 @@ export var Keywords = {};
 var keywordsByName = Object.create(null);
 var keywordsByType = Object.create(null);
 
-function Keyword(value, type) {
-  this.value = value;
-  this.type = type;
-}
-Keyword.prototype = {
-  toString: function() {
+class Keyword {
+  constructor(value, type) {
+    this.value = value;
+    this.type = type;
+  }
+
+  toString() {
     return this.value;
   }
-};
+}
 
 keywords.forEach((value) => {
   var uc = value.toUpperCase();

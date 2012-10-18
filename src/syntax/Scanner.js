@@ -20,27 +20,6 @@ import SourcePosition from '../util/SourcePosition.js';
 import Token from 'Token.js';
 import TokenType from 'TokenType.js';
 
-/**
- * Scans javascript source code into tokens. All entrypoints assume the
- * caller is not expecting a regular expression literal except for
- * nextRegularExpressionLiteralToken.
- *
- * 7 Lexical Conventions
- *
- * TODO: 7.1 Unicode Format-Control Characters
- *
- * @param {ErrorReport} errorReporter
- * @param {SourceFile} file
- * @param {number=} opt_offset
- * @constructor
- */
-export function Scanner(errorReporter, file, opt_offset) {
-  this.errorReporter_ = errorReporter;
-  this.source_ = file;
-  this.index_ = opt_offset || 0;
-  this.currentTokens_ = [];
-}
-
 function isWhitespace(ch) {
   switch (ch) {
     case '\u0009':  // Tab
@@ -225,99 +204,95 @@ function isUnicodeLetter(ch) {
   return false;
 }
 
-Scanner.prototype = {
+/**
+ * Scans javascript source code into tokens. All entrypoints assume the
+ * caller is not expecting a regular expression literal except for
+ * nextRegularExpressionLiteralToken.
+ *
+ * 7 Lexical Conventions
+ *
+ * TODO: 7.1 Unicode Format-Control Characters
+ */
+export class Scanner {
   /**
-   * @type {ErrorReporter}
-   * @private
+   * @param {ErrorReport} errorReporter
+   * @param {SourceFile} file
+   * @param {number=} opt_offset
    */
-  errorReporter_: null,
-
-  /**
-   * @type {SourceFile}
-   * @private
-   */
-  source_: null,
-
-  /**
-   * @type {Array.<Token>}
-   * @private
-   */
-  currentTokens_: null,
-
-  /**
-   * @type {number}
-   * @private
-   */
-  index_: -1,
-
-  lastToken_: null,
+  constructor(errorReporter, file, opt_offset) {
+    this.errorReporter_ = errorReporter;
+    this.source_ = file;
+    this.index_ = opt_offset || 0;
+    this.currentTokens_ = [];
+    this.lastToken_ = null;
+  }
 
   get lastToken() {
     return this.lastToken_;
-  },
+  }
 
   /** @return {LineNumberTable} */
-  getLineNumberTable_: function() {
+  getLineNumberTable_() {
     return this.getFile().lineNumberTable;
-  },
+  }
 
   /** @return {SourceFile} */
-  getFile: function() {
+  getFile() {
     return this.source_;
-  },
+  }
 
   /** @return {number} */
-  getOffset: function() {
+  getOffset() {
     return this.currentTokens_.length == 0 ?
         this.index_ : this.peekToken().location.start.offset;
-  },
+  }
 
   /** @return {SourcePosition} */
-  getPosition: function() {
+  getPosition() {
     return this.getPosition_(this.getOffset());
-  },
+  }
 
   /**
    * @private
    * @return {SourcePosition}
    */
-  getPosition_: function(offset) {
+  getPosition_(offset) {
     return this.getLineNumberTable_().getSourcePosition(offset);
-  },
+  }
 
   /**
    * @return {SourceRange}
    * @private
    */
-  getTokenRange_: function(startOffset) {
+  getTokenRange_(startOffset) {
     return this.getLineNumberTable_().getSourceRange(startOffset,
                                                      this.index_);
-  },
+  }
 
   /** @return {Token} */
-  nextToken: function() {
+  nextToken() {
     this.peekToken();
     var token = this.currentTokens_.shift();
     this.lastToken_ = token;
     return token;
-  },
+  }
 
-  clearTokenLookahead_: function() {
+  clearTokenLookahead_() {
     this.index_ = this.getOffset();
     this.currentTokens_.length = 0;
-  },
+  }
 
-  clearTokenAndWhitespaceLookahead_: function() {
+  clearTokenAndWhitespaceLookahead_() {
     this.index_ = this.lastToken.location.end.offset;
     this.currentTokens_.length = 0;
-  },
+  }
 
-  nextRegularExpressionLiteralToken: function() {
+  nextRegularExpressionLiteralToken() {
     return this.lastToken_ = this.nextRegularExpressionLiteralToken_();
-  },
+  }
 
   /** @return {LiteralToken} */
-  nextRegularExpressionLiteralToken_: function() {
+  nextRegularExpressionLiteralToken_() {
     this.clearTokenLookahead_();
 
     var beginToken = this.index_;
@@ -349,9 +324,9 @@ Scanner.prototype = {
     return new LiteralToken(TokenType.REGULAR_EXPRESSION,
                             this.getTokenString_(beginToken),
                             this.getTokenRange_(beginToken));
-  },
+  }
 
-  skipRegularExpressionBody_: function() {
+  skipRegularExpressionBody_() {
     if (!this.isRegularExpressionFirstChar_(this.peekChar_())) {
       this.reportError_('Expected regular expression first char');
       return false;
@@ -366,9 +341,9 @@ Scanner.prototype = {
       }
     }
     return true;
-  },
+  }
 
-  skipRegularExpressionChar_: function() {
+  skipRegularExpressionChar_() {
     switch (this.peekChar_()) {
       case '\\':
         return this.skipRegularExpressionBackslashSequence_();
@@ -378,9 +353,9 @@ Scanner.prototype = {
         this.nextChar_();
         return true;
     }
-  },
+  }
 
-  skipRegularExpressionBackslashSequence_: function() {
+  skipRegularExpressionBackslashSequence_() {
     this.nextChar_();
     if (isLineTerminator(this.peekChar_())) {
       this.reportError_('New line not allowed in regular expression literal');
@@ -388,9 +363,9 @@ Scanner.prototype = {
     }
     this.nextChar_();
     return true;
-  },
+  }
 
-  skipRegularExpressionClass_: function() {
+  skipRegularExpressionClass_() {
     this.nextChar_();
     while (!this.isAtEnd_() && this.peekRegularExpressionClassChar_()) {
       if (!this.skipRegularExpressionClassChar_()) {
@@ -403,26 +378,26 @@ Scanner.prototype = {
     }
     this.nextChar_();
     return true;
-  },
+  }
 
-  peekRegularExpressionClassChar_: function() {
+  peekRegularExpressionClassChar_() {
     return this.peekChar_() != ']' &&
         !isLineTerminator(this.peekChar_());
-  },
+  }
 
-  skipRegularExpressionClassChar_: function() {
+  skipRegularExpressionClassChar_() {
     if (this.peek_('\\')) {
       return this.skipRegularExpressionBackslashSequence_();
     }
     this.nextChar_();
     return true;
-  },
+  }
 
-  isRegularExpressionFirstChar_: function(ch) {
+  isRegularExpressionFirstChar_(ch) {
     return this.isRegularExpressionChar_(ch) && ch != '*';
-  },
+  }
 
-  isRegularExpressionChar_: function(ch) {
+  isRegularExpressionChar_(ch) {
     switch (ch) {
       case '/':
         return false;
@@ -432,13 +407,13 @@ Scanner.prototype = {
       default:
         return !isLineTerminator(ch);
     }
-  },
+  }
 
   /**
    * Called by the parser while parsing a quasi literal. Quasi literal
    * portions are the part between the substitions.
    */
-  nextQuasiLiteralPortionToken: function() {
+  nextQuasiLiteralPortionToken() {
     this.clearTokenLookahead_();
     var beginToken = this.index_;
 
@@ -452,27 +427,27 @@ Scanner.prototype = {
         new LiteralToken(TokenType.QUASI_LITERAL_PORTION,
                          this.getTokenString_(beginToken),
                          this.getTokenRange_(beginToken));
-  },
+  }
 
   /**
    * Called by the parser while parsing a quasi literal.
    */
-  nextQuasiSubstitutionToken: function() {
+  nextQuasiSubstitutionToken() {
     this.clearTokenLookahead_();
     var beginToken = this.index_;
     var ch = this.nextChar_();
     traceur.assert(ch == '$');
     return this.lastToken_ = this.createToken_(TokenType.DOLLAR, beginToken);
-  },
+  }
 
-  nextQuasiIdentifier: function() {
+  nextQuasiIdentifier() {
     this.clearTokenLookahead_();
     var beginToken = this.index_;
     var ch = this.nextChar_();
     return this.scanIdentifierOrKeyword(beginToken, ch);
-  },
+  }
 
-  peekQuasiToken: function(type) {
+  peekQuasiToken(type) {
     this.clearTokenLookahead_();
 
     var ch = this.peekChar_();
@@ -484,7 +459,7 @@ Scanner.prototype = {
       default:
         return ch == type;
     }
-  },
+  }
 
   // LiteralPortion ::
   //   LiteralCharacter LiteralPortion
@@ -497,7 +472,7 @@ Scanner.prototype = {
   //   \ EscapeSequence
   //   $ lookahead ∉ {, IdentifierStart
 
-  skipQuasiLiteralPortion_: function() {
+  skipQuasiLiteralPortion_() {
     while (!this.isAtEnd_()) {
       if (this.peek_('`')) {
         break;
@@ -515,21 +490,21 @@ Scanner.prototype = {
         this.nextChar_();
       }
     }
-  },
+  }
 
   /**
    * @return {Token}
    */
-  peekToken: function(opt_index) {
+  peekToken(opt_index) {
     return this.peekToken_(opt_index || 0, true);
-  },
+  }
 
-  peekTokenNoLineTerminator: function(opt_index) {
+  peekTokenNoLineTerminator(opt_index) {
     this.clearTokenAndWhitespaceLookahead_();
     return this.peekToken_(opt_index || 0, false);
-  },
+  }
 
-  peekToken_: function(index, allowLineTerminator) {
+  peekToken_(index, allowLineTerminator) {
     while (this.currentTokens_.length <= index) {
       var token = this.scanToken_(allowLineTerminator);
       if (!token)
@@ -537,30 +512,30 @@ Scanner.prototype = {
       this.currentTokens_.push(token);
     }
     return this.currentTokens_[index];
-  },
+  }
 
-  isAtEnd_: function() {
+  isAtEnd_() {
     return this.index_ >= this.source_.contents.length;
-  },
+  }
 
   // 7.2 White Space
-  skipWhitespace_: function(allowLineTerminator) {
+  skipWhitespace_(allowLineTerminator) {
     while (!this.isAtEnd_() &&
            this.peekWhitespace_(allowLineTerminator)) {
       this.nextChar_();
     }
-  },
+  }
 
-  peekWhitespace_: function(allowLineTerminator) {
+  peekWhitespace_(allowLineTerminator) {
     return isWhitespace(this.peekChar_()) &&
         (allowLineTerminator || !isLineTerminator(this.peekChar_()));
-  },
+  }
   // 7.4 Comments
-  skipComments_: function(allowLineTerminator) {
+  skipComments_(allowLineTerminator) {
     while (this.skipComment_(allowLineTerminator)) {}
-  },
+  }
 
-  skipComment_: function(allowLineTerminator) {
+  skipComment_(allowLineTerminator) {
     this.skipWhitespace_(allowLineTerminator);
     if (!this.isAtEnd_() && this.peek_('/')) {
       switch (this.peekChar_(1)) {
@@ -573,15 +548,15 @@ Scanner.prototype = {
       }
     }
     return false;
-  },
+  }
 
-  skipSingleLineComment_: function() {
+  skipSingleLineComment_() {
     while (!this.isAtEnd_() && !isLineTerminator(this.peekChar_())) {
       this.nextChar_();
     }
-  },
+  }
 
-  skipMultiLineComment_: function() {
+  skipMultiLineComment_() {
     this.nextChar_(); // '/'
     this.nextChar_(); // '*'
     while (!this.isAtEnd_() &&
@@ -590,13 +565,13 @@ Scanner.prototype = {
     }
     this.nextChar_();
     this.nextChar_();
-  },
+  }
 
   /**
    * @private
    * @return {Token}
    */
-  scanToken_: function(allowLineTerminator) {
+  scanToken_(allowLineTerminator) {
     this.skipComments_(allowLineTerminator);
     var beginToken = this.index_;
     if (this.isAtEnd_())
@@ -802,31 +777,31 @@ Scanner.prototype = {
       default:
         return this.scanIdentifierOrKeyword(beginToken, ch);
     }
-  },
+  }
 
   /**
    * @return {Token}
    * @private
    */
-  scanNumberPostPeriod_: function(beginToken) {
+  scanNumberPostPeriod_(beginToken) {
     this.skipDecimalDigits_();
     return this.scanExponentOfNumericLiteral_(beginToken);
-  },
+  }
 
   /**
    * @return {Token}
    * @private
    */
-  scanPostDigit_: function(beginToken) {
+  scanPostDigit_(beginToken) {
     this.skipDecimalDigits_();
     return this.scanFractionalNumericLiteral_(beginToken);
-  },
+  }
 
   /**
    * @return {Token}
    * @private
    */
-  scanPostZero_: function(beginToken) {
+  scanPostZero_(beginToken) {
     switch (this.peekChar_()) {
       case 'x':
       case 'X':
@@ -857,7 +832,7 @@ Scanner.prototype = {
                                 this.getTokenString_(beginToken),
                                 this.getTokenRange_(beginToken));
     }
-  },
+  }
 
   /**
    * @param {TokenType} type
@@ -865,23 +840,23 @@ Scanner.prototype = {
    * @return {Token}
    * @private
    */
-  createToken_: function(type, beginToken) {
+  createToken_(type, beginToken) {
     return new Token(type, this.getTokenRange_(beginToken));
-  },
+  }
 
-  scanUnicode: function(beginToken, ch) {
+  scanUnicode(beginToken, ch) {
     // TODO: Implement Unicode escape sequence
     this.reportError_(this.getPosition_(beginToken), 
         'Unimplemented: Unicode escape sequence');
     return this.createToken_(TokenType.ERROR, beginToken);
-  },
+  }
 
   /**
    * @param {number} beginToken
    * @param {string} ch
    * @return {Token}
    */
-  scanIdentifierOrKeyword: function(beginToken, ch) {
+  scanIdentifierOrKeyword(beginToken, ch) {
     if (ch == '\\') {
       return this.scanUnicode(beginToken, ch);
     }
@@ -908,9 +883,9 @@ Scanner.prototype = {
     }
 
     return new IdentifierToken(this.getTokenRange_(beginToken), value);
-  },
+  }
 
-  isIdentifierPart_: function(ch) {
+  isIdentifierPart_(ch) {
     // TODO: identifier part character classes
     // CombiningMark
     //   Non-Spacing mark (Mn)
@@ -919,9 +894,9 @@ Scanner.prototype = {
     // Zero Width Non-Joiner
     // Zero Width Joiner
     return isIdentifierStart(ch) || isDecimalDigit(ch);
-  },
+  }
 
-  scanAtName_: function(beginToken) {
+  scanAtName_(beginToken) {
     // TODO(arv): Refactor to not create an intermediate token.
     var ch = this.nextChar_();
     var identifierToken = this.scanIdentifierOrKeyword(beginToken, ch);
@@ -929,13 +904,13 @@ Scanner.prototype = {
       return identifierToken;
     var value = identifierToken.value;
     return new AtNameToken(this.getTokenRange_(beginToken), value);
-  },
+  }
 
   /**
    * @return {Token}
    * @private
    */
-  scanStringLiteral_: function(beginIndex, terminator) {
+  scanStringLiteral_(beginIndex, terminator) {
     while (this.peekStringLiteralChar_(terminator)) {
       if (!this.skipStringLiteralChar_()) {
         return new LiteralToken(TokenType.STRING,
@@ -952,26 +927,26 @@ Scanner.prototype = {
     return new LiteralToken(TokenType.STRING,
                             this.getTokenString_(beginIndex),
                             this.getTokenRange_(beginIndex));
-  },
+  }
 
-  getTokenString_: function(beginIndex) {
+  getTokenString_(beginIndex) {
     return this.source_.contents.substring(beginIndex, this.index_);
-  },
+  }
 
-  peekStringLiteralChar_: function(terminator) {
+  peekStringLiteralChar_(terminator) {
     return !this.isAtEnd_() && this.peekChar_() != terminator &&
         !isLineTerminator(this.peekChar_());
-  },
+  }
 
-  skipStringLiteralChar_: function() {
+  skipStringLiteralChar_() {
     if (this.peek_('\\')) {
       return this.skipStringLiteralEscapeSequence_();
     }
     this.nextChar_();
     return true;
-  },
+  }
 
-  skipStringLiteralEscapeSequence_: function() {
+  skipStringLiteralEscapeSequence_() {
     this.nextChar_();
     if (this.isAtEnd_()) {
       this.reportError_('Unterminated string literal escape sequence');
@@ -1002,41 +977,41 @@ Scanner.prototype = {
       default:
         return true;
     }
-  },
+  }
 
-  skipHexDigit_: function() {
+  skipHexDigit_() {
     if (!isHexDigit(this.peekChar_())) {
       this.reportError_('Hex digit expected');
       return false;
     }
     this.nextChar_();
     return true;
-  },
+  }
 
-  skipLineTerminator_: function() {
+  skipLineTerminator_() {
     var first = this.nextChar_();
     if (first == '\r' && this.peek_('\n')) {
       this.nextChar_();
     }
-  },
+  }
 
   /**
    * @return {LiteralToken}
    * @private
    */
-  scanFractionalNumericLiteral_: function(beginToken) {
+  scanFractionalNumericLiteral_(beginToken) {
     if (this.peek_('.')) {
       this.nextChar_();
       this.skipDecimalDigits_();
     }
     return this.scanExponentOfNumericLiteral_(beginToken);
-  },
+  }
 
   /**
    * @return {LiteralToken}
    * @private
    */
-  scanExponentOfNumericLiteral_: function(beginToken) {
+  scanExponentOfNumericLiteral_(beginToken) {
     switch (this.peekChar_()) {
       case 'e':
       case 'E':
@@ -1058,39 +1033,39 @@ Scanner.prototype = {
     return new LiteralToken(TokenType.NUMBER,
                             this.getTokenString_(beginToken),
                             this.getTokenRange_(beginToken));
-  },
+  }
 
-  skipDecimalDigits_: function() {
+  skipDecimalDigits_() {
     while (isDecimalDigit(this.peekChar_())) {
       this.nextChar_();
     }
-  },
+  }
 
-  skipHexDigits_: function() {
+  skipHexDigits_() {
     while (isHexDigit(this.peekChar_())) {
       this.nextChar_();
     }
-  },
+  }
 
-  nextChar_: function() {
+  nextChar_() {
     if (this.isAtEnd_()) {
       // Work around strict mode bug in Chrome.
       return '\x00';
     }
     return this.source_.contents.charAt(this.index_++);
-  },
+  }
 
-  peek_: function(ch) {
+  peek_(ch) {
     return this.peekChar_() == ch;
-  },
+  }
 
-  peekChar_: function(opt_offset) {
+  peekChar_(opt_offset) {
     // Work around strict mode bug in Chrome.
     return this.source_.contents.charAt(
         this.index_ + (opt_offset || 0)) || '\x00';
-  },
+  }
 
-  reportError_: function(var_args) {
+  reportError_(var_args) {
     var position, message;
     if (arguments.length == 1) {
       position = this.getPosition();
@@ -1102,4 +1077,4 @@ Scanner.prototype = {
 
     this.errorReporter_.reportError(position, message);
   }
-};
+}

@@ -16,19 +16,6 @@ import SourcePosition from '../util/SourcePosition.js';
 import SourceRange from  '../util/SourceRange.js';
 
 /**
- * Maps offsets into a source string into line/column positions.
- *
- * Immutable.
- *
- * @param {SourceFile} sourceFile
- * @constructor
- */
-export function LineNumberTable(sourceFile) {
-  this.sourceFile_ = sourceFile;
-  this.lineStartOffsets_ = computeLineStartOffsets(sourceFile.contents);
-}
-
-/**
  * Taken from Closure Library
  */
 function binarySearch(arr, target) {
@@ -82,30 +69,43 @@ function isLineTerminator(ch) {
   }
 }
 
-LineNumberTable.prototype = {
+/**
+ * Maps offsets into a source string into line/column positions.
+ *
+ * Immutable.
+ */
+export class LineNumberTable {
+  /**
+   * @param {SourceFile} sourceFile
+   */
+  constructor(sourceFile) {
+    this.sourceFile_ = sourceFile;
+    this.lineStartOffsets_ = computeLineStartOffsets(sourceFile.contents);
+  }
+
   /**
    * @return {SourcePosition}
    */
-  getSourcePosition: function(offset) {
+  getSourcePosition(offset) {
     var line = this.getLine(offset);
     return new SourcePosition(this.sourceFile_, offset, line,
                               this.getColumn(line, offset));
-  },
+  }
 
-  getLine: function(offset) {
+  getLine(offset) {
     var index = binarySearch(this.lineStartOffsets_, offset);
     // start of line
     if (index >= 0) {
       return index;
     }
     return -index - 2;
-  },
+  }
 
-  offsetOfLine: function(line) {
+  offsetOfLine(line) {
     return this.lineStartOffsets_[line];
-  },
+  }
 
-  getColumn: function(var_args) {
+  getColumn(var_args) {
     var line, offset;
     if (arguments.length >= 2) {
       line = arguments[0];
@@ -115,11 +115,11 @@ LineNumberTable.prototype = {
       line = this.getLine(offset);
     }
     return offset - this.offsetOfLine(line);
-  },
+  }
 
   /** @return {SourceRange} */
-  getSourceRange: function(startOffset, endOffset) {
+  getSourceRange(startOffset, endOffset) {
     return new SourceRange(this.getSourcePosition(startOffset),
                            this.getSourcePosition(endOffset));
   }
-};
+}

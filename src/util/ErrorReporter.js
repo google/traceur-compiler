@@ -16,29 +16,29 @@
  * A conduit for reporting errors and warnings to the user using the Firebug
  * console API.
  */
-export function ErrorReporter() {}
-
-ErrorReporter.prototype = {
-  hadError_: false,
+export class ErrorReporter {
+  constructor() {
+    this.hadError_ = false;
+  }
 
   /**
    * @param {SourcePosition} location
    * @param {string} format
    */
-  reportError: function(location, format, var_args) {
+  reportError(location, format, var_args) {
     this.hadError_ = true;
     var args = Array.prototype.slice.call(arguments, 2);
     this.reportMessageInternal(location, 'error', format, args);
-  },
+  }
 
   /**
    * @param {SourcePosition} location
    * @param {string} format
    */
-  reportWarning: function(location, format, var_args) {
+  reportWarning(location, format, var_args) {
     var args = Array.prototype.slice.call(arguments, 2);
     this.reportMessageInternal(location, 'warn', format, args);
-  },
+  }
 
   /**
    * @param {SourcePosition} location
@@ -46,20 +46,20 @@ ErrorReporter.prototype = {
    * @param {string} format
    * @param {Array} args
    */
-  reportMessageInternal: function(location, kind, format, args) {
+  reportMessageInternal(location, kind, format, args) {
     if (location)
       format = location + ': ' + format;
     console[kind].apply(console, [format].concat(args));
-  },
+  }
 
-  hadError: function() {
+  hadError() {
     return this.hadError_;
-  },
+  }
 
-  clearError: function() {
+  clearError() {
     this.hadError_ = false;
   }
-};
+}
 
 /**
  * Formats an error message.

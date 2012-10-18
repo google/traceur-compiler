@@ -16,23 +16,25 @@
  * A map backed by arrays. All methods are O(n) so only use this when you
  * cannot change the key object.
  */
-export function ArrayMap() {
-  this.values_ = [];
-  this.keys_ = [];
-}
+export class ArrayMap {
+  constructor() {
+    this.values_ = [];
+    this.keys_ = [];
+  }
 
-ArrayMap.prototype = {
-  has: function(key) {
+  has(key) {
     return this.keys_.indexOf(key) != -1;
-  },
-  get: function(key) {
+  }
+
+  get(key) {
     var index = this.keys_.indexOf(key);
     if (index == -1) {
       return undefined;
     }
     return this.values_[index];
-  },
-  put: function(key, value) {
+  }
+
+  put(key, value) {
     var index = this.keys_.indexOf(key);
     if (index == -1) {
       this.keys_.push(key);
@@ -40,26 +42,30 @@ ArrayMap.prototype = {
     } else {
       this.values_[index] = value;
     }
-  },
-  addAll: function(other) {
+  }
+
+  addAll(other) {
     var keys = other.keys();
     var values = other.values();
     for (var i = 0; i < keys.length; i++) {
       this.put(keys[i], values[i]);
     }
-  },
-  remove: function(key) {
+  }
+
+  remove(key) {
     var index = this.keys_.indexOf(key);
     if (index == -1) {
       return;
     }
     this.keys_.splice(index, 1);
     this.values_.splice(index, 1);
-  },
-  keys: function() {
+  }
+
+  keys() {
     return this.keys_.concat();
-  },
-  values: function() {
+  }
+
+  values() {
     return this.values_.concat();
   }
-};
+}

@@ -19,22 +19,23 @@ import TokenType from 'TokenType.js';
  * Immutable.
  * A plain old data structure. Should contain data members and simple
  * accessors only.
- * @param {TokenType} type
- * @param {SourceRange} location
- * @constructor
  */
-export function Token(type, location) {
-  this.type = type;
-  this.location = location;
-}
+export class Token {
+  /**
+   * @param {TokenType} type
+   * @param {SourceRange} location
+   */
+  constructor(type, location) {
+    this.type = type;
+    this.location = location;
+  }
 
-Token.prototype = {
-  toString: function() {
+  toString() {
     return this.type.toString();
-  },
+  }
 
   /** @return {boolean} */
-  isAssignmentOperator: function() {
+  isAssignmentOperator() {
     switch (this.type) {
       case TokenType.EQUAL:
       case TokenType.STAR_EQUAL:
@@ -53,4 +54,4 @@ Token.prototype = {
         return false;
     }
   }
-};
+}

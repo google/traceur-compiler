@@ -23,12 +23,11 @@ import createObject from 'util.js';
  * observe whether speculative parses fail before committing to
  * parsing them.
  */
-export function MutedErrorReporter() {}
-
-MutedErrorReporter.prototype = createObject(
-    ErrorReporter.prototype, {
-
-  reportMessageInternal: function(location, message) {
+export class MutedErrorReporter extends ErrorReporter {
+  constructor() {
+    // Intentionally empty since we don't want to call ErrorReporter.
+  }
+  reportMessageInternal(location, message) {
     // message.dropOn(floor);
   }
-});
+}

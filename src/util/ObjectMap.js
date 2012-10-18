@@ -16,38 +16,44 @@
  * A simple O(1) object map. It requires that the key object have a
  * {@code uid} property.
  */
-export function ObjectMap() {
-  this.keys_ = Object.create(null);
-  this.values_ = Object.create(null);
-}
+export class ObjectMap {
+  constructor() {
+    this.keys_ = Object.create(null);
+    this.values_ = Object.create(null);
+  }
 
-ObjectMap.prototype = {
-  put: function(key, value) {
+  put(key, value) {
     var uid = key.uid;
     this.keys_[uid] = key;
     this.values_[uid] = value;
-  },
-  get: function(key) {
+  }
+
+  get(key) {
     return this.values_[key.uid];
-  },
-  has: function(key) {
+  }
+
+  has(key) {
     return key.uid in this.keys_;
-  },
-  addAll: function(other) {
+  }
+
+  addAll(other) {
     for (var uid in other.keys_) {
       this.keys_[uid] = other.keys_[uid];
       this.values_[uid] = other.values_[uid];
     }
-  },
-  keys: function() {
+  }
+
+  keys() {
     return Object.keys(this.keys_).map((uid) => this.keys_[uid]);
-  },
-  values: function() {
+  }
+
+  values() {
     return Object.keys(this.values_).map((uid) =>this.values_[uid]);
-  },
-  remove: function(key) {
+  }
+
+  remove(key) {
     var uid = key.uid;
     delete this.keys_[uid];
     delete this.values_[uid];
   }
-};
+}
