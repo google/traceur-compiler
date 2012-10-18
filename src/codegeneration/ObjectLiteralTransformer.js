@@ -47,54 +47,38 @@ var FunctionDeclaration = trees.FunctionDeclaration;
 var IdentifierExpression = trees.IdentifierExpression;
 var LiteralExpression = trees.LiteralExpression;
 
-
 var options = traceurOptions.transform;
 
-function getAtNameFinder(propertyName) {
+function findAtNameInProperty(propertyName) {
   return function(tree) {
     if (options.privateNameSyntax &&
         tree[propertyName].type === TokenType.AT_NAME) {
-      this.foundAtName = true;
+      this.found = true;
     }
   }
 }
 
 /**
- * Finder class that finds if an object literal contains an at name or a
- * method.
+ * AtNameFinder class that finds if an object literal contains an at name.
  * @param {ObjectLiteralTree} tree
  */
-function Finder(tree) {
+function AtNameFinder(tree) {
   this.protoExpression = null;
-  this.foundAtName_ = false;
   FindVisitor.call(this, tree, true);
 }
-Finder.prototype = createObject(
-    FindVisitor.prototype, {
-  get foundAtName() {
-    return this.foundAtName_;
-  },
-  set foundAtName(v) {
-    if (v) {
-      this.foundAtName_ = true;
-      this.found = true;
-    }
-  },
+AtNameFinder.prototype = createObject(FindVisitor.prototype, {
   visitPropertyNameAssignment: function(tree) {
     if (options.privateNameSyntax && tree.name.type === TokenType.AT_NAME)
-      this.foundAtName = true;
+      this.found = true;
     else if (getPropertyNameForToken(tree.name) === '__proto__')
       this.protoExpression = tree.value;
   },
-  visitGetAccessor: getAtNameFinder('propertyName'),
-  visitSetAccessor: getAtNameFinder('propertyName'),
-  visitPropertyMethodAssignment: function(tree) {
-    if (options.propertyMethods)
-      this.found = true;
-    if (options.privateNameSyntax && tree.name.type === TokenType.AT_NAME)
-      this.foundAtName = true;
-  },
-  visitPropertyNameShorthand: getAtNameFinder('name'),
+  // TODO(arv): Rename propertyName to name.
+  // https://code.google.com/p/traceur-compiler/issues/detail?id=153
+  visitGetAccessor: findAtNameInProperty('propertyName'),
+  visitSetAccessor: findAtNameInProperty('propertyName'),
+  visitPropertyMethodAssignment: findAtNameInProperty('name'),
+  visitPropertyNameShorthand: findAtNameInProperty('name'),
 });
 
 /**
@@ -124,7 +108,7 @@ function getPropertyNameForToken(nameToken) {
 export function ObjectLiteralTransformer(identifierGenerator) {
   TempVarTransformer.call(this, identifierGenerator);
   this.protoExpression = null;
-  this.needsTransform = false;
+  this.needsAtNameTransform = false;
   this.seenAccessors = null;
 }
 
@@ -198,17 +182,17 @@ ObjectLiteralTransformer.prototype = createObject(base, {
     // to Object.create or a temporary object that we call defineProperty/ies
     // on.
 
-    var oldNeedsTransform = this.needsTransform;
+    var oldNeedsTransform = this.needsAtNameTransform;
     var oldSeenAccessors = this.seenAccessors;
 
     try {
-      var finder = new Finder(tree);
+      var finder = new AtNameFinder(tree);
       if (!finder.found) {
-        this.needsTransform = false;
+        this.needsAtNameTransform = false;
         return base.transformObjectLiteralExpression.call(this, tree);
       }
 
-      this.needsTransform = true;
+      this.needsAtNameTransform = true;
       this.seenAccessors = Object.create(null);
 
       var properties = this.transformList(tree.propertyNameAndValues);
@@ -216,73 +200,39 @@ ObjectLiteralTransformer.prototype = createObject(base, {
       properties = properties.filter((tree) => tree);
 
       // (tmp = ..., Object.defineProperty(...), ..., tmp)
-      if (finder.foundAtName) {
-        var tempVar = this.addTempVar();
-        var tempVarIdentifierExpression = createIdentifierExpression(tempVar);
+      var tempVar = this.addTempVar();
+      var tempVarIdentifierExpression = createIdentifierExpression(tempVar);
 
-        var expressions = properties.map((property) => {
-          var name = property[0];
-          var descr = property[1];
-          return createDefineProperty(
+      var expressions = properties.map((property) => {
+        var name = property[0];
+        var descr = property[1];
+        return createDefineProperty(
+            tempVarIdentifierExpression,
+            this.getPropertyName_(name),
+            descr);
+      });
+
+      var protoExpression = this.transformAny(finder.protoExpression);
+      var objectExpression;
+      if (protoExpression)
+        objectExpression = createObjectCreate(protoExpression);
+      else
+        objectExpression = createObjectLiteralExpression([]);
+
+      expressions.unshift(
+          createAssignmentExpression(
               tempVarIdentifierExpression,
-              this.getPropertyName_(name),
-              descr);
-        });
-
-        var protoExpression = this.transformAny(finder.protoExpression);
-        var objectExpression;
-        if (protoExpression)
-          objectExpression = createObjectCreate(protoExpression);
-        else
-          objectExpression = createObjectLiteralExpression([]);
-
-        expressions.unshift(
-            createAssignmentExpression(
-                tempVarIdentifierExpression,
-                objectExpression));
-        expressions.push(tempVarIdentifierExpression);
-        return createParenExpression(createCommaExpression(expressions));
-
-      // Object.create(proto, descriptors)
-      } else {
-        properties = properties.map((property) => {
-          var name = property[0];
-          var descr = property[1];
-          var descriptorTree = createPropertyDescriptor(descr);
-          return createPropertyNameAssignment(name, descriptorTree);
-        });
-
-        var descriptors = createObjectLiteralExpression(properties);
-
-        // Use
-        //   Object.create(proto, { descriptors })
-        // or
-        //   Object.defineProperties({}, descriptors);
-        var baseObject, methodName;
-        if (protoExpression) {
-          baseObject = protoExpression;
-          methodName = PredefinedName.CREATE;
-        } else {
-          baseObject = createObjectLiteralExpression([]);
-          methodName = PredefinedName.DEFINE_PROPERTIES;
-        }
-
-        return createCallExpression(
-            createMemberExpression(
-                PredefinedName.OBJECT,
-                methodName),
-            createArgumentList([
-                baseObject,
-                descriptors]));
-      }
+              objectExpression));
+      expressions.push(tempVarIdentifierExpression);
+      return createParenExpression(createCommaExpression(expressions));
     } finally {
-      this.needsTransform = oldNeedsTransform;
+      this.needsAtNameTransform = oldNeedsTransform;
       this.seenAccessors = oldSeenAccessors;
     }
   },
 
   transformPropertyNameAssignment: function(tree) {
-    if (!this.needsTransform)
+    if (!this.needsAtNameTransform)
       return base.transformPropertyNameAssignment.call(this, tree);
 
     // __proto__ is handled separately.
@@ -298,7 +248,7 @@ ObjectLiteralTransformer.prototype = createObject(base, {
         });
   },
   transformGetAccessor: function(tree) {
-    if (!this.needsTransform)
+    if (!this.needsAtNameTransform)
       return base.transformGetAccessor.call(this, tree);
 
     var body = this.transformAny(tree.body);
@@ -311,7 +261,7 @@ ObjectLiteralTransformer.prototype = createObject(base, {
         });
   },
   transformSetAccessor: function(tree) {
-    if (!this.needsTransform)
+    if (!this.needsAtNameTransform)
       return base.transformSetAccessor.call(this, tree);
 
     var body = this.transformAny(tree.body);
@@ -328,26 +278,31 @@ ObjectLiteralTransformer.prototype = createObject(base, {
   },
 
   transformPropertyMethodAssignment: function(tree) {
-    if (!this.needsTransform)
-      return base.transformPropertyMethodAssignment.call(this, tree);
+    var func = new FunctionDeclaration(tree.location, null, tree.isGenerator,
+        this.transformAny(tree.formalParameterList),
+        this.transformAny(tree.functionBody))
+    if (!this.needsAtNameTransform) {
+      // m() { }
+      //  =>
+      // m: function() { }
+      return createPropertyNameAssignment(tree.name, func);
+    }
 
+    // Use descriptor.
     var body = this.transformAny(tree.functionBody);
     var parameters = this.transformAny(tree.formalParameterList);
-
-    var func = new FunctionDeclaration(tree.location, null, tree.isGenerator,
-                                       parameters, body);
 
     return this.createProperty_(tree.name,
         {
           value: func,
           configurable: true,
-          enumerable: false,
+          enumerable: true,
           writable: true
         });
   },
 
   transformPropertyNameShorthand: function(tree) {
-    if (!this.needsTransform)
+    if (!this.needsAtNameTransform)
       return base.transformPropertyNameShorthand.call(this, tree);
 
     return this.createProperty_(tree.name,
