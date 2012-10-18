@@ -26,15 +26,12 @@ import {
   createYieldStatement
 } from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
-import {options: traceurOptions} from '../options.js';
+import transformOptions from '../options.js';
 import trees from '../syntax/trees/ParseTrees.js';
 
 var FunctionDeclaration = trees.FunctionDeclaration;
 var GetAccessor = trees.GetAccessor;
 var SetAccessor = trees.SetAccessor;
-
-
-var options = traceurOptions.transform;
 
 /**
  * Can tell you if function body contains a yield statement. Does not search into
@@ -184,22 +181,20 @@ GeneratorTransformPass.prototype = createObject(
     // We need to transform for-in loops because the object key iteration
     // cannot be interrupted.
     if (finder.hasForIn &&
-        (options.generators || options.deferredFunctions)) {
-      body = ForInTransformPass.transformTree(this.identifierGenerator_,
-                                              body);
+        (transformOptions.generators || transformOptions.deferredFunctions)) {
+      body = ForInTransformPass.transformTree(this.identifierGenerator_, body);
     }
 
-    if (finder.hasYieldFor && options.generators) {
-      body = YieldForTransformer.transformTree(this.identifierGenerator_,
-                                               body);
+    if (finder.hasYieldFor && transformOptions.generators) {
+      body = YieldForTransformer.transformTree(this.identifierGenerator_, body);
     }
 
     if (finder.hasYield) {
-      if (options.generators) {
+      if (transformOptions.generators) {
         body = GeneratorTransformer.transformGeneratorBody(this.reporter_,
                                                            body);
       }
-    } else if (options.deferredFunctions) {
+    } else if (transformOptions.deferredFunctions) {
       body = AsyncTransformer.transformAsyncBody(this.reporter_, body);
     }
     return body;

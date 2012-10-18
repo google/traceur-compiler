@@ -39,7 +39,7 @@ import {
   createObject,
   evaluateStringLiteral
 } from '../util/util.js';
-import {options: traceurOptions} from '../options.js';
+import transformOptions from '../options.js';
 import trees from '../syntax/trees/ParseTrees.js';
 
 var FormalParameterList = trees.FormalParameterList;
@@ -47,11 +47,9 @@ var FunctionDeclaration = trees.FunctionDeclaration;
 var IdentifierExpression = trees.IdentifierExpression;
 var LiteralExpression = trees.LiteralExpression;
 
-var options = traceurOptions.transform;
-
 function findAtNameInProperty(propertyName) {
   return function(tree) {
-    if (options.privateNameSyntax &&
+    if (transformOptions.privateNameSyntax &&
         tree[propertyName].type === TokenType.AT_NAME) {
       this.found = true;
     }
@@ -68,10 +66,12 @@ function AtNameFinder(tree) {
 }
 AtNameFinder.prototype = createObject(FindVisitor.prototype, {
   visitPropertyNameAssignment: function(tree) {
-    if (options.privateNameSyntax && tree.name.type === TokenType.AT_NAME)
+    if (transformOptions.privateNameSyntax &&
+        tree.name.type === TokenType.AT_NAME) {
       this.found = true;
-    else if (getPropertyNameForToken(tree.name) === '__proto__')
+    } else if (getPropertyNameForToken(tree.name) === '__proto__') {
       this.protoExpression = tree.value;
+    }
   },
   // TODO(arv): Rename propertyName to name.
   // https://code.google.com/p/traceur-compiler/issues/detail?id=153

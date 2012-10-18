@@ -22,7 +22,7 @@ import Scanner from 'Scanner.js';
 import SourceRange from '../util/SourceRange.js';
 import Token from 'Token.js';
 import TokenType from 'TokenType.js';
-import {options: traceurOptions} from '../options.js';
+import {parseOptions: options} from '../options.js';
 import trees from 'trees/ParseTrees.js';
 
 var ArgumentList = trees.ArgumentList;
@@ -114,8 +114,6 @@ var VariableStatement = trees.VariableStatement;
 var WhileStatement = trees.WhileStatement;
 var WithStatement = trees.WithStatement;
 var YieldStatement = trees.YieldStatement;
-
-var options = traceurOptions.parse;
 
 /**
  * Parses a javascript file.

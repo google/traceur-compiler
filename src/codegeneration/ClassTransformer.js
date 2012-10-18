@@ -37,6 +37,7 @@ import {
   createVariableStatement
 } from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
+import transformOptions from '../options.js';
 import trees from '../syntax/trees/ParseTrees.js';
 
 var FormalParameterList = trees.FormalParameterList;
@@ -46,7 +47,6 @@ var PropertyMethodAssignment = trees.PropertyMethodAssignment;
 var PropertyNameAssignment = trees.PropertyNameAssignment;
 var SetAccessor = trees.SetAccessor;
 var SuperExpression = trees.SuperExpression;
-
 
 // The state keeps track of the current class tree and class name.
 var stack = [];
@@ -175,7 +175,7 @@ ClassTransformer.prototype = createObject(proto, {
   transformClassDeclaration: function(tree) {
     // let <className> = traceur.runtime.createClass(proto, superClass)
     return createVariableStatement(
-        TokenType.LET,
+        transformOptions.blockBinding ? TokenType.LET : TokenType.VAR,
         tree.name,
         this.transformClassShared_(tree, tree.name.identifierToken)[0]);
   },

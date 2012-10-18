@@ -16,36 +16,37 @@
  * Builds strings by appending them.
  * @constructor
  */
-export function StringBuilder() {
-  this.strings_ = [];
-  this.length = 0;
-}
+export class StringBuilder {
 
-StringBuilder.prototype = {
-  append: function(str) {
+  constructor() {
+    this.strings_ = [];
+    this.length = 0;
+  }
+
+  append(str) {
     str = str.toString();
     this.length += str.length;
     this.strings_.push(str);
     return this;
-  },
+  }
 
-  toString: function() {
+  toString() {
     return this.strings_.join('');
-  },
+  }
 
   // Instead of supporting charAt and deleteCharAt, implement lastChar and
   // deleteLastChar. These can be implemented in constant time with no
   // additional data structures
 
-  lastChar: function() {
+  lastChar() {
     var last = this.strings_[this.strings_.length - 1];
     if (last) {
       last = last[last.length - 1];
     }
     return last;
-  },
+  }
 
-  deleteLastChar: function() {
+  deleteLastChar() {
     var lastString = this.strings_.length - 1;
     var last = this.strings_[lastString];
     if (last) {

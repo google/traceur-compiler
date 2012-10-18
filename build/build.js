@@ -62,6 +62,8 @@ traceur.options.modules = true;
 traceur.options.destructuring = true;
 traceur.options.quasi = true;
 traceur.options.spread = true;
+traceur.options.classes = true;
+traceur.options.propertyMethods = true;  // needed for classes
 
 var reporter = new ErrorReporter();
 

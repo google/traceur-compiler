@@ -35,12 +35,10 @@ import PropertyNameShorthandTransformer from 'PropertyNameShorthandTransformer.j
 import QuasiLiteralTransformer from 'QuasiLiteralTransformer.js';
 import RestParameterTransformer from 'RestParameterTransformer.js';
 import SpreadTransformer from 'SpreadTransformer.js';
-import {options: traceurOptions} from '../options.js';
+import {options, transformOptions} from '../options.js';
 import trees from '../syntax/trees/ParseTrees.js';
 
 var ProgramTree = trees.ProgramTree;
-
-var options = traceurOptions.transform;
 
 /**
  * Transforms a Traceur file's ParseTree to a JS ParseTree.
@@ -147,7 +145,7 @@ ProgramTransformer.prototype = {
         return;
 
       if (!reporter.hadError()) {
-        if (traceurOptions.validate) {
+        if (options.validate) {
           ParseTreeValidator.validate(tree);
         }
         var args = Array.prototype.slice.call(arguments, 2);
@@ -156,8 +154,8 @@ ProgramTransformer.prototype = {
       }
     }
 
-    if (options.modules && !reporter.hadError()) {
-      if (traceurOptions.validate) {
+    if (transformOptions.modules && !reporter.hadError()) {
+      if (options.validate) {
         ParseTreeValidator.validate(tree);
       }
       tree = this.transformModules_(tree, opt_module);
@@ -166,79 +164,79 @@ ProgramTransformer.prototype = {
     // TODO: many of these simple, local transforms could happen in the same
     // tree pass
 
-    chain(options.quasi, QuasiLiteralTransformer.transformTree,
+    chain(transformOptions.quasi, QuasiLiteralTransformer.transformTree,
           identifierGenerator);
-    chain(options.arrowFunctions,
+    chain(transformOptions.arrowFunctions,
           ArrowFunctionTransformer.transformTree, reporter);
 
     // ClassTransformer needs to come before ObjectLiteralTransformer.
-    chain(options.classes, ClassTransformer.transform, identifierGenerator,
+    chain(transformOptions.classes, ClassTransformer.transform, identifierGenerator,
           reporter);
 
-    chain(options.propertyNameShorthand,
+    chain(transformOptions.propertyNameShorthand,
           PropertyNameShorthandTransformer.transformTree);
-    chain(options.propertyMethods ||
-              options.privateNameSyntax && options.privateNames,
+    chain(transformOptions.propertyMethods ||
+              transformOptions.privateNameSyntax && transformOptions.privateNames,
           ObjectLiteralTransformer.transformTree, identifierGenerator);
 
-    chain(options.isExpression, IsExpressionTransformer.transformTree);
+    chain(transformOptions.isExpression, IsExpressionTransformer.transformTree);
 
     // Generator/ArrayComprehensionTransformer must come before for-of and
     // destructuring.
-    chain(options.generatorComprehension,
+    chain(transformOptions.generatorComprehension,
           GeneratorComprehensionTransformer.transformTree,
           identifierGenerator);
-    chain(options.arrayComprehension,
+    chain(transformOptions.arrayComprehension,
           ArrayComprehensionTransformer.transformTree,
           identifierGenerator);
 
     // for of must come before destructuring and generator, or anything
     // that wants to use VariableBinder
-    chain(options.forOf, ForOfTransformer.transformTree, identifierGenerator);
+    chain(transformOptions.forOf, ForOfTransformer.transformTree, identifierGenerator);
 
     // rest parameters must come before generator
-    chain(options.restParameters, RestParameterTransformer.transformTree);
+    chain(transformOptions.restParameters, RestParameterTransformer.transformTree);
 
     // default parameters should come after rest parameter to get the
     // expected order in the transformed code.
-    chain(options.defaultParameters,
+    chain(transformOptions.defaultParameters,
           DefaultParametersTransformer.transformTree);
 
     // generator must come after for of and rest parameters
-    chain(options.generators || options.deferredFunctions,
+    chain(transformOptions.generators || transformOptions.deferredFunctions,
           GeneratorTransformPass.transformTree,
           identifierGenerator,
           reporter);
 
-    chain(options.privateNames && options.privateNameSyntax,
+    chain(transformOptions.privateNames && transformOptions.privateNameSyntax,
           AtNameMemberTransformer.transformTree,
           identifierGenerator);
 
-    chain(options.privateNames && options.privateNameSyntax,
+    chain(transformOptions.privateNames && transformOptions.privateNameSyntax,
           PrivateNameSyntaxTransformer.transformTree,
           identifierGenerator);
 
     // destructuring must come after for of and before block binding
-    chain(options.destructuring,
+    chain(transformOptions.destructuring,
           DestructuringTransformer.transformTree, identifierGenerator);
-    chain(options.spread, SpreadTransformer.transformTree, runtimeInliner);
+    chain(transformOptions.spread, SpreadTransformer.transformTree, runtimeInliner);
 
     chain(true, runtimeInliner.transformAny.bind(runtimeInliner));
 
-    chain(options.blockBinding, BlockBindingTransformer.transformTree);
+    chain(transformOptions.blockBinding, BlockBindingTransformer.transformTree);
 
     // Cascade must come before CollectionTransformer.
-    chain(options.cascadeExpression,
+    chain(transformOptions.cascadeExpression,
           CascadeExpressionTransformer.transformTree,
           identifierGenerator,
           reporter);
 
-    chain(options.trapMemberLookup || options.privateNames,
+    chain(transformOptions.trapMemberLookup || transformOptions.privateNames,
           CollectionTransformer.transformTree,
           identifierGenerator);
 
     // Issue errors for any unbound variables
-    chain(traceurOptions.freeVariableChecker,
+    chain(options.freeVariableChecker,
           FreeVariableChecker.checkProgram, reporter);
 
     return tree;

@@ -73,14 +73,14 @@ function getValue(kind) {
   return value;
 }
 
-var parseOptions = Object.create(null);
-var transformOptions = Object.create(null);
+export var parseOptions = Object.create(null);
+export var transformOptions = Object.create(null);
 var defaultValues = Object.create(null);
 
 /**
  * The options object.
  */
-var options = {
+export var options = {
   /**
    * Meta option. Sets all options that are of Kind.es6
    * When getting this will return null if not all options of this kind
@@ -301,5 +301,3 @@ addBoolOption('debug');
 addBoolOption('sourceMaps');
 addBoolOption('freeVariableChecker');
 addBoolOption('validate');
-
-export options;
