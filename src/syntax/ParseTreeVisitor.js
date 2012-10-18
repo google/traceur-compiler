@@ -25,703 +25,701 @@ import {
  * processing for specific ParseTree types. An override of a visit(XTree)
  * method is responsible for visiting its children.
  */
-export function ParseTreeVisitor() {
-}
+export class ParseTreeVisitor {
 
-ParseTreeVisitor.prototype = {
   /**
    * @param {ParseTree} tree
    */
-  visitAny: function(tree) {
+  visitAny(tree) {
     if (tree === null) {
       return;
     }
 
     var name = getTreeNameForType(tree.type);
     this['visit' + name](tree);
-  },
+  }
 
   /**
    * @param {ParseTree} tree
    */
-  visit: function(tree) {
+  visit(tree) {
     this.visitAny(tree);
-  },
+  }
 
   /**
    * @param {Array} list
    */
-  visitList: function(list) {
+  visitList(list) {
     for (var i = 0; i < list.length; i++) {
       this.visitAny(list[i]);
     }
-  },
+  }
 
   /**
    * @param {ArgumentList} tree
    */
-  visitArgumentList: function(tree) {
+  visitArgumentList(tree) {
     this.visitList(tree.args);
-  },
+  }
 
   /**
    * @param {ArrayComprehension} tree
    */
-  visitArrayComprehension: function(tree) {
+  visitArrayComprehension(tree) {
     this.visitAny(tree.expression);
     this.visitList(tree.comprehensionForList);
     this.visitAny(tree.ifExpression);
-  },
+  }
 
   /**
    * @param {ArrayLiteralExpression} tree
    */
-  visitArrayLiteralExpression: function(tree) {
+  visitArrayLiteralExpression(tree) {
     this.visitList(tree.elements);
-  },
+  }
 
   /**
    * @param {ArrayPattern} tree
    */
-  visitArrayPattern: function(tree) {
+  visitArrayPattern(tree) {
     this.visitList(tree.elements);
-  },
+  }
 
   /**
    * @param {ArrowFunctionExpression} tree
    */
-  visitArrowFunctionExpression: function(tree) {
+  visitArrowFunctionExpression(tree) {
     this.visitAny(tree.formalParameters);
     this.visitAny(tree.functionBody);
-  },
+  }
 
   /**
    * @param {AtNameExpression} tree
    */
-  visitAtNameExpression: function(tree) {
-  },
+  visitAtNameExpression(tree) {
+  }
 
   /**
    * @param {AtNameDeclaration} tree
    */
-  visitAtNameDeclaration: function(tree) {
+  visitAtNameDeclaration(tree) {
     this.visitAny(tree.initializer);
-  },
+  }
 
   /**
    * @param {AwaitStatement} tree
    */
-  visitAwaitStatement: function(tree) {
+  visitAwaitStatement(tree) {
     this.visitAny(tree.expression);
-  },
+  }
 
   /**
    * @param {BinaryOperator} tree
    */
-  visitBinaryOperator: function(tree) {
+  visitBinaryOperator(tree) {
     this.visitAny(tree.left);
     this.visitAny(tree.right);
-  },
+  }
 
   /**
    * @param {BindThisParameter} tree
    */
-  visitBindThisParameter: function(tree) {
+  visitBindThisParameter(tree) {
     this.visitAny(tree.expression);
-  },
+  }
 
   /**
    * @param {BindingElement} tree
    */
-  visitBindingElement: function(tree) {
+  visitBindingElement(tree) {
     this.visitAny(tree.binding);
     this.visitAny(tree.initializer);
-  },
+  }
 
   /**
    * @param {BindingIdentifier} tree
    */
-  visitBindingIdentifier: function(tree) {
+  visitBindingIdentifier(tree) {
     // noop
-  },
+  }
 
   /**
    * @param {Block} tree
    */
-  visitBlock: function(tree) {
+  visitBlock(tree) {
     this.visitList(tree.statements);
-  },
+  }
 
   /**
    * @param {BreakStatement} tree
    */
-  visitBreakStatement: function(tree) {
-  },
+  visitBreakStatement(tree) {
+  }
 
   /**
    * @param {CallExpression} tree
    */
-  visitCallExpression: function(tree) {
+  visitCallExpression(tree) {
     this.visitAny(tree.operand);
     this.visitAny(tree.args);
-  },
+  }
 
   /**
    * @param {CaseClause} tree
    */
-  visitCaseClause: function(tree) {
+  visitCaseClause(tree) {
     this.visitAny(tree.expression);
     this.visitList(tree.statements);
-  },
+  }
 
   /**
    * @param {Catch} tree
    */
-  visitCatch: function(tree) {
+  visitCatch(tree) {
     this.visitAny(tree.binding);
     this.visitAny(tree.catchBody);
-  },
+  }
 
   /**
    * @param {CascadeExpression} tree
    */
-  visitCascadeExpression: function(tree) {
+  visitCascadeExpression(tree) {
     this.visitAny(tree.operand);
     this.visitList(tree.expressions);
-  },
+  }
 
   /**
    * @param {ClassDeclaration} tree
    */
-  visitClassDeclaration: function(tree) {
+  visitClassDeclaration(tree) {
     this.visitAny(tree.superClass);
     this.visitList(tree.elements);
-  },
+  }
 
   /**
    * @param {ClassExpression} tree
    */
-  visitClassExpression: function(tree) {
-  },
+  visitClassExpression(tree) {
+  }
 
   /**
    * @param {CommaExpression} tree
    */
-  visitCommaExpression: function(tree) {
+  visitCommaExpression(tree) {
     this.visitList(tree.expressions);
-  },
+  }
 
   /**
    * @param {ComprehensionFor} tree
    */
-  visitComprehensionFor: function(tree) {
+  visitComprehensionFor(tree) {
     this.visitAny(tree.left);
     this.visitAny(tree.iterator);
-  },
+  }
 
   /**
    * @param {ConditionalExpression} tree
    */
-  visitConditionalExpression: function(tree) {
+  visitConditionalExpression(tree) {
     this.visitAny(tree.condition);
     this.visitAny(tree.left);
     this.visitAny(tree.right);
-  },
+  }
 
   /**
    * @param {ContinueStatement} tree
    */
-  visitContinueStatement: function(tree) {
-  },
+  visitContinueStatement(tree) {
+  }
 
   /**
    * @param {DebuggerStatement} tree
    */
-  visitDebuggerStatement: function(tree) {
-  },
+  visitDebuggerStatement(tree) {
+  }
 
   /**
    * @param {DefaultClause} tree
    */
-  visitDefaultClause: function(tree) {
+  visitDefaultClause(tree) {
     this.visitList(tree.statements);
-  },
+  }
 
   /**
    * @param {DoWhileStatement} tree
    */
-  visitDoWhileStatement: function(tree) {
+  visitDoWhileStatement(tree) {
     this.visitAny(tree.body);
     this.visitAny(tree.condition);
-  },
+  }
 
   /**
    * @param {EmptyStatement} tree
    */
-  visitEmptyStatement: function(tree) {
-  },
+  visitEmptyStatement(tree) {
+  }
 
   /**
    * @param {ExportDeclaration} tree
    */
-  visitExportDeclaration: function(tree) {
+  visitExportDeclaration(tree) {
     this.visitAny(tree.declaration);
-  },
+  }
 
   /**
    * @param {ExportMapping} tree
    */
-  visitExportMapping: function(tree) {
+  visitExportMapping(tree) {
     this.visitAny(tree.moduleExpression);
     this.visitAny(tree.specifierSet);
-  },
+  }
 
   /**
    * @param {ExportMappingList} tree
    */
-  visitExportMappingList: function(tree) {
+  visitExportMappingList(tree) {
     this.visitList(tree.paths);
-  },
+  }
 
   /**
    * @param {ExportSpecifier} tree
    */
-  visitExportSpecifier: function(tree) {
+  visitExportSpecifier(tree) {
 
-  },
+  }
 
   /**
    * @param {ExportSpecifierSet} tree
    */
-  visitExportSpecifierSet: function(tree) {
+  visitExportSpecifierSet(tree) {
     this.visitList(tree.specifiers);
-  },
+  }
 
   /**
    * @param {ExpressionStatement} tree
    */
-  visitExpressionStatement: function(tree) {
+  visitExpressionStatement(tree) {
     this.visitAny(tree.expression);
-  },
+  }
 
   /**
    * @param {Finally} tree
    */
-  visitFinally: function(tree) {
+  visitFinally(tree) {
     this.visitAny(tree.block);
-  },
+  }
 
   /**
    * @param {ForOfStatement} tree
    */
-  visitForOfStatement: function(tree) {
+  visitForOfStatement(tree) {
     this.visitAny(tree.initializer);
     this.visitAny(tree.collection);
     this.visitAny(tree.body);
-  },
+  }
 
   /**
    * @param {ForInStatement} tree
    */
-  visitForInStatement: function(tree) {
+  visitForInStatement(tree) {
     this.visitAny(tree.initializer);
     this.visitAny(tree.collection);
     this.visitAny(tree.body);
-  },
+  }
 
   /**
    * @param {ForStatement} tree
    */
-  visitForStatement: function(tree) {
+  visitForStatement(tree) {
     this.visitAny(tree.initializer);
     this.visitAny(tree.condition);
     this.visitAny(tree.increment);
     this.visitAny(tree.body);
-  },
+  }
 
   /**
    * @param {FormalParameterList} tree
    */
-  visitFormalParameterList: function(tree) {
+  visitFormalParameterList(tree) {
     this.visitList(tree.parameters);
-  },
+  }
 
   /**
    * @param {FunctionDeclaration} tree
    */
-  visitFunctionDeclaration: function(tree) {
+  visitFunctionDeclaration(tree) {
     this.visitAny(tree.name);
     this.visitAny(tree.formalParameterList);
     this.visitAny(tree.functionBody);
-  },
+  }
 
   /**
    * @param {GeneratorComprehension} tree
    */
-  visitGeneratorComprehension: function(tree) {
+  visitGeneratorComprehension(tree) {
     this.visitAny(tree.expression);
     this.visitList(tree.comprehensionForList);
     this.visitAny(tree.ifExpression);
-  },
+  }
 
   /**
    * @param {GetAccessor} tree
    */
-  visitGetAccessor: function(tree) {
+  visitGetAccessor(tree) {
     this.visitAny(tree.body);
-  },
+  }
 
   /**
    * @param {IdentifierExpression} tree
    */
-  visitIdentifierExpression: function(tree) {
-  },
+  visitIdentifierExpression(tree) {
+  }
 
   /**
    * @param {IfStatement} tree
    */
-  visitIfStatement: function(tree) {
+  visitIfStatement(tree) {
     this.visitAny(tree.condition);
     this.visitAny(tree.ifClause);
     this.visitAny(tree.elseClause);
-  },
+  }
 
   /**
    * @param {ImportDeclaration} tree
    */
-  visitImportDeclaration: function(tree) {
+  visitImportDeclaration(tree) {
     this.visitList(tree.importPathList);
-  },
+  }
 
   /**
    * @param {ImportBinding} tree
    */
-  visitImportBinding: function(tree) {
+  visitImportBinding(tree) {
     if (tree.importSpecifierSet !== null) {
       this.visitList(tree.importSpecifierSet);
     }
     this.visitAny(tree.moduleExpression);
-  },
+  }
 
   /**
    * @param {ImportSpecifier} tree
    */
-  visitImportSpecifier: function(tree) {
-  },
+  visitImportSpecifier(tree) {
+  }
 
   /**
    * @param {ImportSpecifierSet} tree
    */
-  visitImportSpecifierSet: function(tree) {
+  visitImportSpecifierSet(tree) {
     this.visitList(tree.specifiers);
-  },
+  }
 
   /**
    * @param {LabelledStatement} tree
    */
-  visitLabelledStatement: function(tree) {
+  visitLabelledStatement(tree) {
     this.visitAny(tree.statement);
-  },
+  }
 
   /**
    * @param {LiteralExpression} tree
    */
-  visitLiteralExpression: function(tree) {
-  },
+  visitLiteralExpression(tree) {
+  }
 
   /**
    * @param {MemberExpression} tree
    */
-  visitMemberExpression: function(tree) {
+  visitMemberExpression(tree) {
     this.visitAny(tree.operand);
-  },
+  }
 
   /**
    * @param {MemberLookupExpression} tree
    */
-  visitMemberLookupExpression: function(tree) {
+  visitMemberLookupExpression(tree) {
     this.visitAny(tree.operand);
     this.visitAny(tree.memberExpression);
-  },
+  }
 
   /**
    * @param {MissingPrimaryExpression} tree
    */
-  visitMissingPrimaryExpression: function(tree) {
-  },
+  visitMissingPrimaryExpression(tree) {
+  }
 
   /**
    * @param {ModuleDeclaration} tree
    */
-  visitModuleDeclaration: function(tree) {
+  visitModuleDeclaration(tree) {
     this.visitList(tree.specifiers);
-  },
+  }
 
   /**
    * @param {ModuleDefinition} tree
    */
-  visitModuleDefinition: function(tree) {
+  visitModuleDefinition(tree) {
     this.visitList(tree.elements);
-  },
+  }
 
   /**
    * @param {ModuleExpression} tree
    */
-  visitModuleExpression: function(tree) {
+  visitModuleExpression(tree) {
     this.visitAny(tree.reference);
-  },
+  }
 
   /**
    * @param {ModuleRequire} tree
    */
-  visitModuleRequire: function(tree) {
-  },
+  visitModuleRequire(tree) {
+  }
 
   /**
    * @param {ModuleSpecifier} tree
    */
-  visitModuleSpecifier: function(tree) {
+  visitModuleSpecifier(tree) {
     this.visitAny(tree.expression);
-  },
+  }
 
   /**
    * @param {NewExpression} tree
    */
-  visitNewExpression: function(tree) {
+  visitNewExpression(tree) {
     this.visitAny(tree.operand);
     this.visitAny(tree.args);
-  },
+  }
 
   /**
    * @param {NameStatement} tree
    */
-  visitNameStatement: function(tree) {
+  visitNameStatement(tree) {
     this.visitList(tree.declarations);
-  },
+  }
 
   /**
    * @param {NullTree} tree
    */
-  visitNullTree: function(tree) {
-  },
+  visitNullTree(tree) {
+  }
 
   /**
    * @param {ObjectLiteralExpression} tree
    */
-  visitObjectLiteralExpression: function(tree) {
+  visitObjectLiteralExpression(tree) {
     this.visitList(tree.propertyNameAndValues);
-  },
+  }
 
   /**
    * @param {ObjectPattern} tree
    */
-  visitObjectPattern: function(tree) {
+  visitObjectPattern(tree) {
     this.visitList(tree.fields);
-  },
+  }
 
   /**
    * @param {ObjectPatternField} tree
    */
-  visitObjectPatternField: function(tree) {
+  visitObjectPatternField(tree) {
     this.visitAny(tree.element);
-  },
+  }
 
   /**
    * @param {ParenExpression} tree
    */
-  visitParenExpression: function(tree) {
+  visitParenExpression(tree) {
     this.visitAny(tree.expression);
-  },
+  }
 
   /**
    * @param {PostfixExpression} tree
    */
-  visitPostfixExpression: function(tree) {
+  visitPostfixExpression(tree) {
     this.visitAny(tree.operand);
-  },
+  }
 
   /**
    * @param {Program} tree
    */
-  visitProgram: function(tree) {
+  visitProgram(tree) {
     this.visitList(tree.programElements);
-  },
+  }
 
   /**
    * @param {PropertyMethodAssignment} tree
    */
-  visitPropertyMethodAssignment: function(tree) {
+  visitPropertyMethodAssignment(tree) {
     this.visitAny(tree.formalParameterList);
     this.visitAny(tree.functionBody);
-  },
+  }
 
   /**
    * @param {PropertyNameAssignment} tree
    */
-  visitPropertyNameAssignment: function(tree) {
+  visitPropertyNameAssignment(tree) {
     this.visitAny(tree.value);
-  },
+  }
 
   /**
    * @param {PropertyNameShorthand} tree
    */
-  visitPropertyNameShorthand: function(tree) {
-  },
+  visitPropertyNameShorthand(tree) {
+  }
 
   /**
    * @param {QuasiLiteralExpression} tree
    */
-  visitQuasiLiteralExpression: function(tree) {
+  visitQuasiLiteralExpression(tree) {
     this.visitAny(tree.operand);
     this.visitList(tree.elements);
-  },
+  }
 
   /**
    * @param {QuasiLiteralPortion} tree
    */
-  visitQuasiLiteralPortion: function(tree) {
-  },
+  visitQuasiLiteralPortion(tree) {
+  }
 
   /**
    * @param {QuasiSubstitution} tree
    */
-  visitQuasiSubstitution: function(tree) {
+  visitQuasiSubstitution(tree) {
     this.visitAny(tree.expression);
-  },
+  }
 
   /**
    * @param {RequiresMember} tree
    */
-  visitRequiresMember: function(tree) {
-  },
+  visitRequiresMember(tree) {
+  }
 
   /**
    * @param {RestParameter} tree
    */
-  visitRestParameter: function(tree) {
-  },
+  visitRestParameter(tree) {
+  }
 
   /**
    * @param {ReturnStatement} tree
    */
-  visitReturnStatement: function(tree) {
+  visitReturnStatement(tree) {
     this.visitAny(tree.expression);
-  },
+  }
 
   /**
    * @param {SetAccessor} tree
    */
-  visitSetAccessor: function(tree) {
+  visitSetAccessor(tree) {
     this.visitAny(tree.body);
-  },
+  }
 
   /**
    * @param {SpreadExpression} tree
    */
-  visitSpreadExpression: function(tree) {
+  visitSpreadExpression(tree) {
     this.visitAny(tree.expression);
-  },
+  }
 
   /**
    * @param {SpreadPatternElement} tree
    */
-  visitSpreadPatternElement: function(tree) {
+  visitSpreadPatternElement(tree) {
     this.visitAny(tree.lvalue);
-  },
+  }
 
   /**
    * @param {StateMachine} tree
    */
-  visitStateMachine: function(tree) {
+  visitStateMachine(tree) {
     throw Error('State machines should not live outside of the' +
         ' GeneratorTransformer.');
-  },
+  }
 
   /**
    * @param {SuperExpression} tree
    */
-  visitSuperExpression: function(tree) {
-  },
+  visitSuperExpression(tree) {
+  }
 
   /**
    * @param {SwitchStatement} tree
    */
-  visitSwitchStatement: function(tree) {
+  visitSwitchStatement(tree) {
     this.visitAny(tree.expression);
     this.visitList(tree.caseClauses);
-  },
+  }
 
   /**
    * @param {ThisExpression} tree
    */
-  visitThisExpression: function(tree) {
-  },
+  visitThisExpression(tree) {
+  }
 
   /**
    * @param {ThrowStatement} tree
    */
-  visitThrowStatement: function(tree) {
+  visitThrowStatement(tree) {
     this.visitAny(tree.value);
-  },
+  }
 
   /**
    * @param {TryStatement} tree
    */
-  visitTryStatement: function(tree) {
+  visitTryStatement(tree) {
     this.visitAny(tree.body);
     this.visitAny(tree.catchBlock);
     this.visitAny(tree.finallyBlock);
-  },
+  }
 
   /**
    * @param {UnaryExpression} tree
    */
-  visitUnaryExpression: function(tree) {
+  visitUnaryExpression(tree) {
     this.visitAny(tree.operand);
-  },
+  }
 
   /**
    * @param {VariableDeclaration} tree
    */
-  visitVariableDeclaration: function(tree) {
+  visitVariableDeclaration(tree) {
     this.visitAny(tree.lvalue);
     this.visitAny(tree.initializer);
-  },
+  }
 
   /**
    * @param {VariableDeclarationList} tree
    */
-  visitVariableDeclarationList: function(tree) {
+  visitVariableDeclarationList(tree) {
     this.visitList(tree.declarations);
-  },
+  }
 
   /**
    * @param {VariableStatement} tree
    */
-  visitVariableStatement: function(tree) {
+  visitVariableStatement(tree) {
     this.visitAny(tree.declarations);
-  },
+  }
 
   /**
    * @param {WhileStatement} tree
    */
-  visitWhileStatement: function(tree) {
+  visitWhileStatement(tree) {
     this.visitAny(tree.condition);
     this.visitAny(tree.body);
-  },
+  }
 
   /**
    * @param {WithStatement} tree
    */
-  visitWithStatement: function(tree) {
+  visitWithStatement(tree) {
     this.visitAny(tree.expression);
     this.visitAny(tree.body);
-  },
+  }
 
   /**
    * @param {YieldStatement} tree
    */
-  visitYieldStatement: function(tree) {
+  visitYieldStatement(tree) {
     this.visitAny(tree.expression);
   }
-};
+}

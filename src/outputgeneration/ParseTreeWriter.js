@@ -19,43 +19,42 @@ import StringBuilder from '../util/StringBuilder.js';
 import TokenType from '../syntax/TokenType.js';
 import createObject from '../util/util.js';
 
-/**
- * Converts a ParseTree to text.
- * @param {ParseTree} highlighted
- * @param {boolean} showLineNumbers
- * @constructor
- */
-export function ParseTreeWriter(highlighted, showLineNumbers) {
-  ParseTreeVisitor.call(this);
-  this.highlighted_ = highlighted;
-  this.showLineNumbers_ = showLineNumbers;
-  this.result_ = new StringBuilder();
-  this.currentLine_ = new StringBuilder();
-}
-
 // constants
 var NEW_LINE = '\n';
 var PRETTY_PRINT = true;
 
-ParseTreeWriter.prototype = createObject(
-    ParseTreeVisitor.prototype, {
-
+/**
+ * Converts a ParseTree to text.
+ */
+export class ParseTreeWriter extends ParseTreeVisitor {
   /**
-   * @type {string}
-   * @private
+   * @param {ParseTree} highlighted
+   * @param {boolean} showLineNumbers
    */
-  currentLineComment_: null,
+  constructor(highlighted, showLineNumbers) {
+    super();
+    this.highlighted_ = highlighted;
+    this.showLineNumbers_ = showLineNumbers;
+    this.result_ = new StringBuilder();
+    this.currentLine_ = new StringBuilder();
 
-  /**
-   * @type {number}
-   * @private
-   */
-  indentDepth_: 0,
+    /**
+     * @type {string}
+     * @private
+     */
+    this.currentLineComment_ = null;
+
+    /**
+     * @type {number}
+     * @private
+     */
+    this.indentDepth_ = 0;
+  }
 
   /**
    * @param {ParseTree} tree
    */
-  visitAny: function(tree) {
+  visitAny(tree) {
     if (!tree) {
       return;
     }
@@ -74,24 +73,24 @@ ParseTreeWriter.prototype = createObject(
 
     this.currentLocation = tree.location;
 
-    ParseTreeVisitor.prototype.visitAny.call(this, tree);
+    super.visitAny(tree);
 
     // set background color to normal
     if (tree === this.highlighted_) {
       this.write_('\x1B[0m');
     }
-  },
+  }
 
   /**
    * @param {ArgumentList} tree
    */
-  visitArgumentList: function(tree) {
+  visitArgumentList(tree) {
     this.write_(TokenType.OPEN_PAREN);
     this.writeList_(tree.args, TokenType.COMMA, false);
     this.write_(TokenType.CLOSE_PAREN);
-  },
+  }
 
-  visitArrayComprehension: function(tree) {
+  visitArrayComprehension(tree) {
     this.write_(TokenType.OPEN_SQUARE);
     this.visitAny(tree.expression);
     this.visitList(tree.comprehensionForList);
@@ -100,59 +99,59 @@ ParseTreeWriter.prototype = createObject(
       this.visitAny(tree.ifExpression);
     }
     this.write_(TokenType.CLOSE_SQUARE);
-  },
+  }
 
   /**
    * @param {ArrayLiteralExpression} tree
    */
-  visitArrayLiteralExpression: function(tree) {
+  visitArrayLiteralExpression(tree) {
     this.write_(TokenType.OPEN_SQUARE);
     this.writeList_(tree.elements, TokenType.COMMA, false);
     this.write_(TokenType.CLOSE_SQUARE);
-  },
+  }
 
   /**
    * @param {ArrayPattern} tree
    */
-  visitArrayPattern: function(tree) {
+  visitArrayPattern(tree) {
     this.write_(TokenType.OPEN_SQUARE);
     this.writeList_(tree.elements, TokenType.COMMA, false);
     this.write_(TokenType.CLOSE_SQUARE);
-  },
+  }
 
   /**
    * @param {ArrowFunctionExpression} tree
    */
-  visitArrowFunctionExpression: function(tree) {
+  visitArrowFunctionExpression(tree) {
     this.write_(TokenType.OPEN_PAREN);
     this.visitAny(tree.formalParameters);
     this.write_(TokenType.CLOSE_PAREN);
     this.write_(TokenType.ARROW);
     this.visitAny(tree.functionBody);
-  },
+  }
 
   /**
    * @param {AtNameExpression} tree
    */
-  visitAtNameExpression: function(tree) {
+  visitAtNameExpression(tree) {
     this.write_(tree.atNameToken);
-  },
+  }
 
   /**
    * @param {AtNameDeclaration} tree
    */
-  visitAtNameDeclaration: function(tree) {
+  visitAtNameDeclaration(tree) {
     this.write_(tree.atNameToken);
     if (tree.initializer) {
       this.write_(TokenType.EQUAL);
       this.visitAny(tree.initializer);
     }
-  },
+  }
 
   /**
    * @param {AwaitStatement} tree
    */
-  visitAwaitStatement: function(tree) {
+  visitAwaitStatement(tree) {
     this.write_(TokenType.AWAIT);
     if (tree.identifier !== null) {
       this.write_(tree.identifier);
@@ -160,106 +159,106 @@ ParseTreeWriter.prototype = createObject(
     }
     this.visitAny(tree.expression);
     this.write_(TokenType.SEMI_COLON);
-  },
+  }
 
   /**
    * @param {BinaryOperator} tree
    */
-  visitBinaryOperator: function(tree) {
+  visitBinaryOperator(tree) {
     this.visitAny(tree.left);
     this.write_(tree.operator);
     this.visitAny(tree.right);
-  },
+  }
 
   /**
    * @param {BindThisParameter} tree
    */
-  visitBindThisParameter: function(tree) {
+  visitBindThisParameter(tree) {
     this.write_(TokenType.THIS);
     this.write_(TokenType.EQUAL);
     this.visitAny(tree.expression);
-  },
+  }
 
   /**
    * @param {BindingElement} tree
    */
-  visitBindingElement: function(tree) {
+  visitBindingElement(tree) {
     this.visitAny(tree.binding);
     if (tree.initializer) {
       this.write_(TokenType.EQUAL);
       this.visitAny(tree.initializer);
     }
-  },
+  }
 
   /**
    * @param {BindingIdentifier} tree
    */
-  visitBindingIdentifier: function(tree) {
+  visitBindingIdentifier(tree) {
     this.write_(tree.identifierToken);
-  },
+  }
 
   /**
    * @param {Block} tree
    */
-  visitBlock: function(tree) {
+  visitBlock(tree) {
     this.write_(TokenType.OPEN_CURLY);
     this.writelnList_(tree.statements);
     this.write_(TokenType.CLOSE_CURLY);
-  },
+  }
 
   /**
    * @param {BreakStatement} tree
    */
-  visitBreakStatement: function(tree) {
+  visitBreakStatement(tree) {
     this.write_(TokenType.BREAK);
     if (tree.name !== null) {
       this.write_(tree.name);
     }
     this.write_(TokenType.SEMI_COLON);
-  },
+  }
 
   /**
    * @param {CallExpression} tree
    */
-  visitCallExpression: function(tree) {
+  visitCallExpression(tree) {
     this.visitAny(tree.operand);
     this.visitAny(tree.args);
-  },
+  }
 
   /**
    * @param {CaseClause} tree
    */
-  visitCaseClause: function(tree) {
+  visitCaseClause(tree) {
     this.write_(TokenType.CASE);
     this.visitAny(tree.expression);
     this.write_(TokenType.COLON);
     this.indentDepth_++;
     this.writelnList_(tree.statements);
     this.indentDepth_--;
-  },
+  }
 
   /**
    * @param {Catch} tree
    */
-  visitCatch: function(tree) {
+  visitCatch(tree) {
     this.write_(TokenType.CATCH);
     this.write_(TokenType.OPEN_PAREN);
     this.visitAny(tree.binding);
     this.write_(TokenType.CLOSE_PAREN);
     this.visitAny(tree.catchBody);
-  },
+  }
 
   /**
    * @param {ChaineExpression} tree
    */
-  visitCascadeExpression: function(tree) {
+  visitCascadeExpression(tree) {
     this.visitAny(tree.operand);
     this.write_(TokenType.PERIOD_OPEN_CURLY);
     this.writelnList_(tree.expressions, TokenType.SEMI_COLON, false);
     this.write_(TokenType.CLOSE_CURLY);
-  },
+  }
 
-  visitClassShared_: function(tree) {
+  visitClassShared_(tree) {
     this.write_(TokenType.CLASS);
     if (tree.name)
       this.write_(tree.name);
@@ -270,81 +269,81 @@ ParseTreeWriter.prototype = createObject(
     this.write_(TokenType.OPEN_CURLY);
     this.writelnList_(tree.elements);
     this.write_(TokenType.CLOSE_CURLY);
-  },
+  }
 
   /**
    * @param {ClassDeclaration} tree
    */
-  visitClassDeclaration: function(tree) {
+  visitClassDeclaration(tree) {
     this.visitClassShared_(tree);
-  },
+  }
 
   /**
    * @param {ClassExpression} tree
    */
-  visitClassExpression: function(tree) {
+  visitClassExpression(tree) {
     this.visitClassShared_(tree);
-  },
+  }
 
   /**
    * @param {CommaExpression} tree
    */
-  visitCommaExpression: function(tree) {
+  visitCommaExpression(tree) {
     this.writeList_(tree.expressions, TokenType.COMMA, false);
-  },
+  }
 
-  visitComprehensionFor: function(tree) {
+  visitComprehensionFor(tree) {
     this.write_(TokenType.FOR);
     this.visitAny(tree.left);
     this.write_(PredefinedName.OF);
     this.visitAny(tree.iterator);
-  },
+  }
 
   /**
    * @param {ConditionalExpression} tree
    */
-  visitConditionalExpression: function(tree) {
+  visitConditionalExpression(tree) {
     this.visitAny(tree.condition);
     this.write_(TokenType.QUESTION);
     this.visitAny(tree.left);
     this.write_(TokenType.COLON);
     this.visitAny(tree.right);
-  },
+  }
 
   /**
    * @param {ContinueStatement} tree
    */
-  visitContinueStatement: function(tree) {
+  visitContinueStatement(tree) {
     this.write_(TokenType.CONTINUE);
     if (tree.name !== null) {
       this.write_(tree.name);
     }
     this.write_(TokenType.SEMI_COLON);
-  },
+  }
 
   /**
    * @param {DebuggerStatement} tree
    */
-  visitDebuggerStatement: function(tree) {
+  visitDebuggerStatement(tree) {
     this.write_(TokenType.DEBUGGER);
     this.write_(TokenType.SEMI_COLON);
-  },
+  }
 
   /**
    * @param {DefaultClause} tree
    */
-  visitDefaultClause: function(tree) {
+  visitDefaultClause(tree) {
     this.write_(TokenType.DEFAULT);
     this.write_(TokenType.COLON);
     this.indentDepth_++;
     this.writelnList_(tree.statements);
     this.indentDepth_--;
-  },
+  }
 
   /**
    * @param {DoWhileStatement} tree
    */
-  visitDoWhileStatement: function(tree) {
+  visitDoWhileStatement(tree) {
     this.write_(TokenType.DO);
     this.visitAny(tree.body);
     this.write_(TokenType.WHILE);
@@ -352,81 +351,81 @@ ParseTreeWriter.prototype = createObject(
     this.visitAny(tree.condition);
     this.write_(TokenType.CLOSE_PAREN);
     this.write_(TokenType.SEMI_COLON);
-  },
+  }
 
   /**
    * @param {EmptyStatement} tree
    */
-  visitEmptyStatement: function(tree) {
+  visitEmptyStatement(tree) {
     this.write_(TokenType.SEMI_COLON);
-  },
+  }
 
   /**
    * @param {ExportDeclaration} tree
    */
-  visitExportDeclaration: function(tree) {
+  visitExportDeclaration(tree) {
     this.write_(TokenType.EXPORT);
     this.visitAny(tree.declaration);
-  },
+  }
 
   /**
    * @param {ExportMappingList} tree
    */
-  visitExportMappingList: function(tree) {
+  visitExportMappingList(tree) {
     this.writeList_(tree.paths, TokenType.COMMA, false);
-  },
+  }
 
   /**
    * @param {ExportMapping} tree
    */
-  visitExportMapping: function(tree) {
+  visitExportMapping(tree) {
     this.visitAny(tree.specifierSet);
     if (tree.moduleExpression) {
       this.write_(PredefinedName.FROM);
       this.visitAny(tree.moduleExpression);
     }
-  },
+  }
 
   /**
    * @param {ExportSpecifier} tree
    */
-  visitExportSpecifier: function(tree) {
+  visitExportSpecifier(tree) {
     this.write_(tree.lhs);
     if (tree.rhs) {
       this.write_(TokenType.COLON);
       this.write_(tree.rhs);
     }
-  },
+  }
 
   /**
    * @param {ExportSpecifierSet} tree
    */
-  visitExportSpecifierSet: function(tree) {
+  visitExportSpecifierSet(tree) {
     this.write_(TokenType.OPEN_CURLY);
     this.writeList_(tree.specifiers, TokenType.COMMA, false);
     this.write_(TokenType.CLOSE_CURLY);
-  },
+  }
 
   /**
    * @param {ExpressionStatement} tree
    */
-  visitExpressionStatement: function(tree) {
+  visitExpressionStatement(tree) {
     this.visitAny(tree.expression);
     this.write_(TokenType.SEMI_COLON);
-  },
+  }
 
   /**
    * @param {Finally} tree
    */
-  visitFinally: function(tree) {
+  visitFinally(tree) {
     this.write_(TokenType.FINALLY);
     this.visitAny(tree.block);
-  },
+  }
 
   /**
    * @param {ForOfStatement} tree
    */
-  visitForOfStatement: function(tree) {
+  visitForOfStatement(tree) {
     this.write_(TokenType.FOR);
     this.write_(TokenType.OPEN_PAREN);
     this.visitAny(tree.initializer);
@@ -434,12 +433,12 @@ ParseTreeWriter.prototype = createObject(
     this.visitAny(tree.collection);
     this.write_(TokenType.CLOSE_PAREN);
     this.visitAny(tree.body);
-  },
+  }
 
   /**
    * @param {ForInStatement} tree
    */
-  visitForInStatement: function(tree) {
+  visitForInStatement(tree) {
     this.write_(TokenType.FOR);
     this.write_(TokenType.OPEN_PAREN);
     this.visitAny(tree.initializer);
@@ -447,12 +446,12 @@ ParseTreeWriter.prototype = createObject(
     this.visitAny(tree.collection);
     this.write_(TokenType.CLOSE_PAREN);
     this.visitAny(tree.body);
-  },
+  }
 
   /**
    * @param {ForStatement} tree
    */
-  visitForStatement: function(tree) {
+  visitForStatement(tree) {
     this.write_(TokenType.FOR);
     this.write_(TokenType.OPEN_PAREN);
     this.visitAny(tree.initializer);
@@ -462,12 +461,12 @@ ParseTreeWriter.prototype = createObject(
     this.visitAny(tree.increment);
     this.write_(TokenType.CLOSE_PAREN);
     this.visitAny(tree.body);
-  },
+  }
 
   /**
    * @param {FormalParameterList} tree
    */
-  visitFormalParameterList: function(tree) {
+  visitFormalParameterList(tree) {
     var first = true;
 
     for (var i = 0; i < tree.parameters.length; i++) {
@@ -481,12 +480,12 @@ ParseTreeWriter.prototype = createObject(
 
       this.visitAny(parameter);
     }
-  },
+  }
 
   /**
    * @param {FunctionDeclaration} tree
    */
-  visitFunctionDeclaration: function(tree) {
+  visitFunctionDeclaration(tree) {
     this.write_(Keywords.FUNCTION);
     if (tree.isGenerator) {
       this.write_(TokenType.STAR);
@@ -496,9 +495,9 @@ ParseTreeWriter.prototype = createObject(
     this.visitAny(tree.formalParameterList);
     this.write_(TokenType.CLOSE_PAREN);
     this.visitAny(tree.functionBody);
-  },
+  }
 
-  visitGeneratorComprehension: function(tree) {
+  visitGeneratorComprehension(tree) {
     this.write_(TokenType.OPEN_PAREN);
     this.visitAny(tree.expression);
     this.visitList(tree.comprehensionForList);
@@ -507,30 +506,30 @@ ParseTreeWriter.prototype = createObject(
       this.visitAny(tree.ifExpression);
     }
     this.write_(TokenType.CLOSE_PAREN);
-  },
+  }
 
   /**
    * @param {GetAccessor} tree
    */
-  visitGetAccessor: function(tree) {
+  visitGetAccessor(tree) {
     this.write_(PredefinedName.GET);
     this.write_(tree.propertyName);
     this.write_(TokenType.OPEN_PAREN);
     this.write_(TokenType.CLOSE_PAREN);
     this.visitAny(tree.body);
-  },
+  }
 
   /**
    * @param {IdentifierExpression} tree
    */
-  visitIdentifierExpression: function(tree) {
+  visitIdentifierExpression(tree) {
     this.write_(tree.identifierToken);
-  },
+  }
 
   /**
    * @param {IfStatement} tree
    */
-  visitIfStatement: function(tree) {
+  visitIfStatement(tree) {
     this.write_(TokenType.IF);
     this.write_(TokenType.OPEN_PAREN);
     this.visitAny(tree.condition);
@@ -540,101 +539,101 @@ ParseTreeWriter.prototype = createObject(
       this.write_(TokenType.ELSE);
       this.visitAny(tree.elseClause);
     }
-  },
+  }
 
   /**
    * @param {ImportDeclaration} tree
    */
-  visitImportDeclaration: function(tree) {
+  visitImportDeclaration(tree) {
     this.write_(TokenType.IMPORT);
     this.writeList_(tree.importPathList, TokenType.COMMA, false);
     this.write_(TokenType.SEMI_COLON);
-  },
+  }
 
   /**
    * @param {ImportBinding} tree
    */
-  visitImportBinding: function(tree) {
+  visitImportBinding(tree) {
     this.visitAny(tree.importSpecifierSet);
     if (tree.moduleExpression) {
       this.write_(PredefinedName.FROM);
       this.visitAny(tree.moduleExpression);
     }
-  },
+  }
 
   /**
    * @param {ImportSpecifier} tree
    */
-  visitImportSpecifier: function(tree) {
+  visitImportSpecifier(tree) {
     this.write_(tree.importedName);
     if (tree.destinationName !== null) {
       this.write_(TokenType.COLON);
       this.write_(tree.destinationName);
     }
-  },
+  }
 
-  visitImportSpecifierSet: function(tree) {
+  visitImportSpecifierSet(tree) {
     if (tree.specifiers.type == TokenType.STAR)
       this.write_(TokenType.STAR);
     else
       this.visitList(tree.specifiers);
-  },
+  }
 
   /**
    * @param {LabelledStatement} tree
    */
-  visitLabelledStatement: function(tree) {
+  visitLabelledStatement(tree) {
     this.write_(tree.name);
     this.write_(TokenType.COLON);
     this.visitAny(tree.statement);
-  },
+  }
 
   /**
    * @param {LiteralExpression} tree
    */
-  visitLiteralExpression: function(tree) {
+  visitLiteralExpression(tree) {
     this.write_(tree.literalToken);
-  },
+  }
 
   /**
    * @param {MemberExpression} tree
    */
-  visitMemberExpression: function(tree) {
+  visitMemberExpression(tree) {
     this.visitAny(tree.operand);
     this.write_(TokenType.PERIOD);
     this.write_(tree.memberName);
-  },
+  }
 
   /**
    * @param {MemberLookupExpression} tree
    */
-  visitMemberLookupExpression: function(tree) {
+  visitMemberLookupExpression(tree) {
     this.visitAny(tree.operand);
     this.write_(TokenType.OPEN_SQUARE);
     this.visitAny(tree.memberExpression);
     this.write_(TokenType.CLOSE_SQUARE);
-  },
+  }
 
   /**
    * @param {MissingPrimaryExpression} tree
    */
-  visitMissingPrimaryExpression: function(tree) {
+  visitMissingPrimaryExpression(tree) {
     this.write_('MissingPrimaryExpression');
-  },
+  }
 
   /**
    * @param {ModuleDeclarationfinitionTree} tree
    */
-  visitModuleDeclaration: function(tree) {
+  visitModuleDeclaration(tree) {
     this.write_(PredefinedName.MODULE);
     this.writeList_(tree.specifiers, TokenType.COMMA, false);
     this.write_(TokenType.SEMI_COLON);
-  },
+  }
 
   /**
    * @param {ModuleDefinition} tree
    */
-  visitModuleDefinition: function(tree) {
+  visitModuleDefinition(tree) {
     this.write_(PredefinedName.MODULE);
     this.write_(tree.name);
     this.write_(TokenType.OPEN_CURLY);
@@ -642,63 +641,63 @@ ParseTreeWriter.prototype = createObject(
     this.writeList_(tree.elements, null, true);
     this.write_(TokenType.CLOSE_CURLY);
     this.writeln_();
-  },
+  }
 
   /**
    * @param {ModuleExpression} tree
    */
-  visitModuleExpression: function(tree) {
+  visitModuleExpression(tree) {
     this.visitAny(tree.reference);
     for (var i = 0; i < tree.identifiers.length; i++) {
       this.write_(TokenType.PERIOD);
       this.write_(tree.identifiers[i]);
     }
-  },
+  }
 
   /**
    * @param {ModuleRequire} tree
    */
-  visitModuleRequire: function(tree) {
+  visitModuleRequire(tree) {
     this.write_(tree.url);
-  },
+  }
 
   /**
    * @param {ModuleSpecifier} tree
    */
-  visitModuleSpecifier: function(tree) {
+  visitModuleSpecifier(tree) {
     this.write_(tree.identifier);
     this.write_(PredefinedName.FROM);
     this.visitAny(tree.expression);
-  },
+  }
 
   /**
    * @param {NameStatement} tree
    */
-  visitNameStatement: function(tree) {
+  visitNameStatement(tree) {
     this.write_(TokenType.PRIVATE);
     this.writeList_(tree.declarations, TokenType.COMMA, false);
     this.write_(TokenType.SEMI_COLON);
-  },
+  }
 
   /**
    * @param {NewExpression} tree
    */
-  visitNewExpression: function(tree) {
+  visitNewExpression(tree) {
     this.write_(TokenType.NEW);
     this.visitAny(tree.operand);
     this.visitAny(tree.args);
-  },
+  }
 
   /**
    * @param {NullTree} tree
    */
-  visitNullTree: function(tree) {
-  },
+  visitNullTree(tree) {
+  }
 
   /**
    * @param {ObjectLiteralExpression} tree
    */
-  visitObjectLiteralExpression: function(tree) {
+  visitObjectLiteralExpression(tree) {
     this.write_(TokenType.OPEN_CURLY);
     if (tree.propertyNameAndValues.length > 1)
       this.writeln_();
@@ -706,56 +705,56 @@ ParseTreeWriter.prototype = createObject(
     if (tree.propertyNameAndValues.length > 1)
       this.writeln_();
     this.write_(TokenType.CLOSE_CURLY);
-  },
+  }
 
   /**
    * @param {ObjectPattern} tree
    */
-  visitObjectPattern: function(tree) {
+  visitObjectPattern(tree) {
     this.write_(TokenType.OPEN_CURLY);
     this.writelnList_(tree.fields, TokenType.COMMA);
     this.write_(TokenType.CLOSE_CURLY);
-  },
+  }
 
   /**
    * @param {ObjectPatternField} tree
    */
-  visitObjectPatternField: function(tree) {
+  visitObjectPatternField(tree) {
     this.write_(tree.identifier);
     if (tree.element !== null) {
       this.write_(TokenType.COLON);
       this.visitAny(tree.element);
     }
-  },
+  }
 
   /**
    * @param {ParenExpression} tree
    */
-  visitParenExpression: function(tree) {
+  visitParenExpression(tree) {
     this.write_(TokenType.OPEN_PAREN);
-    ParseTreeVisitor.prototype.visitParenExpression.call(this, tree);
+    super.visitParenExpression(tree);
     this.write_(TokenType.CLOSE_PAREN);
-  },
+  }
 
   /**
    * @param {PostfixExpression} tree
    */
-  visitPostfixExpression: function(tree) {
+  visitPostfixExpression(tree) {
     this.visitAny(tree.operand);
     this.write_(tree.operator);
-  },
+  }
 
   /**
    * @param {Program} tree
    */
-  visitProgram: function(tree) {
+  visitProgram(tree) {
     this.writelnList_(tree.programElements);
-  },
+  }
 
   /**
    * @param {PropertyMethodAssignment} tree
    */
-  visitPropertyMethodAssignment: function(tree) {
+  visitPropertyMethodAssignment(tree) {
     if (tree.isGenerator)
       this.write_(TokenType.STAR);
     this.write_(tree.name);
@@ -763,124 +762,124 @@ ParseTreeWriter.prototype = createObject(
     this.visitAny(tree.formalParameterList);
     this.write_(TokenType.CLOSE_PAREN);
     this.visitAny(tree.functionBody);
-  },
+  }
 
   /**
    * @param {PropertyNameAssignment} tree
    */
-  visitPropertyNameAssignment: function(tree) {
+  visitPropertyNameAssignment(tree) {
     this.write_(tree.name);
     this.write_(TokenType.COLON);
     this.visitAny(tree.value);
-  },
+  }
 
   /**
    * @param {PropertyNameShorthand} tree
    */
-  visitPropertyNameShorthand: function(tree) {
+  visitPropertyNameShorthand(tree) {
     this.write_(tree.name);
-  },
+  }
 
   /**
    * @param {QuasiLiteralExpression} tree
    */
-  visitQuasiLiteralExpression: function(tree) {
+  visitQuasiLiteralExpression(tree) {
     // Quasi Literals have important whitespace semantics.
     this.visitAny(tree.operand);
     this.writeRaw_(TokenType.BACK_QUOTE);
     this.visitList(tree.elements);
     this.writeRaw_(TokenType.BACK_QUOTE);
-  },
+  }
 
   /**
    * @param {QuasiLiteralPortion} tree
    */
-  visitQuasiLiteralPortion: function(tree) {
+  visitQuasiLiteralPortion(tree) {
     this.writeRaw_(tree.value);
-  },
+  }
 
   /**
    * @param {QuasiSubstitution} tree
    */
-  visitQuasiSubstitution: function(tree) {
+  visitQuasiSubstitution(tree) {
     this.writeRaw_(TokenType.DOLLAR);
     this.writeRaw_(TokenType.OPEN_CURLY);
     this.visitAny(tree.expression);
     this.writeRaw_(TokenType.CLOSE_CURLY);
-  },
+  }
 
   /*
    * @param {RequiresMember} tree
    */
-  visitRequiresMember: function(tree) {
+  visitRequiresMember(tree) {
     this.write_(PredefinedName.REQUIRES);
     this.write_(tree.name);
     this.write_(TokenType.SEMI_COLON);
-  },
+  }
 
   /**
    * @param {ReturnStatement} tree
    */
-  visitReturnStatement: function(tree) {
+  visitReturnStatement(tree) {
     this.write_(TokenType.RETURN);
     this.visitAny(tree.expression);
     this.write_(TokenType.SEMI_COLON);
-  },
+  }
 
   /**
    * @param {RestParameter} tree
    */
-  visitRestParameter: function(tree) {
+  visitRestParameter(tree) {
     this.write_(TokenType.DOT_DOT_DOT);
     this.write_(tree.identifier);
-  },
+  }
 
   /**
    * @param {SetAccessor} tree
    */
-  visitSetAccessor: function(tree) {
+  visitSetAccessor(tree) {
     this.write_(PredefinedName.SET);
     this.write_(tree.propertyName);
     this.write_(TokenType.OPEN_PAREN);
     this.visitAny(tree.parameter);
     this.write_(TokenType.CLOSE_PAREN);
     this.visitAny(tree.body);
-  },
+  }
 
   /**
    * @param {SpreadExpression} tree
    */
-  visitSpreadExpression: function(tree) {
+  visitSpreadExpression(tree) {
     this.write_(TokenType.DOT_DOT_DOT);
     this.visitAny(tree.expression);
-  },
+  }
 
   /**
    * @param {SpreadPatternElement} tree
    */
-  visitSpreadPatternElement: function(tree) {
+  visitSpreadPatternElement(tree) {
     this.write_(TokenType.DOT_DOT_DOT);
     this.visitAny(tree.lvalue);
-  },
+  }
 
   /**
    * @param {StateMachine} tree
    */
-  visitStateMachine: function(tree) {
+  visitStateMachine(tree) {
     throw new Error('State machines cannot be converted to source');
-  },
+  }
 
   /**
    * @param {SuperExpression} tree
    */
-  visitSuperExpression: function(tree) {
+  visitSuperExpression(tree) {
     this.write_(TokenType.SUPER);
-  },
+  }
 
   /**
    * @param {SwitchStatement} tree
    */
-  visitSwitchStatement: function(tree) {
+  visitSwitchStatement(tree) {
     this.write_(TokenType.SWITCH);
     this.write_(TokenType.OPEN_PAREN);
     this.visitAny(tree.expression);
@@ -888,104 +887,104 @@ ParseTreeWriter.prototype = createObject(
     this.write_(TokenType.OPEN_CURLY);
     this.writelnList_(tree.caseClauses);
     this.write_(TokenType.CLOSE_CURLY);
-  },
+  }
 
   /**
    * @param {ThisExpression} tree
    */
-  visitThisExpression: function(tree) {
+  visitThisExpression(tree) {
     this.write_(TokenType.THIS);
-  },
+  }
 
   /**
    * @param {ThrowStatement} tree
    */
-  visitThrowStatement: function(tree) {
+  visitThrowStatement(tree) {
     this.write_(TokenType.THROW);
     this.visitAny(tree.value);
     this.write_(TokenType.SEMI_COLON);
-  },
+  }
 
   /**
    * @param {TryStatement} tree
    */
-  visitTryStatement: function(tree) {
+  visitTryStatement(tree) {
     this.write_(TokenType.TRY);
     this.visitAny(tree.body);
     this.visitAny(tree.catchBlock);
     this.visitAny(tree.finallyBlock);
-  },
+  }
 
   /**
    * @param {UnaryExpression} tree
    */
-  visitUnaryExpression: function(tree) {
+  visitUnaryExpression(tree) {
     this.write_(tree.operator);
     this.visitAny(tree.operand);
-  },
+  }
 
   /**
    * @param {VariableDeclarationList} tree
    */
-  visitVariableDeclarationList: function(tree) {
+  visitVariableDeclarationList(tree) {
     this.write_(tree.declarationType);
     this.writeList_(tree.declarations, TokenType.COMMA, false);
-  },
+  }
 
   /**
    * @param {VariableDeclaration} tree
    */
-  visitVariableDeclaration: function(tree) {
+  visitVariableDeclaration(tree) {
     this.visitAny(tree.lvalue);
     if (tree.initializer !== null) {
       this.write_(TokenType.EQUAL);
       this.visitAny(tree.initializer);
     }
-  },
+  }
 
   /**
    * @param {VariableStatement} tree
    */
-  visitVariableStatement: function(tree) {
-    ParseTreeVisitor.prototype.visitVariableStatement.call(this, tree);
+  visitVariableStatement(tree) {
+    super.visitVariableStatement(tree);
     this.write_(TokenType.SEMI_COLON);
-  },
+  }
 
   /**
    * @param {WhileStatement} tree
    */
-  visitWhileStatement: function(tree) {
+  visitWhileStatement(tree) {
     this.write_(TokenType.WHILE);
     this.write_(TokenType.OPEN_PAREN);
     this.visitAny(tree.condition);
     this.write_(TokenType.CLOSE_PAREN);
     this.visitAny(tree.body);
-  },
+  }
 
   /**
    * @param {WithStatement} tree
    */
-  visitWithStatement: function(tree) {
+  visitWithStatement(tree) {
     this.write_(TokenType.WITH);
     this.write_(TokenType.OPEN_PAREN);
     this.visitAny(tree.expression);
     this.write_(TokenType.CLOSE_PAREN);
     this.visitAny(tree.body);
-  },
+  }
 
   /**
    * @param {YieldStatement} tree
    */
-  visitYieldStatement: function(tree) {
+  visitYieldStatement(tree) {
     this.write_(TokenType.YIELD);
     if (tree.isYieldFor) {
       this.write_(TokenType.STAR);
     }
     this.visitAny(tree.expression);
     this.write_(TokenType.SEMI_COLON);
-  },
+  }
 
-  writeln_: function() {
+  writeln_() {
     if (this.currentLineComment_ !== null) {
       while (this.currentLine_.length < 80) {
         this.currentLine_.append(' ');
@@ -997,14 +996,14 @@ ParseTreeWriter.prototype = createObject(
     this.result_.append(NEW_LINE);
     this.outputLineCount++;
     this.currentLine_ = new StringBuilder();
-  },
+  }
 
   /**
    * @param {Array.<ParseTree>} list
    * @param {TokenType} delimiter
    * @private
    */
-  writelnList_: function(list, delimiter) {
+  writelnList_(list, delimiter) {
     if (delimiter) {
       this.writeList_(list, delimiter, true);
     } else {
@@ -1014,7 +1013,7 @@ ParseTreeWriter.prototype = createObject(
       if (list.length > 0)
         this.writeln_();
     }
-  },
+  }
 
   /**
    * @param {Array.<ParseTree>} list
@@ -1022,7 +1021,7 @@ ParseTreeWriter.prototype = createObject(
    * @param {boolean} writeNewLine
    * @private
    */
-  writeList_: function(list, delimiter, writeNewLine) {
+  writeList_(list, delimiter, writeNewLine) {
     var first = true;
     for (var i = 0; i < list.length; i++) {
       var element = list[i];
@@ -1038,10 +1037,10 @@ ParseTreeWriter.prototype = createObject(
       }
       this.visitAny(element);
     }
-  },
+  }
 
   // TODO(jjb) not called
-  writeTokenList_: function(list, delimiter, writeNewLine) {
+  writeTokenList_(list, delimiter, writeNewLine) {
     var first = true;
     for (var i = 0; i < list.length; i++) {
       var element = list[i];
@@ -1057,23 +1056,23 @@ ParseTreeWriter.prototype = createObject(
       }
       this.write_(element);
     }
-  },
+  }
 
   /**
    * @param {string|Token|TokenType|Keywords} value
    * @private
    */
-  writeRaw_: function(value) {
+  writeRaw_(value) {
     if (value !== null) {
       this.currentLine_.append(value.toString());
     }
-  },
+  }
 
   /**
    * @param {string|Token|TokenType|Keywords} value
    * @private
    */
-  write_: function(value) {
+  write_(value) {
     if (value === TokenType.CLOSE_CURLY) {
       this.indentDepth_--;
     }
@@ -1119,5 +1118,4 @@ ParseTreeWriter.prototype = createObject(
       this.indentDepth_++;
     }
   }
-
-});
+}

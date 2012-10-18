@@ -20,21 +20,18 @@ import createObject from '../../util/util.js';
  * Visits a parse tree and adds all the module definitions.
  *
  *   module m { ... }
- *
- * @param {traceur.util.ErrorReporter} reporter
- * @param {ProjectSymbol} project
- * @param {ModuleSymbol} module The root of the module system.
- * @constructor
- * @extends {ModuleVisitor}
  */
-export function ModuleDefinitionVisitor(reporter, project, module) {
-  ModuleVisitor.call(this, reporter, project, module);
-}
+export class ModuleDefinitionVisitor extends ModuleVisitor {
+  /**
+   * @param {traceur.util.ErrorReporter} reporter
+   * @param {ProjectSymbol} project
+   * @param {ModuleSymbol} module The root of the module system.
+   */
+  constructor(reporter, project, module) {
+    super(reporter, project, module);
+  }
 
-ModuleDefinitionVisitor.prototype = createObject(
-    ModuleVisitor.prototype, {
-
-  visitModuleDefinition: function(tree) {
+  visitModuleDefinition(tree) {
     var name = tree.name.value;
     if (this.checkForDuplicateModule_(name, tree)) {
       var parent = this.currentModule;
@@ -42,6 +39,6 @@ ModuleDefinitionVisitor.prototype = createObject(
       parent.addModule(module);
     }
 
-    ModuleVisitor.prototype.visitModuleDefinition.call(this, tree);
+    super.visitModuleDefinition(tree);
   }
-});
+}

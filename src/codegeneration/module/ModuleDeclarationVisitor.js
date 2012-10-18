@@ -19,21 +19,18 @@ import createObject from '../../util/util.js';
  * Visits a parse tree and adds all the module declarations.
  *
  *   module m from n, o from p.q.r
- *
- * @param {traceur.util.ErrorReporter} reporter
- * @param {ProjectSymbol} project
- * @param {ModuleSymbol} module The root of the module system.
- * @constructor
- * @extends {ModuleVisitor}
  */
-export function ModuleDeclarationVisitor(reporter, project, module) {
-  ModuleVisitor.call(this, reporter, project, module);
-}
+export class ModuleDeclarationVisitor extends ModuleVisitor {
+  /**
+   * @param {traceur.util.ErrorReporter} reporter
+   * @param {ProjectSymbol} project
+   * @param {ModuleSymbol} module The root of the module system.
+   */
+  constructor(reporter, project, module) {
+    super(reporter, project, module);
+  }
 
-ModuleDeclarationVisitor.prototype = createObject(
-    ModuleVisitor.prototype, {
-
-  visitModuleSpecifier: function(tree) {
+  visitModuleSpecifier(tree) {
     var name = tree.identifier.value;
     var parent = this.currentModule;
     var module = this.getModuleForModuleExpression(tree.expression);
@@ -42,4 +39,4 @@ ModuleDeclarationVisitor.prototype = createObject(
     }
     parent.addModuleWithName(module, name);
   }
-});
+}

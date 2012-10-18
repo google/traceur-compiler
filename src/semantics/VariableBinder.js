@@ -29,34 +29,6 @@ var VariableDeclaration = trees.VariableDeclaration;
 
 // TODO: Update once destructuring has been refactored.
 
-/**
- * Finds the identifiers that are bound in a given scope. Identifiers
- * can be bound by function declarations, formal parameter lists,
- * variable declarations, and catch headers.
- * @param {boolean} inFunctionScope
- * @param {Block=} scope
- * @extends {ParseTreeVisitor}
- * @constructor
- */
-export function VariableBinder(includeFunctionScope, scope) {
-  ParseTreeVisitor.call(this);
-
-  // Should we include:
-  // * all "var" declarations
-  // * all block scoped declarations occurring in the top level function block.
-  this.includeFunctionScope_ = includeFunctionScope;
-
-  // Block within which we are looking for declarations:
-  // * block scoped declaration occurring in this block.
-  // If function != null this refers to the top level function block.
-  this.scope_ = scope || null;
-
-  // Block currently being processed
-  this.block_ = null;
-
-  this.identifiers_ = Object.create(null);
-}
-
 // TODO: Add entry more entry points:
 //    for..in statment
 //    for statement
@@ -136,26 +108,53 @@ export function variablesInFunction(tree) {
   return binder.identifiers_;
 };
 
-var proto = ParseTreeVisitor.prototype;
-VariableBinder.prototype = createObject(proto, {
+/**
+ * Finds the identifiers that are bound in a given scope. Identifiers
+ * can be bound by function declarations, formal parameter lists,
+ * variable declarations, and catch headers.
+ */
+export class VariableBinder extends ParseTreeVisitor {
+  /**
+   * @param {boolean} inFunctionScope
+   * @param {Block=} scope
+   */
+  constructor(includeFunctionScope, scope) {
+    super();
+
+    // Should we include:
+    // * all "var" declarations
+    // * all block scoped declarations occurring in the top level function
+    //   block.
+    this.includeFunctionScope_ = includeFunctionScope;
+
+    // Block within which we are looking for declarations:
+    // * block scoped declaration occurring in this block.
+    // If function != null this refers to the top level function block.
+    this.scope_ = scope || null;
+
+    // Block currently being processed
+    this.block_ = null;
+
+    this.identifiers_ = Object.create(null);
+  }
 
   /** @param {FunctionDeclaration} tree */
-  bindVariablesInFunction_: function(tree) {
+  bindVariablesInFunction_(tree) {
     var parameters = tree.formalParameterList.parameters;
     for (var i = 0; i < parameters.length; i++) {
       this.bindParameter_(parameters[i]);
     }
     this.visitAny(tree.functionBody);
-  },
+  }
 
   // TODO(arv): This is where we should do the binding but I need to refactor
   // destructuring first.
-  // visitBindingIdentifier: function(tree) {
+  // visitBindingIdentifier(tree) {
   //
-  // },
+  // }
 
   /** @param {Block} tree */
-  visitBlock: function(tree) {
+  visitBlock(tree) {
     // Save and set current block
     var parentBlock = this.block_;
     this.block_ = tree;
@@ -171,26 +170,26 @@ VariableBinder.prototype = createObject(proto, {
 
     // restore current block
     this.block_ = parentBlock;
-  },
+  }
 
   /** @param {FunctionDeclaration} tree */
-  bindFunctionDeclaration_: function(tree) {
+  bindFunctionDeclaration_(tree) {
     // functions follow the binding rules of 'let'
     if (tree.name != null && this.block_ == this.scope_) {
       this.bind_(tree.name.identifierToken);
     }
     // We don't recurse into function bodies, because they create
     // their own lexical scope.
-  },
+  }
 
   /** @param {FunctionDeclaration} tree */
-  visitFunctionDeclaration: function(tree) {
+  visitFunctionDeclaration(tree) {
     // We don't recurse into function bodies, because they create
     // their own lexical scope.
-  },
+  }
 
   /** @param {VariableDeclarationList} tree */
-  visitVariableDeclarationList: function(tree) {
+  visitVariableDeclarationList(tree) {
     // "var" variables are bound if we are scanning the whole function only
     // "let/const" are bound if (we are scanning block scope or function) AND
     //   the scope currently processed is the scope we care about
@@ -198,7 +197,7 @@ VariableBinder.prototype = createObject(proto, {
     if ((tree.declarationType == TokenType.VAR && this.includeFunctionScope_) ||
         (tree.declarationType != TokenType.VAR && this.block_ == this.scope_)) {
       // declare the variables
-      proto.visitVariableDeclarationList.call(this, tree);
+      super.visitVariableDeclarationList(tree);
     } else {
       // skipping let/const declarations in nested blocks
       var decls = tree.declarations;
@@ -206,22 +205,22 @@ VariableBinder.prototype = createObject(proto, {
         this.visitAny(decls[i].initializer);
       }
     }
-  },
+  }
 
   /** @param {VariableDeclaration} tree */
-  visitVariableDeclaration: function(tree) {
+  visitVariableDeclaration(tree) {
     this.bindVariableDeclaration_(tree.lvalue);
-    proto.visitVariableDeclaration.call(this, tree);
-  },
+    super.visitVariableDeclaration(tree);
+  }
 
   /** @param {IdentifierToken} identifier */
-  bind_: function(identifier) {
+  bind_(identifier) {
     traceur.assert(typeof identifier.value == 'string');
     this.identifiers_[identifier.value] = true;
-  },
+  }
 
   /** @param {ParseTree} parameter */
-  bindParameter_: function(parameter) {
+  bindParameter_(parameter) {
     if (parameter.isRestParameter()) {
       this.bind_(parameter.identifier);
     } else {
@@ -229,10 +228,10 @@ VariableBinder.prototype = createObject(proto, {
       // declarations--identifier expressions and patterns
       this.bindVariableDeclaration_(parameter.binding);
     }
-  },
+  }
 
   /** @param {ParseTree} parameter */
-  bindVariableDeclaration_: function(tree) {
+  bindVariableDeclaration_(tree) {
     // TODO(arv): This should just visit all the BindingIdentifiers once
     // destructuring has been refactored.
     switch (tree.type) {
@@ -275,4 +274,4 @@ VariableBinder.prototype = createObject(proto, {
         throw new Error('unreachable');
     }
   }
-});
+}

@@ -20,21 +20,18 @@ import createObject from '../../util/util.js';
 /**
  * Finds all 'import * from moduleExpression' and associates the tree with
  * the module symbol.
- *
- * @param {traceur.util.ErrorReporter} reporter
- * @param {ProjectSymbol} project
- * @param {ModuleSymbol} module The root of the module system.
- * @constructor
- * @extends {ModuleVisitor}
  */
-export function ImportStarVisitor(reporter, project, module) {
-  ModuleVisitor.call(this, reporter, project, module);
-}
+export class ImportStarVisitor extends ModuleVisitor {
+  /**
+   * @param {traceur.util.ErrorReporter} reporter
+   * @param {ProjectSymbol} project
+   * @param {ModuleSymbol} module The root of the module system.
+   */
+  constructor(reporter, project, module) {
+    super(reporter, project, module);
+  }
 
-ImportStarVisitor.prototype = createObject(
-    ModuleVisitor.prototype, {
-
-  visitImportBinding: function(tree) {
+  visitImportBinding(tree) {
     // If we find an 'import * from m' we associate the tree with the module
     // so that we can have access to it during the transformation phase.
     var importSpecifierSet = tree.importSpecifierSet;
@@ -45,4 +42,4 @@ ImportStarVisitor.prototype = createObject(
       this.project.setModuleForStarTree(importSpecifierSet, module);
     }
   }
-});
+}

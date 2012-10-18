@@ -35,131 +35,88 @@ non-local grammar rules, such as:
 */
 
 /**
- * Validates a parse tree
- *
- * @constructor
- * @extends {ParseTreeVisitor}
- */
-export function ParseTreeValidator() {
-  ParseTreeVisitor.call(this);
-}
-
-/**
  * An error thrown when an invalid parse tree is encountered. This error is
  * used internally to distinguish between errors in the Validator itself vs
  * errors it threw to unwind the call stack.
  *
  * @param {ParseTree} tree
  * @param {string} message
- * @constructor
  */
-function ValidationError(tree, message) {
-  this.tree = tree;
-  this.message = message;
+class ValidationError extends Error {
+  constructor(tree, message) {
+    this.tree = tree;
+    this.message = message;
+  }
 }
-ValidationError.prototype = Object.create(Error.prototype);
 
 /**
- * Validates a parse tree.  Validation failures are compiler bugs.
- * When a failure is found, the source file is dumped to standard
- * error output and a runtime exception is thrown.
- *
- * @param {ParseTree} tree
+ * Validates a parse tree
  */
-ParseTreeValidator.validate = function(tree) {
-  var validator = new ParseTreeValidator();
-  try {
-    validator.visitAny(tree);
-  } catch (e) {
-    if (!(e instanceof ValidationError)) {
-      throw e;
-    }
-
-    var location = null;
-    if (e.tree !== null) {
-      location = e.tree.location;
-    }
-    if (location === null) {
-      location = tree.location;
-    }
-    var locationString = location !== null ?
-        location.start.toString() :
-        '(unknown)';
-    throw Error('Parse tree validation failure \'' + e.message + '\' at ' +
-        locationString +
-        ':\n\n' +
-        TreeWriter.write(tree, {highlighted: e.tree, showLineNumbers: true}) +
-        '\n');
-  }
-};
-
-ParseTreeValidator.prototype = createObject(
-    ParseTreeVisitor.prototype, {
-
+export class ParseTreeValidator extends ParseTreeVisitor {
   /**
    * @param {ParseTree} tree
    * @param {string} message
    */
-  fail_: function(tree, message) {
+  fail_(tree, message) {
     throw new ValidationError(tree, message);
-  },
+  }
 
   /**
    * @param {boolean} condition
    * @param {ParseTree} tree
    * @param {string} message
    */
-  check_: function(condition, tree, message) {
+  check_(condition, tree, message) {
     if (!condition) {
       this.fail_(tree, message);
     }
-  },
+  }
 
   /**
    * @param {boolean} condition
    * @param {ParseTree} tree
    * @param {string} message
    */
-  checkVisit_: function(condition, tree, message) {
+  checkVisit_(condition, tree, message) {
     this.check_(condition, tree, message);
     this.visitAny(tree);
-  },
+  }
 
   /**
    * @param {ParseTreeType} type
    * @param {ParseTree} tree
    * @param {string} message
    */
-  checkType_: function(type, tree, message) {
+  checkType_(type, tree, message) {
     this.checkVisit_(tree.type === type, tree, message);
-  },
+  }
 
   /**
    * @param {ArgumentList} tree
    */
-  visitArgumentList: function(tree) {
+  visitArgumentList(tree) {
     for (var i = 0; i < tree.args.length; i++) {
       var argument = tree.args[i];
       this.checkVisit_(argument.isAssignmentOrSpread(), argument,
           'assignment or spread expected');
     }
-  },
+  }
 
   /**
    * @param {ArrayLiteralExpression} tree
    */
-  visitArrayLiteralExpression: function(tree) {
+  visitArrayLiteralExpression(tree) {
     for (var i = 0; i < tree.elements.length; i++) {
       var element = tree.elements[i];
       this.checkVisit_(element.isNull() || element.isAssignmentOrSpread(),
           element, 'assignment or spread expected');
     }
-  },
+  }
 
   /**
    * @param {ArrayPattern} tree
    */
-  visitArrayPattern: function(tree) {
+  visitArrayPattern(tree) {
     for (var i = 0; i < tree.elements.length; i++) {
       var element = tree.elements[i];
       this.checkVisit_(element === null ||
@@ -176,20 +133,20 @@ ParseTreeValidator.prototype = createObject(
             'spread in array patterns must be the last element');
       }
     }
-  },
+  }
 
   /**
    * @param {AwaitStatement} tree
    */
-  visitAwaitStatement: function(tree) {
+  visitAwaitStatement(tree) {
     this.checkVisit_(tree.expression.isExpression(), tree.expression,
         'await must be expression');
-  },
+  }
 
   /**
    * @param {BinaryOperator} tree
    */
-  visitBinaryOperator: function(tree) {
+  visitBinaryOperator(tree) {
     switch (tree.operator.type) {
       // assignment
       case TokenType.EQUAL:
@@ -268,12 +225,12 @@ ParseTreeValidator.prototype = createObject(
     }
     this.visitAny(tree.left);
     this.visitAny(tree.right);
-  },
+  }
 
   /**
    * @param {BindingElement} tree
    */
-  visitBindingElement: function(tree) {
+  visitBindingElement(tree) {
     var binding = tree.binding;
     this.checkVisit_(
         binding.type == ParseTreeType.BINDING_IDENTIFIER ||
@@ -282,24 +239,24 @@ ParseTreeValidator.prototype = createObject(
         binding,
         'expected valid binding element');
     this.visitAny(tree.initializer);
-  },
+  }
 
 
   /**
    * @param {Block} tree
    */
-  visitBlock: function(tree) {
+  visitBlock(tree) {
     for (var i = 0; i < tree.statements.length; i++) {
       var statement = tree.statements[i];
       this.checkVisit_(statement.isSourceElement(), statement,
           'statement or function declaration expected');
     }
-  },
+  }
 
   /**
    * @param {CallExpression} tree
    */
-  visitCallExpression: function(tree) {
+  visitCallExpression(tree) {
     this.check_(tree.operand.isMemberExpression(),
                 tree.operand,
                 'member expression expected');
@@ -309,12 +266,12 @@ ParseTreeValidator.prototype = createObject(
     }
     this.visitAny(tree.operand);
     this.visitAny(tree.args);
-  },
+  }
 
   /**
    * @param {CaseClause} tree
    */
-  visitCaseClause: function(tree) {
+  visitCaseClause(tree) {
     this.checkVisit_(tree.expression.isExpression(), tree.expression,
         'expression expected');
     for (var i = 0; i < tree.statements.length; i++) {
@@ -322,23 +279,23 @@ ParseTreeValidator.prototype = createObject(
       this.checkVisit_(statement.isStatement(), statement,
           'statement expected');
     }
-  },
+  }
 
   /**
    * @param {Catch} tree
    */
-  visitCatch: function(tree) {
+  visitCatch(tree) {
     this.checkVisit_(tree.binding.isPattern() ||
         tree.binding.type == ParseTreeType.BINDING_IDENTIFIER,
         tree.binding, 'binding identifier expected');
     this.checkVisit_(tree.catchBody.type === ParseTreeType.BLOCK,
         tree.catchBody, 'block expected');
-  },
+  }
 
   /**
    * @param {ClassDeclaration} tree
    */
-  visitClassDeclaration: function(tree) {
+  visitClassDeclaration(tree) {
     for (var i = 0; i < tree.elements.length; i++) {
       var element = tree.elements[i];
       switch (element.type) {
@@ -351,56 +308,56 @@ ParseTreeValidator.prototype = createObject(
       }
       this.visitAny(element);
     }
-  },
+  }
 
   /**
    * @param {CommaExpression} tree
    */
-  visitCommaExpression: function(tree) {
+  visitCommaExpression(tree) {
     for (var i = 0; i < tree.expressions.length; i++) {
       var expression = tree.expressions[i];
       this.checkVisit_(expression.isArrowFunctionExpression(), expression,
           'expression expected');
     }
-  },
+  }
 
   /**
    * @param {ConditionalExpression} tree
    */
-  visitConditionalExpression: function(tree) {
+  visitConditionalExpression(tree) {
     this.checkVisit_(tree.condition.isArrowFunctionExpression(), tree.condition,
         'expression expected');
     this.checkVisit_(tree.left.isArrowFunctionExpression(), tree.left,
         'expression expected');
     this.checkVisit_(tree.right.isArrowFunctionExpression(), tree.right,
         'expression expected');
-  },
+  }
 
   /**
    * @param {DefaultClause} tree
    */
-  visitDefaultClause: function(tree) {
+  visitDefaultClause(tree) {
     for (var i = 0; i < tree.statements.length; i++) {
       var statement = tree.statements[i];
       this.checkVisit_(statement.isStatement(), statement,
           'statement expected');
     }
-  },
+  }
 
   /**
    * @param {DoWhileStatement} tree
    */
-  visitDoWhileStatement: function(tree) {
+  visitDoWhileStatement(tree) {
     this.checkVisit_(tree.body.isStatement(), tree.body,
         'statement expected');
     this.checkVisit_(tree.condition.isExpression(), tree.condition,
         'expression expected');
-  },
+  }
 
   /**
    * @param {ExportDeclaration} tree
    */
-  visitExportDeclaration: function(tree) {
+  visitExportDeclaration(tree) {
     var declType = tree.declaration.type;
     this.checkVisit_(
         declType == ParseTreeType.VARIABLE_STATEMENT ||
@@ -411,12 +368,12 @@ ParseTreeValidator.prototype = createObject(
         declType == ParseTreeType.EXPORT_MAPPING_LIST,
         tree.declaration,
         'expected valid export tree');
-  },
+  }
 
   /**
    * @param {ExportMapping} tree
    */
-  visitExportMapping: function(tree) {
+  visitExportMapping(tree) {
     if (tree.moduleExpression) {
       this.checkVisit_(
           tree.moduleExpression.type == ParseTreeType.MODULE_EXPRESSION,
@@ -429,12 +386,12 @@ ParseTreeValidator.prototype = createObject(
                      specifierType == ParseTreeType.IDENTIFIER_EXPRESSION,
                      tree.specifierSet,
                      'specifier set or identifier expected');
-  },
+  }
 
   /**
    * @param {ExportMapping} tree
    */
-  visitExportMappingList: function(tree) {
+  visitExportMappingList(tree) {
     this.check_(tree.paths.length > 0, tree,
                 'expected at least one path');
     for (var i = 0; i < tree.paths.length; i++) {
@@ -445,12 +402,12 @@ ParseTreeValidator.prototype = createObject(
           path,
           'expected export mapping');
     }
-  },
+  }
 
   /**
    * @param {ExportSpecifierSet} tree
    */
-  visitExportSpecifierSet: function(tree) {
+  visitExportSpecifierSet(tree) {
     this.check_(tree.specifiers.length > 0, tree,
         'expected at least one identifier');
     for (var i = 0; i < tree.specifiers.length; i++) {
@@ -461,28 +418,28 @@ ParseTreeValidator.prototype = createObject(
           specifier,
           'expected valid export specifier');
     }
-  },
+  }
 
   /**
    * @param {ExpressionStatement} tree
    */
-  visitExpressionStatement: function(tree) {
+  visitExpressionStatement(tree) {
     this.checkVisit_(tree.expression.isExpression(), tree.expression,
         'expression expected');
-  },
+  }
 
   /**
    * @param {Finally} tree
    */
-  visitFinally: function(tree) {
+  visitFinally(tree) {
     this.checkVisit_(tree.block.type === ParseTreeType.BLOCK, tree.block,
         'block expected');
-  },
+  }
 
   /**
    * @param {ForOfStatement} tree
    */
-  visitForOfStatement: function(tree) {
+  visitForOfStatement(tree) {
     this.checkVisit_(
       tree.initializer.isPattern() ||
       tree.initializer.type === ParseTreeType.IDENTIFIER_EXPRESSION ||
@@ -494,12 +451,12 @@ ParseTreeValidator.prototype = createObject(
         'expression expected');
     this.checkVisit_(tree.body.isStatement(), tree.body,
         'statement expected');
-  },
+  }
 
   /**
    * @param {ForInStatement} tree
    */
-  visitForInStatement: function(tree) {
+  visitForInStatement(tree) {
     if (tree.initializer.type === ParseTreeType.VARIABLE_DECLARATION_LIST) {
       this.checkVisit_(
           tree.initializer.declarations.length <=
@@ -517,12 +474,12 @@ ParseTreeValidator.prototype = createObject(
         'expression expected');
     this.checkVisit_(tree.body.isStatement(), tree.body,
         'statement expected');
-  },
+  }
 
   /**
    * @param {FormalParameterList} tree
    */
-  visitFormalParameterList: function(tree) {
+  visitFormalParameterList(tree) {
     for (var i = 0; i < tree.parameters.length; i++) {
       var parameter = tree.parameters[i];
       switch (parameter.type) {
@@ -546,12 +503,12 @@ ParseTreeValidator.prototype = createObject(
       }
       this.visitAny(parameter);
     }
-  },
+  }
 
   /**
    * @param {ForStatement} tree
    */
-  visitForStatement: function(tree) {
+  visitForStatement(tree) {
     if (tree.initializer !== null && !tree.initializer.isNull()) {
       this.checkVisit_(
           tree.initializer.isExpression() ||
@@ -569,12 +526,12 @@ ParseTreeValidator.prototype = createObject(
     }
     this.checkVisit_(tree.body.isStatement(), tree.body,
         'statement expected');
-  },
+  }
 
   /**
    * @param {FunctionDeclaration} tree
    */
-  visitFunctionDeclaration: function(tree) {
+  visitFunctionDeclaration(tree) {
     if (tree.name !== null) {
       this.checkType_(ParseTreeType.BINDING_IDENTIFIER,
                       tree.name,
@@ -587,19 +544,19 @@ ParseTreeValidator.prototype = createObject(
     this.checkType_(ParseTreeType.BLOCK,
                     tree.functionBody,
                     'block expected');
-  },
+  }
 
   /**
    * @param {GetAccessor} tree
    */
-  visitGetAccessor: function(tree) {
+  visitGetAccessor(tree) {
     this.checkType_(ParseTreeType.BLOCK, tree.body, 'block expected');
-  },
+  }
 
   /**
    * @param {IfStatement} tree
    */
-  visitIfStatement: function(tree) {
+  visitIfStatement(tree) {
     this.checkVisit_(tree.condition.isExpression(), tree.condition,
         'expression expected');
     this.checkVisit_(tree.ifClause.isStatement(), tree.ifClause,
@@ -608,20 +565,20 @@ ParseTreeValidator.prototype = createObject(
       this.checkVisit_(tree.elseClause.isStatement(), tree.elseClause,
           'statement expected');
     }
-  },
+  }
 
   /**
    * @param {LabelledStatement} tree
    */
-  visitLabelledStatement: function(tree) {
+  visitLabelledStatement(tree) {
     this.checkVisit_(tree.statement.isStatement(), tree.statement,
         'statement expected');
-  },
+  }
 
   /**
    * @param {MemberExpression} tree
    */
-  visitMemberExpression: function(tree) {
+  visitMemberExpression(tree) {
     this.check_(tree.operand.isMemberExpression(), tree.operand,
         'member expression expected');
     if (tree.operand instanceof NewExpression) {
@@ -629,12 +586,12 @@ ParseTreeValidator.prototype = createObject(
           'new args expected');
     }
     this.visitAny(tree.operand);
-  },
+  }
 
   /**
    * @param {MemberLookupExpression} tree
    */
-  visitMemberLookupExpression: function(tree) {
+  visitMemberLookupExpression(tree) {
     this.check_(tree.operand.isMemberExpression(),
                 tree.operand,
                 'member expression expected');
@@ -643,31 +600,31 @@ ParseTreeValidator.prototype = createObject(
           'new args expected');
     }
     this.visitAny(tree.operand);
-  },
+  }
 
   /**
    * @param {MissingPrimaryExpression} tree
    */
-  visitMissingPrimaryExpression: function(tree) {
+  visitMissingPrimaryExpression(tree) {
     this.fail_(tree, 'parse tree contains errors');
-  },
+  }
 
   /**
    * @param {ModuleDefinition} tree
    */
-  visitModuleDeclaration: function(tree) {
+  visitModuleDeclaration(tree) {
     for (var i = 0; i < tree.specifiers.length; i++) {
       var specifier = tree.specifiers[i];
       this.checkType_(ParseTreeType.MODULE_SPECIFIER,
                       specifier,
                       'module specifier expected');
     }
-  },
+  }
 
   /**
    * @param {ModuleDefinition} tree
    */
-  visitModuleDefinition: function(tree) {
+  visitModuleDefinition(tree) {
     for (var i = 0; i < tree.elements.length; i++) {
       var element = tree.elements[i];
       this.checkVisit_(
@@ -680,39 +637,39 @@ ParseTreeValidator.prototype = createObject(
           element,
           'module element expected');
     }
-  },
+  }
 
   /**
    * @param {ModuleRequire} tree
    */
-  visitModuleRequire: function(tree) {
+  visitModuleRequire(tree) {
     this.check_(tree.url.type == TokenType.STRING, tree.url,
                 'string expected');
-  },
+  }
 
   /**
    * @param {ModuleSpecifier} tree
    */
-  visitModuleSpecifier: function(tree) {
+  visitModuleSpecifier(tree) {
     this.checkType_(ParseTreeType.MODULE_EXPRESSION,
                     tree.expression,
                     'module expression expected');
-  },
+  }
 
   /**
    * @param {NewExpression} tree
    */
-  visitNewExpression: function(tree) {
+  visitNewExpression(tree) {
     this.checkVisit_(tree.operand.isMemberExpression(),
                      tree.operand,
                      'member expression expected');
     this.visitAny(tree.args);
-  },
+  }
 
   /**
    * @param {ObjectLiteralExpression} tree
    */
-  visitObjectLiteralExpression: function(tree) {
+  visitObjectLiteralExpression(tree) {
     for (var i = 0; i < tree.propertyNameAndValues.length; i++) {
       var propertyNameAndValue = tree.propertyNameAndValues[i];
       switch (propertyNameAndValue.type) {
@@ -728,12 +685,12 @@ ParseTreeValidator.prototype = createObject(
       }
       this.visitAny(propertyNameAndValue);
     }
-  },
+  }
 
   /**
    * @param {ObjectPattern} tree
    */
-  visitObjectPattern: function(tree) {
+  visitObjectPattern(tree) {
     for (var i = 0; i < tree.fields.length; i++) {
       var field = tree.fields[i];
       this.checkVisit_(field.type === ParseTreeType.OBJECT_PATTERN_FIELD ||
@@ -742,69 +699,69 @@ ParseTreeValidator.prototype = createObject(
                        field,
                        'object pattern field expected');
     }
-  },
+  }
 
   /**
    * @param {ObjectPatternField} tree
    */
-  visitObjectPatternField: function(tree) {
+  visitObjectPatternField(tree) {
     this.checkVisit_(tree.element.type === ParseTreeType.BINDING_ELEMENT ||
                      tree.element.isPattern() ||
                      tree.element.isLeftHandSideExpression(),
                      tree.element,
                      'binding element expected');
-  },
+  }
 
   /**
    * @param {ParenExpression} tree
    */
-  visitParenExpression: function(tree) {
+  visitParenExpression(tree) {
     if (tree.expression.isPattern()) {
       this.visitAny(tree.expression);
     } else {
       this.checkVisit_(tree.expression.isExpression(), tree.expression,
           'expression expected');
     }
-  },
+  }
 
   /**
    * @param {PostfixExpression} tree
    */
-  visitPostfixExpression: function(tree) {
+  visitPostfixExpression(tree) {
     this.checkVisit_(tree.operand.isArrowFunctionExpression(), tree.operand,
         'assignment expression expected');
-  },
+  }
 
   /**
    * @param {Program} tree
    */
-  visitProgram: function(tree) {
+  visitProgram(tree) {
     for (var i = 0; i < tree.programElements.length; i++) {
       var programElement = tree.programElements[i];
       this.checkVisit_(programElement.isProgramElement(),
           programElement,
           'global program element expected');
     }
-  },
+  }
 
   /**
    * @param {PropertyNameAssignment} tree
    */
-  visitPropertyNameAssignment: function(tree) {
+  visitPropertyNameAssignment(tree) {
     this.checkVisit_(tree.value.isArrowFunctionExpression(), tree.value,
         'assignment expression expected');
-  },
+  }
 
   /**
    * @param {PropertyNameShorthand} tree
    */
-  visitPropertyNameShorthand: function(tree) {
-  },
+  visitPropertyNameShorthand(tree) {
+  }
 
   /**
    * @param {QuasiLiteralExpression} tree
    */
-  visitQuasiLiteralExpression: function(tree) {
+  visitQuasiLiteralExpression(tree) {
     if (tree.operand) {
       this.checkVisit_(tree.operand.isMemberExpression(), tree.operand,
                        'member or call expression expected');
@@ -825,46 +782,46 @@ ParseTreeValidator.prototype = createObject(
 
       }
     }
-  },
+  }
 
   /**
    * @param {ReturnStatement} tree
    */
-  visitReturnStatement: function(tree) {
+  visitReturnStatement(tree) {
     if (tree.expression !== null) {
       this.checkVisit_(tree.expression.isExpression(), tree.expression,
           'expression expected');
     }
-  },
+  }
 
   /**
    * @param {SetAccessor} tree
    */
-  visitSetAccessor: function(tree) {
+  visitSetAccessor(tree) {
     this.checkType_(ParseTreeType.BLOCK, tree.body, 'block expected');
-  },
+  }
 
   /**
    * @param {SpreadExpression} tree
    */
-  visitSpreadExpression: function(tree) {
+  visitSpreadExpression(tree) {
     this.checkVisit_(tree.expression.isArrowFunctionExpression(),
         tree.expression,
         'assignment expression expected');
-  },
+  }
 
   /**
    * @param {StateMachine} tree
    */
-  visitStateMachine: function(tree) {
+  visitStateMachine(tree) {
     this.fail_(tree, 'State machines are never valid outside of the ' +
         'GeneratorTransformer pass.');
-  },
+  }
 
   /**
    * @param {SwitchStatement} tree
    */
-  visitSwitchStatement: function(tree) {
+  visitSwitchStatement(tree) {
     this.checkVisit_(tree.expression.isExpression(), tree.expression,
         'expression expected');
     var defaultCount = 0;
@@ -879,23 +836,23 @@ ParseTreeValidator.prototype = createObject(
                         caseClause, 'case or default clause expected');
       }
     }
-  },
+  }
 
   /**
    * @param {ThrowStatement} tree
    */
-  visitThrowStatement: function(tree) {
+  visitThrowStatement(tree) {
     if (tree.value === null) {
       return;
     }
     this.checkVisit_(tree.value.isExpression(), tree.value,
         'expression expected');
-  },
+  }
 
   /**
    * @param {TryStatement} tree
    */
-  visitTryStatement: function(tree) {
+  visitTryStatement(tree) {
     this.checkType_(ParseTreeType.BLOCK, tree.body, 'block expected');
     if (tree.catchBlock !== null && !tree.catchBlock.isNull()) {
       this.checkType_(ParseTreeType.CATCH, tree.catchBlock,
@@ -909,20 +866,20 @@ ParseTreeValidator.prototype = createObject(
         (tree.finallyBlock === null || tree.finallyBlock.isNull())) {
       this.fail_(tree, 'either catch or finally must be present');
     }
-  },
+  }
 
   /**
    * @param {UnaryExpression} tree
    */
-  visitUnaryExpression: function(tree) {
+  visitUnaryExpression(tree) {
     this.checkVisit_(tree.operand.isArrowFunctionExpression(), tree.operand,
         'assignment expression expected');
-  },
+  }
 
   /**
    * @param {VariableDeclaration} tree
    */
-  visitVariableDeclaration: function(tree) {
+  visitVariableDeclaration(tree) {
     this.checkVisit_(tree.lvalue.isPattern() ||
                      tree.lvalue.type == ParseTreeType.BINDING_IDENTIFIER,
                      tree.lvalue,
@@ -931,35 +888,69 @@ ParseTreeValidator.prototype = createObject(
       this.checkVisit_(tree.initializer.isArrowFunctionExpression(),
           tree.initializer, 'assignment expression expected');
     }
-  },
+  }
 
   /**
    * @param {WhileStatement} tree
    */
-  visitWhileStatement: function(tree) {
+  visitWhileStatement(tree) {
     this.checkVisit_(tree.condition.isExpression(), tree.condition,
         'expression expected');
     this.checkVisit_(tree.body.isStatement(), tree.body,
         'statement expected');
-  },
+  }
 
   /**
    * @param {WithStatement} tree
    */
-  visitWithStatement: function(tree) {
+  visitWithStatement(tree) {
     this.checkVisit_(tree.expression.isExpression(), tree.expression,
         'expression expected');
     this.checkVisit_(tree.body.isStatement(), tree.body,
         'statement expected');
-  },
+  }
 
   /**
    * @param {YieldStatement} tree
    */
-  visitYieldStatement: function(tree) {
+  visitYieldStatement(tree) {
     if (tree.expression !== null) {
       this.checkVisit_(tree.expression.isExpression(), tree.expression,
           'expression expected');
     }
   }
-});
+}
+
+/**
+ * Validates a parse tree.  Validation failures are compiler bugs.
+ * When a failure is found, the source file is dumped to standard
+ * error output and a runtime exception is thrown.
+ *
+ * @param {ParseTree} tree
+ */
+ParseTreeValidator.validate = function(tree) {
+  var validator = new ParseTreeValidator();
+  try {
+    validator.visitAny(tree);
+  } catch (e) {
+    if (!(e instanceof ValidationError)) {
+      throw e;
+    }
+
+    var location = null;
+    if (e.tree !== null) {
+      location = e.tree.location;
+    }
+    if (location === null) {
+      location = tree.location;
+    }
+    var locationString = location !== null ?
+        location.start.toString() :
+        '(unknown)';
+    throw Error('Parse tree validation failure \'' + e.message + '\' at ' +
+        locationString +
+        ':\n\n' +
+        TreeWriter.write(tree, {highlighted: e.tree, showLineNumbers: true}) +
+        '\n');
+  }
+};

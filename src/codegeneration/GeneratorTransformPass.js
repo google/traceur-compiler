@@ -36,48 +36,46 @@ var SetAccessor = trees.SetAccessor;
 /**
  * Can tell you if function body contains a yield statement. Does not search into
  * nested functions.
- * @param {ParseTree} tree
- * @extends {ParseTreeVisitor}
- * @constructor
  */
-function YieldFinder(tree) {
-  this.visitAny(tree);
-}
-
-YieldFinder.prototype = createObject(ParseTreeVisitor.prototype, {
-
-  hasYield: false,
-  hasYieldFor: false,
-  hasForIn: false,
-  hasAsync: false,
+class YieldFinder extends ParseTreeVisitor {
+  /**
+   * @param {ParseTree} tree
+   */
+  constructor(tree) {
+    this.hasYield = false;
+    this.hasYieldFor = false;
+    this.hasForIn = false;
+    this.hasAsync = false;
+    this.visitAny(tree);
+  }
 
   /** @return {boolean} */
-  hasAnyGenerator: function() {
+  hasAnyGenerator() {
     return this.hasYield || this.hasAsync;
-  },
+  }
 
   /** @param {YieldStatement} tree */
-  visitYieldStatement: function(tree) {
+  visitYieldStatement(tree) {
     this.hasYield = true;
     this.hasYieldFor = tree.isYieldFor;
-  },
+  }
 
   /** @param {AwaitStatement} tree */
-  visitAwaitStatement: function(tree) {
+  visitAwaitStatement(tree) {
     this.hasAsync = true;
-  },
+  }
 
   /** @param {ForInStatement} tree */
-  visitForInStatement: function(tree) {
+  visitForInStatement(tree) {
     this.hasForIn = true;
-    ParseTreeVisitor.prototype.visitForInStatement.call(this, tree);
-  },
+    super.visitForInStatement(tree);
+  }
 
   // don't visit function children or bodies
-  visitFunctionDeclaration: function(tree) {},
-  visitSetAccessor: function(tree) {},
-  visitGetAccessor: function(tree) {}
-});
+  visitFunctionDeclaration(tree) {}
+  visitSetAccessor(tree) {}
+  visitGetAccessor(tree) {}
+}
 
 /**
  * This transformer turns "yield* E" into a ForOf that

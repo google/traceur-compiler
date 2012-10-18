@@ -26,25 +26,22 @@ import {
  * Visits a parse tree and finds all required URLs in it.
  *
  *   module m from "url"
- *
- * @param {traceur.util.ErrorReporter} reporter
- * @constructor
- * @extends {ParseTreeVisitor}
  */
-export function ModuleRequireVisitor(reporter) {
-  ParseTreeVisitor.call(this);
-  this.urls_ = Object.create(null);
-}
-
-ModuleRequireVisitor.prototype = createObject(
-    ParseTreeVisitor.prototype, {
+export class ModuleRequireVisitor extends ParseTreeVisitor {
+  /**
+   * @param {traceur.util.ErrorReporter} reporter
+   */
+  constructor(reporter) {
+    super();
+    this.urls_ = Object.create(null);
+  }
 
   get requireUrls() {
     return Object.keys(this.urls_);
-  },
+  }
 
-  visitModuleRequire: function(tree) {
+  visitModuleRequire(tree) {
     // TODO(arv): This is kind of ugly but we need the value of the string.
     this.urls_[canonicalizeUrl(evaluateStringLiteral(tree.url))] = true;
   }
-});
+}

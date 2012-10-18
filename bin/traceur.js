@@ -1463,8 +1463,7 @@ var $src_syntax_trees_ParseTree_js =(function() {
 var $src_syntax_ParseTreeVisitor_js =(function() { 
   "use strict"; 
   var destructuring$ParseTreeType$getTreeNameForType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType$getTreeNameForType.ParseTreeType, getTreeNameForType = destructuring$ParseTreeType$getTreeNameForType.getTreeNameForType; 
-  function ParseTreeVisitor() { } 
-  ParseTreeVisitor.prototype = { 
+  var ParseTreeVisitor = traceur.runtime.createClass({ 
     visitAny: function(tree) { 
       if(tree === null) { 
         return; 
@@ -1756,8 +1755,12 @@ var $src_syntax_ParseTreeVisitor_js =(function() {
     }, 
     visitYieldStatement: function(tree) { 
       this.visitAny(tree.expression); 
+    }, 
+    constructor: function() { 
+      var args = Array.prototype.slice.call(arguments, 0); 
+      traceur.runtime.superCall(this, ParseTreeVisitor, "constructor", $__1(args)); 
     } 
-  }; 
+  }, null, false, false); 
   return Object.preventExtensions(Object.create(null, { ParseTreeVisitor: { 
       get: function() { 
         return ParseTreeVisitor; 
@@ -1902,13 +1905,13 @@ var $src_codegeneration_module_ModuleVisitor_js =(function() {
   function getFriendlyName(module) { 
     return module.name || module.url; 
   } 
-  function ModuleVisitor(reporter, project, module) { 
-    ParseTreeVisitor.call(this); 
-    this.reporter_ = reporter; 
-    this.project = project; 
-    this.currentModule_ = module; 
-  } 
-  ModuleVisitor.prototype = createObject(ParseTreeVisitor.prototype, { 
+  var ModuleVisitor = traceur.runtime.createClass({ 
+    constructor: function(reporter, project, module) { 
+      traceur.runtime.superCall(this, ModuleVisitor, "constructor",[]); 
+      this.reporter_ = reporter; 
+      this.project = project; 
+      this.currentModule_ = module; 
+    }, 
     get currentModule() { 
       return this.currentModule_; 
     }, 
@@ -2017,7 +2020,7 @@ var $src_codegeneration_module_ModuleVisitor_js =(function() {
         } 
       } 
     } 
-  }); 
+  }, ParseTreeVisitor, true, true); 
   return Object.preventExtensions(Object.create(null, { ModuleVisitor: { 
       get: function() { 
         return ModuleVisitor; 
@@ -2032,12 +2035,12 @@ var $src_codegeneration_module_ExportVisitor_js =(function() {
   var destructuring$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType.ParseTreeType; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
   var IDENTIFIER_EXPRESSION = ParseTreeType.IDENTIFIER_EXPRESSION; 
-  function ExportVisitor(reporter, project, module) { 
-    ModuleVisitor.call(this, reporter, project, module); 
-    this.inExport_ = false; 
-    this.relatedTree_ = null; 
-  } 
-  ExportVisitor.prototype = createObject(ModuleVisitor.prototype, { 
+  var ExportVisitor = traceur.runtime.createClass({ 
+    constructor: function(reporter, project, module) { 
+      traceur.runtime.superCall(this, ExportVisitor, "constructor",[reporter, project, module]); 
+      this.inExport_ = false; 
+      this.relatedTree_ = null; 
+    }, 
     addExport_: function(name, tree) { 
       if(! this.inExport_) { 
         return; 
@@ -2089,7 +2092,7 @@ var $src_codegeneration_module_ExportVisitor_js =(function() {
       this.addExport_(tree.name.value, tree); 
       var inExport = this.inExport_; 
       this.inExport_ = false; 
-      ModuleVisitor.prototype.visitModuleDefinition.call(this, tree); 
+      traceur.runtime.superCall(this, ExportVisitor, "visitModuleDefinition",[tree]); 
       this.inExport_ = inExport; 
     }, 
     visitModuleSpecifier: function(tree) { 
@@ -2098,7 +2101,7 @@ var $src_codegeneration_module_ExportVisitor_js =(function() {
     visitVariableDeclaration: function(tree) { 
       this.addExport_(tree.lvalue.identifierToken.value, tree); 
     } 
-  }); 
+  }, ModuleVisitor, true, true); 
   return Object.preventExtensions(Object.create(null, { ExportVisitor: { 
       get: function() { 
         return ExportVisitor; 
@@ -2230,16 +2233,18 @@ var $src_codegeneration_module_ImportStarVisitor_js =(function() {
   var destructuring$ParseTreeType = $src_syntax_trees_ParseTree_js, ParseTreeType = destructuring$ParseTreeType.ParseTreeType; 
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
-  function ImportStarVisitor(reporter, project, module) { 
-    ModuleVisitor.call(this, reporter, project, module); 
-  } 
-  ImportStarVisitor.prototype = createObject(ModuleVisitor.prototype, { visitImportBinding: function(tree) { 
+  var ImportStarVisitor = traceur.runtime.createClass({ 
+    constructor: function(reporter, project, module) { 
+      traceur.runtime.superCall(this, ImportStarVisitor, "constructor",[reporter, project, module]); 
+    }, 
+    visitImportBinding: function(tree) { 
       var importSpecifierSet = tree.importSpecifierSet; 
       if(importSpecifierSet.type === ParseTreeType.IMPORT_SPECIFIER_SET && importSpecifierSet.specifiers.type === TokenType.STAR) { 
         var module = this.getModuleForModuleExpression(tree.moduleExpression); 
         this.project.setModuleForStarTree(importSpecifierSet, module); 
       } 
-    } }); 
+    } 
+  }, ModuleVisitor, true, true); 
   return Object.preventExtensions(Object.create(null, { ImportStarVisitor: { 
       get: function() { 
         return ImportStarVisitor; 
@@ -2251,10 +2256,11 @@ var $src_codegeneration_module_ModuleDeclarationVisitor_js =(function() {
   "use strict"; 
   var destructuring$ModuleVisitor = $src_codegeneration_module_ModuleVisitor_js, ModuleVisitor = destructuring$ModuleVisitor.ModuleVisitor; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
-  function ModuleDeclarationVisitor(reporter, project, module) { 
-    ModuleVisitor.call(this, reporter, project, module); 
-  } 
-  ModuleDeclarationVisitor.prototype = createObject(ModuleVisitor.prototype, { visitModuleSpecifier: function(tree) { 
+  var ModuleDeclarationVisitor = traceur.runtime.createClass({ 
+    constructor: function(reporter, project, module) { 
+      traceur.runtime.superCall(this, ModuleDeclarationVisitor, "constructor",[reporter, project, module]); 
+    }, 
+    visitModuleSpecifier: function(tree) { 
       var name = tree.identifier.value; 
       var parent = this.currentModule; 
       var module = this.getModuleForModuleExpression(tree.expression); 
@@ -2262,7 +2268,8 @@ var $src_codegeneration_module_ModuleDeclarationVisitor_js =(function() {
         return; 
       } 
       parent.addModuleWithName(module, name); 
-    } }); 
+    } 
+  }, ModuleVisitor, true, true); 
   return Object.preventExtensions(Object.create(null, { ModuleDeclarationVisitor: { 
       get: function() { 
         return ModuleDeclarationVisitor; 
@@ -2327,18 +2334,20 @@ var $src_codegeneration_module_ModuleDefinitionVisitor_js =(function() {
   var destructuring$ModuleSymbol = $src_semantics_symbols_ModuleSymbol_js, ModuleSymbol = destructuring$ModuleSymbol.ModuleSymbol; 
   var destructuring$ModuleVisitor = $src_codegeneration_module_ModuleVisitor_js, ModuleVisitor = destructuring$ModuleVisitor.ModuleVisitor; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
-  function ModuleDefinitionVisitor(reporter, project, module) { 
-    ModuleVisitor.call(this, reporter, project, module); 
-  } 
-  ModuleDefinitionVisitor.prototype = createObject(ModuleVisitor.prototype, { visitModuleDefinition: function(tree) { 
+  var ModuleDefinitionVisitor = traceur.runtime.createClass({ 
+    constructor: function(reporter, project, module) { 
+      traceur.runtime.superCall(this, ModuleDefinitionVisitor, "constructor",[reporter, project, module]); 
+    }, 
+    visitModuleDefinition: function(tree) { 
       var name = tree.name.value; 
       if(this.checkForDuplicateModule_(name, tree)) { 
         var parent = this.currentModule; 
         var module = new ModuleSymbol(name, parent, tree, parent.url); 
         parent.addModule(module); 
       } 
-      ModuleVisitor.prototype.visitModuleDefinition.call(this, tree); 
-    } }); 
+      traceur.runtime.superCall(this, ModuleDefinitionVisitor, "visitModuleDefinition",[tree]); 
+    } 
+  }, ModuleVisitor, true, true); 
   return Object.preventExtensions(Object.create(null, { ModuleDefinitionVisitor: { 
       get: function() { 
         return ModuleDefinitionVisitor; 
@@ -8131,13 +8140,6 @@ var $src_semantics_VariableBinder_js =(function() {
   var ObjectPatternField = trees.ObjectPatternField; 
   var VariableDeclarationList = trees.VariableDeclarationList; 
   var VariableDeclaration = trees.VariableDeclaration; 
-  function VariableBinder(includeFunctionScope, scope) { 
-    ParseTreeVisitor.call(this); 
-    this.includeFunctionScope_ = includeFunctionScope; 
-    this.scope_ = scope || null; 
-    this.block_ = null; 
-    this.identifiers_ = Object.create(null); 
-  } 
   function variablesInBlock(tree, includeFunctionScope) { 
     var binder = new VariableBinder(includeFunctionScope, tree); 
     binder.visitAny(tree); 
@@ -8150,8 +8152,14 @@ var $src_semantics_VariableBinder_js =(function() {
     return binder.identifiers_; 
   } 
   ; 
-  var proto = ParseTreeVisitor.prototype; 
-  VariableBinder.prototype = createObject(proto, { 
+  var VariableBinder = traceur.runtime.createClass({ 
+    constructor: function(includeFunctionScope, scope) { 
+      traceur.runtime.superCall(this, VariableBinder, "constructor",[]); 
+      this.includeFunctionScope_ = includeFunctionScope; 
+      this.scope_ = scope || null; 
+      this.block_ = null; 
+      this.identifiers_ = Object.create(null); 
+    }, 
     bindVariablesInFunction_: function(tree) { 
       var parameters = tree.formalParameterList.parameters; 
       for(var i = 0; i < parameters.length; i ++) { 
@@ -8179,7 +8187,7 @@ var $src_semantics_VariableBinder_js =(function() {
     visitFunctionDeclaration: function(tree) { }, 
     visitVariableDeclarationList: function(tree) { 
       if((tree.declarationType == TokenType.VAR && this.includeFunctionScope_) ||(tree.declarationType != TokenType.VAR && this.block_ == this.scope_)) { 
-        proto.visitVariableDeclarationList.call(this, tree); 
+        traceur.runtime.superCall(this, VariableBinder, "visitVariableDeclarationList",[tree]); 
       } else { 
         var decls = tree.declarations; 
         for(var i = 0; i < decls.length; i ++) { 
@@ -8189,7 +8197,7 @@ var $src_semantics_VariableBinder_js =(function() {
     }, 
     visitVariableDeclaration: function(tree) { 
       this.bindVariableDeclaration_(tree.lvalue); 
-      proto.visitVariableDeclaration.call(this, tree); 
+      traceur.runtime.superCall(this, VariableBinder, "visitVariableDeclaration",[tree]); 
     }, 
     bind_: function(identifier) { 
       traceur.assert(typeof identifier.value == 'string'); 
@@ -8244,14 +8252,8 @@ var $src_semantics_VariableBinder_js =(function() {
 
       } 
     } 
-  }); 
+  }, ParseTreeVisitor, true, true); 
   return Object.preventExtensions(Object.create(null, { 
-    VariableBinder: { 
-      get: function() { 
-        return VariableBinder; 
-      }, 
-      enumerable: true 
-    }, 
     variablesInBlock: { 
       get: function() { 
         return variablesInBlock; 
@@ -8261,6 +8263,12 @@ var $src_semantics_VariableBinder_js =(function() {
     variablesInFunction: { 
       get: function() { 
         return variablesInFunction; 
+      }, 
+      enumerable: true 
+    }, 
+    VariableBinder: { 
+      get: function() { 
+        return VariableBinder; 
       }, 
       enumerable: true 
     } 
@@ -8338,18 +8346,18 @@ var $src_outputgeneration_ParseTreeWriter_js =(function() {
   var destructuring$StringBuilder = $src_util_StringBuilder_js, StringBuilder = destructuring$StringBuilder.StringBuilder; 
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
-  function ParseTreeWriter(highlighted, showLineNumbers) { 
-    ParseTreeVisitor.call(this); 
-    this.highlighted_ = highlighted; 
-    this.showLineNumbers_ = showLineNumbers; 
-    this.result_ = new StringBuilder(); 
-    this.currentLine_ = new StringBuilder(); 
-  } 
   var NEW_LINE = '\n'; 
   var PRETTY_PRINT = true; 
-  ParseTreeWriter.prototype = createObject(ParseTreeVisitor.prototype, { 
-    currentLineComment_: null, 
-    indentDepth_: 0, 
+  var ParseTreeWriter = traceur.runtime.createClass({ 
+    constructor: function(highlighted, showLineNumbers) { 
+      traceur.runtime.superCall(this, ParseTreeWriter, "constructor",[]); 
+      this.highlighted_ = highlighted; 
+      this.showLineNumbers_ = showLineNumbers; 
+      this.result_ = new StringBuilder(); 
+      this.currentLine_ = new StringBuilder(); 
+      this.currentLineComment_ = null; 
+      this.indentDepth_ = 0; 
+    }, 
     visitAny: function(tree) { 
       if(! tree) { 
         return; 
@@ -8363,7 +8371,7 @@ var $src_outputgeneration_ParseTreeWriter_js =(function() {
         this.currentLineComment_ = 'Line: ' + line + '.' + column; 
       } 
       this.currentLocation = tree.location; 
-      ParseTreeVisitor.prototype.visitAny.call(this, tree); 
+      traceur.runtime.superCall(this, ParseTreeWriter, "visitAny",[tree]); 
       if(tree === this.highlighted_) { 
         this.write_('\x1B[0m'); 
       } 
@@ -8761,7 +8769,7 @@ var $src_outputgeneration_ParseTreeWriter_js =(function() {
     }, 
     visitParenExpression: function(tree) { 
       this.write_(TokenType.OPEN_PAREN); 
-      ParseTreeVisitor.prototype.visitParenExpression.call(this, tree); 
+      traceur.runtime.superCall(this, ParseTreeWriter, "visitParenExpression",[tree]); 
       this.write_(TokenType.CLOSE_PAREN); 
     }, 
     visitPostfixExpression: function(tree) { 
@@ -8877,7 +8885,7 @@ var $src_outputgeneration_ParseTreeWriter_js =(function() {
       } 
     }, 
     visitVariableStatement: function(tree) { 
-      ParseTreeVisitor.prototype.visitVariableStatement.call(this, tree); 
+      traceur.runtime.superCall(this, ParseTreeWriter, "visitVariableStatement",[tree]); 
       this.write_(TokenType.SEMI_COLON); 
     }, 
     visitWhileStatement: function(tree) { 
@@ -9007,7 +9015,7 @@ var $src_outputgeneration_ParseTreeWriter_js =(function() {
         this.indentDepth_ ++; 
       } 
     } 
-  }); 
+  }, ParseTreeVisitor, true, true); 
   return Object.preventExtensions(Object.create(null, { ParseTreeWriter: { 
       get: function() { 
         return ParseTreeWriter; 
@@ -9099,37 +9107,11 @@ var $src_syntax_ParseTreeValidator_js =(function() {
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
   var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
   var NewExpression = trees.NewExpression; 
-  function ParseTreeValidator() { 
-    ParseTreeVisitor.call(this); 
-  } 
-  function ValidationError(tree, message) { 
-    this.tree = tree; 
-    this.message = message; 
-  } 
-  ValidationError.prototype = Object.create(Error.prototype); 
-  ParseTreeValidator.validate = function(tree) { 
-    var validator = new ParseTreeValidator(); 
-    try { 
-      validator.visitAny(tree); 
-    } catch(e) { 
-      if(!(e instanceof ValidationError)) { 
-        throw e; 
-      } 
-      var location = null; 
-      if(e.tree !== null) { 
-        location = e.tree.location; 
-      } 
-      if(location === null) { 
-        location = tree.location; 
-      } 
-      var locationString = location !== null ? location.start.toString(): '(unknown)'; 
-      throw Error('Parse tree validation failure \'' + e.message + '\' at ' + locationString + ':\n\n' + TreeWriter.write(tree, { 
-        highlighted: e.tree, 
-        showLineNumbers: true 
-      }) + '\n'); 
-    } 
-  }; 
-  ParseTreeValidator.prototype = createObject(ParseTreeVisitor.prototype, { 
+  var ValidationError = traceur.runtime.createClass({ constructor: function(tree, message) { 
+      this.tree = tree; 
+      this.message = message; 
+    } }, Error, true, true); 
+  var ParseTreeValidator = traceur.runtime.createClass({ 
     fail_: function(tree, message) { 
       throw new ValidationError(tree, message); 
     }, 
@@ -9561,8 +9543,34 @@ var $src_syntax_ParseTreeValidator_js =(function() {
       if(tree.expression !== null) { 
         this.checkVisit_(tree.expression.isExpression(), tree.expression, 'expression expected'); 
       } 
+    }, 
+    constructor: function() { 
+      var args = Array.prototype.slice.call(arguments, 0); 
+      traceur.runtime.superCall(this, ParseTreeValidator, "constructor", $__1(args)); 
     } 
-  }); 
+  }, ParseTreeVisitor, false, true); 
+  ParseTreeValidator.validate = function(tree) { 
+    var validator = new ParseTreeValidator(); 
+    try { 
+      validator.visitAny(tree); 
+    } catch(e) { 
+      if(!(e instanceof ValidationError)) { 
+        throw e; 
+      } 
+      var location = null; 
+      if(e.tree !== null) { 
+        location = e.tree.location; 
+      } 
+      if(location === null) { 
+        location = tree.location; 
+      } 
+      var locationString = location !== null ? location.start.toString(): '(unknown)'; 
+      throw Error('Parse tree validation failure \'' + e.message + '\' at ' + locationString + ':\n\n' + TreeWriter.write(tree, { 
+        highlighted: e.tree, 
+        showLineNumbers: true 
+      }) + '\n'); 
+    } 
+  }; 
   return Object.preventExtensions(Object.create(null, { ParseTreeValidator: { 
       get: function() { 
         return ParseTreeValidator; 
@@ -9645,18 +9653,18 @@ var $src_codegeneration_module_ModuleRequireVisitor_js =(function() {
   var destructuring$ParseTreeVisitor = $src_syntax_ParseTreeVisitor_js, ParseTreeVisitor = destructuring$ParseTreeVisitor.ParseTreeVisitor; 
   var destructuring$canonicalizeUrl = $src_util_url_js, canonicalizeUrl = destructuring$canonicalizeUrl.canonicalizeUrl; 
   var destructuring$createObject$evaluateStringLiteral = $src_util_util_js, createObject = destructuring$createObject$evaluateStringLiteral.createObject, evaluateStringLiteral = destructuring$createObject$evaluateStringLiteral.evaluateStringLiteral; 
-  function ModuleRequireVisitor(reporter) { 
-    ParseTreeVisitor.call(this); 
-    this.urls_ = Object.create(null); 
-  } 
-  ModuleRequireVisitor.prototype = createObject(ParseTreeVisitor.prototype, { 
+  var ModuleRequireVisitor = traceur.runtime.createClass({ 
+    constructor: function(reporter) { 
+      traceur.runtime.superCall(this, ModuleRequireVisitor, "constructor",[]); 
+      this.urls_ = Object.create(null); 
+    }, 
     get requireUrls() { 
       return Object.keys(this.urls_); 
     }, 
     visitModuleRequire: function(tree) { 
       this.urls_[canonicalizeUrl(evaluateStringLiteral(tree.url))]= true; 
     } 
-  }); 
+  }, ParseTreeVisitor, true, true); 
   return Object.preventExtensions(Object.create(null, { ModuleRequireVisitor: { 
       get: function() { 
         return ModuleRequireVisitor; 
@@ -9946,17 +9954,17 @@ var $src_codegeneration_FindVisitor_js =(function() {
   "use strict"; 
   var destructuring$ParseTreeVisitor = $src_syntax_ParseTreeVisitor_js, ParseTreeVisitor = destructuring$ParseTreeVisitor.ParseTreeVisitor; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
-  function FindVisitor(tree, keepOnGoing) { 
-    this.found_ = false; 
-    this.keepOnGoing_ = keepOnGoing; 
-    try { 
-      this.visitAny(tree); 
-    } catch(ex) { 
-      if(ex !== foundSentinel) throw ex; 
-    } 
-  } 
   var foundSentinel = { }; 
-  FindVisitor.prototype = createObject(ParseTreeVisitor.prototype, { 
+  var FindVisitor = traceur.runtime.createClass({ 
+    constructor: function(tree, keepOnGoing) { 
+      this.found_ = false; 
+      this.keepOnGoing_ = keepOnGoing; 
+      try { 
+        this.visitAny(tree); 
+      } catch(ex) { 
+        if(ex !== foundSentinel) throw ex; 
+      } 
+    }, 
     get found() { 
       return this.found_; 
     }, 
@@ -9966,7 +9974,7 @@ var $src_codegeneration_FindVisitor_js =(function() {
         if(! this.keepOnGoing_) throw foundSentinel; 
       } 
     } 
-  }); 
+  }, ParseTreeVisitor, true, true); 
   return Object.preventExtensions(Object.create(null, { FindVisitor: { 
       get: function() { 
         return FindVisitor; 
@@ -11474,15 +11482,11 @@ var $src_semantics_FreeVariableChecker_js =(function() {
   var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
   var BindingIdentifier = trees.BindingIdentifier; 
   var IdentifierExpression = trees.IdentifierExpression; 
-  function FreeVariableChecker(reporter) { 
-    ParseTreeVisitor.call(this); 
-    this.reporter_ = reporter; 
-  } 
-  function Scope(parent) { 
-    this.parent = parent; 
-    this.references = Object.create(null); 
-    this.declarations = Object.create(null); 
-  } 
+  var Scope = traceur.runtime.createClass({ constructor: function(parent) { 
+      this.parent = parent; 
+      this.references = Object.create(null); 
+      this.declarations = Object.create(null); 
+    } }, null, true, false); 
   function getVariableName(name) { 
     if(name instanceof IdentifierExpression) { 
       name = name.identifierToken; 
@@ -11503,13 +11507,12 @@ var $src_semantics_FreeVariableChecker_js =(function() {
     } 
     return null; 
   } 
-  var global =('global', eval)('this'); 
-  FreeVariableChecker.checkProgram = function(reporter, tree) { 
-    new FreeVariableChecker(reporter).visitProgram(tree, global); 
-  }; 
-  var proto = ParseTreeVisitor.prototype; 
-  FreeVariableChecker.prototype = createObject(proto, { 
-    scope_: null, 
+  var FreeVariableChecker = traceur.runtime.createClass({ 
+    constructor: function(reporter) { 
+      traceur.runtime.superCall(this, FreeVariableChecker, "constructor",[]); 
+      this.reporter_ = reporter; 
+      this.scope_ = null; 
+    }, 
     pushScope_: function() { 
       return this.scope_ = new Scope(this.scope_); 
     }, 
@@ -11630,7 +11633,11 @@ var $src_semantics_FreeVariableChecker_js =(function() {
       args[0]= location; 
       this.reporter_.reportError.apply(this.reporter_, args); 
     } 
-  }); 
+  }, ParseTreeVisitor, true, true); 
+  var global = this; 
+  FreeVariableChecker.checkProgram = function(reporter, tree) { 
+    new FreeVariableChecker(reporter).visitProgram(tree, global); 
+  }; 
   return Object.preventExtensions(Object.create(null, { FreeVariableChecker: { 
       get: function() { 
         return FreeVariableChecker; 
@@ -12965,14 +12972,14 @@ var $src_codegeneration_GeneratorTransformPass_js =(function() {
   var FunctionDeclaration = trees.FunctionDeclaration; 
   var GetAccessor = trees.GetAccessor; 
   var SetAccessor = trees.SetAccessor; 
-  function YieldFinder(tree) { 
-    this.visitAny(tree); 
-  } 
-  YieldFinder.prototype = createObject(ParseTreeVisitor.prototype, { 
-    hasYield: false, 
-    hasYieldFor: false, 
-    hasForIn: false, 
-    hasAsync: false, 
+  var YieldFinder = traceur.runtime.createClass({ 
+    constructor: function(tree) { 
+      this.hasYield = false; 
+      this.hasYieldFor = false; 
+      this.hasForIn = false; 
+      this.hasAsync = false; 
+      this.visitAny(tree); 
+    }, 
     hasAnyGenerator: function() { 
       return this.hasYield || this.hasAsync; 
     }, 
@@ -12985,12 +12992,12 @@ var $src_codegeneration_GeneratorTransformPass_js =(function() {
     }, 
     visitForInStatement: function(tree) { 
       this.hasForIn = true; 
-      ParseTreeVisitor.prototype.visitForInStatement.call(this, tree); 
+      traceur.runtime.superCall(this, YieldFinder, "visitForInStatement",[tree]); 
     }, 
     visitFunctionDeclaration: function(tree) { }, 
     visitSetAccessor: function(tree) { }, 
     visitGetAccessor: function(tree) { } 
-  }); 
+  }, ParseTreeVisitor, true, true); 
   function YieldForTransformer(identifierGenerator) { 
     ParseTreeTransformer.call(this); 
     this.identifierGenerator_ = identifierGenerator; 

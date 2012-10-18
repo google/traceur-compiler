@@ -30,24 +30,23 @@ function getFriendlyName(module) {
 
 /**
  * A specialized parse tree visitor for use with modules.
- * @param {traceur.util.ErrorReporter} reporter
- * @param {ProjectSymbol} project
- * @param {ModuleSymbol} module The root of the module system.
- * @constructor
- * @extends {ParseTreeVisitor}
  */
-export function ModuleVisitor(reporter, project, module) {
-  ParseTreeVisitor.call(this);
-  this.reporter_ = reporter;
-  this.project = project;
-  this.currentModule_ = module;
-}
-
-ModuleVisitor.prototype = createObject(ParseTreeVisitor.prototype, {
+export class ModuleVisitor extends ParseTreeVisitor {
+  /**
+   * @param {traceur.util.ErrorReporter} reporter
+   * @param {ProjectSymbol} project
+   * @param {ModuleSymbol} module The root of the module system.
+   */
+  constructor(reporter, project, module) {
+    super();
+    this.reporter_ = reporter;
+    this.project = project;
+    this.currentModule_ = module;
+  }
 
   get currentModule() {
     return this.currentModule_;
-  },
+  }
 
   /**
    * Finds a module by name. This walks the lexical scope chain of the
@@ -56,7 +55,7 @@ ModuleVisitor.prototype = createObject(ParseTreeVisitor.prototype, {
    * @param {string} name
    * @return {ModuleSymbol}
    */
-  getModuleByName: function(name) {
+  getModuleByName(name) {
     var module = this.currentModule;
     while (module) {
       if (module.hasModule(name)) {
@@ -65,14 +64,14 @@ ModuleVisitor.prototype = createObject(ParseTreeVisitor.prototype, {
       module = module.parent;
     }
     return null;
-  },
+  }
 
   /**
    * @param {ModuleExpression} tree
    * @param {boolean=} reportErorrors If false no errors are reported.
    * @return {ModuleSymbol}
    */
-  getModuleForModuleExpression: function(tree, reportErrors) {
+  getModuleForModuleExpression(tree, reportErrors) {
     // "url".b.c
     if (tree.reference.type == ParseTreeType.MODULE_REQUIRE) {
       var url = evaluateStringLiteral(tree.reference.url);
@@ -120,14 +119,14 @@ ModuleVisitor.prototype = createObject(ParseTreeVisitor.prototype, {
     }
 
     return parent;
-  },
+  }
 
   // Limit the trees to visit.
-  visitFunctionDeclaration: function(tree) {},
-  visitSetAccessor: function(tree) {},
-  visitGetAccessor: function(tree) {},
+  visitFunctionDeclaration(tree) {}
+  visitSetAccessor(tree) {}
+  visitGetAccessor(tree) {}
 
-  visitModuleElement_: function(element) {
+  visitModuleElement_(element) {
     switch (element.type) {
       case ParseTreeType.MODULE_DECLARATION:
       case ParseTreeType.MODULE_DEFINITION:
@@ -135,13 +134,13 @@ ModuleVisitor.prototype = createObject(ParseTreeVisitor.prototype, {
       case ParseTreeType.IMPORT_DECLARATION:
         this.visitAny(element);
     }
-  },
+  }
 
-  visitProgram: function(tree) {
+  visitProgram(tree) {
     tree.programElements.forEach(this.visitModuleElement_, this);
-  },
+  }
 
-  visitModuleDefinition: function(tree) {
+  visitModuleDefinition(tree) {
     var current = this.currentModule_;
     var name = tree.name.value;
     var module = current.getModule(name);
@@ -149,9 +148,9 @@ ModuleVisitor.prototype = createObject(ParseTreeVisitor.prototype, {
     this.currentModule_ = module;
     tree.elements.forEach(this.visitModuleElement_, this);
     this.currentModule_ = current;
-  },
+  }
 
-  checkForDuplicateModule_: function(name, tree) {
+  checkForDuplicateModule_(name, tree) {
     var parent = this.currentModule;
     if (parent.hasModule(name)) {
       this.reportError_(tree, 'Duplicate module declaration \'%s\'', name);
@@ -159,7 +158,7 @@ ModuleVisitor.prototype = createObject(ParseTreeVisitor.prototype, {
       return false;
     }
     return true;
-  },
+  }
 
   /**
    * @param {Symbol|ParseTree} symbolOrTree
@@ -168,7 +167,7 @@ ModuleVisitor.prototype = createObject(ParseTreeVisitor.prototype, {
    * @return {void}
    * @private
    */
-  reportError_: function(symbolOrTree, format, var_args) {
+  reportError_(symbolOrTree, format, var_args) {
     var tree;
     if (symbolOrTree instanceof Symbol) {
       tree = symbolOrTree.tree;
@@ -180,14 +179,14 @@ ModuleVisitor.prototype = createObject(ParseTreeVisitor.prototype, {
     args[0] = tree.location.start;
 
     this.reporter_.reportError.apply(this.reporter_, args);
-  },
+  }
 
   /**
    * @param {Symbol|ParseTree} symbolOrTree
    * @return {void}
    * @private
    */
-  reportRelatedError_: function(symbolOrTree) {
+  reportRelatedError_(symbolOrTree) {
     if (symbolOrTree instanceof ParseTree) {
       this.reportError_(symbolOrTree, 'Location related to previous error');
     } else {
@@ -200,4 +199,4 @@ ModuleVisitor.prototype = createObject(ParseTreeVisitor.prototype, {
       }
     }
   }
-});
+}
