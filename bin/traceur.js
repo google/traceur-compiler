@@ -2595,7 +2595,7 @@ var $src_util_ErrorReporter_js =(function() {
       this.reportMessageInternal(location, 'warn', format, args); 
     }, 
     reportMessageInternal: function(location, kind, format, args) { 
-      if(location) format =("" + location + ":" + format); 
+      if(location) format =("" + location + ": " + format); 
       console[kind].apply(console,[format].concat(args)); 
     }, 
     hadError: function() { 
