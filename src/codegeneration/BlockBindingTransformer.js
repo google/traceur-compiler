@@ -54,7 +54,6 @@ var VariableDeclarationList = trees.VariableDeclarationList;
 var VariableDeclaration = trees.VariableDeclaration;
 var VariableStatement = trees.VariableStatement;
 
-
 var CONST = TokenType.CONST;
 var LET = TokenType.LET;
 var VAR = TokenType.VAR;
@@ -82,21 +81,7 @@ var VAR = TokenType.VAR;
  * and variable declarations have already been desugared. See getVariableName_.
  *
  * TODO: Implement const support (currently rewritten exactly as 'let')
- *
- * @extends {ParseTreeTransformer}
- * @constructor
  */
-export function BlockBindingTransformer(stateAllocator) {
-  ParseTreeTransformer.call(this);
-}
-
-/**
- * @param {Program} tree
- * @return {Program}
- */
-BlockBindingTransformer.transformTree = function(tree) {
-  return new BlockBindingTransformer().transformAny(tree);
-};
 
 var ScopeType = {
   PROGRAM: 'PROGRAM',
@@ -106,24 +91,25 @@ var ScopeType = {
 
 /**
  * Represents the link in the scope chain.
- * @param {Scope} parent The parent scope, or null if top level (program) scope.
- * @param {ScopeType} type Scope type: global, function, block.
- * @constructor
  */
-function Scope(parent, type) {
-  //
-  this.parent = parent;
-  this.type = type;
-}
-Scope.prototype = {
-  /** Block scoped variables accumulated within the block. */
-  blockVariables: null,
+class Scope {
+  /**
+   * @param {Scope} parent The parent scope, or null if top level (program)
+   *     scope.
+   * @param {ScopeType} type Scope type: global, function, block.
+   */
+  constructor(parent, type) {
+    this.parent = parent;
+    this.type = type;
+    /** Block scoped variables accumulated within the block. */
+    this.blockVariables = null;
+  }
 
   /**
    * Stores a block scoped variable for future processing.
    * @param {string} value
    */
-  addBlockScopedVariable: function(value) {
+  addBlockScopedVariable(value) {
     if (!this.blockVariables) {
       this.blockVariables = Object.create(null);
     }
@@ -162,13 +148,15 @@ function toBlock(statement) {
   return statement.type == ParseTreeType.BLOCK ? statement : createBlock(statement);
 }
 
-var proto = ParseTreeTransformer.prototype;
-BlockBindingTransformer.prototype = createObject(proto, {
-
-  /**
-   * Current scope (block, program)
-   */
-  scope_: null,
+/**
+ * @extends {ParseTreeTransformer}
+ * @constructor
+ */
+export class BlockBindingTransformer extends ParseTreeTransformer {
+  constructor(stateAllocator) {
+    super();
+    this.scope_ = null;
+  }
 
   /**
    * Creates top level (program) scope.
@@ -176,57 +164,57 @@ BlockBindingTransformer.prototype = createObject(proto, {
    * functions are unchanged.
    * @return {Scope}
    */
-  createProgramScope_: function() {
+  createProgramScope_() {
     // program scope is never a block/let scope
-    return new Scope(this.scope__, ScopeType.PROGRAM);
-  },
+    return new Scope(this.scope_, ScopeType.PROGRAM);
+  }
 
   /**
    * Creates function level scope.
    * let/const is rewritten, function names are not.
    * @return {Scope}
    */
-  createFunctionScope_: function() {
+  createFunctionScope_() {
     if (this.scope_ == null) {
       throw new Error('Top level function scope found.');
     }
     // program scope is never a block/let scope
     return new Scope(this.scope_, ScopeType.FUNCTION);
-  },
+  }
 
   /**
    * Creates block scope - inside it let/const/function have limited scope.
    * @return {Scope}
    */
-  createBlockScope_: function() {
+  createBlockScope_() {
     if (this.scope_ == null) {
       throw new Error('Top level block scope found.');
     }
     // contained within block scope
     return new Scope(this.scope_, ScopeType.BLOCK);
-  },
+  }
 
   /**
    * Pushes new scope
    * @param {Scope} scope
    * @return {Scope}
    */
-  push_: function(scope) {
+  push_(scope) {
     this.scope_ = scope;
     return scope;
-  },
+  }
 
   /**
    * Pops scope, tracks proper matching of push_/pop_ operations.
    * @param {Scope} scope
    */
-  pop_: function(scope) {
+  pop_(scope) {
     if (this.scope_ != scope) {
       throw new Error('BlockBindingTransformer scope mismatch');
     }
 
     this.scope_ = scope.parent;
-  },
+  }
 
   // The transform methods override from the base.
 
@@ -235,7 +223,7 @@ BlockBindingTransformer.prototype = createObject(proto, {
    * @param {Block} tree
    * @return {ParseTree}
    */
-  transformBlock: function(tree) {
+  transformBlock(tree) {
     // Push new scope.
     var scope = this.push_(this.createBlockScope_());
 
@@ -259,7 +247,7 @@ BlockBindingTransformer.prototype = createObject(proto, {
 
     this.pop_(scope);
     return tree;
-  },
+  }
 
   /**
    * Declares block-scoped variables. Does so by wrapping a block in
@@ -279,7 +267,7 @@ BlockBindingTransformer.prototype = createObject(proto, {
    * @param {ParseTree} statements
    * @return {ParseTree}
    */
-  rewriteAsCatch_: function(blockVariables, statement) {
+  rewriteAsCatch_(blockVariables, statement) {
     // Build the try .. catch structure from within.
     // try {
     //   throw undefined;
@@ -299,16 +287,16 @@ BlockBindingTransformer.prototype = createObject(proto, {
     }
 
     return statement;
-  },
+  }
 
   /** Class declarations should have been transformed away. */
   /**
    * @param {ClassDeclaration} tree
    * @return {ParseTree}
    */
-  transformClassDeclaration: function(tree) {
+  transformClassDeclaration(tree) {
     throw new Error('ClassDeclaration should be transformed away.');
-  },
+  }
 
   /**
    * Transforms for .. in statement.
@@ -317,7 +305,7 @@ BlockBindingTransformer.prototype = createObject(proto, {
    * @param {ForInStatement} tree
    * @return {ParseTree}
    */
-  transformForInStatement: function(tree) {
+  transformForInStatement(tree) {
     // Save it here because tree may change in the variable rewrite
     var treeBody = tree.body;
 
@@ -389,7 +377,7 @@ BlockBindingTransformer.prototype = createObject(proto, {
     }
 
     return result;
-  },
+  }
 
   /**
    * TODO: Use non-scoped blocks (statement comma) when available.
@@ -397,7 +385,7 @@ BlockBindingTransformer.prototype = createObject(proto, {
    * @param {ParseTree} body
    * @return {Block}
    */
-  prependToBlock_: function(statement, body) {
+  prependToBlock_(statement, body) {
     if (body.type == ParseTreeType.BLOCK) {
       var block = body;
       var list = [];
@@ -407,14 +395,14 @@ BlockBindingTransformer.prototype = createObject(proto, {
     } else {
       return createBlock(statement, body);
     }
-  },
+  }
 
   /**
    * Transforms the for ( ... ; ... ; ... ) { ... } statement.
    * @param {ForStatement} tree
    * @return {ParseTree}
    */
-  transformForStatement: function(tree) {
+  transformForStatement(tree) {
     var initializer;
     if (tree.initializer != null &&
         tree.initializer.type == ParseTreeType.VARIABLE_DECLARATION_LIST) {
@@ -457,7 +445,7 @@ BlockBindingTransformer.prototype = createObject(proto, {
     }
 
     return result;
-  },
+  }
 
   /*
    * Transforms the for (let ...; ...; ...) { ... } statement. There are few
@@ -501,7 +489,7 @@ BlockBindingTransformer.prototype = createObject(proto, {
    * @param {VariableDeclarationList} variables
    * @return {ParseTree}
    */
-  transformForLet_: function(tree, variables) {
+  transformForLet_(tree, variables) {
 
     // Accumulator for 'let x = $x;'
     var copyFwd = [];
@@ -574,7 +562,7 @@ BlockBindingTransformer.prototype = createObject(proto, {
 
     // Now transform the rewritten for loop! This is safe to do because the
     return this.transformAny(transformedForLoop);
-  },
+  }
 
   /**
    * Transforms a function declaration statement. Function name in the block
@@ -584,7 +572,7 @@ BlockBindingTransformer.prototype = createObject(proto, {
    * @return {ParseTree}
    * @private
    */
-  transformFunctionDeclarationStatement_: function(tree) {
+  transformFunctionDeclarationStatement_(tree) {
     var body = this.transformFunctionBody(tree.functionBody);
 
     if (tree.name != null && this.scope_.type == ScopeType.BLOCK) {
@@ -605,40 +593,40 @@ BlockBindingTransformer.prototype = createObject(proto, {
     } else {
       return tree;
     }
-  },
+  }
 
   /**
    * Transforms the whole program.
    * @param {Program} tree
    * @return {ParseTree}
    */
-  transformProgram: function(tree) {
+  transformProgram(tree) {
     // Push new scope
     var scope = this.push_(this.createProgramScope_());
 
-    var result = proto.transformProgram.call(this, tree);
+    var result = super.transformProgram(tree);
 
     this.pop_(scope);
     return result;
-  },
+  }
 
   /**
    * Variable declarations are detected earlier and handled elsewhere.
    * @param {VariableDeclaration} tree
    * @return {ParseTree}
    */
-  transformVariableDeclaration: function(tree) {
+  transformVariableDeclaration(tree) {
     throw new Error('Should never see variable declaration tree.');
-  },
+  }
 
   /**
    * Variable declarations are detected earlier and handled elsewhere.
    * @param {VariableDeclarationList} tree
    * @return {ParseTree}
    */
-  transformVariableDeclarationList: function(tree) {
+  transformVariableDeclarationList(tree) {
     throw new Error('Should never see variable declaration list.');
-  },
+  }
 
   /**
    * Transforms the variable statement. Inside a block const and let
@@ -647,7 +635,7 @@ BlockBindingTransformer.prototype = createObject(proto, {
    * @param {VariableStatement} tree
    * @return {ParseTree}
    */
-  transformVariableStatement: function(tree) {
+  transformVariableStatement(tree) {
     if (this.scope_.type == ScopeType.BLOCK) {
       // let/const have block scoped meaning only in block scope.
       switch (tree.declarations.declarationType) {
@@ -668,7 +656,7 @@ BlockBindingTransformer.prototype = createObject(proto, {
     }
 
     return tree;
-  },
+  }
 
   /**
    * Transforms block scoped variables.
@@ -678,7 +666,7 @@ BlockBindingTransformer.prototype = createObject(proto, {
    * @param {VariableDeclarationList} tree
    * @return {ParseTree}
    */
-  transformBlockVariables_: function(tree) {
+  transformBlockVariables_(tree) {
     var variables = tree.declarations;
     var comma = [];
 
@@ -718,14 +706,14 @@ BlockBindingTransformer.prototype = createObject(proto, {
         }
         return createBlock(comma);
     }
-  },
+  }
 
   /**
    * Transforms variables unaffected by block scope.
    * @param {VariableDeclarationList} tree
    * @return {VariableDeclarationList}
    */
-  transformVariables_: function(tree) {
+  transformVariables_(tree) {
 
     var variables = tree.declarations;
     var transformed = null;
@@ -761,13 +749,13 @@ BlockBindingTransformer.prototype = createObject(proto, {
       tree = createVariableDeclarationList(declarationType, declarations);
     }
     return tree;
-  },
+  }
 
   /**
    * @param {Block} tree
    * @return {Block}
    */
-  transformFunctionBody: function(body) {
+  transformFunctionBody(body) {
     // Push new function context
     var scope = this.push_(this.createFunctionScope_());
 
@@ -775,13 +763,13 @@ BlockBindingTransformer.prototype = createObject(proto, {
 
     this.pop_(scope);
     return body;
-  },
+  }
 
   /**
    * @param {Block} tree
    * @return {Block}
    */
-  transformBlockStatements_: function(tree) {
+  transformBlockStatements_(tree) {
     var statements = this.transformSourceElements(tree.statements);
 
     if (this.scope_.blockVariables != null) {
@@ -793,13 +781,13 @@ BlockBindingTransformer.prototype = createObject(proto, {
     }
 
     return tree;
-  },
+  }
 
   /**
    * @param {VariableDeclaration} variable
    * @return {string}
    */
-  getVariableName_: function(variable) {
+  getVariableName_(variable) {
     // TODO(arv): This should just be a visitor visiting BindingIdentifier
     var lvalue = variable.lvalue;
     if (lvalue.type == ParseTreeType.BINDING_IDENTIFIER) {
@@ -807,4 +795,13 @@ BlockBindingTransformer.prototype = createObject(proto, {
     }
     throw new Error('Unexpected destructuring declaration found.');
   }
-});
+}
+
+/**
+ * @param {Program} tree
+ * @return {Program}
+ */
+BlockBindingTransformer.transformTree = function(tree) {
+  return new BlockBindingTransformer().transformAny(tree);
+};
+

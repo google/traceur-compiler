@@ -81,19 +81,16 @@ class YieldFinder extends ParseTreeVisitor {
  * This transformer turns "yield* E" into a ForOf that
  * contains a yield and is lowered by the ForOfTransformer.
  */
-function YieldForTransformer(identifierGenerator) {
-  ParseTreeTransformer.call(this);
-  this.identifierGenerator_ = identifierGenerator;
-}
+class YieldForTransformer extends ParseTreeTransformer {
+  /**
+   * @param {UniqueIdentifierGenerator} identifierGenerator
+   */
+  constructor(identifierGenerator) {
+    super();
+    this.identifierGenerator_ = identifierGenerator;
+  }
 
-YieldForTransformer.transformTree = function(identifierGenerator, tree) {
-  return new YieldForTransformer(identifierGenerator).transformAny(tree);
-};
-
-YieldForTransformer.prototype = createObject(
-    ParseTreeTransformer.prototype, {
-
-  transformYieldStatement: function(tree) {
+  transformYieldStatement(tree) {
     if (tree.isYieldFor) {
       // yield* E
       //   becomes
@@ -120,36 +117,32 @@ YieldForTransformer.prototype = createObject(
 
     return tree;
   }
-});
+}
+
+YieldForTransformer.transformTree = function(identifierGenerator, tree) {
+  return new YieldForTransformer(identifierGenerator).transformAny(tree);
+};
 
 /**
  * This pass just finds function bodies with yields in them and passes them
  * off to the GeneratorTransformer for the heavy lifting.
- * @param {UniqueIdentifierGenerator} identifierGenerator
- * @param {ErrorReporter} reporter
- * @extends {ParseTreeTransformer}
- * @constructor
  */
-export function GeneratorTransformPass(identifierGenerator, reporter) {
-  ParseTreeTransformer.call(this);
-  this.identifierGenerator_ = identifierGenerator;
-  this.reporter_ = reporter;
-}
-
-GeneratorTransformPass.transformTree = function(identifierGenerator, reporter,
-    tree) {
-  return new GeneratorTransformPass(identifierGenerator, reporter).
-      transformAny(tree);
-}
-
-GeneratorTransformPass.prototype = createObject(
-    ParseTreeTransformer.prototype, {
+export class GeneratorTransformPass extends ParseTreeTransformer {
+  /**
+   * @param {UniqueIdentifierGenerator} identifierGenerator
+   * @param {ErrorReporter} reporter
+   */
+  constructor(identifierGenerator, reporter) {
+    super();
+    this.identifierGenerator_ = identifierGenerator;
+    this.reporter_ = reporter;
+  }
 
   /**
    * @param {FunctionDeclaration} tree
    * @return {ParseTree}
    */
-  transformFunctionDeclaration: function(tree) {
+  transformFunctionDeclaration(tree) {
     var body = this.transformBody_(tree.functionBody);
     if (body == tree.functionBody) {
       return tree;
@@ -160,17 +153,17 @@ GeneratorTransformPass.prototype = createObject(
         false, // The generator has been transformed away.
         tree.formalParameterList,
         body);
-  },
+  }
 
   /**
    * @param {Block} tree
    * @return {Block}
    */
-  transformBody_: function(tree) {
+  transformBody_(tree) {
     var finder = new YieldFinder(tree);
 
     // transform nested functions
-    var body = ParseTreeTransformer.prototype.transformBlock.call(this, tree);
+    var body = super.transformBlock(tree);
 
     if (!finder.hasAnyGenerator()) {
       return body;
@@ -196,13 +189,13 @@ GeneratorTransformPass.prototype = createObject(
       body = AsyncTransformer.transformAsyncBody(this.reporter_, body);
     }
     return body;
-  },
+  }
 
   /**
    * @param {GetAccessor} tree
    * @return {ParseTree}
    */
-  transformGetAccessor: function(tree) {
+  transformGetAccessor(tree) {
     var body = this.transformBody_(tree.body);
     if (body == tree.body) {
       return tree;
@@ -211,13 +204,13 @@ GeneratorTransformPass.prototype = createObject(
         null,
         tree.propertyName,
         body);
-  },
+  }
 
   /**
    * @param {SetAccessor} tree
    * @return {ParseTree}
    */
-  transformSetAccessor: function(tree) {
+  transformSetAccessor(tree) {
     var body = this.transformBody_(tree.body);
     if (body == tree.body) {
       return tree;
@@ -228,4 +221,10 @@ GeneratorTransformPass.prototype = createObject(
         tree.parameter,
         body);
   }
-});
+}
+
+GeneratorTransformPass.transformTree = function(identifierGenerator, reporter,
+    tree) {
+  return new GeneratorTransformPass(identifierGenerator, reporter).
+      transformAny(tree);
+}

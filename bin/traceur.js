@@ -2862,8 +2862,7 @@ var $src_codegeneration_ParseTreeTransformer_js =(function() {
   var WhileStatement = trees.WhileStatement; 
   var WithStatement = trees.WithStatement; 
   var YieldStatement = trees.YieldStatement; 
-  function ParseTreeTransformer() { } 
-  ParseTreeTransformer.prototype = { 
+  var ParseTreeTransformer = traceur.runtime.createClass({ 
     transformAny: function(tree) { 
       if(tree == null) { 
         return null; 
@@ -3488,8 +3487,12 @@ var $src_codegeneration_ParseTreeTransformer_js =(function() {
         return tree; 
       } 
       return new YieldStatement(tree.location, expression, isYieldFor); 
+    }, 
+    constructor: function() { 
+      var args = Array.prototype.slice.call(arguments, 0); 
+      traceur.runtime.superCall(this, ParseTreeTransformer, "constructor", $__1(args)); 
     } 
-  }; 
+  }, null, false, false); 
   return Object.preventExtensions(Object.create(null, { ParseTreeTransformer: { 
       get: function() { 
         return ParseTreeTransformer; 
@@ -7955,11 +7958,12 @@ var $src_codegeneration_RuntimeInliner_js =(function() {
     var errorReporter = new MutedErrorReporter(); 
     return new Parser(errorReporter, file).parseAssignmentExpression(); 
   } 
-  function RuntimeInliner(identifierGenerator) { 
-    this.identifierGenerator = identifierGenerator; 
-    this.map_ = Object.create(null); 
-  } 
-  RuntimeInliner.prototype = createObject(ParseTreeTransformer.prototype, { 
+  var RuntimeInliner = traceur.runtime.createClass({ 
+    constructor: function(identifierGenerator) { 
+      traceur.runtime.superCall(this, RuntimeInliner, "constructor",[]); 
+      this.identifierGenerator = identifierGenerator; 
+      this.map_ = Object.create(null); 
+    }, 
     transformProgram: function(tree) { 
       var names = Object.keys(this.map_); 
       if(! names.length) return tree; 
@@ -8006,7 +8010,7 @@ var $src_codegeneration_RuntimeInliner_js =(function() {
       } 
       return this.getAsIdentifierExpression(name); 
     } 
-  }); 
+  }, ParseTreeTransformer, true, true); 
   return Object.preventExtensions(Object.create(null, { RuntimeInliner: { 
       get: function() { 
         return RuntimeInliner; 
@@ -9760,11 +9764,11 @@ var $src_codegeneration_ModuleTransformer_js =(function() {
     } 
     return createIdentifierExpression(identifierToken); 
   } 
-  function ModuleTransformer(project) { 
-    ParseTreeTransformer.call(this); 
-    this.project_ = project; 
-  } 
-  ModuleTransformer.prototype = createObject(ParseTreeTransformer.prototype, { 
+  var ModuleTransformer = traceur.runtime.createClass({ 
+    constructor: function(project) { 
+      traceur.runtime.superCall(this, ModuleTransformer, "constructor",[]); 
+      this.project_ = project; 
+    }, 
     transformModuleExpression: function(tree) { 
       var reference = tree.reference; 
       if(reference.type == MODULE_REQUIRE) { 
@@ -9812,7 +9816,7 @@ var $src_codegeneration_ModuleTransformer_js =(function() {
       } 
       return new BindingElement(tree.location, createBindingIdentifier(tree.lhs), null); 
     } 
-  }); 
+  }, ParseTreeTransformer, true, true); 
   ModuleTransformer.transform = function(project, tree) { 
     var module = project.getRootModule(); 
     var useStrictCount = hasUseStrict(tree.programElements) ? 1: 0; 
@@ -9925,21 +9929,17 @@ var $src_codegeneration_AlphaRenamer_js =(function() {
   var Catch = trees.Catch; 
   var FunctionDeclaration = trees.FunctionDeclaration; 
   var IdentifierExpression = trees.IdentifierExpression; 
-  function AlphaRenamer(oldName, newName) { 
-    ParseTreeTransformer.call(this); 
-    this.oldName_ = oldName; 
-    this.newName_ = newName; 
-  } 
-  AlphaRenamer.rename = function(tree, oldName, newName) { 
-    return new AlphaRenamer(oldName, newName).transformAny(tree); 
-  }; 
-  var proto = ParseTreeTransformer.prototype; 
-  AlphaRenamer.prototype = createObject(proto, { 
+  var AlphaRenamer = traceur.runtime.createClass({ 
+    constructor: function(oldName, newName) { 
+      traceur.runtime.superCall(this, AlphaRenamer, "constructor",[]); 
+      this.oldName_ = oldName; 
+      this.newName_ = newName; 
+    }, 
     transformBlock: function(tree) { 
       if(this.oldName_ in variablesInBlock(tree)) { 
         return tree; 
       } else { 
-        return proto.transformBlock.call(this, tree); 
+        return traceur.runtime.superCall(this, AlphaRenamer, "transformBlock",[tree]); 
       } 
     }, 
     transformIdentifierExpression: function(tree) { 
@@ -9958,15 +9958,18 @@ var $src_codegeneration_AlphaRenamer_js =(function() {
         tree = createFunctionDeclaration(this.newName_, tree.formalParameterList, tree.functionBody); 
       } 
       var doNotRecurse = this.oldName_ === PredefinedName.ARGUMENTS || this.oldName_ === PredefinedName.THIS || this.oldName_ in variablesInFunction(tree); 
-      if(doNotRecurse) return tree; else return proto.transformFunctionDeclaration.call(this, tree); 
+      if(doNotRecurse) return tree; else return traceur.runtime.superCall(this, AlphaRenamer, "transformFunctionDeclaration",[tree]); 
     }, 
     transformCatch: function(tree) { 
       if(! tree.binding.isPattern() && this.oldName_ === tree.binding.identifierToken.value) { 
         return tree; 
       } 
-      return proto.transformCatch.call(this, tree); 
+      return traceur.runtime.superCall(this, AlphaRenamer, "transformCatch",[tree]); 
     } 
-  }); 
+  }, ParseTreeTransformer, true, true); 
+  AlphaRenamer.rename = function(tree, oldName, newName) { 
+    return new AlphaRenamer(oldName, newName).transformAny(tree); 
+  }; 
   return Object.preventExtensions(Object.create(null, { AlphaRenamer: { 
       get: function() { 
         return AlphaRenamer; 
@@ -10048,12 +10051,12 @@ var $src_codegeneration_TempVarTransformer_js =(function() {
     if(! vars) throw new Error('Invalid use of addTempVar'); 
     return vars; 
   } 
-  function TempVarTransformer(identifierGenerator) { 
-    this.identifierGenerator = identifierGenerator; 
-    this.tempVarStack_ =[]; 
-  } 
-  var proto = ParseTreeTransformer.prototype; 
-  TempVarTransformer.prototype = createObject(proto, { 
+  var TempVarTransformer = traceur.runtime.createClass({ 
+    constructor: function(identifierGenerator) { 
+      traceur.runtime.superCall(this, TempVarTransformer, "constructor",[]); 
+      this.identifierGenerator = identifierGenerator; 
+      this.tempVarStack_ =[]; 
+    }, 
     transformProgram: function(tree) { 
       var elements = transformStatements(this, tree.programElements); 
       if(elements == tree.programElements) { 
@@ -10083,7 +10086,7 @@ var $src_codegeneration_TempVarTransformer_js =(function() {
       } 
       if(index !== - 1) vars.splice(index, 1); 
     } 
-  }); 
+  }, ParseTreeTransformer, true, true); 
   return Object.preventExtensions(Object.create(null, { TempVarTransformer: { 
       get: function() { 
         return TempVarTransformer; 
@@ -10196,19 +10199,21 @@ var $src_codegeneration_ArrowFunctionTransformer_js =(function() {
   var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
   var FormalParameterList = trees.FormalParameterList; 
   var ThisExpression = trees.ThisExpression; 
-  function ThisFinder(tree) { 
-    FindInFunctionScope.call(this, tree); 
-  } 
-  ThisFinder.prototype = createObject(FindInFunctionScope.prototype, { visitThisExpression: function(tree) { 
+  var ThisFinder = traceur.runtime.createClass({ 
+    visitThisExpression: function(tree) { 
       this.found = true; 
-    } }); 
-  function ArrowFunctionTransformer(reporter) { 
-    this.reporter_ = reporter; 
-  } 
-  ArrowFunctionTransformer.transformTree = function(reporter, tree) { 
-    return new ArrowFunctionTransformer(reporter).transformAny(tree); 
-  }; 
-  ArrowFunctionTransformer.prototype = createObject(ParseTreeTransformer.prototype, { transformArrowFunctionExpression: function(tree) { 
+    }, 
+    constructor: function() { 
+      var args = Array.prototype.slice.call(arguments, 0); 
+      traceur.runtime.superCall(this, ThisFinder, "constructor", $__1(args)); 
+    } 
+  }, FindInFunctionScope, false, true); 
+  var ArrowFunctionTransformer = traceur.runtime.createClass({ 
+    constructor: function(reporter) { 
+      traceur.runtime.superCall(this, ArrowFunctionTransformer, "constructor",[]); 
+      this.reporter_ = reporter; 
+    }, 
+    transformArrowFunctionExpression: function(tree) { 
       var parameters; 
       if(tree.formalParameters) { 
         parameters = this.transformAny(tree.formalParameters).parameters; 
@@ -10225,7 +10230,11 @@ var $src_codegeneration_ArrowFunctionTransformer_js =(function() {
         return createCallExpression(createMemberExpression(result, PredefinedName.BIND), createArgumentList(createThisExpression())); 
       } 
       return result; 
-    } }); 
+    } 
+  }, ParseTreeTransformer, true, true); 
+  ArrowFunctionTransformer.transformTree = function(reporter, tree) { 
+    return new ArrowFunctionTransformer(reporter).transformAny(tree); 
+  }; 
   return Object.preventExtensions(Object.create(null, { ArrowFunctionTransformer: { 
       get: function() { 
         return ArrowFunctionTransformer; 
@@ -10413,30 +10422,25 @@ var $src_codegeneration_BlockBindingTransformer_js =(function() {
   var CONST = TokenType.CONST; 
   var LET = TokenType.LET; 
   var VAR = TokenType.VAR; 
-  function BlockBindingTransformer(stateAllocator) { 
-    ParseTreeTransformer.call(this); 
-  } 
-  BlockBindingTransformer.transformTree = function(tree) { 
-    return new BlockBindingTransformer().transformAny(tree); 
-  }; 
   var ScopeType = { 
     PROGRAM: 'PROGRAM', 
     FUNCTION: 'FUNCTION', 
     BLOCK: 'BLOCK' 
   }; 
-  function Scope(parent, type) { 
-    this.parent = parent; 
-    this.type = type; 
-  } 
-  Scope.prototype = { 
-    blockVariables: null, 
+  var Scope = traceur.runtime.createClass({ 
+    constructor: function(parent, type) { 
+      this.parent = parent; 
+      this.type = type; 
+      this.blockVariables = null; 
+    }, 
     addBlockScopedVariable: function(value) { 
       if(! this.blockVariables) { 
         this.blockVariables = Object.create(null); 
       } 
       this.blockVariables[value]= true; 
     } 
-  }; 
+  }, null, true, false); 
+  ; 
   function Rename(oldName, newName) { 
     this.oldName = oldName; 
     this.newName = newName; 
@@ -10450,11 +10454,13 @@ var $src_codegeneration_BlockBindingTransformer_js =(function() {
   function toBlock(statement) { 
     return statement.type == ParseTreeType.BLOCK ? statement: createBlock(statement); 
   } 
-  var proto = ParseTreeTransformer.prototype; 
-  BlockBindingTransformer.prototype = createObject(proto, { 
-    scope_: null, 
+  var BlockBindingTransformer = traceur.runtime.createClass({ 
+    constructor: function(stateAllocator) { 
+      traceur.runtime.superCall(this, BlockBindingTransformer, "constructor",[]); 
+      this.scope_ = null; 
+    }, 
     createProgramScope_: function() { 
-      return new Scope(this.scope__, ScopeType.PROGRAM); 
+      return new Scope(this.scope_, ScopeType.PROGRAM); 
     }, 
     createFunctionScope_: function() { 
       if(this.scope_ == null) { 
@@ -10620,7 +10626,7 @@ var $src_codegeneration_BlockBindingTransformer_js =(function() {
     }, 
     transformProgram: function(tree) { 
       var scope = this.push_(this.createProgramScope_()); 
-      var result = proto.transformProgram.call(this, tree); 
+      var result = traceur.runtime.superCall(this, BlockBindingTransformer, "transformProgram",[tree]); 
       this.pop_(scope); 
       return result; 
     }, 
@@ -10727,7 +10733,10 @@ var $src_codegeneration_BlockBindingTransformer_js =(function() {
       } 
       throw new Error('Unexpected destructuring declaration found.'); 
     } 
-  }); 
+  }, ParseTreeTransformer, true, true); 
+  BlockBindingTransformer.transformTree = function(tree) { 
+    return new BlockBindingTransformer().transformAny(tree); 
+  }; 
   return Object.preventExtensions(Object.create(null, { BlockBindingTransformer: { 
       get: function() { 
         return BlockBindingTransformer; 
@@ -10826,16 +10835,15 @@ var $src_codegeneration_SuperTransformer_js =(function() {
   var destructuring$createArgumentList$createArrayLiteralExpression$createCallExpression$createMemberExpression$createStringLiteral$createThisExpression = $src_codegeneration_ParseTreeFactory_js, createArgumentList = destructuring$createArgumentList$createArrayLiteralExpression$createCallExpression$createMemberExpression$createStringLiteral$createThisExpression.createArgumentList, createArrayLiteralExpression = destructuring$createArgumentList$createArrayLiteralExpression$createCallExpression$createMemberExpression$createStringLiteral$createThisExpression.createArrayLiteralExpression, createCallExpression = destructuring$createArgumentList$createArrayLiteralExpression$createCallExpression$createMemberExpression$createStringLiteral$createThisExpression.createCallExpression, createMemberExpression = destructuring$createArgumentList$createArrayLiteralExpression$createCallExpression$createMemberExpression$createStringLiteral$createThisExpression.createMemberExpression, createStringLiteral = destructuring$createArgumentList$createArrayLiteralExpression$createCallExpression$createMemberExpression$createStringLiteral$createThisExpression.createStringLiteral, createThisExpression = destructuring$createArgumentList$createArrayLiteralExpression$createCallExpression$createMemberExpression$createStringLiteral$createThisExpression.createThisExpression; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
   var destructuring$expandMemberExpression$expandMemberLookupExpression = $src_codegeneration_OperatorExpander_js, expandMemberExpression = destructuring$expandMemberExpression$expandMemberLookupExpression.expandMemberExpression, expandMemberLookupExpression = destructuring$expandMemberExpression$expandMemberLookupExpression.expandMemberLookupExpression; 
-  function SuperTransformer(tempVarTransformer, reporter, className, methodTree) { 
-    ParseTreeTransformer.call(this); 
-    this.tempVarTransformer_ = tempVarTransformer; 
-    this.className_ = className; 
-    this.method_ = methodTree; 
-    this.reporter_ = reporter; 
-  } 
-  var proto = ParseTreeTransformer.prototype; 
-  SuperTransformer.prototype = createObject(proto, { 
-    superFound_: false, 
+  var SuperTransformer = traceur.runtime.createClass({ 
+    constructor: function(tempVarTransformer, reporter, className, methodTree) { 
+      traceur.runtime.superCall(this, SuperTransformer, "constructor",[]); 
+      this.tempVarTransformer_ = tempVarTransformer; 
+      this.className_ = className; 
+      this.method_ = methodTree; 
+      this.reporter_ = reporter; 
+      this.superFound_ = false; 
+    }, 
     get hasSuper() { 
       return this.superFound_; 
     }, 
@@ -10867,7 +10875,7 @@ var $src_codegeneration_SuperTransformer_js =(function() {
         } 
         return createCallExpression(createMemberExpression(PredefinedName.TRACEUR, PredefinedName.RUNTIME, PredefinedName.SUPER_CALL), createArgumentList(createThisExpression(), this.className_, nameExpression, createArrayLiteralExpression(tree.args.args))); 
       } 
-      return proto.transformCallExpression.call(this, tree); 
+      return traceur.runtime.superCall(this, SuperTransformer, "transformCallExpression",[tree]); 
     }, 
     transformMemberShared_: function(tree, name) { 
       return createCallExpression(createMemberExpression(PredefinedName.TRACEUR, PredefinedName.RUNTIME, PredefinedName.SUPER_GET), createArgumentList(createThisExpression(), this.className_, name)); 
@@ -10876,11 +10884,11 @@ var $src_codegeneration_SuperTransformer_js =(function() {
       if(tree.operand.type === ParseTreeType.SUPER_EXPRESSION) { 
         return this.transformMemberShared_(tree, createStringLiteral(tree.memberName.value)); 
       } 
-      return proto.transformMemberExpression.call(this, tree); 
+      return traceur.runtime.superCall(this, SuperTransformer, "transformMemberExpression",[tree]); 
     }, 
     transformMemberLookupExpression: function(tree) { 
       if(tree.operand.type === ParseTreeType.SUPER_EXPRESSION) return this.transformMemberShared_(tree, tree.memberExpression); 
-      return proto.transformMemberLookupExpression.call(this, tree); 
+      return traceur.runtime.superCall(this, SuperTransformer, "transformMemberLookupExpression",[tree]); 
     }, 
     transformBinaryOperator: function(tree) { 
       if(tree.operator.isAssignmentOperator() &&(tree.left.type === ParseTreeType.MEMBER_EXPRESSION || tree.left.type === ParseTreeType.MEMBER_LOOKUP_EXPRESSION) && tree.left.operand.type === ParseTreeType.SUPER_EXPRESSION) { 
@@ -10896,7 +10904,7 @@ var $src_codegeneration_SuperTransformer_js =(function() {
         var name = tree.left.type === ParseTreeType.MEMBER_LOOKUP_EXPRESSION ? tree.left.memberExpression: createStringLiteral(tree.left.memberName.value); 
         return createCallExpression(createMemberExpression(PredefinedName.TRACEUR, PredefinedName.RUNTIME, PredefinedName.SUPER_SET), createArgumentList(createThisExpression(), this.className_, name, this.transformAny(tree.right))); 
       } 
-      return proto.transformBinaryOperator.call(this, tree); 
+      return traceur.runtime.superCall(this, SuperTransformer, "transformBinaryOperator",[tree]); 
     }, 
     transformSuperExpression: function(tree) { 
       this.reportError_(tree, '"super" may only be used on the LHS of a member access expression before a call (TODO wording)'); 
@@ -10907,7 +10915,7 @@ var $src_codegeneration_SuperTransformer_js =(function() {
       args[0]= tree.location.start; 
       this.reporter_.reportError.apply(this.reporter_, args); 
     } 
-  }); 
+  }, ParseTreeTransformer, true, true); 
   return Object.preventExtensions(Object.create(null, { SuperTransformer: { 
       get: function() { 
         return SuperTransformer; 
@@ -11125,16 +11133,10 @@ var $src_codegeneration_DefaultParametersTransformer_js =(function() {
   var FormalParameterList = trees.FormalParameterList; 
   var FunctionDeclaration = trees.FunctionDeclaration; 
   var stack =[]; 
-  function DefaultParametersTransformer() { 
-    ParseTreeTransformer.call(this); 
-  } 
-  DefaultParametersTransformer.transformTree = function(tree) { 
-    return new DefaultParametersTransformer().transformAny(tree); 
-  }; 
-  DefaultParametersTransformer.prototype = createObject(ParseTreeTransformer.prototype, { 
+  var DefaultParametersTransformer = traceur.runtime.createClass({ 
     transformFunctionDeclaration: function(tree) { 
       stack.push([]); 
-      var transformedTree = ParseTreeTransformer.prototype.transformFunctionDeclaration.call(this, tree); 
+      var transformedTree = traceur.runtime.superCall(this, DefaultParametersTransformer, "transformFunctionDeclaration",[tree]); 
       var statements = stack.pop(); 
       if(! statements.length) return transformedTree; 
       statements.push.apply(statements, transformedTree.functionBody.statements); 
@@ -11158,8 +11160,15 @@ var $src_codegeneration_DefaultParametersTransformer_js =(function() {
       } 
       if(! changed) return tree; 
       return new FormalParameterList(tree.location, parameters); 
+    }, 
+    constructor: function() { 
+      var args = Array.prototype.slice.call(arguments, 0); 
+      traceur.runtime.superCall(this, DefaultParametersTransformer, "constructor", $__1(args)); 
     } 
-  }); 
+  }, ParseTreeTransformer, false, true); 
+  DefaultParametersTransformer.transformTree = function(tree) { 
+    return new DefaultParametersTransformer().transformAny(tree); 
+  }; 
   return Object.preventExtensions(Object.create(null, { DefaultParametersTransformer: { 
       get: function() { 
         return DefaultParametersTransformer; 
@@ -11465,15 +11474,13 @@ var $src_codegeneration_ForOfTransformer_js =(function() {
   var destructuring$TokenType = $src_syntax_TokenType_js, TokenType = destructuring$TokenType.TokenType; 
   var destructuring$createArgumentList$createAssignmentExpression$createBlock$createCallExpression$createCallStatement$createExpressionStatement$createFinally$createIfStatement$createMemberExpression$createStringLiteral$createTryStatement$createVariableStatement$createWhileStatement = $src_codegeneration_ParseTreeFactory_js, createArgumentList = destructuring$createArgumentList$createAssignmentExpression$createBlock$createCallExpression$createCallStatement$createExpressionStatement$createFinally$createIfStatement$createMemberExpression$createStringLiteral$createTryStatement$createVariableStatement$createWhileStatement.createArgumentList, createAssignmentExpression = destructuring$createArgumentList$createAssignmentExpression$createBlock$createCallExpression$createCallStatement$createExpressionStatement$createFinally$createIfStatement$createMemberExpression$createStringLiteral$createTryStatement$createVariableStatement$createWhileStatement.createAssignmentExpression, createBlock = destructuring$createArgumentList$createAssignmentExpression$createBlock$createCallExpression$createCallStatement$createExpressionStatement$createFinally$createIfStatement$createMemberExpression$createStringLiteral$createTryStatement$createVariableStatement$createWhileStatement.createBlock, createCallExpression = destructuring$createArgumentList$createAssignmentExpression$createBlock$createCallExpression$createCallStatement$createExpressionStatement$createFinally$createIfStatement$createMemberExpression$createStringLiteral$createTryStatement$createVariableStatement$createWhileStatement.createCallExpression, createCallStatement = destructuring$createArgumentList$createAssignmentExpression$createBlock$createCallExpression$createCallStatement$createExpressionStatement$createFinally$createIfStatement$createMemberExpression$createStringLiteral$createTryStatement$createVariableStatement$createWhileStatement.createCallStatement, createExpressionStatement = destructuring$createArgumentList$createAssignmentExpression$createBlock$createCallExpression$createCallStatement$createExpressionStatement$createFinally$createIfStatement$createMemberExpression$createStringLiteral$createTryStatement$createVariableStatement$createWhileStatement.createExpressionStatement, createFinally = destructuring$createArgumentList$createAssignmentExpression$createBlock$createCallExpression$createCallStatement$createExpressionStatement$createFinally$createIfStatement$createMemberExpression$createStringLiteral$createTryStatement$createVariableStatement$createWhileStatement.createFinally, createIfStatement = destructuring$createArgumentList$createAssignmentExpression$createBlock$createCallExpression$createCallStatement$createExpressionStatement$createFinally$createIfStatement$createMemberExpression$createStringLiteral$createTryStatement$createVariableStatement$createWhileStatement.createIfStatement, createMemberExpression = destructuring$createArgumentList$createAssignmentExpression$createBlock$createCallExpression$createCallStatement$createExpressionStatement$createFinally$createIfStatement$createMemberExpression$createStringLiteral$createTryStatement$createVariableStatement$createWhileStatement.createMemberExpression, createStringLiteral = destructuring$createArgumentList$createAssignmentExpression$createBlock$createCallExpression$createCallStatement$createExpressionStatement$createFinally$createIfStatement$createMemberExpression$createStringLiteral$createTryStatement$createVariableStatement$createWhileStatement.createStringLiteral, createTryStatement = destructuring$createArgumentList$createAssignmentExpression$createBlock$createCallExpression$createCallStatement$createExpressionStatement$createFinally$createIfStatement$createMemberExpression$createStringLiteral$createTryStatement$createVariableStatement$createWhileStatement.createTryStatement, createVariableStatement = destructuring$createArgumentList$createAssignmentExpression$createBlock$createCallExpression$createCallStatement$createExpressionStatement$createFinally$createIfStatement$createMemberExpression$createStringLiteral$createTryStatement$createVariableStatement$createWhileStatement.createVariableStatement, createWhileStatement = destructuring$createArgumentList$createAssignmentExpression$createBlock$createCallExpression$createCallStatement$createExpressionStatement$createFinally$createIfStatement$createMemberExpression$createStringLiteral$createTryStatement$createVariableStatement$createWhileStatement.createWhileStatement; 
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
-  function ForOfTransformer(identifierGenerator) { 
-    ParseTreeTransformer.call(this); 
-    this.identifierGenerator_ = identifierGenerator; 
-  } 
-  ForOfTransformer.transformTree = function(identifierGenerator, tree) { 
-    return new ForOfTransformer(identifierGenerator).transformAny(tree); 
-  }; 
-  ForOfTransformer.prototype = createObject(ParseTreeTransformer.prototype, { transformForOfStatement: function(original) { 
-      var tree = ParseTreeTransformer.prototype.transformForOfStatement.call(this, original); 
+  var ForOfTransformer = traceur.runtime.createClass({ 
+    constructor: function(identifierGenerator) { 
+      traceur.runtime.superCall(this, ForOfTransformer, "constructor",[]); 
+      this.identifierGenerator_ = identifierGenerator; 
+    }, 
+    transformForOfStatement: function(original) { 
+      var tree = traceur.runtime.superCall(this, ForOfTransformer, "transformForOfStatement",[original]); 
       var iter = this.identifierGenerator_.generateUniqueIdentifier(); 
       var initializer = createVariableStatement(TokenType.VAR, iter, createCallExpression(createMemberExpression(PredefinedName.TRACEUR, PredefinedName.RUNTIME, PredefinedName.GET_ITERATOR), createArgumentList(tree.collection))); 
       var statement; 
@@ -11486,7 +11493,11 @@ var $src_codegeneration_ForOfTransformer_js =(function() {
       var loop = createWhileStatement(createCallExpression(createMemberExpression(iter, PredefinedName.MOVE_NEXT)), body); 
       var finallyBody = createIfStatement(createMemberExpression(iter, PredefinedName.CLOSE), createCallStatement(createMemberExpression(iter, PredefinedName.CLOSE))); 
       return createBlock(initializer, createTryStatement(createBlock(loop), null, createFinally(createBlock(finallyBody)))); 
-    } }); 
+    } 
+  }, ParseTreeTransformer, true, true); 
+  ForOfTransformer.transformTree = function(identifierGenerator, tree) { 
+    return new ForOfTransformer(identifierGenerator).transformAny(tree); 
+  }; 
   return Object.preventExtensions(Object.create(null, { ForOfTransformer: { 
       get: function() { 
         return ForOfTransformer; 
@@ -11968,16 +11979,15 @@ var $src_codegeneration_generator_BreakContinueTransformer_js =(function() {
   var FunctionDeclaration = trees.FunctionDeclaration; 
   var SwitchStatement = trees.SwitchStatement; 
   var WhileStatement = trees.WhileStatement; 
-  function BreakContinueTransformer(stateAllocator) { 
-    ParseTreeTransformer.call(this); 
-    this.transformBreaks_ = true; 
-    this.stateAllocator_ = stateAllocator; 
-  } 
   function safeGetLabel(tree) { 
     return tree.name ? tree.name.value: null; 
   } 
-  var proto = ParseTreeTransformer.prototype; 
-  BreakContinueTransformer.prototype = createObject(proto, { 
+  var BreakContinueTransformer = traceur.runtime.createClass({ 
+    constructor: function(stateAllocator) { 
+      traceur.runtime.superCall(this, BreakContinueTransformer, "constructor",[]); 
+      this.transformBreaks_ = true; 
+      this.stateAllocator_ = stateAllocator; 
+    }, 
     allocateState_: function() { 
       return this.stateAllocator_.allocateState(); 
     }, 
@@ -12009,14 +12019,14 @@ var $src_codegeneration_generator_BreakContinueTransformer_js =(function() {
     transformSwitchStatement: function(tree) { 
       var oldState = this.transformBreaks_; 
       this.transformBreaks = false; 
-      var result = proto.transformSwitchStatement.call(this, tree); 
+      var result = traceur.runtime.superCall(this, BreakContinueTransformer, "transformSwitchStatement",[tree]); 
       this.transformBreaks_ = oldState; 
       return result; 
     }, 
     transformWhileStatement: function(tree) { 
       return tree; 
     } 
-  }); 
+  }, ParseTreeTransformer, true, true); 
   return Object.preventExtensions(Object.create(null, { BreakContinueTransformer: { 
       get: function() { 
         return BreakContinueTransformer; 
@@ -12211,20 +12221,19 @@ var $src_codegeneration_generator_CPSTransformer_js =(function() {
   var CaseClause = trees.CaseClause; 
   var IdentifierExpression = trees.IdentifierExpression; 
   var SwitchStatement = trees.SwitchStatement; 
-  function CPSTransformer(reporter) { 
-    ParseTreeTransformer.call(this); 
-    this.reporter = reporter; 
-    this.stateAllocator_ = new StateAllocator(); 
-    this.labelSet_ = Object.create(null); 
-  } 
-  var proto = ParseTreeTransformer.prototype; 
-  CPSTransformer.prototype = createObject(proto, { 
+  var CPSTransformer = traceur.runtime.createClass({ 
+    constructor: function(reporter) { 
+      traceur.runtime.superCall(this, CPSTransformer, "constructor",[]); 
+      this.reporter = reporter; 
+      this.stateAllocator_ = new StateAllocator(); 
+      this.labelSet_ = Object.create(null); 
+    }, 
     allocateState: function() { 
       return this.stateAllocator_.allocateState(); 
     }, 
     transformBlock: function(tree) { 
       this.clearLabels_(); 
-      var transformedTree = proto.transformBlock.call(this, tree); 
+      var transformedTree = traceur.runtime.superCall(this, CPSTransformer, "transformBlock",[tree]); 
       var machine = this.transformStatementList_(transformedTree.statements); 
       return machine == null ? transformedTree: machine; 
     }, 
@@ -12263,13 +12272,13 @@ var $src_codegeneration_generator_CPSTransformer_js =(function() {
       return false; 
     }, 
     transformCaseClause: function(tree) { 
-      var result = proto.transformCaseClause.call(this, tree); 
+      var result = traceur.runtime.superCall(this, CPSTransformer, "transformCaseClause",[tree]); 
       var machine = this.transformStatementList_(result.statements); 
       return machine == null ? result: new CaseClause(null, result.expression, createStatementList(machine)); 
     }, 
     transformDoWhileStatement: function(tree) { 
       var labels = this.clearLabels_(); 
-      var result = proto.transformDoWhileStatement.call(this, tree); 
+      var result = traceur.runtime.superCall(this, CPSTransformer, "transformDoWhileStatement",[tree]); 
       if(result.body.type != ParseTreeType.STATE_MACHINE) { 
         return result; 
       } 
@@ -12290,7 +12299,7 @@ var $src_codegeneration_generator_CPSTransformer_js =(function() {
     }, 
     transformForStatement: function(tree) { 
       var labels = this.clearLabels_(); 
-      var result = proto.transformForStatement.call(this, tree); 
+      var result = traceur.runtime.superCall(this, CPSTransformer, "transformForStatement",[tree]); 
       if(result.body.type != ParseTreeType.STATE_MACHINE) { 
         return result; 
       } 
@@ -12322,7 +12331,7 @@ var $src_codegeneration_generator_CPSTransformer_js =(function() {
     }, 
     transformIfStatement: function(tree) { 
       this.clearLabels_(); 
-      var result = proto.transformIfStatement.call(this, tree); 
+      var result = traceur.runtime.superCall(this, CPSTransformer, "transformIfStatement",[tree]); 
       if(result.ifClause.type != ParseTreeType.STATE_MACHINE &&(result.elseClause == null || result.elseClause.type != ParseTreeType.STATE_MACHINE)) { 
         return result; 
       } 
@@ -12374,7 +12383,7 @@ var $src_codegeneration_generator_CPSTransformer_js =(function() {
     }, 
     transformSwitchStatement: function(tree) { 
       var labels = this.clearLabels_(); 
-      var result = proto.transformSwitchStatement.call(this, tree); 
+      var result = traceur.runtime.superCall(this, CPSTransformer, "transformSwitchStatement",[tree]); 
       if(! this.containsStateMachine_(result)) { 
         return result; 
       } 
@@ -12416,7 +12425,7 @@ var $src_codegeneration_generator_CPSTransformer_js =(function() {
     }, 
     transformTryStatement: function(tree) { 
       this.clearLabels_(); 
-      var result = proto.transformTryStatement.call(this, tree); 
+      var result = traceur.runtime.superCall(this, CPSTransformer, "transformTryStatement",[tree]); 
       if(result.body.type != ParseTreeType.STATE_MACHINE &&(result.catchBlock == null || result.catchBlock.catchBody.type != ParseTreeType.STATE_MACHINE)) { 
         return result; 
       } 
@@ -12478,11 +12487,11 @@ var $src_codegeneration_generator_CPSTransformer_js =(function() {
           return createArrayLiteralExpression(expressions); 
         } 
       } 
-      return proto.transformVariableDeclarationList.call(this, tree); 
+      return traceur.runtime.superCall(this, CPSTransformer, "transformVariableDeclarationList",[tree]); 
     }, 
     transformWhileStatement: function(tree) { 
       var labels = this.clearLabels_(); 
-      var result = proto.transformWhileStatement.call(this, tree); 
+      var result = traceur.runtime.superCall(this, CPSTransformer, "transformWhileStatement",[tree]); 
       if(result.body.type != ParseTreeType.STATE_MACHINE) { 
         return result; 
       } 
@@ -12495,7 +12504,7 @@ var $src_codegeneration_generator_CPSTransformer_js =(function() {
       return new StateMachine(startState, fallThroughState, states, loopBodyMachine.exceptionBlocks); 
     }, 
     transformWithStatement: function(tree) { 
-      var result = proto.transformWithStatement.call(this, tree); 
+      var result = traceur.runtime.superCall(this, CPSTransformer, "transformWithStatement",[tree]); 
       if(result.body.type != ParseTreeType.STATE_MACHINE) { 
         return result; 
       } 
@@ -12680,7 +12689,7 @@ var $src_codegeneration_generator_CPSTransformer_js =(function() {
       } 
       return this.transformStatementList_(maybeTransformedStatements); 
     } 
-  }); 
+  }, ParseTreeTransformer, true, true); 
   return Object.preventExtensions(Object.create(null, { CPSTransformer: { 
       get: function() { 
         return CPSTransformer; 
@@ -12822,14 +12831,12 @@ var $src_codegeneration_generator_ForInTransformPass_js =(function() {
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
   var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
   var IdentifierExpression = trees.IdentifierExpression; 
-  function ForInTransformPass(identifierGenerator) { 
-    ParseTreeTransformer.call(this); 
-    this.identifierGenerator_ = identifierGenerator; 
-  } 
-  ForInTransformPass.transformTree = function(identifierGenerator, tree) { 
-    return new ForInTransformPass(identifierGenerator).transformAny(tree); 
-  }; 
-  ForInTransformPass.prototype = createObject(ParseTreeTransformer.prototype, { transformForInStatement: function(original) { 
+  var ForInTransformPass = traceur.runtime.createClass({ 
+    constructor: function(identifierGenerator) { 
+      traceur.runtime.superCall(this, ForInTransformPass, "constructor",[]); 
+      this.identifierGenerator_ = identifierGenerator; 
+    }, 
+    transformForInStatement: function(original) { 
       var tree = original; 
       var bodyStatements =[]; 
       var body = this.transformAny(tree.body); 
@@ -12864,7 +12871,11 @@ var $src_codegeneration_generator_ForInTransformPass_js =(function() {
       innerBlock.push.apply(innerBlock, bodyStatements); 
       elements.push(createForStatement(createVariableDeclarationList(TokenType.VAR, i, createNumberLiteral(0)), createBinaryOperator(createIdentifierExpression(i), createOperatorToken(TokenType.OPEN_ANGLE), createMemberExpression(keys, PredefinedName.LENGTH)), createPostfixExpression(createIdentifierExpression(i), createOperatorToken(TokenType.PLUS_PLUS)), createBlock(innerBlock))); 
       return createBlock(elements); 
-    } }); 
+    } 
+  }, ParseTreeTransformer, true, true); 
+  ForInTransformPass.transformTree = function(identifierGenerator, tree) { 
+    return new ForInTransformPass(identifierGenerator).transformAny(tree); 
+  }; 
   return Object.preventExtensions(Object.create(null, { ForInTransformPass: { 
       get: function() { 
         return ForInTransformPass; 
@@ -13022,14 +13033,12 @@ var $src_codegeneration_GeneratorTransformPass_js =(function() {
     visitSetAccessor: function(tree) { }, 
     visitGetAccessor: function(tree) { } 
   }, ParseTreeVisitor, true, true); 
-  function YieldForTransformer(identifierGenerator) { 
-    ParseTreeTransformer.call(this); 
-    this.identifierGenerator_ = identifierGenerator; 
-  } 
-  YieldForTransformer.transformTree = function(identifierGenerator, tree) { 
-    return new YieldForTransformer(identifierGenerator).transformAny(tree); 
-  }; 
-  YieldForTransformer.prototype = createObject(ParseTreeTransformer.prototype, { transformYieldStatement: function(tree) { 
+  var YieldForTransformer = traceur.runtime.createClass({ 
+    constructor: function(identifierGenerator) { 
+      traceur.runtime.superCall(this, YieldForTransformer, "constructor",[]); 
+      this.identifierGenerator_ = identifierGenerator; 
+    }, 
+    transformYieldStatement: function(tree) { 
       if(tree.isYieldFor) { 
         var id = createIdentifierExpression(this.identifierGenerator_.generateUniqueIdentifier()); 
         var forEach = createForOfStatement(createVariableDeclarationList(TokenType.VAR, id, null), tree.expression, createYieldStatement(id, false)); 
@@ -13037,16 +13046,17 @@ var $src_codegeneration_GeneratorTransformPass_js =(function() {
         return result; 
       } 
       return tree; 
-    } }); 
-  function GeneratorTransformPass(identifierGenerator, reporter) { 
-    ParseTreeTransformer.call(this); 
-    this.identifierGenerator_ = identifierGenerator; 
-    this.reporter_ = reporter; 
-  } 
-  GeneratorTransformPass.transformTree = function(identifierGenerator, reporter, tree) { 
-    return new GeneratorTransformPass(identifierGenerator, reporter).transformAny(tree); 
+    } 
+  }, ParseTreeTransformer, true, true); 
+  YieldForTransformer.transformTree = function(identifierGenerator, tree) { 
+    return new YieldForTransformer(identifierGenerator).transformAny(tree); 
   }; 
-  GeneratorTransformPass.prototype = createObject(ParseTreeTransformer.prototype, { 
+  var GeneratorTransformPass = traceur.runtime.createClass({ 
+    constructor: function(identifierGenerator, reporter) { 
+      traceur.runtime.superCall(this, GeneratorTransformPass, "constructor",[]); 
+      this.identifierGenerator_ = identifierGenerator; 
+      this.reporter_ = reporter; 
+    }, 
     transformFunctionDeclaration: function(tree) { 
       var body = this.transformBody_(tree.functionBody); 
       if(body == tree.functionBody) { 
@@ -13056,7 +13066,7 @@ var $src_codegeneration_GeneratorTransformPass_js =(function() {
     }, 
     transformBody_: function(tree) { 
       var finder = new YieldFinder(tree); 
-      var body = ParseTreeTransformer.prototype.transformBlock.call(this, tree); 
+      var body = traceur.runtime.superCall(this, GeneratorTransformPass, "transformBlock",[tree]); 
       if(! finder.hasAnyGenerator()) { 
         return body; 
       } 
@@ -13089,7 +13099,10 @@ var $src_codegeneration_GeneratorTransformPass_js =(function() {
       } 
       return new SetAccessor(null, tree.propertyName, tree.parameter, body); 
     } 
-  }); 
+  }, ParseTreeTransformer, true, true); 
+  GeneratorTransformPass.transformTree = function(identifierGenerator, reporter, tree) { 
+    return new GeneratorTransformPass(identifierGenerator, reporter).transformAny(tree); 
+  }; 
   return Object.preventExtensions(Object.create(null, { GeneratorTransformPass: { 
       get: function() { 
         return GeneratorTransformPass; 
@@ -13115,14 +13128,11 @@ var $src_codegeneration_IsExpressionTransformer_js =(function() {
     if(token.type === TokenType.NUMBER) return Number(token.value) !== 0; 
     return true; 
   } 
-  function IsExpressionTransformer() { } 
-  IsExpressionTransformer.transformTree = function(tree) { 
-    return new IsExpressionTransformer().transformAny(tree); 
-  }; 
-  IsExpressionTransformer.prototype = createObject(ParseTreeTransformer.prototype, { transformBinaryOperator: function(tree) { 
+  var IsExpressionTransformer = traceur.runtime.createClass({ 
+    transformBinaryOperator: function(tree) { 
       var operator = tree.operator; 
       if(operator.type !== TokenType.IDENTIFIER || operator.value !== IS && operator.value !== ISNT) { 
-        return ParseTreeTransformer.prototype.transformBinaryOperator.call(this, tree); 
+        return traceur.runtime.superCall(this, IsExpressionTransformer, "transformBinaryOperator",[tree]); 
       } 
       var left = this.transformAny(tree.left); 
       var right = this.transformAny(tree.right); 
@@ -13131,7 +13141,15 @@ var $src_codegeneration_IsExpressionTransformer_js =(function() {
         return createBinaryOperator(left, createOperatorToken(op), right); 
       } 
       return createCallExpression(createMemberExpression(TRACEUR, RUNTIME, operator.value), createArgumentList(left, right)); 
-    } }); 
+    }, 
+    constructor: function() { 
+      var args = Array.prototype.slice.call(arguments, 0); 
+      traceur.runtime.superCall(this, IsExpressionTransformer, "constructor", $__1(args)); 
+    } 
+  }, ParseTreeTransformer, false, true); 
+  IsExpressionTransformer.transformTree = function(tree) { 
+    return new IsExpressionTransformer().transformAny(tree); 
+  }; 
   return Object.preventExtensions(Object.create(null, { IsExpressionTransformer: { 
       get: function() { 
         return IsExpressionTransformer; 
@@ -13375,13 +13393,18 @@ var $src_codegeneration_PropertyNameShorthandTransformer_js =(function() {
   var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
   var IdentifierExpression = trees.IdentifierExpression; 
   var PropertyNameAssignment = trees.PropertyNameAssignment; 
-  function PropertyNameShorthandTransformer() { } 
+  var PropertyNameShorthandTransformer = traceur.runtime.createClass({ 
+    transformPropertyNameShorthand: function(tree) { 
+      return new PropertyNameAssignment(tree.location, tree.name, new IdentifierExpression(tree.location, tree.name)); 
+    }, 
+    constructor: function() { 
+      var args = Array.prototype.slice.call(arguments, 0); 
+      traceur.runtime.superCall(this, PropertyNameShorthandTransformer, "constructor", $__1(args)); 
+    } 
+  }, ParseTreeTransformer, false, true); 
   PropertyNameShorthandTransformer.transformTree = function(tree) { 
     return new PropertyNameShorthandTransformer().transformAny(tree); 
   }; 
-  PropertyNameShorthandTransformer.prototype = createObject(ParseTreeTransformer.prototype, { transformPropertyNameShorthand: function(tree) { 
-      return new PropertyNameAssignment(tree.location, tree.name, new IdentifierExpression(tree.location, tree.name)); 
-    } }); 
   return Object.preventExtensions(Object.create(null, { PropertyNameShorthandTransformer: { 
       get: function() { 
         return PropertyNameShorthandTransformer; 
@@ -13511,16 +13534,12 @@ var $src_codegeneration_QuasiLiteralTransformer_js =(function() {
     sb[k ++]= '"'; 
     return sb.join(''); 
   } 
-  function QuasiLiteralTransformer(identifierGenerator) { 
-    ParseTreeTransformer.call(this); 
-    this.identifierGenerator_ = identifierGenerator; 
-    this.tempVarName_ = identifierGenerator.generateUniqueIdentifier(); 
-  } 
-  QuasiLiteralTransformer.transformTree = function(identifierGenerator, tree) { 
-    return new QuasiLiteralTransformer(identifierGenerator).transformAny(tree); 
-  }; 
-  var proto = ParseTreeTransformer.prototype; 
-  QuasiLiteralTransformer.prototype = createObject(proto, { 
+  var QuasiLiteralTransformer = traceur.runtime.createClass({ 
+    constructor: function(identifierGenerator) { 
+      traceur.runtime.superCall(this, QuasiLiteralTransformer, "constructor",[]); 
+      this.identifierGenerator_ = identifierGenerator; 
+      this.tempVarName_ = identifierGenerator.generateUniqueIdentifier(); 
+    }, 
     transformProgram: function(tree) { 
       this.callsiteDecls_ =[]; 
       var elements = this.transformList(tree.programElements); 
@@ -13590,7 +13609,10 @@ var $src_codegeneration_QuasiLiteralTransformer_js =(function() {
       } 
       return new ParenExpression(null, binaryExpression); 
     } 
-  }); 
+  }, ParseTreeTransformer, true, true); 
+  QuasiLiteralTransformer.transformTree = function(identifierGenerator, tree) { 
+    return new QuasiLiteralTransformer(identifierGenerator).transformAny(tree); 
+  }; 
   return Object.preventExtensions(Object.create(null, { QuasiLiteralTransformer: { 
       get: function() { 
         return QuasiLiteralTransformer; 
@@ -13607,12 +13629,6 @@ var $src_codegeneration_RestParameterTransformer_js =(function() {
   var destructuring$createObject = $src_util_util_js, createObject = destructuring$createObject.createObject; 
   var destructuring$trees = $src_syntax_trees_ParseTrees_js, trees = destructuring$trees.trees; 
   var FormalParameterList = trees.FormalParameterList; 
-  function RestParameterTransformer() { 
-    ParseTreeTransformer.call(this); 
-  } 
-  RestParameterTransformer.transformTree = function(tree) { 
-    return new RestParameterTransformer().transformAny(tree); 
-  }; 
   function hasRestParameter(formalParameterList) { 
     var parameters = formalParameterList.parameters; 
     return parameters.length > 0 && parameters[parameters.length - 1].isRestParameter(); 
@@ -13621,12 +13637,12 @@ var $src_codegeneration_RestParameterTransformer_js =(function() {
     var parameters = formalParameterList.parameters; 
     return parameters[parameters.length - 1].identifier.identifierToken.value; 
   } 
-  RestParameterTransformer.prototype = createObject(ParseTreeTransformer.prototype, { 
+  var RestParameterTransformer = traceur.runtime.createClass({ 
     transformFunctionDeclaration: function(tree) { 
       if(hasRestParameter(tree.formalParameterList)) { 
         return this.desugarRestParameters_(tree); 
       } else { 
-        return ParseTreeTransformer.prototype.transformFunctionDeclaration.call(this, tree); 
+        return traceur.runtime.superCall(this, RestParameterTransformer, "transformFunctionDeclaration",[tree]); 
       } 
     }, 
     desugarRestParameters_: function(tree) { 
@@ -13637,8 +13653,15 @@ var $src_codegeneration_RestParameterTransformer_js =(function() {
       statements.push(variable); 
       statements.push.apply(statements, tree.functionBody.statements); 
       return createFunctionDeclaration(tree.name, parametersWithoutRestParam, this.transformAny(createBlock(statements))); 
+    }, 
+    constructor: function() { 
+      var args = Array.prototype.slice.call(arguments, 0); 
+      traceur.runtime.superCall(this, RestParameterTransformer, "constructor", $__1(args)); 
     } 
-  }); 
+  }, ParseTreeTransformer, false, true); 
+  RestParameterTransformer.transformTree = function(tree) { 
+    return new RestParameterTransformer().transformAny(tree); 
+  }; 
   return Object.preventExtensions(Object.create(null, { RestParameterTransformer: { 
       get: function() { 
         return RestParameterTransformer; 
@@ -13674,14 +13697,11 @@ var $src_codegeneration_SpreadTransformer_js =(function() {
     })); 
     return createArrayLiteralExpression(args); 
   } 
-  function SpreadTransformer(runtimeInliner) { 
-    ParseTreeTransformer.call(this); 
-    this.runtimeInliner_ = runtimeInliner; 
-  } 
-  SpreadTransformer.transformTree = function(runtimeInliner, tree) { 
-    return new SpreadTransformer(runtimeInliner).transformAny(tree); 
-  }; 
-  SpreadTransformer.prototype = createObject(ParseTreeTransformer.prototype, { 
+  var SpreadTransformer = traceur.runtime.createClass({ 
+    constructor: function(runtimeInliner) { 
+      traceur.runtime.superCall(this, SpreadTransformer, "constructor",[]); 
+      this.runtimeInliner_ = runtimeInliner; 
+    }, 
     createExpandCall_: function(elements) { 
       if(elements.length === 1) { 
         return createCallExpression(this.toObject_, createArgumentList(elements[0].expression)); 
@@ -13724,21 +13744,24 @@ var $src_codegeneration_SpreadTransformer_js =(function() {
       if(hasSpreadMember(tree.elements)) { 
         return this.desugarArraySpread_(tree); 
       } 
-      return ParseTreeTransformer.prototype.transformArrayLiteralExpression.call(this, tree); 
+      return traceur.runtime.superCall(this, SpreadTransformer, "transformArrayLiteralExpression",[tree]); 
     }, 
     transformCallExpression: function(tree) { 
       if(hasSpreadMember(tree.args.args)) { 
         return this.desugarCallSpread_(tree); 
       } 
-      return ParseTreeTransformer.prototype.transformCallExpression.call(this, tree); 
+      return traceur.runtime.superCall(this, SpreadTransformer, "transformCallExpression",[tree]); 
     }, 
     transformNewExpression: function(tree) { 
       if(tree.args != null && hasSpreadMember(tree.args.args)) { 
         return this.desugarNewSpread_(tree); 
       } 
-      return ParseTreeTransformer.prototype.transformNewExpression.call(this, tree); 
+      return traceur.runtime.superCall(this, SpreadTransformer, "transformNewExpression",[tree]); 
     } 
-  }); 
+  }, ParseTreeTransformer, true, true); 
+  SpreadTransformer.transformTree = function(runtimeInliner, tree) { 
+    return new SpreadTransformer(runtimeInliner).transformAny(tree); 
+  }; 
   return Object.preventExtensions(Object.create(null, { SpreadTransformer: { 
       get: function() { 
         return SpreadTransformer; 

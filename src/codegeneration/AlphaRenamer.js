@@ -40,16 +40,88 @@ var IdentifierExpression = trees.IdentifierExpression;
  *
  * Creates an {@code AlphaRenamer} that will replace uses of the
  * identifier {@code oldName} with {@code newName}.
- *
- * @param {string} oldName
- * @param {string} newName
- * @extends {ParseTreeTransformer}
- * @constructor
  */
-export function AlphaRenamer(oldName, newName) {
-  ParseTreeTransformer.call(this);
-  this.oldName_ = oldName;
-  this.newName_ = newName;
+export class AlphaRenamer extends ParseTreeTransformer {
+  /**
+   * @param {string} oldName
+   * @param {string} newName
+   */
+  constructor(oldName, newName) {
+    super();
+    this.oldName_ = oldName;
+    this.newName_ = newName;
+  }
+
+  /**
+   * @param {Block} tree
+   * @return {ParseTree}
+   */
+  transformBlock(tree) {
+    if (this.oldName_ in variablesInBlock(tree)) {
+      // the old name is bound in the block, skip rename
+      return tree;
+    } else {
+      return super.transformBlock(tree);
+    }
+  }
+
+  /**
+   * @param {IdentifierExpression} tree
+   * @return {ParseTree}
+   */
+  transformIdentifierExpression(tree) {
+    if (this.oldName_ == tree.identifierToken.value) {
+      return createIdentifierExpression(this.newName_);
+    } else {
+      return tree;
+    }
+  }
+
+  transformThisExpression(tree) {
+    if (this.oldName_ !== PredefinedName.THIS)
+      return tree;
+    return createIdentifierExpression(this.newName_);
+  }
+
+  /**
+   * @param {FunctionDeclaration} tree
+   * @return {ParseTree}
+   */
+  transformFunctionDeclaration(tree) {
+    if (this.oldName_ == tree.name) {
+      // it is the function that is being renamed
+      tree = createFunctionDeclaration(this.newName_,
+          tree.formalParameterList, tree.functionBody);
+    }
+
+    // Do not recurse into functions if:
+    //  - 'arguments' is implicitly bound in function bodies
+    //  - 'this' is implicitly bound in function bodies
+    //  - this.oldName_ is rebound in the new nested scope
+    var doNotRecurse =
+        this.oldName_ === PredefinedName.ARGUMENTS ||
+        this.oldName_ === PredefinedName.THIS ||
+        this.oldName_ in variablesInFunction(tree);
+    if (doNotRecurse)
+      return tree;
+    else
+      return super.transformFunctionDeclaration(tree);
+  }
+
+  /**
+   * @param {Catch} tree
+   * @return {ParseTree}
+   */
+  transformCatch(tree) {
+    if (!tree.binding.isPattern() &&
+        this.oldName_ === tree.binding.identifierToken.value) {
+      // this.oldName_ is rebound in the catch block, so don't recurse
+      return tree;
+    }
+
+    // TODO(arv): Compare the old name to the bindings in the pattern.
+    return super.transformCatch(tree);
+  }
 }
 
 /**
@@ -75,84 +147,9 @@ export function AlphaRenamer(oldName, newName) {
  *
  * @param {ParseTree} tree the tree to substitute names in.
  * @param {string} oldName the identifier to be replaced.
- * @param {string} newName the identifier that will appear instead of {@code oldName}.
+ * @param {string} newName the identifier that will appear instead of |oldName|.
  * @return {ParseTree} a copy of {@code tree} with replacements.
  */
 AlphaRenamer.rename = function(tree, oldName, newName) {
   return new AlphaRenamer(oldName, newName).transformAny(tree);
 };
-
-var proto = ParseTreeTransformer.prototype;
-AlphaRenamer.prototype = createObject(proto, {
-
-  /**
-   * @param {Block} tree
-   * @return {ParseTree}
-   */
-  transformBlock: function(tree) {
-    if (this.oldName_ in variablesInBlock(tree)) {
-      // the old name is bound in the block, skip rename
-      return tree;
-    } else {
-      return proto.transformBlock.call(this, tree);
-    }
-  },
-
-  /**
-   * @param {IdentifierExpression} tree
-   * @return {ParseTree}
-   */
-  transformIdentifierExpression: function(tree) {
-    if (this.oldName_ == tree.identifierToken.value) {
-      return createIdentifierExpression(this.newName_);
-    } else {
-      return tree;
-    }
-  },
-
-  transformThisExpression: function(tree) {
-    if (this.oldName_ !== PredefinedName.THIS)
-      return tree;
-    return createIdentifierExpression(this.newName_);
-  },
-
-  /**
-   * @param {FunctionDeclaration} tree
-   * @return {ParseTree}
-   */
-  transformFunctionDeclaration: function(tree) {
-    if (this.oldName_ == tree.name) {
-      // it is the function that is being renamed
-      tree = createFunctionDeclaration(this.newName_,
-          tree.formalParameterList, tree.functionBody);
-    }
-
-    // Do not recurse into functions if:
-    //  - 'arguments' is implicitly bound in function bodies
-    //  - 'this' is implicitly bound in function bodies
-    //  - this.oldName_ is rebound in the new nested scope
-    var doNotRecurse =
-        this.oldName_ === PredefinedName.ARGUMENTS ||
-        this.oldName_ === PredefinedName.THIS ||
-        this.oldName_ in variablesInFunction(tree);
-    if (doNotRecurse)
-      return tree;
-    else
-      return proto.transformFunctionDeclaration.call(this, tree);
-  },
-
-  /**
-   * @param {Catch} tree
-   * @return {ParseTree}
-   */
-  transformCatch: function(tree) {
-    if (!tree.binding.isPattern() &&
-        this.oldName_ === tree.binding.identifierToken.value) {
-      // this.oldName_ is rebound in the catch block, so don't recurse
-      return tree;
-    }
-
-    // TODO(arv): Compare the old name to the bindings in the pattern.
-    return proto.transformCatch.call(this, tree);
-  }
-});

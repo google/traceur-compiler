@@ -48,15 +48,16 @@ function parse(source, name) {
 /**
  * Class responsible for keeping track of inlined runtime functions and to
  * do the actual inlining of the function into the head of the program.
- * @param {UniqueIdentifierGenerator} identifierGenerator
  */
-export function RuntimeInliner(identifierGenerator) {
-  this.identifierGenerator = identifierGenerator;
-  this.map_ = Object.create(null);
-}
-
-RuntimeInliner.prototype = createObject(
-    ParseTreeTransformer.prototype, {
+export class RuntimeInliner extends ParseTreeTransformer {
+  /**
+   * @param {UniqueIdentifierGenerator} identifierGenerator
+   */
+  constructor(identifierGenerator) {
+    super();
+    this.identifierGenerator = identifierGenerator;
+    this.map_ = Object.create(null);
+  }
 
   /**
    * Prepends the program with the function definitions for the runtime
@@ -64,7 +65,7 @@ RuntimeInliner.prototype = createObject(
    * @param {Program} tree
    * @return {Program}
    */
-  transformProgram: function(tree) {
+  transformProgram(tree) {
     var names = Object.keys(this.map_);
     if (!names.length)
       return tree;
@@ -85,14 +86,14 @@ RuntimeInliner.prototype = createObject(
     var programElements = [variableStatement];
     [].push.apply(programElements, tree.programElements);
     return new Program(tree.location, programElements);
-  },
+  }
 
   /**
    * Registers a runtime function.
    * @param {string} name The name that identifies the runtime function.
    * @param {string} source
    */
-  register: function(name, source) {
+  register(name, source) {
     if (name in this.map_)
       return;
 
@@ -110,7 +111,7 @@ RuntimeInliner.prototype = createObject(
       uid: uid,
       inserted: false,
     };
-  },
+  }
 
   /**
    * Gets the identifier expression for the identifier that represents the
@@ -118,18 +119,18 @@ RuntimeInliner.prototype = createObject(
    * @param {string} name
    * @return {IdentifierExpression}
    */
-  getAsIdentifierExpression: function(name) {
+  getAsIdentifierExpression(name) {
     return createIdentifierExpression(this.map_[name].uid);
-  },
+  }
 
   /**
    * Gets the string of the identifier that represents the runtime function.
    * @param {string} name
    * @return {string}
    */
-  getAsString: function(name) {
+  getAsString(name) {
     return this.map_[name].uid;
-  },
+  }
 
   /**
    * @param {string} name The runtime function.
@@ -138,7 +139,7 @@ RuntimeInliner.prototype = createObject(
    *     parameter.
    * @return {IdentifierExpression}
    */
-  get: function(name, opt_source) {
+  get(name, opt_source) {
     if (!(name in this.map_)) {
       if (name in shared)
         opt_source = shared[name];
@@ -147,4 +148,4 @@ RuntimeInliner.prototype = createObject(
     }
     return this.getAsIdentifierExpression(name);
   }
-});
+}

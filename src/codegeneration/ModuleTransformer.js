@@ -64,7 +64,6 @@ var MODULE_DEFINITION = ParseTreeType.MODULE_DEFINITION;
 var MODULE_REQUIRE = ParseTreeType.MODULE_REQUIRE;
 var VARIABLE_STATEMENT = ParseTreeType.VARIABLE_STATEMENT;
 
-
 function toBindingIdentifier(tree) {
   return new BindingIdentifier(tree.location, tree.identifierToken);
 }
@@ -134,19 +133,17 @@ function transformSpecifier(project, identifierToken, moduleExpression) {
  * @constructor
  * @extends {ParseTreeTransformer}
  */
-export function ModuleTransformer(project) {
-  ParseTreeTransformer.call(this);
-  this.project_ = project;
-}
-
-ModuleTransformer.prototype = createObject(
-    ParseTreeTransformer.prototype, {
+export class ModuleTransformer extends ParseTreeTransformer {
+  constructor(project) {
+    super();
+    this.project_ = project;
+  }
 
   /**
    * @param {ModuleExpression} tree
    * @return {ParseTree}
    */
-  transformModuleExpression: function(tree) {
+  transformModuleExpression(tree) {
     var reference = tree.reference;
     if (reference.type == MODULE_REQUIRE) {
       // traceur.runtime.getModuleInstanceByUrl(url)
@@ -163,27 +160,27 @@ ModuleTransformer.prototype = createObject(
       return reference;
 
     return createMemberExpression(reference, tree.identifiers);
-  },
+  }
 
   /**
    * @param {ModuleSpecifier} tree
    * @return {VariableDeclaration}
    */
-  transformModuleSpecifier: function(tree) {
+  transformModuleSpecifier(tree) {
     var expression = this.transformAny(tree.expression);
     return createVariableDeclaration(tree.identifier, expression);
-  },
+  }
 
-  transformImportDeclaration: function(tree) {
+  transformImportDeclaration(tree) {
     // import id from module;
     //  =>
     // var {id} = moduleInstance
     var declarations = this.transformList(tree.importPathList);
     return createVariableStatement(createVariableDeclarationList(
         TokenType.VAR, declarations));
-  },
+  }
 
-  transformImportBinding: function(tree) {
+  transformImportBinding(tree) {
     var importSpecifierSet;
     // If identifier we need to output the object pattern {id}.
     if (tree.importSpecifierSet.type == ParseTreeType.IDENTIFIER_EXPRESSION) {
@@ -197,9 +194,9 @@ ModuleTransformer.prototype = createObject(
 
     var moduleExpression = this.transformAny(tree.moduleExpression);
     return createVariableDeclaration(importSpecifierSet, moduleExpression);
-  },
+  }
 
-  transformImportSpecifierSet: function(tree) {
+  transformImportSpecifierSet(tree) {
     var fields;
     if (tree.specifiers.type === TokenType.STAR) {
       var module = this.project_.getModuleForStarTree(tree);
@@ -211,9 +208,9 @@ ModuleTransformer.prototype = createObject(
       fields = this.transformList(tree.specifiers);
     }
     return new ObjectPattern(null, fields);
-  },
+  }
 
-  transformImportSpecifier: function(tree) {
+  transformImportSpecifier(tree) {
     if (tree.rhs) {
       var binding = new BindingIdentifier(tree.location, tree.rhs);
       var bindingElement = new BindingElement(tree.location, binding, null);
@@ -222,7 +219,7 @@ ModuleTransformer.prototype = createObject(
     return new BindingElement(tree.location,
         createBindingIdentifier(tree.lhs), null);
   }
-});
+}
 
 /**
  * @param {Project} project

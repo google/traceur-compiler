@@ -30,21 +30,6 @@ import trees from '../syntax/trees/ParseTrees.js';
 
 var FormalParameterList = trees.FormalParameterList;
 
-/**
- * Desugars rest parameters.
- *
- * @see <a href="http://wiki.ecmascript.org/doku.php?id=harmony:rest_parameters">harmony:rest_parameters</a>
- * @constructor
- * @extends {ParseTreeTransformer}
- */
-export function RestParameterTransformer() {
-  ParseTreeTransformer.call(this);
-}
-
-RestParameterTransformer.transformTree = function(tree) {
-  return new RestParameterTransformer().transformAny(tree);
-};
-
 function hasRestParameter(formalParameterList) {
   var parameters = formalParameterList.parameters;
   return parameters.length > 0 &&
@@ -56,24 +41,28 @@ function getRestParameterName(formalParameterList) {
   return parameters[parameters.length - 1].identifier.identifierToken.value;
 }
 
-RestParameterTransformer.prototype = createObject(
-    ParseTreeTransformer.prototype, {
 
-  transformFunctionDeclaration: function(tree) {
+/**
+ * Desugars rest parameters.
+ *
+ * @see <a href="http://wiki.ecmascript.org/doku.php?id=harmony:rest_parameters">harmony:rest_parameters</a>
+ */
+export class RestParameterTransformer extends ParseTreeTransformer {
+
+  transformFunctionDeclaration(tree) {
     if (hasRestParameter(tree.formalParameterList)) {
       return this.desugarRestParameters_(tree);
     } else {
-      return ParseTreeTransformer.prototype.transformFunctionDeclaration.
-          call(this, tree);
+      return super.transformFunctionDeclaration(tree);
     }
-  },
+  }
 
   /**
    * @param {FunctionDeclaration} tree
    * @private
    * @return {ParseTree}
    */
-  desugarRestParameters_: function(tree) {
+  desugarRestParameters_(tree) {
 
     // Desugar rest parameters as follows:
     //
@@ -111,4 +100,8 @@ RestParameterTransformer.prototype = createObject(
         tree.name, parametersWithoutRestParam,
         this.transformAny(createBlock(statements)));
   }
-});
+}
+
+RestParameterTransformer.transformTree = function(tree) {
+  return new RestParameterTransformer().transformAny(tree);
+};

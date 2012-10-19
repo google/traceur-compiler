@@ -111,25 +111,22 @@ var SwitchStatement = trees.SwitchStatement;
  * Each state in a state machine is identified by an integer which is unique across the entire
  * function body. The state machine merge process may need to perform state id substitution on
  * states of the merged state machines.
- *
- * @param {ErrorReporter} reporter
- * @extends {ParseTreeTransformer}
- * @constructor
  */
-export function CPSTransformer(reporter) {
-  ParseTreeTransformer.call(this);
-  this.reporter = reporter;
-  this.stateAllocator_ = new StateAllocator();
-  this.labelSet_ = Object.create(null);
-}
-
-var proto = ParseTreeTransformer.prototype;
-CPSTransformer.prototype = createObject(proto, {
+export class CPSTransformer extends ParseTreeTransformer {
+  /**
+   * @param {ErrorReporter} reporter
+   */
+  constructor(reporter) {
+    super();
+    this.reporter = reporter;
+    this.stateAllocator_ = new StateAllocator();
+    this.labelSet_ = Object.create(null);
+  }
 
   /** @return {number} */
-  allocateState: function() {
+  allocateState() {
     return this.stateAllocator_.allocateState();
-  },
+  }
 
   /**
    * If a block contains a statement which has been transformed into a state machine, then
@@ -138,19 +135,19 @@ CPSTransformer.prototype = createObject(proto, {
    * @param {Block} tree
    * @return {ParseTree}
    */
-  transformBlock: function(tree) {
+  transformBlock(tree) {
     // NOTE: tree may contain state machines already ...
     this.clearLabels_();
-    var transformedTree = proto.transformBlock.call(this, tree);
+    var transformedTree = super.transformBlock(tree);
     var machine = this.transformStatementList_(transformedTree.statements);
     return machine == null ? transformedTree : machine;
-  },
+  }
 
   /**
    * @param {Array.<ParseTree>} someTransformed
    * @return {StateMachine}
    */
-  transformStatementList_: function(someTransformed) {
+  transformStatementList_(someTransformed) {
     // This block has undergone some transformation but may only be variable transforms
     // We only need to return a state machine if the block contains a yield which has been converted
     // to a state machine.
@@ -168,13 +165,13 @@ CPSTransformer.prototype = createObject(proto, {
     }
 
     return currentMachine;
-  },
+  }
 
   /**
    * @param {Array.<ParseTree>|SwitchStatement} statements
    * @return {boolean}
    */
-  containsStateMachine_: function(statements) {
+  containsStateMachine_(statements) {
     if (statements instanceof Array) {
       for (var i = 0; i < statements.length; i++) {
         if (statements[i].type == ParseTreeType.STATE_MACHINE) {
@@ -198,28 +195,28 @@ CPSTransformer.prototype = createObject(proto, {
       }
     }
     return false;
-  },
+  }
 
   /**
    * @param {CaseClause} tree
    * @return {ParseTree}
    */
-  transformCaseClause: function(tree) {
-    var result = proto.transformCaseClause.call(this, tree);
+  transformCaseClause(tree) {
+    var result = super.transformCaseClause(tree);
     var machine = this.transformStatementList_(result.statements);
     return machine == null ?
         result :
         new CaseClause(null, result.expression, createStatementList(machine));
-  },
+  }
 
   /**
    * @param {DoWhileStatement} tree
    * @return {ParseTree}
    */
-  transformDoWhileStatement: function(tree) {
+  transformDoWhileStatement(tree) {
     var labels = this.clearLabels_();
 
-    var result = proto.transformDoWhileStatement.call(this, tree);
+    var result = super.transformDoWhileStatement(tree);
     if (result.body.type != ParseTreeType.STATE_MACHINE) {
       return result;
     }
@@ -238,7 +235,7 @@ CPSTransformer.prototype = createObject(proto, {
 
     return new StateMachine(startState, fallThroughState, states,
         loopBodyMachine.exceptionBlocks);
-  },
+  }
 
   /**
    * @param {StateMachine} loopBodyMachine
@@ -247,22 +244,22 @@ CPSTransformer.prototype = createObject(proto, {
    * @param {Object} labels
    * @param {Array.<State>} states
    */
-  addLoopBodyStates_: function(loopBodyMachine, continueState, breakState,
+  addLoopBodyStates_(loopBodyMachine, continueState, breakState,
       labels, states) {
     for (var i = 0; i < loopBodyMachine.states.length; i++) {
       var state = loopBodyMachine.states[i];
       states.push(state.transformBreakOrContinue(labels, breakState, continueState));
     }
-  },
+  }
 
   /**
    * @param {ForStatement} tree
    * @return {ParseTree}
    */
-  transformForStatement: function(tree) {
+  transformForStatement(tree) {
     var labels = this.clearLabels_();
 
-    var result = proto.transformForStatement.call(this, tree);
+    var result = super.transformForStatement(tree);
     if (result.body.type != ParseTreeType.STATE_MACHINE) {
       return result;
     }
@@ -307,33 +304,33 @@ CPSTransformer.prototype = createObject(proto, {
     this.addLoopBodyStates_(loopBodyMachine, incrementState, fallThroughState, labels, states);
     return new StateMachine(startState, fallThroughState, states,
         loopBodyMachine.exceptionBlocks);
-  },
+  }
 
   /**
    * @param {ForInStatement} tree
    * @return {ParseTree}
    */
-  transformForInStatement: function(tree) {
+  transformForInStatement(tree) {
     // The only for in statement left is from the ForInTransformPass. Just pass it through.
     return tree;
-  },
+  }
 
   /**
    * @param {ForOfStatement} tree
    * @return {ParseTree}
    */
-  transformForOfStatement: function(tree) {
+  transformForOfStatement(tree) {
     throw new Error('for of statements should be transformed before this pass');
-  },
+  }
 
   /**
    * @param {IfStatement} tree
    * @return {ParseTree}
    */
-  transformIfStatement: function(tree) {
+  transformIfStatement(tree) {
     this.clearLabels_();
 
-    var result = proto.transformIfStatement.call(this, tree);
+    var result = super.transformIfStatement(tree);
     if (result.ifClause.type != ParseTreeType.STATE_MACHINE &&
         (result.elseClause == null || result.elseClause.type != ParseTreeType.STATE_MACHINE)) {
       return result;
@@ -371,7 +368,7 @@ CPSTransformer.prototype = createObject(proto, {
 
     return new StateMachine(startState, fallThroughState, states,
         exceptionBlocks);
-  },
+  }
 
   /**
    * @param {Array.<State>} oldStates
@@ -379,17 +376,17 @@ CPSTransformer.prototype = createObject(proto, {
    * @param {number} newState
    * @param {Array.<State>} newStates
    */
-  replaceAndAddStates_: function(oldStates, oldState, newState, newStates) {
+  replaceAndAddStates_(oldStates, oldState, newState, newStates) {
     for (var i = 0; i < oldStates.length; i++) {
       newStates.push(oldStates[i].replaceState(oldState, newState));
     }
-  },
+  }
 
   /**
    * @param {LabelledStatement} tree
    * @return {ParseTree}
    */
-  transformLabelledStatement: function(tree) {
+  transformLabelledStatement(tree) {
     var oldLabels = this.addLabel_(tree.name.value);
 
     var result = this.transformAny(tree.statement);
@@ -397,24 +394,24 @@ CPSTransformer.prototype = createObject(proto, {
     this.restoreLabels_(oldLabels);
 
     return result;
-  },
+  }
 
-  clearLabels_: function() {
+  clearLabels_() {
     var result = this.labelSet_;
     this.labelSet_ = Object.create(null);
     return result;
-  },
+  }
 
-  restoreLabels_: function(oldLabels) {
+  restoreLabels_(oldLabels) {
     this.labelSet_ = oldLabels;
-  },
+  }
 
   /**
    * Adds a label to the current label set. Returns the OLD label set.
    * @param {string} label
    * @return {Object}
    */
-  addLabel_: function(label) {
+  addLabel_(label) {
     var oldLabels = this.labelSet_;
 
     var labelSet = Object.create(null);
@@ -425,16 +422,16 @@ CPSTransformer.prototype = createObject(proto, {
     this.labelSet_ = labelSet;
 
     return oldLabels;
-  },
+  }
 
   /**
    * @param {SwitchStatement} tree
    * @return {ParseTree}
    */
-  transformSwitchStatement: function(tree) {
+  transformSwitchStatement(tree) {
     var labels = this.clearLabels_();
 
-    var result = proto.transformSwitchStatement.call(this, tree);
+    var result = super.transformSwitchStatement(tree);
     if (!this.containsStateMachine_(result)) {
       return result;
     }
@@ -470,7 +467,7 @@ CPSTransformer.prototype = createObject(proto, {
 
     return new StateMachine(startState, fallThroughState, states.reverse(),
         tryStates);
-  },
+  }
 
   /**
    * @param {number} nextState
@@ -481,7 +478,7 @@ CPSTransformer.prototype = createObject(proto, {
    * @param {Array.<TryState>} tryStates
    * @return {number}
    */
-  addSwitchClauseStates_: function(nextState, fallThroughState, labels,
+  addSwitchClauseStates_(nextState, fallThroughState, labels,
       statements, states, tryStates) {
     var machine = this.ensureTransformedList_(statements);
     for (var i = 0; i < machine.states.length; i++) {
@@ -491,16 +488,16 @@ CPSTransformer.prototype = createObject(proto, {
     }
     tryStates.push.apply(tryStates, machine.exceptionBlocks);
     return machine.startState;
-  },
+  }
 
   /**
    * @param {TryStatement} tree
    * @return {ParseTree}
    */
-  transformTryStatement: function(tree) {
+  transformTryStatement(tree) {
     this.clearLabels_();
 
-    var result = proto.transformTryStatement.call(this, tree);
+    var result = super.transformTryStatement(tree);
     if (result.body.type != ParseTreeType.STATE_MACHINE && (result.catchBlock == null ||
         result.catchBlock.catchBody.type != ParseTreeType.STATE_MACHINE)) {
       return result;
@@ -567,7 +564,7 @@ CPSTransformer.prototype = createObject(proto, {
     }
 
     return tryMachine;
-  },
+  }
 
   /**
    * Local variables are lifted out of moveNext to the enclosing function in the generated code.
@@ -577,7 +574,7 @@ CPSTransformer.prototype = createObject(proto, {
    * @param {VariableStatement} tree
    * @return {ParseTree}
    */
-  transformVariableStatement: function(tree) {
+  transformVariableStatement(tree) {
     var declarations = this.transformVariableDeclarationList(tree.declarations);
     if (declarations == tree.declarations) {
       return tree;
@@ -590,7 +587,7 @@ CPSTransformer.prototype = createObject(proto, {
       return createVariableStatement(declarations);
     }
     return createExpressionStatement(declarations);
-  },
+  }
 
   /**
    * This is the initializer of a for loop. Convert into an expression containing the initializers.
@@ -598,7 +595,7 @@ CPSTransformer.prototype = createObject(proto, {
    * @param {VariableDeclarationList} tree
    * @return {ParseTree}
    */
-  transformVariableDeclarationList: function(tree) {
+  transformVariableDeclarationList(tree) {
     if (tree.declarationType == TokenType.VAR) {
       var expressions = [];
       for (var i = 0; i < tree.declarations.length; i++) {
@@ -621,17 +618,17 @@ CPSTransformer.prototype = createObject(proto, {
       }
     }
     // let/const - just transform for now
-    return proto.transformVariableDeclarationList.call(this, tree);
-  },
+    return super.transformVariableDeclarationList(tree);
+  }
 
   /**
    * @param {WhileStatement} tree
    * @return {ParseTree}
    */
-  transformWhileStatement: function(tree) {
+  transformWhileStatement(tree) {
     var labels = this.clearLabels_();
 
-    var result = proto.transformWhileStatement.call(this, tree);
+    var result = super.transformWhileStatement(tree);
     if (result.body.type != ParseTreeType.STATE_MACHINE) {
       return result;
     }
@@ -652,36 +649,36 @@ CPSTransformer.prototype = createObject(proto, {
 
     return new StateMachine(startState, fallThroughState, states,
         loopBodyMachine.exceptionBlocks);
-  },
+  }
 
   /**
    * @param {WithStatement} tree
    * @return {ParseTree}
    */
-  transformWithStatement: function(tree) {
-    var result = proto.transformWithStatement.call(this, tree);
+  transformWithStatement(tree) {
+    var result = super.transformWithStatement(tree);
     if (result.body.type != ParseTreeType.STATE_MACHINE) {
       return result;
     }
     throw new Error('Unreachable - with statement not allowed in strict mode/harmony');
-  },
+  }
 
   /**
    * @param {ThisExpression} tree
    * @return {ParseTree}
    */
-  transformThisExpression: function(tree) {
+  transformThisExpression(tree) {
     return new IdentifierExpression(tree.location,
         new IdentifierToken(tree.location, PredefinedName.$THAT));
-  },
+  }
 
-  transformIdentifierExpression: function(tree) {
+  transformIdentifierExpression(tree) {
     if (tree.identifierToken.value === PredefinedName.ARGUMENTS) {
       return new IdentifierExpression(tree.location,
           new IdentifierToken(tree.location, PredefinedName.$ARGUMENTS));
     }
     return tree;
-  },
+  }
 
   // With this to $that and arguments to $arguments alpha renaming
   //      function() {
@@ -716,35 +713,35 @@ CPSTransformer.prototype = createObject(proto, {
    * @param {StateMachine} machine
    * @return {CallExpression}
    */
-  generateMachineMethod: function(machine) {
+  generateMachineMethod(machine) {
     //  function() {
     return createFunctionExpression(createEmptyParameterList(),
             //     while (true) {
             createBlock(createWhileStatement(
                 createTrueLiteral(),
                 this.generateMachine(machine))));
-  },
+  }
 
   /** @return {VariableStatement} */
-  generateHoistedThis: function() {
+  generateHoistedThis() {
     // Hoist 'this' argument for later bind-ing.
     //   var $that = this;
     return createVariableStatement(TokenType.VAR, PredefinedName.$THAT,
         createThisExpression());
-  },
+  }
 
   /** @return {VariableStatement} */
-  generateHoistedArguments: function() {
+  generateHoistedArguments() {
     // var $arguments = argument;
     return createVariableStatement(TokenType.VAR, PredefinedName.$ARGUMENTS,
         createIdentifierExpression(PredefinedName.ARGUMENTS));
-  },
+  }
 
   /**
    * @param {StateMachine} machine
    * @return {ParseTree}
    */
-  generateMachine: function(machine) {
+  generateMachine(machine) {
     var enclosingFinallyState = machine.getEnclosingFinallyMap();
     var enclosingCatchState = machine.getEnclosingCatchMap();
     var rethrowState = this.allocateState();
@@ -801,7 +798,7 @@ CPSTransformer.prototype = createObject(proto, {
         null);
 
     return body;
-  },
+  }
 
   //   var $state = machine.startState;
   //   var $storedException;
@@ -813,7 +810,7 @@ CPSTransformer.prototype = createObject(proto, {
    * @param {StateMachine} machine
    * @return {Array.<ParseTree>}
    */
-  getMachineVariables: function(tree, machine) {
+  getMachineVariables(tree, machine) {
 
     var statements = [];
 
@@ -847,7 +844,7 @@ CPSTransformer.prototype = createObject(proto, {
     }
 
     return statements;
-  },
+  }
 
   /**
    * @param {number} rethrowState
@@ -856,7 +853,7 @@ CPSTransformer.prototype = createObject(proto, {
    * @param {Array.<number>} allStates
    * @param {Array.<number>} caseClauses
    */
-  addExceptionCases_: function(rethrowState, enclosingFinallyState,
+  addExceptionCases_(rethrowState, enclosingFinallyState,
       enclosingCatchState, allStates, caseClauses) {
 
     for (var i = 0; i < allStates.length; i++) {
@@ -908,43 +905,43 @@ CPSTransformer.prototype = createObject(proto, {
         // Generate Nothing.
       }
     }
-  },
+  }
 
   /**
    * @param {FunctionDeclaration} tree
    * @return {ParseTree}
    */
-  transformFunctionDeclaration: function(tree) {
+  transformFunctionDeclaration(tree) {
     this.clearLabels_();
     // nested functions have already been transformed
     return tree;
-  },
+  }
 
   /**
    * @param {GetAccessor} tree
    * @return {ParseTree}
    */
-  transformGetAccessor: function(tree) {
+  transformGetAccessor(tree) {
     // nested functions have already been transformed
     return tree;
-  },
+  }
 
   /**
    * @param {SetAccessor} tree
    * @return {ParseTree}
    */
-  transformSetAccessor: function(tree) {
+  transformSetAccessor(tree) {
     // nested functions have already been transformed
     return tree;
-  },
+  }
 
   /**
    * @param {StateMachine} tree
    * @return {ParseTree}
    */
-  transformStateMachine: function(tree) {
+  transformStateMachine(tree) {
     return tree;
-  },
+  }
 
   /**
    * Converts a statement into a state machine. The statement may not contain a yield
@@ -952,9 +949,9 @@ CPSTransformer.prototype = createObject(proto, {
    * @param {ParseTree} statements
    * @return {StateMachine}
    */
-  statementToStateMachine_: function(statement) {
+  statementToStateMachine_(statement) {
     return this.statementsToStateMachine_([statement]);
-  },
+  }
 
   /**
    * Converts a list of statements into a state machine. The statements may not contain a yield
@@ -962,7 +959,7 @@ CPSTransformer.prototype = createObject(proto, {
    * @param {Array.<ParseTree>} statements
    * @return {StateMachine}
    */
-  statementsToStateMachine_: function(statements) {
+  statementsToStateMachine_(statements) {
     var startState = this.allocateState();
     var fallThroughState = this.allocateState();
     return this.stateToStateMachine_(
@@ -971,17 +968,17 @@ CPSTransformer.prototype = createObject(proto, {
             fallThroughState,
             statements),
         fallThroughState);
-  },
+  }
 
   /**
    * @param {State} newState
    * @param {number} fallThroughState
    * @return {StateMachibneTree}
    */
-  stateToStateMachine_: function(newState, fallThroughState) {
+  stateToStateMachine_(newState, fallThroughState) {
     return new StateMachine(newState.id, fallThroughState,
         [newState], []);
-  },
+  }
 
   /**
    * Transforms all the machine states into a list of case clauses. Adds a rethrow clause if the
@@ -993,7 +990,7 @@ CPSTransformer.prototype = createObject(proto, {
    * @param {Object} enclosingFinallyState
    * @return {Array.<ParseTree>}
    */
-  transformMachineStates: function(machine, machineEndState, rethrowState,
+  transformMachineStates(machine, machineEndState, rethrowState,
       enclosingFinallyState) {
     var cases = [];
 
@@ -1032,14 +1029,14 @@ CPSTransformer.prototype = createObject(proto, {
                 createOperatorToken(TokenType.PLUS),
                 createIdentifierExpression(PredefinedName.STATE)))]));
     return cases;
-  },
+  }
 
   /**
    * @param {FinallyState} enclosingFinallyState
    * @param {Array.<TryState>} tryStates
    * @param {Array.<ParseTree>} cases
    */
-  addFinallyFallThroughDispatches: function(enclosingFinallyState, tryStates,
+  addFinallyFallThroughDispatches(enclosingFinallyState, tryStates,
       cases) {
 
     for (var i = 0; i < tryStates.length; i++) {
@@ -1124,7 +1121,7 @@ CPSTransformer.prototype = createObject(proto, {
             cases);
       }
     }
-  },
+  }
 
   /**
    * Returns a new state machine which will run head, then run tail.
@@ -1132,7 +1129,7 @@ CPSTransformer.prototype = createObject(proto, {
    * @param {StateMachine} tail
    * @return {StateMachine}
    */
-  createSequence_: function(head, tail) {
+  createSequence_(head, tail) {
     var states = [];
 
     states.push.apply(states, head.states);
@@ -1153,7 +1150,7 @@ CPSTransformer.prototype = createObject(proto, {
         tail.fallThroughState,
         states,
         exceptionBlocks);
-  },
+  }
 
 
   /**
@@ -1161,7 +1158,7 @@ CPSTransformer.prototype = createObject(proto, {
    * @param {ParseTree} maybeTransformedStatement
    * @return {ParseTree}
    */
-  maybeTransformStatement_: function(maybeTransformedStatement) {
+  maybeTransformStatement_(maybeTransformedStatement) {
     // Check for block scoped variables in a block containing a yield. There's
     // no way to codegen that with a precompiler but could be implemented directly in a VM.
     if (maybeTransformedStatement.type == ParseTreeType.VARIABLE_STATEMENT &&
@@ -1181,14 +1178,14 @@ CPSTransformer.prototype = createObject(proto, {
       breakContinueTransformed = this.transformAny(breakContinueTransformed);
     }
     return breakContinueTransformed;
-  },
+  }
 
   /**
    * Ensure that a statement has been transformed into a state machine.
    * @param {ParseTree} statement
    * @return {StateMachine}
    */
-  ensureTransformed_: function(statement) {
+  ensureTransformed_(statement) {
     if (statement == null) {
       return null;
     }
@@ -1196,14 +1193,14 @@ CPSTransformer.prototype = createObject(proto, {
     return maybeTransformed.type == ParseTreeType.STATE_MACHINE ?
         maybeTransformed :
         this.statementToStateMachine_(maybeTransformed);
-  },
+  }
 
   /**
    * Ensure that a statement has been transformed into a state machine.
    * @param {Array.<ParseTree>} statements
    * @return {StateMachine}
    */
-  ensureTransformedList_: function(statements) {
+  ensureTransformedList_(statements) {
     var maybeTransformedStatements = [];
     var foundMachine = false;
     for (var i = 0; i < statements.length; i++) {
@@ -1220,4 +1217,4 @@ CPSTransformer.prototype = createObject(proto, {
 
     return this.transformStatementList_(maybeTransformedStatements);
   }
-});
+}

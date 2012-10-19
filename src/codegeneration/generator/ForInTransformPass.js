@@ -43,27 +43,17 @@ import trees from '../../syntax/trees/ParseTrees.js';
 
 var IdentifierExpression = trees.IdentifierExpression;
 
-
 /**
  * Desugars for-in loops to be compatible with generators.
- * @param {UniqueIdentifierGenerator} identifierGenerator
- * @constructor
  */
-export function ForInTransformPass(identifierGenerator) {
-  ParseTreeTransformer.call(this);
-  this.identifierGenerator_ = identifierGenerator;
-}
-
-/*
- * @param {UniqueIdentifierGenerator} identifierGenerator
- * @param {ParseTree} tree
- */
-ForInTransformPass.transformTree = function(identifierGenerator, tree) {
-  return new ForInTransformPass(identifierGenerator).transformAny(tree);
-};
-
-ForInTransformPass.prototype = createObject(
-    ParseTreeTransformer.prototype, {
+export class ForInTransformPass extends ParseTreeTransformer {
+  /**
+   * @param {UniqueIdentifierGenerator} identifierGenerator
+   */
+  constructor(identifierGenerator) {
+    super();
+    this.identifierGenerator_ = identifierGenerator;
+  }
 
   // for ( var key in object ) statement
   //
@@ -81,7 +71,7 @@ ForInTransformPass.prototype = createObject(
    * @param {ForInStatement} original
    * @return {ParseTree}
    */
-  transformForInStatement: function(original) {
+  transformForInStatement(original) {
     var tree = original;
 
     // Transform body first
@@ -181,4 +171,12 @@ ForInTransformPass.prototype = createObject(
 
     return createBlock(elements);
   }
-});
+}
+
+/*
+ * @param {UniqueIdentifierGenerator} identifierGenerator
+ * @param {ParseTree} tree
+ */
+ForInTransformPass.transformTree = function(identifierGenerator, tree) {
+  return new ForInTransformPass(identifierGenerator).transformAny(tree);
+};

@@ -59,28 +59,27 @@ function getVars(self) {
  * @constructor
  * @extends {ParseTreeTransformer}
  */
-export function TempVarTransformer(identifierGenerator) {
-  this.identifierGenerator = identifierGenerator
-  this.tempVarStack_ = [];
-}
+export class TempVarTransformer extends ParseTreeTransformer {
+  constructor(identifierGenerator) {
+    super();
+    this.identifierGenerator = identifierGenerator
+    this.tempVarStack_ = [];
+  }
 
-var proto = ParseTreeTransformer.prototype;
-TempVarTransformer.prototype = createObject(proto, {
-
-  transformProgram: function(tree) {
+  transformProgram(tree) {
     var elements = transformStatements(this, tree.programElements);
     if (elements == tree.programElements) {
       return tree;
     }
     return new Program(null, elements);
-  },
+  }
 
-  transformFunctionBody: function(tree) {
+  transformFunctionBody(tree) {
     var statements = transformStatements(this, tree.statements);
     if (statements == tree.statements)
       return tree;
     return createBlock(statements);
-  },
+  }
 
   /**
    * Adds a new temporary variable to the current function scope.
@@ -88,14 +87,14 @@ TempVarTransformer.prototype = createObject(proto, {
    *     have this as the initializer expression.
    * @return {string} The name of the temporary variable.
    */
-  addTempVar: function(opt_initializer) {
+  addTempVar(opt_initializer) {
     var vars = getVars(this);
     var uid = this.identifierGenerator.generateUniqueIdentifier();
     vars.push(createVariableDeclaration(uid, opt_initializer || null));
     return uid;
-  },
+  }
 
-  removeTempVar: function(name) {
+  removeTempVar(name) {
     var vars = getVars(this);
     var index = -1;
     for (var i = 0; i < vars.length; i++) {
@@ -106,5 +105,5 @@ TempVarTransformer.prototype = createObject(proto, {
     }
     if (index !== -1)
       vars.splice(index, 1);
-  },
-});
+  }
+}

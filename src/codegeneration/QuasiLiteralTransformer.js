@@ -172,30 +172,17 @@ function cookString(s) {
   return sb.join('');
 }
 
-/**
- * @param {UniqueIdentifierGenerator} identifierGenerator
- * @extends {ParseTreeTransformer}
- */
-export function QuasiLiteralTransformer(identifierGenerator) {
-  ParseTreeTransformer.call(this);
-  this.identifierGenerator_ = identifierGenerator;
-  this.tempVarName_ = identifierGenerator.generateUniqueIdentifier();
-}
+export class QuasiLiteralTransformer extends ParseTreeTransformer {
+  /**
+   * @param {UniqueIdentifierGenerator} identifierGenerator
+   */
+  constructor(identifierGenerator) {
+    super();
+    this.identifierGenerator_ = identifierGenerator;
+    this.tempVarName_ = identifierGenerator.generateUniqueIdentifier();
+  }
 
-/*
- * @param {UniqueIdentifierGenerator} identifierGenerator
- * @param {ParseTree} tree
- * @return {ParseTree}
- */
-QuasiLiteralTransformer.transformTree = function(identifierGenerator, tree) {
-  return new QuasiLiteralTransformer(identifierGenerator).transformAny(tree);
-};
-
-var proto = ParseTreeTransformer.prototype;
-QuasiLiteralTransformer.prototype = createObject(proto, {
-  transformProgram: function(tree) {
-
-
+  transformProgram(tree) {
     this.callsiteDecls_ = [];
 
     var elements = this.transformList(tree.programElements);
@@ -214,9 +201,9 @@ QuasiLiteralTransformer.prototype = createObject(proto, {
     }
 
     return new Program(tree.location, elements);
-  },
+  }
 
-  transformQuasiLiteralExpression: function(tree) {
+  transformQuasiLiteralExpression(tree) {
     if (!tree.operand)
       return this.createDefaultQuasi(tree);
 
@@ -236,9 +223,9 @@ QuasiLiteralTransformer.prototype = createObject(proto, {
     }
 
     return createCallExpression(operand, createArgumentList(args));
-  },
+  }
 
-  transformQuasiSubstitution: function(tree) {
+  transformQuasiSubstitution(tree) {
     var transformedTree = this.transformAny(tree.expression);
     // Wrap in a paren expression if needed.
     switch (transformedTree.type) {
@@ -257,13 +244,13 @@ QuasiLiteralTransformer.prototype = createObject(proto, {
     }
 
     return transformedTree;
-  },
+  }
 
-  transformQuasiLiteralPortion: function(tree) {
+  transformQuasiLiteralPortion(tree) {
     return createCookedStringLiteralExpression(tree);
-  },
+  }
 
-  createDefaultQuasi: function(tree) {
+  createDefaultQuasi(tree) {
     // convert to ("a" + b + "c" + d + "")
     var length = tree.elements.length;
     if (length === 0) {
@@ -290,4 +277,13 @@ QuasiLiteralTransformer.prototype = createObject(proto, {
 
     return new ParenExpression(null, binaryExpression);
   }
-});
+}
+
+/**
+ * @param {UniqueIdentifierGenerator} identifierGenerator
+ * @param {ParseTree} tree
+ * @return {ParseTree}
+ */
+QuasiLiteralTransformer.transformTree = function(identifierGenerator, tree) {
+  return new QuasiLiteralTransformer(identifierGenerator).transformAny(tree);
+};

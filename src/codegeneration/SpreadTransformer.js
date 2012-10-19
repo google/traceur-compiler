@@ -91,24 +91,17 @@ function createInterleavedArgumentsArray(elements) {
  * TODO(arv): spread in array patterns
  *
  * @see <a href="http://wiki.ecmascript.org/doku.php?id=harmony:spread">harmony:spread</a>
- *
- * @param {RuntimeInliner} runtimeInliner
- * @extends {ParseTreeTransformer}
- * @constructor
  */
-export function SpreadTransformer(runtimeInliner) {
-  ParseTreeTransformer.call(this);
-  this.runtimeInliner_ = runtimeInliner;
-}
+export class SpreadTransformer extends ParseTreeTransformer {
+  /**
+   * @param {RuntimeInliner} runtimeInliner
+   */
+  constructor(runtimeInliner) {
+    super();
+    this.runtimeInliner_ = runtimeInliner;
+  }
 
-SpreadTransformer.transformTree = function(runtimeInliner, tree) {
-  return new SpreadTransformer(runtimeInliner).transformAny(tree);
-};
-
-SpreadTransformer.prototype = createObject(
-    ParseTreeTransformer.prototype, {
-
-  createExpandCall_: function(elements) {
+  createExpandCall_(elements) {
     if (elements.length === 1) {
       return createCallExpression(
           this.toObject_,
@@ -118,29 +111,29 @@ SpreadTransformer.prototype = createObject(
     return createCallExpression(
         this.spread_,
         createArgumentList(args));
-  },
+  }
 
   get spread_() {
     return this.runtimeInliner_.get('spread', SPREAD_CODE);
-  },
+  }
 
   get spreadNew_() {
     this.runtimeInliner_.register('spread', SPREAD_CODE);
     return this.runtimeInliner_.get('spreadNew', SPREAD_NEW_CODE);
-  },
+  }
 
   get toObject_() {
     return this.runtimeInliner_.get('toObject');
-  },
+  }
 
-  desugarArraySpread_: function(tree) {
+  desugarArraySpread_(tree) {
     // [a, ...b, c]
     //
     // (expandFunction)([false, a, true, b, false, c])
     return this.createExpandCall_(tree.elements);
-  },
+  }
 
-  desugarCallSpread_: function(tree) {
+  desugarCallSpread_(tree) {
     if (tree.operand.type == ParseTreeType.MEMBER_EXPRESSION) {
       // expr.fun(a, ...b, c)
       //
@@ -185,9 +178,9 @@ SpreadTransformer.prototype = createObject(
     return createCallExpression(createMemberExpression(tree.operand, APPLY),
         createArgumentList(createNullLiteral(),
                            this.createExpandCall_(tree.args.args)));
-  },
+  }
 
-  desugarSpreadMethodCall_: function(tree, operand, memberLookup) {
+  desugarSpreadMethodCall_(tree, operand, memberLookup) {
     // (function ($0, $1) {
     //   return memberLookup.apply($0, $1);
     // })(operand, expandCall(arguments))
@@ -210,9 +203,9 @@ SpreadTransformer.prototype = createObject(
         createArgumentList(
             operand,
             this.createExpandCall_(tree.args.args)));
-  },
+  }
 
-  desugarNewSpread_: function(tree) {
+  desugarNewSpread_(tree) {
     // new Fun(a, ...b, c)
     //
     // %spreadNew(Fun, [false, a, true, b, false, c])
@@ -221,29 +214,30 @@ SpreadTransformer.prototype = createObject(
         createArgumentList(
             tree.operand,
             createInterleavedArgumentsArray(tree.args.args)));
-  },
+  }
 
-  transformArrayLiteralExpression: function(tree) {
+  transformArrayLiteralExpression(tree) {
     if (hasSpreadMember(tree.elements)) {
       return this.desugarArraySpread_(tree);
     }
-    return ParseTreeTransformer.prototype.
-        transformArrayLiteralExpression.call(this, tree);
-  },
+    return super.transformArrayLiteralExpression(tree);
+  }
 
-  transformCallExpression: function(tree) {
+  transformCallExpression(tree) {
     if (hasSpreadMember(tree.args.args)) {
       return this.desugarCallSpread_(tree);
     }
-    return ParseTreeTransformer.prototype.transformCallExpression.
-        call(this, tree);
-  },
+    return super.transformCallExpression(tree);
+  }
 
-  transformNewExpression: function(tree) {
+  transformNewExpression(tree) {
     if (tree.args != null && hasSpreadMember(tree.args.args)) {
       return this.desugarNewSpread_(tree);
     }
-    return ParseTreeTransformer.prototype.transformNewExpression.
-        call(this, tree);
+    return super.transformNewExpression(tree);
   }
-});
+}
+
+SpreadTransformer.transformTree = function(runtimeInliner, tree) {
+  return new SpreadTransformer(runtimeInliner).transformAny(tree);
+};

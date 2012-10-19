@@ -23,23 +23,16 @@ var PropertyNameAssignment = trees.PropertyNameAssignment;
  * Desugars property name shorthands
  *
  * @see <a href="http://wiki.ecmascript.org/doku.php?id=strawman:object_initialiser_shorthand">strawman:object_initialiser_shorthand</a>
- *
- * @extends {ParseTreeTransformer}
- * @constructor
  */
-export function PropertyNameShorthandTransformer() {}
-
-PropertyNameShorthandTransformer.transformTree = function(tree) {
-  return new PropertyNameShorthandTransformer().transformAny(tree);
-};
-
-PropertyNameShorthandTransformer.prototype = createObject(
-    ParseTreeTransformer.prototype, {
-
-  transformPropertyNameShorthand: function(tree) {
+export class PropertyNameShorthandTransformer extends ParseTreeTransformer {
+  transformPropertyNameShorthand(tree) {
     // We need to pass along the location for the FreeVariableChecker to not
     // fail.
     return new PropertyNameAssignment(tree.location,
         tree.name, new IdentifierExpression(tree.location, tree.name));
   }
-});
+}
+
+PropertyNameShorthandTransformer.transformTree = function(tree) {
+  return new PropertyNameShorthandTransformer().transformAny(tree);
+};

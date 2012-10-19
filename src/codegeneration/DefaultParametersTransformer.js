@@ -34,36 +34,19 @@ import trees from '../syntax/trees/ParseTrees.js';
 var FormalParameterList = trees.FormalParameterList;
 var FunctionDeclaration = trees.FunctionDeclaration;
 
-
 var stack = [];
 
 /**
  * Desugars default parameters.
  *
  * @see <a href="http://wiki.ecmascript.org/doku.php?id=harmony:parameter_default_values">harmony:parameter_default_values</a>
- * @constructor
- * @extends {ParseTreeTransformer}
  */
-export function DefaultParametersTransformer() {
-  ParseTreeTransformer.call(this);
-}
+export class DefaultParametersTransformer extends ParseTreeTransformer {
 
-/**
- * @param {ParseTree} tree
- * @return {ParseTree}
- */
-DefaultParametersTransformer.transformTree = function(tree) {
-  return new DefaultParametersTransformer().transformAny(tree);
-};
-
-DefaultParametersTransformer.prototype = createObject(
-    ParseTreeTransformer.prototype, {
-
-  transformFunctionDeclaration: function(tree) {
+  transformFunctionDeclaration(tree) {
     stack.push([]);
 
-    var transformedTree = ParseTreeTransformer.prototype.
-        transformFunctionDeclaration.call(this, tree);
+    var transformedTree = super.transformFunctionDeclaration(tree);
 
     var statements = stack.pop();
     if (!statements.length)
@@ -78,9 +61,9 @@ DefaultParametersTransformer.prototype = createObject(
                                    transformedTree.isGenerator,
                                    transformedTree.formalParameterList,
                                    createBlock(statements));
-  },
+  }
 
-  transformFormalParameterList: function(tree) {
+  transformFormalParameterList(tree) {
     var parameters = [];
     var statements = stack[stack.length - 1];
     var changed = false;
@@ -125,4 +108,12 @@ DefaultParametersTransformer.prototype = createObject(
 
     return new FormalParameterList(tree.location, parameters);
   }
-});
+}
+
+/**
+ * @param {ParseTree} tree
+ * @return {ParseTree}
+ */
+DefaultParametersTransformer.transformTree = function(tree) {
+  return new DefaultParametersTransformer().transformAny(tree);
+};

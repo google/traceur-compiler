@@ -32,41 +32,38 @@ import {
 
 /**
  * Transforms super expressions in function bodies.
- *
- * @param {TempVarTransformer} tempVarTransformer
- * @param {ErrorReporter} reporter
- * @param {ParseTree} method
- * @constructor
- * @extends {ParseTreeTransformer}
  */
-export function SuperTransformer(tempVarTransformer, reporter, className,
-                          methodTree) {
-  ParseTreeTransformer.call(this);
-  this.tempVarTransformer_ = tempVarTransformer;
-  this.className_ = className;
-  this.method_ = methodTree;
-  this.reporter_ = reporter;
-}
+export class SuperTransformer extends ParseTreeTransformer {
+  /**
+   * @param {TempVarTransformer} tempVarTransformer
+   * @param {ErrorReporter} reporter
+   * @param {ParseTree} className
+   * @param {ParseTree} methodTree
+   */
+  constructor(tempVarTransformer, reporter, className, methodTree) {
+    super();
+    this.tempVarTransformer_ = tempVarTransformer;
+    this.className_ = className;
+    this.method_ = methodTree;
+    this.reporter_ = reporter;
+    this.superFound_ = false;
+  }
 
-var proto = ParseTreeTransformer.prototype;
-SuperTransformer.prototype = createObject(proto, {
-
-  superFound_: false,
   get hasSuper() {
     return this.superFound_;
-  },
+  }
 
   // super does not carry into other method bodies.
-  transformFunctionDeclaration: function(tree) { return tree; },
-  transformGetAccessor: function(tree) { return tree; },
-  transformSetAccessor: function(tree) { return tree; },
-  transformPropertyMethodAssignMent: function(tree) { return tree; },
+  transformFunctionDeclaration(tree) { return tree; }
+  transformGetAccessor(tree) { return tree; }
+  transformSetAccessor(tree) { return tree; }
+  transformPropertyMethodAssignMent(tree) { return tree; }
 
   /**
    * @param {CallExpression} tree
    * @return {ParseTree}
    */
-  transformCallExpression: function(tree) {
+  transformCallExpression(tree) {
     if (this.method_ && tree.operand.type == ParseTreeType.SUPER_EXPRESSION) {
       // We have: super(args)
       this.superFound_ = true;
@@ -112,10 +109,10 @@ SuperTransformer.prototype = createObject(proto, {
             createArrayLiteralExpression(tree.args.args)));
     }
 
-    return proto.transformCallExpression.call(this, tree);
-  },
+    return super.transformCallExpression(tree);
+  }
 
-  transformMemberShared_: function(tree, name) {
+  transformMemberShared_(tree, name) {
     // traceur.runtime.superGet(this, class, "name")
     return createCallExpression(
         createMemberExpression(
@@ -126,27 +123,27 @@ SuperTransformer.prototype = createObject(proto, {
           createThisExpression(),
           this.className_,
           name));
-  },
+  }
 
   /**
    * @param {MemberExpression} tree
    * @return {ParseTree}
    */
-  transformMemberExpression: function(tree) {
+  transformMemberExpression(tree) {
     if (tree.operand.type === ParseTreeType.SUPER_EXPRESSION) {
       return this.transformMemberShared_(tree,
           createStringLiteral(tree.memberName.value));
     }
-    return proto.transformMemberExpression.call(this, tree);
-  },
+    return super.transformMemberExpression(tree);
+  }
 
-  transformMemberLookupExpression: function(tree) {
+  transformMemberLookupExpression(tree) {
     if (tree.operand.type === ParseTreeType.SUPER_EXPRESSION)
       return this.transformMemberShared_(tree, tree.memberExpression);
-    return proto.transformMemberLookupExpression.call(this, tree);
-  },
+    return super.transformMemberLookupExpression(tree);
+  }
 
-  transformBinaryOperator: function(tree) {
+  transformBinaryOperator(tree) {
     if (tree.operator.isAssignmentOperator() &&
         (tree.left.type === ParseTreeType.MEMBER_EXPRESSION ||
          tree.left.type === ParseTreeType.MEMBER_LOOKUP_EXPRESSION) &&
@@ -181,26 +178,26 @@ SuperTransformer.prototype = createObject(proto, {
     }
 
     // TODO(arv): Implement super.foo op= expr
-    return proto.transformBinaryOperator.call(this, tree);
-  },
+    return super.transformBinaryOperator(tree);
+  }
 
   /**
    * @param {SuperExpression} tree
    * @return {ParseTree}
    */
-  transformSuperExpression: function(tree) {
+  transformSuperExpression(tree) {
     this.reportError_(tree, '"super" may only be used on the LHS of a member access expression before a call (TODO wording)');
     return tree;
-  },
+  }
 
   /**
    * @param {ParseTree} tree
    * @param {string} format
    * @param {...Object} var_args
    */
-  reportError_: function(tree, format, var_args) {
+  reportError_(tree, format, var_args) {
     var args = Array.prototype.slice.call(arguments);
     args[0] = tree.location.start;
     this.reporter_.reportError.apply(this.reporter_, args);
   }
-});
+}

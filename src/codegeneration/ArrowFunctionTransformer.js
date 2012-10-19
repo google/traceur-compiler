@@ -35,46 +35,33 @@ var ThisExpression = trees.ThisExpression;
 
 /**
  * This is used to find whether a function contains a reference to 'this'.
- * @extend {FindInFunctionScope}
- * @param {ParseTree} tree The tree to search.
  */
-function ThisFinder(tree) {
-  FindInFunctionScope.call(this, tree);
-}
-ThisFinder.prototype = createObject(
-    FindInFunctionScope.prototype, {
-
-  visitThisExpression: function(tree) {
+class ThisFinder extends FindInFunctionScope {
+  visitThisExpression(tree) {
     this.found = true;
   }
-});
+}
 
 /**
  * Desugars arrow function expressions
  *
  * @see <a href="http://wiki.ecmascript.org/doku.php?id=strawman:arrow_function_syntax">strawman:arrow_function_syntax</a>
- *
- * @param {ErrorReporter} reporter
- * @extends {ParseTreeTransformer}
- * @constructor
  */
-export function ArrowFunctionTransformer(reporter) {
-  this.reporter_ = reporter;
-}
-
-ArrowFunctionTransformer.transformTree = function(reporter, tree) {
-  return new ArrowFunctionTransformer(reporter).transformAny(tree);
-};
-
-ArrowFunctionTransformer.prototype = createObject(
-    ParseTreeTransformer.prototype, {
+export class ArrowFunctionTransformer extends ParseTreeTransformer {
+  /**
+   * @param {ErrorReporter} reporter
+   */
+  constructor(reporter) {
+    super();
+    this.reporter_ = reporter;
+  }
 
   /**
    * Transforms an arrow function expression into a function declaration.
    * The main things we need to deal with are the 'this' binding, and adding a
    * block and return statement if needed.
    */
-  transformArrowFunctionExpression: function(tree) {
+  transformArrowFunctionExpression(tree) {
     var parameters;
     if (tree.formalParameters) {
       parameters = this.transformAny(tree.formalParameters).parameters;
@@ -106,4 +93,8 @@ ArrowFunctionTransformer.prototype = createObject(
 
     return result;
   }
-});
+}
+
+ArrowFunctionTransformer.transformTree = function(reporter, tree) {
+  return new ArrowFunctionTransformer(reporter).transformAny(tree);
+};

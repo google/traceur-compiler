@@ -49,24 +49,13 @@ function isGoodLiteral(tree) {
  * Desugars is and isnt expressions.
  *
  * @see <a href="http://wiki.ecmascript.org/doku.php?id=harmony:egal">harmony:egal</a>
- *
- * @extends {ParseTreeTransformer}
- * @constructor
  */
-export function IsExpressionTransformer() {}
-
-IsExpressionTransformer.transformTree = function(tree) {
-  return new IsExpressionTransformer().transformAny(tree);
-};
-
-IsExpressionTransformer.prototype = createObject(
-    ParseTreeTransformer.prototype, {
-
-  transformBinaryOperator: function(tree) {
+export class IsExpressionTransformer extends ParseTreeTransformer {
+  transformBinaryOperator(tree) {
     var operator = tree.operator;
     if (operator.type !== TokenType.IDENTIFIER ||
         operator.value !== IS && operator.value !== ISNT) {
-      return ParseTreeTransformer.prototype.transformBinaryOperator.call(this, tree);
+      return super.transformBinaryOperator(tree);
     }
 
     // left is right
@@ -87,4 +76,8 @@ IsExpressionTransformer.prototype = createObject(
         createMemberExpression(TRACEUR, RUNTIME, operator.value),
         createArgumentList(left, right));
   }
-});
+}
+
+IsExpressionTransformer.transformTree = function(tree) {
+  return new IsExpressionTransformer().transformAny(tree);
+};

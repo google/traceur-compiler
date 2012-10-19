@@ -34,25 +34,16 @@ import {
 import createObject from '../util/util.js';
 
 /**
- * Desugars for of statement.
- * @param {UniqueIdentifierGenerator} identifierGenerator
- * @constructor
+ * Desugars for-of statement.
  */
-export function ForOfTransformer(identifierGenerator) {
-  ParseTreeTransformer.call(this);
-  this.identifierGenerator_ = identifierGenerator;
-}
-
-/*
- * @param {UniqueIdentifierGenerator} identifierGenerator
- * @param {ParseTree} tree
- */
-ForOfTransformer.transformTree = function(identifierGenerator, tree) {
-  return new ForOfTransformer(identifierGenerator).transformAny(tree);
-};
-
-ForOfTransformer.prototype = createObject(
-    ParseTreeTransformer.prototype, {
+export class ForOfTransformer extends ParseTreeTransformer {
+  /**
+   * @param {UniqueIdentifierGenerator} identifierGenerator
+   */
+  constructor(identifierGenerator) {
+    super();
+    this.identifierGenerator_ = identifierGenerator;
+  }
 
   // for ( initializer of collection ) statement
   //
@@ -70,9 +61,8 @@ ForOfTransformer.prototype = createObject(
    * @param {ForOfStatement} original
    * @return {ParseTree}
    */
-  transformForOfStatement: function(original) {
-    var tree = ParseTreeTransformer.prototype.transformForOfStatement.call(
-        this, original);
+  transformForOfStatement(original) {
+    var tree = super.transformForOfStatement(original);
 
     //   let $it = traceur.runtime.getIterator(collection);
     // TODO: use 'var' instead of 'let' to enable yield's from within for of statements
@@ -114,4 +104,12 @@ ForOfTransformer.prototype = createObject(
     return createBlock(initializer,
         createTryStatement(createBlock(loop), null, createFinally(createBlock(finallyBody))));
   }
-});
+}
+
+/**
+ * @param {UniqueIdentifierGenerator} identifierGenerator
+ * @param {ParseTree} tree
+ */
+ForOfTransformer.transformTree = function(identifierGenerator, tree) {
+  return new ForOfTransformer(identifierGenerator).transformAny(tree);
+};
