@@ -125,14 +125,14 @@ module traceur {
 
     import VariableBinder from 'semantics/VariableBinder.js';
     export VariableBinder;
+
+    import evaluateStringLiteral from 'semantics/util.js';
+    export evaluateStringLiteral;
   }
 
   export module util {
     import {canonicalizeUrl, resolveUrl} from 'util/url.js';
     export canonicalizeUrl, resolveUrl;
-
-    import evaluateStringLiteral from 'util/util.js';
-    export evaluateStringLiteral;
 
     import ErrorReporter from 'util/ErrorReporter.js';
     export ErrorReporter;

@@ -41,6 +41,7 @@ import {
   createVariableStatement
 } from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
+import hasUseStrict from '../semantics/util.js';
 import trees from '../syntax/trees/ParseTrees.js';
 
 var BindingElement = trees.BindingElement;
@@ -230,10 +231,11 @@ ModuleTransformer.prototype = createObject(
  */
 ModuleTransformer.transform = function(project, tree) {
   var module = project.getRootModule();
+  var useStrictCount = hasUseStrict(tree.programElements) ? 1 : 0;
   var elements = tree.programElements.map((element) => {
     switch (element.type) {
       case MODULE_DEFINITION:
-        return transformDefinition(project, module, element);
+        return transformDefinition(project, module, element, useStrictCount);
       case MODULE_DECLARATION:
         return transformDeclaration(project, module, element);
       case IMPORT_DECLARATION:
@@ -264,11 +266,13 @@ ModuleTransformer.transformAsModule = function(project, module, tree) {
  * @param {Array.<ParseTree>} elements
  * @return {CallExpression}
  */
-function transformModuleElements(project, module, elements) {
+function transformModuleElements(project, module, elements, useStrictCount) {
   var statements = [];
 
+  useStrictCount = useStrictCount || 0;
   // use strict
-  statements.push(createUseStrictDirective());
+  if (!useStrictCount)
+    statements.push(createUseStrictDirective());
 
   // Add original body statements
   elements.forEach((element) => {
@@ -277,14 +281,15 @@ function transformModuleElements(project, module, elements) {
         statements.push(transformDeclaration(project, module, element));
         break;
       case MODULE_DEFINITION:
-        statements.push(transformDefinition(project, module, element));
+        statements.push(transformDefinition(project, module, element,
+                                            useStrictCount + 1));
         break;
       case EXPORT_DECLARATION:
         var declaration = element.declaration;
         switch (declaration.type) {
           case MODULE_DEFINITION:
-            statements.push(transformDefinition(project, module,
-                                                declaration));
+            statements.push(transformDefinition(project, module, declaration,
+                                                useStrictCount + 1));
             break;
           case MODULE_DECLARATION:
             statements.push(transformDeclaration(project, module,
@@ -353,11 +358,11 @@ function transformModuleElements(project, module, elements) {
  * @param {ModuleDefinition} tree
  * @return {ParseTree}
  */
-function transformDefinition(project, parent, tree) {
+function transformDefinition(project, parent, tree, useStrictCount) {
   var module = parent.getModule(tree.name.value);
 
   var callExpression = transformModuleElements(project, module,
-                                               tree.elements);
+                                               tree.elements, useStrictCount);
 
   // const M = (function() { statements }).call(thisObject);
   // TODO(arv): const is not allowed in ES5 strict

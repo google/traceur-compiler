@@ -35,7 +35,7 @@ var TreeWriter = traceur.outputgeneration.TreeWriter;
 var canonicalizeUrl = traceur.util.canonicalizeUrl;
 var createIdentifierExpression = traceur.codegeneration.ParseTreeFactory.createIdentifierExpression;
 var createIdentifierToken = traceur.codegeneration.ParseTreeFactory.createIdentifierToken;
-var evaluateStringLiteral = traceur.util.evaluateStringLiteral;
+var evaluateStringLiteral = traceur.semantics.evaluateStringLiteral;
 var resolveUrl = traceur.util.resolveUrl;
 
 /**

@@ -44,7 +44,7 @@
   var canonicalizeUrl = traceur.util.canonicalizeUrl;
   var createIdentifierToken = traceur.codegeneration.ParseTreeFactory.createIdentifierToken;
   var createIdentifierExpression = traceur.codegeneration.ParseTreeFactory.createIdentifierExpression;
-  var evaluateStringLiteral = traceur.util.evaluateStringLiteral;
+  var evaluateStringLiteral = traceur.semantics.evaluateStringLiteral;
   var resolveUrl = traceur.util.resolveUrl;
 
   var outDirName = 'out';

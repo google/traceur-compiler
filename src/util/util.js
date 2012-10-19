@@ -13,17 +13,6 @@
 // limitations under the License.
 
 /**
- * Returns the string value for a literal token.
- * @param {LiteralToken} token
- * @return {string}
- */
-export function evaluateStringLiteral(token) {
-  // TODO(arv): I feel dirty using eval here. We should just do the right
-  // thing!
-  return eval(token.value);
-}
-
-/**
  * Similar to {@code Object.create} but instead of taking a property
  * descriptor it takes an ordinary object.
  * @param {Object} proto The object acting as the proto.
