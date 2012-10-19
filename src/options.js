@@ -217,7 +217,7 @@ function parseCommand(s) {
     if (name in options) {
       options[name] = value;
     } else {
-      throw Error('Unknown option: ' + m[1]);
+      throw new Error(`Unknown option: ${m[1]}`);
     }
   }
 }

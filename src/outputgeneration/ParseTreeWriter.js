@@ -68,7 +68,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
         tree.location.start !== null && this.showLineNumbers_) {
         var line = tree.location.start.line + 1;
         var column = tree.location.start.column;
-      this.currentLineComment_ = 'Line: ' + line + '.' + column;
+      this.currentLineComment_ = `Line: ${line}.${column}`;
     }
 
     this.currentLocation = tree.location;

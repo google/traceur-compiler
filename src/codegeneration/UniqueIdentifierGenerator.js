@@ -22,7 +22,7 @@ UniqueIdentifierGenerator.prototype = {
    * @return {string}
    */
   generateUniqueIdentifier: function() {
-    return '$__' + this.identifierIndex++;
+    return `$__${this.identifierIndex++}`;
   },
 
   /**

@@ -261,7 +261,7 @@ export class FreeVariableChecker extends ParseTreeVisitor {
           if (!location) {
             // If location is null, it means we're getting errors from code we
             // generated. This is an internal error.
-            throw new Error('generated variable ' + name + ' is not defined');
+            throw new Error(`generated variable ${name} is not defined`);
           }
 
           // If we're at the top level scope, then issue an error for

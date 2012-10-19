@@ -489,8 +489,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
         case ParseTreeType.REST_PARAMETER:
           this.checkVisit_(
               i === tree.parameters.length - 1, parameter,
-              'rest parameters must be the last parameter in a parameter' +
-              ' list');
+              'rest parameters must be the last parameter in a parameter list');
           this.checkType_(ParseTreeType.BINDING_IDENTIFIER,
                           parameter.identifier,
                           'binding identifier expected');
@@ -498,7 +497,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
 
         default:
           this.fail_(parameter, 'parameters must be identifiers or rest' +
-              ' parameters. Found: ' + parameter.type);
+              ` parameters. Found: ${parameter.type}`);
           break;
       }
       this.visitAny(parameter);
@@ -947,9 +946,9 @@ ParseTreeValidator.validate = function(tree) {
     var locationString = location !== null ?
         location.start.toString() :
         '(unknown)';
-    throw Error('Parse tree validation failure \'' + e.message + '\' at ' +
-        locationString +
-        ':\n\n' +
+    throw new Error(
+        `Parse tree validation failure '${e.message}' at ${locationString}:` +
+        '\n\n' +
         TreeWriter.write(tree, {highlighted: e.tree, showLineNumbers: true}) +
         '\n');
   }

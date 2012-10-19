@@ -341,7 +341,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
           // }
           // TODO: Use temp allocator.
           initializer = createVariableDeclarationList(
-              TokenType.VAR, '$' + variableName, null);
+              TokenType.VAR, `$${variableName}`, null);
 
           // Add the let statement into the block and rewrite it next.
           // It is easier than creating the catch block manually etc.
@@ -349,7 +349,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
               createVariableStatement(
                   TokenType.LET,
                   variableName,
-                  createIdentifierExpression('$' + variableName)),
+                  createIdentifierExpression(`$${variableName}`)),
               treeBody);
           break;
         }
@@ -504,7 +504,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
 
     variables.declarations.forEach((variable) => {
       var variableName = this.getVariableName_(variable);
-      var hoistedName = '$' + variableName;
+      var hoistedName = `$${variableName}`;
 
       // perform renames in the initializer
       var initializer = renameAll(renames, variable.initializer);

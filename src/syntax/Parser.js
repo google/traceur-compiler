@@ -537,7 +537,7 @@ export class Parser {
         exportTree = this.parseExportMappingList_();
         break;
       default:
-        this.reportError_('Unexpected symbol \'' + this.peekToken_() + '\'');
+        this.reportError_(`Unexpected symbol '{this.peekToken_()}'`);
         return null;
     }
     return new ExportDeclaration(this.getTreeLocation_(start), exportTree);
@@ -1357,7 +1357,7 @@ export class Parser {
       var declaration = variables.declarations[0];
       if (declaration.lvalue.isPattern() && declaration.initializer) {
         this.reportError_(declaration.initializer.location,
-            'initializer is not allowed in ' + kind + ' loop with pattern');
+            `initializer is not allowed in ${kind} loop with pattern`);
       }
     };
 
@@ -1375,7 +1375,8 @@ export class Parser {
             (variables.declarationType == TokenType.LET ||
              variables.declarationType == TokenType.CONST)) {
           if (declaration.initializer != null) {
-             this.reportError_('let/const in for-in statement may not have initializer');
+            this.reportError_(
+                'let/const in for-in statement may not have initializer');
           }
         }
 
@@ -2892,7 +2893,7 @@ export class Parser {
         break;
       default:
         this.reportError_(expr.location,
-                          'Invalid expression. Type: ' + expr.type);
+                          `Invalid expression. Type: ${expr.type}`);
     }
 
     if (operand) {
@@ -2905,13 +2906,13 @@ export class Parser {
           break;
         default:
           this.reportError_(operand.location,
-                            'Invalid expression: ' + operand.type);
+                            `Invalid expression: ${operand.type}`);
       }
     }
 
     if (expr.type == ParseTreeType.BINARY_OPERATOR &&
         !expr.operator.isAssignmentOperator()) {
-      this.reportError_(expr.operator, 'Invalid operator: ' + expr.operator);
+      this.reportError_(expr.operator, `Invalid operator: ${expr.operator}`);
     }
 
     return expr;
@@ -3684,7 +3685,7 @@ export class Parser {
       if (!result || result.value !== opt_expected) {
         if (!result)
           result = this.peekToken_();
-        this.reportError_(result, 'expected "' + opt_expected + '"');
+        this.reportError_(result, `expected '${opt_expected}'`);
         return null;
       }
     }

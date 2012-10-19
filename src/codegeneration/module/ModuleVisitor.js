@@ -193,7 +193,7 @@ export class ModuleVisitor extends ParseTreeVisitor {
         this.reportRelatedError_(tree);
       } else {
         this.reporter_.reportError(null,
-            'Module related to previous error: ' + symbolOrTree.url);
+            `Module related to previous error: ${symbolOrTree.url}`);
       }
     }
   }

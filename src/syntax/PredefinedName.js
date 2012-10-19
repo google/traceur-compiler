@@ -106,6 +106,6 @@ export var PredefinedName = {
   WRITABLE: 'writable',
   getParameterName: function(index) {
     // TODO: consider caching these
-    return '$' + index;
+    return `$${index}`;
   }
 };

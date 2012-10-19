@@ -1077,7 +1077,7 @@ var $src_options_js =(function() {
       if(name in options) { 
         options[name]= value; 
       } else { 
-        throw Error('Unknown option: ' + m[1]); 
+        throw new Error(("Unknown option: " + m[1])); 
       } 
     } 
   } 
@@ -2154,7 +2154,7 @@ var $src_codegeneration_module_ModuleVisitor_js =(function() {
         if(tree) { 
           this.reportRelatedError_(tree); 
         } else { 
-          this.reporter_.reportError(null, 'Module related to previous error: ' + symbolOrTree.url); 
+          this.reporter_.reportError(null,("Module related to previous error: " + symbolOrTree.url)); 
         } 
       } 
     } 
@@ -2595,7 +2595,7 @@ var $src_util_ErrorReporter_js =(function() {
       this.reportMessageInternal(location, 'warn', format, args); 
     }, 
     reportMessageInternal: function(location, kind, format, args) { 
-      if(location) format = location + ': ' + format; 
+      if(location) format =("" + location + ":" + format); 
       console[kind].apply(console,[format].concat(args)); 
     }, 
     hadError: function() { 
@@ -2618,7 +2618,7 @@ var $src_util_ErrorReporter_js =(function() {
       } 
       return s; 
     }); 
-    if(location) text = location + ': ' + text; 
+    if(location) text =("" + location + ": " + text); 
     return text; 
   }; 
   return Object.preventExtensions(Object.create(null, { ErrorReporter: { 
@@ -2868,7 +2868,7 @@ var $src_codegeneration_ParseTreeTransformer_js =(function() {
         return null; 
       } 
       var name = getTreeNameForType(tree.type); 
-      return this['transform' + name](tree); 
+      return this[("transform" + name)](tree); 
     }, 
     transformList: function(list) { 
       if(list == null || list.length == 0) { 
@@ -3700,7 +3700,7 @@ var $src_syntax_PredefinedName_js =(function() {
     WAIT_TASK: '$waitTask', 
     WRITABLE: 'writable', 
     getParameterName: function(index) { 
-      return '$' + index; 
+      return("$" + index); 
     } 
   }; 
   return Object.preventExtensions(Object.create(null, { PredefinedName: { 
@@ -4883,7 +4883,7 @@ var $src_syntax_Parser_js =(function() {
           break; 
 
         default: 
-          this.reportError_('Unexpected symbol \'' + this.peekToken_() + '\''); 
+          this.reportError_("Unexpected symbol '{this.peekToken_()}'"); 
           return null; 
 
       } 
@@ -5391,7 +5391,7 @@ var $src_syntax_Parser_js =(function() {
         } 
         var declaration = variables.declarations[0]; 
         if(declaration.lvalue.isPattern() && declaration.initializer) { 
-          this.reportError_(declaration.initializer.location, 'initializer is not allowed in ' + kind + ' loop with pattern'); 
+          this.reportError_(declaration.initializer.location,("initializer is not allowed in " + kind + " loop with pattern")); 
         } 
       }).bind(this); 
       if(this.peekVariableDeclarationList_()) { 
@@ -6336,7 +6336,7 @@ var $src_syntax_Parser_js =(function() {
           break; 
 
         default: 
-          this.reportError_(expr.location, 'Invalid expression. Type: ' + expr.type); 
+          this.reportError_(expr.location,("Invalid expression. Type: " + expr.type)); 
 
       } 
       if(operand) { 
@@ -6349,12 +6349,12 @@ var $src_syntax_Parser_js =(function() {
             break; 
 
           default: 
-            this.reportError_(operand.location, 'Invalid expression: ' + operand.type); 
+            this.reportError_(operand.location,("Invalid expression: " + operand.type)); 
 
         } 
       } 
       if(expr.type == ParseTreeType.BINARY_OPERATOR && ! expr.operator.isAssignmentOperator()) { 
-        this.reportError_(expr.operator, 'Invalid operator: ' + expr.operator); 
+        this.reportError_(expr.operator,("Invalid operator: " + expr.operator)); 
       } 
       return expr; 
     }, 
@@ -6690,7 +6690,7 @@ var $src_syntax_Parser_js =(function() {
       if(opt_expected) { 
         if(! result || result.value !== opt_expected) { 
           if(! result) result = this.peekToken_(); 
-          this.reportError_(result, 'expected "' + opt_expected + '"'); 
+          this.reportError_(result,("expected '" + opt_expected + "'")); 
           return null; 
         } 
       } 
@@ -8026,7 +8026,7 @@ var $src_codegeneration_UniqueIdentifierGenerator_js =(function() {
   } 
   UniqueIdentifierGenerator.prototype = { 
     generateUniqueIdentifier: function() { 
-      return '$__' + this.identifierIndex ++; 
+      return("$__" + this.identifierIndex ++); 
     }, 
     getUniqueIdentifier: function(name) { 
       var newName = this.nameMap_[name]; 
@@ -8392,7 +8392,7 @@ var $src_outputgeneration_ParseTreeWriter_js =(function() {
       if(tree.location !== null && tree.location.start !== null && this.showLineNumbers_) { 
         var line = tree.location.start.line + 1; 
         var column = tree.location.start.column; 
-        this.currentLineComment_ = 'Line: ' + line + '.' + column; 
+        this.currentLineComment_ =("Line: " + line + "." + column); 
       } 
       this.currentLocation = tree.location; 
       traceur.runtime.superCall(this, ParseTreeWriter, "visitAny",[tree]); 
@@ -9358,12 +9358,12 @@ var $src_syntax_ParseTreeValidator_js =(function() {
             break; 
 
           case ParseTreeType.REST_PARAMETER: 
-            this.checkVisit_(i === tree.parameters.length - 1, parameter, 'rest parameters must be the last parameter in a parameter' + ' list'); 
+            this.checkVisit_(i === tree.parameters.length - 1, parameter, 'rest parameters must be the last parameter in a parameter list'); 
             this.checkType_(ParseTreeType.BINDING_IDENTIFIER, parameter.identifier, 'binding identifier expected'); 
             break; 
 
           default: 
-            this.fail_(parameter, 'parameters must be identifiers or rest' + ' parameters. Found: ' + parameter.type); 
+            this.fail_(parameter, 'parameters must be identifiers or rest' +(" parameters. Found: " + parameter.type)); 
             break; 
 
         } 
@@ -9589,7 +9589,7 @@ var $src_syntax_ParseTreeValidator_js =(function() {
         location = tree.location; 
       } 
       var locationString = location !== null ? location.start.toString(): '(unknown)'; 
-      throw Error('Parse tree validation failure \'' + e.message + '\' at ' + locationString + ':\n\n' + TreeWriter.write(tree, { 
+      throw new Error(("Parse tree validation failure '" + e.message + "' at " + locationString + ":") + '\n\n' + TreeWriter.write(tree, { 
         highlighted: e.tree, 
         showLineNumbers: true 
       }) + '\n'); 
@@ -10530,8 +10530,8 @@ var $src_codegeneration_BlockBindingTransformer_js =(function() {
               if(variable.initializer != null) { 
                 throw new Error('const/let in for-in may not have an initializer'); 
               } 
-              initializer = createVariableDeclarationList(TokenType.VAR, '$' + variableName, null); 
-              treeBody = this.prependToBlock_(createVariableStatement(TokenType.LET, variableName, createIdentifierExpression('$' + variableName)), treeBody); 
+              initializer = createVariableDeclarationList(TokenType.VAR,("$" + variableName), null); 
+              treeBody = this.prependToBlock_(createVariableStatement(TokenType.LET, variableName, createIdentifierExpression(("$" + variableName))), treeBody); 
               break; 
             } 
 
@@ -10601,7 +10601,7 @@ var $src_codegeneration_BlockBindingTransformer_js =(function() {
       var renames =[]; 
       variables.declarations.forEach((function(variable) { 
         var variableName = this.getVariableName_(variable); 
-        var hoistedName = '$' + variableName; 
+        var hoistedName =("$" + variableName); 
         var initializer = renameAll(renames, variable.initializer); 
         hoisted.push(createVariableDeclaration(hoistedName, initializer)); 
         copyFwd.push(createVariableDeclaration(variableName, createIdentifierExpression(hoistedName))); 
@@ -10978,7 +10978,7 @@ var $src_codegeneration_ClassTransformer_js =(function() {
             return this.transformPropertyMethodAssignment_(tree); 
 
           default: 
-            throw new Error('Unexpected class element: ' + tree.type); 
+            throw new Error(("Unexpected class element: " + tree.type)); 
 
         } 
       }).bind(this)); 
@@ -11646,7 +11646,7 @@ var $src_semantics_FreeVariableChecker_js =(function() {
           var location = scope.references[name]; 
           if(! scope.parent) { 
             if(! location) { 
-              throw new Error('generated variable ' + name + ' is not defined'); 
+              throw new Error(("generated variable " + name + " is not defined")); 
             } 
             errors.push([location.start, '%s is not defined', name]); 
           } else if(!(name in scope.parent.references)) { 

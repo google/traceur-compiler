@@ -131,7 +131,7 @@ ClassTransformer.prototype = createObject(proto, {
             return constructor = this.transformConstructor_(tree);
           return this.transformPropertyMethodAssignment_(tree);
         default:
-          throw new Error('Unexpected class element: ' + tree.type);
+          throw new Error(`Unexpected class element: ${tree.type}`);
       }
     });
 

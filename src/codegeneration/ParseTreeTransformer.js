@@ -108,7 +108,7 @@ export class ParseTreeTransformer {
     }
 
     var name = getTreeNameForType(tree.type);
-    return this['transform' + name](tree);
+    return this[`transform${name}`](tree);
   }
 
   /**

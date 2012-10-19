@@ -48,7 +48,7 @@ export class ErrorReporter {
    */
   reportMessageInternal(location, kind, format, args) {
     if (location)
-      format = location + ': ' + format;
+      format = `${location}:${format}`;
     console[kind].apply(console, [format].concat(args));
   }
 
@@ -84,6 +84,6 @@ ErrorReporter.format = function(location, text, opt_args) {
     return s;
   });
   if (location)
-    text = location + ': ' + text;
+    text = `${location}: ${text}`;
   return text;
 };
