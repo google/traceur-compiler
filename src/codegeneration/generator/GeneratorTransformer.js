@@ -15,7 +15,14 @@
 import CPSTransformer from 'CPSTransformer.js';
 import EndState from 'EndState.js';
 import ParseTreeType from '../../syntax/trees/ParseTree.js';
-import PredefinedName from '../../syntax/PredefinedName.js';
+import {
+  MARK_AS_GENERATOR,
+  MOVE_NEXT,
+  RESULT,
+  RUNTIME,
+  STORED_EXCEPTION,
+  TRACEUR
+} from '../../syntax/PredefinedName.js';
 import StateMachine from '../../syntax/trees/StateMachine.js';
 import TokenType from '../../syntax/TokenType.js';
 import YieldState from 'YieldState.js';
@@ -185,23 +192,20 @@ GeneratorTransformer.prototype = createObject(
     // var $result = {moveNext : machineMethod};
     statements.push(createVariableStatement(
         TokenType.VAR,
-        PredefinedName.RESULT,
+        RESULT,
         createObjectLiteralExpression(
             createPropertyNameAssignment(
-                PredefinedName.MOVE_NEXT,
+                MOVE_NEXT,
                 this.generateMachineMethod(machine)))));
 
     // traceur.runtime.markAsGenerator($result)
     statements.push(createExpressionStatement(
         createCallExpression(
-            createMemberExpression(PredefinedName.TRACEUR,
-                                   PredefinedName.RUNTIME,
-                                   PredefinedName.MARK_AS_GENERATOR),
-            createArgumentList(
-                createIdentifierExpression(PredefinedName.RESULT)))));
+            createMemberExpression(TRACEUR, RUNTIME, MARK_AS_GENERATOR),
+            createArgumentList(createIdentifierExpression(RESULT)))));
 
     //     return $result;
-    statements.push(createReturnStatement(createIdentifierExpression(PredefinedName.RESULT)));
+    statements.push(createReturnStatement(createIdentifierExpression(RESULT)));
 
     return createBlock(statements);
   },
@@ -212,7 +216,7 @@ GeneratorTransformer.prototype = createObject(
    */
   machineUncaughtExceptionStatements: function(rethrowState) {
     return createStatementList(
-        createThrowStatement(createIdentifierExpression(PredefinedName.STORED_EXCEPTION)));
+        createThrowStatement(createIdentifierExpression(STORED_EXCEPTION)));
   },
 
   /**
@@ -221,7 +225,7 @@ GeneratorTransformer.prototype = createObject(
    */
   machineRethrowStatements: function(machineEndState) {
     return createStatementList(
-        createThrowStatement(createIdentifierExpression(PredefinedName.STORED_EXCEPTION)));
+        createThrowStatement(createIdentifierExpression(STORED_EXCEPTION)));
   },
 
   /**

@@ -1,111 +1,109 @@
 // Copyright 2012 Google Inc.
 //
-// Licensed under the Apache License, Version 2.0 (the 'License');
+// Licensed under the Apache License; Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
 //      http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an 'AS IS' BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// Unless required by applicable law or agreed to in writing; software
+// distributed under the License is distributed on an 'AS IS' BASIS;
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND; either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export var PredefinedName = {
-  $ARGUMENTS: '$arguments',
-  $THAT: '$that',
-  $VALUE: '$value',
-  ADD_CONTINUATION: 'addContinuation',
-  APPLY: 'apply',
-  ARGUMENTS: 'arguments',
-  ARRAY: 'Array',
-  ASSERT_NAME: 'assertName',
-  BIND: 'bind',
-  CALL: 'call',
-  CALLBACK: 'callback',
-  CAPTURED_ARGUMENTS: '$arguments',
-  CAPTURED_THIS: '$this',
-  CAUGHT_EXCEPTION: '$caughtException',
-  CLOSE: 'close',
-  CONFIGURABLE: 'configurable',
-  CONSTRUCTOR: 'constructor',
-  CONTINUATION: '$continuation',
-  CREATE: 'create',
-  CREATE_CALLBACK: '$createCallback',
-  CREATE_CLASS: 'createClass',
-  CREATE_ERRBACK: '$createErrback',
-  CREATE_NAME: 'createName',
-  CREATE_PROMISE: 'createPromise',
-  CURRENT: 'current',
-  DEFERRED: 'Deferred',
-  DEFINE_PROPERTIES: 'defineProperties',
-  DEFINE_PROPERTY: 'defineProperty',
-  DELETE_PROPERTY: 'deleteProperty',
-  ELEMENT_DELETE: 'elementDelete',
-  ELEMENT_GET: 'elementGet',
-  ELEMENT_HAS: 'elementHas',
-  ELEMENT_SET: 'elementSet',
-  ENUMERABLE: 'enumerable',
-  ERR: '$err',
-  ERRBACK: 'errback',
-  FIELD_INITIALIZER_METHOD: '$field_initializer_',
-  FINALLY_FALL_THROUGH: '$finallyFallThrough',
-  FREEZE: 'freeze',
-  FROM: 'from',
-  GET: 'get',
-  GET_ITERATOR: 'getIterator',
-  GET_MODULE_INSTANCE_BY_URL: 'getModuleInstanceByUrl',
-  GET_PROPERTY: 'getProperty',
-  HAS: 'has',
-  INIT: '$init',
-  IS: 'is',
-  ISNT: 'isnt',
-  IS_DONE: 'isDone',
-  ITERATOR: 'iterator',
-  LENGTH: 'length',
-  MARK_AS_GENERATOR: 'markAsGenerator',
-  MARK_METHODS: 'markMethods',
-  MODULE: 'module',
-  MODULES: 'modules',
-  MOVE_NEXT: 'moveNext',
-  NEW: 'new',
-  NEW_STATE: '$newState',
-  OBJECT: 'Object',
-  OBJECT_NAME: 'Object',
-  OF: 'of',
-  PARAM: '$param',
-  PREVENT_EXTENSIONS: 'preventExtensions',
-  PROTO: '__proto__',
-  PROTOTYPE: 'prototype',
-  PUSH: 'push',
-  RAW: 'raw',
-  REQUIRE: 'require',
-  REQUIRED: 'required',
-  REQUIRES: 'requires',
-  RESOLVE: 'resolve',
-  RESULT: '$result',
-  RUNTIME: 'runtime',
-  SET: 'set',
-  SET_PROPERTY: 'setProperty',
-  SLICE: 'slice',
-  SPREAD: 'spread',
-  SPREAD_NEW: 'spreadNew',
-  STATE: '$state',
-  STORED_EXCEPTION: '$storedException',
-  SUPER_CALL: 'superCall',
-  SUPER_GET: 'superGet',
-  SUPER_SET: 'superSet',
-  THEN: 'then',
-  THIS: 'this',
-  TRACEUR: 'traceur',
-  TYPE_ERROR: 'TypeError',
-  UNDEFINED: 'undefined',
-  VALUE: 'value',
-  WAIT_TASK: '$waitTask',
-  WRITABLE: 'writable',
-  getParameterName: function(index) {
-    // TODO: consider caching these
-    return `$${index}`;
-  }
+export var $ARGUMENTS = '$arguments';
+export var $THAT = '$that';
+export var $VALUE = '$value';
+export var ADD_CONTINUATION = 'addContinuation';
+export var APPLY = 'apply';
+export var ARGUMENTS = 'arguments';
+export var ARRAY = 'Array';
+export var ASSERT_NAME = 'assertName';
+export var BIND = 'bind';
+export var CALL = 'call';
+export var CALLBACK = 'callback';
+export var CAPTURED_ARGUMENTS = '$arguments';
+export var CAPTURED_THIS = '$this';
+export var CAUGHT_EXCEPTION = '$caughtException';
+export var CLOSE = 'close';
+export var CONFIGURABLE = 'configurable';
+export var CONSTRUCTOR = 'constructor';
+export var CONTINUATION = '$continuation';
+export var CREATE = 'create';
+export var CREATE_CALLBACK = '$createCallback';
+export var CREATE_CLASS = 'createClass';
+export var CREATE_ERRBACK = '$createErrback';
+export var CREATE_NAME = 'createName';
+export var CREATE_PROMISE = 'createPromise';
+export var CURRENT = 'current';
+export var DEFERRED = 'Deferred';
+export var DEFINE_PROPERTIES = 'defineProperties';
+export var DEFINE_PROPERTY = 'defineProperty';
+export var DELETE_PROPERTY = 'deleteProperty';
+export var ELEMENT_DELETE = 'elementDelete';
+export var ELEMENT_GET = 'elementGet';
+export var ELEMENT_HAS = 'elementHas';
+export var ELEMENT_SET = 'elementSet';
+export var ENUMERABLE = 'enumerable';
+export var ERR = '$err';
+export var ERRBACK = 'errback';
+export var FIELD_INITIALIZER_METHOD = '$field_initializer_';
+export var FINALLY_FALL_THROUGH = '$finallyFallThrough';
+export var FREEZE = 'freeze';
+export var FROM = 'from';
+export var GET = 'get';
+export var GET_ITERATOR = 'getIterator';
+export var GET_MODULE_INSTANCE_BY_URL = 'getModuleInstanceByUrl';
+export var GET_PROPERTY = 'getProperty';
+export var HAS = 'has';
+export var INIT = '$init';
+export var IS = 'is';
+export var ISNT = 'isnt';
+export var IS_DONE = 'isDone';
+export var ITERATOR = 'iterator';
+export var LENGTH = 'length';
+export var MARK_AS_GENERATOR = 'markAsGenerator';
+export var MARK_METHODS = 'markMethods';
+export var MODULE = 'module';
+export var MODULES = 'modules';
+export var MOVE_NEXT = 'moveNext';
+export var NEW = 'new';
+export var NEW_STATE = '$newState';
+export var OBJECT = 'Object';
+export var OBJECT_NAME = 'Object';
+export var OF = 'of';
+export var PARAM = '$param';
+export var PREVENT_EXTENSIONS = 'preventExtensions';
+export var PROTO = '__proto__';
+export var PROTOTYPE = 'prototype';
+export var PUSH = 'push';
+export var RAW = 'raw';
+export var REQUIRE = 'require';
+export var REQUIRED = 'required';
+export var REQUIRES = 'requires';
+export var RESOLVE = 'resolve';
+export var RESULT = '$result';
+export var RUNTIME = 'runtime';
+export var SET = 'set';
+export var SET_PROPERTY = 'setProperty';
+export var SLICE = 'slice';
+export var SPREAD = 'spread';
+export var SPREAD_NEW = 'spreadNew';
+export var STATE = '$state';
+export var STORED_EXCEPTION = '$storedException';
+export var SUPER_CALL = 'superCall';
+export var SUPER_GET = 'superGet';
+export var SUPER_SET = 'superSet';
+export var THEN = 'then';
+export var THIS = 'this';
+export var TRACEUR = 'traceur';
+export var TYPE_ERROR = 'TypeError';
+export var UNDEFINED = 'undefined';
+export var VALUE = 'value';
+export var WAIT_TASK = '$waitTask';
+export var WRITABLE = 'writable';
+export function getParameterName(index) {
+  // TODO: consider caching these
+  return '$' + index;
 };

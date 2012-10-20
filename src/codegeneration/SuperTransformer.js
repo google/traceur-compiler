@@ -14,7 +14,13 @@
 
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import ParseTreeType from '../syntax/trees/ParseTree.js';
-import PredefinedName from '../syntax/PredefinedName.js';
+import {
+  RUNTIME,
+  SUPER_CALL,
+  SUPER_GET,
+  SUPER_SET,
+  TRACEUR
+} from '../syntax/PredefinedName.js';
 import TokenType from '../syntax/TokenType.js';
 import {
   createArgumentList,
@@ -72,9 +78,9 @@ export class SuperTransformer extends ParseTreeTransformer {
       // traceur.runtime.superCall(this, class, "name", <args>)
       return createCallExpression(
           createMemberExpression(
-              PredefinedName.TRACEUR,
-              PredefinedName.RUNTIME,
-              PredefinedName.SUPER_CALL),
+              TRACEUR,
+              RUNTIME,
+              SUPER_CALL),
           createArgumentList(
             createThisExpression(),
             this.className_,
@@ -99,9 +105,7 @@ export class SuperTransformer extends ParseTreeTransformer {
       // traceur.runtime.superCall(this, class, "name", <args>)
       return createCallExpression(
           createMemberExpression(
-              PredefinedName.TRACEUR,
-              PredefinedName.RUNTIME,
-              PredefinedName.SUPER_CALL),
+              TRACEUR, RUNTIME, SUPER_CALL),
           createArgumentList(
             createThisExpression(),
             this.className_,
@@ -115,10 +119,7 @@ export class SuperTransformer extends ParseTreeTransformer {
   transformMemberShared_(tree, name) {
     // traceur.runtime.superGet(this, class, "name")
     return createCallExpression(
-        createMemberExpression(
-            PredefinedName.TRACEUR,
-            PredefinedName.RUNTIME,
-            PredefinedName.SUPER_GET),
+        createMemberExpression(TRACEUR, RUNTIME, SUPER_GET),
         createArgumentList(
           createThisExpression(),
           this.className_,
@@ -166,10 +167,7 @@ export class SuperTransformer extends ParseTreeTransformer {
 
       // traceur.runtim.superSet(this, class, "name", value)
       return createCallExpression(
-          createMemberExpression(
-              PredefinedName.TRACEUR,
-              PredefinedName.RUNTIME,
-              PredefinedName.SUPER_SET),
+          createMemberExpression(TRACEUR, RUNTIME, SUPER_SET),
           createArgumentList(
             createThisExpression(),
             this.className_,

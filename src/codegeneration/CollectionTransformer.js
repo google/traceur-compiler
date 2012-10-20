@@ -13,7 +13,14 @@
 // limitations under the License.
 
 import ParseTreeType from '../syntax/trees/ParseTree.js';
-import PredefinedName from '../syntax/PredefinedName.js';
+import {
+  ELEMENT_DELETE,
+  ELEMENT_GET,
+  ELEMENT_HAS,
+  ELEMENT_SET,
+  RUNTIME,
+  TRACEUR
+} from '../syntax/PredefinedName.js';
 import TempVarTransformer from 'TempVarTransformer.js';
 import TokenType from '../syntax/TokenType.js';
 import {
@@ -28,14 +35,6 @@ import {
 } from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
 import expandMemberLookupExpression from 'OperatorExpander.js';
-
-var RUNTIME = PredefinedName.RUNTIME;
-var TRACEUR = PredefinedName.TRACEUR;
-var ELEMENT_DELETE = PredefinedName.ELEMENT_DELETE;
-var ELEMENT_GET = PredefinedName.ELEMENT_GET;
-var ELEMENT_HAS = PredefinedName.ELEMENT_HAS;
-var ELEMENT_SET = PredefinedName.ELEMENT_SET;
-
 
 /**
  * Transforms expr[expr] into traceur.runtime.elementGet(expr, expr). It also

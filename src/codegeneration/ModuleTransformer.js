@@ -14,7 +14,11 @@
 
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import ParseTreeType from '../syntax/trees/ParseTree.js';
-import PredefinedName from '../syntax/PredefinedName.js';
+import {
+  GET_MODULE_INSTANCE_BY_URL,
+  RUNTIME,
+  TRACEUR
+} from '../syntax/PredefinedName.js';
 import TokenType from '../syntax/TokenType.js';
 import {
   createArgumentList,
@@ -148,10 +152,7 @@ export class ModuleTransformer extends ParseTreeTransformer {
     if (reference.type == MODULE_REQUIRE) {
       // traceur.runtime.getModuleInstanceByUrl(url)
       return createCallExpression(
-          createMemberExpression(
-              PredefinedName.TRACEUR,
-              PredefinedName.RUNTIME,
-              PredefinedName.GET_MODULE_INSTANCE_BY_URL),
+          createMemberExpression(TRACEUR, RUNTIME, GET_MODULE_INSTANCE_BY_URL),
           createArgumentList(
               new LiteralExpression(null, reference.url)));
     }

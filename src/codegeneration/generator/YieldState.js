@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import PredefinedName from '../../syntax/PredefinedName.js';
+import {
+  CURRENT,
+  RESULT
+} from '../../syntax/PredefinedName.js';
 import State from 'State.js';
 import {
   createAssignmentStatement,
@@ -64,10 +67,7 @@ YieldState.prototype = createObject(State.prototype, {
     var result = [];
     // $result.current = expression;
     result.push(createAssignmentStatement(
-        createMemberExpression(
-            PredefinedName.RESULT,
-            PredefinedName.CURRENT),
-        this.expression));
+        createMemberExpression(RESULT, CURRENT), this.expression));
     // either:
     //      $state = this.fallThroughState;
     //      return true;

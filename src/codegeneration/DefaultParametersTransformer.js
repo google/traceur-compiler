@@ -14,7 +14,7 @@
 
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import ParseTreeType from '../syntax/trees/ParseTree.js';
-import PredefinedName from '../syntax/PredefinedName.js';
+import ARGUMENTS from '../syntax/PredefinedName.js';
 import TokenType from '../syntax/TokenType.js';
 import {
   createBinaryOperator,
@@ -92,12 +92,12 @@ export class DefaultParametersTransformer extends ParseTreeTransformer {
             createConditionalExpression(
                 createBinaryOperator(
                     createMemberLookupExpression(
-                        createIdentifierExpression(PredefinedName.ARGUMENTS),
+                        createIdentifierExpression(ARGUMENTS),
                         createNumberLiteral(i)),
                     createOperatorToken(TokenType.NOT_EQUAL_EQUAL),
                     createVoid0()),
                 createMemberLookupExpression(
-                    createIdentifierExpression(PredefinedName.ARGUMENTS),
+                    createIdentifierExpression(ARGUMENTS),
                     createNumberLiteral(i)),
                 param.initializer || createVoid0())));
       }

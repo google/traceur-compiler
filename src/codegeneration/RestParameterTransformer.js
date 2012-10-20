@@ -13,7 +13,12 @@
 // limitations under the License.
 
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
-import PredefinedName from '../syntax/PredefinedName.js';
+import {
+  ARGUMENTS,
+  ARRAY, 
+  CALL,
+  PROTOTYPE
+} from '../syntax/PredefinedName.js';
 import TokenType from '../syntax/TokenType.js';
 import {
   createArgumentList,
@@ -80,10 +85,9 @@ export class RestParameterTransformer extends ParseTreeTransformer {
                 tree.formalParameterList.parameters.length - 1));
 
     var sliceExpression = createCallExpression(
-        createMemberExpression(PredefinedName.ARRAY, PredefinedName.PROTOTYPE,
-                               'slice', PredefinedName.CALL),
+        createMemberExpression(ARRAY, PROTOTYPE, 'slice', CALL),
         createArgumentList(
-            createIdentifierExpression(PredefinedName.ARGUMENTS),
+            createIdentifierExpression(ARGUMENTS),
             createNumberLiteral(
                 tree.formalParameterList.parameters.length - 1)));
 

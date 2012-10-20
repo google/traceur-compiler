@@ -13,7 +13,12 @@
 // limitations under the License.
 
 import ParseTreeType from '../syntax/trees/ParseTree.js';
-import PredefinedName from '../syntax/PredefinedName.js';
+import {
+  CONSTRUCTOR,
+  CREATE_CLASS,
+  RUNTIME,
+  TRACEUR
+} from '../syntax/PredefinedName.js';
 import SuperTransformer from 'SuperTransformer.js';
 import TempVarTransformer from 'TempVarTransformer.js';
 import TokenType from '../syntax/TokenType.js';
@@ -127,7 +132,7 @@ ClassTransformer.prototype = createObject(proto, {
         case ParseTreeType.SET_ACCESSOR:
           return this.transformSetAccessor_(tree);
         case ParseTreeType.PROPERTY_METHOD_ASSIGNMENT:
-          if (tree.name.value === PredefinedName.CONSTRUCTOR)
+          if (tree.name.value === CONSTRUCTOR)
             return constructor = this.transformConstructor_(tree);
           return this.transformPropertyMethodAssignment_(tree);
         default:
@@ -153,10 +158,7 @@ ClassTransformer.prototype = createObject(proto, {
     //                                               hasExtendsExpression)
     return [
       createCallExpression(
-          createMemberExpression(
-              PredefinedName.TRACEUR,
-              PredefinedName.RUNTIME,
-              PredefinedName.CREATE_CLASS),
+          createMemberExpression(TRACEUR, RUNTIME, CREATE_CLASS),
           createArgumentList(
               createObjectLiteralExpression(elements),
               superClass || createNullLiteral(),
@@ -231,7 +233,7 @@ ClassTransformer.prototype = createObject(proto, {
     var functionBody = this.transformSuperInBlock_(tree, tree.functionBody);
 
     var func = createFunctionExpression(parameters, functionBody);
-    return createPropertyNameAssignment(PredefinedName.CONSTRUCTOR, func);
+    return createPropertyNameAssignment(CONSTRUCTOR, func);
   },
 
   transformSuperInBlock_: function(methodTree, tree) {
@@ -260,7 +262,7 @@ ClassTransformer.prototype = createObject(proto, {
                     createSpreadExpression(
                         createIdentifierExpression('args'))))));
     var constr = new PropertyMethodAssignment(null,
-        createIdentifierToken(PredefinedName.CONSTRUCTOR), false,
+        createIdentifierToken(CONSTRUCTOR), false,
                               params, body);
     return this.transformConstructor_(constr);
   }

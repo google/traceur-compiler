@@ -14,7 +14,14 @@
 
 import Keywords from '../syntax/Keywords.js';
 import ParseTreeVisitor from '../syntax/ParseTreeVisitor.js';
-import PredefinedName from '../syntax/PredefinedName.js';
+import {
+  FROM,
+  GET,
+  OF,
+  MODULE,
+  REQUIRES,
+  SET
+} from '../syntax/PredefinedName.js';
 import StringBuilder from '../util/StringBuilder.js';
 import TokenType from '../syntax/TokenType.js';
 import createObject from '../util/util.js';
@@ -295,7 +302,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   visitComprehensionFor(tree) {
     this.write_(TokenType.FOR);
     this.visitAny(tree.left);
-    this.write_(PredefinedName.OF);
+    this.write_(OF);
     this.visitAny(tree.iterator);
   }
 
@@ -381,7 +388,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   visitExportMapping(tree) {
     this.visitAny(tree.specifierSet);
     if (tree.moduleExpression) {
-      this.write_(PredefinedName.FROM);
+      this.write_(FROM);
       this.visitAny(tree.moduleExpression);
     }
   }
@@ -429,7 +436,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.write_(TokenType.FOR);
     this.write_(TokenType.OPEN_PAREN);
     this.visitAny(tree.initializer);
-    this.write_(PredefinedName.OF);
+    this.write_(OF);
     this.visitAny(tree.collection);
     this.write_(TokenType.CLOSE_PAREN);
     this.visitAny(tree.body);
@@ -512,7 +519,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {GetAccessor} tree
    */
   visitGetAccessor(tree) {
-    this.write_(PredefinedName.GET);
+    this.write_(GET);
     this.write_(tree.propertyName);
     this.write_(TokenType.OPEN_PAREN);
     this.write_(TokenType.CLOSE_PAREN);
@@ -556,7 +563,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   visitImportBinding(tree) {
     this.visitAny(tree.importSpecifierSet);
     if (tree.moduleExpression) {
-      this.write_(PredefinedName.FROM);
+      this.write_(FROM);
       this.visitAny(tree.moduleExpression);
     }
   }
@@ -625,7 +632,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {ModuleDeclarationfinitionTree} tree
    */
   visitModuleDeclaration(tree) {
-    this.write_(PredefinedName.MODULE);
+    this.write_(MODULE);
     this.writeList_(tree.specifiers, TokenType.COMMA, false);
     this.write_(TokenType.SEMI_COLON);
   }
@@ -634,7 +641,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {ModuleDefinition} tree
    */
   visitModuleDefinition(tree) {
-    this.write_(PredefinedName.MODULE);
+    this.write_(MODULE);
     this.write_(tree.name);
     this.write_(TokenType.OPEN_CURLY);
     this.writeln_();
@@ -666,7 +673,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitModuleSpecifier(tree) {
     this.write_(tree.identifier);
-    this.write_(PredefinedName.FROM);
+    this.write_(FROM);
     this.visitAny(tree.expression);
   }
 
@@ -812,7 +819,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {RequiresMember} tree
    */
   visitRequiresMember(tree) {
-    this.write_(PredefinedName.REQUIRES);
+    this.write_(REQUIRES);
     this.write_(tree.name);
     this.write_(TokenType.SEMI_COLON);
   }
@@ -838,7 +845,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {SetAccessor} tree
    */
   visitSetAccessor(tree) {
-    this.write_(PredefinedName.SET);
+    this.write_(SET);
     this.write_(tree.propertyName);
     this.write_(TokenType.OPEN_PAREN);
     this.visitAny(tree.parameter);

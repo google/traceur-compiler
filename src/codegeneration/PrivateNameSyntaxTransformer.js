@@ -12,7 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import PredefinedName from '../syntax/PredefinedName.js';
+import {
+  ASSERT_NAME,
+  CREATE_NAME,
+  RUNTIME,
+  TRACEUR
+} from '../syntax/PredefinedName.js';
 import TempVarTransformer from 'TempVarTransformer.js';
 import TokenType from '../syntax/TokenType.js';
 import {
@@ -82,18 +87,15 @@ PrivateNameSyntaxTransformer.prototype = createObject(base, {
     var args, name;
     if (tree.initializer) {
       args = createArgumentList(this.transformAny(tree.initializer));
-      name = PredefinedName.ASSERT_NAME;
+      name = ASSERT_NAME;
     } else {
       args = createEmptyArgumentList();
-      name = PredefinedName.CREATE_NAME;
+      name = CREATE_NAME;
     }
 
     return createVariableDeclaration(transformedName,
       createCallExpression(
-        createMemberExpression(
-            PredefinedName.TRACEUR,
-            PredefinedName.RUNTIME,
-            name),
+        createMemberExpression(TRACEUR, RUNTIME, name),
         args));
   }
 });

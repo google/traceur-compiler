@@ -13,7 +13,13 @@
 // limitations under the License.
 
 import ParseTreeType from '../syntax/trees/ParseTree.js';
-import PredefinedName from '../syntax/PredefinedName.js';
+import {
+  DELETE_PROPERTY,
+  GET_PROPERTY,
+  RUNTIME,
+  SET_PROPERTY,
+  TRACEUR
+} from '../syntax/PredefinedName.js';
 import TempVarTransformer from 'TempVarTransformer.js';
 import TokenType from '../syntax/TokenType.js';
 import {
@@ -31,13 +37,6 @@ import expandMemberExpression from 'OperatorExpander.js';
 import trees from '../syntax/trees/ParseTrees.js';
 
 var AtNameExpression = trees.AtNameExpression;
-
-
-var DELETE_PROPERTY = PredefinedName.DELETE_PROPERTY;
-var GET_PROPERTY = PredefinedName.GET_PROPERTY;
-var RUNTIME = PredefinedName.RUNTIME;
-var SET_PROPERTY = PredefinedName.SET_PROPERTY;
-var TRACEUR = PredefinedName.TRACEUR;
 
 /**
  * Transforms expr.@name into traceur.runtime.getProperty(expr, @name). It

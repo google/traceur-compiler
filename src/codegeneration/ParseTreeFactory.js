@@ -18,7 +18,18 @@ import {
   ParseTree,
   ParseTreeType
 } from '../syntax/trees/ParseTree.js';
-import PredefinedName from '../syntax/PredefinedName.js';
+import {
+  BIND,
+  CALL,
+  CREATE,
+  DEFINE_PROPERTY,
+  FREEZE,
+  OBJECT,
+  PREVENT_EXTENSIONS,
+  STATE,
+  UNDEFINED,
+  getParameterName
+} from '../syntax/PredefinedName.js';
 import Token from '../syntax/Token.js';
 import TokenType from '../syntax/TokenType.js';
 import trees from '../syntax/trees/ParseTrees.js';
@@ -206,7 +217,7 @@ function createParameterListHelper(numberOfParameters, hasRestParams) {
   var builder = [];
 
   for (var index = 0; index < numberOfParameters; index++) {
-    var parameterName = PredefinedName.getParameterName(index);
+    var parameterName = getParameterName(index);
     var isRestParameter = index == numberOfParameters - 1 && hasRestParams;
     builder.push(
         isRestParameter ?
@@ -235,7 +246,7 @@ export function createParameterListWithRestParams(numberOfParameters) {
  * @return {IdentifierExpression}
  */
 export function createParameterReference(index) {
-  return createIdentifierExpression(PredefinedName.getParameterName(index));
+  return createIdentifierExpression(getParameterName(index));
 }
 
 /**
@@ -431,7 +442,7 @@ export function createBoundCall(func, thisTree) {
           func.type == ParseTreeType.FUNCTION_DECLARATION ?
               createParenExpression(func) :
               func,
-          PredefinedName.BIND),
+          BIND),
       createArgumentList(thisTree));
 }
 
@@ -460,7 +471,7 @@ export function createCallCall(func, thisExpression, args, var_args) {
   builder.push.apply(builder, args);
 
   return createCallExpression(
-      createMemberExpression(func, PredefinedName.CALL),
+      createMemberExpression(func, CALL),
       createArgumentList(builder));
 }
 
@@ -683,7 +694,7 @@ export function createIdentifierExpression(identifier) {
  * @return {IdentifierExpression}
  */
 export function createUndefinedExpression() {
-  return createIdentifierExpression(PredefinedName.UNDEFINED);
+  return createIdentifierExpression(UNDEFINED);
 }
 
 /**
@@ -803,7 +814,7 @@ export function createNewExpression(operand, args) {
 export function createObjectFreeze(value) {
   // Object.freeze(value)
   return createCallExpression(
-      createMemberExpression(PredefinedName.OBJECT, PredefinedName.FREEZE),
+      createMemberExpression(OBJECT, FREEZE),
       createArgumentList(value));
 }
 
@@ -814,8 +825,8 @@ export function createObjectFreeze(value) {
 export function createObjectPreventExtensions(value) {
   // Object.preventExtensions(value)
   return createCallExpression(
-      createMemberExpression(PredefinedName.OBJECT,
-                             PredefinedName.PREVENT_EXTENSIONS),
+      createMemberExpression(OBJECT,
+                             PREVENT_EXTENSIONS),
       createArgumentList(value));
 }
 
@@ -830,8 +841,8 @@ export function createObjectCreate(protoExpression, descriptors) {
     argumentList.push(descriptors);
 
   return createCallExpression(
-      createMemberExpression(PredefinedName.OBJECT,
-                             PredefinedName.CREATE),
+      createMemberExpression(OBJECT,
+                             CREATE),
       createArgumentList(argumentList));
 }
 
@@ -865,8 +876,8 @@ export function createDefineProperty(tree, name, descr) {
     name = createStringLiteral(name);
 
   return createCallExpression(
-    createMemberExpression(PredefinedName.OBJECT,
-                           PredefinedName.DEFINE_PROPERTY),
+    createMemberExpression(OBJECT,
+                           DEFINE_PROPERTY),
     createArgumentList(tree,
         name,
         createPropertyDescriptor(descr)));
@@ -1127,6 +1138,6 @@ export function createWithStatement(expression, body) {
  */
 export function createAssignStateStatement(state) {
   return createAssignmentStatement(
-      createIdentifierExpression(PredefinedName.STATE),
+      createIdentifierExpression(STATE),
       createNumberLiteral(state));
 }

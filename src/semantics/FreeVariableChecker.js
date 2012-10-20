@@ -15,7 +15,7 @@
 import IdentifierToken from '../syntax/IdentifierToken.js';
 import ParseTreeType from '../syntax/trees/ParseTree.js';
 import ParseTreeVisitor from '../syntax/ParseTreeVisitor.js';
-import PredefinedName from '../syntax/PredefinedName.js';
+import ARGUMENTS from '../syntax/PredefinedName.js';
 import SourcePosition from '../util/SourcePosition.js';
 import TokenType from '../syntax/TokenType.js';
 import createObject from '../util/util.js';
@@ -165,7 +165,7 @@ export class FreeVariableChecker extends ParseTreeVisitor {
     // function
     if (name)
       this.declareVariable_(name);
-    this.declareVariable_(PredefinedName.ARGUMENTS);
+    this.declareVariable_(ARGUMENTS);
     this.visitAny(formalParameterList);
 
     this.visitAny(body);

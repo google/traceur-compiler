@@ -17,7 +17,15 @@ import Keywords from 'Keywords.js';
 import MutedErrorReporter from '../util/MutedErrorReporter.js';
 import NullTree from 'trees/NullTree.js';
 import ParseTreeType from 'trees/ParseTree.js';
-import PredefinedName from 'PredefinedName.js';
+import {
+  FROM,
+  GET,
+  IS,
+  ISNT,
+  MODULE,
+  OF,
+  SET
+} from 'PredefinedName.js';
 import Scanner from 'Scanner.js';
 import SourceRange from '../util/SourceRange.js';
 import Token from 'Token.js';
@@ -147,7 +155,7 @@ function followedByCommaOrCloseCurly(token) {
 function followedByInOrOf(token) {
   return token.type === TokenType.IN ||
       token.type === TokenType.IDENTIFIER &&
-      token.value === PredefinedName.OF;
+      token.value === OF;
 }
 
 /**
@@ -302,7 +310,7 @@ export class Parser {
   * @private
   */
   peekModuleDefinition_() {
-    return this.peekPredefinedString_(PredefinedName.MODULE) &&
+    return this.peekPredefinedString_(MODULE) &&
         this.peek_(TokenType.IDENTIFIER, 1) &&
         this.peek_(TokenType.OPEN_CURLY, 2);
   }
@@ -334,7 +342,7 @@ export class Parser {
   parseModuleSpecifier_(load) {
     var start = this.getTreeStartLocation_();
     var identifier = this.eatId_();
-    this.eatId_(PredefinedName.FROM);
+    this.eatId_(FROM);
     var expression = this.parseModuleExpression_(load);
     return new ModuleSpecifier(this.getTreeLocation_(start), identifier,
                                expression);
@@ -435,7 +443,7 @@ export class Parser {
   parseImportBinding_(load) {
     var start = this.getTreeStartLocation_();
     var importSpecifierSet = this.parseImportSpecifierSet_();
-    this.eatId_(PredefinedName.FROM);
+    this.eatId_(FROM);
     var moduleExpression = this.parseModuleExpression_(load);
 
     return new ImportBinding(this.getTreeLocation_(start),
@@ -565,8 +573,8 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     var specifierSet = this.parseExportSpecifierSet_();
     var expression = null;
-    if (this.peekPredefinedString_(PredefinedName.FROM)) {
-      this.eatId_(PredefinedName.FROM);
+    if (this.peekPredefinedString_(FROM)) {
+      this.eatId_(FROM);
       expression = this.parseModuleExpression_(false);
     }
     return new ExportMapping(this.getTreeLocation_(start), expression,
@@ -637,9 +645,9 @@ export class Parser {
     // ModuleDefinition(load) ::= "module" Identifier "{" ModuleBody(load) "}"
     // ModuleSpecifier(load) ::= Identifier "from" ModuleExpression(load)
     return options.modules &&
-        this.peekPredefinedString_(PredefinedName.MODULE) &&
+        this.peekPredefinedString_(MODULE) &&
         this.peek_(TokenType.IDENTIFIER, 1) &&
-        (this.peekPredefinedString_(PredefinedName.FROM, 2) ||
+        (this.peekPredefinedString_(FROM, 2) ||
          this.peek_(TokenType.OPEN_CURLY, 2));
   }
 
@@ -1416,7 +1424,7 @@ export class Parser {
   }
 
   peekOf_() {
-    return options.forOf && this.peekPredefinedString_(PredefinedName.OF);
+    return options.forOf && this.peekPredefinedString_(OF);
   }
 
   // The for-each Statement
@@ -2101,7 +2109,7 @@ export class Parser {
    * @private
    */
   peekGetAccessor_() {
-    return this.peekPredefinedString_(PredefinedName.GET) &&
+    return this.peekPredefinedString_(GET) &&
         this.peekPropertyName_(1);
   }
 
@@ -2134,7 +2142,7 @@ export class Parser {
    * @private
    */
   peekSetAccessor_() {
-    return this.peekPredefinedString_(PredefinedName.SET) &&
+    return this.peekPredefinedString_(SET) &&
         this.peekPropertyName_(1);
   }
 
@@ -2551,8 +2559,7 @@ export class Parser {
           return false;
         var token = this.peekTokenNoLineTerminator_();
         return token && token.type === TokenType.IDENTIFIER &&
-            (token.value === PredefinedName.IS ||
-             token.value === PredefinedName.ISNT);
+            (token.value === IS || token.value === ISNT);
     }
   }
 
@@ -3184,7 +3191,7 @@ export class Parser {
       this.eat_(TokenType.FOR);
       var innerStart = this.getTreeStartLocation_();
       var left = this.parseForBinding_();
-      this.eatId_(PredefinedName.OF);
+      this.eatId_(OF);
       var iterator = this.parseExpression_();
       comprehensionForList.push(
           new ComprehensionFor(this.getTreeLocation_(innerStart),

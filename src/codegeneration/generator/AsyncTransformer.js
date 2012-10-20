@@ -16,7 +16,23 @@ import CPSTransformer from 'CPSTransformer.js';
 import EndState from 'EndState.js';
 import FallThroughState from 'FallThroughState.js';
 import ParseTreeType from '../../syntax/trees/ParseTree.js';
-import PredefinedName from '../../syntax/PredefinedName.js';
+import {
+  $VALUE,
+  CALLBACK,
+  CONTINUATION,
+  CREATE_CALLBACK,
+  CREATE_ERRBACK,
+  CREATE_PROMISE,
+  DEFERRED,
+  ERR,
+  ERRBACK,
+  NEW_STATE,
+  RESULT,
+  STATE,
+  STORED_EXCEPTION,
+  THEN,
+  WAIT_TASK
+} from '../../syntax/PredefinedName.js';
 import StateMachine from '../../syntax/trees/StateMachine.js';
 import TokenType from '../../syntax/TokenType.js';
 import {
@@ -111,14 +127,14 @@ AsyncTransformer.prototype = createObject(proto, {
     //    return;
     states.push(new FallThroughState(createTaskState, callbackState, createStatementList(
         createAssignmentStatement(
-            createIdentifierExpression(PredefinedName.WAIT_TASK),
+            createIdentifierExpression(WAIT_TASK),
             tree.expression),
         createCallStatement(
-            createMemberExpression(PredefinedName.WAIT_TASK, PredefinedName.THEN),
+            createMemberExpression(WAIT_TASK, THEN),
             createArgumentList(
-                createCallExpression(createIdentifierExpression(PredefinedName.CREATE_CALLBACK),
+                createCallExpression(createIdentifierExpression(CREATE_CALLBACK),
                     createArgumentList(createNumberLiteral(callbackState))),
-                createCallExpression(createIdentifierExpression(PredefinedName.CREATE_ERRBACK),
+                createCallExpression(createIdentifierExpression(CREATE_ERRBACK),
                     createArgumentList(createNumberLiteral(errbackState))))),
         createReturnStatement(null))));
     //  case callbackState:
@@ -130,7 +146,7 @@ AsyncTransformer.prototype = createObject(proto, {
       assignment = createStatementList(
           createAssignmentStatement(
           createIdentifierExpression(tree.identifier),
-          createIdentifierExpression(PredefinedName.$VALUE)));
+          createIdentifierExpression($VALUE)));
     } else {
       assignment = createStatementList();
     }
@@ -138,7 +154,7 @@ AsyncTransformer.prototype = createObject(proto, {
     //  case errbackState:
     //    throw $err;
     states.push(new FallThroughState(errbackState, fallThroughState, createStatementList(
-        createThrowStatement(createIdentifierExpression(PredefinedName.ERR)))));
+        createThrowStatement(createIdentifierExpression(ERR)))));
 
     return new StateMachine(createTaskState, fallThroughState, states, []);
   },
@@ -187,8 +203,7 @@ AsyncTransformer.prototype = createObject(proto, {
    */
   createCompleteTask_: function(result) {
     return createCallStatement(
-        createMemberExpression(PredefinedName.RESULT, PredefinedName.CALLBACK),
-        createArgumentList(result));
+        createMemberExpression(RESULT, CALLBACK), createArgumentList(result));
   },
 
   /**
@@ -233,73 +248,73 @@ AsyncTransformer.prototype = createObject(proto, {
     //   var $value;
     statements.push(createVariableStatement(
         TokenType.VAR,
-        PredefinedName.$VALUE,
+        $VALUE,
         null));
     //   var $err;
     statements.push(createVariableStatement(
         TokenType.VAR,
-        PredefinedName.ERR,
+        ERR,
         null));
     // TODO: var $cancel = ...;
     //   var $result = new Deferred();
     statements.push(createVariableStatement(
         TokenType.VAR,
-        PredefinedName.RESULT,
+        RESULT,
         createNewExpression(
-            createIdentifierExpression(PredefinedName.DEFERRED),
+            createIdentifierExpression(DEFERRED),
             createEmptyArgumentList())));
     //   var $waitTask;
     statements.push(createVariableStatement(
         TokenType.VAR,
-        PredefinedName.WAIT_TASK,
+        WAIT_TASK,
         null));
     //   var $continuation = machineMethod;
     statements.push(createVariableStatement(
         TokenType.VAR,
-        PredefinedName.CONTINUATION,
+        CONTINUATION,
         this.generateMachineMethod(machine)));
     //   var $createCallback = function(newState) { return function (value) { $state = newState; $value = value; $continuation(); }}
     statements.push(createVariableStatement(
         TokenType.VAR,
-        PredefinedName.CREATE_CALLBACK,
+        CREATE_CALLBACK,
         createFunctionExpression(
-            createParameterList(PredefinedName.NEW_STATE),
+            createParameterList(NEW_STATE),
             createBlock(
                 createReturnStatement(
                     createFunctionExpression(
                         createParameterList(1),
                         createBlock(
                             createAssignmentStatement(
-                                createIdentifierExpression(PredefinedName.STATE),
-                                createIdentifierExpression(PredefinedName.NEW_STATE)),
+                                createIdentifierExpression(STATE),
+                                createIdentifierExpression(NEW_STATE)),
                                 createAssignmentStatement(
-                                    createIdentifierExpression(PredefinedName.$VALUE),
+                                    createIdentifierExpression($VALUE),
                                     createParameterReference(0)),
-                                createCallStatement(createIdentifierExpression(PredefinedName.CONTINUATION)))))))));
+                                createCallStatement(createIdentifierExpression(CONTINUATION)))))))));
     //   var $createErrback = function(newState) { return function (err) { $state = newState; $err = err; $continuation(); }}
     statements.push(createVariableStatement(
         TokenType.VAR,
-        PredefinedName.CREATE_ERRBACK,
+        CREATE_ERRBACK,
         createFunctionExpression(
-            createParameterList(PredefinedName.NEW_STATE),
+            createParameterList(NEW_STATE),
             createBlock(
                 createReturnStatement(
                     createFunctionExpression(
                         createParameterList(1),
                         createBlock(
                             createAssignmentStatement(
-                                createIdentifierExpression(PredefinedName.STATE),
-                                createIdentifierExpression(PredefinedName.NEW_STATE)),
+                                createIdentifierExpression(STATE),
+                                createIdentifierExpression(NEW_STATE)),
                                 createAssignmentStatement(
-                                    createIdentifierExpression(PredefinedName.ERR),
+                                    createIdentifierExpression(ERR),
                                     createParameterReference(0)),
-                                createCallStatement(createIdentifierExpression(PredefinedName.CONTINUATION)))))))));
+                                createCallStatement(createIdentifierExpression(CONTINUATION)))))))));
     //  $continuation();
-    statements.push(createCallStatement(createIdentifierExpression(PredefinedName.CONTINUATION)));
+    statements.push(createCallStatement(createIdentifierExpression(CONTINUATION)));
     //  return $result.createPromise();
     statements.push(createReturnStatement(
         createCallExpression(
-            createMemberExpression(PredefinedName.RESULT, PredefinedName.CREATE_PROMISE))));
+            createMemberExpression(RESULT, CREATE_PROMISE))));
 
     return createBlock(statements);
   },
@@ -342,8 +357,8 @@ AsyncTransformer.prototype = createObject(proto, {
     return createStatementList(
         // $result.errback($storedException);
         createCallStatement(
-        createMemberExpression(PredefinedName.RESULT, PredefinedName.ERRBACK),
-        createArgumentList(createIdentifierExpression(PredefinedName.STORED_EXCEPTION))),
+        createMemberExpression(RESULT, ERRBACK),
+        createArgumentList(createIdentifierExpression(STORED_EXCEPTION))),
         // $state = machineEndState
         createAssignStateStatement(machineEndState),
         // break;

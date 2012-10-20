@@ -13,7 +13,10 @@
 // limitations under the License.
 
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
-import PredefinedName from '../syntax/PredefinedName.js';
+import {
+  ARGUMENTS,
+  THIS
+} from '../syntax/PredefinedName.js';
 import {
   createFunctionDeclaration,
   createIdentifierExpression
@@ -78,7 +81,7 @@ export class AlphaRenamer extends ParseTreeTransformer {
   }
 
   transformThisExpression(tree) {
-    if (this.oldName_ !== PredefinedName.THIS)
+    if (this.oldName_ !== THIS)
       return tree;
     return createIdentifierExpression(this.newName_);
   }
@@ -99,8 +102,8 @@ export class AlphaRenamer extends ParseTreeTransformer {
     //  - 'this' is implicitly bound in function bodies
     //  - this.oldName_ is rebound in the new nested scope
     var doNotRecurse =
-        this.oldName_ === PredefinedName.ARGUMENTS ||
-        this.oldName_ === PredefinedName.THIS ||
+        this.oldName_ === ARGUMENTS ||
+        this.oldName_ === THIS ||
         this.oldName_ in variablesInFunction(tree);
     if (doNotRecurse)
       return tree;

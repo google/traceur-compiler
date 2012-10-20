@@ -14,7 +14,12 @@
 
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import ParseTreeType from '../syntax/trees/ParseTree.js';
-import PredefinedName from '../syntax/PredefinedName.js';
+import {
+  IS,
+  ISNT,
+  RUNTIME,
+  TRACEUR
+} from '../syntax/PredefinedName.js';
 import TokenType from '../syntax/TokenType.js';
 import {
   createArgumentList,
@@ -24,11 +29,6 @@ import {
   createOperatorToken
 } from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
-
-var IS = PredefinedName.IS;
-var ISNT = PredefinedName.ISNT;
-var RUNTIME = PredefinedName.RUNTIME;
-var TRACEUR = PredefinedName.TRACEUR;
 
 /**
  * Whether the tree is a good literal. A good literal is one that can be used

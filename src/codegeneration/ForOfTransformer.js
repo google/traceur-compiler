@@ -14,7 +14,14 @@
 
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import ParseTreeType from '../syntax/trees/ParseTree.js';
-import PredefinedName from '../syntax/PredefinedName.js';
+import {
+  CLOSE,
+  CURRENT,
+  GET_ITERATOR,
+  MOVE_NEXT,
+  RUNTIME,
+  TRACEUR
+} from '../syntax/PredefinedName.js';
 import TokenType from '../syntax/TokenType.js';
 import {
   createArgumentList,
@@ -69,9 +76,7 @@ export class ForOfTransformer extends ParseTreeTransformer {
     var iter = this.identifierGenerator_.generateUniqueIdentifier();
     var initializer = createVariableStatement(TokenType.VAR, iter,
         createCallExpression(
-            createMemberExpression(PredefinedName.TRACEUR,
-                                   PredefinedName.RUNTIME,
-                                   PredefinedName.GET_ITERATOR),
+            createMemberExpression(TRACEUR, RUNTIME, GET_ITERATOR),
             createArgumentList(tree.collection)));
 
     // {
@@ -83,23 +88,23 @@ export class ForOfTransformer extends ParseTreeTransformer {
       statement = createVariableStatement(
           tree.initializer.declarationType,
           tree.initializer.declarations[0].lvalue,
-          createMemberExpression(iter, PredefinedName.CURRENT));
+          createMemberExpression(iter, CURRENT));
     } else {
       statement = createExpressionStatement(
           createAssignmentExpression(tree.initializer,
-              createMemberExpression(iter, PredefinedName.CURRENT)));
+              createMemberExpression(iter, CURRENT)));
     }
     var body = createBlock(statement, tree.body);
 
     // while ($it.moveNext()) { body }
     var loop = createWhileStatement(createCallExpression(
-        createMemberExpression(iter, PredefinedName.MOVE_NEXT)), body);
+        createMemberExpression(iter, MOVE_NEXT)), body);
 
     // if ($it.close)
     //   $it.close();
     var finallyBody = createIfStatement(
-        createMemberExpression(iter, PredefinedName.CLOSE),
-        createCallStatement(createMemberExpression(iter, PredefinedName.CLOSE)));
+        createMemberExpression(iter, CLOSE),
+        createCallStatement(createMemberExpression(iter, CLOSE)));
 
     return createBlock(initializer,
         createTryStatement(createBlock(loop), null, createFinally(createBlock(finallyBody))));

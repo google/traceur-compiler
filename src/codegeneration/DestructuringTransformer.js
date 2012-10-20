@@ -13,7 +13,12 @@
 // limitations under the License.
 
 import ParseTreeType from '../syntax/trees/ParseTree.js';
-import PredefinedName from '../syntax/PredefinedName.js';
+import {
+  ARRAY,
+  CALL,
+  PROTOTYPE,
+  SLICE
+} from '../syntax/PredefinedName.js';
 import TempVarTransformer from 'TempVarTransformer.js';
 import TokenType from '../syntax/TokenType.js';
 import {
@@ -495,9 +500,7 @@ DestructuringTransformer.prototype = createObject(proto, {
             desugaring.assign(
                 lvalue.lvalue,
                 createCallExpression(
-                    createMemberExpression(
-                        PredefinedName.ARRAY, PredefinedName.PROTOTYPE,
-                        PredefinedName.SLICE, PredefinedName.CALL),
+                    createMemberExpression(ARRAY, PROTOTYPE, SLICE, CALL),
                     createArgumentList(
                         desugaring.rvalue,
                         createNumberLiteral(i))));

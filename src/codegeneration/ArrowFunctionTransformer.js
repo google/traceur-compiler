@@ -15,7 +15,7 @@
 import FindInFunctionScope from 'FindInFunctionScope.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import ParseTreeType from '../syntax/trees/ParseTree.js';
-import PredefinedName from '../syntax/PredefinedName.js';
+import BIND from '../syntax/PredefinedName.js';
 import {
   createArgumentList,
   createBlock,
@@ -85,9 +85,7 @@ export class ArrowFunctionTransformer extends ParseTreeTransformer {
     if (finder.found) {
       // (function(params) { ... }).bind(thisBinding);
       return createCallExpression(
-          createMemberExpression(
-              result,
-              PredefinedName.BIND),
+          createMemberExpression(result, BIND),
           createArgumentList(createThisExpression()));
     }
 

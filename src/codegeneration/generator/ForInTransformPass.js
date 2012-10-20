@@ -14,7 +14,10 @@
 
 import ParseTreeTransformer from '../ParseTreeTransformer.js';
 import ParseTreeType from '../../syntax/trees/ParseTree.js';
-import PredefinedName from '../../syntax/PredefinedName.js';
+import {
+  LENGTH,
+  PUSH
+} from '../../syntax/PredefinedName.js';
 import TokenType from '../../syntax/TokenType.js';
 import {
   createArgumentList,
@@ -105,7 +108,7 @@ export class ForInTransformPass extends ParseTreeTransformer {
             createIdentifierExpression(collection),
             // $keys.push($p)
             createCallStatement(
-                createMemberExpression(keys, PredefinedName.PUSH),
+                createMemberExpression(keys, PUSH),
                 createArgumentList(createIdentifierExpression(p)))));
 
     var i = this.identifierGenerator_.generateUniqueIdentifier();
@@ -161,7 +164,7 @@ export class ForInTransformPass extends ParseTreeTransformer {
             createBinaryOperator(
                 createIdentifierExpression(i),
                 createOperatorToken(TokenType.OPEN_ANGLE),
-                createMemberExpression(keys, PredefinedName.LENGTH)),
+                createMemberExpression(keys, LENGTH)),
             // $i++
             createPostfixExpression(
                 createIdentifierExpression(i),

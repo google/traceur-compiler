@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import PredefinedName from '../../syntax/PredefinedName.js';
+import FINALLY_FALL_THROUGH from '../../syntax/PredefinedName.js';
 import {
   createAssignStateStatement,
   createAssignmentStatement,
@@ -117,7 +117,7 @@ State.generateAssignStateOutOfFinally_ = function(destination, finallyState) {
   return createStatementList(
       createAssignStateStatement(finallyState),
       createAssignmentStatement(
-          createIdentifierExpression(PredefinedName.FINALLY_FALL_THROUGH),
+          createIdentifierExpression(FINALLY_FALL_THROUGH),
           createNumberLiteral(destination)));
 }
 

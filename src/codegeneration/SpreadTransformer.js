@@ -14,7 +14,7 @@
 
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import ParseTreeType from '../syntax/trees/ParseTree.js';
-import PredefinedName from '../syntax/PredefinedName.js';
+import APPLY from '../syntax/PredefinedName.js';
 import {
   createArgumentList,
   createArrayLiteralExpression,
@@ -31,9 +31,6 @@ import {
   createReturnStatement
 } from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
-
-var APPLY = PredefinedName.APPLY;
-
 
 // Spreads the elements in {@code items} into a single array.
 // @param {Array} items Array of interleaving booleans and values.

@@ -14,7 +14,10 @@
 
 import AlphaRenamer from 'AlphaRenamer.js';
 import FindInFunctionScope from 'FindInFunctionScope.js';
-import PredefinedName from '../syntax/PredefinedName.js';
+import {
+  ARGUMENTS,
+  THIS
+} from '../syntax/PredefinedName.js';
 import TempVarTransformer from 'TempVarTransformer.js';
 import TokenType from '../syntax/TokenType.js';
 import {
@@ -63,7 +66,7 @@ ArgumentsFinder.prototype = createObject(
     FindInFunctionScope.prototype, {
 
   visitIdentifierExpression: function(tree) {
-    if (tree.identifierToken.value === PredefinedName.ARGUMENTS)
+    if (tree.identifierToken.value === ARGUMENTS)
       this.found = true;
   }
 });
@@ -118,15 +121,15 @@ ComprehensionTransformer.prototype = createObject(proto, {
     var argumentsFinder = new ArgumentsFinder(statement);
     if (argumentsFinder.found) {
       var tempVar = this.addTempVar(
-          createIdentifierExpression(PredefinedName.ARGUMENTS));
-      statement = AlphaRenamer.rename(statement, PredefinedName.ARGUMENTS,
+          createIdentifierExpression(ARGUMENTS));
+      statement = AlphaRenamer.rename(statement, ARGUMENTS,
                                       tempVar);
     }
 
     var thisFinder = new ThisFinder(statement);
     if (thisFinder.found) {
       var tempVar = this.addTempVar(createThisExpression());
-      statement = AlphaRenamer.rename(statement, PredefinedName.THIS,
+      statement = AlphaRenamer.rename(statement, THIS,
                                       tempVar);
     }
 

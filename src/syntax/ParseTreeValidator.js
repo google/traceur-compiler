@@ -14,7 +14,10 @@
 
 import ParseTreeType from 'trees/ParseTree.js';
 import ParseTreeVisitor from 'ParseTreeVisitor.js';
-import PredefinedName from 'PredefinedName.js';
+import {
+  IS,
+  ISNT
+} from 'PredefinedName.js';
 import TokenType from 'TokenType.js';
 import TreeWriter from '../outputgeneration/TreeWriter.js';
 import createObject from '../util/util.js';
@@ -213,8 +216,8 @@ export class ParseTreeValidator extends ParseTreeVisitor {
       case TokenType.IDENTIFIER:
         var foundIsIdentifier = false;
         switch (tree.operator.value) {
-          case PredefinedName.IS:
-          case PredefinedName.ISNT:
+          case IS:
+          case ISNT:
             foundIsIdentifier = true;
         }
         if (foundIsIdentifier)

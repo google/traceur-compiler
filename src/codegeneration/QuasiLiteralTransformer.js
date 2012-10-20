@@ -15,7 +15,7 @@
 import LiteralToken from '../syntax/LiteralToken.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import ParseTreeType from '../syntax/trees/ParseTree.js';
-import PredefinedName from '../syntax/PredefinedName.js';
+import RAW from '../syntax/PredefinedName.js';
 import TokenType from '../syntax/TokenType.js';
 import {
   createArgumentList,
@@ -56,7 +56,7 @@ function createCallSiteIdObject(tempVarName, tree) {
         createAssignmentExpression(
             createIdentifierExpression(tempVarName),
             createCookedStringArray(elements)),
-        PredefinedName.RAW,
+        RAW,
         {value: createObjectFreeze(createRawStringArray(elements))}),
     createObjectFreeze(createIdentifierExpression(tempVarName))
   ];

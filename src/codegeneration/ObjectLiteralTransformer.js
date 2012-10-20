@@ -14,7 +14,6 @@
 
 import FindVisitor from 'FindVisitor.js';
 import Keywords from '../syntax/Keywords.js';
-import PredefinedName from '../syntax/PredefinedName.js';
 import TempVarTransformer from 'TempVarTransformer.js';
 import TokenType from '../syntax/TokenType.js';
 import {
