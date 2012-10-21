@@ -430,7 +430,7 @@ DestructuringTransformer.prototype = createObject(proto, {
    * @return {BindingIdentifier} The binding tree.
    */
   desugarBinding_: function(bindingTree, statements, declarationType) {
-    var varName = this.gensym_(bindingTree);
+    var varName = this.identifierGenerator.generateUniqueIdentifier();
     var binding = createBindingIdentifier(varName);
     var idExpr = createIdentifierExpression(varName);
 
@@ -472,9 +472,10 @@ DestructuringTransformer.prototype = createObject(proto, {
    * @return {Array.<VariableDeclaration>}
    */
   desugarVariableDeclaration_: function(tree) {
+    var tempIdent = this.identifierGenerator.generateUniqueIdentifier()
     var desugaring =
         new VariableDeclarationDesugaring(
-            createIdentifierExpression(this.gensym_(tree.lvalue)));
+            createIdentifierExpression(tempIdent));
     // Evaluate the rvalue and store it in a temporary.
     desugaring.assign(desugaring.rvalue, tree.initializer);
     this.desugarPattern_(desugaring, tree.lvalue);
@@ -557,70 +558,5 @@ DestructuringTransformer.prototype = createObject(proto, {
       default:
         throw new Error('unreachable');
     }
-  },
-
-  /**
-   * Generates a deterministic and (hopefully) unique identifier based
-   * on the lvalue identifiers in tree.
-   * @param {ParseTree} tree
-   * @return {string}
-   */
-  gensym_: function(tree) {
-    var ids = this.collectLvalueIdentifiers_(Object.create(null), tree);
-    ids = Object.keys(ids).sort();
-    return 'destructuring$' + ids.join('$');
-  },
-
-  /**
-   * Helper for gensym_.
-   * @param {Object} identifiers
-   * @param {ParseTree} tree
-   * @return {Object}
-   */
-  collectLvalueIdentifiers_: function(identifiers, tree) {
-    // ArrayPatterns can contain null elements.
-    if (tree === null)
-      return;
-
-    switch (tree.type) {
-      case ParseTreeType.BINDING_ELEMENT:
-        this.collectLvalueIdentifiers_(identifiers, tree.binding);
-        break;
-
-      case ParseTreeType.BINDING_IDENTIFIER:
-      case ParseTreeType.IDENTIFIER_EXPRESSION:
-        identifiers[tree.identifierToken.value] = true;
-        break;
-
-      case ParseTreeType.ARRAY_PATTERN:
-        tree.elements.forEach((e) => {
-          this.collectLvalueIdentifiers_(identifiers, e);
-        });
-        break;
-
-      case ParseTreeType.OBJECT_PATTERN:
-        tree.fields.forEach((f) => {
-          this.collectLvalueIdentifiers_(identifiers, f);
-        });
-        break;
-
-      case ParseTreeType.OBJECT_PATTERN_FIELD:
-        this.collectLvalueIdentifiers_(identifiers, tree.element);
-        break;
-
-      case ParseTreeType.PAREN_EXPRESSION:
-        this.collectLvalueIdentifiers_(identifiers, tree.expression);
-        break;
-
-      case ParseTreeType.SPREAD_PATTERN_ELEMENT:
-        this.collectLvalueIdentifiers_(identifiers, tree.lvalue);
-        break;
-
-      default:
-        throw new Error('unreachable');
-    }
-
-    return identifiers;
   }
-
 });
