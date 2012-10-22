@@ -70,11 +70,15 @@ function mkdirRecursive(dir) {
   }
 }
 
+var resolvedIncludes = includes.map(function(include) {
+  return path.join(process.cwd(), include);
+});
+
 var reporter = new ErrorReporter();
 
 var inlineAndCompile = require('./inline-module.js').inlineAndCompile;
 
-inlineAndCompile(includes, reporter, function(tree) {
+inlineAndCompile(resolvedIncludes, reporter, function(tree) {
   var contents = TreeWriter.write(tree);
   mkdirRecursive(path.dirname(outputfile));
   fs.writeFileSync(outputfile, contents, 'utf8');
