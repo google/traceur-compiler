@@ -85,10 +85,10 @@ export var options = {
    * Meta option. Sets all options that are of Kind.es6
    * When getting this will return null if not all options of this kind
    * have the same value.
-   * @type {boolean|null}
+   * @type {boolean|string|null}
    */
   set es6(v) {
-    enable(Kind.es6, Boolean(v));
+    enable(Kind.es6, coerceOptionValue(v));
   },
   get es6() {
     return getValue(Kind.es6);
@@ -98,10 +98,10 @@ export var options = {
    * Meta option. Sets all options that are of Kind.es6proposal
    * When getting this will return null if not all options of this kind
    * have the same value.
-   * @type {boolean|null}
+   * @type {boolean|string|null}
    */
   set es6proposal(v) {
-    enable(Kind.es6proposal, Boolean(v));
+    enable(Kind.es6proposal, coerceOptionValue(v));
   },
   get es6proposal() {
     return getValue(Kind.es6proposal);
@@ -111,10 +111,10 @@ export var options = {
    * Meta option. Sets all options that are of Kind.harmony
    * When getting this will return null if not all options of this kind
    * have the same value.
-   * @type {boolean|null}
+   * @type {boolean|string|null}
    */
   set harmony(v) {
-    enable(Kind.harmony, Boolean(v));
+    enable(Kind.harmony, coerceOptionValue(v));
   },
   get harmony() {
     return getValue(Kind.harmony);
@@ -124,16 +124,15 @@ export var options = {
    * Meta option. Sets all options that are of Kind.experimental
    * When getting this will return null if not all options of this kind
    * have the same value.
-   * @type {boolean|null}
+   * @type {boolean|string|null}
    */
   set experimental(v) {
-    enable(Kind.experimental, Boolean(v));
+    enable(Kind.experimental, coerceOptionValue(v));
   },
   get experimental() {
     return getValue(Kind.experimental);
   }
 };
-
 
 /**
  * Resets all options to the default value or to false if |opt_allOff| is
@@ -176,14 +175,56 @@ function setFromObject(object) {
   });
 }
 
+function coerceOptionValue(v) {
+  switch (v) {
+    case 'false':
+      return false;
+    case 'parse':
+      return 'parse';
+    default:
+      return true;
+  }
+}
+
+function setOption(name, value) {
+  name = toCamelCase(name);
+  value = coerceOptionValue(value);
+  if (name in options) {
+    options[name] = value;
+  } else {
+    throw Error('Unknown option: ' + name);
+  }
+}
+
+function optionCallback(name, value) {
+  setOption(name, value);
+}
+
+/**
+ * This is called by build.js to add options to the commander command line
+ * library.
+ * @param {Commander} flags The commander object.
+ */
+function addOptions(flags) {
+  Object.keys(options).forEach(function(name) {
+    var dashedName = toDashCase(name);
+    if ((name in parseOptions) && (name in transformOptions))
+      flags.option('--' + dashedName + ' [true|false|parse]');
+    else
+      flags.option('--' + dashedName + ' [true|false]');
+    flags.on(dashedName, optionCallback.bind(null, dashedName));
+  });
+}
+
 // Make sure non option fields are non enumerable.
 Object.defineProperties(options, {
   parse: {value: parseOptions},
   transform: {value: transformOptions},
   reset: {value: reset},
-  fromString: {value :fromString},
-  fromArgv: {value :fromArgv},
-  setFromObject: {value :setFromObject}
+  fromString: {value: fromString},
+  fromArgv: {value: fromArgv},
+  setFromObject: {value: setFromObject},
+  addOptions: {value: addOptions}
 });
 
 /**
@@ -198,28 +239,8 @@ Object.defineProperties(options, {
 function parseCommand(s) {
   var re = /--([^=]+)(?:=(.+))?/
   var m = re.exec(s);
-  if (m) {
-    var name = toCamelCase(m[1]);
-    var value;
-    switch (m[2]) {
-      case '':
-        value = true;
-        break;
-      case 'false':
-        value = false;
-        break;
-      case 'parse':
-        value = 'parse';
-        break;
-      default:
-        value = true;
-    }
-    if (name in options) {
-      options[name] = value;
-    } else {
-      throw new Error(`Unknown option: ${m[1]}`);
-    }
-  }
+  if (m)
+    setOption(m[1], m[2]);
 }
 
 /**
@@ -228,6 +249,15 @@ function parseCommand(s) {
 function toCamelCase(s) {
   return s.replace(/-\w/g, function(ch) {
     return ch[1].toUpperCase();
+  });
+}
+
+/**
+ * Converts a string from aaa-bbb-ccc ot aaaBbbCcc
+ */
+function toDashCase(s) {
+  return s.replace(/[A-W]/g, function(ch) {
+    return '-' + ch.toLowerCase();
   });
 }
 

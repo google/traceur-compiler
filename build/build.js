@@ -14,24 +14,38 @@
 
 'use strict';
 
-var includes = [
-  // We assume we're always relative to "src/"
-  '../third_party/source-map/lib/source-map/array-set.js',
-  '../third_party/source-map/lib/source-map/base64.js',
-  '../third_party/source-map/lib/source-map/base64-vlq.js',
-  '../third_party/source-map/lib/source-map/binary-search.js',
-  '../third_party/source-map/lib/source-map/util.js',
-  '../third_party/source-map/lib/source-map/source-map-generator.js',
-  '../third_party/source-map/lib/source-map/source-map-consumer.js',
-  '../third_party/source-map/lib/source-map/source-node.js',
-  'runtime/runtime.js',
-  'traceur.js'
-];
-
 var fs = require('fs');
 var path = require('path');
+var flags;
+try {
+  flags = require('commander');
+} catch (ex) {
+  console.error('Commander.js is required for this to work. To install it ' +
+                'run:\n\n  npm install commander\n');
+  process.exit(1);
+}
+flags.setMaxListeners(100);
 
 require('../src/traceur-node.js');
+
+flags.option('--out <FILE>', 'path to the file to output');
+flags.option('--all-options-off', 'all options are set to false');
+flags.on('all-options-off', function() {
+  traceur.options.reset(true);
+});
+traceur.options.addOptions(flags);
+
+flags.parse(process.argv);
+
+var outputfile = flags.out;
+if (!outputfile)
+  flags.help();
+
+var includes = flags.args;
+if (!includes.length) {
+  console.error('\n  At least one input file is needed');
+  flags.help();
+}
 
 var ErrorReporter = traceur.util.ErrorReporter;
 var TreeWriter = traceur.outputgeneration.TreeWriter;
@@ -56,28 +70,12 @@ function mkdirRecursive(dir) {
   }
 }
 
-traceur.options.reset(true);
-traceur.options.arrowFunctions = true;
-traceur.options.modules = true;
-traceur.options.destructuring = true;
-traceur.options.quasi = true;
-traceur.options.spread = true;
-traceur.options.classes = true;
-traceur.options.propertyMethods = true;  // needed for classes
-traceur.options.restParameters = true;   // needed for classes
-
 var reporter = new ErrorReporter();
 
 var inlineAndCompile = require('./inline-module.js').inlineAndCompile;
 
-var srcDir = path.join(path.dirname(process.argv[1]), '..', 'src');
-var resolvedIncludes = includes.map(function(include) {
-  return path.join(srcDir, include);
-});
-
-inlineAndCompile(resolvedIncludes, reporter, function(tree) {
+inlineAndCompile(includes, reporter, function(tree) {
   var contents = TreeWriter.write(tree);
-  var outputfile = process.argv[2];
   mkdirRecursive(path.dirname(outputfile));
   fs.writeFileSync(outputfile, contents, 'utf8');
   process.exit(1);
