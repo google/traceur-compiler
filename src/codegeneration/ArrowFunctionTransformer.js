@@ -12,10 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FindInFunctionScope from 'FindInFunctionScope.js';
-import ParseTreeTransformer from 'ParseTreeTransformer.js';
-import ParseTreeType from '../syntax/trees/ParseTree.js';
 import BIND from '../syntax/PredefinedName.js';
+import FindInFunctionScope from 'FindInFunctionScope.js';
+import {
+  FormalParameterList,
+  ThisExpression
+} from '../syntax/trees/ParseTrees.js';
+import ParseTreeTransformer from 'ParseTreeTransformer.js';
+import BLOCK from '../syntax/trees/ParseTreeType.js';
 import {
   createArgumentList,
   createBlock,
@@ -27,11 +31,6 @@ import {
   createThisExpression
 } from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
-import trees from '../syntax/trees/ParseTrees.js';
-
-var FormalParameterList = trees.FormalParameterList;
-var ThisExpression = trees.ThisExpression;
-
 
 /**
  * This is used to find whether a function contains a reference to 'this'.
@@ -70,7 +69,7 @@ export class ArrowFunctionTransformer extends ParseTreeTransformer {
     }
 
     var functionBody = this.transformAny(tree.functionBody);
-    if (functionBody.type != ParseTreeType.BLOCK) {
+    if (functionBody.type != BLOCK) {
       // { return expr; }
       functionBody = createBlock(createReturnStatement(functionBody));
     }

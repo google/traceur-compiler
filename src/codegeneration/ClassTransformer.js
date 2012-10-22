@@ -12,13 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeType from '../syntax/trees/ParseTree.js';
 import {
   CONSTRUCTOR,
   CREATE_CLASS,
   RUNTIME,
   TRACEUR
 } from '../syntax/PredefinedName.js';
+import {
+  FormalParameterList,
+  FunctionDeclaration,
+  GetAccessor,
+  PropertyMethodAssignment,
+  PropertyNameAssignment,
+  SetAccessor,
+  SuperExpression
+} from '../syntax/trees/ParseTrees.js';
+import {
+  GET_ACCESSOR,
+  PROPERTY_METHOD_ASSIGNMENT,
+  SET_ACCESSOR
+} from '../syntax/trees/ParseTreeType.js';
 import SuperTransformer from 'SuperTransformer.js';
 import TempVarTransformer from 'TempVarTransformer.js';
 import TokenType from '../syntax/TokenType.js';
@@ -43,15 +56,6 @@ import {
 } from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
 import transformOptions from '../options.js';
-import trees from '../syntax/trees/ParseTrees.js';
-
-var FormalParameterList = trees.FormalParameterList;
-var FunctionDeclaration = trees.FunctionDeclaration;
-var GetAccessor = trees.GetAccessor;
-var PropertyMethodAssignment = trees.PropertyMethodAssignment;
-var PropertyNameAssignment = trees.PropertyNameAssignment;
-var SetAccessor = trees.SetAccessor;
-var SuperExpression = trees.SuperExpression;
 
 // The state keeps track of the current class tree and class name.
 var stack = [];
@@ -127,11 +131,11 @@ ClassTransformer.prototype = createObject(proto, {
     var constructor;
     var elements = tree.elements.map((tree) => {
       switch (tree.type) {
-        case ParseTreeType.GET_ACCESSOR:
+        case GET_ACCESSOR:
           return this.transformGetAccessor_(tree);
-        case ParseTreeType.SET_ACCESSOR:
+        case SET_ACCESSOR:
           return this.transformSetAccessor_(tree);
-        case ParseTreeType.PROPERTY_METHOD_ASSIGNMENT:
+        case PROPERTY_METHOD_ASSIGNMENT:
           if (tree.name.value === CONSTRUCTOR)
             return constructor = this.transformConstructor_(tree);
           return this.transformPropertyMethodAssignment_(tree);

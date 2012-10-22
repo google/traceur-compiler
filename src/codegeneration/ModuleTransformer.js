@@ -12,13 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {
+  BindingElement,
+  BindingIdentifier,
+  IdentifierExpression,
+  LiteralExpression,
+  ObjectPattern,
+  ObjectPatternField,
+  Program
+} from '../syntax/trees/ParseTrees.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
-import ParseTreeType from '../syntax/trees/ParseTree.js';
 import {
   GET_MODULE_INSTANCE_BY_URL,
   RUNTIME,
   TRACEUR
 } from '../syntax/PredefinedName.js';
+import {
+  CLASS_DECLARATION,
+  EXPORT_DECLARATION,
+  EXPORT_MAPPING_LIST,
+  EXPORT_SPECIFIER,
+  FUNCTION_DECLARATION,
+  IDENTIFIER_EXPRESSION,
+  IMPORT_DECLARATION,
+  MODULE_DECLARATION,
+  MODULE_DEFINITION,
+  MODULE_REQUIRE,
+  VARIABLE_STATEMENT
+} from '../syntax/trees/ParseTreeType.js';
 import TokenType from '../syntax/TokenType.js';
 import {
   createArgumentList,
@@ -46,27 +67,6 @@ import {
 } from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
 import hasUseStrict from '../semantics/util.js';
-import trees from '../syntax/trees/ParseTrees.js';
-
-var BindingElement = trees.BindingElement;
-var BindingIdentifier = trees.BindingIdentifier;
-var IdentifierExpression = trees.IdentifierExpression;
-var LiteralExpression = trees.LiteralExpression;
-var ObjectPattern = trees.ObjectPattern;
-var ObjectPatternField = trees.ObjectPatternField;
-var Program = trees.Program;
-
-var CLASS_DECLARATION = ParseTreeType.CLASS_DECLARATION;
-var EXPORT_DECLARATION = ParseTreeType.EXPORT_DECLARATION;
-var EXPORT_MAPPING_LIST = ParseTreeType.EXPORT_MAPPING_LIST;
-var EXPORT_SPECIFIER = ParseTreeType.EXPORT_SPECIFIER;
-var FUNCTION_DECLARATION = ParseTreeType.FUNCTION_DECLARATION;
-var IDENTIFIER_EXPRESSION = ParseTreeType.IDENTIFIER_EXPRESSION;
-var IMPORT_DECLARATION = ParseTreeType.IMPORT_DECLARATION;
-var MODULE_DECLARATION = ParseTreeType.MODULE_DECLARATION;
-var MODULE_DEFINITION = ParseTreeType.MODULE_DEFINITION;
-var MODULE_REQUIRE = ParseTreeType.MODULE_REQUIRE;
-var VARIABLE_STATEMENT = ParseTreeType.VARIABLE_STATEMENT;
 
 function toBindingIdentifier(tree) {
   return new BindingIdentifier(tree.location, tree.identifierToken);
@@ -184,7 +184,7 @@ export class ModuleTransformer extends ParseTreeTransformer {
   transformImportBinding(tree) {
     var importSpecifierSet;
     // If identifier we need to output the object pattern {id}.
-    if (tree.importSpecifierSet.type == ParseTreeType.IDENTIFIER_EXPRESSION) {
+    if (tree.importSpecifierSet.type == IDENTIFIER_EXPRESSION) {
       var field = new BindingElement(tree.location,
           createBindingIdentifier(tree.importSpecifierSet.identifierToken),
           null);

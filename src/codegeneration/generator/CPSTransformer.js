@@ -13,6 +13,17 @@
 // limitations under the License.
 
 import BreakContinueTransformer from 'BreakContinueTransformer.js';
+import {
+  CASE_CLAUSE,
+  STATE_MACHINE,
+  VARIABLE_DECLARATION_LIST,
+  VARIABLE_STATEMENT
+} from '../../syntax/trees/ParseTreeType.js';
+import {
+  CaseClause,
+  IdentifierExpression,
+  SwitchStatement
+} from '../../syntax/trees/ParseTrees.js';
 import CatchState from 'CatchState.js';
 import ConditionalState from 'ConditionalState.js';
 import FallThroughState from 'FallThroughState.js';
@@ -20,7 +31,6 @@ import FinallyFallThroughState from 'FinallyFallThroughState.js';
 import FinallyState from 'FinallyState.js';
 import IdentifierToken from '../../syntax/IdentifierToken.js';
 import ParseTreeTransformer from '../ParseTreeTransformer.js';
-import ParseTreeType from '../../syntax/trees/ParseTree.js';
 import {
   $ARGUMENTS,
   $THAT,
@@ -71,12 +81,7 @@ import {
   createWhileStatement
 } from '../ParseTreeFactory.js';
 import createObject from '../../util/util.js';
-import trees from '../../syntax/trees/ParseTrees.js';
 import variablesInBlock from '../../semantics/VariableBinder.js';
-
-var CaseClause = trees.CaseClause;
-var IdentifierExpression = trees.IdentifierExpression;
-var SwitchStatement = trees.SwitchStatement;
 
 /**
  * Performs a CPS transformation on a method body.
@@ -182,7 +187,7 @@ export class CPSTransformer extends ParseTreeTransformer {
   containsStateMachine_(statements) {
     if (statements instanceof Array) {
       for (var i = 0; i < statements.length; i++) {
-        if (statements[i].type == ParseTreeType.STATE_MACHINE) {
+        if (statements[i].type == STATE_MACHINE) {
           return true;
         }
       }
@@ -192,7 +197,7 @@ export class CPSTransformer extends ParseTreeTransformer {
     traceur.assert(statements instanceof SwitchStatement);
     for (var i = 0; i < statements.caseClauses.length; i++) {
       var clause = statements.caseClauses[i];
-      if (clause.type == ParseTreeType.CASE_CLAUSE) {
+      if (clause.type == CASE_CLAUSE) {
         if (this.containsStateMachine_(clause.statements)) {
           return true;
         }
@@ -225,7 +230,7 @@ export class CPSTransformer extends ParseTreeTransformer {
     var labels = this.clearLabels_();
 
     var result = super.transformDoWhileStatement(tree);
-    if (result.body.type != ParseTreeType.STATE_MACHINE) {
+    if (result.body.type != STATE_MACHINE) {
       return result;
     }
 
@@ -268,7 +273,7 @@ export class CPSTransformer extends ParseTreeTransformer {
     var labels = this.clearLabels_();
 
     var result = super.transformForStatement(tree);
-    if (result.body.type != ParseTreeType.STATE_MACHINE) {
+    if (result.body.type != STATE_MACHINE) {
       return result;
     }
 
@@ -339,8 +344,8 @@ export class CPSTransformer extends ParseTreeTransformer {
     this.clearLabels_();
 
     var result = super.transformIfStatement(tree);
-    if (result.ifClause.type != ParseTreeType.STATE_MACHINE &&
-        (result.elseClause == null || result.elseClause.type != ParseTreeType.STATE_MACHINE)) {
+    if (result.ifClause.type != STATE_MACHINE &&
+        (result.elseClause == null || result.elseClause.type != STATE_MACHINE)) {
       return result;
     }
 
@@ -455,7 +460,7 @@ export class CPSTransformer extends ParseTreeTransformer {
 
     for (var index = result.caseClauses.length - 1; index >= 0; index--) {
       var clause = result.caseClauses[index];
-      if (clause.type == ParseTreeType.CASE_CLAUSE) {
+      if (clause.type == CASE_CLAUSE) {
         var caseClause = clause;
         nextState = this.addSwitchClauseStates_(nextState, fallThroughState,
             labels, caseClause.statements, states, tryStates);
@@ -506,8 +511,8 @@ export class CPSTransformer extends ParseTreeTransformer {
     this.clearLabels_();
 
     var result = super.transformTryStatement(tree);
-    if (result.body.type != ParseTreeType.STATE_MACHINE && (result.catchBlock == null ||
-        result.catchBlock.catchBody.type != ParseTreeType.STATE_MACHINE)) {
+    if (result.body.type != STATE_MACHINE && (result.catchBlock == null ||
+        result.catchBlock.catchBody.type != STATE_MACHINE)) {
       return result;
     }
     // NOTE: yield inside finally caught in FinallyBlock transform methods
@@ -590,7 +595,7 @@ export class CPSTransformer extends ParseTreeTransformer {
     if (declarations == null) {
       return createEmptyStatement();
     }
-    if (declarations.type == ParseTreeType.VARIABLE_DECLARATION_LIST) {
+    if (declarations.type == VARIABLE_DECLARATION_LIST) {
       // let/const - just transform for now
       return createVariableStatement(declarations);
     }
@@ -637,7 +642,7 @@ export class CPSTransformer extends ParseTreeTransformer {
     var labels = this.clearLabels_();
 
     var result = super.transformWhileStatement(tree);
-    if (result.body.type != ParseTreeType.STATE_MACHINE) {
+    if (result.body.type != STATE_MACHINE) {
       return result;
     }
 
@@ -665,7 +670,7 @@ export class CPSTransformer extends ParseTreeTransformer {
    */
   transformWithStatement(tree) {
     var result = super.transformWithStatement(tree);
-    if (result.body.type != ParseTreeType.STATE_MACHINE) {
+    if (result.body.type != STATE_MACHINE) {
       return result;
     }
     throw new Error('Unreachable - with statement not allowed in strict mode/harmony');
@@ -1169,7 +1174,7 @@ export class CPSTransformer extends ParseTreeTransformer {
   maybeTransformStatement_(maybeTransformedStatement) {
     // Check for block scoped variables in a block containing a yield. There's
     // no way to codegen that with a precompiler but could be implemented directly in a VM.
-    if (maybeTransformedStatement.type == ParseTreeType.VARIABLE_STATEMENT &&
+    if (maybeTransformedStatement.type == VARIABLE_STATEMENT &&
         maybeTransformedStatement.declarations.declarationType !=
             TokenType.VAR) {
       this.reporter.reportError(
@@ -1198,7 +1203,7 @@ export class CPSTransformer extends ParseTreeTransformer {
       return null;
     }
     var maybeTransformed = this.maybeTransformStatement_(statement);
-    return maybeTransformed.type == ParseTreeType.STATE_MACHINE ?
+    return maybeTransformed.type == STATE_MACHINE ?
         maybeTransformed :
         this.statementToStateMachine_(maybeTransformed);
   }
@@ -1215,7 +1220,7 @@ export class CPSTransformer extends ParseTreeTransformer {
       var statement = statements[i];
       var maybeTransformedStatement = this.maybeTransformStatement_(statement);
       maybeTransformedStatements.push(maybeTransformedStatement);
-      if (maybeTransformedStatement.type == ParseTreeType.STATE_MACHINE) {
+      if (maybeTransformedStatement.type == STATE_MACHINE) {
         foundMachine = true;
       }
     }

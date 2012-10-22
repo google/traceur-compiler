@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeType from '../syntax/trees/ParseTree.js';
+import {
+  EXPRESSION_STATEMENT,
+  LITERAL_EXPRESSION
+} from '../syntax/trees/ParseTreeType.js';
 import TokenType from '../syntax/TokenType.js';
 
 /**
@@ -34,9 +37,9 @@ export function hasUseStrict(list) {
   var li;
   if (!list || !list.length || !(li = list[0]))
     return false;
-  if (li.type !== ParseTreeType.EXPRESSION_STATEMENT || !(li = li.expression))
+  if (li.type !== EXPRESSION_STATEMENT || !(li = li.expression))
     return false;
-  if (li.type !== ParseTreeType.LITERAL_EXPRESSION   || !(li = li.literalToken))
+  if (li.type !== LITERAL_EXPRESSION   || !(li = li.literalToken))
     return false;
   if (li.type !== TokenType.STRING)
     return false;

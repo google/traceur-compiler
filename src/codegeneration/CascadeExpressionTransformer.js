@@ -12,7 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeType from '../syntax/trees/ParseTree.js';
+import {
+  BINARY_OPERATOR,
+  CALL_EXPRESSION,
+  CALL_EXPRESSION,
+  CASCADE_EXPRESSION,
+  CASCADE_EXPRESSION,
+  IDENTIFIER_EXPRESSION,
+  MEMBER_EXPRESSION,
+  MEMBER_LOOKUP_EXPRESSION
+} from '../syntax/trees/ParseTreeType.js';
+import BinaryOperator from '../syntax/trees/ParseTrees.js';
 import TempVarTransformer from 'TempVarTransformer.js';
 import {
   createAssignmentExpression,
@@ -26,10 +36,6 @@ import {
   createParenExpression
 } from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
-import trees from '../syntax/trees/ParseTrees.js';
-
-var BinaryOperator = trees.BinaryOperator;
-
 
 /**
  * Member expressions (and member lookup expressions) are built from right to
@@ -40,23 +46,23 @@ var BinaryOperator = trees.BinaryOperator;
  */
 function prependMemberExpression(name, rest) {
   switch (rest.type) {
-    case ParseTreeType.MEMBER_EXPRESSION:
+    case MEMBER_EXPRESSION:
       // rest = operand.name
       return createMemberExpression(
           prependMemberExpression(name, rest.operand),
           rest.memberName);
-    case ParseTreeType.MEMBER_LOOKUP_EXPRESSION:
+    case MEMBER_LOOKUP_EXPRESSION:
       // rest = operand[memberExpression]
       return createMemberLookupExpression(
           prependMemberExpression(name, rest.operand),
           rest.memberExpression);
-    case ParseTreeType.IDENTIFIER_EXPRESSION:
+    case IDENTIFIER_EXPRESSION:
       return createMemberExpression(name, rest.identifierToken);
-    case ParseTreeType.CALL_EXPRESSION:
+    case CALL_EXPRESSION:
       return createCallExpression(
           prependMemberExpression(name, rest.operand),
           rest.args);
-    case ParseTreeType.CASCADE_EXPRESSION:
+    case CASCADE_EXPRESSION:
       return createCascadeExpression(
           prependMemberExpression(name, rest.operand),
           rest.expressions);
@@ -123,11 +129,11 @@ CascadeExpressionTransformer.prototype = createObject(proto, {
 
   desugarExpression_: function(ident, tree) {
     switch (tree.type) {
-      case ParseTreeType.BINARY_OPERATOR:
+      case BINARY_OPERATOR:
         return this.desugarBinaryExpression_(ident, tree);
-      case ParseTreeType.CALL_EXPRESSION:
+      case CALL_EXPRESSION:
         return this.desugarCallExpression_(ident, tree);
-      case ParseTreeType.CASCADE_EXPRESSION:
+      case CASCADE_EXPRESSION:
         return this.desugarCascadeExpression_(ident, tree);
       default:
         this.reporter_.reportError(tree.location.start,

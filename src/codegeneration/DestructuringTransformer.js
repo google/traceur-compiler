@@ -12,13 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeType from '../syntax/trees/ParseTree.js';
 import {
   ARRAY,
   CALL,
   PROTOTYPE,
   SLICE
 } from '../syntax/PredefinedName.js';
+import {
+  ARRAY_PATTERN,
+  BINDING_ELEMENT,
+  BINDING_ELEMENT,
+  BLOCK,
+  IDENTIFIER_EXPRESSION,
+  IDENTIFIER_EXPRESSION,
+  OBJECT_PATTERN,
+  OBJECT_PATTERN_FIELD,
+  PAREN_EXPRESSION,
+  VARIABLE_DECLARATION_LIST
+} from '../syntax/trees/ParseTreeType.js';
+import {
+  BindingElement,
+  BindingIdentifier,
+  Catch,
+  ForInStatement,
+  ForOfStatement,
+  FunctionDeclaration,
+  LiteralExpression,
+  SetAccessor,
+  VariableDeclaration,
+  VariableDeclarationList
+} from '../syntax/trees/ParseTrees.js';
 import TempVarTransformer from 'TempVarTransformer.js';
 import TokenType from '../syntax/TokenType.js';
 import {
@@ -43,19 +66,6 @@ import {
   createVariableStatement
 } from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
-import trees from '../syntax/trees/ParseTrees.js';
-
-var BindingElement = trees.BindingElement;
-var BindingIdentifier = trees.BindingIdentifier;
-var Catch = trees.Catch;
-var ForInStatement = trees.ForInStatement;
-var ForOfStatement = trees.ForOfStatement;
-var FunctionDeclaration = trees.FunctionDeclaration;
-var LiteralExpression = trees.LiteralExpression;
-var SetAccessor = trees.SetAccessor;
-var VariableDeclaration = trees.VariableDeclaration;
-var VariableDeclarationList = trees.VariableDeclarationList;
-
 
 var stack = [];
 
@@ -101,13 +111,13 @@ function VariableDeclarationDesugaring(rvalue) {
 VariableDeclarationDesugaring.prototype = createObject(
     Desugaring.prototype, {
   assign: function(lvalue, rvalue) {
-    if (lvalue.type === ParseTreeType.BINDING_ELEMENT) {
+    if (lvalue.type === BINDING_ELEMENT) {
       this.declarations.push(createVariableDeclaration(lvalue.binding,
           rvalue));
       return;
     }
 
-    if (lvalue.type == ParseTreeType.IDENTIFIER_EXPRESSION)
+    if (lvalue.type == IDENTIFIER_EXPRESSION)
       lvalue = createBindingIdentifier(lvalue);
 
     this.declarations.push(createVariableDeclaration(lvalue, rvalue));
@@ -296,7 +306,7 @@ DestructuringTransformer.prototype = createObject(proto, {
    */
   transformForInOrOf_: function(tree, superMethod, constr) {
     if (!tree.initializer.isPattern() &&
-        (tree.initializer.type !== ParseTreeType.VARIABLE_DECLARATION_LIST ||
+        (tree.initializer.type !== VARIABLE_DECLARATION_LIST ||
          !this.destructuringInDeclaration_(tree.initializer))) {
       return superMethod.call(this, tree);
     }
@@ -333,7 +343,7 @@ DestructuringTransformer.prototype = createObject(proto, {
 
     var collection = this.transformAny(tree.collection);
     var body = this.transformAny(tree.body);
-    if (body.type !== ParseTreeType.BLOCK)
+    if (body.type !== BLOCK)
       body = createBlock(body);
 
     statements.push.apply(statements, body.statements);
@@ -488,7 +498,7 @@ DestructuringTransformer.prototype = createObject(proto, {
    */
   desugarPattern_: function(desugaring, tree) {
     switch (tree.type) {
-      case ParseTreeType.ARRAY_PATTERN: {
+      case ARRAY_PATTERN: {
         var pattern = tree;
 
         for (var i = 0; i < pattern.elements.length; i++) {
@@ -517,13 +527,13 @@ DestructuringTransformer.prototype = createObject(proto, {
         break;
       }
 
-      case ParseTreeType.OBJECT_PATTERN: {
+      case OBJECT_PATTERN: {
         var pattern = tree;
 
         pattern.fields.forEach((field) => {
           var lookup;
           switch (field.type) {
-            case ParseTreeType.BINDING_ELEMENT:
+            case BINDING_ELEMENT:
               lookup = createConditionalMemberExpression(desugaring.rvalue,
                   field.binding.identifierToken, field.initializer);
               desugaring.assign(
@@ -531,13 +541,13 @@ DestructuringTransformer.prototype = createObject(proto, {
                   lookup);
               break;
 
-            case ParseTreeType.OBJECT_PATTERN_FIELD:
+            case OBJECT_PATTERN_FIELD:
               lookup = createConditionalMemberExpression(desugaring.rvalue,
                   field.identifier, field.element.initializer);
               desugaring.assign(field.element, lookup);
               break;
 
-            case ParseTreeType.IDENTIFIER_EXPRESSION:
+            case IDENTIFIER_EXPRESSION:
               lookup = createMemberExpression(
                   desugaring.rvalue, field.identifierToken);
 
@@ -551,7 +561,7 @@ DestructuringTransformer.prototype = createObject(proto, {
         break;
       }
 
-      case ParseTreeType.PAREN_EXPRESSION:
+      case PAREN_EXPRESSION:
         this.desugarPattern_(desugaring, tree.expression);
         break;
 

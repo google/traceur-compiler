@@ -12,8 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {
+  MEMBER_EXPRESSION,
+  MEMBER_LOOKUP_EXPRESSION,
+  SUPER_EXPRESSION
+} from '../syntax/trees/ParseTreeType.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
-import ParseTreeType from '../syntax/trees/ParseTree.js';
 import {
   RUNTIME,
   SUPER_CALL,
@@ -70,7 +74,7 @@ export class SuperTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformCallExpression(tree) {
-    if (this.method_ && tree.operand.type == ParseTreeType.SUPER_EXPRESSION) {
+    if (this.method_ && tree.operand.type == SUPER_EXPRESSION) {
       // We have: super(args)
       this.superFound_ = true;
       var methodName = this.method_.name.value;
@@ -88,14 +92,14 @@ export class SuperTransformer extends ParseTreeTransformer {
             createArrayLiteralExpression(tree.args.args)));
     }
 
-    if ((tree.operand.type == ParseTreeType.MEMBER_EXPRESSION ||
-         tree.operand.type == ParseTreeType.MEMBER_LOOKUP_EXPRESSION) &&
-        tree.operand.operand.type == ParseTreeType.SUPER_EXPRESSION) {
+    if ((tree.operand.type == MEMBER_EXPRESSION ||
+         tree.operand.type == MEMBER_LOOKUP_EXPRESSION) &&
+        tree.operand.operand.type == SUPER_EXPRESSION) {
       // super.member(args) or member[exrp](args)
       this.superFound_ = true;
 
       var nameExpression;
-      if (tree.operand.type == ParseTreeType.MEMBER_EXPRESSION) {
+      if (tree.operand.type == MEMBER_EXPRESSION) {
         nameExpression = createStringLiteral(
             tree.operand.memberName.value);
       } else {
@@ -131,7 +135,7 @@ export class SuperTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformMemberExpression(tree) {
-    if (tree.operand.type === ParseTreeType.SUPER_EXPRESSION) {
+    if (tree.operand.type === SUPER_EXPRESSION) {
       return this.transformMemberShared_(tree,
           createStringLiteral(tree.memberName.value));
     }
@@ -139,19 +143,19 @@ export class SuperTransformer extends ParseTreeTransformer {
   }
 
   transformMemberLookupExpression(tree) {
-    if (tree.operand.type === ParseTreeType.SUPER_EXPRESSION)
+    if (tree.operand.type === SUPER_EXPRESSION)
       return this.transformMemberShared_(tree, tree.memberExpression);
     return super.transformMemberLookupExpression(tree);
   }
 
   transformBinaryOperator(tree) {
     if (tree.operator.isAssignmentOperator() &&
-        (tree.left.type === ParseTreeType.MEMBER_EXPRESSION ||
-         tree.left.type === ParseTreeType.MEMBER_LOOKUP_EXPRESSION) &&
-        tree.left.operand.type === ParseTreeType.SUPER_EXPRESSION) {
+        (tree.left.type === MEMBER_EXPRESSION ||
+         tree.left.type === MEMBER_LOOKUP_EXPRESSION) &&
+        tree.left.operand.type === SUPER_EXPRESSION) {
 
       if (tree.operator.type !== TokenType.EQUAL) {
-        if (tree.left.type === ParseTreeType.MEMBER_LOOKUP_EXPRESSION) {
+        if (tree.left.type === MEMBER_LOOKUP_EXPRESSION) {
           tree = expandMemberLookupExpression(tree,
                                                  this.tempVarTransformer_);
         } else {
@@ -161,7 +165,7 @@ export class SuperTransformer extends ParseTreeTransformer {
       }
 
       this.superFound_ = true;
-      var name = tree.left.type === ParseTreeType.MEMBER_LOOKUP_EXPRESSION ?
+      var name = tree.left.type === MEMBER_LOOKUP_EXPRESSION ?
           tree.left.memberExpression :
           createStringLiteral(tree.left.memberName.value);
 

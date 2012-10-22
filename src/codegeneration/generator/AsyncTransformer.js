@@ -15,7 +15,6 @@
 import CPSTransformer from 'CPSTransformer.js';
 import EndState from 'EndState.js';
 import FallThroughState from 'FallThroughState.js';
-import ParseTreeType from '../../syntax/trees/ParseTree.js';
 import {
   $VALUE,
   CALLBACK,
@@ -33,6 +32,7 @@ import {
   THEN,
   WAIT_TASK
 } from '../../syntax/PredefinedName.js';
+import STATE_MACHINE from '../../syntax/trees/ParseTreeType.js';
 import StateMachine from '../../syntax/trees/StateMachine.js';
 import TokenType from '../../syntax/TokenType.js';
 import {
@@ -165,7 +165,7 @@ AsyncTransformer.prototype = createObject(proto, {
    */
   transformFinally: function(tree) {
     var result = proto.transformFinally.call(this, tree);
-    if (result.block.type != ParseTreeType.STATE_MACHINE) {
+    if (result.block.type != STATE_MACHINE) {
       return result;
     }
     // TODO: is this a reasonable restriction?

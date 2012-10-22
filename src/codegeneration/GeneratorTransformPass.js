@@ -15,6 +15,11 @@
 import AsyncTransformer from 'generator/AsyncTransformer.js';
 import ForInTransformPass from 'generator/ForInTransformPass.js';
 import ForOfTransformer from 'ForOfTransformer.js';
+import {
+  FunctionDeclaration,
+  GetAccessor,
+  SetAccessor
+} from '../syntax/trees/ParseTrees.js';
 import GeneratorTransformer from 'generator/GeneratorTransformer.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import ParseTreeVisitor from '../syntax/ParseTreeVisitor.js';
@@ -27,11 +32,6 @@ import {
 } from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
 import transformOptions from '../options.js';
-import trees from '../syntax/trees/ParseTrees.js';
-
-var FunctionDeclaration = trees.FunctionDeclaration;
-var GetAccessor = trees.GetAccessor;
-var SetAccessor = trees.SetAccessor;
 
 /**
  * Can tell you if function body contains a yield statement. Does not search into

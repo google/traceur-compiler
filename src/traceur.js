@@ -157,8 +157,9 @@ module traceur {
     import SourceFile from 'syntax/SourceFile.js';
     export SourceFile;
 
-    import trees from 'syntax/trees/ParseTrees.js';
-    export trees;
+    // TODO(arv): When we have support for export * we can remove the hacks
+    // related to how we exprort things inside ParseTrees.js.
+    export module trees from 'syntax/trees/ParseTrees.js';
 
     import Parser from 'syntax/Parser.js';
     export Parser;

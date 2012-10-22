@@ -15,6 +15,7 @@
 import MutedErrorReporter from '../util/MutedErrorReporter.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import Parser from '../syntax/Parser.js';
+import Program from '../syntax/trees/ParseTrees.js';
 import SourceFile from '../syntax/SourceFile.js';
 import TokenType from '../syntax/TokenType.js';
 import {
@@ -24,10 +25,6 @@ import {
   createVariableStatement
 } from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
-import trees from '../syntax/trees/ParseTrees.js';
-
-var Program = trees.Program;
-
 
 // Some helper functions that other runtime functions may depend on.
 var shared = {

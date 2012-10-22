@@ -12,50 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  ParseTree,
-  ParseTreeType
-} from 'ParseTree.js';
+import ParseTree from 'ParseTree.js';
+import STATE_MACHINE from 'ParseTreeType.js';
 import TryState from '../../codegeneration/generator/TryState.js';
 import createObject from '../../util/util.js';
-
-ParseTreeType.STATE_MACHINE = 'STATE_MACHINE';
-
-/**
- * A state machine tree is the result of transforming a set of statements that contain a yield,
- * either directly or indirectly. StateMachine's break many of the design invariants in
- * the compiler around parse trees. They are only valid only as temporary entities during the
- * generator transform pass. They are not convertible (directly) to javascript code.
- *
- * State machine trees include a set of states identified by an integer id. A State represents
- * some executable statements, plus some set of possible transitions to other states.
- *
- * The exceptionBlocks member stores a tree representing the dispatch portion of all
- * try/catch/finally blocks from the original source code. The bodies of the try, catch and finally
- * blocks are transformed to States and added to the main states list.
- *
- * States and StateMachineTrees are created by a bottom up traversal of the original source.
- * When a control transfer statement (if, switch, while, for, try) contains a state machine, the
- * nested statements are converted to StateMachines, then a new machine is created which knits
- * together the states from the nested machines.
- *
- * States and StateMachineTrees are immutable.
- *
- * @param {number} startState
- * @param {number} fallThroughState
- * @param {Array.<State>} states
- * @param {Array.<TryState>} exceptionBlocks
- * @constructor
- * @extends {ParseTree}
- */
-export function StateMachine(startState, fallThroughState, states, exceptionBlocks) {
-  ParseTree.call(this, ParseTreeType.STATE_MACHINE, null);
-
-  this.startState = startState;
-  this.fallThroughState = fallThroughState;
-  this.states = states;
-  this.exceptionBlocks = exceptionBlocks;
-}
 
 /**
  * @param {TryState.Kind} kind
@@ -89,52 +49,94 @@ function addAllCatchStates(tryStates, catches) {
   }
 }
 
-StateMachine.prototype = createObject(ParseTree.prototype, {
+/**
+ * A state machine tree is the result of transforming a set of statements that
+ * contain a yield, either directly or indirectly. StateMachine's break many of
+ * the design invariants in the compiler around parse trees. They are only valid
+ * only as temporary entities during the generator transform pass. They are not
+ * convertible (directly) to javascript code.
+ *
+ * State machine trees include a set of states identified by an integer id. A
+ * State represents some executable statements, plus some set of possible
+ * transitions to other states.
+ *
+ * The exceptionBlocks member stores a tree representing the dispatch portion of
+ * all try/catch/finally blocks from the original source code. The bodies of the
+ * try, catch and finally blocks are transformed to States and added to the main
+ * states list.
+ *
+ * States and StateMachineTrees are created by a bottom up traversal of the
+ * original source. When a control transfer statement (if, switch, while, for,
+ * try) contains a state machine, the nested statements are converted to
+ * StateMachines, then a new machine is created which knits together the states
+ * from the nested machines.
+ *
+ * States and StateMachineTrees are immutable.
+ */
+export class StateMachine extends ParseTree {
+  /**
+   * @param {number} startState
+   * @param {number} fallThroughState
+   * @param {Array.<State>} states
+   * @param {Array.<TryState>} exceptionBlocks
+   */
+  constructor(startState, fallThroughState, states, exceptionBlocks) {
+    super(STATE_MACHINE, null);
+
+    this.startState = startState;
+    this.fallThroughState = fallThroughState;
+    this.states = states;
+    this.exceptionBlocks = exceptionBlocks;
+  }
 
   /**
    * Does this machine include any try statements.
    * @return {boolean}
    */
-  hasExceptionBlocks: function() {
+  hasExceptionBlocks() {
     return this.exceptionBlocks.length > 0;
-  },
+  }
 
   /**
-   * Returns all the state ids of states in the machine. Note that the fallThroughState is
-   * typically not a state in the machine.
+   * Returns all the state ids of states in the machine. Note that the
+   * fallThroughState is typically not a state in the machine.
    * @return {Array.<number>}
    */
-  getAllStateIDs: function() {
+  getAllStateIDs() {
     var result = [];
     for (var i = 0; i < this.states.length; i++) {
       result.push(this.states[i].id);
     }
     return result;
-  },
+  }
 
   /**
-   * Return a map from the states in the machine to their nearest enclosing finally.
+   * Return a map from the states in the machine to their nearest enclosing
+   * finally.
    * @return {Object} map of state IDs to FinallyState.
    */
-  getEnclosingFinallyMap: function() {
+  getEnclosingFinallyMap() {
     var enclosingMap = Object.create(null);
-    addCatchOrFinallyStates(TryState.Kind.FINALLY, enclosingMap, this.exceptionBlocks);
+    addCatchOrFinallyStates(TryState.Kind.FINALLY, enclosingMap,
+                            this.exceptionBlocks);
     return enclosingMap;
-  },
+  }
 
   /**
-   * Return a map from the states in the machine to their nearest enclosing catch.
+   * Return a map from the states in the machine to their nearest enclosing
+   * catch.
    * @return {Object} map of state IDs to CatchState.
    */
-  getEnclosingCatchMap: function() {
+  getEnclosingCatchMap() {
     var enclosingMap = Object.create(null);
-    addCatchOrFinallyStates(TryState.Kind.CATCH, enclosingMap, this.exceptionBlocks);
+    addCatchOrFinallyStates(TryState.Kind.CATCH, enclosingMap,
+                            this.exceptionBlocks);
     return enclosingMap;
-  },
+  }
 
-  allCatchStates: function() {
+  allCatchStates() {
     var catches = [];
     addAllCatchStates(this.exceptionBlocks, catches);
     return catches;
   }
-});
+}

@@ -12,17 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import IdentifierToken from '../syntax/IdentifierToken.js';
-import ParseTreeType from '../syntax/trees/ParseTree.js';
-import ParseTreeVisitor from '../syntax/ParseTreeVisitor.js';
 import ARGUMENTS from '../syntax/PredefinedName.js';
+import {
+  BindingIdentifier,
+  IdentifierExpression
+} from '../syntax/trees/ParseTrees.js';
+import IdentifierToken from '../syntax/IdentifierToken.js';
+import {
+  PAREN_EXPRESSION,
+  BINDING_IDENTIFIER,
+  FUNCTION_DECLARATION
+} from '../syntax/trees/ParseTreeType.js';
+import ParseTreeVisitor from '../syntax/ParseTreeVisitor.js';
 import SourcePosition from '../util/SourcePosition.js';
 import TokenType from '../syntax/TokenType.js';
 import createObject from '../util/util.js';
-import trees from '../syntax/trees/ParseTrees.js';
-
-var BindingIdentifier = trees.BindingIdentifier;
-var IdentifierExpression = trees.IdentifierExpression;
 
 /**
  * Represents the link in the scope chain.
@@ -56,10 +60,10 @@ function getVariableName(name) {
 }
 
 function getIdentifier(tree) {
-  while (tree.type == ParseTreeType.PAREN_EXPRESSION) {
+  while (tree.type == PAREN_EXPRESSION) {
     tree = tree.expression;
   }
-  if (tree.type == ParseTreeType.BINDING_IDENTIFIER) {
+  if (tree.type == BINDING_IDENTIFIER) {
     return tree;
   }
   return null;
@@ -139,7 +143,7 @@ export class FreeVariableChecker extends ParseTreeVisitor {
 
   visitStatements_(statements) {
     statements.forEach((s) => {
-      if (s.type == ParseTreeType.FUNCTION_DECLARATION) {
+      if (s.type == FUNCTION_DECLARATION) {
         // Declare the function's name in the outer scope.
         // We need to do this here, and not inside visitFunctionDeclaration,
         // because function expressions shouldn't have their names added. Only

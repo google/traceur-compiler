@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
+import Program from '../syntax/trees/ParseTrees.js';
 import TokenType from '../syntax/TokenType.js';
 import {
   createBlock,
@@ -21,10 +22,6 @@ import {
   createVariableStatement
 } from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
-import trees from '../syntax/trees/ParseTrees.js';
-
-var Program = trees.Program;
-
 
 /**
  * Transforms a an array of statements and adds a new temp var stack.

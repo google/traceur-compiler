@@ -12,20 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeType from '../syntax/trees/ParseTree.js';
+import {
+  Block,
+  Catch,
+  ForInStatement,
+  ForStatement,
+  FunctionDeclaration,
+  ObjectPatternField,
+  VariableDeclarationList,
+  VariableDeclaration
+} from '../syntax/trees/ParseTrees.js';
+import {
+  ARRAY_PATTERN,
+  BINDING_IDENTIFIER,
+  FUNCTION_DECLARATION,
+  OBJECT_PATTERN,
+  OBJECT_PATTERN_FIELD,
+  PAREN_EXPRESSION,
+  SPREAD_PATTERN_ELEMENT
+} from '../syntax/trees/ParseTreeType.js';
 import ParseTreeVisitor from '../syntax/ParseTreeVisitor.js';
 import TokenType from '../syntax/TokenType.js';
 import createObject from '../util/util.js';
-import trees from '../syntax/trees/ParseTrees.js';
-
-var Block = trees.Block;
-var Catch = trees.Catch;
-var ForInStatement = trees.ForInStatement;
-var ForStatement = trees.ForStatement;
-var FunctionDeclaration = trees.FunctionDeclaration;
-var ObjectPatternField = trees.ObjectPatternField;
-var VariableDeclarationList = trees.VariableDeclarationList;
-var VariableDeclaration = trees.VariableDeclaration;
 
 // TODO: Update once destructuring has been refactored.
 
@@ -161,7 +169,7 @@ export class VariableBinder extends ParseTreeVisitor {
 
     // visit the statements
     tree.statements.forEach((s) => {
-      if (s.type == ParseTreeType.FUNCTION_DECLARATION) {
+      if (s.type == FUNCTION_DECLARATION) {
         this.bindFunctionDeclaration_(s);
       } else {
         this.visitAny(s);
@@ -235,29 +243,29 @@ export class VariableBinder extends ParseTreeVisitor {
     // TODO(arv): This should just visit all the BindingIdentifiers once
     // destructuring has been refactored.
     switch (tree.type) {
-      case ParseTreeType.BINDING_IDENTIFIER:
+      case BINDING_IDENTIFIER:
         this.bind_(tree.identifierToken);
         break;
 
-      case ParseTreeType.ARRAY_PATTERN:
+      case ARRAY_PATTERN:
         var elements = tree.elements;
         for (var i = 0; i < elements.length; i++) {
           this.bindVariableDeclaration_(elements[i]);
         }
         break;
 
-      case ParseTreeType.SPREAD_PATTERN_ELEMENT:
+      case SPREAD_PATTERN_ELEMENT:
         this.bindVariableDeclaration_(tree.lvalue);
         break;
 
-      case ParseTreeType.OBJECT_PATTERN:
+      case OBJECT_PATTERN:
         var fields = tree.fields;
         for (var i = 0; i < fields.length; i++) {
           this.bindVariableDeclaration_(fields[i]);
         }
         break;
 
-      case ParseTreeType.OBJECT_PATTERN_FIELD:
+      case OBJECT_PATTERN_FIELD:
         var field = tree;
         if (field.element == null) {
           this.bind_(field.identifier);
@@ -266,7 +274,7 @@ export class VariableBinder extends ParseTreeVisitor {
         }
         break;
 
-      case ParseTreeType.PAREN_EXPRESSION:
+      case PAREN_EXPRESSION:
         this.bindVariableDeclaration_(tree.expression);
         break;
 

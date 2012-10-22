@@ -13,11 +13,9 @@
 // limitations under the License.
 
 import ExportSymbol from '../../semantics/symbols/ExportSymbol.js';
+import IDENTIFIER_EXPRESSION from '../../syntax/trees/ParseTreeType.js';
 import ModuleVisitor from 'ModuleVisitor.js';
-import ParseTreeType from '../../syntax/trees/ParseTree.js';
 import createObject from '../../util/util.js';
-
-var IDENTIFIER_EXPRESSION = ParseTreeType.IDENTIFIER_EXPRESSION;
 
 /**
  * Visits a parse tree and adds all the module definitions.

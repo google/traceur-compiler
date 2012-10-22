@@ -13,6 +13,12 @@
 // limitations under the License.
 
 import FindVisitor from 'FindVisitor.js';
+import {
+  FormalParameterList,
+  FunctionDeclaration,
+  IdentifierExpression,
+  LiteralExpression
+} from '../syntax/trees/ParseTrees.js';
 import Keywords from '../syntax/Keywords.js';
 import TempVarTransformer from 'TempVarTransformer.js';
 import TokenType from '../syntax/TokenType.js';
@@ -37,12 +43,6 @@ import {
 import createObject from '../util/util.js';
 import evaluateStringLiteral from '../semantics/util.js';
 import transformOptions from '../options.js';
-import trees from '../syntax/trees/ParseTrees.js';
-
-var FormalParameterList = trees.FormalParameterList;
-var FunctionDeclaration = trees.FunctionDeclaration;
-var IdentifierExpression = trees.IdentifierExpression;
-var LiteralExpression = trees.LiteralExpression;
 
 function findAtNameInProperty(propertyName) {
   return function(tree) {

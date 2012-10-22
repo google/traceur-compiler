@@ -13,841 +13,1135 @@
 // limitations under the License.
 
 import NullTree from 'NullTree.js';
-import {
-  ParseTree,
-  ParseTreeType
-} from 'ParseTree.js';
+import ParseTree from 'ParseTree.js';
+module ParseTreeType from 'ParseTreeType.js';
+import * from ParseTreeType;
 
-/**
- * This creates the ParseTree class for the given type and arguments.
- * @param {ParseTreeType} type The type of token this tree represents.
- * @param {...string} var_args Name of the arguments and fields to create on
- *     the class.
- * @return {Function}
- */
-function create(var_args) {
-  var args = arguments;
-  var Tree = function(location) {
-    ParseTree.call(this, this.type, location);
-    for (var i = 0; i < args.length; i++) {
-      this[args[i]] = arguments[i + 1];
-    }
-  };
-  Tree.prototype = Object.create(ParseTree.prototype);
-  return Tree;
-}
+// TODO(arv): These should not be exported here.
+export NullTree;
+export ParseTree;
+export ParseTreeType;
 
-// All trees but NullTree
-
-export var trees = {
-
+export class ArgumentList extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {Array.<ParseTree>} args
-   * @constructor
-   * @extends {ParseTree}
    */
-  ArgumentList: create('args'),
+  constructor(location, args) {
+    super(ARGUMENT_LIST, location);
+    this.args = args;
+  }
+}
 
+export class ArrayComprehension extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} expression
    * @param {Array.<ParseTree>} comprehensionForList
    * @param {ParseTree} ifExpression
-   * @constructor
-   * @extends {ParseTree}
    */
-  ArrayComprehension: create('expression', 'comprehensionForList',
-                             'ifExpression'),
+  constructor(location, expression, comprehensionForList, ifExpression) {
+    super(ARRAY_COMPREHENSION, location);
+    this.expression = expression;
+    this.comprehensionForList = comprehensionForList;
+    this.ifExpression = ifExpression;
+  }
+}
 
+export class ArrayLiteralExpression extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {Array.<ParseTree>} elements
-   * @constructor
-   * @extends {ParseTree}
    */
-  ArrayLiteralExpression: create('elements'),
+  constructor(location, elements) {
+    super(ARRAY_LITERAL_EXPRESSION, location);
+    this.elements = elements;
+  }
+}
 
+export class ArrayPattern extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {Array.<ParseTree>} elements
-   * @constructor
-   * @extends {ParseTree}
    */
-  ArrayPattern: create('elements'),
+  constructor(location, elements) {
+    super(ARRAY_PATTERN, location);
+    this.elements = elements;
+  }
+}
 
+export class ArrowFunctionExpression extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {FormalParameterList} formalParameters
    * @param {TokenType} arrow
    * @param {ParseTree} functionBody
-   * @constructor
-   * @extends {ParseTree}
    */
-  ArrowFunctionExpression: create('formalParameters', 'functionBody'),
+  constructor(location, formalParameters, functionBody) {
+    super(ARROW_FUNCTION_EXPRESSION, location);
+    this.formalParameters = formalParameters;
+    this.functionBody = functionBody;
+  }
+}
 
+export class AtNameExpression extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {AtNameToken} atNameToken
-   * @constructor
-   * @extends {ParseTree}
    */
-  AtNameExpression: create('atNameToken'),
+  constructor(location, atNameToken) {
+    super(AT_NAME_EXPRESSION, location);
+    this.atNameToken = atNameToken;
+  }
+}
 
+export class AtNameDeclaration extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {AtNameToken} atNameToken
    * @param {ParseTree} initializer
-   * @constructor
-   * @extends {ParseTree}
    */
-  AtNameDeclaration: create('atNameToken', 'initializer'),
+  constructor(location, atNameToken, initializer) {
+    super(AT_NAME_DECLARATION, location);
+    this.atNameToken = atNameToken;
+    this.initializer = initializer;
+  }
+}
 
+export class AwaitStatement extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {IdentifierToken} identifier
    * @param {ParseTree} expression
-   * @constructor
-   * @extends {ParseTree}
    */
-  AwaitStatement: create('identifier', 'expression'),
+  constructor(location, identifier, expression) {
+    super(AWAIT_STATEMENT, location);
+    this.identifier = identifier;
+    this.expression = expression;
+  }
+}
 
+export class BinaryOperator extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} left
    * @param {Token} operator
    * @param {ParseTree} right
-   * @constructor
-   * @extends {ParseTree}
    */
-  BinaryOperator: create('left', 'operator', 'right'),
+  constructor(location, left, operator, right) {
+    super(BINARY_OPERATOR, location);
+    this.left = left;
+    this.operator = operator;
+    this.right = right;
+  }
+}
 
+export class BindThisParameter extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} expression
-   * @constructor
-   * @extends {ParseTree}
    */
-  BindThisParameter: create('expression'),
+  constructor(location, expression) {
+    super(BIND_THIS_PARAMETER, location);
+    this.expression = expression;
+  }
+}
 
+export class BindingIdentifier extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {IdentifierToken} identifierToken
-   * @constructor
-   * @extends {ParseTree}
    */
-  BindingIdentifier: create('identifierToken'),
+  constructor(location, identifierToken) {
+    super(BINDING_IDENTIFIER, location);
+    this.identifierToken = identifierToken;
+  }
+}
 
+/**
+ * BindingElement is used for formal parameters and destructuring variable
+ * declarations. The binding is either a pattern consisting of other binding
+ * elements or binding identifiers or a binding identifier.
+ *
+ * The initializer may be null in the case when there is no default value.
+ */
+export class BindingElement extends ParseTree {
   /**
-   * BindingElement is used for formal parameters and destructuring variable
-   * declarations. The binding is either a pattern consisting of other binding
-   * elements or binding identifiers or a binding identifier.
-   *
-   * The initializer may be null in the case when there is no default value.
-   *
    * @param {SourceRange} location
    * @param {BindingIdentifier|ObjectPattern|ArrayPattern} binding
    * @param {ParseTree} initializer
-   * @constructor
-   * @extends {ParseTree}
    */
-  BindingElement: create('binding', 'initializer'),
+  constructor(location, binding, initializer) {
+    super(BINDING_ELEMENT, location);
+    this.binding = binding;
+    this.initializer = initializer;
+  }
+}
 
+export class Block extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {Array.<ParseTree>} statements
-   * @constructor
-   * @extends {ParseTree}
    */
-  Block: create('statements'),
+  constructor(location, statements) {
+    super(BLOCK, location);
+    this.statements = statements;
+  }
+}
 
+export class BreakStatement extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {traceur.syntax.IdentifierToken} name
-   * @constructor
-   * @extends {ParseTree}
    */
-  BreakStatement: create('name'),
+  constructor(location, name) {
+    super(BREAK_STATEMENT, location);
+    this.name = name;
+  }
+}
 
+export class CallExpression extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} operand
    * @param {ArgumentList} args
-   * @constructor
-   * @extends {ParseTree}
    */
-  CallExpression: create('operand', 'args'),
+  constructor(location, operand, args) {
+    super(CALL_EXPRESSION, location);
+    this.operand = operand;
+    this.args = args;
+  }
+}
 
+export class CascadeExpression extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} operand
    * @param {Array.<ParseTree>} expressions
-   * @constructor
-   * @extends {ParseTree}
    */
-  CascadeExpression: create('operand', 'expressions'),
+  constructor(location, operand, expressions) {
+    super(CASCADE_EXPRESSION, location);
+    this.operand = operand;
+    this.expressions = expressions;
+  }
+}
 
+export class CaseClause extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} expression
    * @param {Array.<ParseTree>} statements
-   * @constructor
-   * @extends {ParseTree}
    */
-  CaseClause: create('expression', 'statements'),
+  constructor(location, expression, statements) {
+    super(CASE_CLAUSE, location);
+    this.expression = expression;
+    this.statements = statements;
+  }
+}
 
+export class Catch extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} binding
    * @param {ParseTree} catchBody
-   * @constructor
-   * @extends {ParseTree}
    */
-  Catch: create('binding', 'catchBody'),
+  constructor(location, binding, catchBody) {
+    super(CATCH, location);
+    this.binding = binding;
+    this.catchBody = catchBody;
+  }
+}
 
+export class ClassDeclaration extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {traceur.syntax.IdentifierToken} name
    * @param {ParseTree} superClass
    * @param {Array.<ParseTree>} elements
-   * @constructor
-   * @extends {ParseTree}
    */
-  ClassDeclaration: create('name', 'superClass', 'elements'),
+  constructor(location, name, superClass, elements) {
+    super(CLASS_DECLARATION, location);
+    this.name = name;
+    this.superClass = superClass;
+    this.elements = elements;
+  }
+}
 
+export class ClassExpression extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {traceur.syntax.IdentifierToken} name
    * @param {ParseTree} superClass
    * @param {Array.<ParseTree>} elements
-   * @constructor
-   * @extends {ParseTree}
    */
-  ClassExpression: create('name', 'superClass', 'elements'),
+  constructor(location, name, superClass, elements) {
+    super(CLASS_EXPRESSION, location);
+    this.name = name;
+    this.superClass = superClass;
+    this.elements = elements;
+  }
+}
 
+export class CommaExpression extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {Array.<ParseTree>} expressions
-   * @constructor
-   * @extends {ParseTree}
    */
-  CommaExpression: create('expressions'),
+  constructor(location, expressions) {
+    super(COMMA_EXPRESSION, location);
+    this.expressions = expressions;
+  }
+}
 
+export class ComprehensionFor extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} left
    * @param {ParseTree} iterator
-   * @constructor
-   * @extends {ParseTree}
    */
-  ComprehensionFor: create('left', 'iterator'),
+  constructor(location, left, iterator) {
+    super(COMPREHENSION_FOR, location);
+    this.left = left;
+    this.iterator = iterator;
+  }
+}
 
+export class ConditionalExpression extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} condition
    * @param {ParseTree} left
    * @param {ParseTree} right
-   * @constructor
-   * @extends {ParseTree}
    */
-  ConditionalExpression: create('condition', 'left', 'right'),
+  constructor(location, condition, left, right) {
+    super(CONDITIONAL_EXPRESSION, location);
+    this.condition = condition;
+    this.left = left;
+    this.right = right;
+  }
+}
 
+export class ContinueStatement extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {traceur.syntax.IdentifierToken} name
-   * @constructor
-   * @extends {ParseTree}
    */
-  ContinueStatement: create('name'),
+  constructor(location, name) {
+    super(CONTINUE_STATEMENT, location);
+    this.name = name;
+  }
+}
 
+export class DebuggerStatement extends ParseTree {
   /**
    * @param {SourceRange} location
-   * @constructor
-   * @extends {ParseTree}
    */
-  DebuggerStatement: create(),
+  constructor(location) {
+    super(DEBUGGER_STATEMENT, location);
 
+  }
+}
+
+export class DefaultClause extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {Array.<ParseTree>} statements
-   * @constructor
-   * @extends {ParseTree}
    */
-  DefaultClause: create('statements'),
+  constructor(location, statements) {
+    super(DEFAULT_CLAUSE, location);
+    this.statements = statements;
+  }
+}
 
+export class DoWhileStatement extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} body
    * @param {ParseTree} condition
-   * @constructor
-   * @extends {ParseTree}
    */
-  DoWhileStatement: create('body', 'condition'),
+  constructor(location, body, condition) {
+    super(DO_WHILE_STATEMENT, location);
+    this.body = body;
+    this.condition = condition;
+  }
+}
 
+export class EmptyStatement extends ParseTree {
   /**
    * @param {SourceRange} location
-   * @constructor
-   * @extends {ParseTree}
    */
-  EmptyStatement: create(),
+  constructor(location) {
+    super(EMPTY_STATEMENT, location);
 
+  }
+}
+
+export class ExportDeclaration extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} declaration
-   * @constructor
-   * @extends {ParseTree}
    */
-  ExportDeclaration: create('declaration'),
+  constructor(location, declaration) {
+    super(EXPORT_DECLARATION, location);
+    this.declaration = declaration;
+  }
+}
 
+export class ExportMappingList extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {Array.<ParseTree>} paths
-   * @constructor
-   * @extends {ParseTree}
    */
-  ExportMappingList: create('paths'),
+  constructor(location, paths) {
+    super(EXPORT_MAPPING_LIST, location);
+    this.paths = paths;
+  }
+}
 
+export class ExportMapping extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ModuleExpression} moduleExpression
    * @param {ExportSpecifierSet|IdentifierExpression} specifierSet
-   * @constructor
-   * @extends {ParseTree}
    */
-  ExportMapping: create('moduleExpression', 'specifierSet'),
+  constructor(location, moduleExpression, specifierSet) {
+    super(EXPORT_MAPPING, location);
+    this.moduleExpression = moduleExpression;
+    this.specifierSet = specifierSet;
+  }
+}
 
+export class ExportSpecifier extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {Token} lhs
    * @param {Token} rhs
-   * @constructor
-   * @extends {ParseTree}
    */
-  ExportSpecifier: create('lhs', 'rhs'),
+  constructor(location, lhs, rhs) {
+    super(EXPORT_SPECIFIER, location);
+    this.lhs = lhs;
+    this.rhs = rhs;
+  }
+}
 
+export class ExportSpecifierSet extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {Array.<ParseTree>} specifiers
-   * @constructor
-   * @extends {ParseTree}
    */
-  ExportSpecifierSet: create('specifiers'),
+  constructor(location, specifiers) {
+    super(EXPORT_SPECIFIER_SET, location);
+    this.specifiers = specifiers;
+  }
+}
 
+export class ExpressionStatement extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} expression
-   * @constructor
-   * @extends {ParseTree}
    */
-  ExpressionStatement: create('expression'),
+  constructor(location, expression) {
+    super(EXPRESSION_STATEMENT, location);
+    this.expression = expression;
+  }
+}
 
+export class Finally extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} block
-   * @constructor
-   * @extends {ParseTree}
    */
-  Finally: create('block'),
+  constructor(location, block) {
+    super(FINALLY, location);
+    this.block = block;
+  }
+}
 
+export class ForOfStatement extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {VariableDeclarationList} initializer
    * @param {ParseTree} collection
    * @param {ParseTree} body
-   * @constructor
-   * @extends {ParseTree}
    */
-  ForOfStatement: create('initializer', 'collection', 'body'),
+  constructor(location, initializer, collection, body) {
+    super(FOR_OF_STATEMENT, location);
+    this.initializer = initializer;
+    this.collection = collection;
+    this.body = body;
+  }
+}
 
+export class ForInStatement extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} initializer
    * @param {ParseTree} collection
    * @param {ParseTree} body
-   * @constructor
-   * @extends {ParseTree}
    */
-  ForInStatement: create('initializer', 'collection', 'body'),
+  constructor(location, initializer, collection, body) {
+    super(FOR_IN_STATEMENT, location);
+    this.initializer = initializer;
+    this.collection = collection;
+    this.body = body;
+  }
+}
 
+export class FormalParameterList extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {Array.<ParseTree>} parameters
-   * @constructor
-   * @extends {ParseTree}
    */
-  FormalParameterList: create('parameters'),
+  constructor(location, parameters) {
+    super(FORMAL_PARAMETER_LIST, location);
+    this.parameters = parameters;
+  }
+}
 
+export class ForStatement extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} initializer
    * @param {ParseTree} condition
    * @param {ParseTree} increment
    * @param {ParseTree} body
-   * @constructor
-   * @extends {ParseTree}
    */
-  ForStatement: create('initializer', 'condition', 'increment', 'body'),
+  constructor(location, initializer, condition, increment, body) {
+    super(FOR_STATEMENT, location);
+    this.initializer = initializer;
+    this.condition = condition;
+    this.increment = increment;
+    this.body = body;
+  }
+}
 
+export class FunctionDeclaration extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {BindingIdentifier} name
    * @param {boolean} isGenerator
    * @param {FormalParameterList} formalParameterList
    * @param {Block} functionBody
-   * @constructor
-   * @extends {ParseTree}
    */
-  FunctionDeclaration: create('name', 'isGenerator',
-                              'formalParameterList',
-                              'functionBody'),
+  constructor(location, name, isGenerator, formalParameterList, functionBody) {
+    super(FUNCTION_DECLARATION, location);
+    this.name = name;
+    this.isGenerator = isGenerator;
+    this.formalParameterList = formalParameterList;
+    this.functionBody = functionBody;
+  }
+}
 
+export class GeneratorComprehension extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} expression
    * @param {Array.<ParseTree>} comprehensionForList
    * @param {ParseTree} ifExpression
-   * @constructor
-   * @extends {ParseTree}
    */
-  GeneratorComprehension: create('expression', 'comprehensionForList',
-                                 'ifExpression'),
+  constructor(location, expression, comprehensionForList, ifExpression) {
+    super(GENERATOR_COMPREHENSION, location);
+    this.expression = expression;
+    this.comprehensionForList = comprehensionForList;
+    this.ifExpression = ifExpression;
+  }
+}
 
+export class GetAccessor extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {Token} propertyName
    * @param {Block} body
-   * @constructor
-   * @extends {ParseTree}
    */
-  GetAccessor: create('propertyName', 'body'),
+  constructor(location, propertyName, body) {
+    super(GET_ACCESSOR, location);
+    this.propertyName = propertyName;
+    this.body = body;
+  }
+}
 
+export class IdentifierExpression extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {traceur.syntax.IdentifierToken} identifierToken
-   * @constructor
-   * @extends {ParseTree}
    */
-  IdentifierExpression: create('identifierToken'),
+  constructor(location, identifierToken) {
+    super(IDENTIFIER_EXPRESSION, location);
+    this.identifierToken = identifierToken;
+  }
+}
 
+export class IfStatement extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} condition
    * @param {ParseTree} ifClause
    * @param {ParseTree} elseClause
-   * @constructor
-   * @extends {ParseTree}
    */
-  IfStatement: create('condition', 'ifClause', 'elseClause'),
+  constructor(location, condition, ifClause, elseClause) {
+    super(IF_STATEMENT, location);
+    this.condition = condition;
+    this.ifClause = ifClause;
+    this.elseClause = elseClause;
+  }
+}
 
+export class ImportDeclaration extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {Array.<ParseTree>} importPathList
-   * @constructor
-   * @extends {ParseTree}
    */
-  ImportDeclaration: create('importPathList'),
+  constructor(location, importPathList) {
+    super(IMPORT_DECLARATION, location);
+    this.importPathList = importPathList;
+  }
+}
 
+export class ImportBinding extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ModuleExpression} moduleExpression
    * @param {ImportSpecifierSet} importSpecifierSet
-   * @constructor
-   * @extends {ParseTree}
    */
-  ImportBinding: create('moduleExpression', 'importSpecifierSet'),
+  constructor(location, moduleExpression, importSpecifierSet) {
+    super(IMPORT_BINDING, location);
+    this.moduleExpression = moduleExpression;
+    this.importSpecifierSet = importSpecifierSet;
+  }
+}
 
+export class ImportSpecifier extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {traceur.syntax.IdentifierToken} lhs
    * @param {traceur.syntax.IdentifierToken} rhs
-   * @constructor
-   * @extends {ParseTree}
    */
-  ImportSpecifier: create('lhs', 'rhs'),
+  constructor(location, lhs, rhs) {
+    super(IMPORT_SPECIFIER, location);
+    this.lhs = lhs;
+    this.rhs = rhs;
+  }
+}
 
+export class ImportSpecifierSet extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {trauce.syntax.Token|
    *     traceur.syntax.IdentifierToken|Array.<ImportSpecifier>} specifiers
-   * @constructor
-   * @extends {ParseTree}
    */
-  ImportSpecifierSet: create('specifiers'),
+  constructor(location, specifiers) {
+    super(IMPORT_SPECIFIER_SET, location);
+    this.specifiers = specifiers;
+  }
+}
 
+export class LabelledStatement extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {traceur.syntax.IdentifierToken} name
    * @param {ParseTree} statement
-   * @constructor
-   * @extends {ParseTree}
    */
-  LabelledStatement: create('name', 'statement'),
+  constructor(location, name, statement) {
+    super(LABELLED_STATEMENT, location);
+    this.name = name;
+    this.statement = statement;
+  }
+}
 
+export class LiteralExpression extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {Token} literalToken
-   * @constructor
-   * @extends {ParseTree}
    */
-  LiteralExpression: create('literalToken'),
+  constructor(location, literalToken) {
+    super(LITERAL_EXPRESSION, location);
+    this.literalToken = literalToken;
+  }
+}
 
+export class MemberExpression extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} operand
    * @param {traceur.syntax.IdentifierToken} memberName
-   * @constructor
-   * @extends {ParseTree}
    */
-  MemberExpression: create('operand', 'memberName'),
+  constructor(location, operand, memberName) {
+    super(MEMBER_EXPRESSION, location);
+    this.operand = operand;
+    this.memberName = memberName;
+  }
+}
 
+export class MemberLookupExpression extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} operand
    * @param {ParseTree} memberExpression
-   * @constructor
-   * @extends {ParseTree}
    */
-  MemberLookupExpression: create('operand', 'memberExpression'),
+  constructor(location, operand, memberExpression) {
+    super(MEMBER_LOOKUP_EXPRESSION, location);
+    this.operand = operand;
+    this.memberExpression = memberExpression;
+  }
+}
 
+export class MissingPrimaryExpression extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {Token} nextToken
-   * @constructor
-   * @extends {ParseTree}
    */
-  MissingPrimaryExpression: create('nextToken'),
+  constructor(location, nextToken) {
+    super(MISSING_PRIMARY_EXPRESSION, location);
+    this.nextToken = nextToken;
+  }
+}
 
+export class ModuleDeclaration extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {Array.<ParseTree>} specifiers
-   * @constructor
-   * @extends {ParseTree}
    */
-  ModuleDeclaration: create('specifiers'),
+  constructor(location, specifiers) {
+    super(MODULE_DECLARATION, location);
+    this.specifiers = specifiers;
+  }
+}
 
+export class ModuleDefinition extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {traceur.syntax.IdentifierToken} name
    * @param {Array.<ParseTree>} elements
-   * @constructor
-   * @extends {ParseTree}
    */
-  ModuleDefinition: create('name', 'elements'),
+  constructor(location, name, elements) {
+    super(MODULE_DEFINITION, location);
+    this.name = name;
+    this.elements = elements;
+  }
+}
 
+export class ModuleExpression extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} reference
    * @param {Array.<traceur.syntax.IdentifierToken>} identifiers
-   * @constructor
-   * @extends {ParseTree}
    */
-  ModuleExpression: create('reference', 'identifiers'),
+  constructor(location, reference, identifiers) {
+    super(MODULE_EXPRESSION, location);
+    this.reference = reference;
+    this.identifiers = identifiers;
+  }
+}
 
+export class ModuleRequire extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {Token} url
-   * @constructor
-   * @extends {ParseTree}
    */
-  ModuleRequire: create('url'),
+  constructor(location, url) {
+    super(MODULE_REQUIRE, location);
+    this.url = url;
+  }
+}
 
+export class ModuleSpecifier extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {traceur.syntax.IdentifierToken} identifier
    * @param {ParseTree} expression
-   * @constructor
-   * @extends {ParseTree}
    */
-  ModuleSpecifier: create('identifier', 'expression'),
+  constructor(location, identifier, expression) {
+    super(MODULE_SPECIFIER, location);
+    this.identifier = identifier;
+    this.expression = expression;
+  }
+}
 
+export class NameStatement extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {Array.<AtNameDeclaration>} declarations
-   * @constructor
-   * @extends {ParseTree}
    */
-  NameStatement: create('declarations'),
+  constructor(location, declarations) {
+    super(NAME_STATEMENT, location);
+    this.declarations = declarations;
+  }
+}
 
+export class NewExpression extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} operand
    * @param {ArgumentList} args
-   * @constructor
-   * @extends {ParseTree}
    */
-  NewExpression: create('operand', 'args'),
+  constructor(location, operand, args) {
+    super(NEW_EXPRESSION, location);
+    this.operand = operand;
+    this.args = args;
+  }
+}
 
+export class ObjectLiteralExpression extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {Array.<ParseTree>} propertyNameAndValues
-   * @constructor
-   * @extends {ParseTree}
    */
-  ObjectLiteralExpression: create('propertyNameAndValues'),
+  constructor(location, propertyNameAndValues) {
+    super(OBJECT_LITERAL_EXPRESSION, location);
+    this.propertyNameAndValues = propertyNameAndValues;
+  }
+}
 
+export class ObjectPatternField extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {traceur.syntax.IdentifierToken} identifier
    * @param {?ParseTree} element
-   * @constructor
-   * @extends {ParseTree}
    */
-  ObjectPatternField: create('identifier', 'element'),
+  constructor(location, identifier, element) {
+    super(OBJECT_PATTERN_FIELD, location);
+    this.identifier = identifier;
+    this.element = element;
+  }
+}
 
+export class ObjectPattern extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {Array.<ParseTree>} fields
-   * @constructor
-   * @extends {ParseTree}
    */
-  ObjectPattern: create('fields'),
+  constructor(location, fields) {
+    super(OBJECT_PATTERN, location);
+    this.fields = fields;
+  }
+}
 
+export class ParenExpression extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} expression
-   * @constructor
-   * @extends {ParseTree}
    */
-  ParenExpression: create('expression'),
+  constructor(location, expression) {
+    super(PAREN_EXPRESSION, location);
+    this.expression = expression;
+  }
+}
 
+export class PostfixExpression extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} operand
    * @param {Token} operator
-   * @constructor
-   * @extends {ParseTree}
    */
-  PostfixExpression: create('operand', 'operator'),
+  constructor(location, operand, operator) {
+    super(POSTFIX_EXPRESSION, location);
+    this.operand = operand;
+    this.operator = operator;
+  }
+}
 
+export class Program extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {Array.<ParseTree>} programElements
-   * @constructor
-   * @extends {ParseTree}
    */
-  Program: create('programElements'),
+  constructor(location, programElements) {
+    super(PROGRAM, location);
+    this.programElements = programElements;
+  }
+}
 
+export class PropertyMethodAssignment extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {Token} name
    * @param {boolean} isGenerator
    * @param {FormalParameterList} formalParameterList
    * @param {Block} functionBody
-   * @constructor
-   * @extends {ParseTree}
    */
-  PropertyMethodAssignment: create('name', 'isGenerator', 
-                                   'formalParameterList', 'functionBody'),
+  constructor(location, name, isGenerator, formalParameterList, functionBody) {
+    super(PROPERTY_METHOD_ASSIGNMENT, location);
+    this.name = name;
+    this.isGenerator = isGenerator;
+    this.formalParameterList = formalParameterList;
+    this.functionBody = functionBody;
+  }
+}
 
+export class PropertyNameAssignment extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {Token} name
    * @param {ParseTree} value
-   * @constructor
-   * @extends {ParseTree}
    */
-  PropertyNameAssignment: create('name', 'value'),
+  constructor(location, name, value) {
+    super(PROPERTY_NAME_ASSIGNMENT, location);
+    this.name = name;
+    this.value = value;
+  }
+}
 
+export class PropertyNameShorthand extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {Token} name
-   * @constructor
-   * @extends {ParseTree}
    */
-  PropertyNameShorthand: create('name'),
+  constructor(location, name) {
+    super(PROPERTY_NAME_SHORTHAND, location);
+    this.name = name;
+  }
+}
 
+export class QuasiLiteralExpression extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} operand
    * @param {Array.<ParseTree>} elements
-   * @constructor
-   * @extends {ParseTree}
    */
-  QuasiLiteralExpression: create('operand', 'elements'),
+  constructor(location, operand, elements) {
+    super(QUASI_LITERAL_EXPRESSION, location);
+    this.operand = operand;
+    this.elements = elements;
+  }
+}
 
+export class QuasiLiteralPortion extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {Token} value
-   * @constructor
-   * @extends {ParseTree}
    */
-  QuasiLiteralPortion: create('value'),
+  constructor(location, value) {
+    super(QUASI_LITERAL_PORTION, location);
+    this.value = value;
+  }
+}
 
+export class QuasiSubstitution extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} expression
-   * @constructor
-   * @extends {ParseTree}
    */
-  QuasiSubstitution: create('expression'),
+  constructor(location, expression) {
+    super(QUASI_SUBSTITUTION, location);
+    this.expression = expression;
+  }
+}
 
+export class RequiresMember extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {traceur.syntax.IdentifierToken} name
-   * @constructor
-   * @extends {ParseTree}
    */
-  RequiresMember: create('name'),
+  constructor(location, name) {
+    super(REQUIRES_MEMBER, location);
+    this.name = name;
+  }
+}
 
+export class RestParameter extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {BindingIdentifier} identifier
-   * @constructor
-   * @extends {ParseTree}
    */
-  RestParameter: create('identifier'),
+  constructor(location, identifier) {
+    super(REST_PARAMETER, location);
+    this.identifier = identifier;
+  }
+}
 
+export class ReturnStatement extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} expression
-   * @constructor
-   * @extends {ParseTree}
    */
-  ReturnStatement: create('expression'),
+  constructor(location, expression) {
+    super(RETURN_STATEMENT, location);
+    this.expression = expression;
+  }
+}
 
+export class SetAccessor extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {Token} propertyName
    * @param {traceur.syntax.IdentifierToken} parameter
    * @param {Block} body
-   * @constructor
-   * @extends {ParseTree}
    */
-  SetAccessor: create('propertyName', 'parameter', 'body'),
+  constructor(location, propertyName, parameter, body) {
+    super(SET_ACCESSOR, location);
+    this.propertyName = propertyName;
+    this.parameter = parameter;
+    this.body = body;
+  }
+}
 
+export class SpreadExpression extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} expression
-   * @constructor
-   * @extends {ParseTree}
    */
-  SpreadExpression: create('expression'),
+  constructor(location, expression) {
+    super(SPREAD_EXPRESSION, location);
+    this.expression = expression;
+  }
+}
 
+export class SpreadPatternElement extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} lvalue
-   * @constructor
-   * @extends {ParseTree}
    */
-  SpreadPatternElement: create('lvalue'),
+  constructor(location, lvalue) {
+    super(SPREAD_PATTERN_ELEMENT, location);
+    this.lvalue = lvalue;
+  }
+}
 
+export class SuperExpression extends ParseTree {
   /**
    * @param {SourceRange} location
-   * @constructor
-   * @extends {ParseTree}
    */
-  SuperExpression: create(),
+  constructor(location) {
+    super(SUPER_EXPRESSION, location);
 
+  }
+}
+
+export class SwitchStatement extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} expression
    * @param {Array.<ParseTree>} caseClauses
-   * @constructor
-   * @extends {ParseTree}
    */
-  SwitchStatement: create('expression', 'caseClauses'),
+  constructor(location, expression, caseClauses) {
+    super(SWITCH_STATEMENT, location);
+    this.expression = expression;
+    this.caseClauses = caseClauses;
+  }
+}
 
+export class ThisExpression extends ParseTree {
   /**
    * @param {SourceRange} location
-   * @constructor
-   * @extends {ParseTree}
    */
-  ThisExpression: create(),
+  constructor(location) {
+    super(THIS_EXPRESSION, location);
 
+  }
+}
+
+export class ThrowStatement extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} value
-   * @constructor
-   * @extends {ParseTree}
    */
-  ThrowStatement: create('value'),
+  constructor(location, value) {
+    super(THROW_STATEMENT, location);
+    this.value = value;
+  }
+}
 
+export class TryStatement extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} body
    * @param {ParseTree} catchBlock
    * @param {ParseTree} finallyBlock
-   * @constructor
-   * @extends {ParseTree}
    */
-  TryStatement: create('body', 'catchBlock', 'finallyBlock'),
+  constructor(location, body, catchBlock, finallyBlock) {
+    super(TRY_STATEMENT, location);
+    this.body = body;
+    this.catchBlock = catchBlock;
+    this.finallyBlock = finallyBlock;
+  }
+}
 
+export class UnaryExpression extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {Token} operator
    * @param {ParseTree} operand
-   * @constructor
-   * @extends {ParseTree}
    */
-  UnaryExpression: create('operator', 'operand'),
+  constructor(location, operator, operand) {
+    super(UNARY_EXPRESSION, location);
+    this.operator = operator;
+    this.operand = operand;
+  }
+}
 
+export class VariableDeclarationList extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {TokenType} declarationType
    * @param {Array.<VariableDeclaration>}
    *     declarations
-   * @constructor
-   * @extends {ParseTree}
    */
-  VariableDeclarationList: create('declarationType', 'declarations'),
+  constructor(location, declarationType, declarations) {
+    super(VARIABLE_DECLARATION_LIST, location);
+    this.declarationType = declarationType;
+    this.declarations = declarations;
+  }
+}
 
+export class VariableDeclaration extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} lvalue
    * @param {ParseTree} initializer
-   * @constructor
-   * @extends {ParseTree}
    */
-  VariableDeclaration: create('lvalue', 'initializer'),
+  constructor(location, lvalue, initializer) {
+    super(VARIABLE_DECLARATION, location);
+    this.lvalue = lvalue;
+    this.initializer = initializer;
+  }
+}
 
+export class VariableStatement extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {VariableDeclarationList} declarations
-   * @constructor
-   * @extends {ParseTree}
    */
-  VariableStatement: create('declarations'),
+  constructor(location, declarations) {
+    super(VARIABLE_STATEMENT, location);
+    this.declarations = declarations;
+  }
+}
 
+export class WhileStatement extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} condition
    * @param {ParseTree} body
-   * @constructor
-   * @extends {ParseTree}
    */
-  WhileStatement: create('condition', 'body'),
+  constructor(location, condition, body) {
+    super(WHILE_STATEMENT, location);
+    this.condition = condition;
+    this.body = body;
+  }
+}
 
+export class WithStatement extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} expression
    * @param {ParseTree} body
-   * @constructor
-   * @extends {ParseTree}
    */
-  WithStatement: create('expression', 'body'),
+  constructor(location, expression, body) {
+    super(WITH_STATEMENT, location);
+    this.expression = expression;
+    this.body = body;
+  }
+}
 
+export class YieldStatement extends ParseTree {
   /**
    * @param {SourceRange} location
    * @param {ParseTree} expression
    * @param {boolean} isYieldFor
-   * @constructor
-   * @extends {ParseTree}
    */
-  YieldStatement: create('expression', 'isYieldFor')
-};
-
-// Given a SomeName, converts it to SOME_NAME.
-function getEnumName(name) {
-  return name[0] + name.slice(1).replace(/([A-Z])/g, '_$1').toUpperCase();
+  constructor(location, expression, isYieldFor) {
+    super(YIELD_STATEMENT, location);
+    this.expression = expression;
+    this.isYieldFor = isYieldFor;
+  }
 }
-
-// This sets the ParseTreeType for all the trees in this file.
-Object.keys(trees).forEach((name) => {
-  var enumName = getEnumName(name);
-  trees[name].prototype.type = ParseTreeType[enumName] = enumName;
-});
-
-// This is to get tree_test.html to pass.
-trees.NullTree = NullTree;
-trees.ParseTreeType = ParseTreeType;
-trees.ParseTree = ParseTree;

@@ -36,9 +36,6 @@ import QuasiLiteralTransformer from 'QuasiLiteralTransformer.js';
 import RestParameterTransformer from 'RestParameterTransformer.js';
 import SpreadTransformer from 'SpreadTransformer.js';
 import {options, transformOptions} from '../options.js';
-import trees from '../syntax/trees/ParseTrees.js';
-
-var ProgramTree = trees.ProgramTree;
 
 /**
  * Transforms a Traceur file's ParseTree to a JS ParseTree.

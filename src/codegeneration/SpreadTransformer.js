@@ -12,9 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeTransformer from 'ParseTreeTransformer.js';
-import ParseTreeType from '../syntax/trees/ParseTree.js';
 import APPLY from '../syntax/PredefinedName.js';
+import {
+  MEMBER_EXPRESSION,
+  MEMBER_LOOKUP_EXPRESSION,
+  SPREAD_EXPRESSION
+} from  '../syntax/trees/ParseTreeType.js';
+import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import {
   createArgumentList,
   createArrayLiteralExpression,
@@ -66,13 +70,13 @@ var SPREAD_NEW_CODE = `
     }`;
 
 function hasSpreadMember(trees) {
-  return trees.some((tree) => tree.type == ParseTreeType.SPREAD_EXPRESSION);
+  return trees.some((tree) => tree.type == SPREAD_EXPRESSION);
 }
 
 function createInterleavedArgumentsArray(elements) {
   var args = [];
   elements.forEach((element) => {
-    if (element.type == ParseTreeType.SPREAD_EXPRESSION) {
+    if (element.type == SPREAD_EXPRESSION) {
       args.push(createBooleanLiteral(true));
       args.push(element.expression);
     } else {
@@ -131,7 +135,7 @@ export class SpreadTransformer extends ParseTreeTransformer {
   }
 
   desugarCallSpread_(tree) {
-    if (tree.operand.type == ParseTreeType.MEMBER_EXPRESSION) {
+    if (tree.operand.type == MEMBER_EXPRESSION) {
       // expr.fun(a, ...b, c)
       //
       // expr.fun.apply(expr, (expandFunction)([false, a, true, b, false, c]))
@@ -148,7 +152,7 @@ export class SpreadTransformer extends ParseTreeTransformer {
               createParameterReference(0),
               expression.memberName));
 
-    } else if (tree.operand.type == ParseTreeType.MEMBER_LOOKUP_EXPRESSION) {
+    } else if (tree.operand.type == MEMBER_LOOKUP_EXPRESSION) {
       // expr[fun](a, ...b, c)
       //
       // expr[fun].apply(expr,

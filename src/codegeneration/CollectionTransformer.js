@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeType from '../syntax/trees/ParseTree.js';
 import {
   ELEMENT_DELETE,
   ELEMENT_GET,
@@ -21,6 +20,7 @@ import {
   RUNTIME,
   TRACEUR
 } from '../syntax/PredefinedName.js';
+import MEMBER_LOOKUP_EXPRESSION from '../syntax/trees/ParseTreeType.js';
 import TempVarTransformer from 'TempVarTransformer.js';
 import TokenType from '../syntax/TokenType.js';
 import {
@@ -92,7 +92,7 @@ CollectionTransformer.prototype = createObject(proto, {
           createArgumentList(object, name));
     }
 
-    if (tree.left.type === ParseTreeType.MEMBER_LOOKUP_EXPRESSION &&
+    if (tree.left.type === MEMBER_LOOKUP_EXPRESSION &&
         tree.operator.isAssignmentOperator()) {
 
       if (tree.operator.type !== TokenType.EQUAL) {
@@ -116,7 +116,7 @@ CollectionTransformer.prototype = createObject(proto, {
   },
 
   transformCallExpression: function(tree) {
-    if (tree.operand.type !== ParseTreeType.MEMBER_LOOKUP_EXPRESSION)
+    if (tree.operand.type !== MEMBER_LOOKUP_EXPRESSION)
       return proto.transformCallExpression.call(this, tree);
 
     var operand = this.transformAny(tree.operand.operand);
@@ -155,7 +155,7 @@ CollectionTransformer.prototype = createObject(proto, {
 
   transformUnaryExpression: function(tree) {
     if (tree.operator.type !== TokenType.DELETE ||
-        tree.operand.type !== ParseTreeType.MEMBER_LOOKUP_EXPRESSION) {
+        tree.operand.type !== MEMBER_LOOKUP_EXPRESSION) {
       return proto.transformUnaryExpression.call(this, tree);
     }
 

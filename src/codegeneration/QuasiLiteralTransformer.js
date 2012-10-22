@@ -12,9 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {
+  BINARY_OPERATOR,
+  COMMA_EXPRESSION,
+  CONDITIONAL_EXPRESSION,
+  QUASI_LITERAL_PORTION
+} from '../syntax/trees/ParseTreeType.js';
+import {
+  LiteralExpression,
+  ParenExpression,
+  Program
+} from '../syntax/trees/ParseTrees.js';
 import LiteralToken from '../syntax/LiteralToken.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
-import ParseTreeType from '../syntax/trees/ParseTree.js';
 import RAW from '../syntax/PredefinedName.js';
 import TokenType from '../syntax/TokenType.js';
 import {
@@ -36,12 +46,6 @@ import {
   createVariableStatement
 } from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
-import trees from '../syntax/trees/ParseTrees.js';
-
-var LiteralExpression = trees.LiteralExpression;
-var ParenExpression = trees.ParenExpression;
-var Program = trees.Program;
-
 
 /**
  * Creates an object like:
@@ -229,7 +233,7 @@ export class QuasiLiteralTransformer extends ParseTreeTransformer {
     var transformedTree = this.transformAny(tree.expression);
     // Wrap in a paren expression if needed.
     switch (transformedTree.type) {
-      case ParseTreeType.BINARY_OPERATOR:
+      case BINARY_OPERATOR:
         // Only * / and % have higher priority than +.
         switch (transformedTree.operator.type) {
           case TokenType.STAR:
@@ -238,8 +242,8 @@ export class QuasiLiteralTransformer extends ParseTreeTransformer {
             return transformedTree;
         }
         // Fall through.
-      case ParseTreeType.COMMA_EXPRESSION:
-      case ParseTreeType.CONDITIONAL_EXPRESSION:
+      case COMMA_EXPRESSION:
+      case CONDITIONAL_EXPRESSION:
         return new ParenExpression(null, transformedTree);
     }
 
@@ -266,7 +270,7 @@ export class QuasiLiteralTransformer extends ParseTreeTransformer {
     var plusToken = createOperatorToken(TokenType.PLUS);
     for (var i = 1; i < length; i++) {
       var element = tree.elements[i];
-      if (element.type === ParseTreeType.QUASI_LITERAL_PORTION &&
+      if (element.type === QUASI_LITERAL_PORTION &&
           element.value.value === '') {
         continue;
       }

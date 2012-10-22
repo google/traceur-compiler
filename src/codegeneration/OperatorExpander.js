@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeType from '../syntax/trees/ParseTree.js';
+import {
+  IDENTIFIER_EXPRESSION,
+  SUPER_EXPRESSION
+} from '../syntax/trees/ParseTreeType.js';
 import TokenType from '../syntax/TokenType.js';
 import {
   createAssignmentExpression,
@@ -74,8 +77,8 @@ function getBinaryOperator(type) {
 export function expandMemberLookupExpression(tree, tempVarTransformer) {
   var tmp1;
   var expressions = [];
-  if (tree.left.operand.type == ParseTreeType.SUPER_EXPRESSION ||
-      tree.left.operand.type == ParseTreeType.IDENTIFIER_EXPRESSION) {
+  if (tree.left.operand.type == SUPER_EXPRESSION ||
+      tree.left.operand.type == IDENTIFIER_EXPRESSION) {
     tmp1 = tree.left.operand;
   } else {
     tmp1 = createIdentifierExpression(tempVarTransformer.addTempVar());
@@ -112,8 +115,8 @@ export function expandMemberLookupExpression(tree, tempVarTransformer) {
 export function expandMemberExpression(tree, tempVarTransformer) {
   var tmp;
   var expressions = [];
-  if (tree.left.operand.type == ParseTreeType.SUPER_EXPRESSION ||
-      tree.left.operand.type == ParseTreeType.IDENTIFIER_EXPRESSION) {
+  if (tree.left.operand.type == SUPER_EXPRESSION ||
+      tree.left.operand.type == IDENTIFIER_EXPRESSION) {
     tmp = tree.left.operand;
   } else {
     tmp = createIdentifierExpression(tempVarTransformer.addTempVar());

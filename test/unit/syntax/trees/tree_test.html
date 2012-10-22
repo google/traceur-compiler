@@ -79,8 +79,6 @@ function testNullTree() {
   var tree = new traceur.syntax.trees.NullTree();
   assertEquals('NULL_TREE', tree.type);
   assertEquals(null, tree.location);
-  var tree2 = new traceur.syntax.trees.NullTree();
-  assertEquals(tree, tree2);
 }
 
 function testTreeConstructors() {

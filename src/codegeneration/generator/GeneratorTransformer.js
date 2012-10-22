@@ -14,7 +14,6 @@
 
 import CPSTransformer from 'CPSTransformer.js';
 import EndState from 'EndState.js';
-import ParseTreeType from '../../syntax/trees/ParseTree.js';
 import {
   MARK_AS_GENERATOR,
   MOVE_NEXT,
@@ -23,6 +22,7 @@ import {
   STORED_EXCEPTION,
   TRACEUR
 } from '../../syntax/PredefinedName.js';
+import STATE_MACHINE from '../../syntax/trees/ParseTreeType.js';
 import StateMachine from '../../syntax/trees/StateMachine.js';
 import TokenType from '../../syntax/TokenType.js';
 import YieldState from 'YieldState.js';
@@ -124,7 +124,7 @@ GeneratorTransformer.prototype = createObject(
    */
   transformFinally: function(tree) {
     var result = CPSTransformer.prototype.transformFinally.call(this, tree);
-    if (result.block.type != ParseTreeType.STATE_MACHINE) {
+    if (result.block.type != STATE_MACHINE) {
       return result;
     }
     this.reporter.reportError(tree.location.start, 'yield not permitted from within a finally block.');

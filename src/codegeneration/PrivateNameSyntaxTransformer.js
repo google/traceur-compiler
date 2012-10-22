@@ -21,6 +21,10 @@ import {
 import TempVarTransformer from 'TempVarTransformer.js';
 import TokenType from '../syntax/TokenType.js';
 import {
+  VariableDeclarationList,
+  VariableStatement
+} from '../syntax/trees/ParseTrees.js';
+import {
   createArgumentList,
   createCallExpression,
   createEmptyArgumentList,
@@ -29,11 +33,6 @@ import {
   createVariableDeclaration
 } from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
-import trees from '../syntax/trees/ParseTrees.js';
-
-var VariableDeclarationList = trees.VariableDeclarationList;
-var VariableStatement = trees.VariableStatement;
-
 
 /**
  * Desugars the private name syntax, @name.

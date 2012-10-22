@@ -13,9 +13,27 @@
 // limitations under the License.
 
 import AlphaRenamer from 'AlphaRenamer.js';
+import {
+  BINDING_IDENTIFIER,
+  BLOCK,
+  FUNCTION_DECLARATION,
+  VARIABLE_DECLARATION_LIST
+} from '../syntax/trees/ParseTreeType.js';
+import {
+  Block,
+  ClassDeclaration,
+  ForInStatement,
+  ForStatement,
+  FunctionDeclaration,
+  GetAccessor,
+  Program,
+  SetAccessor,
+  VariableDeclarationList,
+  VariableDeclaration,
+  VariableStatement
+} from '../syntax/trees/ParseTrees.js';
 import NullTree from '../syntax/trees/NullTree.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
-import ParseTreeType from '../syntax/trees/ParseTree.js';
 import TokenType from '../syntax/TokenType.js';
 import {
   createAssignmentExpression,
@@ -40,19 +58,6 @@ import {
   createVariableStatement
 } from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
-import trees from '../syntax/trees/ParseTrees.js';
-
-var Block = trees.Block;
-var ClassDeclaration = trees.ClassDeclaration;
-var ForInStatement = trees.ForInStatement;
-var ForStatement = trees.ForStatement;
-var FunctionDeclaration = trees.FunctionDeclaration;
-var GetAccessor = trees.GetAccessor;
-var Program = trees.Program;
-var SetAccessor = trees.SetAccessor;
-var VariableDeclarationList = trees.VariableDeclarationList;
-var VariableDeclaration = trees.VariableDeclaration;
-var VariableStatement = trees.VariableStatement;
 
 var CONST = TokenType.CONST;
 var LET = TokenType.LET;
@@ -145,7 +150,7 @@ function renameAll(renames, tree) {
  * @return {Block}
  */
 function toBlock(statement) {
-  return statement.type == ParseTreeType.BLOCK ? statement : createBlock(statement);
+  return statement.type == BLOCK ? statement : createBlock(statement);
 }
 
 /**
@@ -230,7 +235,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
     // Transform the block contents
     var statements = tree.statements.map((statement) => {
       switch (statement.type) {
-        case ParseTreeType.FUNCTION_DECLARATION:
+        case FUNCTION_DECLARATION:
           return this.transformFunctionDeclarationStatement_(statement);
         default:
           return this.transformAny(statement);
@@ -311,7 +316,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
 
     var initializer;
     if (tree.initializer != null &&
-        tree.initializer.type == ParseTreeType.VARIABLE_DECLARATION_LIST) {
+        tree.initializer.type == VARIABLE_DECLARATION_LIST) {
 
       // for (var/let/const x [ = ...] in ...)
       var variables = tree.initializer;
@@ -386,7 +391,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
    * @return {Block}
    */
   prependToBlock_(statement, body) {
-    if (body.type == ParseTreeType.BLOCK) {
+    if (body.type == BLOCK) {
       var block = body;
       var list = [];
       list.push(statement);
@@ -405,7 +410,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
   transformForStatement(tree) {
     var initializer;
     if (tree.initializer != null &&
-        tree.initializer.type == ParseTreeType.VARIABLE_DECLARATION_LIST) {
+        tree.initializer.type == VARIABLE_DECLARATION_LIST) {
 
       // for (var/let/const ... ; ; ) { ... }
       var variables = tree.initializer;
@@ -790,7 +795,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
   getVariableName_(variable) {
     // TODO(arv): This should just be a visitor visiting BindingIdentifier
     var lvalue = variable.lvalue;
-    if (lvalue.type == ParseTreeType.BINDING_IDENTIFIER) {
+    if (lvalue.type == BINDING_IDENTIFIER) {
       return lvalue.identifierToken.value;
     }
     throw new Error('Unexpected destructuring declaration found.');

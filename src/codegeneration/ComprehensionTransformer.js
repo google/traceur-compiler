@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import AlphaRenamer from 'AlphaRenamer.js';
-import FindInFunctionScope from 'FindInFunctionScope.js';
 import {
   ARGUMENTS,
   THIS
 } from '../syntax/PredefinedName.js';
+import AlphaRenamer from 'AlphaRenamer.js';
+import FindInFunctionScope from 'FindInFunctionScope.js';
+import FunctionDeclaration from '../syntax/trees/ParseTrees.js';
 import TempVarTransformer from 'TempVarTransformer.js';
 import TokenType from '../syntax/TokenType.js';
 import {
@@ -32,10 +33,6 @@ import {
   createVariableDeclarationList
 } from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
-import trees from '../syntax/trees/ParseTrees.js';
-
-var FunctionDeclaration = trees.FunctionDeclaration;
-
 
 /**
  * This is used to find whether a function contains a reference to 'this'.

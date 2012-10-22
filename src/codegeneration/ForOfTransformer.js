@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeTransformer from 'ParseTreeTransformer.js';
-import ParseTreeType from '../syntax/trees/ParseTree.js';
 import {
   CLOSE,
   CURRENT,
@@ -22,6 +20,8 @@ import {
   RUNTIME,
   TRACEUR
 } from '../syntax/PredefinedName.js';
+import ParseTreeTransformer from 'ParseTreeTransformer.js';
+import VARIABLE_DECLARATION_LIST from '../syntax/trees/ParseTreeType.js';
 import TokenType from '../syntax/TokenType.js';
 import {
   createArgumentList,
@@ -84,7 +84,7 @@ export class ForOfTransformer extends ParseTreeTransformer {
     //   statement
     // }
     var statement;
-    if (tree.initializer.type === ParseTreeType.VARIABLE_DECLARATION_LIST) {
+    if (tree.initializer.type === VARIABLE_DECLARATION_LIST) {
       statement = createVariableStatement(
           tree.initializer.declarationType,
           tree.initializer.declarations[0].lvalue,

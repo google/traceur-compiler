@@ -13,13 +13,13 @@
 // limitations under the License.
 
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
-import ParseTreeType from '../syntax/trees/ParseTree.js';
 import {
   IS,
   ISNT,
   RUNTIME,
   TRACEUR
 } from '../syntax/PredefinedName.js';
+import LITERAL_EXPRESSION from '../syntax/trees/ParseTreeType.js';
 import TokenType from '../syntax/TokenType.js';
 import {
   createArgumentList,
@@ -37,7 +37,7 @@ import createObject from '../util/util.js';
  * @return {boolean}
  */
 function isGoodLiteral(tree) {
-  if (tree.type !== ParseTreeType.LITERAL_EXPRESSION)
+  if (tree.type !== LITERAL_EXPRESSION)
     return false;
   var token = tree.literalToken;
   if (token.type === TokenType.NUMBER)

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeType from '../syntax/trees/ParseTree.js';
+import AtNameExpression from '../syntax/trees/ParseTrees.js';
 import {
   DELETE_PROPERTY,
   GET_PROPERTY,
@@ -20,6 +20,7 @@ import {
   SET_PROPERTY,
   TRACEUR
 } from '../syntax/PredefinedName.js';
+import MEMBER_EXPRESSION from '../syntax/trees/ParseTreeType.js';
 import TempVarTransformer from 'TempVarTransformer.js';
 import TokenType from '../syntax/TokenType.js';
 import {
@@ -34,9 +35,6 @@ import {
 } from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
 import expandMemberExpression from 'OperatorExpander.js';
-import trees from '../syntax/trees/ParseTrees.js';
-
-var AtNameExpression = trees.AtNameExpression;
 
 /**
  * Transforms expr.@name into traceur.runtime.getProperty(expr, @name). It
@@ -67,7 +65,7 @@ var base = TempVarTransformer.prototype;
 AtNameMemberTransformer.prototype = createObject(base, {
   transformBinaryOperator: function(tree) {
 
-    if (tree.left.type === ParseTreeType.MEMBER_EXPRESSION &&
+    if (tree.left.type === MEMBER_EXPRESSION &&
         tree.left.memberName.type === TokenType.AT_NAME &&
         tree.operator.isAssignmentOperator()) {
 
@@ -94,7 +92,7 @@ AtNameMemberTransformer.prototype = createObject(base, {
   },
 
   transformCallExpression: function(tree) {
-    if (tree.operand.type !== ParseTreeType.MEMBER_EXPRESSION ||
+    if (tree.operand.type !== MEMBER_EXPRESSION ||
         tree.operand.memberName.type !== TokenType.AT_NAME)
       return base.transformCallExpression.call(this, tree);
 
@@ -141,7 +139,7 @@ AtNameMemberTransformer.prototype = createObject(base, {
 
   transformUnaryExpression: function(tree) {
     if (tree.operator.type !== TokenType.DELETE ||
-        tree.operand.type !== ParseTreeType.MEMBER_EXPRESSION ||
+        tree.operand.type !== MEMBER_EXPRESSION ||
         tree.operand.memberName.type !== TokenType.AT_NAME) {
       return base.transformUnaryExpression.call(this, tree);
     }

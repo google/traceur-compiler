@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {
+  IdentifierExpression,
+  PropertyNameAssignment
+} from '../syntax/trees/ParseTrees.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import createObject from '../util/util.js';
-import trees from '../syntax/trees/ParseTrees.js';
-
-var IdentifierExpression = trees.IdentifierExpression;
-var PropertyNameAssignment = trees.PropertyNameAssignment;
 
 /**
  * Desugars property name shorthands

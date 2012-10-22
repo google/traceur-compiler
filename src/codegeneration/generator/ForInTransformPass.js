@@ -12,12 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeTransformer from '../ParseTreeTransformer.js';
-import ParseTreeType from '../../syntax/trees/ParseTree.js';
+import {
+  BLOCK,
+  VARIABLE_DECLARATION_LIST,
+  IDENTIFIER_EXPRESSION
+} from '../../syntax/trees/ParseTreeType.js';
+import IdentifierExpression from '../../syntax/trees/ParseTrees.js';
 import {
   LENGTH,
   PUSH
 } from '../../syntax/PredefinedName.js';
+import ParseTreeTransformer from '../ParseTreeTransformer.js';
 import TokenType from '../../syntax/TokenType.js';
 import {
   createArgumentList,
@@ -42,9 +47,6 @@ import {
   createVariableStatement
 } from '../ParseTreeFactory.js';
 import createObject from '../../util/util.js';
-import trees from '../../syntax/trees/ParseTrees.js';
-
-var IdentifierExpression = trees.IdentifierExpression;
 
 /**
  * Desugars for-in loops to be compatible with generators.
@@ -80,7 +82,7 @@ export class ForInTransformPass extends ParseTreeTransformer {
     // Transform body first
     var bodyStatements = [];
     var body = this.transformAny(tree.body);
-    if (body.type == ParseTreeType.BLOCK) {
+    if (body.type == BLOCK) {
       bodyStatements.push.apply(bodyStatements, body.statements);
     } else {
       bodyStatements.push(body);
@@ -119,13 +121,13 @@ export class ForInTransformPass extends ParseTreeTransformer {
         createIdentifierExpression(i));
 
     var originalKey, assignOriginalKey;
-    if (tree.initializer.type == ParseTreeType.VARIABLE_DECLARATION_LIST) {
+    if (tree.initializer.type == VARIABLE_DECLARATION_LIST) {
       var decList = tree.initializer;
       originalKey = createIdentifierExpression(decList.declarations[0].lvalue);
       // var key = $keys[$i];
       assignOriginalKey = createVariableStatement(decList.declarationType,
           originalKey.identifierToken, lookup);
-    } else if (tree.initializer.type == ParseTreeType.IDENTIFIER_EXPRESSION) {
+    } else if (tree.initializer.type == IDENTIFIER_EXPRESSION) {
       originalKey = tree.initializer;
       // key = $keys[$i];
       assignOriginalKey = createAssignmentStatement(tree.initializer, lookup);

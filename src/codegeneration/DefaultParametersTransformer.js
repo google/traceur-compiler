@@ -12,9 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {
+  FormalParameterList,
+  FunctionDeclaration
+} from '../syntax/trees/ParseTrees.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
-import ParseTreeType from '../syntax/trees/ParseTree.js';
 import ARGUMENTS from '../syntax/PredefinedName.js';
+import REST_PARAMETER from '../syntax/trees/ParseTreeType.js';
 import TokenType from '../syntax/TokenType.js';
 import {
   createBinaryOperator,
@@ -29,10 +33,6 @@ import {
   createVoid0
 } from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
-import trees from '../syntax/trees/ParseTrees.js';
-
-var FormalParameterList = trees.FormalParameterList;
-var FunctionDeclaration = trees.FunctionDeclaration;
 
 var stack = [];
 
@@ -73,7 +73,7 @@ export class DefaultParametersTransformer extends ParseTreeTransformer {
       if (param !== tree.parameters[i])
         changed = true;
 
-      if (param.type === ParseTreeType.REST_PARAMETER ||
+      if (param.type === REST_PARAMETER ||
           !param.initializer && !defaultToUndefined) {
         parameters.push(param);
 

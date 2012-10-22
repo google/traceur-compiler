@@ -13,20 +13,20 @@
 // limitations under the License.
 
 import BreakState from 'BreakState.js';
+import {
+  BreakStatement,
+  ContinueStatement,
+  DoWhileStatement,
+  ForOfStatement,
+  ForStatement,
+  FunctionDeclaration,
+  SwitchStatement,
+  WhileStatement
+} from '../../syntax/trees/ParseTrees.js';
 import ContinueState from 'ContinueState.js';
 import ParseTreeTransformer from '../ParseTreeTransformer.js';
 import StateMachine from '../../syntax/trees/StateMachine.js';
 import createObject from '../../util/util.js';
-import trees from '../../syntax/trees/ParseTrees.js';
-
-var BreakStatement = trees.BreakStatement;
-var ContinueStatement = trees.ContinueStatement;
-var DoWhileStatement = trees.DoWhileStatement;
-var ForOfStatement = trees.ForOfStatement;
-var ForStatement = trees.ForStatement;
-var FunctionDeclaration = trees.FunctionDeclaration;
-var SwitchStatement = trees.SwitchStatement;
-var WhileStatement = trees.WhileStatement;
 
 /**
  * @param {BreakStatement|ContinueStatement} tree
