@@ -52,6 +52,7 @@ import {
   createPropertyNameAssignment,
   createRestParameter,
   createSpreadExpression,
+  createThisExpression,
   createVariableStatement
 } from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
@@ -69,6 +70,18 @@ function State(classTree) {
 function peekState() {
   return stack[stack.length - 1];
 }
+
+/*
+ * Interaction between ClassTransformer and SuperTransformer:
+ * - The initial call to SuperTransformer will always be a transformBlock on
+ *   the body of a function -- method, getter, setter, or constructor.
+ * - SuperTransformer will never see anything that has not been touched first
+ *   by ClassTransformer and (if applicable) a previous invocation of
+ *   SuperTransformer on the functions of any inner classes. [see ref_1]
+ * - This means that SuperTransformer should only ever see desugared class
+ *   declarations, and should never see any super expressions that refer to
+ *   any inner (or outer) classes.
+ */
 
 /**
  * Maximally minimal classes
@@ -243,12 +256,19 @@ ClassTransformer.prototype = createObject(proto, {
   transformSuperInBlock_: function(methodTree, tree) {
     var state = peekState();
     var className = state.name;
+    var thisName = this.identifierGenerator.generateUniqueIdentifier();
+    var thisDecl = createVariableStatement(TokenType.VAR, thisName,
+                                           createThisExpression());
     var superTransformer = new SuperTransformer(this, this.reporter_,
-                                                className, methodTree);
+                                                className, methodTree,
+                                                thisName);
+    // ref_1: the inner transformBlock call is key to proper super nesting.
     var transformedTree =
-        superTransformer.transformAny(proto.transformAny.call(this, tree));
+        superTransformer.transformBlock(this.transformBlock(tree));
     if (superTransformer.hasSuper)
       state.hasSuper = true;
+    if (superTransformer.nestedSuper)
+      return createBlock([thisDecl].concat(transformedTree.statements));
     return transformedTree;
   },
 
