@@ -3271,7 +3271,7 @@ var $src_util_ErrorReporter_js =(function() {
       this.reportMessageInternal(location, 'warn', format, args); 
     }, 
     reportMessageInternal: function(location, kind, format, args) { 
-      if(location) format =("" + location + ": " + format); 
+      if(location) format =(location + ": " + format); 
       console[kind].apply(console,[format].concat(args)); 
     }, 
     hadError: function() { 
@@ -3294,7 +3294,7 @@ var $src_util_ErrorReporter_js =(function() {
       } 
       return s; 
     }); 
-    if(location) text =("" + location + ": " + text); 
+    if(location) text =(location + ": " + text); 
     return text; 
   }; 
   return Object.preventExtensions(Object.create(null, { ErrorReporter: { 
@@ -5771,7 +5771,7 @@ var $src_util_SourcePosition_js =(function() {
     }, 
     toString: function() { 
       var name = this.source ? this.source.name: ''; 
-      return("" + name + ":" +(this.line + 1) + ":" +(this.column + 1)); 
+      return(name + ":" +(this.line + 1) + ":" +(this.column + 1)); 
     } 
   }, null, true, false); 
   return Object.preventExtensions(Object.create(null, { SourcePosition: { 
@@ -15300,13 +15300,14 @@ var $src_codegeneration_QuasiLiteralTransformer_js =(function() {
         var loc = tree.location; 
         return new LiteralExpression(loc, new LiteralToken(TokenType.STRING, '""', loc)); 
       } 
+      var firstNonEmpty = tree.elements[0].value.value === '' ? - 1: 0; 
       var binaryExpression = this.transformAny(tree.elements[0]); 
       if(length == 1) return binaryExpression; 
       var plusToken = createOperatorToken(TokenType.PLUS); 
       for(var i = 1; i < length; i ++) { 
         var element = tree.elements[i]; 
-        if(element.type === QUASI_LITERAL_PORTION && element.value.value === '') { 
-          continue; 
+        if(element.type === QUASI_LITERAL_PORTION) { 
+          if(element.value.value === '') continue; else if(firstNonEmpty < 0 && i === 2) binaryExpression = binaryExpression.right; 
         } 
         var transformedTree = this.transformAny(tree.elements[i]); 
         binaryExpression = createBinaryOperator(binaryExpression, plusToken, transformedTree); 

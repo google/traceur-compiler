@@ -46,6 +46,37 @@ assertEquals('null', `${ null }`);
 
   // nested
   assertEquals('3 + 5 = 8', `${x} + ${ `${y} = ${ `${x + y}` }` }`);
+
+  assertEquals('3', `${x}`);
+  assertEquals(' 3', ` ${x}`);
+  assertEquals('3 ', `${x} `);
+  assertEquals('35', `${x}${y}`);
+  assertEquals(' 35', ` ${x}${y}`);
+  assertEquals('3 5', `${x} ${y}`);
+  assertEquals('35 ', `${x}${y} `);
+  assertEquals(' 3 5 ', ` ${x} ${y} `);
+
+  // def s(x):
+  //   return ' ' if x else ''
+  // for i in range(16):
+  //   v = (s(i&8), s(i&4), s(i&2), s(i&1))
+  //   print "assertEquals('%s3%s5%s8%s', `%s${x}%s${y}%s${x+y}%s`);" % (v+v)
+  assertEquals('358', `${x}${y}${x+y}`);
+  assertEquals('358 ', `${x}${y}${x+y} `);
+  assertEquals('35 8', `${x}${y} ${x+y}`);
+  assertEquals('35 8 ', `${x}${y} ${x+y} `);
+  assertEquals('3 58', `${x} ${y}${x+y}`);
+  assertEquals('3 58 ', `${x} ${y}${x+y} `);
+  assertEquals('3 5 8', `${x} ${y} ${x+y}`);
+  assertEquals('3 5 8 ', `${x} ${y} ${x+y} `);
+  assertEquals(' 358', ` ${x}${y}${x+y}`);
+  assertEquals(' 358 ', ` ${x}${y}${x+y} `);
+  assertEquals(' 35 8', ` ${x}${y} ${x+y}`);
+  assertEquals(' 35 8 ', ` ${x}${y} ${x+y} `);
+  assertEquals(' 3 58', ` ${x} ${y}${x+y}`);
+  assertEquals(' 3 58 ', ` ${x} ${y}${x+y} `);
+  assertEquals(' 3 5 8', ` ${x} ${y} ${x+y}`);
+  assertEquals(' 3 5 8 ', ` ${x} ${y} ${x+y} `);
 }
 
 // Line continuations

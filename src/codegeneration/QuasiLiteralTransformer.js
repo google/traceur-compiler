@@ -263,6 +263,7 @@ export class QuasiLiteralTransformer extends ParseTreeTransformer {
                                                          '""', loc));
     }
 
+    var firstNonEmpty = tree.elements[0].value.value === '' ? -1 : 0;
     var binaryExpression = this.transformAny(tree.elements[0]);
     if (length == 1)
       return binaryExpression;
@@ -270,9 +271,11 @@ export class QuasiLiteralTransformer extends ParseTreeTransformer {
     var plusToken = createOperatorToken(TokenType.PLUS);
     for (var i = 1; i < length; i++) {
       var element = tree.elements[i];
-      if (element.type === QUASI_LITERAL_PORTION &&
-          element.value.value === '') {
-        continue;
+      if (element.type === QUASI_LITERAL_PORTION) {
+        if (element.value.value === '')
+          continue;
+        else if (firstNonEmpty < 0 && i === 2)
+          binaryExpression = binaryExpression.right;
       }
       var transformedTree = this.transformAny(tree.elements[i]);
       binaryExpression = createBinaryOperator(binaryExpression, plusToken,
