@@ -19,12 +19,16 @@ import {
   SLICE
 } from '../syntax/PredefinedName.js';
 import {
+  ARRAY_LITERAL_EXPRESSION,
   ARRAY_PATTERN,
   BINDING_ELEMENT,
-  BINDING_ELEMENT,
   BLOCK,
+  CALL_EXPRESSION,
   IDENTIFIER_EXPRESSION,
-  IDENTIFIER_EXPRESSION,
+  LITERAL_EXPRESSION,
+  MEMBER_EXPRESSION,
+  MEMBER_LOOKUP_EXPRESSION,
+  OBJECT_LITERAL_EXPRESSION,
   OBJECT_PATTERN,
   OBJECT_PATTERN_FIELD,
   PAREN_EXPRESSION,
@@ -235,8 +239,10 @@ DestructuringTransformer.prototype = createObject(proto, {
   desugarAssignment_: function(lvalue, rvalue) {
     var tempIdent = createIdentifierExpression(this.addTempVar());
     var desugaring = new AssignmentExpressionDesugaring(tempIdent);
+
     this.desugarPattern_(desugaring, lvalue);
-    desugaring.expressions.unshift(createAssignmentExpression(tempIdent, rvalue));
+    desugaring.expressions.unshift(
+        createAssignmentExpression(tempIdent, rvalue));
     desugaring.expressions.push(tempIdent);
 
     return createParenExpression(
@@ -482,14 +488,47 @@ DestructuringTransformer.prototype = createObject(proto, {
    * @return {Array.<VariableDeclaration>}
    */
   desugarVariableDeclaration_: function(tree) {
-    var tempIdent = this.identifierGenerator.generateUniqueIdentifier()
-    var desugaring =
-        new VariableDeclarationDesugaring(
-            createIdentifierExpression(tempIdent));
-    // Evaluate the rvalue and store it in a temporary.
-    desugaring.assign(desugaring.rvalue, tree.initializer);
-    this.desugarPattern_(desugaring, tree.lvalue);
-    return desugaring.declarations;
+    var tempRValueName = this.identifierGenerator.generateUniqueIdentifier();
+    var tempRValueIdent = createIdentifierExpression(tempRValueName);
+    var desugaring;
+    var initializer;
+
+    // Don't use parens for these cases:
+    // - tree.initializer is assigned to a temporary.
+    // - tree.initializer normally doesn't need parens for member access.
+    // Don't use temporary if:
+    // - there is only one value to assign.
+    switch (tree.initializer.type) {
+      // Paren not necessary.
+      case ARRAY_LITERAL_EXPRESSION:
+      case CALL_EXPRESSION:
+      case IDENTIFIER_EXPRESSION:
+      case LITERAL_EXPRESSION:
+      case MEMBER_EXPRESSION:
+      case MEMBER_LOOKUP_EXPRESSION:
+      case OBJECT_LITERAL_EXPRESSION:
+      case PAREN_EXPRESSION:
+        initializer = tree.initializer;
+
+      // Paren necessary for single value case.
+      default:
+        // [1] Try first using a temporary (used later as the base rvalue).
+        desugaring = new VariableDeclarationDesugaring(tempRValueIdent);
+        desugaring.assign(desugaring.rvalue, tree.initializer);
+        this.desugarPattern_(desugaring, tree.lvalue);
+
+        // [2] Was the temporary necessary? Then return.
+        if (desugaring.declarations.length > 2)
+          return desugaring.declarations;
+
+        initializer = initializer || createParenExpression(tree.initializer);
+
+        // [3] Redo everything without the temporary.
+        desugaring = new VariableDeclarationDesugaring(initializer);
+        this.desugarPattern_(desugaring, tree.lvalue);
+
+        return desugaring.declarations;
+    }
   },
 
   /**
