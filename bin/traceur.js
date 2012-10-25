@@ -12220,7 +12220,7 @@ var $src_codegeneration_BlockBindingTransformer_js =(function() {
   var $__1474 = $src_syntax_trees_ParseTrees_js, Block = $__1474.Block, ClassDeclaration = $__1474.ClassDeclaration, ForInStatement = $__1474.ForInStatement, ForStatement = $__1474.ForStatement, FunctionDeclaration = $__1474.FunctionDeclaration, GetAccessor = $__1474.GetAccessor, NullTree = $__1474.NullTree, Program = $__1474.Program, SetAccessor = $__1474.SetAccessor, VariableDeclaration = $__1474.VariableDeclaration, VariableDeclarationList = $__1474.VariableDeclarationList, VariableStatement = $__1474.VariableStatement; 
   var ParseTreeTransformer = $src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer; 
   var TokenType = $src_syntax_TokenType_js.TokenType; 
-  var $__1477 = $src_codegeneration_ParseTreeFactory_js, createAssignmentExpression = $__1477.createAssignmentExpression, createBindingIdentifier = $__1477.createBindingIdentifier, createBlock = $__1477.createBlock, createCatch = $__1477.createCatch, createEmptyStatement = $__1477.createEmptyStatement, createExpressionStatement = $__1477.createExpressionStatement, createFinally = $__1477.createFinally, createForInStatement = $__1477.createForInStatement, createForStatement = $__1477.createForStatement, createFunctionDeclaration = $__1477.createFunctionDeclaration, createGetAccessor = $__1477.createGetAccessor, createIdentifierExpression = $__1477.createIdentifierExpression, createIdentifierToken = $__1477.createIdentifierToken, createSetAccessor = $__1477.createSetAccessor, createThrowStatement = $__1477.createThrowStatement, createTryStatement = $__1477.createTryStatement, createUndefinedExpression = $__1477.createUndefinedExpression, createVariableDeclaration = $__1477.createVariableDeclaration, createVariableDeclarationList = $__1477.createVariableDeclarationList, createVariableStatement = $__1477.createVariableStatement; 
+  var $__1477 = $src_codegeneration_ParseTreeFactory_js, createAssignmentExpression = $__1477.createAssignmentExpression, createBindingIdentifier = $__1477.createBindingIdentifier, createBlock = $__1477.createBlock, createCatch = $__1477.createCatch, createEmptyStatement = $__1477.createEmptyStatement, createExpressionStatement = $__1477.createExpressionStatement, createFinally = $__1477.createFinally, createForInStatement = $__1477.createForInStatement, createForStatement = $__1477.createForStatement, createGetAccessor = $__1477.createGetAccessor, createIdentifierExpression = $__1477.createIdentifierExpression, createIdentifierToken = $__1477.createIdentifierToken, createSetAccessor = $__1477.createSetAccessor, createThrowStatement = $__1477.createThrowStatement, createTryStatement = $__1477.createTryStatement, createUndefinedExpression = $__1477.createUndefinedExpression, createVariableDeclaration = $__1477.createVariableDeclaration, createVariableDeclarationList = $__1477.createVariableDeclarationList, createVariableStatement = $__1477.createVariableStatement; 
   var createObject = $src_util_util_js.createObject; 
   var CONST = TokenType.CONST; 
   var LET = TokenType.LET; 
@@ -12418,11 +12418,12 @@ var $src_codegeneration_BlockBindingTransformer_js =(function() {
     }, 
     transformFunctionDeclarationStatement_: function(tree) { 
       var body = this.transformFunctionBody(tree.functionBody); 
+      var formalParameterList = this.transformAny(tree.formalParameterList); 
       if(tree.name != null && this.scope_.type == ScopeType.BLOCK) { 
         this.scope_.addBlockScopedVariable(tree.name.identifierToken.value); 
-        return createExpressionStatement(createAssignmentExpression(createIdentifierExpression(tree.name.identifierToken), createFunctionDeclaration(tree.name, tree.formalParameterList, body))); 
-      } else if(body != tree.functionBody) { 
-        return createFunctionDeclaration(tree.name, tree.formalParameterList, body); 
+        return createExpressionStatement(createAssignmentExpression(createIdentifierExpression(tree.name.identifierToken), new FunctionDeclaration(tree.location, null, tree.isGenerator, formalParameterList, body))); 
+      } else if(body !== tree.functionBody || formalParameterList !== tree.formalParameterList) { 
+        return new FunctionDeclaration(tree.location, tree.name, tree.isGenerator, formalParameterList, body); 
       } else { 
         return tree; 
       } 

@@ -45,7 +45,6 @@ import {
   createFinally,
   createForInStatement,
   createForStatement,
-  createFunctionDeclaration,
   createGetAccessor,
   createIdentifierExpression,
   createIdentifierToken,
@@ -576,6 +575,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
    */
   transformFunctionDeclarationStatement_(tree) {
     var body = this.transformFunctionBody(tree.functionBody);
+    var formalParameterList = this.transformAny(tree.formalParameterList);
 
     if (tree.name != null && this.scope_.type == ScopeType.BLOCK) {
       // Named function in a block scope is only scoped to the block.
@@ -583,15 +583,16 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
       // block scoped variable for it.
       this.scope_.addBlockScopedVariable(tree.name.identifierToken.value);
 
-      // f = function f( ... ) { ... }
+      // f = function( ... ) { ... }
       return createExpressionStatement(
           createAssignmentExpression(
               createIdentifierExpression(tree.name.identifierToken),
-              createFunctionDeclaration(tree.name,
-                  tree.formalParameterList, body)));
-    } else if (body != tree.functionBody) {
-      return createFunctionDeclaration(
-          tree.name, tree.formalParameterList, body);
+              new FunctionDeclaration(tree.location, null, tree.isGenerator,
+                                      formalParameterList, body)));
+    } else if (body !== tree.functionBody ||
+               formalParameterList !== tree.formalParameterList) {
+      return new FunctionDeclaration(tree.location, tree.name, tree.isGenerator,
+                                     formalParameterList, body);
     } else {
       return tree;
     }
