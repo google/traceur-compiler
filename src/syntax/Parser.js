@@ -2039,11 +2039,11 @@ export class Parser {
     var start = this.getTreeStartLocation_();
 
     this.eatId_(); // get
-    var propertyName = this.nextToken_();
+    var name = this.nextToken_();
     this.eat_(TokenType.OPEN_PAREN);
     this.eat_(TokenType.CLOSE_PAREN);
     var body = this.parseFunctionBody_(false);
-    return new GetAccessor(this.getTreeLocation_(start), propertyName, body);
+    return new GetAccessor(this.getTreeLocation_(start), name, body);
   }
 
   /**
@@ -2062,13 +2062,12 @@ export class Parser {
   parseSetAccessor_() {
     var start = this.getTreeStartLocation_();
     this.eatId_(); // set
-    var propertyName = this.nextToken_();
+    var name = this.nextToken_();
     this.eat_(TokenType.OPEN_PAREN);
     var parameter = this.parsePropertySetParameterList_();
     this.eat_(TokenType.CLOSE_PAREN);
     var body = this.parseFunctionBody_(false);
-    return new SetAccessor(this.getTreeLocation_(start), propertyName,
-                           parameter, body);
+    return new SetAccessor(this.getTreeLocation_(start), name, parameter, body);
   }
 
   /**
@@ -3312,12 +3311,12 @@ export class Parser {
   parseBindingProperty_() {
     var start = this.getTreeStartLocation_();
     if (this.peek_(TokenType.COLON, 1)) {
-      var propertyName = this.nextToken_();
+      var name = this.nextToken_();
       this.eat_(TokenType.COLON);
       var binding = this.parseBindingElement_();
       // TODO(arv): Rename ObjectPatternField to BindingProperty
       return new ObjectPatternField(this.getTreeLocation_(start),
-                                    propertyName, binding);
+                                    name, binding);
     }
 
     var binding = this.parseBindingIdentifier_();

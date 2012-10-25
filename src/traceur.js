@@ -79,14 +79,13 @@ module traceur {
   export function define(name, fun) {
     var obj = exportPath(name);
     var exports = fun();
-    for (var propertyName in exports) {
+    for (var name in exports) {
       // Maybe we should check the prototype chain here? The current usage
       // pattern is always using an object literal so we only care about own
       // properties.
-      var propertyDescriptor = Object.getOwnPropertyDescriptor(exports,
-                                                               propertyName);
+      var propertyDescriptor = Object.getOwnPropertyDescriptor(exports, name);
       if (propertyDescriptor)
-        Object.defineProperty(obj, propertyName, propertyDescriptor);
+        Object.defineProperty(obj, name, propertyDescriptor);
     }
   }
 

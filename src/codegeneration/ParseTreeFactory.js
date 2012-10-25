@@ -57,12 +57,12 @@ export function createIdentifierToken(identifier) {
 }
 
 /**
- * @param {string} propertyName
+ * @param {string} name
  * @return {Token}
  */
-export function createPropertyNameToken(propertyName) {
+export function createPropertyNameToken(name) {
   // TODO: properties with non identifier names
-  return createIdentifierToken(propertyName);
+  return createIdentifierToken(name);
 }
 
 export function createStringLiteralToken(value) {
@@ -608,16 +608,16 @@ export function createFunctionExpression(formalParameterList, functionBody) {
                                  formalParameterList, functionBody);
 }
 
-// get propertyName () { ... }
+// get name () { ... }
 /**
- * @param {string|Token} propertyName
+ * @param {string|Token} name
  * @param {Block} body
  * @return {GetAccessor}
  */
-export function createGetAccessor(propertyName, body) {
-  if (typeof propertyName == 'string')
-    propertyName = createPropertyNameToken(propertyName);
-  return new GetAccessor(null, propertyName, body);
+export function createGetAccessor(name, body) {
+  if (typeof name == 'string')
+    name = createPropertyNameToken(name);
+  return new GetAccessor(null, name, body);
 }
 
 /**
@@ -916,17 +916,17 @@ export function createYieldStatement(expression, isYieldFor) {
 }
 
 /**
- * @param {string|Token} propertyName
+ * @param {string|Token} name
  * @param {string|IdentifierToken} parameter
  * @param {Block} body
  * @return {SetAccessor}
  */
-export function createSetAccessor(propertyName, parameter, body) {
-  if (typeof propertyName == 'string')
-    propertyName = createPropertyNameToken(propertyName);
+export function createSetAccessor(name, parameter, body) {
+  if (typeof name == 'string')
+    name = createPropertyNameToken(name);
   if (typeof parameter == 'string')
     parameter = createIdentifierToken(parameter);
-  return new SetAccessor(null, propertyName, parameter, body);
+  return new SetAccessor(null, name, parameter, body);
 }
 
 /**

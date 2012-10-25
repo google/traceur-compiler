@@ -55,30 +55,48 @@ function findAtNameInProperty(propertyName) {
 
 /**
  * AtNameFinder class that finds if an object literal contains an at name.
- * @param {ObjectLiteralTree} tree
- * @constructor
- * @extends FindVisitor
  */
-function AtNameFinder(tree) {
-  this.protoExpression = null;
-  FindVisitor.call(this, tree, true);
-}
-AtNameFinder.prototype = createObject(FindVisitor.prototype, {
-  visitPropertyNameAssignment: function(tree) {
+class AtNameFinder extends FindVisitor {
+  /**
+   * @param {ObjectLiteralTree} tree
+   */
+  constructor(tree) {
+    this.protoExpression = null;
+    super(tree, true);
+  }
+
+  checkAtName_(tree) {
     if (transformOptions.privateNameSyntax &&
         tree.name.type === TokenType.AT_NAME) {
-      this.found = true;
-    } else if (getPropertyNameForToken(tree.name) === '__proto__') {
+      return this.found = true;
+    }
+    return false
+  }
+
+  visitPropertyNameAssignment(tree) {
+    if (this.checkAtName_(tree))
+      return;
+    if (getPropertyNameForToken(tree.name) === '__proto__') {
       this.protoExpression = tree.value;
     }
-  },
-  // TODO(arv): Rename propertyName to name.
-  // https://code.google.com/p/traceur-compiler/issues/detail?id=153
-  visitGetAccessor: findAtNameInProperty('propertyName'),
-  visitSetAccessor: findAtNameInProperty('propertyName'),
-  visitPropertyMethodAssignment: findAtNameInProperty('name'),
-  visitPropertyNameShorthand: findAtNameInProperty('name'),
-});
+  }
+
+  visitGetAccessor(tree) {
+    this.checkAtName_(tree);
+  }
+
+  visitSetAccessor(tree) {
+    this.checkAtName_(tree);
+  }
+
+  visitPropertyMethodAssignment(tree) {
+    this.checkAtName_(tree);
+  }
+
+  visitPropertyNameShorthand(tree) {
+    this.checkAtName_(tree);
+  }
+}
 
 /**
  * The property name as a string.
@@ -239,7 +257,7 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
 
     var body = this.transformAny(tree.body);
     var func = createFunctionExpression(createEmptyParameterList(), body);
-    return this.createProperty_(tree.propertyName,
+    return this.createProperty_(tree.name,
         {
           get: func,
           configurable: true,
@@ -255,7 +273,7 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
     var parameterList = new FormalParameterList(parameter.location,
                                                 [parameter]);
     var func = createFunctionExpression(parameterList, body);
-    return this.createProperty_(tree.propertyName,
+    return this.createProperty_(tree.name,
         {
           set: func,
           configurable: true,

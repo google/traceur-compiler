@@ -219,7 +219,7 @@ export class ClassTransformer extends TempVarTransformer{
     var body = this.transformSuperInBlock_(tree, tree.body);
     if (body === tree.body)
       return tree;
-    return new GetAccessor(tree.location, tree.propertyName, body);
+    return new GetAccessor(tree.location, tree.name, body);
   }
 
   transformSetAccessor_(tree) {
@@ -227,7 +227,7 @@ export class ClassTransformer extends TempVarTransformer{
     var body = this.transformSuperInBlock_(tree, tree.body);
     if (body === tree.body)
       return tree;
-    return new SetAccessor(tree.location, tree.propertyName, parameter, body);
+    return new SetAccessor(tree.location, tree.name, parameter, body);
   }
 
   transformConstructor_(tree) {

@@ -371,7 +371,7 @@ export class DestructuringTransformer extends TempVarTransformer {
                           transformedTree.body.statements);
 
     return new SetAccessor(transformedTree.location,
-                           transformedTree.propertyName,
+                           transformedTree.name,
                            transformedTree.parameter,
                            createBlock(statements));
   }

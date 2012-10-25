@@ -202,7 +202,7 @@ export class GeneratorTransformPass extends ParseTreeTransformer {
     }
     return new GetAccessor(
         null,
-        tree.propertyName,
+        tree.name,
         body);
   }
 
@@ -217,7 +217,7 @@ export class GeneratorTransformPass extends ParseTreeTransformer {
     }
     return new SetAccessor(
         null,
-        tree.propertyName,
+        tree.name,
         tree.parameter,
         body);
   }

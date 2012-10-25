@@ -623,7 +623,7 @@ export class ParseTreeTransformer {
     var body = this.transformFunctionBody(tree.body);
     if (body == tree.body)
       return tree;
-    return new GetAccessor(tree.location, tree.propertyName, body);
+    return new GetAccessor(tree.location, tree.name, body);
   }
 
   /**
@@ -1005,7 +1005,7 @@ export class ParseTreeTransformer {
     var body = this.transformFunctionBody(tree.body);
     if (parameter === tree.parameter && body === tree.body)
       return tree;
-    return new SetAccessor(tree.location, tree.propertyName, parameter, body);
+    return new SetAccessor(tree.location, tree.name, parameter, body);
   }
 
   /**

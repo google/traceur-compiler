@@ -520,7 +520,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitGetAccessor(tree) {
     this.write_(GET);
-    this.write_(tree.propertyName);
+    this.write_(tree.name);
     this.write_(TokenType.OPEN_PAREN);
     this.write_(TokenType.CLOSE_PAREN);
     this.visitAny(tree.body);
@@ -846,7 +846,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitSetAccessor(tree) {
     this.write_(SET);
-    this.write_(tree.propertyName);
+    this.write_(tree.name);
     this.write_(TokenType.OPEN_PAREN);
     this.visitAny(tree.parameter);
     this.write_(TokenType.CLOSE_PAREN);

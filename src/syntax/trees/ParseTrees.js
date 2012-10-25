@@ -548,12 +548,12 @@ export class GeneratorComprehension extends ParseTree {
 export class GetAccessor extends ParseTree {
   /**
    * @param {SourceRange} location
-   * @param {Token} propertyName
+   * @param {Token} name
    * @param {Block} body
    */
-  constructor(location, propertyName, body) {
+  constructor(location, name, body) {
     super(GET_ACCESSOR, location);
-    this.propertyName = propertyName;
+    this.name = name;
     this.body = body;
   }
 }
@@ -967,13 +967,13 @@ export class ReturnStatement extends ParseTree {
 export class SetAccessor extends ParseTree {
   /**
    * @param {SourceRange} location
-   * @param {Token} propertyName
+   * @param {Token} name
    * @param {traceur.syntax.IdentifierToken} parameter
    * @param {Block} body
    */
-  constructor(location, propertyName, parameter, body) {
+  constructor(location, name, parameter, body) {
     super(SET_ACCESSOR, location);
-    this.propertyName = propertyName;
+    this.name = name;
     this.parameter = parameter;
     this.body = body;
   }
