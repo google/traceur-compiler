@@ -1040,6 +1040,7 @@ var $src_options_js =(function() {
   function coerceOptionValue(v) { 
     switch(v) { 
       case 'false': 
+      case false: 
         return false; 
 
       case 'parse': 

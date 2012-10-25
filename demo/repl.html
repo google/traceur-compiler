@@ -30,33 +30,44 @@
 @import url(http://fonts.googleapis.com/css?family=Droid+Sans);
 
 html, body {
-  height: 100%;
   margin: 0;
 }
 
-textarea {
-  display: block;
-  width: 100%;
-  height: 50%;
-  margin: 0;
-  border:  0;
-  border-bottom: 1px solid #aaa;
-  box-sizing: border-box;
-  padding: 5px;
+.CodeMirror-scroll {
+  border: 1px solid #ddd;
+  height: auto;
+  min-height: 300px;
+}
+
+.output-wrapper {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+html.hide-output .output-wrapper {
+  display: none;
+}
+
+.CodeMirror {
+  width: -webkit-calc(50% - 15px);
+  width: calc(50% - 15px);
+}
+
+html.hide-output .CodeMirror {
+  width: -webkit-calc(100% - 20px);
+  width: calc(100% - 20px);
 }
 
 textarea,
 pre,
 .CodeMirror {
   font: 12px 'Droid Sans Mono', sans-serif;
+  margin: 10px;
 }
 
 .error {
   color: red;
-}
-
-pre{
-  margin: 5px;
 }
 
 .option-button {
@@ -107,7 +118,7 @@ pre{
 <pre class="error"></pre>
 <pre class="eval"></pre>
 
-<pre class="output"></pre>
+<textarea class="output"></textarea>
 <pre class="source-map"></pre>
 <button class="option-button">Options</button>
 <div class="options" hidden>
@@ -124,6 +135,9 @@ pre{
 (function() {
   'use strict';
 
+  // Do not show source maps by default.
+  traceur.options.sourceMaps = false;
+
   var SourceMapConsumer = traceur.outputgeneration.SourceMapConsumer;
   var SourceMapGenerator = traceur.outputgeneration.SourceMapGenerator;
   var ProjectWriter = traceur.outputgeneration.ProjectWriter;
@@ -137,7 +151,12 @@ pre{
     lineNumbers: true
   });
   var outputCheckbox = document.querySelector('input.output');
-  var output = document.querySelector('pre.output');
+  var output = CodeMirror.fromTextArea(
+      document.querySelector('textarea.output'), {
+        lineNumbers: true,
+        readOnly: true
+      });
+  output.getWrapperElement().classList.add('output-wrapper');
   var evalCheckbox = document.querySelector('input.eval');
   var evalElement = document.querySelector('pre.eval');
   var errorElement = document.querySelector('pre.error');
@@ -151,7 +170,8 @@ pre{
   }, false);
 
   outputCheckbox.addEventListener('click', function(e) {
-    output.hidden = !outputCheckbox.checked;
+    document.documentElement.classList[
+        outputCheckbox.checked ? 'remove' : 'add']('hide-output');
   }, false);
 
   /**
@@ -185,8 +205,8 @@ pre{
 
   function compile() {
     hasError = false;
-    output.textContent = errorElement.textContent =
-        sourceMapElement.textContent = '';
+    output.setValue('');
+    errorElement.textContent = sourceMapElement.textContent = '';
 
     var reporter = new ErrorReporter();
     reporter.reportMessageInternal = function(location, kind, format, args) {
@@ -214,7 +234,8 @@ pre{
         options = {sourceMapGenerator: sourceMapGenerator};
       }
 
-      var source = output.textContent = ProjectWriter.write(res, options);
+      var source = ProjectWriter.write(res, options);
+      output.setValue(source);
 
       if (evalCheckbox.checked) {
         try {
@@ -255,7 +276,7 @@ pre{
     var optionsDiv = document.querySelector('.traceur-options');
     optionsDiv.textContent = '';
     Object.keys(traceur.options).forEach(function(name) {
-      if (name === 'arrowFunctions' || name === 'debug') {
+      if (name === 'arrayComprehension' || name === 'debug') {
         optionsDiv.appendChild(document.createElement('hr'));
       }
       optionsDiv.appendChild(createOptionRow(name));

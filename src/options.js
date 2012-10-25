@@ -178,6 +178,7 @@ function setFromObject(object) {
 function coerceOptionValue(v) {
   switch (v) {
     case 'false':
+    case false:
       return false;
     case 'parse':
       return 'parse';
