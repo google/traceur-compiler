@@ -178,7 +178,8 @@ export class ProgramTransformer {
     // destructuring must come after for of and before block binding
     chain(transformOptions.destructuring,
           DestructuringTransformer.transformTree, identifierGenerator);
-    chain(transformOptions.spread, SpreadTransformer.transformTree, runtimeInliner);
+    chain(transformOptions.spread, SpreadTransformer.transformTree,
+          identifierGenerator, runtimeInliner);
 
     chain(true, runtimeInliner.transformAny.bind(runtimeInliner));
 

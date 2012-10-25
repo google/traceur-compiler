@@ -52,6 +52,7 @@ export var FIELD_INITIALIZER_METHOD = '$field_initializer_';
 export var FINALLY_FALL_THROUGH = '$finallyFallThrough';
 export var FREEZE = 'freeze';
 export var FROM = 'from';
+export var FUNCTION = 'Function';
 export var GET = 'get';
 export var GET_ITERATOR = 'getIterator';
 export var GET_MODULE_INSTANCE_BY_URL = 'getModuleInstanceByUrl';

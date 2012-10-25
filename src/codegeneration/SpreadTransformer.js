@@ -12,22 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import APPLY from '../syntax/PredefinedName.js';
+import {
+  APPLY,
+  BIND,
+  FUNCTION,
+  PROTOTYPE
+} from '../syntax/PredefinedName.js';
 import {
   MEMBER_EXPRESSION,
   MEMBER_LOOKUP_EXPRESSION,
   SPREAD_EXPRESSION
 } from  '../syntax/trees/ParseTreeType.js';
-import ParseTreeTransformer from 'ParseTreeTransformer.js';
+import TempVarTransformer from 'TempVarTransformer.js';
 import {
   createArgumentList,
   createArrayLiteralExpression,
+  createAssignmentExpression,
   createBlock,
   createBooleanLiteral,
   createCallExpression,
+  createEmptyArgumentList,
   createFunctionExpression,
+  createIdentifierExpression,
   createMemberExpression,
   createMemberLookupExpression,
+  createNewExpression,
   createNullLiteral,
   createParameterList,
   createParameterReference,
@@ -36,55 +45,22 @@ import {
 } from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
 
-// Spreads the elements in {@code items} into a single array.
-// @param {Array} items Array of interleaving booleans and values.
+// Spreads the elements in the arguments into a single array.
 // @return {Array}
 var SPREAD_CODE = `
-    function(items) {
-      var retval = [];
-      var k = 0;
-      for (var i = 0; i < items.length; i += 2) {
-        var value = items[i + 1];
-        // spread
-        if (items[i]) {
-          value = %toObject(value);
-          for (var j = 0; j < value.length; j++) {
-            retval[k++] = value[j];
-          }
-        } else {
-          retval[k++] = value;
+    function() {
+      var rv = [], k = 0;
+      for (var i = 0; i < arguments.length; i++) {
+        var value = %toObject(arguments[i]);
+        for (var j = 0; j < value.length; j++) {
+          rv[k++] = value[j];
         }
       }
-      return retval;
-    }`;
-
-
-// @param {Function} ctor
-// @param {Array} items Array of interleaving booleans and values.
-// @return {Object}
-var SPREAD_NEW_CODE = `
-    function(ctor, items) {
-      var args = %spread(items);
-      args.unshift(null);
-      return new (Function.prototype.bind.apply(ctor, args));
+      return rv;
     }`;
 
 function hasSpreadMember(trees) {
   return trees.some((tree) => tree.type == SPREAD_EXPRESSION);
-}
-
-function createInterleavedArgumentsArray(elements) {
-  var args = [];
-  elements.forEach((element) => {
-    if (element.type == SPREAD_EXPRESSION) {
-      args.push(createBooleanLiteral(true));
-      args.push(element.expression);
-    } else {
-      args.push(createBooleanLiteral(false));
-      args.push(element);
-    }
-  });
-  return createArrayLiteralExpression(args);
 }
 
 /**
@@ -93,133 +69,146 @@ function createInterleavedArgumentsArray(elements) {
  *
  * @see <a href="http://wiki.ecmascript.org/doku.php?id=harmony:spread">harmony:spread</a>
  */
-export class SpreadTransformer extends ParseTreeTransformer {
+export class SpreadTransformer extends TempVarTransformer {
   /**
+   * @param {UniqueIdentifierGenerator} identifierGenerator
    * @param {RuntimeInliner} runtimeInliner
    */
-  constructor(runtimeInliner) {
-    super();
+  constructor(identifierGenerator, runtimeInliner) {
+    super(identifierGenerator);
     this.runtimeInliner_ = runtimeInliner;
-  }
-
-  createExpandCall_(elements) {
-    if (elements.length === 1) {
-      return createCallExpression(
-          this.toObject_,
-          createArgumentList(elements[0].expression));
-    }
-    var args = createInterleavedArgumentsArray(elements);
-    return createCallExpression(
-        this.spread_,
-        createArgumentList(args));
   }
 
   get spread_() {
     return this.runtimeInliner_.get('spread', SPREAD_CODE);
   }
 
-  get spreadNew_() {
-    this.runtimeInliner_.register('spread', SPREAD_CODE);
-    return this.runtimeInliner_.get('spreadNew', SPREAD_NEW_CODE);
-  }
-
   get toObject_() {
     return this.runtimeInliner_.get('toObject');
   }
 
-  desugarArraySpread_(tree) {
-    // [a, ...b, c]
-    //
-    // (expandFunction)([false, a, true, b, false, c])
-    return this.createExpandCall_(tree.elements);
+  /**
+   * Creates an expression that results in an array where all the elements are
+   * spread.
+   *
+   *   ...xs, x, ...ys, y, z
+   *
+   * transforms to something like
+   *
+   *   _spread(xs, [x], ys, [y, z])
+   *
+   * @param {Array.<ParseTree>} elements
+   * @param {boolean} needsNewArray In the case of a spread call we can
+   *     sometimes get away with out creating a new array.
+   * @return {CallExpression}
+   * @private
+   */
+  createArrayFromElements_(elements, needsNewArray) {
+    var length = elements.length;
+
+    // If only one argument we know it must be a spread expression so all we
+    // need to do is to ensure it is an object.
+    if (length === 1 && !needsNewArray) {
+      return createCallExpression(
+          this.toObject_,
+          createArgumentList(this.transformAny(elements[0].expression)));
+    }
+
+    // Coalesce multiple non spread elements.
+    var args = [];
+    var lastArray;
+    for (var i = 0; i < length; i++) {
+      if (elements[i].type === SPREAD_EXPRESSION) {
+        if (lastArray) {
+          args.push(createArrayLiteralExpression(lastArray));
+          lastArray = null;
+        }
+        args.push(
+            this.transformAny(elements[i].expression));
+      } else {
+        if (!lastArray)
+          lastArray = [];
+        lastArray.push(this.transformAny(elements[i]));
+      }
+    }
+    if (lastArray)
+      args.push(createArrayLiteralExpression(lastArray));
+
+    // _spread(args)
+    return createCallExpression(
+        this.spread_,
+        createArgumentList(args));
   }
 
   desugarCallSpread_(tree) {
-    if (tree.operand.type == MEMBER_EXPRESSION) {
+    var operand = this.transformAny(tree.operand);
+    var functionObject, contextObject;
+
+    if (operand.type == MEMBER_EXPRESSION) {
       // expr.fun(a, ...b, c)
       //
-      // expr.fun.apply(expr, (expandFunction)([false, a, true, b, false, c]))
-      //
-      // (function($0, $1) {
-      //   return $0.fun.apply($0, $1);
-      // })(expr, (expandFunction)([false, a, true, b, false, c]))
+      // ($tmp = expr).fun.apply($tmp, expandedArgs)
 
-      var expression = tree.operand;
-      return this.desugarSpreadMethodCall_(
-          tree,
-          expression.operand,
-          createMemberExpression(
-              createParameterReference(0),
-              expression.memberName));
+      var tempIdent = createIdentifierExpression(this.addTempVar());
+      var parenExpression = createParenExpression(
+          createAssignmentExpression(tempIdent, operand.operand));
+      var memberName = operand.memberName;
+
+      contextObject = tempIdent;
+      functionObject = createMemberExpression(parenExpression, memberName);
 
     } else if (tree.operand.type == MEMBER_LOOKUP_EXPRESSION) {
       // expr[fun](a, ...b, c)
       //
-      // expr[fun].apply(expr,
-      //                 (expandFunction)([false, a, true, b, false, c]))
+      // ($tmp = expr)[fun].apply($tmp, expandedArgs)
+
+      var tempIdent = createIdentifierExpression(this.addTempVar());
+      var parenExpression = createParenExpression(
+          createAssignmentExpression(tempIdent, operand.operand));
+      var memberExpression = this.transformAny(operand.memberExpression);
+
+      contextObject = tempIdent;
+      functionObject = createMemberLookupExpression(parenExpression,
+                                                    memberExpression);
+
+    } else {
+
+      // f(a, ...b, c)
       //
-      // (function($0, $1) {
-      //   return $0[fun].apply($0, $1);
-      // })(expr, (expandFunction)([false, a, true, b, false, c]))
-
-      var lookupExpression = tree.operand;
-      return this.desugarSpreadMethodCall_(
-          tree,
-          lookupExpression.operand,
-          createMemberLookupExpression(
-              createParameterReference(0),
-              lookupExpression.memberExpression));
+      // f.apply(null, expandedArgs)
+      // TODO(arv): Should this be apply([[Global]], ...) instead?
+      contextObject = createNullLiteral();
+      functionObject = operand;
     }
-    // f(a, ..b, c)
-    //
-    // f.apply(null, (expandFunction)([false, a, true, b, false, c])
 
-    // TODO(arv): Should this be apply([[Global]], ...) instead?
-
-    return createCallExpression(createMemberExpression(tree.operand, APPLY),
-        createArgumentList(createNullLiteral(),
-                           this.createExpandCall_(tree.args.args)));
-  }
-
-  desugarSpreadMethodCall_(tree, operand, memberLookup) {
-    // (function ($0, $1) {
-    //   return memberLookup.apply($0, $1);
-    // })(operand, expandCall(arguments))
-
-    var body = createBlock(
-        createReturnStatement(
-            createCallExpression(
-                createMemberExpression(
-                    memberLookup,
-                    APPLY),
-                createArgumentList(
-                    createParameterReference(0),
-                    createParameterReference(1)))));
-
-    var func = createParenExpression(
-        createFunctionExpression(createParameterList(2), body));
-
+    // functionObject.apply(contextObject, expandedArgs)
+    var arrayExpression = this.createArrayFromElements_(tree.args.args, false);
     return createCallExpression(
-        func,
-        createArgumentList(
-            operand,
-            this.createExpandCall_(tree.args.args)));
+        createMemberExpression(functionObject, APPLY),
+        createArgumentList(contextObject, arrayExpression));
   }
 
   desugarNewSpread_(tree) {
     // new Fun(a, ...b, c)
     //
-    // %spreadNew(Fun, [false, a, true, b, false, c])
-    return createCallExpression(
-        this.spreadNew_,
-        createArgumentList(
-            tree.operand,
-            createInterleavedArgumentsArray(tree.args.args)));
+    // new (Function.prototype.bind.apply(Fun, [null, ... args]))
+
+    var arrayExpression = [createNullLiteral(), ...tree.args.args];
+    arrayExpression = this.createArrayFromElements_(arrayExpression, false);
+
+    return createNewExpression(
+        createParenExpression(
+            createCallExpression(
+              createMemberExpression(FUNCTION, PROTOTYPE, BIND, APPLY),
+              createArgumentList(
+                  this.transformAny(tree.operand),
+                  arrayExpression))),
+        createEmptyArgumentList());
   }
 
   transformArrayLiteralExpression(tree) {
     if (hasSpreadMember(tree.elements)) {
-      return this.desugarArraySpread_(tree);
+      return this.createArrayFromElements_(tree.elements, true);
     }
     return super.transformArrayLiteralExpression(tree);
   }
@@ -239,6 +228,8 @@ export class SpreadTransformer extends ParseTreeTransformer {
   }
 }
 
-SpreadTransformer.transformTree = function(runtimeInliner, tree) {
-  return new SpreadTransformer(runtimeInliner).transformAny(tree);
+SpreadTransformer.transformTree = function(identifierGenerator, runtimeInliner,
+                                           tree) {
+  return new SpreadTransformer(identifierGenerator, runtimeInliner).
+      transformAny(tree);
 };
