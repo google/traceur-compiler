@@ -130,8 +130,10 @@ pre{
   var ErrorReporter = traceur.util.ErrorReporter;
 
   var hasError = false;
+  var debouncedCompile = debounced(compile, 200, 2000);
   var input = CodeMirror.fromTextArea(document.querySelector('.input'), {
-    onChange: compile,
+    onChange: debouncedCompile,
+    onCursorActivity: debouncedCompile.delay,
     lineNumbers: true
   });
   var outputCheckbox = document.querySelector('input.output');
@@ -151,6 +153,35 @@ pre{
   outputCheckbox.addEventListener('click', function(e) {
     output.hidden = !outputCheckbox.checked;
   }, false);
+
+  /**
+   * debounce time = min(tmin + [func's execution time], tmax).
+   *
+   * @param {Function} func
+   * @param {number} tmin Minimum debounce time
+   * @param {number} tmax Maximum debounce time
+   * @return {Function} A debounced version of func with an attached "delay"
+   *     function. "delay" will delay any pending debounced function by the
+   *     current debounce time. If there are none pending, it is a no-op.
+   */
+  function debounced(func, tmin, tmax) {
+    var id = 0;
+    var t = tmin;
+    function wrappedFunc() {
+      var start = Date.now();
+      id = 0;
+      func();
+      t = tmin + Date.now() - start; // tmin + [func's execution time]
+      t = t < tmax ? t : tmax;
+    }
+    function debouncedFunc() {
+      clearTimeout(id);
+      id = setTimeout(wrappedFunc, t);
+    }
+    // id is nonzero only when a debounced function is pending.
+    debouncedFunc.delay = function() { id && debouncedFunc(); }
+    return debouncedFunc;
+  }
 
   function compile() {
     hasError = false;
