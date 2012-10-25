@@ -19,22 +19,19 @@ import {
 } from '../ParseTreeFactory.js';
 import createObject from '../../util/util.js';
 
-/**
- * @param {number} id
- * @param {number} ifState
- * @param {number} elseState
- * @param {ParseTree} condition
- * @constructor
- * @extends {State}
- */
-export function ConditionalState(id, ifState, elseState, condition) {
-  State.call(this, id);
-  this.ifState = ifState;
-  this.elseState = elseState;
-  this.condition = condition;
-}
-
-ConditionalState.prototype = createObject(State.prototype, {
+export class ConditionalState extends State {
+  /**
+   * @param {number} id
+   * @param {number} ifState
+   * @param {number} elseState
+   * @param {ParseTree} condition
+   */
+  constructor(id, ifState, elseState, condition) {
+    super(id);
+    this.ifState = ifState;
+    this.elseState = elseState;
+    this.condition = condition;
+  }
 
   /**
    * Represents the dispatch portion of an if/else block.
@@ -44,13 +41,13 @@ ConditionalState.prototype = createObject(State.prototype, {
    * @param {number} newState
    * @return {ConditionalState}
    */
-  replaceState: function(oldState, newState) {
+  replaceState(oldState, newState) {
     return new ConditionalState(
         State.replaceStateId(this.id, oldState, newState),
         State.replaceStateId(this.ifState, oldState, newState),
         State.replaceStateId(this.elseState, oldState, newState),
         this.condition);
-  },
+  }
 
   /**
    * @param {FinallyState} enclosingFinally
@@ -58,10 +55,10 @@ ConditionalState.prototype = createObject(State.prototype, {
    * @param {ErrorReporter} reporter
    * @return {Array.<ParseTree>}
    */
-  transform: function(enclosingFinally, machineEndState, reporter) {
+  transform(enclosingFinally, machineEndState, reporter) {
     return [
       createIfStatement(this.condition,
           createBlock(State.generateJump(enclosingFinally, this.ifState)),
           createBlock(State.generateJump(enclosingFinally, this.elseState)))];
   }
-});
+}

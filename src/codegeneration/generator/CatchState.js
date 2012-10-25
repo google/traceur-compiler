@@ -18,31 +18,31 @@ import createObject from '../../util/util.js';
 
 /**
  * Represents the dispatch portion of a try/catch block in a state machine.
- * @param {string} identifier  The name of the exception variable in the catch.
- * @param {number} catchState  The start of the catch portion of the 'try/catch'.
- * @param {number} fallThroughState  The fall through state of the catch portion of the 'try/catch'.
- * @param {Array.<number>} allStates
- * @param {TryState} nestedTrys
- * @extends {TryState}
- * @constructor
  */
-export function CatchState(identifier, catchState, fallThroughState, allStates,
-    nestedTrys) {
-  TryState.call(this, TryState.Kind.CATCH, allStates, nestedTrys);
-
-  this.identifier = identifier;
-  this.catchState = catchState;
-  this.fallThroughState = fallThroughState;
-}
-
-CatchState.prototype = createObject(TryState.prototype, {
+export class CatchState extends TryState {
+  /**
+   * @param {string} identifier The name of the exception variable in the
+   *     catch.
+   * @param {number} catchState The start of the catch portion of the
+   *     'try/catch'.
+   * @param {number} fallThroughState The fall through state of the catch
+   *     portion of the 'try/catch'.
+   * @param {Array.<number>} allStates
+   * @param {TryState} nestedTrys
+   */
+  constructor(identifier, catchState, fallThroughState, allStates, nestedTrys) {
+    super(TryState.Kind.CATCH, allStates, nestedTrys);
+    this.identifier = identifier;
+    this.catchState = catchState;
+    this.fallThroughState = fallThroughState;
+  }
 
   /**
    * @param {number} oldState
    * @param {number} newState
    * @return {CatchState}
    */
-  replaceState: function(oldState, newState) {
+  replaceState(oldState, newState) {
     return new CatchState(
         this.identifier,
         State.replaceStateId(this.catchState, oldState, newState),
@@ -50,4 +50,4 @@ CatchState.prototype = createObject(TryState.prototype, {
         this.replaceAllStates(oldState, newState),
         this.replaceNestedTrys(oldState, newState));
   }
-});
+}

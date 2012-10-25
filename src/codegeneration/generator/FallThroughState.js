@@ -15,32 +15,29 @@
 import State from 'State.js';
 import createObject from '../../util/util.js';
 
-/**
- * @param {number} id
- * @param {number} fallThroughState
- * @param {Array.<ParseTree>} statements
- * @constructor
- * @extends {State}
- */
-export function FallThroughState(id, fallThroughState, statements) {
-  State.call(this, id);
-  this.fallThroughState = fallThroughState;
-  this.statements = statements;
-}
-
-FallThroughState.prototype = createObject(State.prototype, {
+export class FallThroughState extends State {
+  /**
+   * @param {number} id
+   * @param {number} fallThroughState
+   * @param {Array.<ParseTree>} statements
+   */
+  constructor(id, fallThroughState, statements) {
+    super(id);
+    this.fallThroughState = fallThroughState;
+    this.statements = statements;
+  }
 
   /**
    * @param {number} oldState
    * @param {number} newState
    * @return {FallThroughState}
    */
-  replaceState: function(oldState, newState) {
+  replaceState(oldState, newState) {
     return new FallThroughState(
         State.replaceStateId(this.id, oldState, newState),
         State.replaceStateId(this.fallThroughState, oldState, newState),
         this.statements);
-  },
+  }
 
   /**
    * @param {FinallyState} enclosingFinally
@@ -48,11 +45,11 @@ FallThroughState.prototype = createObject(State.prototype, {
    * @param {ErrorReporter} reporter
    * @return {Array.<ParseTree>}
    */
-  transform: function(enclosingFinally, machineEndState, reporter) {
+  transform(enclosingFinally, machineEndState, reporter) {
     var statements = [];
     statements.push.apply(statements, this.statements);
     statements.push.apply(statements,
         State.generateJump(enclosingFinally, this.fallThroughState));
     return statements;
   }
-});
+}

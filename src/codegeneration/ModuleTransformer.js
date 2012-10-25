@@ -132,12 +132,10 @@ function transformSpecifier(project, identifierToken, moduleExpression) {
   return createIdentifierExpression(identifierToken);
 }
 
-/**
- * @param {Project} project
- * @constructor
- * @extends {ParseTreeTransformer}
- */
 export class ModuleTransformer extends ParseTreeTransformer {
+  /**
+   * @param {Project} project
+   */
   constructor(project) {
     super();
     this.project_ = project;

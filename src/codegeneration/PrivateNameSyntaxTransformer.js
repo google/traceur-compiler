@@ -38,38 +38,19 @@ import createObject from '../util/util.js';
  * Desugars the private name syntax, @name.
  *
  * @see http://wiki.ecmascript.org/doku.php?id=strawman:syntactic_support_for_private_names
- *
- * @param {UniqueIdentifierGenerator} identifierGenerator
- * @extends {TempVarTransformer}
- * @constructor
  */
-export function PrivateNameSyntaxTransformer(identifierGenerator) {
-  TempVarTransformer.call(this, identifierGenerator);
-}
+export class PrivateNameSyntaxTransformer extends TempVarTransformer {
 
-/**
- * @param {UniqueIdentifierGenerator} identifierGenerator
- * @param {ParseTree} tree
- */
-PrivateNameSyntaxTransformer.transformTree = function(identifierGenerator,
-                                                      tree) {
-  return new PrivateNameSyntaxTransformer(identifierGenerator).
-      transformAny(tree);
-};
-
-var base = TempVarTransformer.prototype;
-PrivateNameSyntaxTransformer.prototype = createObject(base, {
-
-  getTransformedName_: function(token) {
+  getTransformedName_(token) {
     return this.identifierGenerator.getUniqueIdentifier(token.value);
-  },
+  }
 
-  transformAtNameExpression: function(tree) {
+  transformAtNameExpression(tree) {
     var transformedName = this.getTransformedName_(tree.atNameToken);
     return createIdentifierExpression(transformedName);
-  },
+  }
 
-  transformNameStatement: function(tree) {
+  transformNameStatement(tree) {
     // private @a, @b = expr;
     //  =>
     // const __a = traceur.runtime.createName(),
@@ -78,9 +59,9 @@ PrivateNameSyntaxTransformer.prototype = createObject(base, {
     return new VariableStatement(tree.location,
         new VariableDeclarationList(tree.location, TokenType.CONST,
                                     declarations));
-  },
+  }
 
-  transformAtNameDeclaration: function(tree) {
+  transformAtNameDeclaration(tree) {
     var transformedName = this.getTransformedName_(tree.atNameToken);
 
     var args, name;
@@ -97,4 +78,14 @@ PrivateNameSyntaxTransformer.prototype = createObject(base, {
         createMemberExpression(TRACEUR, RUNTIME, name),
         args));
   }
-});
+}
+
+/**
+ * @param {UniqueIdentifierGenerator} identifierGenerator
+ * @param {ParseTree} tree
+ */
+PrivateNameSyntaxTransformer.transformTree = function(identifierGenerator,
+                                                      tree) {
+  return new PrivateNameSyntaxTransformer(identifierGenerator).
+      transformAny(tree);
+};

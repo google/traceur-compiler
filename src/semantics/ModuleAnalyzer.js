@@ -23,47 +23,47 @@ import ValidationVisitor from '../codegeneration/module/ValidationVisitor.js';
 
 /**
  * Builds up all module symbols and validates them.
- *
- * @param {ErrorReporter} reporter
- * @param {Project} project
- * @constructor
  */
-export function ModuleAnalyzer(reporter, project) {
-  this.reporter_ = reporter;
-  this.project_ = project;
-}
+export class ModuleAnalyzer {
+  /**
+   * @param {ErrorReporter} reporter
+   * @param {Project} project
+   */
+  constructor(reporter, project) {
+    this.reporter_ = reporter;
+    this.project_ = project;
+  }
 
-ModuleAnalyzer.prototype = {
   /**
    * @return {void}
    */
-  analyze: function() {
+  analyze() {
     this.analyzeTrees(this.project_.getSourceTrees());
-  },
+  }
 
   /**
    * @param {SourceFile} sourceFile
    * @return {void}
    */
-  analyzeFile: function(sourceFile) {
+  analyzeFile(sourceFile) {
     var trees = [this.project_.getParseTree(sourceFile)];
     this.analyzeTrees(trees);
-  },
+  }
 
   /**
    * @param {Array.<ParseTree>} trees
    * @return {void}
    */
-  analyzeTrees: function(trees) {
+  analyzeTrees(trees) {
     this.analyzeModuleTrees(trees);
-  },
+  }
 
   /**
    * @param {ParseTree} tree
    * @param {ModuleSymbol} root
    * @return {void}
    */
-  analyzeModuleTrees: function(trees, opt_roots) {
+  analyzeModuleTrees(trees, opt_roots) {
     var reporter = this.reporter_;
     var project = this.project_;
     var root = project.getRootModule();
@@ -85,4 +85,4 @@ ModuleAnalyzer.prototype = {
     doVisit(ValidationVisitor);
     doVisit(ImportStarVisitor);
   }
-};
+}

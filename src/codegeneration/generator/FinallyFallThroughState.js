@@ -19,24 +19,17 @@ import createObject from '../../util/util.js';
  * These are a placeholder for the fallthrough off the end of a finally block.
  * They are added so that enclosing try blocks know that jumping to them does not exit their block.
  * The code for them is generated in addFinallyFallThroughDispatches.
- * @param {number} id
- * @constructor
- * @extends {State}
  */
-export function FinallyFallThroughState(id) {
-  State.call(this, id);
-}
-
-FinallyFallThroughState.prototype = createObject(State.prototype, {
+export class FinallyFallThroughState extends State {
 
   /**
    * @param {number} oldState
    * @param {number} newState
    * @return {FinallyFallThroughState}
    */
-  replaceState: function(oldState, newState) {
+  replaceState(oldState, newState) {
     return new FinallyFallThroughState(State.replaceStateId(this.id, oldState, newState));
-  },
+  }
 
   /**
    * Transforms a state into a case clause during the final code generation pass
@@ -45,9 +38,9 @@ FinallyFallThroughState.prototype = createObject(State.prototype, {
    * @param {ErrorReporter} reporter
    * @return {CaseClause}
    */
-  transformMachineState: function(enclosingFinally, machineEndState, reporter) {
+  transformMachineState(enclosingFinally, machineEndState, reporter) {
     return null;
-  },
+  }
 
   /**
    * @param {FinallyState} enclosingFinally
@@ -55,7 +48,7 @@ FinallyFallThroughState.prototype = createObject(State.prototype, {
    * @param {ErrorReporter} reporter
    * @return {Array.<ParseTree>}
    */
-  transform: function(enclosingFinally, machineEndState, reporter) {
+  transform(enclosingFinally, machineEndState, reporter) {
     throw new Error('these are generated in addFinallyFallThroughDispatches');
   }
-});
+}

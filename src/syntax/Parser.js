@@ -15,7 +15,6 @@
 import IdentifierToken from 'IdentifierToken.js';
 import Keywords from 'Keywords.js';
 import MutedErrorReporter from '../util/MutedErrorReporter.js';
-import NullTree from 'trees/NullTree.js';
 import ParseTreeType from 'trees/ParseTree.js';
 import {
   FROM,

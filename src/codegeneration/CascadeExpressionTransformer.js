@@ -75,31 +75,16 @@ function prependMemberExpression(name, rest) {
  * Cascade Expressions allow cascading property assignments and method calls.
  *
  * @see http://blog.mozilla.com/dherman/2011/12/01/now-thats-a-nice-stache/
- *
- * @param {UniqueIdentifierGenerator} identifierGenerator
- * @param {ErrorReporter} reporter
- * @constructor
- * @extends {TempVarTransformer}
  */
-export function CascadeExpressionTransformer(identifierGenerator, reporter) {
-  TempVarTransformer.call(this, identifierGenerator);
-  this.reporter_ = reporter;
-}
-
-/**
- * @param {UniqueIdentifierGenerator} identifierGenerator
- * @param {ErrorReporter} reporter
- * @param {ParseTree} tree
- * @return {ParseTree}
- */
-CascadeExpressionTransformer.transformTree = function(identifierGenerator,
-                                                      reporter, tree) {
-  return new CascadeExpressionTransformer(identifierGenerator, reporter).
-      transformAny(tree);
-};
-
-var proto = TempVarTransformer.prototype;
-CascadeExpressionTransformer.prototype = createObject(proto, {
+export class CascadeExpressionTransformer extends TempVarTransformer {
+  /**
+   * @param {UniqueIdentifierGenerator} identifierGenerator
+   * @param {ErrorReporter} reporter
+   */
+  constructor(identifierGenerator, reporter) {
+    super(identifierGenerator);
+    this.reporter_ = reporter;
+  }
 
   /**
    * EXPR.{
@@ -114,7 +99,7 @@ CascadeExpressionTransformer.prototype = createObject(proto, {
    * ($tmp = EXPR, $tmp.LHS = RHS, $tmp.CALL = ARGS, $tmp)
    *
    */
-  transformCascadeExpression: function(tree) {
+  transformCascadeExpression(tree) {
     var operand = this.transformAny(tree.operand);
     var ident = createIdentifierExpression(this.addTempVar());
 
@@ -125,9 +110,9 @@ CascadeExpressionTransformer.prototype = createObject(proto, {
     expressions.unshift(createAssignmentExpression(ident, operand));
     expressions.push(ident);
     return createParenExpression(createCommaExpression(expressions));
-  },
+  }
 
-  desugarExpression_: function(ident, tree) {
+  desugarExpression_(ident, tree) {
     switch (tree.type) {
       case BINARY_OPERATOR:
         return this.desugarBinaryExpression_(ident, tree);
@@ -139,7 +124,7 @@ CascadeExpressionTransformer.prototype = createObject(proto, {
         this.reporter_.reportError(tree.location.start,
             'Unsupported expression type in cascade: %s', tree.type);
     }
-  },
+  }
 
   /**
    * Desugars
@@ -150,12 +135,12 @@ CascadeExpressionTransformer.prototype = createObject(proto, {
    *
    * $tmp.LHS OP RHS
    */
-  desugarBinaryExpression_: function(ident, tree) {
+  desugarBinaryExpression_(ident, tree) {
     return createBinaryOperator(
         prependMemberExpression(ident, tree.left),
         tree.operator,
         tree.right);
-  },
+  }
 
   /**
    * Desugars
@@ -166,10 +151,10 @@ CascadeExpressionTransformer.prototype = createObject(proto, {
    *
    * $tmp.CALL(EXPR)
    */
-  desugarCallExpression_: function(ident, tree) {
+  desugarCallExpression_(ident, tree) {
     var newOperand = prependMemberExpression(ident, tree.operand);
     return createCallExpression(newOperand, tree.args);
-  },
+  }
 
   /**
    * Desugars
@@ -180,8 +165,20 @@ CascadeExpressionTransformer.prototype = createObject(proto, {
    *
    * $tmp.OPERATOR.{ EXPRS }
    */
-  desugarCascadeExpression_: function(ident, tree) {
+  desugarCascadeExpression_(ident, tree) {
     var newOperand = prependMemberExpression(ident, tree.operand);
     return createCascadeExpression(newOperand, tree.expressions);
   }
-});
+}
+
+/**
+ * @param {UniqueIdentifierGenerator} identifierGenerator
+ * @param {ErrorReporter} reporter
+ * @param {ParseTree} tree
+ * @return {ParseTree}
+ */
+CascadeExpressionTransformer.transformTree = function(identifierGenerator,
+                                                      reporter, tree) {
+  return new CascadeExpressionTransformer(identifierGenerator, reporter).
+      transformAny(tree);
+};

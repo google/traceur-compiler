@@ -75,46 +75,48 @@ var stack = [];
 
 /**
  * Collects assignments in the desugaring of a pattern.
- * @param {ParseTree} rvalue
- * @constructor
  */
-function Desugaring(rvalue) {
-  this.rvalue = rvalue;
+class Desugaring {
+  /**
+   * @param {ParseTree} rvalue
+   */
+  constructor(rvalue) {
+    this.rvalue = rvalue;
+  }
 }
 
 /**
  * Collects assignments as assignment expressions. This is the
  * desugaring for assignment expressions.
- * @param {ParseTree} rvalue
- * @constructor
- * @extends {Desugaring}
  */
-function AssignmentExpressionDesugaring(rvalue) {
-  Desugaring.call(this, rvalue);
-  this.expressions = [];
-}
-AssignmentExpressionDesugaring.prototype = createObject(
-    Desugaring.prototype, {
+class AssignmentExpressionDesugaring extends Desugaring {
+  /**
+   * @param {ParseTree} rvalue
+   */
+  constructor(rvalue) {
+    super(rvalue);
+    this.expressions = [];
+  }
 
-  assign: function(lvalue, rvalue) {
+  assign(lvalue, rvalue) {
     this.expressions.push(createAssignmentExpression(lvalue, rvalue));
   }
-});
+}
 
 /**
  * Collects assignments as variable declarations. This is the
  * desugaring for 'var', 'const' declarations.
- * @param {ParseTree} rvalue
- * @constructor
- * @extends {Desugaring}
  */
-function VariableDeclarationDesugaring(rvalue) {
-  Desugaring.call(this, rvalue);
-  this.declarations = [];
-}
-VariableDeclarationDesugaring.prototype = createObject(
-    Desugaring.prototype, {
-  assign: function(lvalue, rvalue) {
+class VariableDeclarationDesugaring extends Desugaring {
+  /**
+   * @param {ParseTree} rvalue
+   */
+  constructor(rvalue) {
+    super(rvalue);
+    this.declarations = [];
+  }
+
+  assign(lvalue, rvalue) {
     if (lvalue.type === BINDING_ELEMENT) {
       this.declarations.push(createVariableDeclaration(lvalue.binding,
           rvalue));
@@ -126,7 +128,7 @@ VariableDeclarationDesugaring.prototype = createObject(
 
     this.declarations.push(createVariableDeclaration(lvalue, rvalue));
   }
-});
+}
 
 /**
  * Creates something like "ident" in rvalue ? rvalue.ident : initializer
@@ -170,44 +172,25 @@ function createConditionalMemberLookupExpression(rvalue, index, initializer) {
  * Desugars destructuring assignment.
  *
  * @see <a href="http://wiki.ecmascript.org/doku.php?id=harmony:destructuring#assignments">harmony:destructuring</a>
- *
- * @param {UniqueIdentifierGenerator} identifierGenerator
- * @constructor
- * @extends {TempVarTransformer}
  */
-export function DestructuringTransformer(identifierGenerator) {
-  TempVarTransformer.call(this, identifierGenerator);
-}
-
-/**
- * @param {UniqueIdentifierGenerator} identifierGenerator
- * @param {ParseTree} tree
- * @return {ParseTree}
- */
-DestructuringTransformer.transformTree = function(identifierGenerator, tree) {
-  return new DestructuringTransformer(identifierGenerator).transformAny(tree);
-};
-
-var proto = TempVarTransformer.prototype;
-DestructuringTransformer.prototype = createObject(proto, {
-
+export class DestructuringTransformer extends TempVarTransformer {
   /**
    * @param {ArrayPattern} tree
    * @return {ParseTree}
    */
-  transformArrayPattern: function(tree) {
+  transformArrayPattern(tree) {
     // Patterns should be desugared by their parent nodes.
     throw new Error('unreachable');
-  },
+  }
 
   /**
    * @param {ObjectPattern} tree
    * @return {ParseTree}
    */
-  transformObjectPattern: function(tree) {
+  transformObjectPattern(tree) {
     // Patterns should be desugard by their parent nodes.
     throw new Error('unreachable');
-  },
+  }
 
   /**
    * Transforms:
@@ -223,20 +206,20 @@ DestructuringTransformer.prototype = createObject(proto, {
    * @param {BinaryOperator} tree
    * @return {ParseTree}
    */
-  transformBinaryOperator: function(tree) {
+  transformBinaryOperator(tree) {
     if (tree.operator.type == TokenType.EQUAL && tree.left.isPattern()) {
       return this.transformAny(this.desugarAssignment_(tree.left, tree.right));
     } else {
-      return proto.transformBinaryOperator.call(this, tree);
+      return super.transformBinaryOperator(tree);
     }
-  },
+  }
 
   /**
    * @param {ParseTree} lvalue
    * @param {ParseTree} rvalue
    * @return {ParseTree}
    */
-  desugarAssignment_: function(lvalue, rvalue) {
+  desugarAssignment_(lvalue, rvalue) {
     var tempIdent = createIdentifierExpression(this.addTempVar());
     var desugaring = new AssignmentExpressionDesugaring(tempIdent);
 
@@ -247,7 +230,7 @@ DestructuringTransformer.prototype = createObject(proto, {
 
     return createParenExpression(
         createCommaExpression(desugaring.expressions));
-  },
+  }
 
   /**
    * Transforms:
@@ -264,10 +247,10 @@ DestructuringTransformer.prototype = createObject(proto, {
    * @param {VariableDeclarationList} tree
    * @return {ParseTree}
    */
-  transformVariableDeclarationList: function(tree) {
+  transformVariableDeclarationList(tree) {
     if (!this.destructuringInDeclaration_(tree)) {
       // No lvalues to desugar.
-      return proto.transformVariableDeclarationList.call(this, tree);
+      return super.transformVariableDeclarationList(tree);
     }
 
     // Desugar one level of patterns.
@@ -286,19 +269,19 @@ DestructuringTransformer.prototype = createObject(proto, {
         createVariableDeclarationList(
             tree.declarationType,
             desugaredDeclarations));
-  },
+  }
 
-  transformForInStatement: function(tree) {
+  transformForInStatement(tree) {
     return this.transformForInOrOf_(tree,
-                                    proto.transformForInStatement,
+                                    super.transformForInStatement,
                                     ForInStatement);
-  },
+  }
 
-  transformForOfStatement: function(tree) {
+  transformForOfStatement(tree) {
     return this.transformForInOrOf_(tree,
-                                    proto.transformForOfStatement,
+                                    super.transformForOfStatement,
                                     ForOfStatement);
-  },
+  }
 
   /**
    * Transforms for-in and for-of loops.
@@ -310,7 +293,7 @@ DestructuringTransformer.prototype = createObject(proto, {
    * @return {ForInStatement|ForOfStatement} The transformed tree.
    * @private
    */
-  transformForInOrOf_: function(tree, superMethod, constr) {
+  transformForInOrOf_(tree, superMethod, constr) {
     if (!tree.initializer.isPattern() &&
         (tree.initializer.type !== VARIABLE_DECLARATION_LIST ||
          !this.destructuringInDeclaration_(tree.initializer))) {
@@ -356,11 +339,11 @@ DestructuringTransformer.prototype = createObject(proto, {
     body = createBlock(statements);
 
     return new constr(tree.location, initializer, collection, body);
-  },
+  }
 
-  transformFunctionDeclaration: function(tree) {
+  transformFunctionDeclaration(tree) {
     stack.push([]);
-    var transformedTree = proto.transformFunctionDeclaration.call(this, tree);
+    var transformedTree = super.transformFunctionDeclaration(tree);
     var statements = stack.pop();
     if (!statements.length)
       return transformedTree;
@@ -374,11 +357,11 @@ DestructuringTransformer.prototype = createObject(proto, {
                                    transformedTree.isGenerator,
                                    transformedTree.formalParameterList,
                                    createBlock(statements));
-  },
+  }
 
-  transformSetAccessor: function(tree) {
+  transformSetAccessor(tree) {
     stack.push([]);
-    var transformedTree = proto.transformSetAccessor.call(this, tree);
+    var transformedTree = super.transformSetAccessor(tree);
     var statements = stack.pop();
     if (!statements.length)
       return transformedTree;
@@ -391,9 +374,9 @@ DestructuringTransformer.prototype = createObject(proto, {
                            transformedTree.propertyName,
                            transformedTree.parameter,
                            createBlock(statements));
-  },
+  }
 
-  transformBindingElement: function(tree) {
+  transformBindingElement(tree) {
     // If this has an initializer the default parameter transformer moves the
     // pattern into the function body and it will be taken care of by the
     // variable pass.
@@ -413,11 +396,11 @@ DestructuringTransformer.prototype = createObject(proto, {
                                        TokenType.VAR);
 
     return new BindingElement(null, binding, null);
-  },
+  }
 
-  transformCatch: function(tree) {
+  transformCatch(tree) {
     if (!tree.binding.isPattern())
-      return proto.transformCatch.call(this, tree);
+      return super.transformCatch(tree);
 
     // catch(pattern) {
     //
@@ -432,7 +415,7 @@ DestructuringTransformer.prototype = createObject(proto, {
                                        TokenType.LET);
     statements.push.apply(statements, body.statements);
     return new Catch(tree.location, binding, createBlock(statements));
-  },
+  }
 
   /**
    * Helper for transformations that transforms a binding to a temp binding
@@ -445,7 +428,7 @@ DestructuringTransformer.prototype = createObject(proto, {
    *     generate or null if an assignment expression is to be used.
    * @return {BindingIdentifier} The binding tree.
    */
-  desugarBinding_: function(bindingTree, statements, declarationType) {
+  desugarBinding_(bindingTree, statements, declarationType) {
     var varName = this.identifierGenerator.generateUniqueIdentifier();
     var binding = createBindingIdentifier(varName);
     var idExpr = createIdentifierExpression(varName);
@@ -472,22 +455,22 @@ DestructuringTransformer.prototype = createObject(proto, {
     }
 
     return binding;
-  },
+  }
 
   /**
    * @param {VariableDeclarationList} tree
    * @return {boolean}
    */
-  destructuringInDeclaration_: function(tree) {
+  destructuringInDeclaration_(tree) {
     return tree.declarations.some(
         (declaration) => declaration.lvalue.isPattern());
-  },
+  }
 
   /**
    * @param {VariableDeclaration} tree
    * @return {Array.<VariableDeclaration>}
    */
-  desugarVariableDeclaration_: function(tree) {
+  desugarVariableDeclaration_(tree) {
     var tempRValueName = this.identifierGenerator.generateUniqueIdentifier();
     var tempRValueIdent = createIdentifierExpression(tempRValueName);
     var desugaring;
@@ -529,13 +512,13 @@ DestructuringTransformer.prototype = createObject(proto, {
 
         return desugaring.declarations;
     }
-  },
+  }
 
   /**
    * @param {Desugaring} desugaring
    * @param {ParseTree} tree
    */
-  desugarPattern_: function(desugaring, tree) {
+  desugarPattern_(desugaring, tree) {
     switch (tree.type) {
       case ARRAY_PATTERN: {
         var pattern = tree;
@@ -608,4 +591,13 @@ DestructuringTransformer.prototype = createObject(proto, {
         throw new Error('unreachable');
     }
   }
-});
+}
+
+/**
+ * @param {UniqueIdentifierGenerator} identifierGenerator
+ * @param {ParseTree} tree
+ * @return {ParseTree}
+ */
+DestructuringTransformer.transformTree = function(identifierGenerator, tree) {
+  return new DestructuringTransformer(identifierGenerator).transformAny(tree);
+};

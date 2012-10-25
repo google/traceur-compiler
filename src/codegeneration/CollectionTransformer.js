@@ -60,27 +60,10 @@ import expandMemberLookupExpression from 'OperatorExpander.js';
  *   };
  *   var key = {};
  *   object[key] = 42;
- *
- * @param {UniqueIdentifierGenerator} identifierGenerator
- * @extends {TempVarTransformer}
- * @constructor
  */
-export function CollectionTransformer(identifierGenerator) {
-  TempVarTransformer.call(this, identifierGenerator);
-}
+export class CollectionTransformer extends TempVarTransformer {
 
-/**
- * @param {UniqueIdentifierGenerator} identifierGenerator
- * @param {ParseTree} tree
- * @return {ParseTree}
- */
-CollectionTransformer.transformTree = function(identifierGenerator, tree) {
-  return new CollectionTransformer(identifierGenerator).transformAny(tree);
-};
-
-var proto = TempVarTransformer.prototype;
-CollectionTransformer.prototype = createObject(proto, {
-  transformBinaryOperator: function(tree) {
+  transformBinaryOperator(tree) {
     if (tree.operator.type === TokenType.IN) {
       var name = this.transformAny(tree.left);
       var object = this.transformAny(tree.right);
@@ -112,12 +95,12 @@ CollectionTransformer.prototype = createObject(proto, {
           createArgumentList(operand, memberExpression, value));
     }
 
-    return proto.transformBinaryOperator.call(this, tree);
-  },
+    return super.transformBinaryOperator(tree);
+  }
 
-  transformCallExpression: function(tree) {
+  transformCallExpression(tree) {
     if (tree.operand.type !== MEMBER_LOOKUP_EXPRESSION)
-      return proto.transformCallExpression.call(this, tree);
+      return super.transformCallExpression(tree);
 
     var operand = this.transformAny(tree.operand.operand);
     var memberExpression = this.transformAny(tree.operand.memberExpression);
@@ -142,21 +125,21 @@ CollectionTransformer.prototype = createObject(proto, {
     ];
 
     return createParenExpression(createCommaExpression(expressions));
-  },
+  }
 
-  transformMemberLookupExpression: function(tree) {
+  transformMemberLookupExpression(tree) {
     // operand[memberExpr]
     // =>
     // traceur.runtime.elementGet(operand, memberExpr)
     return createCallExpression(
         createMemberExpression(TRACEUR, RUNTIME, ELEMENT_GET),
         createArgumentList(tree.operand, tree.memberExpression));
-  },
+  }
 
-  transformUnaryExpression: function(tree) {
+  transformUnaryExpression(tree) {
     if (tree.operator.type !== TokenType.DELETE ||
         tree.operand.type !== MEMBER_LOOKUP_EXPRESSION) {
-      return proto.transformUnaryExpression.call(this, tree);
+      return super.transformUnaryExpression(tree);
     }
 
     var operand = this.transformAny(tree.operand.operand);
@@ -169,4 +152,13 @@ CollectionTransformer.prototype = createObject(proto, {
         createMemberExpression(TRACEUR, RUNTIME, ELEMENT_DELETE),
         createArgumentList(operand, memberExpression));
   }
-});
+}
+
+/**
+ * @param {UniqueIdentifierGenerator} identifierGenerator
+ * @param {ParseTree} tree
+ * @return {ParseTree}
+ */
+CollectionTransformer.transformTree = function(identifierGenerator, tree) {
+  return new CollectionTransformer(identifierGenerator).transformAny(tree);
+};

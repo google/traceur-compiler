@@ -18,34 +18,33 @@ import createObject from '../../util/util.js';
 
 /**
  * Represents the dispatch portion of a try/catch block in a state machine.
- * @param {number} finallyState
- *    The beginning of the finally block of the try/finally.
- * @param {number} fallThroughState
- *    A state reached only by falling off of the end of the finally block of the try/finally.
- * @param {Array.<number>} allStates
- * @param {TryState} nestedTrys
- * @extends {TryState}
- * @constructor
  */
-export function FinallyState(finallyState, fallThroughState, allStates, nestedTrys) {
-  TryState.call(this, TryState.Kind.FINALLY, allStates, nestedTrys);
-
-  this.finallyState = finallyState;
-  this.fallThroughState = fallThroughState;
-}
-
-FinallyState.prototype = createObject(TryState.prototype, {
+export class FinallyState extends TryState {
+  /**
+   * @param {number} finallyState
+   *    The beginning of the finally block of the try/finally.
+   * @param {number} fallThroughState
+   *    A state reached only by falling off of the end of the finally block of
+   *    the try/finally.
+   * @param {Array.<number>} allStates
+   * @param {TryState} nestedTrys
+   */
+  constructor(finallyState, fallThroughState, allStates, nestedTrys) {
+    super(TryState.Kind.FINALLY, allStates, nestedTrys);
+    this.finallyState = finallyState;
+    this.fallThroughState = fallThroughState;
+  }
 
   /**
    * @param {number} oldState
    * @param {number} newState
    * @return {FinallyState}
    */
-  replaceState: function(oldState, newState) {
+  replaceState(oldState, newState) {
     return new FinallyState(
         State.replaceStateId(this.finallyState, oldState, newState),
         State.replaceStateId(this.fallThroughState, oldState, newState),
         this.replaceAllStates(oldState, newState),
         this.replaceNestedTrys(oldState, newState));
   }
-});
+}

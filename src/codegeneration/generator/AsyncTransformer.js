@@ -78,43 +78,24 @@ import createObject from '../../util/util.js';
  *   $continuation();
  *   return $result.createPromise();
  * }
- *
- * @param {ErrorReporter} reporter
- * @extends {CPSTransformer}
- * @constructor
  */
-export function AsyncTransformer(reporter) {
-  CPSTransformer.call(this, reporter);
-}
-
-/**
- * @param {ErrorReporter} reporter
- * @param {Block} body
- * @return {Block}
- */
-AsyncTransformer.transformAsyncBody = function(reporter, body) {
-  return new AsyncTransformer(reporter).transformAsyncBody(body);
-};
-
-var proto = CPSTransformer.prototype;
-AsyncTransformer.prototype = createObject(proto, {
-
+export class AsyncTransformer extends CPSTransformer {
   /**
    * Yield statements are translated into a state machine with a single state.
    * @param {YieldStatement} tree
    * @return {ParseTree}
    */
-  transformYieldStatement: function(tree) {
+  transformYieldStatement(tree) {
     this.reporter.reportError(tree.location.start,
         'Async function may not have a yield statement.');
     return tree;
-  },
+  }
 
   /**
    * @param {AwaitStatement} tree
    * @return {ParseTree}
    */
-  transformAwaitStatement: function(tree) {
+  transformAwaitStatement(tree) {
     var createTaskState = this.allocateState();
     var callbackState = this.allocateState();
     var errbackState = this.allocateState();
@@ -157,27 +138,27 @@ AsyncTransformer.prototype = createObject(proto, {
         createThrowStatement(createIdentifierExpression(ERR)))));
 
     return new StateMachine(createTaskState, fallThroughState, states, []);
-  },
+  }
 
   /**
    * @param {Finally} tree
    * @return {ParseTree}
    */
-  transformFinally: function(tree) {
-    var result = proto.transformFinally.call(this, tree);
+  transformFinally(tree) {
+    var result = super.transformFinally(tree);
     if (result.block.type != STATE_MACHINE) {
       return result;
     }
     // TODO: is this a reasonable restriction?
     this.reporter.reportError(tree.location.start, 'async not permitted within a finally block.');
     return result;
-  },
+  }
 
   /**
    * @param {ReturnStatement} tree
    * @return {ParseTree}
    */
-  transformReturnStatement: function(tree) {
+  transformReturnStatement(tree) {
     var result = tree.expression;
     if (result == null) {
       result = createUndefinedExpression();
@@ -195,16 +176,16 @@ AsyncTransformer.prototype = createObject(proto, {
         this.allocateState(),
         [completeState, end],
         []);
-  },
+  }
 
   /**
    * @param {ParseTree} tree
    * @return {ParseTree}
    */
-  createCompleteTask_: function(result) {
+  createCompleteTask_(result) {
     return createCallStatement(
         createMemberExpression(RESULT, CALLBACK), createArgumentList(result));
-  },
+  }
 
   /**
    * Transform an async function body - removing async statements.
@@ -231,7 +212,7 @@ AsyncTransformer.prototype = createObject(proto, {
    * @param {Block} tree
    * @return {Block}
    */
-  transformAsyncBody: function(tree) {
+  transformAsyncBody(tree) {
     // transform to a state machine
     var transformedTree = this.transformAny(tree);
     if (this.reporter.hadError()) {
@@ -317,29 +298,29 @@ AsyncTransformer.prototype = createObject(proto, {
             createMemberExpression(RESULT, CREATE_PROMISE))));
 
     return createBlock(statements);
-  },
+  }
 
   /**
    * @param {number} rethrowState
    * @return {Array.<ParseTree>}
    */
-  machineUncaughtExceptionStatements: function(rethrowState) {
+  machineUncaughtExceptionStatements(rethrowState) {
     return createStatementList(
         createAssignStateStatement(rethrowState),
         createBreakStatement());
-  },
+  }
 
   /** @return {Array.<ParseTree>} */
-  machineEndStatements: function() {
+  machineEndStatements() {
     // return;
     return createStatementList(createReturnStatement(null));
-  },
+  }
 
   /**
    * @param {number} machineEndState
    * @return {Array.<ParseTree>}
    */
-  machineFallThroughStatements: function(machineEndState) {
+  machineFallThroughStatements(machineEndState) {
     // $waitTask.callback(undefined);
     // $state = machineEndState;
     // break;
@@ -347,13 +328,13 @@ AsyncTransformer.prototype = createObject(proto, {
         this.createCompleteTask_(createUndefinedExpression()),
         createAssignStateStatement(machineEndState),
         createBreakStatement());
-  },
+  }
 
   /**
    * @param {number} machineEndState
    * @return {Array.<ParseTree>}
    */
-  machineRethrowStatements: function(machineEndState) {
+  machineRethrowStatements(machineEndState) {
     return createStatementList(
         // $result.errback($storedException);
         createCallStatement(
@@ -364,4 +345,13 @@ AsyncTransformer.prototype = createObject(proto, {
         // break;
         createBreakStatement());
   }
-});
+}
+
+/**
+ * @param {ErrorReporter} reporter
+ * @param {Block} body
+ * @return {Block}
+ */
+AsyncTransformer.transformAsyncBody = function(reporter, body) {
+  return new AsyncTransformer(reporter).transformAsyncBody(body);
+};

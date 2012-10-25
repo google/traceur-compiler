@@ -17,27 +17,25 @@ import State from 'State.js';
 import createObject from '../../util/util.js';
 import createStatementList from '../ParseTreeFactory.js';
 
-/**
- * @param {number} id
- * @param {string} label
- * @constructor
- * @extends {State}
- */
-export function ContinueState(id, label) {
-  State.call(this, id);
-  this.label = label;
-}
-
-ContinueState.prototype = createObject(State.prototype, {
+export class ContinueState extends State {
+  /**
+   * @param {number} id
+   * @param {string} label
+   */
+  constructor(id, label) {
+    super(id);
+    this.label = label;
+  }
 
   /**
    * @param {number} oldState
    * @param {number} newState
    * @return {ContinueState}
    */
-  replaceState: function(oldState, newState) {
-    return new ContinueState(State.replaceStateId(this.id, oldState, newState), this.label);
-  },
+  replaceState(oldState, newState) {
+    return new ContinueState(State.replaceStateId(this.id, oldState, newState),
+                                                  this.label);
+  }
 
   /**
    * @param {FinallyState} enclosingFinally
@@ -45,9 +43,9 @@ ContinueState.prototype = createObject(State.prototype, {
    * @param {ErrorReporter} reporter
    * @return {Array.<ParseTree>}
    */
-  transform: function(enclosingFinally, machineEndState, reporter) {
+  transform(enclosingFinally, machineEndState, reporter) {
     throw new Error('These should be removed before the transform step');
-  },
+  }
 
   /**
    * @param {Object} labelSet
@@ -55,10 +53,11 @@ ContinueState.prototype = createObject(State.prototype, {
    * @param {number} continueState
    * @return {State}
    */
-  transformBreakOrContinue: function(labelSet, breakState, continueState) {
+  transformBreakOrContinue(labelSet, breakState, continueState) {
     if (this.label == null || this.label in labelSet) {
-      return new FallThroughState(this.id, continueState, createStatementList());
+      return new FallThroughState(this.id, continueState,
+                                  createStatementList());
     }
     return this;
   }
-});
+}

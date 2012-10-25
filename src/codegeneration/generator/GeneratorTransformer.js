@@ -61,33 +61,15 @@ import createObject from '../../util/util.js';
  *   $result[iterator] = function() { return this; };
  *   return $result;
  * }
- *
- * @param {ErrorReporter} reporter
- * @extends {CPSTransformer}
- * @constructor
  */
-export function GeneratorTransformer(reporter) {
-  CPSTransformer.call(this, reporter);
-}
-
-/**
- * @param {ErrorReporter} reporter
- * @param {Block} body
- * @return {Block}
- */
-GeneratorTransformer.transformGeneratorBody = function(reporter, body) {
-  return new GeneratorTransformer(reporter).transformGeneratorBody(body);
-};
-
-GeneratorTransformer.prototype = createObject(
-    CPSTransformer.prototype, {
+export class GeneratorTransformer extends CPSTransformer {
 
   /**
    * Yield statements are translated into a state machine with a single state.
    * @param {YieldStatement} tree
    * @return {ParseTree}
    */
-  transformYieldStatement: function(tree) {
+  transformYieldStatement(tree) {
     if (tree.expression != null) {
       var startState = this.allocateState();
       var fallThroughState = this.allocateState();
@@ -106,40 +88,40 @@ GeneratorTransformer.prototype = createObject(
         this.allocateState(),
         [new EndState(stateId)],
         []);
-  },
+  }
 
   /**
    * @param {AwaitStatement} tree
    * @return {ParseTree}
    */
-  transformAwaitStatement: function(tree) {
+  transformAwaitStatement(tree) {
     this.reporter.reportError(tree.location.start,
         'Generator function may not have an async statement.');
     return tree;
-  },
+  }
 
   /**
    * @param {Finally} tree
    * @return {ParseTree}
    */
-  transformFinally: function(tree) {
-    var result = CPSTransformer.prototype.transformFinally.call(this, tree);
+  transformFinally(tree) {
+    var result = super.transformFinally(tree);
     if (result.block.type != STATE_MACHINE) {
       return result;
     }
     this.reporter.reportError(tree.location.start, 'yield not permitted from within a finally block.');
     return result;
-  },
+  }
 
   /**
    * @param {ReturnStatement} tree
    * @return {ParseTree}
    */
-  transformReturnStatement: function(tree) {
+  transformReturnStatement(tree) {
     this.reporter.reportError(tree.location.start,
         'Generator function may not have a return statement.');
     return tree;
-  },
+  }
 
   /**
    * Transform a generator function body - removing yield statements.
@@ -160,7 +142,7 @@ GeneratorTransformer.prototype = createObject(
    * @param {Block} tree
    * @return {Block}
    */
-  transformGeneratorBody: function(tree) {
+  transformGeneratorBody(tree) {
     // transform to a state machine
     var transformedTree = this.transformAny(tree);
     if (this.reporter.hadError()) {
@@ -208,36 +190,45 @@ GeneratorTransformer.prototype = createObject(
     statements.push(createReturnStatement(createIdentifierExpression(RESULT)));
 
     return createBlock(statements);
-  },
+  }
 
   /**
    * @param {number} rethrowState
    * @return {Array.<ParseTree>}
    */
-  machineUncaughtExceptionStatements: function(rethrowState) {
+  machineUncaughtExceptionStatements(rethrowState) {
     return createStatementList(
         createThrowStatement(createIdentifierExpression(STORED_EXCEPTION)));
-  },
+  }
 
   /**
    * @param {number} machineEndState
    * @return {Array.<ParseTree>}
    */
-  machineRethrowStatements: function(machineEndState) {
+  machineRethrowStatements(machineEndState) {
     return createStatementList(
         createThrowStatement(createIdentifierExpression(STORED_EXCEPTION)));
-  },
+  }
 
   /**
    * @param {number} machineEndState
    * @return {Array.<ParseTree>}
    */
-  machineFallThroughStatements: function(machineEndState) {
+  machineFallThroughStatements(machineEndState) {
     return createStatementList(createAssignStateStatement(machineEndState));
-  },
+  }
 
   /** @return {Array.<ParseTree>} */
-  machineEndStatements: function() {
+  machineEndStatements() {
     return [createReturnStatement(createFalseLiteral())];
   }
-});
+}
+
+/**
+ * @param {ErrorReporter} reporter
+ * @param {Block} body
+ * @return {Block}
+ */
+GeneratorTransformer.transformGeneratorBody = function(reporter, body) {
+  return new GeneratorTransformer(reporter).transformGeneratorBody(body);
+};

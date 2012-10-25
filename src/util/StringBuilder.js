@@ -14,7 +14,6 @@
 
 /**
  * Builds strings by appending them.
- * @constructor
  */
 export class StringBuilder {
 

@@ -34,13 +34,47 @@ import {
  * When knitting StateMachines together the states in one machine may need
  * renumbering in the new machine. replaceState() is used to create an equivalent state with
  * different state ids.
- *
- * @param {number} id
- * @constructor
  */
-export function State(id) {
-  this.id = id;
-}
+export class State {
+  /**
+   * @param {number} id
+   */
+  constructor(id) {
+    this.id = id;
+  }
+
+  /**
+   * Transforms a state into a case clause during the final code generation pass
+   * @param {FinallyState} enclosingFinally
+   * @param {number} machineEndState
+   * @param {ErrorReporter} reporter
+   * @return {CaseClause}
+   */
+  transformMachineState(enclosingFinally, machineEndState, reporter) {
+    return createCaseClause(createNumberLiteral(this.id),
+        this.transform(enclosingFinally, machineEndState, reporter));
+  }
+
+  /**
+   * @param {Object} labelSet    set of label strings.
+   * @param {number} breakState
+   * @return {State}
+   */
+  transformBreak(labelSet, breakState) {
+    return this;
+  }
+
+  /**
+   * @param {Object} labelSet    set of label strings.
+   * @param {number} breakState
+   * @param {number} continueState
+   * @return {State}
+   */
+  transformBreakOrContinue(labelSet, breakState, continueState) {
+    return this;
+  }
+};
+
 
 State.INVALID_STATE = -1;
 
@@ -159,36 +193,3 @@ State.replaceAllStates = function(exceptionBlocks, oldState, newState) {
   }
   return result;
 }
-
-State.prototype = {
-  /**
-   * Transforms a state into a case clause during the final code generation pass
-   * @param {FinallyState} enclosingFinally
-   * @param {number} machineEndState
-   * @param {ErrorReporter} reporter
-   * @return {CaseClause}
-   */
-  transformMachineState: function(enclosingFinally, machineEndState, reporter) {
-    return createCaseClause(createNumberLiteral(this.id),
-        this.transform(enclosingFinally, machineEndState, reporter));
-  },
-
-  /**
-   * @param {Object} labelSet    set of label strings.
-   * @param {number} breakState
-   * @return {State}
-   */
-  transformBreak: function(labelSet, breakState) {
-    return this;
-  },
-
-  /**
-   * @param {Object} labelSet    set of label strings.
-   * @param {number} breakState
-   * @param {number} continueState
-   * @return {State}
-   */
-  transformBreakOrContinue: function(labelSet, breakState, continueState) {
-    return this;
-  }
-};

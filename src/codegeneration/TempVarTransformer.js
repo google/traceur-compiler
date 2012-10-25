@@ -51,12 +51,11 @@ function getVars(self) {
 /**
  * A generic transformer that allows you to easily create a expression with
  * temporary variables.
- *
- * @param {UniqueIdentifierGenerator} identifierGenerator
- * @constructor
- * @extends {ParseTreeTransformer}
  */
 export class TempVarTransformer extends ParseTreeTransformer {
+  /**
+   * @param {UniqueIdentifierGenerator} identifierGenerator
+   */
   constructor(identifierGenerator) {
     super();
     this.identifierGenerator = identifierGenerator

@@ -65,68 +65,69 @@ var ERROR = 6;
 
 /**
  * Base class representing a piece of code that is to be loaded or evaluated.
- * @param {InternalLoader} loader The loader that is managing this dependency.
- * @param {string} url The URL of this dependency. If this is evaluated code
- *     the URL is the URL of the loader.
- * @param {number} state
- * @constructor
  */
-function CodeUnit(loader, url, state) {
-  this.loader = loader;
-  this.url = url;
-  this.state = state;
-  this.uid = traceur.getUid();
-}
+class CodeUnit {
+  /**
+   * @param {InternalLoader} loader The loader that is managing this dependency.
+   * @param {string} url The URL of this dependency. If this is evaluated code
+   *     the URL is the URL of the loader.
+   * @param {number} state
+   */
+  constructor(loader, url, state) {
+    this.loader = loader;
+    this.url = url;
+    this.state = state;
+    this.uid = traceur.getUid();
+    this.state_ = NOT_STARTED;
+  }
 
-CodeUnit.prototype = {
-  state_: NOT_STARTED,
   get state() {
     return this.state_;
-  },
+  }
   set state(state) {
     if (state < this.state_) {
       throw new Error('Invalid state change');
     }
     this.state_ = state;
-  },
+  }
 
   get reporter() {
     return this.loader.reporter;
-  },
+  }
 
   get project() {
     return this.loader.project;
-  },
+  }
 
   get tree() {
     return this.project.getParseTree(this.file);
-  },
+  }
 
   get moduleSymbol() {
     // TODO(arv): This is not correct. What module is eval code
     // evaluated in?
     return this.project.getRootModule();
-  },
+  }
 
   /**
    * Adds callback for COMPLETE and ERROR.
    */
-  addListener: function(callback, errback) {
+  addListener(callback, errback) {
     if (!this.listeners) {
       this.listeners = [];
     }
     this.listeners.push(callback, errback);
-  },
+  }
 
-  dispatchError: function(value) {
+  dispatchError(value) {
     this.dispatch_(value, 1);
-  },
+  }
 
-  dispatchComplete: function(value) {
+  dispatchComplete(value) {
     this.dispatch_(value, 0);
-  },
+  }
 
-  dispatch_: function(value, error) {
+  dispatch_(value, error) {
     var listeners = this.listeners;
     if (!listeners) {
       return;
@@ -141,13 +142,13 @@ CodeUnit.prototype = {
         f(value);
       }
     }
-  },
+  }
 
   /**
    * Parses the codeUnit
    * @return {boolean} Whether the parse succeeded.
    */
-  parse: function() {
+  parse() {
     var reporter = this.reporter;
     var project = this.project;
     var url = this.url;
@@ -169,9 +170,9 @@ CodeUnit.prototype = {
     this.state = PARSED;
 
     return true;
-  },
+  }
 
-  transform: function() {
+  transform() {
     return ProgramTransformer.transformFile(this.reporter, this.project,
                                             this.file);
   }
@@ -179,28 +180,27 @@ CodeUnit.prototype = {
 
 /**
  * CodeUnit used for {@code Loader.load}.
- * @param {InternalLoader} loader
- * @param {string} url
- * @constructor
- * @extends {CodeUnit}
  */
-function LoadCodeUnit(loader, url) {
-  CodeUnit.call(this, loader, url, NOT_STARTED);
-}
-
-LoadCodeUnit.prototype = createObject(CodeUnit.prototype, {
-  allowLoad: true,
+class LoadCodeUnit extends CodeUnit {
+  /**
+   * @param {InternalLoader} loader
+   * @param {string} url
+   */
+  constructor(loader, url) {
+    super(loader, url, NOT_STARTED);
+    this.allowLoad = true;
+  }
 
   get moduleSymbol() {
     return this.project.getModuleForUrl(this.url)
-  },
+  }
 
   /**
    * Override to add parse tree as an external module symbol.
    * @return {boolean}
    * @override
    */
-  parse: function() {
+  parse() {
     if (!CodeUnit.prototype.parse.call(this)) {
       return false;
     }
@@ -213,66 +213,65 @@ LoadCodeUnit.prototype = createObject(CodeUnit.prototype, {
     project.addExternalModule(moduleSymbol);
 
     return true;
-  },
+  }
 
-  transform: function() {
+  transform() {
     return ProgramTransformer.transformFileAsModule(this.reporter,
         this.project, this.moduleSymbol, this.file);
   }
-});
+}
 
 /**
  * CodeUnit used for {@code Loader.eval}.
- * @param {InternalLoader} loader
- * @param {string} code
- * @constructor
- * @extends {CodeUnit}
  */
-function EvalCodeUnit(loader, code) {
-  CodeUnit.call(this, loader, loader.url, LOADED);
-  this.text = code;
+class EvalCodeUnit extends CodeUnit {
+  /**
+   * @param {InternalLoader} loader
+   * @param {string} code
+   */
+  constructor(loader, code) {
+    super(loader, loader.url, LOADED);
+    this.text = code;
+    this.allowLoad = false;
+  }
 }
-
-EvalCodeUnit.prototype = createObject(CodeUnit.prototype, {
-  allowLoad: false
-});
 
 /**
  * CodeUnit used for {@code Loader.evalLoad}.
- * @param {InternalLoader} loader
- * @param {string} code
- * @constructor
- * @extends {CodeUnit}
  */
-function EvalLoadCodeUnit(loader, code) {
-  CodeUnit.call(this, loader, loader.url, LOADED);
-  this.text = code;
+class EvalLoadCodeUnit extends CodeUnit {
+  /**
+   * @param {InternalLoader} loader
+   * @param {string} code
+   */
+  constructor(loader, code) {
+    CodeUnit.call(this, loader, loader.url, LOADED);
+    this.text = code;
+    this.allowLoad = true;
+  }
 }
-
-EvalLoadCodeUnit.prototype = createObject(CodeUnit.prototype, {
-  allowLoad: true
-})
 
 
 /**
  * The internal implementation of the code loader.
- * @param {ErrorReporter} reporter
- * @param {Project} project.
- * @constructor
  */
-function InternalLoader(reporter, project) {
-  this.reporter = reporter;
-  this.project = project;
-  this.cache = new ArrayMap();
-  this.urlToKey = Object.create(null);
-}
+class InternalLoader {
+  /**
+   * @param {ErrorReporter} reporter
+   * @param {Project} project.
+   */
+  constructor(reporter, project) {
+    this.reporter = reporter;
+    this.project = project;
+    this.cache = new ArrayMap();
+    this.urlToKey = Object.create(null);
+  }
 
-InternalLoader.prototype = {
   get url() {
     return this.project.url;
-  },
+  }
 
-  loadTextFile: function(url, callback, errback) {
+  loadTextFile(url, callback, errback) {
     var xhr = new XMLHttpRequest();
     xhr.onload = function() {
       if (xhr.status == 200 || xhr.status == 0) {
@@ -288,9 +287,9 @@ InternalLoader.prototype = {
     xhr.open('GET', url, true);
     xhr.send();
     return xhr;
-  },
+  }
 
-  load: function(url) {
+  load(url) {
     url = resolveUrl(this.url, url);
     var codeUnit = this.getCodeUnit(url);
     if (codeUnit.state != NOT_STARTED || codeUnit.state == ERROR) {
@@ -308,30 +307,30 @@ InternalLoader.prototype = {
       loader.handleCodeUnitLoadError(codeUnit);
     });
     return codeUnit;
-  },
+  }
 
-  evalLoad: function(code) {
+  evalLoad(code) {
     var codeUnit = new EvalLoadCodeUnit(this, code);
     this.cache.put({}, codeUnit);
     return codeUnit;
-  },
+  }
 
-  eval: function(code) {
+  eval(code) {
     var codeUnit = new EvalCodeUnit(this, code);
     this.cache.put({}, codeUnit);
     this.handleCodeUnitLoaded(codeUnit);
     return codeUnit;
-  },
+  }
 
-  getKey: function(url) {
+  getKey(url) {
     if (url in this.urlToKey) {
       return this.urlToKey[url];
     }
 
     return this.urlToKey[url] = {};
-  },
+  }
 
-  getCodeUnit: function(url) {
+  getCodeUnit(url) {
     var key = this.getKey(url);
     var cacheObject = this.cache.get(key);
     if (!cacheObject) {
@@ -339,17 +338,17 @@ InternalLoader.prototype = {
       this.cache.put(key, cacheObject);
     }
     return cacheObject;
-  },
+  }
 
-  areAll: function(state) {
+  areAll(state) {
     return this.cache.values().every((codeUnit) => codeUnit.state >= state);
-  },
+  }
 
   /**
    * This is called when a codeUnit is loaded.
    * @param {CodeUnit} codeUnit
    */
-  handleCodeUnitLoaded: function(codeUnit) {
+  handleCodeUnitLoaded(codeUnit) {
     // Parse
     if (!codeUnit.parse()) {
       this.abortAll();
@@ -370,21 +369,21 @@ InternalLoader.prototype = {
       this.transform();
       this.evaluate();
     }
-  },
+  }
 
   /**
    * This is called when a code unit failed to load.
    * @param {CodeUnit} codeUnit
    */
-  handleCodeUnitLoadError: function(codeUnit) {
+  handleCodeUnitLoadError(codeUnit) {
     this.error = codeUnit.error = 'Failed to load \'' + codeUnit.url + '\'';
     this.abortAll();
-  },
+  }
 
   /**
    * Aborts all loading code units.
    */
-  abortAll: function() {
+  abortAll() {
     this.cache.values().forEach((codeUnit) => {
       if (codeUnit.xhr) {
         codeUnit.xhr.abort();
@@ -395,9 +394,9 @@ InternalLoader.prototype = {
     this.cache.values().forEach((codeUnit) => {
       codeUnit.dispatchError(codeUnit.error);
     });
-  },
+  }
 
-  analyze: function() {
+  analyze() {
     var project = this.project;
     var dependencies = this.cache.values();
     var trees = [];
@@ -433,9 +432,9 @@ InternalLoader.prototype = {
         }
       }
     }
-  },
+  }
 
-  transform: function() {
+  transform() {
     var dependencies = this.cache.values();
     for (var i = 0; i < dependencies.length; i++) {
       var codeUnit = dependencies[i];
@@ -446,14 +445,14 @@ InternalLoader.prototype = {
       codeUnit.transformedTree = this.transformCodeUnit(codeUnit);
       codeUnit.state = TRANSFORMED;
     }
-  },
+  }
 
-  transformCodeUnit: function(codeUnit) {
+  transformCodeUnit(codeUnit) {
     var results = codeUnit.transform();
     return results.get(codeUnit.file);
-  },
+  }
 
-  evaluate: function() {
+  evaluate() {
     // Order the dependencies.
     var visited = new ObjectMap();
     var ordered = [];
@@ -505,14 +504,14 @@ InternalLoader.prototype = {
       codeUnit.state = COMPLETE;
       codeUnit.dispatchComplete(codeUnit.result);
     }
-  },
+  }
 
-  evalCodeUnit: function(codeUnit) {
+  evalCodeUnit(codeUnit) {
     // TODO(arv): Eval in the right context.
     return traceur.strictGlobalEval(
         TreeWriter.write(codeUnit.transformedTree));
   }
-};
+}
 
 /**
  * This is the current code unit object being evaluated.
@@ -542,20 +541,18 @@ export function getModuleInstanceByUrl(url) {
   return null;
 }
 
-/**
- * @param {ErrorReporter} reporter
- * @param {Project} project
- * @param {CodeLoader} parentLoader The parent loader or null if this is
- *     the initial loader.
- * @constructor
- */
-export function CodeLoader(reporter, project, parentLoader, opt_resolver) {
-  // TODO(arv): Implement parent loader
-  // TODO(arv): Implement resolver
-  this.internalLoader_ = new InternalLoader(reporter, project)
-}
-
-CodeLoader.prototype = {
+export class CodeLoader {
+  /**
+   * @param {ErrorReporter} reporter
+   * @param {Project} project
+   * @param {CodeLoader} parentLoader The parent loader or null if this is
+   *     the initial loader.
+   */
+  constructor(reporter, project, parentLoader, opt_resolver) {
+    // TODO(arv): Implement parent loader
+    // TODO(arv): Implement resolver
+    this.internalLoader_ = new InternalLoader(reporter, project)
+  }
 
   /**
    * The load method takes a string representing a module URL and a callback
@@ -564,10 +561,10 @@ CodeLoader.prototype = {
    * and its URL is the given URL. The additional callback is used if an error
    * occurs.
    */
-  load: function(url, callback, opt_errback) {
+  load(url, callback, opt_errback) {
     var codeUnit = this.internalLoader_.load(url);
     codeUnit.addListener(callback, opt_errback);
-  },
+  }
 
   /**
    * The eval method takes a string representing a Program(false) (that is, a
@@ -578,10 +575,10 @@ CodeLoader.prototype = {
    * @param {string} program The source code to eval.
    * @return {*} The completion value of evaluating the code.
    */
-  eval: function(program) {
+  eval(program) {
     var codeUnit = this.internalLoader_.eval(program);
     return codeUnit.result;
-  },
+  }
 
   /**
    * The evalLoad method takes a string representing a Program(true) (this is,
@@ -590,11 +587,11 @@ CodeLoader.prototype = {
    * statically associated with this loader, and its URL is the base URL of
    * this loader. The additional callback is used if an error occurs.
    */
-  evalLoad: function(program, callback, opt_errback) {
+  evalLoad(program, callback, opt_errback) {
     var codeUnit = this.internalLoader_.evalLoad(program);
     codeUnit.addListener(callback, opt_errback);
     this.internalLoader_.handleCodeUnitLoaded(codeUnit);
-  },
+  }
 
   /**
    * The import method takes a module instance object and dynamically imports
@@ -602,17 +599,17 @@ CodeLoader.prototype = {
    * loader. (In other words, it dynamically performs the equivalent of
    * import m.*.)
    */
-  'import': function(moduleInstanceObject) {
+  import(moduleInstanceObject) {
     throw Error('Not implemented');
-  },
+  }
 
   /**
    * The defineGlobal method defines a global binding in the global namespace
    * encapsulated by this loader.
    */
-  defineGlobal: function(name, value) {
+  defineGlobal(name, value) {
     throw Error('Not implemented');
-  },
+  }
 
   /**
    * The defineModule method takes a string name and a module instance object
@@ -622,9 +619,9 @@ CodeLoader.prototype = {
    * that key.
    * @return {void}
    */
-  defineModule: function(name, moduleInstanceObject, opt_cacheKey) {
+  defineModule(name, moduleInstanceObject, opt_cacheKey) {
     throw Error('Not implemented');
-  },
+  }
 
   /**
    * The create method creates a child loader, i.e. a new loader whose parent
@@ -639,14 +636,14 @@ CodeLoader.prototype = {
    *
    * @return {CodeLoader}
    */
-  create: function(moduleInstanceObject, opt_resolver) {
+  create(moduleInstanceObject, opt_resolver) {
     var url = this.project_.url;
     var project = new Project(url);
     var loader = new CodeLoader(this.reporter, project, this, opt_resolver);
     // TODO(arv): Implement globals
     // TODO(arv): Implement resolver
     return loader;
-  },
+  }
 
   /**
    * The createBase method creates a fresh base library.
@@ -655,10 +652,10 @@ CodeLoader.prototype = {
    * loader, no loader is exposed to its global namespace by default. A loader
    * can easily be shared via defineGlobal.
    */
-  createBase: function() {
+  createBase() {
     return base;
   }
-};
+}
 
 export module internals {
   export CodeUnit;

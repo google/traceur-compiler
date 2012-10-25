@@ -61,10 +61,12 @@ import transformOptions from '../options.js';
 // The state keeps track of the current class tree and class name.
 var stack = [];
 
-function State(classTree) {
-  this.tree = classTree;
-  this.name = null;
-  this.hasSuper = false;
+class State {
+  constructor(classTree) {
+    this.tree = classTree;
+    this.name = null;
+    this.hasSuper = false;
+  }
 }
 
 function peekState() {
@@ -109,32 +111,18 @@ function peekState() {
  *        traceur.runtime.superCall(this, C, 'm', []);
  *      }
  *   });
- *
- * @param {UniqueIdentifierGenerator} identifierGenerator
- * @param {ErrorReporter} reporter
- * @constructor
- * @extends {TempVarTransformer}
  */
-export function ClassTransformer(identifierGenerator, reporter) {
-  TempVarTransformer.call(this, identifierGenerator);
-  this.reporter_ = reporter;
-}
+export class ClassTransformer extends TempVarTransformer{
+  /**
+   * @param {UniqueIdentifierGenerator} identifierGenerator
+   * @param {ErrorReporter} reporter
+   */
+  constructor(identifierGenerator, reporter) {
+    super(identifierGenerator);
+    this.reporter_ = reporter;
+  }
 
-/**
- * @param {UniqueIdentifierGenerator} identifierGenerator
- * @param {ErrorReporter} reporter
- * @param {Program} tree
- * @return {Program}
- */
-ClassTransformer.transform = function(identifierGenerator, reporter, tree) {
-  return new ClassTransformer(identifierGenerator, reporter).
-      transformAny(tree);
-};
-
-var proto = TempVarTransformer.prototype;
-ClassTransformer.prototype = createObject(proto, {
-
-  transformClassShared_: function(tree, name) {
+  transformClassShared_(tree, name) {
     var superClass = this.transformAny(tree.superClass);
 
     var state = new State(tree);
@@ -183,7 +171,7 @@ ClassTransformer.prototype = createObject(proto, {
               createBooleanLiteral(hasExtendsExpression))),
       state.hasSuper
     ];
-  },
+  }
 
   /**
    * Transforms a single class declaration
@@ -191,15 +179,15 @@ ClassTransformer.prototype = createObject(proto, {
    * @param {ClassDeclaration} tree
    * @return {ParseTree}
    */
-  transformClassDeclaration: function(tree) {
+  transformClassDeclaration(tree) {
     // let <className> = traceur.runtime.createClass(proto, superClass)
     return createVariableStatement(
         transformOptions.blockBinding ? TokenType.LET : TokenType.VAR,
         tree.name,
         this.transformClassShared_(tree, tree.name.identifierToken)[0]);
-  },
+  }
 
-  transformClassExpression: function(tree) {
+  transformClassExpression(tree) {
     var tempIdent = this.addTempVar();
     var transformResult = this.transformClassShared_(tree, tempIdent);
     var classTree = transformResult[0];
@@ -213,9 +201,9 @@ ClassTransformer.prototype = createObject(proto, {
 
     this.removeTempVar(tempIdent);
     return classTree;
-  },
+  }
 
-  transformPropertyMethodAssignment_: function(tree) {
+  transformPropertyMethodAssignment_(tree) {
     var formalParameterList = this.transformAny(tree.formalParameterList);
     var functionBody = this.transformSuperInBlock_(tree, tree.functionBody);
     if (formalParameterList === tree.formalParameterList &&
@@ -225,24 +213,24 @@ ClassTransformer.prototype = createObject(proto, {
 
     return new PropertyMethodAssignment(tree.location, tree.name,
         tree.isGenerator, formalParameterList, functionBody);
-  },
+  }
 
-  transformGetAccessor_: function(tree) {
+  transformGetAccessor_(tree) {
     var body = this.transformSuperInBlock_(tree, tree.body);
     if (body === tree.body)
       return tree;
     return new GetAccessor(tree.location, tree.propertyName, body);
-  },
+  }
 
-  transformSetAccessor_: function(tree) {
+  transformSetAccessor_(tree) {
     var parameter = this.transformAny(tree.parameter);
     var body = this.transformSuperInBlock_(tree, tree.body);
     if (body === tree.body)
       return tree;
     return new SetAccessor(tree.location, tree.propertyName, parameter, body);
-  },
+  }
 
-  transformConstructor_: function(tree) {
+  transformConstructor_(tree) {
     // The constructor is transformed into a property assignment.
     // constructor: function CLASS_NAME() { }
     var state = peekState();
@@ -251,9 +239,9 @@ ClassTransformer.prototype = createObject(proto, {
 
     var func = createFunctionExpression(parameters, functionBody);
     return createPropertyNameAssignment(CONSTRUCTOR, func);
-  },
+  }
 
-  transformSuperInBlock_: function(methodTree, tree) {
+  transformSuperInBlock_(methodTree, tree) {
     var state = peekState();
     var className = state.name;
     var thisName = this.identifierGenerator.generateUniqueIdentifier();
@@ -270,9 +258,9 @@ ClassTransformer.prototype = createObject(proto, {
     if (superTransformer.nestedSuper)
       return createBlock([thisDecl].concat(transformedTree.statements));
     return transformedTree;
-  },
+  }
 
-  getDefaultConstructor_: function(tree) {
+  getDefaultConstructor_(tree) {
     // function name(...args) {
     //   super(...args)
     // }
@@ -290,4 +278,15 @@ ClassTransformer.prototype = createObject(proto, {
                               params, body);
     return this.transformConstructor_(constr);
   }
-});
+}
+
+/**
+ * @param {UniqueIdentifierGenerator} identifierGenerator
+ * @param {ErrorReporter} reporter
+ * @param {Program} tree
+ * @return {Program}
+ */
+ClassTransformer.transform = function(identifierGenerator, reporter, tree) {
+  return new ClassTransformer(identifierGenerator, reporter).
+      transformAny(tree);
+};

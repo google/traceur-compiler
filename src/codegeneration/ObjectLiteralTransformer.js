@@ -56,6 +56,8 @@ function findAtNameInProperty(propertyName) {
 /**
  * AtNameFinder class that finds if an object literal contains an at name.
  * @param {ObjectLiteralTree} tree
+ * @constructor
+ * @extends FindVisitor
  */
 function AtNameFinder(tree) {
   this.protoExpression = null;
@@ -97,30 +99,17 @@ function getPropertyNameForToken(nameToken) {
  * object and then use Object.defineProperty.
  *
  * If there is a method but no at names we use Object.create/defineProperties.
- *
- * @param {UniqueIdentifierGenerator} identifierGenerator
- * @constructor
- * @extends {TempVarTransformer}
  */
-export function ObjectLiteralTransformer(identifierGenerator) {
-  TempVarTransformer.call(this, identifierGenerator);
-  this.protoExpression = null;
-  this.needsAtNameTransform = false;
-  this.seenAccessors = null;
-}
-
-/**
- * @param {UniqueIdentifierGenerator} identifierGenerator
- * @param {ParseTree} tree
- */
-ObjectLiteralTransformer.transformTree = function(identifierGenerator,
-                                                  tree) {
-  return new ObjectLiteralTransformer(identifierGenerator).
-      transformAny(tree);
-};
-
-var base = TempVarTransformer.prototype;
-ObjectLiteralTransformer.prototype = createObject(base, {
+export class ObjectLiteralTransformer extends TempVarTransformer {
+  /**
+   * @param {UniqueIdentifierGenerator} identifierGenerator
+   */
+  constructor(identifierGenerator) {
+    super(identifierGenerator);
+    this.protoExpression = null;
+    this.needsAtNameTransform = false;
+    this.seenAccessors = null;
+  }
 
   /**
    * Creates an intermediate data structure (Array) which is later used to
@@ -133,7 +122,7 @@ ObjectLiteralTransformer.prototype = createObject(base, {
    * @return {Array} This returns null when we are completing an existing
    *     accessor.
    */
-  createProperty_: function(name, descr) {
+  createProperty_(name, descr) {
     if (descr.get || descr.set) {
       var lookupName = getPropertyNameForToken(name);
       var oldAccessor = this.seenAccessors[lookupName];
@@ -147,7 +136,7 @@ ObjectLiteralTransformer.prototype = createObject(base, {
       }
     }
     return [name, descr];
-  },
+  }
 
   /**
    * Creates the expression to use as the name for:
@@ -158,7 +147,7 @@ ObjectLiteralTransformer.prototype = createObject(base, {
    * @param {Token} token
    * @return {ParseTree}
    */
-  getPropertyName_: function(token) {
+  getPropertyName_(token) {
     switch (token.type) {
       case TokenType.AT_NAME:
         return createIdentifierExpression(
@@ -170,9 +159,9 @@ ObjectLiteralTransformer.prototype = createObject(base, {
           return createStringLiteral(token.type);
         return new LiteralExpression(token.location, token);
     }
-  },
+  }
 
-  transformObjectLiteralExpression: function(tree) {
+  transformObjectLiteralExpression(tree) {
     // If the object literal needs to be transformed this calls the
     // transformation of the individual transformations of the property names
     // and values and then assembles the result of those into either a call
@@ -186,7 +175,7 @@ ObjectLiteralTransformer.prototype = createObject(base, {
       var finder = new AtNameFinder(tree);
       if (!finder.found) {
         this.needsAtNameTransform = false;
-        return base.transformObjectLiteralExpression.call(this, tree);
+        return super.transformObjectLiteralExpression(tree);
       }
 
       this.needsAtNameTransform = true;
@@ -226,11 +215,11 @@ ObjectLiteralTransformer.prototype = createObject(base, {
       this.needsAtNameTransform = oldNeedsTransform;
       this.seenAccessors = oldSeenAccessors;
     }
-  },
+  }
 
-  transformPropertyNameAssignment: function(tree) {
+  transformPropertyNameAssignment(tree) {
     if (!this.needsAtNameTransform)
-      return base.transformPropertyNameAssignment.call(this, tree);
+      return super.transformPropertyNameAssignment(tree);
 
     // __proto__ is handled separately.
     if (getPropertyNameForToken(tree.name) === '__proto__')
@@ -243,10 +232,10 @@ ObjectLiteralTransformer.prototype = createObject(base, {
           enumerable: true,
           writable: true
         });
-  },
-  transformGetAccessor: function(tree) {
+  }
+  transformGetAccessor(tree) {
     if (!this.needsAtNameTransform)
-      return base.transformGetAccessor.call(this, tree);
+      return super.transformGetAccessor(tree);
 
     var body = this.transformAny(tree.body);
     var func = createFunctionExpression(createEmptyParameterList(), body);
@@ -256,10 +245,10 @@ ObjectLiteralTransformer.prototype = createObject(base, {
           configurable: true,
           enumerable: true
         });
-  },
-  transformSetAccessor: function(tree) {
+  }
+  transformSetAccessor(tree) {
     if (!this.needsAtNameTransform)
-      return base.transformSetAccessor.call(this, tree);
+      return super.transformSetAccessor(tree);
 
     var body = this.transformAny(tree.body);
     var parameter = this.transformAny(tree.parameter);
@@ -272,9 +261,9 @@ ObjectLiteralTransformer.prototype = createObject(base, {
           configurable: true,
           enumerable: true
         });
-  },
+  }
 
-  transformPropertyMethodAssignment: function(tree) {
+  transformPropertyMethodAssignment(tree) {
     var func = new FunctionDeclaration(tree.location, null, tree.isGenerator,
         this.transformAny(tree.formalParameterList),
         this.transformAny(tree.functionBody))
@@ -296,11 +285,11 @@ ObjectLiteralTransformer.prototype = createObject(base, {
           enumerable: true,
           writable: true
         });
-  },
+  }
 
-  transformPropertyNameShorthand: function(tree) {
+  transformPropertyNameShorthand(tree) {
     if (!this.needsAtNameTransform)
-      return base.transformPropertyNameShorthand.call(this, tree);
+      return super.transformPropertyNameShorthand(tree);
 
     return this.createProperty_(tree.name,
         {
@@ -310,4 +299,14 @@ ObjectLiteralTransformer.prototype = createObject(base, {
           writable: true
         });
   }
-});
+}
+
+/**
+ * @param {UniqueIdentifierGenerator} identifierGenerator
+ * @param {ParseTree} tree
+ */
+ObjectLiteralTransformer.transformTree = function(identifierGenerator,
+                                                  tree) {
+  return new ObjectLiteralTransformer(identifierGenerator).
+      transformAny(tree);
+};

@@ -15,17 +15,15 @@
 import Symbol from 'Symbol.js';
 import SymbolType from 'SymbolType.js';
 
-/**
- * @param {ParseTree} tree
- * @param {string} name
- * @param {ParseTree=} relatedTree
- * @constructor
- * @extends {Symbol}
- */
-export function ExportSymbol(tree, name, relatedTree) {
-  Symbol.call(this, SymbolType.EXPORT, tree, name);
-  this.relatedTree = relatedTree;
+export class ExportSymbol extends Symbol {
+  /**
+   * @param {ParseTree} tree
+   * @param {string} name
+   * @param {ParseTree=} relatedTree
+   */
+  constructor(tree, name, relatedTree) {
+    super(SymbolType.EXPORT, tree, name);
+    this.relatedTree = relatedTree;
+  }
 }
-
-ExportSymbol.prototype = Object.create(Symbol.prototype);
 

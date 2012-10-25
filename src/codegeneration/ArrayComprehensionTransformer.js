@@ -55,29 +55,10 @@ import createObject from '../util/util.js';
  * })()
  *
  * with alpha renaming of this and arguments of course.
- *
- * @param {UniqueIdentifierGenerator} identifierGenerator
- * @constructor
- * @extends {ComprehensionTransformer}
  */
-export function ArrayComprehensionTransformer(identifierGenerator) {
-  ComprehensionTransformer.call(this, identifierGenerator);
-}
+export class ArrayComprehensionTransformer extends ComprehensionTransformer {
 
-/**
- * @param {UniqueIdentifierGenerator} identifierGenerator
- * @param {ParseTree} tree
- * @return {ParseTree}
- */
-ArrayComprehensionTransformer.transformTree =
-    function(identifierGenerator, tree) {
-  return new ArrayComprehensionTransformer(identifierGenerator).
-      transformAny(tree);
-};
-
-ArrayComprehensionTransformer.prototype = createObject(
-    ComprehensionTransformer.prototype, {
-  transformArrayComprehension: function(tree) {
+  transformArrayComprehension(tree) {
     var expression = this.transformAny(tree.expression);
 
     var indexName = this.identifierGenerator.generateUniqueIdentifier();
@@ -104,4 +85,15 @@ ArrayComprehensionTransformer.prototype = createObject(
     return this.transformComprehension(tree, statement, isGenerator,
                                        initStatement, returnStatement);
   }
-});
+}
+
+/**
+ * @param {UniqueIdentifierGenerator} identifierGenerator
+ * @param {ParseTree} tree
+ * @return {ParseTree}
+ */
+ArrayComprehensionTransformer.transformTree =
+    function(identifierGenerator, tree) {
+  return new ArrayComprehensionTransformer(identifierGenerator).
+      transformAny(tree);
+};

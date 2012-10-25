@@ -14,10 +14,12 @@
 
 import TreeWriter from 'TreeWriter.js';
 
+// TODO(arv): This should just export the static function instead.
+
 /**
  * Writes all the files in the project to a stream.
  */
-export function ProjectWriter() {}
+export class ProjectWriter {}
 
 /**
  * @param {traceur.util.ObjectMap} results

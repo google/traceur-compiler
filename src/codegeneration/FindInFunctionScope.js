@@ -22,21 +22,11 @@ import createObject from '../util/util.js';
  * search of the remaining sub trees.
  *
  * Does not search into nested functions.
- *
- * @param {ParseTree} tree
- * @extends {FindVisitor}
- * @constructor
  */
-export function FindInFunctionScope(tree) {
-  FindVisitor.call(this, tree);
-}
-
-FindInFunctionScope.prototype = createObject(
-    FindVisitor.prototype, {
-
+export class FindInFunctionScope extends FindVisitor {
   // don't visit function children or bodies
-  visitFunctionDeclaration: function(tree) {},
-  visitSetAccessor: function(tree) {},
-  visitGetAccessor: function(tree) {},
-  visitPropertyMethodAssignment: function(tree) {}
-});
+  visitFunctionDeclaration(tree) {}
+  visitSetAccessor(tree) {}
+  visitGetAccessor(tree) {}
+  visitPropertyMethodAssignment(tree) {}
+}

@@ -54,130 +54,131 @@ function getStandardModule(url) {
 /**
  * The root data structure for all semantic and syntactic information for a
  * single compilation.
- * @param {string} url The base URL of the project. This is used for resolving
- *    URLs for external modules.
- * @constructor
  */
-export function Project(url) {
-  this.identifierGenerator = new UniqueIdentifierGenerator();
-  this.runtimeInliner = new RuntimeInliner(this.identifierGenerator);
+export class Project {
+  /**
+   * @param {string} url The base URL of the project. This is used for resolving
+   *    URLs for external modules.
+   */
+  constructor(url) {
+    this.identifierGenerator = new UniqueIdentifierGenerator();
+    this.runtimeInliner = new RuntimeInliner(this.identifierGenerator);
 
-  this.sourceFiles_ = Object.create(null);
-  this.parseTrees_ = new ObjectMap();
-  this.rootModule_ = new ModuleSymbol(null, null, null, url);
-  this.modulesByUrl_ = Object.create(null);
-  this.moduleExports_ = new ArrayMap();
-}
+    this.sourceFiles_ = Object.create(null);
+    this.parseTrees_ = new ObjectMap();
+    this.rootModule_ = new ModuleSymbol(null, null, null, url);
+    this.modulesByUrl_ = Object.create(null);
+    this.moduleExports_ = new ArrayMap();
+  }
 
-Project.prototype = {
   get url() {
     return this.rootModule_.url;
-  },
+  }
 
   /**
    * @return {Project}
    */
-  createClone: function() {
+  createClone() {
     var p = new Project(this.url);
     addAll(p.sourceFiles_, this.sourceFiles_);
     p.parseTrees_.addAll(this.parseTrees_);
     // push(...)
     p.objectClass_ = this.objectClass_;
     return p;
-  },
+  }
 
   /**
    * @param {string} name
    * @return {boolean}
    */
-  hasFile: function(name) {
+  hasFile(name) {
     return name in this.sourceFiles_;
-  },
+  }
 
   /**
    * @param {SourceFile} file
    * @return {void}
    */
-  addFile: function(file) {
+  addFile(file) {
     this.sourceFiles_[file.name] = file;
-  },
+  }
 
   /**
    * @param {string} name
    * @return {SourceFile}
    */
-  getFile: function(name) {
+  getFile(name) {
     return this.sourceFiles_[name];
-  },
+  }
 
   /**
    * @return {Array.<SourceFile>}
    */
-  getSourceFiles: function() {
+  getSourceFiles() {
     return values(this.sourceFiles_);
-  },
+  }
 
   /**
    * @return {Array.<Program>}
    */
-  getSourceTrees: function() {
+  getSourceTrees() {
     return this.parseTrees_.values();
-  },
+  }
 
   /**
    * @param {SourceFile} file
    * @param {Program} tree
    * @return {void}
    */
-  setParseTree: function(file, tree) {
+  setParseTree(file, tree) {
     if (this.sourceFiles_[file.name] != file) {
       throw new Error();
     }
     this.parseTrees_.put(file, tree);
-  },
+  }
 
   /**
    * @param {SourceFile} file
    * @return {Program}
    */
-  getParseTree: function(file) {
+  getParseTree(file) {
     return this.parseTrees_.get(file);
-  },
+  }
 
   /**
    * @return {ModuleSymbol}
    */
-  getRootModule: function() {
+  getRootModule() {
     return this.rootModule_;
-  },
+  }
 
-  addExternalModule: function(module) {
+  addExternalModule(module) {
     traceur.assert(!this.hasModuleForUrl(module.url));
     this.modulesByUrl_[module.url] = module;
-  },
+  }
 
-  getModuleForUrl: function(url) {
+  getModuleForUrl(url) {
     url = resolveUrl(this.url, url);
     traceur.assert(this.hasModuleForUrl(url));
     if (standardModuleUrlRegExp.test(url))
       return getStandardModule(url);
 
     return this.modulesByUrl_[url];
-  },
+  }
 
-  hasModuleForUrl: function(url) {
+  hasModuleForUrl(url) {
     if (standardModuleUrlRegExp.test(url))
       return url in traceur.runtime.modules;
 
     url = resolveUrl(this.url, url);
     return url in this.modulesByUrl_;
-  },
+  }
 
-  setModuleForStarTree: function(tree, symbol) {
+  setModuleForStarTree(tree, symbol) {
     this.moduleExports_.put(tree, symbol);
-  },
+  }
 
-  getModuleForStarTree: function(tree) {
+  getModuleForStarTree(tree) {
     return this.moduleExports_.get(tree);
   }
-};
+}

@@ -17,27 +17,24 @@ import State from 'State.js';
 import createObject from '../../util/util.js';
 import createStatementList from '../ParseTreeFactory.js';
 
-/**
- * @param {number} id
- * @param {string} label
- * @constructor
- * @extends {State}
- */
-export function BreakState(id, label) {
-  State.call(this, id);
-  this.label = label;
-}
+export class BreakState extends State {
+  /**
+   * @param {number} id
+   * @param {string} label
+   */
+  constructor(id, label) {
+    super(id);
+    this.label = label;
+  }
 
-BreakState.prototype = createObject(State.prototype, {
-  
   /**
    * @param {number} oldState
    * @param {number} newState
    * @return {BreakState}
    */
-  replaceState: function(oldState, newState) {
+  replaceState(oldState, newState) {
     return new BreakState(State.replaceStateId(this.id, oldState, newState), this.label);
-  },
+  }
 
   /**
    * @param {FinallyState} enclosingFinally
@@ -45,21 +42,21 @@ BreakState.prototype = createObject(State.prototype, {
    * @param {ErrorReporter} reporter
    * @return {Array.<ParseTree>}
    */
-  transform: function(enclosingFinally, machineEndState, reporter) {
+  transform(enclosingFinally, machineEndState, reporter) {
     throw new Error('These should be removed before the transform step');
-  },
+  }
 
   /**
    * @param {Object} labelSet
    * @param {number} breakState
    * @return {State}
    */
-  transformBreak: function(labelSet, breakState) {
+  transformBreak(labelSet, breakState) {
     if (this.label == null || this.label in labelSet) {
       return new FallThroughState(this.id, breakState, createStatementList());
     }
     return this;
-  },
+  }
 
   /**
    * @param {Object} labelSet
@@ -67,7 +64,7 @@ BreakState.prototype = createObject(State.prototype, {
    * @param {number} continueState
    * @return {State}
    */
-  transformBreakOrContinue: function(labelSet, breakState, continueState) {
+  transformBreakOrContinue(labelSet, breakState, continueState) {
     return this.transformBreak(labelSet, breakState);
   }
-});
+}

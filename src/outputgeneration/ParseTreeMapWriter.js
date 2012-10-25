@@ -17,29 +17,27 @@ import createObject from '../util/util.js';
 
 /**
  * Converts a ParseTree to text and a source Map
- * @param {ParseTree} highlighted
- * @param {boolean} showLineNumbers
- * @param {SourceMapGenerator} sourceMapGenerator
- * @constructor
  */
-export function ParseTreeMapWriter(highlighted, showLineNumbers,
-                            sourceMapGenerator) {
-  ParseTreeWriter.call(this, highlighted, showLineNumbers);
-  this.sourceMapGenerator_ = sourceMapGenerator;
-  this.outputLineCount = 0;
-}
+export class ParseTreeMapWriter extends ParseTreeWriter {
+  /**
+   * @param {ParseTree} highlighted
+   * @param {boolean} showLineNumbers
+   * @param {SourceMapGenerator} sourceMapGenerator
+   */
+  constructor(highlighted, showLineNumbers, sourceMapGenerator) {
+    super(highlighted, showLineNumbers);
+    this.sourceMapGenerator_ = sourceMapGenerator;
+    this.outputLineCount = 0;
+  }
 
-ParseTreeMapWriter.prototype = createObject(
-    ParseTreeWriter.prototype, {
-
-  write_: function(value) {
+  write_(value) {
     if (this.currentLocation) {
       this.addMapping();
     }
-    ParseTreeWriter.prototype.write_.apply(this,[value]);
-  },
+    super.write_(value);
+  }
 
-  addMapping: function() {
+  addMapping() {
     var mapping = {
       generated: {
         // http://code.google.com/p/traceur-compiler/issues/detail?id=105
@@ -56,4 +54,4 @@ ParseTreeMapWriter.prototype = createObject(
     };
     this.sourceMapGenerator_.addMapping(mapping);
   }
-});
+}

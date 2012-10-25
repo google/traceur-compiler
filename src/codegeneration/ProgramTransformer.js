@@ -39,74 +39,37 @@ import {options, transformOptions} from '../options.js';
 
 /**
  * Transforms a Traceur file's ParseTree to a JS ParseTree.
- *
- * @param {ErrorReporter} reporter
- * @param {Project} project
- * @constructor
  */
-export function ProgramTransformer(reporter, project) {
-  this.project_ = project;
-  this.reporter_ = reporter;
-  this.results_ = new ObjectMap();
-}
+export class ProgramTransformer {
+  /**
+   * @param {ErrorReporter} reporter
+   * @param {Project} project
+   */
+  constructor(reporter, project) {
+    this.project_ = project;
+    this.reporter_ = reporter;
+    this.results_ = new ObjectMap();
+  }
 
-/**
- * @param {ErrorReporter} reporter
- * @param {Project} project
- * @return {ObjectMap}
- */
-ProgramTransformer.transform = function(reporter, project) {
-  var transformer = new ProgramTransformer(reporter, project);
-  transformer.transform_();
-  return transformer.results_;
-};
-
-/**
- * @param {ErrorReporter} reporter
- * @param {Project} project
- * @param {SourceFile} sourceFile
- * @return {ObjectMap}
- */
-ProgramTransformer.transformFile = function(reporter, project, sourceFile) {
-  var transformer = new ProgramTransformer(reporter, project);
-  transformer.transformFile_(sourceFile);
-  return transformer.results_;
-};
-
-/**
- * @param {ErrorReporter} reporter
- * @param {Project} project
- * @param {ModuleSymbol}
- * @param {SourceFile} sourceFile
- * @return {ObjectMap}
- */
-ProgramTransformer.transformFileAsModule = function(reporter, project,
-                                                    module, sourceFile) {
-  var transformer = new ProgramTransformer(reporter, project);
-  transformer.transformFileAsModule_(module, sourceFile);
-  return transformer.results_;
-};
-
-ProgramTransformer.prototype = {
   /**
    * @return {void}
    * @private
    */
-  transform_: function() {
+  transform_() {
     this.project_.getSourceFiles().forEach((file) => {
       this.transformFile_(file);
     });
-  },
+  }
 
   /**
    * @param {SourceFile} file
    * @return {void}
    * @private
    */
-  transformFile_: function(file) {
+  transformFile_(file) {
     var result = this.transform(this.project_.getParseTree(file));
     this.results_.put(file, result);
-  },
+  }
 
   /**
    * @param {ModuleSymbol} module
@@ -114,11 +77,11 @@ ProgramTransformer.prototype = {
    * @return {void}
    * @private
    */
-  transformFileAsModule_: function(module, file) {
+  transformFileAsModule_(module, file) {
     var result = this.transformTree_(this.project_.getParseTree(file),
                                      module);
     this.results_.put(file, result);
-  },
+  }
 
   /**
    * This is the root of the code generation pass.
@@ -128,16 +91,16 @@ ProgramTransformer.prototype = {
    * @param {Program} tree
    * @return {ParseTree}
    */
-  transform: function(tree) {
+  transform(tree) {
     return this.transformTree_(tree);
-  },
+  }
 
-  transformTree_: function(tree, opt_module) {
+  transformTree_(tree, opt_module) {
     var identifierGenerator = this.project_.identifierGenerator;
     var runtimeInliner = this.project_.runtimeInliner;
     var reporter = this.reporter_;
 
-    function chain(enabled, transformer, var_args) {
+    function chain(enabled, transformer, ...args) {
       if (!enabled)
         return;
 
@@ -145,9 +108,8 @@ ProgramTransformer.prototype = {
         if (options.validate) {
           ParseTreeValidator.validate(tree);
         }
-        var args = Array.prototype.slice.call(arguments, 2);
-        args.push(tree);
-        tree = transformer.apply(null, args) || tree;
+
+        tree = transformer(...args, tree) || tree;
       }
     }
 
@@ -237,7 +199,7 @@ ProgramTransformer.prototype = {
           FreeVariableChecker.checkProgram, reporter);
 
     return tree;
-  },
+  }
 
   /**
    * Transforms a program tree. If an optional module is passed in the
@@ -247,7 +209,7 @@ ProgramTransformer.prototype = {
    * @return {Program}
    * @private
    */
-  transformModules_: function(tree, opt_module) {
+  transformModules_(tree, opt_module) {
     if (opt_module) {
       return ModuleTransformer.transformAsModule(this.project_, opt_module,
                                                  tree);
@@ -255,4 +217,41 @@ ProgramTransformer.prototype = {
       return ModuleTransformer.transform(this.project_, tree);
     }
   }
+}
+
+/**
+ * @param {ErrorReporter} reporter
+ * @param {Project} project
+ * @return {ObjectMap}
+ */
+ProgramTransformer.transform = function(reporter, project) {
+  var transformer = new ProgramTransformer(reporter, project);
+  transformer.transform_();
+  return transformer.results_;
+};
+
+/**
+ * @param {ErrorReporter} reporter
+ * @param {Project} project
+ * @param {SourceFile} sourceFile
+ * @return {ObjectMap}
+ */
+ProgramTransformer.transformFile = function(reporter, project, sourceFile) {
+  var transformer = new ProgramTransformer(reporter, project);
+  transformer.transformFile_(sourceFile);
+  return transformer.results_;
+};
+
+/**
+ * @param {ErrorReporter} reporter
+ * @param {Project} project
+ * @param {ModuleSymbol}
+ * @param {SourceFile} sourceFile
+ * @return {ObjectMap}
+ */
+ProgramTransformer.transformFileAsModule = function(reporter, project,
+                                                    module, sourceFile) {
+  var transformer = new ProgramTransformer(reporter, project);
+  transformer.transformFileAsModule_(module, sourceFile);
+  return transformer.results_;
 };

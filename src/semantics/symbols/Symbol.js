@@ -19,33 +19,31 @@ import SymbolType from 'SymbolType.js';
  *
  * Symbols are plain old data structures only. They have methods for querying their contents, but
  * symbols do not implement more sophisticated semantics than simple data access.
- *
- * @param {SymbolType} type
- * @param {ParseTree} tree
- * @param {string} name
- * @constructor
  */
-export function Symbol(type, tree, name) {
-  this.type = type;
-  this.tree = tree;
-  this.name = name;
-}
-
-Symbol.prototype = {
+export class Symbol {
+  /**
+   * @param {SymbolType} type
+   * @param {ParseTree} tree
+   */
+  constructor(type, tree, name) {
+    this.type = type;
+    this.tree = tree;
+    this.name = name;
+  }
 
   /**
    * @return {ExportSymbol}
    */
-  asExport: function() {
+  asExport() {
     traceur.assert(this.type == SymbolType.EXPORT);
     return this;
-  },
+  }
 
   /**
    * @return {ModuleSymbol}
    */
-  asModuleSymbol: function() {
+  asModuleSymbol() {
     traceur.assert(this.type == SymbolType.MODULE);
     return this;
   }
-};
+}

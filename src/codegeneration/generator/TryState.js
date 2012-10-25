@@ -24,29 +24,28 @@ var Kind = {
  * are stored as a forest of trees hung off of the StateMachine.
  *
  * TryStates are immutable.
- *
- * @param {Kind} kind
- * @param {Array.<number>} tryStates
- * @param {TryState} nestedTrys
- * @constructor
  */
-export function TryState(kind, tryStates, nestedTrys) {
-  this.kind = kind;
-  this.tryStates = tryStates;
-  this.nestedTrys = nestedTrys;
-}
+export class TryState {
+  /**
+   * @param {Kind} kind
+   * @param {Array.<number>} tryStates
+   * @param {TryState} nestedTrys
+   */
+  constructor(kind, tryStates, nestedTrys) {
+    this.kind = kind;
+    this.tryStates = tryStates;
+    this.nestedTrys = nestedTrys;
+  }
 
-TryState.Kind = Kind;
-TryState.prototype = {
   /**
    * Helper for replaceState.
    * @param {number} oldState
    * @param {number} newState
    * @return {Array.<number>}
    */
-  replaceAllStates: function(oldState, newState) {
+  replaceAllStates(oldState, newState) {
     return State.replaceStateList(this.tryStates, oldState, newState);
-  },
+  }
 
   /**
    * Helper for replaceState.
@@ -54,11 +53,13 @@ TryState.prototype = {
    * @param {number} newState
    * @return {Array.<TryState>}
    */
-  replaceNestedTrys: function(oldState, newState) {
+  replaceNestedTrys(oldState, newState) {
     var states = [];
     for (var i = 0; i < this.nestedTrys.length; i++) {
       states.push(this.nestedTrys[i].replaceState(oldState, newState));
     }
     return states;
   }
-};
+}
+
+TryState.Kind = Kind;

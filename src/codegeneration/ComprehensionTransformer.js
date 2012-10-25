@@ -36,54 +36,31 @@ import createObject from '../util/util.js';
 
 /**
  * This is used to find whether a function contains a reference to 'this'.
- * @extend {FindInFunctionScope}
- * @param {ParseTree} tree The tree to search.
  */
-function ThisFinder(tree) {
-  FindInFunctionScope.call(this, tree);
-}
-ThisFinder.prototype = createObject(
-    FindInFunctionScope.prototype, {
-
-  visitThisExpression: function(tree) {
+class ThisFinder extends FindInFunctionScope {
+  visitThisExpression(tree) {
     this.found = true;
   }
-});
+}
 
 /**
  * This is used to find whether a function contains a reference to
  * 'arguments'.
- * @extend {FindInFunctionScope}
- * @param {ParseTree} tree The tree to search.
  */
-function ArgumentsFinder(tree) {
-  FindInFunctionScope.call(this, tree);
-}
-ArgumentsFinder.prototype = createObject(
-    FindInFunctionScope.prototype, {
-
-  visitIdentifierExpression: function(tree) {
+class ArgumentsFinder extends FindInFunctionScope {
+  visitIdentifierExpression(tree) {
     if (tree.identifierToken.value === ARGUMENTS)
       this.found = true;
   }
-});
+}
 
 /**
  * Base class for GeneratorComprehensionTransformer and
  * ArrayComprehensionTransformer.
  *
  * See subclasses for details on desugaring.
- *
- * @param {UniqueIdentifierGenerator} identifierGenerator
- * @constructor
- * @extends {TempVarTransformer}
  */
-export function ComprehensionTransformer(identifierGenerator) {
-  TempVarTransformer.call(this, identifierGenerator);
-}
-
-var proto = TempVarTransformer.prototype;
-ComprehensionTransformer.prototype = createObject(proto, {
+export class ComprehensionTransformer extends TempVarTransformer {
   /**
    * transformArrayComprehension and transformGeneratorComprehension calls
    * this
@@ -95,7 +72,7 @@ ComprehensionTransformer.prototype = createObject(proto, {
    * @param {ParseTree=} returnStatement
    * @return {ParseTree}
    */
-  transformComprehension: function(tree, statement, isGenerator,
+  transformComprehension(tree, statement, isGenerator,
       initStatement, returnStatement) {
 
     // This should really be a let but we don't support let in generators.
@@ -143,4 +120,4 @@ ComprehensionTransformer.prototype = createObject(proto, {
 
     return createParenExpression(createCallExpression(func));
   }
-});
+}

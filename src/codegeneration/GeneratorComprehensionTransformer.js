@@ -40,13 +40,16 @@ import createYieldStatement from 'ParseTreeFactory.js';
  * })()
  *
  * with alpha renaming of this and arguments of course.
- *
- * @param {UniqueIdentifierGenerator} identifierGenerator
- * @constructor
- * @extends {ComprehensionTransformer}
  */
-export function GeneratorComprehensionTransformer(identifierGenerator) {
-  ComprehensionTransformer.call(this, identifierGenerator);
+export class GeneratorComprehensionTransformer extends
+    ComprehensionTransformer {
+
+  transformGeneratorComprehension(tree) {
+    var expression = this.transformAny(tree.expression);
+    var statement = createYieldStatement(expression);
+    var isGenerator = true;
+    return this.transformComprehension(tree, statement, isGenerator);
+  }
 }
 
 /**
@@ -59,13 +62,3 @@ GeneratorComprehensionTransformer.transformTree =
   return new GeneratorComprehensionTransformer(identifierGenerator).
       transformAny(tree);
 };
-
-GeneratorComprehensionTransformer.prototype = createObject(
-    ComprehensionTransformer.prototype, {
-  transformGeneratorComprehension: function(tree) {
-    var expression = this.transformAny(tree.expression);
-    var statement = createYieldStatement(expression);
-    var isGenerator = true;
-    return this.transformComprehension(tree, statement, isGenerator);
-  }
-});

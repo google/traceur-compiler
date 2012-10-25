@@ -16,16 +16,14 @@ import State from 'State.js';
 
 /**
  * Allocates unique state identifiers.
- * @constructor
  */
-export function StateAllocator() {
-}
-
-StateAllocator.prototype = {
-  nextState_: State.INVALID_STATE + 1,
+export class StateAllocator {
+  constructor() {
+    this.nextState_ = State.INVALID_STATE + 1;
+  }
 
   /** @return {number} */
-  allocateState: function() {
+  allocateState() {
     return this.nextState_++;
   }
-};
+}

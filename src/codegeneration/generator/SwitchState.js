@@ -29,14 +29,16 @@ import createObject from '../../util/util.js';
  * Immutable.
  *
  * TODO: this came from Pair. Better member names?
- *
- * @param {ParseTree} first
- * @param {number} second
- * @constructor
  */
-export function SwitchClause(first, second) {
-  this.first = first;
-  this.second = second;
+export class SwitchClause {
+  /**
+   * @param {ParseTree} first
+   * @param {number} second
+   */
+  constructor(first, second) {
+    this.first = first;
+    this.second = second;
+  }
 }
 
 /**
@@ -44,20 +46,18 @@ export function SwitchClause(first, second) {
  * to a StateMachine.
  *
  * SwitchStates are immutable.
- *
- * @param {number} id
- * @param {ParseTree} expression
- * @param {Array.<SwitchClause>} clauses
- * @constructor
- * @extends {State}
  */
-export function SwitchState(id, expression, clauses) {
-  State.call(this, id);
-  this.expression = expression;
-  this.clauses = clauses;
-}
-
-SwitchState.prototype = createObject(State.prototype, {
+export class SwitchState extends State {
+  /**
+   * @param {number} id
+   * @param {ParseTree} expression
+   * @param {Array.<SwitchClause>} clauses
+   */
+  constructor(id, expression, clauses) {
+    super(id);
+    this.expression = expression;
+    this.clauses = clauses;
+  }
 
   /**
    * Represents the dispatch portion of an if/else block.
@@ -67,7 +67,7 @@ SwitchState.prototype = createObject(State.prototype, {
    * @param {number} newState
    * @return {SwitchState}
    */
-  replaceState: function(oldState, newState) {
+  replaceState(oldState, newState) {
     var clauses = this.clauses.map((clause) => {
       return new SwitchClause(clause.first,
           State.replaceStateId(clause.second, oldState, newState));
@@ -76,7 +76,7 @@ SwitchState.prototype = createObject(State.prototype, {
         State.replaceStateId(this.id, oldState, newState),
         this.expression,
         clauses);
-  },
+  }
 
   /**
    * @param {FinallyState} enclosingFinally
@@ -84,7 +84,7 @@ SwitchState.prototype = createObject(State.prototype, {
    * @param {ErrorReporter} reporter
    * @return {Array.<ParseTree>}
    */
-  transform: function(enclosingFinally, machineEndState, reporter) {
+  transform(enclosingFinally, machineEndState, reporter) {
     var clauses = [];
     for (var i = 0; i < this.clauses.length; i++) {
       var clause = this.clauses[i];
@@ -100,4 +100,4 @@ SwitchState.prototype = createObject(State.prototype, {
         new SwitchStatement(null, this.expression, clauses),
         createBreakStatement());
   }
-});
+}

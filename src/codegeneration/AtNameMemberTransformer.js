@@ -43,28 +43,10 @@ import expandMemberExpression from 'OperatorExpander.js';
  * This pass is used for private name syntax.
  *
  * http://wiki.ecmascript.org/doku.php?id=strawman:syntactic_support_for_private_names
- *
- * @param {UniqueIdentifierGenerator} identifierGenerator
- * @extends {TempVarTransformer}
- * @constructor
  */
-export function AtNameMemberTransformer(identifierGenerator) {
-  TempVarTransformer.call(this, identifierGenerator);
-}
+export class AtNameMemberTransformer extends TempVarTransformer {
 
-/**
- * @param {UniqueIdentifierGenerator} identifierGenerator
- * @param {ParseTree} tree
- * @return {ParseTree}
- */
-AtNameMemberTransformer.transformTree = function(identifierGenerator, tree) {
-  return new AtNameMemberTransformer(identifierGenerator).transformAny(tree);
-};
-
-var base = TempVarTransformer.prototype;
-AtNameMemberTransformer.prototype = createObject(base, {
-  transformBinaryOperator: function(tree) {
-
+  transformBinaryOperator(tree) {
     if (tree.left.type === MEMBER_EXPRESSION &&
         tree.left.memberName.type === TokenType.AT_NAME &&
         tree.operator.isAssignmentOperator()) {
@@ -88,13 +70,13 @@ AtNameMemberTransformer.prototype = createObject(base, {
           createArgumentList(operand, atNameExpression, value));
     }
 
-    return base.transformBinaryOperator.call(this, tree);
-  },
+    return super.transformBinaryOperator(tree);
+  }
 
-  transformCallExpression: function(tree) {
+  transformCallExpression(tree) {
     if (tree.operand.type !== MEMBER_EXPRESSION ||
         tree.operand.memberName.type !== TokenType.AT_NAME)
-      return base.transformCallExpression.call(this, tree);
+      return super.transformCallExpression(tree);
 
     var operand = this.transformAny(tree.operand.operand);
     var memberName = tree.operand.memberName;
@@ -121,11 +103,11 @@ AtNameMemberTransformer.prototype = createObject(base, {
     ];
 
     return createParenExpression(createCommaExpression(expressions));
-  },
+  }
 
-  transformMemberExpression: function(tree) {
+  transformMemberExpression(tree) {
     if (tree.memberName.type !== TokenType.AT_NAME)
-      return base.transformMemberExpression.call(this, tree);
+      return super.transformMemberExpression(tree);
 
     // operand.@name
     // =>
@@ -135,13 +117,13 @@ AtNameMemberTransformer.prototype = createObject(base, {
     return createCallExpression(
         createMemberExpression(TRACEUR, RUNTIME, GET_PROPERTY),
         createArgumentList(tree.operand, atNameExpression));
-  },
+  }
 
-  transformUnaryExpression: function(tree) {
+  transformUnaryExpression(tree) {
     if (tree.operator.type !== TokenType.DELETE ||
         tree.operand.type !== MEMBER_EXPRESSION ||
         tree.operand.memberName.type !== TokenType.AT_NAME) {
-      return base.transformUnaryExpression.call(this, tree);
+      return super.transformUnaryExpression(tree);
     }
 
     var operand = this.transformAny(tree.operand.operand);
@@ -156,4 +138,13 @@ AtNameMemberTransformer.prototype = createObject(base, {
         createMemberExpression(TRACEUR, RUNTIME, DELETE_PROPERTY),
         createArgumentList(operand, atNameExpression));
   }
-});
+}
+
+/**
+ * @param {UniqueIdentifierGenerator} identifierGenerator
+ * @param {ParseTree} tree
+ * @return {ParseTree}
+ */
+AtNameMemberTransformer.transformTree = function(identifierGenerator, tree) {
+  return new AtNameMemberTransformer(identifierGenerator).transformAny(tree);
+};

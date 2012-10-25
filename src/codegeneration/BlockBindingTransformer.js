@@ -26,13 +26,13 @@ import {
   ForStatement,
   FunctionDeclaration,
   GetAccessor,
+  NullTree,
   Program,
   SetAccessor,
-  VariableDeclarationList,
   VariableDeclaration,
+  VariableDeclarationList,
   VariableStatement
 } from '../syntax/trees/ParseTrees.js';
-import NullTree from '../syntax/trees/NullTree.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import TokenType from '../syntax/TokenType.js';
 import {
@@ -122,14 +122,15 @@ class Scope {
   }
 };
 
-/**
- * @param {string} oldName
- * @param {string} newName
- * @constructor
- */
-function Rename(oldName, newName) {
-  this.oldName = oldName;
-  this.newName = newName;
+class Rename {
+  /**
+   * @param {string} oldName
+   * @param {string} newName
+   */
+  constructor(oldName, newName) {
+    this.oldName = oldName;
+    this.newName = newName;
+  }
 }
 
 /**
@@ -153,10 +154,6 @@ function toBlock(statement) {
   return statement.type == BLOCK ? statement : createBlock(statement);
 }
 
-/**
- * @extends {ParseTreeTransformer}
- * @constructor
- */
 export class BlockBindingTransformer extends ParseTreeTransformer {
   constructor(stateAllocator) {
     super();

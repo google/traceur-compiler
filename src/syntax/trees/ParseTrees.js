@@ -12,13 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import NullTree from 'NullTree.js';
 import ParseTree from 'ParseTree.js';
 module ParseTreeType from 'ParseTreeType.js';
 import * from ParseTreeType;
 
 // TODO(arv): These should not be exported here.
-export NullTree;
 export ParseTree;
 export ParseTreeType;
 
@@ -778,6 +776,12 @@ export class NewExpression extends ParseTree {
     super(NEW_EXPRESSION, location);
     this.operand = operand;
     this.args = args;
+  }
+}
+
+export class NullTree extends ParseTree {
+  constructor() {
+    super(NULL_TREE, null);
   }
 }
 

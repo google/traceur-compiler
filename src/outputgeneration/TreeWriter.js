@@ -15,7 +15,9 @@
 import ParseTreeMapWriter from 'ParseTreeMapWriter.js';
 import ParseTreeWriter from 'ParseTreeWriter.js';
 
-export function TreeWriter() {}
+// TODO(arv): This should just export the static function instead.
+
+export class TreeWriter {}
 
 /*
  * Create a ParseTreeWriter configured with options, apply it to tree

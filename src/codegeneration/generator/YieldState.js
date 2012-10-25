@@ -30,32 +30,30 @@ import createObject from '../../util/util.js';
  * to a StateMachine.
  *
  * SwitchStates are immutable.
- *
- * @param {number} id
- * @param {number} fallThroughState
- * @param {ParseTree} expression
- * @constructor
- * @extends {State}
  */
-export function YieldState(id, fallThroughState, expression) {
-  State.call(this, id);
-  this.fallThroughState = fallThroughState;
-  this.expression = expression;
-}
-
-YieldState.prototype = createObject(State.prototype, {
+export class YieldState extends State {
+  /**
+   * @param {number} id
+   * @param {number} fallThroughState
+   * @param {ParseTree} expression
+   */
+  constructor(id, fallThroughState, expression) {
+    super(id);
+    this.fallThroughState = fallThroughState;
+    this.expression = expression;
+  }
 
   /**
    * @param {number} oldState
    * @param {number} newState
    * @return {YieldState}
    */
-  replaceState: function(oldState, newState) {
+  replaceState(oldState, newState) {
     return new YieldState(
         State.replaceStateId(this.id, oldState, newState),
         State.replaceStateId(this.fallThroughState, oldState, newState),
         this.expression);
-  },
+  }
 
   /**
    * @param {FinallyState} enclosingFinally
@@ -63,7 +61,7 @@ YieldState.prototype = createObject(State.prototype, {
    * @param {ErrorReporter} reporter
    * @return {Array.<ParseTree>}
    */
-  transform: function(enclosingFinally, machineEndState, reporter) {
+  transform(enclosingFinally, machineEndState, reporter) {
     var result = [];
     // $result.current = expression;
     result.push(createAssignmentStatement(
@@ -80,4 +78,4 @@ YieldState.prototype = createObject(State.prototype, {
     result.push(createReturnStatement(createTrueLiteral()));
     return result;
   }
-});
+}

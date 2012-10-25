@@ -15,25 +15,16 @@
 import State from 'State.js';
 import createObject from '../../util/util.js';
 
-/**
- * @param {number} id
- * @constructor
- * @extends {State}
- */
-export function EndState(id) {
-  State.call(this, id);
-}
-
-EndState.prototype = createObject(State.prototype, {
+export class EndState extends State {
 
   /**
    * @param {number} oldState
    * @param {number} newState
    * @return {EndState}
    */
-  replaceState: function(oldState, newState) {
+  replaceState(oldState, newState) {
     return new EndState(State.replaceStateId(this.id, oldState, newState));
-  },
+  }
 
   /**
    * @param {FinallyState} enclosingFinally
@@ -41,7 +32,7 @@ EndState.prototype = createObject(State.prototype, {
    * @param {ErrorReporter} reporter
    * @return {Array.<ParseTree>}
    */
-  transform: function(enclosingFinally, machineEndState, reporter) {
+  transform(enclosingFinally, machineEndState, reporter) {
     return State.generateJump(enclosingFinally, machineEndState);
   }
-});
+}
