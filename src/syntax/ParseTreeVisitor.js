@@ -122,13 +122,6 @@ export class ParseTreeVisitor {
   }
 
   /**
-   * @param {BindThisParameter} tree
-   */
-  visitBindThisParameter(tree) {
-    this.visitAny(tree.expression);
-  }
-
-  /**
    * @param {BindingElement} tree
    */
   visitBindingElement(tree) {

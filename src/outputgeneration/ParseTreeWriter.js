@@ -178,15 +178,6 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
-   * @param {BindThisParameter} tree
-   */
-  visitBindThisParameter(tree) {
-    this.write_(TokenType.THIS);
-    this.write_(TokenType.EQUAL);
-    this.visitAny(tree.expression);
-  }
-
-  /**
    * @param {BindingElement} tree
    */
   visitBindingElement(tree) {

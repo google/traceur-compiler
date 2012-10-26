@@ -134,17 +134,6 @@ export class BinaryOperator extends ParseTree {
   }
 }
 
-export class BindThisParameter extends ParseTree {
-  /**
-   * @param {SourceRange} location
-   * @param {ParseTree} expression
-   */
-  constructor(location, expression) {
-    super(BIND_THIS_PARAMETER, location);
-    this.expression = expression;
-  }
-}
-
 export class BindingIdentifier extends ParseTree {
   /**
    * @param {SourceRange} location

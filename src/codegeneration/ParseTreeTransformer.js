@@ -212,18 +212,6 @@ export class ParseTreeTransformer {
   }
 
   /**
-   * @param {BindThisParameter} tree
-   * @return {ParseTree}
-   */
-  transformBindThisParameter(tree) {
-    var expression = this.transformAny(tree.expression);
-    if (tree.expression == expression) {
-      return tree;
-    }
-    return new BindThisParameter(tree.location, expression);
-  }
-
-  /**
    * @param {BindingElement} tree
    * @return {ParseTree}
    */
