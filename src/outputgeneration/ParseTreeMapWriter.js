@@ -27,7 +27,7 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
   constructor(highlighted, showLineNumbers, sourceMapGenerator) {
     super(highlighted, showLineNumbers);
     this.sourceMapGenerator_ = sourceMapGenerator;
-    this.outputLineCount = 0;
+    this.outputLineCount_ = 1;
   }
 
   write_(value) {
@@ -37,12 +37,15 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
     super.write_(value);
   }
 
+  writeCurrentln_() {
+    super.writeCurrentln_();
+    this.outputLineCount_++;
+  }
+
   addMapping() {
     var mapping = {
       generated: {
-        // http://code.google.com/p/traceur-compiler/issues/detail?id=105
-        // +1 because PROGRAM puts a newline before the first stmt
-        line: this.outputLineCount + 1,
+        line: this.outputLineCount_,
         column: this.currentLine_.length
       },
       original: {

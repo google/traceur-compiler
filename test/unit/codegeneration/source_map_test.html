@@ -65,15 +65,15 @@ function testSourceMap() {
   var tree = parse(filename, src);
 
   var testcases = [
-    {generated: {line: 2, column: 0}, original: {line: 1, column: 0}},
-    {generated: {line: 3, column: 0}, original: {line: 1, column: 17}},
-    {generated: {line: 4, column: 0}, original: {line: 1, column: 24}},
-    {generated: {line: 5, column: 0}, original: {line: 3, column: 0}},
-    {generated: {line: 6, column: 0}, original: {line: 6, column: 0}}
+    {generated: {line: 1, column: 0}, original: {line: 1, column: 0}},
+    {generated: {line: 2, column: 0}, original: {line: 1, column: 17}},
+    {generated: {line: 3, column: 0}, original: {line: 1, column: 24}},
+    {generated: {line: 4, column: 0}, original: {line: 3, column: 0}},
+    {generated: {line: 5, column: 0}, original: {line: 6, column: 0}}
   ];
 
   var generator = new SourceMapGenerator({file: filename});
-  var options = {sourceMapGenerator: generator, showLineNumbers: true};
+  var options = {sourceMapGenerator: generator, showLineNumbers: false};
   var actual = TreeWriter.write(tree, options);
 
   console.log('generated:');
@@ -108,7 +108,7 @@ function testMultipleFiles() {
   var options = {sourceMapGenerator: generator};
   var outFileContents = TreeWriter.write(tree, options);
 
-  assertEquals('\nalert(a); \nalert(b); \nalert(c); \n', outFileContents);
+  assertEquals('alert(a);\nalert(b);\nalert(c);\n', outFileContents);
 
   var map = JSON.parse(options.sourceMap);
   assertEquals(outFilename, map.file);

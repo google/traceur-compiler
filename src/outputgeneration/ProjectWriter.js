@@ -27,7 +27,7 @@ export class ProjectWriter {}
  * @return {string}
  */
 ProjectWriter.write = function(results, opt_options) {
-  return results.keys().map(function(file) {
+  return results.keys().map((file) => {
     return TreeWriter.write(results.get(file), opt_options);
   }).join('');
 };

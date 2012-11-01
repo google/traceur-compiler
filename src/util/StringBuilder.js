@@ -49,7 +49,7 @@ export class StringBuilder {
     var lastString = this.strings_.length - 1;
     var last = this.strings_[lastString];
     if (last) {
-      this.strings_[lastString] = last.substring(0, last.length - 1);
+      this.strings_[lastString] = last.slice(0, -1);
     }
   }
 };

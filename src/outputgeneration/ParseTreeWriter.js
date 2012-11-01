@@ -746,7 +746,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {Program} tree
    */
   visitProgram(tree) {
-    this.writelnList_(tree.programElements);
+    this.writelnList_(tree.programElements, null, true);
   }
 
   /**
@@ -982,6 +982,11 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.write_(TokenType.SEMI_COLON);
   }
 
+  writeCurrentln_() {
+      this.result_.append(this.currentLine_.toString());
+      this.result_.append(NEW_LINE);
+  }
+
   writeln_() {
     if (this.currentLineComment_ !== null) {
       while (this.currentLine_.length < 80) {
@@ -990,9 +995,10 @@ export class ParseTreeWriter extends ParseTreeVisitor {
       this.currentLine_.append(' // ').append(this.currentLineComment_);
       this.currentLineComment_ = null;
     }
-    this.result_.append(this.currentLine_.toString());
-    this.result_.append(NEW_LINE);
-    this.outputLineCount++;
+    if (this.currentLine_.lastChar() === ' ')
+      this.currentLine_.deleteLastChar();
+    if (this.currentLine_.length)
+      this.writeCurrentln_();
     this.currentLine_ = new StringBuilder();
   }
 
@@ -1034,25 +1040,6 @@ export class ParseTreeWriter extends ParseTreeVisitor {
         }
       }
       this.visitAny(element);
-    }
-  }
-
-  // TODO(jjb) not called
-  writeTokenList_(list, delimiter, writeNewLine) {
-    var first = true;
-    for (var i = 0; i < list.length; i++) {
-      var element = list[i];
-      if (first) {
-        first = false;
-      } else {
-        if (delimiter !== null) {
-          this.write_(delimiter);
-        }
-        if (writeNewLine) {
-          this.writeln_();
-        }
-      }
-      this.write_(element);
     }
   }
 
