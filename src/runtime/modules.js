@@ -16,7 +16,6 @@ import ArrayMap from '../util/ArrayMap.js';
 import ModuleAnalyzer from '../semantics/ModuleAnalyzer.js';
 import ModuleRequireVisitor from '../codegeneration/module/ModuleRequireVisitor.js';
 import ModuleSymbol from '../semantics/symbols/ModuleSymbol.js';
-import ModuleTransformer from '../codegeneration/ModuleTransformer.js';
 import ObjectMap from '../util/ObjectMap.js';
 import Parser from '../syntax/Parser.js';
 import ProgramTransformer from '../codegeneration/ProgramTransformer.js';
@@ -201,7 +200,7 @@ class LoadCodeUnit extends CodeUnit {
    * @override
    */
   parse() {
-    if (!CodeUnit.prototype.parse.call(this)) {
+    if (!super.parse()) {
       return false;
     }
 
@@ -508,7 +507,8 @@ class InternalLoader {
 
   evalCodeUnit(codeUnit) {
     // TODO(arv): Eval in the right context.
-    return traceur.strictGlobalEval(
+    // Module bodies are always strict.
+    return ('global', eval)("'use strict';" +
         TreeWriter.write(codeUnit.transformedTree));
   }
 }

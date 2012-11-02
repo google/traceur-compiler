@@ -4,21 +4,23 @@
 // transformation turns array lookup and member access into function calls, and
 // I'd like to keep that from being a confounding factor.
 
+'use strict';
+
 var a, b, c, x, y, z;
 
 // ----------------------------------------------------------------------------
 
 function checkA() {
   assertEquals(1, a);
-  assertEquals(undefined, b);
-  assertEquals(undefined, c);
+  assertUndefined(b);
+  assertUndefined(c);
   a = b = c = undefined;
 }
 
 function checkAb() {
   assertEquals(1, a);
   assertEquals(2, b);
-  assertEquals(undefined, c);
+  assertUndefined(c);
   a = b = c = undefined;
 }
 

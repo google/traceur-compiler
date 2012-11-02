@@ -179,7 +179,7 @@ function testScript(filePath) {
     var javascript = TreeWriter.write(tree, false);
 
     try {
-      traceur.strictGlobalEval(javascript);
+      ('global', eval)(javascript);
       return true;
     } catch (e) {
       if (e instanceof UnitTestError) {

@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {
+  EXPRESSION_STATEMENT,
+  LITERAL_EXPRESSION
+} from '../syntax/trees/ParseTreeType.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import Program from '../syntax/trees/ParseTrees.js';
 import TokenType from '../syntax/TokenType.js';
@@ -22,6 +26,12 @@ import {
   createVariableStatement
 } from 'ParseTreeFactory.js';
 import createObject from '../util/util.js';
+
+function isStringExpressionStatement(tree) {
+  return tree.type === EXPRESSION_STATEMENT &&
+      tree.expression.type === LITERAL_EXPRESSION &&
+      tree.expression.literalToken.type === TokenType.STRING;
+}
 
 /**
  * Transforms a an array of statements and adds a new temp var stack.
@@ -37,8 +47,21 @@ function transformStatements(self, statements) {
 
   var variableStatement = createVariableStatement(
       createVariableDeclarationList(TokenType.VAR, vars));
-  transformedStatements = [variableStatement].concat(transformedStatements);
-  return transformedStatements;
+
+  var prologStatements = [];
+  transformedStatements.some((statement) => {
+    if (isStringExpressionStatement(statement)) {
+      prologStatements.push(statement);
+      return true;
+    }
+    return false;
+  });
+
+  return [
+    ...prologStatements,
+    variableStatement,
+    ...transformedStatements.slice(prologStatements.length)
+  ];
 }
 
 function getVars(self) {

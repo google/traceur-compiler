@@ -247,6 +247,7 @@ goog.require('goog.testing.jsunit');
 <script src="StringExtras/ToArray.js" type="text/traceur"></script>
 <script src="Syntax/Error_FunctionParam.js" type="text/traceur"></script>
 <script src="Syntax/ExpressionValidation.js" type="text/traceur"></script>
+<script src="TempVarTransformer/UseStrictDirective.js" type="text/traceur"></script>
 <script src="Yield/Arguments.js" type="text/traceur"></script>
 <script src="Yield/DefaultArguments.js" type="text/traceur"></script>
 <script src="Yield/DoGenerator.js" type="text/traceur"></script>
@@ -399,7 +400,7 @@ function evalScript(scriptElement) {
           }
 
         // Script compiled, so run it.
-        traceur.strictGlobalEval(code);
+        ('global', eval)(code);
       }
     } finally {
       traceur.options.reset();

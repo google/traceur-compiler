@@ -1,3 +1,5 @@
+'use strict';
+
 // test MemberLookupExpression
 function f(a) {
   var b = [42];

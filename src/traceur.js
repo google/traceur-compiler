@@ -93,15 +93,6 @@ module traceur {
       throw Error('Assertion failed');
   }
 
-  /**
-   * Evaluates some code in a strict global context.
-   * @param {string} code
-   * @return {*} The continuation value of the code.
-   */
-  export function strictGlobalEval(code) {
-    return ('global', eval)('"use strict";' + code);
-  }
-
   var uidCounter = 0;
 
   /**
