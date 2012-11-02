@@ -83,7 +83,7 @@ export class ForInTransformPass extends ParseTreeTransformer {
     var bodyStatements = [];
     var body = this.transformAny(tree.body);
     if (body.type == BLOCK) {
-      bodyStatements.push.apply(bodyStatements, body.statements);
+      bodyStatements.push(...body.statements);
     } else {
       bodyStatements.push(body);
     }
@@ -155,7 +155,7 @@ export class ForInTransformPass extends ParseTreeTransformer {
             null));
 
     // add original body
-    innerBlock.push.apply(innerBlock, bodyStatements);
+    innerBlock.push(...bodyStatements);
 
     // for (var $i = 0; $i < $keys.length; $i++) {
     elements.push(

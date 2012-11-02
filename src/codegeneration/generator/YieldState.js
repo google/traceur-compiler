@@ -62,20 +62,19 @@ export class YieldState extends State {
    * @return {Array.<ParseTree>}
    */
   transform(enclosingFinally, machineEndState, reporter) {
-    var result = [];
-    // $result.current = expression;
-    result.push(createAssignmentStatement(
-        createMemberExpression(RESULT, CURRENT), this.expression));
-    // either:
-    //      $state = this.fallThroughState;
-    //      return true;
-    // or:
-    //      $state = enclosingFinally.finallyState;
-    //      $fallThrough = this.fallThroughState;
-    //      return true;
-    result.push.apply(result,
-        State.generateAssignState(enclosingFinally, this.fallThroughState));
-    result.push(createReturnStatement(createTrueLiteral()));
-    return result;
+    return [
+      // $result.current = expression;
+      createAssignmentStatement(
+          createMemberExpression(RESULT, CURRENT), this.expression),
+      // either:
+      //      $state = this.fallThroughState;
+      //      return true;
+      // or:
+      //      $state = enclosingFinally.finallyState;
+      //      $fallThrough = this.fallThroughState;
+      //      return true;
+      ...State.generateAssignState(enclosingFinally, this.fallThroughState),
+      createReturnStatement(createTrueLiteral())
+    ];
   }
 }

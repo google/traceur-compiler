@@ -257,8 +257,8 @@ export class DestructuringTransformer extends TempVarTransformer {
     var desugaredDeclarations = [];
     tree.declarations.forEach((declaration) => {
       if (declaration.lvalue.isPattern()) {
-        desugaredDeclarations.push.apply(desugaredDeclarations,
-            this.desugarVariableDeclaration_(declaration));
+        desugaredDeclarations.push(
+            ...this.desugarVariableDeclaration_(declaration));
       } else {
         desugaredDeclarations.push(declaration);
       }
@@ -335,7 +335,7 @@ export class DestructuringTransformer extends TempVarTransformer {
     if (body.type !== BLOCK)
       body = createBlock(body);
 
-    statements.push.apply(statements, body.statements);
+    statements.push(...body.statements);
     body = createBlock(statements);
 
     return new constr(tree.location, initializer, collection, body);
@@ -349,8 +349,7 @@ export class DestructuringTransformer extends TempVarTransformer {
       return transformedTree;
 
     // Prepend the var statements to the block.
-    statements.push.apply(statements,
-                          transformedTree.functionBody.statements);
+    statements.push(...transformedTree.functionBody.statements);
 
     return new FunctionDeclaration(transformedTree.location,
                                    transformedTree.name,
@@ -367,8 +366,7 @@ export class DestructuringTransformer extends TempVarTransformer {
       return transformedTree;
 
     // Prepend the var statements to the block.
-    statements.push.apply(statements,
-                          transformedTree.body.statements);
+    statements.push(...transformedTree.body.statements);
 
     return new SetAccessor(transformedTree.location,
                            transformedTree.name,
@@ -413,7 +411,7 @@ export class DestructuringTransformer extends TempVarTransformer {
     var statements = [];
     var binding = this.desugarBinding_(tree.binding, statements,
                                        TokenType.LET);
-    statements.push.apply(statements, body.statements);
+    statements.push(...body.statements);
     return new Catch(tree.location, binding, createBlock(statements));
   }
 

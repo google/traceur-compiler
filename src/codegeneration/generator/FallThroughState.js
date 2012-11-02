@@ -46,10 +46,9 @@ export class FallThroughState extends State {
    * @return {Array.<ParseTree>}
    */
   transform(enclosingFinally, machineEndState, reporter) {
-    var statements = [];
-    statements.push.apply(statements, this.statements);
-    statements.push.apply(statements,
-        State.generateJump(enclosingFinally, this.fallThroughState));
-    return statements;
+    return [
+      ...this.statements,
+      ...State.generateJump(enclosingFinally, this.fallThroughState)
+    ];
   }
 }

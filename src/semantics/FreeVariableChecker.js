@@ -286,15 +286,8 @@ export class FreeVariableChecker extends ParseTreeVisitor {
     }
   }
 
-  /**
-   * @param {SourcePosition} start location
-   * @param {string} format
-   * @param {...Object} var_args
-   */
-  reportError_(location, format, var_args) {
-    var args = Array.prototype.slice.call(arguments);
-    args[0] = location;
-    this.reporter_.reportError.apply(this.reporter_, args);
+  reportError_(...args) {
+    this.reporter_.reportError(...args);
   }
 }
 

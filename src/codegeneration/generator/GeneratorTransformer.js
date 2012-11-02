@@ -166,7 +166,7 @@ export class GeneratorTransformer extends CPSTransformer {
     // https://code.google.com/p/traceur-compiler/issues/detail?id=110
     //
     // Lifted machine variables.
-    statements.push.apply(statements, this.getMachineVariables(tree, machine));
+    statements.push(...this.getMachineVariables(tree, machine));
 
     // TODO(arv): The result should be an instance of Generator.
     // https://code.google.com/p/traceur-compiler/issues/detail?id=109

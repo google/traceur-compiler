@@ -389,9 +389,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
   prependToBlock_(statement, body) {
     if (body.type == BLOCK) {
       var block = body;
-      var list = [];
-      list.push(statement);
-      list.push.apply(list, block.statements);
+      var list = [statement, ... block.statements];
       return createBlock(list);
     } else {
       return createBlock(statement, body);
@@ -731,8 +729,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
       if (transformed != null || initializer != variable.initializer) {
         // Variable was rewritten.
         if (transformed == null) {
-          transformed = [];
-          transformed.push.apply(transformed, variables.slice(0, index));
+          transformed = variables.slice(0, index);
         }
 
         // var/const x = <initializer>;

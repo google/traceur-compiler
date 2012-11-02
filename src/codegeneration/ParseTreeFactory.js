@@ -100,15 +100,12 @@ export function createEmptyParameters() {
  * simpler? In most use cases, square brackets could replace calls to this.
  *
  * @param {Array.<ParseTree>|ParseTree} statementsOrHead
- * @param {...ParseTree} var_args
+ * @param {...ParseTree} args
  * @return {Array.<ParseTree>}
  */
-export function createStatementList(statementsOrHead, var_args) {
-  if (statementsOrHead instanceof Array) {
-    var result = statementsOrHead.slice();
-    result.push.apply(result, slice(arguments, 1));
-    return result;
-  }
+export function createStatementList(statementsOrHead, ...args) {
+  if (statementsOrHead instanceof Array)
+    return [...statementsOrHead, ...args];
   return slice(arguments);
 }
 
@@ -407,10 +404,9 @@ export function createCallCall(func, thisExpression, args, var_args) {
   if (args instanceof ParseTree)
     args = slice(arguments, 2);
 
-  var builder = [];
-
-  builder.push(thisExpression);
-  builder.push.apply(builder, args);
+  var builder = [thisExpression];
+  if (args)
+    builder.push(...args);
 
   return createCallExpression(
       createMemberExpression(func, CALL),
@@ -420,11 +416,10 @@ export function createCallCall(func, thisExpression, args, var_args) {
 /**
  * @param {ParseTree} func
  * @param {ParseTree} thisExpression
- * @param {...ParseTree} var_args
+ * @param {...ParseTree} args
  * @return {ParseTree}
  */
-export function createCallCallStatement(func, thisExpression, var_args) {
-  var args = slice(arguments, 2);
+export function createCallCallStatement(func, thisExpression, ...args) {
   return createExpressionStatement(
       createCallCall(func, thisExpression, args));
 }

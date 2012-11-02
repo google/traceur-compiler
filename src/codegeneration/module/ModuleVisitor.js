@@ -161,11 +161,11 @@ export class ModuleVisitor extends ParseTreeVisitor {
   /**
    * @param {Symbol|ParseTree} symbolOrTree
    * @param {string} format
-   * @param {...Object} var_args
+   * @param {...Object} args
    * @return {void}
    * @private
    */
-  reportError_(symbolOrTree, format, var_args) {
+  reportError_(symbolOrTree, format, ...args) {
     var tree;
     if (symbolOrTree instanceof Symbol) {
       tree = symbolOrTree.tree;
@@ -173,10 +173,7 @@ export class ModuleVisitor extends ParseTreeVisitor {
       tree = symbolOrTree;
     }
 
-    var args = Array.prototype.slice.call(arguments);
-    args[0] = tree.location.start;
-
-    this.reporter_.reportError.apply(this.reporter_, args);
+    this.reporter_.reportError(tree.location.start, format, ...args);
   }
 
   /**

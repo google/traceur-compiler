@@ -80,8 +80,7 @@ export class RuntimeInliner extends ParseTreeTransformer {
     var variableStatement = createVariableStatement(
         createVariableDeclarationList(TokenType.VAR, vars));
 
-    var programElements = [variableStatement];
-    [].push.apply(programElements, tree.programElements);
+    var programElements = [variableStatement, ...tree.programElements];
     return new Program(tree.location, programElements);
   }
 

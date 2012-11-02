@@ -214,14 +214,7 @@ export class SuperTransformer extends ParseTreeTransformer {
     return tree;
   }
 
-  /**
-   * @param {ParseTree} tree
-   * @param {string} format
-   * @param {...Object} var_args
-   */
-  reportError_(tree, format, var_args) {
-    var args = Array.prototype.slice.call(arguments);
-    args[0] = tree.location.start;
-    this.reporter_.reportError.apply(this.reporter_, args);
+  reportError_(tree, ...args) {
+    this.reporter_.reportError(tree.location.start, ...args);
   }
 }

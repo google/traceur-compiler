@@ -225,7 +225,7 @@ export class AsyncTransformer extends CPSTransformer {
     //   var $that = this;
     statements.push(this.generateHoistedThis());
     //     lifted machine variables
-    statements.push.apply(statements, this.getMachineVariables(tree, machine));
+    statements.push(...this.getMachineVariables(tree, machine));
     //   var $value;
     statements.push(createVariableStatement(
         TokenType.VAR,

@@ -53,8 +53,7 @@ export class DefaultParametersTransformer extends ParseTreeTransformer {
       return transformedTree;
 
     // Prepend the var statements to the block.
-    statements.push.apply(statements,
-                          transformedTree.functionBody.statements);
+    statements.push(...transformedTree.functionBody.statements);
 
     return new FunctionDeclaration(transformedTree.location,
                                    transformedTree.name,

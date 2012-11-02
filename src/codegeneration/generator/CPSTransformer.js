@@ -366,17 +366,18 @@ export class CPSTransformer extends ParseTreeTransformer {
         ifState,
         elseState,
         result.condition));
-    states.push.apply(states, ifClause.states);
-    exceptionBlocks.push.apply(exceptionBlocks, ifClause.exceptionBlocks);
+    states.push(...ifClause.states);
+    exceptionBlocks.push(...ifClause.exceptionBlocks);
     if (elseClause != null) {
       this.replaceAndAddStates_(
           elseClause.states,
           elseClause.fallThroughState,
           fallThroughState,
           states);
-      exceptionBlocks.push.apply(exceptionBlocks,
-          State.replaceAllStates(elseClause.exceptionBlocks,
-          elseClause.fallThroughState, fallThroughState));
+      exceptionBlocks.push(
+          ...State.replaceAllStates(elseClause.exceptionBlocks,
+                                    elseClause.fallThroughState,
+                                    fallThroughState));
     }
 
     return new StateMachine(startState, fallThroughState, states,
@@ -499,7 +500,7 @@ export class CPSTransformer extends ParseTreeTransformer {
       var transformedState = state.transformBreak(labels, fallThroughState);
       states.push(transformedState.replaceState(machine.fallThroughState, nextState));
     }
-    tryStates.push.apply(tryStates, machine.exceptionBlocks);
+    tryStates.push(...machine.exceptionBlocks);
     return machine.startState;
   }
 
@@ -527,8 +528,7 @@ export class CPSTransformer extends ParseTreeTransformer {
 
       var catchStart = this.allocateState();
 
-      var states = [];
-      states.push.apply(states, tryMachine.states);
+      var states = [...tryMachine.states];
       states.push(
           new FallThroughState(
               catchStart,
@@ -558,10 +558,11 @@ export class CPSTransformer extends ParseTreeTransformer {
       var startState = tryMachine.startState;
       var fallThroughState = tryMachine.fallThroughState;
 
-      var states = [];
-      states.push.apply(states, tryMachine.states);
-      states.push.apply(states, finallyMachine.states);
-      states.push(new FinallyFallThroughState(finallyMachine.fallThroughState));
+      var states = [
+        ...tryMachine.states,
+        ...finallyMachine.states,
+        new FinallyFallThroughState(finallyMachine.fallThroughState)
+      ];
 
       // NOTE: finallyMachine.fallThroughState == FinallyState.fallThroughState is code generated
       // NOTE: in addFinallyFallThroughDispatches
@@ -1143,16 +1144,13 @@ export class CPSTransformer extends ParseTreeTransformer {
    * @return {StateMachine}
    */
   createSequence_(head, tail) {
-    var states = [];
-
-    states.push.apply(states, head.states);
+    var states = [...head.states];
     for (var i = 0; i < tail.states.length; i++) {
       var tailState = tail.states[i];
       states.push(tailState.replaceState(tail.startState, head.fallThroughState));
     }
 
-    var exceptionBlocks = [];
-    exceptionBlocks.push.apply(exceptionBlocks, head.exceptionBlocks);
+    var exceptionBlocks = [...head.exceptionBlocks];
     for (var i = 0; i < tail.exceptionBlocks.length; i++) {
       var tryState = tail.exceptionBlocks[i];
       exceptionBlocks.push(tryState.replaceState(tail.startState, head.fallThroughState));

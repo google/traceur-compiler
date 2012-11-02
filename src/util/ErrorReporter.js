@@ -49,7 +49,7 @@ export class ErrorReporter {
   reportMessageInternal(location, kind, format, args) {
     if (location)
       format = `${location}: ${format}`;
-    console[kind].apply(console, [format].concat(args));
+    console[kind](format, ...args);
   }
 
   hadError() {

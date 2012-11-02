@@ -2781,16 +2781,16 @@ var $src_codegeneration_module_ModuleVisitor_js =(function() {
       }
       return true;
     },
-    reportError_: function(symbolOrTree, format, var_args) {
+    reportError_: function(symbolOrTree, format) {
+      var $__1752;
+      var args = Array.prototype.slice.call(arguments, 2);
       var tree;
       if(symbolOrTree instanceof Symbol) {
         tree = symbolOrTree.tree;
       } else {
         tree = symbolOrTree;
       }
-      var args = Array.prototype.slice.call(arguments);
-      args[0]= tree.location.start;
-      this.reporter_.reportError.apply(this.reporter_, args);
+      ($__1752 = this.reporter_).reportError.apply($__1752, $__1751([tree.location.start, format], args));
     },
     reportRelatedError_: function(symbolOrTree) {
       if(symbolOrTree instanceof ParseTree) {
@@ -3241,8 +3241,9 @@ var $src_util_ErrorReporter_js =(function() {
       this.reportMessageInternal(location, 'warn', format, args);
     },
     reportMessageInternal: function(location, kind, format, args) {
+      var $__1753;
       if(location) format =(location + ": " + format);
-      console[kind].apply(console,[format].concat(args));
+      ($__1753 = console)[kind].apply($__1753, $__1751([format], args));
     },
     hadError: function() {
       return this.hadError_;
@@ -8602,12 +8603,9 @@ var $src_codegeneration_ParseTreeFactory_js =(function() {
   function createEmptyParameters() {
     return[];
   }
-  function createStatementList(statementsOrHead, var_args) {
-    if(statementsOrHead instanceof Array) {
-      var result = statementsOrHead.slice();
-      result.push.apply(result, slice(arguments, 1));
-      return result;
-    }
+  function createStatementList(statementsOrHead) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    if(statementsOrHead instanceof Array) return $__1751(statementsOrHead, args);
     return slice(arguments);
   }
   function createBindingElement(arg) {
@@ -8718,14 +8716,14 @@ var $src_codegeneration_ParseTreeFactory_js =(function() {
     return new BreakStatement(null, opt_name || null);
   }
   function createCallCall(func, thisExpression, args, var_args) {
+    var $__1754;
     if(args instanceof ParseTree) args = slice(arguments, 2);
-    var builder =[];
-    builder.push(thisExpression);
-    builder.push.apply(builder, args);
+    var builder =[thisExpression];
+    if(args)($__1754 = builder).push.apply($__1754, $__1750(args));
     return createCallExpression(createMemberExpression(func, CALL), createArgumentList(builder));
   }
-  function createCallCallStatement(func, thisExpression, var_args) {
-    var args = slice(arguments, 2);
+  function createCallCallStatement(func, thisExpression) {
+    var args = Array.prototype.slice.call(arguments, 2);
     return createExpressionStatement(createCallCall(func, thisExpression, args));
   }
   function createCaseClause(expression, statements) {
@@ -9598,8 +9596,7 @@ var $src_codegeneration_RuntimeInliner_js =(function() {
       }, this);
       if(! vars.length) return tree;
       var variableStatement = createVariableStatement(createVariableDeclarationList(TokenType.VAR, vars));
-      var programElements =[variableStatement];
-      [].push.apply(programElements, tree.programElements);
+      var programElements = $__1751([variableStatement], tree.programElements);
       return new Program(tree.location, programElements);
     },
     register: function(name, source) {
@@ -12074,9 +12071,7 @@ var $src_codegeneration_BlockBindingTransformer_js =(function() {
     prependToBlock_: function(statement, body) {
       if(body.type == BLOCK) {
         var block = body;
-        var list =[];
-        list.push(statement);
-        list.push.apply(list, block.statements);
+        var list = $__1751([statement], block.statements);
         return createBlock(list);
       } else {
         return createBlock(statement, body);
@@ -12206,8 +12201,7 @@ var $src_codegeneration_BlockBindingTransformer_js =(function() {
         var initializer = this.transformAny(variable.initializer);
         if(transformed != null || initializer != variable.initializer) {
           if(transformed == null) {
-            transformed =[];
-            transformed.push.apply(transformed, variables.slice(0, index));
+            transformed = variables.slice(0, index);
           }
           transformed.push(createVariableDeclaration(createIdentifierToken(variableName), initializer));
         }
@@ -12418,10 +12412,10 @@ var $src_codegeneration_SuperTransformer_js =(function() {
       this.reportError_(tree, '"super" may only be used on the LHS of a member ' + 'access expression before a call (TODO wording)');
       return tree;
     },
-    reportError_: function(tree, format, var_args) {
-      var args = Array.prototype.slice.call(arguments);
-      args[0]= tree.location.start;
-      this.reporter_.reportError.apply(this.reporter_, args);
+    reportError_: function(tree) {
+      var $__1755;
+      var args = Array.prototype.slice.call(arguments, 1);
+      ($__1755 = this.reporter_).reportError.apply($__1755, $__1751([tree.location.start], args));
     }
   }, ParseTreeTransformer, true, true);
   return Object.preventExtensions(Object.create(null, { SuperTransformer: {
@@ -12626,11 +12620,12 @@ var $src_codegeneration_DefaultParametersTransformer_js =(function() {
   var stack =[];
   var DefaultParametersTransformer = traceur.runtime.createClass({
     transformFunctionDeclaration: function(tree) {
+      var $__1756;
       stack.push([]);
       var transformedTree = traceur.runtime.superCall(this, DefaultParametersTransformer, "transformFunctionDeclaration",[tree]);
       var statements = stack.pop();
       if(! statements.length) return transformedTree;
-      statements.push.apply(statements, transformedTree.functionBody.statements);
+      ($__1756 = statements).push.apply($__1756, $__1750(transformedTree.functionBody.statements));
       return new FunctionDeclaration(transformedTree.location, transformedTree.name, transformedTree.isGenerator, transformedTree.formalParameterList, createBlock(statements));
     },
     transformFormalParameterList: function(tree) {
@@ -12742,8 +12737,9 @@ var $src_codegeneration_DestructuringTransformer_js =(function() {
       }
       var desugaredDeclarations =[];
       tree.declarations.forEach((function(declaration) {
+        var $__1757;
         if(declaration.lvalue.isPattern()) {
-          desugaredDeclarations.push.apply(desugaredDeclarations, this.desugarVariableDeclaration_(declaration));
+          ($__1757 = desugaredDeclarations).push.apply($__1757, $__1750(this.desugarVariableDeclaration_(declaration)));
         } else {
           desugaredDeclarations.push(declaration);
         }
@@ -12757,6 +12753,7 @@ var $src_codegeneration_DestructuringTransformer_js =(function() {
       return this.transformForInOrOf_(tree, traceur.runtime.superGet(this, DestructuringTransformer, "transformForOfStatement"), ForOfStatement);
     },
     transformForInOrOf_: function(tree, superMethod, constr) {
+      var $__1758;
       if(! tree.initializer.isPattern() &&(tree.initializer.type !== VARIABLE_DECLARATION_LIST || ! this.destructuringInDeclaration_(tree.initializer))) {
         return superMethod.call(this, tree);
       }
@@ -12774,24 +12771,26 @@ var $src_codegeneration_DestructuringTransformer_js =(function() {
       var collection = this.transformAny(tree.collection);
       var body = this.transformAny(tree.body);
       if(body.type !== BLOCK) body = createBlock(body);
-      statements.push.apply(statements, body.statements);
+      ($__1758 = statements).push.apply($__1758, $__1750(body.statements));
       body = createBlock(statements);
       return new constr(tree.location, initializer, collection, body);
     },
     transformFunctionDeclaration: function(tree) {
+      var $__1759;
       stack.push([]);
       var transformedTree = traceur.runtime.superCall(this, DestructuringTransformer, "transformFunctionDeclaration",[tree]);
       var statements = stack.pop();
       if(! statements.length) return transformedTree;
-      statements.push.apply(statements, transformedTree.functionBody.statements);
+      ($__1759 = statements).push.apply($__1759, $__1750(transformedTree.functionBody.statements));
       return new FunctionDeclaration(transformedTree.location, transformedTree.name, transformedTree.isGenerator, transformedTree.formalParameterList, createBlock(statements));
     },
     transformSetAccessor: function(tree) {
+      var $__1760;
       stack.push([]);
       var transformedTree = traceur.runtime.superCall(this, DestructuringTransformer, "transformSetAccessor",[tree]);
       var statements = stack.pop();
       if(! statements.length) return transformedTree;
-      statements.push.apply(statements, transformedTree.body.statements);
+      ($__1760 = statements).push.apply($__1760, $__1750(transformedTree.body.statements));
       return new SetAccessor(transformedTree.location, transformedTree.name, transformedTree.parameter, createBlock(statements));
     },
     transformBindingElement: function(tree) {
@@ -12801,11 +12800,12 @@ var $src_codegeneration_DestructuringTransformer_js =(function() {
       return new BindingElement(null, binding, null);
     },
     transformCatch: function(tree) {
+      var $__1761;
       if(! tree.binding.isPattern()) return traceur.runtime.superCall(this, DestructuringTransformer, "transformCatch",[tree]);
       var body = this.transformAny(tree.catchBody);
       var statements =[];
       var binding = this.desugarBinding_(tree.binding, statements, TokenType.LET);
-      statements.push.apply(statements, body.statements);
+      ($__1761 = statements).push.apply($__1761, $__1750(body.statements));
       return new Catch(tree.location, binding, createBlock(statements));
     },
     desugarBinding_: function(bindingTree, statements, declarationType) {
@@ -13111,10 +13111,10 @@ var $src_semantics_FreeVariableChecker_js =(function() {
         }).bind(this));
       }
     },
-    reportError_: function(location, format, var_args) {
-      var args = Array.prototype.slice.call(arguments);
-      args[0]= location;
-      this.reporter_.reportError.apply(this.reporter_, args);
+    reportError_: function() {
+      var $__1762;
+      var args = Array.prototype.slice.call(arguments, 0);
+      ($__1762 = this.reporter_).reportError.apply($__1762, $__1750(args));
     }
   }, ParseTreeVisitor, true, true);
   var global = this;
@@ -13237,10 +13237,7 @@ var $src_codegeneration_generator_FallThroughState_js =(function() {
       return new FallThroughState(State.replaceStateId(this.id, oldState, newState), State.replaceStateId(this.fallThroughState, oldState, newState), this.statements);
     },
     transform: function(enclosingFinally, machineEndState, reporter) {
-      var statements =[];
-      statements.push.apply(statements, this.statements);
-      statements.push.apply(statements, State.generateJump(enclosingFinally, this.fallThroughState));
-      return statements;
+      return $__1751(this.statements, State.generateJump(enclosingFinally, this.fallThroughState));
     }
   }, State, true, true);
   return Object.preventExtensions(Object.create(null, { FallThroughState: {
@@ -13774,6 +13771,7 @@ var $src_codegeneration_generator_CPSTransformer_js =(function() {
       throw new Error('for of statements should be transformed before this pass');
     },
     transformIfStatement: function(tree) {
+      var $__1763, $__1764, $__1765;
       this.clearLabels_();
       var result = traceur.runtime.superCall(this, CPSTransformer, "transformIfStatement",[tree]);
       if(result.ifClause.type != STATE_MACHINE &&(result.elseClause == null || result.elseClause.type != STATE_MACHINE)) {
@@ -13788,11 +13786,11 @@ var $src_codegeneration_generator_CPSTransformer_js =(function() {
       var states =[];
       var exceptionBlocks =[];
       states.push(new ConditionalState(startState, ifState, elseState, result.condition));
-      states.push.apply(states, ifClause.states);
-      exceptionBlocks.push.apply(exceptionBlocks, ifClause.exceptionBlocks);
+      ($__1763 = states).push.apply($__1763, $__1750(ifClause.states));
+      ($__1764 = exceptionBlocks).push.apply($__1764, $__1750(ifClause.exceptionBlocks));
       if(elseClause != null) {
         this.replaceAndAddStates_(elseClause.states, elseClause.fallThroughState, fallThroughState, states);
-        exceptionBlocks.push.apply(exceptionBlocks, State.replaceAllStates(elseClause.exceptionBlocks, elseClause.fallThroughState, fallThroughState));
+        ($__1765 = exceptionBlocks).push.apply($__1765, $__1750(State.replaceAllStates(elseClause.exceptionBlocks, elseClause.fallThroughState, fallThroughState)));
       }
       return new StateMachine(startState, fallThroughState, states, exceptionBlocks);
     },
@@ -13858,13 +13856,14 @@ var $src_codegeneration_generator_CPSTransformer_js =(function() {
       return new StateMachine(startState, fallThroughState, states.reverse(), tryStates);
     },
     addSwitchClauseStates_: function(nextState, fallThroughState, labels, statements, states, tryStates) {
+      var $__1766;
       var machine = this.ensureTransformedList_(statements);
       for(var i = 0; i < machine.states.length; i ++) {
         var state = machine.states[i];
         var transformedState = state.transformBreak(labels, fallThroughState);
         states.push(transformedState.replaceState(machine.fallThroughState, nextState));
       }
-      tryStates.push.apply(tryStates, machine.exceptionBlocks);
+      ($__1766 = tryStates).push.apply($__1766, $__1750(machine.exceptionBlocks));
       return machine.startState;
     },
     transformTryStatement: function(tree) {
@@ -13881,8 +13880,7 @@ var $src_codegeneration_generator_CPSTransformer_js =(function() {
         var startState = tryMachine.startState;
         var fallThroughState = tryMachine.fallThroughState;
         var catchStart = this.allocateState();
-        var states =[];
-        states.push.apply(states, tryMachine.states);
+        var states = $__1751(tryMachine.states);
         states.push(new FallThroughState(catchStart, catchMachine.startState, createStatementList(createAssignmentStatement(createIdentifierExpression(exceptionName), createIdentifierExpression(STORED_EXCEPTION)))));
         this.replaceAndAddStates_(catchMachine.states, catchMachine.fallThroughState, fallThroughState, states);
         tryMachine = new StateMachine(startState, fallThroughState, states,[new CatchState(exceptionName, catchStart, fallThroughState, tryMachine.getAllStateIDs(), tryMachine.exceptionBlocks)]);
@@ -13892,10 +13890,7 @@ var $src_codegeneration_generator_CPSTransformer_js =(function() {
         var finallyMachine = this.ensureTransformed_(finallyBlock.block);
         var startState = tryMachine.startState;
         var fallThroughState = tryMachine.fallThroughState;
-        var states =[];
-        states.push.apply(states, tryMachine.states);
-        states.push.apply(states, finallyMachine.states);
-        states.push(new FinallyFallThroughState(finallyMachine.fallThroughState));
+        var states = $__1751(tryMachine.states, finallyMachine.states,[new FinallyFallThroughState(finallyMachine.fallThroughState)]);
         tryMachine = new StateMachine(startState, fallThroughState, states,[new FinallyState(finallyMachine.startState, finallyMachine.fallThroughState, tryMachine.getAllStateIDs(), tryMachine.exceptionBlocks)]);
       }
       return tryMachine;
@@ -14086,14 +14081,12 @@ var $src_codegeneration_generator_CPSTransformer_js =(function() {
       }
     },
     createSequence_: function(head, tail) {
-      var states =[];
-      states.push.apply(states, head.states);
+      var states = $__1751(head.states);
       for(var i = 0; i < tail.states.length; i ++) {
         var tailState = tail.states[i];
         states.push(tailState.replaceState(tail.startState, head.fallThroughState));
       }
-      var exceptionBlocks =[];
-      exceptionBlocks.push.apply(exceptionBlocks, head.exceptionBlocks);
+      var exceptionBlocks = $__1751(head.exceptionBlocks);
       for(var i = 0; i < tail.exceptionBlocks.length; i ++) {
         var tryState = tail.exceptionBlocks[i];
         exceptionBlocks.push(tryState.replaceState(tail.startState, head.fallThroughState));
@@ -14220,6 +14213,7 @@ var $src_codegeneration_generator_AsyncTransformer_js =(function() {
       return createCallStatement(createMemberExpression(RESULT, CALLBACK), createArgumentList(result));
     },
     transformAsyncBody: function(tree) {
+      var $__1767;
       var transformedTree = this.transformAny(tree);
       if(this.reporter.hadError()) {
         return tree;
@@ -14227,7 +14221,7 @@ var $src_codegeneration_generator_AsyncTransformer_js =(function() {
       var machine = transformedTree;
       var statements =[];
       statements.push(this.generateHoistedThis());
-      statements.push.apply(statements, this.getMachineVariables(tree, machine));
+      ($__1767 = statements).push.apply($__1767, $__1750(this.getMachineVariables(tree, machine)));
       statements.push(createVariableStatement(TokenType.VAR, $VALUE, null));
       statements.push(createVariableStatement(TokenType.VAR, ERR, null));
       statements.push(createVariableStatement(TokenType.VAR, RESULT, createNewExpression(createIdentifierExpression(DEFERRED), createEmptyArgumentList())));
@@ -14281,11 +14275,12 @@ var $src_codegeneration_generator_ForInTransformPass_js =(function() {
       this.identifierGenerator_ = identifierGenerator;
     },
     transformForInStatement: function(original) {
+      var $__1768, $__1769;
       var tree = original;
       var bodyStatements =[];
       var body = this.transformAny(tree.body);
       if(body.type == BLOCK) {
-        bodyStatements.push.apply(bodyStatements, body.statements);
+        ($__1768 = bodyStatements).push.apply($__1768, $__1750(body.statements));
       } else {
         bodyStatements.push(body);
       }
@@ -14312,7 +14307,7 @@ var $src_codegeneration_generator_ForInTransformPass_js =(function() {
       var innerBlock =[];
       innerBlock.push(assignOriginalKey);
       innerBlock.push(createIfStatement(createUnaryExpression(createOperatorToken(TokenType.BANG), createParenExpression(createBinaryOperator(originalKey, createOperatorToken(TokenType.IN), createIdentifierExpression(collection)))), createContinueStatement(), null));
-      innerBlock.push.apply(innerBlock, bodyStatements);
+      ($__1769 = innerBlock).push.apply($__1769, $__1750(bodyStatements));
       elements.push(createForStatement(createVariableDeclarationList(TokenType.VAR, i, createNumberLiteral(0)), createBinaryOperator(createIdentifierExpression(i), createOperatorToken(TokenType.OPEN_ANGLE), createMemberExpression(keys, LENGTH)), createPostfixExpression(createIdentifierExpression(i), createOperatorToken(TokenType.PLUS_PLUS)), createBlock(innerBlock)));
       return createBlock(elements);
     }
@@ -14343,11 +14338,7 @@ var $src_codegeneration_generator_YieldState_js =(function() {
       return new YieldState(State.replaceStateId(this.id, oldState, newState), State.replaceStateId(this.fallThroughState, oldState, newState), this.expression);
     },
     transform: function(enclosingFinally, machineEndState, reporter) {
-      var result =[];
-      result.push(createAssignmentStatement(createMemberExpression(RESULT, CURRENT), this.expression));
-      result.push.apply(result, State.generateAssignState(enclosingFinally, this.fallThroughState));
-      result.push(createReturnStatement(createTrueLiteral()));
-      return result;
+      return $__1751([createAssignmentStatement(createMemberExpression(RESULT, CURRENT), this.expression)], State.generateAssignState(enclosingFinally, this.fallThroughState),[createReturnStatement(createTrueLiteral())]);
     }
   }, State, true, true);
   return Object.preventExtensions(Object.create(null, { YieldState: {
@@ -14395,6 +14386,7 @@ var $src_codegeneration_generator_GeneratorTransformer_js =(function() {
       return tree;
     },
     transformGeneratorBody: function(tree) {
+      var $__1770;
       var transformedTree = this.transformAny(tree);
       if(this.reporter.hadError()) {
         return tree;
@@ -14403,7 +14395,7 @@ var $src_codegeneration_generator_GeneratorTransformer_js =(function() {
       var statements =[];
       statements.push(this.generateHoistedThis());
       statements.push(this.generateHoistedArguments());
-      statements.push.apply(statements, this.getMachineVariables(tree, machine));
+      ($__1770 = statements).push.apply($__1770, $__1750(this.getMachineVariables(tree, machine)));
       statements.push(createVariableStatement(TokenType.VAR, RESULT, createObjectLiteralExpression(createPropertyNameAssignment(MOVE_NEXT, this.generateMachineMethod(machine)))));
       statements.push(createExpressionStatement(createCallExpression(createMemberExpression(TRACEUR, RUNTIME, MARK_AS_GENERATOR), createArgumentList(createIdentifierExpression(RESULT)))));
       statements.push(createReturnStatement(createIdentifierExpression(RESULT)));
@@ -15065,9 +15057,7 @@ var $src_codegeneration_RestParameterTransformer_js =(function() {
       var parametersWithoutRestParam = new FormalParameterList(tree.formalParameterList.location, tree.formalParameterList.parameters.slice(0, tree.formalParameterList.parameters.length - 1));
       var sliceExpression = createCallExpression(createMemberExpression(ARRAY, PROTOTYPE, 'slice', CALL), createArgumentList(createIdentifierExpression(ARGUMENTS), createNumberLiteral(tree.formalParameterList.parameters.length - 1)));
       var variable = createVariableStatement(TokenType.VAR, getRestParameterName(tree.formalParameterList), sliceExpression);
-      var statements =[];
-      statements.push(variable);
-      statements.push.apply(statements, tree.functionBody.statements);
+      var statements = $__1751([variable], tree.functionBody.statements);
       return createFunctionDeclaration(tree.name, parametersWithoutRestParam, this.transformAny(createBlock(statements)));
     },
     constructor: function() {

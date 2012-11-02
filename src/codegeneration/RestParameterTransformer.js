@@ -94,9 +94,7 @@ export class RestParameterTransformer extends ParseTreeTransformer {
         getRestParameterName(tree.formalParameterList),
         sliceExpression);
 
-    var statements = [];
-    statements.push(variable);
-    statements.push.apply(statements, tree.functionBody.statements);
+    var statements = [variable, ...tree.functionBody.statements];
 
     return createFunctionDeclaration(
         tree.name, parametersWithoutRestParam,
