@@ -31,9 +31,10 @@ goog.require('goog.testing.jsunit');
 <script>
 
 var variablesInBlock =
-    traceur.getModuleForTesting('semantics.VariableBinder').variablesInBlock;
+    traceur.getModuleForTesting('semantics/VariableBinder.js').variablesInBlock;
 var variablesInFunction =
-    traceur.getModuleForTesting('semantics.VariableBinder').variablesInFunction;
+    traceur.getModuleForTesting('semantics/VariableBinder.js').
+        variablesInFunction;
 var Parser = traceur.syntax.Parser;
 var SourceFile = traceur.syntax.SourceFile;
 var ErrorReporter = traceur.util.ErrorReporter;
