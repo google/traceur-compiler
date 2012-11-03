@@ -16,10 +16,6 @@ import ParseTree from 'ParseTree.js';
 module ParseTreeType from 'ParseTreeType.js';
 import * from ParseTreeType;
 
-// TODO(arv): These should not be exported here.
-export ParseTree;
-export ParseTreeType;
-
 export class ArgumentList extends ParseTree {
   /**
    * @param {SourceRange} location
@@ -419,6 +415,15 @@ export class ExportSpecifierSet extends ParseTree {
   constructor(location, specifiers) {
     super(EXPORT_SPECIFIER_SET, location);
     this.specifiers = specifiers;
+  }
+}
+
+export class ExportStar extends ParseTree {
+  /**
+   * @param {SourceRange} location
+   */
+  constructor(location) {
+    super(EXPORT_STAR, location);
   }
 }
 

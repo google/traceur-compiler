@@ -81,6 +81,13 @@ export class ExportVisitor extends ModuleVisitor {
     this.addExport_((tree.rhs || tree.lhs).value, tree);
   }
 
+  visitExportStar(tree) {
+    var module = this.getModuleForModuleExpression(this.relatedTree_);
+    module.getExports().forEach(({name}) => {
+      this.addExport_(name, tree);
+    });
+  }
+
   visitFunctionDeclaration(tree) {
     if (tree.name) {
       this.addExport_(tree.name.identifierToken.value, tree);

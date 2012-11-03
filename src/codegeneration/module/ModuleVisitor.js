@@ -65,7 +65,7 @@ export class ModuleVisitor extends ParseTreeVisitor {
 
   /**
    * @param {ModuleExpression} tree
-   * @param {boolean=} reportErorrors If false no errors are reported.
+   * @param {boolean=} reportErrors If false no errors are reported.
    * @return {ModuleSymbol}
    */
   getModuleForModuleExpression(tree, reportErrors) {

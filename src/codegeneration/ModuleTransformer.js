@@ -32,6 +32,7 @@ import {
   EXPORT_DECLARATION,
   EXPORT_MAPPING_LIST,
   EXPORT_SPECIFIER,
+  EXPORT_STAR,
   FUNCTION_DECLARATION,
   IDENTIFIER_EXPRESSION,
   IMPORT_DECLARATION,
@@ -50,6 +51,7 @@ import {
   createExpressionStatement,
   createFunctionExpression,
   createIdentifierExpression,
+  createIdentifierToken,
   createMemberExpression,
   createNullLiteral,
   createObjectCreate,
@@ -86,6 +88,11 @@ function getGetterExport(project, symbol) {
     case EXPORT_SPECIFIER:
       returnExpression = transformSpecifier(project, tree.lhs,
                                             symbol.relatedTree);
+      break;
+    case EXPORT_STAR:
+      traceur.assert(symbol.relatedTree);
+      returnExpression = transformSpecifier(project,
+          createIdentifierToken(symbol.name), symbol.relatedTree);
       break;
     case IDENTIFIER_EXPRESSION:
       if (!symbol.relatedTree) {

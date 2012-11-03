@@ -477,6 +477,14 @@ export class ParseTreeTransformer {
   }
 
   /**
+   * @param {ExportStar} tree
+   * @return {ParseTree}
+   */
+  transformExportStar(tree) {
+    return tree;
+  }
+
+  /**
    * @param {ExpressionStatement} tree
    * @return {ParseTree}
    */

@@ -65,104 +65,58 @@ module traceur {
   export WebPageProject;
 
   export module semantics {
-    import ModuleAnalyzer from 'semantics/ModuleAnalyzer.js';
-    export ModuleAnalyzer;
+    export ModuleAnalyzer from 'semantics/ModuleAnalyzer.js';
+    export VariableBinder from 'semantics/VariableBinder.js';
+    export evaluateStringLiteral from 'semantics/util.js';
 
     export module symbols {
-      import Project from 'semantics/symbols/Project.js';
-      export Project;
+      export Project from 'semantics/symbols/Project.js';
     }
-
-    import VariableBinder from 'semantics/VariableBinder.js';
-    export VariableBinder;
-
-    import evaluateStringLiteral from 'semantics/util.js';
-    export evaluateStringLiteral;
   }
 
   export module util {
-    import {canonicalizeUrl, resolveUrl} from 'util/url.js';
-    export canonicalizeUrl, resolveUrl;
-
-    import ErrorReporter from 'util/ErrorReporter.js';
-    export ErrorReporter;
-
-    import TestErrorReporter from 'util/TestErrorReporter.js';
-    export TestErrorReporter;
-
-    import SourcePosition from 'util/SourcePosition.js';
-    export SourcePosition;
-
-    import MutedErrorReporter from 'util/MutedErrorReporter.js';
-    export MutedErrorReporter;
-
-    import removeDotSegments from 'util/url.js';
-    export removeDotSegments;
+    export ErrorReporter from 'util/ErrorReporter.js';
+    export MutedErrorReporter from 'util/MutedErrorReporter.js';
+    export SourcePosition from 'util/SourcePosition.js';
+    export TestErrorReporter from 'util/TestErrorReporter.js';
+    export {canonicalizeUrl, resolveUrl} from 'util/url.js';
+    export removeDotSegments from 'util/url.js';
   }
 
   export module syntax {
-    import Scanner from 'syntax/Scanner.js';
-    export Scanner;
+    export IdentifierToken from 'syntax/IdentifierToken.js';
+    export LiteralToken from 'syntax/LiteralToken.js';
+    export ParseTreeValidator from 'syntax/ParseTreeValidator.js';
+    export Parser from 'syntax/Parser.js';
+    export Scanner from 'syntax/Scanner.js';
+    export SourceFile from 'syntax/SourceFile.js';
+    export Token from 'syntax/Token.js';
+    export TokenType from 'syntax/TokenType.js';
 
-    import SourceFile from 'syntax/SourceFile.js';
-    export SourceFile;
-
-    // TODO(arv): When we have support for export * we can remove the hacks
-    // related to how we exprort things inside ParseTrees.js.
-    export module trees from 'syntax/trees/ParseTrees.js';
-
-    import Parser from 'syntax/Parser.js';
-    export Parser;
-
-    import Token from 'syntax/Token.js';
-    export Token;
-
-    import TokenType from 'syntax/TokenType.js';
-    export TokenType;
-
-    import IdentifierToken from 'syntax/IdentifierToken.js';
-    export IdentifierToken;
-
-    import LiteralToken from 'syntax/LiteralToken.js';
-    export LiteralToken;
-
-    import ParseTreeValidator from 'syntax/ParseTreeValidator.js';
-    export ParseTreeValidator;
+    export module trees {
+      export * from 'syntax/trees/ParseTrees.js';
+      export ParseTree from 'syntax/trees/ParseTree.js';
+      export module ParseTreeType from 'syntax/trees/ParseTreeType.js';
+    }
   }
 
   export module outputgeneration {
-    import ProjectWriter from 'outputgeneration/ProjectWriter.js';
-    export ProjectWriter;
-
-    import TreeWriter from 'outputgeneration/TreeWriter.js';
-    export TreeWriter;
-
-    import SourceMapConsumer from 'outputgeneration/SourceMapIntegration.js';
-    export SourceMapConsumer;
-
-    import SourceMapGenerator from 'outputgeneration/SourceMapIntegration.js';
-    export SourceMapGenerator;
+    export ProjectWriter from 'outputgeneration/ProjectWriter.js';
+    export SourceMapConsumer from 'outputgeneration/SourceMapIntegration.js';
+    export SourceMapGenerator from 'outputgeneration/SourceMapIntegration.js';
+    export TreeWriter from 'outputgeneration/TreeWriter.js';
   }
 
   export module codegeneration {
+    export Compiler from 'codegeneration/Compiler.js';
+    export ModuleTransformer from 'codegeneration/ModuleTransformer.js';
+    export ParseTreeTransformer from 'codegeneration/ParseTreeTransformer.js';
+    export ProgramTransformer from 'codegeneration/ProgramTransformer.js';
     export module ParseTreeFactory from 'codegeneration/ParseTreeFactory.js';
 
     export module module {
-      import ModuleRequireVisitor from 'codegeneration/module/ModuleRequireVisitor.js';
-      export ModuleRequireVisitor;
+      export ModuleRequireVisitor from 'codegeneration/module/ModuleRequireVisitor.js';
     }
-
-    import ParseTreeTransformer from 'codegeneration/ParseTreeTransformer.js';
-    export ParseTreeTransformer;
-
-    import ModuleTransformer from 'codegeneration/ModuleTransformer.js';
-    export ModuleTransformer;
-
-    import ProgramTransformer from 'codegeneration/ProgramTransformer.js';
-    export ProgramTransformer;
-
-    import Compiler from 'codegeneration/Compiler.js';
-    export Compiler;
   }
 
   import {internals, getModuleInstanceByUrl, CodeLoader} from 'runtime/modules.js';

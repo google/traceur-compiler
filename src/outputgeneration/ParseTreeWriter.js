@@ -404,6 +404,13 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
+   * @param {ExportStar} tree
+   */
+  visitExportStar(tree) {
+    this.write_(TokenType.STAR);
+  }
+
+  /**
    * @param {ExpressionStatement} tree
    */
   visitExpressionStatement(tree) {

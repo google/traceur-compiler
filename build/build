@@ -22,6 +22,7 @@ node ${DIR}/build.js \
   --classes \
   --property-methods \
   --rest-parameters \
+  --property-name-shorthand \
   -- \
   ${DIR}/../third_party/source-map/lib/source-map/array-set.js \
   ${DIR}/../third_party/source-map/lib/source-map/base64.js \

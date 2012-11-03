@@ -447,60 +447,73 @@ export class Parser {
         if (this.peekModuleDeclaration_(load)) {
           exportTree = this.parseModuleDeclaration_(load);
         } else {
-          exportTree = this.parseExportMappingList_();
+          exportTree = this.parseExportMappingList_(load);
         }
         break;
       case TokenType.OPEN_CURLY:
-        exportTree = this.parseExportMappingList_();
+      case TokenType.STAR:
+        exportTree = this.parseExportMappingList_(load);
         break;
       default:
-        this.reportError_(`Unexpected symbol '{this.peekToken_()}'`);
+        this.reportError_(`Unexpected symbol '${this.peekToken_()}'`);
         return null;
     }
     return new ExportDeclaration(this.getTreeLocation_(start), exportTree);
   }
 
-  parseExportMappingList_() {
+  parseExportMappingList_(load) {
     // This is part of the ExportDeclaration production
     // ExportMapping ("," ExportMapping)*
     var start = this.getTreeStartLocation_();
-    var mappings = [this.parseExportMapping_()];
+    var mappings = [this.parseExportMapping_(load)];
     while (this.peek_(TokenType.COMMA)) {
       this.eat_(TokenType.COMMA);
-      mappings.push(this.parseExportMapping_());
+      mappings.push(this.parseExportMapping_(load));
     }
     this.eatPossibleImplicitSemiColon_();
-    return new ExportMappingList(this.getTreeEndLocation_(start), mappings);
+    return new ExportMappingList(this.getTreeLocation_(start), mappings);
   }
 
   peekExportMapping_() {
     return this.peek_(TokenType.OPEN_CURLY) || this.peekId_();
   }
 
-  parseExportMapping_() {
-    // ExportMapping ::= ExportSpecifierSet ("from" ModuleExpression(false))?
+  parseExportMapping_(load) {
+    // ExportMapping ::=
+    //     Identifier ("from" ModuleExpression(load))?
+    //     "*" "from" ModuleExpression(load)
+    //     ExportSpecifierSet ("from" ModuleExpression(load))?
     var start = this.getTreeStartLocation_();
-    var specifierSet = this.parseExportSpecifierSet_();
-    var expression = null;
-    if (this.peekPredefinedString_(FROM)) {
-      this.eatId_(FROM);
-      expression = this.parseModuleExpression_(false);
+
+    var specifierSet, expression;
+
+    if (this.peek_(TokenType.STAR)) {
+      this.eat_(TokenType.STAR);
+      specifierSet = new ExportStar(this.getTreeLocation_(start));
+      expression = this.parseFromModuleExpression_(load, true);
+    } else if (this.peek_(TokenType.OPEN_CURLY)) {
+      specifierSet = this.parseExportSpecifierSet_();
+      expression = this.parseFromModuleExpression_(load, false);
+    } else {  // ID
+      specifierSet = this.parseIdentifierExpression_();
+      expression = this.parseFromModuleExpression_(load, false);
     }
+
     return new ExportMapping(this.getTreeLocation_(start), expression,
                              specifierSet);
   }
 
-  peekExportSpecifierSet_() {
-    return this.peek_(TokenType.OPEN_CURLY) ||
-        this.peekIdName_();
+  parseFromModuleExpression_(load, required) {
+    if (required || this.peekPredefinedString_(FROM)) {
+      this.eatId_(FROM);
+      return this.parseModuleExpression_(load);
+    }
+    return null;
   }
 
   parseExportSpecifierSet_() {
-    // ExportSpecifierSet ::= Identifier
-    //     | "{" ExportSpecifier ("," ExportSpecifier)* ","? "}"
-
-    if (!this.peek_(TokenType.OPEN_CURLY))
-      return this.parseIdentifierExpression_();
+    // ExportSpecifierSet ::=
+    //     "{" ExportSpecifier ("," ExportSpecifier)* ","? "}"
 
     var start = this.getTreeStartLocation_();
     this.eat_(TokenType.OPEN_CURLY);
@@ -513,8 +526,7 @@ export class Parser {
     }
     this.eat_(TokenType.CLOSE_CURLY);
 
-    return new ExportSpecifierSet(this.getTreeLocation_(start),
-        specifiers);
+    return new ExportSpecifierSet(this.getTreeLocation_(start), specifiers);
   }
 
   parseExportSpecifier_() {

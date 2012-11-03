@@ -289,6 +289,13 @@ export class ParseTreeVisitor {
   }
 
   /**
+   * @param {ExportStar} tree
+   */
+  visitExportStar(tree) {
+
+  }
+
+  /**
    * @param {ExpressionStatement} tree
    */
   visitExpressionStatement(tree) {

@@ -383,6 +383,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
 
     var specifierType = tree.specifierSet.type;
     this.checkVisit_(specifierType == EXPORT_SPECIFIER_SET ||
+                     specifierType == EXPORT_STAR ||
                      specifierType == IDENTIFIER_EXPRESSION,
                      tree.specifierSet,
                      'specifier set or identifier expected');
