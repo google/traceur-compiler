@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import State from 'State.js';
-import createObject from '../../util/util.js';
 
 export class FallThroughState extends State {
   /**

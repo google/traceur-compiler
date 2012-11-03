@@ -12,4 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-new WebPageProject(document.location.href).run();
+new traceur.WebPageProject(document.location.href).run();

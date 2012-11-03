@@ -15,7 +15,6 @@
 import IMPORT_SPECIFIER_SET from '../../syntax/trees/ParseTreeType.js';
 import ModuleVisitor from 'ModuleVisitor.js';
 import TokenType from '../../syntax/TokenType.js';
-import createObject from '../../util/util.js';
 
 /**
  * Finds all 'import * from moduleExpression' and associates the tree with

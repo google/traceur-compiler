@@ -30,7 +30,6 @@ import {
   createReturnStatement,
   createThisExpression
 } from 'ParseTreeFactory.js';
-import createObject from '../util/util.js';
 
 /**
  * This is used to find whether a function contains a reference to 'this'.

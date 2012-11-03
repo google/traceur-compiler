@@ -31,7 +31,6 @@ import {
   createNumberLiteral,
   createVariableStatement
 } from 'ParseTreeFactory.js';
-import createObject from '../util/util.js';
 
 function hasRestParameter(formalParameterList) {
   var parameters = formalParameterList.parameters;

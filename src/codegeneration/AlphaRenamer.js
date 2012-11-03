@@ -27,7 +27,6 @@ import {
   createFunctionDeclaration,
   createIdentifierExpression
 } from 'ParseTreeFactory.js';
-import createObject from '../util/util.js';
 import {
   variablesInBlock,
   variablesInFunction

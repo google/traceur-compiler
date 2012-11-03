@@ -196,7 +196,8 @@
     this.url = url;
   }
 
-  Transformer.prototype = traceur.createObject(ParseTreeTransformer.prototype, {
+  Transformer.prototype = {
+    __proto__: ParseTreeTransformer.prototype,
     transformModuleRequire: function(tree) {
       var url = evaluateStringLiteral(tree.url);
       // Don't handle builtin modules.
@@ -206,8 +207,7 @@
 
       return createIdentifierExpression(generateNameForUrl(url));
     }
-  });
-
+  };
 
   /**
    * Wraps a program in a module definition.

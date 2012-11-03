@@ -55,7 +55,6 @@ import {
   createThisExpression,
   createVariableStatement
 } from 'ParseTreeFactory.js';
-import createObject from '../util/util.js';
 import transformOptions from '../options.js';
 
 // The state keeps track of the current class tree and class name.

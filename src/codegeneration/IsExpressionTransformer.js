@@ -28,7 +28,6 @@ import {
   createMemberExpression,
   createOperatorToken
 } from 'ParseTreeFactory.js';
-import createObject from '../util/util.js';
 
 /**
  * Whether the tree is a good literal. A good literal is one that can be used

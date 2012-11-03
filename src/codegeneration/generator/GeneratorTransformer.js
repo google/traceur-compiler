@@ -47,7 +47,6 @@ import {
   createThrowStatement,
   createVariableStatement
 } from '../ParseTreeFactory.js';
-import createObject from '../../util/util.js';
 
 /**
  * Desugars generator function bodies. Generator function bodies contain 'yield' statements.

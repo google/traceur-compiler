@@ -26,7 +26,6 @@
  */
 
 import Token from 'Token.js';
-import createObject from '../util/util.js';
 
 export class LiteralToken extends Token {
   /**

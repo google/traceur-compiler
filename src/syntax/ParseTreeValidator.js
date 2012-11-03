@@ -20,7 +20,6 @@ import {
 } from 'PredefinedName.js';
 import TokenType from 'TokenType.js';
 import TreeWriter from '../outputgeneration/TreeWriter.js';
-import createObject from '../util/util.js';
 import * from 'trees/ParseTreeType.js';
 
 /*

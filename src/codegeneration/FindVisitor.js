@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import ParseTreeVisitor from '../syntax/ParseTreeVisitor.js';
-import createObject from '../util/util.js';
 
 // Object used as a sentinel. This is thrown to abort visiting the rest of the
 // tree.

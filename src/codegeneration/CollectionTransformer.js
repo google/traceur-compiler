@@ -33,7 +33,6 @@ import {
   createMemberExpression,
   createParenExpression
 } from 'ParseTreeFactory.js';
-import createObject from '../util/util.js';
 import expandMemberLookupExpression from 'OperatorExpander.js';
 
 /**

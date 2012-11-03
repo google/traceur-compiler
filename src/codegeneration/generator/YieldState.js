@@ -23,7 +23,6 @@ import {
   createReturnStatement,
   createTrueLiteral
 } from '../ParseTreeFactory.js';
-import createObject from '../../util/util.js';
 
 /**
  * Represents the dispatch portion of a switch statement that has been added

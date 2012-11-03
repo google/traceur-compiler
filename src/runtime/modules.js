@@ -26,7 +26,6 @@ import {
   canonicalizeUrl,
   resolveUrl
 } from '../util/url.js';
-import createObject from '../util/util.js';
 
 // TODO(arv): I stripped the resolvers to make this simpler for now.
 

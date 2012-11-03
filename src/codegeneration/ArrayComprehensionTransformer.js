@@ -26,7 +26,6 @@ import {
   createVariableDeclarationList,
   createVariableStatement
 } from 'ParseTreeFactory.js';
-import createObject from '../util/util.js';
 
 /**
  * Array Comprehension Transformer:

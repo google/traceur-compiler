@@ -56,7 +56,6 @@ import {
   createVariableDeclarationList,
   createVariableStatement
 } from 'ParseTreeFactory.js';
-import createObject from '../util/util.js';
 
 var CONST = TokenType.CONST;
 var LET = TokenType.LET;

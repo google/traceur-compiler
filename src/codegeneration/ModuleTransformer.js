@@ -65,7 +65,6 @@ import {
   createVariableDeclarationList,
   createVariableStatement
 } from 'ParseTreeFactory.js';
-import createObject from '../util/util.js';
 import hasUseStrict from '../semantics/util.js';
 
 function toBindingIdentifier(tree) {

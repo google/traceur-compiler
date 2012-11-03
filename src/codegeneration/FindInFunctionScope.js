@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import FindVisitor from 'FindVisitor.js';
-import createObject from '../util/util.js';
 
 /**
  * This is used to find something in a tree. Extend this class and override

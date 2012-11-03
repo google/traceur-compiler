@@ -15,7 +15,6 @@
 import ParseTree from 'ParseTree.js';
 import STATE_MACHINE from 'ParseTreeType.js';
 import TryState from '../../codegeneration/generator/TryState.js';
-import createObject from '../../util/util.js';
 
 /**
  * @param {TryState.Kind} kind

@@ -26,7 +26,6 @@ import {
 import ContinueState from 'ContinueState.js';
 import ParseTreeTransformer from '../ParseTreeTransformer.js';
 import StateMachine from '../../syntax/trees/StateMachine.js';
-import createObject from '../../util/util.js';
 
 /**
  * @param {BreakStatement|ContinueStatement} tree

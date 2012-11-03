@@ -30,7 +30,6 @@ import {
   createVariableDeclarationList,
   createYieldStatement
 } from 'ParseTreeFactory.js';
-import createObject from '../util/util.js';
 import transformOptions from '../options.js';
 
 /**

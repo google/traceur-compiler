@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import ModuleVisitor from 'ModuleVisitor.js';
-import createObject from '../../util/util.js';
 
 function getFriendlyName(module) {
   return module.name || "'" + module.url + "'";

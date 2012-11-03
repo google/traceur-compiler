@@ -14,7 +14,6 @@
 
 import Token from 'Token.js';
 import TokenType from 'TokenType.js';
-import createObject from '../util/util.js';
 
 /**
  * A token representing an identifier.

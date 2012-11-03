@@ -14,7 +14,6 @@
 
 import ModuleSymbol from '../../semantics/symbols/ModuleSymbol.js';
 import ModuleVisitor from 'ModuleVisitor.js';
-import createObject from '../../util/util.js';
 
 /**
  * Visits a parse tree and adds all the module definitions.

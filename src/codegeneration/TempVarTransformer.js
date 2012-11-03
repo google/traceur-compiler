@@ -25,7 +25,6 @@ import {
   createVariableDeclarationList,
   createVariableStatement
 } from 'ParseTreeFactory.js';
-import createObject from '../util/util.js';
 
 function isStringExpressionStatement(tree) {
   return tree.type === EXPRESSION_STATEMENT &&

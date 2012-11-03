@@ -22,31 +22,6 @@ module traceur {
   import options from 'options.js';
   export options;
 
-  import createObject from 'util/util.js';
-  export createObject;
-
-  /**
-   * Builds an object structure for the provided namespace path,
-   * ensuring that names that already exist are not overwritten. For
-   * example:
-   * "a.b.c" -> a = {};a.b={};a.b.c={};
-   * @param {string} name Name of the object that this file defines.
-   * @private
-   */
-  function exportPath(name) {
-    var parts = name.split('.');
-    var cur = traceur;
-
-    for (var part; parts.length && (part = parts.shift());) {
-      if (part in cur) {
-        cur = cur[part];
-      } else {
-        cur = cur[part] = {};
-      }
-    }
-    return cur;
-  }
-
   /**
    * Generates an identifier string that represents a URL.
    * @param {string} url
@@ -71,23 +46,6 @@ module traceur {
     return global[generateNameForUrl(`src/${path}`, '')];
   }
 
-  /**
-   * @param {string} name
-   * @param {!Function} fun
-   */
-  export function define(name, fun) {
-    var obj = exportPath(name);
-    var exports = fun();
-    for (var name in exports) {
-      // Maybe we should check the prototype chain here? The current usage
-      // pattern is always using an object literal so we only care about own
-      // properties.
-      var propertyDescriptor = Object.getOwnPropertyDescriptor(exports, name);
-      if (propertyDescriptor)
-        Object.defineProperty(obj, name, propertyDescriptor);
-    }
-  }
-
   export function assert(b) {
     if (!b && options.debug)
       throw Error('Assertion failed');
@@ -102,6 +60,9 @@ module traceur {
   export function getUid() {
     return ++uidCounter;
   }
+
+  import WebPageProject from 'WebPageProject.js';
+  export WebPageProject;
 
   export module semantics {
     import ModuleAnalyzer from 'semantics/ModuleAnalyzer.js';

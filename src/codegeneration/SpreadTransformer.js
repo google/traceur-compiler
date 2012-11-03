@@ -43,7 +43,6 @@ import {
   createParenExpression,
   createReturnStatement
 } from 'ParseTreeFactory.js';
-import createObject from '../util/util.js';
 
 // Spreads the elements in the arguments into a single array.
 // @return {Array}

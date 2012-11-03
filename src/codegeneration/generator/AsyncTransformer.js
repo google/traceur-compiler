@@ -57,7 +57,6 @@ import {
   createUndefinedExpression,
   createVariableStatement
 } from '../ParseTreeFactory.js';
-import createObject from '../../util/util.js';
 
 /**
  * Desugars async function bodies. Async function bodies contain 'async' statements.

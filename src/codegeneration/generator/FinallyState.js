@@ -14,7 +14,6 @@
 
 import State from 'State.js';
 import TryState from 'TryState.js';
-import createObject from '../../util/util.js';
 
 /**
  * Represents the dispatch portion of a try/catch block in a state machine.

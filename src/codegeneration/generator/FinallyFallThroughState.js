@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import State from 'State.js';
-import createObject from '../../util/util.js';
 
 /**
  * These are a placeholder for the fallthrough off the end of a finally block.

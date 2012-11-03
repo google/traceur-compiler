@@ -35,7 +35,6 @@ import {
   createStringLiteral,
   createThisExpression
 } from 'ParseTreeFactory.js';
-import createObject from '../util/util.js';
 import {
   expandMemberExpression,
   expandMemberLookupExpression

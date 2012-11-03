@@ -46,7 +46,6 @@ import {
   createVariableDeclarationList,
   createVariableStatement
 } from '../ParseTreeFactory.js';
-import createObject from '../../util/util.js';
 
 /**
  * Desugars for-in loops to be compatible with generators.

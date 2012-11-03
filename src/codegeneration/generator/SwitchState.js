@@ -22,7 +22,6 @@ import {
   createBreakStatement,
   createStatementList
 } from '../ParseTreeFactory.js';
-import createObject from '../../util/util.js';
 
 /**
  * Represents a pair of ParseTree and integer.

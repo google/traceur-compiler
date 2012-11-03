@@ -26,7 +26,6 @@ import {
 import ParseTreeVisitor from '../syntax/ParseTreeVisitor.js';
 import SourcePosition from '../util/SourcePosition.js';
 import TokenType from '../syntax/TokenType.js';
-import createObject from '../util/util.js';
 
 /**
  * Represents the link in the scope chain.

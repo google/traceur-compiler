@@ -35,7 +35,6 @@ import {
   createMemberLookupExpression,
   createParenExpression
 } from 'ParseTreeFactory.js';
-import createObject from '../util/util.js';
 
 /**
  * Member expressions (and member lookup expressions) are built from right to

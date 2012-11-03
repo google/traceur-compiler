@@ -33,7 +33,6 @@ import {
 } from '../syntax/trees/ParseTreeType.js';
 import ParseTreeVisitor from '../syntax/ParseTreeVisitor.js';
 import TokenType from '../syntax/TokenType.js';
-import createObject from '../util/util.js';
 
 // TODO: Update once destructuring has been refactored.
 

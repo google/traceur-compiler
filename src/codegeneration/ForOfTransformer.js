@@ -38,7 +38,6 @@ import {
   createVariableStatement,
   createWhileStatement
 } from 'ParseTreeFactory.js';
-import createObject from '../util/util.js';
 
 /**
  * Desugars for-of statement.

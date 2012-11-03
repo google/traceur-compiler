@@ -32,7 +32,6 @@ import {
   createVariableStatement,
   createVoid0
 } from 'ParseTreeFactory.js';
-import createObject from '../util/util.js';
 
 var stack = [];
 

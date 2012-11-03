@@ -14,7 +14,6 @@
 
 import Symbol from 'Symbol.js';
 import SymbolType from 'SymbolType.js';
-import createObject from '../../util/util.js';
 
 export class ModuleSymbol extends Symbol {
   /**

@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import ParseTreeWriter from 'ParseTreeWriter.js';
-import createObject from '../util/util.js';
 
 /**
  * Converts a ParseTree to text and a source Map

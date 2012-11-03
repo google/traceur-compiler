@@ -40,7 +40,6 @@ import {
   createPropertyNameAssignment,
   createStringLiteral
 } from 'ParseTreeFactory.js';
-import createObject from '../util/util.js';
 import evaluateStringLiteral from '../semantics/util.js';
 import transformOptions from '../options.js';
 

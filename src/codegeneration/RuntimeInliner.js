@@ -24,7 +24,6 @@ import {
   createVariableDeclarationList,
   createVariableStatement
 } from 'ParseTreeFactory.js';
-import createObject from '../util/util.js';
 
 // Some helper functions that other runtime functions may depend on.
 var shared = {

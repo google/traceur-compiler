@@ -18,7 +18,6 @@ import {
 } from '../../syntax/trees/ParseTree.js';
 import ParseTreeVisitor from '../../syntax/ParseTreeVisitor.js';
 import Symbol from '../../semantics/symbols/Symbol.js';
-import createObject from '../../util/util.js';
 import evaluateStringLiteral from '../../semantics/util.js';
 import resolveUrl from '../../util/url.js';
 

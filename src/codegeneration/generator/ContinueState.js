@@ -14,7 +14,6 @@
 
 import FallThroughState from 'FallThroughState.js';
 import State from 'State.js';
-import createObject from '../../util/util.js';
 import createStatementList from '../ParseTreeFactory.js';
 
 export class ContinueState extends State {

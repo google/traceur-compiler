@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import ErrorReporter from 'ErrorReporter.js';
-import createObject from 'util.js';
 
 /**
  * An error reporter that doesn't output errors; it just records

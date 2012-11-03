@@ -32,7 +32,6 @@ import {
   createMemberExpression,
   createVariableDeclaration
 } from 'ParseTreeFactory.js';
-import createObject from '../util/util.js';
 
 /**
  * Desugars the private name syntax, @name.

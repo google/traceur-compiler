@@ -17,7 +17,6 @@ import {
   createBlock,
   createIfStatement
 } from '../ParseTreeFactory.js';
-import createObject from '../../util/util.js';
 
 export class ConditionalState extends State {
   /**

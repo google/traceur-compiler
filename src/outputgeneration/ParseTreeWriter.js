@@ -24,7 +24,6 @@ import {
 } from '../syntax/PredefinedName.js';
 import StringBuilder from '../util/StringBuilder.js';
 import TokenType from '../syntax/TokenType.js';
-import createObject from '../util/util.js';
 
 // constants
 var NEW_LINE = '\n';
