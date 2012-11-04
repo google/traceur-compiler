@@ -22,10 +22,91 @@
  * begining and ending delimiters.
  *
  * TODO: Regexp literals should have their own token type.
- * TODO: A way to get the processed value, rather than the raw value.
  */
 
 import Token from 'Token.js';
+import TokenType from 'TokenType.js';
+
+/**
+ * Helper class for getting the processed value out of a string literal token.
+ * This returns the value of the string and not the string as it was entered in
+ * the source code.
+ */
+class StringParser {
+  /**
+   * @param {string} value
+   */
+  constructor(value) {
+    this.value = value;
+    this.index = 0;  // value is wrapped in " or '
+  }
+
+  moveNext() {
+    this.index++;
+    // value is wrapped in " or '
+    return this.index >= this.value.length - 1;
+  }
+
+  get current() {
+    return this.value[this.index];
+  }
+
+  parse() {
+    // If there are no escape sequences we can just return the contents of the
+    // string.
+    if (this.value.indexOf('\\') === -1)
+      return this.value.slice(1, -1);
+
+    var result = '';
+
+    for (var ch of this) {
+      result += ch === '\\' ? this.parseEscapeSequence() : ch;
+    }
+
+    return result;
+  }
+
+  parseEscapeSequence() {
+    var next = () => {
+      traceur.assert(this.moveNext());
+      return this.current
+    };
+
+    var ch = next();
+    switch (ch) {
+      case '\n':  // <LF>
+      case '\r':  // <CR>
+      case '\u2028':  // <LS>
+      case '\u2029':  // <PS>
+        return '';
+      case '0':
+        return '\0';
+      case 'b':
+        return '\b';
+      case 'f':
+        return '\f';
+      case 'n':
+        return '\n';
+      case 'r':
+        return '\r';
+      case 't':
+        return '\t';
+      case 'v':
+        return '\v';
+      case 'x':
+        // 2 hex digits
+        return String.fromCharCode(parseInt(next() + next(), 16));
+      case 'u':
+        // 4 hex digits
+        return String.fromCharCode(parseInt(next() + next() +
+                                            next() + next(), 16));
+      default:
+        if (Number(ch) < 8)
+          throw new Error('Octal literals are not supported');
+        return ch;
+    }
+  }
+}
 
 export class LiteralToken extends Token {
   /**
@@ -40,5 +121,28 @@ export class LiteralToken extends Token {
 
   toString() {
     return this.value;
+  }
+
+  /**
+   * The value this literal token represents. For example, for string literals
+   * it is the value of the string and not the character sequence in the string
+   * literal.
+   * @type {Null|number|string}
+   */
+  get processedValue() {
+    switch (this.type) {
+      case TokenType.NULL:
+        return null;
+
+      case TokenType.NUMBER:
+        return Number(this.value);
+
+      case TokenType.STRING:
+        var parser = new StringParser(this.value);
+        return parser.parse();
+
+      default:
+        throw new Error('Not implemented');
+    }
   }
 }

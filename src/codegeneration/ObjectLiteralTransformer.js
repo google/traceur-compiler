@@ -40,7 +40,6 @@ import {
   createPropertyNameAssignment,
   createStringLiteral
 } from 'ParseTreeFactory.js';
-import evaluateStringLiteral from '../semantics/util.js';
 import transformOptions from '../options.js';
 
 function findAtNameInProperty(propertyName) {
@@ -104,7 +103,7 @@ class AtNameFinder extends FindVisitor {
  */
 function getPropertyNameForToken(nameToken) {
   if (nameToken.type === TokenType.STRING)
-    return evaluateStringLiteral(nameToken);
+    return nameToken.processedValue;
   return nameToken.value;
 }
 

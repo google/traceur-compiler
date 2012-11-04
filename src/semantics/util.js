@@ -19,17 +19,6 @@ import {
 import TokenType from '../syntax/TokenType.js';
 
 /**
- * Returns the string value for a literal token.
- * @param {LiteralToken} token
- * @return {string}
- */
-export function evaluateStringLiteral(token) {
-  // TODO(arv): I feel dirty using eval here. We should just do the right
-  // thing!
-  return eval(token.value);
-}
-
-/**
  * @param {Array.<ParseTree>} list
  * @return {boolean}
  */
@@ -43,5 +32,5 @@ export function hasUseStrict(list) {
     return false;
   if (li.type !== TokenType.STRING)
     return false;
-  return evaluateStringLiteral(li) === 'use strict';
+  return li.processedValue === 'use strict';
 }

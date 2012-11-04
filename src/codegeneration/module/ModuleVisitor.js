@@ -18,7 +18,6 @@ import {
 } from '../../syntax/trees/ParseTree.js';
 import ParseTreeVisitor from '../../syntax/ParseTreeVisitor.js';
 import Symbol from '../../semantics/symbols/Symbol.js';
-import evaluateStringLiteral from '../../semantics/util.js';
 import resolveUrl from '../../util/url.js';
 
 function getFriendlyName(module) {
@@ -71,7 +70,7 @@ export class ModuleVisitor extends ParseTreeVisitor {
   getModuleForModuleExpression(tree, reportErrors) {
     // "url".b.c
     if (tree.reference.type == ParseTreeType.MODULE_REQUIRE) {
-      var url = evaluateStringLiteral(tree.reference.url);
+      var url = tree.reference.url.processedValue;
       url = resolveUrl(this.currentModule.url, url);
       return this.project.getModuleForUrl(url);
     }

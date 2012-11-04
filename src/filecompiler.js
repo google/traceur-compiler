@@ -44,7 +44,6 @@
   var canonicalizeUrl = traceur.util.canonicalizeUrl;
   var createIdentifierToken = traceur.codegeneration.ParseTreeFactory.createIdentifierToken;
   var createIdentifierExpression = traceur.codegeneration.ParseTreeFactory.createIdentifierExpression;
-  var evaluateStringLiteral = traceur.semantics.evaluateStringLiteral;
   var resolveUrl = traceur.util.resolveUrl;
 
   var outDirName = 'out';
@@ -199,7 +198,7 @@
   Transformer.prototype = {
     __proto__: ParseTreeTransformer.prototype,
     transformModuleRequire: function(tree) {
-      var url = evaluateStringLiteral(tree.url);
+      var url = tree.url.processedValue;
       // Don't handle builtin modules.
       if (url.charAt(0) === '@')
         return tree;

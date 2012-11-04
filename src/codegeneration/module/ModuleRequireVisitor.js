@@ -14,7 +14,6 @@
 
 import ParseTreeVisitor from '../../syntax/ParseTreeVisitor.js';
 import canonicalizeUrl from '../../util/url.js';
-import evaluateStringLiteral from '../../semantics/util.js';
 
 // TODO(arv): This is closer to the ModuleVisitor but we don't care about
 // modules.
@@ -38,7 +37,6 @@ export class ModuleRequireVisitor extends ParseTreeVisitor {
   }
 
   visitModuleRequire(tree) {
-    // TODO(arv): This is kind of ugly but we need the value of the string.
-    this.urls_[canonicalizeUrl(evaluateStringLiteral(tree.url))] = true;
+    this.urls_[canonicalizeUrl(tree.url.processedValue)] = true;
   }
 }

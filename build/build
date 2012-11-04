@@ -23,6 +23,8 @@ node ${DIR}/build.js \
   --property-methods \
   --rest-parameters \
   --property-name-shorthand \
+  --generators \
+  --for-of \
   -- \
   ${DIR}/../third_party/source-map/lib/source-map/array-set.js \
   ${DIR}/../third_party/source-map/lib/source-map/base64.js \

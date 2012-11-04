@@ -67,7 +67,6 @@ module traceur {
   export module semantics {
     export ModuleAnalyzer from 'semantics/ModuleAnalyzer.js';
     export VariableBinder from 'semantics/VariableBinder.js';
-    export evaluateStringLiteral from 'semantics/util.js';
 
     export module symbols {
       export Project from 'semantics/symbols/Project.js';
