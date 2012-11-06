@@ -198,7 +198,6 @@ export class ClassTransformer extends TempVarTransformer{
               classTree));
     }
 
-    this.removeTempVar(tempIdent);
     return classTree;
   }
 
@@ -241,9 +240,10 @@ export class ClassTransformer extends TempVarTransformer{
   }
 
   transformSuperInBlock_(methodTree, tree) {
+    this.pushTempVarState();
     var state = peekState();
     var className = state.name;
-    var thisName = this.identifierGenerator.generateUniqueIdentifier();
+    var thisName = this.getTempIdentifier();
     var thisDecl = createVariableStatement(TokenType.VAR, thisName,
                                            createThisExpression());
     var superTransformer = new SuperTransformer(this, this.reporter_,
@@ -254,6 +254,9 @@ export class ClassTransformer extends TempVarTransformer{
         superTransformer.transformBlock(this.transformBlock(tree));
     if (superTransformer.hasSuper)
       state.hasSuper = true;
+
+    this.popTempVarState();
+
     if (superTransformer.nestedSuper)
       return createBlock([thisDecl].concat(transformedTree.statements));
     return transformedTree;

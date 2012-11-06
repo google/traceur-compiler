@@ -21,8 +21,8 @@ import {
   SetAccessor
 } from '../syntax/trees/ParseTrees.js';
 import GeneratorTransformer from 'generator/GeneratorTransformer.js';
-import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import ParseTreeVisitor from '../syntax/ParseTreeVisitor.js';
+import TempVarTransformer from 'TempVarTransformer.js';
 import TokenType from '../syntax/TokenType.js';
 import {
   createForOfStatement,
@@ -80,14 +80,7 @@ class YieldFinder extends ParseTreeVisitor {
  * This transformer turns "yield* E" into a ForOf that
  * contains a yield and is lowered by the ForOfTransformer.
  */
-class YieldForTransformer extends ParseTreeTransformer {
-  /**
-   * @param {UniqueIdentifierGenerator} identifierGenerator
-   */
-  constructor(identifierGenerator) {
-    super();
-    this.identifierGenerator_ = identifierGenerator;
-  }
+class YieldForTransformer extends TempVarTransformer {
 
   transformYieldStatement(tree) {
     if (tree.isYieldFor) {
@@ -96,7 +89,7 @@ class YieldForTransformer extends ParseTreeTransformer {
       // for (var $TEMP of E) { yield $TEMP; }
 
       var id = createIdentifierExpression(
-          this.identifierGenerator_.generateUniqueIdentifier());
+          this.getTempIdentifier());
 
       var forEach = createForOfStatement(
           createVariableDeclarationList(
@@ -108,7 +101,7 @@ class YieldForTransformer extends ParseTreeTransformer {
           createYieldStatement(id, false /* isYieldFor */));
 
       var result = ForOfTransformer.transformTree(
-          this.identifierGenerator_,
+          this.identifierGenerator,
           forEach);
 
       return result;
@@ -126,14 +119,13 @@ YieldForTransformer.transformTree = function(identifierGenerator, tree) {
  * This pass just finds function bodies with yields in them and passes them
  * off to the GeneratorTransformer for the heavy lifting.
  */
-export class GeneratorTransformPass extends ParseTreeTransformer {
+export class GeneratorTransformPass extends TempVarTransformer {
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
    * @param {ErrorReporter} reporter
    */
   constructor(identifierGenerator, reporter) {
-    super();
-    this.identifierGenerator_ = identifierGenerator;
+    super(identifierGenerator);
     this.reporter_ = reporter;
   }
 
@@ -172,11 +164,11 @@ export class GeneratorTransformPass extends ParseTreeTransformer {
     // cannot be interrupted.
     if (finder.hasForIn &&
         (transformOptions.generators || transformOptions.deferredFunctions)) {
-      body = ForInTransformPass.transformTree(this.identifierGenerator_, body);
+      body = ForInTransformPass.transformTree(this.identifierGenerator, body);
     }
 
     if (finder.hasYieldFor && transformOptions.generators) {
-      body = YieldForTransformer.transformTree(this.identifierGenerator_, body);
+      body = YieldForTransformer.transformTree(this.identifierGenerator, body);
     }
 
     if (finder.hasYield) {

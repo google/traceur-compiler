@@ -60,16 +60,9 @@ export class ArrayComprehensionTransformer extends ComprehensionTransformer {
   transformArrayComprehension(tree) {
     var expression = this.transformAny(tree.expression);
 
-    var indexName = this.identifierGenerator.generateUniqueIdentifier();
-    var resultName = this.identifierGenerator.generateUniqueIdentifier();
+    var indexName = this.addTempVar(createNumberLiteral(0));
+    var resultName = this.addTempVar(createArrayLiteralExpression([]));
     var resultIdentifier = createIdentifierExpression(resultName);
-
-    var initStatement = createVariableStatement(
-        createVariableDeclarationList(TokenType.VAR, [
-          createVariableDeclaration(indexName, createNumberLiteral(0)),
-          createVariableDeclaration(resultName,
-                                    createArrayLiteralExpression([]))
-        ]));
 
     var statement = createAssignmentStatement(
         createMemberLookupExpression(
@@ -82,7 +75,7 @@ export class ArrayComprehensionTransformer extends ComprehensionTransformer {
     var isGenerator = false;
 
     return this.transformComprehension(tree, statement, isGenerator,
-                                       initStatement, returnStatement);
+                                       returnStatement);
   }
 }
 

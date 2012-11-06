@@ -24,8 +24,8 @@ import {
   Program
 } from '../syntax/trees/ParseTrees.js';
 import LiteralToken from '../syntax/LiteralToken.js';
-import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import RAW from '../syntax/PredefinedName.js';
+import TempVarTransformer from 'TempVarTransformer.js';
 import TokenType from '../syntax/TokenType.js';
 import {
   createArgumentList,
@@ -45,6 +45,13 @@ import {
   createVariableDeclarationList,
   createVariableStatement
 } from 'ParseTreeFactory.js';
+
+class CallsiteDecl {
+  constructor(idName, tree) {
+    this.idName = idName;
+    this.tree = tree;
+  }
+}
 
 /**
  * Creates an object like:
@@ -175,35 +182,30 @@ function cookString(s) {
   return sb.join('');
 }
 
-export class QuasiLiteralTransformer extends ParseTreeTransformer {
-  /**
-   * @param {UniqueIdentifierGenerator} identifierGenerator
-   */
-  constructor(identifierGenerator) {
-    super();
-    this.identifierGenerator_ = identifierGenerator;
-    this.tempVarName_ = identifierGenerator.generateUniqueIdentifier();
-  }
+export class QuasiLiteralTransformer extends TempVarTransformer {
 
-  transformProgram(tree) {
+  transformProgramStatements(statements) {
     this.callsiteDecls_ = [];
 
-    var elements = this.transformList(tree.programElements);
-    if (elements == tree.programElements) {
-      return tree;
+    var elements = this.transformList(statements);
+    if (elements == statements) {
+      return elements;
     }
 
     if (this.callsiteDecls_.length > 0) {
-      var tempVarStatement = createVariableStatement(
-          createVariableDeclarationList(TokenType.VAR, this.tempVarName_,
-                                        null));
+      var declarations = this.callsiteDecls_.map(({idName, tree}) => {
+        var tempVarName = this.addTempVar();
+        var callsiteId = createCallSiteIdObject(tempVarName, tree);
+        return createVariableDeclaration(idName, callsiteId);
+      });
+
       var varStatement = createVariableStatement(
-          createVariableDeclarationList(TokenType.CONST,
-                                        this.callsiteDecls_));
-      elements.unshift(tempVarStatement, varStatement);
+          createVariableDeclarationList(TokenType.CONST, declarations));
+      // TODO(arv): This should be pragma aware.
+      elements.unshift(varStatement);
     }
 
-    return new Program(tree.location, elements);
+    return elements;
   }
 
   transformQuasiLiteralExpression(tree) {
@@ -214,10 +216,8 @@ export class QuasiLiteralTransformer extends ParseTreeTransformer {
     var elements = tree.elements;
     var args = [];
 
-    var idName = this.identifierGenerator_.generateUniqueIdentifier();
-    var callsiteId = createCallSiteIdObject(this.tempVarName_, tree);
-    var variableDecl = createVariableDeclaration(idName, callsiteId);
-    this.callsiteDecls_.push(variableDecl);
+    var idName = this.identifierGenerator.generateUniqueIdentifier();
+    this.callsiteDecls_.push(new CallsiteDecl(idName, tree));
 
     args.push(createIdentifierExpression(idName));
 

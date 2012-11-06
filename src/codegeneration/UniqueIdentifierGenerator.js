@@ -15,7 +15,6 @@
 export class UniqueIdentifierGenerator {
   constructor() {
     this.identifierIndex = 0;
-    this.nameMap_ = Object.create(null);
   }
 
   /**
@@ -31,9 +30,8 @@ export class UniqueIdentifierGenerator {
    * @return {string}
    */
   getUniqueIdentifier(name) {
-    var newName = this.nameMap_[name];
-    if (!newName)
-      return this.nameMap_[name] = this.generateUniqueIdentifier();
-    return newName;
+    if (name[0] === '@')
+      return `$___${name.slice(1)}`;
+    return `$__${name}`;
   }
 }

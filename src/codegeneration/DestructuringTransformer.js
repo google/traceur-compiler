@@ -252,6 +252,8 @@ export class DestructuringTransformer extends TempVarTransformer {
       return super.transformVariableDeclarationList(tree);
     }
 
+    this.pushTempVarState();
+
     // Desugar one level of patterns.
     var desugaredDeclarations = [];
     tree.declarations.forEach((declaration) => {
@@ -264,10 +266,14 @@ export class DestructuringTransformer extends TempVarTransformer {
     });
 
     // Desugar more.
-    return this.transformVariableDeclarationList(
+    var transformedTree =  this.transformVariableDeclarationList(
         createVariableDeclarationList(
             tree.declarationType,
             desugaredDeclarations));
+
+    this.popTempVarState();
+
+    return transformedTree;
   }
 
   transformForInStatement(tree) {
@@ -298,6 +304,8 @@ export class DestructuringTransformer extends TempVarTransformer {
          !this.destructuringInDeclaration_(tree.initializer))) {
       return superMethod.call(this, tree);
     }
+
+    this.pushTempVarState();
 
     var declarationType, lvalue;
     if (tree.initializer.isPattern()) {
@@ -336,6 +344,8 @@ export class DestructuringTransformer extends TempVarTransformer {
 
     statements.push(...body.statements);
     body = createBlock(statements);
+
+    this.popTempVarState();
 
     return new constr(tree.location, initializer, collection, body);
   }
@@ -426,7 +436,7 @@ export class DestructuringTransformer extends TempVarTransformer {
    * @return {BindingIdentifier} The binding tree.
    */
   desugarBinding_(bindingTree, statements, declarationType) {
-    var varName = this.identifierGenerator.generateUniqueIdentifier();
+    var varName = this.getTempIdentifier();
     var binding = createBindingIdentifier(varName);
     var idExpr = createIdentifierExpression(varName);
 
@@ -468,7 +478,7 @@ export class DestructuringTransformer extends TempVarTransformer {
    * @return {Array.<VariableDeclaration>}
    */
   desugarVariableDeclaration_(tree) {
-    var tempRValueName = this.identifierGenerator.generateUniqueIdentifier();
+    var tempRValueName = this.getTempIdentifier();
     var tempRValueIdent = createIdentifierExpression(tempRValueName);
     var desugaring;
     var initializer;

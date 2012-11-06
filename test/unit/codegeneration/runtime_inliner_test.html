@@ -29,21 +29,21 @@ goog.require('goog.testing.jsunit');
 </head>
 <body>
 <script type="text/expected-result">
-var $__0 = function(value) {
+var $__toObject = function(value) {
   if(value == null) throw TypeError();
   return Object(value);
-}, $__1 = function() {
+}, $__spread = function() {
   var rv =[], k = 0;
   for(var i = 0; i < arguments.length; i ++) {
-    var value = $__0(arguments[i]);
+    var value = $__toObject(arguments[i]);
     for(var j = 0; j < value.length; j ++) {
       rv[k ++]= value[j];
     }
   }
   return rv;
 };
-var a = $__1([0, 1]);
-var b = $__1(a,[2]);
+var a = $__spread([0, 1]);
+var b = $__spread(a,[2]);
 </script>
 <script>
 

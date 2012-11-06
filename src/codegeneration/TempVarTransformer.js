@@ -32,42 +32,18 @@ function isStringExpressionStatement(tree) {
       tree.expression.literalToken.type === TokenType.STRING;
 }
 
-/**
- * Transforms a an array of statements and adds a new temp var stack.
- */
-function transformStatements(self, statements) {
-  self.tempVarStack_.push([]);
-
-  var transformedStatements = self.transformList(statements);
-
-  var vars = self.tempVarStack_.pop();
-  if (!vars.length)
-    return transformedStatements;
-
-  var variableStatement = createVariableStatement(
-      createVariableDeclarationList(TokenType.VAR, vars));
-
-  var prologStatements = [];
-  transformedStatements.some((statement) => {
-    if (isStringExpressionStatement(statement)) {
-      prologStatements.push(statement);
-      return true;
-    }
-    return false;
-  });
-
-  return [
-    ...prologStatements,
-    variableStatement,
-    ...transformedStatements.slice(prologStatements.length)
-  ];
-}
-
 function getVars(self) {
     var vars = self.tempVarStack_[self.tempVarStack_.length - 1];
     if (!vars)
       throw new Error('Invalid use of addTempVar');
     return vars;
+}
+
+class TempVarStatement {
+  constructor(name, initializer) {
+    this.name = name;
+    this.initializer = initializer;
+  }
 }
 
 /**
@@ -81,22 +57,110 @@ export class TempVarTransformer extends ParseTreeTransformer {
   constructor(identifierGenerator) {
     super();
     this.identifierGenerator = identifierGenerator
-    this.tempVarStack_ = [];
+    // Stack used for variable declarations.
+    this.tempVarStack_ = [[]];
+    // Stack used for the temporary names currently being used.
+    this.tempIdentifierStack_ = [[]];
+    // Names that can be reused.
+    this.pool_ = [];
+  }
+
+  /**
+   * Transforms a an array of statements and adds a new temp var stack.
+   * @param {Array.<ParseTree>} statements
+   * @param {Function} fun The funtion to call to transform the statements.
+   * @return {Array.<ParseTree>}
+   * @private
+   */
+  transformStatements_(statements, fun) {
+    this.tempVarStack_.push([]);
+
+    var transformedStatements = fun.call(this, statements);
+
+    var vars = this.tempVarStack_.pop();
+    if (!vars.length)
+      return transformedStatements;
+
+    // Remove duplicates.
+    var seenNames = Object.create(null);
+    vars = vars.filter((tempVarStatement) => {
+      var {name, initializer} = tempVarStatement;
+      if (name in seenNames) {
+        if (seenNames[name].initializer || initializer)
+          throw new Error('Invalid use of TempVarTransformer');
+        return false;
+      }
+      seenNames[name] = tempVarStatement;
+      return true;
+    });
+
+    var variableStatement = createVariableStatement(
+        createVariableDeclarationList(
+            TokenType.VAR,
+            vars.map(({name, initializer}) => {
+              return createVariableDeclaration(name, initializer);
+            })));
+
+    var prologStatements = [];
+    transformedStatements.every((statement) => {
+      if (isStringExpressionStatement(statement)) {
+        prologStatements.push(statement);
+        return true;
+      }
+      return false;
+    });
+
+    return [
+      ...prologStatements,
+      variableStatement,
+      ...transformedStatements.slice(prologStatements.length)
+    ];
+  }
+
+  /**
+   * Special transform function that can be used by subclasses.
+   */
+  transformProgramStatements(statements) {
+    return this.transformList(statements);
+  }
+
+  /**
+   * Special transform function that can be used by subclasses.
+   */
+  transformFunctionBodyStatements(statements) {
+    return this.transformList(statements);
   }
 
   transformProgram(tree) {
-    var elements = transformStatements(this, tree.programElements);
+    var elements = this.transformStatements_(tree.programElements,
+                                             this.transformProgramStatements);
     if (elements == tree.programElements) {
       return tree;
     }
-    return new Program(null, elements);
+    return new Program(tree.location, elements);
   }
 
   transformFunctionBody(tree) {
-    var statements = transformStatements(this, tree.statements);
+    this.pushTempVarState();
+    var statements =
+        this.transformStatements_(tree.statements,
+                                  this.transformFunctionBodyStatements);
+    this.popTempVarState();
     if (statements == tree.statements)
       return tree;
     return createBlock(statements);
+  }
+
+  /**
+   * @return {string} An identifier string that can may be reused after the
+   *     current scope has been exited.
+   */
+  getTempIdentifier() {
+    var name = this.pool_.length ?
+      this.pool_.pop() :
+      this.identifierGenerator.generateUniqueIdentifier();
+    this.tempIdentifierStack_[this.tempIdentifierStack_.length - 1].push(name);
+    return name;
   }
 
   /**
@@ -107,21 +171,30 @@ export class TempVarTransformer extends ParseTreeTransformer {
    */
   addTempVar(opt_initializer) {
     var vars = getVars(this);
-    var uid = this.identifierGenerator.generateUniqueIdentifier();
-    vars.push(createVariableDeclaration(uid, opt_initializer || null));
+    var uid = this.getTempIdentifier();
+    vars.push(new TempVarStatement(uid, opt_initializer || null));
     return uid;
   }
 
-  removeTempVar(name) {
-    var vars = getVars(this);
-    var index = -1;
-    for (var i = 0; i < vars.length; i++) {
-      if (vars[i].lvalue.identifierToken.value === name) {
-        index = i;
-        break;
-      }
-    }
-    if (index !== -1)
-      vars.splice(index, 1);
+  /**
+   * Pushes a new temporary variable state. This is useful if you know that
+   * your temporary variable can be reused sooner thatn after the current
+   * lexical scope has been exited.
+   */
+  pushTempVarState() {
+    this.tempIdentifierStack_.push([]);
+  }
+
+  popTempVarState() {
+    this.tempIdentifierStack_.pop().forEach(this.release_, this);
+  }
+
+  /**
+   * Put back the |name| into the pool of reusable temporary varible names.
+   * @param {string} name
+   * @private
+   */
+  release_(name) {
+    this.pool_.push(name);
   }
 }

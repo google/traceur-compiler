@@ -100,7 +100,7 @@ export class RuntimeInliner extends ParseTreeTransformer {
       return self.getAsString(name);
     });
 
-    var uid = this.identifierGenerator.generateUniqueIdentifier();
+    var uid = this.identifierGenerator.getUniqueIdentifier(name);
     this.map_[name] = {
       expression: parse(source, name),
       uid: uid,

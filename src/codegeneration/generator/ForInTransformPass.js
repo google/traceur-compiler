@@ -22,7 +22,7 @@ import {
   LENGTH,
   PUSH
 } from '../../syntax/PredefinedName.js';
-import ParseTreeTransformer from '../ParseTreeTransformer.js';
+import TempVarTransformer from '../TempVarTransformer.js';
 import TokenType from '../../syntax/TokenType.js';
 import {
   createArgumentList,
@@ -50,14 +50,7 @@ import {
 /**
  * Desugars for-in loops to be compatible with generators.
  */
-export class ForInTransformPass extends ParseTreeTransformer {
-  /**
-   * @param {UniqueIdentifierGenerator} identifierGenerator
-   */
-  constructor(identifierGenerator) {
-    super();
-    this.identifierGenerator_ = identifierGenerator;
-  }
+export class ForInTransformPass extends TempVarTransformer {
 
   // for ( var key in object ) statement
   //
@@ -90,17 +83,17 @@ export class ForInTransformPass extends ParseTreeTransformer {
     var elements = [];
 
     // var $keys = [];
-    var keys = this.identifierGenerator_.generateUniqueIdentifier();
+    var keys = this.getTempIdentifier();
     elements.push(
         createVariableStatement(TokenType.VAR, keys,
         createEmptyArrayLiteralExpression()));
 
     // var $collection = object;
-    var collection = this.identifierGenerator_.generateUniqueIdentifier();
+    var collection = this.getTempIdentifier();
     elements.push(createVariableStatement(TokenType.VAR, collection, tree.collection));
 
     // for (var $p in $collection) $keys.push($p);
-    var p = this.identifierGenerator_.generateUniqueIdentifier();
+    var p = this.getTempIdentifier();
     elements.push(
         createForInStatement(
             // var $p
@@ -112,7 +105,7 @@ export class ForInTransformPass extends ParseTreeTransformer {
                 createMemberExpression(keys, PUSH),
                 createArgumentList(createIdentifierExpression(p)))));
 
-    var i = this.identifierGenerator_.generateUniqueIdentifier();
+    var i = this.getTempIdentifier();
 
     // $keys[$i]
     var lookup = createMemberLookupExpression(

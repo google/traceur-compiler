@@ -20,8 +20,8 @@ import {
   RUNTIME,
   TRACEUR
 } from '../syntax/PredefinedName.js';
-import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import VARIABLE_DECLARATION_LIST from '../syntax/trees/ParseTreeType.js';
+import TempVarTransformer from 'TempVarTransformer.js';
 import TokenType from '../syntax/TokenType.js';
 import {
   createArgumentList,
@@ -42,14 +42,7 @@ import {
 /**
  * Desugars for-of statement.
  */
-export class ForOfTransformer extends ParseTreeTransformer {
-  /**
-   * @param {UniqueIdentifierGenerator} identifierGenerator
-   */
-  constructor(identifierGenerator) {
-    super();
-    this.identifierGenerator_ = identifierGenerator;
-  }
+export class ForOfTransformer extends TempVarTransformer {
 
   // for ( initializer of collection ) statement
   //
@@ -72,7 +65,7 @@ export class ForOfTransformer extends ParseTreeTransformer {
 
     //   let $it = traceur.runtime.getIterator(collection);
     // TODO: use 'var' instead of 'let' to enable yield's from within for of statements
-    var iter = this.identifierGenerator_.generateUniqueIdentifier();
+    var iter = this.getTempIdentifier();
     var initializer = createVariableStatement(TokenType.VAR, iter,
         createCallExpression(
             createMemberExpression(TRACEUR, RUNTIME, GET_ITERATOR),
