@@ -474,10 +474,6 @@ export class Parser {
     return new ExportMappingList(this.getTreeLocation_(start), mappings);
   }
 
-  peekExportMapping_() {
-    return this.peek_(TokenType.OPEN_CURLY) || this.peekId_();
-  }
-
   parseExportMapping_(load) {
     // ExportMapping ::=
     //     Identifier ("from" ModuleExpression(load))?

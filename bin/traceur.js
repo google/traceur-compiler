@@ -5963,9 +5963,6 @@ var $__src_syntax_Parser_js =(function() {
       this.eatPossibleImplicitSemiColon_();
       return new ExportMappingList(this.getTreeLocation_(start), mappings);
     },
-    peekExportMapping_: function() {
-      return this.peek_(TokenType.OPEN_CURLY) || this.peekId_();
-    },
     parseExportMapping_: function(load) {
       var start = this.getTreeStartLocation_();
       var specifierSet, expression;
