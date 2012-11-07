@@ -30,20 +30,20 @@ goog.require('goog.testing.jsunit');
 <body>
 <script type="text/expected-result">
 var $__toObject = function(value) {
-  if(value == null) throw TypeError();
+  if (value == null) throw TypeError();
   return Object(value);
 }, $__spread = function() {
-  var rv =[], k = 0;
-  for(var i = 0; i < arguments.length; i ++) {
+  var rv = [], k = 0;
+  for (var i = 0; i < arguments.length; i++) {
     var value = $__toObject(arguments[i]);
-    for(var j = 0; j < value.length; j ++) {
-      rv[k ++]= value[j];
+    for (var j = 0; j < value.length; j++) {
+      rv[k++] = value[j];
     }
   }
   return rv;
 };
 var a = $__spread([0, 1]);
-var b = $__spread(a,[2]);
+var b = $__spread(a, [2]);
 </script>
 <script>
 

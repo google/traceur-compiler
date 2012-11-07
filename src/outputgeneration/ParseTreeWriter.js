@@ -55,6 +55,12 @@ export class ParseTreeWriter extends ParseTreeVisitor {
      * @private
      */
     this.indentDepth_ = 0;
+
+    /**
+     * @type {string|Token|TokenType|Keywords}
+     * @private
+     */
+    this.lastToken_ = null;
   }
 
   /**
@@ -1068,45 +1074,200 @@ export class ParseTreeWriter extends ParseTreeVisitor {
       this.indentDepth_--;
     }
 
-    // Imperfect but good enough spacing rules to make output readable.
-    var spaceBefore = true;
-    var spaceAfter = true;
-    switch (value) {
-      case TokenType.PERIOD:
-      case TokenType.OPEN_SQUARE:
-      case TokenType.OPEN_PAREN:
-      case TokenType.CLOSE_SQUARE:
-        spaceBefore = false;
-        spaceAfter = false;
-        break;
-      case TokenType.COLON:
-      case TokenType.COMMA:
-      case TokenType.SEMI_COLON:
-      case TokenType.CLOSE_PAREN:
-        spaceBefore = false;
-        break;
-    }
-
     if (value !== null) {
       if (PRETTY_PRINT) {
         if (this.currentLine_.length === 0) {
+          this.lastToken_ = '';
           for (var i = 0, indent = this.indentDepth_ * 2; i < indent; ++i) {
             this.currentLine_.append(' ');
           }
-        } else {
-          if (spaceBefore === false && this.currentLine_.lastChar() === ' ') {
-            this.currentLine_.deleteLastChar();
-          }
         }
       }
-      this.currentLine_.append(value.toString());
-      if (spaceAfter) {
+      if (this.needsSpace_(value))
         this.currentLine_.append(' ');
-      }
+      this.lastToken_ = value;
+      this.currentLine_.append(value.toString());
     }
 
     if (value === TokenType.OPEN_CURLY) {
       this.indentDepth_++;
     }
+  }
+
+  /**
+   * @param {string|Token|TokenType|Keywords} token
+   */
+  isIdentifierNameOrNumber_(token) {
+    switch (token.type) {
+      case TokenType.IDENTIFIER:
+      case TokenType.NUMBER:
+        return true;
+    }
+
+    var value = token.toString();
+    // We have some contextual keywords like get, set etc.
+    switch (value) {
+      case FROM:
+      case GET:
+      case OF:
+      case MODULE:
+      case REQUIRES:
+      case SET:
+        return true;
+    }
+    return Keywords.isKeyword(value);
+  }
+
+  /**
+   * @param {string|Token|TokenType|Keywords} value
+   */
+  needsSpace_(token) {
+    if (!this.lastToken_)
+      return false;
+
+    var value = token.toString();
+
+    switch (value) {
+      case TokenType.CLOSE_CURLY:
+      case TokenType.CLOSE_PAREN:
+      case TokenType.CLOSE_SQUARE:
+      case TokenType.COLON:  // Prioritize formatting of object literal over
+                             // conditional expression.
+      case TokenType.COMMA:
+      case TokenType.PERIOD:
+      case TokenType.PERIOD_OPEN_CURLY:
+      case TokenType.SEMI_COLON:
+        return false;
+      case TokenType.CATCH:
+      case TokenType.ELSE:
+      case TokenType.FINALLY:
+      case TokenType.OPEN_CURLY:
+      case TokenType.WHILE:
+        return PRETTY_PRINT;
+    }
+
+    var lastValue = this.lastToken_.toString();
+
+    switch (lastValue) {
+      case TokenType.OPEN_CURLY:
+      case TokenType.OPEN_PAREN:
+      case TokenType.OPEN_SQUARE:
+        return false;
+
+      case TokenType.CATCH:
+      case TokenType.COLON:
+      case TokenType.COMMA:
+      case TokenType.DO:
+      case TokenType.FINALLY:
+      case TokenType.FOR:
+      case TokenType.IF:
+      case TokenType.SEMI_COLON:
+      case TokenType.SWITCH:
+      case TokenType.TRY:
+      case TokenType.WHILE:
+      case TokenType.WITH:
+        return PRETTY_PRINT;
+
+      case TokenType.CASE:
+      case TokenType.CLASS:
+      case TokenType.CONST:
+      case TokenType.DELETE:
+      case TokenType.ELSE:
+      case TokenType.ENUM:
+      case TokenType.EXPORT:
+      case TokenType.EXTENDS:
+      case TokenType.IMPLEMENTS:
+      case TokenType.IMPORT:
+      case TokenType.IN:
+      case TokenType.INSTANCEOF:
+      case TokenType.INTERFACE:
+      case TokenType.LET:
+      case TokenType.NEW:
+      case TokenType.PACKAGE:
+      case TokenType.PRIVATE:
+      case TokenType.PROTECTED:
+      case TokenType.PUBLIC:
+      case TokenType.RETURN:
+      case TokenType.STATIC:
+      case TokenType.THROW:
+      case TokenType.TYPEOF:
+      case TokenType.VAR:
+      case TokenType.VOID:
+      case TokenType.YIELD:
+
+      case FROM:
+      case OF:
+      case MODULE:
+      case REQUIRES:
+        return PRETTY_PRINT || this.isIdentifierNameOrNumber_(token);
+    }
+
+    if ((lastValue == TokenType.PLUS || lastValue == TokenType.PLUS_PLUS) &&
+        (value == TokenType.PLUS || value == TokenType.PLUS_PLUS) ||
+        (lastValue == TokenType.MINUS || lastValue == TokenType.MINUS_MINUS) &&
+        (value == TokenType.MINUS || value == TokenType.MINUS_MINUS)) {
+      return true;
+    }
+
+    if (this.spaceArround_(lastValue) || this.spaceArround_(value))
+      return true;
+
+    if (this.isIdentifierNameOrNumber_(token)) {
+      // This should really line break and indent until ;
+      if (lastValue === TokenType.CLOSE_PAREN)
+        return PRETTY_PRINT;
+
+      return this.isIdentifierNameOrNumber_(this.lastToken_);
+    }
+
+    return false;
+  }
+
+  /**
+   * @param {string} value
+   * @return {boolean} Whether we want spaces around the value if we are pretty
+   *     printing.
+   * @private
+   */
+  spaceArround_(value) {
+    switch (value) {
+      case TokenType.AMPERSAND:
+      case TokenType.AMPERSAND_EQUAL:
+      case TokenType.AND:
+      case TokenType.ARROW:
+      case TokenType.AWAIT:
+      case TokenType.BAR:
+      case TokenType.BAR_EQUAL:
+      case TokenType.CARET_EQUAL:
+      case TokenType.CLOSE_ANGLE:
+      case TokenType.EQUAL:
+      case TokenType.EQUAL_EQUAL:
+      case TokenType.EQUAL_EQUAL_EQUAL:
+      case TokenType.GREATER_EQUAL:
+      case TokenType.LEFT_SHIFT:
+      case TokenType.LEFT_SHIFT_EQUAL:
+      case TokenType.LESS_EQUAL:
+      case TokenType.MINUS:
+      case TokenType.MINUS_EQUAL:
+      case TokenType.NOT_EQUAL:
+      case TokenType.NOT_EQUAL_EQUAL:
+      case TokenType.OPEN_ANGLE:
+      case TokenType.OR:
+      case TokenType.PERCENT:
+      case TokenType.PERCENT_EQUAL:
+      case TokenType.PLUS:
+      case TokenType.PLUS_EQUAL:
+      case TokenType.QUESTION:
+      case TokenType.RIGHT_SHIFT:
+      case TokenType.RIGHT_SHIFT_EQUAL:
+      case TokenType.SLASH:
+      case TokenType.SLASH_EQUAL:
+      case TokenType.STAR:
+      case TokenType.STAR_EQUAL:
+      case TokenType.UNSIGNED_RIGHT_SHIFT:
+      case TokenType.UNSIGNED_RIGHT_SHIFT_EQUAL:
+        return PRETTY_PRINT;
+    }
+    return false;
   }
 }

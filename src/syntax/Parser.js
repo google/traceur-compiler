@@ -3593,7 +3593,7 @@ export class Parser {
    * @private
    */
   eatIdOpt_() {
-    return (this.peek_(TokenType.IDENTIFIER)) ? this.eatId_() : null;
+    return this.peek_(TokenType.IDENTIFIER) ? this.eatId_() : null;
   }
 
   /**
