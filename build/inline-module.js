@@ -23,6 +23,7 @@ var ModuleDefinition = traceur.syntax.trees.ModuleDefinition;
 var ModuleRequireVisitor = traceur.codegeneration.module.ModuleRequireVisitor;
 var ModuleSymbol = traceur.semantics.symbols.ModuleSymbol;
 var ModuleTransformer = traceur.codegeneration.ModuleTransformer;
+var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
 var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
 var Parser = traceur.syntax.Parser;
 var Program = traceur.syntax.trees.Program;
@@ -33,8 +34,8 @@ var SourceMapGenerator = traceur.outputgeneration.SourceMapGenerator;
 var TreeWriter = traceur.outputgeneration.TreeWriter;
 
 var canonicalizeUrl = traceur.util.canonicalizeUrl;
-var createIdentifierExpression = traceur.codegeneration.ParseTreeFactory.createIdentifierExpression;
-var createIdentifierToken = traceur.codegeneration.ParseTreeFactory.createIdentifierToken;
+var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
+var createIdentifierToken = ParseTreeFactory.createIdentifierToken;
 var resolveUrl = traceur.util.resolveUrl;
 
 /**
@@ -56,6 +57,7 @@ function wrapProgram(tree, url, commonPath) {
 
 function findCommonPath(paths) {
   function longestPrefix(s1, s2) {
+    s2 = s2.split('/');
     var length = Math.min(s1.length, s2.length);
     for (var i = 0; i < length; i++) {
       if (s1[i] !== s2[i])
@@ -64,7 +66,7 @@ function findCommonPath(paths) {
     return s1.slice(0, i);
   }
 
-  return paths.reduce(longestPrefix, paths[0]);
+  return paths.reduce(longestPrefix, paths[0].split('/')).join('/');
 }
 
 /**
@@ -102,10 +104,19 @@ ModuleRequireTransformer.prototype = {
 
 var startCodeUnit;
 
-function InlineCodeLoader(reporter, project, elements) {
+/**
+ * @param {ErrorReporter} reporter
+ * @param {Project} project
+ * @param {Array.<ParseTree>} elements
+ * @param {string|undefined} depTarget A valid depTarget means dependency
+ *     printing was requested.
+ */
+function InlineCodeLoader(reporter, project, elements, depTarget) {
   InternalLoader.call(this, reporter, project);
   this.elements = elements;
   this.dirname = project.url;
+  this.depTarget = depTarget && path.relative('.', depTarget);
+  this.codeUnitList = [];
 }
 
 InlineCodeLoader.prototype = {
@@ -120,6 +131,8 @@ InlineCodeLoader.prototype = {
   transformCodeUnit: function(codeUnit) {
     var transformer = new ModuleRequireTransformer(codeUnit.url, this.dirname);
     var tree = transformer.transformAny(codeUnit.tree);
+    if (this.depTarget)
+      console.log('%s: %s', this.depTarget, path.relative('.', codeUnit.url));
     if (codeUnit === startCodeUnit)
       return tree;
     return wrapProgram(tree, codeUnit.url, this.dirname);
@@ -127,14 +140,15 @@ InlineCodeLoader.prototype = {
 
   loadTextFile: function(filename, callback, errback) {
     var text;
-    fs.readFile(path.resolve(this.dirname, filename), 'utf8', function(err, data) {
-      if (err) {
-        errback(err);
-      } else {
-        text = data;
-        callback(data);
-      }
-    });
+    fs.readFile(path.resolve(this.dirname, filename), 'utf8',
+        function(err, data) {
+          if (err) {
+            errback(err);
+          } else {
+            text = data;
+            callback(data);
+          }
+        });
 
     return {
       get responseText() {
@@ -160,14 +174,28 @@ function allLoaded(url, reporter, elements) {
   return transformer.transform(programTree);
 }
 
-
-function inlineAndCompile(filenames, reporter, callback, errback) {
+/**
+ * Compiles the files in "filenames" along with any associated modules, into a
+ * single js file, in proper module dependency order.
+ *
+ * @param {Array.<string>} filenames The list of files to compile and concat.
+ * @param {Object} options A container for misc options. 'depTarget' is the
+ *     only currently available option, which results in the dependencies for
+ *     'filenames' being printed to stdout, with 'depTarget' as the target.
+ * @param {ErrorReporter} reporter
+ * @param {Function} callback Callback used to return the result. A null result
+ *     indicates that inlineAndCompile has returned successfully from a
+ *     non-compile request.
+ * @param {Function} errback Callback used to return errors.
+ */
+function inlineAndCompile(filenames, options, reporter, callback, errback) {
   var basePath = findCommonPath(filenames);
+  var depTarget = options && options.depTarget;
 
   var loadCount = 0;
   var elements = [];
   var project = new Project(basePath);
-  var loader = new InlineCodeLoader(reporter, project, elements);
+  var loader = new InlineCodeLoader(reporter, project, elements, depTarget);
 
   function loadNext() {
     var codeUnit = loader.load(filenames[loadCount]);
@@ -177,12 +205,13 @@ function inlineAndCompile(filenames, reporter, callback, errback) {
       loadCount++;
       if (loadCount < filenames.length) {
         loadNext();
+      } else if (depTarget) {
+        callback(null);
       } else {
         var tree = allLoaded(basePath, reporter, elements);
         callback(tree);
       }
     }, function() {
-
       console.error(codeUnit.loader.error);
       errback(codeUnit.loader.error);
     });

@@ -17,8 +17,9 @@
 var fs = require('fs');
 var path = require('path');
 var flags;
+var cmdName = path.basename(process.argv[1]);
 try {
-  flags = require('commander');
+  flags = new (require('commander').Command)(cmdName);
 } catch (ex) {
   console.error('Commander.js is required for this to work. To install it ' +
                 'run:\n\n  npm install commander\n');
@@ -32,6 +33,13 @@ flags.option('--out <FILE>', 'path to the file to output');
 flags.option('--all-options-off', 'all options are set to false');
 flags.on('all-options-off', function() {
   traceur.options.reset(true);
+});
+flags.option('--dep', 'echo dependencies to stdout');
+flags.on('dep', function() {
+  if (!flags.out)
+    flags.missingArgument('out');
+  else
+    flags.depTarget = flags.out;
 });
 traceur.options.addOptions(flags);
 
@@ -71,18 +79,21 @@ function mkdirRecursive(dir) {
 }
 
 var resolvedIncludes = includes.map(function(include) {
-  return path.join(process.cwd(), include);
+  return path.resolve(include);
 });
 
 var reporter = new ErrorReporter();
 
 var inlineAndCompile = require('./inline-module.js').inlineAndCompile;
 
-inlineAndCompile(resolvedIncludes, reporter, function(tree) {
-  var contents = TreeWriter.write(tree);
-  mkdirRecursive(path.dirname(outputfile));
-  fs.writeFileSync(outputfile, contents, 'utf8');
-  process.exit(1);
-}, function(err) {
+inlineAndCompile(resolvedIncludes, flags, reporter, function(tree) {
+  // Currently, passing flags.depTarget is the only reason tree would be null,
+  // but in the future there may be other reasons to require a no-op here.
+  if (tree) {
+    mkdirRecursive(path.dirname(outputfile));
+    fs.writeFileSync(outputfile, TreeWriter.write(tree), 'utf8');
+  }
   process.exit(0);
+}, function(err) {
+  process.exit(1);
 });

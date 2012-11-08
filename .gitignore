@@ -5,3 +5,6 @@ out
 *.sublime-project
 *.sublime-workspace
 node_modules
+build/dep.mk
+build/local.mk
+bin/traceur.min.js
