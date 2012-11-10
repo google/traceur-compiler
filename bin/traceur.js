@@ -1141,6 +1141,7 @@ var $___src_options_js = (function() {
   addFeatureOption('trapMemberLookup', Kind.experimental);
   addFeatureOption('deferredFunctions', Kind.experimental);
   addFeatureOption('propertyOptionalComma', Kind.experimental);
+  addFeatureOption('strictSemicolons', Kind.experimental);
   addBoolOption('debug');
   addBoolOption('sourceMaps');
   addBoolOption('freeVariableChecker');
@@ -7645,6 +7646,9 @@ var $___src_syntax_Parser_js = (function() {
       return new QuasiLiteralExpression(this.getTreeLocation_(start), operand, elements);
     },
     eatPossibleImplicitSemiColon_: function() {
+      if (options.strictSemicolons) {
+        return this.eat_(TokenType.SEMI_COLON);
+      }
       if (this.peek_(TokenType.SEMI_COLON) && this.peekToken_().location.start.line == this.getLastLine_()) {
         this.eat_(TokenType.SEMI_COLON);
         return;

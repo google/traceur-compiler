@@ -3527,6 +3527,9 @@ export class Parser {
    * @private
    */
   eatPossibleImplicitSemiColon_() {
+    if (options.strictSemicolons) {
+      return this.eat_(TokenType.SEMI_COLON);
+    }
     if (this.peek_(TokenType.SEMI_COLON) && this.peekToken_().location.start.line == this.getLastLine_()) {
       this.eat_(TokenType.SEMI_COLON);
       return;

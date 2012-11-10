@@ -327,6 +327,7 @@ addFeatureOption('cascadeExpression', Kind.experimental);
 addFeatureOption('trapMemberLookup', Kind.experimental);
 addFeatureOption('deferredFunctions', Kind.experimental);
 addFeatureOption('propertyOptionalComma', Kind.experimental);
+addFeatureOption('strictSemicolons', Kind.experimental);
 
 addBoolOption('debug');
 addBoolOption('sourceMaps');
