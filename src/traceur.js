@@ -113,6 +113,8 @@ module traceur {
     export ProgramTransformer from 'codegeneration/ProgramTransformer.js';
     export module ParseTreeFactory from 'codegeneration/ParseTreeFactory.js';
 
+    export {parseExpression, parseStatement} from 'codegeneration/PlaceholderParser.js';
+
     export module module {
       export ModuleRequireVisitor from 'codegeneration/module/ModuleRequireVisitor.js';
     }

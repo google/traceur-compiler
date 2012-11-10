@@ -22,7 +22,7 @@ export class ObjectMap {
     this.values_ = Object.create(null);
   }
 
-  put(key, value) {
+  set(key, value) {
     var uid = key.uid;
     this.keys_[uid] = key;
     this.values_[uid] = value;

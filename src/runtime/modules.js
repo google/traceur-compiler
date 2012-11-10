@@ -309,13 +309,13 @@ class InternalLoader {
 
   evalLoad(code) {
     var codeUnit = new EvalLoadCodeUnit(this, code);
-    this.cache.put({}, codeUnit);
+    this.cache.set({}, codeUnit);
     return codeUnit;
   }
 
   eval(code) {
     var codeUnit = new EvalCodeUnit(this, code);
-    this.cache.put({}, codeUnit);
+    this.cache.set({}, codeUnit);
     this.handleCodeUnitLoaded(codeUnit);
     return codeUnit;
   }
@@ -333,7 +333,7 @@ class InternalLoader {
     var cacheObject = this.cache.get(key);
     if (!cacheObject) {
       cacheObject = new LoadCodeUnit(this, url);
-      this.cache.put(key, cacheObject);
+      this.cache.set(key, cacheObject);
     }
     return cacheObject;
   }
@@ -460,7 +460,7 @@ class InternalLoader {
         return;
       }
 
-      visited.put(codeUnit, true);
+      visited.set(codeUnit, true);
       codeUnit.dependencies.forEach(orderCodeUnits);
       ordered.push(codeUnit);
     }

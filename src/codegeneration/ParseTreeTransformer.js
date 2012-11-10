@@ -571,14 +571,16 @@ export class ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformFunctionDeclaration(tree) {
+    var name = this.transformAny(tree.name);
     var formalParameterList =
         this.transformAny(tree.formalParameterList);
     var functionBody = this.transformFunctionBody(tree.functionBody);
-    if (formalParameterList == tree.formalParameterList &&
-        functionBody == tree.functionBody) {
+    if (name === tree.name &&
+        formalParameterList === tree.formalParameterList &&
+        functionBody === tree.functionBody) {
       return tree;
     }
-    return new FunctionDeclaration(tree.location, tree.name, tree.isGenerator,
+    return new FunctionDeclaration(tree.location, name, tree.isGenerator,
                                    formalParameterList, functionBody);
   }
 

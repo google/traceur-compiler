@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<!--
+
+// Copyright 2012 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+-->
+<html>
+<head>
+<title></title>
+<script src="../../../third_party/closure-library/closure/goog/base.js"></script>
+<script>
+// NOTE: base.js and all goog.require statements must be in JS script blocks
+// NOTE: because they use document.write to add new script tags in place
+goog.require('goog.testing.jsunit');
+</script>
+<script src="../../../bin/traceur.js"></script>
+<script src="../../../src/bootstrap.js"></script>
+</head>
+<body>
+<script type="text/traceur">
+
+// TODO(arv): Figure out how we can use import statmements here.
+
+var ParseTreeType = traceur.syntax.trees.ParseTreeType;
+var parseExpression = traceur.codegeneration.parseExpression;
+var parseStatement = traceur.codegeneration.parseStatement;
+var write = traceur.outputgeneration.TreeWriter.write;
+
+function testParseExpressionIdentifierExpression() {
+  var id = new traceur.syntax.IdentifierToken(null, 'x');
+  var tree = parseExpression `1 + ${id}`;
+  assertEquals('1 + x\n', write(tree));
+}
+
+function testParseExpressionNumber() {
+  var tree = parseExpression `1 + ${42}`;
+  assertEquals('1 + 42\n', write(tree));
+}
+
+function testParseExpressionBoolean() {
+  var tree = parseExpression `1 + ${true}`;
+  assertEquals('1 + true\n', write(tree));
+}
+
+function testParseExpressionString() {
+  var s = 'Hello';
+  var tree = parseExpression `1 + ${s}`;
+  assertEquals('1 + "Hello"\n', write(tree));
+}
+
+function testParseExpressionNull() {
+  var tree = parseExpression `1 + ${null}`;
+  assertEquals('1 + null\n', write(tree));
+}
+
+function testParseExpressionUndefined() {
+  var tree = parseExpression `1 + ${undefined}`;
+  assertEquals('1 + (void 0)\n', write(tree));
+}
+
+function testParseExpressionTree() {
+  var xTree = parseExpression `x`;
+  var tree = parseExpression `1 + ${xTree}`;
+  assertEquals('1 + x\n', write(tree));
+}
+
+function testParseExpressionFunction() {
+  var tree = parseExpression `function() {}`;
+  assertEquals('function() {}\n', write(tree));
+}
+
+function testParseExpressionPropertyName() {
+  var id = 'x';
+  var tree = parseExpression `{${id}: ${id}}`;
+  assertEquals('{x: "x"}\n', write(tree));
+}
+
+function testParseExpressionPropertyNameIdentifier() {
+  var id = new traceur.syntax.IdentifierToken(null, 'x');
+  var tree = parseExpression `{${id}: ${id}}`;
+  assertEquals('{x: x}\n', write(tree));
+}
+
+function testParseExpressionMethodName() {
+  var id = 'm';
+  var tree = parseExpression `{${id}() {}}`;
+  assertEquals('{m() {}}\n', write(tree));
+}
+
+function testParseExpressionMemberExpression() {
+  var id = 'm';
+  var tree = parseExpression `obj.${id}`;
+  assertEquals('obj.m\n', write(tree));
+}
+
+function testParseStatementVarBinding() {
+  var id = 'x';
+  var tree = parseStatement `var ${id}`;
+  assertEquals('var x;\n', write(tree));
+
+  tree = parseStatement `var [${id}] = [42]`;
+  assertEquals('var [x] = [42];\n', write(tree));
+}
+
+function testParseStatementFunctionBinding() {
+  var id = 'x';
+  var tree = parseStatement `function ${id}(){}`;
+  assertEquals('function x() {}\n', write(tree));
+}
+
+function testStatementLifting() {
+  var returnTree = parseStatement `return 42`;
+  var tree = parseStatement `${returnTree}`;
+  assertEquals(ParseTreeType.RETURN_STATEMENT, tree.type);
+  assertEquals('return 42;\n', write(tree));
+
+  var blockTree = parseStatement `{}`;
+  assertEquals(ParseTreeType.BLOCK, blockTree.type);
+  tree = parseExpression `function() { ${blockTree} }`;
+  assertEquals('function() {}\n', write(tree));
+}
+
+</script>
+</body>
+</html>

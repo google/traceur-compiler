@@ -34,7 +34,7 @@ export class ArrayMap {
     return this.values_[index];
   }
 
-  put(key, value) {
+  set(key, value) {
     var index = this.keys_.indexOf(key);
     if (index == -1) {
       this.keys_.push(key);
@@ -48,7 +48,7 @@ export class ArrayMap {
     var keys = other.keys();
     var values = other.values();
     for (var i = 0; i < keys.length; i++) {
-      this.put(keys[i], values[i]);
+      this.set(keys[i], values[i]);
     }
   }
 

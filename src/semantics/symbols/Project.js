@@ -134,7 +134,7 @@ export class Project {
     if (this.sourceFiles_[file.name] != file) {
       throw new Error();
     }
-    this.parseTrees_.put(file, tree);
+    this.parseTrees_.set(file, tree);
   }
 
   /**
@@ -175,7 +175,7 @@ export class Project {
   }
 
   setModuleForStarTree(tree, symbol) {
-    this.moduleExports_.put(tree, symbol);
+    this.moduleExports_.set(tree, symbol);
   }
 
   getModuleForStarTree(tree) {

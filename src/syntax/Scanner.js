@@ -334,7 +334,7 @@ export class Scanner {
     if (!this.skipRegularExpressionChar_()) {
       return false;
     }
-    while (!this.isAtEnd_() &&
+    while (!this.isAtEnd() &&
            this.isRegularExpressionChar_(this.peekChar_())) {
       if (!this.skipRegularExpressionChar_()) {
         return false;
@@ -367,7 +367,7 @@ export class Scanner {
 
   skipRegularExpressionClass_() {
     this.nextChar_();
-    while (!this.isAtEnd_() && this.peekRegularExpressionClassChar_()) {
+    while (!this.isAtEnd() && this.peekRegularExpressionClassChar_()) {
       if (!this.skipRegularExpressionClassChar_()) {
         return false;
       }
@@ -417,7 +417,7 @@ export class Scanner {
     this.clearTokenLookahead_();
     var beginToken = this.index_;
 
-    if (this.isAtEnd_()) {
+    if (this.isAtEnd()) {
       return this.lastToken_ =
           this.createToken_(TokenType.END_OF_FILE, beginToken);
     }
@@ -473,7 +473,7 @@ export class Scanner {
   //   $ lookahead ∉ {, IdentifierStart
 
   skipQuasiLiteralPortion_() {
-    while (!this.isAtEnd_()) {
+    while (!this.isAtEnd()) {
       if (this.peek_('`')) {
         break;
       }
@@ -514,13 +514,13 @@ export class Scanner {
     return this.currentTokens_[index];
   }
 
-  isAtEnd_() {
+  isAtEnd() {
     return this.index_ >= this.source_.contents.length;
   }
 
   // 7.2 White Space
   skipWhitespace_(allowLineTerminator) {
-    while (!this.isAtEnd_() &&
+    while (!this.isAtEnd() &&
            this.peekWhitespace_(allowLineTerminator)) {
       this.nextChar_();
     }
@@ -537,7 +537,7 @@ export class Scanner {
 
   skipComment_(allowLineTerminator) {
     this.skipWhitespace_(allowLineTerminator);
-    if (!this.isAtEnd_() && this.peek_('/')) {
+    if (!this.isAtEnd() && this.peek_('/')) {
       switch (this.peekChar_(1)) {
         case '/':
           this.skipSingleLineComment_();
@@ -551,7 +551,7 @@ export class Scanner {
   }
 
   skipSingleLineComment_() {
-    while (!this.isAtEnd_() && !isLineTerminator(this.peekChar_())) {
+    while (!this.isAtEnd() && !isLineTerminator(this.peekChar_())) {
       this.nextChar_();
     }
   }
@@ -559,7 +559,7 @@ export class Scanner {
   skipMultiLineComment_() {
     this.nextChar_(); // '/'
     this.nextChar_(); // '*'
-    while (!this.isAtEnd_() &&
+    while (!this.isAtEnd() &&
            (this.peekChar_() != '*' || this.peekChar_(1) != '/')) {
       this.nextChar_();
     }
@@ -574,7 +574,7 @@ export class Scanner {
   scanToken_(allowLineTerminator) {
     this.skipComments_(allowLineTerminator);
     var beginToken = this.index_;
-    if (this.isAtEnd_())
+    if (this.isAtEnd())
       return this.createToken_(TokenType.END_OF_FILE, beginToken);
 
     var ch = this.nextChar_();
@@ -934,7 +934,7 @@ export class Scanner {
   }
 
   peekStringLiteralChar_(terminator) {
-    return !this.isAtEnd_() && this.peekChar_() != terminator &&
+    return !this.isAtEnd() && this.peekChar_() != terminator &&
         !isLineTerminator(this.peekChar_());
   }
 
@@ -948,7 +948,7 @@ export class Scanner {
 
   skipStringLiteralEscapeSequence_() {
     this.nextChar_();
-    if (this.isAtEnd_()) {
+    if (this.isAtEnd()) {
       this.reportError_('Unterminated string literal escape sequence');
       return false;
     }
@@ -1048,7 +1048,7 @@ export class Scanner {
   }
 
   nextChar_() {
-    if (this.isAtEnd_()) {
+    if (this.isAtEnd()) {
       // Work around strict mode bug in Chrome.
       return '\x00';
     }

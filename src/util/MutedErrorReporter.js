@@ -23,9 +23,6 @@ import ErrorReporter from 'ErrorReporter.js';
  * parsing them.
  */
 export class MutedErrorReporter extends ErrorReporter {
-  constructor() {
-    // Intentionally empty since we don't want to call ErrorReporter.
-  }
   reportMessageInternal(location, message) {
     // message.dropOn(floor);
   }

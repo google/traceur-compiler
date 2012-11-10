@@ -68,7 +68,7 @@ export class ProgramTransformer {
    */
   transformFile_(file) {
     var result = this.transform(this.project_.getParseTree(file));
-    this.results_.put(file, result);
+    this.results_.set(file, result);
   }
 
   /**
@@ -80,7 +80,7 @@ export class ProgramTransformer {
   transformFileAsModule_(module, file) {
     var result = this.transformTree_(this.project_.getParseTree(file),
                                      module);
-    this.results_.put(file, result);
+    this.results_.set(file, result);
   }
 
   /**
