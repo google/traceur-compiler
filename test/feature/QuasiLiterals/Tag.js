@@ -34,7 +34,8 @@
   assertEquals(3, expose`${x}${y}`.length);
   assertEquals(2, expose`${x}a`.length);
 
-  assertEquals(0, expose``[0].raw.length);
+  assertEquals(1, expose``[0].length);
+  assertEquals(1, expose``[0].raw.length);
 
   assertArrayEquals(['a'], expose`a`[0].raw);
   assertArrayEquals(['a'], expose`a`[0]);
@@ -81,5 +82,4 @@ ${x}\n`[0]);
 
   assertArrayEquals(['a'], expose/* comment */`a`[0].raw);
   assertArrayEquals(['a'], expose/* comment */`a`[0]);
-
 }

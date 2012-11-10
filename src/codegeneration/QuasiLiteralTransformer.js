@@ -41,6 +41,7 @@ import {
   createObjectLiteralExpression,
   createOperatorToken,
   createParenExpression,
+  createStringLiteral,
   createVariableDeclaration,
   createVariableDeclarationList,
   createVariableStatement
@@ -73,6 +74,18 @@ function createCallSiteIdObject(tempVarName, tree) {
   return createParenExpression(createCommaExpression(expressions));
 }
 
+/**
+ * Adds an empty string at the end if needed. This is needed in case the quasi
+ * literal does not end with a literal portion.
+ * @param {Array.<ParseTree>} elements
+ * @param {Array.<ParseTree>} items This is the array that gets mutated.
+ */
+function maybeAddEmptyStringAtEnd(elements, items) {
+  var length = elements.length;
+  if (!length || elements[length - 1].type !== QUASI_LITERAL_PORTION)
+    items.push(createStringLiteral(''));
+}
+
 function createRawStringArray(elements) {
   var items = [];
   for (var i = 0; i < elements.length; i += 2) {
@@ -82,6 +95,7 @@ function createRawStringArray(elements) {
                                                            str, loc));
     items.push(expr);
   }
+  maybeAddEmptyStringAtEnd(elements, items);
   return createArrayLiteralExpression(items);
 }
 
@@ -97,6 +111,7 @@ function createCookedStringArray(elements) {
   for (var i = 0; i < elements.length; i += 2) {
     items.push(createCookedStringLiteralExpression(elements[i]));
   }
+  maybeAddEmptyStringAtEnd(elements, items);
   return createArrayLiteralExpression(items);
 }
 

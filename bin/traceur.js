@@ -14555,7 +14555,7 @@ var $__src_codegeneration_QuasiLiteralTransformer_js = (function() {
   var RAW = $__src_syntax_PredefinedName_js.RAW;
   var TempVarTransformer = $__src_codegeneration_TempVarTransformer_js.TempVarTransformer;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
-  var $__2 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__2.createArgumentList, createArrayLiteralExpression = $__2.createArrayLiteralExpression, createAssignmentExpression = $__2.createAssignmentExpression, createBinaryOperator = $__2.createBinaryOperator, createCallExpression = $__2.createCallExpression, createCommaExpression = $__2.createCommaExpression, createDefineProperty = $__2.createDefineProperty, createIdentifierExpression = $__2.createIdentifierExpression, createMemberExpression = $__2.createMemberExpression, createObjectFreeze = $__2.createObjectFreeze, createObjectLiteralExpression = $__2.createObjectLiteralExpression, createOperatorToken = $__2.createOperatorToken, createParenExpression = $__2.createParenExpression, createVariableDeclaration = $__2.createVariableDeclaration, createVariableDeclarationList = $__2.createVariableDeclarationList, createVariableStatement = $__2.createVariableStatement;
+  var $__2 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__2.createArgumentList, createArrayLiteralExpression = $__2.createArrayLiteralExpression, createAssignmentExpression = $__2.createAssignmentExpression, createBinaryOperator = $__2.createBinaryOperator, createCallExpression = $__2.createCallExpression, createCommaExpression = $__2.createCommaExpression, createDefineProperty = $__2.createDefineProperty, createIdentifierExpression = $__2.createIdentifierExpression, createMemberExpression = $__2.createMemberExpression, createObjectFreeze = $__2.createObjectFreeze, createObjectLiteralExpression = $__2.createObjectLiteralExpression, createOperatorToken = $__2.createOperatorToken, createParenExpression = $__2.createParenExpression, createStringLiteral = $__2.createStringLiteral, createVariableDeclaration = $__2.createVariableDeclaration, createVariableDeclarationList = $__2.createVariableDeclarationList, createVariableStatement = $__2.createVariableStatement;
   var CallsiteDecl = traceur.runtime.createClass( {constructor: function(idName, tree) {
       this.idName = idName;
       this.tree = tree;
@@ -14565,6 +14565,10 @@ var $__src_codegeneration_QuasiLiteralTransformer_js = (function() {
     var expressions = [createDefineProperty(createAssignmentExpression(createIdentifierExpression(tempVarName), createCookedStringArray(elements)), RAW, {value: createObjectFreeze(createRawStringArray(elements))}), createObjectFreeze(createIdentifierExpression(tempVarName))];
     return createParenExpression(createCommaExpression(expressions));
   }
+  function maybeAddEmptyStringAtEnd(elements, items) {
+    var length = elements.length;
+    if (!length || elements[length - 1].type !== QUASI_LITERAL_PORTION) items.push(createStringLiteral(''));
+  }
   function createRawStringArray(elements) {
     var items = [];
     for (var i = 0; i < elements.length; i += 2) {
@@ -14573,6 +14577,7 @@ var $__src_codegeneration_QuasiLiteralTransformer_js = (function() {
       var expr = new LiteralExpression(loc, new LiteralToken(TokenType.STRING, str, loc));
       items.push(expr);
     }
+    maybeAddEmptyStringAtEnd(elements, items);
     return createArrayLiteralExpression(items);
   }
   function createCookedStringLiteralExpression(tree) {
@@ -14585,6 +14590,7 @@ var $__src_codegeneration_QuasiLiteralTransformer_js = (function() {
     for (var i = 0; i < elements.length; i += 2) {
       items.push(createCookedStringLiteralExpression(elements[i]));
     }
+    maybeAddEmptyStringAtEnd(elements, items);
     return createArrayLiteralExpression(items);
   }
   function replaceRaw(s) {
