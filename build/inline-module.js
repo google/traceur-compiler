@@ -66,7 +66,7 @@ function findCommonPath(paths) {
     return s1.slice(0, i);
   }
 
-  return paths.reduce(longestPrefix, paths[0].split('/')).join('/');
+  return paths.reduce(longestPrefix, paths[0].split('/')).join('/') + '/';
 }
 
 /**
