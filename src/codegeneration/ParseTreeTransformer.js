@@ -138,7 +138,7 @@ export class ParseTreeTransformer {
     if (elements == tree.elements) {
       return tree;
     }
-    return new ArrayLiteralExpression(tree.location, elements)
+    return new ArrayLiteralExpression(tree.location, elements);
   }
 
   /**

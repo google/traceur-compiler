@@ -238,7 +238,7 @@ Object.defineProperties(options, {
  *   --arrowFunctions --arrow-functions
  */
 function parseCommand(s) {
-  var re = /--([^=]+)(?:=(.+))?/
+  var re = /--([^=]+)(?:=(.+))?/;
   var m = re.exec(s);
   if (m)
     setOption(m[1], m[2]);

@@ -48,7 +48,7 @@ function findAtNameInProperty(propertyName) {
         tree[propertyName].type === TokenType.AT_NAME) {
       this.found = true;
     }
-  }
+  };
 }
 
 /**
@@ -68,7 +68,7 @@ class AtNameFinder extends FindVisitor {
         tree.name.type === TokenType.AT_NAME) {
       return this.found = true;
     }
-    return false
+    return false;
   }
 
   visitPropertyNameAssignment(tree) {
@@ -282,7 +282,7 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
   transformPropertyMethodAssignment(tree) {
     var func = new FunctionDeclaration(tree.location, null, tree.isGenerator,
         this.transformAny(tree.formalParameterList),
-        this.transformAny(tree.functionBody))
+        this.transformAny(tree.functionBody));
     if (!this.needsAtNameTransform) {
       // m() { }
       //  =>

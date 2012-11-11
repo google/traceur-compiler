@@ -91,7 +91,7 @@ State.generateJump = function(enclosingFinally, fallThroughState) {
   return createStatementList(
       State.generateAssignState(enclosingFinally, fallThroughState),
       createBreakStatement());
-}
+};
 
 /**
  * Returns a list of statements which jumps to a given destination state, through a finally
@@ -104,7 +104,7 @@ State.generateJumpThroughFinally = function(finallyState, destination) {
   return createStatementList(
       State.generateAssignStateOutOfFinally_(destination, finallyState),
       createBreakStatement());
-}
+};
 
 /**
  * @param {FinallyState} enclosingFinally
@@ -119,7 +119,7 @@ State.generateAssignState = function(enclosingFinally, fallThroughState) {
     assignState = createStatementList(createAssignStateStatement(fallThroughState));
   }
   return assignState;
-}
+};
 
 /**
  * @param {FinallyState} enclosingFinally
@@ -138,7 +138,7 @@ function isFinallyExit(enclosingFinally, destination) {
  */
 State.generateAssignStateOutOfFinally = function(enclosingFinally, destination) {
   return State.generateAssignStateOutOfFinally_(destination, enclosingFinally.finallyState);
-}
+};
 
 /**
  * @param {number} destination
@@ -153,7 +153,7 @@ State.generateAssignStateOutOfFinally_ = function(destination, finallyState) {
       createAssignmentStatement(
           createIdentifierExpression(FINALLY_FALL_THROUGH),
           createNumberLiteral(destination)));
-}
+};
 
 /**
  * Helper for replaceState.
@@ -167,7 +167,7 @@ State.replaceStateList = function(oldStates, oldState,  newState) {
     states.push(State.replaceStateId(oldStates[i], oldState, newState));
   }
   return states;
-}
+};
 
 /**
  * Helper for replaceState.
@@ -177,7 +177,7 @@ State.replaceStateList = function(oldStates, oldState,  newState) {
  */
 State.replaceStateId = function(current, oldState, newState) {
   return current == oldState ? newState : current;
-}
+};
 
 /**
  * Helper for replaceState.
@@ -192,4 +192,4 @@ State.replaceAllStates = function(exceptionBlocks, oldState, newState) {
     result.push(exceptionBlocks[i].replaceState(oldState, newState));
   }
   return result;
-}
+};

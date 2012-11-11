@@ -218,4 +218,4 @@ GeneratorTransformPass.transformTree = function(identifierGenerator, reporter,
     tree) {
   return new GeneratorTransformPass(identifierGenerator, reporter).
       transformAny(tree);
-}
+};

@@ -190,7 +190,7 @@ class LoadCodeUnit extends CodeUnit {
   }
 
   get moduleSymbol() {
-    return this.project.getModuleForUrl(this.url)
+    return this.project.getModuleForUrl(this.url);
   }
 
   /**
@@ -281,7 +281,7 @@ class InternalLoader {
     };
     xhr.onerror = function() {
       errback();
-    }
+    };
     xhr.open('GET', url, true);
     xhr.send();
     return xhr;
@@ -480,7 +480,7 @@ class InternalLoader {
       try {
         result = this.evalCodeUnit(codeUnit);
       } catch (ex) {
-        codeUnit.error = ex.message
+        codeUnit.error = ex.message;
         this.abortAll();
         return;
       } finally {
@@ -489,7 +489,7 @@ class InternalLoader {
         currentCodeUnit = undefined;
       }
 
-      codeUnit.result = result
+      codeUnit.result = result;
       codeUnit.transformedTree = null;
       codeUnit.text = null;
     }
@@ -550,7 +550,7 @@ export class CodeLoader {
   constructor(reporter, project, parentLoader, opt_resolver) {
     // TODO(arv): Implement parent loader
     // TODO(arv): Implement resolver
-    this.internalLoader_ = new InternalLoader(reporter, project)
+    this.internalLoader_ = new InternalLoader(reporter, project);
   }
 
   /**

@@ -144,7 +144,7 @@ export class WebPageProject extends Project {
 
   run() {
     document.addEventListener('DOMContentLoaded', () => {
-      var selector = 'script[type="text/traceur"]'
+      var selector = 'script[type="text/traceur"]';
       var scripts = document.querySelectorAll(selector);
 
       if (!scripts.length) {

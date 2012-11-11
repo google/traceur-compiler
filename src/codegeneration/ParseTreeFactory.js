@@ -444,7 +444,7 @@ export function createCatch(identifier, catchBody) {
 }
 
 export function createCascadeExpression(operand, expressions) {
-  return new CascadeExpression(null, operand, expressions)
+  return new CascadeExpression(null, operand, expressions);
 }
 
 /**
@@ -794,7 +794,7 @@ export function createPropertyDescriptor(descr) {
     var value = descr[name];
     if (!(value instanceof ParseTree))
       value = createBooleanLiteral(!!value);
-    return createPropertyNameAssignment(name, value)
+    return createPropertyNameAssignment(name, value);
   });
   return createObjectLiteralExpression(propertyNameAndValues);
 }

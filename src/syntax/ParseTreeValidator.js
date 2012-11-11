@@ -494,7 +494,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
           this.checkType_(BINDING_IDENTIFIER,
                           parameter.identifier,
                           'binding identifier expected');
-          break
+          break;
 
         default:
           this.fail_(parameter, 'parameters must be identifiers or rest' +

@@ -581,7 +581,7 @@ export class DestructuringTransformer extends TempVarTransformer {
                   desugaring.rvalue, field.identifierToken);
 
               desugaring.assign(field, lookup);
-              break
+              break;
 
             default:
               throw Error('unreachable');

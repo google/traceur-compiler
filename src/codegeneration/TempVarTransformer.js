@@ -56,7 +56,7 @@ export class TempVarTransformer extends ParseTreeTransformer {
    */
   constructor(identifierGenerator) {
     super();
-    this.identifierGenerator = identifierGenerator
+    this.identifierGenerator = identifierGenerator;
     // Stack used for variable declarations.
     this.tempVarStack_ = [[]];
     // Stack used for the temporary names currently being used.

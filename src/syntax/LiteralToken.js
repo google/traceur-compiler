@@ -69,7 +69,7 @@ class StringParser {
   parseEscapeSequence() {
     var next = () => {
       traceur.assert(this.moveNext());
-      return this.current
+      return this.current;
     };
 
     var ch = next();
