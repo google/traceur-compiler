@@ -25,6 +25,7 @@ node ${DIR}/build.js \
   --property-name-shorthand \
   --generators \
   --for-of \
+  --strict-semicolons \
   "$@" \
   -- \
   ${DIR}/../third_party/source-map/lib/source-map/array-set.js \
