@@ -1131,6 +1131,19 @@ export class WithStatement extends ParseTree {
   }
 }
 
+export class YieldExpression extends ParseTree {
+  /**
+   * @param {SourceRange} location
+   * @param {ParseTree} expression
+   * @param {boolean} isYieldFor
+   */
+  constructor(location, expression, isYieldFor) {
+    super(YIELD_EXPRESSION, location);
+    this.expression = expression;
+    this.isYieldFor = isYieldFor;
+  }
+}
+
 export class YieldStatement extends ParseTree {
   /**
    * @param {SourceRange} location

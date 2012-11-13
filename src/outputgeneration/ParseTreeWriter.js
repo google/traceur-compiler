@@ -983,6 +983,17 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
+   * @param {YieldExpression} tree
+   */
+  visitYieldExpression(tree) {
+    this.write_(TokenType.YIELD);
+    if (tree.isYieldFor) {
+      this.write_(TokenType.STAR);
+    }
+    this.visitAny(tree.expression);
+  }
+
+  /**
    * @param {YieldStatement} tree
    */
   visitYieldStatement(tree) {

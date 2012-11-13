@@ -38,7 +38,8 @@ import {
   CAUGHT_EXCEPTION,
   FINALLY_FALL_THROUGH,
   STATE,
-  STORED_EXCEPTION
+  STORED_EXCEPTION,
+  YIELD_SENT
 } from '../../syntax/PredefinedName.js';
 import State from 'State.js';
 import StateAllocator from 'StateAllocator.js';
@@ -70,6 +71,7 @@ import {
   createIdentifierToken,
   createNumberLiteral,
   createOperatorToken,
+  createParameterList,
   createStatementList,
   createStringLiteral,
   createSwitchStatement,
@@ -694,7 +696,7 @@ export class CPSTransformer extends ParseTreeTransformer {
   }
 
   // With this to $that and arguments to $arguments alpha renaming
-  //      function() {
+  //      function($yieldSent) {
   //       while (true) {
   //         try {
   //           switch ($state) {
@@ -727,12 +729,14 @@ export class CPSTransformer extends ParseTreeTransformer {
    * @return {CallExpression}
    */
   generateMachineMethod(machine) {
-    //  function() {
-    return createFunctionExpression(createEmptyParameterList(),
+    //  function($yieldSent) {
+    return createFunctionExpression(
+            createParameterList(YIELD_SENT),
             //     while (true) {
-            createBlock(createWhileStatement(
-                createTrueLiteral(),
-                this.generateMachine(machine))));
+            createBlock(
+                createWhileStatement(
+                    createTrueLiteral(),
+                    this.generateMachine(machine))));
   }
 
   /** @return {VariableStatement} */

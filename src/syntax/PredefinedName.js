@@ -104,6 +104,7 @@ export var UNDEFINED = 'undefined';
 export var VALUE = 'value';
 export var WAIT_TASK = '$waitTask';
 export var WRITABLE = 'writable';
+export var YIELD_SENT = '$yieldSent';
 export function getParameterName(index) {
   // TODO: consider caching these
   return '$' + index;

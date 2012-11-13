@@ -121,6 +121,7 @@ export class ParseTree {
       case ARRAY_COMPREHENSION:
       case ARRAY_LITERAL_EXPRESSION:
       case ARROW_FUNCTION_EXPRESSION:
+      case AT_NAME_EXPRESSION:
       case BINARY_OPERATOR:
       case CALL_EXPRESSION:
       case CASCADE_EXPRESSION:
@@ -141,7 +142,7 @@ export class ParseTree {
       case SUPER_EXPRESSION:
       case THIS_EXPRESSION:
       case UNARY_EXPRESSION:
-      case AT_NAME_EXPRESSION:
+      case YIELD_EXPRESSION:
         return true;
       default:
         return false;

@@ -22,7 +22,10 @@ import {
   STORED_EXCEPTION,
   TRACEUR
 } from '../../syntax/PredefinedName.js';
-import STATE_MACHINE from '../../syntax/trees/ParseTreeType.js';
+import {
+  STATE_MACHINE,
+  YIELD_EXPRESSION
+} from '../../syntax/trees/ParseTreeType.js';
 import StateMachine from '../../syntax/trees/StateMachine.js';
 import TokenType from '../../syntax/TokenType.js';
 import YieldState from 'YieldState.js';
@@ -65,7 +68,9 @@ export class GeneratorTransformer extends CPSTransformer {
 
   /**
    * Yield statements are translated into a state machine with a single state.
-   * @param {YieldStatement} tree
+   * As an interim step, we allow this to do double duty transforming simple
+   * form yield expressions (direct children of an ExpressionStatement).
+   * @param {YieldStatement|YieldExpression} tree
    * @return {ParseTree}
    */
   transformYieldStatement(tree) {
@@ -87,6 +92,18 @@ export class GeneratorTransformer extends CPSTransformer {
         this.allocateState(),
         [new EndState(stateId)],
         []);
+  }
+
+  /**
+   * @param {ExpressionStatement} tree
+   * @return {ParseTree}
+   */
+  transformExpressionStatement(tree) {
+    var e = tree.expression;
+    if (e.type === YIELD_EXPRESSION)
+      return this.transformYieldStatement(e);
+
+    return super.transformExpressionStatement(tree);
   }
 
   /**

@@ -23,14 +23,35 @@ import {
 import GeneratorTransformer from 'generator/GeneratorTransformer.js';
 import ParseTreeVisitor from '../syntax/ParseTreeVisitor.js';
 import TempVarTransformer from 'TempVarTransformer.js';
+import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import TokenType from '../syntax/TokenType.js';
 import {
+  BINARY_OPERATOR,
+  IDENTIFIER_EXPRESSION,
+  PAREN_EXPRESSION,
+  YIELD_EXPRESSION
+} from '../syntax/trees/ParseTreeType.js';
+import {
+  createAssignmentStatement,
+  createBlock,
+  createExpressionStatement,
   createForOfStatement,
   createIdentifierExpression,
   createVariableDeclarationList,
   createYieldStatement
 } from 'ParseTreeFactory.js';
+import YIELD_SENT from '../syntax/PredefinedName.js';
 import transformOptions from '../options.js';
+
+/**
+ * @param {BinaryOperator} tree
+ * @return {boolean}
+ */
+function isYieldAssign(tree) {
+  return tree.operator.type === TokenType.EQUAL &&
+      tree.right.type === YIELD_EXPRESSION &&
+      tree.left.type === IDENTIFIER_EXPRESSION;
+}
 
 /**
  * Can tell you if function body contains a yield statement. Does not search into
@@ -55,6 +76,11 @@ class YieldFinder extends ParseTreeVisitor {
 
   /** @param {YieldStatement} tree */
   visitYieldStatement(tree) {
+    this.hasYield = true;
+    this.hasYieldFor = tree.isYieldFor;
+  }
+
+  visitYieldExpression(tree) {
     this.hasYield = true;
     this.hasYieldFor = tree.isYieldFor;
   }
@@ -115,6 +141,58 @@ YieldForTransformer.transformTree = function(identifierGenerator, tree) {
   return new YieldForTransformer(identifierGenerator).transformAny(tree);
 };
 
+class YieldExpressionTransformer extends ParseTreeTransformer {
+  constructor() {
+    super();
+    this.sentId = createIdentifierExpression(YIELD_SENT);
+  }
+
+  /**
+   * @param {ExpressionStatement} tree
+   * @return {ParseTree}
+   */
+  transformExpressionStatement(tree) {
+    var e = tree.expression, ex;
+
+    // Inside EXPRESSION_STATEMENT, we should always be able to safely remove
+    // parens from BINARY_OPERATOR and COMMA_EXPRESSION. This will need to be
+    // revisited if the switch afterwards ever supports more than that.
+    while (e.type === PAREN_EXPRESSION) {
+      e = e.expression;
+    }
+
+    switch (e.type) {
+      case YIELD_EXPRESSION:
+        return createYieldStatement(e.expression, e.isYieldFor);
+      case BINARY_OPERATOR:
+        if (isYieldAssign(e))
+          return this.factor_(e.left, e.right, createAssignmentStatement);
+
+        break;
+    }
+    return tree;
+  }
+
+  /**
+   * Factor out a simple yield assignment into a simple yield expression and a
+   * wrapped $yieldSent assignment.
+   * @param {ParseTree} lhs The assignment target.
+   * @param {ParseTree} rhs The yield expression.
+   * @param {Function} wrap A function that returns a ParseTree wrapping lhs
+   *     and $yieldSent properly for its intended context.
+   * @return {ParseTree} { yield ...; wrap(lhs, $yieldSent) }
+   */
+  factor_(lhs, rhs, wrap) {
+    return createBlock([
+        createExpressionStatement(rhs),
+        wrap(lhs, this.sentId)]);
+  }
+}
+
+YieldExpressionTransformer.transformTree = function(tree) {
+  return new YieldExpressionTransformer().transformAny(tree);
+};
+
 /**
  * This pass just finds function bodies with yields in them and passes them
  * off to the GeneratorTransformer for the heavy lifting.
@@ -159,6 +237,8 @@ export class GeneratorTransformPass extends TempVarTransformer {
     if (!finder.hasAnyGenerator()) {
       return body;
     }
+
+    body = YieldExpressionTransformer.transformTree(body);
 
     // We need to transform for-in loops because the object key iteration
     // cannot be interrupted.

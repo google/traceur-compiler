@@ -940,8 +940,6 @@ export class Parser {
         return this.parseBreakStatement_();
       case TokenType.RETURN:
         return this.parseReturnStatement_();
-      case TokenType.YIELD:
-        return this.parseYieldStatement_();
       case TokenType.WITH:
         return this.parseWithStatement_();
       case TokenType.SWITCH:
@@ -1505,7 +1503,7 @@ export class Parser {
    * @return {ParseTree}
    * @private
    */
-  parseYieldStatement_() {
+  parseYieldExpression_() {
     if (!this.allowYield_) {
       return this.parseMissingPrimaryExpression_(
           "'yield' expressions are only allowed inside 'function*'");
@@ -1516,10 +1514,9 @@ export class Parser {
     var expression = null;
     var isYieldFor = this.eatOpt_(TokenType.STAR) != null;
     if (isYieldFor || !this.peekImplicitSemiColon_()) {
-      expression = this.parseExpression();
+      expression = this.parseAssignmentExpression();
     }
-    this.eatPossibleImplicitSemiColon_();
-    return new YieldStatement(
+    return new YieldExpression(
         this.getTreeLocation_(start), expression, isYieldFor);
   }
 
@@ -2211,6 +2208,7 @@ export class Parser {
       case TokenType.TRUE:
       case TokenType.TYPEOF:
       case TokenType.VOID:
+      case TokenType.YIELD:
         return true;
       default:
         return false;
@@ -2279,6 +2277,9 @@ export class Parser {
       return this.parseArrowFunction_();
     // The remaining arrow function cases are handled in
     // parseParenExpression_.
+
+    if (this.peek_(TokenType.YIELD))
+      return this.parseYieldExpression_();
 
     var expressionIn = opt_expressionIn || Expression.NORMAL;
     var start = this.getTreeStartLocation_();
