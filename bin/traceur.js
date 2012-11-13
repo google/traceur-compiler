@@ -16456,6 +16456,12 @@ var traceur = (function() {
         },
         enumerable: true
       },
+      FreeVariableChecker: {
+        get: function() {
+          return $__src_semantics_FreeVariableChecker_js.FreeVariableChecker;
+        },
+        enumerable: true
+      },
       symbols: {
         get: function() {
           return symbols;
@@ -17099,6 +17105,12 @@ var traceur = (function() {
         },
         enumerable: true
       },
+      ParseTreeVisitor: {
+        get: function() {
+          return $__src_syntax_ParseTreeVisitor_js.ParseTreeVisitor;
+        },
+        enumerable: true
+      },
       Parser: {
         get: function() {
           return $__src_syntax_Parser_js.Parser;
@@ -17160,6 +17172,12 @@ var traceur = (function() {
       TreeWriter: {
         get: function() {
           return $__src_outputgeneration_TreeWriter_js.TreeWriter;
+        },
+        enumerable: true
+      },
+      ParseTreeMapWriter: {
+        get: function() {
+          return $__src_outputgeneration_ParseTreeMapWriter_js.ParseTreeMapWriter;
         },
         enumerable: true
       }

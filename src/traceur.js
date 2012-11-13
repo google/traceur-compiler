@@ -67,6 +67,7 @@ module traceur {
   export module semantics {
     export ModuleAnalyzer from 'semantics/ModuleAnalyzer.js';
     export VariableBinder from 'semantics/VariableBinder.js';
+    export FreeVariableChecker from 'semantics/FreeVariableChecker.js';
 
     export module symbols {
       export Project from 'semantics/symbols/Project.js';
@@ -86,6 +87,7 @@ module traceur {
     export IdentifierToken from 'syntax/IdentifierToken.js';
     export LiteralToken from 'syntax/LiteralToken.js';
     export ParseTreeValidator from 'syntax/ParseTreeValidator.js';
+    export ParseTreeVisitor from 'syntax/ParseTreeVisitor.js';
     export Parser from 'syntax/Parser.js';
     export Scanner from 'syntax/Scanner.js';
     export SourceFile from 'syntax/SourceFile.js';
@@ -104,6 +106,7 @@ module traceur {
     export SourceMapConsumer from 'outputgeneration/SourceMapIntegration.js';
     export SourceMapGenerator from 'outputgeneration/SourceMapIntegration.js';
     export TreeWriter from 'outputgeneration/TreeWriter.js';
+    export ParseTreeMapWriter from 'outputgeneration/ParseTreeMapWriter.js';
   }
 
   export module codegeneration {
