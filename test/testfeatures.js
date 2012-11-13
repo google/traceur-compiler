@@ -16,6 +16,7 @@
 
 var fs = require('fs');
 var path = require('path');
+var testUtil = require('./test-utils.js');
 
 /**
  * Show a failure message for the given script.
@@ -71,38 +72,6 @@ var asserts = {
       return;
     }
     fail('Function should have thrown and did not.');
-  },
-
-  assertNoOwnProperties: function(o) {
-    var m = Object.getOwnPropertyNames(o);
-    if (m.length) {
-      fail('Unexpected members found:' + m.join(', '));
-    }
-  },
-
-  assertHasOwnProperty: function(o) {
-    var args = Array.prototype.slice.call(arguments, 1);
-    for (var i = 0; i < args.length; i ++) {
-      var m = args[i];
-      if (!o.hasOwnProperty(m)) {
-        fail('Expected member ' + m + ' not found.');
-      }
-    }
-  },
-
-  assertLacksOwnProperty: function(o) {
-    var args = Array.prototype.slice.call(arguments, 1);
-    for (var i = 0; i < args.length; i ++) {
-      var m = args[i];
-      if (o.hasOwnProperty(m)) {
-        fail('Unxpected member ' + m + ' found.');
-      }
-    }
-  },
-
-  assertArrayEquals: function(expected, actual) {
-    assertEquals(JSON.stringify(expected, null, 2),
-                 JSON.stringify(actual, null, 2));
   }
 };
 
@@ -116,27 +85,13 @@ function testScript(filePath) {
     return false;
   }
 
-  var onlyInBrowser = false;
-  var skip = false;
-  var shouldCompile = true;
-  var expectedErrors = [];
-  forEachPrologLine(source, function(line) {
-    var m;
-    if (line.indexOf('// Only in browser.') === 0) {
-      onlyInBrowser = true;
-    } else if (line.indexOf('// Should not compile.') === 0) {
-      shouldCompile = false;
-    } else if (line.indexOf('// Skip.') === 0) {
-      skip = true;
-    } else if ((m = /\/\ Options:\s*(.+)/.exec(line))) {
-      traceur.options.fromString(m[1]);
-    } else if ((m = /\/\/ Error:\s*(.+)/.exec(line))) {
-      expectedErrors.push(m[1]);
-    }
-  });
+  var options = testUtil.parseProlog(source);
+  var onlyInBrowser = options.onlyInBrowser;
+  var skip = options.skip;
+  var shouldCompile = options.shouldCompile;
+  var expectedErrors = options.expectedErrors;
 
   if (skip || onlyInBrowser) {
-
     return true;
   }
 
@@ -297,6 +252,11 @@ function runFeatureScripts(dir) {
 for (var key in asserts) {
   global[key] = asserts[key];
 }
+global.assertNoOwnProperties = testUtil.assertNoOwnProperties;
+global.assertHasOwnProperty = testUtil.assertHasOwnProperty;
+global.assertLacksOwnProperty = testUtil.assertLacksOwnProperty;
+global.assertArrayEquals = testUtil.assertArrayEquals;
+
 
 // Load the compiler.
 require('../src/traceur-node.js');
