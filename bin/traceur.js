@@ -16444,6 +16444,12 @@ var traceur = (function() {
         }}));
     }).call(this);
     return Object.preventExtensions(Object.create(null, {
+      FreeVariableChecker: {
+        get: function() {
+          return $__src_semantics_FreeVariableChecker_js.FreeVariableChecker;
+        },
+        enumerable: true
+      },
       ModuleAnalyzer: {
         get: function() {
           return $__src_semantics_ModuleAnalyzer_js.ModuleAnalyzer;
@@ -16453,12 +16459,6 @@ var traceur = (function() {
       VariableBinder: {
         get: function() {
           return $__src_semantics_VariableBinder_js.VariableBinder;
-        },
-        enumerable: true
-      },
-      FreeVariableChecker: {
-        get: function() {
-          return $__src_semantics_FreeVariableChecker_js.FreeVariableChecker;
         },
         enumerable: true
       },
@@ -17072,6 +17072,12 @@ var traceur = (function() {
           },
           enumerable: true
         },
+        getTreeNameForType: {
+          get: function() {
+            return $__src_syntax_trees_ParseTree_js.getTreeNameForType;
+          },
+          enumerable: true
+        },
         ParseTree: {
           get: function() {
             return $__src_syntax_trees_ParseTree_js.ParseTree;
@@ -17151,6 +17157,12 @@ var traceur = (function() {
   }).call(this);
   var outputgeneration = (function() {
     return Object.preventExtensions(Object.create(null, {
+      ParseTreeMapWriter: {
+        get: function() {
+          return $__src_outputgeneration_ParseTreeMapWriter_js.ParseTreeMapWriter;
+        },
+        enumerable: true
+      },
       ProjectWriter: {
         get: function() {
           return $__src_outputgeneration_ProjectWriter_js.ProjectWriter;
@@ -17172,12 +17184,6 @@ var traceur = (function() {
       TreeWriter: {
         get: function() {
           return $__src_outputgeneration_TreeWriter_js.TreeWriter;
-        },
-        enumerable: true
-      },
-      ParseTreeMapWriter: {
-        get: function() {
-          return $__src_outputgeneration_ParseTreeMapWriter_js.ParseTreeMapWriter;
         },
         enumerable: true
       }

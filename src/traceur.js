@@ -65,9 +65,9 @@ module traceur {
   export WebPageProject;
 
   export module semantics {
+    export FreeVariableChecker from 'semantics/FreeVariableChecker.js';
     export ModuleAnalyzer from 'semantics/ModuleAnalyzer.js';
     export VariableBinder from 'semantics/VariableBinder.js';
-    export FreeVariableChecker from 'semantics/FreeVariableChecker.js';
 
     export module symbols {
       export Project from 'semantics/symbols/Project.js';
@@ -86,9 +86,9 @@ module traceur {
   export module syntax {
     export IdentifierToken from 'syntax/IdentifierToken.js';
     export LiteralToken from 'syntax/LiteralToken.js';
+    export Parser from 'syntax/Parser.js';
     export ParseTreeValidator from 'syntax/ParseTreeValidator.js';
     export ParseTreeVisitor from 'syntax/ParseTreeVisitor.js';
-    export Parser from 'syntax/Parser.js';
     export Scanner from 'syntax/Scanner.js';
     export SourceFile from 'syntax/SourceFile.js';
     export Token from 'syntax/Token.js';
@@ -96,17 +96,18 @@ module traceur {
 
     export module trees {
       export * from 'syntax/trees/ParseTrees.js';
+      export getTreeNameForType from 'syntax/trees/ParseTree.js';
       export ParseTree from 'syntax/trees/ParseTree.js';
       export module ParseTreeType from 'syntax/trees/ParseTreeType.js';
     }
   }
 
   export module outputgeneration {
+    export ParseTreeMapWriter from 'outputgeneration/ParseTreeMapWriter.js';
     export ProjectWriter from 'outputgeneration/ProjectWriter.js';
     export SourceMapConsumer from 'outputgeneration/SourceMapIntegration.js';
     export SourceMapGenerator from 'outputgeneration/SourceMapIntegration.js';
     export TreeWriter from 'outputgeneration/TreeWriter.js';
-    export ParseTreeMapWriter from 'outputgeneration/ParseTreeMapWriter.js';
   }
 
   export module codegeneration {
