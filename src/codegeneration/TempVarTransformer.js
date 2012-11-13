@@ -12,12 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  EXPRESSION_STATEMENT,
-  LITERAL_EXPRESSION
-} from '../syntax/trees/ParseTreeType.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
-import Program from '../syntax/trees/ParseTrees.js';
+import {
+  ModuleDefinition,
+  Program
+} from '../syntax/trees/ParseTrees.js';
 import TokenType from '../syntax/TokenType.js';
 import {
   createBlock,
@@ -25,12 +24,7 @@ import {
   createVariableDeclarationList,
   createVariableStatement
 } from 'ParseTreeFactory.js';
-
-function isStringExpressionStatement(tree) {
-  return tree.type === EXPRESSION_STATEMENT &&
-      tree.expression.type === LITERAL_EXPRESSION &&
-      tree.expression.literalToken.type === TokenType.STRING;
-}
+import prependStatements from 'PrependStatements.js';
 
 function getVars(self) {
     var vars = self.tempVarStack_[self.tempVarStack_.length - 1];
@@ -68,14 +62,13 @@ export class TempVarTransformer extends ParseTreeTransformer {
   /**
    * Transforms a an array of statements and adds a new temp var stack.
    * @param {Array.<ParseTree>} statements
-   * @param {Function} fun The funtion to call to transform the statements.
    * @return {Array.<ParseTree>}
    * @private
    */
-  transformStatements_(statements, fun) {
+  transformStatements_(statements) {
     this.tempVarStack_.push([]);
 
-    var transformedStatements = fun.call(this, statements);
+    var transformedStatements = this.transformList(statements);
 
     var vars = this.tempVarStack_.pop();
     if (!vars.length)
@@ -101,54 +94,33 @@ export class TempVarTransformer extends ParseTreeTransformer {
               return createVariableDeclaration(name, initializer);
             })));
 
-    var prologStatements = [];
-    transformedStatements.every((statement) => {
-      if (isStringExpressionStatement(statement)) {
-        prologStatements.push(statement);
-        return true;
-      }
-      return false;
-    });
-
-    return [
-      ...prologStatements,
-      variableStatement,
-      ...transformedStatements.slice(prologStatements.length)
-    ];
-  }
-
-  /**
-   * Special transform function that can be used by subclasses.
-   */
-  transformProgramStatements(statements) {
-    return this.transformList(statements);
-  }
-
-  /**
-   * Special transform function that can be used by subclasses.
-   */
-  transformFunctionBodyStatements(statements) {
-    return this.transformList(statements);
+    return prependStatements(transformedStatements, variableStatement);
   }
 
   transformProgram(tree) {
-    var elements = this.transformStatements_(tree.programElements,
-                                             this.transformProgramStatements);
-    if (elements == tree.programElements) {
+    var programElements = this.transformStatements_(tree.programElements);
+    if (programElements == tree.programElements) {
       return tree;
     }
-    return new Program(tree.location, elements);
+    return new Program(tree.location, programElements);
   }
 
   transformFunctionBody(tree) {
     this.pushTempVarState();
-    var statements =
-        this.transformStatements_(tree.statements,
-                                  this.transformFunctionBodyStatements);
+    var statements = this.transformStatements_(tree.statements);
     this.popTempVarState();
     if (statements == tree.statements)
       return tree;
     return createBlock(statements);
+  }
+
+  transformModuleDefinition(tree) {
+    this.pushTempVarState();
+    var elements = this.transformStatements_(tree.elements);
+    this.popTempVarState();
+    if (elements == tree.elements)
+      return tree;
+    return new ModuleDefinition(tree.location, tree.name, elements);
   }
 
   /**

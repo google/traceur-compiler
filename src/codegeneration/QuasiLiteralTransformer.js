@@ -20,58 +20,57 @@ import {
 } from '../syntax/trees/ParseTreeType.js';
 import {
   LiteralExpression,
-  ParenExpression,
-  Program
+  ParenExpression
 } from '../syntax/trees/ParseTrees.js';
 import LiteralToken from '../syntax/LiteralToken.js';
-import RAW from '../syntax/PredefinedName.js';
+import {
+  DEFINE_PROPERTIES,
+  OBJECT,
+  RAW
+} from '../syntax/PredefinedName.js';
 import TempVarTransformer from 'TempVarTransformer.js';
 import TokenType from '../syntax/TokenType.js';
 import {
   createArgumentList,
   createArrayLiteralExpression,
-  createAssignmentExpression,
   createBinaryOperator,
   createCallExpression,
-  createCommaExpression,
-  createDefineProperty,
   createIdentifierExpression,
   createMemberExpression,
   createObjectFreeze,
   createObjectLiteralExpression,
   createOperatorToken,
-  createParenExpression,
-  createStringLiteral,
-  createVariableDeclaration,
-  createVariableDeclarationList,
-  createVariableStatement
+  createPropertyDescriptor,
+  createPropertyNameAssignment,
+  createStringLiteral
 } from 'ParseTreeFactory.js';
-
-class CallsiteDecl {
-  constructor(idName, tree) {
-    this.idName = idName;
-    this.tree = tree;
-  }
-}
 
 /**
  * Creates an object like:
  *
- * (Object.defineProperty(tmp = CookedArray, 'raw', Object.freeze(RawArray),
- *  Object.freeze(tmp))
+ *   Object.freeze(Object.defineProperties(CookedArray, {
+ *     raw: {
+ *       value: Object.freeze(RawArray)
+ *     }
+ *   });
+ *
+ * @param {ParseTree} tree
+ * @return {ParseTree}
  */
-function createCallSiteIdObject(tempVarName, tree) {
+function createCallSiteIdObject(tree) {
   var elements = tree.elements;
-  var expressions = [
-    createDefineProperty(
-        createAssignmentExpression(
-            createIdentifierExpression(tempVarName),
-            createCookedStringArray(elements)),
-        RAW,
-        {value: createObjectFreeze(createRawStringArray(elements))}),
-    createObjectFreeze(createIdentifierExpression(tempVarName))
-  ];
-  return createParenExpression(createCommaExpression(expressions));
+  return createObjectFreeze(
+      createCallExpression(
+          createMemberExpression(OBJECT, DEFINE_PROPERTIES),
+          createArgumentList(
+              createCookedStringArray(elements),
+              createObjectLiteralExpression(
+                  createPropertyNameAssignment(
+                      RAW,
+                      createPropertyDescriptor({
+                        value: createObjectFreeze(
+                            createRawStringArray(elements))
+                      }))))));
 }
 
 /**
@@ -199,28 +198,12 @@ function cookString(s) {
 
 export class QuasiLiteralTransformer extends TempVarTransformer {
 
-  transformProgramStatements(statements) {
-    this.callsiteDecls_ = [];
-
-    var elements = this.transformList(statements);
-    if (elements == statements) {
-      return elements;
-    }
-
-    if (this.callsiteDecls_.length > 0) {
-      var declarations = this.callsiteDecls_.map(({idName, tree}) => {
-        var tempVarName = this.addTempVar();
-        var callsiteId = createCallSiteIdObject(tempVarName, tree);
-        return createVariableDeclaration(idName, callsiteId);
-      });
-
-      var varStatement = createVariableStatement(
-          createVariableDeclarationList(TokenType.CONST, declarations));
-      // TODO(arv): This should be pragma aware.
-      elements.unshift(varStatement);
-    }
-
-    return elements;
+  /**
+   * Override to not use functions scope for temporary variables since we
+   * only want to scope these to modules or global.
+   */
+  transformFunctionBody(tree) {
+    return this.transformBlock(tree);
   }
 
   transformQuasiLiteralExpression(tree) {
@@ -229,12 +212,11 @@ export class QuasiLiteralTransformer extends TempVarTransformer {
 
     var operand = this.transformAny(tree.operand);
     var elements = tree.elements;
-    var args = [];
 
-    var idName = this.identifierGenerator.generateUniqueIdentifier();
-    this.callsiteDecls_.push(new CallsiteDecl(idName, tree));
+    var callsiteIdObject = createCallSiteIdObject(tree);
+    var idName = this.addTempVar(callsiteIdObject);
 
-    args.push(createIdentifierExpression(idName));
+    var args = [createIdentifierExpression(idName)];
 
     for (var i = 1; i < elements.length; i += 2) {
       args.push(this.transformAny(elements[i]));

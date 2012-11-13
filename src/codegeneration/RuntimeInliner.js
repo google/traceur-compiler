@@ -24,6 +24,7 @@ import {
   createVariableDeclarationList,
   createVariableStatement
 } from 'ParseTreeFactory.js';
+import prependStatements from 'PrependStatements.js';
 
 // Some helper functions that other runtime functions may depend on.
 var shared = {
@@ -79,7 +80,8 @@ export class RuntimeInliner extends ParseTreeTransformer {
     var variableStatement = createVariableStatement(
         createVariableDeclarationList(TokenType.VAR, vars));
 
-    var programElements = [variableStatement, ...tree.programElements];
+    var programElements = prependStatements(
+        tree.programElements, variableStatement);
     return new Program(tree.location, programElements);
   }
 

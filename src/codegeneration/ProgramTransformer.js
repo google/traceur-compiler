@@ -113,18 +113,15 @@ export class ProgramTransformer {
       }
     }
 
-    if (transformOptions.modules && !reporter.hadError()) {
-      if (options.validate) {
-        ParseTreeValidator.validate(tree);
-      }
-      tree = this.transformModules_(tree, opt_module);
-    }
-
     // TODO: many of these simple, local transforms could happen in the same
     // tree pass
 
     chain(transformOptions.quasi, QuasiLiteralTransformer.transformTree,
           identifierGenerator);
+
+    chain(transformOptions.modules, this.transformModules_.bind(this), tree,
+          opt_module);
+
     chain(transformOptions.arrowFunctions,
           ArrowFunctionTransformer.transformTree, reporter);
 

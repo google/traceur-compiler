@@ -9684,16 +9684,43 @@ var $__src_codegeneration_FindInFunctionScope_js = (function() {
       enumerable: true
     }}));
 }).call(this);
-var $__src_codegeneration_TempVarTransformer_js = (function() {
+var $__src_codegeneration_PrependStatements_js = (function() {
   "use strict";
   var $__2 = $__src_syntax_trees_ParseTreeType_js, EXPRESSION_STATEMENT = $__2.EXPRESSION_STATEMENT, LITERAL_EXPRESSION = $__2.LITERAL_EXPRESSION;
-  var ParseTreeTransformer = $__src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
-  var Program = $__src_syntax_trees_ParseTrees_js.Program;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
-  var $__2 = $__src_codegeneration_ParseTreeFactory_js, createBlock = $__2.createBlock, createVariableDeclaration = $__2.createVariableDeclaration, createVariableDeclarationList = $__2.createVariableDeclarationList, createVariableStatement = $__2.createVariableStatement;
   function isStringExpressionStatement(tree) {
     return tree.type === EXPRESSION_STATEMENT && tree.expression.type === LITERAL_EXPRESSION && tree.expression.literalToken.type === TokenType.STRING;
   }
+  function prependStatements(statements) {
+    var statementsToPrepend = Array.prototype.slice.call(arguments, 1);
+    if (!statements.length) return statementsToPrepend;
+    if (!statementsToPrepend.length) return statements;
+    var transformed = [];
+    var inProlog = true;
+    statements.forEach((function(statement) {
+      var $__3;
+      if (inProlog && !isStringExpressionStatement(statement)) {
+        ($__3 = transformed).push.apply($__3, $__toObject(statementsToPrepend));
+        inProlog = false;
+      }
+      transformed.push(statement);
+    }));
+    return transformed;
+  }
+  return Object.preventExtensions(Object.create(null, {prependStatements: {
+      get: function() {
+        return prependStatements;
+      },
+      enumerable: true
+    }}));
+}).call(this);
+var $__src_codegeneration_TempVarTransformer_js = (function() {
+  "use strict";
+  var ParseTreeTransformer = $__src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
+  var $__2 = $__src_syntax_trees_ParseTrees_js, ModuleDefinition = $__2.ModuleDefinition, Program = $__2.Program;
+  var TokenType = $__src_syntax_TokenType_js.TokenType;
+  var $__2 = $__src_codegeneration_ParseTreeFactory_js, createBlock = $__2.createBlock, createVariableDeclaration = $__2.createVariableDeclaration, createVariableDeclarationList = $__2.createVariableDeclarationList, createVariableStatement = $__2.createVariableStatement;
+  var prependStatements = $__src_codegeneration_PrependStatements_js.prependStatements;
   function getVars(self) {
     var vars = self.tempVarStack_[self.tempVarStack_.length - 1];
     if (!vars) throw new Error('Invalid use of addTempVar');
@@ -9711,9 +9738,9 @@ var $__src_codegeneration_TempVarTransformer_js = (function() {
       this.tempIdentifierStack_ = [[]];
       this.pool_ = [];
     },
-    transformStatements_: function(statements, fun) {
+    transformStatements_: function(statements) {
       this.tempVarStack_.push([]);
-      var transformedStatements = fun.call(this, statements);
+      var transformedStatements = this.transformList(statements);
       var vars = this.tempVarStack_.pop();
       if (!vars.length) return transformedStatements;
       var seenNames = Object.create(null);
@@ -9730,35 +9757,28 @@ var $__src_codegeneration_TempVarTransformer_js = (function() {
         var name = $__2.name, initializer = $__2.initializer;
         return createVariableDeclaration(name, initializer);
       }))));
-      var prologStatements = [];
-      transformedStatements.every((function(statement) {
-        if (isStringExpressionStatement(statement)) {
-          prologStatements.push(statement);
-          return true;
-        }
-        return false;
-      }));
-      return $__spread(prologStatements, [variableStatement], transformedStatements.slice(prologStatements.length));
-    },
-    transformProgramStatements: function(statements) {
-      return this.transformList(statements);
-    },
-    transformFunctionBodyStatements: function(statements) {
-      return this.transformList(statements);
+      return prependStatements(transformedStatements, variableStatement);
     },
     transformProgram: function(tree) {
-      var elements = this.transformStatements_(tree.programElements, this.transformProgramStatements);
-      if (elements == tree.programElements) {
+      var programElements = this.transformStatements_(tree.programElements);
+      if (programElements == tree.programElements) {
         return tree;
       }
-      return new Program(tree.location, elements);
+      return new Program(tree.location, programElements);
     },
     transformFunctionBody: function(tree) {
       this.pushTempVarState();
-      var statements = this.transformStatements_(tree.statements, this.transformFunctionBodyStatements);
+      var statements = this.transformStatements_(tree.statements);
       this.popTempVarState();
       if (statements == tree.statements) return tree;
       return createBlock(statements);
+    },
+    transformModuleDefinition: function(tree) {
+      this.pushTempVarState();
+      var elements = this.transformStatements_(tree.elements);
+      this.popTempVarState();
+      if (elements == tree.elements) return tree;
+      return new ModuleDefinition(tree.location, tree.name, elements);
     },
     getTempIdentifier: function() {
       var name = this.pool_.length ? this.pool_.pop(): this.identifierGenerator.generateUniqueIdentifier();
@@ -14639,20 +14659,15 @@ var $__src_codegeneration_PropertyNameShorthandTransformer_js = (function() {
 var $__src_codegeneration_QuasiLiteralTransformer_js = (function() {
   "use strict";
   var $__2 = $__src_syntax_trees_ParseTreeType_js, BINARY_OPERATOR = $__2.BINARY_OPERATOR, COMMA_EXPRESSION = $__2.COMMA_EXPRESSION, CONDITIONAL_EXPRESSION = $__2.CONDITIONAL_EXPRESSION, QUASI_LITERAL_PORTION = $__2.QUASI_LITERAL_PORTION;
-  var $__2 = $__src_syntax_trees_ParseTrees_js, LiteralExpression = $__2.LiteralExpression, ParenExpression = $__2.ParenExpression, Program = $__2.Program;
+  var $__2 = $__src_syntax_trees_ParseTrees_js, LiteralExpression = $__2.LiteralExpression, ParenExpression = $__2.ParenExpression;
   var LiteralToken = $__src_syntax_LiteralToken_js.LiteralToken;
-  var RAW = $__src_syntax_PredefinedName_js.RAW;
+  var $__2 = $__src_syntax_PredefinedName_js, DEFINE_PROPERTIES = $__2.DEFINE_PROPERTIES, OBJECT = $__2.OBJECT, RAW = $__2.RAW;
   var TempVarTransformer = $__src_codegeneration_TempVarTransformer_js.TempVarTransformer;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
-  var $__2 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__2.createArgumentList, createArrayLiteralExpression = $__2.createArrayLiteralExpression, createAssignmentExpression = $__2.createAssignmentExpression, createBinaryOperator = $__2.createBinaryOperator, createCallExpression = $__2.createCallExpression, createCommaExpression = $__2.createCommaExpression, createDefineProperty = $__2.createDefineProperty, createIdentifierExpression = $__2.createIdentifierExpression, createMemberExpression = $__2.createMemberExpression, createObjectFreeze = $__2.createObjectFreeze, createObjectLiteralExpression = $__2.createObjectLiteralExpression, createOperatorToken = $__2.createOperatorToken, createParenExpression = $__2.createParenExpression, createStringLiteral = $__2.createStringLiteral, createVariableDeclaration = $__2.createVariableDeclaration, createVariableDeclarationList = $__2.createVariableDeclarationList, createVariableStatement = $__2.createVariableStatement;
-  var CallsiteDecl = traceur.runtime.createClass( {constructor: function(idName, tree) {
-      this.idName = idName;
-      this.tree = tree;
-    }}, null, true, false);
-  function createCallSiteIdObject(tempVarName, tree) {
+  var $__2 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__2.createArgumentList, createArrayLiteralExpression = $__2.createArrayLiteralExpression, createBinaryOperator = $__2.createBinaryOperator, createCallExpression = $__2.createCallExpression, createIdentifierExpression = $__2.createIdentifierExpression, createMemberExpression = $__2.createMemberExpression, createObjectFreeze = $__2.createObjectFreeze, createObjectLiteralExpression = $__2.createObjectLiteralExpression, createOperatorToken = $__2.createOperatorToken, createPropertyDescriptor = $__2.createPropertyDescriptor, createPropertyNameAssignment = $__2.createPropertyNameAssignment, createStringLiteral = $__2.createStringLiteral;
+  function createCallSiteIdObject(tree) {
     var elements = tree.elements;
-    var expressions = [createDefineProperty(createAssignmentExpression(createIdentifierExpression(tempVarName), createCookedStringArray(elements)), RAW, {value: createObjectFreeze(createRawStringArray(elements))}), createObjectFreeze(createIdentifierExpression(tempVarName))];
-    return createParenExpression(createCommaExpression(expressions));
+    return createObjectFreeze(createCallExpression(createMemberExpression(OBJECT, DEFINE_PROPERTIES), createArgumentList(createCookedStringArray(elements), createObjectLiteralExpression(createPropertyNameAssignment(RAW, createPropertyDescriptor( {value: createObjectFreeze(createRawStringArray(elements))}))))));
   }
   function maybeAddEmptyStringAtEnd(elements, items) {
     var length = elements.length;
@@ -14749,32 +14764,16 @@ var $__src_codegeneration_QuasiLiteralTransformer_js = (function() {
     return sb.join('');
   }
   var QuasiLiteralTransformer = traceur.runtime.createClass( {
-    transformProgramStatements: function(statements) {
-      this.callsiteDecls_ = [];
-      var elements = this.transformList(statements);
-      if (elements == statements) {
-        return elements;
-      }
-      if (this.callsiteDecls_.length > 0) {
-        var declarations = this.callsiteDecls_.map((function($__2) {
-          var idName = $__2.idName, tree = $__2.tree;
-          var tempVarName = this.addTempVar();
-          var callsiteId = createCallSiteIdObject(tempVarName, tree);
-          return createVariableDeclaration(idName, callsiteId);
-        }).bind(this));
-        var varStatement = createVariableStatement(createVariableDeclarationList(TokenType.CONST, declarations));
-        elements.unshift(varStatement);
-      }
-      return elements;
+    transformFunctionBody: function(tree) {
+      return this.transformBlock(tree);
     },
     transformQuasiLiteralExpression: function(tree) {
       if (!tree.operand) return this.createDefaultQuasi(tree);
       var operand = this.transformAny(tree.operand);
       var elements = tree.elements;
-      var args = [];
-      var idName = this.identifierGenerator.generateUniqueIdentifier();
-      this.callsiteDecls_.push(new CallsiteDecl(idName, tree));
-      args.push(createIdentifierExpression(idName));
+      var callsiteIdObject = createCallSiteIdObject(tree);
+      var idName = this.addTempVar(callsiteIdObject);
+      var args = [createIdentifierExpression(idName)];
       for (var i = 1; i < elements.length; i += 2) {
         args.push(this.transformAny(elements[i]));
       }
@@ -15042,13 +15041,8 @@ var $__src_codegeneration_ProgramTransformer_js = (function() {
           tree = transformer.apply(null, $__spread(args, [tree])) || tree;
         }
       }
-      if (transformOptions.modules && !reporter.hadError()) {
-        if (options.validate) {
-          ParseTreeValidator.validate(tree);
-        }
-        tree = this.transformModules_(tree, opt_module);
-      }
       chain(transformOptions.quasi, QuasiLiteralTransformer.transformTree, identifierGenerator);
+      chain(transformOptions.modules, this.transformModules_.bind(this), tree, opt_module);
       chain(transformOptions.arrowFunctions, ArrowFunctionTransformer.transformTree, reporter);
       chain(transformOptions.classes, ClassTransformer.transform, identifierGenerator, reporter);
       chain(transformOptions.propertyNameShorthand, PropertyNameShorthandTransformer.transformTree);
@@ -15268,6 +15262,7 @@ var $__src_codegeneration_RuntimeInliner_js = (function() {
   var SourceFile = $__src_syntax_SourceFile_js.SourceFile;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
   var $__2 = $__src_codegeneration_ParseTreeFactory_js, createIdentifierExpression = $__2.createIdentifierExpression, createVariableDeclaration = $__2.createVariableDeclaration, createVariableDeclarationList = $__2.createVariableDeclarationList, createVariableStatement = $__2.createVariableStatement;
+  var prependStatements = $__src_codegeneration_PrependStatements_js.prependStatements;
   var shared = {toObject: "function(value) {\n        if (value == null)\n          throw TypeError();\n        return Object(value);\n      }"};
   function parse(source, name) {
     var file = new SourceFile(name + '@runtime', source);
@@ -15292,7 +15287,7 @@ var $__src_codegeneration_RuntimeInliner_js = (function() {
       }, this);
       if (!vars.length) return tree;
       var variableStatement = createVariableStatement(createVariableDeclarationList(TokenType.VAR, vars));
-      var programElements = $__spread([variableStatement], tree.programElements);
+      var programElements = prependStatements(tree.programElements, variableStatement);
       return new Program(tree.location, programElements);
     },
     register: function(name, source) {
