@@ -967,14 +967,6 @@ export class ParseTreeTransformer {
   }
 
   /**
-   * @param {RequiresMember} tree
-   * @return {ParseTree}
-   */
-  transformRequiresMember(tree) {
-    return tree;
-  }
-
-  /**
    * @param {RestParameter} tree
    * @return {ParseTree}
    */

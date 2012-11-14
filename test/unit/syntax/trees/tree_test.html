@@ -316,10 +316,6 @@ function testTreeConstructors() {
       ParseTreeType.PROPERTY_NAME_SHORTHAND,
       ['location', 'name']);
 
-  validateTree(traceur.syntax.trees.RequiresMember,
-      ParseTreeType.REQUIRES_MEMBER,
-      ['location', 'name']);
-
   validateTree(traceur.syntax.trees.RestParameter,
       ParseTreeType.REST_PARAMETER,
       ['location', 'identifier']);

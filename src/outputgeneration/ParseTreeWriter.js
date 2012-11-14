@@ -818,15 +818,6 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.writeRaw_(TokenType.CLOSE_CURLY);
   }
 
-  /*
-   * @param {RequiresMember} tree
-   */
-  visitRequiresMember(tree) {
-    this.write_(REQUIRES);
-    this.write_(tree.name);
-    this.write_(TokenType.SEMI_COLON);
-  }
-
   /**
    * @param {ReturnStatement} tree
    */

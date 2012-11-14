@@ -925,17 +925,6 @@ export class QuasiSubstitution extends ParseTree {
   }
 }
 
-export class RequiresMember extends ParseTree {
-  /**
-   * @param {SourceRange} location
-   * @param {traceur.syntax.IdentifierToken} name
-   */
-  constructor(location, name) {
-    super(REQUIRES_MEMBER, location);
-    this.name = name;
-  }
-}
-
 export class RestParameter extends ParseTree {
   /**
    * @param {SourceRange} location

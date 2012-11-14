@@ -588,12 +588,6 @@ export class ParseTreeVisitor {
   }
 
   /**
-   * @param {RequiresMember} tree
-   */
-  visitRequiresMember(tree) {
-  }
-
-  /**
    * @param {RestParameter} tree
    */
   visitRestParameter(tree) {
