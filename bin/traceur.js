@@ -13703,7 +13703,7 @@ var $__src_outputgeneration_ParseTreeWriter_js = (function() {
     },
     visitRestParameter: function(tree) {
       this.write_(TokenType.DOT_DOT_DOT);
-      this.write_(tree.identifier);
+      this.write_(tree.identifier.identifierToken);
     },
     visitSetAccessor: function(tree) {
       this.write_(SET);
