@@ -1128,6 +1128,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
       return false;
 
     var value = token.toString();
+    var lastValue = this.lastToken_.toString();
 
     switch (value) {
       case TokenType.CLOSE_CURLY:
@@ -1143,12 +1144,18 @@ export class ParseTreeWriter extends ParseTreeVisitor {
       case TokenType.CATCH:
       case TokenType.ELSE:
       case TokenType.FINALLY:
-      case TokenType.OPEN_CURLY:
       case TokenType.WHILE:
         return PRETTY_PRINT;
-    }
 
-    var lastValue = this.lastToken_.toString();
+      case TokenType.OPEN_CURLY:
+        switch (lastValue) {
+          case TokenType.OPEN_CURLY:
+          case TokenType.OPEN_PAREN:
+          case TokenType.OPEN_SQUARE:
+            return false;
+        }
+        return PRETTY_PRINT;
+    }
 
     switch (lastValue) {
       case TokenType.OPEN_CURLY:
