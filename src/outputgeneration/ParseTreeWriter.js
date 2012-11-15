@@ -984,18 +984,6 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.visitAny(tree.expression);
   }
 
-  /**
-   * @param {YieldStatement} tree
-   */
-  visitYieldStatement(tree) {
-    this.write_(TokenType.YIELD);
-    if (tree.isYieldFor) {
-      this.write_(TokenType.STAR);
-    }
-    this.visitAny(tree.expression);
-    this.write_(TokenType.SEMI_COLON);
-  }
-
   writeCurrentln_() {
       this.result_.append(this.currentLine_.toString());
       this.result_.append(NEW_LINE);

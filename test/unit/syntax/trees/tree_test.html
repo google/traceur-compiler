@@ -379,10 +379,6 @@ function testTreeConstructors() {
   validateTree(traceur.syntax.trees.WithStatement,
       ParseTreeType.WITH_STATEMENT,
       ['location', 'expression', 'body']);
-
-  validateTree(traceur.syntax.trees.YieldStatement,
-      ParseTreeType.YIELD_STATEMENT,
-      ['location', 'expression', 'isYieldFor']);
 }
 
 </script>

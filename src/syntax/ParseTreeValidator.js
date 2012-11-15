@@ -911,9 +911,9 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   }
 
   /**
-   * @param {YieldStatement} tree
+   * @param {YieldExpression} tree
    */
-  visitYieldStatement(tree) {
+  visitYieldExpression(tree) {
     if (tree.expression !== null) {
       this.checkVisit_(tree.expression.isExpression(), tree.expression,
           'expression expected');

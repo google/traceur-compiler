@@ -81,12 +81,12 @@ import {
 export class AsyncTransformer extends CPSTransformer {
   /**
    * Yield statements are translated into a state machine with a single state.
-   * @param {YieldStatement} tree
+   * @param {YieldExpression} tree
    * @return {ParseTree}
    */
-  transformYieldStatement(tree) {
+  transformYieldExpression(tree) {
     this.reporter.reportError(tree.location.start,
-        'Async function may not have a yield statement.');
+        'Async function may not have a yield expression.');
     return tree;
   }
 

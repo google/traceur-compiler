@@ -74,12 +74,6 @@ class YieldFinder extends ParseTreeVisitor {
     return this.hasYield || this.hasAsync;
   }
 
-  /** @param {YieldStatement} tree */
-  visitYieldStatement(tree) {
-    this.hasYield = true;
-    this.hasYieldFor = tree.isYieldFor;
-  }
-
   visitYieldExpression(tree) {
     this.hasYield = true;
     this.hasYieldFor = tree.isYieldFor;
@@ -108,30 +102,35 @@ class YieldFinder extends ParseTreeVisitor {
  */
 class YieldForTransformer extends TempVarTransformer {
 
-  transformYieldStatement(tree) {
-    if (tree.isYieldFor) {
-      // yield* E
-      //   becomes
-      // for (var $TEMP of E) { yield $TEMP; }
+  /**
+   * @param {YieldExpression} tree Must be a 'yield *'.
+   * @return {ParseTree}
+   * @private
+   */
+  transformYieldForExpression_(tree) {
+    // yield* expression
+    //   becomes
+    // for (var $temp of expression) { yield $temp; }
 
-      var id = createIdentifierExpression(
-          this.getTempIdentifier());
+    var idTemp = createIdentifierExpression(this.getTempIdentifier());
 
-      var forEach = createForOfStatement(
-          createVariableDeclarationList(
-              TokenType.VAR,
-              id,
-              null // initializer
-          ),
-          tree.expression,
-          createYieldStatement(id, false /* isYieldFor */));
+    var varTemp = createVariableDeclarationList(TokenType.VAR, idTemp, null);
+    var expression = tree.expression;
+    var yieldTemp = createYieldStatement(idTemp, false);
 
-      var result = ForOfTransformer.transformTree(
-          this.identifierGenerator,
-          forEach);
+    var forEach = createForOfStatement(varTemp, expression, yieldTemp);
 
-      return result;
-    }
+    return ForOfTransformer.transformTree(this.identifierGenerator, forEach);
+  }
+
+  /**
+   * @param {ExpressionStatement} tree
+   * @return {ParseTree}
+   */
+  transformExpressionStatement(tree) {
+    var e = tree.expression;
+    if (e.type === YIELD_EXPRESSION && e.isYieldFor)
+      return this.transformYieldForExpression_(e);
 
     return tree;
   }
@@ -162,8 +161,6 @@ class YieldExpressionTransformer extends ParseTreeTransformer {
     }
 
     switch (e.type) {
-      case YIELD_EXPRESSION:
-        return createYieldStatement(e.expression, e.isYieldFor);
       case BINARY_OPERATOR:
         if (isYieldAssign(e))
           return this.factor_(e.left, e.right, createAssignmentStatement);

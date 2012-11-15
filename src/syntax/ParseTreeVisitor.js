@@ -716,11 +716,4 @@ export class ParseTreeVisitor {
   visitYieldExpression(tree) {
     this.visitAny(tree.expression);
   }
-
-  /**
-   * @param {YieldStatement} tree
-   */
-  visitYieldStatement(tree) {
-    this.visitAny(tree.expression);
-  }
 }

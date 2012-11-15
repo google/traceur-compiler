@@ -904,10 +904,11 @@ export function createReturnStatement(expression) {
 /**
  * @param {ParseTree} expression
  * @param {boolean} isYieldFor
- * @return {YieldStatement}
+ * @return {ExpressionStatement}
  */
 export function createYieldStatement(expression, isYieldFor) {
-  return new YieldStatement(null, expression, isYieldFor);
+  return createExpressionStatement(new YieldExpression(null, expression,
+                                                       isYieldFor));
 }
 
 /**

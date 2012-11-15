@@ -68,13 +68,13 @@ import {
 export class GeneratorTransformer extends CPSTransformer {
 
   /**
-   * Yield statements are translated into a state machine with a single state.
-   * As an interim step, we allow this to do double duty transforming simple
-   * form yield expressions (direct children of an ExpressionStatement).
-   * @param {YieldStatement|YieldExpression} tree
+   * Simple form yield expressions (direct children of an ExpressionStatement)
+   * are translated into a state machine with a single state.
+   * @param {YieldExpression} tree
    * @return {ParseTree}
+   * @private
    */
-  transformYieldStatement(tree) {
+  transformYieldExpression_(tree) {
     if (tree.expression != null) {
       var startState = this.allocateState();
       var fallThroughState = this.allocateState();
@@ -103,7 +103,7 @@ export class GeneratorTransformer extends CPSTransformer {
   transformExpressionStatement(tree) {
     var e = tree.expression;
     if (e.type === YIELD_EXPRESSION)
-      return this.transformYieldStatement(e);
+      return this.transformYieldExpression_(e);
 
     return super.transformExpressionStatement(tree);
   }
