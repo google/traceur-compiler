@@ -52,7 +52,8 @@ import {
 } from '../ParseTreeFactory.js';
 
 /**
- * Desugars generator function bodies. Generator function bodies contain 'yield' statements.
+ * Desugars generator function bodies. Generator function bodies contain
+ * 'yield' statements.
  *
  * At the top level the state machine is translated into this source code:
  *
@@ -87,7 +88,8 @@ export class GeneratorTransformer extends CPSTransformer {
     var stateId = this.allocateState();
     return new StateMachine(
         stateId,
-        // TODO: this should not be required, but removing requires making consumers resilient
+        // TODO: this should not be required, but removing requires making
+        // consumers resilient
         // TODO: to INVALID fallThroughState
         this.allocateState(),
         [new EndState(stateId)],
@@ -125,7 +127,8 @@ export class GeneratorTransformer extends CPSTransformer {
     if (result.block.type != STATE_MACHINE) {
       return result;
     }
-    this.reporter.reportError(tree.location.start, 'yield not permitted from within a finally block.');
+    this.reporter.reportError(tree.location.start,
+        'yield not permitted from within a finally block.');
     return result;
   }
 
@@ -141,8 +144,9 @@ export class GeneratorTransformer extends CPSTransformer {
 
   /**
    * Transform a generator function body - removing yield statements.
-   * The transformation is in two stages. First the statements are converted into a single
-   * state machine by merging state machines via a bottom up traversal.
+   * The transformation is in two stages. First the statements are converted
+   * into a single state machine by merging state machines via a bottom up
+   * traversal.
    *
    * Then the final state machine is converted into the following code:
    *

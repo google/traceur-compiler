@@ -54,8 +54,8 @@ function isYieldAssign(tree) {
 }
 
 /**
- * Can tell you if function body contains a yield statement. Does not search into
- * nested functions.
+ * Can tell you if function body contains a yield statement. Does not search
+ * into nested functions.
  */
 class YieldFinder extends ParseTreeVisitor {
   /**

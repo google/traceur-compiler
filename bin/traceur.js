@@ -12225,7 +12225,7 @@ var $__src_codegeneration_generator_CPSTransformer_js = (function() {
     },
     maybeTransformStatement_: function(maybeTransformedStatement) {
       if (maybeTransformedStatement.type == VARIABLE_STATEMENT && maybeTransformedStatement.declarations.declarationType != TokenType.VAR) {
-        this.reporter.reportError(maybeTransformedStatement.location != null ? maybeTransformedStatement.location.start: null, 'traceur: const/let declaration may not be in a block containing a yield.');
+        this.reporter.reportError(maybeTransformedStatement.location != null ? maybeTransformedStatement.location.start: null, 'traceur: const/let declaration may not be ' + 'in a block containing a yield.');
       }
       var breakContinueTransformed = new BreakContinueTransformer(this.stateAllocator_).transformAny(maybeTransformedStatement);
       if (breakContinueTransformed != maybeTransformedStatement) {
