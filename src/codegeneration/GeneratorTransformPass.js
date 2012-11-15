@@ -27,17 +27,23 @@ import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import TokenType from '../syntax/TokenType.js';
 import {
   BINARY_OPERATOR,
+  COMMA_EXPRESSION,
   IDENTIFIER_EXPRESSION,
   PAREN_EXPRESSION,
+  VARIABLE_DECLARATION,
   YIELD_EXPRESSION
 } from '../syntax/trees/ParseTreeType.js';
 import {
+  createAssignmentExpression,
   createAssignmentStatement,
   createBlock,
+  createCommaExpression,
   createExpressionStatement,
   createForOfStatement,
   createIdentifierExpression,
+  createVariableDeclaration,
   createVariableDeclarationList,
+  createVariableStatement,
   createYieldStatement
 } from 'ParseTreeFactory.js';
 import YIELD_SENT from '../syntax/PredefinedName.js';
@@ -160,13 +166,44 @@ class YieldExpressionTransformer extends ParseTreeTransformer {
       e = e.expression;
     }
 
+    function commaWrap(lhs, rhs) {
+      return createExpressionStatement(
+          createCommaExpression(
+              [createAssignmentExpression(lhs, rhs), ...ex.slice(1)]));
+    }
+
     switch (e.type) {
       case BINARY_OPERATOR:
         if (isYieldAssign(e))
           return this.factor_(e.left, e.right, createAssignmentStatement);
 
         break;
+      case COMMA_EXPRESSION:
+        ex = e.expressions;
+        if (ex[0].type === BINARY_OPERATOR && isYieldAssign(ex[0]))
+          return this.factor_(ex[0].left, ex[0].right, commaWrap);
     }
+
+    return tree;
+  }
+
+  transformVariableStatement(tree) {
+    var tdd = tree.declarations.declarations;
+
+    function isYieldVarAssign(tree) {
+      return tree.initializer && tree.initializer.type === YIELD_EXPRESSION;
+    }
+
+    function varWrap(lhs, rhs) {
+      return createVariableStatement(
+          createVariableDeclarationList(
+              tree.declarations.declarationType,
+              [createVariableDeclaration(lhs, rhs), ...tdd.slice(1)]));
+    }
+
+    if (isYieldVarAssign(tdd[0]))
+      return this.factor_(tdd[0].lvalue, tdd[0].initializer, varWrap);
+
     return tree;
   }
 

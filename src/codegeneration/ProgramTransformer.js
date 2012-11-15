@@ -23,7 +23,8 @@ import DefaultParametersTransformer from 'DefaultParametersTransformer.js';
 import DestructuringTransformer from 'DestructuringTransformer.js';
 import ForOfTransformer from 'ForOfTransformer.js';
 import FreeVariableChecker from '../semantics/FreeVariableChecker.js';
-import GeneratorComprehensionTransformer from 'GeneratorComprehensionTransformer.js';
+import GeneratorComprehensionTransformer from
+    'GeneratorComprehensionTransformer.js';
 import GeneratorTransformPass from 'GeneratorTransformPass.js';
 import IsExpressionTransformer from 'IsExpressionTransformer.js';
 import ModuleTransformer from 'ModuleTransformer.js';
@@ -31,7 +32,8 @@ import ObjectLiteralTransformer from 'ObjectLiteralTransformer.js';
 import ObjectMap from '../util/ObjectMap.js';
 import ParseTreeValidator from '../syntax/ParseTreeValidator.js';
 import PrivateNameSyntaxTransformer from 'PrivateNameSyntaxTransformer.js';
-import PropertyNameShorthandTransformer from 'PropertyNameShorthandTransformer.js';
+import PropertyNameShorthandTransformer from
+    'PropertyNameShorthandTransformer.js';
 import QuasiLiteralTransformer from 'QuasiLiteralTransformer.js';
 import RestParameterTransformer from 'RestParameterTransformer.js';
 import SpreadTransformer from 'SpreadTransformer.js';
@@ -126,13 +128,14 @@ export class ProgramTransformer {
           ArrowFunctionTransformer.transformTree, reporter);
 
     // ClassTransformer needs to come before ObjectLiteralTransformer.
-    chain(transformOptions.classes, ClassTransformer.transform, identifierGenerator,
-          reporter);
+    chain(transformOptions.classes, ClassTransformer.transform,
+          identifierGenerator, reporter);
 
     chain(transformOptions.propertyNameShorthand,
           PropertyNameShorthandTransformer.transformTree);
     chain(transformOptions.propertyMethods ||
-              transformOptions.privateNameSyntax && transformOptions.privateNames,
+              transformOptions.privateNameSyntax &&
+              transformOptions.privateNames,
           ObjectLiteralTransformer.transformTree, identifierGenerator);
 
     chain(transformOptions.isExpression, IsExpressionTransformer.transformTree);
@@ -148,15 +151,22 @@ export class ProgramTransformer {
 
     // for of must come before destructuring and generator, or anything
     // that wants to use VariableBinder
-    chain(transformOptions.forOf, ForOfTransformer.transformTree, identifierGenerator);
+    chain(transformOptions.forOf, ForOfTransformer.transformTree,
+          identifierGenerator);
 
     // rest parameters must come before generator
-    chain(transformOptions.restParameters, RestParameterTransformer.transformTree);
+    chain(transformOptions.restParameters,
+          RestParameterTransformer.transformTree);
 
     // default parameters should come after rest parameter to get the
     // expected order in the transformed code.
     chain(transformOptions.defaultParameters,
           DefaultParametersTransformer.transformTree);
+
+    // destructuring must come after for of and before block binding and
+    // generator
+    chain(transformOptions.destructuring,
+          DestructuringTransformer.transformTree, identifierGenerator);
 
     // generator must come after for of and rest parameters
     chain(transformOptions.generators || transformOptions.deferredFunctions,
@@ -172,9 +182,6 @@ export class ProgramTransformer {
           PrivateNameSyntaxTransformer.transformTree,
           identifierGenerator);
 
-    // destructuring must come after for of and before block binding
-    chain(transformOptions.destructuring,
-          DestructuringTransformer.transformTree, identifierGenerator);
     chain(transformOptions.spread, SpreadTransformer.transformTree,
           identifierGenerator, runtimeInliner);
 

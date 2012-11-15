@@ -12547,8 +12547,8 @@ var $__src_codegeneration_GeneratorTransformPass_js = (function() {
   var TempVarTransformer = $__src_codegeneration_TempVarTransformer_js.TempVarTransformer;
   var ParseTreeTransformer = $__src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
-  var $__2 = $__src_syntax_trees_ParseTreeType_js, BINARY_OPERATOR = $__2.BINARY_OPERATOR, IDENTIFIER_EXPRESSION = $__2.IDENTIFIER_EXPRESSION, PAREN_EXPRESSION = $__2.PAREN_EXPRESSION, YIELD_EXPRESSION = $__2.YIELD_EXPRESSION;
-  var $__2 = $__src_codegeneration_ParseTreeFactory_js, createAssignmentStatement = $__2.createAssignmentStatement, createBlock = $__2.createBlock, createExpressionStatement = $__2.createExpressionStatement, createForOfStatement = $__2.createForOfStatement, createIdentifierExpression = $__2.createIdentifierExpression, createVariableDeclarationList = $__2.createVariableDeclarationList, createYieldStatement = $__2.createYieldStatement;
+  var $__2 = $__src_syntax_trees_ParseTreeType_js, BINARY_OPERATOR = $__2.BINARY_OPERATOR, COMMA_EXPRESSION = $__2.COMMA_EXPRESSION, IDENTIFIER_EXPRESSION = $__2.IDENTIFIER_EXPRESSION, PAREN_EXPRESSION = $__2.PAREN_EXPRESSION, VARIABLE_DECLARATION = $__2.VARIABLE_DECLARATION, YIELD_EXPRESSION = $__2.YIELD_EXPRESSION;
+  var $__2 = $__src_codegeneration_ParseTreeFactory_js, createAssignmentExpression = $__2.createAssignmentExpression, createAssignmentStatement = $__2.createAssignmentStatement, createBlock = $__2.createBlock, createCommaExpression = $__2.createCommaExpression, createExpressionStatement = $__2.createExpressionStatement, createForOfStatement = $__2.createForOfStatement, createIdentifierExpression = $__2.createIdentifierExpression, createVariableDeclaration = $__2.createVariableDeclaration, createVariableDeclarationList = $__2.createVariableDeclarationList, createVariableStatement = $__2.createVariableStatement, createYieldStatement = $__2.createYieldStatement;
   var YIELD_SENT = $__src_syntax_PredefinedName_js.YIELD_SENT;
   var transformOptions = $__src_options_js.transformOptions;
   function isYieldAssign(tree) {
@@ -12612,11 +12612,28 @@ var $__src_codegeneration_GeneratorTransformPass_js = (function() {
       while (e.type === PAREN_EXPRESSION) {
         e = e.expression;
       }
+      function commaWrap(lhs, rhs) {
+        return createExpressionStatement(createCommaExpression($__spread([createAssignmentExpression(lhs, rhs)], ex.slice(1))));
+      }
       switch (e.type) {
         case BINARY_OPERATOR:
           if (isYieldAssign(e)) return this.factor_(e.left, e.right, createAssignmentStatement);
           break;
+        case COMMA_EXPRESSION:
+          ex = e.expressions;
+          if (ex[0].type === BINARY_OPERATOR && isYieldAssign(ex[0])) return this.factor_(ex[0].left, ex[0].right, commaWrap);
       }
+      return tree;
+    },
+    transformVariableStatement: function(tree) {
+      var tdd = tree.declarations.declarations;
+      function isYieldVarAssign(tree) {
+        return tree.initializer && tree.initializer.type === YIELD_EXPRESSION;
+      }
+      function varWrap(lhs, rhs) {
+        return createVariableStatement(createVariableDeclarationList(tree.declarations.declarationType, $__spread([createVariableDeclaration(lhs, rhs)], tdd.slice(1))));
+      }
+      if (isYieldVarAssign(tdd[0])) return this.factor_(tdd[0].lvalue, tdd[0].initializer, varWrap);
       return tree;
     },
     factor_: function(lhs, rhs, wrap) {
@@ -15002,10 +15019,10 @@ var $__src_codegeneration_ProgramTransformer_js = (function() {
       chain(transformOptions.forOf, ForOfTransformer.transformTree, identifierGenerator);
       chain(transformOptions.restParameters, RestParameterTransformer.transformTree);
       chain(transformOptions.defaultParameters, DefaultParametersTransformer.transformTree);
+      chain(transformOptions.destructuring, DestructuringTransformer.transformTree, identifierGenerator);
       chain(transformOptions.generators || transformOptions.deferredFunctions, GeneratorTransformPass.transformTree, identifierGenerator, reporter);
       chain(transformOptions.privateNames && transformOptions.privateNameSyntax, AtNameMemberTransformer.transformTree, identifierGenerator);
       chain(transformOptions.privateNames && transformOptions.privateNameSyntax, PrivateNameSyntaxTransformer.transformTree, identifierGenerator);
-      chain(transformOptions.destructuring, DestructuringTransformer.transformTree, identifierGenerator);
       chain(transformOptions.spread, SpreadTransformer.transformTree, identifierGenerator, runtimeInliner);
       chain(true, runtimeInliner.transformAny.bind(runtimeInliner));
       chain(transformOptions.blockBinding, BlockBindingTransformer.transformTree);
