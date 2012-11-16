@@ -24,25 +24,36 @@ import TreeWriter from 'outputgeneration/TreeWriter.js';
 export class WebPageProject extends Project {
   constructor(url) {
     super(url);
-    this.numPending = 0;
+    this.numPending_ = 0;
     this.numberInlined_ = 0;
   }
 
-  asyncLoad_(url, fncOfContent) {
-    this.numPending++;
+  asyncLoad_(url, fncOfContent, onScriptsReady) {
+    this.numPending_++;
+    this.loadResource(url, (content) => {
+      if (content) 
+        fncOfContent(content);
+      else 
+        console.warn('Failed to load', url);
+
+      if (--this.numPending_ <= 0) 
+        onScriptsReady();
+    });
+  }
+
+  /** over-ride-able
+   * @param {string} url Uniform Resource Locator
+   * @param {function(string) | null} callback 
+   */
+  loadResource(url, fncOfContentOrNull) {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url);
     xhr.addEventListener('load', (e) => {
       if (xhr.status == 200 || xhr.status == 0)
-        fncOfContent(xhr.responseText);
-
-      this.numPending--;
-      this.runScriptsIfNonePending_();
+        fncOfContentOrNull(xhr.responseText);
     });
     var onFailure = () => {
-      this.numPending--;
-      console.warn('Failed to load', url);
-      this.runScriptsIfNonePending_();
+      fncOfContentOrNull(null);
     };
     xhr.addEventListener('error', onFailure, false);
     xhr.addEventListener('abort', onFailure, false);
@@ -69,7 +80,7 @@ export class WebPageProject extends Project {
     return this.inlineScriptNameBase_ + '_' + this.numberInlined_ + '.js';
   }
 
-  addFilesFromScriptElements(scriptElements) {
+  addFilesFromScriptElements(scriptElements, onScriptsReady) {
     for (var i = 0, length = scriptElements.length; i < length; i++) {
       var scriptElement = scriptElements[i];
       if (!scriptElement.src) {
@@ -78,10 +89,16 @@ export class WebPageProject extends Project {
         this.addFileFromScriptElement(scriptElement, name, content);
       } else {
         var name = scriptElement.src;
-        this.asyncLoad_(name,
-            this.addFileFromScriptElement.bind(this, scriptElement, name));
+        this.asyncLoad_(
+            name,
+            this.addFileFromScriptElement.bind(this, scriptElement, name),
+            onScriptsReady
+        );
       }
     }
+    // in case we did not load any scripts async
+    if (this.numPending_ <= 0) 
+      onScriptsReady(); 
   }
 
   get reporter() {
@@ -134,14 +151,6 @@ export class WebPageProject extends Project {
     });
   }
 
-  runScriptsIfNonePending_() {
-    if (this.numPending) {
-      return;
-    }
-    var trees = this.compile();
-    this.runInWebPage(trees);
-  }
-
   run() {
     document.addEventListener('DOMContentLoaded', () => {
       var selector = 'script[type="text/traceur"]';
@@ -159,8 +168,10 @@ export class WebPageProject extends Project {
           contents: runtime });
       */
 
-      this.addFilesFromScriptElements(scripts);
-      this.runScriptsIfNonePending_();
+      this.addFilesFromScriptElements(scripts, () => {
+        var trees = this.compile();
+        this.runInWebPage(trees);     
+      });
     }, false);
   }
 }
