@@ -13362,7 +13362,7 @@ var $__src_outputgeneration_ParseTreeWriter_js = (function() {
     },
     visitClassShared_: function(tree) {
       this.write_(TokenType.CLASS);
-      if (tree.name) this.write_(tree.name);
+      this.visitAny(tree.name);
       if (tree.superClass !== null) {
         this.write_(TokenType.EXTENDS);
         this.visitAny(tree.superClass);
