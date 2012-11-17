@@ -26,7 +26,6 @@ traceur.runtime = (function(global) {
   var $create = Object.create;
   var $defineProperty = Object.defineProperty;
   var $freeze = Object.freeze;
-  var $getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
   var $getOwnPropertyNames = Object.getOwnPropertyNames;
   var $getPrototypeOf = Object.getPrototypeOf;
   var $hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -82,44 +81,6 @@ traceur.runtime = (function(global) {
     enumerable: false,
     writable: true
   });
-
-  function createClass(proto, extendsExpr, hasConstructor,
-                       hasExtendsExpression) {
-    if (extendsExpr !== null && typeof extendsExpr !== 'function')
-      throw new TypeError('Can only extend functions or null');
-
-    // If we provided a default constructor but the extends value is null we
-    // need to change the constructor to an empty function since we cannot call
-    // super in that case.
-    var ctor;
-    if (extendsExpr === null && !hasConstructor)
-      ctor = function() {};
-    else
-      ctor = proto.constructor;
-
-    var superPrototype;
-    if (!hasExtendsExpression)  {
-      superPrototype = Object.prototype;
-    } else {
-      if (extendsExpr === null) {
-        superPrototype = null;
-      } else {
-        ctor.__proto__ = extendsExpr;
-        superPrototype = extendsExpr.prototype;
-      }
-    }
-
-    var descriptors = {};
-    $getOwnPropertyNames(proto).forEach((name) => {
-      descriptors[name] = $getOwnPropertyDescriptor(proto, name);
-    });
-
-    descriptors.constructor.value = ctor;
-    descriptors.constructor.enumerable = false;
-    ctor.prototype = $create(superPrototype, descriptors);
-
-    return ctor;
-  }
 
   function getDescriptor(ctor, name) {
     var proto = $getPrototypeOf(ctor.prototype);
@@ -543,7 +504,6 @@ traceur.runtime = (function(global) {
   return {
     Deferred: Deferred,
     assertName: assertName,
-    createClass: createClass,
     createName: NameModule.Name,
     deleteProperty: deleteProperty,
     elementDelete: elementDelete,

@@ -129,7 +129,7 @@ export class ProgramTransformer {
 
     // ClassTransformer needs to come before ObjectLiteralTransformer.
     chain(transformOptions.classes, ClassTransformer.transform,
-          identifierGenerator, reporter);
+          identifierGenerator, runtimeInliner, reporter);
 
     chain(transformOptions.propertyNameShorthand,
           PropertyNameShorthandTransformer.transformTree);

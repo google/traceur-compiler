@@ -666,7 +666,7 @@ export class Parser {
       return this.parseGetAccessor_();
     if (this.peekSetAccessor_())
       return this.parseSetAccessor_();
-    return this.parsePropertyMethodAssignment_();
+    return this.parsePropertyMethodAssignment();
   }
 
   /**
@@ -1958,28 +1958,15 @@ export class Parser {
     var result = [];
 
     this.eat_(TokenType.OPEN_CURLY);
-    while (this.peekPropertyAssignment_()) {
-      if (this.peekGetAccessor_()) {
-        result.push(this.parseGetAccessor_());
-        if (!this.eatPropertyOptionalComma_())
-          break;
-      } else if (this.peekSetAccessor_()) {
-        result.push(this.parseSetAccessor_());
-        if (!this.eatPropertyOptionalComma_())
-          break;
-
-      // http://wiki.ecmascript.org/doku.php?id=harmony:concise_object_literal_extensions#methods
-      } else if (this.peekPropertyMethodAssignment_()) {
-        result.push(this.parsePropertyMethodAssignment_());
-        if (!this.eatPropertyOptionalComma_())
-          break;
-
-      } else {
-        result.push(this.parsePropertyNameAssignment_());
+    while (this.peekPropertyDefinition_()) {
+      var propertyDefinition = this.parsePropertyDefinition();
+      result.push(propertyDefinition);
+      if (propertyDefinition.type === ParseTreeType.PROPERTY_NAME_ASSIGNMENT) {
         // Comma is required after name assignment.
-        if (!this.eatOpt_(TokenType.COMMA)) {
+        if (!this.eatOpt_(TokenType.COMMA))
           break;
-        }
+      } else if (!this.eatPropertyOptionalComma_()) {
+        break;
       }
     }
     this.eat_(TokenType.CLOSE_CURLY);
@@ -1990,11 +1977,24 @@ export class Parser {
     return this.eatOpt_(TokenType.COMMA) || options.propertyOptionalComma;
   }
 
+  parsePropertyDefinition() {
+    if (this.peekGetAccessor_())
+      return this.parseGetAccessor_();
+    if (this.peekSetAccessor_())
+      return this.parseSetAccessor_();
+
+    // http://wiki.ecmascript.org/doku.php?id=harmony:concise_object_literal_extensions#methods
+    if (this.peekPropertyMethodAssignment_())
+      return this.parsePropertyMethodAssignment();
+
+    return this.parsePropertyNameAssignment_();
+  }
+
   /**
    * @return {boolean}
    * @private
    */
-  peekPropertyAssignment_() {
+  peekPropertyDefinition_() {
     var index = +this.peek_(TokenType.STAR);
     return this.peekPropertyName_(index);
   }
@@ -2098,15 +2098,14 @@ export class Parser {
   parsePropertyNameAssignment_() {
     var start = this.getTreeStartLocation_();
     // http://wiki.ecmascript.org/doku.php?id=strawman:object_initialiser_shorthand
-    if (this.peek_(TokenType.COLON, 1)) {
+    if (!options.propertyNameShorthand || this.peek_(TokenType.COLON, 1)) {
       var name = this.nextToken_();
       this.eat_(TokenType.COLON);
       var value = this.parseAssignmentExpression();
       return new PropertyNameAssignment(this.getTreeLocation_(start), name,
                                         value);
-    } else {
-      return this.parsePropertyNameShorthand_();
     }
+    return this.parsePropertyNameShorthand_();
   }
 
   peekPropertyMethodAssignment_() {
@@ -2118,9 +2117,8 @@ export class Parser {
 
   /**
    * @return {ParseTree}
-   * @private
    */
-  parsePropertyMethodAssignment_() {
+  parsePropertyMethodAssignment() {
     var start = this.getTreeStartLocation_();
     // Note that parsePropertyAssignment_ already limits name to String,
     // Number & IdentfierName.
@@ -2141,11 +2139,6 @@ export class Parser {
   parsePropertyNameShorthand_() {
     var start = this.getTreeStartLocation_();
     var name = this.eatId_();
-    if (!options.propertyNameShorthand) {
-      this.eat_(TokenType.COLON);
-      return null;
-    }
-
     return new PropertyNameShorthand(this.getTreeLocation_(start), name);
   }
 

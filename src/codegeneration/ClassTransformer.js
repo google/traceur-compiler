@@ -56,21 +56,50 @@ import {
   createVariableStatement
 } from 'ParseTreeFactory.js';
 import transformOptions from '../options.js';
+import {
+  parseExpression,
+  parsePropertyDefinition
+} from 'PlaceholderParser.js';
 
-// The state keeps track of the current class tree and class name.
-var stack = [];
+// This code is more or less identical to ClassDefinitionEvaluation in the ES6
+// draft.
+var CREATE_CLASS_CODE =
+    `function(object, superClass, hasConstructor) {
+      var ctor = object.constructor, protoParent;
+      if (typeof superClass === 'function') {
+        protoParent = superClass.prototype;
+        if (protoParent === null)
+          throw new TypeError();
+        ctor.__proto__ = superClass;
+      } else if (superClass === null) {
+        if (!hasConstructor)
+          ctor = object.constructor = function() {};
+        protoParent = null;
+      } else if (Object(superClass) === superClass) {
+        protoParent = superClass;
+      } else {
+        throw new TypeError();
+      }
 
-class State {
-  constructor(classTree) {
-    this.tree = classTree;
-    this.name = null;
-    this.hasSuper = false;
-  }
-}
+      var descriptors = {}, name,
+          names = Object.getOwnPropertyNames(object);
+      for (var i = 0; i < names.length; i++) {
+        var name = names[i];
+        descriptors[name] = Object.getOwnPropertyDescriptor(object, name);
+      }
+      descriptors.constructor.enumerable = false;
+      ctor.prototype = Object.create(protoParent, descriptors);
 
-function peekState() {
-  return stack[stack.length - 1];
-}
+      return ctor;
+    }`;
+
+var CREATE_CLASS_NO_EXTENDS_CODE =
+    `function(object) {
+      var ctor = object.constructor;
+      Object.defineProperty(object, 'constructor', {enumerable: false});
+      ctor.prototype = object;
+      return ctor;
+    }`;
 
 /*
  * Interaction between ClassTransformer and SuperTransformer:
@@ -114,62 +143,72 @@ function peekState() {
 export class ClassTransformer extends TempVarTransformer{
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
+   * @param {RuntimeInliner} runtimeInliner
    * @param {ErrorReporter} reporter
    */
-  constructor(identifierGenerator, reporter) {
+  constructor(identifierGenerator, runtimeInliner, reporter) {
     super(identifierGenerator);
+    this.runtimeInliner_ = runtimeInliner;
     this.reporter_ = reporter;
   }
 
   transformClassShared_(tree, name) {
     var superClass = this.transformAny(tree.superClass);
+    var nameIdent = createIdentifierExpression(name);
 
-    var state = new State(tree);
-    stack.push(state);
-    state.name = createIdentifierExpression(name);
-
-    var constructor;
+    var hasConstructor = false;
     var elements = tree.elements.map((tree) => {
       switch (tree.type) {
         case GET_ACCESSOR:
-          return this.transformGetAccessor_(tree);
+          return this.transformGetAccessor_(tree, nameIdent);
         case SET_ACCESSOR:
-          return this.transformSetAccessor_(tree);
+          return this.transformSetAccessor_(tree, nameIdent);
         case PROPERTY_METHOD_ASSIGNMENT:
           if (tree.name.value === CONSTRUCTOR)
-            return constructor = this.transformConstructor_(tree);
-          return this.transformPropertyMethodAssignment_(tree);
+            hasConstructor = true;
+          return this.transformPropertyMethodAssignment_(tree, nameIdent);
         default:
           throw new Error(`Unexpected class element: ${tree.type}`);
       }
     });
 
     // Create constructor if it does not already exist.
-    if (!constructor)
-      elements.push(this.getDefaultConstructor_(tree));
+    if (!hasConstructor)
+      elements.unshift(this.getDefaultConstructor_(tree, superClass,
+                                                   nameIdent));
 
-    stack.pop();
+    var object = createObjectLiteralExpression(elements);
 
-    // We need to keep track of whether we have a user defined constructor or
-    // not in case we extend null.
-    var hasConstructor = !!constructor;
-    // A missing extends expression needs to be treated slightly different
-    // from extending Object.
-    var hasExtendsExpression = !!superClass;
+    // We branch on whether we have an extends expression or not since when
+    // there is one, setting up the prototype chains gets a lot more
+    // complicated.
+    //
+    // We also need to keep track if there was a user provided constructor or
+    // not in case the extends expression evaluates to null; in that case we
+    // change the default constructor to not call super. That is an just an
+    // optimization, we could let the default constructor do this check at
+    // runtime.
+    if (superClass) {
+      return parseExpression `function($__super) {
+        var ${nameIdent} =
+            ${this.createClass_}(${object}, $__super, ${hasConstructor});
+        return ${nameIdent};
+      }(${superClass})`;
+    }
 
-    // let <className> = traceur.runtime.createClass(proto, superClass,
-    //                                               hasConstructor,
-    //                                               hasExtendsExpression)
-    return [
-      createCallExpression(
-          createMemberExpression(TRACEUR, RUNTIME, CREATE_CLASS),
-          createArgumentList(
-              createObjectLiteralExpression(elements),
-              superClass || createNullLiteral(),
-              createBooleanLiteral(hasConstructor),
-              createBooleanLiteral(hasExtendsExpression))),
-      state.hasSuper
-    ];
+    return parseExpression `function() {
+      var ${nameIdent} = ${this.createClassNoExtends_}(${object});
+      return ${nameIdent};
+    }()`;
+  }
+
+  get createClass_() {
+    return this.runtimeInliner_.get('createClass', CREATE_CLASS_CODE);
+  }
+
+  get createClassNoExtends_() {
+    return this.runtimeInliner_.get('createClassNoExtends',
+                                    CREATE_CLASS_NO_EXTENDS_CODE);
   }
 
   /**
@@ -179,31 +218,25 @@ export class ClassTransformer extends TempVarTransformer{
    * @return {ParseTree}
    */
   transformClassDeclaration(tree) {
-    // let <className> = traceur.runtime.createClass(proto, superClass)
+    // let <className> = ...
+    // The name needs to be different from the class name but similar enough
+    // that we can make sense out of our stack traces.
+    var name = '$' + tree.name.identifierToken.value;
     return createVariableStatement(
         transformOptions.blockBinding ? TokenType.LET : TokenType.VAR,
         tree.name,
-        this.transformClassShared_(tree, tree.name.identifierToken)[0]);
+        this.transformClassShared_(tree, name));
   }
 
   transformClassExpression(tree) {
-    var tempIdent = this.addTempVar();
-    var transformResult = this.transformClassShared_(tree, tempIdent);
-    var classTree = transformResult[0];
-    var hasSuper =  transformResult[1];
-    if (hasSuper) {
-      return createParenExpression(
-          createAssignmentExpression(
-              createIdentifierExpression(tempIdent),
-              classTree));
-    }
-
-    return classTree;
+    var ident = tree.name ? tree.name.identifierToken.value : this.addTempVar();
+    return this.transformClassShared_(tree, ident);
   }
 
-  transformPropertyMethodAssignment_(tree) {
+  transformPropertyMethodAssignment_(tree, name) {
     var formalParameterList = this.transformAny(tree.formalParameterList);
-    var functionBody = this.transformSuperInBlock_(tree, tree.functionBody);
+    var functionBody = this.transformSuperInBlock_(tree, tree.functionBody,
+                                                   name);
     if (formalParameterList === tree.formalParameterList &&
         functionBody === tree.functionBody) {
       return tree;
@@ -213,36 +246,23 @@ export class ClassTransformer extends TempVarTransformer{
         tree.isGenerator, formalParameterList, functionBody);
   }
 
-  transformGetAccessor_(tree) {
-    var body = this.transformSuperInBlock_(tree, tree.body);
+  transformGetAccessor_(tree, name) {
+    var body = this.transformSuperInBlock_(tree, tree.body, name);
     if (body === tree.body)
       return tree;
     return new GetAccessor(tree.location, tree.name, body);
   }
 
-  transformSetAccessor_(tree) {
+  transformSetAccessor_(tree, name) {
     var parameter = this.transformAny(tree.parameter);
-    var body = this.transformSuperInBlock_(tree, tree.body);
+    var body = this.transformSuperInBlock_(tree, tree.body, name);
     if (body === tree.body)
       return tree;
     return new SetAccessor(tree.location, tree.name, parameter, body);
   }
 
-  transformConstructor_(tree) {
-    // The constructor is transformed into a property assignment.
-    // constructor: function CLASS_NAME() { }
-    var state = peekState();
-    var parameters = this.transformAny(tree.formalParameterList);
-    var functionBody = this.transformSuperInBlock_(tree, tree.functionBody);
-
-    var func = createFunctionExpression(parameters, functionBody);
-    return createPropertyNameAssignment(CONSTRUCTOR, func);
-  }
-
-  transformSuperInBlock_(methodTree, tree) {
+  transformSuperInBlock_(methodTree, tree, className) {
     this.pushTempVarState();
-    var state = peekState();
-    var className = state.name;
     var thisName = this.getTempIdentifier();
     var thisDecl = createVariableStatement(TokenType.VAR, thisName,
                                            createThisExpression());
@@ -252,8 +272,6 @@ export class ClassTransformer extends TempVarTransformer{
     // ref_1: the inner transformBlock call is key to proper super nesting.
     var transformedTree =
         superTransformer.transformBlock(this.transformBlock(tree));
-    if (superTransformer.hasSuper)
-      state.hasSuper = true;
 
     this.popTempVarState();
 
@@ -262,33 +280,27 @@ export class ClassTransformer extends TempVarTransformer{
     return transformedTree;
   }
 
-  getDefaultConstructor_(tree) {
-    // function name(...args) {
-    //   super(...args)
-    // }
-    var restParam = createRestParameter('args');
-    var params = new FormalParameterList(null, [restParam]);
-    var body = createBlock(
-        createExpressionStatement(
-            createCallExpression(
-                new SuperExpression(null),
-                createArgumentList(
-                    createSpreadExpression(
-                        createIdentifierExpression('args'))))));
-    var constr = new PropertyMethodAssignment(null,
-        createIdentifierToken(CONSTRUCTOR), false,
-                              params, body);
-    return this.transformConstructor_(constr);
+  getDefaultConstructor_(tree, hasSuper, name) {
+    // constructor(...args) { super(...args); }
+    if (!hasSuper)
+      return parsePropertyDefinition `constructor: function() {}`;
+
+    // Manually handle rest+spread to remove slice.
+    return parsePropertyDefinition `constructor: function() {
+      traceur.runtime.superCall(this, ${name}, 'constructor', arguments);
+    }`;
   }
 }
 
 /**
  * @param {UniqueIdentifierGenerator} identifierGenerator
+ * @param {RuntimeInliner} runtimeInliner
  * @param {ErrorReporter} reporter
  * @param {Program} tree
  * @return {Program}
  */
-ClassTransformer.transform = function(identifierGenerator, reporter, tree) {
-  return new ClassTransformer(identifierGenerator, reporter).
+ClassTransformer.transform = function(identifierGenerator, runtimeInliner,
+                                      reporter, tree) {
+  return new ClassTransformer(identifierGenerator, runtimeInliner, reporter).
       transformAny(tree);
 };

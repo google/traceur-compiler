@@ -25,7 +25,8 @@ import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import Parser from '../syntax/Parser.js';
 import {
   PropertyMethodAssignment,
-  PropertyNameAssignment
+  PropertyNameAssignment,
+  PropertyNameShorthand
 } from '../syntax/trees/ParseTrees.js';
 import Scanner from '../syntax/Scanner.js';
 import SourceFile from '../syntax/SourceFile.js';
@@ -78,12 +79,9 @@ var cache = new ArrayMap();
  * @return {ParseTree}
  */
 export function parseExpression(sourceLiterals, ...values) {
-  var tree = cache.get(sourceLiterals);
-  if (!tree) {
-    tree = new PlaceholderParser().parseExpression(sourceLiterals);
-    cache.set(sourceLiterals, tree);
-  }
-  return new PlaceholderTransformer(values).transformAny(tree);
+  return parse(sourceLiterals, values, () => {
+    return new PlaceholderParser().parseExpression(sourceLiterals);
+  });
 }
 
 /**
@@ -92,11 +90,30 @@ export function parseExpression(sourceLiterals, ...values) {
  * @return {ParseTree}
  */
 export function parseStatement(sourceLiterals, ...values) {
+  return parse(sourceLiterals, values, () => {
+    return new PlaceholderParser().parseStatement(sourceLiterals);
+  });
+}
+
+/**
+ * @param {Array.<string>} sourceLiterals
+ * @param {Array} values An array containing values or parse trees.
+ * @return {ParseTree}
+ */
+export function parsePropertyDefinition(sourceLiterals, ...values) {
+  return parse(sourceLiterals, values, () => {
+    return new PlaceholderParser().parsePropertyDefinition(sourceLiterals);
+  });
+}
+
+function parse(sourceLiterals, values, doParse) {
   var tree = cache.get(sourceLiterals);
   if (!tree) {
-    tree = new PlaceholderParser().parseStatement(sourceLiterals);
+    tree = doParse();
     cache.set(sourceLiterals, tree);
   }
+  if (!values.length)
+    return tree;
   return new PlaceholderTransformer(values).transformAny(tree);
 }
 
@@ -121,6 +138,14 @@ export class PlaceholderParser {
    */
   parseStatement(sourceLiterals) {
     return this.parse_(sourceLiterals, (p) => p.parseStatement());
+  }
+
+  /**
+   * @param {Array.<string>} sourceLiterals
+   * @return {ParseTree}
+   */
+  parsePropertyDefinition(sourceLiterals) {
+    return this.parse_(sourceLiterals, (p) => p.parsePropertyDefinition());
   }
 
   /**
@@ -277,6 +302,16 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
             this.transformAny(tree.value));
       }
     }
-    return super.transformPropertyMethodAssignment(tree);
+    return super.transformPropertyNameAssignment(tree);
+  }
+
+  transformPropertyNameShorthand(tree) {
+    var value = this.getValue_(tree.name.value);
+    if (value !== NOT_FOUND) {
+      if (value instanceof ParseTree)
+        return value;
+      return new PropertyNameShorthand(null, createIdentifierToken(value));
+    }
+    return super.transformPropertyNameShorthand(tree);
   }
 }
