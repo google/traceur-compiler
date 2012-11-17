@@ -188,16 +188,19 @@ export class ClassTransformer extends TempVarTransformer{
     // change the default constructor to not call super. That is an just an
     // optimization, we could let the default constructor do this check at
     // runtime.
+    //
+    // The extra parentheses around createClass_ is to make the V8 heuristic
+    // ignore that part in the name to use in its stack traces.
     if (superClass) {
       return parseExpression `function($__super) {
         var ${nameIdent} =
-            ${this.createClass_}(${object}, $__super, ${hasConstructor});
+            (${this.createClass_})(${object}, $__super, ${hasConstructor});
         return ${nameIdent};
       }(${superClass})`;
     }
 
     return parseExpression `function() {
-      var ${nameIdent} = ${this.createClassNoExtends_}(${object});
+      var ${nameIdent} = (${this.createClassNoExtends_})(${object});
       return ${nameIdent};
     }()`;
   }
