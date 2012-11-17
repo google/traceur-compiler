@@ -261,6 +261,8 @@ global.assertArrayEquals = testUtil.assertArrayEquals;
 // Load the compiler.
 require('../src/traceur-node.js');
 
+print('\n');
+
 // Run all of the feature scripts.
 var tests  = 0;
 var passes = 0;
