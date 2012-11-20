@@ -813,14 +813,6 @@ export class ParseTreeTransformer {
   }
 
   /**
-   * @param {NullTree} tree
-   * @return {ParseTree}
-   */
-  transformNullTree(tree) {
-    return tree;
-  }
-
-  /**
    * @param {ObjectLiteralExpression} tree
    * @return {ParseTree}
    */

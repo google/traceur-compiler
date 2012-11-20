@@ -488,12 +488,6 @@ export class ParseTreeVisitor {
   }
 
   /**
-   * @param {NullTree} tree
-   */
-  visitNullTree(tree) {
-  }
-
-  /**
    * @param {ObjectLiteralExpression} tree
    */
   visitObjectLiteralExpression(tree) {

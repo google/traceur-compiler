@@ -43,13 +43,6 @@ function testParseTree() {
   assertEquals('location', tree.location);
 }
 
-function testParseTree2() {
-  var tree = new ParseTree(ParseTreeType.NULL_TREE, 'location');
-  assertEquals(ParseTreeType.NULL_TREE, tree.type);
-  assertEquals(true, tree.isNull());
-  assertEquals(false, tree.isPattern());
-}
-
 function validateTree(constr, type, fields) {
   function TestTree() {
     constr.apply(this, fields);
@@ -72,13 +65,6 @@ function validateTree(constr, type, fields) {
     var f = fields[i];
     assertEquals(f, roundtrip[f]);
   }
-}
-
-function testNullTree() {
-  // NullTree is a singleton so it needs its own test
-  var tree = new traceur.syntax.trees.NullTree();
-  assertEquals('NULL_TREE', tree.type);
-  assertEquals(null, tree.location);
 }
 
 function testTreeConstructors() {

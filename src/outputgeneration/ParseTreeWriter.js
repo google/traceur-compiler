@@ -698,12 +698,6 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
-   * @param {NullTree} tree
-   */
-  visitNullTree(tree) {
-  }
-
-  /**
    * @param {ObjectLiteralExpression} tree
    */
   visitObjectLiteralExpression(tree) {

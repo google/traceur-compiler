@@ -26,7 +26,6 @@ import {
   ForStatement,
   FunctionDeclaration,
   GetAccessor,
-  NullTree,
   Program,
   SetAccessor,
   VariableDeclaration,
@@ -540,7 +539,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
                 TokenType.LET, hoisted)),
         // for loop
         createForStatement(
-            new NullTree(),
+            null,
             condition,
             increment,
             // body
@@ -554,7 +553,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
                         // try - the original for loop body
                         tree.body,
                         // catch (none)
-                        new NullTree(),
+                        null,
                         // finally - the writebacks
                         createFinally(createBlock(copyBak))))));
 

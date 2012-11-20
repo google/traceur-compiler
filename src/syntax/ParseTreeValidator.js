@@ -108,7 +108,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   visitArrayLiteralExpression(tree) {
     for (var i = 0; i < tree.elements.length; i++) {
       var element = tree.elements[i];
-      this.checkVisit_(element.isNull() || element.isAssignmentOrSpread(),
+      this.checkVisit_(element === null || element.isAssignmentOrSpread(),
           element, 'assignment or spread expected');
     }
   }
@@ -509,7 +509,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {ForStatement} tree
    */
   visitForStatement(tree) {
-    if (tree.initializer !== null && !tree.initializer.isNull()) {
+    if (tree.initializer !== null) {
       this.checkVisit_(
           tree.initializer.isExpression() ||
           tree.initializer.type === VARIABLE_DECLARATION_LIST,
@@ -854,16 +854,15 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    */
   visitTryStatement(tree) {
     this.checkType_(BLOCK, tree.body, 'block expected');
-    if (tree.catchBlock !== null && !tree.catchBlock.isNull()) {
+    if (tree.catchBlock !== null) {
       this.checkType_(CATCH, tree.catchBlock,
                       'catch block expected');
     }
-    if (tree.finallyBlock !== null && !tree.finallyBlock.isNull()) {
+    if (tree.finallyBlock !== null) {
       this.checkType_(FINALLY, tree.finallyBlock,
                       'finally block expected');
     }
-    if ((tree.catchBlock === null || tree.catchBlock.isNull()) &&
-        (tree.finallyBlock === null || tree.finallyBlock.isNull())) {
+    if (tree.catchBlock === null && tree.finallyBlock === null) {
       this.fail_(tree, 'either catch or finally must be present');
     }
   }

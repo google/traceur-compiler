@@ -1895,7 +1895,7 @@ export class Parser {
            this.peekSpread_() ||
            this.peekAssignmentExpression_()) {
       if (this.peek_(TokenType.COMMA)) {
-        expression = new NullTree();
+        expression = null;
         allowFor = false;
       } else {
         expression = this.parseAssignmentOrSpread_();

@@ -50,11 +50,6 @@ export class ParseTree {
   }
 
   /** @return {boolean} */
-  isNull() {
-    return this.type === NULL_TREE;
-  }
-
-  /** @return {boolean} */
   isPattern() {
     switch (this.type) {
       case ARRAY_PATTERN:
