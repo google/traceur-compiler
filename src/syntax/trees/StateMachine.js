@@ -88,6 +88,14 @@ export class StateMachine extends ParseTree {
     this.exceptionBlocks = exceptionBlocks;
   }
 
+  transform(transformer) {
+    return transformer.transformStateMachine(this);
+  }
+
+  visit(visitor) {
+    visitor.visitStateMachine(this);
+  }
+
   /**
    * Does this machine include any try statements.
    * @return {boolean}

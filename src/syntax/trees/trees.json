@@ -1,0 +1,896 @@
+{
+  "ArgumentList": {
+    "location": [
+      "SourceRange"
+    ],
+    "args": [
+      "Array.<ParseTree>"
+    ]
+  },
+  "ArrayComprehension": {
+    "location": [
+      "SourceRange"
+    ],
+    "expression": [
+      "ParseTree"
+    ],
+    "comprehensionForList": [
+      "Array.<ComprehensionFor>"
+    ],
+    "ifExpression": [
+      "ParseTree"
+    ]
+  },
+  "ArrayLiteralExpression": {
+    "location": [
+      "SourceRange"
+    ],
+    "elements": [
+      "Array.<ParseTree>"
+    ]
+  },
+  "ArrayPattern": {
+    "location": [
+      "SourceRange"
+    ],
+    "elements": [
+      "Array.<ParseTree>"
+    ]
+  },
+  "ArrowFunctionExpression": {
+    "location": [
+      "SourceRange"
+    ],
+    "formalParameters": [
+      "FormalParameterList"
+    ],
+    "functionBody": [
+      "ParseTree"
+    ]
+  },
+  "AtNameDeclaration": {
+    "location": [
+      "SourceRange"
+    ],
+    "atNameToken": [
+      "AtNameToken"
+    ],
+    "initializer": [
+      "ParseTree"
+    ]
+  },
+  "AtNameExpression": {
+    "location": [
+      "SourceRange"
+    ],
+    "atNameToken": [
+      "AtNameToken"
+    ]
+  },
+  "AwaitStatement": {
+    "location": [
+      "SourceRange"
+    ],
+    "identifier": [
+      "IdentifierToken"
+    ],
+    "expression": [
+      "ParseTree"
+    ]
+  },
+  "BinaryOperator": {
+    "location": [
+      "SourceRange"
+    ],
+    "left": [
+      "ParseTree"
+    ],
+    "operator": [
+      "Token"
+    ],
+    "right": [
+      "ParseTree"
+    ]
+  },
+  "BindingElement": {
+    "location": [
+      "SourceRange"
+    ],
+    "binding": [
+      "BindingIdentifier",
+      "ObjectPattern",
+      "ArrayPattern"
+    ],
+    "initializer": [
+      "ParseTree"
+    ]
+  },
+  "BindingIdentifier": {
+    "location": [
+      "SourceRange"
+    ],
+    "identifierToken": [
+      "IdentifierToken"
+    ]
+  },
+  "Block": {
+    "location": [
+      "SourceRange"
+    ],
+    "statements": [
+      "Array.<ParseTree>"
+    ]
+  },
+  "BreakStatement": {
+    "location": [
+      "SourceRange"
+    ],
+    "name": [
+      "IdentifierToken"
+    ]
+  },
+  "CallExpression": {
+    "location": [
+      "SourceRange"
+    ],
+    "operand": [
+      "ParseTree"
+    ],
+    "args": [
+      "ArgumentList"
+    ]
+  },
+  "CascadeExpression": {
+    "location": [
+      "SourceRange"
+    ],
+    "operand": [
+      "ParseTree"
+    ],
+    "expressions": [
+      "Array.<ParseTree>"
+    ]
+  },
+  "CaseClause": {
+    "location": [
+      "SourceRange"
+    ],
+    "expression": [
+      "ParseTree"
+    ],
+    "statements": [
+      "Array.<ParseTree>"
+    ]
+  },
+  "Catch": {
+    "location": [
+      "SourceRange"
+    ],
+    "binding": [
+      "ParseTree"
+    ],
+    "catchBody": [
+      "ParseTree"
+    ]
+  },
+  "ClassDeclaration": {
+    "location": [
+      "SourceRange"
+    ],
+    "name": [
+      "BindingIdentifier"
+    ],
+    "superClass": [
+      "ParseTree"
+    ],
+    "elements": [
+      "Array.<ParseTree>"
+    ]
+  },
+  "ClassExpression": {
+    "location": [
+      "SourceRange"
+    ],
+    "name": [
+      "BindingIdentifier"
+    ],
+    "superClass": [
+      "ParseTree"
+    ],
+    "elements": [
+      "Array.<ParseTree>"
+    ]
+  },
+  "CommaExpression": {
+    "location": [
+      "SourceRange"
+    ],
+    "expressions": [
+      "Array.<ParseTree>"
+    ]
+  },
+  "ComprehensionFor": {
+    "location": [
+      "SourceRange"
+    ],
+    "left": [
+      "ParseTree"
+    ],
+    "iterator": [
+      "ParseTree"
+    ]
+  },
+  "ConditionalExpression": {
+    "location": [
+      "SourceRange"
+    ],
+    "condition": [
+      "ParseTree"
+    ],
+    "left": [
+      "ParseTree"
+    ],
+    "right": [
+      "ParseTree"
+    ]
+  },
+  "ContinueStatement": {
+    "location": [
+      "SourceRange"
+    ],
+    "name": [
+      "IdentifierToken"
+    ]
+  },
+  "DebuggerStatement": {
+    "location": [
+      "SourceRange"
+    ]
+  },
+  "DefaultClause": {
+    "location": [
+      "SourceRange"
+    ],
+    "statements": [
+      "Array.<ParseTree>"
+    ]
+  },
+  "DoWhileStatement": {
+    "location": [
+      "SourceRange"
+    ],
+    "body": [
+      "ParseTree"
+    ],
+    "condition": [
+      "ParseTree"
+    ]
+  },
+  "EmptyStatement": {
+    "location": [
+      "SourceRange"
+    ]
+  },
+  "ExportDeclaration": {
+    "location": [
+      "SourceRange"
+    ],
+    "declaration": [
+      "ParseTree"
+    ]
+  },
+  "ExportMapping": {
+    "location": [
+      "SourceRange"
+    ],
+    "moduleExpression": [
+      "ModuleExpression"
+    ],
+    "specifierSet": [
+      "ParseTree"
+    ]
+  },
+  "ExportMappingList": {
+    "location": [
+      "SourceRange"
+    ],
+    "paths": [
+      "Array.<ExportMapping>"
+    ]
+  },
+  "ExportSpecifier": {
+    "location": [
+      "SourceRange"
+    ],
+    "lhs": [
+      "IdentifierToken"
+    ],
+    "rhs": [
+      "IdentifierToken"
+    ]
+  },
+  "ExportSpecifierSet": {
+    "location": [
+      "SourceRange"
+    ],
+    "specifiers": [
+      "Array.<ExportSpecifier>"
+    ]
+  },
+  "ExportStar": {
+    "location": [
+      "SourceRange"
+    ]
+  },
+  "ExpressionStatement": {
+    "location": [
+      "SourceRange"
+    ],
+    "expression": [
+      "ParseTree"
+    ]
+  },
+  "Finally": {
+    "location": [
+      "SourceRange"
+    ],
+    "block": [
+      "Block"
+    ]
+  },
+  "ForInStatement": {
+    "location": [
+      "SourceRange"
+    ],
+    "initializer": [
+      "ParseTree"
+    ],
+    "collection": [
+      "ParseTree"
+    ],
+    "body": [
+      "ParseTree"
+    ]
+  },
+  "ForOfStatement": {
+    "location": [
+      "SourceRange"
+    ],
+    "initializer": [
+      "ParseTree"
+    ],
+    "collection": [
+      "ParseTree"
+    ],
+    "body": [
+      "ParseTree"
+    ]
+  },
+  "ForStatement": {
+    "location": [
+      "SourceRange"
+    ],
+    "initializer": [
+      "ParseTree"
+    ],
+    "condition": [
+      "ParseTree"
+    ],
+    "increment": [
+      "ParseTree"
+    ],
+    "body": [
+      "ParseTree"
+    ]
+  },
+  "FormalParameterList": {
+    "location": [
+      "SourceRange"
+    ],
+    "parameters": [
+      "Array.<BindingElement|RestParameter>"
+    ]
+  },
+  "FunctionDeclaration": {
+    "location": [
+      "SourceRange"
+    ],
+    "name": [
+      "BindingIdentifier"
+    ],
+    "isGenerator": [
+      "boolean"
+    ],
+    "formalParameterList": [
+      "FormalParameterList"
+    ],
+    "functionBody": [
+      "Block"
+    ]
+  },
+  "GeneratorComprehension": {
+    "location": [
+      "SourceRange"
+    ],
+    "expression": [
+      "ParseTree"
+    ],
+    "comprehensionForList": [
+      "Array.<ComprehensionFor>"
+    ],
+    "ifExpression": [
+      "ParseTree"
+    ]
+  },
+  "GetAccessor": {
+    "location": [
+      "SourceRange"
+    ],
+    "name": [
+      "Token"
+    ],
+    "body": [
+      "Block"
+    ]
+  },
+  "IdentifierExpression": {
+    "location": [
+      "SourceRange"
+    ],
+    "identifierToken": [
+      "IdentifierToken"
+    ]
+  },
+  "IfStatement": {
+    "location": [
+      "SourceRange"
+    ],
+    "condition": [
+      "ParseTree"
+    ],
+    "ifClause": [
+      "ParseTree"
+    ],
+    "elseClause": [
+      "ParseTree"
+    ]
+  },
+  "ImportBinding": {
+    "location": [
+      "SourceRange"
+    ],
+    "moduleExpression": [
+      "ModuleExpression"
+    ],
+    "importSpecifierSet": [
+      "ParseTree"
+    ]
+  },
+  "ImportDeclaration": {
+    "location": [
+      "SourceRange"
+    ],
+    "importPathList": [
+      "Array.<ImportBinding>"
+    ]
+  },
+  "ImportSpecifier": {
+    "location": [
+      "SourceRange"
+    ],
+    "lhs": [
+      "IdentifierToken"
+    ],
+    "rhs": [
+      "IdentifierToken"
+    ]
+  },
+  "ImportSpecifierSet": {
+    "location": [
+      "SourceRange"
+    ],
+    "specifiers": [
+      "Array.<ImportSpecifier>",
+      "Token"
+    ]
+  },
+  "LabelledStatement": {
+    "location": [
+      "SourceRange"
+    ],
+    "name": [
+      "IdentifierToken"
+    ],
+    "statement": [
+      "ParseTree"
+    ]
+  },
+  "LiteralExpression": {
+    "location": [
+      "SourceRange"
+    ],
+    "literalToken": [
+      "Token"
+    ]
+  },
+  "MemberExpression": {
+    "location": [
+      "SourceRange"
+    ],
+    "operand": [
+      "ParseTree"
+    ],
+    "memberName": [
+      "AtNameToken",
+      "IdentifierToken"
+    ]
+  },
+  "MemberLookupExpression": {
+    "location": [
+      "SourceRange"
+    ],
+    "operand": [
+      "ParseTree"
+    ],
+    "memberExpression": [
+      "ParseTree"
+    ]
+  },
+  "MissingPrimaryExpression": {
+    "location": [
+      "SourceRange"
+    ],
+    "nextToken": [
+      "Token"
+    ]
+  },
+  "ModuleDeclaration": {
+    "location": [
+      "SourceRange"
+    ],
+    "specifiers": [
+      "Array.<ModuleSpecifier>"
+    ]
+  },
+  "ModuleDefinition": {
+    "location": [
+      "SourceRange"
+    ],
+    "name": [
+      "IdentifierToken"
+    ],
+    "elements": [
+      "Array.<ParseTree>"
+    ]
+  },
+  "ModuleExpression": {
+    "location": [
+      "SourceRange"
+    ],
+    "reference": [
+      "ParseTree"
+    ],
+    "identifiers": [
+      "Array.<IdentifierToken>"
+    ]
+  },
+  "ModuleRequire": {
+    "location": [
+      "SourceRange"
+    ],
+    "url": [
+      "Token"
+    ]
+  },
+  "ModuleSpecifier": {
+    "location": [
+      "SourceRange"
+    ],
+    "identifier": [
+      "IdentifierToken"
+    ],
+    "expression": [
+      "ModuleExpression"
+    ]
+  },
+  "NameStatement": {
+    "location": [
+      "SourceRange"
+    ],
+    "declarations": [
+      "Array.<AtNameDeclaration>"
+    ]
+  },
+  "NewExpression": {
+    "location": [
+      "SourceRange"
+    ],
+    "operand": [
+      "ParseTree"
+    ],
+    "args": [
+      "ArgumentList"
+    ]
+  },
+  "NullTree": {},
+  "ObjectLiteralExpression": {
+    "location": [
+      "SourceRange"
+    ],
+    "propertyNameAndValues": [
+      "Array.<ParseTree>"
+    ]
+  },
+  "ObjectPattern": {
+    "location": [
+      "SourceRange"
+    ],
+    "fields": [
+      "Array.<ParseTree>"
+    ]
+  },
+  "ObjectPatternField": {
+    "location": [
+      "SourceRange"
+    ],
+    "identifier": [
+      "Token"
+    ],
+    "element": [
+      "ParseTree"
+    ]
+  },
+  "ParenExpression": {
+    "location": [
+      "SourceRange"
+    ],
+    "expression": [
+      "ParseTree"
+    ]
+  },
+  "PostfixExpression": {
+    "location": [
+      "SourceRange"
+    ],
+    "operand": [
+      "ParseTree"
+    ],
+    "operator": [
+      "Token"
+    ]
+  },
+  "Program": {
+    "location": [
+      "SourceRange"
+    ],
+    "programElements": [
+      "Array.<ParseTree>"
+    ]
+  },
+  "PropertyMethodAssignment": {
+    "location": [
+      "SourceRange"
+    ],
+    "name": [
+      "Token"
+    ],
+    "isGenerator": [
+      "boolean"
+    ],
+    "formalParameterList": [
+      "FormalParameterList"
+    ],
+    "functionBody": [
+      "Block"
+    ]
+  },
+  "PropertyNameAssignment": {
+    "location": [
+      "SourceRange"
+    ],
+    "name": [
+      "Token"
+    ],
+    "value": [
+      "ParseTree"
+    ]
+  },
+  "PropertyNameShorthand": {
+    "location": [
+      "SourceRange"
+    ],
+    "name": [
+      "IdentifierToken"
+    ]
+  },
+  "QuasiLiteralExpression": {
+    "location": [
+      "SourceRange"
+    ],
+    "operand": [
+      "ParseTree"
+    ],
+    "elements": [
+      "Array.<ParseTree>"
+    ]
+  },
+  "QuasiLiteralPortion": {
+    "location": [
+      "SourceRange"
+    ],
+    "value": [
+      "Token"
+    ]
+  },
+  "QuasiSubstitution": {
+    "location": [
+      "SourceRange"
+    ],
+    "expression": [
+      "ParseTree"
+    ]
+  },
+  "RestParameter": {
+    "location": [
+      "SourceRange"
+    ],
+    "identifier": [
+      "BindingIdentifier"
+    ]
+  },
+  "ReturnStatement": {
+    "location": [
+      "SourceRange"
+    ],
+    "expression": [
+      "ParseTree"
+    ]
+  },
+  "SetAccessor": {
+    "location": [
+      "SourceRange"
+    ],
+    "name": [
+      "Token"
+    ],
+    "parameter": [
+      "BindingElement"
+    ],
+    "body": [
+      "Block"
+    ]
+  },
+  "SpreadExpression": {
+    "location": [
+      "SourceRange"
+    ],
+    "expression": [
+      "ParseTree"
+    ]
+  },
+  "SpreadPatternElement": {
+    "location": [
+      "SourceRange"
+    ],
+    "lvalue": [
+      "ParseTree"
+    ]
+  },
+  "SuperExpression": {
+    "location": [
+      "SourceRange"
+    ]
+  },
+  "SwitchStatement": {
+    "location": [
+      "SourceRange"
+    ],
+    "expression": [
+      "ParseTree"
+    ],
+    "caseClauses": [
+      "Array.<CaseClause|DefaultClause>"
+    ]
+  },
+  "ThisExpression": {
+    "location": [
+      "SourceRange"
+    ]
+  },
+  "ThrowStatement": {
+    "location": [
+      "SourceRange"
+    ],
+    "value": [
+      "ParseTree"
+    ]
+  },
+  "TryStatement": {
+    "location": [
+      "SourceRange"
+    ],
+    "body": [
+      "Block"
+    ],
+    "catchBlock": [
+      "Catch"
+    ],
+    "finallyBlock": [
+      "Finally"
+    ]
+  },
+  "UnaryExpression": {
+    "location": [
+      "SourceRange"
+    ],
+    "operator": [
+      "Token"
+    ],
+    "operand": [
+      "ParseTree"
+    ]
+  },
+  "VariableDeclaration": {
+    "location": [
+      "SourceRange"
+    ],
+    "lvalue": [
+      "ParseTree"
+    ],
+    "initializer": [
+      "ParseTree"
+    ]
+  },
+  "VariableDeclarationList": {
+    "location": [
+      "SourceRange"
+    ],
+    "declarationType": [
+      "TokenType"
+    ],
+    "declarations": [
+      "Array.<VariableDeclaration>"
+    ]
+  },
+  "VariableStatement": {
+    "location": [
+      "SourceRange"
+    ],
+    "declarations": [
+      "VariableDeclarationList"
+    ]
+  },
+  "WhileStatement": {
+    "location": [
+      "SourceRange"
+    ],
+    "condition": [
+      "ParseTree"
+    ],
+    "body": [
+      "ParseTree"
+    ]
+  },
+  "WithStatement": {
+    "location": [
+      "SourceRange"
+    ],
+    "expression": [
+      "ParseTree"
+    ],
+    "body": [
+      "ParseTree"
+    ]
+  },
+  "YieldExpression": {
+    "location": [
+      "SourceRange"
+    ],
+    "expression": [
+      "ParseTree"
+    ],
+    "isYieldFor": [
+      "boolean"
+    ]
+  }
+}

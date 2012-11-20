@@ -96,7 +96,6 @@ module traceur {
 
     export module trees {
       export * from 'syntax/trees/ParseTrees.js';
-      export getTreeNameForType from 'syntax/trees/ParseTree.js';
       export ParseTree from 'syntax/trees/ParseTree.js';
       export module ParseTreeType from 'syntax/trees/ParseTreeType.js';
     }

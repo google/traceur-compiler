@@ -20,11 +20,17 @@ distclean: clean
 bin/traceur.min.js: bin/traceur.js
 	node build/minifier.js $? $@
 
-bin/traceur.js: build/dep.mk
+bin/traceur.js: build/dep.mk src/syntax/trees/ParseTreeType.js src/syntax/trees/ParseTrees.js
 	build/build
 
 build/dep.mk:
 	build/build --dep > $@
+
+src/syntax/trees/ParseTrees.js: src/syntax/trees/trees.json build/build-parse-trees.js
+	node build/build-parse-trees.js src/syntax/trees/trees.json > $@
+
+src/syntax/trees/ParseTreeType.js: src/syntax/trees/trees.json build/build-parse-tree-type.js
+	node build/build-parse-tree-type.js src/syntax/trees/trees.json > $@
 
 .PHONY: build min test force boot clean distclean
 

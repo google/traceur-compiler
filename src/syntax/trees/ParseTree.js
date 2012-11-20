@@ -18,30 +18,6 @@ import SourceRange from '../../util/SourceRange.js';
 
 import * from ParseTreeType;
 
-var typeToNameMap = Object.create(null);
-
-function getCapitalizedName(type) {
-  var name = type.toString();
-  return ('_' + name.toLowerCase()).replace(/_(\w)/g, function(_, c) {
-    return c.toUpperCase();
-  });
-}
-
-/**
- * This returns the name for a ParseTreeType. For example if the type
- * CASE_CLAUSE is passed in this returns CaseClause.
- * @param {ParseTreeType} type
- * @return {string}
- */
-export function getTreeNameForType(type) {
-  // Cache.
-  if (type in typeToNameMap)
-    return typeToNameMap[type];
-
-  var name = getCapitalizedName(type);
-  return typeToNameMap[type] = name;
-}
-
 /**
  * An abstract syntax tree for JavaScript parse trees.
  * Immutable.
@@ -242,7 +218,6 @@ export class ParseTree {
       case CONTINUE_STATEMENT:
       case BREAK_STATEMENT:
       case RETURN_STATEMENT:
-      case YIELD_STATEMENT:
       case WITH_STATEMENT:
       case SWITCH_STATEMENT:
       case LABELLED_STATEMENT:

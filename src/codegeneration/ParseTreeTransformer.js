@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import getTreeNameForType from '../syntax/trees/ParseTree.js';
 import * from '../syntax/trees/ParseTrees.js';
 
 /**
@@ -29,12 +28,7 @@ export class ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformAny(tree) {
-    if (tree == null) {
-      return null;
-    }
-
-    var name = getTreeNameForType(tree.type);
-    return this[`transform${name}`](tree);
+    return tree && tree.transform(this);
   }
 
   /**
