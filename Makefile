@@ -3,7 +3,7 @@ build: bin/traceur.js
 min: bin/traceur.min.js
 
 test: build
-	node test/testfeatures.js
+	node test/testfeatures.js --errsfile test/errsfile.json
 
 force:
 	build/build

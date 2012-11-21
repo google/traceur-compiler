@@ -240,9 +240,15 @@ function runFeatureScripts(dir) {
       }
       print('\n');
 
+      if (errslast && errslast.indexOf(filePath) >= 0)
+        continue;
+
       tests++;
       if (testScript(filePath))
         passes++;
+
+      if (tests - passes > errsnew.length)
+        errsnew.push(filePath);
     }
   }
 }
@@ -266,12 +272,70 @@ print('\n');
 // Run all of the feature scripts.
 var tests  = 0;
 var passes = 0;
-runFeatureScripts(path.join(__dirname, 'feature'));
+
+// errsfile is an optional argument that activates the following behavior:
+//
+// if errsfile exists
+//   run all tests in errsfile.
+//   if anything failed, and failfast flag is set
+//     write to errsfile.
+//     immediately fail and exit.
+//
+// run the full test suite, excluding those already run.
+// if anything failed
+//   write to errsfile.
+// else
+//   delete errsfile.
+var flags;
+var cmdName = path.basename(process.argv[1]);
+try {
+  flags = new (require('commander').Command)(cmdName);
+} catch (ex) {
+  console.error('Commander.js is required for this to work. To install it ' +
+                'run:\n\n  npm install commander\n');
+  process.exit(1);
+}
+flags.setMaxListeners(100);
+flags.option('--errsfile <FILE>', 'path to the error file');
+flags.option('--failfast', 'exit if anything from the error file failed');
+flags.parse(process.argv);
+
+var errsfile = flags.errsfile;
+var errsnew = [];
+var errslast;
+
+if (errsfile && fs.existsSync(errsfile)) {
+  print('Using error file \'' + errsfile + '\' ...\n\n');
+  errslast = JSON.parse(fs.readFileSync(errsfile, 'utf8'));
+  errslast.forEach(function(f) {
+    tests++;
+    if (testScript(f))
+      passes++;
+
+    if (tests - passes > errsnew.length)
+      errsnew.push(f);
+  });
+} else {
+  print('\n');
+}
+
+if (!flags.failfast || passes == tests)
+  runFeatureScripts(path.join(__dirname, 'feature'), errsnew);
 
 clearLastLine();
 if (passes == tests) {
   print('Passed all ' + green(tests) + ' tests.\n');
+
+  if (errsfile && fs.existsSync(errsfile)) {
+    print('Removing error file \'' + errsfile + '\' ...\n');
+    fs.unlink(errsfile);
+  }
 } else {
   print('\nPassed ' + green(passes) + ' and failed ' + red(tests - passes) +
         ' out of ' + tests + ' tests.\n');
+
+  if (errsnew.length && errsfile) {
+    print('Writing error file \'' + errsfile + '\' ...\n');
+    fs.writeFileSync(errsfile, JSON.stringify(errsnew, null, 2), 'utf8');
+  }
 }
