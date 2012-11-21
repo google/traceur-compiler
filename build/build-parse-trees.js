@@ -55,20 +55,14 @@ names.forEach(function(name) {
   // var paramNames = params.map(function(p) { return p.name; });
   print();
   print('export class %s extends ParseTree {', name);
-  if (paramNames.length) {
-    print('  /**');
-    paramNames.forEach(function(paramName) {
-      var types = trees[name][paramName];
-      print('   * @param {%s} %s', getType(types), paramName);
-    });
-    print('   */');
-    print('  constructor(%s) {', paramNames.join(', '));
-    print('    super(%s, location);', treeTypeName);
-    paramNames.slice(1).forEach(printInitializer);
-  } else {
-    print('  constructor() {');
-    print('    super(%s, null);', treeTypeName);
-  }
+  print('  /**');
+  paramNames.forEach(function(paramName) {
+    var types = trees[name][paramName];
+    print('   * @param {%s} %s', getType(types), paramName);
+  });
+  print('   */');
+  print('  constructor(%s) {', paramNames.join(', '));
+  paramNames.forEach(printInitializer);
   print('  }');
   print();
   print('  /**');
@@ -83,6 +77,13 @@ names.forEach(function(name) {
   print('   */');
   print('  visit(visitor) {');
   print('    visitor.visit%s(this);', name);
+  print('  }');
+  print();
+  print('  /**');
+  print('   * @type {ParseTreeType}');
+  print('   */');
+  print('  get type() {');
+  print('    return %s;', treeTypeName);
   print('  }');
   print('}');
 });

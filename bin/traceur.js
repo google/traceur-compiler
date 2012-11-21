@@ -4809,7 +4809,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ArgumentList = function($__super) {
     var $ArgumentList = ($__createClass)({
       constructor: function(location, args) {
-        traceur.runtime.superCall(this, $ArgumentList, "constructor", [ARGUMENT_LIST, location]);
+        this.location = location;
         this.args = args;
       },
       transform: function(transformer) {
@@ -4817,6 +4817,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitArgumentList(this);
+      },
+      get type() {
+        return ARGUMENT_LIST;
       }
     }, $__super, true);
     return $ArgumentList;
@@ -4824,7 +4827,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ArrayComprehension = function($__super) {
     var $ArrayComprehension = ($__createClass)({
       constructor: function(location, expression, comprehensionForList, ifExpression) {
-        traceur.runtime.superCall(this, $ArrayComprehension, "constructor", [ARRAY_COMPREHENSION, location]);
+        this.location = location;
         this.expression = expression;
         this.comprehensionForList = comprehensionForList;
         this.ifExpression = ifExpression;
@@ -4834,6 +4837,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitArrayComprehension(this);
+      },
+      get type() {
+        return ARRAY_COMPREHENSION;
       }
     }, $__super, true);
     return $ArrayComprehension;
@@ -4841,7 +4847,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ArrayLiteralExpression = function($__super) {
     var $ArrayLiteralExpression = ($__createClass)({
       constructor: function(location, elements) {
-        traceur.runtime.superCall(this, $ArrayLiteralExpression, "constructor", [ARRAY_LITERAL_EXPRESSION, location]);
+        this.location = location;
         this.elements = elements;
       },
       transform: function(transformer) {
@@ -4849,6 +4855,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitArrayLiteralExpression(this);
+      },
+      get type() {
+        return ARRAY_LITERAL_EXPRESSION;
       }
     }, $__super, true);
     return $ArrayLiteralExpression;
@@ -4856,7 +4865,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ArrayPattern = function($__super) {
     var $ArrayPattern = ($__createClass)({
       constructor: function(location, elements) {
-        traceur.runtime.superCall(this, $ArrayPattern, "constructor", [ARRAY_PATTERN, location]);
+        this.location = location;
         this.elements = elements;
       },
       transform: function(transformer) {
@@ -4864,6 +4873,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitArrayPattern(this);
+      },
+      get type() {
+        return ARRAY_PATTERN;
       }
     }, $__super, true);
     return $ArrayPattern;
@@ -4871,7 +4883,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ArrowFunctionExpression = function($__super) {
     var $ArrowFunctionExpression = ($__createClass)({
       constructor: function(location, formalParameters, functionBody) {
-        traceur.runtime.superCall(this, $ArrowFunctionExpression, "constructor", [ARROW_FUNCTION_EXPRESSION, location]);
+        this.location = location;
         this.formalParameters = formalParameters;
         this.functionBody = functionBody;
       },
@@ -4880,6 +4892,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitArrowFunctionExpression(this);
+      },
+      get type() {
+        return ARROW_FUNCTION_EXPRESSION;
       }
     }, $__super, true);
     return $ArrowFunctionExpression;
@@ -4887,7 +4902,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var AtNameDeclaration = function($__super) {
     var $AtNameDeclaration = ($__createClass)({
       constructor: function(location, atNameToken, initializer) {
-        traceur.runtime.superCall(this, $AtNameDeclaration, "constructor", [AT_NAME_DECLARATION, location]);
+        this.location = location;
         this.atNameToken = atNameToken;
         this.initializer = initializer;
       },
@@ -4896,6 +4911,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitAtNameDeclaration(this);
+      },
+      get type() {
+        return AT_NAME_DECLARATION;
       }
     }, $__super, true);
     return $AtNameDeclaration;
@@ -4903,7 +4921,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var AtNameExpression = function($__super) {
     var $AtNameExpression = ($__createClass)({
       constructor: function(location, atNameToken) {
-        traceur.runtime.superCall(this, $AtNameExpression, "constructor", [AT_NAME_EXPRESSION, location]);
+        this.location = location;
         this.atNameToken = atNameToken;
       },
       transform: function(transformer) {
@@ -4911,6 +4929,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitAtNameExpression(this);
+      },
+      get type() {
+        return AT_NAME_EXPRESSION;
       }
     }, $__super, true);
     return $AtNameExpression;
@@ -4918,7 +4939,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var AwaitStatement = function($__super) {
     var $AwaitStatement = ($__createClass)({
       constructor: function(location, identifier, expression) {
-        traceur.runtime.superCall(this, $AwaitStatement, "constructor", [AWAIT_STATEMENT, location]);
+        this.location = location;
         this.identifier = identifier;
         this.expression = expression;
       },
@@ -4927,6 +4948,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitAwaitStatement(this);
+      },
+      get type() {
+        return AWAIT_STATEMENT;
       }
     }, $__super, true);
     return $AwaitStatement;
@@ -4934,7 +4958,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var BinaryOperator = function($__super) {
     var $BinaryOperator = ($__createClass)({
       constructor: function(location, left, operator, right) {
-        traceur.runtime.superCall(this, $BinaryOperator, "constructor", [BINARY_OPERATOR, location]);
+        this.location = location;
         this.left = left;
         this.operator = operator;
         this.right = right;
@@ -4944,6 +4968,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitBinaryOperator(this);
+      },
+      get type() {
+        return BINARY_OPERATOR;
       }
     }, $__super, true);
     return $BinaryOperator;
@@ -4951,7 +4978,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var BindingElement = function($__super) {
     var $BindingElement = ($__createClass)({
       constructor: function(location, binding, initializer) {
-        traceur.runtime.superCall(this, $BindingElement, "constructor", [BINDING_ELEMENT, location]);
+        this.location = location;
         this.binding = binding;
         this.initializer = initializer;
       },
@@ -4960,6 +4987,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitBindingElement(this);
+      },
+      get type() {
+        return BINDING_ELEMENT;
       }
     }, $__super, true);
     return $BindingElement;
@@ -4967,7 +4997,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var BindingIdentifier = function($__super) {
     var $BindingIdentifier = ($__createClass)({
       constructor: function(location, identifierToken) {
-        traceur.runtime.superCall(this, $BindingIdentifier, "constructor", [BINDING_IDENTIFIER, location]);
+        this.location = location;
         this.identifierToken = identifierToken;
       },
       transform: function(transformer) {
@@ -4975,6 +5005,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitBindingIdentifier(this);
+      },
+      get type() {
+        return BINDING_IDENTIFIER;
       }
     }, $__super, true);
     return $BindingIdentifier;
@@ -4982,7 +5015,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var Block = function($__super) {
     var $Block = ($__createClass)({
       constructor: function(location, statements) {
-        traceur.runtime.superCall(this, $Block, "constructor", [BLOCK, location]);
+        this.location = location;
         this.statements = statements;
       },
       transform: function(transformer) {
@@ -4990,6 +5023,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitBlock(this);
+      },
+      get type() {
+        return BLOCK;
       }
     }, $__super, true);
     return $Block;
@@ -4997,7 +5033,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var BreakStatement = function($__super) {
     var $BreakStatement = ($__createClass)({
       constructor: function(location, name) {
-        traceur.runtime.superCall(this, $BreakStatement, "constructor", [BREAK_STATEMENT, location]);
+        this.location = location;
         this.name = name;
       },
       transform: function(transformer) {
@@ -5005,6 +5041,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitBreakStatement(this);
+      },
+      get type() {
+        return BREAK_STATEMENT;
       }
     }, $__super, true);
     return $BreakStatement;
@@ -5012,7 +5051,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var CallExpression = function($__super) {
     var $CallExpression = ($__createClass)({
       constructor: function(location, operand, args) {
-        traceur.runtime.superCall(this, $CallExpression, "constructor", [CALL_EXPRESSION, location]);
+        this.location = location;
         this.operand = operand;
         this.args = args;
       },
@@ -5021,6 +5060,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitCallExpression(this);
+      },
+      get type() {
+        return CALL_EXPRESSION;
       }
     }, $__super, true);
     return $CallExpression;
@@ -5028,7 +5070,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var CascadeExpression = function($__super) {
     var $CascadeExpression = ($__createClass)({
       constructor: function(location, operand, expressions) {
-        traceur.runtime.superCall(this, $CascadeExpression, "constructor", [CASCADE_EXPRESSION, location]);
+        this.location = location;
         this.operand = operand;
         this.expressions = expressions;
       },
@@ -5037,6 +5079,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitCascadeExpression(this);
+      },
+      get type() {
+        return CASCADE_EXPRESSION;
       }
     }, $__super, true);
     return $CascadeExpression;
@@ -5044,7 +5089,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var CaseClause = function($__super) {
     var $CaseClause = ($__createClass)({
       constructor: function(location, expression, statements) {
-        traceur.runtime.superCall(this, $CaseClause, "constructor", [CASE_CLAUSE, location]);
+        this.location = location;
         this.expression = expression;
         this.statements = statements;
       },
@@ -5053,6 +5098,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitCaseClause(this);
+      },
+      get type() {
+        return CASE_CLAUSE;
       }
     }, $__super, true);
     return $CaseClause;
@@ -5060,7 +5108,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var Catch = function($__super) {
     var $Catch = ($__createClass)({
       constructor: function(location, binding, catchBody) {
-        traceur.runtime.superCall(this, $Catch, "constructor", [CATCH, location]);
+        this.location = location;
         this.binding = binding;
         this.catchBody = catchBody;
       },
@@ -5069,6 +5117,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitCatch(this);
+      },
+      get type() {
+        return CATCH;
       }
     }, $__super, true);
     return $Catch;
@@ -5076,7 +5127,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ClassDeclaration = function($__super) {
     var $ClassDeclaration = ($__createClass)({
       constructor: function(location, name, superClass, elements) {
-        traceur.runtime.superCall(this, $ClassDeclaration, "constructor", [CLASS_DECLARATION, location]);
+        this.location = location;
         this.name = name;
         this.superClass = superClass;
         this.elements = elements;
@@ -5086,6 +5137,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitClassDeclaration(this);
+      },
+      get type() {
+        return CLASS_DECLARATION;
       }
     }, $__super, true);
     return $ClassDeclaration;
@@ -5093,7 +5147,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ClassExpression = function($__super) {
     var $ClassExpression = ($__createClass)({
       constructor: function(location, name, superClass, elements) {
-        traceur.runtime.superCall(this, $ClassExpression, "constructor", [CLASS_EXPRESSION, location]);
+        this.location = location;
         this.name = name;
         this.superClass = superClass;
         this.elements = elements;
@@ -5103,6 +5157,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitClassExpression(this);
+      },
+      get type() {
+        return CLASS_EXPRESSION;
       }
     }, $__super, true);
     return $ClassExpression;
@@ -5110,7 +5167,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var CommaExpression = function($__super) {
     var $CommaExpression = ($__createClass)({
       constructor: function(location, expressions) {
-        traceur.runtime.superCall(this, $CommaExpression, "constructor", [COMMA_EXPRESSION, location]);
+        this.location = location;
         this.expressions = expressions;
       },
       transform: function(transformer) {
@@ -5118,6 +5175,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitCommaExpression(this);
+      },
+      get type() {
+        return COMMA_EXPRESSION;
       }
     }, $__super, true);
     return $CommaExpression;
@@ -5125,7 +5185,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ComprehensionFor = function($__super) {
     var $ComprehensionFor = ($__createClass)({
       constructor: function(location, left, iterator) {
-        traceur.runtime.superCall(this, $ComprehensionFor, "constructor", [COMPREHENSION_FOR, location]);
+        this.location = location;
         this.left = left;
         this.iterator = iterator;
       },
@@ -5134,6 +5194,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitComprehensionFor(this);
+      },
+      get type() {
+        return COMPREHENSION_FOR;
       }
     }, $__super, true);
     return $ComprehensionFor;
@@ -5141,7 +5204,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ConditionalExpression = function($__super) {
     var $ConditionalExpression = ($__createClass)({
       constructor: function(location, condition, left, right) {
-        traceur.runtime.superCall(this, $ConditionalExpression, "constructor", [CONDITIONAL_EXPRESSION, location]);
+        this.location = location;
         this.condition = condition;
         this.left = left;
         this.right = right;
@@ -5151,6 +5214,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitConditionalExpression(this);
+      },
+      get type() {
+        return CONDITIONAL_EXPRESSION;
       }
     }, $__super, true);
     return $ConditionalExpression;
@@ -5158,7 +5224,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ContinueStatement = function($__super) {
     var $ContinueStatement = ($__createClass)({
       constructor: function(location, name) {
-        traceur.runtime.superCall(this, $ContinueStatement, "constructor", [CONTINUE_STATEMENT, location]);
+        this.location = location;
         this.name = name;
       },
       transform: function(transformer) {
@@ -5166,6 +5232,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitContinueStatement(this);
+      },
+      get type() {
+        return CONTINUE_STATEMENT;
       }
     }, $__super, true);
     return $ContinueStatement;
@@ -5173,13 +5242,16 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var DebuggerStatement = function($__super) {
     var $DebuggerStatement = ($__createClass)({
       constructor: function(location) {
-        traceur.runtime.superCall(this, $DebuggerStatement, "constructor", [DEBUGGER_STATEMENT, location]);
+        this.location = location;
       },
       transform: function(transformer) {
         return transformer.transformDebuggerStatement(this);
       },
       visit: function(visitor) {
         visitor.visitDebuggerStatement(this);
+      },
+      get type() {
+        return DEBUGGER_STATEMENT;
       }
     }, $__super, true);
     return $DebuggerStatement;
@@ -5187,7 +5259,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var DefaultClause = function($__super) {
     var $DefaultClause = ($__createClass)({
       constructor: function(location, statements) {
-        traceur.runtime.superCall(this, $DefaultClause, "constructor", [DEFAULT_CLAUSE, location]);
+        this.location = location;
         this.statements = statements;
       },
       transform: function(transformer) {
@@ -5195,6 +5267,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitDefaultClause(this);
+      },
+      get type() {
+        return DEFAULT_CLAUSE;
       }
     }, $__super, true);
     return $DefaultClause;
@@ -5202,7 +5277,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var DoWhileStatement = function($__super) {
     var $DoWhileStatement = ($__createClass)({
       constructor: function(location, body, condition) {
-        traceur.runtime.superCall(this, $DoWhileStatement, "constructor", [DO_WHILE_STATEMENT, location]);
+        this.location = location;
         this.body = body;
         this.condition = condition;
       },
@@ -5211,6 +5286,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitDoWhileStatement(this);
+      },
+      get type() {
+        return DO_WHILE_STATEMENT;
       }
     }, $__super, true);
     return $DoWhileStatement;
@@ -5218,13 +5296,16 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var EmptyStatement = function($__super) {
     var $EmptyStatement = ($__createClass)({
       constructor: function(location) {
-        traceur.runtime.superCall(this, $EmptyStatement, "constructor", [EMPTY_STATEMENT, location]);
+        this.location = location;
       },
       transform: function(transformer) {
         return transformer.transformEmptyStatement(this);
       },
       visit: function(visitor) {
         visitor.visitEmptyStatement(this);
+      },
+      get type() {
+        return EMPTY_STATEMENT;
       }
     }, $__super, true);
     return $EmptyStatement;
@@ -5232,7 +5313,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ExportDeclaration = function($__super) {
     var $ExportDeclaration = ($__createClass)({
       constructor: function(location, declaration) {
-        traceur.runtime.superCall(this, $ExportDeclaration, "constructor", [EXPORT_DECLARATION, location]);
+        this.location = location;
         this.declaration = declaration;
       },
       transform: function(transformer) {
@@ -5240,6 +5321,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitExportDeclaration(this);
+      },
+      get type() {
+        return EXPORT_DECLARATION;
       }
     }, $__super, true);
     return $ExportDeclaration;
@@ -5247,7 +5331,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ExportMapping = function($__super) {
     var $ExportMapping = ($__createClass)({
       constructor: function(location, moduleExpression, specifierSet) {
-        traceur.runtime.superCall(this, $ExportMapping, "constructor", [EXPORT_MAPPING, location]);
+        this.location = location;
         this.moduleExpression = moduleExpression;
         this.specifierSet = specifierSet;
       },
@@ -5256,6 +5340,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitExportMapping(this);
+      },
+      get type() {
+        return EXPORT_MAPPING;
       }
     }, $__super, true);
     return $ExportMapping;
@@ -5263,7 +5350,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ExportMappingList = function($__super) {
     var $ExportMappingList = ($__createClass)({
       constructor: function(location, paths) {
-        traceur.runtime.superCall(this, $ExportMappingList, "constructor", [EXPORT_MAPPING_LIST, location]);
+        this.location = location;
         this.paths = paths;
       },
       transform: function(transformer) {
@@ -5271,6 +5358,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitExportMappingList(this);
+      },
+      get type() {
+        return EXPORT_MAPPING_LIST;
       }
     }, $__super, true);
     return $ExportMappingList;
@@ -5278,7 +5368,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ExportSpecifier = function($__super) {
     var $ExportSpecifier = ($__createClass)({
       constructor: function(location, lhs, rhs) {
-        traceur.runtime.superCall(this, $ExportSpecifier, "constructor", [EXPORT_SPECIFIER, location]);
+        this.location = location;
         this.lhs = lhs;
         this.rhs = rhs;
       },
@@ -5287,6 +5377,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitExportSpecifier(this);
+      },
+      get type() {
+        return EXPORT_SPECIFIER;
       }
     }, $__super, true);
     return $ExportSpecifier;
@@ -5294,7 +5387,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ExportSpecifierSet = function($__super) {
     var $ExportSpecifierSet = ($__createClass)({
       constructor: function(location, specifiers) {
-        traceur.runtime.superCall(this, $ExportSpecifierSet, "constructor", [EXPORT_SPECIFIER_SET, location]);
+        this.location = location;
         this.specifiers = specifiers;
       },
       transform: function(transformer) {
@@ -5302,6 +5395,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitExportSpecifierSet(this);
+      },
+      get type() {
+        return EXPORT_SPECIFIER_SET;
       }
     }, $__super, true);
     return $ExportSpecifierSet;
@@ -5309,13 +5405,16 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ExportStar = function($__super) {
     var $ExportStar = ($__createClass)({
       constructor: function(location) {
-        traceur.runtime.superCall(this, $ExportStar, "constructor", [EXPORT_STAR, location]);
+        this.location = location;
       },
       transform: function(transformer) {
         return transformer.transformExportStar(this);
       },
       visit: function(visitor) {
         visitor.visitExportStar(this);
+      },
+      get type() {
+        return EXPORT_STAR;
       }
     }, $__super, true);
     return $ExportStar;
@@ -5323,7 +5422,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ExpressionStatement = function($__super) {
     var $ExpressionStatement = ($__createClass)({
       constructor: function(location, expression) {
-        traceur.runtime.superCall(this, $ExpressionStatement, "constructor", [EXPRESSION_STATEMENT, location]);
+        this.location = location;
         this.expression = expression;
       },
       transform: function(transformer) {
@@ -5331,6 +5430,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitExpressionStatement(this);
+      },
+      get type() {
+        return EXPRESSION_STATEMENT;
       }
     }, $__super, true);
     return $ExpressionStatement;
@@ -5338,7 +5440,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var Finally = function($__super) {
     var $Finally = ($__createClass)({
       constructor: function(location, block) {
-        traceur.runtime.superCall(this, $Finally, "constructor", [FINALLY, location]);
+        this.location = location;
         this.block = block;
       },
       transform: function(transformer) {
@@ -5346,6 +5448,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitFinally(this);
+      },
+      get type() {
+        return FINALLY;
       }
     }, $__super, true);
     return $Finally;
@@ -5353,7 +5458,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ForInStatement = function($__super) {
     var $ForInStatement = ($__createClass)({
       constructor: function(location, initializer, collection, body) {
-        traceur.runtime.superCall(this, $ForInStatement, "constructor", [FOR_IN_STATEMENT, location]);
+        this.location = location;
         this.initializer = initializer;
         this.collection = collection;
         this.body = body;
@@ -5363,6 +5468,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitForInStatement(this);
+      },
+      get type() {
+        return FOR_IN_STATEMENT;
       }
     }, $__super, true);
     return $ForInStatement;
@@ -5370,7 +5478,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ForOfStatement = function($__super) {
     var $ForOfStatement = ($__createClass)({
       constructor: function(location, initializer, collection, body) {
-        traceur.runtime.superCall(this, $ForOfStatement, "constructor", [FOR_OF_STATEMENT, location]);
+        this.location = location;
         this.initializer = initializer;
         this.collection = collection;
         this.body = body;
@@ -5380,6 +5488,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitForOfStatement(this);
+      },
+      get type() {
+        return FOR_OF_STATEMENT;
       }
     }, $__super, true);
     return $ForOfStatement;
@@ -5387,7 +5498,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ForStatement = function($__super) {
     var $ForStatement = ($__createClass)({
       constructor: function(location, initializer, condition, increment, body) {
-        traceur.runtime.superCall(this, $ForStatement, "constructor", [FOR_STATEMENT, location]);
+        this.location = location;
         this.initializer = initializer;
         this.condition = condition;
         this.increment = increment;
@@ -5398,6 +5509,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitForStatement(this);
+      },
+      get type() {
+        return FOR_STATEMENT;
       }
     }, $__super, true);
     return $ForStatement;
@@ -5405,7 +5519,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var FormalParameterList = function($__super) {
     var $FormalParameterList = ($__createClass)({
       constructor: function(location, parameters) {
-        traceur.runtime.superCall(this, $FormalParameterList, "constructor", [FORMAL_PARAMETER_LIST, location]);
+        this.location = location;
         this.parameters = parameters;
       },
       transform: function(transformer) {
@@ -5413,6 +5527,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitFormalParameterList(this);
+      },
+      get type() {
+        return FORMAL_PARAMETER_LIST;
       }
     }, $__super, true);
     return $FormalParameterList;
@@ -5420,7 +5537,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var FunctionDeclaration = function($__super) {
     var $FunctionDeclaration = ($__createClass)({
       constructor: function(location, name, isGenerator, formalParameterList, functionBody) {
-        traceur.runtime.superCall(this, $FunctionDeclaration, "constructor", [FUNCTION_DECLARATION, location]);
+        this.location = location;
         this.name = name;
         this.isGenerator = isGenerator;
         this.formalParameterList = formalParameterList;
@@ -5431,6 +5548,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitFunctionDeclaration(this);
+      },
+      get type() {
+        return FUNCTION_DECLARATION;
       }
     }, $__super, true);
     return $FunctionDeclaration;
@@ -5438,7 +5558,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var FunctionExpression = function($__super) {
     var $FunctionExpression = ($__createClass)({
       constructor: function(location, name, isGenerator, formalParameterList, functionBody) {
-        traceur.runtime.superCall(this, $FunctionExpression, "constructor", [FUNCTION_EXPRESSION, location]);
+        this.location = location;
         this.name = name;
         this.isGenerator = isGenerator;
         this.formalParameterList = formalParameterList;
@@ -5449,6 +5569,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitFunctionExpression(this);
+      },
+      get type() {
+        return FUNCTION_EXPRESSION;
       }
     }, $__super, true);
     return $FunctionExpression;
@@ -5456,7 +5579,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var GeneratorComprehension = function($__super) {
     var $GeneratorComprehension = ($__createClass)({
       constructor: function(location, expression, comprehensionForList, ifExpression) {
-        traceur.runtime.superCall(this, $GeneratorComprehension, "constructor", [GENERATOR_COMPREHENSION, location]);
+        this.location = location;
         this.expression = expression;
         this.comprehensionForList = comprehensionForList;
         this.ifExpression = ifExpression;
@@ -5466,6 +5589,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitGeneratorComprehension(this);
+      },
+      get type() {
+        return GENERATOR_COMPREHENSION;
       }
     }, $__super, true);
     return $GeneratorComprehension;
@@ -5473,7 +5599,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var GetAccessor = function($__super) {
     var $GetAccessor = ($__createClass)({
       constructor: function(location, name, body) {
-        traceur.runtime.superCall(this, $GetAccessor, "constructor", [GET_ACCESSOR, location]);
+        this.location = location;
         this.name = name;
         this.body = body;
       },
@@ -5482,6 +5608,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitGetAccessor(this);
+      },
+      get type() {
+        return GET_ACCESSOR;
       }
     }, $__super, true);
     return $GetAccessor;
@@ -5489,7 +5618,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var IdentifierExpression = function($__super) {
     var $IdentifierExpression = ($__createClass)({
       constructor: function(location, identifierToken) {
-        traceur.runtime.superCall(this, $IdentifierExpression, "constructor", [IDENTIFIER_EXPRESSION, location]);
+        this.location = location;
         this.identifierToken = identifierToken;
       },
       transform: function(transformer) {
@@ -5497,6 +5626,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitIdentifierExpression(this);
+      },
+      get type() {
+        return IDENTIFIER_EXPRESSION;
       }
     }, $__super, true);
     return $IdentifierExpression;
@@ -5504,7 +5636,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var IfStatement = function($__super) {
     var $IfStatement = ($__createClass)({
       constructor: function(location, condition, ifClause, elseClause) {
-        traceur.runtime.superCall(this, $IfStatement, "constructor", [IF_STATEMENT, location]);
+        this.location = location;
         this.condition = condition;
         this.ifClause = ifClause;
         this.elseClause = elseClause;
@@ -5514,6 +5646,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitIfStatement(this);
+      },
+      get type() {
+        return IF_STATEMENT;
       }
     }, $__super, true);
     return $IfStatement;
@@ -5521,7 +5656,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ImportBinding = function($__super) {
     var $ImportBinding = ($__createClass)({
       constructor: function(location, moduleExpression, importSpecifierSet) {
-        traceur.runtime.superCall(this, $ImportBinding, "constructor", [IMPORT_BINDING, location]);
+        this.location = location;
         this.moduleExpression = moduleExpression;
         this.importSpecifierSet = importSpecifierSet;
       },
@@ -5530,6 +5665,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitImportBinding(this);
+      },
+      get type() {
+        return IMPORT_BINDING;
       }
     }, $__super, true);
     return $ImportBinding;
@@ -5537,7 +5675,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ImportDeclaration = function($__super) {
     var $ImportDeclaration = ($__createClass)({
       constructor: function(location, importPathList) {
-        traceur.runtime.superCall(this, $ImportDeclaration, "constructor", [IMPORT_DECLARATION, location]);
+        this.location = location;
         this.importPathList = importPathList;
       },
       transform: function(transformer) {
@@ -5545,6 +5683,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitImportDeclaration(this);
+      },
+      get type() {
+        return IMPORT_DECLARATION;
       }
     }, $__super, true);
     return $ImportDeclaration;
@@ -5552,7 +5693,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ImportSpecifier = function($__super) {
     var $ImportSpecifier = ($__createClass)({
       constructor: function(location, lhs, rhs) {
-        traceur.runtime.superCall(this, $ImportSpecifier, "constructor", [IMPORT_SPECIFIER, location]);
+        this.location = location;
         this.lhs = lhs;
         this.rhs = rhs;
       },
@@ -5561,6 +5702,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitImportSpecifier(this);
+      },
+      get type() {
+        return IMPORT_SPECIFIER;
       }
     }, $__super, true);
     return $ImportSpecifier;
@@ -5568,7 +5712,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ImportSpecifierSet = function($__super) {
     var $ImportSpecifierSet = ($__createClass)({
       constructor: function(location, specifiers) {
-        traceur.runtime.superCall(this, $ImportSpecifierSet, "constructor", [IMPORT_SPECIFIER_SET, location]);
+        this.location = location;
         this.specifiers = specifiers;
       },
       transform: function(transformer) {
@@ -5576,6 +5720,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitImportSpecifierSet(this);
+      },
+      get type() {
+        return IMPORT_SPECIFIER_SET;
       }
     }, $__super, true);
     return $ImportSpecifierSet;
@@ -5583,7 +5730,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var LabelledStatement = function($__super) {
     var $LabelledStatement = ($__createClass)({
       constructor: function(location, name, statement) {
-        traceur.runtime.superCall(this, $LabelledStatement, "constructor", [LABELLED_STATEMENT, location]);
+        this.location = location;
         this.name = name;
         this.statement = statement;
       },
@@ -5592,6 +5739,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitLabelledStatement(this);
+      },
+      get type() {
+        return LABELLED_STATEMENT;
       }
     }, $__super, true);
     return $LabelledStatement;
@@ -5599,7 +5749,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var LiteralExpression = function($__super) {
     var $LiteralExpression = ($__createClass)({
       constructor: function(location, literalToken) {
-        traceur.runtime.superCall(this, $LiteralExpression, "constructor", [LITERAL_EXPRESSION, location]);
+        this.location = location;
         this.literalToken = literalToken;
       },
       transform: function(transformer) {
@@ -5607,6 +5757,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitLiteralExpression(this);
+      },
+      get type() {
+        return LITERAL_EXPRESSION;
       }
     }, $__super, true);
     return $LiteralExpression;
@@ -5614,7 +5767,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var MemberExpression = function($__super) {
     var $MemberExpression = ($__createClass)({
       constructor: function(location, operand, memberName) {
-        traceur.runtime.superCall(this, $MemberExpression, "constructor", [MEMBER_EXPRESSION, location]);
+        this.location = location;
         this.operand = operand;
         this.memberName = memberName;
       },
@@ -5623,6 +5776,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitMemberExpression(this);
+      },
+      get type() {
+        return MEMBER_EXPRESSION;
       }
     }, $__super, true);
     return $MemberExpression;
@@ -5630,7 +5786,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var MemberLookupExpression = function($__super) {
     var $MemberLookupExpression = ($__createClass)({
       constructor: function(location, operand, memberExpression) {
-        traceur.runtime.superCall(this, $MemberLookupExpression, "constructor", [MEMBER_LOOKUP_EXPRESSION, location]);
+        this.location = location;
         this.operand = operand;
         this.memberExpression = memberExpression;
       },
@@ -5639,6 +5795,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitMemberLookupExpression(this);
+      },
+      get type() {
+        return MEMBER_LOOKUP_EXPRESSION;
       }
     }, $__super, true);
     return $MemberLookupExpression;
@@ -5646,7 +5805,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var MissingPrimaryExpression = function($__super) {
     var $MissingPrimaryExpression = ($__createClass)({
       constructor: function(location, nextToken) {
-        traceur.runtime.superCall(this, $MissingPrimaryExpression, "constructor", [MISSING_PRIMARY_EXPRESSION, location]);
+        this.location = location;
         this.nextToken = nextToken;
       },
       transform: function(transformer) {
@@ -5654,6 +5813,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitMissingPrimaryExpression(this);
+      },
+      get type() {
+        return MISSING_PRIMARY_EXPRESSION;
       }
     }, $__super, true);
     return $MissingPrimaryExpression;
@@ -5661,7 +5823,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ModuleDeclaration = function($__super) {
     var $ModuleDeclaration = ($__createClass)({
       constructor: function(location, specifiers) {
-        traceur.runtime.superCall(this, $ModuleDeclaration, "constructor", [MODULE_DECLARATION, location]);
+        this.location = location;
         this.specifiers = specifiers;
       },
       transform: function(transformer) {
@@ -5669,6 +5831,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitModuleDeclaration(this);
+      },
+      get type() {
+        return MODULE_DECLARATION;
       }
     }, $__super, true);
     return $ModuleDeclaration;
@@ -5676,7 +5841,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ModuleDefinition = function($__super) {
     var $ModuleDefinition = ($__createClass)({
       constructor: function(location, name, elements) {
-        traceur.runtime.superCall(this, $ModuleDefinition, "constructor", [MODULE_DEFINITION, location]);
+        this.location = location;
         this.name = name;
         this.elements = elements;
       },
@@ -5685,6 +5850,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitModuleDefinition(this);
+      },
+      get type() {
+        return MODULE_DEFINITION;
       }
     }, $__super, true);
     return $ModuleDefinition;
@@ -5692,7 +5860,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ModuleExpression = function($__super) {
     var $ModuleExpression = ($__createClass)({
       constructor: function(location, reference, identifiers) {
-        traceur.runtime.superCall(this, $ModuleExpression, "constructor", [MODULE_EXPRESSION, location]);
+        this.location = location;
         this.reference = reference;
         this.identifiers = identifiers;
       },
@@ -5701,6 +5869,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitModuleExpression(this);
+      },
+      get type() {
+        return MODULE_EXPRESSION;
       }
     }, $__super, true);
     return $ModuleExpression;
@@ -5708,7 +5879,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ModuleRequire = function($__super) {
     var $ModuleRequire = ($__createClass)({
       constructor: function(location, url) {
-        traceur.runtime.superCall(this, $ModuleRequire, "constructor", [MODULE_REQUIRE, location]);
+        this.location = location;
         this.url = url;
       },
       transform: function(transformer) {
@@ -5716,6 +5887,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitModuleRequire(this);
+      },
+      get type() {
+        return MODULE_REQUIRE;
       }
     }, $__super, true);
     return $ModuleRequire;
@@ -5723,7 +5897,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ModuleSpecifier = function($__super) {
     var $ModuleSpecifier = ($__createClass)({
       constructor: function(location, identifier, expression) {
-        traceur.runtime.superCall(this, $ModuleSpecifier, "constructor", [MODULE_SPECIFIER, location]);
+        this.location = location;
         this.identifier = identifier;
         this.expression = expression;
       },
@@ -5732,6 +5906,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitModuleSpecifier(this);
+      },
+      get type() {
+        return MODULE_SPECIFIER;
       }
     }, $__super, true);
     return $ModuleSpecifier;
@@ -5739,7 +5916,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var NameStatement = function($__super) {
     var $NameStatement = ($__createClass)({
       constructor: function(location, declarations) {
-        traceur.runtime.superCall(this, $NameStatement, "constructor", [NAME_STATEMENT, location]);
+        this.location = location;
         this.declarations = declarations;
       },
       transform: function(transformer) {
@@ -5747,6 +5924,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitNameStatement(this);
+      },
+      get type() {
+        return NAME_STATEMENT;
       }
     }, $__super, true);
     return $NameStatement;
@@ -5754,7 +5934,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var NewExpression = function($__super) {
     var $NewExpression = ($__createClass)({
       constructor: function(location, operand, args) {
-        traceur.runtime.superCall(this, $NewExpression, "constructor", [NEW_EXPRESSION, location]);
+        this.location = location;
         this.operand = operand;
         this.args = args;
       },
@@ -5763,6 +5943,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitNewExpression(this);
+      },
+      get type() {
+        return NEW_EXPRESSION;
       }
     }, $__super, true);
     return $NewExpression;
@@ -5770,7 +5953,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ObjectLiteralExpression = function($__super) {
     var $ObjectLiteralExpression = ($__createClass)({
       constructor: function(location, propertyNameAndValues) {
-        traceur.runtime.superCall(this, $ObjectLiteralExpression, "constructor", [OBJECT_LITERAL_EXPRESSION, location]);
+        this.location = location;
         this.propertyNameAndValues = propertyNameAndValues;
       },
       transform: function(transformer) {
@@ -5778,6 +5961,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitObjectLiteralExpression(this);
+      },
+      get type() {
+        return OBJECT_LITERAL_EXPRESSION;
       }
     }, $__super, true);
     return $ObjectLiteralExpression;
@@ -5785,7 +5971,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ObjectPattern = function($__super) {
     var $ObjectPattern = ($__createClass)({
       constructor: function(location, fields) {
-        traceur.runtime.superCall(this, $ObjectPattern, "constructor", [OBJECT_PATTERN, location]);
+        this.location = location;
         this.fields = fields;
       },
       transform: function(transformer) {
@@ -5793,6 +5979,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitObjectPattern(this);
+      },
+      get type() {
+        return OBJECT_PATTERN;
       }
     }, $__super, true);
     return $ObjectPattern;
@@ -5800,7 +5989,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ObjectPatternField = function($__super) {
     var $ObjectPatternField = ($__createClass)({
       constructor: function(location, identifier, element) {
-        traceur.runtime.superCall(this, $ObjectPatternField, "constructor", [OBJECT_PATTERN_FIELD, location]);
+        this.location = location;
         this.identifier = identifier;
         this.element = element;
       },
@@ -5809,6 +5998,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitObjectPatternField(this);
+      },
+      get type() {
+        return OBJECT_PATTERN_FIELD;
       }
     }, $__super, true);
     return $ObjectPatternField;
@@ -5816,7 +6008,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ParenExpression = function($__super) {
     var $ParenExpression = ($__createClass)({
       constructor: function(location, expression) {
-        traceur.runtime.superCall(this, $ParenExpression, "constructor", [PAREN_EXPRESSION, location]);
+        this.location = location;
         this.expression = expression;
       },
       transform: function(transformer) {
@@ -5824,6 +6016,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitParenExpression(this);
+      },
+      get type() {
+        return PAREN_EXPRESSION;
       }
     }, $__super, true);
     return $ParenExpression;
@@ -5831,7 +6026,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var PostfixExpression = function($__super) {
     var $PostfixExpression = ($__createClass)({
       constructor: function(location, operand, operator) {
-        traceur.runtime.superCall(this, $PostfixExpression, "constructor", [POSTFIX_EXPRESSION, location]);
+        this.location = location;
         this.operand = operand;
         this.operator = operator;
       },
@@ -5840,6 +6035,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitPostfixExpression(this);
+      },
+      get type() {
+        return POSTFIX_EXPRESSION;
       }
     }, $__super, true);
     return $PostfixExpression;
@@ -5847,7 +6045,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var Program = function($__super) {
     var $Program = ($__createClass)({
       constructor: function(location, programElements) {
-        traceur.runtime.superCall(this, $Program, "constructor", [PROGRAM, location]);
+        this.location = location;
         this.programElements = programElements;
       },
       transform: function(transformer) {
@@ -5855,6 +6053,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitProgram(this);
+      },
+      get type() {
+        return PROGRAM;
       }
     }, $__super, true);
     return $Program;
@@ -5862,7 +6063,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var PropertyMethodAssignment = function($__super) {
     var $PropertyMethodAssignment = ($__createClass)({
       constructor: function(location, name, isGenerator, formalParameterList, functionBody) {
-        traceur.runtime.superCall(this, $PropertyMethodAssignment, "constructor", [PROPERTY_METHOD_ASSIGNMENT, location]);
+        this.location = location;
         this.name = name;
         this.isGenerator = isGenerator;
         this.formalParameterList = formalParameterList;
@@ -5873,6 +6074,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitPropertyMethodAssignment(this);
+      },
+      get type() {
+        return PROPERTY_METHOD_ASSIGNMENT;
       }
     }, $__super, true);
     return $PropertyMethodAssignment;
@@ -5880,7 +6084,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var PropertyNameAssignment = function($__super) {
     var $PropertyNameAssignment = ($__createClass)({
       constructor: function(location, name, value) {
-        traceur.runtime.superCall(this, $PropertyNameAssignment, "constructor", [PROPERTY_NAME_ASSIGNMENT, location]);
+        this.location = location;
         this.name = name;
         this.value = value;
       },
@@ -5889,6 +6093,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitPropertyNameAssignment(this);
+      },
+      get type() {
+        return PROPERTY_NAME_ASSIGNMENT;
       }
     }, $__super, true);
     return $PropertyNameAssignment;
@@ -5896,7 +6103,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var PropertyNameShorthand = function($__super) {
     var $PropertyNameShorthand = ($__createClass)({
       constructor: function(location, name) {
-        traceur.runtime.superCall(this, $PropertyNameShorthand, "constructor", [PROPERTY_NAME_SHORTHAND, location]);
+        this.location = location;
         this.name = name;
       },
       transform: function(transformer) {
@@ -5904,6 +6111,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitPropertyNameShorthand(this);
+      },
+      get type() {
+        return PROPERTY_NAME_SHORTHAND;
       }
     }, $__super, true);
     return $PropertyNameShorthand;
@@ -5911,7 +6121,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var QuasiLiteralExpression = function($__super) {
     var $QuasiLiteralExpression = ($__createClass)({
       constructor: function(location, operand, elements) {
-        traceur.runtime.superCall(this, $QuasiLiteralExpression, "constructor", [QUASI_LITERAL_EXPRESSION, location]);
+        this.location = location;
         this.operand = operand;
         this.elements = elements;
       },
@@ -5920,6 +6130,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitQuasiLiteralExpression(this);
+      },
+      get type() {
+        return QUASI_LITERAL_EXPRESSION;
       }
     }, $__super, true);
     return $QuasiLiteralExpression;
@@ -5927,7 +6140,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var QuasiLiteralPortion = function($__super) {
     var $QuasiLiteralPortion = ($__createClass)({
       constructor: function(location, value) {
-        traceur.runtime.superCall(this, $QuasiLiteralPortion, "constructor", [QUASI_LITERAL_PORTION, location]);
+        this.location = location;
         this.value = value;
       },
       transform: function(transformer) {
@@ -5935,6 +6148,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitQuasiLiteralPortion(this);
+      },
+      get type() {
+        return QUASI_LITERAL_PORTION;
       }
     }, $__super, true);
     return $QuasiLiteralPortion;
@@ -5942,7 +6158,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var QuasiSubstitution = function($__super) {
     var $QuasiSubstitution = ($__createClass)({
       constructor: function(location, expression) {
-        traceur.runtime.superCall(this, $QuasiSubstitution, "constructor", [QUASI_SUBSTITUTION, location]);
+        this.location = location;
         this.expression = expression;
       },
       transform: function(transformer) {
@@ -5950,6 +6166,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitQuasiSubstitution(this);
+      },
+      get type() {
+        return QUASI_SUBSTITUTION;
       }
     }, $__super, true);
     return $QuasiSubstitution;
@@ -5957,7 +6176,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var RestParameter = function($__super) {
     var $RestParameter = ($__createClass)({
       constructor: function(location, identifier) {
-        traceur.runtime.superCall(this, $RestParameter, "constructor", [REST_PARAMETER, location]);
+        this.location = location;
         this.identifier = identifier;
       },
       transform: function(transformer) {
@@ -5965,6 +6184,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitRestParameter(this);
+      },
+      get type() {
+        return REST_PARAMETER;
       }
     }, $__super, true);
     return $RestParameter;
@@ -5972,7 +6194,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ReturnStatement = function($__super) {
     var $ReturnStatement = ($__createClass)({
       constructor: function(location, expression) {
-        traceur.runtime.superCall(this, $ReturnStatement, "constructor", [RETURN_STATEMENT, location]);
+        this.location = location;
         this.expression = expression;
       },
       transform: function(transformer) {
@@ -5980,6 +6202,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitReturnStatement(this);
+      },
+      get type() {
+        return RETURN_STATEMENT;
       }
     }, $__super, true);
     return $ReturnStatement;
@@ -5987,7 +6212,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var SetAccessor = function($__super) {
     var $SetAccessor = ($__createClass)({
       constructor: function(location, name, parameter, body) {
-        traceur.runtime.superCall(this, $SetAccessor, "constructor", [SET_ACCESSOR, location]);
+        this.location = location;
         this.name = name;
         this.parameter = parameter;
         this.body = body;
@@ -5997,6 +6222,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitSetAccessor(this);
+      },
+      get type() {
+        return SET_ACCESSOR;
       }
     }, $__super, true);
     return $SetAccessor;
@@ -6004,7 +6232,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var SpreadExpression = function($__super) {
     var $SpreadExpression = ($__createClass)({
       constructor: function(location, expression) {
-        traceur.runtime.superCall(this, $SpreadExpression, "constructor", [SPREAD_EXPRESSION, location]);
+        this.location = location;
         this.expression = expression;
       },
       transform: function(transformer) {
@@ -6012,6 +6240,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitSpreadExpression(this);
+      },
+      get type() {
+        return SPREAD_EXPRESSION;
       }
     }, $__super, true);
     return $SpreadExpression;
@@ -6019,7 +6250,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var SpreadPatternElement = function($__super) {
     var $SpreadPatternElement = ($__createClass)({
       constructor: function(location, lvalue) {
-        traceur.runtime.superCall(this, $SpreadPatternElement, "constructor", [SPREAD_PATTERN_ELEMENT, location]);
+        this.location = location;
         this.lvalue = lvalue;
       },
       transform: function(transformer) {
@@ -6027,6 +6258,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitSpreadPatternElement(this);
+      },
+      get type() {
+        return SPREAD_PATTERN_ELEMENT;
       }
     }, $__super, true);
     return $SpreadPatternElement;
@@ -6034,13 +6268,16 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var SuperExpression = function($__super) {
     var $SuperExpression = ($__createClass)({
       constructor: function(location) {
-        traceur.runtime.superCall(this, $SuperExpression, "constructor", [SUPER_EXPRESSION, location]);
+        this.location = location;
       },
       transform: function(transformer) {
         return transformer.transformSuperExpression(this);
       },
       visit: function(visitor) {
         visitor.visitSuperExpression(this);
+      },
+      get type() {
+        return SUPER_EXPRESSION;
       }
     }, $__super, true);
     return $SuperExpression;
@@ -6048,7 +6285,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var SwitchStatement = function($__super) {
     var $SwitchStatement = ($__createClass)({
       constructor: function(location, expression, caseClauses) {
-        traceur.runtime.superCall(this, $SwitchStatement, "constructor", [SWITCH_STATEMENT, location]);
+        this.location = location;
         this.expression = expression;
         this.caseClauses = caseClauses;
       },
@@ -6057,6 +6294,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitSwitchStatement(this);
+      },
+      get type() {
+        return SWITCH_STATEMENT;
       }
     }, $__super, true);
     return $SwitchStatement;
@@ -6064,13 +6304,16 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ThisExpression = function($__super) {
     var $ThisExpression = ($__createClass)({
       constructor: function(location) {
-        traceur.runtime.superCall(this, $ThisExpression, "constructor", [THIS_EXPRESSION, location]);
+        this.location = location;
       },
       transform: function(transformer) {
         return transformer.transformThisExpression(this);
       },
       visit: function(visitor) {
         visitor.visitThisExpression(this);
+      },
+      get type() {
+        return THIS_EXPRESSION;
       }
     }, $__super, true);
     return $ThisExpression;
@@ -6078,7 +6321,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var ThrowStatement = function($__super) {
     var $ThrowStatement = ($__createClass)({
       constructor: function(location, value) {
-        traceur.runtime.superCall(this, $ThrowStatement, "constructor", [THROW_STATEMENT, location]);
+        this.location = location;
         this.value = value;
       },
       transform: function(transformer) {
@@ -6086,6 +6329,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitThrowStatement(this);
+      },
+      get type() {
+        return THROW_STATEMENT;
       }
     }, $__super, true);
     return $ThrowStatement;
@@ -6093,7 +6339,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var TryStatement = function($__super) {
     var $TryStatement = ($__createClass)({
       constructor: function(location, body, catchBlock, finallyBlock) {
-        traceur.runtime.superCall(this, $TryStatement, "constructor", [TRY_STATEMENT, location]);
+        this.location = location;
         this.body = body;
         this.catchBlock = catchBlock;
         this.finallyBlock = finallyBlock;
@@ -6103,6 +6349,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitTryStatement(this);
+      },
+      get type() {
+        return TRY_STATEMENT;
       }
     }, $__super, true);
     return $TryStatement;
@@ -6110,7 +6359,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var UnaryExpression = function($__super) {
     var $UnaryExpression = ($__createClass)({
       constructor: function(location, operator, operand) {
-        traceur.runtime.superCall(this, $UnaryExpression, "constructor", [UNARY_EXPRESSION, location]);
+        this.location = location;
         this.operator = operator;
         this.operand = operand;
       },
@@ -6119,6 +6368,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitUnaryExpression(this);
+      },
+      get type() {
+        return UNARY_EXPRESSION;
       }
     }, $__super, true);
     return $UnaryExpression;
@@ -6126,7 +6378,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var VariableDeclaration = function($__super) {
     var $VariableDeclaration = ($__createClass)({
       constructor: function(location, lvalue, initializer) {
-        traceur.runtime.superCall(this, $VariableDeclaration, "constructor", [VARIABLE_DECLARATION, location]);
+        this.location = location;
         this.lvalue = lvalue;
         this.initializer = initializer;
       },
@@ -6135,6 +6387,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitVariableDeclaration(this);
+      },
+      get type() {
+        return VARIABLE_DECLARATION;
       }
     }, $__super, true);
     return $VariableDeclaration;
@@ -6142,7 +6397,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var VariableDeclarationList = function($__super) {
     var $VariableDeclarationList = ($__createClass)({
       constructor: function(location, declarationType, declarations) {
-        traceur.runtime.superCall(this, $VariableDeclarationList, "constructor", [VARIABLE_DECLARATION_LIST, location]);
+        this.location = location;
         this.declarationType = declarationType;
         this.declarations = declarations;
       },
@@ -6151,6 +6406,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitVariableDeclarationList(this);
+      },
+      get type() {
+        return VARIABLE_DECLARATION_LIST;
       }
     }, $__super, true);
     return $VariableDeclarationList;
@@ -6158,7 +6416,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var VariableStatement = function($__super) {
     var $VariableStatement = ($__createClass)({
       constructor: function(location, declarations) {
-        traceur.runtime.superCall(this, $VariableStatement, "constructor", [VARIABLE_STATEMENT, location]);
+        this.location = location;
         this.declarations = declarations;
       },
       transform: function(transformer) {
@@ -6166,6 +6424,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitVariableStatement(this);
+      },
+      get type() {
+        return VARIABLE_STATEMENT;
       }
     }, $__super, true);
     return $VariableStatement;
@@ -6173,7 +6434,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var WhileStatement = function($__super) {
     var $WhileStatement = ($__createClass)({
       constructor: function(location, condition, body) {
-        traceur.runtime.superCall(this, $WhileStatement, "constructor", [WHILE_STATEMENT, location]);
+        this.location = location;
         this.condition = condition;
         this.body = body;
       },
@@ -6182,6 +6443,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitWhileStatement(this);
+      },
+      get type() {
+        return WHILE_STATEMENT;
       }
     }, $__super, true);
     return $WhileStatement;
@@ -6189,7 +6453,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var WithStatement = function($__super) {
     var $WithStatement = ($__createClass)({
       constructor: function(location, expression, body) {
-        traceur.runtime.superCall(this, $WithStatement, "constructor", [WITH_STATEMENT, location]);
+        this.location = location;
         this.expression = expression;
         this.body = body;
       },
@@ -6198,6 +6462,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitWithStatement(this);
+      },
+      get type() {
+        return WITH_STATEMENT;
       }
     }, $__super, true);
     return $WithStatement;
@@ -6205,7 +6472,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   var YieldExpression = function($__super) {
     var $YieldExpression = ($__createClass)({
       constructor: function(location, expression, isYieldFor) {
-        traceur.runtime.superCall(this, $YieldExpression, "constructor", [YIELD_EXPRESSION, location]);
+        this.location = location;
         this.expression = expression;
         this.isYieldFor = isYieldFor;
       },
@@ -6214,6 +6481,9 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       visit: function(visitor) {
         visitor.visitYieldExpression(this);
+      },
+      get type() {
+        return YIELD_EXPRESSION;
       }
     }, $__super, true);
     return $YieldExpression;
