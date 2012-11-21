@@ -529,14 +529,9 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   }
 
   /**
-   * @param {FunctionDeclaration} tree
+   * @param {FunctionDeclaration|FunctionExpression} tree
    */
-  visitFunctionDeclaration(tree) {
-    if (tree.name !== null) {
-      this.checkType_(BINDING_IDENTIFIER,
-                      tree.name,
-                      'binding identifier expected');
-    }
+  visitFunction(tree) {
     this.checkType_(FORMAL_PARAMETER_LIST,
                     tree.formalParameterList,
                     'formal parameters expected');
@@ -544,6 +539,28 @@ export class ParseTreeValidator extends ParseTreeVisitor {
     this.checkType_(BLOCK,
                     tree.functionBody,
                     'block expected');
+  }
+
+  /**
+   * @param {FunctionDeclaration} tree
+   */
+  visitFunctionDeclaration(tree) {
+    this.checkType_(BINDING_IDENTIFIER,
+                    tree.name,
+                    'binding identifier expected');
+    this.visitFunction(tree);
+  }
+
+  /**
+   * @param {FunctionExpression} tree
+   */
+  visitFunctionExpression(tree) {
+    if (tree.name !== null) {
+      this.checkType_(BINDING_IDENTIFIER,
+                      tree.name,
+                      'binding identifier expected');
+    }
+    this.visitFunction(tree);
   }
 
   /**

@@ -17,7 +17,6 @@ import {
   Catch,
   ForInStatement,
   ForStatement,
-  FunctionDeclaration,
   ObjectPatternField,
   VariableDeclarationList,
   VariableDeclaration
@@ -25,7 +24,6 @@ import {
 import {
   ARRAY_PATTERN,
   BINDING_IDENTIFIER,
-  FUNCTION_DECLARATION,
   OBJECT_PATTERN,
   OBJECT_PATTERN_FIELD,
   PAREN_EXPRESSION,
@@ -167,30 +165,19 @@ export class VariableBinder extends ParseTreeVisitor {
     this.block_ = tree;
 
     // visit the statements
-    tree.statements.forEach((s) => {
-      if (s.type == FUNCTION_DECLARATION) {
-        this.bindFunctionDeclaration_(s);
-      } else {
-        this.visitAny(s);
-      }
-    });
+    this.visitList(tree.statements);
 
     // restore current block
     this.block_ = parentBlock;
   }
 
-  /** @param {FunctionDeclaration} tree */
-  bindFunctionDeclaration_(tree) {
+  visitFunctionDeclaration(tree) {
     // functions follow the binding rules of 'let'
-    if (tree.name != null && this.block_ == this.scope_) {
+    if (this.block_ == this.scope_)
       this.bind_(tree.name.identifierToken);
-    }
-    // We don't recurse into function bodies, because they create
-    // their own lexical scope.
   }
 
-  /** @param {FunctionDeclaration} tree */
-  visitFunctionDeclaration(tree) {
+  visitFunctionExpression(tree) {
     // We don't recurse into function bodies, because they create
     // their own lexical scope.
   }

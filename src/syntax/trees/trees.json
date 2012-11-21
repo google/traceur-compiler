@@ -408,6 +408,23 @@
       "Block"
     ]
   },
+  "FunctionExpression": {
+    "location": [
+      "SourceRange"
+    ],
+    "name": [
+      "BindingIdentifier"
+    ],
+    "isGenerator": [
+      "boolean"
+    ],
+    "formalParameterList": [
+      "FormalParameterList"
+    ],
+    "functionBody": [
+      "Block"
+    ]
+  },
   "GeneratorComprehension": {
     "location": [
       "SourceRange"

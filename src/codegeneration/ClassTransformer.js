@@ -20,7 +20,6 @@ import {
 } from '../syntax/PredefinedName.js';
 import {
   FormalParameterList,
-  FunctionDeclaration,
   GetAccessor,
   PropertyMethodAssignment,
   PropertyNameAssignment,

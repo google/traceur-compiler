@@ -778,9 +778,9 @@ export class Parser {
     var formalParameterList = this.parseFormalParameterList_();
     this.eat_(TokenType.CLOSE_PAREN);
     var functionBody = this.parseFunctionBody_(isGenerator);
-    return new FunctionDeclaration(this.getTreeLocation_(start), name,
-                                   isGenerator, formalParameterList,
-                                   functionBody);
+    return new FunctionExpression(this.getTreeLocation_(start), name,
+                                  isGenerator, formalParameterList,
+                                  functionBody);
   }
 
   /**

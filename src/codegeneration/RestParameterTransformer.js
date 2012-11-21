@@ -12,11 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FormalParameterList from '../syntax/trees/ParseTrees.js';
+import {
+  FormalParameterList
+} from '../syntax/trees/ParseTrees.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import {
   ARGUMENTS,
-  ARRAY, 
+  ARRAY,
   CALL,
   PROTOTYPE
 } from '../syntax/PredefinedName.js';
@@ -25,12 +27,12 @@ import {
   createArgumentList,
   createBlock,
   createCallExpression,
-  createFunctionDeclaration,
   createIdentifierExpression,
   createMemberExpression,
   createNumberLiteral,
   createVariableStatement
 } from 'ParseTreeFactory.js';
+import prependStatements from 'PrependStatements.js';
 
 function hasRestParameter(formalParameterList) {
   var parameters = formalParameterList.parameters;
@@ -51,12 +53,10 @@ function getRestParameterName(formalParameterList) {
  */
 export class RestParameterTransformer extends ParseTreeTransformer {
 
-  transformFunctionDeclaration(tree) {
-    if (hasRestParameter(tree.formalParameterList)) {
+  transformFunction(tree) {
+    if (hasRestParameter(tree.formalParameterList))
       return this.desugarRestParameters_(tree);
-    } else {
-      return super.transformFunctionDeclaration(tree);
-    }
+    return super.transformFunction(tree);
   }
 
   /**
@@ -74,12 +74,12 @@ export class RestParameterTransformer extends ParseTreeTransformer {
     //   var y = Array.prototype.slice.call(arguments, 1);
     // }
 
+    var formalParameterList = this.transformAny(tree.formalParameterList);
+
     var parametersWithoutRestParam =
         new FormalParameterList(
-            tree.formalParameterList.location,
-            tree.formalParameterList.parameters.slice(
-                0,
-                tree.formalParameterList.parameters.length - 1));
+            formalParameterList.location,
+            formalParameterList.parameters.slice(0, -1));
 
     var sliceExpression = createCallExpression(
         createMemberExpression(ARRAY, PROTOTYPE, 'slice', CALL),
@@ -93,11 +93,11 @@ export class RestParameterTransformer extends ParseTreeTransformer {
         getRestParameterName(tree.formalParameterList),
         sliceExpression);
 
-    var statements = [variable, ...tree.functionBody.statements];
+    var statements = prependStatements(tree.functionBody.statements, variable);
+    var functionBody = this.transformAny(createBlock(statements));
 
-    return createFunctionDeclaration(
-        tree.name, parametersWithoutRestParam,
-        this.transformAny(createBlock(statements)));
+    return new tree.constructor(tree.location, tree.name, tree.isGenerator,
+                                parametersWithoutRestParam, functionBody);
   }
 }
 

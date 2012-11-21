@@ -89,9 +89,7 @@ export class ExportVisitor extends ModuleVisitor {
   }
 
   visitFunctionDeclaration(tree) {
-    if (tree.name) {
-      this.addExport_(tree.name.identifierToken.value, tree);
-    }
+    this.addExport_(tree.name.identifierToken.value, tree);
   }
 
   visitIdentifierExpression(tree) {

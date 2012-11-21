@@ -40,7 +40,6 @@ import {
   Catch,
   ForInStatement,
   ForOfStatement,
-  FunctionDeclaration,
   LiteralExpression,
   SetAccessor,
   VariableDeclaration,
@@ -69,6 +68,7 @@ import {
   createVariableDeclarationList,
   createVariableStatement
 } from 'ParseTreeFactory.js';
+import prependStatements from 'PrependStatements.js';
 
 var stack = [];
 
@@ -350,21 +350,22 @@ export class DestructuringTransformer extends TempVarTransformer {
     return new constr(tree.location, initializer, collection, body);
   }
 
-  transformFunctionDeclaration(tree) {
+  transformFunction(tree) {
     stack.push([]);
-    var transformedTree = super.transformFunctionDeclaration(tree);
+    var transformedTree = super.transformFunction(tree);
     var statements = stack.pop();
     if (!statements.length)
       return transformedTree;
 
     // Prepend the var statements to the block.
-    statements.push(...transformedTree.functionBody.statements);
+    statements = prependStatements(transformedTree.functionBody.statements,
+                                   ...statements);
 
-    return new FunctionDeclaration(transformedTree.location,
-                                   transformedTree.name,
-                                   transformedTree.isGenerator,
-                                   transformedTree.formalParameterList,
-                                   createBlock(statements));
+    return new tree.constructor(transformedTree.location,
+                                transformedTree.name,
+                                transformedTree.isGenerator,
+                                transformedTree.formalParameterList,
+                                createBlock(statements));
   }
 
   transformSetAccessor(tree) {

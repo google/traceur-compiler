@@ -20,8 +20,7 @@ import {
 import IdentifierToken from '../syntax/IdentifierToken.js';
 import {
   PAREN_EXPRESSION,
-  BINDING_IDENTIFIER,
-  FUNCTION_DECLARATION
+  BINDING_IDENTIFIER
 } from '../syntax/trees/ParseTreeType.js';
 import ParseTreeVisitor from '../syntax/ParseTreeVisitor.js';
 import SourcePosition from '../util/SourcePosition.js';
@@ -117,11 +116,6 @@ export class FreeVariableChecker extends ParseTreeVisitor {
     this.scope_ = scope.parent;
   }
 
-  visitBlock(tree) {
-    // block scope was already dealt with
-    this.visitStatements_(tree.statements);
-  }
-
   visitProgram(tree, global) {
     var scope = this.pushScope_();
 
@@ -135,28 +129,15 @@ export class FreeVariableChecker extends ParseTreeVisitor {
       object = Object.getPrototypeOf(object);
     }
 
-    this.visitStatements_(tree.programElements);
+    this.visitList(tree.programElements);
 
     this.pop_(scope);
   }
 
-  visitStatements_(statements) {
-    statements.forEach((s) => {
-      if (s.type == FUNCTION_DECLARATION) {
-        // Declare the function's name in the outer scope.
-        // We need to do this here, and not inside visitFunctionDeclaration,
-        // because function expressions shouldn't have their names added. Only
-        // in statement contexts does this happen.
-        this.declareVariable_(s.name);
-      }
-      this.visitAny(s);
-    });
-  }
-
   /**
-   * Helper function for visitFunctionDeclaration and
+   * Helper function for visitFunctionDeclaration, visitFunctionExpression and
    * visitArrowFunctionExpression.
-   * @param {IdentifierToken} name This is null for the arrow function.
+   * @param {BindingIdentifier} name This is null for the arrow function.
    * @param {FormalParameterList} formalParameterList
    * @param {Block} body
    * @private
@@ -177,8 +158,13 @@ export class FreeVariableChecker extends ParseTreeVisitor {
   }
 
   visitFunctionDeclaration(tree) {
-    this.visitFunction_(tree.name, tree.formalParameterList,
-                        tree.functionBody);
+    this.declareVariable_(tree.name);
+    // Function declaration does not bind the name inside the function body.
+    this.visitFunction_(null, tree.formalParameterList, tree.functionBody);
+  }
+
+  visitFunctionExpression(tree) {
+    this.visitFunction_(tree.name, tree.formalParameterList, tree.functionBody);
   }
 
   visitArrowFunctionExpression(tree) {

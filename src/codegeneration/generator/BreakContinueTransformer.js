@@ -19,7 +19,6 @@ import {
   DoWhileStatement,
   ForOfStatement,
   ForStatement,
-  FunctionDeclaration,
   SwitchStatement,
   WhileStatement
 } from '../../syntax/trees/ParseTrees.js';
@@ -113,10 +112,10 @@ export class BreakContinueTransformer extends ParseTreeTransformer {
   }
 
   /**
-   * @param {FunctionDeclaration} tree
+   * @param {FunctionDeclaration|FunctionExpression} tree
    * @return {ParseTree}
    */
-  transformFunctionDeclaration(tree) {
+  transformFunction(tree) {
     return tree;
   }
 

@@ -13,8 +13,7 @@
 // limitations under the License.
 
 import {
-  FormalParameterList,
-  FunctionDeclaration
+  FormalParameterList
 } from '../syntax/trees/ParseTrees.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import ARGUMENTS from '../syntax/PredefinedName.js';
@@ -32,6 +31,7 @@ import {
   createVariableStatement,
   createVoid0
 } from 'ParseTreeFactory.js';
+import prependStatements from 'PrependStatements.js';
 
 var stack = [];
 
@@ -42,23 +42,24 @@ var stack = [];
  */
 export class DefaultParametersTransformer extends ParseTreeTransformer {
 
-  transformFunctionDeclaration(tree) {
+  transformFunction(tree) {
     stack.push([]);
 
-    var transformedTree = super.transformFunctionDeclaration(tree);
+    var transformedTree = super.transformFunction(tree);
 
     var statements = stack.pop();
     if (!statements.length)
       return transformedTree;
 
     // Prepend the var statements to the block.
-    statements.push(...transformedTree.functionBody.statements);
+    statements = prependStatements(transformedTree.functionBody.statements,
+                                   ...statements);
 
-    return new FunctionDeclaration(transformedTree.location,
-                                   transformedTree.name,
-                                   transformedTree.isGenerator,
-                                   transformedTree.formalParameterList,
-                                   createBlock(statements));
+    return new tree.constructor(transformedTree.location,
+                                transformedTree.name,
+                                transformedTree.isGenerator,
+                                transformedTree.formalParameterList,
+                                createBlock(statements));
   }
 
   transformFormalParameterList(tree) {

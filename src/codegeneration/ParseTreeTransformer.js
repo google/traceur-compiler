@@ -561,10 +561,10 @@ export class ParseTreeTransformer {
   }
 
   /**
-   * @param {FunctionDeclaration} tree
+   * @param {FunctionDeclaration|FunctionExpression} tree
    * @return {ParseTree}
    */
-  transformFunctionDeclaration(tree) {
+  transformFunction(tree) {
     var name = this.transformAny(tree.name);
     var formalParameterList =
         this.transformAny(tree.formalParameterList);
@@ -574,8 +574,25 @@ export class ParseTreeTransformer {
         functionBody === tree.functionBody) {
       return tree;
     }
-    return new FunctionDeclaration(tree.location, name, tree.isGenerator,
-                                   formalParameterList, functionBody);
+
+    return new tree.constructor(tree.location, name, tree.isGenerator,
+                                formalParameterList, functionBody);
+  }
+
+  /**
+   * @param {FunctionDeclaration} tree
+   * @return {ParseTree}
+   */
+  transformFunctionDeclaration(tree) {
+    return this.transformFunction(tree);
+  }
+
+  /**
+   * @param {FunctionExpression} tree
+   * @return {ParseTree}
+   */
+  transformFunctionExpression(tree) {
+    return this.transformFunction(tree);
   }
 
   /**

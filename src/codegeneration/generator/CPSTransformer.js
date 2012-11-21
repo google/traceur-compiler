@@ -980,10 +980,10 @@ export class CPSTransformer extends ParseTreeTransformer {
   }
 
   /**
-   * @param {FunctionDeclaration} tree
+   * @param {FunctionDeclaration|FunctionExpression} tree
    * @return {ParseTree}
    */
-  transformFunctionDeclaration(tree) {
+  transformFunction(tree) {
     this.clearLabels_();
     // nested functions have already been transformed
     return tree;

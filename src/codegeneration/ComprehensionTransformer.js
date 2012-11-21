@@ -18,7 +18,7 @@ import {
 } from '../syntax/PredefinedName.js';
 import AlphaRenamer from 'AlphaRenamer.js';
 import FindInFunctionScope from 'FindInFunctionScope.js';
-import FunctionDeclaration from '../syntax/trees/ParseTrees.js';
+import FunctionExpression from '../syntax/trees/ParseTrees.js';
 import TempVarTransformer from 'TempVarTransformer.js';
 import TokenType from '../syntax/TokenType.js';
 import {
@@ -109,9 +109,9 @@ export class ComprehensionTransformer extends TempVarTransformer {
     if (returnStatement)
       statements.push(returnStatement);
 
-    var func = new FunctionDeclaration(null, null, isGenerator,
-                                       createEmptyParameterList(),
-                                       createBlock(statements));
+    var func = new FunctionExpression(null, null, isGenerator,
+                                      createEmptyParameterList(),
+                                      createBlock(statements));
 
     return createParenExpression(createCallExpression(func));
   }

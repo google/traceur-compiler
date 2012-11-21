@@ -76,7 +76,7 @@ export class ParseTree {
       case MEMBER_EXPRESSION:
       case MEMBER_LOOKUP_EXPRESSION:
       case CALL_EXPRESSION:
-      case FUNCTION_DECLARATION:
+      case FUNCTION_EXPRESSION:
       case QUASI_LITERAL_EXPRESSION:
         return true;
       case PAREN_EXPRESSION:
@@ -98,7 +98,7 @@ export class ParseTree {
       case CASCADE_EXPRESSION:
       case CLASS_EXPRESSION:
       case CONDITIONAL_EXPRESSION:
-      case FUNCTION_DECLARATION:
+      case FUNCTION_EXPRESSION:
       case GENERATOR_COMPREHENSION:
       case IDENTIFIER_EXPRESSION:
       case LITERAL_EXPRESSION:
@@ -140,8 +140,7 @@ export class ParseTree {
       case OBJECT_LITERAL_EXPRESSION:
       case PAREN_EXPRESSION:
       case QUASI_LITERAL_EXPRESSION:
-      // FunctionExpression
-      case FUNCTION_DECLARATION:
+      case FUNCTION_EXPRESSION:
       // MemberExpression [ Expression ]
       case MEMBER_LOOKUP_EXPRESSION:
       // MemberExpression . IdentifierName

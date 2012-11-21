@@ -335,12 +335,26 @@ export class ParseTreeVisitor {
   }
 
   /**
-   * @param {FunctionDeclaration} tree
+   * @param {FunctionDeclaration|FunctionExpression} tree
    */
-  visitFunctionDeclaration(tree) {
+  visitFunction(tree) {
     this.visitAny(tree.name);
     this.visitAny(tree.formalParameterList);
     this.visitAny(tree.functionBody);
+  }
+
+  /**
+   * @param {FunctionDeclaration} tree
+   */
+  visitFunctionDeclaration(tree) {
+    this.visitFunction(tree);
+  }
+
+  /**
+   * @param {FunctionExpression} tree
+   */
+  visitFunctionExpression(tree) {
+    this.visitFunction(tree);
   }
 
   /**

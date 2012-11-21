@@ -16,7 +16,6 @@ import AsyncTransformer from 'generator/AsyncTransformer.js';
 import ForInTransformPass from 'generator/ForInTransformPass.js';
 import ForOfTransformer from 'ForOfTransformer.js';
 import {
-  FunctionDeclaration,
   GetAccessor,
   SetAccessor
 } from '../syntax/trees/ParseTrees.js';
@@ -97,7 +96,7 @@ class YieldFinder extends ParseTreeVisitor {
   }
 
   // don't visit function children or bodies
-  visitFunctionDeclaration(tree) {}
+  visitFunction(tree) {}
   visitSetAccessor(tree) {}
   visitGetAccessor(tree) {}
 }
@@ -242,20 +241,19 @@ export class GeneratorTransformPass extends TempVarTransformer {
   }
 
   /**
-   * @param {FunctionDeclaration} tree
+   * @param {FunctionDeclaration|FunctionExpression} tree
    * @return {ParseTree}
    */
-  transformFunctionDeclaration(tree) {
+  transformFunction(tree) {
     var body = this.transformBody_(tree.functionBody);
-    if (body == tree.functionBody) {
+    if (body === tree.functionBody)
       return tree;
-    }
-    return new FunctionDeclaration(
-        null,
-        tree.name,
-        false, // The generator has been transformed away.
-        tree.formalParameterList,
-        body);
+
+    // The generator has been transformed away.
+    var isGenerator = false;
+
+    return new tree.constructor(null, tree.name, isGenerator,
+                                tree.formalParameterList, body);
   }
 
   /**

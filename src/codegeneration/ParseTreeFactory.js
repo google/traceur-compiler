@@ -378,7 +378,7 @@ export function createCallExpression(operand, opt_args) {
 export function createBoundCall(func, thisTree) {
   return createCallExpression(
       createMemberExpression(
-          func.type == ParseTreeType.FUNCTION_DECLARATION ?
+          func.type == ParseTreeType.FUNCTION_EXPRESSION ?
               createParenExpression(func) :
               func,
           BIND),
@@ -569,38 +569,13 @@ export function createForStatement(variables, condition, increment, body) {
 }
 
 /**
- * @param {Array.<string>|FormalParameterList} formalParameterList
- * @param {Block} functionBody
- * @return {FunctionDeclaration}
- */
-export function createFunctionExpressionFormals(formalParameters, functionBody) {
-  if (formalParameters instanceof Array)
-    formalParameters = createParameterList(formalParameters);
-  return new FunctionDeclaration(null, null, false, formalParameters,
-      functionBody);
-}
-
-/**
- * @param {string|IdentifierToken|BindingIdentifier} name
  * @param {FormalParameterList} formalParameterList
  * @param {Block} functionBody
- * @return {FunctionDeclaration}
- */
-export function createFunctionDeclaration(name, formalParameterList, functionBody) {
-  if (name !== null)
-    name = createBindingIdentifier(name);
-  return new FunctionDeclaration(null, name, false, formalParameterList,
-      functionBody);
-}
-
-/**
- * @param {FormalParameterList} formalParameterList
- * @param {Block} functionBody
- * @return {FunctionDeclaration}
+ * @return {FunctionExpression}
  */
 export function createFunctionExpression(formalParameterList, functionBody) {
-  return new FunctionDeclaration(null, null, false,
-                                 formalParameterList, functionBody);
+  return new FunctionExpression(null, null, false,
+                                formalParameterList, functionBody);
 }
 
 // get name () { ... }

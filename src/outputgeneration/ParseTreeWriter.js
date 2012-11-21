@@ -492,9 +492,9 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
-   * @param {FunctionDeclaration} tree
+   * @param {FunctionDeclaration|FunctionExpression} tree
    */
-  visitFunctionDeclaration(tree) {
+  visitFunction(tree) {
     this.write_(Keywords.FUNCTION);
     if (tree.isGenerator) {
       this.write_(TokenType.STAR);

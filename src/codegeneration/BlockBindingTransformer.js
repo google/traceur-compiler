@@ -25,6 +25,7 @@ import {
   ForInStatement,
   ForStatement,
   FunctionDeclaration,
+  FunctionExpression,
   GetAccessor,
   Program,
   SetAccessor,
@@ -227,14 +228,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
     var scope = this.push_(this.createBlockScope_());
 
     // Transform the block contents
-    var statements = tree.statements.map((statement) => {
-      switch (statement.type) {
-        case FUNCTION_DECLARATION:
-          return this.transformFunctionDeclarationStatement_(statement);
-        default:
-          return this.transformAny(statement);
-      }
-    });
+    var statements = this.transformList(tree.statements);
 
     if (scope.blockVariables != null) {
       // rewrite into catch construct
@@ -567,13 +561,12 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
    *
    * @param {FunctionDeclaration} tree
    * @return {ParseTree}
-   * @private
    */
-  transformFunctionDeclarationStatement_(tree) {
+  transformFunctionDeclaration(tree) {
     var body = this.transformFunctionBody(tree.functionBody);
     var formalParameterList = this.transformAny(tree.formalParameterList);
 
-    if (tree.name != null && this.scope_.type == ScopeType.BLOCK) {
+    if (this.scope_.type === ScopeType.BLOCK) {
       // Named function in a block scope is only scoped to the block.
       // Add function name into variable hash to later 'declare' the
       // block scoped variable for it.
@@ -583,15 +576,17 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
       return createExpressionStatement(
           createAssignmentExpression(
               createIdentifierExpression(tree.name.identifierToken),
-              new FunctionDeclaration(tree.location, null, tree.isGenerator,
-                                      formalParameterList, body)));
-    } else if (body !== tree.functionBody ||
-               formalParameterList !== tree.formalParameterList) {
-      return new FunctionDeclaration(tree.location, tree.name, tree.isGenerator,
-                                     formalParameterList, body);
-    } else {
+              new FunctionExpression(tree.location, null, tree.isGenerator,
+                                     formalParameterList, body)));
+    }
+
+    if (body === tree.functionBody &&
+        formalParameterList === tree.formalParameterList) {
       return tree;
     }
+
+    return new FunctionDeclaration(tree.location, tree.name, tree.isGenerator,
+                                   formalParameterList, body);
   }
 
   /**

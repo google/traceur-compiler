@@ -71,11 +71,11 @@ export class SuperTransformer extends ParseTreeTransformer {
     return this.nestedSuperCount_ > 0;
   }
 
-  transformFunctionDeclaration(tree) {
+  transformFunction(tree) {
     var oldSuperCount = this.superCount_;
 
     this.inNestedFunc_++;
-    var transformedTree = super.transformFunctionDeclaration(tree);
+    var transformedTree = super.transformFunction(tree);
     this.inNestedFunc_--;
 
     if (oldSuperCount !== this.superCount_)

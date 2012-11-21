@@ -15,7 +15,6 @@
 import {
   Block,
   Catch,
-  FunctionDeclaration,
   IdentifierExpression
 } from '../syntax/trees/ParseTrees.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
@@ -24,7 +23,6 @@ import {
   THIS
 } from '../syntax/PredefinedName.js';
 import {
-  createFunctionDeclaration,
   createIdentifierExpression
 } from 'ParseTreeFactory.js';
 import {
@@ -86,14 +84,14 @@ export class AlphaRenamer extends ParseTreeTransformer {
   }
 
   /**
-   * @param {FunctionDeclaration} tree
+   * @param {FunctionDeclaration|FunctionExpression} tree
    * @return {ParseTree}
    */
-  transformFunctionDeclaration(tree) {
+  transformFunction(tree) {
     if (this.oldName_ == tree.name) {
       // it is the function that is being renamed
-      tree = createFunctionDeclaration(this.newName_,
-          tree.formalParameterList, tree.functionBody);
+      tree = new tree.constructor(tree.location, this.newName_,
+          tree.isGenerator, tree.formalParameterList, tree.functionBody);
     }
 
     // Do not recurse into functions if:
@@ -106,8 +104,7 @@ export class AlphaRenamer extends ParseTreeTransformer {
         this.oldName_ in variablesInFunction(tree);
     if (doNotRecurse)
       return tree;
-    else
-      return super.transformFunctionDeclaration(tree);
+    return super.transformFunction(tree);
   }
 
   /**
