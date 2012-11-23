@@ -256,8 +256,14 @@ goog.require('goog.testing.jsunit');
 <script src="StringExtras/EndsWith.js" type="text/traceur"></script>
 <script src="StringExtras/StartsWith.js" type="text/traceur"></script>
 <script src="StringExtras/ToArray.js" type="text/traceur"></script>
+<script src="Syntax/Empty.js" type="text/traceur"></script>
+<script src="Syntax/Error_AtNameNotClosed.js" type="text/traceur"></script>
 <script src="Syntax/Error_FunctionParam.js" type="text/traceur"></script>
+<script src="Syntax/Error_RegExpNotClosed.js" type="text/traceur"></script>
+<script src="Syntax/Error_UnicodeEscapeSequenceInName.js" type="text/traceur">></script>
 <script src="Syntax/ExpressionValidation.js" type="text/traceur"></script>
+<script src="Syntax/UnicodeEscapeSequenceInName.js" type="text/traceur">></script>
+<script src="Syntax/null.js" type="text/traceur"></script>
 <script src="TempVarTransformer/UseStrictDirective.js" type="text/traceur"></script>
 <script src="Yield/Arguments.js" type="text/traceur"></script>
 <script src="Yield/DefaultArguments.js" type="text/traceur"></script>
@@ -332,8 +338,6 @@ function evalScript(scriptElement) {
   // worry about name clashes across the different feature scripts.
   var testName = makeTestName(name);
   window[testName] = function() {
-    assertNotEquals('Failed to load file', '', source);
-
     var options = parseProlog(source);
     var skip = options.skip;
     var shouldCompile = options.shouldCompile;

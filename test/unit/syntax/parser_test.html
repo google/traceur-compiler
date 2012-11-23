@@ -34,41 +34,6 @@ var errorReporter = {
   }
 };
 
-function testParser() {
-  var program = 'function f() {}\n';
-  var sourceFile = new traceur.syntax.SourceFile('Name', program);
-  var scanner = new traceur.syntax.Scanner(errorReporter, sourceFile);
-  var parser = new traceur.syntax.Parser(errorReporter, scanner);
-
-  parser.parseProgram();
-}
-
-function testParserEmpty() {
-  var program = '';
-  var sourceFile = new traceur.syntax.SourceFile('Name', program);
-  var scanner = new traceur.syntax.Scanner(errorReporter, sourceFile);
-  var parser = new traceur.syntax.Parser(errorReporter, scanner);
-
-  parser.parseProgram();
-}
-
-function testUnicodeEscape() {
-  var program = '\\';
-  var sourceFile = new traceur.syntax.SourceFile('Name', program);
-  var errors = [];
-  var errorReporter = {
-    reportError: function(position, message) {
-      errors.push(message);
-    }
-  };
-  var scanner = new traceur.syntax.Scanner(errorReporter, sourceFile);
-  var parser = new traceur.syntax.Parser(errorReporter, scanner);
-
-  parser.parseProgram();
-  
-  assertEquals('Unimplemented: Unicode escape sequence', errors[0]);
-}
-
 function testModule() {
   var program = 'module Foo { export var x = 42; ' +
                   'module M from \'url\'; ' +
@@ -81,27 +46,6 @@ function testModule() {
   var parser = new traceur.syntax.Parser(errorReporter, scanner);
 
   parser.parseProgram(true);
-}
-
-function testParserNonClosedRegExp() {
-  var program = '/';
-  var name = 'testParserNonClosedRegExp';
-  var sourceFile = new traceur.syntax.SourceFile(name, program);
-
-  var errors = [];
-  var reporter = new traceur.util.ErrorReporter();
-  reporter.reportError = function() {
-    errors.push(arguments);
-  };
-
-  var scanner = new traceur.syntax.Scanner(reporter, sourceFile);
-  var parser = new traceur.syntax.Parser(reporter, scanner);
-
-  parser.parseProgram();
-
-  assertTrue(errors.length > 0);
-  assertEquals('testParserNonClosedRegExp:1:2', String(errors[0][0]));
-  assertEquals('Expected \'/\' in regular expression literal', errors[0][1]);
 }
 
 function parseScript(scriptElement) {

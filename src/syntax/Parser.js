@@ -3714,10 +3714,6 @@ export class Parser {
     return this.scanner_.nextQuasiLiteralPortionToken();
   }
 
-  nextQuasiIdentifier_() {
-    return this.scanner_.nextQuasiIdentifier();
-  }
-
   nextQuasiSubstitutionToken_() {
     return this.scanner_.nextQuasiSubstitutionToken();
   }

@@ -80,11 +80,6 @@ var asserts = {
  */
 function testScript(filePath) {
   var source = fs.readFileSync(filePath, 'utf8');
-  if (!source) {
-    failScript(filePath, 'Could not read file.');
-    return false;
-  }
-
   var options = testUtil.parseProlog(source);
   var onlyInBrowser = options.onlyInBrowser;
   var skip = options.skip;

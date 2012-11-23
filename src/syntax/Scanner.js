@@ -78,6 +78,17 @@ function isIdentifierStart(ch) {
   }
 }
 
+function isIdentifierPart(ch) {
+  // TODO: identifier part character classes
+  // CombiningMark
+  //   Non-Spacing mark (Mn)
+  //   Combining spacing mark(Mc)
+  // Connector punctuation (Pc)
+  // Zero Width Non-Joiner
+  // Zero Width Joiner
+  return isIdentifierStart(ch) || isDecimalDigit(ch);
+}
+
 // This is auto generated from the unicode tables.
 // The tables are at:
 // http://www.fileformat.info/info/unicode/category/Lu/list.htm
@@ -204,6 +215,22 @@ function isUnicodeLetter(ch) {
   return false;
 }
 
+function isRegularExpressionChar(ch) {
+  switch (ch) {
+    case '/':
+      return false;
+    case '\\':
+    case '[':
+      return true;
+    default:
+      return !isLineTerminator(ch);
+  }
+}
+
+function isRegularExpressionFirstChar(ch) {
+  return isRegularExpressionChar(ch) && ch !== '*';
+}
+
 /**
  * Scans javascript source code into tokens. All entrypoints assume the
  * caller is not expecting a regular expression literal except for
@@ -222,6 +249,8 @@ export class Scanner {
   constructor(errorReporter, file, opt_offset) {
     this.errorReporter_ = errorReporter;
     this.source_ = file;
+    this.sourceContents_ = file.contents;
+    this.sourceContentsLength_ = file.contents.length;
     this.index_ = opt_offset || 0;
     this.currentTokens_ = [];
     this.lastToken_ = null;
@@ -243,7 +272,7 @@ export class Scanner {
 
   /** @return {number} */
   getOffset() {
-    return this.currentTokens_.length == 0 ?
+    return this.currentTokens_.length === 0 ?
         this.index_ : this.peekToken().location.start.offset;
   }
 
@@ -298,7 +327,7 @@ export class Scanner {
     var beginToken = this.index_;
 
     // leading '/'
-    this.nextChar_();
+    this.next_();
 
     // body
     if (!this.skipRegularExpressionBody_()) {
@@ -308,17 +337,17 @@ export class Scanner {
     }
 
     // separating '/'
-    if (this.peekChar_() != '/') {
+    if (this.peekChar_() !== '/') {
       this.reportError_('Expected \'/\' in regular expression literal');
       return new LiteralToken(TokenType.REGULAR_EXPRESSION,
                               this.getTokenString_(beginToken),
                               this.getTokenRange_(beginToken));
     }
-    this.nextChar_();
+    this.next_();
 
     // flags
-    while (this.isIdentifierPart_(this.peekChar_())) {
-      this.nextChar_();
+    while (isIdentifierPart(this.peekChar_())) {
+      this.next_();
     }
 
     return new LiteralToken(TokenType.REGULAR_EXPRESSION,
@@ -327,19 +356,16 @@ export class Scanner {
   }
 
   skipRegularExpressionBody_() {
-    if (!this.isRegularExpressionFirstChar_(this.peekChar_())) {
+    if (!isRegularExpressionFirstChar(this.peekChar_())) {
       this.reportError_('Expected regular expression first char');
       return false;
     }
-    if (!this.skipRegularExpressionChar_()) {
-      return false;
-    }
-    while (!this.isAtEnd() &&
-           this.isRegularExpressionChar_(this.peekChar_())) {
-      if (!this.skipRegularExpressionChar_()) {
+
+    while (!this.isAtEnd() && isRegularExpressionChar(this.peekChar_())) {
+      if (!this.skipRegularExpressionChar_())
         return false;
-      }
     }
+
     return true;
   }
 
@@ -350,38 +376,38 @@ export class Scanner {
       case '[':
         return this.skipRegularExpressionClass_();
       default:
-        this.nextChar_();
+        this.next_();
         return true;
     }
   }
 
   skipRegularExpressionBackslashSequence_() {
-    this.nextChar_();
+    this.next_();
     if (isLineTerminator(this.peekChar_())) {
       this.reportError_('New line not allowed in regular expression literal');
       return false;
     }
-    this.nextChar_();
+    this.next_();
     return true;
   }
 
   skipRegularExpressionClass_() {
-    this.nextChar_();
+    this.next_();
     while (!this.isAtEnd() && this.peekRegularExpressionClassChar_()) {
       if (!this.skipRegularExpressionClassChar_()) {
         return false;
       }
     }
-    if (this.peekChar_() != ']') {
+    if (this.peekChar_() !== ']') {
       this.reportError_('\']\' expected');
       return false;
     }
-    this.nextChar_();
+    this.next_();
     return true;
   }
 
   peekRegularExpressionClassChar_() {
-    return this.peekChar_() != ']' &&
+    return this.peekChar_() !== ']' &&
         !isLineTerminator(this.peekChar_());
   }
 
@@ -389,24 +415,8 @@ export class Scanner {
     if (this.peek_('\\')) {
       return this.skipRegularExpressionBackslashSequence_();
     }
-    this.nextChar_();
+    this.next_();
     return true;
-  }
-
-  isRegularExpressionFirstChar_(ch) {
-    return this.isRegularExpressionChar_(ch) && ch != '*';
-  }
-
-  isRegularExpressionChar_(ch) {
-    switch (ch) {
-      case '/':
-        return false;
-      case '\\':
-      case '[':
-        return true;
-      default:
-        return !isLineTerminator(ch);
-    }
   }
 
   /**
@@ -436,15 +446,8 @@ export class Scanner {
     this.clearTokenLookahead_();
     var beginToken = this.index_;
     var ch = this.nextChar_();
-    traceur.assert(ch == '$');
+    traceur.assert(ch === '$');
     return this.lastToken_ = this.createToken_(TokenType.DOLLAR, beginToken);
-  }
-
-  nextQuasiIdentifier() {
-    this.clearTokenLookahead_();
-    var beginToken = this.index_;
-    var ch = this.nextChar_();
-    return this.scanIdentifierOrKeyword(beginToken, ch);
   }
 
   peekQuasiToken(type) {
@@ -455,9 +458,9 @@ export class Scanner {
       case TokenType.IDENTIFIER:
         return isIdentifierStart(ch);
       case TokenType.END_OF_FILE:
-        return ch == '\x00';
+        return ch === '\x00';
       default:
-        return ch == type;
+        return ch === type;
     }
   }
 
@@ -478,8 +481,8 @@ export class Scanner {
         break;
       }
       if (this.peek_('$')) {
-        var ch = this.peekChar_(1);
-        if (ch == '{') {
+        var ch = this.peekChar1_();
+        if (ch === '{') {
           break;
         }
       }
@@ -487,7 +490,7 @@ export class Scanner {
       if (this.peek_('\\')) {
         this.skipStringLiteralEscapeSequence_();
       } else {
-        this.nextChar_();
+        this.next_();
       }
     }
   }
@@ -505,24 +508,22 @@ export class Scanner {
   }
 
   peekToken_(index, allowLineTerminator) {
-    while (this.currentTokens_.length <= index) {
+    var currentTokens = this.currentTokens_;
+    var length = currentTokens.length;
+    while (length <= index) {
       var token = this.scanToken_(allowLineTerminator);
       if (!token)
         return null;
-      this.currentTokens_.push(token);
+      currentTokens[length++] = token;
     }
-    return this.currentTokens_[index];
-  }
-
-  isAtEnd() {
-    return this.index_ >= this.source_.contents.length;
+    return currentTokens[index];
   }
 
   // 7.2 White Space
   skipWhitespace_(allowLineTerminator) {
     while (!this.isAtEnd() &&
            this.peekWhitespace_(allowLineTerminator)) {
-      this.nextChar_();
+      this.next_();
     }
   }
 
@@ -538,7 +539,7 @@ export class Scanner {
   skipComment_(allowLineTerminator) {
     this.skipWhitespace_(allowLineTerminator);
     if (!this.isAtEnd() && this.peek_('/')) {
-      switch (this.peekChar_(1)) {
+      switch (this.peekChar1_()) {
         case '/':
           this.skipSingleLineComment_();
           return true;
@@ -552,19 +553,19 @@ export class Scanner {
 
   skipSingleLineComment_() {
     while (!this.isAtEnd() && !isLineTerminator(this.peekChar_())) {
-      this.nextChar_();
+      this.next_();
     }
   }
 
   skipMultiLineComment_() {
-    this.nextChar_(); // '/'
-    this.nextChar_(); // '*'
+    this.next_(); // '/'
+    this.next_(); // '*'
     while (!this.isAtEnd() &&
-           (this.peekChar_() != '*' || this.peekChar_(1) != '/')) {
-      this.nextChar_();
+           (this.peekChar_() !== '*' || this.peekChar1_() !== '/')) {
+      this.next_();
     }
-    this.nextChar_();
-    this.nextChar_();
+    this.next_();
+    this.next_();
   }
 
   /**
@@ -596,15 +597,15 @@ export class Scanner {
         }
 
         // Harmony spread operator
-        if (this.peek_('.') && this.peekChar_(1) == '.') {
-          this.nextChar_();
-          this.nextChar_();
+        if (this.peek_('.') && this.peekChar1_() === '.') {
+          this.next_();
+          this.next_();
           return this.createToken_(TokenType.DOT_DOT_DOT, beginToken);
         }
 
         // .{ chain operator
         if (this.peek_('{')) {
-          this.nextChar_();
+          this.next_();
           return this.createToken_(TokenType.PERIOD_OPEN_CURLY, beginToken);
         }
 
@@ -617,15 +618,15 @@ export class Scanner {
       case '<':
         switch (this.peekChar_()) {
           case '<':
-            this.nextChar_();
+            this.next_();
             if (this.peek_('=')) {
-              this.nextChar_();
+              this.next_();
               return this.createToken_(TokenType.LEFT_SHIFT_EQUAL,
                   beginToken);
             }
             return this.createToken_(TokenType.LEFT_SHIFT, beginToken);
           case '=':
-            this.nextChar_();
+            this.next_();
             return this.createToken_(TokenType.LESS_EQUAL, beginToken);
           default:
             return this.createToken_(TokenType.OPEN_ANGLE, beginToken);
@@ -633,16 +634,16 @@ export class Scanner {
       case '>':
         switch (this.peekChar_()) {
           case '>':
-            this.nextChar_();
+            this.next_();
             switch (this.peekChar_()) {
               case '=':
-                this.nextChar_();
+                this.next_();
                 return this.createToken_(TokenType.RIGHT_SHIFT_EQUAL,
                                          beginToken);
               case '>':
-                this.nextChar_();
+                this.next_();
                 if (this.peek_('=')) {
-                  this.nextChar_();
+                  this.next_();
                   return this.createToken_(
                       TokenType.UNSIGNED_RIGHT_SHIFT_EQUAL, beginToken);
                 }
@@ -652,31 +653,31 @@ export class Scanner {
                 return this.createToken_(TokenType.RIGHT_SHIFT, beginToken);
             }
           case '=':
-            this.nextChar_();
+            this.next_();
             return this.createToken_(TokenType.GREATER_EQUAL, beginToken);
           default:
             return this.createToken_(TokenType.CLOSE_ANGLE, beginToken);
         }
       case '=':
         if (this.peek_('=')) {
-          this.nextChar_();
+          this.next_();
           if (this.peek_('=')) {
-            this.nextChar_();
+            this.next_();
             return this.createToken_(TokenType.EQUAL_EQUAL_EQUAL,
                 beginToken);
           }
           return this.createToken_(TokenType.EQUAL_EQUAL, beginToken);
         }
         if (this.peek_('>')) {
-          this.nextChar_();
+          this.next_();
           return this.createToken_(TokenType.ARROW, beginToken);
         }
         return this.createToken_(TokenType.EQUAL, beginToken);
       case '!':
         if (this.peek_('=')) {
-          this.nextChar_();
+          this.next_();
           if (this.peek_('=')) {
-            this.nextChar_();
+            this.next_();
             return this.createToken_(TokenType.NOT_EQUAL_EQUAL, beginToken);
           }
           return this.createToken_(TokenType.NOT_EQUAL, beginToken);
@@ -684,35 +685,35 @@ export class Scanner {
         return this.createToken_(TokenType.BANG, beginToken);
       case '*':
         if (this.peek_('=')) {
-          this.nextChar_();
+          this.next_();
           return this.createToken_(TokenType.STAR_EQUAL, beginToken);
         }
         return this.createToken_(TokenType.STAR, beginToken);
       case '%':
         if (this.peek_('=')) {
-          this.nextChar_();
+          this.next_();
           return this.createToken_(TokenType.PERCENT_EQUAL, beginToken);
         }
         return this.createToken_(TokenType.PERCENT, beginToken);
       case '^':
         if (this.peek_('=')) {
-          this.nextChar_();
+          this.next_();
           return this.createToken_(TokenType.CARET_EQUAL, beginToken);
         }
         return this.createToken_(TokenType.CARET, beginToken);
       case '/':
         if (this.peek_('=')) {
-          this.nextChar_();
+          this.next_();
           return this.createToken_(TokenType.SLASH_EQUAL, beginToken);
         }
         return this.createToken_(TokenType.SLASH, beginToken);
       case '+':
         switch (this.peekChar_()) {
           case '+':
-            this.nextChar_();
+            this.next_();
             return this.createToken_(TokenType.PLUS_PLUS, beginToken);
           case '=':
-            this.nextChar_();
+            this.next_();
             return this.createToken_(TokenType.PLUS_EQUAL, beginToken);
           default:
             return this.createToken_(TokenType.PLUS, beginToken);
@@ -720,10 +721,10 @@ export class Scanner {
       case '-':
         switch (this.peekChar_()) {
           case '-':
-            this.nextChar_();
+            this.next_();
             return this.createToken_(TokenType.MINUS_MINUS, beginToken);
           case '=':
-            this.nextChar_();
+            this.next_();
             return this.createToken_(TokenType.MINUS_EQUAL, beginToken);
           default:
             return this.createToken_(TokenType.MINUS, beginToken);
@@ -731,10 +732,10 @@ export class Scanner {
       case '&':
         switch (this.peekChar_()) {
           case '&':
-            this.nextChar_();
+            this.next_();
             return this.createToken_(TokenType.AND, beginToken);
           case '=':
-            this.nextChar_();
+            this.next_();
             return this.createToken_(TokenType.AMPERSAND_EQUAL, beginToken);
           default:
             return this.createToken_(TokenType.AMPERSAND, beginToken);
@@ -742,10 +743,10 @@ export class Scanner {
       case '|':
         switch (this.peekChar_()) {
           case '|':
-            this.nextChar_();
+            this.next_();
             return this.createToken_(TokenType.OR, beginToken);
           case '=':
-            this.nextChar_();
+            this.next_();
             return this.createToken_(TokenType.BAR_EQUAL, beginToken);
           default:
             return this.createToken_(TokenType.BAR, beginToken);
@@ -805,7 +806,7 @@ export class Scanner {
     switch (this.peekChar_()) {
       case 'x':
       case 'X':
-        this.nextChar_();
+        this.next_();
         if (!isHexDigit(this.peekChar_())) {
           this.reportError_(
               'Hex Integer Literal must contain at least one digit');
@@ -844,11 +845,18 @@ export class Scanner {
     return new Token(type, this.getTokenRange_(beginToken));
   }
 
-  scanUnicode(beginToken, ch) {
-    // TODO: Implement Unicode escape sequence
-    this.reportError_(this.getPosition_(beginToken), 
-        'Unimplemented: Unicode escape sequence');
-    return this.createToken_(TokenType.ERROR, beginToken);
+  readUnicodeEscapeSequence() {
+    var beginToken = this.index_;
+    if (!this.isAtEnd() && this.nextChar_() === 'u' &&
+        this.skipHexDigit_() && this.skipHexDigit_() &&
+        this.skipHexDigit_() && this.skipHexDigit_()) {
+      return String.fromCharCode(
+          parseInt(this.getTokenString_(beginToken + 1), 16));
+    }
+
+    this.reportError_(this.getPosition_(beginToken - 1),
+        'Invalid unicode excapes sequence in identifier') ;
+    return '';
   }
 
   /**
@@ -857,46 +865,62 @@ export class Scanner {
    * @return {Token}
    */
   scanIdentifierOrKeyword(beginToken, ch) {
-    if (ch == '\\') {
-      return this.scanUnicode(beginToken, ch);
+    // Keep track of any unicode escape sequences.
+    var escapedChars;
+    if (ch === '\\') {
+      ch = this.readUnicodeEscapeSequence();
+      escapedChars = [ch];
     }
+
     if (!isIdentifierStart(ch)) {
       this.reportError_(this.getPosition_(beginToken),
           'Character code \'' +
           ch.charCodeAt(0) +
-                  '\' is not a valid identifier start char');
+          '\' is not a valid identifier start char');
       return this.createToken_(TokenType.ERROR, beginToken);
     }
 
-    while (this.isIdentifierPart_(this.peekChar_())) {
-      this.nextChar_();
-    }
-    if (ch == '\\') {
-      return this.scanUnicode(beginToken, ch);
+    for (;;) {
+      ch = this.peekChar_();
+      if (isIdentifierPart(ch)) {
+        this.next_();
+      } else if (ch === '\\') {
+        this.next_();
+        ch = this.readUnicodeEscapeSequence();
+        if (!escapedChars)
+          escapedChars = [];
+        escapedChars.push(ch);
+        if (!isIdentifierPart(ch))
+          return this.createToken_(TokenType.ERROR, beginToken);
+      } else {
+        break;
+      }
     }
 
-    var value = this.source_.contents.substring(beginToken, this.index_);
+    var value = this.sourceContents_.substring(beginToken, this.index_);
 
     if (Keywords.isKeyword(value)) {
       return new Token(Keywords.getTokenType(value),
                        this.getTokenRange_(beginToken));
     }
 
+    if (escapedChars) {
+      var i = 0;
+      value = value.replace(/\\u..../g, function(s) {
+        return escapedChars[i++];
+      });
+    }
+
     return new IdentifierToken(this.getTokenRange_(beginToken), value);
   }
 
-  isIdentifierPart_(ch) {
-    // TODO: identifier part character classes
-    // CombiningMark
-    //   Non-Spacing mark (Mn)
-    //   Combining spacing mark(Mc)
-    // Connector punctuation (Pc)
-    // Zero Width Non-Joiner
-    // Zero Width Joiner
-    return isIdentifierStart(ch) || isDecimalDigit(ch);
-  }
-
   scanAtName_(beginToken) {
+    if (this.isAtEnd()) {
+      this.reportError_(this.getPosition_(beginToken),
+                        'Expected identifier start character');
+      return this.createToken_(TokenType.ERROR, beginToken);
+    }
+
     // TODO(arv): Refactor to not create an intermediate token.
     var ch = this.nextChar_();
     var identifierToken = this.scanIdentifierOrKeyword(beginToken, ch);
@@ -918,11 +942,11 @@ export class Scanner {
                                 this.getTokenRange_(beginIndex));
       }
     }
-    if (this.peekChar_() != terminator) {
+    if (this.peekChar_() !== terminator) {
       this.reportError_(this.getPosition_(beginIndex),
                         'Unterminated String Literal');
     } else {
-      this.nextChar_();
+      this.next_();
     }
     return new LiteralToken(TokenType.STRING,
                             this.getTokenString_(beginIndex),
@@ -930,11 +954,11 @@ export class Scanner {
   }
 
   getTokenString_(beginIndex) {
-    return this.source_.contents.substring(beginIndex, this.index_);
+    return this.sourceContents_.substring(beginIndex, this.index_);
   }
 
   peekStringLiteralChar_(terminator) {
-    return !this.isAtEnd() && this.peekChar_() != terminator &&
+    return !this.isAtEnd() && this.peekChar_() !== terminator &&
         !isLineTerminator(this.peekChar_());
   }
 
@@ -942,12 +966,12 @@ export class Scanner {
     if (this.peek_('\\')) {
       return this.skipStringLiteralEscapeSequence_();
     }
-    this.nextChar_();
+    this.next_();
     return true;
   }
 
   skipStringLiteralEscapeSequence_() {
-    this.nextChar_();
+    this.next_();
     if (this.isAtEnd()) {
       this.reportError_('Unterminated string literal escape sequence');
       return false;
@@ -984,14 +1008,14 @@ export class Scanner {
       this.reportError_('Hex digit expected');
       return false;
     }
-    this.nextChar_();
+    this.next_();
     return true;
   }
 
   skipLineTerminator_() {
     var first = this.nextChar_();
-    if (first == '\r' && this.peek_('\n')) {
-      this.nextChar_();
+    if (first === '\r' && this.peek_('\n')) {
+      this.next_();
     }
   }
 
@@ -1001,7 +1025,7 @@ export class Scanner {
    */
   scanFractionalNumericLiteral_(beginToken) {
     if (this.peek_('.')) {
-      this.nextChar_();
+      this.next_();
       this.skipDecimalDigits_();
     }
     return this.scanExponentOfNumericLiteral_(beginToken);
@@ -1015,11 +1039,11 @@ export class Scanner {
     switch (this.peekChar_()) {
       case 'e':
       case 'E':
-        this.nextChar_();
+        this.next_();
         switch (this.peekChar_()) {
           case '+':
           case '-':
-            this.nextChar_();
+            this.next_();
             break;
         }
         if (!isDecimalDigit(this.peekChar_())) {
@@ -1037,37 +1061,43 @@ export class Scanner {
 
   skipDecimalDigits_() {
     while (isDecimalDigit(this.peekChar_())) {
-      this.nextChar_();
+      this.next_();
     }
   }
 
   skipHexDigits_() {
     while (isHexDigit(this.peekChar_())) {
-      this.nextChar_();
+      this.next_();
     }
+  }
+
+  isAtEnd() {
+    return this.index_ === this.sourceContentsLength_;
+  }
+
+  next_() {
+    this.index_++;
   }
 
   nextChar_() {
-    if (this.isAtEnd()) {
-      // Work around strict mode bug in Chrome.
-      return '\x00';
-    }
-    return this.source_.contents.charAt(this.index_++);
+    return this.sourceContents_[this.index_++];
   }
 
   peek_(ch) {
-    return this.peekChar_() == ch;
+    return this.peekChar_() === ch;
   }
 
-  peekChar_(opt_offset) {
-    // Work around strict mode bug in Chrome.
-    return this.source_.contents.charAt(
-        this.index_ + (opt_offset || 0)) || '\x00';
+  peekChar_() {
+    return this.sourceContents_[this.index_] || '\x00';
+  }
+
+  peekChar1_() {
+    return this.sourceContents_[this.index_ + 1] || '\x00';
   }
 
   reportError_(var_args) {
     var position, message;
-    if (arguments.length == 1) {
+    if (arguments.length === 1) {
       position = this.getPosition();
       message = arguments[0];
     } else {
