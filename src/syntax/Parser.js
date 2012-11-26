@@ -2305,7 +2305,7 @@ export class Parser {
       case ParseTreeType.OBJECT_LITERAL_EXPRESSION:
         var errorReporter = new MutedErrorReporter();
         var p = new Parser(errorReporter,
-                           this.scanner_.getFile(),
+                           this.scanner_.file,
                            tree.location.start.offset);
         var transformedTree = p.parseAssignmentPattern_();
         if (!errorReporter.hadError())
@@ -3031,7 +3031,7 @@ export class Parser {
   reparseAsFormalsList_(coverFormals) {
     var errorReporter = new MutedErrorReporter();
     var p = new Parser(errorReporter,
-                       this.scanner_.getFile(),
+                       this.scanner_.file,
                        coverFormals.location.start.offset);
     var formals = p.parseFormalsList_();
 
