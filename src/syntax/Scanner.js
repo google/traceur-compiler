@@ -30,6 +30,15 @@ for (var i = 0; i < 128; i++) {
       i === 0x20;  // Space
 }
 
+// Some of these is* functions use an array as a lookup table for the lower 7
+// bit code points.
+
+var isWhitespaceArray = [];
+for (var i = 0; i < 128; i++) {
+  isWhitespaceArray[i] = i >= 9 && i <= 13 ||  // Tab - Carriage Return
+      i === 0x20;  // Space
+}
+
 function isWhitespace(code) {
   if (code < 128)
     return isWhitespaceArray[code];
@@ -259,8 +268,9 @@ export class Scanner {
     this.input_ = file.contents;
     this.length_ = file.contents.length;
     this.index_ = opt_offset || 0;
-    this.currentTokens_ = [];
     this.lastToken_ = null;
+    this.token_ = null;
+    this.lookaheadToken_ = null;
   }
 
   get lastToken() {
@@ -274,8 +284,7 @@ export class Scanner {
 
   /** @return {number} */
   getOffset() {
-    return this.currentTokens_.length === 0 ?
-        this.index_ : this.peekToken().location.start.offset;
+    return this.token_ ? this.token_.location.start.offset : this.index_;
   }
 
   /** @return {SourcePosition} */
@@ -298,26 +307,6 @@ export class Scanner {
   getTokenRange_(startOffset) {
     return this.getLineNumberTable_().getSourceRange(startOffset,
                                                      this.index_);
-  }
-
-  /** @return {Token} */
-  nextToken() {
-    this.peekToken();
-    var token = this.currentTokens_.shift();
-    this.lastToken_ = token;
-    return token;
-  }
-
-  clearTokenLookahead_() {
-    if (this.currentTokens_.length) {
-      this.index_ = this.getOffset();
-      this.currentTokens_.length = 0;
-    }
-  }
-
-  clearTokenAndWhitespaceLookahead_() {
-    this.index_ = this.lastToken.location.end.offset;
-    this.currentTokens_.length = 0;
   }
 
   nextRegularExpressionLiteralToken() {
@@ -498,28 +487,50 @@ export class Scanner {
     }
   }
 
+  /** @return {Token} */
+  nextToken() {
+    var token = this.token_ || this.scanToken_(true);
+    this.token_ = this.lookaheadToken_;
+    this.lookaheadToken_ = null;
+    this.lastToken_ = token;
+    return token;
+  }
+
+  clearTokenLookahead_() {
+    this.index_ = this.getOffset();
+    this.token_ = this.lookaheadToken_ = null;
+  }
+
+  clearTokenAndWhitespaceLookahead_() {
+    this.index_ = this.lastToken.location.end.offset;
+    this.token_ = this.lookaheadToken_ = null;
+  }
+
   /**
    * @return {Token}
    */
   peekToken(opt_index) {
-    return this.peekToken_(opt_index || 0, true);
+    return opt_index ? this.peekToken1_(true) : this.peekToken_(true);
   }
 
   peekTokenNoLineTerminator(opt_index) {
     this.clearTokenAndWhitespaceLookahead_();
-    return this.peekToken_(opt_index || 0, false);
+    return opt_index ? this.peekToken1_(false) : this.peekToken_(false);
   }
 
-  peekToken_(index, allowLineTerminator) {
-    var currentTokens = this.currentTokens_;
-    var length = currentTokens.length;
-    while (length <= index) {
-      var token = this.scanToken_(allowLineTerminator);
-      if (!token)
-        return null;
-      currentTokens[length++] = token;
-    }
-    return currentTokens[index];
+  peekToken_(allowLineTerminator) {
+    if (!this.token_)
+      this.token_ = this.scanToken_(allowLineTerminator);
+    return this.token_;
+  }
+
+  // This is optimized to do one lookahead vs current in |peekTooken_|.
+  peekToken1_(allowLineTerminator) {
+    if (!this.token_)
+      this.token_ = this.scanToken_(allowLineTerminator);
+    if (!this.lookaheadToken_)
+      this.lookaheadToken_ = this.scanToken_(allowLineTerminator);
+    return this.lookaheadToken_;
   }
 
   // 7.2 White Space
@@ -531,8 +542,9 @@ export class Scanner {
   }
 
   peekWhitespace_(allowLineTerminator) {
-    return isWhitespace(this.peek_()) &&
-        (allowLineTerminator || !isLineTerminator(this.peek_()));
+    var code = this.peek_();
+    return isWhitespace(code) &&
+        (allowLineTerminator || !isLineTerminator(code));
   }
   // 7.4 Comments
   skipComments_(allowLineTerminator) {

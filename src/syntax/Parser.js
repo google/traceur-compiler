@@ -219,24 +219,21 @@ export class Parser {
   * @private
   */
   peekModuleDefinition_() {
-    return this.peekPredefinedString_(MODULE) &&
-        this.peek_(TokenType.IDENTIFIER, 1) &&
-        this.peek_(TokenType.OPEN_CURLY, 2);
+    return this.peek_(TokenType.IDENTIFIER) &&
+        this.peek_(TokenType.OPEN_CURLY, 1);
   }
 
   /**
    * @return {ParseTree}
    * @private
    */
-  parseModuleDefinition_(load) {
+  parseModuleDefinition_(load, start) {
 
     // ModuleDeclaration ::= "module" ModuleSpecifier(load) ("," ModuleSpecifier(load))* ";"
     //              | ModuleDefinition(load)
     // ModuleDefinition(load) ::= "module" Identifier "{" ModuleBody(load) "}"
     // ModuleSpecifier(load) ::= Identifier "from" ModuleExpression(load)
 
-    var start = this.getTreeStartLocation_();
-    this.eatId_(); // module
     var name = this.eatId_();
     this.eat_(TokenType.OPEN_CURLY);
     var result = [];
@@ -563,9 +560,7 @@ export class Parser {
     // ModuleSpecifier(load) ::= Identifier "from" ModuleExpression(load)
     return options.modules &&
         this.peekPredefinedString_(MODULE) &&
-        this.peek_(TokenType.IDENTIFIER, 1) &&
-        (this.peekPredefinedString_(FROM, 2) ||
-         this.peek_(TokenType.OPEN_CURLY, 2));
+        this.peek_(TokenType.IDENTIFIER, 1);
   }
 
   /**
@@ -573,11 +568,11 @@ export class Parser {
    * @private
    */
   parseModuleDeclaration_(load) {
-    if (this.peekModuleDefinition_(load))
-      return this.parseModuleDefinition_(load);
-
     var start = this.getTreeStartLocation_();
     this.eatId_(); // module
+
+    if (this.peekModuleDefinition_(load))
+      return this.parseModuleDefinition_(load, start);
 
     var specifiers = [this.parseModuleSpecifier_(load)];
     while (this.peek_(TokenType.COMMA)) {
@@ -594,7 +589,7 @@ export class Parser {
    * @private
    */
   peekClassDeclaration_() {
-    return options.classes && this.peek_(TokenType.CLASS) && this.peekId_(1);
+    return options.classes && this.peek_(TokenType.CLASS);
   }
 
   parseClassShared_(constr) {
@@ -1995,8 +1990,9 @@ export class Parser {
    * @private
    */
   peekPropertyDefinition_() {
-    var index = +this.peek_(TokenType.STAR);
-    return this.peekPropertyName_(index);
+    return this.peekPropertyName_() ||
+        (options.propertyMethods && options.generators &&
+         this.peek_(TokenType.STAR));
   }
 
   /**
@@ -2109,10 +2105,9 @@ export class Parser {
   }
 
   peekPropertyMethodAssignment_() {
-    var index = +this.peek_(TokenType.STAR);
     return options.propertyMethods &&
-        this.peekPropertyName_(index) &&
-        this.peek_(TokenType.OPEN_PAREN, index + 1);
+        (options.generators && this.peek_(TokenType.STAR) ||
+         this.peekPropertyName_() && this.peek_(TokenType.OPEN_PAREN, 1));
   }
 
   /**
