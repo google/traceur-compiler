@@ -14,11 +14,12 @@
 
 import AtNameToken from 'AtNameToken.js';
 import IdentifierToken from 'IdentifierToken.js';
-import Keywords from 'Keywords.js';
+import KeywordToken from 'KeywordToken.js';
 import LiteralToken from 'LiteralToken.js';
 import SourcePosition from '../util/SourcePosition.js';
 import Token from 'Token.js';
 import TokenType from 'TokenType.js';
+import isKeyword from 'Keywords.js';
 
 function isWhitespace(ch) {
   switch (ch) {
@@ -899,9 +900,8 @@ export class Scanner {
 
     var value = this.sourceContents_.substring(beginToken, this.index_);
 
-    if (Keywords.isKeyword(value)) {
-      return new Token(Keywords.getTokenType(value),
-                       this.getTokenRange_(beginToken));
+    if (isKeyword(value)) {
+      return new KeywordToken(value, this.getTokenRange_(beginToken));
     }
 
     if (escapedChars) {

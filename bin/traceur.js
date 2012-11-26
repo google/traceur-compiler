@@ -3113,6 +3113,9 @@ var $__src_syntax_Token_js = (function() {
           default:
             return false;
         }
+      },
+      isKeyword: function() {
+        return false;
       }
     });
     return $Token;
@@ -3128,14 +3131,18 @@ var $__src_syntax_IdentifierToken_js = (function() {
   "use strict";
   var Token = $__src_syntax_Token_js.Token;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
+  var IDENTIFIER = TokenType.IDENTIFIER;
   var IdentifierToken = function($__super) {
     var $IdentifierToken = ($__createClass)({
       constructor: function(location, value) {
-        traceur.runtime.superCall(this, $IdentifierToken, "constructor", [TokenType.IDENTIFIER, location]);
+        this.location = location;
         this.value = value;
       },
       toString: function() {
         return this.value;
+      },
+      get type() {
+        return IDENTIFIER;
       }
     }, $__super, true);
     return $IdentifierToken;
@@ -3143,53 +3150,6 @@ var $__src_syntax_IdentifierToken_js = (function() {
   return Object.preventExtensions(Object.create(null, {IdentifierToken: {
       get: function() {
         return IdentifierToken;
-      },
-      enumerable: true
-    }}));
-}).call(this);
-var $__src_syntax_Keywords_js = (function() {
-  "use strict";
-  var TokenType = $__src_syntax_TokenType_js.TokenType;
-  var keywords = ['break', 'case', 'catch', 'continue', 'debugger', 'default', 'delete', 'do', 'else', 'finally', 'for', 'function', 'if', 'in', 'instanceof', 'new', 'return', 'switch', 'this', 'throw', 'try', 'typeof', 'var', 'void', 'while', 'with', 'class', 'const', 'enum', 'export', 'extends', 'import', 'super', 'implements', 'interface', 'let', 'package', 'private', 'protected', 'public', 'static', 'yield', 'null', 'true', 'false', 'await'];
-  var Keywords = {};
-  var keywordsByName = Object.create(null);
-  var keywordsByType = Object.create(null);
-  var Keyword = function() {
-    var $Keyword = ($__createClassNoExtends)({
-      constructor: function(value, type) {
-        this.value = value;
-        this.type = type;
-      },
-      toString: function() {
-        return this.value;
-      }
-    });
-    return $Keyword;
-  }();
-  keywords.forEach((function(value) {
-    var uc = value.toUpperCase();
-    if (uc.indexOf('__') === 0) {
-      uc = uc.substring(2);
-    }
-    var kw = new Keyword(value, TokenType[uc]);
-    Keywords[uc] = kw;
-    keywordsByName[kw.value] = kw;
-    keywordsByType[kw.type] = kw;
-  }));
-  Keywords.isKeyword = function(value) {
-    return value !== '__proto__' && value in keywordsByName;
-  };
-  Keywords.getTokenType = function(value) {
-    if (value == '__proto__') return null;
-    return keywordsByName[value].type;
-  };
-  Keywords.get = function(value) {
-    if (value == '__proto__') return null;
-    return keywordsByName[value];
-  };
-  return Object.preventExtensions(Object.create(null, {Keywords: {
-      get: function() {
-        return Keywords;
       },
       enumerable: true
     }}));
@@ -3934,14 +3894,18 @@ var $__src_syntax_AtNameToken_js = (function() {
   "use strict";
   var Token = $__src_syntax_Token_js.Token;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
+  var AT_NAME = TokenType.AT_NAME;
   var AtNameToken = function($__super) {
     var $AtNameToken = ($__createClass)({
       constructor: function(location, value) {
-        traceur.runtime.superCall(this, $AtNameToken, "constructor", [TokenType.AT_NAME, location]);
+        this.location = location;
         this.value = value;
       },
       toString: function() {
         return this.value;
+      },
+      get type() {
+        return AT_NAME;
       }
     }, $__super, true);
     return $AtNameToken;
@@ -3949,6 +3913,28 @@ var $__src_syntax_AtNameToken_js = (function() {
   return Object.preventExtensions(Object.create(null, {AtNameToken: {
       get: function() {
         return AtNameToken;
+      },
+      enumerable: true
+    }}));
+}).call(this);
+var $__src_syntax_KeywordToken_js = (function() {
+  "use strict";
+  var Token = $__src_syntax_Token_js.Token;
+  var KeywordToken = function($__super) {
+    var $KeywordToken = ($__createClass)({
+      constructor: function(type, location) {
+        this.type = type;
+        this.location = location;
+      },
+      isKeyword: function() {
+        return true;
+      }
+    }, $__super, true);
+    return $KeywordToken;
+  }(Token);
+  return Object.preventExtensions(Object.create(null, {KeywordToken: {
+      get: function() {
+        return KeywordToken;
       },
       enumerable: true
     }}));
@@ -4029,7 +4015,8 @@ var $__src_syntax_LiteralToken_js = (function() {
   var LiteralToken = function($__super) {
     var $LiteralToken = ($__createClass)({
       constructor: function(type, value, location) {
-        traceur.runtime.superCall(this, $LiteralToken, "constructor", [type, location]);
+        this.type = type;
+        this.location = location;
         this.value = value;
       },
       toString: function() {
@@ -4082,15 +4069,35 @@ var $__src_util_SourcePosition_js = (function() {
       enumerable: true
     }}));
 }).call(this);
+var $__src_syntax_Keywords_js = (function() {
+  "use strict";
+  var TokenType = $__src_syntax_TokenType_js.TokenType;
+  var keywords = ['break', 'case', 'catch', 'continue', 'debugger', 'default', 'delete', 'do', 'else', 'finally', 'for', 'function', 'if', 'in', 'instanceof', 'new', 'return', 'switch', 'this', 'throw', 'try', 'typeof', 'var', 'void', 'while', 'with', 'class', 'const', 'enum', 'export', 'extends', 'import', 'super', 'implements', 'interface', 'let', 'package', 'private', 'protected', 'public', 'static', 'yield', 'null', 'true', 'false', 'await'];
+  var keywordsByName = Object.create(null);
+  keywords.forEach((function(value) {
+    keywordsByName[value] = true;
+  }));
+  function isKeyword(value) {
+    return !!keywordsByName[value];
+  }
+  ;
+  return Object.preventExtensions(Object.create(null, {isKeyword: {
+      get: function() {
+        return isKeyword;
+      },
+      enumerable: true
+    }}));
+}).call(this);
 var $__src_syntax_Scanner_js = (function() {
   "use strict";
   var AtNameToken = $__src_syntax_AtNameToken_js.AtNameToken;
   var IdentifierToken = $__src_syntax_IdentifierToken_js.IdentifierToken;
-  var Keywords = $__src_syntax_Keywords_js.Keywords;
+  var KeywordToken = $__src_syntax_KeywordToken_js.KeywordToken;
   var LiteralToken = $__src_syntax_LiteralToken_js.LiteralToken;
   var SourcePosition = $__src_util_SourcePosition_js.SourcePosition;
   var Token = $__src_syntax_Token_js.Token;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
+  var isKeyword = $__src_syntax_Keywords_js.isKeyword;
   function isWhitespace(ch) {
     switch (ch) {
       case '\u0009':
@@ -4652,8 +4659,8 @@ var $__src_syntax_Scanner_js = (function() {
           }
         }
         var value = this.sourceContents_.substring(beginToken, this.index_);
-        if (Keywords.isKeyword(value)) {
-          return new Token(Keywords.getTokenType(value), this.getTokenRange_(beginToken));
+        if (isKeyword(value)) {
+          return new KeywordToken(value, this.getTokenRange_(beginToken));
         }
         if (escapedChars) {
           var i = 0;
@@ -7054,7 +7061,6 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
 var $__src_syntax_Parser_js = (function() {
   "use strict";
   var IdentifierToken = $__src_syntax_IdentifierToken_js.IdentifierToken;
-  var Keywords = $__src_syntax_Keywords_js.Keywords;
   var MutedErrorReporter = $__src_util_MutedErrorReporter_js.MutedErrorReporter;
   var ParseTreeType = $__src_syntax_trees_ParseTree_js.ParseTreeType;
   var $__6 = $__src_syntax_PredefinedName_js, FROM = $__6.FROM, GET = $__6.GET, IS = $__6.IS, ISNT = $__6.ISNT, MODULE = $__6.MODULE, OF = $__6.OF, SET = $__6.SET;
@@ -7062,6 +7068,7 @@ var $__src_syntax_Parser_js = (function() {
   var SourceRange = $__src_util_SourceRange_js.SourceRange;
   var Token = $__src_syntax_Token_js.Token;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
+  var isKeyword = $__src_syntax_Keywords_js.isKeyword;
   var options = $__src_options_js.parseOptions;
   var $__6 = $__src_syntax_trees_ParseTrees_js, ArgumentList = $__6.ArgumentList, ArrayComprehension = $__6.ArrayComprehension, ArrayLiteralExpression = $__6.ArrayLiteralExpression, ArrayPattern = $__6.ArrayPattern, ArrowFunctionExpression = $__6.ArrowFunctionExpression, AtNameDeclaration = $__6.AtNameDeclaration, AtNameExpression = $__6.AtNameExpression, AwaitStatement = $__6.AwaitStatement, BinaryOperator = $__6.BinaryOperator, BindingElement = $__6.BindingElement, BindingIdentifier = $__6.BindingIdentifier, Block = $__6.Block, BreakStatement = $__6.BreakStatement, CallExpression = $__6.CallExpression, CascadeExpression = $__6.CascadeExpression, CaseClause = $__6.CaseClause, Catch = $__6.Catch, ClassDeclaration = $__6.ClassDeclaration, ClassExpression = $__6.ClassExpression, CommaExpression = $__6.CommaExpression, ComprehensionFor = $__6.ComprehensionFor, ConditionalExpression = $__6.ConditionalExpression, ContinueStatement = $__6.ContinueStatement, DebuggerStatement = $__6.DebuggerStatement, DefaultClause = $__6.DefaultClause, DoWhileStatement = $__6.DoWhileStatement, EmptyStatement = $__6.EmptyStatement, ExportDeclaration = $__6.ExportDeclaration, ExportMapping = $__6.ExportMapping, ExportMappingList = $__6.ExportMappingList, ExportSpecifier = $__6.ExportSpecifier, ExportSpecifierSet = $__6.ExportSpecifierSet, ExportStar = $__6.ExportStar, ExpressionStatement = $__6.ExpressionStatement, Finally = $__6.Finally, ForInStatement = $__6.ForInStatement, ForOfStatement = $__6.ForOfStatement, ForStatement = $__6.ForStatement, FormalParameterList = $__6.FormalParameterList, FunctionDeclaration = $__6.FunctionDeclaration, FunctionExpression = $__6.FunctionExpression, GeneratorComprehension = $__6.GeneratorComprehension, GetAccessor = $__6.GetAccessor, IdentifierExpression = $__6.IdentifierExpression, IfStatement = $__6.IfStatement, ImportBinding = $__6.ImportBinding, ImportDeclaration = $__6.ImportDeclaration, ImportSpecifier = $__6.ImportSpecifier, ImportSpecifierSet = $__6.ImportSpecifierSet, LabelledStatement = $__6.LabelledStatement, LiteralExpression = $__6.LiteralExpression, MemberExpression = $__6.MemberExpression, MemberLookupExpression = $__6.MemberLookupExpression, MissingPrimaryExpression = $__6.MissingPrimaryExpression, ModuleDeclaration = $__6.ModuleDeclaration, ModuleDefinition = $__6.ModuleDefinition, ModuleExpression = $__6.ModuleExpression, ModuleRequire = $__6.ModuleRequire, ModuleSpecifier = $__6.ModuleSpecifier, NameStatement = $__6.NameStatement, NewExpression = $__6.NewExpression, ObjectLiteralExpression = $__6.ObjectLiteralExpression, ObjectPattern = $__6.ObjectPattern, ObjectPatternField = $__6.ObjectPatternField, ParenExpression = $__6.ParenExpression, PostfixExpression = $__6.PostfixExpression, Program = $__6.Program, PropertyMethodAssignment = $__6.PropertyMethodAssignment, PropertyNameAssignment = $__6.PropertyNameAssignment, PropertyNameShorthand = $__6.PropertyNameShorthand, QuasiLiteralExpression = $__6.QuasiLiteralExpression, QuasiLiteralPortion = $__6.QuasiLiteralPortion, QuasiSubstitution = $__6.QuasiSubstitution, RestParameter = $__6.RestParameter, ReturnStatement = $__6.ReturnStatement, SetAccessor = $__6.SetAccessor, SpreadExpression = $__6.SpreadExpression, SpreadPatternElement = $__6.SpreadPatternElement, SuperExpression = $__6.SuperExpression, SwitchStatement = $__6.SwitchStatement, ThisExpression = $__6.ThisExpression, ThrowStatement = $__6.ThrowStatement, TryStatement = $__6.TryStatement, UnaryExpression = $__6.UnaryExpression, VariableDeclaration = $__6.VariableDeclaration, VariableDeclarationList = $__6.VariableDeclarationList, VariableStatement = $__6.VariableStatement, WhileStatement = $__6.WhileStatement, WithStatement = $__6.WithStatement, YieldExpression = $__6.YieldExpression;
   var Expression = {
@@ -7327,8 +7334,8 @@ var $__src_syntax_Parser_js = (function() {
         return this.peek_(TokenType.IDENTIFIER, opt_index);
       },
       peekIdName_: function(opt_index) {
-        var type = this.peekType_(opt_index);
-        return type == TokenType.IDENTIFIER || Keywords.isKeyword(type);
+        var token = this.peekToken_(opt_index);
+        return token.type === TokenType.IDENTIFIER || token.isKeyword();
       },
       peekModuleDeclaration_: function() {
         return options.modules && this.peekPredefinedString_(MODULE) && this.peek_(TokenType.IDENTIFIER, 1) && (this.peekPredefinedString_(FROM, 2) || this.peek_(TokenType.OPEN_CURLY, 2));
@@ -8158,7 +8165,7 @@ var $__src_syntax_Parser_js = (function() {
           case TokenType.NUMBER:
             return true;
           default:
-            return Keywords.isKeyword(type);
+            return isKeyword(type);
         }
       },
       peekGetAccessor_: function() {
@@ -8994,7 +9001,7 @@ var $__src_syntax_Parser_js = (function() {
       eatIdName_: function() {
         var t = this.nextToken_();
         if (t.type != TokenType.IDENTIFIER) {
-          if (!Keywords.isKeyword(t.type)) {
+          if (!isKeyword(t.type)) {
             this.reportExpectedError_(t, 'identifier');
             return null;
           }
@@ -14718,7 +14725,6 @@ var $__src_codegeneration_ObjectLiteralTransformer_js = (function() {
   "use strict";
   var FindVisitor = $__src_codegeneration_FindVisitor_js.FindVisitor;
   var $__6 = $__src_syntax_trees_ParseTrees_js, FormalParameterList = $__6.FormalParameterList, FunctionExpression = $__6.FunctionExpression, IdentifierExpression = $__6.IdentifierExpression, LiteralExpression = $__6.LiteralExpression;
-  var Keywords = $__src_syntax_Keywords_js.Keywords;
   var TempVarTransformer = $__src_codegeneration_TempVarTransformer_js.TempVarTransformer;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
   var $__6 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__6.createArgumentList, createAssignmentExpression = $__6.createAssignmentExpression, createBindingIdentifier = $__6.createBindingIdentifier, createCallExpression = $__6.createCallExpression, createCommaExpression = $__6.createCommaExpression, createDefineProperty = $__6.createDefineProperty, createEmptyParameterList = $__6.createEmptyParameterList, createFunctionExpression = $__6.createFunctionExpression, createIdentifierExpression = $__6.createIdentifierExpression, createMemberExpression = $__6.createMemberExpression, createObjectCreate = $__6.createObjectCreate, createObjectLiteralExpression = $__6.createObjectLiteralExpression, createParenExpression = $__6.createParenExpression, createPropertyDescriptor = $__6.createPropertyDescriptor, createPropertyNameAssignment = $__6.createPropertyNameAssignment, createStringLiteral = $__6.createStringLiteral;
@@ -14797,7 +14803,7 @@ var $__src_codegeneration_ObjectLiteralTransformer_js = (function() {
           case TokenType.IDENTIFIER:
             return createStringLiteral(token.value);
           default:
-            if (Keywords.isKeyword(token.type)) return createStringLiteral(token.type);
+            if (token.isKeyword()) return createStringLiteral(token.type);
             return new LiteralExpression(token.location, token);
         }
       },
@@ -14996,11 +15002,12 @@ var $__src_util_StringBuilder_js = (function() {
 }).call(this);
 var $__src_outputgeneration_ParseTreeWriter_js = (function() {
   "use strict";
-  var Keywords = $__src_syntax_Keywords_js.Keywords;
   var ParseTreeVisitor = $__src_syntax_ParseTreeVisitor_js.ParseTreeVisitor;
   var $__6 = $__src_syntax_PredefinedName_js, FROM = $__6.FROM, GET = $__6.GET, OF = $__6.OF, MODULE = $__6.MODULE, REQUIRES = $__6.REQUIRES, SET = $__6.SET;
   var StringBuilder = $__src_util_StringBuilder_js.StringBuilder;
+  var Token = $__src_syntax_Token_js.Token;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
+  var isKeyword = $__src_syntax_Keywords_js.isKeyword;
   var NEW_LINE = '\n';
   var PRETTY_PRINT = true;
   var ParseTreeWriter = function($__super) {
@@ -15278,7 +15285,7 @@ var $__src_outputgeneration_ParseTreeWriter_js = (function() {
         }
       },
       visitFunction: function(tree) {
-        this.write_(Keywords.FUNCTION);
+        this.write_(TokenType.FUNCTION);
         if (tree.isGenerator) {
           this.write_(TokenType.STAR);
         }
@@ -15627,10 +15634,13 @@ var $__src_outputgeneration_ParseTreeWriter_js = (function() {
         }
       },
       isIdentifierNameOrNumber_: function(token) {
-        switch (token.type) {
-          case TokenType.IDENTIFIER:
-          case TokenType.NUMBER:
-            return true;
+        if (token instanceof Token) {
+          if (token.isKeyword()) return true;
+          switch (token.type) {
+            case TokenType.IDENTIFIER:
+            case TokenType.NUMBER:
+              return true;
+          }
         }
         var value = token.toString();
         switch (value) {
@@ -15642,7 +15652,7 @@ var $__src_outputgeneration_ParseTreeWriter_js = (function() {
           case SET:
             return true;
         }
-        return Keywords.isKeyword(value);
+        return isKeyword(value);
       },
       needsSpace_: function(token) {
         if (!this.lastToken_) return false;

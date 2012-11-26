@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import IdentifierToken from 'IdentifierToken.js';
-import Keywords from 'Keywords.js';
 import MutedErrorReporter from '../util/MutedErrorReporter.js';
 import ParseTreeType from 'trees/ParseTree.js';
 import {
@@ -29,6 +28,7 @@ import Scanner from 'Scanner.js';
 import SourceRange from '../util/SourceRange.js';
 import Token from 'Token.js';
 import TokenType from 'TokenType.js';
+import isKeyword from 'Keywords.js';
 import {parseOptions: options} from '../options.js';
 import * from 'trees/ParseTrees.js';
 
@@ -546,8 +546,8 @@ export class Parser {
   }
 
   peekIdName_(opt_index) {
-    var type = this.peekType_(opt_index);
-    return type == TokenType.IDENTIFIER || Keywords.isKeyword(type);
+    var token = this.peekToken_(opt_index);
+    return token.type === TokenType.IDENTIFIER || token.isKeyword();
   }
 
   // TODO: ModuleLoadRedeclarationList
@@ -2013,7 +2013,7 @@ export class Parser {
       case TokenType.NUMBER:
         return true;
       default:
-        return Keywords.isKeyword(type);
+        return isKeyword(type);
     }
   }
 
@@ -3619,7 +3619,7 @@ export class Parser {
   eatIdName_() {
     var t = this.nextToken_();
     if (t.type != TokenType.IDENTIFIER) {
-      if (!Keywords.isKeyword(t.type)) {
+      if (!isKeyword(t.type)) {
         this.reportExpectedError_(t, 'identifier');
         return null;
       }

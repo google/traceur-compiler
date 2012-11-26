@@ -75,50 +75,12 @@ var keywords = [
   'await'
 ];
 
-export var Keywords = {};
-
 var keywordsByName = Object.create(null);
-var keywordsByType = Object.create(null);
-
-class Keyword {
-  constructor(value, type) {
-    this.value = value;
-    this.type = type;
-  }
-
-  toString() {
-    return this.value;
-  }
-}
 
 keywords.forEach((value) => {
-  var uc = value.toUpperCase();
-  if (uc.indexOf('__') === 0) {
-    uc = uc.substring(2);
-  }
-
-  var kw = new Keyword(value, TokenType[uc]);
-
-  Keywords[uc] = kw;
-  keywordsByName[kw.value] = kw;
-  keywordsByType[kw.type] = kw;
+  keywordsByName[value] = true;
 });
 
-Keywords.isKeyword = function(value) {
-  return value !== '__proto__' && value in keywordsByName;
-};
-
-/**
- * @return {TokenType}
- */
-Keywords.getTokenType = function(value) {
-  if (value == '__proto__')
-    return null;
-  return keywordsByName[value].type;
-};
-
-Keywords.get = function(value) {
-  if (value == '__proto__')
-    return null;
-  return keywordsByName[value];
+export function isKeyword(value) {
+  return !!keywordsByName[value];
 };

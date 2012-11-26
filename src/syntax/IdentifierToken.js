@@ -15,6 +15,8 @@
 import Token from 'Token.js';
 import TokenType from 'TokenType.js';
 
+var IDENTIFIER = TokenType.IDENTIFIER;
+
 /**
  * A token representing an identifier.
  */
@@ -24,11 +26,15 @@ export class IdentifierToken extends Token {
    * @param {string} value
    */
   constructor(location, value) {
-    super(TokenType.IDENTIFIER, location);
+    this.location = location;
     this.value = value;
   }
 
   toString() {
     return this.value;
+  }
+
+  get type() {
+    return IDENTIFIER;
   }
 }

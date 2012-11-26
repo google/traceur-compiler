@@ -19,7 +19,6 @@ import {
   IdentifierExpression,
   LiteralExpression
 } from '../syntax/trees/ParseTrees.js';
-import Keywords from '../syntax/Keywords.js';
 import TempVarTransformer from 'TempVarTransformer.js';
 import TokenType from '../syntax/TokenType.js';
 import {
@@ -171,7 +170,7 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
       case TokenType.IDENTIFIER:
         return createStringLiteral(token.value);
       default:
-        if (Keywords.isKeyword(token.type))
+        if (token.isKeyword())
           return createStringLiteral(token.type);
         return new LiteralExpression(token.location, token);
     }

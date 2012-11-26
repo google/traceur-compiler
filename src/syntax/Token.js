@@ -54,4 +54,8 @@ export class Token {
         return false;
     }
   }
+
+  isKeyword() {
+    return false;
+  }
 }

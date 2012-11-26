@@ -13,28 +13,18 @@
 // limitations under the License.
 
 import Token from 'Token.js';
-import TokenType from 'TokenType.js';
 
-var AT_NAME = TokenType.AT_NAME;
-
-/**
- * A token representing an identifier.
- */
-export class AtNameToken extends Token {
+export class KeywordToken extends Token {
   /**
+   * @param {TokenType} type
    * @param {SourceRange} location
-   * @param {string} value
    */
-  constructor(location, value) {
+  constructor(type, location) {
+    this.type = type;
     this.location = location;
-    this.value = value;
   }
 
-  toString() {
-    return this.value;
-  }
-
-  get type() {
-    return AT_NAME;
+  isKeyword() {
+    return true;
   }
 }
