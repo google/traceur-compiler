@@ -2318,6 +2318,7 @@ var $__src_syntax_ParseTreeVisitor_js = (function() {
         this.visitAny(tree.expression);
       },
       visitSetAccessor: function(tree) {
+        this.visitAny(tree.parameter);
         this.visitAny(tree.body);
       },
       visitSpreadExpression: function(tree) {
@@ -12761,7 +12762,7 @@ var $__src_semantics_FreeVariableChecker_js = (function() {
   var ARGUMENTS = $__src_syntax_PredefinedName_js.ARGUMENTS;
   var $__6 = $__src_syntax_trees_ParseTrees_js, BindingIdentifier = $__6.BindingIdentifier, IdentifierExpression = $__6.IdentifierExpression;
   var IdentifierToken = $__src_syntax_IdentifierToken_js.IdentifierToken;
-  var $__6 = $__src_syntax_trees_ParseTreeType_js, PAREN_EXPRESSION = $__6.PAREN_EXPRESSION, BINDING_IDENTIFIER = $__6.BINDING_IDENTIFIER;
+  var IDENTIFIER_EXPRESSION = $__src_syntax_trees_ParseTreeType_js.IDENTIFIER_EXPRESSION;
   var ParseTreeVisitor = $__src_syntax_ParseTreeVisitor_js.ParseTreeVisitor;
   var SourcePosition = $__src_util_SourcePosition_js.SourcePosition;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
@@ -12783,15 +12784,6 @@ var $__src_semantics_FreeVariableChecker_js = (function() {
       name = name.value;
     }
     return name;
-  }
-  function getIdentifier(tree) {
-    while (tree.type == PAREN_EXPRESSION) {
-      tree = tree.expression;
-    }
-    if (tree.type == BINDING_IDENTIFIER) {
-      return tree;
-    }
-    return null;
   }
   var FreeVariableChecker = function($__super) {
     var $FreeVariableChecker = ($__createClass)({
@@ -12822,7 +12814,7 @@ var $__src_semantics_FreeVariableChecker_js = (function() {
       },
       visitFunction_: function(name, formalParameterList, body) {
         var scope = this.pushScope_();
-        if (name) this.declareVariable_(name);
+        this.visitAny(name);
         this.declareVariable_(ARGUMENTS);
         this.visitAny(formalParameterList);
         this.visitAny(body);
@@ -12840,29 +12832,18 @@ var $__src_semantics_FreeVariableChecker_js = (function() {
       },
       visitGetAccessor: function(tree) {
         var scope = this.pushScope_();
-        this.visitAny(tree.body);
+        traceur.runtime.superCall(this, $FreeVariableChecker, "visitGetAccessor", [tree]);
         this.pop_(scope);
       },
       visitSetAccessor: function(tree) {
         var scope = this.pushScope_();
-        this.declareVariable_(tree.parameter.binding);
-        this.visitAny(tree.body);
+        traceur.runtime.superCall(this, $FreeVariableChecker, "visitSetAccessor", [tree]);
         this.pop_(scope);
       },
       visitCatch: function(tree) {
         var scope = this.pushScope_();
-        this.visitAny(tree.binding);
-        this.visitAny(tree.catchBody);
+        traceur.runtime.superCall(this, $FreeVariableChecker, "visitCatch", [tree]);
         this.pop_(scope);
-      },
-      visitVariableDeclarationList: function(tree) {
-        if (tree.declarationType != TokenType.VAR) {
-          throw new Error('let and const should have been rewritten');
-        }
-        tree.declarations.forEach((function(d) {
-          this.declareVariable_(d.lvalue);
-          this.visitAny(d.initializer);
-        }).bind(this));
       },
       visitBindingIdentifier: function(tree) {
         this.declareVariable_(tree);
@@ -12872,6 +12853,13 @@ var $__src_semantics_FreeVariableChecker_js = (function() {
         var scope = this.scope_;
         if (!(name in scope.references)) {
           scope.references[name] = tree.location;
+        }
+      },
+      visitUnaryExpression: function(tree) {
+        if (tree.operator.type === TokenType.TYPEOF && tree.operand.type === IDENTIFIER_EXPRESSION) {
+          this.declareVariable_(tree.operand);
+        } else {
+          traceur.runtime.superCall(this, $FreeVariableChecker, "visitUnaryExpression", [tree]);
         }
       },
       declareVariable_: function(tree) {
@@ -12904,7 +12892,8 @@ var $__src_semantics_FreeVariableChecker_js = (function() {
             return x[0].offset - y[0].offset;
           }));
           errors.forEach((function(e) {
-            this.reportError_.apply(this, e);
+            var $__7;
+            ($__7 = this).reportError_.apply($__7, $__toObject(e));
           }).bind(this));
         }
       },

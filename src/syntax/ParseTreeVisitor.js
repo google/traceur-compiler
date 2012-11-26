@@ -602,6 +602,7 @@ export class ParseTreeVisitor {
    * @param {SetAccessor} tree
    */
   visitSetAccessor(tree) {
+    this.visitAny(tree.parameter);
     this.visitAny(tree.body);
   }
 
