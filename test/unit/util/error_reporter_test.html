@@ -60,7 +60,9 @@ function testErrorReporter() {
 function testErrorReporterWithLocation() {
   var r = new traceur.util.ErrorReporter();
   var file = new traceur.syntax.SourceFile('test.js', '');
-  var location = new traceur.util.SourcePosition(file, 1, 2, 3);
+  var location = new traceur.util.SourcePosition(file, 1);
+  location.line_ = 2;
+  location.column_ = 3;
 
   mockError('test.js:3:4: a%sc%se', 'b', 'd');
   mockWarn('test.js:3:4: a%sc%se', 'b', 'd');
@@ -102,7 +104,10 @@ function testFormat() {
 
 function testDevtoolsLink() {
   var file = new traceur.syntax.SourceFile('error_reporter_test.html', '');
-  var location = new traceur.util.SourcePosition(file, 1, 108, 3);
+  var location = new traceur.util.SourcePosition(file, 1);
+  location.line_ = 108;
+  location.column_ = 3;
+
   var segments = window.location.href.split('/');
   segments.pop();
   segments.push(location.toString());

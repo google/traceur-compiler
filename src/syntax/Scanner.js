@@ -54,7 +54,7 @@ function isWhitespace(code) {
 }
 
 // 7.3 Line Terminators
-function isLineTerminator(code) {
+export function isLineTerminator(code) {
   switch (code) {
     case 10:  // \n Line Feed
     case 13:  // \r Carriage Return
@@ -278,8 +278,8 @@ export class Scanner {
     return this.lastToken_;
   }
 
-  /** @return {LineNumberTable} */
-  getLineNumberTable_() {
+  /** @type {LineNumberTable} */
+  get lineNumberTable_() {
     return this.file.lineNumberTable;
   }
 
@@ -298,7 +298,7 @@ export class Scanner {
    * @return {SourcePosition}
    */
   getPosition_(offset) {
-    return this.getLineNumberTable_().getSourcePosition(offset);
+    return this.lineNumberTable_.getSourcePosition(offset);
   }
 
   /**
@@ -306,7 +306,7 @@ export class Scanner {
    * @private
    */
   getTokenRange_(startOffset) {
-    return this.getLineNumberTable_().getSourceRange(startOffset, this.index_);
+    return this.lineNumberTable_.getSourceRange(startOffset, this.index_);
   }
 
   nextRegularExpressionLiteralToken() {

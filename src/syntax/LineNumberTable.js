@@ -13,27 +13,8 @@
 // limitations under the License.
 
 import SourcePosition from '../util/SourcePosition.js';
-import SourceRange from  '../util/SourceRange.js';
-
-/**
- * Taken from Closure Library
- */
-function binarySearch(arr, target) {
-  var left = 0;
-  var right = arr.length - 1;
-  while (left <= right) {
-    var mid = (left + right) >> 1;
-    if (target > arr[mid]) {
-      left = mid + 1;
-    } else if (target < arr[mid]) {
-      right = mid - 1;
-    } else {
-      return mid;
-    }
-  }
-  // Not found, left is the insertion point.
-  return -(left + 1);
-}
+import SourceRange from '../util/SourceRange.js';
+import isLineTerminator from 'Scanner.js';
 
 // Largest int that can be distinguished
 // assert(n + 1 === n)
@@ -41,32 +22,20 @@ function binarySearch(arr, target) {
 var MAX_INT_REPRESENTATION = 9007199254740992;
 
 function computeLineStartOffsets(source) {
-  var lineStartOffsets = [];
-  lineStartOffsets.push(0);
+  var lineStartOffsets = [0];
+  var k = 1;
   for (var index = 0; index < source.length; index++) {
-    var ch = source.charAt(index);
-    if (isLineTerminator(ch)) {
-      if (index < source.length && ch == '\r' &&
-          source.charAt(index + 1) == '\n') {
+    var code = source.charCodeAt(index);
+    if (isLineTerminator(code)) {
+      if (code === 13 &&  // \r
+          source.charCodeAt(index + 1) === 10) {  // \n
         index++;
       }
-      lineStartOffsets.push(index + 1);
+      lineStartOffsets[k++] = index + 1;
     }
   }
-  lineStartOffsets.push(MAX_INT_REPRESENTATION);
+  lineStartOffsets[k++] = MAX_INT_REPRESENTATION;
   return lineStartOffsets;
-}
-
-function isLineTerminator(ch) {
-  switch (ch) {
-    case '\n': // Line Feed
-    case '\r':  // Carriage Return
-    case '\u2028':  // Line Separator
-    case '\u2029':  // Paragraph Separator
-      return true;
-    default:
-      return false;
-  }
 }
 
 /**
@@ -81,40 +50,49 @@ export class LineNumberTable {
   constructor(sourceFile) {
     this.sourceFile_ = sourceFile;
     this.lineStartOffsets_ = computeLineStartOffsets(sourceFile.contents);
+    this.lastLine_ = 0;
+    this.lastOffset_ = 0;
   }
 
   /**
    * @return {SourcePosition}
    */
   getSourcePosition(offset) {
-    var line = this.getLine(offset);
-    return new SourcePosition(this.sourceFile_, offset, line,
-                              this.getColumn(line, offset));
+    return new SourcePosition(this.sourceFile_, offset);
   }
 
   getLine(offset) {
-    var index = binarySearch(this.lineStartOffsets_, offset);
-    // start of line
-    if (index >= 0) {
-      return index;
-    }
-    return -index - 2;
-  }
+    // It turns out that almost all calls to this function are done in an
+    // incremental order, usually very close to the last offset. We therefore
+    // just iterate from the last position.
+    if (offset === this.lastOffset_)
+      return this.lastLine_;
 
-  offsetOfLine(line) {
-    return this.lineStartOffsets_[line];
-  }
-
-  getColumn(var_args) {
-    var line, offset;
-    if (arguments.length >= 2) {
-      line = arguments[0];
-      offset = arguments[1];
+    var line;
+    if (offset < this.lastOffset_) {
+      for (var i = this.lastLine_; i >= 0; i--) {
+        if (this.lineStartOffsets_[i] <= offset) {
+          line = i;
+          break;
+        }
+      }
     } else {
-      offset = arguments[0];
-      line = this.getLine(offset);
+      for (var i = this.lastLine_; true; i++) {
+        if (this.lineStartOffsets_[i] > offset) {
+          line = i - 1;
+          break;
+        }
+      }
     }
-    return offset - this.offsetOfLine(line);
+
+    this.lastLine_ = line;
+    this.lastOffset_ = offset;
+    return line;
+  }
+
+  getColumn(offset) {
+    var line = this.getLine(offset);
+    return offset - this.lineStartOffsets_[line];
   }
 
   /** @return {SourceRange} */

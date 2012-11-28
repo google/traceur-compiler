@@ -22,11 +22,23 @@ export class SourcePosition {
    * @param {number} line
    * @param {number} column
    */
-  constructor(source, offset, line, column) {
+  constructor(source, offset) {
     this.source = source;
     this.offset = offset;
-    this.line = line;
-    this.column = column;
+    this.line_ = -1;
+    this.column_ = -1;
+  }
+
+  get line() {
+    if (this.line_ === -1)
+      this.line_ = this.source.lineNumberTable.getLine(this.offset);
+    return this.line_;
+  }
+
+  get column() {
+    if (this.column_ === -1)
+      this.column_ = this.source.lineNumberTable.getColumn(this.offset);
+    return this.column_;
   }
 
   toString() {

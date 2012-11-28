@@ -3535,10 +3535,10 @@ export class Parser {
    * @private
    */
   peekImplicitSemiColon_() {
-    return this.getNextLine_() > this.getLastLine_() ||
-        this.peek_(TokenType.SEMI_COLON) ||
+    return this.peek_(TokenType.SEMI_COLON) ||
         this.peek_(TokenType.CLOSE_CURLY) ||
-        this.peek_(TokenType.END_OF_FILE);
+        this.peek_(TokenType.END_OF_FILE) ||
+        this.getNextLine_() > this.getLastLine_();
   }
 
   /**

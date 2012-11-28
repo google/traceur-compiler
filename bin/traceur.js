@@ -4050,11 +4050,19 @@ var $__src_util_SourcePosition_js = (function() {
   "use strict";
   var SourcePosition = function() {
     var $SourcePosition = ($__createClassNoExtends)({
-      constructor: function(source, offset, line, column) {
+      constructor: function(source, offset) {
         this.source = source;
         this.offset = offset;
-        this.line = line;
-        this.column = column;
+        this.line_ = - 1;
+        this.column_ = - 1;
+      },
+      get line() {
+        if (this.line_ === - 1) this.line_ = this.source.lineNumberTable.getLine(this.offset);
+        return this.line_;
+      },
+      get column() {
+        if (this.column_ === - 1) this.column_ = this.source.lineNumberTable.getColumn(this.offset);
+        return this.column_;
       },
       toString: function() {
         var name = this.source ? this.source.name: '';
@@ -4189,7 +4197,7 @@ var $__src_syntax_Scanner_js = (function() {
       get lastToken() {
         return this.lastToken_;
       },
-      getLineNumberTable_: function() {
+      get lineNumberTable_() {
         return this.file.lineNumberTable;
       },
       getOffset: function() {
@@ -4199,10 +4207,10 @@ var $__src_syntax_Scanner_js = (function() {
         return this.getPosition_(this.getOffset());
       },
       getPosition_: function(offset) {
-        return this.getLineNumberTable_().getSourcePosition(offset);
+        return this.lineNumberTable_.getSourcePosition(offset);
       },
       getTokenRange_: function(startOffset) {
-        return this.getLineNumberTable_().getSourceRange(startOffset, this.index_);
+        return this.lineNumberTable_.getSourceRange(startOffset, this.index_);
       },
       nextRegularExpressionLiteralToken: function() {
         return this.lastToken_ = this.nextRegularExpressionLiteralToken_();
@@ -4829,12 +4837,20 @@ var $__src_syntax_Scanner_js = (function() {
     });
     return $Scanner;
   }();
-  return Object.preventExtensions(Object.create(null, {Scanner: {
+  return Object.preventExtensions(Object.create(null, {
+    isLineTerminator: {
+      get: function() {
+        return isLineTerminator;
+      },
+      enumerable: true
+    },
+    Scanner: {
       get: function() {
         return Scanner;
       },
       enumerable: true
-    }}));
+    }
+  }));
 }).call(this);
 var $__src_syntax_trees_ParseTrees_js = (function() {
   "use strict";
@@ -8974,7 +8990,7 @@ var $__src_syntax_Parser_js = (function() {
         this.reportError_('Semi-colon expected');
       },
       peekImplicitSemiColon_: function() {
-        return this.getNextLine_() > this.getLastLine_() || this.peek_(TokenType.SEMI_COLON) || this.peek_(TokenType.CLOSE_CURLY) || this.peek_(TokenType.END_OF_FILE);
+        return this.peek_(TokenType.SEMI_COLON) || this.peek_(TokenType.CLOSE_CURLY) || this.peek_(TokenType.END_OF_FILE) || this.getNextLine_() > this.getLastLine_();
       },
       getLastLine_: function() {
         return this.scanner_.lastToken.location.end.line;
@@ -11933,78 +11949,59 @@ var $__src_syntax_LineNumberTable_js = (function() {
   "use strict";
   var SourcePosition = $__src_util_SourcePosition_js.SourcePosition;
   var SourceRange = $__src_util_SourceRange_js.SourceRange;
-  function binarySearch(arr, target) {
-    var left = 0;
-    var right = arr.length - 1;
-    while (left <= right) {
-      var mid = (left + right) >> 1;
-      if (target > arr[mid]) {
-        left = mid + 1;
-      } else if (target < arr[mid]) {
-        right = mid - 1;
-      } else {
-        return mid;
-      }
-    }
-    return - (left + 1);
-  }
+  var isLineTerminator = $__src_syntax_Scanner_js.isLineTerminator;
   var MAX_INT_REPRESENTATION = 9007199254740992;
   function computeLineStartOffsets(source) {
-    var lineStartOffsets = [];
-    lineStartOffsets.push(0);
+    var lineStartOffsets = [0];
+    var k = 1;
     for (var index = 0; index < source.length; index++) {
-      var ch = source.charAt(index);
-      if (isLineTerminator(ch)) {
-        if (index < source.length && ch == '\r' && source.charAt(index + 1) == '\n') {
+      var code = source.charCodeAt(index);
+      if (isLineTerminator(code)) {
+        if (code === 13 && source.charCodeAt(index + 1) === 10) {
           index++;
         }
-        lineStartOffsets.push(index + 1);
+        lineStartOffsets[k++] = index + 1;
       }
     }
-    lineStartOffsets.push(MAX_INT_REPRESENTATION);
+    lineStartOffsets[k++] = MAX_INT_REPRESENTATION;
     return lineStartOffsets;
-  }
-  function isLineTerminator(ch) {
-    switch (ch) {
-      case '\n':
-      case '\r':
-      case '\u2028':
-      case '\u2029':
-        return true;
-      default:
-        return false;
-    }
   }
   var LineNumberTable = function() {
     var $LineNumberTable = ($__createClassNoExtends)({
       constructor: function(sourceFile) {
         this.sourceFile_ = sourceFile;
         this.lineStartOffsets_ = computeLineStartOffsets(sourceFile.contents);
+        this.lastLine_ = 0;
+        this.lastOffset_ = 0;
       },
       getSourcePosition: function(offset) {
-        var line = this.getLine(offset);
-        return new SourcePosition(this.sourceFile_, offset, line, this.getColumn(line, offset));
+        return new SourcePosition(this.sourceFile_, offset);
       },
       getLine: function(offset) {
-        var index = binarySearch(this.lineStartOffsets_, offset);
-        if (index >= 0) {
-          return index;
-        }
-        return - index - 2;
-      },
-      offsetOfLine: function(line) {
-        return this.lineStartOffsets_[line];
-      },
-      getColumn: function(var_args) {
-        var line, offset;
-        if (arguments.length >= 2) {
-          line = arguments[0];
-          offset = arguments[1];
+        if (offset === this.lastOffset_) return this.lastLine_;
+        var line;
+        if (offset < this.lastOffset_) {
+          for (var i = this.lastLine_; i >= 0; i--) {
+            if (this.lineStartOffsets_[i] <= offset) {
+              line = i;
+              break;
+            }
+          }
         } else {
-          offset = arguments[0];
-          line = this.getLine(offset);
+          for (var i = this.lastLine_; true; i++) {
+            if (this.lineStartOffsets_[i] > offset) {
+              line = i - 1;
+              break;
+            }
+          }
         }
-        return offset - this.offsetOfLine(line);
+        this.lastLine_ = line;
+        this.lastOffset_ = offset;
+        return line;
+      },
+      getColumn: function(offset) {
+        var line = this.getLine(offset);
+        return offset - this.lineStartOffsets_[line];
       },
       getSourceRange: function(startOffset, endOffset) {
         return new SourceRange(this.getSourcePosition(startOffset), this.getSourcePosition(endOffset));
