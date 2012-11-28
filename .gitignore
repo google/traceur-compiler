@@ -11,3 +11,4 @@ bin/traceur.min.js
 src/syntax/trees/ParseTreeType.js
 src/syntax/trees/ParseTrees.js
 test/errsfile.json
+test/bench/esprima

@@ -1,0 +1,41 @@
+diff --git a/test/bench/esprima/test/compare.html b/test/bench/esprima/test/compare.html
+index 061cb6d..b4e53d2 100644
+--- a/test/bench/esprima/test/compare.html
++++ b/test/bench/esprima/test/compare.html
+@@ -56,6 +56,7 @@ window.onload = function () {
+ </div>
+ 
+ <script src="3rdparty/acorn.js"></script>
++<script src="../../../../bin/traceur.js"></script>
+ 
+ <!-- parse-js, part of UglifyJS -->
+ <script>
+diff --git a/test/bench/esprima/test/compare.js b/test/bench/esprima/test/compare.js
+index 62a5f44..8694f99 100644
+--- a/test/bench/esprima/test/compare.js
++++ b/test/bench/esprima/test/compare.js
+@@ -31,6 +31,7 @@ var setupBenchmarks,
+     suite;
+ 
+ parsers = [
++    'Traceur',
+     'Esprima',
+     'parse-js',
+     'Acorn'
+@@ -277,6 +278,16 @@ if (typeof window !== 'undefined') {
+                     };
+                     break;
+ 
++                case 'Traceur':
++                    fn = function () {
++                        console.reportError = console.error;
++                        var file = new traceur.syntax.SourceFile('name', source);
++                        var parser = new traceur.syntax.Parser(console, file);
++                        var tree = parser.parseProgram();
++                        window.tree.push(tree.programElements.length);
++                    };
++                    break;
++
+                 default:
+                     throw 'Unknown parser type ' + parser;
+                 }

@@ -17,6 +17,13 @@ clean:
 distclean: clean
 	rm build/dep.mk
 
+initbench:
+	rm -rf test/bench/esprima
+	git clone https://github.com/ariya/esprima.git test/bench/esprima
+	cd test/bench/esprima; \
+			git reset --hard 1ddd7e0524d09475a14eee66e8e1e3557c5b5999
+	git apply test/bench/esprima-compare.patch
+
 bin/traceur.min.js: bin/traceur.js
 	node build/minifier.js $? $@
 
