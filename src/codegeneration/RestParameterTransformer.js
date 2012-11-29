@@ -15,23 +15,12 @@
 import {
   FormalParameterList
 } from '../syntax/trees/ParseTrees.js';
-import ParseTreeTransformer from 'ParseTreeTransformer.js';
+import TempVarTransformer from 'TempVarTransformer.js';
 import {
-  ARGUMENTS,
-  ARRAY,
-  CALL,
-  PROTOTYPE
-} from '../syntax/PredefinedName.js';
-import TokenType from '../syntax/TokenType.js';
-import {
-  createArgumentList,
   createBlock,
-  createCallExpression,
-  createIdentifierExpression,
-  createMemberExpression,
-  createNumberLiteral,
-  createVariableStatement
+  createIdentifierToken,
 } from 'ParseTreeFactory.js';
+import parseStatement from 'PlaceholderParser.js';
 import prependStatements from 'PrependStatements.js';
 
 function hasRestParameter(formalParameterList) {
@@ -40,18 +29,17 @@ function hasRestParameter(formalParameterList) {
       parameters[parameters.length - 1].isRestParameter();
 }
 
-function getRestParameterName(formalParameterList) {
+function getRestParameterLiteralToken(formalParameterList) {
   var parameters = formalParameterList.parameters;
-  return parameters[parameters.length - 1].identifier.identifierToken.value;
+  return parameters[parameters.length - 1].identifier.identifierToken;
 }
-
 
 /**
  * Desugars rest parameters.
  *
  * @see <a href="http://wiki.ecmascript.org/doku.php?id=harmony:rest_parameters">harmony:rest_parameters</a>
  */
-export class RestParameterTransformer extends ParseTreeTransformer {
+export class RestParameterTransformer extends TempVarTransformer {
 
   transformFunction(tree) {
     if (hasRestParameter(tree.formalParameterList))
@@ -71,7 +59,7 @@ export class RestParameterTransformer extends ParseTreeTransformer {
     // function f(x, ...y) {}
     //
     // function f(x) {
-    //   var y = Array.prototype.slice.call(arguments, 1);
+    //   for (var y = ...) ...
     // }
 
     var formalParameterList = this.transformAny(tree.formalParameterList);
@@ -81,19 +69,24 @@ export class RestParameterTransformer extends ParseTreeTransformer {
             formalParameterList.location,
             formalParameterList.parameters.slice(0, -1));
 
-    var sliceExpression = createCallExpression(
-        createMemberExpression(ARRAY, PROTOTYPE, 'slice', CALL),
-        createArgumentList(
-            createIdentifierExpression(ARGUMENTS),
-            createNumberLiteral(
-                tree.formalParameterList.parameters.length - 1)));
+    var startIndex = tree.formalParameterList.parameters.length - 1;
+    var i = createIdentifierToken(this.getTempIdentifier());
+    var name = getRestParameterLiteralToken(tree.formalParameterList);
+    var loop;
+    if (startIndex) {
+      // If startIndex is 0 we can generate slightly cleaner code.
+      loop = parseStatement `
+          for (var ${name} = [], ${i} = ${startIndex};
+               ${i} < arguments.length; ${i}++)
+            ${name}[${i} - ${startIndex}] = arguments[${i}];`;
+    } else {
+      loop = parseStatement `
+          for (var ${name} = [], ${i} = 0;
+               ${i} < arguments.length; ${i}++)
+            ${name}[${i}] = arguments[${i}];`;
+    }
 
-    var variable = createVariableStatement(
-        TokenType.VAR,
-        getRestParameterName(tree.formalParameterList),
-        sliceExpression);
-
-    var statements = prependStatements(tree.functionBody.statements, variable);
+    var statements = prependStatements(tree.functionBody.statements, loop);
     var functionBody = this.transformAny(createBlock(statements));
 
     return new tree.constructor(tree.location, tree.name, tree.isGenerator,
@@ -101,6 +94,10 @@ export class RestParameterTransformer extends ParseTreeTransformer {
   }
 }
 
-RestParameterTransformer.transformTree = function(tree) {
-  return new RestParameterTransformer().transformAny(tree);
+/**
+ * @param {UniqueIdentifierGenerator} identifierGenerator
+ * @param {ParseTree} tree
+ */
+RestParameterTransformer.transformTree = function(identifierGenerator, tree) {
+  return new RestParameterTransformer(identifierGenerator).transformAny(tree);
 };

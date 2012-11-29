@@ -156,7 +156,7 @@ export class ProgramTransformer {
 
     // rest parameters must come before generator
     chain(transformOptions.restParameters,
-          RestParameterTransformer.transformTree);
+          RestParameterTransformer.transformTree, identifierGenerator);
 
     // default parameters should come after rest parameter to get the
     // expected order in the transformed code.

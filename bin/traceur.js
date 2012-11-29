@@ -1889,7 +1889,7 @@ var $__src_syntax_trees_ParseTree_js = (function() {
   "use strict";
   var ParseTreeType = $__src_syntax_trees_ParseTreeType_js;
   var SourceRange = $__src_util_SourceRange_js.SourceRange;
-  var $__6 = ParseTreeType, ARGUMENT_LIST = $__6.ARGUMENT_LIST, ARRAY_COMPREHENSION = $__6.ARRAY_COMPREHENSION, ARRAY_LITERAL_EXPRESSION = $__6.ARRAY_LITERAL_EXPRESSION, ARRAY_PATTERN = $__6.ARRAY_PATTERN, ARROW_FUNCTION_EXPRESSION = $__6.ARROW_FUNCTION_EXPRESSION, AT_NAME_DECLARATION = $__6.AT_NAME_DECLARATION, AT_NAME_EXPRESSION = $__6.AT_NAME_EXPRESSION, AWAIT_STATEMENT = $__6.AWAIT_STATEMENT, BINARY_OPERATOR = $__6.BINARY_OPERATOR, BINDING_ELEMENT = $__6.BINDING_ELEMENT, BINDING_IDENTIFIER = $__6.BINDING_IDENTIFIER, BLOCK = $__6.BLOCK, BREAK_STATEMENT = $__6.BREAK_STATEMENT, CALL_EXPRESSION = $__6.CALL_EXPRESSION, CASCADE_EXPRESSION = $__6.CASCADE_EXPRESSION, CASE_CLAUSE = $__6.CASE_CLAUSE, CATCH = $__6.CATCH, CLASS_DECLARATION = $__6.CLASS_DECLARATION, CLASS_EXPRESSION = $__6.CLASS_EXPRESSION, COMMA_EXPRESSION = $__6.COMMA_EXPRESSION, COMPREHENSION_FOR = $__6.COMPREHENSION_FOR, CONDITIONAL_EXPRESSION = $__6.CONDITIONAL_EXPRESSION, CONTINUE_STATEMENT = $__6.CONTINUE_STATEMENT, DEBUGGER_STATEMENT = $__6.DEBUGGER_STATEMENT, DEFAULT_CLAUSE = $__6.DEFAULT_CLAUSE, DO_WHILE_STATEMENT = $__6.DO_WHILE_STATEMENT, EMPTY_STATEMENT = $__6.EMPTY_STATEMENT, EXPORT_DECLARATION = $__6.EXPORT_DECLARATION, EXPORT_MAPPING = $__6.EXPORT_MAPPING, EXPORT_MAPPING_LIST = $__6.EXPORT_MAPPING_LIST, EXPORT_SPECIFIER = $__6.EXPORT_SPECIFIER, EXPORT_SPECIFIER_SET = $__6.EXPORT_SPECIFIER_SET, EXPORT_STAR = $__6.EXPORT_STAR, EXPRESSION_STATEMENT = $__6.EXPRESSION_STATEMENT, FINALLY = $__6.FINALLY, FOR_IN_STATEMENT = $__6.FOR_IN_STATEMENT, FOR_OF_STATEMENT = $__6.FOR_OF_STATEMENT, FOR_STATEMENT = $__6.FOR_STATEMENT, FORMAL_PARAMETER_LIST = $__6.FORMAL_PARAMETER_LIST, FUNCTION_DECLARATION = $__6.FUNCTION_DECLARATION, FUNCTION_EXPRESSION = $__6.FUNCTION_EXPRESSION, GENERATOR_COMPREHENSION = $__6.GENERATOR_COMPREHENSION, GET_ACCESSOR = $__6.GET_ACCESSOR, IDENTIFIER_EXPRESSION = $__6.IDENTIFIER_EXPRESSION, IF_STATEMENT = $__6.IF_STATEMENT, IMPORT_BINDING = $__6.IMPORT_BINDING, IMPORT_DECLARATION = $__6.IMPORT_DECLARATION, IMPORT_SPECIFIER = $__6.IMPORT_SPECIFIER, IMPORT_SPECIFIER_SET = $__6.IMPORT_SPECIFIER_SET, LABELLED_STATEMENT = $__6.LABELLED_STATEMENT, LITERAL_EXPRESSION = $__6.LITERAL_EXPRESSION, MEMBER_EXPRESSION = $__6.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__6.MEMBER_LOOKUP_EXPRESSION, MISSING_PRIMARY_EXPRESSION = $__6.MISSING_PRIMARY_EXPRESSION, MODULE_DECLARATION = $__6.MODULE_DECLARATION, MODULE_DEFINITION = $__6.MODULE_DEFINITION, MODULE_EXPRESSION = $__6.MODULE_EXPRESSION, MODULE_REQUIRE = $__6.MODULE_REQUIRE, MODULE_SPECIFIER = $__6.MODULE_SPECIFIER, NAME_STATEMENT = $__6.NAME_STATEMENT, NEW_EXPRESSION = $__6.NEW_EXPRESSION, OBJECT_LITERAL_EXPRESSION = $__6.OBJECT_LITERAL_EXPRESSION, OBJECT_PATTERN = $__6.OBJECT_PATTERN, OBJECT_PATTERN_FIELD = $__6.OBJECT_PATTERN_FIELD, PAREN_EXPRESSION = $__6.PAREN_EXPRESSION, POSTFIX_EXPRESSION = $__6.POSTFIX_EXPRESSION, PROGRAM = $__6.PROGRAM, PROPERTY_METHOD_ASSIGNMENT = $__6.PROPERTY_METHOD_ASSIGNMENT, PROPERTY_NAME_ASSIGNMENT = $__6.PROPERTY_NAME_ASSIGNMENT, PROPERTY_NAME_SHORTHAND = $__6.PROPERTY_NAME_SHORTHAND, QUASI_LITERAL_EXPRESSION = $__6.QUASI_LITERAL_EXPRESSION, QUASI_LITERAL_PORTION = $__6.QUASI_LITERAL_PORTION, QUASI_SUBSTITUTION = $__6.QUASI_SUBSTITUTION, REST_PARAMETER = $__6.REST_PARAMETER, RETURN_STATEMENT = $__6.RETURN_STATEMENT, SET_ACCESSOR = $__6.SET_ACCESSOR, SPREAD_EXPRESSION = $__6.SPREAD_EXPRESSION, SPREAD_PATTERN_ELEMENT = $__6.SPREAD_PATTERN_ELEMENT, STATE_MACHINE = $__6.STATE_MACHINE, SUPER_EXPRESSION = $__6.SUPER_EXPRESSION, SWITCH_STATEMENT = $__6.SWITCH_STATEMENT, THIS_EXPRESSION = $__6.THIS_EXPRESSION, THROW_STATEMENT = $__6.THROW_STATEMENT, TRY_STATEMENT = $__6.TRY_STATEMENT, UNARY_EXPRESSION = $__6.UNARY_EXPRESSION, VARIABLE_DECLARATION = $__6.VARIABLE_DECLARATION, VARIABLE_DECLARATION_LIST = $__6.VARIABLE_DECLARATION_LIST, VARIABLE_STATEMENT = $__6.VARIABLE_STATEMENT, WHILE_STATEMENT = $__6.WHILE_STATEMENT, WITH_STATEMENT = $__6.WITH_STATEMENT, YIELD_EXPRESSION = $__6.YIELD_EXPRESSION;
+  var $__9 = ParseTreeType, ARGUMENT_LIST = $__9.ARGUMENT_LIST, ARRAY_COMPREHENSION = $__9.ARRAY_COMPREHENSION, ARRAY_LITERAL_EXPRESSION = $__9.ARRAY_LITERAL_EXPRESSION, ARRAY_PATTERN = $__9.ARRAY_PATTERN, ARROW_FUNCTION_EXPRESSION = $__9.ARROW_FUNCTION_EXPRESSION, AT_NAME_DECLARATION = $__9.AT_NAME_DECLARATION, AT_NAME_EXPRESSION = $__9.AT_NAME_EXPRESSION, AWAIT_STATEMENT = $__9.AWAIT_STATEMENT, BINARY_OPERATOR = $__9.BINARY_OPERATOR, BINDING_ELEMENT = $__9.BINDING_ELEMENT, BINDING_IDENTIFIER = $__9.BINDING_IDENTIFIER, BLOCK = $__9.BLOCK, BREAK_STATEMENT = $__9.BREAK_STATEMENT, CALL_EXPRESSION = $__9.CALL_EXPRESSION, CASCADE_EXPRESSION = $__9.CASCADE_EXPRESSION, CASE_CLAUSE = $__9.CASE_CLAUSE, CATCH = $__9.CATCH, CLASS_DECLARATION = $__9.CLASS_DECLARATION, CLASS_EXPRESSION = $__9.CLASS_EXPRESSION, COMMA_EXPRESSION = $__9.COMMA_EXPRESSION, COMPREHENSION_FOR = $__9.COMPREHENSION_FOR, CONDITIONAL_EXPRESSION = $__9.CONDITIONAL_EXPRESSION, CONTINUE_STATEMENT = $__9.CONTINUE_STATEMENT, DEBUGGER_STATEMENT = $__9.DEBUGGER_STATEMENT, DEFAULT_CLAUSE = $__9.DEFAULT_CLAUSE, DO_WHILE_STATEMENT = $__9.DO_WHILE_STATEMENT, EMPTY_STATEMENT = $__9.EMPTY_STATEMENT, EXPORT_DECLARATION = $__9.EXPORT_DECLARATION, EXPORT_MAPPING = $__9.EXPORT_MAPPING, EXPORT_MAPPING_LIST = $__9.EXPORT_MAPPING_LIST, EXPORT_SPECIFIER = $__9.EXPORT_SPECIFIER, EXPORT_SPECIFIER_SET = $__9.EXPORT_SPECIFIER_SET, EXPORT_STAR = $__9.EXPORT_STAR, EXPRESSION_STATEMENT = $__9.EXPRESSION_STATEMENT, FINALLY = $__9.FINALLY, FOR_IN_STATEMENT = $__9.FOR_IN_STATEMENT, FOR_OF_STATEMENT = $__9.FOR_OF_STATEMENT, FOR_STATEMENT = $__9.FOR_STATEMENT, FORMAL_PARAMETER_LIST = $__9.FORMAL_PARAMETER_LIST, FUNCTION_DECLARATION = $__9.FUNCTION_DECLARATION, FUNCTION_EXPRESSION = $__9.FUNCTION_EXPRESSION, GENERATOR_COMPREHENSION = $__9.GENERATOR_COMPREHENSION, GET_ACCESSOR = $__9.GET_ACCESSOR, IDENTIFIER_EXPRESSION = $__9.IDENTIFIER_EXPRESSION, IF_STATEMENT = $__9.IF_STATEMENT, IMPORT_BINDING = $__9.IMPORT_BINDING, IMPORT_DECLARATION = $__9.IMPORT_DECLARATION, IMPORT_SPECIFIER = $__9.IMPORT_SPECIFIER, IMPORT_SPECIFIER_SET = $__9.IMPORT_SPECIFIER_SET, LABELLED_STATEMENT = $__9.LABELLED_STATEMENT, LITERAL_EXPRESSION = $__9.LITERAL_EXPRESSION, MEMBER_EXPRESSION = $__9.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__9.MEMBER_LOOKUP_EXPRESSION, MISSING_PRIMARY_EXPRESSION = $__9.MISSING_PRIMARY_EXPRESSION, MODULE_DECLARATION = $__9.MODULE_DECLARATION, MODULE_DEFINITION = $__9.MODULE_DEFINITION, MODULE_EXPRESSION = $__9.MODULE_EXPRESSION, MODULE_REQUIRE = $__9.MODULE_REQUIRE, MODULE_SPECIFIER = $__9.MODULE_SPECIFIER, NAME_STATEMENT = $__9.NAME_STATEMENT, NEW_EXPRESSION = $__9.NEW_EXPRESSION, OBJECT_LITERAL_EXPRESSION = $__9.OBJECT_LITERAL_EXPRESSION, OBJECT_PATTERN = $__9.OBJECT_PATTERN, OBJECT_PATTERN_FIELD = $__9.OBJECT_PATTERN_FIELD, PAREN_EXPRESSION = $__9.PAREN_EXPRESSION, POSTFIX_EXPRESSION = $__9.POSTFIX_EXPRESSION, PROGRAM = $__9.PROGRAM, PROPERTY_METHOD_ASSIGNMENT = $__9.PROPERTY_METHOD_ASSIGNMENT, PROPERTY_NAME_ASSIGNMENT = $__9.PROPERTY_NAME_ASSIGNMENT, PROPERTY_NAME_SHORTHAND = $__9.PROPERTY_NAME_SHORTHAND, QUASI_LITERAL_EXPRESSION = $__9.QUASI_LITERAL_EXPRESSION, QUASI_LITERAL_PORTION = $__9.QUASI_LITERAL_PORTION, QUASI_SUBSTITUTION = $__9.QUASI_SUBSTITUTION, REST_PARAMETER = $__9.REST_PARAMETER, RETURN_STATEMENT = $__9.RETURN_STATEMENT, SET_ACCESSOR = $__9.SET_ACCESSOR, SPREAD_EXPRESSION = $__9.SPREAD_EXPRESSION, SPREAD_PATTERN_ELEMENT = $__9.SPREAD_PATTERN_ELEMENT, STATE_MACHINE = $__9.STATE_MACHINE, SUPER_EXPRESSION = $__9.SUPER_EXPRESSION, SWITCH_STATEMENT = $__9.SWITCH_STATEMENT, THIS_EXPRESSION = $__9.THIS_EXPRESSION, THROW_STATEMENT = $__9.THROW_STATEMENT, TRY_STATEMENT = $__9.TRY_STATEMENT, UNARY_EXPRESSION = $__9.UNARY_EXPRESSION, VARIABLE_DECLARATION = $__9.VARIABLE_DECLARATION, VARIABLE_DECLARATION_LIST = $__9.VARIABLE_DECLARATION_LIST, VARIABLE_STATEMENT = $__9.VARIABLE_STATEMENT, WHILE_STATEMENT = $__9.WHILE_STATEMENT, WITH_STATEMENT = $__9.WITH_STATEMENT, YIELD_EXPRESSION = $__9.YIELD_EXPRESSION;
   var ParseTree = function() {
     var $ParseTree = ($__createClassNoExtends)({
       constructor: function(type, location) {
@@ -2504,7 +2504,7 @@ var $__src_util_url_js = (function() {
 }).call(this);
 var $__src_codegeneration_module_ModuleVisitor_js = (function() {
   "use strict";
-  var $__6 = $__src_syntax_trees_ParseTree_js, ParseTree = $__6.ParseTree, ParseTreeType = $__6.ParseTreeType;
+  var $__9 = $__src_syntax_trees_ParseTree_js, ParseTree = $__9.ParseTree, ParseTreeType = $__9.ParseTreeType;
   var ParseTreeVisitor = $__src_syntax_ParseTreeVisitor_js.ParseTreeVisitor;
   var Symbol = $__src_semantics_symbols_Symbol_js.Symbol;
   var resolveUrl = $__src_util_url_js.resolveUrl;
@@ -2604,15 +2604,15 @@ var $__src_codegeneration_module_ModuleVisitor_js = (function() {
         return true;
       },
       reportError_: function(symbolOrTree, format) {
-        var $__7;
-        var args = Array.prototype.slice.call(arguments, 2);
+        var $__10;
+        for (var args = [], $__6 = 2; $__6 < arguments.length; $__6++) args[$__6 - 2] = arguments[$__6];
         var tree;
         if (symbolOrTree instanceof Symbol) {
           tree = symbolOrTree.tree;
         } else {
           tree = symbolOrTree;
         }
-        ($__7 = this.reporter_).reportError.apply($__7, $__spread([tree.location.start, format], args));
+        ($__10 = this.reporter_).reportError.apply($__10, $__spread([tree.location.start, format], args));
       },
       reportRelatedError_: function(symbolOrTree) {
         if (symbolOrTree instanceof ParseTree) {
@@ -2689,8 +2689,8 @@ var $__src_codegeneration_module_ExportVisitor_js = (function() {
       },
       visitExportStar: function(tree) {
         var module = this.getModuleForModuleExpression(this.relatedTree_);
-        module.getExports().forEach((function($__6) {
-          var name = $__6.name;
+        module.getExports().forEach((function($__9) {
+          var name = $__9.name;
           this.addExport_(name, tree);
         }).bind(this));
       },
@@ -3172,9 +3172,9 @@ var $__src_util_ErrorReporter_js = (function() {
         this.reportMessageInternal(location, 'warn', format, args);
       },
       reportMessageInternal: function(location, kind, format, args) {
-        var $__7;
+        var $__10;
         if (location) format = (location + ": " + format);
-        ($__7 = console)[kind].apply($__7, $__spread([format], args));
+        ($__10 = console)[kind].apply($__10, $__spread([format], args));
       },
       hadError: function() {
         return this.hadError_;
@@ -4856,7 +4856,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   "use strict";
   var ParseTree = $__src_syntax_trees_ParseTree_js.ParseTree;
   var ParseTreeType = $__src_syntax_trees_ParseTreeType_js;
-  var $__6 = ParseTreeType, ARGUMENT_LIST = $__6.ARGUMENT_LIST, ARRAY_COMPREHENSION = $__6.ARRAY_COMPREHENSION, ARRAY_LITERAL_EXPRESSION = $__6.ARRAY_LITERAL_EXPRESSION, ARRAY_PATTERN = $__6.ARRAY_PATTERN, ARROW_FUNCTION_EXPRESSION = $__6.ARROW_FUNCTION_EXPRESSION, AT_NAME_DECLARATION = $__6.AT_NAME_DECLARATION, AT_NAME_EXPRESSION = $__6.AT_NAME_EXPRESSION, AWAIT_STATEMENT = $__6.AWAIT_STATEMENT, BINARY_OPERATOR = $__6.BINARY_OPERATOR, BINDING_ELEMENT = $__6.BINDING_ELEMENT, BINDING_IDENTIFIER = $__6.BINDING_IDENTIFIER, BLOCK = $__6.BLOCK, BREAK_STATEMENT = $__6.BREAK_STATEMENT, CALL_EXPRESSION = $__6.CALL_EXPRESSION, CASCADE_EXPRESSION = $__6.CASCADE_EXPRESSION, CASE_CLAUSE = $__6.CASE_CLAUSE, CATCH = $__6.CATCH, CLASS_DECLARATION = $__6.CLASS_DECLARATION, CLASS_EXPRESSION = $__6.CLASS_EXPRESSION, COMMA_EXPRESSION = $__6.COMMA_EXPRESSION, COMPREHENSION_FOR = $__6.COMPREHENSION_FOR, CONDITIONAL_EXPRESSION = $__6.CONDITIONAL_EXPRESSION, CONTINUE_STATEMENT = $__6.CONTINUE_STATEMENT, DEBUGGER_STATEMENT = $__6.DEBUGGER_STATEMENT, DEFAULT_CLAUSE = $__6.DEFAULT_CLAUSE, DO_WHILE_STATEMENT = $__6.DO_WHILE_STATEMENT, EMPTY_STATEMENT = $__6.EMPTY_STATEMENT, EXPORT_DECLARATION = $__6.EXPORT_DECLARATION, EXPORT_MAPPING = $__6.EXPORT_MAPPING, EXPORT_MAPPING_LIST = $__6.EXPORT_MAPPING_LIST, EXPORT_SPECIFIER = $__6.EXPORT_SPECIFIER, EXPORT_SPECIFIER_SET = $__6.EXPORT_SPECIFIER_SET, EXPORT_STAR = $__6.EXPORT_STAR, EXPRESSION_STATEMENT = $__6.EXPRESSION_STATEMENT, FINALLY = $__6.FINALLY, FOR_IN_STATEMENT = $__6.FOR_IN_STATEMENT, FOR_OF_STATEMENT = $__6.FOR_OF_STATEMENT, FOR_STATEMENT = $__6.FOR_STATEMENT, FORMAL_PARAMETER_LIST = $__6.FORMAL_PARAMETER_LIST, FUNCTION_DECLARATION = $__6.FUNCTION_DECLARATION, FUNCTION_EXPRESSION = $__6.FUNCTION_EXPRESSION, GENERATOR_COMPREHENSION = $__6.GENERATOR_COMPREHENSION, GET_ACCESSOR = $__6.GET_ACCESSOR, IDENTIFIER_EXPRESSION = $__6.IDENTIFIER_EXPRESSION, IF_STATEMENT = $__6.IF_STATEMENT, IMPORT_BINDING = $__6.IMPORT_BINDING, IMPORT_DECLARATION = $__6.IMPORT_DECLARATION, IMPORT_SPECIFIER = $__6.IMPORT_SPECIFIER, IMPORT_SPECIFIER_SET = $__6.IMPORT_SPECIFIER_SET, LABELLED_STATEMENT = $__6.LABELLED_STATEMENT, LITERAL_EXPRESSION = $__6.LITERAL_EXPRESSION, MEMBER_EXPRESSION = $__6.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__6.MEMBER_LOOKUP_EXPRESSION, MISSING_PRIMARY_EXPRESSION = $__6.MISSING_PRIMARY_EXPRESSION, MODULE_DECLARATION = $__6.MODULE_DECLARATION, MODULE_DEFINITION = $__6.MODULE_DEFINITION, MODULE_EXPRESSION = $__6.MODULE_EXPRESSION, MODULE_REQUIRE = $__6.MODULE_REQUIRE, MODULE_SPECIFIER = $__6.MODULE_SPECIFIER, NAME_STATEMENT = $__6.NAME_STATEMENT, NEW_EXPRESSION = $__6.NEW_EXPRESSION, OBJECT_LITERAL_EXPRESSION = $__6.OBJECT_LITERAL_EXPRESSION, OBJECT_PATTERN = $__6.OBJECT_PATTERN, OBJECT_PATTERN_FIELD = $__6.OBJECT_PATTERN_FIELD, PAREN_EXPRESSION = $__6.PAREN_EXPRESSION, POSTFIX_EXPRESSION = $__6.POSTFIX_EXPRESSION, PROGRAM = $__6.PROGRAM, PROPERTY_METHOD_ASSIGNMENT = $__6.PROPERTY_METHOD_ASSIGNMENT, PROPERTY_NAME_ASSIGNMENT = $__6.PROPERTY_NAME_ASSIGNMENT, PROPERTY_NAME_SHORTHAND = $__6.PROPERTY_NAME_SHORTHAND, QUASI_LITERAL_EXPRESSION = $__6.QUASI_LITERAL_EXPRESSION, QUASI_LITERAL_PORTION = $__6.QUASI_LITERAL_PORTION, QUASI_SUBSTITUTION = $__6.QUASI_SUBSTITUTION, REST_PARAMETER = $__6.REST_PARAMETER, RETURN_STATEMENT = $__6.RETURN_STATEMENT, SET_ACCESSOR = $__6.SET_ACCESSOR, SPREAD_EXPRESSION = $__6.SPREAD_EXPRESSION, SPREAD_PATTERN_ELEMENT = $__6.SPREAD_PATTERN_ELEMENT, STATE_MACHINE = $__6.STATE_MACHINE, SUPER_EXPRESSION = $__6.SUPER_EXPRESSION, SWITCH_STATEMENT = $__6.SWITCH_STATEMENT, THIS_EXPRESSION = $__6.THIS_EXPRESSION, THROW_STATEMENT = $__6.THROW_STATEMENT, TRY_STATEMENT = $__6.TRY_STATEMENT, UNARY_EXPRESSION = $__6.UNARY_EXPRESSION, VARIABLE_DECLARATION = $__6.VARIABLE_DECLARATION, VARIABLE_DECLARATION_LIST = $__6.VARIABLE_DECLARATION_LIST, VARIABLE_STATEMENT = $__6.VARIABLE_STATEMENT, WHILE_STATEMENT = $__6.WHILE_STATEMENT, WITH_STATEMENT = $__6.WITH_STATEMENT, YIELD_EXPRESSION = $__6.YIELD_EXPRESSION;
+  var $__9 = ParseTreeType, ARGUMENT_LIST = $__9.ARGUMENT_LIST, ARRAY_COMPREHENSION = $__9.ARRAY_COMPREHENSION, ARRAY_LITERAL_EXPRESSION = $__9.ARRAY_LITERAL_EXPRESSION, ARRAY_PATTERN = $__9.ARRAY_PATTERN, ARROW_FUNCTION_EXPRESSION = $__9.ARROW_FUNCTION_EXPRESSION, AT_NAME_DECLARATION = $__9.AT_NAME_DECLARATION, AT_NAME_EXPRESSION = $__9.AT_NAME_EXPRESSION, AWAIT_STATEMENT = $__9.AWAIT_STATEMENT, BINARY_OPERATOR = $__9.BINARY_OPERATOR, BINDING_ELEMENT = $__9.BINDING_ELEMENT, BINDING_IDENTIFIER = $__9.BINDING_IDENTIFIER, BLOCK = $__9.BLOCK, BREAK_STATEMENT = $__9.BREAK_STATEMENT, CALL_EXPRESSION = $__9.CALL_EXPRESSION, CASCADE_EXPRESSION = $__9.CASCADE_EXPRESSION, CASE_CLAUSE = $__9.CASE_CLAUSE, CATCH = $__9.CATCH, CLASS_DECLARATION = $__9.CLASS_DECLARATION, CLASS_EXPRESSION = $__9.CLASS_EXPRESSION, COMMA_EXPRESSION = $__9.COMMA_EXPRESSION, COMPREHENSION_FOR = $__9.COMPREHENSION_FOR, CONDITIONAL_EXPRESSION = $__9.CONDITIONAL_EXPRESSION, CONTINUE_STATEMENT = $__9.CONTINUE_STATEMENT, DEBUGGER_STATEMENT = $__9.DEBUGGER_STATEMENT, DEFAULT_CLAUSE = $__9.DEFAULT_CLAUSE, DO_WHILE_STATEMENT = $__9.DO_WHILE_STATEMENT, EMPTY_STATEMENT = $__9.EMPTY_STATEMENT, EXPORT_DECLARATION = $__9.EXPORT_DECLARATION, EXPORT_MAPPING = $__9.EXPORT_MAPPING, EXPORT_MAPPING_LIST = $__9.EXPORT_MAPPING_LIST, EXPORT_SPECIFIER = $__9.EXPORT_SPECIFIER, EXPORT_SPECIFIER_SET = $__9.EXPORT_SPECIFIER_SET, EXPORT_STAR = $__9.EXPORT_STAR, EXPRESSION_STATEMENT = $__9.EXPRESSION_STATEMENT, FINALLY = $__9.FINALLY, FOR_IN_STATEMENT = $__9.FOR_IN_STATEMENT, FOR_OF_STATEMENT = $__9.FOR_OF_STATEMENT, FOR_STATEMENT = $__9.FOR_STATEMENT, FORMAL_PARAMETER_LIST = $__9.FORMAL_PARAMETER_LIST, FUNCTION_DECLARATION = $__9.FUNCTION_DECLARATION, FUNCTION_EXPRESSION = $__9.FUNCTION_EXPRESSION, GENERATOR_COMPREHENSION = $__9.GENERATOR_COMPREHENSION, GET_ACCESSOR = $__9.GET_ACCESSOR, IDENTIFIER_EXPRESSION = $__9.IDENTIFIER_EXPRESSION, IF_STATEMENT = $__9.IF_STATEMENT, IMPORT_BINDING = $__9.IMPORT_BINDING, IMPORT_DECLARATION = $__9.IMPORT_DECLARATION, IMPORT_SPECIFIER = $__9.IMPORT_SPECIFIER, IMPORT_SPECIFIER_SET = $__9.IMPORT_SPECIFIER_SET, LABELLED_STATEMENT = $__9.LABELLED_STATEMENT, LITERAL_EXPRESSION = $__9.LITERAL_EXPRESSION, MEMBER_EXPRESSION = $__9.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__9.MEMBER_LOOKUP_EXPRESSION, MISSING_PRIMARY_EXPRESSION = $__9.MISSING_PRIMARY_EXPRESSION, MODULE_DECLARATION = $__9.MODULE_DECLARATION, MODULE_DEFINITION = $__9.MODULE_DEFINITION, MODULE_EXPRESSION = $__9.MODULE_EXPRESSION, MODULE_REQUIRE = $__9.MODULE_REQUIRE, MODULE_SPECIFIER = $__9.MODULE_SPECIFIER, NAME_STATEMENT = $__9.NAME_STATEMENT, NEW_EXPRESSION = $__9.NEW_EXPRESSION, OBJECT_LITERAL_EXPRESSION = $__9.OBJECT_LITERAL_EXPRESSION, OBJECT_PATTERN = $__9.OBJECT_PATTERN, OBJECT_PATTERN_FIELD = $__9.OBJECT_PATTERN_FIELD, PAREN_EXPRESSION = $__9.PAREN_EXPRESSION, POSTFIX_EXPRESSION = $__9.POSTFIX_EXPRESSION, PROGRAM = $__9.PROGRAM, PROPERTY_METHOD_ASSIGNMENT = $__9.PROPERTY_METHOD_ASSIGNMENT, PROPERTY_NAME_ASSIGNMENT = $__9.PROPERTY_NAME_ASSIGNMENT, PROPERTY_NAME_SHORTHAND = $__9.PROPERTY_NAME_SHORTHAND, QUASI_LITERAL_EXPRESSION = $__9.QUASI_LITERAL_EXPRESSION, QUASI_LITERAL_PORTION = $__9.QUASI_LITERAL_PORTION, QUASI_SUBSTITUTION = $__9.QUASI_SUBSTITUTION, REST_PARAMETER = $__9.REST_PARAMETER, RETURN_STATEMENT = $__9.RETURN_STATEMENT, SET_ACCESSOR = $__9.SET_ACCESSOR, SPREAD_EXPRESSION = $__9.SPREAD_EXPRESSION, SPREAD_PATTERN_ELEMENT = $__9.SPREAD_PATTERN_ELEMENT, STATE_MACHINE = $__9.STATE_MACHINE, SUPER_EXPRESSION = $__9.SUPER_EXPRESSION, SWITCH_STATEMENT = $__9.SWITCH_STATEMENT, THIS_EXPRESSION = $__9.THIS_EXPRESSION, THROW_STATEMENT = $__9.THROW_STATEMENT, TRY_STATEMENT = $__9.TRY_STATEMENT, UNARY_EXPRESSION = $__9.UNARY_EXPRESSION, VARIABLE_DECLARATION = $__9.VARIABLE_DECLARATION, VARIABLE_DECLARATION_LIST = $__9.VARIABLE_DECLARATION_LIST, VARIABLE_STATEMENT = $__9.VARIABLE_STATEMENT, WHILE_STATEMENT = $__9.WHILE_STATEMENT, WITH_STATEMENT = $__9.WITH_STATEMENT, YIELD_EXPRESSION = $__9.YIELD_EXPRESSION;
   var ArgumentList = function($__super) {
     var $ArgumentList = ($__createClass)({
       constructor: function(location, args) {
@@ -7087,14 +7087,14 @@ var $__src_syntax_Parser_js = (function() {
   var IdentifierToken = $__src_syntax_IdentifierToken_js.IdentifierToken;
   var MutedErrorReporter = $__src_util_MutedErrorReporter_js.MutedErrorReporter;
   var ParseTreeType = $__src_syntax_trees_ParseTree_js.ParseTreeType;
-  var $__6 = $__src_syntax_PredefinedName_js, FROM = $__6.FROM, GET = $__6.GET, IS = $__6.IS, ISNT = $__6.ISNT, MODULE = $__6.MODULE, OF = $__6.OF, SET = $__6.SET;
+  var $__9 = $__src_syntax_PredefinedName_js, FROM = $__9.FROM, GET = $__9.GET, IS = $__9.IS, ISNT = $__9.ISNT, MODULE = $__9.MODULE, OF = $__9.OF, SET = $__9.SET;
   var Scanner = $__src_syntax_Scanner_js.Scanner;
   var SourceRange = $__src_util_SourceRange_js.SourceRange;
   var Token = $__src_syntax_Token_js.Token;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
   var isKeyword = $__src_syntax_Keywords_js.isKeyword;
   var options = $__src_options_js.parseOptions;
-  var $__6 = $__src_syntax_trees_ParseTrees_js, ArgumentList = $__6.ArgumentList, ArrayComprehension = $__6.ArrayComprehension, ArrayLiteralExpression = $__6.ArrayLiteralExpression, ArrayPattern = $__6.ArrayPattern, ArrowFunctionExpression = $__6.ArrowFunctionExpression, AtNameDeclaration = $__6.AtNameDeclaration, AtNameExpression = $__6.AtNameExpression, AwaitStatement = $__6.AwaitStatement, BinaryOperator = $__6.BinaryOperator, BindingElement = $__6.BindingElement, BindingIdentifier = $__6.BindingIdentifier, Block = $__6.Block, BreakStatement = $__6.BreakStatement, CallExpression = $__6.CallExpression, CascadeExpression = $__6.CascadeExpression, CaseClause = $__6.CaseClause, Catch = $__6.Catch, ClassDeclaration = $__6.ClassDeclaration, ClassExpression = $__6.ClassExpression, CommaExpression = $__6.CommaExpression, ComprehensionFor = $__6.ComprehensionFor, ConditionalExpression = $__6.ConditionalExpression, ContinueStatement = $__6.ContinueStatement, DebuggerStatement = $__6.DebuggerStatement, DefaultClause = $__6.DefaultClause, DoWhileStatement = $__6.DoWhileStatement, EmptyStatement = $__6.EmptyStatement, ExportDeclaration = $__6.ExportDeclaration, ExportMapping = $__6.ExportMapping, ExportMappingList = $__6.ExportMappingList, ExportSpecifier = $__6.ExportSpecifier, ExportSpecifierSet = $__6.ExportSpecifierSet, ExportStar = $__6.ExportStar, ExpressionStatement = $__6.ExpressionStatement, Finally = $__6.Finally, ForInStatement = $__6.ForInStatement, ForOfStatement = $__6.ForOfStatement, ForStatement = $__6.ForStatement, FormalParameterList = $__6.FormalParameterList, FunctionDeclaration = $__6.FunctionDeclaration, FunctionExpression = $__6.FunctionExpression, GeneratorComprehension = $__6.GeneratorComprehension, GetAccessor = $__6.GetAccessor, IdentifierExpression = $__6.IdentifierExpression, IfStatement = $__6.IfStatement, ImportBinding = $__6.ImportBinding, ImportDeclaration = $__6.ImportDeclaration, ImportSpecifier = $__6.ImportSpecifier, ImportSpecifierSet = $__6.ImportSpecifierSet, LabelledStatement = $__6.LabelledStatement, LiteralExpression = $__6.LiteralExpression, MemberExpression = $__6.MemberExpression, MemberLookupExpression = $__6.MemberLookupExpression, MissingPrimaryExpression = $__6.MissingPrimaryExpression, ModuleDeclaration = $__6.ModuleDeclaration, ModuleDefinition = $__6.ModuleDefinition, ModuleExpression = $__6.ModuleExpression, ModuleRequire = $__6.ModuleRequire, ModuleSpecifier = $__6.ModuleSpecifier, NameStatement = $__6.NameStatement, NewExpression = $__6.NewExpression, ObjectLiteralExpression = $__6.ObjectLiteralExpression, ObjectPattern = $__6.ObjectPattern, ObjectPatternField = $__6.ObjectPatternField, ParenExpression = $__6.ParenExpression, PostfixExpression = $__6.PostfixExpression, Program = $__6.Program, PropertyMethodAssignment = $__6.PropertyMethodAssignment, PropertyNameAssignment = $__6.PropertyNameAssignment, PropertyNameShorthand = $__6.PropertyNameShorthand, QuasiLiteralExpression = $__6.QuasiLiteralExpression, QuasiLiteralPortion = $__6.QuasiLiteralPortion, QuasiSubstitution = $__6.QuasiSubstitution, RestParameter = $__6.RestParameter, ReturnStatement = $__6.ReturnStatement, SetAccessor = $__6.SetAccessor, SpreadExpression = $__6.SpreadExpression, SpreadPatternElement = $__6.SpreadPatternElement, SuperExpression = $__6.SuperExpression, SwitchStatement = $__6.SwitchStatement, ThisExpression = $__6.ThisExpression, ThrowStatement = $__6.ThrowStatement, TryStatement = $__6.TryStatement, UnaryExpression = $__6.UnaryExpression, VariableDeclaration = $__6.VariableDeclaration, VariableDeclarationList = $__6.VariableDeclarationList, VariableStatement = $__6.VariableStatement, WhileStatement = $__6.WhileStatement, WithStatement = $__6.WithStatement, YieldExpression = $__6.YieldExpression;
+  var $__9 = $__src_syntax_trees_ParseTrees_js, ArgumentList = $__9.ArgumentList, ArrayComprehension = $__9.ArrayComprehension, ArrayLiteralExpression = $__9.ArrayLiteralExpression, ArrayPattern = $__9.ArrayPattern, ArrowFunctionExpression = $__9.ArrowFunctionExpression, AtNameDeclaration = $__9.AtNameDeclaration, AtNameExpression = $__9.AtNameExpression, AwaitStatement = $__9.AwaitStatement, BinaryOperator = $__9.BinaryOperator, BindingElement = $__9.BindingElement, BindingIdentifier = $__9.BindingIdentifier, Block = $__9.Block, BreakStatement = $__9.BreakStatement, CallExpression = $__9.CallExpression, CascadeExpression = $__9.CascadeExpression, CaseClause = $__9.CaseClause, Catch = $__9.Catch, ClassDeclaration = $__9.ClassDeclaration, ClassExpression = $__9.ClassExpression, CommaExpression = $__9.CommaExpression, ComprehensionFor = $__9.ComprehensionFor, ConditionalExpression = $__9.ConditionalExpression, ContinueStatement = $__9.ContinueStatement, DebuggerStatement = $__9.DebuggerStatement, DefaultClause = $__9.DefaultClause, DoWhileStatement = $__9.DoWhileStatement, EmptyStatement = $__9.EmptyStatement, ExportDeclaration = $__9.ExportDeclaration, ExportMapping = $__9.ExportMapping, ExportMappingList = $__9.ExportMappingList, ExportSpecifier = $__9.ExportSpecifier, ExportSpecifierSet = $__9.ExportSpecifierSet, ExportStar = $__9.ExportStar, ExpressionStatement = $__9.ExpressionStatement, Finally = $__9.Finally, ForInStatement = $__9.ForInStatement, ForOfStatement = $__9.ForOfStatement, ForStatement = $__9.ForStatement, FormalParameterList = $__9.FormalParameterList, FunctionDeclaration = $__9.FunctionDeclaration, FunctionExpression = $__9.FunctionExpression, GeneratorComprehension = $__9.GeneratorComprehension, GetAccessor = $__9.GetAccessor, IdentifierExpression = $__9.IdentifierExpression, IfStatement = $__9.IfStatement, ImportBinding = $__9.ImportBinding, ImportDeclaration = $__9.ImportDeclaration, ImportSpecifier = $__9.ImportSpecifier, ImportSpecifierSet = $__9.ImportSpecifierSet, LabelledStatement = $__9.LabelledStatement, LiteralExpression = $__9.LiteralExpression, MemberExpression = $__9.MemberExpression, MemberLookupExpression = $__9.MemberLookupExpression, MissingPrimaryExpression = $__9.MissingPrimaryExpression, ModuleDeclaration = $__9.ModuleDeclaration, ModuleDefinition = $__9.ModuleDefinition, ModuleExpression = $__9.ModuleExpression, ModuleRequire = $__9.ModuleRequire, ModuleSpecifier = $__9.ModuleSpecifier, NameStatement = $__9.NameStatement, NewExpression = $__9.NewExpression, ObjectLiteralExpression = $__9.ObjectLiteralExpression, ObjectPattern = $__9.ObjectPattern, ObjectPatternField = $__9.ObjectPatternField, ParenExpression = $__9.ParenExpression, PostfixExpression = $__9.PostfixExpression, Program = $__9.Program, PropertyMethodAssignment = $__9.PropertyMethodAssignment, PropertyNameAssignment = $__9.PropertyNameAssignment, PropertyNameShorthand = $__9.PropertyNameShorthand, QuasiLiteralExpression = $__9.QuasiLiteralExpression, QuasiLiteralPortion = $__9.QuasiLiteralPortion, QuasiSubstitution = $__9.QuasiSubstitution, RestParameter = $__9.RestParameter, ReturnStatement = $__9.ReturnStatement, SetAccessor = $__9.SetAccessor, SpreadExpression = $__9.SpreadExpression, SpreadPatternElement = $__9.SpreadPatternElement, SuperExpression = $__9.SuperExpression, SwitchStatement = $__9.SwitchStatement, ThisExpression = $__9.ThisExpression, ThrowStatement = $__9.ThrowStatement, TryStatement = $__9.TryStatement, UnaryExpression = $__9.UnaryExpression, VariableDeclaration = $__9.VariableDeclaration, VariableDeclarationList = $__9.VariableDeclarationList, VariableStatement = $__9.VariableStatement, WhileStatement = $__9.WhileStatement, WithStatement = $__9.WithStatement, YieldExpression = $__9.YieldExpression;
   var Expression = {
     NO_IN: 'NO_IN',
     NORMAL: 'NORMAL'
@@ -9105,7 +9105,7 @@ var $__src_syntax_Parser_js = (function() {
 }).call(this);
 var $__src_codegeneration_ParseTreeTransformer_js = (function() {
   "use strict";
-  var $__6 = $__src_syntax_trees_ParseTrees_js, ArgumentList = $__6.ArgumentList, ArrayComprehension = $__6.ArrayComprehension, ArrayLiteralExpression = $__6.ArrayLiteralExpression, ArrayPattern = $__6.ArrayPattern, ArrowFunctionExpression = $__6.ArrowFunctionExpression, AtNameDeclaration = $__6.AtNameDeclaration, AtNameExpression = $__6.AtNameExpression, AwaitStatement = $__6.AwaitStatement, BinaryOperator = $__6.BinaryOperator, BindingElement = $__6.BindingElement, BindingIdentifier = $__6.BindingIdentifier, Block = $__6.Block, BreakStatement = $__6.BreakStatement, CallExpression = $__6.CallExpression, CascadeExpression = $__6.CascadeExpression, CaseClause = $__6.CaseClause, Catch = $__6.Catch, ClassDeclaration = $__6.ClassDeclaration, ClassExpression = $__6.ClassExpression, CommaExpression = $__6.CommaExpression, ComprehensionFor = $__6.ComprehensionFor, ConditionalExpression = $__6.ConditionalExpression, ContinueStatement = $__6.ContinueStatement, DebuggerStatement = $__6.DebuggerStatement, DefaultClause = $__6.DefaultClause, DoWhileStatement = $__6.DoWhileStatement, EmptyStatement = $__6.EmptyStatement, ExportDeclaration = $__6.ExportDeclaration, ExportMapping = $__6.ExportMapping, ExportMappingList = $__6.ExportMappingList, ExportSpecifier = $__6.ExportSpecifier, ExportSpecifierSet = $__6.ExportSpecifierSet, ExportStar = $__6.ExportStar, ExpressionStatement = $__6.ExpressionStatement, Finally = $__6.Finally, ForInStatement = $__6.ForInStatement, ForOfStatement = $__6.ForOfStatement, ForStatement = $__6.ForStatement, FormalParameterList = $__6.FormalParameterList, FunctionDeclaration = $__6.FunctionDeclaration, FunctionExpression = $__6.FunctionExpression, GeneratorComprehension = $__6.GeneratorComprehension, GetAccessor = $__6.GetAccessor, IdentifierExpression = $__6.IdentifierExpression, IfStatement = $__6.IfStatement, ImportBinding = $__6.ImportBinding, ImportDeclaration = $__6.ImportDeclaration, ImportSpecifier = $__6.ImportSpecifier, ImportSpecifierSet = $__6.ImportSpecifierSet, LabelledStatement = $__6.LabelledStatement, LiteralExpression = $__6.LiteralExpression, MemberExpression = $__6.MemberExpression, MemberLookupExpression = $__6.MemberLookupExpression, MissingPrimaryExpression = $__6.MissingPrimaryExpression, ModuleDeclaration = $__6.ModuleDeclaration, ModuleDefinition = $__6.ModuleDefinition, ModuleExpression = $__6.ModuleExpression, ModuleRequire = $__6.ModuleRequire, ModuleSpecifier = $__6.ModuleSpecifier, NameStatement = $__6.NameStatement, NewExpression = $__6.NewExpression, ObjectLiteralExpression = $__6.ObjectLiteralExpression, ObjectPattern = $__6.ObjectPattern, ObjectPatternField = $__6.ObjectPatternField, ParenExpression = $__6.ParenExpression, PostfixExpression = $__6.PostfixExpression, Program = $__6.Program, PropertyMethodAssignment = $__6.PropertyMethodAssignment, PropertyNameAssignment = $__6.PropertyNameAssignment, PropertyNameShorthand = $__6.PropertyNameShorthand, QuasiLiteralExpression = $__6.QuasiLiteralExpression, QuasiLiteralPortion = $__6.QuasiLiteralPortion, QuasiSubstitution = $__6.QuasiSubstitution, RestParameter = $__6.RestParameter, ReturnStatement = $__6.ReturnStatement, SetAccessor = $__6.SetAccessor, SpreadExpression = $__6.SpreadExpression, SpreadPatternElement = $__6.SpreadPatternElement, SuperExpression = $__6.SuperExpression, SwitchStatement = $__6.SwitchStatement, ThisExpression = $__6.ThisExpression, ThrowStatement = $__6.ThrowStatement, TryStatement = $__6.TryStatement, UnaryExpression = $__6.UnaryExpression, VariableDeclaration = $__6.VariableDeclaration, VariableDeclarationList = $__6.VariableDeclarationList, VariableStatement = $__6.VariableStatement, WhileStatement = $__6.WhileStatement, WithStatement = $__6.WithStatement, YieldExpression = $__6.YieldExpression;
+  var $__9 = $__src_syntax_trees_ParseTrees_js, ArgumentList = $__9.ArgumentList, ArrayComprehension = $__9.ArrayComprehension, ArrayLiteralExpression = $__9.ArrayLiteralExpression, ArrayPattern = $__9.ArrayPattern, ArrowFunctionExpression = $__9.ArrowFunctionExpression, AtNameDeclaration = $__9.AtNameDeclaration, AtNameExpression = $__9.AtNameExpression, AwaitStatement = $__9.AwaitStatement, BinaryOperator = $__9.BinaryOperator, BindingElement = $__9.BindingElement, BindingIdentifier = $__9.BindingIdentifier, Block = $__9.Block, BreakStatement = $__9.BreakStatement, CallExpression = $__9.CallExpression, CascadeExpression = $__9.CascadeExpression, CaseClause = $__9.CaseClause, Catch = $__9.Catch, ClassDeclaration = $__9.ClassDeclaration, ClassExpression = $__9.ClassExpression, CommaExpression = $__9.CommaExpression, ComprehensionFor = $__9.ComprehensionFor, ConditionalExpression = $__9.ConditionalExpression, ContinueStatement = $__9.ContinueStatement, DebuggerStatement = $__9.DebuggerStatement, DefaultClause = $__9.DefaultClause, DoWhileStatement = $__9.DoWhileStatement, EmptyStatement = $__9.EmptyStatement, ExportDeclaration = $__9.ExportDeclaration, ExportMapping = $__9.ExportMapping, ExportMappingList = $__9.ExportMappingList, ExportSpecifier = $__9.ExportSpecifier, ExportSpecifierSet = $__9.ExportSpecifierSet, ExportStar = $__9.ExportStar, ExpressionStatement = $__9.ExpressionStatement, Finally = $__9.Finally, ForInStatement = $__9.ForInStatement, ForOfStatement = $__9.ForOfStatement, ForStatement = $__9.ForStatement, FormalParameterList = $__9.FormalParameterList, FunctionDeclaration = $__9.FunctionDeclaration, FunctionExpression = $__9.FunctionExpression, GeneratorComprehension = $__9.GeneratorComprehension, GetAccessor = $__9.GetAccessor, IdentifierExpression = $__9.IdentifierExpression, IfStatement = $__9.IfStatement, ImportBinding = $__9.ImportBinding, ImportDeclaration = $__9.ImportDeclaration, ImportSpecifier = $__9.ImportSpecifier, ImportSpecifierSet = $__9.ImportSpecifierSet, LabelledStatement = $__9.LabelledStatement, LiteralExpression = $__9.LiteralExpression, MemberExpression = $__9.MemberExpression, MemberLookupExpression = $__9.MemberLookupExpression, MissingPrimaryExpression = $__9.MissingPrimaryExpression, ModuleDeclaration = $__9.ModuleDeclaration, ModuleDefinition = $__9.ModuleDefinition, ModuleExpression = $__9.ModuleExpression, ModuleRequire = $__9.ModuleRequire, ModuleSpecifier = $__9.ModuleSpecifier, NameStatement = $__9.NameStatement, NewExpression = $__9.NewExpression, ObjectLiteralExpression = $__9.ObjectLiteralExpression, ObjectPattern = $__9.ObjectPattern, ObjectPatternField = $__9.ObjectPatternField, ParenExpression = $__9.ParenExpression, PostfixExpression = $__9.PostfixExpression, Program = $__9.Program, PropertyMethodAssignment = $__9.PropertyMethodAssignment, PropertyNameAssignment = $__9.PropertyNameAssignment, PropertyNameShorthand = $__9.PropertyNameShorthand, QuasiLiteralExpression = $__9.QuasiLiteralExpression, QuasiLiteralPortion = $__9.QuasiLiteralPortion, QuasiSubstitution = $__9.QuasiSubstitution, RestParameter = $__9.RestParameter, ReturnStatement = $__9.ReturnStatement, SetAccessor = $__9.SetAccessor, SpreadExpression = $__9.SpreadExpression, SpreadPatternElement = $__9.SpreadPatternElement, SuperExpression = $__9.SuperExpression, SwitchStatement = $__9.SwitchStatement, ThisExpression = $__9.ThisExpression, ThrowStatement = $__9.ThrowStatement, TryStatement = $__9.TryStatement, UnaryExpression = $__9.UnaryExpression, VariableDeclaration = $__9.VariableDeclaration, VariableDeclarationList = $__9.VariableDeclarationList, VariableStatement = $__9.VariableStatement, WhileStatement = $__9.WhileStatement, WithStatement = $__9.WithStatement, YieldExpression = $__9.YieldExpression;
   var ParseTreeTransformer = function() {
     var $ParseTreeTransformer = ($__createClassNoExtends)({
       constructor: function() {},
@@ -9741,11 +9741,11 @@ var $__src_codegeneration_ParseTreeFactory_js = (function() {
   "use strict";
   var IdentifierToken = $__src_syntax_IdentifierToken_js.IdentifierToken;
   var LiteralToken = $__src_syntax_LiteralToken_js.LiteralToken;
-  var $__6 = $__src_syntax_trees_ParseTree_js, ParseTree = $__6.ParseTree, ParseTreeType = $__6.ParseTreeType;
-  var $__6 = $__src_syntax_PredefinedName_js, BIND = $__6.BIND, CALL = $__6.CALL, CREATE = $__6.CREATE, DEFINE_PROPERTY = $__6.DEFINE_PROPERTY, FREEZE = $__6.FREEZE, OBJECT = $__6.OBJECT, PREVENT_EXTENSIONS = $__6.PREVENT_EXTENSIONS, STATE = $__6.STATE, UNDEFINED = $__6.UNDEFINED, getParameterName = $__6.getParameterName;
+  var $__9 = $__src_syntax_trees_ParseTree_js, ParseTree = $__9.ParseTree, ParseTreeType = $__9.ParseTreeType;
+  var $__9 = $__src_syntax_PredefinedName_js, BIND = $__9.BIND, CALL = $__9.CALL, CREATE = $__9.CREATE, DEFINE_PROPERTY = $__9.DEFINE_PROPERTY, FREEZE = $__9.FREEZE, OBJECT = $__9.OBJECT, PREVENT_EXTENSIONS = $__9.PREVENT_EXTENSIONS, STATE = $__9.STATE, UNDEFINED = $__9.UNDEFINED, getParameterName = $__9.getParameterName;
   var Token = $__src_syntax_Token_js.Token;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
-  var $__6 = $__src_syntax_trees_ParseTrees_js, ArgumentList = $__6.ArgumentList, ArrayComprehension = $__6.ArrayComprehension, ArrayLiteralExpression = $__6.ArrayLiteralExpression, ArrayPattern = $__6.ArrayPattern, ArrowFunctionExpression = $__6.ArrowFunctionExpression, AtNameDeclaration = $__6.AtNameDeclaration, AtNameExpression = $__6.AtNameExpression, AwaitStatement = $__6.AwaitStatement, BinaryOperator = $__6.BinaryOperator, BindingElement = $__6.BindingElement, BindingIdentifier = $__6.BindingIdentifier, Block = $__6.Block, BreakStatement = $__6.BreakStatement, CallExpression = $__6.CallExpression, CascadeExpression = $__6.CascadeExpression, CaseClause = $__6.CaseClause, Catch = $__6.Catch, ClassDeclaration = $__6.ClassDeclaration, ClassExpression = $__6.ClassExpression, CommaExpression = $__6.CommaExpression, ComprehensionFor = $__6.ComprehensionFor, ConditionalExpression = $__6.ConditionalExpression, ContinueStatement = $__6.ContinueStatement, DebuggerStatement = $__6.DebuggerStatement, DefaultClause = $__6.DefaultClause, DoWhileStatement = $__6.DoWhileStatement, EmptyStatement = $__6.EmptyStatement, ExportDeclaration = $__6.ExportDeclaration, ExportMapping = $__6.ExportMapping, ExportMappingList = $__6.ExportMappingList, ExportSpecifier = $__6.ExportSpecifier, ExportSpecifierSet = $__6.ExportSpecifierSet, ExportStar = $__6.ExportStar, ExpressionStatement = $__6.ExpressionStatement, Finally = $__6.Finally, ForInStatement = $__6.ForInStatement, ForOfStatement = $__6.ForOfStatement, ForStatement = $__6.ForStatement, FormalParameterList = $__6.FormalParameterList, FunctionDeclaration = $__6.FunctionDeclaration, FunctionExpression = $__6.FunctionExpression, GeneratorComprehension = $__6.GeneratorComprehension, GetAccessor = $__6.GetAccessor, IdentifierExpression = $__6.IdentifierExpression, IfStatement = $__6.IfStatement, ImportBinding = $__6.ImportBinding, ImportDeclaration = $__6.ImportDeclaration, ImportSpecifier = $__6.ImportSpecifier, ImportSpecifierSet = $__6.ImportSpecifierSet, LabelledStatement = $__6.LabelledStatement, LiteralExpression = $__6.LiteralExpression, MemberExpression = $__6.MemberExpression, MemberLookupExpression = $__6.MemberLookupExpression, MissingPrimaryExpression = $__6.MissingPrimaryExpression, ModuleDeclaration = $__6.ModuleDeclaration, ModuleDefinition = $__6.ModuleDefinition, ModuleExpression = $__6.ModuleExpression, ModuleRequire = $__6.ModuleRequire, ModuleSpecifier = $__6.ModuleSpecifier, NameStatement = $__6.NameStatement, NewExpression = $__6.NewExpression, ObjectLiteralExpression = $__6.ObjectLiteralExpression, ObjectPattern = $__6.ObjectPattern, ObjectPatternField = $__6.ObjectPatternField, ParenExpression = $__6.ParenExpression, PostfixExpression = $__6.PostfixExpression, Program = $__6.Program, PropertyMethodAssignment = $__6.PropertyMethodAssignment, PropertyNameAssignment = $__6.PropertyNameAssignment, PropertyNameShorthand = $__6.PropertyNameShorthand, QuasiLiteralExpression = $__6.QuasiLiteralExpression, QuasiLiteralPortion = $__6.QuasiLiteralPortion, QuasiSubstitution = $__6.QuasiSubstitution, RestParameter = $__6.RestParameter, ReturnStatement = $__6.ReturnStatement, SetAccessor = $__6.SetAccessor, SpreadExpression = $__6.SpreadExpression, SpreadPatternElement = $__6.SpreadPatternElement, SuperExpression = $__6.SuperExpression, SwitchStatement = $__6.SwitchStatement, ThisExpression = $__6.ThisExpression, ThrowStatement = $__6.ThrowStatement, TryStatement = $__6.TryStatement, UnaryExpression = $__6.UnaryExpression, VariableDeclaration = $__6.VariableDeclaration, VariableDeclarationList = $__6.VariableDeclarationList, VariableStatement = $__6.VariableStatement, WhileStatement = $__6.WhileStatement, WithStatement = $__6.WithStatement, YieldExpression = $__6.YieldExpression;
+  var $__9 = $__src_syntax_trees_ParseTrees_js, ArgumentList = $__9.ArgumentList, ArrayComprehension = $__9.ArrayComprehension, ArrayLiteralExpression = $__9.ArrayLiteralExpression, ArrayPattern = $__9.ArrayPattern, ArrowFunctionExpression = $__9.ArrowFunctionExpression, AtNameDeclaration = $__9.AtNameDeclaration, AtNameExpression = $__9.AtNameExpression, AwaitStatement = $__9.AwaitStatement, BinaryOperator = $__9.BinaryOperator, BindingElement = $__9.BindingElement, BindingIdentifier = $__9.BindingIdentifier, Block = $__9.Block, BreakStatement = $__9.BreakStatement, CallExpression = $__9.CallExpression, CascadeExpression = $__9.CascadeExpression, CaseClause = $__9.CaseClause, Catch = $__9.Catch, ClassDeclaration = $__9.ClassDeclaration, ClassExpression = $__9.ClassExpression, CommaExpression = $__9.CommaExpression, ComprehensionFor = $__9.ComprehensionFor, ConditionalExpression = $__9.ConditionalExpression, ContinueStatement = $__9.ContinueStatement, DebuggerStatement = $__9.DebuggerStatement, DefaultClause = $__9.DefaultClause, DoWhileStatement = $__9.DoWhileStatement, EmptyStatement = $__9.EmptyStatement, ExportDeclaration = $__9.ExportDeclaration, ExportMapping = $__9.ExportMapping, ExportMappingList = $__9.ExportMappingList, ExportSpecifier = $__9.ExportSpecifier, ExportSpecifierSet = $__9.ExportSpecifierSet, ExportStar = $__9.ExportStar, ExpressionStatement = $__9.ExpressionStatement, Finally = $__9.Finally, ForInStatement = $__9.ForInStatement, ForOfStatement = $__9.ForOfStatement, ForStatement = $__9.ForStatement, FormalParameterList = $__9.FormalParameterList, FunctionDeclaration = $__9.FunctionDeclaration, FunctionExpression = $__9.FunctionExpression, GeneratorComprehension = $__9.GeneratorComprehension, GetAccessor = $__9.GetAccessor, IdentifierExpression = $__9.IdentifierExpression, IfStatement = $__9.IfStatement, ImportBinding = $__9.ImportBinding, ImportDeclaration = $__9.ImportDeclaration, ImportSpecifier = $__9.ImportSpecifier, ImportSpecifierSet = $__9.ImportSpecifierSet, LabelledStatement = $__9.LabelledStatement, LiteralExpression = $__9.LiteralExpression, MemberExpression = $__9.MemberExpression, MemberLookupExpression = $__9.MemberLookupExpression, MissingPrimaryExpression = $__9.MissingPrimaryExpression, ModuleDeclaration = $__9.ModuleDeclaration, ModuleDefinition = $__9.ModuleDefinition, ModuleExpression = $__9.ModuleExpression, ModuleRequire = $__9.ModuleRequire, ModuleSpecifier = $__9.ModuleSpecifier, NameStatement = $__9.NameStatement, NewExpression = $__9.NewExpression, ObjectLiteralExpression = $__9.ObjectLiteralExpression, ObjectPattern = $__9.ObjectPattern, ObjectPatternField = $__9.ObjectPatternField, ParenExpression = $__9.ParenExpression, PostfixExpression = $__9.PostfixExpression, Program = $__9.Program, PropertyMethodAssignment = $__9.PropertyMethodAssignment, PropertyNameAssignment = $__9.PropertyNameAssignment, PropertyNameShorthand = $__9.PropertyNameShorthand, QuasiLiteralExpression = $__9.QuasiLiteralExpression, QuasiLiteralPortion = $__9.QuasiLiteralPortion, QuasiSubstitution = $__9.QuasiSubstitution, RestParameter = $__9.RestParameter, ReturnStatement = $__9.ReturnStatement, SetAccessor = $__9.SetAccessor, SpreadExpression = $__9.SpreadExpression, SpreadPatternElement = $__9.SpreadPatternElement, SuperExpression = $__9.SuperExpression, SwitchStatement = $__9.SwitchStatement, ThisExpression = $__9.ThisExpression, ThrowStatement = $__9.ThrowStatement, TryStatement = $__9.TryStatement, UnaryExpression = $__9.UnaryExpression, VariableDeclaration = $__9.VariableDeclaration, VariableDeclarationList = $__9.VariableDeclarationList, VariableStatement = $__9.VariableStatement, WhileStatement = $__9.WhileStatement, WithStatement = $__9.WithStatement, YieldExpression = $__9.YieldExpression;
   var slice = Array.prototype.slice.call.bind(Array.prototype.slice);
   var map = Array.prototype.map.call.bind(Array.prototype.map);
   function createOperatorToken(operator) {
@@ -9773,7 +9773,7 @@ var $__src_codegeneration_ParseTreeFactory_js = (function() {
     return [];
   }
   function createStatementList(statementsOrHead) {
-    var args = Array.prototype.slice.call(arguments, 1);
+    for (var args = [], $__6 = 1; $__6 < arguments.length; $__6++) args[$__6 - 1] = arguments[$__6];
     if (statementsOrHead instanceof Array) return $__spread(statementsOrHead, args);
     return slice(arguments);
   }
@@ -9885,14 +9885,14 @@ var $__src_codegeneration_ParseTreeFactory_js = (function() {
     return new BreakStatement(null, opt_name || null);
   }
   function createCallCall(func, thisExpression, args, var_args) {
-    var $__7;
+    var $__10;
     if (args instanceof ParseTree) args = slice(arguments, 2);
     var builder = [thisExpression];
-    if (args)($__7 = builder).push.apply($__7, $__toObject(args));
+    if (args)($__10 = builder).push.apply($__10, $__toObject(args));
     return createCallExpression(createMemberExpression(func, CALL), createArgumentList(builder));
   }
   function createCallCallStatement(func, thisExpression) {
-    var args = Array.prototype.slice.call(arguments, 2);
+    for (var args = [], $__7 = 2; $__7 < arguments.length; $__7++) args[$__7 - 2] = arguments[$__7];
     return createExpressionStatement(createCallCall(func, thisExpression, args));
   }
   function createCaseClause(expression, statements) {
@@ -10713,8 +10713,8 @@ var $__src_codegeneration_ParseTreeFactory_js = (function() {
 }).call(this);
 var $__src_semantics_VariableBinder_js = (function() {
   "use strict";
-  var $__6 = $__src_syntax_trees_ParseTrees_js, Block = $__6.Block, Catch = $__6.Catch, ForInStatement = $__6.ForInStatement, ForStatement = $__6.ForStatement, ObjectPatternField = $__6.ObjectPatternField, VariableDeclarationList = $__6.VariableDeclarationList, VariableDeclaration = $__6.VariableDeclaration;
-  var $__6 = $__src_syntax_trees_ParseTreeType_js, ARRAY_PATTERN = $__6.ARRAY_PATTERN, BINDING_IDENTIFIER = $__6.BINDING_IDENTIFIER, OBJECT_PATTERN = $__6.OBJECT_PATTERN, OBJECT_PATTERN_FIELD = $__6.OBJECT_PATTERN_FIELD, PAREN_EXPRESSION = $__6.PAREN_EXPRESSION, SPREAD_PATTERN_ELEMENT = $__6.SPREAD_PATTERN_ELEMENT;
+  var $__9 = $__src_syntax_trees_ParseTrees_js, Block = $__9.Block, Catch = $__9.Catch, ForInStatement = $__9.ForInStatement, ForStatement = $__9.ForStatement, ObjectPatternField = $__9.ObjectPatternField, VariableDeclarationList = $__9.VariableDeclarationList, VariableDeclaration = $__9.VariableDeclaration;
+  var $__9 = $__src_syntax_trees_ParseTreeType_js, ARRAY_PATTERN = $__9.ARRAY_PATTERN, BINDING_IDENTIFIER = $__9.BINDING_IDENTIFIER, OBJECT_PATTERN = $__9.OBJECT_PATTERN, OBJECT_PATTERN_FIELD = $__9.OBJECT_PATTERN_FIELD, PAREN_EXPRESSION = $__9.PAREN_EXPRESSION, SPREAD_PATTERN_ELEMENT = $__9.SPREAD_PATTERN_ELEMENT;
   var ParseTreeVisitor = $__src_syntax_ParseTreeVisitor_js.ParseTreeVisitor;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
   function variablesInBlock(tree, includeFunctionScope) {
@@ -10841,11 +10841,11 @@ var $__src_semantics_VariableBinder_js = (function() {
 }).call(this);
 var $__src_codegeneration_AlphaRenamer_js = (function() {
   "use strict";
-  var $__6 = $__src_syntax_trees_ParseTrees_js, Block = $__6.Block, Catch = $__6.Catch, IdentifierExpression = $__6.IdentifierExpression;
+  var $__9 = $__src_syntax_trees_ParseTrees_js, Block = $__9.Block, Catch = $__9.Catch, IdentifierExpression = $__9.IdentifierExpression;
   var ParseTreeTransformer = $__src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
-  var $__6 = $__src_syntax_PredefinedName_js, ARGUMENTS = $__6.ARGUMENTS, THIS = $__6.THIS;
+  var $__9 = $__src_syntax_PredefinedName_js, ARGUMENTS = $__9.ARGUMENTS, THIS = $__9.THIS;
   var createIdentifierExpression = $__src_codegeneration_ParseTreeFactory_js.createIdentifierExpression;
-  var $__6 = $__src_semantics_VariableBinder_js, variablesInBlock = $__6.variablesInBlock, variablesInFunction = $__6.variablesInFunction;
+  var $__9 = $__src_semantics_VariableBinder_js, variablesInBlock = $__9.variablesInBlock, variablesInFunction = $__9.variablesInFunction;
   var AlphaRenamer = function($__super) {
     var $AlphaRenamer = ($__createClass)({
       constructor: function(oldName, newName) {
@@ -10956,21 +10956,21 @@ var $__src_codegeneration_FindInFunctionScope_js = (function() {
 }).call(this);
 var $__src_codegeneration_PrependStatements_js = (function() {
   "use strict";
-  var $__6 = $__src_syntax_trees_ParseTreeType_js, EXPRESSION_STATEMENT = $__6.EXPRESSION_STATEMENT, LITERAL_EXPRESSION = $__6.LITERAL_EXPRESSION;
+  var $__9 = $__src_syntax_trees_ParseTreeType_js, EXPRESSION_STATEMENT = $__9.EXPRESSION_STATEMENT, LITERAL_EXPRESSION = $__9.LITERAL_EXPRESSION;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
   function isStringExpressionStatement(tree) {
     return tree.type === EXPRESSION_STATEMENT && tree.expression.type === LITERAL_EXPRESSION && tree.expression.literalToken.type === TokenType.STRING;
   }
   function prependStatements(statements) {
-    var statementsToPrepend = Array.prototype.slice.call(arguments, 1);
+    for (var statementsToPrepend = [], $__7 = 1; $__7 < arguments.length; $__7++) statementsToPrepend[$__7 - 1] = arguments[$__7];
     if (!statements.length) return statementsToPrepend;
     if (!statementsToPrepend.length) return statements;
     var transformed = [];
     var inProlog = true;
     statements.forEach((function(statement) {
-      var $__7;
+      var $__10;
       if (inProlog && !isStringExpressionStatement(statement)) {
-        ($__7 = transformed).push.apply($__7, $__toObject(statementsToPrepend));
+        ($__10 = transformed).push.apply($__10, $__toObject(statementsToPrepend));
         inProlog = false;
       }
       transformed.push(statement);
@@ -10987,9 +10987,9 @@ var $__src_codegeneration_PrependStatements_js = (function() {
 var $__src_codegeneration_TempVarTransformer_js = (function() {
   "use strict";
   var ParseTreeTransformer = $__src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
-  var $__6 = $__src_syntax_trees_ParseTrees_js, ModuleDefinition = $__6.ModuleDefinition, Program = $__6.Program;
+  var $__9 = $__src_syntax_trees_ParseTrees_js, ModuleDefinition = $__9.ModuleDefinition, Program = $__9.Program;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
-  var $__6 = $__src_codegeneration_ParseTreeFactory_js, createBlock = $__6.createBlock, createVariableDeclaration = $__6.createVariableDeclaration, createVariableDeclarationList = $__6.createVariableDeclarationList, createVariableStatement = $__6.createVariableStatement;
+  var $__9 = $__src_codegeneration_ParseTreeFactory_js, createBlock = $__9.createBlock, createVariableDeclaration = $__9.createVariableDeclaration, createVariableDeclarationList = $__9.createVariableDeclarationList, createVariableStatement = $__9.createVariableStatement;
   var prependStatements = $__src_codegeneration_PrependStatements_js.prependStatements;
   function getVars(self) {
     var vars = self.tempVarStack_[self.tempVarStack_.length - 1];
@@ -11019,7 +11019,7 @@ var $__src_codegeneration_TempVarTransformer_js = (function() {
         if (!vars.length) return transformedStatements;
         var seenNames = Object.create(null);
         vars = vars.filter((function(tempVarStatement) {
-          var $__6 = tempVarStatement, name = $__6.name, initializer = $__6.initializer;
+          var $__9 = tempVarStatement, name = $__9.name, initializer = $__9.initializer;
           if (name in seenNames) {
             if (seenNames[name].initializer || initializer) throw new Error('Invalid use of TempVarTransformer');
             return false;
@@ -11027,8 +11027,8 @@ var $__src_codegeneration_TempVarTransformer_js = (function() {
           seenNames[name] = tempVarStatement;
           return true;
         }));
-        var variableStatement = createVariableStatement(createVariableDeclarationList(TokenType.VAR, vars.map((function($__6) {
-          var name = $__6.name, initializer = $__6.initializer;
+        var variableStatement = createVariableStatement(createVariableDeclarationList(TokenType.VAR, vars.map((function($__9) {
+          var name = $__9.name, initializer = $__9.initializer;
           return createVariableDeclaration(name, initializer);
         }))));
         return prependStatements(transformedStatements, variableStatement);
@@ -11086,13 +11086,13 @@ var $__src_codegeneration_TempVarTransformer_js = (function() {
 }).call(this);
 var $__src_codegeneration_ComprehensionTransformer_js = (function() {
   "use strict";
-  var $__6 = $__src_syntax_PredefinedName_js, ARGUMENTS = $__6.ARGUMENTS, THIS = $__6.THIS;
+  var $__9 = $__src_syntax_PredefinedName_js, ARGUMENTS = $__9.ARGUMENTS, THIS = $__9.THIS;
   var AlphaRenamer = $__src_codegeneration_AlphaRenamer_js.AlphaRenamer;
   var FindInFunctionScope = $__src_codegeneration_FindInFunctionScope_js.FindInFunctionScope;
   var FunctionExpression = $__src_syntax_trees_ParseTrees_js.FunctionExpression;
   var TempVarTransformer = $__src_codegeneration_TempVarTransformer_js.TempVarTransformer;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
-  var $__6 = $__src_codegeneration_ParseTreeFactory_js, createBlock = $__6.createBlock, createCallExpression = $__6.createCallExpression, createEmptyParameterList = $__6.createEmptyParameterList, createForOfStatement = $__6.createForOfStatement, createIdentifierExpression = $__6.createIdentifierExpression, createIfStatement = $__6.createIfStatement, createParenExpression = $__6.createParenExpression, createThisExpression = $__6.createThisExpression, createVariableDeclarationList = $__6.createVariableDeclarationList;
+  var $__9 = $__src_codegeneration_ParseTreeFactory_js, createBlock = $__9.createBlock, createCallExpression = $__9.createCallExpression, createEmptyParameterList = $__9.createEmptyParameterList, createForOfStatement = $__9.createForOfStatement, createIdentifierExpression = $__9.createIdentifierExpression, createIfStatement = $__9.createIfStatement, createParenExpression = $__9.createParenExpression, createThisExpression = $__9.createThisExpression, createVariableDeclarationList = $__9.createVariableDeclarationList;
   var ThisFinder = function($__super) {
     var $ThisFinder = ($__createClass)({
       constructor: function() {
@@ -11162,7 +11162,7 @@ var $__src_codegeneration_ArrayComprehensionTransformer_js = (function() {
   "use strict";
   var ComprehensionTransformer = $__src_codegeneration_ComprehensionTransformer_js.ComprehensionTransformer;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
-  var $__6 = $__src_codegeneration_ParseTreeFactory_js, createArrayLiteralExpression = $__6.createArrayLiteralExpression, createAssignmentStatement = $__6.createAssignmentStatement, createIdentifierExpression = $__6.createIdentifierExpression, createMemberLookupExpression = $__6.createMemberLookupExpression, createNumberLiteral = $__6.createNumberLiteral, createPostfixExpression = $__6.createPostfixExpression, createReturnStatement = $__6.createReturnStatement, createVariableDeclaration = $__6.createVariableDeclaration, createVariableDeclarationList = $__6.createVariableDeclarationList, createVariableStatement = $__6.createVariableStatement;
+  var $__9 = $__src_codegeneration_ParseTreeFactory_js, createArrayLiteralExpression = $__9.createArrayLiteralExpression, createAssignmentStatement = $__9.createAssignmentStatement, createIdentifierExpression = $__9.createIdentifierExpression, createMemberLookupExpression = $__9.createMemberLookupExpression, createNumberLiteral = $__9.createNumberLiteral, createPostfixExpression = $__9.createPostfixExpression, createReturnStatement = $__9.createReturnStatement, createVariableDeclaration = $__9.createVariableDeclaration, createVariableDeclarationList = $__9.createVariableDeclarationList, createVariableStatement = $__9.createVariableStatement;
   var ArrayComprehensionTransformer = function($__super) {
     var $ArrayComprehensionTransformer = ($__createClass)({
       constructor: function() {
@@ -11195,10 +11195,10 @@ var $__src_codegeneration_ArrowFunctionTransformer_js = (function() {
   "use strict";
   var BIND = $__src_syntax_PredefinedName_js.BIND;
   var FindInFunctionScope = $__src_codegeneration_FindInFunctionScope_js.FindInFunctionScope;
-  var $__6 = $__src_syntax_trees_ParseTrees_js, FormalParameterList = $__6.FormalParameterList, ThisExpression = $__6.ThisExpression;
+  var $__9 = $__src_syntax_trees_ParseTrees_js, FormalParameterList = $__9.FormalParameterList, ThisExpression = $__9.ThisExpression;
   var ParseTreeTransformer = $__src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
   var BLOCK = $__src_syntax_trees_ParseTreeType_js.BLOCK;
-  var $__6 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__6.createArgumentList, createBlock = $__6.createBlock, createCallExpression = $__6.createCallExpression, createFunctionExpression = $__6.createFunctionExpression, createMemberExpression = $__6.createMemberExpression, createParenExpression = $__6.createParenExpression, createReturnStatement = $__6.createReturnStatement, createThisExpression = $__6.createThisExpression;
+  var $__9 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__9.createArgumentList, createBlock = $__9.createBlock, createCallExpression = $__9.createCallExpression, createFunctionExpression = $__9.createFunctionExpression, createMemberExpression = $__9.createMemberExpression, createParenExpression = $__9.createParenExpression, createReturnStatement = $__9.createReturnStatement, createThisExpression = $__9.createThisExpression;
   var ThisFinder = function($__super) {
     var $ThisFinder = ($__createClass)({
       constructor: function() {
@@ -11249,9 +11249,9 @@ var $__src_codegeneration_ArrowFunctionTransformer_js = (function() {
 }).call(this);
 var $__src_codegeneration_OperatorExpander_js = (function() {
   "use strict";
-  var $__6 = $__src_syntax_trees_ParseTreeType_js, IDENTIFIER_EXPRESSION = $__6.IDENTIFIER_EXPRESSION, SUPER_EXPRESSION = $__6.SUPER_EXPRESSION;
+  var $__9 = $__src_syntax_trees_ParseTreeType_js, IDENTIFIER_EXPRESSION = $__9.IDENTIFIER_EXPRESSION, SUPER_EXPRESSION = $__9.SUPER_EXPRESSION;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
-  var $__6 = $__src_codegeneration_ParseTreeFactory_js, createAssignmentExpression = $__6.createAssignmentExpression, createBinaryOperator = $__6.createBinaryOperator, createCommaExpression = $__6.createCommaExpression, createIdentifierExpression = $__6.createIdentifierExpression, createMemberExpression = $__6.createMemberExpression, createMemberLookupExpression = $__6.createMemberLookupExpression, createOperatorToken = $__6.createOperatorToken, createParenExpression = $__6.createParenExpression;
+  var $__9 = $__src_codegeneration_ParseTreeFactory_js, createAssignmentExpression = $__9.createAssignmentExpression, createBinaryOperator = $__9.createBinaryOperator, createCommaExpression = $__9.createCommaExpression, createIdentifierExpression = $__9.createIdentifierExpression, createMemberExpression = $__9.createMemberExpression, createMemberLookupExpression = $__9.createMemberLookupExpression, createOperatorToken = $__9.createOperatorToken, createParenExpression = $__9.createParenExpression;
   function getBinaryOperator(type) {
     switch (type) {
       case TokenType.STAR_EQUAL:
@@ -11323,11 +11323,11 @@ var $__src_codegeneration_OperatorExpander_js = (function() {
 var $__src_codegeneration_AtNameMemberTransformer_js = (function() {
   "use strict";
   var AtNameExpression = $__src_syntax_trees_ParseTrees_js.AtNameExpression;
-  var $__6 = $__src_syntax_PredefinedName_js, DELETE_PROPERTY = $__6.DELETE_PROPERTY, GET_PROPERTY = $__6.GET_PROPERTY, RUNTIME = $__6.RUNTIME, SET_PROPERTY = $__6.SET_PROPERTY, TRACEUR = $__6.TRACEUR;
+  var $__9 = $__src_syntax_PredefinedName_js, DELETE_PROPERTY = $__9.DELETE_PROPERTY, GET_PROPERTY = $__9.GET_PROPERTY, RUNTIME = $__9.RUNTIME, SET_PROPERTY = $__9.SET_PROPERTY, TRACEUR = $__9.TRACEUR;
   var MEMBER_EXPRESSION = $__src_syntax_trees_ParseTreeType_js.MEMBER_EXPRESSION;
   var TempVarTransformer = $__src_codegeneration_TempVarTransformer_js.TempVarTransformer;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
-  var $__6 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__6.createArgumentList, createAssignmentExpression = $__6.createAssignmentExpression, createCallCall = $__6.createCallCall, createCallExpression = $__6.createCallExpression, createCommaExpression = $__6.createCommaExpression, createIdentifierExpression = $__6.createIdentifierExpression, createMemberExpression = $__6.createMemberExpression, createParenExpression = $__6.createParenExpression;
+  var $__9 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__9.createArgumentList, createAssignmentExpression = $__9.createAssignmentExpression, createCallCall = $__9.createCallCall, createCallExpression = $__9.createCallExpression, createCommaExpression = $__9.createCommaExpression, createIdentifierExpression = $__9.createIdentifierExpression, createMemberExpression = $__9.createMemberExpression, createParenExpression = $__9.createParenExpression;
   var expandMemberExpression = $__src_codegeneration_OperatorExpander_js.expandMemberExpression;
   var AtNameMemberTransformer = function($__super) {
     var $AtNameMemberTransformer = ($__createClass)({
@@ -11389,11 +11389,11 @@ var $__src_codegeneration_AtNameMemberTransformer_js = (function() {
 var $__src_codegeneration_BlockBindingTransformer_js = (function() {
   "use strict";
   var AlphaRenamer = $__src_codegeneration_AlphaRenamer_js.AlphaRenamer;
-  var $__6 = $__src_syntax_trees_ParseTreeType_js, BINDING_IDENTIFIER = $__6.BINDING_IDENTIFIER, BLOCK = $__6.BLOCK, FUNCTION_DECLARATION = $__6.FUNCTION_DECLARATION, VARIABLE_DECLARATION_LIST = $__6.VARIABLE_DECLARATION_LIST;
-  var $__6 = $__src_syntax_trees_ParseTrees_js, Block = $__6.Block, ClassDeclaration = $__6.ClassDeclaration, ForInStatement = $__6.ForInStatement, ForStatement = $__6.ForStatement, FunctionDeclaration = $__6.FunctionDeclaration, FunctionExpression = $__6.FunctionExpression, GetAccessor = $__6.GetAccessor, Program = $__6.Program, SetAccessor = $__6.SetAccessor, VariableDeclaration = $__6.VariableDeclaration, VariableDeclarationList = $__6.VariableDeclarationList, VariableStatement = $__6.VariableStatement;
+  var $__9 = $__src_syntax_trees_ParseTreeType_js, BINDING_IDENTIFIER = $__9.BINDING_IDENTIFIER, BLOCK = $__9.BLOCK, FUNCTION_DECLARATION = $__9.FUNCTION_DECLARATION, VARIABLE_DECLARATION_LIST = $__9.VARIABLE_DECLARATION_LIST;
+  var $__9 = $__src_syntax_trees_ParseTrees_js, Block = $__9.Block, ClassDeclaration = $__9.ClassDeclaration, ForInStatement = $__9.ForInStatement, ForStatement = $__9.ForStatement, FunctionDeclaration = $__9.FunctionDeclaration, FunctionExpression = $__9.FunctionExpression, GetAccessor = $__9.GetAccessor, Program = $__9.Program, SetAccessor = $__9.SetAccessor, VariableDeclaration = $__9.VariableDeclaration, VariableDeclarationList = $__9.VariableDeclarationList, VariableStatement = $__9.VariableStatement;
   var ParseTreeTransformer = $__src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
-  var $__6 = $__src_codegeneration_ParseTreeFactory_js, createAssignmentExpression = $__6.createAssignmentExpression, createBindingIdentifier = $__6.createBindingIdentifier, createBlock = $__6.createBlock, createCatch = $__6.createCatch, createEmptyStatement = $__6.createEmptyStatement, createExpressionStatement = $__6.createExpressionStatement, createFinally = $__6.createFinally, createForInStatement = $__6.createForInStatement, createForStatement = $__6.createForStatement, createGetAccessor = $__6.createGetAccessor, createIdentifierExpression = $__6.createIdentifierExpression, createIdentifierToken = $__6.createIdentifierToken, createSetAccessor = $__6.createSetAccessor, createThrowStatement = $__6.createThrowStatement, createTryStatement = $__6.createTryStatement, createUndefinedExpression = $__6.createUndefinedExpression, createVariableDeclaration = $__6.createVariableDeclaration, createVariableDeclarationList = $__6.createVariableDeclarationList, createVariableStatement = $__6.createVariableStatement;
+  var $__9 = $__src_codegeneration_ParseTreeFactory_js, createAssignmentExpression = $__9.createAssignmentExpression, createBindingIdentifier = $__9.createBindingIdentifier, createBlock = $__9.createBlock, createCatch = $__9.createCatch, createEmptyStatement = $__9.createEmptyStatement, createExpressionStatement = $__9.createExpressionStatement, createFinally = $__9.createFinally, createForInStatement = $__9.createForInStatement, createForStatement = $__9.createForStatement, createGetAccessor = $__9.createGetAccessor, createIdentifierExpression = $__9.createIdentifierExpression, createIdentifierToken = $__9.createIdentifierToken, createSetAccessor = $__9.createSetAccessor, createThrowStatement = $__9.createThrowStatement, createTryStatement = $__9.createTryStatement, createUndefinedExpression = $__9.createUndefinedExpression, createVariableDeclaration = $__9.createVariableDeclaration, createVariableDeclarationList = $__9.createVariableDeclarationList, createVariableStatement = $__9.createVariableStatement;
   var CONST = TokenType.CONST;
   var LET = TokenType.LET;
   var VAR = TokenType.VAR;
@@ -11706,10 +11706,10 @@ var $__src_codegeneration_BlockBindingTransformer_js = (function() {
 }).call(this);
 var $__src_codegeneration_CascadeExpressionTransformer_js = (function() {
   "use strict";
-  var $__6 = $__src_syntax_trees_ParseTreeType_js, BINARY_OPERATOR = $__6.BINARY_OPERATOR, CALL_EXPRESSION = $__6.CALL_EXPRESSION, CALL_EXPRESSION = $__6.CALL_EXPRESSION, CASCADE_EXPRESSION = $__6.CASCADE_EXPRESSION, CASCADE_EXPRESSION = $__6.CASCADE_EXPRESSION, IDENTIFIER_EXPRESSION = $__6.IDENTIFIER_EXPRESSION, MEMBER_EXPRESSION = $__6.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__6.MEMBER_LOOKUP_EXPRESSION;
+  var $__9 = $__src_syntax_trees_ParseTreeType_js, BINARY_OPERATOR = $__9.BINARY_OPERATOR, CALL_EXPRESSION = $__9.CALL_EXPRESSION, CALL_EXPRESSION = $__9.CALL_EXPRESSION, CASCADE_EXPRESSION = $__9.CASCADE_EXPRESSION, CASCADE_EXPRESSION = $__9.CASCADE_EXPRESSION, IDENTIFIER_EXPRESSION = $__9.IDENTIFIER_EXPRESSION, MEMBER_EXPRESSION = $__9.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__9.MEMBER_LOOKUP_EXPRESSION;
   var BinaryOperator = $__src_syntax_trees_ParseTrees_js.BinaryOperator;
   var TempVarTransformer = $__src_codegeneration_TempVarTransformer_js.TempVarTransformer;
-  var $__6 = $__src_codegeneration_ParseTreeFactory_js, createAssignmentExpression = $__6.createAssignmentExpression, createBinaryOperator = $__6.createBinaryOperator, createCallExpression = $__6.createCallExpression, createCascadeExpression = $__6.createCascadeExpression, createCommaExpression = $__6.createCommaExpression, createIdentifierExpression = $__6.createIdentifierExpression, createMemberExpression = $__6.createMemberExpression, createMemberLookupExpression = $__6.createMemberLookupExpression, createParenExpression = $__6.createParenExpression;
+  var $__9 = $__src_codegeneration_ParseTreeFactory_js, createAssignmentExpression = $__9.createAssignmentExpression, createBinaryOperator = $__9.createBinaryOperator, createCallExpression = $__9.createCallExpression, createCascadeExpression = $__9.createCascadeExpression, createCommaExpression = $__9.createCommaExpression, createIdentifierExpression = $__9.createIdentifierExpression, createMemberExpression = $__9.createMemberExpression, createMemberLookupExpression = $__9.createMemberLookupExpression, createParenExpression = $__9.createParenExpression;
   function prependMemberExpression(name, rest) {
     switch (rest.type) {
       case MEMBER_EXPRESSION:
@@ -11778,12 +11778,12 @@ var $__src_codegeneration_CascadeExpressionTransformer_js = (function() {
 }).call(this);
 var $__src_codegeneration_SuperTransformer_js = (function() {
   "use strict";
-  var $__6 = $__src_syntax_trees_ParseTreeType_js, MEMBER_EXPRESSION = $__6.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__6.MEMBER_LOOKUP_EXPRESSION, SUPER_EXPRESSION = $__6.SUPER_EXPRESSION;
+  var $__9 = $__src_syntax_trees_ParseTreeType_js, MEMBER_EXPRESSION = $__9.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__9.MEMBER_LOOKUP_EXPRESSION, SUPER_EXPRESSION = $__9.SUPER_EXPRESSION;
   var ParseTreeTransformer = $__src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
-  var $__6 = $__src_syntax_PredefinedName_js, RUNTIME = $__6.RUNTIME, SUPER_CALL = $__6.SUPER_CALL, SUPER_GET = $__6.SUPER_GET, SUPER_SET = $__6.SUPER_SET, TRACEUR = $__6.TRACEUR;
+  var $__9 = $__src_syntax_PredefinedName_js, RUNTIME = $__9.RUNTIME, SUPER_CALL = $__9.SUPER_CALL, SUPER_GET = $__9.SUPER_GET, SUPER_SET = $__9.SUPER_SET, TRACEUR = $__9.TRACEUR;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
-  var $__6 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__6.createArgumentList, createArrayLiteralExpression = $__6.createArrayLiteralExpression, createCallExpression = $__6.createCallExpression, createIdentifierExpression = $__6.createIdentifierExpression, createMemberExpression = $__6.createMemberExpression, createStringLiteral = $__6.createStringLiteral, createThisExpression = $__6.createThisExpression;
-  var $__6 = $__src_codegeneration_OperatorExpander_js, expandMemberExpression = $__6.expandMemberExpression, expandMemberLookupExpression = $__6.expandMemberLookupExpression;
+  var $__9 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__9.createArgumentList, createArrayLiteralExpression = $__9.createArrayLiteralExpression, createCallExpression = $__9.createCallExpression, createIdentifierExpression = $__9.createIdentifierExpression, createMemberExpression = $__9.createMemberExpression, createStringLiteral = $__9.createStringLiteral, createThisExpression = $__9.createThisExpression;
+  var $__9 = $__src_codegeneration_OperatorExpander_js, expandMemberExpression = $__9.expandMemberExpression, expandMemberLookupExpression = $__9.expandMemberLookupExpression;
   var SuperTransformer = function($__super) {
     var $SuperTransformer = ($__createClass)({
       constructor: function(tempVarTransformer, reporter, className, methodTree, thisName) {
@@ -11873,9 +11873,9 @@ var $__src_codegeneration_SuperTransformer_js = (function() {
         return tree;
       },
       reportError_: function(tree) {
-        var $__7;
-        var args = Array.prototype.slice.call(arguments, 1);
-        ($__7 = this.reporter_).reportError.apply($__7, $__spread([tree.location.start], args));
+        var $__10;
+        for (var args = [], $__7 = 1; $__7 < arguments.length; $__7++) args[$__7 - 1] = arguments[$__7];
+        ($__10 = this.reporter_).reportError.apply($__10, $__spread([tree.location.start], args));
       }
     }, $__super, true);
     return $SuperTransformer;
@@ -12038,34 +12038,34 @@ var $__src_syntax_SourceFile_js = (function() {
 var $__src_codegeneration_PlaceholderParser_js = (function() {
   "use strict";
   var ArrayMap = $__src_util_ArrayMap_js.ArrayMap;
-  var $__6 = $__src_syntax_trees_ParseTreeType_js, BLOCK = $__6.BLOCK, EXPRESSION_STATEMENT = $__6.EXPRESSION_STATEMENT, IDENTIFIER_EXPRESSION = $__6.IDENTIFIER_EXPRESSION;
+  var $__9 = $__src_syntax_trees_ParseTreeType_js, BLOCK = $__9.BLOCK, EXPRESSION_STATEMENT = $__9.EXPRESSION_STATEMENT, IDENTIFIER_EXPRESSION = $__9.IDENTIFIER_EXPRESSION;
   var IdentifierToken = $__src_syntax_IdentifierToken_js.IdentifierToken;
   var MutedErrorReporter = $__src_util_MutedErrorReporter_js.MutedErrorReporter;
   var ParseTree = $__src_syntax_trees_ParseTree_js.ParseTree;
   var ParseTreeTransformer = $__src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
   var Parser = $__src_syntax_Parser_js.Parser;
-  var $__6 = $__src_syntax_trees_ParseTrees_js, PropertyMethodAssignment = $__6.PropertyMethodAssignment, PropertyNameAssignment = $__6.PropertyNameAssignment, PropertyNameShorthand = $__6.PropertyNameShorthand;
+  var $__9 = $__src_syntax_trees_ParseTrees_js, PropertyMethodAssignment = $__9.PropertyMethodAssignment, PropertyNameAssignment = $__9.PropertyNameAssignment, PropertyNameShorthand = $__9.PropertyNameShorthand;
   var Scanner = $__src_syntax_Scanner_js.Scanner;
   var SourceFile = $__src_syntax_SourceFile_js.SourceFile;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
-  var $__6 = $__src_codegeneration_ParseTreeFactory_js, createBindingIdentifier = $__6.createBindingIdentifier, createBooleanLiteral = $__6.createBooleanLiteral, createExpressionStatement = $__6.createExpressionStatement, createIdentifierExpression = $__6.createIdentifierExpression, createIdentifierToken = $__6.createIdentifierToken, createMemberExpression = $__6.createMemberExpression, createNullLiteral = $__6.createNullLiteral, createNumberLiteral = $__6.createNumberLiteral, createStringLiteral = $__6.createStringLiteral, createVoid0 = $__6.createVoid0;
+  var $__9 = $__src_codegeneration_ParseTreeFactory_js, createBindingIdentifier = $__9.createBindingIdentifier, createBooleanLiteral = $__9.createBooleanLiteral, createExpressionStatement = $__9.createExpressionStatement, createIdentifierExpression = $__9.createIdentifierExpression, createIdentifierToken = $__9.createIdentifierToken, createMemberExpression = $__9.createMemberExpression, createNullLiteral = $__9.createNullLiteral, createNumberLiteral = $__9.createNumberLiteral, createStringLiteral = $__9.createStringLiteral, createVoid0 = $__9.createVoid0;
   var NOT_FOUND = {};
   var PREFIX = '$__placeholder__';
   var cache = new ArrayMap();
   function parseExpression(sourceLiterals) {
-    var values = Array.prototype.slice.call(arguments, 1);
+    for (var values = [], $__7 = 1; $__7 < arguments.length; $__7++) values[$__7 - 1] = arguments[$__7];
     return parse(sourceLiterals, values, (function() {
       return new PlaceholderParser().parseExpression(sourceLiterals);
     }));
   }
   function parseStatement(sourceLiterals) {
-    var values = Array.prototype.slice.call(arguments, 1);
+    for (var values = [], $__6 = 1; $__6 < arguments.length; $__6++) values[$__6 - 1] = arguments[$__6];
     return parse(sourceLiterals, values, (function() {
       return new PlaceholderParser().parseStatement(sourceLiterals);
     }));
   }
   function parsePropertyDefinition(sourceLiterals) {
-    var values = Array.prototype.slice.call(arguments, 1);
+    for (var values = [], $__8 = 1; $__8 < arguments.length; $__8++) values[$__8 - 1] = arguments[$__8];
     return parse(sourceLiterals, values, (function() {
       return new PlaceholderParser().parsePropertyDefinition(sourceLiterals);
     }));
@@ -12239,15 +12239,15 @@ var $__src_codegeneration_PlaceholderParser_js = (function() {
 var $__src_codegeneration_ClassTransformer_js = (function() {
   "use strict";
   var $__0 = Object.freeze(Object.defineProperties(["function($__super) {\n        var ", " =\n            (", ")(", ", $__super, ", ");\n        return ", ";\n      }(", ")"], {raw: {value: Object.freeze(["function($__super) {\n        var ", " =\n            (", ")(", ", $__super, ", ");\n        return ", ";\n      }(", ")"])}})), $__1 = Object.freeze(Object.defineProperties(["function() {\n      var ", " = (", ")(", ");\n      return ", ";\n    }()"], {raw: {value: Object.freeze(["function() {\n      var ", " = (", ")(", ");\n      return ", ";\n    }()"])}})), $__2 = Object.freeze(Object.defineProperties(["constructor: function() {}"], {raw: {value: Object.freeze(["constructor: function() {}"])}})), $__3 = Object.freeze(Object.defineProperties(["constructor: function() {\n      traceur.runtime.superCall(this, ", ", 'constructor', arguments);\n    }"], {raw: {value: Object.freeze(["constructor: function() {\n      traceur.runtime.superCall(this, ", ", 'constructor', arguments);\n    }"])}}));
-  var $__6 = $__src_syntax_PredefinedName_js, CONSTRUCTOR = $__6.CONSTRUCTOR, CREATE_CLASS = $__6.CREATE_CLASS, RUNTIME = $__6.RUNTIME, TRACEUR = $__6.TRACEUR;
-  var $__6 = $__src_syntax_trees_ParseTrees_js, FormalParameterList = $__6.FormalParameterList, GetAccessor = $__6.GetAccessor, PropertyMethodAssignment = $__6.PropertyMethodAssignment, PropertyNameAssignment = $__6.PropertyNameAssignment, SetAccessor = $__6.SetAccessor, SuperExpression = $__6.SuperExpression;
-  var $__6 = $__src_syntax_trees_ParseTreeType_js, GET_ACCESSOR = $__6.GET_ACCESSOR, PROPERTY_METHOD_ASSIGNMENT = $__6.PROPERTY_METHOD_ASSIGNMENT, SET_ACCESSOR = $__6.SET_ACCESSOR;
+  var $__9 = $__src_syntax_PredefinedName_js, CONSTRUCTOR = $__9.CONSTRUCTOR, CREATE_CLASS = $__9.CREATE_CLASS, RUNTIME = $__9.RUNTIME, TRACEUR = $__9.TRACEUR;
+  var $__9 = $__src_syntax_trees_ParseTrees_js, FormalParameterList = $__9.FormalParameterList, GetAccessor = $__9.GetAccessor, PropertyMethodAssignment = $__9.PropertyMethodAssignment, PropertyNameAssignment = $__9.PropertyNameAssignment, SetAccessor = $__9.SetAccessor, SuperExpression = $__9.SuperExpression;
+  var $__9 = $__src_syntax_trees_ParseTreeType_js, GET_ACCESSOR = $__9.GET_ACCESSOR, PROPERTY_METHOD_ASSIGNMENT = $__9.PROPERTY_METHOD_ASSIGNMENT, SET_ACCESSOR = $__9.SET_ACCESSOR;
   var SuperTransformer = $__src_codegeneration_SuperTransformer_js.SuperTransformer;
   var TempVarTransformer = $__src_codegeneration_TempVarTransformer_js.TempVarTransformer;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
-  var $__6 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__6.createArgumentList, createAssignmentExpression = $__6.createAssignmentExpression, createBlock = $__6.createBlock, createBooleanLiteral = $__6.createBooleanLiteral, createCallExpression = $__6.createCallExpression, createExpressionStatement = $__6.createExpressionStatement, createFunctionExpression = $__6.createFunctionExpression, createIdentifierExpression = $__6.createIdentifierExpression, createIdentifierToken = $__6.createIdentifierToken, createMemberExpression = $__6.createMemberExpression, createNullLiteral = $__6.createNullLiteral, createObjectLiteralExpression = $__6.createObjectLiteralExpression, createParenExpression = $__6.createParenExpression, createPropertyNameAssignment = $__6.createPropertyNameAssignment, createRestParameter = $__6.createRestParameter, createSpreadExpression = $__6.createSpreadExpression, createThisExpression = $__6.createThisExpression, createVariableStatement = $__6.createVariableStatement;
+  var $__9 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__9.createArgumentList, createAssignmentExpression = $__9.createAssignmentExpression, createBlock = $__9.createBlock, createBooleanLiteral = $__9.createBooleanLiteral, createCallExpression = $__9.createCallExpression, createExpressionStatement = $__9.createExpressionStatement, createFunctionExpression = $__9.createFunctionExpression, createIdentifierExpression = $__9.createIdentifierExpression, createIdentifierToken = $__9.createIdentifierToken, createMemberExpression = $__9.createMemberExpression, createNullLiteral = $__9.createNullLiteral, createObjectLiteralExpression = $__9.createObjectLiteralExpression, createParenExpression = $__9.createParenExpression, createPropertyNameAssignment = $__9.createPropertyNameAssignment, createRestParameter = $__9.createRestParameter, createSpreadExpression = $__9.createSpreadExpression, createThisExpression = $__9.createThisExpression, createVariableStatement = $__9.createVariableStatement;
   var transformOptions = $__src_options_js.transformOptions;
-  var $__6 = $__src_codegeneration_PlaceholderParser_js, parseExpression = $__6.parseExpression, parsePropertyDefinition = $__6.parsePropertyDefinition;
+  var $__9 = $__src_codegeneration_PlaceholderParser_js, parseExpression = $__9.parseExpression, parsePropertyDefinition = $__9.parsePropertyDefinition;
   var CREATE_CLASS_CODE = "function(object, superClass, hasConstructor) {\n      var ctor = object.constructor, protoParent;\n      if (typeof superClass === 'function') {\n        protoParent = superClass.prototype;\n        if (protoParent === null)\n          throw new TypeError();\n        ctor.__proto__ = superClass;\n      } else if (superClass === null) {\n        if (!hasConstructor)\n          ctor = object.constructor = function() {};\n        protoParent = null;\n      } else if (Object(superClass) === superClass) {\n        protoParent = superClass;\n      } else {\n        throw new TypeError();\n      }\n\n      var descriptors = {}, name,\n          names = Object.getOwnPropertyNames(object);\n      for (var i = 0; i < names.length; i++) {\n        var name = names[i];\n        descriptors[name] = Object.getOwnPropertyDescriptor(object, name);\n      }\n      descriptors.constructor.enumerable = false;\n      ctor.prototype = Object.create(protoParent, descriptors);\n\n      return ctor;\n    }";
   var CREATE_CLASS_NO_EXTENDS_CODE = "function(object) {\n      var ctor = object.constructor;\n      Object.defineProperty(object, 'constructor', {enumerable: false});\n      ctor.prototype = object;\n      return ctor;\n    }";
   var ClassTransformer = function($__super) {
@@ -12343,11 +12343,11 @@ var $__src_codegeneration_ClassTransformer_js = (function() {
 }).call(this);
 var $__src_codegeneration_CollectionTransformer_js = (function() {
   "use strict";
-  var $__6 = $__src_syntax_PredefinedName_js, ELEMENT_DELETE = $__6.ELEMENT_DELETE, ELEMENT_GET = $__6.ELEMENT_GET, ELEMENT_HAS = $__6.ELEMENT_HAS, ELEMENT_SET = $__6.ELEMENT_SET, RUNTIME = $__6.RUNTIME, TRACEUR = $__6.TRACEUR;
+  var $__9 = $__src_syntax_PredefinedName_js, ELEMENT_DELETE = $__9.ELEMENT_DELETE, ELEMENT_GET = $__9.ELEMENT_GET, ELEMENT_HAS = $__9.ELEMENT_HAS, ELEMENT_SET = $__9.ELEMENT_SET, RUNTIME = $__9.RUNTIME, TRACEUR = $__9.TRACEUR;
   var MEMBER_LOOKUP_EXPRESSION = $__src_syntax_trees_ParseTreeType_js.MEMBER_LOOKUP_EXPRESSION;
   var TempVarTransformer = $__src_codegeneration_TempVarTransformer_js.TempVarTransformer;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
-  var $__6 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__6.createArgumentList, createAssignmentExpression = $__6.createAssignmentExpression, createCallCall = $__6.createCallCall, createCallExpression = $__6.createCallExpression, createCommaExpression = $__6.createCommaExpression, createIdentifierExpression = $__6.createIdentifierExpression, createMemberExpression = $__6.createMemberExpression, createParenExpression = $__6.createParenExpression;
+  var $__9 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__9.createArgumentList, createAssignmentExpression = $__9.createAssignmentExpression, createCallCall = $__9.createCallCall, createCallExpression = $__9.createCallExpression, createCommaExpression = $__9.createCommaExpression, createIdentifierExpression = $__9.createIdentifierExpression, createMemberExpression = $__9.createMemberExpression, createParenExpression = $__9.createParenExpression;
   var expandMemberLookupExpression = $__src_codegeneration_OperatorExpander_js.expandMemberLookupExpression;
   var CollectionTransformer = function($__super) {
     var $CollectionTransformer = ($__createClass)({
@@ -12413,7 +12413,7 @@ var $__src_codegeneration_DefaultParametersTransformer_js = (function() {
   var ARGUMENTS = $__src_syntax_PredefinedName_js.ARGUMENTS;
   var REST_PARAMETER = $__src_syntax_trees_ParseTreeType_js.REST_PARAMETER;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
-  var $__6 = $__src_codegeneration_ParseTreeFactory_js, createBinaryOperator = $__6.createBinaryOperator, createBlock = $__6.createBlock, createConditionalExpression = $__6.createConditionalExpression, createIdentifierExpression = $__6.createIdentifierExpression, createMemberExpression = $__6.createMemberExpression, createMemberLookupExpression = $__6.createMemberLookupExpression, createNumberLiteral = $__6.createNumberLiteral, createOperatorToken = $__6.createOperatorToken, createVariableStatement = $__6.createVariableStatement, createVoid0 = $__6.createVoid0;
+  var $__9 = $__src_codegeneration_ParseTreeFactory_js, createBinaryOperator = $__9.createBinaryOperator, createBlock = $__9.createBlock, createConditionalExpression = $__9.createConditionalExpression, createIdentifierExpression = $__9.createIdentifierExpression, createMemberExpression = $__9.createMemberExpression, createMemberLookupExpression = $__9.createMemberLookupExpression, createNumberLiteral = $__9.createNumberLiteral, createOperatorToken = $__9.createOperatorToken, createVariableStatement = $__9.createVariableStatement, createVoid0 = $__9.createVoid0;
   var prependStatements = $__src_codegeneration_PrependStatements_js.prependStatements;
   var stack = [];
   var DefaultParametersTransformer = function($__super) {
@@ -12463,12 +12463,12 @@ var $__src_codegeneration_DefaultParametersTransformer_js = (function() {
 }).call(this);
 var $__src_codegeneration_DestructuringTransformer_js = (function() {
   "use strict";
-  var $__6 = $__src_syntax_PredefinedName_js, ARRAY = $__6.ARRAY, CALL = $__6.CALL, PROTOTYPE = $__6.PROTOTYPE, SLICE = $__6.SLICE;
-  var $__6 = $__src_syntax_trees_ParseTreeType_js, ARRAY_LITERAL_EXPRESSION = $__6.ARRAY_LITERAL_EXPRESSION, ARRAY_PATTERN = $__6.ARRAY_PATTERN, BINDING_ELEMENT = $__6.BINDING_ELEMENT, BLOCK = $__6.BLOCK, CALL_EXPRESSION = $__6.CALL_EXPRESSION, IDENTIFIER_EXPRESSION = $__6.IDENTIFIER_EXPRESSION, LITERAL_EXPRESSION = $__6.LITERAL_EXPRESSION, MEMBER_EXPRESSION = $__6.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__6.MEMBER_LOOKUP_EXPRESSION, OBJECT_LITERAL_EXPRESSION = $__6.OBJECT_LITERAL_EXPRESSION, OBJECT_PATTERN = $__6.OBJECT_PATTERN, OBJECT_PATTERN_FIELD = $__6.OBJECT_PATTERN_FIELD, PAREN_EXPRESSION = $__6.PAREN_EXPRESSION, VARIABLE_DECLARATION_LIST = $__6.VARIABLE_DECLARATION_LIST;
-  var $__6 = $__src_syntax_trees_ParseTrees_js, BindingElement = $__6.BindingElement, BindingIdentifier = $__6.BindingIdentifier, Catch = $__6.Catch, ForInStatement = $__6.ForInStatement, ForOfStatement = $__6.ForOfStatement, LiteralExpression = $__6.LiteralExpression, SetAccessor = $__6.SetAccessor, VariableDeclaration = $__6.VariableDeclaration, VariableDeclarationList = $__6.VariableDeclarationList;
+  var $__9 = $__src_syntax_PredefinedName_js, ARRAY = $__9.ARRAY, CALL = $__9.CALL, PROTOTYPE = $__9.PROTOTYPE, SLICE = $__9.SLICE;
+  var $__9 = $__src_syntax_trees_ParseTreeType_js, ARRAY_LITERAL_EXPRESSION = $__9.ARRAY_LITERAL_EXPRESSION, ARRAY_PATTERN = $__9.ARRAY_PATTERN, BINDING_ELEMENT = $__9.BINDING_ELEMENT, BLOCK = $__9.BLOCK, CALL_EXPRESSION = $__9.CALL_EXPRESSION, IDENTIFIER_EXPRESSION = $__9.IDENTIFIER_EXPRESSION, LITERAL_EXPRESSION = $__9.LITERAL_EXPRESSION, MEMBER_EXPRESSION = $__9.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__9.MEMBER_LOOKUP_EXPRESSION, OBJECT_LITERAL_EXPRESSION = $__9.OBJECT_LITERAL_EXPRESSION, OBJECT_PATTERN = $__9.OBJECT_PATTERN, OBJECT_PATTERN_FIELD = $__9.OBJECT_PATTERN_FIELD, PAREN_EXPRESSION = $__9.PAREN_EXPRESSION, VARIABLE_DECLARATION_LIST = $__9.VARIABLE_DECLARATION_LIST;
+  var $__9 = $__src_syntax_trees_ParseTrees_js, BindingElement = $__9.BindingElement, BindingIdentifier = $__9.BindingIdentifier, Catch = $__9.Catch, ForInStatement = $__9.ForInStatement, ForOfStatement = $__9.ForOfStatement, LiteralExpression = $__9.LiteralExpression, SetAccessor = $__9.SetAccessor, VariableDeclaration = $__9.VariableDeclaration, VariableDeclarationList = $__9.VariableDeclarationList;
   var TempVarTransformer = $__src_codegeneration_TempVarTransformer_js.TempVarTransformer;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
-  var $__6 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__6.createArgumentList, createAssignmentExpression = $__6.createAssignmentExpression, createBinaryOperator = $__6.createBinaryOperator, createBindingIdentifier = $__6.createBindingIdentifier, createBlock = $__6.createBlock, createCallExpression = $__6.createCallExpression, createCommaExpression = $__6.createCommaExpression, createConditionalExpression = $__6.createConditionalExpression, createExpressionStatement = $__6.createExpressionStatement, createIdentifierExpression = $__6.createIdentifierExpression, createMemberExpression = $__6.createMemberExpression, createMemberLookupExpression = $__6.createMemberLookupExpression, createNumberLiteral = $__6.createNumberLiteral, createOperatorToken = $__6.createOperatorToken, createParenExpression = $__6.createParenExpression, createStringLiteral = $__6.createStringLiteral, createVariableDeclaration = $__6.createVariableDeclaration, createVariableDeclarationList = $__6.createVariableDeclarationList, createVariableStatement = $__6.createVariableStatement;
+  var $__9 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__9.createArgumentList, createAssignmentExpression = $__9.createAssignmentExpression, createBinaryOperator = $__9.createBinaryOperator, createBindingIdentifier = $__9.createBindingIdentifier, createBlock = $__9.createBlock, createCallExpression = $__9.createCallExpression, createCommaExpression = $__9.createCommaExpression, createConditionalExpression = $__9.createConditionalExpression, createExpressionStatement = $__9.createExpressionStatement, createIdentifierExpression = $__9.createIdentifierExpression, createMemberExpression = $__9.createMemberExpression, createMemberLookupExpression = $__9.createMemberLookupExpression, createNumberLiteral = $__9.createNumberLiteral, createOperatorToken = $__9.createOperatorToken, createParenExpression = $__9.createParenExpression, createStringLiteral = $__9.createStringLiteral, createVariableDeclaration = $__9.createVariableDeclaration, createVariableDeclarationList = $__9.createVariableDeclarationList, createVariableStatement = $__9.createVariableStatement;
   var prependStatements = $__src_codegeneration_PrependStatements_js.prependStatements;
   var stack = [];
   var Desugaring = function() {
@@ -12550,9 +12550,9 @@ var $__src_codegeneration_DestructuringTransformer_js = (function() {
         this.pushTempVarState();
         var desugaredDeclarations = [];
         tree.declarations.forEach((function(declaration) {
-          var $__7;
+          var $__10;
           if (declaration.lvalue.isPattern()) {
-            ($__7 = desugaredDeclarations).push.apply($__7, $__toObject(this.desugarVariableDeclaration_(declaration)));
+            ($__10 = desugaredDeclarations).push.apply($__10, $__toObject(this.desugarVariableDeclaration_(declaration)));
           } else {
             desugaredDeclarations.push(declaration);
           }
@@ -12568,7 +12568,7 @@ var $__src_codegeneration_DestructuringTransformer_js = (function() {
         return this.transformForInOrOf_(tree, traceur.runtime.superGet(this, $DestructuringTransformer, "transformForOfStatement"), ForOfStatement);
       },
       transformForInOrOf_: function(tree, superMethod, constr) {
-        var $__7;
+        var $__10;
         if (!tree.initializer.isPattern() && (tree.initializer.type !== VARIABLE_DECLARATION_LIST || !this.destructuringInDeclaration_(tree.initializer))) {
           return superMethod.call(this, tree);
         }
@@ -12587,7 +12587,7 @@ var $__src_codegeneration_DestructuringTransformer_js = (function() {
         var collection = this.transformAny(tree.collection);
         var body = this.transformAny(tree.body);
         if (body.type !== BLOCK) body = createBlock(body);
-        ($__7 = statements).push.apply($__7, $__toObject(body.statements));
+        ($__10 = statements).push.apply($__10, $__toObject(body.statements));
         body = createBlock(statements);
         this.popTempVarState();
         return new constr(tree.location, initializer, collection, body);
@@ -12601,12 +12601,12 @@ var $__src_codegeneration_DestructuringTransformer_js = (function() {
         return new tree.constructor(transformedTree.location, transformedTree.name, transformedTree.isGenerator, transformedTree.formalParameterList, createBlock(statements));
       },
       transformSetAccessor: function(tree) {
-        var $__7;
+        var $__10;
         stack.push([]);
         var transformedTree = traceur.runtime.superCall(this, $DestructuringTransformer, "transformSetAccessor", [tree]);
         var statements = stack.pop();
         if (!statements.length) return transformedTree;
-        ($__7 = statements).push.apply($__7, $__toObject(transformedTree.body.statements));
+        ($__10 = statements).push.apply($__10, $__toObject(transformedTree.body.statements));
         return new SetAccessor(transformedTree.location, transformedTree.name, transformedTree.parameter, createBlock(statements));
       },
       transformBindingElement: function(tree) {
@@ -12616,12 +12616,12 @@ var $__src_codegeneration_DestructuringTransformer_js = (function() {
         return new BindingElement(null, binding, null);
       },
       transformCatch: function(tree) {
-        var $__7;
+        var $__10;
         if (!tree.binding.isPattern()) return traceur.runtime.superCall(this, $DestructuringTransformer, "transformCatch", [tree]);
         var body = this.transformAny(tree.catchBody);
         var statements = [];
         var binding = this.desugarBinding_(tree.binding, statements, TokenType.LET);
-        ($__7 = statements).push.apply($__7, $__toObject(body.statements));
+        ($__10 = statements).push.apply($__10, $__toObject(body.statements));
         return new Catch(tree.location, binding, createBlock(statements));
       },
       desugarBinding_: function(bindingTree, statements, declarationType) {
@@ -12732,11 +12732,11 @@ var $__src_codegeneration_DestructuringTransformer_js = (function() {
 }).call(this);
 var $__src_codegeneration_ForOfTransformer_js = (function() {
   "use strict";
-  var $__6 = $__src_syntax_PredefinedName_js, CLOSE = $__6.CLOSE, CURRENT = $__6.CURRENT, GET_ITERATOR = $__6.GET_ITERATOR, MOVE_NEXT = $__6.MOVE_NEXT, RUNTIME = $__6.RUNTIME, TRACEUR = $__6.TRACEUR;
+  var $__9 = $__src_syntax_PredefinedName_js, CLOSE = $__9.CLOSE, CURRENT = $__9.CURRENT, GET_ITERATOR = $__9.GET_ITERATOR, MOVE_NEXT = $__9.MOVE_NEXT, RUNTIME = $__9.RUNTIME, TRACEUR = $__9.TRACEUR;
   var VARIABLE_DECLARATION_LIST = $__src_syntax_trees_ParseTreeType_js.VARIABLE_DECLARATION_LIST;
   var TempVarTransformer = $__src_codegeneration_TempVarTransformer_js.TempVarTransformer;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
-  var $__6 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__6.createArgumentList, createAssignmentExpression = $__6.createAssignmentExpression, createBlock = $__6.createBlock, createCallExpression = $__6.createCallExpression, createCallStatement = $__6.createCallStatement, createExpressionStatement = $__6.createExpressionStatement, createFinally = $__6.createFinally, createIfStatement = $__6.createIfStatement, createMemberExpression = $__6.createMemberExpression, createStringLiteral = $__6.createStringLiteral, createTryStatement = $__6.createTryStatement, createVariableStatement = $__6.createVariableStatement, createWhileStatement = $__6.createWhileStatement;
+  var $__9 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__9.createArgumentList, createAssignmentExpression = $__9.createAssignmentExpression, createBlock = $__9.createBlock, createCallExpression = $__9.createCallExpression, createCallStatement = $__9.createCallStatement, createExpressionStatement = $__9.createExpressionStatement, createFinally = $__9.createFinally, createIfStatement = $__9.createIfStatement, createMemberExpression = $__9.createMemberExpression, createStringLiteral = $__9.createStringLiteral, createTryStatement = $__9.createTryStatement, createVariableStatement = $__9.createVariableStatement, createWhileStatement = $__9.createWhileStatement;
   var ForOfTransformer = function($__super) {
     var $ForOfTransformer = ($__createClass)({
       constructor: function() {
@@ -12773,7 +12773,7 @@ var $__src_codegeneration_ForOfTransformer_js = (function() {
 var $__src_semantics_FreeVariableChecker_js = (function() {
   "use strict";
   var ARGUMENTS = $__src_syntax_PredefinedName_js.ARGUMENTS;
-  var $__6 = $__src_syntax_trees_ParseTrees_js, BindingIdentifier = $__6.BindingIdentifier, IdentifierExpression = $__6.IdentifierExpression;
+  var $__9 = $__src_syntax_trees_ParseTrees_js, BindingIdentifier = $__9.BindingIdentifier, IdentifierExpression = $__9.IdentifierExpression;
   var IdentifierToken = $__src_syntax_IdentifierToken_js.IdentifierToken;
   var IDENTIFIER_EXPRESSION = $__src_syntax_trees_ParseTreeType_js.IDENTIFIER_EXPRESSION;
   var ParseTreeVisitor = $__src_syntax_ParseTreeVisitor_js.ParseTreeVisitor;
@@ -12905,15 +12905,15 @@ var $__src_semantics_FreeVariableChecker_js = (function() {
             return x[0].offset - y[0].offset;
           }));
           errors.forEach((function(e) {
-            var $__7;
-            ($__7 = this).reportError_.apply($__7, $__toObject(e));
+            var $__10;
+            ($__10 = this).reportError_.apply($__10, $__toObject(e));
           }).bind(this));
         }
       },
       reportError_: function() {
-        var $__7;
-        var args = Array.prototype.slice.call(arguments, 0);
-        ($__7 = this.reporter_).reportError.apply($__7, $__toObject(args));
+        var $__10;
+        for (var args = [], $__8 = 0; $__8 < arguments.length; $__8++) args[$__8] = arguments[$__8];
+        ($__10 = this.reporter_).reportError.apply($__10, $__toObject(args));
       }
     }, $__super, true);
     return $FreeVariableChecker;
@@ -12960,7 +12960,7 @@ var $__src_codegeneration_GeneratorComprehensionTransformer_js = (function() {
 var $__src_codegeneration_generator_State_js = (function() {
   "use strict";
   var FINALLY_FALL_THROUGH = $__src_syntax_PredefinedName_js.FINALLY_FALL_THROUGH;
-  var $__6 = $__src_codegeneration_ParseTreeFactory_js, createAssignStateStatement = $__6.createAssignStateStatement, createAssignmentStatement = $__6.createAssignmentStatement, createBreakStatement = $__6.createBreakStatement, createCaseClause = $__6.createCaseClause, createIdentifierExpression = $__6.createIdentifierExpression, createNumberLiteral = $__6.createNumberLiteral, createStatementList = $__6.createStatementList, createStatementList = $__6.createStatementList;
+  var $__9 = $__src_codegeneration_ParseTreeFactory_js, createAssignStateStatement = $__9.createAssignStateStatement, createAssignmentStatement = $__9.createAssignmentStatement, createBreakStatement = $__9.createBreakStatement, createCaseClause = $__9.createCaseClause, createIdentifierExpression = $__9.createIdentifierExpression, createNumberLiteral = $__9.createNumberLiteral, createStatementList = $__9.createStatementList, createStatementList = $__9.createStatementList;
   var State = function() {
     var $State = ($__createClassNoExtends)({
       constructor: function(id) {
@@ -13237,7 +13237,7 @@ var $__src_syntax_trees_StateMachine_js = (function() {
 var $__src_codegeneration_generator_BreakContinueTransformer_js = (function() {
   "use strict";
   var BreakState = $__src_codegeneration_generator_BreakState_js.BreakState;
-  var $__6 = $__src_syntax_trees_ParseTrees_js, BreakStatement = $__6.BreakStatement, ContinueStatement = $__6.ContinueStatement, DoWhileStatement = $__6.DoWhileStatement, ForOfStatement = $__6.ForOfStatement, ForStatement = $__6.ForStatement, SwitchStatement = $__6.SwitchStatement, WhileStatement = $__6.WhileStatement;
+  var $__9 = $__src_syntax_trees_ParseTrees_js, BreakStatement = $__9.BreakStatement, ContinueStatement = $__9.ContinueStatement, DoWhileStatement = $__9.DoWhileStatement, ForOfStatement = $__9.ForOfStatement, ForStatement = $__9.ForStatement, SwitchStatement = $__9.SwitchStatement, WhileStatement = $__9.WhileStatement;
   var ContinueState = $__src_codegeneration_generator_ContinueState_js.ContinueState;
   var ParseTreeTransformer = $__src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
   var StateMachine = $__src_syntax_trees_StateMachine_js.StateMachine;
@@ -13327,7 +13327,7 @@ var $__src_codegeneration_generator_CatchState_js = (function() {
 var $__src_codegeneration_generator_ConditionalState_js = (function() {
   "use strict";
   var State = $__src_codegeneration_generator_State_js.State;
-  var $__6 = $__src_codegeneration_ParseTreeFactory_js, createBlock = $__6.createBlock, createIfStatement = $__6.createIfStatement;
+  var $__9 = $__src_codegeneration_ParseTreeFactory_js, createBlock = $__9.createBlock, createIfStatement = $__9.createIfStatement;
   var ConditionalState = function($__super) {
     var $ConditionalState = ($__createClass)({
       constructor: function(id, ifState, elseState, condition) {
@@ -13426,9 +13426,9 @@ var $__src_codegeneration_generator_StateAllocator_js = (function() {
 }).call(this);
 var $__src_codegeneration_generator_SwitchState_js = (function() {
   "use strict";
-  var $__6 = $__src_syntax_trees_ParseTrees_js, CaseClause = $__6.CaseClause, DefaultClause = $__6.DefaultClause, SwitchStatement = $__6.SwitchStatement;
+  var $__9 = $__src_syntax_trees_ParseTrees_js, CaseClause = $__9.CaseClause, DefaultClause = $__9.DefaultClause, SwitchStatement = $__9.SwitchStatement;
   var State = $__src_codegeneration_generator_State_js.State;
-  var $__6 = $__src_codegeneration_ParseTreeFactory_js, createBreakStatement = $__6.createBreakStatement, createStatementList = $__6.createStatementList;
+  var $__9 = $__src_codegeneration_ParseTreeFactory_js, createBreakStatement = $__9.createBreakStatement, createStatementList = $__9.createStatementList;
   var SwitchClause = function() {
     var $SwitchClause = ($__createClassNoExtends)({constructor: function(first, second) {
         this.first = first;
@@ -13482,8 +13482,8 @@ var $__src_codegeneration_generator_SwitchState_js = (function() {
 var $__src_codegeneration_generator_CPSTransformer_js = (function() {
   "use strict";
   var BreakContinueTransformer = $__src_codegeneration_generator_BreakContinueTransformer_js.BreakContinueTransformer;
-  var $__6 = $__src_syntax_trees_ParseTreeType_js, CASE_CLAUSE = $__6.CASE_CLAUSE, STATE_MACHINE = $__6.STATE_MACHINE, VARIABLE_DECLARATION_LIST = $__6.VARIABLE_DECLARATION_LIST, VARIABLE_STATEMENT = $__6.VARIABLE_STATEMENT;
-  var $__6 = $__src_syntax_trees_ParseTrees_js, CaseClause = $__6.CaseClause, IdentifierExpression = $__6.IdentifierExpression, SwitchStatement = $__6.SwitchStatement;
+  var $__9 = $__src_syntax_trees_ParseTreeType_js, CASE_CLAUSE = $__9.CASE_CLAUSE, STATE_MACHINE = $__9.STATE_MACHINE, VARIABLE_DECLARATION_LIST = $__9.VARIABLE_DECLARATION_LIST, VARIABLE_STATEMENT = $__9.VARIABLE_STATEMENT;
+  var $__9 = $__src_syntax_trees_ParseTrees_js, CaseClause = $__9.CaseClause, IdentifierExpression = $__9.IdentifierExpression, SwitchStatement = $__9.SwitchStatement;
   var CatchState = $__src_codegeneration_generator_CatchState_js.CatchState;
   var ConditionalState = $__src_codegeneration_generator_ConditionalState_js.ConditionalState;
   var FallThroughState = $__src_codegeneration_generator_FallThroughState_js.FallThroughState;
@@ -13491,14 +13491,14 @@ var $__src_codegeneration_generator_CPSTransformer_js = (function() {
   var FinallyState = $__src_codegeneration_generator_FinallyState_js.FinallyState;
   var IdentifierToken = $__src_syntax_IdentifierToken_js.IdentifierToken;
   var ParseTreeTransformer = $__src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
-  var $__6 = $__src_syntax_PredefinedName_js, $ARGUMENTS = $__6.$ARGUMENTS, $THAT = $__6.$THAT, ARGUMENTS = $__6.ARGUMENTS, CAUGHT_EXCEPTION = $__6.CAUGHT_EXCEPTION, FINALLY_FALL_THROUGH = $__6.FINALLY_FALL_THROUGH, STATE = $__6.STATE, STORED_EXCEPTION = $__6.STORED_EXCEPTION, YIELD_SENT = $__6.YIELD_SENT;
+  var $__9 = $__src_syntax_PredefinedName_js, $ARGUMENTS = $__9.$ARGUMENTS, $THAT = $__9.$THAT, ARGUMENTS = $__9.ARGUMENTS, CAUGHT_EXCEPTION = $__9.CAUGHT_EXCEPTION, FINALLY_FALL_THROUGH = $__9.FINALLY_FALL_THROUGH, STATE = $__9.STATE, STORED_EXCEPTION = $__9.STORED_EXCEPTION, YIELD_SENT = $__9.YIELD_SENT;
   var State = $__src_codegeneration_generator_State_js.State;
   var StateAllocator = $__src_codegeneration_generator_StateAllocator_js.StateAllocator;
   var StateMachine = $__src_syntax_trees_StateMachine_js.StateMachine;
-  var $__6 = $__src_codegeneration_generator_SwitchState_js, SwitchClause = $__6.SwitchClause, SwitchState = $__6.SwitchState;
+  var $__9 = $__src_codegeneration_generator_SwitchState_js, SwitchClause = $__9.SwitchClause, SwitchState = $__9.SwitchState;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
   var TryState = $__src_codegeneration_generator_TryState_js.TryState;
-  var $__6 = $__src_codegeneration_ParseTreeFactory_js, createArrayLiteralExpression = $__6.createArrayLiteralExpression, createAssignStateStatement = $__6.createAssignStateStatement, createAssignmentExpression = $__6.createAssignmentExpression, createAssignmentStatement = $__6.createAssignmentStatement, createBinaryOperator = $__6.createBinaryOperator, createBindingIdentifier = $__6.createBindingIdentifier, createBlock = $__6.createBlock, createBoundCall = $__6.createBoundCall, createBreakStatement = $__6.createBreakStatement, createCaseClause = $__6.createCaseClause, createCatch = $__6.createCatch, createDefaultClause = $__6.createDefaultClause, createEmptyParameterList = $__6.createEmptyParameterList, createEmptyStatement = $__6.createEmptyStatement, createExpressionStatement = $__6.createExpressionStatement, createFunctionExpression = $__6.createFunctionExpression, createIdentifierExpression = $__6.createIdentifierExpression, createIdentifierToken = $__6.createIdentifierToken, createNumberLiteral = $__6.createNumberLiteral, createOperatorToken = $__6.createOperatorToken, createParameterList = $__6.createParameterList, createStatementList = $__6.createStatementList, createStringLiteral = $__6.createStringLiteral, createSwitchStatement = $__6.createSwitchStatement, createThisExpression = $__6.createThisExpression, createThrowStatement = $__6.createThrowStatement, createTrueLiteral = $__6.createTrueLiteral, createTryStatement = $__6.createTryStatement, createVariableStatement = $__6.createVariableStatement, createWhileStatement = $__6.createWhileStatement;
+  var $__9 = $__src_codegeneration_ParseTreeFactory_js, createArrayLiteralExpression = $__9.createArrayLiteralExpression, createAssignStateStatement = $__9.createAssignStateStatement, createAssignmentExpression = $__9.createAssignmentExpression, createAssignmentStatement = $__9.createAssignmentStatement, createBinaryOperator = $__9.createBinaryOperator, createBindingIdentifier = $__9.createBindingIdentifier, createBlock = $__9.createBlock, createBoundCall = $__9.createBoundCall, createBreakStatement = $__9.createBreakStatement, createCaseClause = $__9.createCaseClause, createCatch = $__9.createCatch, createDefaultClause = $__9.createDefaultClause, createEmptyParameterList = $__9.createEmptyParameterList, createEmptyStatement = $__9.createEmptyStatement, createExpressionStatement = $__9.createExpressionStatement, createFunctionExpression = $__9.createFunctionExpression, createIdentifierExpression = $__9.createIdentifierExpression, createIdentifierToken = $__9.createIdentifierToken, createNumberLiteral = $__9.createNumberLiteral, createOperatorToken = $__9.createOperatorToken, createParameterList = $__9.createParameterList, createStatementList = $__9.createStatementList, createStringLiteral = $__9.createStringLiteral, createSwitchStatement = $__9.createSwitchStatement, createThisExpression = $__9.createThisExpression, createThrowStatement = $__9.createThrowStatement, createTrueLiteral = $__9.createTrueLiteral, createTryStatement = $__9.createTryStatement, createVariableStatement = $__9.createVariableStatement, createWhileStatement = $__9.createWhileStatement;
   var variablesInBlock = $__src_semantics_VariableBinder_js.variablesInBlock;
   var CPSTransformer = function($__super) {
     var $CPSTransformer = ($__createClass)({
@@ -13610,7 +13610,7 @@ var $__src_codegeneration_generator_CPSTransformer_js = (function() {
         throw new Error('for of statements should be transformed before this pass');
       },
       transformIfStatement: function(tree) {
-        var $__7, $__8, $__9;
+        var $__10, $__11, $__12;
         this.clearLabels_();
         var result = traceur.runtime.superCall(this, $CPSTransformer, "transformIfStatement", [tree]);
         if (result.ifClause.type != STATE_MACHINE && (result.elseClause == null || result.elseClause.type != STATE_MACHINE)) {
@@ -13625,11 +13625,11 @@ var $__src_codegeneration_generator_CPSTransformer_js = (function() {
         var states = [];
         var exceptionBlocks = [];
         states.push(new ConditionalState(startState, ifState, elseState, result.condition));
-        ($__7 = states).push.apply($__7, $__toObject(ifClause.states));
-        ($__8 = exceptionBlocks).push.apply($__8, $__toObject(ifClause.exceptionBlocks));
+        ($__10 = states).push.apply($__10, $__toObject(ifClause.states));
+        ($__11 = exceptionBlocks).push.apply($__11, $__toObject(ifClause.exceptionBlocks));
         if (elseClause != null) {
           this.replaceAndAddStates_(elseClause.states, elseClause.fallThroughState, fallThroughState, states);
-          ($__9 = exceptionBlocks).push.apply($__9, $__toObject(State.replaceAllStates(elseClause.exceptionBlocks, elseClause.fallThroughState, fallThroughState)));
+          ($__12 = exceptionBlocks).push.apply($__12, $__toObject(State.replaceAllStates(elseClause.exceptionBlocks, elseClause.fallThroughState, fallThroughState)));
         }
         return new StateMachine(startState, fallThroughState, states, exceptionBlocks);
       },
@@ -13695,14 +13695,14 @@ var $__src_codegeneration_generator_CPSTransformer_js = (function() {
         return new StateMachine(startState, fallThroughState, states.reverse(), tryStates);
       },
       addSwitchClauseStates_: function(nextState, fallThroughState, labels, statements, states, tryStates) {
-        var $__9;
+        var $__12;
         var machine = this.ensureTransformedList_(statements);
         for (var i = 0; i < machine.states.length; i++) {
           var state = machine.states[i];
           var transformedState = state.transformBreak(labels, fallThroughState);
           states.push(transformedState.replaceState(machine.fallThroughState, nextState));
         }
-        ($__9 = tryStates).push.apply($__9, $__toObject(machine.exceptionBlocks));
+        ($__12 = tryStates).push.apply($__12, $__toObject(machine.exceptionBlocks));
         return machine.startState;
       },
       transformTryStatement: function(tree) {
@@ -14004,11 +14004,11 @@ var $__src_codegeneration_generator_AsyncTransformer_js = (function() {
   var CPSTransformer = $__src_codegeneration_generator_CPSTransformer_js.CPSTransformer;
   var EndState = $__src_codegeneration_generator_EndState_js.EndState;
   var FallThroughState = $__src_codegeneration_generator_FallThroughState_js.FallThroughState;
-  var $__6 = $__src_syntax_PredefinedName_js, $VALUE = $__6.$VALUE, CALLBACK = $__6.CALLBACK, CONTINUATION = $__6.CONTINUATION, CREATE_CALLBACK = $__6.CREATE_CALLBACK, CREATE_ERRBACK = $__6.CREATE_ERRBACK, CREATE_PROMISE = $__6.CREATE_PROMISE, DEFERRED = $__6.DEFERRED, ERR = $__6.ERR, ERRBACK = $__6.ERRBACK, NEW_STATE = $__6.NEW_STATE, RESULT = $__6.RESULT, STATE = $__6.STATE, STORED_EXCEPTION = $__6.STORED_EXCEPTION, THEN = $__6.THEN, WAIT_TASK = $__6.WAIT_TASK;
+  var $__9 = $__src_syntax_PredefinedName_js, $VALUE = $__9.$VALUE, CALLBACK = $__9.CALLBACK, CONTINUATION = $__9.CONTINUATION, CREATE_CALLBACK = $__9.CREATE_CALLBACK, CREATE_ERRBACK = $__9.CREATE_ERRBACK, CREATE_PROMISE = $__9.CREATE_PROMISE, DEFERRED = $__9.DEFERRED, ERR = $__9.ERR, ERRBACK = $__9.ERRBACK, NEW_STATE = $__9.NEW_STATE, RESULT = $__9.RESULT, STATE = $__9.STATE, STORED_EXCEPTION = $__9.STORED_EXCEPTION, THEN = $__9.THEN, WAIT_TASK = $__9.WAIT_TASK;
   var STATE_MACHINE = $__src_syntax_trees_ParseTreeType_js.STATE_MACHINE;
   var StateMachine = $__src_syntax_trees_StateMachine_js.StateMachine;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
-  var $__6 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__6.createArgumentList, createAssignStateStatement = $__6.createAssignStateStatement, createAssignmentStatement = $__6.createAssignmentStatement, createBlock = $__6.createBlock, createBreakStatement = $__6.createBreakStatement, createCallExpression = $__6.createCallExpression, createCallStatement = $__6.createCallStatement, createEmptyArgumentList = $__6.createEmptyArgumentList, createFunctionExpression = $__6.createFunctionExpression, createIdentifierExpression = $__6.createIdentifierExpression, createMemberExpression = $__6.createMemberExpression, createNewExpression = $__6.createNewExpression, createNumberLiteral = $__6.createNumberLiteral, createParameterList = $__6.createParameterList, createParameterReference = $__6.createParameterReference, createReturnStatement = $__6.createReturnStatement, createStatementList = $__6.createStatementList, createThrowStatement = $__6.createThrowStatement, createUndefinedExpression = $__6.createUndefinedExpression, createVariableStatement = $__6.createVariableStatement;
+  var $__9 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__9.createArgumentList, createAssignStateStatement = $__9.createAssignStateStatement, createAssignmentStatement = $__9.createAssignmentStatement, createBlock = $__9.createBlock, createBreakStatement = $__9.createBreakStatement, createCallExpression = $__9.createCallExpression, createCallStatement = $__9.createCallStatement, createEmptyArgumentList = $__9.createEmptyArgumentList, createFunctionExpression = $__9.createFunctionExpression, createIdentifierExpression = $__9.createIdentifierExpression, createMemberExpression = $__9.createMemberExpression, createNewExpression = $__9.createNewExpression, createNumberLiteral = $__9.createNumberLiteral, createParameterList = $__9.createParameterList, createParameterReference = $__9.createParameterReference, createReturnStatement = $__9.createReturnStatement, createStatementList = $__9.createStatementList, createThrowStatement = $__9.createThrowStatement, createUndefinedExpression = $__9.createUndefinedExpression, createVariableStatement = $__9.createVariableStatement;
   var AsyncTransformer = function($__super) {
     var $AsyncTransformer = ($__createClass)({
       constructor: function() {
@@ -14058,7 +14058,7 @@ var $__src_codegeneration_generator_AsyncTransformer_js = (function() {
         return createCallStatement(createMemberExpression(RESULT, CALLBACK), createArgumentList(result));
       },
       transformAsyncBody: function(tree) {
-        var $__9;
+        var $__12;
         var transformedTree = this.transformAny(tree);
         if (this.reporter.hadError()) {
           return tree;
@@ -14066,7 +14066,7 @@ var $__src_codegeneration_generator_AsyncTransformer_js = (function() {
         var machine = transformedTree;
         var statements = [];
         statements.push(this.generateHoistedThis());
-        ($__9 = statements).push.apply($__9, $__toObject(this.getMachineVariables(tree, machine)));
+        ($__12 = statements).push.apply($__12, $__toObject(this.getMachineVariables(tree, machine)));
         statements.push(createVariableStatement(TokenType.VAR, $VALUE, null));
         statements.push(createVariableStatement(TokenType.VAR, ERR, null));
         statements.push(createVariableStatement(TokenType.VAR, RESULT, createNewExpression(createIdentifierExpression(DEFERRED), createEmptyArgumentList())));
@@ -14105,24 +14105,24 @@ var $__src_codegeneration_generator_AsyncTransformer_js = (function() {
 }).call(this);
 var $__src_codegeneration_generator_ForInTransformPass_js = (function() {
   "use strict";
-  var $__6 = $__src_syntax_trees_ParseTreeType_js, BLOCK = $__6.BLOCK, VARIABLE_DECLARATION_LIST = $__6.VARIABLE_DECLARATION_LIST, IDENTIFIER_EXPRESSION = $__6.IDENTIFIER_EXPRESSION;
+  var $__9 = $__src_syntax_trees_ParseTreeType_js, BLOCK = $__9.BLOCK, VARIABLE_DECLARATION_LIST = $__9.VARIABLE_DECLARATION_LIST, IDENTIFIER_EXPRESSION = $__9.IDENTIFIER_EXPRESSION;
   var IdentifierExpression = $__src_syntax_trees_ParseTrees_js.IdentifierExpression;
-  var $__6 = $__src_syntax_PredefinedName_js, LENGTH = $__6.LENGTH, PUSH = $__6.PUSH;
+  var $__9 = $__src_syntax_PredefinedName_js, LENGTH = $__9.LENGTH, PUSH = $__9.PUSH;
   var TempVarTransformer = $__src_codegeneration_TempVarTransformer_js.TempVarTransformer;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
-  var $__6 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__6.createArgumentList, createAssignmentStatement = $__6.createAssignmentStatement, createBinaryOperator = $__6.createBinaryOperator, createBlock = $__6.createBlock, createCallStatement = $__6.createCallStatement, createContinueStatement = $__6.createContinueStatement, createEmptyArrayLiteralExpression = $__6.createEmptyArrayLiteralExpression, createForInStatement = $__6.createForInStatement, createForStatement = $__6.createForStatement, createIdentifierExpression = $__6.createIdentifierExpression, createIfStatement = $__6.createIfStatement, createMemberExpression = $__6.createMemberExpression, createMemberLookupExpression = $__6.createMemberLookupExpression, createNumberLiteral = $__6.createNumberLiteral, createOperatorToken = $__6.createOperatorToken, createParenExpression = $__6.createParenExpression, createPostfixExpression = $__6.createPostfixExpression, createUnaryExpression = $__6.createUnaryExpression, createVariableDeclarationList = $__6.createVariableDeclarationList, createVariableStatement = $__6.createVariableStatement;
+  var $__9 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__9.createArgumentList, createAssignmentStatement = $__9.createAssignmentStatement, createBinaryOperator = $__9.createBinaryOperator, createBlock = $__9.createBlock, createCallStatement = $__9.createCallStatement, createContinueStatement = $__9.createContinueStatement, createEmptyArrayLiteralExpression = $__9.createEmptyArrayLiteralExpression, createForInStatement = $__9.createForInStatement, createForStatement = $__9.createForStatement, createIdentifierExpression = $__9.createIdentifierExpression, createIfStatement = $__9.createIfStatement, createMemberExpression = $__9.createMemberExpression, createMemberLookupExpression = $__9.createMemberLookupExpression, createNumberLiteral = $__9.createNumberLiteral, createOperatorToken = $__9.createOperatorToken, createParenExpression = $__9.createParenExpression, createPostfixExpression = $__9.createPostfixExpression, createUnaryExpression = $__9.createUnaryExpression, createVariableDeclarationList = $__9.createVariableDeclarationList, createVariableStatement = $__9.createVariableStatement;
   var ForInTransformPass = function($__super) {
     var $ForInTransformPass = ($__createClass)({
       constructor: function() {
         traceur.runtime.superCall(this, $ForInTransformPass, 'constructor', arguments);
       },
       transformForInStatement: function(original) {
-        var $__9, $__8;
+        var $__12, $__11;
         var tree = original;
         var bodyStatements = [];
         var body = this.transformAny(tree.body);
         if (body.type == BLOCK) {
-          ($__9 = bodyStatements).push.apply($__9, $__toObject(body.statements));
+          ($__12 = bodyStatements).push.apply($__12, $__toObject(body.statements));
         } else {
           bodyStatements.push(body);
         }
@@ -14149,7 +14149,7 @@ var $__src_codegeneration_generator_ForInTransformPass_js = (function() {
         var innerBlock = [];
         innerBlock.push(assignOriginalKey);
         innerBlock.push(createIfStatement(createUnaryExpression(createOperatorToken(TokenType.BANG), createParenExpression(createBinaryOperator(originalKey, createOperatorToken(TokenType.IN), createIdentifierExpression(collection)))), createContinueStatement(), null));
-        ($__8 = innerBlock).push.apply($__8, $__toObject(bodyStatements));
+        ($__11 = innerBlock).push.apply($__11, $__toObject(bodyStatements));
         elements.push(createForStatement(createVariableDeclarationList(TokenType.VAR, i, createNumberLiteral(0)), createBinaryOperator(createIdentifierExpression(i), createOperatorToken(TokenType.OPEN_ANGLE), createMemberExpression(keys, LENGTH)), createPostfixExpression(createIdentifierExpression(i), createOperatorToken(TokenType.PLUS_PLUS)), createBlock(innerBlock)));
         return createBlock(elements);
       }
@@ -14168,9 +14168,9 @@ var $__src_codegeneration_generator_ForInTransformPass_js = (function() {
 }).call(this);
 var $__src_codegeneration_generator_YieldState_js = (function() {
   "use strict";
-  var $__6 = $__src_syntax_PredefinedName_js, CURRENT = $__6.CURRENT, RESULT = $__6.RESULT;
+  var $__9 = $__src_syntax_PredefinedName_js, CURRENT = $__9.CURRENT, RESULT = $__9.RESULT;
   var State = $__src_codegeneration_generator_State_js.State;
-  var $__6 = $__src_codegeneration_ParseTreeFactory_js, createAssignmentStatement = $__6.createAssignmentStatement, createMemberExpression = $__6.createMemberExpression, createReturnStatement = $__6.createReturnStatement, createTrueLiteral = $__6.createTrueLiteral;
+  var $__9 = $__src_codegeneration_ParseTreeFactory_js, createAssignmentStatement = $__9.createAssignmentStatement, createMemberExpression = $__9.createMemberExpression, createReturnStatement = $__9.createReturnStatement, createTrueLiteral = $__9.createTrueLiteral;
   var YieldState = function($__super) {
     var $YieldState = ($__createClass)({
       constructor: function(id, fallThroughState, expression) {
@@ -14198,12 +14198,12 @@ var $__src_codegeneration_generator_GeneratorTransformer_js = (function() {
   "use strict";
   var CPSTransformer = $__src_codegeneration_generator_CPSTransformer_js.CPSTransformer;
   var EndState = $__src_codegeneration_generator_EndState_js.EndState;
-  var $__6 = $__src_syntax_PredefinedName_js, MARK_AS_GENERATOR = $__6.MARK_AS_GENERATOR, MOVE_NEXT = $__6.MOVE_NEXT, RESULT = $__6.RESULT, RUNTIME = $__6.RUNTIME, STORED_EXCEPTION = $__6.STORED_EXCEPTION, TRACEUR = $__6.TRACEUR;
-  var $__6 = $__src_syntax_trees_ParseTreeType_js, STATE_MACHINE = $__6.STATE_MACHINE, YIELD_EXPRESSION = $__6.YIELD_EXPRESSION;
+  var $__9 = $__src_syntax_PredefinedName_js, MARK_AS_GENERATOR = $__9.MARK_AS_GENERATOR, MOVE_NEXT = $__9.MOVE_NEXT, RESULT = $__9.RESULT, RUNTIME = $__9.RUNTIME, STORED_EXCEPTION = $__9.STORED_EXCEPTION, TRACEUR = $__9.TRACEUR;
+  var $__9 = $__src_syntax_trees_ParseTreeType_js, STATE_MACHINE = $__9.STATE_MACHINE, YIELD_EXPRESSION = $__9.YIELD_EXPRESSION;
   var StateMachine = $__src_syntax_trees_StateMachine_js.StateMachine;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
   var YieldState = $__src_codegeneration_generator_YieldState_js.YieldState;
-  var $__6 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__6.createArgumentList, createAssignStateStatement = $__6.createAssignStateStatement, createAssignmentStatement = $__6.createAssignmentStatement, createBlock = $__6.createBlock, createCallExpression = $__6.createCallExpression, createEmptyParameterList = $__6.createEmptyParameterList, createExpressionStatement = $__6.createExpressionStatement, createFalseLiteral = $__6.createFalseLiteral, createFunctionExpression = $__6.createFunctionExpression, createIdentifierExpression = $__6.createIdentifierExpression, createMemberExpression = $__6.createMemberExpression, createObjectLiteralExpression = $__6.createObjectLiteralExpression, createPropertyNameAssignment = $__6.createPropertyNameAssignment, createReturnStatement = $__6.createReturnStatement, createStatementList = $__6.createStatementList, createStringLiteral = $__6.createStringLiteral, createThisExpression = $__6.createThisExpression, createThrowStatement = $__6.createThrowStatement, createVariableStatement = $__6.createVariableStatement;
+  var $__9 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__9.createArgumentList, createAssignStateStatement = $__9.createAssignStateStatement, createAssignmentStatement = $__9.createAssignmentStatement, createBlock = $__9.createBlock, createCallExpression = $__9.createCallExpression, createEmptyParameterList = $__9.createEmptyParameterList, createExpressionStatement = $__9.createExpressionStatement, createFalseLiteral = $__9.createFalseLiteral, createFunctionExpression = $__9.createFunctionExpression, createIdentifierExpression = $__9.createIdentifierExpression, createMemberExpression = $__9.createMemberExpression, createObjectLiteralExpression = $__9.createObjectLiteralExpression, createPropertyNameAssignment = $__9.createPropertyNameAssignment, createReturnStatement = $__9.createReturnStatement, createStatementList = $__9.createStatementList, createStringLiteral = $__9.createStringLiteral, createThisExpression = $__9.createThisExpression, createThrowStatement = $__9.createThrowStatement, createVariableStatement = $__9.createVariableStatement;
   var GeneratorTransformer = function($__super) {
     var $GeneratorTransformer = ($__createClass)({
       constructor: function() {
@@ -14240,7 +14240,7 @@ var $__src_codegeneration_generator_GeneratorTransformer_js = (function() {
         return tree;
       },
       transformGeneratorBody: function(tree) {
-        var $__8;
+        var $__11;
         var transformedTree = this.transformAny(tree);
         if (this.reporter.hadError()) {
           return tree;
@@ -14249,7 +14249,7 @@ var $__src_codegeneration_generator_GeneratorTransformer_js = (function() {
         var statements = [];
         statements.push(this.generateHoistedThis());
         statements.push(this.generateHoistedArguments());
-        ($__8 = statements).push.apply($__8, $__toObject(this.getMachineVariables(tree, machine)));
+        ($__11 = statements).push.apply($__11, $__toObject(this.getMachineVariables(tree, machine)));
         statements.push(createVariableStatement(TokenType.VAR, RESULT, createObjectLiteralExpression(createPropertyNameAssignment(MOVE_NEXT, this.generateMachineMethod(machine)))));
         statements.push(createExpressionStatement(createCallExpression(createMemberExpression(TRACEUR, RUNTIME, MARK_AS_GENERATOR), createArgumentList(createIdentifierExpression(RESULT)))));
         statements.push(createReturnStatement(createIdentifierExpression(RESULT)));
@@ -14285,14 +14285,14 @@ var $__src_codegeneration_GeneratorTransformPass_js = (function() {
   var AsyncTransformer = $__src_codegeneration_generator_AsyncTransformer_js.AsyncTransformer;
   var ForInTransformPass = $__src_codegeneration_generator_ForInTransformPass_js.ForInTransformPass;
   var ForOfTransformer = $__src_codegeneration_ForOfTransformer_js.ForOfTransformer;
-  var $__6 = $__src_syntax_trees_ParseTrees_js, GetAccessor = $__6.GetAccessor, SetAccessor = $__6.SetAccessor;
+  var $__9 = $__src_syntax_trees_ParseTrees_js, GetAccessor = $__9.GetAccessor, SetAccessor = $__9.SetAccessor;
   var GeneratorTransformer = $__src_codegeneration_generator_GeneratorTransformer_js.GeneratorTransformer;
   var ParseTreeVisitor = $__src_syntax_ParseTreeVisitor_js.ParseTreeVisitor;
   var TempVarTransformer = $__src_codegeneration_TempVarTransformer_js.TempVarTransformer;
   var ParseTreeTransformer = $__src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
-  var $__6 = $__src_syntax_trees_ParseTreeType_js, BINARY_OPERATOR = $__6.BINARY_OPERATOR, COMMA_EXPRESSION = $__6.COMMA_EXPRESSION, IDENTIFIER_EXPRESSION = $__6.IDENTIFIER_EXPRESSION, PAREN_EXPRESSION = $__6.PAREN_EXPRESSION, VARIABLE_DECLARATION = $__6.VARIABLE_DECLARATION, YIELD_EXPRESSION = $__6.YIELD_EXPRESSION;
-  var $__6 = $__src_codegeneration_ParseTreeFactory_js, createAssignmentExpression = $__6.createAssignmentExpression, createAssignmentStatement = $__6.createAssignmentStatement, createBlock = $__6.createBlock, createCommaExpression = $__6.createCommaExpression, createExpressionStatement = $__6.createExpressionStatement, createForOfStatement = $__6.createForOfStatement, createIdentifierExpression = $__6.createIdentifierExpression, createVariableDeclaration = $__6.createVariableDeclaration, createVariableDeclarationList = $__6.createVariableDeclarationList, createVariableStatement = $__6.createVariableStatement, createYieldStatement = $__6.createYieldStatement;
+  var $__9 = $__src_syntax_trees_ParseTreeType_js, BINARY_OPERATOR = $__9.BINARY_OPERATOR, COMMA_EXPRESSION = $__9.COMMA_EXPRESSION, IDENTIFIER_EXPRESSION = $__9.IDENTIFIER_EXPRESSION, PAREN_EXPRESSION = $__9.PAREN_EXPRESSION, VARIABLE_DECLARATION = $__9.VARIABLE_DECLARATION, YIELD_EXPRESSION = $__9.YIELD_EXPRESSION;
+  var $__9 = $__src_codegeneration_ParseTreeFactory_js, createAssignmentExpression = $__9.createAssignmentExpression, createAssignmentStatement = $__9.createAssignmentStatement, createBlock = $__9.createBlock, createCommaExpression = $__9.createCommaExpression, createExpressionStatement = $__9.createExpressionStatement, createForOfStatement = $__9.createForOfStatement, createIdentifierExpression = $__9.createIdentifierExpression, createVariableDeclaration = $__9.createVariableDeclaration, createVariableDeclarationList = $__9.createVariableDeclarationList, createVariableStatement = $__9.createVariableStatement, createYieldStatement = $__9.createYieldStatement;
   var YIELD_SENT = $__src_syntax_PredefinedName_js.YIELD_SENT;
   var transformOptions = $__src_options_js.transformOptions;
   function isYieldAssign(tree) {
@@ -14459,10 +14459,10 @@ var $__src_codegeneration_GeneratorTransformPass_js = (function() {
 var $__src_codegeneration_IsExpressionTransformer_js = (function() {
   "use strict";
   var ParseTreeTransformer = $__src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
-  var $__6 = $__src_syntax_PredefinedName_js, IS = $__6.IS, ISNT = $__6.ISNT, RUNTIME = $__6.RUNTIME, TRACEUR = $__6.TRACEUR;
+  var $__9 = $__src_syntax_PredefinedName_js, IS = $__9.IS, ISNT = $__9.ISNT, RUNTIME = $__9.RUNTIME, TRACEUR = $__9.TRACEUR;
   var LITERAL_EXPRESSION = $__src_syntax_trees_ParseTreeType_js.LITERAL_EXPRESSION;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
-  var $__6 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__6.createArgumentList, createBinaryOperator = $__6.createBinaryOperator, createCallExpression = $__6.createCallExpression, createMemberExpression = $__6.createMemberExpression, createOperatorToken = $__6.createOperatorToken;
+  var $__9 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__9.createArgumentList, createBinaryOperator = $__9.createBinaryOperator, createCallExpression = $__9.createCallExpression, createMemberExpression = $__9.createMemberExpression, createOperatorToken = $__9.createOperatorToken;
   function isGoodLiteral(tree) {
     if (tree.type !== LITERAL_EXPRESSION) return false;
     var token = tree.literalToken;
@@ -14502,7 +14502,7 @@ var $__src_codegeneration_IsExpressionTransformer_js = (function() {
 }).call(this);
 var $__src_semantics_util_js = (function() {
   "use strict";
-  var $__6 = $__src_syntax_trees_ParseTreeType_js, EXPRESSION_STATEMENT = $__6.EXPRESSION_STATEMENT, LITERAL_EXPRESSION = $__6.LITERAL_EXPRESSION;
+  var $__9 = $__src_syntax_trees_ParseTreeType_js, EXPRESSION_STATEMENT = $__9.EXPRESSION_STATEMENT, LITERAL_EXPRESSION = $__9.LITERAL_EXPRESSION;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
   function hasUseStrict(list) {
     var li;
@@ -14521,12 +14521,12 @@ var $__src_semantics_util_js = (function() {
 }).call(this);
 var $__src_codegeneration_ModuleTransformer_js = (function() {
   "use strict";
-  var $__6 = $__src_syntax_trees_ParseTrees_js, BindingElement = $__6.BindingElement, BindingIdentifier = $__6.BindingIdentifier, IdentifierExpression = $__6.IdentifierExpression, LiteralExpression = $__6.LiteralExpression, ObjectPattern = $__6.ObjectPattern, ObjectPatternField = $__6.ObjectPatternField, Program = $__6.Program;
+  var $__9 = $__src_syntax_trees_ParseTrees_js, BindingElement = $__9.BindingElement, BindingIdentifier = $__9.BindingIdentifier, IdentifierExpression = $__9.IdentifierExpression, LiteralExpression = $__9.LiteralExpression, ObjectPattern = $__9.ObjectPattern, ObjectPatternField = $__9.ObjectPatternField, Program = $__9.Program;
   var ParseTreeTransformer = $__src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
-  var $__6 = $__src_syntax_PredefinedName_js, GET_MODULE_INSTANCE_BY_URL = $__6.GET_MODULE_INSTANCE_BY_URL, RUNTIME = $__6.RUNTIME, TRACEUR = $__6.TRACEUR;
-  var $__6 = $__src_syntax_trees_ParseTreeType_js, CLASS_DECLARATION = $__6.CLASS_DECLARATION, EXPORT_DECLARATION = $__6.EXPORT_DECLARATION, EXPORT_MAPPING_LIST = $__6.EXPORT_MAPPING_LIST, EXPORT_SPECIFIER = $__6.EXPORT_SPECIFIER, EXPORT_STAR = $__6.EXPORT_STAR, FUNCTION_DECLARATION = $__6.FUNCTION_DECLARATION, IDENTIFIER_EXPRESSION = $__6.IDENTIFIER_EXPRESSION, IMPORT_DECLARATION = $__6.IMPORT_DECLARATION, MODULE_DECLARATION = $__6.MODULE_DECLARATION, MODULE_DEFINITION = $__6.MODULE_DEFINITION, MODULE_REQUIRE = $__6.MODULE_REQUIRE, VARIABLE_STATEMENT = $__6.VARIABLE_STATEMENT;
+  var $__9 = $__src_syntax_PredefinedName_js, GET_MODULE_INSTANCE_BY_URL = $__9.GET_MODULE_INSTANCE_BY_URL, RUNTIME = $__9.RUNTIME, TRACEUR = $__9.TRACEUR;
+  var $__9 = $__src_syntax_trees_ParseTreeType_js, CLASS_DECLARATION = $__9.CLASS_DECLARATION, EXPORT_DECLARATION = $__9.EXPORT_DECLARATION, EXPORT_MAPPING_LIST = $__9.EXPORT_MAPPING_LIST, EXPORT_SPECIFIER = $__9.EXPORT_SPECIFIER, EXPORT_STAR = $__9.EXPORT_STAR, FUNCTION_DECLARATION = $__9.FUNCTION_DECLARATION, IDENTIFIER_EXPRESSION = $__9.IDENTIFIER_EXPRESSION, IMPORT_DECLARATION = $__9.IMPORT_DECLARATION, MODULE_DECLARATION = $__9.MODULE_DECLARATION, MODULE_DEFINITION = $__9.MODULE_DEFINITION, MODULE_REQUIRE = $__9.MODULE_REQUIRE, VARIABLE_STATEMENT = $__9.VARIABLE_STATEMENT;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
-  var $__6 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__6.createArgumentList, createBindingIdentifier = $__6.createBindingIdentifier, createBlock = $__6.createBlock, createCallExpression = $__6.createCallExpression, createEmptyParameterList = $__6.createEmptyParameterList, createExpressionStatement = $__6.createExpressionStatement, createFunctionExpression = $__6.createFunctionExpression, createIdentifierExpression = $__6.createIdentifierExpression, createIdentifierToken = $__6.createIdentifierToken, createMemberExpression = $__6.createMemberExpression, createNullLiteral = $__6.createNullLiteral, createObjectCreate = $__6.createObjectCreate, createObjectLiteralExpression = $__6.createObjectLiteralExpression, createObjectPreventExtensions = $__6.createObjectPreventExtensions, createProgram = $__6.createProgram, createPropertyDescriptor = $__6.createPropertyDescriptor, createPropertyNameAssignment = $__6.createPropertyNameAssignment, createReturnStatement = $__6.createReturnStatement, createScopedExpression = $__6.createScopedExpression, createUseStrictDirective = $__6.createUseStrictDirective, createVariableDeclaration = $__6.createVariableDeclaration, createVariableDeclarationList = $__6.createVariableDeclarationList, createVariableStatement = $__6.createVariableStatement;
+  var $__9 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__9.createArgumentList, createBindingIdentifier = $__9.createBindingIdentifier, createBlock = $__9.createBlock, createCallExpression = $__9.createCallExpression, createEmptyParameterList = $__9.createEmptyParameterList, createExpressionStatement = $__9.createExpressionStatement, createFunctionExpression = $__9.createFunctionExpression, createIdentifierExpression = $__9.createIdentifierExpression, createIdentifierToken = $__9.createIdentifierToken, createMemberExpression = $__9.createMemberExpression, createNullLiteral = $__9.createNullLiteral, createObjectCreate = $__9.createObjectCreate, createObjectLiteralExpression = $__9.createObjectLiteralExpression, createObjectPreventExtensions = $__9.createObjectPreventExtensions, createProgram = $__9.createProgram, createPropertyDescriptor = $__9.createPropertyDescriptor, createPropertyNameAssignment = $__9.createPropertyNameAssignment, createReturnStatement = $__9.createReturnStatement, createScopedExpression = $__9.createScopedExpression, createUseStrictDirective = $__9.createUseStrictDirective, createVariableDeclaration = $__9.createVariableDeclaration, createVariableDeclarationList = $__9.createVariableDeclarationList, createVariableStatement = $__9.createVariableStatement;
   var hasUseStrict = $__src_semantics_util_js.hasUseStrict;
   function toBindingIdentifier(tree) {
     return new BindingIdentifier(tree.location, tree.identifierToken);
@@ -14713,10 +14713,10 @@ var $__src_codegeneration_ModuleTransformer_js = (function() {
 var $__src_codegeneration_ObjectLiteralTransformer_js = (function() {
   "use strict";
   var FindVisitor = $__src_codegeneration_FindVisitor_js.FindVisitor;
-  var $__6 = $__src_syntax_trees_ParseTrees_js, FormalParameterList = $__6.FormalParameterList, FunctionExpression = $__6.FunctionExpression, IdentifierExpression = $__6.IdentifierExpression, LiteralExpression = $__6.LiteralExpression;
+  var $__9 = $__src_syntax_trees_ParseTrees_js, FormalParameterList = $__9.FormalParameterList, FunctionExpression = $__9.FunctionExpression, IdentifierExpression = $__9.IdentifierExpression, LiteralExpression = $__9.LiteralExpression;
   var TempVarTransformer = $__src_codegeneration_TempVarTransformer_js.TempVarTransformer;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
-  var $__6 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__6.createArgumentList, createAssignmentExpression = $__6.createAssignmentExpression, createBindingIdentifier = $__6.createBindingIdentifier, createCallExpression = $__6.createCallExpression, createCommaExpression = $__6.createCommaExpression, createDefineProperty = $__6.createDefineProperty, createEmptyParameterList = $__6.createEmptyParameterList, createFunctionExpression = $__6.createFunctionExpression, createIdentifierExpression = $__6.createIdentifierExpression, createMemberExpression = $__6.createMemberExpression, createObjectCreate = $__6.createObjectCreate, createObjectLiteralExpression = $__6.createObjectLiteralExpression, createParenExpression = $__6.createParenExpression, createPropertyDescriptor = $__6.createPropertyDescriptor, createPropertyNameAssignment = $__6.createPropertyNameAssignment, createStringLiteral = $__6.createStringLiteral;
+  var $__9 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__9.createArgumentList, createAssignmentExpression = $__9.createAssignmentExpression, createBindingIdentifier = $__9.createBindingIdentifier, createCallExpression = $__9.createCallExpression, createCommaExpression = $__9.createCommaExpression, createDefineProperty = $__9.createDefineProperty, createEmptyParameterList = $__9.createEmptyParameterList, createFunctionExpression = $__9.createFunctionExpression, createIdentifierExpression = $__9.createIdentifierExpression, createMemberExpression = $__9.createMemberExpression, createObjectCreate = $__9.createObjectCreate, createObjectLiteralExpression = $__9.createObjectLiteralExpression, createParenExpression = $__9.createParenExpression, createPropertyDescriptor = $__9.createPropertyDescriptor, createPropertyNameAssignment = $__9.createPropertyNameAssignment, createStringLiteral = $__9.createStringLiteral;
   var transformOptions = $__src_options_js.transformOptions;
   function findAtNameInProperty(propertyName) {
     return function(tree) {
@@ -14992,7 +14992,7 @@ var $__src_util_StringBuilder_js = (function() {
 var $__src_outputgeneration_ParseTreeWriter_js = (function() {
   "use strict";
   var ParseTreeVisitor = $__src_syntax_ParseTreeVisitor_js.ParseTreeVisitor;
-  var $__6 = $__src_syntax_PredefinedName_js, FROM = $__6.FROM, GET = $__6.GET, OF = $__6.OF, MODULE = $__6.MODULE, REQUIRES = $__6.REQUIRES, SET = $__6.SET;
+  var $__9 = $__src_syntax_PredefinedName_js, FROM = $__9.FROM, GET = $__9.GET, OF = $__9.OF, MODULE = $__9.MODULE, REQUIRES = $__9.REQUIRES, SET = $__9.SET;
   var StringBuilder = $__src_util_StringBuilder_js.StringBuilder;
   var Token = $__src_syntax_Token_js.Token;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
@@ -15869,10 +15869,10 @@ var $__src_syntax_ParseTreeValidator_js = (function() {
   "use strict";
   var NewExpression = $__src_syntax_trees_ParseTrees_js.NewExpression;
   var ParseTreeVisitor = $__src_syntax_ParseTreeVisitor_js.ParseTreeVisitor;
-  var $__6 = $__src_syntax_PredefinedName_js, IS = $__6.IS, ISNT = $__6.ISNT;
+  var $__9 = $__src_syntax_PredefinedName_js, IS = $__9.IS, ISNT = $__9.ISNT;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
   var TreeWriter = $__src_outputgeneration_TreeWriter_js.TreeWriter;
-  var $__6 = $__src_syntax_trees_ParseTreeType_js, ARGUMENT_LIST = $__6.ARGUMENT_LIST, ARRAY_COMPREHENSION = $__6.ARRAY_COMPREHENSION, ARRAY_LITERAL_EXPRESSION = $__6.ARRAY_LITERAL_EXPRESSION, ARRAY_PATTERN = $__6.ARRAY_PATTERN, ARROW_FUNCTION_EXPRESSION = $__6.ARROW_FUNCTION_EXPRESSION, AT_NAME_DECLARATION = $__6.AT_NAME_DECLARATION, AT_NAME_EXPRESSION = $__6.AT_NAME_EXPRESSION, AWAIT_STATEMENT = $__6.AWAIT_STATEMENT, BINARY_OPERATOR = $__6.BINARY_OPERATOR, BINDING_ELEMENT = $__6.BINDING_ELEMENT, BINDING_IDENTIFIER = $__6.BINDING_IDENTIFIER, BLOCK = $__6.BLOCK, BREAK_STATEMENT = $__6.BREAK_STATEMENT, CALL_EXPRESSION = $__6.CALL_EXPRESSION, CASCADE_EXPRESSION = $__6.CASCADE_EXPRESSION, CASE_CLAUSE = $__6.CASE_CLAUSE, CATCH = $__6.CATCH, CLASS_DECLARATION = $__6.CLASS_DECLARATION, CLASS_EXPRESSION = $__6.CLASS_EXPRESSION, COMMA_EXPRESSION = $__6.COMMA_EXPRESSION, COMPREHENSION_FOR = $__6.COMPREHENSION_FOR, CONDITIONAL_EXPRESSION = $__6.CONDITIONAL_EXPRESSION, CONTINUE_STATEMENT = $__6.CONTINUE_STATEMENT, DEBUGGER_STATEMENT = $__6.DEBUGGER_STATEMENT, DEFAULT_CLAUSE = $__6.DEFAULT_CLAUSE, DO_WHILE_STATEMENT = $__6.DO_WHILE_STATEMENT, EMPTY_STATEMENT = $__6.EMPTY_STATEMENT, EXPORT_DECLARATION = $__6.EXPORT_DECLARATION, EXPORT_MAPPING = $__6.EXPORT_MAPPING, EXPORT_MAPPING_LIST = $__6.EXPORT_MAPPING_LIST, EXPORT_SPECIFIER = $__6.EXPORT_SPECIFIER, EXPORT_SPECIFIER_SET = $__6.EXPORT_SPECIFIER_SET, EXPORT_STAR = $__6.EXPORT_STAR, EXPRESSION_STATEMENT = $__6.EXPRESSION_STATEMENT, FINALLY = $__6.FINALLY, FOR_IN_STATEMENT = $__6.FOR_IN_STATEMENT, FOR_OF_STATEMENT = $__6.FOR_OF_STATEMENT, FOR_STATEMENT = $__6.FOR_STATEMENT, FORMAL_PARAMETER_LIST = $__6.FORMAL_PARAMETER_LIST, FUNCTION_DECLARATION = $__6.FUNCTION_DECLARATION, FUNCTION_EXPRESSION = $__6.FUNCTION_EXPRESSION, GENERATOR_COMPREHENSION = $__6.GENERATOR_COMPREHENSION, GET_ACCESSOR = $__6.GET_ACCESSOR, IDENTIFIER_EXPRESSION = $__6.IDENTIFIER_EXPRESSION, IF_STATEMENT = $__6.IF_STATEMENT, IMPORT_BINDING = $__6.IMPORT_BINDING, IMPORT_DECLARATION = $__6.IMPORT_DECLARATION, IMPORT_SPECIFIER = $__6.IMPORT_SPECIFIER, IMPORT_SPECIFIER_SET = $__6.IMPORT_SPECIFIER_SET, LABELLED_STATEMENT = $__6.LABELLED_STATEMENT, LITERAL_EXPRESSION = $__6.LITERAL_EXPRESSION, MEMBER_EXPRESSION = $__6.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__6.MEMBER_LOOKUP_EXPRESSION, MISSING_PRIMARY_EXPRESSION = $__6.MISSING_PRIMARY_EXPRESSION, MODULE_DECLARATION = $__6.MODULE_DECLARATION, MODULE_DEFINITION = $__6.MODULE_DEFINITION, MODULE_EXPRESSION = $__6.MODULE_EXPRESSION, MODULE_REQUIRE = $__6.MODULE_REQUIRE, MODULE_SPECIFIER = $__6.MODULE_SPECIFIER, NAME_STATEMENT = $__6.NAME_STATEMENT, NEW_EXPRESSION = $__6.NEW_EXPRESSION, OBJECT_LITERAL_EXPRESSION = $__6.OBJECT_LITERAL_EXPRESSION, OBJECT_PATTERN = $__6.OBJECT_PATTERN, OBJECT_PATTERN_FIELD = $__6.OBJECT_PATTERN_FIELD, PAREN_EXPRESSION = $__6.PAREN_EXPRESSION, POSTFIX_EXPRESSION = $__6.POSTFIX_EXPRESSION, PROGRAM = $__6.PROGRAM, PROPERTY_METHOD_ASSIGNMENT = $__6.PROPERTY_METHOD_ASSIGNMENT, PROPERTY_NAME_ASSIGNMENT = $__6.PROPERTY_NAME_ASSIGNMENT, PROPERTY_NAME_SHORTHAND = $__6.PROPERTY_NAME_SHORTHAND, QUASI_LITERAL_EXPRESSION = $__6.QUASI_LITERAL_EXPRESSION, QUASI_LITERAL_PORTION = $__6.QUASI_LITERAL_PORTION, QUASI_SUBSTITUTION = $__6.QUASI_SUBSTITUTION, REST_PARAMETER = $__6.REST_PARAMETER, RETURN_STATEMENT = $__6.RETURN_STATEMENT, SET_ACCESSOR = $__6.SET_ACCESSOR, SPREAD_EXPRESSION = $__6.SPREAD_EXPRESSION, SPREAD_PATTERN_ELEMENT = $__6.SPREAD_PATTERN_ELEMENT, STATE_MACHINE = $__6.STATE_MACHINE, SUPER_EXPRESSION = $__6.SUPER_EXPRESSION, SWITCH_STATEMENT = $__6.SWITCH_STATEMENT, THIS_EXPRESSION = $__6.THIS_EXPRESSION, THROW_STATEMENT = $__6.THROW_STATEMENT, TRY_STATEMENT = $__6.TRY_STATEMENT, UNARY_EXPRESSION = $__6.UNARY_EXPRESSION, VARIABLE_DECLARATION = $__6.VARIABLE_DECLARATION, VARIABLE_DECLARATION_LIST = $__6.VARIABLE_DECLARATION_LIST, VARIABLE_STATEMENT = $__6.VARIABLE_STATEMENT, WHILE_STATEMENT = $__6.WHILE_STATEMENT, WITH_STATEMENT = $__6.WITH_STATEMENT, YIELD_EXPRESSION = $__6.YIELD_EXPRESSION;
+  var $__9 = $__src_syntax_trees_ParseTreeType_js, ARGUMENT_LIST = $__9.ARGUMENT_LIST, ARRAY_COMPREHENSION = $__9.ARRAY_COMPREHENSION, ARRAY_LITERAL_EXPRESSION = $__9.ARRAY_LITERAL_EXPRESSION, ARRAY_PATTERN = $__9.ARRAY_PATTERN, ARROW_FUNCTION_EXPRESSION = $__9.ARROW_FUNCTION_EXPRESSION, AT_NAME_DECLARATION = $__9.AT_NAME_DECLARATION, AT_NAME_EXPRESSION = $__9.AT_NAME_EXPRESSION, AWAIT_STATEMENT = $__9.AWAIT_STATEMENT, BINARY_OPERATOR = $__9.BINARY_OPERATOR, BINDING_ELEMENT = $__9.BINDING_ELEMENT, BINDING_IDENTIFIER = $__9.BINDING_IDENTIFIER, BLOCK = $__9.BLOCK, BREAK_STATEMENT = $__9.BREAK_STATEMENT, CALL_EXPRESSION = $__9.CALL_EXPRESSION, CASCADE_EXPRESSION = $__9.CASCADE_EXPRESSION, CASE_CLAUSE = $__9.CASE_CLAUSE, CATCH = $__9.CATCH, CLASS_DECLARATION = $__9.CLASS_DECLARATION, CLASS_EXPRESSION = $__9.CLASS_EXPRESSION, COMMA_EXPRESSION = $__9.COMMA_EXPRESSION, COMPREHENSION_FOR = $__9.COMPREHENSION_FOR, CONDITIONAL_EXPRESSION = $__9.CONDITIONAL_EXPRESSION, CONTINUE_STATEMENT = $__9.CONTINUE_STATEMENT, DEBUGGER_STATEMENT = $__9.DEBUGGER_STATEMENT, DEFAULT_CLAUSE = $__9.DEFAULT_CLAUSE, DO_WHILE_STATEMENT = $__9.DO_WHILE_STATEMENT, EMPTY_STATEMENT = $__9.EMPTY_STATEMENT, EXPORT_DECLARATION = $__9.EXPORT_DECLARATION, EXPORT_MAPPING = $__9.EXPORT_MAPPING, EXPORT_MAPPING_LIST = $__9.EXPORT_MAPPING_LIST, EXPORT_SPECIFIER = $__9.EXPORT_SPECIFIER, EXPORT_SPECIFIER_SET = $__9.EXPORT_SPECIFIER_SET, EXPORT_STAR = $__9.EXPORT_STAR, EXPRESSION_STATEMENT = $__9.EXPRESSION_STATEMENT, FINALLY = $__9.FINALLY, FOR_IN_STATEMENT = $__9.FOR_IN_STATEMENT, FOR_OF_STATEMENT = $__9.FOR_OF_STATEMENT, FOR_STATEMENT = $__9.FOR_STATEMENT, FORMAL_PARAMETER_LIST = $__9.FORMAL_PARAMETER_LIST, FUNCTION_DECLARATION = $__9.FUNCTION_DECLARATION, FUNCTION_EXPRESSION = $__9.FUNCTION_EXPRESSION, GENERATOR_COMPREHENSION = $__9.GENERATOR_COMPREHENSION, GET_ACCESSOR = $__9.GET_ACCESSOR, IDENTIFIER_EXPRESSION = $__9.IDENTIFIER_EXPRESSION, IF_STATEMENT = $__9.IF_STATEMENT, IMPORT_BINDING = $__9.IMPORT_BINDING, IMPORT_DECLARATION = $__9.IMPORT_DECLARATION, IMPORT_SPECIFIER = $__9.IMPORT_SPECIFIER, IMPORT_SPECIFIER_SET = $__9.IMPORT_SPECIFIER_SET, LABELLED_STATEMENT = $__9.LABELLED_STATEMENT, LITERAL_EXPRESSION = $__9.LITERAL_EXPRESSION, MEMBER_EXPRESSION = $__9.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__9.MEMBER_LOOKUP_EXPRESSION, MISSING_PRIMARY_EXPRESSION = $__9.MISSING_PRIMARY_EXPRESSION, MODULE_DECLARATION = $__9.MODULE_DECLARATION, MODULE_DEFINITION = $__9.MODULE_DEFINITION, MODULE_EXPRESSION = $__9.MODULE_EXPRESSION, MODULE_REQUIRE = $__9.MODULE_REQUIRE, MODULE_SPECIFIER = $__9.MODULE_SPECIFIER, NAME_STATEMENT = $__9.NAME_STATEMENT, NEW_EXPRESSION = $__9.NEW_EXPRESSION, OBJECT_LITERAL_EXPRESSION = $__9.OBJECT_LITERAL_EXPRESSION, OBJECT_PATTERN = $__9.OBJECT_PATTERN, OBJECT_PATTERN_FIELD = $__9.OBJECT_PATTERN_FIELD, PAREN_EXPRESSION = $__9.PAREN_EXPRESSION, POSTFIX_EXPRESSION = $__9.POSTFIX_EXPRESSION, PROGRAM = $__9.PROGRAM, PROPERTY_METHOD_ASSIGNMENT = $__9.PROPERTY_METHOD_ASSIGNMENT, PROPERTY_NAME_ASSIGNMENT = $__9.PROPERTY_NAME_ASSIGNMENT, PROPERTY_NAME_SHORTHAND = $__9.PROPERTY_NAME_SHORTHAND, QUASI_LITERAL_EXPRESSION = $__9.QUASI_LITERAL_EXPRESSION, QUASI_LITERAL_PORTION = $__9.QUASI_LITERAL_PORTION, QUASI_SUBSTITUTION = $__9.QUASI_SUBSTITUTION, REST_PARAMETER = $__9.REST_PARAMETER, RETURN_STATEMENT = $__9.RETURN_STATEMENT, SET_ACCESSOR = $__9.SET_ACCESSOR, SPREAD_EXPRESSION = $__9.SPREAD_EXPRESSION, SPREAD_PATTERN_ELEMENT = $__9.SPREAD_PATTERN_ELEMENT, STATE_MACHINE = $__9.STATE_MACHINE, SUPER_EXPRESSION = $__9.SUPER_EXPRESSION, SWITCH_STATEMENT = $__9.SWITCH_STATEMENT, THIS_EXPRESSION = $__9.THIS_EXPRESSION, THROW_STATEMENT = $__9.THROW_STATEMENT, TRY_STATEMENT = $__9.TRY_STATEMENT, UNARY_EXPRESSION = $__9.UNARY_EXPRESSION, VARIABLE_DECLARATION = $__9.VARIABLE_DECLARATION, VARIABLE_DECLARATION_LIST = $__9.VARIABLE_DECLARATION_LIST, VARIABLE_STATEMENT = $__9.VARIABLE_STATEMENT, WHILE_STATEMENT = $__9.WHILE_STATEMENT, WITH_STATEMENT = $__9.WITH_STATEMENT, YIELD_EXPRESSION = $__9.YIELD_EXPRESSION;
   var ValidationError = function($__super) {
     var $ValidationError = ($__createClass)({constructor: function(tree, message) {
         this.tree = tree;
@@ -16346,11 +16346,11 @@ var $__src_syntax_ParseTreeValidator_js = (function() {
 }).call(this);
 var $__src_codegeneration_PrivateNameSyntaxTransformer_js = (function() {
   "use strict";
-  var $__6 = $__src_syntax_PredefinedName_js, ASSERT_NAME = $__6.ASSERT_NAME, CREATE_NAME = $__6.CREATE_NAME, RUNTIME = $__6.RUNTIME, TRACEUR = $__6.TRACEUR;
+  var $__9 = $__src_syntax_PredefinedName_js, ASSERT_NAME = $__9.ASSERT_NAME, CREATE_NAME = $__9.CREATE_NAME, RUNTIME = $__9.RUNTIME, TRACEUR = $__9.TRACEUR;
   var TempVarTransformer = $__src_codegeneration_TempVarTransformer_js.TempVarTransformer;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
-  var $__6 = $__src_syntax_trees_ParseTrees_js, VariableDeclarationList = $__6.VariableDeclarationList, VariableStatement = $__6.VariableStatement;
-  var $__6 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__6.createArgumentList, createCallExpression = $__6.createCallExpression, createEmptyArgumentList = $__6.createEmptyArgumentList, createIdentifierExpression = $__6.createIdentifierExpression, createMemberExpression = $__6.createMemberExpression, createVariableDeclaration = $__6.createVariableDeclaration;
+  var $__9 = $__src_syntax_trees_ParseTrees_js, VariableDeclarationList = $__9.VariableDeclarationList, VariableStatement = $__9.VariableStatement;
+  var $__9 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__9.createArgumentList, createCallExpression = $__9.createCallExpression, createEmptyArgumentList = $__9.createEmptyArgumentList, createIdentifierExpression = $__9.createIdentifierExpression, createMemberExpression = $__9.createMemberExpression, createVariableDeclaration = $__9.createVariableDeclaration;
   var PrivateNameSyntaxTransformer = function($__super) {
     var $PrivateNameSyntaxTransformer = ($__createClass)({
       constructor: function() {
@@ -16394,7 +16394,7 @@ var $__src_codegeneration_PrivateNameSyntaxTransformer_js = (function() {
 }).call(this);
 var $__src_codegeneration_PropertyNameShorthandTransformer_js = (function() {
   "use strict";
-  var $__6 = $__src_syntax_trees_ParseTrees_js, IdentifierExpression = $__6.IdentifierExpression, PropertyNameAssignment = $__6.PropertyNameAssignment;
+  var $__9 = $__src_syntax_trees_ParseTrees_js, IdentifierExpression = $__9.IdentifierExpression, PropertyNameAssignment = $__9.PropertyNameAssignment;
   var ParseTreeTransformer = $__src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
   var PropertyNameShorthandTransformer = function($__super) {
     var $PropertyNameShorthandTransformer = ($__createClass)({
@@ -16419,13 +16419,13 @@ var $__src_codegeneration_PropertyNameShorthandTransformer_js = (function() {
 }).call(this);
 var $__src_codegeneration_QuasiLiteralTransformer_js = (function() {
   "use strict";
-  var $__6 = $__src_syntax_trees_ParseTreeType_js, BINARY_OPERATOR = $__6.BINARY_OPERATOR, COMMA_EXPRESSION = $__6.COMMA_EXPRESSION, CONDITIONAL_EXPRESSION = $__6.CONDITIONAL_EXPRESSION, QUASI_LITERAL_PORTION = $__6.QUASI_LITERAL_PORTION;
-  var $__6 = $__src_syntax_trees_ParseTrees_js, LiteralExpression = $__6.LiteralExpression, ParenExpression = $__6.ParenExpression;
+  var $__9 = $__src_syntax_trees_ParseTreeType_js, BINARY_OPERATOR = $__9.BINARY_OPERATOR, COMMA_EXPRESSION = $__9.COMMA_EXPRESSION, CONDITIONAL_EXPRESSION = $__9.CONDITIONAL_EXPRESSION, QUASI_LITERAL_PORTION = $__9.QUASI_LITERAL_PORTION;
+  var $__9 = $__src_syntax_trees_ParseTrees_js, LiteralExpression = $__9.LiteralExpression, ParenExpression = $__9.ParenExpression;
   var LiteralToken = $__src_syntax_LiteralToken_js.LiteralToken;
-  var $__6 = $__src_syntax_PredefinedName_js, DEFINE_PROPERTIES = $__6.DEFINE_PROPERTIES, OBJECT = $__6.OBJECT, RAW = $__6.RAW;
+  var $__9 = $__src_syntax_PredefinedName_js, DEFINE_PROPERTIES = $__9.DEFINE_PROPERTIES, OBJECT = $__9.OBJECT, RAW = $__9.RAW;
   var TempVarTransformer = $__src_codegeneration_TempVarTransformer_js.TempVarTransformer;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
-  var $__6 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__6.createArgumentList, createArrayLiteralExpression = $__6.createArrayLiteralExpression, createBinaryOperator = $__6.createBinaryOperator, createCallExpression = $__6.createCallExpression, createIdentifierExpression = $__6.createIdentifierExpression, createMemberExpression = $__6.createMemberExpression, createObjectFreeze = $__6.createObjectFreeze, createObjectLiteralExpression = $__6.createObjectLiteralExpression, createOperatorToken = $__6.createOperatorToken, createPropertyDescriptor = $__6.createPropertyDescriptor, createPropertyNameAssignment = $__6.createPropertyNameAssignment, createStringLiteral = $__6.createStringLiteral;
+  var $__9 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__9.createArgumentList, createArrayLiteralExpression = $__9.createArrayLiteralExpression, createBinaryOperator = $__9.createBinaryOperator, createCallExpression = $__9.createCallExpression, createIdentifierExpression = $__9.createIdentifierExpression, createMemberExpression = $__9.createMemberExpression, createObjectFreeze = $__9.createObjectFreeze, createObjectLiteralExpression = $__9.createObjectLiteralExpression, createOperatorToken = $__9.createOperatorToken, createPropertyDescriptor = $__9.createPropertyDescriptor, createPropertyNameAssignment = $__9.createPropertyNameAssignment, createStringLiteral = $__9.createStringLiteral;
   function createCallSiteIdObject(tree) {
     var elements = tree.elements;
     return createObjectFreeze(createCallExpression(createMemberExpression(OBJECT, DEFINE_PROPERTIES), createArgumentList(createCookedStringArray(elements), createObjectLiteralExpression(createPropertyNameAssignment(RAW, createPropertyDescriptor({value: createObjectFreeze(createRawStringArray(elements))}))))));
@@ -16598,19 +16598,19 @@ var $__src_codegeneration_QuasiLiteralTransformer_js = (function() {
 }).call(this);
 var $__src_codegeneration_RestParameterTransformer_js = (function() {
   "use strict";
+  var $__3 = Object.freeze(Object.defineProperties(["\n          for (var ", " = [], ", " = ", ";\n               ", " < arguments.length; ", "++)\n            ", "[", " - ", "] = arguments[", "];"], {raw: {value: Object.freeze(["\n          for (var ", " = [], ", " = ", ";\n               ", " < arguments.length; ", "++)\n            ", "[", " - ", "] = arguments[", "];"])}})), $__2 = Object.freeze(Object.defineProperties(["\n          for (var ", " = [], ", " = 0;\n               ", " < arguments.length; ", "++)\n            ", "[", "] = arguments[", "];"], {raw: {value: Object.freeze(["\n          for (var ", " = [], ", " = 0;\n               ", " < arguments.length; ", "++)\n            ", "[", "] = arguments[", "];"])}}));
   var FormalParameterList = $__src_syntax_trees_ParseTrees_js.FormalParameterList;
-  var ParseTreeTransformer = $__src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
-  var $__6 = $__src_syntax_PredefinedName_js, ARGUMENTS = $__6.ARGUMENTS, ARRAY = $__6.ARRAY, CALL = $__6.CALL, PROTOTYPE = $__6.PROTOTYPE;
-  var TokenType = $__src_syntax_TokenType_js.TokenType;
-  var $__6 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__6.createArgumentList, createBlock = $__6.createBlock, createCallExpression = $__6.createCallExpression, createIdentifierExpression = $__6.createIdentifierExpression, createMemberExpression = $__6.createMemberExpression, createNumberLiteral = $__6.createNumberLiteral, createVariableStatement = $__6.createVariableStatement;
+  var TempVarTransformer = $__src_codegeneration_TempVarTransformer_js.TempVarTransformer;
+  var $__9 = $__src_codegeneration_ParseTreeFactory_js, createBlock = $__9.createBlock, createIdentifierToken = $__9.createIdentifierToken;
+  var parseStatement = $__src_codegeneration_PlaceholderParser_js.parseStatement;
   var prependStatements = $__src_codegeneration_PrependStatements_js.prependStatements;
   function hasRestParameter(formalParameterList) {
     var parameters = formalParameterList.parameters;
     return parameters.length > 0 && parameters[parameters.length - 1].isRestParameter();
   }
-  function getRestParameterName(formalParameterList) {
+  function getRestParameterLiteralToken(formalParameterList) {
     var parameters = formalParameterList.parameters;
-    return parameters[parameters.length - 1].identifier.identifierToken.value;
+    return parameters[parameters.length - 1].identifier.identifierToken;
   }
   var RestParameterTransformer = function($__super) {
     var $RestParameterTransformer = ($__createClass)({
@@ -16624,17 +16624,24 @@ var $__src_codegeneration_RestParameterTransformer_js = (function() {
       desugarRestParameters_: function(tree) {
         var formalParameterList = this.transformAny(tree.formalParameterList);
         var parametersWithoutRestParam = new FormalParameterList(formalParameterList.location, formalParameterList.parameters.slice(0, - 1));
-        var sliceExpression = createCallExpression(createMemberExpression(ARRAY, PROTOTYPE, 'slice', CALL), createArgumentList(createIdentifierExpression(ARGUMENTS), createNumberLiteral(tree.formalParameterList.parameters.length - 1)));
-        var variable = createVariableStatement(TokenType.VAR, getRestParameterName(tree.formalParameterList), sliceExpression);
-        var statements = prependStatements(tree.functionBody.statements, variable);
+        var startIndex = tree.formalParameterList.parameters.length - 1;
+        var i = createIdentifierToken(this.getTempIdentifier());
+        var name = getRestParameterLiteralToken(tree.formalParameterList);
+        var loop;
+        if (startIndex) {
+          loop = parseStatement($__3, name, i, startIndex, i, i, name, i, startIndex, i);
+        } else {
+          loop = parseStatement($__2, name, i, i, i, name, i, i);
+        }
+        var statements = prependStatements(tree.functionBody.statements, loop);
         var functionBody = this.transformAny(createBlock(statements));
         return new tree.constructor(tree.location, tree.name, tree.isGenerator, parametersWithoutRestParam, functionBody);
       }
     }, $__super, false);
     return $RestParameterTransformer;
-  }(ParseTreeTransformer);
-  RestParameterTransformer.transformTree = function(tree) {
-    return new RestParameterTransformer().transformAny(tree);
+  }(TempVarTransformer);
+  RestParameterTransformer.transformTree = function(identifierGenerator, tree) {
+    return new RestParameterTransformer(identifierGenerator).transformAny(tree);
   };
   return Object.preventExtensions(Object.create(null, {RestParameterTransformer: {
       get: function() {
@@ -16645,10 +16652,10 @@ var $__src_codegeneration_RestParameterTransformer_js = (function() {
 }).call(this);
 var $__src_codegeneration_SpreadTransformer_js = (function() {
   "use strict";
-  var $__6 = $__src_syntax_PredefinedName_js, APPLY = $__6.APPLY, BIND = $__6.BIND, FUNCTION = $__6.FUNCTION, PROTOTYPE = $__6.PROTOTYPE;
-  var $__6 = $__src_syntax_trees_ParseTreeType_js, MEMBER_EXPRESSION = $__6.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__6.MEMBER_LOOKUP_EXPRESSION, SPREAD_EXPRESSION = $__6.SPREAD_EXPRESSION;
+  var $__9 = $__src_syntax_PredefinedName_js, APPLY = $__9.APPLY, BIND = $__9.BIND, FUNCTION = $__9.FUNCTION, PROTOTYPE = $__9.PROTOTYPE;
+  var $__9 = $__src_syntax_trees_ParseTreeType_js, MEMBER_EXPRESSION = $__9.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__9.MEMBER_LOOKUP_EXPRESSION, SPREAD_EXPRESSION = $__9.SPREAD_EXPRESSION;
   var TempVarTransformer = $__src_codegeneration_TempVarTransformer_js.TempVarTransformer;
-  var $__6 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__6.createArgumentList, createArrayLiteralExpression = $__6.createArrayLiteralExpression, createAssignmentExpression = $__6.createAssignmentExpression, createBlock = $__6.createBlock, createBooleanLiteral = $__6.createBooleanLiteral, createCallExpression = $__6.createCallExpression, createEmptyArgumentList = $__6.createEmptyArgumentList, createFunctionExpression = $__6.createFunctionExpression, createIdentifierExpression = $__6.createIdentifierExpression, createMemberExpression = $__6.createMemberExpression, createMemberLookupExpression = $__6.createMemberLookupExpression, createNewExpression = $__6.createNewExpression, createNullLiteral = $__6.createNullLiteral, createParameterList = $__6.createParameterList, createParameterReference = $__6.createParameterReference, createParenExpression = $__6.createParenExpression, createReturnStatement = $__6.createReturnStatement;
+  var $__9 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__9.createArgumentList, createArrayLiteralExpression = $__9.createArrayLiteralExpression, createAssignmentExpression = $__9.createAssignmentExpression, createBlock = $__9.createBlock, createBooleanLiteral = $__9.createBooleanLiteral, createCallExpression = $__9.createCallExpression, createEmptyArgumentList = $__9.createEmptyArgumentList, createFunctionExpression = $__9.createFunctionExpression, createIdentifierExpression = $__9.createIdentifierExpression, createMemberExpression = $__9.createMemberExpression, createMemberLookupExpression = $__9.createMemberLookupExpression, createNewExpression = $__9.createNewExpression, createNullLiteral = $__9.createNullLiteral, createParameterList = $__9.createParameterList, createParameterReference = $__9.createParameterReference, createParenExpression = $__9.createParenExpression, createReturnStatement = $__9.createReturnStatement;
   var SPREAD_CODE = "\n    function() {\n      var rv = [], k = 0;\n      for (var i = 0; i < arguments.length; i++) {\n        var value = %toObject(arguments[i]);\n        for (var j = 0; j < value.length; j++) {\n          rv[k++] = value[j];\n        }\n      }\n      return rv;\n    }";
   function hasSpreadMember(trees) {
     return trees.some((function(tree) {
@@ -16772,7 +16779,7 @@ var $__src_codegeneration_ProgramTransformer_js = (function() {
   var QuasiLiteralTransformer = $__src_codegeneration_QuasiLiteralTransformer_js.QuasiLiteralTransformer;
   var RestParameterTransformer = $__src_codegeneration_RestParameterTransformer_js.RestParameterTransformer;
   var SpreadTransformer = $__src_codegeneration_SpreadTransformer_js.SpreadTransformer;
-  var $__6 = $__src_options_js, options = $__6.options, transformOptions = $__6.transformOptions;
+  var $__9 = $__src_options_js, options = $__9.options, transformOptions = $__9.transformOptions;
   var ProgramTransformer = function() {
     var $ProgramTransformer = ($__createClassNoExtends)({
       constructor: function(reporter, project) {
@@ -16801,7 +16808,7 @@ var $__src_codegeneration_ProgramTransformer_js = (function() {
         var runtimeInliner = this.project_.runtimeInliner;
         var reporter = this.reporter_;
         function chain(enabled, transformer) {
-          var args = Array.prototype.slice.call(arguments, 2);
+          for (var args = [], $__8 = 2; $__8 < arguments.length; $__8++) args[$__8 - 2] = arguments[$__8];
           if (!enabled) return;
           if (!reporter.hadError()) {
             if (options.validate) {
@@ -16820,7 +16827,7 @@ var $__src_codegeneration_ProgramTransformer_js = (function() {
         chain(transformOptions.generatorComprehension, GeneratorComprehensionTransformer.transformTree, identifierGenerator);
         chain(transformOptions.arrayComprehension, ArrayComprehensionTransformer.transformTree, identifierGenerator);
         chain(transformOptions.forOf, ForOfTransformer.transformTree, identifierGenerator);
-        chain(transformOptions.restParameters, RestParameterTransformer.transformTree);
+        chain(transformOptions.restParameters, RestParameterTransformer.transformTree, identifierGenerator);
         chain(transformOptions.defaultParameters, DefaultParametersTransformer.transformTree);
         chain(transformOptions.destructuring, DestructuringTransformer.transformTree, identifierGenerator);
         chain(transformOptions.generators || transformOptions.deferredFunctions, GeneratorTransformPass.transformTree, identifierGenerator, reporter);
@@ -16874,7 +16881,7 @@ var $__src_codegeneration_RuntimeInliner_js = (function() {
   var Program = $__src_syntax_trees_ParseTrees_js.Program;
   var SourceFile = $__src_syntax_SourceFile_js.SourceFile;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
-  var $__6 = $__src_codegeneration_ParseTreeFactory_js, createIdentifierExpression = $__6.createIdentifierExpression, createVariableDeclaration = $__6.createVariableDeclaration, createVariableDeclarationList = $__6.createVariableDeclarationList, createVariableStatement = $__6.createVariableStatement;
+  var $__9 = $__src_codegeneration_ParseTreeFactory_js, createIdentifierExpression = $__9.createIdentifierExpression, createVariableDeclaration = $__9.createVariableDeclaration, createVariableDeclarationList = $__9.createVariableDeclarationList, createVariableStatement = $__9.createVariableStatement;
   var prependStatements = $__src_codegeneration_PrependStatements_js.prependStatements;
   var shared = {toObject: "function(value) {\n        if (value == null)\n          throw TypeError();\n        return Object(value);\n      }"};
   function parse(source, name) {
@@ -17430,7 +17437,7 @@ var $__src_runtime_modules_js = (function() {
   var Project = $__src_semantics_symbols_Project_js.Project;
   var SourceFile = $__src_syntax_SourceFile_js.SourceFile;
   var TreeWriter = $__src_outputgeneration_TreeWriter_js.TreeWriter;
-  var $__6 = $__src_util_url_js, canonicalizeUrl = $__6.canonicalizeUrl, resolveUrl = $__6.resolveUrl;
+  var $__9 = $__src_util_url_js, canonicalizeUrl = $__9.canonicalizeUrl, resolveUrl = $__9.resolveUrl;
   var base = Object.freeze(Object.create(null, {
     Array: {value: Array},
     Boolean: {value: Boolean},
@@ -18712,7 +18719,7 @@ var traceur = (function() {
       }
     }));
   }).call(this);
-  var $__6 = $__src_runtime_modules_js, internals = $__6.internals, getModuleInstanceByUrl = $__6.getModuleInstanceByUrl, CodeLoader = $__6.CodeLoader;
+  var $__9 = $__src_runtime_modules_js, internals = $__9.internals, getModuleInstanceByUrl = $__9.getModuleInstanceByUrl, CodeLoader = $__9.CodeLoader;
   runtime.internals = internals;
   runtime.getModuleInstanceByUrl = getModuleInstanceByUrl;
   runtime.CodeLoader = CodeLoader;
