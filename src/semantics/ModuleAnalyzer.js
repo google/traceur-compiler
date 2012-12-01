@@ -38,7 +38,7 @@ export class ModuleAnalyzer {
    * @return {void}
    */
   analyze() {
-    this.analyzeTrees(this.project_.getSourceTrees());
+    this.analyzeTrees(this.project_.getParseTrees());
   }
 
   /**

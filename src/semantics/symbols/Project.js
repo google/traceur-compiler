@@ -121,7 +121,7 @@ export class Project {
   /**
    * @return {Array.<Program>}
    */
-  getSourceTrees() {
+  getParseTrees() {
     return this.parseTrees_.values();
   }
 

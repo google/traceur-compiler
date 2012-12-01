@@ -3046,7 +3046,7 @@ var $__src_semantics_ModuleAnalyzer_js = (function() {
         this.project_ = project;
       },
       analyze: function() {
-        this.analyzeTrees(this.project_.getSourceTrees());
+        this.analyzeTrees(this.project_.getParseTrees());
       },
       analyzeFile: function(sourceFile) {
         var trees = [this.project_.getParseTree(sourceFile)];
@@ -17040,7 +17040,7 @@ var $__src_semantics_symbols_Project_js = (function() {
       getSourceFiles: function() {
         return values(this.sourceFiles_);
       },
-      getSourceTrees: function() {
+      getParseTrees: function() {
         return this.parseTrees_.values();
       },
       setParseTree: function(file, tree) {
