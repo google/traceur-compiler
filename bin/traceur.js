@@ -12128,6 +12128,10 @@ var $__src_codegeneration_PlaceholderParser_js = (function() {
     }
     throw new Error('Not implemented');
   }
+  function convertValueToIdentifierToken(value) {
+    if (value instanceof IdentifierToken) return value;
+    return createIdentifierToken(value);
+  }
   var PlaceholderTransformer = function($__super) {
     var $PlaceholderTransformer = ($__createClass)({
       constructor: function(values) {
@@ -12178,7 +12182,7 @@ var $__src_codegeneration_PlaceholderParser_js = (function() {
         if (tree.name.type === TokenType.IDENTIFIER) {
           var value = this.getValue_(tree.name.value);
           if (value !== NOT_FOUND) {
-            return new PropertyMethodAssignment(null, createIdentifierToken(value), tree.isGenerator, this.transformAny(tree.formalParameterList), this.transformAny(tree.functionBody));
+            return new PropertyMethodAssignment(null, convertValueToIdentifierToken(value), tree.isGenerator, this.transformAny(tree.formalParameterList), this.transformAny(tree.functionBody));
           }
         }
         return traceur.runtime.superCall(this, $PlaceholderTransformer, "transformPropertyMethodAssignment", [tree]);
@@ -12187,7 +12191,7 @@ var $__src_codegeneration_PlaceholderParser_js = (function() {
         if (tree.name.type === TokenType.IDENTIFIER) {
           var value = this.getValue_(tree.name.value);
           if (value !== NOT_FOUND) {
-            return new PropertyNameAssignment(null, createIdentifierToken(value), this.transformAny(tree.value));
+            return new PropertyNameAssignment(null, convertValueToIdentifierToken(value), this.transformAny(tree.value));
           }
         }
         return traceur.runtime.superCall(this, $PlaceholderTransformer, "transformPropertyNameAssignment", [tree]);
@@ -12196,7 +12200,7 @@ var $__src_codegeneration_PlaceholderParser_js = (function() {
         var value = this.getValue_(tree.name.value);
         if (value !== NOT_FOUND) {
           if (value instanceof ParseTree) return value;
-          return new PropertyNameShorthand(null, createIdentifierToken(value));
+          return new PropertyNameShorthand(null, convertValueToIdentifierToken(value));
         }
         return traceur.runtime.superCall(this, $PlaceholderTransformer, "transformPropertyNameShorthand", [tree]);
       }
@@ -14947,53 +14951,10 @@ var $__src_util_ObjectMap_js = (function() {
       enumerable: true
     }}));
 }).call(this);
-var $__src_util_StringBuilder_js = (function() {
-  "use strict";
-  var StringBuilder = function() {
-    var $StringBuilder = ($__createClassNoExtends)({
-      constructor: function() {
-        this.strings_ = [];
-        this.length = 0;
-      },
-      append: function(str) {
-        str = str.toString();
-        this.length += str.length;
-        this.strings_.push(str);
-        return this;
-      },
-      toString: function() {
-        return this.strings_.join('');
-      },
-      lastChar: function() {
-        var last = this.strings_[this.strings_.length - 1];
-        if (last) {
-          last = last[last.length - 1];
-        }
-        return last;
-      },
-      deleteLastChar: function() {
-        var lastString = this.strings_.length - 1;
-        var last = this.strings_[lastString];
-        if (last) {
-          this.strings_[lastString] = last.slice(0, - 1);
-        }
-      }
-    });
-    return $StringBuilder;
-  }();
-  ;
-  return Object.preventExtensions(Object.create(null, {StringBuilder: {
-      get: function() {
-        return StringBuilder;
-      },
-      enumerable: true
-    }}));
-}).call(this);
 var $__src_outputgeneration_ParseTreeWriter_js = (function() {
   "use strict";
   var ParseTreeVisitor = $__src_syntax_ParseTreeVisitor_js.ParseTreeVisitor;
   var $__9 = $__src_syntax_PredefinedName_js, FROM = $__9.FROM, GET = $__9.GET, OF = $__9.OF, MODULE = $__9.MODULE, REQUIRES = $__9.REQUIRES, SET = $__9.SET;
-  var StringBuilder = $__src_util_StringBuilder_js.StringBuilder;
   var Token = $__src_syntax_Token_js.Token;
   var TokenType = $__src_syntax_TokenType_js.TokenType;
   var isKeyword = $__src_syntax_Keywords_js.isKeyword;
@@ -15005,8 +14966,8 @@ var $__src_outputgeneration_ParseTreeWriter_js = (function() {
         traceur.runtime.superCall(this, $ParseTreeWriter, "constructor", []);
         this.highlighted_ = highlighted;
         this.showLineNumbers_ = showLineNumbers;
-        this.result_ = new StringBuilder();
-        this.currentLine_ = new StringBuilder();
+        this.result_ = '';
+        this.currentLine_ = '';
         this.currentLineComment_ = null;
         this.indentDepth_ = 0;
         this.lastToken_ = null;
@@ -15555,20 +15516,18 @@ var $__src_outputgeneration_ParseTreeWriter_js = (function() {
         this.visitAny(tree.expression);
       },
       writeCurrentln_: function() {
-        this.result_.append(this.currentLine_.toString());
-        this.result_.append(NEW_LINE);
+        this.result_ += this.currentLine_ + NEW_LINE;
       },
       writeln_: function() {
-        if (this.currentLineComment_ !== null) {
+        if (this.currentLineComment_) {
           while (this.currentLine_.length < 80) {
-            this.currentLine_.append(' ');
+            this.currentLine_ += ' ';
           }
-          this.currentLine_.append(' // ').append(this.currentLineComment_);
+          this.currentLine_ += ' // ' + this.currentLineComment_;
           this.currentLineComment_ = null;
         }
-        if (this.currentLine_.lastChar() === ' ') this.currentLine_.deleteLastChar();
-        if (this.currentLine_.length) this.writeCurrentln_();
-        this.currentLine_ = new StringBuilder();
+        if (this.currentLine_) this.writeCurrentln_();
+        this.currentLine_ = '';
       },
       writelnList_: function(list, delimiter) {
         if (delimiter) {
@@ -15597,9 +15556,7 @@ var $__src_outputgeneration_ParseTreeWriter_js = (function() {
         }
       },
       writeRaw_: function(value) {
-        if (value !== null) {
-          this.currentLine_.append(value.toString());
-        }
+        if (value !== null) this.currentLine_ += value;
       },
       write_: function(value) {
         if (value === TokenType.CLOSE_CURLY) {
@@ -15607,16 +15564,16 @@ var $__src_outputgeneration_ParseTreeWriter_js = (function() {
         }
         if (value !== null) {
           if (PRETTY_PRINT) {
-            if (this.currentLine_.length === 0) {
+            if (!this.currentLine_) {
               this.lastToken_ = '';
-              for (var i = 0, indent = this.indentDepth_ * 2; i < indent; ++i) {
-                this.currentLine_.append(' ');
+              for (var i = 0, indent = this.indentDepth_; i < indent; i++) {
+                this.currentLine_ += '  ';
               }
             }
           }
-          if (this.needsSpace_(value)) this.currentLine_.append(' ');
+          if (this.needsSpace_(value)) this.currentLine_ += ' ';
           this.lastToken_ = value;
-          this.currentLine_.append(value.toString());
+          this.currentLine_ += value;
         }
         if (value === TokenType.OPEN_CURLY) {
           this.indentDepth_++;

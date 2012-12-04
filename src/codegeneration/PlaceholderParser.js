@@ -197,6 +197,12 @@ function convertValueToExpression(value) {
   throw new Error('Not implemented');
 }
 
+function convertValueToIdentifierToken(value) {
+  if (value instanceof IdentifierToken)
+    return value;
+  return createIdentifierToken(value);
+}
+
 /**
  * Transforms a ParseTree containing placeholders.
  */
@@ -284,7 +290,7 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
       var value = this.getValue_(tree.name.value);
       if (value !== NOT_FOUND) {
         return new PropertyMethodAssignment(null,
-            createIdentifierToken(value),
+            convertValueToIdentifierToken(value),
             tree.isGenerator,
             this.transformAny(tree.formalParameterList),
             this.transformAny(tree.functionBody));
@@ -298,7 +304,7 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
       var value = this.getValue_(tree.name.value);
       if (value !== NOT_FOUND) {
         return new PropertyNameAssignment(null,
-            createIdentifierToken(value),
+            convertValueToIdentifierToken(value),
             this.transformAny(tree.value));
       }
     }
@@ -310,7 +316,8 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
     if (value !== NOT_FOUND) {
       if (value instanceof ParseTree)
         return value;
-      return new PropertyNameShorthand(null, createIdentifierToken(value));
+      return new PropertyNameShorthand(null,
+                                       convertValueToIdentifierToken(value));
     }
     return super.transformPropertyNameShorthand(tree);
   }

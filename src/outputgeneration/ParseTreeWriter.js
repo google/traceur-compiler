@@ -21,7 +21,6 @@ import {
   REQUIRES,
   SET
 } from '../syntax/PredefinedName.js';
-import StringBuilder from '../util/StringBuilder.js';
 import Token from '../syntax/Token.js';
 import TokenType from '../syntax/TokenType.js';
 import isKeyword from '../syntax/Keywords.js';
@@ -42,8 +41,8 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     super();
     this.highlighted_ = highlighted;
     this.showLineNumbers_ = showLineNumbers;
-    this.result_ = new StringBuilder();
-    this.currentLine_ = new StringBuilder();
+    this.result_ = '';
+    this.currentLine_ = '';
 
     /**
      * @type {string}
@@ -979,23 +978,20 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   writeCurrentln_() {
-      this.result_.append(this.currentLine_.toString());
-      this.result_.append(NEW_LINE);
+      this.result_ += this.currentLine_ + NEW_LINE;
   }
 
   writeln_() {
-    if (this.currentLineComment_ !== null) {
+    if (this.currentLineComment_) {
       while (this.currentLine_.length < 80) {
-        this.currentLine_.append(' ');
+        this.currentLine_ += ' ';
       }
-      this.currentLine_.append(' // ').append(this.currentLineComment_);
+      this.currentLine_ += ' // ' + this.currentLineComment_;
       this.currentLineComment_ = null;
     }
-    if (this.currentLine_.lastChar() === ' ')
-      this.currentLine_.deleteLastChar();
-    if (this.currentLine_.length)
+    if (this.currentLine_)
       this.writeCurrentln_();
-    this.currentLine_ = new StringBuilder();
+    this.currentLine_ = '';
   }
 
   /**
@@ -1044,9 +1040,8 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @private
    */
   writeRaw_(value) {
-    if (value !== null) {
-      this.currentLine_.append(value.toString());
-    }
+    if (value !== null)
+      this.currentLine_ += value;
   }
 
   /**
@@ -1060,17 +1055,17 @@ export class ParseTreeWriter extends ParseTreeVisitor {
 
     if (value !== null) {
       if (PRETTY_PRINT) {
-        if (this.currentLine_.length === 0) {
+        if (!this.currentLine_) {
           this.lastToken_ = '';
-          for (var i = 0, indent = this.indentDepth_ * 2; i < indent; ++i) {
-            this.currentLine_.append(' ');
+          for (var i = 0, indent = this.indentDepth_; i < indent; i++) {
+            this.currentLine_ += '  ';
           }
         }
       }
       if (this.needsSpace_(value))
-        this.currentLine_.append(' ');
+        this.currentLine_ += ' ';
       this.lastToken_ = value;
-      this.currentLine_.append(value.toString());
+      this.currentLine_ += value;
     }
 
     if (value === TokenType.OPEN_CURLY) {
