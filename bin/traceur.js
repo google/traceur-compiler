@@ -7086,7 +7086,7 @@ var $__src_syntax_Parser_js = (function() {
   "use strict";
   var IdentifierToken = $__src_syntax_IdentifierToken_js.IdentifierToken;
   var MutedErrorReporter = $__src_util_MutedErrorReporter_js.MutedErrorReporter;
-  var ParseTreeType = $__src_syntax_trees_ParseTree_js.ParseTreeType;
+  var $__9 = $__src_syntax_trees_ParseTreeType_js, ARRAY_LITERAL_EXPRESSION = $__9.ARRAY_LITERAL_EXPRESSION, BINARY_OPERATOR = $__9.BINARY_OPERATOR, CALL_EXPRESSION = $__9.CALL_EXPRESSION, CASCADE_EXPRESSION = $__9.CASCADE_EXPRESSION, IDENTIFIER_EXPRESSION = $__9.IDENTIFIER_EXPRESSION, MEMBER_EXPRESSION = $__9.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__9.MEMBER_LOOKUP_EXPRESSION, MISSING_PRIMARY_EXPRESSION = $__9.MISSING_PRIMARY_EXPRESSION, OBJECT_LITERAL_EXPRESSION = $__9.OBJECT_LITERAL_EXPRESSION, PAREN_EXPRESSION = $__9.PAREN_EXPRESSION, PROPERTY_NAME_ASSIGNMENT = $__9.PROPERTY_NAME_ASSIGNMENT;
   var $__9 = $__src_syntax_PredefinedName_js, FROM = $__9.FROM, GET = $__9.GET, IS = $__9.IS, ISNT = $__9.ISNT, MODULE = $__9.MODULE, OF = $__9.OF, SET = $__9.SET;
   var Scanner = $__src_syntax_Scanner_js.Scanner;
   var SourceRange = $__src_util_SourceRange_js.SourceRange;
@@ -7216,8 +7216,7 @@ var $__src_syntax_Parser_js = (function() {
         this.eat_(TokenType.IMPORT);
         var importBindings = [];
         importBindings.push(this.parseImportBinding_(load));
-        while (this.peek_(TokenType.COMMA)) {
-          this.eat_(TokenType.COMMA);
+        while (this.eatIf_(TokenType.COMMA)) {
           importBindings.push(this.parseImportBinding_(load));
         }
         this.eatPossibleImplicitSemiColon_();
@@ -7235,8 +7234,7 @@ var $__src_syntax_Parser_js = (function() {
           var start = this.getTreeStartLocation_();
           this.eat_(TokenType.OPEN_CURLY);
           var specifiers = [this.parseImportSpecifier_()];
-          while (this.peek_(TokenType.COMMA)) {
-            this.eat_(TokenType.COMMA);
+          while (this.eatIf_(TokenType.COMMA)) {
             if (this.peek_(TokenType.CLOSE_CURLY)) break;
             specifiers.push(this.parseImportSpecifier_());
           }
@@ -7253,8 +7251,7 @@ var $__src_syntax_Parser_js = (function() {
         var start = this.getTreeStartLocation_();
         var lhs = this.eatIdName_();
         var rhs = null;
-        if (this.peek_(TokenType.COLON)) {
-          this.eat_(TokenType.COLON);
+        if (this.eatIf_(TokenType.COLON)) {
           rhs = this.eatId_();
         }
         return new ImportSpecifier(this.getTreeLocation_(start), lhs, rhs);
@@ -7298,8 +7295,7 @@ var $__src_syntax_Parser_js = (function() {
       parseExportMappingList_: function(load) {
         var start = this.getTreeStartLocation_();
         var mappings = [this.parseExportMapping_(load)];
-        while (this.peek_(TokenType.COMMA)) {
-          this.eat_(TokenType.COMMA);
+        while (this.eatIf_(TokenType.COMMA)) {
           mappings.push(this.parseExportMapping_(load));
         }
         this.eatPossibleImplicitSemiColon_();
@@ -7308,8 +7304,7 @@ var $__src_syntax_Parser_js = (function() {
       parseExportMapping_: function(load) {
         var start = this.getTreeStartLocation_();
         var specifierSet, expression;
-        if (this.peek_(TokenType.STAR)) {
-          this.eat_(TokenType.STAR);
+        if (this.eatIf_(TokenType.STAR)) {
           specifierSet = new ExportStar(this.getTreeLocation_(start));
           expression = this.parseFromModuleExpression_(load, true);
         } else if (this.peek_(TokenType.OPEN_CURLY)) {
@@ -7332,8 +7327,7 @@ var $__src_syntax_Parser_js = (function() {
         var start = this.getTreeStartLocation_();
         this.eat_(TokenType.OPEN_CURLY);
         var specifiers = [this.parseExportSpecifier_()];
-        while (this.peek_(TokenType.COMMA)) {
-          this.eat_(TokenType.COMMA);
+        while (this.eatIf_(TokenType.COMMA)) {
           if (this.peek_(TokenType.CLOSE_CURLY)) break;
           specifiers.push(this.parseExportSpecifier_());
         }
@@ -7367,8 +7361,7 @@ var $__src_syntax_Parser_js = (function() {
         this.eatId_();
         if (this.peekModuleDefinition_(load)) return this.parseModuleDefinition_(load, start);
         var specifiers = [this.parseModuleSpecifier_(load)];
-        while (this.peek_(TokenType.COMMA)) {
-          this.eat_(TokenType.COMMA);
+        while (this.eatIf_(TokenType.COMMA)) {
           specifiers.push(this.parseModuleSpecifier_(load));
         }
         this.eatPossibleImplicitSemiColon_();
@@ -7385,8 +7378,7 @@ var $__src_syntax_Parser_js = (function() {
           name = this.parseBindingIdentifier_();
         }
         var superClass = null;
-        if (this.peek_(TokenType.EXTENDS)) {
-          this.eat_(TokenType.EXTENDS);
+        if (this.eatIf_(TokenType.EXTENDS)) {
           superClass = this.parseAssignmentExpression();
         }
         this.eat_(TokenType.OPEN_CURLY);
@@ -7403,7 +7395,7 @@ var $__src_syntax_Parser_js = (function() {
       parseClassElements_: function() {
         var result = [];
         while (this.peekClassElement_()) {
-          if (this.peek_(TokenType.SEMI_COLON)) this.eat_(TokenType.SEMI_COLON); else result.push(this.parseMethodDefinition_());
+          if (!this.eatIf_(TokenType.SEMI_COLON)) result.push(this.parseMethodDefinition_());
         }
         return result;
       },
@@ -7484,8 +7476,7 @@ var $__src_syntax_Parser_js = (function() {
           formals = [this.parseRestParameter_()];
         } else {
           formals = this.parseFormalsList_();
-          if (this.peek_(TokenType.COMMA)) {
-            this.eat_(TokenType.COMMA);
+          if (this.eatIf_(TokenType.COMMA)) {
             formals.push(this.parseRestParameter_());
           }
         }
@@ -7496,7 +7487,7 @@ var $__src_syntax_Parser_js = (function() {
         while (this.peekFormalParameter_()) {
           var parameter = this.parseFormalParameter_();
           formals.push(parameter);
-          if (this.peek_(TokenType.COMMA) && this.peekFormalParameter_(1)) this.eat_(TokenType.COMMA);
+          if (this.peek_(TokenType.COMMA) && this.peekFormalParameter_(1)) this.nextToken_();
         }
         return formals;
       },
@@ -7585,9 +7576,6 @@ var $__src_syntax_Parser_js = (function() {
           case TokenType.DEBUGGER:
             return this.parseDebuggerStatement_();
           default:
-            if (this.peekLabelledStatement_()) {
-              return this.parseLabelledStatement_();
-            }
             return this.parseExpressionStatement_();
         }
       },
@@ -7676,7 +7664,7 @@ var $__src_syntax_Parser_js = (function() {
           case TokenType.LET:
             if (!options.blockBinding) debugger;
           case TokenType.VAR:
-            this.eat_(token);
+            this.nextToken_();
             break;
           default:
             throw Error('unreachable');
@@ -7684,8 +7672,7 @@ var $__src_syntax_Parser_js = (function() {
         var start = this.getTreeStartLocation_();
         var declarations = [];
         declarations.push(this.parseVariableDeclaration_(token, expressionIn, initializer));
-        while (this.peek_(TokenType.COMMA)) {
-          this.eat_(TokenType.COMMA);
+        while (this.eatIf_(TokenType.COMMA)) {
           declarations.push(this.parseVariableDeclaration_(token, expressionIn, initializer));
         }
         return new VariableDeclarationList(this.getTreeLocation_(start), token, declarations);
@@ -7708,8 +7695,7 @@ var $__src_syntax_Parser_js = (function() {
         this.eat_(TokenType.PRIVATE);
         var declarations = [];
         declarations.push(this.parseAtNameDeclaration_());
-        while (this.peek_(TokenType.COMMA)) {
-          this.eat_(TokenType.COMMA);
+        while (this.eatIf_(TokenType.COMMA)) {
           declarations.push(this.parseAtNameDeclaration_());
         }
         this.eatPossibleImplicitSemiColon_();
@@ -7730,6 +7716,10 @@ var $__src_syntax_Parser_js = (function() {
       parseExpressionStatement_: function() {
         var start = this.getTreeStartLocation_();
         var expression = this.parseExpression();
+        if (expression.type === IDENTIFIER_EXPRESSION && this.eatIf_(TokenType.COLON)) {
+          var name = expression.identifierToken;
+          return new LabelledStatement(this.getTreeLocation_(start), name, this.parseStatement());
+        }
         this.eatPossibleImplicitSemiColon_();
         return new ExpressionStatement(this.getTreeLocation_(start), expression);
       },
@@ -7741,8 +7731,7 @@ var $__src_syntax_Parser_js = (function() {
         this.eat_(TokenType.CLOSE_PAREN);
         var ifClause = this.parseStatement();
         var elseClause = null;
-        if (this.peek_(TokenType.ELSE)) {
-          this.eat_(TokenType.ELSE);
+        if (this.eatIf_(TokenType.ELSE)) {
           elseClause = this.parseStatement();
         }
         return new IfStatement(this.getTreeLocation_(start), condition, ifClause, elseClause);
@@ -7956,7 +7945,7 @@ var $__src_syntax_Parser_js = (function() {
           var start = this.getTreeStartLocation_();
           switch (this.peekType_()) {
             case TokenType.CASE:
-              this.eat_(TokenType.CASE);
+              this.nextToken_();
               var expression = this.parseExpression();
               this.eat_(TokenType.COLON);
               var statements = this.parseCaseStatementsOpt_();
@@ -7968,7 +7957,7 @@ var $__src_syntax_Parser_js = (function() {
               } else {
                 foundDefaultClause = true;
               }
-              this.eat_(TokenType.DEFAULT);
+              this.nextToken_();
               this.eat_(TokenType.COLON);
               result.push(new DefaultClause(this.getTreeLocation_(start), this.parseCaseStatementsOpt_()));
               break;
@@ -7979,15 +7968,6 @@ var $__src_syntax_Parser_js = (function() {
       },
       parseCaseStatementsOpt_: function() {
         return this.parseStatementList_();
-      },
-      parseLabelledStatement_: function() {
-        var start = this.getTreeStartLocation_();
-        var name = this.eatId_();
-        this.eat_(TokenType.COLON);
-        return new LabelledStatement(this.getTreeLocation_(start), name, this.parseStatement());
-      },
-      peekLabelledStatement_: function() {
-        return this.peek_(TokenType.IDENTIFIER) && this.peek_(TokenType.COLON, 1);
       },
       parseThrowStatement_: function() {
         var start = this.getTreeStartLocation_();
@@ -8159,7 +8139,7 @@ var $__src_syntax_Parser_js = (function() {
           var propertyDefinition = this.parsePropertyDefinition();
           if (!propertyDefinition) return null;
           result.push(propertyDefinition);
-          if (propertyDefinition.type === ParseTreeType.PROPERTY_NAME_ASSIGNMENT) {
+          if (propertyDefinition.type === PROPERTY_NAME_ASSIGNMENT) {
             if (!this.eatOpt_(TokenType.COMMA)) break;
           } else if (!this.eatPropertyOptionalComma_()) {
             break;
@@ -8177,8 +8157,7 @@ var $__src_syntax_Parser_js = (function() {
       parsePropertyDefinitionShared_: function(inObjectLiteral) {
         var start = this.getTreeStartLocation_();
         var isGenerator = false;
-        if (options.generators && options.propertyMethods && this.peek_(TokenType.STAR)) {
-          this.nextToken_();
+        if (options.generators && options.propertyMethods && this.eatIf_(TokenType.STAR)) {
           isGenerator = true;
         }
         var name = this.parsePropertyName_();
@@ -8189,8 +8168,7 @@ var $__src_syntax_Parser_js = (function() {
           var functionBody = this.parseFunctionBody_(isGenerator);
           return new PropertyMethodAssignment(this.getTreeLocation_(start), name, isGenerator, formalParameterList, functionBody);
         }
-        if (inObjectLiteral && this.peek_(TokenType.COLON)) {
-          this.eat_(TokenType.COLON);
+        if (inObjectLiteral && this.eatIf_(TokenType.COLON)) {
           var value = this.parseAssignmentExpression();
           return new PropertyNameAssignment(this.getTreeLocation_(start), name, value);
         }
@@ -8293,7 +8271,7 @@ var $__src_syntax_Parser_js = (function() {
           var exprs = [];
           exprs.push(result);
           while (this.peek_(TokenType.COMMA) && this.peekAssignmentExpression_(1)) {
-            this.eat_(TokenType.COMMA);
+            this.nextToken_();
             exprs.push(this.parseAssignmentExpression(expressionIn));
           }
           return new CommaExpression(this.getTreeLocation_(start), exprs);
@@ -8322,14 +8300,14 @@ var $__src_syntax_Parser_js = (function() {
       },
       transformLeftHandSideExpression_: function(tree) {
         switch (tree.type) {
-          case ParseTreeType.ARRAY_LITERAL_EXPRESSION:
-          case ParseTreeType.OBJECT_LITERAL_EXPRESSION:
+          case ARRAY_LITERAL_EXPRESSION:
+          case OBJECT_LITERAL_EXPRESSION:
             var errorReporter = new MutedErrorReporter();
             var p = new Parser(errorReporter, this.scanner_.file, tree.location.start.offset);
             var transformedTree = p.parseAssignmentPattern_();
             if (!errorReporter.hadError()) return transformedTree;
             break;
-          case ParseTreeType.PAREN_EXPRESSION:
+          case PAREN_EXPRESSION:
             var expression = this.transformLeftHandSideExpression_(tree.expression);
             if (expression !== tree.expression) return new ParenExpression(tree.location, expression);
         }
@@ -8342,8 +8320,7 @@ var $__src_syntax_Parser_js = (function() {
       parseConditional_: function(expressionIn) {
         var start = this.getTreeStartLocation_();
         var condition = this.parseLogicalOR_(expressionIn);
-        if (this.peek_(TokenType.QUESTION)) {
-          this.eat_(TokenType.QUESTION);
+        if (this.eatIf_(TokenType.QUESTION)) {
           var left = this.parseAssignmentExpression();
           this.eat_(TokenType.COLON);
           var right = this.parseAssignmentExpression(expressionIn);
@@ -8354,8 +8331,8 @@ var $__src_syntax_Parser_js = (function() {
       parseLogicalOR_: function(expressionIn) {
         var start = this.getTreeStartLocation_();
         var left = this.parseLogicalAND_(expressionIn);
-        while (this.peek_(TokenType.OR)) {
-          var operator = this.eat_(TokenType.OR);
+        var operator;
+        while (operator = this.eatOpt_(TokenType.OR)) {
           var right = this.parseLogicalAND_(expressionIn);
           left = new BinaryOperator(this.getTreeLocation_(start), left, operator, right);
         }
@@ -8364,8 +8341,8 @@ var $__src_syntax_Parser_js = (function() {
       parseLogicalAND_: function(expressionIn) {
         var start = this.getTreeStartLocation_();
         var left = this.parseBitwiseOR_(expressionIn);
-        while (this.peek_(TokenType.AND)) {
-          var operator = this.eat_(TokenType.AND);
+        var operator;
+        while (operator = this.eatOpt_(TokenType.AND)) {
           var right = this.parseBitwiseOR_(expressionIn);
           left = new BinaryOperator(this.getTreeLocation_(start), left, operator, right);
         }
@@ -8374,8 +8351,8 @@ var $__src_syntax_Parser_js = (function() {
       parseBitwiseOR_: function(expressionIn) {
         var start = this.getTreeStartLocation_();
         var left = this.parseBitwiseXOR_(expressionIn);
-        while (this.peek_(TokenType.BAR)) {
-          var operator = this.eat_(TokenType.BAR);
+        var operator;
+        while (operator = this.eatOpt_(TokenType.BAR)) {
           var right = this.parseBitwiseXOR_(expressionIn);
           left = new BinaryOperator(this.getTreeLocation_(start), left, operator, right);
         }
@@ -8384,8 +8361,8 @@ var $__src_syntax_Parser_js = (function() {
       parseBitwiseXOR_: function(expressionIn) {
         var start = this.getTreeStartLocation_();
         var left = this.parseBitwiseAND_(expressionIn);
-        while (this.peek_(TokenType.CARET)) {
-          var operator = this.eat_(TokenType.CARET);
+        var operator;
+        while (operator = this.eatOpt_(TokenType.CARET)) {
           var right = this.parseBitwiseAND_(expressionIn);
           left = new BinaryOperator(this.getTreeLocation_(start), left, operator, right);
         }
@@ -8394,8 +8371,8 @@ var $__src_syntax_Parser_js = (function() {
       parseBitwiseAND_: function(expressionIn) {
         var start = this.getTreeStartLocation_();
         var left = this.parseEquality_(expressionIn);
-        while (this.peek_(TokenType.AMPERSAND)) {
-          var operator = this.eat_(TokenType.AMPERSAND);
+        var operator;
+        while (operator = this.eatOpt_(TokenType.AMPERSAND)) {
           var right = this.parseEquality_(expressionIn);
           left = new BinaryOperator(this.getTreeLocation_(start), left, operator, right);
         }
@@ -8564,13 +8541,13 @@ var $__src_syntax_Parser_js = (function() {
                 operand = new CallExpression(this.getTreeLocation_(start), operand, args);
                 break;
               case TokenType.OPEN_SQUARE:
-                this.eat_(TokenType.OPEN_SQUARE);
+                this.nextToken_();
                 var member = this.parseExpression();
                 this.eat_(TokenType.CLOSE_SQUARE);
                 operand = new MemberLookupExpression(this.getTreeLocation_(start), operand, member);
                 break;
               case TokenType.PERIOD:
-                this.eat_(TokenType.PERIOD);
+                this.nextToken_();
                 operand = new MemberExpression(this.getTreeLocation_(start), operand, this.eatIdName_());
                 break;
               case TokenType.PERIOD_OPEN_CURLY:
@@ -8599,15 +8576,15 @@ var $__src_syntax_Parser_js = (function() {
         while (this.peekMemberExpressionSuffix_()) {
           switch (this.peekType_()) {
             case TokenType.OPEN_SQUARE:
-              this.eat_(TokenType.OPEN_SQUARE);
+              this.nextToken_();
               var member = this.parseExpression();
               this.eat_(TokenType.CLOSE_SQUARE);
               operand = new MemberLookupExpression(this.getTreeLocation_(start), operand, member);
               break;
             case TokenType.PERIOD:
-              this.eat_(TokenType.PERIOD);
+              this.nextToken_();
               var name;
-              if (this.peek_(TokenType.AT_NAME)) name = this.eat_(TokenType.AT_NAME); else name = this.eatIdName_();
+              if (options.privateNameSyntax && this.peek_(TokenType.AT_NAME)) name = this.nextToken_(); else name = this.eatIdName_();
               operand = new MemberExpression(this.getTreeLocation_(start), operand, name);
               break;
             case TokenType.PERIOD_OPEN_CURLY:
@@ -8635,13 +8612,13 @@ var $__src_syntax_Parser_js = (function() {
         var expr = this.parseAssignmentExpression();
         var operand;
         switch (expr.type) {
-          case ParseTreeType.CALL_EXPRESSION:
-          case ParseTreeType.MEMBER_EXPRESSION:
-          case ParseTreeType.MEMBER_LOOKUP_EXPRESSION:
-          case ParseTreeType.CASCADE_EXPRESSION:
+          case CALL_EXPRESSION:
+          case MEMBER_EXPRESSION:
+          case MEMBER_LOOKUP_EXPRESSION:
+          case CASCADE_EXPRESSION:
             operand = expr.operand;
             break;
-          case ParseTreeType.BINARY_OPERATOR:
+          case BINARY_OPERATOR:
             operand = expr.left;
             break;
           default:
@@ -8649,17 +8626,17 @@ var $__src_syntax_Parser_js = (function() {
         }
         if (operand) {
           switch (operand.type) {
-            case ParseTreeType.MEMBER_EXPRESSION:
-            case ParseTreeType.MEMBER_LOOKUP_EXPRESSION:
-            case ParseTreeType.CALL_EXPRESSION:
-            case ParseTreeType.CASCADE_EXPRESSION:
-            case ParseTreeType.IDENTIFIER_EXPRESSION:
+            case MEMBER_EXPRESSION:
+            case MEMBER_LOOKUP_EXPRESSION:
+            case CALL_EXPRESSION:
+            case CASCADE_EXPRESSION:
+            case IDENTIFIER_EXPRESSION:
               break;
             default:
               this.reportError_(operand.location, ("Invalid expression: " + operand.type));
           }
         }
-        if (expr.type == ParseTreeType.BINARY_OPERATOR && !expr.operator.isAssignmentOperator()) {
+        if (expr.type == BINARY_OPERATOR && !expr.operator.isAssignmentOperator()) {
           this.reportError_(expr.operator, ("Invalid operator: " + expr.operator));
         }
         return expr;
@@ -8714,17 +8691,16 @@ var $__src_syntax_Parser_js = (function() {
           formals = [new BindingElement(id.location, id, null)];
         } else {
           this.eat_(TokenType.OPEN_PAREN);
-          if (this.peek_(TokenType.CLOSE_PAREN)) {
-            this.eat_(TokenType.CLOSE_PAREN);
+          if (this.eatIf_(TokenType.CLOSE_PAREN)) {
             formals = [];
           } else if (this.peekRest_()) {
             formals = [this.parseRestParameter_()];
             this.eat_(TokenType.CLOSE_PAREN);
           } else {
             coverFormals = this.parseExpression();
-            if (coverFormals.type === ParseTreeType.MISSING_PRIMARY_EXPRESSION) return coverFormals;
+            if (coverFormals.type === MISSING_PRIMARY_EXPRESSION) return coverFormals;
             if (this.peek_(TokenType.COMMA) && this.peekRest_(1)) {
-              this.eat_(TokenType.COMMA);
+              this.nextToken_();
               formals = this.reparseAsFormalsList_(coverFormals);
               if (formals) formals.push(this.parseRestParameter_());
               this.eat_(TokenType.CLOSE_PAREN);
@@ -8766,8 +8742,7 @@ var $__src_syntax_Parser_js = (function() {
       },
       parseComprehensionForList_: function() {
         var comprehensionForList = [];
-        while (this.peek_(TokenType.FOR)) {
-          this.eat_(TokenType.FOR);
+        while (this.eatIf_(TokenType.FOR)) {
           var innerStart = this.getTreeStartLocation_();
           var left = this.parseForBinding_();
           this.eatId_(OF);
@@ -8777,8 +8752,7 @@ var $__src_syntax_Parser_js = (function() {
         return comprehensionForList;
       },
       parseComprehensionIf_: function() {
-        if (this.peek_(TokenType.IF)) {
-          this.eat_(TokenType.IF);
+        if (this.eatIf_(TokenType.IF)) {
           return this.parseExpression();
         }
         return null;
@@ -8813,7 +8787,7 @@ var $__src_syntax_Parser_js = (function() {
           } else {
             elements.push(this.parseBindingElement_());
             if (this.peek_(TokenType.COMMA) && !this.peek_(TokenType.CLOSE_SQUARE, 1)) {
-              this.eat_(TokenType.COMMA);
+              this.nextToken_();
             }
           }
         }
@@ -8823,15 +8797,13 @@ var $__src_syntax_Parser_js = (function() {
       parseBindingElementList_: function(elements) {
         this.parseElisionOpt_(elements);
         elements.push(this.parseBindingElement_());
-        while (this.peek_(TokenType.COMMA)) {
-          this.eat_(TokenType.COMMA);
+        while (this.eatIf_(TokenType.COMMA)) {
           this.parseElisionOpt_(elements);
           elements.push(this.parseBindingElement_());
         }
       },
       parseElisionOpt_: function(elements) {
-        while (this.peek_(TokenType.COMMA)) {
-          this.eat_(TokenType.COMMA);
+        while (this.eatIf_(TokenType.COMMA)) {
           elements.push(null);
         }
       },
@@ -8860,8 +8832,7 @@ var $__src_syntax_Parser_js = (function() {
         this.eat_(TokenType.OPEN_CURLY);
         while (this.peekBindingProperty_()) {
           elements.push(this.parseBindingProperty_());
-          if (!this.peek_(TokenType.COMMA)) break;
-          this.eat_(TokenType.COMMA);
+          if (!this.eatIf_(TokenType.COMMA)) break;
         }
         this.eat_(TokenType.CLOSE_CURLY);
         return new ObjectPattern(this.getTreeLocation_(start), elements);
@@ -8903,7 +8874,7 @@ var $__src_syntax_Parser_js = (function() {
             field = this.parseIdentifierExpression_();
           }
           fields.push(field);
-          if (this.peek_(TokenType.COMMA)) this.eat_(TokenType.COMMA); else break;
+          if (!this.eatIf_(TokenType.COMMA)) break;
         }
         this.eat_(TokenType.CLOSE_CURLY);
         return new ObjectPattern(this.getTreeLocation_(start), fields);
@@ -8920,7 +8891,7 @@ var $__src_syntax_Parser_js = (function() {
           } else {
             elements.push(this.parseAssignmentElement_());
             if (this.peek_(TokenType.COMMA) && !this.peek_(TokenType.CLOSE_SQUARE, 1)) {
-              this.eat_(TokenType.COMMA);
+              this.nextToken_();
             }
           }
         }
@@ -8968,7 +8939,7 @@ var $__src_syntax_Parser_js = (function() {
           return this.eat_(TokenType.SEMI_COLON);
         }
         if (this.peek_(TokenType.SEMI_COLON) && this.peekToken_().location.start.line == this.getLastLine_()) {
-          this.eat_(TokenType.SEMI_COLON);
+          this.nextToken_();
           return;
         }
         if (this.peekImplicitSemiColon_()) {
@@ -8986,9 +8957,7 @@ var $__src_syntax_Parser_js = (function() {
         return this.peekToken_().location.start.line;
       },
       eatOpt_: function(expectedTokenType) {
-        if (this.peek_(expectedTokenType)) {
-          return this.eat_(expectedTokenType);
-        }
+        if (this.peek_(expectedTokenType)) return this.nextToken_();
         return null;
       },
       eatIdOpt_: function() {
@@ -9023,6 +8992,13 @@ var $__src_syntax_Parser_js = (function() {
           return null;
         }
         return token;
+      },
+      eatIf_: function(expectedTokenType) {
+        if (this.peek_(expectedTokenType)) {
+          this.nextToken_();
+          return true;
+        }
+        return false;
       },
       reportExpectedError_: function(token, expected) {
         this.reportError_(token, "'" + expected + "' expected");
