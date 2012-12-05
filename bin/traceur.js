@@ -7403,17 +7403,21 @@ var $__src_syntax_Parser_js = (function() {
       parseClassElements_: function() {
         var result = [];
         while (this.peekClassElement_()) {
-          result.push(this.parseClassElement_());
+          if (this.peek_(TokenType.SEMI_COLON)) this.eat_(TokenType.SEMI_COLON); else result.push(this.parseMethodDefinition_());
         }
         return result;
       },
       peekClassElement_: function() {
-        return options.classes && (this.peekPropertyMethodAssignment_() || this.peekGetAccessor_() || this.peekSetAccessor_());
+        return this.peekMethodDefinition_() || this.peek_(TokenType.SEMI_COLON);
       },
-      parseClassElement_: function() {
-        if (this.peekGetAccessor_()) return this.parseGetAccessor_();
-        if (this.peekSetAccessor_()) return this.parseSetAccessor_();
-        return this.parsePropertyMethodAssignment();
+      peekMethodDefinition_: function() {
+        return this.peekPropertyName_() || options.generators && this.peek_(TokenType.STAR);
+      },
+      parseMethodDefinition_: function() {
+        return this.parsePropertyDefinitionShared_(false);
+      },
+      parsePropertyName_: function() {
+        return this.nextToken_();
       },
       parseSourceElement_: function() {
         if (this.peekFunction_()) {
@@ -7443,9 +7447,8 @@ var $__src_syntax_Parser_js = (function() {
       peekSourceElement_: function() {
         return this.peekFunction_() || this.peekClassDeclaration_() || this.peekStatementStandard_() || this.peekLet_() || this.peekAtNameExpression_() || this.peekNameStatement_();
       },
-      peekFunction_: function(opt_index) {
-        var index = opt_index || 0;
-        return this.peek_(TokenType.FUNCTION, index) || this.peek_(TokenType.POUND, index);
+      peekFunction_: function() {
+        return this.peek_(TokenType.FUNCTION);
       },
       parseFunctionDeclaration_: function() {
         var start = this.getTreeStartLocation_();
@@ -8154,6 +8157,7 @@ var $__src_syntax_Parser_js = (function() {
         this.eat_(TokenType.OPEN_CURLY);
         while (this.peekPropertyDefinition_()) {
           var propertyDefinition = this.parsePropertyDefinition();
+          if (!propertyDefinition) return null;
           result.push(propertyDefinition);
           if (propertyDefinition.type === ParseTreeType.PROPERTY_NAME_ASSIGNMENT) {
             if (!this.eatOpt_(TokenType.COMMA)) break;
@@ -8168,13 +8172,49 @@ var $__src_syntax_Parser_js = (function() {
         return this.eatOpt_(TokenType.COMMA) || options.propertyOptionalComma;
       },
       parsePropertyDefinition: function() {
-        if (this.peekGetAccessor_()) return this.parseGetAccessor_();
-        if (this.peekSetAccessor_()) return this.parseSetAccessor_();
-        if (this.peekPropertyMethodAssignment_()) return this.parsePropertyMethodAssignment();
-        return this.parsePropertyNameAssignment_();
+        return this.parsePropertyDefinitionShared_(true);
+      },
+      parsePropertyDefinitionShared_: function(inObjectLiteral) {
+        var start = this.getTreeStartLocation_();
+        var isGenerator = false;
+        if (options.generators && options.propertyMethods && this.peek_(TokenType.STAR)) {
+          this.nextToken_();
+          isGenerator = true;
+        }
+        var name = this.parsePropertyName_();
+        if (isGenerator || options.propertyMethods && this.peek_(TokenType.OPEN_PAREN)) {
+          this.eat_(TokenType.OPEN_PAREN);
+          var formalParameterList = this.parseFormalParameterList_();
+          this.eat_(TokenType.CLOSE_PAREN);
+          var functionBody = this.parseFunctionBody_(isGenerator);
+          return new PropertyMethodAssignment(this.getTreeLocation_(start), name, isGenerator, formalParameterList, functionBody);
+        }
+        if (inObjectLiteral && this.peek_(TokenType.COLON)) {
+          this.eat_(TokenType.COLON);
+          var value = this.parseAssignmentExpression();
+          return new PropertyNameAssignment(this.getTreeLocation_(start), name, value);
+        }
+        if (name.type === TokenType.IDENTIFIER && name.value === GET && this.peekPropertyName_()) {
+          name = this.parsePropertyName_();
+          this.eat_(TokenType.OPEN_PAREN);
+          this.eat_(TokenType.CLOSE_PAREN);
+          var body = this.parseFunctionBody_(false);
+          return new GetAccessor(this.getTreeLocation_(start), name, body);
+        }
+        if (name.type === TokenType.IDENTIFIER && name.value === SET && this.peekPropertyName_()) {
+          name = this.parsePropertyName_();
+          this.eat_(TokenType.OPEN_PAREN);
+          var parameter = this.parsePropertySetParameterList_();
+          this.eat_(TokenType.CLOSE_PAREN);
+          var body = this.parseFunctionBody_(false);
+          return new SetAccessor(this.getTreeLocation_(start), name, parameter, body);
+        }
+        if (inObjectLiteral && options.propertyNameShorthand) return new PropertyNameShorthand(this.getTreeLocation_(start), name);
+        this.reportError_(name, 'Unexpected token');
+        return null;
       },
       peekPropertyDefinition_: function() {
-        return this.peekPropertyName_() || (options.propertyMethods && options.generators && this.peek_(TokenType.STAR));
+        return this.peekPropertyName_() || options.propertyMethods && options.generators && this.peek_(TokenType.STAR);
       },
       peekPropertyName_: function(tokenIndex) {
         var type = this.peekType_(tokenIndex);
@@ -8189,68 +8229,15 @@ var $__src_syntax_Parser_js = (function() {
             return isKeyword(type);
         }
       },
-      peekGetAccessor_: function() {
-        return this.peekPredefinedString_(GET) && this.peekPropertyName_(1);
-      },
-      peekPredefinedString_: function(string, opt_index) {
-        var index = opt_index || 0;
-        return this.peek_(TokenType.IDENTIFIER, index) && this.peekToken_(index).value === string;
-      },
-      parseGetAccessor_: function() {
-        var start = this.getTreeStartLocation_();
-        this.eatId_();
-        var name = this.nextToken_();
-        this.eat_(TokenType.OPEN_PAREN);
-        this.eat_(TokenType.CLOSE_PAREN);
-        var body = this.parseFunctionBody_(false);
-        return new GetAccessor(this.getTreeLocation_(start), name, body);
-      },
-      peekSetAccessor_: function() {
-        return this.peekPredefinedString_(SET) && this.peekPropertyName_(1);
-      },
-      parseSetAccessor_: function() {
-        var start = this.getTreeStartLocation_();
-        this.eatId_();
-        var name = this.nextToken_();
-        this.eat_(TokenType.OPEN_PAREN);
-        var parameter = this.parsePropertySetParameterList_();
-        this.eat_(TokenType.CLOSE_PAREN);
-        var body = this.parseFunctionBody_(false);
-        return new SetAccessor(this.getTreeLocation_(start), name, parameter, body);
+      peekPredefinedString_: function(string) {
+        var token = this.peekToken_();
+        return token.type === TokenType.IDENTIFIER && token.value === string;
       },
       parsePropertySetParameterList_: function() {
         var start = this.getTreeStartLocation_();
         var binding;
         if (this.peekPattern_()) binding = this.parseBindingPattern_(); else binding = this.parseBindingIdentifier_();
         return new BindingElement(this.getTreeLocation_(start), binding, null);
-      },
-      parsePropertyNameAssignment_: function() {
-        var start = this.getTreeStartLocation_();
-        if (!options.propertyNameShorthand || this.peek_(TokenType.COLON, 1)) {
-          var name = this.nextToken_();
-          this.eat_(TokenType.COLON);
-          var value = this.parseAssignmentExpression();
-          return new PropertyNameAssignment(this.getTreeLocation_(start), name, value);
-        }
-        return this.parsePropertyNameShorthand_();
-      },
-      peekPropertyMethodAssignment_: function() {
-        return options.propertyMethods && (options.generators && this.peek_(TokenType.STAR) || this.peekPropertyName_() && this.peek_(TokenType.OPEN_PAREN, 1));
-      },
-      parsePropertyMethodAssignment: function() {
-        var start = this.getTreeStartLocation_();
-        var isGenerator = this.eatOpt_(TokenType.STAR) != null;
-        var name = this.nextToken_();
-        this.eat_(TokenType.OPEN_PAREN);
-        var formalParameterList = this.parseFormalParameterList_();
-        this.eat_(TokenType.CLOSE_PAREN);
-        var functionBody = this.parseFunctionBody_(isGenerator);
-        return new PropertyMethodAssignment(this.getTreeLocation_(start), name, isGenerator, formalParameterList, functionBody);
-      },
-      parsePropertyNameShorthand_: function() {
-        var start = this.getTreeStartLocation_();
-        var name = this.eatId_();
-        return new PropertyNameShorthand(this.getTreeLocation_(start), name);
       },
       parseParenExpression_: function() {
         return this.parseArrowFunction_();

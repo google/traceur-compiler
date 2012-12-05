@@ -637,7 +637,10 @@ export class Parser {
     var result = [];
 
     while (this.peekClassElement_()) {
-      result.push(this.parseClassElement_());
+      if (this.peek_(TokenType.SEMI_COLON))
+        this.eat_(TokenType.SEMI_COLON);
+      else
+        result.push(this.parseMethodDefinition_());
     }
 
     return result;
@@ -648,20 +651,22 @@ export class Parser {
    * @private
    */
   peekClassElement_() {
-    return options.classes && (this.peekPropertyMethodAssignment_() ||
-        this.peekGetAccessor_() || this.peekSetAccessor_());
+    return this.peekMethodDefinition_() || this.peek_(TokenType.SEMI_COLON);
   }
 
-  /**
-   * @return {ParseTree}
-   * @private
-   */
-  parseClassElement_() {
-    if (this.peekGetAccessor_())
-      return this.parseGetAccessor_();
-    if (this.peekSetAccessor_())
-      return this.parseSetAccessor_();
-    return this.parsePropertyMethodAssignment();
+  peekMethodDefinition_() {
+    // PropertyName covers get and set too.
+    return this.peekPropertyName_() ||
+        options.generators && this.peek_(TokenType.STAR);
+  }
+
+  parseMethodDefinition_() {
+    return this.parsePropertyDefinitionShared_(false);
+  }
+
+  parsePropertyName_() {
+    // TODO(arv): Implement [expr] as property names.
+    return this.nextToken_();
   }
 
   /**
@@ -722,10 +727,8 @@ export class Parser {
    * @return {boolean}
    * @private
    */
-  peekFunction_(opt_index) {
-    var index = opt_index || 0;
-    // TODO: Remove # functions
-    return this.peek_(TokenType.FUNCTION, index) || this.peek_(TokenType.POUND, index);
+  peekFunction_() {
+    return this.peek_(TokenType.FUNCTION);
   }
 
   // 13 Function Definition
@@ -1955,6 +1958,8 @@ export class Parser {
     this.eat_(TokenType.OPEN_CURLY);
     while (this.peekPropertyDefinition_()) {
       var propertyDefinition = this.parsePropertyDefinition();
+      if (!propertyDefinition)
+        return null;
       result.push(propertyDefinition);
       if (propertyDefinition.type === ParseTreeType.PROPERTY_NAME_ASSIGNMENT) {
         // Comma is required after name assignment.
@@ -1972,17 +1977,74 @@ export class Parser {
     return this.eatOpt_(TokenType.COMMA) || options.propertyOptionalComma;
   }
 
+  /**
+   * PropertyDefinition :
+   *   IdentifierName
+   *   CoverInitialisedName
+   *   PropertyName : AssignmentExpression
+   *   MethodDefinition
+   */
+
   parsePropertyDefinition() {
-    if (this.peekGetAccessor_())
-      return this.parseGetAccessor_();
-    if (this.peekSetAccessor_())
-      return this.parseSetAccessor_();
+    return this.parsePropertyDefinitionShared_(true);
+  }
 
-    // http://wiki.ecmascript.org/doku.php?id=harmony:concise_object_literal_extensions#methods
-    if (this.peekPropertyMethodAssignment_())
-      return this.parsePropertyMethodAssignment();
+  parsePropertyDefinitionShared_(inObjectLiteral) {
+    var start = this.getTreeStartLocation_();
 
-    return this.parsePropertyNameAssignment_();
+    var isGenerator = false;
+    if (options.generators && options.propertyMethods &&
+        this.peek_(TokenType.STAR)) {
+      this.nextToken_();
+      isGenerator = true;
+    }
+
+    var name = this.parsePropertyName_();
+
+    if (isGenerator ||
+        options.propertyMethods && this.peek_(TokenType.OPEN_PAREN)) {
+      this.eat_(TokenType.OPEN_PAREN);
+      var formalParameterList = this.parseFormalParameterList_();
+      this.eat_(TokenType.CLOSE_PAREN);
+      var functionBody = this.parseFunctionBody_(isGenerator);
+      return new PropertyMethodAssignment(this.getTreeLocation_(start),
+          name, isGenerator, formalParameterList, functionBody);
+    }
+
+    if (inObjectLiteral && this.peek_(TokenType.COLON)) {
+      this.eat_(TokenType.COLON);
+      var value = this.parseAssignmentExpression();
+      return new PropertyNameAssignment(this.getTreeLocation_(start), name,
+                                        value);
+    }
+
+    if (name.type === TokenType.IDENTIFIER && name.value === GET &&
+        this.peekPropertyName_()) {
+      name = this.parsePropertyName_();
+      this.eat_(TokenType.OPEN_PAREN);
+      this.eat_(TokenType.CLOSE_PAREN);
+      var body = this.parseFunctionBody_(false);
+      return new GetAccessor(this.getTreeLocation_(start), name, body);
+    }
+
+    if (name.type === TokenType.IDENTIFIER && name.value === SET &&
+        this.peekPropertyName_()) {
+      name = this.parsePropertyName_();
+      this.eat_(TokenType.OPEN_PAREN);
+      var parameter = this.parsePropertySetParameterList_();
+      this.eat_(TokenType.CLOSE_PAREN);
+      var body = this.parseFunctionBody_(false);
+      return new SetAccessor(this.getTreeLocation_(start), name, parameter,
+                             body);
+    }
+
+    // TODO(arv): CoverGrammar
+
+    if (inObjectLiteral && options.propertyNameShorthand)
+      return new PropertyNameShorthand(this.getTreeLocation_(start), name);
+
+    this.reportError_(name, 'Unexpected token');
+    return null;
   }
 
   /**
@@ -1991,8 +2053,8 @@ export class Parser {
    */
   peekPropertyDefinition_() {
     return this.peekPropertyName_() ||
-        (options.propertyMethods && options.generators &&
-         this.peek_(TokenType.STAR));
+        options.propertyMethods &&
+        options.generators && this.peek_(TokenType.STAR);
   }
 
   /**
@@ -2017,57 +2079,9 @@ export class Parser {
    * @return {boolean}
    * @private
    */
-  peekGetAccessor_() {
-    return this.peekPredefinedString_(GET) &&
-        this.peekPropertyName_(1);
-  }
-
-  /**
-   * @return {boolean}
-   * @private
-   */
-  peekPredefinedString_(string, opt_index) {
-    var index = opt_index || 0;
-    return this.peek_(TokenType.IDENTIFIER, index) && this.peekToken_(index).value === string;
-  }
-
-  /**
-   * @return {ParseTree}
-   * @private
-   */
-  parseGetAccessor_() {
-    var start = this.getTreeStartLocation_();
-
-    this.eatId_(); // get
-    var name = this.nextToken_();
-    this.eat_(TokenType.OPEN_PAREN);
-    this.eat_(TokenType.CLOSE_PAREN);
-    var body = this.parseFunctionBody_(false);
-    return new GetAccessor(this.getTreeLocation_(start), name, body);
-  }
-
-  /**
-   * @return {boolean}
-   * @private
-   */
-  peekSetAccessor_() {
-    return this.peekPredefinedString_(SET) &&
-        this.peekPropertyName_(1);
-  }
-
-  /**
-   * @return {ParseTree}
-   * @private
-   */
-  parseSetAccessor_() {
-    var start = this.getTreeStartLocation_();
-    this.eatId_(); // set
-    var name = this.nextToken_();
-    this.eat_(TokenType.OPEN_PAREN);
-    var parameter = this.parsePropertySetParameterList_();
-    this.eat_(TokenType.CLOSE_PAREN);
-    var body = this.parseFunctionBody_(false);
-    return new SetAccessor(this.getTreeLocation_(start), name, parameter, body);
+  peekPredefinedString_(string) {
+    var token = this.peekToken_();
+    return token.type === TokenType.IDENTIFIER && token.value === string;
   }
 
   /**
@@ -2085,56 +2099,6 @@ export class Parser {
       binding = this.parseBindingIdentifier_();
 
     return new BindingElement(this.getTreeLocation_(start), binding, null);
-  }
-
-  /**
-   * @return {ParseTree}
-   * @private
-   */
-  parsePropertyNameAssignment_() {
-    var start = this.getTreeStartLocation_();
-    // http://wiki.ecmascript.org/doku.php?id=strawman:object_initialiser_shorthand
-    if (!options.propertyNameShorthand || this.peek_(TokenType.COLON, 1)) {
-      var name = this.nextToken_();
-      this.eat_(TokenType.COLON);
-      var value = this.parseAssignmentExpression();
-      return new PropertyNameAssignment(this.getTreeLocation_(start), name,
-                                        value);
-    }
-    return this.parsePropertyNameShorthand_();
-  }
-
-  peekPropertyMethodAssignment_() {
-    return options.propertyMethods &&
-        (options.generators && this.peek_(TokenType.STAR) ||
-         this.peekPropertyName_() && this.peek_(TokenType.OPEN_PAREN, 1));
-  }
-
-  /**
-   * @return {ParseTree}
-   */
-  parsePropertyMethodAssignment() {
-    var start = this.getTreeStartLocation_();
-    // Note that parsePropertyAssignment_ already limits name to String,
-    // Number & IdentfierName.
-    var isGenerator = this.eatOpt_(TokenType.STAR) != null;
-    var name = this.nextToken_();
-    this.eat_(TokenType.OPEN_PAREN);
-    var formalParameterList = this.parseFormalParameterList_();
-    this.eat_(TokenType.CLOSE_PAREN);
-    var functionBody = this.parseFunctionBody_(isGenerator);
-    return new PropertyMethodAssignment(this.getTreeLocation_(start),
-        name, isGenerator, formalParameterList, functionBody);
-  }
-
-  /**
-   * @return {ParseTree}
-   * @private
-   */
-  parsePropertyNameShorthand_() {
-    var start = this.getTreeStartLocation_();
-    var name = this.eatId_();
-    return new PropertyNameShorthand(this.getTreeLocation_(start), name);
   }
 
   /**
