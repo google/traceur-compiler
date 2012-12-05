@@ -25,7 +25,8 @@ import {
   MISSING_PRIMARY_EXPRESSION,
   OBJECT_LITERAL_EXPRESSION,
   PAREN_EXPRESSION,
-  PROPERTY_NAME_ASSIGNMENT
+  PROPERTY_NAME_ASSIGNMENT,
+  REST_PARAMETER
 } from 'trees/ParseTreeType.js';
 import {
   FROM,
@@ -544,12 +545,12 @@ export class Parser {
     return new ExportSpecifier(this.getTreeLocation_(start), lhs, rhs);
   }
 
-  peekId_(opt_index) {
-    return this.peek_(TokenType.IDENTIFIER, opt_index);
+  peekId_() {
+    return this.peek_(TokenType.IDENTIFIER);
   }
 
   peekIdName_(opt_index) {
-    var token = this.peekToken_(opt_index);
+    var token = this.peekToken_(opt_index || 0);
     return token.type === TokenType.IDENTIFIER || token.isKeyword();
   }
 
@@ -577,7 +578,7 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     this.eatId_(); // module
 
-    if (this.peekModuleDefinition_(load))
+    if (this.peekModuleDefinition_())
       return this.parseModuleDefinition_(load, start);
 
     var specifiers = [this.parseModuleSpecifier_(load)];
@@ -789,47 +790,46 @@ export class Parser {
    */
   parseFormalParameterList_() {
     // FormalParameterList :
-    //   ... Identifier
+    //   [empty]
+    //   FunctionRestParameter
     //   FormalsList
-    //   FormalsList , ... Identifier
+    //   FormalsList , FunctionRestParameter
+    //
+    // FunctionRestParameter :
+    //   ... BindingIdentifier
     //
     // FormalsList :
     //   FormalParameter
     //   FormalsList , FormalParameter
     //
-    //   FormalParameter :
-    //     BindingIdentifier Initialiser?
-    //     BindingPattern Initialiser?
-
+    // FormalParameter :
+    //   BindingElement
+    //
+    // BindingElement :
+    //   SingleNameBinding
+    //   BindingPattern Initialiseropt
     var start = this.getTreeStartLocation_();
-    var formals;
+    var formals = [];
     if (this.peekRest_()) {
-      formals = [this.parseRestParameter_()];
+      formals.push(this.parseRestParameter_());
     } else {
-      formals = this.parseFormalsList_();
-      if (this.eatIf_(TokenType.COMMA)) {
-        formals.push(this.parseRestParameter_());
+      if (this.peekFormalParameter_())
+        formals.push(this.parseFormalParameter_());
+
+      while (this.eatIf_(TokenType.COMMA)) {
+        if (this.peekRest_()) {
+          formals.push(this.parseRestParameter_());
+          break;
+        }
+        formals.push(this.parseFormalParameter_());
       }
     }
 
     return new FormalParameterList(this.getTreeLocation_(start), formals);
   }
 
-  parseFormalsList_() {
-    var formals = [];
-    while (this.peekFormalParameter_()) {
-      var parameter = this.parseFormalParameter_();
-      formals.push(parameter);
-      // Lookahead to distinguish , ... and , ) which must not be consumed.
-      if (this.peek_(TokenType.COMMA) && this.peekFormalParameter_(1))
-        this.nextToken_();
-    }
-    return formals;
-  }
-
-  peekFormalParameter_(opt_index) {
-    var index = opt_index || 0;
-    return this.peekBindingIdentifier_(index) || this.peekPattern_(index);
+  peekFormalParameter_() {
+    return this.peekBindingElement_();
   }
 
   parseFormalParameter_(opt_initializerAllowed) {
@@ -839,8 +839,8 @@ export class Parser {
   parseRestParameter_() {
     var start = this.getTreeStartLocation_();
     this.eat_(TokenType.DOT_DOT_DOT);
-    return new RestParameter(this.getTreeLocation_(start),
-                             this.parseBindingIdentifier_());
+    var id = this.parseBindingIdentifier_();
+    return new RestParameter(this.getTreeLocation_(start), id);
   }
 
   /**
@@ -1768,8 +1768,8 @@ export class Parser {
     return new ThisExpression(this.getTreeLocation_(start));
   }
 
-  peekBindingIdentifier_(opt_index) {
-    return this.peekId_(opt_index || 0);
+  peekBindingIdentifier_() {
+    return this.peekId_();
   }
 
   parseBindingIdentifier_() {
@@ -2041,8 +2041,8 @@ export class Parser {
    * @return {boolean}
    * @private
    */
-  peekPropertyName_(tokenIndex) {
-    var type = this.peekType_(tokenIndex);
+  peekPropertyName_() {
+    var type = this.peekType_();
     switch (type) {
       case TokenType.AT_NAME:
         return options.privateNameSyntax;
@@ -2109,8 +2109,8 @@ export class Parser {
    * @return {boolean}
    * @private
    */
-  peekExpression_(opt_index) {
-    switch (this.peekType_(opt_index || 0)) {
+  peekExpression_() {
+    switch (this.peekType_()) {
       case TokenType.BACK_QUOTE:
         return options.quasi;
       case TokenType.AT_NAME:
@@ -2163,15 +2163,27 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     var result = this.parseAssignmentExpression(expressionIn);
     if (this.peek_(TokenType.COMMA)) {
-      var exprs = [];
-      exprs.push(result);
-      // Lookahead to prevent comma expression from consuming , ...
-      while (this.peek_(TokenType.COMMA) &&
-             this.peekAssignmentExpression_(1)) {
-        this.nextToken_();
+      var exprs = [result];
+      while (this.eatIf_(TokenType.COMMA)) {
         exprs.push(this.parseAssignmentExpression(expressionIn));
       }
       return new CommaExpression(this.getTreeLocation_(start), exprs);
+    }
+    return result;
+  }
+
+  parseExpressionForCoverFormals_(opt_expressionIn) {
+    var expressionIn = opt_expressionIn || Expression.IN;
+    var start = this.getTreeStartLocation_();
+    var result = [this.parseAssignmentExpression(expressionIn)];
+    if (this.peek_(TokenType.COMMA)) {
+      while (this.eatIf_(TokenType.COMMA)) {
+        if (this.peekRest_()) {
+          result.push(this.parseRestParameter_());
+          break;
+        }
+        result.push(this.parseAssignmentExpression(expressionIn));
+      }
     }
     return result;
   }
@@ -2182,8 +2194,8 @@ export class Parser {
    * @return {boolean}
    * @private
    */
-  peekAssignmentExpression_(opt_index) {
-    return this.peekExpression_(opt_index || 0);
+  peekAssignmentExpression_() {
+    return this.peekExpression_();
   }
 
   /**
@@ -2205,12 +2217,7 @@ export class Parser {
    * @return {ParseTree}
    */
   parseAssignmentExpression(opt_expressionIn) {
-    if (this.peekBindingIdentifier_() && this.peekArrow_(1))
-      return this.parseArrowFunction_();
-    // The remaining arrow function cases are handled in
-    // parseParenExpression_.
-
-    if (this.peek_(TokenType.YIELD))
+    if (this.allowYield_ && this.peek_(TokenType.YIELD))
       return this.parseYieldExpression_();
 
     var expressionIn = opt_expressionIn || Expression.NORMAL;
@@ -2228,6 +2235,20 @@ export class Parser {
       var right = this.parseAssignmentExpression(expressionIn);
       return new BinaryOperator(this.getTreeLocation_(start), left, operator, right);
     }
+
+    // Handle arrow function.
+    if (left && left.type === IDENTIFIER_EXPRESSION &&
+        this.peekArrow_()) {
+      this.nextToken_();
+      var id = new BindingIdentifier(left.location, left.identifierToken);
+      var formals = [new BindingElement(id.location, id, null)];
+      var body = this.parseConciseBody_();
+      var startLoc = left.location;
+      return new ArrowFunctionExpression(startLoc,
+          new FormalParameterList(startLoc, formals),
+          body);
+    }
+
     return left;
   }
 
@@ -2830,9 +2851,8 @@ export class Parser {
     return new ArgumentList(this.getTreeLocation_(start), args);
   }
 
-  peekRest_(opt_index) {
-    return options.restParameters &&
-        this.peek_(TokenType.DOT_DOT_DOT, opt_index || 0);
+  peekRest_() {
+    return options.restParameters && this.peek_(TokenType.DOT_DOT_DOT);
   }
 
   /**
@@ -2875,20 +2895,18 @@ export class Parser {
    *
    * ArrowParameters :
    *   BindingIdentifer
-   *   ( ArrowFormalParameterList )
+   *   CoverParenthesizedExpressionAndArrowParameterList
    *
-   * ArrowFormalParameterList :
-   *   [empty]
-   *   FunctionRestParameter
-   *   CoverFormalsList
-   *   CoverFormalsList, FunctionRestParameter
+   * CoverParenthesizedExpressionAndArrowParameterList :
+   *   ( Expression )
+   *   ( )
+   *   ( ... Identifier )
+   *   ( Expression , ... Identifier )
    *
    * ConciseBody :
    *   [lookahead not {] AssignmentExpression
    *   { FunctionBody }
    *
-   * CoverFormalsList :
-   *   Expression
    *
    * @param {Expression=} expressionIn
    * @return {ParseTree}
@@ -2896,65 +2914,70 @@ export class Parser {
    */
   parseArrowFunction_(expressionIn) {
     var start = this.getTreeStartLocation_();
-    var formals, coverFormals;
+    var formals;
 
-    // BindingIdentifier =>
-    if (this.peekBindingIdentifier_() && this.peekArrow_(1)) {
-      var id = this.parseBindingIdentifier_();
-      formals = [new BindingElement(id.location, id, null)];
+    this.eat_(TokenType.OPEN_PAREN);
 
-    // We got here through a ParenExpression.
+    // ()
+    if (this.eatIf_(TokenType.CLOSE_PAREN)) {
+      var paramStart = this.getTreeStartLocation_();
+      formals = new FormalParameterList(this.getTreeLocation_(paramStart), []);
+
     } else {
-      this.eat_(TokenType.OPEN_PAREN);
+      var coverFormals = this.parseCoverFormals_();
 
-      // () =>
-      if (this.eatIf_(TokenType.CLOSE_PAREN)) {
-        formals = [];
-
-      // (...
-      } else if (this.peekRest_()) {
-        formals = [this.parseRestParameter_()];
+      // ( ... ident )
+      var lastFormal = coverFormals[coverFormals.length - 1];
+      if (lastFormal.type === REST_PARAMETER) {
         this.eat_(TokenType.CLOSE_PAREN);
-      } else {
-        coverFormals = this.parseExpression();
-        if (coverFormals.type === MISSING_PRIMARY_EXPRESSION)
-          return coverFormals;
-
-        // ( CoverFormals , ...
-        if (this.peek_(TokenType.COMMA) && this.peekRest_(1)) {
-          this.nextToken_();
-          formals = this.reparseAsFormalsList_(coverFormals);
-          if (formals)
-            formals.push(this.parseRestParameter_());
-          this.eat_(TokenType.CLOSE_PAREN);
-
-        // Generator comprehension
-        // ( CoverFormals for
-        } else if (this.peek_(TokenType.FOR) &&
-                   options.generatorComprehension) {
-          return this.parseGeneratorComprehension_(start, coverFormals);
-
-        // ( CoverFormals )
-        } else {
-          this.eat_(TokenType.CLOSE_PAREN);
-          // ( CoverFormals ) =>
-          if (this.peek_(TokenType.ARROW))
-            formals = this.reparseAsFormalsList_(coverFormals);
+        formals = this.reparseAsFormalsList_(coverFormals);
+        if (!formals) {
+          return this.parseMissingPrimaryExpression_(
+              'Unexpected token \'...\'');
         }
+
+      // ( expr for
+      } else if (coverFormals.length === 1 && options.generatorComprehension &&
+                 this.peek_(TokenType.FOR)) {
+        return this.parseGeneratorComprehension_(start, coverFormals[0]);
+
+      // ( ident, ident )
+      } else {
+        this.eat_(TokenType.CLOSE_PAREN);
+        if (this.peek_(TokenType.ARROW))
+          formals = this.reparseAsFormalsList_(coverFormals);
       }
     }
 
-    // The cover grammar could not be parsed as FormalsList.
-    if (!formals)
-      return new ParenExpression(this.getTreeLocation_(start), coverFormals);
+    if (!formals) {
+      var commaExpression = new CommaExpression(coverFormals[0].location,
+                                                   coverFormals);
+      return new ParenExpression(this.getTreeLocation_(start),
+                                 commaExpression);
+    }
 
     this.eat_(TokenType.ARROW);
 
     var body = this.parseConciseBody_();
     var startLoc = this.getTreeLocation_(start);
-    return new ArrowFunctionExpression(startLoc,
-        new FormalParameterList(startLoc, formals),
-        body);
+    return new ArrowFunctionExpression(startLoc, formals, body);
+  }
+
+  parseCoverFormals_() {
+    // CoverParenthesizedExpressionAndArrowParameterList :
+    //   ( Expression )
+    //   ()
+    //   ( ... Identifier)
+    //   (Expression, ... Identifier)
+    //
+    //  The surrounding parens are handled by the caller.
+
+
+    // ( ... Identifier )
+    if (this.peekRest_())
+      return [this.parseRestParameter_()];
+
+    return this.parseExpressionForCoverFormals_();
   }
 
   /**
@@ -2966,24 +2989,29 @@ export class Parser {
    *     FormalsList or {@code null} if there was an error.
    */
   reparseAsFormalsList_(coverFormals) {
+    if (coverFormals.length === 0) {
+      var start = this.getTreeStartLocation_();
+      return new FormalParameterList(this.getTreeLocation_(start), []);
+    }
+
     var errorReporter = new MutedErrorReporter();
     var p = new Parser(errorReporter,
                        this.scanner_.file,
-                       coverFormals.location.start.offset);
-    var formals = p.parseFormalsList_();
+                       coverFormals[0].location.start.offset);
+    var formals = p.parseFormalParameterList_();
 
     // We need to consume the whole coverFormals.
-    if (errorReporter.hadError() || !formals.length ||
-        formals[formals.length - 1].location.end.offset !==
-            coverFormals.location.end.offset) {
+    if (errorReporter.hadError() || !formals ||
+        formals.location.end.offset !==
+          coverFormals[coverFormals.length - 1].location.end.offset) {
       return null;
     }
     return formals;
   }
 
   /** @returns {TokenType} */
-  peekArrow_(opt_index) {
-    return options.arrowFunctions && this.peek_(TokenType.ARROW, opt_index);
+  peekArrow_() {
+    return options.arrowFunctions && this.peek_(TokenType.ARROW);
   }
 
   /**
@@ -3071,18 +3099,17 @@ export class Parser {
   // wiki. This implementation conservatively only allows parentheses
   // at the top-level of assignment statements.
 
-  peekPattern_(opt_index) {
-    var index = opt_index || 0;
-    return options.destructuring && (this.peekObjectPattern_(index) ||
-        this.peekArrayPattern_(index));
+  peekPattern_() {
+    return options.destructuring && (this.peekObjectPattern_() ||
+        this.peekArrayPattern_());
   }
 
-  peekArrayPattern_(opt_index) {
-    return this.peek_(TokenType.OPEN_SQUARE, opt_index || 0);
+  peekArrayPattern_() {
+    return this.peek_(TokenType.OPEN_SQUARE);
   }
 
-  peekObjectPattern_(opt_index) {
-    return this.peek_(TokenType.OPEN_CURLY, opt_index || 0);
+  peekObjectPattern_() {
+    return this.peek_(TokenType.OPEN_CURLY);
   }
 
   /**
@@ -3677,7 +3704,7 @@ export class Parser {
    * @private
    */
   peek_(expectedType, opt_index) {
-    return this.peekType_(opt_index || 0) == expectedType;
+    return this.peekToken_(opt_index || 0).type === expectedType;
   }
 
   /**
@@ -3686,8 +3713,8 @@ export class Parser {
    * @return {TokenType}
    * @private
    */
-  peekType_(opt_index) {
-    return this.peekToken_(opt_index || 0).type;
+  peekType_() {
+    return this.peekToken_().type;
   }
 
   /**
