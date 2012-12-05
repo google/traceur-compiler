@@ -20,7 +20,12 @@ import {
   TRACEUR
 } from '../syntax/PredefinedName.js';
 import LITERAL_EXPRESSION from '../syntax/trees/ParseTreeType.js';
-import TokenType from '../syntax/TokenType.js';
+import {
+  EQUAL_EQUAL_EQUAL,
+  IDENTIFIER,
+  NOT_EQUAL_EQUAL,
+  NUMBER
+} from '../syntax/TokenType.js';
 import {
   createArgumentList,
   createBinaryOperator,
@@ -39,7 +44,7 @@ function isGoodLiteral(tree) {
   if (tree.type !== LITERAL_EXPRESSION)
     return false;
   var token = tree.literalToken;
-  if (token.type === TokenType.NUMBER)
+  if (token.type === NUMBER)
     return Number(token.value) !== 0;
   return true;
 }
@@ -52,7 +57,7 @@ function isGoodLiteral(tree) {
 export class IsExpressionTransformer extends ParseTreeTransformer {
   transformBinaryOperator(tree) {
     var operator = tree.operator;
-    if (operator.type !== TokenType.IDENTIFIER ||
+    if (operator.type !== IDENTIFIER ||
         operator.value !== IS && operator.value !== ISNT) {
       return super.transformBinaryOperator(tree);
     }
@@ -67,7 +72,7 @@ export class IsExpressionTransformer extends ParseTreeTransformer {
     // === in the case where we have a literal on one of the sides.
     if (isGoodLiteral(left) || isGoodLiteral(right)) {
       var op = operator.value === IS ?
-          TokenType.EQUAL_EQUAL_EQUAL : TokenType.NOT_EQUAL_EQUAL;
+          EQUAL_EQUAL_EQUAL : NOT_EQUAL_EQUAL;
       return createBinaryOperator(left, createOperatorToken(op), right);
     }
 

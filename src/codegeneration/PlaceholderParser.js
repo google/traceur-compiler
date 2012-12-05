@@ -30,7 +30,7 @@ import {
 } from '../syntax/trees/ParseTrees.js';
 import Scanner from '../syntax/Scanner.js';
 import SourceFile from '../syntax/SourceFile.js';
-import TokenType from '../syntax/TokenType.js';
+import IDENTIFIER from '../syntax/TokenType.js';
 import {
   createBindingIdentifier,
   createBooleanLiteral,
@@ -286,7 +286,7 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
   }
 
   transformPropertyMethodAssignment(tree) {
-    if (tree.name.type === TokenType.IDENTIFIER) {
+    if (tree.name.type === IDENTIFIER) {
       var value = this.getValue_(tree.name.value);
       if (value !== NOT_FOUND) {
         return new PropertyMethodAssignment(null,
@@ -300,7 +300,7 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
   }
 
   transformPropertyNameAssignment(tree) {
-    if (tree.name.type === TokenType.IDENTIFIER) {
+    if (tree.name.type === IDENTIFIER) {
       var value = this.getValue_(tree.name.value);
       if (value !== NOT_FOUND) {
         return new PropertyNameAssignment(null,

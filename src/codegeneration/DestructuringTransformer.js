@@ -46,7 +46,13 @@ import {
   VariableDeclarationList
 } from '../syntax/trees/ParseTrees.js';
 import TempVarTransformer from 'TempVarTransformer.js';
-import TokenType from '../syntax/TokenType.js';
+import {
+  EQUAL,
+  IDENTIFIER,
+  IN,
+  LET,
+  VAR
+} from '../syntax/TokenType.js';
 import {
   createArgumentList,
   createAssignmentExpression,
@@ -133,7 +139,7 @@ class VariableDeclarationDesugaring extends Desugaring {
  * Creates something like "ident" in rvalue ? rvalue.ident : initializer
  */
 function createConditionalMemberExpression(rvalue, identToken, initializer) {
-  if (identToken.type !== TokenType.IDENTIFIER) {
+  if (identToken.type !== IDENTIFIER) {
     return createConditionalMemberLookupExpression(rvalue,
         new LiteralExpression(null, identToken),
         initializer);
@@ -145,7 +151,7 @@ function createConditionalMemberExpression(rvalue, identToken, initializer) {
   return createConditionalExpression(
       createBinaryOperator(
           createStringLiteral(identToken.value),
-          createOperatorToken(TokenType.IN),
+          createOperatorToken(IN),
           rvalue),
       createMemberExpression(rvalue, identToken),
       initializer);
@@ -161,7 +167,7 @@ function createConditionalMemberLookupExpression(rvalue, index, initializer) {
   return createConditionalExpression(
       createBinaryOperator(
           index,
-          createOperatorToken(TokenType.IN),
+          createOperatorToken(IN),
           rvalue),
       createMemberLookupExpression(rvalue, index),
       initializer);
@@ -206,7 +212,7 @@ export class DestructuringTransformer extends TempVarTransformer {
    * @return {ParseTree}
    */
   transformBinaryOperator(tree) {
-    if (tree.operator.type == TokenType.EQUAL && tree.left.isPattern()) {
+    if (tree.operator.type == EQUAL && tree.left.isPattern()) {
       return this.transformAny(this.desugarAssignment_(tree.left, tree.right));
     } else {
       return super.transformBinaryOperator(tree);
@@ -334,7 +340,7 @@ export class DestructuringTransformer extends TempVarTransformer {
 
     var statements = [];
     var binding = this.desugarBinding_(lvalue, statements, declarationType);
-    var initializer = createVariableDeclarationList(TokenType.VAR,
+    var initializer = createVariableDeclarationList(VAR,
         binding, null);
 
     var collection = this.transformAny(tree.collection);
@@ -401,7 +407,7 @@ export class DestructuringTransformer extends TempVarTransformer {
 
     var statements = stack[stack.length - 1];
     var binding = this.desugarBinding_(tree.binding, statements,
-                                       TokenType.VAR);
+                                       VAR);
 
     return new BindingElement(null, binding, null);
   }
@@ -419,8 +425,7 @@ export class DestructuringTransformer extends TempVarTransformer {
 
     var body = this.transformAny(tree.catchBody);
     var statements = [];
-    var binding = this.desugarBinding_(tree.binding, statements,
-                                       TokenType.LET);
+    var binding = this.desugarBinding_(tree.binding, statements, LET);
     statements.push(...body.statements);
     return new Catch(tree.location, binding, createBlock(statements));
   }

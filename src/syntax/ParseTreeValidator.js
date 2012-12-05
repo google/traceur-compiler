@@ -18,8 +18,8 @@ import {
   IS,
   ISNT
 } from 'PredefinedName.js';
-import TokenType from 'TokenType.js';
 import TreeWriter from '../outputgeneration/TreeWriter.js';
+import * from 'TokenType.js';
 import * from 'trees/ParseTreeType.js';
 
 /*
@@ -149,18 +149,18 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   visitBinaryOperator(tree) {
     switch (tree.operator.type) {
       // assignment
-      case TokenType.EQUAL:
-      case TokenType.STAR_EQUAL:
-      case TokenType.SLASH_EQUAL:
-      case TokenType.PERCENT_EQUAL:
-      case TokenType.PLUS_EQUAL:
-      case TokenType.MINUS_EQUAL:
-      case TokenType.LEFT_SHIFT_EQUAL:
-      case TokenType.RIGHT_SHIFT_EQUAL:
-      case TokenType.UNSIGNED_RIGHT_SHIFT_EQUAL:
-      case TokenType.AMPERSAND_EQUAL:
-      case TokenType.CARET_EQUAL:
-      case TokenType.BAR_EQUAL:
+      case EQUAL:
+      case STAR_EQUAL:
+      case SLASH_EQUAL:
+      case PERCENT_EQUAL:
+      case PLUS_EQUAL:
+      case MINUS_EQUAL:
+      case LEFT_SHIFT_EQUAL:
+      case RIGHT_SHIFT_EQUAL:
+      case UNSIGNED_RIGHT_SHIFT_EQUAL:
+      case AMPERSAND_EQUAL:
+      case CARET_EQUAL:
+      case BAR_EQUAL:
         this.check_(tree.left.isLeftHandSideExpression() ||
             tree.left.isPattern(),
             tree.left,
@@ -171,46 +171,46 @@ export class ParseTreeValidator extends ParseTreeVisitor {
         break;
 
       // logical
-      case TokenType.AND:
-      case TokenType.OR:
-      case TokenType.BAR:
-      case TokenType.CARET:
-      case TokenType.AMPERSAND:
+      case AND:
+      case OR:
+      case BAR:
+      case CARET:
+      case AMPERSAND:
 
       // equality
-      case TokenType.EQUAL_EQUAL:
-      case TokenType.NOT_EQUAL:
-      case TokenType.EQUAL_EQUAL_EQUAL:
-      case TokenType.NOT_EQUAL_EQUAL:
+      case EQUAL_EQUAL:
+      case NOT_EQUAL:
+      case EQUAL_EQUAL_EQUAL:
+      case NOT_EQUAL_EQUAL:
 
       // relational
-      case TokenType.OPEN_ANGLE:
-      case TokenType.CLOSE_ANGLE:
-      case TokenType.GREATER_EQUAL:
-      case TokenType.LESS_EQUAL:
-      case TokenType.INSTANCEOF:
-      case TokenType.IN:
+      case OPEN_ANGLE:
+      case CLOSE_ANGLE:
+      case GREATER_EQUAL:
+      case LESS_EQUAL:
+      case INSTANCEOF:
+      case IN:
 
       // shift
-      case TokenType.LEFT_SHIFT:
-      case TokenType.RIGHT_SHIFT:
-      case TokenType.UNSIGNED_RIGHT_SHIFT:
+      case LEFT_SHIFT:
+      case RIGHT_SHIFT:
+      case UNSIGNED_RIGHT_SHIFT:
 
       // additive
-      case TokenType.PLUS:
-      case TokenType.MINUS:
+      case PLUS:
+      case MINUS:
 
       // multiplicative
-      case TokenType.STAR:
-      case TokenType.SLASH:
-      case TokenType.PERCENT:
+      case STAR:
+      case SLASH:
+      case PERCENT:
         this.check_(tree.left.isArrowFunctionExpression(), tree.left,
             'assignment expression expected');
         this.check_(tree.right.isArrowFunctionExpression(), tree.right,
             'assignment expression expected');
         break;
 
-      case TokenType.IDENTIFIER:
+      case IDENTIFIER:
         var foundIsIdentifier = false;
         switch (tree.operator.value) {
           case IS:
@@ -660,7 +660,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {ModuleRequire} tree
    */
   visitModuleRequire(tree) {
-    this.check_(tree.url.type == TokenType.STRING, tree.url,
+    this.check_(tree.url.type == STRING, tree.url,
                 'string expected');
   }
 

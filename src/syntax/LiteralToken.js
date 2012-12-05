@@ -25,7 +25,11 @@
  */
 
 import Token from 'Token.js';
-import TokenType from 'TokenType.js';
+import {
+  NULL,
+  NUMBER,
+  STRING
+} from 'TokenType.js';
 
 /**
  * Helper class for getting the processed value out of a string literal token.
@@ -132,13 +136,13 @@ export class LiteralToken extends Token {
    */
   get processedValue() {
     switch (this.type) {
-      case TokenType.NULL:
+      case NULL:
         return null;
 
-      case TokenType.NUMBER:
+      case NUMBER:
         return Number(this.value);
 
-      case TokenType.STRING:
+      case STRING:
         var parser = new StringParser(this.value);
         return parser.parse();
 

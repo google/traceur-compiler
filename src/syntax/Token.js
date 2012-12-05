@@ -12,7 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import TokenType from 'TokenType.js';
+import {
+  AMPERSAND_EQUAL,
+  BAR_EQUAL,
+  CARET_EQUAL,
+  EQUAL,
+  LEFT_SHIFT_EQUAL,
+  MINUS_EQUAL,
+  PERCENT_EQUAL,
+  PLUS_EQUAL,
+  RIGHT_SHIFT_EQUAL,
+  SLASH_EQUAL,
+  STAR_EQUAL,
+  UNSIGNED_RIGHT_SHIFT_EQUAL
+} from 'TokenType.js';
 
 /**
  * A Token in a javascript file.
@@ -37,18 +50,18 @@ export class Token {
   /** @return {boolean} */
   isAssignmentOperator() {
     switch (this.type) {
-      case TokenType.EQUAL:
-      case TokenType.STAR_EQUAL:
-      case TokenType.SLASH_EQUAL:
-      case TokenType.PERCENT_EQUAL:
-      case TokenType.PLUS_EQUAL:
-      case TokenType.MINUS_EQUAL:
-      case TokenType.LEFT_SHIFT_EQUAL:
-      case TokenType.RIGHT_SHIFT_EQUAL:
-      case TokenType.UNSIGNED_RIGHT_SHIFT_EQUAL:
-      case TokenType.AMPERSAND_EQUAL:
-      case TokenType.CARET_EQUAL:
-      case TokenType.BAR_EQUAL:
+      case AMPERSAND_EQUAL:
+      case BAR_EQUAL:
+      case CARET_EQUAL:
+      case EQUAL:
+      case LEFT_SHIFT_EQUAL:
+      case MINUS_EQUAL:
+      case PERCENT_EQUAL:
+      case PLUS_EQUAL:
+      case RIGHT_SHIFT_EQUAL:
+      case SLASH_EQUAL:
+      case STAR_EQUAL:
+      case UNSIGNED_RIGHT_SHIFT_EQUAL:
         return true;
       default:
         return false;

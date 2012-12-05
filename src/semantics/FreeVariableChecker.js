@@ -21,7 +21,7 @@ import IdentifierToken from '../syntax/IdentifierToken.js';
 import IDENTIFIER_EXPRESSION from '../syntax/trees/ParseTreeType.js';
 import ParseTreeVisitor from '../syntax/ParseTreeVisitor.js';
 import SourcePosition from '../util/SourcePosition.js';
-import TokenType from '../syntax/TokenType.js';
+import TYPEOF from '../syntax/TokenType.js';
 
 /**
  * Represents the link in the scope chain.
@@ -187,7 +187,7 @@ export class FreeVariableChecker extends ParseTreeVisitor {
 
   visitUnaryExpression(tree) {
     // Allow typeof x to be a heuristic for allowing reading x later.
-    if (tree.operator.type === TokenType.TYPEOF &&
+    if (tree.operator.type === TYPEOF &&
         tree.operand.type === IDENTIFIER_EXPRESSION) {
       this.declareVariable_(tree.operand);
     } else {

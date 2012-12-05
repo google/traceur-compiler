@@ -34,7 +34,11 @@ import {
   VariableStatement
 } from '../syntax/trees/ParseTrees.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
-import TokenType from '../syntax/TokenType.js';
+import {
+  CONST,
+  LET,
+  VAR
+} from '../syntax/TokenType.js';
 import {
   createAssignmentExpression,
   createBindingIdentifier,
@@ -56,10 +60,6 @@ import {
   createVariableDeclarationList,
   createVariableStatement
 } from 'ParseTreeFactory.js';
-
-var CONST = TokenType.CONST;
-var LET = TokenType.LET;
-var VAR = TokenType.VAR;
 
 /**
  * Transforms the block bindings from traceur to js.
@@ -334,13 +334,13 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
           // }
           // TODO: Use temp allocator.
           initializer = createVariableDeclarationList(
-              TokenType.VAR, `$${variableName}`, null);
+              VAR, `$${variableName}`, null);
 
           // Add the let statement into the block and rewrite it next.
           // It is easier than creating the catch block manually etc.
           treeBody = this.prependToBlock_(
               createVariableStatement(
-                  TokenType.LET,
+                  LET,
                   variableName,
                   createIdentifierExpression(`$${variableName}`)),
               treeBody);
@@ -530,7 +530,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
         // hoisted declaration
         createVariableStatement(
             createVariableDeclarationList(
-                TokenType.LET, hoisted)),
+                LET, hoisted)),
         // for loop
         createForStatement(
             null,
@@ -541,7 +541,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
                 createVariableStatement(
                     // let x = $x;
                     createVariableDeclarationList(
-                        TokenType.LET, copyFwd)),
+                        LET, copyFwd)),
         // try { ... } finally { copyBak }
         createTryStatement(
                         // try - the original for loop body
@@ -733,10 +733,10 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
     }
 
     // Package up in the declaration list.
-    if (transformed != null || tree.declarationType != TokenType.VAR) {
+    if (transformed != null || tree.declarationType != VAR) {
       var declarations = transformed != null ? transformed : tree.declarations;
-      var declarationType = tree.declarationType != TokenType.VAR ?
-          TokenType.VAR :
+      var declarationType = tree.declarationType != VAR ?
+          VAR :
           tree.declarationType;
 
       tree = createVariableDeclarationList(declarationType, declarations);

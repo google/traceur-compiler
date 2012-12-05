@@ -31,7 +31,15 @@ import {
   getParameterName
 } from '../syntax/PredefinedName.js';
 import Token from '../syntax/Token.js';
-import TokenType from '../syntax/TokenType.js';
+import {
+  EQUAL,
+  FALSE,
+  NULL,
+  NUMBER,
+  STRING,
+  TRUE,
+  VOID
+} from '../syntax/TokenType.js';
 import * from '../syntax/trees/ParseTrees.js';
 
 // Helpers so we can use these on Arguments objects.
@@ -66,20 +74,20 @@ export function createPropertyNameToken(name) {
 }
 
 export function createStringLiteralToken(value) {
-  return new LiteralToken(TokenType.STRING, JSON.stringify(value), null);
+  return new LiteralToken(STRING, JSON.stringify(value), null);
 }
 
 export function createBooleanLiteralToken(value) {
-  return new Token(value ? TokenType.TRUE : TokenType.FALSE, null);
+  return new Token(value ? TRUE : FALSE, null);
 }
 
 export function createNullLiteralToken() {
-  return new LiteralToken(TokenType.NULL, 'null', null);
+  return new LiteralToken(NULL, 'null', null);
 }
 
 
 export function createNumberLiteralToken(value) {
-  return new LiteralToken(TokenType.NUMBER, String(value), null);
+  return new LiteralToken(NUMBER, String(value), null);
 }
 
 // Token lists
@@ -280,7 +288,7 @@ export function createArrayPattern(list) {
  */
 export function createAssignmentExpression(lhs, rhs) {
   return new BinaryOperator(null, lhs,
-      createOperatorToken(TokenType.EQUAL), rhs);
+      createOperatorToken(EQUAL), rhs);
 }
 
 /**
@@ -1023,7 +1031,7 @@ export function createVariableStatement(listOrBinding, identifier, initializer) 
 export function createVoid0() {
   return createParenExpression(
     createUnaryExpression(
-      createOperatorToken(TokenType.VOID),
+      createOperatorToken(VOID),
       createNumberLiteral(0)));
 }
 

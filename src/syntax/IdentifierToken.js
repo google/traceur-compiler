@@ -13,9 +13,7 @@
 // limitations under the License.
 
 import Token from 'Token.js';
-import TokenType from 'TokenType.js';
-
-var IDENTIFIER = TokenType.IDENTIFIER;
+import IDENTIFIER from 'TokenType.js';
 
 /**
  * A token representing an identifier.

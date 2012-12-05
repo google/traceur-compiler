@@ -61,8 +61,7 @@ module traceur {
     return ++uidCounter;
   }
 
-  import WebPageProject from 'WebPageProject.js';
-  export WebPageProject;
+  export WebPageProject from 'WebPageProject.js';
 
   export module semantics {
     export FreeVariableChecker from 'semantics/FreeVariableChecker.js';
@@ -92,7 +91,7 @@ module traceur {
     export Scanner from 'syntax/Scanner.js';
     export SourceFile from 'syntax/SourceFile.js';
     export Token from 'syntax/Token.js';
-    export TokenType from 'syntax/TokenType.js';
+    export module TokenType from 'syntax/TokenType.js';
 
     export module trees {
       export * from 'syntax/trees/ParseTrees.js';

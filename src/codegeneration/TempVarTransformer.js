@@ -17,7 +17,7 @@ import {
   ModuleDefinition,
   Program
 } from '../syntax/trees/ParseTrees.js';
-import TokenType from '../syntax/TokenType.js';
+import VAR from '../syntax/TokenType.js';
 import {
   createBlock,
   createVariableDeclaration,
@@ -89,7 +89,7 @@ export class TempVarTransformer extends ParseTreeTransformer {
 
     var variableStatement = createVariableStatement(
         createVariableDeclarationList(
-            TokenType.VAR,
+            VAR,
             vars.map(({name, initializer}) => {
               return createVariableDeclaration(name, initializer);
             })));

@@ -23,7 +23,13 @@ import {
   PUSH
 } from '../../syntax/PredefinedName.js';
 import TempVarTransformer from '../TempVarTransformer.js';
-import TokenType from '../../syntax/TokenType.js';
+import {
+  BANG,
+  IN,
+  OPEN_ANGLE,
+  PLUS_PLUS,
+  VAR
+} from '../../syntax/TokenType.js';
 import {
   createArgumentList,
   createAssignmentStatement,
@@ -85,19 +91,19 @@ export class ForInTransformPass extends TempVarTransformer {
     // var $keys = [];
     var keys = this.getTempIdentifier();
     elements.push(
-        createVariableStatement(TokenType.VAR, keys,
+        createVariableStatement(VAR, keys,
         createEmptyArrayLiteralExpression()));
 
     // var $collection = object;
     var collection = this.getTempIdentifier();
-    elements.push(createVariableStatement(TokenType.VAR, collection, tree.collection));
+    elements.push(createVariableStatement(VAR, collection, tree.collection));
 
     // for (var $p in $collection) $keys.push($p);
     var p = this.getTempIdentifier();
     elements.push(
         createForInStatement(
             // var $p
-            createVariableDeclarationList(TokenType.VAR, p, null),
+            createVariableDeclarationList(VAR, p, null),
             // $collection
             createIdentifierExpression(collection),
             // $keys.push($p)
@@ -136,11 +142,11 @@ export class ForInTransformPass extends TempVarTransformer {
     innerBlock.push(
         createIfStatement(
             createUnaryExpression(
-                createOperatorToken(TokenType.BANG),
+                createOperatorToken(BANG),
                 createParenExpression(
                     createBinaryOperator(
                         originalKey,
-                        createOperatorToken(TokenType.IN),
+                        createOperatorToken(IN),
                         createIdentifierExpression(collection)))),
             // continue
             createContinueStatement(),
@@ -153,16 +159,16 @@ export class ForInTransformPass extends TempVarTransformer {
     elements.push(
         createForStatement(
             // var $i = 0
-            createVariableDeclarationList(TokenType.VAR, i, createNumberLiteral(0)),
+            createVariableDeclarationList(VAR, i, createNumberLiteral(0)),
             // $i < $keys.length
             createBinaryOperator(
                 createIdentifierExpression(i),
-                createOperatorToken(TokenType.OPEN_ANGLE),
+                createOperatorToken(OPEN_ANGLE),
                 createMemberExpression(keys, LENGTH)),
             // $i++
             createPostfixExpression(
                 createIdentifierExpression(i),
-                createOperatorToken(TokenType.PLUS_PLUS)),
+                createOperatorToken(PLUS_PLUS)),
             // body
             createBlock(innerBlock)));
 

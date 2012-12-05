@@ -27,7 +27,7 @@ import {
   YIELD_EXPRESSION
 } from '../../syntax/trees/ParseTreeType.js';
 import StateMachine from '../../syntax/trees/StateMachine.js';
-import TokenType from '../../syntax/TokenType.js';
+import VAR from '../../syntax/TokenType.js';
 import YieldState from 'YieldState.js';
 import {
   createArgumentList,
@@ -193,7 +193,7 @@ export class GeneratorTransformer extends CPSTransformer {
     //
     // var $result = {moveNext : machineMethod};
     statements.push(createVariableStatement(
-        TokenType.VAR,
+        VAR,
         RESULT,
         createObjectLiteralExpression(
             createPropertyNameAssignment(

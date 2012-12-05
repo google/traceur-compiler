@@ -33,7 +33,10 @@ import {
 } from '../syntax/trees/ParseTreeType.js';
 import SuperTransformer from 'SuperTransformer.js';
 import TempVarTransformer from 'TempVarTransformer.js';
-import TokenType from '../syntax/TokenType.js';
+import {
+  LET,
+  VAR
+} from '../syntax/TokenType.js';
 import {
   createArgumentList,
   createAssignmentExpression,
@@ -225,7 +228,7 @@ export class ClassTransformer extends TempVarTransformer{
     // that we can make sense out of our stack traces.
     var name = '$' + tree.name.identifierToken.value;
     return createVariableStatement(
-        transformOptions.blockBinding ? TokenType.LET : TokenType.VAR,
+        transformOptions.blockBinding ? LET : VAR,
         tree.name,
         this.transformClassShared_(tree, name));
   }
@@ -266,7 +269,7 @@ export class ClassTransformer extends TempVarTransformer{
   transformSuperInBlock_(methodTree, tree, className) {
     this.pushTempVarState();
     var thisName = this.getTempIdentifier();
-    var thisDecl = createVariableStatement(TokenType.VAR, thisName,
+    var thisDecl = createVariableStatement(VAR, thisName,
                                            createThisExpression());
     var superTransformer = new SuperTransformer(this, this.reporter_,
                                                 className, methodTree,

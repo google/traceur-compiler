@@ -18,7 +18,10 @@ import {
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import ARGUMENTS from '../syntax/PredefinedName.js';
 import REST_PARAMETER from '../syntax/trees/ParseTreeType.js';
-import TokenType from '../syntax/TokenType.js';
+import {
+  NOT_EQUAL_EQUAL,
+  VAR
+} from '../syntax/TokenType.js';
 import {
   createBinaryOperator,
   createBlock,
@@ -86,14 +89,14 @@ export class DefaultParametersTransformer extends ParseTreeTransformer {
         defaultToUndefined = true;
         changed = true;
         statements.push(createVariableStatement(
-            TokenType.VAR,
+            VAR,
             param.binding,
             createConditionalExpression(
                 createBinaryOperator(
                     createMemberLookupExpression(
                         createIdentifierExpression(ARGUMENTS),
                         createNumberLiteral(i)),
-                    createOperatorToken(TokenType.NOT_EQUAL_EQUAL),
+                    createOperatorToken(NOT_EQUAL_EQUAL),
                     createVoid0()),
                 createMemberLookupExpression(
                     createIdentifierExpression(ARGUMENTS),

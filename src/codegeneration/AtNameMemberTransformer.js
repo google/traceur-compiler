@@ -22,7 +22,11 @@ import {
 } from '../syntax/PredefinedName.js';
 import MEMBER_EXPRESSION from '../syntax/trees/ParseTreeType.js';
 import TempVarTransformer from 'TempVarTransformer.js';
-import TokenType from '../syntax/TokenType.js';
+import {
+  AT_NAME,
+  DELETE,
+  EQUAL
+} from '../syntax/TokenType.js';
 import {
   createArgumentList,
   createAssignmentExpression,
@@ -47,10 +51,10 @@ export class AtNameMemberTransformer extends TempVarTransformer {
 
   transformBinaryOperator(tree) {
     if (tree.left.type === MEMBER_EXPRESSION &&
-        tree.left.memberName.type === TokenType.AT_NAME &&
+        tree.left.memberName.type === AT_NAME &&
         tree.operator.isAssignmentOperator()) {
 
-      if (tree.operator.type !== TokenType.EQUAL) {
+      if (tree.operator.type !== EQUAL) {
         tree = expandMemberExpression(tree, this);
         return this.transformAny(tree);
       }
@@ -74,7 +78,7 @@ export class AtNameMemberTransformer extends TempVarTransformer {
 
   transformCallExpression(tree) {
     if (tree.operand.type !== MEMBER_EXPRESSION ||
-        tree.operand.memberName.type !== TokenType.AT_NAME)
+        tree.operand.memberName.type !== AT_NAME)
       return super.transformCallExpression(tree);
 
     var operand = this.transformAny(tree.operand.operand);
@@ -105,7 +109,7 @@ export class AtNameMemberTransformer extends TempVarTransformer {
   }
 
   transformMemberExpression(tree) {
-    if (tree.memberName.type !== TokenType.AT_NAME)
+    if (tree.memberName.type !== AT_NAME)
       return super.transformMemberExpression(tree);
 
     // operand.@name
@@ -119,9 +123,9 @@ export class AtNameMemberTransformer extends TempVarTransformer {
   }
 
   transformUnaryExpression(tree) {
-    if (tree.operator.type !== TokenType.DELETE ||
+    if (tree.operator.type !== DELETE ||
         tree.operand.type !== MEMBER_EXPRESSION ||
-        tree.operand.memberName.type !== TokenType.AT_NAME) {
+        tree.operand.memberName.type !== AT_NAME) {
       return super.transformUnaryExpression(tree);
     }
 

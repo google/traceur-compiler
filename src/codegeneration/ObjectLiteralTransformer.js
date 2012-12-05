@@ -20,7 +20,11 @@ import {
   LiteralExpression
 } from '../syntax/trees/ParseTrees.js';
 import TempVarTransformer from 'TempVarTransformer.js';
-import TokenType from '../syntax/TokenType.js';
+import {
+  AT_NAME,
+  IDENTIFIER,
+  STRING
+} from '../syntax/TokenType.js';
 import {
   createArgumentList,
   createAssignmentExpression,
@@ -44,7 +48,7 @@ import transformOptions from '../options.js';
 function findAtNameInProperty(propertyName) {
   return function(tree) {
     if (transformOptions.privateNameSyntax &&
-        tree[propertyName].type === TokenType.AT_NAME) {
+        tree[propertyName].type === AT_NAME) {
       this.found = true;
     }
   };
@@ -64,7 +68,7 @@ class AtNameFinder extends FindVisitor {
 
   checkAtName_(tree) {
     if (transformOptions.privateNameSyntax &&
-        tree.name.type === TokenType.AT_NAME) {
+        tree.name.type === AT_NAME) {
       return this.found = true;
     }
     return false;
@@ -101,7 +105,7 @@ class AtNameFinder extends FindVisitor {
  * @return {string}
  */
 function getPropertyNameForToken(nameToken) {
-  if (nameToken.type === TokenType.STRING)
+  if (nameToken.type === STRING)
     return nameToken.processedValue;
   return nameToken.value;
 }
@@ -164,10 +168,10 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
    */
   getPropertyName_(token) {
     switch (token.type) {
-      case TokenType.AT_NAME:
+      case AT_NAME:
         return createIdentifierExpression(
             this.identifierGenerator.getUniqueIdentifier(token.value));
-      case TokenType.IDENTIFIER:
+      case IDENTIFIER:
         return createStringLiteral(token.value);
       default:
         if (token.isKeyword())

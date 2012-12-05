@@ -20,7 +20,10 @@ import AlphaRenamer from 'AlphaRenamer.js';
 import FindInFunctionScope from 'FindInFunctionScope.js';
 import FunctionExpression from '../syntax/trees/ParseTrees.js';
 import TempVarTransformer from 'TempVarTransformer.js';
-import TokenType from '../syntax/TokenType.js';
+import {
+  LET,
+  VAR
+} from '../syntax/TokenType.js';
 import {
   createBlock,
   createCallExpression,
@@ -75,7 +78,7 @@ export class ComprehensionTransformer extends TempVarTransformer {
 
     // This should really be a let but we don't support let in generators.
     // https://code.google.com/p/traceur-compiler/issues/detail?id=6
-    var bindingKind = isGenerator ? TokenType.VAR : TokenType.LET;
+    var bindingKind = isGenerator ? VAR : LET;
 
     if (tree.ifExpression) {
       var ifExpression = this.transformAny(tree.ifExpression);

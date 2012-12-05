@@ -30,7 +30,7 @@ import {
   SPREAD_PATTERN_ELEMENT
 } from '../syntax/trees/ParseTreeType.js';
 import ParseTreeVisitor from '../syntax/ParseTreeVisitor.js';
-import TokenType from '../syntax/TokenType.js';
+import VAR from '../syntax/TokenType.js';
 
 // TODO: Update once destructuring has been refactored.
 
@@ -188,8 +188,8 @@ export class VariableBinder extends ParseTreeVisitor {
     // "let/const" are bound if (we are scanning block scope or function) AND
     //   the scope currently processed is the scope we care about
     //   (either the block scope being scanned or the top level function scope)
-    if ((tree.declarationType == TokenType.VAR && this.includeFunctionScope_) ||
-        (tree.declarationType != TokenType.VAR && this.block_ == this.scope_)) {
+    if ((tree.declarationType == VAR && this.includeFunctionScope_) ||
+        (tree.declarationType != VAR && this.block_ == this.scope_)) {
       // declare the variables
       super.visitVariableDeclarationList(tree);
     } else {

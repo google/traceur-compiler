@@ -25,7 +25,7 @@ import {
   SUPER_SET,
   TRACEUR
 } from '../syntax/PredefinedName.js';
-import TokenType from '../syntax/TokenType.js';
+import EQUAL from '../syntax/TokenType.js';
 import {
   createArgumentList,
   createArrayLiteralExpression,
@@ -175,7 +175,7 @@ export class SuperTransformer extends ParseTreeTransformer {
          tree.left.type === MEMBER_LOOKUP_EXPRESSION) &&
         tree.left.operand.type === SUPER_EXPRESSION) {
 
-      if (tree.operator.type !== TokenType.EQUAL) {
+      if (tree.operator.type !== EQUAL) {
         if (tree.left.type === MEMBER_LOOKUP_EXPRESSION) {
           tree = expandMemberLookupExpression(tree,
                                                  this.tempVarTransformer_);

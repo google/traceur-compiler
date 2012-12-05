@@ -41,7 +41,10 @@ import {
   MODULE_REQUIRE,
   VARIABLE_STATEMENT
 } from '../syntax/trees/ParseTreeType.js';
-import TokenType from '../syntax/TokenType.js';
+import {
+  STAR,
+  VAR
+} from '../syntax/TokenType.js';
 import {
   createArgumentList,
   createBindingIdentifier,
@@ -182,7 +185,7 @@ export class ModuleTransformer extends ParseTreeTransformer {
     // var {id} = moduleInstance
     var declarations = this.transformList(tree.importPathList);
     return createVariableStatement(createVariableDeclarationList(
-        TokenType.VAR, declarations));
+        VAR, declarations));
   }
 
   transformImportBinding(tree) {
@@ -203,7 +206,7 @@ export class ModuleTransformer extends ParseTreeTransformer {
 
   transformImportSpecifierSet(tree) {
     var fields;
-    if (tree.specifiers.type === TokenType.STAR) {
+    if (tree.specifiers.type === STAR) {
       var module = this.project_.getModuleForStarTree(tree);
       var fields = module.getExports().map((exportSymbol) => {
         return new BindingElement(tree.location,
@@ -368,7 +371,7 @@ function transformDefinition(project, parent, tree, useStrictCount) {
 
   // const M = (function() { statements }).call(thisObject);
   // TODO(arv): const is not allowed in ES5 strict
-  return createVariableStatement(TokenType.VAR, module.name, callExpression);
+  return createVariableStatement(VAR, module.name, callExpression);
 }
 
 /**
@@ -386,8 +389,7 @@ function transformDeclaration(project, parent, tree) {
 
   // const a = b.c, d = e.f;
   // TODO(arv): const is not allowed in ES5 strict
-  var variableDeclarationList = createVariableDeclarationList(TokenType.VAR,
-                                                              list);
+  var variableDeclarationList = createVariableDeclarationList(VAR, list);
 
   return createVariableStatement(variableDeclarationList);
 }

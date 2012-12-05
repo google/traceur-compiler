@@ -23,7 +23,10 @@ import GeneratorTransformer from 'generator/GeneratorTransformer.js';
 import ParseTreeVisitor from '../syntax/ParseTreeVisitor.js';
 import TempVarTransformer from 'TempVarTransformer.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
-import TokenType from '../syntax/TokenType.js';
+import {
+  EQUAL,
+  VAR
+} from '../syntax/TokenType.js';
 import {
   BINARY_OPERATOR,
   COMMA_EXPRESSION,
@@ -53,7 +56,7 @@ import transformOptions from '../options.js';
  * @return {boolean}
  */
 function isYieldAssign(tree) {
-  return tree.operator.type === TokenType.EQUAL &&
+  return tree.operator.type === EQUAL &&
       tree.right.type === YIELD_EXPRESSION &&
       tree.left.type === IDENTIFIER_EXPRESSION;
 }
@@ -119,7 +122,7 @@ class YieldForTransformer extends TempVarTransformer {
 
     var idTemp = createIdentifierExpression(this.getTempIdentifier());
 
-    var varTemp = createVariableDeclarationList(TokenType.VAR, idTemp, null);
+    var varTemp = createVariableDeclarationList(VAR, idTemp, null);
     var expression = tree.expression;
     var yieldTemp = createYieldStatement(idTemp, false);
 

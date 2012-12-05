@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import ComprehensionTransformer from 'ComprehensionTransformer.js';
-import TokenType from '../syntax/TokenType.js';
+import PLUS_PLUS from '../syntax/TokenType.js';
 import {
   createArrayLiteralExpression,
   createAssignmentStatement,
@@ -68,7 +68,7 @@ export class ArrayComprehensionTransformer extends ComprehensionTransformer {
         createMemberLookupExpression(
             resultIdentifier,
             createPostfixExpression(createIdentifierExpression(indexName),
-                                    TokenType.PLUS_PLUS)),
+                                    PLUS_PLUS)),
         expression);
 
     var returnStatement = createReturnStatement(resultIdentifier);

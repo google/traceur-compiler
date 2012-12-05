@@ -16,7 +16,7 @@ import {
   EXPRESSION_STATEMENT,
   LITERAL_EXPRESSION
 } from '../syntax/trees/ParseTreeType.js';
-import TokenType from '../syntax/TokenType.js';
+import STRING from '../syntax/TokenType.js';
 
 /**
  * @param {Array.<ParseTree>} list
@@ -30,7 +30,7 @@ export function hasUseStrict(list) {
     return false;
   if (li.type !== LITERAL_EXPRESSION   || !(li = li.literalToken))
     return false;
-  if (li.type !== TokenType.STRING)
+  if (li.type !== STRING)
     return false;
   return li.processedValue === 'use strict';
 }

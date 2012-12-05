@@ -34,7 +34,7 @@ import {
 } from '../../syntax/PredefinedName.js';
 import STATE_MACHINE from '../../syntax/trees/ParseTreeType.js';
 import StateMachine from '../../syntax/trees/StateMachine.js';
-import TokenType from '../../syntax/TokenType.js';
+import VAR from '../../syntax/TokenType.js';
 import {
   createArgumentList,
   createAssignStateStatement,
@@ -227,35 +227,35 @@ export class AsyncTransformer extends CPSTransformer {
     statements.push(...this.getMachineVariables(tree, machine));
     //   var $value;
     statements.push(createVariableStatement(
-        TokenType.VAR,
+        VAR,
         $VALUE,
         null));
     //   var $err;
     statements.push(createVariableStatement(
-        TokenType.VAR,
+        VAR,
         ERR,
         null));
     // TODO: var $cancel = ...;
     //   var $result = new Deferred();
     statements.push(createVariableStatement(
-        TokenType.VAR,
+        VAR,
         RESULT,
         createNewExpression(
             createIdentifierExpression(DEFERRED),
             createEmptyArgumentList())));
     //   var $waitTask;
     statements.push(createVariableStatement(
-        TokenType.VAR,
+        VAR,
         WAIT_TASK,
         null));
     //   var $continuation = machineMethod;
     statements.push(createVariableStatement(
-        TokenType.VAR,
+        VAR,
         CONTINUATION,
         this.generateMachineMethod(machine)));
     //   var $createCallback = function(newState) { return function (value) { $state = newState; $value = value; $continuation(); }}
     statements.push(createVariableStatement(
-        TokenType.VAR,
+        VAR,
         CREATE_CALLBACK,
         createFunctionExpression(
             createParameterList(NEW_STATE),
@@ -273,7 +273,7 @@ export class AsyncTransformer extends CPSTransformer {
                                 createCallStatement(createIdentifierExpression(CONTINUATION)))))))));
     //   var $createErrback = function(newState) { return function (err) { $state = newState; $err = err; $continuation(); }}
     statements.push(createVariableStatement(
-        TokenType.VAR,
+        VAR,
         CREATE_ERRBACK,
         createFunctionExpression(
             createParameterList(NEW_STATE),

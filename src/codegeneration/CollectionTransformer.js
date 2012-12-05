@@ -22,7 +22,11 @@ import {
 } from '../syntax/PredefinedName.js';
 import MEMBER_LOOKUP_EXPRESSION from '../syntax/trees/ParseTreeType.js';
 import TempVarTransformer from 'TempVarTransformer.js';
-import TokenType from '../syntax/TokenType.js';
+import {
+  DELETE,
+  EQUAL,
+  IN
+} from '../syntax/TokenType.js';
 import {
   createArgumentList,
   createAssignmentExpression,
@@ -63,7 +67,7 @@ import expandMemberLookupExpression from 'OperatorExpander.js';
 export class CollectionTransformer extends TempVarTransformer {
 
   transformBinaryOperator(tree) {
-    if (tree.operator.type === TokenType.IN) {
+    if (tree.operator.type === IN) {
       var name = this.transformAny(tree.left);
       var object = this.transformAny(tree.right);
       // name in object
@@ -77,7 +81,7 @@ export class CollectionTransformer extends TempVarTransformer {
     if (tree.left.type === MEMBER_LOOKUP_EXPRESSION &&
         tree.operator.isAssignmentOperator()) {
 
-      if (tree.operator.type !== TokenType.EQUAL) {
+      if (tree.operator.type !== EQUAL) {
         tree = expandMemberLookupExpression(tree, this);
         return this.transformAny(tree);
       }
@@ -136,7 +140,7 @@ export class CollectionTransformer extends TempVarTransformer {
   }
 
   transformUnaryExpression(tree) {
-    if (tree.operator.type !== TokenType.DELETE ||
+    if (tree.operator.type !== DELETE ||
         tree.operand.type !== MEMBER_LOOKUP_EXPRESSION) {
       return super.transformUnaryExpression(tree);
     }

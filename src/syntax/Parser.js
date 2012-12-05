@@ -40,9 +40,9 @@ import {
 import Scanner from 'Scanner.js';
 import SourceRange from '../util/SourceRange.js';
 import Token from 'Token.js';
-import TokenType from 'TokenType.js';
 import isKeyword from 'Keywords.js';
 import {parseOptions: options} from '../options.js';
+import * from 'TokenType.js';
 import * from 'trees/ParseTrees.js';
 
 /**
@@ -65,18 +65,18 @@ var DestructuringInitializer = {
 };
 
 function followedByCommaOrCloseSquare(token) {
-  return token.type === TokenType.COMMA ||
-      token.type === TokenType.CLOSE_SQUARE;
+  return token.type === COMMA ||
+      token.type === CLOSE_SQUARE;
 }
 
 function followedByCommaOrCloseCurly(token) {
-  return token.type === TokenType.COMMA ||
-      token.type === TokenType.CLOSE_CURLY;
+  return token.type === COMMA ||
+      token.type === CLOSE_CURLY;
 }
 
 function followedByInOrOf(token) {
-  return token.type === TokenType.IN ||
-      token.type === TokenType.IDENTIFIER &&
+  return token.type === IN ||
+      token.type === IDENTIFIER &&
       token.value === OF;
 }
 
@@ -154,7 +154,7 @@ export class Parser {
     //var t = new Timer("Parse Program");
     var start = this.getTreeStartLocation_();
     var programElements = this.parseProgramElements_(!!opt_load);
-    this.eat_(TokenType.END_OF_FILE);
+    this.eat_(END_OF_FILE);
     //t.end();
     return new Program(this.getTreeLocation_(start), programElements);
   }
@@ -166,7 +166,7 @@ export class Parser {
   parseProgramElements_(load) {
     var result = [];
 
-    while (!this.peek_(TokenType.END_OF_FILE)) {
+    while (!this.peek_(END_OF_FILE)) {
       var programElement = this.parseProgramElement_(load);
       if (!programElement) {
         return null;
@@ -232,8 +232,8 @@ export class Parser {
   * @private
   */
   peekModuleDefinition_() {
-    return this.peek_(TokenType.IDENTIFIER) &&
-        this.peek_(TokenType.OPEN_CURLY, 1);
+    return this.peek_(IDENTIFIER) &&
+        this.peek_(OPEN_CURLY, 1);
   }
 
   /**
@@ -248,12 +248,12 @@ export class Parser {
     // ModuleSpecifier(load) ::= Identifier "from" ModuleExpression(load)
 
     var name = this.eatId_();
-    this.eat_(TokenType.OPEN_CURLY);
+    this.eat_(OPEN_CURLY);
     var result = [];
     while (this.peekModuleElement_()) {
       result.push(this.parseModuleElement_(load));
     }
-    this.eat_(TokenType.CLOSE_CURLY);
+    this.eat_(CLOSE_CURLY);
     return new ModuleDefinition(this.getTreeLocation_(start), name, result);
   }
 
@@ -273,8 +273,8 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     var reference = this.parseModuleReference_(load);
     var identifierNames = [];
-    while (this.peek_(TokenType.PERIOD) && this.peekIdName_(1)) {
-      this.eat_(TokenType.PERIOD);
+    while (this.peek_(PERIOD) && this.peekIdName_(1)) {
+      this.eat_(PERIOD);
       identifierNames.push(this.eatIdName_());
     }
     return new ModuleExpression(this.getTreeLocation_(start), reference,
@@ -290,8 +290,8 @@ export class Parser {
     //                        | [load = true] StringLiteral
 
     var start = this.getTreeStartLocation_();
-    if (load && this.peek_(TokenType.STRING)) {
-      var url = this.eat_(TokenType.STRING);
+    if (load && this.peek_(STRING)) {
+      var url = this.eat_(STRING);
       return new ModuleRequire(this.getTreeLocation_(start), url);
     }
     return this.parseIdentifierExpression_();
@@ -329,7 +329,7 @@ export class Parser {
    * @private
    */
   peekImportDeclaration_() {
-    return options.modules && this.peek_(TokenType.IMPORT);
+    return options.modules && this.peek_(IMPORT);
   }
 
   // ImportDeclaration(load) ::= "import" ImportBinding(load)
@@ -340,11 +340,11 @@ export class Parser {
    */
   parseImportDeclaration_(load) {
     var start = this.getTreeStartLocation_();
-    this.eat_(TokenType.IMPORT);
+    this.eat_(IMPORT);
     var importBindings = [];
 
     importBindings.push(this.parseImportBinding_(load));
-    while (this.eatIf_(TokenType.COMMA)) {
+    while (this.eatIf_(COMMA)) {
       importBindings.push(this.parseImportBinding_(load));
     }
     this.eatPossibleImplicitSemiColon_();
@@ -378,23 +378,23 @@ export class Parser {
    * @private
    */
   parseImportSpecifierSet_() {
-    if (this.peek_(TokenType.OPEN_CURLY)) {
+    if (this.peek_(OPEN_CURLY)) {
       var start = this.getTreeStartLocation_();
-      this.eat_(TokenType.OPEN_CURLY);
+      this.eat_(OPEN_CURLY);
 
       var specifiers = [this.parseImportSpecifier_()];
-      while (this.eatIf_(TokenType.COMMA)) {
-        if (this.peek_(TokenType.CLOSE_CURLY))
+      while (this.eatIf_(COMMA)) {
+        if (this.peek_(CLOSE_CURLY))
           break;
         specifiers.push(this.parseImportSpecifier_());
       }
-      this.eat_(TokenType.CLOSE_CURLY);
+      this.eat_(CLOSE_CURLY);
 
       return new ImportSpecifierSet(this.getTreeLocation_(start), specifiers);
     }
 
-    if (this.peek_(TokenType.STAR)) {
-      var star = this.eat_(TokenType.STAR);
+    if (this.peek_(STAR)) {
+      var star = this.eat_(STAR);
       return new ImportSpecifierSet(this.getTreeLocation_(start), star);
     }
 
@@ -410,11 +410,9 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     var lhs = this.eatIdName_();
     var rhs = null;
-    if (this.eatIf_(TokenType.COLON)) {
+    if (this.eatIf_(COLON))
       rhs = this.eatId_();
-    }
-    return new ImportSpecifier(this.getTreeLocation_(start),
-        lhs, rhs);
+    return new ImportSpecifier(this.getTreeLocation_(start), lhs, rhs);
   }
 
   // export  VariableStatement
@@ -427,7 +425,7 @@ export class Parser {
    * @private
    */
   peekExportDeclaration_(load) {
-    return options.modules && this.peek_(TokenType.EXPORT);
+    return options.modules && this.peek_(EXPORT);
   }
 
   /**
@@ -436,29 +434,29 @@ export class Parser {
    */
   parseExportDeclaration_(load) {
     var start = this.getTreeStartLocation_();
-    this.eat_(TokenType.EXPORT);
+    this.eat_(EXPORT);
     var exportTree;
     switch (this.peekType_()) {
-      case TokenType.CONST:
-      case TokenType.LET:
-      case TokenType.VAR:
+      case CONST:
+      case LET:
+      case VAR:
         exportTree = this.parseVariableStatement_();
         break;
-      case TokenType.FUNCTION:
+      case FUNCTION:
         exportTree = this.parseFunctionDeclaration_();
         break;
-      case TokenType.CLASS:
+      case CLASS:
         exportTree = this.parseClassDeclaration_();
         break;
-      case TokenType.IDENTIFIER:
+      case IDENTIFIER:
         if (this.peekModuleDeclaration_(load)) {
           exportTree = this.parseModuleDeclaration_(load);
         } else {
           exportTree = this.parseExportMappingList_(load);
         }
         break;
-      case TokenType.OPEN_CURLY:
-      case TokenType.STAR:
+      case OPEN_CURLY:
+      case STAR:
         exportTree = this.parseExportMappingList_(load);
         break;
       default:
@@ -473,7 +471,7 @@ export class Parser {
     // ExportMapping ("," ExportMapping)*
     var start = this.getTreeStartLocation_();
     var mappings = [this.parseExportMapping_(load)];
-    while (this.eatIf_(TokenType.COMMA)) {
+    while (this.eatIf_(COMMA)) {
       mappings.push(this.parseExportMapping_(load));
     }
     this.eatPossibleImplicitSemiColon_();
@@ -489,10 +487,10 @@ export class Parser {
 
     var specifierSet, expression;
 
-    if (this.eatIf_(TokenType.STAR)) {
+    if (this.eatIf_(STAR)) {
       specifierSet = new ExportStar(this.getTreeLocation_(start));
       expression = this.parseFromModuleExpression_(load, true);
-    } else if (this.peek_(TokenType.OPEN_CURLY)) {
+    } else if (this.peek_(OPEN_CURLY)) {
       specifierSet = this.parseExportSpecifierSet_();
       expression = this.parseFromModuleExpression_(load, false);
     } else {  // ID
@@ -517,14 +515,14 @@ export class Parser {
     //     "{" ExportSpecifier ("," ExportSpecifier)* ","? "}"
 
     var start = this.getTreeStartLocation_();
-    this.eat_(TokenType.OPEN_CURLY);
+    this.eat_(OPEN_CURLY);
     var specifiers = [this.parseExportSpecifier_()];
-    while (this.eatIf_(TokenType.COMMA)) {
-      if (this.peek_(TokenType.CLOSE_CURLY))
+    while (this.eatIf_(COMMA)) {
+      if (this.peek_(CLOSE_CURLY))
         break;
       specifiers.push(this.parseExportSpecifier_());
     }
-    this.eat_(TokenType.CLOSE_CURLY);
+    this.eat_(CLOSE_CURLY);
 
     return new ExportSpecifierSet(this.getTreeLocation_(start), specifiers);
   }
@@ -535,9 +533,9 @@ export class Parser {
 
     var start = this.getTreeStartLocation_();
     var lhs, rhs = null;
-    if (this.peek_(TokenType.COLON, 1)) {
+    if (this.peek_(COLON, 1)) {
       lhs = this.eatIdName_();
-      this.eat_(TokenType.COLON);
+      this.eat_(COLON);
       rhs = this.eatId_();
     } else {
       lhs = this.eatId_();
@@ -546,12 +544,12 @@ export class Parser {
   }
 
   peekId_() {
-    return this.peek_(TokenType.IDENTIFIER);
+    return this.peek_(IDENTIFIER);
   }
 
-  peekIdName_(opt_index) {
-    var token = this.peekToken_(opt_index || 0);
-    return token.type === TokenType.IDENTIFIER || token.isKeyword();
+  peekIdName_(index) {
+    var token = this.peekToken_(index);
+    return token.type === IDENTIFIER || token.isKeyword();
   }
 
   // TODO: ModuleLoadRedeclarationList
@@ -567,7 +565,7 @@ export class Parser {
     // ModuleSpecifier(load) ::= Identifier "from" ModuleExpression(load)
     return options.modules &&
         this.peekPredefinedString_(MODULE) &&
-        this.peek_(TokenType.IDENTIFIER, 1);
+        this.peek_(IDENTIFIER, 1);
   }
 
   /**
@@ -582,7 +580,7 @@ export class Parser {
       return this.parseModuleDefinition_(load, start);
 
     var specifiers = [this.parseModuleSpecifier_(load)];
-    while (this.eatIf_(TokenType.COMMA)) {
+    while (this.eatIf_(COMMA)) {
       specifiers.push(this.parseModuleSpecifier_(load));
     }
     this.eatPossibleImplicitSemiColon_();
@@ -595,25 +593,25 @@ export class Parser {
    * @private
    */
   peekClassDeclaration_() {
-    return options.classes && this.peek_(TokenType.CLASS);
+    return options.classes && this.peek_(CLASS);
   }
 
   parseClassShared_(constr) {
     var start = this.getTreeStartLocation_();
-    this.eat_(TokenType.CLASS);
+    this.eat_(CLASS);
     var name = null;
     // Name is optional for ClassExpression
     if (constr == ClassDeclaration ||
-        !this.peek_(TokenType.EXTENDS) && !this.peek_(TokenType.OPEN_CURLY)) {
+        !this.peek_(EXTENDS) && !this.peek_(OPEN_CURLY)) {
       name = this.parseBindingIdentifier_();
     }
     var superClass = null;
-    if (this.eatIf_(TokenType.EXTENDS)) {
+    if (this.eatIf_(EXTENDS)) {
       superClass = this.parseAssignmentExpression();
     }
-    this.eat_(TokenType.OPEN_CURLY);
+    this.eat_(OPEN_CURLY);
     var elements = this.parseClassElements_();
-    this.eat_(TokenType.CLOSE_CURLY);
+    this.eat_(CLOSE_CURLY);
     return new constr(this.getTreeLocation_(start), name, superClass,
                       elements);
   }
@@ -642,7 +640,7 @@ export class Parser {
     var result = [];
 
     while (this.peekClassElement_()) {
-      if (!this.eatIf_(TokenType.SEMI_COLON))
+      if (!this.eatIf_(SEMI_COLON))
         result.push(this.parseMethodDefinition_());
     }
 
@@ -654,13 +652,13 @@ export class Parser {
    * @private
    */
   peekClassElement_() {
-    return this.peekMethodDefinition_() || this.peek_(TokenType.SEMI_COLON);
+    return this.peekMethodDefinition_() || this.peek_(SEMI_COLON);
   }
 
   peekMethodDefinition_() {
     // PropertyName covers get and set too.
     return this.peekPropertyName_() ||
-        options.generators && this.peek_(TokenType.STAR);
+        options.generators && this.peek_(STAR);
   }
 
   parseMethodDefinition_() {
@@ -698,21 +696,21 @@ export class Parser {
   }
 
   peekLet_() {
-    return options.blockBinding && this.peek_(TokenType.LET);
+    return options.blockBinding && this.peek_(LET);
   }
 
   peekConst_() {
-    return options.blockBinding && this.peek_(TokenType.CONST);
+    return options.blockBinding && this.peek_(CONST);
   }
 
   peekNameStatement_() {
     return options.privateNameSyntax &&
-        this.peek_(TokenType.PRIVATE) &&
-        this.peek_(TokenType.AT_NAME, 1);
+        this.peek_(PRIVATE) &&
+        this.peek_(AT_NAME, 1);
   }
 
   peekAtNameExpression_() {
-    return options.privateNameSyntax && this.peek_(TokenType.AT_NAME);
+    return options.privateNameSyntax && this.peek_(AT_NAME);
   }
 
   /**
@@ -731,7 +729,7 @@ export class Parser {
    * @private
    */
   peekFunction_() {
-    return this.peek_(TokenType.FUNCTION);
+    return this.peek_(FUNCTION);
   }
 
   // 13 Function Definition
@@ -742,7 +740,7 @@ export class Parser {
   parseFunctionDeclaration_() {
     var start = this.getTreeStartLocation_();
     this.nextToken_(); // function or #
-    var isGenerator = this.eatOpt_(TokenType.STAR) != null;
+    var isGenerator = this.eatOpt_(STAR) != null;
     return this.parseFunctionDeclarationTail_(start, isGenerator,
                                               this.parseBindingIdentifier_());
   }
@@ -754,9 +752,9 @@ export class Parser {
    * @private
    */
   parseFunctionDeclarationTail_(start, isGenerator, name) {
-    this.eat_(TokenType.OPEN_PAREN);
+    this.eat_(OPEN_PAREN);
     var formalParameterList = this.parseFormalParameterList_();
-    this.eat_(TokenType.CLOSE_PAREN);
+    this.eat_(CLOSE_PAREN);
     var functionBody = this.parseFunctionBody_(isGenerator);
     return new FunctionDeclaration(this.getTreeLocation_(start), name,
                                    isGenerator, formalParameterList,
@@ -770,14 +768,14 @@ export class Parser {
   parseFunctionExpression_() {
     var start = this.getTreeStartLocation_();
     this.nextToken_(); // function or #
-    var isGenerator = this.eatOpt_(TokenType.STAR) != null;
+    var isGenerator = this.eatOpt_(STAR) != null;
     var name = null;
     if (this.peekBindingIdentifier_()) {
       name = this.parseBindingIdentifier_();
     }
-    this.eat_(TokenType.OPEN_PAREN);
+    this.eat_(OPEN_PAREN);
     var formalParameterList = this.parseFormalParameterList_();
-    this.eat_(TokenType.CLOSE_PAREN);
+    this.eat_(CLOSE_PAREN);
     var functionBody = this.parseFunctionBody_(isGenerator);
     return new FunctionExpression(this.getTreeLocation_(start), name,
                                   isGenerator, formalParameterList,
@@ -816,7 +814,7 @@ export class Parser {
       if (this.peekFormalParameter_())
         formals.push(this.parseFormalParameter_());
 
-      while (this.eatIf_(TokenType.COMMA)) {
+      while (this.eatIf_(COMMA)) {
         if (this.peekRest_()) {
           formals.push(this.parseRestParameter_());
           break;
@@ -838,7 +836,7 @@ export class Parser {
 
   parseRestParameter_() {
     var start = this.getTreeStartLocation_();
-    this.eat_(TokenType.DOT_DOT_DOT);
+    this.eat_(DOT_DOT_DOT);
     var id = this.parseBindingIdentifier_();
     return new RestParameter(this.getTreeLocation_(start), id);
   }
@@ -849,14 +847,14 @@ export class Parser {
    */
   parseFunctionBody_(isGenerator) {
     var start = this.getTreeStartLocation_();
-    this.eat_(TokenType.OPEN_CURLY);
+    this.eat_(OPEN_CURLY);
 
     var allowYield = this.allowYield_;
     this.allowYield_ = isGenerator;
     var result = this.parseSourceElementList_();
     this.allowYield_ = allowYield;
 
-    this.eat_(TokenType.CLOSE_CURLY);
+    this.eat_(CLOSE_CURLY);
     return new Block(this.getTreeLocation_(start), result);
   }
 
@@ -887,7 +885,7 @@ export class Parser {
       return this.parseMissingPrimaryExpression_();
     }
     var start = this.getTreeStartLocation_();
-    this.eat_(TokenType.DOT_DOT_DOT);
+    this.eat_(DOT_DOT_DOT);
     var operand = this.parseAssignmentExpression();
     return new SpreadExpression(this.getTreeLocation_(start), operand);
   }
@@ -911,43 +909,43 @@ export class Parser {
    */
   parseStatementStandard_() {
     switch (this.peekType_()) {
-      case TokenType.OPEN_CURLY:
+      case OPEN_CURLY:
         return this.parseBlock_();
-      case TokenType.AWAIT:
+      case AWAIT:
         return this.parseAwaitStatement_();
-      case TokenType.CONST:
+      case CONST:
         if (!options.blockBinding) {
           this.reportUnexpectedToken_();
           return null;
         }
         // Fall through.
-      case TokenType.VAR:
+      case VAR:
         return this.parseVariableStatement_();
-      case TokenType.SEMI_COLON:
+      case SEMI_COLON:
         return this.parseEmptyStatement_();
-      case TokenType.IF:
+      case IF:
         return this.parseIfStatement_();
-      case TokenType.DO:
+      case DO:
         return this.parseDoWhileStatement_();
-      case TokenType.WHILE:
+      case WHILE:
         return this.parseWhileStatement_();
-      case TokenType.FOR:
+      case FOR:
         return this.parseForStatement_();
-      case TokenType.CONTINUE:
+      case CONTINUE:
         return this.parseContinueStatement_();
-      case TokenType.BREAK:
+      case BREAK:
         return this.parseBreakStatement_();
-      case TokenType.RETURN:
+      case RETURN:
         return this.parseReturnStatement_();
-      case TokenType.WITH:
+      case WITH:
         return this.parseWithStatement_();
-      case TokenType.SWITCH:
+      case SWITCH:
         return this.parseSwitchStatement_();
-      case TokenType.THROW:
+      case THROW:
         return this.parseThrowStatement_();
-      case TokenType.TRY:
+      case TRY:
         return this.parseTryStatement_();
-      case TokenType.DEBUGGER:
+      case DEBUGGER:
         return this.parseDebuggerStatement_();
       default:
         return this.parseExpressionStatement_();
@@ -972,51 +970,51 @@ export class Parser {
    */
   peekStatementStandard_() {
     switch (this.peekType_()) {
-      case TokenType.CONST:
+      case CONST:
         return options.blockBinding;
-      case TokenType.YIELD:
+      case YIELD:
         return options.generators;
-      case TokenType.AWAIT:
+      case AWAIT:
         return options.deferredFunctions;
-      case TokenType.OPEN_CURLY:
-      case TokenType.VAR:
-      case TokenType.SEMI_COLON:
-      case TokenType.IF:
-      case TokenType.DO:
-      case TokenType.WHILE:
-      case TokenType.FOR:
-      case TokenType.CONTINUE:
-      case TokenType.BREAK:
-      case TokenType.RETURN:
-      case TokenType.WITH:
-      case TokenType.SWITCH:
-      case TokenType.THROW:
-      case TokenType.TRY:
-      case TokenType.DEBUGGER:
-      case TokenType.IDENTIFIER:
-      case TokenType.THIS:
-      case TokenType.CLASS:
-      case TokenType.SUPER:
-      case TokenType.NUMBER:
-      case TokenType.STRING:
-      case TokenType.NULL:
-      case TokenType.TRUE:
-      case TokenType.SLASH: // regular expression literal
-      case TokenType.SLASH_EQUAL: // regular expression literal
-      case TokenType.FALSE:
-      case TokenType.OPEN_SQUARE:
-      case TokenType.OPEN_PAREN:
-      case TokenType.NEW:
-      case TokenType.DELETE:
-      case TokenType.VOID:
-      case TokenType.TYPEOF:
-      case TokenType.PLUS_PLUS:
-      case TokenType.MINUS_MINUS:
-      case TokenType.PLUS:
-      case TokenType.MINUS:
-      case TokenType.TILDE:
-      case TokenType.BANG:
-      case TokenType.BACK_QUOTE:
+      case OPEN_CURLY:
+      case VAR:
+      case SEMI_COLON:
+      case IF:
+      case DO:
+      case WHILE:
+      case FOR:
+      case CONTINUE:
+      case BREAK:
+      case RETURN:
+      case WITH:
+      case SWITCH:
+      case THROW:
+      case TRY:
+      case DEBUGGER:
+      case IDENTIFIER:
+      case THIS:
+      case CLASS:
+      case SUPER:
+      case NUMBER:
+      case STRING:
+      case NULL:
+      case TRUE:
+      case SLASH: // regular expression literal
+      case SLASH_EQUAL: // regular expression literal
+      case FALSE:
+      case OPEN_SQUARE:
+      case OPEN_PAREN:
+      case NEW:
+      case DELETE:
+      case VOID:
+      case TYPEOF:
+      case PLUS_PLUS:
+      case MINUS_MINUS:
+      case PLUS:
+      case MINUS:
+      case TILDE:
+      case BANG:
+      case BACK_QUOTE:
         return true;
       default:
         return false;
@@ -1030,10 +1028,10 @@ export class Parser {
    */
   parseBlock_() {
     var start = this.getTreeStartLocation_();
-    this.eat_(TokenType.OPEN_CURLY);
+    this.eat_(OPEN_CURLY);
     // Spec says Statement list. However functions are also embedded in the wild.
     var result = this.parseSourceElementList_();
-    this.eat_(TokenType.CLOSE_CURLY);
+    this.eat_(CLOSE_CURLY);
     return new Block(this.getTreeLocation_(start), result);
   }
 
@@ -1075,11 +1073,11 @@ export class Parser {
     var token = this.peekType_();
 
     switch (token) {
-      case TokenType.CONST:
-      case TokenType.LET:
+      case CONST:
+      case LET:
         if (!options.blockBinding)
           debugger;
-      case TokenType.VAR:
+      case VAR:
         this.nextToken_();
         break;
       default:
@@ -1091,7 +1089,7 @@ export class Parser {
 
     declarations.push(this.parseVariableDeclaration_(token, expressionIn,
                                                      initializer));
-    while (this.eatIf_(TokenType.COMMA)) {
+    while (this.eatIf_(COMMA)) {
       declarations.push(this.parseVariableDeclaration_(token, expressionIn,
                                                        initializer));
     }
@@ -1126,7 +1124,7 @@ export class Parser {
       lvalue = this.parseBindingIdentifier_();
 
     var initializer = null;
-    if (this.peek_(TokenType.EQUAL))
+    if (this.peek_(EQUAL))
       initializer = this.parseInitializer_(expressionIn);
     else if (lvalue.isPattern() && initRequired)
       this.reportError_('destructuring must have an initializer');
@@ -1140,7 +1138,7 @@ export class Parser {
    * @private
    */
   parseInitializer_(expressionIn) {
-    this.eat_(TokenType.EQUAL);
+    this.eat_(EQUAL);
     return this.parseAssignmentExpression(expressionIn);
   }
 
@@ -1156,11 +1154,11 @@ export class Parser {
    */
   parseNameStatement_() {
     var start = this.getTreeStartLocation_();
-    this.eat_(TokenType.PRIVATE);
+    this.eat_(PRIVATE);
 
     var declarations = [];
     declarations.push(this.parseAtNameDeclaration_());
-    while (this.eatIf_(TokenType.COMMA)) {
+    while (this.eatIf_(COMMA)) {
       declarations.push(this.parseAtNameDeclaration_());
     }
     this.eatPossibleImplicitSemiColon_();
@@ -1169,9 +1167,9 @@ export class Parser {
 
   parseAtNameDeclaration_() {
     var start = this.getTreeStartLocation_();
-    var atName = this.eat_(TokenType.AT_NAME);
+    var atName = this.eat_(AT_NAME);
     var initializer = null;
-    if (this.peek_(TokenType.EQUAL))
+    if (this.peek_(EQUAL))
       initializer = this.parseInitializer_(Expression.IN);
     return new AtNameDeclaration(this.getTreeLocation_(start), atName,
                                  initializer);
@@ -1184,7 +1182,7 @@ export class Parser {
    */
   parseEmptyStatement_() {
     var start = this.getTreeStartLocation_();
-    this.eat_(TokenType.SEMI_COLON);
+    this.eat_(SEMI_COLON);
     return new EmptyStatement(this.getTreeLocation_(start));
   }
 
@@ -1199,7 +1197,7 @@ export class Parser {
 
     // 12.12 Labelled Statement
     if (expression.type === IDENTIFIER_EXPRESSION &&
-        this.eatIf_(TokenType.COLON)) {
+        this.eatIf_(COLON)) {
       var name = expression.identifierToken;
       return new LabelledStatement(this.getTreeLocation_(start), name,
                                    this.parseStatement());
@@ -1216,13 +1214,13 @@ export class Parser {
    */
   parseIfStatement_() {
     var start = this.getTreeStartLocation_();
-    this.eat_(TokenType.IF);
-    this.eat_(TokenType.OPEN_PAREN);
+    this.eat_(IF);
+    this.eat_(OPEN_PAREN);
     var condition = this.parseExpression();
-    this.eat_(TokenType.CLOSE_PAREN);
+    this.eat_(CLOSE_PAREN);
     var ifClause = this.parseStatement();
     var elseClause = null;
-    if (this.eatIf_(TokenType.ELSE)) {
+    if (this.eatIf_(ELSE)) {
       elseClause = this.parseStatement();
     }
     return new IfStatement(this.getTreeLocation_(start), condition, ifClause, elseClause);
@@ -1237,12 +1235,12 @@ export class Parser {
    */
   parseDoWhileStatement_() {
     var start = this.getTreeStartLocation_();
-    this.eat_(TokenType.DO);
+    this.eat_(DO);
     var body = this.parseStatement();
-    this.eat_(TokenType.WHILE);
-    this.eat_(TokenType.OPEN_PAREN);
+    this.eat_(WHILE);
+    this.eat_(OPEN_PAREN);
     var condition = this.parseExpression();
-    this.eat_(TokenType.CLOSE_PAREN);
+    this.eat_(CLOSE_PAREN);
     this.eatPossibleImplicitSemiColon_();
     return new DoWhileStatement(this.getTreeLocation_(start), body, condition);
   }
@@ -1254,10 +1252,10 @@ export class Parser {
    */
   parseWhileStatement_() {
     var start = this.getTreeStartLocation_();
-    this.eat_(TokenType.WHILE);
-    this.eat_(TokenType.OPEN_PAREN);
+    this.eat_(WHILE);
+    this.eat_(OPEN_PAREN);
     var condition = this.parseExpression();
-    this.eat_(TokenType.CLOSE_PAREN);
+    this.eat_(CLOSE_PAREN);
     var body = this.parseStatement();
     return new WhileStatement(this.getTreeLocation_(start), condition, body);
   }
@@ -1270,8 +1268,8 @@ export class Parser {
    */
   parseForStatement_() {
     var start = this.getTreeStartLocation_();
-    this.eat_(TokenType.FOR);
-    this.eat_(TokenType.OPEN_PAREN);
+    this.eat_(FOR);
+    this.eat_(OPEN_PAREN);
 
     var validate = (variables, kind) => {
       if (variables.declarations.length > 1) {
@@ -1289,15 +1287,15 @@ export class Parser {
       var variables =
          this.parseVariableDeclarationList_(
             Expression.NO_IN, DestructuringInitializer.OPTIONAL);
-      if (this.peek_(TokenType.IN)) {
+      if (this.peek_(IN)) {
         // for-in: only one declaration allowed
         validate(variables, 'for-in');
 
         var declaration = variables.declarations[0];
         // for-in: if let/const binding used, initializer is illegal
         if (options.blockBinding &&
-            (variables.declarationType == TokenType.LET ||
-             variables.declarationType == TokenType.CONST)) {
+            (variables.declarationType == LET ||
+             variables.declarationType == CONST)) {
           if (declaration.initializer != null) {
             this.reportError_(
                 'let/const in for-in statement may not have initializer');
@@ -1323,13 +1321,13 @@ export class Parser {
       }
     }
 
-    if (this.peek_(TokenType.SEMI_COLON)) {
+    if (this.peek_(SEMI_COLON)) {
       return this.parseForStatement2_(start, null);
     }
 
     var initializer = this.parseExpression(Expression.NO_IN);
     if (initializer.isLeftHandSideExpression() &&
-        (this.peek_(TokenType.IN) || this.peekOf_())) {
+        (this.peek_(IN) || this.peekOf_())) {
       initializer = this.transformLeftHandSideExpression_(initializer);
       if (this.peekOf_())
         return this.parseForOfStatement_(start, initializer);
@@ -1354,7 +1352,7 @@ export class Parser {
   parseForOfStatement_(start, initializer) {
     this.eatId_(); // of
     var collection = this.parseExpression();
-    this.eat_(TokenType.CLOSE_PAREN);
+    this.eat_(CLOSE_PAREN);
     var body = this.parseStatement();
     return new ForOfStatement(this.getTreeLocation_(start), initializer, collection, body);
   }
@@ -1368,7 +1366,7 @@ export class Parser {
    */
   checkInitializers_(variables) {
     if (options.blockBinding &&
-        variables.declarationType == TokenType.CONST) {
+        variables.declarationType == CONST) {
       var type = variables.declarationType;
       for (var i = 0; i < variables.declarations.length; i++) {
         if (!this.checkInitializer_(type, variables.declarations[i])) {
@@ -1387,7 +1385,7 @@ export class Parser {
    * @private
    */
   checkInitializer_(type, declaration) {
-    if (options.blockBinding && type == TokenType.CONST &&
+    if (options.blockBinding && type == CONST &&
         declaration.initializer == null) {
       this.reportError_('const variables must have an initializer');
       return false;
@@ -1401,10 +1399,10 @@ export class Parser {
    */
   peekVariableDeclarationList_() {
     switch (this.peekType_()) {
-      case TokenType.VAR:
+      case VAR:
         return true;
-      case TokenType.CONST:
-      case TokenType.LET:
+      case CONST:
+      case LET:
         return options.blockBinding;
       default:
         return false;
@@ -1419,19 +1417,19 @@ export class Parser {
    * @private
    */
   parseForStatement2_(start, initializer) {
-    this.eat_(TokenType.SEMI_COLON);
+    this.eat_(SEMI_COLON);
 
     var condition = null;
-    if (!this.peek_(TokenType.SEMI_COLON)) {
+    if (!this.peek_(SEMI_COLON)) {
       condition = this.parseExpression();
     }
-    this.eat_(TokenType.SEMI_COLON);
+    this.eat_(SEMI_COLON);
 
     var increment = null;
-    if (!this.peek_(TokenType.CLOSE_PAREN)) {
+    if (!this.peek_(CLOSE_PAREN)) {
       increment = this.parseExpression();
     }
-    this.eat_(TokenType.CLOSE_PAREN);
+    this.eat_(CLOSE_PAREN);
     var body = this.parseStatement();
     return new ForStatement(this.getTreeLocation_(start), initializer, condition, increment, body);
   }
@@ -1444,9 +1442,9 @@ export class Parser {
    * @private
    */
   parseForInStatement_(start, initializer) {
-    this.eat_(TokenType.IN);
+    this.eat_(IN);
     var collection = this.parseExpression();
-    this.eat_(TokenType.CLOSE_PAREN);
+    this.eat_(CLOSE_PAREN);
     var body = this.parseStatement();
     return new ForInStatement(this.getTreeLocation_(start), initializer, collection, body);
   }
@@ -1458,7 +1456,7 @@ export class Parser {
    */
   parseContinueStatement_() {
     var start = this.getTreeStartLocation_();
-    this.eat_(TokenType.CONTINUE);
+    this.eat_(CONTINUE);
     var name = null;
     if (!this.peekImplicitSemiColon_()) {
       name = this.eatIdOpt_();
@@ -1474,7 +1472,7 @@ export class Parser {
    */
   parseBreakStatement_() {
     var start = this.getTreeStartLocation_();
-    this.eat_(TokenType.BREAK);
+    this.eat_(BREAK);
     var name = null;
     if (!this.peekImplicitSemiColon_()) {
       name = this.eatIdOpt_();
@@ -1490,7 +1488,7 @@ export class Parser {
    */
   parseReturnStatement_() {
     var start = this.getTreeStartLocation_();
-    this.eat_(TokenType.RETURN);
+    this.eat_(RETURN);
     var expression = null;
     if (!this.peekImplicitSemiColon_()) {
       expression = this.parseExpression();
@@ -1512,9 +1510,9 @@ export class Parser {
     }
 
     var start = this.getTreeStartLocation_();
-    this.eat_(TokenType.YIELD);
+    this.eat_(YIELD);
     var expression = null;
-    var isYieldFor = this.eatOpt_(TokenType.STAR) != null;
+    var isYieldFor = this.eatOpt_(STAR) != null;
     if (isYieldFor || !this.peekImplicitSemiColon_()) {
       expression = this.parseAssignmentExpression();
     }
@@ -1531,11 +1529,11 @@ export class Parser {
    */
   parseAwaitStatement_() {
     var start = this.getTreeStartLocation_();
-    this.eat_(TokenType.AWAIT);
+    this.eat_(AWAIT);
     var identifier = null;
-    if (this.peek_(TokenType.IDENTIFIER) && this.peek_(TokenType.EQUAL, 1)) {
+    if (this.peek_(IDENTIFIER) && this.peek_(EQUAL, 1)) {
       identifier = this.eatId_();
-      this.eat_(TokenType.EQUAL);
+      this.eat_(EQUAL);
     }
     var expression = this.parseExpression();
     this.eatPossibleImplicitSemiColon_();
@@ -1549,10 +1547,10 @@ export class Parser {
    */
   parseWithStatement_() {
     var start = this.getTreeStartLocation_();
-    this.eat_(TokenType.WITH);
-    this.eat_(TokenType.OPEN_PAREN);
+    this.eat_(WITH);
+    this.eat_(OPEN_PAREN);
     var expression = this.parseExpression();
-    this.eat_(TokenType.CLOSE_PAREN);
+    this.eat_(CLOSE_PAREN);
     var body = this.parseStatement();
     return new WithStatement(this.getTreeLocation_(start), expression, body);
   }
@@ -1564,13 +1562,13 @@ export class Parser {
    */
   parseSwitchStatement_() {
     var start = this.getTreeStartLocation_();
-    this.eat_(TokenType.SWITCH);
-    this.eat_(TokenType.OPEN_PAREN);
+    this.eat_(SWITCH);
+    this.eat_(OPEN_PAREN);
     var expression = this.parseExpression();
-    this.eat_(TokenType.CLOSE_PAREN);
-    this.eat_(TokenType.OPEN_CURLY);
+    this.eat_(CLOSE_PAREN);
+    this.eat_(OPEN_CURLY);
     var caseClauses = this.parseCaseClauses_();
-    this.eat_(TokenType.CLOSE_CURLY);
+    this.eat_(CLOSE_CURLY);
     return new SwitchStatement(this.getTreeLocation_(start), expression, caseClauses);
   }
 
@@ -1585,21 +1583,21 @@ export class Parser {
     while (true) {
       var start = this.getTreeStartLocation_();
       switch (this.peekType_()) {
-        case TokenType.CASE:
+        case CASE:
           this.nextToken_();
           var expression = this.parseExpression();
-          this.eat_(TokenType.COLON);
+          this.eat_(COLON);
           var statements = this.parseCaseStatementsOpt_();
           result.push(new CaseClause(this.getTreeLocation_(start), expression, statements));
           break;
-        case TokenType.DEFAULT:
+        case DEFAULT:
           if (foundDefaultClause) {
             this.reportError_('Switch statements may have at most one default clause');
           } else {
             foundDefaultClause = true;
           }
           this.nextToken_();
-          this.eat_(TokenType.COLON);
+          this.eat_(COLON);
           result.push(new DefaultClause(this.getTreeLocation_(start), this.parseCaseStatementsOpt_()));
           break;
         default:
@@ -1623,7 +1621,7 @@ export class Parser {
    */
   parseThrowStatement_() {
     var start = this.getTreeStartLocation_();
-    this.eat_(TokenType.THROW);
+    this.eat_(THROW);
     var value = null;
     if (!this.peekImplicitSemiColon_()) {
       value = this.parseExpression();
@@ -1639,14 +1637,14 @@ export class Parser {
    */
   parseTryStatement_() {
     var start = this.getTreeStartLocation_();
-    this.eat_(TokenType.TRY);
+    this.eat_(TRY);
     var body = this.parseBlock_();
     var catchBlock = null;
-    if (this.peek_(TokenType.CATCH)) {
+    if (this.peek_(CATCH)) {
       catchBlock = this.parseCatch_();
     }
     var finallyBlock = null;
-    if (this.peek_(TokenType.FINALLY)) {
+    if (this.peek_(FINALLY)) {
       finallyBlock = this.parseFinallyBlock_();
     }
     if (catchBlock == null && finallyBlock == null) {
@@ -1669,14 +1667,14 @@ export class Parser {
   parseCatch_() {
     var start = this.getTreeStartLocation_();
     var catchBlock;
-    this.eat_(TokenType.CATCH);
-    this.eat_(TokenType.OPEN_PAREN);
+    this.eat_(CATCH);
+    this.eat_(OPEN_PAREN);
     var binding;
     if (this.peekPattern_())
       binding = this.parseBindingPattern_();
     else
       binding = this.parseBindingIdentifier_();
-    this.eat_(TokenType.CLOSE_PAREN);
+    this.eat_(CLOSE_PAREN);
     var catchBody = this.parseBlock_();
     catchBlock = new Catch(this.getTreeLocation_(start), binding,
                            catchBody);
@@ -1689,7 +1687,7 @@ export class Parser {
    */
   parseFinallyBlock_() {
     var start = this.getTreeStartLocation_();
-    this.eat_(TokenType.FINALLY);
+    this.eat_(FINALLY);
     var finallyBlock = this.parseBlock_();
     return new Finally(this.getTreeLocation_(start), finallyBlock);
   }
@@ -1701,7 +1699,7 @@ export class Parser {
    */
   parseDebuggerStatement_() {
     var start = this.getTreeStartLocation_();
-    this.eat_(TokenType.DEBUGGER);
+    this.eat_(DEBUGGER);
     this.eatPossibleImplicitSemiColon_();
 
     return new DebuggerStatement(this.getTreeLocation_(start));
@@ -1714,34 +1712,34 @@ export class Parser {
    */
   parsePrimaryExpression_() {
     switch (this.peekType_()) {
-      case TokenType.CLASS:
+      case CLASS:
         return options.classes ?
             this.parseClassExpression_() :
             this.parseMissingPrimaryExpression_();
-      case TokenType.SUPER:
+      case SUPER:
         return this.parseSuperExpression_();
-      case TokenType.THIS:
+      case THIS:
         return this.parseThisExpression_();
-      case TokenType.IDENTIFIER:
+      case IDENTIFIER:
         return this.parseIdentifierExpression_();
-      case TokenType.NUMBER:
-      case TokenType.STRING:
-      case TokenType.TRUE:
-      case TokenType.FALSE:
-      case TokenType.NULL:
+      case NUMBER:
+      case STRING:
+      case TRUE:
+      case FALSE:
+      case NULL:
         return this.parseLiteralExpression_();
-      case TokenType.OPEN_SQUARE:
+      case OPEN_SQUARE:
         return this.parseArrayLiteral_();
-      case TokenType.OPEN_CURLY:
+      case OPEN_CURLY:
         return this.parseObjectLiteral_();
-      case TokenType.OPEN_PAREN:
+      case OPEN_PAREN:
         return this.parseParenExpression_();
-      case TokenType.SLASH:
-      case TokenType.SLASH_EQUAL:
+      case SLASH:
+      case SLASH_EQUAL:
         return this.parseRegularExpressionLiteral_();
-      case TokenType.BACK_QUOTE:
+      case BACK_QUOTE:
         return this.parseQuasiLiteral_(null);
-      case TokenType.AT_NAME:
+      case AT_NAME:
         return this.parseAtNameExpression_();
       default:
         return this.parseMissingPrimaryExpression_();
@@ -1754,7 +1752,7 @@ export class Parser {
    */
   parseSuperExpression_() {
     var start = this.getTreeStartLocation_();
-    this.eat_(TokenType.SUPER);
+    this.eat_(SUPER);
     return new SuperExpression(this.getTreeLocation_(start));
   }
 
@@ -1764,7 +1762,7 @@ export class Parser {
    */
   parseThisExpression_() {
     var start = this.getTreeStartLocation_();
-    this.eat_(TokenType.THIS);
+    this.eat_(THIS);
     return new ThisExpression(this.getTreeLocation_(start));
   }
 
@@ -1801,7 +1799,7 @@ export class Parser {
 
   parseAtNameExpression_() {
     var start = this.getTreeStartLocation_();
-    var atName = this.eat_(TokenType.AT_NAME);
+    var atName = this.eat_(AT_NAME);
     return new AtNameExpression(this.getTreeLocation_(start), atName);
   }
 
@@ -1834,7 +1832,7 @@ export class Parser {
   }
 
   peekSpread_() {
-    return this.peek_(TokenType.DOT_DOT_DOT);
+    return this.peek_(DOT_DOT_DOT);
   }
 
   // 11.1.4 Array Literal Expression
@@ -1870,28 +1868,28 @@ export class Parser {
     var elements = [];
     var allowFor = options.arrayComprehension;
 
-    this.eat_(TokenType.OPEN_SQUARE);
-    while (this.peek_(TokenType.COMMA) ||
+    this.eat_(OPEN_SQUARE);
+    while (this.peek_(COMMA) ||
            this.peekSpread_() ||
            this.peekAssignmentExpression_()) {
-      if (this.peek_(TokenType.COMMA)) {
+      if (this.peek_(COMMA)) {
         expression = null;
         allowFor = false;
       } else {
         expression = this.parseAssignmentOrSpread_();
       }
 
-      if (allowFor && this.peek_(TokenType.FOR))
+      if (allowFor && this.peek_(FOR))
         return this.parseArrayComprehension_(start, expression);
 
       allowFor = false;
       elements.push(expression);
 
-      if (!this.peek_(TokenType.CLOSE_SQUARE)) {
-        this.eat_(TokenType.COMMA);
+      if (!this.peek_(CLOSE_SQUARE)) {
+        this.eat_(COMMA);
       }
     }
-    this.eat_(TokenType.CLOSE_SQUARE);
+    this.eat_(CLOSE_SQUARE);
     return new ArrayLiteralExpression(
         this.getTreeLocation_(start), elements);
   }
@@ -1921,7 +1919,7 @@ export class Parser {
   parseArrayComprehension_(start, expression) {
     var comprehensionForList = this.parseComprehensionForList_();
     var ifExpression = this.parseComprehensionIf_();
-    this.eat_(TokenType.CLOSE_SQUARE);
+    this.eat_(CLOSE_SQUARE);
     return new ArrayComprehension(this.getTreeLocation_(start),
                                   expression,
                                   comprehensionForList,
@@ -1937,7 +1935,7 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     var result = [];
 
-    this.eat_(TokenType.OPEN_CURLY);
+    this.eat_(OPEN_CURLY);
     while (this.peekPropertyDefinition_()) {
       var propertyDefinition = this.parsePropertyDefinition();
       if (!propertyDefinition)
@@ -1945,18 +1943,18 @@ export class Parser {
       result.push(propertyDefinition);
       if (propertyDefinition.type === PROPERTY_NAME_ASSIGNMENT) {
         // Comma is required after name assignment.
-        if (!this.eatOpt_(TokenType.COMMA))
+        if (!this.eatOpt_(COMMA))
           break;
       } else if (!this.eatPropertyOptionalComma_()) {
         break;
       }
     }
-    this.eat_(TokenType.CLOSE_CURLY);
+    this.eat_(CLOSE_CURLY);
     return new ObjectLiteralExpression(this.getTreeLocation_(start), result);
   }
 
   eatPropertyOptionalComma_() {
-    return this.eatOpt_(TokenType.COMMA) || options.propertyOptionalComma;
+    return this.eatOpt_(COMMA) || options.propertyOptionalComma;
   }
 
   /**
@@ -1976,43 +1974,43 @@ export class Parser {
 
     var isGenerator = false;
     if (options.generators && options.propertyMethods &&
-        this.eatIf_(TokenType.STAR)) {
+        this.eatIf_(STAR)) {
       isGenerator = true;
     }
 
     var name = this.parsePropertyName_();
 
     if (isGenerator ||
-        options.propertyMethods && this.peek_(TokenType.OPEN_PAREN)) {
-      this.eat_(TokenType.OPEN_PAREN);
+        options.propertyMethods && this.peek_(OPEN_PAREN)) {
+      this.eat_(OPEN_PAREN);
       var formalParameterList = this.parseFormalParameterList_();
-      this.eat_(TokenType.CLOSE_PAREN);
+      this.eat_(CLOSE_PAREN);
       var functionBody = this.parseFunctionBody_(isGenerator);
       return new PropertyMethodAssignment(this.getTreeLocation_(start),
           name, isGenerator, formalParameterList, functionBody);
     }
 
-    if (inObjectLiteral && this.eatIf_(TokenType.COLON)) {
+    if (inObjectLiteral && this.eatIf_(COLON)) {
       var value = this.parseAssignmentExpression();
       return new PropertyNameAssignment(this.getTreeLocation_(start), name,
                                         value);
     }
 
-    if (name.type === TokenType.IDENTIFIER && name.value === GET &&
+    if (name.type === IDENTIFIER && name.value === GET &&
         this.peekPropertyName_()) {
       name = this.parsePropertyName_();
-      this.eat_(TokenType.OPEN_PAREN);
-      this.eat_(TokenType.CLOSE_PAREN);
+      this.eat_(OPEN_PAREN);
+      this.eat_(CLOSE_PAREN);
       var body = this.parseFunctionBody_(false);
       return new GetAccessor(this.getTreeLocation_(start), name, body);
     }
 
-    if (name.type === TokenType.IDENTIFIER && name.value === SET &&
+    if (name.type === IDENTIFIER && name.value === SET &&
         this.peekPropertyName_()) {
       name = this.parsePropertyName_();
-      this.eat_(TokenType.OPEN_PAREN);
+      this.eat_(OPEN_PAREN);
       var parameter = this.parsePropertySetParameterList_();
-      this.eat_(TokenType.CLOSE_PAREN);
+      this.eat_(CLOSE_PAREN);
       var body = this.parseFunctionBody_(false);
       return new SetAccessor(this.getTreeLocation_(start), name, parameter,
                              body);
@@ -2034,7 +2032,7 @@ export class Parser {
   peekPropertyDefinition_() {
     return this.peekPropertyName_() ||
         options.propertyMethods &&
-        options.generators && this.peek_(TokenType.STAR);
+        options.generators && this.peek_(STAR);
   }
 
   /**
@@ -2044,11 +2042,11 @@ export class Parser {
   peekPropertyName_() {
     var type = this.peekType_();
     switch (type) {
-      case TokenType.AT_NAME:
+      case AT_NAME:
         return options.privateNameSyntax;
-      case TokenType.IDENTIFIER:
-      case TokenType.STRING:
-      case TokenType.NUMBER:
+      case IDENTIFIER:
+      case STRING:
+      case NUMBER:
         return true;
       default:
         return isKeyword(type);
@@ -2061,7 +2059,7 @@ export class Parser {
    */
   peekPredefinedString_(string) {
     var token = this.peekToken_();
-    return token.type === TokenType.IDENTIFIER && token.value === string;
+    return token.type === IDENTIFIER && token.value === string;
   }
 
   /**
@@ -2111,36 +2109,36 @@ export class Parser {
    */
   peekExpression_() {
     switch (this.peekType_()) {
-      case TokenType.BACK_QUOTE:
+      case BACK_QUOTE:
         return options.quasi;
-      case TokenType.AT_NAME:
+      case AT_NAME:
         return options.privateNameSyntax;
-      case TokenType.BANG:
-      case TokenType.CLASS:
-      case TokenType.DELETE:
-      case TokenType.FALSE:
-      case TokenType.FUNCTION:
-      case TokenType.IDENTIFIER:
-      case TokenType.MINUS:
-      case TokenType.MINUS_MINUS:
-      case TokenType.NEW:
-      case TokenType.NULL:
-      case TokenType.NUMBER:
-      case TokenType.OPEN_CURLY:
-      case TokenType.OPEN_PAREN:
-      case TokenType.OPEN_SQUARE:
-      case TokenType.PLUS:
-      case TokenType.PLUS_PLUS:
-      case TokenType.SLASH: // regular expression literal
-      case TokenType.SLASH_EQUAL:
-      case TokenType.STRING:
-      case TokenType.SUPER:
-      case TokenType.THIS:
-      case TokenType.TILDE:
-      case TokenType.TRUE:
-      case TokenType.TYPEOF:
-      case TokenType.VOID:
-      case TokenType.YIELD:
+      case BANG:
+      case CLASS:
+      case DELETE:
+      case FALSE:
+      case FUNCTION:
+      case IDENTIFIER:
+      case MINUS:
+      case MINUS_MINUS:
+      case NEW:
+      case NULL:
+      case NUMBER:
+      case OPEN_CURLY:
+      case OPEN_PAREN:
+      case OPEN_SQUARE:
+      case PLUS:
+      case PLUS_PLUS:
+      case SLASH: // regular expression literal
+      case SLASH_EQUAL:
+      case STRING:
+      case SUPER:
+      case THIS:
+      case TILDE:
+      case TRUE:
+      case TYPEOF:
+      case VOID:
+      case YIELD:
         return true;
       default:
         return false;
@@ -2162,9 +2160,9 @@ export class Parser {
     var expressionIn = opt_expressionIn || Expression.IN;
     var start = this.getTreeStartLocation_();
     var result = this.parseAssignmentExpression(expressionIn);
-    if (this.peek_(TokenType.COMMA)) {
+    if (this.peek_(COMMA)) {
       var exprs = [result];
-      while (this.eatIf_(TokenType.COMMA)) {
+      while (this.eatIf_(COMMA)) {
         exprs.push(this.parseAssignmentExpression(expressionIn));
       }
       return new CommaExpression(this.getTreeLocation_(start), exprs);
@@ -2176,8 +2174,8 @@ export class Parser {
     var expressionIn = opt_expressionIn || Expression.IN;
     var start = this.getTreeStartLocation_();
     var result = [this.parseAssignmentExpression(expressionIn)];
-    if (this.peek_(TokenType.COMMA)) {
-      while (this.eatIf_(TokenType.COMMA)) {
+    if (this.peek_(COMMA)) {
+      while (this.eatIf_(COMMA)) {
         if (this.peekRest_()) {
           result.push(this.parseRestParameter_());
           break;
@@ -2217,7 +2215,7 @@ export class Parser {
    * @return {ParseTree}
    */
   parseAssignmentExpression(opt_expressionIn) {
-    if (this.allowYield_ && this.peek_(TokenType.YIELD))
+    if (this.allowYield_ && this.peek_(YIELD))
       return this.parseYieldExpression_();
 
     var expressionIn = opt_expressionIn || Expression.NORMAL;
@@ -2225,7 +2223,7 @@ export class Parser {
 
     var left = this.parseConditional_(expressionIn);
     if (this.peekAssignmentOperator_()) {
-      if (this.peek_(TokenType.EQUAL))
+      if (this.peek_(EQUAL))
         left = this.transformLeftHandSideExpression_(left);
 
       if (!left.isLeftHandSideExpression() && !left.isPattern()) {
@@ -2299,9 +2297,9 @@ export class Parser {
   parseConditional_(expressionIn) {
     var start = this.getTreeStartLocation_();
     var condition = this.parseLogicalOR_(expressionIn);
-    if (this.eatIf_(TokenType.QUESTION)) {
+    if (this.eatIf_(QUESTION)) {
       var left = this.parseAssignmentExpression();
-      this.eat_(TokenType.COLON);
+      this.eat_(COLON);
       var right = this.parseAssignmentExpression(expressionIn);
       return new ConditionalExpression(this.getTreeLocation_(start), condition, left, right);
     }
@@ -2318,7 +2316,7 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     var left = this.parseLogicalAND_(expressionIn);
     var operator;
-    while (operator = this.eatOpt_(TokenType.OR)) {
+    while (operator = this.eatOpt_(OR)) {
       var right = this.parseLogicalAND_(expressionIn);
       left = new BinaryOperator(this.getTreeLocation_(start), left, operator, right);
     }
@@ -2335,7 +2333,7 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     var left = this.parseBitwiseOR_(expressionIn);
     var operator;
-    while (operator = this.eatOpt_(TokenType.AND)) {
+    while (operator = this.eatOpt_(AND)) {
       var right = this.parseBitwiseOR_(expressionIn);
       left = new BinaryOperator(this.getTreeLocation_(start), left, operator, right);
     }
@@ -2352,7 +2350,7 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     var left = this.parseBitwiseXOR_(expressionIn);
     var operator;
-    while (operator = this.eatOpt_(TokenType.BAR)) {
+    while (operator = this.eatOpt_(BAR)) {
       var right = this.parseBitwiseXOR_(expressionIn);
       left = new BinaryOperator(this.getTreeLocation_(start), left, operator, right);
     }
@@ -2369,7 +2367,7 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     var left = this.parseBitwiseAND_(expressionIn);
     var operator;
-    while (operator = this.eatOpt_(TokenType.CARET)) {
+    while (operator = this.eatOpt_(CARET)) {
       var right = this.parseBitwiseAND_(expressionIn);
       left = new BinaryOperator(this.getTreeLocation_(start), left, operator, right);
     }
@@ -2386,7 +2384,7 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     var left = this.parseEquality_(expressionIn);
     var operator;
-    while (operator = this.eatOpt_(TokenType.AMPERSAND)) {
+    while (operator = this.eatOpt_(AMPERSAND)) {
       var right = this.parseEquality_(expressionIn);
       left = new BinaryOperator(this.getTreeLocation_(start), left, operator, right);
     }
@@ -2416,16 +2414,16 @@ export class Parser {
    */
   peekEqualityOperator_() {
     switch (this.peekType_()) {
-      case TokenType.EQUAL_EQUAL:
-      case TokenType.NOT_EQUAL:
-      case TokenType.EQUAL_EQUAL_EQUAL:
-      case TokenType.NOT_EQUAL_EQUAL:
+      case EQUAL_EQUAL:
+      case NOT_EQUAL:
+      case EQUAL_EQUAL_EQUAL:
+      case NOT_EQUAL_EQUAL:
         return true;
       default:
         if (!options.isExpression)
           return false;
         var token = this.peekTokenNoLineTerminator_();
-        return token && token.type === TokenType.IDENTIFIER &&
+        return token && token.type === IDENTIFIER &&
             (token.value === IS || token.value === ISNT);
     }
   }
@@ -2454,13 +2452,13 @@ export class Parser {
    */
   peekRelationalOperator_(expressionIn) {
     switch (this.peekType_()) {
-      case TokenType.OPEN_ANGLE:
-      case TokenType.CLOSE_ANGLE:
-      case TokenType.GREATER_EQUAL:
-      case TokenType.LESS_EQUAL:
-      case TokenType.INSTANCEOF:
+      case OPEN_ANGLE:
+      case CLOSE_ANGLE:
+      case GREATER_EQUAL:
+      case LESS_EQUAL:
+      case INSTANCEOF:
         return true;
-      case TokenType.IN:
+      case IN:
         return expressionIn == Expression.NORMAL;
       default:
         return false;
@@ -2489,9 +2487,9 @@ export class Parser {
    */
   peekShiftOperator_() {
     switch (this.peekType_()) {
-      case TokenType.LEFT_SHIFT:
-      case TokenType.RIGHT_SHIFT:
-      case TokenType.UNSIGNED_RIGHT_SHIFT:
+      case LEFT_SHIFT:
+      case RIGHT_SHIFT:
+      case UNSIGNED_RIGHT_SHIFT:
         return true;
       default:
         return false;
@@ -2520,8 +2518,8 @@ export class Parser {
    */
   peekAdditiveOperator_() {
     switch (this.peekType_()) {
-      case TokenType.PLUS:
-      case TokenType.MINUS:
+      case PLUS:
+      case MINUS:
         return true;
       default:
         return false;
@@ -2550,9 +2548,9 @@ export class Parser {
    */
   peekMultiplicativeOperator_() {
     switch (this.peekType_()) {
-      case TokenType.STAR:
-      case TokenType.SLASH:
-      case TokenType.PERCENT:
+      case STAR:
+      case SLASH:
+      case PERCENT:
         return true;
       default:
         return false;
@@ -2580,15 +2578,15 @@ export class Parser {
    */
   peekUnaryOperator_() {
     switch (this.peekType_()) {
-      case TokenType.DELETE:
-      case TokenType.VOID:
-      case TokenType.TYPEOF:
-      case TokenType.PLUS_PLUS:
-      case TokenType.MINUS_MINUS:
-      case TokenType.PLUS:
-      case TokenType.MINUS:
-      case TokenType.TILDE:
-      case TokenType.BANG:
+      case DELETE:
+      case VOID:
+      case TYPEOF:
+      case PLUS_PLUS:
+      case MINUS_MINUS:
+      case PLUS:
+      case MINUS:
+      case TILDE:
+      case BANG:
         return true;
       default:
         return false;
@@ -2619,8 +2617,8 @@ export class Parser {
       return false;
     }
     switch (this.peekType_()) {
-      case TokenType.PLUS_PLUS:
-      case TokenType.MINUS_MINUS:
+      case PLUS_PLUS:
+      case MINUS_MINUS:
         return true;
       default:
         return false;
@@ -2649,29 +2647,29 @@ export class Parser {
       // The Call expression productions
       while (this.peekCallSuffix_()) {
         switch (this.peekType_()) {
-          case TokenType.OPEN_PAREN:
+          case OPEN_PAREN:
             var args = this.parseArguments_();
             operand = new CallExpression(this.getTreeLocation_(start),
                                          operand, args);
             break;
-          case TokenType.OPEN_SQUARE:
+          case OPEN_SQUARE:
             this.nextToken_();
             var member = this.parseExpression();
-            this.eat_(TokenType.CLOSE_SQUARE);
+            this.eat_(CLOSE_SQUARE);
             operand = new MemberLookupExpression(this.getTreeLocation_(start),
                                                  operand, member);
             break;
-          case TokenType.PERIOD:
+          case PERIOD:
             this.nextToken_();
             operand = new MemberExpression(this.getTreeLocation_(start),
                                            operand, this.eatIdName_());
             break;
-          case TokenType.PERIOD_OPEN_CURLY:
+          case PERIOD_OPEN_CURLY:
             var expressions = this.parseCascadeExpressions_();
             operand = new CascadeExpression(this.getTreeLocation_(start),
                                             operand, expressions);
             break;
-          case TokenType.BACK_QUOTE:
+          case BACK_QUOTE:
             operand = this.parseQuasiLiteral_(operand);
             break;
         }
@@ -2685,11 +2683,11 @@ export class Parser {
    * @private
    */
   peekCallSuffix_() {
-    return this.peek_(TokenType.OPEN_PAREN) ||
-        this.peek_(TokenType.OPEN_SQUARE) ||
-        this.peek_(TokenType.PERIOD) ||
-        options.quasi && this.peek_(TokenType.BACK_QUOTE) ||
-        options.cascadeExpression && this.peek_(TokenType.PERIOD_OPEN_CURLY);
+    return this.peek_(OPEN_PAREN) ||
+        this.peek_(OPEN_SQUARE) ||
+        this.peek_(PERIOD) ||
+        options.quasi && this.peek_(BACK_QUOTE) ||
+        options.cascadeExpression && this.peek_(PERIOD_OPEN_CURLY);
   }
 
   // 11.2 Member Expression without the new production
@@ -2708,18 +2706,18 @@ export class Parser {
 
     while (this.peekMemberExpressionSuffix_()) {
       switch (this.peekType_()) {
-        case TokenType.OPEN_SQUARE:
+        case OPEN_SQUARE:
           this.nextToken_();
           var member = this.parseExpression();
-          this.eat_(TokenType.CLOSE_SQUARE);
+          this.eat_(CLOSE_SQUARE);
           operand = new MemberLookupExpression(this.getTreeLocation_(start),
                                                operand, member);
           break;
 
-        case TokenType.PERIOD:
+        case PERIOD:
           this.nextToken_();
           var name;
-          if (options.privateNameSyntax && this.peek_(TokenType.AT_NAME))
+          if (options.privateNameSyntax && this.peek_(AT_NAME))
             name = this.nextToken_();
           else
             name = this.eatIdName_();
@@ -2727,13 +2725,13 @@ export class Parser {
                                          operand, name);
           break;
 
-        case TokenType.PERIOD_OPEN_CURLY:
+        case PERIOD_OPEN_CURLY:
           var expressions = this.parseCascadeExpressions_();
           operand = new CascadeExpression(this.getTreeLocation_(start),
                                           operand, expressions);
           break;
 
-        case TokenType.BACK_QUOTE:
+        case BACK_QUOTE:
           operand = this.parseQuasiLiteral_(operand);
           break;
       }
@@ -2742,13 +2740,13 @@ export class Parser {
   }
 
   parseCascadeExpressions_() {
-    this.eat_(TokenType.PERIOD_OPEN_CURLY);
+    this.eat_(PERIOD_OPEN_CURLY);
     var expressions = [];
     while (this.peekId_() && this.peekAssignmentExpression_()) {
       expressions.push(this.parseCascadeExpression_());
       this.eatPossibleImplicitSemiColon_();
     }
-    this.eat_(TokenType.CLOSE_CURLY);
+    this.eat_(CLOSE_CURLY);
     return expressions;
   }
 
@@ -2797,10 +2795,10 @@ export class Parser {
    * @private
    */
   peekMemberExpressionSuffix_() {
-    return this.peek_(TokenType.OPEN_SQUARE) ||
-        this.peek_(TokenType.PERIOD) ||
-        options.quasi && this.peek_(TokenType.BACK_QUOTE) ||
-        options.cascadeExpression && this.peek_(TokenType.PERIOD_OPEN_CURLY);
+    return this.peek_(OPEN_SQUARE) ||
+        this.peek_(PERIOD) ||
+        options.quasi && this.peek_(BACK_QUOTE) ||
+        options.cascadeExpression && this.peek_(PERIOD_OPEN_CURLY);
   }
 
   // 11.2 New Expression
@@ -2809,12 +2807,12 @@ export class Parser {
    * @private
    */
   parseNewExpression_() {
-    if (this.peek_(TokenType.NEW)) {
+    if (this.peek_(NEW)) {
       var start = this.getTreeStartLocation_();
-      this.eat_(TokenType.NEW);
+      this.eat_(NEW);
       var operand = this.parseNewExpression_();
       var args = null;
-      if (this.peek_(TokenType.OPEN_PAREN)) {
+      if (this.peek_(OPEN_PAREN)) {
         args = this.parseArguments_();
       }
       return new NewExpression(this.getTreeLocation_(start), operand, args);
@@ -2839,20 +2837,20 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     var args = [];
 
-    this.eat_(TokenType.OPEN_PAREN);
+    this.eat_(OPEN_PAREN);
     while (this.peekAssignmentOrRest_()) {
       args.push(this.parseAssignmentOrSpread_());
 
-      if (!this.peek_(TokenType.CLOSE_PAREN)) {
-        this.eat_(TokenType.COMMA);
+      if (!this.peek_(CLOSE_PAREN)) {
+        this.eat_(COMMA);
       }
     }
-    this.eat_(TokenType.CLOSE_PAREN);
+    this.eat_(CLOSE_PAREN);
     return new ArgumentList(this.getTreeLocation_(start), args);
   }
 
   peekRest_() {
-    return options.restParameters && this.peek_(TokenType.DOT_DOT_DOT);
+    return options.restParameters && this.peek_(DOT_DOT_DOT);
   }
 
   /**
@@ -2916,10 +2914,10 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     var formals;
 
-    this.eat_(TokenType.OPEN_PAREN);
+    this.eat_(OPEN_PAREN);
 
     // ()
-    if (this.eatIf_(TokenType.CLOSE_PAREN)) {
+    if (this.eatIf_(CLOSE_PAREN)) {
       var paramStart = this.getTreeStartLocation_();
       formals = new FormalParameterList(this.getTreeLocation_(paramStart), []);
 
@@ -2929,7 +2927,7 @@ export class Parser {
       // ( ... ident )
       var lastFormal = coverFormals[coverFormals.length - 1];
       if (lastFormal.type === REST_PARAMETER) {
-        this.eat_(TokenType.CLOSE_PAREN);
+        this.eat_(CLOSE_PAREN);
         formals = this.reparseAsFormalsList_(coverFormals);
         if (!formals) {
           return this.parseMissingPrimaryExpression_(
@@ -2938,13 +2936,13 @@ export class Parser {
 
       // ( expr for
       } else if (coverFormals.length === 1 && options.generatorComprehension &&
-                 this.peek_(TokenType.FOR)) {
+                 this.peek_(FOR)) {
         return this.parseGeneratorComprehension_(start, coverFormals[0]);
 
       // ( ident, ident )
       } else {
-        this.eat_(TokenType.CLOSE_PAREN);
-        if (this.peek_(TokenType.ARROW))
+        this.eat_(CLOSE_PAREN);
+        if (this.peek_(ARROW))
           formals = this.reparseAsFormalsList_(coverFormals);
       }
     }
@@ -2956,7 +2954,7 @@ export class Parser {
                                  commaExpression);
     }
 
-    this.eat_(TokenType.ARROW);
+    this.eat_(ARROW);
 
     var body = this.parseConciseBody_();
     var startLoc = this.getTreeLocation_(start);
@@ -3011,7 +3009,7 @@ export class Parser {
 
   /** @returns {TokenType} */
   peekArrow_() {
-    return options.arrowFunctions && this.peek_(TokenType.ARROW);
+    return options.arrowFunctions && this.peek_(ARROW);
   }
 
   /**
@@ -3026,7 +3024,7 @@ export class Parser {
   parseConciseBody_() {
     // The body can be a block or an expression. A '{' is always treated as
     // the beginning of a block.
-    if (this.peek_(TokenType.OPEN_CURLY))
+    if (this.peek_(OPEN_CURLY))
       return this.parseBlock_();
     return this.parseAssignmentExpression();
   }
@@ -3051,7 +3049,7 @@ export class Parser {
   parseGeneratorComprehension_(start, expression) {
     var comprehensionForList = this.parseComprehensionForList_();
     var ifExpression = this.parseComprehensionIf_();
-    this.eat_(TokenType.CLOSE_PAREN);
+    this.eat_(CLOSE_PAREN);
     return new GeneratorComprehension(this.getTreeLocation_(start),
                                       expression,
                                       comprehensionForList,
@@ -3060,7 +3058,7 @@ export class Parser {
 
   parseComprehensionForList_() {
     var comprehensionForList = [];
-    while (this.eatIf_(TokenType.FOR)) {
+    while (this.eatIf_(FOR)) {
       var innerStart = this.getTreeStartLocation_();
       var left = this.parseForBinding_();
       this.eatId_(OF);
@@ -3073,7 +3071,7 @@ export class Parser {
   }
 
   parseComprehensionIf_() {
-    if (this.eatIf_(TokenType.IF)) {
+    if (this.eatIf_(IF)) {
       return this.parseExpression();
     }
     return null;
@@ -3105,11 +3103,11 @@ export class Parser {
   }
 
   peekArrayPattern_() {
-    return this.peek_(TokenType.OPEN_SQUARE);
+    return this.peek_(OPEN_SQUARE);
   }
 
   peekObjectPattern_() {
-    return this.peek_(TokenType.OPEN_CURLY);
+    return this.peek_(OPEN_CURLY);
   }
 
   /**
@@ -3140,9 +3138,9 @@ export class Parser {
   parseArrayBindingPattern_() {
     var start = this.getTreeStartLocation_();
     var elements = [];
-    this.eat_(TokenType.OPEN_SQUARE);
+    this.eat_(OPEN_SQUARE);
     while (this.peekBindingElement_() ||
-           this.peek_(TokenType.COMMA) ||
+           this.peek_(COMMA) ||
            this.peekRest_()) {
       this.parseElisionOpt_(elements);
       if (this.peekRest_()) {
@@ -3151,13 +3149,13 @@ export class Parser {
       } else {
         elements.push(this.parseBindingElement_());
         // Trailing commas are not allowed in patterns.
-        if (this.peek_(TokenType.COMMA) &&
-            !this.peek_(TokenType.CLOSE_SQUARE, 1)) {
+        if (this.peek_(COMMA) &&
+            !this.peek_(CLOSE_SQUARE, 1)) {
           this.nextToken_();
         }
       }
     }
-    this.eat_(TokenType.CLOSE_SQUARE);
+    this.eat_(CLOSE_SQUARE);
     return new ArrayPattern(this.getTreeLocation_(start), elements);
   }
 
@@ -3169,7 +3167,7 @@ export class Parser {
   parseBindingElementList_(elements) {
     this.parseElisionOpt_(elements);
     elements.push(this.parseBindingElement_());
-    while (this.eatIf_(TokenType.COMMA)) {
+    while (this.eatIf_(COMMA)) {
       this.parseElisionOpt_(elements);
       elements.push(this.parseBindingElement_());
     }
@@ -3182,7 +3180,7 @@ export class Parser {
    * @param {Array} elements The array to append to.
    */
   parseElisionOpt_(elements) {
-    while (this.eatIf_(TokenType.COMMA)) {
+    while (this.eatIf_(COMMA)) {
       elements.push(null);
     }
   }
@@ -3213,7 +3211,7 @@ export class Parser {
     else
       binding = this.parseBindingIdentifier_();
     var initializer = null;
-    if (this.peek_(TokenType.EQUAL) ||
+    if (this.peek_(EQUAL) ||
         opt_initializer === Initializer.REQUIRED) {
       initializer = this.parseInitializer_();
     }
@@ -3227,7 +3225,7 @@ export class Parser {
    */
   parseBindingRestElement_() {
     var start = this.getTreeStartLocation_();
-    this.eat_(TokenType.DOT_DOT_DOT);
+    this.eat_(DOT_DOT_DOT);
     var identifier = this.parseBindingIdentifier_();
     return new SpreadPatternElement(this.getTreeLocation_(start), identifier);
   }
@@ -3245,13 +3243,13 @@ export class Parser {
   parseObjectBindingPattern_() {
     var start = this.getTreeStartLocation_();
     var elements = [];
-    this.eat_(TokenType.OPEN_CURLY);
+    this.eat_(OPEN_CURLY);
     while (this.peekBindingProperty_()) {
       elements.push(this.parseBindingProperty_());
-      if (!this.eatIf_(TokenType.COMMA))
+      if (!this.eatIf_(COMMA))
         break;
     }
-    this.eat_(TokenType.CLOSE_CURLY);
+    this.eat_(CLOSE_CURLY);
     return new ObjectPattern(this.getTreeLocation_(start), elements);
   }
 
@@ -3269,9 +3267,9 @@ export class Parser {
 
   parseBindingProperty_() {
     var start = this.getTreeStartLocation_();
-    if (this.peek_(TokenType.COLON, 1)) {
+    if (this.peek_(COLON, 1)) {
       var name = this.nextToken_();
-      this.eat_(TokenType.COLON);
+      this.eat_(COLON);
       var binding = this.parseBindingElement_();
       // TODO(arv): Rename ObjectPatternField to BindingProperty
       return new ObjectPatternField(this.getTreeLocation_(start),
@@ -3280,7 +3278,7 @@ export class Parser {
 
     var binding = this.parseBindingIdentifier_();
     var initializer = null;
-    if (this.peek_(TokenType.EQUAL))
+    if (this.peek_(EQUAL))
       initializer = this.parseInitializer_();
     return new BindingElement(this.getTreeLocation_(start), binding,
                               initializer);
@@ -3313,14 +3311,14 @@ export class Parser {
    */
   parseObjectAssignmentPattern_() {
     var start = this.getTreeStartLocation_();
-    this.eat_(TokenType.OPEN_CURLY);
+    this.eat_(OPEN_CURLY);
     var fields = [];
     var field;
     while (this.peekId_() || this.peekPropertyName_()) {
-      if (this.peek_(TokenType.COLON, 1)) {
+      if (this.peek_(COLON, 1)) {
         var fieldStart = this.getTreeStartLocation_();
         var name = this.nextToken_();
-        this.eat_(TokenType.COLON);
+        this.eat_(COLON);
         var left = this.parseLeftHandSideExpression_();
         left = this.transformLeftHandSideExpression_(left);
         field = new ObjectPatternField(this.getTreeLocation_(start),
@@ -3329,10 +3327,10 @@ export class Parser {
         field = this.parseIdentifierExpression_();
       }
       fields.push(field);
-      if (!this.eatIf_(TokenType.COMMA))
+      if (!this.eatIf_(COMMA))
         break;
     }
-    this.eat_(TokenType.CLOSE_CURLY);
+    this.eat_(CLOSE_CURLY);
     return new ObjectPattern(this.getTreeLocation_(start), fields);
   }
 
@@ -3355,8 +3353,8 @@ export class Parser {
   parseArrayAssignmentPattern_() {
     var start = this.getTreeStartLocation_();
     var elements = [];
-    this.eat_(TokenType.OPEN_SQUARE);
-    while (this.peek_(TokenType.COMMA) ||
+    this.eat_(OPEN_SQUARE);
+    while (this.peek_(COMMA) ||
            this.peekRest_() ||
            this.peekAssignmentExpression_()) {
       this.parseElisionOpt_(elements);
@@ -3366,19 +3364,19 @@ export class Parser {
       } else {
         elements.push(this.parseAssignmentElement_());
         // Trailing commas are not allowed in patterns.
-        if (this.peek_(TokenType.COMMA) &&
-            !this.peek_(TokenType.CLOSE_SQUARE, 1)) {
+        if (this.peek_(COMMA) &&
+            !this.peek_(CLOSE_SQUARE, 1)) {
           this.nextToken_();
         }
       }
     }
-    this.eat_(TokenType.CLOSE_SQUARE);
+    this.eat_(CLOSE_SQUARE);
     return new ArrayPattern(this.getTreeLocation_(start), elements);
   }
 
   parseAssignmentRestElement_() {
     var start = this.getTreeStartLocation_();
-    this.eat_(TokenType.DOT_DOT_DOT);
+    this.eat_(DOT_DOT_DOT);
     var left = this.parseLeftHandSideExpression_();
     left = this.transformLeftHandSideExpression_(left);
     return new SpreadPatternElement(this.getTreeLocation_(start), left);
@@ -3437,7 +3435,7 @@ export class Parser {
     var start = operand ?
         operand.location.start : this.getTreeStartLocation_();
 
-    this.eat_(TokenType.BACK_QUOTE);
+    this.eat_(BACK_QUOTE);
 
     var elements = [];
 
@@ -3449,21 +3447,21 @@ export class Parser {
       elements.push(new QuasiLiteralPortion(this.getTreeLocation_(start),
                                             token));
 
-      if (!this.peekQuasiToken_(TokenType.DOLLAR))
+      if (!this.peekQuasiToken_(DOLLAR))
         break;
 
       token = this.nextQuasiSubstitutionToken_();
-      traceur.assert(token.type == TokenType.DOLLAR);
+      traceur.assert(token.type == DOLLAR);
 
-      this.eat_(TokenType.OPEN_CURLY);
+      this.eat_(OPEN_CURLY);
       var expression = this.parseExpression();
       if (!expression)
         return this.parseMissingPrimaryExpression_();
       pushSubst(expression);
-      this.eat_(TokenType.CLOSE_CURLY);
+      this.eat_(CLOSE_CURLY);
     }
 
-    this.eat_(TokenType.BACK_QUOTE);
+    this.eat_(BACK_QUOTE);
 
     return new QuasiLiteralExpression(this.getTreeLocation_(start),
                                       operand, elements);
@@ -3477,9 +3475,9 @@ export class Parser {
    */
   eatPossibleImplicitSemiColon_() {
     if (options.strictSemicolons) {
-      return this.eat_(TokenType.SEMI_COLON);
+      return this.eat_(SEMI_COLON);
     }
-    if (this.peek_(TokenType.SEMI_COLON) && this.peekToken_().location.start.line == this.getLastLine_()) {
+    if (this.peek_(SEMI_COLON) && this.peekToken_().location.start.line == this.getLastLine_()) {
       this.nextToken_();
       return;
     }
@@ -3497,9 +3495,9 @@ export class Parser {
    * @private
    */
   peekImplicitSemiColon_() {
-    return this.peek_(TokenType.SEMI_COLON) ||
-        this.peek_(TokenType.CLOSE_CURLY) ||
-        this.peek_(TokenType.END_OF_FILE) ||
+    return this.peek_(SEMI_COLON) ||
+        this.peek_(CLOSE_CURLY) ||
+        this.peek_(END_OF_FILE) ||
         this.getNextLine_() > this.getLastLine_();
   }
 
@@ -3538,23 +3536,23 @@ export class Parser {
   }
 
   /**
-   * Shorthand for this.eatOpt_(TokenType.IDENTIFIER)
+   * Shorthand for this.eatOpt_(IDENTIFIER)
    *
    * @return {IdentifierToken}
    * @private
    */
   eatIdOpt_() {
-    return this.peek_(TokenType.IDENTIFIER) ? this.eatId_() : null;
+    return this.peek_(IDENTIFIER) ? this.eatId_() : null;
   }
 
   /**
-   * Shorthand for this.eat_(TokenType.IDENTIFIER)
+   * Shorthand for this.eat_(IDENTIFIER)
    * @param {string=} opt_expected
    * @return {IdentifierToken}
    * @private
    */
   eatId_(opt_expected) {
-    var result = this.eat_(TokenType.IDENTIFIER);
+    var result = this.eat_(IDENTIFIER);
     if (opt_expected) {
       if (!result || result.value !== opt_expected) {
         if (!result)
@@ -3574,7 +3572,7 @@ export class Parser {
    */
   eatIdName_() {
     var t = this.nextToken_();
-    if (t.type != TokenType.IDENTIFIER) {
+    if (t.type != IDENTIFIER) {
       if (!isKeyword(t.type)) {
         this.reportExpectedError_(t, 'identifier');
         return null;
@@ -3657,7 +3655,7 @@ export class Parser {
 
   /**
    * Consumes the next token and returns it. Will return a never ending stream of
-   * TokenType.END_OF_FILE at the end of the file so callers don't have to check for EOF explicitly.
+   * END_OF_FILE at the end of the file so callers don't have to check for EOF explicitly.
    *
    * Tokenizing is contextual. this.nextToken_() will never return a regular expression literal.
    *
@@ -3687,8 +3685,8 @@ export class Parser {
   }
 
   peekEndOfQuasiLiteral_() {
-    return this.peekQuasiToken_(TokenType.BACK_QUOTE) ||
-        this.peekQuasiToken_(TokenType.END_OF_FILE);
+    return this.peekQuasiToken_(BACK_QUOTE) ||
+        this.peekQuasiToken_(END_OF_FILE);
   }
 
   peekQuasiToken_(type) {

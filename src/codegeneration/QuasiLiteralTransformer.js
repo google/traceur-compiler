@@ -29,7 +29,13 @@ import {
   RAW
 } from '../syntax/PredefinedName.js';
 import TempVarTransformer from 'TempVarTransformer.js';
-import TokenType from '../syntax/TokenType.js';
+import {
+  PERCENT,
+  PLUS,
+  SLASH,
+  STAR,
+  STRING
+} from '../syntax/TokenType.js';
 import {
   createArgumentList,
   createArrayLiteralExpression,
@@ -90,7 +96,7 @@ function createRawStringArray(elements) {
   for (var i = 0; i < elements.length; i += 2) {
     var str = replaceRaw(JSON.stringify(elements[i].value.value));
     var loc = elements[i].location;
-    var expr = new LiteralExpression(loc, new LiteralToken(TokenType.STRING,
+    var expr = new LiteralExpression(loc, new LiteralToken(STRING,
                                                            str, loc));
     items.push(expr);
   }
@@ -101,8 +107,7 @@ function createRawStringArray(elements) {
 function createCookedStringLiteralExpression(tree) {
   var str = cookString(tree.value.value);
   var loc = tree.location;
-  return new LiteralExpression(loc, new LiteralToken(TokenType.STRING,
-                                                     str, loc));
+  return new LiteralExpression(loc, new LiteralToken(STRING, str, loc));
 }
 
 function createCookedStringArray(elements) {
@@ -232,9 +237,9 @@ export class QuasiLiteralTransformer extends TempVarTransformer {
       case BINARY_OPERATOR:
         // Only * / and % have higher priority than +.
         switch (transformedTree.operator.type) {
-          case TokenType.STAR:
-          case TokenType.PERCENT:
-          case TokenType.SLASH:
+          case STAR:
+          case PERCENT:
+          case SLASH:
             return transformedTree;
         }
         // Fall through.
@@ -255,7 +260,7 @@ export class QuasiLiteralTransformer extends TempVarTransformer {
     var length = tree.elements.length;
     if (length === 0) {
       var loc = tree.location;
-      return new LiteralExpression(loc, new LiteralToken(TokenType.STRING,
+      return new LiteralExpression(loc, new LiteralToken(STRING,
                                                          '""', loc));
     }
 
@@ -264,7 +269,7 @@ export class QuasiLiteralTransformer extends TempVarTransformer {
     if (length == 1)
       return binaryExpression;
 
-    var plusToken = createOperatorToken(TokenType.PLUS);
+    var plusToken = createOperatorToken(PLUS);
     for (var i = 1; i < length; i++) {
       var element = tree.elements[i];
       if (element.type === QUASI_LITERAL_PORTION) {

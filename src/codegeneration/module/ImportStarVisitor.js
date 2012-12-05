@@ -14,7 +14,7 @@
 
 import IMPORT_SPECIFIER_SET from '../../syntax/trees/ParseTreeType.js';
 import ModuleVisitor from 'ModuleVisitor.js';
-import TokenType from '../../syntax/TokenType.js';
+import STAR from '../../syntax/TokenType.js';
 
 /**
  * Finds all 'import * from moduleExpression' and associates the tree with
@@ -35,7 +35,7 @@ export class ImportStarVisitor extends ModuleVisitor {
     // so that we can have access to it during the transformation phase.
     var importSpecifierSet = tree.importSpecifierSet;
     if (importSpecifierSet.type === IMPORT_SPECIFIER_SET &&
-        importSpecifierSet.specifiers.type === TokenType.STAR) {
+        importSpecifierSet.specifiers.type === STAR) {
 
       var module = this.getModuleForModuleExpression(tree.moduleExpression);
       this.project.setModuleForStarTree(importSpecifierSet, module);

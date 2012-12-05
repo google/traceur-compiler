@@ -22,7 +22,7 @@ import {
 } from '../syntax/PredefinedName.js';
 import VARIABLE_DECLARATION_LIST from '../syntax/trees/ParseTreeType.js';
 import TempVarTransformer from 'TempVarTransformer.js';
-import TokenType from '../syntax/TokenType.js';
+import VAR from '../syntax/TokenType.js';
 import {
   createArgumentList,
   createAssignmentExpression,
@@ -66,7 +66,7 @@ export class ForOfTransformer extends TempVarTransformer {
     //   let $it = traceur.runtime.getIterator(collection);
     // TODO: use 'var' instead of 'let' to enable yield's from within for of statements
     var iter = this.getTempIdentifier();
-    var initializer = createVariableStatement(TokenType.VAR, iter,
+    var initializer = createVariableStatement(VAR, iter,
         createCallExpression(
             createMemberExpression(TRACEUR, RUNTIME, GET_ITERATOR),
             createArgumentList(tree.collection)));

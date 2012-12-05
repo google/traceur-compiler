@@ -19,7 +19,7 @@ import {
   TRACEUR
 } from '../syntax/PredefinedName.js';
 import TempVarTransformer from 'TempVarTransformer.js';
-import TokenType from '../syntax/TokenType.js';
+import CONST from '../syntax/TokenType.js';
 import {
   VariableDeclarationList,
   VariableStatement
@@ -56,8 +56,7 @@ export class PrivateNameSyntaxTransformer extends TempVarTransformer {
     //       __b = traceur.runtime.assertName(expr)
     var declarations = this.transformList(tree.declarations);
     return new VariableStatement(tree.location,
-        new VariableDeclarationList(tree.location, TokenType.CONST,
-                                    declarations));
+        new VariableDeclarationList(tree.location, CONST, declarations));
   }
 
   transformAtNameDeclaration(tree) {

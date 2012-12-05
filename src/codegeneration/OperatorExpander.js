@@ -16,7 +16,30 @@ import {
   IDENTIFIER_EXPRESSION,
   SUPER_EXPRESSION
 } from '../syntax/trees/ParseTreeType.js';
-import TokenType from '../syntax/TokenType.js';
+import {
+  AMPERSAND,
+  AMPERSAND_EQUAL,
+  BAR,
+  BAR_EQUAL,
+  CARET,
+  CARET_EQUAL,
+  LEFT_SHIFT,
+  LEFT_SHIFT_EQUAL,
+  MINUS,
+  MINUS_EQUAL,
+  PERCENT,
+  PERCENT_EQUAL,
+  PLUS,
+  PLUS_EQUAL,
+  RIGHT_SHIFT,
+  RIGHT_SHIFT_EQUAL,
+  SLASH,
+  SLASH_EQUAL,
+  STAR,
+  STAR_EQUAL,
+  UNSIGNED_RIGHT_SHIFT,
+  UNSIGNED_RIGHT_SHIFT_EQUAL
+} from '../syntax/TokenType.js';
 import {
   createAssignmentExpression,
   createBinaryOperator,
@@ -34,28 +57,28 @@ import {
  */
 function getBinaryOperator(type) {
   switch (type) {
-    case TokenType.STAR_EQUAL:
-      return TokenType.STAR;
-    case TokenType.SLASH_EQUAL:
-      return TokenType.SLASH;
-    case TokenType.PERCENT_EQUAL:
-      return TokenType.PERCENT;
-    case TokenType.PLUS_EQUAL:
-      return TokenType.PLUS;
-    case TokenType.MINUS_EQUAL:
-      return TokenType.MINUS;
-    case TokenType.LEFT_SHIFT_EQUAL:
-      return TokenType.LEFT_SHIFT;
-    case TokenType.RIGHT_SHIFT_EQUAL:
-      return TokenType.RIGHT_SHIFT;
-    case TokenType.UNSIGNED_RIGHT_SHIFT_EQUAL:
-      return TokenType.UNSIGNED_RIGHT_SHIFT;
-    case TokenType.AMPERSAND_EQUAL:
-      return TokenType.AMPERSAND;
-    case TokenType.CARET_EQUAL:
-      return TokenType.CARET;
-    case TokenType.BAR_EQUAL:
-      return TokenType.BAR;
+    case STAR_EQUAL:
+      return STAR;
+    case SLASH_EQUAL:
+      return SLASH;
+    case PERCENT_EQUAL:
+      return PERCENT;
+    case PLUS_EQUAL:
+      return PLUS;
+    case MINUS_EQUAL:
+      return MINUS;
+    case LEFT_SHIFT_EQUAL:
+      return LEFT_SHIFT;
+    case RIGHT_SHIFT_EQUAL:
+      return RIGHT_SHIFT;
+    case UNSIGNED_RIGHT_SHIFT_EQUAL:
+      return UNSIGNED_RIGHT_SHIFT;
+    case AMPERSAND_EQUAL:
+      return AMPERSAND;
+    case CARET_EQUAL:
+      return CARET;
+    case BAR_EQUAL:
+      return BAR;
     default:
       throw Error('unreachable');
   }

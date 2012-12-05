@@ -48,7 +48,10 @@ import {
   SwitchClause,
   SwitchState
 } from 'SwitchState.js';
-import TokenType from '../../syntax/TokenType.js';
+import {
+  PLUS,
+  VAR
+} from '../../syntax/TokenType.js';
 import TryState from 'TryState.js';
 import {
   createArrayLiteralExpression,
@@ -649,7 +652,7 @@ export class CPSTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformVariableDeclarationList(tree) {
-    if (tree.declarationType == TokenType.VAR) {
+    if (tree.declarationType == VAR) {
       var expressions = [];
       for (var i = 0; i < tree.declarations.length; i++) {
         var declaration = tree.declarations[i];
@@ -788,14 +791,14 @@ export class CPSTransformer extends ParseTreeTransformer {
   generateHoistedThis() {
     // Hoist 'this' argument for later bind-ing.
     //   var $that = this;
-    return createVariableStatement(TokenType.VAR, $THAT,
+    return createVariableStatement(VAR, $THAT,
                                    createThisExpression());
   }
 
   /** @return {VariableStatement} */
   generateHoistedArguments() {
     // var $arguments = argument;
-    return createVariableStatement(TokenType.VAR, $ARGUMENTS,
+    return createVariableStatement(VAR, $ARGUMENTS,
                                    createIdentifierExpression(ARGUMENTS));
   }
 
@@ -882,16 +885,16 @@ export class CPSTransformer extends ParseTreeTransformer {
 
     //   var $state = machine.startState;
     statements.push(
-        createVariableStatement(TokenType.VAR, STATE,
+        createVariableStatement(VAR, STATE,
                                 createNumberLiteral(machine.startState)));
 
     // var $storedException;
     statements.push(
-        createVariableStatement(TokenType.VAR, STORED_EXCEPTION, null));
+        createVariableStatement(VAR, STORED_EXCEPTION, null));
 
     // var $finallyFallThrough;
     statements.push(
-        createVariableStatement(TokenType.VAR, FINALLY_FALL_THROUGH, null));
+        createVariableStatement(VAR, FINALLY_FALL_THROUGH, null));
 
     // Lift locals ...
     var liftedIdentifiers = variablesInBlock(tree, true);
@@ -909,7 +912,7 @@ export class CPSTransformer extends ParseTreeTransformer {
     for (var i = 0; i < liftedIdentifierList.length; i++) {
       var liftedIdentifier = liftedIdentifierList[i];
       statements.push(
-          createVariableStatement(TokenType.VAR, liftedIdentifier, null));
+          createVariableStatement(VAR, liftedIdentifier, null));
     }
 
     return statements;
@@ -1105,7 +1108,7 @@ export class CPSTransformer extends ParseTreeTransformer {
                 createBinaryOperator(
                     createStringLiteral(
                         'traceur compiler bug: invalid state in state machine'),
-                    createOperatorToken(TokenType.PLUS),
+                    createOperatorToken(PLUS),
                     createIdentifierExpression(STATE)))]));
     return cases;
   }
@@ -1240,7 +1243,7 @@ export class CPSTransformer extends ParseTreeTransformer {
     // directly in a VM.
     if (maybeTransformedStatement.type == VARIABLE_STATEMENT &&
         maybeTransformedStatement.declarations.
-            declarationType != TokenType.VAR) {
+            declarationType != VAR) {
       this.reporter.reportError(
           maybeTransformedStatement.location != null ?
               maybeTransformedStatement.location.start :

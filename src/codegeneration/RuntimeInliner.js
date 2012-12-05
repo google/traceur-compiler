@@ -17,7 +17,7 @@ import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import Parser from '../syntax/Parser.js';
 import Program from '../syntax/trees/ParseTrees.js';
 import SourceFile from '../syntax/SourceFile.js';
-import TokenType from '../syntax/TokenType.js';
+import VAR from '../syntax/TokenType.js';
 import {
   createIdentifierExpression,
   createVariableDeclaration,
@@ -78,7 +78,7 @@ export class RuntimeInliner extends ParseTreeTransformer {
       return tree;
 
     var variableStatement = createVariableStatement(
-        createVariableDeclarationList(TokenType.VAR, vars));
+        createVariableDeclarationList(VAR, vars));
 
     var programElements = prependStatements(
         tree.programElements, variableStatement);

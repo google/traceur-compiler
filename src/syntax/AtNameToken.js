@@ -13,9 +13,7 @@
 // limitations under the License.
 
 import Token from 'Token.js';
-import TokenType from 'TokenType.js';
-
-var AT_NAME = TokenType.AT_NAME;
+import AT_NAME from 'TokenType.js';
 
 /**
  * A token representing an identifier.
