@@ -49,9 +49,16 @@ export class LineNumberTable {
    */
   constructor(sourceFile) {
     this.sourceFile_ = sourceFile;
-    this.lineStartOffsets_ = computeLineStartOffsets(sourceFile.contents);
+    this.lineStartOffsets_ = null;
     this.lastLine_ = 0;
     this.lastOffset_ = 0;
+  }
+
+  ensureLineStartOffsets_() {
+    if (!this.lineStartOffsets_) {
+      this.lineStartOffsets_ =
+          computeLineStartOffsets(this.sourceFile_.contents);
+    }
   }
 
   /**
@@ -67,6 +74,8 @@ export class LineNumberTable {
     // just iterate from the last position.
     if (offset === this.lastOffset_)
       return this.lastLine_;
+
+    this.ensureLineStartOffsets_();
 
     var line;
     if (offset < this.lastOffset_) {

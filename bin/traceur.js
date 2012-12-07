@@ -12590,15 +12590,21 @@ var $__src_syntax_LineNumberTable_js = (function() {
     var $LineNumberTable = ($__createClassNoExtends)({
       constructor: function(sourceFile) {
         this.sourceFile_ = sourceFile;
-        this.lineStartOffsets_ = computeLineStartOffsets(sourceFile.contents);
+        this.lineStartOffsets_ = null;
         this.lastLine_ = 0;
         this.lastOffset_ = 0;
+      },
+      ensureLineStartOffsets_: function() {
+        if (!this.lineStartOffsets_) {
+          this.lineStartOffsets_ = computeLineStartOffsets(this.sourceFile_.contents);
+        }
       },
       getSourcePosition: function(offset) {
         return new SourcePosition(this.sourceFile_, offset);
       },
       getLine: function(offset) {
         if (offset === this.lastOffset_) return this.lastLine_;
+        this.ensureLineStartOffsets_();
         var line;
         if (offset < this.lastOffset_) {
           for (var i = this.lastLine_; i >= 0; i--) {
