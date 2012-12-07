@@ -527,10 +527,14 @@ export class Scanner {
       var code = input.charCodeAt(i);
       if (isLineTerminator(code))
         return null;
+
+      // If we have a block comment we need to skip it since new lines inside
+      // the comment are not significant.
       if (code === 47) {  // '/'
         code = input.charCodeAt(++i);
+        // End of line comments always mean a new line is present.
         if (code === 47)  // '/'
-          return null;  // Line comments implies a newline
+          return null;
         i = input.indexOf('*/', i) + 2;
       }
     }
