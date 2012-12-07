@@ -2613,16 +2613,13 @@ export class Parser {
    * @private
    */
   peekPostfixOperator_() {
-    if (this.peekImplicitSemiColon_()) {
-      return false;
-    }
     switch (this.peekType_()) {
       case PLUS_PLUS:
       case MINUS_MINUS:
-        return true;
-      default:
-        return false;
+        var token = this.peekTokenNoLineTerminator_();
+        return token !== null;
     }
+    return false;
   }
 
   // 11.2 Left hand side expression
@@ -3474,15 +3471,20 @@ export class Parser {
    * @private
    */
   eatPossibleImplicitSemiColon_() {
-    if (options.strictSemicolons) {
-      return this.eat_(SEMI_COLON);
-    }
-    if (this.peek_(SEMI_COLON) && this.peekToken_().location.start.line == this.getLastLine_()) {
-      this.nextToken_();
-      return;
-    }
-    if (this.peekImplicitSemiColon_()) {
-      return;
+    var token = this.peekTokenNoLineTerminator_();
+    if (!token) {
+      if (!options.strictSemicolons)
+        return;
+    } else {
+      switch (token.type) {
+        case SEMI_COLON:
+          this.nextToken_();
+          return;
+        case END_OF_FILE:
+        case CLOSE_CURLY:
+          if (!options.strictSemicolons)
+            return;
+      }
     }
 
     this.reportError_('Semi-colon expected');
@@ -3495,30 +3497,14 @@ export class Parser {
    * @private
    */
   peekImplicitSemiColon_() {
-    return this.peek_(SEMI_COLON) ||
-        this.peek_(CLOSE_CURLY) ||
-        this.peek_(END_OF_FILE) ||
-        this.getNextLine_() > this.getLastLine_();
-  }
-
-  /**
-   * Returns the line number of the most recently consumed token.
-   *
-   * @return {number}
-   * @private
-   */
-  getLastLine_() {
-    return this.scanner_.lastToken.location.end.line;
-  }
-
-  /**
-   * Returns the line number of the next token.
-   *
-   * @return {number}
-   * @private
-   */
-  getNextLine_() {
-    return this.peekToken_().location.start.line;
+    switch (this.peekType_()) {
+      case SEMI_COLON:
+      case CLOSE_CURLY:
+      case END_OF_FILE:
+        return true;
+    }
+    var token = this.peekTokenNoLineTerminator_();
+    return token === null;
   }
 
   /**
@@ -3733,8 +3719,8 @@ export class Parser {
    * @return {Token}
    * @private
    */
-  peekTokenNoLineTerminator_(opt_index) {
-    return this.scanner_.peekTokenNoLineTerminator(opt_index || 0);
+  peekTokenNoLineTerminator_() {
+    return this.scanner_.peekTokenNoLineTerminator();
   }
 
   /**

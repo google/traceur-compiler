@@ -284,13 +284,13 @@ export class Scanner {
   }
 
   /** @return {number} */
-  getOffset() {
+  getOffset_() {
     return this.token_ ? this.token_.location.start.offset : this.index_;
   }
 
   /** @return {SourcePosition} */
   getPosition() {
-    return this.getPosition_(this.getOffset());
+    return this.getPosition_(this.getOffset_());
   }
 
   /**
@@ -498,64 +498,79 @@ export class Scanner {
   }
 
   clearTokenLookahead_() {
-    this.index_ = this.getOffset();
-    this.token_ = this.lookaheadToken_ = null;
-    this.updateCurrentCharCode_();
-  }
-
-  clearTokenAndWhitespaceLookahead_() {
-    this.index_ = this.lastToken.location.end.offset;
-    this.token_ = this.lookaheadToken_ = null;
-    this.updateCurrentCharCode_();
+    if (this.token_) {
+      this.index_ = this.token_.location.start.offset;
+      this.token_ = this.lookaheadToken_ = null;
+      this.updateCurrentCharCode_();
+    }
   }
 
   /**
    * @return {Token}
    */
   peekToken(opt_index) {
-    return opt_index ? this.peekToken1_(true) : this.peekToken_(true);
+    return opt_index ? this.peekTokenLookahead_() : this.peekToken_();
   }
 
-  peekTokenNoLineTerminator(opt_index) {
-    this.clearTokenAndWhitespaceLookahead_();
-    return opt_index ? this.peekToken1_(false) : this.peekToken_(false);
+  /**
+   * Peeks the next token ensuring that there is no line terminator before it.
+   * This is done by checking the preceding characters for new lines.
+   * @return {Token} This returns null if no token is found before the next
+   *     line terminator.
+   */
+  peekTokenNoLineTerminator() {
+    var token = this.peekToken_();
+    var start = this.lastToken.location.end.offset;
+    var end = token.location.start.offset;
+    var input = this.input_;
+    for (var i = start; i < end; i++) {
+      var code = input.charCodeAt(i);
+      if (isLineTerminator(code))
+        return null;
+      if (code === 47) {  // '/'
+        code = input.charCodeAt(++i);
+        if (code === 47)  // '/'
+          return null;  // Line comments implies a newline
+        i = input.indexOf('*/', i) + 2;
+      }
+    }
+    return token;
   }
 
-  peekToken_(allowLineTerminator) {
+  peekToken_() {
     if (!this.token_)
-      this.token_ = this.scanToken_(allowLineTerminator);
+      this.token_ = this.scanToken_();
     return this.token_;
   }
 
   // This is optimized to do one lookahead vs current in |peekTooken_|.
-  peekToken1_(allowLineTerminator) {
+  peekTokenLookahead_() {
     if (!this.token_)
-      this.token_ = this.scanToken_(allowLineTerminator);
+      this.token_ = this.scanToken_();
     if (!this.lookaheadToken_)
-      this.lookaheadToken_ = this.scanToken_(allowLineTerminator);
+      this.lookaheadToken_ = this.scanToken_();
     return this.lookaheadToken_;
   }
 
   // 7.2 White Space
-  skipWhitespace_(allowLineTerminator) {
+  skipWhitespace_() {
     while (!this.isAtEnd() &&
-           this.peekWhitespace_(allowLineTerminator)) {
+           this.peekWhitespace_()) {
       this.next_();
     }
   }
 
-  peekWhitespace_(allowLineTerminator) {
+  peekWhitespace_() {
     var code = this.peek_();
-    return isWhitespace(code) &&
-        (allowLineTerminator || !isLineTerminator(code));
+    return isWhitespace(code);
   }
   // 7.4 Comments
-  skipComments_(allowLineTerminator) {
-    while (this.skipComment_(allowLineTerminator)) {}
+  skipComments_() {
+    while (this.skipComment_()) {}
   }
 
-  skipComment_(allowLineTerminator) {
-    this.skipWhitespace_(allowLineTerminator);
+  skipComment_() {
+    this.skipWhitespace_();
     var code = this.peek_();
     if (code === 47) {  // /
       code = this.input_.charCodeAt(this.index_ + 1);
@@ -590,8 +605,8 @@ export class Scanner {
    * @private
    * @return {Token}
    */
-  scanToken_(allowLineTerminator) {
-    this.skipComments_(allowLineTerminator);
+  scanToken_() {
+    this.skipComments_();
     var beginToken = this.index_;
     if (this.isAtEnd())
       return this.createToken_(END_OF_FILE, beginToken);
@@ -599,9 +614,6 @@ export class Scanner {
     var input = this.input_;
     var code = this.peek_();
     this.next_();
-
-    if (!allowLineTerminator && isLineTerminator(code))
-      return null;
 
     switch (code) {
       case 123:  // {

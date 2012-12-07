@@ -4833,11 +4833,11 @@ var $__src_syntax_Scanner_js = (function() {
       get lineNumberTable_() {
         return this.file.lineNumberTable;
       },
-      getOffset: function() {
+      getOffset_: function() {
         return this.token_ ? this.token_.location.start.offset: this.index_;
       },
       getPosition: function() {
-        return this.getPosition_(this.getOffset());
+        return this.getPosition_(this.getOffset_());
       },
       getPosition_: function(offset) {
         return this.lineNumberTable_.getSourcePosition(offset);
@@ -4972,45 +4972,54 @@ var $__src_syntax_Scanner_js = (function() {
         return token;
       },
       clearTokenLookahead_: function() {
-        this.index_ = this.getOffset();
-        this.token_ = this.lookaheadToken_ = null;
-        this.updateCurrentCharCode_();
-      },
-      clearTokenAndWhitespaceLookahead_: function() {
-        this.index_ = this.lastToken.location.end.offset;
-        this.token_ = this.lookaheadToken_ = null;
-        this.updateCurrentCharCode_();
+        if (this.token_) {
+          this.index_ = this.token_.location.start.offset;
+          this.token_ = this.lookaheadToken_ = null;
+          this.updateCurrentCharCode_();
+        }
       },
       peekToken: function(opt_index) {
-        return opt_index ? this.peekToken1_(true): this.peekToken_(true);
+        return opt_index ? this.peekTokenLookahead_(): this.peekToken_();
       },
-      peekTokenNoLineTerminator: function(opt_index) {
-        this.clearTokenAndWhitespaceLookahead_();
-        return opt_index ? this.peekToken1_(false): this.peekToken_(false);
+      peekTokenNoLineTerminator: function() {
+        var token = this.peekToken_();
+        var start = this.lastToken.location.end.offset;
+        var end = token.location.start.offset;
+        var input = this.input_;
+        for (var i = start; i < end; i++) {
+          var code = input.charCodeAt(i);
+          if (isLineTerminator(code)) return null;
+          if (code === 47) {
+            code = input.charCodeAt(++i);
+            if (code === 47) return null;
+            i = input.indexOf('*/', i) + 2;
+          }
+        }
+        return token;
       },
-      peekToken_: function(allowLineTerminator) {
-        if (!this.token_) this.token_ = this.scanToken_(allowLineTerminator);
+      peekToken_: function() {
+        if (!this.token_) this.token_ = this.scanToken_();
         return this.token_;
       },
-      peekToken1_: function(allowLineTerminator) {
-        if (!this.token_) this.token_ = this.scanToken_(allowLineTerminator);
-        if (!this.lookaheadToken_) this.lookaheadToken_ = this.scanToken_(allowLineTerminator);
+      peekTokenLookahead_: function() {
+        if (!this.token_) this.token_ = this.scanToken_();
+        if (!this.lookaheadToken_) this.lookaheadToken_ = this.scanToken_();
         return this.lookaheadToken_;
       },
-      skipWhitespace_: function(allowLineTerminator) {
-        while (!this.isAtEnd() && this.peekWhitespace_(allowLineTerminator)) {
+      skipWhitespace_: function() {
+        while (!this.isAtEnd() && this.peekWhitespace_()) {
           this.next_();
         }
       },
-      peekWhitespace_: function(allowLineTerminator) {
+      peekWhitespace_: function() {
         var code = this.peek_();
-        return isWhitespace(code) && (allowLineTerminator || !isLineTerminator(code));
+        return isWhitespace(code);
       },
-      skipComments_: function(allowLineTerminator) {
-        while (this.skipComment_(allowLineTerminator)) {}
+      skipComments_: function() {
+        while (this.skipComment_()) {}
       },
-      skipComment_: function(allowLineTerminator) {
-        this.skipWhitespace_(allowLineTerminator);
+      skipComment_: function() {
+        this.skipWhitespace_();
         var code = this.peek_();
         if (code === 47) {
           code = this.input_.charCodeAt(this.index_ + 1);
@@ -5035,14 +5044,13 @@ var $__src_syntax_Scanner_js = (function() {
         if (index !== - 1) this.index_ = index + 2; else this.index_ = this.length_;
         this.updateCurrentCharCode_();
       },
-      scanToken_: function(allowLineTerminator) {
-        this.skipComments_(allowLineTerminator);
+      scanToken_: function() {
+        this.skipComments_();
         var beginToken = this.index_;
         if (this.isAtEnd()) return this.createToken_(END_OF_FILE, beginToken);
         var input = this.input_;
         var code = this.peek_();
         this.next_();
-        if (!allowLineTerminator && isLineTerminator(code)) return null;
         switch (code) {
           case 123:
             return this.createToken_(OPEN_CURLY, beginToken);
@@ -9166,16 +9174,13 @@ var $__src_syntax_Parser_js = (function() {
         return operand;
       },
       peekPostfixOperator_: function() {
-        if (this.peekImplicitSemiColon_()) {
-          return false;
-        }
         switch (this.peekType_()) {
           case PLUS_PLUS:
           case MINUS_MINUS:
-            return true;
-          default:
-            return false;
+            var token = this.peekTokenNoLineTerminator_();
+            return token !== null;
         }
+        return false;
       },
       parseLeftHandSideExpression_: function() {
         var start = this.getTreeStartLocation_();
@@ -9586,26 +9591,30 @@ var $__src_syntax_Parser_js = (function() {
         return new QuasiLiteralExpression(this.getTreeLocation_(start), operand, elements);
       },
       eatPossibleImplicitSemiColon_: function() {
-        if (options.strictSemicolons) {
-          return this.eat_(SEMI_COLON);
-        }
-        if (this.peek_(SEMI_COLON) && this.peekToken_().location.start.line == this.getLastLine_()) {
-          this.nextToken_();
-          return;
-        }
-        if (this.peekImplicitSemiColon_()) {
-          return;
+        var token = this.peekTokenNoLineTerminator_();
+        if (!token) {
+          if (!options.strictSemicolons) return;
+        } else {
+          switch (token.type) {
+            case SEMI_COLON:
+              this.nextToken_();
+              return;
+            case END_OF_FILE:
+            case CLOSE_CURLY:
+              if (!options.strictSemicolons) return;
+          }
         }
         this.reportError_('Semi-colon expected');
       },
       peekImplicitSemiColon_: function() {
-        return this.peek_(SEMI_COLON) || this.peek_(CLOSE_CURLY) || this.peek_(END_OF_FILE) || this.getNextLine_() > this.getLastLine_();
-      },
-      getLastLine_: function() {
-        return this.scanner_.lastToken.location.end.line;
-      },
-      getNextLine_: function() {
-        return this.peekToken_().location.start.line;
+        switch (this.peekType_()) {
+          case SEMI_COLON:
+          case CLOSE_CURLY:
+          case END_OF_FILE:
+            return true;
+        }
+        var token = this.peekTokenNoLineTerminator_();
+        return token === null;
       },
       eatOpt_: function(expectedTokenType) {
         if (this.peek_(expectedTokenType)) return this.nextToken_();
@@ -9690,8 +9699,8 @@ var $__src_syntax_Parser_js = (function() {
       peekToken_: function(opt_index) {
         return this.scanner_.peekToken(opt_index || 0);
       },
-      peekTokenNoLineTerminator_: function(opt_index) {
-        return this.scanner_.peekTokenNoLineTerminator(opt_index || 0);
+      peekTokenNoLineTerminator_: function() {
+        return this.scanner_.peekTokenNoLineTerminator();
       },
       reportError_: function(var_args) {
         if (arguments.length == 1) {
