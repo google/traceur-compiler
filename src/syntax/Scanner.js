@@ -448,13 +448,14 @@ export class Scanner {
 
     var code = this.peek_();
     switch (type) {
-      case IDENTIFIER:
-        return isIdentifierStart(code);
+      case DOLLAR:
+        return code === 36;  // $
+      case BACK_QUOTE:
+        return code === 96;  // `
       case END_OF_FILE:
         return !code;
-      default:
-        return String.fromCharCode(code) === type;
     }
+    return false;
   }
 
   // LiteralPortion ::

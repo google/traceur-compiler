@@ -44,7 +44,7 @@ export class Token {
   }
 
   toString() {
-    return this.type.toString();
+    return this.type;
   }
 
   /** @return {boolean} */

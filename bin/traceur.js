@@ -3730,7 +3730,7 @@ var $__src_syntax_Token_js = (function() {
         this.location = location;
       },
       toString: function() {
-        return this.type.toString();
+        return this.type;
       },
       isAssignmentOperator: function() {
         switch (this.type) {
@@ -4939,13 +4939,14 @@ var $__src_syntax_Scanner_js = (function() {
         this.clearTokenLookahead_();
         var code = this.peek_();
         switch (type) {
-          case IDENTIFIER:
-            return isIdentifierStart(code);
+          case DOLLAR:
+            return code === 36;
+          case BACK_QUOTE:
+            return code === 96;
           case END_OF_FILE:
             return !code;
-          default:
-            return String.fromCharCode(code) === type;
         }
+        return false;
       },
       skipQuasiLiteralPortion_: function() {
         while (!this.isAtEnd()) {
