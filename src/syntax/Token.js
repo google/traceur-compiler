@@ -49,26 +49,29 @@ export class Token {
 
   /** @return {boolean} */
   isAssignmentOperator() {
-    switch (this.type) {
-      case AMPERSAND_EQUAL:
-      case BAR_EQUAL:
-      case CARET_EQUAL:
-      case EQUAL:
-      case LEFT_SHIFT_EQUAL:
-      case MINUS_EQUAL:
-      case PERCENT_EQUAL:
-      case PLUS_EQUAL:
-      case RIGHT_SHIFT_EQUAL:
-      case SLASH_EQUAL:
-      case STAR_EQUAL:
-      case UNSIGNED_RIGHT_SHIFT_EQUAL:
-        return true;
-      default:
-        return false;
-    }
+    return isAssignmentOperator(this.type);
   }
 
   isKeyword() {
     return false;
   }
+}
+
+export function isAssignmentOperator(type) {
+  switch (type) {
+    case AMPERSAND_EQUAL:
+    case BAR_EQUAL:
+    case CARET_EQUAL:
+    case EQUAL:
+    case LEFT_SHIFT_EQUAL:
+    case MINUS_EQUAL:
+    case PERCENT_EQUAL:
+    case PLUS_EQUAL:
+    case RIGHT_SHIFT_EQUAL:
+    case SLASH_EQUAL:
+    case STAR_EQUAL:
+    case UNSIGNED_RIGHT_SHIFT_EQUAL:
+      return true;
+  }
+  return false;
 }
