@@ -12592,7 +12592,7 @@ var $__src_syntax_LineNumberTable_js = (function() {
         this.sourceFile_ = sourceFile;
         this.lineStartOffsets_ = null;
         this.lastLine_ = 0;
-        this.lastOffset_ = 0;
+        this.lastOffset_ = - 1;
       },
       ensureLineStartOffsets_: function() {
         if (!this.lineStartOffsets_) {

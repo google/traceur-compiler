@@ -51,7 +51,7 @@ export class LineNumberTable {
     this.sourceFile_ = sourceFile;
     this.lineStartOffsets_ = null;
     this.lastLine_ = 0;
-    this.lastOffset_ = 0;
+    this.lastOffset_ = -1;
   }
 
   ensureLineStartOffsets_() {
