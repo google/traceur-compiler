@@ -1252,6 +1252,7 @@ var $__src_syntax_trees_ParseTreeType_js = (function() {
   var COMPREHENSION_FOR = 'COMPREHENSION_FOR';
   var CONDITIONAL_EXPRESSION = 'CONDITIONAL_EXPRESSION';
   var CONTINUE_STATEMENT = 'CONTINUE_STATEMENT';
+  var COVER_FORMALS = 'COVER_FORMALS';
   var DEBUGGER_STATEMENT = 'DEBUGGER_STATEMENT';
   var DEFAULT_CLAUSE = 'DEFAULT_CLAUSE';
   var DO_WHILE_STATEMENT = 'DO_WHILE_STATEMENT';
@@ -1456,6 +1457,12 @@ var $__src_syntax_trees_ParseTreeType_js = (function() {
     CONTINUE_STATEMENT: {
       get: function() {
         return CONTINUE_STATEMENT;
+      },
+      enumerable: true
+    },
+    COVER_FORMALS: {
+      get: function() {
+        return COVER_FORMALS;
       },
       enumerable: true
     },
@@ -1889,7 +1896,7 @@ var $__src_syntax_trees_ParseTree_js = (function() {
   "use strict";
   var ParseTreeType = $__src_syntax_trees_ParseTreeType_js;
   var SourceRange = $__src_util_SourceRange_js.SourceRange;
-  var $__9 = ParseTreeType, ARGUMENT_LIST = $__9.ARGUMENT_LIST, ARRAY_COMPREHENSION = $__9.ARRAY_COMPREHENSION, ARRAY_LITERAL_EXPRESSION = $__9.ARRAY_LITERAL_EXPRESSION, ARRAY_PATTERN = $__9.ARRAY_PATTERN, ARROW_FUNCTION_EXPRESSION = $__9.ARROW_FUNCTION_EXPRESSION, AT_NAME_DECLARATION = $__9.AT_NAME_DECLARATION, AT_NAME_EXPRESSION = $__9.AT_NAME_EXPRESSION, AWAIT_STATEMENT = $__9.AWAIT_STATEMENT, BINARY_OPERATOR = $__9.BINARY_OPERATOR, BINDING_ELEMENT = $__9.BINDING_ELEMENT, BINDING_IDENTIFIER = $__9.BINDING_IDENTIFIER, BLOCK = $__9.BLOCK, BREAK_STATEMENT = $__9.BREAK_STATEMENT, CALL_EXPRESSION = $__9.CALL_EXPRESSION, CASCADE_EXPRESSION = $__9.CASCADE_EXPRESSION, CASE_CLAUSE = $__9.CASE_CLAUSE, CATCH = $__9.CATCH, CLASS_DECLARATION = $__9.CLASS_DECLARATION, CLASS_EXPRESSION = $__9.CLASS_EXPRESSION, COMMA_EXPRESSION = $__9.COMMA_EXPRESSION, COMPREHENSION_FOR = $__9.COMPREHENSION_FOR, CONDITIONAL_EXPRESSION = $__9.CONDITIONAL_EXPRESSION, CONTINUE_STATEMENT = $__9.CONTINUE_STATEMENT, DEBUGGER_STATEMENT = $__9.DEBUGGER_STATEMENT, DEFAULT_CLAUSE = $__9.DEFAULT_CLAUSE, DO_WHILE_STATEMENT = $__9.DO_WHILE_STATEMENT, EMPTY_STATEMENT = $__9.EMPTY_STATEMENT, EXPORT_DECLARATION = $__9.EXPORT_DECLARATION, EXPORT_MAPPING = $__9.EXPORT_MAPPING, EXPORT_MAPPING_LIST = $__9.EXPORT_MAPPING_LIST, EXPORT_SPECIFIER = $__9.EXPORT_SPECIFIER, EXPORT_SPECIFIER_SET = $__9.EXPORT_SPECIFIER_SET, EXPORT_STAR = $__9.EXPORT_STAR, EXPRESSION_STATEMENT = $__9.EXPRESSION_STATEMENT, FINALLY = $__9.FINALLY, FOR_IN_STATEMENT = $__9.FOR_IN_STATEMENT, FOR_OF_STATEMENT = $__9.FOR_OF_STATEMENT, FOR_STATEMENT = $__9.FOR_STATEMENT, FORMAL_PARAMETER_LIST = $__9.FORMAL_PARAMETER_LIST, FUNCTION_DECLARATION = $__9.FUNCTION_DECLARATION, FUNCTION_EXPRESSION = $__9.FUNCTION_EXPRESSION, GENERATOR_COMPREHENSION = $__9.GENERATOR_COMPREHENSION, GET_ACCESSOR = $__9.GET_ACCESSOR, IDENTIFIER_EXPRESSION = $__9.IDENTIFIER_EXPRESSION, IF_STATEMENT = $__9.IF_STATEMENT, IMPORT_BINDING = $__9.IMPORT_BINDING, IMPORT_DECLARATION = $__9.IMPORT_DECLARATION, IMPORT_SPECIFIER = $__9.IMPORT_SPECIFIER, IMPORT_SPECIFIER_SET = $__9.IMPORT_SPECIFIER_SET, LABELLED_STATEMENT = $__9.LABELLED_STATEMENT, LITERAL_EXPRESSION = $__9.LITERAL_EXPRESSION, MEMBER_EXPRESSION = $__9.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__9.MEMBER_LOOKUP_EXPRESSION, MISSING_PRIMARY_EXPRESSION = $__9.MISSING_PRIMARY_EXPRESSION, MODULE_DECLARATION = $__9.MODULE_DECLARATION, MODULE_DEFINITION = $__9.MODULE_DEFINITION, MODULE_EXPRESSION = $__9.MODULE_EXPRESSION, MODULE_REQUIRE = $__9.MODULE_REQUIRE, MODULE_SPECIFIER = $__9.MODULE_SPECIFIER, NAME_STATEMENT = $__9.NAME_STATEMENT, NEW_EXPRESSION = $__9.NEW_EXPRESSION, OBJECT_LITERAL_EXPRESSION = $__9.OBJECT_LITERAL_EXPRESSION, OBJECT_PATTERN = $__9.OBJECT_PATTERN, OBJECT_PATTERN_FIELD = $__9.OBJECT_PATTERN_FIELD, PAREN_EXPRESSION = $__9.PAREN_EXPRESSION, POSTFIX_EXPRESSION = $__9.POSTFIX_EXPRESSION, PROGRAM = $__9.PROGRAM, PROPERTY_METHOD_ASSIGNMENT = $__9.PROPERTY_METHOD_ASSIGNMENT, PROPERTY_NAME_ASSIGNMENT = $__9.PROPERTY_NAME_ASSIGNMENT, PROPERTY_NAME_SHORTHAND = $__9.PROPERTY_NAME_SHORTHAND, QUASI_LITERAL_EXPRESSION = $__9.QUASI_LITERAL_EXPRESSION, QUASI_LITERAL_PORTION = $__9.QUASI_LITERAL_PORTION, QUASI_SUBSTITUTION = $__9.QUASI_SUBSTITUTION, REST_PARAMETER = $__9.REST_PARAMETER, RETURN_STATEMENT = $__9.RETURN_STATEMENT, SET_ACCESSOR = $__9.SET_ACCESSOR, SPREAD_EXPRESSION = $__9.SPREAD_EXPRESSION, SPREAD_PATTERN_ELEMENT = $__9.SPREAD_PATTERN_ELEMENT, STATE_MACHINE = $__9.STATE_MACHINE, SUPER_EXPRESSION = $__9.SUPER_EXPRESSION, SWITCH_STATEMENT = $__9.SWITCH_STATEMENT, THIS_EXPRESSION = $__9.THIS_EXPRESSION, THROW_STATEMENT = $__9.THROW_STATEMENT, TRY_STATEMENT = $__9.TRY_STATEMENT, UNARY_EXPRESSION = $__9.UNARY_EXPRESSION, VARIABLE_DECLARATION = $__9.VARIABLE_DECLARATION, VARIABLE_DECLARATION_LIST = $__9.VARIABLE_DECLARATION_LIST, VARIABLE_STATEMENT = $__9.VARIABLE_STATEMENT, WHILE_STATEMENT = $__9.WHILE_STATEMENT, WITH_STATEMENT = $__9.WITH_STATEMENT, YIELD_EXPRESSION = $__9.YIELD_EXPRESSION;
+  var $__9 = ParseTreeType, ARGUMENT_LIST = $__9.ARGUMENT_LIST, ARRAY_COMPREHENSION = $__9.ARRAY_COMPREHENSION, ARRAY_LITERAL_EXPRESSION = $__9.ARRAY_LITERAL_EXPRESSION, ARRAY_PATTERN = $__9.ARRAY_PATTERN, ARROW_FUNCTION_EXPRESSION = $__9.ARROW_FUNCTION_EXPRESSION, AT_NAME_DECLARATION = $__9.AT_NAME_DECLARATION, AT_NAME_EXPRESSION = $__9.AT_NAME_EXPRESSION, AWAIT_STATEMENT = $__9.AWAIT_STATEMENT, BINARY_OPERATOR = $__9.BINARY_OPERATOR, BINDING_ELEMENT = $__9.BINDING_ELEMENT, BINDING_IDENTIFIER = $__9.BINDING_IDENTIFIER, BLOCK = $__9.BLOCK, BREAK_STATEMENT = $__9.BREAK_STATEMENT, CALL_EXPRESSION = $__9.CALL_EXPRESSION, CASCADE_EXPRESSION = $__9.CASCADE_EXPRESSION, CASE_CLAUSE = $__9.CASE_CLAUSE, CATCH = $__9.CATCH, CLASS_DECLARATION = $__9.CLASS_DECLARATION, CLASS_EXPRESSION = $__9.CLASS_EXPRESSION, COMMA_EXPRESSION = $__9.COMMA_EXPRESSION, COMPREHENSION_FOR = $__9.COMPREHENSION_FOR, CONDITIONAL_EXPRESSION = $__9.CONDITIONAL_EXPRESSION, CONTINUE_STATEMENT = $__9.CONTINUE_STATEMENT, COVER_FORMALS = $__9.COVER_FORMALS, DEBUGGER_STATEMENT = $__9.DEBUGGER_STATEMENT, DEFAULT_CLAUSE = $__9.DEFAULT_CLAUSE, DO_WHILE_STATEMENT = $__9.DO_WHILE_STATEMENT, EMPTY_STATEMENT = $__9.EMPTY_STATEMENT, EXPORT_DECLARATION = $__9.EXPORT_DECLARATION, EXPORT_MAPPING = $__9.EXPORT_MAPPING, EXPORT_MAPPING_LIST = $__9.EXPORT_MAPPING_LIST, EXPORT_SPECIFIER = $__9.EXPORT_SPECIFIER, EXPORT_SPECIFIER_SET = $__9.EXPORT_SPECIFIER_SET, EXPORT_STAR = $__9.EXPORT_STAR, EXPRESSION_STATEMENT = $__9.EXPRESSION_STATEMENT, FINALLY = $__9.FINALLY, FOR_IN_STATEMENT = $__9.FOR_IN_STATEMENT, FOR_OF_STATEMENT = $__9.FOR_OF_STATEMENT, FOR_STATEMENT = $__9.FOR_STATEMENT, FORMAL_PARAMETER_LIST = $__9.FORMAL_PARAMETER_LIST, FUNCTION_DECLARATION = $__9.FUNCTION_DECLARATION, FUNCTION_EXPRESSION = $__9.FUNCTION_EXPRESSION, GENERATOR_COMPREHENSION = $__9.GENERATOR_COMPREHENSION, GET_ACCESSOR = $__9.GET_ACCESSOR, IDENTIFIER_EXPRESSION = $__9.IDENTIFIER_EXPRESSION, IF_STATEMENT = $__9.IF_STATEMENT, IMPORT_BINDING = $__9.IMPORT_BINDING, IMPORT_DECLARATION = $__9.IMPORT_DECLARATION, IMPORT_SPECIFIER = $__9.IMPORT_SPECIFIER, IMPORT_SPECIFIER_SET = $__9.IMPORT_SPECIFIER_SET, LABELLED_STATEMENT = $__9.LABELLED_STATEMENT, LITERAL_EXPRESSION = $__9.LITERAL_EXPRESSION, MEMBER_EXPRESSION = $__9.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__9.MEMBER_LOOKUP_EXPRESSION, MISSING_PRIMARY_EXPRESSION = $__9.MISSING_PRIMARY_EXPRESSION, MODULE_DECLARATION = $__9.MODULE_DECLARATION, MODULE_DEFINITION = $__9.MODULE_DEFINITION, MODULE_EXPRESSION = $__9.MODULE_EXPRESSION, MODULE_REQUIRE = $__9.MODULE_REQUIRE, MODULE_SPECIFIER = $__9.MODULE_SPECIFIER, NAME_STATEMENT = $__9.NAME_STATEMENT, NEW_EXPRESSION = $__9.NEW_EXPRESSION, OBJECT_LITERAL_EXPRESSION = $__9.OBJECT_LITERAL_EXPRESSION, OBJECT_PATTERN = $__9.OBJECT_PATTERN, OBJECT_PATTERN_FIELD = $__9.OBJECT_PATTERN_FIELD, PAREN_EXPRESSION = $__9.PAREN_EXPRESSION, POSTFIX_EXPRESSION = $__9.POSTFIX_EXPRESSION, PROGRAM = $__9.PROGRAM, PROPERTY_METHOD_ASSIGNMENT = $__9.PROPERTY_METHOD_ASSIGNMENT, PROPERTY_NAME_ASSIGNMENT = $__9.PROPERTY_NAME_ASSIGNMENT, PROPERTY_NAME_SHORTHAND = $__9.PROPERTY_NAME_SHORTHAND, QUASI_LITERAL_EXPRESSION = $__9.QUASI_LITERAL_EXPRESSION, QUASI_LITERAL_PORTION = $__9.QUASI_LITERAL_PORTION, QUASI_SUBSTITUTION = $__9.QUASI_SUBSTITUTION, REST_PARAMETER = $__9.REST_PARAMETER, RETURN_STATEMENT = $__9.RETURN_STATEMENT, SET_ACCESSOR = $__9.SET_ACCESSOR, SPREAD_EXPRESSION = $__9.SPREAD_EXPRESSION, SPREAD_PATTERN_ELEMENT = $__9.SPREAD_PATTERN_ELEMENT, STATE_MACHINE = $__9.STATE_MACHINE, SUPER_EXPRESSION = $__9.SUPER_EXPRESSION, SWITCH_STATEMENT = $__9.SWITCH_STATEMENT, THIS_EXPRESSION = $__9.THIS_EXPRESSION, THROW_STATEMENT = $__9.THROW_STATEMENT, TRY_STATEMENT = $__9.TRY_STATEMENT, UNARY_EXPRESSION = $__9.UNARY_EXPRESSION, VARIABLE_DECLARATION = $__9.VARIABLE_DECLARATION, VARIABLE_DECLARATION_LIST = $__9.VARIABLE_DECLARATION_LIST, VARIABLE_STATEMENT = $__9.VARIABLE_STATEMENT, WHILE_STATEMENT = $__9.WHILE_STATEMENT, WITH_STATEMENT = $__9.WITH_STATEMENT, YIELD_EXPRESSION = $__9.YIELD_EXPRESSION;
   var ParseTree = function() {
     var $ParseTree = ($__createClassNoExtends)({
       constructor: function(type, location) {
@@ -3720,6 +3727,2969 @@ var $__src_semantics_ModuleAnalyzer_js = (function() {
       enumerable: true
     }}));
 }).call(this);
+var $__src_syntax_trees_ParseTrees_js = (function() {
+  "use strict";
+  var ParseTree = $__src_syntax_trees_ParseTree_js.ParseTree;
+  var ParseTreeType = $__src_syntax_trees_ParseTreeType_js;
+  var $__9 = ParseTreeType, ARGUMENT_LIST = $__9.ARGUMENT_LIST, ARRAY_COMPREHENSION = $__9.ARRAY_COMPREHENSION, ARRAY_LITERAL_EXPRESSION = $__9.ARRAY_LITERAL_EXPRESSION, ARRAY_PATTERN = $__9.ARRAY_PATTERN, ARROW_FUNCTION_EXPRESSION = $__9.ARROW_FUNCTION_EXPRESSION, AT_NAME_DECLARATION = $__9.AT_NAME_DECLARATION, AT_NAME_EXPRESSION = $__9.AT_NAME_EXPRESSION, AWAIT_STATEMENT = $__9.AWAIT_STATEMENT, BINARY_OPERATOR = $__9.BINARY_OPERATOR, BINDING_ELEMENT = $__9.BINDING_ELEMENT, BINDING_IDENTIFIER = $__9.BINDING_IDENTIFIER, BLOCK = $__9.BLOCK, BREAK_STATEMENT = $__9.BREAK_STATEMENT, CALL_EXPRESSION = $__9.CALL_EXPRESSION, CASCADE_EXPRESSION = $__9.CASCADE_EXPRESSION, CASE_CLAUSE = $__9.CASE_CLAUSE, CATCH = $__9.CATCH, CLASS_DECLARATION = $__9.CLASS_DECLARATION, CLASS_EXPRESSION = $__9.CLASS_EXPRESSION, COMMA_EXPRESSION = $__9.COMMA_EXPRESSION, COMPREHENSION_FOR = $__9.COMPREHENSION_FOR, CONDITIONAL_EXPRESSION = $__9.CONDITIONAL_EXPRESSION, CONTINUE_STATEMENT = $__9.CONTINUE_STATEMENT, COVER_FORMALS = $__9.COVER_FORMALS, DEBUGGER_STATEMENT = $__9.DEBUGGER_STATEMENT, DEFAULT_CLAUSE = $__9.DEFAULT_CLAUSE, DO_WHILE_STATEMENT = $__9.DO_WHILE_STATEMENT, EMPTY_STATEMENT = $__9.EMPTY_STATEMENT, EXPORT_DECLARATION = $__9.EXPORT_DECLARATION, EXPORT_MAPPING = $__9.EXPORT_MAPPING, EXPORT_MAPPING_LIST = $__9.EXPORT_MAPPING_LIST, EXPORT_SPECIFIER = $__9.EXPORT_SPECIFIER, EXPORT_SPECIFIER_SET = $__9.EXPORT_SPECIFIER_SET, EXPORT_STAR = $__9.EXPORT_STAR, EXPRESSION_STATEMENT = $__9.EXPRESSION_STATEMENT, FINALLY = $__9.FINALLY, FOR_IN_STATEMENT = $__9.FOR_IN_STATEMENT, FOR_OF_STATEMENT = $__9.FOR_OF_STATEMENT, FOR_STATEMENT = $__9.FOR_STATEMENT, FORMAL_PARAMETER_LIST = $__9.FORMAL_PARAMETER_LIST, FUNCTION_DECLARATION = $__9.FUNCTION_DECLARATION, FUNCTION_EXPRESSION = $__9.FUNCTION_EXPRESSION, GENERATOR_COMPREHENSION = $__9.GENERATOR_COMPREHENSION, GET_ACCESSOR = $__9.GET_ACCESSOR, IDENTIFIER_EXPRESSION = $__9.IDENTIFIER_EXPRESSION, IF_STATEMENT = $__9.IF_STATEMENT, IMPORT_BINDING = $__9.IMPORT_BINDING, IMPORT_DECLARATION = $__9.IMPORT_DECLARATION, IMPORT_SPECIFIER = $__9.IMPORT_SPECIFIER, IMPORT_SPECIFIER_SET = $__9.IMPORT_SPECIFIER_SET, LABELLED_STATEMENT = $__9.LABELLED_STATEMENT, LITERAL_EXPRESSION = $__9.LITERAL_EXPRESSION, MEMBER_EXPRESSION = $__9.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__9.MEMBER_LOOKUP_EXPRESSION, MISSING_PRIMARY_EXPRESSION = $__9.MISSING_PRIMARY_EXPRESSION, MODULE_DECLARATION = $__9.MODULE_DECLARATION, MODULE_DEFINITION = $__9.MODULE_DEFINITION, MODULE_EXPRESSION = $__9.MODULE_EXPRESSION, MODULE_REQUIRE = $__9.MODULE_REQUIRE, MODULE_SPECIFIER = $__9.MODULE_SPECIFIER, NAME_STATEMENT = $__9.NAME_STATEMENT, NEW_EXPRESSION = $__9.NEW_EXPRESSION, OBJECT_LITERAL_EXPRESSION = $__9.OBJECT_LITERAL_EXPRESSION, OBJECT_PATTERN = $__9.OBJECT_PATTERN, OBJECT_PATTERN_FIELD = $__9.OBJECT_PATTERN_FIELD, PAREN_EXPRESSION = $__9.PAREN_EXPRESSION, POSTFIX_EXPRESSION = $__9.POSTFIX_EXPRESSION, PROGRAM = $__9.PROGRAM, PROPERTY_METHOD_ASSIGNMENT = $__9.PROPERTY_METHOD_ASSIGNMENT, PROPERTY_NAME_ASSIGNMENT = $__9.PROPERTY_NAME_ASSIGNMENT, PROPERTY_NAME_SHORTHAND = $__9.PROPERTY_NAME_SHORTHAND, QUASI_LITERAL_EXPRESSION = $__9.QUASI_LITERAL_EXPRESSION, QUASI_LITERAL_PORTION = $__9.QUASI_LITERAL_PORTION, QUASI_SUBSTITUTION = $__9.QUASI_SUBSTITUTION, REST_PARAMETER = $__9.REST_PARAMETER, RETURN_STATEMENT = $__9.RETURN_STATEMENT, SET_ACCESSOR = $__9.SET_ACCESSOR, SPREAD_EXPRESSION = $__9.SPREAD_EXPRESSION, SPREAD_PATTERN_ELEMENT = $__9.SPREAD_PATTERN_ELEMENT, STATE_MACHINE = $__9.STATE_MACHINE, SUPER_EXPRESSION = $__9.SUPER_EXPRESSION, SWITCH_STATEMENT = $__9.SWITCH_STATEMENT, THIS_EXPRESSION = $__9.THIS_EXPRESSION, THROW_STATEMENT = $__9.THROW_STATEMENT, TRY_STATEMENT = $__9.TRY_STATEMENT, UNARY_EXPRESSION = $__9.UNARY_EXPRESSION, VARIABLE_DECLARATION = $__9.VARIABLE_DECLARATION, VARIABLE_DECLARATION_LIST = $__9.VARIABLE_DECLARATION_LIST, VARIABLE_STATEMENT = $__9.VARIABLE_STATEMENT, WHILE_STATEMENT = $__9.WHILE_STATEMENT, WITH_STATEMENT = $__9.WITH_STATEMENT, YIELD_EXPRESSION = $__9.YIELD_EXPRESSION;
+  var ArgumentList = function($__super) {
+    var $ArgumentList = ($__createClass)({
+      constructor: function(location, args) {
+        this.location = location;
+        this.args = args;
+      },
+      transform: function(transformer) {
+        return transformer.transformArgumentList(this);
+      },
+      visit: function(visitor) {
+        visitor.visitArgumentList(this);
+      },
+      get type() {
+        return ARGUMENT_LIST;
+      }
+    }, $__super, true);
+    return $ArgumentList;
+  }(ParseTree);
+  var ArrayComprehension = function($__super) {
+    var $ArrayComprehension = ($__createClass)({
+      constructor: function(location, expression, comprehensionForList, ifExpression) {
+        this.location = location;
+        this.expression = expression;
+        this.comprehensionForList = comprehensionForList;
+        this.ifExpression = ifExpression;
+      },
+      transform: function(transformer) {
+        return transformer.transformArrayComprehension(this);
+      },
+      visit: function(visitor) {
+        visitor.visitArrayComprehension(this);
+      },
+      get type() {
+        return ARRAY_COMPREHENSION;
+      }
+    }, $__super, true);
+    return $ArrayComprehension;
+  }(ParseTree);
+  var ArrayLiteralExpression = function($__super) {
+    var $ArrayLiteralExpression = ($__createClass)({
+      constructor: function(location, elements) {
+        this.location = location;
+        this.elements = elements;
+      },
+      transform: function(transformer) {
+        return transformer.transformArrayLiteralExpression(this);
+      },
+      visit: function(visitor) {
+        visitor.visitArrayLiteralExpression(this);
+      },
+      get type() {
+        return ARRAY_LITERAL_EXPRESSION;
+      }
+    }, $__super, true);
+    return $ArrayLiteralExpression;
+  }(ParseTree);
+  var ArrayPattern = function($__super) {
+    var $ArrayPattern = ($__createClass)({
+      constructor: function(location, elements) {
+        this.location = location;
+        this.elements = elements;
+      },
+      transform: function(transformer) {
+        return transformer.transformArrayPattern(this);
+      },
+      visit: function(visitor) {
+        visitor.visitArrayPattern(this);
+      },
+      get type() {
+        return ARRAY_PATTERN;
+      }
+    }, $__super, true);
+    return $ArrayPattern;
+  }(ParseTree);
+  var ArrowFunctionExpression = function($__super) {
+    var $ArrowFunctionExpression = ($__createClass)({
+      constructor: function(location, formalParameters, functionBody) {
+        this.location = location;
+        this.formalParameters = formalParameters;
+        this.functionBody = functionBody;
+      },
+      transform: function(transformer) {
+        return transformer.transformArrowFunctionExpression(this);
+      },
+      visit: function(visitor) {
+        visitor.visitArrowFunctionExpression(this);
+      },
+      get type() {
+        return ARROW_FUNCTION_EXPRESSION;
+      }
+    }, $__super, true);
+    return $ArrowFunctionExpression;
+  }(ParseTree);
+  var AtNameDeclaration = function($__super) {
+    var $AtNameDeclaration = ($__createClass)({
+      constructor: function(location, atNameToken, initializer) {
+        this.location = location;
+        this.atNameToken = atNameToken;
+        this.initializer = initializer;
+      },
+      transform: function(transformer) {
+        return transformer.transformAtNameDeclaration(this);
+      },
+      visit: function(visitor) {
+        visitor.visitAtNameDeclaration(this);
+      },
+      get type() {
+        return AT_NAME_DECLARATION;
+      }
+    }, $__super, true);
+    return $AtNameDeclaration;
+  }(ParseTree);
+  var AtNameExpression = function($__super) {
+    var $AtNameExpression = ($__createClass)({
+      constructor: function(location, atNameToken) {
+        this.location = location;
+        this.atNameToken = atNameToken;
+      },
+      transform: function(transformer) {
+        return transformer.transformAtNameExpression(this);
+      },
+      visit: function(visitor) {
+        visitor.visitAtNameExpression(this);
+      },
+      get type() {
+        return AT_NAME_EXPRESSION;
+      }
+    }, $__super, true);
+    return $AtNameExpression;
+  }(ParseTree);
+  var AwaitStatement = function($__super) {
+    var $AwaitStatement = ($__createClass)({
+      constructor: function(location, identifier, expression) {
+        this.location = location;
+        this.identifier = identifier;
+        this.expression = expression;
+      },
+      transform: function(transformer) {
+        return transformer.transformAwaitStatement(this);
+      },
+      visit: function(visitor) {
+        visitor.visitAwaitStatement(this);
+      },
+      get type() {
+        return AWAIT_STATEMENT;
+      }
+    }, $__super, true);
+    return $AwaitStatement;
+  }(ParseTree);
+  var BinaryOperator = function($__super) {
+    var $BinaryOperator = ($__createClass)({
+      constructor: function(location, left, operator, right) {
+        this.location = location;
+        this.left = left;
+        this.operator = operator;
+        this.right = right;
+      },
+      transform: function(transformer) {
+        return transformer.transformBinaryOperator(this);
+      },
+      visit: function(visitor) {
+        visitor.visitBinaryOperator(this);
+      },
+      get type() {
+        return BINARY_OPERATOR;
+      }
+    }, $__super, true);
+    return $BinaryOperator;
+  }(ParseTree);
+  var BindingElement = function($__super) {
+    var $BindingElement = ($__createClass)({
+      constructor: function(location, binding, initializer) {
+        this.location = location;
+        this.binding = binding;
+        this.initializer = initializer;
+      },
+      transform: function(transformer) {
+        return transformer.transformBindingElement(this);
+      },
+      visit: function(visitor) {
+        visitor.visitBindingElement(this);
+      },
+      get type() {
+        return BINDING_ELEMENT;
+      }
+    }, $__super, true);
+    return $BindingElement;
+  }(ParseTree);
+  var BindingIdentifier = function($__super) {
+    var $BindingIdentifier = ($__createClass)({
+      constructor: function(location, identifierToken) {
+        this.location = location;
+        this.identifierToken = identifierToken;
+      },
+      transform: function(transformer) {
+        return transformer.transformBindingIdentifier(this);
+      },
+      visit: function(visitor) {
+        visitor.visitBindingIdentifier(this);
+      },
+      get type() {
+        return BINDING_IDENTIFIER;
+      }
+    }, $__super, true);
+    return $BindingIdentifier;
+  }(ParseTree);
+  var Block = function($__super) {
+    var $Block = ($__createClass)({
+      constructor: function(location, statements) {
+        this.location = location;
+        this.statements = statements;
+      },
+      transform: function(transformer) {
+        return transformer.transformBlock(this);
+      },
+      visit: function(visitor) {
+        visitor.visitBlock(this);
+      },
+      get type() {
+        return BLOCK;
+      }
+    }, $__super, true);
+    return $Block;
+  }(ParseTree);
+  var BreakStatement = function($__super) {
+    var $BreakStatement = ($__createClass)({
+      constructor: function(location, name) {
+        this.location = location;
+        this.name = name;
+      },
+      transform: function(transformer) {
+        return transformer.transformBreakStatement(this);
+      },
+      visit: function(visitor) {
+        visitor.visitBreakStatement(this);
+      },
+      get type() {
+        return BREAK_STATEMENT;
+      }
+    }, $__super, true);
+    return $BreakStatement;
+  }(ParseTree);
+  var CallExpression = function($__super) {
+    var $CallExpression = ($__createClass)({
+      constructor: function(location, operand, args) {
+        this.location = location;
+        this.operand = operand;
+        this.args = args;
+      },
+      transform: function(transformer) {
+        return transformer.transformCallExpression(this);
+      },
+      visit: function(visitor) {
+        visitor.visitCallExpression(this);
+      },
+      get type() {
+        return CALL_EXPRESSION;
+      }
+    }, $__super, true);
+    return $CallExpression;
+  }(ParseTree);
+  var CascadeExpression = function($__super) {
+    var $CascadeExpression = ($__createClass)({
+      constructor: function(location, operand, expressions) {
+        this.location = location;
+        this.operand = operand;
+        this.expressions = expressions;
+      },
+      transform: function(transformer) {
+        return transformer.transformCascadeExpression(this);
+      },
+      visit: function(visitor) {
+        visitor.visitCascadeExpression(this);
+      },
+      get type() {
+        return CASCADE_EXPRESSION;
+      }
+    }, $__super, true);
+    return $CascadeExpression;
+  }(ParseTree);
+  var CaseClause = function($__super) {
+    var $CaseClause = ($__createClass)({
+      constructor: function(location, expression, statements) {
+        this.location = location;
+        this.expression = expression;
+        this.statements = statements;
+      },
+      transform: function(transformer) {
+        return transformer.transformCaseClause(this);
+      },
+      visit: function(visitor) {
+        visitor.visitCaseClause(this);
+      },
+      get type() {
+        return CASE_CLAUSE;
+      }
+    }, $__super, true);
+    return $CaseClause;
+  }(ParseTree);
+  var Catch = function($__super) {
+    var $Catch = ($__createClass)({
+      constructor: function(location, binding, catchBody) {
+        this.location = location;
+        this.binding = binding;
+        this.catchBody = catchBody;
+      },
+      transform: function(transformer) {
+        return transformer.transformCatch(this);
+      },
+      visit: function(visitor) {
+        visitor.visitCatch(this);
+      },
+      get type() {
+        return CATCH;
+      }
+    }, $__super, true);
+    return $Catch;
+  }(ParseTree);
+  var ClassDeclaration = function($__super) {
+    var $ClassDeclaration = ($__createClass)({
+      constructor: function(location, name, superClass, elements) {
+        this.location = location;
+        this.name = name;
+        this.superClass = superClass;
+        this.elements = elements;
+      },
+      transform: function(transformer) {
+        return transformer.transformClassDeclaration(this);
+      },
+      visit: function(visitor) {
+        visitor.visitClassDeclaration(this);
+      },
+      get type() {
+        return CLASS_DECLARATION;
+      }
+    }, $__super, true);
+    return $ClassDeclaration;
+  }(ParseTree);
+  var ClassExpression = function($__super) {
+    var $ClassExpression = ($__createClass)({
+      constructor: function(location, name, superClass, elements) {
+        this.location = location;
+        this.name = name;
+        this.superClass = superClass;
+        this.elements = elements;
+      },
+      transform: function(transformer) {
+        return transformer.transformClassExpression(this);
+      },
+      visit: function(visitor) {
+        visitor.visitClassExpression(this);
+      },
+      get type() {
+        return CLASS_EXPRESSION;
+      }
+    }, $__super, true);
+    return $ClassExpression;
+  }(ParseTree);
+  var CommaExpression = function($__super) {
+    var $CommaExpression = ($__createClass)({
+      constructor: function(location, expressions) {
+        this.location = location;
+        this.expressions = expressions;
+      },
+      transform: function(transformer) {
+        return transformer.transformCommaExpression(this);
+      },
+      visit: function(visitor) {
+        visitor.visitCommaExpression(this);
+      },
+      get type() {
+        return COMMA_EXPRESSION;
+      }
+    }, $__super, true);
+    return $CommaExpression;
+  }(ParseTree);
+  var ComprehensionFor = function($__super) {
+    var $ComprehensionFor = ($__createClass)({
+      constructor: function(location, left, iterator) {
+        this.location = location;
+        this.left = left;
+        this.iterator = iterator;
+      },
+      transform: function(transformer) {
+        return transformer.transformComprehensionFor(this);
+      },
+      visit: function(visitor) {
+        visitor.visitComprehensionFor(this);
+      },
+      get type() {
+        return COMPREHENSION_FOR;
+      }
+    }, $__super, true);
+    return $ComprehensionFor;
+  }(ParseTree);
+  var ConditionalExpression = function($__super) {
+    var $ConditionalExpression = ($__createClass)({
+      constructor: function(location, condition, left, right) {
+        this.location = location;
+        this.condition = condition;
+        this.left = left;
+        this.right = right;
+      },
+      transform: function(transformer) {
+        return transformer.transformConditionalExpression(this);
+      },
+      visit: function(visitor) {
+        visitor.visitConditionalExpression(this);
+      },
+      get type() {
+        return CONDITIONAL_EXPRESSION;
+      }
+    }, $__super, true);
+    return $ConditionalExpression;
+  }(ParseTree);
+  var ContinueStatement = function($__super) {
+    var $ContinueStatement = ($__createClass)({
+      constructor: function(location, name) {
+        this.location = location;
+        this.name = name;
+      },
+      transform: function(transformer) {
+        return transformer.transformContinueStatement(this);
+      },
+      visit: function(visitor) {
+        visitor.visitContinueStatement(this);
+      },
+      get type() {
+        return CONTINUE_STATEMENT;
+      }
+    }, $__super, true);
+    return $ContinueStatement;
+  }(ParseTree);
+  var CoverFormals = function($__super) {
+    var $CoverFormals = ($__createClass)({
+      constructor: function(location, expressions) {
+        this.location = location;
+        this.expressions = expressions;
+      },
+      transform: function(transformer) {
+        return transformer.transformCoverFormals(this);
+      },
+      visit: function(visitor) {
+        visitor.visitCoverFormals(this);
+      },
+      get type() {
+        return COVER_FORMALS;
+      }
+    }, $__super, true);
+    return $CoverFormals;
+  }(ParseTree);
+  var DebuggerStatement = function($__super) {
+    var $DebuggerStatement = ($__createClass)({
+      constructor: function(location) {
+        this.location = location;
+      },
+      transform: function(transformer) {
+        return transformer.transformDebuggerStatement(this);
+      },
+      visit: function(visitor) {
+        visitor.visitDebuggerStatement(this);
+      },
+      get type() {
+        return DEBUGGER_STATEMENT;
+      }
+    }, $__super, true);
+    return $DebuggerStatement;
+  }(ParseTree);
+  var DefaultClause = function($__super) {
+    var $DefaultClause = ($__createClass)({
+      constructor: function(location, statements) {
+        this.location = location;
+        this.statements = statements;
+      },
+      transform: function(transformer) {
+        return transformer.transformDefaultClause(this);
+      },
+      visit: function(visitor) {
+        visitor.visitDefaultClause(this);
+      },
+      get type() {
+        return DEFAULT_CLAUSE;
+      }
+    }, $__super, true);
+    return $DefaultClause;
+  }(ParseTree);
+  var DoWhileStatement = function($__super) {
+    var $DoWhileStatement = ($__createClass)({
+      constructor: function(location, body, condition) {
+        this.location = location;
+        this.body = body;
+        this.condition = condition;
+      },
+      transform: function(transformer) {
+        return transformer.transformDoWhileStatement(this);
+      },
+      visit: function(visitor) {
+        visitor.visitDoWhileStatement(this);
+      },
+      get type() {
+        return DO_WHILE_STATEMENT;
+      }
+    }, $__super, true);
+    return $DoWhileStatement;
+  }(ParseTree);
+  var EmptyStatement = function($__super) {
+    var $EmptyStatement = ($__createClass)({
+      constructor: function(location) {
+        this.location = location;
+      },
+      transform: function(transformer) {
+        return transformer.transformEmptyStatement(this);
+      },
+      visit: function(visitor) {
+        visitor.visitEmptyStatement(this);
+      },
+      get type() {
+        return EMPTY_STATEMENT;
+      }
+    }, $__super, true);
+    return $EmptyStatement;
+  }(ParseTree);
+  var ExportDeclaration = function($__super) {
+    var $ExportDeclaration = ($__createClass)({
+      constructor: function(location, declaration) {
+        this.location = location;
+        this.declaration = declaration;
+      },
+      transform: function(transformer) {
+        return transformer.transformExportDeclaration(this);
+      },
+      visit: function(visitor) {
+        visitor.visitExportDeclaration(this);
+      },
+      get type() {
+        return EXPORT_DECLARATION;
+      }
+    }, $__super, true);
+    return $ExportDeclaration;
+  }(ParseTree);
+  var ExportMapping = function($__super) {
+    var $ExportMapping = ($__createClass)({
+      constructor: function(location, moduleExpression, specifierSet) {
+        this.location = location;
+        this.moduleExpression = moduleExpression;
+        this.specifierSet = specifierSet;
+      },
+      transform: function(transformer) {
+        return transformer.transformExportMapping(this);
+      },
+      visit: function(visitor) {
+        visitor.visitExportMapping(this);
+      },
+      get type() {
+        return EXPORT_MAPPING;
+      }
+    }, $__super, true);
+    return $ExportMapping;
+  }(ParseTree);
+  var ExportMappingList = function($__super) {
+    var $ExportMappingList = ($__createClass)({
+      constructor: function(location, paths) {
+        this.location = location;
+        this.paths = paths;
+      },
+      transform: function(transformer) {
+        return transformer.transformExportMappingList(this);
+      },
+      visit: function(visitor) {
+        visitor.visitExportMappingList(this);
+      },
+      get type() {
+        return EXPORT_MAPPING_LIST;
+      }
+    }, $__super, true);
+    return $ExportMappingList;
+  }(ParseTree);
+  var ExportSpecifier = function($__super) {
+    var $ExportSpecifier = ($__createClass)({
+      constructor: function(location, lhs, rhs) {
+        this.location = location;
+        this.lhs = lhs;
+        this.rhs = rhs;
+      },
+      transform: function(transformer) {
+        return transformer.transformExportSpecifier(this);
+      },
+      visit: function(visitor) {
+        visitor.visitExportSpecifier(this);
+      },
+      get type() {
+        return EXPORT_SPECIFIER;
+      }
+    }, $__super, true);
+    return $ExportSpecifier;
+  }(ParseTree);
+  var ExportSpecifierSet = function($__super) {
+    var $ExportSpecifierSet = ($__createClass)({
+      constructor: function(location, specifiers) {
+        this.location = location;
+        this.specifiers = specifiers;
+      },
+      transform: function(transformer) {
+        return transformer.transformExportSpecifierSet(this);
+      },
+      visit: function(visitor) {
+        visitor.visitExportSpecifierSet(this);
+      },
+      get type() {
+        return EXPORT_SPECIFIER_SET;
+      }
+    }, $__super, true);
+    return $ExportSpecifierSet;
+  }(ParseTree);
+  var ExportStar = function($__super) {
+    var $ExportStar = ($__createClass)({
+      constructor: function(location) {
+        this.location = location;
+      },
+      transform: function(transformer) {
+        return transformer.transformExportStar(this);
+      },
+      visit: function(visitor) {
+        visitor.visitExportStar(this);
+      },
+      get type() {
+        return EXPORT_STAR;
+      }
+    }, $__super, true);
+    return $ExportStar;
+  }(ParseTree);
+  var ExpressionStatement = function($__super) {
+    var $ExpressionStatement = ($__createClass)({
+      constructor: function(location, expression) {
+        this.location = location;
+        this.expression = expression;
+      },
+      transform: function(transformer) {
+        return transformer.transformExpressionStatement(this);
+      },
+      visit: function(visitor) {
+        visitor.visitExpressionStatement(this);
+      },
+      get type() {
+        return EXPRESSION_STATEMENT;
+      }
+    }, $__super, true);
+    return $ExpressionStatement;
+  }(ParseTree);
+  var Finally = function($__super) {
+    var $Finally = ($__createClass)({
+      constructor: function(location, block) {
+        this.location = location;
+        this.block = block;
+      },
+      transform: function(transformer) {
+        return transformer.transformFinally(this);
+      },
+      visit: function(visitor) {
+        visitor.visitFinally(this);
+      },
+      get type() {
+        return FINALLY;
+      }
+    }, $__super, true);
+    return $Finally;
+  }(ParseTree);
+  var ForInStatement = function($__super) {
+    var $ForInStatement = ($__createClass)({
+      constructor: function(location, initializer, collection, body) {
+        this.location = location;
+        this.initializer = initializer;
+        this.collection = collection;
+        this.body = body;
+      },
+      transform: function(transformer) {
+        return transformer.transformForInStatement(this);
+      },
+      visit: function(visitor) {
+        visitor.visitForInStatement(this);
+      },
+      get type() {
+        return FOR_IN_STATEMENT;
+      }
+    }, $__super, true);
+    return $ForInStatement;
+  }(ParseTree);
+  var ForOfStatement = function($__super) {
+    var $ForOfStatement = ($__createClass)({
+      constructor: function(location, initializer, collection, body) {
+        this.location = location;
+        this.initializer = initializer;
+        this.collection = collection;
+        this.body = body;
+      },
+      transform: function(transformer) {
+        return transformer.transformForOfStatement(this);
+      },
+      visit: function(visitor) {
+        visitor.visitForOfStatement(this);
+      },
+      get type() {
+        return FOR_OF_STATEMENT;
+      }
+    }, $__super, true);
+    return $ForOfStatement;
+  }(ParseTree);
+  var ForStatement = function($__super) {
+    var $ForStatement = ($__createClass)({
+      constructor: function(location, initializer, condition, increment, body) {
+        this.location = location;
+        this.initializer = initializer;
+        this.condition = condition;
+        this.increment = increment;
+        this.body = body;
+      },
+      transform: function(transformer) {
+        return transformer.transformForStatement(this);
+      },
+      visit: function(visitor) {
+        visitor.visitForStatement(this);
+      },
+      get type() {
+        return FOR_STATEMENT;
+      }
+    }, $__super, true);
+    return $ForStatement;
+  }(ParseTree);
+  var FormalParameterList = function($__super) {
+    var $FormalParameterList = ($__createClass)({
+      constructor: function(location, parameters) {
+        this.location = location;
+        this.parameters = parameters;
+      },
+      transform: function(transformer) {
+        return transformer.transformFormalParameterList(this);
+      },
+      visit: function(visitor) {
+        visitor.visitFormalParameterList(this);
+      },
+      get type() {
+        return FORMAL_PARAMETER_LIST;
+      }
+    }, $__super, true);
+    return $FormalParameterList;
+  }(ParseTree);
+  var FunctionDeclaration = function($__super) {
+    var $FunctionDeclaration = ($__createClass)({
+      constructor: function(location, name, isGenerator, formalParameterList, functionBody) {
+        this.location = location;
+        this.name = name;
+        this.isGenerator = isGenerator;
+        this.formalParameterList = formalParameterList;
+        this.functionBody = functionBody;
+      },
+      transform: function(transformer) {
+        return transformer.transformFunctionDeclaration(this);
+      },
+      visit: function(visitor) {
+        visitor.visitFunctionDeclaration(this);
+      },
+      get type() {
+        return FUNCTION_DECLARATION;
+      }
+    }, $__super, true);
+    return $FunctionDeclaration;
+  }(ParseTree);
+  var FunctionExpression = function($__super) {
+    var $FunctionExpression = ($__createClass)({
+      constructor: function(location, name, isGenerator, formalParameterList, functionBody) {
+        this.location = location;
+        this.name = name;
+        this.isGenerator = isGenerator;
+        this.formalParameterList = formalParameterList;
+        this.functionBody = functionBody;
+      },
+      transform: function(transformer) {
+        return transformer.transformFunctionExpression(this);
+      },
+      visit: function(visitor) {
+        visitor.visitFunctionExpression(this);
+      },
+      get type() {
+        return FUNCTION_EXPRESSION;
+      }
+    }, $__super, true);
+    return $FunctionExpression;
+  }(ParseTree);
+  var GeneratorComprehension = function($__super) {
+    var $GeneratorComprehension = ($__createClass)({
+      constructor: function(location, expression, comprehensionForList, ifExpression) {
+        this.location = location;
+        this.expression = expression;
+        this.comprehensionForList = comprehensionForList;
+        this.ifExpression = ifExpression;
+      },
+      transform: function(transformer) {
+        return transformer.transformGeneratorComprehension(this);
+      },
+      visit: function(visitor) {
+        visitor.visitGeneratorComprehension(this);
+      },
+      get type() {
+        return GENERATOR_COMPREHENSION;
+      }
+    }, $__super, true);
+    return $GeneratorComprehension;
+  }(ParseTree);
+  var GetAccessor = function($__super) {
+    var $GetAccessor = ($__createClass)({
+      constructor: function(location, name, body) {
+        this.location = location;
+        this.name = name;
+        this.body = body;
+      },
+      transform: function(transformer) {
+        return transformer.transformGetAccessor(this);
+      },
+      visit: function(visitor) {
+        visitor.visitGetAccessor(this);
+      },
+      get type() {
+        return GET_ACCESSOR;
+      }
+    }, $__super, true);
+    return $GetAccessor;
+  }(ParseTree);
+  var IdentifierExpression = function($__super) {
+    var $IdentifierExpression = ($__createClass)({
+      constructor: function(location, identifierToken) {
+        this.location = location;
+        this.identifierToken = identifierToken;
+      },
+      transform: function(transformer) {
+        return transformer.transformIdentifierExpression(this);
+      },
+      visit: function(visitor) {
+        visitor.visitIdentifierExpression(this);
+      },
+      get type() {
+        return IDENTIFIER_EXPRESSION;
+      }
+    }, $__super, true);
+    return $IdentifierExpression;
+  }(ParseTree);
+  var IfStatement = function($__super) {
+    var $IfStatement = ($__createClass)({
+      constructor: function(location, condition, ifClause, elseClause) {
+        this.location = location;
+        this.condition = condition;
+        this.ifClause = ifClause;
+        this.elseClause = elseClause;
+      },
+      transform: function(transformer) {
+        return transformer.transformIfStatement(this);
+      },
+      visit: function(visitor) {
+        visitor.visitIfStatement(this);
+      },
+      get type() {
+        return IF_STATEMENT;
+      }
+    }, $__super, true);
+    return $IfStatement;
+  }(ParseTree);
+  var ImportBinding = function($__super) {
+    var $ImportBinding = ($__createClass)({
+      constructor: function(location, moduleExpression, importSpecifierSet) {
+        this.location = location;
+        this.moduleExpression = moduleExpression;
+        this.importSpecifierSet = importSpecifierSet;
+      },
+      transform: function(transformer) {
+        return transformer.transformImportBinding(this);
+      },
+      visit: function(visitor) {
+        visitor.visitImportBinding(this);
+      },
+      get type() {
+        return IMPORT_BINDING;
+      }
+    }, $__super, true);
+    return $ImportBinding;
+  }(ParseTree);
+  var ImportDeclaration = function($__super) {
+    var $ImportDeclaration = ($__createClass)({
+      constructor: function(location, importPathList) {
+        this.location = location;
+        this.importPathList = importPathList;
+      },
+      transform: function(transformer) {
+        return transformer.transformImportDeclaration(this);
+      },
+      visit: function(visitor) {
+        visitor.visitImportDeclaration(this);
+      },
+      get type() {
+        return IMPORT_DECLARATION;
+      }
+    }, $__super, true);
+    return $ImportDeclaration;
+  }(ParseTree);
+  var ImportSpecifier = function($__super) {
+    var $ImportSpecifier = ($__createClass)({
+      constructor: function(location, lhs, rhs) {
+        this.location = location;
+        this.lhs = lhs;
+        this.rhs = rhs;
+      },
+      transform: function(transformer) {
+        return transformer.transformImportSpecifier(this);
+      },
+      visit: function(visitor) {
+        visitor.visitImportSpecifier(this);
+      },
+      get type() {
+        return IMPORT_SPECIFIER;
+      }
+    }, $__super, true);
+    return $ImportSpecifier;
+  }(ParseTree);
+  var ImportSpecifierSet = function($__super) {
+    var $ImportSpecifierSet = ($__createClass)({
+      constructor: function(location, specifiers) {
+        this.location = location;
+        this.specifiers = specifiers;
+      },
+      transform: function(transformer) {
+        return transformer.transformImportSpecifierSet(this);
+      },
+      visit: function(visitor) {
+        visitor.visitImportSpecifierSet(this);
+      },
+      get type() {
+        return IMPORT_SPECIFIER_SET;
+      }
+    }, $__super, true);
+    return $ImportSpecifierSet;
+  }(ParseTree);
+  var LabelledStatement = function($__super) {
+    var $LabelledStatement = ($__createClass)({
+      constructor: function(location, name, statement) {
+        this.location = location;
+        this.name = name;
+        this.statement = statement;
+      },
+      transform: function(transformer) {
+        return transformer.transformLabelledStatement(this);
+      },
+      visit: function(visitor) {
+        visitor.visitLabelledStatement(this);
+      },
+      get type() {
+        return LABELLED_STATEMENT;
+      }
+    }, $__super, true);
+    return $LabelledStatement;
+  }(ParseTree);
+  var LiteralExpression = function($__super) {
+    var $LiteralExpression = ($__createClass)({
+      constructor: function(location, literalToken) {
+        this.location = location;
+        this.literalToken = literalToken;
+      },
+      transform: function(transformer) {
+        return transformer.transformLiteralExpression(this);
+      },
+      visit: function(visitor) {
+        visitor.visitLiteralExpression(this);
+      },
+      get type() {
+        return LITERAL_EXPRESSION;
+      }
+    }, $__super, true);
+    return $LiteralExpression;
+  }(ParseTree);
+  var MemberExpression = function($__super) {
+    var $MemberExpression = ($__createClass)({
+      constructor: function(location, operand, memberName) {
+        this.location = location;
+        this.operand = operand;
+        this.memberName = memberName;
+      },
+      transform: function(transformer) {
+        return transformer.transformMemberExpression(this);
+      },
+      visit: function(visitor) {
+        visitor.visitMemberExpression(this);
+      },
+      get type() {
+        return MEMBER_EXPRESSION;
+      }
+    }, $__super, true);
+    return $MemberExpression;
+  }(ParseTree);
+  var MemberLookupExpression = function($__super) {
+    var $MemberLookupExpression = ($__createClass)({
+      constructor: function(location, operand, memberExpression) {
+        this.location = location;
+        this.operand = operand;
+        this.memberExpression = memberExpression;
+      },
+      transform: function(transformer) {
+        return transformer.transformMemberLookupExpression(this);
+      },
+      visit: function(visitor) {
+        visitor.visitMemberLookupExpression(this);
+      },
+      get type() {
+        return MEMBER_LOOKUP_EXPRESSION;
+      }
+    }, $__super, true);
+    return $MemberLookupExpression;
+  }(ParseTree);
+  var MissingPrimaryExpression = function($__super) {
+    var $MissingPrimaryExpression = ($__createClass)({
+      constructor: function(location, nextToken) {
+        this.location = location;
+        this.nextToken = nextToken;
+      },
+      transform: function(transformer) {
+        return transformer.transformMissingPrimaryExpression(this);
+      },
+      visit: function(visitor) {
+        visitor.visitMissingPrimaryExpression(this);
+      },
+      get type() {
+        return MISSING_PRIMARY_EXPRESSION;
+      }
+    }, $__super, true);
+    return $MissingPrimaryExpression;
+  }(ParseTree);
+  var ModuleDeclaration = function($__super) {
+    var $ModuleDeclaration = ($__createClass)({
+      constructor: function(location, specifiers) {
+        this.location = location;
+        this.specifiers = specifiers;
+      },
+      transform: function(transformer) {
+        return transformer.transformModuleDeclaration(this);
+      },
+      visit: function(visitor) {
+        visitor.visitModuleDeclaration(this);
+      },
+      get type() {
+        return MODULE_DECLARATION;
+      }
+    }, $__super, true);
+    return $ModuleDeclaration;
+  }(ParseTree);
+  var ModuleDefinition = function($__super) {
+    var $ModuleDefinition = ($__createClass)({
+      constructor: function(location, name, elements) {
+        this.location = location;
+        this.name = name;
+        this.elements = elements;
+      },
+      transform: function(transformer) {
+        return transformer.transformModuleDefinition(this);
+      },
+      visit: function(visitor) {
+        visitor.visitModuleDefinition(this);
+      },
+      get type() {
+        return MODULE_DEFINITION;
+      }
+    }, $__super, true);
+    return $ModuleDefinition;
+  }(ParseTree);
+  var ModuleExpression = function($__super) {
+    var $ModuleExpression = ($__createClass)({
+      constructor: function(location, reference, identifiers) {
+        this.location = location;
+        this.reference = reference;
+        this.identifiers = identifiers;
+      },
+      transform: function(transformer) {
+        return transformer.transformModuleExpression(this);
+      },
+      visit: function(visitor) {
+        visitor.visitModuleExpression(this);
+      },
+      get type() {
+        return MODULE_EXPRESSION;
+      }
+    }, $__super, true);
+    return $ModuleExpression;
+  }(ParseTree);
+  var ModuleRequire = function($__super) {
+    var $ModuleRequire = ($__createClass)({
+      constructor: function(location, url) {
+        this.location = location;
+        this.url = url;
+      },
+      transform: function(transformer) {
+        return transformer.transformModuleRequire(this);
+      },
+      visit: function(visitor) {
+        visitor.visitModuleRequire(this);
+      },
+      get type() {
+        return MODULE_REQUIRE;
+      }
+    }, $__super, true);
+    return $ModuleRequire;
+  }(ParseTree);
+  var ModuleSpecifier = function($__super) {
+    var $ModuleSpecifier = ($__createClass)({
+      constructor: function(location, identifier, expression) {
+        this.location = location;
+        this.identifier = identifier;
+        this.expression = expression;
+      },
+      transform: function(transformer) {
+        return transformer.transformModuleSpecifier(this);
+      },
+      visit: function(visitor) {
+        visitor.visitModuleSpecifier(this);
+      },
+      get type() {
+        return MODULE_SPECIFIER;
+      }
+    }, $__super, true);
+    return $ModuleSpecifier;
+  }(ParseTree);
+  var NameStatement = function($__super) {
+    var $NameStatement = ($__createClass)({
+      constructor: function(location, declarations) {
+        this.location = location;
+        this.declarations = declarations;
+      },
+      transform: function(transformer) {
+        return transformer.transformNameStatement(this);
+      },
+      visit: function(visitor) {
+        visitor.visitNameStatement(this);
+      },
+      get type() {
+        return NAME_STATEMENT;
+      }
+    }, $__super, true);
+    return $NameStatement;
+  }(ParseTree);
+  var NewExpression = function($__super) {
+    var $NewExpression = ($__createClass)({
+      constructor: function(location, operand, args) {
+        this.location = location;
+        this.operand = operand;
+        this.args = args;
+      },
+      transform: function(transformer) {
+        return transformer.transformNewExpression(this);
+      },
+      visit: function(visitor) {
+        visitor.visitNewExpression(this);
+      },
+      get type() {
+        return NEW_EXPRESSION;
+      }
+    }, $__super, true);
+    return $NewExpression;
+  }(ParseTree);
+  var ObjectLiteralExpression = function($__super) {
+    var $ObjectLiteralExpression = ($__createClass)({
+      constructor: function(location, propertyNameAndValues) {
+        this.location = location;
+        this.propertyNameAndValues = propertyNameAndValues;
+      },
+      transform: function(transformer) {
+        return transformer.transformObjectLiteralExpression(this);
+      },
+      visit: function(visitor) {
+        visitor.visitObjectLiteralExpression(this);
+      },
+      get type() {
+        return OBJECT_LITERAL_EXPRESSION;
+      }
+    }, $__super, true);
+    return $ObjectLiteralExpression;
+  }(ParseTree);
+  var ObjectPattern = function($__super) {
+    var $ObjectPattern = ($__createClass)({
+      constructor: function(location, fields) {
+        this.location = location;
+        this.fields = fields;
+      },
+      transform: function(transformer) {
+        return transformer.transformObjectPattern(this);
+      },
+      visit: function(visitor) {
+        visitor.visitObjectPattern(this);
+      },
+      get type() {
+        return OBJECT_PATTERN;
+      }
+    }, $__super, true);
+    return $ObjectPattern;
+  }(ParseTree);
+  var ObjectPatternField = function($__super) {
+    var $ObjectPatternField = ($__createClass)({
+      constructor: function(location, identifier, element) {
+        this.location = location;
+        this.identifier = identifier;
+        this.element = element;
+      },
+      transform: function(transformer) {
+        return transformer.transformObjectPatternField(this);
+      },
+      visit: function(visitor) {
+        visitor.visitObjectPatternField(this);
+      },
+      get type() {
+        return OBJECT_PATTERN_FIELD;
+      }
+    }, $__super, true);
+    return $ObjectPatternField;
+  }(ParseTree);
+  var ParenExpression = function($__super) {
+    var $ParenExpression = ($__createClass)({
+      constructor: function(location, expression) {
+        this.location = location;
+        this.expression = expression;
+      },
+      transform: function(transformer) {
+        return transformer.transformParenExpression(this);
+      },
+      visit: function(visitor) {
+        visitor.visitParenExpression(this);
+      },
+      get type() {
+        return PAREN_EXPRESSION;
+      }
+    }, $__super, true);
+    return $ParenExpression;
+  }(ParseTree);
+  var PostfixExpression = function($__super) {
+    var $PostfixExpression = ($__createClass)({
+      constructor: function(location, operand, operator) {
+        this.location = location;
+        this.operand = operand;
+        this.operator = operator;
+      },
+      transform: function(transformer) {
+        return transformer.transformPostfixExpression(this);
+      },
+      visit: function(visitor) {
+        visitor.visitPostfixExpression(this);
+      },
+      get type() {
+        return POSTFIX_EXPRESSION;
+      }
+    }, $__super, true);
+    return $PostfixExpression;
+  }(ParseTree);
+  var Program = function($__super) {
+    var $Program = ($__createClass)({
+      constructor: function(location, programElements) {
+        this.location = location;
+        this.programElements = programElements;
+      },
+      transform: function(transformer) {
+        return transformer.transformProgram(this);
+      },
+      visit: function(visitor) {
+        visitor.visitProgram(this);
+      },
+      get type() {
+        return PROGRAM;
+      }
+    }, $__super, true);
+    return $Program;
+  }(ParseTree);
+  var PropertyMethodAssignment = function($__super) {
+    var $PropertyMethodAssignment = ($__createClass)({
+      constructor: function(location, name, isGenerator, formalParameterList, functionBody) {
+        this.location = location;
+        this.name = name;
+        this.isGenerator = isGenerator;
+        this.formalParameterList = formalParameterList;
+        this.functionBody = functionBody;
+      },
+      transform: function(transformer) {
+        return transformer.transformPropertyMethodAssignment(this);
+      },
+      visit: function(visitor) {
+        visitor.visitPropertyMethodAssignment(this);
+      },
+      get type() {
+        return PROPERTY_METHOD_ASSIGNMENT;
+      }
+    }, $__super, true);
+    return $PropertyMethodAssignment;
+  }(ParseTree);
+  var PropertyNameAssignment = function($__super) {
+    var $PropertyNameAssignment = ($__createClass)({
+      constructor: function(location, name, value) {
+        this.location = location;
+        this.name = name;
+        this.value = value;
+      },
+      transform: function(transformer) {
+        return transformer.transformPropertyNameAssignment(this);
+      },
+      visit: function(visitor) {
+        visitor.visitPropertyNameAssignment(this);
+      },
+      get type() {
+        return PROPERTY_NAME_ASSIGNMENT;
+      }
+    }, $__super, true);
+    return $PropertyNameAssignment;
+  }(ParseTree);
+  var PropertyNameShorthand = function($__super) {
+    var $PropertyNameShorthand = ($__createClass)({
+      constructor: function(location, name) {
+        this.location = location;
+        this.name = name;
+      },
+      transform: function(transformer) {
+        return transformer.transformPropertyNameShorthand(this);
+      },
+      visit: function(visitor) {
+        visitor.visitPropertyNameShorthand(this);
+      },
+      get type() {
+        return PROPERTY_NAME_SHORTHAND;
+      }
+    }, $__super, true);
+    return $PropertyNameShorthand;
+  }(ParseTree);
+  var QuasiLiteralExpression = function($__super) {
+    var $QuasiLiteralExpression = ($__createClass)({
+      constructor: function(location, operand, elements) {
+        this.location = location;
+        this.operand = operand;
+        this.elements = elements;
+      },
+      transform: function(transformer) {
+        return transformer.transformQuasiLiteralExpression(this);
+      },
+      visit: function(visitor) {
+        visitor.visitQuasiLiteralExpression(this);
+      },
+      get type() {
+        return QUASI_LITERAL_EXPRESSION;
+      }
+    }, $__super, true);
+    return $QuasiLiteralExpression;
+  }(ParseTree);
+  var QuasiLiteralPortion = function($__super) {
+    var $QuasiLiteralPortion = ($__createClass)({
+      constructor: function(location, value) {
+        this.location = location;
+        this.value = value;
+      },
+      transform: function(transformer) {
+        return transformer.transformQuasiLiteralPortion(this);
+      },
+      visit: function(visitor) {
+        visitor.visitQuasiLiteralPortion(this);
+      },
+      get type() {
+        return QUASI_LITERAL_PORTION;
+      }
+    }, $__super, true);
+    return $QuasiLiteralPortion;
+  }(ParseTree);
+  var QuasiSubstitution = function($__super) {
+    var $QuasiSubstitution = ($__createClass)({
+      constructor: function(location, expression) {
+        this.location = location;
+        this.expression = expression;
+      },
+      transform: function(transformer) {
+        return transformer.transformQuasiSubstitution(this);
+      },
+      visit: function(visitor) {
+        visitor.visitQuasiSubstitution(this);
+      },
+      get type() {
+        return QUASI_SUBSTITUTION;
+      }
+    }, $__super, true);
+    return $QuasiSubstitution;
+  }(ParseTree);
+  var RestParameter = function($__super) {
+    var $RestParameter = ($__createClass)({
+      constructor: function(location, identifier) {
+        this.location = location;
+        this.identifier = identifier;
+      },
+      transform: function(transformer) {
+        return transformer.transformRestParameter(this);
+      },
+      visit: function(visitor) {
+        visitor.visitRestParameter(this);
+      },
+      get type() {
+        return REST_PARAMETER;
+      }
+    }, $__super, true);
+    return $RestParameter;
+  }(ParseTree);
+  var ReturnStatement = function($__super) {
+    var $ReturnStatement = ($__createClass)({
+      constructor: function(location, expression) {
+        this.location = location;
+        this.expression = expression;
+      },
+      transform: function(transformer) {
+        return transformer.transformReturnStatement(this);
+      },
+      visit: function(visitor) {
+        visitor.visitReturnStatement(this);
+      },
+      get type() {
+        return RETURN_STATEMENT;
+      }
+    }, $__super, true);
+    return $ReturnStatement;
+  }(ParseTree);
+  var SetAccessor = function($__super) {
+    var $SetAccessor = ($__createClass)({
+      constructor: function(location, name, parameter, body) {
+        this.location = location;
+        this.name = name;
+        this.parameter = parameter;
+        this.body = body;
+      },
+      transform: function(transformer) {
+        return transformer.transformSetAccessor(this);
+      },
+      visit: function(visitor) {
+        visitor.visitSetAccessor(this);
+      },
+      get type() {
+        return SET_ACCESSOR;
+      }
+    }, $__super, true);
+    return $SetAccessor;
+  }(ParseTree);
+  var SpreadExpression = function($__super) {
+    var $SpreadExpression = ($__createClass)({
+      constructor: function(location, expression) {
+        this.location = location;
+        this.expression = expression;
+      },
+      transform: function(transformer) {
+        return transformer.transformSpreadExpression(this);
+      },
+      visit: function(visitor) {
+        visitor.visitSpreadExpression(this);
+      },
+      get type() {
+        return SPREAD_EXPRESSION;
+      }
+    }, $__super, true);
+    return $SpreadExpression;
+  }(ParseTree);
+  var SpreadPatternElement = function($__super) {
+    var $SpreadPatternElement = ($__createClass)({
+      constructor: function(location, lvalue) {
+        this.location = location;
+        this.lvalue = lvalue;
+      },
+      transform: function(transformer) {
+        return transformer.transformSpreadPatternElement(this);
+      },
+      visit: function(visitor) {
+        visitor.visitSpreadPatternElement(this);
+      },
+      get type() {
+        return SPREAD_PATTERN_ELEMENT;
+      }
+    }, $__super, true);
+    return $SpreadPatternElement;
+  }(ParseTree);
+  var SuperExpression = function($__super) {
+    var $SuperExpression = ($__createClass)({
+      constructor: function(location) {
+        this.location = location;
+      },
+      transform: function(transformer) {
+        return transformer.transformSuperExpression(this);
+      },
+      visit: function(visitor) {
+        visitor.visitSuperExpression(this);
+      },
+      get type() {
+        return SUPER_EXPRESSION;
+      }
+    }, $__super, true);
+    return $SuperExpression;
+  }(ParseTree);
+  var SwitchStatement = function($__super) {
+    var $SwitchStatement = ($__createClass)({
+      constructor: function(location, expression, caseClauses) {
+        this.location = location;
+        this.expression = expression;
+        this.caseClauses = caseClauses;
+      },
+      transform: function(transformer) {
+        return transformer.transformSwitchStatement(this);
+      },
+      visit: function(visitor) {
+        visitor.visitSwitchStatement(this);
+      },
+      get type() {
+        return SWITCH_STATEMENT;
+      }
+    }, $__super, true);
+    return $SwitchStatement;
+  }(ParseTree);
+  var ThisExpression = function($__super) {
+    var $ThisExpression = ($__createClass)({
+      constructor: function(location) {
+        this.location = location;
+      },
+      transform: function(transformer) {
+        return transformer.transformThisExpression(this);
+      },
+      visit: function(visitor) {
+        visitor.visitThisExpression(this);
+      },
+      get type() {
+        return THIS_EXPRESSION;
+      }
+    }, $__super, true);
+    return $ThisExpression;
+  }(ParseTree);
+  var ThrowStatement = function($__super) {
+    var $ThrowStatement = ($__createClass)({
+      constructor: function(location, value) {
+        this.location = location;
+        this.value = value;
+      },
+      transform: function(transformer) {
+        return transformer.transformThrowStatement(this);
+      },
+      visit: function(visitor) {
+        visitor.visitThrowStatement(this);
+      },
+      get type() {
+        return THROW_STATEMENT;
+      }
+    }, $__super, true);
+    return $ThrowStatement;
+  }(ParseTree);
+  var TryStatement = function($__super) {
+    var $TryStatement = ($__createClass)({
+      constructor: function(location, body, catchBlock, finallyBlock) {
+        this.location = location;
+        this.body = body;
+        this.catchBlock = catchBlock;
+        this.finallyBlock = finallyBlock;
+      },
+      transform: function(transformer) {
+        return transformer.transformTryStatement(this);
+      },
+      visit: function(visitor) {
+        visitor.visitTryStatement(this);
+      },
+      get type() {
+        return TRY_STATEMENT;
+      }
+    }, $__super, true);
+    return $TryStatement;
+  }(ParseTree);
+  var UnaryExpression = function($__super) {
+    var $UnaryExpression = ($__createClass)({
+      constructor: function(location, operator, operand) {
+        this.location = location;
+        this.operator = operator;
+        this.operand = operand;
+      },
+      transform: function(transformer) {
+        return transformer.transformUnaryExpression(this);
+      },
+      visit: function(visitor) {
+        visitor.visitUnaryExpression(this);
+      },
+      get type() {
+        return UNARY_EXPRESSION;
+      }
+    }, $__super, true);
+    return $UnaryExpression;
+  }(ParseTree);
+  var VariableDeclaration = function($__super) {
+    var $VariableDeclaration = ($__createClass)({
+      constructor: function(location, lvalue, initializer) {
+        this.location = location;
+        this.lvalue = lvalue;
+        this.initializer = initializer;
+      },
+      transform: function(transformer) {
+        return transformer.transformVariableDeclaration(this);
+      },
+      visit: function(visitor) {
+        visitor.visitVariableDeclaration(this);
+      },
+      get type() {
+        return VARIABLE_DECLARATION;
+      }
+    }, $__super, true);
+    return $VariableDeclaration;
+  }(ParseTree);
+  var VariableDeclarationList = function($__super) {
+    var $VariableDeclarationList = ($__createClass)({
+      constructor: function(location, declarationType, declarations) {
+        this.location = location;
+        this.declarationType = declarationType;
+        this.declarations = declarations;
+      },
+      transform: function(transformer) {
+        return transformer.transformVariableDeclarationList(this);
+      },
+      visit: function(visitor) {
+        visitor.visitVariableDeclarationList(this);
+      },
+      get type() {
+        return VARIABLE_DECLARATION_LIST;
+      }
+    }, $__super, true);
+    return $VariableDeclarationList;
+  }(ParseTree);
+  var VariableStatement = function($__super) {
+    var $VariableStatement = ($__createClass)({
+      constructor: function(location, declarations) {
+        this.location = location;
+        this.declarations = declarations;
+      },
+      transform: function(transformer) {
+        return transformer.transformVariableStatement(this);
+      },
+      visit: function(visitor) {
+        visitor.visitVariableStatement(this);
+      },
+      get type() {
+        return VARIABLE_STATEMENT;
+      }
+    }, $__super, true);
+    return $VariableStatement;
+  }(ParseTree);
+  var WhileStatement = function($__super) {
+    var $WhileStatement = ($__createClass)({
+      constructor: function(location, condition, body) {
+        this.location = location;
+        this.condition = condition;
+        this.body = body;
+      },
+      transform: function(transformer) {
+        return transformer.transformWhileStatement(this);
+      },
+      visit: function(visitor) {
+        visitor.visitWhileStatement(this);
+      },
+      get type() {
+        return WHILE_STATEMENT;
+      }
+    }, $__super, true);
+    return $WhileStatement;
+  }(ParseTree);
+  var WithStatement = function($__super) {
+    var $WithStatement = ($__createClass)({
+      constructor: function(location, expression, body) {
+        this.location = location;
+        this.expression = expression;
+        this.body = body;
+      },
+      transform: function(transformer) {
+        return transformer.transformWithStatement(this);
+      },
+      visit: function(visitor) {
+        visitor.visitWithStatement(this);
+      },
+      get type() {
+        return WITH_STATEMENT;
+      }
+    }, $__super, true);
+    return $WithStatement;
+  }(ParseTree);
+  var YieldExpression = function($__super) {
+    var $YieldExpression = ($__createClass)({
+      constructor: function(location, expression, isYieldFor) {
+        this.location = location;
+        this.expression = expression;
+        this.isYieldFor = isYieldFor;
+      },
+      transform: function(transformer) {
+        return transformer.transformYieldExpression(this);
+      },
+      visit: function(visitor) {
+        visitor.visitYieldExpression(this);
+      },
+      get type() {
+        return YIELD_EXPRESSION;
+      }
+    }, $__super, true);
+    return $YieldExpression;
+  }(ParseTree);
+  return Object.preventExtensions(Object.create(null, {
+    ArgumentList: {
+      get: function() {
+        return ArgumentList;
+      },
+      enumerable: true
+    },
+    ArrayComprehension: {
+      get: function() {
+        return ArrayComprehension;
+      },
+      enumerable: true
+    },
+    ArrayLiteralExpression: {
+      get: function() {
+        return ArrayLiteralExpression;
+      },
+      enumerable: true
+    },
+    ArrayPattern: {
+      get: function() {
+        return ArrayPattern;
+      },
+      enumerable: true
+    },
+    ArrowFunctionExpression: {
+      get: function() {
+        return ArrowFunctionExpression;
+      },
+      enumerable: true
+    },
+    AtNameDeclaration: {
+      get: function() {
+        return AtNameDeclaration;
+      },
+      enumerable: true
+    },
+    AtNameExpression: {
+      get: function() {
+        return AtNameExpression;
+      },
+      enumerable: true
+    },
+    AwaitStatement: {
+      get: function() {
+        return AwaitStatement;
+      },
+      enumerable: true
+    },
+    BinaryOperator: {
+      get: function() {
+        return BinaryOperator;
+      },
+      enumerable: true
+    },
+    BindingElement: {
+      get: function() {
+        return BindingElement;
+      },
+      enumerable: true
+    },
+    BindingIdentifier: {
+      get: function() {
+        return BindingIdentifier;
+      },
+      enumerable: true
+    },
+    Block: {
+      get: function() {
+        return Block;
+      },
+      enumerable: true
+    },
+    BreakStatement: {
+      get: function() {
+        return BreakStatement;
+      },
+      enumerable: true
+    },
+    CallExpression: {
+      get: function() {
+        return CallExpression;
+      },
+      enumerable: true
+    },
+    CascadeExpression: {
+      get: function() {
+        return CascadeExpression;
+      },
+      enumerable: true
+    },
+    CaseClause: {
+      get: function() {
+        return CaseClause;
+      },
+      enumerable: true
+    },
+    Catch: {
+      get: function() {
+        return Catch;
+      },
+      enumerable: true
+    },
+    ClassDeclaration: {
+      get: function() {
+        return ClassDeclaration;
+      },
+      enumerable: true
+    },
+    ClassExpression: {
+      get: function() {
+        return ClassExpression;
+      },
+      enumerable: true
+    },
+    CommaExpression: {
+      get: function() {
+        return CommaExpression;
+      },
+      enumerable: true
+    },
+    ComprehensionFor: {
+      get: function() {
+        return ComprehensionFor;
+      },
+      enumerable: true
+    },
+    ConditionalExpression: {
+      get: function() {
+        return ConditionalExpression;
+      },
+      enumerable: true
+    },
+    ContinueStatement: {
+      get: function() {
+        return ContinueStatement;
+      },
+      enumerable: true
+    },
+    CoverFormals: {
+      get: function() {
+        return CoverFormals;
+      },
+      enumerable: true
+    },
+    DebuggerStatement: {
+      get: function() {
+        return DebuggerStatement;
+      },
+      enumerable: true
+    },
+    DefaultClause: {
+      get: function() {
+        return DefaultClause;
+      },
+      enumerable: true
+    },
+    DoWhileStatement: {
+      get: function() {
+        return DoWhileStatement;
+      },
+      enumerable: true
+    },
+    EmptyStatement: {
+      get: function() {
+        return EmptyStatement;
+      },
+      enumerable: true
+    },
+    ExportDeclaration: {
+      get: function() {
+        return ExportDeclaration;
+      },
+      enumerable: true
+    },
+    ExportMapping: {
+      get: function() {
+        return ExportMapping;
+      },
+      enumerable: true
+    },
+    ExportMappingList: {
+      get: function() {
+        return ExportMappingList;
+      },
+      enumerable: true
+    },
+    ExportSpecifier: {
+      get: function() {
+        return ExportSpecifier;
+      },
+      enumerable: true
+    },
+    ExportSpecifierSet: {
+      get: function() {
+        return ExportSpecifierSet;
+      },
+      enumerable: true
+    },
+    ExportStar: {
+      get: function() {
+        return ExportStar;
+      },
+      enumerable: true
+    },
+    ExpressionStatement: {
+      get: function() {
+        return ExpressionStatement;
+      },
+      enumerable: true
+    },
+    Finally: {
+      get: function() {
+        return Finally;
+      },
+      enumerable: true
+    },
+    ForInStatement: {
+      get: function() {
+        return ForInStatement;
+      },
+      enumerable: true
+    },
+    ForOfStatement: {
+      get: function() {
+        return ForOfStatement;
+      },
+      enumerable: true
+    },
+    ForStatement: {
+      get: function() {
+        return ForStatement;
+      },
+      enumerable: true
+    },
+    FormalParameterList: {
+      get: function() {
+        return FormalParameterList;
+      },
+      enumerable: true
+    },
+    FunctionDeclaration: {
+      get: function() {
+        return FunctionDeclaration;
+      },
+      enumerable: true
+    },
+    FunctionExpression: {
+      get: function() {
+        return FunctionExpression;
+      },
+      enumerable: true
+    },
+    GeneratorComprehension: {
+      get: function() {
+        return GeneratorComprehension;
+      },
+      enumerable: true
+    },
+    GetAccessor: {
+      get: function() {
+        return GetAccessor;
+      },
+      enumerable: true
+    },
+    IdentifierExpression: {
+      get: function() {
+        return IdentifierExpression;
+      },
+      enumerable: true
+    },
+    IfStatement: {
+      get: function() {
+        return IfStatement;
+      },
+      enumerable: true
+    },
+    ImportBinding: {
+      get: function() {
+        return ImportBinding;
+      },
+      enumerable: true
+    },
+    ImportDeclaration: {
+      get: function() {
+        return ImportDeclaration;
+      },
+      enumerable: true
+    },
+    ImportSpecifier: {
+      get: function() {
+        return ImportSpecifier;
+      },
+      enumerable: true
+    },
+    ImportSpecifierSet: {
+      get: function() {
+        return ImportSpecifierSet;
+      },
+      enumerable: true
+    },
+    LabelledStatement: {
+      get: function() {
+        return LabelledStatement;
+      },
+      enumerable: true
+    },
+    LiteralExpression: {
+      get: function() {
+        return LiteralExpression;
+      },
+      enumerable: true
+    },
+    MemberExpression: {
+      get: function() {
+        return MemberExpression;
+      },
+      enumerable: true
+    },
+    MemberLookupExpression: {
+      get: function() {
+        return MemberLookupExpression;
+      },
+      enumerable: true
+    },
+    MissingPrimaryExpression: {
+      get: function() {
+        return MissingPrimaryExpression;
+      },
+      enumerable: true
+    },
+    ModuleDeclaration: {
+      get: function() {
+        return ModuleDeclaration;
+      },
+      enumerable: true
+    },
+    ModuleDefinition: {
+      get: function() {
+        return ModuleDefinition;
+      },
+      enumerable: true
+    },
+    ModuleExpression: {
+      get: function() {
+        return ModuleExpression;
+      },
+      enumerable: true
+    },
+    ModuleRequire: {
+      get: function() {
+        return ModuleRequire;
+      },
+      enumerable: true
+    },
+    ModuleSpecifier: {
+      get: function() {
+        return ModuleSpecifier;
+      },
+      enumerable: true
+    },
+    NameStatement: {
+      get: function() {
+        return NameStatement;
+      },
+      enumerable: true
+    },
+    NewExpression: {
+      get: function() {
+        return NewExpression;
+      },
+      enumerable: true
+    },
+    ObjectLiteralExpression: {
+      get: function() {
+        return ObjectLiteralExpression;
+      },
+      enumerable: true
+    },
+    ObjectPattern: {
+      get: function() {
+        return ObjectPattern;
+      },
+      enumerable: true
+    },
+    ObjectPatternField: {
+      get: function() {
+        return ObjectPatternField;
+      },
+      enumerable: true
+    },
+    ParenExpression: {
+      get: function() {
+        return ParenExpression;
+      },
+      enumerable: true
+    },
+    PostfixExpression: {
+      get: function() {
+        return PostfixExpression;
+      },
+      enumerable: true
+    },
+    Program: {
+      get: function() {
+        return Program;
+      },
+      enumerable: true
+    },
+    PropertyMethodAssignment: {
+      get: function() {
+        return PropertyMethodAssignment;
+      },
+      enumerable: true
+    },
+    PropertyNameAssignment: {
+      get: function() {
+        return PropertyNameAssignment;
+      },
+      enumerable: true
+    },
+    PropertyNameShorthand: {
+      get: function() {
+        return PropertyNameShorthand;
+      },
+      enumerable: true
+    },
+    QuasiLiteralExpression: {
+      get: function() {
+        return QuasiLiteralExpression;
+      },
+      enumerable: true
+    },
+    QuasiLiteralPortion: {
+      get: function() {
+        return QuasiLiteralPortion;
+      },
+      enumerable: true
+    },
+    QuasiSubstitution: {
+      get: function() {
+        return QuasiSubstitution;
+      },
+      enumerable: true
+    },
+    RestParameter: {
+      get: function() {
+        return RestParameter;
+      },
+      enumerable: true
+    },
+    ReturnStatement: {
+      get: function() {
+        return ReturnStatement;
+      },
+      enumerable: true
+    },
+    SetAccessor: {
+      get: function() {
+        return SetAccessor;
+      },
+      enumerable: true
+    },
+    SpreadExpression: {
+      get: function() {
+        return SpreadExpression;
+      },
+      enumerable: true
+    },
+    SpreadPatternElement: {
+      get: function() {
+        return SpreadPatternElement;
+      },
+      enumerable: true
+    },
+    SuperExpression: {
+      get: function() {
+        return SuperExpression;
+      },
+      enumerable: true
+    },
+    SwitchStatement: {
+      get: function() {
+        return SwitchStatement;
+      },
+      enumerable: true
+    },
+    ThisExpression: {
+      get: function() {
+        return ThisExpression;
+      },
+      enumerable: true
+    },
+    ThrowStatement: {
+      get: function() {
+        return ThrowStatement;
+      },
+      enumerable: true
+    },
+    TryStatement: {
+      get: function() {
+        return TryStatement;
+      },
+      enumerable: true
+    },
+    UnaryExpression: {
+      get: function() {
+        return UnaryExpression;
+      },
+      enumerable: true
+    },
+    VariableDeclaration: {
+      get: function() {
+        return VariableDeclaration;
+      },
+      enumerable: true
+    },
+    VariableDeclarationList: {
+      get: function() {
+        return VariableDeclarationList;
+      },
+      enumerable: true
+    },
+    VariableStatement: {
+      get: function() {
+        return VariableStatement;
+      },
+      enumerable: true
+    },
+    WhileStatement: {
+      get: function() {
+        return WhileStatement;
+      },
+      enumerable: true
+    },
+    WithStatement: {
+      get: function() {
+        return WithStatement;
+      },
+      enumerable: true
+    },
+    YieldExpression: {
+      get: function() {
+        return YieldExpression;
+      },
+      enumerable: true
+    }
+  }));
+}).call(this);
+var $__src_codegeneration_ParseTreeTransformer_js = (function() {
+  "use strict";
+  var $__9 = $__src_syntax_trees_ParseTrees_js, ArgumentList = $__9.ArgumentList, ArrayComprehension = $__9.ArrayComprehension, ArrayLiteralExpression = $__9.ArrayLiteralExpression, ArrayPattern = $__9.ArrayPattern, ArrowFunctionExpression = $__9.ArrowFunctionExpression, AtNameDeclaration = $__9.AtNameDeclaration, AtNameExpression = $__9.AtNameExpression, AwaitStatement = $__9.AwaitStatement, BinaryOperator = $__9.BinaryOperator, BindingElement = $__9.BindingElement, BindingIdentifier = $__9.BindingIdentifier, Block = $__9.Block, BreakStatement = $__9.BreakStatement, CallExpression = $__9.CallExpression, CascadeExpression = $__9.CascadeExpression, CaseClause = $__9.CaseClause, Catch = $__9.Catch, ClassDeclaration = $__9.ClassDeclaration, ClassExpression = $__9.ClassExpression, CommaExpression = $__9.CommaExpression, ComprehensionFor = $__9.ComprehensionFor, ConditionalExpression = $__9.ConditionalExpression, ContinueStatement = $__9.ContinueStatement, CoverFormals = $__9.CoverFormals, DebuggerStatement = $__9.DebuggerStatement, DefaultClause = $__9.DefaultClause, DoWhileStatement = $__9.DoWhileStatement, EmptyStatement = $__9.EmptyStatement, ExportDeclaration = $__9.ExportDeclaration, ExportMapping = $__9.ExportMapping, ExportMappingList = $__9.ExportMappingList, ExportSpecifier = $__9.ExportSpecifier, ExportSpecifierSet = $__9.ExportSpecifierSet, ExportStar = $__9.ExportStar, ExpressionStatement = $__9.ExpressionStatement, Finally = $__9.Finally, ForInStatement = $__9.ForInStatement, ForOfStatement = $__9.ForOfStatement, ForStatement = $__9.ForStatement, FormalParameterList = $__9.FormalParameterList, FunctionDeclaration = $__9.FunctionDeclaration, FunctionExpression = $__9.FunctionExpression, GeneratorComprehension = $__9.GeneratorComprehension, GetAccessor = $__9.GetAccessor, IdentifierExpression = $__9.IdentifierExpression, IfStatement = $__9.IfStatement, ImportBinding = $__9.ImportBinding, ImportDeclaration = $__9.ImportDeclaration, ImportSpecifier = $__9.ImportSpecifier, ImportSpecifierSet = $__9.ImportSpecifierSet, LabelledStatement = $__9.LabelledStatement, LiteralExpression = $__9.LiteralExpression, MemberExpression = $__9.MemberExpression, MemberLookupExpression = $__9.MemberLookupExpression, MissingPrimaryExpression = $__9.MissingPrimaryExpression, ModuleDeclaration = $__9.ModuleDeclaration, ModuleDefinition = $__9.ModuleDefinition, ModuleExpression = $__9.ModuleExpression, ModuleRequire = $__9.ModuleRequire, ModuleSpecifier = $__9.ModuleSpecifier, NameStatement = $__9.NameStatement, NewExpression = $__9.NewExpression, ObjectLiteralExpression = $__9.ObjectLiteralExpression, ObjectPattern = $__9.ObjectPattern, ObjectPatternField = $__9.ObjectPatternField, ParenExpression = $__9.ParenExpression, PostfixExpression = $__9.PostfixExpression, Program = $__9.Program, PropertyMethodAssignment = $__9.PropertyMethodAssignment, PropertyNameAssignment = $__9.PropertyNameAssignment, PropertyNameShorthand = $__9.PropertyNameShorthand, QuasiLiteralExpression = $__9.QuasiLiteralExpression, QuasiLiteralPortion = $__9.QuasiLiteralPortion, QuasiSubstitution = $__9.QuasiSubstitution, RestParameter = $__9.RestParameter, ReturnStatement = $__9.ReturnStatement, SetAccessor = $__9.SetAccessor, SpreadExpression = $__9.SpreadExpression, SpreadPatternElement = $__9.SpreadPatternElement, SuperExpression = $__9.SuperExpression, SwitchStatement = $__9.SwitchStatement, ThisExpression = $__9.ThisExpression, ThrowStatement = $__9.ThrowStatement, TryStatement = $__9.TryStatement, UnaryExpression = $__9.UnaryExpression, VariableDeclaration = $__9.VariableDeclaration, VariableDeclarationList = $__9.VariableDeclarationList, VariableStatement = $__9.VariableStatement, WhileStatement = $__9.WhileStatement, WithStatement = $__9.WithStatement, YieldExpression = $__9.YieldExpression;
+  var ParseTreeTransformer = function() {
+    var $ParseTreeTransformer = ($__createClassNoExtends)({
+      constructor: function() {},
+      transformAny: function(tree) {
+        return tree && tree.transform(this);
+      },
+      transformList: function(list) {
+        if (list == null || list.length == 0) {
+          return list;
+        }
+        var builder = null;
+        for (var index = 0; index < list.length; index++) {
+          var element = list[index];
+          var transformed = this.transformAny(element);
+          if (builder != null || element != transformed) {
+            if (builder == null) {
+              builder = list.slice(0, index);
+            }
+            builder.push(transformed);
+          }
+        }
+        return builder || list;
+      },
+      toSourceElement: function(tree) {
+        return tree.isSourceElement() ? tree: new ExpressionStatement(tree.location, tree);
+      },
+      transformSourceElements: function(list) {
+        if (list == null || list.length == 0) {
+          return list;
+        }
+        var builder = null;
+        for (var index = 0; index < list.length; index++) {
+          var element = list[index];
+          var transformed = this.toSourceElement(this.transformAny(element));
+          if (builder != null || element != transformed) {
+            if (builder == null) {
+              builder = list.slice(0, index);
+            }
+            builder.push(transformed);
+          }
+        }
+        return builder || list;
+      },
+      transformArgumentList: function(tree) {
+        var args = this.transformList(tree.args);
+        if (args == tree.args) {
+          return tree;
+        }
+        return new ArgumentList(tree.location, args);
+      },
+      transformArrayComprehension: function(tree) {
+        var expression = this.transformAny(tree.expression);
+        var comprehensionForList = this.transformList(tree.comprehensionForList);
+        var ifExpression = this.transformAny(tree.ifExpression);
+        if (expression === tree.expression && comprehensionForList === tree.comprehensionForList && ifExpression === tree.ifExpression) {
+          return tree;
+        }
+        return new ArrayComprehension(tree.location, expression, comprehensionForList, ifExpression);
+      },
+      transformArrayLiteralExpression: function(tree) {
+        var elements = this.transformList(tree.elements);
+        if (elements == tree.elements) {
+          return tree;
+        }
+        return new ArrayLiteralExpression(tree.location, elements);
+      },
+      transformArrayPattern: function(tree) {
+        var elements = this.transformList(tree.elements);
+        if (elements == tree.elements) {
+          return tree;
+        }
+        return new ArrayPattern(tree.location, elements);
+      },
+      transformArrowFunctionExpression: function(tree) {
+        var parameters = this.transformAny(tree.formalParameters);
+        var body = this.transformAny(tree.functionBody);
+        if (parameters == tree.formalParameters && body == tree.functionBody) {
+          return tree;
+        }
+        return new ArrowFunctionExpression(null, parameters, body);
+      },
+      transformAtNameExpression: function(tree) {
+        return tree;
+      },
+      transformAtNameDeclaration: function(tree) {
+        var initializer = this.transformAny(tree.initializer);
+        if (initializer === tree.initializer) return tree;
+        return new AtNameDeclaration(tree.location, tree.atNameToken, initializer);
+      },
+      transformAwaitStatement: function(tree) {
+        var expression = this.transformAny(tree.expression);
+        if (tree.expression == expression) {
+          return tree;
+        }
+        return new AwaitStatement(tree.location, tree.identifier, expression);
+      },
+      transformBinaryOperator: function(tree) {
+        var left = this.transformAny(tree.left);
+        var right = this.transformAny(tree.right);
+        if (left == tree.left && right == tree.right) {
+          return tree;
+        }
+        return new BinaryOperator(tree.location, left, tree.operator, right);
+      },
+      transformBindingElement: function(tree) {
+        var binding = this.transformAny(tree.binding);
+        var initializer = this.transformAny(tree.initializer);
+        if (binding === tree.binding && initializer === tree.initializer) return tree;
+        return new BindingElement(tree.location, binding, initializer);
+      },
+      transformBindingIdentifier: function(tree) {
+        return tree;
+      },
+      transformBlock: function(tree) {
+        var elements = this.transformList(tree.statements);
+        if (elements == tree.statements) {
+          return tree;
+        }
+        return new Block(tree.location, elements);
+      },
+      transformBreakStatement: function(tree) {
+        return tree;
+      },
+      transformCallExpression: function(tree) {
+        var operand = this.transformAny(tree.operand);
+        var args = this.transformAny(tree.args);
+        if (operand == tree.operand && args == tree.args) {
+          return tree;
+        }
+        return new CallExpression(tree.location, operand, args);
+      },
+      transformCaseClause: function(tree) {
+        var expression = this.transformAny(tree.expression);
+        var statements = this.transformList(tree.statements);
+        if (expression == tree.expression && statements == tree.statements) {
+          return tree;
+        }
+        return new CaseClause(tree.location, expression, statements);
+      },
+      transformCatch: function(tree) {
+        var catchBody = this.transformAny(tree.catchBody);
+        var binding = this.transformAny(tree.binding);
+        if (catchBody == tree.catchBody && binding == tree.binding) {
+          return tree;
+        }
+        return new Catch(tree.location, binding, catchBody);
+      },
+      transformCascadeExpression: function(tree) {
+        var operand = this.transformAny(tree.operand);
+        var expressions = this.transformList(tree.expressions);
+        if (operand == tree.operand && expressions == tree.expressions) {
+          return tree;
+        }
+        return new CascadeExpression(tree.location, operand, expressions);
+      },
+      transformClassDeclaration: function(tree) {
+        var superClass = this.transformAny(tree.superClass);
+        var elements = this.transformList(tree.elements);
+        if (superClass == tree.superClass && elements == tree.elements) return tree;
+        return new ClassDeclaration(tree.location, tree.name, superClass, elements);
+      },
+      transformClassExpression: function(tree) {
+        var superClass = this.transformAny(tree.superClass);
+        var elements = this.transformList(tree.elements);
+        if (superClass == tree.superClass && elements == tree.elements) return tree;
+        return new ClassExpression(tree.location, tree.name, superClass, elements);
+      },
+      transformCommaExpression: function(tree) {
+        var expressions = this.transformList(tree.expressions);
+        if (expressions == tree.expressions) {
+          return tree;
+        }
+        return new CommaExpression(tree.location, expressions);
+      },
+      transformComprehensionFor: function(tree) {
+        var left = this.transformAny(tree.left);
+        var iterator = this.transformAny(tree.iterator);
+        if (left === tree.left && iterator === tree.iterator) return tree;
+        return new ComprehensionFor(tree.location, left, iterator);
+      },
+      transformConditionalExpression: function(tree) {
+        var condition = this.transformAny(tree.condition);
+        var left = this.transformAny(tree.left);
+        var right = this.transformAny(tree.right);
+        if (condition == tree.condition && left == tree.left && right == tree.right) {
+          return tree;
+        }
+        return new ConditionalExpression(tree.location, condition, left, right);
+      },
+      transformContinueStatement: function(tree) {
+        return tree;
+      },
+      transformDebuggerStatement: function(tree) {
+        return tree;
+      },
+      transformDefaultClause: function(tree) {
+        var statements = this.transformList(tree.statements);
+        if (statements == tree.statements) {
+          return tree;
+        }
+        return new DefaultClause(tree.location, statements);
+      },
+      transformDoWhileStatement: function(tree) {
+        var body = this.transformAny(tree.body);
+        var condition = this.transformAny(tree.condition);
+        if (body == tree.body && condition == tree.condition) {
+          return tree;
+        }
+        return new DoWhileStatement(tree.location, body, condition);
+      },
+      transformEmptyStatement: function(tree) {
+        return tree;
+      },
+      transformExportDeclaration: function(tree) {
+        var declaration = this.transformAny(tree.declaration);
+        if (tree.declaration == declaration) {
+          return tree;
+        }
+        return new ExportDeclaration(tree.location, declaration);
+      },
+      transformExportMappingList: function(tree) {
+        var paths = this.transformList(tree.paths);
+        if (paths == tree.paths) {
+          return tree;
+        }
+        return new ExportMappingList(tree.location, paths);
+      },
+      transformExportMapping: function(tree) {
+        var moduleExpression = this.transformAny(tree.moduleExpression);
+        var specifierSet = this.transformAny(tree.specifierSet);
+        if (moduleExpression == tree.moduleExpression && specifierSet == tree.specifierSet) {
+          return tree;
+        }
+        return new ExportMapping(tree.location, moduleExpression, specifierSet);
+      },
+      transformExportSpecifier: function(tree) {
+        return tree;
+      },
+      transformExportSpecifierSet: function(tree) {
+        var specifiers = this.transformList(tree.specifiers);
+        if (specifiers == tree.specifiers) {
+          return tree;
+        }
+        return new ExportSpecifierSet(tree.location, specifiers);
+      },
+      transformExportStar: function(tree) {
+        return tree;
+      },
+      transformExpressionStatement: function(tree) {
+        var expression = this.transformAny(tree.expression);
+        if (expression == tree.expression) {
+          return tree;
+        }
+        return new ExpressionStatement(tree.location, expression);
+      },
+      transformFinally: function(tree) {
+        var block = this.transformAny(tree.block);
+        if (block == tree.block) {
+          return tree;
+        }
+        return new Finally(tree.location, block);
+      },
+      transformForOfStatement: function(tree) {
+        var initializer = this.transformAny(tree.initializer);
+        var collection = this.transformAny(tree.collection);
+        var body = this.transformAny(tree.body);
+        if (initializer == tree.initializer && collection == tree.collection && body == tree.body) {
+          return tree;
+        }
+        return new ForOfStatement(tree.location, initializer, collection, body);
+      },
+      transformForInStatement: function(tree) {
+        var initializer = this.transformAny(tree.initializer);
+        var collection = this.transformAny(tree.collection);
+        var body = this.transformAny(tree.body);
+        if (initializer == tree.initializer && collection == tree.collection && body == tree.body) {
+          return tree;
+        }
+        return new ForInStatement(tree.location, initializer, collection, body);
+      },
+      transformForStatement: function(tree) {
+        var initializer = this.transformAny(tree.initializer);
+        var condition = this.transformAny(tree.condition);
+        var increment = this.transformAny(tree.increment);
+        var body = this.transformAny(tree.body);
+        if (initializer == tree.initializer && condition == tree.condition && increment == tree.increment && body == tree.body) {
+          return tree;
+        }
+        return new ForStatement(tree.location, initializer, condition, increment, body);
+      },
+      transformFormalParameterList: function(tree) {
+        var parameters = this.transformList(tree.parameters);
+        if (parameters == tree.parameters) return tree;
+        return new FormalParameterList(tree.location, parameters);
+      },
+      transformFunction: function(tree) {
+        var name = this.transformAny(tree.name);
+        var formalParameterList = this.transformAny(tree.formalParameterList);
+        var functionBody = this.transformFunctionBody(tree.functionBody);
+        if (name === tree.name && formalParameterList === tree.formalParameterList && functionBody === tree.functionBody) {
+          return tree;
+        }
+        return new tree.constructor(tree.location, name, tree.isGenerator, formalParameterList, functionBody);
+      },
+      transformFunctionDeclaration: function(tree) {
+        return this.transformFunction(tree);
+      },
+      transformFunctionExpression: function(tree) {
+        return this.transformFunction(tree);
+      },
+      transformFunctionBody: function(tree) {
+        return this.transformAny(tree);
+      },
+      transformGeneratorComprehension: function(tree) {
+        var expression = this.transformAny(tree.expression);
+        var comprehensionForList = this.transformList(tree.comprehensionForList);
+        var ifExpression = this.transformAny(tree.ifExpression);
+        if (expression === tree.expression && comprehensionForList === tree.comprehensionForList && ifExpression === tree.ifExpression) {
+          return tree;
+        }
+        return new GeneratorComprehension(tree.location, expression, comprehensionForList, ifExpression);
+      },
+      transformGetAccessor: function(tree) {
+        var body = this.transformFunctionBody(tree.body);
+        if (body == tree.body) return tree;
+        return new GetAccessor(tree.location, tree.name, body);
+      },
+      transformIdentifierExpression: function(tree) {
+        return tree;
+      },
+      transformIfStatement: function(tree) {
+        var condition = this.transformAny(tree.condition);
+        var ifClause = this.transformAny(tree.ifClause);
+        var elseClause = this.transformAny(tree.elseClause);
+        if (condition == tree.condition && ifClause == tree.ifClause && elseClause == tree.elseClause) {
+          return tree;
+        }
+        return new IfStatement(tree.location, condition, ifClause, elseClause);
+      },
+      transformImportDeclaration: function(tree) {
+        var importPathList = this.transformList(tree.importPathList);
+        if (importPathList == tree.importPathList) {
+          return tree;
+        }
+        return new ImportDeclaration(tree.location, importPathList);
+      },
+      transformImportBinding: function(tree) {
+        var moduleExpression = this.transformAny(tree.moduleExpression);
+        var importSpecifierSet = this.transformList(tree.importSpecifierSet);
+        if (moduleExpression == tree.moduleExpression && importSpecifierSet == tree.importSpecifierSet) {
+          return tree;
+        }
+        return new ImportBinding(tree.location, moduleExpression, importSpecifierSet);
+      },
+      transformImportSpecifier: function(tree) {
+        return tree;
+      },
+      transformLabelledStatement: function(tree) {
+        var statement = this.transformAny(tree.statement);
+        if (statement == tree.statement) {
+          return tree;
+        }
+        return new LabelledStatement(tree.location, tree.name, statement);
+      },
+      transformLiteralExpression: function(tree) {
+        return tree;
+      },
+      transformMemberExpression: function(tree) {
+        var operand = this.transformAny(tree.operand);
+        if (operand == tree.operand) {
+          return tree;
+        }
+        return new MemberExpression(tree.location, operand, tree.memberName);
+      },
+      transformMemberLookupExpression: function(tree) {
+        var operand = this.transformAny(tree.operand);
+        var memberExpression = this.transformAny(tree.memberExpression);
+        if (operand == tree.operand && memberExpression == tree.memberExpression) {
+          return tree;
+        }
+        return new MemberLookupExpression(tree.location, operand, memberExpression);
+      },
+      transformMissingPrimaryExpression: function(tree) {
+        throw new Error('Should never transform trees that had errors during parse');
+      },
+      transformModuleDeclaration: function(tree) {
+        var specifiers = this.transformList(tree.specifiers);
+        if (specifiers == tree.specifiers) {
+          return tree;
+        }
+        return new ModuleDeclaration(tree.location, specifiers);
+      },
+      transformModuleDefinition: function(tree) {
+        var elements = this.transformList(tree.elements);
+        if (elements == tree.elements) {
+          return tree;
+        }
+        return new ModuleDefinition(tree.location, tree.name, elements);
+      },
+      transformModuleExpression: function(tree) {
+        var reference = this.transformAny(tree.reference);
+        if (reference == tree.reference) {
+          return tree;
+        }
+        return new ModuleExpression(tree.location, reference, tree.identifiers);
+      },
+      transformModuleRequire: function(tree) {
+        return tree;
+      },
+      transformModuleSpecifier: function(tree) {
+        var expression = this.transformAny(tree.expression);
+        if (expression == tree.expression) {
+          return tree;
+        }
+        return new ModuleSpecifier(tree.location, tree.identifier, expression);
+      },
+      transformNameStatement: function(tree) {
+        var declarations = this.transformList(tree.declarations);
+        if (declarations === tree.declarations) return tree;
+        return new NameStatement(tree.location, declarations);
+      },
+      transformNewExpression: function(tree) {
+        var operand = this.transformAny(tree.operand);
+        var args = this.transformAny(tree.args);
+        if (operand == tree.operand && args == tree.args) {
+          return tree;
+        }
+        return new NewExpression(tree.location, operand, args);
+      },
+      transformObjectLiteralExpression: function(tree) {
+        var propertyNameAndValues = this.transformList(tree.propertyNameAndValues);
+        if (propertyNameAndValues == tree.propertyNameAndValues) {
+          return tree;
+        }
+        return new ObjectLiteralExpression(tree.location, propertyNameAndValues);
+      },
+      transformObjectPattern: function(tree) {
+        var fields = this.transformList(tree.fields);
+        if (fields == tree.fields) {
+          return tree;
+        }
+        return new ObjectPattern(tree.location, fields);
+      },
+      transformObjectPatternField: function(tree) {
+        var element = this.transformAny(tree.element);
+        if (element == tree.element) {
+          return tree;
+        }
+        return new ObjectPatternField(tree.location, tree.identifier, element);
+      },
+      transformParenExpression: function(tree) {
+        var expression = this.transformAny(tree.expression);
+        if (expression == tree.expression) {
+          return tree;
+        }
+        return new ParenExpression(tree.location, expression);
+      },
+      transformPostfixExpression: function(tree) {
+        var operand = this.transformAny(tree.operand);
+        if (operand == tree.operand) {
+          return tree;
+        }
+        return new PostfixExpression(tree.location, operand, tree.operator);
+      },
+      transformProgram: function(tree) {
+        var elements = this.transformList(tree.programElements);
+        if (elements == tree.programElements) {
+          return tree;
+        }
+        return new Program(tree.location, elements);
+      },
+      transformPropertyMethodAssignment: function(tree) {
+        var parameters = this.transformAny(tree.formalParameterList);
+        var functionBody = this.transformFunctionBody(tree.functionBody);
+        if (parameters == tree.formalParameterList && functionBody == tree.functionBody) {
+          return tree;
+        }
+        return new PropertyMethodAssignment(tree.location, tree.name, tree.isGenerator, parameters, functionBody);
+      },
+      transformPropertyNameAssignment: function(tree) {
+        var value = this.transformAny(tree.value);
+        if (value == tree.value) {
+          return tree;
+        }
+        return new PropertyNameAssignment(tree.location, tree.name, value);
+      },
+      transformPropertyNameShorthand: function(tree) {
+        return tree;
+      },
+      transformQuasiLiteralExpression: function(tree) {
+        var operand = this.transformAny(tree.operand);
+        var elements = this.transformList(tree.elements);
+        if (operand === tree.operand && elements == tree.elements) return tree;
+        return new QuasiLiteralExpression(tree.location, operand, elements);
+      },
+      transformQuasiLiteralPortion: function(tree) {
+        return tree;
+      },
+      transformQuasiSubstitution: function(tree) {
+        var expression = this.transformAny(tree.expression);
+        if (expression == tree.expression) {
+          return tree;
+        }
+        return new QuasiSubstitution(tree.location, expression);
+      },
+      transformRestParameter: function(tree) {
+        return tree;
+      },
+      transformReturnStatement: function(tree) {
+        var expression = this.transformAny(tree.expression);
+        if (expression == tree.expression) {
+          return tree;
+        }
+        return new ReturnStatement(tree.location, expression);
+      },
+      transformSetAccessor: function(tree) {
+        var parameter = this.transformAny(tree.parameter);
+        var body = this.transformFunctionBody(tree.body);
+        if (parameter === tree.parameter && body === tree.body) return tree;
+        return new SetAccessor(tree.location, tree.name, parameter, body);
+      },
+      transformSpreadExpression: function(tree) {
+        var expression = this.transformAny(tree.expression);
+        if (expression == tree.expression) {
+          return tree;
+        }
+        return new SpreadExpression(tree.location, expression);
+      },
+      transformSpreadPatternElement: function(tree) {
+        var lvalue = this.transformAny(tree.lvalue);
+        if (lvalue == tree.lvalue) {
+          return tree;
+        }
+        return new SpreadPatternElement(tree.location, lvalue);
+      },
+      transformStateMachine: function(tree) {
+        throw new Error();
+      },
+      transformSuperExpression: function(tree) {
+        return tree;
+      },
+      transformSwitchStatement: function(tree) {
+        var expression = this.transformAny(tree.expression);
+        var caseClauses = this.transformList(tree.caseClauses);
+        if (expression == tree.expression && caseClauses == tree.caseClauses) {
+          return tree;
+        }
+        return new SwitchStatement(tree.location, expression, caseClauses);
+      },
+      transformThisExpression: function(tree) {
+        return tree;
+      },
+      transformThrowStatement: function(tree) {
+        var value = this.transformAny(tree.value);
+        if (value == tree.value) {
+          return tree;
+        }
+        return new ThrowStatement(tree.location, value);
+      },
+      transformTryStatement: function(tree) {
+        var body = this.transformAny(tree.body);
+        var catchBlock = this.transformAny(tree.catchBlock);
+        var finallyBlock = this.transformAny(tree.finallyBlock);
+        if (body == tree.body && catchBlock == tree.catchBlock && finallyBlock == tree.finallyBlock) {
+          return tree;
+        }
+        return new TryStatement(tree.location, body, catchBlock, finallyBlock);
+      },
+      transformUnaryExpression: function(tree) {
+        var operand = this.transformAny(tree.operand);
+        if (operand == tree.operand) {
+          return tree;
+        }
+        return new UnaryExpression(tree.location, tree.operator, operand);
+      },
+      transformVariableDeclaration: function(tree) {
+        var lvalue = this.transformAny(tree.lvalue);
+        var initializer = this.transformAny(tree.initializer);
+        if (lvalue == tree.lvalue && initializer == tree.initializer) {
+          return tree;
+        }
+        return new VariableDeclaration(tree.location, lvalue, initializer);
+      },
+      transformVariableDeclarationList: function(tree) {
+        var declarations = this.transformList(tree.declarations);
+        if (declarations == tree.declarations) {
+          return tree;
+        }
+        return new VariableDeclarationList(tree.location, tree.declarationType, declarations);
+      },
+      transformVariableStatement: function(tree) {
+        var declarations = this.transformAny(tree.declarations);
+        if (declarations == tree.declarations) {
+          return tree;
+        }
+        return new VariableStatement(tree.location, declarations);
+      },
+      transformWhileStatement: function(tree) {
+        var condition = this.transformAny(tree.condition);
+        var body = this.transformAny(tree.body);
+        if (condition == tree.condition && body == tree.body) {
+          return tree;
+        }
+        return new WhileStatement(tree.location, condition, body);
+      },
+      transformWithStatement: function(tree) {
+        var expression = this.transformAny(tree.expression);
+        var body = this.transformAny(tree.body);
+        if (expression == tree.expression && body == tree.body) {
+          return tree;
+        }
+        return new WithStatement(tree.location, expression, body);
+      },
+      transformYieldExpression: function(tree) {
+        var expression = this.transformAny(tree.expression);
+        var isYieldFor = tree.isYieldFor;
+        if (expression == tree.expression) {
+          return tree;
+        }
+        return new YieldExpression(tree.location, expression, isYieldFor);
+      }
+    });
+    return $ParseTreeTransformer;
+  }();
+  return Object.preventExtensions(Object.create(null, {ParseTreeTransformer: {
+      get: function() {
+        return ParseTreeTransformer;
+      },
+      enumerable: true
+    }}));
+}).call(this);
+var $__src_codegeneration_CoverFormalsTransformer_js = (function() {
+  "use strict";
+  var ParseTreeTransformer = $__src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
+  var $__9 = $__src_syntax_trees_ParseTrees_js, ArrayPattern = $__9.ArrayPattern, BindingElement = $__9.BindingElement, BindingIdentifier = $__9.BindingIdentifier, FormalParameterList = $__9.FormalParameterList, ObjectPattern = $__9.ObjectPattern, ObjectPatternField = $__9.ObjectPatternField, RestParameter = $__9.RestParameter, SpreadPatternElement = $__9.SpreadPatternElement;
+  var EQUAL = $__src_syntax_TokenType_js.EQUAL;
+  var $__9 = $__src_syntax_trees_ParseTreeType_js, IDENTIFIER_EXPRESSION = $__9.IDENTIFIER_EXPRESSION, SPREAD_PATTERN_ELEMENT = $__9.SPREAD_PATTERN_ELEMENT;
+  var CoverFormalsTransformerError = function($__super) {
+    var $CoverFormalsTransformerError = ($__createClass)({constructor: function() {
+        traceur.runtime.superCall(this, $CoverFormalsTransformerError, 'constructor', arguments);
+      }}, $__super, false);
+    return $CoverFormalsTransformerError;
+  }(Error);
+  var CoverFormalsTransformer = function($__super) {
+    var $CoverFormalsTransformer = ($__createClass)({
+      constructor: function() {
+        this.isValid = true;
+        this.inArrayPattern_ = false;
+      },
+      transformCoverFormals: function(tree) {
+        var expressions = this.transformList(tree.expressions);
+        return new FormalParameterList(tree.location, expressions);
+      },
+      transformIdentifierExpression: function(tree) {
+        return new BindingElement(tree.location, new BindingIdentifier(tree.location, tree.identifierToken), null);
+      },
+      transformBinaryOperator: function(tree) {
+        if (tree.operator.type !== EQUAL) throw new CoverFormalsTransformerError();
+        var bindingElement = this.transformAny(tree.left);
+        return new BindingElement(tree.location, bindingElement.binding, tree.right);
+      },
+      transformArrayLiteralExpression: function(tree) {
+        var wasInArrayPattern = this.inArrayPattern_;
+        this.inArrayPattern_ = true;
+        var elements = this.transformList(tree.elements);
+        this.inArrayPattern_ = wasInArrayPattern;
+        var okIndex = elements.length - 1;
+        for (var i = 0; i < okIndex; i++) {
+          if (elements[i].type === SPREAD_PATTERN_ELEMENT) throw new CoverFormalsTransformerError();
+        }
+        return new BindingElement(tree.location, new ArrayPattern(tree.location, elements), null);
+      },
+      transformObjectLiteralExpression: function(tree) {
+        var propertyNameAndValues = this.transformList(tree.propertyNameAndValues);
+        return new BindingElement(tree.location, new ObjectPattern(tree.location, propertyNameAndValues), null);
+      },
+      transformPropertyNameAssignment: function(tree) {
+        return new ObjectPatternField(tree.location, tree.name, this.transformAny(tree.value));
+      },
+      transformPropertyNameShorthand: function(tree) {
+        return new BindingElement(tree.location, new BindingIdentifier(tree.location, tree.name), null);
+      },
+      transformSpreadExpression: function(tree) {
+        if (tree.expression.type !== IDENTIFIER_EXPRESSION) throw new CoverFormalsTransformerError();
+        var bindingIdentifier = new BindingIdentifier(tree.expression.location, tree.expression.identifierToken);
+        if (this.inArrayPattern_) return new SpreadPatternElement(tree.location, bindingIdentifier);
+        return new RestParameter(tree.location, bindingIdentifier);
+      }
+    }, $__super, true);
+    return $CoverFormalsTransformer;
+  }(ParseTreeTransformer);
+  return Object.preventExtensions(Object.create(null, {
+    CoverFormalsTransformerError: {
+      get: function() {
+        return CoverFormalsTransformerError;
+      },
+      enumerable: true
+    },
+    CoverFormalsTransformer: {
+      get: function() {
+        return CoverFormalsTransformer;
+      },
+      enumerable: true
+    }
+  }));
+}).call(this);
 var $__src_syntax_Token_js = (function() {
   "use strict";
   var $__9 = $__src_syntax_TokenType_js, AMPERSAND_EQUAL = $__9.AMPERSAND_EQUAL, BAR_EQUAL = $__9.BAR_EQUAL, CARET_EQUAL = $__9.CARET_EQUAL, EQUAL = $__9.EQUAL, LEFT_SHIFT_EQUAL = $__9.LEFT_SHIFT_EQUAL, MINUS_EQUAL = $__9.MINUS_EQUAL, PERCENT_EQUAL = $__9.PERCENT_EQUAL, PLUS_EQUAL = $__9.PLUS_EQUAL, RIGHT_SHIFT_EQUAL = $__9.RIGHT_SHIFT_EQUAL, SLASH_EQUAL = $__9.SLASH_EQUAL, STAR_EQUAL = $__9.STAR_EQUAL, UNSIGNED_RIGHT_SHIFT_EQUAL = $__9.UNSIGNED_RIGHT_SHIFT_EQUAL;
@@ -5504,2241 +8474,12 @@ var $__src_syntax_Scanner_js = (function() {
     }
   }));
 }).call(this);
-var $__src_syntax_trees_ParseTrees_js = (function() {
-  "use strict";
-  var ParseTree = $__src_syntax_trees_ParseTree_js.ParseTree;
-  var ParseTreeType = $__src_syntax_trees_ParseTreeType_js;
-  var $__9 = ParseTreeType, ARGUMENT_LIST = $__9.ARGUMENT_LIST, ARRAY_COMPREHENSION = $__9.ARRAY_COMPREHENSION, ARRAY_LITERAL_EXPRESSION = $__9.ARRAY_LITERAL_EXPRESSION, ARRAY_PATTERN = $__9.ARRAY_PATTERN, ARROW_FUNCTION_EXPRESSION = $__9.ARROW_FUNCTION_EXPRESSION, AT_NAME_DECLARATION = $__9.AT_NAME_DECLARATION, AT_NAME_EXPRESSION = $__9.AT_NAME_EXPRESSION, AWAIT_STATEMENT = $__9.AWAIT_STATEMENT, BINARY_OPERATOR = $__9.BINARY_OPERATOR, BINDING_ELEMENT = $__9.BINDING_ELEMENT, BINDING_IDENTIFIER = $__9.BINDING_IDENTIFIER, BLOCK = $__9.BLOCK, BREAK_STATEMENT = $__9.BREAK_STATEMENT, CALL_EXPRESSION = $__9.CALL_EXPRESSION, CASCADE_EXPRESSION = $__9.CASCADE_EXPRESSION, CASE_CLAUSE = $__9.CASE_CLAUSE, CATCH = $__9.CATCH, CLASS_DECLARATION = $__9.CLASS_DECLARATION, CLASS_EXPRESSION = $__9.CLASS_EXPRESSION, COMMA_EXPRESSION = $__9.COMMA_EXPRESSION, COMPREHENSION_FOR = $__9.COMPREHENSION_FOR, CONDITIONAL_EXPRESSION = $__9.CONDITIONAL_EXPRESSION, CONTINUE_STATEMENT = $__9.CONTINUE_STATEMENT, DEBUGGER_STATEMENT = $__9.DEBUGGER_STATEMENT, DEFAULT_CLAUSE = $__9.DEFAULT_CLAUSE, DO_WHILE_STATEMENT = $__9.DO_WHILE_STATEMENT, EMPTY_STATEMENT = $__9.EMPTY_STATEMENT, EXPORT_DECLARATION = $__9.EXPORT_DECLARATION, EXPORT_MAPPING = $__9.EXPORT_MAPPING, EXPORT_MAPPING_LIST = $__9.EXPORT_MAPPING_LIST, EXPORT_SPECIFIER = $__9.EXPORT_SPECIFIER, EXPORT_SPECIFIER_SET = $__9.EXPORT_SPECIFIER_SET, EXPORT_STAR = $__9.EXPORT_STAR, EXPRESSION_STATEMENT = $__9.EXPRESSION_STATEMENT, FINALLY = $__9.FINALLY, FOR_IN_STATEMENT = $__9.FOR_IN_STATEMENT, FOR_OF_STATEMENT = $__9.FOR_OF_STATEMENT, FOR_STATEMENT = $__9.FOR_STATEMENT, FORMAL_PARAMETER_LIST = $__9.FORMAL_PARAMETER_LIST, FUNCTION_DECLARATION = $__9.FUNCTION_DECLARATION, FUNCTION_EXPRESSION = $__9.FUNCTION_EXPRESSION, GENERATOR_COMPREHENSION = $__9.GENERATOR_COMPREHENSION, GET_ACCESSOR = $__9.GET_ACCESSOR, IDENTIFIER_EXPRESSION = $__9.IDENTIFIER_EXPRESSION, IF_STATEMENT = $__9.IF_STATEMENT, IMPORT_BINDING = $__9.IMPORT_BINDING, IMPORT_DECLARATION = $__9.IMPORT_DECLARATION, IMPORT_SPECIFIER = $__9.IMPORT_SPECIFIER, IMPORT_SPECIFIER_SET = $__9.IMPORT_SPECIFIER_SET, LABELLED_STATEMENT = $__9.LABELLED_STATEMENT, LITERAL_EXPRESSION = $__9.LITERAL_EXPRESSION, MEMBER_EXPRESSION = $__9.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__9.MEMBER_LOOKUP_EXPRESSION, MISSING_PRIMARY_EXPRESSION = $__9.MISSING_PRIMARY_EXPRESSION, MODULE_DECLARATION = $__9.MODULE_DECLARATION, MODULE_DEFINITION = $__9.MODULE_DEFINITION, MODULE_EXPRESSION = $__9.MODULE_EXPRESSION, MODULE_REQUIRE = $__9.MODULE_REQUIRE, MODULE_SPECIFIER = $__9.MODULE_SPECIFIER, NAME_STATEMENT = $__9.NAME_STATEMENT, NEW_EXPRESSION = $__9.NEW_EXPRESSION, OBJECT_LITERAL_EXPRESSION = $__9.OBJECT_LITERAL_EXPRESSION, OBJECT_PATTERN = $__9.OBJECT_PATTERN, OBJECT_PATTERN_FIELD = $__9.OBJECT_PATTERN_FIELD, PAREN_EXPRESSION = $__9.PAREN_EXPRESSION, POSTFIX_EXPRESSION = $__9.POSTFIX_EXPRESSION, PROGRAM = $__9.PROGRAM, PROPERTY_METHOD_ASSIGNMENT = $__9.PROPERTY_METHOD_ASSIGNMENT, PROPERTY_NAME_ASSIGNMENT = $__9.PROPERTY_NAME_ASSIGNMENT, PROPERTY_NAME_SHORTHAND = $__9.PROPERTY_NAME_SHORTHAND, QUASI_LITERAL_EXPRESSION = $__9.QUASI_LITERAL_EXPRESSION, QUASI_LITERAL_PORTION = $__9.QUASI_LITERAL_PORTION, QUASI_SUBSTITUTION = $__9.QUASI_SUBSTITUTION, REST_PARAMETER = $__9.REST_PARAMETER, RETURN_STATEMENT = $__9.RETURN_STATEMENT, SET_ACCESSOR = $__9.SET_ACCESSOR, SPREAD_EXPRESSION = $__9.SPREAD_EXPRESSION, SPREAD_PATTERN_ELEMENT = $__9.SPREAD_PATTERN_ELEMENT, STATE_MACHINE = $__9.STATE_MACHINE, SUPER_EXPRESSION = $__9.SUPER_EXPRESSION, SWITCH_STATEMENT = $__9.SWITCH_STATEMENT, THIS_EXPRESSION = $__9.THIS_EXPRESSION, THROW_STATEMENT = $__9.THROW_STATEMENT, TRY_STATEMENT = $__9.TRY_STATEMENT, UNARY_EXPRESSION = $__9.UNARY_EXPRESSION, VARIABLE_DECLARATION = $__9.VARIABLE_DECLARATION, VARIABLE_DECLARATION_LIST = $__9.VARIABLE_DECLARATION_LIST, VARIABLE_STATEMENT = $__9.VARIABLE_STATEMENT, WHILE_STATEMENT = $__9.WHILE_STATEMENT, WITH_STATEMENT = $__9.WITH_STATEMENT, YIELD_EXPRESSION = $__9.YIELD_EXPRESSION;
-  var ArgumentList = function($__super) {
-    var $ArgumentList = ($__createClass)({
-      constructor: function(location, args) {
-        this.location = location;
-        this.args = args;
-      },
-      transform: function(transformer) {
-        return transformer.transformArgumentList(this);
-      },
-      visit: function(visitor) {
-        visitor.visitArgumentList(this);
-      },
-      get type() {
-        return ARGUMENT_LIST;
-      }
-    }, $__super, true);
-    return $ArgumentList;
-  }(ParseTree);
-  var ArrayComprehension = function($__super) {
-    var $ArrayComprehension = ($__createClass)({
-      constructor: function(location, expression, comprehensionForList, ifExpression) {
-        this.location = location;
-        this.expression = expression;
-        this.comprehensionForList = comprehensionForList;
-        this.ifExpression = ifExpression;
-      },
-      transform: function(transformer) {
-        return transformer.transformArrayComprehension(this);
-      },
-      visit: function(visitor) {
-        visitor.visitArrayComprehension(this);
-      },
-      get type() {
-        return ARRAY_COMPREHENSION;
-      }
-    }, $__super, true);
-    return $ArrayComprehension;
-  }(ParseTree);
-  var ArrayLiteralExpression = function($__super) {
-    var $ArrayLiteralExpression = ($__createClass)({
-      constructor: function(location, elements) {
-        this.location = location;
-        this.elements = elements;
-      },
-      transform: function(transformer) {
-        return transformer.transformArrayLiteralExpression(this);
-      },
-      visit: function(visitor) {
-        visitor.visitArrayLiteralExpression(this);
-      },
-      get type() {
-        return ARRAY_LITERAL_EXPRESSION;
-      }
-    }, $__super, true);
-    return $ArrayLiteralExpression;
-  }(ParseTree);
-  var ArrayPattern = function($__super) {
-    var $ArrayPattern = ($__createClass)({
-      constructor: function(location, elements) {
-        this.location = location;
-        this.elements = elements;
-      },
-      transform: function(transformer) {
-        return transformer.transformArrayPattern(this);
-      },
-      visit: function(visitor) {
-        visitor.visitArrayPattern(this);
-      },
-      get type() {
-        return ARRAY_PATTERN;
-      }
-    }, $__super, true);
-    return $ArrayPattern;
-  }(ParseTree);
-  var ArrowFunctionExpression = function($__super) {
-    var $ArrowFunctionExpression = ($__createClass)({
-      constructor: function(location, formalParameters, functionBody) {
-        this.location = location;
-        this.formalParameters = formalParameters;
-        this.functionBody = functionBody;
-      },
-      transform: function(transformer) {
-        return transformer.transformArrowFunctionExpression(this);
-      },
-      visit: function(visitor) {
-        visitor.visitArrowFunctionExpression(this);
-      },
-      get type() {
-        return ARROW_FUNCTION_EXPRESSION;
-      }
-    }, $__super, true);
-    return $ArrowFunctionExpression;
-  }(ParseTree);
-  var AtNameDeclaration = function($__super) {
-    var $AtNameDeclaration = ($__createClass)({
-      constructor: function(location, atNameToken, initializer) {
-        this.location = location;
-        this.atNameToken = atNameToken;
-        this.initializer = initializer;
-      },
-      transform: function(transformer) {
-        return transformer.transformAtNameDeclaration(this);
-      },
-      visit: function(visitor) {
-        visitor.visitAtNameDeclaration(this);
-      },
-      get type() {
-        return AT_NAME_DECLARATION;
-      }
-    }, $__super, true);
-    return $AtNameDeclaration;
-  }(ParseTree);
-  var AtNameExpression = function($__super) {
-    var $AtNameExpression = ($__createClass)({
-      constructor: function(location, atNameToken) {
-        this.location = location;
-        this.atNameToken = atNameToken;
-      },
-      transform: function(transformer) {
-        return transformer.transformAtNameExpression(this);
-      },
-      visit: function(visitor) {
-        visitor.visitAtNameExpression(this);
-      },
-      get type() {
-        return AT_NAME_EXPRESSION;
-      }
-    }, $__super, true);
-    return $AtNameExpression;
-  }(ParseTree);
-  var AwaitStatement = function($__super) {
-    var $AwaitStatement = ($__createClass)({
-      constructor: function(location, identifier, expression) {
-        this.location = location;
-        this.identifier = identifier;
-        this.expression = expression;
-      },
-      transform: function(transformer) {
-        return transformer.transformAwaitStatement(this);
-      },
-      visit: function(visitor) {
-        visitor.visitAwaitStatement(this);
-      },
-      get type() {
-        return AWAIT_STATEMENT;
-      }
-    }, $__super, true);
-    return $AwaitStatement;
-  }(ParseTree);
-  var BinaryOperator = function($__super) {
-    var $BinaryOperator = ($__createClass)({
-      constructor: function(location, left, operator, right) {
-        this.location = location;
-        this.left = left;
-        this.operator = operator;
-        this.right = right;
-      },
-      transform: function(transformer) {
-        return transformer.transformBinaryOperator(this);
-      },
-      visit: function(visitor) {
-        visitor.visitBinaryOperator(this);
-      },
-      get type() {
-        return BINARY_OPERATOR;
-      }
-    }, $__super, true);
-    return $BinaryOperator;
-  }(ParseTree);
-  var BindingElement = function($__super) {
-    var $BindingElement = ($__createClass)({
-      constructor: function(location, binding, initializer) {
-        this.location = location;
-        this.binding = binding;
-        this.initializer = initializer;
-      },
-      transform: function(transformer) {
-        return transformer.transformBindingElement(this);
-      },
-      visit: function(visitor) {
-        visitor.visitBindingElement(this);
-      },
-      get type() {
-        return BINDING_ELEMENT;
-      }
-    }, $__super, true);
-    return $BindingElement;
-  }(ParseTree);
-  var BindingIdentifier = function($__super) {
-    var $BindingIdentifier = ($__createClass)({
-      constructor: function(location, identifierToken) {
-        this.location = location;
-        this.identifierToken = identifierToken;
-      },
-      transform: function(transformer) {
-        return transformer.transformBindingIdentifier(this);
-      },
-      visit: function(visitor) {
-        visitor.visitBindingIdentifier(this);
-      },
-      get type() {
-        return BINDING_IDENTIFIER;
-      }
-    }, $__super, true);
-    return $BindingIdentifier;
-  }(ParseTree);
-  var Block = function($__super) {
-    var $Block = ($__createClass)({
-      constructor: function(location, statements) {
-        this.location = location;
-        this.statements = statements;
-      },
-      transform: function(transformer) {
-        return transformer.transformBlock(this);
-      },
-      visit: function(visitor) {
-        visitor.visitBlock(this);
-      },
-      get type() {
-        return BLOCK;
-      }
-    }, $__super, true);
-    return $Block;
-  }(ParseTree);
-  var BreakStatement = function($__super) {
-    var $BreakStatement = ($__createClass)({
-      constructor: function(location, name) {
-        this.location = location;
-        this.name = name;
-      },
-      transform: function(transformer) {
-        return transformer.transformBreakStatement(this);
-      },
-      visit: function(visitor) {
-        visitor.visitBreakStatement(this);
-      },
-      get type() {
-        return BREAK_STATEMENT;
-      }
-    }, $__super, true);
-    return $BreakStatement;
-  }(ParseTree);
-  var CallExpression = function($__super) {
-    var $CallExpression = ($__createClass)({
-      constructor: function(location, operand, args) {
-        this.location = location;
-        this.operand = operand;
-        this.args = args;
-      },
-      transform: function(transformer) {
-        return transformer.transformCallExpression(this);
-      },
-      visit: function(visitor) {
-        visitor.visitCallExpression(this);
-      },
-      get type() {
-        return CALL_EXPRESSION;
-      }
-    }, $__super, true);
-    return $CallExpression;
-  }(ParseTree);
-  var CascadeExpression = function($__super) {
-    var $CascadeExpression = ($__createClass)({
-      constructor: function(location, operand, expressions) {
-        this.location = location;
-        this.operand = operand;
-        this.expressions = expressions;
-      },
-      transform: function(transformer) {
-        return transformer.transformCascadeExpression(this);
-      },
-      visit: function(visitor) {
-        visitor.visitCascadeExpression(this);
-      },
-      get type() {
-        return CASCADE_EXPRESSION;
-      }
-    }, $__super, true);
-    return $CascadeExpression;
-  }(ParseTree);
-  var CaseClause = function($__super) {
-    var $CaseClause = ($__createClass)({
-      constructor: function(location, expression, statements) {
-        this.location = location;
-        this.expression = expression;
-        this.statements = statements;
-      },
-      transform: function(transformer) {
-        return transformer.transformCaseClause(this);
-      },
-      visit: function(visitor) {
-        visitor.visitCaseClause(this);
-      },
-      get type() {
-        return CASE_CLAUSE;
-      }
-    }, $__super, true);
-    return $CaseClause;
-  }(ParseTree);
-  var Catch = function($__super) {
-    var $Catch = ($__createClass)({
-      constructor: function(location, binding, catchBody) {
-        this.location = location;
-        this.binding = binding;
-        this.catchBody = catchBody;
-      },
-      transform: function(transformer) {
-        return transformer.transformCatch(this);
-      },
-      visit: function(visitor) {
-        visitor.visitCatch(this);
-      },
-      get type() {
-        return CATCH;
-      }
-    }, $__super, true);
-    return $Catch;
-  }(ParseTree);
-  var ClassDeclaration = function($__super) {
-    var $ClassDeclaration = ($__createClass)({
-      constructor: function(location, name, superClass, elements) {
-        this.location = location;
-        this.name = name;
-        this.superClass = superClass;
-        this.elements = elements;
-      },
-      transform: function(transformer) {
-        return transformer.transformClassDeclaration(this);
-      },
-      visit: function(visitor) {
-        visitor.visitClassDeclaration(this);
-      },
-      get type() {
-        return CLASS_DECLARATION;
-      }
-    }, $__super, true);
-    return $ClassDeclaration;
-  }(ParseTree);
-  var ClassExpression = function($__super) {
-    var $ClassExpression = ($__createClass)({
-      constructor: function(location, name, superClass, elements) {
-        this.location = location;
-        this.name = name;
-        this.superClass = superClass;
-        this.elements = elements;
-      },
-      transform: function(transformer) {
-        return transformer.transformClassExpression(this);
-      },
-      visit: function(visitor) {
-        visitor.visitClassExpression(this);
-      },
-      get type() {
-        return CLASS_EXPRESSION;
-      }
-    }, $__super, true);
-    return $ClassExpression;
-  }(ParseTree);
-  var CommaExpression = function($__super) {
-    var $CommaExpression = ($__createClass)({
-      constructor: function(location, expressions) {
-        this.location = location;
-        this.expressions = expressions;
-      },
-      transform: function(transformer) {
-        return transformer.transformCommaExpression(this);
-      },
-      visit: function(visitor) {
-        visitor.visitCommaExpression(this);
-      },
-      get type() {
-        return COMMA_EXPRESSION;
-      }
-    }, $__super, true);
-    return $CommaExpression;
-  }(ParseTree);
-  var ComprehensionFor = function($__super) {
-    var $ComprehensionFor = ($__createClass)({
-      constructor: function(location, left, iterator) {
-        this.location = location;
-        this.left = left;
-        this.iterator = iterator;
-      },
-      transform: function(transformer) {
-        return transformer.transformComprehensionFor(this);
-      },
-      visit: function(visitor) {
-        visitor.visitComprehensionFor(this);
-      },
-      get type() {
-        return COMPREHENSION_FOR;
-      }
-    }, $__super, true);
-    return $ComprehensionFor;
-  }(ParseTree);
-  var ConditionalExpression = function($__super) {
-    var $ConditionalExpression = ($__createClass)({
-      constructor: function(location, condition, left, right) {
-        this.location = location;
-        this.condition = condition;
-        this.left = left;
-        this.right = right;
-      },
-      transform: function(transformer) {
-        return transformer.transformConditionalExpression(this);
-      },
-      visit: function(visitor) {
-        visitor.visitConditionalExpression(this);
-      },
-      get type() {
-        return CONDITIONAL_EXPRESSION;
-      }
-    }, $__super, true);
-    return $ConditionalExpression;
-  }(ParseTree);
-  var ContinueStatement = function($__super) {
-    var $ContinueStatement = ($__createClass)({
-      constructor: function(location, name) {
-        this.location = location;
-        this.name = name;
-      },
-      transform: function(transformer) {
-        return transformer.transformContinueStatement(this);
-      },
-      visit: function(visitor) {
-        visitor.visitContinueStatement(this);
-      },
-      get type() {
-        return CONTINUE_STATEMENT;
-      }
-    }, $__super, true);
-    return $ContinueStatement;
-  }(ParseTree);
-  var DebuggerStatement = function($__super) {
-    var $DebuggerStatement = ($__createClass)({
-      constructor: function(location) {
-        this.location = location;
-      },
-      transform: function(transformer) {
-        return transformer.transformDebuggerStatement(this);
-      },
-      visit: function(visitor) {
-        visitor.visitDebuggerStatement(this);
-      },
-      get type() {
-        return DEBUGGER_STATEMENT;
-      }
-    }, $__super, true);
-    return $DebuggerStatement;
-  }(ParseTree);
-  var DefaultClause = function($__super) {
-    var $DefaultClause = ($__createClass)({
-      constructor: function(location, statements) {
-        this.location = location;
-        this.statements = statements;
-      },
-      transform: function(transformer) {
-        return transformer.transformDefaultClause(this);
-      },
-      visit: function(visitor) {
-        visitor.visitDefaultClause(this);
-      },
-      get type() {
-        return DEFAULT_CLAUSE;
-      }
-    }, $__super, true);
-    return $DefaultClause;
-  }(ParseTree);
-  var DoWhileStatement = function($__super) {
-    var $DoWhileStatement = ($__createClass)({
-      constructor: function(location, body, condition) {
-        this.location = location;
-        this.body = body;
-        this.condition = condition;
-      },
-      transform: function(transformer) {
-        return transformer.transformDoWhileStatement(this);
-      },
-      visit: function(visitor) {
-        visitor.visitDoWhileStatement(this);
-      },
-      get type() {
-        return DO_WHILE_STATEMENT;
-      }
-    }, $__super, true);
-    return $DoWhileStatement;
-  }(ParseTree);
-  var EmptyStatement = function($__super) {
-    var $EmptyStatement = ($__createClass)({
-      constructor: function(location) {
-        this.location = location;
-      },
-      transform: function(transformer) {
-        return transformer.transformEmptyStatement(this);
-      },
-      visit: function(visitor) {
-        visitor.visitEmptyStatement(this);
-      },
-      get type() {
-        return EMPTY_STATEMENT;
-      }
-    }, $__super, true);
-    return $EmptyStatement;
-  }(ParseTree);
-  var ExportDeclaration = function($__super) {
-    var $ExportDeclaration = ($__createClass)({
-      constructor: function(location, declaration) {
-        this.location = location;
-        this.declaration = declaration;
-      },
-      transform: function(transformer) {
-        return transformer.transformExportDeclaration(this);
-      },
-      visit: function(visitor) {
-        visitor.visitExportDeclaration(this);
-      },
-      get type() {
-        return EXPORT_DECLARATION;
-      }
-    }, $__super, true);
-    return $ExportDeclaration;
-  }(ParseTree);
-  var ExportMapping = function($__super) {
-    var $ExportMapping = ($__createClass)({
-      constructor: function(location, moduleExpression, specifierSet) {
-        this.location = location;
-        this.moduleExpression = moduleExpression;
-        this.specifierSet = specifierSet;
-      },
-      transform: function(transformer) {
-        return transformer.transformExportMapping(this);
-      },
-      visit: function(visitor) {
-        visitor.visitExportMapping(this);
-      },
-      get type() {
-        return EXPORT_MAPPING;
-      }
-    }, $__super, true);
-    return $ExportMapping;
-  }(ParseTree);
-  var ExportMappingList = function($__super) {
-    var $ExportMappingList = ($__createClass)({
-      constructor: function(location, paths) {
-        this.location = location;
-        this.paths = paths;
-      },
-      transform: function(transformer) {
-        return transformer.transformExportMappingList(this);
-      },
-      visit: function(visitor) {
-        visitor.visitExportMappingList(this);
-      },
-      get type() {
-        return EXPORT_MAPPING_LIST;
-      }
-    }, $__super, true);
-    return $ExportMappingList;
-  }(ParseTree);
-  var ExportSpecifier = function($__super) {
-    var $ExportSpecifier = ($__createClass)({
-      constructor: function(location, lhs, rhs) {
-        this.location = location;
-        this.lhs = lhs;
-        this.rhs = rhs;
-      },
-      transform: function(transformer) {
-        return transformer.transformExportSpecifier(this);
-      },
-      visit: function(visitor) {
-        visitor.visitExportSpecifier(this);
-      },
-      get type() {
-        return EXPORT_SPECIFIER;
-      }
-    }, $__super, true);
-    return $ExportSpecifier;
-  }(ParseTree);
-  var ExportSpecifierSet = function($__super) {
-    var $ExportSpecifierSet = ($__createClass)({
-      constructor: function(location, specifiers) {
-        this.location = location;
-        this.specifiers = specifiers;
-      },
-      transform: function(transformer) {
-        return transformer.transformExportSpecifierSet(this);
-      },
-      visit: function(visitor) {
-        visitor.visitExportSpecifierSet(this);
-      },
-      get type() {
-        return EXPORT_SPECIFIER_SET;
-      }
-    }, $__super, true);
-    return $ExportSpecifierSet;
-  }(ParseTree);
-  var ExportStar = function($__super) {
-    var $ExportStar = ($__createClass)({
-      constructor: function(location) {
-        this.location = location;
-      },
-      transform: function(transformer) {
-        return transformer.transformExportStar(this);
-      },
-      visit: function(visitor) {
-        visitor.visitExportStar(this);
-      },
-      get type() {
-        return EXPORT_STAR;
-      }
-    }, $__super, true);
-    return $ExportStar;
-  }(ParseTree);
-  var ExpressionStatement = function($__super) {
-    var $ExpressionStatement = ($__createClass)({
-      constructor: function(location, expression) {
-        this.location = location;
-        this.expression = expression;
-      },
-      transform: function(transformer) {
-        return transformer.transformExpressionStatement(this);
-      },
-      visit: function(visitor) {
-        visitor.visitExpressionStatement(this);
-      },
-      get type() {
-        return EXPRESSION_STATEMENT;
-      }
-    }, $__super, true);
-    return $ExpressionStatement;
-  }(ParseTree);
-  var Finally = function($__super) {
-    var $Finally = ($__createClass)({
-      constructor: function(location, block) {
-        this.location = location;
-        this.block = block;
-      },
-      transform: function(transformer) {
-        return transformer.transformFinally(this);
-      },
-      visit: function(visitor) {
-        visitor.visitFinally(this);
-      },
-      get type() {
-        return FINALLY;
-      }
-    }, $__super, true);
-    return $Finally;
-  }(ParseTree);
-  var ForInStatement = function($__super) {
-    var $ForInStatement = ($__createClass)({
-      constructor: function(location, initializer, collection, body) {
-        this.location = location;
-        this.initializer = initializer;
-        this.collection = collection;
-        this.body = body;
-      },
-      transform: function(transformer) {
-        return transformer.transformForInStatement(this);
-      },
-      visit: function(visitor) {
-        visitor.visitForInStatement(this);
-      },
-      get type() {
-        return FOR_IN_STATEMENT;
-      }
-    }, $__super, true);
-    return $ForInStatement;
-  }(ParseTree);
-  var ForOfStatement = function($__super) {
-    var $ForOfStatement = ($__createClass)({
-      constructor: function(location, initializer, collection, body) {
-        this.location = location;
-        this.initializer = initializer;
-        this.collection = collection;
-        this.body = body;
-      },
-      transform: function(transformer) {
-        return transformer.transformForOfStatement(this);
-      },
-      visit: function(visitor) {
-        visitor.visitForOfStatement(this);
-      },
-      get type() {
-        return FOR_OF_STATEMENT;
-      }
-    }, $__super, true);
-    return $ForOfStatement;
-  }(ParseTree);
-  var ForStatement = function($__super) {
-    var $ForStatement = ($__createClass)({
-      constructor: function(location, initializer, condition, increment, body) {
-        this.location = location;
-        this.initializer = initializer;
-        this.condition = condition;
-        this.increment = increment;
-        this.body = body;
-      },
-      transform: function(transformer) {
-        return transformer.transformForStatement(this);
-      },
-      visit: function(visitor) {
-        visitor.visitForStatement(this);
-      },
-      get type() {
-        return FOR_STATEMENT;
-      }
-    }, $__super, true);
-    return $ForStatement;
-  }(ParseTree);
-  var FormalParameterList = function($__super) {
-    var $FormalParameterList = ($__createClass)({
-      constructor: function(location, parameters) {
-        this.location = location;
-        this.parameters = parameters;
-      },
-      transform: function(transformer) {
-        return transformer.transformFormalParameterList(this);
-      },
-      visit: function(visitor) {
-        visitor.visitFormalParameterList(this);
-      },
-      get type() {
-        return FORMAL_PARAMETER_LIST;
-      }
-    }, $__super, true);
-    return $FormalParameterList;
-  }(ParseTree);
-  var FunctionDeclaration = function($__super) {
-    var $FunctionDeclaration = ($__createClass)({
-      constructor: function(location, name, isGenerator, formalParameterList, functionBody) {
-        this.location = location;
-        this.name = name;
-        this.isGenerator = isGenerator;
-        this.formalParameterList = formalParameterList;
-        this.functionBody = functionBody;
-      },
-      transform: function(transformer) {
-        return transformer.transformFunctionDeclaration(this);
-      },
-      visit: function(visitor) {
-        visitor.visitFunctionDeclaration(this);
-      },
-      get type() {
-        return FUNCTION_DECLARATION;
-      }
-    }, $__super, true);
-    return $FunctionDeclaration;
-  }(ParseTree);
-  var FunctionExpression = function($__super) {
-    var $FunctionExpression = ($__createClass)({
-      constructor: function(location, name, isGenerator, formalParameterList, functionBody) {
-        this.location = location;
-        this.name = name;
-        this.isGenerator = isGenerator;
-        this.formalParameterList = formalParameterList;
-        this.functionBody = functionBody;
-      },
-      transform: function(transformer) {
-        return transformer.transformFunctionExpression(this);
-      },
-      visit: function(visitor) {
-        visitor.visitFunctionExpression(this);
-      },
-      get type() {
-        return FUNCTION_EXPRESSION;
-      }
-    }, $__super, true);
-    return $FunctionExpression;
-  }(ParseTree);
-  var GeneratorComprehension = function($__super) {
-    var $GeneratorComprehension = ($__createClass)({
-      constructor: function(location, expression, comprehensionForList, ifExpression) {
-        this.location = location;
-        this.expression = expression;
-        this.comprehensionForList = comprehensionForList;
-        this.ifExpression = ifExpression;
-      },
-      transform: function(transformer) {
-        return transformer.transformGeneratorComprehension(this);
-      },
-      visit: function(visitor) {
-        visitor.visitGeneratorComprehension(this);
-      },
-      get type() {
-        return GENERATOR_COMPREHENSION;
-      }
-    }, $__super, true);
-    return $GeneratorComprehension;
-  }(ParseTree);
-  var GetAccessor = function($__super) {
-    var $GetAccessor = ($__createClass)({
-      constructor: function(location, name, body) {
-        this.location = location;
-        this.name = name;
-        this.body = body;
-      },
-      transform: function(transformer) {
-        return transformer.transformGetAccessor(this);
-      },
-      visit: function(visitor) {
-        visitor.visitGetAccessor(this);
-      },
-      get type() {
-        return GET_ACCESSOR;
-      }
-    }, $__super, true);
-    return $GetAccessor;
-  }(ParseTree);
-  var IdentifierExpression = function($__super) {
-    var $IdentifierExpression = ($__createClass)({
-      constructor: function(location, identifierToken) {
-        this.location = location;
-        this.identifierToken = identifierToken;
-      },
-      transform: function(transformer) {
-        return transformer.transformIdentifierExpression(this);
-      },
-      visit: function(visitor) {
-        visitor.visitIdentifierExpression(this);
-      },
-      get type() {
-        return IDENTIFIER_EXPRESSION;
-      }
-    }, $__super, true);
-    return $IdentifierExpression;
-  }(ParseTree);
-  var IfStatement = function($__super) {
-    var $IfStatement = ($__createClass)({
-      constructor: function(location, condition, ifClause, elseClause) {
-        this.location = location;
-        this.condition = condition;
-        this.ifClause = ifClause;
-        this.elseClause = elseClause;
-      },
-      transform: function(transformer) {
-        return transformer.transformIfStatement(this);
-      },
-      visit: function(visitor) {
-        visitor.visitIfStatement(this);
-      },
-      get type() {
-        return IF_STATEMENT;
-      }
-    }, $__super, true);
-    return $IfStatement;
-  }(ParseTree);
-  var ImportBinding = function($__super) {
-    var $ImportBinding = ($__createClass)({
-      constructor: function(location, moduleExpression, importSpecifierSet) {
-        this.location = location;
-        this.moduleExpression = moduleExpression;
-        this.importSpecifierSet = importSpecifierSet;
-      },
-      transform: function(transformer) {
-        return transformer.transformImportBinding(this);
-      },
-      visit: function(visitor) {
-        visitor.visitImportBinding(this);
-      },
-      get type() {
-        return IMPORT_BINDING;
-      }
-    }, $__super, true);
-    return $ImportBinding;
-  }(ParseTree);
-  var ImportDeclaration = function($__super) {
-    var $ImportDeclaration = ($__createClass)({
-      constructor: function(location, importPathList) {
-        this.location = location;
-        this.importPathList = importPathList;
-      },
-      transform: function(transformer) {
-        return transformer.transformImportDeclaration(this);
-      },
-      visit: function(visitor) {
-        visitor.visitImportDeclaration(this);
-      },
-      get type() {
-        return IMPORT_DECLARATION;
-      }
-    }, $__super, true);
-    return $ImportDeclaration;
-  }(ParseTree);
-  var ImportSpecifier = function($__super) {
-    var $ImportSpecifier = ($__createClass)({
-      constructor: function(location, lhs, rhs) {
-        this.location = location;
-        this.lhs = lhs;
-        this.rhs = rhs;
-      },
-      transform: function(transformer) {
-        return transformer.transformImportSpecifier(this);
-      },
-      visit: function(visitor) {
-        visitor.visitImportSpecifier(this);
-      },
-      get type() {
-        return IMPORT_SPECIFIER;
-      }
-    }, $__super, true);
-    return $ImportSpecifier;
-  }(ParseTree);
-  var ImportSpecifierSet = function($__super) {
-    var $ImportSpecifierSet = ($__createClass)({
-      constructor: function(location, specifiers) {
-        this.location = location;
-        this.specifiers = specifiers;
-      },
-      transform: function(transformer) {
-        return transformer.transformImportSpecifierSet(this);
-      },
-      visit: function(visitor) {
-        visitor.visitImportSpecifierSet(this);
-      },
-      get type() {
-        return IMPORT_SPECIFIER_SET;
-      }
-    }, $__super, true);
-    return $ImportSpecifierSet;
-  }(ParseTree);
-  var LabelledStatement = function($__super) {
-    var $LabelledStatement = ($__createClass)({
-      constructor: function(location, name, statement) {
-        this.location = location;
-        this.name = name;
-        this.statement = statement;
-      },
-      transform: function(transformer) {
-        return transformer.transformLabelledStatement(this);
-      },
-      visit: function(visitor) {
-        visitor.visitLabelledStatement(this);
-      },
-      get type() {
-        return LABELLED_STATEMENT;
-      }
-    }, $__super, true);
-    return $LabelledStatement;
-  }(ParseTree);
-  var LiteralExpression = function($__super) {
-    var $LiteralExpression = ($__createClass)({
-      constructor: function(location, literalToken) {
-        this.location = location;
-        this.literalToken = literalToken;
-      },
-      transform: function(transformer) {
-        return transformer.transformLiteralExpression(this);
-      },
-      visit: function(visitor) {
-        visitor.visitLiteralExpression(this);
-      },
-      get type() {
-        return LITERAL_EXPRESSION;
-      }
-    }, $__super, true);
-    return $LiteralExpression;
-  }(ParseTree);
-  var MemberExpression = function($__super) {
-    var $MemberExpression = ($__createClass)({
-      constructor: function(location, operand, memberName) {
-        this.location = location;
-        this.operand = operand;
-        this.memberName = memberName;
-      },
-      transform: function(transformer) {
-        return transformer.transformMemberExpression(this);
-      },
-      visit: function(visitor) {
-        visitor.visitMemberExpression(this);
-      },
-      get type() {
-        return MEMBER_EXPRESSION;
-      }
-    }, $__super, true);
-    return $MemberExpression;
-  }(ParseTree);
-  var MemberLookupExpression = function($__super) {
-    var $MemberLookupExpression = ($__createClass)({
-      constructor: function(location, operand, memberExpression) {
-        this.location = location;
-        this.operand = operand;
-        this.memberExpression = memberExpression;
-      },
-      transform: function(transformer) {
-        return transformer.transformMemberLookupExpression(this);
-      },
-      visit: function(visitor) {
-        visitor.visitMemberLookupExpression(this);
-      },
-      get type() {
-        return MEMBER_LOOKUP_EXPRESSION;
-      }
-    }, $__super, true);
-    return $MemberLookupExpression;
-  }(ParseTree);
-  var MissingPrimaryExpression = function($__super) {
-    var $MissingPrimaryExpression = ($__createClass)({
-      constructor: function(location, nextToken) {
-        this.location = location;
-        this.nextToken = nextToken;
-      },
-      transform: function(transformer) {
-        return transformer.transformMissingPrimaryExpression(this);
-      },
-      visit: function(visitor) {
-        visitor.visitMissingPrimaryExpression(this);
-      },
-      get type() {
-        return MISSING_PRIMARY_EXPRESSION;
-      }
-    }, $__super, true);
-    return $MissingPrimaryExpression;
-  }(ParseTree);
-  var ModuleDeclaration = function($__super) {
-    var $ModuleDeclaration = ($__createClass)({
-      constructor: function(location, specifiers) {
-        this.location = location;
-        this.specifiers = specifiers;
-      },
-      transform: function(transformer) {
-        return transformer.transformModuleDeclaration(this);
-      },
-      visit: function(visitor) {
-        visitor.visitModuleDeclaration(this);
-      },
-      get type() {
-        return MODULE_DECLARATION;
-      }
-    }, $__super, true);
-    return $ModuleDeclaration;
-  }(ParseTree);
-  var ModuleDefinition = function($__super) {
-    var $ModuleDefinition = ($__createClass)({
-      constructor: function(location, name, elements) {
-        this.location = location;
-        this.name = name;
-        this.elements = elements;
-      },
-      transform: function(transformer) {
-        return transformer.transformModuleDefinition(this);
-      },
-      visit: function(visitor) {
-        visitor.visitModuleDefinition(this);
-      },
-      get type() {
-        return MODULE_DEFINITION;
-      }
-    }, $__super, true);
-    return $ModuleDefinition;
-  }(ParseTree);
-  var ModuleExpression = function($__super) {
-    var $ModuleExpression = ($__createClass)({
-      constructor: function(location, reference, identifiers) {
-        this.location = location;
-        this.reference = reference;
-        this.identifiers = identifiers;
-      },
-      transform: function(transformer) {
-        return transformer.transformModuleExpression(this);
-      },
-      visit: function(visitor) {
-        visitor.visitModuleExpression(this);
-      },
-      get type() {
-        return MODULE_EXPRESSION;
-      }
-    }, $__super, true);
-    return $ModuleExpression;
-  }(ParseTree);
-  var ModuleRequire = function($__super) {
-    var $ModuleRequire = ($__createClass)({
-      constructor: function(location, url) {
-        this.location = location;
-        this.url = url;
-      },
-      transform: function(transformer) {
-        return transformer.transformModuleRequire(this);
-      },
-      visit: function(visitor) {
-        visitor.visitModuleRequire(this);
-      },
-      get type() {
-        return MODULE_REQUIRE;
-      }
-    }, $__super, true);
-    return $ModuleRequire;
-  }(ParseTree);
-  var ModuleSpecifier = function($__super) {
-    var $ModuleSpecifier = ($__createClass)({
-      constructor: function(location, identifier, expression) {
-        this.location = location;
-        this.identifier = identifier;
-        this.expression = expression;
-      },
-      transform: function(transformer) {
-        return transformer.transformModuleSpecifier(this);
-      },
-      visit: function(visitor) {
-        visitor.visitModuleSpecifier(this);
-      },
-      get type() {
-        return MODULE_SPECIFIER;
-      }
-    }, $__super, true);
-    return $ModuleSpecifier;
-  }(ParseTree);
-  var NameStatement = function($__super) {
-    var $NameStatement = ($__createClass)({
-      constructor: function(location, declarations) {
-        this.location = location;
-        this.declarations = declarations;
-      },
-      transform: function(transformer) {
-        return transformer.transformNameStatement(this);
-      },
-      visit: function(visitor) {
-        visitor.visitNameStatement(this);
-      },
-      get type() {
-        return NAME_STATEMENT;
-      }
-    }, $__super, true);
-    return $NameStatement;
-  }(ParseTree);
-  var NewExpression = function($__super) {
-    var $NewExpression = ($__createClass)({
-      constructor: function(location, operand, args) {
-        this.location = location;
-        this.operand = operand;
-        this.args = args;
-      },
-      transform: function(transformer) {
-        return transformer.transformNewExpression(this);
-      },
-      visit: function(visitor) {
-        visitor.visitNewExpression(this);
-      },
-      get type() {
-        return NEW_EXPRESSION;
-      }
-    }, $__super, true);
-    return $NewExpression;
-  }(ParseTree);
-  var ObjectLiteralExpression = function($__super) {
-    var $ObjectLiteralExpression = ($__createClass)({
-      constructor: function(location, propertyNameAndValues) {
-        this.location = location;
-        this.propertyNameAndValues = propertyNameAndValues;
-      },
-      transform: function(transformer) {
-        return transformer.transformObjectLiteralExpression(this);
-      },
-      visit: function(visitor) {
-        visitor.visitObjectLiteralExpression(this);
-      },
-      get type() {
-        return OBJECT_LITERAL_EXPRESSION;
-      }
-    }, $__super, true);
-    return $ObjectLiteralExpression;
-  }(ParseTree);
-  var ObjectPattern = function($__super) {
-    var $ObjectPattern = ($__createClass)({
-      constructor: function(location, fields) {
-        this.location = location;
-        this.fields = fields;
-      },
-      transform: function(transformer) {
-        return transformer.transformObjectPattern(this);
-      },
-      visit: function(visitor) {
-        visitor.visitObjectPattern(this);
-      },
-      get type() {
-        return OBJECT_PATTERN;
-      }
-    }, $__super, true);
-    return $ObjectPattern;
-  }(ParseTree);
-  var ObjectPatternField = function($__super) {
-    var $ObjectPatternField = ($__createClass)({
-      constructor: function(location, identifier, element) {
-        this.location = location;
-        this.identifier = identifier;
-        this.element = element;
-      },
-      transform: function(transformer) {
-        return transformer.transformObjectPatternField(this);
-      },
-      visit: function(visitor) {
-        visitor.visitObjectPatternField(this);
-      },
-      get type() {
-        return OBJECT_PATTERN_FIELD;
-      }
-    }, $__super, true);
-    return $ObjectPatternField;
-  }(ParseTree);
-  var ParenExpression = function($__super) {
-    var $ParenExpression = ($__createClass)({
-      constructor: function(location, expression) {
-        this.location = location;
-        this.expression = expression;
-      },
-      transform: function(transformer) {
-        return transformer.transformParenExpression(this);
-      },
-      visit: function(visitor) {
-        visitor.visitParenExpression(this);
-      },
-      get type() {
-        return PAREN_EXPRESSION;
-      }
-    }, $__super, true);
-    return $ParenExpression;
-  }(ParseTree);
-  var PostfixExpression = function($__super) {
-    var $PostfixExpression = ($__createClass)({
-      constructor: function(location, operand, operator) {
-        this.location = location;
-        this.operand = operand;
-        this.operator = operator;
-      },
-      transform: function(transformer) {
-        return transformer.transformPostfixExpression(this);
-      },
-      visit: function(visitor) {
-        visitor.visitPostfixExpression(this);
-      },
-      get type() {
-        return POSTFIX_EXPRESSION;
-      }
-    }, $__super, true);
-    return $PostfixExpression;
-  }(ParseTree);
-  var Program = function($__super) {
-    var $Program = ($__createClass)({
-      constructor: function(location, programElements) {
-        this.location = location;
-        this.programElements = programElements;
-      },
-      transform: function(transformer) {
-        return transformer.transformProgram(this);
-      },
-      visit: function(visitor) {
-        visitor.visitProgram(this);
-      },
-      get type() {
-        return PROGRAM;
-      }
-    }, $__super, true);
-    return $Program;
-  }(ParseTree);
-  var PropertyMethodAssignment = function($__super) {
-    var $PropertyMethodAssignment = ($__createClass)({
-      constructor: function(location, name, isGenerator, formalParameterList, functionBody) {
-        this.location = location;
-        this.name = name;
-        this.isGenerator = isGenerator;
-        this.formalParameterList = formalParameterList;
-        this.functionBody = functionBody;
-      },
-      transform: function(transformer) {
-        return transformer.transformPropertyMethodAssignment(this);
-      },
-      visit: function(visitor) {
-        visitor.visitPropertyMethodAssignment(this);
-      },
-      get type() {
-        return PROPERTY_METHOD_ASSIGNMENT;
-      }
-    }, $__super, true);
-    return $PropertyMethodAssignment;
-  }(ParseTree);
-  var PropertyNameAssignment = function($__super) {
-    var $PropertyNameAssignment = ($__createClass)({
-      constructor: function(location, name, value) {
-        this.location = location;
-        this.name = name;
-        this.value = value;
-      },
-      transform: function(transformer) {
-        return transformer.transformPropertyNameAssignment(this);
-      },
-      visit: function(visitor) {
-        visitor.visitPropertyNameAssignment(this);
-      },
-      get type() {
-        return PROPERTY_NAME_ASSIGNMENT;
-      }
-    }, $__super, true);
-    return $PropertyNameAssignment;
-  }(ParseTree);
-  var PropertyNameShorthand = function($__super) {
-    var $PropertyNameShorthand = ($__createClass)({
-      constructor: function(location, name) {
-        this.location = location;
-        this.name = name;
-      },
-      transform: function(transformer) {
-        return transformer.transformPropertyNameShorthand(this);
-      },
-      visit: function(visitor) {
-        visitor.visitPropertyNameShorthand(this);
-      },
-      get type() {
-        return PROPERTY_NAME_SHORTHAND;
-      }
-    }, $__super, true);
-    return $PropertyNameShorthand;
-  }(ParseTree);
-  var QuasiLiteralExpression = function($__super) {
-    var $QuasiLiteralExpression = ($__createClass)({
-      constructor: function(location, operand, elements) {
-        this.location = location;
-        this.operand = operand;
-        this.elements = elements;
-      },
-      transform: function(transformer) {
-        return transformer.transformQuasiLiteralExpression(this);
-      },
-      visit: function(visitor) {
-        visitor.visitQuasiLiteralExpression(this);
-      },
-      get type() {
-        return QUASI_LITERAL_EXPRESSION;
-      }
-    }, $__super, true);
-    return $QuasiLiteralExpression;
-  }(ParseTree);
-  var QuasiLiteralPortion = function($__super) {
-    var $QuasiLiteralPortion = ($__createClass)({
-      constructor: function(location, value) {
-        this.location = location;
-        this.value = value;
-      },
-      transform: function(transformer) {
-        return transformer.transformQuasiLiteralPortion(this);
-      },
-      visit: function(visitor) {
-        visitor.visitQuasiLiteralPortion(this);
-      },
-      get type() {
-        return QUASI_LITERAL_PORTION;
-      }
-    }, $__super, true);
-    return $QuasiLiteralPortion;
-  }(ParseTree);
-  var QuasiSubstitution = function($__super) {
-    var $QuasiSubstitution = ($__createClass)({
-      constructor: function(location, expression) {
-        this.location = location;
-        this.expression = expression;
-      },
-      transform: function(transformer) {
-        return transformer.transformQuasiSubstitution(this);
-      },
-      visit: function(visitor) {
-        visitor.visitQuasiSubstitution(this);
-      },
-      get type() {
-        return QUASI_SUBSTITUTION;
-      }
-    }, $__super, true);
-    return $QuasiSubstitution;
-  }(ParseTree);
-  var RestParameter = function($__super) {
-    var $RestParameter = ($__createClass)({
-      constructor: function(location, identifier) {
-        this.location = location;
-        this.identifier = identifier;
-      },
-      transform: function(transformer) {
-        return transformer.transformRestParameter(this);
-      },
-      visit: function(visitor) {
-        visitor.visitRestParameter(this);
-      },
-      get type() {
-        return REST_PARAMETER;
-      }
-    }, $__super, true);
-    return $RestParameter;
-  }(ParseTree);
-  var ReturnStatement = function($__super) {
-    var $ReturnStatement = ($__createClass)({
-      constructor: function(location, expression) {
-        this.location = location;
-        this.expression = expression;
-      },
-      transform: function(transformer) {
-        return transformer.transformReturnStatement(this);
-      },
-      visit: function(visitor) {
-        visitor.visitReturnStatement(this);
-      },
-      get type() {
-        return RETURN_STATEMENT;
-      }
-    }, $__super, true);
-    return $ReturnStatement;
-  }(ParseTree);
-  var SetAccessor = function($__super) {
-    var $SetAccessor = ($__createClass)({
-      constructor: function(location, name, parameter, body) {
-        this.location = location;
-        this.name = name;
-        this.parameter = parameter;
-        this.body = body;
-      },
-      transform: function(transformer) {
-        return transformer.transformSetAccessor(this);
-      },
-      visit: function(visitor) {
-        visitor.visitSetAccessor(this);
-      },
-      get type() {
-        return SET_ACCESSOR;
-      }
-    }, $__super, true);
-    return $SetAccessor;
-  }(ParseTree);
-  var SpreadExpression = function($__super) {
-    var $SpreadExpression = ($__createClass)({
-      constructor: function(location, expression) {
-        this.location = location;
-        this.expression = expression;
-      },
-      transform: function(transformer) {
-        return transformer.transformSpreadExpression(this);
-      },
-      visit: function(visitor) {
-        visitor.visitSpreadExpression(this);
-      },
-      get type() {
-        return SPREAD_EXPRESSION;
-      }
-    }, $__super, true);
-    return $SpreadExpression;
-  }(ParseTree);
-  var SpreadPatternElement = function($__super) {
-    var $SpreadPatternElement = ($__createClass)({
-      constructor: function(location, lvalue) {
-        this.location = location;
-        this.lvalue = lvalue;
-      },
-      transform: function(transformer) {
-        return transformer.transformSpreadPatternElement(this);
-      },
-      visit: function(visitor) {
-        visitor.visitSpreadPatternElement(this);
-      },
-      get type() {
-        return SPREAD_PATTERN_ELEMENT;
-      }
-    }, $__super, true);
-    return $SpreadPatternElement;
-  }(ParseTree);
-  var SuperExpression = function($__super) {
-    var $SuperExpression = ($__createClass)({
-      constructor: function(location) {
-        this.location = location;
-      },
-      transform: function(transformer) {
-        return transformer.transformSuperExpression(this);
-      },
-      visit: function(visitor) {
-        visitor.visitSuperExpression(this);
-      },
-      get type() {
-        return SUPER_EXPRESSION;
-      }
-    }, $__super, true);
-    return $SuperExpression;
-  }(ParseTree);
-  var SwitchStatement = function($__super) {
-    var $SwitchStatement = ($__createClass)({
-      constructor: function(location, expression, caseClauses) {
-        this.location = location;
-        this.expression = expression;
-        this.caseClauses = caseClauses;
-      },
-      transform: function(transformer) {
-        return transformer.transformSwitchStatement(this);
-      },
-      visit: function(visitor) {
-        visitor.visitSwitchStatement(this);
-      },
-      get type() {
-        return SWITCH_STATEMENT;
-      }
-    }, $__super, true);
-    return $SwitchStatement;
-  }(ParseTree);
-  var ThisExpression = function($__super) {
-    var $ThisExpression = ($__createClass)({
-      constructor: function(location) {
-        this.location = location;
-      },
-      transform: function(transformer) {
-        return transformer.transformThisExpression(this);
-      },
-      visit: function(visitor) {
-        visitor.visitThisExpression(this);
-      },
-      get type() {
-        return THIS_EXPRESSION;
-      }
-    }, $__super, true);
-    return $ThisExpression;
-  }(ParseTree);
-  var ThrowStatement = function($__super) {
-    var $ThrowStatement = ($__createClass)({
-      constructor: function(location, value) {
-        this.location = location;
-        this.value = value;
-      },
-      transform: function(transformer) {
-        return transformer.transformThrowStatement(this);
-      },
-      visit: function(visitor) {
-        visitor.visitThrowStatement(this);
-      },
-      get type() {
-        return THROW_STATEMENT;
-      }
-    }, $__super, true);
-    return $ThrowStatement;
-  }(ParseTree);
-  var TryStatement = function($__super) {
-    var $TryStatement = ($__createClass)({
-      constructor: function(location, body, catchBlock, finallyBlock) {
-        this.location = location;
-        this.body = body;
-        this.catchBlock = catchBlock;
-        this.finallyBlock = finallyBlock;
-      },
-      transform: function(transformer) {
-        return transformer.transformTryStatement(this);
-      },
-      visit: function(visitor) {
-        visitor.visitTryStatement(this);
-      },
-      get type() {
-        return TRY_STATEMENT;
-      }
-    }, $__super, true);
-    return $TryStatement;
-  }(ParseTree);
-  var UnaryExpression = function($__super) {
-    var $UnaryExpression = ($__createClass)({
-      constructor: function(location, operator, operand) {
-        this.location = location;
-        this.operator = operator;
-        this.operand = operand;
-      },
-      transform: function(transformer) {
-        return transformer.transformUnaryExpression(this);
-      },
-      visit: function(visitor) {
-        visitor.visitUnaryExpression(this);
-      },
-      get type() {
-        return UNARY_EXPRESSION;
-      }
-    }, $__super, true);
-    return $UnaryExpression;
-  }(ParseTree);
-  var VariableDeclaration = function($__super) {
-    var $VariableDeclaration = ($__createClass)({
-      constructor: function(location, lvalue, initializer) {
-        this.location = location;
-        this.lvalue = lvalue;
-        this.initializer = initializer;
-      },
-      transform: function(transformer) {
-        return transformer.transformVariableDeclaration(this);
-      },
-      visit: function(visitor) {
-        visitor.visitVariableDeclaration(this);
-      },
-      get type() {
-        return VARIABLE_DECLARATION;
-      }
-    }, $__super, true);
-    return $VariableDeclaration;
-  }(ParseTree);
-  var VariableDeclarationList = function($__super) {
-    var $VariableDeclarationList = ($__createClass)({
-      constructor: function(location, declarationType, declarations) {
-        this.location = location;
-        this.declarationType = declarationType;
-        this.declarations = declarations;
-      },
-      transform: function(transformer) {
-        return transformer.transformVariableDeclarationList(this);
-      },
-      visit: function(visitor) {
-        visitor.visitVariableDeclarationList(this);
-      },
-      get type() {
-        return VARIABLE_DECLARATION_LIST;
-      }
-    }, $__super, true);
-    return $VariableDeclarationList;
-  }(ParseTree);
-  var VariableStatement = function($__super) {
-    var $VariableStatement = ($__createClass)({
-      constructor: function(location, declarations) {
-        this.location = location;
-        this.declarations = declarations;
-      },
-      transform: function(transformer) {
-        return transformer.transformVariableStatement(this);
-      },
-      visit: function(visitor) {
-        visitor.visitVariableStatement(this);
-      },
-      get type() {
-        return VARIABLE_STATEMENT;
-      }
-    }, $__super, true);
-    return $VariableStatement;
-  }(ParseTree);
-  var WhileStatement = function($__super) {
-    var $WhileStatement = ($__createClass)({
-      constructor: function(location, condition, body) {
-        this.location = location;
-        this.condition = condition;
-        this.body = body;
-      },
-      transform: function(transformer) {
-        return transformer.transformWhileStatement(this);
-      },
-      visit: function(visitor) {
-        visitor.visitWhileStatement(this);
-      },
-      get type() {
-        return WHILE_STATEMENT;
-      }
-    }, $__super, true);
-    return $WhileStatement;
-  }(ParseTree);
-  var WithStatement = function($__super) {
-    var $WithStatement = ($__createClass)({
-      constructor: function(location, expression, body) {
-        this.location = location;
-        this.expression = expression;
-        this.body = body;
-      },
-      transform: function(transformer) {
-        return transformer.transformWithStatement(this);
-      },
-      visit: function(visitor) {
-        visitor.visitWithStatement(this);
-      },
-      get type() {
-        return WITH_STATEMENT;
-      }
-    }, $__super, true);
-    return $WithStatement;
-  }(ParseTree);
-  var YieldExpression = function($__super) {
-    var $YieldExpression = ($__createClass)({
-      constructor: function(location, expression, isYieldFor) {
-        this.location = location;
-        this.expression = expression;
-        this.isYieldFor = isYieldFor;
-      },
-      transform: function(transformer) {
-        return transformer.transformYieldExpression(this);
-      },
-      visit: function(visitor) {
-        visitor.visitYieldExpression(this);
-      },
-      get type() {
-        return YIELD_EXPRESSION;
-      }
-    }, $__super, true);
-    return $YieldExpression;
-  }(ParseTree);
-  return Object.preventExtensions(Object.create(null, {
-    ArgumentList: {
-      get: function() {
-        return ArgumentList;
-      },
-      enumerable: true
-    },
-    ArrayComprehension: {
-      get: function() {
-        return ArrayComprehension;
-      },
-      enumerable: true
-    },
-    ArrayLiteralExpression: {
-      get: function() {
-        return ArrayLiteralExpression;
-      },
-      enumerable: true
-    },
-    ArrayPattern: {
-      get: function() {
-        return ArrayPattern;
-      },
-      enumerable: true
-    },
-    ArrowFunctionExpression: {
-      get: function() {
-        return ArrowFunctionExpression;
-      },
-      enumerable: true
-    },
-    AtNameDeclaration: {
-      get: function() {
-        return AtNameDeclaration;
-      },
-      enumerable: true
-    },
-    AtNameExpression: {
-      get: function() {
-        return AtNameExpression;
-      },
-      enumerable: true
-    },
-    AwaitStatement: {
-      get: function() {
-        return AwaitStatement;
-      },
-      enumerable: true
-    },
-    BinaryOperator: {
-      get: function() {
-        return BinaryOperator;
-      },
-      enumerable: true
-    },
-    BindingElement: {
-      get: function() {
-        return BindingElement;
-      },
-      enumerable: true
-    },
-    BindingIdentifier: {
-      get: function() {
-        return BindingIdentifier;
-      },
-      enumerable: true
-    },
-    Block: {
-      get: function() {
-        return Block;
-      },
-      enumerable: true
-    },
-    BreakStatement: {
-      get: function() {
-        return BreakStatement;
-      },
-      enumerable: true
-    },
-    CallExpression: {
-      get: function() {
-        return CallExpression;
-      },
-      enumerable: true
-    },
-    CascadeExpression: {
-      get: function() {
-        return CascadeExpression;
-      },
-      enumerable: true
-    },
-    CaseClause: {
-      get: function() {
-        return CaseClause;
-      },
-      enumerable: true
-    },
-    Catch: {
-      get: function() {
-        return Catch;
-      },
-      enumerable: true
-    },
-    ClassDeclaration: {
-      get: function() {
-        return ClassDeclaration;
-      },
-      enumerable: true
-    },
-    ClassExpression: {
-      get: function() {
-        return ClassExpression;
-      },
-      enumerable: true
-    },
-    CommaExpression: {
-      get: function() {
-        return CommaExpression;
-      },
-      enumerable: true
-    },
-    ComprehensionFor: {
-      get: function() {
-        return ComprehensionFor;
-      },
-      enumerable: true
-    },
-    ConditionalExpression: {
-      get: function() {
-        return ConditionalExpression;
-      },
-      enumerable: true
-    },
-    ContinueStatement: {
-      get: function() {
-        return ContinueStatement;
-      },
-      enumerable: true
-    },
-    DebuggerStatement: {
-      get: function() {
-        return DebuggerStatement;
-      },
-      enumerable: true
-    },
-    DefaultClause: {
-      get: function() {
-        return DefaultClause;
-      },
-      enumerable: true
-    },
-    DoWhileStatement: {
-      get: function() {
-        return DoWhileStatement;
-      },
-      enumerable: true
-    },
-    EmptyStatement: {
-      get: function() {
-        return EmptyStatement;
-      },
-      enumerable: true
-    },
-    ExportDeclaration: {
-      get: function() {
-        return ExportDeclaration;
-      },
-      enumerable: true
-    },
-    ExportMapping: {
-      get: function() {
-        return ExportMapping;
-      },
-      enumerable: true
-    },
-    ExportMappingList: {
-      get: function() {
-        return ExportMappingList;
-      },
-      enumerable: true
-    },
-    ExportSpecifier: {
-      get: function() {
-        return ExportSpecifier;
-      },
-      enumerable: true
-    },
-    ExportSpecifierSet: {
-      get: function() {
-        return ExportSpecifierSet;
-      },
-      enumerable: true
-    },
-    ExportStar: {
-      get: function() {
-        return ExportStar;
-      },
-      enumerable: true
-    },
-    ExpressionStatement: {
-      get: function() {
-        return ExpressionStatement;
-      },
-      enumerable: true
-    },
-    Finally: {
-      get: function() {
-        return Finally;
-      },
-      enumerable: true
-    },
-    ForInStatement: {
-      get: function() {
-        return ForInStatement;
-      },
-      enumerable: true
-    },
-    ForOfStatement: {
-      get: function() {
-        return ForOfStatement;
-      },
-      enumerable: true
-    },
-    ForStatement: {
-      get: function() {
-        return ForStatement;
-      },
-      enumerable: true
-    },
-    FormalParameterList: {
-      get: function() {
-        return FormalParameterList;
-      },
-      enumerable: true
-    },
-    FunctionDeclaration: {
-      get: function() {
-        return FunctionDeclaration;
-      },
-      enumerable: true
-    },
-    FunctionExpression: {
-      get: function() {
-        return FunctionExpression;
-      },
-      enumerable: true
-    },
-    GeneratorComprehension: {
-      get: function() {
-        return GeneratorComprehension;
-      },
-      enumerable: true
-    },
-    GetAccessor: {
-      get: function() {
-        return GetAccessor;
-      },
-      enumerable: true
-    },
-    IdentifierExpression: {
-      get: function() {
-        return IdentifierExpression;
-      },
-      enumerable: true
-    },
-    IfStatement: {
-      get: function() {
-        return IfStatement;
-      },
-      enumerable: true
-    },
-    ImportBinding: {
-      get: function() {
-        return ImportBinding;
-      },
-      enumerable: true
-    },
-    ImportDeclaration: {
-      get: function() {
-        return ImportDeclaration;
-      },
-      enumerable: true
-    },
-    ImportSpecifier: {
-      get: function() {
-        return ImportSpecifier;
-      },
-      enumerable: true
-    },
-    ImportSpecifierSet: {
-      get: function() {
-        return ImportSpecifierSet;
-      },
-      enumerable: true
-    },
-    LabelledStatement: {
-      get: function() {
-        return LabelledStatement;
-      },
-      enumerable: true
-    },
-    LiteralExpression: {
-      get: function() {
-        return LiteralExpression;
-      },
-      enumerable: true
-    },
-    MemberExpression: {
-      get: function() {
-        return MemberExpression;
-      },
-      enumerable: true
-    },
-    MemberLookupExpression: {
-      get: function() {
-        return MemberLookupExpression;
-      },
-      enumerable: true
-    },
-    MissingPrimaryExpression: {
-      get: function() {
-        return MissingPrimaryExpression;
-      },
-      enumerable: true
-    },
-    ModuleDeclaration: {
-      get: function() {
-        return ModuleDeclaration;
-      },
-      enumerable: true
-    },
-    ModuleDefinition: {
-      get: function() {
-        return ModuleDefinition;
-      },
-      enumerable: true
-    },
-    ModuleExpression: {
-      get: function() {
-        return ModuleExpression;
-      },
-      enumerable: true
-    },
-    ModuleRequire: {
-      get: function() {
-        return ModuleRequire;
-      },
-      enumerable: true
-    },
-    ModuleSpecifier: {
-      get: function() {
-        return ModuleSpecifier;
-      },
-      enumerable: true
-    },
-    NameStatement: {
-      get: function() {
-        return NameStatement;
-      },
-      enumerable: true
-    },
-    NewExpression: {
-      get: function() {
-        return NewExpression;
-      },
-      enumerable: true
-    },
-    ObjectLiteralExpression: {
-      get: function() {
-        return ObjectLiteralExpression;
-      },
-      enumerable: true
-    },
-    ObjectPattern: {
-      get: function() {
-        return ObjectPattern;
-      },
-      enumerable: true
-    },
-    ObjectPatternField: {
-      get: function() {
-        return ObjectPatternField;
-      },
-      enumerable: true
-    },
-    ParenExpression: {
-      get: function() {
-        return ParenExpression;
-      },
-      enumerable: true
-    },
-    PostfixExpression: {
-      get: function() {
-        return PostfixExpression;
-      },
-      enumerable: true
-    },
-    Program: {
-      get: function() {
-        return Program;
-      },
-      enumerable: true
-    },
-    PropertyMethodAssignment: {
-      get: function() {
-        return PropertyMethodAssignment;
-      },
-      enumerable: true
-    },
-    PropertyNameAssignment: {
-      get: function() {
-        return PropertyNameAssignment;
-      },
-      enumerable: true
-    },
-    PropertyNameShorthand: {
-      get: function() {
-        return PropertyNameShorthand;
-      },
-      enumerable: true
-    },
-    QuasiLiteralExpression: {
-      get: function() {
-        return QuasiLiteralExpression;
-      },
-      enumerable: true
-    },
-    QuasiLiteralPortion: {
-      get: function() {
-        return QuasiLiteralPortion;
-      },
-      enumerable: true
-    },
-    QuasiSubstitution: {
-      get: function() {
-        return QuasiSubstitution;
-      },
-      enumerable: true
-    },
-    RestParameter: {
-      get: function() {
-        return RestParameter;
-      },
-      enumerable: true
-    },
-    ReturnStatement: {
-      get: function() {
-        return ReturnStatement;
-      },
-      enumerable: true
-    },
-    SetAccessor: {
-      get: function() {
-        return SetAccessor;
-      },
-      enumerable: true
-    },
-    SpreadExpression: {
-      get: function() {
-        return SpreadExpression;
-      },
-      enumerable: true
-    },
-    SpreadPatternElement: {
-      get: function() {
-        return SpreadPatternElement;
-      },
-      enumerable: true
-    },
-    SuperExpression: {
-      get: function() {
-        return SuperExpression;
-      },
-      enumerable: true
-    },
-    SwitchStatement: {
-      get: function() {
-        return SwitchStatement;
-      },
-      enumerable: true
-    },
-    ThisExpression: {
-      get: function() {
-        return ThisExpression;
-      },
-      enumerable: true
-    },
-    ThrowStatement: {
-      get: function() {
-        return ThrowStatement;
-      },
-      enumerable: true
-    },
-    TryStatement: {
-      get: function() {
-        return TryStatement;
-      },
-      enumerable: true
-    },
-    UnaryExpression: {
-      get: function() {
-        return UnaryExpression;
-      },
-      enumerable: true
-    },
-    VariableDeclaration: {
-      get: function() {
-        return VariableDeclaration;
-      },
-      enumerable: true
-    },
-    VariableDeclarationList: {
-      get: function() {
-        return VariableDeclarationList;
-      },
-      enumerable: true
-    },
-    VariableStatement: {
-      get: function() {
-        return VariableStatement;
-      },
-      enumerable: true
-    },
-    WhileStatement: {
-      get: function() {
-        return WhileStatement;
-      },
-      enumerable: true
-    },
-    WithStatement: {
-      get: function() {
-        return WithStatement;
-      },
-      enumerable: true
-    },
-    YieldExpression: {
-      get: function() {
-        return YieldExpression;
-      },
-      enumerable: true
-    }
-  }));
-}).call(this);
 var $__src_syntax_Parser_js = (function() {
   "use strict";
+  var $__9 = $__src_codegeneration_CoverFormalsTransformer_js, CoverFormalsTransformer = $__9.CoverFormalsTransformer, CoverFormalsTransformerError = $__9.CoverFormalsTransformerError;
   var IdentifierToken = $__src_syntax_IdentifierToken_js.IdentifierToken;
   var MutedErrorReporter = $__src_util_MutedErrorReporter_js.MutedErrorReporter;
-  var $__9 = $__src_syntax_trees_ParseTreeType_js, ARRAY_LITERAL_EXPRESSION = $__9.ARRAY_LITERAL_EXPRESSION, BINARY_OPERATOR = $__9.BINARY_OPERATOR, CALL_EXPRESSION = $__9.CALL_EXPRESSION, CASCADE_EXPRESSION = $__9.CASCADE_EXPRESSION, IDENTIFIER_EXPRESSION = $__9.IDENTIFIER_EXPRESSION, MEMBER_EXPRESSION = $__9.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__9.MEMBER_LOOKUP_EXPRESSION, MISSING_PRIMARY_EXPRESSION = $__9.MISSING_PRIMARY_EXPRESSION, OBJECT_LITERAL_EXPRESSION = $__9.OBJECT_LITERAL_EXPRESSION, PAREN_EXPRESSION = $__9.PAREN_EXPRESSION, PROPERTY_NAME_ASSIGNMENT = $__9.PROPERTY_NAME_ASSIGNMENT, REST_PARAMETER = $__9.REST_PARAMETER;
+  var $__9 = $__src_syntax_trees_ParseTreeType_js, ARRAY_LITERAL_EXPRESSION = $__9.ARRAY_LITERAL_EXPRESSION, BINARY_OPERATOR = $__9.BINARY_OPERATOR, CALL_EXPRESSION = $__9.CALL_EXPRESSION, CASCADE_EXPRESSION = $__9.CASCADE_EXPRESSION, COMMA_EXPRESSION = $__9.COMMA_EXPRESSION, FORMAL_PARAMETER_LIST = $__9.FORMAL_PARAMETER_LIST, IDENTIFIER_EXPRESSION = $__9.IDENTIFIER_EXPRESSION, MEMBER_EXPRESSION = $__9.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__9.MEMBER_LOOKUP_EXPRESSION, MISSING_PRIMARY_EXPRESSION = $__9.MISSING_PRIMARY_EXPRESSION, OBJECT_LITERAL_EXPRESSION = $__9.OBJECT_LITERAL_EXPRESSION, PAREN_EXPRESSION = $__9.PAREN_EXPRESSION, PROPERTY_NAME_ASSIGNMENT = $__9.PROPERTY_NAME_ASSIGNMENT, REST_PARAMETER = $__9.REST_PARAMETER;
   var $__9 = $__src_syntax_PredefinedName_js, FROM = $__9.FROM, GET = $__9.GET, IS = $__9.IS, ISNT = $__9.ISNT, MODULE = $__9.MODULE, OF = $__9.OF, SET = $__9.SET;
   var Scanner = $__src_syntax_Scanner_js.Scanner;
   var SourceRange = $__src_util_SourceRange_js.SourceRange;
@@ -7746,7 +8487,7 @@ var $__src_syntax_Parser_js = (function() {
   var isKeyword = $__src_syntax_Keywords_js.isKeyword;
   var options = $__src_options_js.parseOptions;
   var $__9 = $__src_syntax_TokenType_js, AMPERSAND = $__9.AMPERSAND, AMPERSAND_EQUAL = $__9.AMPERSAND_EQUAL, AND = $__9.AND, ARROW = $__9.ARROW, AT_NAME = $__9.AT_NAME, AWAIT = $__9.AWAIT, BACK_QUOTE = $__9.BACK_QUOTE, BANG = $__9.BANG, BAR = $__9.BAR, BAR_EQUAL = $__9.BAR_EQUAL, BREAK = $__9.BREAK, CARET = $__9.CARET, CARET_EQUAL = $__9.CARET_EQUAL, CASE = $__9.CASE, CATCH = $__9.CATCH, CLASS = $__9.CLASS, CLOSE_ANGLE = $__9.CLOSE_ANGLE, CLOSE_CURLY = $__9.CLOSE_CURLY, CLOSE_PAREN = $__9.CLOSE_PAREN, CLOSE_SQUARE = $__9.CLOSE_SQUARE, COLON = $__9.COLON, COMMA = $__9.COMMA, CONST = $__9.CONST, CONTINUE = $__9.CONTINUE, DEBUGGER = $__9.DEBUGGER, DEFAULT = $__9.DEFAULT, DELETE = $__9.DELETE, DO = $__9.DO, DOLLAR = $__9.DOLLAR, DOT_DOT_DOT = $__9.DOT_DOT_DOT, ELSE = $__9.ELSE, END_OF_FILE = $__9.END_OF_FILE, ENUM = $__9.ENUM, EQUAL = $__9.EQUAL, EQUAL_EQUAL = $__9.EQUAL_EQUAL, EQUAL_EQUAL_EQUAL = $__9.EQUAL_EQUAL_EQUAL, ERROR = $__9.ERROR, EXPORT = $__9.EXPORT, EXTENDS = $__9.EXTENDS, FALSE = $__9.FALSE, FINALLY = $__9.FINALLY, FOR = $__9.FOR, FUNCTION = $__9.FUNCTION, GREATER_EQUAL = $__9.GREATER_EQUAL, IDENTIFIER = $__9.IDENTIFIER, IF = $__9.IF, IMPLEMENTS = $__9.IMPLEMENTS, IMPORT = $__9.IMPORT, IN = $__9.IN, INSTANCEOF = $__9.INSTANCEOF, INTERFACE = $__9.INTERFACE, LEFT_SHIFT = $__9.LEFT_SHIFT, LEFT_SHIFT_EQUAL = $__9.LEFT_SHIFT_EQUAL, LESS_EQUAL = $__9.LESS_EQUAL, LET = $__9.LET, MINUS = $__9.MINUS, MINUS_EQUAL = $__9.MINUS_EQUAL, MINUS_MINUS = $__9.MINUS_MINUS, NEW = $__9.NEW, NOT_EQUAL = $__9.NOT_EQUAL, NOT_EQUAL_EQUAL = $__9.NOT_EQUAL_EQUAL, NULL = $__9.NULL, NUMBER = $__9.NUMBER, OPEN_ANGLE = $__9.OPEN_ANGLE, OPEN_CURLY = $__9.OPEN_CURLY, OPEN_PAREN = $__9.OPEN_PAREN, OPEN_SQUARE = $__9.OPEN_SQUARE, OR = $__9.OR, PACKAGE = $__9.PACKAGE, PERCENT = $__9.PERCENT, PERCENT_EQUAL = $__9.PERCENT_EQUAL, PERIOD = $__9.PERIOD, PERIOD_OPEN_CURLY = $__9.PERIOD_OPEN_CURLY, PLUS = $__9.PLUS, PLUS_EQUAL = $__9.PLUS_EQUAL, PLUS_PLUS = $__9.PLUS_PLUS, PRIVATE = $__9.PRIVATE, PROTECTED = $__9.PROTECTED, PUBLIC = $__9.PUBLIC, QUASI_LITERAL_PORTION = $__9.QUASI_LITERAL_PORTION, QUESTION = $__9.QUESTION, REGULAR_EXPRESSION = $__9.REGULAR_EXPRESSION, RETURN = $__9.RETURN, RIGHT_SHIFT = $__9.RIGHT_SHIFT, RIGHT_SHIFT_EQUAL = $__9.RIGHT_SHIFT_EQUAL, SEMI_COLON = $__9.SEMI_COLON, SLASH = $__9.SLASH, SLASH_EQUAL = $__9.SLASH_EQUAL, STAR = $__9.STAR, STAR_EQUAL = $__9.STAR_EQUAL, STATIC = $__9.STATIC, STRING = $__9.STRING, SUPER = $__9.SUPER, SWITCH = $__9.SWITCH, THIS = $__9.THIS, THROW = $__9.THROW, TILDE = $__9.TILDE, TRUE = $__9.TRUE, TRY = $__9.TRY, TYPEOF = $__9.TYPEOF, UNSIGNED_RIGHT_SHIFT = $__9.UNSIGNED_RIGHT_SHIFT, UNSIGNED_RIGHT_SHIFT_EQUAL = $__9.UNSIGNED_RIGHT_SHIFT_EQUAL, VAR = $__9.VAR, VOID = $__9.VOID, WHILE = $__9.WHILE, WITH = $__9.WITH, YIELD = $__9.YIELD;
-  var $__9 = $__src_syntax_trees_ParseTrees_js, ArgumentList = $__9.ArgumentList, ArrayComprehension = $__9.ArrayComprehension, ArrayLiteralExpression = $__9.ArrayLiteralExpression, ArrayPattern = $__9.ArrayPattern, ArrowFunctionExpression = $__9.ArrowFunctionExpression, AtNameDeclaration = $__9.AtNameDeclaration, AtNameExpression = $__9.AtNameExpression, AwaitStatement = $__9.AwaitStatement, BinaryOperator = $__9.BinaryOperator, BindingElement = $__9.BindingElement, BindingIdentifier = $__9.BindingIdentifier, Block = $__9.Block, BreakStatement = $__9.BreakStatement, CallExpression = $__9.CallExpression, CascadeExpression = $__9.CascadeExpression, CaseClause = $__9.CaseClause, Catch = $__9.Catch, ClassDeclaration = $__9.ClassDeclaration, ClassExpression = $__9.ClassExpression, CommaExpression = $__9.CommaExpression, ComprehensionFor = $__9.ComprehensionFor, ConditionalExpression = $__9.ConditionalExpression, ContinueStatement = $__9.ContinueStatement, DebuggerStatement = $__9.DebuggerStatement, DefaultClause = $__9.DefaultClause, DoWhileStatement = $__9.DoWhileStatement, EmptyStatement = $__9.EmptyStatement, ExportDeclaration = $__9.ExportDeclaration, ExportMapping = $__9.ExportMapping, ExportMappingList = $__9.ExportMappingList, ExportSpecifier = $__9.ExportSpecifier, ExportSpecifierSet = $__9.ExportSpecifierSet, ExportStar = $__9.ExportStar, ExpressionStatement = $__9.ExpressionStatement, Finally = $__9.Finally, ForInStatement = $__9.ForInStatement, ForOfStatement = $__9.ForOfStatement, ForStatement = $__9.ForStatement, FormalParameterList = $__9.FormalParameterList, FunctionDeclaration = $__9.FunctionDeclaration, FunctionExpression = $__9.FunctionExpression, GeneratorComprehension = $__9.GeneratorComprehension, GetAccessor = $__9.GetAccessor, IdentifierExpression = $__9.IdentifierExpression, IfStatement = $__9.IfStatement, ImportBinding = $__9.ImportBinding, ImportDeclaration = $__9.ImportDeclaration, ImportSpecifier = $__9.ImportSpecifier, ImportSpecifierSet = $__9.ImportSpecifierSet, LabelledStatement = $__9.LabelledStatement, LiteralExpression = $__9.LiteralExpression, MemberExpression = $__9.MemberExpression, MemberLookupExpression = $__9.MemberLookupExpression, MissingPrimaryExpression = $__9.MissingPrimaryExpression, ModuleDeclaration = $__9.ModuleDeclaration, ModuleDefinition = $__9.ModuleDefinition, ModuleExpression = $__9.ModuleExpression, ModuleRequire = $__9.ModuleRequire, ModuleSpecifier = $__9.ModuleSpecifier, NameStatement = $__9.NameStatement, NewExpression = $__9.NewExpression, ObjectLiteralExpression = $__9.ObjectLiteralExpression, ObjectPattern = $__9.ObjectPattern, ObjectPatternField = $__9.ObjectPatternField, ParenExpression = $__9.ParenExpression, PostfixExpression = $__9.PostfixExpression, Program = $__9.Program, PropertyMethodAssignment = $__9.PropertyMethodAssignment, PropertyNameAssignment = $__9.PropertyNameAssignment, PropertyNameShorthand = $__9.PropertyNameShorthand, QuasiLiteralExpression = $__9.QuasiLiteralExpression, QuasiLiteralPortion = $__9.QuasiLiteralPortion, QuasiSubstitution = $__9.QuasiSubstitution, RestParameter = $__9.RestParameter, ReturnStatement = $__9.ReturnStatement, SetAccessor = $__9.SetAccessor, SpreadExpression = $__9.SpreadExpression, SpreadPatternElement = $__9.SpreadPatternElement, SuperExpression = $__9.SuperExpression, SwitchStatement = $__9.SwitchStatement, ThisExpression = $__9.ThisExpression, ThrowStatement = $__9.ThrowStatement, TryStatement = $__9.TryStatement, UnaryExpression = $__9.UnaryExpression, VariableDeclaration = $__9.VariableDeclaration, VariableDeclarationList = $__9.VariableDeclarationList, VariableStatement = $__9.VariableStatement, WhileStatement = $__9.WhileStatement, WithStatement = $__9.WithStatement, YieldExpression = $__9.YieldExpression;
+  var $__9 = $__src_syntax_trees_ParseTrees_js, ArgumentList = $__9.ArgumentList, ArrayComprehension = $__9.ArrayComprehension, ArrayLiteralExpression = $__9.ArrayLiteralExpression, ArrayPattern = $__9.ArrayPattern, ArrowFunctionExpression = $__9.ArrowFunctionExpression, AtNameDeclaration = $__9.AtNameDeclaration, AtNameExpression = $__9.AtNameExpression, AwaitStatement = $__9.AwaitStatement, BinaryOperator = $__9.BinaryOperator, BindingElement = $__9.BindingElement, BindingIdentifier = $__9.BindingIdentifier, Block = $__9.Block, BreakStatement = $__9.BreakStatement, CallExpression = $__9.CallExpression, CascadeExpression = $__9.CascadeExpression, CaseClause = $__9.CaseClause, Catch = $__9.Catch, ClassDeclaration = $__9.ClassDeclaration, ClassExpression = $__9.ClassExpression, CommaExpression = $__9.CommaExpression, ComprehensionFor = $__9.ComprehensionFor, ConditionalExpression = $__9.ConditionalExpression, ContinueStatement = $__9.ContinueStatement, CoverFormals = $__9.CoverFormals, DebuggerStatement = $__9.DebuggerStatement, DefaultClause = $__9.DefaultClause, DoWhileStatement = $__9.DoWhileStatement, EmptyStatement = $__9.EmptyStatement, ExportDeclaration = $__9.ExportDeclaration, ExportMapping = $__9.ExportMapping, ExportMappingList = $__9.ExportMappingList, ExportSpecifier = $__9.ExportSpecifier, ExportSpecifierSet = $__9.ExportSpecifierSet, ExportStar = $__9.ExportStar, ExpressionStatement = $__9.ExpressionStatement, Finally = $__9.Finally, ForInStatement = $__9.ForInStatement, ForOfStatement = $__9.ForOfStatement, ForStatement = $__9.ForStatement, FormalParameterList = $__9.FormalParameterList, FunctionDeclaration = $__9.FunctionDeclaration, FunctionExpression = $__9.FunctionExpression, GeneratorComprehension = $__9.GeneratorComprehension, GetAccessor = $__9.GetAccessor, IdentifierExpression = $__9.IdentifierExpression, IfStatement = $__9.IfStatement, ImportBinding = $__9.ImportBinding, ImportDeclaration = $__9.ImportDeclaration, ImportSpecifier = $__9.ImportSpecifier, ImportSpecifierSet = $__9.ImportSpecifierSet, LabelledStatement = $__9.LabelledStatement, LiteralExpression = $__9.LiteralExpression, MemberExpression = $__9.MemberExpression, MemberLookupExpression = $__9.MemberLookupExpression, MissingPrimaryExpression = $__9.MissingPrimaryExpression, ModuleDeclaration = $__9.ModuleDeclaration, ModuleDefinition = $__9.ModuleDefinition, ModuleExpression = $__9.ModuleExpression, ModuleRequire = $__9.ModuleRequire, ModuleSpecifier = $__9.ModuleSpecifier, NameStatement = $__9.NameStatement, NewExpression = $__9.NewExpression, ObjectLiteralExpression = $__9.ObjectLiteralExpression, ObjectPattern = $__9.ObjectPattern, ObjectPatternField = $__9.ObjectPatternField, ParenExpression = $__9.ParenExpression, PostfixExpression = $__9.PostfixExpression, Program = $__9.Program, PropertyMethodAssignment = $__9.PropertyMethodAssignment, PropertyNameAssignment = $__9.PropertyNameAssignment, PropertyNameShorthand = $__9.PropertyNameShorthand, QuasiLiteralExpression = $__9.QuasiLiteralExpression, QuasiLiteralPortion = $__9.QuasiLiteralPortion, QuasiSubstitution = $__9.QuasiSubstitution, RestParameter = $__9.RestParameter, ReturnStatement = $__9.ReturnStatement, SetAccessor = $__9.SetAccessor, SpreadExpression = $__9.SpreadExpression, SpreadPatternElement = $__9.SpreadPatternElement, SuperExpression = $__9.SuperExpression, SwitchStatement = $__9.SwitchStatement, ThisExpression = $__9.ThisExpression, ThrowStatement = $__9.ThrowStatement, TryStatement = $__9.TryStatement, UnaryExpression = $__9.UnaryExpression, VariableDeclaration = $__9.VariableDeclaration, VariableDeclarationList = $__9.VariableDeclarationList, VariableStatement = $__9.VariableStatement, WhileStatement = $__9.WhileStatement, WithStatement = $__9.WithStatement, YieldExpression = $__9.YieldExpression;
   var Expression = {
     NO_IN: 'NO_IN',
     NORMAL: 'NORMAL'
@@ -8895,17 +9636,17 @@ var $__src_syntax_Parser_js = (function() {
       parseExpressionForCoverFormals_: function(opt_expressionIn) {
         var expressionIn = opt_expressionIn || Expression.IN;
         var start = this.getTreeStartLocation_();
-        var result = [this.parseAssignmentExpression(expressionIn)];
+        var exprs = [this.parseAssignmentExpression(expressionIn)];
         if (this.peek_(COMMA)) {
           while (this.eatIf_(COMMA)) {
             if (this.peekRest_(this.peekType_())) {
-              result.push(this.parseRestParameter_());
+              exprs.push(this.parseRestParameter_());
               break;
             }
-            result.push(this.parseAssignmentExpression(expressionIn));
+            exprs.push(this.parseAssignmentExpression(expressionIn));
           }
         }
-        return result;
+        return new CoverFormals(this.getTreeLocation_(start), exprs);
       },
       peekAssignmentExpression_: function(type) {
         return this.peekExpression_(type);
@@ -9338,28 +10079,23 @@ var $__src_syntax_Parser_js = (function() {
         var start = this.getTreeStartLocation_();
         var formals;
         this.eat_(OPEN_PAREN);
-        if (this.eatIf_(CLOSE_PAREN)) {
-          var paramStart = this.getTreeStartLocation_();
-          formals = new FormalParameterList(this.getTreeLocation_(paramStart), []);
-        } else {
-          var coverFormals = this.parseCoverFormals_();
-          var lastFormal = coverFormals[coverFormals.length - 1];
-          if (lastFormal.type === REST_PARAMETER) {
-            this.eat_(CLOSE_PAREN);
-            formals = this.reparseAsFormalsList_(coverFormals);
-            if (!formals) {
-              return this.parseMissingPrimaryExpression_('Unexpected token \'...\'');
-            }
-          } else if (coverFormals.length === 1 && options.generatorComprehension && this.peek_(FOR)) {
-            return this.parseGeneratorComprehension_(start, coverFormals[0]);
-          } else {
-            this.eat_(CLOSE_PAREN);
-            if (this.peek_(ARROW)) formals = this.reparseAsFormalsList_(coverFormals);
+        var coverFormals = this.parseCoverFormals_();
+        var expressions = coverFormals.expressions;
+        if (expressions.length === 1 && options.generatorComprehension && this.peek_(FOR)) {
+          return this.parseGeneratorComprehension_(start, expressions[0]);
+        }
+        this.eat_(CLOSE_PAREN);
+        var mustBeArrow = expressions.length === 0 || expressions[expressions.length - 1].type === REST_PARAMETER;
+        if (mustBeArrow || this.peekArrow_(this.peekType_())) {
+          formals = this.transformCoverFormals_(coverFormals);
+          if (!formals && mustBeArrow) {
+            return this.parseMissingPrimaryExpression_('Unexpected token \'...\'');
           }
         }
         if (!formals) {
-          var commaExpression = new CommaExpression(coverFormals[0].location, coverFormals);
-          return new ParenExpression(this.getTreeLocation_(start), commaExpression);
+          var expression;
+          if (expressions.length > 1) expression = new CommaExpression(coverFormals.location, expressions); else expression = expressions[0];
+          return new ParenExpression(this.getTreeLocation_(start), expression);
         }
         this.eat_(ARROW);
         var body = this.parseConciseBody_();
@@ -9367,19 +10103,21 @@ var $__src_syntax_Parser_js = (function() {
         return new ArrowFunctionExpression(startLoc, formals, body);
       },
       parseCoverFormals_: function() {
-        if (this.peekRest_(this.peekType_())) return [this.parseRestParameter_()];
+        var start = this.getTreeStartLocation_();
+        if (this.peek_(CLOSE_PAREN)) return new CoverFormals(this.getTreeLocation_(start), []);
+        if (this.peekRest_(this.peekType_())) {
+          var parameter = this.parseRestParameter_();
+          return new CoverFormals(this.getTreeLocation_(start), [parameter]);
+        }
         return this.parseExpressionForCoverFormals_();
       },
-      reparseAsFormalsList_: function(coverFormals) {
-        if (coverFormals.length === 0) {
-          var start = this.getTreeStartLocation_();
-          return new FormalParameterList(this.getTreeLocation_(start), []);
-        }
-        var errorReporter = new MutedErrorReporter();
-        var p = new Parser(errorReporter, this.scanner_.file, coverFormals[0].location.start.offset);
-        var formals = p.parseFormalParameterList_();
-        if (errorReporter.hadError() || !formals || formals.location.end.offset !== coverFormals[coverFormals.length - 1].location.end.offset) {
-          return null;
+      transformCoverFormals_: function(coverFormals) {
+        var transformer = new CoverFormalsTransformer();
+        var formals = null;
+        try {
+          formals = transformer.transformAny(coverFormals);
+        } catch (ex) {
+          if (!(ex instanceof CoverFormalsTransformerError)) throw ex;
         }
         return formals;
       },
@@ -9728,640 +10466,6 @@ var $__src_syntax_Parser_js = (function() {
       enumerable: true
     }}));
 }).call(this);
-var $__src_codegeneration_ParseTreeTransformer_js = (function() {
-  "use strict";
-  var $__9 = $__src_syntax_trees_ParseTrees_js, ArgumentList = $__9.ArgumentList, ArrayComprehension = $__9.ArrayComprehension, ArrayLiteralExpression = $__9.ArrayLiteralExpression, ArrayPattern = $__9.ArrayPattern, ArrowFunctionExpression = $__9.ArrowFunctionExpression, AtNameDeclaration = $__9.AtNameDeclaration, AtNameExpression = $__9.AtNameExpression, AwaitStatement = $__9.AwaitStatement, BinaryOperator = $__9.BinaryOperator, BindingElement = $__9.BindingElement, BindingIdentifier = $__9.BindingIdentifier, Block = $__9.Block, BreakStatement = $__9.BreakStatement, CallExpression = $__9.CallExpression, CascadeExpression = $__9.CascadeExpression, CaseClause = $__9.CaseClause, Catch = $__9.Catch, ClassDeclaration = $__9.ClassDeclaration, ClassExpression = $__9.ClassExpression, CommaExpression = $__9.CommaExpression, ComprehensionFor = $__9.ComprehensionFor, ConditionalExpression = $__9.ConditionalExpression, ContinueStatement = $__9.ContinueStatement, DebuggerStatement = $__9.DebuggerStatement, DefaultClause = $__9.DefaultClause, DoWhileStatement = $__9.DoWhileStatement, EmptyStatement = $__9.EmptyStatement, ExportDeclaration = $__9.ExportDeclaration, ExportMapping = $__9.ExportMapping, ExportMappingList = $__9.ExportMappingList, ExportSpecifier = $__9.ExportSpecifier, ExportSpecifierSet = $__9.ExportSpecifierSet, ExportStar = $__9.ExportStar, ExpressionStatement = $__9.ExpressionStatement, Finally = $__9.Finally, ForInStatement = $__9.ForInStatement, ForOfStatement = $__9.ForOfStatement, ForStatement = $__9.ForStatement, FormalParameterList = $__9.FormalParameterList, FunctionDeclaration = $__9.FunctionDeclaration, FunctionExpression = $__9.FunctionExpression, GeneratorComprehension = $__9.GeneratorComprehension, GetAccessor = $__9.GetAccessor, IdentifierExpression = $__9.IdentifierExpression, IfStatement = $__9.IfStatement, ImportBinding = $__9.ImportBinding, ImportDeclaration = $__9.ImportDeclaration, ImportSpecifier = $__9.ImportSpecifier, ImportSpecifierSet = $__9.ImportSpecifierSet, LabelledStatement = $__9.LabelledStatement, LiteralExpression = $__9.LiteralExpression, MemberExpression = $__9.MemberExpression, MemberLookupExpression = $__9.MemberLookupExpression, MissingPrimaryExpression = $__9.MissingPrimaryExpression, ModuleDeclaration = $__9.ModuleDeclaration, ModuleDefinition = $__9.ModuleDefinition, ModuleExpression = $__9.ModuleExpression, ModuleRequire = $__9.ModuleRequire, ModuleSpecifier = $__9.ModuleSpecifier, NameStatement = $__9.NameStatement, NewExpression = $__9.NewExpression, ObjectLiteralExpression = $__9.ObjectLiteralExpression, ObjectPattern = $__9.ObjectPattern, ObjectPatternField = $__9.ObjectPatternField, ParenExpression = $__9.ParenExpression, PostfixExpression = $__9.PostfixExpression, Program = $__9.Program, PropertyMethodAssignment = $__9.PropertyMethodAssignment, PropertyNameAssignment = $__9.PropertyNameAssignment, PropertyNameShorthand = $__9.PropertyNameShorthand, QuasiLiteralExpression = $__9.QuasiLiteralExpression, QuasiLiteralPortion = $__9.QuasiLiteralPortion, QuasiSubstitution = $__9.QuasiSubstitution, RestParameter = $__9.RestParameter, ReturnStatement = $__9.ReturnStatement, SetAccessor = $__9.SetAccessor, SpreadExpression = $__9.SpreadExpression, SpreadPatternElement = $__9.SpreadPatternElement, SuperExpression = $__9.SuperExpression, SwitchStatement = $__9.SwitchStatement, ThisExpression = $__9.ThisExpression, ThrowStatement = $__9.ThrowStatement, TryStatement = $__9.TryStatement, UnaryExpression = $__9.UnaryExpression, VariableDeclaration = $__9.VariableDeclaration, VariableDeclarationList = $__9.VariableDeclarationList, VariableStatement = $__9.VariableStatement, WhileStatement = $__9.WhileStatement, WithStatement = $__9.WithStatement, YieldExpression = $__9.YieldExpression;
-  var ParseTreeTransformer = function() {
-    var $ParseTreeTransformer = ($__createClassNoExtends)({
-      constructor: function() {},
-      transformAny: function(tree) {
-        return tree && tree.transform(this);
-      },
-      transformList: function(list) {
-        if (list == null || list.length == 0) {
-          return list;
-        }
-        var builder = null;
-        for (var index = 0; index < list.length; index++) {
-          var element = list[index];
-          var transformed = this.transformAny(element);
-          if (builder != null || element != transformed) {
-            if (builder == null) {
-              builder = list.slice(0, index);
-            }
-            builder.push(transformed);
-          }
-        }
-        return builder || list;
-      },
-      toSourceElement: function(tree) {
-        return tree.isSourceElement() ? tree: new ExpressionStatement(tree.location, tree);
-      },
-      transformSourceElements: function(list) {
-        if (list == null || list.length == 0) {
-          return list;
-        }
-        var builder = null;
-        for (var index = 0; index < list.length; index++) {
-          var element = list[index];
-          var transformed = this.toSourceElement(this.transformAny(element));
-          if (builder != null || element != transformed) {
-            if (builder == null) {
-              builder = list.slice(0, index);
-            }
-            builder.push(transformed);
-          }
-        }
-        return builder || list;
-      },
-      transformArgumentList: function(tree) {
-        var args = this.transformList(tree.args);
-        if (args == tree.args) {
-          return tree;
-        }
-        return new ArgumentList(tree.location, args);
-      },
-      transformArrayComprehension: function(tree) {
-        var expression = this.transformAny(tree.expression);
-        var comprehensionForList = this.transformList(tree.comprehensionForList);
-        var ifExpression = this.transformAny(tree.ifExpression);
-        if (expression === tree.expression && comprehensionForList === tree.comprehensionForList && ifExpression === tree.ifExpression) {
-          return tree;
-        }
-        return new ArrayComprehension(tree.location, expression, comprehensionForList, ifExpression);
-      },
-      transformArrayLiteralExpression: function(tree) {
-        var elements = this.transformList(tree.elements);
-        if (elements == tree.elements) {
-          return tree;
-        }
-        return new ArrayLiteralExpression(tree.location, elements);
-      },
-      transformArrayPattern: function(tree) {
-        var elements = this.transformList(tree.elements);
-        if (elements == tree.elements) {
-          return tree;
-        }
-        return new ArrayPattern(tree.location, elements);
-      },
-      transformArrowFunctionExpression: function(tree) {
-        var parameters = this.transformAny(tree.formalParameters);
-        var body = this.transformAny(tree.functionBody);
-        if (parameters == tree.formalParameters && body == tree.functionBody) {
-          return tree;
-        }
-        return new ArrowFunctionExpression(null, parameters, body);
-      },
-      transformAtNameExpression: function(tree) {
-        return tree;
-      },
-      transformAtNameDeclaration: function(tree) {
-        var initializer = this.transformAny(tree.initializer);
-        if (initializer === tree.initializer) return tree;
-        return new AtNameDeclaration(tree.location, tree.atNameToken, initializer);
-      },
-      transformAwaitStatement: function(tree) {
-        var expression = this.transformAny(tree.expression);
-        if (tree.expression == expression) {
-          return tree;
-        }
-        return new AwaitStatement(tree.location, tree.identifier, expression);
-      },
-      transformBinaryOperator: function(tree) {
-        var left = this.transformAny(tree.left);
-        var right = this.transformAny(tree.right);
-        if (left == tree.left && right == tree.right) {
-          return tree;
-        }
-        return new BinaryOperator(tree.location, left, tree.operator, right);
-      },
-      transformBindingElement: function(tree) {
-        var binding = this.transformAny(tree.binding);
-        var initializer = this.transformAny(tree.initializer);
-        if (binding === tree.binding && initializer === tree.initializer) return tree;
-        return new BindingElement(tree.location, binding, initializer);
-      },
-      transformBindingIdentifier: function(tree) {
-        return tree;
-      },
-      transformBlock: function(tree) {
-        var elements = this.transformList(tree.statements);
-        if (elements == tree.statements) {
-          return tree;
-        }
-        return new Block(tree.location, elements);
-      },
-      transformBreakStatement: function(tree) {
-        return tree;
-      },
-      transformCallExpression: function(tree) {
-        var operand = this.transformAny(tree.operand);
-        var args = this.transformAny(tree.args);
-        if (operand == tree.operand && args == tree.args) {
-          return tree;
-        }
-        return new CallExpression(tree.location, operand, args);
-      },
-      transformCaseClause: function(tree) {
-        var expression = this.transformAny(tree.expression);
-        var statements = this.transformList(tree.statements);
-        if (expression == tree.expression && statements == tree.statements) {
-          return tree;
-        }
-        return new CaseClause(tree.location, expression, statements);
-      },
-      transformCatch: function(tree) {
-        var catchBody = this.transformAny(tree.catchBody);
-        var binding = this.transformAny(tree.binding);
-        if (catchBody == tree.catchBody && binding == tree.binding) {
-          return tree;
-        }
-        return new Catch(tree.location, binding, catchBody);
-      },
-      transformCascadeExpression: function(tree) {
-        var operand = this.transformAny(tree.operand);
-        var expressions = this.transformList(tree.expressions);
-        if (operand == tree.operand && expressions == tree.expressions) {
-          return tree;
-        }
-        return new CascadeExpression(tree.location, operand, expressions);
-      },
-      transformClassDeclaration: function(tree) {
-        var superClass = this.transformAny(tree.superClass);
-        var elements = this.transformList(tree.elements);
-        if (superClass == tree.superClass && elements == tree.elements) return tree;
-        return new ClassDeclaration(tree.location, tree.name, superClass, elements);
-      },
-      transformClassExpression: function(tree) {
-        var superClass = this.transformAny(tree.superClass);
-        var elements = this.transformList(tree.elements);
-        if (superClass == tree.superClass && elements == tree.elements) return tree;
-        return new ClassExpression(tree.location, tree.name, superClass, elements);
-      },
-      transformCommaExpression: function(tree) {
-        var expressions = this.transformList(tree.expressions);
-        if (expressions == tree.expressions) {
-          return tree;
-        }
-        return new CommaExpression(tree.location, expressions);
-      },
-      transformComprehensionFor: function(tree) {
-        var left = this.transformAny(tree.left);
-        var iterator = this.transformAny(tree.iterator);
-        if (left === tree.left && iterator === tree.iterator) return tree;
-        return new ComprehensionFor(tree.location, left, iterator);
-      },
-      transformConditionalExpression: function(tree) {
-        var condition = this.transformAny(tree.condition);
-        var left = this.transformAny(tree.left);
-        var right = this.transformAny(tree.right);
-        if (condition == tree.condition && left == tree.left && right == tree.right) {
-          return tree;
-        }
-        return new ConditionalExpression(tree.location, condition, left, right);
-      },
-      transformContinueStatement: function(tree) {
-        return tree;
-      },
-      transformDebuggerStatement: function(tree) {
-        return tree;
-      },
-      transformDefaultClause: function(tree) {
-        var statements = this.transformList(tree.statements);
-        if (statements == tree.statements) {
-          return tree;
-        }
-        return new DefaultClause(tree.location, statements);
-      },
-      transformDoWhileStatement: function(tree) {
-        var body = this.transformAny(tree.body);
-        var condition = this.transformAny(tree.condition);
-        if (body == tree.body && condition == tree.condition) {
-          return tree;
-        }
-        return new DoWhileStatement(tree.location, body, condition);
-      },
-      transformEmptyStatement: function(tree) {
-        return tree;
-      },
-      transformExportDeclaration: function(tree) {
-        var declaration = this.transformAny(tree.declaration);
-        if (tree.declaration == declaration) {
-          return tree;
-        }
-        return new ExportDeclaration(tree.location, declaration);
-      },
-      transformExportMappingList: function(tree) {
-        var paths = this.transformList(tree.paths);
-        if (paths == tree.paths) {
-          return tree;
-        }
-        return new ExportMappingList(tree.location, paths);
-      },
-      transformExportMapping: function(tree) {
-        var moduleExpression = this.transformAny(tree.moduleExpression);
-        var specifierSet = this.transformAny(tree.specifierSet);
-        if (moduleExpression == tree.moduleExpression && specifierSet == tree.specifierSet) {
-          return tree;
-        }
-        return new ExportMapping(tree.location, moduleExpression, specifierSet);
-      },
-      transformExportSpecifier: function(tree) {
-        return tree;
-      },
-      transformExportSpecifierSet: function(tree) {
-        var specifiers = this.transformList(tree.specifiers);
-        if (specifiers == tree.specifiers) {
-          return tree;
-        }
-        return new ExportSpecifierSet(tree.location, specifiers);
-      },
-      transformExportStar: function(tree) {
-        return tree;
-      },
-      transformExpressionStatement: function(tree) {
-        var expression = this.transformAny(tree.expression);
-        if (expression == tree.expression) {
-          return tree;
-        }
-        return new ExpressionStatement(tree.location, expression);
-      },
-      transformFinally: function(tree) {
-        var block = this.transformAny(tree.block);
-        if (block == tree.block) {
-          return tree;
-        }
-        return new Finally(tree.location, block);
-      },
-      transformForOfStatement: function(tree) {
-        var initializer = this.transformAny(tree.initializer);
-        var collection = this.transformAny(tree.collection);
-        var body = this.transformAny(tree.body);
-        if (initializer == tree.initializer && collection == tree.collection && body == tree.body) {
-          return tree;
-        }
-        return new ForOfStatement(tree.location, initializer, collection, body);
-      },
-      transformForInStatement: function(tree) {
-        var initializer = this.transformAny(tree.initializer);
-        var collection = this.transformAny(tree.collection);
-        var body = this.transformAny(tree.body);
-        if (initializer == tree.initializer && collection == tree.collection && body == tree.body) {
-          return tree;
-        }
-        return new ForInStatement(tree.location, initializer, collection, body);
-      },
-      transformForStatement: function(tree) {
-        var initializer = this.transformAny(tree.initializer);
-        var condition = this.transformAny(tree.condition);
-        var increment = this.transformAny(tree.increment);
-        var body = this.transformAny(tree.body);
-        if (initializer == tree.initializer && condition == tree.condition && increment == tree.increment && body == tree.body) {
-          return tree;
-        }
-        return new ForStatement(tree.location, initializer, condition, increment, body);
-      },
-      transformFormalParameterList: function(tree) {
-        var parameters = this.transformList(tree.parameters);
-        if (parameters == tree.parameters) return tree;
-        return new FormalParameterList(tree.location, parameters);
-      },
-      transformFunction: function(tree) {
-        var name = this.transformAny(tree.name);
-        var formalParameterList = this.transformAny(tree.formalParameterList);
-        var functionBody = this.transformFunctionBody(tree.functionBody);
-        if (name === tree.name && formalParameterList === tree.formalParameterList && functionBody === tree.functionBody) {
-          return tree;
-        }
-        return new tree.constructor(tree.location, name, tree.isGenerator, formalParameterList, functionBody);
-      },
-      transformFunctionDeclaration: function(tree) {
-        return this.transformFunction(tree);
-      },
-      transformFunctionExpression: function(tree) {
-        return this.transformFunction(tree);
-      },
-      transformFunctionBody: function(tree) {
-        return this.transformAny(tree);
-      },
-      transformGeneratorComprehension: function(tree) {
-        var expression = this.transformAny(tree.expression);
-        var comprehensionForList = this.transformList(tree.comprehensionForList);
-        var ifExpression = this.transformAny(tree.ifExpression);
-        if (expression === tree.expression && comprehensionForList === tree.comprehensionForList && ifExpression === tree.ifExpression) {
-          return tree;
-        }
-        return new GeneratorComprehension(tree.location, expression, comprehensionForList, ifExpression);
-      },
-      transformGetAccessor: function(tree) {
-        var body = this.transformFunctionBody(tree.body);
-        if (body == tree.body) return tree;
-        return new GetAccessor(tree.location, tree.name, body);
-      },
-      transformIdentifierExpression: function(tree) {
-        return tree;
-      },
-      transformIfStatement: function(tree) {
-        var condition = this.transformAny(tree.condition);
-        var ifClause = this.transformAny(tree.ifClause);
-        var elseClause = this.transformAny(tree.elseClause);
-        if (condition == tree.condition && ifClause == tree.ifClause && elseClause == tree.elseClause) {
-          return tree;
-        }
-        return new IfStatement(tree.location, condition, ifClause, elseClause);
-      },
-      transformImportDeclaration: function(tree) {
-        var importPathList = this.transformList(tree.importPathList);
-        if (importPathList == tree.importPathList) {
-          return tree;
-        }
-        return new ImportDeclaration(tree.location, importPathList);
-      },
-      transformImportBinding: function(tree) {
-        var moduleExpression = this.transformAny(tree.moduleExpression);
-        var importSpecifierSet = this.transformList(tree.importSpecifierSet);
-        if (moduleExpression == tree.moduleExpression && importSpecifierSet == tree.importSpecifierSet) {
-          return tree;
-        }
-        return new ImportBinding(tree.location, moduleExpression, importSpecifierSet);
-      },
-      transformImportSpecifier: function(tree) {
-        return tree;
-      },
-      transformLabelledStatement: function(tree) {
-        var statement = this.transformAny(tree.statement);
-        if (statement == tree.statement) {
-          return tree;
-        }
-        return new LabelledStatement(tree.location, tree.name, statement);
-      },
-      transformLiteralExpression: function(tree) {
-        return tree;
-      },
-      transformMemberExpression: function(tree) {
-        var operand = this.transformAny(tree.operand);
-        if (operand == tree.operand) {
-          return tree;
-        }
-        return new MemberExpression(tree.location, operand, tree.memberName);
-      },
-      transformMemberLookupExpression: function(tree) {
-        var operand = this.transformAny(tree.operand);
-        var memberExpression = this.transformAny(tree.memberExpression);
-        if (operand == tree.operand && memberExpression == tree.memberExpression) {
-          return tree;
-        }
-        return new MemberLookupExpression(tree.location, operand, memberExpression);
-      },
-      transformMissingPrimaryExpression: function(tree) {
-        throw new Error('Should never transform trees that had errors during parse');
-      },
-      transformModuleDeclaration: function(tree) {
-        var specifiers = this.transformList(tree.specifiers);
-        if (specifiers == tree.specifiers) {
-          return tree;
-        }
-        return new ModuleDeclaration(tree.location, specifiers);
-      },
-      transformModuleDefinition: function(tree) {
-        var elements = this.transformList(tree.elements);
-        if (elements == tree.elements) {
-          return tree;
-        }
-        return new ModuleDefinition(tree.location, tree.name, elements);
-      },
-      transformModuleExpression: function(tree) {
-        var reference = this.transformAny(tree.reference);
-        if (reference == tree.reference) {
-          return tree;
-        }
-        return new ModuleExpression(tree.location, reference, tree.identifiers);
-      },
-      transformModuleRequire: function(tree) {
-        return tree;
-      },
-      transformModuleSpecifier: function(tree) {
-        var expression = this.transformAny(tree.expression);
-        if (expression == tree.expression) {
-          return tree;
-        }
-        return new ModuleSpecifier(tree.location, tree.identifier, expression);
-      },
-      transformNameStatement: function(tree) {
-        var declarations = this.transformList(tree.declarations);
-        if (declarations === tree.declarations) return tree;
-        return new NameStatement(tree.location, declarations);
-      },
-      transformNewExpression: function(tree) {
-        var operand = this.transformAny(tree.operand);
-        var args = this.transformAny(tree.args);
-        if (operand == tree.operand && args == tree.args) {
-          return tree;
-        }
-        return new NewExpression(tree.location, operand, args);
-      },
-      transformObjectLiteralExpression: function(tree) {
-        var propertyNameAndValues = this.transformList(tree.propertyNameAndValues);
-        if (propertyNameAndValues == tree.propertyNameAndValues) {
-          return tree;
-        }
-        return new ObjectLiteralExpression(tree.location, propertyNameAndValues);
-      },
-      transformObjectPattern: function(tree) {
-        var fields = this.transformList(tree.fields);
-        if (fields == tree.fields) {
-          return tree;
-        }
-        return new ObjectPattern(tree.location, fields);
-      },
-      transformObjectPatternField: function(tree) {
-        var element = this.transformAny(tree.element);
-        if (element == tree.element) {
-          return tree;
-        }
-        return new ObjectPatternField(tree.location, tree.identifier, element);
-      },
-      transformParenExpression: function(tree) {
-        var expression = this.transformAny(tree.expression);
-        if (expression == tree.expression) {
-          return tree;
-        }
-        return new ParenExpression(tree.location, expression);
-      },
-      transformPostfixExpression: function(tree) {
-        var operand = this.transformAny(tree.operand);
-        if (operand == tree.operand) {
-          return tree;
-        }
-        return new PostfixExpression(tree.location, operand, tree.operator);
-      },
-      transformProgram: function(tree) {
-        var elements = this.transformList(tree.programElements);
-        if (elements == tree.programElements) {
-          return tree;
-        }
-        return new Program(tree.location, elements);
-      },
-      transformPropertyMethodAssignment: function(tree) {
-        var parameters = this.transformAny(tree.formalParameterList);
-        var functionBody = this.transformFunctionBody(tree.functionBody);
-        if (parameters == tree.formalParameterList && functionBody == tree.functionBody) {
-          return tree;
-        }
-        return new PropertyMethodAssignment(tree.location, tree.name, tree.isGenerator, parameters, functionBody);
-      },
-      transformPropertyNameAssignment: function(tree) {
-        var value = this.transformAny(tree.value);
-        if (value == tree.value) {
-          return tree;
-        }
-        return new PropertyNameAssignment(tree.location, tree.name, value);
-      },
-      transformPropertyNameShorthand: function(tree) {
-        return tree;
-      },
-      transformQuasiLiteralExpression: function(tree) {
-        var operand = this.transformAny(tree.operand);
-        var elements = this.transformList(tree.elements);
-        if (operand === tree.operand && elements == tree.elements) return tree;
-        return new QuasiLiteralExpression(tree.location, operand, elements);
-      },
-      transformQuasiLiteralPortion: function(tree) {
-        return tree;
-      },
-      transformQuasiSubstitution: function(tree) {
-        var expression = this.transformAny(tree.expression);
-        if (expression == tree.expression) {
-          return tree;
-        }
-        return new QuasiSubstitution(tree.location, expression);
-      },
-      transformRestParameter: function(tree) {
-        return tree;
-      },
-      transformReturnStatement: function(tree) {
-        var expression = this.transformAny(tree.expression);
-        if (expression == tree.expression) {
-          return tree;
-        }
-        return new ReturnStatement(tree.location, expression);
-      },
-      transformSetAccessor: function(tree) {
-        var parameter = this.transformAny(tree.parameter);
-        var body = this.transformFunctionBody(tree.body);
-        if (parameter === tree.parameter && body === tree.body) return tree;
-        return new SetAccessor(tree.location, tree.name, parameter, body);
-      },
-      transformSpreadExpression: function(tree) {
-        var expression = this.transformAny(tree.expression);
-        if (expression == tree.expression) {
-          return tree;
-        }
-        return new SpreadExpression(tree.location, expression);
-      },
-      transformSpreadPatternElement: function(tree) {
-        var lvalue = this.transformAny(tree.lvalue);
-        if (lvalue == tree.lvalue) {
-          return tree;
-        }
-        return new SpreadPatternElement(tree.location, lvalue);
-      },
-      transformStateMachine: function(tree) {
-        throw new Error();
-      },
-      transformSuperExpression: function(tree) {
-        return tree;
-      },
-      transformSwitchStatement: function(tree) {
-        var expression = this.transformAny(tree.expression);
-        var caseClauses = this.transformList(tree.caseClauses);
-        if (expression == tree.expression && caseClauses == tree.caseClauses) {
-          return tree;
-        }
-        return new SwitchStatement(tree.location, expression, caseClauses);
-      },
-      transformThisExpression: function(tree) {
-        return tree;
-      },
-      transformThrowStatement: function(tree) {
-        var value = this.transformAny(tree.value);
-        if (value == tree.value) {
-          return tree;
-        }
-        return new ThrowStatement(tree.location, value);
-      },
-      transformTryStatement: function(tree) {
-        var body = this.transformAny(tree.body);
-        var catchBlock = this.transformAny(tree.catchBlock);
-        var finallyBlock = this.transformAny(tree.finallyBlock);
-        if (body == tree.body && catchBlock == tree.catchBlock && finallyBlock == tree.finallyBlock) {
-          return tree;
-        }
-        return new TryStatement(tree.location, body, catchBlock, finallyBlock);
-      },
-      transformUnaryExpression: function(tree) {
-        var operand = this.transformAny(tree.operand);
-        if (operand == tree.operand) {
-          return tree;
-        }
-        return new UnaryExpression(tree.location, tree.operator, operand);
-      },
-      transformVariableDeclaration: function(tree) {
-        var lvalue = this.transformAny(tree.lvalue);
-        var initializer = this.transformAny(tree.initializer);
-        if (lvalue == tree.lvalue && initializer == tree.initializer) {
-          return tree;
-        }
-        return new VariableDeclaration(tree.location, lvalue, initializer);
-      },
-      transformVariableDeclarationList: function(tree) {
-        var declarations = this.transformList(tree.declarations);
-        if (declarations == tree.declarations) {
-          return tree;
-        }
-        return new VariableDeclarationList(tree.location, tree.declarationType, declarations);
-      },
-      transformVariableStatement: function(tree) {
-        var declarations = this.transformAny(tree.declarations);
-        if (declarations == tree.declarations) {
-          return tree;
-        }
-        return new VariableStatement(tree.location, declarations);
-      },
-      transformWhileStatement: function(tree) {
-        var condition = this.transformAny(tree.condition);
-        var body = this.transformAny(tree.body);
-        if (condition == tree.condition && body == tree.body) {
-          return tree;
-        }
-        return new WhileStatement(tree.location, condition, body);
-      },
-      transformWithStatement: function(tree) {
-        var expression = this.transformAny(tree.expression);
-        var body = this.transformAny(tree.body);
-        if (expression == tree.expression && body == tree.body) {
-          return tree;
-        }
-        return new WithStatement(tree.location, expression, body);
-      },
-      transformYieldExpression: function(tree) {
-        var expression = this.transformAny(tree.expression);
-        var isYieldFor = tree.isYieldFor;
-        if (expression == tree.expression) {
-          return tree;
-        }
-        return new YieldExpression(tree.location, expression, isYieldFor);
-      }
-    });
-    return $ParseTreeTransformer;
-  }();
-  return Object.preventExtensions(Object.create(null, {ParseTreeTransformer: {
-      get: function() {
-        return ParseTreeTransformer;
-      },
-      enumerable: true
-    }}));
-}).call(this);
 var $__src_codegeneration_ParseTreeFactory_js = (function() {
   "use strict";
   var IdentifierToken = $__src_syntax_IdentifierToken_js.IdentifierToken;
@@ -10370,7 +10474,7 @@ var $__src_codegeneration_ParseTreeFactory_js = (function() {
   var $__9 = $__src_syntax_PredefinedName_js, BIND = $__9.BIND, CALL = $__9.CALL, CREATE = $__9.CREATE, DEFINE_PROPERTY = $__9.DEFINE_PROPERTY, FREEZE = $__9.FREEZE, OBJECT = $__9.OBJECT, PREVENT_EXTENSIONS = $__9.PREVENT_EXTENSIONS, STATE = $__9.STATE, UNDEFINED = $__9.UNDEFINED, getParameterName = $__9.getParameterName;
   var Token = $__src_syntax_Token_js.Token;
   var $__9 = $__src_syntax_TokenType_js, EQUAL = $__9.EQUAL, FALSE = $__9.FALSE, NULL = $__9.NULL, NUMBER = $__9.NUMBER, STRING = $__9.STRING, TRUE = $__9.TRUE, VOID = $__9.VOID;
-  var $__9 = $__src_syntax_trees_ParseTrees_js, ArgumentList = $__9.ArgumentList, ArrayComprehension = $__9.ArrayComprehension, ArrayLiteralExpression = $__9.ArrayLiteralExpression, ArrayPattern = $__9.ArrayPattern, ArrowFunctionExpression = $__9.ArrowFunctionExpression, AtNameDeclaration = $__9.AtNameDeclaration, AtNameExpression = $__9.AtNameExpression, AwaitStatement = $__9.AwaitStatement, BinaryOperator = $__9.BinaryOperator, BindingElement = $__9.BindingElement, BindingIdentifier = $__9.BindingIdentifier, Block = $__9.Block, BreakStatement = $__9.BreakStatement, CallExpression = $__9.CallExpression, CascadeExpression = $__9.CascadeExpression, CaseClause = $__9.CaseClause, Catch = $__9.Catch, ClassDeclaration = $__9.ClassDeclaration, ClassExpression = $__9.ClassExpression, CommaExpression = $__9.CommaExpression, ComprehensionFor = $__9.ComprehensionFor, ConditionalExpression = $__9.ConditionalExpression, ContinueStatement = $__9.ContinueStatement, DebuggerStatement = $__9.DebuggerStatement, DefaultClause = $__9.DefaultClause, DoWhileStatement = $__9.DoWhileStatement, EmptyStatement = $__9.EmptyStatement, ExportDeclaration = $__9.ExportDeclaration, ExportMapping = $__9.ExportMapping, ExportMappingList = $__9.ExportMappingList, ExportSpecifier = $__9.ExportSpecifier, ExportSpecifierSet = $__9.ExportSpecifierSet, ExportStar = $__9.ExportStar, ExpressionStatement = $__9.ExpressionStatement, Finally = $__9.Finally, ForInStatement = $__9.ForInStatement, ForOfStatement = $__9.ForOfStatement, ForStatement = $__9.ForStatement, FormalParameterList = $__9.FormalParameterList, FunctionDeclaration = $__9.FunctionDeclaration, FunctionExpression = $__9.FunctionExpression, GeneratorComprehension = $__9.GeneratorComprehension, GetAccessor = $__9.GetAccessor, IdentifierExpression = $__9.IdentifierExpression, IfStatement = $__9.IfStatement, ImportBinding = $__9.ImportBinding, ImportDeclaration = $__9.ImportDeclaration, ImportSpecifier = $__9.ImportSpecifier, ImportSpecifierSet = $__9.ImportSpecifierSet, LabelledStatement = $__9.LabelledStatement, LiteralExpression = $__9.LiteralExpression, MemberExpression = $__9.MemberExpression, MemberLookupExpression = $__9.MemberLookupExpression, MissingPrimaryExpression = $__9.MissingPrimaryExpression, ModuleDeclaration = $__9.ModuleDeclaration, ModuleDefinition = $__9.ModuleDefinition, ModuleExpression = $__9.ModuleExpression, ModuleRequire = $__9.ModuleRequire, ModuleSpecifier = $__9.ModuleSpecifier, NameStatement = $__9.NameStatement, NewExpression = $__9.NewExpression, ObjectLiteralExpression = $__9.ObjectLiteralExpression, ObjectPattern = $__9.ObjectPattern, ObjectPatternField = $__9.ObjectPatternField, ParenExpression = $__9.ParenExpression, PostfixExpression = $__9.PostfixExpression, Program = $__9.Program, PropertyMethodAssignment = $__9.PropertyMethodAssignment, PropertyNameAssignment = $__9.PropertyNameAssignment, PropertyNameShorthand = $__9.PropertyNameShorthand, QuasiLiteralExpression = $__9.QuasiLiteralExpression, QuasiLiteralPortion = $__9.QuasiLiteralPortion, QuasiSubstitution = $__9.QuasiSubstitution, RestParameter = $__9.RestParameter, ReturnStatement = $__9.ReturnStatement, SetAccessor = $__9.SetAccessor, SpreadExpression = $__9.SpreadExpression, SpreadPatternElement = $__9.SpreadPatternElement, SuperExpression = $__9.SuperExpression, SwitchStatement = $__9.SwitchStatement, ThisExpression = $__9.ThisExpression, ThrowStatement = $__9.ThrowStatement, TryStatement = $__9.TryStatement, UnaryExpression = $__9.UnaryExpression, VariableDeclaration = $__9.VariableDeclaration, VariableDeclarationList = $__9.VariableDeclarationList, VariableStatement = $__9.VariableStatement, WhileStatement = $__9.WhileStatement, WithStatement = $__9.WithStatement, YieldExpression = $__9.YieldExpression;
+  var $__9 = $__src_syntax_trees_ParseTrees_js, ArgumentList = $__9.ArgumentList, ArrayComprehension = $__9.ArrayComprehension, ArrayLiteralExpression = $__9.ArrayLiteralExpression, ArrayPattern = $__9.ArrayPattern, ArrowFunctionExpression = $__9.ArrowFunctionExpression, AtNameDeclaration = $__9.AtNameDeclaration, AtNameExpression = $__9.AtNameExpression, AwaitStatement = $__9.AwaitStatement, BinaryOperator = $__9.BinaryOperator, BindingElement = $__9.BindingElement, BindingIdentifier = $__9.BindingIdentifier, Block = $__9.Block, BreakStatement = $__9.BreakStatement, CallExpression = $__9.CallExpression, CascadeExpression = $__9.CascadeExpression, CaseClause = $__9.CaseClause, Catch = $__9.Catch, ClassDeclaration = $__9.ClassDeclaration, ClassExpression = $__9.ClassExpression, CommaExpression = $__9.CommaExpression, ComprehensionFor = $__9.ComprehensionFor, ConditionalExpression = $__9.ConditionalExpression, ContinueStatement = $__9.ContinueStatement, CoverFormals = $__9.CoverFormals, DebuggerStatement = $__9.DebuggerStatement, DefaultClause = $__9.DefaultClause, DoWhileStatement = $__9.DoWhileStatement, EmptyStatement = $__9.EmptyStatement, ExportDeclaration = $__9.ExportDeclaration, ExportMapping = $__9.ExportMapping, ExportMappingList = $__9.ExportMappingList, ExportSpecifier = $__9.ExportSpecifier, ExportSpecifierSet = $__9.ExportSpecifierSet, ExportStar = $__9.ExportStar, ExpressionStatement = $__9.ExpressionStatement, Finally = $__9.Finally, ForInStatement = $__9.ForInStatement, ForOfStatement = $__9.ForOfStatement, ForStatement = $__9.ForStatement, FormalParameterList = $__9.FormalParameterList, FunctionDeclaration = $__9.FunctionDeclaration, FunctionExpression = $__9.FunctionExpression, GeneratorComprehension = $__9.GeneratorComprehension, GetAccessor = $__9.GetAccessor, IdentifierExpression = $__9.IdentifierExpression, IfStatement = $__9.IfStatement, ImportBinding = $__9.ImportBinding, ImportDeclaration = $__9.ImportDeclaration, ImportSpecifier = $__9.ImportSpecifier, ImportSpecifierSet = $__9.ImportSpecifierSet, LabelledStatement = $__9.LabelledStatement, LiteralExpression = $__9.LiteralExpression, MemberExpression = $__9.MemberExpression, MemberLookupExpression = $__9.MemberLookupExpression, MissingPrimaryExpression = $__9.MissingPrimaryExpression, ModuleDeclaration = $__9.ModuleDeclaration, ModuleDefinition = $__9.ModuleDefinition, ModuleExpression = $__9.ModuleExpression, ModuleRequire = $__9.ModuleRequire, ModuleSpecifier = $__9.ModuleSpecifier, NameStatement = $__9.NameStatement, NewExpression = $__9.NewExpression, ObjectLiteralExpression = $__9.ObjectLiteralExpression, ObjectPattern = $__9.ObjectPattern, ObjectPatternField = $__9.ObjectPatternField, ParenExpression = $__9.ParenExpression, PostfixExpression = $__9.PostfixExpression, Program = $__9.Program, PropertyMethodAssignment = $__9.PropertyMethodAssignment, PropertyNameAssignment = $__9.PropertyNameAssignment, PropertyNameShorthand = $__9.PropertyNameShorthand, QuasiLiteralExpression = $__9.QuasiLiteralExpression, QuasiLiteralPortion = $__9.QuasiLiteralPortion, QuasiSubstitution = $__9.QuasiSubstitution, RestParameter = $__9.RestParameter, ReturnStatement = $__9.ReturnStatement, SetAccessor = $__9.SetAccessor, SpreadExpression = $__9.SpreadExpression, SpreadPatternElement = $__9.SpreadPatternElement, SuperExpression = $__9.SuperExpression, SwitchStatement = $__9.SwitchStatement, ThisExpression = $__9.ThisExpression, ThrowStatement = $__9.ThrowStatement, TryStatement = $__9.TryStatement, UnaryExpression = $__9.UnaryExpression, VariableDeclaration = $__9.VariableDeclaration, VariableDeclarationList = $__9.VariableDeclarationList, VariableStatement = $__9.VariableStatement, WhileStatement = $__9.WhileStatement, WithStatement = $__9.WithStatement, YieldExpression = $__9.YieldExpression;
   var slice = Array.prototype.slice.call.bind(Array.prototype.slice);
   var map = Array.prototype.map.call.bind(Array.prototype.map);
   function createOperatorToken(operator) {
@@ -16457,7 +16561,7 @@ var $__src_syntax_ParseTreeValidator_js = (function() {
   var $__9 = $__src_syntax_PredefinedName_js, IS = $__9.IS, ISNT = $__9.ISNT;
   var TreeWriter = $__src_outputgeneration_TreeWriter_js.TreeWriter;
   var $__9 = $__src_syntax_TokenType_js, AMPERSAND = $__9.AMPERSAND, AMPERSAND_EQUAL = $__9.AMPERSAND_EQUAL, AND = $__9.AND, ARROW = $__9.ARROW, AT_NAME = $__9.AT_NAME, AWAIT = $__9.AWAIT, BACK_QUOTE = $__9.BACK_QUOTE, BANG = $__9.BANG, BAR = $__9.BAR, BAR_EQUAL = $__9.BAR_EQUAL, BREAK = $__9.BREAK, CARET = $__9.CARET, CARET_EQUAL = $__9.CARET_EQUAL, CASE = $__9.CASE, CATCH = $__9.CATCH, CLASS = $__9.CLASS, CLOSE_ANGLE = $__9.CLOSE_ANGLE, CLOSE_CURLY = $__9.CLOSE_CURLY, CLOSE_PAREN = $__9.CLOSE_PAREN, CLOSE_SQUARE = $__9.CLOSE_SQUARE, COLON = $__9.COLON, COMMA = $__9.COMMA, CONST = $__9.CONST, CONTINUE = $__9.CONTINUE, DEBUGGER = $__9.DEBUGGER, DEFAULT = $__9.DEFAULT, DELETE = $__9.DELETE, DO = $__9.DO, DOLLAR = $__9.DOLLAR, DOT_DOT_DOT = $__9.DOT_DOT_DOT, ELSE = $__9.ELSE, END_OF_FILE = $__9.END_OF_FILE, ENUM = $__9.ENUM, EQUAL = $__9.EQUAL, EQUAL_EQUAL = $__9.EQUAL_EQUAL, EQUAL_EQUAL_EQUAL = $__9.EQUAL_EQUAL_EQUAL, ERROR = $__9.ERROR, EXPORT = $__9.EXPORT, EXTENDS = $__9.EXTENDS, FALSE = $__9.FALSE, FINALLY = $__9.FINALLY, FOR = $__9.FOR, FUNCTION = $__9.FUNCTION, GREATER_EQUAL = $__9.GREATER_EQUAL, IDENTIFIER = $__9.IDENTIFIER, IF = $__9.IF, IMPLEMENTS = $__9.IMPLEMENTS, IMPORT = $__9.IMPORT, IN = $__9.IN, INSTANCEOF = $__9.INSTANCEOF, INTERFACE = $__9.INTERFACE, LEFT_SHIFT = $__9.LEFT_SHIFT, LEFT_SHIFT_EQUAL = $__9.LEFT_SHIFT_EQUAL, LESS_EQUAL = $__9.LESS_EQUAL, LET = $__9.LET, MINUS = $__9.MINUS, MINUS_EQUAL = $__9.MINUS_EQUAL, MINUS_MINUS = $__9.MINUS_MINUS, NEW = $__9.NEW, NOT_EQUAL = $__9.NOT_EQUAL, NOT_EQUAL_EQUAL = $__9.NOT_EQUAL_EQUAL, NULL = $__9.NULL, NUMBER = $__9.NUMBER, OPEN_ANGLE = $__9.OPEN_ANGLE, OPEN_CURLY = $__9.OPEN_CURLY, OPEN_PAREN = $__9.OPEN_PAREN, OPEN_SQUARE = $__9.OPEN_SQUARE, OR = $__9.OR, PACKAGE = $__9.PACKAGE, PERCENT = $__9.PERCENT, PERCENT_EQUAL = $__9.PERCENT_EQUAL, PERIOD = $__9.PERIOD, PERIOD_OPEN_CURLY = $__9.PERIOD_OPEN_CURLY, PLUS = $__9.PLUS, PLUS_EQUAL = $__9.PLUS_EQUAL, PLUS_PLUS = $__9.PLUS_PLUS, PRIVATE = $__9.PRIVATE, PROTECTED = $__9.PROTECTED, PUBLIC = $__9.PUBLIC, QUASI_LITERAL_PORTION = $__9.QUASI_LITERAL_PORTION, QUESTION = $__9.QUESTION, REGULAR_EXPRESSION = $__9.REGULAR_EXPRESSION, RETURN = $__9.RETURN, RIGHT_SHIFT = $__9.RIGHT_SHIFT, RIGHT_SHIFT_EQUAL = $__9.RIGHT_SHIFT_EQUAL, SEMI_COLON = $__9.SEMI_COLON, SLASH = $__9.SLASH, SLASH_EQUAL = $__9.SLASH_EQUAL, STAR = $__9.STAR, STAR_EQUAL = $__9.STAR_EQUAL, STATIC = $__9.STATIC, STRING = $__9.STRING, SUPER = $__9.SUPER, SWITCH = $__9.SWITCH, THIS = $__9.THIS, THROW = $__9.THROW, TILDE = $__9.TILDE, TRUE = $__9.TRUE, TRY = $__9.TRY, TYPEOF = $__9.TYPEOF, UNSIGNED_RIGHT_SHIFT = $__9.UNSIGNED_RIGHT_SHIFT, UNSIGNED_RIGHT_SHIFT_EQUAL = $__9.UNSIGNED_RIGHT_SHIFT_EQUAL, VAR = $__9.VAR, VOID = $__9.VOID, WHILE = $__9.WHILE, WITH = $__9.WITH, YIELD = $__9.YIELD;
-  var $__9 = $__src_syntax_trees_ParseTreeType_js, ARGUMENT_LIST = $__9.ARGUMENT_LIST, ARRAY_COMPREHENSION = $__9.ARRAY_COMPREHENSION, ARRAY_LITERAL_EXPRESSION = $__9.ARRAY_LITERAL_EXPRESSION, ARRAY_PATTERN = $__9.ARRAY_PATTERN, ARROW_FUNCTION_EXPRESSION = $__9.ARROW_FUNCTION_EXPRESSION, AT_NAME_DECLARATION = $__9.AT_NAME_DECLARATION, AT_NAME_EXPRESSION = $__9.AT_NAME_EXPRESSION, AWAIT_STATEMENT = $__9.AWAIT_STATEMENT, BINARY_OPERATOR = $__9.BINARY_OPERATOR, BINDING_ELEMENT = $__9.BINDING_ELEMENT, BINDING_IDENTIFIER = $__9.BINDING_IDENTIFIER, BLOCK = $__9.BLOCK, BREAK_STATEMENT = $__9.BREAK_STATEMENT, CALL_EXPRESSION = $__9.CALL_EXPRESSION, CASCADE_EXPRESSION = $__9.CASCADE_EXPRESSION, CASE_CLAUSE = $__9.CASE_CLAUSE, CATCH = $__9.CATCH, CLASS_DECLARATION = $__9.CLASS_DECLARATION, CLASS_EXPRESSION = $__9.CLASS_EXPRESSION, COMMA_EXPRESSION = $__9.COMMA_EXPRESSION, COMPREHENSION_FOR = $__9.COMPREHENSION_FOR, CONDITIONAL_EXPRESSION = $__9.CONDITIONAL_EXPRESSION, CONTINUE_STATEMENT = $__9.CONTINUE_STATEMENT, DEBUGGER_STATEMENT = $__9.DEBUGGER_STATEMENT, DEFAULT_CLAUSE = $__9.DEFAULT_CLAUSE, DO_WHILE_STATEMENT = $__9.DO_WHILE_STATEMENT, EMPTY_STATEMENT = $__9.EMPTY_STATEMENT, EXPORT_DECLARATION = $__9.EXPORT_DECLARATION, EXPORT_MAPPING = $__9.EXPORT_MAPPING, EXPORT_MAPPING_LIST = $__9.EXPORT_MAPPING_LIST, EXPORT_SPECIFIER = $__9.EXPORT_SPECIFIER, EXPORT_SPECIFIER_SET = $__9.EXPORT_SPECIFIER_SET, EXPORT_STAR = $__9.EXPORT_STAR, EXPRESSION_STATEMENT = $__9.EXPRESSION_STATEMENT, FINALLY = $__9.FINALLY, FOR_IN_STATEMENT = $__9.FOR_IN_STATEMENT, FOR_OF_STATEMENT = $__9.FOR_OF_STATEMENT, FOR_STATEMENT = $__9.FOR_STATEMENT, FORMAL_PARAMETER_LIST = $__9.FORMAL_PARAMETER_LIST, FUNCTION_DECLARATION = $__9.FUNCTION_DECLARATION, FUNCTION_EXPRESSION = $__9.FUNCTION_EXPRESSION, GENERATOR_COMPREHENSION = $__9.GENERATOR_COMPREHENSION, GET_ACCESSOR = $__9.GET_ACCESSOR, IDENTIFIER_EXPRESSION = $__9.IDENTIFIER_EXPRESSION, IF_STATEMENT = $__9.IF_STATEMENT, IMPORT_BINDING = $__9.IMPORT_BINDING, IMPORT_DECLARATION = $__9.IMPORT_DECLARATION, IMPORT_SPECIFIER = $__9.IMPORT_SPECIFIER, IMPORT_SPECIFIER_SET = $__9.IMPORT_SPECIFIER_SET, LABELLED_STATEMENT = $__9.LABELLED_STATEMENT, LITERAL_EXPRESSION = $__9.LITERAL_EXPRESSION, MEMBER_EXPRESSION = $__9.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__9.MEMBER_LOOKUP_EXPRESSION, MISSING_PRIMARY_EXPRESSION = $__9.MISSING_PRIMARY_EXPRESSION, MODULE_DECLARATION = $__9.MODULE_DECLARATION, MODULE_DEFINITION = $__9.MODULE_DEFINITION, MODULE_EXPRESSION = $__9.MODULE_EXPRESSION, MODULE_REQUIRE = $__9.MODULE_REQUIRE, MODULE_SPECIFIER = $__9.MODULE_SPECIFIER, NAME_STATEMENT = $__9.NAME_STATEMENT, NEW_EXPRESSION = $__9.NEW_EXPRESSION, OBJECT_LITERAL_EXPRESSION = $__9.OBJECT_LITERAL_EXPRESSION, OBJECT_PATTERN = $__9.OBJECT_PATTERN, OBJECT_PATTERN_FIELD = $__9.OBJECT_PATTERN_FIELD, PAREN_EXPRESSION = $__9.PAREN_EXPRESSION, POSTFIX_EXPRESSION = $__9.POSTFIX_EXPRESSION, PROGRAM = $__9.PROGRAM, PROPERTY_METHOD_ASSIGNMENT = $__9.PROPERTY_METHOD_ASSIGNMENT, PROPERTY_NAME_ASSIGNMENT = $__9.PROPERTY_NAME_ASSIGNMENT, PROPERTY_NAME_SHORTHAND = $__9.PROPERTY_NAME_SHORTHAND, QUASI_LITERAL_EXPRESSION = $__9.QUASI_LITERAL_EXPRESSION, QUASI_LITERAL_PORTION = $__9.QUASI_LITERAL_PORTION, QUASI_SUBSTITUTION = $__9.QUASI_SUBSTITUTION, REST_PARAMETER = $__9.REST_PARAMETER, RETURN_STATEMENT = $__9.RETURN_STATEMENT, SET_ACCESSOR = $__9.SET_ACCESSOR, SPREAD_EXPRESSION = $__9.SPREAD_EXPRESSION, SPREAD_PATTERN_ELEMENT = $__9.SPREAD_PATTERN_ELEMENT, STATE_MACHINE = $__9.STATE_MACHINE, SUPER_EXPRESSION = $__9.SUPER_EXPRESSION, SWITCH_STATEMENT = $__9.SWITCH_STATEMENT, THIS_EXPRESSION = $__9.THIS_EXPRESSION, THROW_STATEMENT = $__9.THROW_STATEMENT, TRY_STATEMENT = $__9.TRY_STATEMENT, UNARY_EXPRESSION = $__9.UNARY_EXPRESSION, VARIABLE_DECLARATION = $__9.VARIABLE_DECLARATION, VARIABLE_DECLARATION_LIST = $__9.VARIABLE_DECLARATION_LIST, VARIABLE_STATEMENT = $__9.VARIABLE_STATEMENT, WHILE_STATEMENT = $__9.WHILE_STATEMENT, WITH_STATEMENT = $__9.WITH_STATEMENT, YIELD_EXPRESSION = $__9.YIELD_EXPRESSION;
+  var $__9 = $__src_syntax_trees_ParseTreeType_js, ARGUMENT_LIST = $__9.ARGUMENT_LIST, ARRAY_COMPREHENSION = $__9.ARRAY_COMPREHENSION, ARRAY_LITERAL_EXPRESSION = $__9.ARRAY_LITERAL_EXPRESSION, ARRAY_PATTERN = $__9.ARRAY_PATTERN, ARROW_FUNCTION_EXPRESSION = $__9.ARROW_FUNCTION_EXPRESSION, AT_NAME_DECLARATION = $__9.AT_NAME_DECLARATION, AT_NAME_EXPRESSION = $__9.AT_NAME_EXPRESSION, AWAIT_STATEMENT = $__9.AWAIT_STATEMENT, BINARY_OPERATOR = $__9.BINARY_OPERATOR, BINDING_ELEMENT = $__9.BINDING_ELEMENT, BINDING_IDENTIFIER = $__9.BINDING_IDENTIFIER, BLOCK = $__9.BLOCK, BREAK_STATEMENT = $__9.BREAK_STATEMENT, CALL_EXPRESSION = $__9.CALL_EXPRESSION, CASCADE_EXPRESSION = $__9.CASCADE_EXPRESSION, CASE_CLAUSE = $__9.CASE_CLAUSE, CATCH = $__9.CATCH, CLASS_DECLARATION = $__9.CLASS_DECLARATION, CLASS_EXPRESSION = $__9.CLASS_EXPRESSION, COMMA_EXPRESSION = $__9.COMMA_EXPRESSION, COMPREHENSION_FOR = $__9.COMPREHENSION_FOR, CONDITIONAL_EXPRESSION = $__9.CONDITIONAL_EXPRESSION, CONTINUE_STATEMENT = $__9.CONTINUE_STATEMENT, COVER_FORMALS = $__9.COVER_FORMALS, DEBUGGER_STATEMENT = $__9.DEBUGGER_STATEMENT, DEFAULT_CLAUSE = $__9.DEFAULT_CLAUSE, DO_WHILE_STATEMENT = $__9.DO_WHILE_STATEMENT, EMPTY_STATEMENT = $__9.EMPTY_STATEMENT, EXPORT_DECLARATION = $__9.EXPORT_DECLARATION, EXPORT_MAPPING = $__9.EXPORT_MAPPING, EXPORT_MAPPING_LIST = $__9.EXPORT_MAPPING_LIST, EXPORT_SPECIFIER = $__9.EXPORT_SPECIFIER, EXPORT_SPECIFIER_SET = $__9.EXPORT_SPECIFIER_SET, EXPORT_STAR = $__9.EXPORT_STAR, EXPRESSION_STATEMENT = $__9.EXPRESSION_STATEMENT, FINALLY = $__9.FINALLY, FOR_IN_STATEMENT = $__9.FOR_IN_STATEMENT, FOR_OF_STATEMENT = $__9.FOR_OF_STATEMENT, FOR_STATEMENT = $__9.FOR_STATEMENT, FORMAL_PARAMETER_LIST = $__9.FORMAL_PARAMETER_LIST, FUNCTION_DECLARATION = $__9.FUNCTION_DECLARATION, FUNCTION_EXPRESSION = $__9.FUNCTION_EXPRESSION, GENERATOR_COMPREHENSION = $__9.GENERATOR_COMPREHENSION, GET_ACCESSOR = $__9.GET_ACCESSOR, IDENTIFIER_EXPRESSION = $__9.IDENTIFIER_EXPRESSION, IF_STATEMENT = $__9.IF_STATEMENT, IMPORT_BINDING = $__9.IMPORT_BINDING, IMPORT_DECLARATION = $__9.IMPORT_DECLARATION, IMPORT_SPECIFIER = $__9.IMPORT_SPECIFIER, IMPORT_SPECIFIER_SET = $__9.IMPORT_SPECIFIER_SET, LABELLED_STATEMENT = $__9.LABELLED_STATEMENT, LITERAL_EXPRESSION = $__9.LITERAL_EXPRESSION, MEMBER_EXPRESSION = $__9.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__9.MEMBER_LOOKUP_EXPRESSION, MISSING_PRIMARY_EXPRESSION = $__9.MISSING_PRIMARY_EXPRESSION, MODULE_DECLARATION = $__9.MODULE_DECLARATION, MODULE_DEFINITION = $__9.MODULE_DEFINITION, MODULE_EXPRESSION = $__9.MODULE_EXPRESSION, MODULE_REQUIRE = $__9.MODULE_REQUIRE, MODULE_SPECIFIER = $__9.MODULE_SPECIFIER, NAME_STATEMENT = $__9.NAME_STATEMENT, NEW_EXPRESSION = $__9.NEW_EXPRESSION, OBJECT_LITERAL_EXPRESSION = $__9.OBJECT_LITERAL_EXPRESSION, OBJECT_PATTERN = $__9.OBJECT_PATTERN, OBJECT_PATTERN_FIELD = $__9.OBJECT_PATTERN_FIELD, PAREN_EXPRESSION = $__9.PAREN_EXPRESSION, POSTFIX_EXPRESSION = $__9.POSTFIX_EXPRESSION, PROGRAM = $__9.PROGRAM, PROPERTY_METHOD_ASSIGNMENT = $__9.PROPERTY_METHOD_ASSIGNMENT, PROPERTY_NAME_ASSIGNMENT = $__9.PROPERTY_NAME_ASSIGNMENT, PROPERTY_NAME_SHORTHAND = $__9.PROPERTY_NAME_SHORTHAND, QUASI_LITERAL_EXPRESSION = $__9.QUASI_LITERAL_EXPRESSION, QUASI_LITERAL_PORTION = $__9.QUASI_LITERAL_PORTION, QUASI_SUBSTITUTION = $__9.QUASI_SUBSTITUTION, REST_PARAMETER = $__9.REST_PARAMETER, RETURN_STATEMENT = $__9.RETURN_STATEMENT, SET_ACCESSOR = $__9.SET_ACCESSOR, SPREAD_EXPRESSION = $__9.SPREAD_EXPRESSION, SPREAD_PATTERN_ELEMENT = $__9.SPREAD_PATTERN_ELEMENT, STATE_MACHINE = $__9.STATE_MACHINE, SUPER_EXPRESSION = $__9.SUPER_EXPRESSION, SWITCH_STATEMENT = $__9.SWITCH_STATEMENT, THIS_EXPRESSION = $__9.THIS_EXPRESSION, THROW_STATEMENT = $__9.THROW_STATEMENT, TRY_STATEMENT = $__9.TRY_STATEMENT, UNARY_EXPRESSION = $__9.UNARY_EXPRESSION, VARIABLE_DECLARATION = $__9.VARIABLE_DECLARATION, VARIABLE_DECLARATION_LIST = $__9.VARIABLE_DECLARATION_LIST, VARIABLE_STATEMENT = $__9.VARIABLE_STATEMENT, WHILE_STATEMENT = $__9.WHILE_STATEMENT, WITH_STATEMENT = $__9.WITH_STATEMENT, YIELD_EXPRESSION = $__9.YIELD_EXPRESSION;
   var ValidationError = function($__super) {
     var $ValidationError = ($__createClass)({constructor: function(tree, message) {
         this.tree = tree;
@@ -18727,6 +18831,12 @@ var traceur = (function() {
         ContinueStatement: {
           get: function() {
             return $__src_syntax_trees_ParseTrees_js.ContinueStatement;
+          },
+          enumerable: true
+        },
+        CoverFormals: {
+          get: function() {
+            return $__src_syntax_trees_ParseTrees_js.CoverFormals;
           },
           enumerable: true
         },

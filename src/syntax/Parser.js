@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {
+  CoverFormalsTransformer,
+  CoverFormalsTransformerError
+} from '../codegeneration/CoverFormalsTransformer.js';
 import IdentifierToken from 'IdentifierToken.js';
 import MutedErrorReporter from '../util/MutedErrorReporter.js';
 import {
@@ -19,6 +23,8 @@ import {
   BINARY_OPERATOR,
   CALL_EXPRESSION,
   CASCADE_EXPRESSION,
+  COMMA_EXPRESSION,
+  FORMAL_PARAMETER_LIST,
   IDENTIFIER_EXPRESSION,
   MEMBER_EXPRESSION,
   MEMBER_LOOKUP_EXPRESSION,
@@ -2055,17 +2061,17 @@ export class Parser {
   parseExpressionForCoverFormals_(opt_expressionIn) {
     var expressionIn = opt_expressionIn || Expression.IN;
     var start = this.getTreeStartLocation_();
-    var result = [this.parseAssignmentExpression(expressionIn)];
+    var exprs = [this.parseAssignmentExpression(expressionIn)];
     if (this.peek_(COMMA)) {
       while (this.eatIf_(COMMA)) {
         if (this.peekRest_(this.peekType_())) {
-          result.push(this.parseRestParameter_());
+          exprs.push(this.parseRestParameter_());
           break;
         }
-        result.push(this.parseAssignmentExpression(expressionIn));
+        exprs.push(this.parseAssignmentExpression(expressionIn));
       }
     }
-    return result;
+    return new CoverFormals(this.getTreeLocation_(start), exprs);
   }
 
   // 11.13 Assignment expressions
@@ -2803,42 +2809,38 @@ export class Parser {
 
     this.eat_(OPEN_PAREN);
 
+    var coverFormals = this.parseCoverFormals_();
+    var expressions = coverFormals.expressions;
+
+    // ( expr for
+    if (expressions.length === 1 &&
+        options.generatorComprehension &&
+        this.peek_(FOR)) {
+      return this.parseGeneratorComprehension_(start, expressions[0]);
+    }
+
+    this.eat_(CLOSE_PAREN);
+
     // ()
-    if (this.eatIf_(CLOSE_PAREN)) {
-      var paramStart = this.getTreeStartLocation_();
-      formals = new FormalParameterList(this.getTreeLocation_(paramStart), []);
+    // ( ... ident )
+    var mustBeArrow = expressions.length === 0 ||
+        expressions[expressions.length - 1].type === REST_PARAMETER;
 
-    } else {
-      var coverFormals = this.parseCoverFormals_();
-
-      // ( ... ident )
-      var lastFormal = coverFormals[coverFormals.length - 1];
-      if (lastFormal.type === REST_PARAMETER) {
-        this.eat_(CLOSE_PAREN);
-        formals = this.reparseAsFormalsList_(coverFormals);
-        if (!formals) {
-          return this.parseMissingPrimaryExpression_(
-              'Unexpected token \'...\'');
-        }
-
-      // ( expr for
-      } else if (coverFormals.length === 1 && options.generatorComprehension &&
-                 this.peek_(FOR)) {
-        return this.parseGeneratorComprehension_(start, coverFormals[0]);
-
-      // ( ident, ident )
-      } else {
-        this.eat_(CLOSE_PAREN);
-        if (this.peek_(ARROW))
-          formals = this.reparseAsFormalsList_(coverFormals);
+    if (mustBeArrow || this.peekArrow_(this.peekType_())) {
+      formals = this.transformCoverFormals_(coverFormals);
+      if (!formals && mustBeArrow) {
+        return this.parseMissingPrimaryExpression_(
+            'Unexpected token \'...\'');
       }
     }
 
     if (!formals) {
-      var commaExpression = new CommaExpression(coverFormals[0].location,
-                                                   coverFormals);
-      return new ParenExpression(this.getTreeLocation_(start),
-                                 commaExpression);
+      var expression;
+      if (expressions.length > 1)
+        expression = new CommaExpression(coverFormals.location, expressions);
+      else
+        expression = expressions[0];
+      return new ParenExpression(this.getTreeLocation_(start), expression);
     }
 
     this.eat_(ARROW);
@@ -2857,9 +2859,16 @@ export class Parser {
     //
     //  The surrounding parens are handled by the caller.
 
+    var start = this.getTreeStartLocation_();
+
+    if (this.peek_(CLOSE_PAREN))
+      return new CoverFormals(this.getTreeLocation_(start), []);
+
     // ( ... Identifier )
-    if (this.peekRest_(this.peekType_()))
-      return [this.parseRestParameter_()];
+    if (this.peekRest_(this.peekType_())) {
+      var parameter = this.parseRestParameter_();
+      return new CoverFormals(this.getTreeLocation_(start), [parameter]);
+    }
 
     return this.parseExpressionForCoverFormals_();
   }
@@ -2872,24 +2881,16 @@ export class Parser {
    * @return {Array.<ParseTree>} An aray with the items to use in a
    *     FormalsList or {@code null} if there was an error.
    */
-  reparseAsFormalsList_(coverFormals) {
-    if (coverFormals.length === 0) {
-      var start = this.getTreeStartLocation_();
-      return new FormalParameterList(this.getTreeLocation_(start), []);
+  transformCoverFormals_(coverFormals) {
+    var transformer = new CoverFormalsTransformer();
+    var formals = null;
+    try {
+      formals = transformer.transformAny(coverFormals);
+    } catch (ex) {
+      if (!(ex instanceof CoverFormalsTransformerError))
+        throw ex;
     }
 
-    var errorReporter = new MutedErrorReporter();
-    var p = new Parser(errorReporter,
-                       this.scanner_.file,
-                       coverFormals[0].location.start.offset);
-    var formals = p.parseFormalParameterList_();
-
-    // We need to consume the whole coverFormals.
-    if (errorReporter.hadError() || !formals ||
-        formals.location.end.offset !==
-          coverFormals[coverFormals.length - 1].location.end.offset) {
-      return null;
-    }
     return formals;
   }
 

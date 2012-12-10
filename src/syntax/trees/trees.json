@@ -242,6 +242,14 @@
       "IdentifierToken"
     ]
   },
+  "CoverFormals": {
+    "location": [
+      "SourceRange"
+    ],
+    "expressions": [
+      "Array.<ParseTree>"
+    ]
+  },
   "DebuggerStatement": {
     "location": [
       "SourceRange"
