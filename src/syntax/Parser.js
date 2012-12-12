@@ -13,6 +13,10 @@
 // limitations under the License.
 
 import {
+  AssignmentPatternTransformer,
+  AssignmentPatternTransformerError
+} from '../codegeneration/AssignmentPatternTransformer.js';
+import {
   CoverFormalsTransformer,
   CoverFormalsTransformerError
 } from '../codegeneration/CoverFormalsTransformer.js';
@@ -2149,12 +2153,15 @@ export class Parser {
     switch (tree.type) {
       case ARRAY_LITERAL_EXPRESSION:
       case OBJECT_LITERAL_EXPRESSION:
-        var errorReporter = new MutedErrorReporter();
-        var p = new Parser(errorReporter,
-                           this.scanner_.file,
-                           tree.location.start.offset);
-        var transformedTree = p.parseAssignmentPattern_();
-        if (!errorReporter.hadError())
+        var transformer = new AssignmentPatternTransformer();
+        var transformedTree;
+        try {
+          transformedTree = transformer.transformAny(tree);
+        } catch (ex) {
+          if (!(ex instanceof AssignmentPatternTransformerError))
+            throw ex;
+        }
+        if (transformedTree)
           return transformedTree;
         break;
 
@@ -2860,12 +2867,12 @@ export class Parser {
     //  The surrounding parens are handled by the caller.
 
     var start = this.getTreeStartLocation_();
-
-    if (this.peek_(CLOSE_PAREN))
+    var type = this.peekType_();
+    if (type === CLOSE_PAREN)
       return new CoverFormals(this.getTreeLocation_(start), []);
 
     // ( ... Identifier )
-    if (this.peekRest_(this.peekType_())) {
+    if (this.peekRest_(type)) {
       var parameter = this.parseRestParameter_();
       return new CoverFormals(this.getTreeLocation_(start), [parameter]);
     }
@@ -3171,112 +3178,6 @@ export class Parser {
       initializer = this.parseInitializer_();
     return new BindingElement(this.getTreeLocation_(start), binding,
                               initializer);
-  }
-
-  /**
-   * AssignmentPattern :
-   *   ObjectAssignmentPattern
-   *   ArrayAssignmentPattern
-   */
-  parseAssignmentPattern_() {
-    if (this.peekObjectPattern_(this.peekType_()))
-      return this.parseObjectAssignmentPattern_();
-    return this.parseArrayAssignmentPattern_();
-  }
-
-  /**
-   * ObjectAssignmentPattern :
-   *   {}
-   *   { AssignmentPropertyList }
-   *   { AssignmentPropertyList , }
-   *
-   * AssignmentPropertyList :
-   *   AssignmentProperty
-   *   AssignmentPropertyList , AssignmentProperty
-   *
-   * AssignmentProperty :
-   *   Identifier
-   *   PropertyName : LeftHandSideExpression
-   */
-  parseObjectAssignmentPattern_() {
-    var start = this.getTreeStartLocation_();
-    this.eat_(OPEN_CURLY);
-    var fields = [];
-    var field;
-    var type;
-    while (this.peekId_(type = this.peekType_()) ||
-           this.peekPropertyName_(type)) {
-      if (this.peek_(COLON, 1)) {
-        var fieldStart = this.getTreeStartLocation_();
-        var name = this.nextToken_();
-        this.eat_(COLON);
-        var left = this.parseLeftHandSideExpression_();
-        left = this.transformLeftHandSideExpression_(left);
-        field = new ObjectPatternField(this.getTreeLocation_(start),
-                                       name, left);
-      } else {
-        field = this.parseIdentifierExpression_();
-      }
-      fields.push(field);
-      if (!this.eatIf_(COMMA))
-        break;
-    }
-    this.eat_(CLOSE_CURLY);
-    return new ObjectPattern(this.getTreeLocation_(start), fields);
-  }
-
-  /**
-   * ArrayAssignmentPattern :
-   *   [ Elisionopt AssignmentRestElementopt ]
-   *   [ AssignmentElementList ]
-   *   [ AssignmentElementList , Elisionopt AssignmentRestElementopt ]
-   *
-   * AssignmentElementList :
-   *   Elisionopt AssignmentElement
-   *   AssignmentElementList , Elisionopt AssignmentElement
-   *
-   * AssignmentElement :
-   *   LeftHandSideExpression
-   *
-   * AssignmentRestElement :
-   *   ... LeftHandSideExpression
-   */
-  parseArrayAssignmentPattern_() {
-    var start = this.getTreeStartLocation_();
-    var elements = [];
-    this.eat_(OPEN_SQUARE);
-    var type;
-    while ((type = this.peekType_()) === COMMA ||
-           this.peekRest_(type) ||
-           this.peekAssignmentExpression_(type)) {
-      this.parseElisionOpt_(elements);
-      if (this.peekRest_(this.peekType_())) {
-        elements.push(this.parseAssignmentRestElement_());
-        break;
-      } else {
-        elements.push(this.parseAssignmentElement_());
-        // Trailing commas are not allowed in patterns.
-        if (this.peek_(COMMA) &&
-            !this.peek_(CLOSE_SQUARE, 1)) {
-          this.nextToken_();
-        }
-      }
-    }
-    this.eat_(CLOSE_SQUARE);
-    return new ArrayPattern(this.getTreeLocation_(start), elements);
-  }
-
-  parseAssignmentRestElement_() {
-    var start = this.getTreeStartLocation_();
-    this.eat_(DOT_DOT_DOT);
-    var left = this.parseLeftHandSideExpression_();
-    left = this.transformLeftHandSideExpression_(left);
-    return new SpreadPatternElement(this.getTreeLocation_(start), left);
-  }
-
-  parseAssignmentElement_() {
-    var tree = this.parseLeftHandSideExpression_();
-    return this.transformLeftHandSideExpression_(tree);
   }
 
   /**

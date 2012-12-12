@@ -120,4 +120,8 @@ export class CoverFormalsTransformer extends ParseTreeTransformer {
       return new SpreadPatternElement(tree.location, bindingIdentifier);
     return new RestParameter(tree.location, bindingIdentifier);
   }
+
+  transformMissingPrimaryExpression(tree) {
+    throw new AssignmentPatternTransformerError();
+  }
 }

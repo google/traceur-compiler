@@ -6615,6 +6615,65 @@ var $__src_codegeneration_ParseTreeTransformer_js = (function() {
       enumerable: true
     }}));
 }).call(this);
+var $__src_codegeneration_AssignmentPatternTransformer_js = (function() {
+  "use strict";
+  var ParseTreeTransformer = $__src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
+  var $__9 = $__src_syntax_trees_ParseTrees_js, ArrayPattern = $__9.ArrayPattern, BindingElement = $__9.BindingElement, IdentifierExpression = $__9.IdentifierExpression, ObjectPattern = $__9.ObjectPattern, ObjectPatternField = $__9.ObjectPatternField, SpreadPatternElement = $__9.SpreadPatternElement;
+  var EQUAL = $__src_syntax_TokenType_js.EQUAL;
+  var AssignmentPatternTransformerError = function($__super) {
+    var $AssignmentPatternTransformerError = ($__createClass)({constructor: function() {
+        traceur.runtime.superCall(this, $AssignmentPatternTransformerError, 'constructor', arguments);
+      }}, $__super, false);
+    return $AssignmentPatternTransformerError;
+  }(Error);
+  var AssignmentPatternTransformer = function($__super) {
+    var $AssignmentPatternTransformer = ($__createClass)({
+      constructor: function() {
+        traceur.runtime.superCall(this, $AssignmentPatternTransformer, 'constructor', arguments);
+      },
+      transformBinaryOperator: function(tree) {
+        if (tree.operator.type !== EQUAL) throw new AssignmentPatternTransformerError();
+        var bindingElement = this.transformAny(tree.left);
+        return new BindingElement(tree.location, bindingElement.binding, tree.right);
+      },
+      transformArrayLiteralExpression: function(tree) {
+        var elements = this.transformList(tree.elements);
+        return new ArrayPattern(tree.location, elements);
+      },
+      transformObjectLiteralExpression: function(tree) {
+        var propertyNameAndValues = this.transformList(tree.propertyNameAndValues);
+        return new ObjectPattern(tree.location, propertyNameAndValues);
+      },
+      transformPropertyNameAssignment: function(tree) {
+        return new ObjectPatternField(tree.location, tree.name, this.transformAny(tree.value));
+      },
+      transformPropertyNameShorthand: function(tree) {
+        return new IdentifierExpression(tree.location, tree.name);
+      },
+      transformSpreadExpression: function(tree) {
+        return new SpreadPatternElement(tree.location, tree.expression);
+      },
+      transformMissingPrimaryExpression: function(tree) {
+        throw new AssignmentPatternTransformerError();
+      }
+    }, $__super, false);
+    return $AssignmentPatternTransformer;
+  }(ParseTreeTransformer);
+  return Object.preventExtensions(Object.create(null, {
+    AssignmentPatternTransformerError: {
+      get: function() {
+        return AssignmentPatternTransformerError;
+      },
+      enumerable: true
+    },
+    AssignmentPatternTransformer: {
+      get: function() {
+        return AssignmentPatternTransformer;
+      },
+      enumerable: true
+    }
+  }));
+}).call(this);
 var $__src_codegeneration_CoverFormalsTransformer_js = (function() {
   "use strict";
   var ParseTreeTransformer = $__src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
@@ -6671,6 +6730,9 @@ var $__src_codegeneration_CoverFormalsTransformer_js = (function() {
         var bindingIdentifier = new BindingIdentifier(tree.expression.location, tree.expression.identifierToken);
         if (this.inArrayPattern_) return new SpreadPatternElement(tree.location, bindingIdentifier);
         return new RestParameter(tree.location, bindingIdentifier);
+      },
+      transformMissingPrimaryExpression: function(tree) {
+        throw new AssignmentPatternTransformerError();
       }
     }, $__super, true);
     return $CoverFormalsTransformer;
@@ -8476,6 +8538,7 @@ var $__src_syntax_Scanner_js = (function() {
 }).call(this);
 var $__src_syntax_Parser_js = (function() {
   "use strict";
+  var $__9 = $__src_codegeneration_AssignmentPatternTransformer_js, AssignmentPatternTransformer = $__9.AssignmentPatternTransformer, AssignmentPatternTransformerError = $__9.AssignmentPatternTransformerError;
   var $__9 = $__src_codegeneration_CoverFormalsTransformer_js, CoverFormalsTransformer = $__9.CoverFormalsTransformer, CoverFormalsTransformerError = $__9.CoverFormalsTransformerError;
   var IdentifierToken = $__src_syntax_IdentifierToken_js.IdentifierToken;
   var MutedErrorReporter = $__src_util_MutedErrorReporter_js.MutedErrorReporter;
@@ -9680,10 +9743,14 @@ var $__src_syntax_Parser_js = (function() {
         switch (tree.type) {
           case ARRAY_LITERAL_EXPRESSION:
           case OBJECT_LITERAL_EXPRESSION:
-            var errorReporter = new MutedErrorReporter();
-            var p = new Parser(errorReporter, this.scanner_.file, tree.location.start.offset);
-            var transformedTree = p.parseAssignmentPattern_();
-            if (!errorReporter.hadError()) return transformedTree;
+            var transformer = new AssignmentPatternTransformer();
+            var transformedTree;
+            try {
+              transformedTree = transformer.transformAny(tree);
+            } catch (ex) {
+              if (!(ex instanceof AssignmentPatternTransformerError)) throw ex;
+            }
+            if (transformedTree) return transformedTree;
             break;
           case PAREN_EXPRESSION:
             var expression = this.transformLeftHandSideExpression_(tree.expression);
@@ -10104,8 +10171,9 @@ var $__src_syntax_Parser_js = (function() {
       },
       parseCoverFormals_: function() {
         var start = this.getTreeStartLocation_();
-        if (this.peek_(CLOSE_PAREN)) return new CoverFormals(this.getTreeLocation_(start), []);
-        if (this.peekRest_(this.peekType_())) {
+        var type = this.peekType_();
+        if (type === CLOSE_PAREN) return new CoverFormals(this.getTreeLocation_(start), []);
+        if (this.peekRest_(type)) {
           var parameter = this.parseRestParameter_();
           return new CoverFormals(this.getTreeLocation_(start), [parameter]);
         }
@@ -10246,64 +10314,6 @@ var $__src_syntax_Parser_js = (function() {
         var initializer = null;
         if (this.peek_(EQUAL)) initializer = this.parseInitializer_();
         return new BindingElement(this.getTreeLocation_(start), binding, initializer);
-      },
-      parseAssignmentPattern_: function() {
-        if (this.peekObjectPattern_(this.peekType_())) return this.parseObjectAssignmentPattern_();
-        return this.parseArrayAssignmentPattern_();
-      },
-      parseObjectAssignmentPattern_: function() {
-        var start = this.getTreeStartLocation_();
-        this.eat_(OPEN_CURLY);
-        var fields = [];
-        var field;
-        var type;
-        while (this.peekId_(type = this.peekType_()) || this.peekPropertyName_(type)) {
-          if (this.peek_(COLON, 1)) {
-            var fieldStart = this.getTreeStartLocation_();
-            var name = this.nextToken_();
-            this.eat_(COLON);
-            var left = this.parseLeftHandSideExpression_();
-            left = this.transformLeftHandSideExpression_(left);
-            field = new ObjectPatternField(this.getTreeLocation_(start), name, left);
-          } else {
-            field = this.parseIdentifierExpression_();
-          }
-          fields.push(field);
-          if (!this.eatIf_(COMMA)) break;
-        }
-        this.eat_(CLOSE_CURLY);
-        return new ObjectPattern(this.getTreeLocation_(start), fields);
-      },
-      parseArrayAssignmentPattern_: function() {
-        var start = this.getTreeStartLocation_();
-        var elements = [];
-        this.eat_(OPEN_SQUARE);
-        var type;
-        while ((type = this.peekType_()) === COMMA || this.peekRest_(type) || this.peekAssignmentExpression_(type)) {
-          this.parseElisionOpt_(elements);
-          if (this.peekRest_(this.peekType_())) {
-            elements.push(this.parseAssignmentRestElement_());
-            break;
-          } else {
-            elements.push(this.parseAssignmentElement_());
-            if (this.peek_(COMMA) && !this.peek_(CLOSE_SQUARE, 1)) {
-              this.nextToken_();
-            }
-          }
-        }
-        this.eat_(CLOSE_SQUARE);
-        return new ArrayPattern(this.getTreeLocation_(start), elements);
-      },
-      parseAssignmentRestElement_: function() {
-        var start = this.getTreeStartLocation_();
-        this.eat_(DOT_DOT_DOT);
-        var left = this.parseLeftHandSideExpression_();
-        left = this.transformLeftHandSideExpression_(left);
-        return new SpreadPatternElement(this.getTreeLocation_(start), left);
-      },
-      parseAssignmentElement_: function() {
-        var tree = this.parseLeftHandSideExpression_();
-        return this.transformLeftHandSideExpression_(tree);
       },
       parseQuasiLiteral_: function(operand) {
         if (!options.quasi) {
