@@ -3245,10 +3245,7 @@ export class Parser {
       traceur.assert(token.type == DOLLAR);
 
       this.eat_(OPEN_CURLY);
-      var expression = this.parseExpression();
-      if (!expression)
-        return this.parseMissingPrimaryExpression_();
-      pushSubst(expression);
+      pushSubst(this.parseExpression());
       this.eat_(CLOSE_CURLY);
     }
 
