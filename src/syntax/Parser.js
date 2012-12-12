@@ -141,15 +141,13 @@ var Initializer = {
  *   this.eat_(LIST_END);
  */
 export class Parser {
-  constructor(errorReporter, var_args) {
+  /**
+   * @param {ErrorReporter} errorReporter
+   * @param {SourceFile} file
+   */
+  constructor(errorReporter, file) {
     this.errorReporter_ = errorReporter;
-    var scanner;
-    if (arguments[1] instanceof Scanner) {
-      scanner = arguments[1];
-    } else {
-      scanner = new Scanner(errorReporter, arguments[1], arguments[2]);
-    }
-    this.scanner_ = scanner;
+    this.scanner_ = new Scanner(errorReporter, file);
 
     /**
      * Keeps track of whether we currently allow yield expressions.
@@ -3473,6 +3471,10 @@ export class Parser {
 
   peekQuasiToken_(type) {
     return this.scanner_.peekQuasiToken(type);
+  }
+
+  isAtEnd() {
+    return this.scanner_.isAtEnd();
   }
 
   /**

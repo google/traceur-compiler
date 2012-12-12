@@ -41,8 +41,7 @@ var createCatch = ParseTreeFactory.createCatch;
 
 function toTree(errorReporter, name, source) {
   var sourceFile = new traceur.syntax.SourceFile(name, source);
-  var scanner = new traceur.syntax.Scanner(errorReporter, sourceFile);
-  var parser = new traceur.syntax.Parser(errorReporter, scanner);
+  var parser = new traceur.syntax.Parser(errorReporter, sourceFile);
   var tree = parser.parseProgram();
   return tree;
 }

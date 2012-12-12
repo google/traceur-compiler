@@ -162,10 +162,9 @@ export class PlaceholderParser {
 
     var file = new SourceFile('parse@TemplateParser', source);
     var errorReporter = new MutedErrorReporter();
-    var scanner = new Scanner(errorReporter, file);
-    var parser = new Parser(errorReporter, scanner);
+    var parser = new Parser(errorReporter, file);
     var tree = doParse(parser);
-    if (errorReporter.hadError() || !tree || !scanner.isAtEnd())
+    if (errorReporter.hadError() || !tree || !parser.isAtEnd())
       throw new Error(`Internal error trying to parse:\n\n${source}`);
     return tree;
   }

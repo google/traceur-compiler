@@ -260,14 +260,13 @@ export class Scanner {
   /**
    * @param {ErrorReport} errorReporter
    * @param {SourceFile} file
-   * @param {number=} opt_offset
    */
-  constructor(errorReporter, file, opt_offset) {
+  constructor(errorReporter, file) {
     this.errorReporter_ = errorReporter;
     this.file = file;
     this.input_ = file.contents;
     this.length_ = file.contents.length;
-    this.index_ = opt_offset || 0;
+    this.index_ = 0;
     this.lastToken_ = null;
     this.token_ = null;
     this.lookaheadToken_ = null;

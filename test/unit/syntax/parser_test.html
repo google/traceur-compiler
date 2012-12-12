@@ -42,8 +42,7 @@ function testModule() {
                   'import {a:b,c} from M.x;' +
                 '};\n';
   var sourceFile = new traceur.syntax.SourceFile('Name', program);
-  var scanner = new traceur.syntax.Scanner(errorReporter, sourceFile);
-  var parser = new traceur.syntax.Parser(errorReporter, scanner);
+  var parser = new traceur.syntax.Parser(errorReporter, sourceFile);
 
   parser.parseProgram(true);
 }
@@ -65,8 +64,7 @@ function parseScript(scriptElement) {
   }
 
   var sourceFile = new traceur.syntax.SourceFile(name, source);
-  var scanner = new traceur.syntax.Scanner(errorReporter, sourceFile);
-  var parser = new traceur.syntax.Parser(errorReporter, scanner);
+  var parser = new traceur.syntax.Parser(errorReporter, sourceFile);
   console.log('Parsing', name);
 
   var tree = parser.parseProgram();

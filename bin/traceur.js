@@ -7858,12 +7858,12 @@ var $__src_syntax_Scanner_js = (function() {
   }
   var Scanner = function() {
     var $Scanner = ($__createClassNoExtends)({
-      constructor: function(errorReporter, file, opt_offset) {
+      constructor: function(errorReporter, file) {
         this.errorReporter_ = errorReporter;
         this.file = file;
         this.input_ = file.contents;
         this.length_ = file.contents.length;
-        this.index_ = opt_offset || 0;
+        this.index_ = 0;
         this.lastToken_ = null;
         this.token_ = null;
         this.lookaheadToken_ = null;
@@ -8574,15 +8574,9 @@ var $__src_syntax_Parser_js = (function() {
   };
   var Parser = function() {
     var $Parser = ($__createClassNoExtends)({
-      constructor: function(errorReporter, var_args) {
+      constructor: function(errorReporter, file) {
         this.errorReporter_ = errorReporter;
-        var scanner;
-        if (arguments[1]instanceof Scanner) {
-          scanner = arguments[1];
-        } else {
-          scanner = new Scanner(errorReporter, arguments[1], arguments[2]);
-        }
-        this.scanner_ = scanner;
+        this.scanner_ = new Scanner(errorReporter, file);
         this.allowYield_ = false;
       },
       parseProgram: function(opt_load) {
@@ -10439,6 +10433,9 @@ var $__src_syntax_Parser_js = (function() {
       },
       peekQuasiToken_: function(type) {
         return this.scanner_.peekQuasiToken(type);
+      },
+      isAtEnd: function() {
+        return this.scanner_.isAtEnd();
       },
       peek_: function(expectedType, opt_index) {
         return this.peekToken_(opt_index).type === expectedType;
@@ -12846,10 +12843,9 @@ var $__src_codegeneration_PlaceholderParser_js = (function() {
         }
         var file = new SourceFile('parse@TemplateParser', source);
         var errorReporter = new MutedErrorReporter();
-        var scanner = new Scanner(errorReporter, file);
-        var parser = new Parser(errorReporter, scanner);
+        var parser = new Parser(errorReporter, file);
         var tree = doParse(parser);
-        if (errorReporter.hadError() || !tree || !scanner.isAtEnd()) throw new Error(("Internal error trying to parse:\n\n" + source));
+        if (errorReporter.hadError() || !tree || !parser.isAtEnd()) throw new Error(("Internal error trying to parse:\n\n" + source));
         return tree;
       }
     });
