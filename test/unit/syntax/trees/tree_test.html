@@ -285,7 +285,11 @@ function testTreeConstructors() {
       ParseTreeType.POSTFIX_EXPRESSION,
       ['location', 'operand', 'operator']);
 
-  validateTree(traceur.syntax.trees.Program,
+  validateTree(traceur.syntax.trees.PredefinedType,
+      ParseTreeType.PREDEFINED_TYPE,
+      ['location', 'typeToken']);
+
+validateTree(traceur.syntax.trees.Program,
       ParseTreeType.PROGRAM,
       ['location', 'programElements']);
 
@@ -342,6 +346,10 @@ function testTreeConstructors() {
       ParseTreeType.TRY_STATEMENT,
       ['location', 'body', 'catchBlock', 'finallyBlock']);
 
+  validateTree(traceur.syntax.trees.TypeName,
+      ParseTreeType.TYPE_NAME,
+      ['location', 'moduleName', 'name']);
+
   validateTree(traceur.syntax.trees.UnaryExpression,
       ParseTreeType.UNARY_EXPRESSION,
       ['location', 'operator', 'operand']);
@@ -352,7 +360,7 @@ function testTreeConstructors() {
 
   validateTree(traceur.syntax.trees.VariableDeclaration,
       ParseTreeType.VARIABLE_DECLARATION,
-      ['location', 'lvalue', 'initializer']);
+      ['location', 'lvalue', 'typeAnnotation', 'initializer']);
 
   validateTree(traceur.syntax.trees.VariableStatement,
       ParseTreeType.VARIABLE_STATEMENT,

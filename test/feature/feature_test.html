@@ -269,6 +269,7 @@ goog.require('goog.testing.jsunit');
 <script src="Syntax/UnicodeEscapeSequenceInName.js" type="text/traceur">></script>
 <script src="Syntax/null.js" type="text/traceur"></script>
 <script src="TempVarTransformer/UseStrictDirective.js" type="text/traceur"></script>
+<script src="Types/TypeSyntax.js" type="text/traceur"></script>
 <script src="Yield/Arguments.js" type="text/traceur"></script>
 <script src="Yield/DefaultArguments.js" type="text/traceur"></script>
 <script src="Yield/DoGenerator.js" type="text/traceur"></script>
@@ -369,12 +370,20 @@ function evalScript(scriptElement) {
 
       if (!skip) {
           if (reporter.hadError()) {
-            fail('Error compiling ' + name + '.');
+            fail('Error compiling ' + name + '.\n' + reporter.errors.join('\n'));
             return;
           }
 
         // Script compiled, so run it.
-        ('global', eval)(code);
+        var completed = false;
+        try {
+          ('global', eval)(code);
+          completed = true;
+        } finally {
+          if (!completed) {
+            fail('Error running compiled output for : ' + name);
+          }
+        }
       }
     } finally {
       traceur.options.reset();

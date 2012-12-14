@@ -328,6 +328,7 @@ addFeatureOption('trapMemberLookup', Kind.experimental);
 addFeatureOption('deferredFunctions', Kind.experimental);
 addFeatureOption('propertyOptionalComma', Kind.experimental);
 addFeatureOption('strictSemicolons', Kind.experimental);
+addFeatureOption('types', Kind.experimental);
 
 addBoolOption('debug');
 addBoolOption('sourceMaps');

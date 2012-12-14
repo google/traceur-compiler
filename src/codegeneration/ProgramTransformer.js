@@ -37,6 +37,7 @@ import PropertyNameShorthandTransformer from
 import QuasiLiteralTransformer from 'QuasiLiteralTransformer.js';
 import RestParameterTransformer from 'RestParameterTransformer.js';
 import SpreadTransformer from 'SpreadTransformer.js';
+import TypeTransformer from 'TypeTransformer.js';
 import {options, transformOptions} from '../options.js';
 
 /**
@@ -117,6 +118,8 @@ export class ProgramTransformer {
 
     // TODO: many of these simple, local transforms could happen in the same
     // tree pass
+
+    chain(transformOptions.types, TypeTransformer.transformTree);
 
     chain(transformOptions.quasi, QuasiLiteralTransformer.transformTree,
           identifierGenerator);

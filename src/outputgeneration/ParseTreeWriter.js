@@ -748,6 +748,13 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
+   * @param {PredefinedType} tree
+   */
+  visitPredefinedType(tree) {
+    this.write_(tree.typeToken);
+  }
+
+  /**
    * @param {Program} tree
    */
   visitProgram(tree) {
@@ -910,6 +917,17 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
+   * @param {TypeName} tree
+   */
+  visitTypeName(tree) {
+    if (tree.moduleName) {
+      this.visitAny(tree.moduleName);
+      this.write_(TokenType.PERIOD);
+    }
+    this.write_(tree.name);
+  }
+
+  /**
    * @param {UnaryExpression} tree
    */
   visitUnaryExpression(tree) {
@@ -930,6 +948,10 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitVariableDeclaration(tree) {
     this.visitAny(tree.lvalue);
+    if (tree.typeAnnotation !== null) {
+      this.write_(TokenType.COLON);
+      this.visitAny(tree.typeAnnotation);
+    }
     if (tree.initializer !== null) {
       this.write_(EQUAL);
       this.visitAny(tree.initializer);

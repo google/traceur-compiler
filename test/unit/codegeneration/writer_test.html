@@ -49,6 +49,7 @@ function testWriteStatement() {
         [new trees.VariableDeclaration(
           'loc',
           new trees.IdentifierExpression('loc', new IdentifierToken('loc', 'x')),
+          null,
           new trees.LiteralExpression('loc', new LiteralToken(TokenType.NUMBER, '1', 'loc')))]
       )
     ),

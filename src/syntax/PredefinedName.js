@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+export var ANY = 'any';
 export var $ARGUMENTS = '$arguments';
 export var $THAT = '$that';
 export var $VALUE = '$value';
@@ -21,6 +22,7 @@ export var ARGUMENTS = 'arguments';
 export var ARRAY = 'Array';
 export var ASSERT_NAME = 'assertName';
 export var BIND = 'bind';
+export var BOOL = 'bool';
 export var CALL = 'call';
 export var CALLBACK = 'callback';
 export var CAPTURED_ARGUMENTS = '$arguments';
@@ -71,6 +73,7 @@ export var MODULES = 'modules';
 export var MOVE_NEXT = 'moveNext';
 export var NEW = 'new';
 export var NEW_STATE = '$newState';
+export var NUMBER = 'number';
 export var OBJECT = 'Object';
 export var OBJECT_NAME = 'Object';
 export var OF = 'of';
@@ -93,6 +96,7 @@ export var SPREAD = 'spread';
 export var SPREAD_NEW = 'spreadNew';
 export var STATE = '$state';
 export var STORED_EXCEPTION = '$storedException';
+export var STRING = 'string';
 export var SUPER_CALL = 'superCall';
 export var SUPER_GET = 'superGet';
 export var SUPER_SET = 'superSet';

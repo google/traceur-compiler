@@ -683,6 +683,14 @@
       "Token"
     ]
   },
+  "PredefinedType": {
+    "location": [
+      "SourceRange"
+    ],
+    "typeToken": [
+      "Token"
+    ]
+  },
   "Program": {
     "location": [
       "SourceRange"
@@ -843,6 +851,17 @@
       "Finally"
     ]
   },
+  "TypeName": {
+    "location": [
+      "SourceRange"
+    ],
+    "moduleName": [
+      "TypeName"
+    ],
+    "name": [
+      "IdentifierToken"
+    ]
+  },
   "UnaryExpression": {
     "location": [
       "SourceRange"
@@ -859,6 +878,9 @@
       "SourceRange"
     ],
     "lvalue": [
+      "ParseTree"
+    ],
+    "typeAnnotation": [
       "ParseTree"
     ],
     "initializer": [

@@ -39,13 +39,17 @@ import {
   REST_PARAMETER
 } from 'trees/ParseTreeType.js';
 import {
+  ANY,
+  BOOL,
   FROM,
   GET,
   IS,
   ISNT,
   MODULE,
+  NUMBER,
   OF,
-  SET
+  SET,
+  STRING
 } from 'PredefinedName.js';
 import Scanner from 'Scanner.js';
 import SourceRange from '../util/SourceRange.js';
@@ -770,7 +774,7 @@ export class Parser {
   parseFunctionDeclaration_() {
     var start = this.getTreeStartLocation_();
     this.nextToken_(); // function or #
-    var isGenerator = this.eatOpt_(STAR) != null;
+    var isGenerator = this.eatIf_(STAR);
     return this.parseFunctionDeclarationTail_(start, isGenerator,
                                               this.parseBindingIdentifier_());
   }
@@ -798,7 +802,7 @@ export class Parser {
   parseFunctionExpression_() {
     var start = this.getTreeStartLocation_();
     this.nextToken_(); // function or #
-    var isGenerator = this.eatOpt_(STAR) != null;
+    var isGenerator = this.eatIf_(STAR);
     var name = null;
     if (this.peekBindingIdentifier_(this.peekType_())) {
       name = this.parseBindingIdentifier_();
@@ -1001,10 +1005,14 @@ export class Parser {
     var start = this.getTreeStartLocation_();
 
     var lvalue;
-    if (this.peekPattern_(this.peekType_()))
+    var typeAnnotation;
+    if (this.peekPattern_(this.peekType_())) {
       lvalue = this.parseBindingPattern_();
-    else
+      typeAnnotation = null;
+    } else {
       lvalue = this.parseBindingIdentifier_();
+      typeAnnotation = this.parseTypeAnnotationOpt_();
+    }
 
     var initializer = null;
     if (this.peek_(EQUAL))
@@ -1012,7 +1020,8 @@ export class Parser {
     else if (lvalue.isPattern() && initRequired)
       this.reportError_('destructuring must have an initializer');
 
-    return new VariableDeclaration(this.getTreeLocation_(start), lvalue, initializer);
+    return new VariableDeclaration(this.getTreeLocation_(start), lvalue,
+        typeAnnotation, initializer);
   }
 
   /**
@@ -1400,7 +1409,7 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     this.eat_(YIELD);
     var expression = null;
-    var isYieldFor = this.eatOpt_(STAR) != null;
+    var isYieldFor = this.eatIf_(STAR);
     if (isYieldFor || !this.peekImplicitSemiColon_(this.peekType_())) {
       expression = this.parseAssignmentExpression();
     }
@@ -1834,7 +1843,7 @@ export class Parser {
       result.push(propertyDefinition);
       if (propertyDefinition.type === PROPERTY_NAME_ASSIGNMENT) {
         // Comma is required after name assignment.
-        if (!this.eatOpt_(COMMA))
+        if (!this.eatIf_(COMMA))
           break;
       } else if (!this.eatPropertyOptionalComma_()) {
         break;
@@ -1845,7 +1854,7 @@ export class Parser {
   }
 
   eatPropertyOptionalComma_() {
-    return this.eatOpt_(COMMA) || options.propertyOptionalComma;
+    return this.eatIf_(COMMA) || options.propertyOptionalComma;
   }
 
   /**
@@ -2564,8 +2573,9 @@ export class Parser {
 
           case PERIOD:
             this.nextToken_();
+            var memberName = this.eatIdName_();
             operand = new MemberExpression(this.getTreeLocation_(start),
-                                           operand, this.eatIdName_());
+                                           operand, memberName);
             break;
 
           case PERIOD_OPEN_CURLY:
@@ -3253,6 +3263,117 @@ export class Parser {
 
     return new QuasiLiteralExpression(this.getTreeLocation_(start),
                                       operand, elements);
+  }
+
+  parseTypeAnnotationOpt_() {
+    if (options.types && this.eatOpt_(COLON)) {
+      return this.parseType_();
+    }
+    return null;
+  }
+
+  /**
+   * Types
+   *
+   * Type ::
+   *   PredefinedType
+   *   TypeName
+   *   TypeLiteral
+   *
+   * @return {ParseTree}
+   * @private
+   */
+  parseType_() {
+    var start = this.getTreeStartLocation_();
+    var elementType;
+    switch (this.peekType_()) {
+      case IDENTIFIER:
+        elementType = this.parseNamedOrPredefinedType_();
+        break;
+      case NEW:
+        elementType = this.parseConstructorType_();
+        break;
+      case OPEN_CURLY:
+        elementType = this.parseObjectType_();
+        break;
+      case OPEN_PAREN:
+        elementType = this.parseFunctionType_();
+        break;
+      case VOID:
+        var token = this.nextToken_();
+        return new PredefinedType(this.getTreeLocation_(start), token);
+      default:
+        this.reportError_(`Expected Type. Found '${this.peekToken_()}'`);
+        return null;
+    }
+    return this.parseArrayTypeSuffix_(start, elementType);
+  }
+
+  parseArrayTypeSuffix_(start, elementType) {
+    // NYI
+    return elementType;
+  }
+
+  parseConstructorType_() {
+    throw 'NYI';
+  }
+
+  parseObjectType_() {
+    throw 'NYI';
+  }
+
+  parseFunctionType_() {
+    throw 'NYI';
+  }
+
+  /**
+   * PredefinedType ::
+   *   any
+   *   number
+   *   bool
+   *   string
+   * @return {ParseTree}
+   * @private
+   */
+  parseNamedOrPredefinedType_() {
+    var start = this.getTreeStartLocation_();
+
+    switch (this.peekToken_().value) {
+      case ANY:
+      case NUMBER:
+      case BOOL:
+      case STRING:
+        var token = this.nextToken_();
+        return new PredefinedType(this.getTreeLocation_(start), token);
+      default:
+        return this.parseTypeName_();
+    }
+  }
+
+  /**
+   * Type Name ::
+   *   ModuleOrTypeName
+   *
+   * ModuleOrTypeName ::
+   *   Identifier
+   *   ModuleName . Identifier
+   *
+   * ModuleName ::
+   *   ModuleOrTypeName
+   *
+   * @return {ParseTree}
+   * @private
+   */
+  parseTypeName_() {
+    var start = this.getTreeStartLocation_();
+    var typeName = new TypeName(this.getTreeLocation_(start), null,
+        this.eatId_());
+    while (this.eatIf_(PERIOD)) {
+      var memberName = this.eatIdName_();
+      typeName = new TypeName(this.getTreeLocation_(start), typeName,
+      memberName);
+    }
+    return typeName;
   }
 
   /**

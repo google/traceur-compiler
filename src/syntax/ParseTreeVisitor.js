@@ -537,6 +537,12 @@ export class ParseTreeVisitor {
   }
 
   /**
+   * @param {PredefinedType} tree
+   */
+  visitPredefinedType(tree) {
+  }
+
+  /**
    * @param {Program} tree
    */
   visitProgram(tree) {
@@ -665,6 +671,13 @@ export class ParseTreeVisitor {
   }
 
   /**
+   * @param {TypeName} tree
+   */
+  visitTypeName(tree) {
+    this.visitAny(tree.moduleName);
+  }
+
+  /**
    * @param {UnaryExpression} tree
    */
   visitUnaryExpression(tree) {
@@ -676,6 +689,7 @@ export class ParseTreeVisitor {
    */
   visitVariableDeclaration(tree) {
     this.visitAny(tree.lvalue);
+    this.visitAny(tree.typeAnnotation);
     this.visitAny(tree.initializer);
   }
 

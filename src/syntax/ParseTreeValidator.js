@@ -750,6 +750,13 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   }
 
   /**
+   * @param {PredefinedType} tree
+   */
+  visitPredefinedType(tree) {
+    // TODO(peterhal): Implement.
+  }
+
+  /**
    * @param {Program} tree
    */
   visitProgram(tree) {
@@ -882,6 +889,13 @@ export class ParseTreeValidator extends ParseTreeVisitor {
     if (tree.catchBlock === null && tree.finallyBlock === null) {
       this.fail_(tree, 'either catch or finally must be present');
     }
+  }
+
+  /**
+   * @param {TypeName} tree
+   */
+  visitTypeName(tree) {
+    // TODO(peterhal): Implement.
   }
 
   /**

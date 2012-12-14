@@ -1007,7 +1007,7 @@ export function createVariableDeclaration(identifier, initializer) {
     identifier = createBindingIdentifier(identifier);
   }
 
-  return new VariableDeclaration(null, identifier, initializer);
+  return new VariableDeclaration(null, identifier, null, initializer);
 }
 
 /**
