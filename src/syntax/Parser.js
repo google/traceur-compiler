@@ -757,7 +757,8 @@ export class Parser {
         return options.generators;
       case AWAIT:
         return options.deferredFunctions;
-      case BACK_QUOTE:
+      case TEMPLATE_HEAD:
+      case NO_SUBSTITUTION_TEMPLATE:
         return options.quasi;
       case IMPORT:
       case EXPORT:
@@ -1634,8 +1635,9 @@ export class Parser {
       case SLASH:
       case SLASH_EQUAL:
         return this.parseRegularExpressionLiteral_();
-      case BACK_QUOTE:
-        return this.parseQuasiLiteral_(null);
+      case NO_SUBSTITUTION_TEMPLATE:
+      case TEMPLATE_HEAD:
+        return this.parseTemplateLiteral_(null);
       case AT_NAME:
         return this.parseAtNameExpression_();
       default:
@@ -2008,7 +2010,8 @@ export class Parser {
    */
   peekExpression_(type) {
     switch (type) {
-      case BACK_QUOTE:
+      case NO_SUBSTITUTION_TEMPLATE:
+      case TEMPLATE_HEAD:
         return options.quasi;
       case AT_NAME:
         return options.privateNameSyntax;
@@ -2586,10 +2589,11 @@ export class Parser {
                                             operand, expressions);
             break;
 
-          case BACK_QUOTE:
+          case NO_SUBSTITUTION_TEMPLATE:
+          case TEMPLATE_HEAD:
             if (!options.quasi)
               break loop;
-            operand = this.parseQuasiLiteral_(operand);
+            operand = this.parseTemplateLiteral_(operand);
             break;
 
           default:
@@ -2643,10 +2647,11 @@ export class Parser {
                                           operand, expressions);
           break;
 
-        case BACK_QUOTE:
-          if (options.quasi)
+        case NO_SUBSTITUTION_TEMPLATE:
+        case TEMPLATE_HEAD:
+          if (!options.quasi)
             break loop;
-          operand = this.parseQuasiLiteral_(operand);
+          operand = this.parseTemplateLiteral_(operand);
           break;
 
         default:
@@ -2707,23 +2712,6 @@ export class Parser {
     }
 
     return expr;
-  }
-
-  /**
-   * @return {boolean}
-   * @private
-   */
-  peekMemberExpressionSuffix_(type) {
-    switch (type) {
-      case OPEN_SQUARE:
-      case PERIOD:
-        return true;
-      case BACK_QUOTE:
-        return options.quasi;
-      case PERIOD_OPEN_CURLY:
-        return options.cascadeExpression;
-    }
-    return false;
   }
 
   // 11.2 New Expression
@@ -3224,42 +3212,38 @@ export class Parser {
    * @return {ParseTree}
    * @private
    */
-  parseQuasiLiteral_(operand) {
+  parseTemplateLiteral_(operand) {
     if (!options.quasi) {
       return this.parseMissingPrimaryExpression_();
-    }
-
-    function pushSubst(tree) {
-      elements.push(new QuasiSubstitution(tree.location, tree));
     }
 
     var start = operand ?
         operand.location.start : this.getTreeStartLocation_();
 
-    this.eat_(BACK_QUOTE);
+    var token = this.nextToken_();
+    var elements = [new QuasiLiteralPortion(token.location, token)];
 
-    var elements = [];
-
-    while (!this.peekEndOfQuasiLiteral_()) {
-      var token = this.nextQuasiLiteralPortionToken_();
-      // start is not the right SourcePosition but we cannot use
-      // getTreeStartLocation_ here since it uses peek_ which is not safe to
-      // use inside parseQuasiLiteral_.
-      elements.push(new QuasiLiteralPortion(this.getTreeLocation_(start),
-                                            token));
-
-      if (!this.peekQuasiToken_(DOLLAR))
-        break;
-
-      token = this.nextQuasiSubstitutionToken_();
-      traceur.assert(token.type == DOLLAR);
-
-      this.eat_(OPEN_CURLY);
-      pushSubst(this.parseExpression());
-      this.eat_(CLOSE_CURLY);
+    if (token.type === NO_SUBSTITUTION_TEMPLATE) {
+      return new QuasiLiteralExpression(this.getTreeLocation_(start),
+                                        operand, elements);
     }
 
-    this.eat_(BACK_QUOTE);
+    // `abc${
+    var expression = this.parseExpression();
+    elements.push(new QuasiSubstitution(expression.location, expression));
+
+    while (expression.type !== MISSING_PRIMARY_EXPRESSION) {
+      token = this.nextTemplateLiteralToken_();
+      if (token.type === ERROR || token.type === END_OF_FILE)
+        break;
+
+      elements.push(new QuasiLiteralPortion(token.location, token));
+      if (token.type === TEMPLATE_TAIL)
+        break;
+
+      expression = this.parseExpression();
+      elements.push(new QuasiSubstitution(expression.location, expression));
+    }
 
     return new QuasiLiteralExpression(this.getTreeLocation_(start),
                                       operand, elements);
@@ -3574,21 +3558,8 @@ export class Parser {
     return this.scanner_.nextRegularExpressionLiteralToken();
   }
 
-  nextQuasiLiteralPortionToken_() {
-    return this.scanner_.nextQuasiLiteralPortionToken();
-  }
-
-  nextQuasiSubstitutionToken_() {
-    return this.scanner_.nextQuasiSubstitutionToken();
-  }
-
-  peekEndOfQuasiLiteral_() {
-    return this.peekQuasiToken_(BACK_QUOTE) ||
-        this.peekQuasiToken_(END_OF_FILE);
-  }
-
-  peekQuasiToken_(type) {
-    return this.scanner_.peekQuasiToken(type);
+  nextTemplateLiteralToken_() {
+    return this.scanner_.nextTemplateLiteralToken();
   }
 
   isAtEnd() {

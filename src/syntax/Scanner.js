@@ -288,19 +288,15 @@ export class Scanner {
   }
 
   nextRegularExpressionLiteralToken() {
-    return lastToken = nextRegularExpressionLiteralToken();
+    lastToken = nextRegularExpressionLiteralToken();
+    token = scanToken();
+    return lastToken;
   }
 
-  nextQuasiLiteralPortionToken() {
-    return nextQuasiLiteralPortionToken();
-  }
-
-  nextQuasiSubstitutionToken() {
-    return nextQuasiSubstitutionToken();
-  }
-
-  peekQuasiToken(type) {
-    return peekQuasiToken(type);
+  nextTemplateLiteralToken() {
+    var t = nextTemplateLiteralToken();
+    token = scanToken();
+    return t;
   }
 
   /** @return {Token} */
@@ -342,26 +338,22 @@ function getOffset() {
 
 /** @return {LiteralToken} */
 function nextRegularExpressionLiteralToken() {
-  clearTokenLookahead();
-
-  var beginToken = index;
-
-  // leading /
-  next();
+  // We already passed the leading / so subtract 1.
+  var beginIndex = index - 1;
 
   // body
   if (!skipRegularExpressionBody()) {
     return new LiteralToken(REGULAR_EXPRESSION,
-                            getTokenString(beginToken),
-                            getTokenRange(beginToken));
+                            getTokenString(beginIndex),
+                            getTokenRange(beginIndex));
   }
 
   // separating /
   if (currentCharCode !== 47) {  // /
     reportError('Expected \'/\' in regular expression literal');
     return new LiteralToken(REGULAR_EXPRESSION,
-                            getTokenString(beginToken),
-                            getTokenRange(beginToken));
+                            getTokenString(beginIndex),
+                            getTokenRange(beginIndex));
   }
   next();
 
@@ -371,8 +363,8 @@ function nextRegularExpressionLiteralToken() {
   }
 
   return new LiteralToken(REGULAR_EXPRESSION,
-                          getTokenString(beginToken),
-                          getTokenRange(beginToken));
+                          getTokenString(beginIndex),
+                          getTokenRange(beginIndex));
 }
 
 function skipRegularExpressionBody() {
@@ -439,51 +431,6 @@ function skipRegularExpressionClassChar() {
   return true;
 }
 
-/**
- * Called by the parser while parsing a quasi literal. Quasi literal
- * portions are the part between the substitions.
- */
-function nextQuasiLiteralPortionToken() {
-  clearTokenLookahead();
-  var beginToken = index;
-
-  if (isAtEnd()) {
-    return lastToken = createToken(END_OF_FILE, beginToken);
-  }
-
-  skipQuasiLiteralPortion();
-  return lastToken =
-      new LiteralToken(QUASI_LITERAL_PORTION,
-                       getTokenString(beginToken),
-                       getTokenRange(beginToken));
-}
-
-/**
- * Called by the parser while parsing a quasi literal.
- */
-function nextQuasiSubstitutionToken() {
-  clearTokenLookahead();
-  var beginToken = index;
-  traceur.assert(currentCharCode === 36);  // $
-  next();
-  return lastToken = createToken(DOLLAR, beginToken);
-}
-
-function peekQuasiToken(type) {
-  clearTokenLookahead();
-
-  var code = currentCharCode;
-  switch (type) {
-    case DOLLAR:
-      return code === 36;  // $
-    case BACK_QUOTE:
-      return code === 96;  // `
-    case END_OF_FILE:
-      return !code;
-  }
-  return false;
-}
-
 // LiteralPortion ::
 //   LiteralCharacter LiteralPortion
 //   ε
@@ -493,8 +440,15 @@ function peekQuasiToken(type) {
 //   LineTerminatorSequence
 //   LineContinuation
 //   \ EscapeSequence
-//   $ lookahead ∉ {, IdentifierStart
-function skipQuasiLiteralPortion() {
+//   $ [ lookahead not { ]
+//
+// TemplateCharacter ::
+//   SourceCharacter but not one of ` or \ or $
+//   $ [lookahead not { ]
+//   \ EscapeSequence
+//   LineContinuation
+//
+function skipTemplateCharacter() {
   while (!isAtEnd()) {
     switch (currentCharCode) {
       case 96:  // `
@@ -513,21 +467,70 @@ function skipQuasiLiteralPortion() {
   }
 }
 
+/**
+ * Either returns a NO_SUBSTITUTION_TEMPLATE or TEMPLATE_HEAD token.
+ */
+function scanTemplateStart(beginIndex) {
+  if (isAtEnd()) {
+    reportError('Unterminated template literal');
+    return lastToken = createToken(END_OF_FILE, beginIndex);
+  }
+
+  return nextTemplateLiteralTokenShared(NO_SUBSTITUTION_TEMPLATE,
+                                        TEMPLATE_HEAD);
+}
+
+/**
+ * Either returns a TEMPLATE_TAIL or TEMPLATE_MIDDLE token.
+ */
+function nextTemplateLiteralToken() {
+  if (isAtEnd()) {
+    reportError('Expected \'}\' after expression in template literal');
+    return createToken(END_OF_FILE, index);
+  }
+
+  if (token.type !== CLOSE_CURLY) {
+    reportError('Expected \'}\' after expression in template literal');
+    return createToken(ERROR, index);
+  }
+
+  return nextTemplateLiteralTokenShared(TEMPLATE_TAIL, TEMPLATE_MIDDLE);
+}
+
+function nextTemplateLiteralTokenShared(endType, middleType) {
+  var beginIndex = index;
+
+  skipTemplateCharacter();
+
+  if (isAtEnd()) {
+    reportError('Unterminated template literal');
+    return createToken(ERROR, beginIndex);
+  }
+
+  var value = getTokenString(beginIndex);
+
+  switch (currentCharCode) {
+    case  96:  // `
+      next();
+      return lastToken = new LiteralToken(endType,
+                                          value,
+                                          getTokenRange(beginIndex - 1));
+      case 36:  // $
+      next();  // $
+      next();  // {
+      return lastToken = new LiteralToken(middleType,
+                                          value,
+                                          getTokenRange(beginIndex - 1));
+  }
+}
+
 /** @return {Token} */
 function nextToken() {
-  var t = token || scanToken(true);
-  token = lookaheadToken;
+  var t = peekToken();
+  token = lookaheadToken || scanToken();
   lookaheadToken = null;
   lastToken = t;
   return t;
-}
-
-function clearTokenLookahead() {
-  if (token) {
-    index = token.location.start.offset;
-    token = lookaheadToken = null;
-    updateCurrentCharCode();
-  }
 }
 
 /**
@@ -559,9 +562,7 @@ function peekTokenNoLineTerminator() {
 }
 
 function peekToken() {
-  if (!token)
-    token = scanToken();
-  return token;
+  return token || (token = scanToken());
 }
 
 // This is optimized to do one lookahead vs current in |peekTooken_|.
@@ -626,26 +627,26 @@ function skipMultiLineComment() {
  */
 function scanToken() {
   skipComments();
-  var beginToken = index;
+  var beginIndex = index;
   if (isAtEnd())
-    return createToken(END_OF_FILE, beginToken);
+    return createToken(END_OF_FILE, beginIndex);
 
   var code = currentCharCode;
   next();
 
   switch (code) {
     case 123:  // {
-      return createToken(OPEN_CURLY, beginToken);
+      return createToken(OPEN_CURLY, beginIndex);
     case 125:  // }
-      return createToken(CLOSE_CURLY, beginToken);
+      return createToken(CLOSE_CURLY, beginIndex);
     case 40:  // (
-      return createToken(OPEN_PAREN, beginToken);
+      return createToken(OPEN_PAREN, beginIndex);
     case 41:  // )
-      return createToken(CLOSE_PAREN, beginToken);
+      return createToken(CLOSE_PAREN, beginIndex);
     case 91:  // [
-      return createToken(OPEN_SQUARE, beginToken);
+      return createToken(OPEN_SQUARE, beginIndex);
     case 93:  // ]
-      return createToken(CLOSE_SQUARE, beginToken);
+      return createToken(CLOSE_SQUARE, beginIndex);
     case 46:  // .
       switch (currentCharCode) {
         case 46:  // .
@@ -653,43 +654,43 @@ function scanToken() {
           if (input.charCodeAt(index + 1) === 46) {
             next();
             next();
-            return createToken(DOT_DOT_DOT, beginToken);
+            return createToken(DOT_DOT_DOT, beginIndex);
           }
           break;
         case 123:  // {
           // .{ chain operator
           next();
-          return createToken(PERIOD_OPEN_CURLY, beginToken);
+          return createToken(PERIOD_OPEN_CURLY, beginIndex);
         default:
           if (isDecimalDigit(currentCharCode))
-            return scanNumberPostPeriod(beginToken);
+            return scanNumberPostPeriod(beginIndex);
       }
 
-      return createToken(PERIOD, beginToken);
+      return createToken(PERIOD, beginIndex);
     case 59:  // ;
-      return createToken(SEMI_COLON, beginToken);
+      return createToken(SEMI_COLON, beginIndex);
     case 44:  // ,
-      return createToken(COMMA, beginToken);
+      return createToken(COMMA, beginIndex);
     case 126:  // ~
-      return createToken(TILDE, beginToken);
+      return createToken(TILDE, beginIndex);
     case 63:  // ?
-      return createToken(QUESTION, beginToken);
+      return createToken(QUESTION, beginIndex);
     case 58:  // :
-      return createToken(COLON, beginToken);
+      return createToken(COLON, beginIndex);
     case 60:  // <
       switch (currentCharCode) {
         case 60:  // <
           next();
           if (currentCharCode === 61) {  // =
             next();
-            return createToken(LEFT_SHIFT_EQUAL, beginToken);
+            return createToken(LEFT_SHIFT_EQUAL, beginIndex);
           }
-          return createToken(LEFT_SHIFT, beginToken);
+          return createToken(LEFT_SHIFT, beginIndex);
         case 61:  // =
           next();
-          return createToken(LESS_EQUAL, beginToken);
+          return createToken(LESS_EQUAL, beginIndex);
         default:
-          return createToken(OPEN_ANGLE, beginToken);
+          return createToken(OPEN_ANGLE, beginIndex);
       }
     case 62:  // >
       switch (currentCharCode) {
@@ -698,127 +699,126 @@ function scanToken() {
           switch (currentCharCode) {
             case 61:  // =
               next();
-              return createToken(RIGHT_SHIFT_EQUAL, beginToken);
+              return createToken(RIGHT_SHIFT_EQUAL, beginIndex);
             case 62:  // >
               next();
               if (currentCharCode === 61) { // =
                 next();
                 return createToken(
-                    UNSIGNED_RIGHT_SHIFT_EQUAL, beginToken);
+                    UNSIGNED_RIGHT_SHIFT_EQUAL, beginIndex);
               }
-              return createToken(UNSIGNED_RIGHT_SHIFT, beginToken);
+              return createToken(UNSIGNED_RIGHT_SHIFT, beginIndex);
             default:
-              return createToken(RIGHT_SHIFT, beginToken);
+              return createToken(RIGHT_SHIFT, beginIndex);
           }
         case 61:  // =
           next();
-          return createToken(GREATER_EQUAL, beginToken);
+          return createToken(GREATER_EQUAL, beginIndex);
         default:
-          return createToken(CLOSE_ANGLE, beginToken);
+          return createToken(CLOSE_ANGLE, beginIndex);
       }
     case 61:  // =
       if (currentCharCode === 61) {  // =
         next();
         if (currentCharCode === 61) {  // =
           next();
-          return createToken(EQUAL_EQUAL_EQUAL, beginToken);
+          return createToken(EQUAL_EQUAL_EQUAL, beginIndex);
         }
-        return createToken(EQUAL_EQUAL, beginToken);
+        return createToken(EQUAL_EQUAL, beginIndex);
       }
       if (currentCharCode === 62) {  // >
         next();
-        return createToken(ARROW, beginToken);
+        return createToken(ARROW, beginIndex);
       }
-      return createToken(EQUAL, beginToken);
+      return createToken(EQUAL, beginIndex);
     case 33:  // !
       if (currentCharCode === 61) {  // =
         next();
         if (currentCharCode === 61) {  // =
           next();
-          return createToken(NOT_EQUAL_EQUAL, beginToken);
+          return createToken(NOT_EQUAL_EQUAL, beginIndex);
         }
-        return createToken(NOT_EQUAL, beginToken);
+        return createToken(NOT_EQUAL, beginIndex);
       }
-      return createToken(BANG, beginToken);
+      return createToken(BANG, beginIndex);
     case 42:  // *
       if (currentCharCode === 61) {  // =
         next();
-        return createToken(STAR_EQUAL, beginToken);
+        return createToken(STAR_EQUAL, beginIndex);
       }
-      return createToken(STAR, beginToken);
+      return createToken(STAR, beginIndex);
     case 37:  // %
       if (currentCharCode === 61) {  // =
         next();
-        return createToken(PERCENT_EQUAL, beginToken);
+        return createToken(PERCENT_EQUAL, beginIndex);
       }
-      return createToken(PERCENT, beginToken);
+      return createToken(PERCENT, beginIndex);
     case 94:  // ^
       if (currentCharCode === 61) {  // =
         next();
-        return createToken(CARET_EQUAL, beginToken);
+        return createToken(CARET_EQUAL, beginIndex);
       }
-      return createToken(CARET, beginToken);
+      return createToken(CARET, beginIndex);
     case 47:  // /
       if (currentCharCode === 61) {  // =
         next();
-        return createToken(SLASH_EQUAL, beginToken);
+        return createToken(SLASH_EQUAL, beginIndex);
       }
-      return createToken(SLASH, beginToken);
+      return createToken(SLASH, beginIndex);
     case 43:  // +
       switch (currentCharCode) {
         case 43:  // +
           next();
-          return createToken(PLUS_PLUS, beginToken);
+          return createToken(PLUS_PLUS, beginIndex);
         case 61: // =:
           next();
-          return createToken(PLUS_EQUAL, beginToken);
+          return createToken(PLUS_EQUAL, beginIndex);
         default:
-          return createToken(PLUS, beginToken);
+          return createToken(PLUS, beginIndex);
       }
     case 45:  // -
       switch (currentCharCode) {
         case 45: // -
           next();
-          return createToken(MINUS_MINUS, beginToken);
+          return createToken(MINUS_MINUS, beginIndex);
         case 61:  // =
           next();
-          return createToken(MINUS_EQUAL, beginToken);
+          return createToken(MINUS_EQUAL, beginIndex);
         default:
-          return createToken(MINUS, beginToken);
+          return createToken(MINUS, beginIndex);
       }
     case 38:  // &
       switch (currentCharCode) {
         case 38:  // &
           next();
-          return createToken(AND, beginToken);
+          return createToken(AND, beginIndex);
         case 61:  // =
           next();
-          return createToken(AMPERSAND_EQUAL, beginToken);
+          return createToken(AMPERSAND_EQUAL, beginIndex);
         default:
-          return createToken(AMPERSAND, beginToken);
+          return createToken(AMPERSAND, beginIndex);
       }
     case 124:  // |
       switch (currentCharCode) {
         case 124:  // |
           next();
-          return createToken(OR, beginToken);
+          return createToken(OR, beginIndex);
         case 61:  // =
           next();
-          return createToken(BAR_EQUAL, beginToken);
+          return createToken(BAR_EQUAL, beginIndex);
         default:
-          return createToken(BAR, beginToken);
+          return createToken(BAR, beginIndex);
       }
     case 96:  // `
-      return createToken(BACK_QUOTE, beginToken);
-
+      return scanTemplateStart(beginIndex);
     case 64:  // @
-      return scanAtName(beginToken);
+      return scanAtName(beginIndex);
 
       // TODO: add NumberToken
       // TODO: character following NumericLiteral must not be an
       //       IdentifierStart or DecimalDigit
     case 48:  // 0
-      return scanPostZero(beginToken);
+      return scanPostZero(beginIndex);
     case 49:  // 1
     case 50:  // 2
     case 51:  // 3
@@ -828,49 +828,48 @@ function scanToken() {
     case 55:  // 7
     case 56:  // 8
     case 57:  // 9
-      return scanPostDigit(beginToken);
+      return scanPostDigit(beginIndex);
     case 34:  // "
     case 39:  // '
-      return scanStringLiteral(beginToken, code);
+      return scanStringLiteral(beginIndex, code);
     default:
-      return scanIdentifierOrKeyword(beginToken, code);
+      return scanIdentifierOrKeyword(beginIndex, code);
   }
 }
 
 /**
  * @return {Token}
  */
-function scanNumberPostPeriod(beginToken) {
+function scanNumberPostPeriod(beginIndex) {
   skipDecimalDigits();
-  return scanExponentOfNumericLiteral(beginToken);
+  return scanExponentOfNumericLiteral(beginIndex);
 }
 
 /**
  * @return {Token}
  */
-function scanPostDigit(beginToken) {
+function scanPostDigit(beginIndex) {
   skipDecimalDigits();
-  return scanFractionalNumericLiteral(beginToken);
+  return scanFractionalNumericLiteral(beginIndex);
 }
 
 /**
  * @return {Token}
  */
-function scanPostZero(beginToken) {
+function scanPostZero(beginIndex) {
   switch (currentCharCode) {
     case 88:  // X
     case 120:  // x
       next();
       if (!isHexDigit(currentCharCode)) {
-        reportError(
-            'Hex Integer Literal must contain at least one digit');
+        reportError('Hex Integer Literal must contain at least one digit');
       }
       skipHexDigits();
       return new LiteralToken(NUMBER,
-                              getTokenString(beginToken),
-                              getTokenRange(beginToken));
+                              getTokenString(beginIndex),
+                              getTokenRange(beginIndex));
     case 46:  // .
-      return scanFractionalNumericLiteral(beginToken);
+      return scanFractionalNumericLiteral(beginIndex);
     case 48:  // 0
     case 49:  // 1
     case 50:  // 2
@@ -881,45 +880,44 @@ function scanPostZero(beginToken) {
     case 55:  // 7
     case 56:  // 8
     case 57:  // 9
-      return scanPostDigit(beginToken);
+      return scanPostDigit(beginIndex);
     default:
       return new LiteralToken(NUMBER,
-                              getTokenString(beginToken),
-                              getTokenRange(beginToken));
+                              getTokenString(beginIndex),
+                              getTokenRange(beginIndex));
   }
 }
 
 /**
  * @param {TokenType} type
- * @param {number} beginToken
+ * @param {number} beginIndex
  * @return {Token}
  */
-function createToken(type, beginToken) {
-  return new Token(type, getTokenRange(beginToken));
+function createToken(type, beginIndex) {
+  return new Token(type, getTokenRange(beginIndex));
 }
 
 function readUnicodeEscapeSequence() {
-  var beginToken = index;
+  var beginIndex = index;
   if (currentCharCode === 117) {  // u
     next();
     if (skipHexDigit() && skipHexDigit() &&
         skipHexDigit() && skipHexDigit()) {
-      return parseInt(getTokenString(beginToken + 1), 16);
+      return parseInt(getTokenString(beginIndex + 1), 16);
     }
   }
 
-  reportError(getPosition(beginToken - 1),
-      'Invalid unicode escape sequence in identifier') ;
+  reportError('Invalid unicode escape sequence in identifier', beginIndex - 1);
 
   return 0;
 }
 
 /**
- * @param {number} beginToken
+ * @param {number} beginIndex
  * @param {number} code
  * @return {Token}
  */
-function scanIdentifierOrKeyword(beginToken, code) {
+function scanIdentifierOrKeyword(beginIndex, code) {
   // Keep track of any unicode escape sequences.
   var escapedCharCodes;
   if (code === 92) {  // \
@@ -928,9 +926,10 @@ function scanIdentifierOrKeyword(beginToken, code) {
   }
 
   if (!isIdentifierStart(code)) {
-    reportError(getPosition(beginToken),
-        `Character code '${code}' is not a valid identifier start char`);
-    return createToken(ERROR, beginToken);
+    reportError(
+        `Character code '${code}' is not a valid identifier start char`,
+        beginIndex);
+    return createToken(ERROR, beginIndex);
   }
 
   for (;;) {
@@ -944,16 +943,16 @@ function scanIdentifierOrKeyword(beginToken, code) {
         escapedCharCodes = [];
       escapedCharCodes.push(code);
       if (!isIdentifierPart(code))
-        return createToken(ERROR, beginToken);
+        return createToken(ERROR, beginIndex);
     } else {
       break;
     }
   }
 
-  var value = input.slice(beginToken, index);
+  var value = input.slice(beginIndex, index);
 
   if (isKeyword(value)) {
-    return new KeywordToken(value, getTokenRange(beginToken));
+    return new KeywordToken(value, getTokenRange(beginIndex));
   }
 
   if (escapedCharCodes) {
@@ -963,24 +962,23 @@ function scanIdentifierOrKeyword(beginToken, code) {
     });
   }
 
-  return new IdentifierToken(getTokenRange(beginToken), value);
+  return new IdentifierToken(getTokenRange(beginIndex), value);
 }
 
-function scanAtName(beginToken) {
+function scanAtName(beginIndex) {
   if (isAtEnd()) {
-    reportError(getPosition(beginToken),
-                      'Expected identifier start character');
-    return createToken(ERROR, beginToken);
+    reportError('Expected identifier start character', beginIndex);
+    return createToken(ERROR, beginIndex);
   }
 
   // TODO(arv): Refactor to not create an intermediate token.
   var code = currentCharCode;
   next();
-  var identifierToken = scanIdentifierOrKeyword(beginToken, code);
+  var identifierToken = scanIdentifierOrKeyword(beginIndex, code);
   if (identifierToken.type === ERROR)
     return identifierToken;
   var value = identifierToken.value;
-  return new AtNameToken(getTokenRange(beginToken), value);
+  return new AtNameToken(getTokenRange(beginIndex), value);
 }
 
 /**
@@ -995,8 +993,7 @@ function scanStringLiteral(beginIndex, terminator) {
     }
   }
   if (currentCharCode !== terminator) {
-    reportError(getPosition(beginIndex),
-                      'Unterminated String Literal');
+    reportError('Unterminated String Literal', beginIndex);
   } else {
     next();
   }
@@ -1078,18 +1075,18 @@ function skipLineTerminator() {
 /**
  * @return {LiteralToken}
  */
-function scanFractionalNumericLiteral(beginToken) {
+function scanFractionalNumericLiteral(beginIndex) {
   if (currentCharCode === 46) {  // .
     next();
     skipDecimalDigits();
   }
-  return scanExponentOfNumericLiteral(beginToken);
+  return scanExponentOfNumericLiteral(beginIndex);
 }
 
 /**
  * @return {LiteralToken}
  */
-function scanExponentOfNumericLiteral(beginToken) {
+function scanExponentOfNumericLiteral(beginIndex) {
   switch (currentCharCode) {
     case 101:  // e
     case 69:  // E
@@ -1109,8 +1106,8 @@ function scanExponentOfNumericLiteral(beginToken) {
       break;
   }
   return new LiteralToken(NUMBER,
-                          getTokenString(beginToken),
-                          getTokenRange(beginToken));
+                          getTokenString(beginIndex),
+                          getTokenRange(beginIndex));
 }
 
 function skipDecimalDigits() {
@@ -1138,15 +1135,7 @@ function updateCurrentCharCode() {
   currentCharCode = input.charCodeAt(index);
 }
 
-function reportError(var_args) {
-  var position, message;
-  if (arguments.length === 1) {
-    position = getPosition(getOffset());
-    message = arguments[0];
-  } else {
-    position = arguments[0];
-    message = arguments[1];
-  }
-
+function reportError(message, opt_index) {
+  var position = getPosition(opt_index || index);
   errorReporter.reportError(position, message);
 }
