@@ -313,7 +313,7 @@ addFeatureOption('forOf', Kind.es6);              // 12.6.4
 addFeatureOption('isExpression', Kind.es6);       // 11.9
 addFeatureOption('propertyMethods', Kind.es6);    // 13.3
 addFeatureOption('propertyNameShorthand', Kind.es6);
-addFeatureOption('quasi', Kind.es6);              // 7.6.8
+addFeatureOption('templateLiterals', Kind.es6);   // 7.6.8
 addFeatureOption('restParameters', Kind.es6);     // 13.1
 addFeatureOption('spread', Kind.es6);             // 11.1.4, 11.2.5
 

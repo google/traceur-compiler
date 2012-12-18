@@ -783,26 +783,26 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   }
 
   /**
-   * @param {QuasiLiteralExpression} tree
+   * @param {TemplateLiteralExpression} tree
    */
-  visitQuasiLiteralExpression(tree) {
+  visitTemplateLiteralExpression(tree) {
     if (tree.operand) {
       this.checkVisit_(tree.operand.isMemberExpression(), tree.operand,
                        'member or call expression expected');
     }
 
-    // The elements are alternating between QuasiLiteralPortion and
-    // QuasiSubstitution.
+    // The elements are alternating between TemplateLiteralPortion and
+    // TemplateSubstitution.
     for (var i = 0; i < tree.elements.length; i++) {
       var element = tree.elements[i];
       if (i % 2) {
-        this.checkType_(QUASI_SUBSTITUTION,
+        this.checkType_(TEMPLATE_SUBSTITUTION,
                         element,
-                        'Quasi substitution expected');
+                        'Template literal substitution expected');
       } else {
-        this.checkType_(QUASI_LITERAL_PORTION,
+        this.checkType_(TEMPLATE_LITERAL_PORTION,
                         element,
-                        'Quasi literal portion expected');
+                        'Template literal portion expected');
 
       }
     }

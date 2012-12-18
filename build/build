@@ -17,7 +17,7 @@ node ${DIR}/build.js \
   --arrow-functions \
   --modules \
   --destructuring \
-  --quasi \
+  --template-literals \
   --spread \
   --classes \
   --property-methods \

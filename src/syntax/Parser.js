@@ -759,7 +759,7 @@ export class Parser {
         return options.deferredFunctions;
       case TEMPLATE_HEAD:
       case NO_SUBSTITUTION_TEMPLATE:
-        return options.quasi;
+        return options.templateLiterals;
       case IMPORT:
       case EXPORT:
         return allowProgramElement && options.modules;
@@ -2012,7 +2012,7 @@ export class Parser {
     switch (type) {
       case NO_SUBSTITUTION_TEMPLATE:
       case TEMPLATE_HEAD:
-        return options.quasi;
+        return options.templateLiterals;
       case AT_NAME:
         return options.privateNameSyntax;
       case BANG:
@@ -2591,7 +2591,7 @@ export class Parser {
 
           case NO_SUBSTITUTION_TEMPLATE:
           case TEMPLATE_HEAD:
-            if (!options.quasi)
+            if (!options.templateLiterals)
               break loop;
             operand = this.parseTemplateLiteral_(operand);
             break;
@@ -2649,7 +2649,7 @@ export class Parser {
 
         case NO_SUBSTITUTION_TEMPLATE:
         case TEMPLATE_HEAD:
-          if (!options.quasi)
+          if (!options.templateLiterals)
             break loop;
           operand = this.parseTemplateLiteral_(operand);
           break;
@@ -3177,32 +3177,32 @@ export class Parser {
   }
 
   /**
-   * Quasi Literals
+   * Template Literals
    *
-   * Quasi ::
-   *   FullQuasi
-   *   QuasiHead
+   * Template ::
+   *   FullTemplate
+   *   TemplateHead
    *
-   * FullQuasi ::
-   *   ` QuasiCharactersopt `
+   * FullTemplate ::
+   *   ` TemplateCharactersopt `
    *
-   * QuasiHead ::
-   *   ` QuasiCharactersopt ${
+   * TemplateHead ::
+   *   ` TemplateCharactersopt ${
    *
-   * QuasiSubstitutionTail ::
-   *   QuasiMiddle
-   *   QuasiTail
+   * TemplateSubstitutionTail ::
+   *   TemplateMiddle
+   *   TemplateTail
    *
-   * QuasiMiddle ::
-   *   } QuasiCharactersopt ${
+   * TemplateMiddle ::
+   *   } TemplateCharactersopt ${
    *
-   * QuasiTail ::
-   *   } QuasiCharactersopt `
+   * TemplateTail ::
+   *   } TemplateCharactersopt `
    *
-   * QuasiCharacters ::
-   *   QuasiCharacter QuasiCharactersopt
+   * TemplateCharacters ::
+   *   TemplateCharacter TemplateCharactersopt
    *
-   * QuasiCharacter ::
+   * TemplateCharacter ::
    *   SourceCharacter but not one of ` or \ or $
    *   $ [lookahead not { ]
    *   \ EscapeSequence
@@ -3213,7 +3213,7 @@ export class Parser {
    * @private
    */
   parseTemplateLiteral_(operand) {
-    if (!options.quasi) {
+    if (!options.templateLiterals) {
       return this.parseMissingPrimaryExpression_();
     }
 
@@ -3221,31 +3221,31 @@ export class Parser {
         operand.location.start : this.getTreeStartLocation_();
 
     var token = this.nextToken_();
-    var elements = [new QuasiLiteralPortion(token.location, token)];
+    var elements = [new TemplateLiteralPortion(token.location, token)];
 
     if (token.type === NO_SUBSTITUTION_TEMPLATE) {
-      return new QuasiLiteralExpression(this.getTreeLocation_(start),
+      return new TemplateLiteralExpression(this.getTreeLocation_(start),
                                         operand, elements);
     }
 
     // `abc${
     var expression = this.parseExpression();
-    elements.push(new QuasiSubstitution(expression.location, expression));
+    elements.push(new TemplateSubstitution(expression.location, expression));
 
     while (expression.type !== MISSING_PRIMARY_EXPRESSION) {
       token = this.nextTemplateLiteralToken_();
       if (token.type === ERROR || token.type === END_OF_FILE)
         break;
 
-      elements.push(new QuasiLiteralPortion(token.location, token));
+      elements.push(new TemplateLiteralPortion(token.location, token));
       if (token.type === TEMPLATE_TAIL)
         break;
 
       expression = this.parseExpression();
-      elements.push(new QuasiSubstitution(expression.location, expression));
+      elements.push(new TemplateSubstitution(expression.location, expression));
     }
 
-    return new QuasiLiteralExpression(this.getTreeLocation_(start),
+    return new TemplateLiteralExpression(this.getTreeLocation_(start),
                                       operand, elements);
   }
 

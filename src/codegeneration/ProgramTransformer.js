@@ -34,7 +34,7 @@ import ParseTreeValidator from '../syntax/ParseTreeValidator.js';
 import PrivateNameSyntaxTransformer from 'PrivateNameSyntaxTransformer.js';
 import PropertyNameShorthandTransformer from
     'PropertyNameShorthandTransformer.js';
-import QuasiLiteralTransformer from 'QuasiLiteralTransformer.js';
+import TemplateLiteralTransformer from 'TemplateLiteralTransformer.js';
 import RestParameterTransformer from 'RestParameterTransformer.js';
 import SpreadTransformer from 'SpreadTransformer.js';
 import TypeTransformer from 'TypeTransformer.js';
@@ -121,7 +121,8 @@ export class ProgramTransformer {
 
     chain(transformOptions.types, TypeTransformer.transformTree);
 
-    chain(transformOptions.quasi, QuasiLiteralTransformer.transformTree,
+    chain(transformOptions.templateLiterals,
+          TemplateLiteralTransformer.transformTree,
           identifierGenerator);
 
     chain(transformOptions.modules, this.transformModules_.bind(this), tree,

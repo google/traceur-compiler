@@ -946,35 +946,35 @@ export class ParseTreeTransformer {
   }
 
   /**
-   * @param {QuasiLiteralExpression} tree
+   * @param {TemplateLiteralExpression} tree
    * @return {ParseTree}
    */
-  transformQuasiLiteralExpression(tree) {
+  transformTemplateLiteralExpression(tree) {
     var operand = this.transformAny(tree.operand);
     var elements = this.transformList(tree.elements);
     if (operand === tree.operand && elements == tree.elements)
       return tree;
-    return new QuasiLiteralExpression(tree.location, operand, elements);
+    return new TemplateLiteralExpression(tree.location, operand, elements);
   }
 
   /**
-   * @param {QuasiLiteralPortion} tree
+   * @param {TemplateLiteralPortion} tree
    * @return {ParseTree}
    */
-  transformQuasiLiteralPortion(tree) {
+  transformTemplateLiteralPortion(tree) {
     return tree;
   }
 
   /**
-   * @param {QuasiSubstitution} tree
+   * @param {TemplateSubstitution} tree
    * @return {ParseTree}
    */
-  transformQuasiSubstitution(tree) {
+  transformTemplateSubstitution(tree) {
     var expression = this.transformAny(tree.expression);
     if (expression == tree.expression) {
       return tree;
     }
-    return new QuasiSubstitution(tree.location, expression);
+    return new TemplateSubstitution(tree.location, expression);
   }
 
   /**

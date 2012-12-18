@@ -791,10 +791,10 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
-   * @param {QuasiLiteralExpression} tree
+   * @param {TemplateLiteralExpression} tree
    */
-  visitQuasiLiteralExpression(tree) {
-    // Quasi Literals have important whitespace semantics.
+  visitTemplateLiteralExpression(tree) {
+    // Template Literals have important whitespace semantics.
     this.visitAny(tree.operand);
     this.writeRaw_(BACK_QUOTE);
     this.visitList(tree.elements);
@@ -802,16 +802,16 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
-   * @param {QuasiLiteralPortion} tree
+   * @param {TemplateLiteralPortion} tree
    */
-  visitQuasiLiteralPortion(tree) {
+  visitTemplateLiteralPortion(tree) {
     this.writeRaw_(tree.value);
   }
 
   /**
-   * @param {QuasiSubstitution} tree
+   * @param {TemplateSubstitution} tree
    */
-  visitQuasiSubstitution(tree) {
+  visitTemplateSubstitution(tree) {
     this.writeRaw_(DOLLAR);
     this.writeRaw_(OPEN_CURLY);
     this.visitAny(tree.expression);

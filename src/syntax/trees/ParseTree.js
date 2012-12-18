@@ -77,7 +77,7 @@ export class ParseTree {
       case MEMBER_LOOKUP_EXPRESSION:
       case CALL_EXPRESSION:
       case FUNCTION_EXPRESSION:
-      case QUASI_LITERAL_EXPRESSION:
+      case TEMPLATE_LITERAL_EXPRESSION:
         return true;
       case PAREN_EXPRESSION:
         return this.expression.isLeftHandSideExpression();
@@ -109,7 +109,7 @@ export class ParseTree {
       case OBJECT_LITERAL_EXPRESSION:
       case PAREN_EXPRESSION:
       case POSTFIX_EXPRESSION:
-      case QUASI_LITERAL_EXPRESSION:
+      case TEMPLATE_LITERAL_EXPRESSION:
       case SUPER_EXPRESSION:
       case THIS_EXPRESSION:
       case UNARY_EXPRESSION:
@@ -139,7 +139,7 @@ export class ParseTree {
       case ARRAY_LITERAL_EXPRESSION:
       case OBJECT_LITERAL_EXPRESSION:
       case PAREN_EXPRESSION:
-      case QUASI_LITERAL_EXPRESSION:
+      case TEMPLATE_LITERAL_EXPRESSION:
       case FUNCTION_EXPRESSION:
       // MemberExpression [ Expression ]
       case MEMBER_LOOKUP_EXPRESSION:

@@ -735,33 +735,6 @@
       "IdentifierToken"
     ]
   },
-  "QuasiLiteralExpression": {
-    "location": [
-      "SourceRange"
-    ],
-    "operand": [
-      "ParseTree"
-    ],
-    "elements": [
-      "Array.<ParseTree>"
-    ]
-  },
-  "QuasiLiteralPortion": {
-    "location": [
-      "SourceRange"
-    ],
-    "value": [
-      "Token"
-    ]
-  },
-  "QuasiSubstitution": {
-    "location": [
-      "SourceRange"
-    ],
-    "expression": [
-      "ParseTree"
-    ]
-  },
   "RestParameter": {
     "location": [
       "SourceRange"
@@ -822,6 +795,33 @@
     ],
     "caseClauses": [
       "Array.<CaseClause|DefaultClause>"
+    ]
+  },
+  "TemplateLiteralExpression": {
+    "location": [
+      "SourceRange"
+    ],
+    "operand": [
+      "ParseTree"
+    ],
+    "elements": [
+      "Array.<ParseTree>"
+    ]
+  },
+  "TemplateLiteralPortion": {
+    "location": [
+      "SourceRange"
+    ],
+    "value": [
+      "Token"
+    ]
+  },
+  "TemplateSubstitution": {
+    "location": [
+      "SourceRange"
+    ],
+    "expression": [
+      "ParseTree"
     ]
   },
   "ThisExpression": {

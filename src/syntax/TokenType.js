@@ -93,7 +93,6 @@ export var PLUS_PLUS = '++';
 export var PRIVATE = 'private';
 export var PROTECTED = 'protected';
 export var PUBLIC = 'public';
-export var QUASI_LITERAL_PORTION = 'quasi literal portion';
 export var QUESTION = '?';
 export var REGULAR_EXPRESSION = 'regular expression literal';
 export var RETURN = 'return';

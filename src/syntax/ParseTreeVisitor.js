@@ -571,23 +571,23 @@ export class ParseTreeVisitor {
   }
 
   /**
-   * @param {QuasiLiteralExpression} tree
+   * @param {TemplateLiteralExpression} tree
    */
-  visitQuasiLiteralExpression(tree) {
+  visitTemplateLiteralExpression(tree) {
     this.visitAny(tree.operand);
     this.visitList(tree.elements);
   }
 
   /**
-   * @param {QuasiLiteralPortion} tree
+   * @param {TemplateLiteralPortion} tree
    */
-  visitQuasiLiteralPortion(tree) {
+  visitTemplateLiteralPortion(tree) {
   }
 
   /**
-   * @param {QuasiSubstitution} tree
+   * @param {TemplateSubstitution} tree
    */
-  visitQuasiSubstitution(tree) {
+  visitTemplateSubstitution(tree) {
     this.visitAny(tree.expression);
   }
 

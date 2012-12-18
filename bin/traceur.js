@@ -1130,7 +1130,7 @@ var $__src_options_js = (function() {
   addFeatureOption('isExpression', Kind.es6);
   addFeatureOption('propertyMethods', Kind.es6);
   addFeatureOption('propertyNameShorthand', Kind.es6);
-  addFeatureOption('quasi', Kind.es6);
+  addFeatureOption('templateLiterals', Kind.es6);
   addFeatureOption('restParameters', Kind.es6);
   addFeatureOption('spread', Kind.es6);
   addFeatureOption('generatorComprehension', Kind.es6proposal);
@@ -1302,9 +1302,6 @@ var $__src_syntax_trees_ParseTreeType_js = (function() {
   var PROPERTY_METHOD_ASSIGNMENT = 'PROPERTY_METHOD_ASSIGNMENT';
   var PROPERTY_NAME_ASSIGNMENT = 'PROPERTY_NAME_ASSIGNMENT';
   var PROPERTY_NAME_SHORTHAND = 'PROPERTY_NAME_SHORTHAND';
-  var QUASI_LITERAL_EXPRESSION = 'QUASI_LITERAL_EXPRESSION';
-  var QUASI_LITERAL_PORTION = 'QUASI_LITERAL_PORTION';
-  var QUASI_SUBSTITUTION = 'QUASI_SUBSTITUTION';
   var REST_PARAMETER = 'REST_PARAMETER';
   var RETURN_STATEMENT = 'RETURN_STATEMENT';
   var SET_ACCESSOR = 'SET_ACCESSOR';
@@ -1313,6 +1310,9 @@ var $__src_syntax_trees_ParseTreeType_js = (function() {
   var STATE_MACHINE = 'STATE_MACHINE';
   var SUPER_EXPRESSION = 'SUPER_EXPRESSION';
   var SWITCH_STATEMENT = 'SWITCH_STATEMENT';
+  var TEMPLATE_LITERAL_EXPRESSION = 'TEMPLATE_LITERAL_EXPRESSION';
+  var TEMPLATE_LITERAL_PORTION = 'TEMPLATE_LITERAL_PORTION';
+  var TEMPLATE_SUBSTITUTION = 'TEMPLATE_SUBSTITUTION';
   var THIS_EXPRESSION = 'THIS_EXPRESSION';
   var THROW_STATEMENT = 'THROW_STATEMENT';
   var TRY_STATEMENT = 'TRY_STATEMENT';
@@ -1757,24 +1757,6 @@ var $__src_syntax_trees_ParseTreeType_js = (function() {
       },
       enumerable: true
     },
-    QUASI_LITERAL_EXPRESSION: {
-      get: function() {
-        return QUASI_LITERAL_EXPRESSION;
-      },
-      enumerable: true
-    },
-    QUASI_LITERAL_PORTION: {
-      get: function() {
-        return QUASI_LITERAL_PORTION;
-      },
-      enumerable: true
-    },
-    QUASI_SUBSTITUTION: {
-      get: function() {
-        return QUASI_SUBSTITUTION;
-      },
-      enumerable: true
-    },
     REST_PARAMETER: {
       get: function() {
         return REST_PARAMETER;
@@ -1820,6 +1802,24 @@ var $__src_syntax_trees_ParseTreeType_js = (function() {
     SWITCH_STATEMENT: {
       get: function() {
         return SWITCH_STATEMENT;
+      },
+      enumerable: true
+    },
+    TEMPLATE_LITERAL_EXPRESSION: {
+      get: function() {
+        return TEMPLATE_LITERAL_EXPRESSION;
+      },
+      enumerable: true
+    },
+    TEMPLATE_LITERAL_PORTION: {
+      get: function() {
+        return TEMPLATE_LITERAL_PORTION;
+      },
+      enumerable: true
+    },
+    TEMPLATE_SUBSTITUTION: {
+      get: function() {
+        return TEMPLATE_SUBSTITUTION;
       },
       enumerable: true
     },
@@ -1911,7 +1911,7 @@ var $__src_syntax_trees_ParseTree_js = (function() {
   "use strict";
   var ParseTreeType = $__src_syntax_trees_ParseTreeType_js;
   var SourceRange = $__src_util_SourceRange_js.SourceRange;
-  var $__9 = ParseTreeType, ARGUMENT_LIST = $__9.ARGUMENT_LIST, ARRAY_COMPREHENSION = $__9.ARRAY_COMPREHENSION, ARRAY_LITERAL_EXPRESSION = $__9.ARRAY_LITERAL_EXPRESSION, ARRAY_PATTERN = $__9.ARRAY_PATTERN, ARROW_FUNCTION_EXPRESSION = $__9.ARROW_FUNCTION_EXPRESSION, AT_NAME_DECLARATION = $__9.AT_NAME_DECLARATION, AT_NAME_EXPRESSION = $__9.AT_NAME_EXPRESSION, AWAIT_STATEMENT = $__9.AWAIT_STATEMENT, BINARY_OPERATOR = $__9.BINARY_OPERATOR, BINDING_ELEMENT = $__9.BINDING_ELEMENT, BINDING_IDENTIFIER = $__9.BINDING_IDENTIFIER, BLOCK = $__9.BLOCK, BREAK_STATEMENT = $__9.BREAK_STATEMENT, CALL_EXPRESSION = $__9.CALL_EXPRESSION, CASCADE_EXPRESSION = $__9.CASCADE_EXPRESSION, CASE_CLAUSE = $__9.CASE_CLAUSE, CATCH = $__9.CATCH, CLASS_DECLARATION = $__9.CLASS_DECLARATION, CLASS_EXPRESSION = $__9.CLASS_EXPRESSION, COMMA_EXPRESSION = $__9.COMMA_EXPRESSION, COMPREHENSION_FOR = $__9.COMPREHENSION_FOR, CONDITIONAL_EXPRESSION = $__9.CONDITIONAL_EXPRESSION, CONTINUE_STATEMENT = $__9.CONTINUE_STATEMENT, COVER_FORMALS = $__9.COVER_FORMALS, DEBUGGER_STATEMENT = $__9.DEBUGGER_STATEMENT, DEFAULT_CLAUSE = $__9.DEFAULT_CLAUSE, DO_WHILE_STATEMENT = $__9.DO_WHILE_STATEMENT, EMPTY_STATEMENT = $__9.EMPTY_STATEMENT, EXPORT_DECLARATION = $__9.EXPORT_DECLARATION, EXPORT_MAPPING = $__9.EXPORT_MAPPING, EXPORT_MAPPING_LIST = $__9.EXPORT_MAPPING_LIST, EXPORT_SPECIFIER = $__9.EXPORT_SPECIFIER, EXPORT_SPECIFIER_SET = $__9.EXPORT_SPECIFIER_SET, EXPORT_STAR = $__9.EXPORT_STAR, EXPRESSION_STATEMENT = $__9.EXPRESSION_STATEMENT, FINALLY = $__9.FINALLY, FOR_IN_STATEMENT = $__9.FOR_IN_STATEMENT, FOR_OF_STATEMENT = $__9.FOR_OF_STATEMENT, FOR_STATEMENT = $__9.FOR_STATEMENT, FORMAL_PARAMETER_LIST = $__9.FORMAL_PARAMETER_LIST, FUNCTION_DECLARATION = $__9.FUNCTION_DECLARATION, FUNCTION_EXPRESSION = $__9.FUNCTION_EXPRESSION, GENERATOR_COMPREHENSION = $__9.GENERATOR_COMPREHENSION, GET_ACCESSOR = $__9.GET_ACCESSOR, IDENTIFIER_EXPRESSION = $__9.IDENTIFIER_EXPRESSION, IF_STATEMENT = $__9.IF_STATEMENT, IMPORT_BINDING = $__9.IMPORT_BINDING, IMPORT_DECLARATION = $__9.IMPORT_DECLARATION, IMPORT_SPECIFIER = $__9.IMPORT_SPECIFIER, IMPORT_SPECIFIER_SET = $__9.IMPORT_SPECIFIER_SET, LABELLED_STATEMENT = $__9.LABELLED_STATEMENT, LITERAL_EXPRESSION = $__9.LITERAL_EXPRESSION, MEMBER_EXPRESSION = $__9.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__9.MEMBER_LOOKUP_EXPRESSION, MISSING_PRIMARY_EXPRESSION = $__9.MISSING_PRIMARY_EXPRESSION, MODULE_DECLARATION = $__9.MODULE_DECLARATION, MODULE_DEFINITION = $__9.MODULE_DEFINITION, MODULE_EXPRESSION = $__9.MODULE_EXPRESSION, MODULE_REQUIRE = $__9.MODULE_REQUIRE, MODULE_SPECIFIER = $__9.MODULE_SPECIFIER, NAME_STATEMENT = $__9.NAME_STATEMENT, NEW_EXPRESSION = $__9.NEW_EXPRESSION, OBJECT_LITERAL_EXPRESSION = $__9.OBJECT_LITERAL_EXPRESSION, OBJECT_PATTERN = $__9.OBJECT_PATTERN, OBJECT_PATTERN_FIELD = $__9.OBJECT_PATTERN_FIELD, PAREN_EXPRESSION = $__9.PAREN_EXPRESSION, POSTFIX_EXPRESSION = $__9.POSTFIX_EXPRESSION, PREDEFINED_TYPE = $__9.PREDEFINED_TYPE, PROGRAM = $__9.PROGRAM, PROPERTY_METHOD_ASSIGNMENT = $__9.PROPERTY_METHOD_ASSIGNMENT, PROPERTY_NAME_ASSIGNMENT = $__9.PROPERTY_NAME_ASSIGNMENT, PROPERTY_NAME_SHORTHAND = $__9.PROPERTY_NAME_SHORTHAND, QUASI_LITERAL_EXPRESSION = $__9.QUASI_LITERAL_EXPRESSION, QUASI_LITERAL_PORTION = $__9.QUASI_LITERAL_PORTION, QUASI_SUBSTITUTION = $__9.QUASI_SUBSTITUTION, REST_PARAMETER = $__9.REST_PARAMETER, RETURN_STATEMENT = $__9.RETURN_STATEMENT, SET_ACCESSOR = $__9.SET_ACCESSOR, SPREAD_EXPRESSION = $__9.SPREAD_EXPRESSION, SPREAD_PATTERN_ELEMENT = $__9.SPREAD_PATTERN_ELEMENT, STATE_MACHINE = $__9.STATE_MACHINE, SUPER_EXPRESSION = $__9.SUPER_EXPRESSION, SWITCH_STATEMENT = $__9.SWITCH_STATEMENT, THIS_EXPRESSION = $__9.THIS_EXPRESSION, THROW_STATEMENT = $__9.THROW_STATEMENT, TRY_STATEMENT = $__9.TRY_STATEMENT, TYPE_NAME = $__9.TYPE_NAME, UNARY_EXPRESSION = $__9.UNARY_EXPRESSION, VARIABLE_DECLARATION = $__9.VARIABLE_DECLARATION, VARIABLE_DECLARATION_LIST = $__9.VARIABLE_DECLARATION_LIST, VARIABLE_STATEMENT = $__9.VARIABLE_STATEMENT, WHILE_STATEMENT = $__9.WHILE_STATEMENT, WITH_STATEMENT = $__9.WITH_STATEMENT, YIELD_EXPRESSION = $__9.YIELD_EXPRESSION;
+  var $__9 = ParseTreeType, ARGUMENT_LIST = $__9.ARGUMENT_LIST, ARRAY_COMPREHENSION = $__9.ARRAY_COMPREHENSION, ARRAY_LITERAL_EXPRESSION = $__9.ARRAY_LITERAL_EXPRESSION, ARRAY_PATTERN = $__9.ARRAY_PATTERN, ARROW_FUNCTION_EXPRESSION = $__9.ARROW_FUNCTION_EXPRESSION, AT_NAME_DECLARATION = $__9.AT_NAME_DECLARATION, AT_NAME_EXPRESSION = $__9.AT_NAME_EXPRESSION, AWAIT_STATEMENT = $__9.AWAIT_STATEMENT, BINARY_OPERATOR = $__9.BINARY_OPERATOR, BINDING_ELEMENT = $__9.BINDING_ELEMENT, BINDING_IDENTIFIER = $__9.BINDING_IDENTIFIER, BLOCK = $__9.BLOCK, BREAK_STATEMENT = $__9.BREAK_STATEMENT, CALL_EXPRESSION = $__9.CALL_EXPRESSION, CASCADE_EXPRESSION = $__9.CASCADE_EXPRESSION, CASE_CLAUSE = $__9.CASE_CLAUSE, CATCH = $__9.CATCH, CLASS_DECLARATION = $__9.CLASS_DECLARATION, CLASS_EXPRESSION = $__9.CLASS_EXPRESSION, COMMA_EXPRESSION = $__9.COMMA_EXPRESSION, COMPREHENSION_FOR = $__9.COMPREHENSION_FOR, CONDITIONAL_EXPRESSION = $__9.CONDITIONAL_EXPRESSION, CONTINUE_STATEMENT = $__9.CONTINUE_STATEMENT, COVER_FORMALS = $__9.COVER_FORMALS, DEBUGGER_STATEMENT = $__9.DEBUGGER_STATEMENT, DEFAULT_CLAUSE = $__9.DEFAULT_CLAUSE, DO_WHILE_STATEMENT = $__9.DO_WHILE_STATEMENT, EMPTY_STATEMENT = $__9.EMPTY_STATEMENT, EXPORT_DECLARATION = $__9.EXPORT_DECLARATION, EXPORT_MAPPING = $__9.EXPORT_MAPPING, EXPORT_MAPPING_LIST = $__9.EXPORT_MAPPING_LIST, EXPORT_SPECIFIER = $__9.EXPORT_SPECIFIER, EXPORT_SPECIFIER_SET = $__9.EXPORT_SPECIFIER_SET, EXPORT_STAR = $__9.EXPORT_STAR, EXPRESSION_STATEMENT = $__9.EXPRESSION_STATEMENT, FINALLY = $__9.FINALLY, FOR_IN_STATEMENT = $__9.FOR_IN_STATEMENT, FOR_OF_STATEMENT = $__9.FOR_OF_STATEMENT, FOR_STATEMENT = $__9.FOR_STATEMENT, FORMAL_PARAMETER_LIST = $__9.FORMAL_PARAMETER_LIST, FUNCTION_DECLARATION = $__9.FUNCTION_DECLARATION, FUNCTION_EXPRESSION = $__9.FUNCTION_EXPRESSION, GENERATOR_COMPREHENSION = $__9.GENERATOR_COMPREHENSION, GET_ACCESSOR = $__9.GET_ACCESSOR, IDENTIFIER_EXPRESSION = $__9.IDENTIFIER_EXPRESSION, IF_STATEMENT = $__9.IF_STATEMENT, IMPORT_BINDING = $__9.IMPORT_BINDING, IMPORT_DECLARATION = $__9.IMPORT_DECLARATION, IMPORT_SPECIFIER = $__9.IMPORT_SPECIFIER, IMPORT_SPECIFIER_SET = $__9.IMPORT_SPECIFIER_SET, LABELLED_STATEMENT = $__9.LABELLED_STATEMENT, LITERAL_EXPRESSION = $__9.LITERAL_EXPRESSION, MEMBER_EXPRESSION = $__9.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__9.MEMBER_LOOKUP_EXPRESSION, MISSING_PRIMARY_EXPRESSION = $__9.MISSING_PRIMARY_EXPRESSION, MODULE_DECLARATION = $__9.MODULE_DECLARATION, MODULE_DEFINITION = $__9.MODULE_DEFINITION, MODULE_EXPRESSION = $__9.MODULE_EXPRESSION, MODULE_REQUIRE = $__9.MODULE_REQUIRE, MODULE_SPECIFIER = $__9.MODULE_SPECIFIER, NAME_STATEMENT = $__9.NAME_STATEMENT, NEW_EXPRESSION = $__9.NEW_EXPRESSION, OBJECT_LITERAL_EXPRESSION = $__9.OBJECT_LITERAL_EXPRESSION, OBJECT_PATTERN = $__9.OBJECT_PATTERN, OBJECT_PATTERN_FIELD = $__9.OBJECT_PATTERN_FIELD, PAREN_EXPRESSION = $__9.PAREN_EXPRESSION, POSTFIX_EXPRESSION = $__9.POSTFIX_EXPRESSION, PREDEFINED_TYPE = $__9.PREDEFINED_TYPE, PROGRAM = $__9.PROGRAM, PROPERTY_METHOD_ASSIGNMENT = $__9.PROPERTY_METHOD_ASSIGNMENT, PROPERTY_NAME_ASSIGNMENT = $__9.PROPERTY_NAME_ASSIGNMENT, PROPERTY_NAME_SHORTHAND = $__9.PROPERTY_NAME_SHORTHAND, REST_PARAMETER = $__9.REST_PARAMETER, RETURN_STATEMENT = $__9.RETURN_STATEMENT, SET_ACCESSOR = $__9.SET_ACCESSOR, SPREAD_EXPRESSION = $__9.SPREAD_EXPRESSION, SPREAD_PATTERN_ELEMENT = $__9.SPREAD_PATTERN_ELEMENT, STATE_MACHINE = $__9.STATE_MACHINE, SUPER_EXPRESSION = $__9.SUPER_EXPRESSION, SWITCH_STATEMENT = $__9.SWITCH_STATEMENT, TEMPLATE_LITERAL_EXPRESSION = $__9.TEMPLATE_LITERAL_EXPRESSION, TEMPLATE_LITERAL_PORTION = $__9.TEMPLATE_LITERAL_PORTION, TEMPLATE_SUBSTITUTION = $__9.TEMPLATE_SUBSTITUTION, THIS_EXPRESSION = $__9.THIS_EXPRESSION, THROW_STATEMENT = $__9.THROW_STATEMENT, TRY_STATEMENT = $__9.TRY_STATEMENT, TYPE_NAME = $__9.TYPE_NAME, UNARY_EXPRESSION = $__9.UNARY_EXPRESSION, VARIABLE_DECLARATION = $__9.VARIABLE_DECLARATION, VARIABLE_DECLARATION_LIST = $__9.VARIABLE_DECLARATION_LIST, VARIABLE_STATEMENT = $__9.VARIABLE_STATEMENT, WHILE_STATEMENT = $__9.WHILE_STATEMENT, WITH_STATEMENT = $__9.WITH_STATEMENT, YIELD_EXPRESSION = $__9.YIELD_EXPRESSION;
   var ParseTree = function() {
     var $ParseTree = ($__createClassNoExtends)({
       constructor: function(type, location) {
@@ -1943,7 +1943,7 @@ var $__src_syntax_trees_ParseTree_js = (function() {
           case MEMBER_LOOKUP_EXPRESSION:
           case CALL_EXPRESSION:
           case FUNCTION_EXPRESSION:
-          case QUASI_LITERAL_EXPRESSION:
+          case TEMPLATE_LITERAL_EXPRESSION:
             return true;
           case PAREN_EXPRESSION:
             return this.expression.isLeftHandSideExpression();
@@ -1973,7 +1973,7 @@ var $__src_syntax_trees_ParseTree_js = (function() {
           case OBJECT_LITERAL_EXPRESSION:
           case PAREN_EXPRESSION:
           case POSTFIX_EXPRESSION:
-          case QUASI_LITERAL_EXPRESSION:
+          case TEMPLATE_LITERAL_EXPRESSION:
           case SUPER_EXPRESSION:
           case THIS_EXPRESSION:
           case UNARY_EXPRESSION:
@@ -1993,7 +1993,7 @@ var $__src_syntax_trees_ParseTree_js = (function() {
           case ARRAY_LITERAL_EXPRESSION:
           case OBJECT_LITERAL_EXPRESSION:
           case PAREN_EXPRESSION:
-          case QUASI_LITERAL_EXPRESSION:
+          case TEMPLATE_LITERAL_EXPRESSION:
           case FUNCTION_EXPRESSION:
           case MEMBER_LOOKUP_EXPRESSION:
           case MEMBER_EXPRESSION:
@@ -2328,12 +2328,12 @@ var $__src_syntax_ParseTreeVisitor_js = (function() {
         this.visitAny(tree.value);
       },
       visitPropertyNameShorthand: function(tree) {},
-      visitQuasiLiteralExpression: function(tree) {
+      visitTemplateLiteralExpression: function(tree) {
         this.visitAny(tree.operand);
         this.visitList(tree.elements);
       },
-      visitQuasiLiteralPortion: function(tree) {},
-      visitQuasiSubstitution: function(tree) {
+      visitTemplateLiteralPortion: function(tree) {},
+      visitTemplateSubstitution: function(tree) {
         this.visitAny(tree.expression);
       },
       visitRestParameter: function(tree) {},
@@ -2832,7 +2832,6 @@ var $__src_syntax_TokenType_js = (function() {
   var PRIVATE = 'private';
   var PROTECTED = 'protected';
   var PUBLIC = 'public';
-  var QUASI_LITERAL_PORTION = 'quasi literal portion';
   var QUESTION = '?';
   var REGULAR_EXPRESSION = 'regular expression literal';
   var RETURN = 'return';
@@ -3344,12 +3343,6 @@ var $__src_syntax_TokenType_js = (function() {
       },
       enumerable: true
     },
-    QUASI_LITERAL_PORTION: {
-      get: function() {
-        return QUASI_LITERAL_PORTION;
-      },
-      enumerable: true
-    },
     QUESTION: {
       get: function() {
         return QUESTION;
@@ -3779,7 +3772,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
   "use strict";
   var ParseTree = $__src_syntax_trees_ParseTree_js.ParseTree;
   var ParseTreeType = $__src_syntax_trees_ParseTreeType_js;
-  var $__9 = ParseTreeType, ARGUMENT_LIST = $__9.ARGUMENT_LIST, ARRAY_COMPREHENSION = $__9.ARRAY_COMPREHENSION, ARRAY_LITERAL_EXPRESSION = $__9.ARRAY_LITERAL_EXPRESSION, ARRAY_PATTERN = $__9.ARRAY_PATTERN, ARROW_FUNCTION_EXPRESSION = $__9.ARROW_FUNCTION_EXPRESSION, AT_NAME_DECLARATION = $__9.AT_NAME_DECLARATION, AT_NAME_EXPRESSION = $__9.AT_NAME_EXPRESSION, AWAIT_STATEMENT = $__9.AWAIT_STATEMENT, BINARY_OPERATOR = $__9.BINARY_OPERATOR, BINDING_ELEMENT = $__9.BINDING_ELEMENT, BINDING_IDENTIFIER = $__9.BINDING_IDENTIFIER, BLOCK = $__9.BLOCK, BREAK_STATEMENT = $__9.BREAK_STATEMENT, CALL_EXPRESSION = $__9.CALL_EXPRESSION, CASCADE_EXPRESSION = $__9.CASCADE_EXPRESSION, CASE_CLAUSE = $__9.CASE_CLAUSE, CATCH = $__9.CATCH, CLASS_DECLARATION = $__9.CLASS_DECLARATION, CLASS_EXPRESSION = $__9.CLASS_EXPRESSION, COMMA_EXPRESSION = $__9.COMMA_EXPRESSION, COMPREHENSION_FOR = $__9.COMPREHENSION_FOR, CONDITIONAL_EXPRESSION = $__9.CONDITIONAL_EXPRESSION, CONTINUE_STATEMENT = $__9.CONTINUE_STATEMENT, COVER_FORMALS = $__9.COVER_FORMALS, DEBUGGER_STATEMENT = $__9.DEBUGGER_STATEMENT, DEFAULT_CLAUSE = $__9.DEFAULT_CLAUSE, DO_WHILE_STATEMENT = $__9.DO_WHILE_STATEMENT, EMPTY_STATEMENT = $__9.EMPTY_STATEMENT, EXPORT_DECLARATION = $__9.EXPORT_DECLARATION, EXPORT_MAPPING = $__9.EXPORT_MAPPING, EXPORT_MAPPING_LIST = $__9.EXPORT_MAPPING_LIST, EXPORT_SPECIFIER = $__9.EXPORT_SPECIFIER, EXPORT_SPECIFIER_SET = $__9.EXPORT_SPECIFIER_SET, EXPORT_STAR = $__9.EXPORT_STAR, EXPRESSION_STATEMENT = $__9.EXPRESSION_STATEMENT, FINALLY = $__9.FINALLY, FOR_IN_STATEMENT = $__9.FOR_IN_STATEMENT, FOR_OF_STATEMENT = $__9.FOR_OF_STATEMENT, FOR_STATEMENT = $__9.FOR_STATEMENT, FORMAL_PARAMETER_LIST = $__9.FORMAL_PARAMETER_LIST, FUNCTION_DECLARATION = $__9.FUNCTION_DECLARATION, FUNCTION_EXPRESSION = $__9.FUNCTION_EXPRESSION, GENERATOR_COMPREHENSION = $__9.GENERATOR_COMPREHENSION, GET_ACCESSOR = $__9.GET_ACCESSOR, IDENTIFIER_EXPRESSION = $__9.IDENTIFIER_EXPRESSION, IF_STATEMENT = $__9.IF_STATEMENT, IMPORT_BINDING = $__9.IMPORT_BINDING, IMPORT_DECLARATION = $__9.IMPORT_DECLARATION, IMPORT_SPECIFIER = $__9.IMPORT_SPECIFIER, IMPORT_SPECIFIER_SET = $__9.IMPORT_SPECIFIER_SET, LABELLED_STATEMENT = $__9.LABELLED_STATEMENT, LITERAL_EXPRESSION = $__9.LITERAL_EXPRESSION, MEMBER_EXPRESSION = $__9.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__9.MEMBER_LOOKUP_EXPRESSION, MISSING_PRIMARY_EXPRESSION = $__9.MISSING_PRIMARY_EXPRESSION, MODULE_DECLARATION = $__9.MODULE_DECLARATION, MODULE_DEFINITION = $__9.MODULE_DEFINITION, MODULE_EXPRESSION = $__9.MODULE_EXPRESSION, MODULE_REQUIRE = $__9.MODULE_REQUIRE, MODULE_SPECIFIER = $__9.MODULE_SPECIFIER, NAME_STATEMENT = $__9.NAME_STATEMENT, NEW_EXPRESSION = $__9.NEW_EXPRESSION, OBJECT_LITERAL_EXPRESSION = $__9.OBJECT_LITERAL_EXPRESSION, OBJECT_PATTERN = $__9.OBJECT_PATTERN, OBJECT_PATTERN_FIELD = $__9.OBJECT_PATTERN_FIELD, PAREN_EXPRESSION = $__9.PAREN_EXPRESSION, POSTFIX_EXPRESSION = $__9.POSTFIX_EXPRESSION, PREDEFINED_TYPE = $__9.PREDEFINED_TYPE, PROGRAM = $__9.PROGRAM, PROPERTY_METHOD_ASSIGNMENT = $__9.PROPERTY_METHOD_ASSIGNMENT, PROPERTY_NAME_ASSIGNMENT = $__9.PROPERTY_NAME_ASSIGNMENT, PROPERTY_NAME_SHORTHAND = $__9.PROPERTY_NAME_SHORTHAND, QUASI_LITERAL_EXPRESSION = $__9.QUASI_LITERAL_EXPRESSION, QUASI_LITERAL_PORTION = $__9.QUASI_LITERAL_PORTION, QUASI_SUBSTITUTION = $__9.QUASI_SUBSTITUTION, REST_PARAMETER = $__9.REST_PARAMETER, RETURN_STATEMENT = $__9.RETURN_STATEMENT, SET_ACCESSOR = $__9.SET_ACCESSOR, SPREAD_EXPRESSION = $__9.SPREAD_EXPRESSION, SPREAD_PATTERN_ELEMENT = $__9.SPREAD_PATTERN_ELEMENT, STATE_MACHINE = $__9.STATE_MACHINE, SUPER_EXPRESSION = $__9.SUPER_EXPRESSION, SWITCH_STATEMENT = $__9.SWITCH_STATEMENT, THIS_EXPRESSION = $__9.THIS_EXPRESSION, THROW_STATEMENT = $__9.THROW_STATEMENT, TRY_STATEMENT = $__9.TRY_STATEMENT, TYPE_NAME = $__9.TYPE_NAME, UNARY_EXPRESSION = $__9.UNARY_EXPRESSION, VARIABLE_DECLARATION = $__9.VARIABLE_DECLARATION, VARIABLE_DECLARATION_LIST = $__9.VARIABLE_DECLARATION_LIST, VARIABLE_STATEMENT = $__9.VARIABLE_STATEMENT, WHILE_STATEMENT = $__9.WHILE_STATEMENT, WITH_STATEMENT = $__9.WITH_STATEMENT, YIELD_EXPRESSION = $__9.YIELD_EXPRESSION;
+  var $__9 = ParseTreeType, ARGUMENT_LIST = $__9.ARGUMENT_LIST, ARRAY_COMPREHENSION = $__9.ARRAY_COMPREHENSION, ARRAY_LITERAL_EXPRESSION = $__9.ARRAY_LITERAL_EXPRESSION, ARRAY_PATTERN = $__9.ARRAY_PATTERN, ARROW_FUNCTION_EXPRESSION = $__9.ARROW_FUNCTION_EXPRESSION, AT_NAME_DECLARATION = $__9.AT_NAME_DECLARATION, AT_NAME_EXPRESSION = $__9.AT_NAME_EXPRESSION, AWAIT_STATEMENT = $__9.AWAIT_STATEMENT, BINARY_OPERATOR = $__9.BINARY_OPERATOR, BINDING_ELEMENT = $__9.BINDING_ELEMENT, BINDING_IDENTIFIER = $__9.BINDING_IDENTIFIER, BLOCK = $__9.BLOCK, BREAK_STATEMENT = $__9.BREAK_STATEMENT, CALL_EXPRESSION = $__9.CALL_EXPRESSION, CASCADE_EXPRESSION = $__9.CASCADE_EXPRESSION, CASE_CLAUSE = $__9.CASE_CLAUSE, CATCH = $__9.CATCH, CLASS_DECLARATION = $__9.CLASS_DECLARATION, CLASS_EXPRESSION = $__9.CLASS_EXPRESSION, COMMA_EXPRESSION = $__9.COMMA_EXPRESSION, COMPREHENSION_FOR = $__9.COMPREHENSION_FOR, CONDITIONAL_EXPRESSION = $__9.CONDITIONAL_EXPRESSION, CONTINUE_STATEMENT = $__9.CONTINUE_STATEMENT, COVER_FORMALS = $__9.COVER_FORMALS, DEBUGGER_STATEMENT = $__9.DEBUGGER_STATEMENT, DEFAULT_CLAUSE = $__9.DEFAULT_CLAUSE, DO_WHILE_STATEMENT = $__9.DO_WHILE_STATEMENT, EMPTY_STATEMENT = $__9.EMPTY_STATEMENT, EXPORT_DECLARATION = $__9.EXPORT_DECLARATION, EXPORT_MAPPING = $__9.EXPORT_MAPPING, EXPORT_MAPPING_LIST = $__9.EXPORT_MAPPING_LIST, EXPORT_SPECIFIER = $__9.EXPORT_SPECIFIER, EXPORT_SPECIFIER_SET = $__9.EXPORT_SPECIFIER_SET, EXPORT_STAR = $__9.EXPORT_STAR, EXPRESSION_STATEMENT = $__9.EXPRESSION_STATEMENT, FINALLY = $__9.FINALLY, FOR_IN_STATEMENT = $__9.FOR_IN_STATEMENT, FOR_OF_STATEMENT = $__9.FOR_OF_STATEMENT, FOR_STATEMENT = $__9.FOR_STATEMENT, FORMAL_PARAMETER_LIST = $__9.FORMAL_PARAMETER_LIST, FUNCTION_DECLARATION = $__9.FUNCTION_DECLARATION, FUNCTION_EXPRESSION = $__9.FUNCTION_EXPRESSION, GENERATOR_COMPREHENSION = $__9.GENERATOR_COMPREHENSION, GET_ACCESSOR = $__9.GET_ACCESSOR, IDENTIFIER_EXPRESSION = $__9.IDENTIFIER_EXPRESSION, IF_STATEMENT = $__9.IF_STATEMENT, IMPORT_BINDING = $__9.IMPORT_BINDING, IMPORT_DECLARATION = $__9.IMPORT_DECLARATION, IMPORT_SPECIFIER = $__9.IMPORT_SPECIFIER, IMPORT_SPECIFIER_SET = $__9.IMPORT_SPECIFIER_SET, LABELLED_STATEMENT = $__9.LABELLED_STATEMENT, LITERAL_EXPRESSION = $__9.LITERAL_EXPRESSION, MEMBER_EXPRESSION = $__9.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__9.MEMBER_LOOKUP_EXPRESSION, MISSING_PRIMARY_EXPRESSION = $__9.MISSING_PRIMARY_EXPRESSION, MODULE_DECLARATION = $__9.MODULE_DECLARATION, MODULE_DEFINITION = $__9.MODULE_DEFINITION, MODULE_EXPRESSION = $__9.MODULE_EXPRESSION, MODULE_REQUIRE = $__9.MODULE_REQUIRE, MODULE_SPECIFIER = $__9.MODULE_SPECIFIER, NAME_STATEMENT = $__9.NAME_STATEMENT, NEW_EXPRESSION = $__9.NEW_EXPRESSION, OBJECT_LITERAL_EXPRESSION = $__9.OBJECT_LITERAL_EXPRESSION, OBJECT_PATTERN = $__9.OBJECT_PATTERN, OBJECT_PATTERN_FIELD = $__9.OBJECT_PATTERN_FIELD, PAREN_EXPRESSION = $__9.PAREN_EXPRESSION, POSTFIX_EXPRESSION = $__9.POSTFIX_EXPRESSION, PREDEFINED_TYPE = $__9.PREDEFINED_TYPE, PROGRAM = $__9.PROGRAM, PROPERTY_METHOD_ASSIGNMENT = $__9.PROPERTY_METHOD_ASSIGNMENT, PROPERTY_NAME_ASSIGNMENT = $__9.PROPERTY_NAME_ASSIGNMENT, PROPERTY_NAME_SHORTHAND = $__9.PROPERTY_NAME_SHORTHAND, REST_PARAMETER = $__9.REST_PARAMETER, RETURN_STATEMENT = $__9.RETURN_STATEMENT, SET_ACCESSOR = $__9.SET_ACCESSOR, SPREAD_EXPRESSION = $__9.SPREAD_EXPRESSION, SPREAD_PATTERN_ELEMENT = $__9.SPREAD_PATTERN_ELEMENT, STATE_MACHINE = $__9.STATE_MACHINE, SUPER_EXPRESSION = $__9.SUPER_EXPRESSION, SWITCH_STATEMENT = $__9.SWITCH_STATEMENT, TEMPLATE_LITERAL_EXPRESSION = $__9.TEMPLATE_LITERAL_EXPRESSION, TEMPLATE_LITERAL_PORTION = $__9.TEMPLATE_LITERAL_PORTION, TEMPLATE_SUBSTITUTION = $__9.TEMPLATE_SUBSTITUTION, THIS_EXPRESSION = $__9.THIS_EXPRESSION, THROW_STATEMENT = $__9.THROW_STATEMENT, TRY_STATEMENT = $__9.TRY_STATEMENT, TYPE_NAME = $__9.TYPE_NAME, UNARY_EXPRESSION = $__9.UNARY_EXPRESSION, VARIABLE_DECLARATION = $__9.VARIABLE_DECLARATION, VARIABLE_DECLARATION_LIST = $__9.VARIABLE_DECLARATION_LIST, VARIABLE_STATEMENT = $__9.VARIABLE_STATEMENT, WHILE_STATEMENT = $__9.WHILE_STATEMENT, WITH_STATEMENT = $__9.WITH_STATEMENT, YIELD_EXPRESSION = $__9.YIELD_EXPRESSION;
   var ArgumentList = function($__super) {
     var $ArgumentList = ($__createClass)({
       constructor: function(location, args) {
@@ -5128,61 +5121,6 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
     }, $__super, true);
     return $PropertyNameShorthand;
   }(ParseTree);
-  var QuasiLiteralExpression = function($__super) {
-    var $QuasiLiteralExpression = ($__createClass)({
-      constructor: function(location, operand, elements) {
-        this.location = location;
-        this.operand = operand;
-        this.elements = elements;
-      },
-      transform: function(transformer) {
-        return transformer.transformQuasiLiteralExpression(this);
-      },
-      visit: function(visitor) {
-        visitor.visitQuasiLiteralExpression(this);
-      },
-      get type() {
-        return QUASI_LITERAL_EXPRESSION;
-      }
-    }, $__super, true);
-    return $QuasiLiteralExpression;
-  }(ParseTree);
-  var QuasiLiteralPortion = function($__super) {
-    var $QuasiLiteralPortion = ($__createClass)({
-      constructor: function(location, value) {
-        this.location = location;
-        this.value = value;
-      },
-      transform: function(transformer) {
-        return transformer.transformQuasiLiteralPortion(this);
-      },
-      visit: function(visitor) {
-        visitor.visitQuasiLiteralPortion(this);
-      },
-      get type() {
-        return QUASI_LITERAL_PORTION;
-      }
-    }, $__super, true);
-    return $QuasiLiteralPortion;
-  }(ParseTree);
-  var QuasiSubstitution = function($__super) {
-    var $QuasiSubstitution = ($__createClass)({
-      constructor: function(location, expression) {
-        this.location = location;
-        this.expression = expression;
-      },
-      transform: function(transformer) {
-        return transformer.transformQuasiSubstitution(this);
-      },
-      visit: function(visitor) {
-        visitor.visitQuasiSubstitution(this);
-      },
-      get type() {
-        return QUASI_SUBSTITUTION;
-      }
-    }, $__super, true);
-    return $QuasiSubstitution;
-  }(ParseTree);
   var RestParameter = function($__super) {
     var $RestParameter = ($__createClass)({
       constructor: function(location, identifier) {
@@ -5310,6 +5248,61 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       }
     }, $__super, true);
     return $SwitchStatement;
+  }(ParseTree);
+  var TemplateLiteralExpression = function($__super) {
+    var $TemplateLiteralExpression = ($__createClass)({
+      constructor: function(location, operand, elements) {
+        this.location = location;
+        this.operand = operand;
+        this.elements = elements;
+      },
+      transform: function(transformer) {
+        return transformer.transformTemplateLiteralExpression(this);
+      },
+      visit: function(visitor) {
+        visitor.visitTemplateLiteralExpression(this);
+      },
+      get type() {
+        return TEMPLATE_LITERAL_EXPRESSION;
+      }
+    }, $__super, true);
+    return $TemplateLiteralExpression;
+  }(ParseTree);
+  var TemplateLiteralPortion = function($__super) {
+    var $TemplateLiteralPortion = ($__createClass)({
+      constructor: function(location, value) {
+        this.location = location;
+        this.value = value;
+      },
+      transform: function(transformer) {
+        return transformer.transformTemplateLiteralPortion(this);
+      },
+      visit: function(visitor) {
+        visitor.visitTemplateLiteralPortion(this);
+      },
+      get type() {
+        return TEMPLATE_LITERAL_PORTION;
+      }
+    }, $__super, true);
+    return $TemplateLiteralPortion;
+  }(ParseTree);
+  var TemplateSubstitution = function($__super) {
+    var $TemplateSubstitution = ($__createClass)({
+      constructor: function(location, expression) {
+        this.location = location;
+        this.expression = expression;
+      },
+      transform: function(transformer) {
+        return transformer.transformTemplateSubstitution(this);
+      },
+      visit: function(visitor) {
+        visitor.visitTemplateSubstitution(this);
+      },
+      get type() {
+        return TEMPLATE_SUBSTITUTION;
+      }
+    }, $__super, true);
+    return $TemplateSubstitution;
   }(ParseTree);
   var ThisExpression = function($__super) {
     var $ThisExpression = ($__createClass)({
@@ -5951,24 +5944,6 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       },
       enumerable: true
     },
-    QuasiLiteralExpression: {
-      get: function() {
-        return QuasiLiteralExpression;
-      },
-      enumerable: true
-    },
-    QuasiLiteralPortion: {
-      get: function() {
-        return QuasiLiteralPortion;
-      },
-      enumerable: true
-    },
-    QuasiSubstitution: {
-      get: function() {
-        return QuasiSubstitution;
-      },
-      enumerable: true
-    },
     RestParameter: {
       get: function() {
         return RestParameter;
@@ -6008,6 +5983,24 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
     SwitchStatement: {
       get: function() {
         return SwitchStatement;
+      },
+      enumerable: true
+    },
+    TemplateLiteralExpression: {
+      get: function() {
+        return TemplateLiteralExpression;
+      },
+      enumerable: true
+    },
+    TemplateLiteralPortion: {
+      get: function() {
+        return TemplateLiteralPortion;
+      },
+      enumerable: true
+    },
+    TemplateSubstitution: {
+      get: function() {
+        return TemplateSubstitution;
       },
       enumerable: true
     },
@@ -6081,7 +6074,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
 }).call(this);
 var $__src_codegeneration_ParseTreeTransformer_js = (function() {
   "use strict";
-  var $__9 = $__src_syntax_trees_ParseTrees_js, ArgumentList = $__9.ArgumentList, ArrayComprehension = $__9.ArrayComprehension, ArrayLiteralExpression = $__9.ArrayLiteralExpression, ArrayPattern = $__9.ArrayPattern, ArrowFunctionExpression = $__9.ArrowFunctionExpression, AtNameDeclaration = $__9.AtNameDeclaration, AtNameExpression = $__9.AtNameExpression, AwaitStatement = $__9.AwaitStatement, BinaryOperator = $__9.BinaryOperator, BindingElement = $__9.BindingElement, BindingIdentifier = $__9.BindingIdentifier, Block = $__9.Block, BreakStatement = $__9.BreakStatement, CallExpression = $__9.CallExpression, CascadeExpression = $__9.CascadeExpression, CaseClause = $__9.CaseClause, Catch = $__9.Catch, ClassDeclaration = $__9.ClassDeclaration, ClassExpression = $__9.ClassExpression, CommaExpression = $__9.CommaExpression, ComprehensionFor = $__9.ComprehensionFor, ConditionalExpression = $__9.ConditionalExpression, ContinueStatement = $__9.ContinueStatement, CoverFormals = $__9.CoverFormals, DebuggerStatement = $__9.DebuggerStatement, DefaultClause = $__9.DefaultClause, DoWhileStatement = $__9.DoWhileStatement, EmptyStatement = $__9.EmptyStatement, ExportDeclaration = $__9.ExportDeclaration, ExportMapping = $__9.ExportMapping, ExportMappingList = $__9.ExportMappingList, ExportSpecifier = $__9.ExportSpecifier, ExportSpecifierSet = $__9.ExportSpecifierSet, ExportStar = $__9.ExportStar, ExpressionStatement = $__9.ExpressionStatement, Finally = $__9.Finally, ForInStatement = $__9.ForInStatement, ForOfStatement = $__9.ForOfStatement, ForStatement = $__9.ForStatement, FormalParameterList = $__9.FormalParameterList, FunctionDeclaration = $__9.FunctionDeclaration, FunctionExpression = $__9.FunctionExpression, GeneratorComprehension = $__9.GeneratorComprehension, GetAccessor = $__9.GetAccessor, IdentifierExpression = $__9.IdentifierExpression, IfStatement = $__9.IfStatement, ImportBinding = $__9.ImportBinding, ImportDeclaration = $__9.ImportDeclaration, ImportSpecifier = $__9.ImportSpecifier, ImportSpecifierSet = $__9.ImportSpecifierSet, LabelledStatement = $__9.LabelledStatement, LiteralExpression = $__9.LiteralExpression, MemberExpression = $__9.MemberExpression, MemberLookupExpression = $__9.MemberLookupExpression, MissingPrimaryExpression = $__9.MissingPrimaryExpression, ModuleDeclaration = $__9.ModuleDeclaration, ModuleDefinition = $__9.ModuleDefinition, ModuleExpression = $__9.ModuleExpression, ModuleRequire = $__9.ModuleRequire, ModuleSpecifier = $__9.ModuleSpecifier, NameStatement = $__9.NameStatement, NewExpression = $__9.NewExpression, ObjectLiteralExpression = $__9.ObjectLiteralExpression, ObjectPattern = $__9.ObjectPattern, ObjectPatternField = $__9.ObjectPatternField, ParenExpression = $__9.ParenExpression, PostfixExpression = $__9.PostfixExpression, PredefinedType = $__9.PredefinedType, Program = $__9.Program, PropertyMethodAssignment = $__9.PropertyMethodAssignment, PropertyNameAssignment = $__9.PropertyNameAssignment, PropertyNameShorthand = $__9.PropertyNameShorthand, QuasiLiteralExpression = $__9.QuasiLiteralExpression, QuasiLiteralPortion = $__9.QuasiLiteralPortion, QuasiSubstitution = $__9.QuasiSubstitution, RestParameter = $__9.RestParameter, ReturnStatement = $__9.ReturnStatement, SetAccessor = $__9.SetAccessor, SpreadExpression = $__9.SpreadExpression, SpreadPatternElement = $__9.SpreadPatternElement, SuperExpression = $__9.SuperExpression, SwitchStatement = $__9.SwitchStatement, ThisExpression = $__9.ThisExpression, ThrowStatement = $__9.ThrowStatement, TryStatement = $__9.TryStatement, TypeName = $__9.TypeName, UnaryExpression = $__9.UnaryExpression, VariableDeclaration = $__9.VariableDeclaration, VariableDeclarationList = $__9.VariableDeclarationList, VariableStatement = $__9.VariableStatement, WhileStatement = $__9.WhileStatement, WithStatement = $__9.WithStatement, YieldExpression = $__9.YieldExpression;
+  var $__9 = $__src_syntax_trees_ParseTrees_js, ArgumentList = $__9.ArgumentList, ArrayComprehension = $__9.ArrayComprehension, ArrayLiteralExpression = $__9.ArrayLiteralExpression, ArrayPattern = $__9.ArrayPattern, ArrowFunctionExpression = $__9.ArrowFunctionExpression, AtNameDeclaration = $__9.AtNameDeclaration, AtNameExpression = $__9.AtNameExpression, AwaitStatement = $__9.AwaitStatement, BinaryOperator = $__9.BinaryOperator, BindingElement = $__9.BindingElement, BindingIdentifier = $__9.BindingIdentifier, Block = $__9.Block, BreakStatement = $__9.BreakStatement, CallExpression = $__9.CallExpression, CascadeExpression = $__9.CascadeExpression, CaseClause = $__9.CaseClause, Catch = $__9.Catch, ClassDeclaration = $__9.ClassDeclaration, ClassExpression = $__9.ClassExpression, CommaExpression = $__9.CommaExpression, ComprehensionFor = $__9.ComprehensionFor, ConditionalExpression = $__9.ConditionalExpression, ContinueStatement = $__9.ContinueStatement, CoverFormals = $__9.CoverFormals, DebuggerStatement = $__9.DebuggerStatement, DefaultClause = $__9.DefaultClause, DoWhileStatement = $__9.DoWhileStatement, EmptyStatement = $__9.EmptyStatement, ExportDeclaration = $__9.ExportDeclaration, ExportMapping = $__9.ExportMapping, ExportMappingList = $__9.ExportMappingList, ExportSpecifier = $__9.ExportSpecifier, ExportSpecifierSet = $__9.ExportSpecifierSet, ExportStar = $__9.ExportStar, ExpressionStatement = $__9.ExpressionStatement, Finally = $__9.Finally, ForInStatement = $__9.ForInStatement, ForOfStatement = $__9.ForOfStatement, ForStatement = $__9.ForStatement, FormalParameterList = $__9.FormalParameterList, FunctionDeclaration = $__9.FunctionDeclaration, FunctionExpression = $__9.FunctionExpression, GeneratorComprehension = $__9.GeneratorComprehension, GetAccessor = $__9.GetAccessor, IdentifierExpression = $__9.IdentifierExpression, IfStatement = $__9.IfStatement, ImportBinding = $__9.ImportBinding, ImportDeclaration = $__9.ImportDeclaration, ImportSpecifier = $__9.ImportSpecifier, ImportSpecifierSet = $__9.ImportSpecifierSet, LabelledStatement = $__9.LabelledStatement, LiteralExpression = $__9.LiteralExpression, MemberExpression = $__9.MemberExpression, MemberLookupExpression = $__9.MemberLookupExpression, MissingPrimaryExpression = $__9.MissingPrimaryExpression, ModuleDeclaration = $__9.ModuleDeclaration, ModuleDefinition = $__9.ModuleDefinition, ModuleExpression = $__9.ModuleExpression, ModuleRequire = $__9.ModuleRequire, ModuleSpecifier = $__9.ModuleSpecifier, NameStatement = $__9.NameStatement, NewExpression = $__9.NewExpression, ObjectLiteralExpression = $__9.ObjectLiteralExpression, ObjectPattern = $__9.ObjectPattern, ObjectPatternField = $__9.ObjectPatternField, ParenExpression = $__9.ParenExpression, PostfixExpression = $__9.PostfixExpression, PredefinedType = $__9.PredefinedType, Program = $__9.Program, PropertyMethodAssignment = $__9.PropertyMethodAssignment, PropertyNameAssignment = $__9.PropertyNameAssignment, PropertyNameShorthand = $__9.PropertyNameShorthand, RestParameter = $__9.RestParameter, ReturnStatement = $__9.ReturnStatement, SetAccessor = $__9.SetAccessor, SpreadExpression = $__9.SpreadExpression, SpreadPatternElement = $__9.SpreadPatternElement, SuperExpression = $__9.SuperExpression, SwitchStatement = $__9.SwitchStatement, TemplateLiteralExpression = $__9.TemplateLiteralExpression, TemplateLiteralPortion = $__9.TemplateLiteralPortion, TemplateSubstitution = $__9.TemplateSubstitution, ThisExpression = $__9.ThisExpression, ThrowStatement = $__9.ThrowStatement, TryStatement = $__9.TryStatement, TypeName = $__9.TypeName, UnaryExpression = $__9.UnaryExpression, VariableDeclaration = $__9.VariableDeclaration, VariableDeclarationList = $__9.VariableDeclarationList, VariableStatement = $__9.VariableStatement, WhileStatement = $__9.WhileStatement, WithStatement = $__9.WithStatement, YieldExpression = $__9.YieldExpression;
   var ParseTreeTransformer = function() {
     var $ParseTreeTransformer = ($__createClassNoExtends)({
       constructor: function() {},
@@ -6574,21 +6567,21 @@ var $__src_codegeneration_ParseTreeTransformer_js = (function() {
       transformPropertyNameShorthand: function(tree) {
         return tree;
       },
-      transformQuasiLiteralExpression: function(tree) {
+      transformTemplateLiteralExpression: function(tree) {
         var operand = this.transformAny(tree.operand);
         var elements = this.transformList(tree.elements);
         if (operand === tree.operand && elements == tree.elements) return tree;
-        return new QuasiLiteralExpression(tree.location, operand, elements);
+        return new TemplateLiteralExpression(tree.location, operand, elements);
       },
-      transformQuasiLiteralPortion: function(tree) {
+      transformTemplateLiteralPortion: function(tree) {
         return tree;
       },
-      transformQuasiSubstitution: function(tree) {
+      transformTemplateSubstitution: function(tree) {
         var expression = this.transformAny(tree.expression);
         if (expression == tree.expression) {
           return tree;
         }
-        return new QuasiSubstitution(tree.location, expression);
+        return new TemplateSubstitution(tree.location, expression);
       },
       transformRestParameter: function(tree) {
         return tree;
@@ -7918,7 +7911,7 @@ var $__src_syntax_Scanner_js = (function() {
   var SourcePosition = $__src_util_SourcePosition_js.SourcePosition;
   var Token = $__src_syntax_Token_js.Token;
   var isKeyword = $__src_syntax_Keywords_js.isKeyword;
-  var $__9 = $__src_syntax_TokenType_js, AMPERSAND = $__9.AMPERSAND, AMPERSAND_EQUAL = $__9.AMPERSAND_EQUAL, AND = $__9.AND, ARROW = $__9.ARROW, AT_NAME = $__9.AT_NAME, AWAIT = $__9.AWAIT, BACK_QUOTE = $__9.BACK_QUOTE, BANG = $__9.BANG, BAR = $__9.BAR, BAR_EQUAL = $__9.BAR_EQUAL, BREAK = $__9.BREAK, CARET = $__9.CARET, CARET_EQUAL = $__9.CARET_EQUAL, CASE = $__9.CASE, CATCH = $__9.CATCH, CLASS = $__9.CLASS, CLOSE_ANGLE = $__9.CLOSE_ANGLE, CLOSE_CURLY = $__9.CLOSE_CURLY, CLOSE_PAREN = $__9.CLOSE_PAREN, CLOSE_SQUARE = $__9.CLOSE_SQUARE, COLON = $__9.COLON, COMMA = $__9.COMMA, CONST = $__9.CONST, CONTINUE = $__9.CONTINUE, DEBUGGER = $__9.DEBUGGER, DEFAULT = $__9.DEFAULT, DELETE = $__9.DELETE, DO = $__9.DO, DOLLAR = $__9.DOLLAR, DOT_DOT_DOT = $__9.DOT_DOT_DOT, ELSE = $__9.ELSE, END_OF_FILE = $__9.END_OF_FILE, ENUM = $__9.ENUM, EQUAL = $__9.EQUAL, EQUAL_EQUAL = $__9.EQUAL_EQUAL, EQUAL_EQUAL_EQUAL = $__9.EQUAL_EQUAL_EQUAL, ERROR = $__9.ERROR, EXPORT = $__9.EXPORT, EXTENDS = $__9.EXTENDS, FALSE = $__9.FALSE, FINALLY = $__9.FINALLY, FOR = $__9.FOR, FUNCTION = $__9.FUNCTION, GREATER_EQUAL = $__9.GREATER_EQUAL, IDENTIFIER = $__9.IDENTIFIER, IF = $__9.IF, IMPLEMENTS = $__9.IMPLEMENTS, IMPORT = $__9.IMPORT, IN = $__9.IN, INSTANCEOF = $__9.INSTANCEOF, INTERFACE = $__9.INTERFACE, LEFT_SHIFT = $__9.LEFT_SHIFT, LEFT_SHIFT_EQUAL = $__9.LEFT_SHIFT_EQUAL, LESS_EQUAL = $__9.LESS_EQUAL, LET = $__9.LET, MINUS = $__9.MINUS, MINUS_EQUAL = $__9.MINUS_EQUAL, MINUS_MINUS = $__9.MINUS_MINUS, NEW = $__9.NEW, NO_SUBSTITUTION_TEMPLATE = $__9.NO_SUBSTITUTION_TEMPLATE, NOT_EQUAL = $__9.NOT_EQUAL, NOT_EQUAL_EQUAL = $__9.NOT_EQUAL_EQUAL, NULL = $__9.NULL, NUMBER = $__9.NUMBER, OPEN_ANGLE = $__9.OPEN_ANGLE, OPEN_CURLY = $__9.OPEN_CURLY, OPEN_PAREN = $__9.OPEN_PAREN, OPEN_SQUARE = $__9.OPEN_SQUARE, OR = $__9.OR, PACKAGE = $__9.PACKAGE, PERCENT = $__9.PERCENT, PERCENT_EQUAL = $__9.PERCENT_EQUAL, PERIOD = $__9.PERIOD, PERIOD_OPEN_CURLY = $__9.PERIOD_OPEN_CURLY, PLUS = $__9.PLUS, PLUS_EQUAL = $__9.PLUS_EQUAL, PLUS_PLUS = $__9.PLUS_PLUS, PRIVATE = $__9.PRIVATE, PROTECTED = $__9.PROTECTED, PUBLIC = $__9.PUBLIC, QUASI_LITERAL_PORTION = $__9.QUASI_LITERAL_PORTION, QUESTION = $__9.QUESTION, REGULAR_EXPRESSION = $__9.REGULAR_EXPRESSION, RETURN = $__9.RETURN, RIGHT_SHIFT = $__9.RIGHT_SHIFT, RIGHT_SHIFT_EQUAL = $__9.RIGHT_SHIFT_EQUAL, SEMI_COLON = $__9.SEMI_COLON, SLASH = $__9.SLASH, SLASH_EQUAL = $__9.SLASH_EQUAL, STAR = $__9.STAR, STAR_EQUAL = $__9.STAR_EQUAL, STATIC = $__9.STATIC, STRING = $__9.STRING, SUPER = $__9.SUPER, SWITCH = $__9.SWITCH, TEMPLATE_HEAD = $__9.TEMPLATE_HEAD, TEMPLATE_MIDDLE = $__9.TEMPLATE_MIDDLE, TEMPLATE_TAIL = $__9.TEMPLATE_TAIL, THIS = $__9.THIS, THROW = $__9.THROW, TILDE = $__9.TILDE, TRUE = $__9.TRUE, TRY = $__9.TRY, TYPEOF = $__9.TYPEOF, UNSIGNED_RIGHT_SHIFT = $__9.UNSIGNED_RIGHT_SHIFT, UNSIGNED_RIGHT_SHIFT_EQUAL = $__9.UNSIGNED_RIGHT_SHIFT_EQUAL, VAR = $__9.VAR, VOID = $__9.VOID, WHILE = $__9.WHILE, WITH = $__9.WITH, YIELD = $__9.YIELD;
+  var $__9 = $__src_syntax_TokenType_js, AMPERSAND = $__9.AMPERSAND, AMPERSAND_EQUAL = $__9.AMPERSAND_EQUAL, AND = $__9.AND, ARROW = $__9.ARROW, AT_NAME = $__9.AT_NAME, AWAIT = $__9.AWAIT, BACK_QUOTE = $__9.BACK_QUOTE, BANG = $__9.BANG, BAR = $__9.BAR, BAR_EQUAL = $__9.BAR_EQUAL, BREAK = $__9.BREAK, CARET = $__9.CARET, CARET_EQUAL = $__9.CARET_EQUAL, CASE = $__9.CASE, CATCH = $__9.CATCH, CLASS = $__9.CLASS, CLOSE_ANGLE = $__9.CLOSE_ANGLE, CLOSE_CURLY = $__9.CLOSE_CURLY, CLOSE_PAREN = $__9.CLOSE_PAREN, CLOSE_SQUARE = $__9.CLOSE_SQUARE, COLON = $__9.COLON, COMMA = $__9.COMMA, CONST = $__9.CONST, CONTINUE = $__9.CONTINUE, DEBUGGER = $__9.DEBUGGER, DEFAULT = $__9.DEFAULT, DELETE = $__9.DELETE, DO = $__9.DO, DOLLAR = $__9.DOLLAR, DOT_DOT_DOT = $__9.DOT_DOT_DOT, ELSE = $__9.ELSE, END_OF_FILE = $__9.END_OF_FILE, ENUM = $__9.ENUM, EQUAL = $__9.EQUAL, EQUAL_EQUAL = $__9.EQUAL_EQUAL, EQUAL_EQUAL_EQUAL = $__9.EQUAL_EQUAL_EQUAL, ERROR = $__9.ERROR, EXPORT = $__9.EXPORT, EXTENDS = $__9.EXTENDS, FALSE = $__9.FALSE, FINALLY = $__9.FINALLY, FOR = $__9.FOR, FUNCTION = $__9.FUNCTION, GREATER_EQUAL = $__9.GREATER_EQUAL, IDENTIFIER = $__9.IDENTIFIER, IF = $__9.IF, IMPLEMENTS = $__9.IMPLEMENTS, IMPORT = $__9.IMPORT, IN = $__9.IN, INSTANCEOF = $__9.INSTANCEOF, INTERFACE = $__9.INTERFACE, LEFT_SHIFT = $__9.LEFT_SHIFT, LEFT_SHIFT_EQUAL = $__9.LEFT_SHIFT_EQUAL, LESS_EQUAL = $__9.LESS_EQUAL, LET = $__9.LET, MINUS = $__9.MINUS, MINUS_EQUAL = $__9.MINUS_EQUAL, MINUS_MINUS = $__9.MINUS_MINUS, NEW = $__9.NEW, NO_SUBSTITUTION_TEMPLATE = $__9.NO_SUBSTITUTION_TEMPLATE, NOT_EQUAL = $__9.NOT_EQUAL, NOT_EQUAL_EQUAL = $__9.NOT_EQUAL_EQUAL, NULL = $__9.NULL, NUMBER = $__9.NUMBER, OPEN_ANGLE = $__9.OPEN_ANGLE, OPEN_CURLY = $__9.OPEN_CURLY, OPEN_PAREN = $__9.OPEN_PAREN, OPEN_SQUARE = $__9.OPEN_SQUARE, OR = $__9.OR, PACKAGE = $__9.PACKAGE, PERCENT = $__9.PERCENT, PERCENT_EQUAL = $__9.PERCENT_EQUAL, PERIOD = $__9.PERIOD, PERIOD_OPEN_CURLY = $__9.PERIOD_OPEN_CURLY, PLUS = $__9.PLUS, PLUS_EQUAL = $__9.PLUS_EQUAL, PLUS_PLUS = $__9.PLUS_PLUS, PRIVATE = $__9.PRIVATE, PROTECTED = $__9.PROTECTED, PUBLIC = $__9.PUBLIC, QUESTION = $__9.QUESTION, REGULAR_EXPRESSION = $__9.REGULAR_EXPRESSION, RETURN = $__9.RETURN, RIGHT_SHIFT = $__9.RIGHT_SHIFT, RIGHT_SHIFT_EQUAL = $__9.RIGHT_SHIFT_EQUAL, SEMI_COLON = $__9.SEMI_COLON, SLASH = $__9.SLASH, SLASH_EQUAL = $__9.SLASH_EQUAL, STAR = $__9.STAR, STAR_EQUAL = $__9.STAR_EQUAL, STATIC = $__9.STATIC, STRING = $__9.STRING, SUPER = $__9.SUPER, SWITCH = $__9.SWITCH, TEMPLATE_HEAD = $__9.TEMPLATE_HEAD, TEMPLATE_MIDDLE = $__9.TEMPLATE_MIDDLE, TEMPLATE_TAIL = $__9.TEMPLATE_TAIL, THIS = $__9.THIS, THROW = $__9.THROW, TILDE = $__9.TILDE, TRUE = $__9.TRUE, TRY = $__9.TRY, TYPEOF = $__9.TYPEOF, UNSIGNED_RIGHT_SHIFT = $__9.UNSIGNED_RIGHT_SHIFT, UNSIGNED_RIGHT_SHIFT_EQUAL = $__9.UNSIGNED_RIGHT_SHIFT_EQUAL, VAR = $__9.VAR, VOID = $__9.VOID, WHILE = $__9.WHILE, WITH = $__9.WITH, YIELD = $__9.YIELD;
   var isWhitespaceArray = [];
   for (var i = 0; i < 128; i++) {
     isWhitespaceArray[i] = i >= 9 && i <= 13 || i === 0x20;
@@ -8684,8 +8677,8 @@ var $__src_syntax_Parser_js = (function() {
   var $__9 = $__src_syntax_Token_js, Token = $__9.Token, isAssignmentOperator = $__9.isAssignmentOperator;
   var isKeyword = $__src_syntax_Keywords_js.isKeyword;
   var options = $__src_options_js.parseOptions;
-  var $__9 = $__src_syntax_TokenType_js, AMPERSAND = $__9.AMPERSAND, AMPERSAND_EQUAL = $__9.AMPERSAND_EQUAL, AND = $__9.AND, ARROW = $__9.ARROW, AT_NAME = $__9.AT_NAME, AWAIT = $__9.AWAIT, BACK_QUOTE = $__9.BACK_QUOTE, BANG = $__9.BANG, BAR = $__9.BAR, BAR_EQUAL = $__9.BAR_EQUAL, BREAK = $__9.BREAK, CARET = $__9.CARET, CARET_EQUAL = $__9.CARET_EQUAL, CASE = $__9.CASE, CATCH = $__9.CATCH, CLASS = $__9.CLASS, CLOSE_ANGLE = $__9.CLOSE_ANGLE, CLOSE_CURLY = $__9.CLOSE_CURLY, CLOSE_PAREN = $__9.CLOSE_PAREN, CLOSE_SQUARE = $__9.CLOSE_SQUARE, COLON = $__9.COLON, COMMA = $__9.COMMA, CONST = $__9.CONST, CONTINUE = $__9.CONTINUE, DEBUGGER = $__9.DEBUGGER, DEFAULT = $__9.DEFAULT, DELETE = $__9.DELETE, DO = $__9.DO, DOLLAR = $__9.DOLLAR, DOT_DOT_DOT = $__9.DOT_DOT_DOT, ELSE = $__9.ELSE, END_OF_FILE = $__9.END_OF_FILE, ENUM = $__9.ENUM, EQUAL = $__9.EQUAL, EQUAL_EQUAL = $__9.EQUAL_EQUAL, EQUAL_EQUAL_EQUAL = $__9.EQUAL_EQUAL_EQUAL, ERROR = $__9.ERROR, EXPORT = $__9.EXPORT, EXTENDS = $__9.EXTENDS, FALSE = $__9.FALSE, FINALLY = $__9.FINALLY, FOR = $__9.FOR, FUNCTION = $__9.FUNCTION, GREATER_EQUAL = $__9.GREATER_EQUAL, IDENTIFIER = $__9.IDENTIFIER, IF = $__9.IF, IMPLEMENTS = $__9.IMPLEMENTS, IMPORT = $__9.IMPORT, IN = $__9.IN, INSTANCEOF = $__9.INSTANCEOF, INTERFACE = $__9.INTERFACE, LEFT_SHIFT = $__9.LEFT_SHIFT, LEFT_SHIFT_EQUAL = $__9.LEFT_SHIFT_EQUAL, LESS_EQUAL = $__9.LESS_EQUAL, LET = $__9.LET, MINUS = $__9.MINUS, MINUS_EQUAL = $__9.MINUS_EQUAL, MINUS_MINUS = $__9.MINUS_MINUS, NEW = $__9.NEW, NO_SUBSTITUTION_TEMPLATE = $__9.NO_SUBSTITUTION_TEMPLATE, NOT_EQUAL = $__9.NOT_EQUAL, NOT_EQUAL_EQUAL = $__9.NOT_EQUAL_EQUAL, NULL = $__9.NULL, NUMBER = $__9.NUMBER, OPEN_ANGLE = $__9.OPEN_ANGLE, OPEN_CURLY = $__9.OPEN_CURLY, OPEN_PAREN = $__9.OPEN_PAREN, OPEN_SQUARE = $__9.OPEN_SQUARE, OR = $__9.OR, PACKAGE = $__9.PACKAGE, PERCENT = $__9.PERCENT, PERCENT_EQUAL = $__9.PERCENT_EQUAL, PERIOD = $__9.PERIOD, PERIOD_OPEN_CURLY = $__9.PERIOD_OPEN_CURLY, PLUS = $__9.PLUS, PLUS_EQUAL = $__9.PLUS_EQUAL, PLUS_PLUS = $__9.PLUS_PLUS, PRIVATE = $__9.PRIVATE, PROTECTED = $__9.PROTECTED, PUBLIC = $__9.PUBLIC, QUASI_LITERAL_PORTION = $__9.QUASI_LITERAL_PORTION, QUESTION = $__9.QUESTION, REGULAR_EXPRESSION = $__9.REGULAR_EXPRESSION, RETURN = $__9.RETURN, RIGHT_SHIFT = $__9.RIGHT_SHIFT, RIGHT_SHIFT_EQUAL = $__9.RIGHT_SHIFT_EQUAL, SEMI_COLON = $__9.SEMI_COLON, SLASH = $__9.SLASH, SLASH_EQUAL = $__9.SLASH_EQUAL, STAR = $__9.STAR, STAR_EQUAL = $__9.STAR_EQUAL, STATIC = $__9.STATIC, STRING = $__9.STRING, SUPER = $__9.SUPER, SWITCH = $__9.SWITCH, TEMPLATE_HEAD = $__9.TEMPLATE_HEAD, TEMPLATE_MIDDLE = $__9.TEMPLATE_MIDDLE, TEMPLATE_TAIL = $__9.TEMPLATE_TAIL, THIS = $__9.THIS, THROW = $__9.THROW, TILDE = $__9.TILDE, TRUE = $__9.TRUE, TRY = $__9.TRY, TYPEOF = $__9.TYPEOF, UNSIGNED_RIGHT_SHIFT = $__9.UNSIGNED_RIGHT_SHIFT, UNSIGNED_RIGHT_SHIFT_EQUAL = $__9.UNSIGNED_RIGHT_SHIFT_EQUAL, VAR = $__9.VAR, VOID = $__9.VOID, WHILE = $__9.WHILE, WITH = $__9.WITH, YIELD = $__9.YIELD;
-  var $__9 = $__src_syntax_trees_ParseTrees_js, ArgumentList = $__9.ArgumentList, ArrayComprehension = $__9.ArrayComprehension, ArrayLiteralExpression = $__9.ArrayLiteralExpression, ArrayPattern = $__9.ArrayPattern, ArrowFunctionExpression = $__9.ArrowFunctionExpression, AtNameDeclaration = $__9.AtNameDeclaration, AtNameExpression = $__9.AtNameExpression, AwaitStatement = $__9.AwaitStatement, BinaryOperator = $__9.BinaryOperator, BindingElement = $__9.BindingElement, BindingIdentifier = $__9.BindingIdentifier, Block = $__9.Block, BreakStatement = $__9.BreakStatement, CallExpression = $__9.CallExpression, CascadeExpression = $__9.CascadeExpression, CaseClause = $__9.CaseClause, Catch = $__9.Catch, ClassDeclaration = $__9.ClassDeclaration, ClassExpression = $__9.ClassExpression, CommaExpression = $__9.CommaExpression, ComprehensionFor = $__9.ComprehensionFor, ConditionalExpression = $__9.ConditionalExpression, ContinueStatement = $__9.ContinueStatement, CoverFormals = $__9.CoverFormals, DebuggerStatement = $__9.DebuggerStatement, DefaultClause = $__9.DefaultClause, DoWhileStatement = $__9.DoWhileStatement, EmptyStatement = $__9.EmptyStatement, ExportDeclaration = $__9.ExportDeclaration, ExportMapping = $__9.ExportMapping, ExportMappingList = $__9.ExportMappingList, ExportSpecifier = $__9.ExportSpecifier, ExportSpecifierSet = $__9.ExportSpecifierSet, ExportStar = $__9.ExportStar, ExpressionStatement = $__9.ExpressionStatement, Finally = $__9.Finally, ForInStatement = $__9.ForInStatement, ForOfStatement = $__9.ForOfStatement, ForStatement = $__9.ForStatement, FormalParameterList = $__9.FormalParameterList, FunctionDeclaration = $__9.FunctionDeclaration, FunctionExpression = $__9.FunctionExpression, GeneratorComprehension = $__9.GeneratorComprehension, GetAccessor = $__9.GetAccessor, IdentifierExpression = $__9.IdentifierExpression, IfStatement = $__9.IfStatement, ImportBinding = $__9.ImportBinding, ImportDeclaration = $__9.ImportDeclaration, ImportSpecifier = $__9.ImportSpecifier, ImportSpecifierSet = $__9.ImportSpecifierSet, LabelledStatement = $__9.LabelledStatement, LiteralExpression = $__9.LiteralExpression, MemberExpression = $__9.MemberExpression, MemberLookupExpression = $__9.MemberLookupExpression, MissingPrimaryExpression = $__9.MissingPrimaryExpression, ModuleDeclaration = $__9.ModuleDeclaration, ModuleDefinition = $__9.ModuleDefinition, ModuleExpression = $__9.ModuleExpression, ModuleRequire = $__9.ModuleRequire, ModuleSpecifier = $__9.ModuleSpecifier, NameStatement = $__9.NameStatement, NewExpression = $__9.NewExpression, ObjectLiteralExpression = $__9.ObjectLiteralExpression, ObjectPattern = $__9.ObjectPattern, ObjectPatternField = $__9.ObjectPatternField, ParenExpression = $__9.ParenExpression, PostfixExpression = $__9.PostfixExpression, PredefinedType = $__9.PredefinedType, Program = $__9.Program, PropertyMethodAssignment = $__9.PropertyMethodAssignment, PropertyNameAssignment = $__9.PropertyNameAssignment, PropertyNameShorthand = $__9.PropertyNameShorthand, QuasiLiteralExpression = $__9.QuasiLiteralExpression, QuasiLiteralPortion = $__9.QuasiLiteralPortion, QuasiSubstitution = $__9.QuasiSubstitution, RestParameter = $__9.RestParameter, ReturnStatement = $__9.ReturnStatement, SetAccessor = $__9.SetAccessor, SpreadExpression = $__9.SpreadExpression, SpreadPatternElement = $__9.SpreadPatternElement, SuperExpression = $__9.SuperExpression, SwitchStatement = $__9.SwitchStatement, ThisExpression = $__9.ThisExpression, ThrowStatement = $__9.ThrowStatement, TryStatement = $__9.TryStatement, TypeName = $__9.TypeName, UnaryExpression = $__9.UnaryExpression, VariableDeclaration = $__9.VariableDeclaration, VariableDeclarationList = $__9.VariableDeclarationList, VariableStatement = $__9.VariableStatement, WhileStatement = $__9.WhileStatement, WithStatement = $__9.WithStatement, YieldExpression = $__9.YieldExpression;
+  var $__9 = $__src_syntax_TokenType_js, AMPERSAND = $__9.AMPERSAND, AMPERSAND_EQUAL = $__9.AMPERSAND_EQUAL, AND = $__9.AND, ARROW = $__9.ARROW, AT_NAME = $__9.AT_NAME, AWAIT = $__9.AWAIT, BACK_QUOTE = $__9.BACK_QUOTE, BANG = $__9.BANG, BAR = $__9.BAR, BAR_EQUAL = $__9.BAR_EQUAL, BREAK = $__9.BREAK, CARET = $__9.CARET, CARET_EQUAL = $__9.CARET_EQUAL, CASE = $__9.CASE, CATCH = $__9.CATCH, CLASS = $__9.CLASS, CLOSE_ANGLE = $__9.CLOSE_ANGLE, CLOSE_CURLY = $__9.CLOSE_CURLY, CLOSE_PAREN = $__9.CLOSE_PAREN, CLOSE_SQUARE = $__9.CLOSE_SQUARE, COLON = $__9.COLON, COMMA = $__9.COMMA, CONST = $__9.CONST, CONTINUE = $__9.CONTINUE, DEBUGGER = $__9.DEBUGGER, DEFAULT = $__9.DEFAULT, DELETE = $__9.DELETE, DO = $__9.DO, DOLLAR = $__9.DOLLAR, DOT_DOT_DOT = $__9.DOT_DOT_DOT, ELSE = $__9.ELSE, END_OF_FILE = $__9.END_OF_FILE, ENUM = $__9.ENUM, EQUAL = $__9.EQUAL, EQUAL_EQUAL = $__9.EQUAL_EQUAL, EQUAL_EQUAL_EQUAL = $__9.EQUAL_EQUAL_EQUAL, ERROR = $__9.ERROR, EXPORT = $__9.EXPORT, EXTENDS = $__9.EXTENDS, FALSE = $__9.FALSE, FINALLY = $__9.FINALLY, FOR = $__9.FOR, FUNCTION = $__9.FUNCTION, GREATER_EQUAL = $__9.GREATER_EQUAL, IDENTIFIER = $__9.IDENTIFIER, IF = $__9.IF, IMPLEMENTS = $__9.IMPLEMENTS, IMPORT = $__9.IMPORT, IN = $__9.IN, INSTANCEOF = $__9.INSTANCEOF, INTERFACE = $__9.INTERFACE, LEFT_SHIFT = $__9.LEFT_SHIFT, LEFT_SHIFT_EQUAL = $__9.LEFT_SHIFT_EQUAL, LESS_EQUAL = $__9.LESS_EQUAL, LET = $__9.LET, MINUS = $__9.MINUS, MINUS_EQUAL = $__9.MINUS_EQUAL, MINUS_MINUS = $__9.MINUS_MINUS, NEW = $__9.NEW, NO_SUBSTITUTION_TEMPLATE = $__9.NO_SUBSTITUTION_TEMPLATE, NOT_EQUAL = $__9.NOT_EQUAL, NOT_EQUAL_EQUAL = $__9.NOT_EQUAL_EQUAL, NULL = $__9.NULL, NUMBER = $__9.NUMBER, OPEN_ANGLE = $__9.OPEN_ANGLE, OPEN_CURLY = $__9.OPEN_CURLY, OPEN_PAREN = $__9.OPEN_PAREN, OPEN_SQUARE = $__9.OPEN_SQUARE, OR = $__9.OR, PACKAGE = $__9.PACKAGE, PERCENT = $__9.PERCENT, PERCENT_EQUAL = $__9.PERCENT_EQUAL, PERIOD = $__9.PERIOD, PERIOD_OPEN_CURLY = $__9.PERIOD_OPEN_CURLY, PLUS = $__9.PLUS, PLUS_EQUAL = $__9.PLUS_EQUAL, PLUS_PLUS = $__9.PLUS_PLUS, PRIVATE = $__9.PRIVATE, PROTECTED = $__9.PROTECTED, PUBLIC = $__9.PUBLIC, QUESTION = $__9.QUESTION, REGULAR_EXPRESSION = $__9.REGULAR_EXPRESSION, RETURN = $__9.RETURN, RIGHT_SHIFT = $__9.RIGHT_SHIFT, RIGHT_SHIFT_EQUAL = $__9.RIGHT_SHIFT_EQUAL, SEMI_COLON = $__9.SEMI_COLON, SLASH = $__9.SLASH, SLASH_EQUAL = $__9.SLASH_EQUAL, STAR = $__9.STAR, STAR_EQUAL = $__9.STAR_EQUAL, STATIC = $__9.STATIC, STRING = $__9.STRING, SUPER = $__9.SUPER, SWITCH = $__9.SWITCH, TEMPLATE_HEAD = $__9.TEMPLATE_HEAD, TEMPLATE_MIDDLE = $__9.TEMPLATE_MIDDLE, TEMPLATE_TAIL = $__9.TEMPLATE_TAIL, THIS = $__9.THIS, THROW = $__9.THROW, TILDE = $__9.TILDE, TRUE = $__9.TRUE, TRY = $__9.TRY, TYPEOF = $__9.TYPEOF, UNSIGNED_RIGHT_SHIFT = $__9.UNSIGNED_RIGHT_SHIFT, UNSIGNED_RIGHT_SHIFT_EQUAL = $__9.UNSIGNED_RIGHT_SHIFT_EQUAL, VAR = $__9.VAR, VOID = $__9.VOID, WHILE = $__9.WHILE, WITH = $__9.WITH, YIELD = $__9.YIELD;
+  var $__9 = $__src_syntax_trees_ParseTrees_js, ArgumentList = $__9.ArgumentList, ArrayComprehension = $__9.ArrayComprehension, ArrayLiteralExpression = $__9.ArrayLiteralExpression, ArrayPattern = $__9.ArrayPattern, ArrowFunctionExpression = $__9.ArrowFunctionExpression, AtNameDeclaration = $__9.AtNameDeclaration, AtNameExpression = $__9.AtNameExpression, AwaitStatement = $__9.AwaitStatement, BinaryOperator = $__9.BinaryOperator, BindingElement = $__9.BindingElement, BindingIdentifier = $__9.BindingIdentifier, Block = $__9.Block, BreakStatement = $__9.BreakStatement, CallExpression = $__9.CallExpression, CascadeExpression = $__9.CascadeExpression, CaseClause = $__9.CaseClause, Catch = $__9.Catch, ClassDeclaration = $__9.ClassDeclaration, ClassExpression = $__9.ClassExpression, CommaExpression = $__9.CommaExpression, ComprehensionFor = $__9.ComprehensionFor, ConditionalExpression = $__9.ConditionalExpression, ContinueStatement = $__9.ContinueStatement, CoverFormals = $__9.CoverFormals, DebuggerStatement = $__9.DebuggerStatement, DefaultClause = $__9.DefaultClause, DoWhileStatement = $__9.DoWhileStatement, EmptyStatement = $__9.EmptyStatement, ExportDeclaration = $__9.ExportDeclaration, ExportMapping = $__9.ExportMapping, ExportMappingList = $__9.ExportMappingList, ExportSpecifier = $__9.ExportSpecifier, ExportSpecifierSet = $__9.ExportSpecifierSet, ExportStar = $__9.ExportStar, ExpressionStatement = $__9.ExpressionStatement, Finally = $__9.Finally, ForInStatement = $__9.ForInStatement, ForOfStatement = $__9.ForOfStatement, ForStatement = $__9.ForStatement, FormalParameterList = $__9.FormalParameterList, FunctionDeclaration = $__9.FunctionDeclaration, FunctionExpression = $__9.FunctionExpression, GeneratorComprehension = $__9.GeneratorComprehension, GetAccessor = $__9.GetAccessor, IdentifierExpression = $__9.IdentifierExpression, IfStatement = $__9.IfStatement, ImportBinding = $__9.ImportBinding, ImportDeclaration = $__9.ImportDeclaration, ImportSpecifier = $__9.ImportSpecifier, ImportSpecifierSet = $__9.ImportSpecifierSet, LabelledStatement = $__9.LabelledStatement, LiteralExpression = $__9.LiteralExpression, MemberExpression = $__9.MemberExpression, MemberLookupExpression = $__9.MemberLookupExpression, MissingPrimaryExpression = $__9.MissingPrimaryExpression, ModuleDeclaration = $__9.ModuleDeclaration, ModuleDefinition = $__9.ModuleDefinition, ModuleExpression = $__9.ModuleExpression, ModuleRequire = $__9.ModuleRequire, ModuleSpecifier = $__9.ModuleSpecifier, NameStatement = $__9.NameStatement, NewExpression = $__9.NewExpression, ObjectLiteralExpression = $__9.ObjectLiteralExpression, ObjectPattern = $__9.ObjectPattern, ObjectPatternField = $__9.ObjectPatternField, ParenExpression = $__9.ParenExpression, PostfixExpression = $__9.PostfixExpression, PredefinedType = $__9.PredefinedType, Program = $__9.Program, PropertyMethodAssignment = $__9.PropertyMethodAssignment, PropertyNameAssignment = $__9.PropertyNameAssignment, PropertyNameShorthand = $__9.PropertyNameShorthand, RestParameter = $__9.RestParameter, ReturnStatement = $__9.ReturnStatement, SetAccessor = $__9.SetAccessor, SpreadExpression = $__9.SpreadExpression, SpreadPatternElement = $__9.SpreadPatternElement, SuperExpression = $__9.SuperExpression, SwitchStatement = $__9.SwitchStatement, TemplateLiteralExpression = $__9.TemplateLiteralExpression, TemplateLiteralPortion = $__9.TemplateLiteralPortion, TemplateSubstitution = $__9.TemplateSubstitution, ThisExpression = $__9.ThisExpression, ThrowStatement = $__9.ThrowStatement, TryStatement = $__9.TryStatement, TypeName = $__9.TypeName, UnaryExpression = $__9.UnaryExpression, VariableDeclaration = $__9.VariableDeclaration, VariableDeclarationList = $__9.VariableDeclarationList, VariableStatement = $__9.VariableStatement, WhileStatement = $__9.WhileStatement, WithStatement = $__9.WithStatement, YieldExpression = $__9.YieldExpression;
   var Expression = {
     NO_IN: 'NO_IN',
     NORMAL: 'NORMAL'
@@ -9090,7 +9083,7 @@ var $__src_syntax_Parser_js = (function() {
             return options.deferredFunctions;
           case TEMPLATE_HEAD:
           case NO_SUBSTITUTION_TEMPLATE:
-            return options.quasi;
+            return options.templateLiterals;
           case IMPORT:
           case EXPORT:
             return allowProgramElement && options.modules;
@@ -9788,7 +9781,7 @@ var $__src_syntax_Parser_js = (function() {
         switch (type) {
           case NO_SUBSTITUTION_TEMPLATE:
           case TEMPLATE_HEAD:
-            return options.quasi;
+            return options.templateLiterals;
           case AT_NAME:
             return options.privateNameSyntax;
           case BANG:
@@ -10143,7 +10136,7 @@ var $__src_syntax_Parser_js = (function() {
                 break;
               case NO_SUBSTITUTION_TEMPLATE:
               case TEMPLATE_HEAD:
-                if (!options.quasi) break loop;
+                if (!options.templateLiterals) break loop;
                 operand = this.parseTemplateLiteral_(operand);
                 break;
               default:
@@ -10182,7 +10175,7 @@ var $__src_syntax_Parser_js = (function() {
               break;
             case NO_SUBSTITUTION_TEMPLATE:
             case TEMPLATE_HEAD:
-              if (!options.quasi) break loop;
+              if (!options.templateLiterals) break loop;
               operand = this.parseTemplateLiteral_(operand);
               break;
             default:
@@ -10446,26 +10439,26 @@ var $__src_syntax_Parser_js = (function() {
         return new BindingElement(this.getTreeLocation_(start), binding, initializer);
       },
       parseTemplateLiteral_: function(operand) {
-        if (!options.quasi) {
+        if (!options.templateLiterals) {
           return this.parseMissingPrimaryExpression_();
         }
         var start = operand ? operand.location.start: this.getTreeStartLocation_();
         var token = this.nextToken_();
-        var elements = [new QuasiLiteralPortion(token.location, token)];
+        var elements = [new TemplateLiteralPortion(token.location, token)];
         if (token.type === NO_SUBSTITUTION_TEMPLATE) {
-          return new QuasiLiteralExpression(this.getTreeLocation_(start), operand, elements);
+          return new TemplateLiteralExpression(this.getTreeLocation_(start), operand, elements);
         }
         var expression = this.parseExpression();
-        elements.push(new QuasiSubstitution(expression.location, expression));
+        elements.push(new TemplateSubstitution(expression.location, expression));
         while (expression.type !== MISSING_PRIMARY_EXPRESSION) {
           token = this.nextTemplateLiteralToken_();
           if (token.type === ERROR || token.type === END_OF_FILE) break;
-          elements.push(new QuasiLiteralPortion(token.location, token));
+          elements.push(new TemplateLiteralPortion(token.location, token));
           if (token.type === TEMPLATE_TAIL) break;
           expression = this.parseExpression();
-          elements.push(new QuasiSubstitution(expression.location, expression));
+          elements.push(new TemplateSubstitution(expression.location, expression));
         }
-        return new QuasiLiteralExpression(this.getTreeLocation_(start), operand, elements);
+        return new TemplateLiteralExpression(this.getTreeLocation_(start), operand, elements);
       },
       parseTypeAnnotationOpt_: function() {
         if (options.types && this.eatOpt_(COLON)) {
@@ -10670,7 +10663,7 @@ var $__src_codegeneration_ParseTreeFactory_js = (function() {
   var $__9 = $__src_syntax_PredefinedName_js, BIND = $__9.BIND, CALL = $__9.CALL, CREATE = $__9.CREATE, DEFINE_PROPERTY = $__9.DEFINE_PROPERTY, FREEZE = $__9.FREEZE, OBJECT = $__9.OBJECT, PREVENT_EXTENSIONS = $__9.PREVENT_EXTENSIONS, STATE = $__9.STATE, UNDEFINED = $__9.UNDEFINED, getParameterName = $__9.getParameterName;
   var Token = $__src_syntax_Token_js.Token;
   var $__9 = $__src_syntax_TokenType_js, EQUAL = $__9.EQUAL, FALSE = $__9.FALSE, NULL = $__9.NULL, NUMBER = $__9.NUMBER, STRING = $__9.STRING, TRUE = $__9.TRUE, VOID = $__9.VOID;
-  var $__9 = $__src_syntax_trees_ParseTrees_js, ArgumentList = $__9.ArgumentList, ArrayComprehension = $__9.ArrayComprehension, ArrayLiteralExpression = $__9.ArrayLiteralExpression, ArrayPattern = $__9.ArrayPattern, ArrowFunctionExpression = $__9.ArrowFunctionExpression, AtNameDeclaration = $__9.AtNameDeclaration, AtNameExpression = $__9.AtNameExpression, AwaitStatement = $__9.AwaitStatement, BinaryOperator = $__9.BinaryOperator, BindingElement = $__9.BindingElement, BindingIdentifier = $__9.BindingIdentifier, Block = $__9.Block, BreakStatement = $__9.BreakStatement, CallExpression = $__9.CallExpression, CascadeExpression = $__9.CascadeExpression, CaseClause = $__9.CaseClause, Catch = $__9.Catch, ClassDeclaration = $__9.ClassDeclaration, ClassExpression = $__9.ClassExpression, CommaExpression = $__9.CommaExpression, ComprehensionFor = $__9.ComprehensionFor, ConditionalExpression = $__9.ConditionalExpression, ContinueStatement = $__9.ContinueStatement, CoverFormals = $__9.CoverFormals, DebuggerStatement = $__9.DebuggerStatement, DefaultClause = $__9.DefaultClause, DoWhileStatement = $__9.DoWhileStatement, EmptyStatement = $__9.EmptyStatement, ExportDeclaration = $__9.ExportDeclaration, ExportMapping = $__9.ExportMapping, ExportMappingList = $__9.ExportMappingList, ExportSpecifier = $__9.ExportSpecifier, ExportSpecifierSet = $__9.ExportSpecifierSet, ExportStar = $__9.ExportStar, ExpressionStatement = $__9.ExpressionStatement, Finally = $__9.Finally, ForInStatement = $__9.ForInStatement, ForOfStatement = $__9.ForOfStatement, ForStatement = $__9.ForStatement, FormalParameterList = $__9.FormalParameterList, FunctionDeclaration = $__9.FunctionDeclaration, FunctionExpression = $__9.FunctionExpression, GeneratorComprehension = $__9.GeneratorComprehension, GetAccessor = $__9.GetAccessor, IdentifierExpression = $__9.IdentifierExpression, IfStatement = $__9.IfStatement, ImportBinding = $__9.ImportBinding, ImportDeclaration = $__9.ImportDeclaration, ImportSpecifier = $__9.ImportSpecifier, ImportSpecifierSet = $__9.ImportSpecifierSet, LabelledStatement = $__9.LabelledStatement, LiteralExpression = $__9.LiteralExpression, MemberExpression = $__9.MemberExpression, MemberLookupExpression = $__9.MemberLookupExpression, MissingPrimaryExpression = $__9.MissingPrimaryExpression, ModuleDeclaration = $__9.ModuleDeclaration, ModuleDefinition = $__9.ModuleDefinition, ModuleExpression = $__9.ModuleExpression, ModuleRequire = $__9.ModuleRequire, ModuleSpecifier = $__9.ModuleSpecifier, NameStatement = $__9.NameStatement, NewExpression = $__9.NewExpression, ObjectLiteralExpression = $__9.ObjectLiteralExpression, ObjectPattern = $__9.ObjectPattern, ObjectPatternField = $__9.ObjectPatternField, ParenExpression = $__9.ParenExpression, PostfixExpression = $__9.PostfixExpression, PredefinedType = $__9.PredefinedType, Program = $__9.Program, PropertyMethodAssignment = $__9.PropertyMethodAssignment, PropertyNameAssignment = $__9.PropertyNameAssignment, PropertyNameShorthand = $__9.PropertyNameShorthand, QuasiLiteralExpression = $__9.QuasiLiteralExpression, QuasiLiteralPortion = $__9.QuasiLiteralPortion, QuasiSubstitution = $__9.QuasiSubstitution, RestParameter = $__9.RestParameter, ReturnStatement = $__9.ReturnStatement, SetAccessor = $__9.SetAccessor, SpreadExpression = $__9.SpreadExpression, SpreadPatternElement = $__9.SpreadPatternElement, SuperExpression = $__9.SuperExpression, SwitchStatement = $__9.SwitchStatement, ThisExpression = $__9.ThisExpression, ThrowStatement = $__9.ThrowStatement, TryStatement = $__9.TryStatement, TypeName = $__9.TypeName, UnaryExpression = $__9.UnaryExpression, VariableDeclaration = $__9.VariableDeclaration, VariableDeclarationList = $__9.VariableDeclarationList, VariableStatement = $__9.VariableStatement, WhileStatement = $__9.WhileStatement, WithStatement = $__9.WithStatement, YieldExpression = $__9.YieldExpression;
+  var $__9 = $__src_syntax_trees_ParseTrees_js, ArgumentList = $__9.ArgumentList, ArrayComprehension = $__9.ArrayComprehension, ArrayLiteralExpression = $__9.ArrayLiteralExpression, ArrayPattern = $__9.ArrayPattern, ArrowFunctionExpression = $__9.ArrowFunctionExpression, AtNameDeclaration = $__9.AtNameDeclaration, AtNameExpression = $__9.AtNameExpression, AwaitStatement = $__9.AwaitStatement, BinaryOperator = $__9.BinaryOperator, BindingElement = $__9.BindingElement, BindingIdentifier = $__9.BindingIdentifier, Block = $__9.Block, BreakStatement = $__9.BreakStatement, CallExpression = $__9.CallExpression, CascadeExpression = $__9.CascadeExpression, CaseClause = $__9.CaseClause, Catch = $__9.Catch, ClassDeclaration = $__9.ClassDeclaration, ClassExpression = $__9.ClassExpression, CommaExpression = $__9.CommaExpression, ComprehensionFor = $__9.ComprehensionFor, ConditionalExpression = $__9.ConditionalExpression, ContinueStatement = $__9.ContinueStatement, CoverFormals = $__9.CoverFormals, DebuggerStatement = $__9.DebuggerStatement, DefaultClause = $__9.DefaultClause, DoWhileStatement = $__9.DoWhileStatement, EmptyStatement = $__9.EmptyStatement, ExportDeclaration = $__9.ExportDeclaration, ExportMapping = $__9.ExportMapping, ExportMappingList = $__9.ExportMappingList, ExportSpecifier = $__9.ExportSpecifier, ExportSpecifierSet = $__9.ExportSpecifierSet, ExportStar = $__9.ExportStar, ExpressionStatement = $__9.ExpressionStatement, Finally = $__9.Finally, ForInStatement = $__9.ForInStatement, ForOfStatement = $__9.ForOfStatement, ForStatement = $__9.ForStatement, FormalParameterList = $__9.FormalParameterList, FunctionDeclaration = $__9.FunctionDeclaration, FunctionExpression = $__9.FunctionExpression, GeneratorComprehension = $__9.GeneratorComprehension, GetAccessor = $__9.GetAccessor, IdentifierExpression = $__9.IdentifierExpression, IfStatement = $__9.IfStatement, ImportBinding = $__9.ImportBinding, ImportDeclaration = $__9.ImportDeclaration, ImportSpecifier = $__9.ImportSpecifier, ImportSpecifierSet = $__9.ImportSpecifierSet, LabelledStatement = $__9.LabelledStatement, LiteralExpression = $__9.LiteralExpression, MemberExpression = $__9.MemberExpression, MemberLookupExpression = $__9.MemberLookupExpression, MissingPrimaryExpression = $__9.MissingPrimaryExpression, ModuleDeclaration = $__9.ModuleDeclaration, ModuleDefinition = $__9.ModuleDefinition, ModuleExpression = $__9.ModuleExpression, ModuleRequire = $__9.ModuleRequire, ModuleSpecifier = $__9.ModuleSpecifier, NameStatement = $__9.NameStatement, NewExpression = $__9.NewExpression, ObjectLiteralExpression = $__9.ObjectLiteralExpression, ObjectPattern = $__9.ObjectPattern, ObjectPatternField = $__9.ObjectPatternField, ParenExpression = $__9.ParenExpression, PostfixExpression = $__9.PostfixExpression, PredefinedType = $__9.PredefinedType, Program = $__9.Program, PropertyMethodAssignment = $__9.PropertyMethodAssignment, PropertyNameAssignment = $__9.PropertyNameAssignment, PropertyNameShorthand = $__9.PropertyNameShorthand, RestParameter = $__9.RestParameter, ReturnStatement = $__9.ReturnStatement, SetAccessor = $__9.SetAccessor, SpreadExpression = $__9.SpreadExpression, SpreadPatternElement = $__9.SpreadPatternElement, SuperExpression = $__9.SuperExpression, SwitchStatement = $__9.SwitchStatement, TemplateLiteralExpression = $__9.TemplateLiteralExpression, TemplateLiteralPortion = $__9.TemplateLiteralPortion, TemplateSubstitution = $__9.TemplateSubstitution, ThisExpression = $__9.ThisExpression, ThrowStatement = $__9.ThrowStatement, TryStatement = $__9.TryStatement, TypeName = $__9.TypeName, UnaryExpression = $__9.UnaryExpression, VariableDeclaration = $__9.VariableDeclaration, VariableDeclarationList = $__9.VariableDeclarationList, VariableStatement = $__9.VariableStatement, WhileStatement = $__9.WhileStatement, WithStatement = $__9.WithStatement, YieldExpression = $__9.YieldExpression;
   var slice = Array.prototype.slice.call.bind(Array.prototype.slice);
   var map = Array.prototype.map.call.bind(Array.prototype.map);
   function createOperatorToken(operator) {
@@ -15884,7 +15877,7 @@ var $__src_outputgeneration_ParseTreeWriter_js = (function() {
   var $__9 = $__src_syntax_PredefinedName_js, FROM = $__9.FROM, GET = $__9.GET, OF = $__9.OF, MODULE = $__9.MODULE, REQUIRES = $__9.REQUIRES, SET = $__9.SET;
   var Token = $__src_syntax_Token_js.Token;
   var isKeyword = $__src_syntax_Keywords_js.isKeyword;
-  var $__9 = $__src_syntax_TokenType_js, AMPERSAND = $__9.AMPERSAND, AMPERSAND_EQUAL = $__9.AMPERSAND_EQUAL, AND = $__9.AND, ARROW = $__9.ARROW, AT_NAME = $__9.AT_NAME, AWAIT = $__9.AWAIT, BACK_QUOTE = $__9.BACK_QUOTE, BANG = $__9.BANG, BAR = $__9.BAR, BAR_EQUAL = $__9.BAR_EQUAL, BREAK = $__9.BREAK, CARET = $__9.CARET, CARET_EQUAL = $__9.CARET_EQUAL, CASE = $__9.CASE, CATCH = $__9.CATCH, CLASS = $__9.CLASS, CLOSE_ANGLE = $__9.CLOSE_ANGLE, CLOSE_CURLY = $__9.CLOSE_CURLY, CLOSE_PAREN = $__9.CLOSE_PAREN, CLOSE_SQUARE = $__9.CLOSE_SQUARE, COLON = $__9.COLON, COMMA = $__9.COMMA, CONST = $__9.CONST, CONTINUE = $__9.CONTINUE, DEBUGGER = $__9.DEBUGGER, DEFAULT = $__9.DEFAULT, DELETE = $__9.DELETE, DO = $__9.DO, DOLLAR = $__9.DOLLAR, DOT_DOT_DOT = $__9.DOT_DOT_DOT, ELSE = $__9.ELSE, END_OF_FILE = $__9.END_OF_FILE, ENUM = $__9.ENUM, EQUAL = $__9.EQUAL, EQUAL_EQUAL = $__9.EQUAL_EQUAL, EQUAL_EQUAL_EQUAL = $__9.EQUAL_EQUAL_EQUAL, ERROR = $__9.ERROR, EXPORT = $__9.EXPORT, EXTENDS = $__9.EXTENDS, FALSE = $__9.FALSE, FINALLY = $__9.FINALLY, FOR = $__9.FOR, FUNCTION = $__9.FUNCTION, GREATER_EQUAL = $__9.GREATER_EQUAL, IDENTIFIER = $__9.IDENTIFIER, IF = $__9.IF, IMPLEMENTS = $__9.IMPLEMENTS, IMPORT = $__9.IMPORT, IN = $__9.IN, INSTANCEOF = $__9.INSTANCEOF, INTERFACE = $__9.INTERFACE, LEFT_SHIFT = $__9.LEFT_SHIFT, LEFT_SHIFT_EQUAL = $__9.LEFT_SHIFT_EQUAL, LESS_EQUAL = $__9.LESS_EQUAL, LET = $__9.LET, MINUS = $__9.MINUS, MINUS_EQUAL = $__9.MINUS_EQUAL, MINUS_MINUS = $__9.MINUS_MINUS, NEW = $__9.NEW, NO_SUBSTITUTION_TEMPLATE = $__9.NO_SUBSTITUTION_TEMPLATE, NOT_EQUAL = $__9.NOT_EQUAL, NOT_EQUAL_EQUAL = $__9.NOT_EQUAL_EQUAL, NULL = $__9.NULL, NUMBER = $__9.NUMBER, OPEN_ANGLE = $__9.OPEN_ANGLE, OPEN_CURLY = $__9.OPEN_CURLY, OPEN_PAREN = $__9.OPEN_PAREN, OPEN_SQUARE = $__9.OPEN_SQUARE, OR = $__9.OR, PACKAGE = $__9.PACKAGE, PERCENT = $__9.PERCENT, PERCENT_EQUAL = $__9.PERCENT_EQUAL, PERIOD = $__9.PERIOD, PERIOD_OPEN_CURLY = $__9.PERIOD_OPEN_CURLY, PLUS = $__9.PLUS, PLUS_EQUAL = $__9.PLUS_EQUAL, PLUS_PLUS = $__9.PLUS_PLUS, PRIVATE = $__9.PRIVATE, PROTECTED = $__9.PROTECTED, PUBLIC = $__9.PUBLIC, QUASI_LITERAL_PORTION = $__9.QUASI_LITERAL_PORTION, QUESTION = $__9.QUESTION, REGULAR_EXPRESSION = $__9.REGULAR_EXPRESSION, RETURN = $__9.RETURN, RIGHT_SHIFT = $__9.RIGHT_SHIFT, RIGHT_SHIFT_EQUAL = $__9.RIGHT_SHIFT_EQUAL, SEMI_COLON = $__9.SEMI_COLON, SLASH = $__9.SLASH, SLASH_EQUAL = $__9.SLASH_EQUAL, STAR = $__9.STAR, STAR_EQUAL = $__9.STAR_EQUAL, STATIC = $__9.STATIC, STRING = $__9.STRING, SUPER = $__9.SUPER, SWITCH = $__9.SWITCH, TEMPLATE_HEAD = $__9.TEMPLATE_HEAD, TEMPLATE_MIDDLE = $__9.TEMPLATE_MIDDLE, TEMPLATE_TAIL = $__9.TEMPLATE_TAIL, THIS = $__9.THIS, THROW = $__9.THROW, TILDE = $__9.TILDE, TRUE = $__9.TRUE, TRY = $__9.TRY, TYPEOF = $__9.TYPEOF, UNSIGNED_RIGHT_SHIFT = $__9.UNSIGNED_RIGHT_SHIFT, UNSIGNED_RIGHT_SHIFT_EQUAL = $__9.UNSIGNED_RIGHT_SHIFT_EQUAL, VAR = $__9.VAR, VOID = $__9.VOID, WHILE = $__9.WHILE, WITH = $__9.WITH, YIELD = $__9.YIELD;
+  var $__9 = $__src_syntax_TokenType_js, AMPERSAND = $__9.AMPERSAND, AMPERSAND_EQUAL = $__9.AMPERSAND_EQUAL, AND = $__9.AND, ARROW = $__9.ARROW, AT_NAME = $__9.AT_NAME, AWAIT = $__9.AWAIT, BACK_QUOTE = $__9.BACK_QUOTE, BANG = $__9.BANG, BAR = $__9.BAR, BAR_EQUAL = $__9.BAR_EQUAL, BREAK = $__9.BREAK, CARET = $__9.CARET, CARET_EQUAL = $__9.CARET_EQUAL, CASE = $__9.CASE, CATCH = $__9.CATCH, CLASS = $__9.CLASS, CLOSE_ANGLE = $__9.CLOSE_ANGLE, CLOSE_CURLY = $__9.CLOSE_CURLY, CLOSE_PAREN = $__9.CLOSE_PAREN, CLOSE_SQUARE = $__9.CLOSE_SQUARE, COLON = $__9.COLON, COMMA = $__9.COMMA, CONST = $__9.CONST, CONTINUE = $__9.CONTINUE, DEBUGGER = $__9.DEBUGGER, DEFAULT = $__9.DEFAULT, DELETE = $__9.DELETE, DO = $__9.DO, DOLLAR = $__9.DOLLAR, DOT_DOT_DOT = $__9.DOT_DOT_DOT, ELSE = $__9.ELSE, END_OF_FILE = $__9.END_OF_FILE, ENUM = $__9.ENUM, EQUAL = $__9.EQUAL, EQUAL_EQUAL = $__9.EQUAL_EQUAL, EQUAL_EQUAL_EQUAL = $__9.EQUAL_EQUAL_EQUAL, ERROR = $__9.ERROR, EXPORT = $__9.EXPORT, EXTENDS = $__9.EXTENDS, FALSE = $__9.FALSE, FINALLY = $__9.FINALLY, FOR = $__9.FOR, FUNCTION = $__9.FUNCTION, GREATER_EQUAL = $__9.GREATER_EQUAL, IDENTIFIER = $__9.IDENTIFIER, IF = $__9.IF, IMPLEMENTS = $__9.IMPLEMENTS, IMPORT = $__9.IMPORT, IN = $__9.IN, INSTANCEOF = $__9.INSTANCEOF, INTERFACE = $__9.INTERFACE, LEFT_SHIFT = $__9.LEFT_SHIFT, LEFT_SHIFT_EQUAL = $__9.LEFT_SHIFT_EQUAL, LESS_EQUAL = $__9.LESS_EQUAL, LET = $__9.LET, MINUS = $__9.MINUS, MINUS_EQUAL = $__9.MINUS_EQUAL, MINUS_MINUS = $__9.MINUS_MINUS, NEW = $__9.NEW, NO_SUBSTITUTION_TEMPLATE = $__9.NO_SUBSTITUTION_TEMPLATE, NOT_EQUAL = $__9.NOT_EQUAL, NOT_EQUAL_EQUAL = $__9.NOT_EQUAL_EQUAL, NULL = $__9.NULL, NUMBER = $__9.NUMBER, OPEN_ANGLE = $__9.OPEN_ANGLE, OPEN_CURLY = $__9.OPEN_CURLY, OPEN_PAREN = $__9.OPEN_PAREN, OPEN_SQUARE = $__9.OPEN_SQUARE, OR = $__9.OR, PACKAGE = $__9.PACKAGE, PERCENT = $__9.PERCENT, PERCENT_EQUAL = $__9.PERCENT_EQUAL, PERIOD = $__9.PERIOD, PERIOD_OPEN_CURLY = $__9.PERIOD_OPEN_CURLY, PLUS = $__9.PLUS, PLUS_EQUAL = $__9.PLUS_EQUAL, PLUS_PLUS = $__9.PLUS_PLUS, PRIVATE = $__9.PRIVATE, PROTECTED = $__9.PROTECTED, PUBLIC = $__9.PUBLIC, QUESTION = $__9.QUESTION, REGULAR_EXPRESSION = $__9.REGULAR_EXPRESSION, RETURN = $__9.RETURN, RIGHT_SHIFT = $__9.RIGHT_SHIFT, RIGHT_SHIFT_EQUAL = $__9.RIGHT_SHIFT_EQUAL, SEMI_COLON = $__9.SEMI_COLON, SLASH = $__9.SLASH, SLASH_EQUAL = $__9.SLASH_EQUAL, STAR = $__9.STAR, STAR_EQUAL = $__9.STAR_EQUAL, STATIC = $__9.STATIC, STRING = $__9.STRING, SUPER = $__9.SUPER, SWITCH = $__9.SWITCH, TEMPLATE_HEAD = $__9.TEMPLATE_HEAD, TEMPLATE_MIDDLE = $__9.TEMPLATE_MIDDLE, TEMPLATE_TAIL = $__9.TEMPLATE_TAIL, THIS = $__9.THIS, THROW = $__9.THROW, TILDE = $__9.TILDE, TRUE = $__9.TRUE, TRY = $__9.TRY, TYPEOF = $__9.TYPEOF, UNSIGNED_RIGHT_SHIFT = $__9.UNSIGNED_RIGHT_SHIFT, UNSIGNED_RIGHT_SHIFT_EQUAL = $__9.UNSIGNED_RIGHT_SHIFT_EQUAL, VAR = $__9.VAR, VOID = $__9.VOID, WHILE = $__9.WHILE, WITH = $__9.WITH, YIELD = $__9.YIELD;
   var NEW_LINE = '\n';
   var PRETTY_PRINT = true;
   var ParseTreeWriter = function($__super) {
@@ -16336,16 +16329,16 @@ var $__src_outputgeneration_ParseTreeWriter_js = (function() {
       visitPropertyNameShorthand: function(tree) {
         this.write_(tree.name);
       },
-      visitQuasiLiteralExpression: function(tree) {
+      visitTemplateLiteralExpression: function(tree) {
         this.visitAny(tree.operand);
         this.writeRaw_(BACK_QUOTE);
         this.visitList(tree.elements);
         this.writeRaw_(BACK_QUOTE);
       },
-      visitQuasiLiteralPortion: function(tree) {
+      visitTemplateLiteralPortion: function(tree) {
         this.writeRaw_(tree.value);
       },
-      visitQuasiSubstitution: function(tree) {
+      visitTemplateSubstitution: function(tree) {
         this.writeRaw_(DOLLAR);
         this.writeRaw_(OPEN_CURLY);
         this.visitAny(tree.expression);
@@ -16769,8 +16762,8 @@ var $__src_syntax_ParseTreeValidator_js = (function() {
   var ParseTreeVisitor = $__src_syntax_ParseTreeVisitor_js.ParseTreeVisitor;
   var $__9 = $__src_syntax_PredefinedName_js, IS = $__9.IS, ISNT = $__9.ISNT;
   var TreeWriter = $__src_outputgeneration_TreeWriter_js.TreeWriter;
-  var $__9 = $__src_syntax_TokenType_js, AMPERSAND = $__9.AMPERSAND, AMPERSAND_EQUAL = $__9.AMPERSAND_EQUAL, AND = $__9.AND, ARROW = $__9.ARROW, AT_NAME = $__9.AT_NAME, AWAIT = $__9.AWAIT, BACK_QUOTE = $__9.BACK_QUOTE, BANG = $__9.BANG, BAR = $__9.BAR, BAR_EQUAL = $__9.BAR_EQUAL, BREAK = $__9.BREAK, CARET = $__9.CARET, CARET_EQUAL = $__9.CARET_EQUAL, CASE = $__9.CASE, CATCH = $__9.CATCH, CLASS = $__9.CLASS, CLOSE_ANGLE = $__9.CLOSE_ANGLE, CLOSE_CURLY = $__9.CLOSE_CURLY, CLOSE_PAREN = $__9.CLOSE_PAREN, CLOSE_SQUARE = $__9.CLOSE_SQUARE, COLON = $__9.COLON, COMMA = $__9.COMMA, CONST = $__9.CONST, CONTINUE = $__9.CONTINUE, DEBUGGER = $__9.DEBUGGER, DEFAULT = $__9.DEFAULT, DELETE = $__9.DELETE, DO = $__9.DO, DOLLAR = $__9.DOLLAR, DOT_DOT_DOT = $__9.DOT_DOT_DOT, ELSE = $__9.ELSE, END_OF_FILE = $__9.END_OF_FILE, ENUM = $__9.ENUM, EQUAL = $__9.EQUAL, EQUAL_EQUAL = $__9.EQUAL_EQUAL, EQUAL_EQUAL_EQUAL = $__9.EQUAL_EQUAL_EQUAL, ERROR = $__9.ERROR, EXPORT = $__9.EXPORT, EXTENDS = $__9.EXTENDS, FALSE = $__9.FALSE, FINALLY = $__9.FINALLY, FOR = $__9.FOR, FUNCTION = $__9.FUNCTION, GREATER_EQUAL = $__9.GREATER_EQUAL, IDENTIFIER = $__9.IDENTIFIER, IF = $__9.IF, IMPLEMENTS = $__9.IMPLEMENTS, IMPORT = $__9.IMPORT, IN = $__9.IN, INSTANCEOF = $__9.INSTANCEOF, INTERFACE = $__9.INTERFACE, LEFT_SHIFT = $__9.LEFT_SHIFT, LEFT_SHIFT_EQUAL = $__9.LEFT_SHIFT_EQUAL, LESS_EQUAL = $__9.LESS_EQUAL, LET = $__9.LET, MINUS = $__9.MINUS, MINUS_EQUAL = $__9.MINUS_EQUAL, MINUS_MINUS = $__9.MINUS_MINUS, NEW = $__9.NEW, NO_SUBSTITUTION_TEMPLATE = $__9.NO_SUBSTITUTION_TEMPLATE, NOT_EQUAL = $__9.NOT_EQUAL, NOT_EQUAL_EQUAL = $__9.NOT_EQUAL_EQUAL, NULL = $__9.NULL, NUMBER = $__9.NUMBER, OPEN_ANGLE = $__9.OPEN_ANGLE, OPEN_CURLY = $__9.OPEN_CURLY, OPEN_PAREN = $__9.OPEN_PAREN, OPEN_SQUARE = $__9.OPEN_SQUARE, OR = $__9.OR, PACKAGE = $__9.PACKAGE, PERCENT = $__9.PERCENT, PERCENT_EQUAL = $__9.PERCENT_EQUAL, PERIOD = $__9.PERIOD, PERIOD_OPEN_CURLY = $__9.PERIOD_OPEN_CURLY, PLUS = $__9.PLUS, PLUS_EQUAL = $__9.PLUS_EQUAL, PLUS_PLUS = $__9.PLUS_PLUS, PRIVATE = $__9.PRIVATE, PROTECTED = $__9.PROTECTED, PUBLIC = $__9.PUBLIC, QUASI_LITERAL_PORTION = $__9.QUASI_LITERAL_PORTION, QUESTION = $__9.QUESTION, REGULAR_EXPRESSION = $__9.REGULAR_EXPRESSION, RETURN = $__9.RETURN, RIGHT_SHIFT = $__9.RIGHT_SHIFT, RIGHT_SHIFT_EQUAL = $__9.RIGHT_SHIFT_EQUAL, SEMI_COLON = $__9.SEMI_COLON, SLASH = $__9.SLASH, SLASH_EQUAL = $__9.SLASH_EQUAL, STAR = $__9.STAR, STAR_EQUAL = $__9.STAR_EQUAL, STATIC = $__9.STATIC, STRING = $__9.STRING, SUPER = $__9.SUPER, SWITCH = $__9.SWITCH, TEMPLATE_HEAD = $__9.TEMPLATE_HEAD, TEMPLATE_MIDDLE = $__9.TEMPLATE_MIDDLE, TEMPLATE_TAIL = $__9.TEMPLATE_TAIL, THIS = $__9.THIS, THROW = $__9.THROW, TILDE = $__9.TILDE, TRUE = $__9.TRUE, TRY = $__9.TRY, TYPEOF = $__9.TYPEOF, UNSIGNED_RIGHT_SHIFT = $__9.UNSIGNED_RIGHT_SHIFT, UNSIGNED_RIGHT_SHIFT_EQUAL = $__9.UNSIGNED_RIGHT_SHIFT_EQUAL, VAR = $__9.VAR, VOID = $__9.VOID, WHILE = $__9.WHILE, WITH = $__9.WITH, YIELD = $__9.YIELD;
-  var $__9 = $__src_syntax_trees_ParseTreeType_js, ARGUMENT_LIST = $__9.ARGUMENT_LIST, ARRAY_COMPREHENSION = $__9.ARRAY_COMPREHENSION, ARRAY_LITERAL_EXPRESSION = $__9.ARRAY_LITERAL_EXPRESSION, ARRAY_PATTERN = $__9.ARRAY_PATTERN, ARROW_FUNCTION_EXPRESSION = $__9.ARROW_FUNCTION_EXPRESSION, AT_NAME_DECLARATION = $__9.AT_NAME_DECLARATION, AT_NAME_EXPRESSION = $__9.AT_NAME_EXPRESSION, AWAIT_STATEMENT = $__9.AWAIT_STATEMENT, BINARY_OPERATOR = $__9.BINARY_OPERATOR, BINDING_ELEMENT = $__9.BINDING_ELEMENT, BINDING_IDENTIFIER = $__9.BINDING_IDENTIFIER, BLOCK = $__9.BLOCK, BREAK_STATEMENT = $__9.BREAK_STATEMENT, CALL_EXPRESSION = $__9.CALL_EXPRESSION, CASCADE_EXPRESSION = $__9.CASCADE_EXPRESSION, CASE_CLAUSE = $__9.CASE_CLAUSE, CATCH = $__9.CATCH, CLASS_DECLARATION = $__9.CLASS_DECLARATION, CLASS_EXPRESSION = $__9.CLASS_EXPRESSION, COMMA_EXPRESSION = $__9.COMMA_EXPRESSION, COMPREHENSION_FOR = $__9.COMPREHENSION_FOR, CONDITIONAL_EXPRESSION = $__9.CONDITIONAL_EXPRESSION, CONTINUE_STATEMENT = $__9.CONTINUE_STATEMENT, COVER_FORMALS = $__9.COVER_FORMALS, DEBUGGER_STATEMENT = $__9.DEBUGGER_STATEMENT, DEFAULT_CLAUSE = $__9.DEFAULT_CLAUSE, DO_WHILE_STATEMENT = $__9.DO_WHILE_STATEMENT, EMPTY_STATEMENT = $__9.EMPTY_STATEMENT, EXPORT_DECLARATION = $__9.EXPORT_DECLARATION, EXPORT_MAPPING = $__9.EXPORT_MAPPING, EXPORT_MAPPING_LIST = $__9.EXPORT_MAPPING_LIST, EXPORT_SPECIFIER = $__9.EXPORT_SPECIFIER, EXPORT_SPECIFIER_SET = $__9.EXPORT_SPECIFIER_SET, EXPORT_STAR = $__9.EXPORT_STAR, EXPRESSION_STATEMENT = $__9.EXPRESSION_STATEMENT, FINALLY = $__9.FINALLY, FOR_IN_STATEMENT = $__9.FOR_IN_STATEMENT, FOR_OF_STATEMENT = $__9.FOR_OF_STATEMENT, FOR_STATEMENT = $__9.FOR_STATEMENT, FORMAL_PARAMETER_LIST = $__9.FORMAL_PARAMETER_LIST, FUNCTION_DECLARATION = $__9.FUNCTION_DECLARATION, FUNCTION_EXPRESSION = $__9.FUNCTION_EXPRESSION, GENERATOR_COMPREHENSION = $__9.GENERATOR_COMPREHENSION, GET_ACCESSOR = $__9.GET_ACCESSOR, IDENTIFIER_EXPRESSION = $__9.IDENTIFIER_EXPRESSION, IF_STATEMENT = $__9.IF_STATEMENT, IMPORT_BINDING = $__9.IMPORT_BINDING, IMPORT_DECLARATION = $__9.IMPORT_DECLARATION, IMPORT_SPECIFIER = $__9.IMPORT_SPECIFIER, IMPORT_SPECIFIER_SET = $__9.IMPORT_SPECIFIER_SET, LABELLED_STATEMENT = $__9.LABELLED_STATEMENT, LITERAL_EXPRESSION = $__9.LITERAL_EXPRESSION, MEMBER_EXPRESSION = $__9.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__9.MEMBER_LOOKUP_EXPRESSION, MISSING_PRIMARY_EXPRESSION = $__9.MISSING_PRIMARY_EXPRESSION, MODULE_DECLARATION = $__9.MODULE_DECLARATION, MODULE_DEFINITION = $__9.MODULE_DEFINITION, MODULE_EXPRESSION = $__9.MODULE_EXPRESSION, MODULE_REQUIRE = $__9.MODULE_REQUIRE, MODULE_SPECIFIER = $__9.MODULE_SPECIFIER, NAME_STATEMENT = $__9.NAME_STATEMENT, NEW_EXPRESSION = $__9.NEW_EXPRESSION, OBJECT_LITERAL_EXPRESSION = $__9.OBJECT_LITERAL_EXPRESSION, OBJECT_PATTERN = $__9.OBJECT_PATTERN, OBJECT_PATTERN_FIELD = $__9.OBJECT_PATTERN_FIELD, PAREN_EXPRESSION = $__9.PAREN_EXPRESSION, POSTFIX_EXPRESSION = $__9.POSTFIX_EXPRESSION, PREDEFINED_TYPE = $__9.PREDEFINED_TYPE, PROGRAM = $__9.PROGRAM, PROPERTY_METHOD_ASSIGNMENT = $__9.PROPERTY_METHOD_ASSIGNMENT, PROPERTY_NAME_ASSIGNMENT = $__9.PROPERTY_NAME_ASSIGNMENT, PROPERTY_NAME_SHORTHAND = $__9.PROPERTY_NAME_SHORTHAND, QUASI_LITERAL_EXPRESSION = $__9.QUASI_LITERAL_EXPRESSION, QUASI_LITERAL_PORTION = $__9.QUASI_LITERAL_PORTION, QUASI_SUBSTITUTION = $__9.QUASI_SUBSTITUTION, REST_PARAMETER = $__9.REST_PARAMETER, RETURN_STATEMENT = $__9.RETURN_STATEMENT, SET_ACCESSOR = $__9.SET_ACCESSOR, SPREAD_EXPRESSION = $__9.SPREAD_EXPRESSION, SPREAD_PATTERN_ELEMENT = $__9.SPREAD_PATTERN_ELEMENT, STATE_MACHINE = $__9.STATE_MACHINE, SUPER_EXPRESSION = $__9.SUPER_EXPRESSION, SWITCH_STATEMENT = $__9.SWITCH_STATEMENT, THIS_EXPRESSION = $__9.THIS_EXPRESSION, THROW_STATEMENT = $__9.THROW_STATEMENT, TRY_STATEMENT = $__9.TRY_STATEMENT, TYPE_NAME = $__9.TYPE_NAME, UNARY_EXPRESSION = $__9.UNARY_EXPRESSION, VARIABLE_DECLARATION = $__9.VARIABLE_DECLARATION, VARIABLE_DECLARATION_LIST = $__9.VARIABLE_DECLARATION_LIST, VARIABLE_STATEMENT = $__9.VARIABLE_STATEMENT, WHILE_STATEMENT = $__9.WHILE_STATEMENT, WITH_STATEMENT = $__9.WITH_STATEMENT, YIELD_EXPRESSION = $__9.YIELD_EXPRESSION;
+  var $__9 = $__src_syntax_TokenType_js, AMPERSAND = $__9.AMPERSAND, AMPERSAND_EQUAL = $__9.AMPERSAND_EQUAL, AND = $__9.AND, ARROW = $__9.ARROW, AT_NAME = $__9.AT_NAME, AWAIT = $__9.AWAIT, BACK_QUOTE = $__9.BACK_QUOTE, BANG = $__9.BANG, BAR = $__9.BAR, BAR_EQUAL = $__9.BAR_EQUAL, BREAK = $__9.BREAK, CARET = $__9.CARET, CARET_EQUAL = $__9.CARET_EQUAL, CASE = $__9.CASE, CATCH = $__9.CATCH, CLASS = $__9.CLASS, CLOSE_ANGLE = $__9.CLOSE_ANGLE, CLOSE_CURLY = $__9.CLOSE_CURLY, CLOSE_PAREN = $__9.CLOSE_PAREN, CLOSE_SQUARE = $__9.CLOSE_SQUARE, COLON = $__9.COLON, COMMA = $__9.COMMA, CONST = $__9.CONST, CONTINUE = $__9.CONTINUE, DEBUGGER = $__9.DEBUGGER, DEFAULT = $__9.DEFAULT, DELETE = $__9.DELETE, DO = $__9.DO, DOLLAR = $__9.DOLLAR, DOT_DOT_DOT = $__9.DOT_DOT_DOT, ELSE = $__9.ELSE, END_OF_FILE = $__9.END_OF_FILE, ENUM = $__9.ENUM, EQUAL = $__9.EQUAL, EQUAL_EQUAL = $__9.EQUAL_EQUAL, EQUAL_EQUAL_EQUAL = $__9.EQUAL_EQUAL_EQUAL, ERROR = $__9.ERROR, EXPORT = $__9.EXPORT, EXTENDS = $__9.EXTENDS, FALSE = $__9.FALSE, FINALLY = $__9.FINALLY, FOR = $__9.FOR, FUNCTION = $__9.FUNCTION, GREATER_EQUAL = $__9.GREATER_EQUAL, IDENTIFIER = $__9.IDENTIFIER, IF = $__9.IF, IMPLEMENTS = $__9.IMPLEMENTS, IMPORT = $__9.IMPORT, IN = $__9.IN, INSTANCEOF = $__9.INSTANCEOF, INTERFACE = $__9.INTERFACE, LEFT_SHIFT = $__9.LEFT_SHIFT, LEFT_SHIFT_EQUAL = $__9.LEFT_SHIFT_EQUAL, LESS_EQUAL = $__9.LESS_EQUAL, LET = $__9.LET, MINUS = $__9.MINUS, MINUS_EQUAL = $__9.MINUS_EQUAL, MINUS_MINUS = $__9.MINUS_MINUS, NEW = $__9.NEW, NO_SUBSTITUTION_TEMPLATE = $__9.NO_SUBSTITUTION_TEMPLATE, NOT_EQUAL = $__9.NOT_EQUAL, NOT_EQUAL_EQUAL = $__9.NOT_EQUAL_EQUAL, NULL = $__9.NULL, NUMBER = $__9.NUMBER, OPEN_ANGLE = $__9.OPEN_ANGLE, OPEN_CURLY = $__9.OPEN_CURLY, OPEN_PAREN = $__9.OPEN_PAREN, OPEN_SQUARE = $__9.OPEN_SQUARE, OR = $__9.OR, PACKAGE = $__9.PACKAGE, PERCENT = $__9.PERCENT, PERCENT_EQUAL = $__9.PERCENT_EQUAL, PERIOD = $__9.PERIOD, PERIOD_OPEN_CURLY = $__9.PERIOD_OPEN_CURLY, PLUS = $__9.PLUS, PLUS_EQUAL = $__9.PLUS_EQUAL, PLUS_PLUS = $__9.PLUS_PLUS, PRIVATE = $__9.PRIVATE, PROTECTED = $__9.PROTECTED, PUBLIC = $__9.PUBLIC, QUESTION = $__9.QUESTION, REGULAR_EXPRESSION = $__9.REGULAR_EXPRESSION, RETURN = $__9.RETURN, RIGHT_SHIFT = $__9.RIGHT_SHIFT, RIGHT_SHIFT_EQUAL = $__9.RIGHT_SHIFT_EQUAL, SEMI_COLON = $__9.SEMI_COLON, SLASH = $__9.SLASH, SLASH_EQUAL = $__9.SLASH_EQUAL, STAR = $__9.STAR, STAR_EQUAL = $__9.STAR_EQUAL, STATIC = $__9.STATIC, STRING = $__9.STRING, SUPER = $__9.SUPER, SWITCH = $__9.SWITCH, TEMPLATE_HEAD = $__9.TEMPLATE_HEAD, TEMPLATE_MIDDLE = $__9.TEMPLATE_MIDDLE, TEMPLATE_TAIL = $__9.TEMPLATE_TAIL, THIS = $__9.THIS, THROW = $__9.THROW, TILDE = $__9.TILDE, TRUE = $__9.TRUE, TRY = $__9.TRY, TYPEOF = $__9.TYPEOF, UNSIGNED_RIGHT_SHIFT = $__9.UNSIGNED_RIGHT_SHIFT, UNSIGNED_RIGHT_SHIFT_EQUAL = $__9.UNSIGNED_RIGHT_SHIFT_EQUAL, VAR = $__9.VAR, VOID = $__9.VOID, WHILE = $__9.WHILE, WITH = $__9.WITH, YIELD = $__9.YIELD;
+  var $__9 = $__src_syntax_trees_ParseTreeType_js, ARGUMENT_LIST = $__9.ARGUMENT_LIST, ARRAY_COMPREHENSION = $__9.ARRAY_COMPREHENSION, ARRAY_LITERAL_EXPRESSION = $__9.ARRAY_LITERAL_EXPRESSION, ARRAY_PATTERN = $__9.ARRAY_PATTERN, ARROW_FUNCTION_EXPRESSION = $__9.ARROW_FUNCTION_EXPRESSION, AT_NAME_DECLARATION = $__9.AT_NAME_DECLARATION, AT_NAME_EXPRESSION = $__9.AT_NAME_EXPRESSION, AWAIT_STATEMENT = $__9.AWAIT_STATEMENT, BINARY_OPERATOR = $__9.BINARY_OPERATOR, BINDING_ELEMENT = $__9.BINDING_ELEMENT, BINDING_IDENTIFIER = $__9.BINDING_IDENTIFIER, BLOCK = $__9.BLOCK, BREAK_STATEMENT = $__9.BREAK_STATEMENT, CALL_EXPRESSION = $__9.CALL_EXPRESSION, CASCADE_EXPRESSION = $__9.CASCADE_EXPRESSION, CASE_CLAUSE = $__9.CASE_CLAUSE, CATCH = $__9.CATCH, CLASS_DECLARATION = $__9.CLASS_DECLARATION, CLASS_EXPRESSION = $__9.CLASS_EXPRESSION, COMMA_EXPRESSION = $__9.COMMA_EXPRESSION, COMPREHENSION_FOR = $__9.COMPREHENSION_FOR, CONDITIONAL_EXPRESSION = $__9.CONDITIONAL_EXPRESSION, CONTINUE_STATEMENT = $__9.CONTINUE_STATEMENT, COVER_FORMALS = $__9.COVER_FORMALS, DEBUGGER_STATEMENT = $__9.DEBUGGER_STATEMENT, DEFAULT_CLAUSE = $__9.DEFAULT_CLAUSE, DO_WHILE_STATEMENT = $__9.DO_WHILE_STATEMENT, EMPTY_STATEMENT = $__9.EMPTY_STATEMENT, EXPORT_DECLARATION = $__9.EXPORT_DECLARATION, EXPORT_MAPPING = $__9.EXPORT_MAPPING, EXPORT_MAPPING_LIST = $__9.EXPORT_MAPPING_LIST, EXPORT_SPECIFIER = $__9.EXPORT_SPECIFIER, EXPORT_SPECIFIER_SET = $__9.EXPORT_SPECIFIER_SET, EXPORT_STAR = $__9.EXPORT_STAR, EXPRESSION_STATEMENT = $__9.EXPRESSION_STATEMENT, FINALLY = $__9.FINALLY, FOR_IN_STATEMENT = $__9.FOR_IN_STATEMENT, FOR_OF_STATEMENT = $__9.FOR_OF_STATEMENT, FOR_STATEMENT = $__9.FOR_STATEMENT, FORMAL_PARAMETER_LIST = $__9.FORMAL_PARAMETER_LIST, FUNCTION_DECLARATION = $__9.FUNCTION_DECLARATION, FUNCTION_EXPRESSION = $__9.FUNCTION_EXPRESSION, GENERATOR_COMPREHENSION = $__9.GENERATOR_COMPREHENSION, GET_ACCESSOR = $__9.GET_ACCESSOR, IDENTIFIER_EXPRESSION = $__9.IDENTIFIER_EXPRESSION, IF_STATEMENT = $__9.IF_STATEMENT, IMPORT_BINDING = $__9.IMPORT_BINDING, IMPORT_DECLARATION = $__9.IMPORT_DECLARATION, IMPORT_SPECIFIER = $__9.IMPORT_SPECIFIER, IMPORT_SPECIFIER_SET = $__9.IMPORT_SPECIFIER_SET, LABELLED_STATEMENT = $__9.LABELLED_STATEMENT, LITERAL_EXPRESSION = $__9.LITERAL_EXPRESSION, MEMBER_EXPRESSION = $__9.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__9.MEMBER_LOOKUP_EXPRESSION, MISSING_PRIMARY_EXPRESSION = $__9.MISSING_PRIMARY_EXPRESSION, MODULE_DECLARATION = $__9.MODULE_DECLARATION, MODULE_DEFINITION = $__9.MODULE_DEFINITION, MODULE_EXPRESSION = $__9.MODULE_EXPRESSION, MODULE_REQUIRE = $__9.MODULE_REQUIRE, MODULE_SPECIFIER = $__9.MODULE_SPECIFIER, NAME_STATEMENT = $__9.NAME_STATEMENT, NEW_EXPRESSION = $__9.NEW_EXPRESSION, OBJECT_LITERAL_EXPRESSION = $__9.OBJECT_LITERAL_EXPRESSION, OBJECT_PATTERN = $__9.OBJECT_PATTERN, OBJECT_PATTERN_FIELD = $__9.OBJECT_PATTERN_FIELD, PAREN_EXPRESSION = $__9.PAREN_EXPRESSION, POSTFIX_EXPRESSION = $__9.POSTFIX_EXPRESSION, PREDEFINED_TYPE = $__9.PREDEFINED_TYPE, PROGRAM = $__9.PROGRAM, PROPERTY_METHOD_ASSIGNMENT = $__9.PROPERTY_METHOD_ASSIGNMENT, PROPERTY_NAME_ASSIGNMENT = $__9.PROPERTY_NAME_ASSIGNMENT, PROPERTY_NAME_SHORTHAND = $__9.PROPERTY_NAME_SHORTHAND, REST_PARAMETER = $__9.REST_PARAMETER, RETURN_STATEMENT = $__9.RETURN_STATEMENT, SET_ACCESSOR = $__9.SET_ACCESSOR, SPREAD_EXPRESSION = $__9.SPREAD_EXPRESSION, SPREAD_PATTERN_ELEMENT = $__9.SPREAD_PATTERN_ELEMENT, STATE_MACHINE = $__9.STATE_MACHINE, SUPER_EXPRESSION = $__9.SUPER_EXPRESSION, SWITCH_STATEMENT = $__9.SWITCH_STATEMENT, TEMPLATE_LITERAL_EXPRESSION = $__9.TEMPLATE_LITERAL_EXPRESSION, TEMPLATE_LITERAL_PORTION = $__9.TEMPLATE_LITERAL_PORTION, TEMPLATE_SUBSTITUTION = $__9.TEMPLATE_SUBSTITUTION, THIS_EXPRESSION = $__9.THIS_EXPRESSION, THROW_STATEMENT = $__9.THROW_STATEMENT, TRY_STATEMENT = $__9.TRY_STATEMENT, TYPE_NAME = $__9.TYPE_NAME, UNARY_EXPRESSION = $__9.UNARY_EXPRESSION, VARIABLE_DECLARATION = $__9.VARIABLE_DECLARATION, VARIABLE_DECLARATION_LIST = $__9.VARIABLE_DECLARATION_LIST, VARIABLE_STATEMENT = $__9.VARIABLE_STATEMENT, WHILE_STATEMENT = $__9.WHILE_STATEMENT, WITH_STATEMENT = $__9.WITH_STATEMENT, YIELD_EXPRESSION = $__9.YIELD_EXPRESSION;
   var ValidationError = function($__super) {
     var $ValidationError = ($__createClass)({constructor: function(tree, message) {
         this.tree = tree;
@@ -17131,16 +17124,16 @@ var $__src_syntax_ParseTreeValidator_js = (function() {
         this.checkVisit_(tree.value.isArrowFunctionExpression(), tree.value, 'assignment expression expected');
       },
       visitPropertyNameShorthand: function(tree) {},
-      visitQuasiLiteralExpression: function(tree) {
+      visitTemplateLiteralExpression: function(tree) {
         if (tree.operand) {
           this.checkVisit_(tree.operand.isMemberExpression(), tree.operand, 'member or call expression expected');
         }
         for (var i = 0; i < tree.elements.length; i++) {
           var element = tree.elements[i];
           if (i % 2) {
-            this.checkType_(QUASI_SUBSTITUTION, element, 'Quasi substitution expected');
+            this.checkType_(TEMPLATE_SUBSTITUTION, element, 'Template literal substitution expected');
           } else {
-            this.checkType_(QUASI_LITERAL_PORTION, element, 'Quasi literal portion expected');
+            this.checkType_(TEMPLATE_LITERAL_PORTION, element, 'Template literal portion expected');
           }
         }
       },
@@ -17317,9 +17310,9 @@ var $__src_codegeneration_PropertyNameShorthandTransformer_js = (function() {
       enumerable: true
     }}));
 }).call(this);
-var $__src_codegeneration_QuasiLiteralTransformer_js = (function() {
+var $__src_codegeneration_TemplateLiteralTransformer_js = (function() {
   "use strict";
-  var $__9 = $__src_syntax_trees_ParseTreeType_js, BINARY_OPERATOR = $__9.BINARY_OPERATOR, COMMA_EXPRESSION = $__9.COMMA_EXPRESSION, CONDITIONAL_EXPRESSION = $__9.CONDITIONAL_EXPRESSION, QUASI_LITERAL_PORTION = $__9.QUASI_LITERAL_PORTION;
+  var $__9 = $__src_syntax_trees_ParseTreeType_js, BINARY_OPERATOR = $__9.BINARY_OPERATOR, COMMA_EXPRESSION = $__9.COMMA_EXPRESSION, CONDITIONAL_EXPRESSION = $__9.CONDITIONAL_EXPRESSION, TEMPLATE_LITERAL_PORTION = $__9.TEMPLATE_LITERAL_PORTION;
   var $__9 = $__src_syntax_trees_ParseTrees_js, LiteralExpression = $__9.LiteralExpression, ParenExpression = $__9.ParenExpression;
   var LiteralToken = $__src_syntax_LiteralToken_js.LiteralToken;
   var $__9 = $__src_syntax_PredefinedName_js, DEFINE_PROPERTIES = $__9.DEFINE_PROPERTIES, OBJECT = $__9.OBJECT, RAW = $__9.RAW;
@@ -17332,7 +17325,7 @@ var $__src_codegeneration_QuasiLiteralTransformer_js = (function() {
   }
   function maybeAddEmptyStringAtEnd(elements, items) {
     var length = elements.length;
-    if (!length || elements[length - 1].type !== QUASI_LITERAL_PORTION) items.push(createStringLiteral(''));
+    if (!length || elements[length - 1].type !== TEMPLATE_LITERAL_PORTION) items.push(createStringLiteral(''));
   }
   function createRawStringArray(elements) {
     var items = [];
@@ -17424,16 +17417,16 @@ var $__src_codegeneration_QuasiLiteralTransformer_js = (function() {
     sb[k++] = '"';
     return sb.join('');
   }
-  var QuasiLiteralTransformer = function($__super) {
-    var $QuasiLiteralTransformer = ($__createClass)({
+  var TemplateLiteralTransformer = function($__super) {
+    var $TemplateLiteralTransformer = ($__createClass)({
       constructor: function() {
-        traceur.runtime.superCall(this, $QuasiLiteralTransformer, 'constructor', arguments);
+        traceur.runtime.superCall(this, $TemplateLiteralTransformer, 'constructor', arguments);
       },
       transformFunctionBody: function(tree) {
         return this.transformBlock(tree);
       },
-      transformQuasiLiteralExpression: function(tree) {
-        if (!tree.operand) return this.createDefaultQuasi(tree);
+      transformTemplateLiteralExpression: function(tree) {
+        if (!tree.operand) return this.createDefaultTemplateLiteral(tree);
         var operand = this.transformAny(tree.operand);
         var elements = tree.elements;
         var callsiteIdObject = createCallSiteIdObject(tree);
@@ -17444,7 +17437,7 @@ var $__src_codegeneration_QuasiLiteralTransformer_js = (function() {
         }
         return createCallExpression(operand, createArgumentList(args));
       },
-      transformQuasiSubstitution: function(tree) {
+      transformTemplateSubstitution: function(tree) {
         var transformedTree = this.transformAny(tree.expression);
         switch (transformedTree.type) {
           case BINARY_OPERATOR:
@@ -17460,10 +17453,10 @@ var $__src_codegeneration_QuasiLiteralTransformer_js = (function() {
         }
         return transformedTree;
       },
-      transformQuasiLiteralPortion: function(tree) {
+      transformTemplateLiteralPortion: function(tree) {
         return createCookedStringLiteralExpression(tree);
       },
-      createDefaultQuasi: function(tree) {
+      createDefaultTemplateLiteral: function(tree) {
         var length = tree.elements.length;
         if (length === 0) {
           var loc = tree.location;
@@ -17475,7 +17468,7 @@ var $__src_codegeneration_QuasiLiteralTransformer_js = (function() {
         var plusToken = createOperatorToken(PLUS);
         for (var i = 1; i < length; i++) {
           var element = tree.elements[i];
-          if (element.type === QUASI_LITERAL_PORTION) {
+          if (element.type === TEMPLATE_LITERAL_PORTION) {
             if (element.value.value === '') continue; else if (firstNonEmpty < 0 && i === 2) binaryExpression = binaryExpression.right;
           }
           var transformedTree = this.transformAny(tree.elements[i]);
@@ -17484,14 +17477,14 @@ var $__src_codegeneration_QuasiLiteralTransformer_js = (function() {
         return new ParenExpression(null, binaryExpression);
       }
     }, $__super, false);
-    return $QuasiLiteralTransformer;
+    return $TemplateLiteralTransformer;
   }(TempVarTransformer);
-  QuasiLiteralTransformer.transformTree = function(identifierGenerator, tree) {
-    return new QuasiLiteralTransformer(identifierGenerator).transformAny(tree);
+  TemplateLiteralTransformer.transformTree = function(identifierGenerator, tree) {
+    return new TemplateLiteralTransformer(identifierGenerator).transformAny(tree);
   };
-  return Object.preventExtensions(Object.create(null, {QuasiLiteralTransformer: {
+  return Object.preventExtensions(Object.create(null, {TemplateLiteralTransformer: {
       get: function() {
-        return QuasiLiteralTransformer;
+        return TemplateLiteralTransformer;
       },
       enumerable: true
     }}));
@@ -17704,7 +17697,7 @@ var $__src_codegeneration_ProgramTransformer_js = (function() {
   var ParseTreeValidator = $__src_syntax_ParseTreeValidator_js.ParseTreeValidator;
   var PrivateNameSyntaxTransformer = $__src_codegeneration_PrivateNameSyntaxTransformer_js.PrivateNameSyntaxTransformer;
   var PropertyNameShorthandTransformer = $__src_codegeneration_PropertyNameShorthandTransformer_js.PropertyNameShorthandTransformer;
-  var QuasiLiteralTransformer = $__src_codegeneration_QuasiLiteralTransformer_js.QuasiLiteralTransformer;
+  var TemplateLiteralTransformer = $__src_codegeneration_TemplateLiteralTransformer_js.TemplateLiteralTransformer;
   var RestParameterTransformer = $__src_codegeneration_RestParameterTransformer_js.RestParameterTransformer;
   var SpreadTransformer = $__src_codegeneration_SpreadTransformer_js.SpreadTransformer;
   var TypeTransformer = $__src_codegeneration_TypeTransformer_js.TypeTransformer;
@@ -17747,7 +17740,7 @@ var $__src_codegeneration_ProgramTransformer_js = (function() {
           }
         }
         chain(transformOptions.types, TypeTransformer.transformTree);
-        chain(transformOptions.quasi, QuasiLiteralTransformer.transformTree, identifierGenerator);
+        chain(transformOptions.templateLiterals, TemplateLiteralTransformer.transformTree, identifierGenerator);
         chain(transformOptions.modules, this.transformModules_.bind(this), tree, opt_module);
         chain(transformOptions.arrowFunctions, ArrowFunctionTransformer.transformTree, reporter);
         chain(transformOptions.classes, ClassTransformer.transform, identifierGenerator, runtimeInliner, reporter);
@@ -19369,24 +19362,6 @@ var traceur = (function() {
           },
           enumerable: true
         },
-        QuasiLiteralExpression: {
-          get: function() {
-            return $__src_syntax_trees_ParseTrees_js.QuasiLiteralExpression;
-          },
-          enumerable: true
-        },
-        QuasiLiteralPortion: {
-          get: function() {
-            return $__src_syntax_trees_ParseTrees_js.QuasiLiteralPortion;
-          },
-          enumerable: true
-        },
-        QuasiSubstitution: {
-          get: function() {
-            return $__src_syntax_trees_ParseTrees_js.QuasiSubstitution;
-          },
-          enumerable: true
-        },
         RestParameter: {
           get: function() {
             return $__src_syntax_trees_ParseTrees_js.RestParameter;
@@ -19426,6 +19401,24 @@ var traceur = (function() {
         SwitchStatement: {
           get: function() {
             return $__src_syntax_trees_ParseTrees_js.SwitchStatement;
+          },
+          enumerable: true
+        },
+        TemplateLiteralExpression: {
+          get: function() {
+            return $__src_syntax_trees_ParseTrees_js.TemplateLiteralExpression;
+          },
+          enumerable: true
+        },
+        TemplateLiteralPortion: {
+          get: function() {
+            return $__src_syntax_trees_ParseTrees_js.TemplateLiteralPortion;
+          },
+          enumerable: true
+        },
+        TemplateSubstitution: {
+          get: function() {
+            return $__src_syntax_trees_ParseTrees_js.TemplateSubstitution;
           },
           enumerable: true
         },
