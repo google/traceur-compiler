@@ -1950,7 +1950,7 @@ export class Parser {
       case NUMBER:
         return true;
       default:
-        return isKeyword(this.peekToken_());
+        return this.peekToken_().isKeyword();
     }
   }
 
@@ -3455,7 +3455,7 @@ export class Parser {
   eatIdName_() {
     var t = this.nextToken_();
     if (t.type != IDENTIFIER) {
-      if (!isKeyword(t.type)) {
+      if (!t.isKeyword()) {
         this.reportExpectedError_(t, 'identifier');
         return null;
       }

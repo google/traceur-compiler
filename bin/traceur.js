@@ -9755,7 +9755,7 @@ var $__src_syntax_Parser_js = (function() {
           case NUMBER:
             return true;
           default:
-            return isKeyword(this.peekToken_());
+            return this.peekToken_().isKeyword();
         }
       },
       peekPredefinedString_: function(string) {
@@ -10572,7 +10572,7 @@ var $__src_syntax_Parser_js = (function() {
       eatIdName_: function() {
         var t = this.nextToken_();
         if (t.type != IDENTIFIER) {
-          if (!isKeyword(t.type)) {
+          if (!t.isKeyword()) {
             this.reportExpectedError_(t, 'identifier');
             return null;
           }
