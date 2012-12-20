@@ -922,7 +922,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   visitTypeName(tree) {
     if (tree.moduleName) {
       this.visitAny(tree.moduleName);
-      this.write_(TokenType.PERIOD);
+      this.write_(PERIOD);
     }
     this.write_(tree.name);
   }
@@ -949,7 +949,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   visitVariableDeclaration(tree) {
     this.visitAny(tree.lvalue);
     if (tree.typeAnnotation !== null) {
-      this.write_(TokenType.COLON);
+      this.write_(COLON);
       this.visitAny(tree.typeAnnotation);
     }
     if (tree.initializer !== null) {
