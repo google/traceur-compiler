@@ -99,6 +99,11 @@ export class LineNumberTable {
     return line;
   }
 
+  offsetOfLine(line) {
+    this.ensureLineStartOffsets_();
+    return this.lineStartOffsets_[line];
+  }
+
   getColumn(offset) {
     var line = this.getLine(offset);
     return offset - this.lineStartOffsets_[line];

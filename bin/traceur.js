@@ -12920,6 +12920,10 @@ var $__src_syntax_LineNumberTable_js = (function() {
         this.lastOffset_ = offset;
         return line;
       },
+      offsetOfLine: function(line) {
+        this.ensureLineStartOffsets_();
+        return this.lineStartOffsets_[line];
+      },
       getColumn: function(offset) {
         var line = this.getLine(offset);
         return offset - this.lineStartOffsets_[line];
