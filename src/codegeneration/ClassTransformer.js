@@ -66,25 +66,17 @@ import {
 // This code is more or less identical to ClassDefinitionEvaluation in the ES6
 // draft.
 var CREATE_CLASS_CODE =
-    `function(object, superClass, hasConstructor) {
-      var ctor = object.constructor, protoParent;
+    `function(object, protoParent, superClass, hasConstructor) {
+      var ctor = object.constructor;
       if (typeof superClass === 'function') {
-        protoParent = superClass.prototype;
         if (protoParent === null)
           throw new TypeError();
         ctor.__proto__ = superClass;
-      } else if (superClass === null) {
-        if (!hasConstructor)
-          ctor = object.constructor = function() {};
-        protoParent = null;
-      } else if (Object(superClass) === superClass) {
-        protoParent = superClass;
-      } else {
-        throw new TypeError();
+      } else if (superClass === null && !hasConstructor) {
+        ctor = object.constructor = function() {};
       }
 
-      var descriptors = {}, name,
-          names = Object.getOwnPropertyNames(object);
+      var descriptors = {}, name, names = Object.getOwnPropertyNames(object);
       for (var i = 0; i < names.length; i++) {
         var name = names[i];
         descriptors[name] = Object.getOwnPropertyDescriptor(object, name);
@@ -95,6 +87,17 @@ var CREATE_CLASS_CODE =
       return ctor;
     }`;
 
+var GET_PROTO_PARENT_CODE =
+    `function(superClass) {
+      if (typeof superClass === 'function')
+        return superClass.prototype;
+      if (superClass === null)
+        return null;
+      if (Object(superClass) === superClass)
+        return superClass;
+      throw new TypeError();
+    }`;
+
 var CREATE_CLASS_NO_EXTENDS_CODE =
     `function(object) {
       var ctor = object.constructor;
@@ -103,17 +106,15 @@ var CREATE_CLASS_NO_EXTENDS_CODE =
       return ctor;
     }`;
 
-/*
- * Interaction between ClassTransformer and SuperTransformer:
- * - The initial call to SuperTransformer will always be a transformBlock on
- *   the body of a function -- method, getter, setter, or constructor.
- * - SuperTransformer will never see anything that has not been touched first
- *   by ClassTransformer and (if applicable) a previous invocation of
- *   SuperTransformer on the functions of any inner classes. [see ref_1]
- * - This means that SuperTransformer should only ever see desugared class
- *   declarations, and should never see any super expressions that refer to
- *   any inner (or outer) classes.
- */
+// Interaction between ClassTransformer and SuperTransformer:
+// - The initial call to SuperTransformer will always be a transformBlock on
+//   the body of a function -- method, getter, setter, or constructor.
+// - SuperTransformer will never see anything that has not been touched first
+//   by ClassTransformer and (if applicable) a previous invocation of
+//   SuperTransformer on the functions of any inner classes. [see ref_1]
+// - This means that SuperTransformer should only ever see desugared class
+//   declarations, and should never see any super expressions that refer to
+//   any inner (or outer) classes.
 
 /**
  * Maximally minimal classes
@@ -157,18 +158,19 @@ export class ClassTransformer extends TempVarTransformer{
   transformClassShared_(tree, name) {
     var superClass = this.transformAny(tree.superClass);
     var nameIdent = createIdentifierExpression(name);
+    var protoName = createIdentifierExpression('$__proto');
 
     var hasConstructor = false;
     var elements = tree.elements.map((tree) => {
       switch (tree.type) {
         case GET_ACCESSOR:
-          return this.transformGetAccessor_(tree, nameIdent);
+          return this.transformGetAccessor_(tree, protoName);
         case SET_ACCESSOR:
-          return this.transformSetAccessor_(tree, nameIdent);
+          return this.transformSetAccessor_(tree, protoName);
         case PROPERTY_METHOD_ASSIGNMENT:
           if (tree.name.value === CONSTRUCTOR)
             hasConstructor = true;
-          return this.transformPropertyMethodAssignment_(tree, nameIdent);
+          return this.transformPropertyMethodAssignment_(tree, protoName);
         default:
           throw new Error(`Unexpected class element: ${tree.type}`);
       }
@@ -177,7 +179,7 @@ export class ClassTransformer extends TempVarTransformer{
     // Create constructor if it does not already exist.
     if (!hasConstructor)
       elements.unshift(this.getDefaultConstructor_(tree, superClass,
-                                                   nameIdent));
+                                                   protoName));
 
     var object = createObjectLiteralExpression(elements);
 
@@ -195,8 +197,9 @@ export class ClassTransformer extends TempVarTransformer{
     // ignore that part in the name to use in its stack traces.
     if (superClass) {
       return parseExpression `function($__super) {
+        var $__proto = ${this.getProtoParent_}($__super);
         var ${nameIdent} =
-            (${this.createClass_})(${object}, $__super, ${hasConstructor});
+            (${this.createClass_})(${object}, $__proto, $__super, ${hasConstructor});
         return ${nameIdent};
       }(${superClass})`;
     }
@@ -209,6 +212,10 @@ export class ClassTransformer extends TempVarTransformer{
 
   get createClass_() {
     return this.runtimeInliner_.get('createClass', CREATE_CLASS_CODE);
+  }
+
+  get getProtoParent_() {
+    return this.runtimeInliner_.get('getProtoParent', GET_PROTO_PARENT_CODE);
   }
 
   get createClassNoExtends_() {
@@ -238,10 +245,10 @@ export class ClassTransformer extends TempVarTransformer{
     return this.transformClassShared_(tree, ident);
   }
 
-  transformPropertyMethodAssignment_(tree, name) {
+  transformPropertyMethodAssignment_(tree, protoName) {
     var formalParameterList = this.transformAny(tree.formalParameterList);
     var functionBody = this.transformSuperInBlock_(tree, tree.functionBody,
-                                                   name);
+                                                   protoName);
     if (formalParameterList === tree.formalParameterList &&
         functionBody === tree.functionBody) {
       return tree;
@@ -251,28 +258,28 @@ export class ClassTransformer extends TempVarTransformer{
         tree.isGenerator, formalParameterList, functionBody);
   }
 
-  transformGetAccessor_(tree, name) {
-    var body = this.transformSuperInBlock_(tree, tree.body, name);
+  transformGetAccessor_(tree, protoName) {
+    var body = this.transformSuperInBlock_(tree, tree.body, protoName);
     if (body === tree.body)
       return tree;
     return new GetAccessor(tree.location, tree.name, body);
   }
 
-  transformSetAccessor_(tree, name) {
+  transformSetAccessor_(tree, protoName) {
     var parameter = this.transformAny(tree.parameter);
-    var body = this.transformSuperInBlock_(tree, tree.body, name);
+    var body = this.transformSuperInBlock_(tree, tree.body, protoName);
     if (body === tree.body)
       return tree;
     return new SetAccessor(tree.location, tree.name, parameter, body);
   }
 
-  transformSuperInBlock_(methodTree, tree, className) {
+  transformSuperInBlock_(methodTree, tree, protoName) {
     this.pushTempVarState();
     var thisName = this.getTempIdentifier();
     var thisDecl = createVariableStatement(VAR, thisName,
                                            createThisExpression());
     var superTransformer = new SuperTransformer(this, this.reporter_,
-                                                className, methodTree,
+                                                protoName, methodTree,
                                                 thisName);
     // ref_1: the inner transformBlock call is key to proper super nesting.
     var transformedTree =
@@ -285,14 +292,14 @@ export class ClassTransformer extends TempVarTransformer{
     return transformedTree;
   }
 
-  getDefaultConstructor_(tree, hasSuper, name) {
+  getDefaultConstructor_(tree, hasSuper, protoName) {
     // constructor(...args) { super(...args); }
     if (!hasSuper)
       return parsePropertyDefinition `constructor: function() {}`;
 
     // Manually handle rest+spread to remove slice.
     return parsePropertyDefinition `constructor: function() {
-      traceur.runtime.superCall(this, ${name}, 'constructor', arguments);
+      traceur.runtime.superCall(this, ${protoName}, 'constructor', arguments);
     }`;
   }
 }

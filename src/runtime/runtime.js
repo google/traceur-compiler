@@ -82,15 +82,14 @@ traceur.runtime = (function(global) {
     writable: true
   });
 
-  function getDescriptor(ctor, name) {
-    var proto = $getPrototypeOf(ctor.prototype);
+  function getDescriptor(proto, name) {
     if (!proto)
       throw new TypeError('super is null');
     return $getPropertyDescriptor(proto, name);
   }
 
-  function superCall(self, ctor, name, args) {
-    var descriptor = getDescriptor(ctor, name);
+  function superCall(self, proto, name, args) {
+    var descriptor = getDescriptor(proto, name);
     if (descriptor) {
       if ('value' in descriptor)
         return descriptor.value.apply(self, args);
@@ -100,8 +99,8 @@ traceur.runtime = (function(global) {
     throw new TypeError("Object has no method '" + name + "'.");
   }
 
-  function superGet(self, ctor, name) {
-    var descriptor = getDescriptor(ctor, name);
+  function superGet(self, proto, name) {
+    var descriptor = getDescriptor(proto, name);
     if (descriptor) {
       if (descriptor.get)
         return descriptor.get.call(self);
@@ -111,8 +110,8 @@ traceur.runtime = (function(global) {
     return undefined;
   }
 
-  function superSet(self, ctor, name, value) {
-    var descriptor = getDescriptor(ctor, name);
+  function superSet(self, proto, name, value) {
+    var descriptor = getDescriptor(proto, name);
     if (descriptor && descriptor.set) {
       descriptor.set.call(self, value);
       return;
