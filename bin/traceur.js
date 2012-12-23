@@ -18501,6 +18501,83 @@ var $__src_outputgeneration_SourceMapIntegration_js = (function() {
     }
   }));
 }).call(this);
+var $__src_codegeneration_CloneTreeTransformer_js = (function() {
+  "use strict";
+  var ParseTreeTransformer = $__src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
+  var $__9 = $__src_syntax_trees_ParseTrees_js, AtNameExpression = $__9.AtNameExpression, BindingIdentifier = $__9.BindingIdentifier, BreakStatement = $__9.BreakStatement, ContinueStatement = $__9.ContinueStatement, DebuggerStatement = $__9.DebuggerStatement, EmptyStatement = $__9.EmptyStatement, ExportSpecifier = $__9.ExportSpecifier, ExportStar = $__9.ExportStar, IdentifierExpression = $__9.IdentifierExpression, ImportSpecifier = $__9.ImportSpecifier, LiteralExpression = $__9.LiteralExpression, ModuleRequire = $__9.ModuleRequire, PredefinedType = $__9.PredefinedType, PropertyNameShorthand = $__9.PropertyNameShorthand, TemplateLiteralPortion = $__9.TemplateLiteralPortion, RestParameter = $__9.RestParameter, SuperExpression = $__9.SuperExpression, ThisExpression = $__9.ThisExpression;
+  var CloneTreeTransformer = function($__super) {
+    var $__proto = $__getProtoParent($__super);
+    var $CloneTreeTransformer = ($__createClass)({
+      constructor: function() {
+        traceur.runtime.superCall(this, $__proto, 'constructor', arguments);
+      },
+      transformAtNameExpression: function(tree) {
+        return new AtNameExpression(tree.location, tree.atNameToken);
+      },
+      transformBindingIdentifier: function(tree) {
+        return new BindingIdentifier(tree.location, tree.identifierToken);
+      },
+      transformBreakStatement: function(tree) {
+        return new BreakStatement(tree.location, tree.name);
+      },
+      transformContinueStatement: function(tree) {
+        return new ContinueStatement(tree.location, tree.name);
+      },
+      transformDebuggerStatement: function(tree) {
+        return new DebuggerStatement(tree.location);
+      },
+      transformEmptyStatement: function(tree) {
+        return new EmptyStatement(tree.location);
+      },
+      transformExportSpecifier: function(tree) {
+        return new ExportSpecifier(tree.location, tree.lhs, tree.rhs);
+      },
+      transformExportStar: function(tree) {
+        return new ExportStar(tree.location);
+      },
+      transformIdentifierExpression: function(tree) {
+        return new IdentifierExpression(tree.location, tree.identifierToken);
+      },
+      transformImportSpecifier: function(tree) {
+        return new ImportSpecifier(tree.location, tree.lhs, tree.rhs);
+      },
+      transformLiteralExpression: function(tree) {
+        return new LiteralExpression(tree.location, tree.literalToken);
+      },
+      transformModuleRequire: function(tree) {
+        return new ModuleRequire(tree.location, tree.url);
+      },
+      transformPredefinedType: function(tree) {
+        return new PredefinedType(tree.location, tree.token);
+      },
+      transformPropertyNameShorthand: function(tree) {
+        return new PropertyNameShorthand(tree.location, tree.name);
+      },
+      transformTemplateLiteralPortion: function(tree) {
+        return new TemplateLiteralPortion(tree.location, tree.token);
+      },
+      transformRestParameter: function(tree) {
+        return new RestParameter(tree.location, tree.identifer);
+      },
+      transformSuperExpression: function(tree) {
+        return new SuperExpression(tree.location);
+      },
+      transformThisExpression: function(tree) {
+        return new ThisExpression(tree.location);
+      }
+    }, $__proto, $__super, false);
+    return $CloneTreeTransformer;
+  }(ParseTreeTransformer);
+  CloneTreeTransformer.cloneTree = function(tree) {
+    return new CloneTreeTransformer().transformAny(tree);
+  };
+  return Object.preventExtensions(Object.create(null, {CloneTreeTransformer: {
+      get: function() {
+        return CloneTreeTransformer;
+      },
+      enumerable: true
+    }}));
+}).call(this);
 var $__src_codegeneration_module_ModuleRequireVisitor_js = (function() {
   "use strict";
   var ParseTreeVisitor = $__src_syntax_ParseTreeVisitor_js.ParseTreeVisitor;
@@ -19814,6 +19891,12 @@ var traceur = (function() {
       ProgramTransformer: {
         get: function() {
           return $__src_codegeneration_ProgramTransformer_js.ProgramTransformer;
+        },
+        enumerable: true
+      },
+      CloneTreeTransformer: {
+        get: function() {
+          return $__src_codegeneration_CloneTreeTransformer_js.CloneTreeTransformer;
         },
         enumerable: true
       },

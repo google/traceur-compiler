@@ -113,6 +113,7 @@ module traceur {
     export ModuleTransformer from 'codegeneration/ModuleTransformer.js';
     export ParseTreeTransformer from 'codegeneration/ParseTreeTransformer.js';
     export ProgramTransformer from 'codegeneration/ProgramTransformer.js';
+    export CloneTreeTransformer from 'codegeneration/CloneTreeTransformer.js';
     export module ParseTreeFactory from 'codegeneration/ParseTreeFactory.js';
 
     export {parseExpression, parseStatement} from 'codegeneration/PlaceholderParser.js';

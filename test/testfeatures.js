@@ -130,6 +130,10 @@ function testScript(filePath) {
 
     try {
       ('global', eval)(javascript);
+      var CloneTreeTransformer = traceur.codegeneration.CloneTreeTransformer;
+      var cloneTree = CloneTreeTransformer.cloneTree(tree);
+      var cloneGeneratedSource = TreeWriter.write(cloneTree);
+      assertEquals(javascript, cloneGeneratedSource);
       return true;
     } catch (e) {
       if (e instanceof UnitTestError) {

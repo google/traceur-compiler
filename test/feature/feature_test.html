@@ -304,6 +304,7 @@ goog.require('goog.testing.jsunit');
 <body>
 <script>
 
+
 /**
  * Given a path like "feature/Foo/Bar" makes a function name to test that
  * feature: "testFooBar".
@@ -319,7 +320,21 @@ function makeTestName(path) {
   return 'test' + name;
 }
 
-function evalScript(scriptElement) {
+function runCode(code, name) {
+  'use strict';
+  
+  var completed = false;
+  try {
+    ('global', eval)(code);
+    completed = true;
+  } finally {
+    if (!completed) {
+      fail('Error running compiled output for : ' + name);
+    }
+  }
+}
+
+function evalScript(urlOptions, scriptElement) {
   'use strict';
 
   var source;
@@ -368,22 +383,22 @@ function evalScript(scriptElement) {
         skip = true;
       }
 
+      var CloneTreeTransformer = traceur.codegeneration.CloneTreeTransformer;
+
       if (!skip) {
           if (reporter.hadError()) {
             fail('Error compiling ' + name + '.\n' + reporter.errors.join('\n'));
             return;
           }
-
-        // Script compiled, so run it.
-        var completed = false;
-        try {
-          ('global', eval)(code);
-          completed = true;
-        } finally {
-          if (!completed) {
-            fail('Error running compiled output for : ' + name);
+          if (urlOptions.testClone === 'true') {
+            var clone = CloneTreeTransformer.cloneTree(tree);
+            code = traceur.outputgeneration.TreeWriter.write(tree);
+            var cloneCode = traceur.outputgeneration.TreeWriter.write(clone);
+            assertEquals(code, cloneCode);
+          } else {
+            // Script compiled, so run it.
+            runCode(code, name);
           }
-        }
       }
     } finally {
       traceur.options.reset();
@@ -391,13 +406,23 @@ function evalScript(scriptElement) {
   }
 }
 
-
-function evalAllScripts() {
+function evalAllScripts(urlOptions) {
   var scripts = document.querySelectorAll('script[type="text/traceur"]');
-  Array.prototype.forEach.call(scripts, evalScript);
+  Array.prototype.forEach.call(scripts, evalScript.bind(null, urlOptions));
 }
 
-evalAllScripts();
+function optionsOnURL() {
+  var params = window.location.search.substring(1);
+  var nameValuePairs = params.split('&');
+  var options = {};
+  nameValuePairs.forEach(function(pair){
+    var segments = pair.split('=');
+    options[segments[0]] = segments[1];
+  });
+  return options;
+}
+
+evalAllScripts(optionsOnURL());
 
 </script>
 </body>
