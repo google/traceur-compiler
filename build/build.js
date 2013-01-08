@@ -27,7 +27,7 @@ try {
 }
 flags.setMaxListeners(100);
 
-require('../src/traceur-node.js');
+require('../src/node/traceur.js');
 
 flags.option('--out <FILE>', 'path to the file to output');
 flags.option('--all-options-off', 'all options are set to false');

@@ -25,7 +25,7 @@
   var fs = require('fs');
   var path = require('path');
 
-  require('./traceur-node.js');
+  require('./traceur.js');
 
   var ErrorReporter = traceur.util.ErrorReporter;
   var ModuleAnalyzer = traceur.semantics.ModuleAnalyzer;

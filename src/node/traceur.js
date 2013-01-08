@@ -29,4 +29,4 @@ function importScript(filename) {
   ('global', eval)(data);
 }
 
-importScript('../bin/traceur.js');
+importScript('../../bin/traceur.js');
