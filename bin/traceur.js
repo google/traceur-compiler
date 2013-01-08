@@ -676,12 +676,6 @@ traceur.runtime = (function(global) {
     }
     throw new TypeError("Object has no setter '" + name + "'.");
   }
-  function markMethods(object, names) {
-    names.forEach((function(name) {
-      $defineProperty(object, name, {enumerable: false});
-    }));
-    return object;
-  }
   var counter = 0;
   function newUniqueString() {
     return '__$' + Math.floor(Math.random() * 1e9) + '$' + ++counter + '$__';
@@ -828,16 +822,17 @@ traceur.runtime = (function(global) {
   }
   $defineProperty(Object, 'is', method(is));
   var iteratorName = new Name('iterator');
-  var generatorName = new Name('generator');
   var IterModule = {get iterator() {
       return iteratorName;
     }};
   function getIterator(collection) {
-    if (getProperty(collection, generatorName)) return collection;
     return getProperty(collection, iteratorName).call(collection);
   }
-  function markAsGenerator(object) {
-    setProperty(object, generatorName, true);
+  function returnThis() {
+    return this;
+  }
+  function addIterator(object) {
+    setProperty(object, iteratorName, returnThis);
   }
   defineProperty(Array.prototype, IterModule.iterator, method(function() {
     var index = 0;
@@ -935,6 +930,7 @@ traceur.runtime = (function(global) {
   global.Deferred = Deferred;
   return {
     Deferred: Deferred,
+    addIterator: addIterator,
     assertName: assertName,
     createName: NameModule.Name,
     deleteProperty: deleteProperty,
@@ -947,8 +943,6 @@ traceur.runtime = (function(global) {
     has: has,
     is: is,
     isnt: isnt,
-    markAsGenerator: markAsGenerator,
-    markMethods: markMethods,
     modules: modules,
     setProperty: setProperty,
     superCall: superCall,
@@ -7111,6 +7105,7 @@ var $__src_util_MutedErrorReporter_js = (function() {
 }).call(this);
 var $__src_syntax_PredefinedName_js = (function() {
   "use strict";
+  var ADD_ITERATOR = 'addIterator';
   var ANY = 'any';
   var $ARGUMENTS = '$arguments';
   var $THAT = '$that';
@@ -7165,8 +7160,6 @@ var $__src_syntax_PredefinedName_js = (function() {
   var IS_DONE = 'isDone';
   var ITERATOR = 'iterator';
   var LENGTH = 'length';
-  var MARK_AS_GENERATOR = 'markAsGenerator';
-  var MARK_METHODS = 'markMethods';
   var MODULE = 'module';
   var MODULES = 'modules';
   var MOVE_NEXT = 'moveNext';
@@ -7213,6 +7206,12 @@ var $__src_syntax_PredefinedName_js = (function() {
   }
   ;
   return Object.preventExtensions(Object.create(null, {
+    ADD_ITERATOR: {
+      get: function() {
+        return ADD_ITERATOR;
+      },
+      enumerable: true
+    },
     ANY: {
       get: function() {
         return ANY;
@@ -7534,18 +7533,6 @@ var $__src_syntax_PredefinedName_js = (function() {
     LENGTH: {
       get: function() {
         return LENGTH;
-      },
-      enumerable: true
-    },
-    MARK_AS_GENERATOR: {
-      get: function() {
-        return MARK_AS_GENERATOR;
-      },
-      enumerable: true
-    },
-    MARK_METHODS: {
-      get: function() {
-        return MARK_METHODS;
       },
       enumerable: true
     },
@@ -15279,7 +15266,7 @@ var $__src_codegeneration_generator_GeneratorTransformer_js = (function() {
   "use strict";
   var CPSTransformer = $__src_codegeneration_generator_CPSTransformer_js.CPSTransformer;
   var EndState = $__src_codegeneration_generator_EndState_js.EndState;
-  var $__9 = $__src_syntax_PredefinedName_js, MARK_AS_GENERATOR = $__9.MARK_AS_GENERATOR, MOVE_NEXT = $__9.MOVE_NEXT, RESULT = $__9.RESULT, RUNTIME = $__9.RUNTIME, STORED_EXCEPTION = $__9.STORED_EXCEPTION, TRACEUR = $__9.TRACEUR;
+  var $__9 = $__src_syntax_PredefinedName_js, ADD_ITERATOR = $__9.ADD_ITERATOR, MOVE_NEXT = $__9.MOVE_NEXT, RESULT = $__9.RESULT, RUNTIME = $__9.RUNTIME, STORED_EXCEPTION = $__9.STORED_EXCEPTION, TRACEUR = $__9.TRACEUR;
   var $__9 = $__src_syntax_trees_ParseTreeType_js, STATE_MACHINE = $__9.STATE_MACHINE, YIELD_EXPRESSION = $__9.YIELD_EXPRESSION;
   var StateMachine = $__src_syntax_trees_StateMachine_js.StateMachine;
   var VAR = $__src_syntax_TokenType_js.VAR;
@@ -15333,7 +15320,7 @@ var $__src_codegeneration_generator_GeneratorTransformer_js = (function() {
         statements.push(this.generateHoistedArguments());
         ($__11 = statements).push.apply($__11, $__toObject(this.getMachineVariables(tree, machine)));
         statements.push(createVariableStatement(VAR, RESULT, createObjectLiteralExpression(createPropertyNameAssignment(MOVE_NEXT, this.generateMachineMethod(machine)))));
-        statements.push(createExpressionStatement(createCallExpression(createMemberExpression(TRACEUR, RUNTIME, MARK_AS_GENERATOR), createArgumentList(createIdentifierExpression(RESULT)))));
+        statements.push(createExpressionStatement(createCallExpression(createMemberExpression(TRACEUR, RUNTIME, ADD_ITERATOR), createArgumentList(createIdentifierExpression(RESULT)))));
         statements.push(createReturnStatement(createIdentifierExpression(RESULT)));
         return createBlock(statements);
       },

@@ -15,7 +15,7 @@
 import CPSTransformer from 'CPSTransformer.js';
 import EndState from 'EndState.js';
 import {
-  MARK_AS_GENERATOR,
+  ADD_ITERATOR,
   MOVE_NEXT,
   RESULT,
   RUNTIME,
@@ -200,10 +200,10 @@ export class GeneratorTransformer extends CPSTransformer {
                 MOVE_NEXT,
                 this.generateMachineMethod(machine)))));
 
-    // traceur.runtime.markAsGenerator($result)
+    // traceur.runtime.addIterator($result)
     statements.push(createExpressionStatement(
         createCallExpression(
-            createMemberExpression(TRACEUR, RUNTIME, MARK_AS_GENERATOR),
+            createMemberExpression(TRACEUR, RUNTIME, ADD_ITERATOR),
             createArgumentList(createIdentifierExpression(RESULT)))));
 
     //     return $result;

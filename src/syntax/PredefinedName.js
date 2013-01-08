@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+export var ADD_ITERATOR = 'addIterator';
 export var ANY = 'any';
 export var $ARGUMENTS = '$arguments';
 export var $THAT = '$that';
@@ -66,8 +67,6 @@ export var ISNT = 'isnt';
 export var IS_DONE = 'isDone';
 export var ITERATOR = 'iterator';
 export var LENGTH = 'length';
-export var MARK_AS_GENERATOR = 'markAsGenerator';
-export var MARK_METHODS = 'markMethods';
 export var MODULE = 'module';
 export var MODULES = 'modules';
 export var MOVE_NEXT = 'moveNext';
