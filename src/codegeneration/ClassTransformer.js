@@ -278,9 +278,8 @@ export class ClassTransformer extends TempVarTransformer{
     var thisName = this.getTempIdentifier();
     var thisDecl = createVariableStatement(VAR, thisName,
                                            createThisExpression());
-    var superTransformer = new SuperTransformer(this, this.reporter_,
-                                                protoName, methodTree,
-                                                thisName);
+    var superTransformer = new SuperTransformer(this, this.runtimeInliner_,
+        this.reporter_, protoName, methodTree, thisName);
     // ref_1: the inner transformBlock call is key to proper super nesting.
     var transformedTree =
         superTransformer.transformBlock(this.transformBlock(tree));
@@ -297,9 +296,17 @@ export class ClassTransformer extends TempVarTransformer{
     if (!hasSuper)
       return parsePropertyDefinition `constructor: function() {}`;
 
+    var superTransformer = new SuperTransformer(this, this.runtimeInliner_,
+        this.reporter_, protoName, null, null);
+    var superCall = superTransformer.createSuperCallExpression(
+        createThisExpression(),
+        protoName,
+        'constructor',
+        createIdentifierExpression('arguments'));
+
     // Manually handle rest+spread to remove slice.
     return parsePropertyDefinition `constructor: function() {
-      traceur.runtime.superCall(this, ${protoName}, 'constructor', arguments);
+      ${superCall};
     }`;
   }
 }

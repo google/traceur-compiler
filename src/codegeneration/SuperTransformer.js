@@ -39,6 +39,48 @@ import {
   expandMemberExpression,
   expandMemberLookupExpression
 } from 'OperatorExpander.js';
+import parseExpression from 'PlaceholderParser.js';
+
+var SUPER_DESCRIPTOR_CODE =
+    `function (proto, name) {
+      if (!proto)
+        throw new TypeError('super is null');
+      return Object.getPropertyDescriptor(proto, name);
+    }`;
+
+var SUPER_CALL_CODE =
+    `function(self, proto, name, args) {
+      var descriptor = %superDescriptor(proto, name);
+      if (descriptor) {
+        if ('value' in descriptor)
+          return descriptor.value.apply(self, args);
+        if (descriptor.get)
+          return descriptor.get.call(self).apply(self, args);
+      }
+      throw new TypeError("Object has no method '" + name + "'.");
+    }`;
+
+var SUPER_GET_CODE =
+    `function(self, proto, name) {
+      var descriptor = %superDescriptor(proto, name);
+      if (descriptor) {
+        if (descriptor.get)
+          return descriptor.get.call(self);
+        else if ('value' in descriptor)
+          return descriptor.value;
+      }
+      return undefined;
+    }`;
+
+var SUPER_SET_CODE =
+    `function(self, proto, name, value) {
+      var descriptor = %superDescriptor(proto, name);
+      if (descriptor && descriptor.set) {
+        descriptor.set.call(self, value);
+        return;
+      }
+      throw new TypeError("Object has no setter '" + name + "'.");
+    }`;
 
 /**
  * Transforms super expressions in function bodies.
@@ -46,17 +88,19 @@ import {
 export class SuperTransformer extends ParseTreeTransformer {
   /**
    * @param {TempVarTransformer} tempVarTransformer
+   * @param {RuntimeInliner} runtimeInliner
    * @param {ErrorReporter} reporter
    * @param {ParseTree} protoName
    * @param {ParseTree} methodTree
    * @param {string} thisName The name of the saved 'this' var
    */
-  constructor(tempVarTransformer, reporter, protoName, methodTree, thisName) {
-    super();
+  constructor(tempVarTransformer, runtimeInliner, reporter, protoName,
+              methodTree, thisName) {
     this.tempVarTransformer_ = tempVarTransformer;
+    this.runtimeInliner_ = runtimeInliner;
+    this.reporter_ = reporter;
     this.protoName_ = protoName;
     this.method_ = methodTree;
-    this.reporter_ = reporter;
     this.superCount_ = 0;
     this.thisVar_ = createIdentifierExpression(thisName);
     this.inNestedFunc_ = 0;
@@ -98,18 +142,7 @@ export class SuperTransformer extends ParseTreeTransformer {
       // We have: super(args)
       this.superCount_++;
       var methodName = this.method_.name.value;
-
-      // traceur.runtime.superCall(this, proto, "name", <args>)
-      return createCallExpression(
-          createMemberExpression(
-              TRACEUR,
-              RUNTIME,
-              SUPER_CALL),
-          createArgumentList(
-            this.inNestedFunc_ ? this.thisVar_ : createThisExpression(),
-            this.protoName_,
-            createStringLiteral(methodName),
-            createArrayLiteralExpression(tree.args.args)));
+      return this.createSuperCallExpression_(methodName, tree);
     }
 
     if ((tree.operand.type == MEMBER_EXPRESSION ||
@@ -118,36 +151,64 @@ export class SuperTransformer extends ParseTreeTransformer {
       // super.member(args) or member[exrp](args)
       this.superCount_++;
 
-      var nameExpression;
-      if (tree.operand.type == MEMBER_EXPRESSION) {
-        nameExpression = createStringLiteral(
-            tree.operand.memberName.value);
-      } else {
-        nameExpression = tree.operand.memberExpression;
-      }
+      var name;
+      if (tree.operand.type == MEMBER_EXPRESSION)
+        name = tree.operand.memberName.value;
+      else
+        name = tree.operand.memberExpression;
 
-      // traceur.runtime.superCall(this, proto, "name", <args>)
-      return createCallExpression(
-          createMemberExpression(
-              TRACEUR, RUNTIME, SUPER_CALL),
-          createArgumentList(
-            this.inNestedFunc_ ? this.thisVar_ : createThisExpression(),
-            this.protoName_,
-            nameExpression,
-            createArrayLiteralExpression(tree.args.args)));
+      return this.createSuperCallExpression_(name, tree);
     }
 
     return super.transformCallExpression(tree);
   }
 
+  /**
+   * @param {string|LiteralExpression} methodName
+   * @param {CallExpression} tree
+   * @return {CallExpression}
+   */
+  createSuperCallExpression_(methodName, tree) {
+    var thisExpr = this.inNestedFunc_ ? this.thisVar_ : createThisExpression();
+    var args = createArrayLiteralExpression(tree.args.args);
+    return this.createSuperCallExpression(thisExpr, this.protoName_,
+                                          methodName, args);
+  }
+
+  /**
+   * @param {ParseTree} thisExpr
+   * @param {ParseTree} protoName
+   * @param {string|LiteralExpression} methodName
+   * @param {ParseTree} args
+   * @return {CallExpression}
+   */
+  createSuperCallExpression(thisExpr, protoName, methodName, args) {
+    return parseExpression `${this.superCall_}(${thisExpr},
+                                               ${protoName},
+                                               ${methodName},
+                                               ${args})`;
+  }
+
+  get superGet_() {
+    this.runtimeInliner_.register('superDescriptor', SUPER_DESCRIPTOR_CODE);
+    return this.runtimeInliner_.get('superGet', SUPER_GET_CODE);
+  }
+
+  get superSet_() {
+    this.runtimeInliner_.register('superDescriptor', SUPER_DESCRIPTOR_CODE);
+    return this.runtimeInliner_.get('superSet', SUPER_SET_CODE);
+  }
+
+  get superCall_() {
+    this.runtimeInliner_.register('superDescriptor', SUPER_DESCRIPTOR_CODE);
+    return this.runtimeInliner_.get('superCall', SUPER_CALL_CODE);
+  }
+
   transformMemberShared_(tree, name) {
-    // traceur.runtime.superGet(this, proto, "name")
-    return createCallExpression(
-        createMemberExpression(TRACEUR, RUNTIME, SUPER_GET),
-        createArgumentList(
-          this.inNestedFunc_ ? this.thisVar_ : createThisExpression(),
-          this.protoName_,
-          name));
+    var thisExpr = this.inNestedFunc_ ? this.thisVar_ : createThisExpression();
+    return parseExpression `${this.superGet_}(${thisExpr},
+                                              ${this.protoName_},
+                                              ${name})`;
   }
 
   /**
@@ -189,14 +250,13 @@ export class SuperTransformer extends ParseTreeTransformer {
           tree.left.memberExpression :
           createStringLiteral(tree.left.memberName.value);
 
-      // traceur.runtime.superSet(this, proto, "name", value)
-      return createCallExpression(
-          createMemberExpression(TRACEUR, RUNTIME, SUPER_SET),
-          createArgumentList(
-            this.inNestedFunc_ ? this.thisVar_ : createThisExpression(),
-            this.protoName_,
-            name,
-            this.transformAny(tree.right)));
+      var thisExpr = this.inNestedFunc_ ?
+          this.thisVar_ : createThisExpression();
+      var right = this.transformAny(tree.right);
+      return parseExpression `${this.superSet_}(${thisExpr},
+                                                ${this.protoName_},
+                                                ${name},
+                                                ${right})`;
     }
 
     return super.transformBinaryOperator(tree);

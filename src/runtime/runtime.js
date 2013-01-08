@@ -82,43 +82,6 @@ traceur.runtime = (function(global) {
     writable: true
   });
 
-  function getDescriptor(proto, name) {
-    if (!proto)
-      throw new TypeError('super is null');
-    return $getPropertyDescriptor(proto, name);
-  }
-
-  function superCall(self, proto, name, args) {
-    var descriptor = getDescriptor(proto, name);
-    if (descriptor) {
-      if ('value' in descriptor)
-        return descriptor.value.apply(self, args);
-      if (descriptor.get)
-        return descriptor.get.call(self).apply(self, args);
-    }
-    throw new TypeError("Object has no method '" + name + "'.");
-  }
-
-  function superGet(self, proto, name) {
-    var descriptor = getDescriptor(proto, name);
-    if (descriptor) {
-      if (descriptor.get)
-        return descriptor.get.call(self);
-      else if ('value' in descriptor)
-        return descriptor.value;
-    }
-    return undefined;
-  }
-
-  function superSet(self, proto, name, value) {
-    var descriptor = getDescriptor(proto, name);
-    if (descriptor && descriptor.set) {
-      descriptor.set.call(self, value);
-      return;
-    }
-    throw new TypeError("Object has no setter '" + name + "'.");
-  }
-
   var counter = 0;
 
   /**
@@ -494,13 +457,10 @@ traceur.runtime = (function(global) {
     elementSet: elementSet,
     getIterator: getIterator,
     getProperty: getProperty,
+    setProperty: setProperty,
     has: has,
     is: is,
     isnt: isnt,
     modules: modules,
-    setProperty: setProperty,
-    superCall: superCall,
-    superGet: superGet,
-    superSet: superSet,
   };
 })(this);
