@@ -59,7 +59,7 @@ var SPREAD_CODE = `
     }`;
 
 function hasSpreadMember(trees) {
-  return trees.some((tree) => tree.type == SPREAD_EXPRESSION);
+  return trees.some((tree) => tree && tree.type == SPREAD_EXPRESSION);
 }
 
 /**
@@ -117,7 +117,8 @@ export class SpreadTransformer extends TempVarTransformer {
     var args = [];
     var lastArray;
     for (var i = 0; i < length; i++) {
-      if (elements[i].type === SPREAD_EXPRESSION) {
+      // Arrays can contain holes which are represented by null.
+      if (elements[i] && elements[i].type === SPREAD_EXPRESSION) {
         if (lastArray) {
           args.push(createArrayLiteralExpression(lastArray));
           lastArray = null;

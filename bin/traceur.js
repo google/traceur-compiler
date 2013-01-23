@@ -17726,7 +17726,7 @@ var $__src_codegeneration_SpreadTransformer_js = (function() {
   var SPREAD_CODE = "\n    function() {\n      var rv = [], k = 0;\n      for (var i = 0; i < arguments.length; i++) {\n        var value = %toObject(arguments[i]);\n        for (var j = 0; j < value.length; j++) {\n          rv[k++] = value[j];\n        }\n      }\n      return rv;\n    }";
   function hasSpreadMember(trees) {
     return trees.some((function(tree) {
-      return tree.type == SPREAD_EXPRESSION;
+      return tree && tree.type == SPREAD_EXPRESSION;
     }));
   }
   var SpreadTransformer = function($__super) {
@@ -17750,7 +17750,7 @@ var $__src_codegeneration_SpreadTransformer_js = (function() {
         var args = [];
         var lastArray;
         for (var i = 0; i < length; i++) {
-          if (elements[i].type === SPREAD_EXPRESSION) {
+          if (elements[i] && elements[i].type === SPREAD_EXPRESSION) {
             if (lastArray) {
               args.push(createArrayLiteralExpression(lastArray));
               lastArray = null;
