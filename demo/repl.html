@@ -203,6 +203,23 @@ pre,
     return debouncedFunc;
   }
 
+  function setOptionsFromSource(source) {
+    var re = /^\/\/ Options:\s*(.+)$/mg;
+    var optionLines = source.match(re);
+    if (optionLines) {
+      optionLines.forEach(function(line) {
+        re.lastIndex = 0;
+        var m = re.exec(line);
+        try {
+          traceur.options.fromString(m[1]);
+        } catch (ex) {
+          // Ignore unknown options.
+        }
+      });
+      createOptions();
+    }
+  }
+
   function compile() {
     hasError = false;
     output.setValue('');
@@ -221,6 +238,7 @@ pre,
     if (history.replaceState)
       history.replaceState(null, document.title,
                            '#' + encodeURIComponent(contents));
+    setOptionsFromSource(contents);
     var sourceFile = new traceur.syntax.SourceFile(name, contents);
     project.addFile(sourceFile);
     var res = traceur.codegeneration.Compiler.compile(reporter, project, false);
