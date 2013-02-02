@@ -77,6 +77,9 @@ export class LineNumberTable {
 
     this.ensureLineStartOffsets_();
 
+    if (offset < 0)
+      return 0;
+
     var line;
     if (offset < this.lastOffset_) {
       for (var i = this.lastLine_; i >= 0; i--) {

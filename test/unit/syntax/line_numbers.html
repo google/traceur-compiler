@@ -57,6 +57,11 @@ function testLineNumbers() {
 
   // verify one non-zero column
   assertEquals(lineNumberTable.getColumn(31), 2);
+
+  var outOfBounds = lineNumberTable.getLine(-640);
+  assertEquals(outOfBounds, 0);
+  var inBounds = lineNumberTable.getLine(6);
+  assertEquals(inBounds, 0);
 }
 </script>
 </body>

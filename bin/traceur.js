@@ -12884,6 +12884,7 @@ var $__src_syntax_LineNumberTable_js = (function() {
       getLine: function(offset) {
         if (offset === this.lastOffset_) return this.lastLine_;
         this.ensureLineStartOffsets_();
+        if (offset < 0) return 0;
         var line;
         if (offset < this.lastOffset_) {
           for (var i = this.lastLine_; i >= 0; i--) {
