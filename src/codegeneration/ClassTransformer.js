@@ -68,13 +68,10 @@ import {
 var CREATE_CLASS_CODE =
     `function(object, staticObject, protoParent, superClass, hasConstructor) {
       var ctor = object.constructor;
-      if (typeof superClass === 'function') {
-        if (protoParent === null)
-          throw new TypeError();
+      if (typeof superClass === 'function')
         ctor.__proto__ = superClass;
-      } else if (superClass === null && !hasConstructor) {
+      if (!hasConstructor && protoParent === null)
         ctor = object.constructor = function() {};
-      }
 
       var descriptors = %getDescriptors(object);
       descriptors.constructor.enumerable = false;
@@ -86,12 +83,13 @@ var CREATE_CLASS_CODE =
 
 var GET_PROTO_PARENT_CODE =
     `function(superClass) {
-      if (typeof superClass === 'function')
-        return superClass.prototype;
+      if (typeof superClass === 'function') {
+        var prototype = superClass.prototype;
+        if (Object(prototype) === prototype || prototype === null)
+          return superClass.prototype;
+      }
       if (superClass === null)
         return null;
-      if (Object(superClass) === superClass)
-        return superClass;
       throw new TypeError();
     }`;
 

@@ -22,18 +22,16 @@ var $__getDescriptors = function(object) {
   }
   throw new TypeError("Object has no method '" + name + "'.");
 }, $__getProtoParent = function(superClass) {
-  if (typeof superClass === 'function') return superClass.prototype;
+  if (typeof superClass === 'function') {
+    var prototype = superClass.prototype;
+    if (typeof prototype === 'object') return superClass.prototype;
+  }
   if (superClass === null) return null;
-  if (Object(superClass) === superClass) return superClass;
   throw new TypeError();
 }, $__createClass = function(object, staticObject, protoParent, superClass, hasConstructor) {
   var ctor = object.constructor;
-  if (typeof superClass === 'function') {
-    if (protoParent === null) throw new TypeError();
-    ctor.__proto__ = superClass;
-  } else if (superClass === null && !hasConstructor) {
-    ctor = object.constructor = function() {};
-  }
+  if (typeof superClass === 'function') ctor.__proto__ = superClass;
+  if (!hasConstructor && protoParent === null) ctor = object.constructor = function() {};
   var descriptors = $__getDescriptors(object);
   descriptors.constructor.enumerable = false;
   ctor.prototype = Object.create(protoParent, descriptors);
@@ -13354,8 +13352,8 @@ var $__src_codegeneration_ClassTransformer_js = (function() {
   var $__9 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__9.createArgumentList, createAssignmentExpression = $__9.createAssignmentExpression, createBlock = $__9.createBlock, createBooleanLiteral = $__9.createBooleanLiteral, createCallExpression = $__9.createCallExpression, createExpressionStatement = $__9.createExpressionStatement, createFunctionExpression = $__9.createFunctionExpression, createIdentifierExpression = $__9.createIdentifierExpression, createIdentifierToken = $__9.createIdentifierToken, createMemberExpression = $__9.createMemberExpression, createNullLiteral = $__9.createNullLiteral, createObjectLiteralExpression = $__9.createObjectLiteralExpression, createParenExpression = $__9.createParenExpression, createPropertyNameAssignment = $__9.createPropertyNameAssignment, createRestParameter = $__9.createRestParameter, createSpreadExpression = $__9.createSpreadExpression, createThisExpression = $__9.createThisExpression, createVariableStatement = $__9.createVariableStatement;
   var transformOptions = $__src_options_js.transformOptions;
   var $__9 = $__src_codegeneration_PlaceholderParser_js, parseExpression = $__9.parseExpression, parsePropertyDefinition = $__9.parsePropertyDefinition;
-  var CREATE_CLASS_CODE = "function(object, staticObject, protoParent, superClass, hasConstructor) {\n      var ctor = object.constructor;\n      if (typeof superClass === 'function') {\n        if (protoParent === null)\n          throw new TypeError();\n        ctor.__proto__ = superClass;\n      } else if (superClass === null && !hasConstructor) {\n        ctor = object.constructor = function() {};\n      }\n\n      var descriptors = %getDescriptors(object);\n      descriptors.constructor.enumerable = false;\n      ctor.prototype = Object.create(protoParent, descriptors);\n      Object.defineProperties(ctor, %getDescriptors(staticObject));\n\n      return ctor;\n    }";
-  var GET_PROTO_PARENT_CODE = "function(superClass) {\n      if (typeof superClass === 'function')\n        return superClass.prototype;\n      if (superClass === null)\n        return null;\n      if (Object(superClass) === superClass)\n        return superClass;\n      throw new TypeError();\n    }";
+  var CREATE_CLASS_CODE = "function(object, staticObject, protoParent, superClass, hasConstructor) {\n      var ctor = object.constructor;\n      if (typeof superClass === 'function')\n        ctor.__proto__ = superClass;\n      if (!hasConstructor && protoParent === null)\n        ctor = object.constructor = function() {};\n\n      var descriptors = %getDescriptors(object);\n      descriptors.constructor.enumerable = false;\n      ctor.prototype = Object.create(protoParent, descriptors);\n      Object.defineProperties(ctor, %getDescriptors(staticObject));\n\n      return ctor;\n    }";
+  var GET_PROTO_PARENT_CODE = "function(superClass) {\n      if (typeof superClass === 'function') {\n        var prototype = superClass.prototype;\n        if (Object(prototype) === prototype || prototype === null)\n          return superClass.prototype;\n      }\n      if (superClass === null)\n        return null;\n      throw new TypeError();\n    }";
   var CREATE_CLASS_NO_EXTENDS_CODE = "function(object, staticObject) {\n      var ctor = object.constructor;\n      Object.defineProperty(object, 'constructor', {enumerable: false});\n      ctor.prototype = object;\n      Object.defineProperties(ctor, %getDescriptors(staticObject));\n      return ctor;\n    }";
   var ClassTransformer = function($__super) {
     var $__proto = $__getProtoParent($__super);
