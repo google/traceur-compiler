@@ -24,7 +24,7 @@ var $__getDescriptors = function(object) {
 }, $__getProtoParent = function(superClass) {
   if (typeof superClass === 'function') {
     var prototype = superClass.prototype;
-    if (typeof prototype === 'object') return superClass.prototype;
+    if (Object(prototype) === prototype || prototype === null) return superClass.prototype;
   }
   if (superClass === null) return null;
   throw new TypeError();
@@ -13350,7 +13350,7 @@ var $__src_codegeneration_ClassTransformer_js = (function() {
   var TempVarTransformer = $__src_codegeneration_TempVarTransformer_js.TempVarTransformer;
   var $__9 = $__src_syntax_TokenType_js, LET = $__9.LET, VAR = $__9.VAR;
   var $__9 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__9.createArgumentList, createAssignmentExpression = $__9.createAssignmentExpression, createBlock = $__9.createBlock, createBooleanLiteral = $__9.createBooleanLiteral, createCallExpression = $__9.createCallExpression, createExpressionStatement = $__9.createExpressionStatement, createFunctionExpression = $__9.createFunctionExpression, createIdentifierExpression = $__9.createIdentifierExpression, createIdentifierToken = $__9.createIdentifierToken, createMemberExpression = $__9.createMemberExpression, createNullLiteral = $__9.createNullLiteral, createObjectLiteralExpression = $__9.createObjectLiteralExpression, createParenExpression = $__9.createParenExpression, createPropertyNameAssignment = $__9.createPropertyNameAssignment, createRestParameter = $__9.createRestParameter, createSpreadExpression = $__9.createSpreadExpression, createThisExpression = $__9.createThisExpression, createVariableStatement = $__9.createVariableStatement;
-  var transformOptions = $__src_options_js.transformOptions;
+  var parseOptions = $__src_options_js.parseOptions;
   var $__9 = $__src_codegeneration_PlaceholderParser_js, parseExpression = $__9.parseExpression, parsePropertyDefinition = $__9.parsePropertyDefinition;
   var CREATE_CLASS_CODE = "function(object, staticObject, protoParent, superClass, hasConstructor) {\n      var ctor = object.constructor;\n      if (typeof superClass === 'function')\n        ctor.__proto__ = superClass;\n      if (!hasConstructor && protoParent === null)\n        ctor = object.constructor = function() {};\n\n      var descriptors = %getDescriptors(object);\n      descriptors.constructor.enumerable = false;\n      ctor.prototype = Object.create(protoParent, descriptors);\n      Object.defineProperties(ctor, %getDescriptors(staticObject));\n\n      return ctor;\n    }";
   var GET_PROTO_PARENT_CODE = "function(superClass) {\n      if (typeof superClass === 'function') {\n        var prototype = superClass.prototype;\n        if (Object(prototype) === prototype || prototype === null)\n          return superClass.prototype;\n      }\n      if (superClass === null)\n        return null;\n      throw new TypeError();\n    }";
@@ -13415,7 +13415,7 @@ var $__src_codegeneration_ClassTransformer_js = (function() {
       },
       transformClassDeclaration: function(tree) {
         var name = '$' + tree.name.identifierToken.value;
-        return createVariableStatement(transformOptions.blockBinding ? LET: VAR, tree.name, this.transformClassShared_(tree, name));
+        return createVariableStatement(parseOptions.blockBinding ? LET: VAR, tree.name, this.transformClassShared_(tree, name));
       },
       transformClassExpression: function(tree) {
         var ident = tree.name ? tree.name.identifierToken.value: this.addTempVar();

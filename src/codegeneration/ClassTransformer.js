@@ -57,7 +57,7 @@ import {
   createThisExpression,
   createVariableStatement
 } from 'ParseTreeFactory.js';
-import transformOptions from '../options.js';
+import parseOptions from '../options.js';
 import {
   parseExpression,
   parsePropertyDefinition
@@ -256,7 +256,9 @@ export class ClassTransformer extends TempVarTransformer{
     // that we can make sense out of our stack traces.
     var name = '$' + tree.name.identifierToken.value;
     return createVariableStatement(
-        transformOptions.blockBinding ? LET : VAR,
+        // If we allow let in the parser; use let. This let will be transformed
+        // by the block binding transformer as needed.
+        parseOptions.blockBinding ? LET : VAR,
         tree.name,
         this.transformClassShared_(tree, name));
   }
