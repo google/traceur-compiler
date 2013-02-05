@@ -101,6 +101,7 @@ module traceur {
   }
 
   export module outputgeneration {
+    export ParseTreeWriter from 'outputgeneration/ParseTreeWriter.js';
     export ParseTreeMapWriter from 'outputgeneration/ParseTreeMapWriter.js';
     export ProjectWriter from 'outputgeneration/ProjectWriter.js';
     export SourceMapConsumer from 'outputgeneration/SourceMapIntegration.js';

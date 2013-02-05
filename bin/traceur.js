@@ -19892,6 +19892,12 @@ var traceur = (function() {
   }).call(this);
   var outputgeneration = (function() {
     return Object.preventExtensions(Object.create(null, {
+      ParseTreeWriter: {
+        get: function() {
+          return $__src_outputgeneration_ParseTreeWriter_js.ParseTreeWriter;
+        },
+        enumerable: true
+      },
       ParseTreeMapWriter: {
         get: function() {
           return $__src_outputgeneration_ParseTreeMapWriter_js.ParseTreeMapWriter;
