@@ -521,6 +521,8 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {GetAccessor} tree
    */
   visitGetAccessor(tree) {
+    if (tree.isStatic)
+      this.write_(STATIC);
     this.write_(GET);
     this.write_(tree.name);
     this.write_(OPEN_PAREN);
@@ -765,6 +767,8 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {PropertyMethodAssignment} tree
    */
   visitPropertyMethodAssignment(tree) {
+    if (tree.isStatic)
+      this.write_(STATIC);
     if (tree.isGenerator)
       this.write_(STAR);
     this.write_(tree.name);
@@ -839,6 +843,8 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {SetAccessor} tree
    */
   visitSetAccessor(tree) {
+    if (tree.isStatic)
+      this.write_(STATIC);
     this.write_(SET);
     this.write_(tree.name);
     this.write_(OPEN_PAREN);

@@ -33,6 +33,15 @@ var shared = {
         if (value == null)
           throw TypeError();
         return Object(value);
+      }`,
+  getDescriptors:
+      `function(object) {
+        var descriptors = {}, name, names = Object.getOwnPropertyNames(object);
+        for (var i = 0; i < names.length; i++) {
+          var name = names[i];
+          descriptors[name] = Object.getOwnPropertyDescriptor(object, name);
+        }
+        return descriptors;
       }`
 };
 

@@ -1,7 +1,15 @@
-var $__createClassNoExtends = function(object) {
+var $__getDescriptors = function(object) {
+  var descriptors = {}, name, names = Object.getOwnPropertyNames(object);
+  for (var i = 0; i < names.length; i++) {
+    var name = names[i];
+    descriptors[name] = Object.getOwnPropertyDescriptor(object, name);
+  }
+  return descriptors;
+}, $__createClassNoExtends = function(object, staticObject) {
   var ctor = object.constructor;
   Object.defineProperty(object, 'constructor', {enumerable: false});
   ctor.prototype = object;
+  Object.defineProperties(ctor, $__getDescriptors(staticObject));
   return ctor;
 }, $__superDescriptor = function(proto, name) {
   if (!proto) throw new TypeError('super is null');
@@ -18,7 +26,7 @@ var $__createClassNoExtends = function(object) {
   if (superClass === null) return null;
   if (Object(superClass) === superClass) return superClass;
   throw new TypeError();
-}, $__createClass = function(object, protoParent, superClass, hasConstructor) {
+}, $__createClass = function(object, staticObject, protoParent, superClass, hasConstructor) {
   var ctor = object.constructor;
   if (typeof superClass === 'function') {
     if (protoParent === null) throw new TypeError();
@@ -26,13 +34,10 @@ var $__createClassNoExtends = function(object) {
   } else if (superClass === null && !hasConstructor) {
     ctor = object.constructor = function() {};
   }
-  var descriptors = {}, name, names = Object.getOwnPropertyNames(object);
-  for (var i = 0; i < names.length; i++) {
-    var name = names[i];
-    descriptors[name] = Object.getOwnPropertyDescriptor(object, name);
-  }
+  var descriptors = $__getDescriptors(object);
   descriptors.constructor.enumerable = false;
   ctor.prototype = Object.create(protoParent, descriptors);
+  Object.defineProperties(ctor, $__getDescriptors(staticObject));
   return ctor;
 }, $__superGet = function(self, proto, name) {
   var descriptor = $__superDescriptor(proto, name);
@@ -1178,7 +1183,7 @@ var $__src_semantics_symbols_Symbol_js = (function() {
         traceur.assert(this.type == SymbolType.MODULE);
         return this;
       }
-    });
+    }, {});
     return $Symbol;
   }();
   return Object.preventExtensions(Object.create(null, {Symbol: {
@@ -1197,7 +1202,7 @@ var $__src_semantics_symbols_ExportSymbol_js = (function() {
     var $ExportSymbol = ($__createClass)({constructor: function(tree, name, relatedTree) {
         $__superCall(this, $__proto, "constructor", [SymbolType.EXPORT, tree, name]);
         this.relatedTree = relatedTree;
-      }}, $__proto, $__super, true);
+      }}, {}, $__proto, $__super, true);
     return $ExportSymbol;
   }(Symbol);
   return Object.preventExtensions(Object.create(null, {ExportSymbol: {
@@ -1876,7 +1881,7 @@ var $__src_util_SourceRange_js = (function() {
     var $SourceRange = ($__createClassNoExtends)({constructor: function(start, end) {
         this.start = start;
         this.end = end;
-      }});
+      }}, {});
     return $SourceRange;
   }();
   return Object.preventExtensions(Object.create(null, {SourceRange: {
@@ -2049,7 +2054,7 @@ var $__src_syntax_trees_ParseTree_js = (function() {
         }
         return this.isStatementStandard();
       }
-    });
+    }, {});
     return $ParseTree;
   }();
   ParseTree.stripLocation = function(key, value) {
@@ -2374,7 +2379,7 @@ var $__src_syntax_ParseTreeVisitor_js = (function() {
       visitYieldExpression: function(tree) {
         this.visitAny(tree.expression);
       }
-    });
+    }, {});
     return $ParseTreeVisitor;
   }();
   return Object.preventExtensions(Object.create(null, {ParseTreeVisitor: {
@@ -2633,7 +2638,7 @@ var $__src_codegeneration_module_ModuleVisitor_js = (function() {
           }
         }
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ModuleVisitor;
   }(ParseTreeVisitor);
   return Object.preventExtensions(Object.create(null, {ModuleVisitor: {
@@ -2721,7 +2726,7 @@ var $__src_codegeneration_module_ExportVisitor_js = (function() {
       visitVariableDeclaration: function(tree) {
         this.addExport_(tree.lvalue.identifierToken.value, tree);
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ExportVisitor;
   }(ModuleVisitor);
   return Object.preventExtensions(Object.create(null, {ExportVisitor: {
@@ -3524,7 +3529,7 @@ var $__src_codegeneration_module_ImportStarVisitor_js = (function() {
           this.project.setModuleForStarTree(importSpecifierSet, module);
         }
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ImportStarVisitor;
   }(ModuleVisitor);
   return Object.preventExtensions(Object.create(null, {ImportStarVisitor: {
@@ -3552,7 +3557,7 @@ var $__src_codegeneration_module_ModuleDeclarationVisitor_js = (function() {
         }
         parent.addModuleWithName(module, name);
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ModuleDeclarationVisitor;
   }(ModuleVisitor);
   return Object.preventExtensions(Object.create(null, {ModuleDeclarationVisitor: {
@@ -3607,7 +3612,7 @@ var $__src_semantics_symbols_ModuleSymbol_js = (function() {
           return exports[key];
         }));
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ModuleSymbol;
   }(Symbol);
   return Object.preventExtensions(Object.create(null, {ModuleSymbol: {
@@ -3636,7 +3641,7 @@ var $__src_codegeneration_module_ModuleDefinitionVisitor_js = (function() {
         }
         $__superCall(this, $__proto, "visitModuleDefinition", [tree]);
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ModuleDefinitionVisitor;
   }(ModuleVisitor);
   return Object.preventExtensions(Object.create(null, {ModuleDefinitionVisitor: {
@@ -3692,7 +3697,7 @@ var $__src_codegeneration_module_ValidationVisitor_js = (function() {
       visitImportSpecifier: function(tree) {
         this.checkExport_(tree, tree.lhs.value);
       }
-    }, $__proto, $__super, false);
+    }, {}, $__proto, $__super, false);
     return $ValidationVisitor;
   }(ModuleVisitor);
   return Object.preventExtensions(Object.create(null, {ValidationVisitor: {
@@ -3744,7 +3749,7 @@ var $__src_semantics_ModuleAnalyzer_js = (function() {
         doVisit(ValidationVisitor);
         doVisit(ImportStarVisitor);
       }
-    });
+    }, {});
     return $ModuleAnalyzer;
   }();
   return Object.preventExtensions(Object.create(null, {ModuleAnalyzer: {
@@ -3775,7 +3780,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return ARGUMENT_LIST;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ArgumentList;
   }(ParseTree);
   var ArrayComprehension = function($__super) {
@@ -3796,7 +3801,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return ARRAY_COMPREHENSION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ArrayComprehension;
   }(ParseTree);
   var ArrayLiteralExpression = function($__super) {
@@ -3815,7 +3820,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return ARRAY_LITERAL_EXPRESSION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ArrayLiteralExpression;
   }(ParseTree);
   var ArrayPattern = function($__super) {
@@ -3834,7 +3839,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return ARRAY_PATTERN;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ArrayPattern;
   }(ParseTree);
   var ArrowFunctionExpression = function($__super) {
@@ -3854,7 +3859,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return ARROW_FUNCTION_EXPRESSION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ArrowFunctionExpression;
   }(ParseTree);
   var AtNameDeclaration = function($__super) {
@@ -3874,7 +3879,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return AT_NAME_DECLARATION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $AtNameDeclaration;
   }(ParseTree);
   var AtNameExpression = function($__super) {
@@ -3893,7 +3898,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return AT_NAME_EXPRESSION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $AtNameExpression;
   }(ParseTree);
   var AwaitStatement = function($__super) {
@@ -3913,7 +3918,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return AWAIT_STATEMENT;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $AwaitStatement;
   }(ParseTree);
   var BinaryOperator = function($__super) {
@@ -3934,7 +3939,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return BINARY_OPERATOR;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $BinaryOperator;
   }(ParseTree);
   var BindingElement = function($__super) {
@@ -3954,7 +3959,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return BINDING_ELEMENT;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $BindingElement;
   }(ParseTree);
   var BindingIdentifier = function($__super) {
@@ -3973,7 +3978,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return BINDING_IDENTIFIER;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $BindingIdentifier;
   }(ParseTree);
   var Block = function($__super) {
@@ -3992,7 +3997,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return BLOCK;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $Block;
   }(ParseTree);
   var BreakStatement = function($__super) {
@@ -4011,7 +4016,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return BREAK_STATEMENT;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $BreakStatement;
   }(ParseTree);
   var CallExpression = function($__super) {
@@ -4031,7 +4036,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return CALL_EXPRESSION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $CallExpression;
   }(ParseTree);
   var CascadeExpression = function($__super) {
@@ -4051,7 +4056,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return CASCADE_EXPRESSION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $CascadeExpression;
   }(ParseTree);
   var CaseClause = function($__super) {
@@ -4071,7 +4076,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return CASE_CLAUSE;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $CaseClause;
   }(ParseTree);
   var Catch = function($__super) {
@@ -4091,7 +4096,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return CATCH;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $Catch;
   }(ParseTree);
   var ClassDeclaration = function($__super) {
@@ -4112,7 +4117,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return CLASS_DECLARATION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ClassDeclaration;
   }(ParseTree);
   var ClassExpression = function($__super) {
@@ -4133,7 +4138,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return CLASS_EXPRESSION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ClassExpression;
   }(ParseTree);
   var CommaExpression = function($__super) {
@@ -4152,7 +4157,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return COMMA_EXPRESSION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $CommaExpression;
   }(ParseTree);
   var ComprehensionFor = function($__super) {
@@ -4172,7 +4177,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return COMPREHENSION_FOR;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ComprehensionFor;
   }(ParseTree);
   var ConditionalExpression = function($__super) {
@@ -4193,7 +4198,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return CONDITIONAL_EXPRESSION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ConditionalExpression;
   }(ParseTree);
   var ContinueStatement = function($__super) {
@@ -4212,7 +4217,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return CONTINUE_STATEMENT;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ContinueStatement;
   }(ParseTree);
   var CoverFormals = function($__super) {
@@ -4231,7 +4236,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return COVER_FORMALS;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $CoverFormals;
   }(ParseTree);
   var DebuggerStatement = function($__super) {
@@ -4249,7 +4254,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return DEBUGGER_STATEMENT;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $DebuggerStatement;
   }(ParseTree);
   var DefaultClause = function($__super) {
@@ -4268,7 +4273,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return DEFAULT_CLAUSE;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $DefaultClause;
   }(ParseTree);
   var DoWhileStatement = function($__super) {
@@ -4288,7 +4293,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return DO_WHILE_STATEMENT;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $DoWhileStatement;
   }(ParseTree);
   var EmptyStatement = function($__super) {
@@ -4306,7 +4311,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return EMPTY_STATEMENT;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $EmptyStatement;
   }(ParseTree);
   var ExportDeclaration = function($__super) {
@@ -4325,7 +4330,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return EXPORT_DECLARATION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ExportDeclaration;
   }(ParseTree);
   var ExportMapping = function($__super) {
@@ -4345,7 +4350,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return EXPORT_MAPPING;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ExportMapping;
   }(ParseTree);
   var ExportMappingList = function($__super) {
@@ -4364,7 +4369,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return EXPORT_MAPPING_LIST;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ExportMappingList;
   }(ParseTree);
   var ExportSpecifier = function($__super) {
@@ -4384,7 +4389,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return EXPORT_SPECIFIER;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ExportSpecifier;
   }(ParseTree);
   var ExportSpecifierSet = function($__super) {
@@ -4403,7 +4408,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return EXPORT_SPECIFIER_SET;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ExportSpecifierSet;
   }(ParseTree);
   var ExportStar = function($__super) {
@@ -4421,7 +4426,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return EXPORT_STAR;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ExportStar;
   }(ParseTree);
   var ExpressionStatement = function($__super) {
@@ -4440,7 +4445,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return EXPRESSION_STATEMENT;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ExpressionStatement;
   }(ParseTree);
   var Finally = function($__super) {
@@ -4459,7 +4464,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return FINALLY;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $Finally;
   }(ParseTree);
   var ForInStatement = function($__super) {
@@ -4480,7 +4485,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return FOR_IN_STATEMENT;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ForInStatement;
   }(ParseTree);
   var ForOfStatement = function($__super) {
@@ -4501,7 +4506,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return FOR_OF_STATEMENT;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ForOfStatement;
   }(ParseTree);
   var ForStatement = function($__super) {
@@ -4523,7 +4528,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return FOR_STATEMENT;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ForStatement;
   }(ParseTree);
   var FormalParameterList = function($__super) {
@@ -4542,7 +4547,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return FORMAL_PARAMETER_LIST;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $FormalParameterList;
   }(ParseTree);
   var FunctionDeclaration = function($__super) {
@@ -4564,7 +4569,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return FUNCTION_DECLARATION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $FunctionDeclaration;
   }(ParseTree);
   var FunctionExpression = function($__super) {
@@ -4586,7 +4591,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return FUNCTION_EXPRESSION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $FunctionExpression;
   }(ParseTree);
   var GeneratorComprehension = function($__super) {
@@ -4607,14 +4612,15 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return GENERATOR_COMPREHENSION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $GeneratorComprehension;
   }(ParseTree);
   var GetAccessor = function($__super) {
     var $__proto = $__getProtoParent($__super);
     var $GetAccessor = ($__createClass)({
-      constructor: function(location, name, body) {
+      constructor: function(location, isStatic, name, body) {
         this.location = location;
+        this.isStatic = isStatic;
         this.name = name;
         this.body = body;
       },
@@ -4627,7 +4633,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return GET_ACCESSOR;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $GetAccessor;
   }(ParseTree);
   var IdentifierExpression = function($__super) {
@@ -4646,7 +4652,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return IDENTIFIER_EXPRESSION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $IdentifierExpression;
   }(ParseTree);
   var IfStatement = function($__super) {
@@ -4667,7 +4673,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return IF_STATEMENT;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $IfStatement;
   }(ParseTree);
   var ImportBinding = function($__super) {
@@ -4687,7 +4693,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return IMPORT_BINDING;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ImportBinding;
   }(ParseTree);
   var ImportDeclaration = function($__super) {
@@ -4706,7 +4712,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return IMPORT_DECLARATION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ImportDeclaration;
   }(ParseTree);
   var ImportSpecifier = function($__super) {
@@ -4726,7 +4732,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return IMPORT_SPECIFIER;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ImportSpecifier;
   }(ParseTree);
   var ImportSpecifierSet = function($__super) {
@@ -4745,7 +4751,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return IMPORT_SPECIFIER_SET;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ImportSpecifierSet;
   }(ParseTree);
   var LabelledStatement = function($__super) {
@@ -4765,7 +4771,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return LABELLED_STATEMENT;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $LabelledStatement;
   }(ParseTree);
   var LiteralExpression = function($__super) {
@@ -4784,7 +4790,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return LITERAL_EXPRESSION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $LiteralExpression;
   }(ParseTree);
   var MemberExpression = function($__super) {
@@ -4804,7 +4810,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return MEMBER_EXPRESSION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $MemberExpression;
   }(ParseTree);
   var MemberLookupExpression = function($__super) {
@@ -4824,7 +4830,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return MEMBER_LOOKUP_EXPRESSION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $MemberLookupExpression;
   }(ParseTree);
   var MissingPrimaryExpression = function($__super) {
@@ -4843,7 +4849,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return MISSING_PRIMARY_EXPRESSION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $MissingPrimaryExpression;
   }(ParseTree);
   var ModuleDeclaration = function($__super) {
@@ -4862,7 +4868,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return MODULE_DECLARATION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ModuleDeclaration;
   }(ParseTree);
   var ModuleDefinition = function($__super) {
@@ -4882,7 +4888,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return MODULE_DEFINITION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ModuleDefinition;
   }(ParseTree);
   var ModuleExpression = function($__super) {
@@ -4902,7 +4908,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return MODULE_EXPRESSION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ModuleExpression;
   }(ParseTree);
   var ModuleRequire = function($__super) {
@@ -4921,7 +4927,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return MODULE_REQUIRE;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ModuleRequire;
   }(ParseTree);
   var ModuleSpecifier = function($__super) {
@@ -4941,7 +4947,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return MODULE_SPECIFIER;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ModuleSpecifier;
   }(ParseTree);
   var NameStatement = function($__super) {
@@ -4960,7 +4966,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return NAME_STATEMENT;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $NameStatement;
   }(ParseTree);
   var NewExpression = function($__super) {
@@ -4980,7 +4986,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return NEW_EXPRESSION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $NewExpression;
   }(ParseTree);
   var ObjectLiteralExpression = function($__super) {
@@ -4999,7 +5005,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return OBJECT_LITERAL_EXPRESSION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ObjectLiteralExpression;
   }(ParseTree);
   var ObjectPattern = function($__super) {
@@ -5018,7 +5024,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return OBJECT_PATTERN;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ObjectPattern;
   }(ParseTree);
   var ObjectPatternField = function($__super) {
@@ -5038,7 +5044,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return OBJECT_PATTERN_FIELD;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ObjectPatternField;
   }(ParseTree);
   var ParenExpression = function($__super) {
@@ -5057,7 +5063,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return PAREN_EXPRESSION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ParenExpression;
   }(ParseTree);
   var PostfixExpression = function($__super) {
@@ -5077,7 +5083,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return POSTFIX_EXPRESSION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $PostfixExpression;
   }(ParseTree);
   var PredefinedType = function($__super) {
@@ -5096,7 +5102,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return PREDEFINED_TYPE;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $PredefinedType;
   }(ParseTree);
   var Program = function($__super) {
@@ -5115,16 +5121,17 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return PROGRAM;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $Program;
   }(ParseTree);
   var PropertyMethodAssignment = function($__super) {
     var $__proto = $__getProtoParent($__super);
     var $PropertyMethodAssignment = ($__createClass)({
-      constructor: function(location, name, isGenerator, formalParameterList, functionBody) {
+      constructor: function(location, isStatic, isGenerator, name, formalParameterList, functionBody) {
         this.location = location;
-        this.name = name;
+        this.isStatic = isStatic;
         this.isGenerator = isGenerator;
+        this.name = name;
         this.formalParameterList = formalParameterList;
         this.functionBody = functionBody;
       },
@@ -5137,7 +5144,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return PROPERTY_METHOD_ASSIGNMENT;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $PropertyMethodAssignment;
   }(ParseTree);
   var PropertyNameAssignment = function($__super) {
@@ -5157,7 +5164,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return PROPERTY_NAME_ASSIGNMENT;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $PropertyNameAssignment;
   }(ParseTree);
   var PropertyNameShorthand = function($__super) {
@@ -5176,7 +5183,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return PROPERTY_NAME_SHORTHAND;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $PropertyNameShorthand;
   }(ParseTree);
   var RestParameter = function($__super) {
@@ -5195,7 +5202,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return REST_PARAMETER;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $RestParameter;
   }(ParseTree);
   var ReturnStatement = function($__super) {
@@ -5214,14 +5221,15 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return RETURN_STATEMENT;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ReturnStatement;
   }(ParseTree);
   var SetAccessor = function($__super) {
     var $__proto = $__getProtoParent($__super);
     var $SetAccessor = ($__createClass)({
-      constructor: function(location, name, parameter, body) {
+      constructor: function(location, isStatic, name, parameter, body) {
         this.location = location;
+        this.isStatic = isStatic;
         this.name = name;
         this.parameter = parameter;
         this.body = body;
@@ -5235,7 +5243,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return SET_ACCESSOR;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $SetAccessor;
   }(ParseTree);
   var SpreadExpression = function($__super) {
@@ -5254,7 +5262,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return SPREAD_EXPRESSION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $SpreadExpression;
   }(ParseTree);
   var SpreadPatternElement = function($__super) {
@@ -5273,7 +5281,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return SPREAD_PATTERN_ELEMENT;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $SpreadPatternElement;
   }(ParseTree);
   var SuperExpression = function($__super) {
@@ -5291,7 +5299,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return SUPER_EXPRESSION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $SuperExpression;
   }(ParseTree);
   var SwitchStatement = function($__super) {
@@ -5311,7 +5319,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return SWITCH_STATEMENT;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $SwitchStatement;
   }(ParseTree);
   var TemplateLiteralExpression = function($__super) {
@@ -5331,7 +5339,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return TEMPLATE_LITERAL_EXPRESSION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $TemplateLiteralExpression;
   }(ParseTree);
   var TemplateLiteralPortion = function($__super) {
@@ -5350,7 +5358,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return TEMPLATE_LITERAL_PORTION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $TemplateLiteralPortion;
   }(ParseTree);
   var TemplateSubstitution = function($__super) {
@@ -5369,7 +5377,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return TEMPLATE_SUBSTITUTION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $TemplateSubstitution;
   }(ParseTree);
   var ThisExpression = function($__super) {
@@ -5387,7 +5395,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return THIS_EXPRESSION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ThisExpression;
   }(ParseTree);
   var ThrowStatement = function($__super) {
@@ -5406,7 +5414,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return THROW_STATEMENT;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ThrowStatement;
   }(ParseTree);
   var TryStatement = function($__super) {
@@ -5427,7 +5435,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return TRY_STATEMENT;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $TryStatement;
   }(ParseTree);
   var TypeName = function($__super) {
@@ -5447,7 +5455,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return TYPE_NAME;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $TypeName;
   }(ParseTree);
   var UnaryExpression = function($__super) {
@@ -5467,7 +5475,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return UNARY_EXPRESSION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $UnaryExpression;
   }(ParseTree);
   var VariableDeclaration = function($__super) {
@@ -5488,7 +5496,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return VARIABLE_DECLARATION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $VariableDeclaration;
   }(ParseTree);
   var VariableDeclarationList = function($__super) {
@@ -5508,7 +5516,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return VARIABLE_DECLARATION_LIST;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $VariableDeclarationList;
   }(ParseTree);
   var VariableStatement = function($__super) {
@@ -5527,7 +5535,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return VARIABLE_STATEMENT;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $VariableStatement;
   }(ParseTree);
   var WhileStatement = function($__super) {
@@ -5547,7 +5555,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return WHILE_STATEMENT;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $WhileStatement;
   }(ParseTree);
   var WithStatement = function($__super) {
@@ -5567,7 +5575,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return WITH_STATEMENT;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $WithStatement;
   }(ParseTree);
   var YieldExpression = function($__super) {
@@ -5587,7 +5595,7 @@ var $__src_syntax_trees_ParseTrees_js = (function() {
       get type() {
         return YIELD_EXPRESSION;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $YieldExpression;
   }(ParseTree);
   return Object.preventExtensions(Object.create(null, {
@@ -6479,7 +6487,7 @@ var $__src_codegeneration_ParseTreeTransformer_js = (function() {
       transformGetAccessor: function(tree) {
         var body = this.transformFunctionBody(tree.body);
         if (body == tree.body) return tree;
-        return new GetAccessor(tree.location, tree.name, body);
+        return new GetAccessor(tree.location, tree.isStatic, tree.name, body);
       },
       transformIdentifierExpression: function(tree) {
         return tree;
@@ -6634,7 +6642,7 @@ var $__src_codegeneration_ParseTreeTransformer_js = (function() {
         if (parameters == tree.formalParameterList && functionBody == tree.functionBody) {
           return tree;
         }
-        return new PropertyMethodAssignment(tree.location, tree.name, tree.isGenerator, parameters, functionBody);
+        return new PropertyMethodAssignment(tree.location, tree.isStatic, tree.isGenerator, tree.name, parameters, functionBody);
       },
       transformPropertyNameAssignment: function(tree) {
         var value = this.transformAny(tree.value);
@@ -6676,7 +6684,7 @@ var $__src_codegeneration_ParseTreeTransformer_js = (function() {
         var parameter = this.transformAny(tree.parameter);
         var body = this.transformFunctionBody(tree.body);
         if (parameter === tree.parameter && body === tree.body) return tree;
-        return new SetAccessor(tree.location, tree.name, parameter, body);
+        return new SetAccessor(tree.location, tree.isStatic, tree.name, parameter, body);
       },
       transformSpreadExpression: function(tree) {
         var expression = this.transformAny(tree.expression);
@@ -6786,7 +6794,7 @@ var $__src_codegeneration_ParseTreeTransformer_js = (function() {
         }
         return new YieldExpression(tree.location, expression, isYieldFor);
       }
-    });
+    }, {});
     return $ParseTreeTransformer;
   }();
   return Object.preventExtensions(Object.create(null, {ParseTreeTransformer: {
@@ -6805,7 +6813,7 @@ var $__src_codegeneration_AssignmentPatternTransformer_js = (function() {
     var $__proto = $__getProtoParent($__super);
     var $AssignmentPatternTransformerError = ($__createClass)({constructor: function() {
         $__superCall(this, $__proto, "constructor", arguments);
-      }}, $__proto, $__super, false);
+      }}, {}, $__proto, $__super, false);
     return $AssignmentPatternTransformerError;
   }(Error);
   var AssignmentPatternTransformer = function($__super) {
@@ -6839,7 +6847,7 @@ var $__src_codegeneration_AssignmentPatternTransformer_js = (function() {
       transformMissingPrimaryExpression: function(tree) {
         throw new AssignmentPatternTransformerError();
       }
-    }, $__proto, $__super, false);
+    }, {}, $__proto, $__super, false);
     return $AssignmentPatternTransformer;
   }(ParseTreeTransformer);
   return Object.preventExtensions(Object.create(null, {
@@ -6867,7 +6875,7 @@ var $__src_codegeneration_CoverFormalsTransformer_js = (function() {
     var $__proto = $__getProtoParent($__super);
     var $CoverFormalsTransformerError = ($__createClass)({constructor: function() {
         $__superCall(this, $__proto, "constructor", arguments);
-      }}, $__proto, $__super, false);
+      }}, {}, $__proto, $__super, false);
     return $CoverFormalsTransformerError;
   }(Error);
   var CoverFormalsTransformer = function($__super) {
@@ -6919,7 +6927,7 @@ var $__src_codegeneration_CoverFormalsTransformer_js = (function() {
       transformMissingPrimaryExpression: function(tree) {
         throw new AssignmentPatternTransformerError();
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $CoverFormalsTransformer;
   }(ParseTreeTransformer);
   return Object.preventExtensions(Object.create(null, {
@@ -6955,7 +6963,7 @@ var $__src_syntax_Token_js = (function() {
       isKeyword: function() {
         return false;
       }
-    });
+    }, {});
     return $Token;
   }();
   function isAssignmentOperator(type) {
@@ -7008,7 +7016,7 @@ var $__src_syntax_IdentifierToken_js = (function() {
       get type() {
         return IDENTIFIER;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $IdentifierToken;
   }(Token);
   return Object.preventExtensions(Object.create(null, {IdentifierToken: {
@@ -7045,7 +7053,7 @@ var $__src_util_ErrorReporter_js = (function() {
       clearError: function() {
         this.hadError_ = false;
       }
-    });
+    }, {});
     return $ErrorReporter;
   }();
   ErrorReporter.format = function(location, text, opt_args) {
@@ -7079,7 +7087,7 @@ var $__src_util_MutedErrorReporter_js = (function() {
         $__superCall(this, $__proto, "constructor", arguments);
       },
       reportMessageInternal: function(location, message) {}
-    }, $__proto, $__super, false);
+    }, {}, $__proto, $__super, false);
     return $MutedErrorReporter;
   }(ErrorReporter);
   return Object.preventExtensions(Object.create(null, {MutedErrorReporter: {
@@ -7793,7 +7801,7 @@ var $__src_syntax_AtNameToken_js = (function() {
       get type() {
         return AT_NAME;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $AtNameToken;
   }(Token);
   return Object.preventExtensions(Object.create(null, {AtNameToken: {
@@ -7816,7 +7824,7 @@ var $__src_syntax_KeywordToken_js = (function() {
       isKeyword: function() {
         return true;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $KeywordToken;
   }(Token);
   return Object.preventExtensions(Object.create(null, {KeywordToken: {
@@ -7896,7 +7904,7 @@ var $__src_syntax_LiteralToken_js = (function() {
             return ch;
         }
       }
-    });
+    }, {});
     return $StringParser;
   }();
   var LiteralToken = function($__super) {
@@ -7923,7 +7931,7 @@ var $__src_syntax_LiteralToken_js = (function() {
             throw new Error('Not implemented');
         }
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $LiteralToken;
   }(Token);
   return Object.preventExtensions(Object.create(null, {LiteralToken: {
@@ -7955,7 +7963,7 @@ var $__src_util_SourcePosition_js = (function() {
         var name = this.source ? this.source.name: '';
         return (name + ":" + (this.line + 1) + ":" + (this.column + 1));
       }
-    });
+    }, {});
     return $SourcePosition;
   }();
   return Object.preventExtensions(Object.create(null, {SourcePosition: {
@@ -8109,7 +8117,7 @@ var $__src_syntax_Scanner_js = (function() {
       isAtEnd: function() {
         return isAtEnd();
       }
-    });
+    }, {});
     return $Scanner;
   }();
   function getPosition(offset) {
@@ -9029,19 +9037,16 @@ var $__src_syntax_Parser_js = (function() {
           var type = this.peekType_();
           if (type === SEMI_COLON) {
             this.nextToken_();
-          } else if (this.peekMethodDefinition_(this.peekType_())) {
-            result.push(this.parseMethodDefinition_());
+          } else if (this.peekClassElement_(this.peekType_())) {
+            result.push(this.parseClassElement_());
           } else {
             break;
           }
         }
         return result;
       },
-      peekMethodDefinition_: function(type) {
+      peekClassElement_: function(type) {
         return this.peekPropertyName_(type) || type === STAR && options.generators;
-      },
-      parseMethodDefinition_: function() {
-        return this.parsePropertyDefinitionShared_(false);
       },
       parsePropertyName_: function() {
         return this.nextToken_();
@@ -9784,45 +9789,93 @@ var $__src_syntax_Parser_js = (function() {
         return this.eatIf_(COMMA) || options.propertyOptionalComma;
       },
       parsePropertyDefinition: function() {
-        return this.parsePropertyDefinitionShared_(true);
-      },
-      parsePropertyDefinitionShared_: function(inObjectLiteral) {
         var start = this.getTreeStartLocation_();
         var isGenerator = false;
-        if (options.generators && options.propertyMethods && this.eatIf_(STAR)) {
-          isGenerator = true;
+        var isStatic = false;
+        if (options.generators && options.propertyMethods && this.peek_(STAR)) {
+          return this.parseGeneratorMethod_(start, isStatic);
         }
         var name = this.parsePropertyName_();
-        if (isGenerator || options.propertyMethods && this.peek_(OPEN_PAREN)) {
-          this.eat_(OPEN_PAREN);
-          var formalParameterList = this.parseFormalParameterList_();
-          this.eat_(CLOSE_PAREN);
-          var functionBody = this.parseFunctionBody_(isGenerator);
-          return new PropertyMethodAssignment(this.getTreeLocation_(start), name, isGenerator, formalParameterList, functionBody);
-        }
-        if (inObjectLiteral && this.eatIf_(COLON)) {
+        if (options.propertyMethods && this.peek_(OPEN_PAREN)) return this.parseMethod_(start, isStatic, isGenerator, name);
+        if (this.eatIf_(COLON)) {
           var value = this.parseAssignmentExpression();
           return new PropertyNameAssignment(this.getTreeLocation_(start), name, value);
         }
         var type = this.peekType_();
         if (name.type === IDENTIFIER && name.value === GET && this.peekPropertyName_(type)) {
-          name = this.parsePropertyName_();
-          this.eat_(OPEN_PAREN);
-          this.eat_(CLOSE_PAREN);
-          var body = this.parseFunctionBody_(false);
-          return new GetAccessor(this.getTreeLocation_(start), name, body);
+          return this.parseGetAccessor_(start, isStatic);
         }
         if (name.type === IDENTIFIER && name.value === SET && this.peekPropertyName_(type)) {
-          name = this.parsePropertyName_();
-          this.eat_(OPEN_PAREN);
-          var parameter = this.parsePropertySetParameterList_();
-          this.eat_(CLOSE_PAREN);
-          var body = this.parseFunctionBody_(false);
-          return new SetAccessor(this.getTreeLocation_(start), name, parameter, body);
+          return this.parseSetAccessor_(start, isStatic);
         }
-        if (inObjectLiteral && options.propertyNameShorthand) return new PropertyNameShorthand(this.getTreeLocation_(start), name);
+        if (options.propertyNameShorthand) return new PropertyNameShorthand(this.getTreeLocation_(start), name);
         this.reportError_(name, 'Unexpected token');
         return null;
+      },
+      parseClassElement_: function() {
+        var start = this.getTreeStartLocation_();
+        var type = this.peekType_();
+        var isStatic = false, isGenerator = false;
+        switch (type) {
+          case STATIC:
+            var staticToken = this.nextToken_();
+            type = this.peekType_();
+            switch (type) {
+              case OPEN_PAREN:
+                return this.parseMethod_(start, isStatic, isGenerator, staticToken);
+              default:
+                isStatic = true;
+                if (type === STAR && options.generators) return this.parseGeneratorMethod_(start, true);
+                return this.parseGetSetOrMethod_(start, isStatic);
+            }
+            break;
+          case STAR:
+            return this.parseGeneratorMethod_(start, isStatic);
+          default:
+            return this.parseGetSetOrMethod_(start, isStatic);
+        }
+      },
+      parseGeneratorMethod_: function(start, isStatic) {
+        var isGenerator = true;
+        this.eat_(STAR);
+        var name = this.parsePropertyName_();
+        return this.parseMethod_(start, isStatic, isGenerator, name);
+      },
+      parseMethod_: function(start, isStatic, isGenerator, name) {
+        this.eat_(OPEN_PAREN);
+        var formalParameterList = this.parseFormalParameterList_();
+        this.eat_(CLOSE_PAREN);
+        var functionBody = this.parseFunctionBody_(isGenerator);
+        return new PropertyMethodAssignment(this.getTreeLocation_(start), isStatic, isGenerator, name, formalParameterList, functionBody);
+      },
+      parseGetSetOrMethod_: function(start, isStatic) {
+        var isGenerator = false;
+        var name = this.parsePropertyName_();
+        var type = this.peekType_();
+        if (name.type === IDENTIFIER && name.value === GET && this.peekPropertyName_(type)) {
+          return this.parseGetAccessor_(start, isStatic);
+        }
+        if (name.type === IDENTIFIER && name.value === SET && this.peekPropertyName_(type)) {
+          return this.parseSetAccessor_(start, isStatic);
+        }
+        return this.parseMethod_(start, isStatic, isGenerator, name);
+      },
+      parseGetAccessor_: function(start, isStatic) {
+        var isGenerator = false;
+        var name = this.parsePropertyName_();
+        this.eat_(OPEN_PAREN);
+        this.eat_(CLOSE_PAREN);
+        var body = this.parseFunctionBody_(isGenerator);
+        return new GetAccessor(this.getTreeLocation_(start), isStatic, name, body);
+      },
+      parseSetAccessor_: function(start, isStatic) {
+        var isGenerator = false;
+        var name = this.parsePropertyName_();
+        this.eat_(OPEN_PAREN);
+        var parameter = this.parsePropertySetParameterList_();
+        this.eat_(CLOSE_PAREN);
+        var body = this.parseFunctionBody_(isGenerator);
+        return new SetAccessor(this.getTreeLocation_(start), isStatic, name, parameter, body);
       },
       peekPropertyDefinition_: function(type) {
         return this.peekPropertyName_(type) || type == STAR && options.propertyMethods && options.generators;
@@ -10726,7 +10779,7 @@ var $__src_syntax_Parser_js = (function() {
       reportUnexpectedToken_: function() {
         this.reportError_(this.peekToken_(), 'Unexpected token');
       }
-    });
+    }, {});
     return $Parser;
   }();
   return Object.preventExtensions(Object.create(null, {Parser: {
@@ -10951,7 +11004,8 @@ var $__src_codegeneration_ParseTreeFactory_js = (function() {
   }
   function createGetAccessor(name, body) {
     if (typeof name == 'string') name = createPropertyNameToken(name);
-    return new GetAccessor(null, name, body);
+    var isStatic = false;
+    return new GetAccessor(null, isStatic, name, body);
   }
   function createIdentifierExpression(identifier) {
     if (typeof identifier == 'string') identifier = createIdentifierToken(identifier); else if (identifier instanceof BindingIdentifier) identifier = identifier.identifierToken;
@@ -11062,7 +11116,8 @@ var $__src_codegeneration_ParseTreeFactory_js = (function() {
   function createSetAccessor(name, parameter, body) {
     if (typeof name == 'string') name = createPropertyNameToken(name);
     if (typeof parameter == 'string') parameter = createIdentifierToken(parameter);
-    return new SetAccessor(null, name, parameter, body);
+    var isStatic = false;
+    return new SetAccessor(null, isStatic, name, parameter, body);
   }
   function createSpreadExpression(expression) {
     return new SpreadExpression(null, expression);
@@ -11815,7 +11870,7 @@ var $__src_semantics_VariableBinder_js = (function() {
             throw new Error('unreachable');
         }
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $VariableBinder;
   }(ParseTreeVisitor);
   return Object.preventExtensions(Object.create(null, {
@@ -11886,7 +11941,7 @@ var $__src_codegeneration_AlphaRenamer_js = (function() {
         }
         return $__superCall(this, $__proto, "transformCatch", [tree]);
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $AlphaRenamer;
   }(ParseTreeTransformer);
   AlphaRenamer.rename = function(tree, oldName, newName) {
@@ -11924,7 +11979,7 @@ var $__src_codegeneration_FindVisitor_js = (function() {
           if (!this.keepOnGoing_) throw foundSentinel;
         }
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $FindVisitor;
   }(ParseTreeVisitor);
   return Object.preventExtensions(Object.create(null, {FindVisitor: {
@@ -11947,7 +12002,7 @@ var $__src_codegeneration_FindInFunctionScope_js = (function() {
       visitSetAccessor: function(tree) {},
       visitGetAccessor: function(tree) {},
       visitPropertyMethodAssignment: function(tree) {}
-    }, $__proto, $__super, false);
+    }, {}, $__proto, $__super, false);
     return $FindInFunctionScope;
   }(FindVisitor);
   return Object.preventExtensions(Object.create(null, {FindInFunctionScope: {
@@ -12003,7 +12058,7 @@ var $__src_codegeneration_TempVarTransformer_js = (function() {
     var $TempVarStatement = ($__createClassNoExtends)({constructor: function(name, initializer) {
         this.name = name;
         this.initializer = initializer;
-      }});
+      }}, {});
     return $TempVarStatement;
   }();
   var TempVarTransformer = function($__super) {
@@ -12078,7 +12133,7 @@ var $__src_codegeneration_TempVarTransformer_js = (function() {
       release_: function(name) {
         this.pool_.push(name);
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $TempVarTransformer;
   }(ParseTreeTransformer);
   return Object.preventExtensions(Object.create(null, {TempVarTransformer: {
@@ -12106,7 +12161,7 @@ var $__src_codegeneration_ComprehensionTransformer_js = (function() {
       visitThisExpression: function(tree) {
         this.found = true;
       }
-    }, $__proto, $__super, false);
+    }, {}, $__proto, $__super, false);
     return $ThisFinder;
   }(FindInFunctionScope);
   var ArgumentsFinder = function($__super) {
@@ -12118,7 +12173,7 @@ var $__src_codegeneration_ComprehensionTransformer_js = (function() {
       visitIdentifierExpression: function(tree) {
         if (tree.identifierToken.value === ARGUMENTS) this.found = true;
       }
-    }, $__proto, $__super, false);
+    }, {}, $__proto, $__super, false);
     return $ArgumentsFinder;
   }(FindInFunctionScope);
   var ComprehensionTransformer = function($__super) {
@@ -12155,7 +12210,7 @@ var $__src_codegeneration_ComprehensionTransformer_js = (function() {
         var func = new FunctionExpression(null, null, isGenerator, createEmptyParameterList(), createBlock(statements));
         return createParenExpression(createCallExpression(func));
       }
-    }, $__proto, $__super, false);
+    }, {}, $__proto, $__super, false);
     return $ComprehensionTransformer;
   }(TempVarTransformer);
   return Object.preventExtensions(Object.create(null, {ComprehensionTransformer: {
@@ -12186,7 +12241,7 @@ var $__src_codegeneration_ArrayComprehensionTransformer_js = (function() {
         var isGenerator = false;
         return this.transformComprehension(tree, statement, isGenerator, returnStatement);
       }
-    }, $__proto, $__super, false);
+    }, {}, $__proto, $__super, false);
     return $ArrayComprehensionTransformer;
   }(ComprehensionTransformer);
   ArrayComprehensionTransformer.transformTree = function(identifierGenerator, tree) {
@@ -12216,7 +12271,7 @@ var $__src_codegeneration_ArrowFunctionTransformer_js = (function() {
       visitThisExpression: function(tree) {
         this.found = true;
       }
-    }, $__proto, $__super, false);
+    }, {}, $__proto, $__super, false);
     return $ThisFinder;
   }(FindInFunctionScope);
   var ArrowFunctionTransformer = function($__super) {
@@ -12244,7 +12299,7 @@ var $__src_codegeneration_ArrowFunctionTransformer_js = (function() {
         }
         return result;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ArrowFunctionTransformer;
   }(ParseTreeTransformer);
   ArrowFunctionTransformer.transformTree = function(reporter, tree) {
@@ -12384,7 +12439,7 @@ var $__src_codegeneration_AtNameMemberTransformer_js = (function() {
         var atNameExpression = new AtNameExpression(memberName.location, memberName);
         return createCallExpression(createMemberExpression(TRACEUR, RUNTIME, DELETE_PROPERTY), createArgumentList(operand, atNameExpression));
       }
-    }, $__proto, $__super, false);
+    }, {}, $__proto, $__super, false);
     return $AtNameMemberTransformer;
   }(TempVarTransformer);
   AtNameMemberTransformer.transformTree = function(identifierGenerator, tree) {
@@ -12423,7 +12478,7 @@ var $__src_codegeneration_BlockBindingTransformer_js = (function() {
         }
         this.blockVariables[value] = true;
       }
-    });
+    }, {});
     return $Scope;
   }();
   ;
@@ -12431,7 +12486,7 @@ var $__src_codegeneration_BlockBindingTransformer_js = (function() {
     var $Rename = ($__createClassNoExtends)({constructor: function(oldName, newName) {
         this.oldName = oldName;
         this.newName = newName;
-      }});
+      }}, {});
     return $Rename;
   }();
   function renameAll(renames, tree) {
@@ -12700,7 +12755,7 @@ var $__src_codegeneration_BlockBindingTransformer_js = (function() {
         }
         throw new Error('Unexpected destructuring declaration found.');
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $BlockBindingTransformer;
   }(ParseTreeTransformer);
   BlockBindingTransformer.transformTree = function(tree) {
@@ -12773,7 +12828,7 @@ var $__src_codegeneration_CascadeExpressionTransformer_js = (function() {
         var newOperand = prependMemberExpression(ident, tree.operand);
         return createCascadeExpression(newOperand, tree.expressions);
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $CascadeExpressionTransformer;
   }(TempVarTransformer);
   CascadeExpressionTransformer.transformTree = function(identifierGenerator, reporter, tree) {
@@ -12834,7 +12889,7 @@ var $__src_util_ArrayMap_js = (function() {
       values: function() {
         return this.values_.concat();
       }
-    });
+    }, {});
     return $ArrayMap;
   }();
   return Object.preventExtensions(Object.create(null, {ArrayMap: {
@@ -12916,7 +12971,7 @@ var $__src_syntax_LineNumberTable_js = (function() {
       getSourceRange: function(startOffset, endOffset) {
         return new SourceRange(this.getSourcePosition(startOffset), this.getSourcePosition(endOffset));
       }
-    });
+    }, {});
     return $LineNumberTable;
   }();
   return Object.preventExtensions(Object.create(null, {LineNumberTable: {
@@ -12935,7 +12990,7 @@ var $__src_syntax_SourceFile_js = (function() {
         this.contents = contents;
         this.lineNumberTable = new LineNumberTable(this);
         this.uid = traceur.getUid();
-      }});
+      }}, {});
     return $SourceFile;
   }();
   return Object.preventExtensions(Object.create(null, {SourceFile: {
@@ -13019,7 +13074,7 @@ var $__src_codegeneration_PlaceholderParser_js = (function() {
         if (errorReporter.hadError() || !tree || !parser.isAtEnd()) throw new Error(("Internal error trying to parse:\n\n" + source));
         return tree;
       }
-    });
+    }, {});
     return $PlaceholderParser;
   }();
   function convertValueToExpression(value) {
@@ -13092,7 +13147,7 @@ var $__src_codegeneration_PlaceholderParser_js = (function() {
         if (tree.name.type === IDENTIFIER) {
           var value = this.getValue_(tree.name.value);
           if (value !== NOT_FOUND) {
-            return new PropertyMethodAssignment(null, convertValueToIdentifierToken(value), tree.isGenerator, this.transformAny(tree.formalParameterList), this.transformAny(tree.functionBody));
+            return new PropertyMethodAssignment(tree.location, tree.isStatic, tree.isGenerator, convertValueToIdentifierToken(value), this.transformAny(tree.formalParameterList), this.transformAny(tree.functionBody));
           }
         }
         return $__superCall(this, $__proto, "transformPropertyMethodAssignment", [tree]);
@@ -13114,7 +13169,7 @@ var $__src_codegeneration_PlaceholderParser_js = (function() {
         }
         return $__superCall(this, $__proto, "transformPropertyNameShorthand", [tree]);
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $PlaceholderTransformer;
   }(ParseTreeTransformer);
   return Object.preventExtensions(Object.create(null, {
@@ -13277,7 +13332,7 @@ var $__src_codegeneration_SuperTransformer_js = (function() {
         for (var args = [], $__8 = 1; $__8 < arguments.length; $__8++) args[$__8 - 1] = arguments[$__8];
         ($__10 = this.reporter_).reportError.apply($__10, $__spread([tree.location.start], args));
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $SuperTransformer;
   }(ParseTreeTransformer);
   return Object.preventExtensions(Object.create(null, {SuperTransformer: {
@@ -13289,7 +13344,7 @@ var $__src_codegeneration_SuperTransformer_js = (function() {
 }).call(this);
 var $__src_codegeneration_ClassTransformer_js = (function() {
   "use strict";
-  var $__2 = Object.freeze(Object.defineProperties(["function($__super) {\n        var $__proto = ", "($__super);\n        var ", " =\n            (", ")(", ", $__proto, $__super, ", ");\n        return ", ";\n      }(", ")"], {raw: {value: Object.freeze(["function($__super) {\n        var $__proto = ", "($__super);\n        var ", " =\n            (", ")(", ", $__proto, $__super, ", ");\n        return ", ";\n      }(", ")"])}})), $__1 = Object.freeze(Object.defineProperties(["function() {\n      var ", " = (", ")(", ");\n      return ", ";\n    }()"], {raw: {value: Object.freeze(["function() {\n      var ", " = (", ")(", ");\n      return ", ";\n    }()"])}})), $__0 = Object.freeze(Object.defineProperties(["constructor: function() {}"], {raw: {value: Object.freeze(["constructor: function() {}"])}})), $__3 = Object.freeze(Object.defineProperties(["constructor: function() {\n      ", ";\n    }"], {raw: {value: Object.freeze(["constructor: function() {\n      ", ";\n    }"])}}));
+  var $__2 = Object.freeze(Object.defineProperties(["function($__super) {\n        var $__proto = ", "($__super);\n        var ", " =\n            (", ")(", ", ", ", $__proto,\n                                   $__super, ", ");\n        return ", ";\n      }(", ")"], {raw: {value: Object.freeze(["function($__super) {\n        var $__proto = ", "($__super);\n        var ", " =\n            (", ")(", ", ", ", $__proto,\n                                   $__super, ", ");\n        return ", ";\n      }(", ")"])}})), $__1 = Object.freeze(Object.defineProperties(["function() {\n      var ", " = (", ")(\n          ", ", ", ");\n      return ", ";\n    }()"], {raw: {value: Object.freeze(["function() {\n      var ", " = (", ")(\n          ", ", ", ");\n      return ", ";\n    }()"])}})), $__0 = Object.freeze(Object.defineProperties(["constructor: function() {}"], {raw: {value: Object.freeze(["constructor: function() {}"])}})), $__3 = Object.freeze(Object.defineProperties(["constructor: function() {\n      ", ";\n    }"], {raw: {value: Object.freeze(["constructor: function() {\n      ", ";\n    }"])}}));
   var $__9 = $__src_syntax_PredefinedName_js, CONSTRUCTOR = $__9.CONSTRUCTOR, CREATE_CLASS = $__9.CREATE_CLASS, RUNTIME = $__9.RUNTIME, TRACEUR = $__9.TRACEUR;
   var $__9 = $__src_syntax_trees_ParseTrees_js, FormalParameterList = $__9.FormalParameterList, GetAccessor = $__9.GetAccessor, PropertyMethodAssignment = $__9.PropertyMethodAssignment, PropertyNameAssignment = $__9.PropertyNameAssignment, SetAccessor = $__9.SetAccessor, SuperExpression = $__9.SuperExpression;
   var $__9 = $__src_syntax_trees_ParseTreeType_js, GET_ACCESSOR = $__9.GET_ACCESSOR, PROPERTY_METHOD_ASSIGNMENT = $__9.PROPERTY_METHOD_ASSIGNMENT, SET_ACCESSOR = $__9.SET_ACCESSOR;
@@ -13299,9 +13354,9 @@ var $__src_codegeneration_ClassTransformer_js = (function() {
   var $__9 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__9.createArgumentList, createAssignmentExpression = $__9.createAssignmentExpression, createBlock = $__9.createBlock, createBooleanLiteral = $__9.createBooleanLiteral, createCallExpression = $__9.createCallExpression, createExpressionStatement = $__9.createExpressionStatement, createFunctionExpression = $__9.createFunctionExpression, createIdentifierExpression = $__9.createIdentifierExpression, createIdentifierToken = $__9.createIdentifierToken, createMemberExpression = $__9.createMemberExpression, createNullLiteral = $__9.createNullLiteral, createObjectLiteralExpression = $__9.createObjectLiteralExpression, createParenExpression = $__9.createParenExpression, createPropertyNameAssignment = $__9.createPropertyNameAssignment, createRestParameter = $__9.createRestParameter, createSpreadExpression = $__9.createSpreadExpression, createThisExpression = $__9.createThisExpression, createVariableStatement = $__9.createVariableStatement;
   var transformOptions = $__src_options_js.transformOptions;
   var $__9 = $__src_codegeneration_PlaceholderParser_js, parseExpression = $__9.parseExpression, parsePropertyDefinition = $__9.parsePropertyDefinition;
-  var CREATE_CLASS_CODE = "function(object, protoParent, superClass, hasConstructor) {\n      var ctor = object.constructor;\n      if (typeof superClass === 'function') {\n        if (protoParent === null)\n          throw new TypeError();\n        ctor.__proto__ = superClass;\n      } else if (superClass === null && !hasConstructor) {\n        ctor = object.constructor = function() {};\n      }\n\n      var descriptors = {}, name, names = Object.getOwnPropertyNames(object);\n      for (var i = 0; i < names.length; i++) {\n        var name = names[i];\n        descriptors[name] = Object.getOwnPropertyDescriptor(object, name);\n      }\n      descriptors.constructor.enumerable = false;\n      ctor.prototype = Object.create(protoParent, descriptors);\n\n      return ctor;\n    }";
+  var CREATE_CLASS_CODE = "function(object, staticObject, protoParent, superClass, hasConstructor) {\n      var ctor = object.constructor;\n      if (typeof superClass === 'function') {\n        if (protoParent === null)\n          throw new TypeError();\n        ctor.__proto__ = superClass;\n      } else if (superClass === null && !hasConstructor) {\n        ctor = object.constructor = function() {};\n      }\n\n      var descriptors = %getDescriptors(object);\n      descriptors.constructor.enumerable = false;\n      ctor.prototype = Object.create(protoParent, descriptors);\n      Object.defineProperties(ctor, %getDescriptors(staticObject));\n\n      return ctor;\n    }";
   var GET_PROTO_PARENT_CODE = "function(superClass) {\n      if (typeof superClass === 'function')\n        return superClass.prototype;\n      if (superClass === null)\n        return null;\n      if (Object(superClass) === superClass)\n        return superClass;\n      throw new TypeError();\n    }";
-  var CREATE_CLASS_NO_EXTENDS_CODE = "function(object) {\n      var ctor = object.constructor;\n      Object.defineProperty(object, 'constructor', {enumerable: false});\n      ctor.prototype = object;\n      return ctor;\n    }";
+  var CREATE_CLASS_NO_EXTENDS_CODE = "function(object, staticObject) {\n      var ctor = object.constructor;\n      Object.defineProperty(object, 'constructor', {enumerable: false});\n      ctor.prototype = object;\n      Object.defineProperties(ctor, %getDescriptors(staticObject));\n      return ctor;\n    }";
   var ClassTransformer = function($__super) {
     var $__proto = $__getProtoParent($__super);
     var $ClassTransformer = ($__createClass)({
@@ -13315,25 +13370,41 @@ var $__src_codegeneration_ClassTransformer_js = (function() {
         var nameIdent = createIdentifierExpression(name);
         var protoName = createIdentifierExpression('$__proto');
         var hasConstructor = false;
-        var elements = tree.elements.map((function(tree) {
+        var protoElements = [], staticElements = [];
+        var staticSuperRef = superClass ? createIdentifierExpression('$__super'): createMemberExpression('Function', 'prototype');
+        tree.elements.forEach((function(tree) {
+          var elements, proto;
+          if (tree.isStatic) {
+            elements = staticElements;
+            proto = staticSuperRef;
+          } else {
+            elements = protoElements;
+            proto = protoName;
+          }
           switch (tree.type) {
             case GET_ACCESSOR:
-              return this.transformGetAccessor_(tree, protoName);
+              elements.push(this.transformGetAccessor_(tree, proto));
+              break;
             case SET_ACCESSOR:
-              return this.transformSetAccessor_(tree, protoName);
+              elements.push(this.transformSetAccessor_(tree, proto));
+              break;
             case PROPERTY_METHOD_ASSIGNMENT:
-              if (tree.name.value === CONSTRUCTOR) hasConstructor = true;
-              return this.transformPropertyMethodAssignment_(tree, protoName);
+              if (!tree.isStatic && tree.name.value === CONSTRUCTOR) hasConstructor = true;
+              elements.push(this.transformPropertyMethodAssignment_(tree, proto));
+              break;
             default:
               throw new Error(("Unexpected class element: " + tree.type));
           }
         }).bind(this));
-        if (!hasConstructor) elements.unshift(this.getDefaultConstructor_(tree, superClass, protoName));
-        var object = createObjectLiteralExpression(elements);
-        if (superClass) {
-          return parseExpression($__2, this.getProtoParent_, nameIdent, this.createClass_, object, hasConstructor, nameIdent, superClass);
+        if (!hasConstructor) {
+          protoElements.unshift(this.getDefaultConstructor_(tree, superClass, protoName));
         }
-        return parseExpression($__1, nameIdent, this.createClassNoExtends_, object, nameIdent);
+        var object = createObjectLiteralExpression(protoElements);
+        var staticObject = createObjectLiteralExpression(staticElements);
+        if (superClass) {
+          return parseExpression($__2, this.getProtoParent_, nameIdent, this.createClass_, object, staticObject, hasConstructor, nameIdent, superClass);
+        }
+        return parseExpression($__1, nameIdent, this.createClassNoExtends_, object, staticObject, nameIdent);
       },
       get createClass_() {
         return this.runtimeInliner_.get('createClass', CREATE_CLASS_CODE);
@@ -13355,21 +13426,22 @@ var $__src_codegeneration_ClassTransformer_js = (function() {
       transformPropertyMethodAssignment_: function(tree, protoName) {
         var formalParameterList = this.transformAny(tree.formalParameterList);
         var functionBody = this.transformSuperInBlock_(tree, tree.functionBody, protoName);
-        if (formalParameterList === tree.formalParameterList && functionBody === tree.functionBody) {
+        if (!tree.isStatic && formalParameterList === tree.formalParameterList && functionBody === tree.functionBody) {
           return tree;
         }
-        return new PropertyMethodAssignment(tree.location, tree.name, tree.isGenerator, formalParameterList, functionBody);
+        var isStatic = false;
+        return new PropertyMethodAssignment(tree.location, isStatic, tree.isGenerator, tree.name, formalParameterList, functionBody);
       },
       transformGetAccessor_: function(tree, protoName) {
         var body = this.transformSuperInBlock_(tree, tree.body, protoName);
-        if (body === tree.body) return tree;
-        return new GetAccessor(tree.location, tree.name, body);
+        if (!tree.isStatic && body === tree.body) return tree;
+        return new GetAccessor(tree.location, false, tree.name, body);
       },
       transformSetAccessor_: function(tree, protoName) {
         var parameter = this.transformAny(tree.parameter);
         var body = this.transformSuperInBlock_(tree, tree.body, protoName);
-        if (body === tree.body) return tree;
-        return new SetAccessor(tree.location, tree.name, parameter, body);
+        if (!tree.isStatic && body === tree.body) return tree;
+        return new SetAccessor(tree.location, false, tree.name, parameter, body);
       },
       transformSuperInBlock_: function(methodTree, tree, protoName) {
         this.pushTempVarState();
@@ -13387,7 +13459,7 @@ var $__src_codegeneration_ClassTransformer_js = (function() {
         var superCall = superTransformer.createSuperCallExpression(createThisExpression(), protoName, 'constructor', createIdentifierExpression('arguments'));
         return parsePropertyDefinition($__3, superCall);
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ClassTransformer;
   }(TempVarTransformer);
   ClassTransformer.transform = function(identifierGenerator, runtimeInliner, reporter, tree) {
@@ -13453,7 +13525,7 @@ var $__src_codegeneration_CollectionTransformer_js = (function() {
         var memberExpression = this.transformAny(tree.operand.memberExpression);
         return createCallExpression(createMemberExpression(TRACEUR, RUNTIME, ELEMENT_DELETE), createArgumentList(operand, memberExpression));
       }
-    }, $__proto, $__super, false);
+    }, {}, $__proto, $__super, false);
     return $CollectionTransformer;
   }(TempVarTransformer);
   CollectionTransformer.transformTree = function(identifierGenerator, tree) {
@@ -13509,7 +13581,7 @@ var $__src_codegeneration_DefaultParametersTransformer_js = (function() {
         if (!changed) return tree;
         return new FormalParameterList(tree.location, parameters);
       }
-    }, $__proto, $__super, false);
+    }, {}, $__proto, $__super, false);
     return $DefaultParametersTransformer;
   }(ParseTreeTransformer);
   DefaultParametersTransformer.transformTree = function(tree) {
@@ -13535,7 +13607,7 @@ var $__src_codegeneration_DestructuringTransformer_js = (function() {
   var Desugaring = function() {
     var $Desugaring = ($__createClassNoExtends)({constructor: function(rvalue) {
         this.rvalue = rvalue;
-      }});
+      }}, {});
     return $Desugaring;
   }();
   var AssignmentExpressionDesugaring = function($__super) {
@@ -13548,7 +13620,7 @@ var $__src_codegeneration_DestructuringTransformer_js = (function() {
       assign: function(lvalue, rvalue) {
         this.expressions.push(createAssignmentExpression(lvalue, rvalue));
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $AssignmentExpressionDesugaring;
   }(Desugaring);
   var VariableDeclarationDesugaring = function($__super) {
@@ -13566,7 +13638,7 @@ var $__src_codegeneration_DestructuringTransformer_js = (function() {
         if (lvalue.type == IDENTIFIER_EXPRESSION) lvalue = createBindingIdentifier(lvalue);
         this.declarations.push(createVariableDeclaration(lvalue, rvalue));
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $VariableDeclarationDesugaring;
   }(Desugaring);
   function createConditionalMemberExpression(rvalue, identToken, initializer) {
@@ -13671,7 +13743,7 @@ var $__src_codegeneration_DestructuringTransformer_js = (function() {
         var statements = stack.pop();
         if (!statements.length) return transformedTree;
         ($__10 = statements).push.apply($__10, $__toObject(transformedTree.body.statements));
-        return new SetAccessor(transformedTree.location, transformedTree.name, transformedTree.parameter, createBlock(statements));
+        return new SetAccessor(transformedTree.location, transformedTree.isStatic, transformedTree.name, transformedTree.parameter, createBlock(statements));
       },
       transformBindingElement: function(tree) {
         if (!tree.binding.isPattern() || tree.initializer) return tree;
@@ -13781,7 +13853,7 @@ var $__src_codegeneration_DestructuringTransformer_js = (function() {
             throw new Error('unreachable');
         }
       }
-    }, $__proto, $__super, false);
+    }, {}, $__proto, $__super, false);
     return $DestructuringTransformer;
   }(TempVarTransformer);
   DestructuringTransformer.transformTree = function(identifierGenerator, tree) {
@@ -13822,7 +13894,7 @@ var $__src_codegeneration_ForOfTransformer_js = (function() {
         var finallyBody = createIfStatement(createMemberExpression(iter, CLOSE), createCallStatement(createMemberExpression(iter, CLOSE)));
         return createBlock(initializer, createTryStatement(createBlock(loop), null, createFinally(createBlock(finallyBody))));
       }
-    }, $__proto, $__super, false);
+    }, {}, $__proto, $__super, false);
     return $ForOfTransformer;
   }(TempVarTransformer);
   ForOfTransformer.transformTree = function(identifierGenerator, tree) {
@@ -13849,7 +13921,7 @@ var $__src_semantics_FreeVariableChecker_js = (function() {
         this.parent = parent;
         this.references = Object.create(null);
         this.declarations = Object.create(null);
-      }});
+      }}, {});
     return $Scope;
   }();
   function getVariableName(name) {
@@ -13981,7 +14053,7 @@ var $__src_semantics_FreeVariableChecker_js = (function() {
         for (var args = [], $__8 = 0; $__8 < arguments.length; $__8++) args[$__8] = arguments[$__8];
         ($__10 = this.reporter_).reportError.apply($__10, $__toObject(args));
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $FreeVariableChecker;
   }(ParseTreeVisitor);
   var global = this;
@@ -14011,7 +14083,7 @@ var $__src_codegeneration_GeneratorComprehensionTransformer_js = (function() {
         var isGenerator = true;
         return this.transformComprehension(tree, statement, isGenerator);
       }
-    }, $__proto, $__super, false);
+    }, {}, $__proto, $__super, false);
     return $GeneratorComprehensionTransformer;
   }(ComprehensionTransformer);
   GeneratorComprehensionTransformer.transformTree = function(identifierGenerator, tree) {
@@ -14042,7 +14114,7 @@ var $__src_codegeneration_generator_State_js = (function() {
       transformBreakOrContinue: function(labelSet, breakState, continueState) {
         return this;
       }
-    });
+    }, {});
     return $State;
   }();
   ;
@@ -14112,7 +14184,7 @@ var $__src_codegeneration_generator_FallThroughState_js = (function() {
       transform: function(enclosingFinally, machineEndState, reporter) {
         return $__spread(this.statements, State.generateJump(enclosingFinally, this.fallThroughState));
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $FallThroughState;
   }(State);
   return Object.preventExtensions(Object.create(null, {FallThroughState: {
@@ -14149,7 +14221,7 @@ var $__src_codegeneration_generator_BreakState_js = (function() {
       transformBreakOrContinue: function(labelSet, breakState, continueState) {
         return this.transformBreak(labelSet, breakState);
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $BreakState;
   }(State);
   return Object.preventExtensions(Object.create(null, {BreakState: {
@@ -14183,7 +14255,7 @@ var $__src_codegeneration_generator_ContinueState_js = (function() {
         }
         return this;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ContinueState;
   }(State);
   return Object.preventExtensions(Object.create(null, {ContinueState: {
@@ -14217,7 +14289,7 @@ var $__src_codegeneration_generator_TryState_js = (function() {
         }
         return states;
       }
-    });
+    }, {});
     return $TryState;
   }();
   TryState.Kind = Kind;
@@ -14295,7 +14367,7 @@ var $__src_syntax_trees_StateMachine_js = (function() {
         addAllCatchStates(this.exceptionBlocks, catches);
         return catches;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $StateMachine;
   }(ParseTree);
   return Object.preventExtensions(Object.create(null, {StateMachine: {
@@ -14361,7 +14433,7 @@ var $__src_codegeneration_generator_BreakContinueTransformer_js = (function() {
       transformWhileStatement: function(tree) {
         return tree;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $BreakContinueTransformer;
   }(ParseTreeTransformer);
   return Object.preventExtensions(Object.create(null, {BreakContinueTransformer: {
@@ -14387,7 +14459,7 @@ var $__src_codegeneration_generator_CatchState_js = (function() {
       replaceState: function(oldState, newState) {
         return new CatchState(this.identifier, State.replaceStateId(this.catchState, oldState, newState), State.replaceStateId(this.fallThroughState, oldState, newState), this.replaceAllStates(oldState, newState), this.replaceNestedTrys(oldState, newState));
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $CatchState;
   }(TryState);
   return Object.preventExtensions(Object.create(null, {CatchState: {
@@ -14416,7 +14488,7 @@ var $__src_codegeneration_generator_ConditionalState_js = (function() {
       transform: function(enclosingFinally, machineEndState, reporter) {
         return [createIfStatement(this.condition, createBlock(State.generateJump(enclosingFinally, this.ifState)), createBlock(State.generateJump(enclosingFinally, this.elseState)))];
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ConditionalState;
   }(State);
   return Object.preventExtensions(Object.create(null, {ConditionalState: {
@@ -14444,7 +14516,7 @@ var $__src_codegeneration_generator_FinallyFallThroughState_js = (function() {
       transform: function(enclosingFinally, machineEndState, reporter) {
         throw new Error('these are generated in addFinallyFallThroughDispatches');
       }
-    }, $__proto, $__super, false);
+    }, {}, $__proto, $__super, false);
     return $FinallyFallThroughState;
   }(State);
   return Object.preventExtensions(Object.create(null, {FinallyFallThroughState: {
@@ -14469,7 +14541,7 @@ var $__src_codegeneration_generator_FinallyState_js = (function() {
       replaceState: function(oldState, newState) {
         return new FinallyState(State.replaceStateId(this.finallyState, oldState, newState), State.replaceStateId(this.fallThroughState, oldState, newState), this.replaceAllStates(oldState, newState), this.replaceNestedTrys(oldState, newState));
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $FinallyState;
   }(TryState);
   return Object.preventExtensions(Object.create(null, {FinallyState: {
@@ -14490,7 +14562,7 @@ var $__src_codegeneration_generator_StateAllocator_js = (function() {
       allocateState: function() {
         return this.nextState_++;
       }
-    });
+    }, {});
     return $StateAllocator;
   }();
   return Object.preventExtensions(Object.create(null, {StateAllocator: {
@@ -14509,7 +14581,7 @@ var $__src_codegeneration_generator_SwitchState_js = (function() {
     var $SwitchClause = ($__createClassNoExtends)({constructor: function(first, second) {
         this.first = first;
         this.second = second;
-      }});
+      }}, {});
     return $SwitchClause;
   }();
   var SwitchState = function($__super) {
@@ -14538,7 +14610,7 @@ var $__src_codegeneration_generator_SwitchState_js = (function() {
         }
         return createStatementList(new SwitchStatement(null, this.expression, clauses), createBreakStatement());
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $SwitchState;
   }(State);
   return Object.preventExtensions(Object.create(null, {
@@ -15043,7 +15115,7 @@ var $__src_codegeneration_generator_CPSTransformer_js = (function() {
         }
         return this.transformStatementList_(maybeTransformedStatements);
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $CPSTransformer;
   }(ParseTreeTransformer);
   return Object.preventExtensions(Object.create(null, {CPSTransformer: {
@@ -15068,7 +15140,7 @@ var $__src_codegeneration_generator_EndState_js = (function() {
       transform: function(enclosingFinally, machineEndState, reporter) {
         return State.generateJump(enclosingFinally, machineEndState);
       }
-    }, $__proto, $__super, false);
+    }, {}, $__proto, $__super, false);
     return $EndState;
   }(State);
   return Object.preventExtensions(Object.create(null, {EndState: {
@@ -15170,7 +15242,7 @@ var $__src_codegeneration_generator_AsyncTransformer_js = (function() {
       machineRethrowStatements: function(machineEndState) {
         return createStatementList(createCallStatement(createMemberExpression(RESULT, ERRBACK), createArgumentList(createIdentifierExpression(STORED_EXCEPTION))), createAssignStateStatement(machineEndState), createBreakStatement());
       }
-    }, $__proto, $__super, false);
+    }, {}, $__proto, $__super, false);
     return $AsyncTransformer;
   }(CPSTransformer);
   AsyncTransformer.transformAsyncBody = function(reporter, body) {
@@ -15234,7 +15306,7 @@ var $__src_codegeneration_generator_ForInTransformPass_js = (function() {
         elements.push(createForStatement(createVariableDeclarationList(VAR, i, createNumberLiteral(0)), createBinaryOperator(createIdentifierExpression(i), createOperatorToken(OPEN_ANGLE), createMemberExpression(keys, LENGTH)), createPostfixExpression(createIdentifierExpression(i), createOperatorToken(PLUS_PLUS)), createBlock(innerBlock)));
         return createBlock(elements);
       }
-    }, $__proto, $__super, false);
+    }, {}, $__proto, $__super, false);
     return $ForInTransformPass;
   }(TempVarTransformer);
   ForInTransformPass.transformTree = function(identifierGenerator, tree) {
@@ -15266,7 +15338,7 @@ var $__src_codegeneration_generator_YieldState_js = (function() {
       transform: function(enclosingFinally, machineEndState, reporter) {
         return $__spread([createAssignmentStatement(createMemberExpression(RESULT, CURRENT), this.expression)], State.generateAssignState(enclosingFinally, this.fallThroughState), [createReturnStatement(createTrueLiteral())]);
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $YieldState;
   }(State);
   return Object.preventExtensions(Object.create(null, {YieldState: {
@@ -15350,7 +15422,7 @@ var $__src_codegeneration_generator_GeneratorTransformer_js = (function() {
       machineEndStatements: function() {
         return [createReturnStatement(createFalseLiteral())];
       }
-    }, $__proto, $__super, false);
+    }, {}, $__proto, $__super, false);
     return $GeneratorTransformer;
   }(CPSTransformer);
   GeneratorTransformer.transformGeneratorBody = function(reporter, body) {
@@ -15408,7 +15480,7 @@ var $__src_codegeneration_GeneratorTransformPass_js = (function() {
       visitFunction: function(tree) {},
       visitSetAccessor: function(tree) {},
       visitGetAccessor: function(tree) {}
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $YieldFinder;
   }(ParseTreeVisitor);
   var YieldForTransformer = function($__super) {
@@ -15430,7 +15502,7 @@ var $__src_codegeneration_GeneratorTransformPass_js = (function() {
         if (e.type === YIELD_EXPRESSION && e.isYieldFor) return this.transformYieldForExpression_(e);
         return tree;
       }
-    }, $__proto, $__super, false);
+    }, {}, $__proto, $__super, false);
     return $YieldForTransformer;
   }(TempVarTransformer);
   YieldForTransformer.transformTree = function(identifierGenerator, tree) {
@@ -15475,7 +15547,7 @@ var $__src_codegeneration_GeneratorTransformPass_js = (function() {
       factor_: function(lhs, rhs, wrap) {
         return createBlock([createExpressionStatement(rhs), wrap(lhs, this.sentId)]);
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $YieldExpressionTransformer;
   }(ParseTreeTransformer);
   YieldExpressionTransformer.transformTree = function(tree) {
@@ -15518,19 +15590,15 @@ var $__src_codegeneration_GeneratorTransformPass_js = (function() {
       },
       transformGetAccessor: function(tree) {
         var body = this.transformBody_(tree.body);
-        if (body == tree.body) {
-          return tree;
-        }
-        return new GetAccessor(null, tree.name, body);
+        if (body === tree.body) return tree;
+        return new GetAccessor(tree.location, tree.isStatic, tree.name, body);
       },
       transformSetAccessor: function(tree) {
         var body = this.transformBody_(tree.body);
-        if (body == tree.body) {
-          return tree;
-        }
-        return new SetAccessor(null, tree.name, tree.parameter, body);
+        if (body === tree.body) return tree;
+        return new SetAccessor(tree.location, tree.isStatic, tree.name, tree.parameter, body);
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $GeneratorTransformPass;
   }(TempVarTransformer);
   GeneratorTransformPass.transformTree = function(identifierGenerator, reporter, tree) {
@@ -15575,7 +15643,7 @@ var $__src_codegeneration_IsExpressionTransformer_js = (function() {
         }
         return createCallExpression(createMemberExpression(TRACEUR, RUNTIME, operator.value), createArgumentList(left, right));
       }
-    }, $__proto, $__super, false);
+    }, {}, $__proto, $__super, false);
     return $IsExpressionTransformer;
   }(ParseTreeTransformer);
   IsExpressionTransformer.transformTree = function(tree) {
@@ -15710,7 +15778,7 @@ var $__src_codegeneration_ModuleTransformer_js = (function() {
         }
         return new BindingElement(tree.location, createBindingIdentifier(tree.lhs), null);
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ModuleTransformer;
   }(ParseTreeTransformer);
   ModuleTransformer.transform = function(project, tree) {
@@ -15845,7 +15913,7 @@ var $__src_codegeneration_ObjectLiteralTransformer_js = (function() {
       visitPropertyNameShorthand: function(tree) {
         this.checkAtName_(tree);
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $AtNameFinder;
   }(FindVisitor);
   function getPropertyNameForToken(nameToken) {
@@ -15975,7 +16043,7 @@ var $__src_codegeneration_ObjectLiteralTransformer_js = (function() {
           writable: true
         });
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ObjectLiteralTransformer;
   }(TempVarTransformer);
   ObjectLiteralTransformer.transformTree = function(identifierGenerator, tree) {
@@ -16028,7 +16096,7 @@ var $__src_util_ObjectMap_js = (function() {
         delete this.keys_[uid];
         delete this.values_[uid];
       }
-    });
+    }, {});
     return $ObjectMap;
   }();
   return Object.preventExtensions(Object.create(null, {ObjectMap: {
@@ -16344,6 +16412,7 @@ var $__src_outputgeneration_ParseTreeWriter_js = (function() {
         this.write_(CLOSE_PAREN);
       },
       visitGetAccessor: function(tree) {
+        if (tree.isStatic) this.write_(STATIC);
         this.write_(GET);
         this.write_(tree.name);
         this.write_(OPEN_PAREN);
@@ -16482,6 +16551,7 @@ var $__src_outputgeneration_ParseTreeWriter_js = (function() {
         this.writelnList_(tree.programElements, null, true);
       },
       visitPropertyMethodAssignment: function(tree) {
+        if (tree.isStatic) this.write_(STATIC);
         if (tree.isGenerator) this.write_(STAR);
         this.write_(tree.name);
         this.write_(OPEN_PAREN);
@@ -16522,6 +16592,7 @@ var $__src_outputgeneration_ParseTreeWriter_js = (function() {
         this.write_(tree.identifier.identifierToken);
       },
       visitSetAccessor: function(tree) {
+        if (tree.isStatic) this.write_(STATIC);
         this.write_(SET);
         this.write_(tree.name);
         this.write_(OPEN_PAREN);
@@ -16831,7 +16902,7 @@ var $__src_outputgeneration_ParseTreeWriter_js = (function() {
         }
         return false;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ParseTreeWriter;
   }(ParseTreeVisitor);
   return Object.preventExtensions(Object.create(null, {ParseTreeWriter: {
@@ -16876,7 +16947,7 @@ var $__src_outputgeneration_ParseTreeMapWriter_js = (function() {
         };
         this.sourceMapGenerator_.addMapping(mapping);
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ParseTreeMapWriter;
   }(ParseTreeWriter);
   return Object.preventExtensions(Object.create(null, {ParseTreeMapWriter: {
@@ -16891,7 +16962,7 @@ var $__src_outputgeneration_TreeWriter_js = (function() {
   var ParseTreeMapWriter = $__src_outputgeneration_ParseTreeMapWriter_js.ParseTreeMapWriter;
   var ParseTreeWriter = $__src_outputgeneration_ParseTreeWriter_js.ParseTreeWriter;
   var TreeWriter = function() {
-    var $TreeWriter = ($__createClassNoExtends)({constructor: function() {}});
+    var $TreeWriter = ($__createClassNoExtends)({constructor: function() {}}, {});
     return $TreeWriter;
   }();
   TreeWriter.write = function(tree, opt_options) {
@@ -16938,7 +17009,7 @@ var $__src_syntax_ParseTreeValidator_js = (function() {
     var $ValidationError = ($__createClass)({constructor: function(tree, message) {
         this.tree = tree;
         this.message = message;
-      }}, $__proto, $__super, true);
+      }}, {}, $__proto, $__super, true);
     return $ValidationError;
   }(Error);
   var ParseTreeValidator = function($__super) {
@@ -17256,6 +17327,7 @@ var $__src_syntax_ParseTreeValidator_js = (function() {
             case GET_ACCESSOR:
             case SET_ACCESSOR:
             case PROPERTY_METHOD_ASSIGNMENT:
+              this.check_(!propertyNameAndValue.isStatic, propertyNameAndValue, 'static is not allowed in object literal expression');
             case PROPERTY_NAME_ASSIGNMENT:
             case PROPERTY_NAME_SHORTHAND:
               break;
@@ -17376,7 +17448,7 @@ var $__src_syntax_ParseTreeValidator_js = (function() {
           this.checkVisit_(tree.expression.isExpression(), tree.expression, 'expression expected');
         }
       }
-    }, $__proto, $__super, false);
+    }, {}, $__proto, $__super, false);
     return $ParseTreeValidator;
   }(ParseTreeVisitor);
   ParseTreeValidator.validate = function(tree) {
@@ -17444,7 +17516,7 @@ var $__src_codegeneration_PrivateNameSyntaxTransformer_js = (function() {
         }
         return createVariableDeclaration(transformedName, createCallExpression(createMemberExpression(TRACEUR, RUNTIME, name), args));
       }
-    }, $__proto, $__super, false);
+    }, {}, $__proto, $__super, false);
     return $PrivateNameSyntaxTransformer;
   }(TempVarTransformer);
   PrivateNameSyntaxTransformer.transformTree = function(identifierGenerator, tree) {
@@ -17470,7 +17542,7 @@ var $__src_codegeneration_PropertyNameShorthandTransformer_js = (function() {
       transformPropertyNameShorthand: function(tree) {
         return new PropertyNameAssignment(tree.location, tree.name, new IdentifierExpression(tree.location, tree.name));
       }
-    }, $__proto, $__super, false);
+    }, {}, $__proto, $__super, false);
     return $PropertyNameShorthandTransformer;
   }(ParseTreeTransformer);
   PropertyNameShorthandTransformer.transformTree = function(tree) {
@@ -17650,7 +17722,7 @@ var $__src_codegeneration_TemplateLiteralTransformer_js = (function() {
         }
         return new ParenExpression(null, binaryExpression);
       }
-    }, $__proto, $__super, false);
+    }, {}, $__proto, $__super, false);
     return $TemplateLiteralTransformer;
   }(TempVarTransformer);
   TemplateLiteralTransformer.transformTree = function(identifierGenerator, tree) {
@@ -17705,7 +17777,7 @@ var $__src_codegeneration_RestParameterTransformer_js = (function() {
         var functionBody = this.transformAny(createBlock(statements));
         return new tree.constructor(tree.location, tree.name, tree.isGenerator, parametersWithoutRestParam, functionBody);
       }
-    }, $__proto, $__super, false);
+    }, {}, $__proto, $__super, false);
     return $RestParameterTransformer;
   }(TempVarTransformer);
   RestParameterTransformer.transformTree = function(identifierGenerator, tree) {
@@ -17810,7 +17882,7 @@ var $__src_codegeneration_SpreadTransformer_js = (function() {
         }
         return $__superCall(this, $__proto, "transformNewExpression", [tree]);
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $SpreadTransformer;
   }(TempVarTransformer);
   SpreadTransformer.transformTree = function(identifierGenerator, runtimeInliner, tree) {
@@ -17839,7 +17911,7 @@ var $__src_codegeneration_TypeTransformer_js = (function() {
         }
         return $__superCall(this, $__proto, "transformVariableDeclaration", [tree]);
       }
-    }, $__proto, $__super, false);
+    }, {}, $__proto, $__super, false);
     return $TypeTransformer;
   }(ParseTreeTransformer);
   TypeTransformer.transformTree = function(tree) {
@@ -17948,7 +18020,7 @@ var $__src_codegeneration_ProgramTransformer_js = (function() {
           return ModuleTransformer.transform(this.project_, tree);
         }
       }
-    });
+    }, {});
     return $ProgramTransformer;
   }();
   ProgramTransformer.transform = function(reporter, project) {
@@ -17983,7 +18055,10 @@ var $__src_codegeneration_RuntimeInliner_js = (function() {
   var VAR = $__src_syntax_TokenType_js.VAR;
   var $__9 = $__src_codegeneration_ParseTreeFactory_js, createIdentifierExpression = $__9.createIdentifierExpression, createVariableDeclaration = $__9.createVariableDeclaration, createVariableDeclarationList = $__9.createVariableDeclarationList, createVariableStatement = $__9.createVariableStatement;
   var prependStatements = $__src_codegeneration_PrependStatements_js.prependStatements;
-  var shared = {toObject: "function(value) {\n        if (value == null)\n          throw TypeError();\n        return Object(value);\n      }"};
+  var shared = {
+    toObject: "function(value) {\n        if (value == null)\n          throw TypeError();\n        return Object(value);\n      }",
+    getDescriptors: "function(object) {\n        var descriptors = {}, name, names = Object.getOwnPropertyNames(object);\n        for (var i = 0; i < names.length; i++) {\n          var name = names[i];\n          descriptors[name] = Object.getOwnPropertyDescriptor(object, name);\n        }\n        return descriptors;\n      }"
+  };
   function parse(source, name) {
     var file = new SourceFile(name + '@runtime', source);
     var errorReporter = new MutedErrorReporter();
@@ -18042,7 +18117,7 @@ var $__src_codegeneration_RuntimeInliner_js = (function() {
         }
         return this.getAsIdentifierExpression(name);
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $RuntimeInliner;
   }(ParseTreeTransformer);
   return Object.preventExtensions(Object.create(null, {RuntimeInliner: {
@@ -18066,7 +18141,7 @@ var $__src_codegeneration_UniqueIdentifierGenerator_js = (function() {
         if (name[0] === '@') return ("$___" + name.slice(1));
         return ("$__" + name);
       }
-    });
+    }, {});
     return $UniqueIdentifierGenerator;
   }();
   return Object.preventExtensions(Object.create(null, {UniqueIdentifierGenerator: {
@@ -18177,7 +18252,7 @@ var $__src_semantics_symbols_Project_js = (function() {
       getModuleForStarTree: function(tree) {
         return this.moduleExports_.get(tree);
       }
-    });
+    }, {});
     return $Project;
   }();
   return Object.preventExtensions(Object.create(null, {Project: {
@@ -18255,7 +18330,7 @@ var $__src_codegeneration_Compiler_js = (function() {
       hadError_: function() {
         return this.reporter_.hadError();
       }
-    });
+    }, {});
     return $Compiler;
   }();
   Compiler.compile = function(reporter, project) {
@@ -18391,7 +18466,7 @@ var $__src_WebPageProject_js = (function() {
           }).bind(this));
         }).bind(this), false);
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $WebPageProject;
   }(Project);
   return Object.preventExtensions(Object.create(null, {WebPageProject: {
@@ -18419,7 +18494,7 @@ var $__src_util_TestErrorReporter_js = (function() {
           return error.indexOf(expected) !== - 1;
         }));
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $TestErrorReporter;
   }(ErrorReporter);
   return Object.preventExtensions(Object.create(null, {TestErrorReporter: {
@@ -18433,7 +18508,7 @@ var $__src_outputgeneration_ProjectWriter_js = (function() {
   "use strict";
   var TreeWriter = $__src_outputgeneration_TreeWriter_js.TreeWriter;
   var ProjectWriter = function() {
-    var $ProjectWriter = ($__createClassNoExtends)({constructor: function() {}});
+    var $ProjectWriter = ($__createClassNoExtends)({constructor: function() {}}, {});
     return $ProjectWriter;
   }();
   ProjectWriter.write = function(results, opt_options) {
@@ -18566,7 +18641,7 @@ var $__src_codegeneration_CloneTreeTransformer_js = (function() {
       transformThisExpression: function(tree) {
         return new ThisExpression(tree.location);
       }
-    }, $__proto, $__super, false);
+    }, {}, $__proto, $__super, false);
     return $CloneTreeTransformer;
   }(ParseTreeTransformer);
   CloneTreeTransformer.cloneTree = function(tree) {
@@ -18596,7 +18671,7 @@ var $__src_codegeneration_module_ModuleRequireVisitor_js = (function() {
       visitModuleRequire: function(tree) {
         this.urls_[canonicalizeUrl(tree.url.processedValue)] = true;
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $ModuleRequireVisitor;
   }(ParseTreeVisitor);
   return Object.preventExtensions(Object.create(null, {ModuleRequireVisitor: {
@@ -18723,7 +18798,7 @@ var $__src_runtime_modules_js = (function() {
       transform: function() {
         return ProgramTransformer.transformFile(this.reporter, this.project, this.file);
       }
-    });
+    }, {});
     return $CodeUnit;
   }();
   var LoadCodeUnit = function($__super) {
@@ -18750,7 +18825,7 @@ var $__src_runtime_modules_js = (function() {
       transform: function() {
         return ProgramTransformer.transformFileAsModule(this.reporter, this.project, this.moduleSymbol, this.file);
       }
-    }, $__proto, $__super, true);
+    }, {}, $__proto, $__super, true);
     return $LoadCodeUnit;
   }(CodeUnit);
   var EvalCodeUnit = function($__super) {
@@ -18759,7 +18834,7 @@ var $__src_runtime_modules_js = (function() {
         $__superCall(this, $__proto, "constructor", [loader, loader.url, LOADED]);
         this.text = code;
         this.allowLoad = false;
-      }}, $__proto, $__super, true);
+      }}, {}, $__proto, $__super, true);
     return $EvalCodeUnit;
   }(CodeUnit);
   var EvalLoadCodeUnit = function($__super) {
@@ -18768,7 +18843,7 @@ var $__src_runtime_modules_js = (function() {
         CodeUnit.call(this, loader, loader.url, LOADED);
         this.text = code;
         this.allowLoad = true;
-      }}, $__proto, $__super, true);
+      }}, {}, $__proto, $__super, true);
     return $EvalLoadCodeUnit;
   }(CodeUnit);
   var InternalLoader = function() {
@@ -18974,7 +19049,7 @@ var $__src_runtime_modules_js = (function() {
       evalCodeUnit: function(codeUnit) {
         return ('global', eval)("'use strict';" + TreeWriter.write(codeUnit.transformedTree));
       }
-    });
+    }, {});
     return $InternalLoader;
   }();
   var currentCodeUnit;
@@ -19026,7 +19101,7 @@ var $__src_runtime_modules_js = (function() {
       createBase: function() {
         return base;
       }
-    });
+    }, {});
     return $CodeLoader;
   }();
   var internals = (function() {

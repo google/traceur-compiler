@@ -591,8 +591,8 @@ export class Parser {
       var type = this.peekType_();
       if (type === SEMI_COLON) {
         this.nextToken_();
-      } else if (this.peekMethodDefinition_(this.peekType_())) {
-        result.push(this.parseMethodDefinition_());
+      } else if (this.peekClassElement_(this.peekType_())) {
+        result.push(this.parseClassElement_());
       } else {
         break;
       }
@@ -601,14 +601,10 @@ export class Parser {
     return result;
   }
 
-  peekMethodDefinition_(type) {
-    // PropertyName covers get and set too.
+  peekClassElement_(type) {
+    // PropertyName covers get, set and static too.
     return this.peekPropertyName_(type) ||
         type === STAR && options.generators;
-  }
-
-  parseMethodDefinition_() {
-    return this.parsePropertyDefinitionShared_(false);
   }
 
   parsePropertyName_() {
@@ -1866,33 +1862,23 @@ export class Parser {
    *   PropertyName : AssignmentExpression
    *   MethodDefinition
    */
-
   parsePropertyDefinition() {
-    return this.parsePropertyDefinitionShared_(true);
-  }
-
-  parsePropertyDefinitionShared_(inObjectLiteral) {
     var start = this.getTreeStartLocation_();
 
     var isGenerator = false;
+    var isStatic = false;
+
     if (options.generators && options.propertyMethods &&
-        this.eatIf_(STAR)) {
-      isGenerator = true;
+        this.peek_(STAR)) {
+      return this.parseGeneratorMethod_(start, isStatic);
     }
 
     var name = this.parsePropertyName_();
 
-    if (isGenerator ||
-        options.propertyMethods && this.peek_(OPEN_PAREN)) {
-      this.eat_(OPEN_PAREN);
-      var formalParameterList = this.parseFormalParameterList_();
-      this.eat_(CLOSE_PAREN);
-      var functionBody = this.parseFunctionBody_(isGenerator);
-      return new PropertyMethodAssignment(this.getTreeLocation_(start),
-          name, isGenerator, formalParameterList, functionBody);
-    }
+    if (options.propertyMethods && this.peek_(OPEN_PAREN))
+      return this.parseMethod_(start, isStatic, isGenerator, name);
 
-    if (inObjectLiteral && this.eatIf_(COLON)) {
+    if (this.eatIf_(COLON)) {
       var value = this.parseAssignmentExpression();
       return new PropertyNameAssignment(this.getTreeLocation_(start), name,
                                         value);
@@ -1901,31 +1887,118 @@ export class Parser {
     var type = this.peekType_();
     if (name.type === IDENTIFIER && name.value === GET &&
         this.peekPropertyName_(type)) {
-      name = this.parsePropertyName_();
-      this.eat_(OPEN_PAREN);
-      this.eat_(CLOSE_PAREN);
-      var body = this.parseFunctionBody_(false);
-      return new GetAccessor(this.getTreeLocation_(start), name, body);
+      return this.parseGetAccessor_(start, isStatic);
     }
 
     if (name.type === IDENTIFIER && name.value === SET &&
         this.peekPropertyName_(type)) {
-      name = this.parsePropertyName_();
-      this.eat_(OPEN_PAREN);
-      var parameter = this.parsePropertySetParameterList_();
-      this.eat_(CLOSE_PAREN);
-      var body = this.parseFunctionBody_(false);
-      return new SetAccessor(this.getTreeLocation_(start), name, parameter,
-                             body);
+      return this.parseSetAccessor_(start, isStatic);
     }
 
     // TODO(arv): CoverGrammar
 
-    if (inObjectLiteral && options.propertyNameShorthand)
+    if (options.propertyNameShorthand)
       return new PropertyNameShorthand(this.getTreeLocation_(start), name);
 
     this.reportError_(name, 'Unexpected token');
     return null;
+  }
+
+  /**
+   * ClassElement :
+   *   static MethodDefinition
+   *   MethodDefinition
+   *
+   * MethodDefinition :
+   *   PropertyName ( FormalParameterList ) { FunctionBody }
+   *   * PropertyName ( FormalParameterList ) { FunctionBody }
+   *   get PropertyName ( ) { FunctionBody }
+   *   set PropertyName ( PropertySetParameterList ) { FunctionBody }
+   */
+  parseClassElement_() {
+    var start = this.getTreeStartLocation_();
+
+    var type = this.peekType_();
+    var isStatic = false, isGenerator = false;
+    switch (type) {
+      case STATIC:
+        var staticToken = this.nextToken_();
+        type = this.peekType_();
+        switch (type) {
+          case OPEN_PAREN:
+            return this.parseMethod_(start, isStatic, isGenerator, staticToken);
+
+          // TODO(arv): Implement [expr] as property name
+
+          default:
+            isStatic = true;
+            if (type === STAR && options.generators)
+              return this.parseGeneratorMethod_(start, true);
+
+            return this.parseGetSetOrMethod_(start, isStatic);
+        }
+        break;
+
+      case STAR:
+        return this.parseGeneratorMethod_(start, isStatic);
+
+      default:
+        return this.parseGetSetOrMethod_(start, isStatic);
+    }
+  }
+
+  parseGeneratorMethod_(start, isStatic) {
+    var isGenerator = true;
+    this.eat_(STAR);
+    var name = this.parsePropertyName_();
+    return this.parseMethod_(start, isStatic, isGenerator, name);
+  }
+
+  parseMethod_(start, isStatic, isGenerator, name) {
+    this.eat_(OPEN_PAREN);
+    var formalParameterList = this.parseFormalParameterList_();
+    this.eat_(CLOSE_PAREN);
+    var functionBody = this.parseFunctionBody_(isGenerator);
+    return new PropertyMethodAssignment(this.getTreeLocation_(start),
+        isStatic, isGenerator, name, formalParameterList, functionBody);
+  }
+
+  parseGetSetOrMethod_(start, isStatic) {
+    var isGenerator = false;
+    var name = this.parsePropertyName_();
+    var type = this.peekType_();
+
+    if (name.type === IDENTIFIER && name.value === GET &&
+        this.peekPropertyName_(type)) {
+      return this.parseGetAccessor_(start, isStatic);
+    }
+
+    if (name.type === IDENTIFIER && name.value === SET &&
+        this.peekPropertyName_(type)) {
+      return this.parseSetAccessor_(start, isStatic);
+    }
+
+    return this.parseMethod_(start, isStatic, isGenerator, name);
+  }
+
+  parseGetAccessor_(start, isStatic) {
+    var isGenerator = false;
+    var name = this.parsePropertyName_();
+    this.eat_(OPEN_PAREN);
+    this.eat_(CLOSE_PAREN);
+    var body = this.parseFunctionBody_(isGenerator);
+    return new GetAccessor(this.getTreeLocation_(start), isStatic, name, body);
+  }
+
+  parseSetAccessor_(start, isStatic) {
+    var isGenerator = false;
+    var name = this.parsePropertyName_();
+    this.eat_(OPEN_PAREN);
+    var parameter = this.parsePropertySetParameterList_();
+    this.eat_(CLOSE_PAREN);
+    var body = this.parseFunctionBody_(isGenerator);
+    return new SetAccessor(this.getTreeLocation_(start), isStatic, name,
+                           parameter, body);
   }
 
   /**

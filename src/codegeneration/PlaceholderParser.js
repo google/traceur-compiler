@@ -288,9 +288,11 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
     if (tree.name.type === IDENTIFIER) {
       var value = this.getValue_(tree.name.value);
       if (value !== NOT_FOUND) {
-        return new PropertyMethodAssignment(null,
-            convertValueToIdentifierToken(value),
+        return new PropertyMethodAssignment(
+            tree.location,
+            tree.isStatic,
             tree.isGenerator,
+            convertValueToIdentifierToken(value),
             this.transformAny(tree.formalParameterList),
             this.transformAny(tree.functionBody));
       }

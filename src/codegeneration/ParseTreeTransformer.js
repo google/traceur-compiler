@@ -632,7 +632,7 @@ export class ParseTreeTransformer {
     var body = this.transformFunctionBody(tree.body);
     if (body == tree.body)
       return tree;
-    return new GetAccessor(tree.location, tree.name, body);
+    return new GetAccessor(tree.location, tree.isStatic, tree.name, body);
   }
 
   /**
@@ -920,8 +920,8 @@ export class ParseTreeTransformer {
         functionBody == tree.functionBody) {
       return tree;
     }
-    return new PropertyMethodAssignment(tree.location, tree.name,
-                                        tree.isGenerator,
+    return new PropertyMethodAssignment(tree.location, tree.isStatic,
+                                        tree.isGenerator, tree.name,
                                         parameters, functionBody);
   }
 
@@ -1006,7 +1006,8 @@ export class ParseTreeTransformer {
     var body = this.transformFunctionBody(tree.body);
     if (parameter === tree.parameter && body === tree.body)
       return tree;
-    return new SetAccessor(tree.location, tree.name, parameter, body);
+    return new SetAccessor(tree.location, tree.isStatic, tree.name, parameter,
+                           body);
   }
 
   /**

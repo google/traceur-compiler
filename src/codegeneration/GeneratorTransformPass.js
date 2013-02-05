@@ -303,11 +303,12 @@ export class GeneratorTransformPass extends TempVarTransformer {
    */
   transformGetAccessor(tree) {
     var body = this.transformBody_(tree.body);
-    if (body == tree.body) {
+    if (body === tree.body)
       return tree;
-    }
+
     return new GetAccessor(
-        null,
+        tree.location,
+        tree.isStatic,
         tree.name,
         body);
   }
@@ -318,11 +319,12 @@ export class GeneratorTransformPass extends TempVarTransformer {
    */
   transformSetAccessor(tree) {
     var body = this.transformBody_(tree.body);
-    if (body == tree.body) {
+    if (body === tree.body)
       return tree;
-    }
+
     return new SetAccessor(
-        null,
+        tree.location,
+        tree.isStatic,
         tree.name,
         tree.parameter,
         body);

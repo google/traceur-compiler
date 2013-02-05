@@ -595,7 +595,8 @@ export function createFunctionExpression(formalParameterList, functionBody) {
 export function createGetAccessor(name, body) {
   if (typeof name == 'string')
     name = createPropertyNameToken(name);
-  return new GetAccessor(null, name, body);
+  var isStatic = false;
+  return new GetAccessor(null, isStatic, name, body);
 }
 
 /**
@@ -905,7 +906,8 @@ export function createSetAccessor(name, parameter, body) {
     name = createPropertyNameToken(name);
   if (typeof parameter == 'string')
     parameter = createIdentifierToken(parameter);
-  return new SetAccessor(null, name, parameter, body);
+  var isStatic = false;
+  return new SetAccessor(null, isStatic, name, parameter, body);
 }
 
 /**

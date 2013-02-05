@@ -451,6 +451,9 @@
     "location": [
       "SourceRange"
     ],
+    "isStatic": [
+      "boolean"
+    ],
     "name": [
       "Token"
     ],
@@ -703,11 +706,14 @@
     "location": [
       "SourceRange"
     ],
-    "name": [
-      "Token"
+    "isStatic": [
+      "boolean"
     ],
     "isGenerator": [
       "boolean"
+    ],
+    "name": [
+      "Token"
     ],
     "formalParameterList": [
       "FormalParameterList"
@@ -754,6 +760,9 @@
   "SetAccessor": {
     "location": [
       "SourceRange"
+    ],
+    "isStatic": [
+      "boolean"
     ],
     "name": [
       "Token"
