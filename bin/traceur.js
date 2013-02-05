@@ -8774,15 +8774,6 @@ var $__src_syntax_Parser_js = (function() {
     REQUIRED: 'REQUIRED',
     OPTIONAL: 'OPTIONAL'
   };
-  function followedByCommaOrCloseSquare(token) {
-    return token.type === COMMA || token.type === CLOSE_SQUARE;
-  }
-  function followedByCommaOrCloseCurly(token) {
-    return token.type === COMMA || token.type === CLOSE_CURLY;
-  }
-  function followedByInOrOf(token) {
-    return token.type === IN || token.type === IDENTIFIER && token.value === OF;
-  }
   var Initializer = {
     ALLOWED: 'ALLOWED',
     REQUIRED: 'REQUIRED'

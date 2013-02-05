@@ -81,22 +81,6 @@ var DestructuringInitializer = {
   OPTIONAL: 'OPTIONAL'
 };
 
-function followedByCommaOrCloseSquare(token) {
-  return token.type === COMMA ||
-      token.type === CLOSE_SQUARE;
-}
-
-function followedByCommaOrCloseCurly(token) {
-  return token.type === COMMA ||
-      token.type === CLOSE_CURLY;
-}
-
-function followedByInOrOf(token) {
-  return token.type === IN ||
-      token.type === IDENTIFIER &&
-      token.value === OF;
-}
-
 /**
  * Enum used to determine if an initializer is allowed or not.
  * @enum {string}
