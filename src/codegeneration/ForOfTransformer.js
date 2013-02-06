@@ -101,12 +101,12 @@ export class ForOfTransformer extends TempVarTransformer {
     return createBlock(initializer,
         createTryStatement(createBlock(loop), null, createFinally(createBlock(finallyBody))));
   }
-}
 
-/**
- * @param {UniqueIdentifierGenerator} identifierGenerator
- * @param {ParseTree} tree
- */
-ForOfTransformer.transformTree = function(identifierGenerator, tree) {
-  return new ForOfTransformer(identifierGenerator).transformAny(tree);
-};
+  /**
+   * @param {UniqueIdentifierGenerator} identifierGenerator
+   * @param {ParseTree} tree
+   */
+  static transformTree(identifierGenerator, tree) {
+    return new ForOfTransformer(identifierGenerator).transformAny(tree);
+  }
+}

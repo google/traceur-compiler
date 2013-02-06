@@ -110,12 +110,12 @@ export class DefaultParametersTransformer extends ParseTreeTransformer {
 
     return new FormalParameterList(tree.location, parameters);
   }
-}
 
-/**
- * @param {ParseTree} tree
- * @return {ParseTree}
- */
-DefaultParametersTransformer.transformTree = function(tree) {
-  return new DefaultParametersTransformer().transformAny(tree);
-};
+  /**
+   * @param {ParseTree} tree
+   * @return {ParseTree}
+   */
+  static transformTree(tree) {
+    return new DefaultParametersTransformer().transformAny(tree);
+  }
+}

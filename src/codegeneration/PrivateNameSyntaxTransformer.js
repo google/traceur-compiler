@@ -76,14 +76,13 @@ export class PrivateNameSyntaxTransformer extends TempVarTransformer {
         createMemberExpression(TRACEUR, RUNTIME, name),
         args));
   }
-}
 
-/**
- * @param {UniqueIdentifierGenerator} identifierGenerator
- * @param {ParseTree} tree
- */
-PrivateNameSyntaxTransformer.transformTree = function(identifierGenerator,
-                                                      tree) {
-  return new PrivateNameSyntaxTransformer(identifierGenerator).
-      transformAny(tree);
-};
+  /**
+   * @param {UniqueIdentifierGenerator} identifierGenerator
+   * @param {ParseTree} tree
+   */
+  static transformTree(identifierGenerator, tree) {
+    return new PrivateNameSyntaxTransformer(identifierGenerator).
+        transformAny(tree);
+  }
+}

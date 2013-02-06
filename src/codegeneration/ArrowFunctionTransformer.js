@@ -89,8 +89,8 @@ export class ArrowFunctionTransformer extends ParseTreeTransformer {
 
     return result;
   }
-}
 
-ArrowFunctionTransformer.transformTree = function(reporter, tree) {
-  return new ArrowFunctionTransformer(reporter).transformAny(tree);
-};
+  static transformTree(reporter, tree) {
+    return new ArrowFunctionTransformer(reporter).transformAny(tree);
+  }
+}

@@ -605,13 +605,13 @@ export class DestructuringTransformer extends TempVarTransformer {
         throw new Error('unreachable');
     }
   }
-}
 
-/**
- * @param {UniqueIdentifierGenerator} identifierGenerator
- * @param {ParseTree} tree
- * @return {ParseTree}
- */
-DestructuringTransformer.transformTree = function(identifierGenerator, tree) {
-  return new DestructuringTransformer(identifierGenerator).transformAny(tree);
-};
+  /**
+   * @param {UniqueIdentifierGenerator} identifierGenerator
+   * @param {ParseTree} tree
+   * @return {ParseTree}
+   */
+  static transformTree(identifierGenerator, tree) {
+    return new DestructuringTransformer(identifierGenerator).transformAny(tree);
+  }
+}

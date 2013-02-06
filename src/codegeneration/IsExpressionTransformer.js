@@ -80,8 +80,8 @@ export class IsExpressionTransformer extends ParseTreeTransformer {
         createMemberExpression(TRACEUR, RUNTIME, operator.value),
         createArgumentList(left, right));
   }
-}
 
-IsExpressionTransformer.transformTree = function(tree) {
-  return new IsExpressionTransformer().transformAny(tree);
-};
+  static transformTree(tree) {
+    return new IsExpressionTransformer().transformAny(tree);
+  }
+}

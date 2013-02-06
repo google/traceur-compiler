@@ -336,17 +336,16 @@ export class ClassTransformer extends TempVarTransformer{
       ${superCall};
     }`;
   }
-}
 
-/**
- * @param {UniqueIdentifierGenerator} identifierGenerator
- * @param {RuntimeInliner} runtimeInliner
- * @param {ErrorReporter} reporter
- * @param {Program} tree
- * @return {Program}
- */
-ClassTransformer.transform = function(identifierGenerator, runtimeInliner,
-                                      reporter, tree) {
-  return new ClassTransformer(identifierGenerator, runtimeInliner, reporter).
-      transformAny(tree);
-};
+  /**
+   * @param {UniqueIdentifierGenerator} identifierGenerator
+   * @param {RuntimeInliner} runtimeInliner
+   * @param {ErrorReporter} reporter
+   * @param {Program} tree
+   * @return {Program}
+   */
+  static transformTree(identifierGenerator, runtimeInliner, reporter, tree) {
+    return new this(identifierGenerator, runtimeInliner, reporter).
+        transformAny(tree);
+  }
+}

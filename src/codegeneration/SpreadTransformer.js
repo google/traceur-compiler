@@ -226,10 +226,9 @@ export class SpreadTransformer extends TempVarTransformer {
     }
     return super.transformNewExpression(tree);
   }
-}
 
-SpreadTransformer.transformTree = function(identifierGenerator, runtimeInliner,
-                                           tree) {
-  return new SpreadTransformer(identifierGenerator, runtimeInliner).
-      transformAny(tree);
-};
+  static transformTree(identifierGenerator, runtimeInliner, tree) {
+    return new SpreadTransformer(identifierGenerator, runtimeInliner).
+        transformAny(tree);
+  }
+}

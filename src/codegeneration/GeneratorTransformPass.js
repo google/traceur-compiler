@@ -142,11 +142,11 @@ class YieldForTransformer extends TempVarTransformer {
 
     return tree;
   }
-}
 
-YieldForTransformer.transformTree = function(identifierGenerator, tree) {
-  return new YieldForTransformer(identifierGenerator).transformAny(tree);
-};
+  static transformTree(identifierGenerator, tree) {
+    return new YieldForTransformer(identifierGenerator).transformAny(tree);
+  }
+}
 
 class YieldExpressionTransformer extends ParseTreeTransformer {
   constructor() {
@@ -223,11 +223,11 @@ class YieldExpressionTransformer extends ParseTreeTransformer {
         createExpressionStatement(rhs),
         wrap(lhs, this.sentId)]);
   }
-}
 
-YieldExpressionTransformer.transformTree = function(tree) {
-  return new YieldExpressionTransformer().transformAny(tree);
-};
+  static transformTree(tree) {
+    return new YieldExpressionTransformer().transformAny(tree);
+  }
+}
 
 /**
  * This pass just finds function bodies with yields in them and passes them
@@ -329,10 +329,9 @@ export class GeneratorTransformPass extends TempVarTransformer {
         tree.parameter,
         body);
   }
-}
 
-GeneratorTransformPass.transformTree = function(identifierGenerator, reporter,
-    tree) {
-  return new GeneratorTransformPass(identifierGenerator, reporter).
-      transformAny(tree);
-};
+  static transformTree(identifierGenerator, reporter, tree) {
+    return new GeneratorTransformPass(identifierGenerator, reporter).
+        transformAny(tree);
+  }
+}

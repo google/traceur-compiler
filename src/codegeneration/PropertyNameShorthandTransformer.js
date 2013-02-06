@@ -30,8 +30,8 @@ export class PropertyNameShorthandTransformer extends ParseTreeTransformer {
     return new PropertyNameAssignment(tree.location,
         tree.name, new IdentifierExpression(tree.location, tree.name));
   }
-}
 
-PropertyNameShorthandTransformer.transformTree = function(tree) {
-  return new PropertyNameShorthandTransformer().transformAny(tree);
-};
+  static transformTree(tree) {
+    return new PropertyNameShorthandTransformer().transformAny(tree);
+  }
+}

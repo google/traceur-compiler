@@ -12288,12 +12288,11 @@ var $__src_codegeneration_ArrowFunctionTransformer_js = (function() {
         }
         return result;
       }
-    }, {}, $__proto, $__super, true);
+    }, {transformTree: function(reporter, tree) {
+        return new ArrowFunctionTransformer(reporter).transformAny(tree);
+      }}, $__proto, $__super, true);
     return $ArrowFunctionTransformer;
   }(ParseTreeTransformer);
-  ArrowFunctionTransformer.transformTree = function(reporter, tree) {
-    return new ArrowFunctionTransformer(reporter).transformAny(tree);
-  };
   return Object.preventExtensions(Object.create(null, {ArrowFunctionTransformer: {
       get: function() {
         return ArrowFunctionTransformer;
@@ -12428,12 +12427,11 @@ var $__src_codegeneration_AtNameMemberTransformer_js = (function() {
         var atNameExpression = new AtNameExpression(memberName.location, memberName);
         return createCallExpression(createMemberExpression(TRACEUR, RUNTIME, DELETE_PROPERTY), createArgumentList(operand, atNameExpression));
       }
-    }, {}, $__proto, $__super, false);
+    }, {transformTree: function(identifierGenerator, tree) {
+        return new AtNameMemberTransformer(identifierGenerator).transformAny(tree);
+      }}, $__proto, $__super, false);
     return $AtNameMemberTransformer;
   }(TempVarTransformer);
-  AtNameMemberTransformer.transformTree = function(identifierGenerator, tree) {
-    return new AtNameMemberTransformer(identifierGenerator).transformAny(tree);
-  };
   return Object.preventExtensions(Object.create(null, {AtNameMemberTransformer: {
       get: function() {
         return AtNameMemberTransformer;
@@ -12744,12 +12742,11 @@ var $__src_codegeneration_BlockBindingTransformer_js = (function() {
         }
         throw new Error('Unexpected destructuring declaration found.');
       }
-    }, {}, $__proto, $__super, true);
+    }, {transformTree: function(tree) {
+        return new BlockBindingTransformer().transformAny(tree);
+      }}, $__proto, $__super, true);
     return $BlockBindingTransformer;
   }(ParseTreeTransformer);
-  BlockBindingTransformer.transformTree = function(tree) {
-    return new BlockBindingTransformer().transformAny(tree);
-  };
   return Object.preventExtensions(Object.create(null, {BlockBindingTransformer: {
       get: function() {
         return BlockBindingTransformer;
@@ -12817,12 +12814,11 @@ var $__src_codegeneration_CascadeExpressionTransformer_js = (function() {
         var newOperand = prependMemberExpression(ident, tree.operand);
         return createCascadeExpression(newOperand, tree.expressions);
       }
-    }, {}, $__proto, $__super, true);
+    }, {transformTree: function(identifierGenerator, reporter, tree) {
+        return new CascadeExpressionTransformer(identifierGenerator, reporter).transformAny(tree);
+      }}, $__proto, $__super, true);
     return $CascadeExpressionTransformer;
   }(TempVarTransformer);
-  CascadeExpressionTransformer.transformTree = function(identifierGenerator, reporter, tree) {
-    return new CascadeExpressionTransformer(identifierGenerator, reporter).transformAny(tree);
-  };
   return Object.preventExtensions(Object.create(null, {CascadeExpressionTransformer: {
       get: function() {
         return CascadeExpressionTransformer;
@@ -13448,12 +13444,11 @@ var $__src_codegeneration_ClassTransformer_js = (function() {
         var superCall = superTransformer.createSuperCallExpression(createThisExpression(), protoName, 'constructor', createIdentifierExpression('arguments'));
         return parsePropertyDefinition($__3, superCall);
       }
-    }, {}, $__proto, $__super, true);
+    }, {transformTree: function(identifierGenerator, runtimeInliner, reporter, tree) {
+        return new this(identifierGenerator, runtimeInliner, reporter).transformAny(tree);
+      }}, $__proto, $__super, true);
     return $ClassTransformer;
   }(TempVarTransformer);
-  ClassTransformer.transform = function(identifierGenerator, runtimeInliner, reporter, tree) {
-    return new ClassTransformer(identifierGenerator, runtimeInliner, reporter).transformAny(tree);
-  };
   return Object.preventExtensions(Object.create(null, {ClassTransformer: {
       get: function() {
         return ClassTransformer;
@@ -13514,12 +13509,11 @@ var $__src_codegeneration_CollectionTransformer_js = (function() {
         var memberExpression = this.transformAny(tree.operand.memberExpression);
         return createCallExpression(createMemberExpression(TRACEUR, RUNTIME, ELEMENT_DELETE), createArgumentList(operand, memberExpression));
       }
-    }, {}, $__proto, $__super, false);
+    }, {transformTree: function(identifierGenerator, tree) {
+        return new CollectionTransformer(identifierGenerator).transformAny(tree);
+      }}, $__proto, $__super, false);
     return $CollectionTransformer;
   }(TempVarTransformer);
-  CollectionTransformer.transformTree = function(identifierGenerator, tree) {
-    return new CollectionTransformer(identifierGenerator).transformAny(tree);
-  };
   return Object.preventExtensions(Object.create(null, {CollectionTransformer: {
       get: function() {
         return CollectionTransformer;
@@ -13570,12 +13564,11 @@ var $__src_codegeneration_DefaultParametersTransformer_js = (function() {
         if (!changed) return tree;
         return new FormalParameterList(tree.location, parameters);
       }
-    }, {}, $__proto, $__super, false);
+    }, {transformTree: function(tree) {
+        return new DefaultParametersTransformer().transformAny(tree);
+      }}, $__proto, $__super, false);
     return $DefaultParametersTransformer;
   }(ParseTreeTransformer);
-  DefaultParametersTransformer.transformTree = function(tree) {
-    return new DefaultParametersTransformer().transformAny(tree);
-  };
   return Object.preventExtensions(Object.create(null, {DefaultParametersTransformer: {
       get: function() {
         return DefaultParametersTransformer;
@@ -13842,12 +13835,11 @@ var $__src_codegeneration_DestructuringTransformer_js = (function() {
             throw new Error('unreachable');
         }
       }
-    }, {}, $__proto, $__super, false);
+    }, {transformTree: function(identifierGenerator, tree) {
+        return new DestructuringTransformer(identifierGenerator).transformAny(tree);
+      }}, $__proto, $__super, false);
     return $DestructuringTransformer;
   }(TempVarTransformer);
-  DestructuringTransformer.transformTree = function(identifierGenerator, tree) {
-    return new DestructuringTransformer(identifierGenerator).transformAny(tree);
-  };
   return Object.preventExtensions(Object.create(null, {DestructuringTransformer: {
       get: function() {
         return DestructuringTransformer;
@@ -13883,12 +13875,11 @@ var $__src_codegeneration_ForOfTransformer_js = (function() {
         var finallyBody = createIfStatement(createMemberExpression(iter, CLOSE), createCallStatement(createMemberExpression(iter, CLOSE)));
         return createBlock(initializer, createTryStatement(createBlock(loop), null, createFinally(createBlock(finallyBody))));
       }
-    }, {}, $__proto, $__super, false);
+    }, {transformTree: function(identifierGenerator, tree) {
+        return new ForOfTransformer(identifierGenerator).transformAny(tree);
+      }}, $__proto, $__super, false);
     return $ForOfTransformer;
   }(TempVarTransformer);
-  ForOfTransformer.transformTree = function(identifierGenerator, tree) {
-    return new ForOfTransformer(identifierGenerator).transformAny(tree);
-  };
   return Object.preventExtensions(Object.create(null, {ForOfTransformer: {
       get: function() {
         return ForOfTransformer;
@@ -15295,12 +15286,11 @@ var $__src_codegeneration_generator_ForInTransformPass_js = (function() {
         elements.push(createForStatement(createVariableDeclarationList(VAR, i, createNumberLiteral(0)), createBinaryOperator(createIdentifierExpression(i), createOperatorToken(OPEN_ANGLE), createMemberExpression(keys, LENGTH)), createPostfixExpression(createIdentifierExpression(i), createOperatorToken(PLUS_PLUS)), createBlock(innerBlock)));
         return createBlock(elements);
       }
-    }, {}, $__proto, $__super, false);
+    }, {transformTree: function(identifierGenerator, tree) {
+        return new ForInTransformPass(identifierGenerator).transformAny(tree);
+      }}, $__proto, $__super, false);
     return $ForInTransformPass;
   }(TempVarTransformer);
-  ForInTransformPass.transformTree = function(identifierGenerator, tree) {
-    return new ForInTransformPass(identifierGenerator).transformAny(tree);
-  };
   return Object.preventExtensions(Object.create(null, {ForInTransformPass: {
       get: function() {
         return ForInTransformPass;
@@ -15491,12 +15481,11 @@ var $__src_codegeneration_GeneratorTransformPass_js = (function() {
         if (e.type === YIELD_EXPRESSION && e.isYieldFor) return this.transformYieldForExpression_(e);
         return tree;
       }
-    }, {}, $__proto, $__super, false);
+    }, {transformTree: function(identifierGenerator, tree) {
+        return new YieldForTransformer(identifierGenerator).transformAny(tree);
+      }}, $__proto, $__super, false);
     return $YieldForTransformer;
   }(TempVarTransformer);
-  YieldForTransformer.transformTree = function(identifierGenerator, tree) {
-    return new YieldForTransformer(identifierGenerator).transformAny(tree);
-  };
   var YieldExpressionTransformer = function($__super) {
     var $__proto = $__getProtoParent($__super);
     var $YieldExpressionTransformer = ($__createClass)({
@@ -15536,12 +15525,11 @@ var $__src_codegeneration_GeneratorTransformPass_js = (function() {
       factor_: function(lhs, rhs, wrap) {
         return createBlock([createExpressionStatement(rhs), wrap(lhs, this.sentId)]);
       }
-    }, {}, $__proto, $__super, true);
+    }, {transformTree: function(tree) {
+        return new YieldExpressionTransformer().transformAny(tree);
+      }}, $__proto, $__super, true);
     return $YieldExpressionTransformer;
   }(ParseTreeTransformer);
-  YieldExpressionTransformer.transformTree = function(tree) {
-    return new YieldExpressionTransformer().transformAny(tree);
-  };
   var GeneratorTransformPass = function($__super) {
     var $__proto = $__getProtoParent($__super);
     var $GeneratorTransformPass = ($__createClass)({
@@ -15587,12 +15575,11 @@ var $__src_codegeneration_GeneratorTransformPass_js = (function() {
         if (body === tree.body) return tree;
         return new SetAccessor(tree.location, tree.isStatic, tree.name, tree.parameter, body);
       }
-    }, {}, $__proto, $__super, true);
+    }, {transformTree: function(identifierGenerator, reporter, tree) {
+        return new GeneratorTransformPass(identifierGenerator, reporter).transformAny(tree);
+      }}, $__proto, $__super, true);
     return $GeneratorTransformPass;
   }(TempVarTransformer);
-  GeneratorTransformPass.transformTree = function(identifierGenerator, reporter, tree) {
-    return new GeneratorTransformPass(identifierGenerator, reporter).transformAny(tree);
-  };
   return Object.preventExtensions(Object.create(null, {GeneratorTransformPass: {
       get: function() {
         return GeneratorTransformPass;
@@ -15632,12 +15619,11 @@ var $__src_codegeneration_IsExpressionTransformer_js = (function() {
         }
         return createCallExpression(createMemberExpression(TRACEUR, RUNTIME, operator.value), createArgumentList(left, right));
       }
-    }, {}, $__proto, $__super, false);
+    }, {transformTree: function(tree) {
+        return new IsExpressionTransformer().transformAny(tree);
+      }}, $__proto, $__super, false);
     return $IsExpressionTransformer;
   }(ParseTreeTransformer);
-  IsExpressionTransformer.transformTree = function(tree) {
-    return new IsExpressionTransformer().transformAny(tree);
-  };
   return Object.preventExtensions(Object.create(null, {IsExpressionTransformer: {
       get: function() {
         return IsExpressionTransformer;
@@ -16032,12 +16018,11 @@ var $__src_codegeneration_ObjectLiteralTransformer_js = (function() {
           writable: true
         });
       }
-    }, {}, $__proto, $__super, true);
+    }, {transformTree: function(identifierGenerator, tree) {
+        return new ObjectLiteralTransformer(identifierGenerator).transformAny(tree);
+      }}, $__proto, $__super, true);
     return $ObjectLiteralTransformer;
   }(TempVarTransformer);
-  ObjectLiteralTransformer.transformTree = function(identifierGenerator, tree) {
-    return new ObjectLiteralTransformer(identifierGenerator).transformAny(tree);
-  };
   return Object.preventExtensions(Object.create(null, {ObjectLiteralTransformer: {
       get: function() {
         return ObjectLiteralTransformer;
@@ -17505,12 +17490,11 @@ var $__src_codegeneration_PrivateNameSyntaxTransformer_js = (function() {
         }
         return createVariableDeclaration(transformedName, createCallExpression(createMemberExpression(TRACEUR, RUNTIME, name), args));
       }
-    }, {}, $__proto, $__super, false);
+    }, {transformTree: function(identifierGenerator, tree) {
+        return new PrivateNameSyntaxTransformer(identifierGenerator).transformAny(tree);
+      }}, $__proto, $__super, false);
     return $PrivateNameSyntaxTransformer;
   }(TempVarTransformer);
-  PrivateNameSyntaxTransformer.transformTree = function(identifierGenerator, tree) {
-    return new PrivateNameSyntaxTransformer(identifierGenerator).transformAny(tree);
-  };
   return Object.preventExtensions(Object.create(null, {PrivateNameSyntaxTransformer: {
       get: function() {
         return PrivateNameSyntaxTransformer;
@@ -17531,12 +17515,11 @@ var $__src_codegeneration_PropertyNameShorthandTransformer_js = (function() {
       transformPropertyNameShorthand: function(tree) {
         return new PropertyNameAssignment(tree.location, tree.name, new IdentifierExpression(tree.location, tree.name));
       }
-    }, {}, $__proto, $__super, false);
+    }, {transformTree: function(tree) {
+        return new PropertyNameShorthandTransformer().transformAny(tree);
+      }}, $__proto, $__super, false);
     return $PropertyNameShorthandTransformer;
   }(ParseTreeTransformer);
-  PropertyNameShorthandTransformer.transformTree = function(tree) {
-    return new PropertyNameShorthandTransformer().transformAny(tree);
-  };
   return Object.preventExtensions(Object.create(null, {PropertyNameShorthandTransformer: {
       get: function() {
         return PropertyNameShorthandTransformer;
@@ -17711,12 +17694,11 @@ var $__src_codegeneration_TemplateLiteralTransformer_js = (function() {
         }
         return new ParenExpression(null, binaryExpression);
       }
-    }, {}, $__proto, $__super, false);
+    }, {transformTree: function(identifierGenerator, tree) {
+        return new TemplateLiteralTransformer(identifierGenerator).transformAny(tree);
+      }}, $__proto, $__super, false);
     return $TemplateLiteralTransformer;
   }(TempVarTransformer);
-  TemplateLiteralTransformer.transformTree = function(identifierGenerator, tree) {
-    return new TemplateLiteralTransformer(identifierGenerator).transformAny(tree);
-  };
   return Object.preventExtensions(Object.create(null, {TemplateLiteralTransformer: {
       get: function() {
         return TemplateLiteralTransformer;
@@ -17766,12 +17748,11 @@ var $__src_codegeneration_RestParameterTransformer_js = (function() {
         var functionBody = this.transformAny(createBlock(statements));
         return new tree.constructor(tree.location, tree.name, tree.isGenerator, parametersWithoutRestParam, functionBody);
       }
-    }, {}, $__proto, $__super, false);
+    }, {transformTree: function(identifierGenerator, tree) {
+        return new RestParameterTransformer(identifierGenerator).transformAny(tree);
+      }}, $__proto, $__super, false);
     return $RestParameterTransformer;
   }(TempVarTransformer);
-  RestParameterTransformer.transformTree = function(identifierGenerator, tree) {
-    return new RestParameterTransformer(identifierGenerator).transformAny(tree);
-  };
   return Object.preventExtensions(Object.create(null, {RestParameterTransformer: {
       get: function() {
         return RestParameterTransformer;
@@ -17871,12 +17852,11 @@ var $__src_codegeneration_SpreadTransformer_js = (function() {
         }
         return $__superCall(this, $__proto, "transformNewExpression", [tree]);
       }
-    }, {}, $__proto, $__super, true);
+    }, {transformTree: function(identifierGenerator, runtimeInliner, tree) {
+        return new SpreadTransformer(identifierGenerator, runtimeInliner).transformAny(tree);
+      }}, $__proto, $__super, true);
     return $SpreadTransformer;
   }(TempVarTransformer);
-  SpreadTransformer.transformTree = function(identifierGenerator, runtimeInliner, tree) {
-    return new SpreadTransformer(identifierGenerator, runtimeInliner).transformAny(tree);
-  };
   return Object.preventExtensions(Object.create(null, {SpreadTransformer: {
       get: function() {
         return SpreadTransformer;
@@ -17900,12 +17880,11 @@ var $__src_codegeneration_TypeTransformer_js = (function() {
         }
         return $__superCall(this, $__proto, "transformVariableDeclaration", [tree]);
       }
-    }, {}, $__proto, $__super, false);
+    }, {transformTree: function(tree) {
+        return new TypeTransformer().transformAny(tree);
+      }}, $__proto, $__super, false);
     return $TypeTransformer;
   }(ParseTreeTransformer);
-  TypeTransformer.transformTree = function(tree) {
-    return new TypeTransformer().transformAny(tree);
-  };
   return Object.preventExtensions(Object.create(null, {TypeTransformer: {
       get: function() {
         return TypeTransformer;
@@ -17967,39 +17946,51 @@ var $__src_codegeneration_ProgramTransformer_js = (function() {
         var identifierGenerator = this.project_.identifierGenerator;
         var runtimeInliner = this.project_.runtimeInliner;
         var reporter = this.reporter_;
-        function chain(enabled, transformer) {
+        function transform(enabled, transformer) {
           for (var args = [], $__8 = 2; $__8 < arguments.length; $__8++) args[$__8 - 2] = arguments[$__8];
+          return chain(enabled, (function() {
+            var $__11;
+            return ($__11 = transformer).transformTree.apply($__11, $__spread(args, [tree]));
+          }));
+        }
+        function chain(enabled, func) {
           if (!enabled) return;
           if (!reporter.hadError()) {
             if (options.validate) {
               ParseTreeValidator.validate(tree);
             }
-            tree = transformer.apply(null, $__spread(args, [tree])) || tree;
+            tree = func() || tree;
           }
         }
-        chain(transformOptions.types, TypeTransformer.transformTree);
-        chain(transformOptions.templateLiterals, TemplateLiteralTransformer.transformTree, identifierGenerator);
-        chain(transformOptions.modules, this.transformModules_.bind(this), tree, opt_module);
-        chain(transformOptions.arrowFunctions, ArrowFunctionTransformer.transformTree, reporter);
-        chain(transformOptions.classes, ClassTransformer.transform, identifierGenerator, runtimeInliner, reporter);
-        chain(transformOptions.propertyNameShorthand, PropertyNameShorthandTransformer.transformTree);
-        chain(transformOptions.propertyMethods || transformOptions.privateNameSyntax && transformOptions.privateNames, ObjectLiteralTransformer.transformTree, identifierGenerator);
-        chain(transformOptions.isExpression, IsExpressionTransformer.transformTree);
-        chain(transformOptions.generatorComprehension, GeneratorComprehensionTransformer.transformTree, identifierGenerator);
-        chain(transformOptions.arrayComprehension, ArrayComprehensionTransformer.transformTree, identifierGenerator);
-        chain(transformOptions.forOf, ForOfTransformer.transformTree, identifierGenerator);
-        chain(transformOptions.restParameters, RestParameterTransformer.transformTree, identifierGenerator);
-        chain(transformOptions.defaultParameters, DefaultParametersTransformer.transformTree);
-        chain(transformOptions.destructuring, DestructuringTransformer.transformTree, identifierGenerator);
-        chain(transformOptions.generators || transformOptions.deferredFunctions, GeneratorTransformPass.transformTree, identifierGenerator, reporter);
-        chain(transformOptions.privateNames && transformOptions.privateNameSyntax, AtNameMemberTransformer.transformTree, identifierGenerator);
-        chain(transformOptions.privateNames && transformOptions.privateNameSyntax, PrivateNameSyntaxTransformer.transformTree, identifierGenerator);
-        chain(transformOptions.spread, SpreadTransformer.transformTree, identifierGenerator, runtimeInliner);
-        chain(true, runtimeInliner.transformAny.bind(runtimeInliner));
-        chain(transformOptions.blockBinding, BlockBindingTransformer.transformTree);
-        chain(transformOptions.cascadeExpression, CascadeExpressionTransformer.transformTree, identifierGenerator, reporter);
-        chain(transformOptions.trapMemberLookup || transformOptions.privateNames, CollectionTransformer.transformTree, identifierGenerator);
-        chain(options.freeVariableChecker, FreeVariableChecker.checkProgram, reporter);
+        transform(transformOptions.types, TypeTransformer);
+        transform(transformOptions.templateLiterals, TemplateLiteralTransformer, identifierGenerator);
+        chain(transformOptions.modules, (function() {
+          return this.transformModules_(tree, opt_module);
+        }).bind(this));
+        transform(transformOptions.arrowFunctions, ArrowFunctionTransformer, reporter);
+        transform(transformOptions.classes, ClassTransformer, identifierGenerator, runtimeInliner, reporter);
+        transform(transformOptions.propertyNameShorthand, PropertyNameShorthandTransformer);
+        transform(transformOptions.propertyMethods || transformOptions.privateNameSyntax && transformOptions.privateNames, ObjectLiteralTransformer, identifierGenerator);
+        transform(transformOptions.isExpression, IsExpressionTransformer);
+        transform(transformOptions.generatorComprehension, GeneratorComprehensionTransformer, identifierGenerator);
+        transform(transformOptions.arrayComprehension, ArrayComprehensionTransformer, identifierGenerator);
+        transform(transformOptions.forOf, ForOfTransformer, identifierGenerator);
+        transform(transformOptions.restParameters, RestParameterTransformer, identifierGenerator);
+        transform(transformOptions.defaultParameters, DefaultParametersTransformer);
+        transform(transformOptions.destructuring, DestructuringTransformer, identifierGenerator);
+        transform(transformOptions.generators || transformOptions.deferredFunctions, GeneratorTransformPass, identifierGenerator, reporter);
+        transform(transformOptions.privateNames && transformOptions.privateNameSyntax, AtNameMemberTransformer, identifierGenerator);
+        transform(transformOptions.privateNames && transformOptions.privateNameSyntax, PrivateNameSyntaxTransformer, identifierGenerator);
+        transform(transformOptions.spread, SpreadTransformer, identifierGenerator, runtimeInliner);
+        chain(true, (function() {
+          return runtimeInliner.transformAny(tree);
+        }));
+        transform(transformOptions.blockBinding, BlockBindingTransformer);
+        transform(transformOptions.cascadeExpression, CascadeExpressionTransformer, identifierGenerator, reporter);
+        transform(transformOptions.trapMemberLookup || transformOptions.privateNames, CollectionTransformer, identifierGenerator);
+        chain(options.freeVariableChecker, (function() {
+          return FreeVariableChecker.checkProgram(reporter, tree);
+        }));
         return tree;
       },
       transformModules_: function(tree, opt_module) {

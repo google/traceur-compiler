@@ -92,12 +92,12 @@ export class RestParameterTransformer extends TempVarTransformer {
     return new tree.constructor(tree.location, tree.name, tree.isGenerator,
                                 parametersWithoutRestParam, functionBody);
   }
-}
 
-/**
- * @param {UniqueIdentifierGenerator} identifierGenerator
- * @param {ParseTree} tree
- */
-RestParameterTransformer.transformTree = function(identifierGenerator, tree) {
-  return new RestParameterTransformer(identifierGenerator).transformAny(tree);
-};
+  /**
+   * @param {UniqueIdentifierGenerator} identifierGenerator
+   * @param {ParseTree} tree
+   */
+  static transformTree(identifierGenerator, tree) {
+    return new RestParameterTransformer(identifierGenerator).transformAny(tree);
+  }
+}
