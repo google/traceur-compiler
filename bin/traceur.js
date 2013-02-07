@@ -615,9 +615,8 @@ var $__getDescriptors = function(object) {
   };
   return SourceNode;
 }));
-if (!this.traceur) this.traceur = {};
-traceur.runtime = (function(global) {
-  'use strict';
+var $__src_runtime_runtime_js = (function() {
+  "use strict";
   var $call = Function.prototype.call.bind(Function.prototype.call);
   var $create = Object.create;
   var $defineProperty = Object.defineProperty;
@@ -840,10 +839,6 @@ traceur.runtime = (function(global) {
       }
     };
   }));
-  function Deferred(canceller) {
-    this.canceller_ = canceller;
-    this.listeners_ = [];
-  }
   function notify(self) {
     while (self.listeners_.length > 0) {
       var current = self.listeners_.shift();
@@ -868,46 +863,53 @@ traceur.runtime = (function(global) {
     self.result_ = [value, isError];
     notify(self);
   }
-  Deferred.prototype = {
-    fired_: false,
-    result_: undefined,
-    createPromise: function() {
-      return {
-        then: this.then.bind(this),
-        cancel: this.cancel.bind(this)
-      };
-    },
-    callback: function(value) {
-      fire(this, value, false);
-    },
-    errback: function(err) {
-      fire(this, err, true);
-    },
-    then: function(callback, errback) {
-      var result = new Deferred(this.cancel.bind(this));
-      this.listeners_.push({
-        deferred: result,
-        callback: callback,
-        errback: errback
-      });
-      if (this.fired_) notify(this);
-      return result.createPromise();
-    },
-    cancel: function() {
-      if (this.fired_) throw new Error('already finished');
-      var result;
-      if (this.canceller_) {
-        result = this.canceller_(this);
-        if (!result instanceof Error) result = new Error(result);
-      } else {
-        result = new Error('cancelled');
+  var Deferred = function() {
+    var $Deferred = ($__createClassNoExtends)({
+      constructor: function(canceller) {
+        this.canceller_ = canceller;
+        this.listeners_ = [];
+        this.fired_ = false;
+        this.result_ = undefined;
+      },
+      createPromise: function() {
+        return {
+          then: this.then.bind(this),
+          cancel: this.cancel.bind(this)
+        };
+      },
+      callback: function(value) {
+        fire(this, value, false);
+      },
+      errback: function(err) {
+        fire(this, err, true);
+      },
+      then: function(callback, errback) {
+        var result = new Deferred(this.cancel.bind(this));
+        this.listeners_.push({
+          deferred: result,
+          callback: callback,
+          errback: errback
+        });
+        if (this.fired_) notify(this);
+        return result.createPromise();
+      },
+      cancel: function() {
+        if (this.fired_) throw new Error('already finished');
+        var result;
+        if (this.canceller_) {
+          result = this.canceller_(this);
+          if (!result instanceof Error) result = new Error(result);
+        } else {
+          result = new Error('cancelled');
+        }
+        if (!this.fired_) {
+          this.result_ = [result, true];
+          notify(this);
+        }
       }
-      if (!this.fired_) {
-        this.result_ = [result, true];
-        notify(this);
-      }
-    }
-  };
+    }, {});
+    return $Deferred;
+  }();
   var modules = $freeze({
     get'@name'() {
       return NameModule;
@@ -916,233 +918,164 @@ traceur.runtime = (function(global) {
       return IterModule;
     }
   });
-  global.Deferred = Deferred;
-  return {
-    Deferred: Deferred,
-    addIterator: addIterator,
-    assertName: assertName,
-    createName: NameModule.Name,
-    deleteProperty: deleteProperty,
-    elementDelete: elementDelete,
-    elementGet: elementGet,
-    elementHas: elementHas,
-    elementSet: elementSet,
-    getIterator: getIterator,
-    getProperty: getProperty,
-    setProperty: setProperty,
-    has: has,
-    modules: modules
-  };
-})(this);
-var $__src_options_js = (function() {
-  "use strict";
-  var Kind = {
-    es6: 'es6',
-    es6proposal: 'es6proposal',
-    harmony: 'harmony',
-    experimental: 'experimental'
-  };
-  var kindMapping = Object.create(null);
-  Object.keys(Kind).forEach((function(kind) {
-    kindMapping[kind] = Object.create(null);
-  }));
-  function enable(kind, b) {
-    Object.keys(kindMapping[kind]).forEach((function(name) {
-      options[name] = b;
-    }));
-  }
-  function getValue(kind) {
-    var value;
-    Object.keys(kindMapping[kind]).every((function(name) {
-      var currentValue = options[name];
-      if (value === undefined) {
-        value = currentValue;
-        return true;
-      }
-      if (currentValue !== value) {
-        value = null;
-        return false;
-      }
-      return true;
-    }));
-    return value;
-  }
-  var parseOptions = Object.create(null);
-  var transformOptions = Object.create(null);
-  var defaultValues = Object.create(null);
-  var options = {
-    set es6(v) {
-      enable(Kind.es6, coerceOptionValue(v));
-    },
-    get es6() {
-      return getValue(Kind.es6);
-    },
-    set es6proposal(v) {
-      enable(Kind.es6proposal, coerceOptionValue(v));
-    },
-    get es6proposal() {
-      return getValue(Kind.es6proposal);
-    },
-    set harmony(v) {
-      enable(Kind.harmony, coerceOptionValue(v));
-    },
-    get harmony() {
-      return getValue(Kind.harmony);
-    },
-    set experimental(v) {
-      enable(Kind.experimental, coerceOptionValue(v));
-    },
-    get experimental() {
-      return getValue(Kind.experimental);
-    }
-  };
-  function reset(opt_allOff) {
-    var useDefault = opt_allOff === undefined;
-    Object.keys(options).forEach((function(name) {
-      options[name] = useDefault && defaultValues[name];
-    }));
-  }
-  function fromString(s) {
-    fromArgv(s.split(/\s+/));
-  }
-  function fromArgv(args) {
-    args.forEach(parseCommand);
-  }
-  function setFromObject(object) {
-    Object.keys(object).forEach((function(name) {
-      options[name] = object[name];
-    }));
-  }
-  function coerceOptionValue(v) {
-    switch (v) {
-      case 'false':
-      case false:
-        return false;
-      case 'parse':
-        return 'parse';
-      default:
-        return true;
-    }
-  }
-  function setOption(name, value) {
-    name = toCamelCase(name);
-    value = coerceOptionValue(value);
-    if (name in options) {
-      options[name] = value;
-    } else {
-      throw Error('Unknown option: ' + name);
-    }
-  }
-  function optionCallback(name, value) {
-    setOption(name, value);
-  }
-  function addOptions(flags) {
-    Object.keys(options).forEach(function(name) {
-      var dashedName = toDashCase(name);
-      if ((name in parseOptions) && (name in transformOptions)) flags.option('--' + dashedName + ' [true|false|parse]'); else flags.option('--' + dashedName + ' [true|false]');
-      flags.on(dashedName, optionCallback.bind(null, dashedName));
-    });
-  }
-  Object.defineProperties(options, {
-    parse: {value: parseOptions},
-    transform: {value: transformOptions},
-    reset: {value: reset},
-    fromString: {value: fromString},
-    fromArgv: {value: fromArgv},
-    setFromObject: {value: setFromObject},
-    addOptions: {value: addOptions}
-  });
-  function parseCommand(s) {
-    var re = /--([^=]+)(?:=(.+))?/;
-    var m = re.exec(s);
-    if (m) setOption(m[1], m[2]);
-  }
-  function toCamelCase(s) {
-    return s.replace(/-\w/g, function(ch) {
-      return ch[1].toUpperCase();
-    });
-  }
-  function toDashCase(s) {
-    return s.replace(/[A-W]/g, function(ch) {
-      return '-' + ch.toLowerCase();
-    });
-  }
-  function addFeatureOption(name, kind) {
-    kindMapping[kind][name] = true;
-    Object.defineProperty(options, name, {
-      get: function() {
-        if (parseOptions[name] === transformOptions[name]) {
-          return parseOptions[name];
-        }
-        return 'parse';
-      },
-      set: function(v) {
-        if (v === 'parse') {
-          parseOptions[name] = true;
-          transformOptions[name] = false;
-        } else {
-          parseOptions[name] = transformOptions[name] = Boolean(v);
-        }
-      },
-      enumerable: true,
-      configurable: true
-    });
-    var defaultValue = kind !== Kind.experimental;
-    defaultValues[name] = defaultValue;
-    parseOptions[name] = defaultValue;
-    transformOptions[name] = defaultValue;
-  }
-  function addBoolOption(name) {
-    defaultValues[name] = true;
-    options[name] = true;
-  }
-  addFeatureOption('arrayComprehension', Kind.es6);
-  addFeatureOption('arrowFunctions', Kind.es6);
-  addFeatureOption('blockBinding', Kind.es6);
-  addFeatureOption('classes', Kind.es6);
-  addFeatureOption('defaultParameters', Kind.es6);
-  addFeatureOption('destructuring', Kind.es6);
-  addFeatureOption('forOf', Kind.es6);
-  addFeatureOption('propertyMethods', Kind.es6);
-  addFeatureOption('propertyNameShorthand', Kind.es6);
-  addFeatureOption('templateLiterals', Kind.es6);
-  addFeatureOption('restParameters', Kind.es6);
-  addFeatureOption('spread', Kind.es6);
-  addFeatureOption('generatorComprehension', Kind.es6proposal);
-  addFeatureOption('generators', Kind.es6proposal);
-  addFeatureOption('modules', Kind.es6proposal);
-  addFeatureOption('privateNameSyntax', Kind.es6proposal);
-  addFeatureOption('privateNames', Kind.es6proposal);
-  addFeatureOption('cascadeExpression', Kind.experimental);
-  addFeatureOption('trapMemberLookup', Kind.experimental);
-  addFeatureOption('deferredFunctions', Kind.experimental);
-  addFeatureOption('propertyOptionalComma', Kind.experimental);
-  addFeatureOption('strictSemicolons', Kind.experimental);
-  addFeatureOption('types', Kind.experimental);
-  addBoolOption('debug');
-  addBoolOption('sourceMaps');
-  addBoolOption('freeVariableChecker');
-  addBoolOption('validate');
+  this.Deferred = Deferred;
+  var createName = NameModule.Name;
   return Object.preventExtensions(Object.create(null, {
-    parseOptions: {
+    is: {
       get: function() {
-        return parseOptions;
+        return is;
       },
       enumerable: true
     },
-    transformOptions: {
+    Deferred: {
       get: function() {
-        return transformOptions;
+        return Deferred;
       },
       enumerable: true
     },
-    options: {
+    modules: {
       get: function() {
-        return options;
+        return modules;
+      },
+      enumerable: true
+    },
+    addIterator: {
+      get: function() {
+        return addIterator;
+      },
+      enumerable: true
+    },
+    assertName: {
+      get: function() {
+        return assertName;
+      },
+      enumerable: true
+    },
+    createName: {
+      get: function() {
+        return createName;
+      },
+      enumerable: true
+    },
+    deleteProperty: {
+      get: function() {
+        return deleteProperty;
+      },
+      enumerable: true
+    },
+    elementDelete: {
+      get: function() {
+        return elementDelete;
+      },
+      enumerable: true
+    },
+    elementGet: {
+      get: function() {
+        return elementGet;
+      },
+      enumerable: true
+    },
+    elementHas: {
+      get: function() {
+        return elementHas;
+      },
+      enumerable: true
+    },
+    elementSet: {
+      get: function() {
+        return elementSet;
+      },
+      enumerable: true
+    },
+    getIterator: {
+      get: function() {
+        return getIterator;
+      },
+      enumerable: true
+    },
+    getProperty: {
+      get: function() {
+        return getProperty;
+      },
+      enumerable: true
+    },
+    setProperty: {
+      get: function() {
+        return setProperty;
+      },
+      enumerable: true
+    },
+    has: {
+      get: function() {
+        return has;
+      },
+      enumerable: true
+    },
+    isnt: {
+      get: function() {
+        return isnt;
       },
       enumerable: true
     }
   }));
+}).call(this);
+var $__src_util_ArrayMap_js = (function() {
+  "use strict";
+  var ArrayMap = function() {
+    var $ArrayMap = ($__createClassNoExtends)({
+      constructor: function() {
+        this.values_ = [];
+        this.keys_ = [];
+      },
+      has: function(key) {
+        return this.keys_.indexOf(key) != - 1;
+      },
+      get: function(key) {
+        var index = this.keys_.indexOf(key);
+        if (index == - 1) {
+          return undefined;
+        }
+        return this.values_[index];
+      },
+      set: function(key, value) {
+        var index = this.keys_.indexOf(key);
+        if (index == - 1) {
+          this.keys_.push(key);
+          this.values_.push(value);
+        } else {
+          this.values_[index] = value;
+        }
+      },
+      addAll: function(other) {
+        var keys = other.keys();
+        var values = other.values();
+        for (var i = 0; i < keys.length; i++) {
+          this.set(keys[i], values[i]);
+        }
+      },
+      remove: function(key) {
+        var index = this.keys_.indexOf(key);
+        if (index == - 1) {
+          return;
+        }
+        this.keys_.splice(index, 1);
+        this.values_.splice(index, 1);
+      },
+      keys: function() {
+        return this.keys_.concat();
+      },
+      values: function() {
+        return this.values_.concat();
+      }
+    }, {});
+    return $ArrayMap;
+  }();
+  return Object.preventExtensions(Object.create(null, {ArrayMap: {
+      get: function() {
+        return ArrayMap;
+      },
+      enumerable: true
+    }}));
 }).call(this);
 var $__src_semantics_symbols_SymbolType_js = (function() {
   "use strict";
@@ -3747,6 +3680,83 @@ var $__src_semantics_ModuleAnalyzer_js = (function() {
   return Object.preventExtensions(Object.create(null, {ModuleAnalyzer: {
       get: function() {
         return ModuleAnalyzer;
+      },
+      enumerable: true
+    }}));
+}).call(this);
+var $__src_codegeneration_module_ModuleRequireVisitor_js = (function() {
+  "use strict";
+  var ParseTreeVisitor = $__src_syntax_ParseTreeVisitor_js.ParseTreeVisitor;
+  var canonicalizeUrl = $__src_util_url_js.canonicalizeUrl;
+  var ModuleRequireVisitor = function($__super) {
+    var $__proto = $__getProtoParent($__super);
+    var $ModuleRequireVisitor = ($__createClass)({
+      constructor: function(reporter) {
+        $__superCall(this, $__proto, "constructor", []);
+        this.urls_ = Object.create(null);
+      },
+      get requireUrls() {
+        return Object.keys(this.urls_);
+      },
+      visitModuleRequire: function(tree) {
+        this.urls_[canonicalizeUrl(tree.url.processedValue)] = true;
+      }
+    }, {}, $__proto, $__super, true);
+    return $ModuleRequireVisitor;
+  }(ParseTreeVisitor);
+  return Object.preventExtensions(Object.create(null, {ModuleRequireVisitor: {
+      get: function() {
+        return ModuleRequireVisitor;
+      },
+      enumerable: true
+    }}));
+}).call(this);
+var $__src_util_ObjectMap_js = (function() {
+  "use strict";
+  var ObjectMap = function() {
+    var $ObjectMap = ($__createClassNoExtends)({
+      constructor: function() {
+        this.keys_ = Object.create(null);
+        this.values_ = Object.create(null);
+      },
+      set: function(key, value) {
+        var uid = key.uid;
+        this.keys_[uid] = key;
+        this.values_[uid] = value;
+      },
+      get: function(key) {
+        return this.values_[key.uid];
+      },
+      has: function(key) {
+        return key.uid in this.keys_;
+      },
+      addAll: function(other) {
+        for (var uid in other.keys_) {
+          this.keys_[uid] = other.keys_[uid];
+          this.values_[uid] = other.values_[uid];
+        }
+      },
+      keys: function() {
+        return Object.keys(this.keys_).map((function(uid) {
+          return this.keys_[uid];
+        }).bind(this));
+      },
+      values: function() {
+        return Object.keys(this.values_).map((function(uid) {
+          return this.values_[uid];
+        }).bind(this));
+      },
+      remove: function(key) {
+        var uid = key.uid;
+        delete this.keys_[uid];
+        delete this.values_[uid];
+      }
+    }, {});
+    return $ObjectMap;
+  }();
+  return Object.preventExtensions(Object.create(null, {ObjectMap: {
+      get: function() {
+        return ObjectMap;
       },
       enumerable: true
     }}));
@@ -8731,6 +8741,216 @@ var $__src_syntax_Scanner_js = (function() {
     }
   }));
 }).call(this);
+var $__src_options_js = (function() {
+  "use strict";
+  var Kind = {
+    es6: 'es6',
+    es6proposal: 'es6proposal',
+    harmony: 'harmony',
+    experimental: 'experimental'
+  };
+  var kindMapping = Object.create(null);
+  Object.keys(Kind).forEach((function(kind) {
+    kindMapping[kind] = Object.create(null);
+  }));
+  function enable(kind, b) {
+    Object.keys(kindMapping[kind]).forEach((function(name) {
+      options[name] = b;
+    }));
+  }
+  function getValue(kind) {
+    var value;
+    Object.keys(kindMapping[kind]).every((function(name) {
+      var currentValue = options[name];
+      if (value === undefined) {
+        value = currentValue;
+        return true;
+      }
+      if (currentValue !== value) {
+        value = null;
+        return false;
+      }
+      return true;
+    }));
+    return value;
+  }
+  var parseOptions = Object.create(null);
+  var transformOptions = Object.create(null);
+  var defaultValues = Object.create(null);
+  var options = {
+    set es6(v) {
+      enable(Kind.es6, coerceOptionValue(v));
+    },
+    get es6() {
+      return getValue(Kind.es6);
+    },
+    set es6proposal(v) {
+      enable(Kind.es6proposal, coerceOptionValue(v));
+    },
+    get es6proposal() {
+      return getValue(Kind.es6proposal);
+    },
+    set harmony(v) {
+      enable(Kind.harmony, coerceOptionValue(v));
+    },
+    get harmony() {
+      return getValue(Kind.harmony);
+    },
+    set experimental(v) {
+      enable(Kind.experimental, coerceOptionValue(v));
+    },
+    get experimental() {
+      return getValue(Kind.experimental);
+    }
+  };
+  function reset(opt_allOff) {
+    var useDefault = opt_allOff === undefined;
+    Object.keys(options).forEach((function(name) {
+      options[name] = useDefault && defaultValues[name];
+    }));
+  }
+  function fromString(s) {
+    fromArgv(s.split(/\s+/));
+  }
+  function fromArgv(args) {
+    args.forEach(parseCommand);
+  }
+  function setFromObject(object) {
+    Object.keys(object).forEach((function(name) {
+      options[name] = object[name];
+    }));
+  }
+  function coerceOptionValue(v) {
+    switch (v) {
+      case 'false':
+      case false:
+        return false;
+      case 'parse':
+        return 'parse';
+      default:
+        return true;
+    }
+  }
+  function setOption(name, value) {
+    name = toCamelCase(name);
+    value = coerceOptionValue(value);
+    if (name in options) {
+      options[name] = value;
+    } else {
+      throw Error('Unknown option: ' + name);
+    }
+  }
+  function optionCallback(name, value) {
+    setOption(name, value);
+  }
+  function addOptions(flags) {
+    Object.keys(options).forEach(function(name) {
+      var dashedName = toDashCase(name);
+      if ((name in parseOptions) && (name in transformOptions)) flags.option('--' + dashedName + ' [true|false|parse]'); else flags.option('--' + dashedName + ' [true|false]');
+      flags.on(dashedName, optionCallback.bind(null, dashedName));
+    });
+  }
+  Object.defineProperties(options, {
+    parse: {value: parseOptions},
+    transform: {value: transformOptions},
+    reset: {value: reset},
+    fromString: {value: fromString},
+    fromArgv: {value: fromArgv},
+    setFromObject: {value: setFromObject},
+    addOptions: {value: addOptions}
+  });
+  function parseCommand(s) {
+    var re = /--([^=]+)(?:=(.+))?/;
+    var m = re.exec(s);
+    if (m) setOption(m[1], m[2]);
+  }
+  function toCamelCase(s) {
+    return s.replace(/-\w/g, function(ch) {
+      return ch[1].toUpperCase();
+    });
+  }
+  function toDashCase(s) {
+    return s.replace(/[A-W]/g, function(ch) {
+      return '-' + ch.toLowerCase();
+    });
+  }
+  function addFeatureOption(name, kind) {
+    kindMapping[kind][name] = true;
+    Object.defineProperty(options, name, {
+      get: function() {
+        if (parseOptions[name] === transformOptions[name]) {
+          return parseOptions[name];
+        }
+        return 'parse';
+      },
+      set: function(v) {
+        if (v === 'parse') {
+          parseOptions[name] = true;
+          transformOptions[name] = false;
+        } else {
+          parseOptions[name] = transformOptions[name] = Boolean(v);
+        }
+      },
+      enumerable: true,
+      configurable: true
+    });
+    var defaultValue = kind !== Kind.experimental;
+    defaultValues[name] = defaultValue;
+    parseOptions[name] = defaultValue;
+    transformOptions[name] = defaultValue;
+  }
+  function addBoolOption(name) {
+    defaultValues[name] = true;
+    options[name] = true;
+  }
+  addFeatureOption('arrayComprehension', Kind.es6);
+  addFeatureOption('arrowFunctions', Kind.es6);
+  addFeatureOption('blockBinding', Kind.es6);
+  addFeatureOption('classes', Kind.es6);
+  addFeatureOption('defaultParameters', Kind.es6);
+  addFeatureOption('destructuring', Kind.es6);
+  addFeatureOption('forOf', Kind.es6);
+  addFeatureOption('propertyMethods', Kind.es6);
+  addFeatureOption('propertyNameShorthand', Kind.es6);
+  addFeatureOption('templateLiterals', Kind.es6);
+  addFeatureOption('restParameters', Kind.es6);
+  addFeatureOption('spread', Kind.es6);
+  addFeatureOption('generatorComprehension', Kind.es6proposal);
+  addFeatureOption('generators', Kind.es6proposal);
+  addFeatureOption('modules', Kind.es6proposal);
+  addFeatureOption('privateNameSyntax', Kind.es6proposal);
+  addFeatureOption('privateNames', Kind.es6proposal);
+  addFeatureOption('cascadeExpression', Kind.experimental);
+  addFeatureOption('trapMemberLookup', Kind.experimental);
+  addFeatureOption('deferredFunctions', Kind.experimental);
+  addFeatureOption('propertyOptionalComma', Kind.experimental);
+  addFeatureOption('strictSemicolons', Kind.experimental);
+  addFeatureOption('types', Kind.experimental);
+  addBoolOption('debug');
+  addBoolOption('sourceMaps');
+  addBoolOption('freeVariableChecker');
+  addBoolOption('validate');
+  return Object.preventExtensions(Object.create(null, {
+    parseOptions: {
+      get: function() {
+        return parseOptions;
+      },
+      enumerable: true
+    },
+    transformOptions: {
+      get: function() {
+        return transformOptions;
+      },
+      enumerable: true
+    },
+    options: {
+      get: function() {
+        return options;
+      },
+      enumerable: true
+    }
+  }));
+}).call(this);
 var $__src_syntax_Parser_js = (function() {
   "use strict";
   var $__9 = $__src_codegeneration_AssignmentPatternTransformer_js, AssignmentPatternTransformer = $__9.AssignmentPatternTransformer, AssignmentPatternTransformerError = $__9.AssignmentPatternTransformerError;
@@ -12798,64 +13018,6 @@ var $__src_codegeneration_CascadeExpressionTransformer_js = (function() {
       enumerable: true
     }}));
 }).call(this);
-var $__src_util_ArrayMap_js = (function() {
-  "use strict";
-  var ArrayMap = function() {
-    var $ArrayMap = ($__createClassNoExtends)({
-      constructor: function() {
-        this.values_ = [];
-        this.keys_ = [];
-      },
-      has: function(key) {
-        return this.keys_.indexOf(key) != - 1;
-      },
-      get: function(key) {
-        var index = this.keys_.indexOf(key);
-        if (index == - 1) {
-          return undefined;
-        }
-        return this.values_[index];
-      },
-      set: function(key, value) {
-        var index = this.keys_.indexOf(key);
-        if (index == - 1) {
-          this.keys_.push(key);
-          this.values_.push(value);
-        } else {
-          this.values_[index] = value;
-        }
-      },
-      addAll: function(other) {
-        var keys = other.keys();
-        var values = other.values();
-        for (var i = 0; i < keys.length; i++) {
-          this.set(keys[i], values[i]);
-        }
-      },
-      remove: function(key) {
-        var index = this.keys_.indexOf(key);
-        if (index == - 1) {
-          return;
-        }
-        this.keys_.splice(index, 1);
-        this.values_.splice(index, 1);
-      },
-      keys: function() {
-        return this.keys_.concat();
-      },
-      values: function() {
-        return this.values_.concat();
-      }
-    }, {});
-    return $ArrayMap;
-  }();
-  return Object.preventExtensions(Object.create(null, {ArrayMap: {
-      get: function() {
-        return ArrayMap;
-      },
-      enumerable: true
-    }}));
-}).call(this);
 var $__src_syntax_LineNumberTable_js = (function() {
   "use strict";
   var SourcePosition = $__src_util_SourcePosition_js.SourcePosition;
@@ -15962,56 +16124,6 @@ var $__src_codegeneration_ObjectLiteralTransformer_js = (function() {
       enumerable: true
     }}));
 }).call(this);
-var $__src_util_ObjectMap_js = (function() {
-  "use strict";
-  var ObjectMap = function() {
-    var $ObjectMap = ($__createClassNoExtends)({
-      constructor: function() {
-        this.keys_ = Object.create(null);
-        this.values_ = Object.create(null);
-      },
-      set: function(key, value) {
-        var uid = key.uid;
-        this.keys_[uid] = key;
-        this.values_[uid] = value;
-      },
-      get: function(key) {
-        return this.values_[key.uid];
-      },
-      has: function(key) {
-        return key.uid in this.keys_;
-      },
-      addAll: function(other) {
-        for (var uid in other.keys_) {
-          this.keys_[uid] = other.keys_[uid];
-          this.values_[uid] = other.values_[uid];
-        }
-      },
-      keys: function() {
-        return Object.keys(this.keys_).map((function(uid) {
-          return this.keys_[uid];
-        }).bind(this));
-      },
-      values: function() {
-        return Object.keys(this.values_).map((function(uid) {
-          return this.values_[uid];
-        }).bind(this));
-      },
-      remove: function(key) {
-        var uid = key.uid;
-        delete this.keys_[uid];
-        delete this.values_[uid];
-      }
-    }, {});
-    return $ObjectMap;
-  }();
-  return Object.preventExtensions(Object.create(null, {ObjectMap: {
-      get: function() {
-        return ObjectMap;
-      },
-      enumerable: true
-    }}));
-}).call(this);
 var $__src_outputgeneration_ParseTreeWriter_js = (function() {
   "use strict";
   var ParseTreeVisitor = $__src_syntax_ParseTreeVisitor_js.ParseTreeVisitor;
@@ -18163,425 +18275,6 @@ var $__src_semantics_symbols_Project_js = (function() {
       enumerable: true
     }}));
 }).call(this);
-var $__src_codegeneration_Compiler_js = (function() {
-  "use strict";
-  var ModuleAnalyzer = $__src_semantics_ModuleAnalyzer_js.ModuleAnalyzer;
-  var Parser = $__src_syntax_Parser_js.Parser;
-  var ProgramTransformer = $__src_codegeneration_ProgramTransformer_js.ProgramTransformer;
-  var Project = $__src_semantics_symbols_Project_js.Project;
-  var Compiler = function() {
-    var $Compiler = ($__createClassNoExtends)({
-      constructor: function(reporter, project) {
-        this.reporter_ = reporter;
-        this.project_ = project;
-      },
-      compile_: function() {
-        this.parse_();
-        this.analyze_();
-        this.transform_();
-        if (this.hadError_()) {
-          return null;
-        }
-        return this.results_;
-      },
-      compileFile_: function(file) {
-        this.parseFile_(file);
-        this.analyzeFile_(file);
-        this.transformFile_(file);
-        if (this.hadError_()) {
-          return null;
-        }
-        return this.results_.get(file);
-      },
-      transform_: function() {
-        if (this.hadError_()) {
-          return;
-        }
-        this.results_ = ProgramTransformer.transform(this.reporter_, this.project_);
-      },
-      transformFile_: function(sourceFile) {
-        if (this.hadError_()) {
-          return;
-        }
-        this.results_ = ProgramTransformer.transformFile(this.reporter_, this.project_, sourceFile);
-      },
-      analyze_: function() {
-        if (this.hadError_()) {
-          return;
-        }
-        var analyzer = new ModuleAnalyzer(this.reporter_, this.project_);
-        analyzer.analyze();
-      },
-      analyzeFile_: function(sourceFile) {
-        if (this.hadError_()) {
-          return;
-        }
-        var analyzer = new ModuleAnalyzer(this.reporter_, this.project_);
-        analyzer.analyzeFile(sourceFile);
-      },
-      parse_: function() {
-        this.project_.getSourceFiles().forEach(this.parseFile_, this);
-      },
-      parseFile_: function(file) {
-        if (this.hadError_()) {
-          return;
-        }
-        this.project_.setParseTree(file, new Parser(this.reporter_, file).parseProgram(true));
-      },
-      hadError_: function() {
-        return this.reporter_.hadError();
-      }
-    }, {});
-    return $Compiler;
-  }();
-  Compiler.compile = function(reporter, project) {
-    return new Compiler(reporter, project).compile_();
-  };
-  Compiler.compileFile = function(reporter, sourceFile, url) {
-    var project = new Project(url);
-    project.addFile(sourceFile);
-    return new Compiler(reporter, project).compileFile_(sourceFile);
-  };
-  return Object.preventExtensions(Object.create(null, {Compiler: {
-      get: function() {
-        return Compiler;
-      },
-      enumerable: true
-    }}));
-}).call(this);
-var $__src_WebPageProject_js = (function() {
-  "use strict";
-  var Compiler = $__src_codegeneration_Compiler_js.Compiler;
-  var ErrorReporter = $__src_util_ErrorReporter_js.ErrorReporter;
-  var Project = $__src_semantics_symbols_Project_js.Project;
-  var SourceFile = $__src_syntax_SourceFile_js.SourceFile;
-  var TreeWriter = $__src_outputgeneration_TreeWriter_js.TreeWriter;
-  var WebPageProject = function($__super) {
-    var $__proto = $__getProtoParent($__super);
-    var $WebPageProject = ($__createClass)({
-      constructor: function(url) {
-        $__superCall(this, $__proto, "constructor", [url]);
-        this.numPending_ = 0;
-        this.numberInlined_ = 0;
-      },
-      asyncLoad_: function(url, fncOfContent, onScriptsReady) {
-        this.numPending_++;
-        this.loadResource(url, (function(content) {
-          if (content) fncOfContent(content); else console.warn('Failed to load', url);
-          if (--this.numPending_ <= 0) onScriptsReady();
-        }).bind(this));
-      },
-      loadResource: function(url, fncOfContentOrNull) {
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', url);
-        xhr.addEventListener('load', (function(e) {
-          if (xhr.status == 200 || xhr.status == 0) fncOfContentOrNull(xhr.responseText);
-        }));
-        var onFailure = (function() {
-          fncOfContentOrNull(null);
-        });
-        xhr.addEventListener('error', onFailure, false);
-        xhr.addEventListener('abort', onFailure, false);
-        xhr.send();
-      },
-      addFileFromScriptElement: function(scriptElement, name, content) {
-        var file = new SourceFile(name, content);
-        file.scriptElement = scriptElement;
-        this.addFile(file);
-      },
-      nextInlineScriptName_: function() {
-        this.numberInlined_ += 1;
-        if (!this.inlineScriptNameBase_) {
-          var segments = this.url.split('.');
-          segments.pop();
-          this.inlineScriptNameBase_ = segments.join('.');
-        }
-        return this.inlineScriptNameBase_ + '_' + this.numberInlined_ + '.js';
-      },
-      addFilesFromScriptElements: function(scriptElements, onScriptsReady) {
-        for (var i = 0, length = scriptElements.length; i < length; i++) {
-          var scriptElement = scriptElements[i];
-          if (!scriptElement.src) {
-            var name = this.nextInlineScriptName_();
-            var content = scriptElement.textContent;
-            this.addFileFromScriptElement(scriptElement, name, content);
-          } else {
-            var name = scriptElement.src;
-            this.asyncLoad_(name, this.addFileFromScriptElement.bind(this, scriptElement, name), onScriptsReady);
-          }
-        }
-        if (this.numPending_ <= 0) onScriptsReady();
-      },
-      get reporter() {
-        if (!this.reporter_) {
-          this.reporter_ = new ErrorReporter();
-        }
-        return this.reporter_;
-      },
-      get compiler() {
-        if (!this.compiler_) {
-          this.compiler_ = new Compiler(this.reporter, this);
-        }
-        return this.compiler_;
-      },
-      compile: function() {
-        var trees = this.compiler.compile_();
-        if (this.reporter.hadError()) {
-          console.warn('Traceur compilation errors', this.reporter);
-          return;
-        }
-        return trees;
-      },
-      putFile: function(file) {
-        var scriptElement = document.createElement('script');
-        scriptElement.setAttribute('data-traceur-src-url', file.name);
-        scriptElement.textContent = file.generatedSource;
-        var parent = file.scriptElement.parentNode;
-        parent.insertBefore(scriptElement, file.scriptElement || null);
-      },
-      putFiles: function(files) {
-        files.forEach(this.putFile, this);
-      },
-      runInWebPage: function(trees) {
-        var files = this.generateSourceFromTrees(trees);
-        this.putFiles(files);
-      },
-      generateSourceFromTrees: function(trees) {
-        return trees.keys().map((function(file) {
-          var tree = trees.get(file);
-          var opts = {showLineNumbers: false};
-          file.generatedSource = TreeWriter.write(tree, opts);
-          return file;
-        }));
-      },
-      run: function() {
-        document.addEventListener('DOMContentLoaded', (function() {
-          var selector = 'script[type="text/traceur"]';
-          var scripts = document.querySelectorAll(selector);
-          if (!scripts.length) {
-            return;
-          }
-          this.addFilesFromScriptElements(scripts, (function() {
-            var trees = this.compile();
-            this.runInWebPage(trees);
-          }).bind(this));
-        }).bind(this), false);
-      }
-    }, {}, $__proto, $__super, true);
-    return $WebPageProject;
-  }(Project);
-  return Object.preventExtensions(Object.create(null, {WebPageProject: {
-      get: function() {
-        return WebPageProject;
-      },
-      enumerable: true
-    }}));
-}).call(this);
-var $__src_util_TestErrorReporter_js = (function() {
-  "use strict";
-  var ErrorReporter = $__src_util_ErrorReporter_js.ErrorReporter;
-  var TestErrorReporter = function($__super) {
-    var $__proto = $__getProtoParent($__super);
-    var $TestErrorReporter = ($__createClass)({
-      constructor: function() {
-        this.errors = [];
-      },
-      reportMessageInternal: function(location, kind, format, args) {
-        if (kind !== 'error') return;
-        this.errors.push(ErrorReporter.format(location, format, args));
-      },
-      hasMatchingError: function(expected) {
-        return this.errors.some((function(error) {
-          return error.indexOf(expected) !== - 1;
-        }));
-      }
-    }, {}, $__proto, $__super, true);
-    return $TestErrorReporter;
-  }(ErrorReporter);
-  return Object.preventExtensions(Object.create(null, {TestErrorReporter: {
-      get: function() {
-        return TestErrorReporter;
-      },
-      enumerable: true
-    }}));
-}).call(this);
-var $__src_outputgeneration_ProjectWriter_js = (function() {
-  "use strict";
-  var TreeWriter = $__src_outputgeneration_TreeWriter_js.TreeWriter;
-  var ProjectWriter = function() {
-    var $ProjectWriter = ($__createClassNoExtends)({constructor: function() {}}, {});
-    return $ProjectWriter;
-  }();
-  ProjectWriter.write = function(results, opt_options) {
-    return results.keys().map((function(file) {
-      return TreeWriter.write(results.get(file), opt_options);
-    })).join('');
-  };
-  return Object.preventExtensions(Object.create(null, {ProjectWriter: {
-      get: function() {
-        return ProjectWriter;
-      },
-      enumerable: true
-    }}));
-}).call(this);
-var $__src_outputgeneration_SourceMapIntegration_js = (function() {
-  "use strict";
-  var base64 = this.sourceMapModule['base64'];
-  var base64Vlq = this.sourceMapModule['base64-vlq'];
-  var binarySearch = this.sourceMapModule['binary-search'];
-  var util = this.sourceMapModule['util'];
-  var SourceMapGenerator = this.sourceMapModule['source-map-generator'];
-  var SourceMapConsumer = this.sourceMapModule['source-map-consumer'];
-  var SourceNode = this.sourceMapModule['source-node'];
-  return Object.preventExtensions(Object.create(null, {
-    base64: {
-      get: function() {
-        return base64;
-      },
-      enumerable: true
-    },
-    base64Vlq: {
-      get: function() {
-        return base64Vlq;
-      },
-      enumerable: true
-    },
-    binarySearch: {
-      get: function() {
-        return binarySearch;
-      },
-      enumerable: true
-    },
-    util: {
-      get: function() {
-        return util;
-      },
-      enumerable: true
-    },
-    SourceMapGenerator: {
-      get: function() {
-        return SourceMapGenerator;
-      },
-      enumerable: true
-    },
-    SourceMapConsumer: {
-      get: function() {
-        return SourceMapConsumer;
-      },
-      enumerable: true
-    },
-    SourceNode: {
-      get: function() {
-        return SourceNode;
-      },
-      enumerable: true
-    }
-  }));
-}).call(this);
-var $__src_codegeneration_CloneTreeTransformer_js = (function() {
-  "use strict";
-  var ParseTreeTransformer = $__src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
-  var $__9 = $__src_syntax_trees_ParseTrees_js, AtNameExpression = $__9.AtNameExpression, BindingIdentifier = $__9.BindingIdentifier, BreakStatement = $__9.BreakStatement, ContinueStatement = $__9.ContinueStatement, DebuggerStatement = $__9.DebuggerStatement, EmptyStatement = $__9.EmptyStatement, ExportSpecifier = $__9.ExportSpecifier, ExportStar = $__9.ExportStar, IdentifierExpression = $__9.IdentifierExpression, ImportSpecifier = $__9.ImportSpecifier, LiteralExpression = $__9.LiteralExpression, ModuleRequire = $__9.ModuleRequire, PredefinedType = $__9.PredefinedType, PropertyNameShorthand = $__9.PropertyNameShorthand, TemplateLiteralPortion = $__9.TemplateLiteralPortion, RestParameter = $__9.RestParameter, SuperExpression = $__9.SuperExpression, ThisExpression = $__9.ThisExpression;
-  var CloneTreeTransformer = function($__super) {
-    var $__proto = $__getProtoParent($__super);
-    var $CloneTreeTransformer = ($__createClass)({
-      constructor: function() {
-        $__superCall(this, $__proto, "constructor", arguments);
-      },
-      transformAtNameExpression: function(tree) {
-        return new AtNameExpression(tree.location, tree.atNameToken);
-      },
-      transformBindingIdentifier: function(tree) {
-        return new BindingIdentifier(tree.location, tree.identifierToken);
-      },
-      transformBreakStatement: function(tree) {
-        return new BreakStatement(tree.location, tree.name);
-      },
-      transformContinueStatement: function(tree) {
-        return new ContinueStatement(tree.location, tree.name);
-      },
-      transformDebuggerStatement: function(tree) {
-        return new DebuggerStatement(tree.location);
-      },
-      transformEmptyStatement: function(tree) {
-        return new EmptyStatement(tree.location);
-      },
-      transformExportSpecifier: function(tree) {
-        return new ExportSpecifier(tree.location, tree.lhs, tree.rhs);
-      },
-      transformExportStar: function(tree) {
-        return new ExportStar(tree.location);
-      },
-      transformIdentifierExpression: function(tree) {
-        return new IdentifierExpression(tree.location, tree.identifierToken);
-      },
-      transformImportSpecifier: function(tree) {
-        return new ImportSpecifier(tree.location, tree.lhs, tree.rhs);
-      },
-      transformLiteralExpression: function(tree) {
-        return new LiteralExpression(tree.location, tree.literalToken);
-      },
-      transformModuleRequire: function(tree) {
-        return new ModuleRequire(tree.location, tree.url);
-      },
-      transformPredefinedType: function(tree) {
-        return new PredefinedType(tree.location, tree.token);
-      },
-      transformPropertyNameShorthand: function(tree) {
-        return new PropertyNameShorthand(tree.location, tree.name);
-      },
-      transformTemplateLiteralPortion: function(tree) {
-        return new TemplateLiteralPortion(tree.location, tree.token);
-      },
-      transformRestParameter: function(tree) {
-        return new RestParameter(tree.location, tree.identifer);
-      },
-      transformSuperExpression: function(tree) {
-        return new SuperExpression(tree.location);
-      },
-      transformThisExpression: function(tree) {
-        return new ThisExpression(tree.location);
-      }
-    }, {}, $__proto, $__super, false);
-    return $CloneTreeTransformer;
-  }(ParseTreeTransformer);
-  CloneTreeTransformer.cloneTree = function(tree) {
-    return new CloneTreeTransformer().transformAny(tree);
-  };
-  return Object.preventExtensions(Object.create(null, {CloneTreeTransformer: {
-      get: function() {
-        return CloneTreeTransformer;
-      },
-      enumerable: true
-    }}));
-}).call(this);
-var $__src_codegeneration_module_ModuleRequireVisitor_js = (function() {
-  "use strict";
-  var ParseTreeVisitor = $__src_syntax_ParseTreeVisitor_js.ParseTreeVisitor;
-  var canonicalizeUrl = $__src_util_url_js.canonicalizeUrl;
-  var ModuleRequireVisitor = function($__super) {
-    var $__proto = $__getProtoParent($__super);
-    var $ModuleRequireVisitor = ($__createClass)({
-      constructor: function(reporter) {
-        $__superCall(this, $__proto, "constructor", []);
-        this.urls_ = Object.create(null);
-      },
-      get requireUrls() {
-        return Object.keys(this.urls_);
-      },
-      visitModuleRequire: function(tree) {
-        this.urls_[canonicalizeUrl(tree.url.processedValue)] = true;
-      }
-    }, {}, $__proto, $__super, true);
-    return $ModuleRequireVisitor;
-  }(ParseTreeVisitor);
-  return Object.preventExtensions(Object.create(null, {ModuleRequireVisitor: {
-      get: function() {
-        return ModuleRequireVisitor;
-      },
-      enumerable: true
-    }}));
-}).call(this);
 var $__src_runtime_modules_js = (function() {
   "use strict";
   var ArrayMap = $__src_util_ArrayMap_js.ArrayMap;
@@ -19061,12 +18754,519 @@ var $__src_runtime_modules_js = (function() {
     }
   }));
 }).call(this);
+var $__src_codegeneration_Compiler_js = (function() {
+  "use strict";
+  var ModuleAnalyzer = $__src_semantics_ModuleAnalyzer_js.ModuleAnalyzer;
+  var Parser = $__src_syntax_Parser_js.Parser;
+  var ProgramTransformer = $__src_codegeneration_ProgramTransformer_js.ProgramTransformer;
+  var Project = $__src_semantics_symbols_Project_js.Project;
+  var Compiler = function() {
+    var $Compiler = ($__createClassNoExtends)({
+      constructor: function(reporter, project) {
+        this.reporter_ = reporter;
+        this.project_ = project;
+      },
+      compile_: function() {
+        this.parse_();
+        this.analyze_();
+        this.transform_();
+        if (this.hadError_()) {
+          return null;
+        }
+        return this.results_;
+      },
+      compileFile_: function(file) {
+        this.parseFile_(file);
+        this.analyzeFile_(file);
+        this.transformFile_(file);
+        if (this.hadError_()) {
+          return null;
+        }
+        return this.results_.get(file);
+      },
+      transform_: function() {
+        if (this.hadError_()) {
+          return;
+        }
+        this.results_ = ProgramTransformer.transform(this.reporter_, this.project_);
+      },
+      transformFile_: function(sourceFile) {
+        if (this.hadError_()) {
+          return;
+        }
+        this.results_ = ProgramTransformer.transformFile(this.reporter_, this.project_, sourceFile);
+      },
+      analyze_: function() {
+        if (this.hadError_()) {
+          return;
+        }
+        var analyzer = new ModuleAnalyzer(this.reporter_, this.project_);
+        analyzer.analyze();
+      },
+      analyzeFile_: function(sourceFile) {
+        if (this.hadError_()) {
+          return;
+        }
+        var analyzer = new ModuleAnalyzer(this.reporter_, this.project_);
+        analyzer.analyzeFile(sourceFile);
+      },
+      parse_: function() {
+        this.project_.getSourceFiles().forEach(this.parseFile_, this);
+      },
+      parseFile_: function(file) {
+        if (this.hadError_()) {
+          return;
+        }
+        this.project_.setParseTree(file, new Parser(this.reporter_, file).parseProgram(true));
+      },
+      hadError_: function() {
+        return this.reporter_.hadError();
+      }
+    }, {});
+    return $Compiler;
+  }();
+  Compiler.compile = function(reporter, project) {
+    return new Compiler(reporter, project).compile_();
+  };
+  Compiler.compileFile = function(reporter, sourceFile, url) {
+    var project = new Project(url);
+    project.addFile(sourceFile);
+    return new Compiler(reporter, project).compileFile_(sourceFile);
+  };
+  return Object.preventExtensions(Object.create(null, {Compiler: {
+      get: function() {
+        return Compiler;
+      },
+      enumerable: true
+    }}));
+}).call(this);
+var $__src_WebPageProject_js = (function() {
+  "use strict";
+  var Compiler = $__src_codegeneration_Compiler_js.Compiler;
+  var ErrorReporter = $__src_util_ErrorReporter_js.ErrorReporter;
+  var Project = $__src_semantics_symbols_Project_js.Project;
+  var SourceFile = $__src_syntax_SourceFile_js.SourceFile;
+  var TreeWriter = $__src_outputgeneration_TreeWriter_js.TreeWriter;
+  var WebPageProject = function($__super) {
+    var $__proto = $__getProtoParent($__super);
+    var $WebPageProject = ($__createClass)({
+      constructor: function(url) {
+        $__superCall(this, $__proto, "constructor", [url]);
+        this.numPending_ = 0;
+        this.numberInlined_ = 0;
+      },
+      asyncLoad_: function(url, fncOfContent, onScriptsReady) {
+        this.numPending_++;
+        this.loadResource(url, (function(content) {
+          if (content) fncOfContent(content); else console.warn('Failed to load', url);
+          if (--this.numPending_ <= 0) onScriptsReady();
+        }).bind(this));
+      },
+      loadResource: function(url, fncOfContentOrNull) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url);
+        xhr.addEventListener('load', (function(e) {
+          if (xhr.status == 200 || xhr.status == 0) fncOfContentOrNull(xhr.responseText);
+        }));
+        var onFailure = (function() {
+          fncOfContentOrNull(null);
+        });
+        xhr.addEventListener('error', onFailure, false);
+        xhr.addEventListener('abort', onFailure, false);
+        xhr.send();
+      },
+      addFileFromScriptElement: function(scriptElement, name, content) {
+        var file = new SourceFile(name, content);
+        file.scriptElement = scriptElement;
+        this.addFile(file);
+      },
+      nextInlineScriptName_: function() {
+        this.numberInlined_ += 1;
+        if (!this.inlineScriptNameBase_) {
+          var segments = this.url.split('.');
+          segments.pop();
+          this.inlineScriptNameBase_ = segments.join('.');
+        }
+        return this.inlineScriptNameBase_ + '_' + this.numberInlined_ + '.js';
+      },
+      addFilesFromScriptElements: function(scriptElements, onScriptsReady) {
+        for (var i = 0, length = scriptElements.length; i < length; i++) {
+          var scriptElement = scriptElements[i];
+          if (!scriptElement.src) {
+            var name = this.nextInlineScriptName_();
+            var content = scriptElement.textContent;
+            this.addFileFromScriptElement(scriptElement, name, content);
+          } else {
+            var name = scriptElement.src;
+            this.asyncLoad_(name, this.addFileFromScriptElement.bind(this, scriptElement, name), onScriptsReady);
+          }
+        }
+        if (this.numPending_ <= 0) onScriptsReady();
+      },
+      get reporter() {
+        if (!this.reporter_) {
+          this.reporter_ = new ErrorReporter();
+        }
+        return this.reporter_;
+      },
+      get compiler() {
+        if (!this.compiler_) {
+          this.compiler_ = new Compiler(this.reporter, this);
+        }
+        return this.compiler_;
+      },
+      compile: function() {
+        var trees = this.compiler.compile_();
+        if (this.reporter.hadError()) {
+          console.warn('Traceur compilation errors', this.reporter);
+          return;
+        }
+        return trees;
+      },
+      putFile: function(file) {
+        var scriptElement = document.createElement('script');
+        scriptElement.setAttribute('data-traceur-src-url', file.name);
+        scriptElement.textContent = file.generatedSource;
+        var parent = file.scriptElement.parentNode;
+        parent.insertBefore(scriptElement, file.scriptElement || null);
+      },
+      putFiles: function(files) {
+        files.forEach(this.putFile, this);
+      },
+      runInWebPage: function(trees) {
+        var files = this.generateSourceFromTrees(trees);
+        this.putFiles(files);
+      },
+      generateSourceFromTrees: function(trees) {
+        return trees.keys().map((function(file) {
+          var tree = trees.get(file);
+          var opts = {showLineNumbers: false};
+          file.generatedSource = TreeWriter.write(tree, opts);
+          return file;
+        }));
+      },
+      run: function() {
+        document.addEventListener('DOMContentLoaded', (function() {
+          var selector = 'script[type="text/traceur"]';
+          var scripts = document.querySelectorAll(selector);
+          if (!scripts.length) {
+            return;
+          }
+          this.addFilesFromScriptElements(scripts, (function() {
+            var trees = this.compile();
+            this.runInWebPage(trees);
+          }).bind(this));
+        }).bind(this), false);
+      }
+    }, {}, $__proto, $__super, true);
+    return $WebPageProject;
+  }(Project);
+  return Object.preventExtensions(Object.create(null, {WebPageProject: {
+      get: function() {
+        return WebPageProject;
+      },
+      enumerable: true
+    }}));
+}).call(this);
+var $__src_util_TestErrorReporter_js = (function() {
+  "use strict";
+  var ErrorReporter = $__src_util_ErrorReporter_js.ErrorReporter;
+  var TestErrorReporter = function($__super) {
+    var $__proto = $__getProtoParent($__super);
+    var $TestErrorReporter = ($__createClass)({
+      constructor: function() {
+        this.errors = [];
+      },
+      reportMessageInternal: function(location, kind, format, args) {
+        if (kind !== 'error') return;
+        this.errors.push(ErrorReporter.format(location, format, args));
+      },
+      hasMatchingError: function(expected) {
+        return this.errors.some((function(error) {
+          return error.indexOf(expected) !== - 1;
+        }));
+      }
+    }, {}, $__proto, $__super, true);
+    return $TestErrorReporter;
+  }(ErrorReporter);
+  return Object.preventExtensions(Object.create(null, {TestErrorReporter: {
+      get: function() {
+        return TestErrorReporter;
+      },
+      enumerable: true
+    }}));
+}).call(this);
+var $__src_outputgeneration_ProjectWriter_js = (function() {
+  "use strict";
+  var TreeWriter = $__src_outputgeneration_TreeWriter_js.TreeWriter;
+  var ProjectWriter = function() {
+    var $ProjectWriter = ($__createClassNoExtends)({constructor: function() {}}, {});
+    return $ProjectWriter;
+  }();
+  ProjectWriter.write = function(results, opt_options) {
+    return results.keys().map((function(file) {
+      return TreeWriter.write(results.get(file), opt_options);
+    })).join('');
+  };
+  return Object.preventExtensions(Object.create(null, {ProjectWriter: {
+      get: function() {
+        return ProjectWriter;
+      },
+      enumerable: true
+    }}));
+}).call(this);
+var $__src_outputgeneration_SourceMapIntegration_js = (function() {
+  "use strict";
+  var base64 = this.sourceMapModule['base64'];
+  var base64Vlq = this.sourceMapModule['base64-vlq'];
+  var binarySearch = this.sourceMapModule['binary-search'];
+  var util = this.sourceMapModule['util'];
+  var SourceMapGenerator = this.sourceMapModule['source-map-generator'];
+  var SourceMapConsumer = this.sourceMapModule['source-map-consumer'];
+  var SourceNode = this.sourceMapModule['source-node'];
+  return Object.preventExtensions(Object.create(null, {
+    base64: {
+      get: function() {
+        return base64;
+      },
+      enumerable: true
+    },
+    base64Vlq: {
+      get: function() {
+        return base64Vlq;
+      },
+      enumerable: true
+    },
+    binarySearch: {
+      get: function() {
+        return binarySearch;
+      },
+      enumerable: true
+    },
+    util: {
+      get: function() {
+        return util;
+      },
+      enumerable: true
+    },
+    SourceMapGenerator: {
+      get: function() {
+        return SourceMapGenerator;
+      },
+      enumerable: true
+    },
+    SourceMapConsumer: {
+      get: function() {
+        return SourceMapConsumer;
+      },
+      enumerable: true
+    },
+    SourceNode: {
+      get: function() {
+        return SourceNode;
+      },
+      enumerable: true
+    }
+  }));
+}).call(this);
+var $__src_codegeneration_CloneTreeTransformer_js = (function() {
+  "use strict";
+  var ParseTreeTransformer = $__src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
+  var $__9 = $__src_syntax_trees_ParseTrees_js, AtNameExpression = $__9.AtNameExpression, BindingIdentifier = $__9.BindingIdentifier, BreakStatement = $__9.BreakStatement, ContinueStatement = $__9.ContinueStatement, DebuggerStatement = $__9.DebuggerStatement, EmptyStatement = $__9.EmptyStatement, ExportSpecifier = $__9.ExportSpecifier, ExportStar = $__9.ExportStar, IdentifierExpression = $__9.IdentifierExpression, ImportSpecifier = $__9.ImportSpecifier, LiteralExpression = $__9.LiteralExpression, ModuleRequire = $__9.ModuleRequire, PredefinedType = $__9.PredefinedType, PropertyNameShorthand = $__9.PropertyNameShorthand, TemplateLiteralPortion = $__9.TemplateLiteralPortion, RestParameter = $__9.RestParameter, SuperExpression = $__9.SuperExpression, ThisExpression = $__9.ThisExpression;
+  var CloneTreeTransformer = function($__super) {
+    var $__proto = $__getProtoParent($__super);
+    var $CloneTreeTransformer = ($__createClass)({
+      constructor: function() {
+        $__superCall(this, $__proto, "constructor", arguments);
+      },
+      transformAtNameExpression: function(tree) {
+        return new AtNameExpression(tree.location, tree.atNameToken);
+      },
+      transformBindingIdentifier: function(tree) {
+        return new BindingIdentifier(tree.location, tree.identifierToken);
+      },
+      transformBreakStatement: function(tree) {
+        return new BreakStatement(tree.location, tree.name);
+      },
+      transformContinueStatement: function(tree) {
+        return new ContinueStatement(tree.location, tree.name);
+      },
+      transformDebuggerStatement: function(tree) {
+        return new DebuggerStatement(tree.location);
+      },
+      transformEmptyStatement: function(tree) {
+        return new EmptyStatement(tree.location);
+      },
+      transformExportSpecifier: function(tree) {
+        return new ExportSpecifier(tree.location, tree.lhs, tree.rhs);
+      },
+      transformExportStar: function(tree) {
+        return new ExportStar(tree.location);
+      },
+      transformIdentifierExpression: function(tree) {
+        return new IdentifierExpression(tree.location, tree.identifierToken);
+      },
+      transformImportSpecifier: function(tree) {
+        return new ImportSpecifier(tree.location, tree.lhs, tree.rhs);
+      },
+      transformLiteralExpression: function(tree) {
+        return new LiteralExpression(tree.location, tree.literalToken);
+      },
+      transformModuleRequire: function(tree) {
+        return new ModuleRequire(tree.location, tree.url);
+      },
+      transformPredefinedType: function(tree) {
+        return new PredefinedType(tree.location, tree.token);
+      },
+      transformPropertyNameShorthand: function(tree) {
+        return new PropertyNameShorthand(tree.location, tree.name);
+      },
+      transformTemplateLiteralPortion: function(tree) {
+        return new TemplateLiteralPortion(tree.location, tree.token);
+      },
+      transformRestParameter: function(tree) {
+        return new RestParameter(tree.location, tree.identifer);
+      },
+      transformSuperExpression: function(tree) {
+        return new SuperExpression(tree.location);
+      },
+      transformThisExpression: function(tree) {
+        return new ThisExpression(tree.location);
+      }
+    }, {}, $__proto, $__super, false);
+    return $CloneTreeTransformer;
+  }(ParseTreeTransformer);
+  CloneTreeTransformer.cloneTree = function(tree) {
+    return new CloneTreeTransformer().transformAny(tree);
+  };
+  return Object.preventExtensions(Object.create(null, {CloneTreeTransformer: {
+      get: function() {
+        return CloneTreeTransformer;
+      },
+      enumerable: true
+    }}));
+}).call(this);
 var traceur = (function() {
   "use strict";
   var global = this;
-  var traceurRuntime = global.traceur.runtime;
-  var runtime = traceurRuntime;
-  var options = $__src_options_js.options;
+  var runtime = (function() {
+    return Object.preventExtensions(Object.create(null, {
+      is: {
+        get: function() {
+          return $__src_runtime_runtime_js.is;
+        },
+        enumerable: true
+      },
+      Deferred: {
+        get: function() {
+          return $__src_runtime_runtime_js.Deferred;
+        },
+        enumerable: true
+      },
+      modules: {
+        get: function() {
+          return $__src_runtime_runtime_js.modules;
+        },
+        enumerable: true
+      },
+      addIterator: {
+        get: function() {
+          return $__src_runtime_runtime_js.addIterator;
+        },
+        enumerable: true
+      },
+      assertName: {
+        get: function() {
+          return $__src_runtime_runtime_js.assertName;
+        },
+        enumerable: true
+      },
+      createName: {
+        get: function() {
+          return $__src_runtime_runtime_js.createName;
+        },
+        enumerable: true
+      },
+      deleteProperty: {
+        get: function() {
+          return $__src_runtime_runtime_js.deleteProperty;
+        },
+        enumerable: true
+      },
+      elementDelete: {
+        get: function() {
+          return $__src_runtime_runtime_js.elementDelete;
+        },
+        enumerable: true
+      },
+      elementGet: {
+        get: function() {
+          return $__src_runtime_runtime_js.elementGet;
+        },
+        enumerable: true
+      },
+      elementHas: {
+        get: function() {
+          return $__src_runtime_runtime_js.elementHas;
+        },
+        enumerable: true
+      },
+      elementSet: {
+        get: function() {
+          return $__src_runtime_runtime_js.elementSet;
+        },
+        enumerable: true
+      },
+      getIterator: {
+        get: function() {
+          return $__src_runtime_runtime_js.getIterator;
+        },
+        enumerable: true
+      },
+      getProperty: {
+        get: function() {
+          return $__src_runtime_runtime_js.getProperty;
+        },
+        enumerable: true
+      },
+      setProperty: {
+        get: function() {
+          return $__src_runtime_runtime_js.setProperty;
+        },
+        enumerable: true
+      },
+      has: {
+        get: function() {
+          return $__src_runtime_runtime_js.has;
+        },
+        enumerable: true
+      },
+      isnt: {
+        get: function() {
+          return $__src_runtime_runtime_js.isnt;
+        },
+        enumerable: true
+      },
+      internals: {
+        get: function() {
+          return $__src_runtime_modules_js.internals;
+        },
+        enumerable: true
+      },
+      getModuleInstanceByUrl: {
+        get: function() {
+          return $__src_runtime_modules_js.getModuleInstanceByUrl;
+        },
+        enumerable: true
+      },
+      CodeLoader: {
+        get: function() {
+          return $__src_runtime_modules_js.CodeLoader;
+        },
+        enumerable: true
+      }
+    }));
+  }).call(this);
   function generateNameForUrl(url, commonPath) {
     return '$__' + url.replace(commonPath, '').replace(/[^\d\w$]/g, '_');
   }
@@ -19909,10 +20109,6 @@ var traceur = (function() {
       }
     }));
   }).call(this);
-  var $__9 = $__src_runtime_modules_js, internals = $__9.internals, getModuleInstanceByUrl = $__9.getModuleInstanceByUrl, CodeLoader = $__9.CodeLoader;
-  runtime.internals = internals;
-  runtime.getModuleInstanceByUrl = getModuleInstanceByUrl;
-  runtime.CodeLoader = CodeLoader;
   return Object.preventExtensions(Object.create(null, {
     runtime: {
       get: function() {
@@ -19922,7 +20118,7 @@ var traceur = (function() {
     },
     options: {
       get: function() {
-        return options;
+        return $__src_options_js.options;
       },
       enumerable: true
     },

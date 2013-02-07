@@ -15,12 +15,17 @@
 module traceur {
   var global = this;
 
-  // TODO(arv): Remove this hack.
-  var traceurRuntime = global.traceur.runtime;
-  export var runtime = traceurRuntime;
+  export module runtime {
+    export * from 'runtime/runtime.js';
+    // TODO(arv): Maybe have runtime.js do this?
+    export {
+      internals,
+      getModuleInstanceByUrl,
+      CodeLoader
+    } from 'runtime/modules.js';
+  }
 
-  import options from 'options.js';
-  export options;
+  export options from 'options.js';
 
   /**
    * Generates an identifier string that represents a URL.
@@ -123,9 +128,4 @@ module traceur {
       export ModuleRequireVisitor from 'codegeneration/module/ModuleRequireVisitor.js';
     }
   }
-
-  import {internals, getModuleInstanceByUrl, CodeLoader} from 'runtime/modules.js';
-  runtime.internals = internals;
-  runtime.getModuleInstanceByUrl = getModuleInstanceByUrl;
-  runtime.CodeLoader = CodeLoader;
 }
