@@ -310,7 +310,6 @@ addFeatureOption('classes', Kind.es6);            // 13.5
 addFeatureOption('defaultParameters', Kind.es6);  // Cant find this in the spec
 addFeatureOption('destructuring', Kind.es6);      // 11.13.1
 addFeatureOption('forOf', Kind.es6);              // 12.6.4
-addFeatureOption('isExpression', Kind.es6);       // 11.9
 addFeatureOption('propertyMethods', Kind.es6);    // 13.3
 addFeatureOption('propertyNameShorthand', Kind.es6);
 addFeatureOption('templateLiterals', Kind.es6);   // 7.6.8

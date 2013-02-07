@@ -289,17 +289,13 @@ traceur.runtime = (function(global) {
   $defineProperty(Object, 'setProperty', method(setProperty));
   $defineProperty(Object.prototype, 'hasOwnProperty', {value: hasOwnProperty});
 
-  // is and isnt
+  // Object.is
 
   // Unlike === this returns true for (NaN, NaN) and false for (0, -0).
   function is(left, right) {
     if (left === right)
       return left !== 0 || 1 / left === 1 / right;
     return left !== left && right !== right;
-  }
-
-  function isnt(left, right) {
-    return !is(left, right);
   }
 
   $defineProperty(Object, 'is', method(is));
@@ -459,8 +455,6 @@ traceur.runtime = (function(global) {
     getProperty: getProperty,
     setProperty: setProperty,
     has: has,
-    is: is,
-    isnt: isnt,
     modules: modules,
   };
 })(this);

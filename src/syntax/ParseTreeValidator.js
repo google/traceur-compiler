@@ -14,10 +14,6 @@
 
 import NewExpression from '../syntax/trees/ParseTrees.js';
 import ParseTreeVisitor from 'ParseTreeVisitor.js';
-import {
-  IS,
-  ISNT
-} from 'PredefinedName.js';
 import TreeWriter from '../outputgeneration/TreeWriter.js';
 import * from 'TokenType.js';
 import * from 'trees/ParseTreeType.js';
@@ -209,16 +205,6 @@ export class ParseTreeValidator extends ParseTreeVisitor {
         this.check_(tree.right.isArrowFunctionExpression(), tree.right,
             'assignment expression expected');
         break;
-
-      case IDENTIFIER:
-        var foundIsIdentifier = false;
-        switch (tree.operator.value) {
-          case IS:
-          case ISNT:
-            foundIsIdentifier = true;
-        }
-        if (foundIsIdentifier)
-          break;
 
       default:
         this.fail_(tree, 'unexpected binary operator');

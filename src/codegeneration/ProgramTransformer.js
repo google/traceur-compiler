@@ -26,7 +26,6 @@ import FreeVariableChecker from '../semantics/FreeVariableChecker.js';
 import GeneratorComprehensionTransformer from
     'GeneratorComprehensionTransformer.js';
 import GeneratorTransformPass from 'GeneratorTransformPass.js';
-import IsExpressionTransformer from 'IsExpressionTransformer.js';
 import ModuleTransformer from 'ModuleTransformer.js';
 import ObjectLiteralTransformer from 'ObjectLiteralTransformer.js';
 import ObjectMap from '../util/ObjectMap.js';
@@ -150,8 +149,6 @@ export class ProgramTransformer {
               transformOptions.privateNames,
               ObjectLiteralTransformer,
               identifierGenerator);
-
-    transform(transformOptions.isExpression, IsExpressionTransformer);
 
     // Generator/ArrayComprehensionTransformer must come before for-of and
     // destructuring.

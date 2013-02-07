@@ -43,8 +43,6 @@ import {
   BOOL,
   FROM,
   GET,
-  IS,
-  ISNT,
   MODULE,
   NUMBER,
   OF,
@@ -2380,25 +2378,8 @@ export class Parser {
       case EQUAL_EQUAL_EQUAL:
       case NOT_EQUAL_EQUAL:
         return true;
-      case IDENTIFIER:
-        if (!options.isExpression)
-          return false;
-
-        // No need to go back and peek without a line terminator if token
-        // is not "is" or "isnt".
-        var token = this.peekToken_();
-        if (!this.peekIsOrIsnt_(token))
-          return false;
-
-        // is and isnt do not allow lineterminator before them.
-        token = this.peekTokenNoLineTerminator_();
-        return token && this.peekIsOrIsnt_(token);
     }
-  }
-
-  peekIsOrIsnt_(token) {
-    return token.type === IDENTIFIER &&
-        (token.value === IS || token.value === ISNT);
+    return false;
   }
 
   // 11.8 Relational
