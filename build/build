@@ -36,4 +36,5 @@ node ${DIR}/build.js \
   ${DIR}/../third_party/source-map/lib/source-map/source-map-generator.js \
   ${DIR}/../third_party/source-map/lib/source-map/source-map-consumer.js \
   ${DIR}/../third_party/source-map/lib/source-map/source-node.js \
+  ${DIR}/../src/runtime/runtime.js \
   ${DIR}/../src/traceur.js
