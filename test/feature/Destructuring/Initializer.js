@@ -25,3 +25,8 @@ function j({x = 42}, expected) {
 
 j({}, 42);
 j({x: 43}, 43);
+
+var count = 0;
+var [k = 42] = (count++, [21]);
+assertEquals(21, k);
+assertEquals(1, count);

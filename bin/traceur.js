@@ -13779,8 +13779,8 @@ var $__src_codegeneration_DestructuringTransformer_js = (function() {
           default:
             desugaring = new VariableDeclarationDesugaring(tempRValueIdent);
             desugaring.assign(desugaring.rvalue, tree.initializer);
-            this.desugarPattern_(desugaring, tree.lvalue);
-            if (desugaring.declarations.length > 2) return desugaring.declarations;
+            var initializerFound = this.desugarPattern_(desugaring, tree.lvalue);
+            if (initializerFound || desugaring.declarations.length > 2) return desugaring.declarations;
             initializer = initializer || createParenExpression(tree.initializer);
             desugaring = new VariableDeclarationDesugaring(initializer);
             this.desugarPattern_(desugaring, tree.lvalue);
@@ -13788,6 +13788,7 @@ var $__src_codegeneration_DestructuringTransformer_js = (function() {
         }
       },
       desugarPattern_: function(desugaring, tree) {
+        var initializerFound = false;
         switch (tree.type) {
           case ARRAY_PATTERN:
             {
@@ -13799,6 +13800,7 @@ var $__src_codegeneration_DestructuringTransformer_js = (function() {
                 } else if (lvalue.isSpreadPatternElement()) {
                   desugaring.assign(lvalue.lvalue, createCallExpression(createMemberExpression(ARRAY, PROTOTYPE, SLICE, CALL), createArgumentList(desugaring.rvalue, createNumberLiteral(i))));
                 } else {
+                  if (lvalue.initializer) initializerFound = true;
                   desugaring.assign(lvalue, createConditionalMemberLookupExpression(desugaring.rvalue, createNumberLiteral(i), lvalue.initializer));
                 }
               }
@@ -13811,10 +13813,12 @@ var $__src_codegeneration_DestructuringTransformer_js = (function() {
                 var lookup;
                 switch (field.type) {
                   case BINDING_ELEMENT:
+                    if (field.initializer) initializerFound = true;
                     lookup = createConditionalMemberExpression(desugaring.rvalue, field.binding.identifierToken, field.initializer);
                     desugaring.assign(createIdentifierExpression(field.binding), lookup);
                     break;
                   case OBJECT_PATTERN_FIELD:
+                    if (field.element.initializer) initializerFound = true;
                     lookup = createConditionalMemberExpression(desugaring.rvalue, field.identifier, field.element.initializer);
                     desugaring.assign(field.element, lookup);
                     break;
@@ -13829,11 +13833,11 @@ var $__src_codegeneration_DestructuringTransformer_js = (function() {
               break;
             }
           case PAREN_EXPRESSION:
-            this.desugarPattern_(desugaring, tree.expression);
-            break;
+            return this.desugarPattern_(desugaring, tree.expression);
           default:
             throw new Error('unreachable');
         }
+        return initializerFound;
       }
     }, {transformTree: function(identifierGenerator, tree) {
         return new DestructuringTransformer(identifierGenerator).transformAny(tree);
