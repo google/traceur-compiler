@@ -2,6 +2,10 @@ build: bin/traceur.js
 
 min: bin/traceur.min.js
 
+# Uses uglifyjs to compress. Make sure you have it installed
+#   npm install uglify-js -g
+ugly: bin/traceur.ugly.js
+
 test: build
 	node test/testfeatures.js --errsfile test/errsfile.json
 
@@ -38,6 +42,9 @@ src/syntax/trees/ParseTrees.js: src/syntax/trees/trees.json build/build-parse-tr
 
 src/syntax/trees/ParseTreeType.js: src/syntax/trees/trees.json build/build-parse-tree-type.js
 	node build/build-parse-tree-type.js src/syntax/trees/trees.json > $@
+
+bin/traceur.ugly.js: bin/traceur.js
+	uglifyjs bin/traceur.js --compress dead_code=true,unused=true,sequences=true,join_vars=true,evaluate=true,booleans=true,conditionals=true -m -o $@
 
 .PHONY: build min test force boot clean distclean
 
