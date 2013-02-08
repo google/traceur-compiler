@@ -15,8 +15,7 @@
 import BIND from '../syntax/PredefinedName.js';
 import FindInFunctionScope from 'FindInFunctionScope.js';
 import {
-  FormalParameterList,
-  ThisExpression
+  FormalParameterList
 } from '../syntax/trees/ParseTrees.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import BLOCK from '../syntax/trees/ParseTreeType.js';

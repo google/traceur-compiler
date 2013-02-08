@@ -21,10 +21,7 @@ import {
   createMemberLookupExpression,
   createNumberLiteral,
   createPostfixExpression,
-  createReturnStatement,
-  createVariableDeclaration,
-  createVariableDeclarationList,
-  createVariableStatement
+  createReturnStatement
 } from 'ParseTreeFactory.js';
 
 /**

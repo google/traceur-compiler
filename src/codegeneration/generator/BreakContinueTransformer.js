@@ -13,15 +13,6 @@
 // limitations under the License.
 
 import BreakState from 'BreakState.js';
-import {
-  BreakStatement,
-  ContinueStatement,
-  DoWhileStatement,
-  ForOfStatement,
-  ForStatement,
-  SwitchStatement,
-  WhileStatement
-} from '../../syntax/trees/ParseTrees.js';
 import ContinueState from 'ContinueState.js';
 import ParseTreeTransformer from '../ParseTreeTransformer.js';
 import StateMachine from '../../syntax/trees/StateMachine.js';

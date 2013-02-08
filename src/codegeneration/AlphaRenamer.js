@@ -12,11 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  Block,
-  Catch,
-  IdentifierExpression
-} from '../syntax/trees/ParseTrees.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import {
   ARGUMENTS,

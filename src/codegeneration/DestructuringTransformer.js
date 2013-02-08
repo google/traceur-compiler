@@ -36,14 +36,11 @@ import {
 } from '../syntax/trees/ParseTreeType.js';
 import {
   BindingElement,
-  BindingIdentifier,
   Catch,
   ForInStatement,
   ForOfStatement,
   LiteralExpression,
-  SetAccessor,
-  VariableDeclaration,
-  VariableDeclarationList
+  SetAccessor
 } from '../syntax/trees/ParseTrees.js';
 import TempVarTransformer from 'TempVarTransformer.js';
 import {

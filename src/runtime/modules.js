@@ -22,10 +22,7 @@ import ProgramTransformer from '../codegeneration/ProgramTransformer.js';
 import Project from '../semantics/symbols/Project.js';
 import SourceFile from '../syntax/SourceFile.js';
 import TreeWriter from '../outputgeneration/TreeWriter.js';
-import {
-  canonicalizeUrl,
-  resolveUrl
-} from '../util/url.js';
+import resolveUrl from '../util/url.js';
 
 // TODO(arv): I stripped the resolvers to make this simpler for now.
 
@@ -296,7 +293,7 @@ class InternalLoader {
 
     codeUnit.state = LOADING;
     var loader = this;
-    var xhr = codeUnit.xhr = this.loadTextFile(url, function(text) {
+    codeUnit.xhr = this.loadTextFile(url, function(text) {
       codeUnit.text = text;
       codeUnit.state = LOADED;
       loader.handleCodeUnitLoaded(codeUnit);
@@ -395,7 +392,6 @@ class InternalLoader {
   }
 
   analyze() {
-    var project = this.project;
     var dependencies = this.cache.values();
     var trees = [];
     var modules = [];

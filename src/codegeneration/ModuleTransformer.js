@@ -15,7 +15,6 @@
 import {
   BindingElement,
   BindingIdentifier,
-  IdentifierExpression,
   LiteralExpression,
   ObjectPattern,
   ObjectPatternField,

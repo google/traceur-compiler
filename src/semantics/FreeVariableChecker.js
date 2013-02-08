@@ -20,7 +20,6 @@ import {
 import IdentifierToken from '../syntax/IdentifierToken.js';
 import IDENTIFIER_EXPRESSION from '../syntax/trees/ParseTreeType.js';
 import ParseTreeVisitor from '../syntax/ParseTreeVisitor.js';
-import SourcePosition from '../util/SourcePosition.js';
 import TYPEOF from '../syntax/TokenType.js';
 
 /**

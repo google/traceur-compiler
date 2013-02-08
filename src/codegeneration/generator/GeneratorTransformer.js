@@ -32,21 +32,16 @@ import YieldState from 'YieldState.js';
 import {
   createArgumentList,
   createAssignStateStatement,
-  createAssignmentStatement,
   createBlock,
   createCallExpression,
-  createEmptyParameterList,
   createExpressionStatement,
   createFalseLiteral,
-  createFunctionExpression,
   createIdentifierExpression,
   createMemberExpression,
   createObjectLiteralExpression,
   createPropertyNameAssignment,
   createReturnStatement,
   createStatementList,
-  createStringLiteral,
-  createThisExpression,
   createThrowStatement,
   createVariableStatement
 } from '../ParseTreeFactory.js';

@@ -27,7 +27,6 @@ import {
   createBlock,
   createConditionalExpression,
   createIdentifierExpression,
-  createMemberExpression,
   createMemberLookupExpression,
   createNumberLiteral,
   createOperatorToken,

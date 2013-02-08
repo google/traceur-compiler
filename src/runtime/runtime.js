@@ -22,14 +22,12 @@ if (!this.traceur)
 traceur.runtime = (function(global) {
   'use strict';
 
-  var $call = Function.prototype.call.bind(Function.prototype.call);
   var $create = Object.create;
   var $defineProperty = Object.defineProperty;
   var $freeze = Object.freeze;
   var $getOwnPropertyNames = Object.getOwnPropertyNames;
   var $getPrototypeOf = Object.getPrototypeOf;
   var $hasOwnProperty = Object.prototype.hasOwnProperty;
-  var bind = Function.prototype.bind;
 
   function nonEnum(value) {
     return {

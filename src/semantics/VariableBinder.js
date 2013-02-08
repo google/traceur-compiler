@@ -13,15 +13,6 @@
 // limitations under the License.
 
 import {
-  Block,
-  Catch,
-  ForInStatement,
-  ForStatement,
-  ObjectPatternField,
-  VariableDeclarationList,
-  VariableDeclaration
-} from '../syntax/trees/ParseTrees.js';
-import {
   ARRAY_PATTERN,
   BINDING_IDENTIFIER,
   OBJECT_PATTERN,

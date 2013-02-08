@@ -16,22 +16,11 @@ import AlphaRenamer from 'AlphaRenamer.js';
 import {
   BINDING_IDENTIFIER,
   BLOCK,
-  FUNCTION_DECLARATION,
   VARIABLE_DECLARATION_LIST
 } from '../syntax/trees/ParseTreeType.js';
 import {
-  Block,
-  ClassDeclaration,
-  ForInStatement,
-  ForStatement,
   FunctionDeclaration,
-  FunctionExpression,
-  GetAccessor,
-  Program,
-  SetAccessor,
-  VariableDeclaration,
-  VariableDeclarationList,
-  VariableStatement
+  FunctionExpression
 } from '../syntax/trees/ParseTrees.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import {
@@ -49,10 +38,8 @@ import {
   createFinally,
   createForInStatement,
   createForStatement,
-  createGetAccessor,
   createIdentifierExpression,
   createIdentifierToken,
-  createSetAccessor,
   createThrowStatement,
   createTryStatement,
   createUndefinedExpression,

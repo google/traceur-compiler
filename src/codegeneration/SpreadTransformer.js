@@ -28,20 +28,14 @@ import {
   createArgumentList,
   createArrayLiteralExpression,
   createAssignmentExpression,
-  createBlock,
-  createBooleanLiteral,
   createCallExpression,
   createEmptyArgumentList,
-  createFunctionExpression,
   createIdentifierExpression,
   createMemberExpression,
   createMemberLookupExpression,
   createNewExpression,
   createNullLiteral,
-  createParameterList,
-  createParameterReference,
-  createParenExpression,
-  createReturnStatement
+  createParenExpression
 } from 'ParseTreeFactory.js';
 
 // Spreads the elements in the arguments into a single array.

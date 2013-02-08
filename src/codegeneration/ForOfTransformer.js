@@ -33,7 +33,6 @@ import {
   createFinally,
   createIfStatement,
   createMemberExpression,
-  createStringLiteral,
   createTryStatement,
   createVariableStatement,
   createWhileStatement

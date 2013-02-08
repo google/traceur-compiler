@@ -32,7 +32,6 @@ import {
   COMMA_EXPRESSION,
   IDENTIFIER_EXPRESSION,
   PAREN_EXPRESSION,
-  VARIABLE_DECLARATION,
   YIELD_EXPRESSION
 } from '../syntax/trees/ParseTreeType.js';
 import {

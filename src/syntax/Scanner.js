@@ -16,7 +16,6 @@ import AtNameToken from 'AtNameToken.js';
 import IdentifierToken from 'IdentifierToken.js';
 import KeywordToken from 'KeywordToken.js';
 import LiteralToken from 'LiteralToken.js';
-import SourcePosition from '../util/SourcePosition.js';
 import Token from 'Token.js';
 import isKeyword from 'Keywords.js';
 import * from 'TokenType.js';

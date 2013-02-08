@@ -28,7 +28,6 @@ import {
   PropertyNameAssignment,
   PropertyNameShorthand
 } from '../syntax/trees/ParseTrees.js';
-import Scanner from '../syntax/Scanner.js';
 import SourceFile from '../syntax/SourceFile.js';
 import IDENTIFIER from '../syntax/TokenType.js';
 import {

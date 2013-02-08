@@ -21,7 +21,6 @@ import {
   CoverFormalsTransformerError
 } from '../codegeneration/CoverFormalsTransformer.js';
 import IdentifierToken from 'IdentifierToken.js';
-import MutedErrorReporter from '../util/MutedErrorReporter.js';
 import {
   ARRAY_LITERAL_EXPRESSION,
   BINARY_OPERATOR,
@@ -55,7 +54,6 @@ import {
   Token,
   isAssignmentOperator
 } from 'Token.js';
-import isKeyword from 'Keywords.js';
 import {parseOptions: options} from '../options.js';
 import * from 'TokenType.js';
 import * from 'trees/ParseTrees.js';

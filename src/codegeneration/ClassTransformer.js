@@ -13,18 +13,12 @@
 // limitations under the License.
 
 import {
-  CONSTRUCTOR,
-  CREATE_CLASS,
-  RUNTIME,
-  TRACEUR
+  CONSTRUCTOR
 } from '../syntax/PredefinedName.js';
 import {
-  FormalParameterList,
   GetAccessor,
   PropertyMethodAssignment,
-  PropertyNameAssignment,
-  SetAccessor,
-  SuperExpression
+  SetAccessor
 } from '../syntax/trees/ParseTrees.js';
 import {
   GET_ACCESSOR,
@@ -38,22 +32,10 @@ import {
   VAR
 } from '../syntax/TokenType.js';
 import {
-  createArgumentList,
-  createAssignmentExpression,
   createBlock,
-  createBooleanLiteral,
-  createCallExpression,
-  createExpressionStatement,
-  createFunctionExpression,
   createIdentifierExpression,
-  createIdentifierToken,
   createMemberExpression,
-  createNullLiteral,
   createObjectLiteralExpression,
-  createParenExpression,
-  createPropertyNameAssignment,
-  createRestParameter,
-  createSpreadExpression,
   createThisExpression,
   createVariableStatement
 } from 'ParseTreeFactory.js';

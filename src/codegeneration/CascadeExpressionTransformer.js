@@ -22,7 +22,6 @@ import {
   MEMBER_EXPRESSION,
   MEMBER_LOOKUP_EXPRESSION
 } from '../syntax/trees/ParseTreeType.js';
-import BinaryOperator from '../syntax/trees/ParseTrees.js';
 import TempVarTransformer from 'TempVarTransformer.js';
 import {
   createAssignmentExpression,

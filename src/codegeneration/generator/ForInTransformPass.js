@@ -17,7 +17,6 @@ import {
   VARIABLE_DECLARATION_LIST,
   IDENTIFIER_EXPRESSION
 } from '../../syntax/trees/ParseTreeType.js';
-import IdentifierExpression from '../../syntax/trees/ParseTrees.js';
 import {
   LENGTH,
   PUSH
