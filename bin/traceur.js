@@ -12965,7 +12965,7 @@ var $__src_codegeneration_PlaceholderParser_js = (function() {
   var $__9 = $__src_syntax_trees_ParseTrees_js, PropertyMethodAssignment = $__9.PropertyMethodAssignment, PropertyNameAssignment = $__9.PropertyNameAssignment, PropertyNameShorthand = $__9.PropertyNameShorthand;
   var SourceFile = $__src_syntax_SourceFile_js.SourceFile;
   var IDENTIFIER = $__src_syntax_TokenType_js.IDENTIFIER;
-  var $__9 = $__src_codegeneration_ParseTreeFactory_js, createBindingIdentifier = $__9.createBindingIdentifier, createBooleanLiteral = $__9.createBooleanLiteral, createExpressionStatement = $__9.createExpressionStatement, createIdentifierExpression = $__9.createIdentifierExpression, createIdentifierToken = $__9.createIdentifierToken, createMemberExpression = $__9.createMemberExpression, createNullLiteral = $__9.createNullLiteral, createNumberLiteral = $__9.createNumberLiteral, createStringLiteral = $__9.createStringLiteral, createVoid0 = $__9.createVoid0;
+  var $__9 = $__src_codegeneration_ParseTreeFactory_js, createBindingIdentifier = $__9.createBindingIdentifier, createBooleanLiteral = $__9.createBooleanLiteral, createExpressionStatement = $__9.createExpressionStatement, createGetAccessor = $__9.createGetAccessor, createIdentifierExpression = $__9.createIdentifierExpression, createIdentifierToken = $__9.createIdentifierToken, createMemberExpression = $__9.createMemberExpression, createNullLiteral = $__9.createNullLiteral, createNumberLiteral = $__9.createNumberLiteral, createSetAccessor = $__9.createSetAccessor, createStringLiteral = $__9.createStringLiteral, createVoid0 = $__9.createVoid0;
   var NOT_FOUND = {};
   var PREFIX = '$__placeholder__';
   var cache = new ArrayMap();
@@ -13089,6 +13089,11 @@ var $__src_codegeneration_PlaceholderParser_js = (function() {
         }
         return $__superCall(this, $__proto, "transformBlock", [tree]);
       },
+      transformGetAccessor: function(tree) {
+        var value = this.getValue_(tree.name.value);
+        if (value === NOT_FOUND) return $__superCall(this, $__proto, "transformGetAccessor", [tree]);
+        return createGetAccessor(value, this.transformAny(tree.body));
+      },
       transformMemberExpression: function(tree) {
         var value = this.getValue_(tree.memberName.value);
         if (value === NOT_FOUND) return $__superCall(this, $__proto, "transformMemberExpression", [tree]);
@@ -13120,6 +13125,11 @@ var $__src_codegeneration_PlaceholderParser_js = (function() {
           return new PropertyNameShorthand(null, convertValueToIdentifierToken(value));
         }
         return $__superCall(this, $__proto, "transformPropertyNameShorthand", [tree]);
+      },
+      transformSetAccessor: function(tree) {
+        var value = this.getValue_(tree.name.value);
+        if (value === NOT_FOUND) return $__superCall(this, $__proto, "transformSetAccessor", [tree]);
+        return createSetAccessor(value, this.transformAny(tree.body));
       }
     }, {}, $__proto, $__super, true);
     return $PlaceholderTransformer;

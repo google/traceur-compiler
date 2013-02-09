@@ -34,11 +34,13 @@ import {
   createBindingIdentifier,
   createBooleanLiteral,
   createExpressionStatement,
+  createGetAccessor,
   createIdentifierExpression,
   createIdentifierToken,
   createMemberExpression,
   createNullLiteral,
   createNumberLiteral,
+  createSetAccessor,
   createStringLiteral,
   createVoid0
 } from 'ParseTreeFactory.js';
@@ -275,6 +277,13 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
     return super.transformBlock(tree);
   }
 
+  transformGetAccessor(tree) {
+    var value = this.getValue_(tree.name.value);
+    if (value === NOT_FOUND)
+      return super.transformGetAccessor(tree);
+    return createGetAccessor(value, this.transformAny(tree.body));
+  }
+
   transformMemberExpression(tree) {
     var value = this.getValue_(tree.memberName.value);
     if (value === NOT_FOUND)
@@ -320,5 +329,12 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
                                        convertValueToIdentifierToken(value));
     }
     return super.transformPropertyNameShorthand(tree);
+  }
+
+  transformSetAccessor(tree) {
+    var value = this.getValue_(tree.name.value);
+    if (value === NOT_FOUND)
+      return super.transformSetAccessor(tree);
+    return createSetAccessor(value, this.transformAny(tree.body));
   }
 }
