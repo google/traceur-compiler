@@ -137,14 +137,14 @@ export class TempVarTransformer extends ParseTreeTransformer {
 
   /**
    * Adds a new temporary variable to the current function scope.
-   * @param {ParseTree=} opt_initializer If present then the variable will
+   * @param {ParseTree=} initializer If present then the variable will
    *     have this as the initializer expression.
    * @return {string} The name of the temporary variable.
    */
-  addTempVar(opt_initializer) {
+  addTempVar(initializer = null) {
     var vars = getVars(this);
     var uid = this.getTempIdentifier();
-    vars.push(new TempVarStatement(uid, opt_initializer || null));
+    vars.push(new TempVarStatement(uid, initializer));
     return uid;
   }
 

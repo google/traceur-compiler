@@ -26,6 +26,7 @@ node ${DIR}/build.js \
   --generators \
   --for-of \
   --strict-semicolons \
+  --default-parameters \
   "$@" \
   -- \
   ${DIR}/../third_party/source-map/lib/source-map/array-set.js \

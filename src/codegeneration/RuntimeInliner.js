@@ -140,17 +140,17 @@ export class RuntimeInliner extends ParseTreeTransformer {
 
   /**
    * @param {string} name The runtime function.
-   * @param {string=} opt_source The source of the function as a string. If
+   * @param {string=} source The source of the function as a string. If
    *     |name| has not been registered before then this is a required
    *     parameter.
    * @return {IdentifierExpression}
    */
-  get(name, opt_source) {
+  get(name, source = undefined) {
     if (!(name in this.map_)) {
       if (name in shared)
-        opt_source = shared[name];
-      traceur.assert(opt_source);
-      this.register(name, opt_source);
+        source = shared[name];
+      traceur.assert(source);
+      this.register(name, source);
     }
     return this.getAsIdentifierExpression(name);
   }

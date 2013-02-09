@@ -23,12 +23,12 @@ export class ProjectWriter {}
 
 /**
  * @param {traceur.util.ObjectMap} results
- * @param {Object} opt_options to ParseTreeWriter.write
+ * @param {Object=} options to ParseTreeWriter.write
  * @return {string}
  */
-ProjectWriter.write = function(results, opt_options) {
+ProjectWriter.write = function(results, options = undefined) {
   return results.keys().map((file) => {
-    return TreeWriter.write(results.get(file), opt_options);
+    return TreeWriter.write(results.get(file), options);
   }).join('');
 };
 

@@ -22,21 +22,21 @@ export class TreeWriter {}
 /*
  * Create a ParseTreeWriter configured with options, apply it to tree
  * @param {ParseTree} tree
- * @param {Object} opt_options:
+ * @param {Object=} options:
  *   highlighted: {ParseTree} branch of tree to highlight
  *   showLineNumbers: {boolean} add comments giving input line numbers
  *   sourceMapGenerator: {SourceMapGenerator} see third-party/source-maps
- * @return source code; optional side-effect opt_options.sourceMap set
+ * @return source code; optional side-effect options.sourceMap set
  */
 
-TreeWriter.write = function(tree, opt_options) {
+TreeWriter.write = function(tree, options = undefined) {
   var showLineNumbers;
   var highlighted = null;
   var sourceMapGenerator;
-  if (opt_options) {
-    showLineNumbers = opt_options.showLineNumbers;
-    highlighted = opt_options.highlighted || null;
-    sourceMapGenerator = opt_options.sourceMapGenerator;
+  if (options) {
+    showLineNumbers = options.showLineNumbers;
+    highlighted = options.highlighted || null;
+    sourceMapGenerator = options.sourceMapGenerator;
   }
 
   var writer;
@@ -53,7 +53,7 @@ TreeWriter.write = function(tree, opt_options) {
   }
 
   if (sourceMapGenerator) {
-    opt_options.sourceMap = sourceMapGenerator.toString();
+    options.sourceMap = sourceMapGenerator.toString();
   }
 
   return writer.result_.toString();

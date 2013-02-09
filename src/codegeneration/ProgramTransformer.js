@@ -97,7 +97,7 @@ export class ProgramTransformer {
     return this.transformTree_(tree);
   }
 
-  transformTree_(tree, opt_module) {
+  transformTree_(tree, module = undefined) {
     var identifierGenerator = this.project_.identifierGenerator;
     var runtimeInliner = this.project_.runtimeInliner;
     var reporter = this.reporter_;
@@ -130,7 +130,7 @@ export class ProgramTransformer {
               identifierGenerator);
 
     chain(transformOptions.modules,
-          () => this.transformModules_(tree, opt_module));
+          () => this.transformModules_(tree, module));
 
     transform(transformOptions.arrowFunctions,
               ArrowFunctionTransformer, reporter);
@@ -227,17 +227,14 @@ export class ProgramTransformer {
    * Transforms a program tree. If an optional module is passed in the
    * program is treated as a module body.
    * @param {Program} tree
-   * @param {ModuleSymbol} module
+   * @param {ModuleSymbol=} module
    * @return {Program}
    * @private
    */
-  transformModules_(tree, opt_module) {
-    if (opt_module) {
-      return ModuleTransformer.transformAsModule(this.project_, opt_module,
-                                                 tree);
-    } else {
-      return ModuleTransformer.transform(this.project_, tree);
-    }
+  transformModules_(tree, module = undefined) {
+    if (module)
+      return ModuleTransformer.transformAsModule(this.project_, module, tree);
+    return ModuleTransformer.transform(this.project_, tree);
   }
 }
 

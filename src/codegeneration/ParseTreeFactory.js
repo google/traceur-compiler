@@ -370,11 +370,11 @@ export function createScopedExpression(block) {
 
 /**
  * @param {ParseTree} operand
- * @param {ArgumentList=} opt_args
+ * @param {ArgumentList=} args
  * @return {CallExpression}
  */
-export function createCallExpression(operand, opt_args) {
-  var args = opt_args || createEmptyArgumentList();
+export function createCallExpression(operand,
+                                     args = createEmptyArgumentList()) {
   return new CallExpression(null, operand, args);
 }
 
@@ -396,8 +396,8 @@ export function createBoundCall(func, thisTree) {
 /**
  * @return {BreakStatement}
  */
-export function createBreakStatement(opt_name) {
-  return new BreakStatement(null, opt_name || null);
+export function createBreakStatement(name = null) {
+  return new BreakStatement(null, name);
 }
 
 // function.call(this, arguments)
@@ -486,8 +486,8 @@ export function createConditionalExpression(condition, left, right) {
 /**
  * @return {ContinueStatement}
  */
-export function createContinueStatement(opt_name) {
-  return new ContinueStatement(null, opt_name || null);
+export function createContinueStatement(name = null) {
+  return new ContinueStatement(null, name);
 }
 
 /**
@@ -518,15 +518,11 @@ export function createAssignmentStatement(lhs, rhs) {
 
 /**
  * @param {ParseTree} operand
- * @param {ArgumentList=} opt_args
+ * @param {ArgumentList=} args
  * @return {ExpressionStatement}
  */
-export function createCallStatement(operand, opt_args) {
-  if (opt_args) {
-    return createExpressionStatement(
-        createCallExpression(operand, opt_args));
-  }
-  return createExpressionStatement(createCallExpression(operand));
+export function createCallStatement(operand, args = undefined) {
+  return createExpressionStatement(createCallExpression(operand, args));
 }
 
 /**
@@ -621,12 +617,11 @@ export function createUndefinedExpression() {
 /**
  * @param {ParseTree} condition
  * @param {ParseTree} ifClause
- * @param {ParseTree=} opt_elseClause
+ * @param {ParseTree=} elseClause
  * @return {IfStatement}
  */
-export function createIfStatement(condition, ifClause, opt_elseClause) {
-  return new IfStatement(null, condition, ifClause,
-      opt_elseClause || null);
+export function createIfStatement(condition, ifClause, elseClause = null) {
+  return new IfStatement(null, condition, ifClause, elseClause);
 }
 
 /**
@@ -710,12 +705,9 @@ export function createMemberLookupExpression(operand,  memberExpression) {
 }
 
 /**
- * @param {IdentifierToken|string=} opt_memberName
  * @return {ParseTree}
  */
-export function createThisExpression(memberName) {
-  if (memberName)
-    return createMemberExpression(createThisExpression(), memberName);
+export function createThisExpression() {
   return new ThisExpression(null);
 }
 
@@ -945,21 +937,11 @@ export function createThrowStatement(value) {
 
 /**
  * @param {ParseTree} body
- * @param {ParseTree} catchOrFinallyBlock
- * @param {ParseTree=} opt_finallyBlock
+ * @param {ParseTree} catchBlock
+ * @param {ParseTree=} finallyBlock
  * @return {TryStatement}
  */
-export function createTryStatement(body, catchOrFinallyBlock, opt_finallyBlock) {
-  // TODO(arv): Remove 2 params case and enforce a catchBlack (may be null).
-  var catchBlock, finallyBlock;
-  if (arguments.length > 2) {
-    catchBlock = arguments[1];
-    finallyBlock = arguments[2];
-  } else {
-    catchBlock = null;
-    finallyBlock = arguments[1];
-  }
-
+export function createTryStatement(body, catchBlock, finallyBlock = null) {
   return new TryStatement(null, body, catchBlock, finallyBlock);
 }
 

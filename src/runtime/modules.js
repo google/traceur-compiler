@@ -542,8 +542,9 @@ export class CodeLoader {
    * @param {Project} project
    * @param {CodeLoader} parentLoader The parent loader or null if this is
    *     the initial loader.
+   * @param {*=} resolver
    */
-  constructor(reporter, project, parentLoader, opt_resolver) {
+  constructor(reporter, project, parentLoader, resolver = undefined) {
     // TODO(arv): Implement parent loader
     // TODO(arv): Implement resolver
     this.internalLoader_ = new InternalLoader(reporter, project);
@@ -556,9 +557,9 @@ export class CodeLoader {
    * and its URL is the given URL. The additional callback is used if an error
    * occurs.
    */
-  load(url, callback, opt_errback) {
+  load(url, callback, errback = undefined) {
     var codeUnit = this.internalLoader_.load(url);
-    codeUnit.addListener(callback, opt_errback);
+    codeUnit.addListener(callback, errback);
   }
 
   /**
@@ -582,9 +583,9 @@ export class CodeLoader {
    * statically associated with this loader, and its URL is the base URL of
    * this loader. The additional callback is used if an error occurs.
    */
-  evalLoad(program, callback, opt_errback) {
+  evalLoad(program, callback, errback = undefined) {
     var codeUnit = this.internalLoader_.evalLoad(program);
-    codeUnit.addListener(callback, opt_errback);
+    codeUnit.addListener(callback, errback);
     this.internalLoader_.handleCodeUnitLoaded(codeUnit);
   }
 
@@ -614,7 +615,7 @@ export class CodeLoader {
    * that key.
    * @return {void}
    */
-  defineModule(name, moduleInstanceObject, opt_cacheKey) {
+  defineModule(name, moduleInstanceObject, cacheKey = undefined) {
     throw Error('Not implemented');
   }
 
@@ -631,10 +632,10 @@ export class CodeLoader {
    *
    * @return {CodeLoader}
    */
-  create(moduleInstanceObject, opt_resolver) {
+  create(moduleInstanceObject, resolver = undefined) {
     var url = this.project_.url;
     var project = new Project(url);
-    var loader = new CodeLoader(this.reporter, project, this, opt_resolver);
+    var loader = new CodeLoader(this.reporter, project, this, resolver);
     // TODO(arv): Implement globals
     // TODO(arv): Implement resolver
     return loader;

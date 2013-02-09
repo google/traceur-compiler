@@ -60,16 +60,16 @@ export class ModuleAnalyzer {
 
   /**
    * @param {ParseTree} tree
-   * @param {ModuleSymbol} root
+   * @param {Array.<ModuleSymbol>=} roots
    * @return {void}
    */
-  analyzeModuleTrees(trees, opt_roots) {
+  analyzeModuleTrees(trees, roots = undefined) {
     var reporter = this.reporter_;
     var project = this.project_;
     var root = project.getRootModule();
 
     function getRoot(i) {
-      return opt_roots ? opt_roots[i] : root;
+      return roots ? roots[i] : root;
     }
 
     function doVisit(ctor) {

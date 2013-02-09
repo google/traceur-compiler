@@ -307,6 +307,7 @@ export class Scanner {
    * @return {Token}
    */
   peekToken(opt_index) {
+    // Too hot for default parameters.
     return opt_index ? peekTokenLookahead() : peekToken();
   }
 
@@ -1134,7 +1135,7 @@ function updateCurrentCharCode() {
   currentCharCode = input.charCodeAt(index);
 }
 
-function reportError(message, opt_index) {
-  var position = getPosition(opt_index || index);
+function reportError(message, indexArg = index) {
+  var position = getPosition(indexArg);
   errorReporter.reportError(position, message);
 }

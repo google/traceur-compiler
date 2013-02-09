@@ -135,12 +135,12 @@ export var options = {
 };
 
 /**
- * Resets all options to the default value or to false if |opt_allOff| is
+ * Resets all options to the default value or to false if |allOff| is
  * true.
- * @param {boolean=} opt_allOff
+ * @param {boolean=} allOff
  */
-function reset(opt_allOff) {
-  var useDefault = opt_allOff === undefined;
+function reset(allOff = undefined) {
+  var useDefault = allOff === undefined;
   Object.keys(options).forEach((name) => {
     options[name] = useDefault && defaultValues[name];
   });

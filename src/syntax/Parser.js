@@ -145,9 +145,9 @@ export class Parser {
   /**
    * @return {Program}
    */
-  parseProgram(opt_load) {
+  parseProgram(load = false) {
     var start = this.getTreeStartLocation_();
-    var programElements = this.parseProgramElements_(!!opt_load);
+    var programElements = this.parseProgramElements_(load);
     this.eat_(END_OF_FILE);
     return new Program(this.getTreeLocation_(start), programElements);
   }
@@ -842,8 +842,8 @@ export class Parser {
     return this.peekBindingElement_(type);
   }
 
-  parseFormalParameter_(opt_initializerAllowed) {
-    return this.parseBindingElement_(opt_initializerAllowed);
+  parseFormalParameter_(initializerAllowed = undefined) {
+    return this.parseBindingElement_(initializerAllowed);
   }
 
   parseRestParameter_() {
@@ -926,15 +926,15 @@ export class Parser {
   }
 
   /**
-   * @param {Expression=} opt_expressionIn
-   * @param {DestructuringInitializer} opt_initializer Whether destructuring
+   * @param {Expression=} expressionIn
+   * @param {DestructuringInitializer} initializer Whether destructuring
    *     requires an initializer
    * @return {VariableDeclarationList}
    * @private
    */
-  parseVariableDeclarationList_(opt_expressionIn, opt_initializer) {
-    var expressionIn = opt_expressionIn || Expression.NORMAL;
-    var initializer = opt_initializer || DestructuringInitializer.REQUIRED;
+  parseVariableDeclarationList_(
+      expressionIn = Expression.NORMAL,
+      initializer = DestructuringInitializer.REQUIRED) {
     var type = this.peekType_();
 
     switch (type) {
@@ -973,12 +973,13 @@ export class Parser {
    *
    * @param {TokenType} binding
    * @param {Expression} expressionIn
-   * @param {DestructuringInitializer=} opt_initializer
+   * @param {DestructuringInitializer=} initializer
    * @return {VariableDeclaration}
    * @private
    */
-  parseVariableDeclaration_(binding, expressionIn, opt_initializer) {
-    var initRequired = opt_initializer !== DestructuringInitializer.OPTIONAL;
+  parseVariableDeclaration_(binding, expressionIn,
+                            initializer = DestructuringInitializer.REQUIRED) {
+    var initRequired = initializer !== DestructuringInitializer.OPTIONAL;
     var start = this.getTreeStartLocation_();
 
     var lvalue;
@@ -2044,13 +2045,13 @@ export class Parser {
   }
 
   /**
-   * @param {string=} opt_message Error message to report.
+   * @param {string=} message Error message to report.
    * @return {ParseTree}
    * @private
    */
-  parseMissingPrimaryExpression_(opt_message) {
+  parseMissingPrimaryExpression_(message = 'primary expression expected') {
     var start = this.getTreeStartLocation_();
-    this.reportError_(opt_message || 'primary expression expected');
+    this.reportError_(message);
     var token = this.nextToken_();
     return new MissingPrimaryExpression(this.getTreeLocation_(start), token);
   }
@@ -2111,8 +2112,7 @@ export class Parser {
    *
    * @return {ParseTree}
    */
-  parseExpression(opt_expressionIn) {
-    var expressionIn = opt_expressionIn || Expression.IN;
+  parseExpression(expressionIn = Expression.IN) {
     var start = this.getTreeStartLocation_();
     var result = this.parseAssignmentExpression(expressionIn);
     if (this.peek_(COMMA)) {
@@ -2125,8 +2125,7 @@ export class Parser {
     return result;
   }
 
-  parseExpressionForCoverFormals_(opt_expressionIn) {
-    var expressionIn = opt_expressionIn || Expression.IN;
+  parseExpressionForCoverFormals_(expressionIn = Expression.IN) {
     var start = this.getTreeStartLocation_();
     var exprs = [this.parseAssignmentExpression(expressionIn)];
     if (this.peek_(COMMA)) {
@@ -2169,11 +2168,10 @@ export class Parser {
    * @param {Expression} expressionIn
    * @return {ParseTree}
    */
-  parseAssignmentExpression(opt_expressionIn) {
+  parseAssignmentExpression(expressionIn = Expression.NORMAL) {
     if (this.allowYield_ && this.peek_(YIELD))
       return this.parseYieldExpression_();
 
-    var expressionIn = opt_expressionIn || Expression.NORMAL;
     var start = this.getTreeStartLocation_();
 
     var left = this.parseConditional_(expressionIn);
@@ -3126,12 +3124,12 @@ export class Parser {
   }
 
   /**
-   * @param {Initializer} opt_initializer If left out the initializer is
+   * @param {Initializer=} initializer If left out the initializer is
    *     optional and allowed. If set to Initializer.REQUIRED there must be an
    *     initializer.
    * @return {ParseTree}
    */
-  parseBindingElement_(opt_initializer) {
+  parseBindingElement_(initializer = Initializer.OPTIONAL) {
     var start = this.getTreeStartLocation_();
     var binding;
     if (this.peekPattern_(this.peekType_()))
@@ -3140,7 +3138,7 @@ export class Parser {
       binding = this.parseBindingIdentifier_();
     var initializer = null;
     if (this.peek_(EQUAL) ||
-        opt_initializer === Initializer.REQUIRED) {
+        initializer === Initializer.REQUIRED) {
       initializer = this.parseInitializer_();
     }
     return new BindingElement(this.getTreeLocation_(start), binding,
@@ -3465,17 +3463,17 @@ export class Parser {
 
   /**
    * Shorthand for this.eat_(IDENTIFIER)
-   * @param {string=} opt_expected
+   * @param {string=} expected
    * @return {IdentifierToken}
    * @private
    */
-  eatId_(opt_expected) {
+  eatId_(expected = undefined) {
     var result = this.eat_(IDENTIFIER);
-    if (opt_expected) {
-      if (!result || result.value !== opt_expected) {
+    if (expected) {
+      if (!result || result.value !== expected) {
         if (!result)
           result = this.peekToken_();
-        this.reportError_(result, `expected '${opt_expected}'`);
+        this.reportError_(result, `expected '${expected}'`);
         return null;
       }
     }
@@ -3611,6 +3609,7 @@ export class Parser {
    * @private
    */
   peek_(expectedType, opt_index) {
+    // Too hot for default parameters.
     return this.peekToken_(opt_index).type === expectedType;
   }
 
@@ -3631,6 +3630,7 @@ export class Parser {
    * @private
    */
   peekToken_(opt_index) {
+    // Too hot for default parameters.
     return this.scanner_.peekToken(opt_index);
   }
 
