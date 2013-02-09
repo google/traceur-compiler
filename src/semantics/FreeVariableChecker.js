@@ -22,6 +22,8 @@ import IDENTIFIER_EXPRESSION from '../syntax/trees/ParseTreeType.js';
 import ParseTreeVisitor from '../syntax/ParseTreeVisitor.js';
 import TYPEOF from '../syntax/TokenType.js';
 
+var global = this;
+
 /**
  * Represents the link in the scope chain.
  */
@@ -248,17 +250,15 @@ export class FreeVariableChecker extends ParseTreeVisitor {
   reportError_(...args) {
     this.reporter_.reportError(...args);
   }
+
+  /**
+   * Checks the program for free variables, and reports an error when it
+   * encounters any.
+   *
+   * @param {ErrorReporter} reporter
+   * @param {Program} tree
+   */
+  static checkProgram(reporter, tree) {
+    new FreeVariableChecker(reporter).visitProgram(tree, global);
+  }
 }
-
-var global = this;
-
-/**
- * Checks the program for free variables, and reports an error when it
- * encounters any.
- *
- * @param {ErrorReporter} reporter
- * @param {Program} tree
- */
-FreeVariableChecker.checkProgram = function(reporter, tree) {
-  new FreeVariableChecker(reporter).visitProgram(tree, global);
-};

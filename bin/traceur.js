@@ -6846,6 +6846,7 @@ var $__src_codegeneration_CoverFormalsTransformer_js = (function() {
   var $__9 = $__src_syntax_trees_ParseTrees_js, ArrayPattern = $__9.ArrayPattern, BindingElement = $__9.BindingElement, BindingIdentifier = $__9.BindingIdentifier, FormalParameterList = $__9.FormalParameterList, ObjectPattern = $__9.ObjectPattern, ObjectPatternField = $__9.ObjectPatternField, RestParameter = $__9.RestParameter, SpreadPatternElement = $__9.SpreadPatternElement;
   var EQUAL = $__src_syntax_TokenType_js.EQUAL;
   var $__9 = $__src_syntax_trees_ParseTreeType_js, IDENTIFIER_EXPRESSION = $__9.IDENTIFIER_EXPRESSION, SPREAD_PATTERN_ELEMENT = $__9.SPREAD_PATTERN_ELEMENT;
+  var AssignmentPatternTransformerError = $__src_codegeneration_AssignmentPatternTransformer_js.AssignmentPatternTransformerError;
   var CoverFormalsTransformerError = function($__super) {
     var $__proto = $__getProtoParent($__super);
     var $CoverFormalsTransformerError = ($__createClass)({constructor: function() {
@@ -13886,6 +13887,7 @@ var $__src_semantics_FreeVariableChecker_js = (function() {
   var IDENTIFIER_EXPRESSION = $__src_syntax_trees_ParseTreeType_js.IDENTIFIER_EXPRESSION;
   var ParseTreeVisitor = $__src_syntax_ParseTreeVisitor_js.ParseTreeVisitor;
   var TYPEOF = $__src_syntax_TokenType_js.TYPEOF;
+  var global = this;
   var Scope = function() {
     var $Scope = ($__createClassNoExtends)({constructor: function(parent) {
         this.parent = parent;
@@ -14023,13 +14025,11 @@ var $__src_semantics_FreeVariableChecker_js = (function() {
         for (var args = [], $__8 = 0; $__8 < arguments.length; $__8++) args[$__8] = arguments[$__8];
         ($__10 = this.reporter_).reportError.apply($__10, $__toObject(args));
       }
-    }, {}, $__proto, $__super, true);
+    }, {checkProgram: function(reporter, tree) {
+        new FreeVariableChecker(reporter).visitProgram(tree, global);
+      }}, $__proto, $__super, true);
     return $FreeVariableChecker;
   }(ParseTreeVisitor);
-  var global = this;
-  FreeVariableChecker.checkProgram = function(reporter, tree) {
-    new FreeVariableChecker(reporter).visitProgram(tree, global);
-  };
   return Object.preventExtensions(Object.create(null, {FreeVariableChecker: {
       get: function() {
         return FreeVariableChecker;

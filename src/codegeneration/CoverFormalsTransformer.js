@@ -28,6 +28,7 @@ import {
   IDENTIFIER_EXPRESSION,
   SPREAD_PATTERN_ELEMENT
 } from '../syntax/trees/ParseTreeType.js';
+import AssignmentPatternTransformerError from 'AssignmentPatternTransformer.js';
 
 /**
  * @fileoverview This transformer is used by the parser to transform a
