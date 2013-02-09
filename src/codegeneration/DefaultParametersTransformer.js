@@ -16,11 +16,21 @@ import {
   FormalParameterList
 } from '../syntax/trees/ParseTrees.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
-import ARGUMENTS from '../syntax/PredefinedName.js';
-import REST_PARAMETER from '../syntax/trees/ParseTreeType.js';
+import {
+  ARGUMENTS,
+  UNDEFINED
+} from '../syntax/PredefinedName.js';
+import {
+  IDENTIFIER_EXPRESSION,
+  LITERAL_EXPRESSION,
+  PAREN_EXPRESSION,
+  REST_PARAMETER,
+  UNARY_EXPRESSION
+} from '../syntax/trees/ParseTreeType.js';
 import {
   NOT_EQUAL_EQUAL,
-  VAR
+  VAR,
+  VOID
 } from '../syntax/TokenType.js';
 import {
   createBinaryOperator,
@@ -36,6 +46,56 @@ import {
 import prependStatements from 'PrependStatements.js';
 
 var stack = [];
+
+function isUndefined(tree) {
+  if (tree.type === PAREN_EXPRESSION)
+    return isUndefined(tree.expression);
+
+  return tree.type === IDENTIFIER_EXPRESSION &&
+      tree.identifierToken.value === UNDEFINED;
+}
+
+function isVoidExpression(tree) {
+  if (tree.type === PAREN_EXPRESSION)
+    return isVoidExpression(tree.expression);
+  // Any void expression without side effects can be dropped. Maybe expand
+  // this as needed?
+  return tree.type === UNARY_EXPRESSION && tree.operator.type === VOID &&
+      isLiteralExpression(tree.operand);
+}
+
+function isLiteralExpression(tree) {
+  if (tree.type === PAREN_EXPRESSION)
+    return isLiteralExpression(tree.expression);
+  return tree.type === LITERAL_EXPRESSION;
+}
+
+function createDefaultAssignment(index, binding, initializer) {
+  var argumentsExpression =
+      createMemberLookupExpression(
+          createIdentifierExpression(ARGUMENTS),
+          createNumberLiteral(index));
+
+  var assignmentExpression;
+  // If the default value is undefined we can skip testing if arguments[i] is
+  // undefined.
+  if (initializer === null || isUndefined(initializer) ||
+      isVoidExpression(initializer)) {
+    // var binding = arguments[i];
+    assignmentExpression = argumentsExpression;
+  } else {
+    // var binding = arguments[i] !== (void 0) ? arguments[i] : initializer;
+    assignmentExpression =
+        createConditionalExpression(
+            createBinaryOperator(
+                argumentsExpression,
+                createOperatorToken(NOT_EQUAL_EQUAL),
+                createVoid0()),
+            argumentsExpression,
+            initializer);
+  }
+  return createVariableStatement(VAR, binding, assignmentExpression);
+}
 
 /**
  * Desugars default parameters.
@@ -83,24 +143,12 @@ export class DefaultParametersTransformer extends ParseTreeTransformer {
       //
       // =>
       //
-      // var binding = arguments[i] !== (void 0) ? arguments[i] : initializer;
+      // var binding = ...
       } else {
         defaultToUndefined = true;
         changed = true;
-        statements.push(createVariableStatement(
-            VAR,
-            param.binding,
-            createConditionalExpression(
-                createBinaryOperator(
-                    createMemberLookupExpression(
-                        createIdentifierExpression(ARGUMENTS),
-                        createNumberLiteral(i)),
-                    createOperatorToken(NOT_EQUAL_EQUAL),
-                    createVoid0()),
-                createMemberLookupExpression(
-                    createIdentifierExpression(ARGUMENTS),
-                    createNumberLiteral(i)),
-                param.initializer || createVoid0())));
+        statements.push(
+            createDefaultAssignment(i, param.binding, param.initializer));
       }
     }
 
