@@ -13129,7 +13129,7 @@ var $__src_codegeneration_PlaceholderParser_js = (function() {
       transformSetAccessor: function(tree) {
         var value = this.getValue_(tree.name.value);
         if (value === NOT_FOUND) return $__superCall(this, $__proto, "transformSetAccessor", [tree]);
-        return createSetAccessor(value, this.transformAny(tree.body));
+        return createSetAccessor(value, this.transformAny(tree.parameter), this.transformAny(tree.body));
       }
     }, {}, $__proto, $__super, true);
     return $PlaceholderTransformer;

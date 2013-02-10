@@ -335,6 +335,8 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
     var value = this.getValue_(tree.name.value);
     if (value === NOT_FOUND)
       return super.transformSetAccessor(tree);
-    return createSetAccessor(value, this.transformAny(tree.body));
+    return createSetAccessor(value,
+                            this.transformAny(tree.parameter),
+                            this.transformAny(tree.body));
   }
 }
