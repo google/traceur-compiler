@@ -301,9 +301,10 @@ export class AsyncTransformer extends CPSTransformer {
 
   /**
    * @param {number} rethrowState
+   * @param {number} machineEndState
    * @return {Array.<ParseTree>}
    */
-  machineUncaughtExceptionStatements(rethrowState) {
+  machineUncaughtExceptionStatements(rethrowState, machineEndState) {
     return createStatementList(
         createAssignStateStatement(rethrowState),
         createBreakStatement());

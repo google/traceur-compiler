@@ -14942,8 +14942,8 @@ var $__src_codegeneration_generator_CPSTransformer_js = (function() {
         var machineEndState = this.allocateState();
         var body = createSwitchStatement(createIdentifierExpression(STATE), this.transformMachineStates(machine, machineEndState, rethrowState, enclosingFinallyState));
         var caseClauses = [];
-        this.addExceptionCases_(rethrowState, enclosingFinallyState, enclosingCatchState, machine.getAllStateIDs(), caseClauses);
-        caseClauses.push(createDefaultClause(this.machineUncaughtExceptionStatements(rethrowState)));
+        this.addExceptionCases_(rethrowState, enclosingFinallyState, enclosingCatchState, machine.states, caseClauses);
+        caseClauses.push(createDefaultClause(this.machineUncaughtExceptionStatements(rethrowState, machineEndState)));
         body = createTryStatement(createBlock(body), createCatch(createBindingIdentifier(CAUGHT_EXCEPTION), createBlock(createAssignmentStatement(createIdentifierExpression(STORED_EXCEPTION), createIdentifierExpression(CAUGHT_EXCEPTION)), createSwitchStatement(createIdentifierExpression(STATE), caseClauses))), null);
         return body;
       },
@@ -14966,9 +14966,11 @@ var $__src_codegeneration_generator_CPSTransformer_js = (function() {
       },
       addExceptionCases_: function(rethrowState, enclosingFinallyState, enclosingCatchState, allStates, caseClauses) {
         for (var i = 0; i < allStates.length; i++) {
-          var state = allStates[i];
+          var state = allStates[i].id;
+          var statements = allStates[i].statements;
           var finallyState = enclosingFinallyState[state];
           var catchState = enclosingCatchState[state];
+          if (!statements) continue;
           if (catchState != null && finallyState != null && catchState.tryStates.indexOf(finallyState.finallyState) >= 0) {
             caseClauses.push(createCaseClause(createNumberLiteral(state), State.generateJumpThroughFinally(finallyState.finallyState, catchState.catchState)));
           } else if (catchState != null) {
@@ -15209,7 +15211,7 @@ var $__src_codegeneration_generator_AsyncTransformer_js = (function() {
         statements.push(createReturnStatement(createCallExpression(createMemberExpression(RESULT, CREATE_PROMISE))));
         return createBlock(statements);
       },
-      machineUncaughtExceptionStatements: function(rethrowState) {
+      machineUncaughtExceptionStatements: function(rethrowState, machineEndState) {
         return createStatementList(createAssignStateStatement(rethrowState), createBreakStatement());
       },
       machineEndStatements: function() {
@@ -15387,8 +15389,8 @@ var $__src_codegeneration_generator_GeneratorTransformer_js = (function() {
         statements.push(createReturnStatement(createIdentifierExpression(RESULT)));
         return createBlock(statements);
       },
-      machineUncaughtExceptionStatements: function(rethrowState) {
-        return createStatementList(createThrowStatement(createIdentifierExpression(STORED_EXCEPTION)));
+      machineUncaughtExceptionStatements: function(rethrowState, machineEndState) {
+        return createStatementList(createAssignStateStatement(machineEndState), createThrowStatement(createIdentifierExpression(STORED_EXCEPTION)));
       },
       machineRethrowStatements: function(machineEndState) {
         return createStatementList(createThrowStatement(createIdentifierExpression(STORED_EXCEPTION)));

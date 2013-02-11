@@ -837,13 +837,14 @@ export class CPSTransformer extends ParseTreeTransformer {
     // }
     var caseClauses = [];
     this.addExceptionCases_(rethrowState, enclosingFinallyState,
-                            enclosingCatchState, machine.getAllStateIDs(),
+                            enclosingCatchState, machine.states,
                             caseClauses);
     //   default:
     //     throw $storedException;
     caseClauses.push(
         createDefaultClause(
-            this.machineUncaughtExceptionStatements(rethrowState)));
+            this.machineUncaughtExceptionStatements(rethrowState,
+                                                    machineEndState)));
 
     // try {
     //   ...
@@ -919,16 +920,24 @@ export class CPSTransformer extends ParseTreeTransformer {
    * @param {number} rethrowState
    * @param {Object} enclosingFinallyState
    * @param {Object} enclosingCatchState
-   * @param {Array.<number>} allStates
+   * @param {Array.<State>} allStates
    * @param {Array.<number>} caseClauses
    */
   addExceptionCases_(rethrowState, enclosingFinallyState,
-      enclosingCatchState, allStates, caseClauses) {
-
+                     enclosingCatchState, allStates, caseClauses) {
     for (var i = 0; i < allStates.length; i++) {
-      var state = allStates[i];
+      var state = allStates[i].id;
+      var statements = allStates[i].statements;
       var finallyState = enclosingFinallyState[state];
       var catchState = enclosingCatchState[state];
+
+      // We don't need to add a case clause for the current state if it doesn't
+      // contain any statements, since that definitely won't throw. Due to the
+      // possibility of global getters and setters, however, just about
+      // anything else has the potential to throw.
+      if (!statements)
+        continue;
+
       if (catchState != null && finallyState != null &&
           catchState.tryStates.indexOf(finallyState.finallyState) >= 0) {
         // we have:
@@ -973,8 +982,8 @@ export class CPSTransformer extends ParseTreeTransformer {
                     finallyState.finallyState,
                     rethrowState)));
       } else {
-        // we have no try's around this state.
-        // Generate Nothing.
+        // Anything not contained inside a 'try' block.
+        // The 'default' case handles this, so don't generate anything.
       }
     }
   }
