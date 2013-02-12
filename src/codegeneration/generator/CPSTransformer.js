@@ -935,7 +935,7 @@ export class CPSTransformer extends ParseTreeTransformer {
       // contain any statements, since that definitely won't throw. Due to the
       // possibility of global getters and setters, however, just about
       // anything else has the potential to throw.
-      if (!statements)
+      if (!statements || statements.length === 0)
         continue;
 
       if (catchState != null && finallyState != null &&

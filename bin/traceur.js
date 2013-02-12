@@ -15022,7 +15022,7 @@ var $__src_codegeneration_generator_CPSTransformer_js = (function() {
           var statements = allStates[i].statements;
           var finallyState = enclosingFinallyState[state];
           var catchState = enclosingCatchState[state];
-          if (!statements) continue;
+          if (!statements || statements.length === 0) continue;
           if (catchState != null && finallyState != null && catchState.tryStates.indexOf(finallyState.finallyState) >= 0) {
             caseClauses.push(createCaseClause(createNumberLiteral(state), State.generateJumpThroughFinally(finallyState.finallyState, catchState.catchState)));
           } else if (catchState != null) {
