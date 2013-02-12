@@ -25,6 +25,10 @@ import {
   VAR
 } from '../syntax/TokenType.js';
 import {
+  COMPREHENSION_FOR,
+  COMPREHENSION_IF
+  } from '../syntax/trees/ParseTreeType.js';
+import {
   createBlock,
   createCallExpression,
   createEmptyParameterList,
@@ -80,17 +84,23 @@ export class ComprehensionTransformer extends TempVarTransformer {
     // https://code.google.com/p/traceur-compiler/issues/detail?id=6
     var bindingKind = isGenerator ? VAR : LET;
 
-    if (tree.ifExpression) {
-      var ifExpression = this.transformAny(tree.ifExpression);
-      statement = createIfStatement(ifExpression, statement);
-    }
-    for (var i = tree.comprehensionForList.length - 1; i >= 0; i--) {
-      var item = tree.comprehensionForList[i];
-      var left = this.transformAny(item.left);
-      var iterator = this.transformAny(item.iterator);
-      var initializer = createVariableDeclarationList(bindingKind,
-                                                      left, null);
-      statement = createForOfStatement(initializer, iterator, statement);
+    for (var i = tree.comprehensionList.length - 1; i >= 0; i--) {
+      var item = tree.comprehensionList[i];
+      switch (item.type) {
+        case COMPREHENSION_IF:
+          var expression = this.transformAny(item.expression);
+          statement = createIfStatement(expression, statement);
+          break;
+        case COMPREHENSION_FOR:
+          var left = this.transformAny(item.left);
+          var iterator = this.transformAny(item.iterator);
+          var initializer = createVariableDeclarationList(bindingKind,
+                                                          left, null);
+          statement = createForOfStatement(initializer, iterator, statement);
+          break;
+        default:
+          throw new Error('Unreachable.');
+      }
     }
 
     var argumentsFinder = new ArgumentsFinder(statement);

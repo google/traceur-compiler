@@ -11,13 +11,10 @@
     "location": [
       "SourceRange"
     ],
+    "comprehensionList": [
+      "Array.<ParseTree>"
+    ],
     "expression": [
-      "ParseTree"
-    ],
-    "comprehensionForList": [
-      "Array.<ComprehensionFor>"
-    ],
-    "ifExpression": [
       "ParseTree"
     ]
   },
@@ -217,6 +214,14 @@
       "ParseTree"
     ],
     "iterator": [
+      "ParseTree"
+    ]
+  },
+  "ComprehensionIf": {
+    "location": [
+      "SourceRange"
+    ],
+    "expression": [
       "ParseTree"
     ]
   },
@@ -437,13 +442,10 @@
     "location": [
       "SourceRange"
     ],
+    "comprehensionList": [
+      "Array.<ParseTree>"
+    ],
     "expression": [
-      "ParseTree"
-    ],
-    "comprehensionForList": [
-      "Array.<ComprehensionFor>"
-    ],
-    "ifExpression": [
       "ParseTree"
     ]
   },

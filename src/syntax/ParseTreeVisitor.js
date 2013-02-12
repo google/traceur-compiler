@@ -56,9 +56,8 @@ export class ParseTreeVisitor {
    * @param {ArrayComprehension} tree
    */
   visitArrayComprehension(tree) {
+    this.visitList(tree.comprehensionList);
     this.visitAny(tree.expression);
-    this.visitList(tree.comprehensionForList);
-    this.visitAny(tree.ifExpression);
   }
 
   /**
@@ -198,6 +197,13 @@ export class ParseTreeVisitor {
   visitComprehensionFor(tree) {
     this.visitAny(tree.left);
     this.visitAny(tree.iterator);
+  }
+
+  /**
+   * @param {ComprehensionIf} tree
+   */
+  visitComprehensionIf(tree) {
+    this.visitAny(tree.expression);
   }
 
   /**
@@ -361,9 +367,8 @@ export class ParseTreeVisitor {
    * @param {GeneratorComprehension} tree
    */
   visitGeneratorComprehension(tree) {
+    this.visitList(tree.comprehensionList);
     this.visitAny(tree.expression);
-    this.visitList(tree.comprehensionForList);
-    this.visitAny(tree.ifExpression);
   }
 
   /**

@@ -109,18 +109,15 @@ export class ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformArrayComprehension(tree) {
+    var comprehensionList = this.transformList(tree.comprehensionList);
     var expression = this.transformAny(tree.expression);
-    var comprehensionForList = this.transformList(tree.comprehensionForList);
-    var ifExpression = this.transformAny(tree.ifExpression);
-    if (expression === tree.expression &&
-        comprehensionForList === tree.comprehensionForList &&
-        ifExpression === tree.ifExpression) {
+    if (comprehensionList === tree.comprehensionList &&
+        expression === tree.expression) {
       return tree;
     }
     return new ArrayComprehension(tree.location,
-                                  expression,
-                                  comprehensionForList,
-                                  ifExpression);
+                                  comprehensionList,
+                                  expression);
   }
 
   /**
@@ -346,6 +343,18 @@ export class ParseTreeTransformer {
       return tree;
     return new ComprehensionFor(tree.location, left, iterator);
   }
+
+  /**
+   * @param {ComprehensionIf} tree
+   * @return {ParseTree}
+   */
+  transformComprehensionIf(tree) {
+    var expression = this.transformAny(tree.expression);
+    if (expression === tree.expression)
+      return tree;
+    return new ComprehensionIf(tree.location, expression);
+  }
+
 
   /**
    * @param {ConditionalExpression} tree
@@ -610,18 +619,15 @@ export class ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformGeneratorComprehension(tree) {
+    var comprehensionList = this.transformList(tree.comprehensionList);
     var expression = this.transformAny(tree.expression);
-    var comprehensionForList = this.transformList(tree.comprehensionForList);
-    var ifExpression = this.transformAny(tree.ifExpression);
-    if (expression === tree.expression &&
-        comprehensionForList === tree.comprehensionForList &&
-        ifExpression === tree.ifExpression) {
+    if (comprehensionList === tree.comprehensionList &&
+        expression === tree.expression) {
       return tree;
     }
     return new GeneratorComprehension(tree.location,
-                                      expression,
-                                      comprehensionForList,
-                                      ifExpression);
+                                      comprehensionList,
+                                      expression);
   }
 
   /**

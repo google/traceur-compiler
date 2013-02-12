@@ -103,14 +103,8 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   visitArrayComprehension(tree) {
+    this.visitList(tree.comprehensionList);
     this.write_(OPEN_SQUARE);
-    this.visitAny(tree.expression);
-    this.visitList(tree.comprehensionForList);
-    if (tree.ifExpression) {
-      this.write_(IF);
-      this.visitAny(tree.ifExpression);
-    }
-    this.write_(CLOSE_SQUARE);
   }
 
   /**
@@ -296,9 +290,18 @@ export class ParseTreeWriter extends ParseTreeVisitor {
 
   visitComprehensionFor(tree) {
     this.write_(FOR);
+    this.write_(OPEN_PAREN);
     this.visitAny(tree.left);
     this.write_(OF);
     this.visitAny(tree.iterator);
+    this.write_(CLOSE_PAREN);
+  }
+
+  visitComprehensionIf(tree) {
+    this.write_(IF);
+    this.write_(OPEN_PAREN);
+    this.visitAny(tree.expression);
+    this.write_(CLOSE_PAREN);
   }
 
   /**
@@ -508,12 +511,8 @@ export class ParseTreeWriter extends ParseTreeVisitor {
 
   visitGeneratorComprehension(tree) {
     this.write_(OPEN_PAREN);
+    this.visitList(tree.comprehensionList);
     this.visitAny(tree.expression);
-    this.visitList(tree.comprehensionForList);
-    if (tree.ifExpression) {
-      this.write_(IF);
-      this.visitAny(tree.ifExpression);
-    }
     this.write_(CLOSE_PAREN);
   }
 

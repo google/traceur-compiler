@@ -1,6 +1,6 @@
 // Skip. The sugaring uses var instead of let which leads to wrong closure.
 
-var iter = (() => [x, y] for x of [0, 1] for y of [2, 3]);
+var iter = (for (x of [0, 1]) for (y of [2, 3]) () => [x, y] );
 
 assertTrue(iter.moveNext());
 var f1 = iter.current;

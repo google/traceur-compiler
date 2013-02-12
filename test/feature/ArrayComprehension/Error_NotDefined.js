@@ -1,4 +1,4 @@
 // Should not compile.
 
-var array = [notDefined for notDefined of [0]];
+var array = [for (notDefined of [0]) notDefined];
 notDefined;

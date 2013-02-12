@@ -1742,14 +1742,17 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     var expression;
     var elements = [];
-    var allowFor = options.arrayComprehension;
 
     this.eat_(OPEN_SQUARE);
+
+    var type = this.peekType_();
+    if (type === FOR && options.arrayComprehension)
+      return this.parseArrayComprehension_(start);
+
     while (true) {
-      var type = this.peekType_();
+      type = this.peekType_();
       if (type === COMMA) {
         expression = null;
-        allowFor = false;
       } else if (this.peekSpread_(type)) {
         expression = this.parseSpreadExpression_();
       } else if (this.peekAssignmentExpression_(type)) {
@@ -1758,16 +1761,11 @@ export class Parser {
         break;
       }
 
-      type = this.peekType_();
-      if (allowFor && type === FOR)
-        return this.parseArrayComprehension_(start, expression);
-
-      allowFor = false;
       elements.push(expression);
 
-      if (type !== CLOSE_SQUARE) {
+      type = this.peekType_();
+      if (type !== CLOSE_SQUARE)
         this.eat_(COMMA);
-      }
     }
     this.eat_(CLOSE_SQUARE);
     return new ArrayLiteralExpression(this.getTreeLocation_(start), elements);
@@ -1777,32 +1775,72 @@ export class Parser {
    * Continues parsing array comprehension.
    *
    * ArrayComprehension :
-   *   [ Assignment ￼ ComprehensionForList ]
-   *   [ AssignmentExpression ComprehensionForList if
+   *   [ Comprehension ]
    *
-   * ComprehensionForList :
-   *   ComprehensionFor
-   *   ComprehensionForList ComprehensionFor
+   * Comprehension :
+   *   ForComprehensionClause ComprehensionClause* Expression
    *
-   * ComprehensionFor :
-   *   for ForBinding of Expression
+   * ComprehensionClause :
+   *   ForComprehensionClause
+   *   IfComprehensionClause
+   *
+   * ForComprehensionClause :
+   *   for ( ForBinding of Expression )
+   *
+   * IfComprehensionClause  :
+   *   if ( Expression )
    *
    * ForBinding :
    *   BindingIdentifier
    *   BindingPattern
    *
    * @param {Location} start
-   * @param {[ParseTree} expression
    * @return {ParseTree}
    */
-  parseArrayComprehension_(start, expression) {
-    var comprehensionForList = this.parseComprehensionForList_();
-    var ifExpression = this.parseComprehensionIf_();
+  parseArrayComprehension_(start) {
+    var list = this.parseComprehensionList_();
+    var expression = this.parseAssignmentExpression();
     this.eat_(CLOSE_SQUARE);
     return new ArrayComprehension(this.getTreeLocation_(start),
-                                  expression,
-                                  comprehensionForList,
-                                  ifExpression);
+                                  list, expression);
+  }
+
+  parseComprehensionList_() {
+    // Must start with for (...)
+    var list = [this.parseComprehensionFor_()];
+    while (true) {
+      var type = this.peekType_();
+      switch (type) {
+        case FOR:
+          list.push(this.parseComprehensionFor_());
+          break;
+        case IF:
+          list.push(this.parseComprehensionIf_());
+          break;
+        default:
+          return list;
+      }
+    }
+  }
+
+  parseComprehensionFor_() {
+    var start = this.getTreeStartLocation_();
+    this.eat_(FOR);
+    this.eat_(OPEN_PAREN);
+    var left = this.parseForBinding_();
+    this.eatId_(OF);
+    var iterator = this.parseExpression();
+    this.eat_(CLOSE_PAREN);
+    return new ComprehensionFor(this.getTreeLocation_(start), left, iterator);
+  }
+
+  parseComprehensionIf_() {
+    var start = this.getTreeStartLocation_();
+    this.eat_(IF);
+    this.eat_(OPEN_PAREN);
+    var expression = this.parseExpression();
+    this.eat_(CLOSE_PAREN);
+    return new ComprehensionIf(this.getTreeLocation_(start), expression);
   }
 
   // 11.1.4 Object Literal Expression
@@ -2842,19 +2880,15 @@ export class Parser {
    */
   parseArrowFunction_(expressionIn) {
     var start = this.getTreeStartLocation_();
-    var formals;
 
     this.eat_(OPEN_PAREN);
 
+    if (this.peek_(FOR) && options.generatorComprehension)
+      return this.parseGeneratorComprehension_(start);
+
+    var formals;
     var coverFormals = this.parseCoverFormals_();
     var expressions = coverFormals.expressions;
-
-    // ( expr for
-    if (expressions.length === 1 &&
-        options.generatorComprehension &&
-        this.peek_(FOR)) {
-      return this.parseGeneratorComprehension_(start, expressions[0]);
-    }
 
     this.eat_(CLOSE_PAREN);
 
@@ -2954,51 +2988,21 @@ export class Parser {
   }
 
   /**
-   * Continues parsing generator exressions. The opening paren and the
+   * Continues parsing generator expressions. The opening paren and the
    * expression is parsed by parseArrowFunction_.
    *
    * https://bugs.ecmascript.org/show_bug.cgi?id=381
    *
    * GeneratorComprehension :
-   *   ( Expression ComprehensionForList )
-   *   ( Expression ComprehensionForList if Expression )
-   *
-   * ComprehensionForList :
-   *   ComprehensionFor
-   *   ComprehensionForList ComprehensionFor
-   *
-   * ComprehensionFor :
-   *   for ForBinding of Expression
+   *   ( Comprehension )
    */
-  parseGeneratorComprehension_(start, expression) {
-    var comprehensionForList = this.parseComprehensionForList_();
-    var ifExpression = this.parseComprehensionIf_();
+  parseGeneratorComprehension_(start) {
+    var comprehensionList = this.parseComprehensionList_();
+    var expression = this.parseAssignmentExpression();
     this.eat_(CLOSE_PAREN);
     return new GeneratorComprehension(this.getTreeLocation_(start),
-                                      expression,
-                                      comprehensionForList,
-                                      ifExpression);
-  }
-
-  parseComprehensionForList_() {
-    var comprehensionForList = [];
-    while (this.eatIf_(FOR)) {
-      var innerStart = this.getTreeStartLocation_();
-      var left = this.parseForBinding_();
-      this.eatId_(OF);
-      var iterator = this.parseExpression();
-      comprehensionForList.push(
-          new ComprehensionFor(this.getTreeLocation_(innerStart),
-                               left, iterator));
-    }
-    return comprehensionForList;
-  }
-
-  parseComprehensionIf_() {
-    if (this.eatIf_(IF)) {
-      return this.parseExpression();
-    }
-    return null;
+                                      comprehensionList,
+                                      expression);
   }
 
   /**
