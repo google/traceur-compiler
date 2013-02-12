@@ -64,14 +64,22 @@ var asserts = {
     assertEquals(undefined, actual);
   },
 
-  assertThrows: function (fn) {
+  assertThrows: function(fn) {
     try {
       fn();
     } catch (e) {
       // Do nothing.
-      return;
+      return e;
     }
     fail('Function should have thrown and did not.');
+  },
+
+  assertNotThrows: function(fn) {
+    try {
+      fn();
+    } catch (e) {
+      fail('Function should not have thrown.');
+    }
   }
 };
 
