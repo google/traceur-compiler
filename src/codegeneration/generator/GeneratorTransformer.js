@@ -15,7 +15,11 @@
 import CPSTransformer from 'CPSTransformer.js';
 import EndState from 'EndState.js';
 import {
+  ACTION_SEND,
+  ACTION_THROW,
+  ACTION_CLOSE,
   ADD_ITERATOR,
+  CURRENT,
   MOVE_NEXT,
   RESULT,
   RUNTIME,
@@ -26,18 +30,21 @@ import {
   STATE_MACHINE,
   YIELD_EXPRESSION
 } from '../../syntax/trees/ParseTreeType.js';
+import parseStatement from '../PlaceholderParser.js';
 import StateMachine from '../../syntax/trees/StateMachine.js';
 import VAR from '../../syntax/TokenType.js';
 import YieldState from 'YieldState.js';
 import {
   createArgumentList,
   createAssignStateStatement,
+  createAssignmentStatement,
   createBlock,
   createCallExpression,
   createExpressionStatement,
   createFalseLiteral,
   createIdentifierExpression,
   createMemberExpression,
+  createNumberLiteral,
   createObjectLiteralExpression,
   createPropertyNameAssignment,
   createReturnStatement,
@@ -45,6 +52,17 @@ import {
   createThrowStatement,
   createVariableStatement
 } from '../ParseTreeFactory.js';
+
+// Generator states. Terminology roughly matches that of
+//   http://wiki.ecmascript.org/doku.php?id=harmony:generators
+// Since '$state' is already taken, use '$GState' instead to denote what's
+// referred to as "G.[[State]]" on that page.
+var ST_NEWBORN = 0;
+var ST_EXECUTING = 1;
+var ST_SUSPENDED = 2;
+var ST_CLOSED = 3;
+var GSTATE = '$GState';
+var $GSTATE = createIdentifierExpression(GSTATE);
 
 /**
  * Desugars generator function bodies. Generator function bodies contain
@@ -167,6 +185,11 @@ export class GeneratorTransformer extends CPSTransformer {
 
     var statements = [];
 
+    // TODO: Can clean this up once all iterator interfaces are converted over
+    // to next() + StopIteration.
+    var $MOVE_NEXT = createIdentifierExpression('$' + MOVE_NEXT);
+    var $CURRENT = createIdentifierExpression('$' + CURRENT);
+
     // TODO(arv): Simplify the outputted code by only alpha renaming this and
     // arguments if needed.
     // https://code.google.com/p/traceur-compiler/issues/detail?id=108
@@ -183,17 +206,97 @@ export class GeneratorTransformer extends CPSTransformer {
     // Lifted machine variables.
     statements.push(...this.getMachineVariables(tree, machine));
 
+    statements.push(
+        parseStatement `
+        var
+          ${$GSTATE} = ${ST_NEWBORN},
+          ${$CURRENT},
+          ${$MOVE_NEXT} = ${this.generateMachineMethod(machine)}
+        `);
+
     // TODO(arv): The result should be an instance of Generator.
     // https://code.google.com/p/traceur-compiler/issues/detail?id=109
-    //
-    // var $result = {moveNext : machineMethod};
-    statements.push(createVariableStatement(
-        VAR,
-        RESULT,
-        createObjectLiteralExpression(
-            createPropertyNameAssignment(
-                MOVE_NEXT,
-                this.generateMachineMethod(machine)))));
+    statements.push(
+        // TODO: Look into if this code can be shared between generator
+        // instances.
+        //
+        // TODO: Almost all of these placeholders are constants. Can we do
+        // something more efficient in that case?
+        parseStatement `
+        var $result = {
+          // TODO: The MOVE_NEXT method and CURRENT getter/setter should go
+          // away after removing all external references.
+          ${MOVE_NEXT}: ${$MOVE_NEXT},
+          get ${CURRENT}() {
+            return ${$CURRENT};
+          },
+          set ${CURRENT}(x) {
+            ${$CURRENT} = x;
+          },
+          send: function(x) {
+            switch (${$GSTATE}) {
+              case ${ST_EXECUTING}:
+                throw new Error('"send" on executing generator');
+              case ${ST_CLOSED}:
+                throw new Error('"send" on closed generator');
+              case ${ST_NEWBORN}:
+                if (x !== undefined) {
+                  throw new TypeError('Sent value to newborn generator');
+                }
+                // fall through
+              case ${ST_SUSPENDED}:
+                ${$GSTATE} = ${ST_EXECUTING};
+                if (${$MOVE_NEXT}(x, ${ACTION_SEND})) {
+                  ${$GSTATE} = ${ST_SUSPENDED};
+                  return ${$CURRENT};
+                }
+                ${$GSTATE} = ${ST_CLOSED};
+                throw traceur.runtime.StopIteration;
+            }
+          },
+
+          next: function() {
+            return this.send(undefined);
+          },
+
+          'throw': function(x) {
+            switch (${$GSTATE}) {
+              case ${ST_EXECUTING}:
+                throw new Error('"throw" on executing generator');
+              case ${ST_CLOSED}:
+                throw new Error('"throw" on closed generator');
+              case ${ST_NEWBORN}:
+                ${$GSTATE} = ${ST_CLOSED};
+                $state = ${this.machineEndState};
+                throw x;
+              case ${ST_SUSPENDED}:
+                ${$GSTATE} = ${ST_EXECUTING};
+                if (${$MOVE_NEXT}(x, ${ACTION_THROW})) {
+                  ${$GSTATE} = ${ST_SUSPENDED};
+                  return ${$CURRENT};
+                }
+                ${$GSTATE} = ${ST_CLOSED};
+                throw traceur.runtime.StopIteration;
+            }
+          },
+
+          close: function() {
+            switch (${$GSTATE}) {
+              case ${ST_EXECUTING}:
+                throw new Error('"close" on executing generator');
+              case ${ST_CLOSED}:
+                return;
+              case ${ST_NEWBORN}:
+                ${$GSTATE} = ${ST_CLOSED};
+                $state = ${this.machineEndState};
+                return;
+              case ${ST_SUSPENDED}:
+                ${$GSTATE} = ${ST_EXECUTING};
+                ${$MOVE_NEXT}(undefined, ${ACTION_CLOSE});
+                ${$GSTATE} = ${ST_CLOSED};
+            }
+          }
+        };`);
 
     // traceur.runtime.addIterator($result)
     statements.push(createExpressionStatement(
@@ -214,6 +317,7 @@ export class GeneratorTransformer extends CPSTransformer {
    */
   machineUncaughtExceptionStatements(rethrowState, machineEndState) {
     return createStatementList(
+        createAssignmentStatement($GSTATE, createNumberLiteral(ST_CLOSED)),
         createAssignStateStatement(machineEndState),
         createThrowStatement(createIdentifierExpression(STORED_EXCEPTION)));
   }
@@ -237,7 +341,9 @@ export class GeneratorTransformer extends CPSTransformer {
 
   /** @return {Array.<ParseTree>} */
   machineEndStatements() {
-    return [createReturnStatement(createFalseLiteral())];
+    return [
+        createAssignmentStatement($GSTATE, createNumberLiteral(ST_CLOSED)),
+        createReturnStatement(createFalseLiteral())];
   }
 }
 

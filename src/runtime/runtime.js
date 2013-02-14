@@ -341,6 +341,39 @@ traceur.runtime = (function(global) {
     };
   }));
 
+  // Generators
+  var StopIterationLocal;
+  var isStopIteration = function(x) {
+    return x === StopIterationLocal;
+  };
+
+  switch (typeof StopIteration) {
+    case 'function':
+      StopIterationLocal = new StopIteration();
+      isStopIteration = function(x) {
+        return x instanceof StopIteration;
+      };
+      break;
+    case 'object':
+      StopIterationLocal = StopIteration;
+      try {
+        // Firefox's StopIteration is both a valid lhs and rhs for instanceof.
+        StopIteration instanceof StopIteration;
+
+        isStopIteration = function(x) {
+          return x instanceof StopIteration;
+        };
+      } catch(e) {}
+      break;
+    case 'undefined':
+      StopIterationLocal = {
+        toString: function() {
+          return '[object StopIteration]';
+        }
+      };
+      global.StopIteration = StopIterationLocal;
+  }
+
   /**
    * @param {Function} canceller
    * @constructor
@@ -441,6 +474,8 @@ traceur.runtime = (function(global) {
   // Return the runtime namespace.
   return {
     Deferred: Deferred,
+    StopIteration: StopIterationLocal,
+    isStopIteration: isStopIteration,
     addIterator: addIterator,
     assertName: assertName,
     createName: NameModule.Name,

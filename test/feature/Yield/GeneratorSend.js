@@ -1,3 +1,126 @@
+function assertThrownEquals(x, func) {
+  assertEquals(x, assertThrows(func));
+}
+
+function assertThrownErrorIs(str, func) {
+  var e = assertThrows(func);
+  assertTrue(e instanceof Error);
+
+  assertEquals(str, e.message);
+}
+
+function isStopIteration(s) {
+  // Maybe something more rigorous later.
+  return typeof s === 'object' && String(s) === '[object StopIteration]';
+}
+
+function assertThrowsStopIteration(fn) {
+  if (!isStopIteration(assertThrows(fn)))
+    fail('[object StopIteration] expected');
+}
+
+function assertClosed(g) {
+  assertThrownErrorIs('"send" on closed generator', () => g.next());
+}
+
+//-----------------------------------------------------------------------------
+//
+// http://wiki.ecmascript.org/doku.php?id=harmony:generators
+//
+// G.[[Send]]
+//
+//     Let State = G.[[State]]
+//     If State = “executing” Throw Error
+//     If State = “closed” Throw Error
+//     Let X be the first argument
+//     If State = “newborn”
+//         If X != undefined Throw TypeError
+//         Let K = a new execution context as for a function call
+//         K.currentGenerator := G
+//         K.scopeChain := G.[[Scope]]
+//         Push K onto the stack
+//         Return Execute(G.[[Code]])
+//     G.[[State]] := “executing”
+//     Let Result = Resume(G.[[ExecutionContext]], normal, X)
+//     Return Result
+
+var g;
+
+//-----------------------------------------------------------------------------
+//
+//     If State = “executing” Throw Error
+
+function* G1() {
+  yield g.next();
+}
+
+g = G1();
+// To be nitpicky, ionmonkey throws TypeError, and not Error. I'm not checking
+// things quite that closely at this point in time.
+assertThrownErrorIs('"send" on executing generator', () => g.next());
+
+//-----------------------------------------------------------------------------
+//
+//     If State = “closed” Throw Error
+
+// Note: ionmonkey continues to throw StopIteration for every 'next' on a
+// closed generator, while harmony:generators seems to favor throwing it once
+// only, at the point of generator exit, and throwing Error for all the
+// following 'next' calls.
+
+function* G2() {
+  yield 1;
+}
+
+var closeMethods = [
+  (g) => g.close(),
+  (g) => assertThrownEquals(42, () => g.throw(42)),
+  (g) => {
+    assertEquals(1, g.next());
+    assertThrowsStopIteration(() => g.next());
+  }
+];
+
+closeMethods.forEach((closeMethod) => {
+  g = G2();
+  closeMethod(g);
+  for (var i = 0; i < 8; i++) {
+    assertThrownErrorIs('"send" on closed generator', () => g.next());
+  }
+});
+
+//-----------------------------------------------------------------------------
+//
+//     If State = “newborn”
+//         If X != undefined Throw TypeError
+
+g = G2();
+for (var i = 0; i < 8; i++) {
+  assertThrownErrorIs('Sent value to newborn generator', () => g.send(42));
+}
+
+assertNotThrows(() => assertEquals(1, g.send(undefined)));
+
+//-----------------------------------------------------------------------------
+//
+//         Let K = a new execution context as for a function call
+//         K.currentGenerator := G
+//         K.scopeChain := G.[[Scope]]
+//         Push K onto the stack
+//         Return Execute(G.[[Code]])
+
+// (see below)
+
+//-----------------------------------------------------------------------------
+//
+//     G.[[State]] := “executing”
+//     Let Result = Resume(G.[[ExecutionContext]], normal, X)
+//     Return Result
+
+// (see below)
+
+//-----------------------------------------------------------------------------
+
 // Example adapted from:
 // https://developer.mozilla.org/en-US/docs/JavaScript/Guide/Iterators_and_Generators
 function* fib() {
@@ -70,28 +193,24 @@ function* fibVarD() {
 }
 
 function next(g) {
-  g.moveNext();
-  return g.current;
+  return g.next();
 }
 
 function send(g, v) {
-  g.moveNext(v);
-  return g.current;
+  return g.send(v);
 }
 
 function nextD(g) {
-  g.moveNext([]);
-  return g.current;
+  return g.send([]);
 }
 
 function sendD(g, v) {
-  g.moveNext([v, v]);
-  return g.current;
+  return g.send([v, v]);
 }
 
 function testfib(fibonacci, next, send) {
   var sequence = fibonacci();
-  assertEquals(1, next(sequence));
+  assertEquals(1, sequence.next());
   assertEquals(1, next(sequence));
   assertEquals(2, next(sequence));
   assertEquals(3, next(sequence));
@@ -103,6 +222,8 @@ function testfib(fibonacci, next, send) {
   assertEquals(2, next(sequence));
   assertEquals(3, next(sequence));
 }
+
+//----
 
 testfib(fib, next, send);
 testfib(fibVar, next, send);

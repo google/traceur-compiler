@@ -21,6 +21,7 @@ import {
 } from '../syntax/trees/ParseTrees.js';
 import GeneratorTransformer from 'generator/GeneratorTransformer.js';
 import ParseTreeVisitor from '../syntax/ParseTreeVisitor.js';
+import parseStatement from 'PlaceholderParser.js';
 import TempVarTransformer from 'TempVarTransformer.js';
 import ParseTreeTransformer from 'ParseTreeTransformer.js';
 import {
@@ -47,7 +48,13 @@ import {
   createVariableStatement,
   createYieldStatement
 } from 'ParseTreeFactory.js';
-import YIELD_SENT from '../syntax/PredefinedName.js';
+import {
+  ACTION_SEND,
+  ACTION_THROW,
+  ACTION_CLOSE,
+  YIELD_ACTION,
+  YIELD_SENT
+} from '../syntax/PredefinedName.js';
 import transformOptions from '../options.js';
 
 /**
@@ -59,6 +66,8 @@ function isYieldAssign(tree) {
       tree.right.type === YIELD_EXPRESSION &&
       tree.left.type === IDENTIFIER_EXPRESSION;
 }
+
+var id = createIdentifierExpression;
 
 /**
  * Can tell you if function body contains a yield statement. Does not search
@@ -147,10 +156,25 @@ class YieldForTransformer extends TempVarTransformer {
   }
 }
 
+var throwClose;
+
 class YieldExpressionTransformer extends ParseTreeTransformer {
   constructor() {
     super();
-    this.sentId = createIdentifierExpression(YIELD_SENT);
+
+    // Initialize unless already cached.
+    if (!throwClose) {
+      // Inserted after every simple yield expression in order to handle
+      // 'throw' and 'close'. No extra action is needed to handle 'send'.
+      throwClose = parseStatement `
+          switch (${id(YIELD_ACTION)}) {
+            case ${ACTION_THROW}:
+              ${id(YIELD_ACTION)} = ${ACTION_SEND};
+              throw ${id(YIELD_SENT)};
+            case ${ACTION_CLOSE}:
+              break $close;
+          }`;
+    }
   }
 
   /**
@@ -183,6 +207,9 @@ class YieldExpressionTransformer extends ParseTreeTransformer {
         ex = e.expressions;
         if (ex[0].type === BINARY_OPERATOR && isYieldAssign(ex[0]))
           return this.factor_(ex[0].left, ex[0].right, commaWrap);
+
+      case YIELD_EXPRESSION:
+        return createBlock(tree, throwClose);
     }
 
     return tree;
@@ -220,7 +247,8 @@ class YieldExpressionTransformer extends ParseTreeTransformer {
   factor_(lhs, rhs, wrap) {
     return createBlock([
         createExpressionStatement(rhs),
-        wrap(lhs, this.sentId)]);
+        throwClose,
+        wrap(lhs, id(YIELD_SENT))]);
   }
 
   static transformTree(tree) {
@@ -272,7 +300,15 @@ export class GeneratorTransformPass extends TempVarTransformer {
       return body;
     }
 
-    body = YieldExpressionTransformer.transformTree(body);
+    // The labeled do-while serves as a jump target for 'ACTION_CLOSE'. See the
+    // var 'throwClose' and the class 'YieldExpressionTransformer' for more
+    // details.
+    body = parseStatement `
+        {
+          $close: do {
+            ${YieldExpressionTransformer.transformTree(body)}
+          } while (0);
+        }`;
 
     // We need to transform for-in loops because the object key iteration
     // cannot be interrupted.

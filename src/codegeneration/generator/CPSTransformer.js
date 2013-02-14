@@ -39,6 +39,7 @@ import {
   FINALLY_FALL_THROUGH,
   STATE,
   STORED_EXCEPTION,
+  YIELD_ACTION,
   YIELD_SENT
 } from '../../syntax/PredefinedName.js';
 import State from 'State.js';
@@ -774,9 +775,9 @@ export class CPSTransformer extends ParseTreeTransformer {
    * @return {CallExpression}
    */
   generateMachineMethod(machine) {
-    //  function($yieldSent) {
+    //  function($yieldSent, $yieldAction) {
     return createFunctionExpression(
-            createParameterList(YIELD_SENT),
+            createParameterList(YIELD_SENT, YIELD_ACTION),
             //     while (true) {
             createBlock(
                 createWhileStatement(
@@ -814,6 +815,8 @@ export class CPSTransformer extends ParseTreeTransformer {
         //       ... converted states
         this.transformMachineStates(machine, machineEndState, rethrowState,
                                     enclosingFinallyState));
+
+    this.machineEndState = machineEndState;
 
     // try {
     //   ...
