@@ -15552,7 +15552,7 @@ var $__src_codegeneration_GeneratorTransformPass_js = (function() {
   var $__9 = $__src_syntax_PredefinedName_js, ACTION_SEND = $__9.ACTION_SEND, ACTION_THROW = $__9.ACTION_THROW, ACTION_CLOSE = $__9.ACTION_CLOSE, YIELD_ACTION = $__9.YIELD_ACTION, YIELD_SENT = $__9.YIELD_SENT;
   var transformOptions = $__src_options_js.transformOptions;
   function isYieldAssign(tree) {
-    return tree.operator.type === EQUAL && tree.right.type === YIELD_EXPRESSION && tree.left.type === IDENTIFIER_EXPRESSION;
+    return tree.operator.type === EQUAL && tree.right.type === YIELD_EXPRESSION && tree.left.isLeftHandSideExpression();
   }
   var id = createIdentifierExpression;
   var YieldFinder = function($__super) {

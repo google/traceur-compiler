@@ -64,7 +64,7 @@ import transformOptions from '../options.js';
 function isYieldAssign(tree) {
   return tree.operator.type === EQUAL &&
       tree.right.type === YIELD_EXPRESSION &&
-      tree.left.type === IDENTIFIER_EXPRESSION;
+      tree.left.isLeftHandSideExpression();
 }
 
 var id = createIdentifierExpression;
