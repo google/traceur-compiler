@@ -1,3 +1,5 @@
+// Options: --block-binding
+
 let result = [];
 for (let a = 1; a < 3; a++) {
   result.push(

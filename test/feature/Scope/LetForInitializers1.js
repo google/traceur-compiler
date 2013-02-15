@@ -1,3 +1,5 @@
+// Options: --block-binding
+
 var result;
 {
   let let_x = 'let x';

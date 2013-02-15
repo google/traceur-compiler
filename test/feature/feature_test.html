@@ -359,6 +359,11 @@ function evalScript(urlOptions, scriptElement) {
   // worry about name clashes across the different feature scripts.
   var testName = makeTestName(name);
   window[testName] = function() {
+
+    traceur.options.debug = true;
+    traceur.options.freeVariableChecker = true;
+    traceur.options.validate = true;
+
     var options = parseProlog(source);
     var skip = options.skip;
     var shouldCompile = options.shouldCompile;

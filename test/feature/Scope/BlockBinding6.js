@@ -1,3 +1,5 @@
+// Options: --block-binding
+
 function testBlock() {
   // Test function expressions.
   {

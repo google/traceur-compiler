@@ -1,3 +1,5 @@
+// Options: --private-names
+
 function assertFrozen(obj) {
   assertTrue(Object.isFrozen(obj));
 }

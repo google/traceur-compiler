@@ -1,4 +1,5 @@
 // Should not compile.
+// Options: --block-binding
 
 function* gen() {
   yield 1;

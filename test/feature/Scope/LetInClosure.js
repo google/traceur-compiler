@@ -1,3 +1,5 @@
+// Options: --block-binding
+
 function letInClosure(n) {
   var l = [];
   for (var i = 0; i < n; i ++) {

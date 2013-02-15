@@ -4,7 +4,10 @@
     <title>Hello, World!</title>
     <script src="../bin/traceur.js"></script>
     <script src="../src/bootstrap.js"></script>
-  </head> 
+    <script>
+      traceur.options.experimental = true;
+    </script>
+  </head>
   <body>
     <script type="text/traceur">
       class Greeter {
@@ -22,5 +25,5 @@
       greeter.greet();
     </script>
     <h1 id="message"></h1>
-  </body> 
+  </body>
 </html>

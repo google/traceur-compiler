@@ -1,3 +1,5 @@
+// Options: --block-binding
+
 function* statementTestGenerator() {
   // all of these statement constructs should be allowed
   // provided that they contain no yield statements

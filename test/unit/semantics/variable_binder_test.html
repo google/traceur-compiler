@@ -30,6 +30,10 @@ goog.require('goog.testing.jsunit');
 <body>
 <script>
 
+function tearDown() {
+  traceur.options.experimental = false;
+}
+
 var variablesInBlock =
     traceur.getModuleForTesting('semantics/VariableBinder.js').variablesInBlock;
 var variablesInFunction =
@@ -52,6 +56,7 @@ function idsToString(identifiers) {
 }
 
 function testBoundIdentifiersInBlock() {
+  traceur.options.experimental = true;
   assertEquals('f', idsToString(variablesInBlock(parse(
       '{ function f(x) { var y; }; }'), false)));
   assertEquals('', idsToString(variablesInBlock(parse(

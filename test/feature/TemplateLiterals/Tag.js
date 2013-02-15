@@ -1,3 +1,5 @@
+// Options: --block-binding
+
 {
   function expose(callSite, var_args) {
     assertTrue(Array.isArray(callSite));

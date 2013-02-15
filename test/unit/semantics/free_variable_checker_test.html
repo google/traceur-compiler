@@ -46,6 +46,15 @@ function testFreeVariables3() {
 </script>
 <script>
 
+function setUp() {
+  traceur.options.freeVariableChecker = true;
+}
+
+function tearDown() {
+  traceur.options.experimental = false;
+  traceur.options.freeVariableChecker = false;
+}
+
 function compileAndReturnErrors(contents, name) {
   var sourceFile = new traceur.syntax.SourceFile(name, contents);
   var reporter = new traceur.util.ErrorReporter();
@@ -73,6 +82,7 @@ function assertCompileError(contents, expectedError, expectedErrorArg) {
 }
 
 function testFreeVariables() {
+  traceur.options.experimental = true;
   assertCompileError('var y = x;', '%s is not defined', 'x');
   assertCompileError('x(1,2,3);', '%s is not defined', 'x');
   assertCompileError('function foo() { return x; }', '%s is not defined', 'x');

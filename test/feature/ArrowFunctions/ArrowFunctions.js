@@ -1,3 +1,5 @@
+// Options: --block-binding
+
 // These tests are from:
 // http://wiki.ecmascript.org/doku.php?id=strawman:arrow_function_syntax
 

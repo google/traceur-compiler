@@ -1,3 +1,7 @@
+// Options: --block-binding
+// Block binding is needed to get the right scoping semantics inside the arrow
+// function in the comprehension.
+
 var res = [for (x of [0, 1]) for (y of [2, 3]) () => [x, y]];
 
 assertEquals(4, res.length);

@@ -1,3 +1,5 @@
+// Options: --block-binding
+
 var f1, f2;
 
 {

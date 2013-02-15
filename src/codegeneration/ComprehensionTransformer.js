@@ -39,6 +39,7 @@ import {
   createThisExpression,
   createVariableDeclarationList
 } from 'ParseTreeFactory.js';
+import options from '../options.js';
 
 /**
  * This is used to find whether a function contains a reference to 'this'.
@@ -82,7 +83,7 @@ export class ComprehensionTransformer extends TempVarTransformer {
 
     // This should really be a let but we don't support let in generators.
     // https://code.google.com/p/traceur-compiler/issues/detail?id=6
-    var bindingKind = isGenerator ? VAR : LET;
+    var bindingKind = isGenerator || !options.blockBinding ? VAR : LET;
 
     for (var i = tree.comprehensionList.length - 1; i >= 0; i--) {
       var item = tree.comprehensionList[i];

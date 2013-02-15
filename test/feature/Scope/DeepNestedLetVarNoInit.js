@@ -1,3 +1,5 @@
+// Options: --block-binding
+
 var var_a;
 {
   var var_b;

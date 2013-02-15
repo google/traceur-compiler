@@ -1,3 +1,5 @@
+// Options: --block-binding
+
 var x = 1;
 {
   let x;

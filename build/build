@@ -13,20 +13,7 @@ DIR="$(dirname $0)"
 
 node ${DIR}/build.js \
   --out ${DIR}/../bin/traceur.js \
-  --all-options-off \
-  --arrow-functions \
-  --modules \
-  --destructuring \
-  --template-literals \
-  --spread \
-  --classes \
-  --property-methods \
-  --rest-parameters \
-  --property-name-shorthand \
-  --generators \
-  --for-of \
   --strict-semicolons \
-  --default-parameters \
   "$@" \
   -- \
   ${DIR}/../third_party/source-map/lib/source-map/array-set.js \

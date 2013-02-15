@@ -71,6 +71,7 @@ import {
   createVariableDeclarationList,
   createVariableStatement
 } from 'ParseTreeFactory.js';
+import options from '../options.js';
 import prependStatements from 'PrependStatements.js';
 
 var stack = [];
@@ -423,7 +424,8 @@ export class DestructuringTransformer extends TempVarTransformer {
 
     var body = this.transformAny(tree.catchBody);
     var statements = [];
-    var binding = this.desugarBinding_(tree.binding, statements, LET);
+    var kind = options.blockBinding ? LET : VAR;
+    var binding = this.desugarBinding_(tree.binding, statements, kind);
     statements.push(...body.statements);
     return new Catch(tree.location, binding, createBlock(statements));
   }

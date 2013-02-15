@@ -1,4 +1,4 @@
-// Options: --trap-member-lookup
+// Options: --trap-member-lookup --block-binding
 
 module Name from '@name';
 

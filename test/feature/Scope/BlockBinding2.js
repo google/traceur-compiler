@@ -1,3 +1,5 @@
+// Options: --block-binding
+
 let result = [];
 let obj = {a : 'hello a', b : 'hello b', c : 'hello c' };
 for (let x in obj) {

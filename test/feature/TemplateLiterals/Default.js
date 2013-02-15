@@ -1,3 +1,5 @@
+// Options: --block-binding
+
 assertEquals('', ``);
 assertEquals('a', `a`);
 assertEquals('"', `"`);

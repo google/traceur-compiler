@@ -1,3 +1,5 @@
+// Options: --block-binding
+
 var x = 0;
 
 // ES5 allows this.

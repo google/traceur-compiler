@@ -12,113 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/**
- * The options are classified into three categories. This enum represents
- * which kind of category an option belong to.
- * @enum {string}
- */
-var Kind = {
-  /**
-   * This includes all the implemented features that are also in the ES6
-   * spec draft. See the latest drafts at:
-   *    http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts
-   */
-  es6: 'es6',
-
-  /**
-   * This is used for accepted ES6 features that are not yet in a draft of the
-   * spec. See the full list of accepted proposals here:
-   *   http://wiki.ecmascript.org/doku.php?id=harmony:proposals
-   */
-  es6proposal: 'es6proposal',
-
-  /**
-   * This is used for the Harmony features that are not yet in any draft. These
-   * are a subset of the proposals on the ES wiki:
-   *   http://wiki.ecmascript.org/doku.php?id=harmony:proposals
-   */
-  harmony: 'harmony',
-
-  /**
-   * For features that are not yet on the ES wiki
-   */
-  experimental: 'experimental'
-};
-
-var kindMapping = Object.create(null);
-Object.keys(Kind).forEach((kind) => {
-  kindMapping[kind] = Object.create(null);
-});
-
-function enable(kind, b) {
-  Object.keys(kindMapping[kind]).forEach((name) => {
-    options[name] = b;
-  });
-}
-
-function getValue(kind) {
-  var value;
-  Object.keys(kindMapping[kind]).every((name) => {
-    var currentValue = options[name];
-    if (value === undefined) {
-      value = currentValue;
-      return true;
-    }
-    if (currentValue !== value) {
-      value = null;
-      return false;
-    }
-    return true;
-  });
-  return value;
-}
-
 export var parseOptions = Object.create(null);
 export var transformOptions = Object.create(null);
 var defaultValues = Object.create(null);
+var experimentalOptions = Object.create(null);
 
 /**
  * The options object.
  */
 export var options = {
-  /**
-   * Meta option. Sets all options that are of Kind.es6
-   * When getting this will return null if not all options of this kind
-   * have the same value.
-   * @type {boolean|string|null}
-   */
-  set es6(v) {
-    enable(Kind.es6, coerceOptionValue(v));
-  },
-  get es6() {
-    return getValue(Kind.es6);
-  },
-
-  /**
-   * Meta option. Sets all options that are of Kind.es6proposal
-   * When getting this will return null if not all options of this kind
-   * have the same value.
-   * @type {boolean|string|null}
-   */
-  set es6proposal(v) {
-    enable(Kind.es6proposal, coerceOptionValue(v));
-  },
-  get es6proposal() {
-    return getValue(Kind.es6proposal);
-  },
-
-  /**
-   * Meta option. Sets all options that are of Kind.harmony
-   * When getting this will return null if not all options of this kind
-   * have the same value.
-   * @type {boolean|string|null}
-   */
-  set harmony(v) {
-    enable(Kind.harmony, coerceOptionValue(v));
-  },
-  get harmony() {
-    return getValue(Kind.harmony);
-  },
 
   /**
    * Meta option. Sets all options that are of Kind.experimental
@@ -127,10 +29,26 @@ export var options = {
    * @type {boolean|string|null}
    */
   set experimental(v) {
-    enable(Kind.experimental, coerceOptionValue(v));
+    v = coerceOptionValue(v);
+    Object.keys(experimentalOptions).forEach((name) => {
+      options[name] = v;
+    });
   },
   get experimental() {
-    return getValue(Kind.experimental);
+    var value;
+    Object.keys(experimentalOptions).every((name) => {
+      var currentValue = options[name];
+      if (value === undefined) {
+        value = currentValue;
+        return true;
+      }
+      if (currentValue !== value) {
+        value = null;
+        return false;
+      }
+      return true;
+    });
+    return value;
   }
 };
 
@@ -262,6 +180,9 @@ function toDashCase(s) {
   });
 }
 
+var EXPERIMENTAL = 0;
+var ON_BY_DEFAULT = 1;
+
 /**
  * Adds a feature option.
  * Each feature option is represented by the parse and transform
@@ -269,7 +190,9 @@ function toDashCase(s) {
  * Setting a feature option sets the parse and transform option.
  */
 function addFeatureOption(name, kind) {
-  kindMapping[kind][name] = true;
+  if (kind === EXPERIMENTAL)
+    experimentalOptions[name] = true;
+
   Object.defineProperty(options, name, {
     get: function() {
       if (parseOptions[name] === transformOptions[name]) {
@@ -289,7 +212,7 @@ function addFeatureOption(name, kind) {
     configurable: true
   });
 
-  var defaultValue = kind !== Kind.experimental;
+  var defaultValue = kind === ON_BY_DEFAULT;
   defaultValues[name] = defaultValue;
   parseOptions[name] = defaultValue;
   transformOptions[name] = defaultValue;
@@ -299,35 +222,36 @@ function addFeatureOption(name, kind) {
  * Adds a simple boolean option.
  */
 function addBoolOption(name) {
-  defaultValues[name] = true;
-  options[name] = true;
+  defaultValues[name] = false;
+  options[name] = false;
 }
 
-addFeatureOption('arrayComprehension', Kind.es6); // 11.4.1.2
-addFeatureOption('arrowFunctions', Kind.es6);     // 13.2
-addFeatureOption('blockBinding', Kind.es6);       // 12.1
-addFeatureOption('classes', Kind.es6);            // 13.5
-addFeatureOption('defaultParameters', Kind.es6);  // Cant find this in the spec
-addFeatureOption('destructuring', Kind.es6);      // 11.13.1
-addFeatureOption('forOf', Kind.es6);              // 12.6.4
-addFeatureOption('propertyMethods', Kind.es6);    // 13.3
-addFeatureOption('propertyNameShorthand', Kind.es6);
-addFeatureOption('templateLiterals', Kind.es6);   // 7.6.8
-addFeatureOption('restParameters', Kind.es6);     // 13.1
-addFeatureOption('spread', Kind.es6);             // 11.1.4, 11.2.5
+// ALWAY_ON
+addFeatureOption('arrayComprehension', ON_BY_DEFAULT); // 11.4.1.2
+addFeatureOption('arrowFunctions', ON_BY_DEFAULT);     // 13.2
+addFeatureOption('classes', ON_BY_DEFAULT);            // 13.5
+addFeatureOption('defaultParameters', ON_BY_DEFAULT);  // Cant find this in the spec
+addFeatureOption('destructuring', ON_BY_DEFAULT);      // 11.13.1
+addFeatureOption('forOf', ON_BY_DEFAULT);              // 12.6.4
+addFeatureOption('propertyMethods', ON_BY_DEFAULT);    // 13.3
+addFeatureOption('propertyNameShorthand', ON_BY_DEFAULT);
+addFeatureOption('templateLiterals', ON_BY_DEFAULT);   // 7.6.8
+addFeatureOption('restParameters', ON_BY_DEFAULT);     // 13.1
+addFeatureOption('spread', ON_BY_DEFAULT);             // 11.1.4, 11.2.5
+addFeatureOption('generatorComprehension', ON_BY_DEFAULT);
+addFeatureOption('generators', ON_BY_DEFAULT); // 13.4, incomplete
+addFeatureOption('modules', ON_BY_DEFAULT);    // 14
 
-addFeatureOption('generatorComprehension', Kind.es6proposal);
-addFeatureOption('generators', Kind.es6proposal); // 13.4, incomplete
-addFeatureOption('modules', Kind.es6proposal);    // 14
-addFeatureOption('privateNameSyntax', Kind.es6proposal);
-addFeatureOption('privateNames', Kind.es6proposal);
-
-addFeatureOption('cascadeExpression', Kind.experimental);
-addFeatureOption('trapMemberLookup', Kind.experimental);
-addFeatureOption('deferredFunctions', Kind.experimental);
-addFeatureOption('propertyOptionalComma', Kind.experimental);
-addFeatureOption('strictSemicolons', Kind.experimental);
-addFeatureOption('types', Kind.experimental);
+// EXPERIMENTAL
+addFeatureOption('blockBinding', EXPERIMENTAL);       // 12.1
+addFeatureOption('privateNameSyntax', EXPERIMENTAL);
+addFeatureOption('privateNames', EXPERIMENTAL);
+addFeatureOption('cascadeExpression', EXPERIMENTAL);
+addFeatureOption('trapMemberLookup', EXPERIMENTAL);
+addFeatureOption('deferredFunctions', EXPERIMENTAL);
+addFeatureOption('propertyOptionalComma', EXPERIMENTAL);
+addFeatureOption('strictSemicolons', EXPERIMENTAL);
+addFeatureOption('types', EXPERIMENTAL);
 
 addBoolOption('debug');
 addBoolOption('sourceMaps');

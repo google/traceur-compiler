@@ -1,3 +1,5 @@
+// Options: --block-binding
+
 if (true) {
   let [a,b] = [1,2];
   const [c,d] = [4,5];

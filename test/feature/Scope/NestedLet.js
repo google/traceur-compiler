@@ -1,3 +1,5 @@
+// Options: --block-binding
+
 var x = 'var';
 {
   let y = 'let 1';

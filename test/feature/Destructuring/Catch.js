@@ -1,3 +1,7 @@
+// Options: --block-binding
+// Block binding is needed to get the right scoping semantics inside the catch
+// block.
+
 var head = 'head';
 var tail = 'tail';
 var name = 'name';

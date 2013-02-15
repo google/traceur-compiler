@@ -1,3 +1,5 @@
+// Options: --block-binding
+
 function destructVarDecl() {
   // Const; and an array inside an object literal inside an array.
   const a = 0, [b, {c, x: [d]}] = [1, {c: 2, x: [3]}];

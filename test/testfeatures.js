@@ -87,6 +87,11 @@ var asserts = {
  * Load, compile, and execute the feature script at the given path.
  */
 function testScript(filePath) {
+
+  traceur.options.debug = true;
+  traceur.options.freeVariableChecker = true;
+  traceur.options.validate = true;
+
   var source = fs.readFileSync(filePath, 'utf8');
   var options = testUtil.parseProlog(source);
   var onlyInBrowser = options.onlyInBrowser;

@@ -1,3 +1,5 @@
+// Options: --block-binding
+
 {
   let i = 0, called = 0;
   function f() {

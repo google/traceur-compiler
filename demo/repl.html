@@ -26,8 +26,7 @@
 <script src="../bin/traceur.js"></script>
 <style>
 
-@import url(http://fonts.googleapis.com/css?family=Droid+Sans+Mono);
-@import url(http://fonts.googleapis.com/css?family=Droid+Sans);
+@import url(http://fonts.googleapis.com/css?family=Droid+Sans+Mono|Droid+Sans);
 
 html, body {
   margin: 0;
@@ -290,13 +289,18 @@ pre,
     return label;
   }
 
+  var options = [
+    'experimental',
+    'debug',
+    'sourceMaps',
+    'freeVariableChecker',
+    'validate'
+  ];
+
   function createOptions() {
     var optionsDiv = document.querySelector('.traceur-options');
     optionsDiv.textContent = '';
-    Object.keys(traceur.options).forEach(function(name) {
-      if (name === 'arrayComprehension' || name === 'debug') {
-        optionsDiv.appendChild(document.createElement('hr'));
-      }
+    options.forEach(function(name) {
       optionsDiv.appendChild(createOptionRow(name));
     });
   }

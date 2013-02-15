@@ -1,3 +1,5 @@
+// Options: --private-names
+
 import Name from '@name';
 
 var n = new Name;

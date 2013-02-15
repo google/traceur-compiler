@@ -1,3 +1,5 @@
+// Options: --block-binding
+
 function* gen() {
   yield 'abc';
   yield 'def';

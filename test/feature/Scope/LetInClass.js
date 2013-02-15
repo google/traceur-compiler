@@ -1,3 +1,5 @@
+// Options: --block-binding
+
 class LetInClass {
   get z() {
     let let_z = 10;

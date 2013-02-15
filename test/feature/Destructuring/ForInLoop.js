@@ -1,3 +1,5 @@
+// Options: --block-binding
+
 var object = {
   abc: 0,  // Keep all the keys at length 3.
   def: 1

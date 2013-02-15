@@ -962,64 +962,32 @@ traceur.runtime = (function(global) {
 })(this);
 var $__src_options_js = (function() {
   "use strict";
-  var Kind = {
-    es6: 'es6',
-    es6proposal: 'es6proposal',
-    harmony: 'harmony',
-    experimental: 'experimental'
-  };
-  var kindMapping = Object.create(null);
-  Object.keys(Kind).forEach((function(kind) {
-    kindMapping[kind] = Object.create(null);
-  }));
-  function enable(kind, b) {
-    Object.keys(kindMapping[kind]).forEach((function(name) {
-      options[name] = b;
-    }));
-  }
-  function getValue(kind) {
-    var value;
-    Object.keys(kindMapping[kind]).every((function(name) {
-      var currentValue = options[name];
-      if (value === undefined) {
-        value = currentValue;
-        return true;
-      }
-      if (currentValue !== value) {
-        value = null;
-        return false;
-      }
-      return true;
-    }));
-    return value;
-  }
   var parseOptions = Object.create(null);
   var transformOptions = Object.create(null);
   var defaultValues = Object.create(null);
+  var experimentalOptions = Object.create(null);
   var options = {
-    set es6(v) {
-      enable(Kind.es6, coerceOptionValue(v));
-    },
-    get es6() {
-      return getValue(Kind.es6);
-    },
-    set es6proposal(v) {
-      enable(Kind.es6proposal, coerceOptionValue(v));
-    },
-    get es6proposal() {
-      return getValue(Kind.es6proposal);
-    },
-    set harmony(v) {
-      enable(Kind.harmony, coerceOptionValue(v));
-    },
-    get harmony() {
-      return getValue(Kind.harmony);
-    },
     set experimental(v) {
-      enable(Kind.experimental, coerceOptionValue(v));
+      v = coerceOptionValue(v);
+      Object.keys(experimentalOptions).forEach((function(name) {
+        options[name] = v;
+      }));
     },
     get experimental() {
-      return getValue(Kind.experimental);
+      var value;
+      Object.keys(experimentalOptions).every((function(name) {
+        var currentValue = options[name];
+        if (value === undefined) {
+          value = currentValue;
+          return true;
+        }
+        if (currentValue !== value) {
+          value = null;
+          return false;
+        }
+        return true;
+      }));
+      return value;
     }
   };
   function reset() {
@@ -1094,8 +1062,10 @@ var $__src_options_js = (function() {
       return '-' + ch.toLowerCase();
     });
   }
+  var EXPERIMENTAL = 0;
+  var ON_BY_DEFAULT = 1;
   function addFeatureOption(name, kind) {
-    kindMapping[kind][name] = true;
+    if (kind === EXPERIMENTAL) experimentalOptions[name] = true;
     Object.defineProperty(options, name, {
       get: function() {
         if (parseOptions[name] === transformOptions[name]) {
@@ -1114,38 +1084,38 @@ var $__src_options_js = (function() {
       enumerable: true,
       configurable: true
     });
-    var defaultValue = kind !== Kind.experimental;
+    var defaultValue = kind === ON_BY_DEFAULT;
     defaultValues[name] = defaultValue;
     parseOptions[name] = defaultValue;
     transformOptions[name] = defaultValue;
   }
   function addBoolOption(name) {
-    defaultValues[name] = true;
-    options[name] = true;
+    defaultValues[name] = false;
+    options[name] = false;
   }
-  addFeatureOption('arrayComprehension', Kind.es6);
-  addFeatureOption('arrowFunctions', Kind.es6);
-  addFeatureOption('blockBinding', Kind.es6);
-  addFeatureOption('classes', Kind.es6);
-  addFeatureOption('defaultParameters', Kind.es6);
-  addFeatureOption('destructuring', Kind.es6);
-  addFeatureOption('forOf', Kind.es6);
-  addFeatureOption('propertyMethods', Kind.es6);
-  addFeatureOption('propertyNameShorthand', Kind.es6);
-  addFeatureOption('templateLiterals', Kind.es6);
-  addFeatureOption('restParameters', Kind.es6);
-  addFeatureOption('spread', Kind.es6);
-  addFeatureOption('generatorComprehension', Kind.es6proposal);
-  addFeatureOption('generators', Kind.es6proposal);
-  addFeatureOption('modules', Kind.es6proposal);
-  addFeatureOption('privateNameSyntax', Kind.es6proposal);
-  addFeatureOption('privateNames', Kind.es6proposal);
-  addFeatureOption('cascadeExpression', Kind.experimental);
-  addFeatureOption('trapMemberLookup', Kind.experimental);
-  addFeatureOption('deferredFunctions', Kind.experimental);
-  addFeatureOption('propertyOptionalComma', Kind.experimental);
-  addFeatureOption('strictSemicolons', Kind.experimental);
-  addFeatureOption('types', Kind.experimental);
+  addFeatureOption('arrayComprehension', ON_BY_DEFAULT);
+  addFeatureOption('arrowFunctions', ON_BY_DEFAULT);
+  addFeatureOption('classes', ON_BY_DEFAULT);
+  addFeatureOption('defaultParameters', ON_BY_DEFAULT);
+  addFeatureOption('destructuring', ON_BY_DEFAULT);
+  addFeatureOption('forOf', ON_BY_DEFAULT);
+  addFeatureOption('propertyMethods', ON_BY_DEFAULT);
+  addFeatureOption('propertyNameShorthand', ON_BY_DEFAULT);
+  addFeatureOption('templateLiterals', ON_BY_DEFAULT);
+  addFeatureOption('restParameters', ON_BY_DEFAULT);
+  addFeatureOption('spread', ON_BY_DEFAULT);
+  addFeatureOption('generatorComprehension', ON_BY_DEFAULT);
+  addFeatureOption('generators', ON_BY_DEFAULT);
+  addFeatureOption('modules', ON_BY_DEFAULT);
+  addFeatureOption('blockBinding', EXPERIMENTAL);
+  addFeatureOption('privateNameSyntax', EXPERIMENTAL);
+  addFeatureOption('privateNames', EXPERIMENTAL);
+  addFeatureOption('cascadeExpression', EXPERIMENTAL);
+  addFeatureOption('trapMemberLookup', EXPERIMENTAL);
+  addFeatureOption('deferredFunctions', EXPERIMENTAL);
+  addFeatureOption('propertyOptionalComma', EXPERIMENTAL);
+  addFeatureOption('strictSemicolons', EXPERIMENTAL);
+  addFeatureOption('types', EXPERIMENTAL);
   addBoolOption('debug');
   addBoolOption('sourceMaps');
   addBoolOption('freeVariableChecker');
@@ -12108,6 +12078,7 @@ var $__src_codegeneration_ComprehensionTransformer_js = (function() {
   var $__9 = $__src_syntax_TokenType_js, LET = $__9.LET, VAR = $__9.VAR;
   var $__9 = $__src_syntax_trees_ParseTreeType_js, COMPREHENSION_FOR = $__9.COMPREHENSION_FOR, COMPREHENSION_IF = $__9.COMPREHENSION_IF;
   var $__9 = $__src_codegeneration_ParseTreeFactory_js, createBlock = $__9.createBlock, createCallExpression = $__9.createCallExpression, createEmptyParameterList = $__9.createEmptyParameterList, createForOfStatement = $__9.createForOfStatement, createIdentifierExpression = $__9.createIdentifierExpression, createIfStatement = $__9.createIfStatement, createParenExpression = $__9.createParenExpression, createThisExpression = $__9.createThisExpression, createVariableDeclarationList = $__9.createVariableDeclarationList;
+  var options = $__src_options_js.options;
   var ThisFinder = function($__super) {
     var $__proto = $__getProtoParent($__super);
     var $ThisFinder = ($__createClass)({
@@ -12139,7 +12110,7 @@ var $__src_codegeneration_ComprehensionTransformer_js = (function() {
         $__superCall(this, $__proto, "constructor", arguments);
       },
       transformComprehension: function(tree, statement, isGenerator, returnStatement) {
-        var bindingKind = isGenerator ? VAR: LET;
+        var bindingKind = isGenerator || !options.blockBinding ? VAR: LET;
         for (var i = tree.comprehensionList.length - 1; i >= 0; i--) {
           var item = tree.comprehensionList[i];
           switch (item.type) {
@@ -13690,6 +13661,7 @@ var $__src_codegeneration_DestructuringTransformer_js = (function() {
   var TempVarTransformer = $__src_codegeneration_TempVarTransformer_js.TempVarTransformer;
   var $__9 = $__src_syntax_TokenType_js, EQUAL = $__9.EQUAL, IDENTIFIER = $__9.IDENTIFIER, IN = $__9.IN, LET = $__9.LET, VAR = $__9.VAR;
   var $__9 = $__src_codegeneration_ParseTreeFactory_js, createArgumentList = $__9.createArgumentList, createAssignmentExpression = $__9.createAssignmentExpression, createBinaryOperator = $__9.createBinaryOperator, createBindingIdentifier = $__9.createBindingIdentifier, createBlock = $__9.createBlock, createCallExpression = $__9.createCallExpression, createCommaExpression = $__9.createCommaExpression, createConditionalExpression = $__9.createConditionalExpression, createExpressionStatement = $__9.createExpressionStatement, createIdentifierExpression = $__9.createIdentifierExpression, createMemberExpression = $__9.createMemberExpression, createMemberLookupExpression = $__9.createMemberLookupExpression, createNumberLiteral = $__9.createNumberLiteral, createOperatorToken = $__9.createOperatorToken, createParenExpression = $__9.createParenExpression, createStringLiteral = $__9.createStringLiteral, createVariableDeclaration = $__9.createVariableDeclaration, createVariableDeclarationList = $__9.createVariableDeclarationList, createVariableStatement = $__9.createVariableStatement;
+  var options = $__src_options_js.options;
   var prependStatements = $__src_codegeneration_PrependStatements_js.prependStatements;
   var stack = [];
   var Desugaring = function() {
@@ -13844,7 +13816,8 @@ var $__src_codegeneration_DestructuringTransformer_js = (function() {
         if (!tree.binding.isPattern()) return $__superCall(this, $__proto, "transformCatch", [tree]);
         var body = this.transformAny(tree.catchBody);
         var statements = [];
-        var binding = this.desugarBinding_(tree.binding, statements, LET);
+        var kind = options.blockBinding ? LET: VAR;
+        var binding = this.desugarBinding_(tree.binding, statements, kind);
         ($__10 = statements).push.apply($__10, $__toObject(body.statements));
         return new Catch(tree.location, binding, createBlock(statements));
       },

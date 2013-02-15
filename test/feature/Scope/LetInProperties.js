@@ -1,3 +1,5 @@
+// Options: --block-binding
+
 var object = {
   get x() {
     while (true) {
