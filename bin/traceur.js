@@ -633,39 +633,41 @@ traceur.runtime = (function(global) {
     };
   }
   var method = nonEnum;
-  Object.defineProperties(String.prototype, {
-    startsWith: method(function(s) {
-      return this.lastIndexOf(s, 0) === 0;
-    }),
-    endsWith: method(function(s) {
-      var t = String(s);
-      var l = this.length - t.length;
-      return l >= 0 && this.indexOf(t, l) === l;
-    }),
-    contains: method(function(s) {
-      return this.indexOf(s) !== - 1;
-    }),
-    toArray: method(function() {
-      return this.split('');
-    })
-  });
-  $defineProperty(String, 'raw', {
-    value: function(callsite) {
-      var raw = callsite.raw;
-      var len = raw.length >>> 0;
-      if (len === 0) return '';
-      var s = '';
-      var i = 0;
-      while (true) {
-        s += raw[i];
-        if (i + 1 === len) return s;
-        s += arguments[++i];
-      }
-    },
-    configurable: true,
-    enumerable: false,
-    writable: true
-  });
+  function polyfillString(String) {
+    Object.defineProperties(String.prototype, {
+      startsWith: method(function(s) {
+        return this.lastIndexOf(s, 0) === 0;
+      }),
+      endsWith: method(function(s) {
+        var t = String(s);
+        var l = this.length - t.length;
+        return l >= 0 && this.indexOf(t, l) === l;
+      }),
+      contains: method(function(s) {
+        return this.indexOf(s) !== - 1;
+      }),
+      toArray: method(function() {
+        return this.split('');
+      })
+    });
+    $defineProperty(String, 'raw', {
+      value: function(callsite) {
+        var raw = callsite.raw;
+        var len = raw.length >>> 0;
+        if (len === 0) return '';
+        var s = '';
+        var i = 0;
+        while (true) {
+          s += raw[i];
+          if (i + 1 === len) return s;
+          s += arguments[++i];
+        }
+      },
+      configurable: true,
+      enumerable: false,
+      writable: true
+    });
+  }
   var counter = 0;
   function newUniqueString() {
     return '__$' + Math.floor(Math.random() * 1e9) + '$' + ++counter + '$__';
@@ -795,19 +797,21 @@ traceur.runtime = (function(global) {
     assertNotName(name);
     return $getPropertyDescriptor(obj, name);
   }
-  $defineProperty(Object, 'defineProperty', {value: defineProperty});
-  $defineProperty(Object, 'deleteProperty', method(deleteProperty));
-  $defineProperty(Object, 'getOwnPropertyNames', {value: getOwnPropertyNames});
-  $defineProperty(Object, 'getProperty', method(getProperty));
-  $defineProperty(Object, 'getPropertyDescriptor', method(getPropertyDescriptor));
-  $defineProperty(Object, 'has', method(has));
-  $defineProperty(Object, 'setProperty', method(setProperty));
-  $defineProperty(Object.prototype, 'hasOwnProperty', {value: hasOwnProperty});
-  function is(left, right) {
-    if (left === right) return left !== 0 || 1 / left === 1 / right;
-    return left !== left && right !== right;
+  function polyfillObject(Object) {
+    $defineProperty(Object, 'defineProperty', {value: defineProperty});
+    $defineProperty(Object, 'deleteProperty', method(deleteProperty));
+    $defineProperty(Object, 'getOwnPropertyNames', {value: getOwnPropertyNames});
+    $defineProperty(Object, 'getProperty', method(getProperty));
+    $defineProperty(Object, 'getPropertyDescriptor', method(getPropertyDescriptor));
+    $defineProperty(Object, 'has', method(has));
+    $defineProperty(Object, 'setProperty', method(setProperty));
+    $defineProperty(Object.prototype, 'hasOwnProperty', {value: hasOwnProperty});
+    function is(left, right) {
+      if (left === right) return left !== 0 || 1 / left === 1 / right;
+      return left !== left && right !== right;
+    }
+    $defineProperty(Object, 'is', method(is));
   }
-  $defineProperty(Object, 'is', method(is));
   var iteratorName = new Name('iterator');
   var IterModule = {get iterator() {
       return iteratorName;
@@ -821,23 +825,25 @@ traceur.runtime = (function(global) {
   function addIterator(object) {
     setProperty(object, iteratorName, returnThis);
   }
-  defineProperty(Array.prototype, IterModule.iterator, method(function() {
-    var index = 0;
-    var array = this;
-    var current;
-    return {
-      get current() {
-        return current;
-      },
-      moveNext: function() {
-        if (index < array.length) {
-          current = array[index++];
-          return true;
+  function polyfillArray(Array) {
+    defineProperty(Array.prototype, IterModule.iterator, method(function() {
+      var index = 0;
+      var array = this;
+      var current;
+      return {
+        get current() {
+          return current;
+        },
+        moveNext: function() {
+          if (index < array.length) {
+            current = array[index++];
+            return true;
+          }
+          return false;
         }
-        return false;
-      }
-    };
-  }));
+      };
+    }));
+  }
   var StopIterationLocal;
   var isStopIteration = function(x) {
     return x === StopIterationLocal;
@@ -941,6 +947,12 @@ traceur.runtime = (function(global) {
     }
   });
   global.Deferred = Deferred;
+  function setupGlobals(global) {
+    polyfillString(global.String);
+    polyfillObject(global.Object);
+    polyfillArray(global.Array);
+  }
+  setupGlobals(global);
   return {
     Deferred: Deferred,
     StopIteration: StopIterationLocal,
@@ -956,6 +968,7 @@ traceur.runtime = (function(global) {
     getIterator: getIterator,
     getProperty: getProperty,
     setProperty: setProperty,
+    setupGlobals: setupGlobals,
     has: has,
     modules: modules
   };
