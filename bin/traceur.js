@@ -1127,12 +1127,12 @@ var $__src_options_js = (function() {
   addFeatureOption('trapMemberLookup', EXPERIMENTAL);
   addFeatureOption('deferredFunctions', EXPERIMENTAL);
   addFeatureOption('propertyOptionalComma', EXPERIMENTAL);
-  addFeatureOption('strictSemicolons', EXPERIMENTAL);
   addFeatureOption('types', EXPERIMENTAL);
   addBoolOption('debug');
   addBoolOption('sourceMaps');
   addBoolOption('freeVariableChecker');
   addBoolOption('validate');
+  addBoolOption('strictSemicolons');
   return Object.preventExtensions(Object.create(null, {
     parseOptions: {
       get: function() {
@@ -8711,7 +8711,7 @@ var $__src_syntax_Parser_js = (function() {
   var Scanner = $__src_syntax_Scanner_js.Scanner;
   var SourceRange = $__src_util_SourceRange_js.SourceRange;
   var $__9 = $__src_syntax_Token_js, Token = $__9.Token, isAssignmentOperator = $__9.isAssignmentOperator;
-  var options = $__src_options_js.parseOptions;
+  var $__9 = $__src_options_js, parseOptions = $__9.parseOptions, options = $__9.options;
   var $__9 = $__src_syntax_TokenType_js, AMPERSAND = $__9.AMPERSAND, AMPERSAND_EQUAL = $__9.AMPERSAND_EQUAL, AND = $__9.AND, ARROW = $__9.ARROW, AT_NAME = $__9.AT_NAME, AWAIT = $__9.AWAIT, BACK_QUOTE = $__9.BACK_QUOTE, BANG = $__9.BANG, BAR = $__9.BAR, BAR_EQUAL = $__9.BAR_EQUAL, BREAK = $__9.BREAK, CARET = $__9.CARET, CARET_EQUAL = $__9.CARET_EQUAL, CASE = $__9.CASE, CATCH = $__9.CATCH, CLASS = $__9.CLASS, CLOSE_ANGLE = $__9.CLOSE_ANGLE, CLOSE_CURLY = $__9.CLOSE_CURLY, CLOSE_PAREN = $__9.CLOSE_PAREN, CLOSE_SQUARE = $__9.CLOSE_SQUARE, COLON = $__9.COLON, COMMA = $__9.COMMA, CONST = $__9.CONST, CONTINUE = $__9.CONTINUE, DEBUGGER = $__9.DEBUGGER, DEFAULT = $__9.DEFAULT, DELETE = $__9.DELETE, DO = $__9.DO, DOLLAR = $__9.DOLLAR, DOT_DOT_DOT = $__9.DOT_DOT_DOT, ELSE = $__9.ELSE, END_OF_FILE = $__9.END_OF_FILE, ENUM = $__9.ENUM, EQUAL = $__9.EQUAL, EQUAL_EQUAL = $__9.EQUAL_EQUAL, EQUAL_EQUAL_EQUAL = $__9.EQUAL_EQUAL_EQUAL, ERROR = $__9.ERROR, EXPORT = $__9.EXPORT, EXTENDS = $__9.EXTENDS, FALSE = $__9.FALSE, FINALLY = $__9.FINALLY, FOR = $__9.FOR, FUNCTION = $__9.FUNCTION, GREATER_EQUAL = $__9.GREATER_EQUAL, IDENTIFIER = $__9.IDENTIFIER, IF = $__9.IF, IMPLEMENTS = $__9.IMPLEMENTS, IMPORT = $__9.IMPORT, IN = $__9.IN, INSTANCEOF = $__9.INSTANCEOF, INTERFACE = $__9.INTERFACE, LEFT_SHIFT = $__9.LEFT_SHIFT, LEFT_SHIFT_EQUAL = $__9.LEFT_SHIFT_EQUAL, LESS_EQUAL = $__9.LESS_EQUAL, LET = $__9.LET, MINUS = $__9.MINUS, MINUS_EQUAL = $__9.MINUS_EQUAL, MINUS_MINUS = $__9.MINUS_MINUS, NEW = $__9.NEW, NO_SUBSTITUTION_TEMPLATE = $__9.NO_SUBSTITUTION_TEMPLATE, NOT_EQUAL = $__9.NOT_EQUAL, NOT_EQUAL_EQUAL = $__9.NOT_EQUAL_EQUAL, NULL = $__9.NULL, NUMBER = $__9.NUMBER, OPEN_ANGLE = $__9.OPEN_ANGLE, OPEN_CURLY = $__9.OPEN_CURLY, OPEN_PAREN = $__9.OPEN_PAREN, OPEN_SQUARE = $__9.OPEN_SQUARE, OR = $__9.OR, PACKAGE = $__9.PACKAGE, PERCENT = $__9.PERCENT, PERCENT_EQUAL = $__9.PERCENT_EQUAL, PERIOD = $__9.PERIOD, PERIOD_OPEN_CURLY = $__9.PERIOD_OPEN_CURLY, PLUS = $__9.PLUS, PLUS_EQUAL = $__9.PLUS_EQUAL, PLUS_PLUS = $__9.PLUS_PLUS, PRIVATE = $__9.PRIVATE, PROTECTED = $__9.PROTECTED, PUBLIC = $__9.PUBLIC, QUESTION = $__9.QUESTION, REGULAR_EXPRESSION = $__9.REGULAR_EXPRESSION, RETURN = $__9.RETURN, RIGHT_SHIFT = $__9.RIGHT_SHIFT, RIGHT_SHIFT_EQUAL = $__9.RIGHT_SHIFT_EQUAL, SEMI_COLON = $__9.SEMI_COLON, SLASH = $__9.SLASH, SLASH_EQUAL = $__9.SLASH_EQUAL, STAR = $__9.STAR, STAR_EQUAL = $__9.STAR_EQUAL, STATIC = $__9.STATIC, STRING = $__9.STRING, SUPER = $__9.SUPER, SWITCH = $__9.SWITCH, TEMPLATE_HEAD = $__9.TEMPLATE_HEAD, TEMPLATE_MIDDLE = $__9.TEMPLATE_MIDDLE, TEMPLATE_TAIL = $__9.TEMPLATE_TAIL, THIS = $__9.THIS, THROW = $__9.THROW, TILDE = $__9.TILDE, TRUE = $__9.TRUE, TRY = $__9.TRY, TYPEOF = $__9.TYPEOF, UNSIGNED_RIGHT_SHIFT = $__9.UNSIGNED_RIGHT_SHIFT, UNSIGNED_RIGHT_SHIFT_EQUAL = $__9.UNSIGNED_RIGHT_SHIFT_EQUAL, VAR = $__9.VAR, VOID = $__9.VOID, WHILE = $__9.WHILE, WITH = $__9.WITH, YIELD = $__9.YIELD;
   var $__9 = $__src_syntax_trees_ParseTrees_js, ArgumentList = $__9.ArgumentList, ArrayComprehension = $__9.ArrayComprehension, ArrayLiteralExpression = $__9.ArrayLiteralExpression, ArrayPattern = $__9.ArrayPattern, ArrowFunctionExpression = $__9.ArrowFunctionExpression, AtNameDeclaration = $__9.AtNameDeclaration, AtNameExpression = $__9.AtNameExpression, AwaitStatement = $__9.AwaitStatement, BinaryOperator = $__9.BinaryOperator, BindingElement = $__9.BindingElement, BindingIdentifier = $__9.BindingIdentifier, Block = $__9.Block, BreakStatement = $__9.BreakStatement, CallExpression = $__9.CallExpression, CascadeExpression = $__9.CascadeExpression, CaseClause = $__9.CaseClause, Catch = $__9.Catch, ClassDeclaration = $__9.ClassDeclaration, ClassExpression = $__9.ClassExpression, CommaExpression = $__9.CommaExpression, ComprehensionFor = $__9.ComprehensionFor, ComprehensionIf = $__9.ComprehensionIf, ConditionalExpression = $__9.ConditionalExpression, ContinueStatement = $__9.ContinueStatement, CoverFormals = $__9.CoverFormals, DebuggerStatement = $__9.DebuggerStatement, DefaultClause = $__9.DefaultClause, DoWhileStatement = $__9.DoWhileStatement, EmptyStatement = $__9.EmptyStatement, ExportDeclaration = $__9.ExportDeclaration, ExportMapping = $__9.ExportMapping, ExportMappingList = $__9.ExportMappingList, ExportSpecifier = $__9.ExportSpecifier, ExportSpecifierSet = $__9.ExportSpecifierSet, ExportStar = $__9.ExportStar, ExpressionStatement = $__9.ExpressionStatement, Finally = $__9.Finally, ForInStatement = $__9.ForInStatement, ForOfStatement = $__9.ForOfStatement, ForStatement = $__9.ForStatement, FormalParameterList = $__9.FormalParameterList, FunctionDeclaration = $__9.FunctionDeclaration, FunctionExpression = $__9.FunctionExpression, GeneratorComprehension = $__9.GeneratorComprehension, GetAccessor = $__9.GetAccessor, IdentifierExpression = $__9.IdentifierExpression, IfStatement = $__9.IfStatement, ImportBinding = $__9.ImportBinding, ImportDeclaration = $__9.ImportDeclaration, ImportSpecifier = $__9.ImportSpecifier, ImportSpecifierSet = $__9.ImportSpecifierSet, LabelledStatement = $__9.LabelledStatement, LiteralExpression = $__9.LiteralExpression, MemberExpression = $__9.MemberExpression, MemberLookupExpression = $__9.MemberLookupExpression, MissingPrimaryExpression = $__9.MissingPrimaryExpression, ModuleDeclaration = $__9.ModuleDeclaration, ModuleDefinition = $__9.ModuleDefinition, ModuleExpression = $__9.ModuleExpression, ModuleRequire = $__9.ModuleRequire, ModuleSpecifier = $__9.ModuleSpecifier, NameStatement = $__9.NameStatement, NewExpression = $__9.NewExpression, ObjectLiteralExpression = $__9.ObjectLiteralExpression, ObjectPattern = $__9.ObjectPattern, ObjectPatternField = $__9.ObjectPatternField, ParenExpression = $__9.ParenExpression, PostfixExpression = $__9.PostfixExpression, PredefinedType = $__9.PredefinedType, Program = $__9.Program, PropertyMethodAssignment = $__9.PropertyMethodAssignment, PropertyNameAssignment = $__9.PropertyNameAssignment, PropertyNameShorthand = $__9.PropertyNameShorthand, RestParameter = $__9.RestParameter, ReturnStatement = $__9.ReturnStatement, SetAccessor = $__9.SetAccessor, SpreadExpression = $__9.SpreadExpression, SpreadPatternElement = $__9.SpreadPatternElement, SuperExpression = $__9.SuperExpression, SwitchStatement = $__9.SwitchStatement, TemplateLiteralExpression = $__9.TemplateLiteralExpression, TemplateLiteralPortion = $__9.TemplateLiteralPortion, TemplateSubstitution = $__9.TemplateSubstitution, ThisExpression = $__9.ThisExpression, ThrowStatement = $__9.ThrowStatement, TryStatement = $__9.TryStatement, TypeName = $__9.TypeName, UnaryExpression = $__9.UnaryExpression, VariableDeclaration = $__9.VariableDeclaration, VariableDeclarationList = $__9.VariableDeclarationList, VariableStatement = $__9.VariableStatement, WhileStatement = $__9.WhileStatement, WithStatement = $__9.WithStatement, YieldExpression = $__9.YieldExpression;
   var Expression = {
@@ -8934,7 +8934,7 @@ var $__src_syntax_Parser_js = (function() {
         return token.type === IDENTIFIER || token.isKeyword();
       },
       peekModuleDeclaration_: function(type) {
-        return options.modules && type === IDENTIFIER && this.peekToken_().value === MODULE && this.peek_(IDENTIFIER, 1);
+        return parseOptions.modules && type === IDENTIFIER && this.peekToken_().value === MODULE && this.peek_(IDENTIFIER, 1);
       },
       parseModuleDeclaration_: function(load) {
         var start = this.getTreeStartLocation_();
@@ -8984,7 +8984,7 @@ var $__src_syntax_Parser_js = (function() {
         return result;
       },
       peekClassElement_: function(type) {
-        return this.peekPropertyName_(type) || type === STAR && options.generators;
+        return this.peekPropertyName_(type) || type === STAR && parseOptions.generators;
       },
       parsePropertyName_: function() {
         return this.nextToken_();
@@ -8998,11 +8998,11 @@ var $__src_syntax_Parser_js = (function() {
             return this.parseReturnStatement_();
           case CONST:
           case LET:
-            if (!options.blockBinding) break;
+            if (!parseOptions.blockBinding) break;
           case VAR:
             return this.parseVariableStatement_();
           case IDENTIFIER:
-            if (allowProgramElement && options.modules && this.peekModuleDeclaration_(type)) {
+            if (allowProgramElement && parseOptions.modules && this.peekModuleDeclaration_(type)) {
               return this.parseModuleDeclaration_(load);
             }
             break;
@@ -9021,10 +9021,10 @@ var $__src_syntax_Parser_js = (function() {
           case FUNCTION:
             return this.parseFunctionDeclaration_();
           case AWAIT:
-            if (options.deferredFunctions) return this.parseAwaitStatement_();
+            if (parseOptions.deferredFunctions) return this.parseAwaitStatement_();
             break;
           case CLASS:
-            if (options.classes) return this.parseClassDeclaration_();
+            if (parseOptions.classes) return this.parseClassDeclaration_();
             break;
           case CONTINUE:
             return this.parseContinueStatement_();
@@ -9033,15 +9033,15 @@ var $__src_syntax_Parser_js = (function() {
           case DO:
             return this.parseDoWhileStatement_();
           case EXPORT:
-            if (allowProgramElement && options.modules) return this.parseExportDeclaration_(load);
+            if (allowProgramElement && parseOptions.modules) return this.parseExportDeclaration_(load);
             break;
           case IMPORT:
-            if (allowProgramElement && options.modules) return this.parseImportDeclaration_(load);
+            if (allowProgramElement && parseOptions.modules) return this.parseImportDeclaration_(load);
             break;
           case OPEN_CURLY:
             return this.parseBlock_();
           case PRIVATE:
-            if (options.privateNameSyntax) return this.parseNameStatement_();
+            if (parseOptions.privateNameSyntax) return this.parseNameStatement_();
             break;
           case SEMI_COLON:
             return this.parseEmptyStatement_();
@@ -9094,23 +9094,23 @@ var $__src_syntax_Parser_js = (function() {
             return true;
           case CLASS:
           case SUPER:
-            return options.classes;
+            return parseOptions.classes;
           case CONST:
           case LET:
-            return options.blockBinding;
+            return parseOptions.blockBinding;
           case AT_NAME:
           case PRIVATE:
-            return options.privateNameSyntax;
+            return parseOptions.privateNameSyntax;
           case YIELD:
-            return options.generators;
+            return parseOptions.generators;
           case AWAIT:
-            return options.deferredFunctions;
+            return parseOptions.deferredFunctions;
           case TEMPLATE_HEAD:
           case NO_SUBSTITUTION_TEMPLATE:
-            return options.templateLiterals;
+            return parseOptions.templateLiterals;
           case IMPORT:
           case EXPORT:
-            return allowProgramElement && options.modules;
+            return allowProgramElement && parseOptions.modules;
         }
         return false;
       },
@@ -9191,7 +9191,7 @@ var $__src_syntax_Parser_js = (function() {
         return result;
       },
       parseSpreadExpression_: function() {
-        if (!options.spread) {
+        if (!parseOptions.spread) {
           return this.parseMissingPrimaryExpression_();
         }
         var start = this.getTreeStartLocation_();
@@ -9220,7 +9220,7 @@ var $__src_syntax_Parser_js = (function() {
         switch (type) {
           case CONST:
           case LET:
-            if (!options.blockBinding) debugger;
+            if (!parseOptions.blockBinding) debugger;
           case VAR:
             this.nextToken_();
             break;
@@ -9343,7 +9343,7 @@ var $__src_syntax_Parser_js = (function() {
           if (type === IN) {
             validate(variables, 'for-in');
             var declaration = variables.declarations[0];
-            if (options.blockBinding && (variables.declarationType == LET || variables.declarationType == CONST)) {
+            if (parseOptions.blockBinding && (variables.declarationType == LET || variables.declarationType == CONST)) {
               if (declaration.initializer != null) {
                 this.reportError_('let/const in for-in statement may not have initializer');
               }
@@ -9374,7 +9374,7 @@ var $__src_syntax_Parser_js = (function() {
         return this.parseForStatement2_(start, initializer);
       },
       peekOf_: function(type) {
-        return type === IDENTIFIER && options.forOf && this.peekToken_().value === OF;
+        return type === IDENTIFIER && parseOptions.forOf && this.peekToken_().value === OF;
       },
       parseForOfStatement_: function(start, initializer) {
         this.eatId_();
@@ -9384,7 +9384,7 @@ var $__src_syntax_Parser_js = (function() {
         return new ForOfStatement(this.getTreeLocation_(start), initializer, collection, body);
       },
       checkInitializers_: function(variables) {
-        if (options.blockBinding && variables.declarationType == CONST) {
+        if (parseOptions.blockBinding && variables.declarationType == CONST) {
           var type = variables.declarationType;
           for (var i = 0; i < variables.declarations.length; i++) {
             if (!this.checkInitializer_(type, variables.declarations[i])) {
@@ -9394,7 +9394,7 @@ var $__src_syntax_Parser_js = (function() {
         }
       },
       checkInitializer_: function(type, declaration) {
-        if (options.blockBinding && type == CONST && declaration.initializer == null) {
+        if (parseOptions.blockBinding && type == CONST && declaration.initializer == null) {
           this.reportError_('const variables must have an initializer');
           return false;
         }
@@ -9406,7 +9406,7 @@ var $__src_syntax_Parser_js = (function() {
             return true;
           case CONST:
           case LET:
-            return options.blockBinding;
+            return parseOptions.blockBinding;
           default:
             return false;
         }
@@ -9593,7 +9593,7 @@ var $__src_syntax_Parser_js = (function() {
       parsePrimaryExpression_: function() {
         switch (this.peekType_()) {
           case CLASS:
-            return options.classes ? this.parseClassExpression_(): this.parseMissingPrimaryExpression_();
+            return parseOptions.classes ? this.parseClassExpression_(): this.parseMissingPrimaryExpression_();
           case SUPER:
             return this.parseSuperExpression_();
           case THIS:
@@ -9671,7 +9671,7 @@ var $__src_syntax_Parser_js = (function() {
         return new LiteralExpression(this.getTreeLocation_(start), literal);
       },
       peekSpread_: function(type) {
-        return type === DOT_DOT_DOT && options.spread;
+        return type === DOT_DOT_DOT && parseOptions.spread;
       },
       parseArrayLiteral_: function() {
         var start = this.getTreeStartLocation_();
@@ -9679,7 +9679,7 @@ var $__src_syntax_Parser_js = (function() {
         var elements = [];
         this.eat_(OPEN_SQUARE);
         var type = this.peekType_();
-        if (type === FOR && options.arrayComprehension) return this.parseArrayComprehension_(start);
+        if (type === FOR && parseOptions.arrayComprehension) return this.parseArrayComprehension_(start);
         while (true) {
           type = this.peekType_();
           if (type === COMMA) {
@@ -9756,17 +9756,17 @@ var $__src_syntax_Parser_js = (function() {
         return new ObjectLiteralExpression(this.getTreeLocation_(start), result);
       },
       eatPropertyOptionalComma_: function() {
-        return this.eatIf_(COMMA) || options.propertyOptionalComma;
+        return this.eatIf_(COMMA) || parseOptions.propertyOptionalComma;
       },
       parsePropertyDefinition: function() {
         var start = this.getTreeStartLocation_();
         var isGenerator = false;
         var isStatic = false;
-        if (options.generators && options.propertyMethods && this.peek_(STAR)) {
+        if (parseOptions.generators && parseOptions.propertyMethods && this.peek_(STAR)) {
           return this.parseGeneratorMethod_(start, isStatic);
         }
         var name = this.parsePropertyName_();
-        if (options.propertyMethods && this.peek_(OPEN_PAREN)) return this.parseMethod_(start, isStatic, isGenerator, name);
+        if (parseOptions.propertyMethods && this.peek_(OPEN_PAREN)) return this.parseMethod_(start, isStatic, isGenerator, name);
         if (this.eatIf_(COLON)) {
           var value = this.parseAssignmentExpression();
           return new PropertyNameAssignment(this.getTreeLocation_(start), name, value);
@@ -9778,7 +9778,7 @@ var $__src_syntax_Parser_js = (function() {
         if (name.type === IDENTIFIER && name.value === SET && this.peekPropertyName_(type)) {
           return this.parseSetAccessor_(start, isStatic);
         }
-        if (options.propertyNameShorthand) return new PropertyNameShorthand(this.getTreeLocation_(start), name);
+        if (parseOptions.propertyNameShorthand) return new PropertyNameShorthand(this.getTreeLocation_(start), name);
         this.reportError_(name, 'Unexpected token');
         return null;
       },
@@ -9795,7 +9795,7 @@ var $__src_syntax_Parser_js = (function() {
                 return this.parseMethod_(start, isStatic, isGenerator, staticToken);
               default:
                 isStatic = true;
-                if (type === STAR && options.generators) return this.parseGeneratorMethod_(start, true);
+                if (type === STAR && parseOptions.generators) return this.parseGeneratorMethod_(start, true);
                 return this.parseGetSetOrMethod_(start, isStatic);
             }
             break;
@@ -9848,12 +9848,12 @@ var $__src_syntax_Parser_js = (function() {
         return new SetAccessor(this.getTreeLocation_(start), isStatic, name, parameter, body);
       },
       peekPropertyDefinition_: function(type) {
-        return this.peekPropertyName_(type) || type == STAR && options.propertyMethods && options.generators;
+        return this.peekPropertyName_(type) || type == STAR && parseOptions.propertyMethods && parseOptions.generators;
       },
       peekPropertyName_: function(type) {
         switch (type) {
           case AT_NAME:
-            return options.privateNameSyntax;
+            return parseOptions.privateNameSyntax;
           case IDENTIFIER:
           case STRING:
           case NUMBER:
@@ -9886,9 +9886,9 @@ var $__src_syntax_Parser_js = (function() {
         switch (type) {
           case NO_SUBSTITUTION_TEMPLATE:
           case TEMPLATE_HEAD:
-            return options.templateLiterals;
+            return parseOptions.templateLiterals;
           case AT_NAME:
-            return options.privateNameSyntax;
+            return parseOptions.privateNameSyntax;
           case BANG:
           case CLASS:
           case DELETE:
@@ -10227,13 +10227,13 @@ var $__src_syntax_Parser_js = (function() {
                 operand = new MemberExpression(this.getTreeLocation_(start), operand, memberName);
                 break;
               case PERIOD_OPEN_CURLY:
-                if (!options.cascadeExpression) break loop;
+                if (!parseOptions.cascadeExpression) break loop;
                 var expressions = this.parseCascadeExpressions_();
                 operand = new CascadeExpression(this.getTreeLocation_(start), operand, expressions);
                 break;
               case NO_SUBSTITUTION_TEMPLATE:
               case TEMPLATE_HEAD:
-                if (!options.templateLiterals) break loop;
+                if (!parseOptions.templateLiterals) break loop;
                 operand = this.parseTemplateLiteral_(operand);
                 break;
               default:
@@ -10262,17 +10262,17 @@ var $__src_syntax_Parser_js = (function() {
             case PERIOD:
               this.nextToken_();
               var name;
-              if (options.privateNameSyntax && this.peek_(AT_NAME)) name = this.nextToken_(); else name = this.eatIdName_();
+              if (parseOptions.privateNameSyntax && this.peek_(AT_NAME)) name = this.nextToken_(); else name = this.eatIdName_();
               operand = new MemberExpression(this.getTreeLocation_(start), operand, name);
               break;
             case PERIOD_OPEN_CURLY:
-              if (!options.cascadeExpression) break loop;
+              if (!parseOptions.cascadeExpression) break loop;
               var expressions = this.parseCascadeExpressions_();
               operand = new CascadeExpression(this.getTreeLocation_(start), operand, expressions);
               break;
             case NO_SUBSTITUTION_TEMPLATE:
             case TEMPLATE_HEAD:
-              if (!options.templateLiterals) break loop;
+              if (!parseOptions.templateLiterals) break loop;
               operand = this.parseTemplateLiteral_(operand);
               break;
             default:
@@ -10360,12 +10360,12 @@ var $__src_syntax_Parser_js = (function() {
         return new ArgumentList(this.getTreeLocation_(start), args);
       },
       peekRest_: function(type) {
-        return type === DOT_DOT_DOT && options.restParameters;
+        return type === DOT_DOT_DOT && parseOptions.restParameters;
       },
       parseArrowFunction_: function(expressionIn) {
         var start = this.getTreeStartLocation_();
         this.eat_(OPEN_PAREN);
-        if (this.peek_(FOR) && options.generatorComprehension) return this.parseGeneratorComprehension_(start);
+        if (this.peek_(FOR) && parseOptions.generatorComprehension) return this.parseGeneratorComprehension_(start);
         var formals;
         var coverFormals = this.parseCoverFormals_();
         var expressions = coverFormals.expressions;
@@ -10408,7 +10408,7 @@ var $__src_syntax_Parser_js = (function() {
         return formals;
       },
       peekArrow_: function(type) {
-        return type === ARROW && options.arrowFunctions;
+        return type === ARROW && parseOptions.arrowFunctions;
       },
       parseConciseBody_: function() {
         if (this.peek_(OPEN_CURLY)) return this.parseBlock_();
@@ -10425,7 +10425,7 @@ var $__src_syntax_Parser_js = (function() {
         return this.parseBindingIdentifier_();
       },
       peekPattern_: function(type) {
-        return options.destructuring && (this.peekObjectPattern_(type) || this.peekArrayPattern_(type));
+        return parseOptions.destructuring && (this.peekObjectPattern_(type) || this.peekArrayPattern_(type));
       },
       peekArrayPattern_: function(type) {
         return type === OPEN_SQUARE;
@@ -10518,7 +10518,7 @@ var $__src_syntax_Parser_js = (function() {
         return new BindingElement(this.getTreeLocation_(start), binding, initializer);
       },
       parseTemplateLiteral_: function(operand) {
-        if (!options.templateLiterals) {
+        if (!parseOptions.templateLiterals) {
           return this.parseMissingPrimaryExpression_();
         }
         var start = operand ? operand.location.start: this.getTreeStartLocation_();
@@ -10540,7 +10540,7 @@ var $__src_syntax_Parser_js = (function() {
         return new TemplateLiteralExpression(this.getTreeLocation_(start), operand, elements);
       },
       parseTypeAnnotationOpt_: function() {
-        if (options.types && this.eatOpt_(COLON)) {
+        if (parseOptions.types && this.eatOpt_(COLON)) {
           return this.parseType_();
         }
         return null;

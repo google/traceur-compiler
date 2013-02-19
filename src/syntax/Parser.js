@@ -54,7 +54,10 @@ import {
   Token,
   isAssignmentOperator
 } from 'Token.js';
-import {parseOptions: options} from '../options.js';
+import {
+  parseOptions,
+  options
+} from '../options.js';
 import * from 'TokenType.js';
 import * from 'trees/ParseTrees.js';
 
@@ -498,7 +501,7 @@ export class Parser {
     //                    | ModuleDefinition(load)
     // ModuleDefinition(load) ::= "module" Identifier "{" ModuleBody(load) "}"
     // ModuleSpecifier(load) ::= Identifier "from" ModuleExpression(load)
-    return options.modules &&
+    return parseOptions.modules &&
         type === IDENTIFIER && this.peekToken_().value === MODULE &&
         // TODO(arv): Do we need this lookahead?
         this.peek_(IDENTIFIER, 1);
@@ -584,7 +587,7 @@ export class Parser {
   peekClassElement_(type) {
     // PropertyName covers get, set and static too.
     return this.peekPropertyName_(type) ||
-        type === STAR && options.generators;
+        type === STAR && parseOptions.generators;
   }
 
   parsePropertyName_() {
@@ -607,13 +610,13 @@ export class Parser {
         return this.parseReturnStatement_();
       case CONST:
       case LET:
-        if (!options.blockBinding)
+        if (!parseOptions.blockBinding)
           break;
         // Fall through.
       case VAR:
         return this.parseVariableStatement_();
       case IDENTIFIER:
-        if (allowProgramElement && options.modules &&
+        if (allowProgramElement && parseOptions.modules &&
             this.peekModuleDeclaration_(type)) {
           return this.parseModuleDeclaration_(load);
         }
@@ -635,11 +638,11 @@ export class Parser {
 
       // Rest are just alphabetical order.
       case AWAIT:
-        if (options.deferredFunctions)
+        if (parseOptions.deferredFunctions)
           return this.parseAwaitStatement_();
         break;
       case CLASS:
-        if (options.classes)
+        if (parseOptions.classes)
           return this.parseClassDeclaration_();
         break;
       case CONTINUE:
@@ -649,17 +652,17 @@ export class Parser {
       case DO:
         return this.parseDoWhileStatement_();
       case EXPORT:
-        if (allowProgramElement && options.modules)
+        if (allowProgramElement && parseOptions.modules)
           return this.parseExportDeclaration_(load);
         break;
       case IMPORT:
-        if (allowProgramElement && options.modules)
+        if (allowProgramElement && parseOptions.modules)
           return this.parseImportDeclaration_(load);
         break;
       case OPEN_CURLY:
         return this.parseBlock_();
       case PRIVATE:
-        if (options.privateNameSyntax)
+        if (parseOptions.privateNameSyntax)
           return this.parseNameStatement_();
         break;
       case SEMI_COLON:
@@ -722,23 +725,23 @@ export class Parser {
 
       case CLASS:
       case SUPER:
-        return options.classes;
+        return parseOptions.classes;
       case CONST:
       case LET:
-        return options.blockBinding;
+        return parseOptions.blockBinding;
       case AT_NAME:
       case PRIVATE:
-        return options.privateNameSyntax;
+        return parseOptions.privateNameSyntax;
       case YIELD:
-        return options.generators;
+        return parseOptions.generators;
       case AWAIT:
-        return options.deferredFunctions;
+        return parseOptions.deferredFunctions;
       case TEMPLATE_HEAD:
       case NO_SUBSTITUTION_TEMPLATE:
-        return options.templateLiterals;
+        return parseOptions.templateLiterals;
       case IMPORT:
       case EXPORT:
-        return allowProgramElement && options.modules;
+        return allowProgramElement && parseOptions.modules;
     }
     return false;
   }
@@ -890,7 +893,7 @@ export class Parser {
    * @private
    */
   parseSpreadExpression_() {
-    if (!options.spread) {
+    if (!parseOptions.spread) {
       return this.parseMissingPrimaryExpression_();
     }
     var start = this.getTreeStartLocation_();
@@ -940,7 +943,7 @@ export class Parser {
     switch (type) {
       case CONST:
       case LET:
-        if (!options.blockBinding)
+        if (!parseOptions.blockBinding)
           debugger;
       case VAR:
         this.nextToken_();
@@ -1166,7 +1169,7 @@ export class Parser {
 
         var declaration = variables.declarations[0];
         // for-in: if let/const binding used, initializer is illegal
-        if (options.blockBinding &&
+        if (parseOptions.blockBinding &&
             (variables.declarationType == LET ||
              variables.declarationType == CONST)) {
           if (declaration.initializer != null) {
@@ -1212,7 +1215,7 @@ export class Parser {
   }
 
   peekOf_(type) {
-    return type === IDENTIFIER && options.forOf &&
+    return type === IDENTIFIER && parseOptions.forOf &&
         this.peekToken_().value === OF;
   }
 
@@ -1240,7 +1243,7 @@ export class Parser {
    * @private
    */
   checkInitializers_(variables) {
-    if (options.blockBinding &&
+    if (parseOptions.blockBinding &&
         variables.declarationType == CONST) {
       var type = variables.declarationType;
       for (var i = 0; i < variables.declarations.length; i++) {
@@ -1260,7 +1263,7 @@ export class Parser {
    * @private
    */
   checkInitializer_(type, declaration) {
-    if (options.blockBinding && type == CONST &&
+    if (parseOptions.blockBinding && type == CONST &&
         declaration.initializer == null) {
       this.reportError_('const variables must have an initializer');
       return false;
@@ -1278,7 +1281,7 @@ export class Parser {
         return true;
       case CONST:
       case LET:
-        return options.blockBinding;
+        return parseOptions.blockBinding;
       default:
         return false;
     }
@@ -1588,7 +1591,7 @@ export class Parser {
   parsePrimaryExpression_() {
     switch (this.peekType_()) {
       case CLASS:
-        return options.classes ?
+        return parseOptions.classes ?
             this.parseClassExpression_() :
             this.parseMissingPrimaryExpression_();
       case SUPER:
@@ -1708,7 +1711,7 @@ export class Parser {
   }
 
   peekSpread_(type) {
-    return type === DOT_DOT_DOT && options.spread;
+    return type === DOT_DOT_DOT && parseOptions.spread;
   }
 
   // 11.1.4 Array Literal Expression
@@ -1746,7 +1749,7 @@ export class Parser {
     this.eat_(OPEN_SQUARE);
 
     var type = this.peekType_();
-    if (type === FOR && options.arrayComprehension)
+    if (type === FOR && parseOptions.arrayComprehension)
       return this.parseArrayComprehension_(start);
 
     while (true) {
@@ -1871,7 +1874,7 @@ export class Parser {
   }
 
   eatPropertyOptionalComma_() {
-    return this.eatIf_(COMMA) || options.propertyOptionalComma;
+    return this.eatIf_(COMMA) || parseOptions.propertyOptionalComma;
   }
 
   /**
@@ -1887,14 +1890,14 @@ export class Parser {
     var isGenerator = false;
     var isStatic = false;
 
-    if (options.generators && options.propertyMethods &&
+    if (parseOptions.generators && parseOptions.propertyMethods &&
         this.peek_(STAR)) {
       return this.parseGeneratorMethod_(start, isStatic);
     }
 
     var name = this.parsePropertyName_();
 
-    if (options.propertyMethods && this.peek_(OPEN_PAREN))
+    if (parseOptions.propertyMethods && this.peek_(OPEN_PAREN))
       return this.parseMethod_(start, isStatic, isGenerator, name);
 
     if (this.eatIf_(COLON)) {
@@ -1916,7 +1919,7 @@ export class Parser {
 
     // TODO(arv): CoverGrammar
 
-    if (options.propertyNameShorthand)
+    if (parseOptions.propertyNameShorthand)
       return new PropertyNameShorthand(this.getTreeLocation_(start), name);
 
     this.reportError_(name, 'Unexpected token');
@@ -1951,7 +1954,7 @@ export class Parser {
 
           default:
             isStatic = true;
-            if (type === STAR && options.generators)
+            if (type === STAR && parseOptions.generators)
               return this.parseGeneratorMethod_(start, true);
 
             return this.parseGetSetOrMethod_(start, isStatic);
@@ -2026,7 +2029,7 @@ export class Parser {
    */
   peekPropertyDefinition_(type) {
     return this.peekPropertyName_(type) ||
-        type == STAR && options.propertyMethods && options.generators;
+        type == STAR && parseOptions.propertyMethods && parseOptions.generators;
   }
 
   /**
@@ -2036,7 +2039,7 @@ export class Parser {
   peekPropertyName_(type) {
     switch (type) {
       case AT_NAME:
-        return options.privateNameSyntax;
+        return parseOptions.privateNameSyntax;
       case IDENTIFIER:
       case STRING:
       case NUMBER:
@@ -2104,9 +2107,9 @@ export class Parser {
     switch (type) {
       case NO_SUBSTITUTION_TEMPLATE:
       case TEMPLATE_HEAD:
-        return options.templateLiterals;
+        return parseOptions.templateLiterals;
       case AT_NAME:
-        return options.privateNameSyntax;
+        return parseOptions.privateNameSyntax;
       case BANG:
       case CLASS:
       case DELETE:
@@ -2654,7 +2657,7 @@ export class Parser {
             break;
 
           case PERIOD_OPEN_CURLY:
-            if (!options.cascadeExpression)
+            if (!parseOptions.cascadeExpression)
               break loop;
             var expressions = this.parseCascadeExpressions_();
             operand = new CascadeExpression(this.getTreeLocation_(start),
@@ -2663,7 +2666,7 @@ export class Parser {
 
           case NO_SUBSTITUTION_TEMPLATE:
           case TEMPLATE_HEAD:
-            if (!options.templateLiterals)
+            if (!parseOptions.templateLiterals)
               break loop;
             operand = this.parseTemplateLiteral_(operand);
             break;
@@ -2703,7 +2706,7 @@ export class Parser {
         case PERIOD:
           this.nextToken_();
           var name;
-          if (options.privateNameSyntax && this.peek_(AT_NAME))
+          if (parseOptions.privateNameSyntax && this.peek_(AT_NAME))
             name = this.nextToken_();
           else
             name = this.eatIdName_();
@@ -2712,7 +2715,7 @@ export class Parser {
           break;
 
         case PERIOD_OPEN_CURLY:
-          if (!options.cascadeExpression)
+          if (!parseOptions.cascadeExpression)
             break loop;
           var expressions = this.parseCascadeExpressions_();
           operand = new CascadeExpression(this.getTreeLocation_(start),
@@ -2721,7 +2724,7 @@ export class Parser {
 
         case NO_SUBSTITUTION_TEMPLATE:
         case TEMPLATE_HEAD:
-          if (!options.templateLiterals)
+          if (!parseOptions.templateLiterals)
             break loop;
           operand = this.parseTemplateLiteral_(operand);
           break;
@@ -2842,7 +2845,7 @@ export class Parser {
   }
 
   peekRest_(type) {
-    return type === DOT_DOT_DOT && options.restParameters;
+    return type === DOT_DOT_DOT && parseOptions.restParameters;
   }
 
   /**
@@ -2883,7 +2886,7 @@ export class Parser {
 
     this.eat_(OPEN_PAREN);
 
-    if (this.peek_(FOR) && options.generatorComprehension)
+    if (this.peek_(FOR) && parseOptions.generatorComprehension)
       return this.parseGeneratorComprehension_(start);
 
     var formals;
@@ -2967,7 +2970,7 @@ export class Parser {
 
   /** @returns {TokenType} */
   peekArrow_(type) {
-    return type === ARROW && options.arrowFunctions;
+    return type === ARROW && parseOptions.arrowFunctions;
   }
 
   /**
@@ -3026,7 +3029,7 @@ export class Parser {
   // at the top-level of assignment statements.
 
   peekPattern_(type) {
-    return options.destructuring && (this.peekObjectPattern_(type) ||
+    return parseOptions.destructuring && (this.peekObjectPattern_(type) ||
         this.peekArrayPattern_(type));
   }
 
@@ -3251,7 +3254,7 @@ export class Parser {
    * @private
    */
   parseTemplateLiteral_(operand) {
-    if (!options.templateLiterals) {
+    if (!parseOptions.templateLiterals) {
       return this.parseMissingPrimaryExpression_();
     }
 
@@ -3288,7 +3291,7 @@ export class Parser {
   }
 
   parseTypeAnnotationOpt_() {
-    if (options.types && this.eatOpt_(COLON)) {
+    if (parseOptions.types && this.eatOpt_(COLON)) {
       return this.parseType_();
     }
     return null;

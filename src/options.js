@@ -250,10 +250,10 @@ addFeatureOption('cascadeExpression', EXPERIMENTAL);
 addFeatureOption('trapMemberLookup', EXPERIMENTAL);
 addFeatureOption('deferredFunctions', EXPERIMENTAL);
 addFeatureOption('propertyOptionalComma', EXPERIMENTAL);
-addFeatureOption('strictSemicolons', EXPERIMENTAL);
 addFeatureOption('types', EXPERIMENTAL);
 
 addBoolOption('debug');
 addBoolOption('sourceMaps');
 addBoolOption('freeVariableChecker');
 addBoolOption('validate');
+addBoolOption('strictSemicolons');
