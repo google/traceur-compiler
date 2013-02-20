@@ -25,6 +25,20 @@ function assertClosed(g) {
 }
 
 //-----------------------------------------------------------------------------
+
+function id(G) {
+  return G;
+}
+
+function wrap(G) {
+  return function* () {
+    yield* G();
+  };
+}
+
+[id, wrap].forEach((W) => { // wrap_forEach
+
+//-----------------------------------------------------------------------------
 //
 // http://wiki.ecmascript.org/doku.php?id=harmony:generators
 //
@@ -51,7 +65,7 @@ var g;
 function* G1() {
   yield g.throw();
 }
-g = G1();
+g = W(G1)();
 assertThrownErrorIs('"throw" on executing generator', () => g.next());
 
 //-----------------------------------------------------------------------------
@@ -85,7 +99,7 @@ var closeMethods = [
 ];
 
 closeMethods.forEach((closeMethod) => {
-  g = G2();
+  g = W(G2)();
   closeMethod(g);
   for (var i = 0; i < 8; i++) {
     assertThrownErrorIs('"throw" on closed generator', () => g.throw(44));
@@ -100,7 +114,7 @@ closeMethods.forEach((closeMethod) => {
 //         G.[[Code]] := null
 //         Return (throw, X, null)
 
-g = G2();
+g = W(G2)();
 
 // calling throw(x) on a newborn generator should close the generator, and
 // throw x back to the caller.
@@ -113,7 +127,7 @@ assertClosed(g);
 //     Let Result = Resume(G.[[ExecutionContext]], throw, X)
 //     Return Result
 
-g = G2();
+g = W(G2)();
 
 // calling throw(x) on a started generator should be the same as hot-replacing
 // the last 'yield' with a 'throw x' and calling next() on that generator. So
@@ -135,7 +149,7 @@ function* G3() {
   } catch(e) {}
 }
 
-g = G3();
+g = W(G3)();
 
 // Note: this behavior differs from ionmonkey, which throws 'undefined', and
 // not StopIteration, but the StopIteration behavior better matches what I'd
@@ -143,3 +157,5 @@ g = G3();
 assertEquals(1, g.next());
 assertThrowsStopIteration(() => g.throw(44));
 assertClosed(g);
+
+}); // end wrap_forEach

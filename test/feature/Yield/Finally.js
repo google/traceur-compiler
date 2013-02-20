@@ -1,3 +1,15 @@
+function isStopIteration(s) {
+  // Maybe something more rigorous later.
+  return typeof s === 'object' && String(s) === '[object StopIteration]';
+}
+
+function assertThrowsStopIteration(fn) {
+  if (!isStopIteration(assertThrows(fn)))
+    fail('[object StopIteration] expected');
+}
+
+//-----------------------------------------------------------------------------
+
 var finallyVisited = false;
 
 function* test() {
@@ -9,11 +21,10 @@ function* test() {
 }
 
 var it = test();
-it.moveNext();
-assertEquals(42, it.current);
+assertEquals(42, it.next());
 assertFalse(finallyVisited);
 
-it.moveNext();
+assertThrowsStopIteration(() => it.next());
 assertTrue(finallyVisited);
 
 finallyVisited = false;

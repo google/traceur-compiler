@@ -18,6 +18,21 @@ function accumulate(iterator) {
   return result;
 }
 
+//-----------------------------------------------------------------------------
+
+function id(G) {
+  return G;
+}
+
+function wrap(G) {
+  return function* () {
+    yield* G();
+  };
+}
+
+
+[id, wrap].forEach((W) => { // wrap_forEach
+
 // ----------------------------------------------------------------------------
 
 assertEquals('12', accumulate(tryCatchGenerator()));
@@ -52,7 +67,7 @@ function* throwFromFinallyGenerator() {
 function accumulateCatch(iterator) {
   var result = '';
   var i;
-  for (i = 0; i < 8; i++) {
+  for (i = 0; i < 4; i++) {
     try {
       for (var value of iterator) {
         result += value;
@@ -64,11 +79,18 @@ function accumulateCatch(iterator) {
   return result;
 }
 
+function repeat(s, n) {
+  return Array(n + 1).join(s);
+}
+
+var errors;
+
 // ----------------------------------------------------------------------------
 
-assertEquals('1 [2]', accumulateCatch(throwGenerator()));
-assertEquals('1 [2]', accumulateCatch(throwFromCatchGenerator()));
-assertEquals('1 [2]', accumulateCatch(throwFromFinallyGenerator()));
+errors = repeat(' [Error: "send" on closed generator]', 3);
+assertEquals('1 [2]' + errors, accumulateCatch(W(throwGenerator)()));
+assertEquals('1 [2]' + errors, accumulateCatch(W(throwFromCatchGenerator)()));
+assertEquals('1 [2]' + errors, accumulateCatch(W(throwFromFinallyGenerator)()));
 
 // ----------------------------------------------------------------------------
 
@@ -127,5 +149,8 @@ function accumulateCatchOOB(iterator) {
 
 // ----------------------------------------------------------------------------
 
-assertEquals('1 [2] <4> <> <> <>', accumulateCatchOOB(throwOOBGen()));
-assertEquals('17(2) [8] <49> <> <> <>', accumulateCatchOOB(throwOOB2xGen()));
+errors = repeat(' [Error: "send" on closed generator] <>', 3);
+assertEquals('1 [2] <4>' + errors, accumulateCatchOOB(W(throwOOBGen)()));
+assertEquals('17(2) [8] <49>' + errors, accumulateCatchOOB(W(throwOOB2xGen)()));
+
+}); // end wrap_forEach

@@ -185,10 +185,8 @@ export class GeneratorTransformer extends CPSTransformer {
 
     var statements = [];
 
-    // TODO: Can clean this up once all iterator interfaces are converted over
-    // to next() + StopIteration.
-    var $MOVE_NEXT = createIdentifierExpression('$' + MOVE_NEXT);
-    var $CURRENT = createIdentifierExpression('$' + CURRENT);
+    var $MOVE_NEXT = createIdentifierExpression(MOVE_NEXT);
+    var $CURRENT = createIdentifierExpression(CURRENT);
 
     // TODO(arv): Simplify the outputted code by only alpha renaming this and
     // arguments if needed.
@@ -224,15 +222,6 @@ export class GeneratorTransformer extends CPSTransformer {
         // something more efficient in that case?
         parseStatement `
         var $result = {
-          // TODO: The MOVE_NEXT method and CURRENT getter/setter should go
-          // away after removing all external references.
-          ${MOVE_NEXT}: ${$MOVE_NEXT},
-          get ${CURRENT}() {
-            return ${$CURRENT};
-          },
-          set ${CURRENT}(x) {
-            ${$CURRENT} = x;
-          },
           send: function(x) {
             switch (${$GSTATE}) {
               case ${ST_EXECUTING}:

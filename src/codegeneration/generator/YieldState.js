@@ -19,6 +19,7 @@ import {
 import State from 'State.js';
 import {
   createAssignmentStatement,
+  createIdentifierExpression,
   createMemberExpression,
   createReturnStatement,
   createTrueLiteral
@@ -62,9 +63,9 @@ export class YieldState extends State {
    */
   transform(enclosingFinally, machineEndState, reporter) {
     return [
-      // $result.current = expression;
+      // $current = expression;
       createAssignmentStatement(
-          createMemberExpression(RESULT, CURRENT), this.expression),
+          createIdentifierExpression(CURRENT), this.expression),
       // either:
       //      $state = this.fallThroughState;
       //      return true;

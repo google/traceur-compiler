@@ -24,6 +24,20 @@ function assertClosed(g) {
 }
 
 //-----------------------------------------------------------------------------
+
+function id(G) {
+  return G;
+}
+
+function wrap(G) {
+  return function* () {
+    yield* G();
+  };
+}
+
+[id, wrap].forEach((W) => { // wrap_forEach
+
+//-----------------------------------------------------------------------------
 //
 // http://wiki.ecmascript.org/doku.php?id=harmony:generators
 //
@@ -54,7 +68,7 @@ function* G1() {
   yield g.next();
 }
 
-g = G1();
+g = W(G1)();
 // To be nitpicky, ionmonkey throws TypeError, and not Error. I'm not checking
 // things quite that closely at this point in time.
 assertThrownErrorIs('"send" on executing generator', () => g.next());
@@ -82,7 +96,7 @@ var closeMethods = [
 ];
 
 closeMethods.forEach((closeMethod) => {
-  g = G2();
+  g = W(G2)();
   closeMethod(g);
   for (var i = 0; i < 8; i++) {
     assertThrownErrorIs('"send" on closed generator', () => g.next());
@@ -94,7 +108,7 @@ closeMethods.forEach((closeMethod) => {
 //     If State = “newborn”
 //         If X != undefined Throw TypeError
 
-g = G2();
+g = W(G2)();
 for (var i = 0; i < 8; i++) {
   assertThrownErrorIs('Sent value to newborn generator', () => g.send(42));
 }
@@ -225,7 +239,9 @@ function testfib(fibonacci, next, send) {
 
 //----
 
-testfib(fib, next, send);
-testfib(fibVar, next, send);
-testfib(fibD, nextD, sendD);
-testfib(fibVarD, nextD, sendD);
+testfib(W(fib), next, send);
+testfib(W(fibVar), next, send);
+testfib(W(fibD), nextD, sendD);
+testfib(W(fibVarD), nextD, sendD);
+
+}); // end wrap_forEach

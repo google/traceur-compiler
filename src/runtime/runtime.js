@@ -282,13 +282,15 @@ traceur.runtime = (function(global) {
   function polyfillObject(Object) {
     $defineProperty(Object, 'defineProperty', {value: defineProperty});
     $defineProperty(Object, 'deleteProperty', method(deleteProperty));
-    $defineProperty(Object, 'getOwnPropertyNames', {value: getOwnPropertyNames});
+    $defineProperty(Object, 'getOwnPropertyNames',
+                    {value: getOwnPropertyNames});
     $defineProperty(Object, 'getProperty', method(getProperty));
     $defineProperty(Object, 'getPropertyDescriptor',
                     method(getPropertyDescriptor));
     $defineProperty(Object, 'has', method(has));
     $defineProperty(Object, 'setProperty', method(setProperty));
-    $defineProperty(Object.prototype, 'hasOwnProperty', {value: hasOwnProperty});
+    $defineProperty(Object.prototype, 'hasOwnProperty',
+                    {value: hasOwnProperty});
 
     // Object.is
 
@@ -331,17 +333,12 @@ traceur.runtime = (function(global) {
     defineProperty(Array.prototype, IterModule.iterator, method(function() {
       var index = 0;
       var array = this;
-      var current;
       return {
-        get current() {
-          return current;
-        },
-        moveNext: function() {
+        next: function() {
           if (index < array.length) {
-            current = array[index++];
-            return true;
+            return array[index++];
           }
-          return false;
+          throw StopIterationLocal;
         }
       };
     }));

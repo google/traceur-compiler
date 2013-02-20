@@ -45,13 +45,10 @@ class StringParser {
     this.index = 0;  // value is wrapped in " or '
   }
 
-  moveNext() {
-    this.index++;
-    // value is wrapped in " or '
-    return this.index >= this.value.length - 1;
-  }
+  next() {
+    if (++this.index >= this.value.length - 1)
+      throw StopIteration;
 
-  get current() {
     return this.value[this.index];
   }
 
@@ -71,12 +68,7 @@ class StringParser {
   }
 
   parseEscapeSequence() {
-    var next = () => {
-      traceur.assert(this.moveNext());
-      return this.current;
-    };
-
-    var ch = next();
+    var ch = this.next();
     switch (ch) {
       case '\n':  // <LF>
       case '\r':  // <CR>

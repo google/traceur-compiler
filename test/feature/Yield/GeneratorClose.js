@@ -25,6 +25,20 @@ function assertClosed(g) {
 }
 
 //-----------------------------------------------------------------------------
+
+function id(G) {
+  return G;
+}
+
+function wrap(G) {
+  return function* () {
+    yield* G();
+  };
+}
+
+[id, wrap].forEach((W) => { // wrap_forEach
+
+//-----------------------------------------------------------------------------
 //
 // http://wiki.ecmascript.org/doku.php?id=harmony:generators
 //
@@ -56,7 +70,7 @@ function* G1() {
   yield g.close();
 }
 
-g = G1();
+g = W(G1)();
 assertThrownErrorIs('"close" on executing generator', () => g.next());
 
 //-----------------------------------------------------------------------------
@@ -84,7 +98,7 @@ var closeMethods = [
 ];
 
 closeMethods.forEach((closeMethod) => {
-  g = G2();
+  g = W(G2)();
   closeMethod(g);
   for (var i = 0; i < 8; i++) {
     assertEquals(undefined, g.close());
@@ -123,7 +137,7 @@ function* G3() {
 }
 
 // close() on a newborn generator should end it without running any code.
-g = G3();
+g = W(G3)();
 value = 'unmodified';
 
 g.close();
@@ -139,21 +153,22 @@ assertClosed(g);
 
 // close() on a started generator should end it after running the finally
 // block.
-g = G3();
+g = W(G3)();
 value = 'unmodified';
 
-assertEquals(g.next(), 10);
+assertEquals(10, g.next());
 assertEquals('unmodified', value);
 assertNotThrows(() => g.close());
 assertEquals('finally run', value);
 assertClosed(g);
 
+
 //----
 
-g = G3();
+g = W(G3)();
 value = 'unmodified';
 
-assertEquals(g.next(), 10);
+assertEquals(10, g.next());
 assertEquals('unmodified', value);
 assertEquals(22, g.throw(2));
 assertEquals('unmodified', value);
@@ -164,11 +179,11 @@ assertClosed(g);
 //----
 
 // close() on a started generator may cause a throw in the finally block.
-g = G3();
+g = W(G3)();
 value = 'unmodified';
 finallyAction = 'throw';
 
-assertEquals(g.next(), 10);
+assertEquals(10, g.next());
 assertEquals('unmodified', value);
 assertThrownEquals('throw requested', () => g.close());
 assertEquals('finally run', value);
@@ -176,14 +191,16 @@ assertClosed(g);
 
 //----
 
-g = G3();
+g = W(G3)();
 value = 'unmodified';
 finallyAction = 'throw';
 
-assertEquals(g.next(), 10);
+assertEquals(10, g.next());
 assertEquals('unmodified', value);
 assertEquals(22, g.throw(2));
 assertEquals('unmodified', value);
 assertThrownEquals('throw requested', () => g.close());
 assertEquals('finally run', value);
 assertClosed(g);
+
+}); // end wrap_forEach
