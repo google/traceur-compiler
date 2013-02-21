@@ -135,7 +135,8 @@ g = W(G2)();
 // flow of control.
 assertEquals(1, g.next());
 assertEquals('(22)', g.throw(22));
-assertEquals(3, g.next(), 3);
+assertEquals(3, g.next());
+
 assertThrownEquals(44, () => g.throw(44));
 assertClosed(g);
 

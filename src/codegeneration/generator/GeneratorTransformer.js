@@ -110,6 +110,16 @@ export class GeneratorTransformer extends CPSTransformer {
   }
 
   /**
+   * @param {YieldExpression} tree
+   * @return {ParseTree}
+   */
+  transformYieldExpression(tree) {
+    this.reporter.reportError(tree.location.start,
+        'Only \'a = yield b\' and \'var a = yield b\' currently supported.');
+    return tree;
+  }
+
+  /**
    * @param {ExpressionStatement} tree
    * @return {ParseTree}
    */

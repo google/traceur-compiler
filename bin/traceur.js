@@ -15446,6 +15446,10 @@ var $___src_codegeneration_generator_GeneratorTransformer_js = (function() {
         var stateId = this.allocateState();
         return new StateMachine(stateId, this.allocateState(), [new EndState(stateId)], []);
       },
+      transformYieldExpression: function(tree) {
+        this.reporter.reportError(tree.location.start, 'Only \'a = yield b\' and \'var a = yield b\' currently supported.');
+        return tree;
+      },
       transformExpressionStatement: function(tree) {
         var e = tree.expression;
         if (e.type === YIELD_EXPRESSION) return this.transformYieldExpression_(e);
