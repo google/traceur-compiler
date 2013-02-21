@@ -43,7 +43,7 @@ module traceur {
    * @param {string} path Path to the module relative to src/.
    */
   export function getModuleForTesting(path) {
-    return global[generateNameForUrl(`src/${path}`, '')];
+    return global[generateNameForUrl(`../src/${path}`, './')];
   }
 
   export function assert(b) {

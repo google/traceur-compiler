@@ -48,54 +48,10 @@
 
   var outDirName = 'out';
 
-  function existsSync(p) {
-    return fs.existsSync ? fs.existsSync(p) : path.existsSync(p);
-  }
-
-  /**
-   * Recursively makes all directoires, similar to mkdir -p
-   * @param {string} dir
-   */
-  function mkdirRecursive(dir) {
-    var parts = path.normalize(dir).split('/');
-
-    dir = '';
-    for (var i = 0; i < parts.length; i++) {
-      dir += parts[i] + '/';
-      if (!existsSync(dir)) {
-        fs.mkdirSync(dir, 0x1FF);
-      }
-    }
-  }
-
-  /**
-   * Removes the common prefix of basedir and filedir from filedir
-   * @param {string} basedir
-   * @param {string} filedir
-   */
-  function removeCommonPrefix(basedir, filedir) {
-    var baseparts = basedir.split('/');
-    var fileparts = filedir.split('/');
-
-    var i = 0;
-    while (i < fileparts.length && fileparts[i] === baseparts[i]) {
-      i++;
-    }
-    return fileparts.slice(i).join('/');
-  }
-
-  function writeFile(filename, contents) {
-    // Compute the output path
-    var outputdir = fs.realpathSync(process.cwd());
-    var filedir = fs.realpathSync(path.dirname(filename));
-    filedir = removeCommonPrefix(outputdir, filedir);
-    outputdir = path.join(outputdir, outDirName, filedir);
-
-    mkdirRecursive(outputdir);
-    var outputfile = path.join(outputdir, path.basename(filename));
-    fs.writeFileSync(outputfile, new Buffer(contents));
-    console.log('Writing of out/' + filename + ' successful.');
-  }
+  var util = require('./util.js');
+  var mkdirRecursive = util.mkdirRecursive;
+  var removeCommonPrefix = util.mkdirRecursive;
+  var writeFile = util.writeFile;
 
   function compileFiles(filenames) {
     var reporter = new ErrorReporter();

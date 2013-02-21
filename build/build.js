@@ -29,57 +29,112 @@ flags.setMaxListeners(100);
 
 require('../src/node/traceur.js');
 
-flags.option('--out <FILE>', 'path to the file to output');
-flags.option('--all-options-off', 'all options are set to false');
-flags.on('all-options-off', function() {
-  traceur.options.reset(true);
+flags.option('--out <FILE>', 'Compile all input files into a single file',
+             'compiled.js');
+
+flags.option('--sourcemap', 'Generate source maps');
+flags.on('sourcemap', function() {
+  flags.sourceMaps = traceur.options.sourceMaps = true;
 });
-flags.option('--dep', 'echo dependencies to stdout');
+
+flags.option('--dep', 'Used by the build system to generate a dependency file');
 flags.on('dep', function() {
   if (!flags.out)
     flags.missingArgument('out');
   else
     flags.depTarget = flags.out;
 });
+
+flags.option('--longhelp', 'Show all known options');
+flags.on('longhelp', function() {
+  flags.help();
+  process.exit();
+});
+
+flags.on('--help', function() {
+  console.log('  Examples:');
+  console.log('');
+  console.log('    $ %s a.js', cmdName);
+  console.log('    $ %s b.js c.js --out compiled.js', cmdName);
+  console.log('');
+});
+
 traceur.options.addOptions(flags);
+
+flags.usage('[options] [files]');
+
+// Override commander.js's optionHelp to filter out the Traceur feature flags
+// from showing up in the help message.
+var optionHelp = flags.optionHelp;
+flags.optionHelp = function() {
+  if (!flags.longhelp) {
+    this.options = this.options.filter(function(command) {
+      var dashedName = command.long.slice(2);
+      return dashedName !== 'dep' && traceur.options.filterOption(dashedName);
+    });
+  }
+  return optionHelp.call(this);
+}
 
 flags.parse(process.argv);
 
 var outputfile = flags.out;
-if (!outputfile)
-  flags.help();
-
 var includes = flags.args;
+
+
 if (!includes.length) {
-  console.error('\n  At least one input file is needed');
+  // TODO: Start trepl
+  console.error('\n  Error: At least one input file is needed');
   flags.help();
+  process.exit(1);
+}
+
+function getSourceMapFileName(name) {
+  return name.replace(/\.js$/, '.map');
+}
+
+function writeTreeToFile(tree, filename) {
+  var options = null;
+  if (flags.sourceMaps) {
+    var sourceMapFilePath = getSourceMapFileName(filename);
+    var config = {file: path.basename(filename)};
+    var sourceMapGenerator = new SourceMapGenerator(config);
+    options = {sourceMapGenerator: sourceMapGenerator};
+  }
+
+  var compiledCode = TreeWriter.write(tree, options);
+  if (flags.sourceMaps) {
+    compiledCode += '\n//@ sourceMappingURL=' +
+        path.basename(sourceMapFilePath);
+  }
+  writeFile(filename, compiledCode);
+  if (flags.sourceMaps)
+    writeFile(sourceMapFilePath, options.sourceMap);
 }
 
 var ErrorReporter = traceur.util.ErrorReporter;
 var TreeWriter = traceur.outputgeneration.TreeWriter;
+var SourceMapGenerator = traceur.outputgeneration.SourceMapGenerator;
 
-function existsSync(p) {
-  return fs.existsSync ? fs.existsSync(p) : path.existsSync(p);
-}
+var util = require('../src/node/util.js');
+var writeFile = util.writeFile;
+var removeCommonPrefix = util.removeCommonPrefix;
+var mkdirRecursive = util.mkdirRecursive;
 
-/**
- * Recursively makes all directoires, similar to mkdir -p
- * @param {string} dir
- */
-function mkdirRecursive(dir) {
-  var parts = path.normalize(dir).split('/');
+mkdirRecursive(path.dirname(outputfile));
 
-  dir = '';
-  for (var i = 0; i < parts.length; i++) {
-    dir += parts[i] + '/';
-    if (!existsSync(dir)) {
-      fs.mkdirSync(dir, 0x1FF);
-    }
-  }
-}
-
+// Resolve includes before changing directory.
 var resolvedIncludes = includes.map(function(include) {
   return path.resolve(include);
+});
+
+outputfile = path.resolve(outputfile);
+var outputDir = path.dirname(outputfile);
+process.chdir(outputDir);
+
+// Make includes relative to output dir so that sourcemap paths are correct.
+resolvedIncludes = resolvedIncludes.map(function(include) {
+  return path.relative(outputDir, include);
 });
 
 var reporter = new ErrorReporter();
@@ -89,10 +144,8 @@ var inlineAndCompile = require('./inline-module.js').inlineAndCompile;
 inlineAndCompile(resolvedIncludes, flags, reporter, function(tree) {
   // Currently, passing flags.depTarget is the only reason tree would be null,
   // but in the future there may be other reasons to require a no-op here.
-  if (tree) {
-    mkdirRecursive(path.dirname(outputfile));
-    fs.writeFileSync(outputfile, TreeWriter.write(tree), 'utf8');
-  }
+  if (tree)
+    writeTreeToFile(tree, outputfile);
   process.exit(0);
 }, function(err) {
   process.exit(1);

@@ -52,6 +52,11 @@ export var options = {
   }
 };
 
+// TODO: Refactor this so that we can keep all of these in one place.
+var descriptions = {
+  experimental: 'Turns on all experimental features'
+};
+
 /**
  * Resets all options to the default value or to false if |allOff| is
  * true.
@@ -128,11 +133,21 @@ function addOptions(flags) {
   Object.keys(options).forEach(function(name) {
     var dashedName = toDashCase(name);
     if ((name in parseOptions) && (name in transformOptions))
-      flags.option('--' + dashedName + ' [true|false|parse]');
+      flags.option('--' + dashedName + ' [true|false|parse]',
+                   descriptions[name]);
     else
-      flags.option('--' + dashedName + ' [true|false]');
+      flags.option('--' + dashedName, descriptions[name]);
     flags.on(dashedName, optionCallback.bind(null, dashedName));
   });
+}
+
+/**
+ * This is called to determine whether the option should be included in the
+ * --help text used by command line utilities.
+ */
+function filterOption(dashedName) {
+  var name = toCamelCase(dashedName);
+  return name === 'experimental' || !(name in options);
 }
 
 // Make sure non option fields are non enumerable.
@@ -143,7 +158,8 @@ Object.defineProperties(options, {
   fromString: {value: fromString},
   fromArgv: {value: fromArgv},
   setFromObject: {value: setFromObject},
-  addOptions: {value: addOptions}
+  addOptions: {value: addOptions},
+  filterOption: {value: filterOption}
 });
 
 /**

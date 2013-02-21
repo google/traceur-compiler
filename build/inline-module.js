@@ -55,20 +55,6 @@ function wrapProgram(tree, url, commonPath) {
           createIdentifierToken(name), tree.programElements)]);
 }
 
-function findCommonPath(paths) {
-  function longestPrefix(s1, s2) {
-    s2 = s2.split('/');
-    var length = Math.min(s1.length, s2.length);
-    for (var i = 0; i < length; i++) {
-      if (s1[i] !== s2[i])
-        break;
-    }
-    return s1.slice(0, i);
-  }
-
-  return paths.reduce(longestPrefix, paths[0].split('/')).join('/') + '/';
-}
-
 /**
  * This transformer replaces
  *
@@ -132,7 +118,8 @@ InlineCodeLoader.prototype = {
     var transformer = new ModuleRequireTransformer(codeUnit.url, this.dirname);
     var tree = transformer.transformAny(codeUnit.tree);
     if (this.depTarget)
-      console.log('%s: %s', this.depTarget, path.relative('.', codeUnit.url));
+      console.log('%s: %s', this.depTarget,
+                  path.relative(path.join(__dirname, '..'), codeUnit.url));
     if (codeUnit === startCodeUnit)
       return tree;
     return wrapProgram(tree, codeUnit.url, this.dirname);
@@ -189,7 +176,9 @@ function allLoaded(url, reporter, elements) {
  * @param {Function} errback Callback used to return errors.
  */
 function inlineAndCompile(filenames, options, reporter, callback, errback) {
-  var basePath = findCommonPath(filenames);
+
+  // The caller needs to do a chdir.
+  var basePath = './';
   var depTarget = options && options.depTarget;
 
   var loadCount = 0;
