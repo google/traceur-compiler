@@ -48,7 +48,7 @@
 
   var outDirName = 'out';
 
-  var util = require('./util.js');
+  var util = require('./file-util.js');
   var mkdirRecursive = util.mkdirRecursive;
   var removeCommonPrefix = util.mkdirRecursive;
   var writeFile = util.writeFile;

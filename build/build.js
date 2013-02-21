@@ -116,7 +116,7 @@ var ErrorReporter = traceur.util.ErrorReporter;
 var TreeWriter = traceur.outputgeneration.TreeWriter;
 var SourceMapGenerator = traceur.outputgeneration.SourceMapGenerator;
 
-var util = require('../src/node/util.js');
+var util = require('../src/node/file-util.js');
 var writeFile = util.writeFile;
 var removeCommonPrefix = util.removeCommonPrefix;
 var mkdirRecursive = util.mkdirRecursive;
