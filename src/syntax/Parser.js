@@ -141,7 +141,7 @@ export class Parser {
      * @type {boolean}
      * @private
      */
-    this.allowYield_ = false;
+    this.allowYield_ = options.unstarredGenerators;
   }
 
   // 14 Program
@@ -865,7 +865,7 @@ export class Parser {
     this.eat_(OPEN_CURLY);
 
     var allowYield = this.allowYield_;
-    this.allowYield_ = isGenerator;
+    this.allowYield_ = isGenerator || options.unstarredGenerators;
     var result = this.parseStatementList_();
     this.allowYield_ = allowYield;
 

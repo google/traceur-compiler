@@ -1132,6 +1132,7 @@ var $___src_options_js = (function() {
   addBoolOption('freeVariableChecker');
   addBoolOption('validate');
   addBoolOption('strictSemicolons');
+  addBoolOption('unstarredGenerators');
   return Object.preventExtensions(Object.create(null, {
     parseOptions: {
       get: function() {
@@ -8723,7 +8724,7 @@ var $___src_syntax_Parser_js = (function() {
       constructor: function(errorReporter, file) {
         this.errorReporter_ = errorReporter;
         this.scanner_ = new Scanner(errorReporter, file);
-        this.allowYield_ = false;
+        this.allowYield_ = options.unstarredGenerators;
       },
       parseProgram: function() {
         var load = arguments[0] !== (void 0) ? arguments[0]: false;
@@ -9168,7 +9169,7 @@ var $___src_syntax_Parser_js = (function() {
         var start = this.getTreeStartLocation_();
         this.eat_(OPEN_CURLY);
         var allowYield = this.allowYield_;
-        this.allowYield_ = isGenerator;
+        this.allowYield_ = isGenerator || options.unstarredGenerators;
         var result = this.parseStatementList_();
         this.allowYield_ = allowYield;
         this.eat_(CLOSE_CURLY);

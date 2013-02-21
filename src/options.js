@@ -273,3 +273,4 @@ addBoolOption('sourceMaps');
 addBoolOption('freeVariableChecker');
 addBoolOption('validate');
 addBoolOption('strictSemicolons');
+addBoolOption('unstarredGenerators');
