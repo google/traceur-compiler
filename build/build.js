@@ -37,14 +37,6 @@ flags.on('sourcemap', function() {
   flags.sourceMaps = traceur.options.sourceMaps = true;
 });
 
-flags.option('--dep', 'Used by the build system to generate a dependency file');
-flags.on('dep', function() {
-  if (!flags.out)
-    flags.missingArgument('out');
-  else
-    flags.depTarget = flags.out;
-});
-
 flags.option('--longhelp', 'Show all known options');
 flags.on('longhelp', function() {
   flags.help();
@@ -70,7 +62,7 @@ flags.optionHelp = function() {
   if (!flags.longhelp) {
     this.options = this.options.filter(function(command) {
       var dashedName = command.long.slice(2);
-      return dashedName !== 'dep' && traceur.options.filterOption(dashedName);
+      return traceur.options.filterOption(dashedName);
     });
   }
   return optionHelp.call(this);
@@ -142,10 +134,7 @@ var reporter = new ErrorReporter();
 var inlineAndCompile = require('./inline-module.js').inlineAndCompile;
 
 inlineAndCompile(resolvedIncludes, flags, reporter, function(tree) {
-  // Currently, passing flags.depTarget is the only reason tree would be null,
-  // but in the future there may be other reasons to require a no-op here.
-  if (tree)
-    writeTreeToFile(tree, outputfile);
+  writeTreeToFile(tree, outputfile);
   process.exit(0);
 }, function(err) {
   process.exit(1);
