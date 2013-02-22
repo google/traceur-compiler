@@ -157,10 +157,12 @@ function testScript(filePath) {
             javascript.trim().replace(/\n/g, '\n     ') + '\n\n' +
             '     ' + e);
       } else {
-        failScript(filePath, 'Unexpected exception:\n' + e);
+        failScript(filePath, 'Unexpected exception running script:\n' + e);
       }
     }
 
+  } catch(e) {
+    failScript(filePath, 'Unexpected exception:\n' + e);
   } finally {
     traceur.options.reset();
     restoreConsole();
