@@ -1,3 +1,17 @@
+SRC = \
+  third_party/source-map/lib/source-map/array-set.js \
+  third_party/source-map/lib/source-map/base64.js \
+  third_party/source-map/lib/source-map/base64-vlq.js \
+  third_party/source-map/lib/source-map/binary-search.js \
+  third_party/source-map/lib/source-map/util.js \
+  third_party/source-map/lib/source-map/source-map-generator.js \
+  third_party/source-map/lib/source-map/source-map-consumer.js \
+  third_party/source-map/lib/source-map/source-node.js \
+  src/runtime/runtime.js \
+  src/traceur.js
+
+TFLAGS = --strict-semicolons --
+
 build: bin/traceur.js
 
 min: bin/traceur.min.js
@@ -9,9 +23,6 @@ ugly: bin/traceur.ugly.js
 test: build
 	node test/testfeatures.js --errsfile test/errsfile.json
 
-force:
-	build/build
-
 boot: clean build
 
 clean:
@@ -19,7 +30,8 @@ clean:
 	touch -t 197001010000.00 bin/traceur.js
 
 distclean: clean
-	rm build/dep.mk
+	rm -f build/dep.mk
+	rm -f src/syntax/trees/ParseTreeType.js src/syntax/trees/ParseTrees.js
 
 initbench:
 	rm -rf test/bench/esprima
@@ -31,11 +43,14 @@ initbench:
 bin/traceur.min.js: bin/traceur.js
 	node build/minifier.js $? $@
 
-bin/traceur.js: build/dep.mk src/syntax/trees/ParseTreeType.js src/syntax/trees/ParseTrees.js
-	build/build
+bin/traceur.js force:
+	node build/build.js --out bin/traceur.js $(TFLAGS) $(SRC)
 
-build/dep.mk:
-	build/build --dep > $@
+# Prerequisites following '|' are rebuilt just like ordinary prerequisites.
+# However, they don't cause remakes if they're newer than the target. See:
+# http://www.gnu.org/software/make/manual/html_node/Prerequisite-Types.html
+build/dep.mk: | src/syntax/trees/ParseTreeType.js src/syntax/trees/ParseTrees.js
+	node build/makedep.js --depTarget bin/traceur.js $(TFLAGS) $(SRC) > $@
 
 src/syntax/trees/ParseTrees.js: src/syntax/trees/trees.json build/build-parse-trees.js
 	node build/build-parse-trees.js src/syntax/trees/trees.json > $@
