@@ -17,6 +17,7 @@
 var fs = require('fs');
 var path = require('path');
 var testUtil = require('./test-utils.js');
+var testList;
 
 /**
  * Show a failure message for the given script.
@@ -245,24 +246,9 @@ function runFeatureScripts(dir) {
     if (stat.isDirectory()) {
       runFeatureScripts(filePath);
     } else if (path.extname(filePath) == '.js') {
-      clearLastLine();
-      if (passes === tests) {
-        print('Passed ' + green(passes) + ' so far. Testing: ' + filePath);
-      } else {
-        print('Passed ' + green(passes) + ' and failed ' +
-              red(tests - passes) + ' Testing: ' + filePath);
-      }
-      print('\n');
-
       if (errslast && errslast.indexOf(filePath) >= 0)
         continue;
-
-      tests++;
-      if (testScript(filePath))
-        passes++;
-
-      if (tests - passes > errsnew.length)
-        errsnew.push(filePath);
+      updateProgress(testScript, filePath);
     }
   }
 }
@@ -283,9 +269,34 @@ require('../src/node/traceur.js');
 
 print('\n');
 
-// Run all of the feature scripts.
+// Running counts of total and passed tests.
 var tests  = 0;
 var passes = 0;
+
+/**
+ * Run |testFunction| on |filePath| and update |tests| and |passes|
+ * appropriately, while also printing progress.
+ * @param {function} testFunction
+ * @param {string} filePath
+ */
+function updateProgress(testFunction, filePath) {
+  clearLastLine();
+  if (passes === tests) {
+    print('Passed ' + green(passes) + ' so far. Testing: ' + filePath);
+  } else {
+    print('Passed ' + green(passes) + ' and failed ' +
+          red(tests - passes) + ' Testing: ' + filePath);
+  }
+  print('\n');
+
+  tests++;
+
+  if (testScript(filePath))
+    passes++;
+
+  if (tests - passes > errsnew.length)
+    errsnew.push(filePath);
+}
 
 // errsfile is an optional argument that activates the following behavior:
 //
@@ -312,6 +323,7 @@ try {
 flags.setMaxListeners(100);
 flags.option('--errsfile <FILE>', 'path to the error file');
 flags.option('--failfast', 'exit if anything from the error file failed');
+flags.option('--dirwalk <DIR>', 'run all .js test files in <DIR>');
 flags.parse(process.argv);
 
 var errsfile = flags.errsfile;
@@ -322,19 +334,38 @@ if (errsfile && fs.existsSync(errsfile)) {
   print('Using error file \'' + errsfile + '\' ...\n\n');
   errslast = JSON.parse(fs.readFileSync(errsfile, 'utf8'));
   errslast.forEach(function(f) {
-    tests++;
-    if (testScript(f))
-      passes++;
-
-    if (tests - passes > errsnew.length)
-      errsnew.push(f);
+    try {
+      updateProgress(testScript, f);
+    } catch(e) {
+      failScript(String(e));
+      // Don't count this test in the total if the error was
+      // "ENOENT, no such file or directory".
+      if (e.code === 'ENOENT') {
+        tests--;
+      }
+    }
   });
-} else {
-  print('\n');
 }
 
-if (!flags.failfast || passes == tests)
-  runFeatureScripts(path.join(__dirname, 'feature'), errsnew);
+if (!flags.failfast || passes == tests) {
+  if (flags.dirwalk) {
+    runFeatureScripts(flags.dirwalk);
+  } else {
+    try {
+      testList = require('./test-list.js').testList;
+      testList.forEach(function(f) {
+        if (errslast && errslast.indexOf(filePath) >= 0)
+          return;
+        updateProgress(testScript, path.join(__dirname, 'feature', f));
+      });
+    } catch(e) {
+      if (!errslast) {
+        console.error(String(e));
+        process.exit(1);
+      }
+    }
+  }
+}
 
 clearLastLine();
 if (passes == tests) {

@@ -25,287 +25,7 @@ goog.require('goog.testing.jsunit');
 </script>
 <script src="../../bin/traceur.js"></script>
 <script src="../test-utils.js"></script>
-
-<script src="ArrayComprehension/Closure.js" type="text/traceur"></script>
-<script src="ArrayComprehension/Error_Disabled.js" type="text/traceur"></script>
-<script src="ArrayComprehension/Error_NotDefined.js" type="text/traceur"></script>
-<script src="ArrayComprehension/Simple.js" type="text/traceur"></script>
-<script src="ArrowFunctions/ArrowFunctions.js" type="text/traceur"></script>
-<script src="ArrowFunctions/Error_Disabled.js" type="text/traceur"></script>
-<script src="ArrowFunctions/Error_FreeVariableChecker.js" type="text/traceur"></script>
-<script src="ArrowFunctions/Error_InvalidFormalParameters.js" type="text/traceur"></script>
-<script src="ArrowFunctions/Error_SpreadNotLast.js" type="text/traceur"></script>
-<script src="ArrowFunctions/Error_SpreadOutsideFormals.js" type="text/traceur"></script>
-<script src="ArrowFunctions/FreeVariableChecker.js" type="text/traceur"></script>
-<script src="ArrowFunctions/Skip_Frozen.js" type="text/traceur"></script>
-<script src="ArrowFunctions/Skip_InitialiserShorthand.js" type="text/traceur"></script>
-<script src="ArrowFunctions/Skip_SoftBind.js" type="text/traceur"></script>
-<script src="ArrowFunctions/ThisBindings.js" type="text/traceur"></script>
-<script src="Await/Complete.js" type="text/traceur"></script>
-<script src="Await/Error_Disabled.js" type="text/traceur"></script>
-<script src="Await/Finally.js" type="text/traceur"></script>
-<script src="Await/Throw.js" type="text/traceur"></script>
-<script src="Await/Timeout.js" type="text/traceur"></script>
-<script src="Await/Value.js" type="text/traceur"></script>
-<script src="Await/Yield.js" type="text/traceur"></script>
-<script src="Cascade/Arguments.js" type="text/traceur"></script>
-<script src="Cascade/Error_Disabled.js" type="text/traceur"></script>
-<script src="Cascade/Error_Literal.js" type="text/traceur"></script>
-<script src="Cascade/Simple.js" type="text/traceur"></script>
-<script src="Cascade/This.js" type="text/traceur"></script>
-<script src="Classes/ClassMethodInheritance.js" type="text/traceur"></script>
-<script src="Classes/ClassNameBinding.js" type="text/traceur"></script>
-<script src="Classes/ClassNameInStack.js" type="text/traceur"></script>
-<script src="Classes/Constructor.js" type="text/traceur"></script>
-<script src="Classes/ConstructorChaining.js" type="text/traceur"></script>
-<script src="Classes/ConstructorMember.js" type="text/traceur"></script>
-<script src="Classes/DefaultConstructor.js" type="text/traceur"></script>
-<script src="Classes/DeriveFromObject.js" type="text/traceur"></script>
-<script src="Classes/EmptyClass.js" type="text/traceur"></script>
-<script src="Classes/Error_Disabled.js" type="text/traceur"></script>
-<script src="Classes/ExtendNonConstructableFunction.js" type="text/traceur"></script>
-<script src="Classes/ExtendObject.js" type="text/traceur"></script>
-<script src="Classes/ExtendStrange.js" type="text/traceur"></script>
-<script src="Classes/FieldInheritance.js" type="text/traceur"></script>
-<script src="Classes/FieldInitializers.js" type="text/traceur"></script>
-<script src="Classes/FieldLookup.js" type="text/traceur"></script>
-<script src="Classes/Fields.js" type="text/traceur"></script>
-<script src="Classes/Getters.js" type="text/traceur"></script>
-<script src="Classes/Inheritance.js" type="text/traceur"></script>
-<script src="Classes/InheritanceFromMemberExpression.js" type="text/traceur"></script>
-<script src="Classes/InheritanceFromNonclass.js" type="text/traceur"></script>
-<script src="Classes/InheritanceNameBinding.js" type="text/traceur"></script>
-<script src="Classes/Method.js" type="text/traceur"></script>
-<script src="Classes/MethodInheritance.js" type="text/traceur"></script>
-<script src="Classes/MethodLookup.js" type="text/traceur"></script>
-<script src="Classes/NameBinding.js" type="text/traceur"></script>
-<script src="Classes/NestedClassSuper.js" type="text/traceur"></script>
-<script src="Classes/NestedClassSuperAnimal.js" type="text/traceur"></script>
-<script src="Classes/NestedFunctionSuper.js" type="text/traceur"></script>
-<script src="Classes/OptionalParams.js" type="text/traceur"></script>
-<script src="Classes/PropertyAccessors.js" type="text/traceur"></script>
-<script src="Classes/RestParams.js" type="text/traceur"></script>
-<script src="Classes/SemiColon.js" type="text/traceur"></script>
-<script src="Classes/SimpleSuper.js" type="text/traceur"></script>
-<script src="Classes/Skip_DerivedButton.js" type="text/traceur"></script>
-<script src="Classes/Skip_HTMLBlockquoteElement.js" type="text/traceur"></script>
-<script src="Classes/Static.js" type="text/traceur"></script>
-<script src="Classes/StaticSuper.js" type="text/traceur"></script>
-<script src="Classes/StaticSuperNoExtends.js" type="text/traceur"></script>
-<script src="Classes/SuperChaining.js" type="text/traceur"></script>
-<script src="Classes/SuperMissing.js" type="text/traceur"></script>
-<script src="Classes/SuperSet.js" type="text/traceur"></script>
-<script src="Collection/ArrayLike.js" type="text/traceur"></script>
-<script src="Collection/Call.js" type="text/traceur"></script>
-<script src="Collection/Simple.js" type="text/traceur"></script>
-<script src="DefaultParameters/Error_SetAccessor.js" type="text/traceur"></script>
-<script src="DefaultParameters/Simple.js" type="text/traceur"></script>
-<script src="DefaultParameters/Strict.js" type="text/traceur"></script>
-<script src="Destructuring/Arguments.js" type="text/traceur"></script>
-<script src="Destructuring/Array.js" type="text/traceur"></script>
-<script src="Destructuring/ArrowFunction.js" type="text/traceur"></script>
-<script src="Destructuring/Catch.js" type="text/traceur"></script>
-<script src="Destructuring/Class.js" type="text/traceur"></script>
-<script src="Destructuring/DefaultParams.js" type="text/traceur"></script>
-<script src="Destructuring/Error_Disabled.js" type="text/traceur"></script>
-<script src="Destructuring/Error_ForInWithInitializer.js" type="text/traceur"></script>
-<script src="Destructuring/Error_ForOfWithInitializer.js" type="text/traceur"></script>
-<script src="Destructuring/EvaluatesToRvalue.js" type="text/traceur"></script>
-<script src="Destructuring/EvaluationOrder.js" type="text/traceur"></script>
-<script src="Destructuring/ForInLoop.js" type="text/traceur"></script>
-<script src="Destructuring/ForOfLoop.js" type="text/traceur"></script>
-<script src="Destructuring/FunctionArrayPattern.js" type="text/traceur"></script>
-<script src="Destructuring/FunctionObjectPattern.js" type="text/traceur"></script>
-<script src="Destructuring/Initializer.js" type="text/traceur"></script>
-<script src="Destructuring/Method.js" type="text/traceur"></script>
-<script src="Destructuring/NestedScopeArguments.js" type="text/traceur"></script>
-<script src="Destructuring/Object.js" type="text/traceur"></script>
-<script src="Destructuring/Rest.js" type="text/traceur"></script>
-<script src="Destructuring/ScopeThis.js" type="text/traceur"></script>
-<script src="Destructuring/SetAccessor.js" type="text/traceur"></script>
-<script src="Destructuring/Simplify.js" type="text/traceur"></script>
-<script src="Destructuring/Strict.js" type="text/traceur"></script>
-<script src="Destructuring/TopLevel.js" type="text/traceur"></script>
-<script src="Destructuring/VarDecl.js" type="text/traceur"></script>
-<script src="FreeVariableChecker/Typeof.js" type="text/traceur"></script>
-<script src="GeneratorComprehension/Error_Disabled.js" type="text/traceur"></script>
-<script src="GeneratorComprehension/Error_NotDefined.js" type="text/traceur"></script>
-<script src="GeneratorComprehension/Simple.js" type="text/traceur"></script>
-<script src="GeneratorComprehension/Skip_Closure.js" type="text/traceur"></script>
-<script src="Modules/Error_ExportStarDuplicateExport.js" type="text/traceur"></script>
-<script src="Modules/Error_InvalidExport.js" type="text/traceur"></script>
-<script src="Modules/Error_InvalidExport2.js" type="text/traceur"></script>
-<script src="Modules/Error_InvalidExport3.js" type="text/traceur"></script>
-<script src="Modules/Error_InvalidModuleDeclaration.js" type="text/traceur"></script>
-<script src="Modules/Error_InvalidModuleDeclaration2.js" type="text/traceur"></script>
-<script src="Modules/Error_InvalidModuleDeclaration3.js" type="text/traceur"></script>
-<script src="Modules/Error_InvalidModuleDeclaration4.js" type="text/traceur"></script>
-<script src="Modules/Error_InvalidModuleDeclaration5.js" type="text/traceur"></script>
-<script src="Modules/Error_InvalidModuleDeclaration6.js" type="text/traceur"></script>
-<script src="Modules/Error_MissingExport.js" type="text/traceur"></script>
-<script src="Modules/ExportStar.js" type="text/traceur"></script>
-<script src="Modules/Exports.js" type="text/traceur"></script>
-<script src="Modules/ImportFromLocalModule.js" type="text/traceur"></script>
-<script src="Modules/ImportFromLocalModuleStar.js" type="text/traceur"></script>
-<script src="Modules/ImportFromStandardLibrary.js" type="text/traceur"></script>
-<script src="Modules/ImportFromStandardLibraryStar.js" type="text/traceur"></script>
-<script src="Modules/ThisInModules.js" type="text/traceur"></script>
-<script src="ObjectInitialiserShorthand/Error_Disabled.js" type="text/traceur"></script>
-<script src="ObjectInitialiserShorthand/Error_Keyword.js" type="text/traceur"></script>
-<script src="ObjectInitialiserShorthand/Error_MissingVar.js" type="text/traceur"></script>
-<script src="ObjectInitialiserShorthand/Ok.js" type="text/traceur"></script>
-<script src="ObjectIs.js" type="text/traceur"></script>
-<script src="PrivateNameSyntax/Class.js" type="text/traceur"></script>
-<script src="PrivateNameSyntax/CollectionTraps.js" type="text/traceur"></script>
-<script src="PrivateNameSyntax/MemberExpression.js" type="text/traceur"></script>
-<script src="PrivateNameSyntax/NameStatement.js" type="text/traceur"></script>
-<script src="PrivateNameSyntax/ObjectLiteral.js" type="text/traceur"></script>
-<script src="PrivateNames/Inherited.js" type="text/traceur"></script>
-<script src="PrivateNames/Name.js" type="text/traceur"></script>
-<script src="PrivateNames/Object.js" type="text/traceur"></script>
-<script src="PropertyMethodAssignment/Error_Disabled.js" type="text/traceur"></script>
-<script src="PropertyMethodAssignment/Error_NotNamed.js" type="text/traceur"></script>
-<script src="PropertyMethodAssignment/PropertyMethodAssignment.js" type="text/traceur"></script>
-<script src="PropertyOptionalComma/Error_Disabled.js" type="text/traceur"></script>
-<script src="PropertyOptionalComma/Error_MissingComma.js" type="text/traceur"></script>
-<script src="PropertyOptionalComma/Error_TooManyCommas.js" type="text/traceur"></script>
-<script src="PropertyOptionalComma/Error_TooManyCommas2.js" type="text/traceur"></script>
-<script src="PropertyOptionalComma/Ok.js" type="text/traceur"></script>
-<script src="Rest/Error_NotLast.js" type="text/traceur"></script>
-<script src="Rest/Error_SetAccessor.js" type="text/traceur"></script>
-<script src="Rest/Simple.js" type="text/traceur"></script>
-<script src="Rest/Strict.js" type="text/traceur"></script>
-<script src="Scope/BlockBinding10.js" type="text/traceur"></script>
-<script src="Scope/BlockBinding2.js" type="text/traceur"></script>
-<script src="Scope/BlockBinding3.js" type="text/traceur"></script>
-<script src="Scope/BlockBinding4.js" type="text/traceur"></script>
-<script src="Scope/BlockBinding5.js" type="text/traceur"></script>
-<script src="Scope/BlockBinding6.js" type="text/traceur"></script>
-<script src="Scope/BlockBinding7.js" type="text/traceur"></script>
-<script src="Scope/BlockBinding8.js" type="text/traceur"></script>
-<script src="Scope/BlockBinding9.js" type="text/traceur"></script>
-<script src="Scope/DeconstructingBlockBinding.js" type="text/traceur"></script>
-<script src="Scope/DeepNestedLet.js" type="text/traceur"></script>
-<script src="Scope/DeepNestedLetConst.js" type="text/traceur"></script>
-<script src="Scope/DeepNestedLetVar.js" type="text/traceur"></script>
-<script src="Scope/DeepNestedLetVarNoInit.js" type="text/traceur"></script>
-<script src="Scope/Error_BlockBinding1.js" type="text/traceur"></script>
-<script src="Scope/Error_ConstMissingInitializer.js" type="text/traceur"></script>
-<script src="Scope/Error_Disabled.js" type="text/traceur"></script>
-<script src="Scope/Error_ForInWithInitializerConst.js" type="text/traceur"></script>
-<script src="Scope/Error_ForInWithInitializerLet.js" type="text/traceur"></script>
-<script src="Scope/Error_ForOfWithInitializerConst.js" type="text/traceur"></script>
-<script src="Scope/Error_ForOfWithInitializerLet.js" type="text/traceur"></script>
-<script src="Scope/Error_ForOfWithInitializerVar.js" type="text/traceur"></script>
-<script src="Scope/Error_ForWithoutInitializerConst.js" type="text/traceur"></script>
-<script src="Scope/Error_FunctionExpressionInBlock.js" type="text/traceur"></script>
-<script src="Scope/ForInWithInitializerVar.js" type="text/traceur"></script>
-<script src="Scope/LetForInInitializers1.js" type="text/traceur"></script>
-<script src="Scope/LetForInitializers1.js" type="text/traceur"></script>
-<script src="Scope/LetInClass.js" type="text/traceur"></script>
-<script src="Scope/LetInClosure.js" type="text/traceur"></script>
-<script src="Scope/LetInFor.js" type="text/traceur"></script>
-<script src="Scope/LetInForBreak.js" type="text/traceur"></script>
-<script src="Scope/LetInForBreakInner.js" type="text/traceur"></script>
-<script src="Scope/LetInForBreakNamed.js" type="text/traceur"></script>
-<script src="Scope/LetInForContinue.js" type="text/traceur"></script>
-<script src="Scope/LetInForContinueInner.js" type="text/traceur"></script>
-<script src="Scope/LetInForContinueNamed.js" type="text/traceur"></script>
-<script src="Scope/LetInProperties.js" type="text/traceur"></script>
-<script src="Scope/LetInitializerFor1.js" type="text/traceur"></script>
-<script src="Scope/LetInitializerFor2.js" type="text/traceur"></script>
-<script src="Scope/LetInitializerFor3.js" type="text/traceur"></script>
-<script src="Scope/LetInitializerForIn.js" type="text/traceur"></script>
-<script src="Scope/LetNoInitializer.js" type="text/traceur"></script>
-<script src="Scope/LetNoInitializerGlobal.js" type="text/traceur"></script>
-<script src="Scope/LetWithFor.js" type="text/traceur"></script>
-<script src="Scope/LetWithForIn.js" type="text/traceur"></script>
-<script src="Scope/LetWithSwitch.js" type="text/traceur"></script>
-<script src="Scope/LetWithSwitch2.js" type="text/traceur"></script>
-<script src="Scope/NameBindingInFunction.js" type="text/traceur"></script>
-<script src="Scope/NestedFunction1.js" type="text/traceur"></script>
-<script src="Scope/NestedFunction2.js" type="text/traceur"></script>
-<script src="Scope/NestedFunction3.js" type="text/traceur"></script>
-<script src="Scope/NestedLet.js" type="text/traceur"></script>
-<script src="Scope/TopLevelLet.js" type="text/traceur"></script>
-<script src="Scope/TopLevelLetConst.js" type="text/traceur"></script>
-<script src="Scope/TopLevelLetVar.js" type="text/traceur"></script>
-<script src="Spread/Array.js" type="text/traceur"></script>
-<script src="Spread/Call.js" type="text/traceur"></script>
-<script src="Spread/CallWithUndefined.js" type="text/traceur"></script>
-<script src="Spread/Class.js" type="text/traceur"></script>
-<script src="Spread/Error_Disabled.js" type="text/traceur"></script>
-<script src="Spread/MethodCall.js" type="text/traceur"></script>
-<script src="Spread/MethodCallQuotedName.js" type="text/traceur"></script>
-<script src="Spread/New.js" type="text/traceur"></script>
-<script src="Spread/New2.js" type="text/traceur"></script>
-<script src="Spread/NewBuiltin.js" type="text/traceur"></script>
-<script src="Spread/Type.js" type="text/traceur"></script>
-<script src="StringExtras/Contains.js" type="text/traceur"></script>
-<script src="StringExtras/EndsWith.js" type="text/traceur"></script>
-<script src="StringExtras/StartsWith.js" type="text/traceur"></script>
-<script src="StringExtras/ToArray.js" type="text/traceur"></script>
-<script src="Syntax/ArrayWithHoles.js" type="text/traceur"></script>
-<script src="Syntax/Empty.js" type="text/traceur"></script>
-<script src="Syntax/Error_AtNameNotClosed.js" type="text/traceur"></script>
-<script src="Syntax/Error_FunctionParam.js" type="text/traceur"></script>
-<script src="Syntax/Error_NoLineTerminatorPostfix.js" type="text/traceur"></script>
-<script src="Syntax/Error_RegExpNotClosed.js" type="text/traceur"></script>
-<script src="Syntax/Error_UnicodeEscapeSequenceInName.js" type="text/traceur">></script>
-<script src="Syntax/ExpressionValidation.js" type="text/traceur"></script>
-<script src="Syntax/ImplicitSemiColon.js" type="text/traceur"></script>
-<script src="Syntax/UnicodeEscapeSequenceInName.js" type="text/traceur">></script>
-<script src="Syntax/null.js" type="text/traceur"></script>
-<script src="TempVarTransformer/UseStrictDirective.js" type="text/traceur"></script>
-<script src="TemplateLiterals/CallExpression.js" type="text/traceur"></script>
-<script src="TemplateLiterals/CommaExpression.js" type="text/traceur"></script>
-<script src="TemplateLiterals/Default.js" type="text/traceur"></script>
-<script src="TemplateLiterals/Error_Disabled.js" type="text/traceur"></script>
-<script src="TemplateLiterals/Error_InvalidSubstitution.js" type="text/traceur"></script>
-<script src="TemplateLiterals/Error_InvalidSubstitution2.js" type="text/traceur"></script>
-<script src="TemplateLiterals/Error_NotClosed.js" type="text/traceur"></script>
-<script src="TemplateLiterals/InBlock.js" type="text/traceur"></script>
-<script src="TemplateLiterals/InModule.js" type="text/tracuer"></script>
-<script src="TemplateLiterals/MemberExpression.js" type="text/traceur"></script>
-<script src="TemplateLiterals/Strict.js" type="text/tracuer"></script>
-<script src="TemplateLiterals/StringRaw.js" type="text/traceur"></script>
-<script src="TemplateLiterals/Tag.js" type="text/traceur"></script>
-<script src="Types/TypeSyntax.js" type="text/traceur"></script>
-<script src="Yield/Arguments.js" type="text/traceur"></script>
-<script src="Yield/DefaultArguments.js" type="text/traceur"></script>
-<script src="Yield/DoGenerator.js" type="text/traceur"></script>
-<script src="Yield/EndYieldGenerator.js" type="text/traceur"></script>
-<script src="Yield/Error_Disabled.js" type="text/traceur"></script>
-<script src="Yield/Error_Disabled2.js" type="text/traceur"></script>
-<script src="Yield/Error_MissingStar.js" type="text/traceur"></script>
-<script src="Yield/Error_UnsupportedYieldExpression1.js" type="text/traceur"></script>
-<script src="Yield/Error_UnsupportedYieldExpression2.js" type="text/traceur"></script>
-<script src="Yield/Finally.js" type="text/traceur"></script>
-<script src="Yield/ForEmptyGenerator.js" type="text/traceur"></script>
-<script src="Yield/ForGenerator.js" type="text/traceur"></script>
-<script src="Yield/ForInGenerator.js" type="text/traceur"></script>
-<script src="Yield/ForInGenerator2.js" type="text/traceur"></script>
-<script src="Yield/ForInGenerator3.js" type="text/traceur"></script>
-<script src="Yield/ForLexicallyNestedGenerator.js" type="text/traceur"></script>
-<script src="Yield/ForOfGenerator.js" type="text/traceur"></script>
-<script src="Yield/GeneratorClose.js" type="text/traceur"></script>
-<script src="Yield/GeneratorSend.js" type="text/traceur"></script>
-<script src="Yield/GeneratorThrow.js" type="text/traceur"></script>
-<script src="Yield/IfGenerator.js" type="text/traceur"></script>
-<script src="Yield/LabelledBreakGenerator.js" type="text/traceur"></script>
-<script src="Yield/MapFilterGenerator.js" type="text/traceur"></script>
-<script src="Yield/SequenceGenerator.js" type="text/traceur"></script>
-<script src="Yield/SimpleGenerator.js" type="text/traceur"></script>
-<script src="Yield/StatementTestGenerator.js" type="text/traceur"></script>
-<script src="Yield/SwitchGenerator.js" type="text/traceur"></script>
-<script src="Yield/This.js" type="text/traceur"></script>
-<script src="Yield/Tree.js" type="text/traceur"></script>
-<script src="Yield/TryCatchGenerator.js" type="text/traceur"></script>
-<script src="Yield/TryCatchYieldGenerator.js" type="text/traceur"></script>
-<script src="Yield/TryFinallyGenerator.js" type="text/traceur"></script>
-<script src="Yield/UnstarredGenerators.js" type="text/traceur"></script>
-<script src="Yield/WhileGenerator.js" type="text/traceur"></script>
-<script src="Yield/tryFinallyFinallyGenerator.js" type="text/traceur"></script>
+<script src="../test-list.js"></script>
 </head>
 <body>
 <script>
@@ -317,9 +37,9 @@ goog.require('goog.testing.jsunit');
  */
 function makeTestName(path) {
   var pathStart = 'feature/';
-  var start = path.indexOf(pathStart) + pathStart.length;
+  var start = path.indexOf(pathStart);
 
-  var name = path.substring(start);
+  var name = path.substring(start >= 0 ? start + pathStart.length : 0);
   name = name.replace('/', '');
   name = name.replace('.js', '');
 
@@ -340,22 +60,14 @@ function runCode(code, name) {
   }
 }
 
-function evalScript(urlOptions, scriptElement) {
+function evalScript(urlOptions, url) {
   'use strict';
 
-  var source;
-  var name;
-  var url = scriptElement.src || window.location.href;
-  if (scriptElement.src) {
-    name = scriptElement.src;
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', url, false);
-    xhr.send();
-    source = xhr.responseText;
-  } else {
-    name = 'inline-script';
-    source = scriptElement.textContent;
-  }
+  var name = url;
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', url, false);
+  xhr.send();
+  var source = xhr.responseText;
 
   // For each Traceur .js file, we'll create a top-level "test___" function
   // that compiles and evaluates it. JsUnit will then find and run those
@@ -398,7 +110,8 @@ function evalScript(urlOptions, scriptElement) {
 
       if (!skip) {
           if (reporter.hadError()) {
-            fail('Error compiling ' + name + '.\n' + reporter.errors.join('\n'));
+            fail('Error compiling ' + name + '.\n' +
+                 reporter.errors.join('\n'));
             return;
           }
           if (urlOptions.testClone === 'true') {
@@ -417,11 +130,6 @@ function evalScript(urlOptions, scriptElement) {
   }
 }
 
-function evalAllScripts(urlOptions) {
-  var scripts = document.querySelectorAll('script[type="text/traceur"]');
-  Array.prototype.forEach.call(scripts, evalScript.bind(null, urlOptions));
-}
-
 function optionsOnURL() {
   var params = window.location.search.substring(1);
   var nameValuePairs = params.split('&');
@@ -433,7 +141,8 @@ function optionsOnURL() {
   return options;
 }
 
-evalAllScripts(optionsOnURL());
+// Run all tests in testList.
+Array.prototype.forEach.call(testList, evalScript.bind(null, optionsOnURL()));
 
 </script>
 </body>

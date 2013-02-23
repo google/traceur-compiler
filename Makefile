@@ -20,8 +20,13 @@ min: bin/traceur.min.js
 #   npm install uglify-js -g
 ugly: bin/traceur.ugly.js
 
-test: build
+test: build test/test-list.js
 	node test/testfeatures.js --errsfile test/errsfile.json
+
+test-list: test/test-list.js
+
+test/test-list.js: build/build-test-list.js
+	git ls-files test/feature | node $? > $@
 
 boot: clean build
 
@@ -61,7 +66,7 @@ src/syntax/trees/ParseTreeType.js: src/syntax/trees/trees.json build/build-parse
 bin/traceur.ugly.js: bin/traceur.js
 	uglifyjs bin/traceur.js --compress dead_code=true,unused=true,sequences=true,join_vars=true,evaluate=true,booleans=true,conditionals=true -m -o $@
 
-.PHONY: build min test force boot clean distclean
+.PHONY: build min test test-list force boot clean distclean
 
 -include build/dep.mk
 -include build/local.mk
