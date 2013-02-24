@@ -11,7 +11,7 @@
     <pre id="out"></pre>
 
     <script>
-    traceur.options.trapMemberLookup = true;
+    traceur.options.experimental = true;
     </script>
     <script type="text/traceur">
 
@@ -30,12 +30,6 @@
       import {elementGet, elementSet, elementDelete, Name} from '@name';
       import iterator from '@iter';
 
-      // TODO(arv): Add support for import @name
-      private @elementGet = elementGet,
-          @elementSet = elementSet,
-          @elementDelete = elementDelete,
-          @iterator = iterator;
-
       var storageName = new Name();
       var sizeName = new Name();
       var {setProperty, getProperty} = Object;
@@ -45,6 +39,8 @@
       }
 
       function StringMap() {
+        // Can't use this[storageName] internally because it will invoke the
+        // traps.
         setProperty(this, storageName, Object.create(null));
         setProperty(this, sizeName, 0);
       }
@@ -68,33 +64,37 @@
             yield storage[name];
           }
         },
-        *items() {
+        *entries() {
           var storage = getStorage(this);
           for (var name in storage) {
             yield [name, storage[name]];
           }
-        },
-        *@iterator() {
-          yield* this.items();
-        },
-        @elementGet(name) {
-          return getStorage(this)[name];
-        },
-        @elementDelete(name) {
-          if (!this.has(name))
-            return false;
-          delete getStorage(this)[name];
-          setProperty(this, sizeName, getProperty(this, sizeName) - 1);
-          return true;
-        },
-        @elementSet(name, value) {
-          if (!this.has(name))
-            setProperty(this, sizeName, getProperty(this, sizeName) + 1);
-          getStorage(this)[name] = value;
         }
       };
 
+      // Traceur does not yet support [] keys in object/class literals.
+      StringMap.prototype[iterator] = StringMap.prototype.entries;
+
+      StringMap.prototype[elementGet] = function(name) {
+        return getStorage(this)[name];
+      };
+
+      StringMap.prototype[elementDelete] = function(name) {
+        if (!this.has(name))
+          return false;
+        delete getStorage(this)[name];
+        setProperty(this, sizeName, getProperty(this, sizeName) - 1);
+        return true;
+      };
+
+      StringMap.prototype[elementSet] = function(name, value) {
+        if (!this.has(name))
+          setProperty(this, sizeName, getProperty(this, sizeName) + 1);
+        getStorage(this)[name] = value;
+      };
+
       var map = new StringMap;
+
       map['a'] = 1;
       assertEquals(1, map['a']);
       assertEquals(undefined, map.a);
@@ -122,7 +122,7 @@
         print(value);
       }
 
-      for (var [key, value] of map.items()) {
+      for (var [key, value] of map.entries()) {
         print(`${key} = ${value}`);
       }
 
