@@ -15424,7 +15424,7 @@ var $___src_codegeneration_generator_GeneratorTransformer_js = (function() {
   var StateMachine = $___src_syntax_trees_StateMachine_js.StateMachine;
   var VAR = $___src_syntax_TokenType_js.VAR;
   var YieldState = $___src_codegeneration_generator_YieldState_js.YieldState;
-  var $__9 = $___src_codegeneration_ParseTreeFactory_js, createArgumentList = $__9.createArgumentList, createAssignStateStatement = $__9.createAssignStateStatement, createAssignmentStatement = $__9.createAssignmentStatement, createBlock = $__9.createBlock, createCallExpression = $__9.createCallExpression, createExpressionStatement = $__9.createExpressionStatement, createFalseLiteral = $__9.createFalseLiteral, createIdentifierExpression = $__9.createIdentifierExpression, createMemberExpression = $__9.createMemberExpression, createNumberLiteral = $__9.createNumberLiteral, createObjectLiteralExpression = $__9.createObjectLiteralExpression, createPropertyNameAssignment = $__9.createPropertyNameAssignment, createReturnStatement = $__9.createReturnStatement, createStatementList = $__9.createStatementList, createThrowStatement = $__9.createThrowStatement, createVariableStatement = $__9.createVariableStatement;
+  var $__9 = $___src_codegeneration_ParseTreeFactory_js, createArgumentList = $__9.createArgumentList, createAssignStateStatement = $__9.createAssignStateStatement, createAssignmentStatement = $__9.createAssignmentStatement, createBlock = $__9.createBlock, createCallExpression = $__9.createCallExpression, createExpressionStatement = $__9.createExpressionStatement, createFalseLiteral = $__9.createFalseLiteral, createIdentifierExpression = $__9.createIdentifierExpression, createMemberExpression = $__9.createMemberExpression, createNumberLiteral = $__9.createNumberLiteral, createObjectLiteralExpression = $__9.createObjectLiteralExpression, createPropertyNameAssignment = $__9.createPropertyNameAssignment, createReturnStatement = $__9.createReturnStatement, createStatementList = $__9.createStatementList, createThrowStatement = $__9.createThrowStatement, createUndefinedExpression = $__9.createUndefinedExpression, createVariableStatement = $__9.createVariableStatement;
   var ST_NEWBORN = 0;
   var ST_EXECUTING = 1;
   var ST_SUSPENDED = 2;
@@ -15438,13 +15438,10 @@ var $___src_codegeneration_generator_GeneratorTransformer_js = (function() {
         $__superCall(this, $__proto, "constructor", arguments);
       },
       transformYieldExpression_: function(tree) {
-        if (tree.expression != null) {
-          var startState = this.allocateState();
-          var fallThroughState = this.allocateState();
-          return this.stateToStateMachine_(new YieldState(startState, fallThroughState, this.transformAny(tree.expression)), fallThroughState);
-        }
-        var stateId = this.allocateState();
-        return new StateMachine(stateId, this.allocateState(), [new EndState(stateId)], []);
+        var e = tree.expression ? tree.expression: createUndefinedExpression();
+        var startState = this.allocateState();
+        var fallThroughState = this.allocateState();
+        return this.stateToStateMachine_(new YieldState(startState, fallThroughState, this.transformAny(e)), fallThroughState);
       },
       transformYieldExpression: function(tree) {
         this.reporter.reportError(tree.location.start, 'Only \'a = yield b\' and \'var a = yield b\' currently supported.');

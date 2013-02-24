@@ -50,6 +50,7 @@ import {
   createReturnStatement,
   createStatementList,
   createThrowStatement,
+  createUndefinedExpression,
   createVariableStatement
 } from '../ParseTreeFactory.js';
 
@@ -88,25 +89,16 @@ export class GeneratorTransformer extends CPSTransformer {
    * @private
    */
   transformYieldExpression_(tree) {
-    if (tree.expression != null) {
-      var startState = this.allocateState();
-      var fallThroughState = this.allocateState();
-      return this.stateToStateMachine_(
-          new YieldState(
-              startState,
-              fallThroughState,
-              this.transformAny(tree.expression)),
-          fallThroughState);
-    }
-    var stateId = this.allocateState();
-    return new StateMachine(
-        stateId,
-        // TODO: this should not be required, but removing requires making
-        // consumers resilient
-        // TODO: to INVALID fallThroughState
-        this.allocateState(),
-        [new EndState(stateId)],
-        []);
+    var e = tree.expression ? tree.expression : createUndefinedExpression();
+
+    var startState = this.allocateState();
+    var fallThroughState = this.allocateState();
+    return this.stateToStateMachine_(
+        new YieldState(
+            startState,
+            fallThroughState,
+            this.transformAny(e)),
+        fallThroughState);
   }
 
   /**
