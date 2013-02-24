@@ -89,7 +89,7 @@ export class GeneratorTransformer extends CPSTransformer {
    * @private
    */
   transformYieldExpression_(tree) {
-    var e = tree.expression ? tree.expression : createUndefinedExpression();
+    var e = tree.expression || createUndefinedExpression();
 
     var startState = this.allocateState();
     var fallThroughState = this.allocateState();

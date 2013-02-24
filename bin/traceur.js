@@ -15438,7 +15438,7 @@ var $___src_codegeneration_generator_GeneratorTransformer_js = (function() {
         $__superCall(this, $__proto, "constructor", arguments);
       },
       transformYieldExpression_: function(tree) {
-        var e = tree.expression ? tree.expression: createUndefinedExpression();
+        var e = tree.expression || createUndefinedExpression();
         var startState = this.allocateState();
         var fallThroughState = this.allocateState();
         return this.stateToStateMachine_(new YieldState(startState, fallThroughState, this.transformAny(e)), fallThroughState);
