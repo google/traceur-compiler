@@ -54,6 +54,7 @@ function removeCommonPrefix(basedir, filedir) {
 function writeFile(filename, contents) {
   // Compute the output path
   var outputdir = fs.realpathSync(process.cwd());
+  mkdirRecursive(path.dirname(filename));
   var filedir = fs.realpathSync(path.dirname(filename));
   filedir = removeCommonPrefix(outputdir, filedir);
   outputdir = path.join(outputdir, filedir);

@@ -108,6 +108,9 @@ class CodeUnit {
    * Adds callback for COMPLETE and ERROR.
    */
   addListener(callback, errback) {
+    // TODO(arv): Handle this case?
+    if (this.state >= COMPLETE)
+      throw Error(`${this.url} is already loaded`);
     if (!this.listeners) {
       this.listeners = [];
     }

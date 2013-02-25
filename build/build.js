@@ -70,9 +70,8 @@ flags.optionHelp = function() {
 
 flags.parse(process.argv);
 
-var outputfile = flags.out;
+var outputFile = flags.out;
 var includes = flags.args;
-
 
 if (!includes.length) {
   // TODO: Start trepl
@@ -85,11 +84,14 @@ function getSourceMapFileName(name) {
   return name.replace(/\.js$/, '.map');
 }
 
-function writeTreeToFile(tree, filename) {
+function writeTreeToFile(tree, filename, opt_sourceRoot) {
   var options = null;
   if (flags.sourceMaps) {
     var sourceMapFilePath = getSourceMapFileName(filename);
-    var config = {file: path.basename(filename)};
+    var config = {
+      file: path.basename(filename),
+      sourceRoot: opt_sourceRoot
+    };
     var sourceMapGenerator = new SourceMapGenerator(config);
     options = {sourceMapGenerator: sourceMapGenerator};
   }
@@ -108,34 +110,61 @@ var ErrorReporter = traceur.util.ErrorReporter;
 var TreeWriter = traceur.outputgeneration.TreeWriter;
 var SourceMapGenerator = traceur.outputgeneration.SourceMapGenerator;
 
-var util = require('../src/node/file-util.js');
-var writeFile = util.writeFile;
-var removeCommonPrefix = util.removeCommonPrefix;
-var mkdirRecursive = util.mkdirRecursive;
-
-mkdirRecursive(path.dirname(outputfile));
-
-// Resolve includes before changing directory.
-var resolvedIncludes = includes.map(function(include) {
-  return path.resolve(include);
-});
-
-outputfile = path.resolve(outputfile);
-var outputDir = path.dirname(outputfile);
-process.chdir(outputDir);
-
-// Make includes relative to output dir so that sourcemap paths are correct.
-resolvedIncludes = resolvedIncludes.map(function(include) {
-  return path.relative(outputDir, include);
-});
-
 var reporter = new ErrorReporter();
 
+var util = require('../src/node/file-util.js');
 var inlineAndCompile = require('./inline-module.js').inlineAndCompile;
 
-inlineAndCompile(resolvedIncludes, flags, reporter, function(tree) {
-  writeTreeToFile(tree, outputfile);
-  process.exit(0);
-}, function(err) {
-  process.exit(1);
-});
+var writeFile = util.writeFile;
+var mkdirRecursive = util.mkdirRecursive;
+
+var isSingleFileCompile = /\.js$/.test(outputFile);
+
+var resolvedOutputFile = path.resolve(outputFile);
+var outputDir = isSingleFileCompile ?
+    path.dirname(resolvedOutputFile) : resolvedOutputFile;
+
+if (isSingleFileCompile) {
+
+  // Resolve includes before changing directory.
+  var resolvedIncludes = includes.map(function(include) {
+    return path.resolve(include);
+  });
+
+  mkdirRecursive(outputDir);
+  process.chdir(outputDir);
+
+  // Make includes relative to output dir so that sourcemap paths are correct.
+  resolvedIncludes = resolvedIncludes.map(function(include) {
+    return path.relative(outputDir, include);
+  });
+
+  inlineAndCompile(resolvedIncludes, flags, reporter, function(tree) {
+    writeTreeToFile(tree, resolvedOutputFile);
+    process.exit(0);
+  }, function(err) {
+    process.exit(1);
+  });
+
+} else {
+  var current = 0;
+
+  var next = function() {
+    if (current === includes.length)
+      process.exit(0);
+
+    inlineAndCompile(includes.slice(current, current + 1), flags, reporter,
+        function(tree) {
+          var outputFile = path.join(outputDir, includes[current]);
+          var sourceRoot = path.relative(path.dirname(outputFile));
+          writeTreeToFile(tree, outputFile, sourceRoot);
+          current++;
+          next();
+        },
+        function(err) {
+          process.exit(1);
+        });
+  };
+
+  next();
+}

@@ -18761,6 +18761,7 @@ var $___src_runtime_modules_js = (function() {
         return this.project.getRootModule();
       },
       addListener: function(callback, errback) {
+        if (this.state >= COMPLETE) throw Error((this.url + " is already loaded"));
         if (!this.listeners) {
           this.listeners = [];
         }
