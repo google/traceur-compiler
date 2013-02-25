@@ -354,7 +354,7 @@ if (!flags.failfast || passes == tests) {
     try {
       testList = require('./test-list.js').testList;
       testList.forEach(function(f) {
-        if (errslast && errslast.indexOf(filePath) >= 0)
+        if (errslast && errslast.indexOf(f) >= 0)
           return;
         updateProgress(testScript, path.join(__dirname, 'feature', f));
       });
