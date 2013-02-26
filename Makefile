@@ -49,7 +49,7 @@ bin/traceur.min.js: bin/traceur.js
 	node build/minifier.js $? $@
 
 bin/traceur.js force:
-	node build/build.js --out bin/traceur.js $(TFLAGS) $(SRC)
+	./traceur --out bin/traceur.js $(TFLAGS) $(SRC)
 
 # Prerequisites following '|' are rebuilt just like ordinary prerequisites.
 # However, they don't cause remakes if they're newer than the target. See:

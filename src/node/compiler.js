@@ -27,7 +27,7 @@ try {
 }
 flags.setMaxListeners(100);
 
-require('../src/node/traceur.js');
+require('./traceur.js');
 
 flags.option('--out <FILE>', 'Compile all input files into a single file',
              'compiled.js');
@@ -112,7 +112,7 @@ var SourceMapGenerator = traceur.outputgeneration.SourceMapGenerator;
 
 var reporter = new ErrorReporter();
 
-var util = require('../src/node/file-util.js');
+var util = require('./file-util.js');
 var inlineAndCompile = require('./inline-module.js').inlineAndCompile;
 
 var writeFile = util.writeFile;

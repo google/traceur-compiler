@@ -1,0 +1,16 @@
+#!/bin/sh
+
+DIR="$(dirname $0)"
+BUILD_JS="$DIR/src/node/compiler.js"
+
+# Check node is installed
+
+NODE=`which node 2>&1`
+RET=$?
+if [ $RET -ne 0 ] || ! [ -x $NODE ]; then
+  echo "traceurc requires that Node.js is installed." >&2
+  echo "Exiting..." >&2
+  exit $RET
+fi
+
+node "$BUILD_JS" $@

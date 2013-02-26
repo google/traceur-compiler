@@ -64,7 +64,7 @@ var resolvedIncludes = includes.map(function(include) {
 
 var reporter = new ErrorReporter();
 
-var inlineAndCompile = require('./inline-module.js').inlineAndCompile;
+var inlineAndCompile = require('../src/node/inline-module.js').inlineAndCompile;
 
 inlineAndCompile(resolvedIncludes, flags, reporter, function(tree) {
   process.exit(0);
