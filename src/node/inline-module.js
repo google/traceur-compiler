@@ -119,7 +119,7 @@ InlineCodeLoader.prototype = {
     var tree = transformer.transformAny(codeUnit.tree);
     if (this.depTarget)
       console.log('%s: %s', this.depTarget,
-                  path.relative(path.join(__dirname, '..'), codeUnit.url));
+                  path.relative(path.join(__dirname, '..', '..'), codeUnit.url));
     if (codeUnit === startCodeUnit)
       return tree;
     return wrapProgram(tree, codeUnit.url, this.dirname);
