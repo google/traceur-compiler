@@ -1,14 +1,10 @@
 SRC = \
-  third_party/source-map/lib/source-map/array-set.js \
-  third_party/source-map/lib/source-map/base64.js \
-  third_party/source-map/lib/source-map/base64-vlq.js \
-  third_party/source-map/lib/source-map/binary-search.js \
-  third_party/source-map/lib/source-map/util.js \
-  third_party/source-map/lib/source-map/source-map-generator.js \
-  third_party/source-map/lib/source-map/source-map-consumer.js \
-  third_party/source-map/lib/source-map/source-node.js \
   src/runtime/runtime.js \
   src/traceur.js
+GENSRC = \
+  src/syntax/trees/ParseTreeType.js \
+  src/syntax/trees/ParseTrees.js \
+  src/outputgeneration/SourceMapIntegration.js
 
 TFLAGS = --strict-semicolons --
 
@@ -36,7 +32,7 @@ clean:
 
 distclean: clean
 	rm -f build/dep.mk
-	rm -f src/syntax/trees/ParseTreeType.js src/syntax/trees/ParseTrees.js
+	rm -f $(GENSRC)
 
 initbench:
 	rm -rf test/bench/esprima
@@ -54,7 +50,7 @@ bin/traceur.js force:
 # Prerequisites following '|' are rebuilt just like ordinary prerequisites.
 # However, they don't cause remakes if they're newer than the target. See:
 # http://www.gnu.org/software/make/manual/html_node/Prerequisite-Types.html
-build/dep.mk: | src/syntax/trees/ParseTreeType.js src/syntax/trees/ParseTrees.js
+build/dep.mk: | $(GENSRC)
 	node build/makedep.js --depTarget bin/traceur.js $(TFLAGS) $(SRC) > $@
 
 src/syntax/trees/ParseTrees.js: src/syntax/trees/trees.json build/build-parse-trees.js
@@ -62,6 +58,9 @@ src/syntax/trees/ParseTrees.js: src/syntax/trees/trees.json build/build-parse-tr
 
 src/syntax/trees/ParseTreeType.js: src/syntax/trees/trees.json build/build-parse-tree-type.js
 	node build/build-parse-tree-type.js src/syntax/trees/trees.json > $@
+
+%.js: %.js-template.js
+	node build/expand-js-template.js $^ $@
 
 bin/traceur.ugly.js: bin/traceur.js
 	uglifyjs bin/traceur.js --compress dead_code=true,unused=true,sequences=true,join_vars=true,evaluate=true,booleans=true,conditionals=true -m -o $@
