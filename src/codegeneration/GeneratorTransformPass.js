@@ -12,18 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import AsyncTransformer from 'generator/AsyncTransformer.js';
-import ForInTransformPass from 'generator/ForInTransformPass.js';
-import ForOfTransformer from 'ForOfTransformer.js';
+import AsyncTransformer from './generator/AsyncTransformer.js';
+import ForInTransformPass from './generator/ForInTransformPass.js';
+import ForOfTransformer from './ForOfTransformer.js';
 import {
   GetAccessor,
   SetAccessor
 } from '../syntax/trees/ParseTrees.js';
-import GeneratorTransformer from 'generator/GeneratorTransformer.js';
+import GeneratorTransformer from './generator/GeneratorTransformer.js';
 import ParseTreeVisitor from '../syntax/ParseTreeVisitor.js';
-import parseStatement from 'PlaceholderParser.js';
-import TempVarTransformer from 'TempVarTransformer.js';
-import ParseTreeTransformer from 'ParseTreeTransformer.js';
+import parseStatement from './PlaceholderParser.js';
+import TempVarTransformer from './TempVarTransformer.js';
+import ParseTreeTransformer from './ParseTreeTransformer.js';
 import {
   EQUAL,
   VAR
@@ -47,7 +47,7 @@ import {
   createVariableDeclarationList,
   createVariableStatement,
   createYieldStatement
-} from 'ParseTreeFactory.js';
+} from './ParseTreeFactory.js';
 import {
   ACTION_SEND,
   ACTION_THROW,

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import CPSTransformer from 'CPSTransformer.js';
-import EndState from 'EndState.js';
+import CPSTransformer from './CPSTransformer.js';
+import EndState from './EndState.js';
 import {
   ACTION_SEND,
   ACTION_THROW,
@@ -33,7 +33,7 @@ import {
 import parseStatement from '../PlaceholderParser.js';
 import StateMachine from '../../syntax/trees/StateMachine.js';
 import VAR from '../../syntax/TokenType.js';
-import YieldState from 'YieldState.js';
+import YieldState from './YieldState.js';
 import {
   createArgumentList,
   createAssignStateStatement,

@@ -12,31 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ArrayComprehensionTransformer from 'ArrayComprehensionTransformer.js';
-import ArrowFunctionTransformer from 'ArrowFunctionTransformer.js';
-import AtNameMemberTransformer from 'AtNameMemberTransformer.js';
-import BlockBindingTransformer from 'BlockBindingTransformer.js';
-import CascadeExpressionTransformer from 'CascadeExpressionTransformer.js';
-import ClassTransformer from 'ClassTransformer.js';
-import CollectionTransformer from 'CollectionTransformer.js';
-import DefaultParametersTransformer from 'DefaultParametersTransformer.js';
-import DestructuringTransformer from 'DestructuringTransformer.js';
-import ForOfTransformer from 'ForOfTransformer.js';
+import ArrayComprehensionTransformer from './ArrayComprehensionTransformer.js';
+import ArrowFunctionTransformer from './ArrowFunctionTransformer.js';
+import AtNameMemberTransformer from './AtNameMemberTransformer.js';
+import BlockBindingTransformer from './BlockBindingTransformer.js';
+import CascadeExpressionTransformer from './CascadeExpressionTransformer.js';
+import ClassTransformer from './ClassTransformer.js';
+import CollectionTransformer from './CollectionTransformer.js';
+import DefaultParametersTransformer from './DefaultParametersTransformer.js';
+import DestructuringTransformer from './DestructuringTransformer.js';
+import ForOfTransformer from './ForOfTransformer.js';
 import FreeVariableChecker from '../semantics/FreeVariableChecker.js';
 import GeneratorComprehensionTransformer from
     'GeneratorComprehensionTransformer.js';
-import GeneratorTransformPass from 'GeneratorTransformPass.js';
-import ModuleTransformer from 'ModuleTransformer.js';
-import ObjectLiteralTransformer from 'ObjectLiteralTransformer.js';
+import GeneratorTransformPass from './GeneratorTransformPass.js';
+import ModuleTransformer from './ModuleTransformer.js';
+import ObjectLiteralTransformer from './ObjectLiteralTransformer.js';
 import ObjectMap from '../util/ObjectMap.js';
 import ParseTreeValidator from '../syntax/ParseTreeValidator.js';
-import PrivateNameSyntaxTransformer from 'PrivateNameSyntaxTransformer.js';
+import PrivateNameSyntaxTransformer from './PrivateNameSyntaxTransformer.js';
 import PropertyNameShorthandTransformer from
     'PropertyNameShorthandTransformer.js';
-import TemplateLiteralTransformer from 'TemplateLiteralTransformer.js';
-import RestParameterTransformer from 'RestParameterTransformer.js';
-import SpreadTransformer from 'SpreadTransformer.js';
-import TypeTransformer from 'TypeTransformer.js';
+import TemplateLiteralTransformer from './TemplateLiteralTransformer.js';
+import RestParameterTransformer from './RestParameterTransformer.js';
+import SpreadTransformer from './SpreadTransformer.js';
+import TypeTransformer from './TypeTransformer.js';
 import {options, transformOptions} from '../options.js';
 
 /**

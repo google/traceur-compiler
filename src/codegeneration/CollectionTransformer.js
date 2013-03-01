@@ -21,7 +21,7 @@ import {
   TRACEUR
 } from '../syntax/PredefinedName.js';
 import MEMBER_LOOKUP_EXPRESSION from '../syntax/trees/ParseTreeType.js';
-import TempVarTransformer from 'TempVarTransformer.js';
+import TempVarTransformer from './TempVarTransformer.js';
 import {
   DELETE,
   EQUAL,
@@ -36,8 +36,8 @@ import {
   createIdentifierExpression,
   createMemberExpression,
   createParenExpression
-} from 'ParseTreeFactory.js';
-import expandMemberLookupExpression from 'OperatorExpander.js';
+} from './ParseTreeFactory.js';
+import expandMemberLookupExpression from './OperatorExpander.js';
 
 /**
  * Transforms expr[expr] into traceur.runtime.elementGet(expr, expr). It also

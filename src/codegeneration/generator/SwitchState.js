@@ -17,7 +17,7 @@ import {
   DefaultClause,
   SwitchStatement
 } from '../../syntax/trees/ParseTrees.js';
-import State from 'State.js';
+import State from './State.js';
 import {
   createBreakStatement,
   createStatementList

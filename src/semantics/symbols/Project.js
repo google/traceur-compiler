@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import ArrayMap from '../../util/ArrayMap.js';
-import ExportSymbol from 'ExportSymbol.js';
-import ModuleSymbol from 'ModuleSymbol.js';
+import ExportSymbol from './ExportSymbol.js';
+import ModuleSymbol from './ModuleSymbol.js';
 import ObjectMap from '../../util/ObjectMap.js';
 import RuntimeInliner from '../../codegeneration/RuntimeInliner.js';
 import UniqueIdentifierGenerator from '../../codegeneration/UniqueIdentifierGenerator.js';

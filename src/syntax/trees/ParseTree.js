@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export module ParseTreeType from 'ParseTreeType.js';
+export module ParseTreeType from './ParseTreeType.js';
 
 import * from ParseTreeType;
 

@@ -49,7 +49,7 @@ import {
   createMemberLookupExpression,
   createOperatorToken,
   createParenExpression
-} from 'ParseTreeFactory.js';
+} from './ParseTreeFactory.js';
 
 /**
  * Returns the binary operator that the assignment operator should use. For

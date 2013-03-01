@@ -21,7 +21,7 @@ import {
 import IdentifierToken from '../syntax/IdentifierToken.js';
 import MutedErrorReporter from '../util/MutedErrorReporter.js';
 import ParseTree from '../syntax/trees/ParseTree.js';
-import ParseTreeTransformer from 'ParseTreeTransformer.js';
+import ParseTreeTransformer from './ParseTreeTransformer.js';
 import Parser from '../syntax/Parser.js';
 import {
   PropertyMethodAssignment,
@@ -43,7 +43,7 @@ import {
   createSetAccessor,
   createStringLiteral,
   createVoid0
-} from 'ParseTreeFactory.js';
+} from './ParseTreeFactory.js';
 
 /**
  * @fileoverview This file provides two template string functions,

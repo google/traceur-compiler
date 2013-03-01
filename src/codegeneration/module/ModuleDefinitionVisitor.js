@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import ModuleSymbol from '../../semantics/symbols/ModuleSymbol.js';
-import ModuleVisitor from 'ModuleVisitor.js';
+import ModuleVisitor from './ModuleVisitor.js';
 
 /**
  * Visits a parse tree and adds all the module definitions.

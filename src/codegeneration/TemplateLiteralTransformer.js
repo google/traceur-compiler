@@ -28,7 +28,7 @@ import {
   OBJECT,
   RAW
 } from '../syntax/PredefinedName.js';
-import TempVarTransformer from 'TempVarTransformer.js';
+import TempVarTransformer from './TempVarTransformer.js';
 import {
   PERCENT,
   PLUS,
@@ -49,7 +49,7 @@ import {
   createPropertyDescriptor,
   createPropertyNameAssignment,
   createStringLiteral
-} from 'ParseTreeFactory.js';
+} from './ParseTreeFactory.js';
 
 /**
  * Creates an object like:

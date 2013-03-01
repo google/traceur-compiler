@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeWriter from 'ParseTreeWriter.js';
+import ParseTreeWriter from './ParseTreeWriter.js';
 
 /**
  * Converts a ParseTree to text and a source Map

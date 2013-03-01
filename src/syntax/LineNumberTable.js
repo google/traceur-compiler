@@ -14,7 +14,7 @@
 
 import SourcePosition from '../util/SourcePosition.js';
 import SourceRange from '../util/SourceRange.js';
-import isLineTerminator from 'Scanner.js';
+import isLineTerminator from './Scanner.js';
 
 // Largest int that can be distinguished
 // assert(n + 1 === n)

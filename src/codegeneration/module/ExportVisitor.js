@@ -14,7 +14,7 @@
 
 import ExportSymbol from '../../semantics/symbols/ExportSymbol.js';
 import IDENTIFIER_EXPRESSION from '../../syntax/trees/ParseTreeType.js';
-import ModuleVisitor from 'ModuleVisitor.js';
+import ModuleVisitor from './ModuleVisitor.js';
 
 /**
  * Visits a parse tree and adds all the module definitions.

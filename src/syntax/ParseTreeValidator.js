@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import NewExpression from '../syntax/trees/ParseTrees.js';
-import ParseTreeVisitor from 'ParseTreeVisitor.js';
+import ParseTreeVisitor from './ParseTreeVisitor.js';
 import TreeWriter from '../outputgeneration/TreeWriter.js';
 import {
   AMPERSAND,
@@ -52,7 +52,7 @@ import {
   STRING,
   UNSIGNED_RIGHT_SHIFT,
   UNSIGNED_RIGHT_SHIFT_EQUAL
-} from 'TokenType.js';
+} from './TokenType.js';
 import {
   ARRAY_PATTERN,
   BINDING_ELEMENT,
@@ -89,7 +89,7 @@ import {
   TEMPLATE_SUBSTITUTION,
   VARIABLE_DECLARATION_LIST,
   VARIABLE_STATEMENT
-} from 'trees/ParseTreeType.js';
+} from './trees/ParseTreeType.js';
 
 /*
 TODO: add contextual information to the validator so we can check

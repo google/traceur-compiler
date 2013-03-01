@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTree from 'ParseTree.js';
-import STATE_MACHINE from 'ParseTreeType.js';
+import ParseTree from './ParseTree.js';
+import STATE_MACHINE from './ParseTreeType.js';
 import TryState from '../../codegeneration/generator/TryState.js';
 
 /**

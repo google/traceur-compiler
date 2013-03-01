@@ -17,19 +17,19 @@ import {
   MEMBER_LOOKUP_EXPRESSION,
   SUPER_EXPRESSION
 } from '../syntax/trees/ParseTreeType.js';
-import ParseTreeTransformer from 'ParseTreeTransformer.js';
+import ParseTreeTransformer from './ParseTreeTransformer.js';
 import EQUAL from '../syntax/TokenType.js';
 import {
   createArrayLiteralExpression,
   createIdentifierExpression,
   createStringLiteral,
   createThisExpression
-} from 'ParseTreeFactory.js';
+} from './ParseTreeFactory.js';
 import {
   expandMemberExpression,
   expandMemberLookupExpression
-} from 'OperatorExpander.js';
-import parseExpression from 'PlaceholderParser.js';
+} from './OperatorExpander.js';
+import parseExpression from './PlaceholderParser.js';
 
 var SUPER_DESCRIPTOR_CODE =
     `function (proto, name) {

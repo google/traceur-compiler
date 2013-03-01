@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import VariableDeclaration from '../syntax/trees/ParseTrees.js';
-import ParseTreeTransformer from 'ParseTreeTransformer.js';
+import ParseTreeTransformer from './ParseTreeTransformer.js';
 
 /**
  * Desugars type annotations.

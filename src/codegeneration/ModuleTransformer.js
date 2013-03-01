@@ -20,7 +20,7 @@ import {
   ObjectPatternField,
   Program
 } from '../syntax/trees/ParseTrees.js';
-import ParseTreeTransformer from 'ParseTreeTransformer.js';
+import ParseTreeTransformer from './ParseTreeTransformer.js';
 import {
   GET_MODULE_INSTANCE_BY_URL,
   RUNTIME,
@@ -68,7 +68,7 @@ import {
   createVariableDeclaration,
   createVariableDeclarationList,
   createVariableStatement
-} from 'ParseTreeFactory.js';
+} from './ParseTreeFactory.js';
 import hasUseStrict from '../semantics/util.js';
 
 function toBindingIdentifier(tree) {

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import MutedErrorReporter from '../util/MutedErrorReporter.js';
-import ParseTreeTransformer from 'ParseTreeTransformer.js';
+import ParseTreeTransformer from './ParseTreeTransformer.js';
 import Parser from '../syntax/Parser.js';
 import Program from '../syntax/trees/ParseTrees.js';
 import SourceFile from '../syntax/SourceFile.js';
@@ -23,8 +23,8 @@ import {
   createVariableDeclaration,
   createVariableDeclarationList,
   createVariableStatement
-} from 'ParseTreeFactory.js';
-import prependStatements from 'PrependStatements.js';
+} from './ParseTreeFactory.js';
+import prependStatements from './PrependStatements.js';
 
 // Some helper functions that other runtime functions may depend on.
 var shared = {

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import BreakState from 'BreakState.js';
-import ContinueState from 'ContinueState.js';
+import BreakState from './BreakState.js';
+import ContinueState from './ContinueState.js';
 import ParseTreeTransformer from '../ParseTreeTransformer.js';
 import StateMachine from '../../syntax/trees/StateMachine.js';
 

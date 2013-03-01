@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import IMPORT_SPECIFIER_SET from '../../syntax/trees/ParseTreeType.js';
-import ModuleVisitor from 'ModuleVisitor.js';
+import ModuleVisitor from './ModuleVisitor.js';
 import STAR from '../../syntax/TokenType.js';
 
 /**

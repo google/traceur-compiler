@@ -20,7 +20,7 @@ import {
   CoverFormalsTransformer,
   CoverFormalsTransformerError
 } from '../codegeneration/CoverFormalsTransformer.js';
-import IdentifierToken from 'IdentifierToken.js';
+import IdentifierToken from './IdentifierToken.js';
 import {
   ARRAY_LITERAL_EXPRESSION,
   BINARY_OPERATOR,
@@ -36,7 +36,7 @@ import {
   PAREN_EXPRESSION,
   PROPERTY_NAME_ASSIGNMENT,
   REST_PARAMETER
-} from 'trees/ParseTreeType.js';
+} from './trees/ParseTreeType.js';
 import {
   ANY,
   BOOL,
@@ -47,19 +47,19 @@ import {
   OF,
   SET,
   STRING
-} from 'PredefinedName.js';
-import Scanner from 'Scanner.js';
+} from './PredefinedName.js';
+import Scanner from './Scanner.js';
 import SourceRange from '../util/SourceRange.js';
 import {
   Token,
   isAssignmentOperator
-} from 'Token.js';
+} from './Token.js';
 import {
   parseOptions,
   options
 } from '../options.js';
-import * from 'TokenType.js';
-import * from 'trees/ParseTrees.js';
+import * from './TokenType.js';
+import * from './trees/ParseTrees.js';
 
 /**
  * Differentiates between parsing for 'In' vs. 'NoIn'

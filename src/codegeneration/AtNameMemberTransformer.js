@@ -21,7 +21,7 @@ import {
   TRACEUR
 } from '../syntax/PredefinedName.js';
 import MEMBER_EXPRESSION from '../syntax/trees/ParseTreeType.js';
-import TempVarTransformer from 'TempVarTransformer.js';
+import TempVarTransformer from './TempVarTransformer.js';
 import {
   AT_NAME,
   DELETE,
@@ -36,8 +36,8 @@ import {
   createIdentifierExpression,
   createMemberExpression,
   createParenExpression
-} from 'ParseTreeFactory.js';
-import expandMemberExpression from 'OperatorExpander.js';
+} from './ParseTreeFactory.js';
+import expandMemberExpression from './OperatorExpander.js';
 
 /**
  * Transforms expr.@name into traceur.runtime.getProperty(expr, @name). It

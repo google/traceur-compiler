@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FallThroughState from 'FallThroughState.js';
-import State from 'State.js';
+import FallThroughState from './FallThroughState.js';
+import State from './State.js';
 import createStatementList from '../ParseTreeFactory.js';
 
 export class ContinueState extends State {

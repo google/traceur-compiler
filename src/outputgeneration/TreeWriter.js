@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeMapWriter from 'ParseTreeMapWriter.js';
-import ParseTreeWriter from 'ParseTreeWriter.js';
+import ParseTreeMapWriter from './ParseTreeMapWriter.js';
+import ParseTreeWriter from './ParseTreeWriter.js';
 
 // TODO(arv): This should just export the static function instead.
 

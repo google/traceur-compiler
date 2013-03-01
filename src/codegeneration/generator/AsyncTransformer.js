@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import CPSTransformer from 'CPSTransformer.js';
-import EndState from 'EndState.js';
-import FallThroughState from 'FallThroughState.js';
+import CPSTransformer from './CPSTransformer.js';
+import EndState from './EndState.js';
+import FallThroughState from './FallThroughState.js';
 import {
   $VALUE,
   CALLBACK,

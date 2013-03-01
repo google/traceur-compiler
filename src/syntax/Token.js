@@ -25,7 +25,7 @@ import {
   SLASH_EQUAL,
   STAR_EQUAL,
   UNSIGNED_RIGHT_SHIFT_EQUAL
-} from 'TokenType.js';
+} from './TokenType.js';
 
 /**
  * A Token in a javascript file.
