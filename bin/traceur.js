@@ -15899,14 +15899,20 @@ var $___src_outputgeneration_ParseTreeWriter_js = (function() {
         }
       },
       visitImportSpecifier: function(tree) {
-        this.write_(tree.importedName);
-        if (tree.destinationName !== null) {
+        this.write_(tree.lhs);
+        if (tree.rhs !== null) {
           this.write_(COLON);
-          this.write_(tree.destinationName);
+          this.write_(tree.rhs);
         }
       },
       visitImportSpecifierSet: function(tree) {
-        if (tree.specifiers.type == STAR) this.write_(STAR); else this.visitList(tree.specifiers);
+        if (tree.specifiers.type == STAR) {
+          this.write_(STAR);
+        } else {
+          this.write_(OPEN_CURLY);
+          this.writeList_(tree.specifiers, COMMA, FALSE);
+          this.write_(CLOSE_CURLY);
+        }
       },
       visitLabelledStatement: function(tree) {
         this.write_(tree.name);
@@ -16228,6 +16234,9 @@ var $___src_outputgeneration_ParseTreeWriter_js = (function() {
       },
       needsSpace_: function(token) {
         if (!this.lastToken_) return false;
+        if (this.lastToken_.type === REGULAR_EXPRESSION && this.isIdentifierNameOrNumber_(token)) {
+          return true;
+        }
         var value = token.toString();
         var lastValue = this.lastToken_.toString();
         switch (value) {
