@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import AtNameToken from './AtNameToken.js';
-import IdentifierToken from './IdentifierToken.js';
-import KeywordToken from './KeywordToken.js';
-import LiteralToken from './LiteralToken.js';
-import Token from './Token.js';
-import isKeyword from './Keywords.js';
+import {AtNameToken} from './AtNameToken.js';
+import {IdentifierToken} from './IdentifierToken.js';
+import {KeywordToken} from './KeywordToken.js';
+import {LiteralToken} from './LiteralToken.js';
+import {Token} from './Token.js';
+import {isKeyword} from './Keywords.js';
 import * from './TokenType.js';
 
 // Some of these is* functions use an array as a lookup table for the lower 7

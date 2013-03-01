@@ -25,8 +25,8 @@ import {
   PROPERTY_METHOD_ASSIGNMENT,
   SET_ACCESSOR
 } from '../syntax/trees/ParseTreeType.js';
-import SuperTransformer from './SuperTransformer.js';
-import TempVarTransformer from './TempVarTransformer.js';
+import {SuperTransformer} from './SuperTransformer.js';
+import {TempVarTransformer} from './TempVarTransformer.js';
 import {
   LET,
   VAR
@@ -39,7 +39,7 @@ import {
   createThisExpression,
   createVariableStatement
 } from './ParseTreeFactory.js';
-import parseOptions from '../options.js';
+import {parseOptions} from '../options.js';
 import {
   parseExpression,
   parsePropertyDefinition

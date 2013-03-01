@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import IdentifierToken from '../syntax/IdentifierToken.js';
-import LiteralToken from '../syntax/LiteralToken.js';
+import {IdentifierToken} from '../syntax/IdentifierToken.js';
+import {LiteralToken} from '../syntax/LiteralToken.js';
 import {
   ParseTree,
   ParseTreeType
@@ -30,7 +30,7 @@ import {
   UNDEFINED,
   getParameterName
 } from '../syntax/PredefinedName.js';
-import Token from '../syntax/Token.js';
+import {Token} from '../syntax/Token.js';
 import {
   EQUAL,
   FALSE,

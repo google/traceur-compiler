@@ -21,7 +21,7 @@ import {
   LENGTH,
   PUSH
 } from '../../syntax/PredefinedName.js';
-import TempVarTransformer from '../TempVarTransformer.js';
+import {TempVarTransformer} from '../TempVarTransformer.js';
 import {
   BANG,
   IN,

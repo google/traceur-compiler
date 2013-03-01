@@ -15,13 +15,13 @@
 import {
   FormalParameterList
 } from '../syntax/trees/ParseTrees.js';
-import TempVarTransformer from './TempVarTransformer.js';
+import {TempVarTransformer} from './TempVarTransformer.js';
 import {
   createBlock,
   createIdentifierToken,
 } from './ParseTreeFactory.js';
-import parseStatement from './PlaceholderParser.js';
-import prependStatements from './PrependStatements.js';
+import {parseStatement} from './PlaceholderParser.js';
+import {prependStatements} from './PrependStatements.js';
 
 function hasRestParameter(formalParameterList) {
   var parameters = formalParameterList.parameters;

@@ -18,8 +18,8 @@ import {
   RUNTIME,
   TRACEUR
 } from '../syntax/PredefinedName.js';
-import TempVarTransformer from './TempVarTransformer.js';
-import CONST from '../syntax/TokenType.js';
+import {TempVarTransformer} from './TempVarTransformer.js';
+import {CONST} from '../syntax/TokenType.js';
 import {
   VariableDeclarationList,
   VariableStatement

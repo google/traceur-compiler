@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import BIND from '../syntax/PredefinedName.js';
-import FindInFunctionScope from './FindInFunctionScope.js';
+import {BIND} from '../syntax/PredefinedName.js';
+import {FindInFunctionScope} from './FindInFunctionScope.js';
 import {
   FormalParameterList
 } from '../syntax/trees/ParseTrees.js';
-import ParseTreeTransformer from './ParseTreeTransformer.js';
-import BLOCK from '../syntax/trees/ParseTreeType.js';
+import {ParseTreeTransformer} from './ParseTreeTransformer.js';
+import {BLOCK} from '../syntax/trees/ParseTreeType.js';
 import {
   createArgumentList,
   createBlock,

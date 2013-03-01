@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ExportVisitor from '../codegeneration/module/ExportVisitor.js';
-import ImportStarVisitor from '../codegeneration/module/ImportStarVisitor.js';
-import ModuleDeclarationVisitor from '../codegeneration/module/ModuleDeclarationVisitor.js';
-import ModuleDefinitionVisitor from '../codegeneration/module/ModuleDefinitionVisitor.js';
-import ValidationVisitor from '../codegeneration/module/ValidationVisitor.js';
+import {ExportVisitor} from '../codegeneration/module/ExportVisitor.js';
+import {ImportStarVisitor} from '../codegeneration/module/ImportStarVisitor.js';
+import {ModuleDeclarationVisitor} from '../codegeneration/module/ModuleDeclarationVisitor.js';
+import {ModuleDefinitionVisitor} from '../codegeneration/module/ModuleDefinitionVisitor.js';
+import {ValidationVisitor} from '../codegeneration/module/ValidationVisitor.js';
 
 // TODO(arv): Validate that there are no free variables
 // TODO(arv): Validate that the exported reference exists

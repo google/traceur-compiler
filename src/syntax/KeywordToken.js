@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Token from './Token.js';
+import {Token} from './Token.js';
 
 export class KeywordToken extends Token {
   /**

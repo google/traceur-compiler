@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import BreakContinueTransformer from './BreakContinueTransformer.js';
+import {BreakContinueTransformer} from './BreakContinueTransformer.js';
 import {
   CASE_CLAUSE,
   STATE_MACHINE,
@@ -24,13 +24,13 @@ import {
   IdentifierExpression,
   SwitchStatement
 } from '../../syntax/trees/ParseTrees.js';
-import CatchState from './CatchState.js';
-import ConditionalState from './ConditionalState.js';
-import FallThroughState from './FallThroughState.js';
-import FinallyFallThroughState from './FinallyFallThroughState.js';
-import FinallyState from './FinallyState.js';
-import IdentifierToken from '../../syntax/IdentifierToken.js';
-import ParseTreeTransformer from '../ParseTreeTransformer.js';
+import {CatchState} from './CatchState.js';
+import {ConditionalState} from './ConditionalState.js';
+import {FallThroughState} from './FallThroughState.js';
+import {FinallyFallThroughState} from './FinallyFallThroughState.js';
+import {FinallyState} from './FinallyState.js';
+import {IdentifierToken} from '../../syntax/IdentifierToken.js';
+import {ParseTreeTransformer} from '../ParseTreeTransformer.js';
 import {
   $ARGUMENTS,
   $THAT,
@@ -42,9 +42,9 @@ import {
   YIELD_ACTION,
   YIELD_SENT
 } from '../../syntax/PredefinedName.js';
-import State from './State.js';
-import StateAllocator from './StateAllocator.js';
-import StateMachine from '../../syntax/trees/StateMachine.js';
+import {State} from './State.js';
+import {StateAllocator} from './StateAllocator.js';
+import {StateMachine} from '../../syntax/trees/StateMachine.js';
 import {
   SwitchClause,
   SwitchState
@@ -53,7 +53,7 @@ import {
   PLUS,
   VAR
 } from '../../syntax/TokenType.js';
-import TryState from './TryState.js';
+import {TryState} from './TryState.js';
 import {
   createArrayLiteralExpression,
   createAssignStateStatement,
@@ -83,7 +83,7 @@ import {
   createVariableStatement,
   createWhileStatement
 } from '../ParseTreeFactory.js';
-import variablesInBlock from '../../semantics/VariableBinder.js';
+import {variablesInBlock} from '../../semantics/VariableBinder.js';
 
 /**
  * Performs a CPS transformation on a method body.

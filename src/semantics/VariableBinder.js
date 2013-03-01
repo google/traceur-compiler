@@ -20,8 +20,8 @@ import {
   PAREN_EXPRESSION,
   SPREAD_PATTERN_ELEMENT
 } from '../syntax/trees/ParseTreeType.js';
-import ParseTreeVisitor from '../syntax/ParseTreeVisitor.js';
-import VAR from '../syntax/TokenType.js';
+import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor.js';
+import {VAR} from '../syntax/TokenType.js';
 
 // TODO: Update once destructuring has been refactored.
 

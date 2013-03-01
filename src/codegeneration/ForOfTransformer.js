@@ -20,9 +20,9 @@ import {
   RUNTIME,
   TRACEUR
 } from '../syntax/PredefinedName.js';
-import VARIABLE_DECLARATION_LIST from '../syntax/trees/ParseTreeType.js';
-import TempVarTransformer from './TempVarTransformer.js';
-import VAR from '../syntax/TokenType.js';
+import {VARIABLE_DECLARATION_LIST} from '../syntax/trees/ParseTreeType.js';
+import {TempVarTransformer} from './TempVarTransformer.js';
+import {VAR} from '../syntax/TokenType.js';
 import {
   createArgumentList,
   createAssignmentExpression,
@@ -38,7 +38,7 @@ import {
   createVariableStatement,
   createWhileStatement
 } from './ParseTreeFactory.js';
-import parseStatement from './PlaceholderParser.js';
+import {parseStatement} from './PlaceholderParser.js';
 
 /**
  * Desugars for-of statement.

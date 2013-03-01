@@ -42,7 +42,7 @@ import {
   LiteralExpression,
   SetAccessor
 } from '../syntax/trees/ParseTrees.js';
-import TempVarTransformer from './TempVarTransformer.js';
+import {TempVarTransformer} from './TempVarTransformer.js';
 import {
   EQUAL,
   IDENTIFIER,
@@ -71,8 +71,8 @@ import {
   createVariableDeclarationList,
   createVariableStatement
 } from './ParseTreeFactory.js';
-import options from '../options.js';
-import prependStatements from './PrependStatements.js';
+import {options} from '../options.js';
+import {prependStatements} from './PrependStatements.js';
 
 var stack = [];
 

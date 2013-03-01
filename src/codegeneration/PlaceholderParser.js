@@ -12,24 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ArrayMap from '../util/ArrayMap.js';
+import {ArrayMap} from '../util/ArrayMap.js';
 import {
   BLOCK,
   EXPRESSION_STATEMENT,
   IDENTIFIER_EXPRESSION
 } from '../syntax/trees/ParseTreeType.js';
-import IdentifierToken from '../syntax/IdentifierToken.js';
-import MutedErrorReporter from '../util/MutedErrorReporter.js';
-import ParseTree from '../syntax/trees/ParseTree.js';
-import ParseTreeTransformer from './ParseTreeTransformer.js';
-import Parser from '../syntax/Parser.js';
+import {IdentifierToken} from '../syntax/IdentifierToken.js';
+import {MutedErrorReporter} from '../util/MutedErrorReporter.js';
+import {ParseTree} from '../syntax/trees/ParseTree.js';
+import {ParseTreeTransformer} from './ParseTreeTransformer.js';
+import {Parser} from '../syntax/Parser.js';
 import {
   PropertyMethodAssignment,
   PropertyNameAssignment,
   PropertyNameShorthand
 } from '../syntax/trees/ParseTrees.js';
-import SourceFile from '../syntax/SourceFile.js';
-import IDENTIFIER from '../syntax/TokenType.js';
+import {SourceFile} from '../syntax/SourceFile.js';
+import {IDENTIFIER} from '../syntax/TokenType.js';
 import {
   createBindingIdentifier,
   createBooleanLiteral,

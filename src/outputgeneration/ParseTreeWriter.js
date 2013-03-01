@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeVisitor from '../syntax/ParseTreeVisitor.js';
+import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor.js';
 import {
   FROM,
   GET,
@@ -21,8 +21,8 @@ import {
   REQUIRES,
   SET
 } from '../syntax/PredefinedName.js';
-import Token from '../syntax/Token.js';
-import isKeyword from '../syntax/Keywords.js';
+import {Token} from '../syntax/Token.js';
+import {isKeyword} from '../syntax/Keywords.js';
 import * from '../syntax/TokenType.js';
 
 // constants

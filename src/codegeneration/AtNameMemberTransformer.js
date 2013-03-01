@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import AtNameExpression from '../syntax/trees/ParseTrees.js';
+import {AtNameExpression} from '../syntax/trees/ParseTrees.js';
 import {
   DELETE_PROPERTY,
   GET_PROPERTY,
@@ -20,8 +20,8 @@ import {
   SET_PROPERTY,
   TRACEUR
 } from '../syntax/PredefinedName.js';
-import MEMBER_EXPRESSION from '../syntax/trees/ParseTreeType.js';
-import TempVarTransformer from './TempVarTransformer.js';
+import {MEMBER_EXPRESSION} from '../syntax/trees/ParseTreeType.js';
+import {TempVarTransformer} from './TempVarTransformer.js';
 import {
   AT_NAME,
   DELETE,
@@ -37,7 +37,7 @@ import {
   createMemberExpression,
   createParenExpression
 } from './ParseTreeFactory.js';
-import expandMemberExpression from './OperatorExpander.js';
+import {expandMemberExpression} from './OperatorExpander.js';
 
 /**
  * Transforms expr.@name into traceur.runtime.getProperty(expr, @name). It

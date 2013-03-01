@@ -24,7 +24,7 @@
  * TODO: Regexp literals should have their own token type.
  */
 
-import Token from './Token.js';
+import {Token} from './Token.js';
 import {
   NULL,
   NUMBER,

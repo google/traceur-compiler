@@ -20,7 +20,7 @@ import {
   CoverFormalsTransformer,
   CoverFormalsTransformerError
 } from '../codegeneration/CoverFormalsTransformer.js';
-import IdentifierToken from './IdentifierToken.js';
+import {IdentifierToken} from './IdentifierToken.js';
 import {
   ARRAY_LITERAL_EXPRESSION,
   BINARY_OPERATOR,
@@ -48,8 +48,8 @@ import {
   SET,
   STRING
 } from './PredefinedName.js';
-import Scanner from './Scanner.js';
-import SourceRange from '../util/SourceRange.js';
+import {Scanner} from './Scanner.js';
+import {SourceRange} from '../util/SourceRange.js';
 import {
   Token,
   isAssignmentOperator

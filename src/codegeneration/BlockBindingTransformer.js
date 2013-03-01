@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import AlphaRenamer from './AlphaRenamer.js';
+import {AlphaRenamer} from './AlphaRenamer.js';
 import {
   BINDING_IDENTIFIER,
   BLOCK,
@@ -22,7 +22,7 @@ import {
   FunctionDeclaration,
   FunctionExpression
 } from '../syntax/trees/ParseTrees.js';
-import ParseTreeTransformer from './ParseTreeTransformer.js';
+import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {
   CONST,
   LET,

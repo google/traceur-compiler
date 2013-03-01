@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import CPSTransformer from './CPSTransformer.js';
-import EndState from './EndState.js';
-import FallThroughState from './FallThroughState.js';
+import {CPSTransformer} from './CPSTransformer.js';
+import {EndState} from './EndState.js';
+import {FallThroughState} from './FallThroughState.js';
 import {
   $VALUE,
   CALLBACK,
@@ -32,9 +32,9 @@ import {
   THEN,
   WAIT_TASK
 } from '../../syntax/PredefinedName.js';
-import STATE_MACHINE from '../../syntax/trees/ParseTreeType.js';
-import StateMachine from '../../syntax/trees/StateMachine.js';
-import VAR from '../../syntax/TokenType.js';
+import {STATE_MACHINE} from '../../syntax/trees/ParseTreeType.js';
+import {StateMachine} from '../../syntax/trees/StateMachine.js';
+import {VAR} from '../../syntax/TokenType.js';
 import {
   createArgumentList,
   createAssignStateStatement,

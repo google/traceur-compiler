@@ -23,7 +23,7 @@ import {
   MEMBER_LOOKUP_EXPRESSION,
   SPREAD_EXPRESSION
 } from  '../syntax/trees/ParseTreeType.js';
-import TempVarTransformer from './TempVarTransformer.js';
+import {TempVarTransformer} from './TempVarTransformer.js';
 import {
   createArgumentList,
   createArrayLiteralExpression,

@@ -19,7 +19,7 @@ module traceur {
   var traceurRuntime = global.traceur.runtime;
   export var runtime = traceurRuntime;
 
-  import options from './options.js';
+  import {options} from './options.js';
   export options;
 
   /**

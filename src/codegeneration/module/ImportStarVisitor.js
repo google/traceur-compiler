@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import IMPORT_SPECIFIER_SET from '../../syntax/trees/ParseTreeType.js';
-import ModuleVisitor from './ModuleVisitor.js';
-import STAR from '../../syntax/TokenType.js';
+import {IMPORT_SPECIFIER_SET} from '../../syntax/trees/ParseTreeType.js';
+import {ModuleVisitor} from './ModuleVisitor.js';
+import {STAR} from '../../syntax/TokenType.js';
 
 /**
  * Finds all 'import * from moduleExpression' and associates the tree with

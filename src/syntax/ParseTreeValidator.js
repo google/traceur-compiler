@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import NewExpression from '../syntax/trees/ParseTrees.js';
-import ParseTreeVisitor from './ParseTreeVisitor.js';
-import TreeWriter from '../outputgeneration/TreeWriter.js';
+import {NewExpression} from '../syntax/trees/ParseTrees.js';
+import {ParseTreeVisitor} from './ParseTreeVisitor.js';
+import {TreeWriter} from '../outputgeneration/TreeWriter.js';
 import {
   AMPERSAND,
   AMPERSAND_EQUAL,

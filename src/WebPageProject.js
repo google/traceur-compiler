@@ -15,11 +15,11 @@
 
 // A Project that can compile all of script elements in a page
 
-import Compiler from './codegeneration/Compiler.js';
-import ErrorReporter from './util/ErrorReporter.js';
-import Project from './semantics/symbols/Project.js';
-import SourceFile from './syntax/SourceFile.js';
-import TreeWriter from './outputgeneration/TreeWriter.js';
+import {Compiler} from './codegeneration/Compiler.js';
+import {ErrorReporter} from './util/ErrorReporter.js';
+import {Project} from './semantics/symbols/Project.js';
+import {SourceFile} from './syntax/SourceFile.js';
+import {TreeWriter} from './outputgeneration/TreeWriter.js';
 
 export class WebPageProject extends Project {
   constructor(url) {

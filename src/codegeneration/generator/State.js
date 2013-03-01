@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FINALLY_FALL_THROUGH from '../../syntax/PredefinedName.js';
+import {FINALLY_FALL_THROUGH} from '../../syntax/PredefinedName.js';
 import {
   createAssignStateStatement,
   createAssignmentStatement,

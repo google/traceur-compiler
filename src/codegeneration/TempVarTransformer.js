@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeTransformer from './ParseTreeTransformer.js';
+import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {
   ModuleDefinition,
   Program
 } from '../syntax/trees/ParseTrees.js';
-import VAR from '../syntax/TokenType.js';
+import {VAR} from '../syntax/TokenType.js';
 import {
   createBlock,
   createVariableDeclaration,
   createVariableDeclarationList,
   createVariableStatement
 } from './ParseTreeFactory.js';
-import prependStatements from './PrependStatements.js';
+import {prependStatements} from './PrependStatements.js';
 
 function getVars(self) {
     var vars = self.tempVarStack_[self.tempVarStack_.length - 1];

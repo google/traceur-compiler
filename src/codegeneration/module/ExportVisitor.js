@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ExportSymbol from '../../semantics/symbols/ExportSymbol.js';
-import IDENTIFIER_EXPRESSION from '../../syntax/trees/ParseTreeType.js';
-import ModuleVisitor from './ModuleVisitor.js';
+import {ExportSymbol} from '../../semantics/symbols/ExportSymbol.js';
+import {IDENTIFIER_EXPRESSION} from '../../syntax/trees/ParseTreeType.js';
+import {ModuleVisitor} from './ModuleVisitor.js';
 
 /**
  * Visits a parse tree and adds all the module definitions.

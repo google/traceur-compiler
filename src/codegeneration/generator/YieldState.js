@@ -16,7 +16,7 @@ import {
   CURRENT,
   RESULT
 } from '../../syntax/PredefinedName.js';
-import State from './State.js';
+import {State} from './State.js';
 import {
   createAssignmentStatement,
   createIdentifierExpression,

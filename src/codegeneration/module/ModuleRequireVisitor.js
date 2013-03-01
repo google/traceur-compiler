@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ParseTreeVisitor from '../../syntax/ParseTreeVisitor.js';
-import canonicalizeUrl from '../../util/url.js';
+import {ParseTreeVisitor} from '../../syntax/ParseTreeVisitor.js';
+import {canonicalizeUrl} from '../../util/url.js';
 
 // TODO(arv): This is closer to the ModuleVisitor but we don't care about
 // modules.

@@ -16,9 +16,9 @@ import {
   ParseTree,
   ParseTreeType
 } from '../../syntax/trees/ParseTree.js';
-import ParseTreeVisitor from '../../syntax/ParseTreeVisitor.js';
-import Symbol from '../../semantics/symbols/Symbol.js';
-import resolveUrl from '../../util/url.js';
+import {ParseTreeVisitor} from '../../syntax/ParseTreeVisitor.js';
+import {Symbol} from '../../semantics/symbols/Symbol.js';
+import {resolveUrl} from '../../util/url.js';
 
 function getFriendlyName(module) {
   return module.name || module.url;

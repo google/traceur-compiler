@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ARGUMENTS from '../syntax/PredefinedName.js';
+import {ARGUMENTS} from '../syntax/PredefinedName.js';
 import {
   BindingIdentifier,
   IdentifierExpression
 } from '../syntax/trees/ParseTrees.js';
-import IdentifierToken from '../syntax/IdentifierToken.js';
-import IDENTIFIER_EXPRESSION from '../syntax/trees/ParseTreeType.js';
-import ParseTreeVisitor from '../syntax/ParseTreeVisitor.js';
-import TYPEOF from '../syntax/TokenType.js';
+import {IdentifierToken} from '../syntax/IdentifierToken.js';
+import {IDENTIFIER_EXPRESSION} from '../syntax/trees/ParseTreeType.js';
+import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor.js';
+import {TYPEOF} from '../syntax/TokenType.js';
 
 var global = this;
 

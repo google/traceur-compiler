@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FindVisitor from './FindVisitor.js';
+import {FindVisitor} from './FindVisitor.js';
 import {
   FormalParameterList,
   FunctionExpression,
   IdentifierExpression,
   LiteralExpression
 } from '../syntax/trees/ParseTrees.js';
-import TempVarTransformer from './TempVarTransformer.js';
+import {TempVarTransformer} from './TempVarTransformer.js';
 import {
   AT_NAME,
   IDENTIFIER,
@@ -38,7 +38,7 @@ import {
   createPropertyNameAssignment,
   createStringLiteral
 } from './ParseTreeFactory.js';
-import transformOptions from '../options.js';
+import {transformOptions} from '../options.js';
 
 function findAtNameInProperty(propertyName) {
   return function(tree) {

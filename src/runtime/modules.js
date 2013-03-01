@@ -12,17 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ArrayMap from '../util/ArrayMap.js';
-import ModuleAnalyzer from '../semantics/ModuleAnalyzer.js';
-import ModuleRequireVisitor from '../codegeneration/module/ModuleRequireVisitor.js';
-import ModuleSymbol from '../semantics/symbols/ModuleSymbol.js';
-import ObjectMap from '../util/ObjectMap.js';
-import Parser from '../syntax/Parser.js';
-import ProgramTransformer from '../codegeneration/ProgramTransformer.js';
-import Project from '../semantics/symbols/Project.js';
-import SourceFile from '../syntax/SourceFile.js';
-import TreeWriter from '../outputgeneration/TreeWriter.js';
-import resolveUrl from '../util/url.js';
+import {ArrayMap} from '../util/ArrayMap.js';
+import {ModuleAnalyzer} from '../semantics/ModuleAnalyzer.js';
+import {ModuleRequireVisitor} from '../codegeneration/module/ModuleRequireVisitor.js';
+import {ModuleSymbol} from '../semantics/symbols/ModuleSymbol.js';
+import {ObjectMap} from '../util/ObjectMap.js';
+import {Parser} from '../syntax/Parser.js';
+import {ProgramTransformer} from '../codegeneration/ProgramTransformer.js';
+import {Project} from '../semantics/symbols/Project.js';
+import {SourceFile} from '../syntax/SourceFile.js';
+import {TreeWriter} from '../outputgeneration/TreeWriter.js';
+import {resolveUrl} from '../util/url.js';
 
 // TODO(arv): I stripped the resolvers to make this simpler for now.
 

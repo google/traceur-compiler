@@ -15,7 +15,7 @@
 import {
   FormalParameterList
 } from '../syntax/trees/ParseTrees.js';
-import ParseTreeTransformer from './ParseTreeTransformer.js';
+import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {
   ARGUMENTS,
   UNDEFINED
@@ -43,7 +43,7 @@ import {
   createVariableStatement,
   createVoid0
 } from './ParseTreeFactory.js';
-import prependStatements from './PrependStatements.js';
+import {prependStatements} from './PrependStatements.js';
 
 var stack = [];
 
