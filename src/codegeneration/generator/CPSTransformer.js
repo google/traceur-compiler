@@ -55,7 +55,6 @@ import {
 } from '../../syntax/TokenType.js';
 import {TryState} from './TryState.js';
 import {
-  createArrayLiteralExpression,
   createAssignStateStatement,
   createAssignmentExpression,
   createAssignmentStatement,
@@ -65,6 +64,7 @@ import {
   createBreakStatement,
   createCaseClause,
   createCatch,
+  createCommaExpression,
   createDefaultClause,
   createEmptyStatement,
   createExpressionStatement,
@@ -668,9 +668,7 @@ export class CPSTransformer extends ParseTreeTransformer {
       } else if (list.length == 1) {
         return list[0];
       } else {
-        // CONSIDER: a better way to execute a sequence of expressions and
-        // discard the results?
-        return createArrayLiteralExpression(expressions);
+        return createCommaExpression(expressions);
       }
     }
     // let/const - just transform for now
