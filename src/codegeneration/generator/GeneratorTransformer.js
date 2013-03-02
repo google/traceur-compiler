@@ -211,7 +211,7 @@ export class GeneratorTransformer extends CPSTransformer {
         var
           ${$GSTATE} = ${ST_NEWBORN},
           ${$CURRENT},
-          ${$MOVE_NEXT} = ${this.generateMachineMethod(machine)}
+          ${$MOVE_NEXT} = ${this.generateMachineMethod(machine)};
         `);
 
     // TODO(arv): The result should be an instance of Generator.

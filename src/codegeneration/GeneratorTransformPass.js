@@ -376,7 +376,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
             {
               $close: do {
                 ${YieldExpressionTransformer.
-                      transformTree(this.identifierGenerator, body)}
+                      transformTree(this.identifierGenerator, body)};
               } while (0);
             }`;
 
