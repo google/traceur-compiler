@@ -11,6 +11,7 @@ bin/traceur.min.js
 bin/traceur.ugly.js
 src/syntax/trees/ParseTreeType.js
 src/syntax/trees/ParseTrees.js
+src/outputgeneration/SourceMapIntegration.js
 test/errsfile.json
 test/bench/esprima
 test/test-list.js
