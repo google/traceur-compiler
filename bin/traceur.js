@@ -18830,6 +18830,10 @@ var $___src_runtime_modules_js = (function() {
       constructor: function(loader, url) {
         $__superCall(this, $__proto, "constructor", [loader, url, NOT_STARTED]);
         this.allowLoad = true;
+        if (standardModuleUrlRegExp.test(url)) {
+          this.state = COMPLETE;
+          this.dependencies = [];
+        }
       },
       get moduleSymbol() {
         return this.project.getModuleForUrl(this.url);

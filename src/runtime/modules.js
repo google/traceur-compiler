@@ -187,6 +187,10 @@ class LoadCodeUnit extends CodeUnit {
   constructor(loader, url) {
     super(loader, url, NOT_STARTED);
     this.allowLoad = true;
+    if (standardModuleUrlRegExp.test(url)) {
+      this.state = COMPLETE;
+      this.dependencies = [];
+    }
   }
 
   get moduleSymbol() {
