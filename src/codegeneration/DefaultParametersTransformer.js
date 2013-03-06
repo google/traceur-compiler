@@ -13,6 +13,11 @@
 // limitations under the License.
 
 import {
+  isUndefined,
+  isVoidExpression,
+  isLiteralExpression
+} from '../semantics/util.js';
+import {
   FormalParameterList
 } from '../syntax/trees/ParseTrees.js';
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
@@ -46,29 +51,6 @@ import {
 import {prependStatements} from './PrependStatements.js';
 
 var stack = [];
-
-function isUndefined(tree) {
-  if (tree.type === PAREN_EXPRESSION)
-    return isUndefined(tree.expression);
-
-  return tree.type === IDENTIFIER_EXPRESSION &&
-      tree.identifierToken.value === UNDEFINED;
-}
-
-function isVoidExpression(tree) {
-  if (tree.type === PAREN_EXPRESSION)
-    return isVoidExpression(tree.expression);
-  // Any void expression without side effects can be dropped. Maybe expand
-  // this as needed?
-  return tree.type === UNARY_EXPRESSION && tree.operator.type === VOID &&
-      isLiteralExpression(tree.operand);
-}
-
-function isLiteralExpression(tree) {
-  if (tree.type === PAREN_EXPRESSION)
-    return isLiteralExpression(tree.expression);
-  return tree.type === LITERAL_EXPRESSION;
-}
 
 function createDefaultAssignment(index, binding, initializer) {
   var argumentsExpression =

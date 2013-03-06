@@ -14,8 +14,14 @@
 
 import {
   EXPRESSION_STATEMENT,
-  LITERAL_EXPRESSION
+  IDENTIFIER_EXPRESSION,
+  LITERAL_EXPRESSION,
+  PAREN_EXPRESSION,
+  UNARY_EXPRESSION
 } from '../syntax/trees/ParseTreeType.js';
+import {
+  UNDEFINED
+} from '../syntax/PredefinedName.js';
 import {STRING} from '../syntax/TokenType.js';
 
 /**
@@ -33,4 +39,39 @@ export function hasUseStrict(list) {
   if (li.type !== STRING)
     return false;
   return li.processedValue === 'use strict';
+}
+
+/**
+ * @param {ParseTree} tree
+ * @return {boolean}
+ */
+export function isUndefined(tree) {
+  if (tree.type === PAREN_EXPRESSION)
+    return isUndefined(tree.expression);
+
+  return tree.type === IDENTIFIER_EXPRESSION &&
+      tree.identifierToken.value === UNDEFINED;
+}
+
+/**
+ * @param {ParseTree} tree
+ * @return {boolean}
+ */
+export function isVoidExpression(tree) {
+  if (tree.type === PAREN_EXPRESSION)
+    return isVoidExpression(tree.expression);
+  // Any void expression without side effects can be dropped. Maybe expand
+  // this as needed?
+  return tree.type === UNARY_EXPRESSION && tree.operator.type === VOID &&
+      isLiteralExpression(tree.operand);
+}
+
+/**
+ * @param {ParseTree} tree
+ * @return {boolean}
+ */
+export function isLiteralExpression(tree) {
+  if (tree.type === PAREN_EXPRESSION)
+    return isLiteralExpression(tree.expression);
+  return tree.type === LITERAL_EXPRESSION;
 }

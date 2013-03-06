@@ -13023,16 +13023,19 @@ var $___src_codegeneration_CollectionTransformer_js = (function() {
       enumerable: true
     }}));
 }).call(this);
-var $___src_codegeneration_DefaultParametersTransformer_js = (function() {
+var $___src_semantics_util_js = (function() {
   "use strict";
-  var FormalParameterList = $___src_syntax_trees_ParseTrees_js.FormalParameterList;
-  var ParseTreeTransformer = $___src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
-  var $__9 = $___src_syntax_PredefinedName_js, ARGUMENTS = $__9.ARGUMENTS, UNDEFINED = $__9.UNDEFINED;
-  var $__9 = $___src_syntax_trees_ParseTreeType_js, IDENTIFIER_EXPRESSION = $__9.IDENTIFIER_EXPRESSION, LITERAL_EXPRESSION = $__9.LITERAL_EXPRESSION, PAREN_EXPRESSION = $__9.PAREN_EXPRESSION, REST_PARAMETER = $__9.REST_PARAMETER, UNARY_EXPRESSION = $__9.UNARY_EXPRESSION;
-  var $__9 = $___src_syntax_TokenType_js, NOT_EQUAL_EQUAL = $__9.NOT_EQUAL_EQUAL, VAR = $__9.VAR, VOID = $__9.VOID;
-  var $__9 = $___src_codegeneration_ParseTreeFactory_js, createBinaryOperator = $__9.createBinaryOperator, createBlock = $__9.createBlock, createConditionalExpression = $__9.createConditionalExpression, createIdentifierExpression = $__9.createIdentifierExpression, createMemberLookupExpression = $__9.createMemberLookupExpression, createNumberLiteral = $__9.createNumberLiteral, createOperatorToken = $__9.createOperatorToken, createVariableStatement = $__9.createVariableStatement, createVoid0 = $__9.createVoid0;
-  var prependStatements = $___src_codegeneration_PrependStatements_js.prependStatements;
-  var stack = [];
+  var $__9 = $___src_syntax_trees_ParseTreeType_js, EXPRESSION_STATEMENT = $__9.EXPRESSION_STATEMENT, IDENTIFIER_EXPRESSION = $__9.IDENTIFIER_EXPRESSION, LITERAL_EXPRESSION = $__9.LITERAL_EXPRESSION, PAREN_EXPRESSION = $__9.PAREN_EXPRESSION, UNARY_EXPRESSION = $__9.UNARY_EXPRESSION;
+  var UNDEFINED = $___src_syntax_PredefinedName_js.UNDEFINED;
+  var STRING = $___src_syntax_TokenType_js.STRING;
+  function hasUseStrict(list) {
+    var li;
+    if (!list || !list.length || !(li = list[0])) return false;
+    if (li.type !== EXPRESSION_STATEMENT || !(li = li.expression)) return false;
+    if (li.type !== LITERAL_EXPRESSION || !(li = li.literalToken)) return false;
+    if (li.type !== STRING) return false;
+    return li.processedValue === 'use strict';
+  }
   function isUndefined(tree) {
     if (tree.type === PAREN_EXPRESSION) return isUndefined(tree.expression);
     return tree.type === IDENTIFIER_EXPRESSION && tree.identifierToken.value === UNDEFINED;
@@ -13045,6 +13048,44 @@ var $___src_codegeneration_DefaultParametersTransformer_js = (function() {
     if (tree.type === PAREN_EXPRESSION) return isLiteralExpression(tree.expression);
     return tree.type === LITERAL_EXPRESSION;
   }
+  return Object.preventExtensions(Object.create(null, {
+    hasUseStrict: {
+      get: function() {
+        return hasUseStrict;
+      },
+      enumerable: true
+    },
+    isUndefined: {
+      get: function() {
+        return isUndefined;
+      },
+      enumerable: true
+    },
+    isVoidExpression: {
+      get: function() {
+        return isVoidExpression;
+      },
+      enumerable: true
+    },
+    isLiteralExpression: {
+      get: function() {
+        return isLiteralExpression;
+      },
+      enumerable: true
+    }
+  }));
+}).call(this);
+var $___src_codegeneration_DefaultParametersTransformer_js = (function() {
+  "use strict";
+  var $__9 = $___src_semantics_util_js, isUndefined = $__9.isUndefined, isVoidExpression = $__9.isVoidExpression, isLiteralExpression = $__9.isLiteralExpression;
+  var FormalParameterList = $___src_syntax_trees_ParseTrees_js.FormalParameterList;
+  var ParseTreeTransformer = $___src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
+  var $__9 = $___src_syntax_PredefinedName_js, ARGUMENTS = $__9.ARGUMENTS, UNDEFINED = $__9.UNDEFINED;
+  var $__9 = $___src_syntax_trees_ParseTreeType_js, IDENTIFIER_EXPRESSION = $__9.IDENTIFIER_EXPRESSION, LITERAL_EXPRESSION = $__9.LITERAL_EXPRESSION, PAREN_EXPRESSION = $__9.PAREN_EXPRESSION, REST_PARAMETER = $__9.REST_PARAMETER, UNARY_EXPRESSION = $__9.UNARY_EXPRESSION;
+  var $__9 = $___src_syntax_TokenType_js, NOT_EQUAL_EQUAL = $__9.NOT_EQUAL_EQUAL, VAR = $__9.VAR, VOID = $__9.VOID;
+  var $__9 = $___src_codegeneration_ParseTreeFactory_js, createBinaryOperator = $__9.createBinaryOperator, createBlock = $__9.createBlock, createConditionalExpression = $__9.createConditionalExpression, createIdentifierExpression = $__9.createIdentifierExpression, createMemberLookupExpression = $__9.createMemberLookupExpression, createNumberLiteral = $__9.createNumberLiteral, createOperatorToken = $__9.createOperatorToken, createVariableStatement = $__9.createVariableStatement, createVoid0 = $__9.createVoid0;
+  var prependStatements = $___src_codegeneration_PrependStatements_js.prependStatements;
+  var stack = [];
   function createDefaultAssignment(index, binding, initializer) {
     var argumentsExpression = createMemberLookupExpression(createIdentifierExpression(ARGUMENTS), createNumberLiteral(index));
     var assignmentExpression;
@@ -15110,25 +15151,6 @@ var $___src_codegeneration_GeneratorTransformPass_js = (function() {
   return Object.preventExtensions(Object.create(null, {GeneratorTransformPass: {
       get: function() {
         return GeneratorTransformPass;
-      },
-      enumerable: true
-    }}));
-}).call(this);
-var $___src_semantics_util_js = (function() {
-  "use strict";
-  var $__9 = $___src_syntax_trees_ParseTreeType_js, EXPRESSION_STATEMENT = $__9.EXPRESSION_STATEMENT, LITERAL_EXPRESSION = $__9.LITERAL_EXPRESSION;
-  var STRING = $___src_syntax_TokenType_js.STRING;
-  function hasUseStrict(list) {
-    var li;
-    if (!list || !list.length || !(li = list[0])) return false;
-    if (li.type !== EXPRESSION_STATEMENT || !(li = li.expression)) return false;
-    if (li.type !== LITERAL_EXPRESSION || !(li = li.literalToken)) return false;
-    if (li.type !== STRING) return false;
-    return li.processedValue === 'use strict';
-  }
-  return Object.preventExtensions(Object.create(null, {hasUseStrict: {
-      get: function() {
-        return hasUseStrict;
       },
       enumerable: true
     }}));
