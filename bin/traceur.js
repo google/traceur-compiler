@@ -1354,6 +1354,7 @@ var $___src_syntax_trees_ParseTree_js = (function() {
   var ParseTree = function() {
     var $ParseTree = ($__createClassNoExtends)({
       constructor: function(type, location) {
+        throw new Error("Don't use for now. 'super' is currently very slow.");
         this.type = type;
         this.location = location;
       },
@@ -13906,11 +13907,14 @@ var $___src_syntax_trees_StateMachine_js = (function() {
     var $__proto = $__getProtoParent($__super);
     var $StateMachine = ($__createClass)({
       constructor: function(startState, fallThroughState, states, exceptionBlocks) {
-        $__superCall(this, $__proto, "constructor", [STATE_MACHINE, null]);
+        this.location = null;
         this.startState = startState;
         this.fallThroughState = fallThroughState;
         this.states = states;
         this.exceptionBlocks = exceptionBlocks;
+      },
+      get type() {
+        return STATE_MACHINE;
       },
       transform: function(transformer) {
         return transformer.transformStateMachine(this);
