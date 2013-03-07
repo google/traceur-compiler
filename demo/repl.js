@@ -48,9 +48,7 @@ function setDebugLevel(level, printf) {
       // fall through
     case '2':
       debugTree = function (fmt, tree) {
-        printf(fmt, JSON.stringify(tree, function(k, v) {
-          return k === 'location' ? undefined : v;
-        }, 2));
+        printf(fmt, util.inspect(tree.toJSON(), false, 64));
       };
       debug2 = printf;
       outLevel++;
@@ -96,11 +94,11 @@ function compile(cmd, url) {
 
     parser = new Parser(reporter, src);
     tree = parser.parseProgram(true);
-    debugTree('traceur-input-tree: %s', tree);
+    debugTree('traceur-input-tree:\n%s', tree);
     project.setParseTree(src, tree);
 
     transformedTree = transformFile(reporter, project, src).get(src);
-    debugTree('traceur-output-tree: %s', transformedTree);
+    debugTree('traceur-output-tree:\n%s', transformedTree);
 
     written = TreeWriter.write(transformedTree);
     debug('traceur-output: %s', written);
