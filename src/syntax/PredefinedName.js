@@ -106,6 +106,7 @@ export var VALUE = 'value';
 export var WAIT_TASK = '$waitTask';
 export var WRITABLE = 'writable';
 export var YIELD_ACTION = '$yieldAction';
+export var YIELD_RETURN = '$yieldReturn';
 export var YIELD_SENT = '$yieldSent';
 export function getParameterName(index) {
   // TODO: consider caching these

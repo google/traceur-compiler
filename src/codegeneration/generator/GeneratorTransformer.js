@@ -24,7 +24,8 @@ import {
   RESULT,
   RUNTIME,
   STORED_EXCEPTION,
-  TRACEUR
+  TRACEUR,
+  YIELD_RETURN
 } from '../../syntax/PredefinedName.js';
 import {
   STATE_MACHINE,
@@ -34,6 +35,7 @@ import {parseStatement} from '../PlaceholderParser.js';
 import {StateMachine} from '../../syntax/trees/StateMachine.js';
 import {VAR} from '../../syntax/TokenType.js';
 import {YieldState} from './YieldState.js';
+import {ReturnState} from './ReturnState.js';
 import {
   createArgumentList,
   createAssignStateStatement,
@@ -64,6 +66,7 @@ var ST_SUSPENDED = 2;
 var ST_CLOSED = 3;
 var GSTATE = '$GState';
 var $GSTATE = createIdentifierExpression(GSTATE);
+var $YIELD_RETURN = createIdentifierExpression(YIELD_RETURN);
 
 /**
  * Desugars generator function bodies. Generator function bodies contain
@@ -142,8 +145,9 @@ export class GeneratorTransformer extends CPSTransformer {
     if (result.block.type != STATE_MACHINE) {
       return result;
     }
+    // TODO: Is 'return' allowed inside 'finally'?
     this.reporter.reportError(tree.location.start,
-        'yield not permitted from within a finally block.');
+        'yield or return not permitted from within a finally block.');
     return result;
   }
 
@@ -152,9 +156,14 @@ export class GeneratorTransformer extends CPSTransformer {
    * @return {ParseTree}
    */
   transformReturnStatement(tree) {
-    this.reporter.reportError(tree.location.start,
-        'Generator function may not have a return statement.');
-    return tree;
+    var startState = this.allocateState();
+    var fallThroughState = this.allocateState();
+    return this.stateToStateMachine_(
+        new ReturnState(
+            startState,
+            fallThroughState,
+            this.transformAny(tree.expression)),
+        fallThroughState);
   }
 
   /**
@@ -211,6 +220,7 @@ export class GeneratorTransformer extends CPSTransformer {
         var
           ${$GSTATE} = ${ST_NEWBORN},
           ${$CURRENT},
+          ${$YIELD_RETURN},
           ${$MOVE_NEXT} = ${this.generateMachineMethod(machine)};
         `);
 
@@ -242,6 +252,9 @@ export class GeneratorTransformer extends CPSTransformer {
                   return ${$CURRENT};
                 }
                 ${$GSTATE} = ${ST_CLOSED};
+                if (${$YIELD_RETURN} !== undefined) {
+                  throw new traceur.runtime.GeneratorReturn(${$YIELD_RETURN});
+                }
                 throw traceur.runtime.StopIteration;
             }
           },
@@ -267,6 +280,9 @@ export class GeneratorTransformer extends CPSTransformer {
                   return ${$CURRENT};
                 }
                 ${$GSTATE} = ${ST_CLOSED};
+                if (${$YIELD_RETURN} !== undefined) {
+                  throw new traceur.runtime.GeneratorReturn(${$YIELD_RETURN});
+                }
                 throw traceur.runtime.StopIteration;
             }
           },

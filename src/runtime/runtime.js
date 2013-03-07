@@ -344,38 +344,65 @@ traceur.runtime = (function(global) {
     }));
   }
 
-  // Generators
-  var StopIterationLocal;
-  var isStopIteration = function(x) {
-    return x === StopIterationLocal;
-  };
+  // Generators: GeneratorReturn
+  var GeneratorReturnLocal;
 
-  switch (typeof StopIteration) {
-    case 'function':
-      StopIterationLocal = new StopIteration();
-      isStopIteration = function(x) {
-        return x instanceof StopIteration;
-      };
-      break;
-    case 'object':
-      StopIterationLocal = StopIteration;
-      try {
-        // Firefox's StopIteration is both a valid lhs and rhs for instanceof.
-        StopIteration instanceof StopIteration;
-
-        isStopIteration = function(x) {
-          return x instanceof StopIteration;
-        };
-      } catch(e) {}
-      break;
-    case 'undefined':
-      StopIterationLocal = {
-        toString: function() {
-          return '[object StopIteration]';
+  function setGeneratorReturn(GeneratorReturn, global) {
+    switch (typeof GeneratorReturn) {
+      case 'function':
+        // StopIterationLocal instanceof GeneratorReturnLocal means we probably
+        // want to maintain that invariant when we change GeneratorReturnLocal.
+        if (typeof GeneratorReturnLocal === 'function' &&
+            StopIterationLocal instanceof GeneratorReturnLocal) {
+          GeneratorReturnLocal = GeneratorReturn;
+          setStopIteration(undefined, global);
+          return;
         }
-      };
-      global.StopIteration = StopIterationLocal;
+        GeneratorReturnLocal = GeneratorReturn;
+        return;
+      case 'undefined':
+        GeneratorReturnLocal = function(v) {
+          this.value = v;
+        };
+        GeneratorReturnLocal.prototype = {
+          toString: function() {
+            return '[object GeneratorReturn ' + this.value + ']';
+          }
+        };
+        return;
+      default:
+        throw new TypeError('constructor function required');
+    }
   }
+
+  setGeneratorReturn();
+
+  // Generators: StopIteration
+  var StopIterationLocal;
+
+  function isStopIteration(x) {
+    return x === StopIterationLocal || x instanceof GeneratorReturnLocal;
+  }
+
+  function setStopIteration(StopIteration, global) {
+    switch (typeof StopIteration) {
+      case 'object':
+        StopIterationLocal = StopIteration;
+        break;
+      case 'undefined':
+        StopIterationLocal = new GeneratorReturnLocal();
+        StopIterationLocal.toString = function() {
+          return '[object StopIteration]';
+        };
+        break;
+      default:
+        throw new TypeError('invalid StopIteration type.');
+    }
+    if (global)
+      global.StopIteration = StopIteration;
+  }
+
+  setStopIteration(global.StopIteration, global);
 
   /**
    * @param {Function} canceller
@@ -485,7 +512,10 @@ traceur.runtime = (function(global) {
   // Return the runtime namespace.
   return {
     Deferred: Deferred,
+    GeneratorReturn: GeneratorReturnLocal,
+    setGeneratorReturn: setGeneratorReturn,
     StopIteration: StopIterationLocal,
+    setStopIteration: setStopIteration,
     isStopIteration: isStopIteration,
     addIterator: addIterator,
     assertName: assertName,

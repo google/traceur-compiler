@@ -55,7 +55,10 @@ import {
   YIELD_ACTION,
   YIELD_SENT
 } from '../syntax/PredefinedName.js';
-import {transformOptions} from '../options.js';
+import {
+  transformOptions,
+  options
+} from '../options.js';
 
 /**
  * @param {BinaryOperator} tree
@@ -335,7 +338,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
    * @return {ParseTree}
    */
   transformFunction(tree) {
-    var body = this.transformBody_(tree.functionBody);
+    var body = this.transformBody_(tree.functionBody, tree.isGenerator);
     if (body === tree.functionBody)
       return tree;
 
@@ -350,13 +353,18 @@ export class GeneratorTransformPass extends TempVarTransformer {
    * @param {Block} tree
    * @return {Block}
    */
-  transformBody_(tree) {
-    var finder = new YieldFinder(tree);
+  transformBody_(tree, isGenerator) {
+    var finder;
 
     // transform nested functions
     var body = super.transformBlock(tree);
 
-    if (!finder.hasAnyGenerator()) {
+    if (isGenerator ||
+        (options.unstarredGenerators || transformOptions.deferredFunctions)) {
+      finder = new YieldFinder(tree);
+      if (!(finder.hasYield || isGenerator || finder.hasAsync))
+        return body;
+    } else if (!isGenerator) {
       return body;
     }
 
@@ -367,7 +375,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
       body = ForInTransformPass.transformTree(this.identifierGenerator, body);
     }
 
-    if (finder.hasYield) {
+    if (finder.hasYield || isGenerator) {
       if (transformOptions.generators) {
         // The labeled do-while serves as a jump target for 'ACTION_CLOSE'.
         // See the var 'throwClose' and the class 'YieldExpressionTransformer'

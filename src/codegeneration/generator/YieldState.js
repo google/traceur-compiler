@@ -26,10 +26,7 @@ import {
 } from '../ParseTreeFactory.js';
 
 /**
- * Represents the dispatch portion of a switch statement that has been added
- * to a StateMachine.
- *
- * SwitchStates are immutable.
+ * Represents a simple yield expression that has been added to a StateMachine.
  */
 export class YieldState extends State {
   /**
@@ -49,7 +46,7 @@ export class YieldState extends State {
    * @return {YieldState}
    */
   replaceState(oldState, newState) {
-    return new YieldState(
+    return new this.constructor(
         State.replaceStateId(this.id, oldState, newState),
         State.replaceStateId(this.fallThroughState, oldState, newState),
         this.expression);
