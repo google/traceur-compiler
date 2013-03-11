@@ -1,0 +1,37 @@
+{
+  "name": "traceur",
+  "version": "0.0.1",
+  "description": "Experimental ES6 to ES5 compiler",
+  "keywords": [
+    "javascript",
+    "ecmascript",
+    "language",
+    "es5",
+    "es6",
+    "ES.next",
+    "harmony",
+    "compiler",
+    "transpiler"
+  ],
+  "author": "Traceur Authors",
+  "license": "Apache License 2.0",
+  "engines": {
+    "node": ">=0.8"
+  },
+  "main": "./bin/traceur.js",
+  "bin": {
+    "traceur": "./traceur"
+  },
+  "scripts": {
+    "test": "make test"
+  },
+  "homepage": "http://code.google.com/p/traceur-compiler/",
+  "bugs": "http://code.google.com/p/traceur-compiler/issues/list",
+  "repository": {
+    "type": "git",
+    "url": "https://code.google.com/p/traceur-compiler/"
+  },
+  "dependencies": {
+    "commander": ">=1.1"
+  }
+}

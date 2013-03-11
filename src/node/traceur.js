@@ -15,18 +15,12 @@
 var fs = require('fs');
 var path = require('path');
 
-/**
- * Reads a script and eval's it into the global scope.
- * TODO: this is needed for now because of how our scripts are designed.
- * Change this once we have a module system.
- * @param {string} filename
- */
-function importScript(filename) {
-  filename = path.join(path.dirname(module.filename), filename);
-  var data = fs.readFileSync(filename, 'utf8');
-  if (!data)
+var filename = '../../bin/traceur.js';
+filename = path.join(path.dirname(module.filename), filename);
+var data = fs.readFileSync(filename, 'utf8');
+if (!data)
     throw new Error('Failed to import ' + filename);
-  ('global', eval)(data);
-}
 
-importScript('../../bin/traceur.js');
+('global', eval)(data);
+
+module.exports = traceur;

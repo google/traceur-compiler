@@ -1,14 +1,3 @@
-#!/bin/sh
+#!/usr/bin/env node
 
-DIR="$(dirname $0)"
-BUILD_JS="$DIR/src/node/compiler.js"
-
-# Check node is installed
-
-if ! type node > /dev/null 2>&1; then
-  echo "traceur requires that Node.js is installed." >&2
-  echo "Exiting..." >&2
-  exit 1
-fi
-
-node "$BUILD_JS" $@
+require('./src/node/compiler.js');
