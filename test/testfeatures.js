@@ -236,19 +236,22 @@ function clearLastLine() {
 }
 
 /**
- * Recursively walk the "feature" directory and run each feature script found.
+ * Recursively walk the directory |dir| and run each test script found.
+ * @param {string} dir Directory to walk. Absolute or relative to process.cwd()
+ * @param {string|undefined} basePath Base path for errslast and updateProgress.
  */
-function runFeatureScripts(dir) {
+function runTestScripts(dir, basePath) {
   var contents = fs.readdirSync(dir);
   for (var i = 0; i < contents.length; i++) {
     var filePath = path.join(dir, contents[i]);
     var stat = fs.statSync(filePath);
     if (stat.isDirectory()) {
-      runFeatureScripts(filePath);
+      runTestScripts(filePath, basePath);
     } else if (path.extname(filePath) == '.js') {
+      filePath = basePath ? path.relative(basePath, filePath) : filePath;
       if (errslast && errslast.indexOf(filePath) >= 0)
         continue;
-      updateProgress(testScript, filePath);
+      updateProgress(testScript, filePath, basePath);
     }
   }
 }
@@ -278,8 +281,9 @@ var passes = 0;
  * appropriately, while also printing progress.
  * @param {function} testFunction
  * @param {string} filePath
+ * @param {string|undefined} basePath Optional base path for |filePath|
  */
-function updateProgress(testFunction, filePath) {
+function updateProgress(testFunction, filePath, basePath) {
   clearLastLine();
   if (passes === tests) {
     print('Passed ' + green(passes) + ' so far. Testing: ' + filePath);
@@ -291,7 +295,8 @@ function updateProgress(testFunction, filePath) {
 
   tests++;
 
-  if (testScript(filePath))
+  var filePathFull = basePath ? path.join(basePath, filePath) : filePath;
+  if (testScript(filePathFull))
     passes++;
 
   if (tests - passes > errsnew.length)
@@ -330,12 +335,14 @@ var errsfile = flags.errsfile;
 var errsnew = [];
 var errslast;
 
+var basePath = path.join(__dirname, 'feature');
+
 if (errsfile && fs.existsSync(errsfile)) {
   print('Using error file \'' + errsfile + '\' ...\n\n');
   errslast = JSON.parse(fs.readFileSync(errsfile, 'utf8'));
   errslast.forEach(function(f) {
     try {
-      updateProgress(testScript, f);
+      updateProgress(testScript, f, basePath);
     } catch(e) {
       failScript(String(e));
       // Don't count this test in the total if the error was
@@ -349,14 +356,14 @@ if (errsfile && fs.existsSync(errsfile)) {
 
 if (!flags.failfast || passes == tests) {
   if (flags.dirwalk) {
-    runFeatureScripts(flags.dirwalk);
+    runTestScripts(flags.dirwalk, basePath);
   } else {
     try {
       testList = require('./test-list.js').testList;
       testList.forEach(function(f) {
         if (errslast && errslast.indexOf(f) >= 0)
           return;
-        updateProgress(testScript, path.join(__dirname, 'feature', f));
+        updateProgress(testScript, f, basePath);
       });
     } catch(e) {
       if (!errslast) {
