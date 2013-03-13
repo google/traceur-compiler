@@ -198,6 +198,7 @@ export class ClassTransformer extends TempVarTransformer{
     // ignore that part in the name to use in its stack traces.
     if (superClass) {
       return parseExpression `function($__super) {
+        'use strict';
         var $__proto = ${this.getProtoParent_}($__super);
         var ${nameIdent} =
             (${this.createClass_})(${object}, ${staticObject}, $__proto,
@@ -207,6 +208,7 @@ export class ClassTransformer extends TempVarTransformer{
     }
 
     return parseExpression `function() {
+      'use strict';
       var ${nameIdent} = (${this.createClassNoExtends_})(
           ${object}, ${staticObject});
       return ${nameIdent};
