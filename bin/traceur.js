@@ -634,6 +634,7 @@ var $___src_semantics_symbols_Symbol_js = (function() {
   "use strict";
   var SymbolType = $___src_semantics_symbols_SymbolType_js.SymbolType;
   var Symbol = function() {
+    'use strict';
     var $Symbol = ($__createClassNoExtends)({
       constructor: function(type, tree, name) {
         this.type = type;
@@ -663,6 +664,7 @@ var $___src_semantics_symbols_ExportSymbol_js = (function() {
   var Symbol = $___src_semantics_symbols_Symbol_js.Symbol;
   var SymbolType = $___src_semantics_symbols_SymbolType_js.SymbolType;
   var ExportSymbol = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ExportSymbol = ($__createClass)({constructor: function(tree, name, relatedTree) {
         $__superCall(this, $__proto, "constructor", [SymbolType.EXPORT, tree, name]);
@@ -2126,6 +2128,7 @@ var $___src_syntax_Token_js = (function() {
   "use strict";
   var $__9 = $___src_syntax_TokenType_js, AMPERSAND_EQUAL = $__9.AMPERSAND_EQUAL, BAR_EQUAL = $__9.BAR_EQUAL, CARET_EQUAL = $__9.CARET_EQUAL, EQUAL = $__9.EQUAL, LEFT_SHIFT_EQUAL = $__9.LEFT_SHIFT_EQUAL, MINUS_EQUAL = $__9.MINUS_EQUAL, PERCENT_EQUAL = $__9.PERCENT_EQUAL, PLUS_EQUAL = $__9.PLUS_EQUAL, RIGHT_SHIFT_EQUAL = $__9.RIGHT_SHIFT_EQUAL, SLASH_EQUAL = $__9.SLASH_EQUAL, STAR_EQUAL = $__9.STAR_EQUAL, UNSIGNED_RIGHT_SHIFT_EQUAL = $__9.UNSIGNED_RIGHT_SHIFT_EQUAL;
   var Token = function() {
+    'use strict';
     var $Token = ($__createClassNoExtends)({
       constructor: function(type, location) {
         this.type = type;
@@ -2221,6 +2224,7 @@ var $___src_syntax_trees_ParseTree_js = (function() {
   var Token = $___src_syntax_Token_js.Token;
   var utilJSON = $___src_util_JSON_js;
   var ParseTree = function() {
+    'use strict';
     var $ParseTree = ($__createClassNoExtends)({
       constructor: function(type, location) {
         throw new Error("Don't use for now. 'super' is currently very slow.");
@@ -2423,6 +2427,7 @@ var $___src_syntax_trees_ParseTree_js = (function() {
 var $___src_syntax_ParseTreeVisitor_js = (function() {
   "use strict";
   var ParseTreeVisitor = function() {
+    'use strict';
     var $ParseTreeVisitor = ($__createClassNoExtends)({
       constructor: function() {},
       visitAny: function(tree) {
@@ -2866,6 +2871,7 @@ var $___src_codegeneration_module_ModuleVisitor_js = (function() {
     return module.name || module.url;
   }
   var ModuleVisitor = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ModuleVisitor = ($__createClass)({
       constructor: function(reporter, project, module) {
@@ -2997,6 +3003,7 @@ var $___src_codegeneration_module_ExportVisitor_js = (function() {
   var IDENTIFIER_EXPRESSION = $___src_syntax_trees_ParseTreeType_js.IDENTIFIER_EXPRESSION;
   var ModuleVisitor = $___src_codegeneration_module_ModuleVisitor_js.ModuleVisitor;
   var ExportVisitor = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ExportVisitor = ($__createClass)({
       constructor: function(reporter, project, module) {
@@ -3085,6 +3092,7 @@ var $___src_codegeneration_module_ImportStarVisitor_js = (function() {
   var ModuleVisitor = $___src_codegeneration_module_ModuleVisitor_js.ModuleVisitor;
   var STAR = $___src_syntax_TokenType_js.STAR;
   var ImportStarVisitor = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ImportStarVisitor = ($__createClass)({
       constructor: function(reporter, project, module) {
@@ -3111,6 +3119,7 @@ var $___src_codegeneration_module_ModuleDeclarationVisitor_js = (function() {
   "use strict";
   var ModuleVisitor = $___src_codegeneration_module_ModuleVisitor_js.ModuleVisitor;
   var ModuleDeclarationVisitor = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ModuleDeclarationVisitor = ($__createClass)({
       constructor: function(reporter, project, module) {
@@ -3140,6 +3149,7 @@ var $___src_semantics_symbols_ModuleSymbol_js = (function() {
   var Symbol = $___src_semantics_symbols_Symbol_js.Symbol;
   var SymbolType = $___src_semantics_symbols_SymbolType_js.SymbolType;
   var ModuleSymbol = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ModuleSymbol = ($__createClass)({
       constructor: function(name, parent, tree, url) {
@@ -3195,6 +3205,7 @@ var $___src_codegeneration_module_ModuleDefinitionVisitor_js = (function() {
   var ModuleSymbol = $___src_semantics_symbols_ModuleSymbol_js.ModuleSymbol;
   var ModuleVisitor = $___src_codegeneration_module_ModuleVisitor_js.ModuleVisitor;
   var ModuleDefinitionVisitor = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ModuleDefinitionVisitor = ($__createClass)({
       constructor: function(reporter, project, module) {
@@ -3226,6 +3237,7 @@ var $___src_codegeneration_module_ValidationVisitor_js = (function() {
     return module.name || "'" + module.url + "'";
   }
   var ValidationVisitor = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ValidationVisitor = ($__createClass)({
       constructor: function() {
@@ -3283,6 +3295,7 @@ var $___src_semantics_ModuleAnalyzer_js = (function() {
   var ModuleDefinitionVisitor = $___src_codegeneration_module_ModuleDefinitionVisitor_js.ModuleDefinitionVisitor;
   var ValidationVisitor = $___src_codegeneration_module_ValidationVisitor_js.ValidationVisitor;
   var ModuleAnalyzer = function() {
+    'use strict';
     var $ModuleAnalyzer = ($__createClassNoExtends)({
       constructor: function(reporter, project) {
         this.reporter_ = reporter;
@@ -3334,6 +3347,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
   var ParseTreeType = $___src_syntax_trees_ParseTreeType_js;
   var $__9 = ParseTreeType, ARGUMENT_LIST = $__9.ARGUMENT_LIST, ARRAY_COMPREHENSION = $__9.ARRAY_COMPREHENSION, ARRAY_LITERAL_EXPRESSION = $__9.ARRAY_LITERAL_EXPRESSION, ARRAY_PATTERN = $__9.ARRAY_PATTERN, ARROW_FUNCTION_EXPRESSION = $__9.ARROW_FUNCTION_EXPRESSION, AT_NAME_DECLARATION = $__9.AT_NAME_DECLARATION, AT_NAME_EXPRESSION = $__9.AT_NAME_EXPRESSION, AWAIT_STATEMENT = $__9.AWAIT_STATEMENT, BINARY_OPERATOR = $__9.BINARY_OPERATOR, BINDING_ELEMENT = $__9.BINDING_ELEMENT, BINDING_IDENTIFIER = $__9.BINDING_IDENTIFIER, BLOCK = $__9.BLOCK, BREAK_STATEMENT = $__9.BREAK_STATEMENT, CALL_EXPRESSION = $__9.CALL_EXPRESSION, CASCADE_EXPRESSION = $__9.CASCADE_EXPRESSION, CASE_CLAUSE = $__9.CASE_CLAUSE, CATCH = $__9.CATCH, CLASS_DECLARATION = $__9.CLASS_DECLARATION, CLASS_EXPRESSION = $__9.CLASS_EXPRESSION, COMMA_EXPRESSION = $__9.COMMA_EXPRESSION, COMPREHENSION_FOR = $__9.COMPREHENSION_FOR, COMPREHENSION_IF = $__9.COMPREHENSION_IF, CONDITIONAL_EXPRESSION = $__9.CONDITIONAL_EXPRESSION, CONTINUE_STATEMENT = $__9.CONTINUE_STATEMENT, COVER_FORMALS = $__9.COVER_FORMALS, DEBUGGER_STATEMENT = $__9.DEBUGGER_STATEMENT, DEFAULT_CLAUSE = $__9.DEFAULT_CLAUSE, DO_WHILE_STATEMENT = $__9.DO_WHILE_STATEMENT, EMPTY_STATEMENT = $__9.EMPTY_STATEMENT, EXPORT_DECLARATION = $__9.EXPORT_DECLARATION, EXPORT_MAPPING = $__9.EXPORT_MAPPING, EXPORT_MAPPING_LIST = $__9.EXPORT_MAPPING_LIST, EXPORT_SPECIFIER = $__9.EXPORT_SPECIFIER, EXPORT_SPECIFIER_SET = $__9.EXPORT_SPECIFIER_SET, EXPORT_STAR = $__9.EXPORT_STAR, EXPRESSION_STATEMENT = $__9.EXPRESSION_STATEMENT, FINALLY = $__9.FINALLY, FOR_IN_STATEMENT = $__9.FOR_IN_STATEMENT, FOR_OF_STATEMENT = $__9.FOR_OF_STATEMENT, FOR_STATEMENT = $__9.FOR_STATEMENT, FORMAL_PARAMETER_LIST = $__9.FORMAL_PARAMETER_LIST, FUNCTION_DECLARATION = $__9.FUNCTION_DECLARATION, FUNCTION_EXPRESSION = $__9.FUNCTION_EXPRESSION, GENERATOR_COMPREHENSION = $__9.GENERATOR_COMPREHENSION, GET_ACCESSOR = $__9.GET_ACCESSOR, IDENTIFIER_EXPRESSION = $__9.IDENTIFIER_EXPRESSION, IF_STATEMENT = $__9.IF_STATEMENT, IMPORT_BINDING = $__9.IMPORT_BINDING, IMPORT_DECLARATION = $__9.IMPORT_DECLARATION, IMPORT_SPECIFIER = $__9.IMPORT_SPECIFIER, IMPORT_SPECIFIER_SET = $__9.IMPORT_SPECIFIER_SET, LABELLED_STATEMENT = $__9.LABELLED_STATEMENT, LITERAL_EXPRESSION = $__9.LITERAL_EXPRESSION, MEMBER_EXPRESSION = $__9.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__9.MEMBER_LOOKUP_EXPRESSION, MISSING_PRIMARY_EXPRESSION = $__9.MISSING_PRIMARY_EXPRESSION, MODULE_DECLARATION = $__9.MODULE_DECLARATION, MODULE_DEFINITION = $__9.MODULE_DEFINITION, MODULE_EXPRESSION = $__9.MODULE_EXPRESSION, MODULE_REQUIRE = $__9.MODULE_REQUIRE, MODULE_SPECIFIER = $__9.MODULE_SPECIFIER, NAME_STATEMENT = $__9.NAME_STATEMENT, NEW_EXPRESSION = $__9.NEW_EXPRESSION, OBJECT_LITERAL_EXPRESSION = $__9.OBJECT_LITERAL_EXPRESSION, OBJECT_PATTERN = $__9.OBJECT_PATTERN, OBJECT_PATTERN_FIELD = $__9.OBJECT_PATTERN_FIELD, PAREN_EXPRESSION = $__9.PAREN_EXPRESSION, POSTFIX_EXPRESSION = $__9.POSTFIX_EXPRESSION, PREDEFINED_TYPE = $__9.PREDEFINED_TYPE, PROGRAM = $__9.PROGRAM, PROPERTY_METHOD_ASSIGNMENT = $__9.PROPERTY_METHOD_ASSIGNMENT, PROPERTY_NAME_ASSIGNMENT = $__9.PROPERTY_NAME_ASSIGNMENT, PROPERTY_NAME_SHORTHAND = $__9.PROPERTY_NAME_SHORTHAND, REST_PARAMETER = $__9.REST_PARAMETER, RETURN_STATEMENT = $__9.RETURN_STATEMENT, SET_ACCESSOR = $__9.SET_ACCESSOR, SPREAD_EXPRESSION = $__9.SPREAD_EXPRESSION, SPREAD_PATTERN_ELEMENT = $__9.SPREAD_PATTERN_ELEMENT, STATE_MACHINE = $__9.STATE_MACHINE, SUPER_EXPRESSION = $__9.SUPER_EXPRESSION, SWITCH_STATEMENT = $__9.SWITCH_STATEMENT, TEMPLATE_LITERAL_EXPRESSION = $__9.TEMPLATE_LITERAL_EXPRESSION, TEMPLATE_LITERAL_PORTION = $__9.TEMPLATE_LITERAL_PORTION, TEMPLATE_SUBSTITUTION = $__9.TEMPLATE_SUBSTITUTION, THIS_EXPRESSION = $__9.THIS_EXPRESSION, THROW_STATEMENT = $__9.THROW_STATEMENT, TRY_STATEMENT = $__9.TRY_STATEMENT, TYPE_NAME = $__9.TYPE_NAME, UNARY_EXPRESSION = $__9.UNARY_EXPRESSION, VARIABLE_DECLARATION = $__9.VARIABLE_DECLARATION, VARIABLE_DECLARATION_LIST = $__9.VARIABLE_DECLARATION_LIST, VARIABLE_STATEMENT = $__9.VARIABLE_STATEMENT, WHILE_STATEMENT = $__9.WHILE_STATEMENT, WITH_STATEMENT = $__9.WITH_STATEMENT, YIELD_EXPRESSION = $__9.YIELD_EXPRESSION;
   var ArgumentList = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ArgumentList = ($__createClass)({
       constructor: function(location, args) {
@@ -3353,6 +3367,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ArgumentList;
   }(ParseTree);
   var ArrayComprehension = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ArrayComprehension = ($__createClass)({
       constructor: function(location, comprehensionList, expression) {
@@ -3373,6 +3388,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ArrayComprehension;
   }(ParseTree);
   var ArrayLiteralExpression = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ArrayLiteralExpression = ($__createClass)({
       constructor: function(location, elements) {
@@ -3392,6 +3408,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ArrayLiteralExpression;
   }(ParseTree);
   var ArrayPattern = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ArrayPattern = ($__createClass)({
       constructor: function(location, elements) {
@@ -3411,6 +3428,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ArrayPattern;
   }(ParseTree);
   var ArrowFunctionExpression = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ArrowFunctionExpression = ($__createClass)({
       constructor: function(location, formalParameters, functionBody) {
@@ -3431,6 +3449,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ArrowFunctionExpression;
   }(ParseTree);
   var AtNameDeclaration = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $AtNameDeclaration = ($__createClass)({
       constructor: function(location, atNameToken, initializer) {
@@ -3451,6 +3470,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $AtNameDeclaration;
   }(ParseTree);
   var AtNameExpression = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $AtNameExpression = ($__createClass)({
       constructor: function(location, atNameToken) {
@@ -3470,6 +3490,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $AtNameExpression;
   }(ParseTree);
   var AwaitStatement = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $AwaitStatement = ($__createClass)({
       constructor: function(location, identifier, expression) {
@@ -3490,6 +3511,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $AwaitStatement;
   }(ParseTree);
   var BinaryOperator = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $BinaryOperator = ($__createClass)({
       constructor: function(location, left, operator, right) {
@@ -3511,6 +3533,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $BinaryOperator;
   }(ParseTree);
   var BindingElement = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $BindingElement = ($__createClass)({
       constructor: function(location, binding, initializer) {
@@ -3531,6 +3554,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $BindingElement;
   }(ParseTree);
   var BindingIdentifier = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $BindingIdentifier = ($__createClass)({
       constructor: function(location, identifierToken) {
@@ -3550,6 +3574,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $BindingIdentifier;
   }(ParseTree);
   var Block = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $Block = ($__createClass)({
       constructor: function(location, statements) {
@@ -3569,6 +3594,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $Block;
   }(ParseTree);
   var BreakStatement = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $BreakStatement = ($__createClass)({
       constructor: function(location, name) {
@@ -3588,6 +3614,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $BreakStatement;
   }(ParseTree);
   var CallExpression = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $CallExpression = ($__createClass)({
       constructor: function(location, operand, args) {
@@ -3608,6 +3635,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $CallExpression;
   }(ParseTree);
   var CascadeExpression = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $CascadeExpression = ($__createClass)({
       constructor: function(location, operand, expressions) {
@@ -3628,6 +3656,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $CascadeExpression;
   }(ParseTree);
   var CaseClause = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $CaseClause = ($__createClass)({
       constructor: function(location, expression, statements) {
@@ -3648,6 +3677,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $CaseClause;
   }(ParseTree);
   var Catch = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $Catch = ($__createClass)({
       constructor: function(location, binding, catchBody) {
@@ -3668,6 +3698,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $Catch;
   }(ParseTree);
   var ClassDeclaration = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ClassDeclaration = ($__createClass)({
       constructor: function(location, name, superClass, elements) {
@@ -3689,6 +3720,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ClassDeclaration;
   }(ParseTree);
   var ClassExpression = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ClassExpression = ($__createClass)({
       constructor: function(location, name, superClass, elements) {
@@ -3710,6 +3742,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ClassExpression;
   }(ParseTree);
   var CommaExpression = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $CommaExpression = ($__createClass)({
       constructor: function(location, expressions) {
@@ -3729,6 +3762,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $CommaExpression;
   }(ParseTree);
   var ComprehensionFor = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ComprehensionFor = ($__createClass)({
       constructor: function(location, left, iterator) {
@@ -3749,6 +3783,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ComprehensionFor;
   }(ParseTree);
   var ComprehensionIf = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ComprehensionIf = ($__createClass)({
       constructor: function(location, expression) {
@@ -3768,6 +3803,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ComprehensionIf;
   }(ParseTree);
   var ConditionalExpression = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ConditionalExpression = ($__createClass)({
       constructor: function(location, condition, left, right) {
@@ -3789,6 +3825,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ConditionalExpression;
   }(ParseTree);
   var ContinueStatement = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ContinueStatement = ($__createClass)({
       constructor: function(location, name) {
@@ -3808,6 +3845,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ContinueStatement;
   }(ParseTree);
   var CoverFormals = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $CoverFormals = ($__createClass)({
       constructor: function(location, expressions) {
@@ -3827,6 +3865,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $CoverFormals;
   }(ParseTree);
   var DebuggerStatement = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $DebuggerStatement = ($__createClass)({
       constructor: function(location) {
@@ -3845,6 +3884,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $DebuggerStatement;
   }(ParseTree);
   var DefaultClause = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $DefaultClause = ($__createClass)({
       constructor: function(location, statements) {
@@ -3864,6 +3904,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $DefaultClause;
   }(ParseTree);
   var DoWhileStatement = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $DoWhileStatement = ($__createClass)({
       constructor: function(location, body, condition) {
@@ -3884,6 +3925,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $DoWhileStatement;
   }(ParseTree);
   var EmptyStatement = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $EmptyStatement = ($__createClass)({
       constructor: function(location) {
@@ -3902,6 +3944,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $EmptyStatement;
   }(ParseTree);
   var ExportDeclaration = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ExportDeclaration = ($__createClass)({
       constructor: function(location, declaration) {
@@ -3921,6 +3964,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ExportDeclaration;
   }(ParseTree);
   var ExportMapping = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ExportMapping = ($__createClass)({
       constructor: function(location, moduleExpression, specifierSet) {
@@ -3941,6 +3985,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ExportMapping;
   }(ParseTree);
   var ExportMappingList = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ExportMappingList = ($__createClass)({
       constructor: function(location, paths) {
@@ -3960,6 +4005,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ExportMappingList;
   }(ParseTree);
   var ExportSpecifier = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ExportSpecifier = ($__createClass)({
       constructor: function(location, lhs, rhs) {
@@ -3980,6 +4026,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ExportSpecifier;
   }(ParseTree);
   var ExportSpecifierSet = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ExportSpecifierSet = ($__createClass)({
       constructor: function(location, specifiers) {
@@ -3999,6 +4046,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ExportSpecifierSet;
   }(ParseTree);
   var ExportStar = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ExportStar = ($__createClass)({
       constructor: function(location) {
@@ -4017,6 +4065,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ExportStar;
   }(ParseTree);
   var ExpressionStatement = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ExpressionStatement = ($__createClass)({
       constructor: function(location, expression) {
@@ -4036,6 +4085,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ExpressionStatement;
   }(ParseTree);
   var Finally = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $Finally = ($__createClass)({
       constructor: function(location, block) {
@@ -4055,6 +4105,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $Finally;
   }(ParseTree);
   var ForInStatement = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ForInStatement = ($__createClass)({
       constructor: function(location, initializer, collection, body) {
@@ -4076,6 +4127,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ForInStatement;
   }(ParseTree);
   var ForOfStatement = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ForOfStatement = ($__createClass)({
       constructor: function(location, initializer, collection, body) {
@@ -4097,6 +4149,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ForOfStatement;
   }(ParseTree);
   var ForStatement = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ForStatement = ($__createClass)({
       constructor: function(location, initializer, condition, increment, body) {
@@ -4119,6 +4172,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ForStatement;
   }(ParseTree);
   var FormalParameterList = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $FormalParameterList = ($__createClass)({
       constructor: function(location, parameters) {
@@ -4138,6 +4192,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $FormalParameterList;
   }(ParseTree);
   var FunctionDeclaration = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $FunctionDeclaration = ($__createClass)({
       constructor: function(location, name, isGenerator, formalParameterList, functionBody) {
@@ -4160,6 +4215,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $FunctionDeclaration;
   }(ParseTree);
   var FunctionExpression = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $FunctionExpression = ($__createClass)({
       constructor: function(location, name, isGenerator, formalParameterList, functionBody) {
@@ -4182,6 +4238,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $FunctionExpression;
   }(ParseTree);
   var GeneratorComprehension = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $GeneratorComprehension = ($__createClass)({
       constructor: function(location, comprehensionList, expression) {
@@ -4202,6 +4259,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $GeneratorComprehension;
   }(ParseTree);
   var GetAccessor = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $GetAccessor = ($__createClass)({
       constructor: function(location, isStatic, name, body) {
@@ -4223,6 +4281,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $GetAccessor;
   }(ParseTree);
   var IdentifierExpression = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $IdentifierExpression = ($__createClass)({
       constructor: function(location, identifierToken) {
@@ -4242,6 +4301,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $IdentifierExpression;
   }(ParseTree);
   var IfStatement = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $IfStatement = ($__createClass)({
       constructor: function(location, condition, ifClause, elseClause) {
@@ -4263,6 +4323,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $IfStatement;
   }(ParseTree);
   var ImportBinding = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ImportBinding = ($__createClass)({
       constructor: function(location, moduleExpression, importSpecifierSet) {
@@ -4283,6 +4344,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ImportBinding;
   }(ParseTree);
   var ImportDeclaration = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ImportDeclaration = ($__createClass)({
       constructor: function(location, importPathList) {
@@ -4302,6 +4364,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ImportDeclaration;
   }(ParseTree);
   var ImportSpecifier = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ImportSpecifier = ($__createClass)({
       constructor: function(location, lhs, rhs) {
@@ -4322,6 +4385,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ImportSpecifier;
   }(ParseTree);
   var ImportSpecifierSet = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ImportSpecifierSet = ($__createClass)({
       constructor: function(location, specifiers) {
@@ -4341,6 +4405,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ImportSpecifierSet;
   }(ParseTree);
   var LabelledStatement = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $LabelledStatement = ($__createClass)({
       constructor: function(location, name, statement) {
@@ -4361,6 +4426,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $LabelledStatement;
   }(ParseTree);
   var LiteralExpression = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $LiteralExpression = ($__createClass)({
       constructor: function(location, literalToken) {
@@ -4380,6 +4446,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $LiteralExpression;
   }(ParseTree);
   var MemberExpression = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $MemberExpression = ($__createClass)({
       constructor: function(location, operand, memberName) {
@@ -4400,6 +4467,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $MemberExpression;
   }(ParseTree);
   var MemberLookupExpression = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $MemberLookupExpression = ($__createClass)({
       constructor: function(location, operand, memberExpression) {
@@ -4420,6 +4488,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $MemberLookupExpression;
   }(ParseTree);
   var MissingPrimaryExpression = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $MissingPrimaryExpression = ($__createClass)({
       constructor: function(location, nextToken) {
@@ -4439,6 +4508,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $MissingPrimaryExpression;
   }(ParseTree);
   var ModuleDeclaration = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ModuleDeclaration = ($__createClass)({
       constructor: function(location, specifiers) {
@@ -4458,6 +4528,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ModuleDeclaration;
   }(ParseTree);
   var ModuleDefinition = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ModuleDefinition = ($__createClass)({
       constructor: function(location, name, elements) {
@@ -4478,6 +4549,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ModuleDefinition;
   }(ParseTree);
   var ModuleExpression = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ModuleExpression = ($__createClass)({
       constructor: function(location, reference, identifiers) {
@@ -4498,6 +4570,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ModuleExpression;
   }(ParseTree);
   var ModuleRequire = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ModuleRequire = ($__createClass)({
       constructor: function(location, url) {
@@ -4517,6 +4590,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ModuleRequire;
   }(ParseTree);
   var ModuleSpecifier = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ModuleSpecifier = ($__createClass)({
       constructor: function(location, identifier, expression) {
@@ -4537,6 +4611,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ModuleSpecifier;
   }(ParseTree);
   var NameStatement = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $NameStatement = ($__createClass)({
       constructor: function(location, declarations) {
@@ -4556,6 +4631,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $NameStatement;
   }(ParseTree);
   var NewExpression = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $NewExpression = ($__createClass)({
       constructor: function(location, operand, args) {
@@ -4576,6 +4652,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $NewExpression;
   }(ParseTree);
   var ObjectLiteralExpression = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ObjectLiteralExpression = ($__createClass)({
       constructor: function(location, propertyNameAndValues) {
@@ -4595,6 +4672,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ObjectLiteralExpression;
   }(ParseTree);
   var ObjectPattern = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ObjectPattern = ($__createClass)({
       constructor: function(location, fields) {
@@ -4614,6 +4692,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ObjectPattern;
   }(ParseTree);
   var ObjectPatternField = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ObjectPatternField = ($__createClass)({
       constructor: function(location, identifier, element) {
@@ -4634,6 +4713,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ObjectPatternField;
   }(ParseTree);
   var ParenExpression = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ParenExpression = ($__createClass)({
       constructor: function(location, expression) {
@@ -4653,6 +4733,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ParenExpression;
   }(ParseTree);
   var PostfixExpression = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $PostfixExpression = ($__createClass)({
       constructor: function(location, operand, operator) {
@@ -4673,6 +4754,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $PostfixExpression;
   }(ParseTree);
   var PredefinedType = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $PredefinedType = ($__createClass)({
       constructor: function(location, typeToken) {
@@ -4692,6 +4774,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $PredefinedType;
   }(ParseTree);
   var Program = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $Program = ($__createClass)({
       constructor: function(location, programElements) {
@@ -4711,6 +4794,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $Program;
   }(ParseTree);
   var PropertyMethodAssignment = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $PropertyMethodAssignment = ($__createClass)({
       constructor: function(location, isStatic, isGenerator, name, formalParameterList, functionBody) {
@@ -4734,6 +4818,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $PropertyMethodAssignment;
   }(ParseTree);
   var PropertyNameAssignment = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $PropertyNameAssignment = ($__createClass)({
       constructor: function(location, name, value) {
@@ -4754,6 +4839,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $PropertyNameAssignment;
   }(ParseTree);
   var PropertyNameShorthand = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $PropertyNameShorthand = ($__createClass)({
       constructor: function(location, name) {
@@ -4773,6 +4859,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $PropertyNameShorthand;
   }(ParseTree);
   var RestParameter = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $RestParameter = ($__createClass)({
       constructor: function(location, identifier) {
@@ -4792,6 +4879,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $RestParameter;
   }(ParseTree);
   var ReturnStatement = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ReturnStatement = ($__createClass)({
       constructor: function(location, expression) {
@@ -4811,6 +4899,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ReturnStatement;
   }(ParseTree);
   var SetAccessor = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $SetAccessor = ($__createClass)({
       constructor: function(location, isStatic, name, parameter, body) {
@@ -4833,6 +4922,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $SetAccessor;
   }(ParseTree);
   var SpreadExpression = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $SpreadExpression = ($__createClass)({
       constructor: function(location, expression) {
@@ -4852,6 +4942,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $SpreadExpression;
   }(ParseTree);
   var SpreadPatternElement = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $SpreadPatternElement = ($__createClass)({
       constructor: function(location, lvalue) {
@@ -4871,6 +4962,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $SpreadPatternElement;
   }(ParseTree);
   var SuperExpression = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $SuperExpression = ($__createClass)({
       constructor: function(location) {
@@ -4889,6 +4981,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $SuperExpression;
   }(ParseTree);
   var SwitchStatement = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $SwitchStatement = ($__createClass)({
       constructor: function(location, expression, caseClauses) {
@@ -4909,6 +5002,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $SwitchStatement;
   }(ParseTree);
   var TemplateLiteralExpression = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $TemplateLiteralExpression = ($__createClass)({
       constructor: function(location, operand, elements) {
@@ -4929,6 +5023,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $TemplateLiteralExpression;
   }(ParseTree);
   var TemplateLiteralPortion = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $TemplateLiteralPortion = ($__createClass)({
       constructor: function(location, value) {
@@ -4948,6 +5043,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $TemplateLiteralPortion;
   }(ParseTree);
   var TemplateSubstitution = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $TemplateSubstitution = ($__createClass)({
       constructor: function(location, expression) {
@@ -4967,6 +5063,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $TemplateSubstitution;
   }(ParseTree);
   var ThisExpression = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ThisExpression = ($__createClass)({
       constructor: function(location) {
@@ -4985,6 +5082,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ThisExpression;
   }(ParseTree);
   var ThrowStatement = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ThrowStatement = ($__createClass)({
       constructor: function(location, value) {
@@ -5004,6 +5102,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $ThrowStatement;
   }(ParseTree);
   var TryStatement = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $TryStatement = ($__createClass)({
       constructor: function(location, body, catchBlock, finallyBlock) {
@@ -5025,6 +5124,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $TryStatement;
   }(ParseTree);
   var TypeName = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $TypeName = ($__createClass)({
       constructor: function(location, moduleName, name) {
@@ -5045,6 +5145,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $TypeName;
   }(ParseTree);
   var UnaryExpression = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $UnaryExpression = ($__createClass)({
       constructor: function(location, operator, operand) {
@@ -5065,6 +5166,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $UnaryExpression;
   }(ParseTree);
   var VariableDeclaration = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $VariableDeclaration = ($__createClass)({
       constructor: function(location, lvalue, typeAnnotation, initializer) {
@@ -5086,6 +5188,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $VariableDeclaration;
   }(ParseTree);
   var VariableDeclarationList = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $VariableDeclarationList = ($__createClass)({
       constructor: function(location, declarationType, declarations) {
@@ -5106,6 +5209,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $VariableDeclarationList;
   }(ParseTree);
   var VariableStatement = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $VariableStatement = ($__createClass)({
       constructor: function(location, declarations) {
@@ -5125,6 +5229,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $VariableStatement;
   }(ParseTree);
   var WhileStatement = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $WhileStatement = ($__createClass)({
       constructor: function(location, condition, body) {
@@ -5145,6 +5250,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $WhileStatement;
   }(ParseTree);
   var WithStatement = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $WithStatement = ($__createClass)({
       constructor: function(location, expression, body) {
@@ -5165,6 +5271,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     return $WithStatement;
   }(ParseTree);
   var YieldExpression = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $YieldExpression = ($__createClass)({
       constructor: function(location, expression, isYieldFor) {
@@ -5755,6 +5862,7 @@ var $___src_codegeneration_ParseTreeTransformer_js = (function() {
   "use strict";
   var $__9 = $___src_syntax_trees_ParseTrees_js, ArgumentList = $__9.ArgumentList, ArrayComprehension = $__9.ArrayComprehension, ArrayLiteralExpression = $__9.ArrayLiteralExpression, ArrayPattern = $__9.ArrayPattern, ArrowFunctionExpression = $__9.ArrowFunctionExpression, AtNameDeclaration = $__9.AtNameDeclaration, AtNameExpression = $__9.AtNameExpression, AwaitStatement = $__9.AwaitStatement, BinaryOperator = $__9.BinaryOperator, BindingElement = $__9.BindingElement, BindingIdentifier = $__9.BindingIdentifier, Block = $__9.Block, BreakStatement = $__9.BreakStatement, CallExpression = $__9.CallExpression, CascadeExpression = $__9.CascadeExpression, CaseClause = $__9.CaseClause, Catch = $__9.Catch, ClassDeclaration = $__9.ClassDeclaration, ClassExpression = $__9.ClassExpression, CommaExpression = $__9.CommaExpression, ComprehensionFor = $__9.ComprehensionFor, ComprehensionIf = $__9.ComprehensionIf, ConditionalExpression = $__9.ConditionalExpression, ContinueStatement = $__9.ContinueStatement, CoverFormals = $__9.CoverFormals, DebuggerStatement = $__9.DebuggerStatement, DefaultClause = $__9.DefaultClause, DoWhileStatement = $__9.DoWhileStatement, EmptyStatement = $__9.EmptyStatement, ExportDeclaration = $__9.ExportDeclaration, ExportMapping = $__9.ExportMapping, ExportMappingList = $__9.ExportMappingList, ExportSpecifier = $__9.ExportSpecifier, ExportSpecifierSet = $__9.ExportSpecifierSet, ExportStar = $__9.ExportStar, ExpressionStatement = $__9.ExpressionStatement, Finally = $__9.Finally, ForInStatement = $__9.ForInStatement, ForOfStatement = $__9.ForOfStatement, ForStatement = $__9.ForStatement, FormalParameterList = $__9.FormalParameterList, FunctionDeclaration = $__9.FunctionDeclaration, FunctionExpression = $__9.FunctionExpression, GeneratorComprehension = $__9.GeneratorComprehension, GetAccessor = $__9.GetAccessor, IdentifierExpression = $__9.IdentifierExpression, IfStatement = $__9.IfStatement, ImportBinding = $__9.ImportBinding, ImportDeclaration = $__9.ImportDeclaration, ImportSpecifier = $__9.ImportSpecifier, ImportSpecifierSet = $__9.ImportSpecifierSet, LabelledStatement = $__9.LabelledStatement, LiteralExpression = $__9.LiteralExpression, MemberExpression = $__9.MemberExpression, MemberLookupExpression = $__9.MemberLookupExpression, MissingPrimaryExpression = $__9.MissingPrimaryExpression, ModuleDeclaration = $__9.ModuleDeclaration, ModuleDefinition = $__9.ModuleDefinition, ModuleExpression = $__9.ModuleExpression, ModuleRequire = $__9.ModuleRequire, ModuleSpecifier = $__9.ModuleSpecifier, NameStatement = $__9.NameStatement, NewExpression = $__9.NewExpression, ObjectLiteralExpression = $__9.ObjectLiteralExpression, ObjectPattern = $__9.ObjectPattern, ObjectPatternField = $__9.ObjectPatternField, ParenExpression = $__9.ParenExpression, PostfixExpression = $__9.PostfixExpression, PredefinedType = $__9.PredefinedType, Program = $__9.Program, PropertyMethodAssignment = $__9.PropertyMethodAssignment, PropertyNameAssignment = $__9.PropertyNameAssignment, PropertyNameShorthand = $__9.PropertyNameShorthand, RestParameter = $__9.RestParameter, ReturnStatement = $__9.ReturnStatement, SetAccessor = $__9.SetAccessor, SpreadExpression = $__9.SpreadExpression, SpreadPatternElement = $__9.SpreadPatternElement, SuperExpression = $__9.SuperExpression, SwitchStatement = $__9.SwitchStatement, TemplateLiteralExpression = $__9.TemplateLiteralExpression, TemplateLiteralPortion = $__9.TemplateLiteralPortion, TemplateSubstitution = $__9.TemplateSubstitution, ThisExpression = $__9.ThisExpression, ThrowStatement = $__9.ThrowStatement, TryStatement = $__9.TryStatement, TypeName = $__9.TypeName, UnaryExpression = $__9.UnaryExpression, VariableDeclaration = $__9.VariableDeclaration, VariableDeclarationList = $__9.VariableDeclarationList, VariableStatement = $__9.VariableStatement, WhileStatement = $__9.WhileStatement, WithStatement = $__9.WithStatement, YieldExpression = $__9.YieldExpression;
   var ParseTreeTransformer = function() {
+    'use strict';
     var $ParseTreeTransformer = ($__createClassNoExtends)({
       constructor: function() {},
       transformAny: function(tree) {
@@ -6405,6 +6513,7 @@ var $___src_codegeneration_AssignmentPatternTransformer_js = (function() {
   var $__9 = $___src_syntax_trees_ParseTrees_js, ArrayPattern = $__9.ArrayPattern, BindingElement = $__9.BindingElement, IdentifierExpression = $__9.IdentifierExpression, ObjectPattern = $__9.ObjectPattern, ObjectPatternField = $__9.ObjectPatternField, SpreadPatternElement = $__9.SpreadPatternElement;
   var EQUAL = $___src_syntax_TokenType_js.EQUAL;
   var AssignmentPatternTransformerError = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $AssignmentPatternTransformerError = ($__createClass)({constructor: function() {
         $__superCall(this, $__proto, "constructor", arguments);
@@ -6412,6 +6521,7 @@ var $___src_codegeneration_AssignmentPatternTransformer_js = (function() {
     return $AssignmentPatternTransformerError;
   }(Error);
   var AssignmentPatternTransformer = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $AssignmentPatternTransformer = ($__createClass)({
       constructor: function() {
@@ -6468,6 +6578,7 @@ var $___src_codegeneration_CoverFormalsTransformer_js = (function() {
   var $__9 = $___src_syntax_trees_ParseTreeType_js, IDENTIFIER_EXPRESSION = $__9.IDENTIFIER_EXPRESSION, SPREAD_PATTERN_ELEMENT = $__9.SPREAD_PATTERN_ELEMENT;
   var AssignmentPatternTransformerError = $___src_codegeneration_AssignmentPatternTransformer_js.AssignmentPatternTransformerError;
   var CoverFormalsTransformerError = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $CoverFormalsTransformerError = ($__createClass)({constructor: function() {
         $__superCall(this, $__proto, "constructor", arguments);
@@ -6475,6 +6586,7 @@ var $___src_codegeneration_CoverFormalsTransformer_js = (function() {
     return $CoverFormalsTransformerError;
   }(Error);
   var CoverFormalsTransformer = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $CoverFormalsTransformer = ($__createClass)({
       constructor: function() {
@@ -6546,6 +6658,7 @@ var $___src_syntax_IdentifierToken_js = (function() {
   var Token = $___src_syntax_Token_js.Token;
   var IDENTIFIER = $___src_syntax_TokenType_js.IDENTIFIER;
   var IdentifierToken = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $IdentifierToken = ($__createClass)({
       constructor: function(location, value) {
@@ -7281,6 +7394,7 @@ var $___src_syntax_AtNameToken_js = (function() {
   var Token = $___src_syntax_Token_js.Token;
   var AT_NAME = $___src_syntax_TokenType_js.AT_NAME;
   var AtNameToken = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $AtNameToken = ($__createClass)({
       constructor: function(location, value) {
@@ -7307,6 +7421,7 @@ var $___src_syntax_KeywordToken_js = (function() {
   "use strict";
   var Token = $___src_syntax_Token_js.Token;
   var KeywordToken = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $KeywordToken = ($__createClass)({
       constructor: function(type, location) {
@@ -7331,6 +7446,7 @@ var $___src_syntax_LiteralToken_js = (function() {
   var Token = $___src_syntax_Token_js.Token;
   var $__9 = $___src_syntax_TokenType_js, NULL = $__9.NULL, NUMBER = $__9.NUMBER, STRING = $__9.STRING;
   var StringParser = function() {
+    'use strict';
     var $StringParser = ($__createClassNoExtends)({
       constructor: function(value) {
         this.value = value;
@@ -7393,6 +7509,7 @@ var $___src_syntax_LiteralToken_js = (function() {
     return $StringParser;
   }();
   var LiteralToken = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $LiteralToken = ($__createClass)({
       constructor: function(type, value, location) {
@@ -7529,6 +7646,7 @@ var $___src_syntax_Scanner_js = (function() {
   }
   var index, input, length, token, lastToken, lookaheadToken, currentCharCode, lineNumberTable, errorReporter;
   var Scanner = function() {
+    'use strict';
     var $Scanner = ($__createClassNoExtends)({
       constructor: function(reporter, file) {
         errorReporter = reporter;
@@ -8209,6 +8327,7 @@ var $___src_syntax_Scanner_js = (function() {
 var $___src_util_SourceRange_js = (function() {
   "use strict";
   var SourceRange = function() {
+    'use strict';
     var $SourceRange = ($__createClassNoExtends)({constructor: function(start, end) {
         this.start = start;
         this.end = end;
@@ -8248,6 +8367,7 @@ var $___src_syntax_Parser_js = (function() {
     REQUIRED: 'REQUIRED'
   };
   var Parser = function() {
+    'use strict';
     var $Parser = ($__createClassNoExtends)({
       constructor: function(errorReporter, file) {
         this.errorReporter_ = errorReporter;
@@ -11243,6 +11363,7 @@ var $___src_semantics_VariableBinder_js = (function() {
   }
   ;
   var VariableBinder = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $VariableBinder = ($__createClass)({
       constructor: function(includeFunctionScope, scope) {
@@ -11360,6 +11481,7 @@ var $___src_codegeneration_AlphaRenamer_js = (function() {
   var createIdentifierExpression = $___src_codegeneration_ParseTreeFactory_js.createIdentifierExpression;
   var $__9 = $___src_semantics_VariableBinder_js, variablesInBlock = $__9.variablesInBlock, variablesInFunction = $__9.variablesInFunction;
   var AlphaRenamer = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $AlphaRenamer = ($__createClass)({
       constructor: function(oldName, newName) {
@@ -11417,6 +11539,7 @@ var $___src_codegeneration_FindVisitor_js = (function() {
   var ParseTreeVisitor = $___src_syntax_ParseTreeVisitor_js.ParseTreeVisitor;
   var foundSentinel = {};
   var FindVisitor = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $FindVisitor = ($__createClass)({
       constructor: function(tree, keepOnGoing) {
@@ -11451,6 +11574,7 @@ var $___src_codegeneration_FindInFunctionScope_js = (function() {
   "use strict";
   var FindVisitor = $___src_codegeneration_FindVisitor_js.FindVisitor;
   var FindInFunctionScope = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $FindInFunctionScope = ($__createClass)({
       constructor: function() {
@@ -11513,6 +11637,7 @@ var $___src_codegeneration_TempVarTransformer_js = (function() {
     return vars;
   }
   var TempVarStatement = function() {
+    'use strict';
     var $TempVarStatement = ($__createClassNoExtends)({constructor: function(name, initializer) {
         this.name = name;
         this.initializer = initializer;
@@ -11520,6 +11645,7 @@ var $___src_codegeneration_TempVarTransformer_js = (function() {
     return $TempVarStatement;
   }();
   var TempVarTransformer = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $TempVarTransformer = ($__createClass)({
       constructor: function(identifierGenerator) {
@@ -11614,6 +11740,7 @@ var $___src_codegeneration_ComprehensionTransformer_js = (function() {
   var $__9 = $___src_codegeneration_ParseTreeFactory_js, createBlock = $__9.createBlock, createCallExpression = $__9.createCallExpression, createEmptyParameterList = $__9.createEmptyParameterList, createForOfStatement = $__9.createForOfStatement, createIdentifierExpression = $__9.createIdentifierExpression, createIfStatement = $__9.createIfStatement, createParenExpression = $__9.createParenExpression, createThisExpression = $__9.createThisExpression, createVariableDeclarationList = $__9.createVariableDeclarationList;
   var options = $___src_options_js.options;
   var ThisFinder = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ThisFinder = ($__createClass)({
       constructor: function() {
@@ -11626,6 +11753,7 @@ var $___src_codegeneration_ComprehensionTransformer_js = (function() {
     return $ThisFinder;
   }(FindInFunctionScope);
   var ArgumentsFinder = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ArgumentsFinder = ($__createClass)({
       constructor: function() {
@@ -11638,6 +11766,7 @@ var $___src_codegeneration_ComprehensionTransformer_js = (function() {
     return $ArgumentsFinder;
   }(FindInFunctionScope);
   var ComprehensionTransformer = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ComprehensionTransformer = ($__createClass)({
       constructor: function() {
@@ -11693,6 +11822,7 @@ var $___src_codegeneration_ArrayComprehensionTransformer_js = (function() {
   var PLUS_PLUS = $___src_syntax_TokenType_js.PLUS_PLUS;
   var $__9 = $___src_codegeneration_ParseTreeFactory_js, createArrayLiteralExpression = $__9.createArrayLiteralExpression, createAssignmentStatement = $__9.createAssignmentStatement, createIdentifierExpression = $__9.createIdentifierExpression, createMemberLookupExpression = $__9.createMemberLookupExpression, createNumberLiteral = $__9.createNumberLiteral, createPostfixExpression = $__9.createPostfixExpression, createReturnStatement = $__9.createReturnStatement;
   var ArrayComprehensionTransformer = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ArrayComprehensionTransformer = ($__createClass)({
       constructor: function() {
@@ -11730,6 +11860,7 @@ var $___src_codegeneration_ArrowFunctionTransformer_js = (function() {
   var BLOCK = $___src_syntax_trees_ParseTreeType_js.BLOCK;
   var $__9 = $___src_codegeneration_ParseTreeFactory_js, createArgumentList = $__9.createArgumentList, createBlock = $__9.createBlock, createCallExpression = $__9.createCallExpression, createFunctionExpression = $__9.createFunctionExpression, createMemberExpression = $__9.createMemberExpression, createParenExpression = $__9.createParenExpression, createReturnStatement = $__9.createReturnStatement, createThisExpression = $__9.createThisExpression;
   var ThisFinder = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ThisFinder = ($__createClass)({
       constructor: function() {
@@ -11742,6 +11873,7 @@ var $___src_codegeneration_ArrowFunctionTransformer_js = (function() {
     return $ThisFinder;
   }(FindInFunctionScope);
   var ArrowFunctionTransformer = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ArrowFunctionTransformer = ($__createClass)({
       constructor: function(reporter) {
@@ -11861,6 +11993,7 @@ var $___src_codegeneration_AtNameMemberTransformer_js = (function() {
   var $__9 = $___src_codegeneration_ParseTreeFactory_js, createArgumentList = $__9.createArgumentList, createAssignmentExpression = $__9.createAssignmentExpression, createCallCall = $__9.createCallCall, createCallExpression = $__9.createCallExpression, createCommaExpression = $__9.createCommaExpression, createIdentifierExpression = $__9.createIdentifierExpression, createMemberExpression = $__9.createMemberExpression, createParenExpression = $__9.createParenExpression;
   var expandMemberExpression = $___src_codegeneration_OperatorExpander_js.expandMemberExpression;
   var AtNameMemberTransformer = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $AtNameMemberTransformer = ($__createClass)({
       constructor: function() {
@@ -11931,6 +12064,7 @@ var $___src_codegeneration_BlockBindingTransformer_js = (function() {
     BLOCK: 'BLOCK'
   };
   var Scope = function() {
+    'use strict';
     var $Scope = ($__createClassNoExtends)({
       constructor: function(parent, type) {
         this.parent = parent;
@@ -11948,6 +12082,7 @@ var $___src_codegeneration_BlockBindingTransformer_js = (function() {
   }();
   ;
   var Rename = function() {
+    'use strict';
     var $Rename = ($__createClassNoExtends)({constructor: function(oldName, newName) {
         this.oldName = oldName;
         this.newName = newName;
@@ -11964,6 +12099,7 @@ var $___src_codegeneration_BlockBindingTransformer_js = (function() {
     return statement.type == BLOCK ? statement: createBlock(statement);
   }
   var BlockBindingTransformer = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $BlockBindingTransformer = ($__createClass)({
       constructor: function(stateAllocator) {
@@ -12254,6 +12390,7 @@ var $___src_codegeneration_CascadeExpressionTransformer_js = (function() {
     }
   }
   var CascadeExpressionTransformer = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $CascadeExpressionTransformer = ($__createClass)({
       constructor: function(identifierGenerator, reporter) {
@@ -12306,6 +12443,7 @@ var $___src_codegeneration_CascadeExpressionTransformer_js = (function() {
 var $___src_util_ArrayMap_js = (function() {
   "use strict";
   var ArrayMap = function() {
+    'use strict';
     var $ArrayMap = ($__createClassNoExtends)({
       constructor: function() {
         this.values_ = [];
@@ -12364,6 +12502,7 @@ var $___src_util_ArrayMap_js = (function() {
 var $___src_util_ErrorReporter_js = (function() {
   "use strict";
   var ErrorReporter = function() {
+    'use strict';
     var $ErrorReporter = ($__createClassNoExtends)({
       constructor: function() {
         this.hadError_ = false;
@@ -12417,6 +12556,7 @@ var $___src_util_MutedErrorReporter_js = (function() {
   "use strict";
   var ErrorReporter = $___src_util_ErrorReporter_js.ErrorReporter;
   var MutedErrorReporter = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $MutedErrorReporter = ($__createClass)({
       constructor: function() {
@@ -12436,6 +12576,7 @@ var $___src_util_MutedErrorReporter_js = (function() {
 var $___src_util_SourcePosition_js = (function() {
   "use strict";
   var SourcePosition = function() {
+    'use strict';
     var $SourcePosition = ($__createClassNoExtends)({
       constructor: function(source, offset) {
         this.source = source;
@@ -12487,6 +12628,7 @@ var $___src_syntax_LineNumberTable_js = (function() {
     return lineStartOffsets;
   }
   var LineNumberTable = function() {
+    'use strict';
     var $LineNumberTable = ($__createClassNoExtends)({
       constructor: function(sourceFile) {
         this.sourceFile_ = sourceFile;
@@ -12551,6 +12693,7 @@ var $___src_syntax_SourceFile_js = (function() {
   "use strict";
   var LineNumberTable = $___src_syntax_LineNumberTable_js.LineNumberTable;
   var SourceFile = function() {
+    'use strict';
     var $SourceFile = ($__createClassNoExtends)({constructor: function(name, contents) {
         this.name = name;
         this.contents = contents;
@@ -12610,6 +12753,7 @@ var $___src_codegeneration_PlaceholderParser_js = (function() {
     return new PlaceholderTransformer(values).transformAny(tree);
   }
   var PlaceholderParser = function() {
+    'use strict';
     var $PlaceholderParser = ($__createClassNoExtends)({
       constructor: function() {},
       parseExpression: function(sourceLiterals) {
@@ -12662,6 +12806,7 @@ var $___src_codegeneration_PlaceholderParser_js = (function() {
     return createIdentifierToken(value);
   }
   var PlaceholderTransformer = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $PlaceholderTransformer = ($__createClass)({
       constructor: function(values) {
@@ -12794,6 +12939,7 @@ var $___src_codegeneration_SuperTransformer_js = (function() {
   var SUPER_GET_CODE = "function(self, proto, name) {\n      var descriptor = %superDescriptor(proto, name);\n      if (descriptor) {\n        if (descriptor.get)\n          return descriptor.get.call(self);\n        else if ('value' in descriptor)\n          return descriptor.value;\n      }\n      return undefined;\n    }";
   var SUPER_SET_CODE = "function(self, proto, name, value) {\n      var descriptor = %superDescriptor(proto, name);\n      if (descriptor && descriptor.set) {\n        descriptor.set.call(self, value);\n        return;\n      }\n      throw new TypeError(\"Object has no setter '\" + name + \"'.\");\n    }";
   var SuperTransformer = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $SuperTransformer = ($__createClass)({
       constructor: function(tempVarTransformer, runtimeInliner, reporter, protoName, methodTree, thisName) {
@@ -12932,6 +13078,7 @@ var $___src_codegeneration_ClassTransformer_js = (function() {
   var GET_PROTO_PARENT_CODE = "function(superClass) {\n      if (typeof superClass === 'function') {\n        var prototype = superClass.prototype;\n        if (Object(prototype) === prototype || prototype === null)\n          return superClass.prototype;\n      }\n      if (superClass === null)\n        return null;\n      throw new TypeError();\n    }";
   var CREATE_CLASS_NO_EXTENDS_CODE = "function(object, staticObject) {\n      var ctor = object.constructor;\n      Object.defineProperty(object, 'constructor', {enumerable: false});\n      ctor.prototype = object;\n      Object.defineProperties(ctor, %getDescriptors(staticObject));\n      return ctor;\n    }";
   var ClassTransformer = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ClassTransformer = ($__createClass)({
       constructor: function(identifierGenerator, runtimeInliner, reporter) {
@@ -13054,6 +13201,7 @@ var $___src_codegeneration_CollectionTransformer_js = (function() {
   var $__9 = $___src_codegeneration_ParseTreeFactory_js, createArgumentList = $__9.createArgumentList, createAssignmentExpression = $__9.createAssignmentExpression, createCallCall = $__9.createCallCall, createCallExpression = $__9.createCallExpression, createCommaExpression = $__9.createCommaExpression, createIdentifierExpression = $__9.createIdentifierExpression, createMemberExpression = $__9.createMemberExpression, createParenExpression = $__9.createParenExpression;
   var expandMemberLookupExpression = $___src_codegeneration_OperatorExpander_js.expandMemberLookupExpression;
   var CollectionTransformer = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $CollectionTransformer = ($__createClass)({
       constructor: function() {
@@ -13184,6 +13332,7 @@ var $___src_codegeneration_DefaultParametersTransformer_js = (function() {
     return createVariableStatement(VAR, binding, assignmentExpression);
   }
   var DefaultParametersTransformer = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $DefaultParametersTransformer = ($__createClass)({
       constructor: function() {
@@ -13240,12 +13389,14 @@ var $___src_codegeneration_DestructuringTransformer_js = (function() {
   var prependStatements = $___src_codegeneration_PrependStatements_js.prependStatements;
   var stack = [];
   var Desugaring = function() {
+    'use strict';
     var $Desugaring = ($__createClassNoExtends)({constructor: function(rvalue) {
         this.rvalue = rvalue;
       }}, {});
     return $Desugaring;
   }();
   var AssignmentExpressionDesugaring = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $AssignmentExpressionDesugaring = ($__createClass)({
       constructor: function(rvalue) {
@@ -13259,6 +13410,7 @@ var $___src_codegeneration_DestructuringTransformer_js = (function() {
     return $AssignmentExpressionDesugaring;
   }(Desugaring);
   var VariableDeclarationDesugaring = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $VariableDeclarationDesugaring = ($__createClass)({
       constructor: function(rvalue) {
@@ -13288,6 +13440,7 @@ var $___src_codegeneration_DestructuringTransformer_js = (function() {
     return createConditionalExpression(createBinaryOperator(index, createOperatorToken(IN), rvalue), createMemberLookupExpression(rvalue, index), initializer);
   }
   var DestructuringTransformer = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $DestructuringTransformer = ($__createClass)({
       constructor: function() {
@@ -13515,6 +13668,7 @@ var $___src_codegeneration_ForOfTransformer_js = (function() {
   var $__9 = $___src_codegeneration_ParseTreeFactory_js, createArgumentList = $__9.createArgumentList, createAssignmentExpression = $__9.createAssignmentExpression, createBlock = $__9.createBlock, createCallExpression = $__9.createCallExpression, createCallStatement = $__9.createCallStatement, createExpressionStatement = $__9.createExpressionStatement, createFinally = $__9.createFinally, createIfStatement = $__9.createIfStatement, createIdentifierExpression = $__9.createIdentifierExpression, createMemberExpression = $__9.createMemberExpression, createTryStatement = $__9.createTryStatement, createVariableStatement = $__9.createVariableStatement, createWhileStatement = $__9.createWhileStatement;
   var parseStatement = $___src_codegeneration_PlaceholderParser_js.parseStatement;
   var ForOfTransformer = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ForOfTransformer = ($__createClass)({
       constructor: function() {
@@ -13553,6 +13707,7 @@ var $___src_semantics_FreeVariableChecker_js = (function() {
   var TYPEOF = $___src_syntax_TokenType_js.TYPEOF;
   var global = this;
   var Scope = function() {
+    'use strict';
     var $Scope = ($__createClassNoExtends)({constructor: function(parent) {
         this.parent = parent;
         this.references = Object.create(null);
@@ -13572,6 +13727,7 @@ var $___src_semantics_FreeVariableChecker_js = (function() {
     return name;
   }
   var FreeVariableChecker = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $FreeVariableChecker = ($__createClass)({
       constructor: function(reporter) {
@@ -13706,6 +13862,7 @@ var $___src_codegeneration_GeneratorComprehensionTransformer_js = (function() {
   var ComprehensionTransformer = $___src_codegeneration_ComprehensionTransformer_js.ComprehensionTransformer;
   var createYieldStatement = $___src_codegeneration_ParseTreeFactory_js.createYieldStatement;
   var GeneratorComprehensionTransformer = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $GeneratorComprehensionTransformer = ($__createClass)({
       constructor: function() {
@@ -13735,6 +13892,7 @@ var $___src_codegeneration_generator_State_js = (function() {
   var FINALLY_FALL_THROUGH = $___src_syntax_PredefinedName_js.FINALLY_FALL_THROUGH;
   var $__9 = $___src_codegeneration_ParseTreeFactory_js, createAssignStateStatement = $__9.createAssignStateStatement, createAssignmentStatement = $__9.createAssignmentStatement, createBreakStatement = $__9.createBreakStatement, createCaseClause = $__9.createCaseClause, createIdentifierExpression = $__9.createIdentifierExpression, createNumberLiteral = $__9.createNumberLiteral, createStatementList = $__9.createStatementList, createStatementList = $__9.createStatementList;
   var State = function() {
+    'use strict';
     var $State = ($__createClassNoExtends)({
       constructor: function(id) {
         this.id = id;
@@ -13805,6 +13963,7 @@ var $___src_codegeneration_generator_FallThroughState_js = (function() {
   "use strict";
   var State = $___src_codegeneration_generator_State_js.State;
   var FallThroughState = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $FallThroughState = ($__createClass)({
       constructor: function(id, fallThroughState, statements) {
@@ -13834,6 +13993,7 @@ var $___src_codegeneration_generator_BreakState_js = (function() {
   var State = $___src_codegeneration_generator_State_js.State;
   var createStatementList = $___src_codegeneration_ParseTreeFactory_js.createStatementList;
   var BreakState = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $BreakState = ($__createClass)({
       constructor: function(id, label) {
@@ -13871,6 +14031,7 @@ var $___src_codegeneration_generator_ContinueState_js = (function() {
   var State = $___src_codegeneration_generator_State_js.State;
   var createStatementList = $___src_codegeneration_ParseTreeFactory_js.createStatementList;
   var ContinueState = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ContinueState = ($__createClass)({
       constructor: function(id, label) {
@@ -13907,6 +14068,7 @@ var $___src_codegeneration_generator_TryState_js = (function() {
     FINALLY: 'finally'
   };
   var TryState = function() {
+    'use strict';
     var $TryState = ($__createClassNoExtends)({
       constructor: function(kind, tryStates, nestedTrys) {
         this.kind = kind;
@@ -13961,6 +14123,7 @@ var $___src_syntax_trees_StateMachine_js = (function() {
     }
   }
   var StateMachine = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $StateMachine = ($__createClass)({
       constructor: function(startState, fallThroughState, states, exceptionBlocks) {
@@ -14024,6 +14187,7 @@ var $___src_codegeneration_generator_BreakContinueTransformer_js = (function() {
     return tree.name ? tree.name.value: null;
   }
   var BreakContinueTransformer = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $BreakContinueTransformer = ($__createClass)({
       constructor: function(stateAllocator) {
@@ -14084,6 +14248,7 @@ var $___src_codegeneration_generator_CatchState_js = (function() {
   var State = $___src_codegeneration_generator_State_js.State;
   var TryState = $___src_codegeneration_generator_TryState_js.TryState;
   var CatchState = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $CatchState = ($__createClass)({
       constructor: function(identifier, catchState, fallThroughState, allStates, nestedTrys) {
@@ -14110,6 +14275,7 @@ var $___src_codegeneration_generator_ConditionalState_js = (function() {
   var State = $___src_codegeneration_generator_State_js.State;
   var $__9 = $___src_codegeneration_ParseTreeFactory_js, createBlock = $__9.createBlock, createIfStatement = $__9.createIfStatement;
   var ConditionalState = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ConditionalState = ($__createClass)({
       constructor: function(id, ifState, elseState, condition) {
@@ -14138,6 +14304,7 @@ var $___src_codegeneration_generator_FinallyFallThroughState_js = (function() {
   "use strict";
   var State = $___src_codegeneration_generator_State_js.State;
   var FinallyFallThroughState = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $FinallyFallThroughState = ($__createClass)({
       constructor: function() {
@@ -14167,6 +14334,7 @@ var $___src_codegeneration_generator_FinallyState_js = (function() {
   var State = $___src_codegeneration_generator_State_js.State;
   var TryState = $___src_codegeneration_generator_TryState_js.TryState;
   var FinallyState = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $FinallyState = ($__createClass)({
       constructor: function(finallyState, fallThroughState, allStates, nestedTrys) {
@@ -14191,6 +14359,7 @@ var $___src_codegeneration_generator_StateAllocator_js = (function() {
   "use strict";
   var State = $___src_codegeneration_generator_State_js.State;
   var StateAllocator = function() {
+    'use strict';
     var $StateAllocator = ($__createClassNoExtends)({
       constructor: function() {
         this.nextState_ = State.INVALID_STATE + 1;
@@ -14214,6 +14383,7 @@ var $___src_codegeneration_generator_SwitchState_js = (function() {
   var State = $___src_codegeneration_generator_State_js.State;
   var $__9 = $___src_codegeneration_ParseTreeFactory_js, createBreakStatement = $__9.createBreakStatement, createStatementList = $__9.createStatementList;
   var SwitchClause = function() {
+    'use strict';
     var $SwitchClause = ($__createClassNoExtends)({constructor: function(first, second) {
         this.first = first;
         this.second = second;
@@ -14221,6 +14391,7 @@ var $___src_codegeneration_generator_SwitchState_js = (function() {
     return $SwitchClause;
   }();
   var SwitchState = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $SwitchState = ($__createClass)({
       constructor: function(id, expression, clauses) {
@@ -14286,6 +14457,7 @@ var $___src_codegeneration_generator_CPSTransformer_js = (function() {
   var $__9 = $___src_codegeneration_ParseTreeFactory_js, createAssignStateStatement = $__9.createAssignStateStatement, createAssignmentExpression = $__9.createAssignmentExpression, createAssignmentStatement = $__9.createAssignmentStatement, createBinaryOperator = $__9.createBinaryOperator, createBindingIdentifier = $__9.createBindingIdentifier, createBlock = $__9.createBlock, createBreakStatement = $__9.createBreakStatement, createCaseClause = $__9.createCaseClause, createCatch = $__9.createCatch, createCommaExpression = $__9.createCommaExpression, createDefaultClause = $__9.createDefaultClause, createEmptyStatement = $__9.createEmptyStatement, createExpressionStatement = $__9.createExpressionStatement, createFunctionExpression = $__9.createFunctionExpression, createIdentifierExpression = $__9.createIdentifierExpression, createNumberLiteral = $__9.createNumberLiteral, createOperatorToken = $__9.createOperatorToken, createParameterList = $__9.createParameterList, createStatementList = $__9.createStatementList, createStringLiteral = $__9.createStringLiteral, createSwitchStatement = $__9.createSwitchStatement, createThisExpression = $__9.createThisExpression, createThrowStatement = $__9.createThrowStatement, createTrueLiteral = $__9.createTrueLiteral, createTryStatement = $__9.createTryStatement, createVariableStatement = $__9.createVariableStatement, createWhileStatement = $__9.createWhileStatement;
   var variablesInBlock = $___src_semantics_VariableBinder_js.variablesInBlock;
   var CPSTransformer = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $CPSTransformer = ($__createClass)({
       constructor: function(reporter) {
@@ -14768,6 +14940,7 @@ var $___src_codegeneration_generator_EndState_js = (function() {
   "use strict";
   var State = $___src_codegeneration_generator_State_js.State;
   var EndState = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $EndState = ($__createClass)({
       constructor: function() {
@@ -14800,6 +14973,7 @@ var $___src_codegeneration_generator_AsyncTransformer_js = (function() {
   var VAR = $___src_syntax_TokenType_js.VAR;
   var $__9 = $___src_codegeneration_ParseTreeFactory_js, createArgumentList = $__9.createArgumentList, createAssignStateStatement = $__9.createAssignStateStatement, createAssignmentStatement = $__9.createAssignmentStatement, createBlock = $__9.createBlock, createBreakStatement = $__9.createBreakStatement, createCallExpression = $__9.createCallExpression, createCallStatement = $__9.createCallStatement, createEmptyArgumentList = $__9.createEmptyArgumentList, createFunctionExpression = $__9.createFunctionExpression, createIdentifierExpression = $__9.createIdentifierExpression, createMemberExpression = $__9.createMemberExpression, createNewExpression = $__9.createNewExpression, createNumberLiteral = $__9.createNumberLiteral, createParameterList = $__9.createParameterList, createParameterReference = $__9.createParameterReference, createReturnStatement = $__9.createReturnStatement, createStatementList = $__9.createStatementList, createThrowStatement = $__9.createThrowStatement, createUndefinedExpression = $__9.createUndefinedExpression, createVariableStatement = $__9.createVariableStatement;
   var AsyncTransformer = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $AsyncTransformer = ($__createClass)({
       constructor: function() {
@@ -14902,6 +15076,7 @@ var $___src_codegeneration_generator_ForInTransformPass_js = (function() {
   var $__9 = $___src_syntax_TokenType_js, BANG = $__9.BANG, IN = $__9.IN, OPEN_ANGLE = $__9.OPEN_ANGLE, PLUS_PLUS = $__9.PLUS_PLUS, VAR = $__9.VAR;
   var $__9 = $___src_codegeneration_ParseTreeFactory_js, createArgumentList = $__9.createArgumentList, createAssignmentStatement = $__9.createAssignmentStatement, createBinaryOperator = $__9.createBinaryOperator, createBlock = $__9.createBlock, createCallStatement = $__9.createCallStatement, createContinueStatement = $__9.createContinueStatement, createEmptyArrayLiteralExpression = $__9.createEmptyArrayLiteralExpression, createForInStatement = $__9.createForInStatement, createForStatement = $__9.createForStatement, createIdentifierExpression = $__9.createIdentifierExpression, createIfStatement = $__9.createIfStatement, createMemberExpression = $__9.createMemberExpression, createMemberLookupExpression = $__9.createMemberLookupExpression, createNumberLiteral = $__9.createNumberLiteral, createOperatorToken = $__9.createOperatorToken, createParenExpression = $__9.createParenExpression, createPostfixExpression = $__9.createPostfixExpression, createUnaryExpression = $__9.createUnaryExpression, createVariableDeclarationList = $__9.createVariableDeclarationList, createVariableStatement = $__9.createVariableStatement;
   var ForInTransformPass = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ForInTransformPass = ($__createClass)({
       constructor: function() {
@@ -14962,6 +15137,7 @@ var $___src_codegeneration_generator_YieldState_js = (function() {
   var State = $___src_codegeneration_generator_State_js.State;
   var $__9 = $___src_codegeneration_ParseTreeFactory_js, createAssignmentStatement = $__9.createAssignmentStatement, createIdentifierExpression = $__9.createIdentifierExpression, createMemberExpression = $__9.createMemberExpression, createReturnStatement = $__9.createReturnStatement, createTrueLiteral = $__9.createTrueLiteral;
   var YieldState = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $YieldState = ($__createClass)({
       constructor: function(id, fallThroughState, expression) {
@@ -14994,6 +15170,7 @@ var $___src_codegeneration_generator_ReturnState_js = (function() {
   var State = $___src_codegeneration_generator_State_js.State;
   var $__9 = $___src_codegeneration_ParseTreeFactory_js, createAssignmentStatement = $__9.createAssignmentStatement, createIdentifierExpression = $__9.createIdentifierExpression, createMemberExpression = $__9.createMemberExpression, createReturnStatement = $__9.createReturnStatement, createTrueLiteral = $__9.createTrueLiteral;
   var ReturnState = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ReturnState = ($__createClass)({
       constructor: function() {
@@ -15038,6 +15215,7 @@ var $___src_codegeneration_generator_GeneratorTransformer_js = (function() {
   var $GSTATE = createIdentifierExpression(GSTATE);
   var $YIELD_RETURN = createIdentifierExpression(YIELD_RETURN);
   var GeneratorTransformer = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $GeneratorTransformer = ($__createClass)({
       constructor: function() {
@@ -15141,6 +15319,7 @@ var $___src_codegeneration_GeneratorTransformPass_js = (function() {
   }
   var id = createIdentifierExpression;
   var YieldFinder = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $YieldFinder = ($__createClass)({
       constructor: function(tree) {
@@ -15172,6 +15351,7 @@ var $___src_codegeneration_GeneratorTransformPass_js = (function() {
   }(ParseTreeVisitor);
   var throwClose;
   var YieldExpressionTransformer = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $YieldExpressionTransformer = ($__createClass)({
       constructor: function(identifierGenerator) {
@@ -15227,6 +15407,7 @@ var $___src_codegeneration_GeneratorTransformPass_js = (function() {
     return $YieldExpressionTransformer;
   }(TempVarTransformer);
   var GeneratorTransformPass = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $GeneratorTransformPass = ($__createClass)({
       constructor: function(identifierGenerator, reporter) {
@@ -15333,6 +15514,7 @@ var $___src_codegeneration_ModuleTransformer_js = (function() {
     return createIdentifierExpression(identifierToken);
   }
   var ModuleTransformer = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ModuleTransformer = ($__createClass)({
       constructor: function(project) {
@@ -15491,6 +15673,7 @@ var $___src_codegeneration_ObjectLiteralTransformer_js = (function() {
     };
   }
   var AtNameFinder = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $AtNameFinder = ($__createClass)({
       constructor: function(tree) {
@@ -15529,6 +15712,7 @@ var $___src_codegeneration_ObjectLiteralTransformer_js = (function() {
     return nameToken.value;
   }
   var ObjectLiteralTransformer = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ObjectLiteralTransformer = ($__createClass)({
       constructor: function(identifierGenerator) {
@@ -15664,6 +15848,7 @@ var $___src_codegeneration_ObjectLiteralTransformer_js = (function() {
 var $___src_util_ObjectMap_js = (function() {
   "use strict";
   var ObjectMap = function() {
+    'use strict';
     var $ObjectMap = ($__createClassNoExtends)({
       constructor: function() {
         this.keys_ = Object.create(null);
@@ -15721,6 +15906,7 @@ var $___src_outputgeneration_ParseTreeWriter_js = (function() {
   var NEW_LINE = '\n';
   var PRETTY_PRINT = true;
   var ParseTreeWriter = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ParseTreeWriter = ($__createClass)({
       constructor: function(highlighted, showLineNumbers) {
@@ -16528,6 +16714,7 @@ var $___src_outputgeneration_ParseTreeMapWriter_js = (function() {
   "use strict";
   var ParseTreeWriter = $___src_outputgeneration_ParseTreeWriter_js.ParseTreeWriter;
   var ParseTreeMapWriter = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ParseTreeMapWriter = ($__createClass)({
       constructor: function(highlighted, showLineNumbers, sourceMapGenerator) {
@@ -16574,6 +16761,7 @@ var $___src_outputgeneration_TreeWriter_js = (function() {
   var ParseTreeMapWriter = $___src_outputgeneration_ParseTreeMapWriter_js.ParseTreeMapWriter;
   var ParseTreeWriter = $___src_outputgeneration_ParseTreeWriter_js.ParseTreeWriter;
   var TreeWriter = function() {
+    'use strict';
     var $TreeWriter = ($__createClassNoExtends)({constructor: function() {}}, {});
     return $TreeWriter;
   }();
@@ -16617,6 +16805,7 @@ var $___src_syntax_ParseTreeValidator_js = (function() {
   var $__9 = $___src_syntax_TokenType_js, AMPERSAND = $__9.AMPERSAND, AMPERSAND_EQUAL = $__9.AMPERSAND_EQUAL, AND = $__9.AND, BAR = $__9.BAR, BAR_EQUAL = $__9.BAR_EQUAL, CARET = $__9.CARET, CARET_EQUAL = $__9.CARET_EQUAL, CLOSE_ANGLE = $__9.CLOSE_ANGLE, EQUAL = $__9.EQUAL, EQUAL_EQUAL = $__9.EQUAL_EQUAL, EQUAL_EQUAL_EQUAL = $__9.EQUAL_EQUAL_EQUAL, GREATER_EQUAL = $__9.GREATER_EQUAL, IN = $__9.IN, INSTANCEOF = $__9.INSTANCEOF, LEFT_SHIFT = $__9.LEFT_SHIFT, LEFT_SHIFT_EQUAL = $__9.LEFT_SHIFT_EQUAL, LESS_EQUAL = $__9.LESS_EQUAL, MINUS = $__9.MINUS, MINUS_EQUAL = $__9.MINUS_EQUAL, NOT_EQUAL = $__9.NOT_EQUAL, NOT_EQUAL_EQUAL = $__9.NOT_EQUAL_EQUAL, OPEN_ANGLE = $__9.OPEN_ANGLE, OR = $__9.OR, PERCENT = $__9.PERCENT, PERCENT_EQUAL = $__9.PERCENT_EQUAL, PLUS = $__9.PLUS, PLUS_EQUAL = $__9.PLUS_EQUAL, RIGHT_SHIFT = $__9.RIGHT_SHIFT, RIGHT_SHIFT_EQUAL = $__9.RIGHT_SHIFT_EQUAL, SLASH = $__9.SLASH, SLASH_EQUAL = $__9.SLASH_EQUAL, STAR = $__9.STAR, STAR_EQUAL = $__9.STAR_EQUAL, STRING = $__9.STRING, UNSIGNED_RIGHT_SHIFT = $__9.UNSIGNED_RIGHT_SHIFT, UNSIGNED_RIGHT_SHIFT_EQUAL = $__9.UNSIGNED_RIGHT_SHIFT_EQUAL;
   var $__9 = $___src_syntax_trees_ParseTreeType_js, ARRAY_PATTERN = $__9.ARRAY_PATTERN, BINDING_ELEMENT = $__9.BINDING_ELEMENT, BINDING_IDENTIFIER = $__9.BINDING_IDENTIFIER, BLOCK = $__9.BLOCK, CASE_CLAUSE = $__9.CASE_CLAUSE, CATCH = $__9.CATCH, CLASS_DECLARATION = $__9.CLASS_DECLARATION, DEFAULT_CLAUSE = $__9.DEFAULT_CLAUSE, EXPORT_DECLARATION = $__9.EXPORT_DECLARATION, EXPORT_MAPPING = $__9.EXPORT_MAPPING, EXPORT_MAPPING_LIST = $__9.EXPORT_MAPPING_LIST, EXPORT_SPECIFIER = $__9.EXPORT_SPECIFIER, EXPORT_SPECIFIER_SET = $__9.EXPORT_SPECIFIER_SET, EXPORT_STAR = $__9.EXPORT_STAR, FINALLY = $__9.FINALLY, FORMAL_PARAMETER_LIST = $__9.FORMAL_PARAMETER_LIST, FUNCTION_DECLARATION = $__9.FUNCTION_DECLARATION, GET_ACCESSOR = $__9.GET_ACCESSOR, IDENTIFIER_EXPRESSION = $__9.IDENTIFIER_EXPRESSION, IMPORT_DECLARATION = $__9.IMPORT_DECLARATION, MODULE_DECLARATION = $__9.MODULE_DECLARATION, MODULE_DEFINITION = $__9.MODULE_DEFINITION, MODULE_EXPRESSION = $__9.MODULE_EXPRESSION, MODULE_SPECIFIER = $__9.MODULE_SPECIFIER, OBJECT_PATTERN = $__9.OBJECT_PATTERN, OBJECT_PATTERN_FIELD = $__9.OBJECT_PATTERN_FIELD, PROPERTY_METHOD_ASSIGNMENT = $__9.PROPERTY_METHOD_ASSIGNMENT, PROPERTY_NAME_ASSIGNMENT = $__9.PROPERTY_NAME_ASSIGNMENT, PROPERTY_NAME_SHORTHAND = $__9.PROPERTY_NAME_SHORTHAND, REST_PARAMETER = $__9.REST_PARAMETER, SET_ACCESSOR = $__9.SET_ACCESSOR, TEMPLATE_LITERAL_PORTION = $__9.TEMPLATE_LITERAL_PORTION, TEMPLATE_SUBSTITUTION = $__9.TEMPLATE_SUBSTITUTION, VARIABLE_DECLARATION_LIST = $__9.VARIABLE_DECLARATION_LIST, VARIABLE_STATEMENT = $__9.VARIABLE_STATEMENT;
   var ValidationError = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ValidationError = ($__createClass)({constructor: function(tree, message) {
         this.tree = tree;
@@ -16625,6 +16814,7 @@ var $___src_syntax_ParseTreeValidator_js = (function() {
     return $ValidationError;
   }(Error);
   var ParseTreeValidator = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ParseTreeValidator = ($__createClass)({
       constructor: function() {
@@ -17092,6 +17282,7 @@ var $___src_codegeneration_PrivateNameSyntaxTransformer_js = (function() {
   var $__9 = $___src_syntax_trees_ParseTrees_js, VariableDeclarationList = $__9.VariableDeclarationList, VariableStatement = $__9.VariableStatement;
   var $__9 = $___src_codegeneration_ParseTreeFactory_js, createArgumentList = $__9.createArgumentList, createCallExpression = $__9.createCallExpression, createEmptyArgumentList = $__9.createEmptyArgumentList, createIdentifierExpression = $__9.createIdentifierExpression, createMemberExpression = $__9.createMemberExpression, createVariableDeclaration = $__9.createVariableDeclaration;
   var PrivateNameSyntaxTransformer = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $PrivateNameSyntaxTransformer = ($__createClass)({
       constructor: function() {
@@ -17137,6 +17328,7 @@ var $___src_codegeneration_PropertyNameShorthandTransformer_js = (function() {
   var $__9 = $___src_syntax_trees_ParseTrees_js, IdentifierExpression = $__9.IdentifierExpression, PropertyNameAssignment = $__9.PropertyNameAssignment;
   var ParseTreeTransformer = $___src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
   var PropertyNameShorthandTransformer = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $PropertyNameShorthandTransformer = ($__createClass)({
       constructor: function() {
@@ -17265,6 +17457,7 @@ var $___src_codegeneration_TemplateLiteralTransformer_js = (function() {
     return sb.join('');
   }
   var TemplateLiteralTransformer = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $TemplateLiteralTransformer = ($__createClass)({
       constructor: function() {
@@ -17353,6 +17546,7 @@ var $___src_codegeneration_RestParameterTransformer_js = (function() {
     return parameters[parameters.length - 1].identifier.identifierToken;
   }
   var RestParameterTransformer = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $RestParameterTransformer = ($__createClass)({
       constructor: function() {
@@ -17403,6 +17597,7 @@ var $___src_codegeneration_SpreadTransformer_js = (function() {
     }));
   }
   var SpreadTransformer = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $SpreadTransformer = ($__createClass)({
       constructor: function(identifierGenerator, runtimeInliner) {
@@ -17499,6 +17694,7 @@ var $___src_codegeneration_TypeTransformer_js = (function() {
   var VariableDeclaration = $___src_syntax_trees_ParseTrees_js.VariableDeclaration;
   var ParseTreeTransformer = $___src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
   var TypeTransformer = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $TypeTransformer = ($__createClass)({
       constructor: function() {
@@ -17549,6 +17745,7 @@ var $___src_codegeneration_ProgramTransformer_js = (function() {
   var TypeTransformer = $___src_codegeneration_TypeTransformer_js.TypeTransformer;
   var $__9 = $___src_options_js, options = $__9.options, transformOptions = $__9.transformOptions;
   var ProgramTransformer = function() {
+    'use strict';
     var $ProgramTransformer = ($__createClassNoExtends)({
       constructor: function(reporter, project) {
         this.project_ = project;
@@ -17672,6 +17869,7 @@ var $___src_codegeneration_RuntimeInliner_js = (function() {
     return new Parser(errorReporter, file).parseAssignmentExpression();
   }
   var RuntimeInliner = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $RuntimeInliner = ($__createClass)({
       constructor: function(identifierGenerator) {
@@ -17738,6 +17936,7 @@ var $___src_codegeneration_RuntimeInliner_js = (function() {
 var $___src_codegeneration_UniqueIdentifierGenerator_js = (function() {
   "use strict";
   var UniqueIdentifierGenerator = function() {
+    'use strict';
     var $UniqueIdentifierGenerator = ($__createClassNoExtends)({
       constructor: function() {
         this.identifierIndex = 0;
@@ -17792,6 +17991,7 @@ var $___src_semantics_symbols_Project_js = (function() {
     return standardModuleCache[url];
   }
   var Project = function() {
+    'use strict';
     var $Project = ($__createClassNoExtends)({
       constructor: function(url) {
         this.identifierGenerator = new UniqueIdentifierGenerator();
@@ -17877,6 +18077,7 @@ var $___src_codegeneration_Compiler_js = (function() {
   var ProgramTransformer = $___src_codegeneration_ProgramTransformer_js.ProgramTransformer;
   var Project = $___src_semantics_symbols_Project_js.Project;
   var Compiler = function() {
+    'use strict';
     var $Compiler = ($__createClassNoExtends)({
       constructor: function(reporter, project) {
         this.reporter_ = reporter;
@@ -17964,6 +18165,7 @@ var $___src_WebPageProject_js = (function() {
   var SourceFile = $___src_syntax_SourceFile_js.SourceFile;
   var TreeWriter = $___src_outputgeneration_TreeWriter_js.TreeWriter;
   var WebPageProject = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $WebPageProject = ($__createClass)({
       constructor: function(url) {
@@ -18088,6 +18290,7 @@ var $___src_util_TestErrorReporter_js = (function() {
   "use strict";
   var ErrorReporter = $___src_util_ErrorReporter_js.ErrorReporter;
   var TestErrorReporter = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $TestErrorReporter = ($__createClass)({
       constructor: function() {
@@ -18116,6 +18319,7 @@ var $___src_outputgeneration_ProjectWriter_js = (function() {
   "use strict";
   var TreeWriter = $___src_outputgeneration_TreeWriter_js.TreeWriter;
   var ProjectWriter = function() {
+    'use strict';
     var $ProjectWriter = ($__createClassNoExtends)({constructor: function() {}}, {});
     return $ProjectWriter;
   }();
@@ -18754,6 +18958,7 @@ var $___src_codegeneration_CloneTreeTransformer_js = (function() {
   var ParseTreeTransformer = $___src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
   var $__9 = $___src_syntax_trees_ParseTrees_js, AtNameExpression = $__9.AtNameExpression, BindingIdentifier = $__9.BindingIdentifier, BreakStatement = $__9.BreakStatement, ContinueStatement = $__9.ContinueStatement, DebuggerStatement = $__9.DebuggerStatement, EmptyStatement = $__9.EmptyStatement, ExportSpecifier = $__9.ExportSpecifier, ExportStar = $__9.ExportStar, IdentifierExpression = $__9.IdentifierExpression, ImportSpecifier = $__9.ImportSpecifier, LiteralExpression = $__9.LiteralExpression, ModuleRequire = $__9.ModuleRequire, PredefinedType = $__9.PredefinedType, PropertyNameShorthand = $__9.PropertyNameShorthand, TemplateLiteralPortion = $__9.TemplateLiteralPortion, RestParameter = $__9.RestParameter, SuperExpression = $__9.SuperExpression, ThisExpression = $__9.ThisExpression;
   var CloneTreeTransformer = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $CloneTreeTransformer = ($__createClass)({
       constructor: function() {
@@ -18831,6 +19036,7 @@ var $___src_codegeneration_module_ModuleRequireVisitor_js = (function() {
   var ParseTreeVisitor = $___src_syntax_ParseTreeVisitor_js.ParseTreeVisitor;
   var canonicalizeUrl = $___src_util_url_js.canonicalizeUrl;
   var ModuleRequireVisitor = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ModuleRequireVisitor = ($__createClass)({
       constructor: function(reporter) {
@@ -18894,6 +19100,7 @@ var $___src_runtime_modules_js = (function() {
   var COMPLETE = 5;
   var ERROR = 6;
   var CodeUnit = function() {
+    'use strict';
     var $CodeUnit = ($__createClassNoExtends)({
       constructor: function(loader, url, state) {
         this.loader = loader;
@@ -18975,6 +19182,7 @@ var $___src_runtime_modules_js = (function() {
     return $CodeUnit;
   }();
   var LoadCodeUnit = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $LoadCodeUnit = ($__createClass)({
       constructor: function(loader, url) {
@@ -19006,6 +19214,7 @@ var $___src_runtime_modules_js = (function() {
     return $LoadCodeUnit;
   }(CodeUnit);
   var EvalCodeUnit = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $EvalCodeUnit = ($__createClass)({constructor: function(loader, code) {
         $__superCall(this, $__proto, "constructor", [loader, loader.url, LOADED]);
@@ -19015,6 +19224,7 @@ var $___src_runtime_modules_js = (function() {
     return $EvalCodeUnit;
   }(CodeUnit);
   var EvalLoadCodeUnit = function($__super) {
+    'use strict';
     var $__proto = $__getProtoParent($__super);
     var $EvalLoadCodeUnit = ($__createClass)({constructor: function(loader, code) {
         CodeUnit.call(this, loader, loader.url, LOADED);
@@ -19024,6 +19234,7 @@ var $___src_runtime_modules_js = (function() {
     return $EvalLoadCodeUnit;
   }(CodeUnit);
   var InternalLoader = function() {
+    'use strict';
     var $InternalLoader = ($__createClassNoExtends)({
       constructor: function(reporter, project) {
         this.reporter = reporter;
@@ -19242,6 +19453,7 @@ var $___src_runtime_modules_js = (function() {
     return null;
   }
   var CodeLoader = function() {
+    'use strict';
     var $CodeLoader = ($__createClassNoExtends)({
       constructor: function(reporter, project, parentLoader) {
         var resolver = arguments[3];
