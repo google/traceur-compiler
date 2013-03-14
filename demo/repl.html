@@ -110,6 +110,18 @@ pre,
   height: 1px;
 }
 
+.god0 {
+  color: red;
+  -webkit-transition:color 1s ease-in-out;
+  transition: color 1s ease-in-out;
+}
+
+.god1 {
+  color: yellow;
+  -webkit-transition: color 1s ease-in-out;
+  transition: color 1s ease-in-out
+}
+
 </style>
 </head>
 <body>
@@ -123,6 +135,7 @@ pre,
 <div class="options" hidden>
 <label><input class="eval" type="checkbox" checked>Evaluate</label>
 <label><input class="output" type="checkbox" checked>Show generated code</label>
+<label><input class="show-all-toggle" type="checkbox">Show all options</label>
 <hr>
 <div class="traceur-options"></div>
 <button class="all-on">All Options On</button>
@@ -297,9 +310,22 @@ pre,
     'validate'
   ];
 
+  var showAllOpts = false;
+  var allOptsLength = Object.keys(traceur.options).length;
+  var showMax = allOptsLength;
+
   function createOptions() {
     var optionsDiv = document.querySelector('.traceur-options');
     optionsDiv.textContent = '';
+    if (showAllOpts) {
+      var i = 0;
+      Object.keys(traceur.options).forEach(function(name) {
+        if (i++ >= showMax || options.lastIndexOf(name) >= 0)
+          return;
+        optionsDiv.appendChild(createOptionRow(name));
+      });
+      optionsDiv.appendChild(document.createElement('hr'));
+    }
     options.forEach(function(name) {
       optionsDiv.appendChild(createOptionRow(name));
     });
@@ -320,10 +346,16 @@ pre,
       });
 
   document.querySelector('.all-off').addEventListener('click',
-    function() {
-      traceur.options.reset(true);
-      rebuildOptions();
-    });
+      function() {
+        traceur.options.reset(true);
+        rebuildOptions();
+      });
+
+  document.querySelector('.show-all-toggle').addEventListener('click',
+      function() {
+        showAllOpts = !showAllOpts;
+        rebuildOptions();
+      });
 
   document.querySelector('.option-button').addEventListener('click',
       function() {
@@ -344,6 +376,44 @@ pre,
       return (lineNo + 1) + ': ' + line + ' -> ' + lineDotColumn;
     });
     return 'SourceMap:\n' + lineNumberTable.join('\n');
+  }
+
+  var codeCur = 0;
+  var code = 'UUDDLRLRBA'.split('').map(function(k) {
+    return {'U':38, 'D':40, 'L':37, 'R':39, 'A':65, 'B':66}[k];
+  });
+
+  document.addEventListener('keyup', function(e) {
+    if (e.keyCode !== code[codeCur++])
+      codeCur = +(e.keyCode === code[0]);
+    if (codeCur === code.length) {
+      var optionsDiv = document.querySelector('.options');
+      optionsDiv.hidden = false;
+      optionsDiv.classList.add('god0');
+      window.setInterval(updateTransition, 500);
+      showAllOpts = !showAllOpts;
+      showMax = 0;
+      rebuildAnimate();
+    }
+  })
+
+  function rebuildAnimate() {
+    if (showMax++ >= allOptsLength)
+      return;
+    rebuildOptions();
+    var optionsDiv = document.querySelector('.options');
+    setTimeout(rebuildAnimate, 1000);
+  }
+
+  function updateTransition() {
+    var optionsDiv;
+    for (var i = 0; i < 2; i++) {
+      if (optionsDiv = document.querySelector('.god' + i)) {
+        optionsDiv.classList.remove('god' + i);
+        optionsDiv.classList.add('god' + (i + 1) % 2);
+        break;
+      }
+    }
   }
 
 })();
