@@ -227,8 +227,9 @@ class YieldExpressionTransformer extends TempVarTransformer {
    * @private
    */
   transformYieldForExpression_(tree) {
-    var g = createIdentifierExpression(this.getTempIdentifier());
-    var next = createIdentifierExpression(this.getTempIdentifier());
+    var g = id(this.getTempIdentifier());
+    var next = id(this.getTempIdentifier());
+    var isGeneratorObject = id(this.getTempIdentifier());
 
     // http://wiki.ecmascript.org/doku.php?id=harmony:generators
     //
@@ -260,6 +261,9 @@ class YieldExpressionTransformer extends TempVarTransformer {
     return parseStatement `
         {
           var ${g} = traceur.runtime.getIterator(${tree.expression}), ${next};
+          // Use duck-type testing to also identify native generator objects.
+          // TODO: Reduce false positives.
+          var ${isGeneratorObject} = ${g}.send;
 
           // TODO: Should 'yield *' handle non-generator iterators? A strict
           // interpretation of harmony:generators would indicate 'no', but
@@ -273,23 +277,24 @@ class YieldExpressionTransformer extends TempVarTransformer {
             while (true) {
               switch (${id(YIELD_ACTION)}) {
                 case ${ACTION_SEND}:
-                  if (!${g}.send)
-                    ${next} = ${g}.next();
-                  else
+                  if (${isGeneratorObject})
                     ${next} = ${g}.send(${id(YIELD_SENT)});
+                  else
+                    ${next} = ${g}.next();
                   break;
                 case ${ACTION_THROW}:
                   ${id(YIELD_ACTION)} = ${ACTION_SEND};
-                  if (!${g}.throw)
+                  if (${isGeneratorObject})
+                    ${next} = ${g}.throw(${id(YIELD_SENT)});
+                  else
                     throw ${id(YIELD_SENT)};
-                  ${next} = ${g}.throw(${id(YIELD_SENT)});
                   break;
                 case ${ACTION_CLOSE}:
                   // TODO: Another deviation from harmony:generators. This line
                   // is needed if we want any given generator function G to be
                   // identical in behavior to GG when 'close' is used.
                   //   function* GG() { yield* G(); }
-                  if (${g}.close)
+                  if (${isGeneratorObject})
                     ${g}.close();
                   return;
               }
