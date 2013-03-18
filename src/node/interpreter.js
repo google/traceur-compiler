@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 // Copyright 2013 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,9 +21,7 @@ var inlineAndCompile = require('./inline-module.js').inlineAndCompile;
 var ErrorReporter = traceur.util.ErrorReporter;
 var TreeWriter = traceur.outputgeneration.TreeWriter;
 
-function interpret(filename, options) {
-  options = options || {};
-
+function interpret(filename) {
   var reporter = new ErrorReporter();
 
   var argv = process.argv.slice(1);
@@ -33,7 +29,7 @@ function interpret(filename, options) {
   process.argv = argv;
   module.filename = filename;
 
-  inlineAndCompile([filename], options, reporter, function(tree) {
+  inlineAndCompile([filename], {}, reporter, function(tree) {
     var compiledCode = TreeWriter.write(tree);
     require.main._compile(compiledCode, filename);
     process.exit(0);
@@ -43,9 +39,3 @@ function interpret(filename, options) {
 }
 
 module.exports = interpret;
-
-if (!module.parent) {
-  var filename = process.argv[2];
-  // Options should really be --traceur-options="...."
-  interpret(filename);
-}
