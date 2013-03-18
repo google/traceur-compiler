@@ -331,10 +331,12 @@ class YieldExpressionTransformer extends TempVarTransformer {
 export class GeneratorTransformPass extends TempVarTransformer {
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
+   * @param {RuntimeInliner} runtimeInliner
    * @param {ErrorReporter} reporter
    */
-  constructor(identifierGenerator, reporter) {
+  constructor(identifierGenerator, runtimeInliner, reporter) {
     super(identifierGenerator);
+    this.runtimeInliner_ = runtimeInliner;
     this.reporter_ = reporter;
   }
 
@@ -385,7 +387,8 @@ export class GeneratorTransformPass extends TempVarTransformer {
         body = YieldExpressionTransformer.
             transformTree(this.identifierGenerator, body);
 
-        body = GeneratorTransformer.transformGeneratorBody(this.reporter_,
+        body = GeneratorTransformer.transformGeneratorBody(this.runtimeInliner_,
+                                                           this.reporter_,
                                                            body);
       }
     } else if (transformOptions.deferredFunctions) {
@@ -427,8 +430,15 @@ export class GeneratorTransformPass extends TempVarTransformer {
         body);
   }
 
-  static transformTree(identifierGenerator, reporter, tree) {
-    return new GeneratorTransformPass(identifierGenerator, reporter).
-        transformAny(tree);
+  /**
+   * @param {UniqueIdentifierGenerator} identifierGenerator
+   * @param {RuntimeInliner} runtimeInliner
+   * @param {ErrorReporter} reporter
+   * @param {ParseTree} tree
+   * @return {ParseTree}
+   */
+  static transformTree(identifierGenerator, runtimeInliner, reporter, tree) {
+    return new GeneratorTransformPass(
+        identifierGenerator, runtimeInliner, reporter).transformAny(tree);
   }
 }

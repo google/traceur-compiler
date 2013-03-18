@@ -66,7 +66,6 @@ var ST_EXECUTING = 1;
 var ST_SUSPENDED = 2;
 var ST_CLOSED = 3;
 var GSTATE = 'GState';
-var $YIELD_RETURN = createIdentifierExpression(YIELD_RETURN);
 
 /**
  * Desugars generator function bodies. Generator function bodies contain
@@ -83,6 +82,14 @@ var $YIELD_RETURN = createIdentifierExpression(YIELD_RETURN);
  * }
  */
 export class GeneratorTransformer extends CPSTransformer {
+  /**
+   * @param {RuntimeInliner} runtimeInliner
+   * @param {ErrorReporter} reporter
+   */
+  constructor(runtimeInliner, reporter) {
+    super(reporter);
+    this.runtimeInliner_ = runtimeInliner;
+  }
 
   /**
    * Simple form yield expressions (direct children of an ExpressionStatement)
@@ -196,7 +203,7 @@ export class GeneratorTransformer extends CPSTransformer {
 
     var statements = [];
 
-    var $G = createIdentifierExpression('$G');
+    var G = '$G';
 
     // TODO(arv): Simplify the outputted code by only alpha renaming this and
     // arguments if needed.
@@ -216,7 +223,7 @@ export class GeneratorTransformer extends CPSTransformer {
 
     statements.push(
         parseStatement `
-        var ${$G} = {
+        var ${G} = {
           GState: ${ST_NEWBORN},
           current: undefined,
           yieldReturn: undefined,
@@ -226,17 +233,12 @@ export class GeneratorTransformer extends CPSTransformer {
 
     // TODO(arv): The result should be an instance of Generator.
     // https://code.google.com/p/traceur-compiler/issues/detail?id=109
-    statements.push(
-        // TODO: Look into if this code can be shared between generator
-        // instances.
-        //
-        // TODO: Almost all of these placeholders are constants. Can we do
-        // something more efficient in that case?
-        parseStatement `
-        function $generatorWrap(${$G}) {
+    var generatorWrap = this.runtimeInliner_.get('generatorWrap',
+        `
+        function (${G}) {
           return {
             send: function(x) {
-              switch (${$G}.GState) {
+              switch (${G}.GState) {
                 case ${ST_EXECUTING}:
                   throw new Error('"send" on executing generator');
                 case ${ST_CLOSED}:
@@ -247,15 +249,15 @@ export class GeneratorTransformer extends CPSTransformer {
                   }
                   // fall through
                 case ${ST_SUSPENDED}:
-                  ${$G}.GState = ${ST_EXECUTING};
-                  if (${$G}.moveNext(x, ${ACTION_SEND})) {
-                    ${$G}.GState = ${ST_SUSPENDED};
-                    return ${$G}.current;
+                  ${G}.GState = ${ST_EXECUTING};
+                  if (${G}.moveNext(x, ${ACTION_SEND})) {
+                    ${G}.GState = ${ST_SUSPENDED};
+                    return ${G}.current;
                   }
-                  ${$G}.GState = ${ST_CLOSED};
-                  if (${$G}.yieldReturn !== undefined) {
+                  ${G}.GState = ${ST_CLOSED};
+                  if (${G}.yieldReturn !== undefined) {
                     throw new traceur.runtime.
-                        GeneratorReturn(${$G}.yieldReturn);
+                        GeneratorReturn(${G}.yieldReturn);
                   }
                   throw traceur.runtime.StopIteration;
               }
@@ -266,47 +268,48 @@ export class GeneratorTransformer extends CPSTransformer {
             },
 
             'throw': function(x) {
-              switch (${$G}.GState) {
+              switch (${G}.GState) {
                 case ${ST_EXECUTING}:
                   throw new Error('"throw" on executing generator');
                 case ${ST_CLOSED}:
                   throw new Error('"throw" on closed generator');
                 case ${ST_NEWBORN}:
-                  ${$G}.GState = ${ST_CLOSED};
+                  ${G}.GState = ${ST_CLOSED};
                   throw x;
                 case ${ST_SUSPENDED}:
-                  ${$G}.GState = ${ST_EXECUTING};
-                  if (${$G}.moveNext(x, ${ACTION_THROW})) {
-                    ${$G}.GState = ${ST_SUSPENDED};
-                    return ${$G}.${CURRENT};
+                  ${G}.GState = ${ST_EXECUTING};
+                  if (${G}.moveNext(x, ${ACTION_THROW})) {
+                    ${G}.GState = ${ST_SUSPENDED};
+                    return ${G}.${CURRENT};
                   }
-                  ${$G}.GState = ${ST_CLOSED};
-                  if (${$G}.yieldReturn !== undefined) {
+                  ${G}.GState = ${ST_CLOSED};
+                  if (${G}.yieldReturn !== undefined) {
                     throw new traceur.runtime.
-                        GeneratorReturn(${$G}.yieldReturn);
+                        GeneratorReturn(${G}.yieldReturn);
                   }
                   throw traceur.runtime.StopIteration;
               }
             },
 
             close: function() {
-              switch (${$G}.GState) {
+              switch (${G}.GState) {
                 case ${ST_EXECUTING}:
                   throw new Error('"close" on executing generator');
                 case ${ST_CLOSED}:
                   return;
                 case ${ST_NEWBORN}:
-                  ${$G}.GState = ${ST_CLOSED};
+                  ${G}.GState = ${ST_CLOSED};
                   return;
                 case ${ST_SUSPENDED}:
-                  ${$G}.GState = ${ST_EXECUTING};
-                  ${$G}.moveNext(undefined, ${ACTION_CLOSE});
-                  ${$G}.GState = ${ST_CLOSED};
+                  ${G}.GState = ${ST_EXECUTING};
+                  ${G}.moveNext(undefined, ${ACTION_CLOSE});
+                  ${G}.GState = ${ST_CLOSED};
               }
             }
           };
         }`);
-    statements.push(parseStatement `var $result = $generatorWrap(${$G});`);
+    var id = createIdentifierExpression;
+    statements.push(parseStatement `var $result = ${generatorWrap}(${id(G)});`);
 
     // traceur.runtime.addIterator($result)
     statements.push(createExpressionStatement(
@@ -355,13 +358,15 @@ export class GeneratorTransformer extends CPSTransformer {
   machineEndStatements() {
     return [createReturnStatement(createFalseLiteral())];
   }
-}
 
-/**
- * @param {ErrorReporter} reporter
- * @param {Block} body
- * @return {Block}
- */
-GeneratorTransformer.transformGeneratorBody = function(reporter, body) {
-  return new GeneratorTransformer(reporter).transformGeneratorBody(body);
+  /**
+   * @param {RuntimeInliner} runtimeInliner
+   * @param {ErrorReporter} reporter
+   * @param {Block} body
+   * @return {Block}
+   */
+  static transformGeneratorBody(runtimeInliner, reporter, body) {
+    return new GeneratorTransformer(runtimeInliner, reporter).
+        transformGeneratorBody(body);
+  }
 };

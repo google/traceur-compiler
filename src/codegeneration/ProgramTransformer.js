@@ -185,6 +185,7 @@ export class ProgramTransformer {
     transform(transformOptions.generators || transformOptions.deferredFunctions,
               GeneratorTransformPass,
               identifierGenerator,
+              runtimeInliner,
               reporter);
 
     transform(transformOptions.privateNames && transformOptions.privateNameSyntax,
