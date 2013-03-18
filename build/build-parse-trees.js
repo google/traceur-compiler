@@ -42,14 +42,10 @@ function printInitializer(name) {
   print('    this.%s = %s;', name, name);
 }
 
-function toConstantName(n) {
-  return n[0] + n.slice(1).replace(/([A-Z])/g, '_$1').toUpperCase();
-}
-
 var names = Object.keys(trees);
 
 names.forEach(function(name) {
-  var treeTypeName = toConstantName(name);
+  var treeTypeName = util.toConstantName(name);
   var paramNames = Object.keys(trees[name]);
   // var params = trees[name];
   // var paramNames = params.map(function(p) { return p.name; });

@@ -750,7 +750,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
    * @return {Block}
    */
   transformBlockStatements_(tree) {
-    var statements = this.transformSourceElements(tree.statements);
+    var statements = this.transformList(tree.statements);
 
     if (this.scope_.blockVariables != null) {
       // rewrite into catch construct

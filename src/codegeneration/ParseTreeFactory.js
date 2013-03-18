@@ -705,10 +705,16 @@ export function createMemberLookupExpression(operand,  memberExpression) {
 }
 
 /**
+ * Creates 'this' or 'this.memberName'.
+ * @param {string=} memberName
  * @return {ParseTree}
  */
-export function createThisExpression() {
-  return new ThisExpression(null);
+export function createThisExpression(memberName = undefined) {
+  var result = new ThisExpression(null);
+  if (memberName) {
+    result = createMemberExpression(result, memberName);
+  }
+  return result;
 }
 
 /**

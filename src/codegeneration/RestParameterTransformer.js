@@ -41,10 +41,16 @@ function getRestParameterLiteralToken(formalParameterList) {
  */
 export class RestParameterTransformer extends TempVarTransformer {
 
-  transformFunction(tree) {
+  transformFunctionDeclaration(tree) {
     if (hasRestParameter(tree.formalParameterList))
       return this.desugarRestParameters_(tree);
-    return super.transformFunction(tree);
+    return super.transformFunctionDeclaration(tree);
+  }
+
+  transformFunctionExpression(tree) {
+    if (hasRestParameter(tree.formalParameterList))
+      return this.desugarRestParameters_(tree);
+    return super.transformFunctionExpression(tree);
   }
 
   /**

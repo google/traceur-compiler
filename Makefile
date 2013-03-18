@@ -4,6 +4,8 @@ SRC = \
 GENSRC = \
   src/syntax/trees/ParseTreeType.js \
   src/syntax/trees/ParseTrees.js \
+  src/syntax/ParseTreeVisitor.js \
+  src/codegeneration/ParseTreeTransformer.js \
   src/outputgeneration/SourceMapIntegration.js
 
 TFLAGS = --strict-semicolons --
@@ -58,6 +60,12 @@ src/syntax/trees/ParseTrees.js: src/syntax/trees/trees.json build/build-parse-tr
 
 src/syntax/trees/ParseTreeType.js: src/syntax/trees/trees.json build/build-parse-tree-type.js
 	node build/build-parse-tree-type.js src/syntax/trees/trees.json > $@
+
+src/syntax/ParseTreeVisitor.js: src/syntax/trees/trees.json build/build-parse-tree-visitor.js
+	node build/build-parse-tree-visitor.js src/syntax/trees/trees.json > $@
+
+src/codegeneration/ParseTreeTransformer.js: src/syntax/trees/trees.json build/build-parse-tree-transformer.js
+	node build/build-parse-tree-transformer.js src/syntax/trees/trees.json > $@
 
 %.js: %.js-template.js
 	node build/expand-js-template.js $^ $@

@@ -151,19 +151,20 @@ function testScript(filePath) {
       return true;
     } catch (e) {
       if (e instanceof UnitTestError) {
-        failScript(filePath, e.message);
+        failScript(filePath, e.message + '\n' + e.stack);
       } else if (e instanceof SyntaxError) {
         failScript(filePath,
             'Compiled to invalid Javascript. Source:\n\n     ' +
             javascript.trim().replace(/\n/g, '\n     ') + '\n\n' +
             '     ' + e);
       } else {
-        failScript(filePath, 'Unexpected exception running script:\n' + e);
+        failScript(filePath, 'Unexpected exception running script:\n' + e +
+            '\n' + e.stack);
       }
     }
 
   } catch(e) {
-    failScript(filePath, 'Unexpected exception:\n' + e);
+    failScript(filePath, 'Unexpected exception:\n' + e + '\n' + e.stack);
   } finally {
     traceur.options.reset();
     restoreConsole();

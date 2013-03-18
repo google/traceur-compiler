@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {
+  FunctionDeclaration,
+  FunctionExpression
+} from '../syntax/trees/ParseTrees.js';
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {
   ARGUMENTS,
@@ -79,27 +83,45 @@ export class AlphaRenamer extends ParseTreeTransformer {
   }
 
   /**
-   * @param {FunctionDeclaration|FunctionExpression} tree
+   * @param {FunctionDeclaration} tree
    * @return {ParseTree}
    */
-  transformFunction(tree) {
-    if (this.oldName_ == tree.name) {
+  transformFunctionDeclaration(tree) {
+    if (this.oldName_ === tree.name) {
       // it is the function that is being renamed
-      tree = new tree.constructor(tree.location, this.newName_,
+      tree = new FunctionDeclaration(tree.location, this.newName_,
           tree.isGenerator, tree.formalParameterList, tree.functionBody);
     }
 
-    // Do not recurse into functions if:
-    //  - 'arguments' is implicitly bound in function bodies
-    //  - 'this' is implicitly bound in function bodies
-    //  - this.oldName_ is rebound in the new nested scope
-    var doNotRecurse =
-        this.oldName_ === ARGUMENTS ||
+    if (this.getDoNotRecurse(tree))
+      return tree;
+    return super.transformFunctionDeclaration(tree);
+  }
+
+  /**
+   * @param {FunctionExpression} tree
+   * @return {ParseTree}
+   */
+  transformFunctionExpression(tree) {
+    if (this.oldName_ === tree.name) {
+      // it is the function that is being renamed
+      tree = new FunctionExpression(tree.location, this.newName_,
+          tree.isGenerator, tree.formalParameterList, tree.functionBody);
+    }
+
+    if (this.getDoNotRecurse(tree))
+      return tree;
+    return super.transformFunctionExpression(tree);
+  }
+
+  // Do not recurse into functions if:
+  //  - 'arguments' is implicitly bound in function bodies
+  //  - 'this' is implicitly bound in function bodies
+  //  - this.oldName_ is rebound in the new nested scope
+  getDoNotRecurse(tree) {
+    return this.oldName_ === ARGUMENTS ||
         this.oldName_ === THIS ||
         this.oldName_ in variablesInFunction(tree);
-    if (doNotRecurse)
-      return tree;
-    return super.transformFunction(tree);
   }
 
   /**

@@ -237,7 +237,7 @@ export class Parser {
 
   /**
    * @private
-   * @return {ModeuleRequireTree|IdentifierExpression}
+   * @return {ModuleRequireTree|IdentifierExpression}
    */
   parseModuleReference_(load) {
     // ModuleReference(load) ::= Identifier

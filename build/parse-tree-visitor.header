@@ -1,0 +1,18 @@
+
+export class ParseTreeVisitor {
+  visitAny(tree) {
+    tree && tree.visit(this);
+  }
+  visit(tree) {
+    this.visitAny(tree);
+  }
+  visitList(list) {
+    if (list) {
+      for (var i = 0; i < list.length; i++) {
+        this.visitAny(list[i]);
+      }
+    }
+  }
+  visitStateMachine(tree) {
+    throw Error('State machines should not live outside of the GeneratorTransformer.');
+  }

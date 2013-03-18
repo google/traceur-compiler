@@ -1,0 +1,22 @@
+import * from '../syntax/trees/ParseTrees.js';
+export class ParseTreeTransformer {
+  transformAny(tree) {
+    return tree && tree.transform(this);
+  }
+  transformList(list) {
+    var builder = null;
+    for (var index = 0; index < list.length; index++) {
+      var element = list[index];
+      var transformed = this.transformAny(element);
+      if (builder != null || element != transformed) {
+        if (builder == null) {
+          builder = list.slice(0, index);
+        }
+        builder.push(transformed);
+      }
+    }
+    return builder || list;
+  }
+  transformStateMachine(tree) {
+    throw Error('State machines should not live outside of the GeneratorTransformer.');
+  }

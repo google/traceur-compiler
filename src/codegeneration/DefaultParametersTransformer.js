@@ -18,7 +18,9 @@ import {
   isLiteralExpression
 } from '../semantics/util.js';
 import {
-  FormalParameterList
+  FormalParameterList,
+  FunctionDeclaration,
+  FunctionExpression
 } from '../syntax/trees/ParseTrees.js';
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {
@@ -86,10 +88,10 @@ function createDefaultAssignment(index, binding, initializer) {
  */
 export class DefaultParametersTransformer extends ParseTreeTransformer {
 
-  transformFunction(tree) {
+  transformFunctionExpression(tree) {
     stack.push([]);
 
-    var transformedTree = super.transformFunction(tree);
+    var transformedTree = super.transformFunctionExpression(tree);
 
     var statements = stack.pop();
     if (!statements.length)
@@ -99,11 +101,31 @@ export class DefaultParametersTransformer extends ParseTreeTransformer {
     statements = prependStatements(transformedTree.functionBody.statements,
                                    ...statements);
 
-    return new tree.constructor(transformedTree.location,
-                                transformedTree.name,
-                                transformedTree.isGenerator,
-                                transformedTree.formalParameterList,
-                                createBlock(statements));
+    return new FunctionExpression(transformedTree.location,
+                                  transformedTree.name,
+                                  transformedTree.isGenerator,
+                                  transformedTree.formalParameterList,
+                                  createBlock(statements));
+  }
+
+  transformFunctionDeclaration(tree) {
+    stack.push([]);
+
+    var transformedTree = super.transformFunctionDeclaration(tree);
+
+    var statements = stack.pop();
+    if (!statements.length)
+      return transformedTree;
+
+    // Prepend the var statements to the block.
+    statements = prependStatements(transformedTree.functionBody.statements,
+                                   ...statements);
+
+    return new FunctionDeclaration(transformedTree.location,
+                                    transformedTree.name,
+                                    transformedTree.isGenerator,
+                                    transformedTree.formalParameterList,
+                                    createBlock(statements));
   }
 
   transformFormalParameterList(tree) {

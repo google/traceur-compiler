@@ -401,7 +401,7 @@
       "SourceRange"
     ],
     "parameters": [
-      "Array.<BindingElement|RestParameter>"
+      "Array.<ParseTree>"
     ]
   },
   "FunctionDeclaration": {
@@ -805,7 +805,7 @@
       "ParseTree"
     ],
     "caseClauses": [
-      "Array.<CaseClause|DefaultClause>"
+      "Array.<ParseTree>"
     ]
   },
   "TemplateLiteralExpression": {

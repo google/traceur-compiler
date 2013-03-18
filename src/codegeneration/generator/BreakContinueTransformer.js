@@ -103,10 +103,18 @@ export class BreakContinueTransformer extends ParseTreeTransformer {
   }
 
   /**
-   * @param {FunctionDeclaration|FunctionExpression} tree
+   * @param {FunctionDeclaration} tree
    * @return {ParseTree}
    */
-  transformFunction(tree) {
+  transformFunctionDeclaration(tree) {
+    return tree;
+  }
+
+  /**
+   * @param {FunctionExpression} tree
+   * @return {ParseTree}
+   */
+  transformFunctionExpression(tree) {
     return tree;
   }
 

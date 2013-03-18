@@ -49,14 +49,11 @@ function makeTestName(path) {
 function runCode(code, name) {
   'use strict';
   
-  var completed = false;
   try {
     ('global', eval)(code);
-    completed = true;
-  } finally {
-    if (!completed) {
-      fail('Error running compiled output for : ' + name);
-    }
+  } catch (e) {
+    fail('Error running compiled output for : ' + name + '\n' + code + '\n' +
+         e);
   }
 }
 

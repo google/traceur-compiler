@@ -34,10 +34,6 @@ module utilJSON from '../../util/JSON.js';
  *
  * When adding a new subclass of ParseTree you must also do the following:
  *   - add a new entry to ParseTreeType
- *   - modify ParseTreeVisitor.visit(ParseTree) for new ParseTreeType
- *   - add ParseTreeVisitor.visit(XTree)
- *   - modify ParseTreeTransformer.transform(ParseTree) for new ParseTreeType
- *   - add ParseTreeTransformer.transform(XTree)
  *   - add ParseTreeWriter.visit(XTree)
  *   - add ParseTreeValidator.visit(XTree)
  */

@@ -36,6 +36,10 @@ import {
   YIELD_EXPRESSION
 } from '../syntax/trees/ParseTreeType.js';
 import {
+  FunctionDeclaration,
+  FunctionExpression
+} from '../syntax/trees/ParseTrees.js';
+import {
   createAssignmentExpression,
   createAssignmentStatement,
   createBlock,
@@ -110,7 +114,8 @@ class YieldFinder extends ParseTreeVisitor {
   }
 
   // don't visit function children or bodies
-  visitFunction(tree) {}
+  visitFunctionDeclaration(tree) {}
+  visitFunctionExpression(tree) {}
   visitSetAccessor(tree) {}
   visitGetAccessor(tree) {}
 }
@@ -341,10 +346,10 @@ export class GeneratorTransformPass extends TempVarTransformer {
   }
 
   /**
-   * @param {FunctionDeclaration|FunctionExpression} tree
+   * @param {FunctionDeclaration} tree
    * @return {ParseTree}
    */
-  transformFunction(tree) {
+  transformFunctionDeclaration(tree) {
     var body = this.transformBody_(tree.functionBody, tree.isGenerator);
     if (body === tree.functionBody)
       return tree;
@@ -352,8 +357,24 @@ export class GeneratorTransformPass extends TempVarTransformer {
     // The generator has been transformed away.
     var isGenerator = false;
 
-    return new tree.constructor(null, tree.name, isGenerator,
-                                tree.formalParameterList, body);
+    return new FunctionDeclaration(null, tree.name, isGenerator,
+                                   tree.formalParameterList, body);
+  }
+
+  /**
+   * @param {FunctionExpression} tree
+   * @return {ParseTree}
+   */
+  transformFunctionExpression(tree) {
+    var body = this.transformBody_(tree.functionBody, tree.isGenerator);
+    if (body === tree.functionBody)
+      return tree;
+
+    // The generator has been transformed away.
+    var isGenerator = false;
+
+    return new FunctionExpression(null, tree.name, isGenerator,
+                                  tree.formalParameterList, body);
   }
 
   /**
