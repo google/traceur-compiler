@@ -134,7 +134,7 @@ class YieldExpressionTransformer extends TempVarTransformer {
               ${id(YIELD_ACTION)} = ${ACTION_SEND};
               throw ${id(YIELD_SENT)};
             case ${ACTION_CLOSE}:
-              break $close;
+              return;
           }`;
     }
   }
@@ -291,7 +291,7 @@ class YieldExpressionTransformer extends TempVarTransformer {
                   //   function* GG() { yield* G(); }
                   if (${g}.close)
                     ${g}.close();
-                  break $close;
+                  return;
               }
               ${createYieldStatement(next)};
             }
@@ -377,16 +377,8 @@ export class GeneratorTransformPass extends TempVarTransformer {
 
     if (finder.hasYield || isGenerator) {
       if (transformOptions.generators) {
-        // The labeled do-while serves as a jump target for 'ACTION_CLOSE'.
-        // See the var 'throwClose' and the class 'YieldExpressionTransformer'
-        // for more details.
-        body = parseStatement `
-            {
-              $close: do {
-                ${YieldExpressionTransformer.
-                      transformTree(this.identifierGenerator, body)};
-              } while (0);
-            }`;
+        body = YieldExpressionTransformer.
+            transformTree(this.identifierGenerator, body);
 
         body = GeneratorTransformer.transformGeneratorBody(this.reporter_,
                                                            body);
