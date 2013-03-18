@@ -6710,7 +6710,7 @@ var $___src_syntax_PredefinedName_js = (function() {
   var CREATE_ERRBACK = '$createErrback';
   var CREATE_NAME = 'createName';
   var CREATE_PROMISE = 'createPromise';
-  var CURRENT = '$current';
+  var CURRENT = 'current';
   var DEFERRED = 'Deferred';
   var DEFINE_PROPERTIES = 'defineProperties';
   var DEFINE_PROPERTY = 'defineProperty';
@@ -6738,7 +6738,7 @@ var $___src_syntax_PredefinedName_js = (function() {
   var LENGTH = 'length';
   var MODULE = 'module';
   var MODULES = 'modules';
-  var MOVE_NEXT = '$moveNext';
+  var MOVE_NEXT = 'moveNext';
   var NEW = 'new';
   var NEW_STATE = '$newState';
   var NUMBER = 'number';
@@ -6777,7 +6777,7 @@ var $___src_syntax_PredefinedName_js = (function() {
   var WAIT_TASK = '$waitTask';
   var WRITABLE = 'writable';
   var YIELD_ACTION = '$yieldAction';
-  var YIELD_RETURN = '$yieldReturn';
+  var YIELD_RETURN = 'yieldReturn';
   var YIELD_SENT = '$yieldSent';
   function getParameterName(index) {
     return '$' + index;
@@ -14770,7 +14770,6 @@ var $___src_codegeneration_generator_CPSTransformer_js = (function() {
         var rethrowState = this.allocateState();
         var machineEndState = this.allocateState();
         var body = createSwitchStatement(createIdentifierExpression(STATE), this.transformMachineStates(machine, machineEndState, rethrowState, enclosingFinallyState));
-        this.machineEndState = machineEndState;
         var caseClauses = [];
         this.addExceptionCases_(rethrowState, enclosingFinallyState, enclosingCatchState, machine.states, caseClauses);
         caseClauses.push(createDefaultClause(this.machineUncaughtExceptionStatements(rethrowState, machineEndState)));
@@ -15135,7 +15134,7 @@ var $___src_codegeneration_generator_YieldState_js = (function() {
   "use strict";
   var $__9 = $___src_syntax_PredefinedName_js, CURRENT = $__9.CURRENT, RESULT = $__9.RESULT;
   var State = $___src_codegeneration_generator_State_js.State;
-  var $__9 = $___src_codegeneration_ParseTreeFactory_js, createAssignmentStatement = $__9.createAssignmentStatement, createIdentifierExpression = $__9.createIdentifierExpression, createMemberExpression = $__9.createMemberExpression, createReturnStatement = $__9.createReturnStatement, createTrueLiteral = $__9.createTrueLiteral;
+  var $__9 = $___src_codegeneration_ParseTreeFactory_js, createAssignmentStatement = $__9.createAssignmentStatement, createIdentifierExpression = $__9.createIdentifierExpression, createMemberExpression = $__9.createMemberExpression, createReturnStatement = $__9.createReturnStatement, createThisExpression = $__9.createThisExpression, createTrueLiteral = $__9.createTrueLiteral;
   var YieldState = function($__super) {
     'use strict';
     var $__proto = $__getProtoParent($__super);
@@ -15149,7 +15148,7 @@ var $___src_codegeneration_generator_YieldState_js = (function() {
         return new this.constructor(State.replaceStateId(this.id, oldState, newState), State.replaceStateId(this.fallThroughState, oldState, newState), this.expression);
       },
       transform: function(enclosingFinally, machineEndState, reporter) {
-        return $__spread([createAssignmentStatement(createIdentifierExpression(CURRENT), this.expression)], State.generateAssignState(enclosingFinally, this.fallThroughState), [createReturnStatement(createTrueLiteral())]);
+        return $__spread([createAssignmentStatement(createMemberExpression(createThisExpression(), CURRENT), this.expression)], State.generateAssignState(enclosingFinally, this.fallThroughState), [createReturnStatement(createTrueLiteral())]);
       }
     }, {}, $__proto, $__super, true);
     return $YieldState;
@@ -15168,7 +15167,7 @@ var $___src_codegeneration_generator_ReturnState_js = (function() {
   var IDENTIFIER_EXPRESSION = $___src_syntax_trees_ParseTreeType_js.IDENTIFIER_EXPRESSION;
   var YieldState = $___src_codegeneration_generator_YieldState_js.YieldState;
   var State = $___src_codegeneration_generator_State_js.State;
-  var $__9 = $___src_codegeneration_ParseTreeFactory_js, createAssignmentStatement = $__9.createAssignmentStatement, createIdentifierExpression = $__9.createIdentifierExpression, createMemberExpression = $__9.createMemberExpression, createReturnStatement = $__9.createReturnStatement, createTrueLiteral = $__9.createTrueLiteral;
+  var $__9 = $___src_codegeneration_ParseTreeFactory_js, createAssignmentStatement = $__9.createAssignmentStatement, createIdentifierExpression = $__9.createIdentifierExpression, createMemberExpression = $__9.createMemberExpression, createReturnStatement = $__9.createReturnStatement, createThisExpression = $__9.createThisExpression, createTrueLiteral = $__9.createTrueLiteral;
   var ReturnState = function($__super) {
     'use strict';
     var $__proto = $__getProtoParent($__super);
@@ -15179,7 +15178,7 @@ var $___src_codegeneration_generator_ReturnState_js = (function() {
       transform: function(enclosingFinally, machineEndState, reporter) {
         var e = this.expression;
         if (e && !isUndefined(e) && !isVoidExpression(e)) {
-          return $__spread([createAssignmentStatement(createIdentifierExpression(YIELD_RETURN), this.expression)], State.generateJump(enclosingFinally, machineEndState));
+          return $__spread([createAssignmentStatement(createMemberExpression(createThisExpression(), YIELD_RETURN), this.expression)], State.generateJump(enclosingFinally, machineEndState));
         } else {
           return State.generateJump(enclosingFinally, machineEndState);
         }
@@ -15196,7 +15195,7 @@ var $___src_codegeneration_generator_ReturnState_js = (function() {
 }).call(this);
 var $___src_codegeneration_generator_GeneratorTransformer_js = (function() {
   "use strict";
-  var $__3 = Object.freeze(Object.defineProperties(["\n        var\n          ", " = ", ",\n          ", ",\n          ", ",\n          ", " = ", ";\n        "], {raw: {value: Object.freeze(["\n        var\n          ", " = ", ",\n          ", ",\n          ", ",\n          ", " = ", ";\n        "])}})), $__0 = Object.freeze(Object.defineProperties(["\n        var $result = {\n          send: function(x) {\n            switch (", ") {\n              case ", ":\n                throw new Error('\"send\" on executing generator');\n              case ", ":\n                throw new Error('\"send\" on closed generator');\n              case ", ":\n                if (x !== undefined) {\n                  throw new TypeError('Sent value to newborn generator');\n                }\n                // fall through\n              case ", ":\n                ", " = ", ";\n                if (", "(x, ", ")) {\n                  ", " = ", ";\n                  return ", ";\n                }\n                ", " = ", ";\n                if (", " !== undefined) {\n                  throw new traceur.runtime.GeneratorReturn(", ");\n                }\n                throw traceur.runtime.StopIteration;\n            }\n          },\n\n          next: function() {\n            return this.send(undefined);\n          },\n\n          'throw': function(x) {\n            switch (", ") {\n              case ", ":\n                throw new Error('\"throw\" on executing generator');\n              case ", ":\n                throw new Error('\"throw\" on closed generator');\n              case ", ":\n                ", " = ", ";\n                $state = ", ";\n                throw x;\n              case ", ":\n                ", " = ", ";\n                if (", "(x, ", ")) {\n                  ", " = ", ";\n                  return ", ";\n                }\n                ", " = ", ";\n                if (", " !== undefined) {\n                  throw new traceur.runtime.GeneratorReturn(", ");\n                }\n                throw traceur.runtime.StopIteration;\n            }\n          },\n\n          close: function() {\n            switch (", ") {\n              case ", ":\n                throw new Error('\"close\" on executing generator');\n              case ", ":\n                return;\n              case ", ":\n                ", " = ", ";\n                $state = ", ";\n                return;\n              case ", ":\n                ", " = ", ";\n                ", "(undefined, ", ");\n                ", " = ", ";\n            }\n          }\n        };"], {raw: {value: Object.freeze(["\n        var $result = {\n          send: function(x) {\n            switch (", ") {\n              case ", ":\n                throw new Error('\"send\" on executing generator');\n              case ", ":\n                throw new Error('\"send\" on closed generator');\n              case ", ":\n                if (x !== undefined) {\n                  throw new TypeError('Sent value to newborn generator');\n                }\n                // fall through\n              case ", ":\n                ", " = ", ";\n                if (", "(x, ", ")) {\n                  ", " = ", ";\n                  return ", ";\n                }\n                ", " = ", ";\n                if (", " !== undefined) {\n                  throw new traceur.runtime.GeneratorReturn(", ");\n                }\n                throw traceur.runtime.StopIteration;\n            }\n          },\n\n          next: function() {\n            return this.send(undefined);\n          },\n\n          'throw': function(x) {\n            switch (", ") {\n              case ", ":\n                throw new Error('\"throw\" on executing generator');\n              case ", ":\n                throw new Error('\"throw\" on closed generator');\n              case ", ":\n                ", " = ", ";\n                $state = ", ";\n                throw x;\n              case ", ":\n                ", " = ", ";\n                if (", "(x, ", ")) {\n                  ", " = ", ";\n                  return ", ";\n                }\n                ", " = ", ";\n                if (", " !== undefined) {\n                  throw new traceur.runtime.GeneratorReturn(", ");\n                }\n                throw traceur.runtime.StopIteration;\n            }\n          },\n\n          close: function() {\n            switch (", ") {\n              case ", ":\n                throw new Error('\"close\" on executing generator');\n              case ", ":\n                return;\n              case ", ":\n                ", " = ", ";\n                $state = ", ";\n                return;\n              case ", ":\n                ", " = ", ";\n                ", "(undefined, ", ");\n                ", " = ", ";\n            }\n          }\n        };"])}}));
+  var $__3 = Object.freeze(Object.defineProperties(["\n        var ", " = {\n          GState: ", ",\n          current: undefined,\n          yieldReturn: undefined,\n          moveNext: ", "\n        };\n        "], {raw: {value: Object.freeze(["\n        var ", " = {\n          GState: ", ",\n          current: undefined,\n          yieldReturn: undefined,\n          moveNext: ", "\n        };\n        "])}})), $__0 = Object.freeze(Object.defineProperties(["var $result = ", "(", ");"], {raw: {value: Object.freeze(["var $result = ", "(", ");"])}}));
   var CPSTransformer = $___src_codegeneration_generator_CPSTransformer_js.CPSTransformer;
   var EndState = $___src_codegeneration_generator_EndState_js.EndState;
   var $__9 = $___src_syntax_PredefinedName_js, ACTION_SEND = $__9.ACTION_SEND, ACTION_THROW = $__9.ACTION_THROW, ACTION_CLOSE = $__9.ACTION_CLOSE, ADD_ITERATOR = $__9.ADD_ITERATOR, CURRENT = $__9.CURRENT, MOVE_NEXT = $__9.MOVE_NEXT, RESULT = $__9.RESULT, RUNTIME = $__9.RUNTIME, STORED_EXCEPTION = $__9.STORED_EXCEPTION, TRACEUR = $__9.TRACEUR, YIELD_RETURN = $__9.YIELD_RETURN;
@@ -15206,20 +15205,19 @@ var $___src_codegeneration_generator_GeneratorTransformer_js = (function() {
   var VAR = $___src_syntax_TokenType_js.VAR;
   var YieldState = $___src_codegeneration_generator_YieldState_js.YieldState;
   var ReturnState = $___src_codegeneration_generator_ReturnState_js.ReturnState;
-  var $__9 = $___src_codegeneration_ParseTreeFactory_js, createArgumentList = $__9.createArgumentList, createAssignStateStatement = $__9.createAssignStateStatement, createAssignmentStatement = $__9.createAssignmentStatement, createBlock = $__9.createBlock, createCallExpression = $__9.createCallExpression, createExpressionStatement = $__9.createExpressionStatement, createFalseLiteral = $__9.createFalseLiteral, createIdentifierExpression = $__9.createIdentifierExpression, createMemberExpression = $__9.createMemberExpression, createNumberLiteral = $__9.createNumberLiteral, createObjectLiteralExpression = $__9.createObjectLiteralExpression, createPropertyNameAssignment = $__9.createPropertyNameAssignment, createReturnStatement = $__9.createReturnStatement, createStatementList = $__9.createStatementList, createThrowStatement = $__9.createThrowStatement, createUndefinedExpression = $__9.createUndefinedExpression, createVariableStatement = $__9.createVariableStatement;
+  var $__9 = $___src_codegeneration_ParseTreeFactory_js, createArgumentList = $__9.createArgumentList, createAssignStateStatement = $__9.createAssignStateStatement, createAssignmentStatement = $__9.createAssignmentStatement, createBlock = $__9.createBlock, createCallExpression = $__9.createCallExpression, createExpressionStatement = $__9.createExpressionStatement, createFalseLiteral = $__9.createFalseLiteral, createIdentifierExpression = $__9.createIdentifierExpression, createMemberExpression = $__9.createMemberExpression, createNumberLiteral = $__9.createNumberLiteral, createObjectLiteralExpression = $__9.createObjectLiteralExpression, createPropertyNameAssignment = $__9.createPropertyNameAssignment, createReturnStatement = $__9.createReturnStatement, createStatementList = $__9.createStatementList, createThisExpression = $__9.createThisExpression, createThrowStatement = $__9.createThrowStatement, createUndefinedExpression = $__9.createUndefinedExpression, createVariableStatement = $__9.createVariableStatement;
   var ST_NEWBORN = 0;
   var ST_EXECUTING = 1;
   var ST_SUSPENDED = 2;
   var ST_CLOSED = 3;
-  var GSTATE = '$GState';
-  var $GSTATE = createIdentifierExpression(GSTATE);
-  var $YIELD_RETURN = createIdentifierExpression(YIELD_RETURN);
+  var GSTATE = 'GState';
   var GeneratorTransformer = function($__super) {
     'use strict';
     var $__proto = $__getProtoParent($__super);
     var $GeneratorTransformer = ($__createClass)({
-      constructor: function() {
-        $__superCall(this, $__proto, "constructor", arguments);
+      constructor: function(runtimeInliner, reporter) {
+        $__superCall(this, $__proto, "constructor", [reporter]);
+        this.runtimeInliner_ = runtimeInliner;
       },
       transformYieldExpression_: function(tree) {
         var e = tree.expression || createUndefinedExpression();
@@ -15261,19 +15259,20 @@ var $___src_codegeneration_generator_GeneratorTransformer_js = (function() {
         }
         var machine = transformedTree;
         var statements = [];
-        var $MOVE_NEXT = createIdentifierExpression(MOVE_NEXT);
-        var $CURRENT = createIdentifierExpression(CURRENT);
+        var G = '$G';
         statements.push(this.generateHoistedThis());
         statements.push(this.generateHoistedArguments());
         ($__11 = statements).push.apply($__11, $__toObject(this.getMachineVariables(tree, machine)));
-        statements.push(parseStatement($__3, $GSTATE, ST_NEWBORN, $CURRENT, $YIELD_RETURN, $MOVE_NEXT, this.generateMachineMethod(machine)));
-        statements.push(parseStatement($__0, $GSTATE, ST_EXECUTING, ST_CLOSED, ST_NEWBORN, ST_SUSPENDED, $GSTATE, ST_EXECUTING, $MOVE_NEXT, ACTION_SEND, $GSTATE, ST_SUSPENDED, $CURRENT, $GSTATE, ST_CLOSED, $YIELD_RETURN, $YIELD_RETURN, $GSTATE, ST_EXECUTING, ST_CLOSED, ST_NEWBORN, $GSTATE, ST_CLOSED, this.machineEndState, ST_SUSPENDED, $GSTATE, ST_EXECUTING, $MOVE_NEXT, ACTION_THROW, $GSTATE, ST_SUSPENDED, $CURRENT, $GSTATE, ST_CLOSED, $YIELD_RETURN, $YIELD_RETURN, $GSTATE, ST_EXECUTING, ST_CLOSED, ST_NEWBORN, $GSTATE, ST_CLOSED, this.machineEndState, ST_SUSPENDED, $GSTATE, ST_EXECUTING, $MOVE_NEXT, ACTION_CLOSE, $GSTATE, ST_CLOSED));
+        statements.push(parseStatement($__3, G, ST_NEWBORN, this.generateMachineMethod(machine)));
+        var generatorWrap = this.runtimeInliner_.get('generatorWrap', ("\n        function (" + G + ") {\n          return {\n            send: function(x) {\n              switch (" + G + ".GState) {\n                case " + ST_EXECUTING + ":\n                  throw new Error('\"send\" on executing generator');\n                case " + ST_CLOSED + ":\n                  throw new Error('\"send\" on closed generator');\n                case " + ST_NEWBORN + ":\n                  if (x !== undefined) {\n                    throw new TypeError('Sent value to newborn generator');\n                  }\n                  // fall through\n                case " + ST_SUSPENDED + ":\n                  " + G + ".GState = " + ST_EXECUTING + ";\n                  if (" + G + ".moveNext(x, " + ACTION_SEND + ")) {\n                    " + G + ".GState = " + ST_SUSPENDED + ";\n                    return " + G + ".current;\n                  }\n                  " + G + ".GState = " + ST_CLOSED + ";\n                  if (" + G + ".yieldReturn !== undefined) {\n                    throw new traceur.runtime.\n                        GeneratorReturn(" + G + ".yieldReturn);\n                  }\n                  throw traceur.runtime.StopIteration;\n              }\n            },\n\n            next: function() {\n              return this.send(undefined);\n            },\n\n            'throw': function(x) {\n              switch (" + G + ".GState) {\n                case " + ST_EXECUTING + ":\n                  throw new Error('\"throw\" on executing generator');\n                case " + ST_CLOSED + ":\n                  throw new Error('\"throw\" on closed generator');\n                case " + ST_NEWBORN + ":\n                  " + G + ".GState = " + ST_CLOSED + ";\n                  throw x;\n                case " + ST_SUSPENDED + ":\n                  " + G + ".GState = " + ST_EXECUTING + ";\n                  if (" + G + ".moveNext(x, " + ACTION_THROW + ")) {\n                    " + G + ".GState = " + ST_SUSPENDED + ";\n                    return " + G + "." + CURRENT + ";\n                  }\n                  " + G + ".GState = " + ST_CLOSED + ";\n                  if (" + G + ".yieldReturn !== undefined) {\n                    throw new traceur.runtime.\n                        GeneratorReturn(" + G + ".yieldReturn);\n                  }\n                  throw traceur.runtime.StopIteration;\n              }\n            },\n\n            close: function() {\n              switch (" + G + ".GState) {\n                case " + ST_EXECUTING + ":\n                  throw new Error('\"close\" on executing generator');\n                case " + ST_CLOSED + ":\n                  return;\n                case " + ST_NEWBORN + ":\n                  " + G + ".GState = " + ST_CLOSED + ";\n                  return;\n                case " + ST_SUSPENDED + ":\n                  " + G + ".GState = " + ST_EXECUTING + ";\n                  " + G + ".moveNext(undefined, " + ACTION_CLOSE + ");\n                  " + G + ".GState = " + ST_CLOSED + ";\n              }\n            }\n          };\n        }"));
+        var id = createIdentifierExpression;
+        statements.push(parseStatement($__0, generatorWrap, id(G)));
         statements.push(createExpressionStatement(createCallExpression(createMemberExpression(TRACEUR, RUNTIME, ADD_ITERATOR), createArgumentList(createIdentifierExpression(RESULT)))));
         statements.push(createReturnStatement(createIdentifierExpression(RESULT)));
         return createBlock(statements);
       },
       machineUncaughtExceptionStatements: function(rethrowState, machineEndState) {
-        return createStatementList(createAssignmentStatement($GSTATE, createNumberLiteral(ST_CLOSED)), createAssignStateStatement(machineEndState), createThrowStatement(createIdentifierExpression(STORED_EXCEPTION)));
+        return createStatementList(createAssignmentStatement(createMemberExpression(createThisExpression(), GSTATE), createNumberLiteral(ST_CLOSED)), createAssignStateStatement(machineEndState), createThrowStatement(createIdentifierExpression(STORED_EXCEPTION)));
       },
       machineRethrowStatements: function(machineEndState) {
         return createStatementList(createThrowStatement(createIdentifierExpression(STORED_EXCEPTION)));
@@ -15282,14 +15281,14 @@ var $___src_codegeneration_generator_GeneratorTransformer_js = (function() {
         return createStatementList(createAssignStateStatement(machineEndState));
       },
       machineEndStatements: function() {
-        return [createAssignmentStatement($GSTATE, createNumberLiteral(ST_CLOSED)), createReturnStatement(createFalseLiteral())];
+        return [createReturnStatement(createFalseLiteral())];
       }
-    }, {}, $__proto, $__super, false);
+    }, {transformGeneratorBody: function(runtimeInliner, reporter, body) {
+        return new GeneratorTransformer(runtimeInliner, reporter).transformGeneratorBody(body);
+      }}, $__proto, $__super, true);
     return $GeneratorTransformer;
   }(CPSTransformer);
-  GeneratorTransformer.transformGeneratorBody = function(reporter, body) {
-    return new GeneratorTransformer(reporter).transformGeneratorBody(body);
-  };
+  ;
   return Object.preventExtensions(Object.create(null, {GeneratorTransformer: {
       get: function() {
         return GeneratorTransformer;
@@ -15299,7 +15298,7 @@ var $___src_codegeneration_generator_GeneratorTransformer_js = (function() {
 }).call(this);
 var $___src_codegeneration_GeneratorTransformPass_js = (function() {
   "use strict";
-  var $__0 = Object.freeze(Object.defineProperties(["\n          switch (", ") {\n            case ", ":\n              ", " = ", ";\n              throw ", ";\n            case ", ":\n              break $close;\n          }"], {raw: {value: Object.freeze(["\n          switch (", ") {\n            case ", ":\n              ", " = ", ";\n              throw ", ";\n            case ", ":\n              break $close;\n          }"])}})), $__3 = Object.freeze(Object.defineProperties(["\n        {\n          var ", " = traceur.runtime.getIterator(", "), ", ";\n\n          // TODO: Should 'yield *' handle non-generator iterators? A strict\n          // interpretation of harmony:generators would indicate 'no', but\n          // 'yes' seems makes more sense from a language-user's perspective.\n\n          // received = void 0;\n          ", " = void 0;\n          // send = true; // roughly equivalent\n          ", " = ", ";\n          try {\n            while (true) {\n              switch (", ") {\n                case ", ":\n                  if (!", ".send)\n                    ", " = ", ".next();\n                  else\n                    ", " = ", ".send(", ");\n                  break;\n                case ", ":\n                  ", " = ", ";\n                  if (!", ".throw)\n                    throw ", ";\n                  ", " = ", ".throw(", ");\n                  break;\n                case ", ":\n                  // TODO: Another deviation from harmony:generators. This line\n                  // is needed if we want any given generator function G to be\n                  // identical in behavior to GG when 'close' is used.\n                  //   function* GG() { yield* G(); }\n                  if (", ".close)\n                    ", ".close();\n                  break $close;\n              }\n              ", ";\n            }\n          } catch(e) {\n            if (!traceur.runtime.isStopIteration(e))\n              throw e;\n            // result = e.value;\n            ", " = e.value;\n          } finally {\n            try {\n              ", ".close();\n            } catch(e) {}\n          }\n        }"], {raw: {value: Object.freeze(["\n        {\n          var ", " = traceur.runtime.getIterator(", "), ", ";\n\n          // TODO: Should 'yield *' handle non-generator iterators? A strict\n          // interpretation of harmony:generators would indicate 'no', but\n          // 'yes' seems makes more sense from a language-user's perspective.\n\n          // received = void 0;\n          ", " = void 0;\n          // send = true; // roughly equivalent\n          ", " = ", ";\n          try {\n            while (true) {\n              switch (", ") {\n                case ", ":\n                  if (!", ".send)\n                    ", " = ", ".next();\n                  else\n                    ", " = ", ".send(", ");\n                  break;\n                case ", ":\n                  ", " = ", ";\n                  if (!", ".throw)\n                    throw ", ";\n                  ", " = ", ".throw(", ");\n                  break;\n                case ", ":\n                  // TODO: Another deviation from harmony:generators. This line\n                  // is needed if we want any given generator function G to be\n                  // identical in behavior to GG when 'close' is used.\n                  //   function* GG() { yield* G(); }\n                  if (", ".close)\n                    ", ".close();\n                  break $close;\n              }\n              ", ";\n            }\n          } catch(e) {\n            if (!traceur.runtime.isStopIteration(e))\n              throw e;\n            // result = e.value;\n            ", " = e.value;\n          } finally {\n            try {\n              ", ".close();\n            } catch(e) {}\n          }\n        }"])}})), $__1 = Object.freeze(Object.defineProperties(["\n            {\n              $close: do {\n                ", ";\n              } while (0);\n            }"], {raw: {value: Object.freeze(["\n            {\n              $close: do {\n                ", ";\n              } while (0);\n            }"])}}));
+  var $__0 = Object.freeze(Object.defineProperties(["\n          switch (", ") {\n            case ", ":\n              ", " = ", ";\n              throw ", ";\n            case ", ":\n              return;\n          }"], {raw: {value: Object.freeze(["\n          switch (", ") {\n            case ", ":\n              ", " = ", ";\n              throw ", ";\n            case ", ":\n              return;\n          }"])}})), $__3 = Object.freeze(Object.defineProperties(["\n        {\n          var ", " = traceur.runtime.getIterator(", "), ", ";\n          // Use duck-type testing to also identify native generator objects.\n          // TODO: Reduce false positives.\n          var ", " = ", ".send;\n\n          // TODO: Should 'yield *' handle non-generator iterators? A strict\n          // interpretation of harmony:generators would indicate 'no', but\n          // 'yes' seems makes more sense from a language-user's perspective.\n\n          // received = void 0;\n          ", " = void 0;\n          // send = true; // roughly equivalent\n          ", " = ", ";\n          try {\n            while (true) {\n              switch (", ") {\n                case ", ":\n                  if (", ")\n                    ", " = ", ".send(", ");\n                  else\n                    ", " = ", ".next();\n                  break;\n                case ", ":\n                  ", " = ", ";\n                  if (", ")\n                    ", " = ", ".throw(", ");\n                  else\n                    throw ", ";\n                  break;\n                case ", ":\n                  // TODO: Another deviation from harmony:generators. This line\n                  // is needed if we want any given generator function G to be\n                  // identical in behavior to GG when 'close' is used.\n                  //   function* GG() { yield* G(); }\n                  if (", ")\n                    ", ".close();\n                  return;\n              }\n              ", ";\n            }\n          } catch(e) {\n            if (!traceur.runtime.isStopIteration(e))\n              throw e;\n            // result = e.value;\n            ", " = e.value;\n          } finally {\n            try {\n              ", ".close();\n            } catch(e) {}\n          }\n        }"], {raw: {value: Object.freeze(["\n        {\n          var ", " = traceur.runtime.getIterator(", "), ", ";\n          // Use duck-type testing to also identify native generator objects.\n          // TODO: Reduce false positives.\n          var ", " = ", ".send;\n\n          // TODO: Should 'yield *' handle non-generator iterators? A strict\n          // interpretation of harmony:generators would indicate 'no', but\n          // 'yes' seems makes more sense from a language-user's perspective.\n\n          // received = void 0;\n          ", " = void 0;\n          // send = true; // roughly equivalent\n          ", " = ", ";\n          try {\n            while (true) {\n              switch (", ") {\n                case ", ":\n                  if (", ")\n                    ", " = ", ".send(", ");\n                  else\n                    ", " = ", ".next();\n                  break;\n                case ", ":\n                  ", " = ", ";\n                  if (", ")\n                    ", " = ", ".throw(", ");\n                  else\n                    throw ", ";\n                  break;\n                case ", ":\n                  // TODO: Another deviation from harmony:generators. This line\n                  // is needed if we want any given generator function G to be\n                  // identical in behavior to GG when 'close' is used.\n                  //   function* GG() { yield* G(); }\n                  if (", ")\n                    ", ".close();\n                  return;\n              }\n              ", ";\n            }\n          } catch(e) {\n            if (!traceur.runtime.isStopIteration(e))\n              throw e;\n            // result = e.value;\n            ", " = e.value;\n          } finally {\n            try {\n              ", ".close();\n            } catch(e) {}\n          }\n        }"])}}));
   var AsyncTransformer = $___src_codegeneration_generator_AsyncTransformer_js.AsyncTransformer;
   var ForInTransformPass = $___src_codegeneration_generator_ForInTransformPass_js.ForInTransformPass;
   var ForOfTransformer = $___src_codegeneration_ForOfTransformer_js.ForOfTransformer;
@@ -15397,9 +15396,10 @@ var $___src_codegeneration_GeneratorTransformPass_js = (function() {
         return createBlock([createExpressionStatement(rhs), throwClose, wrap(lhs, id(YIELD_SENT))]);
       },
       transformYieldForExpression_: function(tree) {
-        var g = createIdentifierExpression(this.getTempIdentifier());
-        var next = createIdentifierExpression(this.getTempIdentifier());
-        return parseStatement($__3, g, tree.expression, next, id(YIELD_SENT), id(YIELD_ACTION), ACTION_SEND, id(YIELD_ACTION), ACTION_SEND, g, next, g, next, g, id(YIELD_SENT), ACTION_THROW, id(YIELD_ACTION), ACTION_SEND, g, id(YIELD_SENT), next, g, id(YIELD_SENT), ACTION_CLOSE, g, g, createYieldStatement(next), id(YIELD_SENT), g);
+        var g = id(this.getTempIdentifier());
+        var next = id(this.getTempIdentifier());
+        var isGeneratorObject = id(this.getTempIdentifier());
+        return parseStatement($__3, g, tree.expression, next, isGeneratorObject, g, id(YIELD_SENT), id(YIELD_ACTION), ACTION_SEND, id(YIELD_ACTION), ACTION_SEND, isGeneratorObject, next, g, id(YIELD_SENT), next, g, ACTION_THROW, id(YIELD_ACTION), ACTION_SEND, isGeneratorObject, next, g, id(YIELD_SENT), id(YIELD_SENT), ACTION_CLOSE, isGeneratorObject, g, createYieldStatement(next), id(YIELD_SENT), g);
       }
     }, {transformTree: function(identifierGenerator, tree) {
         return new YieldExpressionTransformer(identifierGenerator).transformAny(tree);
@@ -15410,8 +15410,9 @@ var $___src_codegeneration_GeneratorTransformPass_js = (function() {
     'use strict';
     var $__proto = $__getProtoParent($__super);
     var $GeneratorTransformPass = ($__createClass)({
-      constructor: function(identifierGenerator, reporter) {
+      constructor: function(identifierGenerator, runtimeInliner, reporter) {
         $__superCall(this, $__proto, "constructor", [identifierGenerator]);
+        this.runtimeInliner_ = runtimeInliner;
         this.reporter_ = reporter;
       },
       transformFunction: function(tree) {
@@ -15434,8 +15435,8 @@ var $___src_codegeneration_GeneratorTransformPass_js = (function() {
         }
         if (finder.hasYield || isGenerator) {
           if (transformOptions.generators) {
-            body = parseStatement($__1, YieldExpressionTransformer.transformTree(this.identifierGenerator, body));
-            body = GeneratorTransformer.transformGeneratorBody(this.reporter_, body);
+            body = YieldExpressionTransformer.transformTree(this.identifierGenerator, body);
+            body = GeneratorTransformer.transformGeneratorBody(this.runtimeInliner_, this.reporter_, body);
           }
         } else if (transformOptions.deferredFunctions) {
           body = AsyncTransformer.transformAsyncBody(this.reporter_, body);
@@ -15452,8 +15453,8 @@ var $___src_codegeneration_GeneratorTransformPass_js = (function() {
         if (body === tree.body) return tree;
         return new SetAccessor(tree.location, tree.isStatic, tree.name, tree.parameter, body);
       }
-    }, {transformTree: function(identifierGenerator, reporter, tree) {
-        return new GeneratorTransformPass(identifierGenerator, reporter).transformAny(tree);
+    }, {transformTree: function(identifierGenerator, runtimeInliner, reporter, tree) {
+        return new GeneratorTransformPass(identifierGenerator, runtimeInliner, reporter).transformAny(tree);
       }}, $__proto, $__super, true);
     return $GeneratorTransformPass;
   }(TempVarTransformer);
@@ -17531,7 +17532,7 @@ var $___src_codegeneration_TemplateLiteralTransformer_js = (function() {
 }).call(this);
 var $___src_codegeneration_RestParameterTransformer_js = (function() {
   "use strict";
-  var $__1 = Object.freeze(Object.defineProperties(["\n          for (var ", " = [], ", " = ", ";\n               ", " < arguments.length; ", "++)\n            ", "[", " - ", "] = arguments[", "];"], {raw: {value: Object.freeze(["\n          for (var ", " = [], ", " = ", ";\n               ", " < arguments.length; ", "++)\n            ", "[", " - ", "] = arguments[", "];"])}})), $__3 = Object.freeze(Object.defineProperties(["\n          for (var ", " = [], ", " = 0;\n               ", " < arguments.length; ", "++)\n            ", "[", "] = arguments[", "];"], {raw: {value: Object.freeze(["\n          for (var ", " = [], ", " = 0;\n               ", " < arguments.length; ", "++)\n            ", "[", "] = arguments[", "];"])}}));
+  var $__3 = Object.freeze(Object.defineProperties(["\n          for (var ", " = [], ", " = ", ";\n               ", " < arguments.length; ", "++)\n            ", "[", " - ", "] = arguments[", "];"], {raw: {value: Object.freeze(["\n          for (var ", " = [], ", " = ", ";\n               ", " < arguments.length; ", "++)\n            ", "[", " - ", "] = arguments[", "];"])}})), $__0 = Object.freeze(Object.defineProperties(["\n          for (var ", " = [], ", " = 0;\n               ", " < arguments.length; ", "++)\n            ", "[", "] = arguments[", "];"], {raw: {value: Object.freeze(["\n          for (var ", " = [], ", " = 0;\n               ", " < arguments.length; ", "++)\n            ", "[", "] = arguments[", "];"])}}));
   var FormalParameterList = $___src_syntax_trees_ParseTrees_js.FormalParameterList;
   var TempVarTransformer = $___src_codegeneration_TempVarTransformer_js.TempVarTransformer;
   var $__9 = $___src_codegeneration_ParseTreeFactory_js, createBlock = $__9.createBlock, createIdentifierToken = $__9.createIdentifierToken;
@@ -17564,9 +17565,9 @@ var $___src_codegeneration_RestParameterTransformer_js = (function() {
         var name = getRestParameterLiteralToken(tree.formalParameterList);
         var loop;
         if (startIndex) {
-          loop = parseStatement($__1, name, i, startIndex, i, i, name, i, startIndex, i);
+          loop = parseStatement($__3, name, i, startIndex, i, i, name, i, startIndex, i);
         } else {
-          loop = parseStatement($__3, name, i, i, i, name, i, i);
+          loop = parseStatement($__0, name, i, i, i, name, i, i);
         }
         var statements = prependStatements(tree.functionBody.statements, loop);
         var functionBody = this.transformAny(createBlock(statements));
@@ -17804,7 +17805,7 @@ var $___src_codegeneration_ProgramTransformer_js = (function() {
         transform(transformOptions.restParameters, RestParameterTransformer, identifierGenerator);
         transform(transformOptions.defaultParameters, DefaultParametersTransformer);
         transform(transformOptions.destructuring, DestructuringTransformer, identifierGenerator);
-        transform(transformOptions.generators || transformOptions.deferredFunctions, GeneratorTransformPass, identifierGenerator, reporter);
+        transform(transformOptions.generators || transformOptions.deferredFunctions, GeneratorTransformPass, identifierGenerator, runtimeInliner, reporter);
         transform(transformOptions.privateNames && transformOptions.privateNameSyntax, AtNameMemberTransformer, identifierGenerator);
         transform(transformOptions.privateNames && transformOptions.privateNameSyntax, PrivateNameSyntaxTransformer, identifierGenerator);
         transform(transformOptions.spread, SpreadTransformer, identifierGenerator, runtimeInliner);
