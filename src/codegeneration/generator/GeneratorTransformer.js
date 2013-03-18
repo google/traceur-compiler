@@ -271,7 +271,6 @@ export class GeneratorTransformer extends CPSTransformer {
                 throw new Error('"throw" on closed generator');
               case ${ST_NEWBORN}:
                 ${$GSTATE} = ${ST_CLOSED};
-                $state = ${this.machineEndState};
                 throw x;
               case ${ST_SUSPENDED}:
                 ${$GSTATE} = ${ST_EXECUTING};
@@ -295,7 +294,6 @@ export class GeneratorTransformer extends CPSTransformer {
                 return;
               case ${ST_NEWBORN}:
                 ${$GSTATE} = ${ST_CLOSED};
-                $state = ${this.machineEndState};
                 return;
               case ${ST_SUSPENDED}:
                 ${$GSTATE} = ${ST_EXECUTING};

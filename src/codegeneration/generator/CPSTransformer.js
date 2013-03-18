@@ -814,8 +814,6 @@ export class CPSTransformer extends ParseTreeTransformer {
         this.transformMachineStates(machine, machineEndState, rethrowState,
                                     enclosingFinallyState));
 
-    this.machineEndState = machineEndState;
-
     // try {
     //   ...
     // } catch ($caughtException) {
