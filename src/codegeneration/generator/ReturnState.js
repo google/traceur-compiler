@@ -30,6 +30,7 @@ import {
   createIdentifierExpression,
   createMemberExpression,
   createReturnStatement,
+  createThisExpression,
   createTrueLiteral
 } from '../ParseTreeFactory.js';
 
@@ -47,9 +48,13 @@ export class ReturnState extends YieldState {
     var e = this.expression;
     if (e && !isUndefined(e) && !isVoidExpression(e)) {
       return [
-        // $yieldReturn = expression;
+        // 'this' refers to the '$G' object from
+        // GeneratorTransformer.transformGeneratorBody
+        //
+        // this.$yieldReturn = expression;
         createAssignmentStatement(
-            createIdentifierExpression(YIELD_RETURN), this.expression),
+            createMemberExpression(createThisExpression(), YIELD_RETURN),
+            this.expression),
         ...State.generateJump(enclosingFinally, machineEndState)
       ];
     } else {

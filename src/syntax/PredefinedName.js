@@ -39,7 +39,7 @@ export var CREATE_CLASS = 'createClass';
 export var CREATE_ERRBACK = '$createErrback';
 export var CREATE_NAME = 'createName';
 export var CREATE_PROMISE = 'createPromise';
-export var CURRENT = '$current';
+export var CURRENT = 'current';
 export var DEFERRED = 'Deferred';
 export var DEFINE_PROPERTIES = 'defineProperties';
 export var DEFINE_PROPERTY = 'defineProperty';
@@ -67,7 +67,7 @@ export var ITERATOR = 'iterator';
 export var LENGTH = 'length';
 export var MODULE = 'module';
 export var MODULES = 'modules';
-export var MOVE_NEXT = '$moveNext';
+export var MOVE_NEXT = 'moveNext';
 export var NEW = 'new';
 export var NEW_STATE = '$newState';
 export var NUMBER = 'number';
@@ -106,7 +106,7 @@ export var VALUE = 'value';
 export var WAIT_TASK = '$waitTask';
 export var WRITABLE = 'writable';
 export var YIELD_ACTION = '$yieldAction';
-export var YIELD_RETURN = '$yieldReturn';
+export var YIELD_RETURN = 'yieldReturn';
 export var YIELD_SENT = '$yieldSent';
 export function getParameterName(index) {
   // TODO: consider caching these

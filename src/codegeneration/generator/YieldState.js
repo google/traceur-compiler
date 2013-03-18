@@ -22,6 +22,7 @@ import {
   createIdentifierExpression,
   createMemberExpression,
   createReturnStatement,
+  createThisExpression,
   createTrueLiteral
 } from '../ParseTreeFactory.js';
 
@@ -60,9 +61,13 @@ export class YieldState extends State {
    */
   transform(enclosingFinally, machineEndState, reporter) {
     return [
-      // $current = expression;
+      // 'this' refers to the '$G' object from
+      // GeneratorTransformer.transformGeneratorBody
+      //
+      // this.$current = expression;
       createAssignmentStatement(
-          createIdentifierExpression(CURRENT), this.expression),
+          createMemberExpression(createThisExpression(), CURRENT),
+          this.expression),
       // either:
       //      $state = this.fallThroughState;
       //      return true;
