@@ -64,6 +64,7 @@ export var HAS = 'has';
 export var INIT = '$init';
 export var IS_DONE = 'isDone';
 export var ITERATOR = 'iterator';
+export var INNER_FUNCTION = 'innerFunction';
 export var LENGTH = 'length';
 export var MODULE = 'module';
 export var MODULES = 'modules';

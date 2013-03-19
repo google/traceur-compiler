@@ -326,6 +326,7 @@ traceur.runtime = (function(global) {
   function addIterator(object) {
     // Generator instances are iterable.
     setProperty(object, iteratorName, returnThis);
+    return object;
   }
 
   function polyfillArray(Array) {

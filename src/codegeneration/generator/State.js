@@ -77,6 +77,8 @@ export class State {
 
 
 State.INVALID_STATE = -1;
+State.END_STATE = -2;
+State.RETHROW_STATE = -3;
 
 /**
  * Returns a list of statements which jumps to a given destination state. If transfering control

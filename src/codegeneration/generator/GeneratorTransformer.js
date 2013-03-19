@@ -37,11 +37,9 @@ import {VAR} from '../../syntax/TokenType.js';
 import {YieldState} from './YieldState.js';
 import {ReturnState} from './ReturnState.js';
 import {
-  createArgumentList,
   createAssignStateStatement,
   createAssignmentStatement,
   createBlock,
-  createCallExpression,
   createExpressionStatement,
   createFalseLiteral,
   createIdentifierExpression,
@@ -227,6 +225,7 @@ export class GeneratorTransformer extends CPSTransformer {
           GState: ${ST_NEWBORN},
           current: undefined,
           yieldReturn: undefined,
+          innerFunction: ${this.generateMachineInnerFunction(machine)},
           moveNext: ${this.generateMachineMethod(machine)}
         };
         `);
@@ -235,10 +234,10 @@ export class GeneratorTransformer extends CPSTransformer {
     // https://code.google.com/p/traceur-compiler/issues/detail?id=109
     var generatorWrap = this.runtimeInliner_.get('generatorWrap',
         `
-        function (${G}) {
-          return {
+        function (generator) {
+          return traceur.runtime.addIterator({
             send: function(x) {
-              switch (${G}.GState) {
+              switch (generator.GState) {
                 case ${ST_EXECUTING}:
                   throw new Error('"send" on executing generator');
                 case ${ST_CLOSED}:
@@ -249,15 +248,15 @@ export class GeneratorTransformer extends CPSTransformer {
                   }
                   // fall through
                 case ${ST_SUSPENDED}:
-                  ${G}.GState = ${ST_EXECUTING};
-                  if (${G}.moveNext(x, ${ACTION_SEND})) {
-                    ${G}.GState = ${ST_SUSPENDED};
-                    return ${G}.current;
+                  generator.GState = ${ST_EXECUTING};
+                  if (generator.moveNext(x, ${ACTION_SEND})) {
+                    generator.GState = ${ST_SUSPENDED};
+                    return generator.current;
                   }
-                  ${G}.GState = ${ST_CLOSED};
-                  if (${G}.yieldReturn !== undefined) {
+                  generator.GState = ${ST_CLOSED};
+                  if (generator.yieldReturn !== undefined) {
                     throw new traceur.runtime.
-                        GeneratorReturn(${G}.yieldReturn);
+                        GeneratorReturn(generator.yieldReturn);
                   }
                   throw traceur.runtime.StopIteration;
               }
@@ -268,57 +267,48 @@ export class GeneratorTransformer extends CPSTransformer {
             },
 
             'throw': function(x) {
-              switch (${G}.GState) {
+              switch (generator.GState) {
                 case ${ST_EXECUTING}:
                   throw new Error('"throw" on executing generator');
                 case ${ST_CLOSED}:
                   throw new Error('"throw" on closed generator');
                 case ${ST_NEWBORN}:
-                  ${G}.GState = ${ST_CLOSED};
+                  generator.GState = ${ST_CLOSED};
                   throw x;
                 case ${ST_SUSPENDED}:
-                  ${G}.GState = ${ST_EXECUTING};
-                  if (${G}.moveNext(x, ${ACTION_THROW})) {
-                    ${G}.GState = ${ST_SUSPENDED};
-                    return ${G}.${CURRENT};
+                  generator.GState = ${ST_EXECUTING};
+                  if (generator.moveNext(x, ${ACTION_THROW})) {
+                    generator.GState = ${ST_SUSPENDED};
+                    return generator.${CURRENT};
                   }
-                  ${G}.GState = ${ST_CLOSED};
-                  if (${G}.yieldReturn !== undefined) {
+                  generator.GState = ${ST_CLOSED};
+                  if (generator.yieldReturn !== undefined) {
                     throw new traceur.runtime.
-                        GeneratorReturn(${G}.yieldReturn);
+                        GeneratorReturn(generator.yieldReturn);
                   }
                   throw traceur.runtime.StopIteration;
               }
             },
 
             close: function() {
-              switch (${G}.GState) {
+              switch (generator.GState) {
                 case ${ST_EXECUTING}:
                   throw new Error('"close" on executing generator');
                 case ${ST_CLOSED}:
                   return;
                 case ${ST_NEWBORN}:
-                  ${G}.GState = ${ST_CLOSED};
+                  generator.GState = ${ST_CLOSED};
                   return;
                 case ${ST_SUSPENDED}:
-                  ${G}.GState = ${ST_EXECUTING};
-                  ${G}.moveNext(undefined, ${ACTION_CLOSE});
-                  ${G}.GState = ${ST_CLOSED};
+                  generator.GState = ${ST_EXECUTING};
+                  generator.moveNext(undefined, ${ACTION_CLOSE});
+                  generator.GState = ${ST_CLOSED};
               }
             }
-          };
+          });
         }`);
     var id = createIdentifierExpression;
-    statements.push(parseStatement `var $result = ${generatorWrap}(${id(G)});`);
-
-    // traceur.runtime.addIterator($result)
-    statements.push(createExpressionStatement(
-        createCallExpression(
-            createMemberExpression(TRACEUR, RUNTIME, ADD_ITERATOR),
-            createArgumentList(createIdentifierExpression(RESULT)))));
-
-    //     return $result;
-    statements.push(createReturnStatement(createIdentifierExpression(RESULT)));
+    statements.push(parseStatement `return ${generatorWrap}(${id(G)});`);
 
     return createBlock(statements);
   }

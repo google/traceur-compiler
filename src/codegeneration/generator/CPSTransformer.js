@@ -31,12 +31,14 @@ import {FinallyFallThroughState} from './FinallyFallThroughState.js';
 import {FinallyState} from './FinallyState.js';
 import {IdentifierToken} from '../../syntax/IdentifierToken.js';
 import {ParseTreeTransformer} from '../ParseTreeTransformer.js';
+import {parseStatement} from '../PlaceholderParser.js';
 import {
   $ARGUMENTS,
   $THAT,
   ARGUMENTS,
   CAUGHT_EXCEPTION,
   FINALLY_FALL_THROUGH,
+  INNER_FUNCTION,
   STATE,
   STORED_EXCEPTION,
   YIELD_ACTION,
@@ -740,14 +742,10 @@ export class CPSTransformer extends ParseTreeTransformer {
   }
 
   // With this to $that and arguments to $arguments alpha renaming
-  //      function($yieldSent) {
+  //     function($yieldSent, $yieldAction) {
   //       while (true) {
   //         try {
-  //           switch ($state) {
-  //           ... converted states ...
-  //           case rethrow:
-  //             throw $storedException;
-  //           }
+  //           return this.innerFunction($yieldSent, $yieldAction);
   //         } catch ($caughtException) {
   //           $storedException = $caughtException;
   //           switch ($state) {
@@ -798,6 +796,35 @@ export class CPSTransformer extends ParseTreeTransformer {
                                    createIdentifierExpression(ARGUMENTS));
   }
 
+  generateMachineInnerFunction(machine) {
+    var enclosingFinallyState = machine.getEnclosingFinallyMap();
+    var enclosingCatchState = machine.getEnclosingCatchMap();
+    var rethrowState = this.allocateState();
+    var machineEndState = this.allocateState();
+
+    // while (true) {
+    //   switch ($state) {
+    //     ... converted states
+    //   case rethrow:
+    //     throw $storedException;
+    //   }
+    // }
+    var body =
+        createWhileStatement(
+            createTrueLiteral(),
+            createSwitchStatement(
+                createIdentifierExpression(STATE),
+                this.transformMachineStates(
+                    machine,
+                    State.END_STATE,
+                    State.RETHROW_STATE,
+                    enclosingFinallyState)));
+
+    return createFunctionExpression(
+        createParameterList(YIELD_SENT, YIELD_ACTION),
+        createBlock(body));
+  }
+
   /**
    * @param {StateMachine} machine
    * @return {ParseTree}
@@ -805,17 +832,13 @@ export class CPSTransformer extends ParseTreeTransformer {
   generateMachine(machine) {
     var enclosingFinallyState = machine.getEnclosingFinallyMap();
     var enclosingCatchState = machine.getEnclosingCatchMap();
-    var rethrowState = this.allocateState();
-    var machineEndState = this.allocateState();
-    var body =
-        //       switch ($state) {
-        createSwitchStatement(createIdentifierExpression(STATE),
-        //       ... converted states
-        this.transformMachineStates(machine, machineEndState, rethrowState,
-                                    enclosingFinallyState));
 
+    // 'this' refers to the '$G' object from
+    // GeneratorTransformer.transformGeneratorBody
+    var body = parseStatement `
+        return this.innerFunction($yieldSent, $yieldAction);`;
     // try {
-    //   ...
+    //   return this.innerFunction($yieldSent, $yieldAction);
     // } catch ($caughtException) {
     //   $storedException = $caughtException;
     //   switch ($state) {
@@ -835,18 +858,18 @@ export class CPSTransformer extends ParseTreeTransformer {
     //   }
     // }
     var caseClauses = [];
-    this.addExceptionCases_(rethrowState, enclosingFinallyState,
+    this.addExceptionCases_(State.RETHROW_STATE, enclosingFinallyState,
                             enclosingCatchState, machine.states,
                             caseClauses);
     //   default:
     //     throw $storedException;
     caseClauses.push(
         createDefaultClause(
-            this.machineUncaughtExceptionStatements(rethrowState,
-                                                    machineEndState)));
+            this.machineUncaughtExceptionStatements(State.RETHROW_STATE,
+                                                    State.END_STATE)));
 
     // try {
-    //   ...
+    //   return this.innerFunction($yieldSent, $yieldAction);
     // } catch ($caughtException) {
     //   $storedException = $caughtException;
     //   switch ($state) {
