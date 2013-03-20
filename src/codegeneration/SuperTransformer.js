@@ -13,6 +13,10 @@
 // limitations under the License.
 
 import {
+  FunctionDeclaration,
+  FunctionExpression
+} from '../syntax/trees/ParseTrees.js';
+import {
   MEMBER_EXPRESSION,
   MEMBER_LOOKUP_EXPRESSION,
   SUPER_EXPRESSION
@@ -106,23 +110,20 @@ export class SuperTransformer extends ParseTreeTransformer {
   }
 
   transformFunctionDeclaration(tree) {
-    var oldSuperCount = this.superCount_;
-
-    this.inNestedFunc_++;
-    var transformedTree = super.transformFunctionDeclaration(tree);
-    this.inNestedFunc_--;
-
-    if (oldSuperCount !== this.superCount_)
-      this.nestedSuperCount_ += this.superCount_ - oldSuperCount;
-
-    return transformedTree;
+    return this.transformFunction_(tree, FunctionDeclaration);
   }
 
   transformFunctionExpression(tree) {
+    return this.transformFunction_(tree, FunctionExpression);
+  }
+
+  transformFunction_(tree, constructor) {
     var oldSuperCount = this.superCount_;
 
     this.inNestedFunc_++;
-    var transformedTree = super.transformFunctionExpression(tree);
+    var transformedTree = constructor === FunctionExpression ?
+        super.transformFunctionExpression(tree) :
+        super.transformFunctionDeclaration(tree);
     this.inNestedFunc_--;
 
     if (oldSuperCount !== this.superCount_)

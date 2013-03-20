@@ -404,6 +404,7 @@
       "Array.<ParseTree>"
     ]
   },
+  "//": "FunctionDeclaration and FunctionExpression needs to have the exact same shape",
   "FunctionDeclaration": {
     "location": [
       "SourceRange"

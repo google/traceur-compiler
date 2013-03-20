@@ -55,5 +55,13 @@ module.exports = {
   isParseTreeListType: function(type, trees) {
     return (type.lastIndexOf('Array.<', 0) === 0) &&
       isParseTreeType(type.substring('Array.<'.length, type.length - 1), trees);
+  },
+
+  // Filters out keys that are used as comments.
+  parseJSON: function(data) {
+    return JSON.parse(data, function(key, value) {
+      if (key !== '//')
+        return value;
+    });
   }
 };

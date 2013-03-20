@@ -350,15 +350,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
    * @return {ParseTree}
    */
   transformFunctionDeclaration(tree) {
-    var body = this.transformBody_(tree.functionBody, tree.isGenerator);
-    if (body === tree.functionBody)
-      return tree;
-
-    // The generator has been transformed away.
-    var isGenerator = false;
-
-    return new FunctionDeclaration(null, tree.name, isGenerator,
-                                   tree.formalParameterList, body);
+    return this.transformFunction_(tree, FunctionDeclaration);
   }
 
   /**
@@ -366,6 +358,10 @@ export class GeneratorTransformPass extends TempVarTransformer {
    * @return {ParseTree}
    */
   transformFunctionExpression(tree) {
+    return this.transformFunction_(tree, FunctionExpression);
+  }
+
+  transformFunction_(tree, constructor) {
     var body = this.transformBody_(tree.functionBody, tree.isGenerator);
     if (body === tree.functionBody)
       return tree;
@@ -373,8 +369,8 @@ export class GeneratorTransformPass extends TempVarTransformer {
     // The generator has been transformed away.
     var isGenerator = false;
 
-    return new FunctionExpression(null, tree.name, isGenerator,
-                                  tree.formalParameterList, body);
+    return new constructor(null, tree.name, isGenerator,
+                           tree.formalParameterList, body);
   }
 
   /**

@@ -32,7 +32,7 @@ print("import * from ParseTreeType;");
 
 // export var ARGUMENT_LIST = 'ARGUMENT_LIST';
 var data = fs.readFileSync(process.argv[2], 'utf-8');
-var trees = JSON.parse(data);
+var trees = util.parseJSON(data);
 
 function getType(types) {
   return types.join('|');

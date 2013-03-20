@@ -357,26 +357,18 @@ export class DestructuringTransformer extends TempVarTransformer {
   }
 
   transformFunctionDeclaration(tree) {
-    stack.push([]);
-    var transformedTree = super.transformFunctionDeclaration(tree);
-    var statements = stack.pop();
-    if (!statements.length)
-      return transformedTree;
-
-    // Prepend the var statements to the block.
-    statements = prependStatements(transformedTree.functionBody.statements,
-                                   ...statements);
-
-    return new FunctionDeclaration(transformedTree.location,
-                                    transformedTree.name,
-                                    transformedTree.isGenerator,
-                                    transformedTree.formalParameterList,
-                                    createBlock(statements));
+    return this.transformFunction_(tree, FunctionDeclaration);
   }
 
   transformFunctionExpression(tree) {
+    return this.transformFunction_(tree, FunctionExpression);
+  }
+
+  transformFunction_(tree, constructor) {
     stack.push([]);
-    var transformedTree = super.transformFunctionExpression(tree);
+    var transformedTree = constructor === FunctionExpression ?
+        super.transformFunctionExpression(tree) :
+        super.transformFunctionDeclaration(tree);
     var statements = stack.pop();
     if (!statements.length)
       return transformedTree;
@@ -385,11 +377,11 @@ export class DestructuringTransformer extends TempVarTransformer {
     statements = prependStatements(transformedTree.functionBody.statements,
                                    ...statements);
 
-    return new FunctionExpression(transformedTree.location,
-                                  transformedTree.name,
-                                  transformedTree.isGenerator,
-                                  transformedTree.formalParameterList,
-                                  createBlock(statements));
+    return new constructor(transformedTree.location,
+                           transformedTree.name,
+                           transformedTree.isGenerator,
+                           transformedTree.formalParameterList,
+                           createBlock(statements));
   }
 
   transformSetAccessor(tree) {

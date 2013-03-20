@@ -35,7 +35,7 @@ function printHeader() {
 
 function readTrees() {
   var data = fs.readFileSync(process.argv[2], 'utf-8');
-  return JSON.parse(data);
+  return util.parseJSON(data);
 }
 
 function printTrees(trees) {

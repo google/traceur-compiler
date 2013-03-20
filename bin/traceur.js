@@ -12977,6 +12977,7 @@ var $___src_codegeneration_PlaceholderParser_js = (function() {
 var $___src_codegeneration_SuperTransformer_js = (function() {
   "use strict";
   var $__0 = Object.freeze(Object.defineProperties(["", "(", ",\n                                               ", ",\n                                               ", ",\n                                               ", ")"], {raw: {value: Object.freeze(["", "(", ",\n                                               ", ",\n                                               ", ",\n                                               ", ")"])}})), $__1 = Object.freeze(Object.defineProperties(["", "(", ",\n                                              ", ",\n                                              ", ")"], {raw: {value: Object.freeze(["", "(", ",\n                                              ", ",\n                                              ", ")"])}})), $__2 = Object.freeze(Object.defineProperties(["", "(", ",\n                                                ", ",\n                                                ", ",\n                                                ", ")"], {raw: {value: Object.freeze(["", "(", ",\n                                                ", ",\n                                                ", ",\n                                                ", ")"])}}));
+  var $__18 = $___src_syntax_trees_ParseTrees_js, FunctionDeclaration = $__18.FunctionDeclaration, FunctionExpression = $__18.FunctionExpression;
   var $__18 = $___src_syntax_trees_ParseTreeType_js, MEMBER_EXPRESSION = $__18.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__18.MEMBER_LOOKUP_EXPRESSION, SUPER_EXPRESSION = $__18.SUPER_EXPRESSION;
   var ParseTreeTransformer = $___src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
   var EQUAL = $___src_syntax_TokenType_js.EQUAL;
@@ -13009,17 +13010,15 @@ var $___src_codegeneration_SuperTransformer_js = (function() {
         return this.nestedSuperCount_ > 0;
       },
       transformFunctionDeclaration: function(tree) {
-        var oldSuperCount = this.superCount_;
-        this.inNestedFunc_++;
-        var transformedTree = $__superCall(this, $__proto, "transformFunctionDeclaration", [tree]);
-        this.inNestedFunc_--;
-        if (oldSuperCount !== this.superCount_) this.nestedSuperCount_ += this.superCount_ - oldSuperCount;
-        return transformedTree;
+        return this.transformFunction_(tree, FunctionDeclaration);
       },
       transformFunctionExpression: function(tree) {
+        return this.transformFunction_(tree, FunctionExpression);
+      },
+      transformFunction_: function(tree, constructor) {
         var oldSuperCount = this.superCount_;
         this.inNestedFunc_++;
-        var transformedTree = $__superCall(this, $__proto, "transformFunctionExpression", [tree]);
+        var transformedTree = constructor === FunctionExpression ? $__superCall(this, $__proto, "transformFunctionExpression", [tree]): $__superCall(this, $__proto, "transformFunctionDeclaration", [tree]);
         this.inNestedFunc_--;
         if (oldSuperCount !== this.superCount_) this.nestedSuperCount_ += this.superCount_ - oldSuperCount;
         return transformedTree;
@@ -13395,20 +13394,18 @@ var $___src_codegeneration_DefaultParametersTransformer_js = (function() {
         $__superCall(this, $__proto, "constructor", arguments);
       },
       transformFunctionExpression: function(tree) {
-        stack.push([]);
-        var transformedTree = $__superCall(this, $__proto, "transformFunctionExpression", [tree]);
-        var statements = stack.pop();
-        if (!statements.length) return transformedTree;
-        statements = prependStatements.apply(null, $__spread([transformedTree.functionBody.statements], statements));
-        return new FunctionExpression(transformedTree.location, transformedTree.name, transformedTree.isGenerator, transformedTree.formalParameterList, createBlock(statements));
+        return this.transformFunction_(tree, FunctionExpression);
       },
       transformFunctionDeclaration: function(tree) {
+        return this.transformFunction_(tree, FunctionDeclaration);
+      },
+      transformFunction_: function(tree, constructor) {
         stack.push([]);
-        var transformedTree = $__superCall(this, $__proto, "transformFunctionDeclaration", [tree]);
+        var transformedTree = constructor === FunctionExpression ? $__superCall(this, $__proto, "transformFunctionExpression", [tree]): $__superCall(this, $__proto, "transformFunctionDeclaration", [tree]);
         var statements = stack.pop();
         if (!statements.length) return transformedTree;
         statements = prependStatements.apply(null, $__spread([transformedTree.functionBody.statements], statements));
-        return new FunctionDeclaration(transformedTree.location, transformedTree.name, transformedTree.isGenerator, transformedTree.formalParameterList, createBlock(statements));
+        return new constructor(transformedTree.location, transformedTree.name, transformedTree.isGenerator, transformedTree.formalParameterList, createBlock(statements));
       },
       transformFormalParameterList: function(tree) {
         var parameters = [];
@@ -13579,20 +13576,18 @@ var $___src_codegeneration_DestructuringTransformer_js = (function() {
         return new constr(tree.location, initializer, collection, body);
       },
       transformFunctionDeclaration: function(tree) {
-        stack.push([]);
-        var transformedTree = $__superCall(this, $__proto, "transformFunctionDeclaration", [tree]);
-        var statements = stack.pop();
-        if (!statements.length) return transformedTree;
-        statements = prependStatements.apply(null, $__spread([transformedTree.functionBody.statements], statements));
-        return new FunctionDeclaration(transformedTree.location, transformedTree.name, transformedTree.isGenerator, transformedTree.formalParameterList, createBlock(statements));
+        return this.transformFunction_(tree, FunctionDeclaration);
       },
       transformFunctionExpression: function(tree) {
+        return this.transformFunction_(tree, FunctionExpression);
+      },
+      transformFunction_: function(tree, constructor) {
         stack.push([]);
-        var transformedTree = $__superCall(this, $__proto, "transformFunctionExpression", [tree]);
+        var transformedTree = constructor === FunctionExpression ? $__superCall(this, $__proto, "transformFunctionExpression", [tree]): $__superCall(this, $__proto, "transformFunctionDeclaration", [tree]);
         var statements = stack.pop();
         if (!statements.length) return transformedTree;
         statements = prependStatements.apply(null, $__spread([transformedTree.functionBody.statements], statements));
-        return new FunctionExpression(transformedTree.location, transformedTree.name, transformedTree.isGenerator, transformedTree.formalParameterList, createBlock(statements));
+        return new constructor(transformedTree.location, transformedTree.name, transformedTree.isGenerator, transformedTree.formalParameterList, createBlock(statements));
       },
       transformSetAccessor: function(tree) {
         stack.push([]);
@@ -15499,16 +15494,16 @@ var $___src_codegeneration_GeneratorTransformPass_js = (function() {
         this.reporter_ = reporter;
       },
       transformFunctionDeclaration: function(tree) {
-        var body = this.transformBody_(tree.functionBody, tree.isGenerator);
-        if (body === tree.functionBody) return tree;
-        var isGenerator = false;
-        return new FunctionDeclaration(null, tree.name, isGenerator, tree.formalParameterList, body);
+        return this.transformFunction_(tree, FunctionDeclaration);
       },
       transformFunctionExpression: function(tree) {
+        return this.transformFunction_(tree, FunctionExpression);
+      },
+      transformFunction_: function(tree, constructor) {
         var body = this.transformBody_(tree.functionBody, tree.isGenerator);
         if (body === tree.functionBody) return tree;
         var isGenerator = false;
-        return new FunctionExpression(null, tree.name, isGenerator, tree.formalParameterList, body);
+        return new constructor(null, tree.name, isGenerator, tree.formalParameterList, body);
       },
       transformBody_: function(tree, isGenerator) {
         var finder;
@@ -16274,17 +16269,12 @@ var $___src_outputgeneration_ParseTreeWriter_js = (function() {
         }
       },
       visitFunctionDeclaration: function(tree) {
-        this.write_(FUNCTION);
-        if (tree.isGenerator) {
-          this.write_(STAR);
-        }
-        this.visitAny(tree.name);
-        this.write_(OPEN_PAREN);
-        this.visitAny(tree.formalParameterList);
-        this.write_(CLOSE_PAREN);
-        this.visitAny(tree.functionBody);
+        this.visitFunction_(tree);
       },
       visitFunctionExpression: function(tree) {
+        this.visitFunction_(tree);
+      },
+      visitFunction_: function(tree) {
         this.write_(FUNCTION);
         if (tree.isGenerator) {
           this.write_(STAR);
@@ -17151,13 +17141,15 @@ var $___src_syntax_ParseTreeValidator_js = (function() {
       },
       visitFunctionDeclaration: function(tree) {
         this.checkType_(BINDING_IDENTIFIER, tree.name, 'binding identifier expected');
-        this.checkType_(FORMAL_PARAMETER_LIST, tree.formalParameterList, 'formal parameters expected');
-        this.checkType_(BLOCK, tree.functionBody, 'block expected');
+        this.visitFunction_(tree);
       },
       visitFunctionExpression: function(tree) {
         if (tree.name !== null) {
           this.checkType_(BINDING_IDENTIFIER, tree.name, 'binding identifier expected');
         }
+        this.visitFunction_(tree);
+      },
+      visitFunction_: function(tree) {
         this.checkType_(FORMAL_PARAMETER_LIST, tree.formalParameterList, 'formal parameters expected');
         this.checkType_(BLOCK, tree.functionBody, 'block expected');
       },

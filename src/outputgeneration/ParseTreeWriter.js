@@ -498,21 +498,17 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {FunctionDeclaration} tree
    */
   visitFunctionDeclaration(tree) {
-    this.write_(FUNCTION);
-    if (tree.isGenerator) {
-      this.write_(STAR);
-    }
-    this.visitAny(tree.name);
-    this.write_(OPEN_PAREN);
-    this.visitAny(tree.formalParameterList);
-    this.write_(CLOSE_PAREN);
-    this.visitAny(tree.functionBody);
+    this.visitFunction_(tree);
   }
 
   /**
    * @param {FunctionExpression} tree
    */
   visitFunctionExpression(tree) {
+    this.visitFunction_(tree);
+  }
+
+  visitFunction_(tree) {
     this.write_(FUNCTION);
     if (tree.isGenerator) {
       this.write_(STAR);

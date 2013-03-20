@@ -594,13 +594,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
     this.checkType_(BINDING_IDENTIFIER,
                     tree.name,
                     'binding identifier expected');
-    this.checkType_(FORMAL_PARAMETER_LIST,
-                    tree.formalParameterList,
-                    'formal parameters expected');
-
-    this.checkType_(BLOCK,
-                    tree.functionBody,
-                    'block expected');
+    this.visitFunction_(tree);
   }
 
   /**
@@ -612,6 +606,10 @@ export class ParseTreeValidator extends ParseTreeVisitor {
                       tree.name,
                       'binding identifier expected');
     }
+    this.visitFunction_(tree);
+  }
+
+  visitFunction_(tree) {
     this.checkType_(FORMAL_PARAMETER_LIST,
                     tree.formalParameterList,
                     'formal parameters expected');
