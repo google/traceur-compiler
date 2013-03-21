@@ -755,8 +755,8 @@ export class ParseTreeValidator extends ParseTreeVisitor {
         case PROPERTY_NAME_SHORTHAND:
           break;
         default:
-          this.fail_(propertyNameAndValue,
-              'accessor, property name assignment or property method assigment expected');
+          this.fail_(propertyNameAndValue, 'accessor, property name ' +
+              'assignment or property method assigment expected');
       }
       this.visitAny(propertyNameAndValue);
     }

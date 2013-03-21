@@ -117,14 +117,22 @@ module traceur {
     export CloneTreeTransformer from './codegeneration/CloneTreeTransformer.js';
     export module ParseTreeFactory from './codegeneration/ParseTreeFactory.js';
 
-    export {parseExpression, parseStatement} from './codegeneration/PlaceholderParser.js';
+    export {
+      parseExpression,
+      parseStatement
+    } from './codegeneration/PlaceholderParser.js';
 
     export module module {
-      export ModuleRequireVisitor from './codegeneration/module/ModuleRequireVisitor.js';
+      export ModuleRequireVisitor from
+          './codegeneration/module/ModuleRequireVisitor.js';
     }
   }
 
-  import {internals, getModuleInstanceByUrl, CodeLoader} from './runtime/modules.js';
+  import {
+    internals,
+    getModuleInstanceByUrl,
+    CodeLoader
+  } from './runtime/modules.js';
   runtime.internals = internals;
   runtime.getModuleInstanceByUrl = getModuleInstanceByUrl;
   runtime.CodeLoader = CodeLoader;

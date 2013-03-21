@@ -299,7 +299,8 @@ export function createBinaryOperator(left, operator, right) {
 }
 
 /**
- * @param {string|IdentifierToken|IdentifierExpression|BindingIdentifier} identifier
+ * @param {string|IdentifierToken|IdentifierExpression|BindingIdentifier}
+ *     identifier
  * @return {BindingIdentifier}
  */
 export function createBindingIdentifier(identifier) {
@@ -973,7 +974,9 @@ export function createUseStrictDirective() {
  * @param {ParseTree=} initializer
  * @return {VariableDeclarationList}
  */
-export function createVariableDeclarationList(binding, identifierOrDeclarations, initializer) {
+export function createVariableDeclarationList(binding,
+                                              identifierOrDeclarations,
+                                              initializer) {
   if (identifierOrDeclarations instanceof Array) {
     var declarations = identifierOrDeclarations;
     return new VariableDeclarationList(null, binding, declarations);
@@ -1006,7 +1009,9 @@ export function createVariableDeclaration(identifier, initializer) {
  * @param {ParseTree=} initializer
  * @return {VariableStatement}
  */
-export function createVariableStatement(listOrBinding, identifier, initializer) {
+export function createVariableStatement(listOrBinding,
+                                        identifier,
+                                        initializer) {
   if (listOrBinding instanceof VariableDeclarationList)
     return new VariableStatement(null, listOrBinding);
   var binding = listOrBinding;

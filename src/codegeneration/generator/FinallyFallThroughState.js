@@ -16,7 +16,10 @@ import {State} from './State.js';
 
 /**
  * These are a placeholder for the fallthrough off the end of a finally block.
- * They are added so that enclosing try blocks know that jumping to them does not exit their block.
+ *
+ * They are added so that enclosing try blocks know that jumping to them does
+ * not exit their block.
+ *
  * The code for them is generated in addFinallyFallThroughDispatches.
  */
 export class FinallyFallThroughState extends State {
@@ -27,7 +30,8 @@ export class FinallyFallThroughState extends State {
    * @return {FinallyFallThroughState}
    */
   replaceState(oldState, newState) {
-    return new FinallyFallThroughState(State.replaceStateId(this.id, oldState, newState));
+    return new FinallyFallThroughState(
+        State.replaceStateId(this.id, oldState, newState));
   }
 
   /**

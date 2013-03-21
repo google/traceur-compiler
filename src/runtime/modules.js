@@ -14,7 +14,8 @@
 
 import {ArrayMap} from '../util/ArrayMap.js';
 import {ModuleAnalyzer} from '../semantics/ModuleAnalyzer.js';
-import {ModuleRequireVisitor} from '../codegeneration/module/ModuleRequireVisitor.js';
+import {ModuleRequireVisitor} from
+    '../codegeneration/module/ModuleRequireVisitor.js';
 import {ModuleSymbol} from '../semantics/symbols/ModuleSymbol.js';
 import {ObjectMap} from '../util/ObjectMap.js';
 import {Parser} from '../syntax/Parser.js';

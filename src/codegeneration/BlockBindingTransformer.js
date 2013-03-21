@@ -755,7 +755,9 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
     if (this.scope_.blockVariables != null) {
       // rewrite into catch construct
       tree = toBlock(
-          this.rewriteAsCatch_(this.scope_.blockVariables, createBlock(statements)));
+          this.rewriteAsCatch_(
+              this.scope_.blockVariables,
+              createBlock(statements)));
     } else if (statements != tree.statements) {
       tree = createBlock(statements);
     }

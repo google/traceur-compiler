@@ -14,8 +14,10 @@
 
 import {ExportVisitor} from '../codegeneration/module/ExportVisitor.js';
 import {ImportStarVisitor} from '../codegeneration/module/ImportStarVisitor.js';
-import {ModuleDeclarationVisitor} from '../codegeneration/module/ModuleDeclarationVisitor.js';
-import {ModuleDefinitionVisitor} from '../codegeneration/module/ModuleDefinitionVisitor.js';
+import {ModuleDeclarationVisitor} from
+    '../codegeneration/module/ModuleDeclarationVisitor.js';
+import {ModuleDefinitionVisitor} from
+    '../codegeneration/module/ModuleDefinitionVisitor.js';
 import {ValidationVisitor} from '../codegeneration/module/ValidationVisitor.js';
 
 // TODO(arv): Validate that there are no free variables

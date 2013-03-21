@@ -242,11 +242,11 @@ function addBoolOption(name) {
   options[name] = false;
 }
 
-// ALWAY_ON
+// ON_BY_DEFAULT
 addFeatureOption('arrayComprehension', ON_BY_DEFAULT); // 11.4.1.2
 addFeatureOption('arrowFunctions', ON_BY_DEFAULT);     // 13.2
 addFeatureOption('classes', ON_BY_DEFAULT);            // 13.5
-addFeatureOption('defaultParameters', ON_BY_DEFAULT);  // Cant find this in the spec
+addFeatureOption('defaultParameters', ON_BY_DEFAULT);  // Cant find in the spec
 addFeatureOption('destructuring', ON_BY_DEFAULT);      // 11.13.1
 addFeatureOption('forOf', ON_BY_DEFAULT);              // 12.6.4
 addFeatureOption('propertyMethods', ON_BY_DEFAULT);    // 13.3

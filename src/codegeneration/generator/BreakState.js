@@ -32,7 +32,8 @@ export class BreakState extends State {
    * @return {BreakState}
    */
   replaceState(oldState, newState) {
-    return new BreakState(State.replaceStateId(this.id, oldState, newState), this.label);
+    return new BreakState(
+        State.replaceStateId(this.id, oldState, newState), this.label);
   }
 
   /**

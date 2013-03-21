@@ -17,7 +17,8 @@ import {ExportSymbol} from './ExportSymbol.js';
 import {ModuleSymbol} from './ModuleSymbol.js';
 import {ObjectMap} from '../../util/ObjectMap.js';
 import {RuntimeInliner} from '../../codegeneration/RuntimeInliner.js';
-import {UniqueIdentifierGenerator} from '../../codegeneration/UniqueIdentifierGenerator.js';
+import {UniqueIdentifierGenerator} from
+    '../../codegeneration/UniqueIdentifierGenerator.js';
 import {resolveUrl} from '../../util/url.js';
 
 function addAll(self, other) {

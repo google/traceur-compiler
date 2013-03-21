@@ -17,8 +17,9 @@ import {SymbolType} from './SymbolType.js';
 /**
  * A symbol is a named program element.
  *
- * Symbols are plain old data structures only. They have methods for querying their contents, but
- * symbols do not implement more sophisticated semantics than simple data access.
+ * Symbols are plain old data structures only. They have methods for querying
+ * their contents, but symbols do not implement more sophisticated semantics
+ * than simple data access.
  */
 export class Symbol {
   /**

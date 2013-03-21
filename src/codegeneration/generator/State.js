@@ -20,7 +20,6 @@ import {
   createCaseClause,
   createIdentifierExpression,
   createNumberLiteral,
-  createStatementList,
   createStatementList
 } from '../ParseTreeFactory.js';
 
@@ -32,8 +31,8 @@ import {
  * States are immutable.
  *
  * When knitting StateMachines together the states in one machine may need
- * renumbering in the new machine. replaceState() is used to create an equivalent state with
- * different state ids.
+ * renumbering in the new machine. replaceState() is used to create an
+ * equivalent state with different state ids.
  */
 export class State {
   /**
@@ -81,9 +80,9 @@ State.END_STATE = -2;
 State.RETHROW_STATE = -3;
 
 /**
- * Returns a list of statements which jumps to a given destination state. If transfering control
- * to the destination state requires exiting a try of a try/finally then the finally block must
- * be executed along the way.
+ * Returns a list of statements which jumps to a given destination state. If
+ * transfering control to the destination state requires exiting a try of a
+ * try/finally then the finally block must be executed along the way.
  *
  * @param {FinallyState} enclosingFinally
  * @param {number} fallThroughState
@@ -96,8 +95,8 @@ State.generateJump = function(enclosingFinally, fallThroughState) {
 };
 
 /**
- * Returns a list of statements which jumps to a given destination state, through a finally
- * block.
+ * Returns a list of statements which jumps to a given destination state,
+ * through a finally block.
  * @param {number} finallyState
  * @param {number} destination
  * @return {Array.<ParseTree>}
@@ -116,9 +115,12 @@ State.generateJumpThroughFinally = function(finallyState, destination) {
 State.generateAssignState = function(enclosingFinally, fallThroughState) {
   var assignState;
   if (isFinallyExit(enclosingFinally, fallThroughState)) {
-    assignState = State.generateAssignStateOutOfFinally(enclosingFinally, fallThroughState);
+    assignState = State.generateAssignStateOutOfFinally(
+        enclosingFinally,
+        fallThroughState);
   } else {
-    assignState = createStatementList(createAssignStateStatement(fallThroughState));
+    assignState = createStatementList(
+        createAssignStateStatement(fallThroughState));
   }
   return assignState;
 };
@@ -129,7 +131,8 @@ State.generateAssignState = function(enclosingFinally, fallThroughState) {
  * @return {boolean}
  */
 function isFinallyExit(enclosingFinally, destination) {
-  return enclosingFinally != null && enclosingFinally.tryStates.indexOf(destination) < 0;
+  return enclosingFinally != null &&
+      enclosingFinally.tryStates.indexOf(destination) < 0;
 }
 
 /**
@@ -138,8 +141,11 @@ function isFinallyExit(enclosingFinally, destination) {
  * @param {number} destination
  * @return {Array.<ParseTree>}
  */
-State.generateAssignStateOutOfFinally = function(enclosingFinally, destination) {
-  return State.generateAssignStateOutOfFinally_(destination, enclosingFinally.finallyState);
+State.generateAssignStateOutOfFinally = function(enclosingFinally,
+                                                 destination) {
+  return State.generateAssignStateOutOfFinally_(
+      destination,
+      enclosingFinally.finallyState);
 };
 
 /**

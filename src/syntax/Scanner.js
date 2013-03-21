@@ -436,7 +436,7 @@ function skipRegularExpressionClassChar() {
 //   ε
 //
 // LiteralCharacter ::
-//   SourceCharacter but not back quote ` or LineTerminator or back slash \ or dollar-sign $
+//   SourceCharacter but not ` or LineTerminator or \ or $
 //   LineTerminatorSequence
 //   LineContinuation
 //   \ EscapeSequence

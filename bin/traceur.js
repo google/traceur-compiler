@@ -13958,7 +13958,7 @@ var $___src_codegeneration_GeneratorComprehensionTransformer_js = (function() {
 var $___src_codegeneration_generator_State_js = (function() {
   "use strict";
   var FINALLY_FALL_THROUGH = $___src_syntax_PredefinedName_js.FINALLY_FALL_THROUGH;
-  var $__18 = $___src_codegeneration_ParseTreeFactory_js, createAssignStateStatement = $__18.createAssignStateStatement, createAssignmentStatement = $__18.createAssignmentStatement, createBreakStatement = $__18.createBreakStatement, createCaseClause = $__18.createCaseClause, createIdentifierExpression = $__18.createIdentifierExpression, createNumberLiteral = $__18.createNumberLiteral, createStatementList = $__18.createStatementList, createStatementList = $__18.createStatementList;
+  var $__18 = $___src_codegeneration_ParseTreeFactory_js, createAssignStateStatement = $__18.createAssignStateStatement, createAssignmentStatement = $__18.createAssignmentStatement, createBreakStatement = $__18.createBreakStatement, createCaseClause = $__18.createCaseClause, createIdentifierExpression = $__18.createIdentifierExpression, createNumberLiteral = $__18.createNumberLiteral, createStatementList = $__18.createStatementList;
   var State = function() {
     'use strict';
     var $State = ($__createClassNoExtends)({
@@ -17224,7 +17224,7 @@ var $___src_syntax_ParseTreeValidator_js = (function() {
             case PROPERTY_NAME_SHORTHAND:
               break;
             default:
-              this.fail_(propertyNameAndValue, 'accessor, property name assignment or property method assigment expected');
+              this.fail_(propertyNameAndValue, 'accessor, property name ' + 'assignment or property method assigment expected');
           }
           this.visitAny(propertyNameAndValue);
         }

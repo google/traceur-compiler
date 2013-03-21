@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ArrayComprehensionTransformer} from './ArrayComprehensionTransformer.js';
+import {ArrayComprehensionTransformer} from
+    './ArrayComprehensionTransformer.js';
 import {ArrowFunctionTransformer} from './ArrowFunctionTransformer.js';
 import {AtNameMemberTransformer} from './AtNameMemberTransformer.js';
 import {BlockBindingTransformer} from './BlockBindingTransformer.js';
@@ -188,11 +189,13 @@ export class ProgramTransformer {
               runtimeInliner,
               reporter);
 
-    transform(transformOptions.privateNames && transformOptions.privateNameSyntax,
+    transform(transformOptions.privateNames &&
+              transformOptions.privateNameSyntax,
               AtNameMemberTransformer,
               identifierGenerator);
 
-    transform(transformOptions.privateNames && transformOptions.privateNameSyntax,
+    transform(transformOptions.privateNames &&
+              transformOptions.privateNameSyntax,
               PrivateNameSyntaxTransformer,
               identifierGenerator);
 
