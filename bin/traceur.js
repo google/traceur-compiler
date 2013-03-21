@@ -12770,7 +12770,7 @@ var $___src_codegeneration_PlaceholderParser_js = (function() {
   var $__18 = $___src_syntax_trees_ParseTrees_js, PropertyMethodAssignment = $__18.PropertyMethodAssignment, PropertyNameAssignment = $__18.PropertyNameAssignment, PropertyNameShorthand = $__18.PropertyNameShorthand;
   var SourceFile = $___src_syntax_SourceFile_js.SourceFile;
   var IDENTIFIER = $___src_syntax_TokenType_js.IDENTIFIER;
-  var $__18 = $___src_codegeneration_ParseTreeFactory_js, createBindingIdentifier = $__18.createBindingIdentifier, createBooleanLiteral = $__18.createBooleanLiteral, createExpressionStatement = $__18.createExpressionStatement, createGetAccessor = $__18.createGetAccessor, createIdentifierExpression = $__18.createIdentifierExpression, createIdentifierToken = $__18.createIdentifierToken, createMemberExpression = $__18.createMemberExpression, createNullLiteral = $__18.createNullLiteral, createNumberLiteral = $__18.createNumberLiteral, createSetAccessor = $__18.createSetAccessor, createStringLiteral = $__18.createStringLiteral, createVoid0 = $__18.createVoid0;
+  var $__18 = $___src_codegeneration_ParseTreeFactory_js, createArrayLiteralExpression = $__18.createArrayLiteralExpression, createBindingIdentifier = $__18.createBindingIdentifier, createBlock = $__18.createBlock, createBooleanLiteral = $__18.createBooleanLiteral, createCommaExpression = $__18.createCommaExpression, createExpressionStatement = $__18.createExpressionStatement, createGetAccessor = $__18.createGetAccessor, createIdentifierExpression = $__18.createIdentifierExpression, createIdentifierToken = $__18.createIdentifierToken, createMemberExpression = $__18.createMemberExpression, createNullLiteral = $__18.createNullLiteral, createNumberLiteral = $__18.createNumberLiteral, createParenExpression = $__18.createParenExpression, createSetAccessor = $__18.createSetAccessor, createStringLiteral = $__18.createStringLiteral, createVoid0 = $__18.createVoid0;
   var NOT_FOUND = {};
   var PREFIX = '$__placeholder__';
   var cache = new ArrayMap();
@@ -12838,6 +12838,13 @@ var $___src_codegeneration_PlaceholderParser_js = (function() {
   function convertValueToExpression(value) {
     if (value instanceof ParseTree) return value;
     if (value instanceof IdentifierToken) return createIdentifierExpression(value);
+    if (Array.isArray(value)) {
+      if (value[0]instanceof ParseTree) {
+        if (value.length === 1) return value[0];
+        if (value[0].isStatement()) return createBlock(value); else return createParenExpression(createCommaExpression(value));
+      }
+      return createArrayLiteralExpression(value.map(convertValueToExpression));
+    }
     if (value === null) return createNullLiteral();
     if (value === undefined) return createVoid0();
     switch (typeof value) {

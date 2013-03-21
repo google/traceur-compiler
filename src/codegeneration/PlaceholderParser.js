@@ -31,8 +31,11 @@ import {
 import {SourceFile} from '../syntax/SourceFile.js';
 import {IDENTIFIER} from '../syntax/TokenType.js';
 import {
+  createArrayLiteralExpression,
   createBindingIdentifier,
+  createBlock,
   createBooleanLiteral,
+  createCommaExpression,
   createExpressionStatement,
   createGetAccessor,
   createIdentifierExpression,
@@ -40,6 +43,7 @@ import {
   createMemberExpression,
   createNullLiteral,
   createNumberLiteral,
+  createParenExpression,
   createSetAccessor,
   createStringLiteral,
   createVoid0
@@ -180,6 +184,17 @@ function convertValueToExpression(value) {
     return value;
   if (value instanceof IdentifierToken)
     return createIdentifierExpression(value);
+  if (Array.isArray(value)) {
+    if (value[0] instanceof ParseTree) {
+      if (value.length === 1)
+        return value[0];
+      if (value[0].isStatement())
+        return createBlock(value);
+      else
+        return createParenExpression(createCommaExpression(value));
+    }
+    return createArrayLiteralExpression(value.map(convertValueToExpression));
+  }
   if (value === null)
     return createNullLiteral();
   if (value === undefined)
