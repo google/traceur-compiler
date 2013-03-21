@@ -132,6 +132,9 @@ InlineCodeLoader.prototype = {
           if (err) {
             errback(err);
           } else {
+            // Ignore shebang lines
+            if (/^#!/.test(data))
+              data = '//' + data;
             text = data;
             callback(data);
           }
