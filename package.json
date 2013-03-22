@@ -1,6 +1,6 @@
 {
   "name": "traceur",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Experimental ES6 to ES5 compiler",
   "keywords": [
     "javascript",
@@ -33,5 +33,8 @@
   },
   "dependencies": {
     "commander": ">=1.1"
+  },
+  "devDependencies": {
+    "closure-library": ">=1.0"
   }
 }
