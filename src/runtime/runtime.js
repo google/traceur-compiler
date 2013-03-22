@@ -499,9 +499,9 @@
   global.Deferred = Deferred;
 
   function setupGlobals(global) {
-    polyfillString(/*global.*/String);
-    polyfillObject(/*global.*/Object);
-    polyfillArray(/*global.*/Array);
+    polyfillString(global.String);
+    polyfillObject(global.Object);
+    polyfillArray(global.Array);
   }
 
   setupGlobals(global);

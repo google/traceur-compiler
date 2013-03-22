@@ -20566,9 +20566,9 @@ var traceur = (function() {
   });
   global.Deferred = Deferred;
   function setupGlobals(global) {
-    polyfillString(String);
-    polyfillObject(Object);
-    polyfillArray(Array);
+    polyfillString(global.String);
+    polyfillObject(global.Object);
+    polyfillArray(global.Array);
   }
   setupGlobals(global);
   var runtime = {
