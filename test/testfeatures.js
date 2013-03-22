@@ -269,7 +269,7 @@ global.assertArrayEquals = testUtil.assertArrayEquals;
 
 
 // Load the compiler.
-require('../src/node/traceur.js');
+var traceur = require('../src/node/traceur.js');
 
 print('\n');
 

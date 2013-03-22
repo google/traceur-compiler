@@ -37,7 +37,7 @@ try {
 }
 flags.setMaxListeners(100);
 
-require('../src/node/traceur.js');
+var traceur = require('../src/node/traceur.js');
 
 flags.option('--depTarget <FILE>', 'path to the dependency target');
 

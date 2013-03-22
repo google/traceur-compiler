@@ -15,10 +15,6 @@
 module traceur {
   var global = this;
 
-  // TODO(arv): Remove this hack.
-  var traceurRuntime = global.traceur.runtime;
-  export var runtime = traceurRuntime;
-
   import {options} from './options.js';
   export options;
 
@@ -133,7 +129,13 @@ module traceur {
     getModuleInstanceByUrl,
     CodeLoader
   } from './runtime/modules.js';
-  runtime.internals = internals;
-  runtime.getModuleInstanceByUrl = getModuleInstanceByUrl;
-  runtime.CodeLoader = CodeLoader;
+
+  export var runtime;
+
+  export function setRuntime(rt) {
+    runtime = rt;
+    runtime.internals = internals;
+    runtime.getModuleInstanceByUrl = getModuleInstanceByUrl;
+    runtime.CodeLoader = CodeLoader;
+  }
 }

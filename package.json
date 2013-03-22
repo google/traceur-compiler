@@ -18,7 +18,7 @@
   "engines": {
     "node": ">=0.8"
   },
-  "main": "./bin/traceur.js",
+  "main": "./src/node/traceur.js",
   "bin": {
     "traceur": "./traceur"
   },

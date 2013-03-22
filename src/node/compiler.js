@@ -17,7 +17,7 @@
 var fs = require('fs');
 var path = require('path');
 
-require('./traceur.js');
+var traceur = require('./traceur.js');
 
 var inlineAndCompile = require('./inline-module.js').inlineAndCompile;
 var util = require('./file-util.js');

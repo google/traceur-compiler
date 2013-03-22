@@ -1,6 +1,6 @@
 SRC = \
-  src/runtime/runtime.js \
-  src/traceur.js
+  src/traceur.js \
+  src/runtime/runtime.js
 GENSRC = \
   src/codegeneration/ParseTreeTransformer.js \
   src/outputgeneration/SourceMapIntegration.js \

@@ -14,7 +14,7 @@
 
 'use strict';
 
-require('./traceur.js');
+var traceur = require('./traceur.js');
 var util = require('./file-util.js');
 var inlineAndCompile = require('./inline-module.js').inlineAndCompile;
 

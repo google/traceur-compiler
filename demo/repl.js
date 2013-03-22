@@ -16,7 +16,7 @@ var repl = require('repl');
 var vm = require('vm');
 var util = require('util');
 
-require('../src/node/traceur.js');
+var traceur = require('../src/node/traceur.js');
 
 var TreeWriter = traceur.outputgeneration.TreeWriter;
 var Parser = traceur.syntax.Parser;

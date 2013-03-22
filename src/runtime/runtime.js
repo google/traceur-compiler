@@ -12,14 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// This file is sometimes used without traceur.js.
-if (!this.traceur)
-  this.traceur = {};
-
 /**
  * The traceur runtime.
  */
-traceur.runtime = (function(global) {
+(function(global) {
   'use strict';
 
   var $create = Object.create;
@@ -503,15 +499,15 @@ traceur.runtime = (function(global) {
   global.Deferred = Deferred;
 
   function setupGlobals(global) {
-    polyfillString(global.String);
-    polyfillObject(global.Object);
-    polyfillArray(global.Array);
+    polyfillString(/*global.*/String);
+    polyfillObject(/*global.*/Object);
+    polyfillArray(/*global.*/Array);
   }
 
   setupGlobals(global);
 
   // Return the runtime namespace.
-  return {
+  var runtime = {
     Deferred: Deferred,
     GeneratorReturn: GeneratorReturnLocal,
     setGeneratorReturn: setGeneratorReturn,
@@ -533,4 +529,11 @@ traceur.runtime = (function(global) {
     has: has,
     modules: modules,
   };
-})(this);
+
+  // This file is sometimes used without traceur.js.
+  if (typeof traceur !== 'undefined')
+    traceur.setRuntime(runtime);
+  else
+    global.traceur = {runtime: runtime};
+
+})(typeof global !== 'undefined' ? global : this);

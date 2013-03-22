@@ -26,7 +26,7 @@ try {
 }
 flags.setMaxListeners(100);
 
-require('./traceur.js');
+var traceur = require('./traceur.js');
 
 flags.option('--out <FILE>', 'Compile all input files into a single file');
 
