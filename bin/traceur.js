@@ -13430,6 +13430,7 @@ var $___src_semantics_FreeVariableChecker_js = (function() {
         $__superCall(this, $__proto, "constructor", []);
         this.reporter_ = reporter;
         this.scope_ = null;
+        this.disableChecksLevel_ = 0;
       },
       pushScope_: function() {
         return this.scope_ = new Scope(this.scope_);
@@ -13488,6 +13489,7 @@ var $___src_semantics_FreeVariableChecker_js = (function() {
         this.declareVariable_(tree);
       },
       visitIdentifierExpression: function(tree) {
+        if (this.disableChecksLevel_) return;
         var name = getVariableName(tree);
         var scope = this.scope_;
         if (!(name in scope.references)) {
@@ -13501,6 +13503,12 @@ var $___src_semantics_FreeVariableChecker_js = (function() {
           $__superCall(this, $__proto, "visitUnaryExpression", [tree]);
         }
       },
+      visitWithStatement: function(tree) {
+        this.visitAny(tree.expression);
+        this.disableChecksLevel_++;
+        this.visitAny(tree.body);
+        this.disableChecksLevel_--;
+      },
       declareVariable_: function(tree) {
         var name = getVariableName(tree);
         if (name) {
@@ -13511,6 +13519,7 @@ var $___src_semantics_FreeVariableChecker_js = (function() {
         }
       },
       validateScope_: function() {
+        if (this.disableChecksLevel_) return;
         var scope = this.scope_;
         var errors = [];
         for (var name in scope.references) {

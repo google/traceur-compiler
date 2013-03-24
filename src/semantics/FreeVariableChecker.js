@@ -77,6 +77,7 @@ export class FreeVariableChecker extends ParseTreeVisitor {
     this.reporter_ = reporter;
     /** Current scope (block, program) */
     this.scope_ = null;
+    this.disableChecksLevel_ = 0;
   }
 
   /**
@@ -179,6 +180,8 @@ export class FreeVariableChecker extends ParseTreeVisitor {
   }
 
   visitIdentifierExpression(tree) {
+    if (this.disableChecksLevel_)
+      return;
     var name = getVariableName(tree);
     var scope = this.scope_;
     if (!(name in scope.references)) {
@@ -194,6 +197,18 @@ export class FreeVariableChecker extends ParseTreeVisitor {
     } else {
       super.visitUnaryExpression(tree);
     }
+  }
+
+  visitWithStatement(tree) {
+    this.visitAny(tree.expression);
+    // Disable checks inside 'tree.body'. We don't do anything any more than
+    // that because unbound identifiers inside 'with' might be members of
+    // 'tree.expression'. There is no general way to deduce which is which at
+    // compile time. However, we still need to record any declarations within
+    // the block.
+    this.disableChecksLevel_++;
+    this.visitAny(tree.body);
+    this.disableChecksLevel_--;
   }
 
   declareVariable_(tree) {
@@ -215,6 +230,9 @@ export class FreeVariableChecker extends ParseTreeVisitor {
    * At the top level scope we issue errors for any remaining free variables.
    */
   validateScope_() {
+    if (this.disableChecksLevel_)
+      return;
+
     var scope = this.scope_;
 
     // Promote any unresolved references to the parent scope.
