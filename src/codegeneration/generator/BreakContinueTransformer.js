@@ -67,7 +67,7 @@ export class BreakContinueTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformBreakStatement(tree) {
-    return this.transformBreaks_ ?
+    return this.transformBreaks_ || tree.name ?
         this.stateToStateMachine_(
             new BreakState(this.allocateState_(), safeGetLabel(tree))) :
         tree;
@@ -136,7 +136,7 @@ export class BreakContinueTransformer extends ParseTreeTransformer {
    */
   transformSwitchStatement(tree) {
     var oldState = this.transformBreaks_;
-    this.transformBreaks = false;
+    this.transformBreaks_ = false;
     var result = super.transformSwitchStatement(tree);
     this.transformBreaks_ = oldState;
     return result;

@@ -13908,7 +13908,7 @@ var $___src_codegeneration_generator_BreakContinueTransformer_js = (function() {
         return new StateMachine(newState.id, fallThroughState, [newState], []);
       },
       transformBreakStatement: function(tree) {
-        return this.transformBreaks_ ? this.stateToStateMachine_(new BreakState(this.allocateState_(), safeGetLabel(tree))): tree;
+        return this.transformBreaks_ || tree.name ? this.stateToStateMachine_(new BreakState(this.allocateState_(), safeGetLabel(tree))): tree;
       },
       transformContinueStatement: function(tree) {
         return this.stateToStateMachine_(new ContinueState(this.allocateState_(), safeGetLabel(tree)));
@@ -13933,7 +13933,7 @@ var $___src_codegeneration_generator_BreakContinueTransformer_js = (function() {
       },
       transformSwitchStatement: function(tree) {
         var oldState = this.transformBreaks_;
-        this.transformBreaks = false;
+        this.transformBreaks_ = false;
         var result = $__superCall(this, $__proto, "transformSwitchStatement", [tree]);
         this.transformBreaks_ = oldState;
         return result;
