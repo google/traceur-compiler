@@ -415,6 +415,30 @@ export class CPSTransformer extends ParseTreeTransformer {
 
   /**
    * @param {Array.<State>} oldStates
+   * @return {Array.<State>} An array with empty states removed.
+   */
+  removeEmptyStates(oldStates) {
+    var emptyStates = [], newStates = [];
+    // Remove empty FallThroughState states.
+    for (var i = 0; i < oldStates.length; i++) {
+      if (oldStates[i] instanceof FallThroughState &&
+          oldStates[i].statements.length === 0) {
+        emptyStates.push(oldStates[i]);
+      } else {
+        newStates.push(oldStates[i]);
+      }
+    }
+    // Fix up dangling state transitions.
+    for (i = 0; i < newStates.length; i++) {
+      newStates[i] = emptyStates.reduce((state, {id, fallThroughState}) => {
+        return state.replaceState(id, fallThroughState);
+      }, newStates[i]);
+    }
+    return newStates;
+  }
+
+  /**
+   * @param {Array.<State>} oldStates
    * @param {number} oldState
    * @param {number} newState
    * @param {Array.<State>} newStates

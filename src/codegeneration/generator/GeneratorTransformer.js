@@ -198,6 +198,10 @@ export class GeneratorTransformer extends CPSTransformer {
       return tree;
     }
     var machine = transformedTree;
+    machine = new StateMachine(machine.startState,
+                               machine.fallThroughState,
+                               this.removeEmptyStates(machine.states),
+                               machine.exceptionBlocks);
 
     var statements = [];
 
