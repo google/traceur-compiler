@@ -51,7 +51,7 @@ bin/traceur.js force:
 # Prerequisites following '|' are rebuilt just like ordinary prerequisites.
 # However, they don't cause remakes if they're newer than the target. See:
 # http://www.gnu.org/software/make/manual/html_node/Prerequisite-Types.html
-build/dep.mk: | $(GENSRC)
+build/dep.mk: | $(GENSRC) node_modules
 	node build/makedep.js --depTarget bin/traceur.js $(TFLAGS) $(SRC) > $@
 
 src/syntax/trees/ParseTrees.js: \
@@ -71,7 +71,18 @@ src/codegeneration/ParseTreeTransformer.js: \
 	node $^ > $@
 
 %.js: %.js-template.js
-	node build/expand-js-template.js $^ $@
+	node build/expand-js-template.js $< $@
+
+src/outputgeneration/SourceMapIntegration.js: \
+  node_modules/source-map/lib/source-map/*.js
+
+NPM_INSTALL = npm install --local && touch node_modules
+
+node_modules/%:
+	$(NPM_INSTALL)
+
+node_modules: package.json
+	$(NPM_INSTALL)
 
 bin/traceur.ugly.js: bin/traceur.js
 	uglifyjs bin/traceur.js --compress -m -o $@
