@@ -35,6 +35,7 @@
     "commander": ">=1.1"
   },
   "devDependencies": {
-    "closure-library": ">=1.0"
+    "closure-library": ">=1.0",
+    "source-map": ">=0.1.16"
   }
 }

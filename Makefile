@@ -8,7 +8,7 @@ GENSRC = \
   src/syntax/trees/ParseTrees.js \
   src/syntax/ParseTreeVisitor.js
 
-TFLAGS = --strict-semicolons --
+TFLAGS = --
 
 build: bin/traceur.js
 

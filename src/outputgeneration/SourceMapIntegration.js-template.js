@@ -12,34 +12,44 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var moduleExports = {};
+// The official 'source-map' requires a 'define' function that matches the
+// CommonJS module specification. Since it only uses a subset of that
+// functionality, we cheat here and only provide that minimum subset.
 
-// 'source-map' changes its loading behavior depending on what the 'exports'
-// and 'define' symbols refer to.
-//
-// For the behavior we want, we set up the environment such that:
-//
-//   exports === undefined
-//   define  === undefined
-//   this    === moduleExports // Receives the 'sourceMapModule' export.
+/**
+ * @param {Object} mapping Maps between module ids and exports.
+ * @param {string} id A module id.
+ * @return {Function} A 'define' function that initializes |mapping[id]| with
+ *     the exports from |factory|.
+ */
+function makeDefine(mapping, id) {
+  var require = function(id) { return mapping[id]; };
+  var exports = mapping[id] = {};
+  var module = null; // Unused arg. Included for completeness.
+  return function(factory) {
+    factory(require, exports, module);
+  };
+}
 
-(function(exports, define) {
-// #include ../../third_party/source-map/lib/source-map/array-set.js
-// #include ../../third_party/source-map/lib/source-map/base64.js
-// #include ../../third_party/source-map/lib/source-map/base64-vlq.js
-// #include ../../third_party/source-map/lib/source-map/binary-search.js
-// #include ../../third_party/source-map/lib/source-map/util.js
-// #include ../../third_party/source-map/lib/source-map/source-map-generator.js
-// #include ../../third_party/source-map/lib/source-map/source-map-consumer.js
-// #include ../../third_party/source-map/lib/source-map/source-node.js
-}).call(moduleExports);
+var define, m = {};
 
-var sourceMapModule = moduleExports.sourceMapModule;
+define = makeDefine(m, './util');
+// #include ../../node_modules/source-map/lib/source-map/util.js
+define = makeDefine(m, './array-set');
+// #include ../../node_modules/source-map/lib/source-map/array-set.js
+define = makeDefine(m, './base64');
+// #include ../../node_modules/source-map/lib/source-map/base64.js
+define = makeDefine(m, './base64-vlq');
+// #include ../../node_modules/source-map/lib/source-map/base64-vlq.js
+define = makeDefine(m, './binary-search');
+// #include ../../node_modules/source-map/lib/source-map/binary-search.js
+define = makeDefine(m, './source-map-generator');
+// #include ../../node_modules/source-map/lib/source-map/source-map-generator.js
+define = makeDefine(m, './source-map-consumer');
+// #include ../../node_modules/source-map/lib/source-map/source-map-consumer.js
+define = makeDefine(m, './source-node');
+// #include ../../node_modules/source-map/lib/source-map/source-node.js
 
-export var base64 = sourceMapModule['base64'];
-export var base64Vlq = sourceMapModule['base64-vlq'];
-export var binarySearch = sourceMapModule['binary-search'];
-export var util = sourceMapModule['util'];
-export var SourceMapGenerator = sourceMapModule['source-map-generator'];
-export var SourceMapConsumer = sourceMapModule['source-map-consumer'];
-export var SourceNode = sourceMapModule['source-node'];
+export var SourceMapGenerator = m['./source-map-generator'].SourceMapGenerator;
+export var SourceMapConsumer = m['./source-map-consumer'].SourceMapConsumer;
+export var SourceNode = m['./source-node'].SourceNode;

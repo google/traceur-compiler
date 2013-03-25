@@ -17,7 +17,6 @@
 //
 // The output of this file is something like:
 //
-//   bin/traceur.js: third_party/source-map/lib/source-map/array-set.js
 //   bin/traceur.js: src/options.js
 //   bin/traceur.js: src/codegeneration/RestParameterTransformer.js
 
