@@ -12950,7 +12950,7 @@ var $___src_semantics_util_js = (function() {
   "use strict";
   var $__18 = $___src_syntax_trees_ParseTreeType_js, EXPRESSION_STATEMENT = $__18.EXPRESSION_STATEMENT, IDENTIFIER_EXPRESSION = $__18.IDENTIFIER_EXPRESSION, LITERAL_EXPRESSION = $__18.LITERAL_EXPRESSION, PAREN_EXPRESSION = $__18.PAREN_EXPRESSION, UNARY_EXPRESSION = $__18.UNARY_EXPRESSION;
   var UNDEFINED = $___src_syntax_PredefinedName_js.UNDEFINED;
-  var STRING = $___src_syntax_TokenType_js.STRING;
+  var $__18 = $___src_syntax_TokenType_js, STRING = $__18.STRING, VOID = $__18.VOID;
   function hasUseStrict(list) {
     var li;
     if (!list || !list.length || !(li = list[0])) return false;

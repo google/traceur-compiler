@@ -22,7 +22,10 @@ import {
 import {
   UNDEFINED
 } from '../syntax/PredefinedName.js';
-import {STRING} from '../syntax/TokenType.js';
+import {
+  STRING,
+  VOID
+} from '../syntax/TokenType.js';
 
 /**
  * @param {Array.<ParseTree>} list
