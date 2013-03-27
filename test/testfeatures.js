@@ -84,6 +84,104 @@ var asserts = {
   }
 };
 
+// Verifies that the reporter reported the expected errors.
+// Displays differences between actual and expected errors.
+function checkExpectedErrors(reporter, filePath, expectedErrors) {
+  if (!reporter.hadError()) {
+    // Script should not compile.
+    failScript(filePath, 'Compile error expected.');
+    return false;
+  }
+
+  var missingExpectations = expectedErrors.filter(function(expected) {
+    return !reporter.hasMatchingError(expected);
+  });
+  if (missingExpectations.length) {
+    failScript(filePath, 'Expected error missing.');
+    print('Expected errors:\n' + expectedErrors.join('\n') + '\n\n');
+    print('Actual errors:\n' + red(reporter.errors.join('\n')) + '\n\n');
+
+    return false;
+  }
+  return true;
+}
+
+function parseSourceFile(filePath, code, reporter) {
+  try {
+    var sourceFile = new traceur.syntax.SourceFile(filePath, code);
+    var parser = new traceur.syntax.Parser(reporter, sourceFile);
+    return parser.parseProgram(true);
+  } catch (e) {
+    fail('Exception during parse of: ' + filePath + '\n' + code + '\n' + e);
+  }
+}
+
+function writeTree(filePath, tree, originalCode) {
+  try {
+    return traceur.outputgeneration.TreeWriter.write(tree, false);
+  } catch (e) {
+    fail('Exception during write of:' + filePath + '\n' + originalCode +
+        '\n\ + e');
+  }
+}
+
+function compileToTree(filePath, source, reporter) {
+  var sourceFile = new traceur.syntax.SourceFile(filePath, source);
+  return traceur.codegeneration.Compiler.compileFile(reporter,
+                                                     sourceFile,
+                                                     filePath);
+}
+
+function parseAndWrite(filePath, code, reporter) {
+  var tree = parseSourceFile(filePath, code, reporter);
+  return writeTree(filePath, tree, code);
+}
+
+// Tests that writing a cloned tree is the same as writing the original tree.
+function testClone(tree, originalSource) {
+  var CloneTreeTransformer = traceur.codegeneration.CloneTreeTransformer;
+  var cloneTree = CloneTreeTransformer.cloneTree(tree);
+  var cloneGeneratedSource =
+      traceur.outputgeneration.TreeWriter.write(cloneTree);
+  assertEquals(originalSource, cloneGeneratedSource);
+  return true;
+}
+
+// Multiple round trips through the parser/writer should result in a
+// fixed point. This test will expose bugs in the TreeWriter for each
+// feature test.
+function testTreeWriter(filePath, source, reporter) {
+  var write1 = parseAndWrite(filePath, source, reporter);
+  var write2 = parseAndWrite(filePath, write1, reporter);
+  if (write1 !== write2) {
+    failScript(filePath, "Round trip of " + filePath + " through the parser" +
+      " and writer results in different results.\nPass 1:\n" + write1 +
+      "\nPass 2:\n" + write2);
+    return false;
+  }
+  return true;
+}
+
+function runCompiledTest(filePath, compiledCode) {
+  try {
+    ('global', eval)(compiledCode);
+    return true;
+  } catch (e) {
+    if (e instanceof UnitTestError) {
+      failScript(filePath, e.message + '\n' + e.stack);
+    } else if (e instanceof SyntaxError) {
+      failScript(filePath,
+          'Compiled to invalid Javascript. Source:\n\n     ' +
+          compiledCode.trim().replace(/\n/g, '\n     ') + '\n\n' +
+          '     ' + e);
+    } else {
+      failScript(filePath, 'Unexpected exception running script:\n' + e +
+          '\n' + e.stack);
+    }
+    return false;
+  }
+}
+
 /**
  * Load, compile, and execute the feature script at the given path.
  */
@@ -104,33 +202,14 @@ function testScript(filePath) {
     return true;
   }
 
+  silenceConsole();
   try {
-    silenceConsole();
-
     var reporter = new traceur.util.TestErrorReporter();
-    var sourceFile = new traceur.syntax.SourceFile(filePath, source);
-    var tree = traceur.codegeneration.Compiler.compileFile(reporter,
-                                                           sourceFile,
-                                                           filePath);
+    var tree = compileToTree(filePath, source, reporter);
+    var compiledCode = writeTree(filePath, tree, source);
 
     if (!shouldCompile) {
-      if (!reporter.hadError()) {
-        // Script should not compile.
-        failScript(filePath, 'Compile error expected.');
-        return false;
-      }
-
-      var missingExpectations = expectedErrors.filter(function(expected) {
-        return !reporter.hasMatchingError(expected);
-      });
-      if (missingExpectations.length) {
-        failScript(filePath, 'Expected error missing.');
-        print('Expected errors:\n' + expectedErrors.join('\n') + '\n\n');
-        print('Actual errors:\n' + red(reporter.errors.join('\n')) + '\n\n');
-
-        return false;
-      }
-      return true;
+      return checkExpectedErrors(reporter, filePath, expectedErrors);
     }
 
     if (reporter.hadError()) {
@@ -139,38 +218,16 @@ function testScript(filePath) {
       return false;
     }
 
-    var TreeWriter = traceur.outputgeneration.TreeWriter;
-    var javascript = TreeWriter.write(tree, false);
-
-    try {
-      ('global', eval)(javascript);
-      var CloneTreeTransformer = traceur.codegeneration.CloneTreeTransformer;
-      var cloneTree = CloneTreeTransformer.cloneTree(tree);
-      var cloneGeneratedSource = TreeWriter.write(cloneTree);
-      assertEquals(javascript, cloneGeneratedSource);
-      return true;
-    } catch (e) {
-      if (e instanceof UnitTestError) {
-        failScript(filePath, e.message + '\n' + e.stack);
-      } else if (e instanceof SyntaxError) {
-        failScript(filePath,
-            'Compiled to invalid Javascript. Source:\n\n     ' +
-            javascript.trim().replace(/\n/g, '\n     ') + '\n\n' +
-            '     ' + e);
-      } else {
-        failScript(filePath, 'Unexpected exception running script:\n' + e +
-            '\n' + e.stack);
-      }
-    }
-
+    return runCompiledTest(filePath, compiledCode) &&
+        testTreeWriter(filePath, source, reporter) &&
+        testClone(tree, compiledCode);
   } catch(e) {
     failScript(filePath, 'Unexpected exception:\n' + e + '\n' + e.stack);
+    return false;
   } finally {
     traceur.options.reset();
     restoreConsole();
   }
-
-  return false;
 }
 
 function forEachPrologLine(s, f) {

@@ -15688,8 +15688,10 @@ var $___src_outputgeneration_ParseTreeWriter_js = (function() {
         this.write_(CLOSE_PAREN);
       },
       visitArrayComprehension: function(tree) {
-        this.visitList(tree.comprehensionList);
         this.write_(OPEN_SQUARE);
+        this.visitList(tree.comprehensionList);
+        this.visitAny(tree.expression);
+        this.write_(CLOSE_SQUARE);
       },
       visitArrayLiteralExpression: function(tree) {
         this.write_(OPEN_SQUARE);
@@ -18119,7 +18121,7 @@ var $___src_outputgeneration_SourceMapIntegration_js = (function() {
     }
     exports.getArg = getArg;
     function join(aRoot, aPath) {
-      return aPath.charAt(0) === '/' ? aPath: aRoot.replace(/\/*$/, '') + '/' + aPath;
+      return aPath.charAt(0) === '/' ? aPath: aRoot.replace(/\/$/, '') + '/' + aPath;
     }
     exports.join = join;
     function toSetString(aStr) {
@@ -18127,7 +18129,8 @@ var $___src_outputgeneration_SourceMapIntegration_js = (function() {
     }
     exports.toSetString = toSetString;
     function relative(aRoot, aPath) {
-      return aPath.indexOf(aRoot.replace(/\/*$/, '') + '/') === 0 ? aPath.substr(aRoot.length + 1): aPath;
+      aRoot = aRoot.replace(/\/$/, '');
+      return aPath.indexOf(aRoot + '/') === 0 ? aPath.substr(aRoot.length + 1): aPath;
     }
     exports.relative = relative;
   });
@@ -18383,7 +18386,7 @@ var $___src_outputgeneration_SourceMapIntegration_js = (function() {
             line: mapping.original.line,
             column: mapping.original.column
           });
-          if (original && original.source !== null) {
+          if (original.source !== null) {
             if (sourceRoot) {
               mapping.source = util.relative(sourceRoot, original.source);
             } else {
@@ -18391,7 +18394,9 @@ var $___src_outputgeneration_SourceMapIntegration_js = (function() {
             }
             mapping.original.line = original.line;
             mapping.original.column = original.column;
-            mapping.name = mapping.name && original.name || mapping.name;
+            if (original.name !== null && mapping.name !== null) {
+              mapping.name = original.name;
+            }
           }
         }
         var source = mapping.source;
@@ -18724,6 +18729,58 @@ var $___src_outputgeneration_SourceMapIntegration_js = (function() {
       this.name = aName === undefined ? null: aName;
       if (aChunks != null) this.add(aChunks);
     }
+    SourceNode.fromStringWithSourceMap = function SourceNode_fromStringWithSourceMap(aGeneratedCode, aSourceMapConsumer) {
+      var node = new SourceNode();
+      var remainingLines = aGeneratedCode.split('\n');
+      var lastGeneratedLine = 1, lastGeneratedColumn = 0;
+      var lastMapping = null;
+      aSourceMapConsumer.eachMapping(function(mapping) {
+        if (lastMapping === null) {
+          while (lastGeneratedLine < mapping.generatedLine) {
+            node.add(remainingLines.shift() + "\n");
+            lastGeneratedLine++;
+          }
+          if (lastGeneratedColumn < mapping.generatedColumn) {
+            var nextLine = remainingLines[0];
+            node.add(nextLine.substr(0, mapping.generatedColumn));
+            remainingLines[0] = nextLine.substr(mapping.generatedColumn);
+            lastGeneratedColumn = mapping.generatedColumn;
+          }
+        } else {
+          if (lastGeneratedLine < mapping.generatedLine) {
+            var code = "";
+            do {
+              code += remainingLines.shift() + "\n";
+              lastGeneratedLine++;
+              lastGeneratedColumn = 0;
+            } while (lastGeneratedLine < mapping.generatedLine);
+            if (lastGeneratedColumn < mapping.generatedColumn) {
+              var nextLine = remainingLines[0];
+              code += nextLine.substr(0, mapping.generatedColumn);
+              remainingLines[0] = nextLine.substr(mapping.generatedColumn);
+              lastGeneratedColumn = mapping.generatedColumn;
+            }
+            addMappingWithCode(lastMapping, code);
+          } else {
+            var nextLine = remainingLines[0];
+            var code = nextLine.substr(0, mapping.generatedColumn - lastGeneratedColumn);
+            remainingLines[0] = nextLine.substr(mapping.generatedColumn - lastGeneratedColumn);
+            lastGeneratedColumn = mapping.generatedColumn;
+            addMappingWithCode(lastMapping, code);
+          }
+        }
+        lastMapping = mapping;
+      }, this);
+      addMappingWithCode(lastMapping, remainingLines.join("\n"));
+      return node;
+      function addMappingWithCode(mapping, code) {
+        if (mapping.source === undefined) {
+          node.add(code);
+        } else {
+          node.add(new SourceNode(mapping.originalLine, mapping.originalColumn, mapping.source, code, mapping.name));
+        }
+      }
+    };
     SourceNode.prototype.add = function SourceNode_add(aChunk) {
       if (Array.isArray(aChunk)) {
         aChunk.forEach(function(chunk) {

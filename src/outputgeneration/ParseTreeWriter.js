@@ -103,8 +103,10 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   visitArrayComprehension(tree) {
-    this.visitList(tree.comprehensionList);
     this.write_(OPEN_SQUARE);
+    this.visitList(tree.comprehensionList);
+    this.visitAny(tree.expression);
+    this.write_(CLOSE_SQUARE);
   }
 
   /**
