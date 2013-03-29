@@ -18968,6 +18968,15 @@ var $___src_codegeneration_CloneTreeTransformer_js = (function() {
       transformImportSpecifier: function(tree) {
         return new ImportSpecifier(tree.location, tree.lhs, tree.rhs);
       },
+      transformList: function(list) {
+        if (!list) {
+          return null;
+        } else if (list.length == 0) {
+          return [];
+        } else {
+          return $__superCall(this, $__proto, "transformList", [list]);
+        }
+      },
       transformLiteralExpression: function(tree) {
         return new LiteralExpression(tree.location, tree.literalToken);
       },

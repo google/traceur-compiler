@@ -144,6 +144,25 @@ function testClone(tree, originalSource) {
   var cloneGeneratedSource =
       traceur.outputgeneration.TreeWriter.write(cloneTree);
   assertEquals(originalSource, cloneGeneratedSource);
+
+  function TaggingVisitor(){}
+  TaggingVisitor.prototype = Object.create(traceur.codegeneration.ParseTreeTransformer.prototype);
+
+  TaggingVisitor.transformAny = function(tree) {
+    if (tree) 
+      tree.tagged = true;
+    return tree; 
+  }
+  
+  function CheckingTagsVisitor(){}
+  CheckingTagsVisitor.prototype = Object.create(traceur.syntax.ParseTreeVisitor.prototype);
+  CheckingTagsVisitor.visitAny = function(tree) {
+    assertUndefined(tree.tagged);
+  }
+
+  var tagged = (new TaggingVisitor).transformAny(cloneTree);
+  (new CheckingTagsVisitor()).visitAny(tree);
+
   return true;
 }
 
