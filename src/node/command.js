@@ -66,7 +66,51 @@ flags.optionHelp = function() {
   return optionHelp.call(this);
 }
 
-flags.parse(process.argv);
+/**
+ * HACK: Process arguments so that in interpret mode, commander.js only parses
+ * the flags, without the file name and anything past that. If an invalid flag
+ * is encountered, commander.js error reporting is emulated instead.
+ * @param {Array.<string>} argv
+ * @return {Array.<string>}
+ */
+function processArguments(argv) {
+  // Preserve the original.
+  argv = argv.slice();
+
+  var interpretMode = true;
+  for (var i = 2; i < argv.length; i++) {
+    var arg = argv[i];
+    if (arg === '--')
+      break;
+
+    var option = flags.optionFor(arg);
+    if (option) {
+      if (arg === '--out')
+        interpretMode = false;
+
+      if (option.required)
+        i++;
+      else if (option.optional) {
+        arg = argv[i + 1];
+        if (arg && arg[0] !== '-')
+          i++;
+      }
+    } else if (arg[0] === '-') {
+      // HACK Because commander.js has a flexible policy, this is the only
+      // reliable way of reporting invalid flags to the user, and it's limited
+      // to the first invalid flag encountered.
+      console.log('\n  error: unknown option `%s\'\n', arg);
+      process.exit(1);
+    } else if (interpretMode) {
+      // Add a hint to stop commander.js from parsing following arguments.
+      argv.splice(i, 0, '--');
+      break;
+    }
+  }
+  return argv;
+}
+
+flags.parse(processArguments(process.argv));
 
 var includes = flags.args;
 
@@ -90,5 +134,5 @@ if (out) {
   else
     compileToDirectory(out, includes, flags.sourceMaps);
 } else {
-  interpret(includes[0]);
+  interpret(includes[0], includes.slice(1));
 }
