@@ -34,9 +34,8 @@ function interpret(filename, argv) {
     // TODO: use a new module rather than the main one.
     mainModule.filename = fs.realpathSync(filename);
     mainModule._compile(compiledCode, mainModule.filename);
-
-    process.exit(0);
   }, function(err) {
+    console.error(err);
     process.exit(1);
   });
 }
