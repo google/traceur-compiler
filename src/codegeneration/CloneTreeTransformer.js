@@ -123,6 +123,20 @@ export class CloneTreeTransformer extends ParseTreeTransformer {
   }
 
   /**
+   * @param {Array.<ParseTree>} list
+   * @return {Array.<ParseTree>}
+   */
+  transformList(list) {
+    if (!list) {
+      return null;
+    } else if (list.length == 0) {
+      return [];
+    } else {
+      return super.transformList(list);
+    }
+  }
+
+  /**
    * @param {LiteralExpression} tree
    * @return {ParseTree}
    */
