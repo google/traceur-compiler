@@ -14,6 +14,7 @@
 
 'use strict';
 
+var fs = require('fs');
 var traceur = require('./traceur.js');
 var util = require('./file-util.js');
 var inlineAndCompile = require('./inline-module.js').inlineAndCompile;
@@ -27,11 +28,12 @@ function interpret(filename, argv) {
   process.argv = ['traceur', filename].concat(argv || []);
 
   inlineAndCompile([filename], {}, reporter, function(tree) {
+    var mainModule = require.main;
     var compiledCode = TreeWriter.write(tree);
 
     // TODO: use a new module rather than the main one.
-    require.main.filename = filename;
-    require.main._compile(compiledCode, filename);
+    mainModule.filename = fs.realpathSync(filename);
+    mainModule._compile(compiledCode, mainModule.filename);
 
     process.exit(0);
   }, function(err) {
