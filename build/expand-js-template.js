@@ -62,6 +62,7 @@ function expandFile(file, outDir, outStream, includeStack) {
   for (var i = 0; i < length; i++) {
     if (match = lines[i].match(/\s*\/\/ #include (.*)$/)) {
       includeFile = path.relative('.', path.resolve(fileDir, match[1]));
+      console.error('%s: %s', file, includeFile);
       expandFile(includeFile, outDir, outStream, includeStack);
       continue;
     }
