@@ -16,8 +16,6 @@
 
 var fs = require('fs');
 
-var STDIN_FILENO = 0;
-
 /**
  * Returns all input read from |fd| as a string, correctly handling ending of
  * piped input.
@@ -31,13 +29,20 @@ function readSyncString(fd) {
   var len = 0;
   var text = '';
 
-  while (len = fs.readSync(fd, buf, 0, BUFFER_SIZE, null)) {
-    text += buf.toString('utf8', 0, len);
+  try {
+    while (len = fs.readSync(fd, buf, 0, BUFFER_SIZE, null)) {
+      text += buf.toString('utf8', 0, len);
+    }
+  } catch (e) {
+    // On Windows readSync throws if attempting to read at EOF
+    if (e.message.indexOf('EOF') != 0) {
+      throw e;
+    }
   }
   return text;
 }
 
-var lines = readSyncString(STDIN_FILENO).split('\n').filter(function(x) {
+var lines = readSyncString(process.stdin.fd).split('\n').filter(function(x) {
   // JS files only
   return x && x.match('\\.js$');
 }).map(function(x) {
