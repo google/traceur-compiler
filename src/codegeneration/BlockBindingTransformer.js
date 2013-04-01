@@ -527,16 +527,15 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
             createBlock(
                 createVariableStatement(
                     // let x = $x;
-                    createVariableDeclarationList(
-                        LET, copyFwd)),
-        // try { ... } finally { copyBak }
-        createTryStatement(
-                        // try - the original for loop body
-                        tree.body,
-                        // catch (none)
-                        null,
-                        // finally - the writebacks
-                        createFinally(createBlock(copyBak))))));
+                    createVariableDeclarationList(LET, copyFwd)),
+                // try { ... } finally { copyBak }
+                createTryStatement(
+                    // try - the original for loop body
+                    toBlock(tree.body),
+                    // catch (none)
+                    null,
+                    // finally - the writebacks
+                    createFinally(createBlock(copyBak))))));
 
     // Now transform the rewritten for loop! This is safe to do because the
     return this.transformAny(transformedForLoop);
