@@ -104,13 +104,16 @@ function processArguments(argv) {
     } else if (interpretMode) {
       // Add a hint to stop commander.js from parsing following arguments.
       argv.splice(i, 0, '--');
+      // Save traceur flags for interpret.js.
+      argv.flags = argv.slice(2, i);
       break;
     }
   }
   return argv;
 }
 
-flags.parse(processArguments(process.argv));
+var argv = processArguments(process.argv);
+flags.parse(argv);
 
 var includes = flags.args;
 
@@ -134,5 +137,5 @@ if (out) {
   else
     compileToDirectory(out, includes, flags.sourceMaps);
 } else {
-  interpret(includes[0], includes.slice(1));
+  interpret(includes[0], includes.slice(1), argv.flags);
 }

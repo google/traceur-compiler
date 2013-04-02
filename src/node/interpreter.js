@@ -22,13 +22,15 @@ var inlineAndCompile = require('./inline-module.js').inlineAndCompile;
 var ErrorReporter = traceur.util.ErrorReporter;
 var TreeWriter = traceur.outputgeneration.TreeWriter;
 
-function interpret(filename, argv) {
+function interpret(filename, argv, flags) {
   var reporter = new ErrorReporter();
+  var mainModule = require.main;
+  var execArgv = [mainModule.filename].concat(flags || []);
 
   process.argv = ['traceur', filename].concat(argv || []);
+  process.execArgv = process.execArgv.concat(execArgv);
 
   inlineAndCompile([filename], {}, reporter, function(tree) {
-    var mainModule = require.main;
     var compiledCode = TreeWriter.write(tree);
 
     // TODO: use a new module rather than the main one.
