@@ -20674,9 +20674,12 @@ var traceur = (function() {
     $defineProperty(Object, 'is', method(is));
   }
   var iteratorName = new Name('iterator');
-  var IterModule = {get iterator() {
+  var IterModule = {
+    get iterator() {
       return iteratorName;
-    }};
+    },
+    isStopIteration: isStopIteration
+  };
   function getIterator(collection) {
     return getProperty(collection, iteratorName).call(collection);
   }
@@ -20741,7 +20744,7 @@ var traceur = (function() {
       default:
         throw new TypeError('invalid StopIteration type.');
     }
-    if (global) global.StopIteration = StopIteration;
+    if (global) global.StopIteration = StopIterationLocal;
   }
   setStopIteration(global.StopIteration, global);
   function Deferred(canceller) {
@@ -20829,9 +20832,13 @@ var traceur = (function() {
   setupGlobals(global);
   var runtime = {
     Deferred: Deferred,
-    GeneratorReturn: GeneratorReturnLocal,
+    get GeneratorReturn() {
+      return GeneratorReturnLocal;
+    },
     setGeneratorReturn: setGeneratorReturn,
-    StopIteration: StopIterationLocal,
+    get StopIteration() {
+      return StopIterationLocal;
+    },
     setStopIteration: setStopIteration,
     isStopIteration: isStopIteration,
     addIterator: addIterator,

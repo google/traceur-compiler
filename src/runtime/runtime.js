@@ -306,7 +306,8 @@
   var IterModule = {
     get iterator() {
       return iteratorName;
-    }
+    },
+    isStopIteration: isStopIteration
     // TODO: Implement the rest of @iter and move it to a different file that
     // gets compiled.
   };
@@ -396,7 +397,7 @@
         throw new TypeError('invalid StopIteration type.');
     }
     if (global)
-      global.StopIteration = StopIteration;
+      global.StopIteration = StopIterationLocal;
   }
 
   setStopIteration(global.StopIteration, global);
@@ -509,9 +510,13 @@
   // Return the runtime namespace.
   var runtime = {
     Deferred: Deferred,
-    GeneratorReturn: GeneratorReturnLocal,
+    get GeneratorReturn() {
+      return GeneratorReturnLocal;
+    },
     setGeneratorReturn: setGeneratorReturn,
-    StopIteration: StopIterationLocal,
+    get StopIteration() {
+      return StopIterationLocal;
+    },
     setStopIteration: setStopIteration,
     isStopIteration: isStopIteration,
     addIterator: addIterator,
