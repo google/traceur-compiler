@@ -15,6 +15,7 @@
 'use strict';
 
 var fs = require('fs');
+var Module = require('module');
 var traceur = require('./traceur.js');
 var util = require('./file-util.js');
 var inlineAndCompile = require('./inline-module.js').inlineAndCompile;
@@ -22,20 +23,26 @@ var inlineAndCompile = require('./inline-module.js').inlineAndCompile;
 var ErrorReporter = traceur.util.ErrorReporter;
 var TreeWriter = traceur.outputgeneration.TreeWriter;
 
+var ext = '.traceur-compiled';
+
+Module._extensions[ext] = function(module, filename) {
+  module.filename = filename.slice(0, -ext.length);
+  module._compile(module.compiledCode, module.filename);
+};
+
 function interpret(filename, argv, flags) {
   var reporter = new ErrorReporter();
-  var mainModule = require.main;
-  var execArgv = [mainModule.filename].concat(flags || []);
+  var execArgv = [require.main.filename].concat(flags || []);
 
+  filename = fs.realpathSync(filename);
   process.argv = ['traceur', filename].concat(argv || []);
   process.execArgv = process.execArgv.concat(execArgv);
 
   inlineAndCompile([filename], {}, reporter, function(tree) {
-    var compiledCode = TreeWriter.write(tree);
+    var module = new Module(filename, require.main);
 
-    // TODO: use a new module rather than the main one.
-    mainModule.filename = fs.realpathSync(filename);
-    mainModule._compile(compiledCode, mainModule.filename);
+    module.compiledCode = TreeWriter.write(tree);
+    module.load(filename + ext);
   }, function(err) {
     console.error(err);
     process.exit(1);
