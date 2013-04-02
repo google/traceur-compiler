@@ -306,7 +306,8 @@
   var IterModule = {
     get iterator() {
       return iteratorName;
-    }
+    },
+    isStopIteration: isStopIteration
     // TODO: Implement the rest of @iter and move it to a different file that
     // gets compiled.
   };

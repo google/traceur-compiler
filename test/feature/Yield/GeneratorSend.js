@@ -9,10 +9,7 @@ function assertThrownErrorIs(str, func) {
   assertEquals(str, e.message);
 }
 
-function isStopIteration(s) {
-  // Maybe something more rigorous later.
-  return typeof s === 'object' && String(s) === '[object StopIteration]';
-}
+import {isStopIteration} from '@iter';
 
 function assertThrowsStopIteration(fn) {
   if (!isStopIteration(assertThrows(fn)))

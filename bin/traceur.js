@@ -20674,9 +20674,12 @@ var traceur = (function() {
     $defineProperty(Object, 'is', method(is));
   }
   var iteratorName = new Name('iterator');
-  var IterModule = {get iterator() {
+  var IterModule = {
+    get iterator() {
       return iteratorName;
-    }};
+    },
+    isStopIteration: isStopIteration
+  };
   function getIterator(collection) {
     return getProperty(collection, iteratorName).call(collection);
   }
