@@ -30,11 +30,13 @@ Module._extensions[ext] = function(module, filename) {
   module._compile(module.compiledCode, module.filename);
 };
 
-function interpret(filename, argv) {
+function interpret(filename, argv, flags) {
   var reporter = new ErrorReporter();
+  var execArgv = [require.main.filename].concat(flags || []);
 
   filename = fs.realpathSync(filename);
   process.argv = ['traceur', filename].concat(argv || []);
+  process.execArgv = process.execArgv.concat(execArgv);
 
   inlineAndCompile([filename], {}, reporter, function(tree) {
     var module = new Module(filename, require.main);
