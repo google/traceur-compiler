@@ -7,7 +7,7 @@ you do all the following things:
 isn’t one already). If your patch is going to be large it might be a good idea
 to get the discussion started early. You can always email
 traceur-compiler-discuss@googlegroups.com to discuss future work.
-1. Make sure that the bug references a strawman, an approved proposal or in the
+1. Make sure that the bug references a strawman, an approved proposal or is in the
 latest ES6 spec draft at http://wiki.ecmascript.org/. We will not accept
 language feature patches that are not on the track for future versions of
 JavaScript.
@@ -18,4 +18,4 @@ agreement, either for an
 patch can be accepted.
 1. Add an entry to the `AUTHORS` file with your name and email.
 1. Multiple commits are fine in the pull request but once you get an **LGTM** from
-an owner, the commits should be smashed together. 
+an owner, the commits should be squashed together. 
