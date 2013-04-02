@@ -397,7 +397,7 @@
         throw new TypeError('invalid StopIteration type.');
     }
     if (global)
-      global.StopIteration = StopIteration;
+      global.StopIteration = StopIterationLocal;
   }
 
   setStopIteration(global.StopIteration, global);
@@ -510,9 +510,13 @@
   // Return the runtime namespace.
   var runtime = {
     Deferred: Deferred,
-    GeneratorReturn: GeneratorReturnLocal,
+    get GeneratorReturn() {
+      return GeneratorReturnLocal;
+    },
     setGeneratorReturn: setGeneratorReturn,
-    StopIteration: StopIterationLocal,
+    get StopIteration() {
+      return StopIterationLocal;
+    },
     setStopIteration: setStopIteration,
     isStopIteration: isStopIteration,
     addIterator: addIterator,
