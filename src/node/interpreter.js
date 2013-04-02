@@ -23,10 +23,10 @@ var inlineAndCompile = require('./inline-module.js').inlineAndCompile;
 var ErrorReporter = traceur.util.ErrorReporter;
 var TreeWriter = traceur.outputgeneration.TreeWriter;
 
-var EXT = '.traceur-compiled';
+var ext = '.traceur-compiled';
 
-Module._extensions[EXT] = function(module, filename) {
-  module.filename = filename.slice(0, -EXT.length);
+Module._extensions[ext] = function(module, filename) {
+  module.filename = filename.slice(0, -ext.length);
   module._compile(module.compiledCode, module.filename);
 };
 
@@ -40,7 +40,7 @@ function interpret(filename, argv) {
     var module = new Module(filename, require.main);
 
     module.compiledCode = TreeWriter.write(tree);
-    module.load(filename + EXT);
+    module.load(filename + ext);
   }, function(err) {
     console.error(err);
     process.exit(1);
