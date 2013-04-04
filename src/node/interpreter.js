@@ -38,6 +38,9 @@ function interpret(filename, argv, flags) {
   process.argv = ['traceur', filename].concat(argv || []);
   process.execArgv = process.execArgv.concat(execArgv);
 
+  if (traceur.options.deferredFunctions)
+    require('./deferred.js').wrap();
+
   inlineAndCompile([filename], {}, reporter, function(tree) {
     var module = new Module(filename, require.main);
 
