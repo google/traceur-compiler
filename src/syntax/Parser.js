@@ -134,7 +134,7 @@ export class Parser {
    */
   constructor(errorReporter, file) {
     this.errorReporter_ = errorReporter;
-    this.scanner_ = new Scanner(errorReporter, file);
+    this.scanner_ = new Scanner(errorReporter, file, this);
 
     /**
      * Keeps track of whether we currently allow yield expressions.
@@ -142,6 +142,7 @@ export class Parser {
      * @private
      */
     this.allowYield_ = options.unstarredGenerators;
+    this.noLint = false;
   }
 
   // 14 Program
@@ -3410,7 +3411,7 @@ export class Parser {
   eatPossibleImplicitSemiColon_() {
     var token = this.peekTokenNoLineTerminator_();
     if (!token) {
-      if (!options.strictSemicolons)
+      if (!options.strictSemicolons || this.noLint)
         return;
     } else {
       switch (token.type) {
@@ -3419,7 +3420,7 @@ export class Parser {
           return;
         case END_OF_FILE:
         case CLOSE_CURLY:
-          if (!options.strictSemicolons)
+          if (!options.strictSemicolons || this.noLint)
             return;
       }
     }
@@ -3574,6 +3575,16 @@ export class Parser {
    */
   getTreeLocation_(start) {
     return new SourceRange(start, this.getTreeEndLocation_());
+  }
+
+  handleSingleLineComment(input, start, end) {
+    // Check for '//:' and 'options.ignoreNolint' first so that we can
+    // immediately skip the expensive slice and regexp if it's not needed.
+    if (input.charCodeAt(start += 2) === 58 && !options.ignoreNolint) {
+      var text = input.slice(start + 1, start + 7);
+      if (text.search(/^(?:no)?lint\b/) === 0)
+        this.noLint = text[0] === 'n';
+    }
   }
 
   /**

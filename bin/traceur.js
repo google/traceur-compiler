@@ -224,6 +224,7 @@ var $___src_options_js = (function() {
   addBoolOption('validate');
   addBoolOption('strictSemicolons');
   addBoolOption('unstarredGenerators');
+  addBoolOption('ignoreNolint');
   return Object.preventExtensions(Object.create(null, {
     parseOptions: {
       get: function() {
@@ -7306,11 +7307,11 @@ var $___src_syntax_Scanner_js = (function() {
   function isRegularExpressionFirstChar(code) {
     return isRegularExpressionChar(code) && code !== 42;
   }
-  var index, input, length, token, lastToken, lookaheadToken, currentCharCode, lineNumberTable, errorReporter;
+  var index, input, length, token, lastToken, lookaheadToken, currentCharCode, lineNumberTable, errorReporter, currentParser;
   var Scanner = function() {
     'use strict';
     var $Scanner = ($__createClassNoExtends)({
-      constructor: function(reporter, file) {
+      constructor: function(reporter, file, parser) {
         errorReporter = reporter;
         lineNumberTable = file.lineNumberTable;
         input = file.contents;
@@ -7320,6 +7321,7 @@ var $___src_syntax_Scanner_js = (function() {
         token = null;
         lookaheadToken = null;
         updateCurrentCharCode();
+        currentParser = parser;
       },
       get lastToken() {
         return lastToken;
@@ -7540,9 +7542,11 @@ var $___src_syntax_Scanner_js = (function() {
     return false;
   }
   function skipSingleLineComment() {
-    while (!isAtEnd() && !isLineTerminator(currentCharCode)) {
-      next();
-    }
+    var start = index;
+    index += 2;
+    while (!isAtEnd() && !isLineTerminator(input.charCodeAt(index++))) {}
+    updateCurrentCharCode();
+    currentParser.handleSingleLineComment(input, start, index - 1);
   }
   function skipMultiLineComment() {
     var i = input.indexOf('*/', index + 2);
@@ -8033,8 +8037,9 @@ var $___src_syntax_Parser_js = (function() {
     var $Parser = ($__createClassNoExtends)({
       constructor: function(errorReporter, file) {
         this.errorReporter_ = errorReporter;
-        this.scanner_ = new Scanner(errorReporter, file);
+        this.scanner_ = new Scanner(errorReporter, file, this);
         this.allowYield_ = options.unstarredGenerators;
+        this.noLint = false;
       },
       parseProgram: function() {
         var load = arguments[0] !== (void 0) ? arguments[0]: false;
@@ -9910,7 +9915,7 @@ var $___src_syntax_Parser_js = (function() {
       eatPossibleImplicitSemiColon_: function() {
         var token = this.peekTokenNoLineTerminator_();
         if (!token) {
-          if (!options.strictSemicolons) return;
+          if (!options.strictSemicolons || this.noLint) return;
         } else {
           switch (token.type) {
             case SEMI_COLON:
@@ -9918,7 +9923,7 @@ var $___src_syntax_Parser_js = (function() {
               return;
             case END_OF_FILE:
             case CLOSE_CURLY:
-              if (!options.strictSemicolons) return;
+              if (!options.strictSemicolons || this.noLint) return;
           }
         }
         this.reportError_('Semi-colon expected');
@@ -9989,6 +9994,12 @@ var $___src_syntax_Parser_js = (function() {
       },
       getTreeLocation_: function(start) {
         return new SourceRange(start, this.getTreeEndLocation_());
+      },
+      handleSingleLineComment: function(input, start, end) {
+        if (input.charCodeAt(start += 2) === 58 && !options.ignoreNolint) {
+          var text = input.slice(start + 1, start + 7);
+          if (text.search(/^(?:no)?lint\b/) === 0) this.noLint = text[0] === 'n';
+        }
       },
       nextToken_: function() {
         return this.scanner_.nextToken();
@@ -18121,7 +18132,7 @@ var $___src_outputgeneration_SourceMapIntegration_js = (function() {
     }
     exports.getArg = getArg;
     function join(aRoot, aPath) {
-      return aPath.charAt(0) === '/' ? aPath: aRoot.replace(/\/$/, '') + '/' + aPath;
+      return aPath.charAt(0) === '/' ? aPath: aRoot.replace(/\/*$/, '') + '/' + aPath;
     }
     exports.join = join;
     function toSetString(aStr) {
@@ -18129,8 +18140,7 @@ var $___src_outputgeneration_SourceMapIntegration_js = (function() {
     }
     exports.toSetString = toSetString;
     function relative(aRoot, aPath) {
-      aRoot = aRoot.replace(/\/$/, '');
-      return aPath.indexOf(aRoot + '/') === 0 ? aPath.substr(aRoot.length + 1): aPath;
+      return aPath.indexOf(aRoot.replace(/\/*$/, '') + '/') === 0 ? aPath.substr(aRoot.length + 1): aPath;
     }
     exports.relative = relative;
   });
@@ -18386,7 +18396,7 @@ var $___src_outputgeneration_SourceMapIntegration_js = (function() {
             line: mapping.original.line,
             column: mapping.original.column
           });
-          if (original.source !== null) {
+          if (original && original.source !== null) {
             if (sourceRoot) {
               mapping.source = util.relative(sourceRoot, original.source);
             } else {
@@ -18394,9 +18404,7 @@ var $___src_outputgeneration_SourceMapIntegration_js = (function() {
             }
             mapping.original.line = original.line;
             mapping.original.column = original.column;
-            if (original.name !== null && mapping.name !== null) {
-              mapping.name = original.name;
-            }
+            mapping.name = mapping.name && original.name || mapping.name;
           }
         }
         var source = mapping.source;
@@ -18729,58 +18737,6 @@ var $___src_outputgeneration_SourceMapIntegration_js = (function() {
       this.name = aName === undefined ? null: aName;
       if (aChunks != null) this.add(aChunks);
     }
-    SourceNode.fromStringWithSourceMap = function SourceNode_fromStringWithSourceMap(aGeneratedCode, aSourceMapConsumer) {
-      var node = new SourceNode();
-      var remainingLines = aGeneratedCode.split('\n');
-      var lastGeneratedLine = 1, lastGeneratedColumn = 0;
-      var lastMapping = null;
-      aSourceMapConsumer.eachMapping(function(mapping) {
-        if (lastMapping === null) {
-          while (lastGeneratedLine < mapping.generatedLine) {
-            node.add(remainingLines.shift() + "\n");
-            lastGeneratedLine++;
-          }
-          if (lastGeneratedColumn < mapping.generatedColumn) {
-            var nextLine = remainingLines[0];
-            node.add(nextLine.substr(0, mapping.generatedColumn));
-            remainingLines[0] = nextLine.substr(mapping.generatedColumn);
-            lastGeneratedColumn = mapping.generatedColumn;
-          }
-        } else {
-          if (lastGeneratedLine < mapping.generatedLine) {
-            var code = "";
-            do {
-              code += remainingLines.shift() + "\n";
-              lastGeneratedLine++;
-              lastGeneratedColumn = 0;
-            } while (lastGeneratedLine < mapping.generatedLine);
-            if (lastGeneratedColumn < mapping.generatedColumn) {
-              var nextLine = remainingLines[0];
-              code += nextLine.substr(0, mapping.generatedColumn);
-              remainingLines[0] = nextLine.substr(mapping.generatedColumn);
-              lastGeneratedColumn = mapping.generatedColumn;
-            }
-            addMappingWithCode(lastMapping, code);
-          } else {
-            var nextLine = remainingLines[0];
-            var code = nextLine.substr(0, mapping.generatedColumn - lastGeneratedColumn);
-            remainingLines[0] = nextLine.substr(mapping.generatedColumn - lastGeneratedColumn);
-            lastGeneratedColumn = mapping.generatedColumn;
-            addMappingWithCode(lastMapping, code);
-          }
-        }
-        lastMapping = mapping;
-      }, this);
-      addMappingWithCode(lastMapping, remainingLines.join("\n"));
-      return node;
-      function addMappingWithCode(mapping, code) {
-        if (mapping.source === undefined) {
-          node.add(code);
-        } else {
-          node.add(new SourceNode(mapping.originalLine, mapping.originalColumn, mapping.source, code, mapping.name));
-        }
-      }
-    };
     SourceNode.prototype.add = function SourceNode_add(aChunk) {
       if (Array.isArray(aChunk)) {
         aChunk.forEach(function(chunk) {
