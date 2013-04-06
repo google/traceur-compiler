@@ -1850,6 +1850,7 @@ var $___src_syntax_trees_ParseTree_js = (function() {
   "use strict";
   var ParseTreeType = $___src_syntax_trees_ParseTreeType_js;
   var $__16 = ParseTreeType, ARGUMENT_LIST = $__16.ARGUMENT_LIST, ARRAY_COMPREHENSION = $__16.ARRAY_COMPREHENSION, ARRAY_LITERAL_EXPRESSION = $__16.ARRAY_LITERAL_EXPRESSION, ARRAY_PATTERN = $__16.ARRAY_PATTERN, ARROW_FUNCTION_EXPRESSION = $__16.ARROW_FUNCTION_EXPRESSION, AT_NAME_DECLARATION = $__16.AT_NAME_DECLARATION, AT_NAME_EXPRESSION = $__16.AT_NAME_EXPRESSION, AWAIT_STATEMENT = $__16.AWAIT_STATEMENT, BINARY_OPERATOR = $__16.BINARY_OPERATOR, BINDING_ELEMENT = $__16.BINDING_ELEMENT, BINDING_IDENTIFIER = $__16.BINDING_IDENTIFIER, BLOCK = $__16.BLOCK, BREAK_STATEMENT = $__16.BREAK_STATEMENT, CALL_EXPRESSION = $__16.CALL_EXPRESSION, CASCADE_EXPRESSION = $__16.CASCADE_EXPRESSION, CASE_CLAUSE = $__16.CASE_CLAUSE, CATCH = $__16.CATCH, CLASS_DECLARATION = $__16.CLASS_DECLARATION, CLASS_EXPRESSION = $__16.CLASS_EXPRESSION, COMMA_EXPRESSION = $__16.COMMA_EXPRESSION, COMPREHENSION_FOR = $__16.COMPREHENSION_FOR, COMPREHENSION_IF = $__16.COMPREHENSION_IF, CONDITIONAL_EXPRESSION = $__16.CONDITIONAL_EXPRESSION, CONTINUE_STATEMENT = $__16.CONTINUE_STATEMENT, COVER_FORMALS = $__16.COVER_FORMALS, DEBUGGER_STATEMENT = $__16.DEBUGGER_STATEMENT, DEFAULT_CLAUSE = $__16.DEFAULT_CLAUSE, DO_WHILE_STATEMENT = $__16.DO_WHILE_STATEMENT, EMPTY_STATEMENT = $__16.EMPTY_STATEMENT, EXPORT_DECLARATION = $__16.EXPORT_DECLARATION, EXPORT_MAPPING = $__16.EXPORT_MAPPING, EXPORT_MAPPING_LIST = $__16.EXPORT_MAPPING_LIST, EXPORT_SPECIFIER = $__16.EXPORT_SPECIFIER, EXPORT_SPECIFIER_SET = $__16.EXPORT_SPECIFIER_SET, EXPORT_STAR = $__16.EXPORT_STAR, EXPRESSION_STATEMENT = $__16.EXPRESSION_STATEMENT, FINALLY = $__16.FINALLY, FOR_IN_STATEMENT = $__16.FOR_IN_STATEMENT, FOR_OF_STATEMENT = $__16.FOR_OF_STATEMENT, FOR_STATEMENT = $__16.FOR_STATEMENT, FORMAL_PARAMETER_LIST = $__16.FORMAL_PARAMETER_LIST, FUNCTION_DECLARATION = $__16.FUNCTION_DECLARATION, FUNCTION_EXPRESSION = $__16.FUNCTION_EXPRESSION, GENERATOR_COMPREHENSION = $__16.GENERATOR_COMPREHENSION, GET_ACCESSOR = $__16.GET_ACCESSOR, IDENTIFIER_EXPRESSION = $__16.IDENTIFIER_EXPRESSION, IF_STATEMENT = $__16.IF_STATEMENT, IMPORT_BINDING = $__16.IMPORT_BINDING, IMPORT_DECLARATION = $__16.IMPORT_DECLARATION, IMPORT_SPECIFIER = $__16.IMPORT_SPECIFIER, IMPORT_SPECIFIER_SET = $__16.IMPORT_SPECIFIER_SET, LABELLED_STATEMENT = $__16.LABELLED_STATEMENT, LITERAL_EXPRESSION = $__16.LITERAL_EXPRESSION, MEMBER_EXPRESSION = $__16.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__16.MEMBER_LOOKUP_EXPRESSION, MISSING_PRIMARY_EXPRESSION = $__16.MISSING_PRIMARY_EXPRESSION, MODULE_DECLARATION = $__16.MODULE_DECLARATION, MODULE_DEFINITION = $__16.MODULE_DEFINITION, MODULE_EXPRESSION = $__16.MODULE_EXPRESSION, MODULE_REQUIRE = $__16.MODULE_REQUIRE, MODULE_SPECIFIER = $__16.MODULE_SPECIFIER, NAME_STATEMENT = $__16.NAME_STATEMENT, NEW_EXPRESSION = $__16.NEW_EXPRESSION, OBJECT_LITERAL_EXPRESSION = $__16.OBJECT_LITERAL_EXPRESSION, OBJECT_PATTERN = $__16.OBJECT_PATTERN, OBJECT_PATTERN_FIELD = $__16.OBJECT_PATTERN_FIELD, PAREN_EXPRESSION = $__16.PAREN_EXPRESSION, POSTFIX_EXPRESSION = $__16.POSTFIX_EXPRESSION, PREDEFINED_TYPE = $__16.PREDEFINED_TYPE, PROGRAM = $__16.PROGRAM, PROPERTY_METHOD_ASSIGNMENT = $__16.PROPERTY_METHOD_ASSIGNMENT, PROPERTY_NAME_ASSIGNMENT = $__16.PROPERTY_NAME_ASSIGNMENT, PROPERTY_NAME_SHORTHAND = $__16.PROPERTY_NAME_SHORTHAND, REST_PARAMETER = $__16.REST_PARAMETER, RETURN_STATEMENT = $__16.RETURN_STATEMENT, SET_ACCESSOR = $__16.SET_ACCESSOR, SPREAD_EXPRESSION = $__16.SPREAD_EXPRESSION, SPREAD_PATTERN_ELEMENT = $__16.SPREAD_PATTERN_ELEMENT, STATE_MACHINE = $__16.STATE_MACHINE, SUPER_EXPRESSION = $__16.SUPER_EXPRESSION, SWITCH_STATEMENT = $__16.SWITCH_STATEMENT, TEMPLATE_LITERAL_EXPRESSION = $__16.TEMPLATE_LITERAL_EXPRESSION, TEMPLATE_LITERAL_PORTION = $__16.TEMPLATE_LITERAL_PORTION, TEMPLATE_SUBSTITUTION = $__16.TEMPLATE_SUBSTITUTION, THIS_EXPRESSION = $__16.THIS_EXPRESSION, THROW_STATEMENT = $__16.THROW_STATEMENT, TRY_STATEMENT = $__16.TRY_STATEMENT, TYPE_NAME = $__16.TYPE_NAME, UNARY_EXPRESSION = $__16.UNARY_EXPRESSION, VARIABLE_DECLARATION = $__16.VARIABLE_DECLARATION, VARIABLE_DECLARATION_LIST = $__16.VARIABLE_DECLARATION_LIST, VARIABLE_STATEMENT = $__16.VARIABLE_STATEMENT, WHILE_STATEMENT = $__16.WHILE_STATEMENT, WITH_STATEMENT = $__16.WITH_STATEMENT, YIELD_EXPRESSION = $__16.YIELD_EXPRESSION;
+  var STRING = $___src_syntax_TokenType_js.STRING;
   var Token = $___src_syntax_Token_js.Token;
   var utilJSON = $___src_util_JSON_js;
   var ParseTree = function() {
@@ -2011,6 +2012,22 @@ var $___src_syntax_trees_ParseTree_js = (function() {
             return true;
         }
         return this.isStatementStandard();
+      },
+      getDirectivePrologueStringToken_: function() {
+        var tree = this;
+        if (tree.type !== EXPRESSION_STATEMENT || !(tree = tree.expression)) return null;
+        if (tree.type !== LITERAL_EXPRESSION || !(tree = tree.literalToken)) return null;
+        if (tree.type !== STRING) return null;
+        return tree;
+      },
+      isDirectivePrologue: function() {
+        return this.getDirectivePrologueStringToken_() !== null;
+      },
+      isUseStrictDirective: function() {
+        var token = this.getDirectivePrologueStringToken_();
+        if (!token) return false;
+        var v = token.value;
+        return v === '"use strict"' || v === "'use strict'";
       },
       toJSON: function() {
         return utilJSON.transform(this, ParseTree.replacer);
@@ -7208,7 +7225,7 @@ var $___src_syntax_LiteralToken_js = (function() {
 }).call(this);
 var $___src_syntax_Keywords_js = (function() {
   "use strict";
-  var keywords = ['break', 'case', 'catch', 'continue', 'debugger', 'default', 'delete', 'do', 'else', 'finally', 'for', 'function', 'if', 'in', 'instanceof', 'new', 'return', 'switch', 'this', 'throw', 'try', 'typeof', 'var', 'void', 'while', 'with', 'class', 'const', 'enum', 'export', 'extends', 'import', 'super', 'implements', 'interface', 'let', 'package', 'private', 'protected', 'public', 'static', 'yield', 'null', 'true', 'false', 'await'];
+  var keywords = ['break', 'case', 'catch', 'class', 'const', 'continue', 'debugger', 'default', 'delete', 'do', 'else', 'export', 'finally', 'for', 'function', 'if', 'import', 'in', 'instanceof', 'let', 'new', 'return', 'super', 'switch', 'this', 'throw', 'try', 'typeof', 'var', 'void', 'while', 'with', 'enum', 'extends', 'implements', 'interface', 'package', 'private', 'protected', 'public', 'static', 'yield', 'null', 'true', 'false', 'await'];
   var keywordsByName = Object.create(null);
   keywords.forEach((function(value) {
     keywordsByName[value] = true;
@@ -8039,6 +8056,7 @@ var $___src_syntax_Parser_js = (function() {
         this.errorReporter_ = errorReporter;
         this.scanner_ = new Scanner(errorReporter, file, this);
         this.allowYield_ = options.unstarredGenerators;
+        this.strictMode_ = false;
         this.noLint = false;
       },
       parseProgram: function() {
@@ -8051,8 +8069,18 @@ var $___src_syntax_Parser_js = (function() {
       parseProgramElements_: function(load) {
         var result = [];
         var type;
+        var checkUseStrictDirective = true;
         while ((type = this.peekType_()) !== END_OF_FILE) {
-          result.push(this.parseProgramElement_(type, load));
+          var programElement = this.parseProgramElement_(type, load);
+          if (checkUseStrictDirective) {
+            if (!programElement.isDirectivePrologue()) {
+              checkUseStrictDirective = false;
+            } else if (programElement.isUseStrictDirective()) {
+              this.strictMode_ = true;
+              checkUseStrictDirective = false;
+            }
+          }
+          result.push(programElement);
         }
         return result;
       },
@@ -8063,6 +8091,8 @@ var $___src_syntax_Parser_js = (function() {
         return type === IDENTIFIER && this.peek_(OPEN_CURLY, 1);
       },
       parseModuleDefinition_: function(load, start) {
+        var strictMode = this.strictMode_;
+        this.strictMode_ = true;
         var name = this.eatId_();
         this.eat_(OPEN_CURLY);
         var result = [];
@@ -8071,6 +8101,7 @@ var $___src_syntax_Parser_js = (function() {
           result.push(this.parseModuleElement_(type, load));
         }
         this.eat_(CLOSE_CURLY);
+        this.strictMode_ = strictMode;
         return new ModuleDefinition(this.getTreeLocation_(start), name, result);
       },
       parseModuleSpecifier_: function(load) {
@@ -8257,6 +8288,8 @@ var $___src_syntax_Parser_js = (function() {
       },
       parseClassShared_: function(constr) {
         var start = this.getTreeStartLocation_();
+        var strictMode = this.strictMode_;
+        this.strictMode_ = true;
         this.eat_(CLASS);
         var name = null;
         if (constr == ClassDeclaration || !this.peek_(EXTENDS) && !this.peek_(OPEN_CURLY)) {
@@ -8269,6 +8302,7 @@ var $___src_syntax_Parser_js = (function() {
         this.eat_(OPEN_CURLY);
         var elements = this.parseClassElements_();
         this.eat_(CLOSE_CURLY);
+        this.strictMode_ = strictMode;
         return new constr(this.getTreeLocation_(start), name, superClass, elements);
       },
       parseClassDeclaration_: function() {
@@ -8484,17 +8518,29 @@ var $___src_syntax_Parser_js = (function() {
         var start = this.getTreeStartLocation_();
         this.eat_(OPEN_CURLY);
         var allowYield = this.allowYield_;
+        var strictMode = this.strictMode_;
         this.allowYield_ = isGenerator || options.unstarredGenerators;
-        var result = this.parseStatementList_();
+        var result = this.parseStatementList_(!strictMode);
+        this.strictMode_ = strictMode;
         this.allowYield_ = allowYield;
         this.eat_(CLOSE_CURLY);
         return new Block(this.getTreeLocation_(start), result);
       },
       parseStatementList_: function() {
+        var checkUseStrictDirective = arguments[0] !== (void 0) ? arguments[0]: false;
         var result = [];
         var type;
         while (this.peekStatement_(type = this.peekType_(), false)) {
-          result.push(this.parseStatement_(type, false, false));
+          var statement = this.parseStatement_(type, false, false);
+          if (checkUseStrictDirective) {
+            if (!statement.isDirectivePrologue()) {
+              checkUseStrictDirective = false;
+            } else if (statement.isUseStrictDirective()) {
+              this.strictMode_ = true;
+              checkUseStrictDirective = false;
+            }
+          }
+          result.push(statement);
         }
         return result;
       },
@@ -8797,6 +8843,7 @@ var $___src_syntax_Parser_js = (function() {
         return new AwaitStatement(this.getTreeLocation_(start), identifier, expression);
       },
       parseWithStatement_: function() {
+        if (this.strictMode_) this.reportError_('Strict mode code may not include a with statement');
         var start = this.getTreeStartLocation_();
         this.eat_(WITH);
         this.eat_(OPEN_PAREN);
@@ -12959,16 +13006,15 @@ var $___src_codegeneration_CollectionTransformer_js = (function() {
 }).call(this);
 var $___src_semantics_util_js = (function() {
   "use strict";
-  var $__18 = $___src_syntax_trees_ParseTreeType_js, EXPRESSION_STATEMENT = $__18.EXPRESSION_STATEMENT, IDENTIFIER_EXPRESSION = $__18.IDENTIFIER_EXPRESSION, LITERAL_EXPRESSION = $__18.LITERAL_EXPRESSION, PAREN_EXPRESSION = $__18.PAREN_EXPRESSION, UNARY_EXPRESSION = $__18.UNARY_EXPRESSION;
+  var $__18 = $___src_syntax_trees_ParseTreeType_js, IDENTIFIER_EXPRESSION = $__18.IDENTIFIER_EXPRESSION, LITERAL_EXPRESSION = $__18.LITERAL_EXPRESSION, PAREN_EXPRESSION = $__18.PAREN_EXPRESSION, UNARY_EXPRESSION = $__18.UNARY_EXPRESSION;
   var UNDEFINED = $___src_syntax_PredefinedName_js.UNDEFINED;
-  var $__18 = $___src_syntax_TokenType_js, STRING = $__18.STRING, VOID = $__18.VOID;
+  var VOID = $___src_syntax_TokenType_js.VOID;
   function hasUseStrict(list) {
-    var li;
-    if (!list || !list.length || !(li = list[0])) return false;
-    if (li.type !== EXPRESSION_STATEMENT || !(li = li.expression)) return false;
-    if (li.type !== LITERAL_EXPRESSION || !(li = li.literalToken)) return false;
-    if (li.type !== STRING) return false;
-    return li.processedValue === 'use strict';
+    for (var i = 0; i < list.length; i++) {
+      if (!list[i].isDirectivePrologue()) return false;
+      if (list[i].isUseStrictDirective()) return true;
+    }
+    return false;
   }
   function isUndefined(tree) {
     if (tree.type === PAREN_EXPRESSION) return isUndefined(tree.expression);
@@ -18132,7 +18178,7 @@ var $___src_outputgeneration_SourceMapIntegration_js = (function() {
     }
     exports.getArg = getArg;
     function join(aRoot, aPath) {
-      return aPath.charAt(0) === '/' ? aPath: aRoot.replace(/\/*$/, '') + '/' + aPath;
+      return aPath.charAt(0) === '/' ? aPath: aRoot.replace(/\/$/, '') + '/' + aPath;
     }
     exports.join = join;
     function toSetString(aStr) {
@@ -18140,7 +18186,8 @@ var $___src_outputgeneration_SourceMapIntegration_js = (function() {
     }
     exports.toSetString = toSetString;
     function relative(aRoot, aPath) {
-      return aPath.indexOf(aRoot.replace(/\/*$/, '') + '/') === 0 ? aPath.substr(aRoot.length + 1): aPath;
+      aRoot = aRoot.replace(/\/$/, '');
+      return aPath.indexOf(aRoot + '/') === 0 ? aPath.substr(aRoot.length + 1): aPath;
     }
     exports.relative = relative;
   });
@@ -18396,7 +18443,7 @@ var $___src_outputgeneration_SourceMapIntegration_js = (function() {
             line: mapping.original.line,
             column: mapping.original.column
           });
-          if (original && original.source !== null) {
+          if (original.source !== null) {
             if (sourceRoot) {
               mapping.source = util.relative(sourceRoot, original.source);
             } else {
@@ -18404,7 +18451,9 @@ var $___src_outputgeneration_SourceMapIntegration_js = (function() {
             }
             mapping.original.line = original.line;
             mapping.original.column = original.column;
-            mapping.name = mapping.name && original.name || mapping.name;
+            if (original.name !== null && mapping.name !== null) {
+              mapping.name = original.name;
+            }
           }
         }
         var source = mapping.source;
@@ -18737,6 +18786,58 @@ var $___src_outputgeneration_SourceMapIntegration_js = (function() {
       this.name = aName === undefined ? null: aName;
       if (aChunks != null) this.add(aChunks);
     }
+    SourceNode.fromStringWithSourceMap = function SourceNode_fromStringWithSourceMap(aGeneratedCode, aSourceMapConsumer) {
+      var node = new SourceNode();
+      var remainingLines = aGeneratedCode.split('\n');
+      var lastGeneratedLine = 1, lastGeneratedColumn = 0;
+      var lastMapping = null;
+      aSourceMapConsumer.eachMapping(function(mapping) {
+        if (lastMapping === null) {
+          while (lastGeneratedLine < mapping.generatedLine) {
+            node.add(remainingLines.shift() + "\n");
+            lastGeneratedLine++;
+          }
+          if (lastGeneratedColumn < mapping.generatedColumn) {
+            var nextLine = remainingLines[0];
+            node.add(nextLine.substr(0, mapping.generatedColumn));
+            remainingLines[0] = nextLine.substr(mapping.generatedColumn);
+            lastGeneratedColumn = mapping.generatedColumn;
+          }
+        } else {
+          if (lastGeneratedLine < mapping.generatedLine) {
+            var code = "";
+            do {
+              code += remainingLines.shift() + "\n";
+              lastGeneratedLine++;
+              lastGeneratedColumn = 0;
+            } while (lastGeneratedLine < mapping.generatedLine);
+            if (lastGeneratedColumn < mapping.generatedColumn) {
+              var nextLine = remainingLines[0];
+              code += nextLine.substr(0, mapping.generatedColumn);
+              remainingLines[0] = nextLine.substr(mapping.generatedColumn);
+              lastGeneratedColumn = mapping.generatedColumn;
+            }
+            addMappingWithCode(lastMapping, code);
+          } else {
+            var nextLine = remainingLines[0];
+            var code = nextLine.substr(0, mapping.generatedColumn - lastGeneratedColumn);
+            remainingLines[0] = nextLine.substr(mapping.generatedColumn - lastGeneratedColumn);
+            lastGeneratedColumn = mapping.generatedColumn;
+            addMappingWithCode(lastMapping, code);
+          }
+        }
+        lastMapping = mapping;
+      }, this);
+      addMappingWithCode(lastMapping, remainingLines.join("\n"));
+      return node;
+      function addMappingWithCode(mapping, code) {
+        if (mapping.source === undefined) {
+          node.add(code);
+        } else {
+          node.add(new SourceNode(mapping.originalLine, mapping.originalColumn, mapping.source, code, mapping.name));
+        }
+      }
+    };
     SourceNode.prototype.add = function SourceNode_add(aChunk) {
       if (Array.isArray(aChunk)) {
         aChunk.forEach(function(chunk) {
