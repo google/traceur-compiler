@@ -71,7 +71,7 @@ src/codegeneration/ParseTreeTransformer.js: \
 	node $^ > $@
 
 %.js: %.js-template.js
-	node build/expand-js-template.js $< $@
+	node build/expand-js-template.js --nolint=^node_modules $< $@
 
 src/outputgeneration/SourceMapIntegration.js: \
   node_modules/source-map/lib/source-map/*.js
