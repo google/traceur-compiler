@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import {
-  EXPRESSION_STATEMENT,
   IDENTIFIER_EXPRESSION,
   LITERAL_EXPRESSION,
   PAREN_EXPRESSION,
@@ -23,7 +22,6 @@ import {
   UNDEFINED
 } from '../syntax/PredefinedName.js';
 import {
-  STRING,
   VOID
 } from '../syntax/TokenType.js';
 
@@ -32,16 +30,13 @@ import {
  * @return {boolean}
  */
 export function hasUseStrict(list) {
-  var li;
-  if (!list || !list.length || !(li = list[0]))
-    return false;
-  if (li.type !== EXPRESSION_STATEMENT || !(li = li.expression))
-    return false;
-  if (li.type !== LITERAL_EXPRESSION   || !(li = li.literalToken))
-    return false;
-  if (li.type !== STRING)
-    return false;
-  return li.processedValue === 'use strict';
+  for (var i = 0; i < list.length; i++) {
+    if (!list[i].isDirectivePrologue())
+      return false;
+    if (list[i].isUseStrictDirective())
+      return true;
+  }
+  return false;
 }
 
 /**
