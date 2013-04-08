@@ -2,29 +2,50 @@
 
 //:this is a nolint test.
 
-// Note: The leading letter in the var names changes for each expected
-// transition between lint and nolint.
-var a0;
-var a1;
+// Note: The var names begin with 'N' in expected nolint zones and with 'L' in
+// expected lint zones.
+
+//:nolintnot
+var L0;
+var L1;
 //:nolint
-var b2
+var N2
 //:nolint These don't nest (should they?).
-var b3
+var N3
 // hello lint
-var b4
-var b5
-var b6;
-var b7
-var b8
+var N4
+var N5;
+var N6
 //:lint
 //:nolint
-var c1
-var c2
+var N7
+var N8
 //:hello lint
-var c3
-var c4
-; // Necessary for nolint-to-lint transitions.
+var N9
+var Na
 //:lint
-var d1;
+var Lb;
 //:lint
-var d2;
+var Lc;
+//:nolint
+var Nd
+//:lint
+var Le;
+//:nolint
+var Nf
+//:lint
+//:lint
+var Lg;
+//:nolint
+//:nolint
+//:lintnot
+var Nh
+//:nolint
+//:lint
+//:nolint
+//:lint
+var Li;
+//:lint
+//:nolint
+//:lint
+//:nolint
