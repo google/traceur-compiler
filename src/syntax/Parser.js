@@ -143,6 +143,8 @@ export class Parser {
      */
     this.allowYield_ = options.unstarredGenerators;
     this.noLint = false;
+    this.noLintChanged_ = false;
+    this.strictSemicolons_ = options.strictSemicolons;
   }
 
   // 14 Program
@@ -3409,9 +3411,15 @@ export class Parser {
    * @private
    */
   eatPossibleImplicitSemiColon_() {
+    var strictSemicolons = this.strictSemicolons_;
     var token = this.peekTokenNoLineTerminator_();
     if (!token) {
-      if (!options.strictSemicolons || this.noLint)
+      // We delay changes in lint-nolint checking until the next token. This is
+      // needed to properly handle (or ignore) semicolon errors occurring at the
+      // boundary of a changeover.
+      if (this.noLintChanged_)
+        strictSemicolons = !strictSemicolons;
+      if (!strictSemicolons)
         return;
     } else {
       switch (token.type) {
@@ -3420,7 +3428,9 @@ export class Parser {
           return;
         case END_OF_FILE:
         case CLOSE_CURLY:
-          if (!options.strictSemicolons || this.noLint)
+          if (this.noLintChanged_)
+            strictSemicolons = !strictSemicolons;
+          if (!strictSemicolons)
             return;
       }
     }
@@ -3581,9 +3591,17 @@ export class Parser {
     // Check for '//:' and 'options.ignoreNolint' first so that we can
     // immediately skip the expensive slice and regexp if it's not needed.
     if (input.charCodeAt(start += 2) === 58 && !options.ignoreNolint) {
-      var text = input.slice(start + 1, start + 7);
-      if (text.search(/^(?:no)?lint\b/) === 0)
-        this.noLint = text[0] === 'n';
+      // We slice one more than the length of 'nolint' so that we can properly
+      // check for the presence or absence of a word boundary.
+      var text = input.slice(start + 1, start + 8);
+      if (text.search(/^(?:no)?lint\b/) === 0) {
+        var noLint = text[0] === 'n';
+        if (noLint !== this.noLint) {
+          this.noLintChanged_ = !this.noLintChanged_;
+          this.noLint = noLint;
+          this.strictSemicolons_ = options.strictSemicolons && !this.noLint;
+        }
+      }
     }
   }
 
@@ -3597,6 +3615,7 @@ export class Parser {
    * @private
    */
   nextToken_() {
+    this.noLintChanged_ = false;
     return this.scanner_.nextToken();
   }
 

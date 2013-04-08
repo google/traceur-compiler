@@ -8040,6 +8040,8 @@ var $___src_syntax_Parser_js = (function() {
         this.scanner_ = new Scanner(errorReporter, file, this);
         this.allowYield_ = options.unstarredGenerators;
         this.noLint = false;
+        this.noLintChanged_ = false;
+        this.strictSemicolons_ = options.strictSemicolons;
       },
       parseProgram: function() {
         var load = arguments[0] !== (void 0) ? arguments[0]: false;
@@ -9913,9 +9915,11 @@ var $___src_syntax_Parser_js = (function() {
         return typeName;
       },
       eatPossibleImplicitSemiColon_: function() {
+        var strictSemicolons = this.strictSemicolons_;
         var token = this.peekTokenNoLineTerminator_();
         if (!token) {
-          if (!options.strictSemicolons || this.noLint) return;
+          if (this.noLintChanged_) strictSemicolons = !strictSemicolons;
+          if (!strictSemicolons) return;
         } else {
           switch (token.type) {
             case SEMI_COLON:
@@ -9923,7 +9927,8 @@ var $___src_syntax_Parser_js = (function() {
               return;
             case END_OF_FILE:
             case CLOSE_CURLY:
-              if (!options.strictSemicolons || this.noLint) return;
+              if (this.noLintChanged_) strictSemicolons = !strictSemicolons;
+              if (!strictSemicolons) return;
           }
         }
         this.reportError_('Semi-colon expected');
@@ -9997,11 +10002,19 @@ var $___src_syntax_Parser_js = (function() {
       },
       handleSingleLineComment: function(input, start, end) {
         if (input.charCodeAt(start += 2) === 58 && !options.ignoreNolint) {
-          var text = input.slice(start + 1, start + 7);
-          if (text.search(/^(?:no)?lint\b/) === 0) this.noLint = text[0] === 'n';
+          var text = input.slice(start + 1, start + 8);
+          if (text.search(/^(?:no)?lint\b/) === 0) {
+            var noLint = text[0] === 'n';
+            if (noLint !== this.noLint) {
+              this.noLintChanged_ = !this.noLintChanged_;
+              this.noLint = noLint;
+              this.strictSemicolons_ = options.strictSemicolons && !this.noLint;
+            }
+          }
         }
       },
       nextToken_: function() {
+        this.noLintChanged_ = false;
         return this.scanner_.nextToken();
       },
       nextRegularExpressionLiteralToken_: function() {
