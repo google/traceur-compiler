@@ -79,9 +79,26 @@ function processArguments(argv) {
 
   var interpretMode = true;
   for (var i = 2; i < argv.length; i++) {
-    var arg = argv[i];
+    var arg = argv[i], index;
     if (arg === '--')
       break;
+
+    // Normalize flags in-place.
+    if (arg.length > 2 && arg[0] === '-' && arg[1] !== '-') {
+      // TODO: Is this needed at all for traceur?
+      arg = arg.slice(1).split('').map(function(flag) {
+        return '-' + flag;
+      });
+      // Insert the normalized flags in argv.
+      argv.splice.apply(argv, [i, 1].concat(arg));
+      // Grab the first normalized flag and process it as usual.
+      arg = argv[i];
+    } else if (/^--/.test(arg) && (index = arg.indexOf('=')) !== -1) {
+      // Insert the flag argument in argv.
+      argv.splice(i + 1, 0, arg.slice(index + 1));
+      // Replace the flag with the stripped version and process it as usual.
+      arg = argv[i] = arg.slice(0, index);
+    }
 
     var option = flags.optionFor(arg);
     if (option) {
@@ -96,7 +113,7 @@ function processArguments(argv) {
           i++;
       }
     } else if (arg[0] === '-') {
-      // HACK Because commander.js has a flexible policy, this is the only
+      // HACK: Because commander.js has a flexible policy, this is the only
       // reliable way of reporting invalid flags to the user, and it's limited
       // to the first invalid flag encountered.
       console.log('\n  error: unknown option `%s\'\n', arg);
@@ -104,13 +121,16 @@ function processArguments(argv) {
     } else if (interpretMode) {
       // Add a hint to stop commander.js from parsing following arguments.
       argv.splice(i, 0, '--');
+      // Save traceur flags for interpret.js.
+      argv.flags = argv.slice(2, i);
       break;
     }
   }
   return argv;
 }
 
-flags.parse(processArguments(process.argv));
+var argv = processArguments(process.argv);
+flags.parse(argv);
 
 var includes = flags.args;
 
@@ -134,5 +154,5 @@ if (out) {
   else
     compileToDirectory(out, includes, flags.sourceMaps);
 } else {
-  interpret(includes[0], includes.slice(1));
+  interpret(includes[0], includes.slice(1), argv.flags);
 }

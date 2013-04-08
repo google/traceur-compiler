@@ -134,7 +134,7 @@ export class Parser {
    */
   constructor(errorReporter, file) {
     this.errorReporter_ = errorReporter;
-    this.scanner_ = new Scanner(errorReporter, file);
+    this.scanner_ = new Scanner(errorReporter, file, this);
 
     /**
      * Keeps track of whether we currently allow yield expressions.
@@ -142,6 +142,14 @@ export class Parser {
      * @private
      */
     this.allowYield_ = options.unstarredGenerators;
+
+    /**
+     * Keeps track of whether we are currently in strict mode parsing or not.
+     * @type {boolean}
+     */
+    this.strictMode_ = false;
+
+    this.noLint = false;
   }
 
   // 14 Program
@@ -162,10 +170,26 @@ export class Parser {
   parseProgramElements_(load) {
     var result = [];
     var type;
+
     // We do a lot of type assignment in loops like these for performance
     // reasons.
+    var checkUseStrictDirective = true;
     while ((type = this.peekType_()) !== END_OF_FILE) {
-      result.push(this.parseProgramElement_(type, load));
+      var programElement = this.parseProgramElement_(type, load);
+
+      // TODO(arv): We get here when we load external modules, which are always
+      // strict but we currently do not have a way to determine if we are in
+      // that case.
+      if (checkUseStrictDirective) {
+        if (!programElement.isDirectivePrologue()) {
+          checkUseStrictDirective = false;
+        } else if (programElement.isUseStrictDirective()) {
+          this.strictMode_ = true;
+          checkUseStrictDirective = false;
+        }
+      }
+
+      result.push(programElement);
     }
     return result;
   }
@@ -199,6 +223,9 @@ export class Parser {
     // ModuleDefinition(load) ::= "module" Identifier "{" ModuleBody(load) "}"
     // ModuleSpecifier(load) ::= Identifier "from" ModuleExpression(load)
 
+    var strictMode = this.strictMode_;
+    this.strictMode_ = true;
+
     var name = this.eatId_();
     this.eat_(OPEN_CURLY);
     var result = [];
@@ -207,6 +234,9 @@ export class Parser {
       result.push(this.parseModuleElement_(type, load));
     }
     this.eat_(CLOSE_CURLY);
+
+    this.strictMode_ = strictMode;
+
     return new ModuleDefinition(this.getTreeLocation_(start), name, result);
   }
 
@@ -529,6 +559,8 @@ export class Parser {
 
   parseClassShared_(constr) {
     var start = this.getTreeStartLocation_();
+    var strictMode = this.strictMode_;
+    this.strictMode_ = true;
     this.eat_(CLASS);
     var name = null;
     // Name is optional for ClassExpression
@@ -543,6 +575,7 @@ export class Parser {
     this.eat_(OPEN_CURLY);
     var elements = this.parseClassElements_();
     this.eat_(CLOSE_CURLY);
+    this.strictMode_ = strictMode;
     return new constr(this.getTreeLocation_(start), name, superClass,
                       elements);
   }
@@ -865,8 +898,12 @@ export class Parser {
     this.eat_(OPEN_CURLY);
 
     var allowYield = this.allowYield_;
+    var strictMode = this.strictMode_;
     this.allowYield_ = isGenerator || options.unstarredGenerators;
-    var result = this.parseStatementList_();
+
+    var result = this.parseStatementList_(!strictMode);
+
+    this.strictMode_ = strictMode;
     this.allowYield_ = allowYield;
 
     this.eat_(CLOSE_CURLY);
@@ -877,13 +914,22 @@ export class Parser {
    * @return {Array.<ParseTree>}
    * @private
    */
-  parseStatementList_() {
+  parseStatementList_(checkUseStrictDirective = false) {
     var result = [];
     // TODO(arv): This does two big switches, one for the peek and one for the
     // parse. We should be able to refactor to only do one switch.
     var type;
     while (this.peekStatement_(type = this.peekType_(), false)) {
-      result.push(this.parseStatement_(type, false, false));
+      var statement = this.parseStatement_(type, false, false);
+      if (checkUseStrictDirective) {
+        if (!statement.isDirectivePrologue()) {
+          checkUseStrictDirective = false;
+        } else if (statement.isUseStrictDirective()) {
+          this.strictMode_ = true;
+          checkUseStrictDirective = false;
+        }
+      }
+      result.push(statement);
     }
     return result;
   }
@@ -1424,6 +1470,9 @@ export class Parser {
    * @private
    */
   parseWithStatement_() {
+    if (this.strictMode_)
+      this.reportError_('Strict mode code may not include a with statement');
+
     var start = this.getTreeStartLocation_();
     this.eat_(WITH);
     this.eat_(OPEN_PAREN);
@@ -3410,7 +3459,7 @@ export class Parser {
   eatPossibleImplicitSemiColon_() {
     var token = this.peekTokenNoLineTerminator_();
     if (!token) {
-      if (!options.strictSemicolons)
+      if (!options.strictSemicolons || this.noLint)
         return;
     } else {
       switch (token.type) {
@@ -3419,7 +3468,7 @@ export class Parser {
           return;
         case END_OF_FILE:
         case CLOSE_CURLY:
-          if (!options.strictSemicolons)
+          if (!options.strictSemicolons || this.noLint)
             return;
       }
     }
@@ -3574,6 +3623,16 @@ export class Parser {
    */
   getTreeLocation_(start) {
     return new SourceRange(start, this.getTreeEndLocation_());
+  }
+
+  handleSingleLineComment(input, start, end) {
+    // Check for '//:' and 'options.ignoreNolint' first so that we can
+    // immediately skip the expensive slice and regexp if it's not needed.
+    if (input.charCodeAt(start += 2) === 58 && !options.ignoreNolint) {
+      var text = input.slice(start + 1, start + 7);
+      if (text.search(/^(?:no)?lint\b/) === 0)
+        this.noLint = text[0] === 'n';
+    }
   }
 
   /**

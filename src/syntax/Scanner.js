@@ -247,7 +247,7 @@ function isRegularExpressionFirstChar(code) {
 }
 
 var index, input, length, token, lastToken, lookaheadToken, currentCharCode,
-    lineNumberTable, errorReporter;
+    lineNumberTable, errorReporter, currentParser;
 
 /**
  * Scans javascript source code into tokens. All entrypoints assume the
@@ -263,7 +263,7 @@ export class Scanner {
    * @param {ErrorReport} reporter
    * @param {SourceFile} file
    */
-  constructor(reporter, file) {
+  constructor(reporter, file, parser) {
     // These are not instance fields and this class should probably be refactor
     // to not give a false impression that multiple instances can be created.
     errorReporter = reporter;
@@ -275,6 +275,7 @@ export class Scanner {
     token = null;
     lookaheadToken = null;
     updateCurrentCharCode();
+    currentParser = parser;
   }
 
   get lastToken() {
@@ -608,9 +609,12 @@ function skipComment() {
 }
 
 function skipSingleLineComment() {
-  while (!isAtEnd() && !isLineTerminator(currentCharCode)) {
-    next();
-  }
+  var start = index;
+  // skip '//'
+  index += 2;
+  while (!isAtEnd() && !isLineTerminator(input.charCodeAt(index++))) {}
+  updateCurrentCharCode();
+  currentParser.handleSingleLineComment(input, start, index - 1);
 }
 
 function skipMultiLineComment() {

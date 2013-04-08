@@ -15,8 +15,8 @@
 export module ParseTreeType from './ParseTreeType.js';
 
 import * from ParseTreeType;
-
-import Token from '../Token.js';
+import {STRING} from '../TokenType.js';
+import {Token} from '../Token.js';
 
 module utilJSON from '../../util/JSON.js';
 
@@ -248,6 +248,32 @@ export class ParseTree {
         return true;
     }
     return this.isStatementStandard();
+  }
+
+  getDirectivePrologueStringToken_() {
+    var tree = this;
+    if (tree.type !== EXPRESSION_STATEMENT || !(tree = tree.expression))
+      return null;
+    if (tree.type !== LITERAL_EXPRESSION   || !(tree = tree.literalToken))
+      return null;
+    if (tree.type !== STRING)
+      return null;
+    return tree;
+  }
+
+  isDirectivePrologue() {
+    return this.getDirectivePrologueStringToken_() !== null;
+  }
+
+  isUseStrictDirective() {
+    var token = this.getDirectivePrologueStringToken_();
+    if (!token)
+      return false;
+    var v = token.value;
+    // A Use Strict Directive may not contain an EscapeSequence or
+    // LineContinuation. For example, 'use str\x69ct' is not a valid Use Strict
+    // Directive.
+    return v === '"use strict"' || v === "'use strict'";
   }
 
   toJSON() {
