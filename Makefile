@@ -73,8 +73,8 @@ src/codegeneration/ParseTreeTransformer.js: \
 %.js: %.js-template.js
 	node build/expand-js-template.js --nolint=^node_modules $< $@
 
-src/outputgeneration/SourceMapIntegration.js: \
-  node_modules/source-map/lib/source-map/*.js
+%.js-template.js.dep: | %.js-template.js
+	node build/expand-js-template.js --deps $| > $@
 
 NPM_INSTALL = npm install --local && touch node_modules
 
@@ -90,4 +90,5 @@ bin/traceur.ugly.js: bin/traceur.js
 .PHONY: build min test test-list force boot clean distclean
 
 -include build/dep.mk
+-include src/outputgeneration/SourceMapIntegration.js-template.js.dep
 -include build/local.mk
