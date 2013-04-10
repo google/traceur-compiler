@@ -10043,7 +10043,11 @@ var $___src_syntax_Parser_js = (function() {
         }
         if (token.type === IDENTIFIER) return token;
         if (token.isStrictKeyword()) {
-          if (this.strictMode_) this.reportReservedIdentifier_(token);
+          if (this.strictMode_) {
+            this.reportReservedIdentifier_(token);
+          } else {
+            return new IdentifierToken(token.location, token.type);
+          }
         } else {
           this.reportExpectedError_(token, 'identifier');
         }
@@ -13236,7 +13240,7 @@ var $___src_codegeneration_DestructuringTransformer_js = (function() {
     return $VariableDeclarationDesugaring;
   }(Desugaring);
   function createConditionalMemberExpression(rvalue, identToken, initializer) {
-    if (identToken.type !== IDENTIFIER && !identToken.isStrictKeyword()) {
+    if (identToken.type !== IDENTIFIER) {
       return createConditionalMemberLookupExpression(rvalue, new LiteralExpression(null, identToken), initializer);
     }
     if (!initializer) return createMemberExpression(rvalue, identToken);

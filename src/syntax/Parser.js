@@ -3559,8 +3559,13 @@ export class Parser {
       return token;
 
     if (token.isStrictKeyword()) {
-      if (this.strictMode_)
+      if (this.strictMode_) {
         this.reportReservedIdentifier_(token);
+      } else {
+        // Use an identifier token instead because it is treated as such and
+        // this simplifies the transformers.
+        return new IdentifierToken(token.location, token.type);
+      }
     } else {
       this.reportExpectedError_(token, 'identifier');
     }

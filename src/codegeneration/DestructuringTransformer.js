@@ -139,7 +139,7 @@ class VariableDeclarationDesugaring extends Desugaring {
  * Creates something like "ident" in rvalue ? rvalue.ident : initializer
  */
 function createConditionalMemberExpression(rvalue, identToken, initializer) {
-  if (identToken.type !== IDENTIFIER && !identToken.isStrictKeyword()) {
+  if (identToken.type !== IDENTIFIER) {
     return createConditionalMemberLookupExpression(rvalue,
         new LiteralExpression(null, identToken),
         initializer);
