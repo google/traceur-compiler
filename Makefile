@@ -36,7 +36,7 @@ clean:
 
 distclean: clean
 	rm -f build/dep.mk
-	rm -f $(GENSRC)
+	rm -f $(GENSRC) $(addsuffix -template.js.dep, $(TPL_GENSRC))
 
 initbench:
 	rm -rf test/bench/esprima
