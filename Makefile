@@ -1,9 +1,11 @@
 SRC = \
   src/traceur.js \
   src/runtime/runtime.js
+TPL_GENSRC = \
+  src/outputgeneration/SourceMapIntegration.js
 GENSRC = \
+  $(TPL_GENSRC) \
   src/codegeneration/ParseTreeTransformer.js \
-  src/outputgeneration/SourceMapIntegration.js \
   src/syntax/trees/ParseTreeType.js \
   src/syntax/trees/ParseTrees.js \
   src/syntax/ParseTreeVisitor.js
@@ -90,5 +92,5 @@ bin/traceur.ugly.js: bin/traceur.js
 .PHONY: build min test test-list force boot clean distclean
 
 -include build/dep.mk
--include src/outputgeneration/SourceMapIntegration.js-template.js.dep
+-include $(addsuffix -template.js.dep, $(TPL_GENSRC))
 -include build/local.mk
