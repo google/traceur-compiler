@@ -130,12 +130,8 @@ module traceur {
     CodeLoader
   } from './runtime/modules.js';
 
-  export var runtime;
-
-  export function setRuntime(rt) {
-    runtime = rt;
-    runtime.internals = internals;
-    runtime.getModuleInstanceByUrl = getModuleInstanceByUrl;
-    runtime.CodeLoader = CodeLoader;
-  }
+  export var runtime = global.$traceur.runtime;
+  runtime.internals = internals;
+  runtime.getModuleInstanceByUrl = getModuleInstanceByUrl;
+  runtime.CodeLoader = CodeLoader;
 }

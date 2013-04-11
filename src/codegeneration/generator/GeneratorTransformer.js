@@ -239,7 +239,7 @@ export class GeneratorTransformer extends CPSTransformer {
     var generatorWrap = this.runtimeInliner_.get('generatorWrap',
         `
         function (generator) {
-          return traceur.runtime.addIterator({
+          return ${TRACEUR}.runtime.addIterator({
             send: function(x) {
               switch (generator.GState) {
                 case ${ST_EXECUTING}:
@@ -259,10 +259,10 @@ export class GeneratorTransformer extends CPSTransformer {
                   }
                   generator.GState = ${ST_CLOSED};
                   if (generator.yieldReturn !== undefined) {
-                    throw new traceur.runtime.
+                    throw new ${TRACEUR}.runtime.
                         GeneratorReturn(generator.yieldReturn);
                   }
-                  throw traceur.runtime.StopIteration;
+                  throw ${TRACEUR}.runtime.StopIteration;
               }
             },
 
@@ -287,10 +287,10 @@ export class GeneratorTransformer extends CPSTransformer {
                   }
                   generator.GState = ${ST_CLOSED};
                   if (generator.yieldReturn !== undefined) {
-                    throw new traceur.runtime.
+                    throw new ${TRACEUR}.runtime.
                         GeneratorReturn(generator.yieldReturn);
                   }
-                  throw traceur.runtime.StopIteration;
+                  throw ${TRACEUR}.runtime.StopIteration;
               }
             },
 
