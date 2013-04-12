@@ -567,14 +567,6 @@
       "ParseTree"
     ]
   },
-  "MissingPrimaryExpression": {
-    "location": [
-      "SourceRange"
-    ],
-    "nextToken": [
-      "Token"
-    ]
-  },
   "ModuleDeclaration": {
     "location": [
       "SourceRange"
@@ -807,6 +799,17 @@
     ],
     "caseClauses": [
       "Array.<ParseTree>"
+    ]
+  },
+  "SyntaxErrorTree": {
+    "location": [
+      "SourceRange"
+    ],
+    "nextToken": [
+      "Token"
+    ],
+    "message": [
+      "string"
     ]
   },
   "TemplateLiteralExpression": {

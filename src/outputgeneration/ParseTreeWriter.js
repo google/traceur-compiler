@@ -641,10 +641,12 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
-   * @param {MissingPrimaryExpression} tree
+   * @param {SyntaxErrorTree} tree
    */
-  visitMissingPrimaryExpression(tree) {
-    this.write_('MissingPrimaryExpression');
+  visitSyntaxErrorTree(tree) {
+    this.write_('(function() {' +
+        `throw SyntaxError(${JSON.stringify(tree.message)});` +
+        '})()');
   }
 
   /**
