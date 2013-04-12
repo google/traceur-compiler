@@ -90,4 +90,8 @@ strictKeywords.forEach((value) => {
 
 export function getKeywordType(value) {
   return keywordsByName[value];
-};
+}
+
+export function isStrictKeyword(value) {
+  return getKeywordType(value) === STRICT_KEYWORD;
+}

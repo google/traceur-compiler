@@ -25,9 +25,8 @@ export class ErrorReporter {
    * @param {SourcePosition} location
    * @param {string} format
    */
-  reportError(location, format, var_args) {
+  reportError(location, format, ...args) {
     this.hadError_ = true;
-    var args = Array.prototype.slice.call(arguments, 2);
     this.reportMessageInternal(location, 'error', format, args);
   }
 
@@ -35,8 +34,7 @@ export class ErrorReporter {
    * @param {SourcePosition} location
    * @param {string} format
    */
-  reportWarning(location, format, var_args) {
-    var args = Array.prototype.slice.call(arguments, 2);
+  reportWarning(location, format, ...args) {
     this.reportMessageInternal(location, 'warn', format, args);
   }
 
