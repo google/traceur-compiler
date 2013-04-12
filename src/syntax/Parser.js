@@ -1671,6 +1671,20 @@ export class Parser {
         return this.parseTemplateLiteral_(null);
       case AT_NAME:
         return this.parseAtNameExpression_();
+
+      case IMPLEMENTS:
+      case INTERFACE:
+      case PACKAGE:
+      case PRIVATE:
+      case PROTECTED:
+      case PUBLIC:
+      case STATIC:
+      case YIELD:
+        if (!this.strictMode_)
+          return this.parseIdentifierExpression_();
+        this.reportReservedIdentifier_(this.nextToken_());
+        // Fall through.
+
       default:
         return this.parseMissingPrimaryExpression_();
     }
@@ -3534,16 +3548,29 @@ export class Parser {
    * @private
    */
   eatId_(expected = undefined) {
-    var result = this.eat_(IDENTIFIER);
-    if (expected) {
-      if (!result || result.value !== expected) {
-        if (!result)
-          result = this.peekToken_();
-        this.reportError_(result, `expected '${expected}'`);
-        return null;
-      }
+    var token = this.nextToken_();
+    if (!token) {
+      if (expected)
+        this.reportError_(this.peekToken_(), `expected '${expected}'`);
+      return null;
     }
-    return result;
+
+    if (token.type === IDENTIFIER)
+      return token;
+
+    if (token.isStrictKeyword()) {
+      if (this.strictMode_) {
+        this.reportReservedIdentifier_(token);
+      } else {
+        // Use an identifier token instead because it is treated as such and
+        // this simplifies the transformers.
+        return new IdentifierToken(token.location, token.type);
+      }
+    } else {
+      this.reportExpectedError_(token, 'identifier');
+    }
+
+    return token;
   }
 
   /**
@@ -3565,11 +3592,12 @@ export class Parser {
   }
 
   /**
-   * Consumes the next token. If the consumed token is not of the expected type then
-   * report an error and return null. Otherwise return the consumed token.
+   * Consumes the next token. If the consumed token is not of the expected type
+   * then report an error and return null. Otherwise return the consumed token.
    *
    * @param {TokenType} expectedTokenType
-   * @return {Token} The consumed token, or null if the next token is not of the expected type.
+   * @return {Token} The consumed token, or null if the next token is not of
+   *     the expected type.
    * @private
    */
   eat_(expectedTokenType) {
@@ -3755,5 +3783,9 @@ export class Parser {
 
   reportUnexpectedToken_() {
     this.reportError_(this.peekToken_(), 'Unexpected token');
+  }
+
+  reportReservedIdentifier_(token) {
+    this.reportError_(token, `${token.type} is a reserved identifier`);
   }
 }

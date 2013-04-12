@@ -1771,6 +1771,9 @@ var $___src_syntax_Token_js = (function() {
       },
       isKeyword: function() {
         return false;
+      },
+      isStrictKeyword: function() {
+        return false;
       }
     }, {});
     return $Token;
@@ -7097,19 +7100,62 @@ var $___src_syntax_AtNameToken_js = (function() {
       enumerable: true
     }}));
 }).call(this);
+var $___src_syntax_Keywords_js = (function() {
+  "use strict";
+  var keywords = ['break', 'case', 'catch', 'class', 'const', 'continue', 'debugger', 'default', 'delete', 'do', 'else', 'export', 'finally', 'for', 'function', 'if', 'import', 'in', 'instanceof', 'let', 'new', 'return', 'super', 'switch', 'this', 'throw', 'try', 'typeof', 'var', 'void', 'while', 'with', 'enum', 'extends', 'null', 'true', 'false', 'await'];
+  var strictKeywords = ['implements', 'interface', 'package', 'private', 'protected', 'public', 'static', 'yield'];
+  var keywordsByName = Object.create(null);
+  var NORMAL_KEYWORD = 1;
+  var STRICT_KEYWORD = 2;
+  keywords.forEach((function(value) {
+    keywordsByName[value] = NORMAL_KEYWORD;
+  }));
+  strictKeywords.forEach((function(value) {
+    keywordsByName[value] = STRICT_KEYWORD;
+  }));
+  function getKeywordType(value) {
+    return keywordsByName[value];
+  }
+  ;
+  return Object.preventExtensions(Object.create(null, {
+    NORMAL_KEYWORD: {
+      get: function() {
+        return NORMAL_KEYWORD;
+      },
+      enumerable: true
+    },
+    STRICT_KEYWORD: {
+      get: function() {
+        return STRICT_KEYWORD;
+      },
+      enumerable: true
+    },
+    getKeywordType: {
+      get: function() {
+        return getKeywordType;
+      },
+      enumerable: true
+    }
+  }));
+}).call(this);
 var $___src_syntax_KeywordToken_js = (function() {
   "use strict";
+  var STRICT_KEYWORD = $___src_syntax_Keywords_js.STRICT_KEYWORD;
   var Token = $___src_syntax_Token_js.Token;
   var KeywordToken = function($__super) {
     'use strict';
     var $__proto = $__getProtoParent($__super);
     var $KeywordToken = ($__createClass)({
-      constructor: function(type, location) {
+      constructor: function(type, keywordType, location) {
         this.type = type;
         this.location = location;
+        this.isStrictKeyword_ = keywordType === STRICT_KEYWORD;
       },
       isKeyword: function() {
         return true;
+      },
+      isStrictKeyword: function() {
+        return this.isStrictKeyword_;
       }
     }, {}, $__proto, $__super, true);
     return $KeywordToken;
@@ -7223,24 +7269,6 @@ var $___src_syntax_LiteralToken_js = (function() {
       enumerable: true
     }}));
 }).call(this);
-var $___src_syntax_Keywords_js = (function() {
-  "use strict";
-  var keywords = ['break', 'case', 'catch', 'class', 'const', 'continue', 'debugger', 'default', 'delete', 'do', 'else', 'export', 'finally', 'for', 'function', 'if', 'import', 'in', 'instanceof', 'let', 'new', 'return', 'super', 'switch', 'this', 'throw', 'try', 'typeof', 'var', 'void', 'while', 'with', 'enum', 'extends', 'implements', 'interface', 'package', 'private', 'protected', 'public', 'static', 'yield', 'null', 'true', 'false', 'await'];
-  var keywordsByName = Object.create(null);
-  keywords.forEach((function(value) {
-    keywordsByName[value] = true;
-  }));
-  function isKeyword(value) {
-    return !!keywordsByName[value];
-  }
-  ;
-  return Object.preventExtensions(Object.create(null, {isKeyword: {
-      get: function() {
-        return isKeyword;
-      },
-      enumerable: true
-    }}));
-}).call(this);
 var $___src_syntax_Scanner_js = (function() {
   "use strict";
   var AtNameToken = $___src_syntax_AtNameToken_js.AtNameToken;
@@ -7248,7 +7276,7 @@ var $___src_syntax_Scanner_js = (function() {
   var KeywordToken = $___src_syntax_KeywordToken_js.KeywordToken;
   var LiteralToken = $___src_syntax_LiteralToken_js.LiteralToken;
   var Token = $___src_syntax_Token_js.Token;
-  var isKeyword = $___src_syntax_Keywords_js.isKeyword;
+  var getKeywordType = $___src_syntax_Keywords_js.getKeywordType;
   var $__17 = $___src_syntax_TokenType_js, AMPERSAND = $__17.AMPERSAND, AMPERSAND_EQUAL = $__17.AMPERSAND_EQUAL, AND = $__17.AND, ARROW = $__17.ARROW, AT_NAME = $__17.AT_NAME, AWAIT = $__17.AWAIT, BACK_QUOTE = $__17.BACK_QUOTE, BANG = $__17.BANG, BAR = $__17.BAR, BAR_EQUAL = $__17.BAR_EQUAL, BREAK = $__17.BREAK, CARET = $__17.CARET, CARET_EQUAL = $__17.CARET_EQUAL, CASE = $__17.CASE, CATCH = $__17.CATCH, CLASS = $__17.CLASS, CLOSE_ANGLE = $__17.CLOSE_ANGLE, CLOSE_CURLY = $__17.CLOSE_CURLY, CLOSE_PAREN = $__17.CLOSE_PAREN, CLOSE_SQUARE = $__17.CLOSE_SQUARE, COLON = $__17.COLON, COMMA = $__17.COMMA, CONST = $__17.CONST, CONTINUE = $__17.CONTINUE, DEBUGGER = $__17.DEBUGGER, DEFAULT = $__17.DEFAULT, DELETE = $__17.DELETE, DO = $__17.DO, DOLLAR = $__17.DOLLAR, DOT_DOT_DOT = $__17.DOT_DOT_DOT, ELSE = $__17.ELSE, END_OF_FILE = $__17.END_OF_FILE, ENUM = $__17.ENUM, EQUAL = $__17.EQUAL, EQUAL_EQUAL = $__17.EQUAL_EQUAL, EQUAL_EQUAL_EQUAL = $__17.EQUAL_EQUAL_EQUAL, ERROR = $__17.ERROR, EXPORT = $__17.EXPORT, EXTENDS = $__17.EXTENDS, FALSE = $__17.FALSE, FINALLY = $__17.FINALLY, FOR = $__17.FOR, FUNCTION = $__17.FUNCTION, GREATER_EQUAL = $__17.GREATER_EQUAL, IDENTIFIER = $__17.IDENTIFIER, IF = $__17.IF, IMPLEMENTS = $__17.IMPLEMENTS, IMPORT = $__17.IMPORT, IN = $__17.IN, INSTANCEOF = $__17.INSTANCEOF, INTERFACE = $__17.INTERFACE, LEFT_SHIFT = $__17.LEFT_SHIFT, LEFT_SHIFT_EQUAL = $__17.LEFT_SHIFT_EQUAL, LESS_EQUAL = $__17.LESS_EQUAL, LET = $__17.LET, MINUS = $__17.MINUS, MINUS_EQUAL = $__17.MINUS_EQUAL, MINUS_MINUS = $__17.MINUS_MINUS, NEW = $__17.NEW, NO_SUBSTITUTION_TEMPLATE = $__17.NO_SUBSTITUTION_TEMPLATE, NOT_EQUAL = $__17.NOT_EQUAL, NOT_EQUAL_EQUAL = $__17.NOT_EQUAL_EQUAL, NULL = $__17.NULL, NUMBER = $__17.NUMBER, OPEN_ANGLE = $__17.OPEN_ANGLE, OPEN_CURLY = $__17.OPEN_CURLY, OPEN_PAREN = $__17.OPEN_PAREN, OPEN_SQUARE = $__17.OPEN_SQUARE, OR = $__17.OR, PACKAGE = $__17.PACKAGE, PERCENT = $__17.PERCENT, PERCENT_EQUAL = $__17.PERCENT_EQUAL, PERIOD = $__17.PERIOD, PERIOD_OPEN_CURLY = $__17.PERIOD_OPEN_CURLY, PLUS = $__17.PLUS, PLUS_EQUAL = $__17.PLUS_EQUAL, PLUS_PLUS = $__17.PLUS_PLUS, PRIVATE = $__17.PRIVATE, PROTECTED = $__17.PROTECTED, PUBLIC = $__17.PUBLIC, QUESTION = $__17.QUESTION, REGULAR_EXPRESSION = $__17.REGULAR_EXPRESSION, RETURN = $__17.RETURN, RIGHT_SHIFT = $__17.RIGHT_SHIFT, RIGHT_SHIFT_EQUAL = $__17.RIGHT_SHIFT_EQUAL, SEMI_COLON = $__17.SEMI_COLON, SLASH = $__17.SLASH, SLASH_EQUAL = $__17.SLASH_EQUAL, STAR = $__17.STAR, STAR_EQUAL = $__17.STAR_EQUAL, STATIC = $__17.STATIC, STRING = $__17.STRING, SUPER = $__17.SUPER, SWITCH = $__17.SWITCH, TEMPLATE_HEAD = $__17.TEMPLATE_HEAD, TEMPLATE_MIDDLE = $__17.TEMPLATE_MIDDLE, TEMPLATE_TAIL = $__17.TEMPLATE_TAIL, THIS = $__17.THIS, THROW = $__17.THROW, TILDE = $__17.TILDE, TRUE = $__17.TRUE, TRY = $__17.TRY, TYPEOF = $__17.TYPEOF, UNSIGNED_RIGHT_SHIFT = $__17.UNSIGNED_RIGHT_SHIFT, UNSIGNED_RIGHT_SHIFT_EQUAL = $__17.UNSIGNED_RIGHT_SHIFT_EQUAL, VAR = $__17.VAR, VOID = $__17.VOID, WHILE = $__17.WHILE, WITH = $__17.WITH, YIELD = $__17.YIELD;
   var isWhitespaceArray = [];
   for (var i = 0; i < 128; i++) {
@@ -7843,9 +7871,8 @@ var $___src_syntax_Scanner_js = (function() {
       }
     }
     var value = input.slice(beginIndex, index);
-    if (isKeyword(value)) {
-      return new KeywordToken(value, getTokenRange(beginIndex));
-    }
+    var keywordType = getKeywordType(value);
+    if (keywordType) return new KeywordToken(value, keywordType, getTokenRange(beginIndex));
     if (escapedCharCodes) {
       var i = 0;
       value = value.replace(/\\u..../g, function(s) {
@@ -8977,6 +9004,16 @@ var $___src_syntax_Parser_js = (function() {
             return this.parseTemplateLiteral_(null);
           case AT_NAME:
             return this.parseAtNameExpression_();
+          case IMPLEMENTS:
+          case INTERFACE:
+          case PACKAGE:
+          case PRIVATE:
+          case PROTECTED:
+          case PUBLIC:
+          case STATIC:
+          case YIELD:
+            if (!this.strictMode_) return this.parseIdentifierExpression_();
+            this.reportReservedIdentifier_(this.nextToken_());
           default:
             return this.parseMissingPrimaryExpression_();
         }
@@ -9999,15 +10036,22 @@ var $___src_syntax_Parser_js = (function() {
       },
       eatId_: function() {
         var expected = arguments[0];
-        var result = this.eat_(IDENTIFIER);
-        if (expected) {
-          if (!result || result.value !== expected) {
-            if (!result) result = this.peekToken_();
-            this.reportError_(result, ("expected '" + expected + "'"));
-            return null;
-          }
+        var token = this.nextToken_();
+        if (!token) {
+          if (expected) this.reportError_(this.peekToken_(), ("expected '" + expected + "'"));
+          return null;
         }
-        return result;
+        if (token.type === IDENTIFIER) return token;
+        if (token.isStrictKeyword()) {
+          if (this.strictMode_) {
+            this.reportReservedIdentifier_(token);
+          } else {
+            return new IdentifierToken(token.location, token.type);
+          }
+        } else {
+          this.reportExpectedError_(token, 'identifier');
+        }
+        return token;
       },
       eatIdName_: function() {
         var t = this.nextToken_();
@@ -10098,6 +10142,9 @@ var $___src_syntax_Parser_js = (function() {
       },
       reportUnexpectedToken_: function() {
         this.reportError_(this.peekToken_(), 'Unexpected token');
+      },
+      reportReservedIdentifier_: function(token) {
+        this.reportError_(token, (token.type + " is a reserved identifier"));
       }
     }, {});
     return $Parser;
@@ -15716,7 +15763,7 @@ var $___src_outputgeneration_ParseTreeWriter_js = (function() {
   var ParseTreeVisitor = $___src_syntax_ParseTreeVisitor_js.ParseTreeVisitor;
   var $__19 = $___src_syntax_PredefinedName_js, FROM = $__19.FROM, GET = $__19.GET, OF = $__19.OF, MODULE = $__19.MODULE, REQUIRES = $__19.REQUIRES, SET = $__19.SET;
   var Token = $___src_syntax_Token_js.Token;
-  var isKeyword = $___src_syntax_Keywords_js.isKeyword;
+  var getKeywordType = $___src_syntax_Keywords_js.getKeywordType;
   var $__19 = $___src_syntax_TokenType_js, AMPERSAND = $__19.AMPERSAND, AMPERSAND_EQUAL = $__19.AMPERSAND_EQUAL, AND = $__19.AND, ARROW = $__19.ARROW, AT_NAME = $__19.AT_NAME, AWAIT = $__19.AWAIT, BACK_QUOTE = $__19.BACK_QUOTE, BANG = $__19.BANG, BAR = $__19.BAR, BAR_EQUAL = $__19.BAR_EQUAL, BREAK = $__19.BREAK, CARET = $__19.CARET, CARET_EQUAL = $__19.CARET_EQUAL, CASE = $__19.CASE, CATCH = $__19.CATCH, CLASS = $__19.CLASS, CLOSE_ANGLE = $__19.CLOSE_ANGLE, CLOSE_CURLY = $__19.CLOSE_CURLY, CLOSE_PAREN = $__19.CLOSE_PAREN, CLOSE_SQUARE = $__19.CLOSE_SQUARE, COLON = $__19.COLON, COMMA = $__19.COMMA, CONST = $__19.CONST, CONTINUE = $__19.CONTINUE, DEBUGGER = $__19.DEBUGGER, DEFAULT = $__19.DEFAULT, DELETE = $__19.DELETE, DO = $__19.DO, DOLLAR = $__19.DOLLAR, DOT_DOT_DOT = $__19.DOT_DOT_DOT, ELSE = $__19.ELSE, END_OF_FILE = $__19.END_OF_FILE, ENUM = $__19.ENUM, EQUAL = $__19.EQUAL, EQUAL_EQUAL = $__19.EQUAL_EQUAL, EQUAL_EQUAL_EQUAL = $__19.EQUAL_EQUAL_EQUAL, ERROR = $__19.ERROR, EXPORT = $__19.EXPORT, EXTENDS = $__19.EXTENDS, FALSE = $__19.FALSE, FINALLY = $__19.FINALLY, FOR = $__19.FOR, FUNCTION = $__19.FUNCTION, GREATER_EQUAL = $__19.GREATER_EQUAL, IDENTIFIER = $__19.IDENTIFIER, IF = $__19.IF, IMPLEMENTS = $__19.IMPLEMENTS, IMPORT = $__19.IMPORT, IN = $__19.IN, INSTANCEOF = $__19.INSTANCEOF, INTERFACE = $__19.INTERFACE, LEFT_SHIFT = $__19.LEFT_SHIFT, LEFT_SHIFT_EQUAL = $__19.LEFT_SHIFT_EQUAL, LESS_EQUAL = $__19.LESS_EQUAL, LET = $__19.LET, MINUS = $__19.MINUS, MINUS_EQUAL = $__19.MINUS_EQUAL, MINUS_MINUS = $__19.MINUS_MINUS, NEW = $__19.NEW, NO_SUBSTITUTION_TEMPLATE = $__19.NO_SUBSTITUTION_TEMPLATE, NOT_EQUAL = $__19.NOT_EQUAL, NOT_EQUAL_EQUAL = $__19.NOT_EQUAL_EQUAL, NULL = $__19.NULL, NUMBER = $__19.NUMBER, OPEN_ANGLE = $__19.OPEN_ANGLE, OPEN_CURLY = $__19.OPEN_CURLY, OPEN_PAREN = $__19.OPEN_PAREN, OPEN_SQUARE = $__19.OPEN_SQUARE, OR = $__19.OR, PACKAGE = $__19.PACKAGE, PERCENT = $__19.PERCENT, PERCENT_EQUAL = $__19.PERCENT_EQUAL, PERIOD = $__19.PERIOD, PERIOD_OPEN_CURLY = $__19.PERIOD_OPEN_CURLY, PLUS = $__19.PLUS, PLUS_EQUAL = $__19.PLUS_EQUAL, PLUS_PLUS = $__19.PLUS_PLUS, PRIVATE = $__19.PRIVATE, PROTECTED = $__19.PROTECTED, PUBLIC = $__19.PUBLIC, QUESTION = $__19.QUESTION, REGULAR_EXPRESSION = $__19.REGULAR_EXPRESSION, RETURN = $__19.RETURN, RIGHT_SHIFT = $__19.RIGHT_SHIFT, RIGHT_SHIFT_EQUAL = $__19.RIGHT_SHIFT_EQUAL, SEMI_COLON = $__19.SEMI_COLON, SLASH = $__19.SLASH, SLASH_EQUAL = $__19.SLASH_EQUAL, STAR = $__19.STAR, STAR_EQUAL = $__19.STAR_EQUAL, STATIC = $__19.STATIC, STRING = $__19.STRING, SUPER = $__19.SUPER, SWITCH = $__19.SWITCH, TEMPLATE_HEAD = $__19.TEMPLATE_HEAD, TEMPLATE_MIDDLE = $__19.TEMPLATE_MIDDLE, TEMPLATE_TAIL = $__19.TEMPLATE_TAIL, THIS = $__19.THIS, THROW = $__19.THROW, TILDE = $__19.TILDE, TRUE = $__19.TRUE, TRY = $__19.TRY, TYPEOF = $__19.TYPEOF, UNSIGNED_RIGHT_SHIFT = $__19.UNSIGNED_RIGHT_SHIFT, UNSIGNED_RIGHT_SHIFT_EQUAL = $__19.UNSIGNED_RIGHT_SHIFT_EQUAL, VAR = $__19.VAR, VOID = $__19.VOID, WHILE = $__19.WHILE, WITH = $__19.WITH, YIELD = $__19.YIELD;
   var NEW_LINE = '\n';
   var PRETTY_PRINT = true;
@@ -16389,7 +16436,7 @@ var $___src_outputgeneration_ParseTreeWriter_js = (function() {
           case SET:
             return true;
         }
-        return isKeyword(value);
+        return !!getKeywordType(value);
       },
       needsSpace_: function(token) {
         if (!this.lastToken_) return false;
@@ -18191,7 +18238,7 @@ var $___src_outputgeneration_SourceMapIntegration_js = (function() {
     }
     exports.getArg = getArg;
     function join(aRoot, aPath) {
-      return aPath.charAt(0) === '/' ? aPath: aRoot.replace(/\/$/, '') + '/' + aPath;
+      return aPath.charAt(0) === '/' ? aPath: aRoot.replace(/\/*$/, '') + '/' + aPath;
     }
     exports.join = join;
     function toSetString(aStr) {
@@ -18199,8 +18246,7 @@ var $___src_outputgeneration_SourceMapIntegration_js = (function() {
     }
     exports.toSetString = toSetString;
     function relative(aRoot, aPath) {
-      aRoot = aRoot.replace(/\/$/, '');
-      return aPath.indexOf(aRoot + '/') === 0 ? aPath.substr(aRoot.length + 1): aPath;
+      return aPath.indexOf(aRoot.replace(/\/*$/, '') + '/') === 0 ? aPath.substr(aRoot.length + 1): aPath;
     }
     exports.relative = relative;
   });
@@ -18456,7 +18502,7 @@ var $___src_outputgeneration_SourceMapIntegration_js = (function() {
             line: mapping.original.line,
             column: mapping.original.column
           });
-          if (original.source !== null) {
+          if (original && original.source !== null) {
             if (sourceRoot) {
               mapping.source = util.relative(sourceRoot, original.source);
             } else {
@@ -18464,9 +18510,7 @@ var $___src_outputgeneration_SourceMapIntegration_js = (function() {
             }
             mapping.original.line = original.line;
             mapping.original.column = original.column;
-            if (original.name !== null && mapping.name !== null) {
-              mapping.name = original.name;
-            }
+            mapping.name = mapping.name && original.name || mapping.name;
           }
         }
         var source = mapping.source;
@@ -18799,58 +18843,6 @@ var $___src_outputgeneration_SourceMapIntegration_js = (function() {
       this.name = aName === undefined ? null: aName;
       if (aChunks != null) this.add(aChunks);
     }
-    SourceNode.fromStringWithSourceMap = function SourceNode_fromStringWithSourceMap(aGeneratedCode, aSourceMapConsumer) {
-      var node = new SourceNode();
-      var remainingLines = aGeneratedCode.split('\n');
-      var lastGeneratedLine = 1, lastGeneratedColumn = 0;
-      var lastMapping = null;
-      aSourceMapConsumer.eachMapping(function(mapping) {
-        if (lastMapping === null) {
-          while (lastGeneratedLine < mapping.generatedLine) {
-            node.add(remainingLines.shift() + "\n");
-            lastGeneratedLine++;
-          }
-          if (lastGeneratedColumn < mapping.generatedColumn) {
-            var nextLine = remainingLines[0];
-            node.add(nextLine.substr(0, mapping.generatedColumn));
-            remainingLines[0] = nextLine.substr(mapping.generatedColumn);
-            lastGeneratedColumn = mapping.generatedColumn;
-          }
-        } else {
-          if (lastGeneratedLine < mapping.generatedLine) {
-            var code = "";
-            do {
-              code += remainingLines.shift() + "\n";
-              lastGeneratedLine++;
-              lastGeneratedColumn = 0;
-            } while (lastGeneratedLine < mapping.generatedLine);
-            if (lastGeneratedColumn < mapping.generatedColumn) {
-              var nextLine = remainingLines[0];
-              code += nextLine.substr(0, mapping.generatedColumn);
-              remainingLines[0] = nextLine.substr(mapping.generatedColumn);
-              lastGeneratedColumn = mapping.generatedColumn;
-            }
-            addMappingWithCode(lastMapping, code);
-          } else {
-            var nextLine = remainingLines[0];
-            var code = nextLine.substr(0, mapping.generatedColumn - lastGeneratedColumn);
-            remainingLines[0] = nextLine.substr(mapping.generatedColumn - lastGeneratedColumn);
-            lastGeneratedColumn = mapping.generatedColumn;
-            addMappingWithCode(lastMapping, code);
-          }
-        }
-        lastMapping = mapping;
-      }, this);
-      addMappingWithCode(lastMapping, remainingLines.join("\n"));
-      return node;
-      function addMappingWithCode(mapping, code) {
-        if (mapping.source === undefined) {
-          node.add(code);
-        } else {
-          node.add(new SourceNode(mapping.originalLine, mapping.originalColumn, mapping.source, code, mapping.name));
-        }
-      }
-    };
     SourceNode.prototype.add = function SourceNode_add(aChunk) {
       if (Array.isArray(aChunk)) {
         aChunk.forEach(function(chunk) {
@@ -19149,9 +19141,10 @@ var $___src_runtime_modules_js = (function() {
   var LOADING = 1;
   var LOADED = 2;
   var PARSED = 3;
-  var TRANSFORMED = 4;
-  var COMPLETE = 5;
-  var ERROR = 6;
+  var DEPS_LOADED = 4;
+  var TRANSFORMED = 5;
+  var COMPLETE = 6;
+  var ERROR = 7;
   var CodeUnit = function() {
     'use strict';
     var $CodeUnit = ($__createClassNoExtends)({
@@ -19294,6 +19287,7 @@ var $___src_runtime_modules_js = (function() {
         this.project = project;
         this.cache = new ArrayMap();
         this.urlToKey = Object.create(null);
+        this.sync_ = false;
       },
       get url() {
         return this.project.url;
@@ -19315,6 +19309,17 @@ var $___src_runtime_modules_js = (function() {
         xhr.send();
         return xhr;
       },
+      loadTextFileSync: function(url) {
+        var xhr = new XMLHttpRequest();
+        xhr.onerror = function(e) {
+          throw new Error(xhr.statusText);
+        };
+        xhr.open('GET', url, false);
+        xhr.send();
+        if (xhr.status == 200 || xhr.status == 0) {
+          return xhr.responseText;
+        }
+      },
       load: function(url) {
         url = resolveUrl(this.url, url);
         var codeUnit = this.getCodeUnit(url);
@@ -19322,6 +19327,17 @@ var $___src_runtime_modules_js = (function() {
           return codeUnit;
         }
         codeUnit.state = LOADING;
+        if (this.sync_) {
+          try {
+            codeUnit.text = this.loadTextFileSync(url);
+            codeUnit.state = LOADED;
+            this.handleCodeUnitLoaded(codeUnit);
+          } catch (e) {
+            codeUnit.state = ERROR;
+            this.handleCodeUnitLoadError(codeUnit);
+          }
+          return codeUnit;
+        }
         var loader = this;
         codeUnit.xhr = this.loadTextFile(url, function(text) {
           codeUnit.text = text;
@@ -19332,6 +19348,12 @@ var $___src_runtime_modules_js = (function() {
           loader.handleCodeUnitLoadError(codeUnit);
         });
         return codeUnit;
+      },
+      loadSync: function(url) {
+        this.sync_ = true;
+        var loaded = this.load(url);
+        this.sync_ = false;
+        return loaded;
       },
       evalLoad: function(code) {
         var codeUnit = new EvalLoadCodeUnit(this, code);
@@ -19372,11 +19394,16 @@ var $___src_runtime_modules_js = (function() {
         var requireVisitor = new ModuleRequireVisitor(this.reporter);
         requireVisitor.visit(codeUnit.tree);
         var baseUrl = codeUnit.url;
-        codeUnit.dependencies = requireVisitor.requireUrls.map((function(url) {
+        var resolvedUrls = requireVisitor.requireUrls.map((function(url) {
           url = resolveUrl(baseUrl, url);
+          this.getCodeUnit(url);
+          return url;
+        }).bind(this));
+        codeUnit.dependencies = resolvedUrls.map((function(url) {
           return this.load(url);
         }).bind(this));
-        if (this.areAll(PARSED)) {
+        codeUnit.state = DEPS_LOADED;
+        if (this.areAll(DEPS_LOADED)) {
           this.analyze();
           this.transform();
           this.evaluate();
