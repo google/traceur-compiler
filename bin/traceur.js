@@ -365,7 +365,6 @@ var $___src_syntax_trees_ParseTreeType_js = (function() {
   var LITERAL_EXPRESSION = 'LITERAL_EXPRESSION';
   var MEMBER_EXPRESSION = 'MEMBER_EXPRESSION';
   var MEMBER_LOOKUP_EXPRESSION = 'MEMBER_LOOKUP_EXPRESSION';
-  var MISSING_PRIMARY_EXPRESSION = 'MISSING_PRIMARY_EXPRESSION';
   var MODULE_DECLARATION = 'MODULE_DECLARATION';
   var MODULE_DEFINITION = 'MODULE_DEFINITION';
   var MODULE_EXPRESSION = 'MODULE_EXPRESSION';
@@ -391,6 +390,7 @@ var $___src_syntax_trees_ParseTreeType_js = (function() {
   var STATE_MACHINE = 'STATE_MACHINE';
   var SUPER_EXPRESSION = 'SUPER_EXPRESSION';
   var SWITCH_STATEMENT = 'SWITCH_STATEMENT';
+  var SYNTAX_ERROR_TREE = 'SYNTAX_ERROR_TREE';
   var TEMPLATE_LITERAL_EXPRESSION = 'TEMPLATE_LITERAL_EXPRESSION';
   var TEMPLATE_LITERAL_PORTION = 'TEMPLATE_LITERAL_PORTION';
   var TEMPLATE_SUBSTITUTION = 'TEMPLATE_SUBSTITUTION';
@@ -736,12 +736,6 @@ var $___src_syntax_trees_ParseTreeType_js = (function() {
       },
       enumerable: true
     },
-    MISSING_PRIMARY_EXPRESSION: {
-      get: function() {
-        return MISSING_PRIMARY_EXPRESSION;
-      },
-      enumerable: true
-    },
     MODULE_DECLARATION: {
       get: function() {
         return MODULE_DECLARATION;
@@ -889,6 +883,12 @@ var $___src_syntax_trees_ParseTreeType_js = (function() {
     SWITCH_STATEMENT: {
       get: function() {
         return SWITCH_STATEMENT;
+      },
+      enumerable: true
+    },
+    SYNTAX_ERROR_TREE: {
+      get: function() {
+        return SYNTAX_ERROR_TREE;
       },
       enumerable: true
     },
@@ -1852,7 +1852,7 @@ var $___src_util_JSON_js = (function() {
 var $___src_syntax_trees_ParseTree_js = (function() {
   "use strict";
   var ParseTreeType = $___src_syntax_trees_ParseTreeType_js;
-  var $__16 = ParseTreeType, ARGUMENT_LIST = $__16.ARGUMENT_LIST, ARRAY_COMPREHENSION = $__16.ARRAY_COMPREHENSION, ARRAY_LITERAL_EXPRESSION = $__16.ARRAY_LITERAL_EXPRESSION, ARRAY_PATTERN = $__16.ARRAY_PATTERN, ARROW_FUNCTION_EXPRESSION = $__16.ARROW_FUNCTION_EXPRESSION, AT_NAME_DECLARATION = $__16.AT_NAME_DECLARATION, AT_NAME_EXPRESSION = $__16.AT_NAME_EXPRESSION, AWAIT_STATEMENT = $__16.AWAIT_STATEMENT, BINARY_OPERATOR = $__16.BINARY_OPERATOR, BINDING_ELEMENT = $__16.BINDING_ELEMENT, BINDING_IDENTIFIER = $__16.BINDING_IDENTIFIER, BLOCK = $__16.BLOCK, BREAK_STATEMENT = $__16.BREAK_STATEMENT, CALL_EXPRESSION = $__16.CALL_EXPRESSION, CASCADE_EXPRESSION = $__16.CASCADE_EXPRESSION, CASE_CLAUSE = $__16.CASE_CLAUSE, CATCH = $__16.CATCH, CLASS_DECLARATION = $__16.CLASS_DECLARATION, CLASS_EXPRESSION = $__16.CLASS_EXPRESSION, COMMA_EXPRESSION = $__16.COMMA_EXPRESSION, COMPREHENSION_FOR = $__16.COMPREHENSION_FOR, COMPREHENSION_IF = $__16.COMPREHENSION_IF, CONDITIONAL_EXPRESSION = $__16.CONDITIONAL_EXPRESSION, CONTINUE_STATEMENT = $__16.CONTINUE_STATEMENT, COVER_FORMALS = $__16.COVER_FORMALS, DEBUGGER_STATEMENT = $__16.DEBUGGER_STATEMENT, DEFAULT_CLAUSE = $__16.DEFAULT_CLAUSE, DO_WHILE_STATEMENT = $__16.DO_WHILE_STATEMENT, EMPTY_STATEMENT = $__16.EMPTY_STATEMENT, EXPORT_DECLARATION = $__16.EXPORT_DECLARATION, EXPORT_MAPPING = $__16.EXPORT_MAPPING, EXPORT_MAPPING_LIST = $__16.EXPORT_MAPPING_LIST, EXPORT_SPECIFIER = $__16.EXPORT_SPECIFIER, EXPORT_SPECIFIER_SET = $__16.EXPORT_SPECIFIER_SET, EXPORT_STAR = $__16.EXPORT_STAR, EXPRESSION_STATEMENT = $__16.EXPRESSION_STATEMENT, FINALLY = $__16.FINALLY, FOR_IN_STATEMENT = $__16.FOR_IN_STATEMENT, FOR_OF_STATEMENT = $__16.FOR_OF_STATEMENT, FOR_STATEMENT = $__16.FOR_STATEMENT, FORMAL_PARAMETER_LIST = $__16.FORMAL_PARAMETER_LIST, FUNCTION_DECLARATION = $__16.FUNCTION_DECLARATION, FUNCTION_EXPRESSION = $__16.FUNCTION_EXPRESSION, GENERATOR_COMPREHENSION = $__16.GENERATOR_COMPREHENSION, GET_ACCESSOR = $__16.GET_ACCESSOR, IDENTIFIER_EXPRESSION = $__16.IDENTIFIER_EXPRESSION, IF_STATEMENT = $__16.IF_STATEMENT, IMPORT_BINDING = $__16.IMPORT_BINDING, IMPORT_DECLARATION = $__16.IMPORT_DECLARATION, IMPORT_SPECIFIER = $__16.IMPORT_SPECIFIER, IMPORT_SPECIFIER_SET = $__16.IMPORT_SPECIFIER_SET, LABELLED_STATEMENT = $__16.LABELLED_STATEMENT, LITERAL_EXPRESSION = $__16.LITERAL_EXPRESSION, MEMBER_EXPRESSION = $__16.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__16.MEMBER_LOOKUP_EXPRESSION, MISSING_PRIMARY_EXPRESSION = $__16.MISSING_PRIMARY_EXPRESSION, MODULE_DECLARATION = $__16.MODULE_DECLARATION, MODULE_DEFINITION = $__16.MODULE_DEFINITION, MODULE_EXPRESSION = $__16.MODULE_EXPRESSION, MODULE_REQUIRE = $__16.MODULE_REQUIRE, MODULE_SPECIFIER = $__16.MODULE_SPECIFIER, NAME_STATEMENT = $__16.NAME_STATEMENT, NEW_EXPRESSION = $__16.NEW_EXPRESSION, OBJECT_LITERAL_EXPRESSION = $__16.OBJECT_LITERAL_EXPRESSION, OBJECT_PATTERN = $__16.OBJECT_PATTERN, OBJECT_PATTERN_FIELD = $__16.OBJECT_PATTERN_FIELD, PAREN_EXPRESSION = $__16.PAREN_EXPRESSION, POSTFIX_EXPRESSION = $__16.POSTFIX_EXPRESSION, PREDEFINED_TYPE = $__16.PREDEFINED_TYPE, PROGRAM = $__16.PROGRAM, PROPERTY_METHOD_ASSIGNMENT = $__16.PROPERTY_METHOD_ASSIGNMENT, PROPERTY_NAME_ASSIGNMENT = $__16.PROPERTY_NAME_ASSIGNMENT, PROPERTY_NAME_SHORTHAND = $__16.PROPERTY_NAME_SHORTHAND, REST_PARAMETER = $__16.REST_PARAMETER, RETURN_STATEMENT = $__16.RETURN_STATEMENT, SET_ACCESSOR = $__16.SET_ACCESSOR, SPREAD_EXPRESSION = $__16.SPREAD_EXPRESSION, SPREAD_PATTERN_ELEMENT = $__16.SPREAD_PATTERN_ELEMENT, STATE_MACHINE = $__16.STATE_MACHINE, SUPER_EXPRESSION = $__16.SUPER_EXPRESSION, SWITCH_STATEMENT = $__16.SWITCH_STATEMENT, TEMPLATE_LITERAL_EXPRESSION = $__16.TEMPLATE_LITERAL_EXPRESSION, TEMPLATE_LITERAL_PORTION = $__16.TEMPLATE_LITERAL_PORTION, TEMPLATE_SUBSTITUTION = $__16.TEMPLATE_SUBSTITUTION, THIS_EXPRESSION = $__16.THIS_EXPRESSION, THROW_STATEMENT = $__16.THROW_STATEMENT, TRY_STATEMENT = $__16.TRY_STATEMENT, TYPE_NAME = $__16.TYPE_NAME, UNARY_EXPRESSION = $__16.UNARY_EXPRESSION, VARIABLE_DECLARATION = $__16.VARIABLE_DECLARATION, VARIABLE_DECLARATION_LIST = $__16.VARIABLE_DECLARATION_LIST, VARIABLE_STATEMENT = $__16.VARIABLE_STATEMENT, WHILE_STATEMENT = $__16.WHILE_STATEMENT, WITH_STATEMENT = $__16.WITH_STATEMENT, YIELD_EXPRESSION = $__16.YIELD_EXPRESSION;
+  var $__16 = ParseTreeType, ARGUMENT_LIST = $__16.ARGUMENT_LIST, ARRAY_COMPREHENSION = $__16.ARRAY_COMPREHENSION, ARRAY_LITERAL_EXPRESSION = $__16.ARRAY_LITERAL_EXPRESSION, ARRAY_PATTERN = $__16.ARRAY_PATTERN, ARROW_FUNCTION_EXPRESSION = $__16.ARROW_FUNCTION_EXPRESSION, AT_NAME_DECLARATION = $__16.AT_NAME_DECLARATION, AT_NAME_EXPRESSION = $__16.AT_NAME_EXPRESSION, AWAIT_STATEMENT = $__16.AWAIT_STATEMENT, BINARY_OPERATOR = $__16.BINARY_OPERATOR, BINDING_ELEMENT = $__16.BINDING_ELEMENT, BINDING_IDENTIFIER = $__16.BINDING_IDENTIFIER, BLOCK = $__16.BLOCK, BREAK_STATEMENT = $__16.BREAK_STATEMENT, CALL_EXPRESSION = $__16.CALL_EXPRESSION, CASCADE_EXPRESSION = $__16.CASCADE_EXPRESSION, CASE_CLAUSE = $__16.CASE_CLAUSE, CATCH = $__16.CATCH, CLASS_DECLARATION = $__16.CLASS_DECLARATION, CLASS_EXPRESSION = $__16.CLASS_EXPRESSION, COMMA_EXPRESSION = $__16.COMMA_EXPRESSION, COMPREHENSION_FOR = $__16.COMPREHENSION_FOR, COMPREHENSION_IF = $__16.COMPREHENSION_IF, CONDITIONAL_EXPRESSION = $__16.CONDITIONAL_EXPRESSION, CONTINUE_STATEMENT = $__16.CONTINUE_STATEMENT, COVER_FORMALS = $__16.COVER_FORMALS, DEBUGGER_STATEMENT = $__16.DEBUGGER_STATEMENT, DEFAULT_CLAUSE = $__16.DEFAULT_CLAUSE, DO_WHILE_STATEMENT = $__16.DO_WHILE_STATEMENT, EMPTY_STATEMENT = $__16.EMPTY_STATEMENT, EXPORT_DECLARATION = $__16.EXPORT_DECLARATION, EXPORT_MAPPING = $__16.EXPORT_MAPPING, EXPORT_MAPPING_LIST = $__16.EXPORT_MAPPING_LIST, EXPORT_SPECIFIER = $__16.EXPORT_SPECIFIER, EXPORT_SPECIFIER_SET = $__16.EXPORT_SPECIFIER_SET, EXPORT_STAR = $__16.EXPORT_STAR, EXPRESSION_STATEMENT = $__16.EXPRESSION_STATEMENT, FINALLY = $__16.FINALLY, FOR_IN_STATEMENT = $__16.FOR_IN_STATEMENT, FOR_OF_STATEMENT = $__16.FOR_OF_STATEMENT, FOR_STATEMENT = $__16.FOR_STATEMENT, FORMAL_PARAMETER_LIST = $__16.FORMAL_PARAMETER_LIST, FUNCTION_DECLARATION = $__16.FUNCTION_DECLARATION, FUNCTION_EXPRESSION = $__16.FUNCTION_EXPRESSION, GENERATOR_COMPREHENSION = $__16.GENERATOR_COMPREHENSION, GET_ACCESSOR = $__16.GET_ACCESSOR, IDENTIFIER_EXPRESSION = $__16.IDENTIFIER_EXPRESSION, IF_STATEMENT = $__16.IF_STATEMENT, IMPORT_BINDING = $__16.IMPORT_BINDING, IMPORT_DECLARATION = $__16.IMPORT_DECLARATION, IMPORT_SPECIFIER = $__16.IMPORT_SPECIFIER, IMPORT_SPECIFIER_SET = $__16.IMPORT_SPECIFIER_SET, LABELLED_STATEMENT = $__16.LABELLED_STATEMENT, LITERAL_EXPRESSION = $__16.LITERAL_EXPRESSION, MEMBER_EXPRESSION = $__16.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__16.MEMBER_LOOKUP_EXPRESSION, MODULE_DECLARATION = $__16.MODULE_DECLARATION, MODULE_DEFINITION = $__16.MODULE_DEFINITION, MODULE_EXPRESSION = $__16.MODULE_EXPRESSION, MODULE_REQUIRE = $__16.MODULE_REQUIRE, MODULE_SPECIFIER = $__16.MODULE_SPECIFIER, NAME_STATEMENT = $__16.NAME_STATEMENT, NEW_EXPRESSION = $__16.NEW_EXPRESSION, OBJECT_LITERAL_EXPRESSION = $__16.OBJECT_LITERAL_EXPRESSION, OBJECT_PATTERN = $__16.OBJECT_PATTERN, OBJECT_PATTERN_FIELD = $__16.OBJECT_PATTERN_FIELD, PAREN_EXPRESSION = $__16.PAREN_EXPRESSION, POSTFIX_EXPRESSION = $__16.POSTFIX_EXPRESSION, PREDEFINED_TYPE = $__16.PREDEFINED_TYPE, PROGRAM = $__16.PROGRAM, PROPERTY_METHOD_ASSIGNMENT = $__16.PROPERTY_METHOD_ASSIGNMENT, PROPERTY_NAME_ASSIGNMENT = $__16.PROPERTY_NAME_ASSIGNMENT, PROPERTY_NAME_SHORTHAND = $__16.PROPERTY_NAME_SHORTHAND, REST_PARAMETER = $__16.REST_PARAMETER, RETURN_STATEMENT = $__16.RETURN_STATEMENT, SET_ACCESSOR = $__16.SET_ACCESSOR, SPREAD_EXPRESSION = $__16.SPREAD_EXPRESSION, SPREAD_PATTERN_ELEMENT = $__16.SPREAD_PATTERN_ELEMENT, STATE_MACHINE = $__16.STATE_MACHINE, SUPER_EXPRESSION = $__16.SUPER_EXPRESSION, SWITCH_STATEMENT = $__16.SWITCH_STATEMENT, SYNTAX_ERROR_TREE = $__16.SYNTAX_ERROR_TREE, TEMPLATE_LITERAL_EXPRESSION = $__16.TEMPLATE_LITERAL_EXPRESSION, TEMPLATE_LITERAL_PORTION = $__16.TEMPLATE_LITERAL_PORTION, TEMPLATE_SUBSTITUTION = $__16.TEMPLATE_SUBSTITUTION, THIS_EXPRESSION = $__16.THIS_EXPRESSION, THROW_STATEMENT = $__16.THROW_STATEMENT, TRY_STATEMENT = $__16.TRY_STATEMENT, TYPE_NAME = $__16.TYPE_NAME, UNARY_EXPRESSION = $__16.UNARY_EXPRESSION, VARIABLE_DECLARATION = $__16.VARIABLE_DECLARATION, VARIABLE_DECLARATION_LIST = $__16.VARIABLE_DECLARATION_LIST, VARIABLE_STATEMENT = $__16.VARIABLE_STATEMENT, WHILE_STATEMENT = $__16.WHILE_STATEMENT, WITH_STATEMENT = $__16.WITH_STATEMENT, YIELD_EXPRESSION = $__16.YIELD_EXPRESSION;
   var STRING = $___src_syntax_TokenType_js.STRING;
   var Token = $___src_syntax_Token_js.Token;
   var utilJSON = $___src_util_JSON_js;
@@ -1914,7 +1914,6 @@ var $___src_syntax_trees_ParseTree_js = (function() {
           case LITERAL_EXPRESSION:
           case MEMBER_EXPRESSION:
           case MEMBER_LOOKUP_EXPRESSION:
-          case MISSING_PRIMARY_EXPRESSION:
           case NEW_EXPRESSION:
           case OBJECT_LITERAL_EXPRESSION:
           case PAREN_EXPRESSION:
@@ -2271,7 +2270,6 @@ var $___src_syntax_ParseTreeVisitor_js = (function() {
         this.visitAny(tree.operand);
         this.visitAny(tree.memberExpression);
       },
-      visitMissingPrimaryExpression: function(tree) {},
       visitModuleDeclaration: function(tree) {
         this.visitList(tree.specifiers);
       },
@@ -2340,6 +2338,7 @@ var $___src_syntax_ParseTreeVisitor_js = (function() {
         this.visitAny(tree.expression);
         this.visitList(tree.caseClauses);
       },
+      visitSyntaxErrorTree: function(tree) {},
       visitTemplateLiteralExpression: function(tree) {
         this.visitAny(tree.operand);
         this.visitList(tree.elements);
@@ -3003,7 +3002,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
   "use strict";
   var ParseTree = $___src_syntax_trees_ParseTree_js.ParseTree;
   var ParseTreeType = $___src_syntax_trees_ParseTreeType_js;
-  var $__17 = ParseTreeType, ARGUMENT_LIST = $__17.ARGUMENT_LIST, ARRAY_COMPREHENSION = $__17.ARRAY_COMPREHENSION, ARRAY_LITERAL_EXPRESSION = $__17.ARRAY_LITERAL_EXPRESSION, ARRAY_PATTERN = $__17.ARRAY_PATTERN, ARROW_FUNCTION_EXPRESSION = $__17.ARROW_FUNCTION_EXPRESSION, AT_NAME_DECLARATION = $__17.AT_NAME_DECLARATION, AT_NAME_EXPRESSION = $__17.AT_NAME_EXPRESSION, AWAIT_STATEMENT = $__17.AWAIT_STATEMENT, BINARY_OPERATOR = $__17.BINARY_OPERATOR, BINDING_ELEMENT = $__17.BINDING_ELEMENT, BINDING_IDENTIFIER = $__17.BINDING_IDENTIFIER, BLOCK = $__17.BLOCK, BREAK_STATEMENT = $__17.BREAK_STATEMENT, CALL_EXPRESSION = $__17.CALL_EXPRESSION, CASCADE_EXPRESSION = $__17.CASCADE_EXPRESSION, CASE_CLAUSE = $__17.CASE_CLAUSE, CATCH = $__17.CATCH, CLASS_DECLARATION = $__17.CLASS_DECLARATION, CLASS_EXPRESSION = $__17.CLASS_EXPRESSION, COMMA_EXPRESSION = $__17.COMMA_EXPRESSION, COMPREHENSION_FOR = $__17.COMPREHENSION_FOR, COMPREHENSION_IF = $__17.COMPREHENSION_IF, CONDITIONAL_EXPRESSION = $__17.CONDITIONAL_EXPRESSION, CONTINUE_STATEMENT = $__17.CONTINUE_STATEMENT, COVER_FORMALS = $__17.COVER_FORMALS, DEBUGGER_STATEMENT = $__17.DEBUGGER_STATEMENT, DEFAULT_CLAUSE = $__17.DEFAULT_CLAUSE, DO_WHILE_STATEMENT = $__17.DO_WHILE_STATEMENT, EMPTY_STATEMENT = $__17.EMPTY_STATEMENT, EXPORT_DECLARATION = $__17.EXPORT_DECLARATION, EXPORT_MAPPING = $__17.EXPORT_MAPPING, EXPORT_MAPPING_LIST = $__17.EXPORT_MAPPING_LIST, EXPORT_SPECIFIER = $__17.EXPORT_SPECIFIER, EXPORT_SPECIFIER_SET = $__17.EXPORT_SPECIFIER_SET, EXPORT_STAR = $__17.EXPORT_STAR, EXPRESSION_STATEMENT = $__17.EXPRESSION_STATEMENT, FINALLY = $__17.FINALLY, FOR_IN_STATEMENT = $__17.FOR_IN_STATEMENT, FOR_OF_STATEMENT = $__17.FOR_OF_STATEMENT, FOR_STATEMENT = $__17.FOR_STATEMENT, FORMAL_PARAMETER_LIST = $__17.FORMAL_PARAMETER_LIST, FUNCTION_DECLARATION = $__17.FUNCTION_DECLARATION, FUNCTION_EXPRESSION = $__17.FUNCTION_EXPRESSION, GENERATOR_COMPREHENSION = $__17.GENERATOR_COMPREHENSION, GET_ACCESSOR = $__17.GET_ACCESSOR, IDENTIFIER_EXPRESSION = $__17.IDENTIFIER_EXPRESSION, IF_STATEMENT = $__17.IF_STATEMENT, IMPORT_BINDING = $__17.IMPORT_BINDING, IMPORT_DECLARATION = $__17.IMPORT_DECLARATION, IMPORT_SPECIFIER = $__17.IMPORT_SPECIFIER, IMPORT_SPECIFIER_SET = $__17.IMPORT_SPECIFIER_SET, LABELLED_STATEMENT = $__17.LABELLED_STATEMENT, LITERAL_EXPRESSION = $__17.LITERAL_EXPRESSION, MEMBER_EXPRESSION = $__17.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__17.MEMBER_LOOKUP_EXPRESSION, MISSING_PRIMARY_EXPRESSION = $__17.MISSING_PRIMARY_EXPRESSION, MODULE_DECLARATION = $__17.MODULE_DECLARATION, MODULE_DEFINITION = $__17.MODULE_DEFINITION, MODULE_EXPRESSION = $__17.MODULE_EXPRESSION, MODULE_REQUIRE = $__17.MODULE_REQUIRE, MODULE_SPECIFIER = $__17.MODULE_SPECIFIER, NAME_STATEMENT = $__17.NAME_STATEMENT, NEW_EXPRESSION = $__17.NEW_EXPRESSION, OBJECT_LITERAL_EXPRESSION = $__17.OBJECT_LITERAL_EXPRESSION, OBJECT_PATTERN = $__17.OBJECT_PATTERN, OBJECT_PATTERN_FIELD = $__17.OBJECT_PATTERN_FIELD, PAREN_EXPRESSION = $__17.PAREN_EXPRESSION, POSTFIX_EXPRESSION = $__17.POSTFIX_EXPRESSION, PREDEFINED_TYPE = $__17.PREDEFINED_TYPE, PROGRAM = $__17.PROGRAM, PROPERTY_METHOD_ASSIGNMENT = $__17.PROPERTY_METHOD_ASSIGNMENT, PROPERTY_NAME_ASSIGNMENT = $__17.PROPERTY_NAME_ASSIGNMENT, PROPERTY_NAME_SHORTHAND = $__17.PROPERTY_NAME_SHORTHAND, REST_PARAMETER = $__17.REST_PARAMETER, RETURN_STATEMENT = $__17.RETURN_STATEMENT, SET_ACCESSOR = $__17.SET_ACCESSOR, SPREAD_EXPRESSION = $__17.SPREAD_EXPRESSION, SPREAD_PATTERN_ELEMENT = $__17.SPREAD_PATTERN_ELEMENT, STATE_MACHINE = $__17.STATE_MACHINE, SUPER_EXPRESSION = $__17.SUPER_EXPRESSION, SWITCH_STATEMENT = $__17.SWITCH_STATEMENT, TEMPLATE_LITERAL_EXPRESSION = $__17.TEMPLATE_LITERAL_EXPRESSION, TEMPLATE_LITERAL_PORTION = $__17.TEMPLATE_LITERAL_PORTION, TEMPLATE_SUBSTITUTION = $__17.TEMPLATE_SUBSTITUTION, THIS_EXPRESSION = $__17.THIS_EXPRESSION, THROW_STATEMENT = $__17.THROW_STATEMENT, TRY_STATEMENT = $__17.TRY_STATEMENT, TYPE_NAME = $__17.TYPE_NAME, UNARY_EXPRESSION = $__17.UNARY_EXPRESSION, VARIABLE_DECLARATION = $__17.VARIABLE_DECLARATION, VARIABLE_DECLARATION_LIST = $__17.VARIABLE_DECLARATION_LIST, VARIABLE_STATEMENT = $__17.VARIABLE_STATEMENT, WHILE_STATEMENT = $__17.WHILE_STATEMENT, WITH_STATEMENT = $__17.WITH_STATEMENT, YIELD_EXPRESSION = $__17.YIELD_EXPRESSION;
+  var $__17 = ParseTreeType, ARGUMENT_LIST = $__17.ARGUMENT_LIST, ARRAY_COMPREHENSION = $__17.ARRAY_COMPREHENSION, ARRAY_LITERAL_EXPRESSION = $__17.ARRAY_LITERAL_EXPRESSION, ARRAY_PATTERN = $__17.ARRAY_PATTERN, ARROW_FUNCTION_EXPRESSION = $__17.ARROW_FUNCTION_EXPRESSION, AT_NAME_DECLARATION = $__17.AT_NAME_DECLARATION, AT_NAME_EXPRESSION = $__17.AT_NAME_EXPRESSION, AWAIT_STATEMENT = $__17.AWAIT_STATEMENT, BINARY_OPERATOR = $__17.BINARY_OPERATOR, BINDING_ELEMENT = $__17.BINDING_ELEMENT, BINDING_IDENTIFIER = $__17.BINDING_IDENTIFIER, BLOCK = $__17.BLOCK, BREAK_STATEMENT = $__17.BREAK_STATEMENT, CALL_EXPRESSION = $__17.CALL_EXPRESSION, CASCADE_EXPRESSION = $__17.CASCADE_EXPRESSION, CASE_CLAUSE = $__17.CASE_CLAUSE, CATCH = $__17.CATCH, CLASS_DECLARATION = $__17.CLASS_DECLARATION, CLASS_EXPRESSION = $__17.CLASS_EXPRESSION, COMMA_EXPRESSION = $__17.COMMA_EXPRESSION, COMPREHENSION_FOR = $__17.COMPREHENSION_FOR, COMPREHENSION_IF = $__17.COMPREHENSION_IF, CONDITIONAL_EXPRESSION = $__17.CONDITIONAL_EXPRESSION, CONTINUE_STATEMENT = $__17.CONTINUE_STATEMENT, COVER_FORMALS = $__17.COVER_FORMALS, DEBUGGER_STATEMENT = $__17.DEBUGGER_STATEMENT, DEFAULT_CLAUSE = $__17.DEFAULT_CLAUSE, DO_WHILE_STATEMENT = $__17.DO_WHILE_STATEMENT, EMPTY_STATEMENT = $__17.EMPTY_STATEMENT, EXPORT_DECLARATION = $__17.EXPORT_DECLARATION, EXPORT_MAPPING = $__17.EXPORT_MAPPING, EXPORT_MAPPING_LIST = $__17.EXPORT_MAPPING_LIST, EXPORT_SPECIFIER = $__17.EXPORT_SPECIFIER, EXPORT_SPECIFIER_SET = $__17.EXPORT_SPECIFIER_SET, EXPORT_STAR = $__17.EXPORT_STAR, EXPRESSION_STATEMENT = $__17.EXPRESSION_STATEMENT, FINALLY = $__17.FINALLY, FOR_IN_STATEMENT = $__17.FOR_IN_STATEMENT, FOR_OF_STATEMENT = $__17.FOR_OF_STATEMENT, FOR_STATEMENT = $__17.FOR_STATEMENT, FORMAL_PARAMETER_LIST = $__17.FORMAL_PARAMETER_LIST, FUNCTION_DECLARATION = $__17.FUNCTION_DECLARATION, FUNCTION_EXPRESSION = $__17.FUNCTION_EXPRESSION, GENERATOR_COMPREHENSION = $__17.GENERATOR_COMPREHENSION, GET_ACCESSOR = $__17.GET_ACCESSOR, IDENTIFIER_EXPRESSION = $__17.IDENTIFIER_EXPRESSION, IF_STATEMENT = $__17.IF_STATEMENT, IMPORT_BINDING = $__17.IMPORT_BINDING, IMPORT_DECLARATION = $__17.IMPORT_DECLARATION, IMPORT_SPECIFIER = $__17.IMPORT_SPECIFIER, IMPORT_SPECIFIER_SET = $__17.IMPORT_SPECIFIER_SET, LABELLED_STATEMENT = $__17.LABELLED_STATEMENT, LITERAL_EXPRESSION = $__17.LITERAL_EXPRESSION, MEMBER_EXPRESSION = $__17.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__17.MEMBER_LOOKUP_EXPRESSION, MODULE_DECLARATION = $__17.MODULE_DECLARATION, MODULE_DEFINITION = $__17.MODULE_DEFINITION, MODULE_EXPRESSION = $__17.MODULE_EXPRESSION, MODULE_REQUIRE = $__17.MODULE_REQUIRE, MODULE_SPECIFIER = $__17.MODULE_SPECIFIER, NAME_STATEMENT = $__17.NAME_STATEMENT, NEW_EXPRESSION = $__17.NEW_EXPRESSION, OBJECT_LITERAL_EXPRESSION = $__17.OBJECT_LITERAL_EXPRESSION, OBJECT_PATTERN = $__17.OBJECT_PATTERN, OBJECT_PATTERN_FIELD = $__17.OBJECT_PATTERN_FIELD, PAREN_EXPRESSION = $__17.PAREN_EXPRESSION, POSTFIX_EXPRESSION = $__17.POSTFIX_EXPRESSION, PREDEFINED_TYPE = $__17.PREDEFINED_TYPE, PROGRAM = $__17.PROGRAM, PROPERTY_METHOD_ASSIGNMENT = $__17.PROPERTY_METHOD_ASSIGNMENT, PROPERTY_NAME_ASSIGNMENT = $__17.PROPERTY_NAME_ASSIGNMENT, PROPERTY_NAME_SHORTHAND = $__17.PROPERTY_NAME_SHORTHAND, REST_PARAMETER = $__17.REST_PARAMETER, RETURN_STATEMENT = $__17.RETURN_STATEMENT, SET_ACCESSOR = $__17.SET_ACCESSOR, SPREAD_EXPRESSION = $__17.SPREAD_EXPRESSION, SPREAD_PATTERN_ELEMENT = $__17.SPREAD_PATTERN_ELEMENT, STATE_MACHINE = $__17.STATE_MACHINE, SUPER_EXPRESSION = $__17.SUPER_EXPRESSION, SWITCH_STATEMENT = $__17.SWITCH_STATEMENT, SYNTAX_ERROR_TREE = $__17.SYNTAX_ERROR_TREE, TEMPLATE_LITERAL_EXPRESSION = $__17.TEMPLATE_LITERAL_EXPRESSION, TEMPLATE_LITERAL_PORTION = $__17.TEMPLATE_LITERAL_PORTION, TEMPLATE_SUBSTITUTION = $__17.TEMPLATE_SUBSTITUTION, THIS_EXPRESSION = $__17.THIS_EXPRESSION, THROW_STATEMENT = $__17.THROW_STATEMENT, TRY_STATEMENT = $__17.TRY_STATEMENT, TYPE_NAME = $__17.TYPE_NAME, UNARY_EXPRESSION = $__17.UNARY_EXPRESSION, VARIABLE_DECLARATION = $__17.VARIABLE_DECLARATION, VARIABLE_DECLARATION_LIST = $__17.VARIABLE_DECLARATION_LIST, VARIABLE_STATEMENT = $__17.VARIABLE_STATEMENT, WHILE_STATEMENT = $__17.WHILE_STATEMENT, WITH_STATEMENT = $__17.WITH_STATEMENT, YIELD_EXPRESSION = $__17.YIELD_EXPRESSION;
   var ArgumentList = function($__super) {
     'use strict';
     var $__proto = $__getProtoParent($__super);
@@ -4145,26 +4144,6 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     }, {}, $__proto, $__super, true);
     return $MemberLookupExpression;
   }(ParseTree);
-  var MissingPrimaryExpression = function($__super) {
-    'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $MissingPrimaryExpression = ($__createClass)({
-      constructor: function(location, nextToken) {
-        this.location = location;
-        this.nextToken = nextToken;
-      },
-      transform: function(transformer) {
-        return transformer.transformMissingPrimaryExpression(this);
-      },
-      visit: function(visitor) {
-        visitor.visitMissingPrimaryExpression(this);
-      },
-      get type() {
-        return MISSING_PRIMARY_EXPRESSION;
-      }
-    }, {}, $__proto, $__super, true);
-    return $MissingPrimaryExpression;
-  }(ParseTree);
   var ModuleDeclaration = function($__super) {
     'use strict';
     var $__proto = $__getProtoParent($__super);
@@ -4658,6 +4637,27 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
       }
     }, {}, $__proto, $__super, true);
     return $SwitchStatement;
+  }(ParseTree);
+  var SyntaxErrorTree = function($__super) {
+    'use strict';
+    var $__proto = $__getProtoParent($__super);
+    var $SyntaxErrorTree = ($__createClass)({
+      constructor: function(location, nextToken, message) {
+        this.location = location;
+        this.nextToken = nextToken;
+        this.message = message;
+      },
+      transform: function(transformer) {
+        return transformer.transformSyntaxErrorTree(this);
+      },
+      visit: function(visitor) {
+        visitor.visitSyntaxErrorTree(this);
+      },
+      get type() {
+        return SYNTAX_ERROR_TREE;
+      }
+    }, {}, $__proto, $__super, true);
+    return $SyntaxErrorTree;
   }(ParseTree);
   var TemplateLiteralExpression = function($__super) {
     'use strict';
@@ -5280,12 +5280,6 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
       },
       enumerable: true
     },
-    MissingPrimaryExpression: {
-      get: function() {
-        return MissingPrimaryExpression;
-      },
-      enumerable: true
-    },
     ModuleDeclaration: {
       get: function() {
         return ModuleDeclaration;
@@ -5430,6 +5424,12 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
       },
       enumerable: true
     },
+    SyntaxErrorTree: {
+      get: function() {
+        return SyntaxErrorTree;
+      },
+      enumerable: true
+    },
     TemplateLiteralExpression: {
       get: function() {
         return TemplateLiteralExpression;
@@ -5518,7 +5518,7 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
 }).call(this);
 var $___src_codegeneration_ParseTreeTransformer_js = (function() {
   "use strict";
-  var $__17 = $___src_syntax_trees_ParseTrees_js, ArgumentList = $__17.ArgumentList, ArrayComprehension = $__17.ArrayComprehension, ArrayLiteralExpression = $__17.ArrayLiteralExpression, ArrayPattern = $__17.ArrayPattern, ArrowFunctionExpression = $__17.ArrowFunctionExpression, AtNameDeclaration = $__17.AtNameDeclaration, AtNameExpression = $__17.AtNameExpression, AwaitStatement = $__17.AwaitStatement, BinaryOperator = $__17.BinaryOperator, BindingElement = $__17.BindingElement, BindingIdentifier = $__17.BindingIdentifier, Block = $__17.Block, BreakStatement = $__17.BreakStatement, CallExpression = $__17.CallExpression, CascadeExpression = $__17.CascadeExpression, CaseClause = $__17.CaseClause, Catch = $__17.Catch, ClassDeclaration = $__17.ClassDeclaration, ClassExpression = $__17.ClassExpression, CommaExpression = $__17.CommaExpression, ComprehensionFor = $__17.ComprehensionFor, ComprehensionIf = $__17.ComprehensionIf, ConditionalExpression = $__17.ConditionalExpression, ContinueStatement = $__17.ContinueStatement, CoverFormals = $__17.CoverFormals, DebuggerStatement = $__17.DebuggerStatement, DefaultClause = $__17.DefaultClause, DoWhileStatement = $__17.DoWhileStatement, EmptyStatement = $__17.EmptyStatement, ExportDeclaration = $__17.ExportDeclaration, ExportMapping = $__17.ExportMapping, ExportMappingList = $__17.ExportMappingList, ExportSpecifier = $__17.ExportSpecifier, ExportSpecifierSet = $__17.ExportSpecifierSet, ExportStar = $__17.ExportStar, ExpressionStatement = $__17.ExpressionStatement, Finally = $__17.Finally, ForInStatement = $__17.ForInStatement, ForOfStatement = $__17.ForOfStatement, ForStatement = $__17.ForStatement, FormalParameterList = $__17.FormalParameterList, FunctionDeclaration = $__17.FunctionDeclaration, FunctionExpression = $__17.FunctionExpression, GeneratorComprehension = $__17.GeneratorComprehension, GetAccessor = $__17.GetAccessor, IdentifierExpression = $__17.IdentifierExpression, IfStatement = $__17.IfStatement, ImportBinding = $__17.ImportBinding, ImportDeclaration = $__17.ImportDeclaration, ImportSpecifier = $__17.ImportSpecifier, ImportSpecifierSet = $__17.ImportSpecifierSet, LabelledStatement = $__17.LabelledStatement, LiteralExpression = $__17.LiteralExpression, MemberExpression = $__17.MemberExpression, MemberLookupExpression = $__17.MemberLookupExpression, MissingPrimaryExpression = $__17.MissingPrimaryExpression, ModuleDeclaration = $__17.ModuleDeclaration, ModuleDefinition = $__17.ModuleDefinition, ModuleExpression = $__17.ModuleExpression, ModuleRequire = $__17.ModuleRequire, ModuleSpecifier = $__17.ModuleSpecifier, NameStatement = $__17.NameStatement, NewExpression = $__17.NewExpression, ObjectLiteralExpression = $__17.ObjectLiteralExpression, ObjectPattern = $__17.ObjectPattern, ObjectPatternField = $__17.ObjectPatternField, ParenExpression = $__17.ParenExpression, PostfixExpression = $__17.PostfixExpression, PredefinedType = $__17.PredefinedType, Program = $__17.Program, PropertyMethodAssignment = $__17.PropertyMethodAssignment, PropertyNameAssignment = $__17.PropertyNameAssignment, PropertyNameShorthand = $__17.PropertyNameShorthand, RestParameter = $__17.RestParameter, ReturnStatement = $__17.ReturnStatement, SetAccessor = $__17.SetAccessor, SpreadExpression = $__17.SpreadExpression, SpreadPatternElement = $__17.SpreadPatternElement, SuperExpression = $__17.SuperExpression, SwitchStatement = $__17.SwitchStatement, TemplateLiteralExpression = $__17.TemplateLiteralExpression, TemplateLiteralPortion = $__17.TemplateLiteralPortion, TemplateSubstitution = $__17.TemplateSubstitution, ThisExpression = $__17.ThisExpression, ThrowStatement = $__17.ThrowStatement, TryStatement = $__17.TryStatement, TypeName = $__17.TypeName, UnaryExpression = $__17.UnaryExpression, VariableDeclaration = $__17.VariableDeclaration, VariableDeclarationList = $__17.VariableDeclarationList, VariableStatement = $__17.VariableStatement, WhileStatement = $__17.WhileStatement, WithStatement = $__17.WithStatement, YieldExpression = $__17.YieldExpression;
+  var $__17 = $___src_syntax_trees_ParseTrees_js, ArgumentList = $__17.ArgumentList, ArrayComprehension = $__17.ArrayComprehension, ArrayLiteralExpression = $__17.ArrayLiteralExpression, ArrayPattern = $__17.ArrayPattern, ArrowFunctionExpression = $__17.ArrowFunctionExpression, AtNameDeclaration = $__17.AtNameDeclaration, AtNameExpression = $__17.AtNameExpression, AwaitStatement = $__17.AwaitStatement, BinaryOperator = $__17.BinaryOperator, BindingElement = $__17.BindingElement, BindingIdentifier = $__17.BindingIdentifier, Block = $__17.Block, BreakStatement = $__17.BreakStatement, CallExpression = $__17.CallExpression, CascadeExpression = $__17.CascadeExpression, CaseClause = $__17.CaseClause, Catch = $__17.Catch, ClassDeclaration = $__17.ClassDeclaration, ClassExpression = $__17.ClassExpression, CommaExpression = $__17.CommaExpression, ComprehensionFor = $__17.ComprehensionFor, ComprehensionIf = $__17.ComprehensionIf, ConditionalExpression = $__17.ConditionalExpression, ContinueStatement = $__17.ContinueStatement, CoverFormals = $__17.CoverFormals, DebuggerStatement = $__17.DebuggerStatement, DefaultClause = $__17.DefaultClause, DoWhileStatement = $__17.DoWhileStatement, EmptyStatement = $__17.EmptyStatement, ExportDeclaration = $__17.ExportDeclaration, ExportMapping = $__17.ExportMapping, ExportMappingList = $__17.ExportMappingList, ExportSpecifier = $__17.ExportSpecifier, ExportSpecifierSet = $__17.ExportSpecifierSet, ExportStar = $__17.ExportStar, ExpressionStatement = $__17.ExpressionStatement, Finally = $__17.Finally, ForInStatement = $__17.ForInStatement, ForOfStatement = $__17.ForOfStatement, ForStatement = $__17.ForStatement, FormalParameterList = $__17.FormalParameterList, FunctionDeclaration = $__17.FunctionDeclaration, FunctionExpression = $__17.FunctionExpression, GeneratorComprehension = $__17.GeneratorComprehension, GetAccessor = $__17.GetAccessor, IdentifierExpression = $__17.IdentifierExpression, IfStatement = $__17.IfStatement, ImportBinding = $__17.ImportBinding, ImportDeclaration = $__17.ImportDeclaration, ImportSpecifier = $__17.ImportSpecifier, ImportSpecifierSet = $__17.ImportSpecifierSet, LabelledStatement = $__17.LabelledStatement, LiteralExpression = $__17.LiteralExpression, MemberExpression = $__17.MemberExpression, MemberLookupExpression = $__17.MemberLookupExpression, ModuleDeclaration = $__17.ModuleDeclaration, ModuleDefinition = $__17.ModuleDefinition, ModuleExpression = $__17.ModuleExpression, ModuleRequire = $__17.ModuleRequire, ModuleSpecifier = $__17.ModuleSpecifier, NameStatement = $__17.NameStatement, NewExpression = $__17.NewExpression, ObjectLiteralExpression = $__17.ObjectLiteralExpression, ObjectPattern = $__17.ObjectPattern, ObjectPatternField = $__17.ObjectPatternField, ParenExpression = $__17.ParenExpression, PostfixExpression = $__17.PostfixExpression, PredefinedType = $__17.PredefinedType, Program = $__17.Program, PropertyMethodAssignment = $__17.PropertyMethodAssignment, PropertyNameAssignment = $__17.PropertyNameAssignment, PropertyNameShorthand = $__17.PropertyNameShorthand, RestParameter = $__17.RestParameter, ReturnStatement = $__17.ReturnStatement, SetAccessor = $__17.SetAccessor, SpreadExpression = $__17.SpreadExpression, SpreadPatternElement = $__17.SpreadPatternElement, SuperExpression = $__17.SuperExpression, SwitchStatement = $__17.SwitchStatement, SyntaxErrorTree = $__17.SyntaxErrorTree, TemplateLiteralExpression = $__17.TemplateLiteralExpression, TemplateLiteralPortion = $__17.TemplateLiteralPortion, TemplateSubstitution = $__17.TemplateSubstitution, ThisExpression = $__17.ThisExpression, ThrowStatement = $__17.ThrowStatement, TryStatement = $__17.TryStatement, TypeName = $__17.TypeName, UnaryExpression = $__17.UnaryExpression, VariableDeclaration = $__17.VariableDeclaration, VariableDeclarationList = $__17.VariableDeclarationList, VariableStatement = $__17.VariableStatement, WhileStatement = $__17.WhileStatement, WithStatement = $__17.WithStatement, YieldExpression = $__17.YieldExpression;
   var ParseTreeTransformer = function() {
     'use strict';
     var $ParseTreeTransformer = ($__createClassNoExtends)({
@@ -5917,9 +5917,6 @@ var $___src_codegeneration_ParseTreeTransformer_js = (function() {
         }
         return new MemberLookupExpression(tree.location, operand, memberExpression);
       },
-      transformMissingPrimaryExpression: function(tree) {
-        return tree;
-      },
       transformModuleDeclaration: function(tree) {
         var specifiers = this.transformList(tree.specifiers);
         if (specifiers === tree.specifiers) {
@@ -6076,6 +6073,9 @@ var $___src_codegeneration_ParseTreeTransformer_js = (function() {
         }
         return new SwitchStatement(tree.location, expression, caseClauses);
       },
+      transformSyntaxErrorTree: function(tree) {
+        return tree;
+      },
       transformTemplateLiteralExpression: function(tree) {
         var operand = this.transformAny(tree.operand);
         var elements = this.transformList(tree.elements);
@@ -6225,7 +6225,7 @@ var $___src_codegeneration_AssignmentPatternTransformer_js = (function() {
       transformSpreadExpression: function(tree) {
         return new SpreadPatternElement(tree.location, tree.expression);
       },
-      transformMissingPrimaryExpression: function(tree) {
+      transformSyntaxErrorTree: function(tree) {
         throw new AssignmentPatternTransformerError();
       }
     }, {}, $__proto, $__super, false);
@@ -6308,7 +6308,7 @@ var $___src_codegeneration_CoverFormalsTransformer_js = (function() {
         if (this.inArrayPattern_) return new SpreadPatternElement(tree.location, bindingIdentifier);
         return new RestParameter(tree.location, bindingIdentifier);
       },
-      transformMissingPrimaryExpression: function(tree) {
+      transformSyntaxErrorTree: function(tree) {
         throw new AssignmentPatternTransformerError();
       }
     }, {}, $__proto, $__super, true);
@@ -8056,14 +8056,14 @@ var $___src_syntax_Parser_js = (function() {
   var $__17 = $___src_codegeneration_AssignmentPatternTransformer_js, AssignmentPatternTransformer = $__17.AssignmentPatternTransformer, AssignmentPatternTransformerError = $__17.AssignmentPatternTransformerError;
   var $__17 = $___src_codegeneration_CoverFormalsTransformer_js, CoverFormalsTransformer = $__17.CoverFormalsTransformer, CoverFormalsTransformerError = $__17.CoverFormalsTransformerError;
   var IdentifierToken = $___src_syntax_IdentifierToken_js.IdentifierToken;
-  var $__17 = $___src_syntax_trees_ParseTreeType_js, ARRAY_LITERAL_EXPRESSION = $__17.ARRAY_LITERAL_EXPRESSION, BINARY_OPERATOR = $__17.BINARY_OPERATOR, CALL_EXPRESSION = $__17.CALL_EXPRESSION, CASCADE_EXPRESSION = $__17.CASCADE_EXPRESSION, COMMA_EXPRESSION = $__17.COMMA_EXPRESSION, FORMAL_PARAMETER_LIST = $__17.FORMAL_PARAMETER_LIST, IDENTIFIER_EXPRESSION = $__17.IDENTIFIER_EXPRESSION, MEMBER_EXPRESSION = $__17.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__17.MEMBER_LOOKUP_EXPRESSION, MISSING_PRIMARY_EXPRESSION = $__17.MISSING_PRIMARY_EXPRESSION, OBJECT_LITERAL_EXPRESSION = $__17.OBJECT_LITERAL_EXPRESSION, PAREN_EXPRESSION = $__17.PAREN_EXPRESSION, PROPERTY_NAME_ASSIGNMENT = $__17.PROPERTY_NAME_ASSIGNMENT, REST_PARAMETER = $__17.REST_PARAMETER;
+  var $__17 = $___src_syntax_trees_ParseTreeType_js, ARRAY_LITERAL_EXPRESSION = $__17.ARRAY_LITERAL_EXPRESSION, BINARY_OPERATOR = $__17.BINARY_OPERATOR, CALL_EXPRESSION = $__17.CALL_EXPRESSION, CASCADE_EXPRESSION = $__17.CASCADE_EXPRESSION, COMMA_EXPRESSION = $__17.COMMA_EXPRESSION, FORMAL_PARAMETER_LIST = $__17.FORMAL_PARAMETER_LIST, IDENTIFIER_EXPRESSION = $__17.IDENTIFIER_EXPRESSION, MEMBER_EXPRESSION = $__17.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__17.MEMBER_LOOKUP_EXPRESSION, OBJECT_LITERAL_EXPRESSION = $__17.OBJECT_LITERAL_EXPRESSION, PAREN_EXPRESSION = $__17.PAREN_EXPRESSION, PROPERTY_NAME_ASSIGNMENT = $__17.PROPERTY_NAME_ASSIGNMENT, REST_PARAMETER = $__17.REST_PARAMETER, SYNTAX_ERROR_TREE = $__17.SYNTAX_ERROR_TREE;
   var $__17 = $___src_syntax_PredefinedName_js, ANY = $__17.ANY, BOOL = $__17.BOOL, FROM = $__17.FROM, GET = $__17.GET, MODULE = $__17.MODULE, NUMBER = $__17.NUMBER, OF = $__17.OF, SET = $__17.SET, STRING = $__17.STRING;
   var Scanner = $___src_syntax_Scanner_js.Scanner;
   var SourceRange = $___src_util_SourceRange_js.SourceRange;
   var $__17 = $___src_syntax_Token_js, Token = $__17.Token, isAssignmentOperator = $__17.isAssignmentOperator;
   var $__17 = $___src_options_js, parseOptions = $__17.parseOptions, options = $__17.options;
   var $__17 = $___src_syntax_TokenType_js, AMPERSAND = $__17.AMPERSAND, AMPERSAND_EQUAL = $__17.AMPERSAND_EQUAL, AND = $__17.AND, ARROW = $__17.ARROW, AT_NAME = $__17.AT_NAME, AWAIT = $__17.AWAIT, BACK_QUOTE = $__17.BACK_QUOTE, BANG = $__17.BANG, BAR = $__17.BAR, BAR_EQUAL = $__17.BAR_EQUAL, BREAK = $__17.BREAK, CARET = $__17.CARET, CARET_EQUAL = $__17.CARET_EQUAL, CASE = $__17.CASE, CATCH = $__17.CATCH, CLASS = $__17.CLASS, CLOSE_ANGLE = $__17.CLOSE_ANGLE, CLOSE_CURLY = $__17.CLOSE_CURLY, CLOSE_PAREN = $__17.CLOSE_PAREN, CLOSE_SQUARE = $__17.CLOSE_SQUARE, COLON = $__17.COLON, COMMA = $__17.COMMA, CONST = $__17.CONST, CONTINUE = $__17.CONTINUE, DEBUGGER = $__17.DEBUGGER, DEFAULT = $__17.DEFAULT, DELETE = $__17.DELETE, DO = $__17.DO, DOLLAR = $__17.DOLLAR, DOT_DOT_DOT = $__17.DOT_DOT_DOT, ELSE = $__17.ELSE, END_OF_FILE = $__17.END_OF_FILE, ENUM = $__17.ENUM, EQUAL = $__17.EQUAL, EQUAL_EQUAL = $__17.EQUAL_EQUAL, EQUAL_EQUAL_EQUAL = $__17.EQUAL_EQUAL_EQUAL, ERROR = $__17.ERROR, EXPORT = $__17.EXPORT, EXTENDS = $__17.EXTENDS, FALSE = $__17.FALSE, FINALLY = $__17.FINALLY, FOR = $__17.FOR, FUNCTION = $__17.FUNCTION, GREATER_EQUAL = $__17.GREATER_EQUAL, IDENTIFIER = $__17.IDENTIFIER, IF = $__17.IF, IMPLEMENTS = $__17.IMPLEMENTS, IMPORT = $__17.IMPORT, IN = $__17.IN, INSTANCEOF = $__17.INSTANCEOF, INTERFACE = $__17.INTERFACE, LEFT_SHIFT = $__17.LEFT_SHIFT, LEFT_SHIFT_EQUAL = $__17.LEFT_SHIFT_EQUAL, LESS_EQUAL = $__17.LESS_EQUAL, LET = $__17.LET, MINUS = $__17.MINUS, MINUS_EQUAL = $__17.MINUS_EQUAL, MINUS_MINUS = $__17.MINUS_MINUS, NEW = $__17.NEW, NO_SUBSTITUTION_TEMPLATE = $__17.NO_SUBSTITUTION_TEMPLATE, NOT_EQUAL = $__17.NOT_EQUAL, NOT_EQUAL_EQUAL = $__17.NOT_EQUAL_EQUAL, NULL = $__17.NULL, NUMBER = $__17.NUMBER, OPEN_ANGLE = $__17.OPEN_ANGLE, OPEN_CURLY = $__17.OPEN_CURLY, OPEN_PAREN = $__17.OPEN_PAREN, OPEN_SQUARE = $__17.OPEN_SQUARE, OR = $__17.OR, PACKAGE = $__17.PACKAGE, PERCENT = $__17.PERCENT, PERCENT_EQUAL = $__17.PERCENT_EQUAL, PERIOD = $__17.PERIOD, PERIOD_OPEN_CURLY = $__17.PERIOD_OPEN_CURLY, PLUS = $__17.PLUS, PLUS_EQUAL = $__17.PLUS_EQUAL, PLUS_PLUS = $__17.PLUS_PLUS, PRIVATE = $__17.PRIVATE, PROTECTED = $__17.PROTECTED, PUBLIC = $__17.PUBLIC, QUESTION = $__17.QUESTION, REGULAR_EXPRESSION = $__17.REGULAR_EXPRESSION, RETURN = $__17.RETURN, RIGHT_SHIFT = $__17.RIGHT_SHIFT, RIGHT_SHIFT_EQUAL = $__17.RIGHT_SHIFT_EQUAL, SEMI_COLON = $__17.SEMI_COLON, SLASH = $__17.SLASH, SLASH_EQUAL = $__17.SLASH_EQUAL, STAR = $__17.STAR, STAR_EQUAL = $__17.STAR_EQUAL, STATIC = $__17.STATIC, STRING = $__17.STRING, SUPER = $__17.SUPER, SWITCH = $__17.SWITCH, TEMPLATE_HEAD = $__17.TEMPLATE_HEAD, TEMPLATE_MIDDLE = $__17.TEMPLATE_MIDDLE, TEMPLATE_TAIL = $__17.TEMPLATE_TAIL, THIS = $__17.THIS, THROW = $__17.THROW, TILDE = $__17.TILDE, TRUE = $__17.TRUE, TRY = $__17.TRY, TYPEOF = $__17.TYPEOF, UNSIGNED_RIGHT_SHIFT = $__17.UNSIGNED_RIGHT_SHIFT, UNSIGNED_RIGHT_SHIFT_EQUAL = $__17.UNSIGNED_RIGHT_SHIFT_EQUAL, VAR = $__17.VAR, VOID = $__17.VOID, WHILE = $__17.WHILE, WITH = $__17.WITH, YIELD = $__17.YIELD;
-  var $__17 = $___src_syntax_trees_ParseTrees_js, ArgumentList = $__17.ArgumentList, ArrayComprehension = $__17.ArrayComprehension, ArrayLiteralExpression = $__17.ArrayLiteralExpression, ArrayPattern = $__17.ArrayPattern, ArrowFunctionExpression = $__17.ArrowFunctionExpression, AtNameDeclaration = $__17.AtNameDeclaration, AtNameExpression = $__17.AtNameExpression, AwaitStatement = $__17.AwaitStatement, BinaryOperator = $__17.BinaryOperator, BindingElement = $__17.BindingElement, BindingIdentifier = $__17.BindingIdentifier, Block = $__17.Block, BreakStatement = $__17.BreakStatement, CallExpression = $__17.CallExpression, CascadeExpression = $__17.CascadeExpression, CaseClause = $__17.CaseClause, Catch = $__17.Catch, ClassDeclaration = $__17.ClassDeclaration, ClassExpression = $__17.ClassExpression, CommaExpression = $__17.CommaExpression, ComprehensionFor = $__17.ComprehensionFor, ComprehensionIf = $__17.ComprehensionIf, ConditionalExpression = $__17.ConditionalExpression, ContinueStatement = $__17.ContinueStatement, CoverFormals = $__17.CoverFormals, DebuggerStatement = $__17.DebuggerStatement, DefaultClause = $__17.DefaultClause, DoWhileStatement = $__17.DoWhileStatement, EmptyStatement = $__17.EmptyStatement, ExportDeclaration = $__17.ExportDeclaration, ExportMapping = $__17.ExportMapping, ExportMappingList = $__17.ExportMappingList, ExportSpecifier = $__17.ExportSpecifier, ExportSpecifierSet = $__17.ExportSpecifierSet, ExportStar = $__17.ExportStar, ExpressionStatement = $__17.ExpressionStatement, Finally = $__17.Finally, ForInStatement = $__17.ForInStatement, ForOfStatement = $__17.ForOfStatement, ForStatement = $__17.ForStatement, FormalParameterList = $__17.FormalParameterList, FunctionDeclaration = $__17.FunctionDeclaration, FunctionExpression = $__17.FunctionExpression, GeneratorComprehension = $__17.GeneratorComprehension, GetAccessor = $__17.GetAccessor, IdentifierExpression = $__17.IdentifierExpression, IfStatement = $__17.IfStatement, ImportBinding = $__17.ImportBinding, ImportDeclaration = $__17.ImportDeclaration, ImportSpecifier = $__17.ImportSpecifier, ImportSpecifierSet = $__17.ImportSpecifierSet, LabelledStatement = $__17.LabelledStatement, LiteralExpression = $__17.LiteralExpression, MemberExpression = $__17.MemberExpression, MemberLookupExpression = $__17.MemberLookupExpression, MissingPrimaryExpression = $__17.MissingPrimaryExpression, ModuleDeclaration = $__17.ModuleDeclaration, ModuleDefinition = $__17.ModuleDefinition, ModuleExpression = $__17.ModuleExpression, ModuleRequire = $__17.ModuleRequire, ModuleSpecifier = $__17.ModuleSpecifier, NameStatement = $__17.NameStatement, NewExpression = $__17.NewExpression, ObjectLiteralExpression = $__17.ObjectLiteralExpression, ObjectPattern = $__17.ObjectPattern, ObjectPatternField = $__17.ObjectPatternField, ParenExpression = $__17.ParenExpression, PostfixExpression = $__17.PostfixExpression, PredefinedType = $__17.PredefinedType, Program = $__17.Program, PropertyMethodAssignment = $__17.PropertyMethodAssignment, PropertyNameAssignment = $__17.PropertyNameAssignment, PropertyNameShorthand = $__17.PropertyNameShorthand, RestParameter = $__17.RestParameter, ReturnStatement = $__17.ReturnStatement, SetAccessor = $__17.SetAccessor, SpreadExpression = $__17.SpreadExpression, SpreadPatternElement = $__17.SpreadPatternElement, SuperExpression = $__17.SuperExpression, SwitchStatement = $__17.SwitchStatement, TemplateLiteralExpression = $__17.TemplateLiteralExpression, TemplateLiteralPortion = $__17.TemplateLiteralPortion, TemplateSubstitution = $__17.TemplateSubstitution, ThisExpression = $__17.ThisExpression, ThrowStatement = $__17.ThrowStatement, TryStatement = $__17.TryStatement, TypeName = $__17.TypeName, UnaryExpression = $__17.UnaryExpression, VariableDeclaration = $__17.VariableDeclaration, VariableDeclarationList = $__17.VariableDeclarationList, VariableStatement = $__17.VariableStatement, WhileStatement = $__17.WhileStatement, WithStatement = $__17.WithStatement, YieldExpression = $__17.YieldExpression;
+  var $__17 = $___src_syntax_trees_ParseTrees_js, ArgumentList = $__17.ArgumentList, ArrayComprehension = $__17.ArrayComprehension, ArrayLiteralExpression = $__17.ArrayLiteralExpression, ArrayPattern = $__17.ArrayPattern, ArrowFunctionExpression = $__17.ArrowFunctionExpression, AtNameDeclaration = $__17.AtNameDeclaration, AtNameExpression = $__17.AtNameExpression, AwaitStatement = $__17.AwaitStatement, BinaryOperator = $__17.BinaryOperator, BindingElement = $__17.BindingElement, BindingIdentifier = $__17.BindingIdentifier, Block = $__17.Block, BreakStatement = $__17.BreakStatement, CallExpression = $__17.CallExpression, CascadeExpression = $__17.CascadeExpression, CaseClause = $__17.CaseClause, Catch = $__17.Catch, ClassDeclaration = $__17.ClassDeclaration, ClassExpression = $__17.ClassExpression, CommaExpression = $__17.CommaExpression, ComprehensionFor = $__17.ComprehensionFor, ComprehensionIf = $__17.ComprehensionIf, ConditionalExpression = $__17.ConditionalExpression, ContinueStatement = $__17.ContinueStatement, CoverFormals = $__17.CoverFormals, DebuggerStatement = $__17.DebuggerStatement, DefaultClause = $__17.DefaultClause, DoWhileStatement = $__17.DoWhileStatement, EmptyStatement = $__17.EmptyStatement, ExportDeclaration = $__17.ExportDeclaration, ExportMapping = $__17.ExportMapping, ExportMappingList = $__17.ExportMappingList, ExportSpecifier = $__17.ExportSpecifier, ExportSpecifierSet = $__17.ExportSpecifierSet, ExportStar = $__17.ExportStar, ExpressionStatement = $__17.ExpressionStatement, Finally = $__17.Finally, ForInStatement = $__17.ForInStatement, ForOfStatement = $__17.ForOfStatement, ForStatement = $__17.ForStatement, FormalParameterList = $__17.FormalParameterList, FunctionDeclaration = $__17.FunctionDeclaration, FunctionExpression = $__17.FunctionExpression, GeneratorComprehension = $__17.GeneratorComprehension, GetAccessor = $__17.GetAccessor, IdentifierExpression = $__17.IdentifierExpression, IfStatement = $__17.IfStatement, ImportBinding = $__17.ImportBinding, ImportDeclaration = $__17.ImportDeclaration, ImportSpecifier = $__17.ImportSpecifier, ImportSpecifierSet = $__17.ImportSpecifierSet, LabelledStatement = $__17.LabelledStatement, LiteralExpression = $__17.LiteralExpression, MemberExpression = $__17.MemberExpression, MemberLookupExpression = $__17.MemberLookupExpression, ModuleDeclaration = $__17.ModuleDeclaration, ModuleDefinition = $__17.ModuleDefinition, ModuleExpression = $__17.ModuleExpression, ModuleRequire = $__17.ModuleRequire, ModuleSpecifier = $__17.ModuleSpecifier, NameStatement = $__17.NameStatement, NewExpression = $__17.NewExpression, ObjectLiteralExpression = $__17.ObjectLiteralExpression, ObjectPattern = $__17.ObjectPattern, ObjectPatternField = $__17.ObjectPatternField, ParenExpression = $__17.ParenExpression, PostfixExpression = $__17.PostfixExpression, PredefinedType = $__17.PredefinedType, Program = $__17.Program, PropertyMethodAssignment = $__17.PropertyMethodAssignment, PropertyNameAssignment = $__17.PropertyNameAssignment, PropertyNameShorthand = $__17.PropertyNameShorthand, RestParameter = $__17.RestParameter, ReturnStatement = $__17.ReturnStatement, SetAccessor = $__17.SetAccessor, SpreadExpression = $__17.SpreadExpression, SpreadPatternElement = $__17.SpreadPatternElement, SuperExpression = $__17.SuperExpression, SwitchStatement = $__17.SwitchStatement, SyntaxErrorTree = $__17.SyntaxErrorTree, TemplateLiteralExpression = $__17.TemplateLiteralExpression, TemplateLiteralPortion = $__17.TemplateLiteralPortion, TemplateSubstitution = $__17.TemplateSubstitution, ThisExpression = $__17.ThisExpression, ThrowStatement = $__17.ThrowStatement, TryStatement = $__17.TryStatement, TypeName = $__17.TypeName, UnaryExpression = $__17.UnaryExpression, VariableDeclaration = $__17.VariableDeclaration, VariableDeclarationList = $__17.VariableDeclarationList, VariableStatement = $__17.VariableStatement, WhileStatement = $__17.WhileStatement, WithStatement = $__17.WithStatement, YieldExpression = $__17.YieldExpression;
   var Expression = {
     NO_IN: 'NO_IN',
     NORMAL: 'NORMAL'
@@ -8236,8 +8236,7 @@ var $___src_syntax_Parser_js = (function() {
             exportTree = this.parseExportMappingList_(load);
             break;
           default:
-            this.reportError_(("Unexpected symbol '" + this.peekToken_() + "'"));
-            return null;
+            return this.parseUnexpectedToken_(type);
         }
         return new ExportDeclaration(this.getTreeLocation_(start), exportTree);
       },
@@ -8255,17 +8254,17 @@ var $___src_syntax_Parser_js = (function() {
         var specifierSet, expression;
         if (this.eatIf_(STAR)) {
           specifierSet = new ExportStar(this.getTreeLocation_(start));
-          expression = this.parseFromModuleExpression_(load, true);
+          expression = this.parseFromModuleExpressionOpt_(load, true);
         } else if (this.peek_(OPEN_CURLY)) {
           specifierSet = this.parseExportSpecifierSet_();
-          expression = this.parseFromModuleExpression_(load, false);
+          expression = this.parseFromModuleExpressionOpt_(load, false);
         } else {
           specifierSet = this.parseIdentifierExpression_();
-          expression = this.parseFromModuleExpression_(load, false);
+          expression = this.parseFromModuleExpressionOpt_(load, false);
         }
         return new ExportMapping(this.getTreeLocation_(start), expression, specifierSet);
       },
-      parseFromModuleExpression_: function(load, required) {
+      parseFromModuleExpressionOpt_: function(load, required) {
         if (required || this.peekPredefinedString_(FROM)) {
           this.eatId_(FROM);
           return this.parseModuleExpression_(load);
@@ -8574,9 +8573,7 @@ var $___src_syntax_Parser_js = (function() {
         return result;
       },
       parseSpreadExpression_: function() {
-        if (!parseOptions.spread) {
-          return this.parseMissingPrimaryExpression_();
-        }
+        if (!parseOptions.spread) return this.parseUnexpectedToken_(DOT_DOT_DOT);
         var start = this.getTreeStartLocation_();
         this.eat_(DOT_DOT_DOT);
         var operand = this.parseAssignmentExpression();
@@ -8848,7 +8845,7 @@ var $___src_syntax_Parser_js = (function() {
       },
       parseYieldExpression_: function() {
         if (!this.allowYield_) {
-          return this.parseMissingPrimaryExpression_("'yield' expressions are only allowed inside 'function*'");
+          return this.parseSyntaxError_("'yield' expressions are only allowed inside 'function*'");
         }
         var start = this.getTreeStartLocation_();
         this.eat_(YIELD);
@@ -8977,7 +8974,7 @@ var $___src_syntax_Parser_js = (function() {
       parsePrimaryExpression_: function() {
         switch (this.peekType_()) {
           case CLASS:
-            return parseOptions.classes ? this.parseClassExpression_(): this.parseMissingPrimaryExpression_();
+            return parseOptions.classes ? this.parseClassExpression_(): this.parseSyntaxError_('Unexpected reserved word');
           case SUPER:
             return this.parseSuperExpression_();
           case THIS:
@@ -9014,8 +9011,10 @@ var $___src_syntax_Parser_js = (function() {
           case YIELD:
             if (!this.strictMode_) return this.parseIdentifierExpression_();
             this.reportReservedIdentifier_(this.nextToken_());
+          case END_OF_FILE:
+            return this.parseSyntaxError_('Unexpected end of input');
           default:
-            return this.parseMissingPrimaryExpression_();
+            return this.parseUnexpectedToken_(this.peekToken_());
         }
       },
       parseSuperExpression_: function() {
@@ -9138,7 +9137,6 @@ var $___src_syntax_Parser_js = (function() {
         this.eat_(OPEN_CURLY);
         while (this.peekPropertyDefinition_(this.peekType_())) {
           var propertyDefinition = this.parsePropertyDefinition();
-          if (!propertyDefinition) return null;
           result.push(propertyDefinition);
           if (propertyDefinition.type === PROPERTY_NAME_ASSIGNMENT) {
             if (!this.eatIf_(COMMA)) break;
@@ -9173,8 +9171,7 @@ var $___src_syntax_Parser_js = (function() {
           return this.parseSetAccessor_(start, isStatic);
         }
         if (parseOptions.propertyNameShorthand) return new PropertyNameShorthand(this.getTreeLocation_(start), name);
-        this.reportError_(name, 'Unexpected token');
-        return null;
+        return this.parseUnexpectedToken_(name);
       },
       parseClassElement_: function() {
         var start = this.getTreeStartLocation_();
@@ -9269,12 +9266,14 @@ var $___src_syntax_Parser_js = (function() {
       parseParenExpression_: function() {
         return this.parseArrowFunction_();
       },
-      parseMissingPrimaryExpression_: function() {
-        var message = arguments[0] !== (void 0) ? arguments[0]: 'primary expression expected';
+      parseSyntaxError_: function(message) {
         var start = this.getTreeStartLocation_();
         this.reportError_(message);
         var token = this.nextToken_();
-        return new MissingPrimaryExpression(this.getTreeLocation_(start), token);
+        return new SyntaxErrorTree(this.getTreeLocation_(start), token, message);
+      },
+      parseUnexpectedToken_: function(name) {
+        return this.parseSyntaxError_(("unexpected token " + name));
       },
       peekExpression_: function(type) {
         switch (type) {
@@ -9768,7 +9767,7 @@ var $___src_syntax_Parser_js = (function() {
         if (mustBeArrow || this.peekArrow_(this.peekType_())) {
           formals = this.transformCoverFormals_(coverFormals);
           if (!formals && mustBeArrow) {
-            return this.parseMissingPrimaryExpression_('Unexpected token \'...\'');
+            return this.parseUnexpectedToken_(DOT_DOT_DOT);
           }
         }
         if (!formals) {
@@ -9912,9 +9911,7 @@ var $___src_syntax_Parser_js = (function() {
         return new BindingElement(this.getTreeLocation_(start), binding, initializer);
       },
       parseTemplateLiteral_: function(operand) {
-        if (!parseOptions.templateLiterals) {
-          return this.parseMissingPrimaryExpression_();
-        }
+        if (!parseOptions.templateLiterals) return this.parseUnexpectedToken_('`');
         var start = operand ? operand.location.start: this.getTreeStartLocation_();
         var token = this.nextToken_();
         var elements = [new TemplateLiteralPortion(token.location, token)];
@@ -9923,7 +9920,7 @@ var $___src_syntax_Parser_js = (function() {
         }
         var expression = this.parseExpression();
         elements.push(new TemplateSubstitution(expression.location, expression));
-        while (expression.type !== MISSING_PRIMARY_EXPRESSION) {
+        while (expression.type !== SYNTAX_ERROR_TREE) {
           token = this.nextTemplateLiteralToken_();
           if (token.type === ERROR || token.type === END_OF_FILE) break;
           elements.push(new TemplateLiteralPortion(token.location, token));
@@ -9959,8 +9956,7 @@ var $___src_syntax_Parser_js = (function() {
             var token = this.nextToken_();
             return new PredefinedType(this.getTreeLocation_(start), token);
           default:
-            this.reportError_(("Expected Type. Found '" + this.peekToken_() + "'"));
-            return null;
+            return this.parseUnexpectedToken_(this.peekToken_());
         }
         return this.parseArrayTypeSuffix_(start, elementType);
       },
@@ -10140,9 +10136,6 @@ var $___src_syntax_Parser_js = (function() {
           this.errorReporter_.reportError(location.start, arguments[1]);
         }
       },
-      reportUnexpectedToken_: function() {
-        this.reportError_(this.peekToken_(), 'Unexpected token');
-      },
       reportReservedIdentifier_: function(token) {
         this.reportError_(token, (token.type + " is a reserved identifier"));
       }
@@ -10164,7 +10157,7 @@ var $___src_codegeneration_ParseTreeFactory_js = (function() {
   var $__17 = $___src_syntax_PredefinedName_js, BIND = $__17.BIND, CALL = $__17.CALL, CREATE = $__17.CREATE, DEFINE_PROPERTY = $__17.DEFINE_PROPERTY, FREEZE = $__17.FREEZE, OBJECT = $__17.OBJECT, PREVENT_EXTENSIONS = $__17.PREVENT_EXTENSIONS, STATE = $__17.STATE, UNDEFINED = $__17.UNDEFINED, getParameterName = $__17.getParameterName;
   var Token = $___src_syntax_Token_js.Token;
   var $__17 = $___src_syntax_TokenType_js, EQUAL = $__17.EQUAL, FALSE = $__17.FALSE, NULL = $__17.NULL, NUMBER = $__17.NUMBER, STRING = $__17.STRING, TRUE = $__17.TRUE, VOID = $__17.VOID;
-  var $__17 = $___src_syntax_trees_ParseTrees_js, ArgumentList = $__17.ArgumentList, ArrayComprehension = $__17.ArrayComprehension, ArrayLiteralExpression = $__17.ArrayLiteralExpression, ArrayPattern = $__17.ArrayPattern, ArrowFunctionExpression = $__17.ArrowFunctionExpression, AtNameDeclaration = $__17.AtNameDeclaration, AtNameExpression = $__17.AtNameExpression, AwaitStatement = $__17.AwaitStatement, BinaryOperator = $__17.BinaryOperator, BindingElement = $__17.BindingElement, BindingIdentifier = $__17.BindingIdentifier, Block = $__17.Block, BreakStatement = $__17.BreakStatement, CallExpression = $__17.CallExpression, CascadeExpression = $__17.CascadeExpression, CaseClause = $__17.CaseClause, Catch = $__17.Catch, ClassDeclaration = $__17.ClassDeclaration, ClassExpression = $__17.ClassExpression, CommaExpression = $__17.CommaExpression, ComprehensionFor = $__17.ComprehensionFor, ComprehensionIf = $__17.ComprehensionIf, ConditionalExpression = $__17.ConditionalExpression, ContinueStatement = $__17.ContinueStatement, CoverFormals = $__17.CoverFormals, DebuggerStatement = $__17.DebuggerStatement, DefaultClause = $__17.DefaultClause, DoWhileStatement = $__17.DoWhileStatement, EmptyStatement = $__17.EmptyStatement, ExportDeclaration = $__17.ExportDeclaration, ExportMapping = $__17.ExportMapping, ExportMappingList = $__17.ExportMappingList, ExportSpecifier = $__17.ExportSpecifier, ExportSpecifierSet = $__17.ExportSpecifierSet, ExportStar = $__17.ExportStar, ExpressionStatement = $__17.ExpressionStatement, Finally = $__17.Finally, ForInStatement = $__17.ForInStatement, ForOfStatement = $__17.ForOfStatement, ForStatement = $__17.ForStatement, FormalParameterList = $__17.FormalParameterList, FunctionDeclaration = $__17.FunctionDeclaration, FunctionExpression = $__17.FunctionExpression, GeneratorComprehension = $__17.GeneratorComprehension, GetAccessor = $__17.GetAccessor, IdentifierExpression = $__17.IdentifierExpression, IfStatement = $__17.IfStatement, ImportBinding = $__17.ImportBinding, ImportDeclaration = $__17.ImportDeclaration, ImportSpecifier = $__17.ImportSpecifier, ImportSpecifierSet = $__17.ImportSpecifierSet, LabelledStatement = $__17.LabelledStatement, LiteralExpression = $__17.LiteralExpression, MemberExpression = $__17.MemberExpression, MemberLookupExpression = $__17.MemberLookupExpression, MissingPrimaryExpression = $__17.MissingPrimaryExpression, ModuleDeclaration = $__17.ModuleDeclaration, ModuleDefinition = $__17.ModuleDefinition, ModuleExpression = $__17.ModuleExpression, ModuleRequire = $__17.ModuleRequire, ModuleSpecifier = $__17.ModuleSpecifier, NameStatement = $__17.NameStatement, NewExpression = $__17.NewExpression, ObjectLiteralExpression = $__17.ObjectLiteralExpression, ObjectPattern = $__17.ObjectPattern, ObjectPatternField = $__17.ObjectPatternField, ParenExpression = $__17.ParenExpression, PostfixExpression = $__17.PostfixExpression, PredefinedType = $__17.PredefinedType, Program = $__17.Program, PropertyMethodAssignment = $__17.PropertyMethodAssignment, PropertyNameAssignment = $__17.PropertyNameAssignment, PropertyNameShorthand = $__17.PropertyNameShorthand, RestParameter = $__17.RestParameter, ReturnStatement = $__17.ReturnStatement, SetAccessor = $__17.SetAccessor, SpreadExpression = $__17.SpreadExpression, SpreadPatternElement = $__17.SpreadPatternElement, SuperExpression = $__17.SuperExpression, SwitchStatement = $__17.SwitchStatement, TemplateLiteralExpression = $__17.TemplateLiteralExpression, TemplateLiteralPortion = $__17.TemplateLiteralPortion, TemplateSubstitution = $__17.TemplateSubstitution, ThisExpression = $__17.ThisExpression, ThrowStatement = $__17.ThrowStatement, TryStatement = $__17.TryStatement, TypeName = $__17.TypeName, UnaryExpression = $__17.UnaryExpression, VariableDeclaration = $__17.VariableDeclaration, VariableDeclarationList = $__17.VariableDeclarationList, VariableStatement = $__17.VariableStatement, WhileStatement = $__17.WhileStatement, WithStatement = $__17.WithStatement, YieldExpression = $__17.YieldExpression;
+  var $__17 = $___src_syntax_trees_ParseTrees_js, ArgumentList = $__17.ArgumentList, ArrayComprehension = $__17.ArrayComprehension, ArrayLiteralExpression = $__17.ArrayLiteralExpression, ArrayPattern = $__17.ArrayPattern, ArrowFunctionExpression = $__17.ArrowFunctionExpression, AtNameDeclaration = $__17.AtNameDeclaration, AtNameExpression = $__17.AtNameExpression, AwaitStatement = $__17.AwaitStatement, BinaryOperator = $__17.BinaryOperator, BindingElement = $__17.BindingElement, BindingIdentifier = $__17.BindingIdentifier, Block = $__17.Block, BreakStatement = $__17.BreakStatement, CallExpression = $__17.CallExpression, CascadeExpression = $__17.CascadeExpression, CaseClause = $__17.CaseClause, Catch = $__17.Catch, ClassDeclaration = $__17.ClassDeclaration, ClassExpression = $__17.ClassExpression, CommaExpression = $__17.CommaExpression, ComprehensionFor = $__17.ComprehensionFor, ComprehensionIf = $__17.ComprehensionIf, ConditionalExpression = $__17.ConditionalExpression, ContinueStatement = $__17.ContinueStatement, CoverFormals = $__17.CoverFormals, DebuggerStatement = $__17.DebuggerStatement, DefaultClause = $__17.DefaultClause, DoWhileStatement = $__17.DoWhileStatement, EmptyStatement = $__17.EmptyStatement, ExportDeclaration = $__17.ExportDeclaration, ExportMapping = $__17.ExportMapping, ExportMappingList = $__17.ExportMappingList, ExportSpecifier = $__17.ExportSpecifier, ExportSpecifierSet = $__17.ExportSpecifierSet, ExportStar = $__17.ExportStar, ExpressionStatement = $__17.ExpressionStatement, Finally = $__17.Finally, ForInStatement = $__17.ForInStatement, ForOfStatement = $__17.ForOfStatement, ForStatement = $__17.ForStatement, FormalParameterList = $__17.FormalParameterList, FunctionDeclaration = $__17.FunctionDeclaration, FunctionExpression = $__17.FunctionExpression, GeneratorComprehension = $__17.GeneratorComprehension, GetAccessor = $__17.GetAccessor, IdentifierExpression = $__17.IdentifierExpression, IfStatement = $__17.IfStatement, ImportBinding = $__17.ImportBinding, ImportDeclaration = $__17.ImportDeclaration, ImportSpecifier = $__17.ImportSpecifier, ImportSpecifierSet = $__17.ImportSpecifierSet, LabelledStatement = $__17.LabelledStatement, LiteralExpression = $__17.LiteralExpression, MemberExpression = $__17.MemberExpression, MemberLookupExpression = $__17.MemberLookupExpression, ModuleDeclaration = $__17.ModuleDeclaration, ModuleDefinition = $__17.ModuleDefinition, ModuleExpression = $__17.ModuleExpression, ModuleRequire = $__17.ModuleRequire, ModuleSpecifier = $__17.ModuleSpecifier, NameStatement = $__17.NameStatement, NewExpression = $__17.NewExpression, ObjectLiteralExpression = $__17.ObjectLiteralExpression, ObjectPattern = $__17.ObjectPattern, ObjectPatternField = $__17.ObjectPatternField, ParenExpression = $__17.ParenExpression, PostfixExpression = $__17.PostfixExpression, PredefinedType = $__17.PredefinedType, Program = $__17.Program, PropertyMethodAssignment = $__17.PropertyMethodAssignment, PropertyNameAssignment = $__17.PropertyNameAssignment, PropertyNameShorthand = $__17.PropertyNameShorthand, RestParameter = $__17.RestParameter, ReturnStatement = $__17.ReturnStatement, SetAccessor = $__17.SetAccessor, SpreadExpression = $__17.SpreadExpression, SpreadPatternElement = $__17.SpreadPatternElement, SuperExpression = $__17.SuperExpression, SwitchStatement = $__17.SwitchStatement, SyntaxErrorTree = $__17.SyntaxErrorTree, TemplateLiteralExpression = $__17.TemplateLiteralExpression, TemplateLiteralPortion = $__17.TemplateLiteralPortion, TemplateSubstitution = $__17.TemplateSubstitution, ThisExpression = $__17.ThisExpression, ThrowStatement = $__17.ThrowStatement, TryStatement = $__17.TryStatement, TypeName = $__17.TypeName, UnaryExpression = $__17.UnaryExpression, VariableDeclaration = $__17.VariableDeclaration, VariableDeclarationList = $__17.VariableDeclarationList, VariableStatement = $__17.VariableStatement, WhileStatement = $__17.WhileStatement, WithStatement = $__17.WithStatement, YieldExpression = $__17.YieldExpression;
   var slice = Array.prototype.slice.call.bind(Array.prototype.slice);
   var map = Array.prototype.map.call.bind(Array.prototype.map);
   function createOperatorToken(operator) {
@@ -16153,8 +16146,8 @@ var $___src_outputgeneration_ParseTreeWriter_js = (function() {
         this.visitAny(tree.memberExpression);
         this.write_(CLOSE_SQUARE);
       },
-      visitMissingPrimaryExpression: function(tree) {
-        this.write_('MissingPrimaryExpression');
+      visitSyntaxErrorTree: function(tree) {
+        this.write_('(function() {' + ("throw SyntaxError(" + JSON.stringify(tree.message) + ");") + '})()');
       },
       visitModuleDeclaration: function(tree) {
         this.write_(MODULE);
@@ -16973,8 +16966,8 @@ var $___src_syntax_ParseTreeValidator_js = (function() {
         }
         this.visitAny(tree.operand);
       },
-      visitMissingPrimaryExpression: function(tree) {
-        this.fail_(tree, 'parse tree contains errors');
+      visitSyntaxErrorTree: function(tree) {
+        this.fail_(tree, ("parse tree contains SyntaxError: " + tree.message));
       },
       visitModuleDeclaration: function(tree) {
         for (var i = 0; i < tree.specifiers.length; i++) {
@@ -20078,12 +20071,6 @@ var traceur = (function() {
           },
           enumerable: true
         },
-        MissingPrimaryExpression: {
-          get: function() {
-            return $___src_syntax_trees_ParseTrees_js.MissingPrimaryExpression;
-          },
-          enumerable: true
-        },
         ModuleDeclaration: {
           get: function() {
             return $___src_syntax_trees_ParseTrees_js.ModuleDeclaration;
@@ -20225,6 +20212,12 @@ var traceur = (function() {
         SwitchStatement: {
           get: function() {
             return $___src_syntax_trees_ParseTrees_js.SwitchStatement;
+          },
+          enumerable: true
+        },
+        SyntaxErrorTree: {
+          get: function() {
+            return $___src_syntax_trees_ParseTrees_js.SyntaxErrorTree;
           },
           enumerable: true
         },

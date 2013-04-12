@@ -676,10 +676,10 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   }
 
   /**
-   * @param {MissingPrimaryExpression} tree
+   * @param {SyntaxErrorTree} tree
    */
-  visitMissingPrimaryExpression(tree) {
-    this.fail_(tree, 'parse tree contains errors');
+  visitSyntaxErrorTree(tree) {
+    this.fail_(tree, `parse tree contains SyntaxError: ${tree.message}`);
   }
 
   /**
