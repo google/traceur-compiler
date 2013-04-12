@@ -9,6 +9,7 @@ GENSRC = \
   src/syntax/trees/ParseTreeType.js \
   src/syntax/trees/ParseTrees.js \
   src/syntax/ParseTreeVisitor.js
+TPL_GENSRC_DEPS = $(addsuffix -template.js.dep, $(TPL_GENSRC))
 
 TFLAGS = --
 
@@ -36,7 +37,7 @@ clean:
 
 distclean: clean
 	rm -f build/dep.mk
-	rm -f $(GENSRC) $(addsuffix -template.js.dep, $(TPL_GENSRC))
+	rm -f $(GENSRC) $(TPL_GENSRC_DEPS)
 
 initbench:
 	rm -rf test/bench/esprima
@@ -92,5 +93,5 @@ bin/traceur.ugly.js: bin/traceur.js
 .PHONY: build min test test-list force boot clean distclean
 
 -include build/dep.mk
--include $(addsuffix -template.js.dep, $(TPL_GENSRC))
+-include $(TPL_GENSRC_DEPS)
 -include build/local.mk
