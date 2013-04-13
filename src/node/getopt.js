@@ -21,9 +21,16 @@ function Getopt(opts) {
   this.optnext = this.optind + 1;
 
   this.opts_ = {};
+  var opt, data;
   for (var i = 0; i < opts.length; i++) {
-    var m = opts[i].match(/^([\w\-]+)(=)?$/);
-    this.opts_['--' + m[1]] = {name: m[1], arg: m[2]};
+    opt = opts[i];
+    data = null;
+    if (Array.isArray(opt)) {
+      data = opt[1];
+      opt = opt[0];
+    }
+    var m = opt.match(/^([\w\-]+)(=)?$/);
+    this.opts_['--' + m[1]] = {name: m[1], arg: m[2], data: data};
   }
 }
 
