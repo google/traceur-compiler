@@ -34,7 +34,6 @@ Getopt.prototype.getopt = function() {
   m = this.argv_[this.optind = this.optnext].match(/^--(\w+)(?:=(.*))?$/);
   if (m && (optInf = this.opts_['--' + m[1]])) {
     this.opt = optInf.name;
-    this.optarg = true;
     if (optInf.arg && !(this.optarg = m[2])) {
       if (++this.optnext >= this.argv_.length) {
         throw new Error('arg expected');
