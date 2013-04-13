@@ -1,4 +1,4 @@
-// Copyright 2012 Traceur Authors.
+// Copyright 2013 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,23 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {LineNumberTable} from './LineNumberTable.js';
-import {getUid} from '../util/uid.js';
+var uidCounter = 0;
 
 /**
- * A source file.
- *
- * Immutable.
+ * Returns a new unique ID.
+ * @return {number}
  */
-export class SourceFile {
-  /**
-   * @param {string} name
-   * @param {string} content
-   */
-  constructor(name, contents) {
-    this.name = name;
-    this.contents = contents;
-    this.lineNumberTable = new LineNumberTable(this);
-    this.uid = getUid();
-  }
+export function getUid() {
+  return uidCounter++;
 }

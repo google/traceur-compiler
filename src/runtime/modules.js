@@ -23,6 +23,7 @@ import {ProgramTransformer} from '../codegeneration/ProgramTransformer.js';
 import {Project} from '../semantics/symbols/Project.js';
 import {SourceFile} from '../syntax/SourceFile.js';
 import {TreeWriter} from '../outputgeneration/TreeWriter.js';
+import {getUid} from '../util/uid.js';
 import {resolveUrl} from '../util/url.js';
 
 // TODO(arv): I stripped the resolvers to make this simpler for now.
@@ -74,7 +75,7 @@ class CodeUnit {
     this.loader = loader;
     this.url = url;
     this.state = state;
-    this.uid = traceur.getUid();
+    this.uid = getUid();
     this.state_ = NOT_STARTED;
   }
 
