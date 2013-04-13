@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-function getopt_longish(argv, opts) {
+function Getopt(argv, opts) {
   this.argv_ = argv;
   this.opt = this.optarg = null;
   this.optind = 1;
@@ -25,7 +25,7 @@ function getopt_longish(argv, opts) {
   }
 }
 
-getopt_longish.prototype.getopt = function() {
+Getopt.prototype.getopt = function() {
   var m, optInf;
   if (this.optnext >= this.argv_.length) {
     return false;
@@ -48,4 +48,4 @@ getopt_longish.prototype.getopt = function() {
   return false;
 };
 
-exports.getopt_longish = getopt_longish;
+exports.Getopt = Getopt;

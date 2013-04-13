@@ -22,7 +22,7 @@
 
 var fs = require('fs');
 var util = require('./util.js');
-var getopt_longish = require('../src/node/getopt.js').getopt_longish;
+var Getopt = require('../src/node/getopt.js').Getopt;
 var path = require('path');
 var format = require('util').format;
 var print = console.log.bind(console);
@@ -89,7 +89,7 @@ function expandFile(file, outDir, outStream, options, includeStack) {
 
 var options;
 
-var g = new getopt_longish(process.argv, ['nolint=', 'deps']);
+var g = new Getopt(process.argv, ['nolint=', 'deps']);
 
 loop:
 while (g.getopt()) {
