@@ -13,7 +13,10 @@
 // limitations under the License.
 
 function Getopt(opts) {
-  this.opt = this.optarg = null;
+  this.opt = null;
+  this.optarg = null;
+  this.optopt = null;
+
   this.optind = 1;
   this.optnext = this.optind + 1;
 
@@ -27,23 +30,42 @@ function Getopt(opts) {
 Getopt.prototype.getopt = function(argv) {
   var m, optInf;
   if (this.optnext >= argv.length) {
+    this.opt = this.optarg = this.optopt = null;
     return false;
   }
 
-  m = argv[this.optind = this.optnext].match(/^--([\w\-]+)(?:=(.*))?$/);
-  if (m && (optInf = this.opts_['--' + m[1]])) {
-    this.opt = optInf.name;
-    if (optInf.arg && !(this.optarg = m[2])) {
+  this.optind = this.optnext;
+  if (!(m = argv[this.optind].match(/^--([\w\-]+)(?:=(.*))?$/))) {
+    this.optnext++;
+    this.opt = '=';
+    this.optarg = argv[this.optind];
+    this.optopt = null;
+    return true;
+  }
+
+  var name = m[1];
+  this.optarg = m[2];
+  if (optInf = this.opts_['--' + name]) {
+    if (optInf.arg && !this.optarg) {
       if (++this.optnext >= argv.length) {
-        throw new Error('arg expected');
+        this.opt = ':';
+        this.optarg = null;
+        this.optopt = name;
+        return true;
       }
       this.optarg = argv[this.optnext];
     }
     this.optnext++;
+
+    this.opt = name;
+    this.optopt = null;
     return true;
   }
-  this.opt = this.optarg = null;
-  return false;
+
+  this.optnext++;
+  this.opt = '?';
+  this.optopt = name;
+  return true;
 };
 
 exports.Getopt = Getopt;
