@@ -20,7 +20,7 @@ function Getopt(argv, opts) {
 
   this.opts_ = {};
   for (var i = 0; i < opts.length; i++) {
-    var m = opts[i].match(/^(\w+)(=)?$/);
+    var m = opts[i].match(/^([\w\-]+)(=)?$/);
     this.opts_['--' + m[1]] = {name: m[1], arg: m[2]};
   }
 }
@@ -31,7 +31,7 @@ Getopt.prototype.getopt = function() {
     return false;
   }
 
-  m = this.argv_[this.optind = this.optnext].match(/^--(\w+)(?:=(.*))?$/);
+  m = this.argv_[this.optind = this.optnext].match(/^--([\w\-]+)(?:=(.*))?$/);
   if (m && (optInf = this.opts_['--' + m[1]])) {
     this.opt = optInf.name;
     if (optInf.arg && !(this.optarg = m[2])) {
