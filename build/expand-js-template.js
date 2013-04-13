@@ -22,6 +22,7 @@
 
 var fs = require('fs');
 var util = require('./util.js');
+var getopt_longish = require('../src/node/getopt.js').getopt_longish;
 var path = require('path');
 var format = require('util').format;
 var print = console.log.bind(console);
@@ -85,42 +86,6 @@ function expandFile(file, outDir, outStream, options, includeStack) {
 
   options.post(file, outDir, outStream);
 }
-
-function getopt_longish(argv, opts) {
-  this.argv_ = argv;
-  this.opt = this.optarg = null;
-  this.optind = 1;
-  this.optnext = this.optind + 1;
-
-  this.opts_ = {};
-  for (var i = 0; i < opts.length; i++) {
-    var m = opts[i].match(/^(\w+)(=)?$/);
-    this.opts_['--' + m[1]] = {name: m[1], arg: m[2]};
-  }
-}
-
-getopt_longish.prototype.getopt = function() {
-  var m, optInf;
-  if (this.optnext >= this.argv_.length) {
-    return false;
-  }
-
-  m = this.argv_[this.optind = this.optnext].match(/^--(\w+)(?:=(.*))?$/);
-  if (m && (optInf = this.opts_['--' + m[1]])) {
-    this.opt = optInf.name;
-    this.optarg = true;
-    if (optInf.arg && !(this.optarg = m[2])) {
-      if (++this.optnext >= this.argv_.length) {
-        throw new Error('arg expected');
-      }
-      this.optarg = this.argv_[this.optnext];
-    }
-    this.optnext++;
-    return true;
-  }
-  this.opt = this.optarg = null;
-  return false;
-};
 
 var options;
 
