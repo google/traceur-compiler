@@ -123,7 +123,7 @@ export class CoverFormalsTransformer extends ParseTreeTransformer {
     return new RestParameter(tree.location, bindingIdentifier);
   }
 
-  transformMissingPrimaryExpression(tree) {
+  transformSyntaxErrorTree(tree) {
     throw new AssignmentPatternTransformerError();
   }
 }
