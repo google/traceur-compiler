@@ -48,8 +48,8 @@ Getopt.prototype.getopt = function(argv) {
     this.opt = arg[this.nextchar] || null;
     this.optarg = arg.slice(++this.nextchar) || null;
   } else if (m = arg.match(/^--([\w\-]+)(?:=(.*))?$/)) {
-    this.opt = m[1] || null;
-    this.optarg = m[2] || null;
+    this.opt = m[1];
+    this.optarg = m[2] === undefined ? null : m[2];
   } else {
     this.optnext++;
     this.opt = '=';
