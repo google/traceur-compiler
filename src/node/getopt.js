@@ -28,8 +28,9 @@ function Getopt(opts) {
       data = opt[1] || null;
       opt = opt[0];
     }
-    if (!(m = opt.match(/^([\w\-]+)(:{0,2})?$/)))
+    if (!(m = opt.match(/^([\w\-]+)(:{0,2})?$/))) {
       throw new Error('invalid option initializer: ' + opt);
+    }
     this.opts_['--' + m[1]] = {name: m[1], arg: m[2], data: data};
   }
 }
@@ -61,7 +62,7 @@ Getopt.prototype.getopt = function(argv) {
     this.optdata = optInf.data;
     switch (optInf.arg) {
       default: // no arg
-        if (!this.nextchar && this.optarg)  {
+        if (!this.nextchar && this.optarg) {
           this.optopt = this.opt;
           this.opt = '!';
         }
@@ -89,8 +90,9 @@ Getopt.prototype.getopt = function(argv) {
     this.opt = '?';
   }
 
-  if (this.nextchar && this.nextchar >= arg.length)
+  if (this.nextchar && this.nextchar >= arg.length) {
     this.nextchar = 0;
+  }
   this.optnext += !this.nextchar;
 
   return true;
