@@ -46,12 +46,15 @@ Getopt.prototype.getopt = function(argv) {
     this.nextchar = 1;
   }
   if (this.nextchar) {
+    // short opt
     this.opt = arg[this.nextchar] || null;
     this.optarg = arg.slice(++this.nextchar) || null;
   } else if (m = arg.match(/^--([\w\-]+)(?:=(.*))?$/)) {
+    // long opt
     this.opt = m[1];
     this.optarg = m[2] === undefined ? null : m[2];
   } else {
+    // free arg
     this.optnext++;
     this.opt = '=';
     this.optarg = arg;
@@ -61,15 +64,18 @@ Getopt.prototype.getopt = function(argv) {
   if (optInf = this.opts_['--' + this.opt]) {
     this.optdata = optInf.data;
     switch (optInf.arg) {
-      default: // no arg
+      default:
+        // no arg
         if (!this.nextchar && this.optarg) {
+          // unexpected arg
           this.optopt = this.opt;
           this.opt = '!';
           break;
         }
         this.optarg = null;
         break;
-      case ':': // required arg
+      case ':':
+        // required arg
         if (!this.optarg) {
           if (++this.optnext >= argv.length) {
             // missing arg
@@ -80,13 +86,15 @@ Getopt.prototype.getopt = function(argv) {
           this.optarg = argv[this.optnext];
         }
         // fall through
-      case '::': // optional arg
+      case '::':
+        // optional arg
         if (this.optarg) {
           this.nextchar = 0;
         }
         break;
     }
   } else {
+    // unknown opt
     this.optopt = this.opt;
     this.opt = '?';
   }
