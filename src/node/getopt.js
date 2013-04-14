@@ -12,6 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+function addAbbrev(o) {
+  var ks = Object.keys(o), k;
+  for (var i = 0; i < ks.length; i++) {
+    var ka = k = ks[i];
+    while (true) {
+      if (o[ka = ka.slice(0, -1)] || ka.length < 4) {
+        break;
+      }
+      o[ka] = o[k];
+    }
+  }
+};
+
 function Getopt(opts) {
   this.opt = null;
   this.optarg = null;
@@ -33,6 +46,7 @@ function Getopt(opts) {
     }
     this.opts_['--' + m[1]] = {name: m[1], arg: m[2], data: data};
   }
+  addAbbrev(this.opts_);
 }
 
 Getopt.prototype.getopt = function(argv) {
