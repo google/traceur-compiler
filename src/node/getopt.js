@@ -16,9 +16,10 @@ function Getopt(opts) {
   this.opt = null;
   this.optarg = null;
   this.optopt = null;
+  this.optdata = null;
 
-  this.optind = 1;
-  this.optnext = this.optind + 1;
+  this.optnext = this.optind = 2;
+  this.nextchar = 0;
 
   this.opts_ = {};
   var opt, data;
@@ -26,52 +27,73 @@ function Getopt(opts) {
     opt = opts[i];
     data = null;
     if (Array.isArray(opt)) {
-      data = opt[1];
+      data = opt[1] || null;
       opt = opt[0];
     }
-    var m = opt.match(/^([\w\-]+)(=)?$/);
+    var m = opt.match(/^([\w\-]+)(:{0,2})?$/);
     this.opts_['--' + m[1]] = {name: m[1], arg: m[2], data: data};
   }
 }
 
 Getopt.prototype.getopt = function(argv) {
-  var m, optInf;
+  var m, arg, optInf;
+  this.opt = this.optarg = this.optopt = this.optdata = null;
   if (this.optnext >= argv.length) {
-    this.opt = this.optarg = this.optopt = null;
     return false;
   }
-
-  this.optind = this.optnext;
-  if (!(m = argv[this.optind].match(/^--([\w\-]+)(?:=(.*))?$/))) {
+  arg = argv[this.optind = this.optnext];
+  if (!this.nextchar && /^-[^\-]/.test(arg)) {
+    this.nextchar = 1;
+  }
+  if (this.nextchar) {
+    this.opt = arg[this.nextchar] || null;
+    this.optarg = arg.slice(++this.nextchar) || null;
+  } else if (m = arg.match(/^--([\w\-]+)(?:=(.*))?$/)) {
+    this.opt = m[1] || null;
+    this.optarg = m[2] || null;
+  } else {
     this.optnext++;
     this.opt = '=';
-    this.optarg = argv[this.optind];
-    this.optopt = null;
+    this.optarg = arg;
     return true;
   }
 
-  var name = m[1];
-  this.optarg = m[2];
-  if (optInf = this.opts_['--' + name]) {
-    if (optInf.arg && !this.optarg) {
-      if (++this.optnext >= argv.length) {
-        this.opt = ':';
+  if (optInf = this.opts_['--' + this.opt]) {
+    this.optdata = optInf.data;
+    switch (optInf.arg) {
+      default: // no arg
+        if (!this.nextchar && this.optarg)  {
+          this.optopt = this.opt;
+          this.opt = '!';
+        }
         this.optarg = null;
-        this.optopt = name;
-        return true;
-      }
-      this.optarg = argv[this.optnext];
+        break;
+      case ':': // required arg
+        if (!this.optarg) {
+          if (++this.optnext >= argv.length) {
+            // missing arg
+            this.optopt = this.opt;
+            this.opt = ':';
+            break;
+          }
+          this.optarg = argv[this.optnext];
+        }
+        // fall through
+      case '::': // optional arg
+        if (this.optarg) {
+          this.nextchar = 0;
+        }
+        break;
     }
-    this.optnext++;
-
-    this.opt = name;
-    this.optopt = null;
-    return true;
+  } else {
+    this.optopt = this.opt;
+    this.opt = '?';
   }
 
-  this.optnext++;
-  this.opt = '?';
-  this.optopt = name;
+  if (this.nextchar && this.nextchar >= arg.length)
+    this.nextchar = 0;
+  this.optnext += !this.nextchar;
+
   return true;
 };
 
