@@ -90,9 +90,10 @@ function expandFile(file, outDir, outStream, options, includeStack) {
 var options, errors = 0;
 
 var g = new Getopt(['nolint:', 'deps']);
+var optcur;
 
 loop:
-while (g.getopt(process.argv)) {
+while (optcur = g.optind, g.getopt(process.argv)) {
   switch (g.opt) {
     case 'nolint':
       if (errors)
@@ -111,7 +112,7 @@ while (g.getopt(process.argv)) {
             outStream.write(format(fmt, 'lint', '//:lint\n'));
         }
       };
-      process.argv.splice(g.optind, g.optnext - g.optind);
+      process.argv.splice(optcur, g.optind - optcur);
       break loop;
     case 'deps':
       if (errors)
@@ -123,7 +124,7 @@ while (g.getopt(process.argv)) {
         },
         post: nop
       };
-      expandFile(process.argv[g.optnext], '.', {write: nop}, options);
+      expandFile(process.argv[g.optind], '.', {write: nop}, options);
       process.exit(0);
     case ':':
       console.error('Missing argument for \'%s\'.', g.optopt);
