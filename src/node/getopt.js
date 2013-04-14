@@ -22,15 +22,14 @@ function Getopt(opts) {
   this.nextchar = 0;
 
   this.opts_ = {};
-  var opt, data;
   for (var i = 0; i < opts.length; i++) {
-    opt = opts[i];
-    data = null;
+    var opt = opts[i], data = null, m;
     if (Array.isArray(opt)) {
       data = opt[1] || null;
       opt = opt[0];
     }
-    var m = opt.match(/^([\w\-]+)(:{0,2})?$/);
+    if (!(m = opt.match(/^([\w\-]+)(:{0,2})?$/)))
+      throw new Error('invalid option initializer: ' + opt);
     this.opts_['--' + m[1]] = {name: m[1], arg: m[2], data: data};
   }
 }
