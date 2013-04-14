@@ -50,6 +50,7 @@ import {
 } from './PredefinedName.js';
 import {Scanner} from './Scanner.js';
 import {SourceRange} from '../util/SourceRange.js';
+import {StrictParams} from '../staticsemantics/StrictParams.js';
 import {
   Token,
   isAssignmentOperator
@@ -514,7 +515,11 @@ export class Parser {
   }
 
   peekId_(type) {
-    return type === IDENTIFIER;
+    if (type === IDENTIFIER)
+      return true;
+    if (this.strictMode_)
+      return false;
+    return this.peekToken_().isStrictKeyword();
   }
 
   peekIdName_(token) {
@@ -803,7 +808,8 @@ export class Parser {
     this.eat_(OPEN_PAREN);
     var formalParameterList = this.parseFormalParameterList_();
     this.eat_(CLOSE_PAREN);
-    var functionBody = this.parseFunctionBody_(isGenerator);
+    var functionBody = this.parseFunctionBody_(isGenerator,
+                                               formalParameterList);
     return new FunctionDeclaration(this.getTreeLocation_(start), name,
                                    isGenerator, formalParameterList,
                                    functionBody);
@@ -824,7 +830,8 @@ export class Parser {
     this.eat_(OPEN_PAREN);
     var formalParameterList = this.parseFormalParameterList_();
     this.eat_(CLOSE_PAREN);
-    var functionBody = this.parseFunctionBody_(isGenerator);
+    var functionBody = this.parseFunctionBody_(isGenerator,
+                                               formalParameterList);
     return new FunctionExpression(this.getTreeLocation_(start), name,
                                   isGenerator, formalParameterList,
                                   functionBody);
@@ -894,7 +901,7 @@ export class Parser {
    * @return {Block}
    * @private
    */
-  parseFunctionBody_(isGenerator) {
+  parseFunctionBody_(isGenerator, params) {
     var start = this.getTreeStartLocation_();
     this.eat_(OPEN_CURLY);
 
@@ -903,6 +910,9 @@ export class Parser {
     this.allowYield_ = isGenerator || options.unstarredGenerators;
 
     var result = this.parseStatementList_(!strictMode);
+
+    if (!strictMode && this.strictMode_ && params)
+      StrictParams.visit(params, this.errorReporter_);
 
     this.strictMode_ = strictMode;
     this.allowYield_ = allowYield;
@@ -2044,7 +2054,8 @@ export class Parser {
     this.eat_(OPEN_PAREN);
     var formalParameterList = this.parseFormalParameterList_();
     this.eat_(CLOSE_PAREN);
-    var functionBody = this.parseFunctionBody_(isGenerator);
+    var functionBody = this.parseFunctionBody_(isGenerator,
+                                               formalParameterList);
     return new PropertyMethodAssignment(this.getTreeLocation_(start),
         isStatic, isGenerator, name, formalParameterList, functionBody);
   }
@@ -2072,7 +2083,7 @@ export class Parser {
     var name = this.parsePropertyName_();
     this.eat_(OPEN_PAREN);
     this.eat_(CLOSE_PAREN);
-    var body = this.parseFunctionBody_(isGenerator);
+    var body = this.parseFunctionBody_(isGenerator, null);
     return new GetAccessor(this.getTreeLocation_(start), isStatic, name, body);
   }
 
@@ -2082,7 +2093,7 @@ export class Parser {
     this.eat_(OPEN_PAREN);
     var parameter = this.parsePropertySetParameterList_();
     this.eat_(CLOSE_PAREN);
-    var body = this.parseFunctionBody_(isGenerator);
+    var body = this.parseFunctionBody_(isGenerator, parameter);
     return new SetAccessor(this.getTreeLocation_(start), isStatic, name,
                            parameter, body);
   }
