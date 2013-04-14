@@ -65,6 +65,7 @@ Getopt.prototype.getopt = function(argv) {
         if (!this.nextchar && this.optarg) {
           this.optopt = this.opt;
           this.opt = '!';
+          break;
         }
         this.optarg = null;
         break;
