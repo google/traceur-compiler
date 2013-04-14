@@ -18,7 +18,7 @@ function Getopt(opts) {
   this.optopt = null;
   this.optdata = null;
 
-  this.optnext = this.optind = 2;
+  this.optind = 2;
   this.nextchar = 0;
 
   this.opts_ = {};
@@ -38,10 +38,10 @@ function Getopt(opts) {
 Getopt.prototype.getopt = function(argv) {
   var m, arg, optInf;
   this.opt = this.optarg = this.optopt = this.optdata = null;
-  if (this.optnext >= argv.length) {
+  if (this.optind >= argv.length) {
     return false;
   }
-  arg = argv[this.optind = this.optnext];
+  arg = argv[this.optind];
   if (!this.nextchar && /^-[^\-]/.test(arg)) {
     this.nextchar = 1;
   }
@@ -55,7 +55,7 @@ Getopt.prototype.getopt = function(argv) {
     this.optarg = m[2] === undefined ? null : m[2];
   } else {
     // free arg
-    this.optnext++;
+    this.optind++;
     this.opt = '=';
     this.optarg = arg;
     return true;
@@ -77,13 +77,13 @@ Getopt.prototype.getopt = function(argv) {
       case ':':
         // required arg
         if (!this.optarg) {
-          if (++this.optnext >= argv.length) {
+          if (++this.optind >= argv.length) {
             // missing arg
             this.optopt = this.opt;
             this.opt = ':';
             break;
           }
-          this.optarg = argv[this.optnext];
+          this.optarg = argv[this.optind];
         }
         // fall through
       case '::':
@@ -102,7 +102,7 @@ Getopt.prototype.getopt = function(argv) {
   if (this.nextchar && this.nextchar >= arg.length) {
     this.nextchar = 0;
   }
-  this.optnext += !this.nextchar;
+  this.optind += !this.nextchar;
 
   return true;
 };
