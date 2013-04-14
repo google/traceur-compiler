@@ -12482,16 +12482,30 @@ var $___src_syntax_LineNumberTable_js = (function() {
       enumerable: true
     }}));
 }).call(this);
+var $___src_util_uid_js = (function() {
+  "use strict";
+  var uidCounter = 0;
+  function getUid() {
+    return uidCounter++;
+  }
+  return Object.preventExtensions(Object.create(null, {getUid: {
+      get: function() {
+        return getUid;
+      },
+      enumerable: true
+    }}));
+}).call(this);
 var $___src_syntax_SourceFile_js = (function() {
   "use strict";
   var LineNumberTable = $___src_syntax_LineNumberTable_js.LineNumberTable;
+  var getUid = $___src_util_uid_js.getUid;
   var SourceFile = function() {
     'use strict';
     var $SourceFile = ($__createClassNoExtends)({constructor: function(name, contents) {
         this.name = name;
         this.contents = contents;
         this.lineNumberTable = new LineNumberTable(this);
-        this.uid = traceur.getUid();
+        this.uid = getUid();
       }}, {});
     return $SourceFile;
   }();
@@ -19116,6 +19130,7 @@ var $___src_runtime_modules_js = (function() {
   var Project = $___src_semantics_symbols_Project_js.Project;
   var SourceFile = $___src_syntax_SourceFile_js.SourceFile;
   var TreeWriter = $___src_outputgeneration_TreeWriter_js.TreeWriter;
+  var getUid = $___src_util_uid_js.getUid;
   var resolveUrl = $___src_util_url_js.resolveUrl;
   var base = Object.freeze(Object.create(null, {
     Array: {value: Array},
@@ -19152,7 +19167,7 @@ var $___src_runtime_modules_js = (function() {
         this.loader = loader;
         this.url = url;
         this.state = state;
-        this.uid = traceur.getUid();
+        this.uid = getUid();
         this.state_ = NOT_STARTED;
       },
       get state() {
@@ -19645,10 +19660,6 @@ var traceur = (function() {
   }
   function assert(b) {
     if (!b && options.debug) throw Error('Assertion failed');
-  }
-  var uidCounter = 0;
-  function getUid() {
-    return ++uidCounter;
   }
   var semantics = (function() {
     var symbols = (function() {
@@ -20515,12 +20526,6 @@ var traceur = (function() {
     assert: {
       get: function() {
         return assert;
-      },
-      enumerable: true
-    },
-    getUid: {
-      get: function() {
-        return getUid;
       },
       enumerable: true
     },
