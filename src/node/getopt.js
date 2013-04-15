@@ -13,17 +13,19 @@
 // limitations under the License.
 
 function addAbbrev(o) {
-  var ks = Object.keys(o), k;
-  for (var i = 0; i < ks.length; i++) {
-    var ka = k = ks[i];
-    while (true) {
-      if (o[ka = ka.slice(0, -1)] || ka.length < 4) {
-        break;
-      }
+  var ks = [''].concat(Object.keys(o).sort()), k, kprev = '';
+  for (var i = ks.length - 1; i > 0; i--) {
+    var ka = k = ks[i], pre = 0;
+    while (kprev[pre] === k[pre]) {
+      pre++;
+    }
+    pre = pre < 4 ? 4 : pre;
+    while (!o[ka = ka.slice(0, -1)] && ka.length > pre && ka > ks[i - 1]) {
       o[ka] = o[k];
     }
+    kprev = k;
   }
-};
+}
 
 function Getopt(opts) {
   this.opt = null;
