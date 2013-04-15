@@ -82,6 +82,7 @@ Getopt.prototype.getopt = function(argv) {
   }
 
   if (optInf = this.opts_['--' + this.opt]) {
+    this.opt = optInf.name;
     this.optdata = optInf.data;
     switch (optInf.arg) {
       default:
