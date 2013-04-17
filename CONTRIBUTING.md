@@ -17,5 +17,5 @@ agreement, either for an
 [http://code.google.com/legal/corporate-cla-v1.0.html corporation], before a
 patch can be accepted.
 1. Add an entry to the `AUTHORS` file with your name and email.
-1. Multiple commits are fine in the pull request but once you get an **LGTM** from
-an owner, the commits should be squashed together. 
+1. We will squash all the commits together before pushing. The pull request
+message body will be used as the commit message. 
