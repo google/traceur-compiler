@@ -21,7 +21,7 @@ function addAbbrev(o) {
     while (kprev[pre] === k[pre]) {
       pre++;
     }
-    pre = pre < 3 ? 3 : pre;
+    pre = pre || 1;
 
     // add all unique prefixes for k.
     while (!o[ka = ka.slice(0, -1)] && ka.length > pre && ka > ks[i - 1]) {
@@ -40,7 +40,7 @@ function Getopt(opts) {
   this.optind = 2;
   this.nextchar = 0;
 
-  this.opts_ = {};
+  this.opts_ = Object.create(null);
   for (var i = 0; i < opts.length; i++) {
     var opt = opts[i], data = null, m;
     if (Array.isArray(opt)) {
@@ -50,7 +50,7 @@ function Getopt(opts) {
     if (!(m = opt.match(/^([\w\-]+)(:{0,2})?$/))) {
       throw new Error('invalid option initializer: ' + opt);
     }
-    this.opts_['--' + m[1]] = {name: m[1], arg: m[2], data: data};
+    this.opts_[m[1]] = {name: m[1], arg: m[2], data: data};
   }
   addAbbrev(this.opts_);
 }
@@ -81,7 +81,7 @@ Getopt.prototype.getopt = function(argv) {
     return true;
   }
 
-  if (optInf = this.opts_['--' + this.opt]) {
+  if (optInf = this.opts_[this.opt]) {
     this.opt = optInf.name;
     this.optdata = optInf.data;
     switch (optInf.arg) {
