@@ -56,10 +56,9 @@ var NOT_STARTED = 0;
 var LOADING = 1;
 var LOADED = 2;
 var PARSED = 3;
-var DEPS_LOADED = 4;
-var TRANSFORMED = 5;
-var COMPLETE = 6;
-var ERROR = 7;
+var TRANSFORMED = 4;
+var COMPLETE = 5;
+var ERROR = 6;
 
 /**
  * Base class representing a piece of code that is to be loaded or evaluated.
@@ -401,11 +400,13 @@ class InternalLoader {
       return url;
     });
     codeUnit.dependencies = resolvedUrls.map((url) => {
-      return this.load(url);
+      return this.getCodeUnit(url);
     });
-    codeUnit.state = DEPS_LOADED;
+    resolvedUrls.forEach((url) => {
+      this.load(url);
+    });
 
-    if (this.areAll(DEPS_LOADED)) {
+    if (this.areAll(PARSED)) {
       this.analyze();
       this.transform();
       this.evaluate();
