@@ -94,7 +94,7 @@ Getopt.prototype = {
           break;
         case ':':
           // required arg
-          if (!this.optarg) {
+          if (this.optarg === null) {
             if (++this.optind >= argv.length) {
               // missing arg
               this.optopt = this.opt;
