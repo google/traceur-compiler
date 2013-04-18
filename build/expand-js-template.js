@@ -87,6 +87,7 @@ function expandFile(file, outDir, outStream, options, includeStack) {
   options.post(file, outDir, outStream);
 }
 
+var cmdName = path.basename(process.argv[1]);
 var options, errors = 0;
 
 var g = new Getopt(['nolint:', 'deps']);
@@ -127,15 +128,9 @@ while (optcur = g.optind, g.getopt(process.argv)) {
       expandFile(process.argv[g.optind], '.', {write: nop}, options);
       process.exit(0);
     case ':':
-      console.error('Missing argument for \'%s\'.', g.optopt);
-      errors++;
-      break;
     case '?':
-      console.error('Unknown option: \'%s\'.', g.optopt);
-      errors++;
-      break;
     case '!':
-      console.error('Unexpected argument for \'%s\'.', g.optopt);
+      console.error('%s: %s', cmdName, g.message());
       errors++;
       break;
   }
