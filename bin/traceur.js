@@ -19443,16 +19443,12 @@ var $___src_runtime_modules_js = (function() {
         var requireVisitor = new ModuleRequireVisitor(this.reporter);
         requireVisitor.visit(codeUnit.tree);
         var baseUrl = codeUnit.url;
-        var resolvedUrls = requireVisitor.requireUrls.map((function(url) {
+        codeUnit.dependencies = requireVisitor.requireUrls.map((function(url) {
           url = resolveUrl(baseUrl, url);
-          this.getCodeUnit(url);
-          return url;
-        }).bind(this));
-        codeUnit.dependencies = resolvedUrls.map((function(url) {
           return this.getCodeUnit(url);
         }).bind(this));
-        resolvedUrls.forEach((function(url) {
-          this.load(url);
+        codeUnit.dependencies.forEach((function(dependency) {
+          this.load(dependency.url);
         }).bind(this));
         if (this.areAll(PARSED)) {
           this.analyze();
