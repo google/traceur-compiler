@@ -19191,10 +19191,9 @@ var $___src_runtime_modules_js = (function() {
   var LOADING = 1;
   var LOADED = 2;
   var PARSED = 3;
-  var DEPS_LOADED = 4;
-  var TRANSFORMED = 5;
-  var COMPLETE = 6;
-  var ERROR = 7;
+  var TRANSFORMED = 4;
+  var COMPLETE = 5;
+  var ERROR = 6;
   var CodeUnit = function() {
     'use strict';
     var $CodeUnit = ($__createClassNoExtends)({
@@ -19444,16 +19443,14 @@ var $___src_runtime_modules_js = (function() {
         var requireVisitor = new ModuleRequireVisitor(this.reporter);
         requireVisitor.visit(codeUnit.tree);
         var baseUrl = codeUnit.url;
-        var resolvedUrls = requireVisitor.requireUrls.map((function(url) {
+        codeUnit.dependencies = requireVisitor.requireUrls.map((function(url) {
           url = resolveUrl(baseUrl, url);
-          this.getCodeUnit(url);
-          return url;
+          return this.getCodeUnit(url);
         }).bind(this));
-        codeUnit.dependencies = resolvedUrls.map((function(url) {
-          return this.load(url);
+        codeUnit.dependencies.forEach((function(dependency) {
+          this.load(dependency.url);
         }).bind(this));
-        codeUnit.state = DEPS_LOADED;
-        if (this.areAll(DEPS_LOADED)) {
+        if (this.areAll(PARSED)) {
           this.analyze();
           this.transform();
           this.evaluate();
