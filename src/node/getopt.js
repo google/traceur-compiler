@@ -106,9 +106,7 @@ Getopt.prototype = {
           // fall through
         case '::':
           // optional arg
-          if (this.optarg) {
-            this.nextchar = 0;
-          }
+          this.nextchar = 0;
           break;
       }
     } else {
