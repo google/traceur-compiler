@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+var format = require('util').format;
+
 function addAbbrev(o) {
   var ks = [''].concat(Object.keys(o).sort()), k, kprev = '';
   for (var i = ks.length - 1; i > 0; i--) {
@@ -121,6 +123,23 @@ Getopt.prototype = {
     this.optind += !this.nextchar;
 
     return true;
+  },
+  message: function() {
+    switch (this.opt) {
+      case ':':
+        return format('missing argument for \'%s\'.', this.optopt);
+      case '?':
+        return format('unknown option \'%s\'.', this.optopt);
+      case '!':
+        return format('\'%s\' does not take an argument.', this.optopt);
+      case '=':
+        return format('got free argument \'%s\'.', this.optarg);
+      default:
+        if (this.optarg === null)
+          return format('opt \'%s\'.', this.opt);
+        else
+          return format('opt \'%s\', optarg \'%s\'.', this.opt, this.optarg);
+    }
   }
 }
 
