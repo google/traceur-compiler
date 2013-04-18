@@ -133,7 +133,7 @@ Getopt.prototype = {
       case '!':
         return format('\'%s\' does not take an argument.', this.optopt);
       case '=':
-        return format('got free argument \'%s\'.', this.optarg);
+        return format('optarg \'%s\'.', this.optarg);
       default:
         if (this.optarg === null)
           return format('opt \'%s\'.', this.opt);
