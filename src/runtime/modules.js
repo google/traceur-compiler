@@ -23,6 +23,7 @@ import {ProgramTransformer} from '../codegeneration/ProgramTransformer.js';
 import {Project} from '../semantics/symbols/Project.js';
 import {SourceFile} from '../syntax/SourceFile.js';
 import {TreeWriter} from '../outputgeneration/TreeWriter.js';
+import {getUid} from '../util/uid.js';
 import {resolveUrl} from '../util/url.js';
 
 // TODO(arv): I stripped the resolvers to make this simpler for now.
@@ -55,9 +56,10 @@ var NOT_STARTED = 0;
 var LOADING = 1;
 var LOADED = 2;
 var PARSED = 3;
-var TRANSFORMED = 4;
-var COMPLETE = 5;
-var ERROR = 6;
+var DEPS_LOADED = 4;
+var TRANSFORMED = 5;
+var COMPLETE = 6;
+var ERROR = 7;
 
 /**
  * Base class representing a piece of code that is to be loaded or evaluated.
@@ -73,7 +75,7 @@ class CodeUnit {
     this.loader = loader;
     this.url = url;
     this.state = state;
-    this.uid = traceur.getUid();
+    this.uid = getUid();
     this.state_ = NOT_STARTED;
   }
 
@@ -268,6 +270,7 @@ class InternalLoader {
     this.project = project;
     this.cache = new ArrayMap();
     this.urlToKey = Object.create(null);
+    this.sync_ = false;
   }
 
   get url() {
@@ -292,6 +295,18 @@ class InternalLoader {
     return xhr;
   }
 
+  loadTextFileSync(url) {
+    var xhr = new XMLHttpRequest();
+    xhr.onerror = function(e) {
+      throw new Error(xhr.statusText);
+    };
+    xhr.open('GET', url, false);
+    xhr.send();
+    if (xhr.status == 200 || xhr.status == 0) {
+      return xhr.responseText;
+    }
+  }
+
   load(url) {
     url = resolveUrl(this.url, url);
     var codeUnit = this.getCodeUnit(url);
@@ -300,6 +315,17 @@ class InternalLoader {
     }
 
     codeUnit.state = LOADING;
+    if (this.sync_) {
+      try {
+        codeUnit.text = this.loadTextFileSync(url);
+        codeUnit.state = LOADED;
+        this.handleCodeUnitLoaded(codeUnit);
+      } catch(e) {
+        codeUnit.state = ERROR;
+        this.handleCodeUnitLoadError(codeUnit);
+      }
+      return codeUnit;
+    }
     var loader = this;
     codeUnit.xhr = this.loadTextFile(url, function(text) {
       codeUnit.text = text;
@@ -310,6 +336,13 @@ class InternalLoader {
       loader.handleCodeUnitLoadError(codeUnit);
     });
     return codeUnit;
+  }
+
+  loadSync(url) {
+    this.sync_ = true;
+    var loaded = this.load(url);
+    this.sync_ = false;
+    return loaded;
   }
 
   evalLoad(code) {
@@ -362,12 +395,17 @@ class InternalLoader {
     var requireVisitor = new ModuleRequireVisitor(this.reporter);
     requireVisitor.visit(codeUnit.tree);
     var baseUrl = codeUnit.url;
-    codeUnit.dependencies = requireVisitor.requireUrls.map((url) => {
+    var resolvedUrls = requireVisitor.requireUrls.map((url) => {
       url = resolveUrl(baseUrl, url);
+      this.getCodeUnit(url);
+      return url;
+    });
+    codeUnit.dependencies = resolvedUrls.map((url) => {
       return this.load(url);
     });
+    codeUnit.state = DEPS_LOADED;
 
-    if (this.areAll(PARSED)) {
+    if (this.areAll(DEPS_LOADED)) {
       this.analyze();
       this.transform();
       this.evaluate();

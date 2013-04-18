@@ -22,7 +22,7 @@ import {
   SET
 } from '../syntax/PredefinedName.js';
 import {Token} from '../syntax/Token.js';
-import {isKeyword} from '../syntax/Keywords.js';
+import {getKeywordType} from '../syntax/Keywords.js';
 import * from '../syntax/TokenType.js';
 
 // constants
@@ -641,10 +641,12 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
-   * @param {MissingPrimaryExpression} tree
+   * @param {SyntaxErrorTree} tree
    */
-  visitMissingPrimaryExpression(tree) {
-    this.write_('MissingPrimaryExpression');
+  visitSyntaxErrorTree(tree) {
+    this.write_('(function() {' +
+        `throw SyntaxError(${JSON.stringify(tree.message)});` +
+        '})()');
   }
 
   /**
@@ -1143,7 +1145,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
         return true;
     }
 
-    return isKeyword(value);
+    return !!getKeywordType(value);
   }
 
   /**

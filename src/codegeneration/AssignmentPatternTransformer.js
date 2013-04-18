@@ -74,7 +74,7 @@ export class AssignmentPatternTransformer extends ParseTreeTransformer {
     return new SpreadPatternElement(tree.location, tree.expression);
   }
 
-  transformMissingPrimaryExpression(tree) {
+  transformSyntaxErrorTree(tree) {
     throw new AssignmentPatternTransformerError();
   }
 }
