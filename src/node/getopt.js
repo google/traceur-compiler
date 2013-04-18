@@ -50,76 +50,78 @@ function Getopt(opts) {
   addAbbrev(this.opts_);
 }
 
-Getopt.prototype.getopt = function(argv) {
-  var m, arg, optInf;
-  this.opt = this.optarg = this.optopt = null;
-  if (this.optind >= argv.length) {
-    return false;
-  }
-  arg = argv[this.optind];
-  if (!this.nextchar && /^-[^\-]/.test(arg)) {
-    this.nextchar = 1;
-  }
-  if (this.nextchar) {
-    // short opt
-    this.opt = arg[this.nextchar] || null;
-    this.optarg = arg.slice(++this.nextchar) || null;
-  } else if (m = arg.match(/^--([\w\-]+)(?:=(.*))?$/)) {
-    // long opt
-    this.opt = m[1];
-    this.optarg = m[2] === undefined ? null : m[2];
-  } else {
-    // free arg
-    this.optind++;
-    this.opt = '=';
-    this.optarg = arg;
-    return true;
-  }
+Getopt.prototype = {
+  getopt: function(argv) {
+    var m, arg, optInf;
+    this.opt = this.optarg = this.optopt = null;
+    if (this.optind >= argv.length) {
+      return false;
+    }
+    arg = argv[this.optind];
+    if (!this.nextchar && /^-[^\-]/.test(arg)) {
+      this.nextchar = 1;
+    }
+    if (this.nextchar) {
+      // short opt
+      this.opt = arg[this.nextchar] || null;
+      this.optarg = arg.slice(++this.nextchar) || null;
+    } else if (m = arg.match(/^--([\w\-]+)(?:=(.*))?$/)) {
+      // long opt
+      this.opt = m[1];
+      this.optarg = m[2] === undefined ? null : m[2];
+    } else {
+      // free arg
+      this.optind++;
+      this.opt = '=';
+      this.optarg = arg;
+      return true;
+    }
 
-  if (optInf = this.opts_[this.opt]) {
-    this.opt = optInf.name;
-    switch (optInf.arg) {
-      default:
-        // no arg
-        if (!this.nextchar && this.optarg) {
-          // unexpected arg
-          this.optopt = this.opt;
-          this.opt = '!';
-          break;
-        }
-        this.optarg = null;
-        break;
-      case ':':
-        // required arg
-        if (!this.optarg) {
-          if (++this.optind >= argv.length) {
-            // missing arg
+    if (optInf = this.opts_[this.opt]) {
+      this.opt = optInf.name;
+      switch (optInf.arg) {
+        default:
+          // no arg
+          if (!this.nextchar && this.optarg) {
+            // unexpected arg
             this.optopt = this.opt;
-            this.opt = ':';
+            this.opt = '!';
             break;
           }
-          this.optarg = argv[this.optind];
-        }
-        // fall through
-      case '::':
-        // optional arg
-        if (this.optarg) {
-          this.nextchar = 0;
-        }
-        break;
+          this.optarg = null;
+          break;
+        case ':':
+          // required arg
+          if (!this.optarg) {
+            if (++this.optind >= argv.length) {
+              // missing arg
+              this.optopt = this.opt;
+              this.opt = ':';
+              break;
+            }
+            this.optarg = argv[this.optind];
+          }
+          // fall through
+        case '::':
+          // optional arg
+          if (this.optarg) {
+            this.nextchar = 0;
+          }
+          break;
+      }
+    } else {
+      // unknown opt
+      this.optopt = this.opt;
+      this.opt = '?';
     }
-  } else {
-    // unknown opt
-    this.optopt = this.opt;
-    this.opt = '?';
-  }
 
-  if (this.nextchar && this.nextchar >= arg.length) {
-    this.nextchar = 0;
-  }
-  this.optind += !this.nextchar;
+    if (this.nextchar && this.nextchar >= arg.length) {
+      this.nextchar = 0;
+    }
+    this.optind += !this.nextchar;
 
-  return true;
-};
+    return true;
+  }
+}
 
 exports.Getopt = Getopt;
