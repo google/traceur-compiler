@@ -83,14 +83,14 @@ export class ForOfTransformer extends TempVarTransformer {
     var id = createIdentifierExpression;
     return parseStatement `
       {
-        var ${iter} = ${id(TRACEUR)}.runtime.getIterator(${tree.collection});
+        var ${iter} = ${id(TRACEUR_RUNTIME)}.getIterator(${tree.collection});
         try {
           while (true) {
             ${assignment};
             ${tree.body}; // statement
           }
         } catch(e) {
-          if (!${id(TRACEUR)}.runtime.isStopIteration(e))
+          if (!${id(TRACEUR_RUNTIME)}.isStopIteration(e))
             throw e;
         }
       }`;

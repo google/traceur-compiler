@@ -73,7 +73,7 @@ export class PrivateNameSyntaxTransformer extends TempVarTransformer {
 
     return createVariableDeclaration(transformedName,
       createCallExpression(
-        createMemberExpression(TRACEUR, RUNTIME, name),
+        createMemberExpression(TRACEUR_RUNTIME, name),
         args));
   }
 

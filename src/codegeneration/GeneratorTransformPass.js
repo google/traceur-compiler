@@ -266,7 +266,7 @@ class YieldExpressionTransformer extends TempVarTransformer {
 
     return parseStatement `
         {
-          var ${g} = ${id(TRACEUR)}.runtime.getIterator(${tree.expression});
+          var ${g} = ${id(TRACEUR_RUNTIME)}.getIterator(${tree.expression});
           var ${next};
           // Use duck-type testing to also identify native generator objects.
           // TODO: Reduce false positives.
@@ -308,7 +308,7 @@ class YieldExpressionTransformer extends TempVarTransformer {
               ${createYieldStatement(next)};
             }
           } catch(e) {
-            if (!${id(TRACEUR)}.runtime.isStopIteration(e))
+            if (!${id(TRACEUR_RUNTIME)}.isStopIteration(e))
               throw e;
             // result = e.value;
             ${id(YIELD_SENT)} = e.value;

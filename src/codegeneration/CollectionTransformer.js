@@ -74,7 +74,7 @@ export class CollectionTransformer extends TempVarTransformer {
       // =>
       // traceurRuntime.elementHas(object, name)
       return createCallExpression(
-          createMemberExpression(TRACEUR, RUNTIME, ELEMENT_HAS),
+          createMemberExpression(TRACEUR_RUNTIME, ELEMENT_HAS),
           createArgumentList(object, name));
     }
 
@@ -94,7 +94,7 @@ export class CollectionTransformer extends TempVarTransformer {
       // =>
       // traceurRuntime.elementSet(operand, memberExpr, value)
       return createCallExpression(
-          createMemberExpression(TRACEUR, RUNTIME, ELEMENT_SET),
+          createMemberExpression(TRACEUR_RUNTIME, ELEMENT_SET),
           createArgumentList(operand, memberExpression, value));
     }
 
@@ -117,7 +117,7 @@ export class CollectionTransformer extends TempVarTransformer {
     var elements = tree.args.args.map(this.transformAny, this);
     var callExpr = createCallCall(
         createCallExpression(
-          createMemberExpression(TRACEUR, RUNTIME, ELEMENT_GET),
+          createMemberExpression(TRACEUR_RUNTIME, ELEMENT_GET),
           createArgumentList(ident, memberExpression)),
         ident,
         elements);
@@ -135,7 +135,7 @@ export class CollectionTransformer extends TempVarTransformer {
     // =>
     // traceurRuntime.elementGet(operand, memberExpr)
     return createCallExpression(
-        createMemberExpression(TRACEUR, RUNTIME, ELEMENT_GET),
+        createMemberExpression(TRACEUR_RUNTIME, ELEMENT_GET),
         createArgumentList(tree.operand, tree.memberExpression));
   }
 
@@ -152,7 +152,7 @@ export class CollectionTransformer extends TempVarTransformer {
     // =>
     // traceurRuntime.elementDelete(operand, memberExpr)
     return createCallExpression(
-        createMemberExpression(TRACEUR, RUNTIME, ELEMENT_DELETE),
+        createMemberExpression(TRACEUR_RUNTIME, ELEMENT_DELETE),
         createArgumentList(operand, memberExpression));
   }
 

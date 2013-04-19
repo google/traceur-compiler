@@ -69,7 +69,7 @@ export class AtNameMemberTransformer extends TempVarTransformer {
       // =>
       // traceurRuntime.setProperty(operand, memberExpr, value)
       return createCallExpression(
-          createMemberExpression(TRACEUR, RUNTIME, SET_PROPERTY),
+          createMemberExpression(TRACEUR_RUNTIME, SET_PROPERTY),
           createArgumentList(operand, atNameExpression, value));
     }
 
@@ -95,7 +95,7 @@ export class AtNameMemberTransformer extends TempVarTransformer {
                                                 memberName);
     var callExpr = createCallCall(
         createCallExpression(
-          createMemberExpression(TRACEUR, RUNTIME, GET_PROPERTY),
+          createMemberExpression(TRACEUR_RUNTIME, GET_PROPERTY),
           createArgumentList(ident, atNameExpression)),
         ident,
         elements);
@@ -118,7 +118,7 @@ export class AtNameMemberTransformer extends TempVarTransformer {
     var atNameExpression = new AtNameExpression(tree.memberName.location,
                                                tree.memberName);
     return createCallExpression(
-        createMemberExpression(TRACEUR, RUNTIME, GET_PROPERTY),
+        createMemberExpression(TRACEUR_RUNTIME, GET_PROPERTY),
         createArgumentList(tree.operand, atNameExpression));
   }
 
@@ -138,7 +138,7 @@ export class AtNameMemberTransformer extends TempVarTransformer {
     // =>
     // traceurRuntime.deletePropery(operand, @name)
     return createCallExpression(
-        createMemberExpression(TRACEUR, RUNTIME, DELETE_PROPERTY),
+        createMemberExpression(TRACEUR_RUNTIME, DELETE_PROPERTY),
         createArgumentList(operand, atNameExpression));
   }
 
