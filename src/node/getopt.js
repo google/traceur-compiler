@@ -44,14 +44,10 @@ function Getopt(opts) {
   this.opts_ = Object.create(null);
   for (var i = 0; i < opts.length; i++) {
     var opt = opts[i], m;
-    if (!(m = opt.match(/^(?:([\w]),)?([\w\-]+)(:{0,2})?$/))) {
+    if (!(m = opt.match(/^([\w\-]+)(:{0,2})?$/))) {
       throw new Error('invalid option initializer: ' + opt);
     }
-    var optInf = {name: m[2], arg: m[3]};
-    this.opts_[m[2]] = optInf;
-    if (m[1]) {
-      this.opts_[m[1]] = optInf;
-    }
+    this.opts_[m[1]] = {name: m[1], arg: m[2]};
   }
   addAbbrev(this.opts_);
 }
