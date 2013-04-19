@@ -7582,7 +7582,7 @@ var $___src_syntax_LiteralToken_js = (function() {
         if (this.value.indexOf('\\') === - 1) return this.value.slice(1, - 1);
         var result = '';
         {
-          var $__5 = traceur.runtime.getIterator(this);
+          var $__5 = $traceurRuntime.getIterator(this);
           try {
             while (true) {
               var ch = $__5.next();
@@ -7591,7 +7591,7 @@ var $___src_syntax_LiteralToken_js = (function() {
               }
             }
           } catch (e) {
-            if (!traceur.runtime.isStopIteration(e)) throw e;
+            if (!$traceurRuntime.isStopIteration(e)) throw e;
           }
         }
         return result;
