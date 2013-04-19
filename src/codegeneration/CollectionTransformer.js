@@ -40,7 +40,7 @@ import {
 import {expandMemberLookupExpression} from './OperatorExpander.js';
 
 /**
- * Transforms expr[expr] into traceur.runtime.elementGet(expr, expr). It also
+ * Transforms expr[expr] into traceurRuntime.elementGet(expr, expr). It also
  * transforms []=, delete and the in operator in similar fashion.
  *
  * This pass is used for private names as well as for the reformed object
@@ -72,7 +72,7 @@ export class CollectionTransformer extends TempVarTransformer {
       var object = this.transformAny(tree.right);
       // name in object
       // =>
-      // traceur.runtime.elementHas(object, name)
+      // traceurRuntime.elementHas(object, name)
       return createCallExpression(
           createMemberExpression(TRACEUR, RUNTIME, ELEMENT_HAS),
           createArgumentList(object, name));
@@ -92,7 +92,7 @@ export class CollectionTransformer extends TempVarTransformer {
 
       // operand[memberExpr] = value
       // =>
-      // traceur.runtime.elementSet(operand, memberExpr, value)
+      // traceurRuntime.elementSet(operand, memberExpr, value)
       return createCallExpression(
           createMemberExpression(TRACEUR, RUNTIME, ELEMENT_SET),
           createArgumentList(operand, memberExpression, value));
@@ -111,7 +111,7 @@ export class CollectionTransformer extends TempVarTransformer {
     // operand[memberExpr](args)
     // =>
     // ($tmp = operand,
-    //  traceur.runtime.elementGet($tmp, memberExpr).call($tmp, args))
+    //  traceurRuntime.elementGet($tmp, memberExpr).call($tmp, args))
 
     var ident = createIdentifierExpression(this.addTempVar());
     var elements = tree.args.args.map(this.transformAny, this);
@@ -133,7 +133,7 @@ export class CollectionTransformer extends TempVarTransformer {
   transformMemberLookupExpression(tree) {
     // operand[memberExpr]
     // =>
-    // traceur.runtime.elementGet(operand, memberExpr)
+    // traceurRuntime.elementGet(operand, memberExpr)
     return createCallExpression(
         createMemberExpression(TRACEUR, RUNTIME, ELEMENT_GET),
         createArgumentList(tree.operand, tree.memberExpression));
@@ -150,7 +150,7 @@ export class CollectionTransformer extends TempVarTransformer {
 
     // delete operand[memberExpr]
     // =>
-    // traceur.runtime.elementDelete(operand, memberExpr)
+    // traceurRuntime.elementDelete(operand, memberExpr)
     return createCallExpression(
         createMemberExpression(TRACEUR, RUNTIME, ELEMENT_DELETE),
         createArgumentList(operand, memberExpression));

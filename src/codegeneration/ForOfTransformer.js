@@ -47,14 +47,14 @@ export class ForOfTransformer extends TempVarTransformer {
 
   // for ( initializer of collection ) statement
   //
-  // var $it = traceur.runtime.getIterator(collection);
+  // var $it = traceurRuntime.getIterator(collection);
   // try {
   //   while (true) {
   //     initializer = $it.next();
   //     statement
   //   }
   // } catch(e) {
-  //   if (!traceur.runtime.isStopIteration(e))
+  //   if (!traceurRuntime.isStopIteration(e))
   //     throw e;
   // }
   /**

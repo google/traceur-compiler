@@ -566,7 +566,7 @@ var standardModuleUrlRegExp = /^@\w+$/;
  */
 export function getModuleInstanceByUrl(url) {
   if (standardModuleUrlRegExp.test(url))
-    return $traceur.runtime.modules[url] || null;
+    return $traceurRuntime.modules[url] || null;
 
   traceur.assert(currentCodeUnit);
   url = resolveUrl(currentCodeUnit.url, url);

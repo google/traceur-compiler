@@ -52,8 +52,8 @@ export class PrivateNameSyntaxTransformer extends TempVarTransformer {
   transformNameStatement(tree) {
     // private @a, @b = expr;
     //  =>
-    // const __a = traceur.runtime.createName(),
-    //       __b = traceur.runtime.assertName(expr)
+    // const __a = traceurRuntime.createName(),
+    //       __b = traceurRuntime.assertName(expr)
     var declarations = this.transformList(tree.declarations);
     return new VariableStatement(tree.location,
         new VariableDeclarationList(tree.location, CONST, declarations));

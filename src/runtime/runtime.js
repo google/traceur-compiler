@@ -536,6 +536,6 @@
   };
 
   // This file is sometimes used without traceur.js.
-  global.$traceur = {runtime: runtime};
+  global.$traceurRuntime = runtime;
 
 })(typeof global !== 'undefined' ? global : this);
