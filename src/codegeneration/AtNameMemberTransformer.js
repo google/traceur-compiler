@@ -18,7 +18,7 @@ import {
   GET_PROPERTY,
   RUNTIME,
   SET_PROPERTY,
-  TRACEUR
+  TRACEUR_RUNTIME
 } from '../syntax/PredefinedName.js';
 import {MEMBER_EXPRESSION} from '../syntax/trees/ParseTreeType.js';
 import {TempVarTransformer} from './TempVarTransformer.js';
@@ -40,7 +40,7 @@ import {
 import {expandMemberExpression} from './OperatorExpander.js';
 
 /**
- * Transforms expr.@name into traceur.runtime.getProperty(expr, @name). It
+ * Transforms expr.@name into traceurRuntime.getProperty(expr, @name). It
  * also transforms []= and the delete operator in similar fashion.
  *
  * This pass is used for private name syntax.
@@ -67,9 +67,9 @@ export class AtNameMemberTransformer extends TempVarTransformer {
 
       // operand.@name = value
       // =>
-      // traceur.runtime.setProperty(operand, memberExpr, value)
+      // traceurRuntime.setProperty(operand, memberExpr, value)
       return createCallExpression(
-          createMemberExpression(TRACEUR, RUNTIME, SET_PROPERTY),
+          createMemberExpression(TRACEUR_RUNTIME, SET_PROPERTY),
           createArgumentList(operand, atNameExpression, value));
     }
 
@@ -87,7 +87,7 @@ export class AtNameMemberTransformer extends TempVarTransformer {
     // operand.@name(args)
     // =>
     // ($tmp = operand,
-    //  traceur.runtime.getProperty($tmp, @name).call($tmp, args))
+    //  traceurRuntime.getProperty($tmp, @name).call($tmp, args))
 
     var ident = createIdentifierExpression(this.addTempVar());
     var elements = tree.args.args.map(this.transformAny, this);
@@ -95,7 +95,7 @@ export class AtNameMemberTransformer extends TempVarTransformer {
                                                 memberName);
     var callExpr = createCallCall(
         createCallExpression(
-          createMemberExpression(TRACEUR, RUNTIME, GET_PROPERTY),
+          createMemberExpression(TRACEUR_RUNTIME, GET_PROPERTY),
           createArgumentList(ident, atNameExpression)),
         ident,
         elements);
@@ -114,11 +114,11 @@ export class AtNameMemberTransformer extends TempVarTransformer {
 
     // operand.@name
     // =>
-    // traceur.runtime.getProperty(operand, @name)
+    // traceurRuntime.getProperty(operand, @name)
     var atNameExpression = new AtNameExpression(tree.memberName.location,
                                                tree.memberName);
     return createCallExpression(
-        createMemberExpression(TRACEUR, RUNTIME, GET_PROPERTY),
+        createMemberExpression(TRACEUR_RUNTIME, GET_PROPERTY),
         createArgumentList(tree.operand, atNameExpression));
   }
 
@@ -136,9 +136,9 @@ export class AtNameMemberTransformer extends TempVarTransformer {
 
     // delete operand.@name
     // =>
-    // traceur.runtime.deletePropery(operand, @name)
+    // traceurRuntime.deletePropery(operand, @name)
     return createCallExpression(
-        createMemberExpression(TRACEUR, RUNTIME, DELETE_PROPERTY),
+        createMemberExpression(TRACEUR_RUNTIME, DELETE_PROPERTY),
         createArgumentList(operand, atNameExpression));
   }
 
