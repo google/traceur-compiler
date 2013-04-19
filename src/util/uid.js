@@ -1,4 +1,4 @@
-// Copyright 2012 Traceur Authors.
+// Copyright 2013 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,26 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {STRICT_KEYWORD} from './Keywords.js';
-import {Token} from './Token.js';
+var uidCounter = 0;
 
-export class KeywordToken extends Token {
-  /**
-   * @param {TokenType} type
-   * @param {number|undefined} keywordType
-   * @param {SourceRange} location
-   */
-  constructor(type, keywordType, location) {
-    this.type = type;
-    this.location = location;
-    this.isStrictKeyword_ = keywordType === STRICT_KEYWORD;
-  }
-
-  isKeyword() {
-    return true;
-  }
-
-  isStrictKeyword() {
-    return this.isStrictKeyword_;
-  }
+/**
+ * Returns a new unique ID.
+ * @return {number}
+ */
+export function getUid() {
+  return uidCounter++;
 }

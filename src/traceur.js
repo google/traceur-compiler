@@ -47,16 +47,6 @@ module traceur {
       throw Error('Assertion failed');
   }
 
-  var uidCounter = 0;
-
-  /**
-   * Returns a new unique ID.
-   * @return {number}
-   */
-  export function getUid() {
-    return ++uidCounter;
-  }
-
   export WebPageProject from './WebPageProject.js';
 
   export module semantics {

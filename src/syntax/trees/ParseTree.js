@@ -103,7 +103,6 @@ export class ParseTree {
       case LITERAL_EXPRESSION:
       case MEMBER_EXPRESSION:
       case MEMBER_LOOKUP_EXPRESSION:
-      case MISSING_PRIMARY_EXPRESSION:
       case NEW_EXPRESSION:
       case OBJECT_LITERAL_EXPRESSION:
       case PAREN_EXPRESSION:

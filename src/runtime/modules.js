@@ -23,6 +23,7 @@ import {ProgramTransformer} from '../codegeneration/ProgramTransformer.js';
 import {Project} from '../semantics/symbols/Project.js';
 import {SourceFile} from '../syntax/SourceFile.js';
 import {TreeWriter} from '../outputgeneration/TreeWriter.js';
+import {getUid} from '../util/uid.js';
 import {resolveUrl} from '../util/url.js';
 
 // TODO(arv): I stripped the resolvers to make this simpler for now.
@@ -55,10 +56,9 @@ var NOT_STARTED = 0;
 var LOADING = 1;
 var LOADED = 2;
 var PARSED = 3;
-var DEPS_LOADED = 4;
-var TRANSFORMED = 5;
-var COMPLETE = 6;
-var ERROR = 7;
+var TRANSFORMED = 4;
+var COMPLETE = 5;
+var ERROR = 6;
 
 /**
  * Base class representing a piece of code that is to be loaded or evaluated.
@@ -74,7 +74,7 @@ class CodeUnit {
     this.loader = loader;
     this.url = url;
     this.state = state;
-    this.uid = traceur.getUid();
+    this.uid = getUid();
     this.state_ = NOT_STARTED;
   }
 
@@ -394,17 +394,15 @@ class InternalLoader {
     var requireVisitor = new ModuleRequireVisitor(this.reporter);
     requireVisitor.visit(codeUnit.tree);
     var baseUrl = codeUnit.url;
-    var resolvedUrls = requireVisitor.requireUrls.map((url) => {
+    codeUnit.dependencies = requireVisitor.requireUrls.map((url) => {
       url = resolveUrl(baseUrl, url);
-      this.getCodeUnit(url);
-      return url;
+      return this.getCodeUnit(url);
     });
-    codeUnit.dependencies = resolvedUrls.map((url) => {
-      return this.load(url);
+    codeUnit.dependencies.forEach((dependency) => {
+      this.load(dependency.url);
     });
-    codeUnit.state = DEPS_LOADED;
 
-    if (this.areAll(DEPS_LOADED)) {
+    if (this.areAll(PARSED)) {
       this.analyze();
       this.transform();
       this.evaluate();

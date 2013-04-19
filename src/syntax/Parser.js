@@ -31,11 +31,11 @@ import {
   IDENTIFIER_EXPRESSION,
   MEMBER_EXPRESSION,
   MEMBER_LOOKUP_EXPRESSION,
-  MISSING_PRIMARY_EXPRESSION,
   OBJECT_LITERAL_EXPRESSION,
   PAREN_EXPRESSION,
   PROPERTY_NAME_ASSIGNMENT,
-  REST_PARAMETER
+  REST_PARAMETER,
+  SYNTAX_ERROR_TREE
 } from './trees/ParseTreeType.js';
 import {
   ANY,
@@ -50,6 +50,7 @@ import {
 } from './PredefinedName.js';
 import {Scanner} from './Scanner.js';
 import {SourceRange} from '../util/SourceRange.js';
+import {StrictParams} from '../staticsemantics/StrictParams.js';
 import {
   Token,
   isAssignmentOperator
@@ -431,8 +432,7 @@ export class Parser {
         exportTree = this.parseExportMappingList_(load);
         break;
       default:
-        this.reportError_(`Unexpected symbol '${this.peekToken_()}'`);
-        return null;
+        return this.parseUnexpectedToken_(type);
     }
     return new ExportDeclaration(this.getTreeLocation_(start), exportTree);
   }
@@ -460,20 +460,20 @@ export class Parser {
 
     if (this.eatIf_(STAR)) {
       specifierSet = new ExportStar(this.getTreeLocation_(start));
-      expression = this.parseFromModuleExpression_(load, true);
+      expression = this.parseFromModuleExpressionOpt_(load, true);
     } else if (this.peek_(OPEN_CURLY)) {
       specifierSet = this.parseExportSpecifierSet_();
-      expression = this.parseFromModuleExpression_(load, false);
+      expression = this.parseFromModuleExpressionOpt_(load, false);
     } else {  // ID
       specifierSet = this.parseIdentifierExpression_();
-      expression = this.parseFromModuleExpression_(load, false);
+      expression = this.parseFromModuleExpressionOpt_(load, false);
     }
 
     return new ExportMapping(this.getTreeLocation_(start), expression,
                              specifierSet);
   }
 
-  parseFromModuleExpression_(load, required) {
+  parseFromModuleExpressionOpt_(load, required) {
     if (required || this.peekPredefinedString_(FROM)) {
       this.eatId_(FROM);
       return this.parseModuleExpression_(load);
@@ -515,7 +515,11 @@ export class Parser {
   }
 
   peekId_(type) {
-    return type === IDENTIFIER;
+    if (type === IDENTIFIER)
+      return true;
+    if (this.strictMode_)
+      return false;
+    return this.peekToken_().isStrictKeyword();
   }
 
   peekIdName_(token) {
@@ -804,7 +808,8 @@ export class Parser {
     this.eat_(OPEN_PAREN);
     var formalParameterList = this.parseFormalParameterList_();
     this.eat_(CLOSE_PAREN);
-    var functionBody = this.parseFunctionBody_(isGenerator);
+    var functionBody = this.parseFunctionBody_(isGenerator,
+                                               formalParameterList);
     return new FunctionDeclaration(this.getTreeLocation_(start), name,
                                    isGenerator, formalParameterList,
                                    functionBody);
@@ -825,7 +830,8 @@ export class Parser {
     this.eat_(OPEN_PAREN);
     var formalParameterList = this.parseFormalParameterList_();
     this.eat_(CLOSE_PAREN);
-    var functionBody = this.parseFunctionBody_(isGenerator);
+    var functionBody = this.parseFunctionBody_(isGenerator,
+                                               formalParameterList);
     return new FunctionExpression(this.getTreeLocation_(start), name,
                                   isGenerator, formalParameterList,
                                   functionBody);
@@ -895,7 +901,7 @@ export class Parser {
    * @return {Block}
    * @private
    */
-  parseFunctionBody_(isGenerator) {
+  parseFunctionBody_(isGenerator, params) {
     var start = this.getTreeStartLocation_();
     this.eat_(OPEN_CURLY);
 
@@ -904,6 +910,9 @@ export class Parser {
     this.allowYield_ = isGenerator || options.unstarredGenerators;
 
     var result = this.parseStatementList_(!strictMode);
+
+    if (!strictMode && this.strictMode_ && params)
+      StrictParams.visit(params, this.errorReporter_);
 
     this.strictMode_ = strictMode;
     this.allowYield_ = allowYield;
@@ -941,9 +950,9 @@ export class Parser {
    * @private
    */
   parseSpreadExpression_() {
-    if (!parseOptions.spread) {
-      return this.parseMissingPrimaryExpression_();
-    }
+    if (!parseOptions.spread)
+      return this.parseUnexpectedToken_(DOT_DOT_DOT);
+
     var start = this.getTreeStartLocation_();
     this.eat_(DOT_DOT_DOT);
     var operand = this.parseAssignmentExpression();
@@ -1431,7 +1440,7 @@ export class Parser {
    */
   parseYieldExpression_() {
     if (!this.allowYield_) {
-      return this.parseMissingPrimaryExpression_(
+      return this.parseSyntaxError_(
           "'yield' expressions are only allowed inside 'function*'");
     }
 
@@ -1644,7 +1653,7 @@ export class Parser {
       case CLASS:
         return parseOptions.classes ?
             this.parseClassExpression_() :
-            this.parseMissingPrimaryExpression_();
+            this.parseSyntaxError_('Unexpected reserved word');
       case SUPER:
         return this.parseSuperExpression_();
       case THIS:
@@ -1671,8 +1680,25 @@ export class Parser {
         return this.parseTemplateLiteral_(null);
       case AT_NAME:
         return this.parseAtNameExpression_();
+
+      case IMPLEMENTS:
+      case INTERFACE:
+      case PACKAGE:
+      case PRIVATE:
+      case PROTECTED:
+      case PUBLIC:
+      case STATIC:
+      case YIELD:
+        if (!this.strictMode_)
+          return this.parseIdentifierExpression_();
+        this.reportReservedIdentifier_(this.nextToken_());
+        // Fall through.
+
+      case END_OF_FILE:
+        return this.parseSyntaxError_('Unexpected end of input');
+
       default:
-        return this.parseMissingPrimaryExpression_();
+        return this.parseUnexpectedToken_(this.peekToken_());
     }
   }
 
@@ -1909,8 +1935,6 @@ export class Parser {
     this.eat_(OPEN_CURLY);
     while (this.peekPropertyDefinition_(this.peekType_())) {
       var propertyDefinition = this.parsePropertyDefinition();
-      if (!propertyDefinition)
-        return null;
       result.push(propertyDefinition);
       if (propertyDefinition.type === PROPERTY_NAME_ASSIGNMENT) {
         // Comma is required after name assignment.
@@ -1973,8 +1997,7 @@ export class Parser {
     if (parseOptions.propertyNameShorthand)
       return new PropertyNameShorthand(this.getTreeLocation_(start), name);
 
-    this.reportError_(name, 'Unexpected token');
-    return null;
+    return this.parseUnexpectedToken_(name);
   }
 
   /**
@@ -2031,7 +2054,8 @@ export class Parser {
     this.eat_(OPEN_PAREN);
     var formalParameterList = this.parseFormalParameterList_();
     this.eat_(CLOSE_PAREN);
-    var functionBody = this.parseFunctionBody_(isGenerator);
+    var functionBody = this.parseFunctionBody_(isGenerator,
+                                               formalParameterList);
     return new PropertyMethodAssignment(this.getTreeLocation_(start),
         isStatic, isGenerator, name, formalParameterList, functionBody);
   }
@@ -2059,7 +2083,7 @@ export class Parser {
     var name = this.parsePropertyName_();
     this.eat_(OPEN_PAREN);
     this.eat_(CLOSE_PAREN);
-    var body = this.parseFunctionBody_(isGenerator);
+    var body = this.parseFunctionBody_(isGenerator, null);
     return new GetAccessor(this.getTreeLocation_(start), isStatic, name, body);
   }
 
@@ -2069,7 +2093,7 @@ export class Parser {
     this.eat_(OPEN_PAREN);
     var parameter = this.parsePropertySetParameterList_();
     this.eat_(CLOSE_PAREN);
-    var body = this.parseFunctionBody_(isGenerator);
+    var body = this.parseFunctionBody_(isGenerator, parameter);
     return new SetAccessor(this.getTreeLocation_(start), isStatic, name,
                            parameter, body);
   }
@@ -2136,16 +2160,20 @@ export class Parser {
     return this.parseArrowFunction_();
   }
 
-  /**
-   * @param {string=} message Error message to report.
-   * @return {ParseTree}
-   * @private
-   */
-  parseMissingPrimaryExpression_(message = 'primary expression expected') {
+  parseSyntaxError_(message) {
     var start = this.getTreeStartLocation_();
     this.reportError_(message);
     var token = this.nextToken_();
-    return new MissingPrimaryExpression(this.getTreeLocation_(start), token);
+    return new SyntaxErrorTree(this.getTreeLocation_(start), token, message);
+  }
+
+  /**
+   * @param {*} name Name of the token. Token object and TokenType both
+   *     stringigy to a user friendly string.
+   * @return {SyntaxErrorTree}
+   */
+  parseUnexpectedToken_(name) {
+    return this.parseSyntaxError_(`unexpected token ${name}`);
   }
 
   // 11.14 Expressions
@@ -2954,8 +2982,7 @@ export class Parser {
     if (mustBeArrow || this.peekArrow_(this.peekType_())) {
       formals = this.transformCoverFormals_(coverFormals);
       if (!formals && mustBeArrow) {
-        return this.parseMissingPrimaryExpression_(
-            'Unexpected token \'...\'');
+        return this.parseUnexpectedToken_(DOT_DOT_DOT);
       }
     }
 
@@ -3305,9 +3332,8 @@ export class Parser {
    * @private
    */
   parseTemplateLiteral_(operand) {
-    if (!parseOptions.templateLiterals) {
-      return this.parseMissingPrimaryExpression_();
-    }
+    if (!parseOptions.templateLiterals)
+      return this.parseUnexpectedToken_('`');
 
     var start = operand ?
         operand.location.start : this.getTreeStartLocation_();
@@ -3324,7 +3350,7 @@ export class Parser {
     var expression = this.parseExpression();
     elements.push(new TemplateSubstitution(expression.location, expression));
 
-    while (expression.type !== MISSING_PRIMARY_EXPRESSION) {
+    while (expression.type !== SYNTAX_ERROR_TREE) {
       token = this.nextTemplateLiteralToken_();
       if (token.type === ERROR || token.type === END_OF_FILE)
         break;
@@ -3379,8 +3405,7 @@ export class Parser {
         var token = this.nextToken_();
         return new PredefinedType(this.getTreeLocation_(start), token);
       default:
-        this.reportError_(`Expected Type. Found '${this.peekToken_()}'`);
-        return null;
+        return this.parseUnexpectedToken_(this.peekToken_());
     }
     return this.parseArrayTypeSuffix_(start, elementType);
   }
@@ -3534,16 +3559,29 @@ export class Parser {
    * @private
    */
   eatId_(expected = undefined) {
-    var result = this.eat_(IDENTIFIER);
-    if (expected) {
-      if (!result || result.value !== expected) {
-        if (!result)
-          result = this.peekToken_();
-        this.reportError_(result, `expected '${expected}'`);
-        return null;
-      }
+    var token = this.nextToken_();
+    if (!token) {
+      if (expected)
+        this.reportError_(this.peekToken_(), `expected '${expected}'`);
+      return null;
     }
-    return result;
+
+    if (token.type === IDENTIFIER)
+      return token;
+
+    if (token.isStrictKeyword()) {
+      if (this.strictMode_) {
+        this.reportReservedIdentifier_(token);
+      } else {
+        // Use an identifier token instead because it is treated as such and
+        // this simplifies the transformers.
+        return new IdentifierToken(token.location, token.type);
+      }
+    } else {
+      this.reportExpectedError_(token, 'identifier');
+    }
+
+    return token;
   }
 
   /**
@@ -3565,11 +3603,12 @@ export class Parser {
   }
 
   /**
-   * Consumes the next token. If the consumed token is not of the expected type then
-   * report an error and return null. Otherwise return the consumed token.
+   * Consumes the next token. If the consumed token is not of the expected type
+   * then report an error and return null. Otherwise return the consumed token.
    *
    * @param {TokenType} expectedTokenType
-   * @return {Token} The consumed token, or null if the next token is not of the expected type.
+   * @return {Token} The consumed token, or null if the next token is not of
+   *     the expected type.
    * @private
    */
   eat_(expectedTokenType) {
@@ -3753,7 +3792,7 @@ export class Parser {
     }
   }
 
-  reportUnexpectedToken_() {
-    this.reportError_(this.peekToken_(), 'Unexpected token');
+  reportReservedIdentifier_(token) {
+    this.reportError_(token, `${token.type} is a reserved identifier`);
   }
 }

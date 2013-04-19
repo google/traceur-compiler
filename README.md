@@ -1,5 +1,4 @@
-NOTE: Traceur is in the process of moving from
-[Google Code](https://code.google.com/p/traceur-compiler/).
+[![Build Status](https://travis-ci.org/google/traceur-compiler.png)](https://travis-ci.org/google/traceur-compiler)
 
 ## What is Traceur?
 
