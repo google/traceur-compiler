@@ -18,7 +18,7 @@ import {
   ELEMENT_HAS,
   ELEMENT_SET,
   RUNTIME,
-  TRACEUR
+  TRACEUR_RUNTIME
 } from '../syntax/PredefinedName.js';
 import {MEMBER_LOOKUP_EXPRESSION} from '../syntax/trees/ParseTreeType.js';
 import {TempVarTransformer} from './TempVarTransformer.js';

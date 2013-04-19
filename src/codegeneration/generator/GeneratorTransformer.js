@@ -24,7 +24,7 @@ import {
   RESULT,
   RUNTIME,
   STORED_EXCEPTION,
-  TRACEUR,
+  TRACEUR_RUNTIME,
   YIELD_RETURN
 } from '../../syntax/PredefinedName.js';
 import {

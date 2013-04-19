@@ -18,7 +18,7 @@ import {
   GET_ITERATOR,
   MOVE_NEXT,
   RUNTIME,
-  TRACEUR
+  TRACEUR_RUNTIME
 } from '../syntax/PredefinedName.js';
 import {VARIABLE_DECLARATION_LIST} from '../syntax/trees/ParseTreeType.js';
 import {TempVarTransformer} from './TempVarTransformer.js';

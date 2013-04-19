@@ -16,7 +16,7 @@ import {
   ASSERT_NAME,
   CREATE_NAME,
   RUNTIME,
-  TRACEUR
+  TRACEUR_RUNTIME
 } from '../syntax/PredefinedName.js';
 import {TempVarTransformer} from './TempVarTransformer.js';
 import {CONST} from '../syntax/TokenType.js';

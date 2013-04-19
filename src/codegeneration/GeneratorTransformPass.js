@@ -56,7 +56,7 @@ import {
   ACTION_SEND,
   ACTION_THROW,
   ACTION_CLOSE,
-  TRACEUR,
+  TRACEUR_RUNTIME,
   YIELD_ACTION,
   YIELD_SENT
 } from '../syntax/PredefinedName.js';
