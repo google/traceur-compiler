@@ -114,5 +114,5 @@ module traceur {
     }
   }
 
-  export module runtime from './runtime/modules.js';
+  export module modules from './runtime/modules.js';
 }
