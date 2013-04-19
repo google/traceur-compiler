@@ -19,7 +19,7 @@ function addAbbrev(o) {
   for (var i = ks.length - 1; i > 0; i--) {
     var ka = k = ks[i], pre = 0;
 
-    // find length of common prefix, clamp to min of 3.
+    // find length of common prefix, clamp to min of 1.
     while (kprev[pre] === k[pre]) {
       pre++;
     }
