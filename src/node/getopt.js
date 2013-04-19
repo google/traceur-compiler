@@ -49,7 +49,7 @@ function Getopt(opts) {
       data = opt[1] || null;
       opt = opt[0];
     }
-    if (!(m = opt.match(/^([\w\-]+)(:{0,2})?$/))) {
+    if (!(m = opt.match(/^([\w\-]+)(:{0,2})$/))) {
       throw new Error('invalid option initializer: ' + opt);
     }
     this.opts_[m[1]] = {name: m[1], arg: m[2], data: data};
@@ -88,7 +88,7 @@ Getopt.prototype = {
       this.opt = optInf.name;
       this.optdata = optInf.data;
       switch (optInf.arg) {
-        default:
+        case '':
           // no arg
           if (!this.nextchar && this.optarg) {
             // unexpected arg
