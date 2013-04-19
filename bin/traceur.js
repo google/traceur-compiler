@@ -57,6 +57,387 @@ var $__getDescriptors = function(object) {
   return rv;
 };
 var $__22, $__23, $__24, $__25, $__26, $__27, $__28, $__29, $__30, $__31, $__32, $__33, $__34, $__35, $__36, $__37, $__38, $__39, $__40, $__41;
+(function(global) {
+  'use strict';
+  var $create = Object.create;
+  var $defineProperty = Object.defineProperty;
+  var $freeze = Object.freeze;
+  var $getOwnPropertyNames = Object.getOwnPropertyNames;
+  var $getPrototypeOf = Object.getPrototypeOf;
+  var $hasOwnProperty = Object.prototype.hasOwnProperty;
+  function nonEnum(value) {
+    return {
+      configurable: true,
+      enumerable: false,
+      value: value,
+      writable: true
+    };
+  }
+  var method = nonEnum;
+  function polyfillString(String) {
+    Object.defineProperties(String.prototype, {
+      startsWith: method(function(s) {
+        return this.lastIndexOf(s, 0) === 0;
+      }),
+      endsWith: method(function(s) {
+        var t = String(s);
+        var l = this.length - t.length;
+        return l >= 0 && this.indexOf(t, l) === l;
+      }),
+      contains: method(function(s) {
+        return this.indexOf(s) !== - 1;
+      }),
+      toArray: method(function() {
+        return this.split('');
+      })
+    });
+    $defineProperty(String, 'raw', {
+      value: function(callsite) {
+        var raw = callsite.raw;
+        var len = raw.length >>> 0;
+        if (len === 0) return '';
+        var s = '';
+        var i = 0;
+        while (true) {
+          s += raw[i];
+          if (i + 1 === len) return s;
+          s += arguments[++i];
+        }
+      },
+      configurable: true,
+      enumerable: false,
+      writable: true
+    });
+  }
+  var counter = 0;
+  function newUniqueString() {
+    return '__$' + Math.floor(Math.random() * 1e9) + '$' + ++counter + '$__';
+  }
+  var nameRe = /^__\$(?:\d+)\$(?:\d+)\$__$/;
+  var internalStringValueName = newUniqueString();
+  function Name(string) {
+    if (!string) string = newUniqueString();
+    $defineProperty(this, internalStringValueName, {value: newUniqueString()});
+    function toString() {
+      return string;
+    }
+    $freeze(toString);
+    $freeze(toString.prototype);
+    var toStringDescr = method(toString);
+    $defineProperty(this, 'toString', toStringDescr);
+    this.public = $freeze($create(null, {toString: method($freeze(function toString() {
+        return string;
+      }))}));
+    $freeze(this.public.toString.prototype);
+    $freeze(this);
+  }
+  ;
+  $freeze(Name);
+  $freeze(Name.prototype);
+  function assertName(val) {
+    if (!NameModule.isName(val)) throw new TypeError(val + ' is not a Name');
+    return val;
+  }
+  var elementDeleteName = new Name();
+  var elementGetName = new Name();
+  var elementSetName = new Name();
+  var NameModule = $freeze({
+    Name: function(str) {
+      return new Name(str);
+    },
+    isName: function(x) {
+      return x instanceof Name;
+    },
+    elementGet: elementGetName,
+    elementSet: elementSetName,
+    elementDelete: elementDeleteName
+  });
+  var filter = Array.prototype.filter.call.bind(Array.prototype.filter);
+  function getOwnPropertyNames(object) {
+    return filter($getOwnPropertyNames(object), function(str) {
+      return !nameRe.test(str);
+    });
+  }
+  function hasOwnProperty(name) {
+    if (NameModule.isName(name) || nameRe.test(name)) return false;
+    return $hasOwnProperty.call(this, name);
+  }
+  function elementDelete(object, name) {
+    if (traceur.options.trapMemberLookup && hasPrivateNameProperty(object, elementDeleteName)) {
+      return getProperty(object, elementDeleteName).call(object, name);
+    }
+    return deleteProperty(object, name);
+  }
+  function elementGet(object, name) {
+    if (traceur.options.trapMemberLookup && hasPrivateNameProperty(object, elementGetName)) {
+      return getProperty(object, elementGetName).call(object, name);
+    }
+    return getProperty(object, name);
+  }
+  function elementHas(object, name) {
+    return has(object, name);
+  }
+  function elementSet(object, name, value) {
+    if (traceur.options.trapMemberLookup && hasPrivateNameProperty(object, elementSetName)) {
+      getProperty(object, elementSetName).call(object, name, value);
+    } else {
+      setProperty(object, name, value);
+    }
+    return value;
+  }
+  function assertNotName(s) {
+    if (nameRe.test(s)) throw Error('Invalid access to private name');
+  }
+  function deleteProperty(object, name) {
+    if (NameModule.isName(name)) return delete object[name[internalStringValueName]];
+    if (nameRe.test(name)) return true;
+    return delete object[name];
+  }
+  function getProperty(object, name) {
+    if (NameModule.isName(name)) return object[name[internalStringValueName]];
+    if (nameRe.test(name)) return undefined;
+    return object[name];
+  }
+  function hasPrivateNameProperty(object, name) {
+    return name[internalStringValueName]in Object(object);
+  }
+  function has(object, name) {
+    if (NameModule.isName(name) || nameRe.test(name)) return false;
+    return name in Object(object);
+  }
+  function setProperty(object, name, value) {
+    if (NameModule.isName(name)) {
+      var descriptor = $getPropertyDescriptor(object, [name[internalStringValueName]]);
+      if (descriptor) object[name[internalStringValueName]] = value; else $defineProperty(object, name[internalStringValueName], nonEnum(value));
+    } else {
+      assertNotName(name);
+      object[name] = value;
+    }
+  }
+  function defineProperty(object, name, descriptor) {
+    if (NameModule.isName(name)) {
+      if (descriptor.enumerable) {
+        descriptor = Object.create(descriptor, {enumerable: {value: false}});
+      }
+      $defineProperty(object, name[internalStringValueName], descriptor);
+    } else {
+      assertNotName(name);
+      $defineProperty(object, name, descriptor);
+    }
+  }
+  function $getPropertyDescriptor(obj, name) {
+    while (obj !== null) {
+      var result = Object.getOwnPropertyDescriptor(obj, name);
+      if (result) return result;
+      obj = $getPrototypeOf(obj);
+    }
+    return undefined;
+  }
+  function getPropertyDescriptor(obj, name) {
+    if (NameModule.isName(name)) return undefined;
+    assertNotName(name);
+    return $getPropertyDescriptor(obj, name);
+  }
+  function polyfillObject(Object) {
+    $defineProperty(Object, 'defineProperty', {value: defineProperty});
+    $defineProperty(Object, 'deleteProperty', method(deleteProperty));
+    $defineProperty(Object, 'getOwnPropertyNames', {value: getOwnPropertyNames});
+    $defineProperty(Object, 'getProperty', method(getProperty));
+    $defineProperty(Object, 'getPropertyDescriptor', method(getPropertyDescriptor));
+    $defineProperty(Object, 'has', method(has));
+    $defineProperty(Object, 'setProperty', method(setProperty));
+    $defineProperty(Object.prototype, 'hasOwnProperty', {value: hasOwnProperty});
+    function is(left, right) {
+      if (left === right) return left !== 0 || 1 / left === 1 / right;
+      return left !== left && right !== right;
+    }
+    $defineProperty(Object, 'is', method(is));
+  }
+  var iteratorName = new Name('iterator');
+  var IterModule = {
+    get iterator() {
+      return iteratorName;
+    },
+    isStopIteration: isStopIteration
+  };
+  function getIterator(collection) {
+    return getProperty(collection, iteratorName).call(collection);
+  }
+  function returnThis() {
+    return this;
+  }
+  function addIterator(object) {
+    setProperty(object, iteratorName, returnThis);
+    return object;
+  }
+  function polyfillArray(Array) {
+    defineProperty(Array.prototype, IterModule.iterator, method(function() {
+      var index = 0;
+      var array = this;
+      return {next: function() {
+          if (index < array.length) {
+            return array[index++];
+          }
+          throw StopIterationLocal;
+        }};
+    }));
+  }
+  var GeneratorReturnLocal;
+  function setGeneratorReturn(GeneratorReturn, global) {
+    switch (typeof GeneratorReturn) {
+      case 'function':
+        if (typeof GeneratorReturnLocal === 'function' && StopIterationLocal instanceof GeneratorReturnLocal) {
+          GeneratorReturnLocal = GeneratorReturn;
+          setStopIteration(undefined, global);
+          return;
+        }
+        GeneratorReturnLocal = GeneratorReturn;
+        return;
+      case 'undefined':
+        GeneratorReturnLocal = function(v) {
+          this.value = v;
+        };
+        GeneratorReturnLocal.prototype = {toString: function() {
+            return '[object GeneratorReturn ' + this.value + ']';
+          }};
+        return;
+      default:
+        throw new TypeError('constructor function required');
+    }
+  }
+  setGeneratorReturn();
+  var StopIterationLocal;
+  function isStopIteration(x) {
+    return x === StopIterationLocal || x instanceof GeneratorReturnLocal;
+  }
+  function setStopIteration(StopIteration, global) {
+    switch (typeof StopIteration) {
+      case 'object':
+        StopIterationLocal = StopIteration;
+        break;
+      case 'undefined':
+        StopIterationLocal = new GeneratorReturnLocal();
+        StopIterationLocal.toString = function() {
+          return '[object StopIteration]';
+        };
+        break;
+      default:
+        throw new TypeError('invalid StopIteration type.');
+    }
+    if (global) global.StopIteration = StopIterationLocal;
+  }
+  setStopIteration(global.StopIteration, global);
+  function Deferred(canceller) {
+    this.canceller_ = canceller;
+    this.listeners_ = [];
+  }
+  function notify(self) {
+    while (self.listeners_.length > 0) {
+      var current = self.listeners_.shift();
+      var currentResult = undefined;
+      try {
+        try {
+          if (self.result_[1]) {
+            if (current.errback) currentResult = current.errback.call(undefined, self.result_[0]);
+          } else {
+            if (current.callback) currentResult = current.callback.call(undefined, self.result_[0]);
+          }
+          current.deferred.callback(currentResult);
+        } catch (err) {
+          current.deferred.errback(err);
+        }
+      } catch (unused) {}
+    }
+  }
+  function fire(self, value, isError) {
+    if (self.fired_) throw new Error('already fired');
+    self.fired_ = true;
+    self.result_ = [value, isError];
+    notify(self);
+  }
+  Deferred.prototype = {
+    fired_: false,
+    result_: undefined,
+    createPromise: function() {
+      return {
+        then: this.then.bind(this),
+        cancel: this.cancel.bind(this)
+      };
+    },
+    callback: function(value) {
+      fire(this, value, false);
+    },
+    errback: function(err) {
+      fire(this, err, true);
+    },
+    then: function(callback, errback) {
+      var result = new Deferred(this.cancel.bind(this));
+      this.listeners_.push({
+        deferred: result,
+        callback: callback,
+        errback: errback
+      });
+      if (this.fired_) notify(this);
+      return result.createPromise();
+    },
+    cancel: function() {
+      if (this.fired_) throw new Error('already finished');
+      var result;
+      if (this.canceller_) {
+        result = this.canceller_(this);
+        if (!result instanceof Error) result = new Error(result);
+      } else {
+        result = new Error('cancelled');
+      }
+      if (!this.fired_) {
+        this.result_ = [result, true];
+        notify(this);
+      }
+    }
+  };
+  var modules = $freeze({
+    get'@name'() {
+      return NameModule;
+    },
+    get'@iter'() {
+      return IterModule;
+    }
+  });
+  global.Deferred = Deferred;
+  function setupGlobals(global) {
+    polyfillString(global.String);
+    polyfillObject(global.Object);
+    polyfillArray(global.Array);
+  }
+  setupGlobals(global);
+  var runtime = {
+    Deferred: Deferred,
+    get GeneratorReturn() {
+      return GeneratorReturnLocal;
+    },
+    setGeneratorReturn: setGeneratorReturn,
+    get StopIteration() {
+      return StopIterationLocal;
+    },
+    setStopIteration: setStopIteration,
+    isStopIteration: isStopIteration,
+    addIterator: addIterator,
+    assertName: assertName,
+    createName: NameModule.Name,
+    deleteProperty: deleteProperty,
+    elementDelete: elementDelete,
+    elementGet: elementGet,
+    elementHas: elementHas,
+    elementSet: elementSet,
+    getIterator: getIterator,
+    getProperty: getProperty,
+    setProperty: setProperty,
+    setupGlobals: setupGlobals,
+    has: has,
+    modules: modules
+  };
+  global.$traceurRuntime = runtime;
+})(typeof global !== 'undefined' ? global: this);
 var $___src_options_js = (function() {
   "use strict";
   var parseOptions = Object.create(null);
@@ -6448,6 +6829,7 @@ var $___src_syntax_PredefinedName_js = (function() {
   var THEN = 'then';
   var THIS = 'this';
   var TRACEUR = 'traceur';
+  var TRACEUR_RUNTIME = '$traceurRuntime';
   var TYPE_ERROR = 'TypeError';
   var UNDEFINED = 'undefined';
   var VALUE = 'value';
@@ -6998,6 +7380,12 @@ var $___src_syntax_PredefinedName_js = (function() {
       },
       enumerable: true
     },
+    TRACEUR_RUNTIME: {
+      get: function() {
+        return TRACEUR_RUNTIME;
+      },
+      enumerable: true
+    },
     TYPE_ERROR: {
       get: function() {
         return TYPE_ERROR;
@@ -7194,7 +7582,7 @@ var $___src_syntax_LiteralToken_js = (function() {
         if (this.value.indexOf('\\') === - 1) return this.value.slice(1, - 1);
         var result = '';
         {
-          var $__5 = traceur.runtime.getIterator(this);
+          var $__5 = $traceurRuntime.getIterator(this);
           try {
             while (true) {
               var ch = $__5.next();
@@ -7203,7 +7591,7 @@ var $___src_syntax_LiteralToken_js = (function() {
               }
             }
           } catch (e) {
-            if (!traceur.runtime.isStopIteration(e)) throw e;
+            if (!$traceurRuntime.isStopIteration(e)) throw e;
           }
         }
         return result;
@@ -11815,7 +12203,7 @@ var $___src_codegeneration_OperatorExpander_js = (function() {
 var $___src_codegeneration_AtNameMemberTransformer_js = (function() {
   "use strict";
   var AtNameExpression = $___src_syntax_trees_ParseTrees_js.AtNameExpression;
-  var $__20 = $___src_syntax_PredefinedName_js, DELETE_PROPERTY = $__20.DELETE_PROPERTY, GET_PROPERTY = $__20.GET_PROPERTY, RUNTIME = $__20.RUNTIME, SET_PROPERTY = $__20.SET_PROPERTY, TRACEUR = $__20.TRACEUR;
+  var $__20 = $___src_syntax_PredefinedName_js, DELETE_PROPERTY = $__20.DELETE_PROPERTY, GET_PROPERTY = $__20.GET_PROPERTY, RUNTIME = $__20.RUNTIME, SET_PROPERTY = $__20.SET_PROPERTY, TRACEUR_RUNTIME = $__20.TRACEUR_RUNTIME;
   var MEMBER_EXPRESSION = $___src_syntax_trees_ParseTreeType_js.MEMBER_EXPRESSION;
   var TempVarTransformer = $___src_codegeneration_TempVarTransformer_js.TempVarTransformer;
   var $__20 = $___src_syntax_TokenType_js, AT_NAME = $__20.AT_NAME, DELETE = $__20.DELETE, EQUAL = $__20.EQUAL;
@@ -11838,7 +12226,7 @@ var $___src_codegeneration_AtNameMemberTransformer_js = (function() {
           var memberName = tree.left.memberName;
           var atNameExpression = new AtNameExpression(memberName.location, memberName);
           var value = this.transformAny(tree.right);
-          return createCallExpression(createMemberExpression(TRACEUR, RUNTIME, SET_PROPERTY), createArgumentList(operand, atNameExpression, value));
+          return createCallExpression(createMemberExpression(TRACEUR_RUNTIME, SET_PROPERTY), createArgumentList(operand, atNameExpression, value));
         }
         return $__superCall(this, $__proto, "transformBinaryOperator", [tree]);
       },
@@ -11849,14 +12237,14 @@ var $___src_codegeneration_AtNameMemberTransformer_js = (function() {
         var ident = createIdentifierExpression(this.addTempVar());
         var elements = tree.args.args.map(this.transformAny, this);
         var atNameExpression = new AtNameExpression(memberName.location, memberName);
-        var callExpr = createCallCall(createCallExpression(createMemberExpression(TRACEUR, RUNTIME, GET_PROPERTY), createArgumentList(ident, atNameExpression)), ident, elements);
+        var callExpr = createCallCall(createCallExpression(createMemberExpression(TRACEUR_RUNTIME, GET_PROPERTY), createArgumentList(ident, atNameExpression)), ident, elements);
         var expressions = [createAssignmentExpression(ident, operand), callExpr];
         return createParenExpression(createCommaExpression(expressions));
       },
       transformMemberExpression: function(tree) {
         if (tree.memberName.type !== AT_NAME) return $__superCall(this, $__proto, "transformMemberExpression", [tree]);
         var atNameExpression = new AtNameExpression(tree.memberName.location, tree.memberName);
-        return createCallExpression(createMemberExpression(TRACEUR, RUNTIME, GET_PROPERTY), createArgumentList(tree.operand, atNameExpression));
+        return createCallExpression(createMemberExpression(TRACEUR_RUNTIME, GET_PROPERTY), createArgumentList(tree.operand, atNameExpression));
       },
       transformUnaryExpression: function(tree) {
         if (tree.operator.type !== DELETE || tree.operand.type !== MEMBER_EXPRESSION || tree.operand.memberName.type !== AT_NAME) {
@@ -11865,7 +12253,7 @@ var $___src_codegeneration_AtNameMemberTransformer_js = (function() {
         var operand = this.transformAny(tree.operand.operand);
         var memberName = tree.operand.memberName;
         var atNameExpression = new AtNameExpression(memberName.location, memberName);
-        return createCallExpression(createMemberExpression(TRACEUR, RUNTIME, DELETE_PROPERTY), createArgumentList(operand, atNameExpression));
+        return createCallExpression(createMemberExpression(TRACEUR_RUNTIME, DELETE_PROPERTY), createArgumentList(operand, atNameExpression));
       }
     }, {transformTree: function(identifierGenerator, tree) {
         return new AtNameMemberTransformer(identifierGenerator).transformAny(tree);
@@ -13049,7 +13437,7 @@ var $___src_codegeneration_ClassTransformer_js = (function() {
 }).call(this);
 var $___src_codegeneration_CollectionTransformer_js = (function() {
   "use strict";
-  var $__20 = $___src_syntax_PredefinedName_js, ELEMENT_DELETE = $__20.ELEMENT_DELETE, ELEMENT_GET = $__20.ELEMENT_GET, ELEMENT_HAS = $__20.ELEMENT_HAS, ELEMENT_SET = $__20.ELEMENT_SET, RUNTIME = $__20.RUNTIME, TRACEUR = $__20.TRACEUR;
+  var $__20 = $___src_syntax_PredefinedName_js, ELEMENT_DELETE = $__20.ELEMENT_DELETE, ELEMENT_GET = $__20.ELEMENT_GET, ELEMENT_HAS = $__20.ELEMENT_HAS, ELEMENT_SET = $__20.ELEMENT_SET, RUNTIME = $__20.RUNTIME, TRACEUR_RUNTIME = $__20.TRACEUR_RUNTIME;
   var MEMBER_LOOKUP_EXPRESSION = $___src_syntax_trees_ParseTreeType_js.MEMBER_LOOKUP_EXPRESSION;
   var TempVarTransformer = $___src_codegeneration_TempVarTransformer_js.TempVarTransformer;
   var $__20 = $___src_syntax_TokenType_js, DELETE = $__20.DELETE, EQUAL = $__20.EQUAL, IN = $__20.IN;
@@ -13066,7 +13454,7 @@ var $___src_codegeneration_CollectionTransformer_js = (function() {
         if (tree.operator.type === IN) {
           var name = this.transformAny(tree.left);
           var object = this.transformAny(tree.right);
-          return createCallExpression(createMemberExpression(TRACEUR, RUNTIME, ELEMENT_HAS), createArgumentList(object, name));
+          return createCallExpression(createMemberExpression(TRACEUR_RUNTIME, ELEMENT_HAS), createArgumentList(object, name));
         }
         if (tree.left.type === MEMBER_LOOKUP_EXPRESSION && tree.operator.isAssignmentOperator()) {
           if (tree.operator.type !== EQUAL) {
@@ -13076,7 +13464,7 @@ var $___src_codegeneration_CollectionTransformer_js = (function() {
           var operand = this.transformAny(tree.left.operand);
           var memberExpression = this.transformAny(tree.left.memberExpression);
           var value = this.transformAny(tree.right);
-          return createCallExpression(createMemberExpression(TRACEUR, RUNTIME, ELEMENT_SET), createArgumentList(operand, memberExpression, value));
+          return createCallExpression(createMemberExpression(TRACEUR_RUNTIME, ELEMENT_SET), createArgumentList(operand, memberExpression, value));
         }
         return $__superCall(this, $__proto, "transformBinaryOperator", [tree]);
       },
@@ -13086,12 +13474,12 @@ var $___src_codegeneration_CollectionTransformer_js = (function() {
         var memberExpression = this.transformAny(tree.operand.memberExpression);
         var ident = createIdentifierExpression(this.addTempVar());
         var elements = tree.args.args.map(this.transformAny, this);
-        var callExpr = createCallCall(createCallExpression(createMemberExpression(TRACEUR, RUNTIME, ELEMENT_GET), createArgumentList(ident, memberExpression)), ident, elements);
+        var callExpr = createCallCall(createCallExpression(createMemberExpression(TRACEUR_RUNTIME, ELEMENT_GET), createArgumentList(ident, memberExpression)), ident, elements);
         var expressions = [createAssignmentExpression(ident, operand), callExpr];
         return createParenExpression(createCommaExpression(expressions));
       },
       transformMemberLookupExpression: function(tree) {
-        return createCallExpression(createMemberExpression(TRACEUR, RUNTIME, ELEMENT_GET), createArgumentList(tree.operand, tree.memberExpression));
+        return createCallExpression(createMemberExpression(TRACEUR_RUNTIME, ELEMENT_GET), createArgumentList(tree.operand, tree.memberExpression));
       },
       transformUnaryExpression: function(tree) {
         if (tree.operator.type !== DELETE || tree.operand.type !== MEMBER_LOOKUP_EXPRESSION) {
@@ -13099,7 +13487,7 @@ var $___src_codegeneration_CollectionTransformer_js = (function() {
         }
         var operand = this.transformAny(tree.operand.operand);
         var memberExpression = this.transformAny(tree.operand.memberExpression);
-        return createCallExpression(createMemberExpression(TRACEUR, RUNTIME, ELEMENT_DELETE), createArgumentList(operand, memberExpression));
+        return createCallExpression(createMemberExpression(TRACEUR_RUNTIME, ELEMENT_DELETE), createArgumentList(operand, memberExpression));
       }
     }, {transformTree: function(identifierGenerator, tree) {
         return new CollectionTransformer(identifierGenerator).transformAny(tree);
@@ -13522,8 +13910,8 @@ var $___src_codegeneration_DestructuringTransformer_js = (function() {
 }).call(this);
 var $___src_codegeneration_ForOfTransformer_js = (function() {
   "use strict";
-  var $__3 = Object.freeze(Object.defineProperties(["\n      {\n        var ", " = traceur.runtime.getIterator(", ");\n        try {\n          while (true) {\n            ", ";\n            ", "; // statement\n          }\n        } catch(e) {\n          if (!traceur.runtime.isStopIteration(e))\n            throw e;\n        }\n      }"], {raw: {value: Object.freeze(["\n      {\n        var ", " = traceur.runtime.getIterator(", ");\n        try {\n          while (true) {\n            ", ";\n            ", "; // statement\n          }\n        } catch(e) {\n          if (!traceur.runtime.isStopIteration(e))\n            throw e;\n        }\n      }"])}}));
-  var $__20 = $___src_syntax_PredefinedName_js, CLOSE = $__20.CLOSE, CURRENT = $__20.CURRENT, GET_ITERATOR = $__20.GET_ITERATOR, MOVE_NEXT = $__20.MOVE_NEXT, RUNTIME = $__20.RUNTIME, TRACEUR = $__20.TRACEUR;
+  var $__3 = Object.freeze(Object.defineProperties(["\n      {\n        var ", " = ", ".getIterator(", ");\n        try {\n          while (true) {\n            ", ";\n            ", "; // statement\n          }\n        } catch(e) {\n          if (!", ".isStopIteration(e))\n            throw e;\n        }\n      }"], {raw: {value: Object.freeze(["\n      {\n        var ", " = ", ".getIterator(", ");\n        try {\n          while (true) {\n            ", ";\n            ", "; // statement\n          }\n        } catch(e) {\n          if (!", ".isStopIteration(e))\n            throw e;\n        }\n      }"])}}));
+  var $__20 = $___src_syntax_PredefinedName_js, CLOSE = $__20.CLOSE, CURRENT = $__20.CURRENT, GET_ITERATOR = $__20.GET_ITERATOR, MOVE_NEXT = $__20.MOVE_NEXT, RUNTIME = $__20.RUNTIME, TRACEUR_RUNTIME = $__20.TRACEUR_RUNTIME;
   var VARIABLE_DECLARATION_LIST = $___src_syntax_trees_ParseTreeType_js.VARIABLE_DECLARATION_LIST;
   var TempVarTransformer = $___src_codegeneration_TempVarTransformer_js.TempVarTransformer;
   var VAR = $___src_syntax_TokenType_js.VAR;
@@ -13545,7 +13933,8 @@ var $___src_codegeneration_ForOfTransformer_js = (function() {
         } else {
           assignment = createExpressionStatement(createAssignmentExpression(tree.initializer, createCallExpression(createMemberExpression(iter, 'next'))));
         }
-        return parseStatement($__3, iter, tree.collection, assignment, tree.body);
+        var id = createIdentifierExpression;
+        return parseStatement($__3, iter, id(TRACEUR_RUNTIME), tree.collection, assignment, tree.body, id(TRACEUR_RUNTIME));
       }
     }, {transformTree: function(identifierGenerator, tree) {
         return new ForOfTransformer(identifierGenerator).transformAny(tree);
@@ -15102,7 +15491,7 @@ var $___src_codegeneration_generator_GeneratorTransformer_js = (function() {
   var $__0 = Object.freeze(Object.defineProperties(["\n        var ", " = {\n          GState: ", ",\n          current: undefined,\n          yieldReturn: undefined,\n          innerFunction: ", ",\n          moveNext: ", "\n        };\n        "], {raw: {value: Object.freeze(["\n        var ", " = {\n          GState: ", ",\n          current: undefined,\n          yieldReturn: undefined,\n          innerFunction: ", ",\n          moveNext: ", "\n        };\n        "])}})), $__3 = Object.freeze(Object.defineProperties(["return ", "(", ");"], {raw: {value: Object.freeze(["return ", "(", ");"])}}));
   var CPSTransformer = $___src_codegeneration_generator_CPSTransformer_js.CPSTransformer;
   var EndState = $___src_codegeneration_generator_EndState_js.EndState;
-  var $__21 = $___src_syntax_PredefinedName_js, ACTION_SEND = $__21.ACTION_SEND, ACTION_THROW = $__21.ACTION_THROW, ACTION_CLOSE = $__21.ACTION_CLOSE, ADD_ITERATOR = $__21.ADD_ITERATOR, CURRENT = $__21.CURRENT, MOVE_NEXT = $__21.MOVE_NEXT, RESULT = $__21.RESULT, RUNTIME = $__21.RUNTIME, STORED_EXCEPTION = $__21.STORED_EXCEPTION, TRACEUR = $__21.TRACEUR, YIELD_RETURN = $__21.YIELD_RETURN;
+  var $__21 = $___src_syntax_PredefinedName_js, ACTION_SEND = $__21.ACTION_SEND, ACTION_THROW = $__21.ACTION_THROW, ACTION_CLOSE = $__21.ACTION_CLOSE, ADD_ITERATOR = $__21.ADD_ITERATOR, CURRENT = $__21.CURRENT, MOVE_NEXT = $__21.MOVE_NEXT, RESULT = $__21.RESULT, RUNTIME = $__21.RUNTIME, STORED_EXCEPTION = $__21.STORED_EXCEPTION, TRACEUR_RUNTIME = $__21.TRACEUR_RUNTIME, YIELD_RETURN = $__21.YIELD_RETURN;
   var $__21 = $___src_syntax_trees_ParseTreeType_js, STATE_MACHINE = $__21.STATE_MACHINE, YIELD_EXPRESSION = $__21.YIELD_EXPRESSION;
   var parseStatement = $___src_codegeneration_PlaceholderParser_js.parseStatement;
   var StateMachine = $___src_syntax_trees_StateMachine_js.StateMachine;
@@ -15168,7 +15557,7 @@ var $___src_codegeneration_generator_GeneratorTransformer_js = (function() {
         statements.push(this.generateHoistedArguments());
         ($__40 = statements).push.apply($__40, $__toObject(this.getMachineVariables(tree, machine)));
         statements.push(parseStatement($__0, G, ST_NEWBORN, this.generateMachineInnerFunction(machine), this.generateMachineMethod(machine)));
-        var generatorWrap = this.runtimeInliner_.get('generatorWrap', ("\n        function (generator) {\n          return traceur.runtime.addIterator({\n            send: function(x) {\n              switch (generator.GState) {\n                case " + ST_EXECUTING + ":\n                  throw new Error('\"send\" on executing generator');\n                case " + ST_CLOSED + ":\n                  throw new Error('\"send\" on closed generator');\n                case " + ST_NEWBORN + ":\n                  if (x !== undefined) {\n                    throw new TypeError('Sent value to newborn generator');\n                  }\n                  // fall through\n                case " + ST_SUSPENDED + ":\n                  generator.GState = " + ST_EXECUTING + ";\n                  if (generator.moveNext(x, " + ACTION_SEND + ")) {\n                    generator.GState = " + ST_SUSPENDED + ";\n                    return generator.current;\n                  }\n                  generator.GState = " + ST_CLOSED + ";\n                  if (generator.yieldReturn !== undefined) {\n                    throw new traceur.runtime.\n                        GeneratorReturn(generator.yieldReturn);\n                  }\n                  throw traceur.runtime.StopIteration;\n              }\n            },\n\n            next: function() {\n              return this.send(undefined);\n            },\n\n            'throw': function(x) {\n              switch (generator.GState) {\n                case " + ST_EXECUTING + ":\n                  throw new Error('\"throw\" on executing generator');\n                case " + ST_CLOSED + ":\n                  throw new Error('\"throw\" on closed generator');\n                case " + ST_NEWBORN + ":\n                  generator.GState = " + ST_CLOSED + ";\n                  throw x;\n                case " + ST_SUSPENDED + ":\n                  generator.GState = " + ST_EXECUTING + ";\n                  if (generator.moveNext(x, " + ACTION_THROW + ")) {\n                    generator.GState = " + ST_SUSPENDED + ";\n                    return generator." + CURRENT + ";\n                  }\n                  generator.GState = " + ST_CLOSED + ";\n                  if (generator.yieldReturn !== undefined) {\n                    throw new traceur.runtime.\n                        GeneratorReturn(generator.yieldReturn);\n                  }\n                  throw traceur.runtime.StopIteration;\n              }\n            },\n\n            close: function() {\n              switch (generator.GState) {\n                case " + ST_EXECUTING + ":\n                  throw new Error('\"close\" on executing generator');\n                case " + ST_CLOSED + ":\n                  return;\n                case " + ST_NEWBORN + ":\n                  generator.GState = " + ST_CLOSED + ";\n                  return;\n                case " + ST_SUSPENDED + ":\n                  generator.GState = " + ST_EXECUTING + ";\n                  generator.moveNext(undefined, " + ACTION_CLOSE + ");\n                  generator.GState = " + ST_CLOSED + ";\n              }\n            }\n          });\n        }"));
+        var generatorWrap = this.runtimeInliner_.get('generatorWrap', ("\n        function (generator) {\n          return " + TRACEUR_RUNTIME + ".addIterator({\n            send: function(x) {\n              switch (generator.GState) {\n                case " + ST_EXECUTING + ":\n                  throw new Error('\"send\" on executing generator');\n                case " + ST_CLOSED + ":\n                  throw new Error('\"send\" on closed generator');\n                case " + ST_NEWBORN + ":\n                  if (x !== undefined) {\n                    throw new TypeError('Sent value to newborn generator');\n                  }\n                  // fall through\n                case " + ST_SUSPENDED + ":\n                  generator.GState = " + ST_EXECUTING + ";\n                  if (generator.moveNext(x, " + ACTION_SEND + ")) {\n                    generator.GState = " + ST_SUSPENDED + ";\n                    return generator.current;\n                  }\n                  generator.GState = " + ST_CLOSED + ";\n                  if (generator.yieldReturn !== undefined) {\n                    throw new " + TRACEUR_RUNTIME + ".\n                        GeneratorReturn(generator.yieldReturn);\n                  }\n                  throw " + TRACEUR_RUNTIME + ".StopIteration;\n              }\n            },\n\n            next: function() {\n              return this.send(undefined);\n            },\n\n            'throw': function(x) {\n              switch (generator.GState) {\n                case " + ST_EXECUTING + ":\n                  throw new Error('\"throw\" on executing generator');\n                case " + ST_CLOSED + ":\n                  throw new Error('\"throw\" on closed generator');\n                case " + ST_NEWBORN + ":\n                  generator.GState = " + ST_CLOSED + ";\n                  throw x;\n                case " + ST_SUSPENDED + ":\n                  generator.GState = " + ST_EXECUTING + ";\n                  if (generator.moveNext(x, " + ACTION_THROW + ")) {\n                    generator.GState = " + ST_SUSPENDED + ";\n                    return generator." + CURRENT + ";\n                  }\n                  generator.GState = " + ST_CLOSED + ";\n                  if (generator.yieldReturn !== undefined) {\n                    throw new " + TRACEUR_RUNTIME + ".\n                        GeneratorReturn(generator.yieldReturn);\n                  }\n                  throw " + TRACEUR_RUNTIME + ".StopIteration;\n              }\n            },\n\n            close: function() {\n              switch (generator.GState) {\n                case " + ST_EXECUTING + ":\n                  throw new Error('\"close\" on executing generator');\n                case " + ST_CLOSED + ":\n                  return;\n                case " + ST_NEWBORN + ":\n                  generator.GState = " + ST_CLOSED + ";\n                  return;\n                case " + ST_SUSPENDED + ":\n                  generator.GState = " + ST_EXECUTING + ";\n                  generator.moveNext(undefined, " + ACTION_CLOSE + ");\n                  generator.GState = " + ST_CLOSED + ";\n              }\n            }\n          });\n        }"));
         var id = createIdentifierExpression;
         statements.push(parseStatement($__3, generatorWrap, id(G)));
         return createBlock(statements);
@@ -15200,7 +15589,7 @@ var $___src_codegeneration_generator_GeneratorTransformer_js = (function() {
 }).call(this);
 var $___src_codegeneration_GeneratorTransformPass_js = (function() {
   "use strict";
-  var $__3 = Object.freeze(Object.defineProperties(["\n          switch (", ") {\n            case ", ":\n              ", " = ", ";\n              throw ", ";\n            case ", ":\n              return;\n          }"], {raw: {value: Object.freeze(["\n          switch (", ") {\n            case ", ":\n              ", " = ", ";\n              throw ", ";\n            case ", ":\n              return;\n          }"])}})), $__0 = Object.freeze(Object.defineProperties(["\n        {\n          var ", " = traceur.runtime.getIterator(", "), ", ";\n          // Use duck-type testing to also identify native generator objects.\n          // TODO: Reduce false positives.\n          var ", " = ", ".send;\n\n          // TODO: Should 'yield *' handle non-generator iterators? A strict\n          // interpretation of harmony:generators would indicate 'no', but\n          // 'yes' seems makes more sense from a language-user's perspective.\n\n          // received = void 0;\n          ", " = void 0;\n          // send = true; // roughly equivalent\n          ", " = ", ";\n          try {\n            while (true) {\n              switch (", ") {\n                case ", ":\n                  if (", ")\n                    ", " = ", ".send(", ");\n                  else\n                    ", " = ", ".next();\n                  break;\n                case ", ":\n                  ", " = ", ";\n                  if (", ")\n                    ", " = ", ".throw(", ");\n                  else\n                    throw ", ";\n                  break;\n                case ", ":\n                  // TODO: Another deviation from harmony:generators. This line\n                  // is needed if we want any given generator function G to be\n                  // identical in behavior to GG when 'close' is used.\n                  //   function* GG() { yield* G(); }\n                  if (", ")\n                    ", ".close();\n                  return;\n              }\n              ", ";\n            }\n          } catch(e) {\n            if (!traceur.runtime.isStopIteration(e))\n              throw e;\n            // result = e.value;\n            ", " = e.value;\n          } finally {\n            try {\n              ", ".close();\n            } catch(e) {}\n          }\n        }"], {raw: {value: Object.freeze(["\n        {\n          var ", " = traceur.runtime.getIterator(", "), ", ";\n          // Use duck-type testing to also identify native generator objects.\n          // TODO: Reduce false positives.\n          var ", " = ", ".send;\n\n          // TODO: Should 'yield *' handle non-generator iterators? A strict\n          // interpretation of harmony:generators would indicate 'no', but\n          // 'yes' seems makes more sense from a language-user's perspective.\n\n          // received = void 0;\n          ", " = void 0;\n          // send = true; // roughly equivalent\n          ", " = ", ";\n          try {\n            while (true) {\n              switch (", ") {\n                case ", ":\n                  if (", ")\n                    ", " = ", ".send(", ");\n                  else\n                    ", " = ", ".next();\n                  break;\n                case ", ":\n                  ", " = ", ";\n                  if (", ")\n                    ", " = ", ".throw(", ");\n                  else\n                    throw ", ";\n                  break;\n                case ", ":\n                  // TODO: Another deviation from harmony:generators. This line\n                  // is needed if we want any given generator function G to be\n                  // identical in behavior to GG when 'close' is used.\n                  //   function* GG() { yield* G(); }\n                  if (", ")\n                    ", ".close();\n                  return;\n              }\n              ", ";\n            }\n          } catch(e) {\n            if (!traceur.runtime.isStopIteration(e))\n              throw e;\n            // result = e.value;\n            ", " = e.value;\n          } finally {\n            try {\n              ", ".close();\n            } catch(e) {}\n          }\n        }"])}}));
+  var $__3 = Object.freeze(Object.defineProperties(["\n          switch (", ") {\n            case ", ":\n              ", " = ", ";\n              throw ", ";\n            case ", ":\n              return;\n          }"], {raw: {value: Object.freeze(["\n          switch (", ") {\n            case ", ":\n              ", " = ", ";\n              throw ", ";\n            case ", ":\n              return;\n          }"])}})), $__0 = Object.freeze(Object.defineProperties(["\n        {\n          var ", " = ", ".getIterator(", ");\n          var ", ";\n          // Use duck-type testing to also identify native generator objects.\n          // TODO: Reduce false positives.\n          var ", " = ", ".send;\n\n          // TODO: Should 'yield *' handle non-generator iterators? A strict\n          // interpretation of harmony:generators would indicate 'no', but\n          // 'yes' seems makes more sense from a language-user's perspective.\n\n          // received = void 0;\n          ", " = void 0;\n          // send = true; // roughly equivalent\n          ", " = ", ";\n          try {\n            while (true) {\n              switch (", ") {\n                case ", ":\n                  if (", ")\n                    ", " = ", ".send(", ");\n                  else\n                    ", " = ", ".next();\n                  break;\n                case ", ":\n                  ", " = ", ";\n                  if (", ")\n                    ", " = ", ".throw(", ");\n                  else\n                    throw ", ";\n                  break;\n                case ", ":\n                  // TODO: Another deviation from harmony:generators. This line\n                  // is needed if we want any given generator function G to be\n                  // identical in behavior to GG when 'close' is used.\n                  //   function* GG() { yield* G(); }\n                  if (", ")\n                    ", ".close();\n                  return;\n              }\n              ", ";\n            }\n          } catch(e) {\n            if (!", ".isStopIteration(e))\n              throw e;\n            // result = e.value;\n            ", " = e.value;\n          } finally {\n            try {\n              ", ".close();\n            } catch(e) {}\n          }\n        }"], {raw: {value: Object.freeze(["\n        {\n          var ", " = ", ".getIterator(", ");\n          var ", ";\n          // Use duck-type testing to also identify native generator objects.\n          // TODO: Reduce false positives.\n          var ", " = ", ".send;\n\n          // TODO: Should 'yield *' handle non-generator iterators? A strict\n          // interpretation of harmony:generators would indicate 'no', but\n          // 'yes' seems makes more sense from a language-user's perspective.\n\n          // received = void 0;\n          ", " = void 0;\n          // send = true; // roughly equivalent\n          ", " = ", ";\n          try {\n            while (true) {\n              switch (", ") {\n                case ", ":\n                  if (", ")\n                    ", " = ", ".send(", ");\n                  else\n                    ", " = ", ".next();\n                  break;\n                case ", ":\n                  ", " = ", ";\n                  if (", ")\n                    ", " = ", ".throw(", ");\n                  else\n                    throw ", ";\n                  break;\n                case ", ":\n                  // TODO: Another deviation from harmony:generators. This line\n                  // is needed if we want any given generator function G to be\n                  // identical in behavior to GG when 'close' is used.\n                  //   function* GG() { yield* G(); }\n                  if (", ")\n                    ", ".close();\n                  return;\n              }\n              ", ";\n            }\n          } catch(e) {\n            if (!", ".isStopIteration(e))\n              throw e;\n            // result = e.value;\n            ", " = e.value;\n          } finally {\n            try {\n              ", ".close();\n            } catch(e) {}\n          }\n        }"])}}));
   var AsyncTransformer = $___src_codegeneration_generator_AsyncTransformer_js.AsyncTransformer;
   var ForInTransformPass = $___src_codegeneration_generator_ForInTransformPass_js.ForInTransformPass;
   var ForOfTransformer = $___src_codegeneration_ForOfTransformer_js.ForOfTransformer;
@@ -15214,7 +15603,7 @@ var $___src_codegeneration_GeneratorTransformPass_js = (function() {
   var $__21 = $___src_syntax_trees_ParseTreeType_js, BINARY_OPERATOR = $__21.BINARY_OPERATOR, COMMA_EXPRESSION = $__21.COMMA_EXPRESSION, IDENTIFIER_EXPRESSION = $__21.IDENTIFIER_EXPRESSION, PAREN_EXPRESSION = $__21.PAREN_EXPRESSION, YIELD_EXPRESSION = $__21.YIELD_EXPRESSION;
   var $__21 = $___src_syntax_trees_ParseTrees_js, FunctionDeclaration = $__21.FunctionDeclaration, FunctionExpression = $__21.FunctionExpression;
   var $__21 = $___src_codegeneration_ParseTreeFactory_js, createAssignmentExpression = $__21.createAssignmentExpression, createAssignmentStatement = $__21.createAssignmentStatement, createBlock = $__21.createBlock, createCommaExpression = $__21.createCommaExpression, createExpressionStatement = $__21.createExpressionStatement, createForOfStatement = $__21.createForOfStatement, createIdentifierExpression = $__21.createIdentifierExpression, createVariableDeclaration = $__21.createVariableDeclaration, createVariableDeclarationList = $__21.createVariableDeclarationList, createVariableStatement = $__21.createVariableStatement, createYieldStatement = $__21.createYieldStatement;
-  var $__21 = $___src_syntax_PredefinedName_js, ACTION_SEND = $__21.ACTION_SEND, ACTION_THROW = $__21.ACTION_THROW, ACTION_CLOSE = $__21.ACTION_CLOSE, YIELD_ACTION = $__21.YIELD_ACTION, YIELD_SENT = $__21.YIELD_SENT;
+  var $__21 = $___src_syntax_PredefinedName_js, ACTION_SEND = $__21.ACTION_SEND, ACTION_THROW = $__21.ACTION_THROW, ACTION_CLOSE = $__21.ACTION_CLOSE, TRACEUR_RUNTIME = $__21.TRACEUR_RUNTIME, YIELD_ACTION = $__21.YIELD_ACTION, YIELD_SENT = $__21.YIELD_SENT;
   var $__21 = $___src_options_js, transformOptions = $__21.transformOptions, options = $__21.options;
   function isYieldAssign(tree) {
     return tree.operator.type === EQUAL && tree.right.type === YIELD_EXPRESSION && tree.left.isLeftHandSideExpression();
@@ -15303,7 +15692,7 @@ var $___src_codegeneration_GeneratorTransformPass_js = (function() {
         var g = id(this.getTempIdentifier());
         var next = id(this.getTempIdentifier());
         var isGeneratorObject = id(this.getTempIdentifier());
-        return parseStatement($__0, g, tree.expression, next, isGeneratorObject, g, id(YIELD_SENT), id(YIELD_ACTION), ACTION_SEND, id(YIELD_ACTION), ACTION_SEND, isGeneratorObject, next, g, id(YIELD_SENT), next, g, ACTION_THROW, id(YIELD_ACTION), ACTION_SEND, isGeneratorObject, next, g, id(YIELD_SENT), id(YIELD_SENT), ACTION_CLOSE, isGeneratorObject, g, createYieldStatement(next), id(YIELD_SENT), g);
+        return parseStatement($__0, g, id(TRACEUR_RUNTIME), tree.expression, next, isGeneratorObject, g, id(YIELD_SENT), id(YIELD_ACTION), ACTION_SEND, id(YIELD_ACTION), ACTION_SEND, isGeneratorObject, next, g, id(YIELD_SENT), next, g, ACTION_THROW, id(YIELD_ACTION), ACTION_SEND, isGeneratorObject, next, g, id(YIELD_SENT), id(YIELD_SENT), ACTION_CLOSE, isGeneratorObject, g, createYieldStatement(next), id(TRACEUR_RUNTIME), id(YIELD_SENT), g);
       }
     }, {transformTree: function(identifierGenerator, tree) {
         return new YieldExpressionTransformer(identifierGenerator).transformAny(tree);
@@ -15379,7 +15768,7 @@ var $___src_codegeneration_ModuleTransformer_js = (function() {
   "use strict";
   var $__21 = $___src_syntax_trees_ParseTrees_js, BindingElement = $__21.BindingElement, BindingIdentifier = $__21.BindingIdentifier, LiteralExpression = $__21.LiteralExpression, ObjectPattern = $__21.ObjectPattern, ObjectPatternField = $__21.ObjectPatternField, Program = $__21.Program;
   var ParseTreeTransformer = $___src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
-  var $__21 = $___src_syntax_PredefinedName_js, GET_MODULE_INSTANCE_BY_URL = $__21.GET_MODULE_INSTANCE_BY_URL, RUNTIME = $__21.RUNTIME, TRACEUR = $__21.TRACEUR;
+  var $__21 = $___src_syntax_PredefinedName_js, GET_MODULE_INSTANCE_BY_URL = $__21.GET_MODULE_INSTANCE_BY_URL, MODULES = $__21.MODULES, TRACEUR = $__21.TRACEUR;
   var $__21 = $___src_syntax_trees_ParseTreeType_js, CLASS_DECLARATION = $__21.CLASS_DECLARATION, EXPORT_DECLARATION = $__21.EXPORT_DECLARATION, EXPORT_MAPPING_LIST = $__21.EXPORT_MAPPING_LIST, EXPORT_SPECIFIER = $__21.EXPORT_SPECIFIER, EXPORT_STAR = $__21.EXPORT_STAR, FUNCTION_DECLARATION = $__21.FUNCTION_DECLARATION, IDENTIFIER_EXPRESSION = $__21.IDENTIFIER_EXPRESSION, IMPORT_DECLARATION = $__21.IMPORT_DECLARATION, MODULE_DECLARATION = $__21.MODULE_DECLARATION, MODULE_DEFINITION = $__21.MODULE_DEFINITION, MODULE_REQUIRE = $__21.MODULE_REQUIRE, VARIABLE_STATEMENT = $__21.VARIABLE_STATEMENT;
   var $__21 = $___src_syntax_TokenType_js, STAR = $__21.STAR, VAR = $__21.VAR;
   var $__21 = $___src_codegeneration_ParseTreeFactory_js, createArgumentList = $__21.createArgumentList, createBindingIdentifier = $__21.createBindingIdentifier, createBlock = $__21.createBlock, createCallExpression = $__21.createCallExpression, createEmptyParameterList = $__21.createEmptyParameterList, createExpressionStatement = $__21.createExpressionStatement, createFunctionExpression = $__21.createFunctionExpression, createIdentifierExpression = $__21.createIdentifierExpression, createIdentifierToken = $__21.createIdentifierToken, createMemberExpression = $__21.createMemberExpression, createNullLiteral = $__21.createNullLiteral, createObjectCreate = $__21.createObjectCreate, createObjectLiteralExpression = $__21.createObjectLiteralExpression, createObjectPreventExtensions = $__21.createObjectPreventExtensions, createProgram = $__21.createProgram, createPropertyDescriptor = $__21.createPropertyDescriptor, createPropertyNameAssignment = $__21.createPropertyNameAssignment, createReturnStatement = $__21.createReturnStatement, createScopedExpression = $__21.createScopedExpression, createUseStrictDirective = $__21.createUseStrictDirective, createVariableDeclaration = $__21.createVariableDeclaration, createVariableDeclarationList = $__21.createVariableDeclarationList, createVariableStatement = $__21.createVariableStatement;
@@ -15435,7 +15824,7 @@ var $___src_codegeneration_ModuleTransformer_js = (function() {
       transformModuleExpression: function(tree) {
         var reference = tree.reference;
         if (reference.type == MODULE_REQUIRE) {
-          return createCallExpression(createMemberExpression(TRACEUR, RUNTIME, GET_MODULE_INSTANCE_BY_URL), createArgumentList(new LiteralExpression(null, reference.url)));
+          return createCallExpression(createMemberExpression(TRACEUR, MODULES, GET_MODULE_INSTANCE_BY_URL), createArgumentList(new LiteralExpression(null, reference.url)));
         }
         if (tree.identifiers.length == 0) return reference;
         return createMemberExpression(reference, tree.identifiers);
@@ -17195,7 +17584,7 @@ var $___src_syntax_ParseTreeValidator_js = (function() {
 }).call(this);
 var $___src_codegeneration_PrivateNameSyntaxTransformer_js = (function() {
   "use strict";
-  var $__21 = $___src_syntax_PredefinedName_js, ASSERT_NAME = $__21.ASSERT_NAME, CREATE_NAME = $__21.CREATE_NAME, RUNTIME = $__21.RUNTIME, TRACEUR = $__21.TRACEUR;
+  var $__21 = $___src_syntax_PredefinedName_js, ASSERT_NAME = $__21.ASSERT_NAME, CREATE_NAME = $__21.CREATE_NAME, RUNTIME = $__21.RUNTIME, TRACEUR_RUNTIME = $__21.TRACEUR_RUNTIME;
   var TempVarTransformer = $___src_codegeneration_TempVarTransformer_js.TempVarTransformer;
   var CONST = $___src_syntax_TokenType_js.CONST;
   var $__21 = $___src_syntax_trees_ParseTrees_js, VariableDeclarationList = $__21.VariableDeclarationList, VariableStatement = $__21.VariableStatement;
@@ -17228,7 +17617,7 @@ var $___src_codegeneration_PrivateNameSyntaxTransformer_js = (function() {
           args = createEmptyArgumentList();
           name = CREATE_NAME;
         }
-        return createVariableDeclaration(transformedName, createCallExpression(createMemberExpression(TRACEUR, RUNTIME, name), args));
+        return createVariableDeclaration(transformedName, createCallExpression(createMemberExpression(TRACEUR_RUNTIME, name), args));
       }
     }, {transformTree: function(identifierGenerator, tree) {
         return new PrivateNameSyntaxTransformer(identifierGenerator).transformAny(tree);
@@ -17904,7 +18293,7 @@ var $___src_semantics_symbols_Project_js = (function() {
   function getStandardModule(url) {
     if (!(url in standardModuleCache)) {
       var symbol = new ModuleSymbol(null, null, null, url);
-      var moduleInstance = traceur.runtime.modules[url];
+      var moduleInstance = $traceurRuntime.modules[url];
       Object.keys(moduleInstance).forEach((function(name) {
         symbol.addExport(name, new ExportSymbol(null, name, null));
       }));
@@ -17972,7 +18361,7 @@ var $___src_semantics_symbols_Project_js = (function() {
         return this.modulesByUrl_[url];
       },
       hasModuleForUrl: function(url) {
-        if (standardModuleUrlRegExp.test(url)) return url in traceur.runtime.modules;
+        if (standardModuleUrlRegExp.test(url)) return url in $traceurRuntime.modules;
         url = resolveUrl(this.url, url);
         return url in this.modulesByUrl_;
       },
@@ -19569,7 +19958,7 @@ var $___src_runtime_modules_js = (function() {
   var currentCodeUnit;
   var standardModuleUrlRegExp = /^@\w+$/;
   function getModuleInstanceByUrl(url) {
-    if (standardModuleUrlRegExp.test(url)) return traceur.runtime.modules[url] || null;
+    if (standardModuleUrlRegExp.test(url)) return $traceurRuntime.modules[url] || null;
     traceur.assert(currentCodeUnit);
     url = resolveUrl(currentCodeUnit.url, url);
     for (var i = 0; i < currentCodeUnit.dependencies.length; i++) {
@@ -20528,14 +20917,7 @@ var traceur = (function() {
       }
     }));
   }).call(this);
-  var $__21 = $___src_runtime_modules_js, internals = $__21.internals, getModuleInstanceByUrl = $__21.getModuleInstanceByUrl, CodeLoader = $__21.CodeLoader;
-  var runtime;
-  function setRuntime(rt) {
-    runtime = rt;
-    runtime.internals = internals;
-    runtime.getModuleInstanceByUrl = getModuleInstanceByUrl;
-    runtime.CodeLoader = CodeLoader;
-  }
+  var modules = $___src_runtime_modules_js;
   return Object.preventExtensions(Object.create(null, {
     options: {
       get: function() {
@@ -20597,398 +20979,11 @@ var traceur = (function() {
       },
       enumerable: true
     },
-    runtime: {
+    modules: {
       get: function() {
-        return runtime;
-      },
-      enumerable: true
-    },
-    setRuntime: {
-      get: function() {
-        return setRuntime;
+        return modules;
       },
       enumerable: true
     }
   }));
 }).call(this);
-(function(global) {
-  'use strict';
-  var $create = Object.create;
-  var $defineProperty = Object.defineProperty;
-  var $freeze = Object.freeze;
-  var $getOwnPropertyNames = Object.getOwnPropertyNames;
-  var $getPrototypeOf = Object.getPrototypeOf;
-  var $hasOwnProperty = Object.prototype.hasOwnProperty;
-  function nonEnum(value) {
-    return {
-      configurable: true,
-      enumerable: false,
-      value: value,
-      writable: true
-    };
-  }
-  var method = nonEnum;
-  function polyfillString(String) {
-    Object.defineProperties(String.prototype, {
-      startsWith: method(function(s) {
-        return this.lastIndexOf(s, 0) === 0;
-      }),
-      endsWith: method(function(s) {
-        var t = String(s);
-        var l = this.length - t.length;
-        return l >= 0 && this.indexOf(t, l) === l;
-      }),
-      contains: method(function(s) {
-        return this.indexOf(s) !== - 1;
-      }),
-      toArray: method(function() {
-        return this.split('');
-      })
-    });
-    $defineProperty(String, 'raw', {
-      value: function(callsite) {
-        var raw = callsite.raw;
-        var len = raw.length >>> 0;
-        if (len === 0) return '';
-        var s = '';
-        var i = 0;
-        while (true) {
-          s += raw[i];
-          if (i + 1 === len) return s;
-          s += arguments[++i];
-        }
-      },
-      configurable: true,
-      enumerable: false,
-      writable: true
-    });
-  }
-  var counter = 0;
-  function newUniqueString() {
-    return '__$' + Math.floor(Math.random() * 1e9) + '$' + ++counter + '$__';
-  }
-  var nameRe = /^__\$(?:\d+)\$(?:\d+)\$__$/;
-  var internalStringValueName = newUniqueString();
-  function Name(string) {
-    if (!string) string = newUniqueString();
-    $defineProperty(this, internalStringValueName, {value: newUniqueString()});
-    function toString() {
-      return string;
-    }
-    $freeze(toString);
-    $freeze(toString.prototype);
-    var toStringDescr = method(toString);
-    $defineProperty(this, 'toString', toStringDescr);
-    this.public = $freeze($create(null, {toString: method($freeze(function toString() {
-        return string;
-      }))}));
-    $freeze(this.public.toString.prototype);
-    $freeze(this);
-  }
-  ;
-  $freeze(Name);
-  $freeze(Name.prototype);
-  function assertName(val) {
-    if (!NameModule.isName(val)) throw new TypeError(val + ' is not a Name');
-    return val;
-  }
-  var elementDeleteName = new Name();
-  var elementGetName = new Name();
-  var elementSetName = new Name();
-  var NameModule = $freeze({
-    Name: function(str) {
-      return new Name(str);
-    },
-    isName: function(x) {
-      return x instanceof Name;
-    },
-    elementGet: elementGetName,
-    elementSet: elementSetName,
-    elementDelete: elementDeleteName
-  });
-  var filter = Array.prototype.filter.call.bind(Array.prototype.filter);
-  function getOwnPropertyNames(object) {
-    return filter($getOwnPropertyNames(object), function(str) {
-      return !nameRe.test(str);
-    });
-  }
-  function hasOwnProperty(name) {
-    if (NameModule.isName(name) || nameRe.test(name)) return false;
-    return $hasOwnProperty.call(this, name);
-  }
-  function elementDelete(object, name) {
-    if (traceur.options.trapMemberLookup && hasPrivateNameProperty(object, elementDeleteName)) {
-      return getProperty(object, elementDeleteName).call(object, name);
-    }
-    return deleteProperty(object, name);
-  }
-  function elementGet(object, name) {
-    if (traceur.options.trapMemberLookup && hasPrivateNameProperty(object, elementGetName)) {
-      return getProperty(object, elementGetName).call(object, name);
-    }
-    return getProperty(object, name);
-  }
-  function elementHas(object, name) {
-    return has(object, name);
-  }
-  function elementSet(object, name, value) {
-    if (traceur.options.trapMemberLookup && hasPrivateNameProperty(object, elementSetName)) {
-      getProperty(object, elementSetName).call(object, name, value);
-    } else {
-      setProperty(object, name, value);
-    }
-    return value;
-  }
-  function assertNotName(s) {
-    if (nameRe.test(s)) throw Error('Invalid access to private name');
-  }
-  function deleteProperty(object, name) {
-    if (NameModule.isName(name)) return delete object[name[internalStringValueName]];
-    if (nameRe.test(name)) return true;
-    return delete object[name];
-  }
-  function getProperty(object, name) {
-    if (NameModule.isName(name)) return object[name[internalStringValueName]];
-    if (nameRe.test(name)) return undefined;
-    return object[name];
-  }
-  function hasPrivateNameProperty(object, name) {
-    return name[internalStringValueName]in Object(object);
-  }
-  function has(object, name) {
-    if (NameModule.isName(name) || nameRe.test(name)) return false;
-    return name in Object(object);
-  }
-  function setProperty(object, name, value) {
-    if (NameModule.isName(name)) {
-      var descriptor = $getPropertyDescriptor(object, [name[internalStringValueName]]);
-      if (descriptor) object[name[internalStringValueName]] = value; else $defineProperty(object, name[internalStringValueName], nonEnum(value));
-    } else {
-      assertNotName(name);
-      object[name] = value;
-    }
-  }
-  function defineProperty(object, name, descriptor) {
-    if (NameModule.isName(name)) {
-      if (descriptor.enumerable) {
-        descriptor = Object.create(descriptor, {enumerable: {value: false}});
-      }
-      $defineProperty(object, name[internalStringValueName], descriptor);
-    } else {
-      assertNotName(name);
-      $defineProperty(object, name, descriptor);
-    }
-  }
-  function $getPropertyDescriptor(obj, name) {
-    while (obj !== null) {
-      var result = Object.getOwnPropertyDescriptor(obj, name);
-      if (result) return result;
-      obj = $getPrototypeOf(obj);
-    }
-    return undefined;
-  }
-  function getPropertyDescriptor(obj, name) {
-    if (NameModule.isName(name)) return undefined;
-    assertNotName(name);
-    return $getPropertyDescriptor(obj, name);
-  }
-  function polyfillObject(Object) {
-    $defineProperty(Object, 'defineProperty', {value: defineProperty});
-    $defineProperty(Object, 'deleteProperty', method(deleteProperty));
-    $defineProperty(Object, 'getOwnPropertyNames', {value: getOwnPropertyNames});
-    $defineProperty(Object, 'getProperty', method(getProperty));
-    $defineProperty(Object, 'getPropertyDescriptor', method(getPropertyDescriptor));
-    $defineProperty(Object, 'has', method(has));
-    $defineProperty(Object, 'setProperty', method(setProperty));
-    $defineProperty(Object.prototype, 'hasOwnProperty', {value: hasOwnProperty});
-    function is(left, right) {
-      if (left === right) return left !== 0 || 1 / left === 1 / right;
-      return left !== left && right !== right;
-    }
-    $defineProperty(Object, 'is', method(is));
-  }
-  var iteratorName = new Name('iterator');
-  var IterModule = {
-    get iterator() {
-      return iteratorName;
-    },
-    isStopIteration: isStopIteration
-  };
-  function getIterator(collection) {
-    return getProperty(collection, iteratorName).call(collection);
-  }
-  function returnThis() {
-    return this;
-  }
-  function addIterator(object) {
-    setProperty(object, iteratorName, returnThis);
-    return object;
-  }
-  function polyfillArray(Array) {
-    defineProperty(Array.prototype, IterModule.iterator, method(function() {
-      var index = 0;
-      var array = this;
-      return {next: function() {
-          if (index < array.length) {
-            return array[index++];
-          }
-          throw StopIterationLocal;
-        }};
-    }));
-  }
-  var GeneratorReturnLocal;
-  function setGeneratorReturn(GeneratorReturn, global) {
-    switch (typeof GeneratorReturn) {
-      case 'function':
-        if (typeof GeneratorReturnLocal === 'function' && StopIterationLocal instanceof GeneratorReturnLocal) {
-          GeneratorReturnLocal = GeneratorReturn;
-          setStopIteration(undefined, global);
-          return;
-        }
-        GeneratorReturnLocal = GeneratorReturn;
-        return;
-      case 'undefined':
-        GeneratorReturnLocal = function(v) {
-          this.value = v;
-        };
-        GeneratorReturnLocal.prototype = {toString: function() {
-            return '[object GeneratorReturn ' + this.value + ']';
-          }};
-        return;
-      default:
-        throw new TypeError('constructor function required');
-    }
-  }
-  setGeneratorReturn();
-  var StopIterationLocal;
-  function isStopIteration(x) {
-    return x === StopIterationLocal || x instanceof GeneratorReturnLocal;
-  }
-  function setStopIteration(StopIteration, global) {
-    switch (typeof StopIteration) {
-      case 'object':
-        StopIterationLocal = StopIteration;
-        break;
-      case 'undefined':
-        StopIterationLocal = new GeneratorReturnLocal();
-        StopIterationLocal.toString = function() {
-          return '[object StopIteration]';
-        };
-        break;
-      default:
-        throw new TypeError('invalid StopIteration type.');
-    }
-    if (global) global.StopIteration = StopIterationLocal;
-  }
-  setStopIteration(global.StopIteration, global);
-  function Deferred(canceller) {
-    this.canceller_ = canceller;
-    this.listeners_ = [];
-  }
-  function notify(self) {
-    while (self.listeners_.length > 0) {
-      var current = self.listeners_.shift();
-      var currentResult = undefined;
-      try {
-        try {
-          if (self.result_[1]) {
-            if (current.errback) currentResult = current.errback.call(undefined, self.result_[0]);
-          } else {
-            if (current.callback) currentResult = current.callback.call(undefined, self.result_[0]);
-          }
-          current.deferred.callback(currentResult);
-        } catch (err) {
-          current.deferred.errback(err);
-        }
-      } catch (unused) {}
-    }
-  }
-  function fire(self, value, isError) {
-    if (self.fired_) throw new Error('already fired');
-    self.fired_ = true;
-    self.result_ = [value, isError];
-    notify(self);
-  }
-  Deferred.prototype = {
-    fired_: false,
-    result_: undefined,
-    createPromise: function() {
-      return {
-        then: this.then.bind(this),
-        cancel: this.cancel.bind(this)
-      };
-    },
-    callback: function(value) {
-      fire(this, value, false);
-    },
-    errback: function(err) {
-      fire(this, err, true);
-    },
-    then: function(callback, errback) {
-      var result = new Deferred(this.cancel.bind(this));
-      this.listeners_.push({
-        deferred: result,
-        callback: callback,
-        errback: errback
-      });
-      if (this.fired_) notify(this);
-      return result.createPromise();
-    },
-    cancel: function() {
-      if (this.fired_) throw new Error('already finished');
-      var result;
-      if (this.canceller_) {
-        result = this.canceller_(this);
-        if (!result instanceof Error) result = new Error(result);
-      } else {
-        result = new Error('cancelled');
-      }
-      if (!this.fired_) {
-        this.result_ = [result, true];
-        notify(this);
-      }
-    }
-  };
-  var modules = $freeze({
-    get'@name'() {
-      return NameModule;
-    },
-    get'@iter'() {
-      return IterModule;
-    }
-  });
-  global.Deferred = Deferred;
-  function setupGlobals(global) {
-    polyfillString(global.String);
-    polyfillObject(global.Object);
-    polyfillArray(global.Array);
-  }
-  setupGlobals(global);
-  var runtime = {
-    Deferred: Deferred,
-    get GeneratorReturn() {
-      return GeneratorReturnLocal;
-    },
-    setGeneratorReturn: setGeneratorReturn,
-    get StopIteration() {
-      return StopIterationLocal;
-    },
-    setStopIteration: setStopIteration,
-    isStopIteration: isStopIteration,
-    addIterator: addIterator,
-    assertName: assertName,
-    createName: NameModule.Name,
-    deleteProperty: deleteProperty,
-    elementDelete: elementDelete,
-    elementGet: elementGet,
-    elementHas: elementHas,
-    elementSet: elementSet,
-    getIterator: getIterator,
-    getProperty: getProperty,
-    setProperty: setProperty,
-    setupGlobals: setupGlobals,
-    has: has,
-    modules: modules
-  };
-  if (typeof traceur !== 'undefined') traceur.setRuntime(runtime); else global.traceur = {runtime: runtime};
-})(typeof global !== 'undefined' ? global: this);

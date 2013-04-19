@@ -16,7 +16,7 @@ import {
   ASSERT_NAME,
   CREATE_NAME,
   RUNTIME,
-  TRACEUR
+  TRACEUR_RUNTIME
 } from '../syntax/PredefinedName.js';
 import {TempVarTransformer} from './TempVarTransformer.js';
 import {CONST} from '../syntax/TokenType.js';
@@ -52,8 +52,8 @@ export class PrivateNameSyntaxTransformer extends TempVarTransformer {
   transformNameStatement(tree) {
     // private @a, @b = expr;
     //  =>
-    // const __a = traceur.runtime.createName(),
-    //       __b = traceur.runtime.assertName(expr)
+    // const __a = traceurRuntime.createName(),
+    //       __b = traceurRuntime.assertName(expr)
     var declarations = this.transformList(tree.declarations);
     return new VariableStatement(tree.location,
         new VariableDeclarationList(tree.location, CONST, declarations));
@@ -73,7 +73,7 @@ export class PrivateNameSyntaxTransformer extends TempVarTransformer {
 
     return createVariableDeclaration(transformedName,
       createCallExpression(
-        createMemberExpression(TRACEUR, RUNTIME, name),
+        createMemberExpression(TRACEUR_RUNTIME, name),
         args));
   }
 

@@ -18,7 +18,7 @@ import {
   GET_ITERATOR,
   MOVE_NEXT,
   RUNTIME,
-  TRACEUR
+  TRACEUR_RUNTIME
 } from '../syntax/PredefinedName.js';
 import {VARIABLE_DECLARATION_LIST} from '../syntax/trees/ParseTreeType.js';
 import {TempVarTransformer} from './TempVarTransformer.js';
@@ -47,14 +47,14 @@ export class ForOfTransformer extends TempVarTransformer {
 
   // for ( initializer of collection ) statement
   //
-  // var $it = traceur.runtime.getIterator(collection);
+  // var $it = traceurRuntime.getIterator(collection);
   // try {
   //   while (true) {
   //     initializer = $it.next();
   //     statement
   //   }
   // } catch(e) {
-  //   if (!traceur.runtime.isStopIteration(e))
+  //   if (!traceurRuntime.isStopIteration(e))
   //     throw e;
   // }
   /**
@@ -80,16 +80,17 @@ export class ForOfTransformer extends TempVarTransformer {
               createCallExpression(createMemberExpression(iter, 'next'))));
     }
 
+    var id = createIdentifierExpression;
     return parseStatement `
       {
-        var ${iter} = traceur.runtime.getIterator(${tree.collection});
+        var ${iter} = ${id(TRACEUR_RUNTIME)}.getIterator(${tree.collection});
         try {
           while (true) {
             ${assignment};
             ${tree.body}; // statement
           }
         } catch(e) {
-          if (!traceur.runtime.isStopIteration(e))
+          if (!${id(TRACEUR_RUNTIME)}.isStopIteration(e))
             throw e;
         }
       }`;

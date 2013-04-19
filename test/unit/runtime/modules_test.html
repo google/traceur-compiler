@@ -46,7 +46,7 @@ function getLoader(opt_reporter) {
   var project = new traceur.semantics.symbols.Project(url);
   var parentLoader = null;
   var resolver = null;
-  return new traceur.runtime.CodeLoader(opt_reporter || reporter, project,
+  return new traceur.modules.CodeLoader(opt_reporter || reporter, project,
                                         parentLoader, resolver);
 }
 

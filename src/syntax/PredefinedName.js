@@ -101,6 +101,7 @@ export var SUPER_SET = 'superSet';
 export var THEN = 'then';
 export var THIS = 'this';
 export var TRACEUR = 'traceur';
+export var TRACEUR_RUNTIME = '$traceurRuntime';
 export var TYPE_ERROR = 'TypeError';
 export var UNDEFINED = 'undefined';
 export var VALUE = 'value';

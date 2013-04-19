@@ -24,7 +24,7 @@ import {
   RESULT,
   RUNTIME,
   STORED_EXCEPTION,
-  TRACEUR,
+  TRACEUR_RUNTIME,
   YIELD_RETURN
 } from '../../syntax/PredefinedName.js';
 import {
@@ -239,7 +239,7 @@ export class GeneratorTransformer extends CPSTransformer {
     var generatorWrap = this.runtimeInliner_.get('generatorWrap',
         `
         function (generator) {
-          return traceur.runtime.addIterator({
+          return ${TRACEUR_RUNTIME}.addIterator({
             send: function(x) {
               switch (generator.GState) {
                 case ${ST_EXECUTING}:
@@ -259,10 +259,10 @@ export class GeneratorTransformer extends CPSTransformer {
                   }
                   generator.GState = ${ST_CLOSED};
                   if (generator.yieldReturn !== undefined) {
-                    throw new traceur.runtime.
+                    throw new ${TRACEUR_RUNTIME}.
                         GeneratorReturn(generator.yieldReturn);
                   }
-                  throw traceur.runtime.StopIteration;
+                  throw ${TRACEUR_RUNTIME}.StopIteration;
               }
             },
 
@@ -287,10 +287,10 @@ export class GeneratorTransformer extends CPSTransformer {
                   }
                   generator.GState = ${ST_CLOSED};
                   if (generator.yieldReturn !== undefined) {
-                    throw new traceur.runtime.
+                    throw new ${TRACEUR_RUNTIME}.
                         GeneratorReturn(generator.yieldReturn);
                   }
-                  throw traceur.runtime.StopIteration;
+                  throw ${TRACEUR_RUNTIME}.StopIteration;
               }
             },
 

@@ -112,12 +112,12 @@ var CREATE_CLASS_NO_EXTENDS_CODE =
  *
  *   =>
  *
- *   let C = traceur.runtime.createClass({
+ *   let C = traceurRuntime.createClass({
  *      constructor: function C(x) {
- *         traceur.runtime.superCall(this, C, 'constructor', [x]);
+ *         traceurRuntime.superCall(this, C, 'constructor', [x]);
  *      },
  *      method: function method() {
- *        traceur.runtime.superCall(this, C, 'm', []);
+ *        traceurRuntime.superCall(this, C, 'm', []);
  *      }
  *   });
  */
