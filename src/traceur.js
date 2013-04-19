@@ -114,14 +114,5 @@ module traceur {
     }
   }
 
-  import {
-    internals,
-    getModuleInstanceByUrl,
-    CodeLoader
-  } from './runtime/modules.js';
-
-  export var runtime = global.$traceurRuntime;
-  runtime.internals = internals;
-  runtime.getModuleInstanceByUrl = getModuleInstanceByUrl;
-  runtime.CodeLoader = CodeLoader;
+  export module runtime from './runtime/modules.js';
 }
