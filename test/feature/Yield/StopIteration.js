@@ -30,51 +30,51 @@ function checkInvariants(StopIteration, GeneratorReturn, instanceofCheck) {
 //-----------------------------------------------------------------------------
 
 var origStopIteration = StopIteration;
-var origGeneratorReturn = traceurRuntime.GeneratorReturn;
+var origGeneratorReturn = $traceurRuntime.GeneratorReturn;
 
 //----
 
-checkInvariants(StopIteration, traceurRuntime.GeneratorReturn, false);
+checkInvariants(StopIteration, $traceurRuntime.GeneratorReturn, false);
 
 //-----------------------------------------------------------------------------
 
 var tmp = {}, tmpStopIteration = {};
 
-traceurRuntime.setStopIteration(tmpStopIteration, tmp);
+$traceurRuntime.setStopIteration(tmpStopIteration, tmp);
 
 //----
 
 assertEquals(tmpStopIteration, tmp.StopIteration);
-checkInvariants(tmp.StopIteration, traceurRuntime.GeneratorReturn, false);
+checkInvariants(tmp.StopIteration, $traceurRuntime.GeneratorReturn, false);
 
 //-----------------------------------------------------------------------------
 
-traceurRuntime.setStopIteration(undefined, tmp);
+$traceurRuntime.setStopIteration(undefined, tmp);
 
 //----
 
-checkInvariants(tmp.StopIteration, traceurRuntime.GeneratorReturn, true);
+checkInvariants(tmp.StopIteration, $traceurRuntime.GeneratorReturn, true);
 
 //-----------------------------------------------------------------------------
 
 var prevStopIteration = tmp.StopIteration;
-var prevGeneratorReturn = traceurRuntime.GeneratorReturn;
+var prevGeneratorReturn = $traceurRuntime.GeneratorReturn;
 
-traceurRuntime.setGeneratorReturn(function(v) { this.value = v; }, tmp);
+$traceurRuntime.setGeneratorReturn(function(v) { this.value = v; }, tmp);
 
 //----
 
 assertNotEquals(prevStopIteration, tmp.StopIteration);
-assertNotEquals(prevGeneratorReturn, traceurRuntime.GeneratorReturn);
+assertNotEquals(prevGeneratorReturn, $traceurRuntime.GeneratorReturn);
 
-checkInvariants(tmp.StopIteration, traceurRuntime.GeneratorReturn, true);
+checkInvariants(tmp.StopIteration, $traceurRuntime.GeneratorReturn, true);
 
 //-----------------------------------------------------------------------------
 
 // Restore original state to avoid confounding other tests.
-traceurRuntime.setGeneratorReturn(origGeneratorReturn);
-traceurRuntime.setStopIteration(origStopIteration);
+$traceurRuntime.setGeneratorReturn(origGeneratorReturn);
+$traceurRuntime.setStopIteration(origStopIteration);
 
 //----
 
-checkInvariants(StopIteration, traceurRuntime.GeneratorReturn, false);
+checkInvariants(StopIteration, $traceurRuntime.GeneratorReturn, false);
