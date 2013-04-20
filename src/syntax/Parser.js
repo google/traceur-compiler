@@ -212,7 +212,10 @@ export class Parser {
   */
   peekModuleDefinition_(type) {
     // TODO(arv): Remove lookahead.
-    return type === IDENTIFIER && this.peek_(OPEN_CURLY, 1);
+    if (type === IDENTIFIER || (parseOptions.pathModules && type === STRING)) {
+      return this.peek_(OPEN_CURLY, 1);
+    }
+    return false;
   }
 
   /**
@@ -229,7 +232,12 @@ export class Parser {
     var strictMode = this.strictMode_;
     this.strictMode_ = true;
 
-    var name = this.eatId_();
+    var name;
+    if (parseOptions.pathModules && this.peek_(STRING)) {
+      name = this.eat_(STRING);
+    } else {
+      name = this.eatId_();
+    }
     this.eat_(OPEN_CURLY);
     var result = [];
     var type;
@@ -540,7 +548,8 @@ export class Parser {
     return parseOptions.modules &&
         type === IDENTIFIER && this.peekToken_().value === MODULE &&
         // TODO(arv): Do we need this lookahead?
-        this.peek_(IDENTIFIER, 1);
+        (this.peek_(IDENTIFIER, 1) ||
+         (parseOptions.pathModules && this.peek_(STRING, 1)));
   }
 
   /**

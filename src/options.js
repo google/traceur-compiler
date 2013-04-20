@@ -267,6 +267,7 @@ addFeatureOption('trapMemberLookup', EXPERIMENTAL);
 addFeatureOption('deferredFunctions', EXPERIMENTAL);
 addFeatureOption('propertyOptionalComma', EXPERIMENTAL);
 addFeatureOption('types', EXPERIMENTAL);
+addFeatureOption('pathModules', EXPERIMENTAL);
 
 addBoolOption('debug');
 addBoolOption('sourceMaps');
