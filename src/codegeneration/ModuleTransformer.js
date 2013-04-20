@@ -69,7 +69,9 @@ import {
   createVariableDeclarationList,
   createVariableStatement
 } from './ParseTreeFactory.js';
+import {options} from '../options.js';
 import {hasUseStrict} from '../semantics/util.js';
+import {parseStatement} from './PlaceholderParser.js';
 
 function toBindingIdentifier(tree) {
   return new BindingIdentifier(tree.location, tree.identifierToken);
@@ -367,6 +369,12 @@ function transformDefinition(project, parent, tree, useStrictCount) {
 
   var callExpression = transformModuleElements(project, module,
                                                tree.elements, useStrictCount);
+
+  if (module.isPath && options.pathModules) {
+    return parseStatement `
+        System.set(${module.name.slice(1, -1)}, ${callExpression});
+        `;
+  }
 
   // const M = (function() { statements }).call(thisObject);
   // TODO(arv): const is not allowed in ES5 strict
