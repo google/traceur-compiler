@@ -14,6 +14,7 @@
 
 import {ParseTreeVisitor} from '../../syntax/ParseTreeVisitor.js';
 import {canonicalizeUrl} from '../../util/url.js';
+import {options} from '../../options.js';
 
 // TODO(arv): This is closer to the ModuleVisitor but we don't care about
 // modules.
@@ -37,6 +38,8 @@ export class ModuleRequireVisitor extends ParseTreeVisitor {
   }
 
   visitModuleRequire(tree) {
+    if (options.pathModules)
+      return;
     this.urls_[canonicalizeUrl(tree.url.processedValue)] = true;
   }
 }

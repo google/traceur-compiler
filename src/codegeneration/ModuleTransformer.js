@@ -71,7 +71,10 @@ import {
 } from './ParseTreeFactory.js';
 import {options} from '../options.js';
 import {hasUseStrict} from '../semantics/util.js';
-import {parseStatement} from './PlaceholderParser.js';
+import {
+  parseStatement,
+  parseExpression
+} from './PlaceholderParser.js';
 
 function toBindingIdentifier(tree) {
   return new BindingIdentifier(tree.location, tree.identifierToken);
@@ -158,6 +161,11 @@ export class ModuleTransformer extends ParseTreeTransformer {
   transformModuleExpression(tree) {
     var reference = tree.reference;
     if (reference.type == MODULE_REQUIRE) {
+      if (options.pathModules) {
+        return parseExpression `
+            System.get(${reference.url.processedValue})
+            `;
+      }
       // traceur.modules.getModuleInstanceByUrl(url)
       return createCallExpression(
           createMemberExpression(TRACEUR, MODULES, GET_MODULE_INSTANCE_BY_URL),

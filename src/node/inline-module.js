@@ -77,6 +77,8 @@ function ModuleRequireTransformer(url, commonPath) {
 ModuleRequireTransformer.prototype = {
   __proto__: ParseTreeTransformer.prototype,
   transformModuleRequire: function(tree) {
+    if (traceur.options.pathModules)
+      return tree;
     var url = tree.url.processedValue;
 
     // Don't handle builtin modules.
