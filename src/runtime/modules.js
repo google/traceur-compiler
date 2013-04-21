@@ -25,6 +25,12 @@ import {SourceFile} from '../syntax/SourceFile.js';
 import {TreeWriter} from '../outputgeneration/TreeWriter.js';
 import {getUid} from '../util/uid.js';
 import {resolveUrl} from '../util/url.js';
+import {
+  standardModuleUrlRegExp,
+  getModuleInstanceByUrl,
+  getCurrentCodeUnit,
+  setCurrentCodeUnit
+} from './get-module.js';
 
 // TODO(arv): I stripped the resolvers to make this simpler for now.
 
@@ -512,8 +518,8 @@ class InternalLoader {
         continue;
       }
 
-      traceur.assert(currentCodeUnit === undefined);
-      currentCodeUnit = codeUnit;
+      traceur.assert(getCurrentCodeUnit() === undefined);
+      setCurrentCodeUnit(codeUnit);
       var result;
 
       try {
@@ -524,8 +530,8 @@ class InternalLoader {
         return;
       } finally {
         // Ensure that we always clean up currentCodeUnit.
-        traceur.assert(currentCodeUnit === codeUnit);
-        currentCodeUnit = undefined;
+        traceur.assert(getCurrentCodeUnit() === codeUnit);
+        setCurrentCodeUnit(undefined);
       }
 
       codeUnit.result = result;
@@ -549,34 +555,6 @@ class InternalLoader {
     return ('global', eval)("'use strict';" +
         TreeWriter.write(codeUnit.transformedTree));
   }
-}
-
-/**
- * This is the current code unit object being evaluated.
- */
-var currentCodeUnit;
-
-var standardModuleUrlRegExp = /^@\w+$/;
-
-/**
- * This is used to find the module for a require url ModuleExpression.
- * @param {string} url
- * @return {Object} A module instance object for the given url in the current
- *     code loader.
- */
-export function getModuleInstanceByUrl(url) {
-  if (standardModuleUrlRegExp.test(url))
-    return $traceurRuntime.modules[url] || null;
-
-  traceur.assert(currentCodeUnit);
-  url = resolveUrl(currentCodeUnit.url, url);
-  for (var i = 0; i < currentCodeUnit.dependencies.length; i++) {
-    if (currentCodeUnit.dependencies[i].url == url) {
-      return currentCodeUnit.dependencies[i].result;
-    }
-  }
-
-  return null;
 }
 
 export class CodeLoader {
