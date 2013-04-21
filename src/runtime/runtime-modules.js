@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-module modules from './modules.js';
+module modules from './get-module.js';
 (function(global) {
   'use strict';
   global.$traceurModules = modules;
