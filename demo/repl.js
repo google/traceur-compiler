@@ -142,7 +142,7 @@ function isWrapped(cmd) {
  * @param {string} filename The filename to use when reporting errors.
  */
 function init(ctx, filename) {
-  vm.runInContext('traceur.runtime.setupGlobals(global);', ctx, filename);
+  vm.runInContext('$traceurRuntime.setupGlobals(global);', ctx, filename);
 }
 
 var trepl = repl.start({
