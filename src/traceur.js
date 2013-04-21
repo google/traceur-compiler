@@ -113,6 +113,4 @@ module traceur {
           './codegeneration/module/ModuleRequireVisitor.js';
     }
   }
-
-  export module modules from './runtime/modules.js';
 }
