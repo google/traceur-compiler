@@ -28,7 +28,7 @@ Module._extensions[ext] = function(module, filename) {
   module._compile(module.compiledCode, module.filename);
 };
 
-module.exports = function require(filename) {
+function compile(filename) {
   var reporter = new ErrorReporter();
   var tree = inlineAndCompileSync([filename], null, reporter);
   if (reporter.hadError()) {
@@ -37,9 +37,22 @@ module.exports = function require(filename) {
     throw new Error();
   }
 
-  var source = TreeWriter.write(tree);
+  return TreeWriter.write(tree);
+}
+
+function traceurRequire(filename) {
+  var source = compile(filename);
   var module = new Module(filename, require.main);
   module.compiledCode = source;
   module.load(filename + ext);
   return module.exports;
 };
+
+traceurRequire.makeDefault = function() {
+  Module._extensions['.js'] = function(module, filename) {
+    var source = compile(filename)
+    return module._compile(source, filename);
+  };
+};
+
+module.exports = traceurRequire;
