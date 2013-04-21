@@ -23,8 +23,7 @@ import {
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {
   GET_MODULE_INSTANCE_BY_URL,
-  MODULES,
-  TRACEUR
+  TRACEUR_MODULES
 } from '../syntax/PredefinedName.js';
 import {
   CLASS_DECLARATION,
@@ -168,7 +167,7 @@ export class ModuleTransformer extends ParseTreeTransformer {
       }
       // traceur.modules.getModuleInstanceByUrl(url)
       return createCallExpression(
-          createMemberExpression(TRACEUR, MODULES, GET_MODULE_INSTANCE_BY_URL),
+          createMemberExpression(TRACEUR_MODULES, GET_MODULE_INSTANCE_BY_URL),
           createArgumentList(
               new LiteralExpression(null, reference.url)));
     }

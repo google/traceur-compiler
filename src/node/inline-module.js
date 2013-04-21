@@ -17,7 +17,7 @@ var path = require('path');
 
 var generateNameForUrl = traceur.generateNameForUrl;
 var ErrorReporter = traceur.util.ErrorReporter;
-var InternalLoader = traceur.modules.internals.InternalLoader;
+var InternalLoader = $traceurModules.internals.InternalLoader;
 var ModuleAnalyzer = traceur.semantics.ModuleAnalyzer;
 var ModuleDefinition = traceur.syntax.trees.ModuleDefinition;
 var ModuleRequireVisitor = traceur.codegeneration.module.ModuleRequireVisitor;
