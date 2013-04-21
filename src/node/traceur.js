@@ -23,4 +23,11 @@ if (!data)
 
 ('global', eval)(data);
 
-module.exports = traceur;
+// traceur is a module and thus frozen.
+module.exports = {
+  __proto__: traceur,
+  // Wrap in a getter to break cyclic dependencies.
+  get require() {
+    return require('./require.js');
+  }
+};
