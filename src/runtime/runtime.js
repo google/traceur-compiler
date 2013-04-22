@@ -502,9 +502,7 @@
       this.kv_[k] = v;
     },
     get: function(k) {
-      if (modules[k])
-        return modules[k];
-      return this.kv_[k];
+      return modules[k] || this.kv_[k];
     }
   }
 
