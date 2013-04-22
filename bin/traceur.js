@@ -438,64 +438,371 @@ var $__22, $__23, $__24, $__25, $__26, $__27, $__28, $__29, $__30, $__31, $__32,
   };
   global.$traceurRuntime = runtime;
 })(typeof global !== 'undefined' ? global: this);
-var $___src_util_ArrayMap_js = (function() {
+var $___src_util_url_js = (function() {
   "use strict";
-  var ArrayMap = function() {
-    'use strict';
-    var $ArrayMap = ($__createClassNoExtends)({
-      constructor: function() {
-        this.values_ = [];
-        this.keys_ = [];
-      },
-      has: function(key) {
-        return this.keys_.indexOf(key) != - 1;
-      },
-      get: function(key) {
-        var index = this.keys_.indexOf(key);
-        if (index == - 1) {
-          return undefined;
-        }
-        return this.values_[index];
-      },
-      set: function(key, value) {
-        var index = this.keys_.indexOf(key);
-        if (index == - 1) {
-          this.keys_.push(key);
-          this.values_.push(value);
-        } else {
-          this.values_[index] = value;
-        }
-      },
-      addAll: function(other) {
-        var keys = other.keys();
-        var values = other.values();
-        for (var i = 0; i < keys.length; i++) {
-          this.set(keys[i], values[i]);
-        }
-      },
-      remove: function(key) {
-        var index = this.keys_.indexOf(key);
-        if (index == - 1) {
-          return;
-        }
-        this.keys_.splice(index, 1);
-        this.values_.splice(index, 1);
-      },
-      keys: function() {
-        return this.keys_.concat();
-      },
-      values: function() {
-        return this.values_.concat();
+  function buildFromEncodedParts(opt_scheme, opt_userInfo, opt_domain, opt_port, opt_path, opt_queryData, opt_fragment) {
+    var out = [];
+    if (opt_scheme) {
+      out.push(opt_scheme, ':');
+    }
+    if (opt_domain) {
+      out.push('//');
+      if (opt_userInfo) {
+        out.push(opt_userInfo, '@');
       }
-    }, {});
-    return $ArrayMap;
-  }();
-  return Object.preventExtensions(Object.create(null, {ArrayMap: {
+      out.push(opt_domain);
+      if (opt_port) {
+        out.push(':', opt_port);
+      }
+    }
+    if (opt_path) {
+      out.push(opt_path);
+    }
+    if (opt_queryData) {
+      out.push('?', opt_queryData);
+    }
+    if (opt_fragment) {
+      out.push('#', opt_fragment);
+    }
+    return out.join('');
+  }
+  ;
+  var splitRe = new RegExp('^' + '(?:' + '([^:/?#.]+)' + ':)?' + '(?://' + '(?:([^/?#]*)@)?' + '([\\w\\d\\-\\u0100-\\uffff.%]*)' + '(?::([0-9]+))?' + ')?' + '([^?#]+)?' + '(?:\\?([^#]*))?' + '(?:#(.*))?' + '$');
+  var ComponentIndex = {
+    SCHEME: 1,
+    USER_INFO: 2,
+    DOMAIN: 3,
+    PORT: 4,
+    PATH: 5,
+    QUERY_DATA: 6,
+    FRAGMENT: 7
+  };
+  function split(uri) {
+    return (uri.match(splitRe));
+  }
+  function removeDotSegments(path) {
+    if (path === '/') return '/';
+    var leadingSlash = path[0] === '/' ? '/': '';
+    var trailingSlash = path.slice(- 1) === '/' ? '/': '';
+    var segments = path.split('/');
+    var out = [];
+    var up = 0;
+    for (var pos = 0; pos < segments.length; pos++) {
+      var segment = segments[pos];
+      switch (segment) {
+        case '':
+        case '.':
+          break;
+        case '..':
+          if (out.length) out.pop(); else up++;
+          break;
+        default:
+          out.push(segment);
+      }
+    }
+    if (!leadingSlash) {
+      while (up-- > 0) {
+        out.unshift('..');
+      }
+      if (out.length === 0) out.push('.');
+    }
+    return leadingSlash + out.join('/') + trailingSlash;
+  }
+  function joinAndCanonicalizePath(parts) {
+    var path = parts[ComponentIndex.PATH];
+    path = removeDotSegments(path.replace(/\/\//.g, '/'));
+    parts[ComponentIndex.PATH] = path;
+    return buildFromEncodedParts(parts[ComponentIndex.SCHEME], parts[ComponentIndex.USER_INFO], parts[ComponentIndex.DOMAIN], parts[ComponentIndex.PORT], parts[ComponentIndex.PATH], parts[ComponentIndex.QUERY_DATA], parts[ComponentIndex.FRAGMENT]);
+  }
+  function canonicalizeUrl(url) {
+    var parts = split(url);
+    return joinAndCanonicalizePath(parts);
+  }
+  function resolveUrl(base, url) {
+    if (url[0] === '@') return url;
+    var parts = split(url);
+    var baseParts = split(base);
+    if (parts[ComponentIndex.SCHEME]) {
+      return joinAndCanonicalizePath(parts);
+    } else {
+      parts[ComponentIndex.SCHEME] = baseParts[ComponentIndex.SCHEME];
+    }
+    for (var i = ComponentIndex.SCHEME; i <= ComponentIndex.PORT; i++) {
+      if (!parts[i]) {
+        parts[i] = baseParts[i];
+      }
+    }
+    if (parts[ComponentIndex.PATH][0] == '/') {
+      return joinAndCanonicalizePath(parts);
+    }
+    var path = baseParts[ComponentIndex.PATH];
+    var index = path.lastIndexOf('/');
+    path = path.slice(0, index + 1) + parts[ComponentIndex.PATH];
+    parts[ComponentIndex.PATH] = path;
+    return joinAndCanonicalizePath(parts);
+  }
+  return Object.preventExtensions(Object.create(null, {
+    removeDotSegments: {
       get: function() {
-        return ArrayMap;
+        return removeDotSegments;
       },
       enumerable: true
-    }}));
+    },
+    canonicalizeUrl: {
+      get: function() {
+        return canonicalizeUrl;
+      },
+      enumerable: true
+    },
+    resolveUrl: {
+      get: function() {
+        return resolveUrl;
+      },
+      enumerable: true
+    }
+  }));
+}).call(this);
+var $___src_runtime_get_module_js = (function() {
+  "use strict";
+  var resolveUrl = $___src_util_url_js.resolveUrl;
+  var currentCodeUnit;
+  var standardModuleUrlRegExp = /^@\w+$/;
+  function getModuleInstanceByUrl(url) {
+    if (standardModuleUrlRegExp.test(url)) return $traceurRuntime.modules[url] || null;
+    url = resolveUrl(currentCodeUnit.url, url);
+    for (var i = 0; i < currentCodeUnit.dependencies.length; i++) {
+      if (currentCodeUnit.dependencies[i].url == url) {
+        return currentCodeUnit.dependencies[i].result;
+      }
+    }
+    return null;
+  }
+  function getCurrentCodeUnit() {
+    return currentCodeUnit;
+  }
+  function setCurrentCodeUnit(codeUnit) {
+    currentCodeUnit = codeUnit;
+  }
+  return Object.preventExtensions(Object.create(null, {
+    standardModuleUrlRegExp: {
+      get: function() {
+        return standardModuleUrlRegExp;
+      },
+      enumerable: true
+    },
+    getModuleInstanceByUrl: {
+      get: function() {
+        return getModuleInstanceByUrl;
+      },
+      enumerable: true
+    },
+    getCurrentCodeUnit: {
+      get: function() {
+        return getCurrentCodeUnit;
+      },
+      enumerable: true
+    },
+    setCurrentCodeUnit: {
+      get: function() {
+        return setCurrentCodeUnit;
+      },
+      enumerable: true
+    }
+  }));
+}).call(this);
+var modules = $___src_runtime_get_module_js;
+(function(global) {
+  'use strict';
+  global.$traceurModules = modules;
+})(typeof global !== 'undefined' ? global: this);
+var $___src_options_js = (function() {
+  "use strict";
+  var parseOptions = Object.create(null);
+  var transformOptions = Object.create(null);
+  var defaultValues = Object.create(null);
+  var experimentalOptions = Object.create(null);
+  var options = {
+    set experimental(v) {
+      v = coerceOptionValue(v);
+      Object.keys(experimentalOptions).forEach((function(name) {
+        options[name] = v;
+      }));
+    },
+    get experimental() {
+      var value;
+      Object.keys(experimentalOptions).every((function(name) {
+        var currentValue = options[name];
+        if (value === undefined) {
+          value = currentValue;
+          return true;
+        }
+        if (currentValue !== value) {
+          value = null;
+          return false;
+        }
+        return true;
+      }));
+      return value;
+    }
+  };
+  var descriptions = {experimental: 'Turns on all experimental features'};
+  function reset() {
+    var allOff = arguments[0];
+    var useDefault = allOff === undefined;
+    Object.keys(options).forEach((function(name) {
+      options[name] = useDefault && defaultValues[name];
+    }));
+  }
+  function fromString(s) {
+    fromArgv(s.split(/\s+/));
+  }
+  function fromArgv(args) {
+    args.forEach(parseCommand);
+  }
+  function setFromObject(object) {
+    Object.keys(object).forEach((function(name) {
+      options[name] = object[name];
+    }));
+  }
+  function coerceOptionValue(v) {
+    switch (v) {
+      case 'false':
+      case false:
+        return false;
+      case 'parse':
+        return 'parse';
+      default:
+        return true;
+    }
+  }
+  function setOption(name, value) {
+    name = toCamelCase(name);
+    value = coerceOptionValue(value);
+    if (name in options) {
+      options[name] = value;
+    } else {
+      throw Error('Unknown option: ' + name);
+    }
+  }
+  function optionCallback(name, value) {
+    setOption(name, value);
+  }
+  function addOptions(flags) {
+    Object.keys(options).forEach(function(name) {
+      var dashedName = toDashCase(name);
+      if ((name in parseOptions) && (name in transformOptions)) flags.option('--' + dashedName + ' [true|false|parse]', descriptions[name]); else flags.option('--' + dashedName, descriptions[name]);
+      flags.on(dashedName, optionCallback.bind(null, dashedName));
+    });
+  }
+  function filterOption(dashedName) {
+    var name = toCamelCase(dashedName);
+    return name === 'experimental' || !(name in options);
+  }
+  Object.defineProperties(options, {
+    parse: {value: parseOptions},
+    transform: {value: transformOptions},
+    reset: {value: reset},
+    fromString: {value: fromString},
+    fromArgv: {value: fromArgv},
+    setFromObject: {value: setFromObject},
+    addOptions: {value: addOptions},
+    filterOption: {value: filterOption}
+  });
+  function parseCommand(s) {
+    var re = /--([^=]+)(?:=(.+))?/;
+    var m = re.exec(s);
+    if (m) setOption(m[1], m[2]);
+  }
+  function toCamelCase(s) {
+    return s.replace(/-\w/g, function(ch) {
+      return ch[1].toUpperCase();
+    });
+  }
+  function toDashCase(s) {
+    return s.replace(/[A-W]/g, function(ch) {
+      return '-' + ch.toLowerCase();
+    });
+  }
+  var EXPERIMENTAL = 0;
+  var ON_BY_DEFAULT = 1;
+  function addFeatureOption(name, kind) {
+    if (kind === EXPERIMENTAL) experimentalOptions[name] = true;
+    Object.defineProperty(options, name, {
+      get: function() {
+        if (parseOptions[name] === transformOptions[name]) {
+          return parseOptions[name];
+        }
+        return 'parse';
+      },
+      set: function(v) {
+        if (v === 'parse') {
+          parseOptions[name] = true;
+          transformOptions[name] = false;
+        } else {
+          parseOptions[name] = transformOptions[name] = Boolean(v);
+        }
+      },
+      enumerable: true,
+      configurable: true
+    });
+    var defaultValue = kind === ON_BY_DEFAULT;
+    defaultValues[name] = defaultValue;
+    parseOptions[name] = defaultValue;
+    transformOptions[name] = defaultValue;
+  }
+  function addBoolOption(name) {
+    defaultValues[name] = false;
+    options[name] = false;
+  }
+  addFeatureOption('arrayComprehension', ON_BY_DEFAULT);
+  addFeatureOption('arrowFunctions', ON_BY_DEFAULT);
+  addFeatureOption('classes', ON_BY_DEFAULT);
+  addFeatureOption('defaultParameters', ON_BY_DEFAULT);
+  addFeatureOption('destructuring', ON_BY_DEFAULT);
+  addFeatureOption('forOf', ON_BY_DEFAULT);
+  addFeatureOption('propertyMethods', ON_BY_DEFAULT);
+  addFeatureOption('propertyNameShorthand', ON_BY_DEFAULT);
+  addFeatureOption('templateLiterals', ON_BY_DEFAULT);
+  addFeatureOption('restParameters', ON_BY_DEFAULT);
+  addFeatureOption('spread', ON_BY_DEFAULT);
+  addFeatureOption('generatorComprehension', ON_BY_DEFAULT);
+  addFeatureOption('generators', ON_BY_DEFAULT);
+  addFeatureOption('modules', ON_BY_DEFAULT);
+  addFeatureOption('blockBinding', EXPERIMENTAL);
+  addFeatureOption('privateNameSyntax', EXPERIMENTAL);
+  addFeatureOption('privateNames', EXPERIMENTAL);
+  addFeatureOption('cascadeExpression', EXPERIMENTAL);
+  addFeatureOption('trapMemberLookup', EXPERIMENTAL);
+  addFeatureOption('deferredFunctions', EXPERIMENTAL);
+  addFeatureOption('propertyOptionalComma', EXPERIMENTAL);
+  addFeatureOption('types', EXPERIMENTAL);
+  addBoolOption('debug');
+  addBoolOption('sourceMaps');
+  addBoolOption('freeVariableChecker');
+  addBoolOption('validate');
+  addBoolOption('strictSemicolons');
+  addBoolOption('unstarredGenerators');
+  addBoolOption('ignoreNolint');
+  return Object.preventExtensions(Object.create(null, {
+    parseOptions: {
+      get: function() {
+        return parseOptions;
+      },
+      enumerable: true
+    },
+    transformOptions: {
+      get: function() {
+        return transformOptions;
+      },
+      enumerable: true
+    },
+    options: {
+      get: function() {
+        return options;
+      },
+      enumerable: true
+    }
+  }));
 }).call(this);
 var $___src_semantics_symbols_SymbolType_js = (function() {
   "use strict";
@@ -2645,130 +2952,6 @@ var $___src_syntax_ParseTreeVisitor_js = (function() {
       enumerable: true
     }}));
 }).call(this);
-var $___src_util_url_js = (function() {
-  "use strict";
-  function buildFromEncodedParts(opt_scheme, opt_userInfo, opt_domain, opt_port, opt_path, opt_queryData, opt_fragment) {
-    var out = [];
-    if (opt_scheme) {
-      out.push(opt_scheme, ':');
-    }
-    if (opt_domain) {
-      out.push('//');
-      if (opt_userInfo) {
-        out.push(opt_userInfo, '@');
-      }
-      out.push(opt_domain);
-      if (opt_port) {
-        out.push(':', opt_port);
-      }
-    }
-    if (opt_path) {
-      out.push(opt_path);
-    }
-    if (opt_queryData) {
-      out.push('?', opt_queryData);
-    }
-    if (opt_fragment) {
-      out.push('#', opt_fragment);
-    }
-    return out.join('');
-  }
-  ;
-  var splitRe = new RegExp('^' + '(?:' + '([^:/?#.]+)' + ':)?' + '(?://' + '(?:([^/?#]*)@)?' + '([\\w\\d\\-\\u0100-\\uffff.%]*)' + '(?::([0-9]+))?' + ')?' + '([^?#]+)?' + '(?:\\?([^#]*))?' + '(?:#(.*))?' + '$');
-  var ComponentIndex = {
-    SCHEME: 1,
-    USER_INFO: 2,
-    DOMAIN: 3,
-    PORT: 4,
-    PATH: 5,
-    QUERY_DATA: 6,
-    FRAGMENT: 7
-  };
-  function split(uri) {
-    return (uri.match(splitRe));
-  }
-  function removeDotSegments(path) {
-    if (path === '/') return '/';
-    var leadingSlash = path[0] === '/' ? '/': '';
-    var trailingSlash = path.slice(- 1) === '/' ? '/': '';
-    var segments = path.split('/');
-    var out = [];
-    var up = 0;
-    for (var pos = 0; pos < segments.length; pos++) {
-      var segment = segments[pos];
-      switch (segment) {
-        case '':
-        case '.':
-          break;
-        case '..':
-          if (out.length) out.pop(); else up++;
-          break;
-        default:
-          out.push(segment);
-      }
-    }
-    if (!leadingSlash) {
-      while (up-- > 0) {
-        out.unshift('..');
-      }
-      if (out.length === 0) out.push('.');
-    }
-    return leadingSlash + out.join('/') + trailingSlash;
-  }
-  function joinAndCanonicalizePath(parts) {
-    var path = parts[ComponentIndex.PATH];
-    path = removeDotSegments(path.replace(/\/\//.g, '/'));
-    parts[ComponentIndex.PATH] = path;
-    return buildFromEncodedParts(parts[ComponentIndex.SCHEME], parts[ComponentIndex.USER_INFO], parts[ComponentIndex.DOMAIN], parts[ComponentIndex.PORT], parts[ComponentIndex.PATH], parts[ComponentIndex.QUERY_DATA], parts[ComponentIndex.FRAGMENT]);
-  }
-  function canonicalizeUrl(url) {
-    var parts = split(url);
-    return joinAndCanonicalizePath(parts);
-  }
-  function resolveUrl(base, url) {
-    if (url[0] === '@') return url;
-    var parts = split(url);
-    var baseParts = split(base);
-    if (parts[ComponentIndex.SCHEME]) {
-      return joinAndCanonicalizePath(parts);
-    } else {
-      parts[ComponentIndex.SCHEME] = baseParts[ComponentIndex.SCHEME];
-    }
-    for (var i = ComponentIndex.SCHEME; i <= ComponentIndex.PORT; i++) {
-      if (!parts[i]) {
-        parts[i] = baseParts[i];
-      }
-    }
-    if (parts[ComponentIndex.PATH][0] == '/') {
-      return joinAndCanonicalizePath(parts);
-    }
-    var path = baseParts[ComponentIndex.PATH];
-    var index = path.lastIndexOf('/');
-    path = path.slice(0, index + 1) + parts[ComponentIndex.PATH];
-    parts[ComponentIndex.PATH] = path;
-    return joinAndCanonicalizePath(parts);
-  }
-  return Object.preventExtensions(Object.create(null, {
-    removeDotSegments: {
-      get: function() {
-        return removeDotSegments;
-      },
-      enumerable: true
-    },
-    canonicalizeUrl: {
-      get: function() {
-        return canonicalizeUrl;
-      },
-      enumerable: true
-    },
-    resolveUrl: {
-      get: function() {
-        return resolveUrl;
-      },
-      enumerable: true
-    }
-  }));
-}).call(this);
 var $___src_codegeneration_module_ModuleVisitor_js = (function() {
   "use strict";
   var $__18 = $___src_syntax_trees_ParseTree_js, ParseTree = $__18.ParseTree, ParseTreeType = $__18.ParseTreeType;
@@ -3245,85 +3428,6 @@ var $___src_semantics_ModuleAnalyzer_js = (function() {
   return Object.preventExtensions(Object.create(null, {ModuleAnalyzer: {
       get: function() {
         return ModuleAnalyzer;
-      },
-      enumerable: true
-    }}));
-}).call(this);
-var $___src_codegeneration_module_ModuleRequireVisitor_js = (function() {
-  "use strict";
-  var ParseTreeVisitor = $___src_syntax_ParseTreeVisitor_js.ParseTreeVisitor;
-  var canonicalizeUrl = $___src_util_url_js.canonicalizeUrl;
-  var ModuleRequireVisitor = function($__super) {
-    'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ModuleRequireVisitor = ($__createClass)({
-      constructor: function(reporter) {
-        $__superCall(this, $__proto, "constructor", []);
-        this.urls_ = Object.create(null);
-      },
-      get requireUrls() {
-        return Object.keys(this.urls_);
-      },
-      visitModuleRequire: function(tree) {
-        this.urls_[canonicalizeUrl(tree.url.processedValue)] = true;
-      }
-    }, {}, $__proto, $__super, true);
-    return $ModuleRequireVisitor;
-  }(ParseTreeVisitor);
-  return Object.preventExtensions(Object.create(null, {ModuleRequireVisitor: {
-      get: function() {
-        return ModuleRequireVisitor;
-      },
-      enumerable: true
-    }}));
-}).call(this);
-var $___src_util_ObjectMap_js = (function() {
-  "use strict";
-  var ObjectMap = function() {
-    'use strict';
-    var $ObjectMap = ($__createClassNoExtends)({
-      constructor: function() {
-        this.keys_ = Object.create(null);
-        this.values_ = Object.create(null);
-      },
-      set: function(key, value) {
-        var uid = key.uid;
-        this.keys_[uid] = key;
-        this.values_[uid] = value;
-      },
-      get: function(key) {
-        return this.values_[key.uid];
-      },
-      has: function(key) {
-        return key.uid in this.keys_;
-      },
-      addAll: function(other) {
-        for (var uid in other.keys_) {
-          this.keys_[uid] = other.keys_[uid];
-          this.values_[uid] = other.values_[uid];
-        }
-      },
-      keys: function() {
-        return Object.keys(this.keys_).map((function(uid) {
-          return this.keys_[uid];
-        }).bind(this));
-      },
-      values: function() {
-        return Object.keys(this.values_).map((function(uid) {
-          return this.values_[uid];
-        }).bind(this));
-      },
-      remove: function(key) {
-        var uid = key.uid;
-        delete this.keys_[uid];
-        delete this.values_[uid];
-      }
-    }, {});
-    return $ObjectMap;
-  }();
-  return Object.preventExtensions(Object.create(null, {ObjectMap: {
-      get: function() {
-        return ObjectMap;
       },
       enumerable: true
     }}));
@@ -8433,195 +8537,6 @@ var $___src_staticsemantics_StrictParams_js = (function() {
       enumerable: true
     }}));
 }).call(this);
-var $___src_options_js = (function() {
-  "use strict";
-  var parseOptions = Object.create(null);
-  var transformOptions = Object.create(null);
-  var defaultValues = Object.create(null);
-  var experimentalOptions = Object.create(null);
-  var options = {
-    set experimental(v) {
-      v = coerceOptionValue(v);
-      Object.keys(experimentalOptions).forEach((function(name) {
-        options[name] = v;
-      }));
-    },
-    get experimental() {
-      var value;
-      Object.keys(experimentalOptions).every((function(name) {
-        var currentValue = options[name];
-        if (value === undefined) {
-          value = currentValue;
-          return true;
-        }
-        if (currentValue !== value) {
-          value = null;
-          return false;
-        }
-        return true;
-      }));
-      return value;
-    }
-  };
-  var descriptions = {experimental: 'Turns on all experimental features'};
-  function reset() {
-    var allOff = arguments[0];
-    var useDefault = allOff === undefined;
-    Object.keys(options).forEach((function(name) {
-      options[name] = useDefault && defaultValues[name];
-    }));
-  }
-  function fromString(s) {
-    fromArgv(s.split(/\s+/));
-  }
-  function fromArgv(args) {
-    args.forEach(parseCommand);
-  }
-  function setFromObject(object) {
-    Object.keys(object).forEach((function(name) {
-      options[name] = object[name];
-    }));
-  }
-  function coerceOptionValue(v) {
-    switch (v) {
-      case 'false':
-      case false:
-        return false;
-      case 'parse':
-        return 'parse';
-      default:
-        return true;
-    }
-  }
-  function setOption(name, value) {
-    name = toCamelCase(name);
-    value = coerceOptionValue(value);
-    if (name in options) {
-      options[name] = value;
-    } else {
-      throw Error('Unknown option: ' + name);
-    }
-  }
-  function optionCallback(name, value) {
-    setOption(name, value);
-  }
-  function addOptions(flags) {
-    Object.keys(options).forEach(function(name) {
-      var dashedName = toDashCase(name);
-      if ((name in parseOptions) && (name in transformOptions)) flags.option('--' + dashedName + ' [true|false|parse]', descriptions[name]); else flags.option('--' + dashedName, descriptions[name]);
-      flags.on(dashedName, optionCallback.bind(null, dashedName));
-    });
-  }
-  function filterOption(dashedName) {
-    var name = toCamelCase(dashedName);
-    return name === 'experimental' || !(name in options);
-  }
-  Object.defineProperties(options, {
-    parse: {value: parseOptions},
-    transform: {value: transformOptions},
-    reset: {value: reset},
-    fromString: {value: fromString},
-    fromArgv: {value: fromArgv},
-    setFromObject: {value: setFromObject},
-    addOptions: {value: addOptions},
-    filterOption: {value: filterOption}
-  });
-  function parseCommand(s) {
-    var re = /--([^=]+)(?:=(.+))?/;
-    var m = re.exec(s);
-    if (m) setOption(m[1], m[2]);
-  }
-  function toCamelCase(s) {
-    return s.replace(/-\w/g, function(ch) {
-      return ch[1].toUpperCase();
-    });
-  }
-  function toDashCase(s) {
-    return s.replace(/[A-W]/g, function(ch) {
-      return '-' + ch.toLowerCase();
-    });
-  }
-  var EXPERIMENTAL = 0;
-  var ON_BY_DEFAULT = 1;
-  function addFeatureOption(name, kind) {
-    if (kind === EXPERIMENTAL) experimentalOptions[name] = true;
-    Object.defineProperty(options, name, {
-      get: function() {
-        if (parseOptions[name] === transformOptions[name]) {
-          return parseOptions[name];
-        }
-        return 'parse';
-      },
-      set: function(v) {
-        if (v === 'parse') {
-          parseOptions[name] = true;
-          transformOptions[name] = false;
-        } else {
-          parseOptions[name] = transformOptions[name] = Boolean(v);
-        }
-      },
-      enumerable: true,
-      configurable: true
-    });
-    var defaultValue = kind === ON_BY_DEFAULT;
-    defaultValues[name] = defaultValue;
-    parseOptions[name] = defaultValue;
-    transformOptions[name] = defaultValue;
-  }
-  function addBoolOption(name) {
-    defaultValues[name] = false;
-    options[name] = false;
-  }
-  addFeatureOption('arrayComprehension', ON_BY_DEFAULT);
-  addFeatureOption('arrowFunctions', ON_BY_DEFAULT);
-  addFeatureOption('classes', ON_BY_DEFAULT);
-  addFeatureOption('defaultParameters', ON_BY_DEFAULT);
-  addFeatureOption('destructuring', ON_BY_DEFAULT);
-  addFeatureOption('forOf', ON_BY_DEFAULT);
-  addFeatureOption('propertyMethods', ON_BY_DEFAULT);
-  addFeatureOption('propertyNameShorthand', ON_BY_DEFAULT);
-  addFeatureOption('templateLiterals', ON_BY_DEFAULT);
-  addFeatureOption('restParameters', ON_BY_DEFAULT);
-  addFeatureOption('spread', ON_BY_DEFAULT);
-  addFeatureOption('generatorComprehension', ON_BY_DEFAULT);
-  addFeatureOption('generators', ON_BY_DEFAULT);
-  addFeatureOption('modules', ON_BY_DEFAULT);
-  addFeatureOption('blockBinding', EXPERIMENTAL);
-  addFeatureOption('privateNameSyntax', EXPERIMENTAL);
-  addFeatureOption('privateNames', EXPERIMENTAL);
-  addFeatureOption('cascadeExpression', EXPERIMENTAL);
-  addFeatureOption('trapMemberLookup', EXPERIMENTAL);
-  addFeatureOption('deferredFunctions', EXPERIMENTAL);
-  addFeatureOption('propertyOptionalComma', EXPERIMENTAL);
-  addFeatureOption('types', EXPERIMENTAL);
-  addBoolOption('debug');
-  addBoolOption('sourceMaps');
-  addBoolOption('freeVariableChecker');
-  addBoolOption('validate');
-  addBoolOption('strictSemicolons');
-  addBoolOption('unstarredGenerators');
-  addBoolOption('ignoreNolint');
-  return Object.preventExtensions(Object.create(null, {
-    parseOptions: {
-      get: function() {
-        return parseOptions;
-      },
-      enumerable: true
-    },
-    transformOptions: {
-      get: function() {
-        return transformOptions;
-      },
-      enumerable: true
-    },
-    options: {
-      get: function() {
-        return options;
-      },
-      enumerable: true
-    }
-  }));
-}).call(this);
 var $___src_syntax_Parser_js = (function() {
   "use strict";
   var $__19 = $___src_codegeneration_AssignmentPatternTransformer_js, AssignmentPatternTransformer = $__19.AssignmentPatternTransformer, AssignmentPatternTransformerError = $__19.AssignmentPatternTransformerError;
@@ -12802,6 +12717,65 @@ var $___src_codegeneration_CascadeExpressionTransformer_js = (function() {
       enumerable: true
     }}));
 }).call(this);
+var $___src_util_ArrayMap_js = (function() {
+  "use strict";
+  var ArrayMap = function() {
+    'use strict';
+    var $ArrayMap = ($__createClassNoExtends)({
+      constructor: function() {
+        this.values_ = [];
+        this.keys_ = [];
+      },
+      has: function(key) {
+        return this.keys_.indexOf(key) != - 1;
+      },
+      get: function(key) {
+        var index = this.keys_.indexOf(key);
+        if (index == - 1) {
+          return undefined;
+        }
+        return this.values_[index];
+      },
+      set: function(key, value) {
+        var index = this.keys_.indexOf(key);
+        if (index == - 1) {
+          this.keys_.push(key);
+          this.values_.push(value);
+        } else {
+          this.values_[index] = value;
+        }
+      },
+      addAll: function(other) {
+        var keys = other.keys();
+        var values = other.values();
+        for (var i = 0; i < keys.length; i++) {
+          this.set(keys[i], values[i]);
+        }
+      },
+      remove: function(key) {
+        var index = this.keys_.indexOf(key);
+        if (index == - 1) {
+          return;
+        }
+        this.keys_.splice(index, 1);
+        this.values_.splice(index, 1);
+      },
+      keys: function() {
+        return this.keys_.concat();
+      },
+      values: function() {
+        return this.values_.concat();
+      }
+    }, {});
+    return $ArrayMap;
+  }();
+  return Object.preventExtensions(Object.create(null, {ArrayMap: {
+      get: function() {
+        return ArrayMap;
+      },
+      enumerable: true
+    }}));
+}).call(this);
 var $___src_util_ErrorReporter_js = (function() {
   "use strict";
   var ErrorReporter = function() {
@@ -16231,6 +16205,57 @@ var $___src_codegeneration_ObjectLiteralTransformer_js = (function() {
       enumerable: true
     }}));
 }).call(this);
+var $___src_util_ObjectMap_js = (function() {
+  "use strict";
+  var ObjectMap = function() {
+    'use strict';
+    var $ObjectMap = ($__createClassNoExtends)({
+      constructor: function() {
+        this.keys_ = Object.create(null);
+        this.values_ = Object.create(null);
+      },
+      set: function(key, value) {
+        var uid = key.uid;
+        this.keys_[uid] = key;
+        this.values_[uid] = value;
+      },
+      get: function(key) {
+        return this.values_[key.uid];
+      },
+      has: function(key) {
+        return key.uid in this.keys_;
+      },
+      addAll: function(other) {
+        for (var uid in other.keys_) {
+          this.keys_[uid] = other.keys_[uid];
+          this.values_[uid] = other.values_[uid];
+        }
+      },
+      keys: function() {
+        return Object.keys(this.keys_).map((function(uid) {
+          return this.keys_[uid];
+        }).bind(this));
+      },
+      values: function() {
+        return Object.keys(this.values_).map((function(uid) {
+          return this.values_[uid];
+        }).bind(this));
+      },
+      remove: function(key) {
+        var uid = key.uid;
+        delete this.keys_[uid];
+        delete this.values_[uid];
+      }
+    }, {});
+    return $ObjectMap;
+  }();
+  return Object.preventExtensions(Object.create(null, {ObjectMap: {
+      get: function() {
+        return ObjectMap;
+      },
+      enumerable: true
+    }}));
+}).call(this);
 var $___src_outputgeneration_ParseTreeWriter_js = (function() {
   "use strict";
   var ParseTreeVisitor = $___src_syntax_ParseTreeVisitor_js.ParseTreeVisitor;
@@ -18416,538 +18441,6 @@ var $___src_semantics_symbols_Project_js = (function() {
       enumerable: true
     }}));
 }).call(this);
-var $___src_runtime_modules_js = (function() {
-  "use strict";
-  var ArrayMap = $___src_util_ArrayMap_js.ArrayMap;
-  var ModuleAnalyzer = $___src_semantics_ModuleAnalyzer_js.ModuleAnalyzer;
-  var ModuleRequireVisitor = $___src_codegeneration_module_ModuleRequireVisitor_js.ModuleRequireVisitor;
-  var ModuleSymbol = $___src_semantics_symbols_ModuleSymbol_js.ModuleSymbol;
-  var ObjectMap = $___src_util_ObjectMap_js.ObjectMap;
-  var Parser = $___src_syntax_Parser_js.Parser;
-  var ProgramTransformer = $___src_codegeneration_ProgramTransformer_js.ProgramTransformer;
-  var Project = $___src_semantics_symbols_Project_js.Project;
-  var SourceFile = $___src_syntax_SourceFile_js.SourceFile;
-  var TreeWriter = $___src_outputgeneration_TreeWriter_js.TreeWriter;
-  var getUid = $___src_util_uid_js.getUid;
-  var resolveUrl = $___src_util_url_js.resolveUrl;
-  var base = Object.freeze(Object.create(null, {
-    Array: {value: Array},
-    Boolean: {value: Boolean},
-    Date: {value: Date},
-    Error: {value: Error},
-    EvalError: {value: EvalError},
-    Function: {value: Function},
-    JSON: {value: JSON},
-    Math: {value: Math},
-    Number: {value: Number},
-    Object: {value: Object},
-    RangeError: {value: RangeError},
-    ReferenceError: {value: ReferenceError},
-    RegExp: {value: RegExp},
-    String: {value: String},
-    SyntaxError: {value: SyntaxError},
-    TypeError: {value: TypeError},
-    URIError: {value: URIError},
-    undefined: {value: void 0}
-  }));
-  var NOT_STARTED = 0;
-  var LOADING = 1;
-  var LOADED = 2;
-  var PARSED = 3;
-  var TRANSFORMED = 4;
-  var COMPLETE = 5;
-  var ERROR = 6;
-  var CodeUnit = function() {
-    'use strict';
-    var $CodeUnit = ($__createClassNoExtends)({
-      constructor: function(loader, url, state) {
-        this.loader = loader;
-        this.url = url;
-        this.state = state;
-        this.uid = getUid();
-        this.state_ = NOT_STARTED;
-      },
-      get state() {
-        return this.state_;
-      },
-      set state(state) {
-        if (state < this.state_) {
-          throw new Error('Invalid state change');
-        }
-        this.state_ = state;
-      },
-      get reporter() {
-        return this.loader.reporter;
-      },
-      get project() {
-        return this.loader.project;
-      },
-      get tree() {
-        return this.project.getParseTree(this.file);
-      },
-      get moduleSymbol() {
-        return this.project.getRootModule();
-      },
-      addListener: function(callback, errback) {
-        if (this.state >= COMPLETE) throw Error((this.url + " is already loaded"));
-        if (!this.listeners) {
-          this.listeners = [];
-        }
-        this.listeners.push(callback, errback);
-      },
-      dispatchError: function(value) {
-        this.dispatch_(value, 1);
-      },
-      dispatchComplete: function(value) {
-        this.dispatch_(value, 0);
-      },
-      dispatch_: function(value, error) {
-        var listeners = this.listeners;
-        if (!listeners) {
-          return;
-        }
-        listeners = listeners.concat();
-        this.listeners = [];
-        for (var i = error; i < listeners.length; i += 2) {
-          var f = listeners[i];
-          if (f) {
-            f(value);
-          }
-        }
-      },
-      parse: function() {
-        var reporter = this.reporter;
-        var project = this.project;
-        var url = this.url;
-        var program = this.text;
-        var file = new SourceFile(url, program);
-        project.addFile(file);
-        this.file = file;
-        var parser = new Parser(reporter, file);
-        var tree = parser.parseProgram(this.allowLoad);
-        if (reporter.hadError()) {
-          this.error = 'Parse error';
-          return false;
-        }
-        project.setParseTree(file, tree);
-        this.state = PARSED;
-        return true;
-      },
-      transform: function() {
-        return ProgramTransformer.transformFile(this.reporter, this.project, this.file);
-      }
-    }, {});
-    return $CodeUnit;
-  }();
-  var LoadCodeUnit = function($__super) {
-    'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $LoadCodeUnit = ($__createClass)({
-      constructor: function(loader, url) {
-        $__superCall(this, $__proto, "constructor", [loader, url, NOT_STARTED]);
-        this.allowLoad = true;
-        if (standardModuleUrlRegExp.test(url)) {
-          this.state = COMPLETE;
-          this.dependencies = [];
-        }
-      },
-      get moduleSymbol() {
-        return this.project.getModuleForUrl(this.url);
-      },
-      parse: function() {
-        if (!$__superCall(this, $__proto, "parse", [])) {
-          return false;
-        }
-        var project = this.loader.project;
-        var tree = this.tree;
-        var url = this.url;
-        var moduleSymbol = new ModuleSymbol(null, null, tree, url);
-        project.addExternalModule(moduleSymbol);
-        return true;
-      },
-      transform: function() {
-        return ProgramTransformer.transformFileAsModule(this.reporter, this.project, this.moduleSymbol, this.file);
-      }
-    }, {}, $__proto, $__super, true);
-    return $LoadCodeUnit;
-  }(CodeUnit);
-  var EvalCodeUnit = function($__super) {
-    'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $EvalCodeUnit = ($__createClass)({constructor: function(loader, code) {
-        $__superCall(this, $__proto, "constructor", [loader, loader.url, LOADED]);
-        this.text = code;
-        this.allowLoad = false;
-      }}, {}, $__proto, $__super, true);
-    return $EvalCodeUnit;
-  }(CodeUnit);
-  var EvalLoadCodeUnit = function($__super) {
-    'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $EvalLoadCodeUnit = ($__createClass)({constructor: function(loader, code) {
-        CodeUnit.call(this, loader, loader.url, LOADED);
-        this.text = code;
-        this.allowLoad = true;
-      }}, {}, $__proto, $__super, true);
-    return $EvalLoadCodeUnit;
-  }(CodeUnit);
-  var InternalLoader = function() {
-    'use strict';
-    var $InternalLoader = ($__createClassNoExtends)({
-      constructor: function(reporter, project) {
-        this.reporter = reporter;
-        this.project = project;
-        this.cache = new ArrayMap();
-        this.urlToKey = Object.create(null);
-        this.sync_ = false;
-      },
-      get url() {
-        return this.project.url;
-      },
-      loadTextFile: function(url, callback, errback) {
-        var xhr = new XMLHttpRequest();
-        xhr.onload = function() {
-          if (xhr.status == 200 || xhr.status == 0) {
-            callback(xhr.responseText);
-          } else {
-            errback();
-          }
-          xhr = null;
-        };
-        xhr.onerror = function() {
-          errback();
-        };
-        xhr.open('GET', url, true);
-        xhr.send();
-        return xhr;
-      },
-      loadTextFileSync: function(url) {
-        var xhr = new XMLHttpRequest();
-        xhr.onerror = function(e) {
-          throw new Error(xhr.statusText);
-        };
-        xhr.open('GET', url, false);
-        xhr.send();
-        if (xhr.status == 200 || xhr.status == 0) {
-          return xhr.responseText;
-        }
-      },
-      load: function(url) {
-        url = resolveUrl(this.url, url);
-        var codeUnit = this.getCodeUnit(url);
-        if (codeUnit.state != NOT_STARTED || codeUnit.state == ERROR) {
-          return codeUnit;
-        }
-        codeUnit.state = LOADING;
-        if (this.sync_) {
-          try {
-            codeUnit.text = this.loadTextFileSync(url);
-            codeUnit.state = LOADED;
-            this.handleCodeUnitLoaded(codeUnit);
-          } catch (e) {
-            codeUnit.state = ERROR;
-            this.handleCodeUnitLoadError(codeUnit);
-          }
-          return codeUnit;
-        }
-        var loader = this;
-        codeUnit.xhr = this.loadTextFile(url, function(text) {
-          codeUnit.text = text;
-          codeUnit.state = LOADED;
-          loader.handleCodeUnitLoaded(codeUnit);
-        }, function() {
-          codeUnit.state = ERROR;
-          loader.handleCodeUnitLoadError(codeUnit);
-        });
-        return codeUnit;
-      },
-      loadSync: function(url) {
-        this.sync_ = true;
-        var loaded = this.load(url);
-        this.sync_ = false;
-        return loaded;
-      },
-      evalLoad: function(code) {
-        var codeUnit = new EvalLoadCodeUnit(this, code);
-        this.cache.set({}, codeUnit);
-        return codeUnit;
-      },
-      eval: function(code) {
-        var codeUnit = new EvalCodeUnit(this, code);
-        this.cache.set({}, codeUnit);
-        this.handleCodeUnitLoaded(codeUnit);
-        return codeUnit;
-      },
-      getKey: function(url) {
-        if (url in this.urlToKey) {
-          return this.urlToKey[url];
-        }
-        return this.urlToKey[url] = {};
-      },
-      getCodeUnit: function(url) {
-        var key = this.getKey(url);
-        var cacheObject = this.cache.get(key);
-        if (!cacheObject) {
-          cacheObject = new LoadCodeUnit(this, url);
-          this.cache.set(key, cacheObject);
-        }
-        return cacheObject;
-      },
-      areAll: function(state) {
-        return this.cache.values().every((function(codeUnit) {
-          return codeUnit.state >= state;
-        }));
-      },
-      handleCodeUnitLoaded: function(codeUnit) {
-        if (!codeUnit.parse()) {
-          this.abortAll();
-          return;
-        }
-        var requireVisitor = new ModuleRequireVisitor(this.reporter);
-        requireVisitor.visit(codeUnit.tree);
-        var baseUrl = codeUnit.url;
-        codeUnit.dependencies = requireVisitor.requireUrls.map((function(url) {
-          url = resolveUrl(baseUrl, url);
-          return this.getCodeUnit(url);
-        }).bind(this));
-        codeUnit.dependencies.forEach((function(dependency) {
-          this.load(dependency.url);
-        }).bind(this));
-        if (this.areAll(PARSED)) {
-          this.analyze();
-          this.transform();
-          this.evaluate();
-        }
-      },
-      handleCodeUnitLoadError: function(codeUnit) {
-        this.error = codeUnit.error = 'Failed to load \'' + codeUnit.url + '\'';
-        this.abortAll();
-      },
-      abortAll: function() {
-        this.cache.values().forEach((function(codeUnit) {
-          if (codeUnit.xhr) {
-            codeUnit.xhr.abort();
-            codeUnit.state = ERROR;
-          }
-        }));
-        this.cache.values().forEach((function(codeUnit) {
-          codeUnit.dispatchError(codeUnit.error);
-        }));
-      },
-      analyze: function() {
-        var dependencies = this.cache.values();
-        var trees = [];
-        var modules = [];
-        for (var i = 0; i < dependencies.length; i++) {
-          var codeUnit = dependencies[i];
-          traceur.assert(codeUnit.state >= PARSED);
-          if (codeUnit.state == PARSED) {
-            trees.push(codeUnit.tree);
-            modules.push(codeUnit.moduleSymbol);
-          }
-        }
-        var analyzer = new ModuleAnalyzer(this.reporter, this.project);
-        analyzer.analyzeModuleTrees(trees, modules);
-        if (this.reporter.hadError()) {
-          for (var i = 0; i < dependencies.length; i++) {
-            var codeUnit = dependencies[i];
-            if (codeUnit.state >= COMPLETE) {
-              continue;
-            }
-            codeUnit.state = ERROR;
-          }
-          for (var i = 0; i < dependencies.length; i++) {
-            var codeUnit = dependencies[i];
-            if (codeUnit.state == ERROR) {
-              codeUnit.dispatchError('Failed to analyze');
-            }
-          }
-        }
-      },
-      transform: function() {
-        var dependencies = this.cache.values();
-        for (var i = 0; i < dependencies.length; i++) {
-          var codeUnit = dependencies[i];
-          if (codeUnit.state >= TRANSFORMED) {
-            continue;
-          }
-          codeUnit.transformedTree = this.transformCodeUnit(codeUnit);
-          codeUnit.state = TRANSFORMED;
-        }
-      },
-      transformCodeUnit: function(codeUnit) {
-        var results = codeUnit.transform();
-        return results.get(codeUnit.file);
-      },
-      evaluate: function() {
-        var visited = new ObjectMap();
-        var ordered = [];
-        function orderCodeUnits(codeUnit) {
-          if (visited.has(codeUnit)) {
-            return;
-          }
-          visited.set(codeUnit, true);
-          codeUnit.dependencies.forEach(orderCodeUnits);
-          ordered.push(codeUnit);
-        }
-        this.cache.values().forEach(orderCodeUnits);
-        var dependencies = ordered;
-        for (var i = 0; i < dependencies.length; i++) {
-          var codeUnit = dependencies[i];
-          if (codeUnit.state >= COMPLETE) {
-            continue;
-          }
-          traceur.assert(currentCodeUnit === undefined);
-          currentCodeUnit = codeUnit;
-          var result;
-          try {
-            result = this.evalCodeUnit(codeUnit);
-          } catch (ex) {
-            codeUnit.error = ex.message;
-            this.abortAll();
-            return;
-          } finally {
-            traceur.assert(currentCodeUnit === codeUnit);
-            currentCodeUnit = undefined;
-          }
-          codeUnit.result = result;
-          codeUnit.transformedTree = null;
-          codeUnit.text = null;
-        }
-        for (var i = 0; i < dependencies.length; i++) {
-          var codeUnit = dependencies[i];
-          if (codeUnit.state >= COMPLETE) {
-            continue;
-          }
-          codeUnit.state = COMPLETE;
-          codeUnit.dispatchComplete(codeUnit.result);
-        }
-      },
-      evalCodeUnit: function(codeUnit) {
-        return ('global', eval)("'use strict';" + TreeWriter.write(codeUnit.transformedTree));
-      }
-    }, {});
-    return $InternalLoader;
-  }();
-  var currentCodeUnit;
-  var standardModuleUrlRegExp = /^@\w+$/;
-  function getModuleInstanceByUrl(url) {
-    if (standardModuleUrlRegExp.test(url)) return $traceurRuntime.modules[url] || null;
-    traceur.assert(currentCodeUnit);
-    url = resolveUrl(currentCodeUnit.url, url);
-    for (var i = 0; i < currentCodeUnit.dependencies.length; i++) {
-      if (currentCodeUnit.dependencies[i].url == url) {
-        return currentCodeUnit.dependencies[i].result;
-      }
-    }
-    return null;
-  }
-  var CodeLoader = function() {
-    'use strict';
-    var $CodeLoader = ($__createClassNoExtends)({
-      constructor: function(reporter, project, parentLoader) {
-        var resolver = arguments[3];
-        this.internalLoader_ = new InternalLoader(reporter, project);
-      },
-      load: function(url, callback) {
-        var errback = arguments[2];
-        var codeUnit = this.internalLoader_.load(url);
-        codeUnit.addListener(callback, errback);
-      },
-      eval: function(program) {
-        var codeUnit = this.internalLoader_.eval(program);
-        return codeUnit.result;
-      },
-      evalLoad: function(program, callback) {
-        var errback = arguments[2];
-        var codeUnit = this.internalLoader_.evalLoad(program);
-        codeUnit.addListener(callback, errback);
-        this.internalLoader_.handleCodeUnitLoaded(codeUnit);
-      },
-      import: function(moduleInstanceObject) {
-        throw Error('Not implemented');
-      },
-      defineGlobal: function(name, value) {
-        throw Error('Not implemented');
-      },
-      defineModule: function(name, moduleInstanceObject) {
-        var cacheKey = arguments[2];
-        throw Error('Not implemented');
-      },
-      create: function(moduleInstanceObject) {
-        var resolver = arguments[1];
-        var url = this.project_.url;
-        var project = new Project(url);
-        var loader = new CodeLoader(this.reporter, project, this, resolver);
-        return loader;
-      },
-      createBase: function() {
-        return base;
-      }
-    }, {});
-    return $CodeLoader;
-  }();
-  var internals = (function() {
-    return Object.preventExtensions(Object.create(null, {
-      CodeUnit: {
-        get: function() {
-          return CodeUnit;
-        },
-        enumerable: true
-      },
-      EvalCodeUnit: {
-        get: function() {
-          return EvalCodeUnit;
-        },
-        enumerable: true
-      },
-      EvalLoadCodeUnit: {
-        get: function() {
-          return EvalLoadCodeUnit;
-        },
-        enumerable: true
-      },
-      InternalLoader: {
-        get: function() {
-          return InternalLoader;
-        },
-        enumerable: true
-      },
-      LoadCodeUnit: {
-        get: function() {
-          return LoadCodeUnit;
-        },
-        enumerable: true
-      }
-    }));
-  }).call(this);
-  ;
-  return Object.preventExtensions(Object.create(null, {
-    getModuleInstanceByUrl: {
-      get: function() {
-        return getModuleInstanceByUrl;
-      },
-      enumerable: true
-    },
-    CodeLoader: {
-      get: function() {
-        return CodeLoader;
-      },
-      enumerable: true
-    },
-    internals: {
-      get: function() {
-        return internals;
-      },
-      enumerable: true
-    }
-  }));
-}).call(this);
-var modules = $___src_runtime_modules_js;
-(function(global) {
-  'use strict';
-  global.$traceurModules = modules;
-})(typeof global !== 'undefined' ? global: this);
 var $___src_codegeneration_Compiler_js = (function() {
   "use strict";
   var ModuleAnalyzer = $___src_semantics_ModuleAnalyzer_js.ModuleAnalyzer;
@@ -20081,6 +19574,543 @@ var $___src_codegeneration_CloneTreeTransformer_js = (function() {
       enumerable: true
     }}));
 }).call(this);
+var $___src_codegeneration_module_ModuleRequireVisitor_js = (function() {
+  "use strict";
+  var ParseTreeVisitor = $___src_syntax_ParseTreeVisitor_js.ParseTreeVisitor;
+  var canonicalizeUrl = $___src_util_url_js.canonicalizeUrl;
+  var ModuleRequireVisitor = function($__super) {
+    'use strict';
+    var $__proto = $__getProtoParent($__super);
+    var $ModuleRequireVisitor = ($__createClass)({
+      constructor: function(reporter) {
+        $__superCall(this, $__proto, "constructor", []);
+        this.urls_ = Object.create(null);
+      },
+      get requireUrls() {
+        return Object.keys(this.urls_);
+      },
+      visitModuleRequire: function(tree) {
+        this.urls_[canonicalizeUrl(tree.url.processedValue)] = true;
+      }
+    }, {}, $__proto, $__super, true);
+    return $ModuleRequireVisitor;
+  }(ParseTreeVisitor);
+  return Object.preventExtensions(Object.create(null, {ModuleRequireVisitor: {
+      get: function() {
+        return ModuleRequireVisitor;
+      },
+      enumerable: true
+    }}));
+}).call(this);
+var $___src_runtime_modules_js = (function() {
+  "use strict";
+  var ArrayMap = $___src_util_ArrayMap_js.ArrayMap;
+  var ModuleAnalyzer = $___src_semantics_ModuleAnalyzer_js.ModuleAnalyzer;
+  var ModuleRequireVisitor = $___src_codegeneration_module_ModuleRequireVisitor_js.ModuleRequireVisitor;
+  var ModuleSymbol = $___src_semantics_symbols_ModuleSymbol_js.ModuleSymbol;
+  var ObjectMap = $___src_util_ObjectMap_js.ObjectMap;
+  var Parser = $___src_syntax_Parser_js.Parser;
+  var ProgramTransformer = $___src_codegeneration_ProgramTransformer_js.ProgramTransformer;
+  var Project = $___src_semantics_symbols_Project_js.Project;
+  var SourceFile = $___src_syntax_SourceFile_js.SourceFile;
+  var TreeWriter = $___src_outputgeneration_TreeWriter_js.TreeWriter;
+  var getUid = $___src_util_uid_js.getUid;
+  var resolveUrl = $___src_util_url_js.resolveUrl;
+  var $__21 = $___src_runtime_get_module_js, standardModuleUrlRegExp = $__21.standardModuleUrlRegExp, getModuleInstanceByUrl = $__21.getModuleInstanceByUrl, getCurrentCodeUnit = $__21.getCurrentCodeUnit, setCurrentCodeUnit = $__21.setCurrentCodeUnit;
+  var base = Object.freeze(Object.create(null, {
+    Array: {value: Array},
+    Boolean: {value: Boolean},
+    Date: {value: Date},
+    Error: {value: Error},
+    EvalError: {value: EvalError},
+    Function: {value: Function},
+    JSON: {value: JSON},
+    Math: {value: Math},
+    Number: {value: Number},
+    Object: {value: Object},
+    RangeError: {value: RangeError},
+    ReferenceError: {value: ReferenceError},
+    RegExp: {value: RegExp},
+    String: {value: String},
+    SyntaxError: {value: SyntaxError},
+    TypeError: {value: TypeError},
+    URIError: {value: URIError},
+    undefined: {value: void 0}
+  }));
+  var NOT_STARTED = 0;
+  var LOADING = 1;
+  var LOADED = 2;
+  var PARSED = 3;
+  var TRANSFORMED = 4;
+  var COMPLETE = 5;
+  var ERROR = 6;
+  var CodeUnit = function() {
+    'use strict';
+    var $CodeUnit = ($__createClassNoExtends)({
+      constructor: function(loader, url, state) {
+        this.loader = loader;
+        this.url = url;
+        this.state = state;
+        this.uid = getUid();
+        this.state_ = NOT_STARTED;
+      },
+      get state() {
+        return this.state_;
+      },
+      set state(state) {
+        if (state < this.state_) {
+          throw new Error('Invalid state change');
+        }
+        this.state_ = state;
+      },
+      get reporter() {
+        return this.loader.reporter;
+      },
+      get project() {
+        return this.loader.project;
+      },
+      get tree() {
+        return this.project.getParseTree(this.file);
+      },
+      get moduleSymbol() {
+        return this.project.getRootModule();
+      },
+      addListener: function(callback, errback) {
+        if (this.state >= COMPLETE) throw Error((this.url + " is already loaded"));
+        if (!this.listeners) {
+          this.listeners = [];
+        }
+        this.listeners.push(callback, errback);
+      },
+      dispatchError: function(value) {
+        this.dispatch_(value, 1);
+      },
+      dispatchComplete: function(value) {
+        this.dispatch_(value, 0);
+      },
+      dispatch_: function(value, error) {
+        var listeners = this.listeners;
+        if (!listeners) {
+          return;
+        }
+        listeners = listeners.concat();
+        this.listeners = [];
+        for (var i = error; i < listeners.length; i += 2) {
+          var f = listeners[i];
+          if (f) {
+            f(value);
+          }
+        }
+      },
+      parse: function() {
+        var reporter = this.reporter;
+        var project = this.project;
+        var url = this.url;
+        var program = this.text;
+        var file = new SourceFile(url, program);
+        project.addFile(file);
+        this.file = file;
+        var parser = new Parser(reporter, file);
+        var tree = parser.parseProgram(this.allowLoad);
+        if (reporter.hadError()) {
+          this.error = 'Parse error';
+          return false;
+        }
+        project.setParseTree(file, tree);
+        this.state = PARSED;
+        return true;
+      },
+      transform: function() {
+        return ProgramTransformer.transformFile(this.reporter, this.project, this.file);
+      }
+    }, {});
+    return $CodeUnit;
+  }();
+  var LoadCodeUnit = function($__super) {
+    'use strict';
+    var $__proto = $__getProtoParent($__super);
+    var $LoadCodeUnit = ($__createClass)({
+      constructor: function(loader, url) {
+        $__superCall(this, $__proto, "constructor", [loader, url, NOT_STARTED]);
+        this.allowLoad = true;
+        if (standardModuleUrlRegExp.test(url)) {
+          this.state = COMPLETE;
+          this.dependencies = [];
+        }
+      },
+      get moduleSymbol() {
+        return this.project.getModuleForUrl(this.url);
+      },
+      parse: function() {
+        if (!$__superCall(this, $__proto, "parse", [])) {
+          return false;
+        }
+        var project = this.loader.project;
+        var tree = this.tree;
+        var url = this.url;
+        var moduleSymbol = new ModuleSymbol(null, null, tree, url);
+        project.addExternalModule(moduleSymbol);
+        return true;
+      },
+      transform: function() {
+        return ProgramTransformer.transformFileAsModule(this.reporter, this.project, this.moduleSymbol, this.file);
+      }
+    }, {}, $__proto, $__super, true);
+    return $LoadCodeUnit;
+  }(CodeUnit);
+  var EvalCodeUnit = function($__super) {
+    'use strict';
+    var $__proto = $__getProtoParent($__super);
+    var $EvalCodeUnit = ($__createClass)({constructor: function(loader, code) {
+        $__superCall(this, $__proto, "constructor", [loader, loader.url, LOADED]);
+        this.text = code;
+        this.allowLoad = false;
+      }}, {}, $__proto, $__super, true);
+    return $EvalCodeUnit;
+  }(CodeUnit);
+  var EvalLoadCodeUnit = function($__super) {
+    'use strict';
+    var $__proto = $__getProtoParent($__super);
+    var $EvalLoadCodeUnit = ($__createClass)({constructor: function(loader, code) {
+        CodeUnit.call(this, loader, loader.url, LOADED);
+        this.text = code;
+        this.allowLoad = true;
+      }}, {}, $__proto, $__super, true);
+    return $EvalLoadCodeUnit;
+  }(CodeUnit);
+  var InternalLoader = function() {
+    'use strict';
+    var $InternalLoader = ($__createClassNoExtends)({
+      constructor: function(reporter, project) {
+        this.reporter = reporter;
+        this.project = project;
+        this.cache = new ArrayMap();
+        this.urlToKey = Object.create(null);
+        this.sync_ = false;
+      },
+      get url() {
+        return this.project.url;
+      },
+      loadTextFile: function(url, callback, errback) {
+        var xhr = new XMLHttpRequest();
+        xhr.onload = function() {
+          if (xhr.status == 200 || xhr.status == 0) {
+            callback(xhr.responseText);
+          } else {
+            errback();
+          }
+          xhr = null;
+        };
+        xhr.onerror = function() {
+          errback();
+        };
+        xhr.open('GET', url, true);
+        xhr.send();
+        return xhr;
+      },
+      loadTextFileSync: function(url) {
+        var xhr = new XMLHttpRequest();
+        xhr.onerror = function(e) {
+          throw new Error(xhr.statusText);
+        };
+        xhr.open('GET', url, false);
+        xhr.send();
+        if (xhr.status == 200 || xhr.status == 0) {
+          return xhr.responseText;
+        }
+      },
+      load: function(url) {
+        url = resolveUrl(this.url, url);
+        var codeUnit = this.getCodeUnit(url);
+        if (codeUnit.state != NOT_STARTED || codeUnit.state == ERROR) {
+          return codeUnit;
+        }
+        codeUnit.state = LOADING;
+        if (this.sync_) {
+          try {
+            codeUnit.text = this.loadTextFileSync(url);
+            codeUnit.state = LOADED;
+            this.handleCodeUnitLoaded(codeUnit);
+          } catch (e) {
+            codeUnit.state = ERROR;
+            this.handleCodeUnitLoadError(codeUnit);
+          }
+          return codeUnit;
+        }
+        var loader = this;
+        codeUnit.xhr = this.loadTextFile(url, function(text) {
+          codeUnit.text = text;
+          codeUnit.state = LOADED;
+          loader.handleCodeUnitLoaded(codeUnit);
+        }, function() {
+          codeUnit.state = ERROR;
+          loader.handleCodeUnitLoadError(codeUnit);
+        });
+        return codeUnit;
+      },
+      loadSync: function(url) {
+        this.sync_ = true;
+        var loaded = this.load(url);
+        this.sync_ = false;
+        return loaded;
+      },
+      evalLoad: function(code) {
+        var codeUnit = new EvalLoadCodeUnit(this, code);
+        this.cache.set({}, codeUnit);
+        return codeUnit;
+      },
+      eval: function(code) {
+        var codeUnit = new EvalCodeUnit(this, code);
+        this.cache.set({}, codeUnit);
+        this.handleCodeUnitLoaded(codeUnit);
+        return codeUnit;
+      },
+      getKey: function(url) {
+        if (url in this.urlToKey) {
+          return this.urlToKey[url];
+        }
+        return this.urlToKey[url] = {};
+      },
+      getCodeUnit: function(url) {
+        var key = this.getKey(url);
+        var cacheObject = this.cache.get(key);
+        if (!cacheObject) {
+          cacheObject = new LoadCodeUnit(this, url);
+          this.cache.set(key, cacheObject);
+        }
+        return cacheObject;
+      },
+      areAll: function(state) {
+        return this.cache.values().every((function(codeUnit) {
+          return codeUnit.state >= state;
+        }));
+      },
+      handleCodeUnitLoaded: function(codeUnit) {
+        if (!codeUnit.parse()) {
+          this.abortAll();
+          return;
+        }
+        var requireVisitor = new ModuleRequireVisitor(this.reporter);
+        requireVisitor.visit(codeUnit.tree);
+        var baseUrl = codeUnit.url;
+        codeUnit.dependencies = requireVisitor.requireUrls.map((function(url) {
+          url = resolveUrl(baseUrl, url);
+          return this.getCodeUnit(url);
+        }).bind(this));
+        codeUnit.dependencies.forEach((function(dependency) {
+          this.load(dependency.url);
+        }).bind(this));
+        if (this.areAll(PARSED)) {
+          this.analyze();
+          this.transform();
+          this.evaluate();
+        }
+      },
+      handleCodeUnitLoadError: function(codeUnit) {
+        this.error = codeUnit.error = 'Failed to load \'' + codeUnit.url + '\'';
+        this.abortAll();
+      },
+      abortAll: function() {
+        this.cache.values().forEach((function(codeUnit) {
+          if (codeUnit.xhr) {
+            codeUnit.xhr.abort();
+            codeUnit.state = ERROR;
+          }
+        }));
+        this.cache.values().forEach((function(codeUnit) {
+          codeUnit.dispatchError(codeUnit.error);
+        }));
+      },
+      analyze: function() {
+        var dependencies = this.cache.values();
+        var trees = [];
+        var modules = [];
+        for (var i = 0; i < dependencies.length; i++) {
+          var codeUnit = dependencies[i];
+          traceur.assert(codeUnit.state >= PARSED);
+          if (codeUnit.state == PARSED) {
+            trees.push(codeUnit.tree);
+            modules.push(codeUnit.moduleSymbol);
+          }
+        }
+        var analyzer = new ModuleAnalyzer(this.reporter, this.project);
+        analyzer.analyzeModuleTrees(trees, modules);
+        if (this.reporter.hadError()) {
+          for (var i = 0; i < dependencies.length; i++) {
+            var codeUnit = dependencies[i];
+            if (codeUnit.state >= COMPLETE) {
+              continue;
+            }
+            codeUnit.state = ERROR;
+          }
+          for (var i = 0; i < dependencies.length; i++) {
+            var codeUnit = dependencies[i];
+            if (codeUnit.state == ERROR) {
+              codeUnit.dispatchError('Failed to analyze');
+            }
+          }
+        }
+      },
+      transform: function() {
+        var dependencies = this.cache.values();
+        for (var i = 0; i < dependencies.length; i++) {
+          var codeUnit = dependencies[i];
+          if (codeUnit.state >= TRANSFORMED) {
+            continue;
+          }
+          codeUnit.transformedTree = this.transformCodeUnit(codeUnit);
+          codeUnit.state = TRANSFORMED;
+        }
+      },
+      transformCodeUnit: function(codeUnit) {
+        var results = codeUnit.transform();
+        return results.get(codeUnit.file);
+      },
+      evaluate: function() {
+        var visited = new ObjectMap();
+        var ordered = [];
+        function orderCodeUnits(codeUnit) {
+          if (visited.has(codeUnit)) {
+            return;
+          }
+          visited.set(codeUnit, true);
+          codeUnit.dependencies.forEach(orderCodeUnits);
+          ordered.push(codeUnit);
+        }
+        this.cache.values().forEach(orderCodeUnits);
+        var dependencies = ordered;
+        for (var i = 0; i < dependencies.length; i++) {
+          var codeUnit = dependencies[i];
+          if (codeUnit.state >= COMPLETE) {
+            continue;
+          }
+          traceur.assert(getCurrentCodeUnit() === undefined);
+          setCurrentCodeUnit(codeUnit);
+          var result;
+          try {
+            result = this.evalCodeUnit(codeUnit);
+          } catch (ex) {
+            codeUnit.error = ex.message;
+            this.abortAll();
+            return;
+          } finally {
+            traceur.assert(getCurrentCodeUnit() === codeUnit);
+            setCurrentCodeUnit(undefined);
+          }
+          codeUnit.result = result;
+          codeUnit.transformedTree = null;
+          codeUnit.text = null;
+        }
+        for (var i = 0; i < dependencies.length; i++) {
+          var codeUnit = dependencies[i];
+          if (codeUnit.state >= COMPLETE) {
+            continue;
+          }
+          codeUnit.state = COMPLETE;
+          codeUnit.dispatchComplete(codeUnit.result);
+        }
+      },
+      evalCodeUnit: function(codeUnit) {
+        return ('global', eval)("'use strict';" + TreeWriter.write(codeUnit.transformedTree));
+      }
+    }, {});
+    return $InternalLoader;
+  }();
+  var CodeLoader = function() {
+    'use strict';
+    var $CodeLoader = ($__createClassNoExtends)({
+      constructor: function(reporter, project, parentLoader) {
+        var resolver = arguments[3];
+        this.internalLoader_ = new InternalLoader(reporter, project);
+      },
+      load: function(url, callback) {
+        var errback = arguments[2];
+        var codeUnit = this.internalLoader_.load(url);
+        codeUnit.addListener(callback, errback);
+      },
+      eval: function(program) {
+        var codeUnit = this.internalLoader_.eval(program);
+        return codeUnit.result;
+      },
+      evalLoad: function(program, callback) {
+        var errback = arguments[2];
+        var codeUnit = this.internalLoader_.evalLoad(program);
+        codeUnit.addListener(callback, errback);
+        this.internalLoader_.handleCodeUnitLoaded(codeUnit);
+      },
+      import: function(moduleInstanceObject) {
+        throw Error('Not implemented');
+      },
+      defineGlobal: function(name, value) {
+        throw Error('Not implemented');
+      },
+      defineModule: function(name, moduleInstanceObject) {
+        var cacheKey = arguments[2];
+        throw Error('Not implemented');
+      },
+      create: function(moduleInstanceObject) {
+        var resolver = arguments[1];
+        var url = this.project_.url;
+        var project = new Project(url);
+        var loader = new CodeLoader(this.reporter, project, this, resolver);
+        return loader;
+      },
+      createBase: function() {
+        return base;
+      }
+    }, {});
+    return $CodeLoader;
+  }();
+  var internals = (function() {
+    return Object.preventExtensions(Object.create(null, {
+      CodeUnit: {
+        get: function() {
+          return CodeUnit;
+        },
+        enumerable: true
+      },
+      EvalCodeUnit: {
+        get: function() {
+          return EvalCodeUnit;
+        },
+        enumerable: true
+      },
+      EvalLoadCodeUnit: {
+        get: function() {
+          return EvalLoadCodeUnit;
+        },
+        enumerable: true
+      },
+      InternalLoader: {
+        get: function() {
+          return InternalLoader;
+        },
+        enumerable: true
+      },
+      LoadCodeUnit: {
+        get: function() {
+          return LoadCodeUnit;
+        },
+        enumerable: true
+      }
+    }));
+  }).call(this);
+  ;
+  return Object.preventExtensions(Object.create(null, {
+    CodeLoader: {
+      get: function() {
+        return CodeLoader;
+      },
+      enumerable: true
+    },
+    internals: {
+      get: function() {
+        return internals;
+      },
+      enumerable: true
+    }
+  }));
+}).call(this);
 var traceur = (function() {
   "use strict";
   var global = this;
@@ -20929,6 +20959,7 @@ var traceur = (function() {
       }
     }));
   }).call(this);
+  var modules = $___src_runtime_modules_js;
   return Object.preventExtensions(Object.create(null, {
     options: {
       get: function() {
@@ -20987,6 +21018,12 @@ var traceur = (function() {
     codegeneration: {
       get: function() {
         return codegeneration;
+      },
+      enumerable: true
+    },
+    modules: {
+      get: function() {
+        return modules;
       },
       enumerable: true
     }
