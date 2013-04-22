@@ -496,6 +496,18 @@
     }
   });
 
+  var System = {
+    kv_: Object.create(null),
+    set: function(k, v) {
+      this.kv_[k] = v;
+    },
+    get: function(k) {
+      if (modules[k])
+        return modules[k];
+      return this.kv_[k];
+    }
+  }
+
   // TODO(arv): Don't export this.
   global.Deferred = Deferred;
 
@@ -503,6 +515,7 @@
     polyfillString(global.String);
     polyfillObject(global.Object);
     polyfillArray(global.Array);
+    global.System = System;
   }
 
   setupGlobals(global);
