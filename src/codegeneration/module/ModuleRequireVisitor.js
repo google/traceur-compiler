@@ -15,6 +15,7 @@
 import {ParseTreeVisitor} from '../../syntax/ParseTreeVisitor.js';
 import {canonicalizeUrl} from '../../util/url.js';
 import {options} from '../../options.js';
+import {STRING} from '../../syntax/TokenType.js';
 
 // TODO(arv): This is closer to the ModuleVisitor but we don't care about
 // modules.
@@ -31,15 +32,24 @@ export class ModuleRequireVisitor extends ParseTreeVisitor {
   constructor(reporter) {
     super();
     this.urls_ = Object.create(null);
+    this.definedUrls_ = Object.create(null);
   }
 
   get requireUrls() {
     return Object.keys(this.urls_);
   }
 
+  visitModuleDefinition(tree) {
+    if (options.pathModules && tree.name.type === STRING)
+      this.definedUrls_[canonicalizeUrl(tree.name.processedValue)] = true;
+
+    super.visitModuleDefinition(tree);
+  }
+
   visitModuleRequire(tree) {
-    if (options.pathModules)
+    var url = canonicalizeUrl(tree.url.processedValue);
+    if (options.pathModules && this.definedUrls_[url])
       return;
-    this.urls_[canonicalizeUrl(tree.url.processedValue)] = true;
+    this.urls_[url] = true;
   }
 }
