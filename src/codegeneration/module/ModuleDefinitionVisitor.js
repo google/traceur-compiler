@@ -14,6 +14,7 @@
 
 import {ModuleSymbol} from '../../semantics/symbols/ModuleSymbol.js';
 import {ModuleVisitor} from './ModuleVisitor.js';
+import {options} from '../../options.js';
 import {STRING} from '../../syntax/TokenType.js';
 
 /**
@@ -33,7 +34,7 @@ export class ModuleDefinitionVisitor extends ModuleVisitor {
 
   visitModuleDefinition(tree) {
     var isPath = tree.name.type === STRING;
-    var name = tree.name.value;
+    var name = isPath ? tree.name.processedValue : tree.name.value;
     if (this.checkForDuplicateModule_(name, tree)) {
       var parent = this.currentModule;
       var module = new ModuleSymbol(name, parent, tree, parent.url, isPath);

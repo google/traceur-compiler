@@ -19,6 +19,7 @@ import {
 import {ParseTreeVisitor} from '../../syntax/ParseTreeVisitor.js';
 import {Symbol} from '../../semantics/symbols/Symbol.js';
 import {resolveUrl} from '../../util/url.js';
+import {STRING} from '../../syntax/TokenType.js';
 
 function getFriendlyName(module) {
   return module.name || module.url;
@@ -72,6 +73,9 @@ export class ModuleVisitor extends ParseTreeVisitor {
     if (tree.reference.type == ParseTreeType.MODULE_REQUIRE) {
       var url = tree.reference.url.processedValue;
       url = resolveUrl(this.currentModule.url, url);
+      var parent = this.getModuleByName(url);
+      var module = parent || this.project.getModuleForUrl(url);
+      return module;
       return this.project.getModuleForUrl(url);
     }
 
@@ -139,8 +143,11 @@ export class ModuleVisitor extends ParseTreeVisitor {
 
   visitModuleDefinition(tree) {
     var current = this.currentModule_;
-    var name = tree.name.value;
-    var module = current.getModule(name);
+    var name = tree.name.type === STRING ?
+        tree.name.processedValue :
+        tree.name.value;
+    var module = current.getModule(name) ||
+        this.project.getModuleForUrl(tree.name.processedValue);
     traceur.assert(module);
     this.currentModule_ = module;
     tree.elements.forEach(this.visitModuleElement_, this);

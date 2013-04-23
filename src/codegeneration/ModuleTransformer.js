@@ -74,6 +74,7 @@ import {
   parseStatement,
   parseExpression
 } from './PlaceholderParser.js';
+import {STRING} from '../syntax/TokenType.js';
 
 function toBindingIdentifier(tree) {
   return new BindingIdentifier(tree.location, tree.identifierToken);
@@ -372,14 +373,15 @@ function transformModuleElements(project, module, elements, useStrictCount) {
  * @return {ParseTree}
  */
 function transformDefinition(project, parent, tree, useStrictCount) {
-  var module = parent.getModule(tree.name.value);
+  var module = parent.getModule(
+      tree.name.type === STRING ?  tree.name.processedValue : tree.name.value);
 
   var callExpression = transformModuleElements(project, module,
                                                tree.elements, useStrictCount);
 
   if (module.isPath && options.pathModules) {
     return parseStatement `
-        System.set(${module.name.slice(1, -1)}, ${callExpression});
+        System.set(${module.name}, ${callExpression});
         `;
   }
 
