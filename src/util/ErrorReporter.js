@@ -27,27 +27,18 @@ export class ErrorReporter {
    */
   reportError(location, format, ...args) {
     this.hadError_ = true;
-    this.reportMessageInternal(location, 'error', format, args);
+    this.reportMessageInternal(location, format, args);
   }
 
   /**
    * @param {SourcePosition} location
-   * @param {string} format
-   */
-  reportWarning(location, format, ...args) {
-    this.reportMessageInternal(location, 'warn', format, args);
-  }
-
-  /**
-   * @param {SourcePosition} location
-   * @param {string} kind
    * @param {string} format
    * @param {Array} args
    */
-  reportMessageInternal(location, kind, format, args) {
+  reportMessageInternal(location, format, args) {
     if (location)
       format = `${location}: ${format}`;
-    console[kind](format, ...args);
+    console.error(format, ...args);
   }
 
   hadError() {
