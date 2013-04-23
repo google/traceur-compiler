@@ -23,9 +23,7 @@ export class TestErrorReporter extends ErrorReporter {
     this.errors = [];
   }
 
-  reportMessageInternal(location, kind, format, args) {
-    if (kind !== 'error')
-      return;
+  reportMessageInternal(location, format, args) {
     this.errors.push(ErrorReporter.format(location, format, args));
   }
 

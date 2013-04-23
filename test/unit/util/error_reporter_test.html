@@ -23,7 +23,6 @@
 <script>
 
 goog.require('goog.testing.jsunit');
-goog.require('goog.testing.MockControl');
 
 </script>
 <script src="../../../bin/traceur.js"></script>
@@ -31,30 +30,30 @@ goog.require('goog.testing.MockControl');
 <body>
 <script>
 
-var mocks = new goog.testing.MockControl();
-var mockError, mockWarn;
+var originalConsoleError = console.error;
+var args;
 
 function setUp() {
-  mockError = mocks.createMethodMock(console, 'error');
-  mockWarn = mocks.createMethodMock(console, 'warn');
+  args = [];
+  console.error = function() {
+    args.push(arguments);
+  };
 }
 
 function tearDown() {
-  mocks.$tearDown();
+  console.error = originalConsoleError;
+  args = undefined;
 }
 
 function testErrorReporter() {
   var r = new traceur.util.ErrorReporter();
 
-  mockError('a%sc%se', 'b', 'd');
-  mockWarn('a%sc%se', 'b', 'd');
-
-  mocks.$replayAll();
-
   r.reportError(null, 'a%sc%se', 'b', 'd');
-  r.reportWarning(null, 'a%sc%se', 'b', 'd');
 
-  mocks.$verifyAll();
+  assertEquals(args.length, 1);
+  assertEquals(args[0][0], 'a%sc%se');
+  assertEquals(args[0][1], 'b');
+  assertEquals(args[0][2], 'd');
 }
 
 function testErrorReporterWithLocation() {
@@ -64,26 +63,18 @@ function testErrorReporterWithLocation() {
   location.line_ = 2;
   location.column_ = 3;
 
-  mockError('test.js:3:4: a%sc%se', 'b', 'd');
-  mockWarn('test.js:3:4: a%sc%se', 'b', 'd');
-
-  mocks.$replayAll();
-
   r.reportError(location, 'a%sc%se', 'b', 'd');
-  r.reportWarning(location, 'a%sc%se', 'b', 'd');
 
-  mocks.$verifyAll();
+  assertEquals(args.length, 1);
+  assertEquals(args[0][0], 'test.js:3:4: a%sc%se');
+  assertEquals(args[0][1], 'b');
+  assertEquals(args[0][2], 'd');
 }
 
 function testMutedErrorReporter() {
   var r = new traceur.util.MutedErrorReporter();
-
-  mocks.$replayAll();
-
   r.reportError(null, 'a%sc%se', 'b', 'd');
-  r.reportWarning(null, 'a%sc%se', 'b', 'd');
-
-  mocks.$verifyAll();
+  assertEquals(args.length, 0);
 }
 
 function testFormat() {

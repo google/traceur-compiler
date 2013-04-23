@@ -72,8 +72,8 @@ function compileAndReturnErrors(contents, name) {
 
 function assertErrorMessage(errors, expectedError, expectedErrorArg) {
   assertTrue(errors.length > 0);
-  assertEquals(expectedError, errors[0][2]);
-  assertEquals(expectedErrorArg, errors[0][3][0]);
+  assertEquals(expectedError, errors[0][1]);
+  assertEquals(expectedErrorArg, errors[0][2][0]);
 }
 
 function assertCompileError(contents, expectedError, expectedErrorArg) {
