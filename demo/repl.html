@@ -238,7 +238,7 @@ pre,
     errorElement.textContent = sourceMapElement.textContent = '';
 
     var reporter = new ErrorReporter();
-    reporter.reportMessageInternal = function(location, kind, format, args) {
+    reporter.reportMessageInternal = function(location, format, args) {
       errorElement.textContent +=
          ErrorReporter.format(location, format, args) + '\n';
     };
