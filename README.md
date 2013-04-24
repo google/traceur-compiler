@@ -31,5 +31,8 @@ The JSConf 2011 presentation of Traceur describes the goals of the project and
 what it can do today. Some documentation is on the wiki on this site.
 Extra demos are in the source repository.
 
+We also presented Traceur at NodeConf 2011. The video is
+available on [YouTube](http://www.youtube.com/watch?feature=player_detailpage&v=ntDZa7ekFEA).
+
 Questions, suggestions, and comments can be directed to the
 [discussion group](http://groups.google.com/group/traceur-compiler-discuss).
