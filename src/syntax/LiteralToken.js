@@ -49,7 +49,7 @@ class StringParser {
 
   next() {
     if (++this.index >= this.value.length - 1)
-      throw traceur.runtime.StopIteration;
+      throw StopIteration;
 
     return this.value[this.index];
   }
