@@ -121,8 +121,7 @@ Getopt.prototype = {
       this.opt = '?';
     }
 
-    this.nextchar %= arg.length;
-    this.optind += !this.nextchar;
+    this.optind += !(this.nextchar %= arg.length);
 
     return true;
   },
