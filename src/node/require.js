@@ -48,10 +48,31 @@ function traceurRequire(filename) {
   return module.exports;
 };
 
-traceurRequire.makeDefault = function() {
+var filters = [];
+var originalRequireJs = Module._extensions['.js'];
+
+function shouldCompile(filename) {
+  if (filters.length === 0)
+    return true;
+  for (var i = 0; i < filters.length; i++) {
+    if (filters[i].call(null, filename))
+      return true;
+  }
+  return false;
+}
+
+traceurRequire.makeDefault = function(filter) {
+  if (!filter)
+    filters = [];
+  else
+    filters.push(filter);
+
   Module._extensions['.js'] = function(module, filename) {
-    var source = compile(filename)
-    return module._compile(source, filename);
+    if (shouldCompile(filename)) {
+      var source = compile(filename)
+      return module._compile(source, filename);
+    }
+    return originalRequireJs(module, filename);
   };
 };
 
