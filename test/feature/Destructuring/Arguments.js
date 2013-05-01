@@ -5,4 +5,4 @@ function destructureArguments(x, y) {
 
 // ----------------------------------------------------------------------------
 
-assertEquals(3, destructureArguments(1, 2));
+assert.equal(3, destructureArguments(1, 2));

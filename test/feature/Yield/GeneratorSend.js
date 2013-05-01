@@ -1,12 +1,12 @@
 function assertThrownEquals(x, func) {
-  assertEquals(x, assertThrows(func));
+  assert.equal(x, assertThrows(func));
 }
 
 function assertThrownErrorIs(str, func) {
   var e = assertThrows(func);
-  assertTrue(e instanceof Error);
+  assert.isTrue(e instanceof Error);
 
-  assertEquals(str, e.message);
+  assert.equal(str, e.message);
 }
 
 import {isStopIteration} from '@iter';
@@ -87,7 +87,7 @@ var closeMethods = [
   (g) => g.close(),
   (g) => assertThrownEquals(42, () => g.throw(42)),
   (g) => {
-    assertEquals(1, g.next());
+    assert.equal(1, g.next());
     assertThrowsStopIteration(() => g.next());
   }
 ];
@@ -110,7 +110,7 @@ for (var i = 0; i < 8; i++) {
   assertThrownErrorIs('Sent value to newborn generator', () => g.send(42));
 }
 
-assertNotThrows(() => assertEquals(1, g.send(undefined)));
+assert.doesNotThrow(() => assert.equal(1, g.send(undefined)));
 
 //-----------------------------------------------------------------------------
 //
@@ -177,7 +177,7 @@ function* fibD() {
     fn2 = fn1;
     fn1 = fn1 + current;
     [reset, tmp] = yield current;
-    assertEquals(reset, tmp);
+    assert.equal(reset, tmp);
     if (reset) {
       fn1 = 1;
       fn2 = 1;
@@ -195,7 +195,7 @@ function* fibVarD() {
     fn2 = fn1;
     fn1 = fn1 + current;
     var [reset, tmp] = yield current;
-    assertEquals(reset, tmp);
+    assert.equal(reset, tmp);
     if (reset) {
       fn1 = 1;
       fn2 = 1;
@@ -221,17 +221,17 @@ function sendD(g, v) {
 
 function testfib(fibonacci, next, send) {
   var sequence = fibonacci();
-  assertEquals(1, sequence.next());
-  assertEquals(1, next(sequence));
-  assertEquals(2, next(sequence));
-  assertEquals(3, next(sequence));
-  assertEquals(5, next(sequence));
-  assertEquals(8, next(sequence));
-  assertEquals(13, next(sequence));
-  assertEquals(1, send(sequence, true));
-  assertEquals(1, next(sequence));
-  assertEquals(2, next(sequence));
-  assertEquals(3, next(sequence));
+  assert.equal(1, sequence.next());
+  assert.equal(1, next(sequence));
+  assert.equal(2, next(sequence));
+  assert.equal(3, next(sequence));
+  assert.equal(5, next(sequence));
+  assert.equal(8, next(sequence));
+  assert.equal(13, next(sequence));
+  assert.equal(1, send(sequence, true));
+  assert.equal(1, next(sequence));
+  assert.equal(2, next(sequence));
+  assert.equal(3, next(sequence));
 }
 
 //----

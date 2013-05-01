@@ -1,3 +1,3 @@
-assertTrue('Hello World!'.contains('or'));
-assertFalse('Hello World!'.contains('and'));
-assertTrue('Hello World!'.contains(''));
+assert.isTrue('Hello World!'.contains('or'));
+assert.isFalse('Hello World!'.contains('and'));
+assert.isTrue('Hello World!'.contains(''));

@@ -11,23 +11,23 @@ var a, b, c, x, y, z;
 // ----------------------------------------------------------------------------
 
 function checkA() {
-  assertEquals(1, a);
-  assertUndefined(b);
-  assertUndefined(c);
+  assert.equal(1, a);
+  assert.isUndefined(b);
+  assert.isUndefined(c);
   a = b = c = undefined;
 }
 
 function checkAb() {
-  assertEquals(1, a);
-  assertEquals(2, b);
-  assertUndefined(c);
+  assert.equal(1, a);
+  assert.equal(2, b);
+  assert.isUndefined(c);
   a = b = c = undefined;
 }
 
 function checkAbc() {
-  assertEquals(1, a);
-  assertEquals(2, b);
-  assertEquals(3, c);
+  assert.equal(1, a);
+  assert.equal(2, b);
+  assert.equal(3, c);
   a = b = c = undefined;
 }
 

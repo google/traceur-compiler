@@ -11,5 +11,5 @@ function asyncComplete() {
 (function() {
   var value;
   await value = asyncComplete();
-  assertEquals('complete', value);
+  assert.equal('complete', value);
 })();

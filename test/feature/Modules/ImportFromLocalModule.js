@@ -7,12 +7,12 @@ import {x: renamedX, y} from m;
 import x from m;
 module m2 from m;
 
-assertEquals(1, x);
-assertEquals(1, renamedX);
-assertEquals(2, y);
+assert.equal(1, x);
+assert.equal(1, renamedX);
+assert.equal(2, y);
 
-assertEquals(x, renamedX);
-assertEquals(x, m.x);
+assert.equal(x, renamedX);
+assert.equal(x, m.x);
 // Closure tests cannot handle Object.create(null)
-assertTrue(m === m2);
-assertEquals(y, m.y);
+assert.isTrue(m === m2);
+assert.equal(y, m.y);

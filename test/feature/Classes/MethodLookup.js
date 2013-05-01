@@ -30,5 +30,5 @@ class MethodLookupC extends MethodLookupB {
 // ----------------------------------------------------------------------------
 
 var c = new MethodLookupC();
-assertEquals('B.foo.get', c.x());
-assertEquals('B.bar()', c.y());
+assert.equal('B.foo.get', c.x());
+assert.equal('B.bar()', c.y());

@@ -4,5 +4,5 @@ function* f() {
 
 var o = {};
 for (var x of f.call(o)) {
-  assertEquals(o, x);
+  assert.equal(o, x);
 }

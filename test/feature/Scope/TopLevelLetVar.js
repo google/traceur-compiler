@@ -5,5 +5,5 @@ var y = 'var';
 
 // ----------------------------------------------------------------------------
 
-assertEquals('let', x);
-assertEquals('var', y);
+assert.equal('let', x);
+assert.equal('var', y);

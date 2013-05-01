@@ -4,4 +4,4 @@ strict';
   return this;
 }
 
-assertNotEquals(testUseStrictLineContinuation(), undefined);
+assert.notEqual(testUseStrictLineContinuation(), undefined);

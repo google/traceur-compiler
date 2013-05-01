@@ -1,4 +1,4 @@
-assertTrue('Hello World!'.endsWith('World!'));
-assertFalse('Hello World!'.endsWith('Hello'));
-assertFalse('Hello World'.endsWith('D'));
-assertTrue('Hello World!'.endsWith(''));
+assert.isTrue('Hello World!'.endsWith('World!'));
+assert.isFalse('Hello World!'.endsWith('Hello'));
+assert.isFalse('Hello World'.endsWith('D'));
+assert.isTrue('Hello World!'.endsWith(''));

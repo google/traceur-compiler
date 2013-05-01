@@ -22,4 +22,4 @@ function accumulate(iterator) {
 
 // ----------------------------------------------------------------------------
 
-assertEquals('1235', accumulate(forGenerator()));
+assert.equal('1235', accumulate(forGenerator()));

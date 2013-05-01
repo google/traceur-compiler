@@ -15,12 +15,12 @@ class Point3D extends Point2D {
 // ----------------------------------------------------------------------------
 
 var a = new Point2D();
-assertTrue(a.hasOwnProperty('x'));
-assertTrue(a.hasOwnProperty('y'));
-assertFalse(a.hasOwnProperty('z'));
-assertUndefined(a.z);
+assert.isTrue(a.hasOwnProperty('x'));
+assert.isTrue(a.hasOwnProperty('y'));
+assert.isFalse(a.hasOwnProperty('z'));
+assert.isUndefined(a.z);
 
 var b = new Point3D();
-assertTrue(b.hasOwnProperty('x'));
-assertTrue(b.hasOwnProperty('y'));
-assertTrue(b.hasOwnProperty('z'));
+assert.isTrue(b.hasOwnProperty('x'));
+assert.isTrue(b.hasOwnProperty('y'));
+assert.isTrue(b.hasOwnProperty('z'));

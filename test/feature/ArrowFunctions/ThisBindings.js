@@ -8,11 +8,11 @@ const obj = {
     return () => this;
   }
 };
-assertEquals(obj.method()(), obj);
+assert.equal(obj.method()(), obj);
 
 let fake = {steal: obj.method()};
-assertEquals(fake.steal(), obj);
+assert.equal(fake.steal(), obj);
 
 let real = {borrow: obj.method};
-assertEquals(real.borrow()(), real);
+assert.equal(real.borrow()(), real);
 

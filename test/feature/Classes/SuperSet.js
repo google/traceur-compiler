@@ -44,13 +44,13 @@ class C extends B {
 
 var c = new C;
 c.x = 42;
-assertEquals(42, c.getX());
+assert.equal(42, c.getX());
 
 c.v = 123;
-assertEquals(123, c.getV());
+assert.equal(123, c.getV());
 
 c.inc(3);
-assertEquals(4, c.z);
+assert.equal(4, c.z);
 
 c.incLookup(5);
-assertEquals(9, c.z);
+assert.equal(9, c.z);

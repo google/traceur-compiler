@@ -2,19 +2,19 @@
 
 var iter = (for (x of [0, 1]) for (y of [2, 3]) () => [x, y] );
 
-assertTrue(iter.moveNext());
+assert.isTrue(iter.moveNext());
 var f1 = iter.current;
 
-assertTrue(iter.moveNext());
+assert.isTrue(iter.moveNext());
 var f2 = iter.current;
 
-assertTrue(iter.moveNext());
+assert.isTrue(iter.moveNext());
 var f3 = iter.current;
 
-assertTrue(iter.moveNext());
+assert.isTrue(iter.moveNext());
 var f4 = iter.current;
 
-assertFalse(iter.moveNext());
+assert.isFalse(iter.moveNext());
 
 assertArrayEquals([0, 2], f1());
 assertArrayEquals([0, 3], f2());
