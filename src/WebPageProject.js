@@ -31,19 +31,19 @@ export class WebPageProject extends Project {
   asyncLoad_(url, fncOfContent, onScriptsReady) {
     this.numPending_++;
     this.loadResource(url, (content) => {
-      if (content) 
+      if (content)
         fncOfContent(content);
-      else 
+      else
         console.warn('Failed to load', url);
 
-      if (--this.numPending_ <= 0) 
+      if (--this.numPending_ <= 0)
         onScriptsReady();
     });
   }
 
   /** over-ride-able
    * @param {string} url Uniform Resource Locator
-   * @param {function(string) | null} callback 
+   * @param {function(string) | null} callback
    */
   loadResource(url, fncOfContentOrNull) {
     var xhr = new XMLHttpRequest();
@@ -97,8 +97,8 @@ export class WebPageProject extends Project {
       }
     }
     // in case we did not load any scripts async
-    if (this.numPending_ <= 0) 
-      onScriptsReady(); 
+    if (this.numPending_ <= 0)
+      onScriptsReady();
   }
 
   get reporter() {
@@ -151,12 +151,13 @@ export class WebPageProject extends Project {
     });
   }
 
-  run() {
+  run(done = () => {}) {
     document.addEventListener('DOMContentLoaded', () => {
       var selector = 'script[type="text/traceur"]';
       var scripts = document.querySelectorAll(selector);
 
       if (!scripts.length) {
+        done();
         return;  // nothing to do
       }
 
@@ -170,7 +171,8 @@ export class WebPageProject extends Project {
 
       this.addFilesFromScriptElements(scripts, () => {
         var trees = this.compile();
-        this.runInWebPage(trees);     
+        this.runInWebPage(trees);
+        done();
       });
     }, false);
   }
