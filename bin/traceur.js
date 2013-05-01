@@ -18631,15 +18631,18 @@ var $___src_WebPageProject_js = (function() {
         }));
       },
       run: function() {
+        var done = arguments[0] !== (void 0) ? arguments[0]: (function() {});
         document.addEventListener('DOMContentLoaded', (function() {
           var selector = 'script[type="text/traceur"]';
           var scripts = document.querySelectorAll(selector);
           if (!scripts.length) {
+            done();
             return;
           }
           this.addFilesFromScriptElements(scripts, (function() {
             var trees = this.compile();
             this.runInWebPage(trees);
+            done();
           }).bind(this));
         }).bind(this), false);
       }
@@ -19597,6 +19600,50 @@ var $___src_codegeneration_module_ModuleRequireVisitor_js = (function() {
       enumerable: true
     }}));
 }).call(this);
+var $___src_runtime_WebLoader_js = (function() {
+  "use strict";
+  var WebLoader = function() {
+    'use strict';
+    var $WebLoader = ($__createClassNoExtends)({
+      constructor: function() {},
+      load: function(url, callback, errback) {
+        var xhr = new XMLHttpRequest();
+        xhr.onload = function() {
+          if (xhr.status == 200 || xhr.status == 0) {
+            callback(xhr.responseText);
+          } else {
+            errback();
+          }
+          xhr = null;
+        };
+        xhr.onerror = function() {
+          errback();
+        };
+        xhr.open('GET', url, true);
+        xhr.send();
+        return (function() {
+          return xhr.abort();
+        });
+      },
+      loadSync: function(url) {
+        var xhr = new XMLHttpRequest();
+        xhr.onerror = function(e) {
+          throw new Error(xhr.statusText);
+        };
+        xhr.open('GET', url, false);
+        xhr.send();
+        if (xhr.status == 200 || xhr.status == 0) return xhr.responseText;
+      }
+    }, {});
+    return $WebLoader;
+  }();
+  return Object.preventExtensions(Object.create(null, {WebLoader: {
+      get: function() {
+        return WebLoader;
+      },
+      enumerable: true
+    }}));
+}).call(this);
 var $___src_runtime_modules_js = (function() {
   "use strict";
   var ArrayMap = $___src_util_ArrayMap_js.ArrayMap;
@@ -19609,6 +19656,7 @@ var $___src_runtime_modules_js = (function() {
   var Project = $___src_semantics_symbols_Project_js.Project;
   var SourceFile = $___src_syntax_SourceFile_js.SourceFile;
   var TreeWriter = $___src_outputgeneration_TreeWriter_js.TreeWriter;
+  var WebLoader = $___src_runtime_WebLoader_js.WebLoader;
   var getUid = $___src_util_uid_js.getUid;
   var resolveUrl = $___src_util_url_js.resolveUrl;
   var $__20 = $___src_runtime_get_module_js, standardModuleUrlRegExp = $__20.standardModuleUrlRegExp, getModuleInstanceByUrl = $__20.getModuleInstanceByUrl, getCurrentCodeUnit = $__20.getCurrentCodeUnit, setCurrentCodeUnit = $__20.setCurrentCodeUnit;
@@ -19777,8 +19825,10 @@ var $___src_runtime_modules_js = (function() {
     'use strict';
     var $InternalLoader = ($__createClassNoExtends)({
       constructor: function(reporter, project) {
+        var fileLoader = arguments[2] !== (void 0) ? arguments[2]: new InternalLoader.FileLoader;
         this.reporter = reporter;
         this.project = project;
+        this.fileLoader = fileLoader;
         this.cache = new ArrayMap();
         this.urlToKey = Object.create(null);
         this.sync_ = false;
@@ -19787,32 +19837,10 @@ var $___src_runtime_modules_js = (function() {
         return this.project.url;
       },
       loadTextFile: function(url, callback, errback) {
-        var xhr = new XMLHttpRequest();
-        xhr.onload = function() {
-          if (xhr.status == 200 || xhr.status == 0) {
-            callback(xhr.responseText);
-          } else {
-            errback();
-          }
-          xhr = null;
-        };
-        xhr.onerror = function() {
-          errback();
-        };
-        xhr.open('GET', url, true);
-        xhr.send();
-        return xhr;
+        return this.fileLoader.load(url, callback, errback);
       },
       loadTextFileSync: function(url) {
-        var xhr = new XMLHttpRequest();
-        xhr.onerror = function(e) {
-          throw new Error(xhr.statusText);
-        };
-        xhr.open('GET', url, false);
-        xhr.send();
-        if (xhr.status == 200 || xhr.status == 0) {
-          return xhr.responseText;
-        }
+        return this.fileLoader.loadSync(url);
       },
       load: function(url) {
         url = resolveUrl(this.url, url);
@@ -19833,7 +19861,7 @@ var $___src_runtime_modules_js = (function() {
           return codeUnit;
         }
         var loader = this;
-        codeUnit.xhr = this.loadTextFile(url, function(text) {
+        codeUnit.abort = this.loadTextFile(url, function(text) {
           codeUnit.text = text;
           codeUnit.state = LOADED;
           loader.handleCodeUnitLoaded(codeUnit);
@@ -19907,8 +19935,8 @@ var $___src_runtime_modules_js = (function() {
       },
       abortAll: function() {
         this.cache.values().forEach((function(codeUnit) {
-          if (codeUnit.xhr) {
-            codeUnit.xhr.abort();
+          if (codeUnit.abort) {
+            codeUnit.abort();
             codeUnit.state = ERROR;
           }
         }));
@@ -20008,9 +20036,17 @@ var $___src_runtime_modules_js = (function() {
       evalCodeUnit: function(codeUnit) {
         return ('global', eval)("'use strict';" + TreeWriter.write(codeUnit.transformedTree));
       }
-    }, {});
+    }, {
+      set FileLoader(v) {
+        FileLoader = v;
+      },
+      get FileLoader() {
+        return FileLoader;
+      }
+    });
     return $InternalLoader;
   }();
+  var FileLoader = WebLoader;
   var CodeLoader = function() {
     'use strict';
     var $CodeLoader = ($__createClassNoExtends)({
