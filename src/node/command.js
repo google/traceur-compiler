@@ -77,7 +77,7 @@ function processArguments(argv) {
   // Preserve the original.
   argv = argv.slice();
 
-  var interpretMode = true;
+  var interpretMode = !(argv.indexOf('--out') > -1);
   for (var i = 2; i < argv.length; i++) {
     var arg = argv[i], index;
     if (arg === '--')
@@ -102,8 +102,6 @@ function processArguments(argv) {
 
     var option = flags.optionFor(arg);
     if (option) {
-      if (arg === '--out')
-        interpretMode = false;
 
       if (option.required)
         i++;
