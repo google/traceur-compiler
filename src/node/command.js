@@ -44,8 +44,8 @@ flags.on('longhelp', function() {
 flags.on('--help', function() {
   console.log('  Examples:');
   console.log('');
-  console.log('    $ %s a.js', cmdName);
-  console.log('    $ %s b.js c.js --out compiled.js', cmdName);
+  console.log('    $ %s a.js [args]', cmdName);
+  console.log('    $ %s --out compiled.js b.js c.js', cmdName);
   console.log('');
 });
 
@@ -120,6 +120,8 @@ function processArguments(argv) {
       process.exit(1);
     } else if (interpretMode) {
       // Add a hint to stop commander.js from parsing following arguments.
+      // Note that this means that --out must come before any unknown flag as
+      // well as before any filename for it to be used as the out flag.
       argv.splice(i, 0, '--');
       // Save traceur flags for interpret.js.
       argv.flags = argv.slice(2, i);
