@@ -1,6 +1,3 @@
-<!DOCTYPE html>
-<!--
-
 // Copyright 2011 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,25 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
--->
-<html>
-<head>
-<title></title>
-<script src="../../../node_modules/closure-library/closure/goog/base.js"></script>
-<script data-scan>
-// NOTE: base.js and all goog.require statements must be in JS script blocks
-// NOTE: because they use document.write to add new script tags in place
-goog.require('goog.testing.jsunit');
-</script>
-<script src="../../../bin/traceur.js"></script>
-</head>
-<body>
-<script data-scan>
+suite('ParseTreeValidator.js', function() {
 
-function testValidator() {
-  traceur.syntax.ParseTreeValidator.validate(null);
-}
+  test('Validate null', function() {
+    traceur.syntax.ParseTreeValidator.validate(null);
+  });
 
-</script>
-</body>
-</html>
+});

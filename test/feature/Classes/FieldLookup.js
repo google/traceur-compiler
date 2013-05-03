@@ -41,7 +41,7 @@ class FieldLookupC extends fieldLookupB {
 // ----------------------------------------------------------------------------
 
 var c = new FieldLookupC();
-assertEquals("B.get.foo", c.x());
-assertEquals("B.value", c.y());
-assertUndefined(c.z());
-assertEquals("B.baz.value", c.w());
+assert.equal("B.get.foo", c.x());
+assert.equal("B.value", c.y());
+assert.isUndefined(c.z());
+assert.equal("B.baz.value", c.w());

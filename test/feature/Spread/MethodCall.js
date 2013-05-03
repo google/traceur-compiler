@@ -14,5 +14,5 @@ var result = {
 
 // ----------------------------------------------------------------------------
 
-assertEquals(result.obj, result.result.self);
+assert.equal(result.obj, result.result.self);
 assertArrayEquals([0, 1, 2, 3], result.result.args);

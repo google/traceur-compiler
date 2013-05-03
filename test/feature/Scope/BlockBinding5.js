@@ -11,8 +11,8 @@ for (let i = 1; i < 3; i ++) {
 
 // ----------------------------------------------------------------------------
 
-assertEquals('1:9', result[0]());
-assertEquals('1:8', result[1]());
-assertEquals('2:9', result[2]());
-assertEquals('2:8', result[3]());
-assertEquals(4, result.length);
+assert.equal('1:9', result[0]());
+assert.equal('1:8', result[1]());
+assert.equal('2:9', result[2]());
+assert.equal('2:8', result[3]());
+assert.equal(4, result.length);

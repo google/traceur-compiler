@@ -18,4 +18,4 @@ function accumulate(iterator) {
 
 // ----------------------------------------------------------------------------
 
-assertEquals('15', accumulate(tryCatchYieldGenerator()));
+assert.equal('15', accumulate(tryCatchYieldGenerator()));

@@ -3,5 +3,5 @@ function testUseStrictEscapeSequence() {
   return this;
 }
 
-assertNotEquals(testUseStrictEscapeSequence(), undefined);
+assert.notEqual(testUseStrictEscapeSequence(), undefined);
 

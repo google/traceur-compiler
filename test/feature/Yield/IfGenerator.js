@@ -22,5 +22,5 @@ function accumulate(iterator) {
 
 // ----------------------------------------------------------------------------
 
-assertEquals('13', accumulate(ifGenerator(true)));
-assertEquals('24', accumulate(ifGenerator(false)));
+assert.equal('13', accumulate(ifGenerator(true)));
+assert.equal('24', accumulate(ifGenerator(false)));

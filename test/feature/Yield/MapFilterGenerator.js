@@ -28,4 +28,4 @@ function accumulate(iterator) {
 
 // ----------------------------------------------------------------------------
 
-assertEquals('4,16,36,64,100,', accumulate(mapFilterGenerator()));
+assert.equal('4,16,36,64,100,', accumulate(mapFilterGenerator()));

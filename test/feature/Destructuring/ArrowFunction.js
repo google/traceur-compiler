@@ -1,5 +1,5 @@
 var f = ({x}) => x;
-assertEquals(42, f({x: 42}));
+assert.equal(42, f({x: 42}));
 
 var g = ({x: y, z: [a, b, ...c]}) => [y, a, b, c];
 assertArrayEquals([1, 2, 3, [4, 5]], g({x: 1, z: [2, 3, 4, 5]}));

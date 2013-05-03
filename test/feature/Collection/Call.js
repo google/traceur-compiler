@@ -7,10 +7,10 @@ import elementGet from '@name';
   var object = {};
 
   object[elementGet] = function(index) {
-    assertEquals(object, this);
+    assert.equal(object, this);
     getLog.push(index);
     return function() {
-      assertEquals(object, this);
+      assert.equal(object, this);
       return index;
     };
   };
@@ -19,14 +19,14 @@ import elementGet from '@name';
   function f() {}
   var re = /regexp/
 
-  assertEquals(object[0](), 0);
-  assertEquals(object[null](), null);
-  assertEquals(object[undefined](), undefined);
-  assertEquals(object[true](), true);
-  assertEquals(object[false](), false);
-  assertEquals(object[tmp](), tmp);
-  assertEquals(object[f](), f);
-  assertEquals(object[re](), re);
+  assert.equal(object[0](), 0);
+  assert.equal(object[null](), null);
+  assert.equal(object[undefined](), undefined);
+  assert.equal(object[true](), true);
+  assert.equal(object[false](), false);
+  assert.equal(object[tmp](), tmp);
+  assert.equal(object[f](), f);
+  assert.equal(object[re](), re);
 
   assertArrayEquals([0, null, undefined, true, false, tmp, f, re], getLog);
 }

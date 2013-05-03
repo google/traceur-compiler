@@ -10,12 +10,12 @@ class C extends B {
 }
 
 var c = new B(1, 2);
-assertEquals(1, c.x);
-assertEquals(2, c.y);
+assert.equal(1, c.x);
+assert.equal(2, c.y);
 
-assertFalse(
+assert.isFalse(
     Object.getOwnPropertyDescriptor(B.prototype, 'constructor').enumerable);
-assertFalse(
+assert.isFalse(
     Object.getOwnPropertyDescriptor(C.prototype, 'constructor').enumerable);
 
 // Ensure that we don't try to call super() in the default constructor.
@@ -28,4 +28,4 @@ class E extends function(x) {
 } {}
 
 var e = new E(42)
-assertEquals(42, e.x);
+assert.equal(42, e.x);

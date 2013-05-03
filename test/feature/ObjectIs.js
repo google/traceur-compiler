@@ -1,34 +1,34 @@
-assertTrue(Object.is(1, 1));
-assertTrue(Object.is(0, 0));
-assertTrue(Object.is(-0, -0));
-assertTrue(Object.is(NaN, NaN));
-assertTrue(Object.is(Infinity, Infinity));
-assertTrue(Object.is(-Infinity, -Infinity));
+assert.isTrue(Object.is(1, 1));
+assert.isTrue(Object.is(0, 0));
+assert.isTrue(Object.is(-0, -0));
+assert.isTrue(Object.is(NaN, NaN));
+assert.isTrue(Object.is(Infinity, Infinity));
+assert.isTrue(Object.is(-Infinity, -Infinity));
 
-assertFalse(Object.is(0, -0));
-assertFalse(Object.is(-0, 0));
-assertFalse(Object.is(Infinity, -Infinity));
-assertFalse(Object.is(-Infinity, Infinity));
+assert.isFalse(Object.is(0, -0));
+assert.isFalse(Object.is(-0, 0));
+assert.isFalse(Object.is(Infinity, -Infinity));
+assert.isFalse(Object.is(-Infinity, Infinity));
 
-assertTrue(Object.is(true, true));
-assertTrue(Object.is(false, false));
+assert.isTrue(Object.is(true, true));
+assert.isTrue(Object.is(false, false));
 
-assertTrue(Object.is(null, null));
-assertTrue(Object.is(undefined, undefined));
+assert.isTrue(Object.is(null, null));
+assert.isTrue(Object.is(undefined, undefined));
 
-assertTrue(Object.is('', ''));
-assertTrue(Object.is('a', 'a'));
+assert.isTrue(Object.is('', ''));
+assert.isTrue(Object.is('a', 'a'));
 
 {
   var object = {};
-  assertTrue(Object.is(object, object));
+  assert.isTrue(Object.is(object, object));
 }
 
-assertFalse(Object.is(new String('a'), new String('a')));
-assertFalse(Object.is(new Boolean, new Boolean));
-assertFalse(Object.is(new Number, new Number));
-assertFalse(Object.is(new Date(0), new Date(0)));
-assertFalse(Object.is(/re/, /re/));
-assertFalse(Object.is({}, {}));
-assertFalse(Object.is([], []));
-assertFalse(Object.is(function() {}, function() {}));
+assert.isFalse(Object.is(new String('a'), new String('a')));
+assert.isFalse(Object.is(new Boolean, new Boolean));
+assert.isFalse(Object.is(new Number, new Number));
+assert.isFalse(Object.is(new Date(0), new Date(0)));
+assert.isFalse(Object.is(/re/, /re/));
+assert.isFalse(Object.is({}, {}));
+assert.isFalse(Object.is([], []));
+assert.isFalse(Object.is(function() {}, function() {}));

@@ -11,7 +11,7 @@ function destructRest() {
 
 var result = destructRest();
 assertArrayEquals([1, 2, 3], result.a);
-assertEquals(1, result.b);
+assert.equal(1, result.b);
 assertArrayEquals([2, 3], result.c);
 assertArrayEquals([], result.d);
 assertArrayEquals([], result.e);

@@ -5,10 +5,10 @@
 
   private @a;
   private @b = @a;
-  assertEquals(@a, @b);
+  assert.equal(@a, @b);
 
   private @c, @d = @c;
-  assertEquals(@c, @d);
+  assert.equal(@c, @d);
 
   assertThrows(function() {
     private @e = 42;

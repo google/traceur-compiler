@@ -4,4 +4,4 @@ function f(...args) {
   return this;
 }
 
-assertEquals(undefined, f `a`);
+assert.equal(undefined, f `a`);

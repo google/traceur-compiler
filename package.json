@@ -36,6 +36,8 @@
   },
   "devDependencies": {
     "closure-library": ">=1.0",
-    "source-map": "0.1.16"
+    "source-map": "0.1.16",
+    "mocha": ">=1.9",
+    "chai": ">=1.5"
   }
 }

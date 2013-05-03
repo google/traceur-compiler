@@ -28,12 +28,12 @@ var result = object.{
   i = 'I'
 };
 
-assertEquals(object, result);
-assertEquals(object.a, 'A2');
-assertEquals(object.b, 'B');
+assert.equal(object, result);
+assert.equal(object.a, 'A2');
+assert.equal(object.b, 'B');
 assertArrayEquals(object.c, [0, 11, 2]);
-assertEquals(object.d.e, 'E2');
-assertEquals(object.F, 'F');
-assertEquals(object.G, 'G');
-assertEquals(object.h, 'H');
-assertEquals(object.i, 'I');
+assert.equal(object.d.e, 'E2');
+assert.equal(object.F, 'F');
+assert.equal(object.G, 'G');
+assert.equal(object.h, 'H');
+assert.equal(object.i, 'I');

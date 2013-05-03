@@ -35,7 +35,7 @@ function wrap(G) {
 
 // ----------------------------------------------------------------------------
 
-assertEquals('12', accumulate(tryCatchGenerator()));
+assert.equal('12', accumulate(tryCatchGenerator()));
 
 // ----------------------------------------------------------------------------
 
@@ -88,9 +88,9 @@ var errors;
 // ----------------------------------------------------------------------------
 
 errors = repeat(' [Error: "send" on closed generator]', 3);
-assertEquals('1 [2]' + errors, accumulateCatch(W(throwGenerator)()));
-assertEquals('1 [2]' + errors, accumulateCatch(W(throwFromCatchGenerator)()));
-assertEquals('1 [2]' + errors, accumulateCatch(W(throwFromFinallyGenerator)()));
+assert.equal('1 [2]' + errors, accumulateCatch(W(throwGenerator)()));
+assert.equal('1 [2]' + errors, accumulateCatch(W(throwFromCatchGenerator)()));
+assert.equal('1 [2]' + errors, accumulateCatch(W(throwFromFinallyGenerator)()));
 
 // ----------------------------------------------------------------------------
 
@@ -150,7 +150,7 @@ function accumulateCatchOOB(iterator) {
 // ----------------------------------------------------------------------------
 
 errors = repeat(' [Error: "send" on closed generator] <>', 3);
-assertEquals('1 [2] <4>' + errors, accumulateCatchOOB(W(throwOOBGen)()));
-assertEquals('17(2) [8] <49>' + errors, accumulateCatchOOB(W(throwOOB2xGen)()));
+assert.equal('1 [2] <4>' + errors, accumulateCatchOOB(W(throwOOBGen)()));
+assert.equal('17(2) [8] <49>' + errors, accumulateCatchOOB(W(throwOOB2xGen)()));
 
 }); // end wrap_forEach

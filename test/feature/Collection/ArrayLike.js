@@ -33,9 +33,9 @@ module Name from '@name';
 
   let a = new ArrayLike;
   a[0] = 0;
-  assertEquals(1, a.length);
+  assert.equal(1, a.length);
   a[5] = 5;
-  assertEquals(6, a.length);
+  assert.equal(6, a.length);
 
   assertArrayEquals(['0', '5'], Object.keys(a));
 }

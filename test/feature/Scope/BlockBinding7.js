@@ -12,4 +12,4 @@ function blockTest() {
 
 // ----------------------------------------------------------------------------
 
-assertEquals('let x value', blockTest()());
+assert.equal('let x value', blockTest()());

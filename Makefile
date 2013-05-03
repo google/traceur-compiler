@@ -14,6 +14,15 @@ TPL_GENSRC_DEPS = $(addsuffix -template.js.dep, $(TPL_GENSRC))
 
 TFLAGS = --
 
+TESTS = \
+	test/node-feature-test.js \
+	test/unit/codegeneration/ \
+	test/unit/syntax/ \
+	test/unit/semantics/ \
+	test/unit/util/ \
+	test/unit/system/ \
+	test/unit/runtime/modules.js
+
 build: bin/traceur.js
 
 min: bin/traceur.min.js
@@ -23,7 +32,7 @@ min: bin/traceur.min.js
 ugly: bin/traceur.ugly.js
 
 test: build test/test-list.js
-	node test/testfeatures.js --errsfile test/errsfile.json
+	mocha --ignore-leaks --ui tdd --require test/unit/node-env.js $(TESTS)
 
 test-list: test/test-list.js
 

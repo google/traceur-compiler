@@ -1,9 +1,9 @@
 var global = this;
 
 module m {
-  assertEquals(this, global);
+  assert.equal(this, global);
 
   export var f = () => this;
 }
 
-assertEquals(global, m.f());
+assert.equal(global, m.f());

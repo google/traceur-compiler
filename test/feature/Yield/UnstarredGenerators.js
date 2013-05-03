@@ -18,5 +18,5 @@ function G() {
 
 var g = G();
 
-assertEquals(42, g.next());
+assert.equal(42, g.next());
 assertThrowsStopIteration(() => g.next());

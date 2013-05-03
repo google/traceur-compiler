@@ -3,6 +3,6 @@ function* f() {
 }
 
 for (var arr of f(1, 2)) {
-  assertEquals(1, arr[0]);
-  assertEquals(2, arr[1]);
+  assert.equal(1, arr[0]);
+  assert.equal(2, arr[1]);
 }

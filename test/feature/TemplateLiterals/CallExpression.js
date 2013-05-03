@@ -9,10 +9,10 @@
     };
   }
 
-  assertEquals(1, f() `whatevs`);
-  assertEquals(1, called);
-  assertEquals(2, f `abc` `def`);
-  assertEquals(2, called);
-  assertEquals(3, f `ghi` ());
-  assertEquals(3, called);
+  assert.equal(1, f() `whatevs`);
+  assert.equal(1, called);
+  assert.equal(2, f `abc` `def`);
+  assert.equal(2, called);
+  assert.equal(3, f `ghi` ());
+  assert.equal(3, called);
 }

@@ -14,12 +14,12 @@ var object = {
 
 // ----------------------------------------------------------------------------
 
-assertTrue(object.hasOwnProperty('a'));
-assertTrue(object.hasOwnProperty('b'));
-assertTrue(object.hasOwnProperty('c'));
-assertTrue(object.hasOwnProperty('d'));
-assertTrue(object.hasOwnProperty('e'));
-assertTrue(object.hasOwnProperty('f'));
-assertTrue(object.hasOwnProperty('g'));
-assertTrue(object.hasOwnProperty('h'));
-assertTrue(object.hasOwnProperty('i'));
+assert.isTrue(object.hasOwnProperty('a'));
+assert.isTrue(object.hasOwnProperty('b'));
+assert.isTrue(object.hasOwnProperty('c'));
+assert.isTrue(object.hasOwnProperty('d'));
+assert.isTrue(object.hasOwnProperty('e'));
+assert.isTrue(object.hasOwnProperty('f'));
+assert.isTrue(object.hasOwnProperty('g'));
+assert.isTrue(object.hasOwnProperty('h'));
+assert.isTrue(object.hasOwnProperty('i'));

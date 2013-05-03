@@ -14,10 +14,10 @@ class B {
   }
 }
 
-assertEquals(B, B.m());
-assertEquals(42, B.x);
+assert.equal(B, B.m());
+assert.equal(42, B.x);
 B.x = 1;
-assertEquals(1, x);
+assert.equal(1, x);
 
 class StaticMethod {
   static static() {
@@ -25,7 +25,7 @@ class StaticMethod {
   }
 }
 
-assertEquals('static method', StaticMethod.static());
+assert.equal('static method', StaticMethod.static());
 
 class StaticGetter {
   static get static() {
@@ -33,7 +33,7 @@ class StaticGetter {
   }
 }
 
-assertEquals('static getter', StaticGetter.static);
+assert.equal('static getter', StaticGetter.static);
 
 class StaticSetter {
   static set static(value) {
@@ -42,7 +42,7 @@ class StaticSetter {
 }
 
 StaticSetter.static = 'static setter';
-assertEquals('static setter', x);
+assert.equal('static setter', x);
 
 class MethodNamedStatic {
   static() {
@@ -51,7 +51,7 @@ class MethodNamedStatic {
 }
 
 var c = new MethodNamedStatic();
-assertEquals(c, c.static());
+assert.equal(c, c.static());
 
 class AccessorNamedStatic {
   get static() {

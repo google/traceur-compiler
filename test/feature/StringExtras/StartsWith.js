@@ -1,4 +1,4 @@
-assertTrue('Hello World!'.startsWith('Hello '));
-assertFalse('Hello World!'.startsWith('World!'));
-assertTrue('Hello World!'.startsWith(''));
-assertFalse('Hello World!'.startsWith('h'));
+assert.isTrue('Hello World!'.startsWith('Hello '));
+assert.isFalse('Hello World!'.startsWith('World!'));
+assert.isTrue('Hello World!'.startsWith(''));
+assert.isFalse('Hello World!'.startsWith('h'));

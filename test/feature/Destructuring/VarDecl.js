@@ -16,12 +16,12 @@ function destructVarDecl() {
 // ----------------------------------------------------------------------------
 
 var result = destructVarDecl();
-assertEquals(0, result.a);
-assertEquals(1, result.b);
-assertEquals(2, result.c);
-assertEquals(3, result.d);
-assertEquals(4, result.e);
-assertEquals(5, result.f);
-assertEquals(6, result.g);
-assertEquals(7, result.h);
-assertEquals(8, result.i);
+assert.equal(0, result.a);
+assert.equal(1, result.b);
+assert.equal(2, result.c);
+assert.equal(3, result.d);
+assert.equal(4, result.e);
+assert.equal(5, result.f);
+assert.equal(6, result.g);
+assert.equal(7, result.h);
+assert.equal(8, result.i);

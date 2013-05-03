@@ -16,5 +16,5 @@ class GetterC extends GetterB {
 var b = new GetterB();
 var c = new GetterC();
 
-assertEquals('getter x', b.x);
-assertEquals('getter y', c.y);
+assert.equal('getter x', b.x);
+assert.equal('getter y', c.y);

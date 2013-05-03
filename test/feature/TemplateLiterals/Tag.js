@@ -2,24 +2,24 @@
 
 {
   function expose(callSite, var_args) {
-    assertTrue(Array.isArray(callSite));
-    assertTrue(Object.isFrozen(callSite));
+    assert.isTrue(Array.isArray(callSite));
+    assert.isTrue(Object.isFrozen(callSite));
     var rawDescr = Object.getOwnPropertyDescriptor(callSite, 'raw');
-    assertTrue(rawDescr !== undefined);
-    assertTrue('value' in rawDescr);
-    assertFalse(rawDescr.enumerable);
-    assertFalse(rawDescr.writable);
-    assertFalse(rawDescr.configurable);
-    assertTrue(Object.isFrozen(callSite.raw));
-    assertTrue(Array.isArray(callSite.raw));
-    assertTrue(Object.isFrozen(callSite.raw));
-    assertEquals(callSite.raw.length, callSite.length);
+    assert.isTrue(rawDescr !== undefined);
+    assert.isTrue('value' in rawDescr);
+    assert.isFalse(rawDescr.enumerable);
+    assert.isFalse(rawDescr.writable);
+    assert.isFalse(rawDescr.configurable);
+    assert.isTrue(Object.isFrozen(callSite.raw));
+    assert.isTrue(Array.isArray(callSite.raw));
+    assert.isTrue(Object.isFrozen(callSite.raw));
+    assert.equal(callSite.raw.length, callSite.length);
 
     // The number of the literal portions is always same or one greater than the
     // number of substitutions
     var literalPortionCount = callSite.raw.length;
     var substitutionCount = arguments.length - 1;
-    assertTrue(literalPortionCount == substitutionCount ||
+    assert.isTrue(literalPortionCount == substitutionCount ||
                literalPortionCount == substitutionCount + 1);
 
     return arguments;
@@ -28,16 +28,16 @@
   let x = 3;
   let y = 5;
 
-  assertEquals(1, expose``.length);
-  assertEquals(1, expose`a`.length);
-  assertEquals(2, expose`a${x}`.length);
-  assertEquals(2, expose`a${x} b`.length);
-  assertEquals(3, expose`a${x} ${y}`.length);
-  assertEquals(3, expose`${x}${y}`.length);
-  assertEquals(2, expose`${x}a`.length);
+  assert.equal(1, expose``.length);
+  assert.equal(1, expose`a`.length);
+  assert.equal(2, expose`a${x}`.length);
+  assert.equal(2, expose`a${x} b`.length);
+  assert.equal(3, expose`a${x} ${y}`.length);
+  assert.equal(3, expose`${x}${y}`.length);
+  assert.equal(2, expose`${x}a`.length);
 
-  assertEquals(1, expose``[0].length);
-  assertEquals(1, expose``[0].raw.length);
+  assert.equal(1, expose``[0].length);
+  assert.equal(1, expose``[0].raw.length);
 
   assertArrayEquals(['a'], expose`a`[0].raw);
   assertArrayEquals(['a'], expose`a`[0]);

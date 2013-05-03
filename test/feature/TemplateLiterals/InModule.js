@@ -3,9 +3,9 @@ function f(...args) {
 }
 
 module m {
-  assertEquals('a', (f `a`)[0][0]);
+  assert.equal('a', (f `a`)[0][0]);
 }
 
 module n {
-  assertEquals('b', (f `b`)[0][0]);
+  assert.equal('b', (f `b`)[0][0]);
 }

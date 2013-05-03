@@ -21,10 +21,10 @@
 
   var object = new C;
 
-  assertEquals(1, object.@a);
-  assertEquals(undefined, object.@b);
+  assert.equal(1, object.@a);
+  assert.equal(undefined, object.@b);
   object.@b = 2;
-  assertEquals(2, object.@b);
-  assertEquals(2, object.@m());
+  assert.equal(2, object.@b);
+  assert.equal(2, object.@m());
 
 })();

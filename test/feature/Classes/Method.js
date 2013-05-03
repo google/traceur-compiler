@@ -7,14 +7,14 @@ class Universe {
 // ----------------------------------------------------------------------------
 
 var universe = new Universe();
-assertEquals(42, universe.answer());
+assert.equal(42, universe.answer());
 
 var keys = [];
 for (var key in universe) {
   keys.push(key);
 }
-assertTrue(keys.indexOf('answer') !== -1);
-assertTrue(keys.indexOf('constructor') === -1);
+assert.isTrue(keys.indexOf('answer') !== -1);
+assert.isTrue(keys.indexOf('constructor') === -1);
 
 for (var key in Universe) {
   fail('Universe contains static member : ' + key);
