@@ -10,8 +10,8 @@ var object = new F(0, ...[1, 2]);
 
 // ----------------------------------------------------------------------------
 
-assertEquals(0, object.x);
-assertEquals(1, object.y);
-assertEquals(2, object.z);
-assertEquals(object, object.self);
-assertTrue(object instanceof object.F);
+assert.equal(0, object.x);
+assert.equal(1, object.y);
+assert.equal(2, object.z);
+assert.equal(object, object.self);
+assert.isTrue(object instanceof object.F);

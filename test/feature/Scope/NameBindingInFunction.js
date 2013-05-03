@@ -6,5 +6,5 @@
   }
   var g = f;
   f = 42;
-  assertEquals(42, g());
+  assert.equal(42, g());
 }

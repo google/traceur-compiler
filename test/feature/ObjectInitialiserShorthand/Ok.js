@@ -4,5 +4,5 @@ var object = {x, y};
 
 // ----------------------------------------------------------------------------
 
-assertEquals(42, object.x);
-assertEquals(43, object.y);
+assert.equal(42, object.x);
+assert.equal(43, object.y);

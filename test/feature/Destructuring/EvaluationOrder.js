@@ -7,4 +7,4 @@ function destructEvaluationOrder() {
 // ----------------------------------------------------------------------------
 
 var result = destructEvaluationOrder();
-assertEquals(3, result);
+assert.equal(3, result);

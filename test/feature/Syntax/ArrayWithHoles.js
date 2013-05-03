@@ -1,10 +1,10 @@
 var arr = [,1, ,3,];
-assertEquals(4, arr.length);
+assert.equal(4, arr.length);
 
 var arr2 = [,1, ,...[3],];
-assertEquals(4, arr.length);
+assert.equal(4, arr.length);
 
 var x, y;
 [x, , y] = [0, 1, 2];
-assertEquals(0, x);
-assertEquals(2, y);
+assert.equal(0, x);
+assert.equal(2, y);

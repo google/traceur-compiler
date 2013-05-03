@@ -9,7 +9,7 @@ try {
   fail('Should have thrown');
 } catch (ex) {
   if (ex.stack)
-    assertTrue(String(ex.stack).indexOf('MyClassName') >= 0);
+    assert.isTrue(String(ex.stack).indexOf('MyClassName') >= 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -25,5 +25,5 @@ try {
   fail('Should have thrown');
 } catch (ex) {
   if (ex.stack)
-    assertTrue(String(ex.stack).indexOf('MySecondClass') >= 0);
+    assert.isTrue(String(ex.stack).indexOf('MySecondClass') >= 0);
 }

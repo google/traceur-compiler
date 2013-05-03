@@ -74,6 +74,6 @@ function accumulate(iterator) {
 
 var alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 var root = tree(alphabet);
-assertEquals(alphabet, accumulate(inorder1(root)));
-assertEquals(alphabet, accumulate(inorder2(root)));
-assertEquals(alphabet, accumulate(root));
+assert.equal(alphabet, accumulate(inorder1(root)));
+assert.equal(alphabet, accumulate(inorder2(root)));
+assert.equal(alphabet, accumulate(root));

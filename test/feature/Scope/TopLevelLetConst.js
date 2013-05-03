@@ -5,5 +5,5 @@ const y = 'const';
 
 // ----------------------------------------------------------------------------
 
-assertEquals('let', x);
-assertEquals('const', y);
+assert.equal('let', x);
+assert.equal('const', y);

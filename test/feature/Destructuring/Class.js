@@ -1,20 +1,20 @@
 class C {
   constructor({message: [head, ...tail], name}) {
-    assertEquals('a', head);
+    assert.equal('a', head);
     assertArrayEquals(['b', 'c'], tail);
-    assertEquals('Error', name);
+    assert.equal('Error', name);
   }
 
   method({message: [head, ...tail], name}) {
-    assertEquals('a', head);
+    assert.equal('a', head);
     assertArrayEquals(['b', 'c'], tail);
-    assertEquals('Error', name);
+    assert.equal('Error', name);
   }
 
   set x({message: [head, ...tail], name}) {
-    assertEquals('a', head);
+    assert.equal('a', head);
     assertArrayEquals(['b', 'c'], tail);
-    assertEquals('Error', name);
+    assert.equal('Error', name);
   }
 }
 

@@ -11,4 +11,4 @@ function testBlock() {
 // ----------------------------------------------------------------------------
 
 var result = testBlock();
-assertEquals('g', result());
+assert.equal('g', result());

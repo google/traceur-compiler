@@ -6,4 +6,4 @@ var x = 0;
 for (var i = (x = 1) in {}) {
 }
 
-assertEquals(1, x);
+assert.equal(1, x);

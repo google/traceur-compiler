@@ -12,7 +12,7 @@ Object.defineProperty(p, n, {
 });
 
 var o = Object.create(p);
-assertEquals(42, o[n]);
+assert.equal(42, o[n]);
 assertThrows(function() {
   o[n] = 1;
 });
@@ -26,4 +26,4 @@ Object.defineProperty(p, n, {
 });
 
 o[n] = 33;
-assertEquals(33, val);
+assert.equal(33, val);

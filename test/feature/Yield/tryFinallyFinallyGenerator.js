@@ -26,4 +26,4 @@ function accumulate(iterator) {
 
 // ----------------------------------------------------------------------------
 
-assertEquals('131723', accumulate(tryFinallyFinallyGenerator()));
+assert.equal('131723', accumulate(tryFinallyFinallyGenerator()));

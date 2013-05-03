@@ -28,7 +28,7 @@ function run(f) {
     while (dequeue()) {
       // intentionally empty
     }
-    assertTrue(done);
+    assert.isTrue(done);
   };
 }
 
@@ -49,7 +49,7 @@ run(function() {
     await value = asyncThrow(1);
     fail("shouldn't get here");
   } catch (e) {
-    assertEquals(1, e);
+    assert.equal(1, e);
   }
 
   done = true;

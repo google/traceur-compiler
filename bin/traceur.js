@@ -18506,17 +18506,18 @@ var $___src_codegeneration_Compiler_js = (function() {
       hadError_: function() {
         return this.reporter_.hadError();
       }
-    }, {});
+    }, {
+      compile: function(reporter, project) {
+        return new Compiler(reporter, project).compile_();
+      },
+      compileFile: function(reporter, sourceFile, url) {
+        var project = arguments[3] !== (void 0) ? arguments[3]: new Project(url);
+        project.addFile(sourceFile);
+        return new Compiler(reporter, project).compileFile_(sourceFile);
+      }
+    });
     return $Compiler;
   }();
-  Compiler.compile = function(reporter, project) {
-    return new Compiler(reporter, project).compile_();
-  };
-  Compiler.compileFile = function(reporter, sourceFile, url) {
-    var project = new Project(url);
-    project.addFile(sourceFile);
-    return new Compiler(reporter, project).compileFile_(sourceFile);
-  };
   return Object.preventExtensions(Object.create(null, {Compiler: {
       get: function() {
         return Compiler;

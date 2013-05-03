@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// This monkey patches the InternalLoader to load the file using
-// fs.readFile and fs.readFileSync.
-
 var traceur = require('./traceur.js');
 var NodeLoader = require('./NodeLoader.js');
 

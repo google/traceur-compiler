@@ -21,14 +21,14 @@ function* test() {
 }
 
 var it = test();
-assertEquals(42, it.next());
-assertFalse(finallyVisited);
+assert.equal(42, it.next());
+assert.isFalse(finallyVisited);
 
 assertThrowsStopIteration(() => it.next());
-assertTrue(finallyVisited);
+assert.isTrue(finallyVisited);
 
 finallyVisited = false;
 for (var i of test()) {
-  assertEquals(42, i);
+  assert.equal(42, i);
 }
-assertTrue(finallyVisited);
+assert.isTrue(finallyVisited);

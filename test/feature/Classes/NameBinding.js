@@ -22,15 +22,15 @@ class ElementHolder {
 var obj = new ElementHolder();
 
 obj.element = 40;
-assertEquals(40, obj.getElement());
-assertTrue(obj.makeFilterCapturedThis()(40));
+assert.equal(40, obj.getElement());
+assert.isTrue(obj.makeFilterCapturedThis()(40));
 
 // http://code.google.com/p/v8/issues/detail?id=1381
-// assertUndefined(obj.makeFilterLostThis()());
+// assert.isUndefined(obj.makeFilterLostThis()());
 
 obj.element = 39;
-assertFalse(obj.makeFilterCapturedThis()(40));
-assertTrue(obj.makeFilterCapturedThis()(39));
+assert.isFalse(obj.makeFilterCapturedThis()(40));
+assert.isTrue(obj.makeFilterCapturedThis()(39));
 
-assertFalse(obj.makeFilterHidden(41)(40));
-assertTrue(obj.makeFilterHidden(41)(41));
+assert.isFalse(obj.makeFilterHidden(41)(40));
+assert.isTrue(obj.makeFilterHidden(41)(41));

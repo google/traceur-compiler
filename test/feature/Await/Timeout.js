@@ -18,7 +18,7 @@ function run(f) {
     while (dequeue()) {
       // intentionally empty
     }
-    assertTrue(done);
+    assert.isTrue(done);
   };
 }
 
@@ -36,12 +36,12 @@ function dequeue() {
 run(function() {
   var x = 0;
   await asyncTimeout(1);
-  assertEquals(1, ++x);
+  assert.equal(1, ++x);
   await asyncTimeout(1);
-  assertEquals(2, ++x);
+  assert.equal(2, ++x);
   await asyncTimeout(1);
-  assertEquals(3, ++x);
+  assert.equal(3, ++x);
   await asyncTimeout(1);
-  assertEquals(4, ++x);
+  assert.equal(4, ++x);
   done = true;
 })();

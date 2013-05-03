@@ -22,4 +22,4 @@ function accumulate(iterator) {
 
 // ----------------------------------------------------------------------------
 
-assertEquals('13', accumulate(whileGenerator(10, 2, 4)));
+assert.equal('13', accumulate(whileGenerator(10, 2, 4)));

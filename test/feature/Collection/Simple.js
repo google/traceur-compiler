@@ -9,7 +9,7 @@ import {elementGet, elementSet, elementDelete} from '@name';
   var object = {};
 
   object[elementGet] = function(name) {
-    assertEquals(object, this);
+    assert.equal(object, this);
     getLog.push(name);
     return name;
   };
@@ -18,51 +18,51 @@ import {elementGet, elementSet, elementDelete} from '@name';
   function f() {}
   var re = /regexp/;
 
-  assertEquals(object[0], 0);
-  assertEquals(object[null], null);
-  assertEquals(object[undefined], undefined);
-  assertEquals(object[true], true);
-  assertEquals(object[false], false);
-  assertEquals(object[tmp], tmp);
-  assertEquals(object[f], f);
-  assertEquals(object[re], re);
-  assertEquals(object.shouldNotCallCollectionGetter, undefined);
+  assert.equal(object[0], 0);
+  assert.equal(object[null], null);
+  assert.equal(object[undefined], undefined);
+  assert.equal(object[true], true);
+  assert.equal(object[false], false);
+  assert.equal(object[tmp], tmp);
+  assert.equal(object[f], f);
+  assert.equal(object[re], re);
+  assert.equal(object.shouldNotCallCollectionGetter, undefined);
 
   assertArrayEquals([0, null, undefined, true, false, tmp, f, re], getLog);
 
   object[elementDelete] = function(name) {
-    assertEquals(object, this);
+    assert.equal(object, this);
     deleteLog.push(name);
     return true;
   };
 
-  assertTrue(delete object[0]);
-  assertTrue(delete object[null]);
-  assertTrue(delete object[undefined]);
-  assertTrue(delete object[true]);
-  assertTrue(delete object[false]);
-  assertTrue(delete object[tmp]);
-  assertTrue(delete object[f]);
-  assertTrue(delete object[re]);
-  assertTrue(delete object.shouldNotCallCollectionSetter);
+  assert.isTrue(delete object[0]);
+  assert.isTrue(delete object[null]);
+  assert.isTrue(delete object[undefined]);
+  assert.isTrue(delete object[true]);
+  assert.isTrue(delete object[false]);
+  assert.isTrue(delete object[tmp]);
+  assert.isTrue(delete object[f]);
+  assert.isTrue(delete object[re]);
+  assert.isTrue(delete object.shouldNotCallCollectionSetter);
 
   assertArrayEquals([0, null, undefined, true, false, tmp, f, re], deleteLog);
 
   object[elementSet] = function(name, value) {
-    assertEquals(object, this);
-    assertEquals(name, value);
+    assert.equal(object, this);
+    assert.equal(name, value);
     setLog.push(name);
   };
 
-  assertEquals(0, object[0] = 0);
-  assertEquals(null, object[null] = null);
-  assertEquals(undefined, object[undefined] = undefined);
-  assertEquals(true, object[true] = true);
-  assertEquals(false, object[false] = false);
-  assertEquals(tmp, object[tmp] = tmp);
-  assertEquals(f, object[f] = f);
-  assertEquals(re, object[re] = re);
-  assertEquals('shouldNotCallCollectionSetter',
+  assert.equal(0, object[0] = 0);
+  assert.equal(null, object[null] = null);
+  assert.equal(undefined, object[undefined] = undefined);
+  assert.equal(true, object[true] = true);
+  assert.equal(false, object[false] = false);
+  assert.equal(tmp, object[tmp] = tmp);
+  assert.equal(f, object[f] = f);
+  assert.equal(re, object[re] = re);
+  assert.equal('shouldNotCallCollectionSetter',
       object.shouldNotCallCollectionSetter = 'shouldNotCallCollectionSetter');
 
   assertArrayEquals([0, null, undefined, true, false, tmp, f, re], setLog);
@@ -79,10 +79,10 @@ import {elementGet, elementSet, elementDelete} from '@name';
     setLog.push(name, value);
   };
 
-  assertEquals(2, object[1] += 1);
-  assertEquals(8, object[2] *= 4);
-  assertEquals('ab', object['a'] += 'b');
-  assertEquals(32, object[8] <<= 2);
+  assert.equal(2, object[1] += 1);
+  assert.equal(8, object[2] *= 4);
+  assert.equal('ab', object['a'] += 'b');
+  assert.equal(32, object[8] <<= 2);
   assertArrayEquals([1, 2, 'a', 8], getLog);
   assertArrayEquals([1, 2, 2, 8, 'a', 'ab', 8, 32], setLog);
 }

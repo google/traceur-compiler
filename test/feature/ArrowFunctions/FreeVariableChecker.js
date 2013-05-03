@@ -1,2 +1,2 @@
 var identity = (identityParam) => identityParam;
-assertEquals(1234, identity(1234));
+assert.equal(1234, identity(1234));

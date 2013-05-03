@@ -13,5 +13,5 @@ var f1, f2;
 
 // ----------------------------------------------------------------------------
 
-assertEquals('z1 value', f1());
-assertEquals('z2 value', f2());
+assert.equal('z1 value', f1());
+assert.equal('z2 value', f2());

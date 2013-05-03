@@ -9,11 +9,11 @@ var name = 'name';
 try {
   throw new Error('abc');
 } catch ({message: [head, ...tail], name}) {
-  assertEquals('a', head);
+  assert.equal('a', head);
   assertArrayEquals(['b', 'c'], tail);
-  assertEquals('Error', name);
+  assert.equal('Error', name);
 }
 
-assertEquals('head', head);
-assertEquals('tail', tail);
-assertEquals('name', name);
+assert.equal('head', head);
+assert.equal('tail', tail);
+assert.equal('name', name);

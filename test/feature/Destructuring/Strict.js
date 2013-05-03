@@ -3,4 +3,4 @@ function f({x}) {
   return this;
 }
 
-assertUndefined(f({x: 42}));
+assert.isUndefined(f({x: 42}));
