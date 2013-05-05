@@ -28,6 +28,7 @@ import {
   OBJECT,
   RAW
 } from '../syntax/PredefinedName.js';
+import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {TempVarTransformer} from './TempVarTransformer.js';
 import {
   PERCENT,
@@ -208,7 +209,7 @@ export class TemplateLiteralTransformer extends TempVarTransformer {
    * only want to scope these to modules or global.
    */
   transformFunctionBody(tree) {
-    return this.transformBlock(tree);
+    return ParseTreeTransformer.prototype.transformFunctionBody.call(this, tree);
   }
 
   transformTemplateLiteralExpression(tree) {

@@ -918,7 +918,7 @@ export class Parser {
     this.allowYield_ = allowYield;
 
     this.eat_(CLOSE_CURLY);
-    return new Block(this.getTreeLocation_(start), result);
+    return new FunctionBody(this.getTreeLocation_(start), result);
   }
 
   /**
@@ -3064,7 +3064,7 @@ export class Parser {
     // The body can be a block or an expression. A '{' is always treated as
     // the beginning of a block.
     if (this.peek_(OPEN_CURLY))
-      return this.parseBlock_();
+      return this.parseFunctionBody_();
     return this.parseAssignmentExpression();
   }
 

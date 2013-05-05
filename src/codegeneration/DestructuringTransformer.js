@@ -39,12 +39,9 @@ import {
   Catch,
   ForInStatement,
   ForOfStatement,
-  FunctionDeclaration,
-  FunctionExpression,
-  LiteralExpression,
-  SetAccessor
+  LiteralExpression
 } from '../syntax/trees/ParseTrees.js';
-import {TempVarTransformer} from './TempVarTransformer.js';
+import {ParameterTransformer} from './ParameterTransformer.js';
 import {
   EQUAL,
   IDENTIFIER,
@@ -74,9 +71,6 @@ import {
   createVariableStatement
 } from './ParseTreeFactory.js';
 import {options} from '../options.js';
-import {prependStatements} from './PrependStatements.js';
-
-var stack = [];
 
 /**
  * Collects assignments in the desugaring of a pattern.
@@ -178,7 +172,7 @@ function createConditionalMemberLookupExpression(rvalue, index, initializer) {
  *
  * @see <a href="http://wiki.ecmascript.org/doku.php?id=harmony:destructuring#assignments">harmony:destructuring</a>
  */
-export class DestructuringTransformer extends TempVarTransformer {
+export class DestructuringTransformer extends ParameterTransformer {
   /**
    * @param {ArrayPattern} tree
    * @return {ParseTree}
@@ -356,51 +350,6 @@ export class DestructuringTransformer extends TempVarTransformer {
     return new constr(tree.location, initializer, collection, body);
   }
 
-  transformFunctionDeclaration(tree) {
-    return this.transformFunction_(tree, FunctionDeclaration);
-  }
-
-  transformFunctionExpression(tree) {
-    return this.transformFunction_(tree, FunctionExpression);
-  }
-
-  transformFunction_(tree, constructor) {
-    stack.push([]);
-    var transformedTree = constructor === FunctionExpression ?
-        super.transformFunctionExpression(tree) :
-        super.transformFunctionDeclaration(tree);
-    var statements = stack.pop();
-    if (!statements.length)
-      return transformedTree;
-
-    // Prepend the var statements to the block.
-    statements = prependStatements(transformedTree.functionBody.statements,
-                                   ...statements);
-
-    return new constructor(transformedTree.location,
-                           transformedTree.name,
-                           transformedTree.isGenerator,
-                           transformedTree.formalParameterList,
-                           createBlock(statements));
-  }
-
-  transformSetAccessor(tree) {
-    stack.push([]);
-    var transformedTree = super.transformSetAccessor(tree);
-    var statements = stack.pop();
-    if (!statements.length)
-      return transformedTree;
-
-    // Prepend the var statements to the block.
-    statements.push(...transformedTree.body.statements);
-
-    return new SetAccessor(transformedTree.location,
-                           transformedTree.isStatic,
-                           transformedTree.name,
-                           transformedTree.parameter,
-                           createBlock(statements));
-  }
-
   transformBindingElement(tree) {
     // If this has an initializer the default parameter transformer moves the
     // pattern into the function body and it will be taken care of by the
@@ -416,9 +365,8 @@ export class DestructuringTransformer extends TempVarTransformer {
     //   var pattern = $tmp;
     // }
 
-    var statements = stack[stack.length - 1];
-    var binding = this.desugarBinding_(tree.binding, statements,
-                                       VAR);
+    var statements = this.parameterStatements;
+    var binding = this.desugarBinding_(tree.binding, statements, VAR);
 
     return new BindingElement(null, binding, null);
   }

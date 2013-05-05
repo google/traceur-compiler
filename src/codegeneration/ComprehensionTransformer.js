@@ -29,10 +29,10 @@ import {
   COMPREHENSION_IF
   } from '../syntax/trees/ParseTreeType.js';
 import {
-  createBlock,
   createCallExpression,
   createEmptyParameterList,
   createForOfStatement,
+  createFunctionBody,
   createIdentifierExpression,
   createIfStatement,
   createParenExpression,
@@ -125,7 +125,7 @@ export class ComprehensionTransformer extends TempVarTransformer {
 
     var func = new FunctionExpression(null, null, isGenerator,
                                       createEmptyParameterList(),
-                                      createBlock(statements));
+                                      createFunctionBody(statements));
 
     return createParenExpression(createCallExpression(func));
   }

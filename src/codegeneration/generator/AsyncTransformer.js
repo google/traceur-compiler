@@ -46,6 +46,7 @@ import {
   createCallStatement,
   createEmptyArgumentList,
   createFunctionExpression,
+  createFunctionBody,
   createIdentifierExpression,
   createMemberExpression,
   createNewExpression,
@@ -209,8 +210,8 @@ export class AsyncTransformer extends CPSTransformer {
    *   return $result.createPromise();
    * }
    * TODO: add close() method which executes pending finally clauses
-   * @param {Block} tree
-   * @return {Block}
+   * @param {FunctionBody} tree
+   * @return {FunctionBody}
    */
   transformAsyncBody(tree) {
     // transform to a state machine
@@ -271,36 +272,36 @@ export class AsyncTransformer extends CPSTransformer {
         CREATE_CALLBACK,
         createFunctionExpression(
             createParameterList(NEW_STATE),
-            createBlock(
+            createFunctionBody([
                 createReturnStatement(
                     createFunctionExpression(
                         createParameterList(1),
-                        createBlock(
+                        createFunctionBody([
                             createAssignmentStatement(
                                 createIdentifierExpression(STATE),
                                 createIdentifierExpression(NEW_STATE)),
                                 createAssignmentStatement(
                                     createIdentifierExpression($VALUE),
                                     createParameterReference(0)),
-                                createCallStatement(createIdentifierExpression(CONTINUATION)))))))));
+                                createCallStatement(createIdentifierExpression(CONTINUATION))])))]))));
     //   var $createErrback = function(newState) { return function (err) { $state = newState; $err = err; $continuation(); }}
     statements.push(createVariableStatement(
         VAR,
         CREATE_ERRBACK,
         createFunctionExpression(
             createParameterList(NEW_STATE),
-            createBlock(
+            createFunctionBody([
                 createReturnStatement(
                     createFunctionExpression(
                         createParameterList(1),
-                        createBlock(
+                        createFunctionBody([
                             createAssignmentStatement(
                                 createIdentifierExpression(STATE),
                                 createIdentifierExpression(NEW_STATE)),
                                 createAssignmentStatement(
                                     createIdentifierExpression(ERR),
                                     createParameterReference(0)),
-                                createCallStatement(createIdentifierExpression(CONTINUATION)))))))));
+                                createCallStatement(createIdentifierExpression(CONTINUATION))])))]))));
     //  $continuation();
     statements.push(createCallStatement(createIdentifierExpression(CONTINUATION)));
     //  return $result.createPromise();
@@ -308,7 +309,7 @@ export class AsyncTransformer extends CPSTransformer {
         createCallExpression(
             createMemberExpression(RESULT, CREATE_PROMISE))));
 
-    return createBlock(statements);
+    return createFunctionBody(statements);
   }
 
   /**

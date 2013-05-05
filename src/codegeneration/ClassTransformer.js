@@ -32,7 +32,7 @@ import {
   VAR
 } from '../syntax/TokenType.js';
 import {
-  createBlock,
+  createFunctionBody,
   createIdentifierExpression,
   createMemberExpression,
   createObjectLiteralExpression,
@@ -254,7 +254,7 @@ export class ClassTransformer extends TempVarTransformer{
 
   transformPropertyMethodAssignment_(tree, protoName) {
     var formalParameterList = this.transformAny(tree.formalParameterList);
-    var functionBody = this.transformSuperInBlock_(tree, tree.functionBody,
+    var functionBody = this.transformSuperInFunctionBody_(tree, tree.functionBody,
                                                    protoName);
     if (!tree.isStatic &&
         formalParameterList === tree.formalParameterList &&
@@ -268,7 +268,7 @@ export class ClassTransformer extends TempVarTransformer{
   }
 
   transformGetAccessor_(tree, protoName) {
-    var body = this.transformSuperInBlock_(tree, tree.body, protoName);
+    var body = this.transformSuperInFunctionBody_(tree, tree.body, protoName);
     if (!tree.isStatic && body === tree.body)
       return tree;
     // not static
@@ -277,28 +277,28 @@ export class ClassTransformer extends TempVarTransformer{
 
   transformSetAccessor_(tree, protoName) {
     var parameter = this.transformAny(tree.parameter);
-    var body = this.transformSuperInBlock_(tree, tree.body, protoName);
+    var body = this.transformSuperInFunctionBody_(tree, tree.body, protoName);
     if (!tree.isStatic && body === tree.body)
       return tree;
     return new SetAccessor(tree.location, false, tree.name, parameter,
                            body);
   }
 
-  transformSuperInBlock_(methodTree, tree, protoName) {
+  transformSuperInFunctionBody_(methodTree, tree, protoName) {
     this.pushTempVarState();
     var thisName = this.getTempIdentifier();
     var thisDecl = createVariableStatement(VAR, thisName,
                                            createThisExpression());
     var superTransformer = new SuperTransformer(this, this.runtimeInliner_,
         this.reporter_, protoName, methodTree, thisName);
-    // ref_1: the inner transformBlock call is key to proper super nesting.
+    // ref_1: the inner transformFunctionBody call is key to proper super nesting.
     var transformedTree =
-        superTransformer.transformBlock(this.transformBlock(tree));
+        superTransformer.transformFunctionBody(this.transformFunctionBody(tree));
 
     this.popTempVarState();
 
     if (superTransformer.nestedSuper)
-      return createBlock([thisDecl].concat(transformedTree.statements));
+      return createFunctionBody([thisDecl].concat(transformedTree.statements));
     return transformedTree;
   }
 

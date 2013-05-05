@@ -38,6 +38,7 @@ import {
   createFinally,
   createForInStatement,
   createForStatement,
+  createFunctionBody,
   createIdentifierExpression,
   createIdentifierToken,
   createThrowStatement,
@@ -731,34 +732,33 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
   }
 
   /**
-   * @param {Block} tree
-   * @return {Block}
+   * @param {FunctionBody} tree
+   * @return {FunctionBody}
    */
   transformFunctionBody(body) {
     // Push new function context
     var scope = this.push_(this.createFunctionScope_());
 
-    body = this.transformBlockStatements_(body);
+    body = this.transformFunctionBodyStatements_(body);
 
     this.pop_(scope);
     return body;
   }
 
   /**
-   * @param {Block} tree
-   * @return {Block}
+   * @param {FunctionBody} tree
+   * @return {FunctionBody}
    */
-  transformBlockStatements_(tree) {
+  transformFunctionBodyStatements_(tree) {
     var statements = this.transformList(tree.statements);
 
     if (this.scope_.blockVariables != null) {
       // rewrite into catch construct
-      tree = toBlock(
-          this.rewriteAsCatch_(
-              this.scope_.blockVariables,
-              createBlock(statements)));
+      tree = this.rewriteAsCatch_(
+          this.scope_.blockVariables,
+          createBlock(statements));
     } else if (statements != tree.statements) {
-      tree = createBlock(statements);
+      tree = createFunctionBody(statements);
     }
 
     return tree;
