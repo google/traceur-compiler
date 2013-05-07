@@ -72,9 +72,9 @@ Getopt.prototype = {
       // short opt
       this.opt = arg[this.nextchar] || null;
       this.optarg = arg.slice(++this.nextchar) || null;
-    } else if (m = arg.match(/^--([^=]+)(?:=(.*))?$/)) {
+    } else if (m = arg.match(/^--([^=]+)(?:=(.*))?$|^--(.+)$/)) {
       // long opt
-      this.opt = m[1];
+      this.opt = m[1] || m[3];
       this.optarg = m[2] === undefined ? null : m[2];
     } else {
       // free arg
