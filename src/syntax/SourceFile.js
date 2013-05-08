@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {LineNumberTable} from './LineNumberTable.js';
+import {getUid} from '../util/uid.js';
 
 /**
  * A source file.
@@ -28,6 +29,6 @@ export class SourceFile {
     this.name = name;
     this.contents = contents;
     this.lineNumberTable = new LineNumberTable(this);
-    this.uid = traceur.getUid();
+    this.uid = getUid();
   }
 }

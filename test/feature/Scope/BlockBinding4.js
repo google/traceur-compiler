@@ -9,6 +9,6 @@ for (let a = 1; a < 3; a++) {
 
 // ----------------------------------------------------------------------------
 
-assertEquals('for 1', result[0]());
-assertEquals('for 2', result[1]());
-assertEquals(2, result.length);
+assert.equal('for 1', result[0]());
+assert.equal('for 2', result[1]());
+assert.equal(2, result.length);

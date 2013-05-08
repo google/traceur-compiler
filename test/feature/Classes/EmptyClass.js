@@ -6,10 +6,10 @@ class EmptyB extends Empty {
 // ----------------------------------------------------------------------------
 
 var e = new Empty();
-assertNotNull(e);
+assert.isNotNull(e);
 
 for (var element in e) {
-  assertEquals('constructor', element);
+  assert.equal('constructor', element);
 }
 
 for (var element in Empty) {
@@ -18,12 +18,12 @@ for (var element in Empty) {
 
 // Instances should be different.
 var e2 = new Empty();
-assertNotEquals(e, e2);
+assert.notEqual(e, e2);
 
-assertTrue(e instanceof Empty);
-assertFalse(e instanceof EmptyB);
+assert.isTrue(e instanceof Empty);
+assert.isFalse(e instanceof EmptyB);
 
 var b = new EmptyB();
 
-assertTrue(b instanceof Empty);
-assertTrue(b instanceof EmptyB);
+assert.isTrue(b instanceof Empty);
+assert.isTrue(b instanceof EmptyB);

@@ -1,5 +1,5 @@
 // Should not compile.
-// Error: primary expression expected
+// Error: :5:21: '=>' expected
 
 {
   let f = (x, ...xs);

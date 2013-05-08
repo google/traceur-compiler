@@ -55,6 +55,10 @@ export class Token {
   isKeyword() {
     return false;
   }
+
+  isStrictKeyword() {
+    return false;
+  }
 }
 
 export function isAssignmentOperator(type) {

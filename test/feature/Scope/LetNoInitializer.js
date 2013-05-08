@@ -3,8 +3,8 @@
 var x = 1;
 {
   let x;
-  assertEquals(undefined, x);
+  assert.equal(undefined, x);
   x = 2;
-  assertEquals(2, x);
+  assert.equal(2, x);
 }
-assertEquals(1, x);
+assert.equal(1, x);

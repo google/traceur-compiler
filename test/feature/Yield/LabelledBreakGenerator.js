@@ -31,4 +31,4 @@ function accumulate(iterator) {
 
 // ----------------------------------------------------------------------------
 
-assertEquals('496084', accumulate(labelledBreakGenerator()));
+assert.equal('496084', accumulate(labelledBreakGenerator()));

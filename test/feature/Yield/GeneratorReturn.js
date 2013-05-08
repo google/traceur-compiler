@@ -1,5 +1,5 @@
 function assertThrownEquals(x, fn) {
-  assertEquals(x, assertThrows(fn));
+  assert.equal(x, assertThrows(fn));
 }
 
 function assertThrownErrorIs(str, fn) {
@@ -7,15 +7,10 @@ function assertThrownErrorIs(str, fn) {
   if (!e instanceof Error)
     fail('expected Error object');
 
-  assertEquals(str, e.message);
+  assert.equal(str, e.message);
 }
 
-function isStopIteration(s) {
-  // Maybe something more rigorous later.
-  return typeof s === 'object' &&
-      (String(s) === '[object StopIteration]' ||
-       String(s).match(/^\[object GeneratorReturn .*\]$/));
-}
+import {isStopIteration} from '@iter';
 
 function assertThrowsStopIteration(fn) {
   var e = assertThrows(fn);
@@ -30,7 +25,7 @@ function assertClosed(g) {
 
 function assertThrownReturnEquals(x, f) {
   var e = assertThrowsStopIteration(f);
-  assertEquals(x, e.value);
+  assert.equal(x, e.value);
 }
 
 //-----------------------------------------------------------------------------
@@ -102,7 +97,7 @@ var tests = [
 
   tests.forEach(([G, y, r]) => {
     var g = W(G)();
-    y.forEach((x) => assertEquals(x, g.next()));
+    y.forEach((x) => assert.equal(x, g.next()));
 
     assertThrownReturnEquals(r, () => g.next());
     assertClosed(g);
@@ -111,7 +106,7 @@ var tests = [
   //----
 
   g = W(G6)();
-  assertEquals(1000, g.next());
+  assert.equal(1000, g.next());
   assertThrownReturnEquals(43, () => g.throw());
 
 });

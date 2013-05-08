@@ -14,10 +14,11 @@
 
 var fs = require('fs');
 var path = require('path');
+var NodeLoader = require('./NodeLoader.js');
 
 var generateNameForUrl = traceur.generateNameForUrl;
 var ErrorReporter = traceur.util.ErrorReporter;
-var InternalLoader = traceur.runtime.internals.InternalLoader;
+var InternalLoader = traceur.modules.internals.InternalLoader;
 var ModuleAnalyzer = traceur.semantics.ModuleAnalyzer;
 var ModuleDefinition = traceur.syntax.trees.ModuleDefinition;
 var ModuleRequireVisitor = traceur.codegeneration.module.ModuleRequireVisitor;
@@ -98,7 +99,7 @@ var startCodeUnit;
  *     printing was requested.
  */
 function InlineCodeLoader(reporter, project, elements, depTarget) {
-  InternalLoader.call(this, reporter, project);
+  InternalLoader.call(this, reporter, project, new NodeLoader);
   this.elements = elements;
   this.dirname = project.url;
   this.depTarget = depTarget && path.relative('.', depTarget);
@@ -123,29 +124,6 @@ InlineCodeLoader.prototype = {
     if (codeUnit === startCodeUnit)
       return tree;
     return wrapProgram(tree, codeUnit.url, this.dirname);
-  },
-
-  loadTextFile: function(filename, callback, errback) {
-    var text;
-    fs.readFile(path.resolve(this.dirname, filename), 'utf8',
-        function(err, data) {
-          if (err) {
-            errback(err);
-          } else {
-            // Ignore shebang lines
-            if (/^#!/.test(data))
-              data = '//' + data;
-            text = data;
-            callback(data);
-          }
-        });
-
-    return {
-      get responseText() {
-        return text;
-      },
-      abort: function() {}
-    };
   }
 };
 
@@ -212,4 +190,23 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
   loadNext();
 }
 
+function inlineAndCompileSync(filenames, options, reporter) {
+  // The caller needs to do a chdir.
+  var basePath = './';
+  var depTarget = options && options.depTarget;
+
+  var loadCount = 0;
+  var elements = [];
+  var project = new Project(basePath);
+  var loader = new InlineCodeLoader(reporter, project, elements, depTarget);
+
+  filenames.forEach(function(filename) {
+    filename = resolveUrl(basePath, filename);
+    startCodeUnit = loader.getCodeUnit(filename);
+    loader.loadSync(filename);
+  });
+  return allLoaded(basePath, reporter, elements);
+}
+
 exports.inlineAndCompile = inlineAndCompile;
+exports.inlineAndCompileSync = inlineAndCompileSync;

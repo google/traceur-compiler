@@ -25,31 +25,20 @@ export class ErrorReporter {
    * @param {SourcePosition} location
    * @param {string} format
    */
-  reportError(location, format, var_args) {
+  reportError(location, format, ...args) {
     this.hadError_ = true;
-    var args = Array.prototype.slice.call(arguments, 2);
-    this.reportMessageInternal(location, 'error', format, args);
+    this.reportMessageInternal(location, format, args);
   }
 
   /**
    * @param {SourcePosition} location
-   * @param {string} format
-   */
-  reportWarning(location, format, var_args) {
-    var args = Array.prototype.slice.call(arguments, 2);
-    this.reportMessageInternal(location, 'warn', format, args);
-  }
-
-  /**
-   * @param {SourcePosition} location
-   * @param {string} kind
    * @param {string} format
    * @param {Array} args
    */
-  reportMessageInternal(location, kind, format, args) {
+  reportMessageInternal(location, format, args) {
     if (location)
       format = `${location}: ${format}`;
-    console[kind](format, ...args);
+    console.error(format, ...args);
   }
 
   hadError() {

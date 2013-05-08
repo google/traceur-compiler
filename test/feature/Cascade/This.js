@@ -11,5 +11,5 @@
 
   f.call(self);
 
-  assertEquals(self, object.self);
+  assert.equal(self, object.self);
 }

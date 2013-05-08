@@ -9,9 +9,9 @@ module a {
   // TODO(arv): Modules are strict. The codegen for modules should ensure that
   // they are strict.
   'use strict';
-  assertEquals(0, a.i);
+  assert.equal(0, a.i);
   a.inc();
-  assertEquals(1, a.i);
+  assert.equal(1, a.i);
 
   assertThrows(function() {
     a.i = 2;
@@ -27,23 +27,23 @@ module b {
     }
   }
 }
-assertEquals(42, b.c.d);
+assert.equal(42, b.c.d);
 
 // DeclarationAlias
 module b2 from b;
-assertEquals(42, b2.c.d);
+assert.equal(42, b2.c.d);
 
 // NestedDeclarations
 module c from b.c;
-assertEquals(42, c.d);
+assert.equal(42, c.d);
 
 // NestedDeclarations1
 module d from c;
-assertEquals(42, d.d);
+assert.equal(42, d.d);
 
 // NestedDeclarations2
 module d2 from c.c2;
-assertEquals(43, d2.d2);
+assert.equal(43, d2.d2);
 
 // ExportModuleDeclaration
 module e {
@@ -52,8 +52,8 @@ module e {
   }
   export module o from n, o2 from n;
 }
-assertEquals(44, e.o.val);
-assertEquals(44, e.o2.val);
+assert.equal(44, e.o.val);
+assert.equal(44, e.o2.val);
 
 // ExportLexicalModule
 module m2 {
@@ -64,7 +64,7 @@ module m2 {
     export module o2 from n;
   }
 }
-assertEquals('n', m2.n2.o2.name);
+assert.equal('n', m2.n2.o2.name);
 
 // ExportLexicalModule2
 module p2 {
@@ -75,14 +75,14 @@ module p2 {
     export {name: name} from q;
   }
 }
-assertEquals('q', p2.q2.name);
+assert.equal('q', p2.q2.name);
 
 // ExportIdentifier
 module f {
   var g = 'g';
   export g;
 }
-assertEquals('g', f.g);
+assert.equal('g', f.g);
 
 // ExportModuleExpression
 module h {
@@ -92,9 +92,9 @@ module h {
   }
   export j from i, {j: k, l} from i;
 }
-assertEquals('j', h.j);
-assertEquals('j', h.k);
-assertEquals('l', h.l);
+assert.equal('j', h.j);
+assert.equal('j', h.k);
+assert.equal('l', h.l);
 
 // ExportSpecifierSet
 module m {
@@ -106,7 +106,7 @@ module m {
 
   export n, {o: n2}, q from o, {q: p} from o;
 }
-assertEquals('n', m.n);
-assertEquals('q', m.n2.q);
-assertEquals('q', m.p);
-assertEquals('q', m.q);
+assert.equal('n', m.n);
+assert.equal('q', m.n2.q);
+assert.equal('q', m.p);
+assert.equal('q', m.q);

@@ -3,4 +3,4 @@ function f() {
       42;
 }
 
-assertUndefined(f());
+assert.isUndefined(f());

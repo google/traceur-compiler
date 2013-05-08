@@ -20,4 +20,4 @@ function accumulate(iterator) {
 
 // ----------------------------------------------------------------------------
 
-assertEquals('1463', accumulate(sequenceGenerator()));
+assert.equal('1463', accumulate(sequenceGenerator()));

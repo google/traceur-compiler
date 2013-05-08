@@ -9,7 +9,7 @@ function f() {
     return 'inner';
   });
 
-  assertEquals('outer', f());
+  assert.equal('outer', f());
 }
 
-assertEquals('outer', f());
+assert.equal('outer', f());

@@ -8,7 +8,7 @@ with (o) {
 }
 
 withVar = 20;
-assertEquals(40, funcW(o.xW, o.yW));
+assert.equal(40, funcW(o.xW, o.yW));
 
 with (o) {
   with (propW) {
@@ -21,5 +21,5 @@ with (o) {
 
 withVar2 = 20;
 var op = o.propW;
-assertEquals(42, funcW(op.xW, op.yW));
-assertEquals(4200, op.funcW(funcW, op.xW, op.yW));
+assert.equal(42, funcW(op.xW, op.yW));
+assert.equal(4200, op.funcW(funcW, op.xW, op.yW));

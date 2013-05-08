@@ -10,6 +10,6 @@ for (let x in obj) {
 
 // ----------------------------------------------------------------------------
 
-assertEquals('hello a', result[0]());
-assertEquals('hello b', result[1]());
-assertEquals('hello c', result[2]());
+assert.equal('hello a', result[0]());
+assert.equal('hello b', result[1]());
+assert.equal('hello c', result[2]());

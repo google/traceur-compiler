@@ -8,7 +8,7 @@ var ClassExpr = class {
 var TempClass = ClassExpr;
 ClassExpr = 42;
 
-assertEquals(42, new TempClass().m());
+assert.equal(42, new TempClass().m());
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -21,7 +21,7 @@ var ClassExpr2 = class ClassExprInner {
 TempClass = ClassExpr2;
 ClassExpr2 = 42;
 
-assertEquals(TempClass, new TempClass().m());
+assert.equal(TempClass, new TempClass().m());
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -34,4 +34,4 @@ class ClassDef {
 var TempClass = ClassDef;
 ClassDef = 42;
 
-assertEquals(42, new TempClass().m());
+assert.equal(42, new TempClass().m());

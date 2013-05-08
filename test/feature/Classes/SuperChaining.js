@@ -25,4 +25,4 @@ class ChainD extends ChainC {
 // ----------------------------------------------------------------------------
 
 var d = new ChainD();
-assertEquals('A B C D', d.foo());
+assert.equal('A B C D', d.foo());

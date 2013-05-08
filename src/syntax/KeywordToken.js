@@ -12,19 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {STRICT_KEYWORD} from './Keywords.js';
 import {Token} from './Token.js';
 
 export class KeywordToken extends Token {
   /**
    * @param {TokenType} type
+   * @param {number|undefined} keywordType
    * @param {SourceRange} location
    */
-  constructor(type, location) {
+  constructor(type, keywordType, location) {
     this.type = type;
     this.location = location;
+    this.isStrictKeyword_ = keywordType === STRICT_KEYWORD;
   }
 
   isKeyword() {
     return true;
+  }
+
+  isStrictKeyword() {
+    return this.isStrictKeyword_;
   }
 }

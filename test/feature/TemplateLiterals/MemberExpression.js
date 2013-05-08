@@ -5,7 +5,7 @@
     return 1;
   }];
 
-  assertEquals(1, a[0] `whatevs`);
+  assert.equal(1, a[0] `whatevs`);
 
   function f() {
     return [function() {
@@ -13,7 +13,7 @@
     }];
   }
 
-  assertEquals(2, f `abc` [0] `def`);
+  assert.equal(2, f `abc` [0] `def`);
 
   let o = {
     g: function() {
@@ -21,5 +21,5 @@
     }
   };
 
-  assertEquals(3, o.g `ghi`);
+  assert.equal(3, o.g `ghi`);
 }

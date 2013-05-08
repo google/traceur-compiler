@@ -20,20 +20,26 @@ var keywords = [
   'break',
   'case',
   'catch',
+  'class',
+  'const',
   'continue',
   'debugger',
   'default',
   'delete',
   'do',
   'else',
+  'export',
   'finally',
   'for',
   'function',
   'if',
+  'import',
   'in',
   'instanceof',
+  'let',
   'new',
   'return',
+  'super',
   'switch',
   'this',
   'throw',
@@ -45,24 +51,8 @@ var keywords = [
   'with',
 
   // 7.6.1.2 Future Reserved Words
-  'class',
-  'const',
   'enum',
-  'export',
   'extends',
-  'import',
-  'super',
-
-  // Future Reserved Words in a strict context
-  'implements',
-  'interface',
-  'let',
-  'package',
-  'private',
-  'protected',
-  'public',
-  'static',
-  'yield',
 
   // 7.8 Literals
   'null',
@@ -73,12 +63,35 @@ var keywords = [
   'await'
 ];
 
+var strictKeywords = [
+  // Future Reserved Words in a strict context
+  'implements',
+  'interface',
+  'package',
+  'private',
+  'protected',
+  'public',
+  'static',
+  'yield'
+];
+
 var keywordsByName = Object.create(null);
 
+export var NORMAL_KEYWORD = 1;
+export var STRICT_KEYWORD = 2;
+
 keywords.forEach((value) => {
-  keywordsByName[value] = true;
+  keywordsByName[value] = NORMAL_KEYWORD;
 });
 
-export function isKeyword(value) {
-  return !!keywordsByName[value];
-};
+strictKeywords.forEach((value) => {
+  keywordsByName[value] = STRICT_KEYWORD;
+});
+
+export function getKeywordType(value) {
+  return keywordsByName[value];
+}
+
+export function isStrictKeyword(value) {
+  return getKeywordType(value) === STRICT_KEYWORD;
+}

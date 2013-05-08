@@ -4,4 +4,4 @@ module m {
 }
 
 import * from m;
-assertEquals(3, x + y);
+assert.equal(3, x + y);

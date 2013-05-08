@@ -156,28 +156,27 @@ export class Compiler {
   hadError_() {
     return this.reporter_.hadError();
   }
+
+  /**
+   * @param {ErrorReporter} reporter Where to report compile errors.
+   * @param {Project} project The project to compile.
+   * @return {ObjectMap} A map from input file name to
+   *     translated results. Returns null if there was a compile error.
+   */
+  static compile(reporter, project) {
+    return new Compiler(reporter, project).compile_();
+  }
+
+  /**
+   * @param {ErrorReporter} reporter Where to report compile errors.
+   * @param {SourceFile} sourceFile file to compile.
+   * @param {string} url The URL of the file to compile or the URL of the
+   *     document in case of an eval or inline script.
+   * @return {ParseTree} A map from input file name to
+   *     translated results. Returns null if there was a compile error.
+   */
+  static compileFile(reporter, sourceFile, url, project = new Project(url)) {
+    project.addFile(sourceFile);
+    return new Compiler(reporter, project).compileFile_(sourceFile);
+  }
 }
-
-/**
- * @param {ErrorReporter} reporter Where to report compile errors.
- * @param {Project} project The project to compile.
- * @return {ObjectMap} A map from input file name to
- *     translated results. Returns null if there was a compile error.
- */
-Compiler.compile = function(reporter, project) {
-  return new Compiler(reporter, project).compile_();
-};
-
-/**
- * @param {ErrorReporter} reporter Where to report compile errors.
- * @param {SourceFile} sourceFile file to compile.
- * @param {string} url The URL of the file to compile or the URL of the
- *     document in case of an eval or inline script.
- * @return {ParseTree} A map from input file name to
- *     translated results. Returns null if there was a compile error.
- */
-Compiler.compileFile = function(reporter, sourceFile, url) {
-  var project = new Project(url);
-  project.addFile(sourceFile);
-  return new Compiler(reporter, project).compileFile_(sourceFile);
-};

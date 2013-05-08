@@ -43,7 +43,7 @@ var standardModuleCache = Object.create(null);
 function getStandardModule(url) {
   if (!(url in standardModuleCache)) {
     var symbol = new ModuleSymbol(null, null, null, url);
-    var moduleInstance = traceur.runtime.modules[url];
+    var moduleInstance = $traceurRuntime.modules[url];
     Object.keys(moduleInstance).forEach((name) => {
       symbol.addExport(name, new ExportSymbol(null, name, null));
     });
@@ -169,7 +169,7 @@ export class Project {
 
   hasModuleForUrl(url) {
     if (standardModuleUrlRegExp.test(url))
-      return url in traceur.runtime.modules;
+      return url in $traceurRuntime.modules;
 
     url = resolveUrl(this.url, url);
     return url in this.modulesByUrl_;

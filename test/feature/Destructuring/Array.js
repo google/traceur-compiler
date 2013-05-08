@@ -12,7 +12,7 @@ function destructArray() {
 // ----------------------------------------------------------------------------
 
 var result = destructArray();
-assertEquals('hello', result.a);
-assertEquals(',', result.b);
+assert.equal('hello', result.a);
+assert.equal(',', result.b);
 assertArrayEquals(['world'], result.c);
-assertUndefined(result.d);
+assert.isUndefined(result.d);

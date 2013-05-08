@@ -5,19 +5,19 @@ B.b = function() {
 
 class C extends B {}
 
-assertEquals(Object.getPrototypeOf(C), B);
-assertEquals(Object.getPrototypeOf(C.prototype), B.prototype);
+assert.equal(Object.getPrototypeOf(C), B);
+assert.equal(Object.getPrototypeOf(C.prototype), B.prototype);
 
-assertEquals(C.b(), 'B.b');
+assert.equal(C.b(), 'B.b');
 
 class D extends Object {}
 
-assertEquals(Object.getPrototypeOf(D), Object);
-assertEquals(Object.getPrototypeOf(D.prototype), Object.prototype);
-assertEquals(D.keys, Object.keys);
+assert.equal(Object.getPrototypeOf(D), Object);
+assert.equal(Object.getPrototypeOf(D.prototype), Object.prototype);
+assert.equal(D.keys, Object.keys);
 
 class E {}
 
-assertEquals(Object.getPrototypeOf(E), Function.prototype);
-assertEquals(Object.getPrototypeOf(E.prototype), Object.prototype);
-assertFalse('keys' in E);
+assert.equal(Object.getPrototypeOf(E), Function.prototype);
+assert.equal(Object.getPrototypeOf(E.prototype), Object.prototype);
+assert.isFalse('keys' in E);

@@ -28,7 +28,7 @@ function run(f) {
     while (dequeue()) {
       // intentionally empty
     }
-    assertTrue(done);
+    assert.isTrue(done);
   };
 }
 
@@ -46,6 +46,6 @@ function dequeue() {
 run(function() {
   var value;
   await value = asyncValue(42);
-  assertEquals(42, value);
+  assert.equal(42, value);
   done = true;
 })();

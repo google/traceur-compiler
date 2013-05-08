@@ -47,16 +47,6 @@ module traceur {
       throw Error('Assertion failed');
   }
 
-  var uidCounter = 0;
-
-  /**
-   * Returns a new unique ID.
-   * @return {number}
-   */
-  export function getUid() {
-    return ++uidCounter;
-  }
-
   export WebPageProject from './WebPageProject.js';
 
   export module semantics {
@@ -124,18 +114,5 @@ module traceur {
     }
   }
 
-  import {
-    internals,
-    getModuleInstanceByUrl,
-    CodeLoader
-  } from './runtime/modules.js';
-
-  export var runtime;
-
-  export function setRuntime(rt) {
-    runtime = rt;
-    runtime.internals = internals;
-    runtime.getModuleInstanceByUrl = getModuleInstanceByUrl;
-    runtime.CodeLoader = CodeLoader;
-  }
+  export module modules from './runtime/modules.js';
 }

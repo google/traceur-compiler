@@ -1,5 +1,5 @@
 // This test depends on it running in non strict mode.
-assertTrue(function() { return this; }() !== undefined);
+assert.isTrue(function() { return this; }() !== undefined);
 
 function f() {
   'use strict';
@@ -13,4 +13,4 @@ function f() {
   return (1, o.f)();
 }
 
-assertUndefined(f());
+assert.isUndefined(f());

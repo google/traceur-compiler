@@ -12,4 +12,4 @@ function accumulate(iterator) {
 
 // ----------------------------------------------------------------------------
 
-assertEquals('1', accumulate(simpleGenerator()));
+assert.equal('1', accumulate(simpleGenerator()));

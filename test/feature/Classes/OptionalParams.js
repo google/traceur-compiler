@@ -10,9 +10,9 @@ class OptionalParams {
 // ----------------------------------------------------------------------------
 
 var obj = new OptionalParams();
-assertEquals(1, obj.opt);
-assertEquals(2, obj.instanceMethod());
-assertEquals(3, obj.instanceMethod(3));
+assert.equal(1, obj.opt);
+assert.equal(2, obj.instanceMethod());
+assert.equal(3, obj.instanceMethod(3));
 
 var obj2 = new OptionalParams(2);
-assertEquals(2, obj2.opt);
+assert.equal(2, obj2.opt);
