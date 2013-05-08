@@ -30,7 +30,7 @@ import {
   NUMBER,
   STRING
 } from './TokenType.js';
-import iterator from '@iter';
+import {iterator} from '@iter';
 
 /**
  * Helper class for getting the processed value out of a string literal token.
