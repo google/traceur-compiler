@@ -7627,12 +7627,16 @@ var $___src_syntax_LiteralToken_js = (function() {
   "use strict";
   var Token = $___src_syntax_Token_js.Token;
   var $__18 = $___src_syntax_TokenType_js, NULL = $__18.NULL, NUMBER = $__18.NUMBER, STRING = $__18.STRING;
+  var iterator = $traceurModules.getModuleInstanceByUrl('@iter').iterator;
   var StringParser = function() {
     'use strict';
     var $StringParser = ($__createClassNoExtends)({
       constructor: function(value) {
         this.value = value;
         this.index = 0;
+        Object.setProperty(this, iterator, (function() {
+          return this;
+        }).bind(this));
       },
       next: function() {
         if (++this.index >= this.value.length - 1) throw StopIteration;
@@ -7679,9 +7683,9 @@ var $___src_syntax_LiteralToken_js = (function() {
           case 'v':
             return '\v';
           case 'x':
-            return String.fromCharCode(parseInt(next() + next(), 16));
+            return String.fromCharCode(parseInt(this.next() + this.next(), 16));
           case 'u':
-            return String.fromCharCode(parseInt(next() + next() + next() + next(), 16));
+            return String.fromCharCode(parseInt(this.next() + this.next() + this.next() + this.next(), 16));
           default:
             if (Number(ch) < 8) throw new Error('Octal literals are not supported');
             return ch;
