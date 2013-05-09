@@ -9,18 +9,18 @@ suite('getopt', function() {
     ];
     var nextLoop = argv.indexOf('--has.dots=42');
     while (optcur = g.optind, g.getopt(argv)) {
-      assert.equal('?', g.opt);
-      assert.equal(null, g.optarg);
-      assert.equal(argv[optcur].slice(2), g.optopt);
+      assert.equal(g.opt, '?');
+      assert.equal(g.optarg, null);
+      assert.equal(g.optopt, argv[optcur].slice(2));
       g.opt = g.optarg = g.optopt = undefined;
       if (/42$/.test(argv[g.optind])) {
         break;
       }
     }
     while (optcur = g.optind, g.getopt(argv)) {
-      assert.equal('?', g.opt);
-      assert.equal('42', g.optarg);
-      assert.equal(argv[optcur].replace(/^--|=.*$/g, ''), g.optopt);
+      assert.equal(g.opt, '?');
+      assert.equal(g.optarg, '42');
+      assert.equal(g.optopt, argv[optcur].replace(/^--|=.*$/g, ''));
       g.opt = g.optarg = g.optopt = undefined;
     }
   });
