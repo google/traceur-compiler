@@ -30,6 +30,7 @@ import {
   NUMBER,
   STRING
 } from './TokenType.js';
+import {iterator} from '@iter';
 
 /**
  * Helper class for getting the processed value out of a string literal token.
@@ -43,6 +44,7 @@ class StringParser {
   constructor(value) {
     this.value = value;
     this.index = 0;  // value is wrapped in " or '
+    Object.setProperty(this, iterator, () => this);
   }
 
   next() {
@@ -91,11 +93,11 @@ class StringParser {
         return '\v';
       case 'x':
         // 2 hex digits
-        return String.fromCharCode(parseInt(next() + next(), 16));
+        return String.fromCharCode(parseInt(this.next() + this.next(), 16));
       case 'u':
         // 4 hex digits
-        return String.fromCharCode(parseInt(next() + next() +
-                                            next() + next(), 16));
+        return String.fromCharCode(parseInt(this.next() + this.next() +
+                                            this.next() + this.next(), 16));
       default:
         if (Number(ch) < 8)
           throw new Error('Octal literals are not supported');
