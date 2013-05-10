@@ -442,6 +442,8 @@
   }
 
   Deferred.prototype = {
+    constructor: Deferred,
+
     fired_: false,
     result_: undefined,
 
