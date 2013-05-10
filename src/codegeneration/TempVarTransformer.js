@@ -14,10 +14,8 @@
 
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {
-  FunctionDeclaration,
-  FunctionExpression,
   ModuleDefinition,
-  Program,
+  Program
 } from '../syntax/trees/ParseTrees.js';
 import {VAR} from '../syntax/TokenType.js';
 import {
@@ -107,30 +105,11 @@ export class TempVarTransformer extends ParseTreeTransformer {
     return new Program(tree.location, programElements);
   }
 
-  transformFunctionDeclaration(tree) {
-    return this.transformFunctionTempVar_(tree, FunctionDeclaration);
-  }
-
-  transformFunctionExpression(tree) {
-    return this.transformFunctionTempVar_(tree, FunctionExpression);
-  }
-
-  transformFunctionTempVar_(tree, constructor) {
-    var name = this.transformAny(tree.name);
-    var formalParameterList = this.transformAny(tree.formalParameterList);
-    var functionBody = this.transformFunctionBody(tree.functionBody);
-    if (name === tree.name &&
-        formalParameterList === tree.formalParameterList &&
-        functionBody === tree.functionBody) {
-      return tree;
-    }
-    return new constructor(tree.location, name, tree.isGenerator,
-                           formalParameterList, functionBody);
-  }
-
   transformFunctionBody(tree) {
+    this.pushTempVarState();
     var statements = this.transformStatements_(tree.statements);
-    if (statements === tree.statements)
+    this.popTempVarState();
+    if (statements == tree.statements)
       return tree;
     return createFunctionBody(statements);
   }
@@ -143,38 +122,6 @@ export class TempVarTransformer extends ParseTreeTransformer {
       return tree;
     return new ModuleDefinition(tree.location, tree.name, elements);
   }
-
-/*
-  transformFunctionDeclaration(tree) {
-    return this.transformFunctionTempVar_(tree, FunctionDeclaration);
-  }
-
-  transformFunctionExpression(tree) {
-    return this.transformFunctionTempVar_(tree, FunctionExpression);
-  }
-
-  transformFunctionTempVar_(tree, constructor) {
-    var name = this.transformAny(tree.name);
-    var formalParameterList = this.transformAny(tree.formalParameterList);
-    var functionBody = this.transformFunctionBody(tree.functionBody);
-    if (name === tree.name &&
-        formalParameterList === tree.formalParameterList &&
-        functionBody === tree.functionBody) {
-      return tree;
-    }
-    return new constructor(tree.location, name, tree.isGenerator,
-                           formalParameterList, functionBody);
-  }
-
-  transformFunctionBody(tree) {
-    this.pushTempVarState();
-    var statements = this.transformStatements_(tree.statements);
-    this.popTempVarState();
-    if (statements === tree.statements)
-      return tree;
-    return createBlock(statements);
-  }
- */
 
   /**
    * @return {string} An identifier string that can may be reused after the
