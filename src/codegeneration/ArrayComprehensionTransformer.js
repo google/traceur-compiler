@@ -13,16 +13,7 @@
 // limitations under the License.
 
 import {ComprehensionTransformer} from './ComprehensionTransformer.js';
-import {PLUS_PLUS} from '../syntax/TokenType.js';
-import {
-  createArrayLiteralExpression,
-  createAssignmentStatement,
-  createIdentifierExpression,
-  createMemberLookupExpression,
-  createNumberLiteral,
-  createPostfixExpression,
-  createReturnStatement
-} from './ParseTreeFactory.js';
+import {createIdentifierExpression} from './ParseTreeFactory.js';
 import {parseStatement} from './PlaceholderParser.js';
 
 /**
