@@ -174,7 +174,8 @@ export class ProgramTransformer {
     // default parameters should come after rest parameter to get the
     // expected order in the transformed code.
     transform(transformOptions.defaultParameters,
-              DefaultParametersTransformer);
+              DefaultParametersTransformer,
+              identifierGenerator);
 
     // destructuring must come after for of and before block binding and
     // generator

@@ -15,7 +15,10 @@
 export module ParseTreeType from './ParseTreeType.js';
 
 import * from ParseTreeType;
-import {STRING} from '../TokenType.js';
+import {
+  STRING,
+  VAR
+} from '../TokenType.js';
 import {Token} from '../Token.js';
 
 module utilJSON from '../../util/JSON.js';
@@ -179,58 +182,79 @@ export class ParseTree {
     return this.type == SPREAD_PATTERN_ELEMENT;
   }
 
-  /**
-   * In V8 any source element may appear where statement appears in the ECMA
-   * grammar.
-   * @return {boolean}
-   */
-  isStatement() {
-    return this.isSourceElement();
+  isStatementListItem() {
+    return this.isStatement() || this.isDeclaration();
   }
 
-  /**
-   * This function reflects the ECMA standard, or what we would expect to
-   * become the ECMA standard. Most places use isStatement instead which
-   * reflects where code on the web diverges from the standard.
-   * @return {boolean}
-   */
-  isStatementStandard() {
+  isStatement() {
     switch (this.type) {
       case BLOCK:
-      case AWAIT_STATEMENT:
       case VARIABLE_STATEMENT:
       case EMPTY_STATEMENT:
       case EXPRESSION_STATEMENT:
       case IF_STATEMENT:
-      case DO_WHILE_STATEMENT:
-      case WHILE_STATEMENT:
-      case FOR_OF_STATEMENT:
-      case FOR_IN_STATEMENT:
-      case FOR_STATEMENT:
       case CONTINUE_STATEMENT:
       case BREAK_STATEMENT:
       case RETURN_STATEMENT:
       case WITH_STATEMENT:
-      case SWITCH_STATEMENT:
       case LABELLED_STATEMENT:
       case THROW_STATEMENT:
       case TRY_STATEMENT:
       case DEBUGGER_STATEMENT:
+
+      case AWAIT_STATEMENT:  // Traceur extension.
         return true;
-      default:
-        return false;
     }
+
+    return this.isBreakableStatement();
   }
 
-  /** @return {boolean} */
-  isSourceElement() {
+  // Declaration :
+  //   FunctionDeclaration
+  //   GeneratorDeclaration
+  //   ClassDeclaration
+  //   LexicalDeclaration
+  isDeclaration() {
     switch (this.type) {
       case FUNCTION_DECLARATION:
+      // GeneratorDeclaration is covered by FUNCTION_DECLARATION.
       case CLASS_DECLARATION:
       case NAME_STATEMENT:
+       return true;
+    }
+
+    return this.isLexicalDeclaration();
+  }
+
+  isLexicalDeclaration() {
+    switch (this.type) {
+      case VARIABLE_STATEMENT:
+        return this.declarations.declarationType !== VAR;
+    }
+    return false;
+  }
+
+  // BreakableStatement :
+  //   IterationStatement
+  //   SwitchStatement
+  isBreakableStatement() {
+    switch (this.type) {
+      case SWITCH_STATEMENT:
         return true;
     }
-    return this.isStatementStandard();
+    return this.isIterationStatement();
+  }
+
+  isIterationStatement() {
+    switch (this.type) {
+      case DO_WHILE_STATEMENT:
+      case FOR_IN_STATEMENT:
+      case FOR_OF_STATEMENT:
+      case FOR_STATEMENT:
+      case WHILE_STATEMENT:
+        return true;
+    }
+    return false;
   }
 
   /** @return {boolean} */
@@ -246,7 +270,7 @@ export class ParseTree {
       case VARIABLE_DECLARATION:
         return true;
     }
-    return this.isStatementStandard();
+    return this.isStatement();
   }
 
   getDirectivePrologueStringToken_() {
@@ -282,37 +306,37 @@ export class ParseTree {
   stringify(indent = 2) {
     return JSON.stringify(this, ParseTree.replacer, indent);
   }
+
+  /**
+   * This replacer is for use to when converting to a JSON string if you
+   * don't want location. Call JSON.stringfy(tree, ParseTree.stripLocation)
+   * @param {string} key
+   * @param {*} value
+   * @return {*}
+   */
+  static stripLocation(key, value) {
+    if (key === 'location') {
+      return undefined;
+    }
+    return value;
+  }
+
+  /**
+   * Like stripLocation, but also adds 'type' properties to the output.
+   * @param {string} key
+   * @param {*} value
+   * @return {*}
+   */
+  static replacer(k, v) {
+    if (v instanceof ParseTree || v instanceof Token) {
+      var rv = {type: v.type};
+      Object.keys(v).forEach(function(name) {
+        // assigns 'type' again for Token, but no big deal.
+        if (name !== 'location')
+          rv[name] = v[name];
+      });
+      return rv;
+    }
+    return v;
+  }
 }
-
-/**
- * This replacer is for use to when converting to a JSON string if you
- * don't want location. Call JSON.stringfy(tree, ParseTree.stripLocation)
- * @param {string} key
- * @param {*} value
- * @return {*}
- */
-ParseTree.stripLocation = function(key, value) {
-  if (key === 'location') {
-    return undefined;
-  }
-  return value;
-};
-
-/**
- * Like stripLocation, but also adds 'type' properties to the output.
- * @param {string} key
- * @param {*} value
- * @return {*}
- */
-ParseTree.replacer = function (k, v) {
-  if (v instanceof ParseTree || v instanceof Token) {
-    var rv = {type: v.type};
-    Object.keys(v).forEach(function(name) {
-      // assigns 'type' again for Token, but no big deal.
-      if (name !== 'location')
-        rv[name] = v[name];
-    });
-    return rv;
-  }
-  return v;
-};

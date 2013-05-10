@@ -376,14 +376,14 @@ export class GeneratorTransformPass extends TempVarTransformer {
   }
 
   /**
-   * @param {Block} tree
-   * @return {Block}
+   * @param {FunctionBody} tree
+   * @return {FunctionBody}
    */
   transformBody_(tree, isGenerator) {
     var finder;
 
     // transform nested functions
-    var body = super.transformBlock(tree);
+    var body = super.transformFunctionBody(tree);
 
     if (isGenerator ||
         (options.unstarredGenerators || transformOptions.deferredFunctions)) {

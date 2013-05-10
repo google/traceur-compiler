@@ -39,9 +39,9 @@ import {ReturnState} from './ReturnState.js';
 import {
   createAssignStateStatement,
   createAssignmentStatement,
-  createBlock,
   createExpressionStatement,
   createFalseLiteral,
+  createFunctionBody,
   createIdentifierExpression,
   createMemberExpression,
   createNumberLiteral,
@@ -188,8 +188,8 @@ export class GeneratorTransformer extends CPSTransformer {
    * }
    * TODO: add close() method which executes pending finally clauses
    *
-   * @param {Block} tree
-   * @return {Block}
+   * @param {FunctionBody} tree
+   * @return {FunctionBody}
    */
   transformGeneratorBody(tree) {
     // transform to a state machine
@@ -314,7 +314,7 @@ export class GeneratorTransformer extends CPSTransformer {
     var id = createIdentifierExpression;
     statements.push(parseStatement `return ${generatorWrap}(${id(G)});`);
 
-    return createBlock(statements);
+    return createFunctionBody(statements);
   }
 
   /**

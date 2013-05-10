@@ -69,6 +69,7 @@ import {
   createCommaExpression,
   createDefaultClause,
   createEmptyStatement,
+  createFunctionBody,
   createExpressionStatement,
   createFunctionExpression,
   createIdentifierExpression,
@@ -157,6 +158,14 @@ export class CPSTransformer extends ParseTreeTransformer {
     // NOTE: tree may contain state machines already ...
     this.clearLabels_();
     var transformedTree = super.transformBlock(tree);
+    var machine = this.transformStatementList_(transformedTree.statements);
+    return machine == null ? transformedTree : machine;
+  }
+
+  transformFunctionBody(tree) {
+    // NOTE: tree may contain state machines already ...
+    this.clearLabels_();
+    var transformedTree = super.transformFunctionBody(tree);
     var machine = this.transformStatementList_(transformedTree.statements);
     return machine == null ? transformedTree : machine;
   }
@@ -799,10 +808,10 @@ export class CPSTransformer extends ParseTreeTransformer {
     return createFunctionExpression(
             createParameterList(YIELD_SENT, YIELD_ACTION),
             //     while (true) {
-            createBlock(
+            createFunctionBody([
                 createWhileStatement(
                     createTrueLiteral(),
-                    this.generateMachine(machine))));
+                    this.generateMachine(machine))]));
   }
 
   /** @return {VariableStatement} */
@@ -846,7 +855,7 @@ export class CPSTransformer extends ParseTreeTransformer {
 
     return createFunctionExpression(
         createParameterList(YIELD_SENT, YIELD_ACTION),
-        createBlock(body));
+        createFunctionBody([body]));
   }
 
   /**
