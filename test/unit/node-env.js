@@ -13,7 +13,6 @@
 // limitations under the License.
 
 var traceur = global.traceur = require('../../src/node/traceur.js');
-var Getopt = global.Getopt = require('../../src/node/getopt.js').Getopt;
 global.chai = require('chai');
 var testUtil = require('../test-utils.js');
 

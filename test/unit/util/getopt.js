@@ -13,6 +13,12 @@
 // limitations under the License.
 
 suite('getopt', function() {
+  var Getopt;
+
+  setup(function() {
+    Getopt = require('../../../src/node/getopt.js').Getopt;
+  });
+
   test('invalid long options', function() {
     var g = new Getopt(['0', '1:', '2::', '0test', '1test:', '2test::']);
     var optcur;
