@@ -23,6 +23,7 @@ import {
   createPostfixExpression,
   createReturnStatement
 } from './ParseTreeFactory.js';
+import {parseStatement} from './PlaceholderParser.js';
 
 /**
  * Array Comprehension Transformer:
@@ -54,25 +55,34 @@ import {
  */
 export class ArrayComprehensionTransformer extends ComprehensionTransformer {
 
+  constructor(identifierGenerator) {
+    super.constructor(identifierGenerator);
+    this.indexName = '';
+    this.resultName = '';
+  }
+
   transformArrayComprehension(tree) {
+    this.pushTempVarState();
+
     var expression = this.transformAny(tree.expression);
 
-    var indexName = this.addTempVar(createNumberLiteral(0));
-    var resultName = this.addTempVar(createArrayLiteralExpression([]));
-    var resultIdentifier = createIdentifierExpression(resultName);
+    this.indexName = this.getTempIdentifier();
+    this.resultName = this.getTempIdentifier();
 
-    var statement = createAssignmentStatement(
-        createMemberLookupExpression(
-            resultIdentifier,
-            createPostfixExpression(createIdentifierExpression(indexName),
-                                    PLUS_PLUS)),
-        expression);
+    var index = createIdentifierExpression(this.indexName);
+    var result = createIdentifierExpression(this.resultName);
 
-    var returnStatement = createReturnStatement(resultIdentifier);
+    var statement = parseStatement `${result}[${index}++] = ${expression};`;
+
+    var returnStatement = parseStatement `return ${result};`;
     var isGenerator = false;
 
-    return this.transformComprehension(tree, statement, isGenerator,
-                                       returnStatement);
+    var prelude = parseStatement `var ${index} = 0, ${result} = [];`;
+
+    var result = this.transformComprehension(tree, statement, isGenerator,
+                                            returnStatement, prelude);
+    this.popTempVarState();
+    return result;
   }
 }
 
