@@ -49,9 +49,9 @@ class StringParser {
 
   next() {
     if (++this.index >= this.value.length - 1)
-      throw StopIteration;
+      return {value: undefined, done: true};
 
-    return this.value[this.index];
+    return {value: this.value[this.index], done: false};
   }
 
   parse() {

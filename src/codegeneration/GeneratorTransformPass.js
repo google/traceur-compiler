@@ -14,7 +14,6 @@
 
 import {AsyncTransformer} from './generator/AsyncTransformer.js';
 import {ForInTransformPass} from './generator/ForInTransformPass.js';
-import {ForOfTransformer} from './ForOfTransformer.js';
 import {
   GetAccessor,
   SetAccessor
@@ -23,15 +22,10 @@ import {GeneratorTransformer} from './generator/GeneratorTransformer.js';
 import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor.js';
 import {parseStatement} from './PlaceholderParser.js';
 import {TempVarTransformer} from './TempVarTransformer.js';
-import {ParseTreeTransformer} from './ParseTreeTransformer.js';
-import {
-  EQUAL,
-  VAR
-} from '../syntax/TokenType.js';
+import {EQUAL} from '../syntax/TokenType.js';
 import {
   BINARY_OPERATOR,
   COMMA_EXPRESSION,
-  IDENTIFIER_EXPRESSION,
   PAREN_EXPRESSION,
   YIELD_EXPRESSION
 } from '../syntax/trees/ParseTreeType.js';
@@ -45,8 +39,8 @@ import {
   createBlock,
   createCommaExpression,
   createExpressionStatement,
-  createForOfStatement,
   createIdentifierExpression,
+  createMemberExpression,
   createVariableDeclaration,
   createVariableDeclarationList,
   createVariableStatement,
@@ -55,7 +49,6 @@ import {
 import {
   ACTION_SEND,
   ACTION_THROW,
-  ACTION_CLOSE,
   TRACEUR_RUNTIME,
   YIELD_ACTION,
   YIELD_SENT
@@ -135,12 +128,9 @@ class YieldExpressionTransformer extends TempVarTransformer {
       // Inserted after every simple yield expression in order to handle
       // 'throw' and 'close'. No extra action is needed to handle 'send'.
       throwClose = parseStatement `
-          switch (${id(YIELD_ACTION)}) {
-            case ${ACTION_THROW}:
-              ${id(YIELD_ACTION)} = ${ACTION_SEND};
-              throw ${id(YIELD_SENT)};
-            case ${ACTION_CLOSE}:
-              return;
+          if (${id(YIELD_ACTION)} == ${ACTION_THROW}) {
+            ${id(YIELD_ACTION)} = ${ACTION_SEND};
+            throw ${id(YIELD_SENT)};
           }`;
     }
   }
@@ -238,31 +228,26 @@ class YieldExpressionTransformer extends TempVarTransformer {
     var isGeneratorObject = id(this.getTempIdentifier());
 
     // http://wiki.ecmascript.org/doku.php?id=harmony:generators
+    // Updated on es-discuss
     //
     // The expression yield* <<expr>> is equivalent to:
     //
-    //   let (g = <<expr>>) {
-    //     let received = void 0, send = true, result = void 0;
+    // let (g = EXPR) {
+    //   let received = void 0, send = true;
+    //   while (true) {
+    //     let next = send ? g.send(received) : g.throw(received);
+    //     if (next.done)
+    //       break;
     //     try {
-    //       while (true) {
-    //         let next = send ? g.send(received) : g.throw(received);
-    //         try {
-    //           received = yield next;
-    //           send = true;
-    //         } catch (e) {
-    //           received = e;
-    //           send = false;
-    //         }
-    //       }
+    //       received = yield next.value;  // ***
+    //       send = true;
     //     } catch (e) {
-    //       if (!isStopIteration(e))
-    //         throw e;
-    //       result = e.value;
-    //     } finally {
-    //       try { g.close(); } catch (ignored) { }
+    //       received = e;
+    //       send = false;
     //     }
-    //     result
     //   }
+    //   next.value;
+    // }
 
     return parseStatement `
         {
@@ -280,42 +265,22 @@ class YieldExpressionTransformer extends TempVarTransformer {
           ${id(YIELD_SENT)} = void 0;
           // send = true; // roughly equivalent
           ${id(YIELD_ACTION)} = ${ACTION_SEND};
-          try {
-            while (true) {
-              switch (${id(YIELD_ACTION)}) {
-                case ${ACTION_SEND}:
-                  if (${isGeneratorObject})
-                    ${next} = ${g}.send(${id(YIELD_SENT)});
-                  else
-                    ${next} = ${g}.next();
-                  break;
-                case ${ACTION_THROW}:
-                  ${id(YIELD_ACTION)} = ${ACTION_SEND};
-                  if (${isGeneratorObject})
-                    ${next} = ${g}.throw(${id(YIELD_SENT)});
-                  else
-                    throw ${id(YIELD_SENT)};
-                  break;
-                case ${ACTION_CLOSE}:
-                  // TODO: Another deviation from harmony:generators. This line
-                  // is needed if we want any given generator function G to be
-                  // identical in behavior to GG when 'close' is used.
-                  //   function* GG() { yield* G(); }
-                  if (${isGeneratorObject})
-                    ${g}.close();
-                  return;
-              }
-              ${createYieldStatement(next)};
+
+          while (true) {
+            if (${id(YIELD_ACTION)} == ${ACTION_SEND}) {
+              ${next} = ${isGeneratorObject} ?
+                  ${g}.send(${id(YIELD_SENT)}) : ${g}.next();
+            } else {
+              ${next} = ${g}.throw(${id(YIELD_SENT)});
             }
-          } catch(e) {
-            if (!${id(TRACEUR_RUNTIME)}.isStopIteration(e))
-              throw e;
-            // result = e.value;
-            ${id(YIELD_SENT)} = e.value;
-          } finally {
-            try {
-              ${g}.close();
-            } catch(e) {}
+            if (${next}.done) {
+              ${id(YIELD_SENT)} = ${next}.value;
+              break;
+            }
+            // Normally, this would go through transformYieldForExpression_
+            // which would rethrow and we would catch it and set up the states
+            // again.
+            ${createYieldStatement(createMemberExpression(next, 'value'))};
           }
         }`;
   }

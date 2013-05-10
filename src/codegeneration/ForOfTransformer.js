@@ -12,30 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  CLOSE,
-  CURRENT,
-  GET_ITERATOR,
-  MOVE_NEXT,
-  RUNTIME,
-  TRACEUR_RUNTIME
-} from '../syntax/PredefinedName.js';
+import {TRACEUR_RUNTIME} from '../syntax/PredefinedName.js';
 import {VARIABLE_DECLARATION_LIST} from '../syntax/trees/ParseTreeType.js';
 import {TempVarTransformer} from './TempVarTransformer.js';
-import {VAR} from '../syntax/TokenType.js';
 import {
-  createArgumentList,
-  createAssignmentExpression,
-  createCallExpression,
-  createCallStatement,
-  createExpressionStatement,
-  createFinally,
-  createIfStatement,
   createIdentifierExpression,
   createMemberExpression,
-  createTryStatement,
-  createVariableStatement,
-  createWhileStatement
+  createVariableStatement
 } from './ParseTreeFactory.js';
 import {parseStatement} from './PlaceholderParser.js';
 
@@ -44,18 +27,6 @@ import {parseStatement} from './PlaceholderParser.js';
  */
 export class ForOfTransformer extends TempVarTransformer {
 
-  // for ( initializer of collection ) statement
-  //
-  // var $it = traceurRuntime.getIterator(collection);
-  // try {
-  //   while (true) {
-  //     initializer = $it.next();
-  //     statement
-  //   }
-  // } catch(e) {
-  //   if (!traceurRuntime.isStopIteration(e))
-  //     throw e;
-  // }
   /**
    * @param {ForOfStatement} original
    * @return {ParseTree}
@@ -63,36 +34,28 @@ export class ForOfTransformer extends TempVarTransformer {
   transformForOfStatement(original) {
     var tree = super.transformForOfStatement(original);
     var iter = createIdentifierExpression(this.getTempIdentifier());
+    var result = createIdentifierExpression(this.getTempIdentifier());
 
     var assignment;
     if (tree.initializer.type === VARIABLE_DECLARATION_LIST) {
-      // {var,let} initializer = $it.next();
+      // {var,let} initializer = $result.value;
       assignment = createVariableStatement(
           tree.initializer.declarationType,
           tree.initializer.declarations[0].lvalue,
-          createCallExpression(createMemberExpression(iter, 'next')));
+          createMemberExpression(result, 'value'));
     } else {
-      // initializer = $it.next();
-      assignment = createExpressionStatement(
-          createAssignmentExpression(
-              tree.initializer,
-              createCallExpression(createMemberExpression(iter, 'next'))));
+      assignment = parseStatement `${tree.initializer} = ${result}.value;`;
     }
-
     var id = createIdentifierExpression;
+
     return parseStatement `
-      {
-        var ${iter} = ${id(TRACEUR_RUNTIME)}.getIterator(${tree.collection});
-        try {
-          while (true) {
-            ${assignment};
-            ${tree.body}; // statement
-          }
-        } catch(e) {
-          if (!${id(TRACEUR_RUNTIME)}.isStopIteration(e))
-            throw e;
-        }
-      }`;
+        for (var ${iter} =
+                 ${id(TRACEUR_RUNTIME)}.getIterator(${tree.collection}),
+             ${result} = ${iter}.next();
+             !${result}.done; ${result} = ${iter}.next()) {
+          ${assignment};
+          ${tree.body};
+        }`;
   }
 
   /**

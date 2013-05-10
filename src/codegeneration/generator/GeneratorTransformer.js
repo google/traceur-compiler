@@ -17,7 +17,6 @@ import {EndState} from './EndState.js';
 import {
   ACTION_SEND,
   ACTION_THROW,
-  ACTION_CLOSE,
   ADD_ITERATOR,
   CURRENT,
   MOVE_NEXT,
@@ -255,14 +254,10 @@ export class GeneratorTransformer extends CPSTransformer {
                   generator.GState = ${ST_EXECUTING};
                   if (generator.moveNext(x, ${ACTION_SEND})) {
                     generator.GState = ${ST_SUSPENDED};
-                    return generator.current;
+                    return {value: generator.current, done: false};
                   }
                   generator.GState = ${ST_CLOSED};
-                  if (generator.yieldReturn !== undefined) {
-                    throw new ${TRACEUR_RUNTIME}.
-                        GeneratorReturn(generator.yieldReturn);
-                  }
-                  throw ${TRACEUR_RUNTIME}.StopIteration;
+                  return {value: generator.yieldReturn, done: true};
               }
             },
 
@@ -283,30 +278,10 @@ export class GeneratorTransformer extends CPSTransformer {
                   generator.GState = ${ST_EXECUTING};
                   if (generator.moveNext(x, ${ACTION_THROW})) {
                     generator.GState = ${ST_SUSPENDED};
-                    return generator.${CURRENT};
+                    return {value: generator.${CURRENT}, done: false};
                   }
                   generator.GState = ${ST_CLOSED};
-                  if (generator.yieldReturn !== undefined) {
-                    throw new ${TRACEUR_RUNTIME}.
-                        GeneratorReturn(generator.yieldReturn);
-                  }
-                  throw ${TRACEUR_RUNTIME}.StopIteration;
-              }
-            },
-
-            close: function() {
-              switch (generator.GState) {
-                case ${ST_EXECUTING}:
-                  throw new Error('"close" on executing generator');
-                case ${ST_CLOSED}:
-                  return;
-                case ${ST_NEWBORN}:
-                  generator.GState = ${ST_CLOSED};
-                  return;
-                case ${ST_SUSPENDED}:
-                  generator.GState = ${ST_EXECUTING};
-                  generator.moveNext(undefined, ${ACTION_CLOSE});
-                  generator.GState = ${ST_CLOSED};
+                  return {value: generator.yieldReturn, done: true};
               }
             }
           });
