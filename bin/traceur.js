@@ -12677,18 +12677,14 @@ var $___src_codegeneration_ArrayComprehensionTransformer_js = (function() {
     'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ArrayComprehensionTransformer = ($__createClass)({
-      constructor: function(identifierGenerator) {
-        $__superCall(this, $__proto, "constructor", [identifierGenerator]);
-        this.indexName = '';
-        this.resultName = '';
+      constructor: function() {
+        $__superCall(this, $__proto, "constructor", arguments);
       },
       transformArrayComprehension: function(tree) {
         this.pushTempVarState();
         var expression = this.transformAny(tree.expression);
-        this.indexName = this.getTempIdentifier();
-        this.resultName = this.getTempIdentifier();
-        var index = createIdentifierExpression(this.indexName);
-        var result = createIdentifierExpression(this.resultName);
+        var index = createIdentifierExpression(this.getTempIdentifier());
+        var result = createIdentifierExpression(this.getTempIdentifier());
         var statement = parseStatement($__0, result, index, expression);
         var returnStatement = parseStatement($__1, result);
         var isGenerator = false;
@@ -12697,7 +12693,7 @@ var $___src_codegeneration_ArrayComprehensionTransformer_js = (function() {
         this.popTempVarState();
         return result;
       }
-    }, {}, $__proto, $__super, true);
+    }, {}, $__proto, $__super, false);
     return $ArrayComprehensionTransformer;
   }(ComprehensionTransformer);
   ArrayComprehensionTransformer.transformTree = function(identifierGenerator, tree) {

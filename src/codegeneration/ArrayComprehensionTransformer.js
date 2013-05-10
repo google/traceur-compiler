@@ -55,22 +55,13 @@ import {parseStatement} from './PlaceholderParser.js';
  */
 export class ArrayComprehensionTransformer extends ComprehensionTransformer {
 
-  constructor(identifierGenerator) {
-    super.constructor(identifierGenerator);
-    this.indexName = '';
-    this.resultName = '';
-  }
-
   transformArrayComprehension(tree) {
     this.pushTempVarState();
 
     var expression = this.transformAny(tree.expression);
 
-    this.indexName = this.getTempIdentifier();
-    this.resultName = this.getTempIdentifier();
-
-    var index = createIdentifierExpression(this.indexName);
-    var result = createIdentifierExpression(this.resultName);
+    var index = createIdentifierExpression(this.getTempIdentifier());
+    var result = createIdentifierExpression(this.getTempIdentifier());
 
     var statement = parseStatement `${result}[${index}++] = ${expression};`;
 
