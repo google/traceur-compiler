@@ -12668,9 +12668,8 @@ var $___src_codegeneration_PlaceholderParser_js = (function() {
 }).call(this);
 var $___src_codegeneration_ArrayComprehensionTransformer_js = (function() {
   "use strict";
-  var $__0 = Object.freeze(Object.defineProperties(["", "[", "++] = ", ";"], {raw: {value: Object.freeze(["", "[", "++] = ", ";"])}})), $__1 = Object.freeze(Object.defineProperties(["return ", ";"], {raw: {value: Object.freeze(["return ", ";"])}})), $__2 = Object.freeze(Object.defineProperties(["var ", " = 0, ", " = [];"], {raw: {value: Object.freeze(["var ", " = 0, ", " = [];"])}}));
+  var $__0 = Object.freeze(Object.defineProperties(["var ", " = 0, ", " = [];"], {raw: {value: Object.freeze(["var ", " = 0, ", " = [];"])}})), $__1 = Object.freeze(Object.defineProperties(["", "[", "++] = ", ";"], {raw: {value: Object.freeze(["", "[", "++] = ", ";"])}})), $__2 = Object.freeze(Object.defineProperties(["return ", ";"], {raw: {value: Object.freeze(["return ", ";"])}}));
   var ComprehensionTransformer = $___src_codegeneration_ComprehensionTransformer_js.ComprehensionTransformer;
-  var PLUS_PLUS = $___src_syntax_TokenType_js.PLUS_PLUS;
   var createIdentifierExpression = $___src_codegeneration_ParseTreeFactory_js.createIdentifierExpression;
   var parseStatement = $___src_codegeneration_PlaceholderParser_js.parseStatement;
   var ArrayComprehensionTransformer = function($__super) {
@@ -12685,10 +12684,10 @@ var $___src_codegeneration_ArrayComprehensionTransformer_js = (function() {
         var expression = this.transformAny(tree.expression);
         var index = createIdentifierExpression(this.getTempIdentifier());
         var result = createIdentifierExpression(this.getTempIdentifier());
-        var statement = parseStatement($__0, result, index, expression);
-        var returnStatement = parseStatement($__1, result);
+        var prelude = parseStatement($__0, index, result);
+        var statement = parseStatement($__1, result, index, expression);
+        var returnStatement = parseStatement($__2, result);
         var isGenerator = false;
-        var prelude = parseStatement($__2, index, result);
         var result = this.transformComprehension(tree, statement, isGenerator, returnStatement, prelude);
         this.popTempVarState();
         return result;
