@@ -37,6 +37,7 @@ import {
   createBooleanLiteral,
   createCommaExpression,
   createExpressionStatement,
+  createFunctionBody,
   createGetAccessor,
   createIdentifierExpression,
   createIdentifierToken,
@@ -290,6 +291,19 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
         return transformedStatement;
     }
     return super.transformBlock(tree);
+  }
+
+  transformFunctionBody(tree) {
+    if (tree.statements.length === 1 &&
+        tree.statements[0].type === EXPRESSION_STATEMENT) {
+      var transformedStatement =
+          this.transformExpressionStatement(tree.statements[0]);
+      if (transformedStatement === tree.statements[0])
+        return tree;
+      if (transformedStatement.type === BLOCK)
+        return createFunctionBody(transformedStatement.statements);
+    }
+    return super.transformFunctionBody(tree);
   }
 
   transformGetAccessor(tree) {

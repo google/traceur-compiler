@@ -404,6 +404,14 @@
       "Array.<ParseTree>"
     ]
   },
+  "FunctionBody": {
+    "location": [
+      "SourceRange"
+    ],
+    "statements": [
+      "Array.<ParseTree>"
+    ]
+  },
   "//": "FunctionDeclaration and FunctionExpression needs to have the exact same shape",
   "FunctionDeclaration": {
     "location": [
@@ -419,7 +427,7 @@
       "FormalParameterList"
     ],
     "functionBody": [
-      "Block"
+      "FunctionBody"
     ]
   },
   "FunctionExpression": {
@@ -436,7 +444,7 @@
       "FormalParameterList"
     ],
     "functionBody": [
-      "Block"
+      "FunctionBody"
     ]
   },
   "GeneratorComprehension": {
@@ -461,7 +469,7 @@
       "Token"
     ],
     "body": [
-      "Block"
+      "FunctionBody"
     ]
   },
   "IdentifierExpression": {
@@ -714,7 +722,7 @@
       "FormalParameterList"
     ],
     "functionBody": [
-      "Block"
+      "FunctionBody"
     ]
   },
   "PropertyNameAssignment": {
@@ -766,7 +774,7 @@
       "BindingElement"
     ],
     "body": [
-      "Block"
+      "FunctionBody"
     ]
   },
   "SpreadExpression": {

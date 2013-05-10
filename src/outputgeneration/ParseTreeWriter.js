@@ -497,6 +497,15 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
+   * @param {FunctionBody} tree
+   */
+  visitFunctionBody(tree) {
+    this.write_(OPEN_CURLY);
+    this.writelnList_(tree.statements);
+    this.write_(CLOSE_CURLY);
+  }
+
+  /**
    * @param {FunctionDeclaration} tree
    */
   visitFunctionDeclaration(tree) {

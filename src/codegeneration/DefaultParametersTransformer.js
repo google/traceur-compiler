@@ -14,34 +14,18 @@
 
 import {
   isUndefined,
-  isVoidExpression,
-  isLiteralExpression
+  isVoidExpression
 } from '../semantics/util.js';
-import {
-  FormalParameterList,
-  FunctionDeclaration,
-  FunctionExpression
-} from '../syntax/trees/ParseTrees.js';
-import {ParseTreeTransformer} from './ParseTreeTransformer.js';
-import {
-  ARGUMENTS,
-  UNDEFINED
-} from '../syntax/PredefinedName.js';
-import {
-  IDENTIFIER_EXPRESSION,
-  LITERAL_EXPRESSION,
-  PAREN_EXPRESSION,
-  REST_PARAMETER,
-  UNARY_EXPRESSION
-} from '../syntax/trees/ParseTreeType.js';
+import {FormalParameterList} from '../syntax/trees/ParseTrees.js';
+import {ParameterTransformer} from './ParameterTransformer.js';
+import {ARGUMENTS} from '../syntax/PredefinedName.js';
+import {REST_PARAMETER} from '../syntax/trees/ParseTreeType.js';
 import {
   NOT_EQUAL_EQUAL,
-  VAR,
-  VOID
+  VAR
 } from '../syntax/TokenType.js';
 import {
   createBinaryOperator,
-  createBlock,
   createConditionalExpression,
   createIdentifierExpression,
   createMemberLookupExpression,
@@ -51,8 +35,6 @@ import {
   createVoid0
 } from './ParseTreeFactory.js';
 import {prependStatements} from './PrependStatements.js';
-
-var stack = [];
 
 function createDefaultAssignment(index, binding, initializer) {
   var argumentsExpression =
@@ -86,41 +68,10 @@ function createDefaultAssignment(index, binding, initializer) {
  *
  * @see <a href="http://wiki.ecmascript.org/doku.php?id=harmony:parameter_default_values">harmony:parameter_default_values</a>
  */
-export class DefaultParametersTransformer extends ParseTreeTransformer {
-
-  transformFunctionExpression(tree) {
-    return this.transformFunction_(tree, FunctionExpression);
-  }
-
-  transformFunctionDeclaration(tree) {
-    return this.transformFunction_(tree, FunctionDeclaration);
-  }
-
-  transformFunction_(tree, constructor) {
-    stack.push([]);
-
-    var transformedTree = constructor === FunctionExpression ?
-        super.transformFunctionExpression(tree) :
-        super.transformFunctionDeclaration(tree);
-
-    var statements = stack.pop();
-    if (!statements.length)
-      return transformedTree;
-
-    // Prepend the var statements to the block.
-    statements = prependStatements(transformedTree.functionBody.statements,
-                                   ...statements);
-
-    return new constructor(transformedTree.location,
-                           transformedTree.name,
-                           transformedTree.isGenerator,
-                           transformedTree.formalParameterList,
-                           createBlock(statements));
-  }
+export class DefaultParametersTransformer extends ParameterTransformer {
 
   transformFormalParameterList(tree) {
     var parameters = [];
-    var statements = stack[stack.length - 1];
     var changed = false;
     var defaultToUndefined = false;
     for (var i = 0; i < tree.parameters.length; i++) {
@@ -141,7 +92,7 @@ export class DefaultParametersTransformer extends ParseTreeTransformer {
       } else {
         defaultToUndefined = true;
         changed = true;
-        statements.push(
+        this.parameterStatements.push(
             createDefaultAssignment(i, param.binding, param.initializer));
       }
     }
@@ -153,10 +104,11 @@ export class DefaultParametersTransformer extends ParseTreeTransformer {
   }
 
   /**
+   * @param {UniqueIdentifierGenerator} identifierGenerator
    * @param {ParseTree} tree
    * @return {ParseTree}
    */
-  static transformTree(tree) {
-    return new DefaultParametersTransformer().transformAny(tree);
+  static transformTree(identifierGenerator, tree) {
+    return new DefaultParametersTransformer(identifierGenerator).transformAny(tree);
   }
 }

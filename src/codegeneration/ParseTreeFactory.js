@@ -340,32 +340,22 @@ export function createBlock(statements) {
 }
 
 /**
- * @param {Array.<ParseTree>|ParseTree} statements
- * @param {...ParseTree} var_args
- * @return {ParseTree}
+ * @param {Array.<ParseTree>} statements
+ * @return {FunctionBody}
  */
-export function createScopedStatements(statements) {
-  if (statements instanceof ParseTree)
-    statements = slice(arguments);
-  return createScopedBlock(createBlock(statements));
+export function createFunctionBody(statements) {
+  return new FunctionBody(null, statements);
 }
 
 /**
- * @param {Block} block
- * @return {ParseTree}
- */
-export function createScopedBlock(block) {
-  return createExpressionStatement(createScopedExpression(block));
-}
-
-/**
- * @param {Block} block
+ * @param {FunctionBody} body
  * @return {CallExpression}
  */
-export function createScopedExpression(block) {
+export function createScopedExpression(body) {
+  traceur.assert(body.type === 'FUNCTION_BODY');
   return createCallCall(
       createParenExpression(
-          createFunctionExpression(createEmptyParameterList(), block)),
+          createFunctionExpression(createEmptyParameterList(), body)),
       createThisExpression());
 }
 
@@ -575,12 +565,13 @@ export function createForStatement(variables, condition, increment, body) {
 
 /**
  * @param {FormalParameterList} formalParameterList
- * @param {Block} functionBody
+ * @param {FunctionBody} body
  * @return {FunctionExpression}
  */
-export function createFunctionExpression(formalParameterList, functionBody) {
+export function createFunctionExpression(formalParameterList, body) {
+  traceur.assert(body.type === 'FUNCTION_BODY');
   return new FunctionExpression(null, null, false,
-                                formalParameterList, functionBody);
+                                formalParameterList, body);
 }
 
 // get name () { ... }

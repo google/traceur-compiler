@@ -26,7 +26,6 @@ import {VAR} from '../syntax/TokenType.js';
 import {
   createArgumentList,
   createAssignmentExpression,
-  createBlock,
   createCallExpression,
   createCallStatement,
   createExpressionStatement,

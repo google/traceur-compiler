@@ -18,11 +18,11 @@ import {
   FormalParameterList
 } from '../syntax/trees/ParseTrees.js';
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
-import {BLOCK} from '../syntax/trees/ParseTreeType.js';
+import {FUNCTION_BODY} from '../syntax/trees/ParseTreeType.js';
 import {
   createArgumentList,
-  createBlock,
   createCallExpression,
+  createFunctionBody,
   createFunctionExpression,
   createMemberExpression,
   createParenExpression,
@@ -56,7 +56,7 @@ export class ArrowFunctionTransformer extends ParseTreeTransformer {
   /**
    * Transforms an arrow function expression into a function declaration.
    * The main things we need to deal with are the 'this' binding, and adding a
-   * block and return statement if needed.
+   * function body and return statement if needed.
    */
   transformArrowFunctionExpression(tree) {
     var parameters;
@@ -67,9 +67,9 @@ export class ArrowFunctionTransformer extends ParseTreeTransformer {
     }
 
     var functionBody = this.transformAny(tree.functionBody);
-    if (functionBody.type != BLOCK) {
+    if (functionBody.type != FUNCTION_BODY) {
       // { return expr; }
-      functionBody = createBlock(createReturnStatement(functionBody));
+      functionBody = createFunctionBody([createReturnStatement(functionBody)]);
     }
 
     // function(params) { ... }

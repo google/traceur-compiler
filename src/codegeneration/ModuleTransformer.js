@@ -46,10 +46,10 @@ import {
 import {
   createArgumentList,
   createBindingIdentifier,
-  createBlock,
   createCallExpression,
   createEmptyParameterList,
   createExpressionStatement,
+  createFunctionBody,
   createFunctionExpression,
   createIdentifierExpression,
   createIdentifierToken,
@@ -111,8 +111,7 @@ function getGetterExport(project, symbol) {
   // function() { return <returnExpression>; }
   var fun = createFunctionExpression(
       createEmptyParameterList(),
-      createBlock(
-          createReturnStatement(returnExpression)));
+      createFunctionBody([createReturnStatement(returnExpression)]));
 
   // NAME: { get: ... }
   var descriptor = createPropertyDescriptor({
@@ -336,7 +335,7 @@ function transformModuleElements(project, module, elements, useStrictCount) {
 
   // const M = (function() { statements }).call(this);
   // TODO(arv): const is not allowed in ES5 strict
-  return createScopedExpression(createBlock(statements));
+  return createScopedExpression(createFunctionBody(statements));
 }
 
 /**

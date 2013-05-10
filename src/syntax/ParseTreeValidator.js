@@ -70,6 +70,7 @@ import {
   EXPORT_STAR,
   FINALLY,
   FORMAL_PARAMETER_LIST,
+  FUNCTION_BODY,
   FUNCTION_DECLARATION,
   GET_ACCESSOR,
   IDENTIFIER_EXPRESSION,
@@ -300,14 +301,13 @@ export class ParseTreeValidator extends ParseTreeVisitor {
     this.visitAny(tree.initializer);
   }
 
-
   /**
    * @param {Block} tree
    */
   visitBlock(tree) {
     for (var i = 0; i < tree.statements.length; i++) {
       var statement = tree.statements[i];
-      this.checkVisit_(statement.isSourceElement(), statement,
+      this.checkVisit_(statement.isStatementListItem(), statement,
           'statement or function declaration expected');
     }
   }
@@ -588,6 +588,17 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   }
 
   /**
+   * @param {Block} tree
+   */
+  visitFunctionBody(tree) {
+    for (var i = 0; i < tree.statements.length; i++) {
+      var statement = tree.statements[i];
+      this.checkVisit_(statement.isStatementListItem(), statement,
+          'statement expected');
+    }
+  }
+
+  /**
    * @param {FunctionDeclaration} tree
    */
   visitFunctionDeclaration(tree) {
@@ -614,16 +625,16 @@ export class ParseTreeValidator extends ParseTreeVisitor {
                     tree.formalParameterList,
                     'formal parameters expected');
 
-    this.checkType_(BLOCK,
+    this.checkType_(FUNCTION_BODY,
                     tree.functionBody,
-                    'block expected');
+                    'function body expected');
   }
 
   /**
    * @param {GetAccessor} tree
    */
   visitGetAccessor(tree) {
-    this.checkType_(BLOCK, tree.body, 'block expected');
+    this.checkType_(FUNCTION_BODY, tree.body, 'function body expected');
   }
 
   /**
@@ -880,7 +891,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {SetAccessor} tree
    */
   visitSetAccessor(tree) {
-    this.checkType_(BLOCK, tree.body, 'block expected');
+    this.checkType_(FUNCTION_BODY, tree.body, 'function body expected');
   }
 
   /**
