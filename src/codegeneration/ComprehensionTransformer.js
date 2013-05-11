@@ -75,15 +75,18 @@ export class ComprehensionTransformer extends TempVarTransformer {
    * @param {ParseTree} statement The statement that goes inside the innermost
    *     loop (and if if present).
    * @param {boolean} isGenerator
-
-   * @param {ParseTree=} returnStatement
+   * @param {ParseTree=} prefix
+   * @param {ParseTree=} suffix
    * @return {ParseTree}
    */
-  transformComprehension(tree, statement, isGenerator, returnStatement) {
+  transformComprehension(tree, statement, isGenerator,
+      prefix = undefined, suffix = undefined) {
 
     // This should really be a let but we don't support let in generators.
     // https://code.google.com/p/traceur-compiler/issues/detail?id=6
     var bindingKind = isGenerator || !options.blockBinding ? VAR : LET;
+
+    var statements = prefix ? [prefix] : [];
 
     for (var i = tree.comprehensionList.length - 1; i >= 0; i--) {
       var item = tree.comprehensionList[i];
@@ -119,9 +122,9 @@ export class ComprehensionTransformer extends TempVarTransformer {
                                       tempVar);
     }
 
-    var statements = [statement];
-    if (returnStatement)
-      statements.push(returnStatement);
+    statements.push(statement);
+    if (suffix)
+      statements.push(suffix);
 
     var func = new FunctionExpression(null, null, isGenerator,
                                       createEmptyParameterList(),

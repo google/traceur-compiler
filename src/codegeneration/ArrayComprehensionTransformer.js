@@ -13,16 +13,8 @@
 // limitations under the License.
 
 import {ComprehensionTransformer} from './ComprehensionTransformer.js';
-import {PLUS_PLUS} from '../syntax/TokenType.js';
-import {
-  createArrayLiteralExpression,
-  createAssignmentStatement,
-  createIdentifierExpression,
-  createMemberLookupExpression,
-  createNumberLiteral,
-  createPostfixExpression,
-  createReturnStatement
-} from './ParseTreeFactory.js';
+import {createIdentifierExpression} from './ParseTreeFactory.js';
+import {parseStatement} from './PlaceholderParser.js';
 
 /**
  * Array Comprehension Transformer:
@@ -55,24 +47,23 @@ import {
 export class ArrayComprehensionTransformer extends ComprehensionTransformer {
 
   transformArrayComprehension(tree) {
+    this.pushTempVarState();
+
     var expression = this.transformAny(tree.expression);
 
-    var indexName = this.addTempVar(createNumberLiteral(0));
-    var resultName = this.addTempVar(createArrayLiteralExpression([]));
-    var resultIdentifier = createIdentifierExpression(resultName);
+    var index = createIdentifierExpression(this.getTempIdentifier());
+    var result = createIdentifierExpression(this.getTempIdentifier());
 
-    var statement = createAssignmentStatement(
-        createMemberLookupExpression(
-            resultIdentifier,
-            createPostfixExpression(createIdentifierExpression(indexName),
-                                    PLUS_PLUS)),
-        expression);
-
-    var returnStatement = createReturnStatement(resultIdentifier);
+    var tempVarsStatatement = parseStatement `var ${index} = 0, ${result} = [];`;
+    var statement = parseStatement `${result}[${index}++] = ${expression};`;
+    var returnStatement = parseStatement `return ${result};`;
     var isGenerator = false;
 
-    return this.transformComprehension(tree, statement, isGenerator,
-                                       returnStatement);
+    var result = this.transformComprehension(tree, statement, isGenerator,
+                                             tempVarsStatatement,
+                                             returnStatement);
+    this.popTempVarState();
+    return result;
   }
 }
 
