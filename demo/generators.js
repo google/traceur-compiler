@@ -1,25 +1,20 @@
 
 // Example 1. Writing an iterator over an array
 
+import {iterator} from '@iter';
+
 function iterateElements(array) {
-  return {
-    __iterator__: function() {
-      var index = 0;
-      var current;
-      return {
-        get current() {
-          return current;
-        },
-        moveNext: function() {
-          if (index < array.length) {
-            current = array[index++];
-            return true;
-          }
-          return false;
-        }
-      };
+  var index = 0;
+  var rv = {};
+  rv[iterator] = {
+      next() {
+        if (index < array.length)
+          return {value: array[index++], done: false};
+        return {done: true};
+      }
     }
   };
+  return rv;
 }
 
 function* iterateElements2(array) {
