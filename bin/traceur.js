@@ -12110,10 +12110,10 @@ var $___src_codegeneration_ComprehensionTransformer_js = (function() {
         $__superCall(this, $__proto, "constructor", arguments);
       },
       transformComprehension: function(tree, statement, isGenerator) {
-        var returnStatement = arguments[3];
-        var prelude = arguments[4];
+        var prefix = arguments[3];
+        var suffix = arguments[4];
         var bindingKind = isGenerator || !options.blockBinding ? VAR: LET;
-        var statements = prelude ? [prelude]: [];
+        var statements = prefix ? [prefix]: [];
         for (var i = tree.comprehensionList.length - 1; i >= 0; i--) {
           var item = tree.comprehensionList[i];
           switch (item.type) {
@@ -12142,7 +12142,7 @@ var $___src_codegeneration_ComprehensionTransformer_js = (function() {
           statement = AlphaRenamer.rename(statement, THIS, tempVar);
         }
         statements.push(statement);
-        if (returnStatement) statements.push(returnStatement);
+        if (suffix) statements.push(suffix);
         var func = new FunctionExpression(null, null, isGenerator, createEmptyParameterList(), createFunctionBody(statements));
         return createParenExpression(createCallExpression(func));
       }
@@ -12684,11 +12684,11 @@ var $___src_codegeneration_ArrayComprehensionTransformer_js = (function() {
         var expression = this.transformAny(tree.expression);
         var index = createIdentifierExpression(this.getTempIdentifier());
         var result = createIdentifierExpression(this.getTempIdentifier());
-        var prelude = parseStatement($__0, index, result);
+        var tempVarsStatatement = parseStatement($__0, index, result);
         var statement = parseStatement($__1, result, index, expression);
         var returnStatement = parseStatement($__2, result);
         var isGenerator = false;
-        var result = this.transformComprehension(tree, statement, isGenerator, returnStatement, prelude);
+        var result = this.transformComprehension(tree, statement, isGenerator, tempVarsStatatement, returnStatement);
         this.popTempVarState();
         return result;
       }
