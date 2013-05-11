@@ -18114,6 +18114,7 @@ var $___src_codegeneration_SpreadTransformer_js = (function() {
       desugarCallSpread_: function(tree) {
         var operand = this.transformAny(tree.operand);
         var functionObject, contextObject;
+        this.pushTempVarState();
         if (operand.type == MEMBER_EXPRESSION) {
           var tempIdent = createIdentifierExpression(this.addTempVar());
           var parenExpression = createParenExpression(createAssignmentExpression(tempIdent, operand.operand));
@@ -18130,6 +18131,7 @@ var $___src_codegeneration_SpreadTransformer_js = (function() {
           contextObject = createNullLiteral();
           functionObject = operand;
         }
+        this.popTempVarState();
         var arrayExpression = this.createArrayFromElements_(tree.args.args, false);
         return createCallExpression(createMemberExpression(functionObject, APPLY), createArgumentList(contextObject, arrayExpression));
       },

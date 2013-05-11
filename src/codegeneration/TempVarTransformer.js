@@ -150,7 +150,7 @@ export class TempVarTransformer extends ParseTreeTransformer {
 
   /**
    * Pushes a new temporary variable state. This is useful if you know that
-   * your temporary variable can be reused sooner thatn after the current
+   * your temporary variable can be reused sooner than after the current
    * lexical scope has been exited.
    */
   pushTempVarState() {
