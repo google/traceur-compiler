@@ -16,7 +16,7 @@ suite('getopt', function() {
   var Getopt;
 
   setup(function() {
-    Getopt = require('../../../src/node/getopt.js').Getopt;
+    Getopt = Getopt || require('../../../src/node/getopt.js').Getopt;
   });
 
   test('invalid long options', function() {
