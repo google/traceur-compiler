@@ -138,6 +138,8 @@ export class SpreadTransformer extends TempVarTransformer {
     var operand = this.transformAny(tree.operand);
     var functionObject, contextObject;
 
+    this.pushTempVarState();
+
     if (operand.type == MEMBER_EXPRESSION) {
       // expr.fun(a, ...b, c)
       //
@@ -174,6 +176,8 @@ export class SpreadTransformer extends TempVarTransformer {
       contextObject = createNullLiteral();
       functionObject = operand;
     }
+
+    this.popTempVarState();
 
     // functionObject.apply(contextObject, expandedArgs)
     var arrayExpression = this.createArrayFromElements_(tree.args.args, false);
