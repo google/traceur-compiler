@@ -7656,13 +7656,10 @@ var $___src_syntax_LiteralToken_js = (function() {
       parse: function() {
         if (this.value.indexOf('\\') === - 1) return this.value.slice(1, - 1);
         var result = '';
-        {
-          var $__5 = $traceurRuntime.getIterator(this), $__6;
-          while (!($__6 = $__5.next()).done) {
-            var ch = $__6.value;
-            {
-              result += ch === '\\' ? this.parseEscapeSequence(): ch;
-            }
+        for (var $__5 = $traceurRuntime.getIterator(this), $__6; !($__6 = $__5.next()).done;) {
+          var ch = $__6.value;
+          {
+            result += ch === '\\' ? this.parseEscapeSequence(): ch;
           }
         }
         return result;
@@ -14004,7 +14001,7 @@ var $___src_codegeneration_DestructuringTransformer_js = (function() {
 }).call(this);
 var $___src_codegeneration_ForOfTransformer_js = (function() {
   "use strict";
-  var $__3 = Object.freeze(Object.defineProperties(["", " = ", ".value;"], {raw: {value: Object.freeze(["", " = ", ".value;"])}})), $__2 = Object.freeze(Object.defineProperties(["{\n      var ", " = ", ".getIterator(", "),\n          ", ";\n      while (!(", " = ", ".next()).done) {\n        ", ";\n        ", ";\n      }\n    }"], {raw: {value: Object.freeze(["{\n      var ", " = ", ".getIterator(", "),\n          ", ";\n      while (!(", " = ", ".next()).done) {\n        ", ";\n        ", ";\n      }\n    }"])}}));
+  var $__3 = Object.freeze(Object.defineProperties(["", " = ", ".value;"], {raw: {value: Object.freeze(["", " = ", ".value;"])}})), $__2 = Object.freeze(Object.defineProperties(["\n        for (var ", " =\n                 ", ".getIterator(", "),\n                 ", ";\n             !(", " = ", ".next()).done; ) {\n          ", ";\n          ", ";\n        }"], {raw: {value: Object.freeze(["\n        for (var ", " =\n                 ", ".getIterator(", "),\n                 ", ";\n             !(", " = ", ".next()).done; ) {\n          ", ";\n          ", ";\n        }"])}}));
   var TRACEUR_RUNTIME = $___src_syntax_PredefinedName_js.TRACEUR_RUNTIME;
   var VARIABLE_DECLARATION_LIST = $___src_syntax_trees_ParseTreeType_js.VARIABLE_DECLARATION_LIST;
   var TempVarTransformer = $___src_codegeneration_TempVarTransformer_js.TempVarTransformer;
