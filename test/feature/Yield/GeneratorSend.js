@@ -9,17 +9,6 @@ function assertThrownErrorIs(str, func) {
   assert.equal(str, e.message);
 }
 
-import {isStopIteration} from '@iter';
-
-function assertThrowsStopIteration(fn) {
-  if (!isStopIteration(assertThrows(fn)))
-    fail('[object StopIteration] expected');
-}
-
-function assertClosed(g) {
-  assertThrownErrorIs('"send" on closed generator', () => g.next());
-}
-
 //-----------------------------------------------------------------------------
 
 function id(G) {
@@ -84,11 +73,10 @@ function* G2() {
 }
 
 var closeMethods = [
-  (g) => g.close(),
   (g) => assertThrownEquals(42, () => g.throw(42)),
   (g) => {
-    assert.equal(1, g.next());
-    assertThrowsStopIteration(() => g.next());
+    assert.deepEqual({value: 1, done: false}, g.next());
+    assert.deepEqual({value: undefined, done: true}, g.next());
   }
 ];
 
@@ -110,7 +98,8 @@ for (var i = 0; i < 8; i++) {
   assertThrownErrorIs('Sent value to newborn generator', () => g.send(42));
 }
 
-assert.doesNotThrow(() => assert.equal(1, g.send(undefined)));
+assert.deepEqual({value: 1, done: false}, g.send(undefined));
+
 
 //-----------------------------------------------------------------------------
 //
@@ -221,17 +210,17 @@ function sendD(g, v) {
 
 function testfib(fibonacci, next, send) {
   var sequence = fibonacci();
-  assert.equal(1, sequence.next());
-  assert.equal(1, next(sequence));
-  assert.equal(2, next(sequence));
-  assert.equal(3, next(sequence));
-  assert.equal(5, next(sequence));
-  assert.equal(8, next(sequence));
-  assert.equal(13, next(sequence));
-  assert.equal(1, send(sequence, true));
-  assert.equal(1, next(sequence));
-  assert.equal(2, next(sequence));
-  assert.equal(3, next(sequence));
+  assert.deepEqual({value: 1, done: false}, sequence.next());
+  assert.deepEqual({value: 1, done: false}, next(sequence));
+  assert.deepEqual({value: 2, done: false}, next(sequence));
+  assert.deepEqual({value: 3, done: false}, next(sequence));
+  assert.deepEqual({value: 5, done: false}, next(sequence));
+  assert.deepEqual({value: 8, done: false}, next(sequence));
+  assert.deepEqual({value: 13, done: false}, next(sequence));
+  assert.deepEqual({value: 1, done: false}, send(sequence, true));
+  assert.deepEqual({value: 1, done: false}, next(sequence));
+  assert.deepEqual({value: 2, done: false}, next(sequence));
+  assert.deepEqual({value: 3, done: false}, next(sequence));
 }
 
 //----

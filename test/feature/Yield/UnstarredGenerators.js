@@ -1,22 +1,10 @@
 // Options: --unstarredGenerators
 
-function isStopIteration(s) {
-  // Maybe something more rigorous later.
-  return typeof s === 'object' && String(s) === '[object StopIteration]';
-}
-
-function assertThrowsStopIteration(fn) {
-  if (!isStopIteration(assertThrows(fn)))
-    fail('[object StopIteration] expected');
-}
-
-//-----------------------------------------------------------------------------
-
 function G() {
   yield 42;
 }
 
 var g = G();
 
-assert.equal(42, g.next());
-assertThrowsStopIteration(() => g.next());
+assert.deepEqual({value: 42, done: false}, g.next());
+assert.deepEqual({value: undefined, done: true}, g.next());

@@ -1,7 +1,3 @@
-function assertThrownEquals(x, fn) {
-  assert.equal(x, assertThrows(fn));
-}
-
 function assertThrownErrorIs(str, fn) {
   var e = assertThrows(fn);
   if (!e instanceof Error)
@@ -10,22 +6,8 @@ function assertThrownErrorIs(str, fn) {
   assert.equal(str, e.message);
 }
 
-import {isStopIteration} from '@iter';
-
-function assertThrowsStopIteration(fn) {
-  var e = assertThrows(fn);
-  if (!isStopIteration(e))
-    fail('[object StopIteration] expected');
-  return e;
-}
-
 function assertClosed(g) {
   assertThrownErrorIs('"send" on closed generator', () => g.next());
-}
-
-function assertThrownReturnEquals(x, f) {
-  var e = assertThrowsStopIteration(f);
-  assert.equal(x, e.value);
 }
 
 //-----------------------------------------------------------------------------
@@ -97,16 +79,16 @@ var tests = [
 
   tests.forEach(([G, y, r]) => {
     var g = W(G)();
-    y.forEach((x) => assert.equal(x, g.next()));
+    y.forEach((x) => assert.deepEqual({value: x, done: false}, g.next()));
 
-    assertThrownReturnEquals(r, () => g.next());
+    assert.deepEqual({value: r, done: true}, g.next());
     assertClosed(g);
   });
 
   //----
 
   g = W(G6)();
-  assert.equal(1000, g.next());
-  assertThrownReturnEquals(43, () => g.throw());
+  assert.deepEqual({value: 1000, done: false}, g.next());
+  assert.deepEqual({value: 43, done: true}, g.throw());
 
 });

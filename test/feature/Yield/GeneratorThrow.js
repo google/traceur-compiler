@@ -10,13 +10,6 @@ function assertThrownErrorIs(str, fn) {
   assert.equal(str, e.message);
 }
 
-import {isStopIteration} from '@iter';
-
-function assertThrowsStopIteration(fn) {
-  if (!isStopIteration(assertThrows(fn)))
-    fail('[object StopIteration] expected');
-}
-
 function assertClosed(g) {
   assertThrownErrorIs('"send" on closed generator', () => g.next());
 }
@@ -84,14 +77,17 @@ function* G2() {
 //   (this is the same as closed, really)
 
 var closeMethods = [
-  (g) => g.close(),
   (g) => {
-    assertArrayEquals([1, '(22)', 3], [g.next(), g.throw(22), g.next()]);
+    assert.deepEqual({value: 1, done: false}, g.next());
+    assert.deepEqual({value: '(22)', done: false}, g.throw(22));
+    assert.deepEqual({value: 3, done: false}, g.next());
     assertThrownEquals(42, () => g.throw(42));
   },
   (g) => {
-    assertArrayEquals([1, 2, 3], [g.next(), g.next(), g.next()]);
-    assertThrowsStopIteration(() => g.next());
+    assert.deepEqual({value: 1, done: false}, g.next());
+    assert.deepEqual({value: 2, done: false}, g.next());
+    assert.deepEqual({value: 3, done: false}, g.next());
+    assert.deepEqual({value: undefined, done: true}, g.next());
   }
 ];
 
@@ -130,9 +126,9 @@ g = W(G2)();
 // the last 'yield' with a 'throw x' and calling next() on that generator. So
 // it could either throw an exception, or return a value, depending on the
 // flow of control.
-assert.equal(1, g.next());
-assert.equal('(22)', g.throw(22));
-assert.equal(3, g.next());
+assert.deepEqual({value: 1, done: false}, g.next());
+assert.deepEqual({value: '(22)', done: false}, g.throw(22));
+assert.deepEqual({value: 3, done: false}, g.next());
 
 assertThrownEquals(44, () => g.throw(44));
 assertClosed(g);
@@ -152,8 +148,8 @@ g = W(G3)();
 // Note: this behavior differs from ionmonkey, which throws 'undefined', and
 // not StopIteration, but the StopIteration behavior better matches what I'd
 // expect, given the description from the previous test.
-assert.equal(1, g.next());
-assertThrowsStopIteration(() => g.throw(44));
+assert.deepEqual({value: 1, done: false}, g.next());
+assert.deepEqual({value: undefined, done: true}, g.throw(44));
 assertClosed(g);
 
 }); // end wrap_forEach

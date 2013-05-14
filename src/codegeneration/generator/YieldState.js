@@ -12,10 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  CURRENT,
-  RESULT
-} from '../../syntax/PredefinedName.js';
+import {CURRENT} from '../../syntax/PredefinedName.js';
 import {State} from './State.js';
 import {
   createAssignmentStatement,
@@ -64,7 +61,7 @@ export class YieldState extends State {
       // 'this' refers to the '$G' object from
       // GeneratorTransformer.transformGeneratorBody
       //
-      // this.$current = expression;
+      // this.current = expression;
       createAssignmentStatement(
           createMemberExpression(createThisExpression(), CURRENT),
           this.expression),
