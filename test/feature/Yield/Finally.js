@@ -1,15 +1,3 @@
-function isStopIteration(s) {
-  // Maybe something more rigorous later.
-  return typeof s === 'object' && String(s) === '[object StopIteration]';
-}
-
-function assertThrowsStopIteration(fn) {
-  if (!isStopIteration(assertThrows(fn)))
-    fail('[object StopIteration] expected');
-}
-
-//-----------------------------------------------------------------------------
-
 var finallyVisited = false;
 
 function* test() {
@@ -21,10 +9,10 @@ function* test() {
 }
 
 var it = test();
-assert.equal(42, it.next());
+assert.deepEqual({value: 42, done: false}, it.next());
 assert.isFalse(finallyVisited);
 
-assertThrowsStopIteration(() => it.next());
+assert.deepEqual({value: undefined, done: true}, it.next());
 assert.isTrue(finallyVisited);
 
 finallyVisited = false;

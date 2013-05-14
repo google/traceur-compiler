@@ -119,4 +119,3 @@ export function getParameterName(index) {
 // constants for generator actions
 export var ACTION_SEND = 0;
 export var ACTION_THROW = 1;
-export var ACTION_CLOSE = 2;

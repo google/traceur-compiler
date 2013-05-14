@@ -307,7 +307,6 @@
     get iterator() {
       return iteratorName;
     },
-    isStopIteration: isStopIteration
     // TODO: Implement the rest of @iter and move it to a different file that
     // gets compiled.
   };
@@ -334,73 +333,13 @@
       return {
         next: function() {
           if (index < array.length) {
-            return array[index++];
+            return {value: array[index++], done: false};
           }
-          throw StopIterationLocal;
+          return {value: undefined, done: true};
         }
       };
     }));
   }
-
-  // Generators: GeneratorReturn
-  var GeneratorReturnLocal;
-
-  function setGeneratorReturn(GeneratorReturn, global) {
-    switch (typeof GeneratorReturn) {
-      case 'function':
-        // StopIterationLocal instanceof GeneratorReturnLocal means we probably
-        // want to maintain that invariant when we change GeneratorReturnLocal.
-        if (typeof GeneratorReturnLocal === 'function' &&
-            StopIterationLocal instanceof GeneratorReturnLocal) {
-          GeneratorReturnLocal = GeneratorReturn;
-          setStopIteration(undefined, global);
-          return;
-        }
-        GeneratorReturnLocal = GeneratorReturn;
-        return;
-      case 'undefined':
-        GeneratorReturnLocal = function(v) {
-          this.value = v;
-        };
-        GeneratorReturnLocal.prototype = {
-          toString: function() {
-            return '[object GeneratorReturn ' + this.value + ']';
-          }
-        };
-        return;
-      default:
-        throw new TypeError('constructor function required');
-    }
-  }
-
-  setGeneratorReturn();
-
-  // Generators: StopIteration
-  var StopIterationLocal;
-
-  function isStopIteration(x) {
-    return x === StopIterationLocal || x instanceof GeneratorReturnLocal;
-  }
-
-  function setStopIteration(StopIteration, global) {
-    switch (typeof StopIteration) {
-      case 'object':
-        StopIterationLocal = StopIteration;
-        break;
-      case 'undefined':
-        StopIterationLocal = new GeneratorReturnLocal();
-        StopIterationLocal.toString = function() {
-          return '[object StopIteration]';
-        };
-        break;
-      default:
-        throw new TypeError('invalid StopIteration type.');
-    }
-    if (global)
-      global.StopIteration = StopIterationLocal;
-  }
-
-  setStopIteration(global.StopIteration, global);
 
   /**
    * @param {Function} canceller
@@ -512,15 +451,6 @@
   // Return the runtime namespace.
   var runtime = {
     Deferred: Deferred,
-    get GeneratorReturn() {
-      return GeneratorReturnLocal;
-    },
-    setGeneratorReturn: setGeneratorReturn,
-    get StopIteration() {
-      return StopIterationLocal;
-    },
-    setStopIteration: setStopIteration,
-    isStopIteration: isStopIteration,
     addIterator: addIterator,
     assertName: assertName,
     createName: NameModule.Name,

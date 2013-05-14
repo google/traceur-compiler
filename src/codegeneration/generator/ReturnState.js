@@ -16,22 +16,13 @@ import {
   isUndefined,
   isVoidExpression,
 } from '../../semantics/util.js';
-import {
-  CURRENT,
-  RESULT,
-  UNDEFINED,
-  YIELD_RETURN
-} from '../../syntax/PredefinedName.js';
-import {IDENTIFIER_EXPRESSION} from '../../syntax/trees/ParseTreeType.js';
+import {YIELD_RETURN} from '../../syntax/PredefinedName.js';
 import {YieldState} from './YieldState.js';
 import {State} from './State.js';
 import {
   createAssignmentStatement,
-  createIdentifierExpression,
   createMemberExpression,
-  createReturnStatement,
-  createThisExpression,
-  createTrueLiteral
+  createThisExpression
 } from '../ParseTreeFactory.js';
 
 /**
