@@ -18,7 +18,6 @@ import {
   ACTION_SEND,
   ACTION_THROW,
   ADD_ITERATOR,
-  CURRENT,
   MOVE_NEXT,
   RESULT,
   RUNTIME,
@@ -278,7 +277,7 @@ export class GeneratorTransformer extends CPSTransformer {
                   generator.GState = ${ST_EXECUTING};
                   if (generator.moveNext(x, ${ACTION_THROW})) {
                     generator.GState = ${ST_SUSPENDED};
-                    return {value: generator.${CURRENT}, done: false};
+                    return {value: generator.current, done: false};
                   }
                   generator.GState = ${ST_CLOSED};
                   return {value: generator.yieldReturn, done: true};
