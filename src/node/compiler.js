@@ -93,7 +93,7 @@ function compileToDirectory(outputFile, includes, useSourceMaps) {
     inlineAndCompile(includes.slice(current, current + 1), {}, reporter,
         function(tree) {
           var outputFile = path.join(outputDir, includes[current]);
-          var sourceRoot = path.relative(path.dirname(outputFile));
+          var sourceRoot = path.relative(path.dirname(outputFile), '.');
           writeTreeToFile(tree, outputFile, useSourceMaps, sourceRoot);
           current++;
           next();
