@@ -112,6 +112,10 @@ function processArguments(argv) {
         if (arg && arg[0] !== '-')
           i++;
       }
+    } else if (arg === '-h' || arg === '--help') {
+      // HACK: Special case for the implicit help flags, which can't have
+      // their own option, as --help would set flags.help to true, shadowing
+      // the flags.help() method.
     } else if (arg[0] === '-') {
       // HACK: Because commander.js has a flexible policy, this is the only
       // reliable way of reporting invalid flags to the user, and it's limited
