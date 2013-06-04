@@ -67,6 +67,8 @@ bin/traceur.js force:
 build/dep.mk: | $(GENSRC) node_modules
 	node build/makedep.js --depTarget bin/traceur.js $(TFLAGS) $(SRC) > $@
 
+$(TPL_GENSRC_DEPS): | node_modules
+
 src/syntax/trees/ParseTrees.js: \
   build/build-parse-trees.js src/syntax/trees/trees.json
 	node $^ > $@
