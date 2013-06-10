@@ -126,7 +126,7 @@ class YieldExpressionTransformer extends TempVarTransformer {
     // Initialize unless already cached.
     if (!throwClose) {
       // Inserted after every simple yield expression in order to handle
-      // 'throw' and 'close'. No extra action is needed to handle 'send'.
+      // 'throw'. No extra action is needed to handle 'next'.
       throwClose = parseStatement `
           if (${id(YIELD_ACTION)} == ${ACTION_THROW}) {
             ${id(YIELD_ACTION)} = ${ACTION_SEND};
@@ -225,7 +225,6 @@ class YieldExpressionTransformer extends TempVarTransformer {
   transformYieldForExpression_(tree) {
     var g = id(this.getTempIdentifier());
     var next = id(this.getTempIdentifier());
-    var isGeneratorObject = id(this.getTempIdentifier());
 
     // http://wiki.ecmascript.org/doku.php?id=harmony:generators
     // Updated on es-discuss
@@ -235,7 +234,7 @@ class YieldExpressionTransformer extends TempVarTransformer {
     // let (g = EXPR) {
     //   let received = void 0, send = true;
     //   while (true) {
-    //     let next = send ? g.send(received) : g.throw(received);
+    //     let next = send ? g.next(received) : g.throw(received);
     //     if (next.done)
     //       break;
     //     try {
@@ -253,9 +252,6 @@ class YieldExpressionTransformer extends TempVarTransformer {
         {
           var ${g} = ${id(TRACEUR_RUNTIME)}.getIterator(${tree.expression});
           var ${next};
-          // Use duck-type testing to also identify native generator objects.
-          // TODO: Reduce false positives.
-          var ${isGeneratorObject} = ${g}.send;
 
           // TODO: Should 'yield *' handle non-generator iterators? A strict
           // interpretation of harmony:generators would indicate 'no', but
@@ -268,8 +264,7 @@ class YieldExpressionTransformer extends TempVarTransformer {
 
           while (true) {
             if (${id(YIELD_ACTION)} == ${ACTION_SEND}) {
-              ${next} = ${isGeneratorObject} ?
-                  ${g}.send(${id(YIELD_SENT)}) : ${g}.next();
+              ${next} = ${g}.next(${id(YIELD_SENT)});
             } else {
               ${next} = ${g}.throw(${id(YIELD_SENT)});
             }

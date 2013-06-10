@@ -238,12 +238,12 @@ export class GeneratorTransformer extends CPSTransformer {
         `
         function (generator) {
           return ${TRACEUR_RUNTIME}.addIterator({
-            send: function(x) {
+            next: function(x) {
               switch (generator.GState) {
                 case ${ST_EXECUTING}:
-                  throw new Error('"send" on executing generator');
+                  throw new Error('"next" on executing generator');
                 case ${ST_CLOSED}:
-                  throw new Error('"send" on closed generator');
+                  throw new Error('"next" on closed generator');
                 case ${ST_NEWBORN}:
                   if (x !== undefined) {
                     throw new TypeError('Sent value to newborn generator');
@@ -258,10 +258,6 @@ export class GeneratorTransformer extends CPSTransformer {
                   generator.GState = ${ST_CLOSED};
                   return {value: generator.yieldReturn, done: true};
               }
-            },
-
-            next: function() {
-              return this.send(undefined);
             },
 
             'throw': function(x) {

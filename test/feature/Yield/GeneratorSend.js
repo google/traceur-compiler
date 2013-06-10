@@ -57,7 +57,7 @@ function* G1() {
 g = W(G1)();
 // To be nitpicky, ionmonkey throws TypeError, and not Error. I'm not checking
 // things quite that closely at this point in time.
-assertThrownErrorIs('"send" on executing generator', () => g.next());
+assertThrownErrorIs('"next" on executing generator', () => g.next());
 
 //-----------------------------------------------------------------------------
 //
@@ -84,7 +84,7 @@ closeMethods.forEach((closeMethod) => {
   g = W(G2)();
   closeMethod(g);
   for (var i = 0; i < 8; i++) {
-    assertThrownErrorIs('"send" on closed generator', () => g.next());
+    assertThrownErrorIs('"next" on closed generator', () => g.next());
   }
 });
 
@@ -95,10 +95,10 @@ closeMethods.forEach((closeMethod) => {
 
 g = W(G2)();
 for (var i = 0; i < 8; i++) {
-  assertThrownErrorIs('Sent value to newborn generator', () => g.send(42));
+  assertThrownErrorIs('Sent value to newborn generator', () => g.next(42));
 }
 
-assert.deepEqual({value: 1, done: false}, g.send(undefined));
+assert.deepEqual({value: 1, done: false}, g.next(undefined));
 
 
 //-----------------------------------------------------------------------------
@@ -197,15 +197,15 @@ function next(g) {
 }
 
 function send(g, v) {
-  return g.send(v);
+  return g.next(v);
 }
 
 function nextD(g) {
-  return g.send([]);
+  return g.next([]);
 }
 
 function sendD(g, v) {
-  return g.send([v, v]);
+  return g.next([v, v]);
 }
 
 function testfib(fibonacci, next, send) {
