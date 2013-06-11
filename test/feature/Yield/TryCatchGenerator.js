@@ -87,7 +87,7 @@ var errors;
 
 // ----------------------------------------------------------------------------
 
-errors = repeat(' [Error: "send" on closed generator]', 3);
+errors = repeat(' [Error: "next" on closed generator]', 3);
 assert.equal('1 [2]' + errors, accumulateCatch(W(throwGenerator)()));
 assert.equal('1 [2]' + errors, accumulateCatch(W(throwFromCatchGenerator)()));
 assert.equal('1 [2]' + errors, accumulateCatch(W(throwFromFinallyGenerator)()));
@@ -149,7 +149,7 @@ function accumulateCatchOOB(iterator) {
 
 // ----------------------------------------------------------------------------
 
-errors = repeat(' [Error: "send" on closed generator] <>', 3);
+errors = repeat(' [Error: "next" on closed generator] <>', 3);
 assert.equal('1 [2] <4>' + errors, accumulateCatchOOB(W(throwOOBGen)()));
 assert.equal('17(2) [8] <49>' + errors, accumulateCatchOOB(W(throwOOB2xGen)()));
 

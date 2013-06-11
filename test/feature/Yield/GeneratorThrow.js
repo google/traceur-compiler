@@ -11,7 +11,7 @@ function assertThrownErrorIs(str, fn) {
 }
 
 function assertClosed(g) {
-  assertThrownErrorIs('"send" on closed generator', () => g.next());
+  assertThrownErrorIs('"next" on closed generator', () => g.next());
 }
 
 //-----------------------------------------------------------------------------
