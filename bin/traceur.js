@@ -469,6 +469,8 @@ var $___src_util_url_js = (function() {
   }
   function resolveUrl(base, url) {
     if (url[0] === '@') return url;
+    base = base.replace(/\\/g, '/');
+    url = url.replace(/\\/g, '/');
     var parts = split(url);
     var baseParts = split(base);
     if (parts[ComponentIndex.SCHEME]) {
