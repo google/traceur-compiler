@@ -24,6 +24,7 @@
 
 var fs = require('fs');
 var path = require('path');
+var normalizePath = require('../src/node/file-util.js').normalizePath;
 
 var flags;
 var cmdName = path.basename(process.argv[1]);
@@ -58,7 +59,7 @@ if (!includes.length) {
 var ErrorReporter = traceur.util.ErrorReporter;
 
 var resolvedIncludes = includes.map(function(include) {
-  return path.resolve(include);
+  return normalizePath(path.resolve(include));
 });
 
 var reporter = new ErrorReporter();

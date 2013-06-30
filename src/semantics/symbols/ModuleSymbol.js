@@ -31,7 +31,7 @@ export class ModuleSymbol extends Symbol {
       // TODO(arv): Find offensive callers.
       console.error('Missing URL');
     }
-    this.url = url;
+    this.url = url.replace(/\\/g, '/');
   }
 
   /**

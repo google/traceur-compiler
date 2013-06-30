@@ -469,8 +469,6 @@ var $___src_util_url_js = (function() {
   }
   function resolveUrl(base, url) {
     if (url[0] === '@') return url;
-    base = base.replace(/\\/g, '/');
-    url = url.replace(/\\/g, '/');
     var parts = split(url);
     var baseParts = split(base);
     if (parts[ComponentIndex.SCHEME]) {
@@ -3233,7 +3231,7 @@ var $___src_semantics_symbols_ModuleSymbol_js = (function() {
         if (!url) {
           console.error('Missing URL');
         }
-        this.url = url;
+        this.url = url.replace(/\\/g, '/');
       },
       addModule: function(module) {
         this.addModuleWithName(module, module.name);

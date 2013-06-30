@@ -282,10 +282,6 @@ export function resolveUrl(base, url) {
   if (url[0] === '@')
     return url;
 
-  // Make Windows style path separators work.
-  base = base.replace(/\\/g, '/');
-  url = url.replace(/\\/g, '/');
-
   var parts = split(url);
   var baseParts = split(base);
 
