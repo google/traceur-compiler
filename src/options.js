@@ -257,6 +257,7 @@ addFeatureOption('spread', ON_BY_DEFAULT);             // 11.1.4, 11.2.5
 addFeatureOption('generatorComprehension', ON_BY_DEFAULT);
 addFeatureOption('generators', ON_BY_DEFAULT); // 13.4, incomplete
 addFeatureOption('modules', ON_BY_DEFAULT);    // 14
+addFeatureOption('numericLiterals', ON_BY_DEFAULT);
 
 // EXPERIMENTAL
 addFeatureOption('blockBinding', EXPERIMENTAL);       // 12.1

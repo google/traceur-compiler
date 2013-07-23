@@ -717,6 +717,7 @@ var $___src_options_js = (function() {
   addFeatureOption('generatorComprehension', ON_BY_DEFAULT);
   addFeatureOption('generators', ON_BY_DEFAULT);
   addFeatureOption('modules', ON_BY_DEFAULT);
+  addFeatureOption('numericLiterals', ON_BY_DEFAULT);
   addFeatureOption('blockBinding', EXPERIMENTAL);
   addFeatureOption('privateNameSyntax', EXPERIMENTAL);
   addFeatureOption('privateNames', EXPERIMENTAL);
@@ -7715,6 +7716,17 @@ var $___src_syntax_LiteralToken_js = (function() {
           case NULL:
             return null;
           case NUMBER:
+            var value = this.value;
+            if (value.charCodeAt(0) === 48) {
+              switch (value.charCodeAt(1)) {
+                case 66:
+                case 98:
+                  return parseInt(this.value.slice(2), 2);
+                case 79:
+                case 111:
+                  return parseInt(this.value.slice(2), 8);
+              }
+            }
             return Number(this.value);
           case STRING:
             var parser = new StringParser(this.value);
@@ -7741,6 +7753,7 @@ var $___src_syntax_Scanner_js = (function() {
   var LiteralToken = $___src_syntax_LiteralToken_js.LiteralToken;
   var Token = $___src_syntax_Token_js.Token;
   var getKeywordType = $___src_syntax_Keywords_js.getKeywordType;
+  var parseOptions = $___src_options_js.parseOptions;
   var $__10 = $___src_syntax_TokenType_js, AMPERSAND = $__10.AMPERSAND, AMPERSAND_EQUAL = $__10.AMPERSAND_EQUAL, AND = $__10.AND, ARROW = $__10.ARROW, AT_NAME = $__10.AT_NAME, AWAIT = $__10.AWAIT, BACK_QUOTE = $__10.BACK_QUOTE, BANG = $__10.BANG, BAR = $__10.BAR, BAR_EQUAL = $__10.BAR_EQUAL, BREAK = $__10.BREAK, CARET = $__10.CARET, CARET_EQUAL = $__10.CARET_EQUAL, CASE = $__10.CASE, CATCH = $__10.CATCH, CLASS = $__10.CLASS, CLOSE_ANGLE = $__10.CLOSE_ANGLE, CLOSE_CURLY = $__10.CLOSE_CURLY, CLOSE_PAREN = $__10.CLOSE_PAREN, CLOSE_SQUARE = $__10.CLOSE_SQUARE, COLON = $__10.COLON, COMMA = $__10.COMMA, CONST = $__10.CONST, CONTINUE = $__10.CONTINUE, DEBUGGER = $__10.DEBUGGER, DEFAULT = $__10.DEFAULT, DELETE = $__10.DELETE, DO = $__10.DO, DOLLAR = $__10.DOLLAR, DOT_DOT_DOT = $__10.DOT_DOT_DOT, ELSE = $__10.ELSE, END_OF_FILE = $__10.END_OF_FILE, ENUM = $__10.ENUM, EQUAL = $__10.EQUAL, EQUAL_EQUAL = $__10.EQUAL_EQUAL, EQUAL_EQUAL_EQUAL = $__10.EQUAL_EQUAL_EQUAL, ERROR = $__10.ERROR, EXPORT = $__10.EXPORT, EXTENDS = $__10.EXTENDS, FALSE = $__10.FALSE, FINALLY = $__10.FINALLY, FOR = $__10.FOR, FUNCTION = $__10.FUNCTION, GREATER_EQUAL = $__10.GREATER_EQUAL, IDENTIFIER = $__10.IDENTIFIER, IF = $__10.IF, IMPLEMENTS = $__10.IMPLEMENTS, IMPORT = $__10.IMPORT, IN = $__10.IN, INSTANCEOF = $__10.INSTANCEOF, INTERFACE = $__10.INTERFACE, LEFT_SHIFT = $__10.LEFT_SHIFT, LEFT_SHIFT_EQUAL = $__10.LEFT_SHIFT_EQUAL, LESS_EQUAL = $__10.LESS_EQUAL, LET = $__10.LET, MINUS = $__10.MINUS, MINUS_EQUAL = $__10.MINUS_EQUAL, MINUS_MINUS = $__10.MINUS_MINUS, NEW = $__10.NEW, NO_SUBSTITUTION_TEMPLATE = $__10.NO_SUBSTITUTION_TEMPLATE, NOT_EQUAL = $__10.NOT_EQUAL, NOT_EQUAL_EQUAL = $__10.NOT_EQUAL_EQUAL, NULL = $__10.NULL, NUMBER = $__10.NUMBER, OPEN_ANGLE = $__10.OPEN_ANGLE, OPEN_CURLY = $__10.OPEN_CURLY, OPEN_PAREN = $__10.OPEN_PAREN, OPEN_SQUARE = $__10.OPEN_SQUARE, OR = $__10.OR, PACKAGE = $__10.PACKAGE, PERCENT = $__10.PERCENT, PERCENT_EQUAL = $__10.PERCENT_EQUAL, PERIOD = $__10.PERIOD, PERIOD_OPEN_CURLY = $__10.PERIOD_OPEN_CURLY, PLUS = $__10.PLUS, PLUS_EQUAL = $__10.PLUS_EQUAL, PLUS_PLUS = $__10.PLUS_PLUS, PRIVATE = $__10.PRIVATE, PROTECTED = $__10.PROTECTED, PUBLIC = $__10.PUBLIC, QUESTION = $__10.QUESTION, REGULAR_EXPRESSION = $__10.REGULAR_EXPRESSION, RETURN = $__10.RETURN, RIGHT_SHIFT = $__10.RIGHT_SHIFT, RIGHT_SHIFT_EQUAL = $__10.RIGHT_SHIFT_EQUAL, SEMI_COLON = $__10.SEMI_COLON, SLASH = $__10.SLASH, SLASH_EQUAL = $__10.SLASH_EQUAL, STAR = $__10.STAR, STAR_EQUAL = $__10.STAR_EQUAL, STATIC = $__10.STATIC, STRING = $__10.STRING, SUPER = $__10.SUPER, SWITCH = $__10.SWITCH, TEMPLATE_HEAD = $__10.TEMPLATE_HEAD, TEMPLATE_MIDDLE = $__10.TEMPLATE_MIDDLE, TEMPLATE_TAIL = $__10.TEMPLATE_TAIL, THIS = $__10.THIS, THROW = $__10.THROW, TILDE = $__10.TILDE, TRUE = $__10.TRUE, TRY = $__10.TRY, TYPEOF = $__10.TYPEOF, UNSIGNED_RIGHT_SHIFT = $__10.UNSIGNED_RIGHT_SHIFT, UNSIGNED_RIGHT_SHIFT_EQUAL = $__10.UNSIGNED_RIGHT_SHIFT_EQUAL, VAR = $__10.VAR, VOID = $__10.VOID, WHILE = $__10.WHILE, WITH = $__10.WITH, YIELD = $__10.YIELD;
   var isWhitespaceArray = [];
   for (var i = 0; i < 128; i++) {
@@ -7780,6 +7793,12 @@ var $___src_syntax_Scanner_js = (function() {
   }
   function isHexDigit(code) {
     return code < 128 && isHexDigitArray[code];
+  }
+  function isBinaryDigit(code) {
+    return code === 48 || code === 49;
+  }
+  function isOctalDigit(code) {
+    return code >= 48 && code <= 55;
   }
   var isIdentifierStartArray = [];
   for (var i = 0; i < 128; i++) {
@@ -8271,6 +8290,8 @@ var $___src_syntax_Scanner_js = (function() {
   }
   function scanPostZero(beginIndex) {
     switch (currentCharCode) {
+      case 46:
+        return scanFractionalNumericLiteral(beginIndex);
       case 88:
       case 120:
         next();
@@ -8279,8 +8300,24 @@ var $___src_syntax_Scanner_js = (function() {
         }
         skipHexDigits();
         return new LiteralToken(NUMBER, getTokenString(beginIndex), getTokenRange(beginIndex));
-      case 46:
-        return scanFractionalNumericLiteral(beginIndex);
+      case 66:
+      case 98:
+        if (!parseOptions.numericLiterals) break;
+        next();
+        if (!isBinaryDigit(currentCharCode)) {
+          reportError('Binary Integer Literal must contain at least one digit');
+        }
+        skipBinaryDigits();
+        return new LiteralToken(NUMBER, getTokenString(beginIndex), getTokenRange(beginIndex));
+      case 79:
+      case 111:
+        if (!parseOptions.numericLiterals) break;
+        next();
+        if (!isOctalDigit(currentCharCode)) {
+          reportError('Octal Integer Literal must contain at least one digit');
+        }
+        skipOctalDigits();
+        return new LiteralToken(NUMBER, getTokenString(beginIndex), getTokenRange(beginIndex));
       case 48:
       case 49:
       case 50:
@@ -8292,9 +8329,8 @@ var $___src_syntax_Scanner_js = (function() {
       case 56:
       case 57:
         return scanPostDigit(beginIndex);
-      default:
-        return new LiteralToken(NUMBER, getTokenString(beginIndex), getTokenRange(beginIndex));
     }
+    return new LiteralToken(NUMBER, getTokenString(beginIndex), getTokenRange(beginIndex));
   }
   function createToken(type, beginIndex) {
     return new Token(type, getTokenRange(beginIndex));
@@ -8465,6 +8501,16 @@ var $___src_syntax_Scanner_js = (function() {
   }
   function skipHexDigits() {
     while (isHexDigit(currentCharCode)) {
+      next();
+    }
+  }
+  function skipBinaryDigits() {
+    while (isBinaryDigit(currentCharCode)) {
+      next();
+    }
+  }
+  function skipOctalDigits() {
+    while (isOctalDigit(currentCharCode)) {
       next();
     }
   }
@@ -16058,6 +16104,76 @@ var $___src_codegeneration_ModuleTransformer_js = (function() {
       enumerable: true
     }}));
 }).call(this);
+var $___src_codegeneration_NumericLiteralTransformer_js = (function() {
+  "use strict";
+  var ParseTreeTransformer = $___src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
+  var $__10 = $___src_syntax_trees_ParseTrees_js, GetAccessor = $__10.GetAccessor, LiteralExpression = $__10.LiteralExpression, PropertyMethodAssignment = $__10.PropertyMethodAssignment, PropertyNameAssignment = $__10.PropertyNameAssignment, SetAccessor = $__10.SetAccessor;
+  var LiteralToken = $___src_syntax_LiteralToken_js.LiteralToken;
+  var NUMBER = $___src_syntax_TokenType_js.NUMBER;
+  function needsTransform(token) {
+    return token.type === NUMBER && /^0[bBoO]/.test(token.value);
+  }
+  function transformToken(token) {
+    return new LiteralToken(NUMBER, String(token.processedValue), token.location);
+  }
+  var NumericLiteralTransformer = function($__super) {
+    'use strict';
+    var $__proto = $__getProtoParent($__super);
+    var $NumericLiteralTransformer = ($__createClass)({
+      constructor: function() {
+        $__superCall(this, $__proto, "constructor", arguments);
+      },
+      transformLiteralExpression: function(tree) {
+        var token = tree.literalToken;
+        if (needsTransform(token)) return new LiteralExpression(tree.location, transformToken(token));
+        return tree;
+      },
+      transformPropertyNameAssignment: function(tree) {
+        var token = tree.name;
+        if (needsTransform(token)) {
+          var value = this.transformAny(tree.value);
+          return new PropertyNameAssignment(tree.location, transformToken(token), value);
+        }
+        return $__superCall(this, $__proto, "transformPropertyNameAssignment", [tree]);
+      },
+      transformGetAccessor: function(tree) {
+        var token = tree.name;
+        if (needsTransform(token)) {
+          var body = this.transformAny(tree.body);
+          return new GetAccessor(tree.location, tree.isStatic, transformToken(token), body);
+        }
+        return $__superCall(this, $__proto, "transformGetAccessor", [tree]);
+      },
+      transformSetAccessor: function(tree) {
+        var token = tree.name;
+        if (needsTransform(token)) {
+          var parameter = this.transformAny(tree.parameter);
+          var body = this.transformAny(tree.body);
+          return new SetAccessor(tree.location, tree.isStatic, transformToken(token), parameter, body);
+        }
+        return $__superCall(this, $__proto, "transformSetAccessor", [tree]);
+      },
+      transformPropertyMethodAssignment: function(tree) {
+        var token = tree.name;
+        if (needsTransform(token)) {
+          var formalParameterList = this.transformAny(tree.formalParameterList);
+          var functionBody = this.transformAny(tree.functionBody);
+          return new PropertyMethodAssignment(tree.location, tree.isStatic, tree.isGenerator, transformToken(token), formalParameterList, functionBody);
+        }
+        return $__superCall(this, $__proto, "transformPropertyMethodAssignment", [tree]);
+      }
+    }, {transformTree: function(tree) {
+        return new NumericLiteralTransformer().transformAny(tree);
+      }}, $__proto, $__super, false);
+    return $NumericLiteralTransformer;
+  }(ParseTreeTransformer);
+  return Object.preventExtensions(Object.create(null, {NumericLiteralTransformer: {
+      get: function() {
+        return NumericLiteralTransformer;
+      },
+      enumerable: true
+    }}));
+}).call(this);
 var $___src_codegeneration_ObjectLiteralTransformer_js = (function() {
   "use strict";
   var FindVisitor = $___src_codegeneration_FindVisitor_js.FindVisitor;
@@ -18154,6 +18270,7 @@ var $___src_codegeneration_ProgramTransformer_js = (function() {
   var GeneratorComprehensionTransformer = $___src_codegeneration_GeneratorComprehensionTransformer_js.GeneratorComprehensionTransformer;
   var GeneratorTransformPass = $___src_codegeneration_GeneratorTransformPass_js.GeneratorTransformPass;
   var ModuleTransformer = $___src_codegeneration_ModuleTransformer_js.ModuleTransformer;
+  var NumericLiteralTransformer = $___src_codegeneration_NumericLiteralTransformer_js.NumericLiteralTransformer;
   var ObjectLiteralTransformer = $___src_codegeneration_ObjectLiteralTransformer_js.ObjectLiteralTransformer;
   var ObjectMap = $___src_util_ObjectMap_js.ObjectMap;
   var ParseTreeValidator = $___src_syntax_ParseTreeValidator_js.ParseTreeValidator;
@@ -18210,6 +18327,7 @@ var $___src_codegeneration_ProgramTransformer_js = (function() {
           }
         }
         transform(transformOptions.types, TypeTransformer);
+        transform(transformOptions.numericLiterals, NumericLiteralTransformer);
         transform(transformOptions.templateLiterals, TemplateLiteralTransformer, identifierGenerator);
         chain(transformOptions.modules, (function() {
           return this.transformModules_(tree, module);
