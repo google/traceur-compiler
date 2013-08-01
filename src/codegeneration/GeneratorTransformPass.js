@@ -40,6 +40,7 @@ import {
   createCommaExpression,
   createExpressionStatement,
   createIdentifierExpression,
+  createReturnStatement,
   createMemberExpression,
   createVariableDeclaration,
   createVariableDeclarationList,
@@ -158,13 +159,13 @@ class YieldExpressionTransformer extends TempVarTransformer {
     switch (e.type) {
       case BINARY_OPERATOR:
         if (isYieldAssign(e))
-          return this.factor_(e.left, e.right, createAssignmentStatement);
+          return this.factorAssign_(e.left, e.right, createAssignmentStatement);
 
         break;
       case COMMA_EXPRESSION:
         ex = e.expressions;
         if (ex[0].type === BINARY_OPERATOR && isYieldAssign(ex[0]))
-          return this.factor_(ex[0].left, ex[0].right, commaWrap);
+          return this.factorAssign_(ex[0].left, ex[0].right, commaWrap);
 
       case YIELD_EXPRESSION:
         if (e.isYieldFor)
@@ -190,8 +191,14 @@ class YieldExpressionTransformer extends TempVarTransformer {
     }
 
     if (isYieldVarAssign(tdd[0]))
-      return this.factor_(tdd[0].lvalue, tdd[0].initializer, varWrap);
+      return this.factorAssign_(tdd[0].lvalue, tdd[0].initializer, varWrap);
 
+    return tree;
+  }
+
+  transformReturnStatement(tree) {
+    if (tree.expression && tree.expression.type === YIELD_EXPRESSION)
+      return this.factor_(tree.expression, createReturnStatement);
     return tree;
   }
 
@@ -204,16 +211,38 @@ class YieldExpressionTransformer extends TempVarTransformer {
    *     and $yieldSent properly for its intended context.
    * @return {ParseTree} { yield ...; wrap(lhs, $yieldSent) }
    */
-  factor_(lhs, rhs, wrap) {
-    if (rhs.isYieldFor)
+  factorAssign_(lhs, rhs, wrap) {
+    return this.factor_(rhs, (ident) => {
+      return wrap(lhs, ident);
+    });
+  }
+
+  /**
+   * Factor out a nested yield expression into a simple yield expression and a
+   * wrapped $yieldSent statement.
+   *
+   *   return yield expr
+   *
+   * becomes
+   *
+   *   yield expr;
+   *   return $yieldSent
+   *
+   * @param {ParseTree} expression The yield expression.
+   * @param {Function} wrap A function that returns a ParseTree wrapping lhs
+   *     and $yieldSent properly for its intended context.
+   * @return {ParseTree} { yield ...; wrap($yieldSent) }
+   */
+  factor_(expression, wrap) {
+    if (expression.isYieldFor)
       return createBlock(
-          this.transformYieldForExpression_(rhs),
-          wrap(lhs, id(YIELD_SENT)));
+          this.transformYieldForExpression_(expression),
+          wrap(id(YIELD_SENT)));
 
     return createBlock([
-        createExpressionStatement(rhs),
+        createExpressionStatement(expression),
         throwClose,
-        wrap(lhs, id(YIELD_SENT))]);
+        wrap(id(YIELD_SENT))]);
   }
 
   /**
