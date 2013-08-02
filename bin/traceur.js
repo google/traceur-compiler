@@ -15703,7 +15703,7 @@ var $___src_codegeneration_GeneratorTransformPass_js = (function() {
   var EQUAL = $___src_syntax_TokenType_js.EQUAL;
   var $__10 = $___src_syntax_trees_ParseTreeType_js, BINARY_OPERATOR = $__10.BINARY_OPERATOR, COMMA_EXPRESSION = $__10.COMMA_EXPRESSION, PAREN_EXPRESSION = $__10.PAREN_EXPRESSION, YIELD_EXPRESSION = $__10.YIELD_EXPRESSION;
   var $__10 = $___src_syntax_trees_ParseTrees_js, FunctionDeclaration = $__10.FunctionDeclaration, FunctionExpression = $__10.FunctionExpression;
-  var $__10 = $___src_codegeneration_ParseTreeFactory_js, createAssignmentExpression = $__10.createAssignmentExpression, createAssignmentStatement = $__10.createAssignmentStatement, createBlock = $__10.createBlock, createCommaExpression = $__10.createCommaExpression, createExpressionStatement = $__10.createExpressionStatement, createIdentifierExpression = $__10.createIdentifierExpression, createMemberExpression = $__10.createMemberExpression, createVariableDeclaration = $__10.createVariableDeclaration, createVariableDeclarationList = $__10.createVariableDeclarationList, createVariableStatement = $__10.createVariableStatement, createYieldStatement = $__10.createYieldStatement;
+  var $__10 = $___src_codegeneration_ParseTreeFactory_js, createAssignmentExpression = $__10.createAssignmentExpression, createAssignmentStatement = $__10.createAssignmentStatement, createBlock = $__10.createBlock, createCommaExpression = $__10.createCommaExpression, createExpressionStatement = $__10.createExpressionStatement, createIdentifierExpression = $__10.createIdentifierExpression, createReturnStatement = $__10.createReturnStatement, createMemberExpression = $__10.createMemberExpression, createVariableDeclaration = $__10.createVariableDeclaration, createVariableDeclarationList = $__10.createVariableDeclarationList, createVariableStatement = $__10.createVariableStatement, createYieldStatement = $__10.createYieldStatement;
   var $__10 = $___src_syntax_PredefinedName_js, ACTION_SEND = $__10.ACTION_SEND, ACTION_THROW = $__10.ACTION_THROW, TRACEUR_RUNTIME = $__10.TRACEUR_RUNTIME, YIELD_ACTION = $__10.YIELD_ACTION, YIELD_SENT = $__10.YIELD_SENT;
   var $__10 = $___src_options_js, transformOptions = $__10.transformOptions, options = $__10.options;
   function isYieldAssign(tree) {
@@ -15763,11 +15763,11 @@ var $___src_codegeneration_GeneratorTransformPass_js = (function() {
         }
         switch (e.type) {
           case BINARY_OPERATOR:
-            if (isYieldAssign(e)) return this.factor_(e.left, e.right, createAssignmentStatement);
+            if (isYieldAssign(e)) return this.factorAssign_(e.left, e.right, createAssignmentStatement);
             break;
           case COMMA_EXPRESSION:
             ex = e.expressions;
-            if (ex[0].type === BINARY_OPERATOR && isYieldAssign(ex[0])) return this.factor_(ex[0].left, ex[0].right, commaWrap);
+            if (ex[0].type === BINARY_OPERATOR && isYieldAssign(ex[0])) return this.factorAssign_(ex[0].left, ex[0].right, commaWrap);
           case YIELD_EXPRESSION:
             if (e.isYieldFor) return this.transformYieldForExpression_(e);
             return createBlock(tree, throwClose);
@@ -15782,12 +15782,25 @@ var $___src_codegeneration_GeneratorTransformPass_js = (function() {
         function varWrap(lhs, rhs) {
           return createVariableStatement(createVariableDeclarationList(tree.declarations.declarationType, $__spread([createVariableDeclaration(lhs, rhs)], tdd.slice(1))));
         }
-        if (isYieldVarAssign(tdd[0])) return this.factor_(tdd[0].lvalue, tdd[0].initializer, varWrap);
+        if (isYieldVarAssign(tdd[0])) return this.factorAssign_(tdd[0].lvalue, tdd[0].initializer, varWrap);
         return tree;
       },
-      factor_: function(lhs, rhs, wrap) {
-        if (rhs.isYieldFor) return createBlock(this.transformYieldForExpression_(rhs), wrap(lhs, id(YIELD_SENT)));
-        return createBlock([createExpressionStatement(rhs), throwClose, wrap(lhs, id(YIELD_SENT))]);
+      transformReturnStatement: function(tree) {
+        if (tree.expression && tree.expression.type === YIELD_EXPRESSION) return this.factorReturn_(tree.expression, createReturnStatement);
+        return tree;
+      },
+      factorAssign_: function(lhs, rhs, wrap) {
+        return this.factor_(rhs, (function(ident) {
+          return wrap(lhs, ident);
+        }));
+      },
+      factorReturn_: function(expression, wrap) {
+        if (expression.isYieldFor) return createBlock(this.transformYieldForExpression_(expression), wrap(id(YIELD_SENT)));
+        return createBlock([createExpressionStatement(expression), throwClose, wrap(id(YIELD_SENT))]);
+      },
+      factor_: function(expression, wrap) {
+        if (expression.isYieldFor) return createBlock(this.transformYieldForExpression_(expression), wrap(id(YIELD_SENT)));
+        return createBlock([createExpressionStatement(expression), throwClose, wrap(id(YIELD_SENT))]);
       },
       transformYieldForExpression_: function(tree) {
         var g = id(this.getTempIdentifier());
