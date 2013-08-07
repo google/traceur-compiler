@@ -18,6 +18,11 @@
 (function(global) {
   'use strict';
 
+  if (global.$traceurRuntime) {
+      // Prevents from being executed multiple times.
+      return;
+  }
+
   var $create = Object.create;
   var $defineProperty = Object.defineProperty;
   var $freeze = Object.freeze;
