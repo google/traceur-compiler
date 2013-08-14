@@ -23,6 +23,7 @@ var inlineAndCompile = require('./inline-module.js').inlineAndCompile;
 var util = require('./file-util.js');
 var writeFile = util.writeFile;
 var mkdirRecursive = util.mkdirRecursive;
+var normalizePath = util.normalizePath;
 
 var ErrorReporter = traceur.util.ErrorReporter;
 var TreeWriter = traceur.outputgeneration.TreeWriter;
@@ -69,7 +70,7 @@ function compileToSingleFile(outputFile, includes, useSourceMaps) {
 
   // Make includes relative to output dir so that sourcemap paths are correct.
   resolvedIncludes = resolvedIncludes.map(function(include) {
-    return path.relative(outputDir, include);
+    return normalizePath(path.relative(outputDir, include));
   });
 
   inlineAndCompile(resolvedIncludes, {}, reporter, function(tree) {

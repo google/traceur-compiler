@@ -3232,7 +3232,7 @@ var $___src_semantics_symbols_ModuleSymbol_js = (function() {
         if (!url) {
           console.error('Missing URL');
         }
-        this.url = url;
+        this.url = url.replace(/\\/g, '/');
       },
       addModule: function(module) {
         this.addModuleWithName(module, module.name);

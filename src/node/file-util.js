@@ -64,6 +64,11 @@ function writeFile(filename, contents) {
   fs.writeFileSync(outputfile, contents, 'utf8');
 }
 
+function normalizePath(s) {
+  return path.sep == '\\' ? s.replace(/\\/g, '/') : s;
+}
+
 exports.mkdirRecursive = mkdirRecursive;
+exports.normalizePath = normalizePath;
 exports.removeCommonPrefix = removeCommonPrefix;
 exports.writeFile = writeFile;

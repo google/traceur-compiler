@@ -15,6 +15,7 @@
 var fs = require('fs');
 var path = require('path');
 var NodeLoader = require('./NodeLoader.js');
+var normalizePath = require('./file-util.js').normalizePath;
 
 var generateNameForUrl = traceur.generateNameForUrl;
 var ErrorReporter = traceur.util.ErrorReporter;
@@ -102,7 +103,7 @@ function InlineCodeLoader(reporter, project, elements, depTarget) {
   InternalLoader.call(this, reporter, project, new NodeLoader);
   this.elements = elements;
   this.dirname = project.url;
-  this.depTarget = depTarget && path.relative('.', depTarget);
+  this.depTarget = depTarget && normalizePath(path.relative('.', depTarget));
   this.codeUnitList = [];
 }
 
@@ -118,9 +119,10 @@ InlineCodeLoader.prototype = {
   transformCodeUnit: function(codeUnit) {
     var transformer = new ModuleRequireTransformer(codeUnit.url, this.dirname);
     var tree = transformer.transformAny(codeUnit.tree);
-    if (this.depTarget)
+    if (this.depTarget) {
       console.log('%s: %s', this.depTarget,
-                  path.relative(path.join(__dirname, '../..'), codeUnit.url));
+                  normalizePath(path.relative(path.join(__dirname, '../..'), codeUnit.url)));
+    }
     if (codeUnit === startCodeUnit)
       return tree;
     return wrapProgram(tree, codeUnit.url, this.dirname);
