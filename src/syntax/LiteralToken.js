@@ -134,6 +134,17 @@ export class LiteralToken extends Token {
         return null;
 
       case NUMBER:
+        var value = this.value;
+        if (value.charCodeAt(0) === 48) {  // 0
+          switch (value.charCodeAt(1)) {
+            case 66:  // B
+            case 98:  // b
+              return parseInt(this.value.slice(2), 2);
+            case 79:  // O
+            case 111:  // o
+              return parseInt(this.value.slice(2), 8);
+          }
+        }
         return Number(this.value);
 
       case STRING:

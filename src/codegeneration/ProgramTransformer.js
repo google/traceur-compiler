@@ -28,6 +28,7 @@ import {GeneratorComprehensionTransformer} from
     'GeneratorComprehensionTransformer.js';
 import {GeneratorTransformPass} from './GeneratorTransformPass.js';
 import {ModuleTransformer} from './ModuleTransformer.js';
+import {NumericLiteralTransformer} from './NumericLiteralTransformer.js';
 import {ObjectLiteralTransformer} from './ObjectLiteralTransformer.js';
 import {ObjectMap} from '../util/ObjectMap.js';
 import {ParseTreeValidator} from '../syntax/ParseTreeValidator.js';
@@ -125,6 +126,7 @@ export class ProgramTransformer {
     // tree pass
 
     transform(transformOptions.types, TypeTransformer);
+    transform(transformOptions.numericLiterals, NumericLiteralTransformer);
 
     transform(transformOptions.templateLiterals,
               TemplateLiteralTransformer,
