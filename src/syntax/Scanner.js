@@ -18,6 +18,7 @@ import {KeywordToken} from './KeywordToken.js';
 import {LiteralToken} from './LiteralToken.js';
 import {Token} from './Token.js';
 import {getKeywordType} from './Keywords.js';
+import {parseOptions} from '../options.js';
 import * from './TokenType.js';
 
 // Some of these is* functions use an array as a lookup table for the lower 7
@@ -76,6 +77,14 @@ for (var i = 0; i < 128; i++) {
 }
 function isHexDigit(code) {
   return code < 128 && isHexDigitArray[code];
+}
+
+function isBinaryDigit(code) {
+  return code === 48 || code === 49;
+}
+
+function isOctalDigit(code) {
+  return code >= 48 && code <= 55;  // 0 - 7
 }
 
 var isIdentifierStartArray = [];
@@ -862,6 +871,9 @@ function scanPostDigit(beginIndex) {
  */
 function scanPostZero(beginIndex) {
   switch (currentCharCode) {
+    case 46:  // .
+      return scanFractionalNumericLiteral(beginIndex);
+
     case 88:  // X
     case 120:  // x
       next();
@@ -872,8 +884,35 @@ function scanPostZero(beginIndex) {
       return new LiteralToken(NUMBER,
                               getTokenString(beginIndex),
                               getTokenRange(beginIndex));
-    case 46:  // .
-      return scanFractionalNumericLiteral(beginIndex);
+
+    case 66:  // B
+    case 98:  // b
+      if (!parseOptions.numericLiterals)
+        break;
+
+      next();
+      if (!isBinaryDigit(currentCharCode)) {
+        reportError('Binary Integer Literal must contain at least one digit');
+      }
+      skipBinaryDigits();
+      return new LiteralToken(NUMBER,
+                              getTokenString(beginIndex),
+                              getTokenRange(beginIndex));
+
+    case 79:  // O
+    case 111:  // o
+      if (!parseOptions.numericLiterals)
+        break;
+
+      next();
+      if (!isOctalDigit(currentCharCode)) {
+        reportError('Octal Integer Literal must contain at least one digit');
+      }
+      skipOctalDigits();
+      return new LiteralToken(NUMBER,
+                              getTokenString(beginIndex),
+                              getTokenRange(beginIndex));
+
     case 48:  // 0
     case 49:  // 1
     case 50:  // 2
@@ -885,11 +924,11 @@ function scanPostZero(beginIndex) {
     case 56:  // 8
     case 57:  // 9
       return scanPostDigit(beginIndex);
-    default:
-      return new LiteralToken(NUMBER,
-                              getTokenString(beginIndex),
-                              getTokenRange(beginIndex));
   }
+
+  return new LiteralToken(NUMBER,
+                          getTokenString(beginIndex),
+                          getTokenRange(beginIndex));
 }
 
 /**
@@ -1121,6 +1160,18 @@ function skipDecimalDigits() {
 
 function skipHexDigits() {
   while (isHexDigit(currentCharCode)) {
+    next();
+  }
+}
+
+function skipBinaryDigits() {
+  while (isBinaryDigit(currentCharCode)) {
+    next();
+  }
+}
+
+function skipOctalDigits() {
+  while (isOctalDigit(currentCharCode)) {
     next();
   }
 }
