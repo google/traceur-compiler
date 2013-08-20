@@ -15832,17 +15832,13 @@ var $___src_codegeneration_GeneratorTransformPass_js = (function() {
         return tree;
       },
       transformReturnStatement: function(tree) {
-        if (tree.expression && tree.expression.type === YIELD_EXPRESSION) return this.factorReturn_(tree.expression, createReturnStatement);
+        if (tree.expression && tree.expression.type === YIELD_EXPRESSION) return this.factor_(tree.expression, createReturnStatement);
         return tree;
       },
       factorAssign_: function(lhs, rhs, wrap) {
         return this.factor_(rhs, (function(ident) {
           return wrap(lhs, ident);
         }));
-      },
-      factorReturn_: function(expression, wrap) {
-        if (expression.isYieldFor) return createBlock(this.transformYieldForExpression_(expression), wrap(id(YIELD_SENT)));
-        return createBlock([createExpressionStatement(expression), throwClose, wrap(id(YIELD_SENT))]);
       },
       factor_: function(expression, wrap) {
         if (expression.isYieldFor) return createBlock(this.transformYieldForExpression_(expression), wrap(id(YIELD_SENT)));
