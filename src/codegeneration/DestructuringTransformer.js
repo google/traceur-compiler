@@ -22,8 +22,10 @@ import {
   ARRAY_LITERAL_EXPRESSION,
   ARRAY_PATTERN,
   BINDING_ELEMENT,
+  BINDING_IDENTIFIER,
   BLOCK,
   CALL_EXPRESSION,
+  COMPUTED_PROPERTY_NAME,
   IDENTIFIER_EXPRESSION,
   LITERAL_EXPRESSION,
   MEMBER_EXPRESSION,
@@ -132,22 +134,34 @@ class VariableDeclarationDesugaring extends Desugaring {
 /**
  * Creates something like "ident" in rvalue ? rvalue.ident : initializer
  */
-function createConditionalMemberExpression(rvalue, identToken, initializer) {
-  if (identToken.type !== IDENTIFIER) {
+function createConditionalMemberExpression(rvalue, name, initializer) {
+  if (name.type === COMPUTED_PROPERTY_NAME) {
     return createConditionalMemberLookupExpression(rvalue,
-        new LiteralExpression(null, identToken),
+        name.expression,
         initializer);
   }
 
+  var token;
+  if (name.type == BINDING_IDENTIFIER) {
+    token = name.identifierToken;
+  } else {
+    token = name.literalToken;
+    if (!token.isKeyword() && token.type !== IDENTIFIER) {
+      return createConditionalMemberLookupExpression(rvalue,
+          new LiteralExpression(null, token),
+          initializer);
+    }
+  }
+
   if (!initializer)
-    return createMemberExpression(rvalue, identToken);
+    return createMemberExpression(rvalue, token);
 
   return createConditionalExpression(
       createBinaryOperator(
-          createStringLiteral(identToken.value),
+          createStringLiteral(token.toString()),
           createOperatorToken(IN),
           rvalue),
-      createMemberExpression(rvalue, identToken),
+      createMemberExpression(rvalue, token),
       initializer);
 }
 
@@ -536,7 +550,7 @@ export class DestructuringTransformer extends ParameterTransformer {
               if (field.initializer)
                 initializerFound = true;
               lookup = createConditionalMemberExpression(desugaring.rvalue,
-                  field.binding.identifierToken, field.initializer);
+                  field.binding, field.initializer);
               desugaring.assign(
                   createIdentifierExpression(field.binding),
                   lookup);
@@ -545,8 +559,9 @@ export class DestructuringTransformer extends ParameterTransformer {
             case OBJECT_PATTERN_FIELD:
               if (field.element.initializer)
                 initializerFound = true;
+              var name = field.name;
               lookup = createConditionalMemberExpression(desugaring.rvalue,
-                  field.identifier, field.element.initializer);
+                  name, field.element.initializer);
               desugaring.assign(field.element, lookup);
               break;
 

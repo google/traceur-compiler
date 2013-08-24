@@ -60,8 +60,6 @@ export class AssignmentPatternTransformer extends ParseTreeTransformer {
   }
 
   transformPropertyNameAssignment(tree) {
-    // TODO(arv) name is currently just a token but that will change with
-    // [names].
     return new ObjectPatternField(tree.location, tree.name,
                                   this.transformAny(tree.value));
   }

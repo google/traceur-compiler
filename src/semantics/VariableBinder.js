@@ -245,7 +245,7 @@ export class VariableBinder extends ParseTreeVisitor {
       case OBJECT_PATTERN_FIELD:
         var field = tree;
         if (field.element == null) {
-          this.bind_(field.identifier);
+          this.bind_(field.name);
         } else {
           this.bindVariableDeclaration_(field.element);
         }

@@ -44,6 +44,7 @@ import {
   parseExpression,
   parsePropertyDefinition
 } from './PlaceholderParser.js';
+import {propName} from '../staticsemantics/PropName.js';
 
 // This code is more or less identical to ClassDefinitionEvaluation in the ES6
 // draft.
@@ -165,7 +166,7 @@ export class ClassTransformer extends TempVarTransformer{
           break;
 
         case PROPERTY_METHOD_ASSIGNMENT:
-          if (!tree.isStatic && tree.name.value === CONSTRUCTOR)
+          if (!tree.isStatic && propName(tree) === CONSTRUCTOR)
             hasConstructor = true;
           elements.push(this.transformPropertyMethodAssignment_(tree, proto));
           break;

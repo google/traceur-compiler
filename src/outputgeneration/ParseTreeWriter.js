@@ -306,6 +306,12 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.write_(CLOSE_PAREN);
   }
 
+  visitComputedPropertyName(tree) {
+    this.write_(OPEN_SQUARE);
+    this.visitAny(tree.expression);
+    this.write_(CLOSE_SQUARE);
+  }
+
   /**
    * @param {ConditionalExpression} tree
    */
@@ -545,7 +551,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     if (tree.isStatic)
       this.write_(STATIC);
     this.write_(GET);
-    this.write_(tree.name);
+    this.visitAny(tree.name);
     this.write_(OPEN_PAREN);
     this.write_(CLOSE_PAREN);
     this.visitAny(tree.body);
@@ -627,6 +633,13 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {LiteralExpression} tree
    */
   visitLiteralExpression(tree) {
+    this.write_(tree.literalToken);
+  }
+
+  /**
+   * @param {LiteralPropertyName} tree
+   */
+  visitLiteralPropertyName(tree) {
     this.write_(tree.literalToken);
   }
 
@@ -751,7 +764,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {ObjectPatternField} tree
    */
   visitObjectPatternField(tree) {
-    this.write_(tree.identifier);
+    this.visitAny(tree.name);
     if (tree.element !== null) {
       this.write_(COLON);
       this.visitAny(tree.element);
@@ -797,7 +810,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
       this.write_(STATIC);
     if (tree.isGenerator)
       this.write_(STAR);
-    this.write_(tree.name);
+    this.visitAny(tree.name);
     this.write_(OPEN_PAREN);
     this.visitAny(tree.formalParameterList);
     this.write_(CLOSE_PAREN);
@@ -808,7 +821,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {PropertyNameAssignment} tree
    */
   visitPropertyNameAssignment(tree) {
-    this.write_(tree.name);
+    this.visitAny(tree.name);
     this.write_(COLON);
     this.visitAny(tree.value);
   }
@@ -817,7 +830,8 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {PropertyNameShorthand} tree
    */
   visitPropertyNameShorthand(tree) {
-    this.write_(tree.name);
+    // TODO(arv): Verify
+    this.visitAny(tree.name);
   }
 
   /**
@@ -872,7 +886,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     if (tree.isStatic)
       this.write_(STATIC);
     this.write_(SET);
-    this.write_(tree.name);
+    this.visitAny(tree.name);
     this.write_(OPEN_PAREN);
     this.visitAny(tree.parameter);
     this.write_(CLOSE_PAREN);

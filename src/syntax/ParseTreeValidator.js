@@ -19,6 +19,7 @@ import {
   AMPERSAND,
   AMPERSAND_EQUAL,
   AND,
+  AT_NAME,
   BAR,
   BAR_EQUAL,
   CARET,
@@ -28,6 +29,7 @@ import {
   EQUAL_EQUAL,
   EQUAL_EQUAL_EQUAL,
   GREATER_EQUAL,
+  IDENTIFIER,
   IN,
   INSTANCEOF,
   LEFT_SHIFT,
@@ -37,6 +39,7 @@ import {
   MINUS_EQUAL,
   NOT_EQUAL,
   NOT_EQUAL_EQUAL,
+  NUMBER,
   OPEN_ANGLE,
   OR,
   PERCENT,
@@ -61,6 +64,7 @@ import {
   CASE_CLAUSE,
   CATCH,
   CLASS_DECLARATION,
+  COMPUTED_PROPERTY_NAME,
   DEFAULT_CLAUSE,
   EXPORT_DECLARATION,
   EXPORT_MAPPING,
@@ -75,6 +79,7 @@ import {
   GET_ACCESSOR,
   IDENTIFIER_EXPRESSION,
   IMPORT_DECLARATION,
+  LITERAL_PROPERTY_NAME,
   MODULE_DECLARATION,
   MODULE_DEFINITION,
   MODULE_EXPRESSION,
@@ -634,6 +639,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {GetAccessor} tree
    */
   visitGetAccessor(tree) {
+    this.checkPropertyName_(tree.name);
     this.checkType_(FUNCTION_BODY, tree.body, 'function body expected');
   }
 
@@ -791,7 +797,8 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {ObjectPatternField} tree
    */
   visitObjectPatternField(tree) {
-    this.checkVisit_(tree.element.type === BINDING_ELEMENT ||
+    this.checkPropertyName_(tree.name); 
+   this.checkVisit_(tree.element.type === BINDING_ELEMENT ||
                      tree.element.isPattern() ||
                      tree.element.isLeftHandSideExpression(),
                      tree.element,
@@ -837,10 +844,19 @@ export class ParseTreeValidator extends ParseTreeVisitor {
     }
   }
 
+  checkPropertyName_(tree) {
+    this.checkVisit_(
+        tree.type === LITERAL_PROPERTY_NAME ||
+        tree.type === COMPUTED_PROPERTY_NAME,
+        tree,
+        'property name expected');
+  }
+
   /**
    * @param {PropertyNameAssignment} tree
    */
   visitPropertyNameAssignment(tree) {
+    this.checkPropertyName_(tree.name);
     this.checkVisit_(tree.value.isArrowFunctionExpression(), tree.value,
         'assignment expression expected');
   }
@@ -849,6 +865,22 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {PropertyNameShorthand} tree
    */
   visitPropertyNameShorthand(tree) {
+    this.check_(tree.name.type === IDENTIFIER, tree,
+        'identifier token expected');
+  }
+
+  /**
+   * @param {LiteralPropertyName} tree
+   */
+  visitLiteralPropertyName(tree) {
+    var type = tree.literalToken.type;
+    this.check_(tree.literalToken.isKeyword() ||
+        type === IDENTIFIER ||
+        type === NUMBER ||
+        type === STRING ||
+        type === AT_NAME,
+        tree,
+        'unexpected token in literal property name');
   }
 
   /**
@@ -891,6 +923,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {SetAccessor} tree
    */
   visitSetAccessor(tree) {
+    this.checkPropertyName_(tree.name);
     this.checkType_(FUNCTION_BODY, tree.body, 'function body expected');
   }
 
