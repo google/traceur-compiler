@@ -32,4 +32,15 @@ suite('parser.js', function() {
     parser.parseProgram(true);
   });
 
+	test('RegularExpression', function() {
+    var program = 'var re1 = /a*b/; ' +
+                  'var re2 = /=a+/; ' +
+                  'var re3 = /\\//;\n';
+
+    var sourceFile = new traceur.syntax.SourceFile('Name', program);
+    var parser = new traceur.syntax.Parser(errorReporter, sourceFile);
+
+    parser.parseProgram(true);
+	});
+
 });
