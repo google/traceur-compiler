@@ -348,8 +348,12 @@ function getOffset() {
 
 /** @return {LiteralToken} */
 function nextRegularExpressionLiteralToken() {
-  // We already passed the leading / so subtract 1.
+  // We already passed the leading / so subtract 1, and subtract
+	// an additional 1 if we already ready past /=
   var beginIndex = index - 1;
+	if (input.charCodeAt(beginIndex) === 61) {  // =
+		beginIndex = beginIndex - 1;
+	}
 
   // body
   if (!skipRegularExpressionBody()) {
