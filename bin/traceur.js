@@ -58,6 +58,9 @@ var $__getDescriptors = function(object) {
 };
 (function(global) {
   'use strict';
+  if (global.$traceurRuntime) {
+    return;
+  }
   var $create = Object.create;
   var $defineProperty = Object.defineProperty;
   var $freeze = Object.freeze;
@@ -7892,7 +7895,7 @@ var $___src_syntax_Scanner_js = (function() {
     return token ? token.location.start.offset: index;
   }
   function nextRegularExpressionLiteralToken() {
-    var beginIndex = index - 1;
+    var beginIndex = index - token.toString().length;
     if (!skipRegularExpressionBody()) {
       return new LiteralToken(REGULAR_EXPRESSION, getTokenString(beginIndex), getTokenRange(beginIndex));
     }
