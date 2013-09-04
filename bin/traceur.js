@@ -14957,7 +14957,7 @@ var $___src_codegeneration_generator_CPSTransformer_js = (function() {
         var loopBodyMachine = result.body;
         var incrementState = loopBodyMachine.fallThroughState;
         var conditionState = result.increment == null && result.condition != null ? incrementState: this.allocateState();
-        var startState = result.initializer == null ? conditionState: this.allocateState();
+        var startState = result.initializer == null ? (result.condition == null ? loopBodyMachine.startState: conditionState): this.allocateState();
         var fallThroughState = this.allocateState();
         var states = [];
         if (result.initializer != null) {
@@ -15286,7 +15286,7 @@ var $___src_codegeneration_generator_CPSTransformer_js = (function() {
         cases.push(createCaseClause(createNumberLiteral(machine.fallThroughState), this.machineFallThroughStatements(machineEndState)));
         cases.push(createCaseClause(createNumberLiteral(machineEndState), this.machineEndStatements()));
         cases.push(createCaseClause(createNumberLiteral(rethrowState), this.machineRethrowStatements(machineEndState)));
-        cases.push(createDefaultClause([createThrowStatement(createBinaryOperator(createStringLiteral('traceur compiler bug: invalid state in state machine'), createOperatorToken(PLUS), createIdentifierExpression(STATE)))]));
+        cases.push(createDefaultClause([createThrowStatement(createBinaryOperator(createStringLiteral('traceur compiler bug: invalid state in state machine: '), createOperatorToken(PLUS), createIdentifierExpression(STATE)))]));
         return cases;
       },
       addFinallyFallThroughDispatches: function(enclosingFinallyState, tryStates, cases) {
@@ -17585,7 +17585,7 @@ var $___src_syntax_ParseTreeValidator_js = (function() {
           this.checkVisit_(tree.condition.isExpression(), tree.condition, 'expression expected');
         }
         if (tree.increment !== null) {
-          this.checkVisit_(tree.condition.isExpression(), tree.increment, 'expression expected');
+          this.checkVisit_(tree.increment.isExpression(), tree.increment, 'expression expected');
         }
         this.checkVisit_(tree.body.isStatement(), tree.body, 'statement expected');
       },

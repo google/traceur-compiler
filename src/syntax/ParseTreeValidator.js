@@ -580,7 +580,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
           'expression expected');
     }
     if (tree.increment !== null) {
-      this.checkVisit_(tree.condition.isExpression(), tree.increment,
+      this.checkVisit_(tree.increment.isExpression(), tree.increment,
           'expression expected');
     }
     this.checkVisit_(tree.body.isStatement(), tree.body,
