@@ -307,7 +307,8 @@ export class CPSTransformer extends ParseTreeTransformer {
             this.allocateState();
     var startState =
         result.initializer == null ?
-            conditionState :
+            (result.condition == null ?
+                loopBodyMachine.startState : conditionState) :
             this.allocateState();
     var fallThroughState = this.allocateState();
 
@@ -328,8 +329,8 @@ export class CPSTransformer extends ParseTreeTransformer {
               fallThroughState,
               result.condition));
     } else {
-      // alternative is to renumber the loopbodyMachine.fallThrough to
-      // loopbodyMachine.start
+      // alternative is to renumber the loopBodyMachine.fallThrough to
+      // loopBodyMachine.start
       states.push(
           new FallThroughState(
               conditionState,
@@ -1178,7 +1179,7 @@ export class CPSTransformer extends ParseTreeTransformer {
             [createThrowStatement(
                 createBinaryOperator(
                     createStringLiteral(
-                        'traceur compiler bug: invalid state in state machine'),
+                        'traceur compiler bug: invalid state in state machine: '),
                     createOperatorToken(PLUS),
                     createIdentifierExpression(STATE)))]));
     return cases;
