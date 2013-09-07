@@ -5,5 +5,5 @@ module a {
   module b {
     module c {};
   }
-  export {c: d} from b;
+  export {c as d} from b;
 }

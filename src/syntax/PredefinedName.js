@@ -21,6 +21,7 @@ export var ADD_CONTINUATION = 'addContinuation';
 export var APPLY = 'apply';
 export var ARGUMENTS = 'arguments';
 export var ARRAY = 'Array';
+export var AS = 'as';
 export var ASSERT_NAME = 'assertName';
 export var BIND = 'bind';
 export var BOOL = 'bool';

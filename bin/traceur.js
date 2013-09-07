@@ -6909,6 +6909,7 @@ var $___src_syntax_PredefinedName_js = (function() {
   var APPLY = 'apply';
   var ARGUMENTS = 'arguments';
   var ARRAY = 'Array';
+  var AS = 'as';
   var ASSERT_NAME = 'assertName';
   var BIND = 'bind';
   var BOOL = 'bool';
@@ -7057,6 +7058,12 @@ var $___src_syntax_PredefinedName_js = (function() {
     ARRAY: {
       get: function() {
         return ARRAY;
+      },
+      enumerable: true
+    },
+    AS: {
+      get: function() {
+        return AS;
       },
       enumerable: true
     },
@@ -8710,7 +8717,7 @@ var $___src_syntax_Parser_js = (function() {
   var $__10 = $___src_codegeneration_CoverFormalsTransformer_js, CoverFormalsTransformer = $__10.CoverFormalsTransformer, CoverFormalsTransformerError = $__10.CoverFormalsTransformerError;
   var IdentifierToken = $___src_syntax_IdentifierToken_js.IdentifierToken;
   var $__10 = $___src_syntax_trees_ParseTreeType_js, ARRAY_LITERAL_EXPRESSION = $__10.ARRAY_LITERAL_EXPRESSION, BINARY_OPERATOR = $__10.BINARY_OPERATOR, CALL_EXPRESSION = $__10.CALL_EXPRESSION, CASCADE_EXPRESSION = $__10.CASCADE_EXPRESSION, COMMA_EXPRESSION = $__10.COMMA_EXPRESSION, COMPUTED_PROPERTY_NAME = $__10.COMPUTED_PROPERTY_NAME, FORMAL_PARAMETER_LIST = $__10.FORMAL_PARAMETER_LIST, IDENTIFIER_EXPRESSION = $__10.IDENTIFIER_EXPRESSION, LITERAL_PROPERTY_NAME = $__10.LITERAL_PROPERTY_NAME, MEMBER_EXPRESSION = $__10.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__10.MEMBER_LOOKUP_EXPRESSION, OBJECT_LITERAL_EXPRESSION = $__10.OBJECT_LITERAL_EXPRESSION, PAREN_EXPRESSION = $__10.PAREN_EXPRESSION, PROPERTY_NAME_ASSIGNMENT = $__10.PROPERTY_NAME_ASSIGNMENT, REST_PARAMETER = $__10.REST_PARAMETER, SYNTAX_ERROR_TREE = $__10.SYNTAX_ERROR_TREE;
-  var $__10 = $___src_syntax_PredefinedName_js, ANY = $__10.ANY, BOOL = $__10.BOOL, FROM = $__10.FROM, GET = $__10.GET, MODULE = $__10.MODULE, NUMBER = $__10.NUMBER, OF = $__10.OF, SET = $__10.SET, STRING = $__10.STRING;
+  var $__10 = $___src_syntax_PredefinedName_js, ANY = $__10.ANY, AS = $__10.AS, BOOL = $__10.BOOL, FROM = $__10.FROM, GET = $__10.GET, MODULE = $__10.MODULE, NUMBER = $__10.NUMBER, OF = $__10.OF, SET = $__10.SET, STRING = $__10.STRING;
   var Scanner = $___src_syntax_Scanner_js.Scanner;
   var SourceRange = $___src_util_SourceRange_js.SourceRange;
   var StrictParams = $___src_staticsemantics_StrictParams_js.StrictParams;
@@ -8856,9 +8863,14 @@ var $___src_syntax_Parser_js = (function() {
       },
       parseImportSpecifier_: function() {
         var start = this.getTreeStartLocation_();
+        var token = this.peekToken_();
+        var isKeyword = token.isKeyword();
         var lhs = this.eatIdName_();
         var rhs = null;
-        if (this.eatIf_(COLON)) rhs = this.eatId_();
+        if (isKeyword || this.peekPredefinedString_(AS)) {
+          this.eatId_(AS);
+          rhs = this.eatId_();
+        }
         return new ImportSpecifier(this.getTreeLocation_(start), lhs, rhs);
       },
       parseExportDeclaration_: function(load) {
@@ -8938,13 +8950,11 @@ var $___src_syntax_Parser_js = (function() {
       },
       parseExportSpecifier_: function() {
         var start = this.getTreeStartLocation_();
-        var lhs, rhs = null;
-        if (this.peek_(COLON, 1)) {
-          lhs = this.eatIdName_();
-          this.eat_(COLON);
-          rhs = this.eatId_();
-        } else {
-          lhs = this.eatId_();
+        var lhs = this.eatId_();
+        var rhs = null;
+        if (this.peekPredefinedString_(AS)) {
+          this.eatId_(AS);
+          rhs = this.eatIdName_();
         }
         return new ExportSpecifier(this.getTreeLocation_(start), lhs, rhs);
       },
@@ -10728,7 +10738,7 @@ var $___src_syntax_Parser_js = (function() {
             return new IdentifierToken(token.location, token.type);
           }
         } else {
-          this.reportExpectedError_(token, 'identifier');
+          this.reportExpectedError_(token, expected || 'identifier');
         }
         return token;
       },
@@ -15899,7 +15909,7 @@ var $___src_codegeneration_generator_GeneratorTransformer_js = (function() {
 }).call(this);
 var $___src_codegeneration_GeneratorTransformPass_js = (function() {
   "use strict";
-  var $__2 = Object.freeze(Object.defineProperties(["\n          if (", " == ", ") {\n            ", " = ", ";\n            throw ", ";\n          }"], {raw: {value: Object.freeze(["\n          if (", " == ", ") {\n            ", " = ", ";\n            throw ", ";\n          }"])}})), $__3 = Object.freeze(Object.defineProperties(["\n        {\n          var ", " = ", ".getIterator(", ");\n          var ", ";\n\n          // TODO: Should 'yield *' handle non-generator iterators? A strict\n          // interpretation of harmony:generators would indicate 'no', but\n          // 'yes' seems makes more sense from a language-user's perspective.\n\n          // received = void 0;\n          ", " = void 0;\n          // send = true; // roughly equivalent\n          ", " = ", ";\n\n          while (true) {\n            if (", " == ", ") {\n              ", " = ", ".next(", ");\n            } else {\n              ", " = ", ".throw(", ");\n            }\n            if (", ".done) {\n              ", " = ", ".value;\n              break;\n            }\n            // Normally, this would go through transformYieldForExpression_\n            // which would rethrow and we would catch it and set up the states\n            // again.\n            ", ";\n          }\n        }"], {raw: {value: Object.freeze(["\n        {\n          var ", " = ", ".getIterator(", ");\n          var ", ";\n\n          // TODO: Should 'yield *' handle non-generator iterators? A strict\n          // interpretation of harmony:generators would indicate 'no', but\n          // 'yes' seems makes more sense from a language-user's perspective.\n\n          // received = void 0;\n          ", " = void 0;\n          // send = true; // roughly equivalent\n          ", " = ", ";\n\n          while (true) {\n            if (", " == ", ") {\n              ", " = ", ".next(", ");\n            } else {\n              ", " = ", ".throw(", ");\n            }\n            if (", ".done) {\n              ", " = ", ".value;\n              break;\n            }\n            // Normally, this would go through transformYieldForExpression_\n            // which would rethrow and we would catch it and set up the states\n            // again.\n            ", ";\n          }\n        }"])}}));
+  var $__2 = Object.freeze(Object.defineProperties(["\r\n          if (", " == ", ") {\r\n            ", " = ", ";\r\n            throw ", ";\r\n          }"], {raw: {value: Object.freeze(["\r\n          if (", " == ", ") {\r\n            ", " = ", ";\r\n            throw ", ";\r\n          }"])}})), $__3 = Object.freeze(Object.defineProperties(["\r\n        {\r\n          var ", " = ", ".getIterator(", ");\r\n          var ", ";\r\n\r\n          // TODO: Should 'yield *' handle non-generator iterators? A strict\r\n          // interpretation of harmony:generators would indicate 'no', but\r\n          // 'yes' seems makes more sense from a language-user's perspective.\r\n\r\n          // received = void 0;\r\n          ", " = void 0;\r\n          // send = true; // roughly equivalent\r\n          ", " = ", ";\r\n\r\n          while (true) {\r\n            if (", " == ", ") {\r\n              ", " = ", ".next(", ");\r\n            } else {\r\n              ", " = ", ".throw(", ");\r\n            }\r\n            if (", ".done) {\r\n              ", " = ", ".value;\r\n              break;\r\n            }\r\n            // Normally, this would go through transformYieldForExpression_\r\n            // which would rethrow and we would catch it and set up the states\r\n            // again.\r\n            ", ";\r\n          }\r\n        }"], {raw: {value: Object.freeze(["\r\n        {\r\n          var ", " = ", ".getIterator(", ");\r\n          var ", ";\r\n\r\n          // TODO: Should 'yield *' handle non-generator iterators? A strict\r\n          // interpretation of harmony:generators would indicate 'no', but\r\n          // 'yes' seems makes more sense from a language-user's perspective.\r\n\r\n          // received = void 0;\r\n          ", " = void 0;\r\n          // send = true; // roughly equivalent\r\n          ", " = ", ";\r\n\r\n          while (true) {\r\n            if (", " == ", ") {\r\n              ", " = ", ".next(", ");\r\n            } else {\r\n              ", " = ", ".throw(", ");\r\n            }\r\n            if (", ".done) {\r\n              ", " = ", ".value;\r\n              break;\r\n            }\r\n            // Normally, this would go through transformYieldForExpression_\r\n            // which would rethrow and we would catch it and set up the states\r\n            // again.\r\n            ", ";\r\n          }\r\n        }"])}}));
   var AsyncTransformer = $___src_codegeneration_generator_AsyncTransformer_js.AsyncTransformer;
   var ForInTransformPass = $___src_codegeneration_generator_ForInTransformPass_js.ForInTransformPass;
   var $__10 = $___src_syntax_trees_ParseTrees_js, GetAccessor = $__10.GetAccessor, SetAccessor = $__10.SetAccessor;
@@ -16561,7 +16571,7 @@ var $___src_util_ObjectMap_js = (function() {
 var $___src_outputgeneration_ParseTreeWriter_js = (function() {
   "use strict";
   var ParseTreeVisitor = $___src_syntax_ParseTreeVisitor_js.ParseTreeVisitor;
-  var $__10 = $___src_syntax_PredefinedName_js, FROM = $__10.FROM, GET = $__10.GET, OF = $__10.OF, MODULE = $__10.MODULE, REQUIRES = $__10.REQUIRES, SET = $__10.SET;
+  var $__10 = $___src_syntax_PredefinedName_js, AS = $__10.AS, FROM = $__10.FROM, GET = $__10.GET, OF = $__10.OF, MODULE = $__10.MODULE, REQUIRES = $__10.REQUIRES, SET = $__10.SET;
   var Token = $___src_syntax_Token_js.Token;
   var getKeywordType = $___src_syntax_Keywords_js.getKeywordType;
   var $__10 = $___src_syntax_TokenType_js, AMPERSAND = $__10.AMPERSAND, AMPERSAND_EQUAL = $__10.AMPERSAND_EQUAL, AND = $__10.AND, ARROW = $__10.ARROW, AT_NAME = $__10.AT_NAME, AWAIT = $__10.AWAIT, BACK_QUOTE = $__10.BACK_QUOTE, BANG = $__10.BANG, BAR = $__10.BAR, BAR_EQUAL = $__10.BAR_EQUAL, BREAK = $__10.BREAK, CARET = $__10.CARET, CARET_EQUAL = $__10.CARET_EQUAL, CASE = $__10.CASE, CATCH = $__10.CATCH, CLASS = $__10.CLASS, CLOSE_ANGLE = $__10.CLOSE_ANGLE, CLOSE_CURLY = $__10.CLOSE_CURLY, CLOSE_PAREN = $__10.CLOSE_PAREN, CLOSE_SQUARE = $__10.CLOSE_SQUARE, COLON = $__10.COLON, COMMA = $__10.COMMA, CONST = $__10.CONST, CONTINUE = $__10.CONTINUE, DEBUGGER = $__10.DEBUGGER, DEFAULT = $__10.DEFAULT, DELETE = $__10.DELETE, DO = $__10.DO, DOLLAR = $__10.DOLLAR, DOT_DOT_DOT = $__10.DOT_DOT_DOT, ELSE = $__10.ELSE, END_OF_FILE = $__10.END_OF_FILE, ENUM = $__10.ENUM, EQUAL = $__10.EQUAL, EQUAL_EQUAL = $__10.EQUAL_EQUAL, EQUAL_EQUAL_EQUAL = $__10.EQUAL_EQUAL_EQUAL, ERROR = $__10.ERROR, EXPORT = $__10.EXPORT, EXTENDS = $__10.EXTENDS, FALSE = $__10.FALSE, FINALLY = $__10.FINALLY, FOR = $__10.FOR, FUNCTION = $__10.FUNCTION, GREATER_EQUAL = $__10.GREATER_EQUAL, IDENTIFIER = $__10.IDENTIFIER, IF = $__10.IF, IMPLEMENTS = $__10.IMPLEMENTS, IMPORT = $__10.IMPORT, IN = $__10.IN, INSTANCEOF = $__10.INSTANCEOF, INTERFACE = $__10.INTERFACE, LEFT_SHIFT = $__10.LEFT_SHIFT, LEFT_SHIFT_EQUAL = $__10.LEFT_SHIFT_EQUAL, LESS_EQUAL = $__10.LESS_EQUAL, LET = $__10.LET, MINUS = $__10.MINUS, MINUS_EQUAL = $__10.MINUS_EQUAL, MINUS_MINUS = $__10.MINUS_MINUS, NEW = $__10.NEW, NO_SUBSTITUTION_TEMPLATE = $__10.NO_SUBSTITUTION_TEMPLATE, NOT_EQUAL = $__10.NOT_EQUAL, NOT_EQUAL_EQUAL = $__10.NOT_EQUAL_EQUAL, NULL = $__10.NULL, NUMBER = $__10.NUMBER, OPEN_ANGLE = $__10.OPEN_ANGLE, OPEN_CURLY = $__10.OPEN_CURLY, OPEN_PAREN = $__10.OPEN_PAREN, OPEN_SQUARE = $__10.OPEN_SQUARE, OR = $__10.OR, PACKAGE = $__10.PACKAGE, PERCENT = $__10.PERCENT, PERCENT_EQUAL = $__10.PERCENT_EQUAL, PERIOD = $__10.PERIOD, PERIOD_OPEN_CURLY = $__10.PERIOD_OPEN_CURLY, PLUS = $__10.PLUS, PLUS_EQUAL = $__10.PLUS_EQUAL, PLUS_PLUS = $__10.PLUS_PLUS, PRIVATE = $__10.PRIVATE, PROTECTED = $__10.PROTECTED, PUBLIC = $__10.PUBLIC, QUESTION = $__10.QUESTION, REGULAR_EXPRESSION = $__10.REGULAR_EXPRESSION, RETURN = $__10.RETURN, RIGHT_SHIFT = $__10.RIGHT_SHIFT, RIGHT_SHIFT_EQUAL = $__10.RIGHT_SHIFT_EQUAL, SEMI_COLON = $__10.SEMI_COLON, SLASH = $__10.SLASH, SLASH_EQUAL = $__10.SLASH_EQUAL, STAR = $__10.STAR, STAR_EQUAL = $__10.STAR_EQUAL, STATIC = $__10.STATIC, STRING = $__10.STRING, SUPER = $__10.SUPER, SWITCH = $__10.SWITCH, TEMPLATE_HEAD = $__10.TEMPLATE_HEAD, TEMPLATE_MIDDLE = $__10.TEMPLATE_MIDDLE, TEMPLATE_TAIL = $__10.TEMPLATE_TAIL, THIS = $__10.THIS, THROW = $__10.THROW, TILDE = $__10.TILDE, TRUE = $__10.TRUE, TRY = $__10.TRY, TYPEOF = $__10.TYPEOF, UNSIGNED_RIGHT_SHIFT = $__10.UNSIGNED_RIGHT_SHIFT, UNSIGNED_RIGHT_SHIFT_EQUAL = $__10.UNSIGNED_RIGHT_SHIFT_EQUAL, VAR = $__10.VAR, VOID = $__10.VOID, WHILE = $__10.WHILE, WITH = $__10.WITH, YIELD = $__10.YIELD;
@@ -16695,7 +16705,7 @@ var $___src_outputgeneration_ParseTreeWriter_js = (function() {
       visitCascadeExpression: function(tree) {
         this.visitAny(tree.operand);
         this.write_(PERIOD_OPEN_CURLY);
-        this.writelnList_(tree.expressions, SEMI_COLON, false);
+        this.writelnList_(tree.expressions, SEMI_COLON);
         this.write_(CLOSE_CURLY);
       },
       visitClassShared_: function(tree) {
@@ -16791,7 +16801,7 @@ var $___src_outputgeneration_ParseTreeWriter_js = (function() {
       visitExportSpecifier: function(tree) {
         this.write_(tree.lhs);
         if (tree.rhs) {
-          this.write_(COLON);
+          this.write_(AS);
           this.write_(tree.rhs);
         }
       },
@@ -16917,7 +16927,7 @@ var $___src_outputgeneration_ParseTreeWriter_js = (function() {
       visitImportSpecifier: function(tree) {
         this.write_(tree.lhs);
         if (tree.rhs !== null) {
-          this.write_(COLON);
+          this.write_(AS);
           this.write_(tree.rhs);
         }
       },
@@ -16926,7 +16936,7 @@ var $___src_outputgeneration_ParseTreeWriter_js = (function() {
           this.write_(STAR);
         } else {
           this.write_(OPEN_CURLY);
-          this.writeList_(tree.specifiers, COMMA, FALSE);
+          this.writelnList_(tree.specifiers, COMMA);
           this.write_(CLOSE_CURLY);
         }
       },
@@ -16965,7 +16975,7 @@ var $___src_outputgeneration_ParseTreeWriter_js = (function() {
         this.write_(tree.name);
         this.write_(OPEN_CURLY);
         this.writeln_();
-        this.writeList_(tree.elements, null, true);
+        this.writelnList_(tree.elements);
         this.write_(CLOSE_CURLY);
         this.writeln_();
       },
@@ -17026,7 +17036,7 @@ var $___src_outputgeneration_ParseTreeWriter_js = (function() {
         this.write_(tree.typeToken);
       },
       visitProgram: function(tree) {
-        this.writelnList_(tree.programElements, null, true);
+        this.writelnList_(tree.programElements, null);
       },
       visitPropertyMethodAssignment: function(tree) {
         if (tree.isStatic) this.write_(STATIC);
@@ -17241,6 +17251,7 @@ var $___src_outputgeneration_ParseTreeWriter_js = (function() {
         }
         var value = token.toString();
         switch (value) {
+          case AS:
           case FROM:
           case GET:
           case OF:

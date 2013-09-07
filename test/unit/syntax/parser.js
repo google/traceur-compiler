@@ -24,7 +24,7 @@ suite('parser.js', function() {
                     'module M from \'url\'; ' +
                     'import z from \'x\'.y; ' +
                     'import * from M; ' +
-                    'import {a:b,c} from M.x;' +
+                    'import {a as b, c} from M.x;' +
                   '};\n';
     var sourceFile = new traceur.syntax.SourceFile('Name', program);
     var parser = new traceur.syntax.Parser(errorReporter, sourceFile);

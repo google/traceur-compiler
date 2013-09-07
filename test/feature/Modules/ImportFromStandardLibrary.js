@@ -1,4 +1,4 @@
-import {Name: create, isName} from '@name';
+import {Name as create, isName} from '@name';
 import Name from '@name';
 module n from '@name'
 

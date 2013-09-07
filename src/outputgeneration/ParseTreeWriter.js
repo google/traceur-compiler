@@ -14,6 +14,7 @@
 
 import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor.js';
 import {
+  AS,
   FROM,
   GET,
   OF,
@@ -253,7 +254,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   visitCascadeExpression(tree) {
     this.visitAny(tree.operand);
     this.write_(PERIOD_OPEN_CURLY);
-    this.writelnList_(tree.expressions, SEMI_COLON, false);
+    this.writelnList_(tree.expressions, SEMI_COLON);
     this.write_(CLOSE_CURLY);
   }
 
@@ -405,7 +406,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   visitExportSpecifier(tree) {
     this.write_(tree.lhs);
     if (tree.rhs) {
-      this.write_(COLON);
+      this.write_(AS);
       this.write_(tree.rhs);
     }
   }
@@ -605,7 +606,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   visitImportSpecifier(tree) {
     this.write_(tree.lhs);
     if (tree.rhs !== null) {
-      this.write_(COLON);
+      this.write_(AS);
       this.write_(tree.rhs);
     }
   }
@@ -615,7 +616,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
       this.write_(STAR);
     } else {
       this.write_(OPEN_CURLY);
-      this.writeList_(tree.specifiers, COMMA, FALSE);
+      this.writelnList_(tree.specifiers, COMMA);
       this.write_(CLOSE_CURLY);
     }
   }
@@ -688,7 +689,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.write_(tree.name);
     this.write_(OPEN_CURLY);
     this.writeln_();
-    this.writeList_(tree.elements, null, true);
+    this.writelnList_(tree.elements);
     this.write_(CLOSE_CURLY);
     this.writeln_();
   }
@@ -799,7 +800,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {Program} tree
    */
   visitProgram(tree) {
-    this.writelnList_(tree.programElements, null, true);
+    this.writelnList_(tree.programElements, null);
   }
 
   /**
@@ -1159,6 +1160,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     var value = token.toString();
     // We have some contextual keywords like get, set etc.
     switch (value) {
+      case AS:
       case FROM:
       case GET:
       case OF:
