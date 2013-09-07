@@ -85,6 +85,10 @@ src/codegeneration/ParseTreeTransformer.js: \
   build/build-parse-tree-transformer.js src/syntax/trees/trees.json
 	node $^ > $@
 
+unicode-tables: \
+	build/build-unicode-tables.js
+	node $^ > src/syntax/unicode-tables.js
+
 %.js: %.js-template.js
 	node build/expand-js-template.js --nolint=^node_modules $< $@
 
@@ -102,7 +106,7 @@ node_modules: package.json
 bin/traceur.ugly.js: bin/traceur.js
 	uglifyjs bin/traceur.js --compress -m -o $@
 
-.PHONY: build min test test-list force boot clean distclean
+.PHONY: build min test test-list force boot clean distclean unicode-tables
 
 -include build/dep.mk
 -include $(TPL_GENSRC_DEPS)
