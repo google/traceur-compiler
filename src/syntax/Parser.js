@@ -27,8 +27,10 @@ import {
   CALL_EXPRESSION,
   CASCADE_EXPRESSION,
   COMMA_EXPRESSION,
+  COMPUTED_PROPERTY_NAME,
   FORMAL_PARAMETER_LIST,
   IDENTIFIER_EXPRESSION,
+  LITERAL_PROPERTY_NAME,
   MEMBER_EXPRESSION,
   MEMBER_LOOKUP_EXPRESSION,
   OBJECT_LITERAL_EXPRESSION,
@@ -629,9 +631,30 @@ export class Parser {
         type === STAR && parseOptions.generators;
   }
 
+  // PropertyName :
+  //   LiteralPropertyName
+  //   ComputedPropertyName
   parsePropertyName_() {
-    // TODO(arv): Implement [expr] as property names.
-    return this.nextToken_();
+    if (this.peek_(OPEN_SQUARE))
+      return this.parseComputedPropertyName_()
+    return this.parseLiteralPropertyName_();
+  }
+
+  parseLiteralPropertyName_() {
+    var start = this.getTreeStartLocation_();
+    var token = this.nextToken_();
+    return new LiteralPropertyName(this.getTreeLocation_(start), token);
+  }
+
+  // ComputedPropertyName :
+  //   [ AssignmentExpression ]
+  parseComputedPropertyName_() {
+    var start = this.getTreeStartLocation_();
+    this.eat_(OPEN_SQUARE);
+    var expression = this.parseAssignmentExpression();
+    this.eat_(CLOSE_SQUARE);
+
+    return new ComputedPropertyName(this.getTreeLocation_(start), expression);
   }
 
   parseStatement() {
@@ -1970,6 +1993,7 @@ export class Parser {
       return this.parseGeneratorMethod_(start, isStatic);
     }
 
+    var token = this.peekToken_();
     var name = this.parsePropertyName_();
 
     if (parseOptions.propertyMethods && this.peek_(OPEN_PAREN))
@@ -1982,22 +2006,31 @@ export class Parser {
     }
 
     var type = this.peekType_();
-    if (name.type === IDENTIFIER && name.value === GET &&
-        this.peekPropertyName_(type)) {
-      return this.parseGetAccessor_(start, isStatic);
+    if (name.type === LITERAL_PROPERTY_NAME) {
+      var nameLiteral = name.literalToken;
+      if (nameLiteral.value === GET &&
+          this.peekPropertyName_(type)) {
+        return this.parseGetAccessor_(start, isStatic);
+      }
+
+      if (nameLiteral.value === SET &&
+          this.peekPropertyName_(type)) {
+        return this.parseSetAccessor_(start, isStatic);
+      }
+
+      // TODO(arv): CoverGrammar
+
+      if (parseOptions.propertyNameShorthand &&
+          nameLiteral.type === IDENTIFIER) {
+        return new PropertyNameShorthand(this.getTreeLocation_(start),
+                                         nameLiteral);
+      }
     }
 
-    if (name.type === IDENTIFIER && name.value === SET &&
-        this.peekPropertyName_(type)) {
-      return this.parseSetAccessor_(start, isStatic);
-    }
+    if (name.type === COMPUTED_PROPERTY_NAME)
+      token = this.peekToken_();
 
-    // TODO(arv): CoverGrammar
-
-    if (parseOptions.propertyNameShorthand)
-      return new PropertyNameShorthand(this.getTreeLocation_(start), name);
-
-    return this.parseUnexpectedToken_(name);
+    return this.parseUnexpectedToken_(token);
   }
 
   /**
@@ -2022,9 +2055,8 @@ export class Parser {
         type = this.peekType_();
         switch (type) {
           case OPEN_PAREN:
-            return this.parseMethod_(start, isStatic, isGenerator, staticToken);
-
-          // TODO(arv): Implement [expr] as property name
+            var name = new LiteralPropertyName(start, staticToken);
+            return this.parseMethod_(start, isStatic, isGenerator, name);
 
           default:
             isStatic = true;
@@ -2065,12 +2097,16 @@ export class Parser {
     var name = this.parsePropertyName_();
     var type = this.peekType_();
 
-    if (name.type === IDENTIFIER && name.value === GET &&
+    // TODO(arv): Can we unify this with parsePropertyDefinition?
+
+    if (name.type === LITERAL_PROPERTY_NAME &&
+        name.literalToken.value === GET &&
         this.peekPropertyName_(type)) {
       return this.parseGetAccessor_(start, isStatic);
     }
 
-    if (name.type === IDENTIFIER && name.value === SET &&
+    if (name.type === LITERAL_PROPERTY_NAME &&
+        name.literalToken.value === SET &&
         this.peekPropertyName_(type)) {
       return this.parseSetAccessor_(start, isStatic);
     }
@@ -2119,6 +2155,8 @@ export class Parser {
       case STRING:
       case NUMBER:
         return true;
+      case OPEN_SQUARE:
+        return parseOptions.computedPropertyNames;
       default:
         return this.peekToken_().isKeyword();
     }
@@ -3278,8 +3316,13 @@ export class Parser {
 
   parseBindingProperty_() {
     var start = this.getTreeStartLocation_();
-    if (this.peek_(COLON, 1)) {
-      var name = this.nextToken_();
+
+    var name = this.parsePropertyName_();
+
+    var requireColon = name.type !== LITERAL_PROPERTY_NAME ||
+        !name.literalToken.isStrictKeyword() &&
+        name.literalToken.type !== IDENTIFIER;
+    if (requireColon || this.peek_(COLON)) {
       this.eat_(COLON);
       var binding = this.parseBindingElement_();
       // TODO(arv): Rename ObjectPatternField to BindingProperty
@@ -3287,7 +3330,11 @@ export class Parser {
                                     name, binding);
     }
 
-    var binding = this.parseBindingIdentifier_();
+    var token = name.literalToken;
+    if (this.strictMode_ && token.isStrictKeyword())
+        this.reportReservedIdentifier_(token);
+
+    var binding = new BindingIdentifier(name.location, token);
     var initializer = null;
     if (this.peek_(EQUAL))
       initializer = this.parseInitializer_();

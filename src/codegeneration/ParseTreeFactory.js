@@ -849,14 +849,22 @@ export function createProgram(programElements) {
 }
 
 /**
- * @param {string|IdentifierToken} identifier
+ * @param {string|ParseTree} identifier
  * @param {ParseTree} value
  * @return {PropertyNameAssignment}
  */
 export function createPropertyNameAssignment(identifier, value) {
   if (typeof identifier == 'string')
-    identifier = createIdentifierToken(identifier);
+    identifier = createLiteralPropertyName(identifier);
   return new PropertyNameAssignment(null, identifier, value);
+}
+
+/**
+ * @param {string} name
+ * @return {LiteralPropertyName}
+ */
+export function createLiteralPropertyName(name) {
+  return new LiteralPropertyName(null, createIdentifierToken(name));
 }
 
 /**
