@@ -38,6 +38,14 @@ var unicodeIdContinue = [];
 
 var idStartRanges = {};
 
+function printArray(name, array) {
+  print('export var ' + name + ' = [');
+  for (var i = 0; i < array.length; i += 2) {
+    print('  ' + array[i] + ', ' + array[i + 1] + ',');
+  }
+  print('];')
+}
+
 function processData() {
   data.split(/\n/).forEach(function(line) {
     var m;
@@ -75,9 +83,9 @@ function processData() {
         return;
       unicodeIdContinue.push(c1, c1);
     }
-
   });
 
-  print('export var idStartTable = ' + JSON.stringify(unicodeIdStart) + ';');
-  print('export var idContinueTable = ' + JSON.stringify(unicodeIdContinue) + ';');
+  printArray('idStartTable', unicodeIdStart);
+  print('');
+  printArray('idContinueTable', unicodeIdContinue);
 }
