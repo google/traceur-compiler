@@ -225,6 +225,14 @@
       "ParseTree"
     ]
   },
+  "ComputedPropertyName": {
+    "location": [
+      "SourceRange"
+    ],
+    "expression": [
+      "ParseTree"
+    ]
+  },
   "ConditionalExpression": {
     "location": [
       "SourceRange"
@@ -466,7 +474,7 @@
       "boolean"
     ],
     "name": [
-      "Token"
+      "ParseTree"
     ],
     "body": [
       "FunctionBody"
@@ -545,6 +553,14 @@
     ]
   },
   "LiteralExpression": {
+    "location": [
+      "SourceRange"
+    ],
+    "literalToken": [
+      "Token"
+    ]
+  },
+  "LiteralPropertyName": {
     "location": [
       "SourceRange"
     ],
@@ -663,8 +679,8 @@
     "location": [
       "SourceRange"
     ],
-    "identifier": [
-      "Token"
+    "name": [
+      "ParseTree"
     ],
     "element": [
       "ParseTree"
@@ -716,7 +732,7 @@
       "boolean"
     ],
     "name": [
-      "Token"
+      "ParseTree"
     ],
     "formalParameterList": [
       "FormalParameterList"
@@ -730,7 +746,7 @@
       "SourceRange"
     ],
     "name": [
-      "Token"
+      "ParseTree"
     ],
     "value": [
       "ParseTree"
@@ -768,7 +784,7 @@
       "boolean"
     ],
     "name": [
-      "Token"
+      "ParseTree"
     ],
     "parameter": [
       "BindingElement"

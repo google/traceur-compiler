@@ -14,21 +14,21 @@
 
 import {
   IdentifierExpression,
+  LiteralPropertyName,
   PropertyNameAssignment
 } from '../syntax/trees/ParseTrees.js';
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 
 /**
- * Desugars property name shorthands
+ * Desugars property name shorthands.
  *
- * @see <a href="http://wiki.ecmascript.org/doku.php?id=strawman:object_initialiser_shorthand">strawman:object_initialiser_shorthand</a>
+ * @see http://people.mozilla.org/~jorendorff/es6-draft.html#sec-11.1.5
  */
 export class PropertyNameShorthandTransformer extends ParseTreeTransformer {
   transformPropertyNameShorthand(tree) {
-    // We need to pass along the location for the FreeVariableChecker to not
-    // fail.
     return new PropertyNameAssignment(tree.location,
-        tree.name, new IdentifierExpression(tree.location, tree.name));
+        new LiteralPropertyName(tree.location, tree.name),
+        new IdentifierExpression(tree.location, tree.name));
   }
 
   static transformTree(tree) {

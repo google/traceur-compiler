@@ -17,6 +17,7 @@ import {
   FunctionExpression
 } from '../syntax/trees/ParseTrees.js';
 import {
+  LITERAL_PROPERTY_NAME,
   MEMBER_EXPRESSION,
   MEMBER_LOOKUP_EXPRESSION,
   SUPER_EXPRESSION
@@ -142,10 +143,13 @@ export class SuperTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformCallExpression(tree) {
+    // TODO(arv): This does not yet handle [expr]() { super(); }
+
     if (this.method_ && tree.operand.type == SUPER_EXPRESSION) {
       // We have: super(args)
       this.superCount_++;
-      var methodName = this.method_.name.value;
+      traceur.assert(this.method_.name.type === LITERAL_PROPERTY_NAME);
+      var methodName = this.method_.name.literalToken.value;
       return this.createSuperCallExpression_(methodName, tree);
     }
 

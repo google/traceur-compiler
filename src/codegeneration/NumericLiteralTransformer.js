@@ -14,11 +14,8 @@
 
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {
-  GetAccessor,
   LiteralExpression,
-  PropertyMethodAssignment,
-  PropertyNameAssignment,
-  SetAccessor,
+  LiteralPropertyName
 } from '../syntax/trees/ParseTrees.js';
 import {LiteralToken} from '../syntax/LiteralToken.js';
 import {
@@ -43,60 +40,11 @@ export class NumericLiteralTransformer extends ParseTreeTransformer {
     return tree;
   }
 
-  transformPropertyNameAssignment(tree) {
-    var token = tree.name;
-    if (needsTransform(token)) {
-      var value = this.transformAny(tree.value);
-      return new PropertyNameAssignment(
-          tree.location,
-          transformToken(token),
-          value);
-    }
-    return super.transformPropertyNameAssignment(tree);
-  }
-
-  transformGetAccessor(tree) {
-    var token = tree.name;
-    if (needsTransform(token)) {
-      var body = this.transformAny(tree.body);
-      return new GetAccessor(
-          tree.location,
-          tree.isStatic,
-          transformToken(token),
-          body);
-    }
-    return super.transformGetAccessor(tree);
-  }
-
-  transformSetAccessor(tree) {
-    var token = tree.name;
-    if (needsTransform(token)) {
-      var parameter = this.transformAny(tree.parameter);
-      var body = this.transformAny(tree.body);
-      return new SetAccessor(
-          tree.location,
-          tree.isStatic,
-          transformToken(token),
-          parameter,
-          body);
-    }
-    return super.transformSetAccessor(tree);
-  }
-
-  transformPropertyMethodAssignment(tree) {
-    var token = tree.name;
-    if (needsTransform(token)) {
-      var formalParameterList = this.transformAny(tree.formalParameterList);
-      var functionBody = this.transformAny(tree.functionBody);
-      return new PropertyMethodAssignment(
-          tree.location,
-          tree.isStatic,
-          tree.isGenerator,
-          transformToken(token),
-          formalParameterList,
-          functionBody);
-    }
-    return super.transformPropertyMethodAssignment(tree);
+  transformLiteralPropertyName(tree) {
+    var token = tree.literalToken;
+    if (needsTransform(token))
+      return new LiteralPropertyName(tree.location, transformToken(token));
+    return tree;
   }
 
   /**

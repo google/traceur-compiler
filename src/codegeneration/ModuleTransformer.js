@@ -16,6 +16,7 @@ import {
   BindingElement,
   BindingIdentifier,
   LiteralExpression,
+  LiteralPropertyName,
   ObjectPattern,
   ObjectPatternField,
   Program
@@ -219,7 +220,8 @@ export class ModuleTransformer extends ParseTreeTransformer {
     if (tree.rhs) {
       var binding = new BindingIdentifier(tree.location, tree.rhs);
       var bindingElement = new BindingElement(tree.location, binding, null);
-      return new ObjectPatternField(tree.location, tree.lhs, bindingElement);
+      var name = new LiteralPropertyName(tree.lhs.location, tree.lhs);
+      return new ObjectPatternField(tree.location, name, bindingElement);
     }
     return new BindingElement(tree.location,
         createBindingIdentifier(tree.lhs), null);

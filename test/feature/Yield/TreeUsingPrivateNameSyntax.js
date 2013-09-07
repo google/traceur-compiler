@@ -1,6 +1,8 @@
-// Options: --private-names
+// Options: --private-names --private-name-syntax
 
-import {iterator} from '@iter';
+import iterator from '@iter';
+// TODO(arv): Add support for import @iterator
+private @iterator = iterator;
 
 // A binary tree class.
 class Tree {
@@ -9,7 +11,7 @@ class Tree {
     this.left = left;
     this.right = right;
   }
-  *[iterator]() {
+  *@iterator() {
     if (this.left) {
       yield* this.left;
     }

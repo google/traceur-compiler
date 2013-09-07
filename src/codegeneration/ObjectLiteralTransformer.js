@@ -26,6 +26,10 @@ import {
   STRING
 } from '../syntax/TokenType.js';
 import {
+  COMPUTED_PROPERTY_NAME,
+  LITERAL_PROPERTY_NAME
+} from '../syntax/trees/ParseTreeType.js';
+import {
   createAssignmentExpression,
   createCommaExpression,
   createDefineProperty,
@@ -38,21 +42,14 @@ import {
   createPropertyNameAssignment,
   createStringLiteral
 } from './ParseTreeFactory.js';
+import {propName} from '../staticsemantics/PropName.js';
 import {transformOptions} from '../options.js';
 
-function findAtNameInProperty(propertyName) {
-  return function(tree) {
-    if (transformOptions.privateNameSyntax &&
-        tree[propertyName].type === AT_NAME) {
-      this.found = true;
-    }
-  };
-}
-
 /**
- * AtNameFinder class that finds if an object literal contains an at name.
+ * AdvancedPropertyFinder class that finds if an object literal contains a
+ * computed property name, an at name or a __proto__ property.
  */
-class AtNameFinder extends FindVisitor {
+class AdvancedPropertyFinder extends FindVisitor {
   /**
    * @param {ObjectLiteralTree} tree
    */
@@ -61,48 +58,28 @@ class AtNameFinder extends FindVisitor {
     super(tree, true);
   }
 
-  checkAtName_(tree) {
-    if (transformOptions.privateNameSyntax &&
-        tree.name.type === AT_NAME) {
-      return this.found = true;
-    }
-    return false;
-  }
-
   visitPropertyNameAssignment(tree) {
-    if (this.checkAtName_(tree))
-      return;
-    if (getPropertyNameForToken(tree.name) === '__proto__') {
+    if (isProtoName(tree.name))
       this.protoExpression = tree.value;
+    else
+      super.visitPropertyNameAssignment(tree);
+  }
+
+  visitLiteralPropertyName(tree) {
+    if (transformOptions.privateNameSyntax &&
+        tree.literalToken.type === AT_NAME) {
+      this.found = true;
     }
   }
 
-  visitGetAccessor(tree) {
-    this.checkAtName_(tree);
-  }
-
-  visitSetAccessor(tree) {
-    this.checkAtName_(tree);
-  }
-
-  visitPropertyMethodAssignment(tree) {
-    this.checkAtName_(tree);
-  }
-
-  visitPropertyNameShorthand(tree) {
-    this.checkAtName_(tree);
+  visitComputedPropertyName(tree) {
+    if (transformOptions.computedPropertyNames)
+      this.found = true;
   }
 }
 
-/**
- * The property name as a string.
- * @param {Token} nameToken
- * @return {string}
- */
-function getPropertyNameForToken(nameToken) {
-  if (nameToken.type === STRING)
-    return nameToken.processedValue;
-  return nameToken.value;
+function isProtoName(tree) {
+  return propName(tree) === '__proto__';
 }
 
 /**
@@ -121,8 +98,29 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
   constructor(identifierGenerator) {
     super(identifierGenerator);
     this.protoExpression = null;
-    this.needsAtNameTransform = false;
+    this.needsAdvancedTransform = false;
     this.seenAccessors = null;
+  }
+
+  findSeenAccessor_(name) {
+    if (name.type === COMPUTED_PROPERTY_NAME)
+      return null;
+    var s = propName(name);
+    return this.seenAccessors[s];
+  }
+
+  removeSeenAccessor_(name) {
+    if (name.type === COMPUTED_PROPERTY_NAME)
+      return;
+    var s = propName(name);
+    delete this.seenAccessors[s];
+  }
+
+  addSeenAccessor_(name, descr) {
+    if (name.type === COMPUTED_PROPERTY_NAME)
+      return;
+    var s = propName(name);
+    this.seenAccessors[s] = descr;
   }
 
   /**
@@ -130,26 +128,36 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
    * assemble the properties in the transformObjectLiteralExpression.
    *
    * @private
-   * @param {Token} name
+   * @param {ParseTree} name
    * @param {Object} descr Descriptor where get, set and value are parse
    *     trees.
    * @return {Array} This returns null when we are completing an existing
    *     accessor.
    */
   createProperty_(name, descr) {
+    var expression;
+
+    if (name.type === LITERAL_PROPERTY_NAME) {
+      if (this.needsAdvancedTransform)
+        expression = this.getPropertyName_(name);
+      else
+        expressions = name;
+    } else {
+      expression = name.expression;
+    }
+
     if (descr.get || descr.set) {
-      var lookupName = getPropertyNameForToken(name);
-      var oldAccessor = this.seenAccessors[lookupName];
+      var oldAccessor = this.findSeenAccessor_(name);
       if (oldAccessor) {
         oldAccessor.get = descr.get || oldAccessor.get;
         oldAccessor.set = descr.set || oldAccessor.set;
-        delete this.seenAccessors[lookupName];
+        this.removeSeenAccessor_(name);
         return null;
       } else {
-        this.seenAccessors[lookupName] = descr;
+        this.addSeenAccessor_(name, descr);
       }
     }
-    return [name, descr];
+    return [expression, descr];
   }
 
   /**
@@ -161,7 +169,9 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
    * @param {Token} token
    * @return {ParseTree}
    */
-  getPropertyName_(token) {
+  getPropertyName_(nameTree) {
+    // TODO(arv): Computed property names
+    var token = nameTree.literalToken;
     switch (token.type) {
       case AT_NAME:
         return createIdentifierExpression(
@@ -182,17 +192,17 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
     // to Object.create or a temporary object that we call defineProperty/ies
     // on.
 
-    var oldNeedsTransform = this.needsAtNameTransform;
+    var oldNeedsTransform = this.needsAdvancedTransform;
     var oldSeenAccessors = this.seenAccessors;
 
     try {
-      var finder = new AtNameFinder(tree);
+      var finder = new AdvancedPropertyFinder(tree);
       if (!finder.found) {
-        this.needsAtNameTransform = false;
+        this.needsAdvancedTransform = false;
         return super.transformObjectLiteralExpression(tree);
       }
 
-      this.needsAtNameTransform = true;
+      this.needsAdvancedTransform = true;
       this.seenAccessors = Object.create(null);
 
       var properties = this.transformList(tree.propertyNameAndValues);
@@ -204,11 +214,11 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
       var tempVarIdentifierExpression = createIdentifierExpression(tempVar);
 
       var expressions = properties.map((property) => {
-        var name = property[0];
+        var expression = property[0];
         var descr = property[1];
         return createDefineProperty(
             tempVarIdentifierExpression,
-            this.getPropertyName_(name),
+            expression,
             descr);
       });
 
@@ -226,17 +236,17 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
       expressions.push(tempVarIdentifierExpression);
       return createParenExpression(createCommaExpression(expressions));
     } finally {
-      this.needsAtNameTransform = oldNeedsTransform;
+      this.needsAdvancedTransform = oldNeedsTransform;
       this.seenAccessors = oldSeenAccessors;
     }
   }
 
   transformPropertyNameAssignment(tree) {
-    if (!this.needsAtNameTransform)
+    if (!this.needsAdvancedTransform)
       return super.transformPropertyNameAssignment(tree);
 
     // __proto__ is handled separately.
-    if (getPropertyNameForToken(tree.name) === '__proto__')
+    if (isProtoName(tree.name))
       return null;
 
     return this.createProperty_(tree.name,
@@ -248,7 +258,7 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
         });
   }
   transformGetAccessor(tree) {
-    if (!this.needsAtNameTransform)
+    if (!this.needsAdvancedTransform)
       return super.transformGetAccessor(tree);
 
     var body = this.transformAny(tree.body);
@@ -261,7 +271,7 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
         });
   }
   transformSetAccessor(tree) {
-    if (!this.needsAtNameTransform)
+    if (!this.needsAdvancedTransform)
       return super.transformSetAccessor(tree);
 
     var body = this.transformAny(tree.body);
@@ -281,13 +291,14 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
     var func = new FunctionExpression(tree.location, null, tree.isGenerator,
         this.transformAny(tree.formalParameterList),
         this.transformAny(tree.functionBody));
-    if (!this.needsAtNameTransform) {
+    if (!this.needsAdvancedTransform) {
       // m() { }
       //  =>
       // m: function() { }
       return createPropertyNameAssignment(tree.name, func);
     }
 
+    var expression = this.transformAny(tree.name);
     return this.createProperty_(tree.name,
         {
           value: func,
@@ -298,12 +309,13 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
   }
 
   transformPropertyNameShorthand(tree) {
-    if (!this.needsAtNameTransform)
+    if (!this.needsAdvancedTransform)
       return super.transformPropertyNameShorthand(tree);
 
+    var expression = this.transformAny(tree.name);
     return this.createProperty_(tree.name,
         {
-          value: new IdentifierExpression(tree.location, tree.name),
+          value: new IdentifierExpression(tree.location, tree.name.identifierToken),
           configurable: true,
           enumerable: false,
           writable: true

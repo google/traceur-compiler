@@ -24,6 +24,7 @@ import {ParseTree} from '../syntax/trees/ParseTree.js';
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {Parser} from '../syntax/Parser.js';
 import {
+  LiteralPropertyName,
   PropertyMethodAssignment,
   PropertyNameAssignment,
   PropertyNameShorthand
@@ -306,13 +307,6 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
     return super.transformFunctionBody(tree);
   }
 
-  transformGetAccessor(tree) {
-    var value = this.getValue_(tree.name.value);
-    if (value === NOT_FOUND)
-      return super.transformGetAccessor(tree);
-    return createGetAccessor(value, this.transformAny(tree.body));
-  }
-
   transformMemberExpression(tree) {
     var value = this.getValue_(tree.memberName.value);
     if (value === NOT_FOUND)
@@ -321,51 +315,14 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
     return createMemberExpression(operand, value);
   }
 
-  transformPropertyMethodAssignment(tree) {
-    if (tree.name.type === IDENTIFIER) {
-      var value = this.getValue_(tree.name.value);
+  transformLiteralPropertyName(tree) {
+    if (tree.literalToken.type === IDENTIFIER) {
+      var value = this.getValue_(tree.literalToken.value);
       if (value !== NOT_FOUND) {
-        return new PropertyMethodAssignment(
-            tree.location,
-            tree.isStatic,
-            tree.isGenerator,
-            convertValueToIdentifierToken(value),
-            this.transformAny(tree.formalParameterList),
-            this.transformAny(tree.functionBody));
-      }
-    }
-    return super.transformPropertyMethodAssignment(tree);
-  }
-
-  transformPropertyNameAssignment(tree) {
-    if (tree.name.type === IDENTIFIER) {
-      var value = this.getValue_(tree.name.value);
-      if (value !== NOT_FOUND) {
-        return new PropertyNameAssignment(null,
-            convertValueToIdentifierToken(value),
-            this.transformAny(tree.value));
+        return new LiteralPropertyName(null,
+            convertValueToIdentifierToken(value));
       }
     }
     return super.transformPropertyNameAssignment(tree);
-  }
-
-  transformPropertyNameShorthand(tree) {
-    var value = this.getValue_(tree.name.value);
-    if (value !== NOT_FOUND) {
-      if (value instanceof ParseTree)
-        return value;
-      return new PropertyNameShorthand(null,
-                                       convertValueToIdentifierToken(value));
-    }
-    return super.transformPropertyNameShorthand(tree);
-  }
-
-  transformSetAccessor(tree) {
-    var value = this.getValue_(tree.name.value);
-    if (value === NOT_FOUND)
-      return super.transformSetAccessor(tree);
-    return createSetAccessor(value,
-                            this.transformAny(tree.parameter),
-                            this.transformAny(tree.body));
   }
 }

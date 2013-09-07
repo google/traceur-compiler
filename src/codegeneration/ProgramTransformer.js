@@ -148,6 +148,7 @@ export class ProgramTransformer {
     transform(transformOptions.propertyNameShorthand,
               PropertyNameShorthandTransformer);
     transform(transformOptions.propertyMethods ||
+              transformOptions.computedPropertyNames ||
               transformOptions.privateNameSyntax &&
               transformOptions.privateNames,
               ObjectLiteralTransformer,
