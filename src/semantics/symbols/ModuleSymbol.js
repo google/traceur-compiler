@@ -20,13 +20,15 @@ export class ModuleSymbol extends Symbol {
    * @param {string} name
    * @param {ModuleSymbol} parent
    * @param {ModuleDefinition} tree
+   * @param {boolean} isPath
    */
-  constructor(name, parent, tree, url) {
+  constructor(name, parent, tree, url, isPath) {
     super(SymbolType.MODULE, tree, name);
     this.children_ = Object.create(null);
     this.exports_ = Object.create(null);
     this.parent = parent;
     this.tree = tree;
+    this.isPath = isPath;
     if (!url) {
       // TODO(arv): Find offensive callers.
       console.error('Missing URL');

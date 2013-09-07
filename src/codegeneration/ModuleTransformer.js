@@ -69,7 +69,13 @@ import {
   createVariableDeclarationList,
   createVariableStatement
 } from './ParseTreeFactory.js';
+import {options} from '../options.js';
 import {hasUseStrict} from '../semantics/util.js';
+import {
+  parseStatement,
+  parseExpression
+} from './PlaceholderParser.js';
+import {STRING} from '../syntax/TokenType.js';
 
 function toBindingIdentifier(tree) {
   return new BindingIdentifier(tree.location, tree.identifierToken);
@@ -155,6 +161,11 @@ export class ModuleTransformer extends ParseTreeTransformer {
   transformModuleExpression(tree) {
     var reference = tree.reference;
     if (reference.type == MODULE_REQUIRE) {
+      if (options.pathModules) {
+        return parseExpression `
+            System.get(${reference.url.processedValue})
+            `;
+      }
       // traceur.modules.getModuleInstanceByUrl(url)
       return createCallExpression(
           createMemberExpression(TRACEUR_MODULES, GET_MODULE_INSTANCE_BY_URL),
@@ -363,10 +374,17 @@ function transformModuleElements(project, module, elements, useStrictCount) {
  * @return {ParseTree}
  */
 function transformDefinition(project, parent, tree, useStrictCount) {
-  var module = parent.getModule(tree.name.value);
+  var module = parent.getModule(
+      tree.name.type === STRING ?  tree.name.processedValue : tree.name.value);
 
   var callExpression = transformModuleElements(project, module,
                                                tree.elements, useStrictCount);
+
+  if (module.isPath && options.pathModules) {
+    return parseStatement `
+        System.set(${module.name}, ${callExpression});
+        `;
+  }
 
   // const M = (function() { statements }).call(thisObject);
   // TODO(arv): const is not allowed in ES5 strict

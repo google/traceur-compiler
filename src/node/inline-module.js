@@ -29,6 +29,7 @@ var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
 var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
 var Parser = traceur.syntax.Parser;
 var Program = traceur.syntax.trees.Program;
+var ModuleRequire = traceur.syntax.trees.ModuleRequire;
 var ProgramTransformer = traceur.codegeneration.ProgramTransformer;
 var Project = traceur.semantics.symbols.Project;
 var SourceFile = traceur.syntax.SourceFile
@@ -38,6 +39,7 @@ var TreeWriter = traceur.outputgeneration.TreeWriter;
 var canonicalizeUrl = traceur.util.canonicalizeUrl;
 var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
 var createIdentifierToken = ParseTreeFactory.createIdentifierToken;
+var createStringLiteralToken = ParseTreeFactory.createStringLiteralToken;
 var resolveUrl = traceur.util.resolveUrl;
 
 /**
@@ -51,10 +53,14 @@ var resolveUrl = traceur.util.resolveUrl;
  *     a module definition.
  */
 function wrapProgram(tree, url, commonPath) {
-  var name = generateNameForUrl(url, commonPath);
+  var name;
+  if (traceur.options.pathModules) {
+    name = createStringLiteralToken(resolveUrl(commonPath, url));
+  } else {
+    name = createIdentifierToken(generateNameForUrl(url, commonPath));
+  }
   return new Program(null,
-      [new ModuleDefinition(null,
-          createIdentifierToken(name), tree.programElements)]);
+      [new ModuleDefinition(null, name, tree.programElements)]);
 }
 
 /**
@@ -80,6 +86,11 @@ ModuleRequireTransformer.prototype = {
   __proto__: ParseTreeTransformer.prototype,
   transformModuleRequire: function(tree) {
     var url = tree.url.processedValue;
+    if (traceur.options.pathModules) {
+      return new ModuleRequire(
+          tree.location,
+          createStringLiteralToken(resolveUrl(this.url, url)));
+    }
 
     // Don't handle builtin modules.
     if (url.charAt(0) === '@')
