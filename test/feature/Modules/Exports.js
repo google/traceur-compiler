@@ -72,7 +72,7 @@ module p2 {
     export var name = 'q';
   }
   export module q2 {
-    export {name: name} from q;
+    export {name as name} from q;
   }
 }
 assert.equal('q', p2.q2.name);
@@ -90,7 +90,7 @@ module h {
     export var j = 'j';
     export var l = 'l';
   }
-  export j from i, {j: k, l} from i;
+  export j from i, {j as k, l} from i;
 }
 assert.equal('j', h.j);
 assert.equal('j', h.k);
@@ -104,7 +104,7 @@ module m {
     export var q = 'q';
   }
 
-  export n, {o: n2}, q from o, {q: p} from o;
+  export n, {o as n2}, q from o, {q as p} from o;
 }
 assert.equal('n', m.n);
 assert.equal('q', m.n2.q);

@@ -41,6 +41,7 @@ import {
 } from './trees/ParseTreeType.js';
 import {
   ANY,
+  AS,
   BOOL,
   FROM,
   GET,
@@ -381,17 +382,24 @@ export class Parser {
     return this.parseIdentifierNameExpression_();
   }
 
-  // ImportSpecifier ::= IdentifierName (":" Identifier)?
+  // ImportSpecifier ::= IdentifierName ("as" Identifier)?
+  //                     Identifier "as" Identifier
   /**
    * @return {ParseTree}
    * @private
    */
   parseImportSpecifier_() {
     var start = this.getTreeStartLocation_();
+
+    var token = this.peekToken_();
+    var isKeyword = token.isKeyword();
     var lhs = this.eatIdName_();
     var rhs = null;
-    if (this.eatIf_(COLON))
+    if (isKeyword || this.peekPredefinedString_(AS)) {
+      this.eatId_(AS);
       rhs = this.eatId_();
+    }
+
     return new ImportSpecifier(this.getTreeLocation_(start), lhs, rhs);
   }
 
@@ -500,18 +508,19 @@ export class Parser {
     return new ExportSpecifierSet(this.getTreeLocation_(start), specifiers);
   }
 
+  // ExportSpecifier :
+  //   Identifier
+  //   Identifier "as" IdentifierName
   parseExportSpecifier_() {
     // ExportSpecifier ::= Identifier
     //     | IdentifierName ":" Identifier
 
     var start = this.getTreeStartLocation_();
-    var lhs, rhs = null;
-    if (this.peek_(COLON, 1)) {
-      lhs = this.eatIdName_();
-      this.eat_(COLON);
-      rhs = this.eatId_();
-    } else {
-      lhs = this.eatId_();
+    var lhs = this.eatId_();
+    var rhs = null;
+    if (this.peekPredefinedString_(AS)) {
+      this.eatId_(AS);
+      rhs = this.eatIdName_();
     }
     return new ExportSpecifier(this.getTreeLocation_(start), lhs, rhs);
   }
@@ -3625,7 +3634,7 @@ export class Parser {
         return new IdentifierToken(token.location, token.type);
       }
     } else {
-      this.reportExpectedError_(token, 'identifier');
+      this.reportExpectedError_(token, expected || 'identifier');
     }
 
     return token;

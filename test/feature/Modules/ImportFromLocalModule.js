@@ -3,7 +3,7 @@ module m {
   export var y = 2;
 }
 
-import {x: renamedX, y} from m;
+import {x as renamedX, y} from m;
 import x from m;
 module m2 from m;
 
