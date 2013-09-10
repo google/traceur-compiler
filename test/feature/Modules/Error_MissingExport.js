@@ -12,9 +12,9 @@ module m {
 }
 
 import {x, y, z} from m;
-import w from m;
+import {w} from m;
 
-import foo from '@name';
+import {foo} from '@name';
 import {bar, baz} from '@name';
 
 module outer {
@@ -24,5 +24,5 @@ module outer {
   export var object = {v: 2};
 }
 
-import v from outer.inner;
-import v from outer.object;
+import {v} from outer.inner;
+import {v} from outer.object;

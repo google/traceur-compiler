@@ -80,7 +80,7 @@ assert.equal('q', p2.q2.name);
 // ExportIdentifier
 module f {
   var g = 'g';
-  export g;
+  export {g};
 }
 assert.equal('g', f.g);
 
@@ -90,7 +90,7 @@ module h {
     export var j = 'j';
     export var l = 'l';
   }
-  export j from i, {j as k, l} from i;
+  export {j} from i, {j as k, l} from i;
 }
 assert.equal('j', h.j);
 assert.equal('j', h.k);
@@ -104,7 +104,7 @@ module m {
     export var q = 'q';
   }
 
-  export n, {o as n2}, q from o, {q as p} from o;
+  export {n}, {o as n2}, {q} from o, {q as p} from o;
 }
 assert.equal('n', m.n);
 assert.equal('q', m.n2.q);

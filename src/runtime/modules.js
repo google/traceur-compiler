@@ -665,9 +665,9 @@ export class CodeLoader {
 }
 
 export module internals {
-  export CodeUnit;
-  export EvalCodeUnit;
-  export EvalLoadCodeUnit;
-  export InternalLoader;
-  export LoadCodeUnit;
+  export {CodeUnit};
+  export {EvalCodeUnit};
+  export {EvalLoadCodeUnit};
+  export {InternalLoader};
+  export {LoadCodeUnit};
 };

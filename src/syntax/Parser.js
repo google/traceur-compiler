@@ -350,7 +350,6 @@ export class Parser {
   }
 
   //ImportSpecifierSet ::= "*"
-  //                  | IdentifierName
   //                  | "{" (ImportSpecifier ("," ImportSpecifier)*)? ","? "}"
   /**
    * @param {SourcePosition} start
@@ -374,12 +373,8 @@ export class Parser {
       return new ImportSpecifierSet(this.getTreeLocation_(start), specifiers);
     }
 
-    if (this.peek_(STAR)) {
-      var star = this.eat_(STAR);
-      return new ImportSpecifierSet(this.getTreeLocation_(start), star);
-    }
-
-    return this.parseIdentifierNameExpression_();
+    var star = this.eat_(STAR);
+    return new ImportSpecifierSet(this.getTreeLocation_(start), star);
   }
 
   // ImportSpecifier ::= IdentifierName ("as" Identifier)?
@@ -461,22 +456,19 @@ export class Parser {
 
   parseExportMapping_(load) {
     // ExportMapping ::=
-    //     Identifier ("from" ModuleExpression(load))?
     //     "*" "from" ModuleExpression(load)
     //     ExportSpecifierSet ("from" ModuleExpression(load))?
     var start = this.getTreeStartLocation_();
 
     var specifierSet, expression;
 
-    if (this.eatIf_(STAR)) {
-      specifierSet = new ExportStar(this.getTreeLocation_(start));
-      expression = this.parseFromModuleExpressionOpt_(load, true);
-    } else if (this.peek_(OPEN_CURLY)) {
+    if (this.peek_(OPEN_CURLY)) {
       specifierSet = this.parseExportSpecifierSet_();
       expression = this.parseFromModuleExpressionOpt_(load, false);
-    } else {  // ID
-      specifierSet = this.parseIdentifierExpression_();
-      expression = this.parseFromModuleExpressionOpt_(load, false);
+    } else {
+      this.eat_(STAR);
+      specifierSet = new ExportStar(this.getTreeLocation_(start));
+      expression = this.parseFromModuleExpressionOpt_(load, true);
     }
 
     return new ExportMapping(this.getTreeLocation_(start), expression,

@@ -1,6 +1,6 @@
 // Options: --trap-member-lookup
 
-import elementGet from '@name';
+import {elementGet} from '@name';
 
 {
   var getLog = [];

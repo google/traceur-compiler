@@ -5,7 +5,7 @@ module m2 {
 
 module m {
   import {var as x} from m2;  
-  export x;
+  export {x};
 }
 
 assert.equal(m.x, 'z');
