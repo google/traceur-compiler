@@ -1,5 +1,5 @@
 // Should not compile.
-// Error: :14:20: Duplicate export declaration 'a'
+// Error: :15:10: Duplicate export declaration 'a'
 // Error: :14:10: Location related to previous error
 
 module m {
@@ -11,5 +11,6 @@ module n {
 }
 
 module o {
-  export * from m, * from n;
+  export * from m;
+  export * from n;
 }

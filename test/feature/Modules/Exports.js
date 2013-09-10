@@ -90,7 +90,8 @@ module h {
     export var j = 'j';
     export var l = 'l';
   }
-  export {j} from i, {j as k, l} from i;
+  export {j} from i;
+  export {j as k, l} from i;
 }
 assert.equal('j', h.j);
 assert.equal('j', h.k);
@@ -104,7 +105,10 @@ module m {
     export var q = 'q';
   }
 
-  export {n}, {o as n2}, {q} from o, {q as p} from o;
+  export {n};
+  export {o as n2};
+  export {q} from o;
+  export {q as p} from o;
 }
 assert.equal('n', m.n);
 assert.equal('q', m.n2.q);

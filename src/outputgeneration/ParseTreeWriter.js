@@ -383,13 +383,6 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
-   * @param {ExportMappingList} tree
-   */
-  visitExportMappingList(tree) {
-    this.writeList_(tree.paths, COMMA, false);
-  }
-
-  /**
    * @param {ExportMapping} tree
    */
   visitExportMapping(tree) {
@@ -585,7 +578,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitImportDeclaration(tree) {
     this.write_(IMPORT);
-    this.writeList_(tree.importPathList, COMMA, false);
+    this.visitAny(tree.importBinding);
     this.write_(SEMI_COLON);
   }
 
