@@ -15919,13 +15919,6 @@ var $___src_codegeneration_ModuleTransformer_js = (function() {
         traceur.assert(symbol.relatedTree);
         returnExpression = transformSpecifier(project, createIdentifierToken(symbol.name), symbol.relatedTree);
         break;
-      case IDENTIFIER_EXPRESSION:
-        if (!symbol.relatedTree) {
-          returnExpression = tree;
-        } else {
-          returnExpression = transformSpecifier(project, tree.identifierToken, symbol.relatedTree);
-        }
-        break;
       default:
         returnExpression = createIdentifierExpression(name);
         break;
@@ -15960,20 +15953,13 @@ var $___src_codegeneration_ModuleTransformer_js = (function() {
         return reference;
       },
       transformModuleDeclaration: function(tree) {
-        var expression = this.transformAny(tree.expression);
-        return createVariableDeclaration(tree.identifier, expression);
+        var initializer = this.transformAny(tree.expression);
+        return createVariableStatement(VAR, tree.identifier, initializer);
       },
       transformImportDeclaration: function(tree) {
-        var importSpecifierSet;
-        if (tree.importSpecifierSet.type == IDENTIFIER_EXPRESSION) {
-          var field = new BindingElement(tree.location, createBindingIdentifier(tree.importSpecifierSet.identifierToken), null);
-          importSpecifierSet = new ObjectPattern(tree.location, [field]);
-        } else {
-          importSpecifierSet = this.transformAny(tree.importSpecifierSet);
-        }
-        var moduleSpecifier = this.transformAny(tree.moduleSpecifier);
-        var declaration = createVariableDeclaration(importSpecifierSet, moduleSpecifier);
-        return createVariableStatement(createVariableDeclarationList(VAR, [declaration]));
+        var binding = this.transformAny(tree.importSpecifierSet);
+        var initializer = this.transformAny(tree.moduleSpecifier);
+        return createVariableStatement(VAR, binding, initializer);
       },
       transformImportSpecifierSet: function(tree) {
         var fields;
@@ -16002,14 +15988,14 @@ var $___src_codegeneration_ModuleTransformer_js = (function() {
   ModuleTransformer.transform = function(project, tree) {
     var module = project.getRootModule();
     var useStrictCount = hasUseStrict(tree.programElements) ? 1: 0;
+    var transformer = new ModuleTransformer(project);
     var elements = tree.programElements.map((function(element) {
       switch (element.type) {
         case MODULE_DEFINITION:
           return transformDefinition(project, module, element, useStrictCount);
         case MODULE_DECLARATION:
-          return transformDeclaration(project, module, element);
         case IMPORT_DECLARATION:
-          return new ModuleTransformer(project).transformAny(element);
+          return transformer.transformAny(element);
         default:
           return element;
       }
@@ -16024,10 +16010,12 @@ var $___src_codegeneration_ModuleTransformer_js = (function() {
     var statements = [];
     useStrictCount = useStrictCount || 0;
     if (!useStrictCount) statements.push(createUseStrictDirective());
+    var transformer = new ModuleTransformer(project);
     elements.forEach((function(element) {
       switch (element.type) {
         case MODULE_DECLARATION:
-          statements.push(transformDeclaration(project, module, element));
+        case IMPORT_DECLARATION:
+          statements.push(transformer.transformAny(element));
           break;
         case MODULE_DEFINITION:
           statements.push(transformDefinition(project, module, element, useStrictCount + 1));
@@ -16039,7 +16027,7 @@ var $___src_codegeneration_ModuleTransformer_js = (function() {
               statements.push(transformDefinition(project, module, declaration, useStrictCount + 1));
               break;
             case MODULE_DECLARATION:
-              statements.push(transformDeclaration(project, module, declaration));
+              statements.push(transformer.transformAny(declaration));
               break;
             case NAMED_EXPORT:
               break;
@@ -16051,10 +16039,6 @@ var $___src_codegeneration_ModuleTransformer_js = (function() {
             default:
               throw new Error('unreachable');
           }
-          break;
-        case IMPORT_DECLARATION:
-          var transformer = new ModuleTransformer(project);
-          statements.push(transformer.transformAny(element));
           break;
         default:
           statements.push(element);
@@ -16071,12 +16055,6 @@ var $___src_codegeneration_ModuleTransformer_js = (function() {
     var module = parent.getModule(tree.name.value);
     var callExpression = transformModuleElements(project, module, tree.elements, useStrictCount);
     return createVariableStatement(VAR, module.name, callExpression);
-  }
-  function transformDeclaration(project, parent, tree) {
-    var transformer = new ModuleTransformer(project);
-    var list = [transformer.transformAny(tree)];
-    var variableDeclarationList = createVariableDeclarationList(VAR, list);
-    return createVariableStatement(variableDeclarationList);
   }
   return Object.preventExtensions(Object.create(null, {ModuleTransformer: {
       get: function() {
