@@ -9,7 +9,8 @@ module n {
 }
 
 module o {
-  export * from m, * from n;
+  export * from m;
+  export * from n;
 }
 
 assert.equal(1, o.a);

@@ -29,7 +29,7 @@ import {
 import {
   CLASS_DECLARATION,
   EXPORT_DECLARATION,
-  EXPORT_MAPPING_LIST,
+  EXPORT_MAPPING,
   EXPORT_SPECIFIER,
   EXPORT_STAR,
   FUNCTION_DECLARATION,
@@ -181,9 +181,9 @@ export class ModuleTransformer extends ParseTreeTransformer {
     // import {id} from module;
     //  =>
     // var {id} = moduleInstance
-    var declarations = this.transformList(tree.importPathList);
+    var declaration = this.transformAny(tree.importBinding);
     return createVariableStatement(createVariableDeclarationList(
-        VAR, declarations));
+        VAR, [declaration]));
   }
 
   transformImportBinding(tree) {
@@ -299,7 +299,7 @@ function transformModuleElements(project, module, elements, useStrictCount) {
             statements.push(transformDeclaration(project, module,
                                                  declaration));
             break;
-          case EXPORT_MAPPING_LIST:
+          case EXPORT_MAPPING:
             // These do not generate any statement here. It is all taken
             // care of in the export getter.
             break;
