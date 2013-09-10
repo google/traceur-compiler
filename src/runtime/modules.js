@@ -437,7 +437,7 @@ class InternalLoader {
     }
 
     var analyzer = new ModuleAnalyzer(this.reporter, this.project);
-    analyzer.analyzeModuleTrees(trees, modules);
+    analyzer.analyzeTrees(trees, modules);
 
     if (this.reporter.hadError()) {
       for (var i = 0; i < dependencies.length; i++) {
