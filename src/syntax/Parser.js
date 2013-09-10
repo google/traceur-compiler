@@ -224,10 +224,10 @@ export class Parser {
    */
   parseModuleDefinition_(load, start) {
 
-    // ModuleDeclaration ::= "module" ModuleSpecifier(load) ("," ModuleSpecifier(load))* ";"
+    // ModuleDeclaration ::= "module" ModuleDeclaration(load)";"
     //              | ModuleDefinition(load)
     // ModuleDefinition(load) ::= "module" Identifier "{" ModuleBody(load) "}"
-    // ModuleSpecifier(load) ::= Identifier "from" ModuleExpression(load)
+    // ModuleDeclaration(load) ::= Identifier "from" ModuleExpression(load)
 
     var strictMode = this.strictMode_;
     this.strictMode_ = true;
@@ -244,16 +244,6 @@ export class Parser {
     this.strictMode_ = strictMode;
 
     return new ModuleDefinition(this.getTreeLocation_(start), name, result);
-  }
-
-  // ModuleSpecifier(load) ::= Identifier "from" ModuleExpression(load)
-  parseModuleSpecifier_(load) {
-    var start = this.getTreeStartLocation_();
-    var identifier = this.eatId_();
-    this.eatId_(FROM);
-    var expression = this.parseModuleExpression_(load);
-    return new ModuleSpecifier(this.getTreeLocation_(start), identifier,
-                               expression);
   }
 
   parseModuleExpression_(load) {
@@ -412,8 +402,8 @@ export class Parser {
         exportTree = this.parseClassDeclaration_();
         break;
       case IDENTIFIER:
-        if (this.peekModuleDeclaration_(type)) {
-          exportTree = this.parseModuleDeclaration_(load);
+        if (this.peekModule_(type)) {
+          exportTree = this.parseModule_(load);
         } else {
           exportTree = this.parseExportMapping_(load);
         }
@@ -503,38 +493,38 @@ export class Parser {
     return token.type === IDENTIFIER || token.isKeyword();
   }
 
-  // TODO: ModuleLoadRedeclarationList
   // ModuleDefinition
   /**
    * @return {boolean}
    * @private
    */
-  peekModuleDeclaration_(type) {
-    // ModuleDeclaration ::= "module" ModuleSpecifier(load) ("," ModuleSpecifier(load))* ";"
+  peekModule_(type) {
+    // ModuleDeclaration ::= "module" ModuleDeclaration(load) ";"
     //                    | ModuleDefinition(load)
     // ModuleDefinition(load) ::= "module" Identifier "{" ModuleBody(load) "}"
-    // ModuleSpecifier(load) ::= Identifier "from" ModuleExpression(load)
+    // ModuleDeclaration(load) ::= Identifier "from" ModuleExpression(load)
+    // TODO(arv): [NoNewLine]
     return parseOptions.modules &&
-        type === IDENTIFIER && this.peekToken_().value === MODULE &&
-        // TODO(arv): Do we need this lookahead?
-        this.peek_(IDENTIFIER, 1);
+        type === IDENTIFIER && this.peekPredefinedString_(MODULE);
   }
 
   /**
    * @return {ParseTree}
    * @private
    */
-  parseModuleDeclaration_(load) {
+  parseModule_(load) {
     var start = this.getTreeStartLocation_();
     this.eatId_(); // module
 
     if (this.peekModuleDefinition_(this.peekType_()))
       return this.parseModuleDefinition_(load, start);
 
-    var specifier = this.parseModuleSpecifier_(load);
-    this.eatPossibleImplicitSemiColon_();
-
-    return new ModuleDeclaration(this.getTreeLocation_(start), specifier);
+  // module Identifier "from" ModuleExpression(load)
+    var identifier = this.eatId_();
+    this.eatId_(FROM);
+    var expression = this.parseModuleExpression_(load);
+    return new ModuleDeclaration(this.getTreeLocation_(start), identifier,
+                                 expression);
   }
 
   parseClassShared_(constr) {
@@ -651,8 +641,8 @@ export class Parser {
         return this.parseVariableStatement_();
       case IDENTIFIER:
         if (allowProgramElement && parseOptions.modules &&
-            this.peekModuleDeclaration_(type)) {
-          return this.parseModuleDeclaration_(load);
+            this.peekModule_(type)) {
+          return this.parseModule_(load);
         }
         break;
       case IF:

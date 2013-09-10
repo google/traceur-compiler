@@ -587,7 +587,10 @@
     "location": [
       "SourceRange"
     ],
-    "specifier": [
+    "identifier": [
+      "IdentifierToken"
+    ],
+    "expression": [
       "ParseTree"
     ]
   },
@@ -616,17 +619,6 @@
     ],
     "url": [
       "Token"
-    ]
-  },
-  "ModuleSpecifier": {
-    "location": [
-      "SourceRange"
-    ],
-    "identifier": [
-      "IdentifierToken"
-    ],
-    "expression": [
-      "ParseTree"
     ]
   },
   "NameStatement": {

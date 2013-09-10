@@ -166,10 +166,10 @@ export class ModuleTransformer extends ParseTreeTransformer {
   }
 
   /**
-   * @param {ModuleSpecifier} tree
+   * @param {ModuleDeclaration} tree
    * @return {VariableDeclaration}
    */
-  transformModuleSpecifier(tree) {
+  transformModuleDeclaration(tree) {
     var expression = this.transformAny(tree.expression);
     return createVariableDeclaration(tree.identifier, expression);
   }
@@ -377,11 +377,11 @@ function transformDefinition(project, parent, tree, useStrictCount) {
  * @return {ParseTree}
  */
 function transformDeclaration(project, parent, tree) {
-  // module m from n, o from p.q, ...;
-  // module m from 'url'.n.o.p;
+  // module m from n;
+  // module m from 'url';
 
   var transformer = new ModuleTransformer(project);
-  var list = [transformer.transformAny(tree.specifier)];
+  var list = [transformer.transformAny(tree)];
 
   // const a = b.c, d = e.f;
   // TODO(arv): const is not allowed in ES5 strict

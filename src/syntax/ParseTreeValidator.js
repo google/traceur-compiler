@@ -80,9 +80,9 @@ import {
   IMPORT_DECLARATION,
   LITERAL_PROPERTY_NAME,
   MODULE_DECLARATION,
+  MODULE_DECLARATION,
   MODULE_DEFINITION,
   MODULE_EXPRESSION,
-  MODULE_SPECIFIER,
   OBJECT_PATTERN,
   OBJECT_PATTERN_FIELD,
   PROPERTY_METHOD_ASSIGNMENT,
@@ -684,15 +684,6 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   /**
    * @param {ModuleDefinition} tree
    */
-  visitModuleDeclaration(tree) {
-    this.checkType_(MODULE_SPECIFIER,
-                    tree.specifier,
-                    'module specifier expected');
-  }
-
-  /**
-   * @param {ModuleDefinition} tree
-   */
   visitModuleDefinition(tree) {
     for (var i = 0; i < tree.elements.length; i++) {
       var element = tree.elements[i];
@@ -717,9 +708,9 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   }
 
   /**
-   * @param {ModuleSpecifier} tree
+   * @param {ModuleDeclaration} tree
    */
-  visitModuleSpecifier(tree) {
+  visitModuleDeclaration(tree) {
     this.checkType_(MODULE_EXPRESSION,
                     tree.expression,
                     'module expression expected');

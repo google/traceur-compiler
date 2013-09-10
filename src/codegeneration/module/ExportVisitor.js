@@ -93,7 +93,7 @@ export class ExportVisitor extends ModuleVisitor {
     this.inExport_ = inExport;
   }
 
-  visitModuleSpecifier(tree) {
+  visitModuleDeclaration(tree) {
     this.addExport_(tree.identifier.value, tree);
   }
 

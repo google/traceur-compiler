@@ -666,15 +666,6 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
-   * @param {ModuleDeclarationfinitionTree} tree
-   */
-  visitModuleDeclaration(tree) {
-    this.write_(MODULE);
-    this.visitAny(tree.specifier);
-    this.write_(SEMI_COLON);
-  }
-
-  /**
    * @param {ModuleDefinition} tree
    */
   visitModuleDefinition(tree) {
@@ -702,12 +693,14 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
-   * @param {ModuleSpecifier} tree
+   * @param {ModuleDeclaration} tree
    */
-  visitModuleSpecifier(tree) {
+  visitModuleDeclaration(tree) {
+    this.write_(MODULE);
     this.write_(tree.identifier);
     this.write_(FROM);
     this.visitAny(tree.expression);
+    this.write_(SEMI_COLON);
   }
 
   /**
