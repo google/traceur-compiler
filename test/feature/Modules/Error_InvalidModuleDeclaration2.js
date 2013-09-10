@@ -1,5 +1,5 @@
 // Should not compile.
-// Error: 'c' is not a module
+// Error: 5:16: unexpected token .
 
 module a {}
 module b from a.c;

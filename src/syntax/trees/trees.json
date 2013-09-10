@@ -305,7 +305,7 @@
       "SourceRange"
     ],
     "moduleExpression": [
-      "ModuleExpression"
+      "ParseTree"
     ],
     "specifierSet": [
       "ParseTree"
@@ -499,7 +499,7 @@
       "SourceRange"
     ],
     "moduleExpression": [
-      "ModuleExpression"
+      "ParseTree"
     ],
     "importSpecifierSet": [
       "ParseTree"
@@ -587,8 +587,8 @@
     "location": [
       "SourceRange"
     ],
-    "specifiers": [
-      "Array.<ModuleSpecifier>"
+    "specifier": [
+      "ParseTree"
     ]
   },
   "ModuleDefinition": {
@@ -608,9 +608,6 @@
     ],
     "reference": [
       "ParseTree"
-    ],
-    "identifiers": [
-      "Array.<IdentifierToken>"
     ]
   },
   "ModuleRequire": {
@@ -629,7 +626,7 @@
       "IdentifierToken"
     ],
     "expression": [
-      "ModuleExpression"
+      "ParseTree"
     ]
   },
   "NameStatement": {
