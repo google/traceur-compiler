@@ -68,35 +68,14 @@ export class ModuleVisitor extends ParseTreeVisitor {
    * @return {ModuleSymbol}
    */
   getModuleForModuleExpression(tree, reportErrors) {
-    // "url".b.c
+    // "url"
     if (tree.reference.type == ParseTreeType.MODULE_REQUIRE) {
       var url = tree.reference.url.processedValue;
       url = resolveUrl(this.currentModule.url, url);
       return this.project.getModuleForUrl(url);
     }
 
-    // a.b.c
-
-    var getNext = (parent, identifierToken) => {
-      var name = identifierToken.value;
-
-      if (!parent.hasModule(name)) {
-        if (reportErrors) {
-          this.reportError_(tree, '\'%s\' is not a module', name);
-        }
-        return null;
-      }
-
-      if (!parent.hasExport(name)) {
-        if (reportErrors) {
-          this.reportError_(tree, '\'%s\' is not exported by %s', name,
-              getFriendlyName(parent));
-        }
-        return null;
-      }
-
-      return parent.getModule(name);
-    };
+    // id
 
     var name = tree.reference.identifierToken.value;
     var parent = this.getModuleByName(name);
@@ -107,12 +86,6 @@ export class ModuleVisitor extends ParseTreeVisitor {
       return null;
     }
 
-    for (var i = 0; i < tree.identifiers.length; i++) {
-      parent = getNext(parent, tree.identifiers[i]);
-      if (!parent) {
-        return null;
-      }
-    }
 
     return parent;
   }

@@ -3,5 +3,6 @@
 
 module a {
   module b {}
-  module c from b.d;
+  var d = {b};
+  module c from d;
 }

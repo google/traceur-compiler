@@ -162,10 +162,7 @@ export class ModuleTransformer extends ParseTreeTransformer {
               new LiteralExpression(null, reference.url)));
     }
 
-    if (tree.identifiers.length == 0)
-      return reference;
-
-    return createMemberExpression(reference, tree.identifiers);
+    return reference;
   }
 
   /**
@@ -384,7 +381,7 @@ function transformDeclaration(project, parent, tree) {
   // module m from 'url'.n.o.p;
 
   var transformer = new ModuleTransformer(project);
-  var list = tree.specifiers.map(transformer.transformAny, transformer);
+  var list = [transformer.transformAny(tree.specifier)];
 
   // const a = b.c, d = e.f;
   // TODO(arv): const is not allowed in ES5 strict

@@ -670,7 +670,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitModuleDeclaration(tree) {
     this.write_(MODULE);
-    this.writeList_(tree.specifiers, COMMA, false);
+    this.visitAny(tree.specifier);
     this.write_(SEMI_COLON);
   }
 
@@ -692,10 +692,6 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitModuleExpression(tree) {
     this.visitAny(tree.reference);
-    for (var i = 0; i < tree.identifiers.length; i++) {
-      this.write_(PERIOD);
-      this.write_(tree.identifiers[i]);
-    }
   }
 
   /**

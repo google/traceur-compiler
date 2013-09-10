@@ -2821,7 +2821,7 @@ var $___src_syntax_ParseTreeVisitor_js = (function() {
         this.visitAny(tree.memberExpression);
       },
       visitModuleDeclaration: function(tree) {
-        this.visitList(tree.specifiers);
+        this.visitAny(tree.specifier);
       },
       visitModuleDefinition: function(tree) {
         this.visitList(tree.elements);
@@ -2986,22 +2986,6 @@ var $___src_codegeneration_module_ModuleVisitor_js = (function() {
           url = resolveUrl(this.currentModule.url, url);
           return this.project.getModuleForUrl(url);
         }
-        var getNext = (function(parent, identifierToken) {
-          var name = identifierToken.value;
-          if (!parent.hasModule(name)) {
-            if (reportErrors) {
-              this.reportError_(tree, '\'%s\' is not a module', name);
-            }
-            return null;
-          }
-          if (!parent.hasExport(name)) {
-            if (reportErrors) {
-              this.reportError_(tree, '\'%s\' is not exported by %s', name, getFriendlyName(parent));
-            }
-            return null;
-          }
-          return parent.getModule(name);
-        }).bind(this);
         var name = tree.reference.identifierToken.value;
         var parent = this.getModuleByName(name);
         if (!parent) {
@@ -3009,12 +2993,6 @@ var $___src_codegeneration_module_ModuleVisitor_js = (function() {
             this.reportError_(tree, '\'%s\' is not a module', name);
           }
           return null;
-        }
-        for (var i = 0; i < tree.identifiers.length; i++) {
-          parent = getNext(parent, tree.identifiers[i]);
-          if (!parent) {
-            return null;
-          }
         }
         return parent;
       },
@@ -4609,9 +4587,9 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ModuleDeclaration = ($__createClass)({
-      constructor: function(location, specifiers) {
+      constructor: function(location, specifier) {
         this.location = location;
-        this.specifiers = specifiers;
+        this.specifier = specifier;
       },
       transform: function(transformer) {
         return transformer.transformModuleDeclaration(this);
@@ -4650,10 +4628,9 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ModuleExpression = ($__createClass)({
-      constructor: function(location, reference, identifiers) {
+      constructor: function(location, reference) {
         this.location = location;
         this.reference = reference;
-        this.identifiers = identifiers;
       },
       transform: function(transformer) {
         return transformer.transformModuleExpression(this);
@@ -6402,11 +6379,11 @@ var $___src_codegeneration_ParseTreeTransformer_js = (function() {
         return new MemberLookupExpression(tree.location, operand, memberExpression);
       },
       transformModuleDeclaration: function(tree) {
-        var specifiers = this.transformList(tree.specifiers);
-        if (specifiers === tree.specifiers) {
+        var specifier = this.transformAny(tree.specifier);
+        if (specifier === tree.specifier) {
           return tree;
         }
-        return new ModuleDeclaration(tree.location, specifiers);
+        return new ModuleDeclaration(tree.location, specifier);
       },
       transformModuleDefinition: function(tree) {
         var elements = this.transformList(tree.elements);
@@ -6420,7 +6397,7 @@ var $___src_codegeneration_ParseTreeTransformer_js = (function() {
         if (reference === tree.reference) {
           return tree;
         }
-        return new ModuleExpression(tree.location, reference, tree.identifiers);
+        return new ModuleExpression(tree.location, reference);
       },
       transformModuleRequire: function(tree) {
         return tree;
@@ -8751,12 +8728,7 @@ var $___src_syntax_Parser_js = (function() {
       parseModuleExpression_: function(load) {
         var start = this.getTreeStartLocation_();
         var reference = this.parseModuleReference_(load);
-        var identifierNames = [];
-        while (this.peek_(PERIOD) && this.peekIdName_(this.peekToken_(1))) {
-          this.eat_(PERIOD);
-          identifierNames.push(this.eatIdName_());
-        }
-        return new ModuleExpression(this.getTreeLocation_(start), reference, identifierNames);
+        return new ModuleExpression(this.getTreeLocation_(start), reference);
       },
       parseModuleReference_: function(load) {
         var start = this.getTreeStartLocation_();
@@ -8902,12 +8874,9 @@ var $___src_syntax_Parser_js = (function() {
         var start = this.getTreeStartLocation_();
         this.eatId_();
         if (this.peekModuleDefinition_(this.peekType_())) return this.parseModuleDefinition_(load, start);
-        var specifiers = [this.parseModuleSpecifier_(load)];
-        while (this.eatIf_(COMMA)) {
-          specifiers.push(this.parseModuleSpecifier_(load));
-        }
+        var specifier = this.parseModuleSpecifier_(load);
         this.eatPossibleImplicitSemiColon_();
-        return new ModuleDeclaration(this.getTreeLocation_(start), specifiers);
+        return new ModuleDeclaration(this.getTreeLocation_(start), specifier);
       },
       parseClassShared_: function(constr) {
         var start = this.getTreeStartLocation_();
@@ -16081,8 +16050,7 @@ var $___src_codegeneration_ModuleTransformer_js = (function() {
         if (reference.type == MODULE_REQUIRE) {
           return createCallExpression(createMemberExpression(TRACEUR_MODULES, GET_MODULE_INSTANCE_BY_URL), createArgumentList(new LiteralExpression(null, reference.url)));
         }
-        if (tree.identifiers.length == 0) return reference;
-        return createMemberExpression(reference, tree.identifiers);
+        return reference;
       },
       transformModuleSpecifier: function(tree) {
         var expression = this.transformAny(tree.expression);
@@ -16202,7 +16170,7 @@ var $___src_codegeneration_ModuleTransformer_js = (function() {
   }
   function transformDeclaration(project, parent, tree) {
     var transformer = new ModuleTransformer(project);
-    var list = tree.specifiers.map(transformer.transformAny, transformer);
+    var list = [transformer.transformAny(tree.specifier)];
     var variableDeclarationList = createVariableDeclarationList(VAR, list);
     return createVariableStatement(variableDeclarationList);
   }
@@ -16893,7 +16861,7 @@ var $___src_outputgeneration_ParseTreeWriter_js = (function() {
       },
       visitModuleDeclaration: function(tree) {
         this.write_(MODULE);
-        this.writeList_(tree.specifiers, COMMA, false);
+        this.visitAny(tree.specifier);
         this.write_(SEMI_COLON);
       },
       visitModuleDefinition: function(tree) {
@@ -16907,10 +16875,6 @@ var $___src_outputgeneration_ParseTreeWriter_js = (function() {
       },
       visitModuleExpression: function(tree) {
         this.visitAny(tree.reference);
-        for (var i = 0; i < tree.identifiers.length; i++) {
-          this.write_(PERIOD);
-          this.write_(tree.identifiers[i]);
-        }
       },
       visitModuleRequire: function(tree) {
         this.write_(tree.url);
@@ -17712,10 +17676,7 @@ var $___src_syntax_ParseTreeValidator_js = (function() {
         this.fail_(tree, ("parse tree contains SyntaxError: " + tree.message));
       },
       visitModuleDeclaration: function(tree) {
-        for (var i = 0; i < tree.specifiers.length; i++) {
-          var specifier = tree.specifiers[i];
-          this.checkType_(MODULE_SPECIFIER, specifier, 'module specifier expected');
-        }
+        this.checkType_(MODULE_SPECIFIER, tree.specifier, 'module specifier expected');
       },
       visitModuleDefinition: function(tree) {
         for (var i = 0; i < tree.elements.length; i++) {
