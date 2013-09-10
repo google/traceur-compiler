@@ -22,7 +22,7 @@ suite('parser.js', function() {
   test('Module', function() {
     var program = 'module Foo { export var x = 42; ' +
                     'module M from \'url\'; ' +
-                    'import z from \'x\'.y; ' +
+                    'import {z} from \'x\'.y; ' +
                     'import * from M; ' +
                     'import {a as b, c} from M.x;' +
                   '};\n';

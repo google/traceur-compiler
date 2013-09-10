@@ -1,6 +1,6 @@
 // Options: --private-names --private-name-syntax
 
-import iterator from '@iter';
+import {iterator} from '@iter';
 // TODO(arv): Add support for import @iterator
 private @iterator = iterator;
 

@@ -8855,11 +8855,8 @@ var $___src_syntax_Parser_js = (function() {
           this.eat_(CLOSE_CURLY);
           return new ImportSpecifierSet(this.getTreeLocation_(start), specifiers);
         }
-        if (this.peek_(STAR)) {
-          var star = this.eat_(STAR);
-          return new ImportSpecifierSet(this.getTreeLocation_(start), star);
-        }
-        return this.parseIdentifierNameExpression_();
+        var star = this.eat_(STAR);
+        return new ImportSpecifierSet(this.getTreeLocation_(start), star);
       },
       parseImportSpecifier_: function() {
         var start = this.getTreeStartLocation_();
@@ -8918,15 +8915,13 @@ var $___src_syntax_Parser_js = (function() {
       parseExportMapping_: function(load) {
         var start = this.getTreeStartLocation_();
         var specifierSet, expression;
-        if (this.eatIf_(STAR)) {
-          specifierSet = new ExportStar(this.getTreeLocation_(start));
-          expression = this.parseFromModuleExpressionOpt_(load, true);
-        } else if (this.peek_(OPEN_CURLY)) {
+        if (this.peek_(OPEN_CURLY)) {
           specifierSet = this.parseExportSpecifierSet_();
           expression = this.parseFromModuleExpressionOpt_(load, false);
         } else {
-          specifierSet = this.parseIdentifierExpression_();
-          expression = this.parseFromModuleExpressionOpt_(load, false);
+          this.eat_(STAR);
+          specifierSet = new ExportStar(this.getTreeLocation_(start));
+          expression = this.parseFromModuleExpressionOpt_(load, true);
         }
         return new ExportMapping(this.getTreeLocation_(start), expression, specifierSet);
       },
@@ -15909,7 +15904,7 @@ var $___src_codegeneration_generator_GeneratorTransformer_js = (function() {
 }).call(this);
 var $___src_codegeneration_GeneratorTransformPass_js = (function() {
   "use strict";
-  var $__2 = Object.freeze(Object.defineProperties(["\r\n          if (", " == ", ") {\r\n            ", " = ", ";\r\n            throw ", ";\r\n          }"], {raw: {value: Object.freeze(["\r\n          if (", " == ", ") {\r\n            ", " = ", ";\r\n            throw ", ";\r\n          }"])}})), $__3 = Object.freeze(Object.defineProperties(["\r\n        {\r\n          var ", " = ", ".getIterator(", ");\r\n          var ", ";\r\n\r\n          // TODO: Should 'yield *' handle non-generator iterators? A strict\r\n          // interpretation of harmony:generators would indicate 'no', but\r\n          // 'yes' seems makes more sense from a language-user's perspective.\r\n\r\n          // received = void 0;\r\n          ", " = void 0;\r\n          // send = true; // roughly equivalent\r\n          ", " = ", ";\r\n\r\n          while (true) {\r\n            if (", " == ", ") {\r\n              ", " = ", ".next(", ");\r\n            } else {\r\n              ", " = ", ".throw(", ");\r\n            }\r\n            if (", ".done) {\r\n              ", " = ", ".value;\r\n              break;\r\n            }\r\n            // Normally, this would go through transformYieldForExpression_\r\n            // which would rethrow and we would catch it and set up the states\r\n            // again.\r\n            ", ";\r\n          }\r\n        }"], {raw: {value: Object.freeze(["\r\n        {\r\n          var ", " = ", ".getIterator(", ");\r\n          var ", ";\r\n\r\n          // TODO: Should 'yield *' handle non-generator iterators? A strict\r\n          // interpretation of harmony:generators would indicate 'no', but\r\n          // 'yes' seems makes more sense from a language-user's perspective.\r\n\r\n          // received = void 0;\r\n          ", " = void 0;\r\n          // send = true; // roughly equivalent\r\n          ", " = ", ";\r\n\r\n          while (true) {\r\n            if (", " == ", ") {\r\n              ", " = ", ".next(", ");\r\n            } else {\r\n              ", " = ", ".throw(", ");\r\n            }\r\n            if (", ".done) {\r\n              ", " = ", ".value;\r\n              break;\r\n            }\r\n            // Normally, this would go through transformYieldForExpression_\r\n            // which would rethrow and we would catch it and set up the states\r\n            // again.\r\n            ", ";\r\n          }\r\n        }"])}}));
+  var $__2 = Object.freeze(Object.defineProperties(["\n          if (", " == ", ") {\n            ", " = ", ";\n            throw ", ";\n          }"], {raw: {value: Object.freeze(["\n          if (", " == ", ") {\n            ", " = ", ";\n            throw ", ";\n          }"])}})), $__3 = Object.freeze(Object.defineProperties(["\n        {\n          var ", " = ", ".getIterator(", ");\n          var ", ";\n\n          // TODO: Should 'yield *' handle non-generator iterators? A strict\n          // interpretation of harmony:generators would indicate 'no', but\n          // 'yes' seems makes more sense from a language-user's perspective.\n\n          // received = void 0;\n          ", " = void 0;\n          // send = true; // roughly equivalent\n          ", " = ", ";\n\n          while (true) {\n            if (", " == ", ") {\n              ", " = ", ".next(", ");\n            } else {\n              ", " = ", ".throw(", ");\n            }\n            if (", ".done) {\n              ", " = ", ".value;\n              break;\n            }\n            // Normally, this would go through transformYieldForExpression_\n            // which would rethrow and we would catch it and set up the states\n            // again.\n            ", ";\n          }\n        }"], {raw: {value: Object.freeze(["\n        {\n          var ", " = ", ".getIterator(", ");\n          var ", ";\n\n          // TODO: Should 'yield *' handle non-generator iterators? A strict\n          // interpretation of harmony:generators would indicate 'no', but\n          // 'yes' seems makes more sense from a language-user's perspective.\n\n          // received = void 0;\n          ", " = void 0;\n          // send = true; // roughly equivalent\n          ", " = ", ";\n\n          while (true) {\n            if (", " == ", ") {\n              ", " = ", ".next(", ");\n            } else {\n              ", " = ", ".throw(", ");\n            }\n            if (", ".done) {\n              ", " = ", ".value;\n              break;\n            }\n            // Normally, this would go through transformYieldForExpression_\n            // which would rethrow and we would catch it and set up the states\n            // again.\n            ", ";\n          }\n        }"])}}));
   var AsyncTransformer = $___src_codegeneration_generator_AsyncTransformer_js.AsyncTransformer;
   var ForInTransformPass = $___src_codegeneration_generator_ForInTransformPass_js.ForInTransformPass;
   var $__10 = $___src_syntax_trees_ParseTrees_js, GetAccessor = $__10.GetAccessor, SetAccessor = $__10.SetAccessor;

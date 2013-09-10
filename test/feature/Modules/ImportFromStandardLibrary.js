@@ -1,5 +1,5 @@
 import {Name as create, isName} from '@name';
-import Name from '@name';
+import {Name} from '@name';
 module n from '@name'
 
 var n1 = create();
