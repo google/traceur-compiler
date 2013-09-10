@@ -300,17 +300,6 @@
       "ParseTree"
     ]
   },
-  "ExportMapping": {
-    "location": [
-      "SourceRange"
-    ],
-    "moduleExpression": [
-      "ParseTree"
-    ],
-    "specifierSet": [
-      "ParseTree"
-    ]
-  },
   "ExportSpecifier": {
     "location": [
       "SourceRange"
@@ -611,6 +600,17 @@
     ],
     "url": [
       "Token"
+    ]
+  },
+  "NamedExport": {
+    "location": [
+      "SourceRange"
+    ],
+    "moduleExpression": [
+      "ParseTree"
+    ],
+    "specifierSet": [
+      "ParseTree"
     ]
   },
   "NameStatement": {

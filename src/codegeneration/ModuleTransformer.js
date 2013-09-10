@@ -29,7 +29,6 @@ import {
 import {
   CLASS_DECLARATION,
   EXPORT_DECLARATION,
-  EXPORT_MAPPING,
   EXPORT_SPECIFIER,
   EXPORT_STAR,
   FUNCTION_DECLARATION,
@@ -38,6 +37,7 @@ import {
   MODULE_DECLARATION,
   MODULE_DEFINITION,
   MODULE_REQUIRE,
+  NAMED_EXPORT,
   VARIABLE_STATEMENT
 } from '../syntax/trees/ParseTreeType.js';
 import {
@@ -296,7 +296,7 @@ function transformModuleElements(project, module, elements, useStrictCount) {
             statements.push(transformDeclaration(project, module,
                                                  declaration));
             break;
-          case EXPORT_MAPPING:
+          case NAMED_EXPORT:
             // These do not generate any statement here. It is all taken
             // care of in the export getter.
             break;

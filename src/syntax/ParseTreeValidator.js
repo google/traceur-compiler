@@ -67,7 +67,7 @@ import {
   COMPUTED_PROPERTY_NAME,
   DEFAULT_CLAUSE,
   EXPORT_DECLARATION,
-  EXPORT_MAPPING,
+  NAMED_EXPORT,
   EXPORT_SPECIFIER,
   EXPORT_SPECIFIER_SET,
   EXPORT_STAR,
@@ -428,15 +428,15 @@ export class ParseTreeValidator extends ParseTreeVisitor {
         declType == MODULE_DEFINITION ||
         declType == MODULE_DECLARATION ||
         declType == CLASS_DECLARATION ||
-        declType == EXPORT_MAPPING,
+        declType == NAMED_EXPORT,
         tree.declaration,
         'expected valid export tree');
   }
 
   /**
-   * @param {ExportMapping} tree
+   * @param {NamedExport} tree
    */
-  visitExportMapping(tree) {
+  visitNamedExport(tree) {
     if (tree.moduleExpression) {
       this.checkVisit_(
           tree.moduleExpression.type == MODULE_EXPRESSION,

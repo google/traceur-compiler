@@ -392,12 +392,12 @@ export class Parser {
         if (this.peekModule_(type)) {
           exportTree = this.parseModule_(load);
         } else {
-          exportTree = this.parseExportMapping_(load);
+          exportTree = this.parseNamedExport_(load);
         }
         break;
       case OPEN_CURLY:
       case STAR:
-        exportTree = this.parseExportMapping_(load);
+        exportTree = this.parseNamedExport_(load);
         break;
       default:
         return this.parseUnexpectedToken_(type);
@@ -405,8 +405,8 @@ export class Parser {
     return new ExportDeclaration(this.getTreeLocation_(start), exportTree);
   }
 
-  parseExportMapping_(load) {
-    // ExportMapping ::=
+  parseNamedExport_(load) {
+    // NamedExport ::=
     //     "*" "from" ModuleExpression(load)
     //     ExportSpecifierSet ("from" ModuleExpression(load))?
     var start = this.getTreeStartLocation_();
@@ -422,7 +422,7 @@ export class Parser {
       expression = this.parseFromModuleExpressionOpt_(load, true);
     }
 
-    return new ExportMapping(this.getTreeLocation_(start), expression,
+    return new NamedExport(this.getTreeLocation_(start), expression,
                              specifierSet);
   }
 

@@ -44,9 +44,9 @@ export class ValidationVisitor extends ModuleVisitor {
   }
 
   /**
-   * @param {ExportMapping} tree
+   * @param {NamedExport} tree
    */
-  visitExportMapping(tree) {
+  visitNamedExport(tree) {
     // Ensures that the module expression exports the names we want to
     // re-export.
     if (tree.moduleExpression) {

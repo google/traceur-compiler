@@ -60,7 +60,7 @@ export class ExportVisitor extends ModuleVisitor {
     this.inExport_ = false;
   }
 
-  visitExportMapping(tree) {
+  visitNamedExport(tree) {
     this.relatedTree_ = tree.moduleExpression;
     this.visitAny(tree.specifierSet);
     this.relatedTree_ = null;

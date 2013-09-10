@@ -383,9 +383,9 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
-   * @param {ExportMapping} tree
+   * @param {NamedExport} tree
    */
-  visitExportMapping(tree) {
+  visitNamedExport(tree) {
     this.visitAny(tree.specifierSet);
     if (tree.moduleExpression) {
       this.write_(FROM);
