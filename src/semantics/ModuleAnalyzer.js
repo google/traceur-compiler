@@ -19,6 +19,7 @@ import {ModuleDeclarationVisitor} from
 import {ModuleDefinitionVisitor} from
     '../codegeneration/module/ModuleDefinitionVisitor.js';
 import {ValidationVisitor} from '../codegeneration/module/ValidationVisitor.js';
+import {transformOptions} from '../options.js';
 
 // TODO(arv): Validate that there are no free variables
 // TODO(arv): Validate that the exported reference exists
@@ -53,19 +54,14 @@ export class ModuleAnalyzer {
   }
 
   /**
-   * @param {Array.<ParseTree>} trees
-   * @return {void}
-   */
-  analyzeTrees(trees) {
-    this.analyzeModuleTrees(trees);
-  }
-
-  /**
    * @param {ParseTree} tree
    * @param {Array.<ModuleSymbol>=} roots
    * @return {void}
    */
-  analyzeModuleTrees(trees, roots = undefined) {
+  analyzeTrees(trees, roots = undefined) {
+    if (!transformOptions.modules)
+      return;
+
     var reporter = this.reporter_;
     var project = this.project_;
     var root = project.getRootModule();

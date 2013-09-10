@@ -208,42 +208,25 @@ export class Parser {
     return this.parseStatement_(type, true, load);
   }
 
-  // module  identifier { ModuleElement* }
-  /**
-  * @return {boolean}
-  * @private
-  */
-  peekModuleDefinition_(type) {
-    // TODO(arv): Remove lookahead.
-    return type === IDENTIFIER && this.peek_(OPEN_CURLY, 1);
-  }
-
   /**
    * @return {ParseTree}
    * @private
    */
-  parseModuleDefinition_(load, start) {
-
-    // ModuleDeclaration ::= "module" ModuleDeclaration(load)";"
-    //              | ModuleDefinition(load)
-    // ModuleDefinition(load) ::= "module" Identifier "{" ModuleBody(load) "}"
-    // ModuleDeclaration(load) ::= Identifier "from" ModuleSpecifier(load)
-
+  parseModuleElements_(load) {
     var strictMode = this.strictMode_;
     this.strictMode_ = true;
 
-    var name = this.eatId_();
     this.eat_(OPEN_CURLY);
-    var result = [];
+    var elements = [];
     var type;
     while (this.peekModuleElement_(type = this.peekType_())) {
-      result.push(this.parseModuleElement_(type, load));
+      elements.push(this.parseModuleElement_(type, load));
     }
     this.eat_(CLOSE_CURLY);
 
     this.strictMode_ = strictMode;
 
-    return new ModuleDefinition(this.getTreeLocation_(start), name, result);
+    return elements;
   }
 
   parseModuleSpecifier_(load) {
@@ -503,15 +486,22 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     this.eatId_(); // module
 
-    if (this.peekModuleDefinition_(this.peekType_()))
-      return this.parseModuleDefinition_(load, start);
+    var name;
+    if (this.peek_(IDENTIFIER))
+      name = this.eatId_();
+    else
+      name = this.eat_(STRING);
 
-  // module Identifier "from" ModuleSpecifier(load)
-    var identifier = this.eatId_();
+    if (name.type === STRING || this.peek_(OPEN_CURLY)) {
+      var elements = this.parseModuleElements_(load);
+      return new ModuleDefinition(this.getTreeLocation_(start), name, elements);
+    }
+
+    // module name "from" ModuleSpecifier(load)
     this.eatId_(FROM);
-    var expression = this.parseModuleSpecifier_(load);
-    return new ModuleDeclaration(this.getTreeLocation_(start), identifier,
-                                 expression);
+    var moduleSpecifier = this.parseModuleSpecifier_(load);
+    return new ModuleDeclaration(this.getTreeLocation_(start), name,
+                                 moduleSpecifier);
   }
 
   parseClassShared_(constr) {
