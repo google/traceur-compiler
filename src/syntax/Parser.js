@@ -500,6 +500,9 @@ export class Parser {
     // module name "from" ModuleSpecifier(load)
     this.eatId_(FROM);
     var moduleSpecifier = this.parseModuleSpecifier_(load);
+
+    this.eatPossibleImplicitSemiColon_();
+
     return new ModuleDeclaration(this.getTreeLocation_(start), name,
                                  moduleSpecifier);
   }
