@@ -61,7 +61,7 @@ export class ExportVisitor extends ModuleVisitor {
   }
 
   visitNamedExport(tree) {
-    this.relatedTree_ = tree.moduleExpression;
+    this.relatedTree_ = tree.moduleSpecifier;
     this.visitAny(tree.specifierSet);
     this.relatedTree_ = null;
   }
@@ -71,7 +71,7 @@ export class ExportVisitor extends ModuleVisitor {
   }
 
   visitExportStar(tree) {
-    var module = this.getModuleForModuleExpression(this.relatedTree_);
+    var module = this.getModuleForModuleSpecifier(this.relatedTree_);
     module.getExports().forEach(({name}) => {
       this.addExport_(name, tree);
     });

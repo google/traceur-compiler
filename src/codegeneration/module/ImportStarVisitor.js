@@ -17,7 +17,7 @@ import {ModuleVisitor} from './ModuleVisitor.js';
 import {STAR} from '../../syntax/TokenType.js';
 
 /**
- * Finds all 'import * from moduleExpression' and associates the tree with
+ * Finds all 'import * from moduleSpecifier' and associates the tree with
  * the module symbol.
  */
 export class ImportStarVisitor extends ModuleVisitor {
@@ -37,7 +37,7 @@ export class ImportStarVisitor extends ModuleVisitor {
     if (importSpecifierSet.type === IMPORT_SPECIFIER_SET &&
         importSpecifierSet.specifiers.type === STAR) {
 
-      var module = this.getModuleForModuleExpression(tree.moduleExpression);
+      var module = this.getModuleForModuleSpecifier(tree.moduleSpecifier);
       this.project.setModuleForStarTree(importSpecifierSet, module);
     }
   }

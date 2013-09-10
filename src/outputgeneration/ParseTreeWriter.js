@@ -387,9 +387,9 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitNamedExport(tree) {
     this.visitAny(tree.specifierSet);
-    if (tree.moduleExpression) {
+    if (tree.moduleSpecifier) {
       this.write_(FROM);
-      this.visitAny(tree.moduleExpression);
+      this.visitAny(tree.moduleSpecifier);
     }
   }
 
@@ -579,9 +579,9 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   visitImportDeclaration(tree) {
     this.write_(IMPORT);
     this.visitAny(tree.importSpecifierSet);
-    if (tree.moduleExpression) {
+    if (tree.moduleSpecifier) {
       this.write_(FROM);
-      this.visitAny(tree.moduleExpression);
+      this.visitAny(tree.moduleSpecifier);
     }
     this.write_(SEMI_COLON);
   }
@@ -672,9 +672,9 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
-   * @param {ModuleExpression} tree
+   * @param {ModuleSpecifier} tree
    */
-  visitModuleExpression(tree) {
+  visitModuleSpecifier(tree) {
     this.visitAny(tree.reference);
   }
 

@@ -83,7 +83,7 @@ module f {
 }
 assert.equal('g', f.g);
 
-// ExportModuleExpression
+// ExportModuleSpecifier
 module h {
   module i {
     export var j = 'j';

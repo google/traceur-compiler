@@ -49,9 +49,9 @@ export class ValidationVisitor extends ModuleVisitor {
   visitNamedExport(tree) {
     // Ensures that the module expression exports the names we want to
     // re-export.
-    if (tree.moduleExpression) {
-      this.visitAny(tree.moduleExpression);
-      var module = this.getModuleForModuleExpression(tree.moduleExpression);
+    if (tree.moduleSpecifier) {
+      this.visitAny(tree.moduleSpecifier);
+      var module = this.getModuleForModuleSpecifier(tree.moduleSpecifier);
       this.visitAndValidate_(module, tree.specifierSet);
     }
     // The else case is checked else where and duplicate exports are caught
@@ -66,12 +66,12 @@ export class ValidationVisitor extends ModuleVisitor {
     this.checkExport_(tree, tree.identifierToken.value);
   }
 
-  visitModuleExpression(tree) {
-    this.getModuleForModuleExpression(tree, true /* reportErrors */);
+  visitModuleSpecifier(tree) {
+    this.getModuleForModuleSpecifier(tree, true /* reportErrors */);
   }
 
   visitImportDeclaration(tree) {
-    var module = this.getModuleForModuleExpression(tree.moduleExpression,
+    var module = this.getModuleForModuleSpecifier(tree.moduleSpecifier,
         true /* reportErrors */);
     this.visitAndValidate_(module, tree.importSpecifierSet);
   }

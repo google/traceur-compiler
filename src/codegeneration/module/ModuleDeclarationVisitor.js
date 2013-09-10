@@ -32,7 +32,7 @@ export class ModuleDeclarationVisitor extends ModuleVisitor {
   visitModuleDeclaration(tree) {
     var name = tree.identifier.value;
     var parent = this.currentModule;
-    var module = this.getModuleForModuleExpression(tree.expression);
+    var module = this.getModuleForModuleSpecifier(tree.expression);
     if (!module) {
       return;
     }

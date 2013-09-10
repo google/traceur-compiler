@@ -127,12 +127,12 @@ function getGetterExport(project, symbol) {
  * a member expression for something like a.b.c.{d, e, f}.
  * @param {Project} project
  * @param {IdentifierToken} identifierToken
- * @param {ParseTree=} moduleExpression
+ * @param {ParseTree=} moduleSpecifier
  * @return {ParseTree}
  */
-function transformSpecifier(project, identifierToken, moduleExpression) {
-  if (moduleExpression) {
-    var operand = new ModuleTransformer(project).transformAny(moduleExpression);
+function transformSpecifier(project, identifierToken, moduleSpecifier) {
+  if (moduleSpecifier) {
+    var operand = new ModuleTransformer(project).transformAny(moduleSpecifier);
     return createMemberExpression(operand, identifierToken);
   }
 
@@ -149,10 +149,10 @@ export class ModuleTransformer extends ParseTreeTransformer {
   }
 
   /**
-   * @param {ModuleExpression} tree
+   * @param {ModuleSpecifier} tree
    * @return {ParseTree}
    */
-  transformModuleExpression(tree) {
+  transformModuleSpecifier(tree) {
     var reference = tree.reference;
     if (reference.type == MODULE_REQUIRE) {
       // traceur.modules.getModuleInstanceByUrl(url)
@@ -190,9 +190,9 @@ export class ModuleTransformer extends ParseTreeTransformer {
       importSpecifierSet = this.transformAny(tree.importSpecifierSet);
     }
 
-    var moduleExpression = this.transformAny(tree.moduleExpression);
+    var moduleSpecifier = this.transformAny(tree.moduleSpecifier);
     var declaration = createVariableDeclaration(importSpecifierSet,
-                                                moduleExpression);
+                                                moduleSpecifier);
 
     // TODO(arv): Simplify
     return createVariableStatement(createVariableDeclarationList(

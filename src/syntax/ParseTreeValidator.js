@@ -82,7 +82,7 @@ import {
   MODULE_DECLARATION,
   MODULE_DECLARATION,
   MODULE_DEFINITION,
-  MODULE_EXPRESSION,
+  MODULE_SPECIFIER,
   OBJECT_PATTERN,
   OBJECT_PATTERN_FIELD,
   PROPERTY_METHOD_ASSIGNMENT,
@@ -437,10 +437,10 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {NamedExport} tree
    */
   visitNamedExport(tree) {
-    if (tree.moduleExpression) {
+    if (tree.moduleSpecifier) {
       this.checkVisit_(
-          tree.moduleExpression.type == MODULE_EXPRESSION,
-          tree.moduleExpression,
+          tree.moduleSpecifier.type == MODULE_SPECIFIER,
+          tree.moduleSpecifier,
           'module expression expected');
     }
 
@@ -711,7 +711,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {ModuleDeclaration} tree
    */
   visitModuleDeclaration(tree) {
-    this.checkType_(MODULE_EXPRESSION,
+    this.checkType_(MODULE_SPECIFIER,
                     tree.expression,
                     'module expression expected');
   }

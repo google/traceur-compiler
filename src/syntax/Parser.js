@@ -227,7 +227,7 @@ export class Parser {
     // ModuleDeclaration ::= "module" ModuleDeclaration(load)";"
     //              | ModuleDefinition(load)
     // ModuleDefinition(load) ::= "module" Identifier "{" ModuleBody(load) "}"
-    // ModuleDeclaration(load) ::= Identifier "from" ModuleExpression(load)
+    // ModuleDeclaration(load) ::= Identifier "from" ModuleSpecifier(load)
 
     var strictMode = this.strictMode_;
     this.strictMode_ = true;
@@ -246,12 +246,12 @@ export class Parser {
     return new ModuleDefinition(this.getTreeLocation_(start), name, result);
   }
 
-  parseModuleExpression_(load) {
-    // ModuleExpression(load) ::= ModuleReference(load)
+  parseModuleSpecifier_(load) {
+    // ModuleSpecifier(load) ::= ModuleReference(load)
     //                         | Identifier
     var start = this.getTreeStartLocation_();
     var reference = this.parseModuleReference_(load);
-    return new ModuleExpression(this.getTreeLocation_(start), reference);
+    return new ModuleSpecifier(this.getTreeLocation_(start), reference);
   }
 
   /**
@@ -306,10 +306,10 @@ export class Parser {
     this.eat_(IMPORT);
     var importSpecifierSet = this.parseImportSpecifierSet_();
     this.eatId_(FROM);
-    var moduleExpression = this.parseModuleExpression_(load);
+    var moduleSpecifier = this.parseModuleSpecifier_(load);
     this.eatPossibleImplicitSemiColon_();
     return new ImportDeclaration(this.getTreeLocation_(start),
-        moduleExpression, importSpecifierSet);
+        moduleSpecifier, importSpecifierSet);
   }
 
   //ImportSpecifierSet ::= "*"
@@ -407,29 +407,29 @@ export class Parser {
 
   parseNamedExport_(load) {
     // NamedExport ::=
-    //     "*" "from" ModuleExpression(load)
-    //     ExportSpecifierSet ("from" ModuleExpression(load))?
+    //     "*" "from" ModuleSpecifier(load)
+    //     ExportSpecifierSet ("from" ModuleSpecifier(load))?
     var start = this.getTreeStartLocation_();
 
     var specifierSet, expression;
 
     if (this.peek_(OPEN_CURLY)) {
       specifierSet = this.parseExportSpecifierSet_();
-      expression = this.parseFromModuleExpressionOpt_(load, false);
+      expression = this.parseFromModuleSpecifierOpt_(load, false);
     } else {
       this.eat_(STAR);
       specifierSet = new ExportStar(this.getTreeLocation_(start));
-      expression = this.parseFromModuleExpressionOpt_(load, true);
+      expression = this.parseFromModuleSpecifierOpt_(load, true);
     }
 
     return new NamedExport(this.getTreeLocation_(start), expression,
                              specifierSet);
   }
 
-  parseFromModuleExpressionOpt_(load, required) {
+  parseFromModuleSpecifierOpt_(load, required) {
     if (required || this.peekPredefinedString_(FROM)) {
       this.eatId_(FROM);
-      return this.parseModuleExpression_(load);
+      return this.parseModuleSpecifier_(load);
     }
     return null;
   }
@@ -489,7 +489,7 @@ export class Parser {
     // ModuleDeclaration ::= "module" ModuleDeclaration(load) ";"
     //                    | ModuleDefinition(load)
     // ModuleDefinition(load) ::= "module" Identifier "{" ModuleBody(load) "}"
-    // ModuleDeclaration(load) ::= Identifier "from" ModuleExpression(load)
+    // ModuleDeclaration(load) ::= Identifier "from" ModuleSpecifier(load)
     // TODO(arv): [NoNewLine]
     return parseOptions.modules &&
         type === IDENTIFIER && this.peekPredefinedString_(MODULE);
@@ -506,10 +506,10 @@ export class Parser {
     if (this.peekModuleDefinition_(this.peekType_()))
       return this.parseModuleDefinition_(load, start);
 
-  // module Identifier "from" ModuleExpression(load)
+  // module Identifier "from" ModuleSpecifier(load)
     var identifier = this.eatId_();
     this.eatId_(FROM);
-    var expression = this.parseModuleExpression_(load);
+    var expression = this.parseModuleSpecifier_(load);
     return new ModuleDeclaration(this.getTreeLocation_(start), identifier,
                                  expression);
   }

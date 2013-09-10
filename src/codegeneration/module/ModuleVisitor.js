@@ -63,11 +63,11 @@ export class ModuleVisitor extends ParseTreeVisitor {
   }
 
   /**
-   * @param {ModuleExpression} tree
+   * @param {ModuleSpecifier} tree
    * @param {boolean=} reportErrors If false no errors are reported.
    * @return {ModuleSymbol}
    */
-  getModuleForModuleExpression(tree, reportErrors) {
+  getModuleForModuleSpecifier(tree, reportErrors) {
     // "url"
     if (tree.reference.type == ParseTreeType.MODULE_REQUIRE) {
       var url = tree.reference.url.processedValue;

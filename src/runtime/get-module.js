@@ -22,7 +22,7 @@ var currentCodeUnit;
 export var standardModuleUrlRegExp = /^@\w+$/;
 
 /**
- * This is used to find the module for a require url ModuleExpression.
+ * This is used to find the module for a require url ModuleSpecifier.
  * @param {string} url
  * @return {Object} A module instance object for the given url in the current
  *     code loader.
