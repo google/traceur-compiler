@@ -4,7 +4,7 @@ module m {
 }
 
 import {x as renamedX, y} from m;
-import x from m;
+import {x} from m;
 module m2 from m;
 
 assert.equal(1, x);

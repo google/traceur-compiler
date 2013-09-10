@@ -1,6 +1,6 @@
 // Options: --private-names
 
-import Name from '@name';
+import {Name} from '@name';
 
 var n = new Name;
 var p = {};
