@@ -313,8 +313,7 @@ export class Parser {
     return this.parseProgramElement_(type, load);
   }
 
-  // ImportDeclaration(load) ::= "import" ImportBinding(load)
-  //                                     ("," ImportBinding(load))* ";"
+  // ImportDeclaration(load) ::= "import" ImportBinding(load) ";"
   /**
    * @return {ParseTree}
    * @private
@@ -322,16 +321,10 @@ export class Parser {
   parseImportDeclaration_(load) {
     var start = this.getTreeStartLocation_();
     this.eat_(IMPORT);
-    var importBindings = [];
-
-    importBindings.push(this.parseImportBinding_(load));
-    while (this.eatIf_(COMMA)) {
-      importBindings.push(this.parseImportBinding_(load));
-    }
+    var importBinding = this.parseImportBinding_(load);
     this.eatPossibleImplicitSemiColon_();
 
-    return new ImportDeclaration(this.getTreeLocation_(start),
-        importBindings);
+    return new ImportDeclaration(this.getTreeLocation_(start), importBinding);
   }
 
   // ImportBinding(load) ::= ImportSpecifierSet "from" ModuleExpression(load)
@@ -429,29 +422,17 @@ export class Parser {
         if (this.peekModuleDeclaration_(type)) {
           exportTree = this.parseModuleDeclaration_(load);
         } else {
-          exportTree = this.parseExportMappingList_(load);
+          exportTree = this.parseExportMapping_(load);
         }
         break;
       case OPEN_CURLY:
       case STAR:
-        exportTree = this.parseExportMappingList_(load);
+        exportTree = this.parseExportMapping_(load);
         break;
       default:
         return this.parseUnexpectedToken_(type);
     }
     return new ExportDeclaration(this.getTreeLocation_(start), exportTree);
-  }
-
-  parseExportMappingList_(load) {
-    // This is part of the ExportDeclaration production
-    // ExportMapping ("," ExportMapping)*
-    var start = this.getTreeStartLocation_();
-    var mappings = [this.parseExportMapping_(load)];
-    while (this.eatIf_(COMMA)) {
-      mappings.push(this.parseExportMapping_(load));
-    }
-    this.eatPossibleImplicitSemiColon_();
-    return new ExportMappingList(this.getTreeLocation_(start), mappings);
   }
 
   parseExportMapping_(load) {

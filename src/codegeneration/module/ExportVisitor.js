@@ -66,17 +66,6 @@ export class ExportVisitor extends ModuleVisitor {
     this.relatedTree_ = null;
   }
 
-  visitExportMappingList(tree) {
-    for (var i = 0; i < tree.paths.length; i++) {
-      var path = tree.paths[i];
-      if (path.type == IDENTIFIER_EXPRESSION) {
-        this.addExport_(path.identifierToken.value, path);
-      } else {
-        this.visitAny(path);
-      }
-    }
-  }
-
   visitExportSpecifier(tree) {
     this.addExport_((tree.rhs || tree.lhs).value, tree);
   }

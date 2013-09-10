@@ -68,7 +68,6 @@ import {
   DEFAULT_CLAUSE,
   EXPORT_DECLARATION,
   EXPORT_MAPPING,
-  EXPORT_MAPPING_LIST,
   EXPORT_SPECIFIER,
   EXPORT_SPECIFIER_SET,
   EXPORT_STAR,
@@ -429,7 +428,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
         declType == MODULE_DEFINITION ||
         declType == MODULE_DECLARATION ||
         declType == CLASS_DECLARATION ||
-        declType == EXPORT_MAPPING_LIST,
+        declType == EXPORT_MAPPING,
         tree.declaration,
         'expected valid export tree');
   }
@@ -447,26 +446,9 @@ export class ParseTreeValidator extends ParseTreeVisitor {
 
     var specifierType = tree.specifierSet.type;
     this.checkVisit_(specifierType == EXPORT_SPECIFIER_SET ||
-                     specifierType == EXPORT_STAR ||
-                     specifierType == IDENTIFIER_EXPRESSION,
+                     specifierType == EXPORT_STAR,
                      tree.specifierSet,
                      'specifier set or identifier expected');
-  }
-
-  /**
-   * @param {ExportMapping} tree
-   */
-  visitExportMappingList(tree) {
-    this.check_(tree.paths.length > 0, tree,
-                'expected at least one path');
-    for (var i = 0; i < tree.paths.length; i++) {
-      var path = tree.paths[i];
-      var type = path.type;
-      this.checkVisit_(
-          type == EXPORT_MAPPING,
-          path,
-          'expected export mapping');
-    }
   }
 
   /**

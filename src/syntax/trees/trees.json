@@ -311,14 +311,6 @@
       "ParseTree"
     ]
   },
-  "ExportMappingList": {
-    "location": [
-      "SourceRange"
-    ],
-    "paths": [
-      "Array.<ExportMapping>"
-    ]
-  },
   "ExportSpecifier": {
     "location": [
       "SourceRange"
@@ -517,8 +509,8 @@
     "location": [
       "SourceRange"
     ],
-    "importPathList": [
-      "Array.<ImportBinding>"
+    "importBinding": [
+      "ImportBinding"
     ]
   },
   "ImportSpecifier": {
