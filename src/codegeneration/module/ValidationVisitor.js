@@ -70,7 +70,7 @@ export class ValidationVisitor extends ModuleVisitor {
     this.getModuleForModuleExpression(tree, true /* reportErrors */);
   }
 
-  visitImportBinding(tree) {
+  visitImportDeclaration(tree) {
     var module = this.getModuleForModuleExpression(tree.moduleExpression,
         true /* reportErrors */);
     this.visitAndValidate_(module, tree.importSpecifierSet);

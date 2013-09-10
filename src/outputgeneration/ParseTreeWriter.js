@@ -578,19 +578,12 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitImportDeclaration(tree) {
     this.write_(IMPORT);
-    this.visitAny(tree.importBinding);
-    this.write_(SEMI_COLON);
-  }
-
-  /**
-   * @param {ImportBinding} tree
-   */
-  visitImportBinding(tree) {
     this.visitAny(tree.importSpecifierSet);
     if (tree.moduleExpression) {
       this.write_(FROM);
       this.visitAny(tree.moduleExpression);
     }
+    this.write_(SEMI_COLON);
   }
 
   /**

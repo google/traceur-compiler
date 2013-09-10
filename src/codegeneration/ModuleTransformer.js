@@ -178,12 +178,7 @@ export class ModuleTransformer extends ParseTreeTransformer {
     // import {id} from module;
     //  =>
     // var {id} = moduleInstance
-    var declaration = this.transformAny(tree.importBinding);
-    return createVariableStatement(createVariableDeclarationList(
-        VAR, [declaration]));
-  }
 
-  transformImportBinding(tree) {
     var importSpecifierSet;
     // If identifier we need to output the object pattern {id}.
     if (tree.importSpecifierSet.type == IDENTIFIER_EXPRESSION) {
@@ -196,7 +191,12 @@ export class ModuleTransformer extends ParseTreeTransformer {
     }
 
     var moduleExpression = this.transformAny(tree.moduleExpression);
-    return createVariableDeclaration(importSpecifierSet, moduleExpression);
+    var declaration = createVariableDeclaration(importSpecifierSet,
+                                                moduleExpression);
+
+    // TODO(arv): Simplify
+    return createVariableStatement(createVariableDeclarationList(
+        VAR, [declaration]));
   }
 
   transformImportSpecifierSet(tree) {

@@ -30,7 +30,7 @@ export class ImportStarVisitor extends ModuleVisitor {
     super(reporter, project, module);
   }
 
-  visitImportBinding(tree) {
+  visitImportDeclaration(tree) {
     // If we find an 'import * from m' we associate the tree with the module
     // so that we can have access to it during the transformation phase.
     var importSpecifierSet = tree.importSpecifierSet;

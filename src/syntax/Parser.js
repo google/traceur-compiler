@@ -296,7 +296,7 @@ export class Parser {
     return this.parseProgramElement_(type, load);
   }
 
-  // ImportDeclaration(load) ::= "import" ImportBinding(load) ";"
+  // ImportDeclaration(load) ::= "import" ImportDeclaration(load) ";"
   /**
    * @return {ParseTree}
    * @private
@@ -304,24 +304,11 @@ export class Parser {
   parseImportDeclaration_(load) {
     var start = this.getTreeStartLocation_();
     this.eat_(IMPORT);
-    var importBinding = this.parseImportBinding_(load);
-    this.eatPossibleImplicitSemiColon_();
-
-    return new ImportDeclaration(this.getTreeLocation_(start), importBinding);
-  }
-
-  // ImportBinding(load) ::= ImportSpecifierSet "from" ModuleExpression(load)
-  /**
-   * @return {ParseTree}
-   * @private
-   */
-  parseImportBinding_(load) {
-    var start = this.getTreeStartLocation_();
     var importSpecifierSet = this.parseImportSpecifierSet_();
     this.eatId_(FROM);
     var moduleExpression = this.parseModuleExpression_(load);
-
-    return new ImportBinding(this.getTreeLocation_(start),
+    this.eatPossibleImplicitSemiColon_();
+    return new ImportDeclaration(this.getTreeLocation_(start),
         moduleExpression, importSpecifierSet);
   }
 

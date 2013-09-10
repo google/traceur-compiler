@@ -494,7 +494,7 @@
       "ParseTree"
     ]
   },
-  "ImportBinding": {
+  "ImportDeclaration": {
     "location": [
       "SourceRange"
     ],
@@ -503,14 +503,6 @@
     ],
     "importSpecifierSet": [
       "ParseTree"
-    ]
-  },
-  "ImportDeclaration": {
-    "location": [
-      "SourceRange"
-    ],
-    "importBinding": [
-      "ImportBinding"
     ]
   },
   "ImportSpecifier": {
