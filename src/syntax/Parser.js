@@ -258,17 +258,10 @@ export class Parser {
 
   parseModuleExpression_(load) {
     // ModuleExpression(load) ::= ModuleReference(load)
-    //                         | ModuleExpression(load) "." IdentifierName
+    //                         | Identifier
     var start = this.getTreeStartLocation_();
     var reference = this.parseModuleReference_(load);
-    var identifierNames = [];
-    // TODO(arv): Refactor to remove lookahead.
-    while (this.peek_(PERIOD) && this.peekIdName_(this.peekToken_(1))) {
-      this.eat_(PERIOD);
-      identifierNames.push(this.eatIdName_());
-    }
-    return new ModuleExpression(this.getTreeLocation_(start), reference,
-        identifierNames);
+    return new ModuleExpression(this.getTreeLocation_(start), reference);
   }
 
   /**
@@ -538,13 +531,10 @@ export class Parser {
     if (this.peekModuleDefinition_(this.peekType_()))
       return this.parseModuleDefinition_(load, start);
 
-    var specifiers = [this.parseModuleSpecifier_(load)];
-    while (this.eatIf_(COMMA)) {
-      specifiers.push(this.parseModuleSpecifier_(load));
-    }
+    var specifier = this.parseModuleSpecifier_(load);
     this.eatPossibleImplicitSemiColon_();
-    return new ModuleDeclaration(this.getTreeLocation_(start),
-        specifiers);
+
+    return new ModuleDeclaration(this.getTreeLocation_(start), specifier);
   }
 
   parseClassShared_(constr) {

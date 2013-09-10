@@ -685,12 +685,9 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {ModuleDefinition} tree
    */
   visitModuleDeclaration(tree) {
-    for (var i = 0; i < tree.specifiers.length; i++) {
-      var specifier = tree.specifiers[i];
-      this.checkType_(MODULE_SPECIFIER,
-                      specifier,
-                      'module specifier expected');
-    }
+    this.checkType_(MODULE_SPECIFIER,
+                    tree.specifier,
+                    'module specifier expected');
   }
 
   /**

@@ -34,23 +34,22 @@ module b2 from b;
 assert.equal(42, b2.c.d);
 
 // NestedDeclarations
-module c from b.c;
-assert.equal(42, c.d);
+module c {
+  export * from b
+}
+assert.equal(42, c.c.d);
 
 // NestedDeclarations1
 module d from c;
-assert.equal(42, d.d);
-
-// NestedDeclarations2
-module d2 from c.c2;
-assert.equal(43, d2.d2);
+assert.equal(42, d.c.d);
 
 // ExportModuleDeclaration
 module e {
   module n {
     export var val = 44;
   }
-  export module o from n, o2 from n;
+  export module o from n;
+  export module o2 from n;
 }
 assert.equal(44, e.o.val);
 assert.equal(44, e.o2.val);
