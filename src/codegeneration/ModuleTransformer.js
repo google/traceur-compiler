@@ -15,6 +15,7 @@
 import {
   BindingElement,
   BindingIdentifier,
+  IdentifierExpression,
   LiteralExpression,
   LiteralPropertyName,
   ObjectPattern,
@@ -36,12 +37,13 @@ import {
   IMPORT_DECLARATION,
   MODULE_DECLARATION,
   MODULE_DEFINITION,
-  MODULE_REQUIRE,
+  MODULE_SPECIFIER,
   NAMED_EXPORT,
   VARIABLE_STATEMENT
 } from '../syntax/trees/ParseTreeType.js';
 import {
   STAR,
+  STRING,
   VAR
 } from '../syntax/TokenType.js';
 import {
@@ -147,16 +149,16 @@ export class ModuleTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformModuleSpecifier(tree) {
-    var reference = tree.reference;
-    if (reference.type == MODULE_REQUIRE) {
+    var token = tree.token;
+    if (token.type === STRING) {
       // traceur.modules.getModuleInstanceByUrl(url)
       return createCallExpression(
           createMemberExpression(TRACEUR_MODULES, GET_MODULE_INSTANCE_BY_URL),
           createArgumentList(
-              new LiteralExpression(null, reference.url)));
+              new LiteralExpression(null, token)));
     }
 
-    return reference;
+    return new IdentifierExpression(token.location, token);
   }
 
   /**
