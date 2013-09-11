@@ -41,6 +41,7 @@ import {
   VARIABLE_STATEMENT
 } from '../syntax/trees/ParseTreeType.js';
 import {
+  IDENTIFIER,
   STAR,
   VAR
 } from '../syntax/TokenType.js';
@@ -70,6 +71,7 @@ import {
   createVariableStatement
 } from './ParseTreeFactory.js';
 import {hasUseStrict} from '../semantics/util.js';
+import {parseStatement} from './PlaceHolderParser.js';
 
 function toBindingIdentifier(tree) {
   return new BindingIdentifier(tree.location, tree.identifierToken);
@@ -341,12 +343,20 @@ function transformModuleElements(project, module, elements, useStrictCount) {
  * @return {ParseTree}
  */
 function transformDefinition(project, parent, tree, useStrictCount) {
+
   var module = parent.getModule(tree.name.value);
 
   var callExpression = transformModuleElements(project, module,
                                                tree.elements, useStrictCount);
 
-  // const M = (function() { statements }).call(thisObject);
-  // TODO(arv): const is not allowed in ES5 strict
-  return createVariableStatement(VAR, module.name, callExpression);
+  if (tree.name.type === IDENTIFIER) {
+    // const M = (function() { statements }).call(thisObject);
+    // TODO(arv): const is not allowed in ES5 strict
+    return createVariableStatement(VAR, module.name, callExpression);
+  }
+
+  // TODO(arv): Refactor transformModuleElements.
+  // $traceurModules.registerModule(name, func, this)
+  var func = callExpression.operand.operand.expression;
+  return parseStatement `$traceurModules.registerModule(${tree.name}, ${func}, this);`;
 }
