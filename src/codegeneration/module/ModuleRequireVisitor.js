@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {ParseTreeVisitor} from '../../syntax/ParseTreeVisitor.js';
+import {STRING} from '../../syntax/TokenType.js';
 import {canonicalizeUrl} from '../../util/url.js';
 
 // TODO(arv): This is closer to the ModuleVisitor but we don't care about
@@ -36,7 +37,8 @@ export class ModuleRequireVisitor extends ParseTreeVisitor {
     return Object.keys(this.urls_);
   }
 
-  visitModuleRequire(tree) {
-    this.urls_[canonicalizeUrl(tree.url.processedValue)] = true;
+  visitModuleSpecifier(tree) {
+    if (tree.token.type === STRING)
+      this.urls_[canonicalizeUrl(tree.token.processedValue)] = true;
   }
 }

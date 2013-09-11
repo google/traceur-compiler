@@ -29,11 +29,13 @@ var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
 var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
 var Parser = traceur.syntax.Parser;
 var Program = traceur.syntax.trees.Program;
+var ModuleSpecifier = traceur.syntax.trees.ModuleSpecifier;
 var ProgramTransformer = traceur.codegeneration.ProgramTransformer;
 var Project = traceur.semantics.symbols.Project;
 var SourceFile = traceur.syntax.SourceFile
 var SourceMapGenerator = traceur.outputgeneration.SourceMapGenerator;
 var TreeWriter = traceur.outputgeneration.TreeWriter;
+var IDENTIFIER = traceur.syntax.TokenType.IDENTIFIER;
 
 var canonicalizeUrl = traceur.util.canonicalizeUrl;
 var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
@@ -78,15 +80,18 @@ function ModuleRequireTransformer(url, commonPath) {
 
 ModuleRequireTransformer.prototype = {
   __proto__: ParseTreeTransformer.prototype,
-  transformModuleRequire: function(tree) {
-    var url = tree.url.processedValue;
+  transformModuleSpecifier: function(tree) {
+    if (tree.token.type === IDENTIFIER)
+      return tree;
+
+    var url = tree.token.processedValue;
 
     // Don't handle builtin modules.
     if (url.charAt(0) === '@')
       return tree;
     url = resolveUrl(this.url, url);
 
-    return createIdentifierExpression(generateNameForUrl(url, this.commonPath));
+    return new ModuleSpecifier(null, createIdentifierToken(generateNameForUrl(url, this.commonPath)));
   }
 };
 

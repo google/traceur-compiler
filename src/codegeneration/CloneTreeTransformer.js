@@ -26,7 +26,7 @@ import {
   IdentifierExpression,
   ImportSpecifier,
   LiteralExpression,
-  ModuleRequire,
+  ModuleSpecifier,
   PredefinedType,
   PropertyNameShorthand,
   TemplateLiteralPortion,
@@ -145,11 +145,11 @@ export class CloneTreeTransformer extends ParseTreeTransformer {
   }
 
   /**
-   * @param {ModuleRequire} tree
+   * @param {ModuleSpecifier} tree
    * @return {ParseTree}
    */
-  transformModuleRequire(tree) {
-    return new ModuleRequire(tree.location, tree.url);
+  transformModuleSpecifier(tree) {
+    return new ModuleSpecifier(tree.location, tree.token);
   }
 
   /**

@@ -590,15 +590,7 @@
     "location": [
       "SourceRange"
     ],
-    "reference": [
-      "ParseTree"
-    ]
-  },
-  "ModuleRequire": {
-    "location": [
-      "SourceRange"
-    ],
-    "url": [
+    "token": [
       "Token"
     ]
   },

@@ -12,11 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  ParseTree,
-  ParseTreeType
-} from '../../syntax/trees/ParseTree.js';
+import {ParseTree} from '../../syntax/trees/ParseTree.js';
 import {ParseTreeVisitor} from '../../syntax/ParseTreeVisitor.js';
+import {
+  MODULE_DECLARATION,
+  MODULE_DEFINITION,
+  EXPORT_DECLARATION,
+  IMPORT_DECLARATION
+} from '../../syntax/trees/ParseTreeType.js';
+import {STRING} from '../../syntax/TokenType.js';
 import {Symbol} from '../../semantics/symbols/Symbol.js';
 import {resolveUrl} from '../../util/url.js';
 
@@ -69,15 +73,15 @@ export class ModuleVisitor extends ParseTreeVisitor {
    */
   getModuleForModuleSpecifier(tree, reportErrors) {
     // "url"
-    if (tree.reference.type == ParseTreeType.MODULE_REQUIRE) {
-      var url = tree.reference.url.processedValue;
+    if (tree.token.type == STRING) {
+      var url = tree.token.processedValue;
       url = resolveUrl(this.currentModule.url, url);
       return this.project.getModuleForUrl(url);
     }
 
     // id
 
-    var name = tree.reference.identifierToken.value;
+    var name = tree.token.value;
     var parent = this.getModuleByName(name);
     if (!parent) {
       if (reportErrors) {
@@ -98,10 +102,10 @@ export class ModuleVisitor extends ParseTreeVisitor {
 
   visitModuleElement_(element) {
     switch (element.type) {
-      case ParseTreeType.MODULE_DECLARATION:
-      case ParseTreeType.MODULE_DEFINITION:
-      case ParseTreeType.EXPORT_DECLARATION:
-      case ParseTreeType.IMPORT_DECLARATION:
+      case MODULE_DECLARATION:
+      case MODULE_DEFINITION:
+      case EXPORT_DECLARATION:
+      case IMPORT_DECLARATION:
         this.visitAny(element);
     }
   }
