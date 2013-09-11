@@ -675,14 +675,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {ModuleSpecifier} tree
    */
   visitModuleSpecifier(tree) {
-    this.visitAny(tree.reference);
-  }
-
-  /**
-   * @param {ModuleRequire} tree
-   */
-  visitModuleRequire(tree) {
-    this.write_(tree.url);
+    this.write_(tree.token);
   }
 
   /**

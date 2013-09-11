@@ -230,27 +230,17 @@ export class Parser {
   }
 
   parseModuleSpecifier_(load) {
-    // ModuleSpecifier(load) ::= ModuleReference(load)
-    //                         | Identifier
+    // ModuleSpecifier :
+    //   StringLiteral
+    //   Identifier  // legacy
     var start = this.getTreeStartLocation_();
-    var reference = this.parseModuleReference_(load);
-    return new ModuleSpecifier(this.getTreeLocation_(start), reference);
-  }
+    var token;
+    if (this.peekId_(this.peekType_()))
+      token = this.eatId_();
+    else
+      token = this.eat_(STRING);
 
-  /**
-   * @private
-   * @return {ModuleRequireTree|IdentifierExpression}
-   */
-  parseModuleReference_(load) {
-    // ModuleReference(load) ::= Identifier
-    //                        | [load = true] StringLiteral
-
-    var start = this.getTreeStartLocation_();
-    if (load && this.peek_(STRING)) {
-      var url = this.eat_(STRING);
-      return new ModuleRequire(this.getTreeLocation_(start), url);
-    }
-    return this.parseIdentifierExpression_();
+    return new ModuleSpecifier(this.getTreeLocation_(start), token);
   }
 
   // ClassDeclaration
