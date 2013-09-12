@@ -518,9 +518,15 @@ var $___src_runtime_get_module_js = (function() {
   "use strict";
   var resolveUrl = $___src_util_url_js.resolveUrl;
   var currentCodeUnit;
+  var modules = Object.create(null);
   var standardModuleUrlRegExp = /^@\w+$/;
   function getModuleInstanceByUrl(url) {
     if (standardModuleUrlRegExp.test(url)) return $traceurRuntime.modules[url] || null;
+    var module = modules[url];
+    if (module) {
+      if (module instanceof PendingModule) return modules[url] = module.toModule();
+      return module;
+    }
     url = resolveUrl(currentCodeUnit.url, url);
     for (var i = 0; i < currentCodeUnit.dependencies.length; i++) {
       if (currentCodeUnit.dependencies[i].url == url) {
@@ -534,6 +540,22 @@ var $___src_runtime_get_module_js = (function() {
   }
   function setCurrentCodeUnit(codeUnit) {
     currentCodeUnit = codeUnit;
+  }
+  var PendingModule = function() {
+    'use strict';
+    var $PendingModule = ($__createClassNoExtends)({
+      constructor: function(func, self) {
+        this.func = func;
+        this.self = self;
+      },
+      toModule: function() {
+        return this.func.call(this.self);
+      }
+    }, {});
+    return $PendingModule;
+  }();
+  function registerModule(name, func, self) {
+    modules[name] = new PendingModule(func, self);
   }
   return Object.preventExtensions(Object.create(null, {
     standardModuleUrlRegExp: {
@@ -557,6 +579,12 @@ var $___src_runtime_get_module_js = (function() {
     setCurrentCodeUnit: {
       get: function() {
         return setCurrentCodeUnit;
+      },
+      enumerable: true
+    },
+    registerModule: {
+      get: function() {
+        return registerModule;
       },
       enumerable: true
     }
@@ -2923,7 +2951,7 @@ var $___src_codegeneration_module_ModuleVisitor_js = (function() {
   var ParseTree = $___src_syntax_trees_ParseTree_js.ParseTree;
   var ParseTreeVisitor = $___src_syntax_ParseTreeVisitor_js.ParseTreeVisitor;
   var $__10 = $___src_syntax_trees_ParseTreeType_js, MODULE_DECLARATION = $__10.MODULE_DECLARATION, MODULE_DEFINITION = $__10.MODULE_DEFINITION, EXPORT_DECLARATION = $__10.EXPORT_DECLARATION, IMPORT_DECLARATION = $__10.IMPORT_DECLARATION;
-  var STRING = $___src_syntax_TokenType_js.STRING;
+  var $__10 = $___src_syntax_TokenType_js, IDENTIFIER = $__10.IDENTIFIER, STRING = $__10.STRING;
   var Symbol = $___src_semantics_symbols_Symbol_js.Symbol;
   var resolveUrl = $___src_util_url_js.resolveUrl;
   function getFriendlyName(module) {
@@ -2956,17 +2984,18 @@ var $___src_codegeneration_module_ModuleVisitor_js = (function() {
         if (tree.token.type == STRING) {
           var url = tree.token.processedValue;
           url = resolveUrl(this.currentModule.url, url);
-          return this.project.getModuleForUrl(url);
+          var module = this.project.getModuleForUrl(url);
+          if (module) return module;
         }
         var name = tree.token.value;
-        var parent = this.getModuleByName(name);
-        if (!parent) {
+        var module = this.getModuleByName(name);
+        if (!module) {
           if (reportErrors) {
             this.reportError_(tree, '\'%s\' is not a module', name);
           }
           return null;
         }
-        return parent;
+        return module;
       },
       visitFunctionDeclaration: function(tree) {},
       visitFunctionExpression: function(tree) {},
@@ -2986,8 +3015,16 @@ var $___src_codegeneration_module_ModuleVisitor_js = (function() {
       },
       visitModuleDefinition: function(tree) {
         var current = this.currentModule_;
-        var name = tree.name.value;
-        var module = current.getModule(name);
+        var module;
+        if (tree.name.type === IDENTIFIER) {
+          var name = tree.name.value;
+          module = current.getModule(name);
+        } else {
+          traceur.assert(tree.name.type === STRING);
+          var baseUrl = current ? current.url: this.project.url;
+          var url = resolveUrl(baseUrl, tree.name.processedValue);
+          module = this.project.getModuleForUrl(url);
+        }
         traceur.assert(module);
         this.currentModule_ = module;
         tree.elements.forEach(this.visitModuleElement_, this);
@@ -3232,6 +3269,8 @@ var $___src_codegeneration_module_ModuleDefinitionVisitor_js = (function() {
   "use strict";
   var ModuleSymbol = $___src_semantics_symbols_ModuleSymbol_js.ModuleSymbol;
   var ModuleVisitor = $___src_codegeneration_module_ModuleVisitor_js.ModuleVisitor;
+  var $__10 = $___src_syntax_TokenType_js, IDENTIFIER = $__10.IDENTIFIER, STRING = $__10.STRING;
+  var resolveUrl = $___src_util_url_js.resolveUrl;
   var ModuleDefinitionVisitor = function($__super) {
     'use strict';
     var $__proto = $__getProtoParent($__super);
@@ -3240,11 +3279,20 @@ var $___src_codegeneration_module_ModuleDefinitionVisitor_js = (function() {
         $__superCall(this, $__proto, "constructor", [reporter, project, module]);
       },
       visitModuleDefinition: function(tree) {
-        var name = tree.name.value;
-        if (this.checkForDuplicateModule_(name, tree)) {
+        if (tree.name.type === IDENTIFIER) {
+          var name = tree.name.value;
+          if (this.checkForDuplicateModule_(name, tree)) {
+            var parent = this.currentModule;
+            var module = new ModuleSymbol(name, parent, tree, parent.url);
+            parent.addModule(module);
+          }
+        } else {
+          traceur.assert(tree.name.type === STRING);
           var parent = this.currentModule;
-          var module = new ModuleSymbol(name, parent, tree, parent.url);
-          parent.addModule(module);
+          var baseUrl = parent ? parent.url: this.project.url;
+          var url = resolveUrl(parent.url, tree.name.processedValue);
+          var moduleSymbol = new ModuleSymbol(null, parent, tree, url);
+          this.project.addExternalModule(moduleSymbol);
         }
         $__superCall(this, $__proto, "visitModuleDefinition", [tree]);
       }
@@ -8724,7 +8772,7 @@ var $___src_syntax_Parser_js = (function() {
         this.eatId_();
         var name;
         if (this.peek_(IDENTIFIER)) name = this.eatId_(); else name = this.eat_(STRING);
-        if (name.type === STRING || this.peek_(OPEN_CURLY)) {
+        if (!this.isAtEnd() && (name.type === STRING || this.peek_(OPEN_CURLY))) {
           var elements = this.parseModuleElements_(load);
           return new ModuleDefinition(this.getTreeLocation_(start), name, elements);
         }
@@ -12339,11 +12387,12 @@ var $___src_codegeneration_PlaceholderParser_js = (function() {
   var ArrayMap = $___src_util_ArrayMap_js.ArrayMap;
   var $__10 = $___src_syntax_trees_ParseTreeType_js, BLOCK = $__10.BLOCK, EXPRESSION_STATEMENT = $__10.EXPRESSION_STATEMENT, IDENTIFIER_EXPRESSION = $__10.IDENTIFIER_EXPRESSION;
   var IdentifierToken = $___src_syntax_IdentifierToken_js.IdentifierToken;
+  var LiteralToken = $___src_syntax_LiteralToken_js.LiteralToken;
   var MutedErrorReporter = $___src_util_MutedErrorReporter_js.MutedErrorReporter;
   var ParseTree = $___src_syntax_trees_ParseTree_js.ParseTree;
   var ParseTreeTransformer = $___src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
   var Parser = $___src_syntax_Parser_js.Parser;
-  var $__10 = $___src_syntax_trees_ParseTrees_js, LiteralPropertyName = $__10.LiteralPropertyName, PropertyMethodAssignment = $__10.PropertyMethodAssignment, PropertyNameAssignment = $__10.PropertyNameAssignment, PropertyNameShorthand = $__10.PropertyNameShorthand;
+  var $__10 = $___src_syntax_trees_ParseTrees_js, LiteralExpression = $__10.LiteralExpression, LiteralPropertyName = $__10.LiteralPropertyName, PropertyMethodAssignment = $__10.PropertyMethodAssignment, PropertyNameAssignment = $__10.PropertyNameAssignment, PropertyNameShorthand = $__10.PropertyNameShorthand;
   var SourceFile = $___src_syntax_SourceFile_js.SourceFile;
   var IDENTIFIER = $___src_syntax_TokenType_js.IDENTIFIER;
   var $__10 = $___src_codegeneration_ParseTreeFactory_js, createArrayLiteralExpression = $__10.createArrayLiteralExpression, createBindingIdentifier = $__10.createBindingIdentifier, createBlock = $__10.createBlock, createBooleanLiteral = $__10.createBooleanLiteral, createCommaExpression = $__10.createCommaExpression, createExpressionStatement = $__10.createExpressionStatement, createFunctionBody = $__10.createFunctionBody, createGetAccessor = $__10.createGetAccessor, createIdentifierExpression = $__10.createIdentifierExpression, createIdentifierToken = $__10.createIdentifierToken, createMemberExpression = $__10.createMemberExpression, createNullLiteral = $__10.createNullLiteral, createNumberLiteral = $__10.createNumberLiteral, createParenExpression = $__10.createParenExpression, createSetAccessor = $__10.createSetAccessor, createStringLiteral = $__10.createStringLiteral, createVoid0 = $__10.createVoid0;
@@ -12414,6 +12463,7 @@ var $___src_codegeneration_PlaceholderParser_js = (function() {
   function convertValueToExpression(value) {
     if (value instanceof ParseTree) return value;
     if (value instanceof IdentifierToken) return createIdentifierExpression(value);
+    if (value instanceof LiteralToken) return new LiteralExpression(value.location, value);
     if (Array.isArray(value)) {
       if (value[0]instanceof ParseTree) {
         if (value.length === 1) return value[0];
@@ -15662,7 +15712,7 @@ var $___src_codegeneration_generator_GeneratorTransformer_js = (function() {
 }).call(this);
 var $___src_codegeneration_GeneratorTransformPass_js = (function() {
   "use strict";
-  var $__2 = Object.freeze(Object.defineProperties(["\n          if (", " == ", ") {\n            ", " = ", ";\n            throw ", ";\n          }"], {raw: {value: Object.freeze(["\n          if (", " == ", ") {\n            ", " = ", ";\n            throw ", ";\n          }"])}})), $__3 = Object.freeze(Object.defineProperties(["\n        {\n          var ", " = ", ".getIterator(", ");\n          var ", ";\n\n          // TODO: Should 'yield *' handle non-generator iterators? A strict\n          // interpretation of harmony:generators would indicate 'no', but\n          // 'yes' seems makes more sense from a language-user's perspective.\n\n          // received = void 0;\n          ", " = void 0;\n          // send = true; // roughly equivalent\n          ", " = ", ";\n\n          while (true) {\n            if (", " == ", ") {\n              ", " = ", ".next(", ");\n            } else {\n              ", " = ", ".throw(", ");\n            }\n            if (", ".done) {\n              ", " = ", ".value;\n              break;\n            }\n            // Normally, this would go through transformYieldForExpression_\n            // which would rethrow and we would catch it and set up the states\n            // again.\n            ", ";\n          }\n        }"], {raw: {value: Object.freeze(["\n        {\n          var ", " = ", ".getIterator(", ");\n          var ", ";\n\n          // TODO: Should 'yield *' handle non-generator iterators? A strict\n          // interpretation of harmony:generators would indicate 'no', but\n          // 'yes' seems makes more sense from a language-user's perspective.\n\n          // received = void 0;\n          ", " = void 0;\n          // send = true; // roughly equivalent\n          ", " = ", ";\n\n          while (true) {\n            if (", " == ", ") {\n              ", " = ", ".next(", ");\n            } else {\n              ", " = ", ".throw(", ");\n            }\n            if (", ".done) {\n              ", " = ", ".value;\n              break;\n            }\n            // Normally, this would go through transformYieldForExpression_\n            // which would rethrow and we would catch it and set up the states\n            // again.\n            ", ";\n          }\n        }"])}}));
+  var $__2 = Object.freeze(Object.defineProperties(["\r\n          if (", " == ", ") {\r\n            ", " = ", ";\r\n            throw ", ";\r\n          }"], {raw: {value: Object.freeze(["\r\n          if (", " == ", ") {\r\n            ", " = ", ";\r\n            throw ", ";\r\n          }"])}})), $__3 = Object.freeze(Object.defineProperties(["\r\n        {\r\n          var ", " = ", ".getIterator(", ");\r\n          var ", ";\r\n\r\n          // TODO: Should 'yield *' handle non-generator iterators? A strict\r\n          // interpretation of harmony:generators would indicate 'no', but\r\n          // 'yes' seems makes more sense from a language-user's perspective.\r\n\r\n          // received = void 0;\r\n          ", " = void 0;\r\n          // send = true; // roughly equivalent\r\n          ", " = ", ";\r\n\r\n          while (true) {\r\n            if (", " == ", ") {\r\n              ", " = ", ".next(", ");\r\n            } else {\r\n              ", " = ", ".throw(", ");\r\n            }\r\n            if (", ".done) {\r\n              ", " = ", ".value;\r\n              break;\r\n            }\r\n            // Normally, this would go through transformYieldForExpression_\r\n            // which would rethrow and we would catch it and set up the states\r\n            // again.\r\n            ", ";\r\n          }\r\n        }"], {raw: {value: Object.freeze(["\r\n        {\r\n          var ", " = ", ".getIterator(", ");\r\n          var ", ";\r\n\r\n          // TODO: Should 'yield *' handle non-generator iterators? A strict\r\n          // interpretation of harmony:generators would indicate 'no', but\r\n          // 'yes' seems makes more sense from a language-user's perspective.\r\n\r\n          // received = void 0;\r\n          ", " = void 0;\r\n          // send = true; // roughly equivalent\r\n          ", " = ", ";\r\n\r\n          while (true) {\r\n            if (", " == ", ") {\r\n              ", " = ", ".next(", ");\r\n            } else {\r\n              ", " = ", ".throw(", ");\r\n            }\r\n            if (", ".done) {\r\n              ", " = ", ".value;\r\n              break;\r\n            }\r\n            // Normally, this would go through transformYieldForExpression_\r\n            // which would rethrow and we would catch it and set up the states\r\n            // again.\r\n            ", ";\r\n          }\r\n        }"])}}));
   var AsyncTransformer = $___src_codegeneration_generator_AsyncTransformer_js.AsyncTransformer;
   var ForInTransformPass = $___src_codegeneration_generator_ForInTransformPass_js.ForInTransformPass;
   var $__10 = $___src_syntax_trees_ParseTrees_js, GetAccessor = $__10.GetAccessor, SetAccessor = $__10.SetAccessor;
@@ -15843,15 +15893,224 @@ var $___src_codegeneration_GeneratorTransformPass_js = (function() {
       enumerable: true
     }}));
 }).call(this);
+var $___src_codegeneration_PlaceHolderParser_js = (function() {
+  "use strict";
+  var ArrayMap = $___src_util_ArrayMap_js.ArrayMap;
+  var $__10 = $___src_syntax_trees_ParseTreeType_js, BLOCK = $__10.BLOCK, EXPRESSION_STATEMENT = $__10.EXPRESSION_STATEMENT, IDENTIFIER_EXPRESSION = $__10.IDENTIFIER_EXPRESSION;
+  var IdentifierToken = $___src_syntax_IdentifierToken_js.IdentifierToken;
+  var LiteralToken = $___src_syntax_LiteralToken_js.LiteralToken;
+  var MutedErrorReporter = $___src_util_MutedErrorReporter_js.MutedErrorReporter;
+  var ParseTree = $___src_syntax_trees_ParseTree_js.ParseTree;
+  var ParseTreeTransformer = $___src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
+  var Parser = $___src_syntax_Parser_js.Parser;
+  var $__10 = $___src_syntax_trees_ParseTrees_js, LiteralExpression = $__10.LiteralExpression, LiteralPropertyName = $__10.LiteralPropertyName, PropertyMethodAssignment = $__10.PropertyMethodAssignment, PropertyNameAssignment = $__10.PropertyNameAssignment, PropertyNameShorthand = $__10.PropertyNameShorthand;
+  var SourceFile = $___src_syntax_SourceFile_js.SourceFile;
+  var IDENTIFIER = $___src_syntax_TokenType_js.IDENTIFIER;
+  var $__10 = $___src_codegeneration_ParseTreeFactory_js, createArrayLiteralExpression = $__10.createArrayLiteralExpression, createBindingIdentifier = $__10.createBindingIdentifier, createBlock = $__10.createBlock, createBooleanLiteral = $__10.createBooleanLiteral, createCommaExpression = $__10.createCommaExpression, createExpressionStatement = $__10.createExpressionStatement, createFunctionBody = $__10.createFunctionBody, createGetAccessor = $__10.createGetAccessor, createIdentifierExpression = $__10.createIdentifierExpression, createIdentifierToken = $__10.createIdentifierToken, createMemberExpression = $__10.createMemberExpression, createNullLiteral = $__10.createNullLiteral, createNumberLiteral = $__10.createNumberLiteral, createParenExpression = $__10.createParenExpression, createSetAccessor = $__10.createSetAccessor, createStringLiteral = $__10.createStringLiteral, createVoid0 = $__10.createVoid0;
+  var NOT_FOUND = {};
+  var PREFIX = '$__placeholder__';
+  var cache = new ArrayMap();
+  function parseExpression(sourceLiterals) {
+    for (var values = [], $__9 = 1; $__9 < arguments.length; $__9++) values[$__9 - 1] = arguments[$__9];
+    return parse(sourceLiterals, values, (function() {
+      return new PlaceholderParser().parseExpression(sourceLiterals);
+    }));
+  }
+  function parseStatement(sourceLiterals) {
+    for (var values = [], $__7 = 1; $__7 < arguments.length; $__7++) values[$__7 - 1] = arguments[$__7];
+    return parse(sourceLiterals, values, (function() {
+      return new PlaceholderParser().parseStatement(sourceLiterals);
+    }));
+  }
+  function parsePropertyDefinition(sourceLiterals) {
+    for (var values = [], $__8 = 1; $__8 < arguments.length; $__8++) values[$__8 - 1] = arguments[$__8];
+    return parse(sourceLiterals, values, (function() {
+      return new PlaceholderParser().parsePropertyDefinition(sourceLiterals);
+    }));
+  }
+  function parse(sourceLiterals, values, doParse) {
+    var tree = cache.get(sourceLiterals);
+    if (!tree) {
+      tree = doParse();
+      cache.set(sourceLiterals, tree);
+    }
+    if (!values.length) return tree;
+    return new PlaceholderTransformer(values).transformAny(tree);
+  }
+  var PlaceholderParser = function() {
+    'use strict';
+    var $PlaceholderParser = ($__createClassNoExtends)({
+      constructor: function() {},
+      parseExpression: function(sourceLiterals) {
+        return this.parse_(sourceLiterals, (function(p) {
+          return p.parseExpression();
+        }));
+      },
+      parseStatement: function(sourceLiterals) {
+        return this.parse_(sourceLiterals, (function(p) {
+          return p.parseStatement();
+        }));
+      },
+      parsePropertyDefinition: function(sourceLiterals) {
+        return this.parse_(sourceLiterals, (function(p) {
+          return p.parsePropertyDefinition();
+        }));
+      },
+      parse_: function(sourceLiterals, doParse) {
+        var source = sourceLiterals[0];
+        for (var i = 1; i < sourceLiterals.length; i++) {
+          source += PREFIX + (i - 1) + sourceLiterals[i];
+        }
+        var file = new SourceFile('parse@TemplateParser', source);
+        var errorReporter = new MutedErrorReporter();
+        var parser = new Parser(errorReporter, file);
+        var tree = doParse(parser);
+        if (errorReporter.hadError() || !tree || !parser.isAtEnd()) throw new Error(("Internal error trying to parse:\n\n" + source));
+        return tree;
+      }
+    }, {});
+    return $PlaceholderParser;
+  }();
+  function convertValueToExpression(value) {
+    if (value instanceof ParseTree) return value;
+    if (value instanceof IdentifierToken) return createIdentifierExpression(value);
+    if (value instanceof LiteralToken) return new LiteralExpression(value.location, value);
+    if (Array.isArray(value)) {
+      if (value[0]instanceof ParseTree) {
+        if (value.length === 1) return value[0];
+        if (value[0].isStatement()) return createBlock(value); else return createParenExpression(createCommaExpression(value));
+      }
+      return createArrayLiteralExpression(value.map(convertValueToExpression));
+    }
+    if (value === null) return createNullLiteral();
+    if (value === undefined) return createVoid0();
+    switch (typeof value) {
+      case 'string':
+        return createStringLiteral(value);
+      case 'boolean':
+        return createBooleanLiteral(value);
+      case 'number':
+        return createNumberLiteral(value);
+    }
+    throw new Error('Not implemented');
+  }
+  function convertValueToIdentifierToken(value) {
+    if (value instanceof IdentifierToken) return value;
+    return createIdentifierToken(value);
+  }
+  var PlaceholderTransformer = function($__super) {
+    'use strict';
+    var $__proto = $__getProtoParent($__super);
+    var $PlaceholderTransformer = ($__createClass)({
+      constructor: function(values) {
+        $__superCall(this, $__proto, "constructor", []);
+        this.values = values;
+      },
+      getValueAt: function(index) {
+        return this.values[index];
+      },
+      getValue_: function(str) {
+        if (str.indexOf(PREFIX) !== 0) return NOT_FOUND;
+        return this.getValueAt(Number(str.slice(PREFIX.length)));
+      },
+      transformIdentifierExpression: function(tree) {
+        var value = this.getValue_(tree.identifierToken.value);
+        if (value === NOT_FOUND) return tree;
+        return convertValueToExpression(value);
+      },
+      transformBindingIdentifier: function(tree) {
+        var value = this.getValue_(tree.identifierToken.value);
+        if (value === NOT_FOUND) return tree;
+        return createBindingIdentifier(value);
+      },
+      transformExpressionStatement: function(tree) {
+        if (tree.expression.type === IDENTIFIER_EXPRESSION) {
+          var transformedExpression = this.transformIdentifierExpression(tree.expression);
+          if (transformedExpression === tree.expression) return tree;
+          if (transformedExpression.isStatement()) return transformedExpression;
+          return createExpressionStatement(transformedExpression);
+        }
+        return $__superCall(this, $__proto, "transformExpressionStatement", [tree]);
+      },
+      transformBlock: function(tree) {
+        if (tree.statements.length === 1 && tree.statements[0].type === EXPRESSION_STATEMENT) {
+          var transformedStatement = this.transformExpressionStatement(tree.statements[0]);
+          if (transformedStatement === tree.statements[0]) return tree;
+          if (transformedStatement.type === BLOCK) return transformedStatement;
+        }
+        return $__superCall(this, $__proto, "transformBlock", [tree]);
+      },
+      transformFunctionBody: function(tree) {
+        if (tree.statements.length === 1 && tree.statements[0].type === EXPRESSION_STATEMENT) {
+          var transformedStatement = this.transformExpressionStatement(tree.statements[0]);
+          if (transformedStatement === tree.statements[0]) return tree;
+          if (transformedStatement.type === BLOCK) return createFunctionBody(transformedStatement.statements);
+        }
+        return $__superCall(this, $__proto, "transformFunctionBody", [tree]);
+      },
+      transformMemberExpression: function(tree) {
+        var value = this.getValue_(tree.memberName.value);
+        if (value === NOT_FOUND) return $__superCall(this, $__proto, "transformMemberExpression", [tree]);
+        var operand = this.transformAny(tree.operand);
+        return createMemberExpression(operand, value);
+      },
+      transformLiteralPropertyName: function(tree) {
+        if (tree.literalToken.type === IDENTIFIER) {
+          var value = this.getValue_(tree.literalToken.value);
+          if (value !== NOT_FOUND) {
+            return new LiteralPropertyName(null, convertValueToIdentifierToken(value));
+          }
+        }
+        return $__superCall(this, $__proto, "transformPropertyNameAssignment", [tree]);
+      }
+    }, {}, $__proto, $__super, true);
+    return $PlaceholderTransformer;
+  }(ParseTreeTransformer);
+  return Object.preventExtensions(Object.create(null, {
+    parseExpression: {
+      get: function() {
+        return parseExpression;
+      },
+      enumerable: true
+    },
+    parseStatement: {
+      get: function() {
+        return parseStatement;
+      },
+      enumerable: true
+    },
+    parsePropertyDefinition: {
+      get: function() {
+        return parsePropertyDefinition;
+      },
+      enumerable: true
+    },
+    PlaceholderParser: {
+      get: function() {
+        return PlaceholderParser;
+      },
+      enumerable: true
+    },
+    PlaceholderTransformer: {
+      get: function() {
+        return PlaceholderTransformer;
+      },
+      enumerable: true
+    }
+  }));
+}).call(this);
 var $___src_codegeneration_ModuleTransformer_js = (function() {
   "use strict";
+  var $__3 = Object.freeze(Object.defineProperties(["$traceurModules.registerModule(", ", ", ", this);"], {raw: {value: Object.freeze(["$traceurModules.registerModule(", ", ", ", this);"])}}));
   var $__10 = $___src_syntax_trees_ParseTrees_js, BindingElement = $__10.BindingElement, BindingIdentifier = $__10.BindingIdentifier, IdentifierExpression = $__10.IdentifierExpression, LiteralExpression = $__10.LiteralExpression, LiteralPropertyName = $__10.LiteralPropertyName, ObjectPattern = $__10.ObjectPattern, ObjectPatternField = $__10.ObjectPatternField, Program = $__10.Program;
   var ParseTreeTransformer = $___src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
   var $__10 = $___src_syntax_PredefinedName_js, GET_MODULE_INSTANCE_BY_URL = $__10.GET_MODULE_INSTANCE_BY_URL, TRACEUR_MODULES = $__10.TRACEUR_MODULES;
   var $__10 = $___src_syntax_trees_ParseTreeType_js, CLASS_DECLARATION = $__10.CLASS_DECLARATION, EXPORT_DECLARATION = $__10.EXPORT_DECLARATION, EXPORT_SPECIFIER = $__10.EXPORT_SPECIFIER, EXPORT_STAR = $__10.EXPORT_STAR, FUNCTION_DECLARATION = $__10.FUNCTION_DECLARATION, IDENTIFIER_EXPRESSION = $__10.IDENTIFIER_EXPRESSION, IMPORT_DECLARATION = $__10.IMPORT_DECLARATION, MODULE_DECLARATION = $__10.MODULE_DECLARATION, MODULE_DEFINITION = $__10.MODULE_DEFINITION, MODULE_SPECIFIER = $__10.MODULE_SPECIFIER, NAMED_EXPORT = $__10.NAMED_EXPORT, VARIABLE_STATEMENT = $__10.VARIABLE_STATEMENT;
-  var $__10 = $___src_syntax_TokenType_js, STAR = $__10.STAR, STRING = $__10.STRING, VAR = $__10.VAR;
+  var $__10 = $___src_syntax_TokenType_js, IDENTIFIER = $__10.IDENTIFIER, STAR = $__10.STAR, STRING = $__10.STRING, VAR = $__10.VAR;
   var $__10 = $___src_codegeneration_ParseTreeFactory_js, createArgumentList = $__10.createArgumentList, createBindingIdentifier = $__10.createBindingIdentifier, createCallExpression = $__10.createCallExpression, createEmptyParameterList = $__10.createEmptyParameterList, createExpressionStatement = $__10.createExpressionStatement, createFunctionBody = $__10.createFunctionBody, createFunctionExpression = $__10.createFunctionExpression, createIdentifierExpression = $__10.createIdentifierExpression, createIdentifierToken = $__10.createIdentifierToken, createMemberExpression = $__10.createMemberExpression, createNullLiteral = $__10.createNullLiteral, createObjectCreate = $__10.createObjectCreate, createObjectLiteralExpression = $__10.createObjectLiteralExpression, createObjectPreventExtensions = $__10.createObjectPreventExtensions, createProgram = $__10.createProgram, createPropertyDescriptor = $__10.createPropertyDescriptor, createPropertyNameAssignment = $__10.createPropertyNameAssignment, createReturnStatement = $__10.createReturnStatement, createScopedExpression = $__10.createScopedExpression, createUseStrictDirective = $__10.createUseStrictDirective, createVariableDeclaration = $__10.createVariableDeclaration, createVariableDeclarationList = $__10.createVariableDeclarationList, createVariableStatement = $__10.createVariableStatement;
   var hasUseStrict = $___src_semantics_util_js.hasUseStrict;
+  var parseStatement = $___src_codegeneration_PlaceHolderParser_js.parseStatement;
+  var resolveUrl = $___src_util_url_js.resolveUrl;
   function toBindingIdentifier(tree) {
     return new BindingIdentifier(tree.location, tree.identifierToken);
   }
@@ -16000,9 +16259,21 @@ var $___src_codegeneration_ModuleTransformer_js = (function() {
     return createScopedExpression(createFunctionBody(statements));
   }
   function transformDefinition(project, parent, tree, useStrictCount) {
-    var module = parent.getModule(tree.name.value);
+    var module;
+    if (tree.name.type === IDENTIFIER) {
+      module = parent.getModule(tree.name.value);
+    } else {
+      var baseUrl = parent ? parent.url: project.url;
+      var url = resolveUrl(baseUrl, tree.name.processedValue);
+      module = project.getModuleForUrl(url);
+    }
+    traceur.assert(module);
     var callExpression = transformModuleElements(project, module, tree.elements, useStrictCount);
-    return createVariableStatement(VAR, module.name, callExpression);
+    if (tree.name.type === IDENTIFIER) {
+      return createVariableStatement(VAR, module.name, callExpression);
+    }
+    var func = callExpression.operand.operand.expression;
+    return parseStatement($__3, tree.name, func);
   }
   return Object.preventExtensions(Object.create(null, {ModuleTransformer: {
       get: function() {
@@ -18185,7 +18456,7 @@ var $___src_codegeneration_ProgramTransformer_js = (function() {
         var runtimeInliner = this.project_.runtimeInliner;
         var reporter = this.reporter_;
         function transform(enabled, transformer) {
-          for (var args = [], $__9 = 2; $__9 < arguments.length; $__9++) args[$__9 - 2] = arguments[$__9];
+          for (var args = [], $__8 = 2; $__8 < arguments.length; $__8++) args[$__8 - 2] = arguments[$__8];
           return chain(enabled, (function() {
             var $__11;
             return ($__11 = transformer).transformTree.apply($__11, $__spread(args, [tree]));

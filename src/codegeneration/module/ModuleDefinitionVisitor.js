@@ -14,6 +14,11 @@
 
 import {ModuleSymbol} from '../../semantics/symbols/ModuleSymbol.js';
 import {ModuleVisitor} from './ModuleVisitor.js';
+import {
+  IDENTIFIER,
+  STRING
+} from '../../syntax/TokenType.js';
+import {resolveUrl} from '../../util/url.js';
 
 /**
  * Visits a parse tree and adds all the module definitions.
@@ -31,11 +36,20 @@ export class ModuleDefinitionVisitor extends ModuleVisitor {
   }
 
   visitModuleDefinition(tree) {
-    var name = tree.name.value;
-    if (this.checkForDuplicateModule_(name, tree)) {
+    if (tree.name.type === IDENTIFIER) {
+      var name = tree.name.value;
+      if (this.checkForDuplicateModule_(name, tree)) {
+        var parent = this.currentModule;
+        var module = new ModuleSymbol(name, parent, tree, parent.url);
+        parent.addModule(module);
+      }
+    } else {
+      traceur.assert(tree.name.type === STRING);
       var parent = this.currentModule;
-      var module = new ModuleSymbol(name, parent, tree, parent.url);
-      parent.addModule(module);
+      var baseUrl = parent ? parent.url : this.project.url;
+      var url = resolveUrl(parent.url, tree.name.processedValue);
+      var moduleSymbol = new ModuleSymbol(null, parent, tree, url);
+      this.project.addExternalModule(moduleSymbol);
     }
 
     super.visitModuleDefinition(tree);

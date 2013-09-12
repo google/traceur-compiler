@@ -74,6 +74,7 @@ import {
 } from './ParseTreeFactory.js';
 import {hasUseStrict} from '../semantics/util.js';
 import {parseStatement} from './PlaceHolderParser.js';
+import {resolveUrl} from '../util/url.js';
 
 function toBindingIdentifier(tree) {
   return new BindingIdentifier(tree.location, tree.identifierToken);
@@ -345,8 +346,15 @@ function transformModuleElements(project, module, elements, useStrictCount) {
  * @return {ParseTree}
  */
 function transformDefinition(project, parent, tree, useStrictCount) {
-
-  var module = parent.getModule(tree.name.value);
+  var module;
+  if (tree.name.type === IDENTIFIER) {
+    module = parent.getModule(tree.name.value);
+  } else {
+    var baseUrl = parent ? parent.url : project.url;
+    var url = resolveUrl(baseUrl, tree.name.processedValue);
+    module = project.getModuleForUrl(url);
+  }
+  traceur.assert(module);
 
   var callExpression = transformModuleElements(project, module,
                                                tree.elements, useStrictCount);

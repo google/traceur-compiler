@@ -20,7 +20,10 @@ import {
   EXPORT_DECLARATION,
   IMPORT_DECLARATION
 } from '../../syntax/trees/ParseTreeType.js';
-import {STRING} from '../../syntax/TokenType.js';
+import {
+  IDENTIFIER,
+  STRING
+} from '../../syntax/TokenType.js';
 import {Symbol} from '../../semantics/symbols/Symbol.js';
 import {resolveUrl} from '../../util/url.js';
 
@@ -76,14 +79,16 @@ export class ModuleVisitor extends ParseTreeVisitor {
     if (tree.token.type == STRING) {
       var url = tree.token.processedValue;
       url = resolveUrl(this.currentModule.url, url);
-      return this.project.getModuleForUrl(url);
+      var module = this.project.getModuleForUrl(url);
+      if (module)
+        return module;
     }
 
     // id
 
     var name = tree.token.value;
-    var parent = this.getModuleByName(name);
-    if (!parent) {
+    var module = this.getModuleByName(name);
+    if (!module) {
       if (reportErrors) {
         this.reportError_(tree, '\'%s\' is not a module', name);
       }
@@ -91,7 +96,7 @@ export class ModuleVisitor extends ParseTreeVisitor {
     }
 
 
-    return parent;
+    return module;
   }
 
   // Limit the trees to visit.
@@ -116,8 +121,16 @@ export class ModuleVisitor extends ParseTreeVisitor {
 
   visitModuleDefinition(tree) {
     var current = this.currentModule_;
-    var name = tree.name.value;
-    var module = current.getModule(name);
+    var module;
+    if (tree.name.type === IDENTIFIER) {
+      var name = tree.name.value;
+      module = current.getModule(name);
+    } else {
+      traceur.assert(tree.name.type === STRING);
+      var baseUrl = current ? current.url : this.project.url;
+      var url = resolveUrl(baseUrl, tree.name.processedValue);
+      module = this.project.getModuleForUrl(url);
+    }
     traceur.assert(module);
     this.currentModule_ = module;
     tree.elements.forEach(this.visitModuleElement_, this);
