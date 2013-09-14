@@ -493,6 +493,14 @@ var $___src_util_url_js = (function() {
     parts[ComponentIndex.PATH] = path;
     return joinAndCanonicalizePath(parts);
   }
+  function isAbsoluteUrl(s) {
+    var parts = split(s);
+    if (!s) return false;
+    if (parts[ComponentIndex.SCHEME]) return true;
+    var path = parts[ComponentIndex.PATH];
+    if (!path) return false;
+    return path[0] === '/';
+  }
   return Object.preventExtensions(Object.create(null, {
     removeDotSegments: {
       get: function() {
@@ -509,6 +517,12 @@ var $___src_util_url_js = (function() {
     resolveUrl: {
       get: function() {
         return resolveUrl;
+      },
+      enumerable: true
+    },
+    isAbsoluteUrl: {
+      get: function() {
+        return isAbsoluteUrl;
       },
       enumerable: true
     }
@@ -2981,17 +2995,18 @@ var $___src_codegeneration_module_ModuleVisitor_js = (function() {
         return null;
       },
       getModuleForModuleSpecifier: function(tree, reportErrors) {
+        var module, name, url;
         if (tree.token.type == STRING) {
-          var url = tree.token.processedValue;
+          url = tree.token.processedValue;
           url = resolveUrl(this.currentModule.url, url);
-          var module = this.project.getModuleForUrl(url);
-          if (module) return module;
+          module = this.project.getModuleForResolvedUrl(url);
+        } else {
+          var name = tree.token.value;
+          module = this.getModuleByName(name);
         }
-        var name = tree.token.value;
-        var module = this.getModuleByName(name);
         if (!module) {
           if (reportErrors) {
-            this.reportError_(tree, '\'%s\' is not a module', name);
+            this.reportError_(tree, '\'%s\' is not a module', url || name);
           }
           return null;
         }
@@ -3023,7 +3038,7 @@ var $___src_codegeneration_module_ModuleVisitor_js = (function() {
           traceur.assert(tree.name.type === STRING);
           var baseUrl = current ? current.url: this.project.url;
           var url = resolveUrl(baseUrl, tree.name.processedValue);
-          module = this.project.getModuleForUrl(url);
+          module = this.project.getModuleForResolvedUrl(url);
         }
         traceur.assert(module);
         this.currentModule_ = module;
@@ -3333,7 +3348,7 @@ var $___src_codegeneration_module_ValidationVisitor_js = (function() {
       visitNamedExport: function(tree) {
         if (tree.moduleSpecifier) {
           this.visitAny(tree.moduleSpecifier);
-          var module = this.getModuleForModuleSpecifier(tree.moduleSpecifier);
+          var module = this.getModuleForModuleSpecifier(tree.moduleSpecifier, true);
           this.visitAndValidate_(module, tree.specifierSet);
         }
       },
@@ -16265,7 +16280,7 @@ var $___src_codegeneration_ModuleTransformer_js = (function() {
     } else {
       var baseUrl = parent ? parent.url: project.url;
       var url = resolveUrl(baseUrl, tree.name.processedValue);
-      module = project.getModuleForUrl(url);
+      module = project.getModuleForResolvedUrl(url);
     }
     traceur.assert(module);
     var callExpression = transformModuleElements(project, module, tree.elements, useStrictCount);
@@ -18641,6 +18656,37 @@ var $___src_codegeneration_UniqueIdentifierGenerator_js = (function() {
       enumerable: true
     }}));
 }).call(this);
+var $___src_util_Loader_js = (function() {
+  "use strict";
+  var $__10 = $___src_util_url_js, canonicalizeUrl = $__10.canonicalizeUrl, isAbsoluteUrl = $__10.isAbsoluteUrl, resolveUrl = $__10.resolveUrl;
+  var jsFileRe = /\.js^/;
+  var Loader = function() {
+    'use strict';
+    var $Loader = ($__createClassNoExtends)({
+      constructor: function() {},
+      normalize: function(name) {
+        var referer = arguments[1] !== (void 0) ? arguments[1]: null;
+        if (isAbsoluteUrl(name)) return canonicalizeUrl(name);
+        if (jsFileRe.test(name)) name = name.slice(0, - 3);
+        if (name[0] === '.') {
+          return referer ? resolveUrl(referer, name): name;
+        }
+        return name;
+      },
+      resolve: function(normalized) {
+        if (isAbsoluteUrl(normalized)) return normalized;
+        return resolveUrl(this.baseURL, normalized + '.js');
+      }
+    }, {});
+    return $Loader;
+  }();
+  return Object.preventExtensions(Object.create(null, {Loader: {
+      get: function() {
+        return Loader;
+      },
+      enumerable: true
+    }}));
+}).call(this);
 var $___src_semantics_symbols_Project_js = (function() {
   "use strict";
   var ArrayMap = $___src_util_ArrayMap_js.ArrayMap;
@@ -18650,6 +18696,7 @@ var $___src_semantics_symbols_Project_js = (function() {
   var RuntimeInliner = $___src_codegeneration_RuntimeInliner_js.RuntimeInliner;
   var UniqueIdentifierGenerator = $___src_codegeneration_UniqueIdentifierGenerator_js.UniqueIdentifierGenerator;
   var resolveUrl = $___src_util_url_js.resolveUrl;
+  var Loader = $___src_util_Loader_js.Loader;
   function addAll(self, other) {
     for (var key in other) {
       self[key] = other[key];
@@ -18682,8 +18729,10 @@ var $___src_semantics_symbols_Project_js = (function() {
         this.sourceFiles_ = Object.create(null);
         this.parseTrees_ = new ObjectMap();
         this.rootModule_ = new ModuleSymbol(null, null, null, url);
-        this.modulesByUrl_ = Object.create(null);
+        this.modulesByResolvedUrl_ = Object.create(null);
         this.moduleExports_ = new ArrayMap();
+        this.loader = new Loader();
+        this.loader.baseURL = url;
       },
       get url() {
         return this.rootModule_.url;
@@ -18723,19 +18772,22 @@ var $___src_semantics_symbols_Project_js = (function() {
         return this.rootModule_;
       },
       addExternalModule: function(module) {
-        traceur.assert(!this.hasModuleForUrl(module.url));
-        this.modulesByUrl_[module.url] = module;
+        traceur.assert(!this.hasModuleForResolvedUrl(module.url));
+        this.modulesByResolvedUrl_[module.url] = module;
       },
       getModuleForUrl: function(url) {
-        url = resolveUrl(this.url, url);
-        traceur.assert(this.hasModuleForUrl(url));
+        return this.getModuleForResolvedUrl(resolveUrl(this.url, url));
+      },
+      getModuleForResolvedUrl: function(url) {
         if (standardModuleUrlRegExp.test(url)) return getStandardModule(url);
-        return this.modulesByUrl_[url];
+        return this.modulesByResolvedUrl_[url];
       },
       hasModuleForUrl: function(url) {
+        return this.hasModuleForResolvedUrl(resolveUrl(this.url, url));
+      },
+      hasModuleForResolvedUrl: function(url) {
         if (standardModuleUrlRegExp.test(url)) return url in $traceurRuntime.modules;
-        url = resolveUrl(this.url, url);
-        return url in this.modulesByUrl_;
+        return url in this.modulesByResolvedUrl_;
       },
       setModuleForStarTree: function(tree, symbol) {
         this.moduleExports_.set(tree, symbol);

@@ -307,3 +307,15 @@ export function resolveUrl(base, url) {
   parts[ComponentIndex.PATH] = path;
   return joinAndCanonicalizePath(parts);
 }
+
+export function isAbsoluteUrl(s) {
+  var parts = split(s);
+  if (!s)
+    return false;
+  if (parts[ComponentIndex.SCHEME])
+    return true;
+  var path = parts[ComponentIndex.PATH];
+  if (!path)
+    return false;
+  return path[0] === '/';
+}

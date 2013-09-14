@@ -352,7 +352,7 @@ function transformDefinition(project, parent, tree, useStrictCount) {
   } else {
     var baseUrl = parent ? parent.url : project.url;
     var url = resolveUrl(baseUrl, tree.name.processedValue);
-    module = project.getModuleForUrl(url);
+    module = project.getModuleForResolvedUrl(url);
   }
   traceur.assert(module);
 

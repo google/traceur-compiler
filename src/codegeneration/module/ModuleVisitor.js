@@ -75,26 +75,25 @@ export class ModuleVisitor extends ParseTreeVisitor {
    * @return {ModuleSymbol}
    */
   getModuleForModuleSpecifier(tree, reportErrors) {
+    var module, name, url;
+
     // "url"
     if (tree.token.type == STRING) {
-      var url = tree.token.processedValue;
+      url = tree.token.processedValue;
       url = resolveUrl(this.currentModule.url, url);
-      var module = this.project.getModuleForUrl(url);
-      if (module)
-        return module;
+      module = this.project.getModuleForResolvedUrl(url);
+    } else {
+      // id
+      var name = tree.token.value;
+      module = this.getModuleByName(name);
     }
 
-    // id
-
-    var name = tree.token.value;
-    var module = this.getModuleByName(name);
     if (!module) {
       if (reportErrors) {
-        this.reportError_(tree, '\'%s\' is not a module', name);
+        this.reportError_(tree, '\'%s\' is not a module', url || name);
       }
       return null;
     }
-
 
     return module;
   }
@@ -129,7 +128,7 @@ export class ModuleVisitor extends ParseTreeVisitor {
       traceur.assert(tree.name.type === STRING);
       var baseUrl = current ? current.url : this.project.url;
       var url = resolveUrl(baseUrl, tree.name.processedValue);
-      module = this.project.getModuleForUrl(url);
+      module = this.project.getModuleForResolvedUrl(url);
     }
     traceur.assert(module);
     this.currentModule_ = module;
