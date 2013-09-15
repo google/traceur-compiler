@@ -279,4 +279,4 @@ addBoolOption('unstarredGenerators');
 addBoolOption('ignoreNolint');
 addBoolOption('newModules',);
 
-// options.newModules = true;
+options.newModules = true;

@@ -1,6 +1,7 @@
 SRC = \
   src/runtime/runtime.js \
-  src/runtime/runtime-modules.js \
+  src/runtime/runtime-url.js \
+  src/runtime/get-module2.js \
   src/traceur.js
 TPL_GENSRC = \
   src/outputgeneration/SourceMapIntegration.js
@@ -12,7 +13,7 @@ GENSRC = \
   src/syntax/ParseTreeVisitor.js
 TPL_GENSRC_DEPS = $(addsuffix -template.js.dep, $(TPL_GENSRC))
 
-TFLAGS = --
+TFLAGS = --new-modules --
 
 TESTS = \
 	test/node-feature-test.js \
