@@ -531,45 +531,48 @@ var $___src_util_url_js = (function() {
 var $___src_runtime_get_module_js = (function() {
   "use strict";
   var resolveUrl = $___src_util_url_js.resolveUrl;
-  var currentCodeUnit;
   var modules = Object.create(null);
   var standardModuleUrlRegExp = /^@\w+$/;
-  function getModuleInstanceByUrl(url) {
-    if (standardModuleUrlRegExp.test(url)) return $traceurRuntime.modules[url] || null;
+  function getModuleInstanceByUrl(name) {
+    if (standardModuleUrlRegExp.test(name)) return $traceurRuntime.modules[name] || null;
+    var url = resolveUrl(currentName, name);
     var module = modules[url];
     if (module) {
       if (module instanceof PendingModule) return modules[url] = module.toModule();
       return module;
     }
-    url = resolveUrl(currentCodeUnit.url, url);
-    for (var i = 0; i < currentCodeUnit.dependencies.length; i++) {
-      if (currentCodeUnit.dependencies[i].url == url) {
-        return currentCodeUnit.dependencies[i].result;
-      }
-    }
-    return null;
+    throw 'unreachable';
   }
-  function getCurrentCodeUnit() {
-    return currentCodeUnit;
+  var currentName = './';
+  function setCurrentUrl(url) {
+    if (!url) currentName = './'; else currentName = url;
   }
-  function setCurrentCodeUnit(codeUnit) {
-    currentCodeUnit = codeUnit;
+  function clearCurrentUrl() {
+    currentName = './';
   }
   var PendingModule = function() {
     'use strict';
     var $PendingModule = ($__createClassNoExtends)({
-      constructor: function(func, self) {
+      constructor: function(name, func, self) {
+        this.name = name;
         this.func = func;
         this.self = self;
       },
       toModule: function() {
-        return this.func.call(this.self);
+        var oldName = currentName;
+        currentName = this.name;
+        try {
+          return this.func.call(this.self);
+        } finally {
+          currentName = oldName;
+        }
       }
     }, {});
     return $PendingModule;
   }();
   function registerModule(name, func, self) {
-    modules[name] = new PendingModule(func, self);
+    var url = resolveUrl(currentName, name);
+    modules[url] = new PendingModule(name, func, self);
   }
   return Object.preventExtensions(Object.create(null, {
     standardModuleUrlRegExp: {
@@ -584,15 +587,15 @@ var $___src_runtime_get_module_js = (function() {
       },
       enumerable: true
     },
-    getCurrentCodeUnit: {
+    setCurrentUrl: {
       get: function() {
-        return getCurrentCodeUnit;
+        return setCurrentUrl;
       },
       enumerable: true
     },
-    setCurrentCodeUnit: {
+    clearCurrentUrl: {
       get: function() {
-        return setCurrentCodeUnit;
+        return clearCurrentUrl;
       },
       enumerable: true
     },
@@ -779,6 +782,7 @@ var $___src_options_js = (function() {
   addBoolOption('strictSemicolons');
   addBoolOption('unstarredGenerators');
   addBoolOption('ignoreNolint');
+  addBoolOption('newModules');
   return Object.preventExtensions(Object.create(null, {
     parseOptions: {
       get: function() {
@@ -2815,8 +2819,8 @@ var $___src_syntax_ParseTreeVisitor_js = (function() {
         this.visitAny(tree.elseClause);
       },
       visitImportDeclaration: function(tree) {
-        this.visitAny(tree.moduleSpecifier);
         this.visitAny(tree.importSpecifierSet);
+        this.visitAny(tree.moduleSpecifier);
       },
       visitImportSpecifier: function(tree) {},
       visitImportSpecifierSet: function(tree) {
@@ -4415,10 +4419,10 @@ var $___src_syntax_trees_ParseTrees_js = (function() {
     'use strict';
     var $__proto = $__getProtoParent($__super);
     var $ImportDeclaration = ($__createClass)({
-      constructor: function(location, moduleSpecifier, importSpecifierSet) {
+      constructor: function(location, importSpecifierSet, moduleSpecifier) {
         this.location = location;
-        this.moduleSpecifier = moduleSpecifier;
         this.importSpecifierSet = importSpecifierSet;
+        this.moduleSpecifier = moduleSpecifier;
       },
       transform: function(transformer) {
         return transformer.transformImportDeclaration(this);
@@ -6279,7 +6283,7 @@ var $___src_codegeneration_ParseTreeTransformer_js = (function() {
         if (moduleSpecifier === tree.moduleSpecifier && importSpecifierSet === tree.importSpecifierSet) {
           return tree;
         }
-        return new ImportDeclaration(tree.location, moduleSpecifier, importSpecifierSet);
+        return new ImportDeclaration(tree.location, importSpecifierSet, moduleSpecifier);
       },
       transformImportSpecifier: function(tree) {
         return tree;
@@ -6806,7 +6810,6 @@ var $___src_syntax_PredefinedName_js = (function() {
   var FUNCTION = 'Function';
   var GET = 'get';
   var GET_ITERATOR = 'getIterator';
-  var GET_MODULE_INSTANCE_BY_URL = 'getModuleInstanceByUrl';
   var GET_PROPERTY = 'getProperty';
   var HAS = 'has';
   var INIT = '$init';
@@ -6849,7 +6852,6 @@ var $___src_syntax_PredefinedName_js = (function() {
   var THEN = 'then';
   var THIS = 'this';
   var TRACEUR = 'traceur';
-  var TRACEUR_MODULES = '$traceurModules';
   var TRACEUR_RUNTIME = '$traceurRuntime';
   var TYPE_ERROR = 'TypeError';
   var UNDEFINED = 'undefined';
@@ -7148,12 +7150,6 @@ var $___src_syntax_PredefinedName_js = (function() {
       },
       enumerable: true
     },
-    GET_MODULE_INSTANCE_BY_URL: {
-      get: function() {
-        return GET_MODULE_INSTANCE_BY_URL;
-      },
-      enumerable: true
-    },
     GET_PROPERTY: {
       get: function() {
         return GET_PROPERTY;
@@ -7403,12 +7399,6 @@ var $___src_syntax_PredefinedName_js = (function() {
     TRACEUR: {
       get: function() {
         return TRACEUR;
-      },
-      enumerable: true
-    },
-    TRACEUR_MODULES: {
-      get: function() {
-        return TRACEUR_MODULES;
       },
       enumerable: true
     },
@@ -8668,7 +8658,7 @@ var $___src_syntax_Parser_js = (function() {
         this.eatId_(FROM);
         var moduleSpecifier = this.parseModuleSpecifier_(load);
         this.eatPossibleImplicitSemiColon_();
-        return new ImportDeclaration(this.getTreeLocation_(start), moduleSpecifier, importSpecifierSet);
+        return new ImportDeclaration(this.getTreeLocation_(start), importSpecifierSet, moduleSpecifier);
       },
       parseImportSpecifierSet_: function() {
         if (this.peek_(OPEN_CURLY)) {
@@ -16116,15 +16106,15 @@ var $___src_codegeneration_PlaceHolderParser_js = (function() {
 }).call(this);
 var $___src_codegeneration_ModuleTransformer_js = (function() {
   "use strict";
-  var $__3 = Object.freeze(Object.defineProperties(["$traceurModules.registerModule(", ", ", ", this);"], {raw: {value: Object.freeze(["$traceurModules.registerModule(", ", ", ", this);"])}}));
+  var $__3 = Object.freeze(Object.defineProperties(["$traceurModules.getModuleInstanceByUrl(", ")"], {raw: {value: Object.freeze(["$traceurModules.getModuleInstanceByUrl(", ")"])}})), $__2 = Object.freeze(Object.defineProperties(["$traceurModules.registerModule(", ", ", ", this);"], {raw: {value: Object.freeze(["$traceurModules.registerModule(", ", ", ", this);"])}}));
   var $__10 = $___src_syntax_trees_ParseTrees_js, BindingElement = $__10.BindingElement, BindingIdentifier = $__10.BindingIdentifier, IdentifierExpression = $__10.IdentifierExpression, LiteralExpression = $__10.LiteralExpression, LiteralPropertyName = $__10.LiteralPropertyName, ObjectPattern = $__10.ObjectPattern, ObjectPatternField = $__10.ObjectPatternField, Program = $__10.Program;
   var ParseTreeTransformer = $___src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
-  var $__10 = $___src_syntax_PredefinedName_js, GET_MODULE_INSTANCE_BY_URL = $__10.GET_MODULE_INSTANCE_BY_URL, TRACEUR_MODULES = $__10.TRACEUR_MODULES;
   var $__10 = $___src_syntax_trees_ParseTreeType_js, CLASS_DECLARATION = $__10.CLASS_DECLARATION, EXPORT_DECLARATION = $__10.EXPORT_DECLARATION, EXPORT_SPECIFIER = $__10.EXPORT_SPECIFIER, EXPORT_STAR = $__10.EXPORT_STAR, FUNCTION_DECLARATION = $__10.FUNCTION_DECLARATION, IDENTIFIER_EXPRESSION = $__10.IDENTIFIER_EXPRESSION, IMPORT_DECLARATION = $__10.IMPORT_DECLARATION, MODULE_DECLARATION = $__10.MODULE_DECLARATION, MODULE_DEFINITION = $__10.MODULE_DEFINITION, MODULE_SPECIFIER = $__10.MODULE_SPECIFIER, NAMED_EXPORT = $__10.NAMED_EXPORT, VARIABLE_STATEMENT = $__10.VARIABLE_STATEMENT;
   var $__10 = $___src_syntax_TokenType_js, IDENTIFIER = $__10.IDENTIFIER, STAR = $__10.STAR, STRING = $__10.STRING, VAR = $__10.VAR;
   var $__10 = $___src_codegeneration_ParseTreeFactory_js, createArgumentList = $__10.createArgumentList, createBindingIdentifier = $__10.createBindingIdentifier, createCallExpression = $__10.createCallExpression, createEmptyParameterList = $__10.createEmptyParameterList, createExpressionStatement = $__10.createExpressionStatement, createFunctionBody = $__10.createFunctionBody, createFunctionExpression = $__10.createFunctionExpression, createIdentifierExpression = $__10.createIdentifierExpression, createIdentifierToken = $__10.createIdentifierToken, createMemberExpression = $__10.createMemberExpression, createNullLiteral = $__10.createNullLiteral, createObjectCreate = $__10.createObjectCreate, createObjectLiteralExpression = $__10.createObjectLiteralExpression, createObjectPreventExtensions = $__10.createObjectPreventExtensions, createProgram = $__10.createProgram, createPropertyDescriptor = $__10.createPropertyDescriptor, createPropertyNameAssignment = $__10.createPropertyNameAssignment, createReturnStatement = $__10.createReturnStatement, createScopedExpression = $__10.createScopedExpression, createUseStrictDirective = $__10.createUseStrictDirective, createVariableDeclaration = $__10.createVariableDeclaration, createVariableDeclarationList = $__10.createVariableDeclarationList, createVariableStatement = $__10.createVariableStatement;
   var hasUseStrict = $___src_semantics_util_js.hasUseStrict;
-  var parseStatement = $___src_codegeneration_PlaceHolderParser_js.parseStatement;
+  var options = $___src_options_js.options;
+  var $__10 = $___src_codegeneration_PlaceHolderParser_js, parseExpression = $__10.parseExpression, parseStatement = $__10.parseStatement;
   var resolveUrl = $___src_util_url_js.resolveUrl;
   function toBindingIdentifier(tree) {
     return new BindingIdentifier(tree.location, tree.identifierToken);
@@ -16169,9 +16159,7 @@ var $___src_codegeneration_ModuleTransformer_js = (function() {
       },
       transformModuleSpecifier: function(tree) {
         var token = tree.token;
-        if (token.type === STRING) {
-          return createCallExpression(createMemberExpression(TRACEUR_MODULES, GET_MODULE_INSTANCE_BY_URL), createArgumentList(new LiteralExpression(null, token)));
-        }
+        if (token.type === STRING) return parseExpression($__3, token);
         return new IdentifierExpression(token.location, token);
       },
       transformModuleDeclaration: function(tree) {
@@ -16226,6 +16214,9 @@ var $___src_codegeneration_ModuleTransformer_js = (function() {
   };
   ModuleTransformer.transformAsModule = function(project, module, tree) {
     var callExpression = transformModuleElements(project, module, tree.programElements);
+    if (options.newModules) {
+      return createProgram([createRegister(module.url, callExpression)]);
+    }
     return createProgram([createExpressionStatement(callExpression)]);
   };
   function transformModuleElements(project, module, elements, useStrictCount) {
@@ -16287,8 +16278,11 @@ var $___src_codegeneration_ModuleTransformer_js = (function() {
     if (tree.name.type === IDENTIFIER) {
       return createVariableStatement(VAR, module.name, callExpression);
     }
+    return createRegister(tree.name, callExpression);
+  }
+  function createRegister(name, callExpression) {
     var func = callExpression.operand.operand.expression;
-    return parseStatement($__3, tree.name, func);
+    return parseStatement($__2, name, func);
   }
   return Object.preventExtensions(Object.create(null, {ModuleTransformer: {
       get: function() {
@@ -18228,7 +18222,7 @@ var $___src_codegeneration_TemplateLiteralTransformer_js = (function() {
 }).call(this);
 var $___src_codegeneration_RestParameterTransformer_js = (function() {
   "use strict";
-  var $__3 = Object.freeze(Object.defineProperties(["\n            for (var ", " = [], ", " = ", ";\n                 ", " < arguments.length; ", "++)\n              ", "[", " - ", "] = arguments[", "];"], {raw: {value: Object.freeze(["\n            for (var ", " = [], ", " = ", ";\n                 ", " < arguments.length; ", "++)\n              ", "[", " - ", "] = arguments[", "];"])}})), $__2 = Object.freeze(Object.defineProperties(["\n            for (var ", " = [], ", " = 0;\n                 ", " < arguments.length; ", "++)\n              ", "[", "] = arguments[", "];"], {raw: {value: Object.freeze(["\n            for (var ", " = [], ", " = 0;\n                 ", " < arguments.length; ", "++)\n              ", "[", "] = arguments[", "];"])}}));
+  var $__2 = Object.freeze(Object.defineProperties(["\n            for (var ", " = [], ", " = ", ";\n                 ", " < arguments.length; ", "++)\n              ", "[", " - ", "] = arguments[", "];"], {raw: {value: Object.freeze(["\n            for (var ", " = [], ", " = ", ";\n                 ", " < arguments.length; ", "++)\n              ", "[", " - ", "] = arguments[", "];"])}})), $__3 = Object.freeze(Object.defineProperties(["\n            for (var ", " = [], ", " = 0;\n                 ", " < arguments.length; ", "++)\n              ", "[", "] = arguments[", "];"], {raw: {value: Object.freeze(["\n            for (var ", " = [], ", " = 0;\n                 ", " < arguments.length; ", "++)\n              ", "[", "] = arguments[", "];"])}}));
   var FormalParameterList = $___src_syntax_trees_ParseTrees_js.FormalParameterList;
   var ParameterTransformer = $___src_codegeneration_ParameterTransformer_js.ParameterTransformer;
   var createIdentifierToken = $___src_codegeneration_ParseTreeFactory_js.createIdentifierToken;
@@ -18257,9 +18251,9 @@ var $___src_codegeneration_RestParameterTransformer_js = (function() {
           var name = getRestParameterLiteralToken(transformed);
           var loop;
           if (startIndex) {
-            loop = parseStatement($__3, name, i, startIndex, i, i, name, i, startIndex, i);
+            loop = parseStatement($__2, name, i, startIndex, i, i, name, i, startIndex, i);
           } else {
-            loop = parseStatement($__2, name, i, i, i, name, i, i);
+            loop = parseStatement($__3, name, i, i, i, name, i, i);
           }
           this.parameterStatements.push(loop);
           return parametersWithoutRestParam;
@@ -20029,7 +20023,7 @@ var $___src_runtime_modules_js = (function() {
   var WebLoader = $___src_runtime_WebLoader_js.WebLoader;
   var getUid = $___src_util_uid_js.getUid;
   var resolveUrl = $___src_util_url_js.resolveUrl;
-  var $__10 = $___src_runtime_get_module_js, standardModuleUrlRegExp = $__10.standardModuleUrlRegExp, getModuleInstanceByUrl = $__10.getModuleInstanceByUrl, getCurrentCodeUnit = $__10.getCurrentCodeUnit, setCurrentCodeUnit = $__10.setCurrentCodeUnit;
+  var $__10 = $___src_runtime_get_module_js, clearCurrentUrl = $__10.clearCurrentUrl, getModuleInstanceByUrl = $__10.getModuleInstanceByUrl, setCurrentUrl = $__10.setCurrentUrl, standardModuleUrlRegExp = $__10.standardModuleUrlRegExp;
   var base = Object.freeze(Object.create(null, {
     Array: {value: Array},
     Boolean: {value: Boolean},
@@ -20377,8 +20371,7 @@ var $___src_runtime_modules_js = (function() {
           if (codeUnit.state >= COMPLETE) {
             continue;
           }
-          traceur.assert(getCurrentCodeUnit() === undefined);
-          setCurrentCodeUnit(codeUnit);
+          setCurrentUrl(this.url);
           var result;
           try {
             result = this.evalCodeUnit(codeUnit);
@@ -20387,8 +20380,7 @@ var $___src_runtime_modules_js = (function() {
             this.abortAll();
             return;
           } finally {
-            traceur.assert(getCurrentCodeUnit() === codeUnit);
-            setCurrentCodeUnit(undefined);
+            clearCurrentUrl();
           }
           codeUnit.result = result;
           codeUnit.transformedTree = null;
@@ -20427,7 +20419,9 @@ var $___src_runtime_modules_js = (function() {
       load: function(url, callback) {
         var errback = arguments[2];
         var codeUnit = this.internalLoader_.load(url);
-        codeUnit.addListener(callback, errback);
+        codeUnit.addListener(function() {
+          callback($traceurModules.getModuleInstanceByUrl(codeUnit.url));
+        }, errback);
       },
       eval: function(program) {
         var codeUnit = this.internalLoader_.eval(program);

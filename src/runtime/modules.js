@@ -27,10 +27,10 @@ import {WebLoader} from './WebLoader.js';
 import {getUid} from '../util/uid.js';
 import {resolveUrl} from '../util/url.js';
 import {
-  standardModuleUrlRegExp,
+  clearCurrentUrl,
   getModuleInstanceByUrl,
-  getCurrentCodeUnit,
-  setCurrentCodeUnit
+  setCurrentUrl,
+  standardModuleUrlRegExp,
 } from './get-module.js';
 
 // TODO(arv): I stripped the resolvers to make this simpler for now.
@@ -498,8 +498,7 @@ class InternalLoader {
         continue;
       }
 
-      traceur.assert(getCurrentCodeUnit() === undefined);
-      setCurrentCodeUnit(codeUnit);
+      setCurrentUrl(this.url);
       var result;
 
       try {
@@ -509,9 +508,7 @@ class InternalLoader {
         this.abortAll();
         return;
       } finally {
-        // Ensure that we always clean up currentCodeUnit.
-        traceur.assert(getCurrentCodeUnit() === codeUnit);
-        setCurrentCodeUnit(undefined);
+        clearCurrentUrl();
       }
 
       codeUnit.result = result;
@@ -570,7 +567,9 @@ export class CodeLoader {
    */
   load(url, callback, errback = undefined) {
     var codeUnit = this.internalLoader_.load(url);
-    codeUnit.addListener(callback, errback);
+    codeUnit.addListener(function() {
+      callback($traceurModules.getModuleInstanceByUrl(codeUnit.url));
+    }, errback);
   }
 
   /**

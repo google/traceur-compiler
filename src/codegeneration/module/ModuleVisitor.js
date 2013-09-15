@@ -81,6 +81,12 @@ export class ModuleVisitor extends ParseTreeVisitor {
     if (tree.token.type == STRING) {
       url = tree.token.processedValue;
       url = resolveUrl(this.currentModule.url, url);
+      // if (traceur.options.newModules) {
+      //   console.log('tree', tree.token.processedValue);
+      //   console.log('currentModule', this.currentModule.url);
+      //   console.log('modules', Object.keys(this.project.modulesByResolvedUrl_));
+      //   console.log('');
+      // }
       module = this.project.getModuleForResolvedUrl(url);
     } else {
       // id
@@ -91,6 +97,10 @@ export class ModuleVisitor extends ParseTreeVisitor {
     if (!module) {
       if (reportErrors) {
         this.reportError_(tree, '\'%s\' is not a module', url || name);
+        // console.log('this.currentModule.url', this.currentModule.url);
+        // console.log('tree.url', tree.token.processedValue);
+        // console.log(this.project);
+        // console.log(new Error().stack);
       }
       return null;
     }
@@ -126,9 +136,13 @@ export class ModuleVisitor extends ParseTreeVisitor {
       module = current.getModule(name);
     } else {
       traceur.assert(tree.name.type === STRING);
+      // console.log('current', current && current.url);
+      // traceur.assert(current);
       var baseUrl = current ? current.url : this.project.url;
       var url = resolveUrl(baseUrl, tree.name.processedValue);
+      // console.log('> ', baseUrl, tree.name.processedValue, url);
       module = this.project.getModuleForResolvedUrl(url);
+      // console.log('< ', baseUrl, tree.name.processedValue, url);
     }
     traceur.assert(module);
     this.currentModule_ = module;

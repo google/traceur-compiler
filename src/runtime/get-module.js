@@ -14,11 +14,6 @@
 
 import {resolveUrl} from '../util/url.js';
 
-/**
- * This is the current code unit object being evaluated.
- */
-var currentCodeUnit;
-
 var modules = Object.create(null);
 
 export var standardModuleUrlRegExp = /^@\w+$/;
@@ -29,9 +24,11 @@ export var standardModuleUrlRegExp = /^@\w+$/;
  * @return {Object} A module instance object for the given url in the current
  *     code loader.
  */
-export function getModuleInstanceByUrl(url) {
-  if (standardModuleUrlRegExp.test(url))
-    return $traceurRuntime.modules[url] || null;
+export function getModuleInstanceByUrl(name) {
+  if (standardModuleUrlRegExp.test(name))
+    return $traceurRuntime.modules[name] || null;
+
+  var url = resolveUrl(currentName, name);
 
   var module = modules[url];
   if (module) {
@@ -40,34 +37,48 @@ export function getModuleInstanceByUrl(url) {
     return module;
   }
 
-  url = resolveUrl(currentCodeUnit.url, url);
-  for (var i = 0; i < currentCodeUnit.dependencies.length; i++) {
-    if (currentCodeUnit.dependencies[i].url == url) {
-      return currentCodeUnit.dependencies[i].result;
-    }
-  }
+  throw 'unreachable';
+  // url = resolveUrl(currentCodeUnit.url, url);
+  // for (var i = 0; i < currentCodeUnit.dependencies.length; i++) {
+  //   if (currentCodeUnit.dependencies[i].url == url) {
+  //     return currentCodeUnit.dependencies[i].result;
+  //   }
+  // }
 
-  return null;
+  // return null;
 }
 
-export function getCurrentCodeUnit() {
-  return currentCodeUnit;
+var currentName = './';
+
+export function setCurrentUrl(url) {
+  if (!url)
+    currentName = './';
+  else
+    currentName = url;
 }
 
-export function setCurrentCodeUnit(codeUnit) {
-  currentCodeUnit = codeUnit;
+export function clearCurrentUrl() {
+  currentName = './';
 }
 
 class PendingModule {
-  constructor(func, self) {
+  constructor(name, func, self) {
+    this.name = name;
     this.func = func;
     this.self = self;
   }
   toModule() {
-    return this.func.call(this.self);
+    var oldName = currentName;
+    currentName = this.name;
+    try {
+      return this.func.call(this.self);
+    } finally {
+      currentName = oldName
+    }
   }
 }
 
 export function registerModule(name, func, self) {
-  modules[name] = new PendingModule(func, self);
+  var url = resolveUrl(currentName, name);
+  modules[url] = new PendingModule(name, func, self);
 }

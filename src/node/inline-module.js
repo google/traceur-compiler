@@ -40,6 +40,7 @@ var IDENTIFIER = traceur.syntax.TokenType.IDENTIFIER;
 var canonicalizeUrl = traceur.util.canonicalizeUrl;
 var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
 var createIdentifierToken = ParseTreeFactory.createIdentifierToken;
+var createStringLiteralToken = ParseTreeFactory.createStringLiteralToken;
 var resolveUrl = traceur.util.resolveUrl;
 
 /**
@@ -53,6 +54,13 @@ var resolveUrl = traceur.util.resolveUrl;
  *     a module definition.
  */
 function wrapProgram(tree, url, commonPath) {
+  if (traceur.options.newModules) {
+    // console.log('wrapProgram url', url);
+    return new Program(null,
+        [new ModuleDefinition(null,
+            createStringLiteralToken(url), tree.programElements)]);
+  }
+
   var name = generateNameForUrl(url, commonPath);
   return new Program(null,
       [new ModuleDefinition(null,
@@ -72,24 +80,32 @@ function wrapProgram(tree, url, commonPath) {
  *     to.
  * @param {string} commonPath The path that is common for all URLs.
  */
-function ModuleRequireTransformer(url, commonPath) {
+function ModuleRequireTransformer(url, commonPath, isStart) {
   ParseTreeTransformer.call(this);
   this.url = url;
   this.commonPath = commonPath;
+  this.isStart = isStart
 }
 
 ModuleRequireTransformer.prototype = {
   __proto__: ParseTreeTransformer.prototype,
   transformModuleSpecifier: function(tree) {
+    if (traceur.options.newModules && !this.isStart)
+      return tree;
+
     if (tree.token.type === IDENTIFIER)
       return tree;
 
     var url = tree.token.processedValue;
 
-    // Don't handle builtin modules.
+     // Don't handle builtin modules.
     if (url.charAt(0) === '@')
       return tree;
+
     url = resolveUrl(this.url, url);
+
+    if (traceur.options.newModules)
+      return new ModuleSpecifier(tree.location, createStringLiteralToken(url));
 
     return new ModuleSpecifier(null, createIdentifierToken(generateNameForUrl(url, this.commonPath)));
   }
@@ -122,14 +138,19 @@ InlineCodeLoader.prototype = {
   },
 
   transformCodeUnit: function(codeUnit) {
-    var transformer = new ModuleRequireTransformer(codeUnit.url, this.dirname);
+    var transformer = new ModuleRequireTransformer(
+          codeUnit.url,
+          this.dirname,
+          codeUnit === startCodeUnit);
     var tree = transformer.transformAny(codeUnit.tree);
     if (this.depTarget) {
       console.log('%s: %s', this.depTarget,
                   normalizePath(path.relative(path.join(__dirname, '../..'), codeUnit.url)));
     }
+    // if (!traceur.options.newModules && codeUnit === startCodeUnit)
     if (codeUnit === startCodeUnit)
       return tree;
+    // console.log('transformCodeUnit', codeUnit.url, this.url, this.dirname);
     return wrapProgram(tree, codeUnit.url, this.dirname);
   }
 };

@@ -282,7 +282,7 @@ export class Parser {
     var moduleSpecifier = this.parseModuleSpecifier_(load);
     this.eatPossibleImplicitSemiColon_();
     return new ImportDeclaration(this.getTreeLocation_(start),
-        moduleSpecifier, importSpecifierSet);
+        importSpecifierSet, moduleSpecifier);
   }
 
   //ImportSpecifierSet ::= "*"
