@@ -18,6 +18,7 @@ import {
   IDENTIFIER,
   STRING
 } from '../../syntax/TokenType.js';
+import {assert} from '../../util/assert.js';
 import {resolveUrl} from '../../util/url.js';
 
 /**
@@ -44,7 +45,7 @@ export class ModuleDefinitionVisitor extends ModuleVisitor {
         parent.addModule(module);
       }
     } else {
-      traceur.assert(tree.name.type === STRING);
+      assert(tree.name.type === STRING);
       var parent = this.currentModule;
       var baseUrl = parent ? parent.url : this.project.url;
       var url = resolveUrl(parent.url, tree.name.processedValue);

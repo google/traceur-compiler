@@ -766,9 +766,22 @@ $traceurModules.registerModule("../src/semantics/symbols/SymbolType.js", functio
       enumerable: true
     }}));
 }, this);
+$traceurModules.registerModule("../src/util/assert.js", function() {
+  "use strict";
+  function assert(b) {
+    if (!b && options.debug) throw Error('Assertion failed');
+  }
+  return Object.preventExtensions(Object.create(null, {assert: {
+      get: function() {
+        return assert;
+      },
+      enumerable: true
+    }}));
+}, this);
 $traceurModules.registerModule("../src/semantics/symbols/Symbol.js", function() {
   "use strict";
   var SymbolType = $traceurModules.getModuleInstanceByUrl('./SymbolType.js').SymbolType;
+  var assert = $traceurModules.getModuleInstanceByUrl('../../util/assert.js').assert;
   var Symbol = function() {
     'use strict';
     var $Symbol = ($__createClassNoExtends)({
@@ -778,11 +791,11 @@ $traceurModules.registerModule("../src/semantics/symbols/Symbol.js", function() 
         this.name = name;
       },
       asExport: function() {
-        traceur.assert(this.type == SymbolType.EXPORT);
+        assert(this.type == SymbolType.EXPORT);
         return this;
       },
       asModuleSymbol: function() {
-        traceur.assert(this.type == SymbolType.MODULE);
+        assert(this.type == SymbolType.MODULE);
         return this;
       }
     }, {});
@@ -3058,6 +3071,7 @@ $traceurModules.registerModule("../src/codegeneration/module/ModuleVisitor.js", 
   var $__10 = $traceurModules.getModuleInstanceByUrl('../../syntax/trees/ParseTreeType.js'), MODULE_DECLARATION = $__10.MODULE_DECLARATION, MODULE_DEFINITION = $__10.MODULE_DEFINITION, EXPORT_DECLARATION = $__10.EXPORT_DECLARATION, IMPORT_DECLARATION = $__10.IMPORT_DECLARATION;
   var $__10 = $traceurModules.getModuleInstanceByUrl('../../syntax/TokenType.js'), IDENTIFIER = $__10.IDENTIFIER, STRING = $__10.STRING;
   var Symbol = $traceurModules.getModuleInstanceByUrl('../../semantics/symbols/Symbol.js').Symbol;
+  var assert = $traceurModules.getModuleInstanceByUrl('../../util/assert.js').assert;
   var resolveUrl = $traceurModules.getModuleInstanceByUrl('../../util/url.js').resolveUrl;
   function getFriendlyName(module) {
     return module.name || module.url;
@@ -3126,12 +3140,12 @@ $traceurModules.registerModule("../src/codegeneration/module/ModuleVisitor.js", 
           var name = tree.name.value;
           module = current.getModule(name);
         } else {
-          traceur.assert(tree.name.type === STRING);
+          assert(tree.name.type === STRING);
           var baseUrl = current ? current.url: this.project.url;
           var url = resolveUrl(baseUrl, tree.name.processedValue);
           module = this.project.getModuleForResolvedUrl(url);
         }
-        traceur.assert(module);
+        assert(module);
         this.currentModule_ = module;
         tree.elements.forEach(this.visitModuleElement_, this);
         this.currentModule_ = current;
@@ -3183,6 +3197,7 @@ $traceurModules.registerModule("../src/codegeneration/module/ExportVisitor.js", 
   var ExportSymbol = $traceurModules.getModuleInstanceByUrl('../../semantics/symbols/ExportSymbol.js').ExportSymbol;
   var IDENTIFIER_EXPRESSION = $traceurModules.getModuleInstanceByUrl('../../syntax/trees/ParseTreeType.js').IDENTIFIER_EXPRESSION;
   var ModuleVisitor = $traceurModules.getModuleInstanceByUrl('./ModuleVisitor.js').ModuleVisitor;
+  var assert = $traceurModules.getModuleInstanceByUrl('../../util/assert.js').assert;
   var ExportVisitor = function($__super) {
     'use strict';
     var $__proto = $__getProtoParent($__super);
@@ -3196,7 +3211,7 @@ $traceurModules.registerModule("../src/codegeneration/module/ExportVisitor.js", 
         if (!this.inExport_) {
           return;
         }
-        traceur.assert(typeof name == 'string');
+        assert(typeof name == 'string');
         var parent = this.currentModule;
         if (parent.hasExport(name)) {
           this.reportError_(tree, 'Duplicate export declaration \'%s\'', name);
@@ -3376,6 +3391,7 @@ $traceurModules.registerModule("../src/codegeneration/module/ModuleDefinitionVis
   var ModuleSymbol = $traceurModules.getModuleInstanceByUrl('../../semantics/symbols/ModuleSymbol.js').ModuleSymbol;
   var ModuleVisitor = $traceurModules.getModuleInstanceByUrl('./ModuleVisitor.js').ModuleVisitor;
   var $__10 = $traceurModules.getModuleInstanceByUrl('../../syntax/TokenType.js'), IDENTIFIER = $__10.IDENTIFIER, STRING = $__10.STRING;
+  var assert = $traceurModules.getModuleInstanceByUrl('../../util/assert.js').assert;
   var resolveUrl = $traceurModules.getModuleInstanceByUrl('../../util/url.js').resolveUrl;
   var ModuleDefinitionVisitor = function($__super) {
     'use strict';
@@ -3393,7 +3409,7 @@ $traceurModules.registerModule("../src/codegeneration/module/ModuleDefinitionVis
             parent.addModule(module);
           }
         } else {
-          traceur.assert(tree.name.type === STRING);
+          assert(tree.name.type === STRING);
           var parent = this.currentModule;
           var baseUrl = parent ? parent.url: this.project.url;
           var url = resolveUrl(parent.url, tree.name.processedValue);
@@ -10743,6 +10759,7 @@ $traceurModules.registerModule("../src/codegeneration/ParseTreeFactory.js", func
   var $__10 = $traceurModules.getModuleInstanceByUrl('../syntax/PredefinedName.js'), BIND = $__10.BIND, CALL = $__10.CALL, CREATE = $__10.CREATE, DEFINE_PROPERTY = $__10.DEFINE_PROPERTY, FREEZE = $__10.FREEZE, OBJECT = $__10.OBJECT, PREVENT_EXTENSIONS = $__10.PREVENT_EXTENSIONS, STATE = $__10.STATE, UNDEFINED = $__10.UNDEFINED, getParameterName = $__10.getParameterName;
   var Token = $traceurModules.getModuleInstanceByUrl('../syntax/Token.js').Token;
   var $__10 = $traceurModules.getModuleInstanceByUrl('../syntax/TokenType.js'), EQUAL = $__10.EQUAL, FALSE = $__10.FALSE, NULL = $__10.NULL, NUMBER = $__10.NUMBER, STRING = $__10.STRING, TRUE = $__10.TRUE, VOID = $__10.VOID;
+  var assert = $traceurModules.getModuleInstanceByUrl('../util/assert.js').assert;
   var $__10 = $traceurModules.getModuleInstanceByUrl('../syntax/trees/ParseTrees.js'), ArgumentList = $__10.ArgumentList, ArrayComprehension = $__10.ArrayComprehension, ArrayLiteralExpression = $__10.ArrayLiteralExpression, ArrayPattern = $__10.ArrayPattern, ArrowFunctionExpression = $__10.ArrowFunctionExpression, AtNameDeclaration = $__10.AtNameDeclaration, AtNameExpression = $__10.AtNameExpression, AwaitStatement = $__10.AwaitStatement, BinaryOperator = $__10.BinaryOperator, BindingElement = $__10.BindingElement, BindingIdentifier = $__10.BindingIdentifier, Block = $__10.Block, BreakStatement = $__10.BreakStatement, CallExpression = $__10.CallExpression, CascadeExpression = $__10.CascadeExpression, CaseClause = $__10.CaseClause, Catch = $__10.Catch, ClassDeclaration = $__10.ClassDeclaration, ClassExpression = $__10.ClassExpression, CommaExpression = $__10.CommaExpression, ComprehensionFor = $__10.ComprehensionFor, ComprehensionIf = $__10.ComprehensionIf, ComputedPropertyName = $__10.ComputedPropertyName, ConditionalExpression = $__10.ConditionalExpression, ContinueStatement = $__10.ContinueStatement, CoverFormals = $__10.CoverFormals, DebuggerStatement = $__10.DebuggerStatement, DefaultClause = $__10.DefaultClause, DoWhileStatement = $__10.DoWhileStatement, EmptyStatement = $__10.EmptyStatement, ExportDeclaration = $__10.ExportDeclaration, ExportSpecifier = $__10.ExportSpecifier, ExportSpecifierSet = $__10.ExportSpecifierSet, ExportStar = $__10.ExportStar, ExpressionStatement = $__10.ExpressionStatement, Finally = $__10.Finally, ForInStatement = $__10.ForInStatement, ForOfStatement = $__10.ForOfStatement, ForStatement = $__10.ForStatement, FormalParameterList = $__10.FormalParameterList, FunctionBody = $__10.FunctionBody, FunctionDeclaration = $__10.FunctionDeclaration, FunctionExpression = $__10.FunctionExpression, GeneratorComprehension = $__10.GeneratorComprehension, GetAccessor = $__10.GetAccessor, IdentifierExpression = $__10.IdentifierExpression, IfStatement = $__10.IfStatement, ImportDeclaration = $__10.ImportDeclaration, ImportSpecifier = $__10.ImportSpecifier, ImportSpecifierSet = $__10.ImportSpecifierSet, LabelledStatement = $__10.LabelledStatement, LiteralExpression = $__10.LiteralExpression, LiteralPropertyName = $__10.LiteralPropertyName, MemberExpression = $__10.MemberExpression, MemberLookupExpression = $__10.MemberLookupExpression, ModuleDeclaration = $__10.ModuleDeclaration, ModuleDefinition = $__10.ModuleDefinition, ModuleSpecifier = $__10.ModuleSpecifier, NamedExport = $__10.NamedExport, NameStatement = $__10.NameStatement, NewExpression = $__10.NewExpression, ObjectLiteralExpression = $__10.ObjectLiteralExpression, ObjectPattern = $__10.ObjectPattern, ObjectPatternField = $__10.ObjectPatternField, ParenExpression = $__10.ParenExpression, PostfixExpression = $__10.PostfixExpression, PredefinedType = $__10.PredefinedType, Program = $__10.Program, PropertyMethodAssignment = $__10.PropertyMethodAssignment, PropertyNameAssignment = $__10.PropertyNameAssignment, PropertyNameShorthand = $__10.PropertyNameShorthand, RestParameter = $__10.RestParameter, ReturnStatement = $__10.ReturnStatement, SetAccessor = $__10.SetAccessor, SpreadExpression = $__10.SpreadExpression, SpreadPatternElement = $__10.SpreadPatternElement, SuperExpression = $__10.SuperExpression, SwitchStatement = $__10.SwitchStatement, SyntaxErrorTree = $__10.SyntaxErrorTree, TemplateLiteralExpression = $__10.TemplateLiteralExpression, TemplateLiteralPortion = $__10.TemplateLiteralPortion, TemplateSubstitution = $__10.TemplateSubstitution, ThisExpression = $__10.ThisExpression, ThrowStatement = $__10.ThrowStatement, TryStatement = $__10.TryStatement, TypeName = $__10.TypeName, UnaryExpression = $__10.UnaryExpression, VariableDeclaration = $__10.VariableDeclaration, VariableDeclarationList = $__10.VariableDeclarationList, VariableStatement = $__10.VariableStatement, WhileStatement = $__10.WhileStatement, WithStatement = $__10.WithStatement, YieldExpression = $__10.YieldExpression;
   var slice = Array.prototype.slice.call.bind(Array.prototype.slice);
   var map = Array.prototype.map.call.bind(Array.prototype.map);
@@ -10866,7 +10883,7 @@ $traceurModules.registerModule("../src/codegeneration/ParseTreeFactory.js", func
     return new FunctionBody(null, statements);
   }
   function createScopedExpression(body) {
-    traceur.assert(body.type === 'FUNCTION_BODY');
+    assert(body.type === 'FUNCTION_BODY');
     return createCallCall(createParenExpression(createFunctionExpression(createEmptyParameterList(), body)), createThisExpression());
   }
   function createCallExpression(operand) {
@@ -10943,7 +10960,7 @@ $traceurModules.registerModule("../src/codegeneration/ParseTreeFactory.js", func
     return new ForStatement(null, variables, condition, increment, body);
   }
   function createFunctionExpression(formalParameterList, body) {
-    traceur.assert(body.type === 'FUNCTION_BODY');
+    assert(body.type === 'FUNCTION_BODY');
     return new FunctionExpression(null, null, false, formalParameterList, body);
   }
   function createGetAccessor(name, body) {
@@ -11715,6 +11732,7 @@ $traceurModules.registerModule("../src/semantics/VariableBinder.js", function() 
   var $__10 = $traceurModules.getModuleInstanceByUrl('../syntax/trees/ParseTreeType.js'), ARRAY_PATTERN = $__10.ARRAY_PATTERN, BINDING_IDENTIFIER = $__10.BINDING_IDENTIFIER, OBJECT_PATTERN = $__10.OBJECT_PATTERN, OBJECT_PATTERN_FIELD = $__10.OBJECT_PATTERN_FIELD, PAREN_EXPRESSION = $__10.PAREN_EXPRESSION, SPREAD_PATTERN_ELEMENT = $__10.SPREAD_PATTERN_ELEMENT;
   var ParseTreeVisitor = $traceurModules.getModuleInstanceByUrl('../syntax/ParseTreeVisitor.js').ParseTreeVisitor;
   var VAR = $traceurModules.getModuleInstanceByUrl('../syntax/TokenType.js').VAR;
+  var assert = $traceurModules.getModuleInstanceByUrl('../util/assert.js').assert;
   function variablesInBlock(tree, includeFunctionScope) {
     var binder = new VariableBinder(includeFunctionScope, tree);
     binder.visitAny(tree);
@@ -11770,7 +11788,7 @@ $traceurModules.registerModule("../src/semantics/VariableBinder.js", function() 
         $__superCall(this, $__proto, "visitVariableDeclaration", [tree]);
       },
       bind_: function(identifier) {
-        traceur.assert(typeof identifier.value == 'string');
+        assert(typeof identifier.value == 'string');
         this.identifiers_[identifier.value] = true;
       },
       bindParameter_: function(parameter) {
@@ -13315,6 +13333,7 @@ $traceurModules.registerModule("../src/codegeneration/SuperTransformer.js", func
   var $__10 = $traceurModules.getModuleInstanceByUrl('../syntax/trees/ParseTreeType.js'), LITERAL_PROPERTY_NAME = $__10.LITERAL_PROPERTY_NAME, MEMBER_EXPRESSION = $__10.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__10.MEMBER_LOOKUP_EXPRESSION, SUPER_EXPRESSION = $__10.SUPER_EXPRESSION;
   var ParseTreeTransformer = $traceurModules.getModuleInstanceByUrl('./ParseTreeTransformer.js').ParseTreeTransformer;
   var EQUAL = $traceurModules.getModuleInstanceByUrl('../syntax/TokenType.js').EQUAL;
+  var assert = $traceurModules.getModuleInstanceByUrl('../util/assert.js').assert;
   var $__10 = $traceurModules.getModuleInstanceByUrl('./ParseTreeFactory.js'), createArrayLiteralExpression = $__10.createArrayLiteralExpression, createIdentifierExpression = $__10.createIdentifierExpression, createStringLiteral = $__10.createStringLiteral, createThisExpression = $__10.createThisExpression;
   var $__10 = $traceurModules.getModuleInstanceByUrl('./OperatorExpander.js'), expandMemberExpression = $__10.expandMemberExpression, expandMemberLookupExpression = $__10.expandMemberLookupExpression;
   var parseExpression = $traceurModules.getModuleInstanceByUrl('./PlaceholderParser.js').parseExpression;
@@ -13369,7 +13388,7 @@ $traceurModules.registerModule("../src/codegeneration/SuperTransformer.js", func
       transformCallExpression: function(tree) {
         if (this.method_ && tree.operand.type == SUPER_EXPRESSION) {
           this.superCount_++;
-          traceur.assert(this.method_.name.type === LITERAL_PROPERTY_NAME);
+          assert(this.method_.name.type === LITERAL_PROPERTY_NAME);
           var methodName = this.method_.name.literalToken.value;
           return this.createSuperCallExpression_(methodName, tree);
         }
@@ -14916,6 +14935,7 @@ $traceurModules.registerModule("../src/codegeneration/generator/CPSTransformer.j
   var FinallyState = $traceurModules.getModuleInstanceByUrl('./FinallyState.js').FinallyState;
   var IdentifierToken = $traceurModules.getModuleInstanceByUrl('../../syntax/IdentifierToken.js').IdentifierToken;
   var ParseTreeTransformer = $traceurModules.getModuleInstanceByUrl('../ParseTreeTransformer.js').ParseTreeTransformer;
+  var assert = $traceurModules.getModuleInstanceByUrl('../../util/assert.js').assert;
   var parseStatement = $traceurModules.getModuleInstanceByUrl('../PlaceholderParser.js').parseStatement;
   var $__10 = $traceurModules.getModuleInstanceByUrl('../../syntax/PredefinedName.js'), $ARGUMENTS = $__10.$ARGUMENTS, $THAT = $__10.$THAT, ARGUMENTS = $__10.ARGUMENTS, CAUGHT_EXCEPTION = $__10.CAUGHT_EXCEPTION, FINALLY_FALL_THROUGH = $__10.FINALLY_FALL_THROUGH, INNER_FUNCTION = $__10.INNER_FUNCTION, STATE = $__10.STATE, STORED_EXCEPTION = $__10.STORED_EXCEPTION, YIELD_ACTION = $__10.YIELD_ACTION, YIELD_SENT = $__10.YIELD_SENT;
   var State = $traceurModules.getModuleInstanceByUrl('./State.js').State;
@@ -14970,7 +14990,7 @@ $traceurModules.registerModule("../src/codegeneration/generator/CPSTransformer.j
           }
           return false;
         }
-        traceur.assert(statements instanceof SwitchStatement);
+        assert(statements instanceof SwitchStatement);
         for (var i = 0; i < statements.caseClauses.length; i++) {
           var clause = statements.caseClauses[i];
           if (clause.type == CASE_CLAUSE) {
@@ -16198,6 +16218,7 @@ $traceurModules.registerModule("../src/codegeneration/ModuleTransformer.js", fun
   var ParseTreeTransformer = $traceurModules.getModuleInstanceByUrl('./ParseTreeTransformer.js').ParseTreeTransformer;
   var $__10 = $traceurModules.getModuleInstanceByUrl('../syntax/trees/ParseTreeType.js'), CLASS_DECLARATION = $__10.CLASS_DECLARATION, EXPORT_DECLARATION = $__10.EXPORT_DECLARATION, EXPORT_SPECIFIER = $__10.EXPORT_SPECIFIER, EXPORT_STAR = $__10.EXPORT_STAR, FUNCTION_DECLARATION = $__10.FUNCTION_DECLARATION, IDENTIFIER_EXPRESSION = $__10.IDENTIFIER_EXPRESSION, IMPORT_DECLARATION = $__10.IMPORT_DECLARATION, MODULE_DECLARATION = $__10.MODULE_DECLARATION, MODULE_DEFINITION = $__10.MODULE_DEFINITION, MODULE_SPECIFIER = $__10.MODULE_SPECIFIER, NAMED_EXPORT = $__10.NAMED_EXPORT, VARIABLE_STATEMENT = $__10.VARIABLE_STATEMENT;
   var $__10 = $traceurModules.getModuleInstanceByUrl('../syntax/TokenType.js'), IDENTIFIER = $__10.IDENTIFIER, STAR = $__10.STAR, STRING = $__10.STRING, VAR = $__10.VAR;
+  var assert = $traceurModules.getModuleInstanceByUrl('../util/assert.js').assert;
   var $__10 = $traceurModules.getModuleInstanceByUrl('./ParseTreeFactory.js'), createArgumentList = $__10.createArgumentList, createBindingIdentifier = $__10.createBindingIdentifier, createCallExpression = $__10.createCallExpression, createEmptyParameterList = $__10.createEmptyParameterList, createExpressionStatement = $__10.createExpressionStatement, createFunctionBody = $__10.createFunctionBody, createFunctionExpression = $__10.createFunctionExpression, createIdentifierExpression = $__10.createIdentifierExpression, createIdentifierToken = $__10.createIdentifierToken, createMemberExpression = $__10.createMemberExpression, createNullLiteral = $__10.createNullLiteral, createObjectCreate = $__10.createObjectCreate, createObjectLiteralExpression = $__10.createObjectLiteralExpression, createObjectPreventExtensions = $__10.createObjectPreventExtensions, createProgram = $__10.createProgram, createPropertyDescriptor = $__10.createPropertyDescriptor, createPropertyNameAssignment = $__10.createPropertyNameAssignment, createReturnStatement = $__10.createReturnStatement, createScopedExpression = $__10.createScopedExpression, createUseStrictDirective = $__10.createUseStrictDirective, createVariableDeclaration = $__10.createVariableDeclaration, createVariableDeclarationList = $__10.createVariableDeclarationList, createVariableStatement = $__10.createVariableStatement;
   var hasUseStrict = $traceurModules.getModuleInstanceByUrl('../semantics/util.js').hasUseStrict;
   var options = $traceurModules.getModuleInstanceByUrl('../options.js').options;
@@ -16215,7 +16236,7 @@ $traceurModules.registerModule("../src/codegeneration/ModuleTransformer.js", fun
         returnExpression = transformSpecifier(project, tree.lhs, symbol.relatedTree);
         break;
       case EXPORT_STAR:
-        traceur.assert(symbol.relatedTree);
+        assert(symbol.relatedTree);
         returnExpression = transformSpecifier(project, createIdentifierToken(symbol.name), symbol.relatedTree);
         break;
       default:
@@ -16360,7 +16381,7 @@ $traceurModules.registerModule("../src/codegeneration/ModuleTransformer.js", fun
       var url = resolveUrl(baseUrl, tree.name.processedValue);
       module = project.getModuleForResolvedUrl(url);
     }
-    traceur.assert(module);
+    assert(module);
     var callExpression = transformModuleElements(project, module, tree.elements, useStrictCount);
     if (tree.name.type === IDENTIFIER) {
       return createVariableStatement(VAR, module.name, callExpression);
@@ -18636,6 +18657,7 @@ $traceurModules.registerModule("../src/codegeneration/RuntimeInliner.js", functi
   var Program = $traceurModules.getModuleInstanceByUrl('../syntax/trees/ParseTrees.js').Program;
   var SourceFile = $traceurModules.getModuleInstanceByUrl('../syntax/SourceFile.js').SourceFile;
   var VAR = $traceurModules.getModuleInstanceByUrl('../syntax/TokenType.js').VAR;
+  var assert = $traceurModules.getModuleInstanceByUrl('../util/assert.js').assert;
   var $__10 = $traceurModules.getModuleInstanceByUrl('./ParseTreeFactory.js'), createIdentifierExpression = $__10.createIdentifierExpression, createVariableDeclaration = $__10.createVariableDeclaration, createVariableDeclarationList = $__10.createVariableDeclarationList, createVariableStatement = $__10.createVariableStatement;
   var prependStatements = $traceurModules.getModuleInstanceByUrl('./PrependStatements.js').prependStatements;
   var shared = {
@@ -18697,7 +18719,7 @@ $traceurModules.registerModule("../src/codegeneration/RuntimeInliner.js", functi
         var source = arguments[1];
         if (!(name in this.map_)) {
           if (name in shared) source = shared[name];
-          traceur.assert(source);
+          assert(source);
           this.register(name, source);
         }
         return this.getAsIdentifierExpression(name);
@@ -18776,6 +18798,7 @@ $traceurModules.registerModule("../src/semantics/symbols/Project.js", function()
   var ObjectMap = $traceurModules.getModuleInstanceByUrl('../../util/ObjectMap.js').ObjectMap;
   var RuntimeInliner = $traceurModules.getModuleInstanceByUrl('../../codegeneration/RuntimeInliner.js').RuntimeInliner;
   var UniqueIdentifierGenerator = $traceurModules.getModuleInstanceByUrl('../../codegeneration/UniqueIdentifierGenerator.js').UniqueIdentifierGenerator;
+  var assert = $traceurModules.getModuleInstanceByUrl('../../util/assert.js').assert;
   var resolveUrl = $traceurModules.getModuleInstanceByUrl('../../util/url.js').resolveUrl;
   var Loader = $traceurModules.getModuleInstanceByUrl('../../util/Loader.js').Loader;
   function addAll(self, other) {
@@ -18853,7 +18876,7 @@ $traceurModules.registerModule("../src/semantics/symbols/Project.js", function()
         return this.rootModule_;
       },
       addExternalModule: function(module) {
-        traceur.assert(!this.hasModuleForResolvedUrl(module.url));
+        assert(!this.hasModuleForResolvedUrl(module.url));
         this.modulesByResolvedUrl_[module.url] = module;
       },
       getModuleForUrl: function(url) {
@@ -20187,6 +20210,7 @@ $traceurModules.registerModule("../src/runtime/modules.js", function() {
   var SourceFile = $traceurModules.getModuleInstanceByUrl('../syntax/SourceFile.js').SourceFile;
   var TreeWriter = $traceurModules.getModuleInstanceByUrl('../outputgeneration/TreeWriter.js').TreeWriter;
   var WebLoader = $traceurModules.getModuleInstanceByUrl('./WebLoader.js').WebLoader;
+  var assert = $traceurModules.getModuleInstanceByUrl('../util/assert.js').assert;
   var getUid = $traceurModules.getModuleInstanceByUrl('../util/uid.js').getUid;
   var resolveUrl = $traceurModules.getModuleInstanceByUrl('../util/url.js').resolveUrl;
   var $__10 = $traceurModules.getModuleInstanceByUrl('./get-module.js'), clearCurrentUrl = $__10.clearCurrentUrl, getModuleInstanceByUrl = $__10.getModuleInstanceByUrl, setCurrentUrl = $__10.setCurrentUrl, standardModuleUrlRegExp = $__10.standardModuleUrlRegExp;
@@ -20480,7 +20504,7 @@ $traceurModules.registerModule("../src/runtime/modules.js", function() {
         var modules = [];
         for (var i = 0; i < dependencies.length; i++) {
           var codeUnit = dependencies[i];
-          traceur.assert(codeUnit.state >= PARSED);
+          assert(codeUnit.state >= PARSED);
           if (codeUnit.state == PARSED) {
             trees.push(codeUnit.tree);
             modules.push(codeUnit.moduleSymbol);
@@ -20682,15 +20706,6 @@ var traceur = (function() {
   var global = this;
   var options = $traceurModules.getModuleInstanceByUrl("../src/options.js").options;
   ;
-  function generateNameForUrl(url, commonPath) {
-    return '$__' + url.replace(commonPath, '').replace(/[^\d\w$]/g, '_');
-  }
-  function getModuleForTesting(path) {
-    return global[generateNameForUrl(("../src/" + path), './')];
-  }
-  function assert(b) {
-    if (!b && options.debug) throw Error('Assertion failed');
-  }
   ;
   var semantics = (function() {
     ;
@@ -20721,6 +20736,18 @@ var traceur = (function() {
       VariableBinder: {
         get: function() {
           return $traceurModules.getModuleInstanceByUrl("../src/semantics/VariableBinder.js").VariableBinder;
+        },
+        enumerable: true
+      },
+      variablesInBlock: {
+        get: function() {
+          return $traceurModules.getModuleInstanceByUrl("../src/semantics/VariableBinder.js").variablesInBlock;
+        },
+        enumerable: true
+      },
+      variablesInFunction: {
+        get: function() {
+          return $traceurModules.getModuleInstanceByUrl("../src/semantics/VariableBinder.js").variablesInFunction;
         },
         enumerable: true
       },
@@ -21559,24 +21586,6 @@ var traceur = (function() {
     options: {
       get: function() {
         return options;
-      },
-      enumerable: true
-    },
-    generateNameForUrl: {
-      get: function() {
-        return generateNameForUrl;
-      },
-      enumerable: true
-    },
-    getModuleForTesting: {
-      get: function() {
-        return getModuleForTesting;
-      },
-      enumerable: true
-    },
-    assert: {
-      get: function() {
-        return assert;
       },
       enumerable: true
     },

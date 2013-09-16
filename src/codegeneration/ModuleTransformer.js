@@ -353,7 +353,7 @@ function transformDefinition(project, parent, tree, useStrictCount) {
     var url = resolveUrl(baseUrl, tree.name.processedValue);
     module = project.getModuleForResolvedUrl(url);
   }
-  traceur.assert(module);
+  assert(module);
 
   var callExpression = transformModuleElements(project, module,
                                                tree.elements, useStrictCount);

@@ -138,7 +138,7 @@ export class ModuleVisitor extends ParseTreeVisitor {
     } else {
       assert(tree.name.type === STRING);
       // console.log('current', current && current.url);
-      // traceur.assert(current);
+      // assert(current);
       var baseUrl = current ? current.url : this.project.url;
       var url = resolveUrl(baseUrl, tree.name.processedValue);
       // console.log('> ', baseUrl, tree.name.processedValue, url);
