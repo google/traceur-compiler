@@ -80,14 +80,7 @@ export class ModuleVisitor extends ParseTreeVisitor {
 
     // "url"
     if (tree.token.type == STRING) {
-      url = tree.token.processedValue;
-      url = resolveUrl(this.currentModule.url, url);
-      // if (traceur.options.newModules) {
-      //   console.log('tree', tree.token.processedValue);
-      //   console.log('currentModule', this.currentModule.url);
-      //   console.log('modules', Object.keys(this.project.modulesByResolvedUrl_));
-      //   console.log('');
-      // }
+      url = resolveUrl(this.currentModule.url, tree.token.processedValue);
       module = this.project.getModuleForResolvedUrl(url);
     } else {
       // id
@@ -96,13 +89,8 @@ export class ModuleVisitor extends ParseTreeVisitor {
     }
 
     if (!module) {
-      if (reportErrors) {
+      if (reportErrors)
         this.reportError_(tree, '\'%s\' is not a module', url || name);
-        // console.log('this.currentModule.url', this.currentModule.url);
-        // console.log('tree.url', tree.token.processedValue);
-        // console.log(this.project);
-        // console.log(new Error().stack);
-      }
       return null;
     }
 

@@ -728,8 +728,6 @@ $traceurModules.registerModule("../src/options.js", function() {
   addBoolOption('strictSemicolons');
   addBoolOption('unstarredGenerators');
   addBoolOption('ignoreNolint');
-  addBoolOption('newModules');
-  options.newModules = true;
   return Object.preventExtensions(Object.create(null, {
     parseOptions: {
       get: function() {
@@ -2995,17 +2993,14 @@ $traceurModules.registerModule("../src/codegeneration/module/ModuleVisitor.js", 
       getModuleForModuleSpecifier: function(tree, reportErrors) {
         var module, name, url;
         if (tree.token.type == STRING) {
-          url = tree.token.processedValue;
-          url = resolveUrl(this.currentModule.url, url);
+          url = resolveUrl(this.currentModule.url, tree.token.processedValue);
           module = this.project.getModuleForResolvedUrl(url);
         } else {
           var name = tree.token.value;
           module = this.getModuleByName(name);
         }
         if (!module) {
-          if (reportErrors) {
-            this.reportError_(tree, '\'%s\' is not a module', url || name);
-          }
+          if (reportErrors) this.reportError_(tree, '\'%s\' is not a module', url || name);
           return null;
         }
         return module;
@@ -16215,10 +16210,7 @@ $traceurModules.registerModule("../src/codegeneration/ModuleTransformer.js", fun
   };
   ModuleTransformer.transformAsModule = function(project, module, tree) {
     var callExpression = transformModuleElements(project, module, tree.programElements);
-    if (options.newModules) {
-      return createProgram([createRegister(module.url, callExpression)]);
-    }
-    return createProgram([createExpressionStatement(callExpression)]);
+    return createProgram([createRegister(module.url, callExpression)]);
   };
   function transformModuleElements(project, module, elements, useStrictCount) {
     var statements = [];

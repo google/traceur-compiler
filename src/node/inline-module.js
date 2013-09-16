@@ -63,17 +63,9 @@ function generateNameForUrl(url, commonPath) {
  *     a module definition.
  */
 function wrapProgram(tree, url, commonPath) {
-  if (traceur.options.newModules) {
-    // console.log('wrapProgram url', url);
-    return new Program(null,
-        [new ModuleDefinition(null,
-            createStringLiteralToken(url), tree.programElements)]);
-  }
-
-  var name = generateNameForUrl(url, commonPath);
   return new Program(null,
       [new ModuleDefinition(null,
-          createIdentifierToken(name), tree.programElements)]);
+          createStringLiteralToken(url), tree.programElements)]);
 }
 
 /**
@@ -99,7 +91,7 @@ function ModuleRequireTransformer(url, commonPath, isStart) {
 ModuleRequireTransformer.prototype = {
   __proto__: ParseTreeTransformer.prototype,
   transformModuleSpecifier: function(tree) {
-    if (traceur.options.newModules && !this.isStart)
+    if (!this.isStart)
       return tree;
 
     if (tree.token.type === IDENTIFIER)
@@ -113,10 +105,7 @@ ModuleRequireTransformer.prototype = {
 
     url = resolveUrl(this.url, url);
 
-    if (traceur.options.newModules)
-      return new ModuleSpecifier(tree.location, createStringLiteralToken(url));
-
-    return new ModuleSpecifier(null, createIdentifierToken(generateNameForUrl(url, this.commonPath)));
+    return new ModuleSpecifier(tree.location, createStringLiteralToken(url));
   }
 };
 
@@ -156,10 +145,8 @@ InlineCodeLoader.prototype = {
       console.log('%s: %s', this.depTarget,
                   normalizePath(path.relative(path.join(__dirname, '../..'), codeUnit.url)));
     }
-    // if (!traceur.options.newModules && codeUnit === startCodeUnit)
     if (codeUnit === startCodeUnit)
       return tree;
-    // console.log('transformCodeUnit', codeUnit.url, this.url, this.dirname);
     return wrapProgram(tree, codeUnit.url, this.dirname);
   }
 };

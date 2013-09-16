@@ -17,7 +17,6 @@ suite('modules.js', function() {
 
   setup(function() {
     reporter = new traceur.util.ErrorReporter();
-    traceur.options.newModules = true;
   });
 
   teardown(function() {

@@ -239,10 +239,7 @@ ModuleTransformer.transform = function(project, tree) {
 ModuleTransformer.transformAsModule = function(project, module, tree) {
   var callExpression = transformModuleElements(project, module,
                                                tree.programElements);
-  if (options.newModules) {
-    return createProgram([createRegister(module.url, callExpression)]);
-  }
-  return createProgram([createExpressionStatement(callExpression)]);
+  return createProgram([createRegister(module.url, callExpression)]);
 };
 
 /**

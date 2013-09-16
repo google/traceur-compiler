@@ -277,6 +277,3 @@ addBoolOption('validate');
 addBoolOption('strictSemicolons');
 addBoolOption('unstarredGenerators');
 addBoolOption('ignoreNolint');
-addBoolOption('newModules',);
-
-options.newModules = true;
