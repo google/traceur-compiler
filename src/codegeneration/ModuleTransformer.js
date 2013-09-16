@@ -46,6 +46,7 @@ import {
   STRING,
   VAR
 } from '../syntax/TokenType.js';
+import {assert} from '../util/assert.js';
 import {
   createArgumentList,
   createBindingIdentifier,
@@ -95,7 +96,7 @@ function getGetterExport(project, symbol) {
       break;
 
     case EXPORT_STAR:
-      traceur.assert(symbol.relatedTree);
+      assert(symbol.relatedTree);
       returnExpression = transformSpecifier(project,
           createIdentifierToken(symbol.name), symbol.relatedTree);
       break;

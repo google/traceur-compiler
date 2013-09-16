@@ -24,6 +24,7 @@ import {
 } from '../syntax/trees/ParseTreeType.js';
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {EQUAL} from '../syntax/TokenType.js';
+import {assert} from '../util/assert.js';
 import {
   createArrayLiteralExpression,
   createIdentifierExpression,
@@ -148,7 +149,7 @@ export class SuperTransformer extends ParseTreeTransformer {
     if (this.method_ && tree.operand.type == SUPER_EXPRESSION) {
       // We have: super(args)
       this.superCount_++;
-      traceur.assert(this.method_.name.type === LITERAL_PROPERTY_NAME);
+      assert(this.method_.name.type === LITERAL_PROPERTY_NAME);
       var methodName = this.method_.name.literalToken.value;
       return this.createSuperCallExpression_(methodName, tree);
     }

@@ -22,6 +22,7 @@ import {
 } from '../../syntax/trees/ParseTreeType.js';
 import {STRING} from '../../syntax/TokenType.js';
 import {Symbol} from '../../semantics/symbols/Symbol.js';
+import {assert} from '../../util/assert.js';
 import {resolveUrl} from '../../util/url.js';
 
 function getFriendlyName(module) {
@@ -118,7 +119,7 @@ export class ModuleVisitor extends ParseTreeVisitor {
     var current = this.currentModule_;
     var name = tree.name.value;
     var module = current.getModule(name);
-    traceur.assert(module);
+    assert(module);
     this.currentModule_ = module;
     tree.elements.forEach(this.visitModuleElement_, this);
     this.currentModule_ = current;
