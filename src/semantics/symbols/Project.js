@@ -19,6 +19,7 @@ import {ObjectMap} from '../../util/ObjectMap.js';
 import {RuntimeInliner} from '../../codegeneration/RuntimeInliner.js';
 import {UniqueIdentifierGenerator} from
     '../../codegeneration/UniqueIdentifierGenerator.js';
+import {assert} from '../../util/assert.js';
 import {resolveUrl} from '../../util/url.js';
 
 function addAll(self, other) {
@@ -154,13 +155,13 @@ export class Project {
   }
 
   addExternalModule(module) {
-    traceur.assert(!this.hasModuleForUrl(module.url));
+    assert(!this.hasModuleForUrl(module.url));
     this.modulesByUrl_[module.url] = module;
   }
 
   getModuleForUrl(url) {
     url = resolveUrl(this.url, url);
-    traceur.assert(this.hasModuleForUrl(url));
+    assert(this.hasModuleForUrl(url));
     if (standardModuleUrlRegExp.test(url))
       return getStandardModule(url);
 
