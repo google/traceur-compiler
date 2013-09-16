@@ -17,7 +17,6 @@ var path = require('path');
 var NodeLoader = require('./NodeLoader.js');
 var normalizePath = require('./file-util.js').normalizePath;
 
-var generateNameForUrl = traceur.generateNameForUrl;
 var ErrorReporter = traceur.util.ErrorReporter;
 var InternalLoader = traceur.modules.internals.InternalLoader;
 var ModuleAnalyzer = traceur.semantics.ModuleAnalyzer;
@@ -42,6 +41,16 @@ var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
 var createIdentifierToken = ParseTreeFactory.createIdentifierToken;
 var createStringLiteralToken = ParseTreeFactory.createStringLiteralToken;
 var resolveUrl = traceur.util.resolveUrl;
+
+/**
+ * Generates an identifier string that represents a URL.
+ * @param {string} url
+ * @param {string} commonPath
+ * @return {string}
+ */
+function generateNameForUrl(url, commonPath) {
+  return '$__' + url.replace(commonPath, '').replace(/[^\d\w$]/g, '_');
+}
 
 /**
  * Wraps a program in a module definition.

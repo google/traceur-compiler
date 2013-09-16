@@ -19,6 +19,7 @@ import {ObjectMap} from '../../util/ObjectMap.js';
 import {RuntimeInliner} from '../../codegeneration/RuntimeInliner.js';
 import {UniqueIdentifierGenerator} from
     '../../codegeneration/UniqueIdentifierGenerator.js';
+import {assert} from '../../util/assert.js';
 import {resolveUrl} from '../../util/url.js';
 import {Loader} from '../../util/Loader.js';
 
@@ -158,7 +159,7 @@ export class Project {
   }
 
   addExternalModule(module) {
-    traceur.assert(!this.hasModuleForResolvedUrl(module.url));
+    assert(!this.hasModuleForResolvedUrl(module.url));
     this.modulesByResolvedUrl_[module.url] = module;
   }
 

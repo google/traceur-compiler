@@ -25,6 +25,7 @@ import {
   STRING
 } from '../../syntax/TokenType.js';
 import {Symbol} from '../../semantics/symbols/Symbol.js';
+import {assert} from '../../util/assert.js';
 import {resolveUrl} from '../../util/url.js';
 
 function getFriendlyName(module) {
@@ -135,7 +136,7 @@ export class ModuleVisitor extends ParseTreeVisitor {
       var name = tree.name.value;
       module = current.getModule(name);
     } else {
-      traceur.assert(tree.name.type === STRING);
+      assert(tree.name.type === STRING);
       // console.log('current', current && current.url);
       // traceur.assert(current);
       var baseUrl = current ? current.url : this.project.url;
@@ -144,7 +145,7 @@ export class ModuleVisitor extends ParseTreeVisitor {
       module = this.project.getModuleForResolvedUrl(url);
       // console.log('< ', baseUrl, tree.name.processedValue, url);
     }
-    traceur.assert(module);
+    assert(module);
     this.currentModule_ = module;
     tree.elements.forEach(this.visitModuleElement_, this);
     this.currentModule_ = current;
