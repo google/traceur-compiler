@@ -18,36 +18,16 @@ module traceur {
   import {options} from './options.js';
   export {options};
 
-  /**
-   * Generates an identifier string that represents a URL.
-   * @param {string} url
-   * @param {string} commonPath
-   * @return {string}
-   */
-  export function generateNameForUrl(url, commonPath) {
-    return '$__' + url.replace(commonPath, '').replace(/[^\d\w$]/g, '_');
-  }
-
-  /**
-   * Returns the module object for a module file relative to the src/ directory.
-   * This relies on the internal temporary name of the module so it should only
-   * be used when testing.
-   *
-   * Example:
-   *   getModuleForTesting('semantics/FreeVariableChecker.js')
-   *
-   * @param {string} path Path to the module relative to src/.
-   */
-  export function getModuleForTesting(path) {
-    return global[generateNameForUrl(`../src/${path}`, './')];
-  }
-
   export {WebPageProject} from './WebPageProject.js';
 
   export module semantics {
     export {FreeVariableChecker} from './semantics/FreeVariableChecker.js';
     export {ModuleAnalyzer} from './semantics/ModuleAnalyzer.js';
-    export {VariableBinder} from './semantics/VariableBinder.js';
+    export {
+      VariableBinder,
+      variablesInBlock,
+      variablesInFunction
+    } from './semantics/VariableBinder.js';
 
     export module symbols {
       export {Project} from './semantics/symbols/Project.js';

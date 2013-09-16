@@ -20222,12 +20222,6 @@ var traceur = (function() {
   var global = this;
   var options = $___src_options_js.options;
   ;
-  function generateNameForUrl(url, commonPath) {
-    return '$__' + url.replace(commonPath, '').replace(/[^\d\w$]/g, '_');
-  }
-  function getModuleForTesting(path) {
-    return global[generateNameForUrl(("../src/" + path), './')];
-  }
   ;
   var semantics = (function() {
     ;
@@ -20258,6 +20252,18 @@ var traceur = (function() {
       VariableBinder: {
         get: function() {
           return $___src_semantics_VariableBinder_js.VariableBinder;
+        },
+        enumerable: true
+      },
+      variablesInBlock: {
+        get: function() {
+          return $___src_semantics_VariableBinder_js.variablesInBlock;
+        },
+        enumerable: true
+      },
+      variablesInFunction: {
+        get: function() {
+          return $___src_semantics_VariableBinder_js.variablesInFunction;
         },
         enumerable: true
       },
@@ -21096,18 +21102,6 @@ var traceur = (function() {
     options: {
       get: function() {
         return options;
-      },
-      enumerable: true
-    },
-    generateNameForUrl: {
-      get: function() {
-        return generateNameForUrl;
-      },
-      enumerable: true
-    },
-    getModuleForTesting: {
-      get: function() {
-        return getModuleForTesting;
       },
       enumerable: true
     },
