@@ -18,14 +18,11 @@ suite('VariableBinder.js', function() {
     traceur.options.experimental = false;
   });
 
-  var variablesInBlock =
-      traceur.getModuleForTesting('semantics/VariableBinder.js').variablesInBlock;
-  var variablesInFunction =
-      traceur.getModuleForTesting('semantics/VariableBinder.js').
-          variablesInFunction;
+  var ErrorReporter = traceur.util.ErrorReporter;
   var Parser = traceur.syntax.Parser;
   var SourceFile = traceur.syntax.SourceFile;
-  var ErrorReporter = traceur.util.ErrorReporter;
+  var variablesInBlock = traceur.semantics.variablesInBlock;
+  var variablesInFunction = traceur.semantics.variablesInFunction;
 
   function parse(code) {
     var errors = new ErrorReporter();
