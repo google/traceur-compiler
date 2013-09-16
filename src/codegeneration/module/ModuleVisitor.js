@@ -89,8 +89,9 @@ export class ModuleVisitor extends ParseTreeVisitor {
     }
 
     if (!module) {
-      if (reportErrors)
+      if (reportErrors) {
         this.reportError_(tree, '\'%s\' is not a module', url || name);
+      }
       return null;
     }
 
@@ -125,13 +126,9 @@ export class ModuleVisitor extends ParseTreeVisitor {
       module = current.getModule(name);
     } else {
       assert(tree.name.type === STRING);
-      // console.log('current', current && current.url);
-      // assert(current);
       var baseUrl = current ? current.url : this.project.url;
       var url = resolveUrl(baseUrl, tree.name.processedValue);
-      // console.log('> ', baseUrl, tree.name.processedValue, url);
       module = this.project.getModuleForResolvedUrl(url);
-      // console.log('< ', baseUrl, tree.name.processedValue, url);
     }
     assert(module);
     this.currentModule_ = module;
