@@ -310,21 +310,8 @@
     return joinAndCanonicalizePath(parts);
   }
 
-  function isAbsoluteUrl(s) {
-    var parts = split(s);
-    if (!s)
-      return false;
-    if (parts[ComponentIndex.SCHEME])
-      return true;
-    var path = parts[ComponentIndex.PATH];
-    if (!path)
-      return false;
-    return path[0] === '/';
-  }
-
-  global.$__traceurUrl = {
+  global.$traceurUrl = {
     canonicalizeUrl,
-    isAbsoluteUrl,
     removeDotSegments,
     resolveUrl,
   };

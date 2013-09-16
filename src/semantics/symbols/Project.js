@@ -21,7 +21,6 @@ import {UniqueIdentifierGenerator} from
     '../../codegeneration/UniqueIdentifierGenerator.js';
 import {assert} from '../../util/assert.js';
 import {resolveUrl} from '../../util/url.js';
-import {Loader} from '../../util/Loader.js';
 
 function addAll(self, other) {
   for (var key in other) {
@@ -72,9 +71,6 @@ export class Project {
     this.rootModule_ = new ModuleSymbol(null, null, null, url);
     this.modulesByResolvedUrl_ = Object.create(null);
     this.moduleExports_ = new ArrayMap();
-
-    this.loader = new Loader();
-    this.loader.baseURL = url;
   }
 
   get url() {

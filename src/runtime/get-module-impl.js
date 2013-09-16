@@ -15,7 +15,7 @@
 (function(global) {
   'use strict';
 
-  var resolveUrl = global.$__traceurUrl.resolveUrl;
+  var resolveUrl = global.$traceurUrl.resolveUrl;
 
   var modules = Object.create(null);
 

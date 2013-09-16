@@ -36,7 +36,6 @@ var SourceMapGenerator = traceur.outputgeneration.SourceMapGenerator;
 var TreeWriter = traceur.outputgeneration.TreeWriter;
 var IDENTIFIER = traceur.syntax.TokenType.IDENTIFIER;
 
-var canonicalizeUrl = traceur.util.canonicalizeUrl;
 var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
 var createIdentifierToken = ParseTreeFactory.createIdentifierToken;
 var createStringLiteralToken = ParseTreeFactory.createStringLiteralToken;

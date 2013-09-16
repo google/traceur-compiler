@@ -492,24 +492,15 @@ var $__getDescriptors = function(object) {
     parts[ComponentIndex.PATH] = path;
     return joinAndCanonicalizePath(parts);
   }
-  function isAbsoluteUrl(s) {
-    var parts = split(s);
-    if (!s) return false;
-    if (parts[ComponentIndex.SCHEME]) return true;
-    var path = parts[ComponentIndex.PATH];
-    if (!path) return false;
-    return path[0] === '/';
-  }
-  global.$__traceurUrl = {
+  global.$traceurUrl = {
     canonicalizeUrl: canonicalizeUrl,
-    isAbsoluteUrl: isAbsoluteUrl,
     removeDotSegments: removeDotSegments,
     resolveUrl: resolveUrl
   };
 })(typeof global !== 'undefined' ? global: this);
 (function(global) {
   'use strict';
-  var resolveUrl = global.$__traceurUrl.resolveUrl;
+  var resolveUrl = global.$traceurUrl.resolveUrl;
   var modules = Object.create(null);
   var standardModuleUrlRegExp = /^@\w+$/;
   function getModuleInstanceByUrl(name) {
@@ -764,6 +755,7 @@ $traceurModules.registerModule("../src/semantics/symbols/SymbolType.js", functio
 }, this);
 $traceurModules.registerModule("../src/util/assert.js", function() {
   "use strict";
+  var options = $traceurModules.getModuleInstanceByUrl('../options.js').options;
   function assert(b) {
     if (!b && options.debug) throw Error('Assertion failed');
   }
@@ -2924,10 +2916,9 @@ $traceurModules.registerModule("../src/syntax/ParseTreeVisitor.js", function() {
 }, this);
 $traceurModules.registerModule("../src/util/url.js", function() {
   "use strict";
-  var removeDotSegments = $__traceurUrl.removeDotSegments;
-  var canonicalizeUrl = $__traceurUrl.canonicalizeUrl;
-  var resolveUrl = $__traceurUrl.resolveUrl;
-  var isAbsoluteUrl = $__traceurUrl.isAbsoluteUrl;
+  var removeDotSegments = $traceurUrl.removeDotSegments;
+  var canonicalizeUrl = $traceurUrl.canonicalizeUrl;
+  var resolveUrl = $traceurUrl.resolveUrl;
   return Object.preventExtensions(Object.create(null, {
     removeDotSegments: {
       get: function() {
@@ -2944,12 +2935,6 @@ $traceurModules.registerModule("../src/util/url.js", function() {
     resolveUrl: {
       get: function() {
         return resolveUrl;
-      },
-      enumerable: true
-    },
-    isAbsoluteUrl: {
-      get: function() {
-        return isAbsoluteUrl;
       },
       enumerable: true
     }
@@ -3000,7 +2985,9 @@ $traceurModules.registerModule("../src/codegeneration/module/ModuleVisitor.js", 
           module = this.getModuleByName(name);
         }
         if (!module) {
-          if (reportErrors) this.reportError_(tree, '\'%s\' is not a module', url || name);
+          if (reportErrors) {
+            this.reportError_(tree, '\'%s\' is not a module', url || name);
+          }
           return null;
         }
         return module;
@@ -16388,7 +16375,7 @@ $traceurModules.registerModule("../src/codegeneration/ObjectLiteralTransformer.j
       createProperty_: function(name, descr) {
         var expression;
         if (name.type === LITERAL_PROPERTY_NAME) {
-          if (this.needsAdvancedTransform) expression = this.getPropertyName_(name); else expressions = name;
+          if (this.needsAdvancedTransform) expression = this.getPropertyName_(name); else expression = name;
         } else {
           expression = name.expression;
         }
@@ -18644,37 +18631,6 @@ $traceurModules.registerModule("../src/codegeneration/UniqueIdentifierGenerator.
       enumerable: true
     }}));
 }, this);
-$traceurModules.registerModule("../src/util/Loader.js", function() {
-  "use strict";
-  var $__10 = $traceurModules.getModuleInstanceByUrl('./url.js'), canonicalizeUrl = $__10.canonicalizeUrl, isAbsoluteUrl = $__10.isAbsoluteUrl, resolveUrl = $__10.resolveUrl;
-  var jsFileRe = /\.js^/;
-  var Loader = function() {
-    'use strict';
-    var $Loader = ($__createClassNoExtends)({
-      constructor: function() {},
-      normalize: function(name) {
-        var referer = arguments[1] !== (void 0) ? arguments[1]: null;
-        if (isAbsoluteUrl(name)) return canonicalizeUrl(name);
-        if (jsFileRe.test(name)) name = name.slice(0, - 3);
-        if (name[0] === '.') {
-          return referer ? resolveUrl(referer, name): name;
-        }
-        return name;
-      },
-      resolve: function(normalized) {
-        if (isAbsoluteUrl(normalized)) return normalized;
-        return resolveUrl(this.baseURL, normalized + '.js');
-      }
-    }, {});
-    return $Loader;
-  }();
-  return Object.preventExtensions(Object.create(null, {Loader: {
-      get: function() {
-        return Loader;
-      },
-      enumerable: true
-    }}));
-}, this);
 $traceurModules.registerModule("../src/semantics/symbols/Project.js", function() {
   "use strict";
   var ArrayMap = $traceurModules.getModuleInstanceByUrl('../../util/ArrayMap.js').ArrayMap;
@@ -18685,7 +18641,6 @@ $traceurModules.registerModule("../src/semantics/symbols/Project.js", function()
   var UniqueIdentifierGenerator = $traceurModules.getModuleInstanceByUrl('../../codegeneration/UniqueIdentifierGenerator.js').UniqueIdentifierGenerator;
   var assert = $traceurModules.getModuleInstanceByUrl('../../util/assert.js').assert;
   var resolveUrl = $traceurModules.getModuleInstanceByUrl('../../util/url.js').resolveUrl;
-  var Loader = $traceurModules.getModuleInstanceByUrl('../../util/Loader.js').Loader;
   function addAll(self, other) {
     for (var key in other) {
       self[key] = other[key];
@@ -18720,8 +18675,6 @@ $traceurModules.registerModule("../src/semantics/symbols/Project.js", function()
         this.rootModule_ = new ModuleSymbol(null, null, null, url);
         this.modulesByResolvedUrl_ = Object.create(null);
         this.moduleExports_ = new ArrayMap();
-        this.loader = new Loader();
-        this.loader.baseURL = url;
       },
       get url() {
         return this.rootModule_.url;
@@ -20556,8 +20509,6 @@ var traceur = (function() {
   ;
   var semantics = (function() {
     ;
-    ;
-    ;
     var symbols = (function() {
       ;
       return Object.preventExtensions(Object.create(null, {Project: {
@@ -20568,33 +20519,9 @@ var traceur = (function() {
         }}));
     }).call(this);
     return Object.preventExtensions(Object.create(null, {
-      FreeVariableChecker: {
-        get: function() {
-          return $traceurModules.getModuleInstanceByUrl("../src/semantics/FreeVariableChecker.js").FreeVariableChecker;
-        },
-        enumerable: true
-      },
       ModuleAnalyzer: {
         get: function() {
           return $traceurModules.getModuleInstanceByUrl("../src/semantics/ModuleAnalyzer.js").ModuleAnalyzer;
-        },
-        enumerable: true
-      },
-      VariableBinder: {
-        get: function() {
-          return $traceurModules.getModuleInstanceByUrl("../src/semantics/VariableBinder.js").VariableBinder;
-        },
-        enumerable: true
-      },
-      variablesInBlock: {
-        get: function() {
-          return $traceurModules.getModuleInstanceByUrl("../src/semantics/VariableBinder.js").variablesInBlock;
-        },
-        enumerable: true
-      },
-      variablesInFunction: {
-        get: function() {
-          return $traceurModules.getModuleInstanceByUrl("../src/semantics/VariableBinder.js").variablesInFunction;
         },
         enumerable: true
       },
@@ -20611,18 +20538,10 @@ var traceur = (function() {
     ;
     ;
     ;
-    ;
-    ;
     return Object.preventExtensions(Object.create(null, {
       ErrorReporter: {
         get: function() {
           return $traceurModules.getModuleInstanceByUrl("../src/util/ErrorReporter.js").ErrorReporter;
-        },
-        enumerable: true
-      },
-      MutedErrorReporter: {
-        get: function() {
-          return $traceurModules.getModuleInstanceByUrl("../src/util/MutedErrorReporter.js").MutedErrorReporter;
         },
         enumerable: true
       },
@@ -20638,21 +20557,9 @@ var traceur = (function() {
         },
         enumerable: true
       },
-      canonicalizeUrl: {
-        get: function() {
-          return $traceurModules.getModuleInstanceByUrl("../src/util/url.js").canonicalizeUrl;
-        },
-        enumerable: true
-      },
       resolveUrl: {
         get: function() {
           return $traceurModules.getModuleInstanceByUrl("../src/util/url.js").resolveUrl;
-        },
-        enumerable: true
-      },
-      removeDotSegments: {
-        get: function() {
-          return $traceurModules.getModuleInstanceByUrl("../src/util/url.js").removeDotSegments;
         },
         enumerable: true
       }
@@ -20665,13 +20572,10 @@ var traceur = (function() {
     ;
     ;
     ;
-    ;
-    ;
     var TokenType = $traceurModules.getModuleInstanceByUrl("../src/syntax/TokenType.js");
     var trees = (function() {
       ;
       ;
-      var ParseTreeType = $traceurModules.getModuleInstanceByUrl("../src/syntax/trees/ParseTreeType.js");
       return Object.preventExtensions(Object.create(null, {
         ArgumentList: {
           get: function() {
@@ -21236,12 +21140,6 @@ var traceur = (function() {
             return $traceurModules.getModuleInstanceByUrl("../src/syntax/trees/ParseTree.js").ParseTree;
           },
           enumerable: true
-        },
-        ParseTreeType: {
-          get: function() {
-            return ParseTreeType;
-          },
-          enumerable: true
         }
       }));
     }).call(this);
@@ -21261,18 +21159,6 @@ var traceur = (function() {
       Parser: {
         get: function() {
           return $traceurModules.getModuleInstanceByUrl("../src/syntax/Parser.js").Parser;
-        },
-        enumerable: true
-      },
-      ParseTreeValidator: {
-        get: function() {
-          return $traceurModules.getModuleInstanceByUrl("../src/syntax/ParseTreeValidator.js").ParseTreeValidator;
-        },
-        enumerable: true
-      },
-      ParseTreeVisitor: {
-        get: function() {
-          return $traceurModules.getModuleInstanceByUrl("../src/syntax/ParseTreeVisitor.js").ParseTreeVisitor;
         },
         enumerable: true
       },
@@ -21361,7 +21247,6 @@ var traceur = (function() {
     ;
     ;
     var ParseTreeFactory = $traceurModules.getModuleInstanceByUrl("../src/codegeneration/ParseTreeFactory.js");
-    ;
     var module = (function() {
       ;
       return Object.preventExtensions(Object.create(null, {ModuleRequireVisitor: {
@@ -21405,18 +21290,6 @@ var traceur = (function() {
       ParseTreeFactory: {
         get: function() {
           return ParseTreeFactory;
-        },
-        enumerable: true
-      },
-      parseExpression: {
-        get: function() {
-          return $traceurModules.getModuleInstanceByUrl("../src/codegeneration/PlaceholderParser.js").parseExpression;
-        },
-        enumerable: true
-      },
-      parseStatement: {
-        get: function() {
-          return $traceurModules.getModuleInstanceByUrl("../src/codegeneration/PlaceholderParser.js").parseStatement;
         },
         enumerable: true
       },

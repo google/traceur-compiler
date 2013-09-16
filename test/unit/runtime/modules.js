@@ -13,6 +13,10 @@
 // limitations under the License.
 
 suite('modules.js', function() {
+
+  var MutedErrorReporter = $traceurModules.getModuleInstanceByUrl(
+      '../src/util/MutedErrorReporter.js').MutedErrorReporter;
+
   var reporter;
 
   setup(function() {
@@ -87,7 +91,7 @@ suite('modules.js', function() {
         '\n' +
         '[\'test\', SYNTAX ERROR a.name, b.name, c.name];\n';
 
-    var reporter = new traceur.util.MutedErrorReporter();
+    var reporter = new MutedErrorReporter();
 
     var result = getLoader(reporter).evalLoad(code, function(value) {
       fail('Should not have succeeded');
