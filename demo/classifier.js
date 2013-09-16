@@ -82,7 +82,6 @@ var classifyTraceurTokens = function() {};
       var end = location.end.offset;
       var contents = this.source_.contents;
 
-      traceur.assert(this.lastClassifierLocation_ <= start);
       var code;
       if (this.lastClassifierLocation_ < start) {
         code = contents.substring(this.lastClassifierLocation_, start);

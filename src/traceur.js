@@ -42,11 +42,6 @@ module traceur {
     return global[generateNameForUrl(`../src/${path}`, './')];
   }
 
-  export function assert(b) {
-    if (!b && options.debug)
-      throw Error('Assertion failed');
-  }
-
   export {WebPageProject} from './WebPageProject.js';
 
   export module semantics {

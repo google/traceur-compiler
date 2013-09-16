@@ -24,6 +24,7 @@ import {Project} from '../semantics/symbols/Project.js';
 import {SourceFile} from '../syntax/SourceFile.js';
 import {TreeWriter} from '../outputgeneration/TreeWriter.js';
 import {WebLoader} from './WebLoader.js';
+import {assert} from '../util/assert.js';
 import {getUid} from '../util/uid.js';
 import {resolveUrl} from '../util/url.js';
 import {
@@ -428,7 +429,7 @@ class InternalLoader {
       var codeUnit = dependencies[i];
 
       // We should not have gotten here if not all are PARSED or larget.
-      traceur.assert(codeUnit.state >= PARSED);
+      assert(codeUnit.state >= PARSED);
 
       if (codeUnit.state == PARSED) {
         trees.push(codeUnit.tree);
@@ -498,7 +499,7 @@ class InternalLoader {
         continue;
       }
 
-      traceur.assert(getCurrentCodeUnit() === undefined);
+      assert(getCurrentCodeUnit() === undefined);
       setCurrentCodeUnit(codeUnit);
       var result;
 
@@ -510,7 +511,7 @@ class InternalLoader {
         return;
       } finally {
         // Ensure that we always clean up currentCodeUnit.
-        traceur.assert(getCurrentCodeUnit() === codeUnit);
+        assert(getCurrentCodeUnit() === codeUnit);
         setCurrentCodeUnit(undefined);
       }
 

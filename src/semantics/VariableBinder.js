@@ -22,6 +22,7 @@ import {
 } from '../syntax/trees/ParseTreeType.js';
 import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor.js';
 import {VAR} from '../syntax/TokenType.js';
+import {assert} from '../util/assert.js';
 
 // TODO: Update once destructuring has been refactored.
 
@@ -200,7 +201,7 @@ export class VariableBinder extends ParseTreeVisitor {
 
   /** @param {IdentifierToken} identifier */
   bind_(identifier) {
-    traceur.assert(typeof identifier.value == 'string');
+    assert(typeof identifier.value == 'string');
     this.identifiers_[identifier.value] = true;
   }
 
