@@ -15,7 +15,7 @@
 (function(global) {
   'use strict';
 
-  var resolveUrl = global.$__url.resolveUrl;
+  var resolveUrl = global.$__traceurUrl.resolveUrl;
 
   var modules = Object.create(null);
 
@@ -31,37 +31,22 @@
     if (standardModuleUrlRegExp.test(name))
       return $traceurRuntime.modules[name] || null;
 
-    var url = resolveUrl(currentName, name);
+    var url = resolveUrl(currentUrl, name);
 
     var module = modules[url];
-    if (module) {
-      if (module instanceof PendingModule)
-        return modules[url] = module.toModule();
-      return module;
-    }
-
-    throw 'unreachable';
-    // url = resolveUrl(currentCodeUnit.url, url);
-    // for (var i = 0; i < currentCodeUnit.dependencies.length; i++) {
-    //   if (currentCodeUnit.dependencies[i].url == url) {
-    //     return currentCodeUnit.dependencies[i].result;
-    //   }
-    // }
-
-    // return null;
+    if (module instanceof PendingModule)
+      return modules[url] = module.toModule();
+    return module;
   }
 
-  var currentName = './';
+  var currentUrl = './';
 
   function setCurrentUrl(url) {
-    if (!url)
-      currentName = './';
-    else
-      currentName = url;
+    currentUrl = url || './';
   }
 
-  function clearCurrentUrl() {
-    currentName = './';
+  function getCurrentUrl() {
+    return currentUrl;
   }
 
   class PendingModule {
@@ -71,29 +56,27 @@
       this.self = self;
     }
     toModule() {
-      var oldName = currentName;
-      currentName = this.name;
+      var oldName = currentUrl;
+      currentUrl = this.name;
       try {
         return this.func.call(this.self);
       } finally {
-        currentName = oldName
+        currentUrl = oldName
       }
     }
   }
 
   function registerModule(name, func, self) {
-    var url = resolveUrl(currentName, name);
+    var url = resolveUrl(currentUrl, name);
     modules[url] = new PendingModule(name, func, self);
   }
 
-
   var $traceurModules = global.$traceurModules = {
-    clearCurrentUrl,
+    getCurrentUrl,
     getModuleInstanceByUrl,
     registerModule,
     setCurrentUrl,
+    standardModuleUrlRegExp,
   };
 
 })(typeof global !== 'undefined' ? global : this);
-
-// import {resolveUrl} from '../util/url.js';

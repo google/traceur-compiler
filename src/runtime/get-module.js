@@ -12,73 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {resolveUrl} from '../util/url.js';
-
-var modules = Object.create(null);
-
-export var standardModuleUrlRegExp = /^@\w+$/;
-
-/**
- * This is used to find the module for a require url ModuleSpecifier.
- * @param {string} url
- * @return {Object} A module instance object for the given url in the current
- *     code loader.
- */
-export function getModuleInstanceByUrl(name) {
-  if (standardModuleUrlRegExp.test(name))
-    return $traceurRuntime.modules[name] || null;
-
-  var url = resolveUrl(currentName, name);
-
-  var module = modules[url];
-  if (module) {
-    if (module instanceof PendingModule)
-      return modules[url] = module.toModule();
-    return module;
-  }
-
-  throw 'unreachable';
-  // url = resolveUrl(currentCodeUnit.url, url);
-  // for (var i = 0; i < currentCodeUnit.dependencies.length; i++) {
-  //   if (currentCodeUnit.dependencies[i].url == url) {
-  //     return currentCodeUnit.dependencies[i].result;
-  //   }
-  // }
-
-  // return null;
-}
-
-var currentName = './';
-
-export function setCurrentUrl(url) {
-  if (!url)
-    currentName = './';
-  else
-    currentName = url;
-}
-
-export function clearCurrentUrl() {
-  currentName = './';
-}
-
-class PendingModule {
-  constructor(name, func, self) {
-    this.name = name;
-    this.func = func;
-    this.self = self;
-  }
-  toModule() {
-    var oldName = currentName;
-    currentName = this.name;
-    try {
-      return this.func.call(this.self);
-    } finally {
-      currentName = oldName
-    }
-  }
-}
-
-export function registerModule(name, func, self) {
-  var url = resolveUrl(currentName, name);
-  modules[url] = new PendingModule(name, func, self);
-}
+export var getCurrentUrl = $traceurModules.getCurrentUrl;
+export var getModuleInstanceByUrl = $traceurModules.getModuleInstanceByUrl;
+export var registerModule = $traceurModules.registerModule;
+export var setCurrentUrl = $traceurModules.setCurrentUrl;
+export var standardModuleUrlRegExp = $traceurModules.standardModuleUrlRegExp;

@@ -500,7 +500,7 @@ var $__getDescriptors = function(object) {
     if (!path) return false;
     return path[0] === '/';
   }
-  global.$__url = {
+  global.$__traceurUrl = {
     canonicalizeUrl: canonicalizeUrl,
     isAbsoluteUrl: isAbsoluteUrl,
     removeDotSegments: removeDotSegments,
@@ -509,25 +509,22 @@ var $__getDescriptors = function(object) {
 })(typeof global !== 'undefined' ? global: this);
 (function(global) {
   'use strict';
-  var resolveUrl = global.$__url.resolveUrl;
+  var resolveUrl = global.$__traceurUrl.resolveUrl;
   var modules = Object.create(null);
   var standardModuleUrlRegExp = /^@\w+$/;
   function getModuleInstanceByUrl(name) {
     if (standardModuleUrlRegExp.test(name)) return $traceurRuntime.modules[name] || null;
-    var url = resolveUrl(currentName, name);
+    var url = resolveUrl(currentUrl, name);
     var module = modules[url];
-    if (module) {
-      if (module instanceof PendingModule) return modules[url] = module.toModule();
-      return module;
-    }
-    throw 'unreachable';
+    if (module instanceof PendingModule) return modules[url] = module.toModule();
+    return module;
   }
-  var currentName = './';
+  var currentUrl = './';
   function setCurrentUrl(url) {
-    if (!url) currentName = './'; else currentName = url;
+    currentUrl = url || './';
   }
-  function clearCurrentUrl() {
-    currentName = './';
+  function getCurrentUrl() {
+    return currentUrl;
   }
   var PendingModule = function() {
     'use strict';
@@ -538,26 +535,27 @@ var $__getDescriptors = function(object) {
         this.self = self;
       },
       toModule: function() {
-        var oldName = currentName;
-        currentName = this.name;
+        var oldName = currentUrl;
+        currentUrl = this.name;
         try {
           return this.func.call(this.self);
         } finally {
-          currentName = oldName;
+          currentUrl = oldName;
         }
       }
     }, {});
     return $PendingModule;
   }();
   function registerModule(name, func, self) {
-    var url = resolveUrl(currentName, name);
+    var url = resolveUrl(currentUrl, name);
     modules[url] = new PendingModule(name, func, self);
   }
   var $traceurModules = global.$traceurModules = {
-    clearCurrentUrl: clearCurrentUrl,
+    getCurrentUrl: getCurrentUrl,
     getModuleInstanceByUrl: getModuleInstanceByUrl,
     registerModule: registerModule,
-    setCurrentUrl: setCurrentUrl
+    setCurrentUrl: setCurrentUrl,
+    standardModuleUrlRegExp: standardModuleUrlRegExp
   };
 })(typeof global !== 'undefined' ? global: this);
 $traceurModules.registerModule("../src/options.js", function() {
@@ -2928,115 +2926,10 @@ $traceurModules.registerModule("../src/syntax/ParseTreeVisitor.js", function() {
 }, this);
 $traceurModules.registerModule("../src/util/url.js", function() {
   "use strict";
-  function buildFromEncodedParts(opt_scheme, opt_userInfo, opt_domain, opt_port, opt_path, opt_queryData, opt_fragment) {
-    var out = [];
-    if (opt_scheme) {
-      out.push(opt_scheme, ':');
-    }
-    if (opt_domain) {
-      out.push('//');
-      if (opt_userInfo) {
-        out.push(opt_userInfo, '@');
-      }
-      out.push(opt_domain);
-      if (opt_port) {
-        out.push(':', opt_port);
-      }
-    }
-    if (opt_path) {
-      out.push(opt_path);
-    }
-    if (opt_queryData) {
-      out.push('?', opt_queryData);
-    }
-    if (opt_fragment) {
-      out.push('#', opt_fragment);
-    }
-    return out.join('');
-  }
-  ;
-  var splitRe = new RegExp('^' + '(?:' + '([^:/?#.]+)' + ':)?' + '(?://' + '(?:([^/?#]*)@)?' + '([\\w\\d\\-\\u0100-\\uffff.%]*)' + '(?::([0-9]+))?' + ')?' + '([^?#]+)?' + '(?:\\?([^#]*))?' + '(?:#(.*))?' + '$');
-  var ComponentIndex = {
-    SCHEME: 1,
-    USER_INFO: 2,
-    DOMAIN: 3,
-    PORT: 4,
-    PATH: 5,
-    QUERY_DATA: 6,
-    FRAGMENT: 7
-  };
-  function split(uri) {
-    return (uri.match(splitRe));
-  }
-  function removeDotSegments(path) {
-    if (path === '/') return '/';
-    var leadingSlash = path[0] === '/' ? '/': '';
-    var trailingSlash = path.slice(- 1) === '/' ? '/': '';
-    var segments = path.split('/');
-    var out = [];
-    var up = 0;
-    for (var pos = 0; pos < segments.length; pos++) {
-      var segment = segments[pos];
-      switch (segment) {
-        case '':
-        case '.':
-          break;
-        case '..':
-          if (out.length) out.pop(); else up++;
-          break;
-        default:
-          out.push(segment);
-      }
-    }
-    if (!leadingSlash) {
-      while (up-- > 0) {
-        out.unshift('..');
-      }
-      if (out.length === 0) out.push('.');
-    }
-    return leadingSlash + out.join('/') + trailingSlash;
-  }
-  function joinAndCanonicalizePath(parts) {
-    var path = parts[ComponentIndex.PATH];
-    path = removeDotSegments(path.replace(/\/\//.g, '/'));
-    parts[ComponentIndex.PATH] = path;
-    return buildFromEncodedParts(parts[ComponentIndex.SCHEME], parts[ComponentIndex.USER_INFO], parts[ComponentIndex.DOMAIN], parts[ComponentIndex.PORT], parts[ComponentIndex.PATH], parts[ComponentIndex.QUERY_DATA], parts[ComponentIndex.FRAGMENT]);
-  }
-  function canonicalizeUrl(url) {
-    var parts = split(url);
-    return joinAndCanonicalizePath(parts);
-  }
-  function resolveUrl(base, url) {
-    if (url[0] === '@') return url;
-    var parts = split(url);
-    var baseParts = split(base);
-    if (parts[ComponentIndex.SCHEME]) {
-      return joinAndCanonicalizePath(parts);
-    } else {
-      parts[ComponentIndex.SCHEME] = baseParts[ComponentIndex.SCHEME];
-    }
-    for (var i = ComponentIndex.SCHEME; i <= ComponentIndex.PORT; i++) {
-      if (!parts[i]) {
-        parts[i] = baseParts[i];
-      }
-    }
-    if (parts[ComponentIndex.PATH][0] == '/') {
-      return joinAndCanonicalizePath(parts);
-    }
-    var path = baseParts[ComponentIndex.PATH];
-    var index = path.lastIndexOf('/');
-    path = path.slice(0, index + 1) + parts[ComponentIndex.PATH];
-    parts[ComponentIndex.PATH] = path;
-    return joinAndCanonicalizePath(parts);
-  }
-  function isAbsoluteUrl(s) {
-    var parts = split(s);
-    if (!s) return false;
-    if (parts[ComponentIndex.SCHEME]) return true;
-    var path = parts[ComponentIndex.PATH];
-    if (!path) return false;
-    return path[0] === '/';
-  }
+  var removeDotSegments = $__traceurUrl.removeDotSegments;
+  var canonicalizeUrl = $__traceurUrl.canonicalizeUrl;
+  var resolveUrl = $__traceurUrl.resolveUrl;
+  var isAbsoluteUrl = $__traceurUrl.isAbsoluteUrl;
   return Object.preventExtensions(Object.create(null, {
     removeDotSegments: {
       get: function() {
@@ -20120,54 +20013,15 @@ $traceurModules.registerModule("../src/runtime/WebLoader.js", function() {
 }, this);
 $traceurModules.registerModule("../src/runtime/get-module.js", function() {
   "use strict";
-  var resolveUrl = $traceurModules.getModuleInstanceByUrl('../util/url.js').resolveUrl;
-  var modules = Object.create(null);
-  var standardModuleUrlRegExp = /^@\w+$/;
-  function getModuleInstanceByUrl(name) {
-    if (standardModuleUrlRegExp.test(name)) return $traceurRuntime.modules[name] || null;
-    var url = resolveUrl(currentName, name);
-    var module = modules[url];
-    if (module) {
-      if (module instanceof PendingModule) return modules[url] = module.toModule();
-      return module;
-    }
-    throw 'unreachable';
-  }
-  var currentName = './';
-  function setCurrentUrl(url) {
-    if (!url) currentName = './'; else currentName = url;
-  }
-  function clearCurrentUrl() {
-    currentName = './';
-  }
-  var PendingModule = function() {
-    'use strict';
-    var $PendingModule = ($__createClassNoExtends)({
-      constructor: function(name, func, self) {
-        this.name = name;
-        this.func = func;
-        this.self = self;
-      },
-      toModule: function() {
-        var oldName = currentName;
-        currentName = this.name;
-        try {
-          return this.func.call(this.self);
-        } finally {
-          currentName = oldName;
-        }
-      }
-    }, {});
-    return $PendingModule;
-  }();
-  function registerModule(name, func, self) {
-    var url = resolveUrl(currentName, name);
-    modules[url] = new PendingModule(name, func, self);
-  }
+  var getCurrentUrl = $traceurModules.getCurrentUrl;
+  var getModuleInstanceByUrl = $traceurModules.getModuleInstanceByUrl;
+  var registerModule = $traceurModules.registerModule;
+  var setCurrentUrl = $traceurModules.setCurrentUrl;
+  var standardModuleUrlRegExp = $traceurModules.standardModuleUrlRegExp;
   return Object.preventExtensions(Object.create(null, {
-    standardModuleUrlRegExp: {
+    getCurrentUrl: {
       get: function() {
-        return standardModuleUrlRegExp;
+        return getCurrentUrl;
       },
       enumerable: true
     },
@@ -20177,21 +20031,21 @@ $traceurModules.registerModule("../src/runtime/get-module.js", function() {
       },
       enumerable: true
     },
+    registerModule: {
+      get: function() {
+        return registerModule;
+      },
+      enumerable: true
+    },
     setCurrentUrl: {
       get: function() {
         return setCurrentUrl;
       },
       enumerable: true
     },
-    clearCurrentUrl: {
+    standardModuleUrlRegExp: {
       get: function() {
-        return clearCurrentUrl;
-      },
-      enumerable: true
-    },
-    registerModule: {
-      get: function() {
-        return registerModule;
+        return standardModuleUrlRegExp;
       },
       enumerable: true
     }
@@ -20213,7 +20067,7 @@ $traceurModules.registerModule("../src/runtime/modules.js", function() {
   var assert = $traceurModules.getModuleInstanceByUrl('../util/assert.js').assert;
   var getUid = $traceurModules.getModuleInstanceByUrl('../util/uid.js').getUid;
   var resolveUrl = $traceurModules.getModuleInstanceByUrl('../util/url.js').resolveUrl;
-  var $__10 = $traceurModules.getModuleInstanceByUrl('./get-module.js'), clearCurrentUrl = $__10.clearCurrentUrl, getModuleInstanceByUrl = $__10.getModuleInstanceByUrl, setCurrentUrl = $__10.setCurrentUrl, standardModuleUrlRegExp = $__10.standardModuleUrlRegExp;
+  var $__10 = $traceurModules.getModuleInstanceByUrl('./get-module.js'), getCurrentUrl = $__10.getCurrentUrl, getModuleInstanceByUrl = $__10.getModuleInstanceByUrl, setCurrentUrl = $__10.setCurrentUrl, standardModuleUrlRegExp = $__10.standardModuleUrlRegExp;
   var base = Object.freeze(Object.create(null, {
     Array: {value: Array},
     Boolean: {value: Boolean},
@@ -20561,6 +20415,7 @@ $traceurModules.registerModule("../src/runtime/modules.js", function() {
           if (codeUnit.state >= COMPLETE) {
             continue;
           }
+          var currentUrl = getCurrentUrl();
           setCurrentUrl(this.url);
           var result;
           try {
@@ -20570,7 +20425,7 @@ $traceurModules.registerModule("../src/runtime/modules.js", function() {
             this.abortAll();
             return;
           } finally {
-            clearCurrentUrl();
+            setCurrentUrl(currentUrl);
           }
           codeUnit.result = result;
           codeUnit.transformedTree = null;

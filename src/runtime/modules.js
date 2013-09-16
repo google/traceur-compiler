@@ -28,7 +28,7 @@ import {assert} from '../util/assert.js';
 import {getUid} from '../util/uid.js';
 import {resolveUrl} from '../util/url.js';
 import {
-  clearCurrentUrl,
+  getCurrentUrl,
   getModuleInstanceByUrl,
   setCurrentUrl,
   standardModuleUrlRegExp,
@@ -499,6 +499,7 @@ class InternalLoader {
         continue;
       }
 
+      var currentUrl = getCurrentUrl();
       setCurrentUrl(this.url);
       var result;
 
@@ -509,7 +510,7 @@ class InternalLoader {
         this.abortAll();
         return;
       } finally {
-        clearCurrentUrl();
+        setCurrentUrl(currentUrl);
       }
 
       codeUnit.result = result;

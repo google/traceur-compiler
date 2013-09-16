@@ -322,7 +322,7 @@
     return path[0] === '/';
   }
 
-  global.$__url = {
+  global.$__traceurUrl = {
     canonicalizeUrl,
     isAbsoluteUrl,
     removeDotSegments,
