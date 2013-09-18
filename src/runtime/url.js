@@ -20,7 +20,7 @@
 //   split
 //   removeDotSegments
 
-(function(global) {
+System.set('@traceur/url', (function() {
 
   /**
    * Builds a URI string from already-encoded parts.
@@ -274,6 +274,10 @@
     return joinAndCanonicalizePath(parts);
   }
 
+  function isStandardModuleUrl(s) {
+    return s[0] === '@';
+  }
+
   /**
    * Resovles a URL.
    * @param {string} base The URL acting as the base URL.
@@ -281,7 +285,7 @@
    * @return {string}
    */
   function resolveUrl(base, url) {
-    if (url[0] === '@')
+    if (isStandardModuleUrl(url))
       return url;
 
     var parts = split(url);
@@ -310,10 +314,11 @@
     return joinAndCanonicalizePath(parts);
   }
 
-  global.$traceurUrl = {
+  return {
     canonicalizeUrl,
+    isStandardModuleUrl,
     removeDotSegments,
     resolveUrl,
   };
+})());
 
-})(typeof global !== 'undefined' ? global : this);

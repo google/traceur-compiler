@@ -73,5 +73,5 @@ module traceur {
     }
   }
 
-  export module modules from './runtime/modules.js';
+  export module modules from './runtime/module-loader.js';
 }

@@ -14,8 +14,8 @@
 
 suite('modules.js', function() {
 
-  var MutedErrorReporter = $traceurModules.getModuleInstanceByUrl(
-      '../src/util/MutedErrorReporter.js').MutedErrorReporter;
+  var MutedErrorReporter =
+      System.get('../src/util/MutedErrorReporter.js').MutedErrorReporter;
 
   var reporter;
 

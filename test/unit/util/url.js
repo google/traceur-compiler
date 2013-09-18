@@ -15,9 +15,7 @@
 suite('url.js', function() {
   test('removeDotSegments', function() {
 
-    // Relative to test/
-    var url = $traceurModules.getModuleInstanceByUrl('../src/util/url.js');
-    var removeDotSegments = url.removeDotSegments;
+    var removeDotSegments = System.get('../src/util/url.js').removeDotSegments;
 
     assert.equal('/', removeDotSegments('/'));
     assert.equal('.', removeDotSegments('.'));
