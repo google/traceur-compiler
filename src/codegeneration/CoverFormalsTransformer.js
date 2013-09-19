@@ -63,8 +63,10 @@ export class CoverFormalsTransformer extends ParseTreeTransformer {
       throw new CoverFormalsTransformerError();
 
     var bindingElement = this.transformAny(tree.left);
+    if (bindingElement instanceof BindingElement)
+      bindingElement = bindingElement.binding;
     return new BindingElement(tree.location,
-                              bindingElement.binding,
+                              bindingElement,
                               tree.right);
   }
 

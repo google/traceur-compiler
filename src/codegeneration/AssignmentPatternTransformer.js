@@ -44,8 +44,10 @@ export class AssignmentPatternTransformer extends ParseTreeTransformer {
     // match the spec.
     // https://code.google.com/p/traceur-compiler/issues/detail?id=181
     var bindingElement = this.transformAny(tree.left);
+    if (bindingElement instanceof BindingElement)
+      bindingElement = bindingElement.binding;
     return new BindingElement(tree.location,
-                              bindingElement.binding,
+                              bindingElement,
                               tree.right);
   }
 
