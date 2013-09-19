@@ -6603,7 +6603,7 @@ var $___src_codegeneration_CoverFormalsTransformer_js = (function() {
   var ParseTreeTransformer = $___src_codegeneration_ParseTreeTransformer_js.ParseTreeTransformer;
   var $__10 = $___src_syntax_trees_ParseTrees_js, ArrayPattern = $__10.ArrayPattern, BindingElement = $__10.BindingElement, BindingIdentifier = $__10.BindingIdentifier, FormalParameterList = $__10.FormalParameterList, ObjectPattern = $__10.ObjectPattern, ObjectPatternField = $__10.ObjectPatternField, RestParameter = $__10.RestParameter, SpreadPatternElement = $__10.SpreadPatternElement;
   var EQUAL = $___src_syntax_TokenType_js.EQUAL;
-  var $__10 = $___src_syntax_trees_ParseTreeType_js, IDENTIFIER_EXPRESSION = $__10.IDENTIFIER_EXPRESSION, SPREAD_PATTERN_ELEMENT = $__10.SPREAD_PATTERN_ELEMENT;
+  var IDENTIFIER_EXPRESSION = $___src_syntax_trees_ParseTreeType_js.IDENTIFIER_EXPRESSION;
   var AssignmentPatternTransformerError = $___src_codegeneration_AssignmentPatternTransformer_js.AssignmentPatternTransformerError;
   var CoverFormalsTransformerError = function($__super) {
     'use strict';
@@ -6640,7 +6640,7 @@ var $___src_codegeneration_CoverFormalsTransformer_js = (function() {
         this.inArrayPattern_ = wasInArrayPattern;
         var okIndex = elements.length - 1;
         for (var i = 0; i < okIndex; i++) {
-          if (elements[i].type === SPREAD_PATTERN_ELEMENT) throw new CoverFormalsTransformerError();
+          if (elements[i]instanceof SpreadPatternElement) throw new CoverFormalsTransformerError();
         }
         return new BindingElement(tree.location, new ArrayPattern(tree.location, elements), null);
       },
