@@ -6558,7 +6558,8 @@ var $___src_codegeneration_AssignmentPatternTransformer_js = (function() {
       transformBinaryOperator: function(tree) {
         if (tree.operator.type !== EQUAL) throw new AssignmentPatternTransformerError();
         var bindingElement = this.transformAny(tree.left);
-        return new BindingElement(tree.location, bindingElement.binding, tree.right);
+        if (bindingElement instanceof BindingElement) bindingElement = bindingElement.binding;
+        return new BindingElement(tree.location, bindingElement, tree.right);
       },
       transformArrayLiteralExpression: function(tree) {
         var elements = this.transformList(tree.elements);
@@ -6631,7 +6632,8 @@ var $___src_codegeneration_CoverFormalsTransformer_js = (function() {
       transformBinaryOperator: function(tree) {
         if (tree.operator.type !== EQUAL) throw new CoverFormalsTransformerError();
         var bindingElement = this.transformAny(tree.left);
-        return new BindingElement(tree.location, bindingElement.binding, tree.right);
+        if (bindingElement instanceof BindingElement) bindingElement = bindingElement.binding;
+        return new BindingElement(tree.location, bindingElement, tree.right);
       },
       transformArrayLiteralExpression: function(tree) {
         var wasInArrayPattern = this.inArrayPattern_;
@@ -13740,6 +13742,7 @@ var $___src_codegeneration_DestructuringTransformer_js = (function() {
         this.expressions = [];
       },
       assign: function(lvalue, rvalue) {
+        lvalue = lvalue instanceof BindingElement ? lvalue.binding: lvalue;
         this.expressions.push(createAssignmentExpression(lvalue, rvalue));
       }
     }, {}, $__proto, $__super, true);
@@ -13754,7 +13757,7 @@ var $___src_codegeneration_DestructuringTransformer_js = (function() {
         this.declarations = [];
       },
       assign: function(lvalue, rvalue) {
-        if (lvalue.type === BINDING_ELEMENT) {
+        if (lvalue instanceof BindingElement) {
           this.declarations.push(createVariableDeclaration(lvalue.binding, rvalue));
           return;
         }
