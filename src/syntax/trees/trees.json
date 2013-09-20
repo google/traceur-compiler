@@ -263,6 +263,20 @@
       "Array.<ParseTree>"
     ]
   },
+  "CoverInitialisedName": {
+    "location": [
+      "SourceRange"
+    ],
+    "name": [
+      "Token"
+    ],
+    "equalToken": [
+      "Token"
+    ],
+    "initializer": [
+      "ParseTree"
+    ]
+  },
   "DebuggerStatement": {
     "location": [
       "SourceRange"
