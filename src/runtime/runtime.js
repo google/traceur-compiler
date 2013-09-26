@@ -303,6 +303,16 @@
     }
 
     $defineProperty(Object, 'is', method(is));
+
+    // Object.assign (19.1.3.1)
+    function assign(target, source) {
+      return Object.keys(source).reduce(function(target, key) {
+        target[key] = source[key];
+        return target;
+      }, target);
+    }
+
+    $defineProperty(Object, 'assign', method(assign));
   }
 
   // Iterators.
