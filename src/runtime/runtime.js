@@ -306,10 +306,12 @@
 
     // Object.assign (19.1.3.1)
     function assign(target, source) {
-      return Object.keys(source).reduce(function(target, key) {
-        target[key] = source[key];
-        return target;
-      }, target);
+      var keys = Object.keys(source);
+      var k, length = keys.length;
+      for (k = 0; k < length; k++) {
+        target[keys[k]] = source[keys[k]];
+      }
+      return target;
     }
 
     $defineProperty(Object, 'assign', method(assign));
@@ -317,10 +319,12 @@
     // Object.mixin (19.1.3.15)
     function mixin(target, source) {
       var props = Object.getOwnPropertyNames(source);
-      return props.reduce(function(target, property) {
-        var descriptor = Object.getOwnPropertyDescriptor(source, property);
-        return Object.defineProperty(target, property, descriptor);
-      }, target);
+      var p, descriptor, length = props.length;
+      for (p = 0; p < length; p++) {
+        descriptor = Object.getOwnPropertyDescriptor(source, props[p]);
+        Object.defineProperty(target, props[p], descriptor);
+      }
+      return target;
     }
 
     $defineProperty(Object, 'mixin', method(mixin));
