@@ -313,6 +313,17 @@
     }
 
     $defineProperty(Object, 'assign', method(assign));
+
+    // Object.mixin (19.1.3.15)
+    function mixin(target, source) {
+      var props = Object.getOwnPropertyNames(source);
+      return props.reduce(function(target, property) {
+        var descriptor = Object.getOwnPropertyDescriptor(source, property);
+        return Object.defineProperty(target, property, descriptor);
+      }, target);
+    }
+
+    $defineProperty(Object, 'mixin', method(mixin));
   }
 
   // Iterators.
