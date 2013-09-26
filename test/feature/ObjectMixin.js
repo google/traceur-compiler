@@ -1,11 +1,11 @@
 var target = {a: 0, b: 2};
-var source = {a: 1, c: 3, get d: function() { return 4; }};
+var source = {a: 1, c: 3, get d() { return this.b || this.a + 64; }};
 var mixed = Object.mixin(target, source);
 
 // ----------------------------------------------------------------------------
 
 assert.isTrue(Object.hasOwnProperty("mixin"));
-assert.areEqual(mixed.a, source.a);
-assert.areEqual(mixed.b, target.b);
-assert.areEqual(mixed.c, source.c);
-assert.areEqual(mixed.d, source.d);
+assert.equal(mixed.a, source.a);
+assert.equal(mixed.b, target.b);
+assert.equal(mixed.c, source.c);
+assert.notEqual(mixed.d, source.d);

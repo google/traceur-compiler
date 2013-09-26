@@ -254,6 +254,25 @@ var $__getDescriptors = function(object) {
       return left !== left && right !== right;
     }
     $defineProperty(Object, 'is', method(is));
+    function assign(target, source) {
+      var props = $getOwnPropertyNames(source);
+      var p, length = props.length;
+      for (p = 0; p < length; p++) {
+        target[props[p]] = source[props[p]];
+      }
+      return target;
+    }
+    $defineProperty(Object, 'assign', method(assign));
+    function mixin(target, source) {
+      var props = $getOwnPropertyNames(source);
+      var p, descriptor, length = props.length;
+      for (p = 0; p < length; p++) {
+        descriptor = Object.getOwnPropertyDescriptor(source, props[p]);
+        $defineProperty(target, props[p], descriptor);
+      }
+      return target;
+    }
+    $defineProperty(Object, 'mixin', method(mixin));
   }
   var iteratorName = new Name('iterator');
   var IterModule = {get iterator() {
