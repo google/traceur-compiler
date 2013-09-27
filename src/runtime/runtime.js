@@ -29,6 +29,7 @@
   var $getOwnPropertyNames = Object.getOwnPropertyNames;
   var $getPrototypeOf = Object.getPrototypeOf;
   var $hasOwnProperty = Object.prototype.hasOwnProperty;
+  var $getOwnPropertyDescriptor = Object.prototype.getOwnPropertyDescriptor;
 
   function nonEnum(value) {
     return {
@@ -265,7 +266,7 @@
 
   function $getPropertyDescriptor(obj, name) {
     while (obj !== null) {
-      var result = Object.getOwnPropertyDescriptor(obj, name);
+      var result = $getOwnPropertyDescriptor(obj, name);
       if (result)
         return result;
       obj = $getPrototypeOf(obj);
@@ -321,7 +322,7 @@
       var props = $getOwnPropertyNames(source);
       var p, descriptor, length = props.length;
       for (p = 0; p < length; p++) {
-        descriptor = Object.getOwnPropertyDescriptor(source, props[p]);
+        descriptor = $getOwnPropertyDescriptor(source, props[p]);
         $defineProperty(target, props[p], descriptor);
       }
       return target;
