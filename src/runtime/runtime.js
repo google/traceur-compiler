@@ -29,7 +29,7 @@
   var $getOwnPropertyNames = Object.getOwnPropertyNames;
   var $getPrototypeOf = Object.getPrototypeOf;
   var $hasOwnProperty = Object.prototype.hasOwnProperty;
-  var $getOwnPropertyDescriptor = Object.prototype.getOwnPropertyDescriptor;
+  var $getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
 
   function nonEnum(value) {
     return {
