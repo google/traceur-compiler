@@ -141,7 +141,7 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
       if (this.needsAdvancedTransform)
         expression = this.getPropertyName_(name);
       else
-        expressions = name;
+        expression = name;
     } else {
       expression = name.expression;
     }

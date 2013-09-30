@@ -1,19 +1,17 @@
-module 'm' {
+module m {
   export var a = 1;
   export var b = 2;
 }
 
-module 'n' {
+module n {
   export var c = 3;
   export var d = 4;
 }
 
-module 'o' {
-  export * from 'm';
-  export * from 'n';
+module o {
+  export * from m;
+  export * from n;
 }
-
-module o from 'o';
 
 assert.equal(1, o.a);
 assert.equal(2, o.b);

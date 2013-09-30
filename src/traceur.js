@@ -21,13 +21,7 @@ module traceur {
   export {WebPageProject} from './WebPageProject.js';
 
   export module semantics {
-    export {FreeVariableChecker} from './semantics/FreeVariableChecker.js';
     export {ModuleAnalyzer} from './semantics/ModuleAnalyzer.js';
-    export {
-      VariableBinder,
-      variablesInBlock,
-      variablesInFunction
-    } from './semantics/VariableBinder.js';
 
     export module symbols {
       export {Project} from './semantics/symbols/Project.js';
@@ -36,19 +30,15 @@ module traceur {
 
   export module util {
     export {ErrorReporter} from './util/ErrorReporter.js';
-    export {MutedErrorReporter} from './util/MutedErrorReporter.js';
     export {SourcePosition} from './util/SourcePosition.js';
     export {TestErrorReporter} from './util/TestErrorReporter.js';
-    export {canonicalizeUrl, resolveUrl} from './util/url.js';
-    export {removeDotSegments} from './util/url.js';
+    export {resolveUrl} from './util/url.js';
   }
 
   export module syntax {
     export {IdentifierToken} from './syntax/IdentifierToken.js';
     export {LiteralToken} from './syntax/LiteralToken.js';
     export {Parser} from './syntax/Parser.js';
-    export {ParseTreeValidator} from './syntax/ParseTreeValidator.js';
-    export {ParseTreeVisitor} from './syntax/ParseTreeVisitor.js';
     export {Scanner} from './syntax/Scanner.js';
     export {SourceFile} from './syntax/SourceFile.js';
     export {Token} from './syntax/Token.js';
@@ -57,7 +47,6 @@ module traceur {
     export module trees {
       export * from './syntax/trees/ParseTrees.js';
       export {ParseTree} from './syntax/trees/ParseTree.js';
-      export module ParseTreeType from './syntax/trees/ParseTreeType.js';
     }
   }
 
@@ -77,11 +66,6 @@ module traceur {
     export {ProgramTransformer} from './codegeneration/ProgramTransformer.js';
     export {CloneTreeTransformer} from './codegeneration/CloneTreeTransformer.js';
     export module ParseTreeFactory from './codegeneration/ParseTreeFactory.js';
-
-    export {
-      parseExpression,
-      parseStatement
-    } from './codegeneration/PlaceholderParser.js';
 
     export module module {
       export {ModuleRequireVisitor} from
