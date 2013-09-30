@@ -29,6 +29,7 @@
   var $getOwnPropertyNames = Object.getOwnPropertyNames;
   var $getPrototypeOf = Object.getPrototypeOf;
   var $hasOwnProperty = Object.prototype.hasOwnProperty;
+  var $getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
 
   function nonEnum(value) {
     return {
@@ -265,7 +266,7 @@
 
   function $getPropertyDescriptor(obj, name) {
     while (obj !== null) {
-      var result = Object.getOwnPropertyDescriptor(obj, name);
+      var result = $getOwnPropertyDescriptor(obj, name);
       if (result)
         return result;
       obj = $getPrototypeOf(obj);
@@ -303,6 +304,31 @@
     }
 
     $defineProperty(Object, 'is', method(is));
+
+    // Object.assign (19.1.3.1)
+    function assign(target, source) {
+      var props = $getOwnPropertyNames(source);
+      var p, length = props.length;
+      for (p = 0; p < length; p++) {
+        target[props[p]] = source[props[p]];
+      }
+      return target;
+    }
+
+    $defineProperty(Object, 'assign', method(assign));
+
+    // Object.mixin (19.1.3.15)
+    function mixin(target, source) {
+      var props = $getOwnPropertyNames(source);
+      var p, descriptor, length = props.length;
+      for (p = 0; p < length; p++) {
+        descriptor = $getOwnPropertyDescriptor(source, props[p]);
+        $defineProperty(target, props[p], descriptor);
+      }
+      return target;
+    }
+
+    $defineProperty(Object, 'mixin', method(mixin));
   }
 
   // Iterators.
