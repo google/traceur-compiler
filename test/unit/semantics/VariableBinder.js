@@ -21,7 +21,7 @@ suite('VariableBinder.js', function() {
   var ErrorReporter = traceur.util.ErrorReporter;
   var Parser = traceur.syntax.Parser;
   var SourceFile = traceur.syntax.SourceFile;
-  var b = $traceurModules.getModuleInstanceByUrl('../src/semantics/VariableBinder.js');
+  var b = System.get('../src/semantics/VariableBinder.js');
   var variablesInBlock = b.variablesInBlock;
   var variablesInFunction = b.variablesInFunction;
 

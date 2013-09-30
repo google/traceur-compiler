@@ -20,7 +20,10 @@ import {RuntimeInliner} from '../../codegeneration/RuntimeInliner.js';
 import {UniqueIdentifierGenerator} from
     '../../codegeneration/UniqueIdentifierGenerator.js';
 import {assert} from '../../util/assert.js';
-import {resolveUrl} from '../../util/url.js';
+import {
+  isStandardModuleUrl,
+  resolveUrl
+} from '../../util/url.js';
 
 function addAll(self, other) {
   for (var key in other) {
@@ -32,7 +35,6 @@ function values(map) {
   return Object.keys(map).map((key) => map[key]);
 }
 
-var standardModuleUrlRegExp = /^@\w+$/;
 var standardModuleCache = Object.create(null);
 
 /**
@@ -44,7 +46,7 @@ var standardModuleCache = Object.create(null);
 function getStandardModule(url) {
   if (!(url in standardModuleCache)) {
     var symbol = new ModuleSymbol(null, null, null, url);
-    var moduleInstance = $traceurRuntime.modules[url];
+    var moduleInstance = System.get(url);
     Object.keys(moduleInstance).forEach((name) => {
       symbol.addExport(name, new ExportSymbol(null, name, null));
     });
@@ -164,7 +166,7 @@ export class Project {
   }
 
   getModuleForResolvedUrl(url) {
-    if (standardModuleUrlRegExp.test(url))
+    if (isStandardModuleUrl(url))
       return getStandardModule(url);
 
     return this.modulesByResolvedUrl_[url];
@@ -175,8 +177,8 @@ export class Project {
   }
 
   hasModuleForResolvedUrl(url) {
-    if (standardModuleUrlRegExp.test(url))
-      return url in $traceurRuntime.modules;
+    if (isStandardModuleUrl(url))
+      return System.get(url) != null;
 
     return url in this.modulesByResolvedUrl_;
   }
