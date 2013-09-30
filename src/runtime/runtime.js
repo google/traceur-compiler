@@ -459,22 +459,32 @@
     }
   };
 
-  var modules = $freeze({
+  var modules = {
     get '@name'() {
       return NameModule;
     },
     get '@iter'() {
       return IterModule;
     }
-  });
+  };
 
-  // TODO(arv): Don't export this.
-  global.Deferred = Deferred;
+  // This gets overridden in @traceur/modules to be more correct.
+  var System = {
+    get: function(name) {
+      return modules[name] || null;
+    },
+    set: function(name, object) {
+      modules[name] = object;      
+    }
+  };
 
   function setupGlobals(global) {
     polyfillString(global.String);
     polyfillObject(global.Object);
     polyfillArray(global.Array);
+    global.System = System;
+    // TODO(arv): Don't export this.
+    global.Deferred = Deferred;
   }
 
   setupGlobals(global);
@@ -495,7 +505,6 @@
     setProperty: setProperty,
     setupGlobals: setupGlobals,
     has: has,
-    modules: modules,
   };
 
   // This file is sometimes used without traceur.js.

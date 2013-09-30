@@ -155,7 +155,7 @@ export class ModuleTransformer extends ParseTreeTransformer {
   transformModuleSpecifier(tree) {
     var token = tree.token;
     if (token.type === STRING)
-      return parseExpression `$traceurModules.getModuleInstanceByUrl(${token})`;
+      return parseExpression `System.get(${token})`;
 
     return new IdentifierExpression(token.location, token);
   }
@@ -368,5 +368,6 @@ function createRegister(name, callExpression) {
   // TODO(arv): Refactor transformModuleElements.
   // $traceurModules.registerModule(name, func, this)
   var func = callExpression.operand.operand.expression;
-  return parseStatement `$traceurModules.registerModule(${name}, ${func}, this);`;
+  return parseStatement
+      `System.get('@traceur/module').registerModule(${name}, ${func}, this);`;
 }
