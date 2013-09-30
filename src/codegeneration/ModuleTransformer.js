@@ -74,7 +74,7 @@ import {options} from '../options.js';
 import {
   parseExpression,
   parseStatement
-} from './PlaceHolderParser.js';
+} from './PlaceholderParser.js';
 import {resolveUrl} from '../util/url.js';
 
 function toBindingIdentifier(tree) {

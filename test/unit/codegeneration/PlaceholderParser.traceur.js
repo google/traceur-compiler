@@ -15,7 +15,7 @@
 suite('PlaceholderParser.traceur.js', function() {
 
   var ParseTreeType = System.get('../src/syntax/trees/ParseTreeType.js');
-  var m = System.get('../src/codegeneration/PlaceHolderParser.js');
+  var m = System.get('../src/codegeneration/PlaceholderParser.js');
   var parseExpression = m.parseExpression;
   var parseStatement = m.parseStatement;
   var write = traceur.outputgeneration.TreeWriter.write;
