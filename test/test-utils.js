@@ -162,7 +162,8 @@
 
           var missingExpectations = expectedErrors.forEach(function(expected) {
             assert.isTrue(reporter.hasMatchingError(expected),
-                          'Missing expected error: ' + expected);
+                          'Missing expected error: ' + expected +
+                          '\nActual errors:\n' + reporter.errors.join('\n'));
           });
 
           skip = true;

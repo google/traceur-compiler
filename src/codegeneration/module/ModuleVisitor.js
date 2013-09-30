@@ -12,12 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  ParseTree,
-  ParseTreeType
-} from '../../syntax/trees/ParseTree.js';
+import {ParseTree} from '../../syntax/trees/ParseTree.js';
 import {ParseTreeVisitor} from '../../syntax/ParseTreeVisitor.js';
+import {
+  MODULE_DECLARATION,
+  MODULE_DEFINITION,
+  EXPORT_DECLARATION,
+  IMPORT_DECLARATION
+} from '../../syntax/trees/ParseTreeType.js';
+import {
+  IDENTIFIER,
+  STRING
+} from '../../syntax/TokenType.js';
 import {Symbol} from '../../semantics/symbols/Symbol.js';
+import {assert} from '../../util/assert.js';
 import {resolveUrl} from '../../util/url.js';
 
 function getFriendlyName(module) {
@@ -68,26 +76,26 @@ export class ModuleVisitor extends ParseTreeVisitor {
    * @return {ModuleSymbol}
    */
   getModuleForModuleSpecifier(tree, reportErrors) {
+    var module, name, url;
+
     // "url"
-    if (tree.reference.type == ParseTreeType.MODULE_REQUIRE) {
-      var url = tree.reference.url.processedValue;
-      url = resolveUrl(this.currentModule.url, url);
-      return this.project.getModuleForUrl(url);
+    if (tree.token.type == STRING) {
+      url = resolveUrl(this.currentModule.url, tree.token.processedValue);
+      module = this.project.getModuleForResolvedUrl(url);
+    } else {
+      // id
+      var name = tree.token.value;
+      module = this.getModuleByName(name);
     }
 
-    // id
-
-    var name = tree.reference.identifierToken.value;
-    var parent = this.getModuleByName(name);
-    if (!parent) {
+    if (!module) {
       if (reportErrors) {
-        this.reportError_(tree, '\'%s\' is not a module', name);
+        this.reportError_(tree, '\'%s\' is not a module', url || name);
       }
       return null;
     }
 
-
-    return parent;
+    return module;
   }
 
   // Limit the trees to visit.
@@ -98,10 +106,10 @@ export class ModuleVisitor extends ParseTreeVisitor {
 
   visitModuleElement_(element) {
     switch (element.type) {
-      case ParseTreeType.MODULE_DECLARATION:
-      case ParseTreeType.MODULE_DEFINITION:
-      case ParseTreeType.EXPORT_DECLARATION:
-      case ParseTreeType.IMPORT_DECLARATION:
+      case MODULE_DECLARATION:
+      case MODULE_DEFINITION:
+      case EXPORT_DECLARATION:
+      case IMPORT_DECLARATION:
         this.visitAny(element);
     }
   }
@@ -112,9 +120,17 @@ export class ModuleVisitor extends ParseTreeVisitor {
 
   visitModuleDefinition(tree) {
     var current = this.currentModule_;
-    var name = tree.name.value;
-    var module = current.getModule(name);
-    traceur.assert(module);
+    var module;
+    if (tree.name.type === IDENTIFIER) {
+      var name = tree.name.value;
+      module = current.getModule(name);
+    } else {
+      assert(tree.name.type === STRING);
+      var baseUrl = current ? current.url : this.project.url;
+      var url = resolveUrl(baseUrl, tree.name.processedValue);
+      module = this.project.getModuleForResolvedUrl(url);
+    }
+    assert(module);
     this.currentModule_ = module;
     tree.elements.forEach(this.visitModuleElement_, this);
     this.currentModule_ = current;

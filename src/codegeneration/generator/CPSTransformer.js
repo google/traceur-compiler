@@ -31,6 +31,7 @@ import {FinallyFallThroughState} from './FinallyFallThroughState.js';
 import {FinallyState} from './FinallyState.js';
 import {IdentifierToken} from '../../syntax/IdentifierToken.js';
 import {ParseTreeTransformer} from '../ParseTreeTransformer.js';
+import {assert} from '../../util/assert.js';
 import {parseStatement} from '../PlaceholderParser.js';
 import {
   $ARGUMENTS,
@@ -208,7 +209,7 @@ export class CPSTransformer extends ParseTreeTransformer {
       return false;
     }
 
-    traceur.assert(statements instanceof SwitchStatement);
+    assert(statements instanceof SwitchStatement);
     for (var i = 0; i < statements.caseClauses.length; i++) {
       var clause = statements.caseClauses[i];
       if (clause.type == CASE_CLAUSE) {

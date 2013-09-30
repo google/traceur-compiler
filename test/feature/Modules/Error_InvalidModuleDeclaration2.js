@@ -1,5 +1,5 @@
 // Should not compile.
-// Error: 5:16: unexpected token .
+// Error: 5:18: unexpected token .
 
-module a {}
-module b from a.c;
+module 'a' {}
+module b from 'a'.c;

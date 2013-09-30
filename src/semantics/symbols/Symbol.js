@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {SymbolType} from './SymbolType.js';
+import {assert} from '../../util/assert.js';
 
 /**
  * A symbol is a named program element.
@@ -36,7 +37,7 @@ export class Symbol {
    * @return {ExportSymbol}
    */
   asExport() {
-    traceur.assert(this.type == SymbolType.EXPORT);
+    assert(this.type == SymbolType.EXPORT);
     return this;
   }
 
@@ -44,7 +45,7 @@ export class Symbol {
    * @return {ModuleSymbol}
    */
   asModuleSymbol() {
-    traceur.assert(this.type == SymbolType.MODULE);
+    assert(this.type == SymbolType.MODULE);
     return this;
   }
 }

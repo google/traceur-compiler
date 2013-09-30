@@ -15,6 +15,7 @@
 import {ExportSymbol} from '../../semantics/symbols/ExportSymbol.js';
 import {IDENTIFIER_EXPRESSION} from '../../syntax/trees/ParseTreeType.js';
 import {ModuleVisitor} from './ModuleVisitor.js';
+import {assert} from '../../util/assert.js';
 
 /**
  * Visits a parse tree and adds all the module definitions.
@@ -39,7 +40,7 @@ export class ExportVisitor extends ModuleVisitor {
       return;
     }
 
-    traceur.assert(typeof name == 'string');
+    assert(typeof name == 'string');
 
     var parent = this.currentModule;
     if (parent.hasExport(name)) {

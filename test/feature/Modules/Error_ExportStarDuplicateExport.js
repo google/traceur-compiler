@@ -2,15 +2,15 @@
 // Error: :15:10: Duplicate export declaration 'a'
 // Error: :14:10: Location related to previous error
 
-module m {
+module 'm' {
   export var a = 1;
 }
 
-module n {
+module 'n' {
   export var a = 2;
 }
 
-module o {
-  export * from m;
-  export * from n;
+module 'o' {
+  export * from 'm';
+  export * from 'n';
 }

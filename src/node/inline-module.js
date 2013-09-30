@@ -17,7 +17,6 @@ var path = require('path');
 var NodeLoader = require('./NodeLoader.js');
 var normalizePath = require('./file-util.js').normalizePath;
 
-var generateNameForUrl = traceur.generateNameForUrl;
 var ErrorReporter = traceur.util.ErrorReporter;
 var InternalLoader = traceur.modules.internals.InternalLoader;
 var ModuleAnalyzer = traceur.semantics.ModuleAnalyzer;
@@ -29,16 +28,28 @@ var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
 var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
 var Parser = traceur.syntax.Parser;
 var Program = traceur.syntax.trees.Program;
+var ModuleSpecifier = traceur.syntax.trees.ModuleSpecifier;
 var ProgramTransformer = traceur.codegeneration.ProgramTransformer;
 var Project = traceur.semantics.symbols.Project;
 var SourceFile = traceur.syntax.SourceFile
 var SourceMapGenerator = traceur.outputgeneration.SourceMapGenerator;
 var TreeWriter = traceur.outputgeneration.TreeWriter;
+var IDENTIFIER = traceur.syntax.TokenType.IDENTIFIER;
 
-var canonicalizeUrl = traceur.util.canonicalizeUrl;
 var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
 var createIdentifierToken = ParseTreeFactory.createIdentifierToken;
+var createStringLiteralToken = ParseTreeFactory.createStringLiteralToken;
 var resolveUrl = traceur.util.resolveUrl;
+
+/**
+ * Generates an identifier string that represents a URL.
+ * @param {string} url
+ * @param {string} commonPath
+ * @return {string}
+ */
+function generateNameForUrl(url, commonPath) {
+  return '$__' + url.replace(commonPath, '').replace(/[^\d\w$]/g, '_');
+}
 
 /**
  * Wraps a program in a module definition.
@@ -51,10 +62,9 @@ var resolveUrl = traceur.util.resolveUrl;
  *     a module definition.
  */
 function wrapProgram(tree, url, commonPath) {
-  var name = generateNameForUrl(url, commonPath);
   return new Program(null,
       [new ModuleDefinition(null,
-          createIdentifierToken(name), tree.programElements)]);
+          createStringLiteralToken(url), tree.programElements)]);
 }
 
 /**
@@ -70,23 +80,31 @@ function wrapProgram(tree, url, commonPath) {
  *     to.
  * @param {string} commonPath The path that is common for all URLs.
  */
-function ModuleRequireTransformer(url, commonPath) {
+function ModuleRequireTransformer(url, commonPath, isStart) {
   ParseTreeTransformer.call(this);
   this.url = url;
   this.commonPath = commonPath;
+  this.isStart = isStart
 }
 
 ModuleRequireTransformer.prototype = {
   __proto__: ParseTreeTransformer.prototype,
-  transformModuleRequire: function(tree) {
-    var url = tree.url.processedValue;
+  transformModuleSpecifier: function(tree) {
+    if (!this.isStart)
+      return tree;
 
-    // Don't handle builtin modules.
+    if (tree.token.type === IDENTIFIER)
+      return tree;
+
+    var url = tree.token.processedValue;
+
+     // Don't handle builtin modules.
     if (url.charAt(0) === '@')
       return tree;
+
     url = resolveUrl(this.url, url);
 
-    return createIdentifierExpression(generateNameForUrl(url, this.commonPath));
+    return new ModuleSpecifier(tree.location, createStringLiteralToken(url));
   }
 };
 
@@ -117,7 +135,10 @@ InlineCodeLoader.prototype = {
   },
 
   transformCodeUnit: function(codeUnit) {
-    var transformer = new ModuleRequireTransformer(codeUnit.url, this.dirname);
+    var transformer = new ModuleRequireTransformer(
+          codeUnit.url,
+          this.dirname,
+          codeUnit === startCodeUnit);
     var tree = transformer.transformAny(codeUnit.tree);
     if (this.depTarget) {
       console.log('%s: %s', this.depTarget,

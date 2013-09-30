@@ -12,62 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {resolveUrl} from '../util/url.js';
-
-/**
- * This is the current code unit object being evaluated.
- */
-var currentCodeUnit;
-
-var modules = Object.create(null);
-
-export var standardModuleUrlRegExp = /^@\w+$/;
-
-/**
- * This is used to find the module for a require url ModuleSpecifier.
- * @param {string} url
- * @return {Object} A module instance object for the given url in the current
- *     code loader.
- */
-export function getModuleInstanceByUrl(url) {
-  if (standardModuleUrlRegExp.test(url))
-    return $traceurRuntime.modules[url] || null;
-
-  var module = modules[url];
-  if (module) {
-    if (module instanceof PendingModule)
-      return modules[url] = module.toModule();
-    return module;
-  }
-
-  url = resolveUrl(currentCodeUnit.url, url);
-  for (var i = 0; i < currentCodeUnit.dependencies.length; i++) {
-    if (currentCodeUnit.dependencies[i].url == url) {
-      return currentCodeUnit.dependencies[i].result;
-    }
-  }
-
-  return null;
-}
-
-export function getCurrentCodeUnit() {
-  return currentCodeUnit;
-}
-
-export function setCurrentCodeUnit(codeUnit) {
-  currentCodeUnit = codeUnit;
-}
-
-class PendingModule {
-  constructor(func, self) {
-    this.func = func;
-    this.self = self;
-  }
-  toModule() {
-    return this.func.call(this.self);
-  }
-}
-
-export function registerModule(name, func, self) {
-  modules[name] = new PendingModule(func, self);
-}
+export var getCurrentUrl = $traceurModules.getCurrentUrl;
+export var getModuleInstanceByUrl = $traceurModules.getModuleInstanceByUrl;
+export var registerModule = $traceurModules.registerModule;
+export var setCurrentUrl = $traceurModules.setCurrentUrl;
+export var standardModuleUrlRegExp = $traceurModules.standardModuleUrlRegExp;

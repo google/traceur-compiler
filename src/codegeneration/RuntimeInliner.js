@@ -18,6 +18,7 @@ import {Parser} from '../syntax/Parser.js';
 import {Program} from '../syntax/trees/ParseTrees.js';
 import {SourceFile} from '../syntax/SourceFile.js';
 import {VAR} from '../syntax/TokenType.js';
+import {assert} from '../util/assert.js';
 import {
   createIdentifierExpression,
   createVariableDeclaration,
@@ -149,7 +150,7 @@ export class RuntimeInliner extends ParseTreeTransformer {
     if (!(name in this.map_)) {
       if (name in shared)
         source = shared[name];
-      traceur.assert(source);
+      assert(source);
       this.register(name, source);
     }
     return this.getAsIdentifierExpression(name);

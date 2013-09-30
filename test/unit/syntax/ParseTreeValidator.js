@@ -14,8 +14,11 @@
 
 suite('ParseTreeValidator.js', function() {
 
+  var ParseTreeValidator = $traceurModules.getModuleInstanceByUrl(
+          '../src/syntax/ParseTreeValidator.js').ParseTreeValidator;
+
   test('Validate null', function() {
-    traceur.syntax.ParseTreeValidator.validate(null);
+    ParseTreeValidator.validate(null);
   });
 
 });

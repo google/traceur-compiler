@@ -40,6 +40,7 @@ import {
   TRUE,
   VOID
 } from '../syntax/TokenType.js';
+import {assert} from '../util/assert.js';
 import * from '../syntax/trees/ParseTrees.js';
 
 // Helpers so we can use these on Arguments objects.
@@ -352,7 +353,7 @@ export function createFunctionBody(statements) {
  * @return {CallExpression}
  */
 export function createScopedExpression(body) {
-  traceur.assert(body.type === 'FUNCTION_BODY');
+  assert(body.type === 'FUNCTION_BODY');
   return createCallCall(
       createParenExpression(
           createFunctionExpression(createEmptyParameterList(), body)),
@@ -569,7 +570,7 @@ export function createForStatement(variables, condition, increment, body) {
  * @return {FunctionExpression}
  */
 export function createFunctionExpression(formalParameterList, body) {
-  traceur.assert(body.type === 'FUNCTION_BODY');
+  assert(body.type === 'FUNCTION_BODY');
   return new FunctionExpression(null, null, false,
                                 formalParameterList, body);
 }

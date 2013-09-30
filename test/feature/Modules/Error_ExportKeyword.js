@@ -1,6 +1,6 @@
 // Should not compile.
 // Error: :5:11: 'identifier' expected
 
-module m {
+module 'm' {
   export {if};
 }

@@ -100,6 +100,7 @@ class AssignmentExpressionDesugaring extends Desugaring {
   }
 
   assign(lvalue, rvalue) {
+    lvalue = lvalue instanceof BindingElement ? lvalue.binding : lvalue;
     this.expressions.push(createAssignmentExpression(lvalue, rvalue));
   }
 }
@@ -118,7 +119,7 @@ class VariableDeclarationDesugaring extends Desugaring {
   }
 
   assign(lvalue, rvalue) {
-    if (lvalue.type === BINDING_ELEMENT) {
+    if (lvalue instanceof BindingElement) {
       this.declarations.push(createVariableDeclaration(lvalue.binding,
           rvalue));
       return;

@@ -15,6 +15,7 @@
 import {
   BindingElement,
   BindingIdentifier,
+  IdentifierExpression,
   LiteralExpression,
   LiteralPropertyName,
   ObjectPattern,
@@ -22,10 +23,6 @@ import {
   Program
 } from '../syntax/trees/ParseTrees.js';
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
-import {
-  GET_MODULE_INSTANCE_BY_URL,
-  TRACEUR_MODULES
-} from '../syntax/PredefinedName.js';
 import {
   CLASS_DECLARATION,
   EXPORT_DECLARATION,
@@ -36,15 +33,17 @@ import {
   IMPORT_DECLARATION,
   MODULE_DECLARATION,
   MODULE_DEFINITION,
-  MODULE_REQUIRE,
+  MODULE_SPECIFIER,
   NAMED_EXPORT,
   VARIABLE_STATEMENT
 } from '../syntax/trees/ParseTreeType.js';
 import {
   IDENTIFIER,
   STAR,
+  STRING,
   VAR
 } from '../syntax/TokenType.js';
+import {assert} from '../util/assert.js';
 import {
   createArgumentList,
   createBindingIdentifier,
@@ -71,7 +70,12 @@ import {
   createVariableStatement
 } from './ParseTreeFactory.js';
 import {hasUseStrict} from '../semantics/util.js';
-import {parseStatement} from './PlaceHolderParser.js';
+import {options} from '../options.js';
+import {
+  parseExpression,
+  parseStatement
+} from './PlaceholderParser.js';
+import {resolveUrl} from '../util/url.js';
 
 function toBindingIdentifier(tree) {
   return new BindingIdentifier(tree.location, tree.identifierToken);
@@ -95,7 +99,7 @@ function getGetterExport(project, symbol) {
       break;
 
     case EXPORT_STAR:
-      traceur.assert(symbol.relatedTree);
+      assert(symbol.relatedTree);
       returnExpression = transformSpecifier(project,
           createIdentifierToken(symbol.name), symbol.relatedTree);
       break;
@@ -149,16 +153,11 @@ export class ModuleTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformModuleSpecifier(tree) {
-    var reference = tree.reference;
-    if (reference.type == MODULE_REQUIRE) {
-      // traceur.modules.getModuleInstanceByUrl(url)
-      return createCallExpression(
-          createMemberExpression(TRACEUR_MODULES, GET_MODULE_INSTANCE_BY_URL),
-          createArgumentList(
-              new LiteralExpression(null, reference.url)));
-    }
+    var token = tree.token;
+    if (token.type === STRING)
+      return parseExpression `$traceurModules.getModuleInstanceByUrl(${token})`;
 
-    return reference;
+    return new IdentifierExpression(token.location, token);
   }
 
   /**
@@ -240,7 +239,7 @@ ModuleTransformer.transform = function(project, tree) {
 ModuleTransformer.transformAsModule = function(project, module, tree) {
   var callExpression = transformModuleElements(project, module,
                                                tree.programElements);
-  return createProgram([createExpressionStatement(callExpression)]);
+  return createProgram([createRegister(module.url, callExpression)]);
 };
 
 /**
@@ -343,8 +342,15 @@ function transformModuleElements(project, module, elements, useStrictCount) {
  * @return {ParseTree}
  */
 function transformDefinition(project, parent, tree, useStrictCount) {
-
-  var module = parent.getModule(tree.name.value);
+  var module;
+  if (tree.name.type === IDENTIFIER) {
+    module = parent.getModule(tree.name.value);
+  } else {
+    var baseUrl = parent ? parent.url : project.url;
+    var url = resolveUrl(baseUrl, tree.name.processedValue);
+    module = project.getModuleForResolvedUrl(url);
+  }
+  assert(module);
 
   var callExpression = transformModuleElements(project, module,
                                                tree.elements, useStrictCount);
@@ -355,8 +361,12 @@ function transformDefinition(project, parent, tree, useStrictCount) {
     return createVariableStatement(VAR, module.name, callExpression);
   }
 
+  return createRegister(tree.name, callExpression)
+}
+
+function createRegister(name, callExpression) {
   // TODO(arv): Refactor transformModuleElements.
   // $traceurModules.registerModule(name, func, this)
   var func = callExpression.operand.operand.expression;
-  return parseStatement `$traceurModules.registerModule(${tree.name}, ${func}, this);`;
+  return parseStatement `$traceurModules.registerModule(${name}, ${func}, this);`;
 }

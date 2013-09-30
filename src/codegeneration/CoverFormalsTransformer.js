@@ -26,7 +26,6 @@ import {
 import {EQUAL} from '../syntax/TokenType.js';
 import {
   IDENTIFIER_EXPRESSION,
-  SPREAD_PATTERN_ELEMENT
 } from '../syntax/trees/ParseTreeType.js';
 import {AssignmentPatternTransformerError} from
     './AssignmentPatternTransformer.js';
@@ -64,8 +63,10 @@ export class CoverFormalsTransformer extends ParseTreeTransformer {
       throw new CoverFormalsTransformerError();
 
     var bindingElement = this.transformAny(tree.left);
+    if (bindingElement instanceof BindingElement)
+      bindingElement = bindingElement.binding;
     return new BindingElement(tree.location,
-                              bindingElement.binding,
+                              bindingElement,
                               tree.right);
   }
 
@@ -80,7 +81,7 @@ export class CoverFormalsTransformer extends ParseTreeTransformer {
     // patterns it can only occur in last position.
     var okIndex = elements.length - 1;
     for (var i = 0; i < okIndex; i++) {
-      if (elements[i].type === SPREAD_PATTERN_ELEMENT)
+      if (elements[i] instanceof SpreadPatternElement)
         throw new CoverFormalsTransformerError();
     }
 

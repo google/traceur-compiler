@@ -19,6 +19,7 @@ import {ObjectMap} from '../../util/ObjectMap.js';
 import {RuntimeInliner} from '../../codegeneration/RuntimeInliner.js';
 import {UniqueIdentifierGenerator} from
     '../../codegeneration/UniqueIdentifierGenerator.js';
+import {assert} from '../../util/assert.js';
 import {resolveUrl} from '../../util/url.js';
 
 function addAll(self, other) {
@@ -68,7 +69,7 @@ export class Project {
     this.sourceFiles_ = Object.create(null);
     this.parseTrees_ = new ObjectMap();
     this.rootModule_ = new ModuleSymbol(null, null, null, url);
-    this.modulesByUrl_ = Object.create(null);
+    this.modulesByResolvedUrl_ = Object.create(null);
     this.moduleExports_ = new ArrayMap();
   }
 
@@ -154,25 +155,30 @@ export class Project {
   }
 
   addExternalModule(module) {
-    traceur.assert(!this.hasModuleForUrl(module.url));
-    this.modulesByUrl_[module.url] = module;
+    assert(!this.hasModuleForResolvedUrl(module.url));
+    this.modulesByResolvedUrl_[module.url] = module;
   }
 
   getModuleForUrl(url) {
-    url = resolveUrl(this.url, url);
-    traceur.assert(this.hasModuleForUrl(url));
+    return this.getModuleForResolvedUrl(resolveUrl(this.url, url));
+  }
+
+  getModuleForResolvedUrl(url) {
     if (standardModuleUrlRegExp.test(url))
       return getStandardModule(url);
 
-    return this.modulesByUrl_[url];
+    return this.modulesByResolvedUrl_[url];
   }
 
   hasModuleForUrl(url) {
+    return this.hasModuleForResolvedUrl(resolveUrl(this.url, url));
+  }
+
+  hasModuleForResolvedUrl(url) {
     if (standardModuleUrlRegExp.test(url))
       return url in $traceurRuntime.modules;
 
-    url = resolveUrl(this.url, url);
-    return url in this.modulesByUrl_;
+    return url in this.modulesByResolvedUrl_;
   }
 
   setModuleForStarTree(tree, symbol) {
