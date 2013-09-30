@@ -1,6 +1,7 @@
 SRC = \
   src/runtime/runtime.js \
-  src/runtime/runtime-modules.js \
+  src/runtime/runtime-url.js \
+  src/runtime/get-module-impl.js \
   src/traceur.js
 TPL_GENSRC = \
   src/outputgeneration/SourceMapIntegration.js

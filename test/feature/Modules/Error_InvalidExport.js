@@ -1,9 +1,8 @@
 // Should not compile.
-// Error: 'c' is not exported by b
+// Error: 'c' is not exported by
 
-module a {
-  module b {
-    module c {};
-  }
-  export {c} from b;
+module 'a' {}
+
+module 'b' {
+  export {c} from 'a';
 }

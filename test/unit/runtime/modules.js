@@ -13,6 +13,10 @@
 // limitations under the License.
 
 suite('modules.js', function() {
+
+  var MutedErrorReporter = $traceurModules.getModuleInstanceByUrl(
+      '../src/util/MutedErrorReporter.js').MutedErrorReporter;
+
   var reporter;
 
   setup(function() {
@@ -27,7 +31,8 @@ suite('modules.js', function() {
   if (typeof __filename !== 'undefined')
     url = __filename;
   else
-    url = traceur.util.resolveUrl(window.location.href, 'unit/runtime/modules.js');
+    url = traceur.util.resolveUrl(window.location.href,
+                                  'unit/runtime/modules.js');
 
   function getLoader(opt_reporter) {
     var project = new traceur.semantics.symbols.Project(url);
@@ -44,9 +49,9 @@ suite('modules.js', function() {
 
   test('LoaderEvalLoad', function(done) {
     var code =
-        'module a from "test_a.js";\n' +
-        'module b from "test_b.js";\n' +
-        'module c from "test_c.js";\n' +
+        'module a from "./test_a.js";\n' +
+        'module b from "./test_b.js";\n' +
+        'module c from "./test_c.js";\n' +
         '\n' +
         '[\'test\', a.name, b.name, c.name];\n';
 
@@ -64,7 +69,7 @@ suite('modules.js', function() {
 
   test('LoaderEvalLoadWithSubdir', function(done) {
     var code =
-        'module d from "subdir/test_d.js";\n' +
+        'module d from "./subdir/test_d.js";\n' +
         '\n' +
         '[d.name, d.e.name];\n';
 
@@ -80,13 +85,13 @@ suite('modules.js', function() {
 
   test('LoaderEvalLoadFail', function(done) {
     var code =
-        'module a from "test_a.js";\n' +
-        'module b from "test_b.js";\n' +
-        'module c from "test_c.js";\n' +
+        'module a from "./test_a.js";\n' +
+        'module b from "./test_b.js";\n' +
+        'module c from "./test_c.js";\n' +
         '\n' +
         '[\'test\', SYNTAX ERROR a.name, b.name, c.name];\n';
 
-    var reporter = new traceur.util.MutedErrorReporter();
+    var reporter = new MutedErrorReporter();
 
     var result = getLoader(reporter).evalLoad(code, function(value) {
       fail('Should not have succeeded');
@@ -101,7 +106,7 @@ suite('modules.js', function() {
   });
 
   test('LoaderLoad', function(done) {
-    getLoader().load('test.js', function(mod) {
+    getLoader().load('./test.js', function(mod) {
       assert.equal('test', mod.name);
       assert.equal('A', mod.a);
       assert.equal('B', mod.b);

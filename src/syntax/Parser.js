@@ -285,7 +285,7 @@ export class Parser {
     var moduleSpecifier = this.parseModuleSpecifier_(load);
     this.eatPossibleImplicitSemiColon_();
     return new ImportDeclaration(this.getTreeLocation_(start),
-        moduleSpecifier, importSpecifierSet);
+        importSpecifierSet, moduleSpecifier);
   }
 
   //ImportSpecifierSet ::= "*"
@@ -485,7 +485,7 @@ export class Parser {
     else
       name = this.eat_(STRING);
 
-    if (name.type === STRING || this.peek_(OPEN_CURLY)) {
+    if (!this.isAtEnd() && (name.type === STRING || this.peek_(OPEN_CURLY))) {
       var elements = this.parseModuleElements_(load);
       return new ModuleDefinition(this.getTreeLocation_(start), name, elements);
     }

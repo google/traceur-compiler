@@ -24,10 +24,6 @@ import {
 } from '../syntax/trees/ParseTrees.js';
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {
-  GET_MODULE_INSTANCE_BY_URL,
-  TRACEUR_MODULES
-} from '../syntax/PredefinedName.js';
-import {
   CLASS_DECLARATION,
   EXPORT_DECLARATION,
   EXPORT_SPECIFIER,
@@ -42,6 +38,7 @@ import {
   VARIABLE_STATEMENT
 } from '../syntax/trees/ParseTreeType.js';
 import {
+  IDENTIFIER,
   STAR,
   STRING,
   VAR
@@ -73,6 +70,12 @@ import {
   createVariableStatement
 } from './ParseTreeFactory.js';
 import {hasUseStrict} from '../semantics/util.js';
+import {options} from '../options.js';
+import {
+  parseExpression,
+  parseStatement
+} from './PlaceholderParser.js';
+import {resolveUrl} from '../util/url.js';
 
 function toBindingIdentifier(tree) {
   return new BindingIdentifier(tree.location, tree.identifierToken);
@@ -151,13 +154,8 @@ export class ModuleTransformer extends ParseTreeTransformer {
    */
   transformModuleSpecifier(tree) {
     var token = tree.token;
-    if (token.type === STRING) {
-      // traceur.modules.getModuleInstanceByUrl(url)
-      return createCallExpression(
-          createMemberExpression(TRACEUR_MODULES, GET_MODULE_INSTANCE_BY_URL),
-          createArgumentList(
-              new LiteralExpression(null, token)));
-    }
+    if (token.type === STRING)
+      return parseExpression `$traceurModules.getModuleInstanceByUrl(${token})`;
 
     return new IdentifierExpression(token.location, token);
   }
@@ -241,7 +239,7 @@ ModuleTransformer.transform = function(project, tree) {
 ModuleTransformer.transformAsModule = function(project, module, tree) {
   var callExpression = transformModuleElements(project, module,
                                                tree.programElements);
-  return createProgram([createExpressionStatement(callExpression)]);
+  return createProgram([createRegister(module.url, callExpression)]);
 };
 
 /**
@@ -344,12 +342,31 @@ function transformModuleElements(project, module, elements, useStrictCount) {
  * @return {ParseTree}
  */
 function transformDefinition(project, parent, tree, useStrictCount) {
-  var module = parent.getModule(tree.name.value);
+  var module;
+  if (tree.name.type === IDENTIFIER) {
+    module = parent.getModule(tree.name.value);
+  } else {
+    var baseUrl = parent ? parent.url : project.url;
+    var url = resolveUrl(baseUrl, tree.name.processedValue);
+    module = project.getModuleForResolvedUrl(url);
+  }
+  assert(module);
 
   var callExpression = transformModuleElements(project, module,
                                                tree.elements, useStrictCount);
 
-  // const M = (function() { statements }).call(thisObject);
-  // TODO(arv): const is not allowed in ES5 strict
-  return createVariableStatement(VAR, module.name, callExpression);
+  if (tree.name.type === IDENTIFIER) {
+    // const M = (function() { statements }).call(thisObject);
+    // TODO(arv): const is not allowed in ES5 strict
+    return createVariableStatement(VAR, module.name, callExpression);
+  }
+
+  return createRegister(tree.name, callExpression)
+}
+
+function createRegister(name, callExpression) {
+  // TODO(arv): Refactor transformModuleElements.
+  // $traceurModules.registerModule(name, func, this)
+  var func = callExpression.operand.operand.expression;
+  return parseStatement `$traceurModules.registerModule(${name}, ${func}, this);`;
 }

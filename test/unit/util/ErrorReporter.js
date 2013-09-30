@@ -13,6 +13,10 @@
 // limitations under the License.
 
 suite('ErrorReporter.js', function() {
+
+  var MutedErrorReporter = $traceurModules.getModuleInstanceByUrl(
+      '../src/util/MutedErrorReporter.js').MutedErrorReporter;
+
   var originalConsoleError = console.error;
   var args;
 
@@ -55,7 +59,7 @@ suite('ErrorReporter.js', function() {
   });
 
   test('MutedErrorReporter', function() {
-    var r = new traceur.util.MutedErrorReporter();
+    var r = new MutedErrorReporter();
     r.reportError(null, 'a%sc%se', 'b', 'd');
     assert.equal(args.length, 0);
   });
