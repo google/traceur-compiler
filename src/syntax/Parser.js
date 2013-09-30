@@ -156,6 +156,9 @@ export class Parser {
     this.noLint = false;
     this.noLintChanged_ = false;
     this.strictSemicolons_ = options.strictSemicolons;
+
+    this.coverInitialisedName_ = null;
+    this.assignmentExpressionDepth_ = 0;
   }
 
   // 14 Program
@@ -1950,10 +1953,17 @@ export class Parser {
         return this.parseSetAccessor_(start, isStatic);
       }
 
-      // TODO(arv): CoverGrammar
-
       if (parseOptions.propertyNameShorthand &&
           nameLiteral.type === IDENTIFIER) {
+
+        if (this.peek_(EQUAL)) {
+          token = this.nextToken_();
+          var expr = this.parseAssignmentExpression();
+          return this.coverInitialisedName_ =
+              new CoverInitialisedName(this.getTreeLocation_(start),
+                                       nameLiteral, token, expr);
+        }
+
         return new PropertyNameShorthand(this.getTreeLocation_(start),
                                          nameLiteral);
       }
@@ -2262,20 +2272,35 @@ export class Parser {
     if (this.allowYield_ && this.peek_(YIELD))
       return this.parseYieldExpression_();
 
-    var start = this.getTreeStartLocation_();
+    this.assignmentExpressionDepth_++;
 
+    var start = this.getTreeStartLocation_();
     var left = this.parseConditional_(expressionIn);
     var type = this.peekType_();
+
     if (this.peekAssignmentOperator_(type)) {
       if (type === EQUAL)
         left = this.transformLeftHandSideExpression_(left);
 
+
       if (!left.isLeftHandSideExpression() && !left.isPattern()) {
         this.reportError_('Left hand side of assignment must be new, call, member, function, primary expressions or destructuring pattern');
       }
+
       var operator = this.nextToken_();
       var right = this.parseAssignmentExpression(expressionIn);
+      this.assignmentExpressionDepth_--;
+      this.coverInitialisedName_ = null;
+
       return new BinaryOperator(this.getTreeLocation_(start), left, operator, right);
+    }
+
+    this.assignmentExpressionDepth_--;
+
+    if (this.assignmentExpressionDepth_ === 0 && this.coverInitialisedName_) {
+      var token = this.coverInitialisedName_.equalToken;
+      this.reportError_(token.location, `Unexpected token '${token}'`);
+      this.coverInitialisedName_ = null;
     }
 
     // Handle arrow function.

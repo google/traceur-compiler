@@ -16,6 +16,7 @@ import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {
   ArrayPattern,
   BindingElement,
+  BindingIdentifier,
   IdentifierExpression,
   ObjectPattern,
   ObjectPatternField,
@@ -44,14 +45,21 @@ export class AssignmentPatternTransformer extends ParseTreeTransformer {
     // match the spec.
     // https://code.google.com/p/traceur-compiler/issues/detail?id=181
     var bindingElement = this.transformAny(tree.left);
-    return new BindingElement(tree.location,
-                              bindingElement.binding,
-                              tree.right);
+    if (bindingElement instanceof BindingElement)
+      bindingElement = bindingElement.binding;
+    return new BindingElement(tree.location, bindingElement, tree.right);
   }
 
   transformArrayLiteralExpression(tree) {
     var elements = this.transformList(tree.elements);
     return new ArrayPattern(tree.location, elements);
+  }
+
+  transformCoverInitialisedName(tree) {
+    // TODO(arv): Should be AssignmentElement.
+    return new BindingElement(tree.location,
+        new BindingIdentifier(tree.name.location, tree.name),
+        this.transformAny(tree.initializer));
   }
 
   transformObjectLiteralExpression(tree) {

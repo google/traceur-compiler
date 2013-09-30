@@ -16,3 +16,10 @@ assert.equal('hello', result.a);
 assert.equal(',', result.b);
 assertArrayEquals(['world'], result.c);
 assert.isUndefined(result.d);
+
+function testNested() {
+  var a;
+  [[a] = ['b']] = [];
+  return a;
+}
+assert.equal(testNested(), 'b');
