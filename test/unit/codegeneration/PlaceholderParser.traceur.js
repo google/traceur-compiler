@@ -16,9 +16,12 @@ suite('PlaceholderParser.traceur.js', function() {
 
   // TODO(arv): Figure out how we can use import statmements here.
 
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
-  var parseExpression = traceur.codegeneration.parseExpression;
-  var parseStatement = traceur.codegeneration.parseStatement;
+  var ParseTreeType = $traceurModules.getModuleInstanceByUrl(
+      '../src/syntax/trees/ParseTreeType.js');
+  var m = $traceurModules.getModuleInstanceByUrl(
+      '../src/codegeneration/PlaceholderParser.js');
+  var parseExpression = m.parseExpression;
+  var parseStatement = m.parseStatement;
   var write = traceur.outputgeneration.TreeWriter.write;
 
   test('ParseExpressionIdentifierExpression', function() {

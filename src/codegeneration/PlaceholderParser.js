@@ -19,11 +19,13 @@ import {
   IDENTIFIER_EXPRESSION
 } from '../syntax/trees/ParseTreeType.js';
 import {IdentifierToken} from '../syntax/IdentifierToken.js';
+import {LiteralToken} from '../syntax/LiteralToken.js';
 import {MutedErrorReporter} from '../util/MutedErrorReporter.js';
 import {ParseTree} from '../syntax/trees/ParseTree.js';
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {Parser} from '../syntax/Parser.js';
 import {
+  LiteralExpression,
   LiteralPropertyName,
   PropertyMethodAssignment,
   PropertyNameAssignment,
@@ -186,6 +188,8 @@ function convertValueToExpression(value) {
     return value;
   if (value instanceof IdentifierToken)
     return createIdentifierExpression(value);
+  if (value instanceof LiteralToken)
+    return new LiteralExpression(value.location, value);
   if (Array.isArray(value)) {
     if (value[0] instanceof ParseTree) {
       if (value.length === 1)

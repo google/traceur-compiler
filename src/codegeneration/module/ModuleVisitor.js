@@ -20,7 +20,10 @@ import {
   EXPORT_DECLARATION,
   IMPORT_DECLARATION
 } from '../../syntax/trees/ParseTreeType.js';
-import {STRING} from '../../syntax/TokenType.js';
+import {
+  IDENTIFIER,
+  STRING
+} from '../../syntax/TokenType.js';
 import {Symbol} from '../../semantics/symbols/Symbol.js';
 import {assert} from '../../util/assert.js';
 import {resolveUrl} from '../../util/url.js';
@@ -73,26 +76,26 @@ export class ModuleVisitor extends ParseTreeVisitor {
    * @return {ModuleSymbol}
    */
   getModuleForModuleSpecifier(tree, reportErrors) {
+    var module, name, url;
+
     // "url"
     if (tree.token.type == STRING) {
-      var url = tree.token.processedValue;
-      url = resolveUrl(this.currentModule.url, url);
-      return this.project.getModuleForUrl(url);
+      url = resolveUrl(this.currentModule.url, tree.token.processedValue);
+      module = this.project.getModuleForResolvedUrl(url);
+    } else {
+      // id
+      var name = tree.token.value;
+      module = this.getModuleByName(name);
     }
 
-    // id
-
-    var name = tree.token.value;
-    var parent = this.getModuleByName(name);
-    if (!parent) {
+    if (!module) {
       if (reportErrors) {
-        this.reportError_(tree, '\'%s\' is not a module', name);
+        this.reportError_(tree, '\'%s\' is not a module', url || name);
       }
       return null;
     }
 
-
-    return parent;
+    return module;
   }
 
   // Limit the trees to visit.
@@ -117,8 +120,16 @@ export class ModuleVisitor extends ParseTreeVisitor {
 
   visitModuleDefinition(tree) {
     var current = this.currentModule_;
-    var name = tree.name.value;
-    var module = current.getModule(name);
+    var module;
+    if (tree.name.type === IDENTIFIER) {
+      var name = tree.name.value;
+      module = current.getModule(name);
+    } else {
+      assert(tree.name.type === STRING);
+      var baseUrl = current ? current.url : this.project.url;
+      var url = resolveUrl(baseUrl, tree.name.processedValue);
+      module = this.project.getModuleForResolvedUrl(url);
+    }
     assert(module);
     this.currentModule_ = module;
     tree.elements.forEach(this.visitModuleElement_, this);

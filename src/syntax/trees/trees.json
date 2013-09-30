@@ -501,10 +501,10 @@
     "location": [
       "SourceRange"
     ],
-    "moduleSpecifier": [
+    "importSpecifierSet": [
       "ParseTree"
     ],
-    "importSpecifierSet": [
+    "moduleSpecifier": [
       "ParseTree"
     ]
   },
