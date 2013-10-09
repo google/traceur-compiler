@@ -36,6 +36,7 @@ import {
   createIdentifierExpression,
   createMemberExpression,
   createObjectLiteralExpression,
+  createParenExpression,
   createThisExpression,
   createVariableStatement
 } from './ParseTreeFactory.js';
@@ -250,7 +251,7 @@ export class ClassTransformer extends TempVarTransformer{
 
   transformClassExpression(tree) {
     var ident = tree.name ? tree.name.identifierToken.value : this.addTempVar();
-    return this.transformClassShared_(tree, ident);
+    return createParenExpression(this.transformClassShared_(tree, ident));
   }
 
   transformPropertyMethodAssignment_(tree, protoName) {
