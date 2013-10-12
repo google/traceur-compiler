@@ -13488,7 +13488,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ClassTransfo
   var SuperTransformer = System.get('./SuperTransformer.js').SuperTransformer;
   var TempVarTransformer = System.get('./TempVarTransformer.js').TempVarTransformer;
   var $__10 = System.get('../syntax/TokenType.js'), LET = $__10.LET, VAR = $__10.VAR;
-  var $__10 = System.get('./ParseTreeFactory.js'), createFunctionBody = $__10.createFunctionBody, createIdentifierExpression = $__10.createIdentifierExpression, createMemberExpression = $__10.createMemberExpression, createObjectLiteralExpression = $__10.createObjectLiteralExpression, createThisExpression = $__10.createThisExpression, createVariableStatement = $__10.createVariableStatement;
+  var $__10 = System.get('./ParseTreeFactory.js'), createFunctionBody = $__10.createFunctionBody, createIdentifierExpression = $__10.createIdentifierExpression, createMemberExpression = $__10.createMemberExpression, createObjectLiteralExpression = $__10.createObjectLiteralExpression, createParenExpression = $__10.createParenExpression, createThisExpression = $__10.createThisExpression, createVariableStatement = $__10.createVariableStatement;
   var parseOptions = System.get('../options.js').parseOptions;
   var $__10 = System.get('./PlaceholderParser.js'), parseExpression = $__10.parseExpression, parsePropertyDefinition = $__10.parsePropertyDefinition;
   var propName = System.get('../staticsemantics/PropName.js').propName;
@@ -13560,7 +13560,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ClassTransfo
       },
       transformClassExpression: function(tree) {
         var ident = tree.name ? tree.name.identifierToken.value: this.addTempVar();
-        return this.transformClassShared_(tree, ident);
+        return createParenExpression(this.transformClassShared_(tree, ident));
       },
       transformPropertyMethodAssignment_: function(tree, protoName) {
         var formalParameterList = this.transformAny(tree.formalParameterList);
