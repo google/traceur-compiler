@@ -235,13 +235,8 @@ export class Parser {
   parseModuleSpecifier_(load) {
     // ModuleSpecifier :
     //   StringLiteral
-    //   Identifier  // legacy
     var start = this.getTreeStartLocation_();
-    var token;
-    if (this.peekId_(this.peekType_()))
-      token = this.eatId_();
-    else
-      token = this.eat_(STRING);
+    var token = this.eat_(STRING);
 
     return new ModuleSpecifier(this.getTreeLocation_(start), token);
   }

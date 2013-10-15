@@ -93,9 +93,6 @@ ModuleRequireTransformer.prototype = {
     if (!this.isStart)
       return tree;
 
-    if (tree.token.type === IDENTIFIER)
-      return tree;
-
     var url = tree.token.processedValue;
 
      // Don't handle builtin modules.
