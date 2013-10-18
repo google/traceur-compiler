@@ -24,7 +24,7 @@ import {resolveUrl} from '../../util/url.js';
 /**
  * Visits a parse tree and adds all the module definitions.
  *
- *   module m { ... }
+ *   module 'm' { ... }
  */
 export class ModuleDefinitionVisitor extends ModuleVisitor {
   /**
