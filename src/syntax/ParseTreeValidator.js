@@ -704,7 +704,6 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    */
   visitModuleSpecifier(tree) {
     this.check_(tree.token.type == STRING ||
-                tree.token.type === IDENTIFIER,
                 tree.url,
                 'string or identifier expected');
   }

@@ -15,8 +15,7 @@
 module traceur {
   var global = this;
 
-  import {options} from './options.js';
-  export {options};
+  export {options} from './options.js';
 
   export {WebPageProject} from './WebPageProject.js';
 

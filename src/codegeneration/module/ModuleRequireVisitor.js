@@ -38,7 +38,6 @@ export class ModuleRequireVisitor extends ParseTreeVisitor {
   }
 
   visitModuleSpecifier(tree) {
-    if (tree.token.type === STRING)
-      this.urls_[canonicalizeUrl(tree.token.processedValue)] = true;
+    this.urls_[canonicalizeUrl(tree.token.processedValue)] = true;
   }
 }
