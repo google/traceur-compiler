@@ -14,7 +14,7 @@
 
 export module ParseTreeType from './ParseTreeType.js';
 
-import * from ParseTreeType;
+import * from './ParseTreeType.js';
 import {
   STRING,
   VAR

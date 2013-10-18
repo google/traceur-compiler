@@ -22,7 +22,7 @@ import {
   ObjectPatternField,
   Program
 } from '../syntax/trees/ParseTrees.js';
-import {ParseTreeTransformer} from './ParseTreeTransformer.js';
+import {TempVarTransformer} from './TempVarTransformer.js';
 import {
   CLASS_DECLARATION,
   EXPORT_DECLARATION,
@@ -83,24 +83,31 @@ function toBindingIdentifier(tree) {
 
 /**
  * This creates the code that defines the getter for an export.
+ * @param {ModuleTransformer} transformer
  * @param {Project} project
  * @param {ExportSymbol} symbol
  * @return {ParseTree}
  */
-function getGetterExport(project, symbol) {
+function getGetterExport(transformer, project, symbol) {
   // NAME: {get: function() { return <returnExpression> },
   var name = symbol.name;
   var tree = symbol.tree;
   var returnExpression;
   switch (tree.type) {
     case EXPORT_SPECIFIER:
-      returnExpression = transformSpecifier(project, tree.lhs,
-                                            symbol.relatedTree);
+      var moduleSpecifier = symbol.relatedTree;
+      if (moduleSpecifier) {
+        var idName =
+            transformer.getTempVarNameForModuleSpecifier(moduleSpecifier);
+        returnExpression = createMemberExpression(idName, tree.lhs);
+      } else {
+        returnExpression = transformSpecifier(transformer, project, tree.lhs);
+      }
       break;
 
     case EXPORT_STAR:
       assert(symbol.relatedTree);
-      returnExpression = transformSpecifier(project,
+      returnExpression = transformSpecifier(transformer, project,
           createIdentifierToken(symbol.name), symbol.relatedTree);
       break;
 
@@ -124,28 +131,48 @@ function getGetterExport(project, symbol) {
 
 /**
  * Transforms a module expression and an identifier. This is used to create
- * a member expression for something like a.b.c.{d, e, f}.
+ * a member expression for something like System.get('name').prop
+ * @param {ModuleTransformer} transformer
  * @param {Project} project
  * @param {IdentifierToken} identifierToken
  * @param {ParseTree=} moduleSpecifier
  * @return {ParseTree}
  */
-function transformSpecifier(project, identifierToken, moduleSpecifier) {
+function transformSpecifier(transformer, project, identifierToken,
+                            moduleSpecifier) {
   if (moduleSpecifier) {
-    var operand = new ModuleTransformer(project).transformAny(moduleSpecifier);
+    var operand = transformer.transformAny(moduleSpecifier);
     return createMemberExpression(operand, identifierToken);
   }
 
   return createIdentifierExpression(identifierToken);
 }
 
-export class ModuleTransformer extends ParseTreeTransformer {
+export class ModuleTransformer extends TempVarTransformer {
   /**
    * @param {Project} project
    */
   constructor(project) {
-    super();
+    super(project.identifierGenerator);
     this.project_ = project;
+    this.idMappingStack_ = [Object.create(null)];
+  }
+
+  getTempVarNameForModuleSpecifier(moduleSpecifier) {
+    var moduleName = moduleSpecifier.token.processedValue;
+    var idMapping = this.idMappingStack_[this.idMappingStack_.length - 1]
+    var id = idMapping[moduleName];
+    return id || (idMapping[moduleName] = this.getTempIdentifier());
+  }
+
+  pushTempVarState() {
+    super.pushTempVarState();
+    this.idMappingStack_.push(Object.create(null));
+  }
+
+  popTempVarState() {
+    super.popTempVarState();
+    this.idMappingStack_.pop();
   }
 
   /**
@@ -172,7 +199,7 @@ export class ModuleTransformer extends ParseTreeTransformer {
   }
 
   transformImportDeclaration(tree) {
-    // import {id} from module;
+    // import {id} from 'module';
     //  =>
     // var {id} = moduleInstance
     var binding = this.transformAny(tree.importSpecifierSet);
@@ -219,7 +246,7 @@ ModuleTransformer.transform = function(project, tree) {
   var elements = tree.programElements.map((element) => {
     switch (element.type) {
       case MODULE_DEFINITION:
-        return transformDefinition(project, module, element, useStrictCount);
+        return transformDefinition(transformer, project, module, element, useStrictCount);
       case MODULE_DECLARATION:
       case IMPORT_DECLARATION:
         return transformer.transformAny(element);
@@ -237,52 +264,61 @@ ModuleTransformer.transform = function(project, tree) {
  * @return {Program}
  */
 ModuleTransformer.transformAsModule = function(project, module, tree) {
-  var callExpression = transformModuleElements(project, module,
+  var transformer = new ModuleTransformer(project);
+  var callExpression = transformModuleElements(transformer, project, module,
                                                tree.programElements);
   return createProgram([createRegister(module.url, callExpression)]);
 };
 
 /**
  * Transforms a module into a call expression.
+ * @param {ModuleTransformer} transformer
  * @param {Project} project
  * @param {ModuleSymbol} module
  * @param {Array.<ParseTree>} elements
  * @return {CallExpression}
  */
-function transformModuleElements(project, module, elements, useStrictCount) {
+function transformModuleElements(transformer, project, module, elements,
+                                 useStrictCount) {
   var statements = [];
+
+  transformer.pushTempVarState();
 
   useStrictCount = useStrictCount || 0;
   // use strict
   if (!useStrictCount)
     statements.push(createUseStrictDirective());
 
-  var transformer = new ModuleTransformer(project);
-
   // Add original body statements
   elements.forEach((element) => {
+    var statement;
     switch (element.type) {
       case MODULE_DECLARATION:
       case IMPORT_DECLARATION:
         statements.push(transformer.transformAny(element));
         break;
       case MODULE_DEFINITION:
-        statements.push(transformDefinition(project, module, element,
-                                            useStrictCount + 1));
+        statements.push(transformDefinition(transformer, project, module,
+            element, useStrictCount + 1));
         break;
       case EXPORT_DECLARATION:
         var declaration = element.declaration;
         switch (declaration.type) {
           case MODULE_DEFINITION:
-            statements.push(transformDefinition(project, module, declaration,
-                                                useStrictCount + 1));
+            statements.push(transformDefinition(transformer, project, module,
+                declaration, useStrictCount + 1));
             break;
           case MODULE_DECLARATION:
             statements.push(transformer.transformAny(declaration));
             break;
           case NAMED_EXPORT:
-            // These do not generate any statement here. It is all taken
-            // care of in the export getter.
+            var moduleSpecifier = declaration.moduleSpecifier;
+            if (moduleSpecifier) {
+              var expression = transformer.transformAny(moduleSpecifier);
+              var idName =
+                  transformer.getTempVarNameForModuleSpecifier(moduleSpecifier);
+              statements.push(createVariableStatement(VAR, idName, expression));
+            }
             break;
           case CLASS_DECLARATION:
           case FUNCTION_DECLARATION:
@@ -303,7 +339,7 @@ function transformModuleElements(project, module, elements, useStrictCount) {
   // Add exports
   var properties = module.getExports().map((exp) => {
     // export_name: {get: function() { return export_name },
-    return getGetterExport(project, exp);
+    return getGetterExport(transformer, project, exp);
   });
   var descriptors = createObjectLiteralExpression(properties);
 
@@ -312,6 +348,8 @@ function transformModuleElements(project, module, elements, useStrictCount) {
       createReturnStatement(
           createObjectPreventExtensions(
               createObjectCreate(createNullLiteral(), descriptors))));
+
+  transformer.popTempVarState();
 
   // const M = (function() { statements }).call(this);
   // TODO(arv): const is not allowed in ES5 strict
@@ -335,13 +373,16 @@ function transformModuleElements(project, module, elements, useStrictCount) {
  *      };
  *   }).call(this);
  *
+ * @param {ModuleTransformer} transformer
  * @param {Project} project
  * @param {ModuleSymbol} parent
  * @param {ModuleDefinition} tree
  * @param {number} useStrictCount
  * @return {ParseTree}
  */
-function transformDefinition(project, parent, tree, useStrictCount) {
+function transformDefinition(transformer, project, parent, tree,
+                             useStrictCount) {
+  transformer.pushTempVarState();
   var module;
   if (tree.name.type === IDENTIFIER) {
     module = parent.getModule(tree.name.value);
@@ -352,8 +393,10 @@ function transformDefinition(project, parent, tree, useStrictCount) {
   }
   assert(module);
 
-  var callExpression = transformModuleElements(project, module,
+  var callExpression = transformModuleElements(transformer,project, module,
                                                tree.elements, useStrictCount);
+
+  transformer.popTempVarState();
 
   if (tree.name.type === IDENTIFIER) {
     // const M = (function() { statements }).call(thisObject);

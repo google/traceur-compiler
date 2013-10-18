@@ -53,40 +53,13 @@ export class ModuleVisitor extends ParseTreeVisitor {
   }
 
   /**
-   * Finds a module by name. This walks the lexical scope chain of the
-   * {@code currentModule} and returns first matching module or null if none
-   * is found.
-   * @param {string} name
-   * @return {ModuleSymbol}
-   */
-  getModuleByName(name) {
-    var module = this.currentModule;
-    while (module) {
-      if (module.hasModule(name)) {
-        return module.getModule(name);
-      }
-      module = module.parent;
-    }
-    return null;
-  }
-
-  /**
    * @param {ModuleSpecifier} tree
    * @param {boolean=} reportErrors If false no errors are reported.
    * @return {ModuleSymbol}
    */
   getModuleForModuleSpecifier(tree, reportErrors) {
-    var module, name, url;
-
-    // "url"
-    if (tree.token.type == STRING) {
-      url = resolveUrl(this.currentModule.url, tree.token.processedValue);
-      module = this.project.getModuleForResolvedUrl(url);
-    } else {
-      // id
-      var name = tree.token.value;
-      module = this.getModuleByName(name);
-    }
+    var url = resolveUrl(this.currentModule.url, tree.token.processedValue);
+    var module = this.project.getModuleForResolvedUrl(url);
 
     if (!module) {
       if (reportErrors) {
