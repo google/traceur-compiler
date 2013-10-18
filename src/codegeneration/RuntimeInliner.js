@@ -77,13 +77,11 @@ export class RuntimeInliner extends ParseTreeTransformer {
     if (!names.length)
       return tree;
 
-    var vars = names.filter(function(name) {
-      return !this.map_[name].inserted;
-    }, this).map(function(name) {
+    var vars = names.filter((name) => !this.map_[name].inserted).map((name) => {
       var item = this.map_[name];
       item.inserted = true;
       return createVariableDeclaration(item.uid, item.expression);
-    }, this);
+    });
     if (!vars.length)
       return tree;
 
