@@ -18467,13 +18467,13 @@ System.get('@traceur/module').registerModule("../src/codegeneration/RuntimeInlin
       transformProgram: function(tree) {
         var names = Object.keys(this.map_);
         if (!names.length) return tree;
-        var vars = names.filter(function(name) {
+        var vars = names.filter((function(name) {
           return !this.map_[name].inserted;
-        }, this).map(function(name) {
+        }).bind(this)).map((function(name) {
           var item = this.map_[name];
           item.inserted = true;
           return createVariableDeclaration(item.uid, item.expression);
-        }, this);
+        }).bind(this));
         if (!vars.length) return tree;
         var variableStatement = createVariableStatement(createVariableDeclarationList(VAR, vars));
         var programElements = prependStatements(tree.programElements, variableStatement);
