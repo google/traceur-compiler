@@ -2961,7 +2961,6 @@ System.get('@traceur/module').registerModule("../src/syntax/ParseTreeVisitor.js"
 System.get('@traceur/module').registerModule("../src/util/url.js", function() {
   "use strict";
   var $__4 = System.get('@traceur/url');
-  ;
   return Object.preventExtensions(Object.create(null, {
     canonicalizeUrl: {
       get: function() {
@@ -8651,18 +8650,17 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
         this.assignmentExpressionDepth_ = 0;
       },
       parseProgram: function() {
-        var load = arguments[0] !== (void 0) ? arguments[0]: false;
         var start = this.getTreeStartLocation_();
-        var programElements = this.parseProgramElements_(load);
+        var programElements = this.parseProgramElements_();
         this.eat_(END_OF_FILE);
         return new Program(this.getTreeLocation_(start), programElements);
       },
-      parseProgramElements_: function(load) {
+      parseProgramElements_: function() {
         var result = [];
         var type;
         var checkUseStrictDirective = true;
         while ((type = this.peekType_()) !== END_OF_FILE) {
-          var programElement = this.parseProgramElement_(type, load);
+          var programElement = this.parseProgramElement_(type);
           if (checkUseStrictDirective) {
             if (!programElement.isDirectivePrologue()) {
               checkUseStrictDirective = false;
@@ -8675,23 +8673,23 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
         }
         return result;
       },
-      parseProgramElement_: function(type, load) {
-        return this.parseStatement_(type, true, load);
+      parseProgramElement_: function(type) {
+        return this.parseStatement_(type, true);
       },
-      parseModuleElements_: function(load) {
+      parseModuleElements_: function() {
         var strictMode = this.strictMode_;
         this.strictMode_ = true;
         this.eat_(OPEN_CURLY);
         var elements = [];
         var type;
         while (this.peekModuleElement_(type = this.peekType_())) {
-          elements.push(this.parseModuleElement_(type, load));
+          elements.push(this.parseModuleElement_(type));
         }
         this.eat_(CLOSE_CURLY);
         this.strictMode_ = strictMode;
         return elements;
       },
-      parseModuleSpecifier_: function(load) {
+      parseModuleSpecifier_: function() {
         var start = this.getTreeStartLocation_();
         var token = this.eat_(STRING);
         return new ModuleSpecifier(this.getTreeLocation_(start), token);
@@ -8699,15 +8697,15 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
       peekModuleElement_: function(type) {
         return this.peekStatement_(type, true);
       },
-      parseModuleElement_: function(type, load) {
-        return this.parseProgramElement_(type, load);
+      parseModuleElement_: function(type) {
+        return this.parseProgramElement_(type);
       },
-      parseImportDeclaration_: function(load) {
+      parseImportDeclaration_: function() {
         var start = this.getTreeStartLocation_();
         this.eat_(IMPORT);
         var importSpecifierSet = this.parseImportSpecifierSet_();
         this.eatId_(FROM);
-        var moduleSpecifier = this.parseModuleSpecifier_(load);
+        var moduleSpecifier = this.parseModuleSpecifier_();
         this.eatPossibleImplicitSemiColon_();
         return new ImportDeclaration(this.getTreeLocation_(start), importSpecifierSet, moduleSpecifier);
       },
@@ -8738,7 +8736,7 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
         }
         return new ImportSpecifier(this.getTreeLocation_(start), lhs, rhs);
       },
-      parseExportDeclaration_: function(load) {
+      parseExportDeclaration_: function() {
         var start = this.getTreeStartLocation_();
         this.eat_(EXPORT);
         var exportTree;
@@ -8755,39 +8753,33 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
           case CLASS:
             exportTree = this.parseClassDeclaration_();
             break;
-          case IDENTIFIER:
-            if (this.peekModule_(type)) {
-              exportTree = this.parseModule_(load);
-            } else {
-              exportTree = this.parseNamedExport_(load);
-            }
-            break;
           case OPEN_CURLY:
           case STAR:
-            exportTree = this.parseNamedExport_(load);
+            exportTree = this.parseNamedExport_();
             break;
           default:
             return this.parseUnexpectedToken_(type);
         }
         return new ExportDeclaration(this.getTreeLocation_(start), exportTree);
       },
-      parseNamedExport_: function(load) {
+      parseNamedExport_: function() {
         var start = this.getTreeStartLocation_();
         var specifierSet, expression;
         if (this.peek_(OPEN_CURLY)) {
           specifierSet = this.parseExportSpecifierSet_();
-          expression = this.parseFromModuleSpecifierOpt_(load, false);
+          expression = this.parseFromModuleSpecifierOpt_(false);
         } else {
           this.eat_(STAR);
           specifierSet = new ExportStar(this.getTreeLocation_(start));
-          expression = this.parseFromModuleSpecifierOpt_(load, true);
+          expression = this.parseFromModuleSpecifierOpt_(true);
         }
+        this.eatPossibleImplicitSemiColon_();
         return new NamedExport(this.getTreeLocation_(start), expression, specifierSet);
       },
-      parseFromModuleSpecifierOpt_: function(load, required) {
+      parseFromModuleSpecifierOpt_: function(required) {
         if (required || this.peekPredefinedString_(FROM)) {
           this.eatId_(FROM);
-          return this.parseModuleSpecifier_(load);
+          return this.parseModuleSpecifier_();
         }
         return null;
       },
@@ -8819,23 +8811,6 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
       },
       peekIdName_: function(token) {
         return token.type === IDENTIFIER || token.isKeyword();
-      },
-      peekModule_: function(type) {
-        return parseOptions.modules && type === IDENTIFIER && this.peekPredefinedString_(MODULE);
-      },
-      parseModule_: function(load) {
-        var start = this.getTreeStartLocation_();
-        this.eatId_();
-        if (this.peek_(STRING)) {
-          var name = this.eat_(STRING);
-          var elements = this.parseModuleElements_(load);
-          return new ModuleDefinition(this.getTreeLocation_(start), name, elements);
-        }
-        var name = this.eatId_();
-        this.eatId_(FROM);
-        var moduleSpecifier = this.parseModuleSpecifier_(load);
-        this.eatPossibleImplicitSemiColon_();
-        return new ModuleDeclaration(this.getTreeLocation_(start), name, moduleSpecifier);
       },
       parseClassShared_: function(constr) {
         var start = this.getTreeStartLocation_();
@@ -8898,7 +8873,7 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
       parseStatement: function() {
         return this.parseStatement_(this.peekType_(), false, false);
       },
-      parseStatement_: function(type, allowProgramElement, load) {
+      parseStatement_: function(type, allowProgramElement) {
         switch (type) {
           case RETURN:
             return this.parseReturnStatement_();
@@ -8907,11 +8882,6 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
             if (!parseOptions.blockBinding) break;
           case VAR:
             return this.parseVariableStatement_();
-          case IDENTIFIER:
-            if (allowProgramElement && parseOptions.modules && this.peekModule_(type)) {
-              return this.parseModule_(load);
-            }
-            break;
           case IF:
             return this.parseIfStatement_();
           case FOR:
@@ -8939,10 +8909,10 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
           case DO:
             return this.parseDoWhileStatement_();
           case EXPORT:
-            if (allowProgramElement && parseOptions.modules) return this.parseExportDeclaration_(load);
+            if (allowProgramElement && parseOptions.modules) return this.parseExportDeclaration_();
             break;
           case IMPORT:
-            if (allowProgramElement && parseOptions.modules) return this.parseImportDeclaration_(load);
+            if (allowProgramElement && parseOptions.modules) return this.parseImportDeclaration_();
             break;
           case OPEN_CURLY:
             return this.parseBlock_();
@@ -8956,7 +8926,7 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
           case WITH:
             return this.parseWithStatement_();
         }
-        return this.parseExpressionStatement_();
+        return this.parseFallbackStatement_();
       },
       peekStatement_: function(type, allowProgramElement) {
         switch (type) {
@@ -9196,13 +9166,32 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
         this.eat_(SEMI_COLON);
         return new EmptyStatement(this.getTreeLocation_(start));
       },
-      parseExpressionStatement_: function() {
+      parseFallbackStatement_: function() {
         var start = this.getTreeStartLocation_();
         var expression = this.parseExpression();
-        if (expression.type === IDENTIFIER_EXPRESSION && this.eatIf_(COLON)) {
-          var name = expression.identifierToken;
-          var statement = this.parseStatement();
-          return new LabelledStatement(this.getTreeLocation_(start), name, statement);
+        if (expression.type === IDENTIFIER_EXPRESSION) {
+          var nameToken = expression.identifierToken;
+          if (this.eatIf_(COLON)) {
+            var statement = this.parseStatement();
+            return new LabelledStatement(this.getTreeLocation_(start), nameToken, statement);
+          }
+          if (nameToken.value === MODULE && parseOptions.modules) {
+            var token = this.peekTokenNoLineTerminator_();
+            if (token !== null) {
+              if (token.type === STRING) {
+                var name = this.eat_(STRING);
+                var elements = this.parseModuleElements_();
+                return new ModuleDefinition(this.getTreeLocation_(start), name, elements);
+              }
+              if (token.type === IDENTIFIER) {
+                var name = this.eatId_();
+                this.eatId_(FROM);
+                var moduleSpecifier = this.parseModuleSpecifier_();
+                this.eatPossibleImplicitSemiColon_();
+                return new ModuleDeclaration(this.getTreeLocation_(start), name, moduleSpecifier);
+              }
+            }
+          }
         }
         this.eatPossibleImplicitSemiColon_();
         return new ExpressionStatement(this.getTreeLocation_(start), expression);
@@ -20344,9 +20333,7 @@ System.get('@traceur/module').registerModule("../src/runtime/module-loader.js", 
 System.get('@traceur/module').registerModule("../src/traceur.js", function() {
   "use strict";
   var $__4 = System.get('./options.js');
-  ;
   var $__5 = System.get('./WebPageProject.js');
-  ;
   var ModuleAnalyzer = System.get('./semantics/ModuleAnalyzer.js').ModuleAnalyzer;
   var Project = System.get('./semantics/symbols/Project.js').Project;
   var semantics = {
