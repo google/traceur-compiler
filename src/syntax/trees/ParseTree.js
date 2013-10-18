@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export module ParseTreeType from './ParseTreeType.js';
-
+module ParseTreeType from './ParseTreeType.js';
 import * from './ParseTreeType.js';
 import {
   STRING,
   VAR
 } from '../TokenType.js';
 import {Token} from '../Token.js';
-
 module utilJSON from '../../util/JSON.js';
+
+export {ParseTreeType};
 
 /**
  * An abstract syntax tree for JavaScript parse trees.

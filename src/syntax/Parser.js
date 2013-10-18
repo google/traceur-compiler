@@ -165,9 +165,9 @@ export class Parser {
   /**
    * @return {Program}
    */
-  parseProgram(load = false) {
+  parseProgram() {
     var start = this.getTreeStartLocation_();
-    var programElements = this.parseProgramElements_(load);
+    var programElements = this.parseProgramElements_();
     this.eat_(END_OF_FILE);
     return new Program(this.getTreeLocation_(start), programElements);
   }
@@ -176,7 +176,7 @@ export class Parser {
    * @return {Array.<ParseTree>}
    * @private
    */
-  parseProgramElements_(load) {
+  parseProgramElements_() {
     var result = [];
     var type;
 
@@ -184,7 +184,7 @@ export class Parser {
     // reasons.
     var checkUseStrictDirective = true;
     while ((type = this.peekType_()) !== END_OF_FILE) {
-      var programElement = this.parseProgramElement_(type, load);
+      var programElement = this.parseProgramElement_(type);
 
       // TODO(arv): We get here when we load external modules, which are always
       // strict but we currently do not have a way to determine if we are in
@@ -207,15 +207,15 @@ export class Parser {
    * @return {ParseTree}
    * @private
    */
-  parseProgramElement_(type, load) {
-    return this.parseStatement_(type, true, load);
+  parseProgramElement_(type) {
+    return this.parseStatement_(type, true);
   }
 
   /**
    * @return {ParseTree}
    * @private
    */
-  parseModuleElements_(load) {
+  parseModuleElements_() {
     var strictMode = this.strictMode_;
     this.strictMode_ = true;
 
@@ -223,7 +223,7 @@ export class Parser {
     var elements = [];
     var type;
     while (this.peekModuleElement_(type = this.peekType_())) {
-      elements.push(this.parseModuleElement_(type, load));
+      elements.push(this.parseModuleElement_(type));
     }
     this.eat_(CLOSE_CURLY);
 
@@ -232,7 +232,7 @@ export class Parser {
     return elements;
   }
 
-  parseModuleSpecifier_(load) {
+  parseModuleSpecifier_() {
     // ModuleSpecifier :
     //   StringLiteral
     var start = this.getTreeStartLocation_();
@@ -262,9 +262,9 @@ export class Parser {
    * @return {ParseTree}
    * @private
    */
-  parseModuleElement_(type, load) {
+  parseModuleElement_(type) {
     // ModuleElement is currently same as ProgramElement.
-    return this.parseProgramElement_(type, load);
+    return this.parseProgramElement_(type);
   }
 
   // ImportDeclaration(load) ::= "import" ImportDeclaration(load) ";"
@@ -272,12 +272,12 @@ export class Parser {
    * @return {ParseTree}
    * @private
    */
-  parseImportDeclaration_(load) {
+  parseImportDeclaration_() {
     var start = this.getTreeStartLocation_();
     this.eat_(IMPORT);
     var importSpecifierSet = this.parseImportSpecifierSet_();
     this.eatId_(FROM);
-    var moduleSpecifier = this.parseModuleSpecifier_(load);
+    var moduleSpecifier = this.parseModuleSpecifier_();
     this.eatPossibleImplicitSemiColon_();
     return new ImportDeclaration(this.getTreeLocation_(start),
         importSpecifierSet, moduleSpecifier);
@@ -342,7 +342,7 @@ export class Parser {
    * @return {ParseTree}
    * @private
    */
-  parseExportDeclaration_(load) {
+  parseExportDeclaration_() {
     var start = this.getTreeStartLocation_();
     this.eat_(EXPORT);
     var exportTree;
@@ -359,16 +359,9 @@ export class Parser {
       case CLASS:
         exportTree = this.parseClassDeclaration_();
         break;
-      case IDENTIFIER:
-        if (this.peekModule_(type)) {
-          exportTree = this.parseModule_(load);
-        } else {
-          exportTree = this.parseNamedExport_(load);
-        }
-        break;
       case OPEN_CURLY:
       case STAR:
-        exportTree = this.parseNamedExport_(load);
+        exportTree = this.parseNamedExport_();
         break;
       default:
         return this.parseUnexpectedToken_(type);
@@ -376,7 +369,7 @@ export class Parser {
     return new ExportDeclaration(this.getTreeLocation_(start), exportTree);
   }
 
-  parseNamedExport_(load) {
+  parseNamedExport_() {
     // NamedExport ::=
     //     "*" "from" ModuleSpecifier(load)
     //     ExportSpecifierSet ("from" ModuleSpecifier(load))?
@@ -386,21 +379,23 @@ export class Parser {
 
     if (this.peek_(OPEN_CURLY)) {
       specifierSet = this.parseExportSpecifierSet_();
-      expression = this.parseFromModuleSpecifierOpt_(load, false);
+      expression = this.parseFromModuleSpecifierOpt_(false);
     } else {
       this.eat_(STAR);
       specifierSet = new ExportStar(this.getTreeLocation_(start));
-      expression = this.parseFromModuleSpecifierOpt_(load, true);
+      expression = this.parseFromModuleSpecifierOpt_(true);
     }
+
+    this.eatPossibleImplicitSemiColon_();
 
     return new NamedExport(this.getTreeLocation_(start), expression,
                              specifierSet);
   }
 
-  parseFromModuleSpecifierOpt_(load, required) {
+  parseFromModuleSpecifierOpt_(required) {
     if (required || this.peekPredefinedString_(FROM)) {
       this.eatId_(FROM);
-      return this.parseModuleSpecifier_(load);
+      return this.parseModuleSpecifier_();
     }
     return null;
   }
@@ -449,48 +444,6 @@ export class Parser {
 
   peekIdName_(token) {
     return token.type === IDENTIFIER || token.isKeyword();
-  }
-
-  // ModuleDefinition
-  /**
-   * @return {boolean}
-   * @private
-   */
-  peekModule_(type) {
-    // ModuleDeclaration ::= "module" ModuleDeclaration(load) ";"
-    //                    | "module" ModuleDefinition(load)
-    // ModuleDefinition(load) ::= StringLiteral "{" ModuleBody(load) "}"
-    // ModuleDeclaration(load) ::= Identifier "from" ModuleSpecifier(load)
-    // TODO(arv): [NoNewLine]
-    return parseOptions.modules &&
-        type === IDENTIFIER && this.peekPredefinedString_(MODULE);
-  }
-
-  /**
-   * @return {ParseTree}
-   * @private
-   */
-  parseModule_(load) {
-    var start = this.getTreeStartLocation_();
-    this.eatId_(); // module
-
-    // Legacy:
-    // module StringLiteral "{" ModuleBody(load) "}"
-    if (this.peek_(STRING)) {
-      var name = this.eat_(STRING);
-      var elements = this.parseModuleElements_(load);
-      return new ModuleDefinition(this.getTreeLocation_(start), name, elements);
-    }
-
-    // module Identifier "from" ModuleSpecifier(load)
-    var name = this.eatId_();
-    this.eatId_(FROM);
-    var moduleSpecifier = this.parseModuleSpecifier_(load);
-
-    this.eatPossibleImplicitSemiColon_();
-
-    return new ModuleDeclaration(this.getTreeLocation_(start), name,
-                                 moduleSpecifier);
   }
 
   parseClassShared_(constr) {
@@ -593,7 +546,7 @@ export class Parser {
    * @return {ParseTree}
    * @private
    */
-  parseStatement_(type, allowProgramElement, load) {
+  parseStatement_(type, allowProgramElement) {
     switch (type) {
       // Most common first (based on building Traceur).
       case RETURN:
@@ -605,12 +558,6 @@ export class Parser {
         // Fall through.
       case VAR:
         return this.parseVariableStatement_();
-      case IDENTIFIER:
-        if (allowProgramElement && parseOptions.modules &&
-            this.peekModule_(type)) {
-          return this.parseModule_(load);
-        }
-        break;
       case IF:
         return this.parseIfStatement_();
       case FOR:
@@ -643,11 +590,11 @@ export class Parser {
         return this.parseDoWhileStatement_();
       case EXPORT:
         if (allowProgramElement && parseOptions.modules)
-          return this.parseExportDeclaration_(load);
+          return this.parseExportDeclaration_();
         break;
       case IMPORT:
         if (allowProgramElement && parseOptions.modules)
-          return this.parseImportDeclaration_(load);
+          return this.parseImportDeclaration_();
         break;
       case OPEN_CURLY:
         return this.parseBlock_();
@@ -662,7 +609,7 @@ export class Parser {
       case WITH:
         return this.parseWithStatement_();
     }
-    return this.parseExpressionStatement_();
+    return this.parseFallThroughStatement_();
   }
 
   /**
@@ -1067,22 +1014,55 @@ export class Parser {
     return new EmptyStatement(this.getTreeLocation_(start));
   }
 
-  // 12.4 Expression Statement
+  // Expression Statement and Module declaration.
   /**
-   * @return {ExpressionStatement}
+   * @return {ExpressionStatement|ModuleDeclaration|ModuleDefinition}
    * @private
    */
-  parseExpressionStatement_() {
+  parseFallThroughStatement_() {
     var start = this.getTreeStartLocation_();
     var expression = this.parseExpression();
 
-    // 12.12 Labelled Statement
-    if (expression.type === IDENTIFIER_EXPRESSION &&
-        this.eatIf_(COLON)) {
-      var name = expression.identifierToken;
-      var statement = this.parseStatement();
-      return new LabelledStatement(this.getTreeLocation_(start), name,
-                                   statement);
+    if (expression.type === IDENTIFIER_EXPRESSION) {
+      var nameToken = expression.identifierToken;
+
+      // 12.12 Labelled Statement
+      if (this.eatIf_(COLON)) {
+        var statement = this.parseStatement();
+        return new LabelledStatement(this.getTreeLocation_(start), nameToken,
+                                     statement);
+      }
+
+      // Modules
+      //
+      // ModuleDefinition(load) ::=
+      //     module [NoNewLine] StringLiteral { ModuleBody(load) }
+      // ModuleDeclaration(load) ::=
+      //     module [NoNewLine] Identifier from ModuleSpecifier(load)
+      //
+      // ModuleDefinition is legacy. It will be removed soon.
+      if (nameToken.value === MODULE && parseOptions.modules) {
+        var token = this.peekTokenNoLineTerminator_();
+        if (token !== null) {
+          if (token.type === STRING) {
+            var name = this.eat_(STRING);
+            var elements = this.parseModuleElements_();
+            return new ModuleDefinition(this.getTreeLocation_(start), name,
+                                        elements);
+          }
+
+          if (token.type === IDENTIFIER) {
+            var name = this.eatId_();
+            this.eatId_(FROM);
+            var moduleSpecifier = this.parseModuleSpecifier_();
+            this.eatPossibleImplicitSemiColon_();
+            return new ModuleDeclaration(this.getTreeLocation_(start), name,
+                                         moduleSpecifier);
+          }
+
+          // Fall through.
+        }
+      }
     }
 
     this.eatPossibleImplicitSemiColon_();
