@@ -825,7 +825,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {TemplateSubstitution} tree
    */
   visitTemplateSubstitution(tree) {
-    this.writeRaw_(DOLLAR);
+    this.writeRaw_('$');
     this.writeRaw_(OPEN_CURLY);
     this.visitAny(tree.expression);
     this.writeRaw_(CLOSE_CURLY);

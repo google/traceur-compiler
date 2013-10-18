@@ -41,7 +41,6 @@ export var DEBUGGER = 'debugger';
 export var DEFAULT = 'default';
 export var DELETE = 'delete';
 export var DO = 'do';
-export var DOLLAR = '$';
 export var DOT_DOT_DOT = '...';
 export var ELSE = 'else';
 export var END_OF_FILE = 'End of File';
