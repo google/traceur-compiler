@@ -94,4 +94,5 @@ export var codegeneration = {
   }
 };
 
-export module modules from './runtime/module-loader.js';
+module modules from './runtime/module-loader.js';
+export {modules};
