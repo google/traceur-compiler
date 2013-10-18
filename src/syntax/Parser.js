@@ -458,8 +458,8 @@ export class Parser {
    */
   peekModule_(type) {
     // ModuleDeclaration ::= "module" ModuleDeclaration(load) ";"
-    //                    | ModuleDefinition(load)
-    // ModuleDefinition(load) ::= "module" Identifier "{" ModuleBody(load) "}"
+    //                    | "module" ModuleDefinition(load)
+    // ModuleDefinition(load) ::= StringLiteral "{" ModuleBody(load) "}"
     // ModuleDeclaration(load) ::= Identifier "from" ModuleSpecifier(load)
     // TODO(arv): [NoNewLine]
     return parseOptions.modules &&
@@ -474,18 +474,16 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     this.eatId_(); // module
 
-    var name;
-    if (this.peek_(IDENTIFIER))
-      name = this.eatId_();
-    else
-      name = this.eat_(STRING);
-
-    if (!this.isAtEnd() && (name.type === STRING || this.peek_(OPEN_CURLY))) {
+    // Legacy:
+    // module StringLiteral "{" ModuleBody(load) "}"
+    if (this.peek_(STRING)) {
+      var name = this.eat_(STRING);
       var elements = this.parseModuleElements_(load);
       return new ModuleDefinition(this.getTreeLocation_(start), name, elements);
     }
 
-    // module name "from" ModuleSpecifier(load)
+    // module Identifier "from" ModuleSpecifier(load)
+    var name = this.eatId_();
     this.eatId_(FROM);
     var moduleSpecifier = this.parseModuleSpecifier_(load);
 

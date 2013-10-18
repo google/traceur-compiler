@@ -12,65 +12,86 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-module traceur {
-  var global = this;
+export {options} from './options.js';
 
-  export {options} from './options.js';
+export {WebPageProject} from './WebPageProject.js';
 
-  export {WebPageProject} from './WebPageProject.js';
+import {ModuleAnalyzer} from './semantics/ModuleAnalyzer.js';
+import {Project} from './semantics/symbols/Project.js';
 
-  export module semantics {
-    export {ModuleAnalyzer} from './semantics/ModuleAnalyzer.js';
-
-    export module symbols {
-      export {Project} from './semantics/symbols/Project.js';
-    }
+export var semantics = {
+  ModuleAnalyzer,
+  symbols: {
+    Project
   }
+};
 
-  export module util {
-    export {ErrorReporter} from './util/ErrorReporter.js';
-    export {SourcePosition} from './util/SourcePosition.js';
-    export {TestErrorReporter} from './util/TestErrorReporter.js';
-    export {resolveUrl} from './util/url.js';
+import {ErrorReporter} from './util/ErrorReporter.js';
+import {SourcePosition} from './util/SourcePosition.js';
+import {TestErrorReporter} from './util/TestErrorReporter.js';
+import {resolveUrl} from './util/url.js';
+
+export var util = {
+  ErrorReporter,
+  SourcePosition,
+  TestErrorReporter,
+  resolveUrl
+};
+
+import {IdentifierToken} from './syntax/IdentifierToken.js';
+import {LiteralToken} from './syntax/LiteralToken.js';
+import {Parser} from './syntax/Parser.js';
+import {Scanner} from './syntax/Scanner.js';
+import {SourceFile} from './syntax/SourceFile.js';
+import {Token} from './syntax/Token.js';
+module TokenType from './syntax/TokenType.js';
+module trees from './syntax/trees/ParseTrees.js';
+
+export var syntax = {
+  IdentifierToken,
+  LiteralToken,
+  Parser,
+  Scanner,
+  SourceFile,
+  Token,
+  TokenType,
+  trees
+};
+
+import {ParseTreeWriter} from './outputgeneration/ParseTreeWriter.js';
+import {ParseTreeMapWriter} from './outputgeneration/ParseTreeMapWriter.js';
+import {ProjectWriter} from './outputgeneration/ProjectWriter.js';
+import {SourceMapConsumer} from './outputgeneration/SourceMapIntegration.js';
+import {SourceMapGenerator} from './outputgeneration/SourceMapIntegration.js';
+import {TreeWriter} from './outputgeneration/TreeWriter.js';
+
+export var outputgeneration = {
+  ParseTreeWriter,
+  ParseTreeMapWriter,
+  ProjectWriter,
+  SourceMapConsumer,
+  SourceMapGenerator,
+  TreeWriter
+};
+
+import {Compiler} from './codegeneration/Compiler.js';
+import {ModuleTransformer} from './codegeneration/ModuleTransformer.js';
+import {ParseTreeTransformer} from './codegeneration/ParseTreeTransformer.js';
+import {ProgramTransformer} from './codegeneration/ProgramTransformer.js';
+import {CloneTreeTransformer} from './codegeneration/CloneTreeTransformer.js';
+module ParseTreeFactory from './codegeneration/ParseTreeFactory.js';
+import {ModuleRequireVisitor} from './codegeneration/module/ModuleRequireVisitor.js';
+
+export var codegeneration = {
+  Compiler,
+  ModuleTransformer,
+  ParseTreeTransformer,
+  ProgramTransformer,
+  CloneTreeTransformer,
+  ParseTreeFactory,
+  module: {
+    ModuleRequireVisitor
   }
+};
 
-  export module syntax {
-    export {IdentifierToken} from './syntax/IdentifierToken.js';
-    export {LiteralToken} from './syntax/LiteralToken.js';
-    export {Parser} from './syntax/Parser.js';
-    export {Scanner} from './syntax/Scanner.js';
-    export {SourceFile} from './syntax/SourceFile.js';
-    export {Token} from './syntax/Token.js';
-    export module TokenType from './syntax/TokenType.js';
-
-    export module trees {
-      export * from './syntax/trees/ParseTrees.js';
-      export {ParseTree} from './syntax/trees/ParseTree.js';
-    }
-  }
-
-  export module outputgeneration {
-    export {ParseTreeWriter} from './outputgeneration/ParseTreeWriter.js';
-    export {ParseTreeMapWriter} from './outputgeneration/ParseTreeMapWriter.js';
-    export {ProjectWriter} from './outputgeneration/ProjectWriter.js';
-    export {SourceMapConsumer} from './outputgeneration/SourceMapIntegration.js';
-    export {SourceMapGenerator} from './outputgeneration/SourceMapIntegration.js';
-    export {TreeWriter} from './outputgeneration/TreeWriter.js';
-  }
-
-  export module codegeneration {
-    export {Compiler} from './codegeneration/Compiler.js';
-    export {ModuleTransformer} from './codegeneration/ModuleTransformer.js';
-    export {ParseTreeTransformer} from './codegeneration/ParseTreeTransformer.js';
-    export {ProgramTransformer} from './codegeneration/ProgramTransformer.js';
-    export {CloneTreeTransformer} from './codegeneration/CloneTreeTransformer.js';
-    export module ParseTreeFactory from './codegeneration/ParseTreeFactory.js';
-
-    export module module {
-      export {ModuleRequireVisitor} from
-          './codegeneration/module/ModuleRequireVisitor.js';
-    }
-  }
-
-  export module modules from './runtime/module-loader.js';
-}
+export module modules from './runtime/module-loader.js';
