@@ -359,7 +359,7 @@ function transformModuleElements(transformer, project, module, elements,
 /**
  * Transforms a module definition into a variable statement.
  *
- *   module m {
+ *   module 'm' {
  *     ...
  *     export x ...
  *   }
