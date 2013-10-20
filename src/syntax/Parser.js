@@ -166,6 +166,7 @@ export class Parser {
    * @return {Script}
    */
   parseScript() {
+    this.strictMode_ = false;
     var start = this.getTreeStartLocation_();
     var scriptItemList = this.parseScriptItemList_(false);
     this.eat_(END_OF_FILE);
@@ -186,7 +187,7 @@ export class Parser {
 
     // We do a lot of type assignment in loops like these for performance
     // reasons.
-    var checkUseStrictDirective = true;
+    var checkUseStrictDirective = !allowModuleItem;
     // TODO(arv): The close curly case is ugly.
     while ((type = this.peekType_()) !== END_OF_FILE && type !== CLOSE_CURLY) {
       var scriptItem = this.parseScriptItem_(type, allowModuleItem);

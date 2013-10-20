@@ -8643,6 +8643,7 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
         this.assignmentExpressionDepth_ = 0;
       },
       parseScript: function() {
+        this.strictMode_ = false;
         var start = this.getTreeStartLocation_();
         var scriptItemList = this.parseScriptItemList_(false);
         this.eat_(END_OF_FILE);
@@ -8651,7 +8652,7 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
       parseScriptItemList_: function(allowModuleItem) {
         var result = [];
         var type;
-        var checkUseStrictDirective = true;
+        var checkUseStrictDirective = !allowModuleItem;
         while ((type = this.peekType_()) !== END_OF_FILE && type !== CLOSE_CURLY) {
           var scriptItem = this.parseScriptItem_(type, allowModuleItem);
           if (checkUseStrictDirective) {
