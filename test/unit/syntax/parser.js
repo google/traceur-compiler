@@ -30,7 +30,7 @@ suite('parser.js', function() {
     var sourceFile = new traceur.syntax.SourceFile('Name', program);
     var parser = new traceur.syntax.Parser(errorReporter, sourceFile);
 
-    parser.parseScript(true);
+    parser.parseScript();
   });
 
 });

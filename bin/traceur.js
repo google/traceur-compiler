@@ -8686,29 +8686,10 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
         }
         return result;
       },
-      parseModuleElements_: function() {
-        var strictMode = this.strictMode_;
-        this.strictMode_ = true;
-        this.eat_(OPEN_CURLY);
-        var elements = [];
-        var type;
-        while (this.peekModuleElement_(type = this.peekType_())) {
-          elements.push(this.parseModuleElement_(type));
-        }
-        this.eat_(CLOSE_CURLY);
-        this.strictMode_ = strictMode;
-        return elements;
-      },
       parseModuleSpecifier_: function() {
         var start = this.getTreeStartLocation_();
         var token = this.eat_(STRING);
         return new ModuleSpecifier(this.getTreeLocation_(start), token);
-      },
-      peekModuleElement_: function(type) {
-        return this.peekStatement_(type, true);
-      },
-      parseModuleElement_: function(type) {
-        return this.parseScriptItem_(type);
       },
       parseImportDeclaration_: function() {
         var start = this.getTreeStartLocation_();
@@ -8937,68 +8918,6 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
             return this.parseWithStatement_();
         }
         return this.parseFallThroughStatement_(allowScriptItem);
-      },
-      peekStatement_: function(type, allowModuleItem) {
-        switch (type) {
-          case RETURN:
-          case THIS:
-          case VAR:
-          case IDENTIFIER:
-          case IF:
-          case FOR:
-          case BREAK:
-          case SWITCH:
-          case THROW:
-          case WHILE:
-          case FUNCTION:
-          case BANG:
-          case CONTINUE:
-          case DEBUGGER:
-          case DELETE:
-          case DO:
-          case FALSE:
-          case MINUS:
-          case MINUS_MINUS:
-          case NEW:
-          case NULL:
-          case NUMBER:
-          case OPEN_CURLY:
-          case OPEN_PAREN:
-          case OPEN_SQUARE:
-          case PLUS:
-          case PLUS_PLUS:
-          case SEMI_COLON:
-          case SLASH:
-          case SLASH_EQUAL:
-          case STRING:
-          case TILDE:
-          case TRUE:
-          case TRY:
-          case TYPEOF:
-          case VOID:
-          case WITH:
-            return true;
-          case CLASS:
-          case SUPER:
-            return parseOptions.classes;
-          case CONST:
-          case LET:
-            return parseOptions.blockBinding;
-          case AT_NAME:
-          case PRIVATE:
-            return parseOptions.privateNameSyntax;
-          case YIELD:
-            return parseOptions.generators;
-          case AWAIT:
-            return parseOptions.deferredFunctions;
-          case TEMPLATE_HEAD:
-          case NO_SUBSTITUTION_TEMPLATE:
-            return parseOptions.templateLiterals;
-          case IMPORT:
-          case EXPORT:
-            return allowModuleItem && parseOptions.modules;
-        }
-        return false;
       },
       parseFunctionDeclaration_: function() {
         var start = this.getTreeStartLocation_();
@@ -18735,7 +18654,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/Compiler.js"
         if (this.hadError_()) {
           return;
         }
-        this.project_.setParseTree(file, new Parser(this.reporter_, file).parseScript(true));
+        this.project_.setParseTree(file, new Parser(this.reporter_, file).parseScript());
       },
       hadError_: function() {
         return this.reporter_.hadError();

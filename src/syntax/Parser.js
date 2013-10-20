@@ -242,33 +242,11 @@ export class Parser {
     return result;
   }
 
-  /**
-   * @return {ParseTree}
-   * @private
-   */
-  parseModuleElements_() {
-    var strictMode = this.strictMode_;
-    this.strictMode_ = true;
-
-    this.eat_(OPEN_CURLY);
-    var elements = [];
-    var type;
-    while (this.peekModuleElement_(type = this.peekType_())) {
-      elements.push(this.parseModuleElement_(type));
-    }
-    this.eat_(CLOSE_CURLY);
-
-    this.strictMode_ = strictMode;
-
-    return elements;
-  }
-
   parseModuleSpecifier_() {
     // ModuleSpecifier :
     //   StringLiteral
     var start = this.getTreeStartLocation_();
     var token = this.eat_(STRING);
-
     return new ModuleSpecifier(this.getTreeLocation_(start), token);
   }
 
@@ -279,24 +257,6 @@ export class Parser {
   // TODO: ModuleBlock
   // Statement (other than BlockStatement)
   // FunctionDeclaration
-
-  /**
-   * @return {boolean}
-   * @private
-   */
-  peekModuleElement_(type) {
-    // ModuleElement is currently same as ProgramElement.
-    return this.peekStatement_(type, true);
-  }
-
-  /**
-   * @return {ParseTree}
-   * @private
-   */
-  parseModuleElement_(type) {
-    // ModuleElement is currently same as ProgramElement.
-    return this.parseScriptItem_(type);
-  }
 
   // ImportDeclaration(load) ::= "import" ImportDeclaration(load) ";"
   /**
@@ -641,77 +601,6 @@ export class Parser {
         return this.parseWithStatement_();
     }
     return this.parseFallThroughStatement_(allowScriptItem);
-  }
-
-  /**
-   * @return {boolean}
-   * @private
-   */
-  peekStatement_(type, allowModuleItem) {
-    switch (type) {
-      // Most common first (based on building Traceur).
-      case RETURN:
-      case THIS:
-      case VAR:
-      case IDENTIFIER:
-      case IF:
-      case FOR:
-      case BREAK:
-      case SWITCH:
-      case THROW:
-      case WHILE:
-      case FUNCTION:
-
-      // Rest are just alphabetical order.
-      case BANG:
-      case CONTINUE:
-      case DEBUGGER:
-      case DELETE:
-      case DO:
-      case FALSE:
-      case MINUS:
-      case MINUS_MINUS:
-      case NEW:
-      case NULL:
-      case NUMBER:
-      case OPEN_CURLY:
-      case OPEN_PAREN:
-      case OPEN_SQUARE:
-      case PLUS:
-      case PLUS_PLUS:
-      case SEMI_COLON:
-      case SLASH: // regular expression literal
-      case SLASH_EQUAL: // regular expression literal
-      case STRING:
-      case TILDE:
-      case TRUE:
-      case TRY:
-      case TYPEOF:
-      case VOID:
-      case WITH:
-        return true;
-
-      case CLASS:
-      case SUPER:
-        return parseOptions.classes;
-      case CONST:
-      case LET:
-        return parseOptions.blockBinding;
-      case AT_NAME:
-      case PRIVATE:
-        return parseOptions.privateNameSyntax;
-      case YIELD:
-        return parseOptions.generators;
-      case AWAIT:
-        return parseOptions.deferredFunctions;
-      case TEMPLATE_HEAD:
-      case NO_SUBSTITUTION_TEMPLATE:
-        return parseOptions.templateLiterals;
-      case IMPORT:
-      case EXPORT:
-        return allowModuleItem && parseOptions.modules;
-    }
-    return false;
   }
 
   // 13 Function Definition

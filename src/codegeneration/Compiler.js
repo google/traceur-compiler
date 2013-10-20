@@ -146,7 +146,7 @@ export class Compiler {
     }
 
     this.project_.setParseTree(
-        file, new Parser(this.reporter_, file).parseScript(true));
+        file, new Parser(this.reporter_, file).parseScript());
   }
 
   /**
