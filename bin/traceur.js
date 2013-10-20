@@ -8644,30 +8644,40 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
       },
       parseScript: function() {
         var start = this.getTreeStartLocation_();
-        var programElements = this.parseScriptElements_();
+        var programElements = this.parseScriptItemList_(false);
         this.eat_(END_OF_FILE);
         return new Script(this.getTreeLocation_(start), programElements);
       },
-      parseScriptElements_: function() {
+      parseScriptItemList_: function(allowModuleItem) {
         var result = [];
         var type;
         var checkUseStrictDirective = true;
-        while ((type = this.peekType_()) !== END_OF_FILE) {
-          var programElement = this.parseScriptElement_(type);
+        while ((type = this.peekType_()) !== END_OF_FILE && type !== CLOSE_CURLY) {
+          var scriptItem = this.parseScriptItem_(type, allowModuleItem);
           if (checkUseStrictDirective) {
-            if (!programElement.isDirectivePrologue()) {
+            if (!scriptItem.isDirectivePrologue()) {
               checkUseStrictDirective = false;
-            } else if (programElement.isUseStrictDirective()) {
+            } else if (scriptItem.isUseStrictDirective()) {
               this.strictMode_ = true;
               checkUseStrictDirective = false;
             }
           }
-          result.push(programElement);
+          result.push(scriptItem);
         }
         return result;
       },
-      parseScriptElement_: function(type) {
-        return this.parseStatement_(type, true);
+      parseScriptItem_: function(type, allowModuleItem) {
+        return this.parseStatement_(type, allowModuleItem, true);
+      },
+      parseModule: function() {
+        var start = this.getTreeStartLocation_();
+        var programElements = this.parseModuleItemList_();
+        this.eat_(END_OF_FILE);
+        return new Script(this.getTreeLocation_(start), programElements);
+      },
+      parseModuleItemList_: function() {
+        this.strictMode_ = true;
+        return this.parseScriptItemList_(true);
       },
       parseModuleElements_: function() {
         var strictMode = this.strictMode_;
@@ -8691,7 +8701,7 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
         return this.peekStatement_(type, true);
       },
       parseModuleElement_: function(type) {
-        return this.parseScriptElement_(type);
+        return this.parseScriptItem_(type);
       },
       parseImportDeclaration_: function() {
         var start = this.getTreeStartLocation_();
@@ -8866,7 +8876,7 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
       parseStatement: function() {
         return this.parseStatement_(this.peekType_(), false, false);
       },
-      parseStatement_: function(type, allowScriptElement) {
+      parseStatement_: function(type, allowModuleItem, allowScriptItem) {
         switch (type) {
           case RETURN:
             return this.parseReturnStatement_();
@@ -8902,10 +8912,10 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
           case DO:
             return this.parseDoWhileStatement_();
           case EXPORT:
-            if (allowScriptElement && parseOptions.modules) return this.parseExportDeclaration_();
+            if (allowModuleItem && parseOptions.modules) return this.parseExportDeclaration_();
             break;
           case IMPORT:
-            if (allowScriptElement && parseOptions.modules) return this.parseImportDeclaration_();
+            if (allowScriptItem && parseOptions.modules) return this.parseImportDeclaration_();
             break;
           case OPEN_CURLY:
             return this.parseBlock_();
@@ -8919,9 +8929,9 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
           case WITH:
             return this.parseWithStatement_();
         }
-        return this.parseFallThroughStatement_();
+        return this.parseFallThroughStatement_(allowScriptItem);
       },
-      peekStatement_: function(type, allowScriptElement) {
+      peekStatement_: function(type, allowModuleItem) {
         switch (type) {
           case RETURN:
           case THIS:
@@ -8979,7 +8989,7 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
             return parseOptions.templateLiterals;
           case IMPORT:
           case EXPORT:
-            return allowScriptElement && parseOptions.modules;
+            return allowModuleItem && parseOptions.modules;
         }
         return false;
       },
@@ -9159,7 +9169,7 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
         this.eat_(SEMI_COLON);
         return new EmptyStatement(this.getTreeLocation_(start));
       },
-      parseFallThroughStatement_: function() {
+      parseFallThroughStatement_: function(allowScriptItem) {
         var start = this.getTreeStartLocation_();
         var expression = this.parseExpression();
         if (expression.type === IDENTIFIER_EXPRESSION) {
@@ -9168,12 +9178,14 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
             var statement = this.parseStatement();
             return new LabelledStatement(this.getTreeLocation_(start), nameToken, statement);
           }
-          if (nameToken.value === MODULE && parseOptions.modules) {
+          if (allowScriptItem && nameToken.value === MODULE && parseOptions.modules) {
             var token = this.peekTokenNoLineTerminator_();
             if (token !== null) {
               if (token.type === STRING) {
                 var name = this.eat_(STRING);
-                var elements = this.parseModuleElements_();
+                this.eat_(OPEN_CURLY);
+                var elements = this.parseModuleItemList_();
+                this.eat_(CLOSE_CURLY);
                 return new ModuleDefinition(this.getTreeLocation_(start), name, elements);
               }
               if (token.type === IDENTIFIER) {
@@ -19962,7 +19974,8 @@ System.get('@traceur/module').registerModule("../src/runtime/module-loader.js", 
         project.addFile(file);
         this.file = file;
         var parser = new Parser(reporter, file);
-        var tree = parser.parseScript(this.allowLoad);
+        var tree;
+        if (this.useModuleBody) tree = parser.parseModule(); else tree = parser.parseScript();
         if (reporter.hadError()) {
           this.error = 'Parse error';
           return false;
@@ -19983,7 +19996,7 @@ System.get('@traceur/module').registerModule("../src/runtime/module-loader.js", 
     var $LoadCodeUnit = ($__createClass)({
       constructor: function(loader, url) {
         $__superCall(this, $__proto, "constructor", [loader, url, NOT_STARTED]);
-        this.allowLoad = true;
+        this.useModuleBody = true;
         if (isStandardModuleUrl(url)) {
           this.state = COMPLETE;
           this.dependencies = [];
@@ -20015,7 +20028,7 @@ System.get('@traceur/module').registerModule("../src/runtime/module-loader.js", 
     var $EvalCodeUnit = ($__createClass)({constructor: function(loader, code) {
         $__superCall(this, $__proto, "constructor", [loader, loader.url, LOADED]);
         this.text = code;
-        this.allowLoad = false;
+        this.useModuleBody = false;
       }}, {}, $__proto, $__super, true);
     return $EvalCodeUnit;
   }(CodeUnit);
@@ -20025,7 +20038,7 @@ System.get('@traceur/module').registerModule("../src/runtime/module-loader.js", 
     var $EvalLoadCodeUnit = ($__createClass)({constructor: function(loader, code) {
         CodeUnit.call(this, loader, loader.url, LOADED);
         this.text = code;
-        this.allowLoad = true;
+        this.useModuleBody = true;
       }}, {}, $__proto, $__super, true);
     return $EvalLoadCodeUnit;
   }(CodeUnit);

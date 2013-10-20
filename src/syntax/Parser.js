@@ -167,48 +167,71 @@ export class Parser {
    */
   parseScript() {
     var start = this.getTreeStartLocation_();
-    var programElements = this.parseScriptElements_();
+    var programElements = this.parseScriptItemList_(false);
     this.eat_(END_OF_FILE);
     return new Script(this.getTreeLocation_(start), programElements);
   }
+
+  // ScriptItemList :
+  //   ScriptItem
+  //   ScriptItemList ScriptItem
 
   /**
    * @return {Array.<ParseTree>}
    * @private
    */
-  parseScriptElements_() {
+  parseScriptItemList_(allowModuleItem) {
     var result = [];
     var type;
 
     // We do a lot of type assignment in loops like these for performance
     // reasons.
     var checkUseStrictDirective = true;
-    while ((type = this.peekType_()) !== END_OF_FILE) {
-      var programElement = this.parseScriptElement_(type);
+    // TODO(arv): The close curly case is ugly.
+    while ((type = this.peekType_()) !== END_OF_FILE && type !== CLOSE_CURLY) {
+      var scriptItem = this.parseScriptItem_(type, allowModuleItem);
 
       // TODO(arv): We get here when we load external modules, which are always
       // strict but we currently do not have a way to determine if we are in
       // that case.
       if (checkUseStrictDirective) {
-        if (!programElement.isDirectivePrologue()) {
+        if (!scriptItem.isDirectivePrologue()) {
           checkUseStrictDirective = false;
-        } else if (programElement.isUseStrictDirective()) {
+        } else if (scriptItem.isUseStrictDirective()) {
           this.strictMode_ = true;
           checkUseStrictDirective = false;
         }
       }
 
-      result.push(programElement);
+      result.push(scriptItem);
     }
     return result;
   }
+
+  // ScriptItem :
+  //   ModuleDeclaration
+  //   ImportDeclaration
+  //   StatementListItem
 
   /**
    * @return {ParseTree}
    * @private
    */
-  parseScriptElement_(type) {
-    return this.parseStatement_(type, true);
+  parseScriptItem_(type, allowModuleItem) {
+    return this.parseStatement_(type, allowModuleItem, true);
+  }
+
+  parseModule() {
+    var start = this.getTreeStartLocation_();
+    var programElements = this.parseModuleItemList_();
+    this.eat_(END_OF_FILE);
+    // TODO(arv): Use Module instead.
+    return new Script(this.getTreeLocation_(start), programElements);
+  }
+
+  parseModuleItemList_() {
+    this.strictMode_ = true;
+    return this.parseScriptItemList_(true);
   }
 
   /**
@@ -264,7 +287,7 @@ export class Parser {
    */
   parseModuleElement_(type) {
     // ModuleElement is currently same as ProgramElement.
-    return this.parseScriptElement_(type);
+    return this.parseScriptItem_(type);
   }
 
   // ImportDeclaration(load) ::= "import" ImportDeclaration(load) ";"
@@ -546,7 +569,7 @@ export class Parser {
    * @return {ParseTree}
    * @private
    */
-  parseStatement_(type, allowScriptElement) {
+  parseStatement_(type, allowModuleItem, allowScriptItem) {
     switch (type) {
       // Most common first (based on building Traceur).
       case RETURN:
@@ -589,11 +612,11 @@ export class Parser {
       case DO:
         return this.parseDoWhileStatement_();
       case EXPORT:
-        if (allowScriptElement && parseOptions.modules)
+        if (allowModuleItem && parseOptions.modules)
           return this.parseExportDeclaration_();
         break;
       case IMPORT:
-        if (allowScriptElement && parseOptions.modules)
+        if (allowScriptItem && parseOptions.modules)
           return this.parseImportDeclaration_();
         break;
       case OPEN_CURLY:
@@ -609,14 +632,14 @@ export class Parser {
       case WITH:
         return this.parseWithStatement_();
     }
-    return this.parseFallThroughStatement_();
+    return this.parseFallThroughStatement_(allowScriptItem);
   }
 
   /**
    * @return {boolean}
    * @private
    */
-  peekStatement_(type, allowScriptElement) {
+  peekStatement_(type, allowModuleItem) {
     switch (type) {
       // Most common first (based on building Traceur).
       case RETURN:
@@ -678,7 +701,7 @@ export class Parser {
         return parseOptions.templateLiterals;
       case IMPORT:
       case EXPORT:
-        return allowScriptElement && parseOptions.modules;
+        return allowModuleItem && parseOptions.modules;
     }
     return false;
   }
@@ -1019,7 +1042,7 @@ export class Parser {
    * @return {ExpressionStatement|ModuleDeclaration|ModuleDefinition}
    * @private
    */
-  parseFallThroughStatement_() {
+  parseFallThroughStatement_(allowScriptItem) {
     var start = this.getTreeStartLocation_();
     var expression = this.parseExpression();
 
@@ -1041,12 +1064,15 @@ export class Parser {
       //     module [NoNewLine] Identifier from ModuleSpecifier(load)
       //
       // ModuleDefinition is legacy. It will be removed soon.
-      if (nameToken.value === MODULE && parseOptions.modules) {
+      if (allowScriptItem && nameToken.value === MODULE &&
+          parseOptions.modules) {
         var token = this.peekTokenNoLineTerminator_();
         if (token !== null) {
           if (token.type === STRING) {
             var name = this.eat_(STRING);
-            var elements = this.parseModuleElements_();
+            this.eat_(OPEN_CURLY);
+            var elements = this.parseModuleItemList_();
+            this.eat_(CLOSE_CURLY);
             return new ModuleDefinition(this.getTreeLocation_(start), name,
                                         elements);
           }

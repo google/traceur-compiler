@@ -167,7 +167,11 @@ class CodeUnit {
     this.file = file;
 
     var parser = new Parser(reporter, file);
-    var tree = parser.parseScript(this.allowLoad);
+    var tree;
+    if (this.useModuleBody)
+      tree = parser.parseModule();
+    else
+      tree = parser.parseScript();
 
     if (reporter.hadError()) {
       this.error = 'Parse error';
@@ -197,7 +201,7 @@ class LoadCodeUnit extends CodeUnit {
    */
   constructor(loader, url) {
     super(loader, url, NOT_STARTED);
-    this.allowLoad = true;
+    this.useModuleBody = true;
     if (isStandardModuleUrl(url)) {
       this.state = COMPLETE;
       this.dependencies = [];
@@ -245,7 +249,7 @@ class EvalCodeUnit extends CodeUnit {
   constructor(loader, code) {
     super(loader, loader.url, LOADED);
     this.text = code;
-    this.allowLoad = false;
+    this.useModuleBody = false;
   }
 }
 
@@ -260,7 +264,7 @@ class EvalLoadCodeUnit extends CodeUnit {
   constructor(loader, code) {
     CodeUnit.call(this, loader, loader.url, LOADED);
     this.text = code;
-    this.allowLoad = true;
+    this.useModuleBody = true;
   }
 }
 
