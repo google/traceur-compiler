@@ -31,8 +31,8 @@ index 62a5f44..8694f99 100644
 +                        console.reportError = console.error;
 +                        var file = new traceur.syntax.SourceFile('name', source);
 +                        var parser = new traceur.syntax.Parser(console, file);
-+                        var tree = parser.parseProgram();
-+                        window.tree.push(tree.programElements.length);
++                        var tree = parser.parseScript();
++                        window.tree.push(tree.scriptItemList.length);
 +                    };
 +                    break;
 +

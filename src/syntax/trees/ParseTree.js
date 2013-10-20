@@ -258,7 +258,7 @@ export class ParseTree {
   }
 
   /** @return {boolean} */
-  isProgramElement() {
+  isScriptElement() {
     switch (this.type) {
       case CLASS_DECLARATION:
       case EXPORT_DECLARATION:

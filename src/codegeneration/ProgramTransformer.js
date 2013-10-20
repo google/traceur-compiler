@@ -92,7 +92,7 @@ export class ProgramTransformer {
    * Each pass translates one contruct from Traceur to standard JS constructs.
    * The order of the passes matters.
    *
-   * @param {Program} tree
+   * @param {Script} tree
    * @return {ParseTree}
    */
   transform(tree) {
@@ -226,7 +226,7 @@ export class ProgramTransformer {
 
     // Issue errors for any unbound variables
     chain(options.freeVariableChecker,
-          () => FreeVariableChecker.checkProgram(reporter, tree));
+          () => FreeVariableChecker.checkScript(reporter, tree));
 
     return tree;
   }
@@ -234,9 +234,9 @@ export class ProgramTransformer {
   /**
    * Transforms a program tree. If an optional module is passed in the
    * program is treated as a module body.
-   * @param {Program} tree
+   * @param {Script} tree
    * @param {ModuleSymbol=} module
-   * @return {Program}
+   * @return {Script}
    * @private
    */
   transformModules_(tree, module = undefined) {

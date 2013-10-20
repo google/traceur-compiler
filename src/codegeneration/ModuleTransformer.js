@@ -20,7 +20,7 @@ import {
   LiteralPropertyName,
   ObjectPattern,
   ObjectPatternField,
-  Program
+  Script
 } from '../syntax/trees/ParseTrees.js';
 import {TempVarTransformer} from './TempVarTransformer.js';
 import {
@@ -59,7 +59,7 @@ import {
   createObjectCreate,
   createObjectLiteralExpression,
   createObjectPreventExtensions,
-  createProgram,
+  createScript,
   createPropertyDescriptor,
   createPropertyNameAssignment,
   createReturnStatement,
@@ -236,14 +236,14 @@ export class ModuleTransformer extends TempVarTransformer {
 
 /**
  * @param {Project} project
- * @param {Program} tree
- * @return {Program}
+ * @param {Script} tree
+ * @return {Script}
  */
 ModuleTransformer.transform = function(project, tree) {
   var module = project.getRootModule();
-  var useStrictCount = hasUseStrict(tree.programElements) ? 1 : 0;
+  var useStrictCount = hasUseStrict(tree.scriptItemList) ? 1 : 0;
   var transformer = new ModuleTransformer(project);
-  var elements = tree.programElements.map((element) => {
+  var elements = tree.scriptItemList.map((element) => {
     switch (element.type) {
       case MODULE_DEFINITION:
         return transformDefinition(transformer, project, module, element, useStrictCount);
@@ -254,20 +254,20 @@ ModuleTransformer.transform = function(project, tree) {
         return element;
     }
   });
-  return new Program(tree.location, elements);
+  return new Script(tree.location, elements);
 };
 
 /**
  * @param {Project} project
  * @param {Module} module
- * @param {Program} tree
- * @return {Program}
+ * @param {Script} tree
+ * @return {Script}
  */
 ModuleTransformer.transformAsModule = function(project, module, tree) {
   var transformer = new ModuleTransformer(project);
   var callExpression = transformModuleElements(transformer, project, module,
-                                               tree.programElements);
-  return createProgram([createRegister(module.url, callExpression)]);
+                                               tree.scriptItemList);
+  return createScript([createRegister(module.url, callExpression)]);
 };
 
 /**
