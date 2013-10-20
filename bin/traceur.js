@@ -8645,16 +8645,16 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
       parseScript: function() {
         this.strictMode_ = false;
         var start = this.getTreeStartLocation_();
-        var scriptItemList = this.parseScriptItemList_(false);
+        var scriptItemList = this.parseScriptItemList_();
         this.eat_(END_OF_FILE);
         return new Script(this.getTreeLocation_(start), scriptItemList);
       },
-      parseScriptItemList_: function(allowModuleItem) {
+      parseScriptItemList_: function() {
         var result = [];
         var type;
-        var checkUseStrictDirective = !allowModuleItem;
-        while ((type = this.peekType_()) !== END_OF_FILE && type !== CLOSE_CURLY) {
-          var scriptItem = this.parseScriptItem_(type, allowModuleItem);
+        var checkUseStrictDirective = true;
+        while ((type = this.peekType_()) !== END_OF_FILE) {
+          var scriptItem = this.parseScriptItem_(type, false);
           if (checkUseStrictDirective) {
             if (!scriptItem.isDirectivePrologue()) {
               checkUseStrictDirective = false;
@@ -8678,7 +8678,13 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
       },
       parseModuleItemList_: function() {
         this.strictMode_ = true;
-        return this.parseScriptItemList_(true);
+        var result = [];
+        var type;
+        while ((type = this.peekType_()) !== END_OF_FILE && type !== CLOSE_CURLY) {
+          var scriptItem = this.parseScriptItem_(type, true);
+          result.push(scriptItem);
+        }
+        return result;
       },
       parseModuleElements_: function() {
         var strictMode = this.strictMode_;
@@ -8997,7 +9003,7 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
       parseFunctionDeclaration_: function() {
         var start = this.getTreeStartLocation_();
         this.nextToken_();
-        var isGenerator = this.eatIf_(STAR);
+        var isGenerator = parseOptions.generators && this.eatIf_(STAR);
         return this.parseFunctionDeclarationTail_(start, isGenerator, this.parseBindingIdentifier_());
       },
       parseFunctionDeclarationTail_: function(start, isGenerator, name) {
@@ -9010,7 +9016,7 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
       parseFunctionExpression_: function() {
         var start = this.getTreeStartLocation_();
         this.nextToken_();
-        var isGenerator = this.eatIf_(STAR);
+        var isGenerator = parseOptions.generators && this.eatIf_(STAR);
         var name = null;
         if (this.peekBindingIdentifier_(this.peekType_())) {
           name = this.parseBindingIdentifier_();
@@ -9065,11 +9071,10 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
         this.eat_(CLOSE_CURLY);
         return new FunctionBody(this.getTreeLocation_(start), result);
       },
-      parseStatementList_: function() {
-        var checkUseStrictDirective = arguments[0] !== (void 0) ? arguments[0]: false;
+      parseStatementList_: function(checkUseStrictDirective) {
         var result = [];
         var type;
-        while (this.peekStatement_(type = this.peekType_(), false)) {
+        while ((type = this.peekType_()) !== CLOSE_CURLY && type !== END_OF_FILE) {
           var statement = this.parseStatement_(type, false, false);
           if (checkUseStrictDirective) {
             if (!statement.isDirectivePrologue()) {
@@ -9093,7 +9098,7 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
       parseBlock_: function() {
         var start = this.getTreeStartLocation_();
         this.eat_(OPEN_CURLY);
-        var result = this.parseStatementList_();
+        var result = this.parseStatementList_(false);
         this.eat_(CLOSE_CURLY);
         return new Block(this.getTreeLocation_(start), result);
       },
@@ -9450,7 +9455,18 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
         }
       },
       parseCaseStatementsOpt_: function() {
-        return this.parseStatementList_();
+        var result = [];
+        var type;
+        while (true) {
+          switch (type = this.peekType_()) {
+            case CASE:
+            case DEFAULT:
+            case CLOSE_CURLY:
+            case END_OF_FILE:
+              return result;
+          }
+          result.push(this.parseStatement_(type, false, false));
+        }
       },
       parseThrowStatement_: function() {
         var start = this.getTreeStartLocation_();

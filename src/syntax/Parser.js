@@ -168,7 +168,7 @@ export class Parser {
   parseScript() {
     this.strictMode_ = false;
     var start = this.getTreeStartLocation_();
-    var scriptItemList = this.parseScriptItemList_(false);
+    var scriptItemList = this.parseScriptItemList_();
     this.eat_(END_OF_FILE);
     return new Script(this.getTreeLocation_(start), scriptItemList);
   }
@@ -181,16 +181,15 @@ export class Parser {
    * @return {Array.<ParseTree>}
    * @private
    */
-  parseScriptItemList_(allowModuleItem) {
+  parseScriptItemList_() {
     var result = [];
     var type;
 
     // We do a lot of type assignment in loops like these for performance
     // reasons.
-    var checkUseStrictDirective = !allowModuleItem;
-    // TODO(arv): The close curly case is ugly.
-    while ((type = this.peekType_()) !== END_OF_FILE && type !== CLOSE_CURLY) {
-      var scriptItem = this.parseScriptItem_(type, allowModuleItem);
+    var checkUseStrictDirective = true;
+    while ((type = this.peekType_()) !== END_OF_FILE) {
+      var scriptItem = this.parseScriptItem_(type, false);
 
       // TODO(arv): We get here when we load external modules, which are always
       // strict but we currently do not have a way to determine if we are in
@@ -232,7 +231,15 @@ export class Parser {
 
   parseModuleItemList_() {
     this.strictMode_ = true;
-    return this.parseScriptItemList_(true);
+    var result = [];
+    var type;
+
+    // TODO(arv): Remove CLOSE_CURLY when we no longer supports inline modules.
+    while ((type = this.peekType_()) !== END_OF_FILE && type !== CLOSE_CURLY) {
+      var scriptItem = this.parseScriptItem_(type, true);
+      result.push(scriptItem);
+    }
+    return result;
   }
 
   /**
@@ -715,7 +722,7 @@ export class Parser {
   parseFunctionDeclaration_() {
     var start = this.getTreeStartLocation_();
     this.nextToken_(); // function or #
-    var isGenerator = this.eatIf_(STAR);
+    var isGenerator = parseOptions.generators && this.eatIf_(STAR);
     return this.parseFunctionDeclarationTail_(start, isGenerator,
                                               this.parseBindingIdentifier_());
   }
@@ -744,7 +751,7 @@ export class Parser {
   parseFunctionExpression_() {
     var start = this.getTreeStartLocation_();
     this.nextToken_(); // function or #
-    var isGenerator = this.eatIf_(STAR);
+    var isGenerator = parseOptions.generators && this.eatIf_(STAR);
     var name = null;
     if (this.peekBindingIdentifier_(this.peekType_())) {
       name = this.parseBindingIdentifier_();
@@ -847,12 +854,10 @@ export class Parser {
    * @return {Array.<ParseTree>}
    * @private
    */
-  parseStatementList_(checkUseStrictDirective = false) {
+  parseStatementList_(checkUseStrictDirective) {
     var result = [];
-    // TODO(arv): This does two big switches, one for the peek and one for the
-    // parse. We should be able to refactor to only do one switch.
     var type;
-    while (this.peekStatement_(type = this.peekType_(), false)) {
+    while ((type = this.peekType_()) !== CLOSE_CURLY && type !== END_OF_FILE) {
       var statement = this.parseStatement_(type, false, false);
       if (checkUseStrictDirective) {
         if (!statement.isDirectivePrologue()) {
@@ -889,7 +894,7 @@ export class Parser {
   parseBlock_() {
     var start = this.getTreeStartLocation_();
     this.eat_(OPEN_CURLY);
-    var result = this.parseStatementList_();
+    var result = this.parseStatementList_(false);
     this.eat_(CLOSE_CURLY);
     return new Block(this.getTreeLocation_(start), result);
   }
@@ -1507,7 +1512,18 @@ export class Parser {
    * @private
    */
   parseCaseStatementsOpt_() {
-    return this.parseStatementList_();
+    var result = [];
+    var type;
+    while (true) {
+      switch (type = this.peekType_()) {
+        case CASE:
+        case DEFAULT:
+        case CLOSE_CURLY:
+        case END_OF_FILE:
+          return result;
+      }
+      result.push(this.parseStatement_(type, false, false));
+    }
   }
 
   // 12.13 Throw Statement
