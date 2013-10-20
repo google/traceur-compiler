@@ -842,11 +842,11 @@ export function createPostfixExpression(operand, operator) {
 }
 
 /**
- * @param {Array.<ParseTree>} programElements
- * @return {Program}
+ * @param {Array.<ParseTree>} scriptItemList
+ * @return {Script}
  */
-export function createProgram(programElements) {
-  return new Program(null, programElements);
+export function createScript(scriptItemList) {
+  return new Script(null, scriptItemList);
 }
 
 /**

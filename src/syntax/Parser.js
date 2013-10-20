@@ -161,22 +161,27 @@ export class Parser {
     this.assignmentExpressionDepth_ = 0;
   }
 
-  // 14 Program
+  // 14 Script
   /**
-   * @return {Program}
+   * @return {Script}
    */
-  parseProgram() {
+  parseScript() {
+    this.strictMode_ = false;
     var start = this.getTreeStartLocation_();
-    var programElements = this.parseProgramElements_();
+    var scriptItemList = this.parseScriptItemList_();
     this.eat_(END_OF_FILE);
-    return new Program(this.getTreeLocation_(start), programElements);
+    return new Script(this.getTreeLocation_(start), scriptItemList);
   }
+
+  // ScriptItemList :
+  //   ScriptItem
+  //   ScriptItemList ScriptItem
 
   /**
    * @return {Array.<ParseTree>}
    * @private
    */
-  parseProgramElements_() {
+  parseScriptItemList_() {
     var result = [];
     var type;
 
@@ -184,52 +189,57 @@ export class Parser {
     // reasons.
     var checkUseStrictDirective = true;
     while ((type = this.peekType_()) !== END_OF_FILE) {
-      var programElement = this.parseProgramElement_(type);
+      var scriptItem = this.parseScriptItem_(type, false);
 
       // TODO(arv): We get here when we load external modules, which are always
       // strict but we currently do not have a way to determine if we are in
       // that case.
       if (checkUseStrictDirective) {
-        if (!programElement.isDirectivePrologue()) {
+        if (!scriptItem.isDirectivePrologue()) {
           checkUseStrictDirective = false;
-        } else if (programElement.isUseStrictDirective()) {
+        } else if (scriptItem.isUseStrictDirective()) {
           this.strictMode_ = true;
           checkUseStrictDirective = false;
         }
       }
 
-      result.push(programElement);
+      result.push(scriptItem);
     }
     return result;
   }
 
+  // ScriptItem :
+  //   ModuleDeclaration
+  //   ImportDeclaration
+  //   StatementListItem
+
   /**
    * @return {ParseTree}
    * @private
    */
-  parseProgramElement_(type) {
-    return this.parseStatement_(type, true);
+  parseScriptItem_(type, allowModuleItem) {
+    return this.parseStatement_(type, allowModuleItem, true);
   }
 
-  /**
-   * @return {ParseTree}
-   * @private
-   */
-  parseModuleElements_() {
-    var strictMode = this.strictMode_;
+  parseModule() {
+    var start = this.getTreeStartLocation_();
+    var scriptItemList = this.parseModuleItemList_();
+    this.eat_(END_OF_FILE);
+    // TODO(arv): Use Module instead.
+    return new Script(this.getTreeLocation_(start), scriptItemList);
+  }
+
+  parseModuleItemList_() {
     this.strictMode_ = true;
-
-    this.eat_(OPEN_CURLY);
-    var elements = [];
+    var result = [];
     var type;
-    while (this.peekModuleElement_(type = this.peekType_())) {
-      elements.push(this.parseModuleElement_(type));
+
+    // TODO(arv): Remove CLOSE_CURLY when we no longer supports inline modules.
+    while ((type = this.peekType_()) !== END_OF_FILE && type !== CLOSE_CURLY) {
+      var scriptItem = this.parseScriptItem_(type, true);
+      result.push(scriptItem);
     }
-    this.eat_(CLOSE_CURLY);
-
-    this.strictMode_ = strictMode;
-
-    return elements;
+    return result;
   }
 
   parseModuleSpecifier_() {
@@ -237,7 +247,6 @@ export class Parser {
     //   StringLiteral
     var start = this.getTreeStartLocation_();
     var token = this.eat_(STRING);
-
     return new ModuleSpecifier(this.getTreeLocation_(start), token);
   }
 
@@ -248,24 +257,6 @@ export class Parser {
   // TODO: ModuleBlock
   // Statement (other than BlockStatement)
   // FunctionDeclaration
-
-  /**
-   * @return {boolean}
-   * @private
-   */
-  peekModuleElement_(type) {
-    // ModuleElement is currently same as ProgramElement.
-    return this.peekStatement_(type, true);
-  }
-
-  /**
-   * @return {ParseTree}
-   * @private
-   */
-  parseModuleElement_(type) {
-    // ModuleElement is currently same as ProgramElement.
-    return this.parseProgramElement_(type);
-  }
 
   // ImportDeclaration(load) ::= "import" ImportDeclaration(load) ";"
   /**
@@ -546,7 +537,7 @@ export class Parser {
    * @return {ParseTree}
    * @private
    */
-  parseStatement_(type, allowProgramElement) {
+  parseStatement_(type, allowModuleItem, allowScriptItem) {
     switch (type) {
       // Most common first (based on building Traceur).
       case RETURN:
@@ -589,11 +580,11 @@ export class Parser {
       case DO:
         return this.parseDoWhileStatement_();
       case EXPORT:
-        if (allowProgramElement && parseOptions.modules)
+        if (allowModuleItem && parseOptions.modules)
           return this.parseExportDeclaration_();
         break;
       case IMPORT:
-        if (allowProgramElement && parseOptions.modules)
+        if (allowScriptItem && parseOptions.modules)
           return this.parseImportDeclaration_();
         break;
       case OPEN_CURLY:
@@ -609,78 +600,7 @@ export class Parser {
       case WITH:
         return this.parseWithStatement_();
     }
-    return this.parseFallThroughStatement_();
-  }
-
-  /**
-   * @return {boolean}
-   * @private
-   */
-  peekStatement_(type, allowProgramElement) {
-    switch (type) {
-      // Most common first (based on building Traceur).
-      case RETURN:
-      case THIS:
-      case VAR:
-      case IDENTIFIER:
-      case IF:
-      case FOR:
-      case BREAK:
-      case SWITCH:
-      case THROW:
-      case WHILE:
-      case FUNCTION:
-
-      // Rest are just alphabetical order.
-      case BANG:
-      case CONTINUE:
-      case DEBUGGER:
-      case DELETE:
-      case DO:
-      case FALSE:
-      case MINUS:
-      case MINUS_MINUS:
-      case NEW:
-      case NULL:
-      case NUMBER:
-      case OPEN_CURLY:
-      case OPEN_PAREN:
-      case OPEN_SQUARE:
-      case PLUS:
-      case PLUS_PLUS:
-      case SEMI_COLON:
-      case SLASH: // regular expression literal
-      case SLASH_EQUAL: // regular expression literal
-      case STRING:
-      case TILDE:
-      case TRUE:
-      case TRY:
-      case TYPEOF:
-      case VOID:
-      case WITH:
-        return true;
-
-      case CLASS:
-      case SUPER:
-        return parseOptions.classes;
-      case CONST:
-      case LET:
-        return parseOptions.blockBinding;
-      case AT_NAME:
-      case PRIVATE:
-        return parseOptions.privateNameSyntax;
-      case YIELD:
-        return parseOptions.generators;
-      case AWAIT:
-        return parseOptions.deferredFunctions;
-      case TEMPLATE_HEAD:
-      case NO_SUBSTITUTION_TEMPLATE:
-        return parseOptions.templateLiterals;
-      case IMPORT:
-      case EXPORT:
-        return allowProgramElement && parseOptions.modules;
-    }
-    return false;
+    return this.parseFallThroughStatement_(allowScriptItem);
   }
 
   // 13 Function Definition
@@ -691,7 +611,7 @@ export class Parser {
   parseFunctionDeclaration_() {
     var start = this.getTreeStartLocation_();
     this.nextToken_(); // function or #
-    var isGenerator = this.eatIf_(STAR);
+    var isGenerator = parseOptions.generators && this.eatIf_(STAR);
     return this.parseFunctionDeclarationTail_(start, isGenerator,
                                               this.parseBindingIdentifier_());
   }
@@ -720,7 +640,7 @@ export class Parser {
   parseFunctionExpression_() {
     var start = this.getTreeStartLocation_();
     this.nextToken_(); // function or #
-    var isGenerator = this.eatIf_(STAR);
+    var isGenerator = parseOptions.generators && this.eatIf_(STAR);
     var name = null;
     if (this.peekBindingIdentifier_(this.peekType_())) {
       name = this.parseBindingIdentifier_();
@@ -823,12 +743,10 @@ export class Parser {
    * @return {Array.<ParseTree>}
    * @private
    */
-  parseStatementList_(checkUseStrictDirective = false) {
+  parseStatementList_(checkUseStrictDirective) {
     var result = [];
-    // TODO(arv): This does two big switches, one for the peek and one for the
-    // parse. We should be able to refactor to only do one switch.
     var type;
-    while (this.peekStatement_(type = this.peekType_(), false)) {
+    while ((type = this.peekType_()) !== CLOSE_CURLY && type !== END_OF_FILE) {
       var statement = this.parseStatement_(type, false, false);
       if (checkUseStrictDirective) {
         if (!statement.isDirectivePrologue()) {
@@ -865,7 +783,7 @@ export class Parser {
   parseBlock_() {
     var start = this.getTreeStartLocation_();
     this.eat_(OPEN_CURLY);
-    var result = this.parseStatementList_();
+    var result = this.parseStatementList_(false);
     this.eat_(CLOSE_CURLY);
     return new Block(this.getTreeLocation_(start), result);
   }
@@ -1019,7 +937,7 @@ export class Parser {
    * @return {ExpressionStatement|ModuleDeclaration|ModuleDefinition}
    * @private
    */
-  parseFallThroughStatement_() {
+  parseFallThroughStatement_(allowScriptItem) {
     var start = this.getTreeStartLocation_();
     var expression = this.parseExpression();
 
@@ -1041,12 +959,15 @@ export class Parser {
       //     module [NoNewLine] Identifier from ModuleSpecifier(load)
       //
       // ModuleDefinition is legacy. It will be removed soon.
-      if (nameToken.value === MODULE && parseOptions.modules) {
+      if (allowScriptItem && nameToken.value === MODULE &&
+          parseOptions.modules) {
         var token = this.peekTokenNoLineTerminator_();
         if (token !== null) {
           if (token.type === STRING) {
             var name = this.eat_(STRING);
-            var elements = this.parseModuleElements_();
+            this.eat_(OPEN_CURLY);
+            var elements = this.parseModuleItemList_();
+            this.eat_(CLOSE_CURLY);
             return new ModuleDefinition(this.getTreeLocation_(start), name,
                                         elements);
           }
@@ -1480,7 +1401,18 @@ export class Parser {
    * @private
    */
   parseCaseStatementsOpt_() {
-    return this.parseStatementList_();
+    var result = [];
+    var type;
+    while (true) {
+      switch (type = this.peekType_()) {
+        case CASE:
+        case DEFAULT:
+        case CLOSE_CURLY:
+        case END_OF_FILE:
+          return result;
+      }
+      result.push(this.parseStatement_(type, false, false));
+    }
   }
 
   // 12.13 Throw Statement

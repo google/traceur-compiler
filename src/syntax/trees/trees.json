@@ -692,11 +692,11 @@
       "Token"
     ]
   },
-  "Program": {
+  "Script": {
     "location": [
       "SourceRange"
     ],
-    "programElements": [
+    "scriptItemList": [
       "Array.<ParseTree>"
     ]
   },

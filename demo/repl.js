@@ -93,7 +93,7 @@ function compile(cmd, url) {
     project.addFile(src);
 
     parser = new Parser(reporter, src);
-    tree = parser.parseProgram(true);
+    tree = parser.parseScript(true);
     debugTree('traceur-input-tree:\n%s', tree);
     project.setParseTree(src, tree);
 

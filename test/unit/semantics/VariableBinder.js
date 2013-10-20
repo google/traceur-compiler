@@ -27,10 +27,10 @@ suite('VariableBinder.js', function() {
 
   function parse(code) {
     var errors = new ErrorReporter();
-    var tree = new Parser(errors, new SourceFile('inline', code)).parseProgram();
+    var tree = new Parser(errors, new SourceFile('inline', code)).parseScript();
     assert.isFalse(errors.hadError());
-    assert.equal(1, tree.programElements.length);
-    return tree.programElements[0];
+    assert.equal(1, tree.scriptItemList.length);
+    return tree.scriptItemList[0];
   }
 
   function idsToString(identifiers) {

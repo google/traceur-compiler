@@ -26,7 +26,7 @@ suite('SourceMap.js', function() {
   function parse(name, source) {
     var sourceFile = new traceur.syntax.SourceFile(name, source);
     var parser = new traceur.syntax.Parser(errorReporter, sourceFile);
-    var tree = parser.parseProgram();
+    var tree = parser.parseScript();
     return tree;
   }
 
@@ -68,10 +68,10 @@ suite('SourceMap.js', function() {
     // Now create a new program that contains these 3.
     var push = [].push.apply.bind([].push);
     var newProgramElements = [];
-    push(newProgramElements, treeA.programElements);
-    push(newProgramElements, treeB.programElements);
-    push(newProgramElements, treeC.programElements);
-    var tree = new traceur.syntax.trees.Program(null, newProgramElements);
+    push(newProgramElements, treeA.scriptItemList);
+    push(newProgramElements, treeB.scriptItemList);
+    push(newProgramElements, treeC.scriptItemList);
+    var tree = new traceur.syntax.trees.Script(null, newProgramElements);
 
     var outFilename = 'out.js'
     var generator = new SourceMapGenerator({file: outFilename});
