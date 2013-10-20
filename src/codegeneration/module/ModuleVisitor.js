@@ -88,7 +88,7 @@ export class ModuleVisitor extends ParseTreeVisitor {
   }
 
   visitScript(tree) {
-    tree.programElements.forEach(this.visitModuleElement_, this);
+    tree.scriptItemList.forEach(this.visitModuleElement_, this);
   }
 
   visitModuleDefinition(tree) {

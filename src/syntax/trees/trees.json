@@ -696,7 +696,7 @@
     "location": [
       "SourceRange"
     ],
-    "programElements": [
+    "scriptItemList": [
       "Array.<ParseTree>"
     ]
   },

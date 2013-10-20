@@ -241,9 +241,9 @@ export class ModuleTransformer extends TempVarTransformer {
  */
 ModuleTransformer.transform = function(project, tree) {
   var module = project.getRootModule();
-  var useStrictCount = hasUseStrict(tree.programElements) ? 1 : 0;
+  var useStrictCount = hasUseStrict(tree.scriptItemList) ? 1 : 0;
   var transformer = new ModuleTransformer(project);
-  var elements = tree.programElements.map((element) => {
+  var elements = tree.scriptItemList.map((element) => {
     switch (element.type) {
       case MODULE_DEFINITION:
         return transformDefinition(transformer, project, module, element, useStrictCount);
@@ -266,7 +266,7 @@ ModuleTransformer.transform = function(project, tree) {
 ModuleTransformer.transformAsModule = function(project, module, tree) {
   var transformer = new ModuleTransformer(project);
   var callExpression = transformModuleElements(transformer, project, module,
-                                               tree.programElements);
+                                               tree.scriptItemList);
   return createScript([createRegister(module.url, callExpression)]);
 };
 

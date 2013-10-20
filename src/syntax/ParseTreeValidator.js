@@ -807,11 +807,11 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {Script} tree
    */
   visitScript(tree) {
-    for (var i = 0; i < tree.programElements.length; i++) {
-      var programElement = tree.programElements[i];
-      this.checkVisit_(programElement.isScriptElement(),
-          programElement,
-          'global program element expected');
+    for (var i = 0; i < tree.scriptItemList.length; i++) {
+      var scriptItemList = tree.scriptItemList[i];
+      this.checkVisit_(scriptItemList.isScriptElement(),
+          scriptItemList,
+          'global script item expected');
     }
   }
 

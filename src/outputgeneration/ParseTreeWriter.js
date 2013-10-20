@@ -768,7 +768,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {Script} tree
    */
   visitScript(tree) {
-    this.writelnList_(tree.programElements, null);
+    this.writelnList_(tree.scriptItemList, null);
   }
 
   /**

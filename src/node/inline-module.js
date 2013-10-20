@@ -64,7 +64,7 @@ function generateNameForUrl(url, commonPath) {
 function wrapScript(tree, url, commonPath) {
   return new Script(null,
       [new ModuleDefinition(null,
-          createStringLiteralToken(url), tree.programElements)]);
+          createStringLiteralToken(url), tree.scriptItemList)]);
 }
 
 /**
@@ -128,7 +128,7 @@ InlineCodeLoader.prototype = {
   evalCodeUnit: function(codeUnit) {
     // Don't eval. Instead append the trees to the output.
     var tree = codeUnit.transformedTree;
-    this.elements.push.apply(this.elements, tree.programElements);
+    this.elements.push.apply(this.elements, tree.scriptItemList);
   },
 
   transformCodeUnit: function(codeUnit) {

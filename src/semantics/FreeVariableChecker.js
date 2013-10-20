@@ -115,7 +115,7 @@ export class FreeVariableChecker extends ParseTreeVisitor {
       object = Object.getPrototypeOf(object);
     }
 
-    this.visitList(tree.programElements);
+    this.visitList(tree.scriptItemList);
 
     this.pop_(scope);
   }

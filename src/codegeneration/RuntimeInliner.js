@@ -88,9 +88,9 @@ export class RuntimeInliner extends ParseTreeTransformer {
     var variableStatement = createVariableStatement(
         createVariableDeclarationList(VAR, vars));
 
-    var programElements = prependStatements(
-        tree.programElements, variableStatement);
-    return new Script(tree.location, programElements);
+    var scriptItemList = prependStatements(
+        tree.scriptItemList, variableStatement);
+    return new Script(tree.location, scriptItemList);
   }
 
   /**

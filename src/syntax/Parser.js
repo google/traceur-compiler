@@ -167,9 +167,9 @@ export class Parser {
    */
   parseScript() {
     var start = this.getTreeStartLocation_();
-    var programElements = this.parseScriptItemList_(false);
+    var scriptItemList = this.parseScriptItemList_(false);
     this.eat_(END_OF_FILE);
-    return new Script(this.getTreeLocation_(start), programElements);
+    return new Script(this.getTreeLocation_(start), scriptItemList);
   }
 
   // ScriptItemList :
@@ -223,10 +223,10 @@ export class Parser {
 
   parseModule() {
     var start = this.getTreeStartLocation_();
-    var programElements = this.parseModuleItemList_();
+    var scriptItemList = this.parseModuleItemList_();
     this.eat_(END_OF_FILE);
     // TODO(arv): Use Module instead.
-    return new Script(this.getTreeLocation_(start), programElements);
+    return new Script(this.getTreeLocation_(start), scriptItemList);
   }
 
   parseModuleItemList_() {
