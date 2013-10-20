@@ -123,7 +123,7 @@ export class Project {
   }
 
   /**
-   * @return {Array.<Program>}
+   * @return {Array.<Script>}
    */
   getParseTrees() {
     return this.parseTrees_.values();
@@ -131,7 +131,7 @@ export class Project {
 
   /**
    * @param {SourceFile} file
-   * @param {Program} tree
+   * @param {Script} tree
    * @return {void}
    */
   setParseTree(file, tree) {
@@ -143,7 +143,7 @@ export class Project {
 
   /**
    * @param {SourceFile} file
-   * @return {Program}
+   * @return {Script}
    */
   getParseTree(file) {
     return this.parseTrees_.get(file);

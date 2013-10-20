@@ -75,7 +75,7 @@ import {
  */
 
 var ScopeType = {
-  PROGRAM: 'PROGRAM',
+  SCRIPT: 'SCRIPT',
   FUNCTION: 'FUNCTION',
   BLOCK: 'BLOCK'
 };
@@ -152,9 +152,9 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
    * functions are unchanged.
    * @return {Scope}
    */
-  createProgramScope_() {
+  createScriptScope_() {
     // program scope is never a block/let scope
-    return new Scope(this.scope_, ScopeType.PROGRAM);
+    return new Scope(this.scope_, ScopeType.SCRIPT);
   }
 
   /**
@@ -578,14 +578,14 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
 
   /**
    * Transforms the whole program.
-   * @param {Program} tree
+   * @param {Script} tree
    * @return {ParseTree}
    */
-  transformProgram(tree) {
+  transformScript(tree) {
     // Push new scope
-    var scope = this.push_(this.createProgramScope_());
+    var scope = this.push_(this.createScriptScope_());
 
-    var result = super.transformProgram(tree);
+    var result = super.transformScript(tree);
 
     this.pop_(scope);
     return result;
@@ -778,8 +778,8 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
   }
 
   /**
-   * @param {Program} tree
-   * @return {Program}
+   * @param {Script} tree
+   * @return {Script}
    */
   static transformTree(tree) {
     return new BlockBindingTransformer().transformAny(tree);

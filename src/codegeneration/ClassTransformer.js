@@ -327,8 +327,8 @@ export class ClassTransformer extends TempVarTransformer{
    * @param {UniqueIdentifierGenerator} identifierGenerator
    * @param {RuntimeInliner} runtimeInliner
    * @param {ErrorReporter} reporter
-   * @param {Program} tree
-   * @return {Program}
+   * @param {Script} tree
+   * @return {Script}
    */
   static transformTree(identifierGenerator, runtimeInliner, reporter, tree) {
     return new this(identifierGenerator, runtimeInliner, reporter).

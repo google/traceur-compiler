@@ -843,10 +843,10 @@ export function createPostfixExpression(operand, operator) {
 
 /**
  * @param {Array.<ParseTree>} programElements
- * @return {Program}
+ * @return {Script}
  */
-export function createProgram(programElements) {
-  return new Program(null, programElements);
+export function createScript(programElements) {
+  return new Script(null, programElements);
 }
 
 /**

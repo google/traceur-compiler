@@ -27,7 +27,7 @@ var ModuleTransformer = traceur.codegeneration.ModuleTransformer;
 var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
 var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
 var Parser = traceur.syntax.Parser;
-var Program = traceur.syntax.trees.Program;
+var Script = traceur.syntax.trees.Script;
 var ModuleSpecifier = traceur.syntax.trees.ModuleSpecifier;
 var ProgramTransformer = traceur.codegeneration.ProgramTransformer;
 var Project = traceur.semantics.symbols.Project;
@@ -53,16 +53,16 @@ function generateNameForUrl(url, commonPath) {
 
 /**
  * Wraps a program in a module definition.
- * @param  {ProgramTree} tree The original program tree.
+ * @param  {Script} tree The original program tree.
  * @param  {string} url The relative URL of the module that the program
  *     represents.
  * @param {string} commonPath The base path of all the files. This is passed
  *     along to |generateNameForUrl|.
- * @return {[ProgramTree} A new program tree with only one statement, which is
+ * @return {[Script} A new program tree with only one statement, which is
  *     a module definition.
  */
-function wrapProgram(tree, url, commonPath) {
-  return new Program(null,
+function wrapScript(tree, url, commonPath) {
+  return new Script(null,
       [new ModuleDefinition(null,
           createStringLiteralToken(url), tree.programElements)]);
 }
@@ -143,13 +143,13 @@ InlineCodeLoader.prototype = {
     }
     if (codeUnit === startCodeUnit)
       return tree;
-    return wrapProgram(tree, codeUnit.url, this.dirname);
+    return wrapScript(tree, codeUnit.url, this.dirname);
   }
 };
 
 function allLoaded(url, reporter, elements) {
   var project = new Project(url);
-  var programTree = new Program(null, elements);
+  var programTree = new Script(null, elements);
 
   var file = new SourceFile(project.url, '/* dummy */');
   project.addFile(file);

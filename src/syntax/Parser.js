@@ -161,22 +161,22 @@ export class Parser {
     this.assignmentExpressionDepth_ = 0;
   }
 
-  // 14 Program
+  // 14 Script
   /**
-   * @return {Program}
+   * @return {Script}
    */
-  parseProgram() {
+  parseScript() {
     var start = this.getTreeStartLocation_();
-    var programElements = this.parseProgramElements_();
+    var programElements = this.parseScriptElements_();
     this.eat_(END_OF_FILE);
-    return new Program(this.getTreeLocation_(start), programElements);
+    return new Script(this.getTreeLocation_(start), programElements);
   }
 
   /**
    * @return {Array.<ParseTree>}
    * @private
    */
-  parseProgramElements_() {
+  parseScriptElements_() {
     var result = [];
     var type;
 
@@ -184,7 +184,7 @@ export class Parser {
     // reasons.
     var checkUseStrictDirective = true;
     while ((type = this.peekType_()) !== END_OF_FILE) {
-      var programElement = this.parseProgramElement_(type);
+      var programElement = this.parseScriptElement_(type);
 
       // TODO(arv): We get here when we load external modules, which are always
       // strict but we currently do not have a way to determine if we are in
@@ -207,7 +207,7 @@ export class Parser {
    * @return {ParseTree}
    * @private
    */
-  parseProgramElement_(type) {
+  parseScriptElement_(type) {
     return this.parseStatement_(type, true);
   }
 
@@ -264,7 +264,7 @@ export class Parser {
    */
   parseModuleElement_(type) {
     // ModuleElement is currently same as ProgramElement.
-    return this.parseProgramElement_(type);
+    return this.parseScriptElement_(type);
   }
 
   // ImportDeclaration(load) ::= "import" ImportDeclaration(load) ";"
@@ -546,7 +546,7 @@ export class Parser {
    * @return {ParseTree}
    * @private
    */
-  parseStatement_(type, allowProgramElement) {
+  parseStatement_(type, allowScriptElement) {
     switch (type) {
       // Most common first (based on building Traceur).
       case RETURN:
@@ -589,11 +589,11 @@ export class Parser {
       case DO:
         return this.parseDoWhileStatement_();
       case EXPORT:
-        if (allowProgramElement && parseOptions.modules)
+        if (allowScriptElement && parseOptions.modules)
           return this.parseExportDeclaration_();
         break;
       case IMPORT:
-        if (allowProgramElement && parseOptions.modules)
+        if (allowScriptElement && parseOptions.modules)
           return this.parseImportDeclaration_();
         break;
       case OPEN_CURLY:
@@ -616,7 +616,7 @@ export class Parser {
    * @return {boolean}
    * @private
    */
-  peekStatement_(type, allowProgramElement) {
+  peekStatement_(type, allowScriptElement) {
     switch (type) {
       // Most common first (based on building Traceur).
       case RETURN:
@@ -678,7 +678,7 @@ export class Parser {
         return parseOptions.templateLiterals;
       case IMPORT:
       case EXPORT:
-        return allowProgramElement && parseOptions.modules;
+        return allowScriptElement && parseOptions.modules;
     }
     return false;
   }

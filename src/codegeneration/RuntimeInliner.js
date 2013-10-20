@@ -15,7 +15,7 @@
 import {MutedErrorReporter} from '../util/MutedErrorReporter.js';
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {Parser} from '../syntax/Parser.js';
-import {Program} from '../syntax/trees/ParseTrees.js';
+import {Script} from '../syntax/trees/ParseTrees.js';
 import {SourceFile} from '../syntax/SourceFile.js';
 import {VAR} from '../syntax/TokenType.js';
 import {assert} from '../util/assert.js';
@@ -69,10 +69,10 @@ export class RuntimeInliner extends ParseTreeTransformer {
   /**
    * Prepends the program with the function definitions for the runtime
    * functions.
-   * @param {Program} tree
-   * @return {Program}
+   * @param {Script} tree
+   * @return {Script}
    */
-  transformProgram(tree) {
+  transformScript(tree) {
     var names = Object.keys(this.map_);
     if (!names.length)
       return tree;
@@ -90,7 +90,7 @@ export class RuntimeInliner extends ParseTreeTransformer {
 
     var programElements = prependStatements(
         tree.programElements, variableStatement);
-    return new Program(tree.location, programElements);
+    return new Script(tree.location, programElements);
   }
 
   /**

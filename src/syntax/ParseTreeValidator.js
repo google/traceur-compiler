@@ -804,12 +804,12 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   }
 
   /**
-   * @param {Program} tree
+   * @param {Script} tree
    */
-  visitProgram(tree) {
+  visitScript(tree) {
     for (var i = 0; i < tree.programElements.length; i++) {
       var programElement = tree.programElements[i];
-      this.checkVisit_(programElement.isProgramElement(),
+      this.checkVisit_(programElement.isScriptElement(),
           programElement,
           'global program element expected');
     }

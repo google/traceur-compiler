@@ -102,7 +102,7 @@ export class FreeVariableChecker extends ParseTreeVisitor {
     this.scope_ = scope.parent;
   }
 
-  visitProgram(tree, global) {
+  visitScript(tree, global) {
     var scope = this.pushScope_();
 
     // Declare variables from the global scope.
@@ -274,9 +274,9 @@ export class FreeVariableChecker extends ParseTreeVisitor {
    * encounters any.
    *
    * @param {ErrorReporter} reporter
-   * @param {Program} tree
+   * @param {Script} tree
    */
-  static checkProgram(reporter, tree) {
-    new FreeVariableChecker(reporter).visitProgram(tree, global);
+  static checkScript(reporter, tree) {
+    new FreeVariableChecker(reporter).visitScript(tree, global);
   }
 }
