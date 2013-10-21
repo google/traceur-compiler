@@ -47,7 +47,7 @@ suite('modules.js', function() {
     assert.equal(42, result);
   });
 
-  test('LoaderEvalLoad', function(done) {
+  test('LoaderEvalAsync', function(done) {
     var code =
         'module a from "./test_a.js";\n' +
         'module b from "./test_b.js";\n' +
@@ -55,7 +55,7 @@ suite('modules.js', function() {
         '\n' +
         '[\'test\', a.name, b.name, c.name];\n';
 
-    var result = getLoader().evalLoad(code, function(value) {
+    var result = getLoader().evalAsync(code, function(value) {
       assert.equal('test', value[0]);
       assert.equal('A', value[1]);
       assert.equal('B', value[2]);
@@ -73,7 +73,7 @@ suite('modules.js', function() {
         '\n' +
         '[d.name, d.e.name];\n';
 
-    var result = getLoader().evalLoad(code, function(value) {
+    var result = getLoader().evalAsync(code, function(value) {
       assert.equal('D', value[0]);
       assert.equal('E', value[1]);
       done();
@@ -93,7 +93,7 @@ suite('modules.js', function() {
 
     var reporter = new MutedErrorReporter();
 
-    var result = getLoader(reporter).evalLoad(code, function(value) {
+    var result = getLoader(reporter).evalAsync(code, function(value) {
       fail('Should not have succeeded');
       done();
     }, function(error) {
@@ -106,7 +106,19 @@ suite('modules.js', function() {
   });
 
   test('LoaderLoad', function(done) {
-    getLoader().load('./test.js', function(mod) {
+    getLoader().load('./test_script.js', function(result) {
+      assert.equal('A', result[0]);
+      assert.equal('B', result[1]);
+      assert.equal('C', result[2]);
+      done();
+    }, function(error) {
+      fail(error);
+      done();
+    });
+  });
+
+  test('LoaderImport', function(done) {
+    getLoader().import('./test_module.js', function(mod) {
       assert.equal('test', mod.name);
       assert.equal('A', mod.a);
       assert.equal('B', mod.b);

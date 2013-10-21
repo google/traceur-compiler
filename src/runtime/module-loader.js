@@ -168,7 +168,7 @@ class CodeUnit {
 
     var parser = new Parser(reporter, file);
     var tree;
-    if (this.useModuleBody)
+    if (this.type == 'module')
       tree = parser.parseModule();
     else
       tree = parser.parseScript();
@@ -201,7 +201,7 @@ class LoadCodeUnit extends CodeUnit {
    */
   constructor(loader, url) {
     super(loader, url, NOT_STARTED);
-    this.useModuleBody = true;
+    this.type = 'module';
     if (isStandardModuleUrl(url)) {
       this.state = COMPLETE;
       this.dependencies = [];
@@ -233,13 +233,17 @@ class LoadCodeUnit extends CodeUnit {
   }
 
   transform() {
-    return ProgramTransformer.transformFileAsModule(this.reporter,
-        this.project, this.moduleSymbol, this.file);
+    if (this.type === 'module') {
+      return ProgramTransformer.transformFileAsModule(this.reporter,
+          this.project, this.moduleSymbol, this.file);
+    }
+    return ProgramTransformer.transformFile(this.reporter, this.project,
+        this.file);
   }
 }
 
 /**
- * CodeUnit used for {@code Loader.eval}.
+ * CodeUnit used for {@code Loader.eval} and {@code Loader.evalAsync}.
  */
 class EvalCodeUnit extends CodeUnit {
   /**
@@ -249,22 +253,7 @@ class EvalCodeUnit extends CodeUnit {
   constructor(loader, code) {
     super(loader, loader.url, LOADED);
     this.text = code;
-    this.useModuleBody = false;
-  }
-}
-
-/**
- * CodeUnit used for {@code Loader.evalLoad}.
- */
-class EvalLoadCodeUnit extends CodeUnit {
-  /**
-   * @param {InternalLoader} loader
-   * @param {string} code
-   */
-  constructor(loader, code) {
-    CodeUnit.call(this, loader, loader.url, LOADED);
-    this.text = code;
-    this.useModuleBody = true;
+    this.type = 'script'
   }
 }
 
@@ -298,9 +287,9 @@ class InternalLoader {
     return this.fileLoader.loadSync(url);
   }
 
-  load(url) {
+  load(url, type) {
     url = resolveUrl(this.url, url);
-    var codeUnit = this.getCodeUnit(url);
+    var codeUnit = this.getCodeUnit(url, type);
     if (codeUnit.state != NOT_STARTED || codeUnit.state == ERROR) {
       return codeUnit;
     }
@@ -329,15 +318,15 @@ class InternalLoader {
     return codeUnit;
   }
 
-  loadSync(url) {
+  loadSync(url, type) {
     this.sync_ = true;
-    var loaded = this.load(url);
+    var loaded = this.load(url, type);
     this.sync_ = false;
     return loaded;
   }
 
-  evalLoad(code) {
-    var codeUnit = new EvalLoadCodeUnit(this, code);
+  evalAsync(code) {
+    var codeUnit = new EvalCodeUnit(this, code);
     this.cache.set({}, codeUnit);
     return codeUnit;
   }
@@ -345,23 +334,26 @@ class InternalLoader {
   eval(code) {
     var codeUnit = new EvalCodeUnit(this, code);
     this.cache.set({}, codeUnit);
+    // assert that there are no dependencies that are loading?
     this.handleCodeUnitLoaded(codeUnit);
     return codeUnit;
   }
 
-  getKey(url) {
-    if (url in this.urlToKey) {
-      return this.urlToKey[url];
+  getKey(url, type) {
+    var combined = type + ':' + url;
+    if (combined in this.urlToKey) {
+      return this.urlToKey[combined];
     }
 
-    return this.urlToKey[url] = {};
+    return this.urlToKey[combined] = {};
   }
 
-  getCodeUnit(url) {
-    var key = this.getKey(url);
+  getCodeUnit(url, type) {
+    var key = this.getKey(url, type);
     var cacheObject = this.cache.get(key);
     if (!cacheObject) {
       cacheObject = new LoadCodeUnit(this, url);
+      cacheObject.type = type;
       this.cache.set(key, cacheObject);
     }
     return cacheObject;
@@ -388,10 +380,10 @@ class InternalLoader {
     var baseUrl = codeUnit.url;
     codeUnit.dependencies = requireVisitor.requireUrls.map((url) => {
       url = resolveUrl(baseUrl, url);
-      return this.getCodeUnit(url);
+      return this.getCodeUnit(url, 'module');
     });
     codeUnit.dependencies.forEach((dependency) => {
-      this.load(dependency.url);
+      this.load(dependency.url, 'module');
     });
 
     if (this.areAll(PARSED)) {
@@ -535,9 +527,7 @@ class InternalLoader {
 
   evalCodeUnit(codeUnit) {
     // TODO(arv): Eval in the right context.
-    // Module bodies are always strict.
-    return ('global', eval)("'use strict';" +
-        TreeWriter.write(codeUnit.transformedTree));
+    return ('global', eval)(TreeWriter.write(codeUnit.transformedTree));
   }
 
   static set FileLoader(v) {
@@ -566,24 +556,28 @@ export class CodeLoader {
   }
 
   /**
-   * The load method takes a string representing a module URL and a callback
-   * that receives the result of loading, compiling, and executing the module
-   * at that URL. The compiled code is statically associated with this loader,
-   * and its URL is the given URL. The additional callback is used if an error
-   * occurs.
+   * load - Asynchronously load and run a script. If the script contains import
+   * declarations, this can cause modules to be loaded, linked, and evaluated.
+   *
+   * On success, pass the result of evaluating the script to the success
+   * callback.
+   *
+   * This is the same as asyncEval, but first fetching the script.
    */
-  load(url, callback, errback = undefined) {
-    var codeUnit = this.internalLoader_.load(url);
-    codeUnit.addListener(function() {
-      callback(System.get(codeUnit.url));
+  load(url,
+       callback = (result) => {},
+       errback = (ex) => { throw ex; }) {
+    var codeUnit = this.internalLoader_.load(url, 'script');
+    codeUnit.addListener(function(result) {
+      callback(result);
     }, errback);
   }
 
   /**
-   * The eval method takes a string representing a Script(false) (that is, a
-   * program that cannot load external modules) and returns the result of
-   * compiling and executing the program. The compiled code is statically
-   * associated with this loader, and its URL is the base URL of this loader.
+   * eval - Evaluate the script src.
+   *
+   * src may import modules, but if it directly or indirectly imports a module
+   * that is not already loaded, a SyntaxError is thrown.
    *
    * @param {string} program The source code to eval.
    * @return {*} The completion value of evaluating the code.
@@ -594,26 +588,30 @@ export class CodeLoader {
   }
 
   /**
-   * The evalLoad method takes a string representing a Script(true) (this is,
-   * a program that can load external modules) and a callback that receives
-   * the result of compiling and executing the program. The compiled code is
-   * statically associated with this loader, and its URL is the base URL of
-   * this loader. The additional callback is used if an error occurs.
+   * evalAsync - Asynchronously run the script src, first loading any imported
+   * modules that aren't already loaded.
+   *
+   * This is the same as load but without fetching the initial script. On
+   * success, the result of evaluating the program is passed to callback.
    */
-  evalLoad(program, callback, errback = undefined) {
-    var codeUnit = this.internalLoader_.evalLoad(program);
+  evalAsync(program, callback, errback = undefined) {
+    var codeUnit = this.internalLoader_.evalAsync(program);
     codeUnit.addListener(callback, errback);
     this.internalLoader_.handleCodeUnitLoaded(codeUnit);
   }
 
   /**
-   * The import method takes a module instance object and dynamically imports
-   * its non-module exports into the global namespace encapsulated by this
-   * loader. (In other words, it dynamically performs the equivalent of
-   * import m.*.)
+   * import - Asynchronously load, link, and evaluate a module and any
+   * dependencies it imports. On success, pass the Module object to the success
+   * callback.
    */
-  import(moduleInstanceObject) {
-    throw Error('Not implemented');
+  import(url,
+         callback = (module) => {},
+         errback = (ex) => { throw ex; }) {
+    var codeUnit = this.internalLoader_.load(url, 'module');
+    codeUnit.addListener(function() {
+      callback(System.get(codeUnit.url));
+    }, errback);
   }
 
   /**
@@ -673,7 +671,6 @@ export class CodeLoader {
 export var internals = {
   CodeUnit,
   EvalCodeUnit,
-  EvalLoadCodeUnit,
   InternalLoader,
   LoadCodeUnit
 };
