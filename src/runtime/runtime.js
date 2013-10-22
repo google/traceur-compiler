@@ -19,12 +19,13 @@
   'use strict';
 
   if (global.$traceurRuntime) {
-      // Prevents from being executed multiple times.
-      return;
+    // Prevents from being executed multiple times.
+    return;
   }
 
   var $create = Object.create;
   var $defineProperty = Object.defineProperty;
+  var $defineProperties = Object.defineProperties;
   var $freeze = Object.freeze;
   var $getOwnPropertyNames = Object.getOwnPropertyNames;
   var $getPrototypeOf = Object.getPrototypeOf;
@@ -45,7 +46,7 @@
   function polyfillString(String) {
     // Harmony String Extras
     // http://wiki.ecmascript.org/doku.php?id=harmony:string_extras
-    Object.defineProperties(String.prototype, {
+    $defineProperties(String.prototype, {
       startsWith: method(function(s) {
        return this.lastIndexOf(s, 0) === 0;
       }),
@@ -62,9 +63,9 @@
       })
     });
 
-    // 15.5.3.4 String.raw ( callSite, ...substitutions)
-    $defineProperty(String, 'raw', {
-      value: function(callsite) {
+    $defineProperties(String, {
+      // 21.1.2.4 String.raw(callSite, ...substitutions)
+      raw: method(function(callsite) {
         var raw = callsite.raw;
         var len = raw.length >>> 0;  // ToUint
         if (len === 0)
@@ -77,10 +78,41 @@
             return s;
           s += arguments[++i];
         }
-      },
-      configurable: true,
-      enumerable: false,
-      writable: true
+      }),
+      // 21.1.2.2 String.fromCodePoint(...codePoints)
+      fromCodePoint: method(function() {
+        // http://mths.be/fromcodepoint v0.1.0 by @mathias
+        var codeUnits = [];
+        var floor = Math.floor;
+        var highSurrogate;
+        var lowSurrogate;
+        var index = -1;
+        var length = arguments.length;
+        if (!length) {
+          return '';
+        }
+        while (++index < length) {
+          var codePoint = Number(arguments[index]);
+          if (
+            !isFinite(codePoint) ||  // `NaN`, `+Infinity`, or `-Infinity`
+            codePoint < 0 ||  // not a valid Unicode code point
+            codePoint > 0x10FFFF ||  // not a valid Unicode code point
+            floor(codePoint) != codePoint  // not an integer
+          ) {
+            throw RangeError('Invalid code point: ' + codePoint);
+          }
+          if (codePoint <= 0xFFFF) {  // BMP code point
+            codeUnits.push(codePoint);
+          } else {  // Astral code point; split in surrogate halves
+            // http://mathiasbynens.be/notes/javascript-encoding#surrogate-formulae
+            codePoint -= 0x10000;
+            highSurrogate = (codePoint >> 10) + 0xD800;
+            lowSurrogate = (codePoint % 0x400) + 0xDC00;
+            codeUnits.push(highSurrogate, lowSurrogate);
+          }
+        }
+        return String.fromCharCode.apply(null, codeUnits);
+      })
     });
   }
 
