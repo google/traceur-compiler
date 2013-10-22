@@ -63,6 +63,7 @@ var $__getDescriptors = function(object) {
   }
   var $create = Object.create;
   var $defineProperty = Object.defineProperty;
+  var $defineProperties = Object.defineProperties;
   var $freeze = Object.freeze;
   var $getOwnPropertyNames = Object.getOwnPropertyNames;
   var $getPrototypeOf = Object.getPrototypeOf;
@@ -78,7 +79,7 @@ var $__getDescriptors = function(object) {
   }
   var method = nonEnum;
   function polyfillString(String) {
-    Object.defineProperties(String.prototype, {
+    $defineProperties(String.prototype, {
       startsWith: method(function(s) {
         return this.lastIndexOf(s, 0) === 0;
       }),
@@ -94,8 +95,8 @@ var $__getDescriptors = function(object) {
         return this.split('');
       })
     });
-    $defineProperty(String, 'raw', {
-      value: function(callsite) {
+    $defineProperties(String, {
+      raw: method(function(callsite) {
         var raw = callsite.raw;
         var len = raw.length >>> 0;
         if (len === 0) return '';
@@ -106,10 +107,33 @@ var $__getDescriptors = function(object) {
           if (i + 1 === len) return s;
           s += arguments[++i];
         }
-      },
-      configurable: true,
-      enumerable: false,
-      writable: true
+      }),
+      fromCodePoint: method(function() {
+        var codeUnits = [];
+        var floor = Math.floor;
+        var highSurrogate;
+        var lowSurrogate;
+        var index = - 1;
+        var length = arguments.length;
+        if (!length) {
+          return '';
+        }
+        while (++index < length) {
+          var codePoint = Number(arguments[index]);
+          if (!isFinite(codePoint) || codePoint < 0 || codePoint > 0x10FFFF || floor(codePoint) != codePoint) {
+            throw RangeError('Invalid code point: ' + codePoint);
+          }
+          if (codePoint <= 0xFFFF) {
+            codeUnits.push(codePoint);
+          } else {
+            codePoint -= 0x10000;
+            highSurrogate = (codePoint >> 10) + 0xD800;
+            lowSurrogate = (codePoint % 0x400) + 0xDC00;
+            codeUnits.push(highSurrogate, lowSurrogate);
+          }
+        }
+        return String.fromCharCode.apply(null, codeUnits);
+      })
     });
   }
   var counter = 0;
