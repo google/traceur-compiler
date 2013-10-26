@@ -42,32 +42,6 @@ var createStringLiteralToken = ParseTreeFactory.createStringLiteralToken;
 var resolveUrl = traceur.util.resolveUrl;
 
 /**
- * Generates an identifier string that represents a URL.
- * @param {string} url
- * @param {string} commonPath
- * @return {string}
- */
-function generateNameForUrl(url, commonPath) {
-  return '$__' + url.replace(commonPath, '').replace(/[^\d\w$]/g, '_');
-}
-
-/**
- * Wraps a program in a module definition.
- * @param  {Script} tree The original program tree.
- * @param  {string} url The relative URL of the module that the program
- *     represents.
- * @param {string} commonPath The base path of all the files. This is passed
- *     along to |generateNameForUrl|.
- * @return {[Script} A new program tree with only one statement, which is
- *     a module definition.
- */
-function wrapScript(tree, url, commonPath) {
-  return new Script(null,
-      [new ModuleDefinition(null,
-          createStringLiteralToken(url), tree.scriptItemList)]);
-}
-
-/**
  * This transformer replaces
  *
  *   import * from "url"
@@ -78,21 +52,15 @@ function wrapScript(tree, url, commonPath) {
  *
  * @param {string} url The base URL that all the modules should be relative
  *     to.
- * @param {string} commonPath The path that is common for all URLs.
  */
-function ModuleRequireTransformer(url, commonPath, isStart) {
+function ModuleRequireTransformer(url) {
   ParseTreeTransformer.call(this);
   this.url = url;
-  this.commonPath = commonPath;
-  this.isStart = isStart
 }
 
 ModuleRequireTransformer.prototype = {
   __proto__: ParseTreeTransformer.prototype,
   transformModuleSpecifier: function(tree) {
-    if (!this.isStart)
-      return tree;
-
     var url = tree.token.processedValue;
 
      // Don't handle builtin modules.
@@ -102,10 +70,18 @@ ModuleRequireTransformer.prototype = {
     url = resolveUrl(this.url, url);
 
     return new ModuleSpecifier(tree.location, createStringLiteralToken(url));
+  },
+
+  transformModule: function(tree) {
+    // Transform top level Module into a script with a single top level
+    // ModuleDefinition
+    return new Script(tree.location, [
+      new ModuleDefinition(tree.location,
+                           createStringLiteralToken(this.url),
+                           tree.scriptItemList)
+    ]);
   }
 };
-
-var startCodeUnit;
 
 /**
  * @param {ErrorReporter} reporter
@@ -132,18 +108,14 @@ InlineCodeLoader.prototype = {
   },
 
   transformCodeUnit: function(codeUnit) {
-    var transformer = new ModuleRequireTransformer(
-          codeUnit.url,
-          this.dirname,
-          codeUnit === startCodeUnit);
-    var tree = transformer.transformAny(codeUnit.tree);
     if (this.depTarget) {
       console.log('%s: %s', this.depTarget,
-                  normalizePath(path.relative(path.join(__dirname, '../..'), codeUnit.url)));
+                  normalizePath(path.relative(path.join(__dirname, '../..'),
+                  codeUnit.url)));
     }
-    if (codeUnit === startCodeUnit)
-      return tree;
-    return wrapScript(tree, codeUnit.url, this.dirname);
+
+    var transformer = new ModuleRequireTransformer(codeUnit.url);
+    return transformer.transformAny(codeUnit.tree);
   }
 };
 
@@ -189,7 +161,6 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
 
   function loadNext() {
     var codeUnit = loader.load(filenames[loadCount]);
-    startCodeUnit = codeUnit;
 
     codeUnit.addListener(function() {
       loadCount++;
@@ -222,7 +193,6 @@ function inlineAndCompileSync(filenames, options, reporter) {
 
   filenames.forEach(function(filename) {
     filename = resolveUrl(basePath, filename);
-    startCodeUnit = loader.getCodeUnit(filename);
     loader.loadSync(filename);
   });
   return allLoaded(basePath, reporter, elements);

@@ -76,6 +76,8 @@ export class ModuleVisitor extends ParseTreeVisitor {
   visitFunctionExpression(tree) {}
   visitSetAccessor(tree) {}
   visitGetAccessor(tree) {}
+  visitBlock(tree) {}
+  visitClassDeclaration(tree) {}
 
   visitModuleElement_(element) {
     switch (element.type) {
@@ -91,18 +93,16 @@ export class ModuleVisitor extends ParseTreeVisitor {
     tree.scriptItemList.forEach(this.visitModuleElement_, this);
   }
 
+  visitModule(tree) {
+    tree.scriptItemList.forEach(this.visitModuleElement_, this);
+  }
+
   visitModuleDefinition(tree) {
     var current = this.currentModule_;
-    var module;
-    if (tree.name.type === IDENTIFIER) {
-      var name = tree.name.value;
-      module = current.getModule(name);
-    } else {
-      assert(tree.name.type === STRING);
-      var baseUrl = current ? current.url : this.project.url;
-      var url = resolveUrl(baseUrl, tree.name.processedValue);
-      module = this.project.getModuleForResolvedUrl(url);
-    }
+    var baseUrl = current ? current.url : this.project.url;
+    var url = resolveUrl(baseUrl, tree.name.processedValue);
+    var module = this.project.getModuleForResolvedUrl(url);
+
     assert(module);
     this.currentModule_ = module;
     tree.elements.forEach(this.visitModuleElement_, this);

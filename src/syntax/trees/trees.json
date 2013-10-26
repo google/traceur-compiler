@@ -578,6 +578,14 @@
       "ParseTree"
     ]
   },
+  "Module": {
+    "location": [
+      "SourceRange"
+    ],
+    "scriptItemList": [
+      "Array.<ParseTree>"
+    ]
+  },
   "ModuleDeclaration": {
     "location": [
       "SourceRange"
