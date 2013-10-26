@@ -37,21 +37,11 @@ export class ModuleDefinitionVisitor extends ModuleVisitor {
   }
 
   visitModuleDefinition(tree) {
-    if (tree.name.type === IDENTIFIER) {
-      var name = tree.name.value;
-      if (this.checkForDuplicateModule_(name, tree)) {
-        var parent = this.currentModule;
-        var module = new ModuleSymbol(name, parent, tree, parent.url);
-        parent.addModule(module);
-      }
-    } else {
-      assert(tree.name.type === STRING);
-      var parent = this.currentModule;
-      var baseUrl = parent ? parent.url : this.project.url;
-      var url = resolveUrl(parent.url, tree.name.processedValue);
-      var moduleSymbol = new ModuleSymbol(null, parent, tree, url);
-      this.project.addExternalModule(moduleSymbol);
-    }
+    var parent = this.currentModule;
+    var baseUrl = parent ? parent.url : this.project.url;
+    var url = resolveUrl(parent.url, tree.name.processedValue);
+    var moduleSymbol = new ModuleSymbol(null, parent, tree, url);
+    this.project.addExternalModule(moduleSymbol);
 
     super.visitModuleDefinition(tree);
   }

@@ -226,7 +226,7 @@ export class Parser {
     var scriptItemList = this.parseModuleItemList_();
     this.eat_(END_OF_FILE);
     // TODO(arv): Use Module instead.
-    return new Script(this.getTreeLocation_(start), scriptItemList);
+    return new Module(this.getTreeLocation_(start), scriptItemList);
   }
 
   parseModuleItemList_() {
