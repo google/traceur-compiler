@@ -800,7 +800,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitPropertyNameShorthand(tree) {
     // TODO(arv): Verify
-    this.visitAny(tree.name);
+    this.write_(tree.name);
   }
 
   /**

@@ -107,8 +107,10 @@ function getGetterExport(transformer, project, symbol) {
 
     case EXPORT_STAR:
       assert(symbol.relatedTree);
-      returnExpression = transformSpecifier(transformer, project,
-          createIdentifierToken(symbol.name), symbol.relatedTree);
+      var moduleSpecifier = symbol.relatedTree;
+      var idName =
+          transformer.getTempVarNameForModuleSpecifier(moduleSpecifier);
+      returnExpression = createMemberExpression(idName, symbol.name);
       break;
 
     default:

@@ -1,4 +1,4 @@
 // Should not compile.
-// Error: missingVar is not defined
+// Error: missingVarObjectInitializerShorthand is not defined
 
-var object = {missingVar};
+var object = {missingVarObjectInitializerShorthand};

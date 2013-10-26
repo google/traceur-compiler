@@ -30,25 +30,24 @@ System.set('@traceur/module', (function() {
   }
 
   class PendingModule {
-    constructor(name, func, self) {
-      this.name = name;
+    constructor(url, func, self) {
+      this.url = url;
       this.func = func;
       this.self = self;
     }
     toModule() {
-      var oldName = refererUrl;
-      refererUrl = this.name;
+      var oldUrl = refererUrl;
+      refererUrl = this.url;
       try {
         return this.func.call(this.self);
       } finally {
-        refererUrl = oldName
+        refererUrl = oldUrl;
       }
     }
   }
 
-  function registerModule(name, func, self) {
-    var url = resolveUrl(refererUrl, name);
-    modules[url] = new PendingModule(name, func, self);
+  function registerModule(url, func, self) {
+    modules[url] = new PendingModule(url, func, self);
   }
 
   // Now it is safe to override System.{get,set} to use resolveUrl.

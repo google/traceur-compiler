@@ -1,7 +1,7 @@
 // Should not compile.
-// Error: missingVar is not defined
+// Error: missingVarWith is not defined
 var o = {};
 with (o) {
-  missingVar = 42;
+  missingVarWith = 42;
 }
-var x = missingVar * 2;
+var x = missingVarWith * 2;

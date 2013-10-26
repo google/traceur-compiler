@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var traceur = global.traceur = require('../../src/node/traceur.js');
+var traceur = global.traceur = require('../src/node/traceur.js');
 global.chai = require('chai');
-var testUtil = require('../test-utils.js');
+var testUtil = require('./test-utils.js');
 
 traceur.require.makeDefault(function(filename) {
   return /\.traceur\.js$/.test(filename);
 });
 
-require('../../src/node/module-load-override.js');
+require('../src/node/module-load-override.js');

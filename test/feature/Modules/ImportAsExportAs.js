@@ -1,12 +1,2 @@
-module 'm2' {
-  var z = 'z';
-  export {z as var};
-}
-
-module 'm' {
-  import {var as x} from 'm2';
-  export {x};
-}
-
-module m from 'm';
+module m from './resources/m3.js';
 assert.equal(m.x, 'z');

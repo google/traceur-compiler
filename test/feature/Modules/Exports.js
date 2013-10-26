@@ -1,11 +1,4 @@
-module 'a' {
-  export var i = 0;
-  export function inc() {
-    i++;
-  }
-}
-
-module a from 'a';
+module a from './resources/i.js';
 
 (function() {
   'use strict';
@@ -18,18 +11,7 @@ module a from 'a';
   });
 })();
 
-
-
-// DeclarationAlias
 assert.equal(1, a.i);
 
-// NestedDeclarations
-module 'b' {
-  export var b = 42;
-}
-
-module 'c' {
-  export * from 'b'
-}
-module c from 'c';
-assert.equal(42, c.b);
+module d from './resources/d.js';
+assert.equal('A', d.a);
