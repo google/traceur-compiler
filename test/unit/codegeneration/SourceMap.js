@@ -58,6 +58,9 @@ suite('SourceMap.js', function() {
       assert.isTrue(shouldBeTrue,
                     caseNumber + ' Column mismatch ' + actual.column);
     });
+
+    var sourceContent = consumer.sourceContentFor(filename);
+    assert.equal(sourceContent, src);
   });
 
   test('MultipleFiles', function() {
