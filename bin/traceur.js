@@ -17317,18 +17317,20 @@ System.get('@traceur/module').registerModule("../src/outputgeneration/ParseTreeM
         this.outputLineCount_++;
       },
       addMapping: function() {
+        var start = this.currentLocation.start;
         var mapping = {
           generated: {
             line: this.outputLineCount_,
             column: this.currentLine_.length
           },
           original: {
-            line: this.currentLocation.start.line + 1,
-            column: this.currentLocation.start.column
+            line: start.line + 1,
+            column: start.column
           },
-          source: this.currentLocation.start.source.name
+          source: start.source.name
         };
         this.sourceMapGenerator_.addMapping(mapping);
+        this.sourceMapGenerator_.setSourceContent(start.source.name, start.source.contents);
       }
     }, {}, $__proto, $__super, true);
     return $ParseTreeMapWriter;
