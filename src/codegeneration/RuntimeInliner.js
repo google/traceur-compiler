@@ -47,7 +47,7 @@ var shared = {
 };
 
 function parse(source, name) {
-  var file = new SourceFile(name + '@runtime', source);
+  var file = new SourceFile('@runtime/' + name, source);
   var errorReporter = new MutedErrorReporter();
   return new Parser(errorReporter, file).parseAssignmentExpression();
 }

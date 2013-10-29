@@ -169,7 +169,7 @@ export class PlaceholderParser {
       source += PREFIX + (i - 1) + sourceLiterals[i];
     }
 
-    var file = new SourceFile('parse@TemplateParser', source);
+    var file = new SourceFile('@TemplateParser/parse', source);
     var errorReporter = new MutedErrorReporter();
     var parser = new Parser(errorReporter, file);
     var tree = doParse(parser);
