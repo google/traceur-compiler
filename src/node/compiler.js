@@ -47,8 +47,8 @@ function writeTreeToFile(tree, filename, useSourceMaps, opt_sourceRoot) {
 
   var compiledCode = TreeWriter.write(tree, options);
   if (useSourceMaps) {
-    compiledCode += '\n//@ sourceMappingURL=' +
-        path.basename(sourceMapFilePath);
+    compiledCode += '\n//# sourceMappingURL=' +
+        path.basename(sourceMapFilePath) + '\n';
   }
   writeFile(filename, compiledCode);
   if (useSourceMaps)
