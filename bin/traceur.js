@@ -12503,6 +12503,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/PlaceholderP
     if (!values.length) return tree;
     return new PlaceholderTransformer(values).transformAny(tree);
   }
+  var counter = 0;
   var PlaceholderParser = function() {
     'use strict';
     var $PlaceholderParser = ($__createClassNoExtends)({
@@ -12527,7 +12528,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/PlaceholderP
         for (var i = 1; i < sourceLiterals.length; i++) {
           source += PREFIX + (i - 1) + sourceLiterals[i];
         }
-        var file = new SourceFile('parse@TemplateParser', source);
+        var file = new SourceFile('@traceur/generated/TemplateParser/' + counter++, source);
         var errorReporter = new MutedErrorReporter();
         var parser = new Parser(errorReporter, file);
         var tree = doParse(parser);
@@ -18458,7 +18459,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/RuntimeInlin
     getDescriptors: "function(object) {\n        var descriptors = {}, name, names = Object.getOwnPropertyNames(object);\n        for (var i = 0; i < names.length; i++) {\n          var name = names[i];\n          descriptors[name] = Object.getOwnPropertyDescriptor(object, name);\n        }\n        return descriptors;\n      }"
   };
   function parse(source, name) {
-    var file = new SourceFile(name + '@runtime', source);
+    var file = new SourceFile('@traceur/generated/' + name, source);
     var errorReporter = new MutedErrorReporter();
     return new Parser(errorReporter, file).parseAssignmentExpression();
   }

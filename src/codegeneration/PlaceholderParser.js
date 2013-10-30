@@ -126,6 +126,8 @@ function parse(sourceLiterals, values, doParse) {
   return new PlaceholderTransformer(values).transformAny(tree);
 }
 
+var counter = 0;
+
 /**
  * Parses a set of strings coming from a template string and injects
  * placeholders into it. The resulting tree can later be used with the
@@ -169,7 +171,8 @@ export class PlaceholderParser {
       source += PREFIX + (i - 1) + sourceLiterals[i];
     }
 
-    var file = new SourceFile('parse@TemplateParser', source);
+    var file = new SourceFile(
+        '@traceur/generated/TemplateParser/' + counter++, source);
     var errorReporter = new MutedErrorReporter();
     var parser = new Parser(errorReporter, file);
     var tree = doParse(parser);
