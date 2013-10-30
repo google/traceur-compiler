@@ -283,8 +283,8 @@ export class Parser {
    * @private
    */
   parseImportSpecifierSet_() {
+    var start = this.getTreeStartLocation_();
     if (this.peek_(OPEN_CURLY)) {
-      var start = this.getTreeStartLocation_();
       this.eat_(OPEN_CURLY);
 
       var specifiers = [this.parseImportSpecifier_()];

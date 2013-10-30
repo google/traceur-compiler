@@ -8781,8 +8781,8 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
         return new ImportDeclaration(this.getTreeLocation_(start), importSpecifierSet, moduleSpecifier);
       },
       parseImportSpecifierSet_: function() {
+        var start = this.getTreeStartLocation_();
         if (this.peek_(OPEN_CURLY)) {
-          var start = this.getTreeStartLocation_();
           this.eat_(OPEN_CURLY);
           var specifiers = [this.parseImportSpecifier_()];
           while (this.eatIf_(COMMA)) {
