@@ -114,88 +114,134 @@
     }
   }
 
-  function featureTest(name, url, loader, urlOptions) {
+  function featureTest(name, url) {
 
     teardown(function() {
       traceur.options.reset();
     });
 
-    var source;
+    test(name, function(done) {
+      traceur.options.debug = true;
+      traceur.options.freeVariableChecker = true;
+      traceur.options.validate = true;
+
+      var options;
+      var loaderOptions = {
+        translate: function(source) {
+          // Only top level file can set options.
+          if (!options)
+            options = parseProlog(source);
+          if (options.skip)
+            return '';
+          return source;
+        }
+      };
+
+      var reporter = new traceur.util.TestErrorReporter();
+      // TODO(arv): We really need a better way to generate unique names that
+      // works across multiple projects.
+      var project = new traceur.semantics.symbols.Project('./');
+      project.identifierGenerator.identifierIndex = Date.now();
+      var parentLoader = null;
+      var moduleLoader = new traceur.modules.CodeLoader(reporter, project,
+                                                        parentLoader,
+                                                        loaderOptions);
+
+      function handleShouldCompile() {
+        if (!options.shouldCompile) {
+          assert.isTrue(reporter.hadError(),
+              'Expected error compiling ' + name + ', but got none.');
+
+          options.expectedErrors.forEach(function(expected) {
+            assert.isTrue(reporter.hasMatchingError(expected),
+                          'Missing expected error: ' + expected +
+                          '\nActual errors:\n' +
+                          reporter.errors.join('\n'));
+          });
+        }
+      }
+
+      function handleSuccess(result) {
+        handleShouldCompile();
+        done();
+      }
+
+      function handleFailure(error) {
+        handleShouldCompile();
+        // TODO(arv): Improve how errors are passed through the module loader.
+        if (options.shouldCompile)
+          throw reporter.errors[0];
+        done();
+      }
+
+      if (/\.module\.js$/.test(url))
+        moduleLoader.import(url, handleSuccess, handleFailure);
+      else
+        moduleLoader.load(url, handleSuccess, handleFailure);
+    });
+  }
+
+  function cloneTest(name, url, loader) {
+    teardown(function() {
+      traceur.options.reset();
+    });
+
+    function doTest(source) {
+      var options = parseProlog(source);
+      if (options.skip || !options.shouldCompile) {
+        return;
+      }
+
+      var reporter = new traceur.util.TestErrorReporter();
+
+      function parse(source) {
+        var file = new traceur.syntax.SourceFile(name, source);
+        var parser = new traceur.syntax.Parser(reporter, file);
+        var isModule = /\.module\.js$/.test(url);
+        if (isModule)
+          return parser.parseModule();
+        else
+          return parser.parseScript();
+      }
+
+      var tree = parse(source);
+
+      if (reporter.hadError()) {
+        fail('Error compiling ' + name + '.\n' +
+             reporter.errors.join('\n'));
+        return;
+      }
+
+      var CloneTreeTransformer = traceur.codegeneration.CloneTreeTransformer;
+      var clone = CloneTreeTransformer.cloneTree(tree);
+      var code = traceur.outputgeneration.TreeWriter.write(tree);
+      var cloneCode = traceur.outputgeneration.TreeWriter.write(clone);
+      assert.equal(code, cloneCode);
+
+      // Parse again to ensure that writer generates valid code.
+      clone = parse(cloneCode);
+      if (reporter.hadError()) {
+        fail('Error compiling generated code for ' + name + '.\n' +
+             reporter.errors.join('\n'));
+        return;
+      }
+
+      cloneCode = traceur.outputgeneration.TreeWriter.write(clone);
+      assert.equal(code, cloneCode);
+    }
 
     test(name, function(done) {
       loader.load(url, function(data) {
-        source = data;
-        doTest(done);
+        doTest(data);
+        done();
       }, function() {
         fail('Load error');
         done();
       });
     });
-
-    function doTest(done) {
-      traceur.options.debug = true;
-      traceur.options.freeVariableChecker = true;
-      traceur.options.validate = true;
-
-      var options = parseProlog(source);
-      var skip = options.skip;
-      var shouldCompile = options.shouldCompile;
-      var expectedErrors = options.expectedErrors;
-
-      try {
-        var reporter = new traceur.util.TestErrorReporter();
-        var sourceFile = new traceur.syntax.SourceFile(name, source);
-
-        // TODO(arv): We really need a better way to generate unique names that
-        // works across multiple projects.
-        var project = new traceur.semantics.symbols.Project(url);
-        project.identifierGenerator.identifierIndex = Date.now();
-        var tree = traceur.codegeneration.Compiler.compileFile(reporter,
-                                                               sourceFile,
-                                                               url,
-                                                               project);
-        var code = traceur.outputgeneration.TreeWriter.write(tree);
-
-        if (!shouldCompile) {
-          assert.isTrue(reporter.hadError(),
-              'Expected error compiling ' + name + ', but got none.');
-
-          var missingExpectations = expectedErrors.forEach(function(expected) {
-            assert.isTrue(reporter.hasMatchingError(expected),
-                          'Missing expected error: ' + expected +
-                          '\nActual errors:\n' + reporter.errors.join('\n'));
-          });
-
-          skip = true;
-        }
-
-        var CloneTreeTransformer = traceur.codegeneration.CloneTreeTransformer;
-
-        if (!skip) {
-            if (reporter.hadError()) {
-              fail('Error compiling ' + name + '.\n' +
-                   reporter.errors.join('\n'));
-              return;
-            }
-            if (urlOptions.testClone === 'true') {
-              var clone = CloneTreeTransformer.cloneTree(tree);
-              code = traceur.outputgeneration.TreeWriter.write(tree);
-              var cloneCode = traceur.outputgeneration.TreeWriter.write(clone);
-              assert.equal(code, cloneCode);
-            } else {
-              // Script compiled, so run it.
-              runCode(code, name);
-            }
-        }
-      } finally {
-        traceur.options.reset();
-      }
-
-      done();
-    }
   }
 
-  function featureSuite(testList, loader, options) {
+  function featureSuite(testList, loader) {
     // Bucket tests.
     var tree = {};
     testList.forEach(function(path) {
@@ -211,10 +257,17 @@
       for (var suiteName in tree) {
         suite(suiteName, function() {
           tree[suiteName].forEach(function(tuple) {
-            featureTest(tuple.name,
-                        'feature/' + tuple.path,
-                        loader,
-                        options);
+            featureTest(tuple.name, 'feature/' + tuple.path);
+          });
+        });
+      }
+    });
+
+    suite('Clone Tree Tests', function() {
+      for (var suiteName in tree) {
+        suite(suiteName, function() {
+          tree[suiteName].forEach(function(tuple) {
+            cloneTest(tuple.name, 'feature/' + tuple.path, loader);
           });
         });
       }

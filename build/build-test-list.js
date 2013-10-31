@@ -43,6 +43,10 @@ function readSyncString(fd) {
 }
 
 var lines = readSyncString(process.stdin.fd).split('\n').filter(function(x) {
+  // Remove /resources/ directories.
+  if (/\/resources\//i.test(x))
+    return false;
+
   // JS files only
   return x && x.match('\\.js$');
 }).map(function(x) {

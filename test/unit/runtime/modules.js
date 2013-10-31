@@ -37,9 +37,7 @@ suite('modules.js', function() {
   function getLoader(opt_reporter) {
     var project = new traceur.semantics.symbols.Project(url);
     var parentLoader = null;
-    var resolver = null;
-    return new traceur.modules.CodeLoader(opt_reporter || reporter, project,
-                                          parentLoader, resolver);
+    return new traceur.modules.CodeLoader(opt_reporter || reporter, project);
   }
 
   test('LoaderEval', function() {

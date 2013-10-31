@@ -157,7 +157,7 @@ export class CloneTreeTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformPredefinedType(tree) {
-    return new PredefinedType(tree.location, tree.token);
+    return new PredefinedType(tree.location, tree.typeToken);
   }
 
   /**
@@ -173,15 +173,7 @@ export class CloneTreeTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformTemplateLiteralPortion(tree) {
-    return new TemplateLiteralPortion(tree.location, tree.token);
-  }
-
-  /**
-   * @param {RestParameter} tree
-   * @return {ParseTree}
-   */
-  transformRestParameter(tree) {
-    return new RestParameter(tree.location, tree.identifer);
+    return new TemplateLiteralPortion(tree.location, tree.value);
   }
 
   /**

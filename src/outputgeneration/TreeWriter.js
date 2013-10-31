@@ -15,11 +15,7 @@
 import {ParseTreeMapWriter} from './ParseTreeMapWriter.js';
 import {ParseTreeWriter} from './ParseTreeWriter.js';
 
-// TODO(arv): This should just export the static function instead.
-
-export class TreeWriter {}
-
-/*
+/**
  * Create a ParseTreeWriter configured with options, apply it to tree
  * @param {ParseTree} tree
  * @param {Object=} options:
@@ -28,8 +24,7 @@ export class TreeWriter {}
  *   sourceMapGenerator: {SourceMapGenerator} see third-party/source-maps
  * @return source code; optional side-effect options.sourceMap set
  */
-
-TreeWriter.write = function(tree, options = undefined) {
+export function write(tree, options = undefined) {
   var showLineNumbers;
   var highlighted = null;
   var sourceMapGenerator;
@@ -57,4 +52,9 @@ TreeWriter.write = function(tree, options = undefined) {
   }
 
   return writer.result_.toString();
-};
+}
+
+
+// TODO(arv): This should just export the static function instead.
+export class TreeWriter {}
+TreeWriter.write = write;

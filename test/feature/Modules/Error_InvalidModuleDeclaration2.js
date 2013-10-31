@@ -1,5 +1,4 @@
 // Should not compile.
-// Error: 5:18: unexpected token .
+// Error: 4:33: unexpected token .
 
-module 'a' {}
-module b from 'a'.c;
+module b from './resources/a.js'.c;

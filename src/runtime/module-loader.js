@@ -265,14 +265,16 @@ class InternalLoader {
    * @param {ErrorReporter} reporter
    * @param {Project} project.
    */
-  constructor(reporter, project, fileLoader = new InternalLoader.FileLoader) {
+  constructor(reporter, project,
+              fileLoader = new InternalLoader.FileLoader,
+              options = {}) {
     this.reporter = reporter;
     this.project = project;
     this.fileLoader = fileLoader;
     this.cache = new ArrayMap();
     this.urlToKey = Object.create(null);
     this.sync_ = false;
-
+    this.translateHook = options.translate || defaultTranslate;
   }
 
   get url() {
@@ -307,8 +309,9 @@ class InternalLoader {
       return codeUnit;
     }
     var loader = this;
+    var translate = this.translateHook;
     codeUnit.abort = this.loadTextFile(url, function(text) {
-      codeUnit.text = text;
+      codeUnit.text = translate(text);
       codeUnit.state = LOADED;
       loader.handleCodeUnitLoaded(codeUnit);
     }, function() {
@@ -398,7 +401,9 @@ class InternalLoader {
    * @param {CodeUnit} codeUnit
    */
   handleCodeUnitLoadError(codeUnit) {
-    this.error = codeUnit.error = 'Failed to load \'' + codeUnit.url + '\'';
+    // TODO(arv): Store location for load.
+    codeUnit.error = 'Failed to load \'' + codeUnit.url + '\'';
+    this.reporter.reportError(null, codeUnit.error);
     this.abortAll();
   }
 
@@ -497,13 +502,14 @@ class InternalLoader {
       }
 
       var currentUrl = getRefererUrl();
-      setRefererUrl(this.url);
+      setRefererUrl(codeUnit.url);
       var result;
 
       try {
         result = this.evalCodeUnit(codeUnit);
       } catch (ex) {
-        codeUnit.error = ex.message;
+        codeUnit.error = ex;
+        this.reporter.reportError(null, String(ex));
         this.abortAll();
         return;
       } finally {
@@ -541,18 +547,22 @@ class InternalLoader {
 
 var FileLoader = WebLoader;
 
+function defaultTranslate(source) {
+  return source;
+}
+
 export class CodeLoader {
   /**
    * @param {ErrorReporter} reporter
    * @param {Project} project
    * @param {CodeLoader} parentLoader The parent loader or null if this is
    *     the initial loader.
-   * @param {*=} resolver
+   * @param {!Object=} options
    */
-  constructor(reporter, project, parentLoader, resolver = undefined) {
+  constructor(reporter, project, parentLoader, options = {}) {
     // TODO(arv): Implement parent loader
-    // TODO(arv): Implement resolver
-    this.internalLoader_ = new InternalLoader(reporter, project);
+    this.internalLoader_ = new InternalLoader(reporter, project,
+                                              undefined, options);
   }
 
   /**

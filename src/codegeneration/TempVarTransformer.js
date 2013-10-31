@@ -105,6 +105,14 @@ export class TempVarTransformer extends ParseTreeTransformer {
     return new Script(tree.location, scriptItemList);
   }
 
+  transformModule(tree) {
+    var scriptItemList = this.transformStatements_(tree.scriptItemList);
+    if (scriptItemList == tree.scriptItemList) {
+      return tree;
+    }
+    return new Script(tree.location, scriptItemList);
+  }
+
   transformFunctionBody(tree) {
     this.pushTempVarState();
     var statements = this.transformStatements_(tree.statements);
