@@ -327,10 +327,6 @@ function transformModuleElements(transformer, project, parentUrl, tree, elements
       case EXPORT_DECLARATION:
         var declaration = element.declaration;
         switch (declaration.type) {
-          case MODULE_DEFINITION:
-            statements.push(transformDefinition(transformer, project, parentUrl,
-                declaration, useStrictCount + 1));
-            break;
           case MODULE_DECLARATION:
             statements.push(transformer.transformAny(declaration));
             break;
@@ -361,7 +357,11 @@ function transformModuleElements(transformer, project, parentUrl, tree, elements
 
   var module;
   var baseUrl = parentUrl || project.url;
-  var url = resolveUrl(baseUrl, tree.name.processedValue);
+  var url;
+  if (tree.type === MODULE)
+    url = parentUrl;
+  else
+    url = resolveUrl(baseUrl, tree.name.processedValue);
   module = project.getModuleForResolvedUrl(url);
   assert(module);
 
