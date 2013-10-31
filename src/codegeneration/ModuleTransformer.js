@@ -164,7 +164,9 @@ export class ModuleTransformer extends TempVarTransformer {
   }
 
   get url() {
-    return this.module && this.module.url;
+    if (this.module)
+      return this.module.url;
+    return this.project.url;
   }
 
   getTempVarNameForModuleSpecifier(moduleSpecifier) {
@@ -200,7 +202,7 @@ export class ModuleTransformer extends TempVarTransformer {
       switch (element.type) {
         case MODULE_DEFINITION:
           // TODO(arv): Remove
-          return transformDefinition(this, this.project, null, element, useStrictCount);
+          return transformDefinition(this, this.project, this.url, element, useStrictCount);
         case MODULE_DECLARATION:
         case IMPORT_DECLARATION:
           return this.transformAny(element);
@@ -217,10 +219,7 @@ export class ModuleTransformer extends TempVarTransformer {
    */
   transformModuleSpecifier(tree) {
     var token = tree.token;
-    if (token.type === STRING)
-      return parseExpression `System.get(${token})`;
-
-    return new IdentifierExpression(token.location, token);
+    return parseExpression `System.get(${token})`;
   }
 
   /**

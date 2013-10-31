@@ -290,7 +290,7 @@ class InternalLoader {
     return this.fileLoader.loadSync(url);
   }
 
-  load(url, type) {
+  load(url, type = 'script') {
     url = resolveUrl(this.url, url);
     var codeUnit = this.getCodeUnit(url, type);
     if (codeUnit.state != NOT_STARTED || codeUnit.state == ERROR) {
@@ -322,7 +322,7 @@ class InternalLoader {
     return codeUnit;
   }
 
-  loadSync(url, type) {
+  loadSync(url, type = 'script') {
     this.sync_ = true;
     var loaded = this.load(url, type);
     this.sync_ = false;
