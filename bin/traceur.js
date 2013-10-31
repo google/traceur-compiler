@@ -16051,6 +16051,9 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ModuleTransf
         this.module = module;
         this.idMappingStack_ = [Object.create(null)];
       },
+      get url() {
+        return this.module && this.module.url;
+      },
       getTempVarNameForModuleSpecifier: function(moduleSpecifier) {
         var moduleName = moduleSpecifier.token.processedValue;
         var idMapping = this.idMappingStack_[this.idMappingStack_.length - 1];
@@ -16066,10 +16069,9 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ModuleTransf
         this.idMappingStack_.pop();
       },
       transformModule: function(tree) {
-        var module = this.module;
-        assert(module);
-        var callExpression = transformModuleElements(this, this.project, module, tree.scriptItemList);
-        return new Script(tree.location, [createRegister(module.url, callExpression)]);
+        assert(this.url);
+        var callExpression = transformModuleElements(this, this.project, this.url, tree, tree.scriptItemList);
+        return new Script(tree.location, [createRegister(this.url, callExpression)]);
       },
       transformScript: function(tree) {
         var module = null;
@@ -16077,7 +16079,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ModuleTransf
         var elements = tree.scriptItemList.map((function(element) {
           switch (element.type) {
             case MODULE_DEFINITION:
-              return transformDefinition(this, this.project, module, element, useStrictCount);
+              return transformDefinition(this, this.project, null, element, useStrictCount);
             case MODULE_DECLARATION:
             case IMPORT_DECLARATION:
               return this.transformAny(element);
@@ -16134,7 +16136,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ModuleTransf
     assert(module);
     return new ModuleTransformer(project, module).transformAny(tree);
   };
-  function transformModuleElements(transformer, project, module, elements, useStrictCount) {
+  function transformModuleElements(transformer, project, parentUrl, tree, elements, useStrictCount) {
     var statements = [];
     transformer.pushTempVarState();
     useStrictCount = useStrictCount || 0;
@@ -16147,13 +16149,13 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ModuleTransf
           statements.push(transformer.transformAny(element));
           break;
         case MODULE_DEFINITION:
-          statements.push(transformDefinition(transformer, project, module, element, useStrictCount + 1));
+          statements.push(transformDefinition(transformer, project, parentUrl, element, useStrictCount + 1));
           break;
         case EXPORT_DECLARATION:
           var declaration = element.declaration;
           switch (declaration.type) {
             case MODULE_DEFINITION:
-              statements.push(transformDefinition(transformer, project, module, declaration, useStrictCount + 1));
+              statements.push(transformDefinition(transformer, project, parentUrl, declaration, useStrictCount + 1));
               break;
             case MODULE_DECLARATION:
               statements.push(transformer.transformAny(declaration));
@@ -16179,6 +16181,11 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ModuleTransf
           statements.push(element);
       }
     }));
+    var module;
+    var baseUrl = parentUrl || project.url;
+    var url = resolveUrl(baseUrl, tree.name.processedValue);
+    module = project.getModuleForResolvedUrl(url);
+    assert(module);
     var properties = module.getExports().map((function(exp) {
       return getGetterExport(transformer, project, exp);
     }));
@@ -16187,22 +16194,10 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ModuleTransf
     transformer.popTempVarState();
     return createScopedExpression(createFunctionBody(statements));
   }
-  function transformDefinition(transformer, project, parent, tree, useStrictCount) {
+  function transformDefinition(transformer, project, parentUrl, tree, useStrictCount) {
     transformer.pushTempVarState();
-    var module;
-    if (tree.name.type === IDENTIFIER) {
-      module = parent.getModule(tree.name.value);
-    } else {
-      var baseUrl = parent ? parent.url: project.url;
-      var url = resolveUrl(baseUrl, tree.name.processedValue);
-      module = project.getModuleForResolvedUrl(url);
-    }
-    assert(module);
-    var callExpression = transformModuleElements(transformer, project, module, tree.elements, useStrictCount);
+    var callExpression = transformModuleElements(transformer, project, parentUrl, tree, tree.elements, useStrictCount);
     transformer.popTempVarState();
-    if (tree.name.type === IDENTIFIER) {
-      return createVariableStatement(VAR, module.name, callExpression);
-    }
     return createRegister(tree.name, callExpression);
   }
   function createRegister(name, callExpression) {

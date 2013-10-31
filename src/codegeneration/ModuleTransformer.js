@@ -163,6 +163,10 @@ export class ModuleTransformer extends TempVarTransformer {
     this.idMappingStack_ = [Object.create(null)];
   }
 
+  get url() {
+    return this.module && this.module.url;
+  }
+
   getTempVarNameForModuleSpecifier(moduleSpecifier) {
     var moduleName = moduleSpecifier.token.processedValue;
     var idMapping = this.idMappingStack_[this.idMappingStack_.length - 1]
@@ -181,12 +185,11 @@ export class ModuleTransformer extends TempVarTransformer {
   }
 
   transformModule(tree) {
-    var module = this.module;
-    assert(module);
-    var callExpression = transformModuleElements(this, this.project, module,
-                                                 tree.scriptItemList);
+    assert(this.url);
+    var callExpression = transformModuleElements(this, this.project, this.url,
+                                                 tree, tree.scriptItemList);
     return new Script(tree.location,
-        [createRegister(module.url, callExpression)]);
+        [createRegister(this.url, callExpression)]);
   }
 
   transformScript(tree) {
@@ -197,7 +200,7 @@ export class ModuleTransformer extends TempVarTransformer {
       switch (element.type) {
         case MODULE_DEFINITION:
           // TODO(arv): Remove
-          return transformDefinition(this, this.project, module, element, useStrictCount);
+          return transformDefinition(this, this.project, null, element, useStrictCount);
         case MODULE_DECLARATION:
         case IMPORT_DECLARATION:
           return this.transformAny(element);
@@ -293,11 +296,12 @@ ModuleTransformer.transformAsModule = function(project, module, tree) {
  * Transforms a module into a call expression.
  * @param {ModuleTransformer} transformer
  * @param {Project} project
- * @param {ModuleSymbol} module
+ * @param {string} parentUrl
+ * @param {ParseTree} tree
  * @param {Array.<ParseTree>} elements
  * @return {CallExpression}
  */
-function transformModuleElements(transformer, project, module, elements,
+function transformModuleElements(transformer, project, parentUrl, tree, elements,
                                  useStrictCount) {
   var statements = [];
 
@@ -317,14 +321,14 @@ function transformModuleElements(transformer, project, module, elements,
         statements.push(transformer.transformAny(element));
         break;
       case MODULE_DEFINITION:
-        statements.push(transformDefinition(transformer, project, module,
+        statements.push(transformDefinition(transformer, project, parentUrl,
             element, useStrictCount + 1));
         break;
       case EXPORT_DECLARATION:
         var declaration = element.declaration;
         switch (declaration.type) {
           case MODULE_DEFINITION:
-            statements.push(transformDefinition(transformer, project, module,
+            statements.push(transformDefinition(transformer, project, parentUrl,
                 declaration, useStrictCount + 1));
             break;
           case MODULE_DECLARATION:
@@ -354,6 +358,12 @@ function transformModuleElements(transformer, project, module, elements,
         statements.push(element);
     }
   });
+
+  var module;
+  var baseUrl = parentUrl || project.url;
+  var url = resolveUrl(baseUrl, tree.name.processedValue);
+  module = project.getModuleForResolvedUrl(url);
+  assert(module);
 
   // Add exports
   var properties = module.getExports().map((exp) => {
@@ -394,34 +404,19 @@ function transformModuleElements(transformer, project, module, elements,
  *
  * @param {ModuleTransformer} transformer
  * @param {Project} project
- * @param {ModuleSymbol} parent
+ * @param {string} parentUrl
  * @param {ModuleDefinition} tree
  * @param {number} useStrictCount
  * @return {ParseTree}
  */
-function transformDefinition(transformer, project, parent, tree,
+function transformDefinition(transformer, project, parentUrl, tree,
                              useStrictCount) {
   transformer.pushTempVarState();
-  var module;
-  if (tree.name.type === IDENTIFIER) {
-    module = parent.getModule(tree.name.value);
-  } else {
-    var baseUrl = parent ? parent.url : project.url;
-    var url = resolveUrl(baseUrl, tree.name.processedValue);
-    module = project.getModuleForResolvedUrl(url);
-  }
-  assert(module);
 
-  var callExpression = transformModuleElements(transformer,project, module,
-                                               tree.elements, useStrictCount);
+  var callExpression = transformModuleElements(transformer, project, parentUrl,
+                                               tree, tree.elements, useStrictCount);
 
   transformer.popTempVarState();
-
-  if (tree.name.type === IDENTIFIER) {
-    // const M = (function() { statements }).call(thisObject);
-    // TODO(arv): const is not allowed in ES5 strict
-    return createVariableStatement(VAR, module.name, callExpression);
-  }
 
   return createRegister(tree.name, callExpression)
 }
