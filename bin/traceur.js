@@ -574,7 +574,7 @@ System.set('@traceur/url', (function() {
     resolveUrl: resolveUrl
   };
 })());
-System.set('@traceur/module', (function() {
+System.set('@traceur/module', (function(global) {
   'use strict';
   var $__12 = System.get('@traceur/url'), resolveUrl = $__12.resolveUrl, isStandardModuleUrl = $__12.isStandardModuleUrl;
   var modules = Object.create(null);
@@ -585,6 +585,8 @@ System.set('@traceur/module', (function() {
   function getRefererUrl() {
     return refererUrl;
   }
+  var baseUrl;
+  if (global.location && global.location.href) baseUrl = resolveUrl(global.location.href, './'); else baseUrl = '';
   var PendingModule = function() {
     'use strict';
     var $PendingModule = ($__createClassNoExtends)({
@@ -608,6 +610,17 @@ System.set('@traceur/module', (function() {
   function registerModule(url, func, self) {
     modules[url] = new PendingModule(url, func, self);
   }
+  System.normalize = function(requestedModuleName, opt_referer) {
+    console.assert(requestedModuleName);
+    var ref = (opt_referer && opt_referer.name) || refererUrl;
+    console.assert(ref);
+    return resolveUrl(ref, requestedModuleName);
+  };
+  System.resolve = function(normalizedModuleName, opt_referer, opt_any) {
+    var asJS = normalizedModuleName + '.js';
+    if (baseUrl) return resolveUrl(baseUrl, asJS);
+    return asJS;
+  };
   var $get = System.get;
   var $set = System.set;
   System.get = function(name) {
@@ -625,7 +638,7 @@ System.set('@traceur/module', (function() {
     registerModule: registerModule,
     setRefererUrl: setRefererUrl
   };
-})());
+})(this));
 System.get('@traceur/module').registerModule("../src/options.js", function() {
   "use strict";
   var parseOptions = Object.create(null);
