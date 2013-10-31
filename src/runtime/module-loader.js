@@ -77,11 +77,14 @@ class CodeUnit {
    * @param {InternalLoader} loader The loader that is managing this dependency.
    * @param {string} url The URL of this dependency. If this is evaluated code
    *     the URL is the URL of the loader.
+   * @param {string} type Either 'script' or 'module'. This determinse how to
+   *     parse the code.
    * @param {number} state
    */
-  constructor(loader, url, state) {
+  constructor(loader, url, type, state) {
     this.loader = loader;
     this.url = url;
+    this.type = type;
     this.state = state;
     this.uid = getUid();
     this.state_ = NOT_STARTED;
@@ -200,8 +203,7 @@ class LoadCodeUnit extends CodeUnit {
    * @param {string} url
    */
   constructor(loader, url) {
-    super(loader, url, NOT_STARTED);
-    this.type = 'module';
+    super(loader, url, 'module', NOT_STARTED);
     if (isStandardModuleUrl(url)) {
       this.state = COMPLETE;
       this.dependencies = [];
@@ -251,9 +253,8 @@ class EvalCodeUnit extends CodeUnit {
    * @param {string} code
    */
   constructor(loader, code) {
-    super(loader, loader.url, LOADED);
+    super(loader, loader.url, 'script', LOADED);
     this.text = code;
-    this.type = 'script'
   }
 }
 

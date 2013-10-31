@@ -31,10 +31,12 @@ import {
   FUNCTION_DECLARATION,
   IDENTIFIER_EXPRESSION,
   IMPORT_DECLARATION,
+  MODULE,
   MODULE_DECLARATION,
   MODULE_DEFINITION,
   MODULE_SPECIFIER,
   NAMED_EXPORT,
+  SCRIPT,
   VARIABLE_STATEMENT
 } from '../syntax/trees/ParseTreeType.js';
 import {
@@ -154,9 +156,10 @@ export class ModuleTransformer extends TempVarTransformer {
   /**
    * @param {Project} project
    */
-  constructor(project) {
+  constructor(project, module = null) {
     super(project.identifierGenerator);
-    this.project_ = project;
+    this.project = project;
+    this.module = module;
     this.idMappingStack_ = [Object.create(null)];
   }
 
@@ -175,6 +178,34 @@ export class ModuleTransformer extends TempVarTransformer {
   popTempVarState() {
     super.popTempVarState();
     this.idMappingStack_.pop();
+  }
+
+  transformModule(tree) {
+    var module = this.module;
+    assert(module);
+    var callExpression = transformModuleElements(this, this.project, module,
+                                                 tree.scriptItemList);
+    return new Script(tree.location,
+        [createRegister(module.url, callExpression)]);
+  }
+
+  transformScript(tree) {
+    // TODO(arv): remove module
+    var module = null;
+    var useStrictCount = hasUseStrict(tree.scriptItemList) ? 1 : 0;
+    var elements = tree.scriptItemList.map((element) => {
+      switch (element.type) {
+        case MODULE_DEFINITION:
+          // TODO(arv): Remove
+          return transformDefinition(this, this.project, module, element, useStrictCount);
+        case MODULE_DECLARATION:
+        case IMPORT_DECLARATION:
+          return this.transformAny(element);
+        default:
+          return element;
+      }
+    });
+    return new Script(tree.location, elements);
   }
 
   /**
@@ -213,7 +244,7 @@ export class ModuleTransformer extends TempVarTransformer {
   transformImportSpecifierSet(tree) {
     var fields;
     if (tree.specifiers.type === STAR) {
-      var module = this.project_.getModuleForStarTree(tree);
+      var module = this.project.getModuleForStarTree(tree);
       var fields = module.getExports().map((exportSymbol) => {
         return new BindingElement(tree.location,
             createBindingIdentifier(exportSymbol.name), null);
@@ -242,21 +273,8 @@ export class ModuleTransformer extends TempVarTransformer {
  * @return {Script}
  */
 ModuleTransformer.transform = function(project, tree) {
-  var module = project.getRootModule();
-  var useStrictCount = hasUseStrict(tree.scriptItemList) ? 1 : 0;
-  var transformer = new ModuleTransformer(project);
-  var elements = tree.scriptItemList.map((element) => {
-    switch (element.type) {
-      case MODULE_DEFINITION:
-        return transformDefinition(transformer, project, module, element, useStrictCount);
-      case MODULE_DECLARATION:
-      case IMPORT_DECLARATION:
-        return transformer.transformAny(element);
-      default:
-        return element;
-    }
-  });
-  return new Script(tree.location, elements);
+  assert(tree.type === SCRIPT);
+  return new ModuleTransformer(project).transformAny(tree);
 };
 
 /**
@@ -266,10 +284,9 @@ ModuleTransformer.transform = function(project, tree) {
  * @return {Script}
  */
 ModuleTransformer.transformAsModule = function(project, module, tree) {
-  var transformer = new ModuleTransformer(project);
-  var callExpression = transformModuleElements(transformer, project, module,
-                                               tree.scriptItemList);
-  return createScript([createRegister(module.url, callExpression)]);
+  assert(tree.type === MODULE);
+  assert(module);
+  return new ModuleTransformer(project, module).transformAny(tree);
 };
 
 /**

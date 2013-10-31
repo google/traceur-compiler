@@ -14,6 +14,7 @@
 
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {
+  Module,
   ModuleDefinition,
   Script
 } from '../syntax/trees/ParseTrees.js';
@@ -110,7 +111,7 @@ export class TempVarTransformer extends ParseTreeTransformer {
     if (scriptItemList == tree.scriptItemList) {
       return tree;
     }
-    return new Script(tree.location, scriptItemList);
+    return new Module(tree.location, scriptItemList);
   }
 
   transformFunctionBody(tree) {

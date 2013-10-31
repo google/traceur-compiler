@@ -594,12 +594,12 @@ System.set('@traceur/module', (function() {
         this.self = self;
       },
       toModule: function() {
-        var oldName = refererUrl;
+        var oldUrl = refererUrl;
         refererUrl = this.url;
         try {
           return this.func.call(this.self);
         } finally {
-          refererUrl = oldName;
+          refererUrl = oldUrl;
         }
       }
     }, {});
@@ -11993,7 +11993,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/PrependState
 System.get('@traceur/module').registerModule("../src/codegeneration/TempVarTransformer.js", function() {
   "use strict";
   var ParseTreeTransformer = System.get('./ParseTreeTransformer.js').ParseTreeTransformer;
-  var $__12 = System.get('../syntax/trees/ParseTrees.js'), ModuleDefinition = $__12.ModuleDefinition, Script = $__12.Script;
+  var $__12 = System.get('../syntax/trees/ParseTrees.js'), Module = $__12.Module, ModuleDefinition = $__12.ModuleDefinition, Script = $__12.Script;
   var VAR = System.get('../syntax/TokenType.js').VAR;
   var $__12 = System.get('./ParseTreeFactory.js'), createFunctionBody = $__12.createFunctionBody, createVariableDeclaration = $__12.createVariableDeclaration, createVariableDeclarationList = $__12.createVariableDeclarationList, createVariableStatement = $__12.createVariableStatement;
   var prependStatements = System.get('./PrependStatements.js').prependStatements;
@@ -12054,7 +12054,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/TempVarTrans
         if (scriptItemList == tree.scriptItemList) {
           return tree;
         }
-        return new Script(tree.location, scriptItemList);
+        return new Module(tree.location, scriptItemList);
       },
       transformFunctionBody: function(tree) {
         this.pushTempVarState();
@@ -15991,7 +15991,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ModuleTransf
   var $__3 = Object.freeze(Object.defineProperties(["System.get(", ")"], {raw: {value: Object.freeze(["System.get(", ")"])}})), $__2 = Object.freeze(Object.defineProperties(["System.get('@traceur/module').registerModule(", ", ", ", this);"], {raw: {value: Object.freeze(["System.get('@traceur/module').registerModule(", ", ", ", this);"])}}));
   var $__12 = System.get('../syntax/trees/ParseTrees.js'), BindingElement = $__12.BindingElement, BindingIdentifier = $__12.BindingIdentifier, IdentifierExpression = $__12.IdentifierExpression, LiteralExpression = $__12.LiteralExpression, LiteralPropertyName = $__12.LiteralPropertyName, ObjectPattern = $__12.ObjectPattern, ObjectPatternField = $__12.ObjectPatternField, Script = $__12.Script;
   var TempVarTransformer = System.get('./TempVarTransformer.js').TempVarTransformer;
-  var $__12 = System.get('../syntax/trees/ParseTreeType.js'), CLASS_DECLARATION = $__12.CLASS_DECLARATION, EXPORT_DECLARATION = $__12.EXPORT_DECLARATION, EXPORT_SPECIFIER = $__12.EXPORT_SPECIFIER, EXPORT_STAR = $__12.EXPORT_STAR, FUNCTION_DECLARATION = $__12.FUNCTION_DECLARATION, IDENTIFIER_EXPRESSION = $__12.IDENTIFIER_EXPRESSION, IMPORT_DECLARATION = $__12.IMPORT_DECLARATION, MODULE_DECLARATION = $__12.MODULE_DECLARATION, MODULE_DEFINITION = $__12.MODULE_DEFINITION, MODULE_SPECIFIER = $__12.MODULE_SPECIFIER, NAMED_EXPORT = $__12.NAMED_EXPORT, VARIABLE_STATEMENT = $__12.VARIABLE_STATEMENT;
+  var $__12 = System.get('../syntax/trees/ParseTreeType.js'), CLASS_DECLARATION = $__12.CLASS_DECLARATION, EXPORT_DECLARATION = $__12.EXPORT_DECLARATION, EXPORT_SPECIFIER = $__12.EXPORT_SPECIFIER, EXPORT_STAR = $__12.EXPORT_STAR, FUNCTION_DECLARATION = $__12.FUNCTION_DECLARATION, IDENTIFIER_EXPRESSION = $__12.IDENTIFIER_EXPRESSION, IMPORT_DECLARATION = $__12.IMPORT_DECLARATION, MODULE = $__12.MODULE, MODULE_DECLARATION = $__12.MODULE_DECLARATION, MODULE_DEFINITION = $__12.MODULE_DEFINITION, MODULE_SPECIFIER = $__12.MODULE_SPECIFIER, NAMED_EXPORT = $__12.NAMED_EXPORT, SCRIPT = $__12.SCRIPT, VARIABLE_STATEMENT = $__12.VARIABLE_STATEMENT;
   var $__12 = System.get('../syntax/TokenType.js'), IDENTIFIER = $__12.IDENTIFIER, STAR = $__12.STAR, STRING = $__12.STRING, VAR = $__12.VAR;
   var assert = System.get('../util/assert.js').assert;
   var $__12 = System.get('./ParseTreeFactory.js'), createArgumentList = $__12.createArgumentList, createBindingIdentifier = $__12.createBindingIdentifier, createCallExpression = $__12.createCallExpression, createEmptyParameterList = $__12.createEmptyParameterList, createExpressionStatement = $__12.createExpressionStatement, createFunctionBody = $__12.createFunctionBody, createFunctionExpression = $__12.createFunctionExpression, createIdentifierExpression = $__12.createIdentifierExpression, createIdentifierToken = $__12.createIdentifierToken, createMemberExpression = $__12.createMemberExpression, createNullLiteral = $__12.createNullLiteral, createObjectCreate = $__12.createObjectCreate, createObjectLiteralExpression = $__12.createObjectLiteralExpression, createObjectPreventExtensions = $__12.createObjectPreventExtensions, createScript = $__12.createScript, createPropertyDescriptor = $__12.createPropertyDescriptor, createPropertyNameAssignment = $__12.createPropertyNameAssignment, createReturnStatement = $__12.createReturnStatement, createScopedExpression = $__12.createScopedExpression, createUseStrictDirective = $__12.createUseStrictDirective, createVariableDeclaration = $__12.createVariableDeclaration, createVariableDeclarationList = $__12.createVariableDeclarationList, createVariableStatement = $__12.createVariableStatement;
@@ -16045,8 +16045,10 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ModuleTransf
     var $__proto = $__getProtoParent($__super);
     var $ModuleTransformer = ($__createClass)({
       constructor: function(project) {
+        var module = arguments[1] !== (void 0) ? arguments[1]: null;
         $__superCall(this, $__proto, "constructor", [project.identifierGenerator]);
-        this.project_ = project;
+        this.project = project;
+        this.module = module;
         this.idMappingStack_ = [Object.create(null)];
       },
       getTempVarNameForModuleSpecifier: function(moduleSpecifier) {
@@ -16062,6 +16064,28 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ModuleTransf
       popTempVarState: function() {
         $__superCall(this, $__proto, "popTempVarState", []);
         this.idMappingStack_.pop();
+      },
+      transformModule: function(tree) {
+        var module = this.module;
+        assert(module);
+        var callExpression = transformModuleElements(this, this.project, module, tree.scriptItemList);
+        return new Script(tree.location, [createRegister(module.url, callExpression)]);
+      },
+      transformScript: function(tree) {
+        var module = null;
+        var useStrictCount = hasUseStrict(tree.scriptItemList) ? 1: 0;
+        var elements = tree.scriptItemList.map((function(element) {
+          switch (element.type) {
+            case MODULE_DEFINITION:
+              return transformDefinition(this, this.project, module, element, useStrictCount);
+            case MODULE_DECLARATION:
+            case IMPORT_DECLARATION:
+              return this.transformAny(element);
+            default:
+              return element;
+          }
+        }).bind(this));
+        return new Script(tree.location, elements);
       },
       transformModuleSpecifier: function(tree) {
         var token = tree.token;
@@ -16080,7 +16104,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ModuleTransf
       transformImportSpecifierSet: function(tree) {
         var fields;
         if (tree.specifiers.type === STAR) {
-          var module = this.project_.getModuleForStarTree(tree);
+          var module = this.project.getModuleForStarTree(tree);
           var fields = module.getExports().map((function(exportSymbol) {
             return new BindingElement(tree.location, createBindingIdentifier(exportSymbol.name), null);
           }));
@@ -16102,26 +16126,13 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ModuleTransf
     return $ModuleTransformer;
   }(TempVarTransformer);
   ModuleTransformer.transform = function(project, tree) {
-    var module = project.getRootModule();
-    var useStrictCount = hasUseStrict(tree.scriptItemList) ? 1: 0;
-    var transformer = new ModuleTransformer(project);
-    var elements = tree.scriptItemList.map((function(element) {
-      switch (element.type) {
-        case MODULE_DEFINITION:
-          return transformDefinition(transformer, project, module, element, useStrictCount);
-        case MODULE_DECLARATION:
-        case IMPORT_DECLARATION:
-          return transformer.transformAny(element);
-        default:
-          return element;
-      }
-    }));
-    return new Script(tree.location, elements);
+    assert(tree.type === SCRIPT);
+    return new ModuleTransformer(project).transformAny(tree);
   };
   ModuleTransformer.transformAsModule = function(project, module, tree) {
-    var transformer = new ModuleTransformer(project);
-    var callExpression = transformModuleElements(transformer, project, module, tree.scriptItemList);
-    return createScript([createRegister(module.url, callExpression)]);
+    assert(tree.type === MODULE);
+    assert(module);
+    return new ModuleTransformer(project, module).transformAny(tree);
   };
   function transformModuleElements(transformer, project, module, elements, useStrictCount) {
     var statements = [];
@@ -19944,9 +19955,10 @@ System.get('@traceur/module').registerModule("../src/runtime/module-loader.js", 
   var CodeUnit = function() {
     'use strict';
     var $CodeUnit = ($__createClassNoExtends)({
-      constructor: function(loader, url, state) {
+      constructor: function(loader, url, type, state) {
         this.loader = loader;
         this.url = url;
+        this.type = type;
         this.state = state;
         this.uid = getUid();
         this.state_ = NOT_STARTED;
@@ -20029,8 +20041,7 @@ System.get('@traceur/module').registerModule("../src/runtime/module-loader.js", 
     var $__proto = $__getProtoParent($__super);
     var $LoadCodeUnit = ($__createClass)({
       constructor: function(loader, url) {
-        $__superCall(this, $__proto, "constructor", [loader, url, NOT_STARTED]);
-        this.type = 'module';
+        $__superCall(this, $__proto, "constructor", [loader, url, 'module', NOT_STARTED]);
         if (isStandardModuleUrl(url)) {
           this.state = COMPLETE;
           this.dependencies = [];
@@ -20063,9 +20074,8 @@ System.get('@traceur/module').registerModule("../src/runtime/module-loader.js", 
     'use strict';
     var $__proto = $__getProtoParent($__super);
     var $EvalCodeUnit = ($__createClass)({constructor: function(loader, code) {
-        $__superCall(this, $__proto, "constructor", [loader, loader.url, LOADED]);
+        $__superCall(this, $__proto, "constructor", [loader, loader.url, 'script', LOADED]);
         this.text = code;
-        this.type = 'script';
       }}, {}, $__proto, $__super, true);
     return $EvalCodeUnit;
   }(CodeUnit);
