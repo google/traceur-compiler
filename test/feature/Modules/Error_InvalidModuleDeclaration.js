@@ -1,5 +1,4 @@
 // Should not compile.
-// Error: /c' is not a module
+// Error: Failed to load 'feature/Modules/no_such_file'
 
-module 'a' {}
-module b from 'c';
+module b from 'no_such_file';

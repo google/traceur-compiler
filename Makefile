@@ -33,7 +33,7 @@ min: bin/traceur.min.js
 ugly: bin/traceur.ugly.js
 
 test: build test/test-list.js
-	node_modules/.bin/mocha --ignore-leaks --ui tdd --require test/unit/node-env.js $(TESTS)
+	node_modules/.bin/mocha --ignore-leaks --ui tdd --require test/node-env.js $(TESTS)
 
 test-list: test/test-list.js
 

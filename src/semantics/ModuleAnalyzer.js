@@ -77,8 +77,18 @@ export class ModuleAnalyzer {
       }
     }
 
+    function reverseVisit(ctor) {
+      for (var i = trees.length - 1; i >= 0; i--) {
+        var visitor = new ctor(reporter, project, getRoot(i));
+        visitor.visitAny(trees[i]);
+      }
+    }
+
     doVisit(ModuleDefinitionVisitor);
-    doVisit(ExportVisitor);
+
+    // TODO(arv): Export star needs to be done in dependency order.
+    reverseVisit(ExportVisitor);
+
     doVisit(ModuleDeclarationVisitor);
     doVisit(ValidationVisitor);
     doVisit(ImportStarVisitor);
