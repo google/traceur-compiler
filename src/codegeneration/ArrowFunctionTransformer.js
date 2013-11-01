@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {BIND} from '../syntax/PredefinedName.js';
-import {FindInFunctionScope} from './FindInFunctionScope.js';
+import {BIND} from '../syntax/PredefinedName';
+import {FindInFunctionScope} from './FindInFunctionScope';
 import {
   FormalParameterList
-} from '../syntax/trees/ParseTrees.js';
-import {ParseTreeTransformer} from './ParseTreeTransformer.js';
-import {FUNCTION_BODY} from '../syntax/trees/ParseTreeType.js';
+} from '../syntax/trees/ParseTrees';
+import {ParseTreeTransformer} from './ParseTreeTransformer';
+import {FUNCTION_BODY} from '../syntax/trees/ParseTreeType';
 import {
   createArgumentList,
   createCallExpression,
@@ -28,7 +28,7 @@ import {
   createParenExpression,
   createReturnStatement,
   createThisExpression
-} from './ParseTreeFactory.js';
+} from './ParseTreeFactory';
 
 /**
  * This is used to find whether a function contains a reference to 'this'.

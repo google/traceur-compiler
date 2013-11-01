@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ParseTreeTransformer} from './ParseTreeTransformer.js';
+import {ParseTreeTransformer} from './ParseTreeTransformer';
 
 import {
   AtNameExpression,
@@ -33,7 +33,7 @@ import {
   RestParameter,
   SuperExpression,
   ThisExpression 
-} from '../syntax/trees/ParseTrees.js';
+} from '../syntax/trees/ParseTrees';
 
 /**
  * Duplicates a ParseTree. Simply creates new leaf nodes so the

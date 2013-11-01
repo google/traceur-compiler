@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {CURRENT} from '../../syntax/PredefinedName.js';
-import {State} from './State.js';
+import {CURRENT} from '../../syntax/PredefinedName';
+import {State} from './State';
 import {
   createAssignmentStatement,
   createIdentifierExpression,
@@ -21,7 +21,7 @@ import {
   createReturnStatement,
   createThisExpression,
   createTrueLiteral
-} from '../ParseTreeFactory.js';
+} from '../ParseTreeFactory';
 
 /**
  * Represents a simple yield expression that has been added to a StateMachine.

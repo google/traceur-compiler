@@ -12,27 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {BreakContinueTransformer} from './BreakContinueTransformer.js';
+import {BreakContinueTransformer} from './BreakContinueTransformer';
 import {
   CASE_CLAUSE,
   STATE_MACHINE,
   VARIABLE_DECLARATION_LIST,
   VARIABLE_STATEMENT
-} from '../../syntax/trees/ParseTreeType.js';
+} from '../../syntax/trees/ParseTreeType';
 import {
   CaseClause,
   IdentifierExpression,
   SwitchStatement
-} from '../../syntax/trees/ParseTrees.js';
-import {CatchState} from './CatchState.js';
-import {ConditionalState} from './ConditionalState.js';
-import {FallThroughState} from './FallThroughState.js';
-import {FinallyFallThroughState} from './FinallyFallThroughState.js';
-import {FinallyState} from './FinallyState.js';
-import {IdentifierToken} from '../../syntax/IdentifierToken.js';
-import {ParseTreeTransformer} from '../ParseTreeTransformer.js';
-import {assert} from '../../util/assert.js';
-import {parseStatement} from '../PlaceholderParser.js';
+} from '../../syntax/trees/ParseTrees';
+import {CatchState} from './CatchState';
+import {ConditionalState} from './ConditionalState';
+import {FallThroughState} from './FallThroughState';
+import {FinallyFallThroughState} from './FinallyFallThroughState';
+import {FinallyState} from './FinallyState';
+import {IdentifierToken} from '../../syntax/IdentifierToken';
+import {ParseTreeTransformer} from '../ParseTreeTransformer';
+import {assert} from '../../util/assert';
+import {parseStatement} from '../PlaceholderParser';
 import {
   $ARGUMENTS,
   $THAT,
@@ -44,19 +44,19 @@ import {
   STORED_EXCEPTION,
   YIELD_ACTION,
   YIELD_SENT
-} from '../../syntax/PredefinedName.js';
-import {State} from './State.js';
-import {StateAllocator} from './StateAllocator.js';
-import {StateMachine} from '../../syntax/trees/StateMachine.js';
+} from '../../syntax/PredefinedName';
+import {State} from './State';
+import {StateAllocator} from './StateAllocator';
+import {StateMachine} from '../../syntax/trees/StateMachine';
 import {
   SwitchClause,
   SwitchState
-} from './SwitchState.js';
+} from './SwitchState';
 import {
   PLUS,
   VAR
-} from '../../syntax/TokenType.js';
-import {TryState} from './TryState.js';
+} from '../../syntax/TokenType';
+import {TryState} from './TryState';
 import {
   createAssignStateStatement,
   createAssignmentExpression,
@@ -86,8 +86,8 @@ import {
   createTryStatement,
   createVariableStatement,
   createWhileStatement
-} from '../ParseTreeFactory.js';
-import {variablesInBlock} from '../../semantics/VariableBinder.js';
+} from '../ParseTreeFactory';
+import {variablesInBlock} from '../../semantics/VariableBinder';
 
 /**
  * Performs a CPS transformation on a method body.

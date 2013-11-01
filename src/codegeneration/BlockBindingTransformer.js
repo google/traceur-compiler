@@ -12,22 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AlphaRenamer} from './AlphaRenamer.js';
+import {AlphaRenamer} from './AlphaRenamer';
 import {
   BINDING_IDENTIFIER,
   BLOCK,
   VARIABLE_DECLARATION_LIST
-} from '../syntax/trees/ParseTreeType.js';
+} from '../syntax/trees/ParseTreeType';
 import {
   FunctionDeclaration,
   FunctionExpression
-} from '../syntax/trees/ParseTrees.js';
-import {ParseTreeTransformer} from './ParseTreeTransformer.js';
+} from '../syntax/trees/ParseTrees';
+import {ParseTreeTransformer} from './ParseTreeTransformer';
 import {
   CONST,
   LET,
   VAR
-} from '../syntax/TokenType.js';
+} from '../syntax/TokenType';
 import {
   createAssignmentExpression,
   createBindingIdentifier,
@@ -47,7 +47,7 @@ import {
   createVariableDeclaration,
   createVariableDeclarationList,
   createVariableStatement
-} from './ParseTreeFactory.js';
+} from './ParseTreeFactory';
 
 /**
  * Transforms the block bindings from traceur to js.

@@ -1,4 +1,4 @@
-module o from './resources/o.js';
+module o from './resources/o';
 
 assert.equal(1, o.a);
 assert.equal(2, o.b);

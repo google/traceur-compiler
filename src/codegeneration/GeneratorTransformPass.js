@@ -12,27 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AsyncTransformer} from './generator/AsyncTransformer.js';
-import {ForInTransformPass} from './generator/ForInTransformPass.js';
+import {AsyncTransformer} from './generator/AsyncTransformer';
+import {ForInTransformPass} from './generator/ForInTransformPass';
 import {
   GetAccessor,
   SetAccessor
-} from '../syntax/trees/ParseTrees.js';
-import {GeneratorTransformer} from './generator/GeneratorTransformer.js';
-import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor.js';
-import {parseStatement} from './PlaceholderParser.js';
-import {TempVarTransformer} from './TempVarTransformer.js';
-import {EQUAL} from '../syntax/TokenType.js';
+} from '../syntax/trees/ParseTrees';
+import {GeneratorTransformer} from './generator/GeneratorTransformer';
+import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor';
+import {parseStatement} from './PlaceholderParser';
+import {TempVarTransformer} from './TempVarTransformer';
+import {EQUAL} from '../syntax/TokenType';
 import {
   BINARY_OPERATOR,
   COMMA_EXPRESSION,
   PAREN_EXPRESSION,
   YIELD_EXPRESSION
-} from '../syntax/trees/ParseTreeType.js';
+} from '../syntax/trees/ParseTreeType';
 import {
   FunctionDeclaration,
   FunctionExpression
-} from '../syntax/trees/ParseTrees.js';
+} from '../syntax/trees/ParseTrees';
 import {
   createAssignmentExpression,
   createAssignmentStatement,
@@ -46,18 +46,18 @@ import {
   createVariableDeclarationList,
   createVariableStatement,
   createYieldStatement
-} from './ParseTreeFactory.js';
+} from './ParseTreeFactory';
 import {
   ACTION_SEND,
   ACTION_THROW,
   TRACEUR_RUNTIME,
   YIELD_ACTION,
   YIELD_SENT
-} from '../syntax/PredefinedName.js';
+} from '../syntax/PredefinedName';
 import {
   transformOptions,
   options
-} from '../options.js';
+} from '../options';
 
 /**
  * @param {BinaryOperator} tree

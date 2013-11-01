@@ -15,12 +15,12 @@
 import {
   AssignmentPatternTransformer,
   AssignmentPatternTransformerError
-} from '../codegeneration/AssignmentPatternTransformer.js';
+} from '../codegeneration/AssignmentPatternTransformer';
 import {
   CoverFormalsTransformer,
   CoverFormalsTransformerError
-} from '../codegeneration/CoverFormalsTransformer.js';
-import {IdentifierToken} from './IdentifierToken.js';
+} from '../codegeneration/CoverFormalsTransformer';
+import {IdentifierToken} from './IdentifierToken';
 import {
   ARRAY_LITERAL_EXPRESSION,
   BINARY_OPERATOR,
@@ -38,7 +38,7 @@ import {
   PROPERTY_NAME_ASSIGNMENT,
   REST_PARAMETER,
   SYNTAX_ERROR_TREE
-} from './trees/ParseTreeType.js';
+} from './trees/ParseTreeType';
 import {
   ANY,
   AS,
@@ -50,20 +50,20 @@ import {
   OF,
   SET,
   STRING
-} from './PredefinedName.js';
-import {Scanner} from './Scanner.js';
-import {SourceRange} from '../util/SourceRange.js';
-import {StrictParams} from '../staticsemantics/StrictParams.js';
+} from './PredefinedName';
+import {Scanner} from './Scanner';
+import {SourceRange} from '../util/SourceRange';
+import {StrictParams} from '../staticsemantics/StrictParams';
 import {
   Token,
   isAssignmentOperator
-} from './Token.js';
+} from './Token';
 import {
   parseOptions,
   options
-} from '../options.js';
-import * from './TokenType.js';
-import * from './trees/ParseTrees.js';
+} from '../options';
+import * from './TokenType';
+import * from './trees/ParseTrees';
 
 /**
  * Differentiates between parsing for 'In' vs. 'NoIn'

@@ -15,19 +15,19 @@
 import {
   FunctionDeclaration,
   FunctionExpression
-} from '../syntax/trees/ParseTrees.js';
-import {ParseTreeTransformer} from './ParseTreeTransformer.js';
+} from '../syntax/trees/ParseTrees';
+import {ParseTreeTransformer} from './ParseTreeTransformer';
 import {
   ARGUMENTS,
   THIS
-} from '../syntax/PredefinedName.js';
+} from '../syntax/PredefinedName';
 import {
   createIdentifierExpression
-} from './ParseTreeFactory.js';
+} from './ParseTreeFactory';
 import {
   variablesInBlock,
   variablesInFunction
-} from '../semantics/VariableBinder.js';
+} from '../semantics/VariableBinder';
 
 /**
  * Replaces one identifier with another identifier (alpha

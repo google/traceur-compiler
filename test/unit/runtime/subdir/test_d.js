@@ -1,3 +1,3 @@
-module e from './test_e.js';
+module e from './test_e';
 export {e};
 export var name = 'D';

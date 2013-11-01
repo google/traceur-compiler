@@ -1,4 +1,4 @@
-import * from '../syntax/trees/ParseTrees.js';
+import * from '../syntax/trees/ParseTrees';
 export class ParseTreeTransformer {
   transformAny(tree) {
     return tree && tree.transform(this);

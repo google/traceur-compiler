@@ -12,15 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ArrayMap} from '../../util/ArrayMap.js';
-import {ExportSymbol} from './ExportSymbol.js';
-import {ModuleSymbol} from './ModuleSymbol.js';
-import {ObjectMap} from '../../util/ObjectMap.js';
-import {RuntimeInliner} from '../../codegeneration/RuntimeInliner.js';
+import {ArrayMap} from '../../util/ArrayMap';
+import {ExportSymbol} from './ExportSymbol';
+import {ModuleSymbol} from './ModuleSymbol';
+import {ObjectMap} from '../../util/ObjectMap';
+import {RuntimeInliner} from '../../codegeneration/RuntimeInliner';
 import {UniqueIdentifierGenerator} from
-    '../../codegeneration/UniqueIdentifierGenerator.js';
-import {assert} from '../../util/assert.js';
-import {isStandardModuleUrl} from '../../util/url.js';
+    '../../codegeneration/UniqueIdentifierGenerator';
+import {assert} from '../../util/assert';
+import {isStandardModuleUrl} from '../../util/url';
+
 
 function addAll(self, other) {
   for (var key in other) {

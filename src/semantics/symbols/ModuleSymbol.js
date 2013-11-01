@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Symbol} from './Symbol.js';
-import {MODULE} from './SymbolType.js';
-import {assert} from '../../util/assert.js';
+import {Symbol} from './Symbol';
+import {MODULE} from './SymbolType';
+import {assert} from '../../util/assert';
 
 export class ModuleSymbol extends Symbol {
   /**

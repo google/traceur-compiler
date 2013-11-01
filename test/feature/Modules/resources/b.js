@@ -1,1 +1,1 @@
-module c from './c.js';
+module c from './c';

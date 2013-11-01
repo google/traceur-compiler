@@ -20,19 +20,19 @@ import {
   ObjectPattern,
   ObjectPatternField,
   Script
-} from '../syntax/trees/ParseTrees.js';
-import {TempVarTransformer} from './TempVarTransformer.js';
+} from '../syntax/trees/ParseTrees';
+import {TempVarTransformer} from './TempVarTransformer';
 import {
   EXPORT_SPECIFIER,
   EXPORT_STAR,
   MODULE,
   SCRIPT
-} from '../syntax/trees/ParseTreeType.js';
+} from '../syntax/trees/ParseTreeType';
 import {
   STAR,
   VAR
-} from '../syntax/TokenType.js';
-import {assert} from '../util/assert.js';
+} from '../syntax/TokenType';
+import {assert} from '../util/assert';
 import {
   createBindingIdentifier,
   createIdentifierExpression,
@@ -40,12 +40,12 @@ import {
   createObjectLiteralExpression,
   createUseStrictDirective,
   createVariableStatement
-} from './ParseTreeFactory.js';
+} from './ParseTreeFactory';
 import {
   parseExpression,
   parsePropertyDefinition,
   parseStatement
-} from './PlaceholderParser.js';
+} from './PlaceholderParser';
 
 /**
  * This creates the code that defines the getter for an export.

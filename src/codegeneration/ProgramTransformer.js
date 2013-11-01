@@ -13,33 +13,33 @@
 // limitations under the License.
 
 import {ArrayComprehensionTransformer} from
-    './ArrayComprehensionTransformer.js';
-import {ArrowFunctionTransformer} from './ArrowFunctionTransformer.js';
-import {AtNameMemberTransformer} from './AtNameMemberTransformer.js';
-import {BlockBindingTransformer} from './BlockBindingTransformer.js';
-import {CascadeExpressionTransformer} from './CascadeExpressionTransformer.js';
-import {ClassTransformer} from './ClassTransformer.js';
-import {CollectionTransformer} from './CollectionTransformer.js';
-import {DefaultParametersTransformer} from './DefaultParametersTransformer.js';
-import {DestructuringTransformer} from './DestructuringTransformer.js';
-import {ForOfTransformer} from './ForOfTransformer.js';
-import {FreeVariableChecker} from '../semantics/FreeVariableChecker.js';
+    './ArrayComprehensionTransformer';
+import {ArrowFunctionTransformer} from './ArrowFunctionTransformer';
+import {AtNameMemberTransformer} from './AtNameMemberTransformer';
+import {BlockBindingTransformer} from './BlockBindingTransformer';
+import {CascadeExpressionTransformer} from './CascadeExpressionTransformer';
+import {ClassTransformer} from './ClassTransformer';
+import {CollectionTransformer} from './CollectionTransformer';
+import {DefaultParametersTransformer} from './DefaultParametersTransformer';
+import {DestructuringTransformer} from './DestructuringTransformer';
+import {ForOfTransformer} from './ForOfTransformer';
+import {FreeVariableChecker} from '../semantics/FreeVariableChecker';
 import {GeneratorComprehensionTransformer} from
-    'GeneratorComprehensionTransformer.js';
-import {GeneratorTransformPass} from './GeneratorTransformPass.js';
-import {ModuleTransformer} from './ModuleTransformer.js';
-import {NumericLiteralTransformer} from './NumericLiteralTransformer.js';
-import {ObjectLiteralTransformer} from './ObjectLiteralTransformer.js';
-import {ObjectMap} from '../util/ObjectMap.js';
-import {ParseTreeValidator} from '../syntax/ParseTreeValidator.js';
-import {PrivateNameSyntaxTransformer} from './PrivateNameSyntaxTransformer.js';
+    'GeneratorComprehensionTransformer';
+import {GeneratorTransformPass} from './GeneratorTransformPass';
+import {ModuleTransformer} from './ModuleTransformer';
+import {NumericLiteralTransformer} from './NumericLiteralTransformer';
+import {ObjectLiteralTransformer} from './ObjectLiteralTransformer';
+import {ObjectMap} from '../util/ObjectMap';
+import {ParseTreeValidator} from '../syntax/ParseTreeValidator';
+import {PrivateNameSyntaxTransformer} from './PrivateNameSyntaxTransformer';
 import {PropertyNameShorthandTransformer} from
-    'PropertyNameShorthandTransformer.js';
-import {TemplateLiteralTransformer} from './TemplateLiteralTransformer.js';
-import {RestParameterTransformer} from './RestParameterTransformer.js';
-import {SpreadTransformer} from './SpreadTransformer.js';
-import {TypeTransformer} from './TypeTransformer.js';
-import {options, transformOptions} from '../options.js';
+    'PropertyNameShorthandTransformer';
+import {TemplateLiteralTransformer} from './TemplateLiteralTransformer';
+import {RestParameterTransformer} from './RestParameterTransformer';
+import {SpreadTransformer} from './SpreadTransformer';
+import {TypeTransformer} from './TypeTransformer';
+import {options, transformOptions} from '../options';
 
 /**
  * Transforms a Traceur file's ParseTree to a JS ParseTree.
