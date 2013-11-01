@@ -26,9 +26,7 @@ import {TreeWriter} from '../outputgeneration/TreeWriter.js';
 import {WebLoader} from './WebLoader.js';
 import {assert} from '../util/assert.js';
 import {getUid} from '../util/uid.js';
-import {
-  isStandardModuleUrl
-} from '../util/url.js';
+import {isStandardModuleUrl} from '../util/url.js';
 import {
   getRefererUrl,
   setRefererUrl

@@ -83,24 +83,24 @@ System.set('@traceur/module', (function(global) {
   var $get = System.get;
   var $set = System.set;
 
-  // Non-standard API
+  // Non-standard API, remove see issue #393
   System.normalResolve = function(name, importingModuleName) {
     if (/@.*\.js/.test(name))
-      throw new Error("System.normalResolve illegal standard module name " + name);
+      throw new Error(`System.normalResolve illegal standard module name ${name}`);
     var options = {
-        referer: {
-          name: importingModuleName || refererUrl
-        }
-      };
+      referer: {
+        name: importingModuleName || refererUrl
+      }
+    };
     return System.resolve(System.normalize(name, options));
   }
 
   System.get = function(name) {
+    if (!name)
+      return;
     if (isStandardModuleUrl(name))
       return $get(name);
     var url = System.normalResolve(name);
-    if (!url)
-      return;
     var module = modules[url];
     if (module instanceof PendingModule)
       return modules[url] = module.toModule();
@@ -108,6 +108,8 @@ System.set('@traceur/module', (function(global) {
   };
 
   System.set = function(name, object) {
+    if (!name)
+      return;
     if (isStandardModuleUrl(name)) {
       $set(name, object);
     } else {

@@ -626,19 +626,20 @@ System.set('@traceur/module', (function(global) {
   var $get = System.get;
   var $set = System.set;
   System.normalResolve = function(name, importingModuleName) {
-    if (/@.*\.js/.test(name)) throw new Error("System.normalResolve illegal standard module name " + name);
+    if (/@.*\.js/.test(name)) throw new Error(("System.normalResolve illegal standard module name " + name));
     var options = {referer: {name: importingModuleName || refererUrl}};
     return System.resolve(System.normalize(name, options));
   };
   System.get = function(name) {
+    if (!name) return;
     if (isStandardModuleUrl(name)) return $get(name);
     var url = System.normalResolve(name);
-    if (!url) return;
     var module = modules[url];
     if (module instanceof PendingModule) return modules[url] = module.toModule();
     return module;
   };
   System.set = function(name, object) {
+    if (!name) return;
     if (isStandardModuleUrl(name)) {
       $set(name, object);
     } else {
@@ -18624,7 +18625,7 @@ System.get('@traceur/module').registerModule("../src/semantics/symbols/Project.j
     if (!(url in standardModuleCache)) {
       var symbol = new ModuleSymbol(null, null, null, url);
       var moduleInstance = System.get(url);
-      if (!moduleInstance) throw new Error("Internal error, no standard module for " + url);
+      if (!moduleInstance) throw new Error('Internal error, no standard module for ${url}');
       Object.keys(moduleInstance).forEach((function(name) {
         symbol.addExport(name, new ExportSymbol(null, name, null));
       }));

@@ -20,9 +20,7 @@ import {RuntimeInliner} from '../../codegeneration/RuntimeInliner.js';
 import {UniqueIdentifierGenerator} from
     '../../codegeneration/UniqueIdentifierGenerator.js';
 import {assert} from '../../util/assert.js';
-import {
-  isStandardModuleUrl
-} from '../../util/url.js';
+import {isStandardModuleUrl} from '../../util/url.js';
 
 function addAll(self, other) {
   for (var key in other) {
@@ -47,7 +45,7 @@ function getStandardModule(url) {
     var symbol = new ModuleSymbol(null, null, null, url);
     var moduleInstance = System.get(url);
     if (!moduleInstance)
-      throw new Error("Internal error, no standard module for " + url);
+      throw new Error('Internal error, no standard module for ${url}');
     Object.keys(moduleInstance).forEach((name) => {
       symbol.addExport(name, new ExportSymbol(null, name, null));
     });
