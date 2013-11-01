@@ -21,8 +21,8 @@ import {
   IDENTIFIER_EXPRESSION,
   MEMBER_EXPRESSION,
   MEMBER_LOOKUP_EXPRESSION
-} from '../syntax/trees/ParseTreeType.js';
-import {TempVarTransformer} from './TempVarTransformer.js';
+} from '../syntax/trees/ParseTreeType';
+import {TempVarTransformer} from './TempVarTransformer';
 import {
   createAssignmentExpression,
   createBinaryOperator,
@@ -33,7 +33,7 @@ import {
   createMemberExpression,
   createMemberLookupExpression,
   createParenExpression
-} from './ParseTreeFactory.js';
+} from './ParseTreeFactory';
 
 /**
  * Member expressions (and member lookup expressions) are built from right to

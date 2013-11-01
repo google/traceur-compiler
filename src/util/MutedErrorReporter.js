@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ErrorReporter} from './ErrorReporter.js';
+import {ErrorReporter} from './ErrorReporter';
 
 /**
  * An error reporter that doesn't output errors; it just records

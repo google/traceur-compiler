@@ -17,13 +17,13 @@ import {
   CREATE_NAME,
   RUNTIME,
   TRACEUR_RUNTIME
-} from '../syntax/PredefinedName.js';
-import {TempVarTransformer} from './TempVarTransformer.js';
-import {CONST} from '../syntax/TokenType.js';
+} from '../syntax/PredefinedName';
+import {TempVarTransformer} from './TempVarTransformer';
+import {CONST} from '../syntax/TokenType';
 import {
   VariableDeclarationList,
   VariableStatement
-} from '../syntax/trees/ParseTrees.js';
+} from '../syntax/trees/ParseTrees';
 import {
   createArgumentList,
   createCallExpression,
@@ -31,7 +31,7 @@ import {
   createIdentifierExpression,
   createMemberExpression,
   createVariableDeclaration
-} from './ParseTreeFactory.js';
+} from './ParseTreeFactory';
 
 /**
  * Desugars the private name syntax, @name.

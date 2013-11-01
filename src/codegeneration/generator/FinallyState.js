@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {State} from './State.js';
-import {TryState} from './TryState.js';
+import {State} from './State';
+import {TryState} from './TryState';
 
 /**
  * Represents the dispatch portion of a try/catch block in a state machine.

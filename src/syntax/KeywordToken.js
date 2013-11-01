@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {STRICT_KEYWORD} from './Keywords.js';
-import {Token} from './Token.js';
+import {STRICT_KEYWORD} from './Keywords';
+import {Token} from './Token';
 
 export class KeywordToken extends Token {
   /**

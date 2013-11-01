@@ -21,8 +21,8 @@ import {
   ObjectPattern,
   ObjectPatternField,
   Script
-} from '../syntax/trees/ParseTrees.js';
-import {TempVarTransformer} from './TempVarTransformer.js';
+} from '../syntax/trees/ParseTrees';
+import {TempVarTransformer} from './TempVarTransformer';
 import {
   CLASS_DECLARATION,
   EXPORT_DECLARATION,
@@ -36,14 +36,14 @@ import {
   MODULE_SPECIFIER,
   NAMED_EXPORT,
   VARIABLE_STATEMENT
-} from '../syntax/trees/ParseTreeType.js';
+} from '../syntax/trees/ParseTreeType';
 import {
   IDENTIFIER,
   STAR,
   STRING,
   VAR
-} from '../syntax/TokenType.js';
-import {assert} from '../util/assert.js';
+} from '../syntax/TokenType';
+import {assert} from '../util/assert';
 import {
   createArgumentList,
   createBindingIdentifier,
@@ -68,13 +68,13 @@ import {
   createVariableDeclaration,
   createVariableDeclarationList,
   createVariableStatement
-} from './ParseTreeFactory.js';
-import {hasUseStrict} from '../semantics/util.js';
-import {options} from '../options.js';
+} from './ParseTreeFactory';
+import {hasUseStrict} from '../semantics/util';
+import {options} from '../options';
 import {
   parseExpression,
   parseStatement
-} from './PlaceholderParser.js';
+} from './PlaceholderParser';
 
 function toBindingIdentifier(tree) {
   return new BindingIdentifier(tree.location, tree.identifierToken);

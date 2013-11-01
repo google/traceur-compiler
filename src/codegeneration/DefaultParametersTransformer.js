@@ -15,15 +15,15 @@
 import {
   isUndefined,
   isVoidExpression
-} from '../semantics/util.js';
-import {FormalParameterList} from '../syntax/trees/ParseTrees.js';
-import {ParameterTransformer} from './ParameterTransformer.js';
-import {ARGUMENTS} from '../syntax/PredefinedName.js';
-import {REST_PARAMETER} from '../syntax/trees/ParseTreeType.js';
+} from '../semantics/util';
+import {FormalParameterList} from '../syntax/trees/ParseTrees';
+import {ParameterTransformer} from './ParameterTransformer';
+import {ARGUMENTS} from '../syntax/PredefinedName';
+import {REST_PARAMETER} from '../syntax/trees/ParseTreeType';
 import {
   NOT_EQUAL_EQUAL,
   VAR
-} from '../syntax/TokenType.js';
+} from '../syntax/TokenType';
 import {
   createBinaryOperator,
   createConditionalExpression,
@@ -33,8 +33,8 @@ import {
   createOperatorToken,
   createVariableStatement,
   createVoid0
-} from './ParseTreeFactory.js';
-import {prependStatements} from './PrependStatements.js';
+} from './ParseTreeFactory';
+import {prependStatements} from './PrependStatements';
 
 function createDefaultAssignment(index, binding, initializer) {
   var argumentsExpression =

@@ -15,8 +15,8 @@
 import {
   EXPRESSION_STATEMENT,
   LITERAL_EXPRESSION
-} from '../syntax/trees/ParseTreeType.js';
-import {STRING} from '../syntax/TokenType.js';
+} from '../syntax/trees/ParseTreeType';
+import {STRING} from '../syntax/TokenType';
 
 function isStringExpressionStatement(tree) {
   return tree.type === EXPRESSION_STATEMENT &&

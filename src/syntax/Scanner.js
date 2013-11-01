@@ -12,18 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AtNameToken} from './AtNameToken.js';
-import {IdentifierToken} from './IdentifierToken.js';
-import {KeywordToken} from './KeywordToken.js';
-import {LiteralToken} from './LiteralToken.js';
-import {Token} from './Token.js';
-import {getKeywordType} from './Keywords.js';
+import {AtNameToken} from './AtNameToken';
+import {IdentifierToken} from './IdentifierToken';
+import {KeywordToken} from './KeywordToken';
+import {LiteralToken} from './LiteralToken';
+import {Token} from './Token';
+import {getKeywordType} from './Keywords';
 import {
   idContinueTable,
   idStartTable
-} from './unicode-tables.js';
-import {parseOptions} from '../options.js';
-import * from './TokenType.js';
+} from './unicode-tables';
+import {parseOptions} from '../options';
+import * from './TokenType';
 
 // Some of these is* functions use an array as a lookup table for the lower 7
 // bit code points.

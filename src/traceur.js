@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {options} from './options.js';
+export {options} from './options';
 
-export {WebPageProject} from './WebPageProject.js';
+export {WebPageProject} from './WebPageProject';
 
-import {ModuleAnalyzer} from './semantics/ModuleAnalyzer.js';
-import {Project} from './semantics/symbols/Project.js';
+import {ModuleAnalyzer} from './semantics/ModuleAnalyzer';
+import {Project} from './semantics/symbols/Project';
 
 export var semantics = {
   ModuleAnalyzer,
@@ -26,10 +26,10 @@ export var semantics = {
   }
 };
 
-import {ErrorReporter} from './util/ErrorReporter.js';
-import {SourcePosition} from './util/SourcePosition.js';
-import {TestErrorReporter} from './util/TestErrorReporter.js';
-import {resolveUrl} from './util/url.js';
+import {ErrorReporter} from './util/ErrorReporter';
+import {SourcePosition} from './util/SourcePosition';
+import {TestErrorReporter} from './util/TestErrorReporter';
+import {resolveUrl} from './util/url';
 
 export var util = {
   ErrorReporter,
@@ -38,14 +38,14 @@ export var util = {
   resolveUrl
 };
 
-import {IdentifierToken} from './syntax/IdentifierToken.js';
-import {LiteralToken} from './syntax/LiteralToken.js';
-import {Parser} from './syntax/Parser.js';
-import {Scanner} from './syntax/Scanner.js';
-import {SourceFile} from './syntax/SourceFile.js';
-import {Token} from './syntax/Token.js';
-module TokenType from './syntax/TokenType.js';
-module trees from './syntax/trees/ParseTrees.js';
+import {IdentifierToken} from './syntax/IdentifierToken';
+import {LiteralToken} from './syntax/LiteralToken';
+import {Parser} from './syntax/Parser';
+import {Scanner} from './syntax/Scanner';
+import {SourceFile} from './syntax/SourceFile';
+import {Token} from './syntax/Token';
+module TokenType from './syntax/TokenType';
+module trees from './syntax/trees/ParseTrees';
 
 export var syntax = {
   IdentifierToken,
@@ -58,12 +58,12 @@ export var syntax = {
   trees
 };
 
-import {ParseTreeWriter} from './outputgeneration/ParseTreeWriter.js';
-import {ParseTreeMapWriter} from './outputgeneration/ParseTreeMapWriter.js';
-import {ProjectWriter} from './outputgeneration/ProjectWriter.js';
-import {SourceMapConsumer} from './outputgeneration/SourceMapIntegration.js';
-import {SourceMapGenerator} from './outputgeneration/SourceMapIntegration.js';
-import {TreeWriter} from './outputgeneration/TreeWriter.js';
+import {ParseTreeWriter} from './outputgeneration/ParseTreeWriter';
+import {ParseTreeMapWriter} from './outputgeneration/ParseTreeMapWriter';
+import {ProjectWriter} from './outputgeneration/ProjectWriter';
+import {SourceMapConsumer} from './outputgeneration/SourceMapIntegration';
+import {SourceMapGenerator} from './outputgeneration/SourceMapIntegration';
+import {TreeWriter} from './outputgeneration/TreeWriter';
 
 export var outputgeneration = {
   ParseTreeWriter,
@@ -74,13 +74,13 @@ export var outputgeneration = {
   TreeWriter
 };
 
-import {Compiler} from './codegeneration/Compiler.js';
-import {ModuleTransformer} from './codegeneration/ModuleTransformer.js';
-import {ParseTreeTransformer} from './codegeneration/ParseTreeTransformer.js';
-import {ProgramTransformer} from './codegeneration/ProgramTransformer.js';
-import {CloneTreeTransformer} from './codegeneration/CloneTreeTransformer.js';
-module ParseTreeFactory from './codegeneration/ParseTreeFactory.js';
-import {ModuleRequireVisitor} from './codegeneration/module/ModuleRequireVisitor.js';
+import {Compiler} from './codegeneration/Compiler';
+import {ModuleTransformer} from './codegeneration/ModuleTransformer';
+import {ParseTreeTransformer} from './codegeneration/ParseTreeTransformer';
+import {ProgramTransformer} from './codegeneration/ProgramTransformer';
+import {CloneTreeTransformer} from './codegeneration/CloneTreeTransformer';
+module ParseTreeFactory from './codegeneration/ParseTreeFactory';
+import {ModuleRequireVisitor} from './codegeneration/module/ModuleRequireVisitor';
 
 export var codegeneration = {
   Compiler,
@@ -94,5 +94,5 @@ export var codegeneration = {
   }
 };
 
-module modules from './runtime/module-loader.js';
+module modules from './runtime/module-loader';
 export {modules};

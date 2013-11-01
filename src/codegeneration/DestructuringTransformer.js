@@ -17,7 +17,7 @@ import {
   CALL,
   PROTOTYPE,
   SLICE
-} from '../syntax/PredefinedName.js';
+} from '../syntax/PredefinedName';
 import {
   ARRAY_LITERAL_EXPRESSION,
   ARRAY_PATTERN,
@@ -35,22 +35,22 @@ import {
   OBJECT_PATTERN_FIELD,
   PAREN_EXPRESSION,
   VARIABLE_DECLARATION_LIST
-} from '../syntax/trees/ParseTreeType.js';
+} from '../syntax/trees/ParseTreeType';
 import {
   BindingElement,
   Catch,
   ForInStatement,
   ForOfStatement,
   LiteralExpression
-} from '../syntax/trees/ParseTrees.js';
-import {ParameterTransformer} from './ParameterTransformer.js';
+} from '../syntax/trees/ParseTrees';
+import {ParameterTransformer} from './ParameterTransformer';
 import {
   EQUAL,
   IDENTIFIER,
   IN,
   LET,
   VAR
-} from '../syntax/TokenType.js';
+} from '../syntax/TokenType';
 import {
   createArgumentList,
   createAssignmentExpression,
@@ -71,8 +71,8 @@ import {
   createVariableDeclaration,
   createVariableDeclarationList,
   createVariableStatement
-} from './ParseTreeFactory.js';
-import {options} from '../options.js';
+} from './ParseTreeFactory';
+import {options} from '../options';
 
 /**
  * Collects assignments in the desugaring of a pattern.

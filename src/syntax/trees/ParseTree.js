@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-module ParseTreeType from './ParseTreeType.js';
-import * from './ParseTreeType.js';
+module ParseTreeType from './ParseTreeType';
+import * from './ParseTreeType';
 import {
   STRING,
   VAR
-} from '../TokenType.js';
-import {Token} from '../Token.js';
-module utilJSON from '../../util/JSON.js';
+} from '../TokenType';
+import {Token} from '../Token';
+module utilJSON from '../../util/JSON';
 
 export {ParseTreeType};
 

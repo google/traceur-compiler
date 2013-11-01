@@ -12,23 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {FindVisitor} from './FindVisitor.js';
+import {FindVisitor} from './FindVisitor';
 import {
   FormalParameterList,
   FunctionExpression,
   IdentifierExpression,
   LiteralExpression
-} from '../syntax/trees/ParseTrees.js';
-import {TempVarTransformer} from './TempVarTransformer.js';
+} from '../syntax/trees/ParseTrees';
+import {TempVarTransformer} from './TempVarTransformer';
 import {
   AT_NAME,
   IDENTIFIER,
   STRING
-} from '../syntax/TokenType.js';
+} from '../syntax/TokenType';
 import {
   COMPUTED_PROPERTY_NAME,
   LITERAL_PROPERTY_NAME
-} from '../syntax/trees/ParseTreeType.js';
+} from '../syntax/trees/ParseTreeType';
 import {
   createAssignmentExpression,
   createCommaExpression,
@@ -41,9 +41,9 @@ import {
   createParenExpression,
   createPropertyNameAssignment,
   createStringLiteral
-} from './ParseTreeFactory.js';
-import {propName} from '../staticsemantics/PropName.js';
-import {transformOptions} from '../options.js';
+} from './ParseTreeFactory';
+import {propName} from '../staticsemantics/PropName';
+import {transformOptions} from '../options';
 
 /**
  * AdvancedPropertyFinder class that finds if an object literal contains a

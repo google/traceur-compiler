@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {FindVisitor} from './FindVisitor.js';
+import {FindVisitor} from './FindVisitor';
 
 /**
  * This is used to find something in a tree. Extend this class and override

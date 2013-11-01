@@ -15,7 +15,7 @@
 import {
   IDENTIFIER_EXPRESSION,
   SUPER_EXPRESSION
-} from '../syntax/trees/ParseTreeType.js';
+} from '../syntax/trees/ParseTreeType';
 import {
   AMPERSAND,
   AMPERSAND_EQUAL,
@@ -39,7 +39,7 @@ import {
   STAR_EQUAL,
   UNSIGNED_RIGHT_SHIFT,
   UNSIGNED_RIGHT_SHIFT_EQUAL
-} from '../syntax/TokenType.js';
+} from '../syntax/TokenType';
 import {
   createAssignmentExpression,
   createBinaryOperator,
@@ -49,7 +49,7 @@ import {
   createMemberLookupExpression,
   createOperatorToken,
   createParenExpression
-} from './ParseTreeFactory.js';
+} from './ParseTreeFactory';
 
 /**
  * Returns the binary operator that the assignment operator should use. For

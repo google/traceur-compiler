@@ -24,12 +24,12 @@
  * TODO: Regexp literals should have their own token type.
  */
 
-import {Token} from './Token.js';
+import {Token} from './Token';
 import {
   NULL,
   NUMBER,
   STRING
-} from './TokenType.js';
+} from './TokenType';
 import {iterator} from '@iter';
 
 /**
