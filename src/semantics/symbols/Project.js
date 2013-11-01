@@ -21,8 +21,7 @@ import {UniqueIdentifierGenerator} from
     '../../codegeneration/UniqueIdentifierGenerator.js';
 import {assert} from '../../util/assert.js';
 import {
-  isStandardModuleUrl,
-  resolveUrl
+  isStandardModuleUrl
 } from '../../util/url.js';
 
 function addAll(self, other) {
@@ -47,6 +46,8 @@ function getStandardModule(url) {
   if (!(url in standardModuleCache)) {
     var symbol = new ModuleSymbol(null, null, null, url);
     var moduleInstance = System.get(url);
+    if (!moduleInstance)
+      throw new Error("Internal error, no standard module for " + url);
     Object.keys(moduleInstance).forEach((name) => {
       symbol.addExport(name, new ExportSymbol(null, name, null));
     });
@@ -162,7 +163,7 @@ export class Project {
   }
 
   getModuleForUrl(url) {
-    return this.getModuleForResolvedUrl(resolveUrl(this.url, url));
+    return this.getModuleForResolvedUrl(System.normalResolve(url, this.url));
   }
 
   getModuleForResolvedUrl(url) {
@@ -173,7 +174,7 @@ export class Project {
   }
 
   hasModuleForUrl(url) {
-    return this.hasModuleForResolvedUrl(resolveUrl(this.url, url));
+    return this.hasModuleForResolvedUrl(System.normalResolve(url, this.url));
   }
 
   hasModuleForResolvedUrl(url) {

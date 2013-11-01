@@ -75,7 +75,6 @@ import {
   parseExpression,
   parseStatement
 } from './PlaceholderParser.js';
-import {resolveUrl} from '../util/url.js';
 
 function toBindingIdentifier(tree) {
   return new BindingIdentifier(tree.location, tree.identifierToken);
@@ -390,7 +389,7 @@ function transformDefinition(transformer, project, parent, tree,
     module = parent.getModule(tree.name.value);
   } else {
     var baseUrl = parent ? parent.url : project.url;
-    var url = resolveUrl(baseUrl, tree.name.processedValue);
+    var url = System.normalResolve(tree.name.processedValue, baseUrl);
     module = project.getModuleForResolvedUrl(url);
   }
   assert(module);

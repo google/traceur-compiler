@@ -67,7 +67,13 @@ System.set('@traceur/module', (function(global) {
   }
 
   System.resolve = function(normalizedModuleName, opt_referer, opt_any) {
+    if (isStandardModuleUrl(normalizedModuleName))
+      return normalizedModuleName;
     var asJS = normalizedModuleName + '.js';
+    // ----- Hack for self-hosting compiler -----
+    if (/\.js$/.test(normalizedModuleName))
+      asJS = normalizedModuleName;
+    // ----------------------------------------------------
     if (baseUrl)
       return resolveUrl(baseUrl, asJS);
     return asJS;
@@ -77,11 +83,24 @@ System.set('@traceur/module', (function(global) {
   var $get = System.get;
   var $set = System.set;
 
+  // Non-standard API
+  System.normalResolve = function(name, importingModuleName) {
+    if (/@.*\.js/.test(name))
+      throw new Error("System.normalResolve illegal standard module name " + name);
+    var options = {
+        referer: {
+          name: importingModuleName || refererUrl
+        }
+      };
+    return System.resolve(System.normalize(name, options));
+  }
+
   System.get = function(name) {
     if (isStandardModuleUrl(name))
       return $get(name);
-
-    var url = resolveUrl(refererUrl, name);
+    var url = System.normalResolve(name);
+    if (!url)
+      return;
     var module = modules[url];
     if (module instanceof PendingModule)
       return modules[url] = module.toModule();
@@ -89,10 +108,13 @@ System.set('@traceur/module', (function(global) {
   };
 
   System.set = function(name, object) {
-    if (isStandardModuleUrl(name))
+    if (isStandardModuleUrl(name)) {
       $set(name, object);
-    else
-      modules[resolveUrl(refererUrl, name)] = object;
+    } else {
+      var url = System.normalResolve(name);
+      if (url)
+        modules[url] = object;
+    }
   };
 
   return {

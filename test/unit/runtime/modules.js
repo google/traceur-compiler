@@ -171,7 +171,7 @@ suite('modules.js', function() {
     assert.equal(removeUpToTest(sourceCodeAddress), 'src/codegeneration/AssignmentPatternTransformer.js');
 
     sourceCodeAddress = System.resolve(System.normalize('@traceur/module', options));
-    assert.equal(removeUpToTest(sourceCodeAddress), '@traceur/module.js');
+    assert.equal(removeUpToTest(sourceCodeAddress), '@traceur/module');
   });
 
 });
