@@ -617,21 +617,35 @@ System.set('@traceur/module', (function(global) {
     return requestedModuleName;
   };
   System.resolve = function(normalizedModuleName, opt_referer, opt_any) {
+    if (isStandardModuleUrl(normalizedModuleName)) return normalizedModuleName;
     var asJS = normalizedModuleName + '.js';
+    if (/\.js$/.test(normalizedModuleName)) asJS = normalizedModuleName;
     if (baseUrl) return resolveUrl(baseUrl, asJS);
     return asJS;
   };
   var $get = System.get;
   var $set = System.set;
+  System.normalResolve = function(name, importingModuleName) {
+    if (/@.*\.js/.test(name)) throw new Error(("System.normalResolve illegal standard module name " + name));
+    var options = {referer: {name: importingModuleName || refererUrl}};
+    return System.resolve(System.normalize(name, options));
+  };
   System.get = function(name) {
+    if (!name) return;
     if (isStandardModuleUrl(name)) return $get(name);
-    var url = resolveUrl(refererUrl, name);
+    var url = System.normalResolve(name);
     var module = modules[url];
     if (module instanceof PendingModule) return modules[url] = module.toModule();
     return module;
   };
   System.set = function(name, object) {
-    if (isStandardModuleUrl(name)) $set(name, object); else modules[resolveUrl(refererUrl, name)] = object;
+    if (!name) return;
+    if (isStandardModuleUrl(name)) {
+      $set(name, object);
+    } else {
+      var url = System.normalResolve(name);
+      if (url) modules[url] = object;
+    }
   };
   return {
     getRefererUrl: getRefererUrl,
@@ -3017,36 +3031,6 @@ System.get('@traceur/module').registerModule("../src/syntax/ParseTreeVisitor.js"
       enumerable: true
     }}));
 }, this);
-System.get('@traceur/module').registerModule("../src/util/url.js", function() {
-  "use strict";
-  var $__4 = System.get('@traceur/url');
-  return Object.preventExtensions(Object.create(null, {
-    canonicalizeUrl: {
-      get: function() {
-        return $__4.canonicalizeUrl;
-      },
-      enumerable: true
-    },
-    isStandardModuleUrl: {
-      get: function() {
-        return $__4.isStandardModuleUrl;
-      },
-      enumerable: true
-    },
-    removeDotSegments: {
-      get: function() {
-        return $__4.removeDotSegments;
-      },
-      enumerable: true
-    },
-    resolveUrl: {
-      get: function() {
-        return $__4.resolveUrl;
-      },
-      enumerable: true
-    }
-  }));
-}, this);
 System.get('@traceur/module').registerModule("../src/codegeneration/module/ModuleVisitor.js", function() {
   "use strict";
   var ParseTree = System.get('../../syntax/trees/ParseTree.js').ParseTree;
@@ -3055,7 +3039,6 @@ System.get('@traceur/module').registerModule("../src/codegeneration/module/Modul
   var $__12 = System.get('../../syntax/TokenType.js'), IDENTIFIER = $__12.IDENTIFIER, STRING = $__12.STRING;
   var Symbol = System.get('../../semantics/symbols/Symbol.js').Symbol;
   var assert = System.get('../../util/assert.js').assert;
-  var resolveUrl = System.get('../../util/url.js').resolveUrl;
   function getFriendlyName(module) {
     return module.name || module.url;
   }
@@ -3073,7 +3056,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/module/Modul
         return this.currentModule_;
       },
       getModuleForModuleSpecifier: function(tree, reportErrors) {
-        var url = resolveUrl(this.currentModule.url, tree.token.processedValue);
+        var url = System.normalResolve(tree.token.processedValue, this.currentModule.url);
         var module = this.project.getModuleForResolvedUrl(url);
         if (!module) {
           if (reportErrors) {
@@ -3107,7 +3090,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/module/Modul
       visitModuleDefinition: function(tree) {
         var current = this.currentModule_;
         var baseUrl = current ? current.url: this.project.url;
-        var url = resolveUrl(baseUrl, tree.name.processedValue);
+        var url = System.normalResolve(tree.name.processedValue, baseUrl);
         var module = this.project.getModuleForResolvedUrl(url);
         assert(module);
         this.currentModule_ = module;
@@ -3356,7 +3339,6 @@ System.get('@traceur/module').registerModule("../src/codegeneration/module/Modul
   var ModuleVisitor = System.get('./ModuleVisitor.js').ModuleVisitor;
   var $__12 = System.get('../../syntax/TokenType.js'), IDENTIFIER = $__12.IDENTIFIER, STRING = $__12.STRING;
   var assert = System.get('../../util/assert.js').assert;
-  var resolveUrl = System.get('../../util/url.js').resolveUrl;
   var ModuleDefinitionVisitor = function($__super) {
     'use strict';
     var $__proto = $__getProtoParent($__super);
@@ -3367,7 +3349,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/module/Modul
       visitModuleDefinition: function(tree) {
         var parent = this.currentModule;
         var baseUrl = parent ? parent.url: this.project.url;
-        var url = resolveUrl(parent.url, tree.name.processedValue);
+        var url = System.normalResolve(tree.name.processedValue, parent.url);
         var moduleSymbol = new ModuleSymbol(null, parent, tree, url);
         this.project.addExternalModule(moduleSymbol);
         $__superCall(this, $__proto, "visitModuleDefinition", [tree]);
@@ -6044,7 +6026,7 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
 }, this);
 System.get('@traceur/module').registerModule("../src/codegeneration/ParseTreeTransformer.js", function() {
   "use strict";
-  var $__12 = System.get('../syntax/trees/ParseTrees.js'), ArgumentList = $__12.ArgumentList, ArrayComprehension = $__12.ArrayComprehension, ArrayLiteralExpression = $__12.ArrayLiteralExpression, ArrayPattern = $__12.ArrayPattern, ArrowFunctionExpression = $__12.ArrowFunctionExpression, AtNameDeclaration = $__12.AtNameDeclaration, AtNameExpression = $__12.AtNameExpression, AwaitStatement = $__12.AwaitStatement, BinaryOperator = $__12.BinaryOperator, BindingElement = $__12.BindingElement, BindingIdentifier = $__12.BindingIdentifier, Block = $__12.Block, BreakStatement = $__12.BreakStatement, CallExpression = $__12.CallExpression, CascadeExpression = $__12.CascadeExpression, CaseClause = $__12.CaseClause, Catch = $__12.Catch, ClassDeclaration = $__12.ClassDeclaration, ClassExpression = $__12.ClassExpression, CommaExpression = $__12.CommaExpression, ComprehensionFor = $__12.ComprehensionFor, ComprehensionIf = $__12.ComprehensionIf, ComputedPropertyName = $__12.ComputedPropertyName, ConditionalExpression = $__12.ConditionalExpression, ContinueStatement = $__12.ContinueStatement, CoverFormals = $__12.CoverFormals, CoverInitialisedName = $__12.CoverInitialisedName, DebuggerStatement = $__12.DebuggerStatement, DefaultClause = $__12.DefaultClause, DoWhileStatement = $__12.DoWhileStatement, EmptyStatement = $__12.EmptyStatement, ExportDeclaration = $__12.ExportDeclaration, ExportSpecifier = $__12.ExportSpecifier, ExportSpecifierSet = $__12.ExportSpecifierSet, ExportStar = $__12.ExportStar, ExpressionStatement = $__12.ExpressionStatement, Finally = $__12.Finally, ForInStatement = $__12.ForInStatement, ForOfStatement = $__12.ForOfStatement, ForStatement = $__12.ForStatement, FormalParameterList = $__12.FormalParameterList, FunctionBody = $__12.FunctionBody, FunctionDeclaration = $__12.FunctionDeclaration, FunctionExpression = $__12.FunctionExpression, GeneratorComprehension = $__12.GeneratorComprehension, GetAccessor = $__12.GetAccessor, IdentifierExpression = $__12.IdentifierExpression, IfStatement = $__12.IfStatement, ImportDeclaration = $__12.ImportDeclaration, ImportSpecifier = $__12.ImportSpecifier, ImportSpecifierSet = $__12.ImportSpecifierSet, LabelledStatement = $__12.LabelledStatement, LiteralExpression = $__12.LiteralExpression, LiteralPropertyName = $__12.LiteralPropertyName, MemberExpression = $__12.MemberExpression, MemberLookupExpression = $__12.MemberLookupExpression, Module = $__12.Module, ModuleDeclaration = $__12.ModuleDeclaration, ModuleDefinition = $__12.ModuleDefinition, ModuleSpecifier = $__12.ModuleSpecifier, NamedExport = $__12.NamedExport, NameStatement = $__12.NameStatement, NewExpression = $__12.NewExpression, ObjectLiteralExpression = $__12.ObjectLiteralExpression, ObjectPattern = $__12.ObjectPattern, ObjectPatternField = $__12.ObjectPatternField, ParenExpression = $__12.ParenExpression, PostfixExpression = $__12.PostfixExpression, PredefinedType = $__12.PredefinedType, Script = $__12.Script, PropertyMethodAssignment = $__12.PropertyMethodAssignment, PropertyNameAssignment = $__12.PropertyNameAssignment, PropertyNameShorthand = $__12.PropertyNameShorthand, RestParameter = $__12.RestParameter, ReturnStatement = $__12.ReturnStatement, SetAccessor = $__12.SetAccessor, SpreadExpression = $__12.SpreadExpression, SpreadPatternElement = $__12.SpreadPatternElement, SuperExpression = $__12.SuperExpression, SwitchStatement = $__12.SwitchStatement, SyntaxErrorTree = $__12.SyntaxErrorTree, TemplateLiteralExpression = $__12.TemplateLiteralExpression, TemplateLiteralPortion = $__12.TemplateLiteralPortion, TemplateSubstitution = $__12.TemplateSubstitution, ThisExpression = $__12.ThisExpression, ThrowStatement = $__12.ThrowStatement, TryStatement = $__12.TryStatement, TypeName = $__12.TypeName, UnaryExpression = $__12.UnaryExpression, VariableDeclaration = $__12.VariableDeclaration, VariableDeclarationList = $__12.VariableDeclarationList, VariableStatement = $__12.VariableStatement, WhileStatement = $__12.WhileStatement, WithStatement = $__12.WithStatement, YieldExpression = $__12.YieldExpression;
+  var $__12 = System.get('../syntax/trees/ParseTrees'), ArgumentList = $__12.ArgumentList, ArrayComprehension = $__12.ArrayComprehension, ArrayLiteralExpression = $__12.ArrayLiteralExpression, ArrayPattern = $__12.ArrayPattern, ArrowFunctionExpression = $__12.ArrowFunctionExpression, AtNameDeclaration = $__12.AtNameDeclaration, AtNameExpression = $__12.AtNameExpression, AwaitStatement = $__12.AwaitStatement, BinaryOperator = $__12.BinaryOperator, BindingElement = $__12.BindingElement, BindingIdentifier = $__12.BindingIdentifier, Block = $__12.Block, BreakStatement = $__12.BreakStatement, CallExpression = $__12.CallExpression, CascadeExpression = $__12.CascadeExpression, CaseClause = $__12.CaseClause, Catch = $__12.Catch, ClassDeclaration = $__12.ClassDeclaration, ClassExpression = $__12.ClassExpression, CommaExpression = $__12.CommaExpression, ComprehensionFor = $__12.ComprehensionFor, ComprehensionIf = $__12.ComprehensionIf, ComputedPropertyName = $__12.ComputedPropertyName, ConditionalExpression = $__12.ConditionalExpression, ContinueStatement = $__12.ContinueStatement, CoverFormals = $__12.CoverFormals, CoverInitialisedName = $__12.CoverInitialisedName, DebuggerStatement = $__12.DebuggerStatement, DefaultClause = $__12.DefaultClause, DoWhileStatement = $__12.DoWhileStatement, EmptyStatement = $__12.EmptyStatement, ExportDeclaration = $__12.ExportDeclaration, ExportSpecifier = $__12.ExportSpecifier, ExportSpecifierSet = $__12.ExportSpecifierSet, ExportStar = $__12.ExportStar, ExpressionStatement = $__12.ExpressionStatement, Finally = $__12.Finally, ForInStatement = $__12.ForInStatement, ForOfStatement = $__12.ForOfStatement, ForStatement = $__12.ForStatement, FormalParameterList = $__12.FormalParameterList, FunctionBody = $__12.FunctionBody, FunctionDeclaration = $__12.FunctionDeclaration, FunctionExpression = $__12.FunctionExpression, GeneratorComprehension = $__12.GeneratorComprehension, GetAccessor = $__12.GetAccessor, IdentifierExpression = $__12.IdentifierExpression, IfStatement = $__12.IfStatement, ImportDeclaration = $__12.ImportDeclaration, ImportSpecifier = $__12.ImportSpecifier, ImportSpecifierSet = $__12.ImportSpecifierSet, LabelledStatement = $__12.LabelledStatement, LiteralExpression = $__12.LiteralExpression, LiteralPropertyName = $__12.LiteralPropertyName, MemberExpression = $__12.MemberExpression, MemberLookupExpression = $__12.MemberLookupExpression, Module = $__12.Module, ModuleDeclaration = $__12.ModuleDeclaration, ModuleDefinition = $__12.ModuleDefinition, ModuleSpecifier = $__12.ModuleSpecifier, NamedExport = $__12.NamedExport, NameStatement = $__12.NameStatement, NewExpression = $__12.NewExpression, ObjectLiteralExpression = $__12.ObjectLiteralExpression, ObjectPattern = $__12.ObjectPattern, ObjectPatternField = $__12.ObjectPatternField, ParenExpression = $__12.ParenExpression, PostfixExpression = $__12.PostfixExpression, PredefinedType = $__12.PredefinedType, Script = $__12.Script, PropertyMethodAssignment = $__12.PropertyMethodAssignment, PropertyNameAssignment = $__12.PropertyNameAssignment, PropertyNameShorthand = $__12.PropertyNameShorthand, RestParameter = $__12.RestParameter, ReturnStatement = $__12.ReturnStatement, SetAccessor = $__12.SetAccessor, SpreadExpression = $__12.SpreadExpression, SpreadPatternElement = $__12.SpreadPatternElement, SuperExpression = $__12.SuperExpression, SwitchStatement = $__12.SwitchStatement, SyntaxErrorTree = $__12.SyntaxErrorTree, TemplateLiteralExpression = $__12.TemplateLiteralExpression, TemplateLiteralPortion = $__12.TemplateLiteralPortion, TemplateSubstitution = $__12.TemplateSubstitution, ThisExpression = $__12.ThisExpression, ThrowStatement = $__12.ThrowStatement, TryStatement = $__12.TryStatement, TypeName = $__12.TypeName, UnaryExpression = $__12.UnaryExpression, VariableDeclaration = $__12.VariableDeclaration, VariableDeclarationList = $__12.VariableDeclarationList, VariableStatement = $__12.VariableStatement, WhileStatement = $__12.WhileStatement, WithStatement = $__12.WithStatement, YieldExpression = $__12.YieldExpression;
   var ParseTreeTransformer = function() {
     'use strict';
     var $ParseTreeTransformer = ($__createClassNoExtends)({
@@ -16011,7 +15993,6 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ModuleTransf
   var hasUseStrict = System.get('../semantics/util.js').hasUseStrict;
   var options = System.get('../options.js').options;
   var $__12 = System.get('./PlaceholderParser.js'), parseExpression = $__12.parseExpression, parseStatement = $__12.parseStatement;
-  var resolveUrl = System.get('../util/url.js').resolveUrl;
   function toBindingIdentifier(tree) {
     return new BindingIdentifier(tree.location, tree.identifierToken);
   }
@@ -16196,7 +16177,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ModuleTransf
       module = parent.getModule(tree.name.value);
     } else {
       var baseUrl = parent ? parent.url: project.url;
-      var url = resolveUrl(baseUrl, tree.name.processedValue);
+      var url = System.normalResolve(tree.name.processedValue, baseUrl);
       module = project.getModuleForResolvedUrl(url);
     }
     assert(module);
@@ -18589,6 +18570,36 @@ System.get('@traceur/module').registerModule("../src/codegeneration/UniqueIdenti
       enumerable: true
     }}));
 }, this);
+System.get('@traceur/module').registerModule("../src/util/url.js", function() {
+  "use strict";
+  var $__4 = System.get('@traceur/url');
+  return Object.preventExtensions(Object.create(null, {
+    canonicalizeUrl: {
+      get: function() {
+        return $__4.canonicalizeUrl;
+      },
+      enumerable: true
+    },
+    isStandardModuleUrl: {
+      get: function() {
+        return $__4.isStandardModuleUrl;
+      },
+      enumerable: true
+    },
+    removeDotSegments: {
+      get: function() {
+        return $__4.removeDotSegments;
+      },
+      enumerable: true
+    },
+    resolveUrl: {
+      get: function() {
+        return $__4.resolveUrl;
+      },
+      enumerable: true
+    }
+  }));
+}, this);
 System.get('@traceur/module').registerModule("../src/semantics/symbols/Project.js", function() {
   "use strict";
   var ArrayMap = System.get('../../util/ArrayMap.js').ArrayMap;
@@ -18598,7 +18609,7 @@ System.get('@traceur/module').registerModule("../src/semantics/symbols/Project.j
   var RuntimeInliner = System.get('../../codegeneration/RuntimeInliner.js').RuntimeInliner;
   var UniqueIdentifierGenerator = System.get('../../codegeneration/UniqueIdentifierGenerator.js').UniqueIdentifierGenerator;
   var assert = System.get('../../util/assert.js').assert;
-  var $__12 = System.get('../../util/url.js'), isStandardModuleUrl = $__12.isStandardModuleUrl, resolveUrl = $__12.resolveUrl;
+  var isStandardModuleUrl = System.get('../../util/url.js').isStandardModuleUrl;
   function addAll(self, other) {
     for (var key in other) {
       self[key] = other[key];
@@ -18614,6 +18625,7 @@ System.get('@traceur/module').registerModule("../src/semantics/symbols/Project.j
     if (!(url in standardModuleCache)) {
       var symbol = new ModuleSymbol(null, null, null, url);
       var moduleInstance = System.get(url);
+      if (!moduleInstance) throw new Error(("Internal error, no standard module for " + url));
       Object.keys(moduleInstance).forEach((function(name) {
         symbol.addExport(name, new ExportSymbol(null, name, null));
       }));
@@ -18675,14 +18687,14 @@ System.get('@traceur/module').registerModule("../src/semantics/symbols/Project.j
         this.modulesByResolvedUrl_[module.url] = module;
       },
       getModuleForUrl: function(url) {
-        return this.getModuleForResolvedUrl(resolveUrl(this.url, url));
+        return this.getModuleForResolvedUrl(System.normalResolve(url, this.url));
       },
       getModuleForResolvedUrl: function(url) {
         if (isStandardModuleUrl(url)) return getStandardModule(url);
         return this.modulesByResolvedUrl_[url];
       },
       hasModuleForUrl: function(url) {
-        return this.hasModuleForResolvedUrl(resolveUrl(this.url, url));
+        return this.hasModuleForResolvedUrl(System.normalResolve(url, this.url));
       },
       hasModuleForResolvedUrl: function(url) {
         if (isStandardModuleUrl(url)) return System.get(url) != null;
@@ -20144,7 +20156,7 @@ System.get('@traceur/module').registerModule("../src/runtime/module-loader.js", 
   var WebLoader = System.get('./WebLoader.js').WebLoader;
   var assert = System.get('../util/assert.js').assert;
   var getUid = System.get('../util/uid.js').getUid;
-  var $__12 = System.get('../util/url.js'), isStandardModuleUrl = $__12.isStandardModuleUrl, resolveUrl = $__12.resolveUrl;
+  var isStandardModuleUrl = System.get('../util/url.js').isStandardModuleUrl;
   var $__12 = System.get('@traceur/module'), getRefererUrl = $__12.getRefererUrl, setRefererUrl = $__12.setRefererUrl;
   var base = Object.freeze(Object.create(null, {
     Array: {value: Array},
@@ -20325,7 +20337,7 @@ System.get('@traceur/module').registerModule("../src/runtime/module-loader.js", 
         return this.fileLoader.loadSync(url);
       },
       load: function(url, type) {
-        url = resolveUrl(this.url, url);
+        url = System.normalResolve(url, this.url);
         var codeUnit = this.getCodeUnit(url, type);
         if (codeUnit.state != NOT_STARTED || codeUnit.state == ERROR) {
           return codeUnit;
@@ -20402,7 +20414,7 @@ System.get('@traceur/module').registerModule("../src/runtime/module-loader.js", 
         requireVisitor.visit(codeUnit.tree);
         var baseUrl = codeUnit.url;
         codeUnit.dependencies = requireVisitor.requireUrls.map((function(url) {
-          url = resolveUrl(baseUrl, url);
+          url = System.normalResolve(url, baseUrl);
           return this.getCodeUnit(url, 'module');
         }).bind(this));
         codeUnit.dependencies.forEach((function(dependency) {
