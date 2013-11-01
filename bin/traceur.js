@@ -610,11 +610,11 @@ System.set('@traceur/module', (function(global) {
   function registerModule(url, func, self) {
     modules[url] = new PendingModule(url, func, self);
   }
-  System.normalize = function(requestedModuleName, opt_referer) {
-    console.assert(requestedModuleName);
-    var ref = (opt_referer && opt_referer.name) || refererUrl;
-    console.assert(ref);
-    return resolveUrl(ref, requestedModuleName);
+  System.normalize = function(requestedModuleName, options) {
+    var importingModuleName = options && options.referer && options.referer.name;
+    importingModuleName = importingModuleName || refererUrl;
+    if (importingModuleName && requestedModuleName) return resolveUrl(importingModuleName, requestedModuleName);
+    return requestedModuleName;
   };
   System.resolve = function(normalizedModuleName, opt_referer, opt_any) {
     var asJS = normalizedModuleName + '.js';

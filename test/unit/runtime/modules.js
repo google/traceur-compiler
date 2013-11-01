@@ -148,28 +148,30 @@ suite('modules.js', function() {
       }
   }
 
-  test('SystemResolve', function(done) {
+  test('SystemResolve', function() {
     assert.equal(removeUpToTest('asdas;dflj/test/foo'), 'foo');
     assert.equal(removeUpToTest('bax'), 'bax');
 
     var sourceCodeAddress = System.resolve(System.normalize('foo'));
-    console.log("sourceCodeAddress" + sourceCodeAddress);
     assert.equal(removeUpToTest(sourceCodeAddress), 'foo.js');
 
     sourceCodeAddress = System.resolve(System.normalize('foo', {name: baseUrl()}));
     assert.equal(removeUpToTest(sourceCodeAddress), 'foo.js');
 
     var importer = baseUrl() + 'src/syntax/Parser.js';
-    sourceCodeAddress = System.resolve(System.normalize('./IdentifierToken', {name: importer}));
+    var options = {
+        referer: {
+          name: importer
+        }
+      };
+    sourceCodeAddress = System.resolve(System.normalize('./IdentifierToken', options));
     assert.equal(removeUpToTest(sourceCodeAddress), 'src/syntax/IdentifierToken.js');
 
-    sourceCodeAddress = System.resolve(System.normalize('../codegeneration/AssignmentPatternTransformer', {name: importer}));
+    sourceCodeAddress = System.resolve(System.normalize('../codegeneration/AssignmentPatternTransformer', options));
     assert.equal(removeUpToTest(sourceCodeAddress), 'src/codegeneration/AssignmentPatternTransformer.js');
 
-    sourceCodeAddress = System.resolve(System.normalize('@traceur/module', {name: importer}));
+    sourceCodeAddress = System.resolve(System.normalize('@traceur/module', options));
     assert.equal(removeUpToTest(sourceCodeAddress), '@traceur/module.js');
-
-    done();
   });
 
 });
