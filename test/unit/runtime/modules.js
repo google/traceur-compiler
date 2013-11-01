@@ -128,4 +128,50 @@ suite('modules.js', function() {
     });
   });
 
+  function removeUpToTest(url) {
+    var testDir = '/test/';
+    var i = url.indexOf(testDir);
+    if (i === -1)
+      return url;
+    i += testDir.length;
+    return url.substring(i);
+  }
+
+  function baseUrl() {
+      var globalURL;
+      if (typeof __filename !== 'undefined') {
+        globalURL = __filename;
+        return traceur.util.resolveUrl(globalURL, '../../');
+      } else {
+        globalURL = window.location.href;
+        return traceur.util.resolveUrl(globalURL, './');
+      }
+  }
+
+  test('SystemResolve', function() {
+    assert.equal(removeUpToTest('asdas;dflj/test/foo'), 'foo');
+    assert.equal(removeUpToTest('bax'), 'bax');
+
+    var sourceCodeAddress = System.resolve(System.normalize('foo'));
+    assert.equal(removeUpToTest(sourceCodeAddress), 'foo.js');
+
+    sourceCodeAddress = System.resolve(System.normalize('foo', {name: baseUrl()}));
+    assert.equal(removeUpToTest(sourceCodeAddress), 'foo.js');
+
+    var importer = baseUrl() + 'src/syntax/Parser.js';
+    var options = {
+        referer: {
+          name: importer
+        }
+      };
+    sourceCodeAddress = System.resolve(System.normalize('./IdentifierToken', options));
+    assert.equal(removeUpToTest(sourceCodeAddress), 'src/syntax/IdentifierToken.js');
+
+    sourceCodeAddress = System.resolve(System.normalize('../codegeneration/AssignmentPatternTransformer', options));
+    assert.equal(removeUpToTest(sourceCodeAddress), 'src/codegeneration/AssignmentPatternTransformer.js');
+
+    sourceCodeAddress = System.resolve(System.normalize('@traceur/module', options));
+    assert.equal(removeUpToTest(sourceCodeAddress), '@traceur/module.js');
+  });
+
 });
