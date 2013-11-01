@@ -26,7 +26,6 @@ import {
 } from '../../syntax/TokenType.js';
 import {Symbol} from '../../semantics/symbols/Symbol.js';
 import {assert} from '../../util/assert.js';
-import {resolveUrl} from '../../util/url.js';
 
 function getFriendlyName(module) {
   return module.name || module.url;
@@ -58,7 +57,7 @@ export class ModuleVisitor extends ParseTreeVisitor {
    * @return {ModuleSymbol}
    */
   getModuleForModuleSpecifier(tree, reportErrors) {
-    var url = resolveUrl(this.currentModule.url, tree.token.processedValue);
+    var url = System.normalResolve(tree.token.processedValue, this.currentModule.url);
     var module = this.project.getModuleForResolvedUrl(url);
 
     if (!module) {
@@ -100,7 +99,7 @@ export class ModuleVisitor extends ParseTreeVisitor {
   visitModuleDefinition(tree) {
     var current = this.currentModule_;
     var baseUrl = current ? current.url : this.project.url;
-    var url = resolveUrl(baseUrl, tree.name.processedValue);
+    var url = System.normalResolve(tree.name.processedValue, baseUrl);
     var module = this.project.getModuleForResolvedUrl(url);
 
     assert(module);

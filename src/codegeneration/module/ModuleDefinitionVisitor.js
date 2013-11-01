@@ -19,7 +19,6 @@ import {
   STRING
 } from '../../syntax/TokenType.js';
 import {assert} from '../../util/assert.js';
-import {resolveUrl} from '../../util/url.js';
 
 /**
  * Visits a parse tree and adds all the module definitions.
@@ -39,7 +38,7 @@ export class ModuleDefinitionVisitor extends ModuleVisitor {
   visitModuleDefinition(tree) {
     var parent = this.currentModule;
     var baseUrl = parent ? parent.url : this.project.url;
-    var url = resolveUrl(parent.url, tree.name.processedValue);
+    var url = System.normalResolve(tree.name.processedValue, parent.url);
     var moduleSymbol = new ModuleSymbol(null, parent, tree, url);
     this.project.addExternalModule(moduleSymbol);
 

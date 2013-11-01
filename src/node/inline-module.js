@@ -39,7 +39,6 @@ var IDENTIFIER = traceur.syntax.TokenType.IDENTIFIER;
 var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
 var createIdentifierToken = ParseTreeFactory.createIdentifierToken;
 var createStringLiteralToken = ParseTreeFactory.createStringLiteralToken;
-var resolveUrl = traceur.util.resolveUrl;
 
 /**
  * This transformer replaces
@@ -67,7 +66,7 @@ ModuleRequireTransformer.prototype = {
     if (url.charAt(0) === '@')
       return tree;
 
-    url = resolveUrl(this.url, url);
+    url = System.normalResolve(url, this.url);
 
     return new ModuleSpecifier(tree.location, createStringLiteralToken(url));
   },
@@ -192,7 +191,7 @@ function inlineAndCompileSync(filenames, options, reporter) {
   var loader = new InlineCodeLoader(reporter, project, elements, depTarget);
 
   filenames.forEach(function(filename) {
-    filename = resolveUrl(basePath, filename);
+    filename = System.normalResolve(filename, basePath);
     loader.loadSync(filename);
   });
   return allLoaded(basePath, reporter, elements);
