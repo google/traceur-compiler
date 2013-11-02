@@ -55,6 +55,7 @@ System.set('@traceur/module', (function(global) {
   }
 
   function registerModule(url, func, self) {
+    url = System.normalResolve(url);
     modules[url] = new PendingModule(url, func, self);
   }
 
@@ -102,8 +103,9 @@ System.set('@traceur/module', (function(global) {
       return $get(name);
     var url = System.normalResolve(name);
     var module = modules[url];
-    if (module instanceof PendingModule)
+    if (module instanceof PendingModule) {
       return modules[url] = module.toModule();
+    }
     return module;
   };
 
