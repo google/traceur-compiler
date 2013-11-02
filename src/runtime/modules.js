@@ -30,12 +30,12 @@ System.set('@traceur/module', (function(global) {
 
   // Until ecmascript defines System.normalize/resolve we follow requirejs
   // for module ids, http://requirejs.org/docs/api.html
-  // "default baseUrl is the directory that contains the HTML page"
-  var baseUrl;
+  // "default baseURL is the directory that contains the HTML page"
+  var baseURL;
   if (global.location && global.location.href)
-    baseUrl = resolveUrl(global.location.href, './');
+    baseURL = resolveUrl(global.location.href, './');
   else
-    baseUrl = '';
+    baseURL = '';
 
   class PendingModule {
     constructor(url, func, self) {
@@ -59,15 +59,26 @@ System.set('@traceur/module', (function(global) {
     modules[url] = new PendingModule(url, func, self);
   }
 
+  Object.defineProperty(System, 'baseURL', {
+    get: function() {
+      return baseURL;
+    },
+    set: function(v) {
+      baseURL = String(v);
+    },
+    enumerable: true,
+    configurable: true
+  });
+
   System.normalize = function(requestedModuleName, options) {
     var importingModuleName = options && options.referer && options.referer.name;
     importingModuleName = importingModuleName || refererUrl;
     if (importingModuleName && requestedModuleName)
       return resolveUrl(importingModuleName, requestedModuleName);
     return requestedModuleName;
-  }
+  };
 
-  System.resolve = function(normalizedModuleName, opt_referer, opt_any) {
+  System.resolve = function(normalizedModuleName) {
     if (isStandardModuleUrl(normalizedModuleName))
       return normalizedModuleName;
     var asJS = normalizedModuleName + '.js';
@@ -75,10 +86,10 @@ System.set('@traceur/module', (function(global) {
     if (/\.js$/.test(normalizedModuleName))
       asJS = normalizedModuleName;
     // ----------------------------------------------------
-    if (baseUrl)
-      return resolveUrl(baseUrl, asJS);
+    if (baseURL)
+      return resolveUrl(baseURL, asJS);
     return asJS;
-  }
+  };
 
   // Now it is safe to override System.{get,set} to use resolveUrl.
   var $get = System.get;
@@ -94,7 +105,7 @@ System.set('@traceur/module', (function(global) {
       }
     };
     return System.resolve(System.normalize(name, options));
-  }
+  };
 
   System.get = function(name) {
     if (!name)
@@ -103,9 +114,8 @@ System.set('@traceur/module', (function(global) {
       return $get(name);
     var url = System.normalResolve(name);
     var module = modules[url];
-    if (module instanceof PendingModule) {
+    if (module instanceof PendingModule)
       return modules[url] = module.toModule();
-    }
     return module;
   };
 

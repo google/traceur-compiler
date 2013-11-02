@@ -271,6 +271,7 @@ var $__getDescriptors = function(object) {
       assertNotName(name);
       $defineProperty(object, name, descriptor);
     }
+    return object;
   }
   function $getPropertyDescriptor(obj, name) {
     while (obj !== null) {
@@ -585,8 +586,8 @@ System.set('@traceur/module', (function(global) {
   function getRefererUrl() {
     return refererUrl;
   }
-  var baseUrl;
-  if (global.location && global.location.href) baseUrl = resolveUrl(global.location.href, './'); else baseUrl = '';
+  var baseURL;
+  if (global.location && global.location.href) baseURL = resolveUrl(global.location.href, './'); else baseURL = '';
   var PendingModule = function() {
     'use strict';
     var $PendingModule = ($__createClassNoExtends)({
@@ -611,17 +612,27 @@ System.set('@traceur/module', (function(global) {
     url = System.normalResolve(url);
     modules[url] = new PendingModule(url, func, self);
   }
+  Object.defineProperty(System, 'baseURL', {
+    get: function() {
+      return baseURL;
+    },
+    set: function(v) {
+      baseURL = String(v);
+    },
+    enumerable: true,
+    configurable: true
+  });
   System.normalize = function(requestedModuleName, options) {
     var importingModuleName = options && options.referer && options.referer.name;
     importingModuleName = importingModuleName || refererUrl;
     if (importingModuleName && requestedModuleName) return resolveUrl(importingModuleName, requestedModuleName);
     return requestedModuleName;
   };
-  System.resolve = function(normalizedModuleName, opt_referer, opt_any) {
+  System.resolve = function(normalizedModuleName) {
     if (isStandardModuleUrl(normalizedModuleName)) return normalizedModuleName;
     var asJS = normalizedModuleName + '.js';
     if (/\.js$/.test(normalizedModuleName)) asJS = normalizedModuleName;
-    if (baseUrl) return resolveUrl(baseUrl, asJS);
+    if (baseURL) return resolveUrl(baseURL, asJS);
     return asJS;
   };
   var $get = System.get;
@@ -636,9 +647,7 @@ System.set('@traceur/module', (function(global) {
     if (isStandardModuleUrl(name)) return $get(name);
     var url = System.normalResolve(name);
     var module = modules[url];
-    if (module instanceof PendingModule) {
-      return modules[url] = module.toModule();
-    }
+    if (module instanceof PendingModule) return modules[url] = module.toModule();
     return module;
   };
   System.set = function(name, object) {
@@ -20509,7 +20518,7 @@ System.get('@traceur/module').registerModule("../src/runtime/module-loader.js", 
             continue;
           }
           var currentUrl = getRefererUrl();
-          setRefererUrl(codeUnit.url);
+          if (codeUnit.type !== 'module') setRefererUrl(codeUnit.url);
           var result;
           try {
             result = this.evalCodeUnit(codeUnit);
