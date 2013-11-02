@@ -499,7 +499,10 @@ class InternalLoader {
       }
 
       var currentUrl = getRefererUrl();
-      setRefererUrl(codeUnit.url);
+      // Modules are wrapped in registerModule call which sets the referrer
+      // as needed.
+      if (codeUnit.type !== 'module')
+        setRefererUrl(codeUnit.url);
       var result;
 
       try {

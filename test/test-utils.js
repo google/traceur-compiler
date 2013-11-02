@@ -31,6 +31,8 @@
     }
   }
 
+  var reDirectoryResources = /'([^\s]*?\/resources\/[^']*)'/;
+
   function parseProlog(source) {
     var returnValue = {
       onlyInBrowser: false,
@@ -49,7 +51,11 @@
       } else if ((m = /\/\ Options:\s*(.+)/.exec(line))) {
         traceur.options.fromString(m[1]);
       } else if ((m = /\/\/ Error:\s*(.+)/.exec(line))) {
-        returnValue.expectedErrors.push(m[1]);
+        var errLine = m[1];
+        var resolvedError = errLine.replace(reDirectoryResources, function(match, p1) {
+          return '\'' + System.normalResolve(p1) + '\'';
+        });
+        returnValue.expectedErrors.push(resolvedError);
       }
     });
     return returnValue;
