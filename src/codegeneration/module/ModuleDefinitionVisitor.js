@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ModuleSymbol} from '../../semantics/symbols/ModuleSymbol.js';
-import {ModuleVisitor} from './ModuleVisitor.js';
+import {ModuleSymbol} from '../../semantics/symbols/ModuleSymbol';
+import {ModuleVisitor} from './ModuleVisitor';
 import {
   IDENTIFIER,
   STRING
-} from '../../syntax/TokenType.js';
-import {assert} from '../../util/assert.js';
+} from '../../syntax/TokenType';
+import {assert} from '../../util/assert';
 
 /**
  * Visits a parse tree and adds all the module definitions.

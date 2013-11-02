@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {SymbolType} from './SymbolType.js';
-import {assert} from '../../util/assert.js';
+import {SymbolType} from './SymbolType';
+import {assert} from '../../util/assert';
 
 /**
  * A symbol is a named program element.

@@ -12,20 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ParseTree} from '../../syntax/trees/ParseTree.js';
-import {ParseTreeVisitor} from '../../syntax/ParseTreeVisitor.js';
+import {ParseTree} from '../../syntax/trees/ParseTree';
+import {ParseTreeVisitor} from '../../syntax/ParseTreeVisitor';
 import {
   MODULE_DECLARATION,
   MODULE_DEFINITION,
   EXPORT_DECLARATION,
   IMPORT_DECLARATION
-} from '../../syntax/trees/ParseTreeType.js';
+} from '../../syntax/trees/ParseTreeType';
 import {
   IDENTIFIER,
   STRING
-} from '../../syntax/TokenType.js';
-import {Symbol} from '../../semantics/symbols/Symbol.js';
-import {assert} from '../../util/assert.js';
+} from '../../syntax/TokenType';
+import {Symbol} from '../../semantics/symbols/Symbol';
+import {assert} from '../../util/assert';
 
 function getFriendlyName(module) {
   return module.name || module.url;

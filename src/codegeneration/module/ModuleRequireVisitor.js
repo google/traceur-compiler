@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ParseTreeVisitor} from '../../syntax/ParseTreeVisitor.js';
-import {STRING} from '../../syntax/TokenType.js';
-import {canonicalizeUrl} from '../../util/url.js';
+import {ParseTreeVisitor} from '../../syntax/ParseTreeVisitor';
+import {STRING} from '../../syntax/TokenType';
+import {canonicalizeUrl} from '../../util/url';
 
 // TODO(arv): This is closer to the ModuleVisitor but we don't care about
 // modules.

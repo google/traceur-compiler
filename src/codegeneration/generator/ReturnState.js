@@ -15,15 +15,15 @@
 import {
   isUndefined,
   isVoidExpression,
-} from '../../semantics/util.js';
-import {YIELD_RETURN} from '../../syntax/PredefinedName.js';
-import {YieldState} from './YieldState.js';
-import {State} from './State.js';
+} from '../../semantics/util';
+import {YIELD_RETURN} from '../../syntax/PredefinedName';
+import {YieldState} from './YieldState';
+import {State} from './State';
 import {
   createAssignmentStatement,
   createMemberExpression,
   createThisExpression
-} from '../ParseTreeFactory.js';
+} from '../ParseTreeFactory';
 
 /**
  * Represents a return statement that has been added to a StateMachine.

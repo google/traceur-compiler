@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {State} from './State.js';
+import {State} from './State';
 import {
   createBlock,
   createIfStatement
-} from '../ParseTreeFactory.js';
+} from '../ParseTreeFactory';
 
 export class ConditionalState extends State {
   /**

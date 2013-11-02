@@ -12,21 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ArrayMap} from '../util/ArrayMap.js';
-import {ModuleAnalyzer} from '../semantics/ModuleAnalyzer.js';
+import {ArrayMap} from '../util/ArrayMap';
+import {ModuleAnalyzer} from '../semantics/ModuleAnalyzer';
 import {ModuleRequireVisitor} from
-    '../codegeneration/module/ModuleRequireVisitor.js';
-import {ModuleSymbol} from '../semantics/symbols/ModuleSymbol.js';
-import {ObjectMap} from '../util/ObjectMap.js';
-import {Parser} from '../syntax/Parser.js';
-import {ProgramTransformer} from '../codegeneration/ProgramTransformer.js';
-import {Project} from '../semantics/symbols/Project.js';
-import {SourceFile} from '../syntax/SourceFile.js';
-import {TreeWriter} from '../outputgeneration/TreeWriter.js';
-import {WebLoader} from './WebLoader.js';
-import {assert} from '../util/assert.js';
-import {getUid} from '../util/uid.js';
-import {isStandardModuleUrl} from '../util/url.js';
+    '../codegeneration/module/ModuleRequireVisitor';
+import {ModuleSymbol} from '../semantics/symbols/ModuleSymbol';
+import {ObjectMap} from '../util/ObjectMap';
+import {Parser} from '../syntax/Parser';
+import {ProgramTransformer} from '../codegeneration/ProgramTransformer';
+import {Project} from '../semantics/symbols/Project';
+import {SourceFile} from '../syntax/SourceFile';
+import {TreeWriter} from '../outputgeneration/TreeWriter';
+import {WebLoader} from './WebLoader';
+import {assert} from '../util/assert';
+import {getUid} from '../util/uid';
+import {isStandardModuleUrl} from '../util/url';
 import {
   getRefererUrl,
   setRefererUrl

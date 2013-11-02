@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {LineNumberTable} from './LineNumberTable.js';
-import {getUid} from '../util/uid.js';
+import {LineNumberTable} from './LineNumberTable';
+import {getUid} from '../util/uid';
 
 /**
  * A source file.

@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {TRACEUR_RUNTIME} from '../syntax/PredefinedName.js';
-import {VARIABLE_DECLARATION_LIST} from '../syntax/trees/ParseTreeType.js';
-import {TempVarTransformer} from './TempVarTransformer.js';
+import {TRACEUR_RUNTIME} from '../syntax/PredefinedName';
+import {VARIABLE_DECLARATION_LIST} from '../syntax/trees/ParseTreeType';
+import {TempVarTransformer} from './TempVarTransformer';
 import {
   createIdentifierExpression,
   createMemberExpression,
   createVariableStatement
-} from './ParseTreeFactory.js';
-import {parseStatement} from './PlaceholderParser.js';
+} from './ParseTreeFactory';
+import {parseStatement} from './PlaceholderParser';
 
 /**
  * Desugars for-of statement.

@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {FunctionBody} from '../syntax/trees/ParseTrees.js';
-import {TempVarTransformer} from './TempVarTransformer.js';
-import {prependStatements} from './PrependStatements.js';
+import {FunctionBody} from '../syntax/trees/ParseTrees';
+import {TempVarTransformer} from './TempVarTransformer';
+import {prependStatements} from './PrependStatements';
 
 var stack = [];
 

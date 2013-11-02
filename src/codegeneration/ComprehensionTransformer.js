@@ -15,19 +15,19 @@
 import {
   ARGUMENTS,
   THIS
-} from '../syntax/PredefinedName.js';
-import {AlphaRenamer} from './AlphaRenamer.js';
-import {FindInFunctionScope} from './FindInFunctionScope.js';
-import {FunctionExpression} from '../syntax/trees/ParseTrees.js';
-import {TempVarTransformer} from './TempVarTransformer.js';
+} from '../syntax/PredefinedName';
+import {AlphaRenamer} from './AlphaRenamer';
+import {FindInFunctionScope} from './FindInFunctionScope';
+import {FunctionExpression} from '../syntax/trees/ParseTrees';
+import {TempVarTransformer} from './TempVarTransformer';
 import {
   LET,
   VAR
-} from '../syntax/TokenType.js';
+} from '../syntax/TokenType';
 import {
   COMPREHENSION_FOR,
   COMPREHENSION_IF
-  } from '../syntax/trees/ParseTreeType.js';
+  } from '../syntax/trees/ParseTreeType';
 import {
   createCallExpression,
   createEmptyParameterList,
@@ -38,8 +38,8 @@ import {
   createParenExpression,
   createThisExpression,
   createVariableDeclarationList
-} from './ParseTreeFactory.js';
-import {options} from '../options.js';
+} from './ParseTreeFactory';
+import {options} from '../options';
 
 /**
  * This is used to find whether a function contains a reference to 'this'.

@@ -12,20 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {MutedErrorReporter} from '../util/MutedErrorReporter.js';
-import {ParseTreeTransformer} from './ParseTreeTransformer.js';
-import {Parser} from '../syntax/Parser.js';
-import {Script} from '../syntax/trees/ParseTrees.js';
-import {SourceFile} from '../syntax/SourceFile.js';
-import {VAR} from '../syntax/TokenType.js';
-import {assert} from '../util/assert.js';
+import {MutedErrorReporter} from '../util/MutedErrorReporter';
+import {ParseTreeTransformer} from './ParseTreeTransformer';
+import {Parser} from '../syntax/Parser';
+import {Script} from '../syntax/trees/ParseTrees';
+import {SourceFile} from '../syntax/SourceFile';
+import {VAR} from '../syntax/TokenType';
+import {assert} from '../util/assert';
 import {
   createIdentifierExpression,
   createVariableDeclaration,
   createVariableDeclarationList,
   createVariableStatement
-} from './ParseTreeFactory.js';
-import {prependStatements} from './PrependStatements.js';
+} from './ParseTreeFactory';
+import {prependStatements} from './PrependStatements';
 
 // Some helper functions that other runtime functions may depend on.
 var shared = {

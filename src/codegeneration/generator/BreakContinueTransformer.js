@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {BreakState} from './BreakState.js';
-import {ContinueState} from './ContinueState.js';
-import {ParseTreeTransformer} from '../ParseTreeTransformer.js';
-import {StateMachine} from '../../syntax/trees/StateMachine.js';
+import {BreakState} from './BreakState';
+import {ContinueState} from './ContinueState';
+import {ParseTreeTransformer} from '../ParseTreeTransformer';
+import {StateMachine} from '../../syntax/trees/StateMachine';
 
 /**
  * @param {BreakStatement|ContinueStatement} tree

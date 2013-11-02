@@ -15,27 +15,27 @@
 import {
   FunctionDeclaration,
   FunctionExpression
-} from '../syntax/trees/ParseTrees.js';
+} from '../syntax/trees/ParseTrees';
 import {
   LITERAL_PROPERTY_NAME,
   MEMBER_EXPRESSION,
   MEMBER_LOOKUP_EXPRESSION,
   SUPER_EXPRESSION
-} from '../syntax/trees/ParseTreeType.js';
-import {ParseTreeTransformer} from './ParseTreeTransformer.js';
-import {EQUAL} from '../syntax/TokenType.js';
-import {assert} from '../util/assert.js';
+} from '../syntax/trees/ParseTreeType';
+import {ParseTreeTransformer} from './ParseTreeTransformer';
+import {EQUAL} from '../syntax/TokenType';
+import {assert} from '../util/assert';
 import {
   createArrayLiteralExpression,
   createIdentifierExpression,
   createStringLiteral,
   createThisExpression
-} from './ParseTreeFactory.js';
+} from './ParseTreeFactory';
 import {
   expandMemberExpression,
   expandMemberLookupExpression
-} from './OperatorExpander.js';
-import {parseExpression} from './PlaceholderParser.js';
+} from './OperatorExpander';
+import {parseExpression} from './PlaceholderParser';
 
 var SUPER_DESCRIPTOR_CODE =
     `function (proto, name) {
