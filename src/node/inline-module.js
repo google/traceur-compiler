@@ -22,7 +22,6 @@ var normalizePath = require('./file-util.js').normalizePath;
 var ErrorReporter = traceur.util.ErrorReporter;
 var InternalLoader = traceur.modules.internals.InternalLoader;
 var ModuleAnalyzer = traceur.semantics.ModuleAnalyzer;
-var ModuleDefinition = traceur.syntax.trees.ModuleDefinition;
 var ModuleRequireVisitor = traceur.codegeneration.module.ModuleRequireVisitor;
 var ModuleSymbol = traceur.semantics.symbols.ModuleSymbol;
 var ModuleTransformer = traceur.codegeneration.ModuleTransformer;
@@ -114,18 +113,7 @@ InlineCodeLoader.prototype = {
 };
 
 function allLoaded(url, reporter, elements) {
-  var project = new Project(url);
-  var programTree = new Script(null, elements);
-
-  var file = new SourceFile(project.url, '/* dummy */');
-  project.addFile(file);
-  project.setParseTree(file, programTree);
-
-  var analyzer = new ModuleAnalyzer(reporter, project);
-  analyzer.analyze();
-
-  var transformer = new ProgramTransformer(reporter, project);
-  return transformer.transform(programTree);
+  return new Script(null, elements);
 }
 
 /**

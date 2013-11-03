@@ -265,7 +265,6 @@ export class ParseTree {
       case FUNCTION_DECLARATION:
       case IMPORT_DECLARATION:
       case MODULE_DECLARATION:
-      case MODULE_DEFINITION:
       case NAME_STATEMENT:
       case VARIABLE_DECLARATION:
         return true;

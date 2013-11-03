@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {SymbolType} from './SymbolType.js';
-import {assert} from '../../util/assert.js';
-
 /**
  * A symbol is a named program element.
  *
@@ -24,28 +21,11 @@ import {assert} from '../../util/assert.js';
  */
 export class Symbol {
   /**
-   * @param {SymbolType} type
+   * @param {string} type
    * @param {ParseTree} tree
    */
-  constructor(type, tree, name) {
+  constructor(type, tree) {
     this.type = type;
     this.tree = tree;
-    this.name = name;
-  }
-
-  /**
-   * @return {ExportSymbol}
-   */
-  asExport() {
-    assert(this.type == SymbolType.EXPORT);
-    return this;
-  }
-
-  /**
-   * @return {ModuleSymbol}
-   */
-  asModuleSymbol() {
-    assert(this.type == SymbolType.MODULE);
-    return this;
   }
 }

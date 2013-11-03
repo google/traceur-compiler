@@ -15,7 +15,6 @@
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {
   Module,
-  ModuleDefinition,
   Script
 } from '../syntax/trees/ParseTrees.js';
 import {VAR} from '../syntax/TokenType.js';
@@ -121,15 +120,6 @@ export class TempVarTransformer extends ParseTreeTransformer {
     if (statements == tree.statements)
       return tree;
     return createFunctionBody(statements);
-  }
-
-  transformModuleDefinition(tree) {
-    this.pushTempVarState();
-    var elements = this.transformStatements_(tree.elements);
-    this.popTempVarState();
-    if (elements == tree.elements)
-      return tree;
-    return new ModuleDefinition(tree.location, tree.name, elements);
   }
 
   /**

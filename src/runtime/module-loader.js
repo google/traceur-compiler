@@ -225,7 +225,7 @@ class LoadCodeUnit extends CodeUnit {
     var tree = this.tree;
     var url = this.url;
     // External modules have no parent module.
-    var moduleSymbol = new ModuleSymbol(null, null, tree, url);
+    var moduleSymbol = new ModuleSymbol(tree, url);
     project.addExternalModule(moduleSymbol);
 
     return true;

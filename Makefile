@@ -13,7 +13,7 @@ GENSRC = \
   src/syntax/ParseTreeVisitor.js
 TPL_GENSRC_DEPS = $(addsuffix -template.js.dep, $(TPL_GENSRC))
 
-TFLAGS = --debug --
+TFLAGS = --
 
 TESTS = \
 	test/node-feature-test.js \

@@ -659,19 +659,6 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
-   * @param {ModuleDefinition} tree
-   */
-  visitModuleDefinition(tree) {
-    this.write_(MODULE);
-    this.write_(tree.name);
-    this.write_(OPEN_CURLY);
-    this.writeln_();
-    this.writelnList_(tree.elements);
-    this.write_(CLOSE_CURLY);
-    this.writeln_();
-  }
-
-  /**
    * @param {ModuleSpecifier} tree
    */
   visitModuleSpecifier(tree) {
