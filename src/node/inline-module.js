@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strict';
+
 var fs = require('fs');
 var path = require('path');
 var NodeLoader = require('./NodeLoader.js');
@@ -20,7 +22,6 @@ var normalizePath = require('./file-util.js').normalizePath;
 var ErrorReporter = traceur.util.ErrorReporter;
 var InternalLoader = traceur.modules.internals.InternalLoader;
 var ModuleAnalyzer = traceur.semantics.ModuleAnalyzer;
-var ModuleDefinition = traceur.syntax.trees.ModuleDefinition;
 var ModuleRequireVisitor = traceur.codegeneration.module.ModuleRequireVisitor;
 var ModuleSymbol = traceur.semantics.symbols.ModuleSymbol;
 var ModuleTransformer = traceur.codegeneration.ModuleTransformer;
@@ -41,23 +42,22 @@ var createIdentifierToken = ParseTreeFactory.createIdentifierToken;
 var createStringLiteralToken = ParseTreeFactory.createStringLiteralToken;
 
 /**
- * This transformer replaces
+ * This resolves imported URLs for Script trees.
  *
  *   import * from "url"
  *
  * with
  *
- *   import * from $_name_associated_with_url
+ *   import * from "resolved_url"
  *
- * @param {string} url The base URL that all the modules should be relative
- *     to.
+ * @param {string} url The base URL that all the modules should be relative to.
  */
-function ModuleRequireTransformer(url) {
+function ResolveImportUrlTransformer(url) {
   ParseTreeTransformer.call(this);
   this.url = url;
 }
 
-ModuleRequireTransformer.prototype = {
+ResolveImportUrlTransformer.prototype = {
   __proto__: ParseTreeTransformer.prototype,
   transformModuleSpecifier: function(tree) {
     var url = tree.token.processedValue;
@@ -67,18 +67,7 @@ ModuleRequireTransformer.prototype = {
       return tree;
 
     url = System.normalResolve(url, this.url);
-
     return new ModuleSpecifier(tree.location, createStringLiteralToken(url));
-  },
-
-  transformModule: function(tree) {
-    // Transform top level Module into a script with a single top level
-    // ModuleDefinition
-    return new Script(tree.location, [
-      new ModuleDefinition(tree.location,
-                           createStringLiteralToken(this.url),
-                           tree.scriptItemList)
-    ]);
   }
 };
 
@@ -113,24 +102,18 @@ InlineCodeLoader.prototype = {
                   codeUnit.url)));
     }
 
-    var transformer = new ModuleRequireTransformer(codeUnit.url);
-    return transformer.transformAny(codeUnit.tree);
+    if (codeUnit.type === 'script') {
+      var transformer = new ResolveImportUrlTransformer(codeUnit.url);
+      var tree = transformer.transformAny(codeUnit.tree);
+      this.project.setParseTree(codeUnit.file, tree);
+    }
+
+    return InternalLoader.prototype.transformCodeUnit.call(this, codeUnit);
   }
 };
 
 function allLoaded(url, reporter, elements) {
-  var project = new Project(url);
-  var programTree = new Script(null, elements);
-
-  var file = new SourceFile(project.url, '/* dummy */');
-  project.addFile(file);
-  project.setParseTree(file, programTree);
-
-  var analyzer = new ModuleAnalyzer(reporter, project);
-  analyzer.analyze();
-
-  var transformer = new ProgramTransformer(reporter, project);
-  return transformer.transform(programTree);
+  return new Script(null, elements);
 }
 
 /**

@@ -327,7 +327,7 @@ export class Parser {
   // export  FunctionDeclaration
   // export  ConstStatement
   // export  ClassDeclaration
-  // export  module ModuleDefinition
+  // export  ModuleDeclaration
 
   /**
    * @return {ParseTree}
@@ -934,7 +934,7 @@ export class Parser {
 
   // Expression Statement and Module declaration.
   /**
-   * @return {ExpressionStatement|ModuleDeclaration|ModuleDefinition}
+   * @return {ExpressionStatement|ModuleDeclaration}
    * @private
    */
   parseFallThroughStatement_(allowScriptItem) {
@@ -951,38 +951,22 @@ export class Parser {
                                      statement);
       }
 
-      // Modules
+      // ModuleDeclaration :
+      //     module [no LineTerminator here] ImportedBinding FromClause ;
       //
-      // ModuleDefinition(load) ::=
-      //     module [NoNewLine] StringLiteral { ModuleBody(load) }
-      // ModuleDeclaration(load) ::=
-      //     module [NoNewLine] Identifier from ModuleSpecifier(load)
-      //
-      // ModuleDefinition is legacy. It will be removed soon.
       if (allowScriptItem && nameToken.value === MODULE &&
           parseOptions.modules) {
         var token = this.peekTokenNoLineTerminator_();
-        if (token !== null) {
-          if (token.type === STRING) {
-            var name = this.eat_(STRING);
-            this.eat_(OPEN_CURLY);
-            var elements = this.parseModuleItemList_();
-            this.eat_(CLOSE_CURLY);
-            return new ModuleDefinition(this.getTreeLocation_(start), name,
-                                        elements);
-          }
-
-          if (token.type === IDENTIFIER) {
-            var name = this.eatId_();
-            this.eatId_(FROM);
-            var moduleSpecifier = this.parseModuleSpecifier_();
-            this.eatPossibleImplicitSemiColon_();
-            return new ModuleDeclaration(this.getTreeLocation_(start), name,
-                                         moduleSpecifier);
-          }
-
-          // Fall through.
+        if (token !== null && token.type === IDENTIFIER) {
+          var name = this.eatId_();
+          this.eatId_(FROM);
+          var moduleSpecifier = this.parseModuleSpecifier_();
+          this.eatPossibleImplicitSemiColon_();
+          return new ModuleDeclaration(this.getTreeLocation_(start), name,
+                                       moduleSpecifier);
         }
+
+        // Fall through.
       }
     }
 

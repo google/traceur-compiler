@@ -42,12 +42,12 @@ var standardModuleCache = Object.create(null);
  */
 function getStandardModule(url) {
   if (!(url in standardModuleCache)) {
-    var symbol = new ModuleSymbol(null, null, null, url);
+    var symbol = new ModuleSymbol(null, url);
     var moduleInstance = System.get(url);
     if (!moduleInstance)
       throw new Error(`Internal error, no standard module for ${url}`);
     Object.keys(moduleInstance).forEach((name) => {
-      symbol.addExport(name, new ExportSymbol(null, name, null));
+      symbol.addExport(new ExportSymbol(name, null, null));
     });
     standardModuleCache[url] = symbol;
   }
@@ -69,7 +69,7 @@ export class Project {
 
     this.sourceFiles_ = Object.create(null);
     this.parseTrees_ = new ObjectMap();
-    this.rootModule_ = new ModuleSymbol(null, null, null, url);
+    this.rootModule_ = new ModuleSymbol(null, url);
     this.modulesByResolvedUrl_ = Object.create(null);
     this.moduleExports_ = new ArrayMap();
   }

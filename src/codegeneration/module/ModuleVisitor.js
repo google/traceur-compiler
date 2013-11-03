@@ -16,7 +16,6 @@ import {ParseTree} from '../../syntax/trees/ParseTree.js';
 import {ParseTreeVisitor} from '../../syntax/ParseTreeVisitor.js';
 import {
   MODULE_DECLARATION,
-  MODULE_DEFINITION,
   EXPORT_DECLARATION,
   IMPORT_DECLARATION
 } from '../../syntax/trees/ParseTreeType.js';
@@ -81,7 +80,6 @@ export class ModuleVisitor extends ParseTreeVisitor {
   visitModuleElement_(element) {
     switch (element.type) {
       case MODULE_DECLARATION:
-      case MODULE_DEFINITION:
       case EXPORT_DECLARATION:
       case IMPORT_DECLARATION:
         this.visitAny(element);
@@ -94,18 +92,6 @@ export class ModuleVisitor extends ParseTreeVisitor {
 
   visitModule(tree) {
     tree.scriptItemList.forEach(this.visitModuleElement_, this);
-  }
-
-  visitModuleDefinition(tree) {
-    var current = this.currentModule_;
-    var baseUrl = current ? current.url : this.project.url;
-    var url = System.normalResolve(tree.name.processedValue, baseUrl);
-    var module = this.project.getModuleForResolvedUrl(url);
-
-    assert(module);
-    this.currentModule_ = module;
-    tree.elements.forEach(this.visitModuleElement_, this);
-    this.currentModule_ = current;
   }
 
   checkForDuplicateModule_(name, tree) {

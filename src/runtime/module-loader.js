@@ -74,11 +74,14 @@ class CodeUnit {
    * @param {InternalLoader} loader The loader that is managing this dependency.
    * @param {string} url The URL of this dependency. If this is evaluated code
    *     the URL is the URL of the loader.
+   * @param {string} type Either 'script' or 'module'. This determinse how to
+   *     parse the code.
    * @param {number} state
    */
-  constructor(loader, url, state) {
+  constructor(loader, url, type, state) {
     this.loader = loader;
     this.url = url;
+    this.type = type;
     this.state = state;
     this.uid = getUid();
     this.state_ = NOT_STARTED;
@@ -197,8 +200,7 @@ class LoadCodeUnit extends CodeUnit {
    * @param {string} url
    */
   constructor(loader, url) {
-    super(loader, url, NOT_STARTED);
-    this.type = 'module';
+    super(loader, url, 'module', NOT_STARTED);
     if (isStandardModuleUrl(url)) {
       this.state = COMPLETE;
       this.dependencies = [];
@@ -223,7 +225,7 @@ class LoadCodeUnit extends CodeUnit {
     var tree = this.tree;
     var url = this.url;
     // External modules have no parent module.
-    var moduleSymbol = new ModuleSymbol(null, null, tree, url);
+    var moduleSymbol = new ModuleSymbol(tree, url);
     project.addExternalModule(moduleSymbol);
 
     return true;
@@ -248,9 +250,8 @@ class EvalCodeUnit extends CodeUnit {
    * @param {string} code
    */
   constructor(loader, code) {
-    super(loader, loader.url, LOADED);
+    super(loader, loader.url, 'script', LOADED);
     this.text = code;
-    this.type = 'script'
   }
 }
 
@@ -286,7 +287,7 @@ class InternalLoader {
     return this.fileLoader.loadSync(url);
   }
 
-  load(url, type) {
+  load(url, type = 'script') {
     url = System.normalResolve(url, this.url);
     var codeUnit = this.getCodeUnit(url, type);
     if (codeUnit.state != NOT_STARTED || codeUnit.state == ERROR) {
@@ -318,7 +319,7 @@ class InternalLoader {
     return codeUnit;
   }
 
-  loadSync(url, type) {
+  loadSync(url, type = 'script') {
     this.sync_ = true;
     var loaded = this.load(url, type);
     this.sync_ = false;

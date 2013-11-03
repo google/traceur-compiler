@@ -15,7 +15,7 @@
 import {ModuleVisitor} from './ModuleVisitor.js';
 
 function getFriendlyName(module) {
-  return module.name || "'" + module.url + "'";
+  return "'" + module.url + "'";
 }
 
 /**
