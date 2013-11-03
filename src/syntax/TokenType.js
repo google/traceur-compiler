@@ -76,6 +76,7 @@ export var NOT_EQUAL = '!=';
 export var NOT_EQUAL_EQUAL = '!==';
 export var NULL = 'null';
 export var NUMBER = 'number literal';
+export var NUMBER_SIGN = '#';
 export var OPEN_ANGLE = '<';
 export var OPEN_CURLY = '{';
 export var OPEN_PAREN = '(';

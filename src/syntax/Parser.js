@@ -587,6 +587,10 @@ export class Parser {
         if (allowScriptItem && parseOptions.modules)
           return this.parseImportDeclaration_();
         break;
+      case NUMBER_SIGN:
+        if (parseOptions.decorators)
+          return this.parseDecorators_();
+        break;
       case OPEN_CURLY:
         return this.parseBlock_();
       case PRIVATE:
@@ -3384,6 +3388,34 @@ export class Parser {
       memberName);
     }
     return typeName;
+  }
+
+  /**
+   * Decorators extension
+   *
+   * @return {ParseTree}
+   * @private
+   */
+  parseDecorators_() {
+    var start = this.getTreeStartLocation_();
+    var decorators = [];
+    var name;
+    var clazz;
+
+
+    while (this.eatIf_(NUMBER_SIGN)) {
+      decorators.push(this.parseDecorator_());
+    } 
+    
+    if (this.peek_(CLASS)) {
+      return new DecoratedClassDeclaration(this.getTreeLocation_(start), decorators, this.parseClassDeclaration_());
+    } 
+
+    return this.parseSyntaxError_('Unsupported decorated expression');
+  }
+
+  parseDecorator_() {
+    return new DecoratorExpression(this.getTreeStartLocation_(), this.parseExpression());
   }
 
   /**

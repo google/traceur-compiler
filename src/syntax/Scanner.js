@@ -713,6 +713,8 @@ function scanToken() {
       return scanTemplateStart(beginIndex);
     case 64:  // @
       return scanAtName(beginIndex);
+    case 35:  // #
+      return createToken(NUMBER_SIGN, beginIndex);
 
       // TODO: add NumberToken
       // TODO: character following NumericLiteral must not be an

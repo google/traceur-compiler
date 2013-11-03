@@ -282,6 +282,25 @@
       "SourceRange"
     ]
   },
+  "DecoratedClassDeclaration": {
+    "location": [
+      "SourceRange"
+    ],
+    "decorations": [
+      "Array.<DecoratorExpression>"
+    ],
+    "decoratedClass": [
+      "ClassDeclaration"
+    ]
+  },  
+  "DecoratorExpression": {
+    "location": [
+      "SourceRange"
+    ],
+    "expression": [
+      "ExpressionStatement"
+    ]
+  },
   "DefaultClause": {
     "location": [
       "SourceRange"
