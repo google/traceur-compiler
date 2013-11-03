@@ -279,7 +279,7 @@ System.set('@traceur/url', (function() {
   }
 
   /**
-   * Resovles a URL.
+   * Resolves a URL.
    * @param {string} base The URL acting as the base URL.
    * @param {string} to The URL to resolve.
    * @return {string}

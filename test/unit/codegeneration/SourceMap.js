@@ -88,4 +88,19 @@ suite('SourceMap.js', function() {
     assertArrayEquals(['a.js', 'b.js', 'c.js'], map.sources);
   });
 
+  test('ImportSpecifierSetSourceMap', function() {
+    var src = "  import * from 'WrapNewObjectTransformer.js';";
+
+    var filename = 'sourceMapImportSpecifierSet.js';
+    var tree = parse(filename, src);
+
+    var generator = new SourceMapGenerator({file: filename});
+    var options = {sourceMapGenerator: generator, showLineNumbers: false};
+    var actual = TreeWriter.write(tree, options);
+
+    var consumer = new SourceMapConsumer(options.sourceMap);
+
+    var sourceContent = consumer.sourceContentFor(filename);
+    assert.equal(sourceContent, src);
+  });
 });

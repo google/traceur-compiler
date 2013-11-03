@@ -77,7 +77,6 @@ import {
   parseExpression,
   parseStatement
 } from './PlaceholderParser.js';
-import {resolveUrl} from '../util/url.js';
 
 function toBindingIdentifier(tree) {
   return new BindingIdentifier(tree.location, tree.identifierToken);
@@ -357,10 +356,12 @@ function transformModuleElements(transformer, project, parentUrl, tree, elements
   var module;
   var baseUrl = parentUrl || project.url;
   var url;
-  if (tree.type === MODULE)
+  if (tree.type === MODULE) {
     url = parentUrl;
-  else
-    url = resolveUrl(baseUrl, tree.name.processedValue);
+  } else {
+    //url = resolveUrl(baseUrl, tree.name.processedValue);
+    url = System.normalResolve(tree.name.processedValue, baseUrl);
+  }
   module = project.getModuleForResolvedUrl(url);
   assert(module);
 
@@ -411,6 +412,9 @@ function transformModuleElements(transformer, project, parentUrl, tree, elements
 function transformDefinition(transformer, project, parentUrl, tree,
                              useStrictCount) {
   transformer.pushTempVarState();
+
+  // var baseUrl = parent ? parent.url : project.url;
+  // var url = System.normalResolve(tree.name.processedValue, baseUrl);
 
   var callExpression = transformModuleElements(transformer, project, parentUrl,
                                                tree, tree.elements, useStrictCount);

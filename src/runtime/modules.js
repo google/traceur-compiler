@@ -11,8 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-System.set('@traceur/module', (function() {
+System.set('@traceur/module', (function(global) {
   'use strict';
 
   var {resolveUrl, isStandardModuleUrl} = System.get('@traceur/url');
@@ -28,6 +27,15 @@ System.set('@traceur/module', (function() {
   function getRefererUrl() {
     return refererUrl;
   }
+
+  // Until ecmascript defines System.normalize/resolve we follow requirejs
+  // for module ids, http://requirejs.org/docs/api.html
+  // "default baseURL is the directory that contains the HTML page"
+  var baseURL;
+  if (global.location && global.location.href)
+    baseURL = resolveUrl(global.location.href, './');
+  else
+    baseURL = '';
 
   class PendingModule {
     constructor(url, func, self) {
@@ -47,18 +55,64 @@ System.set('@traceur/module', (function() {
   }
 
   function registerModule(url, func, self) {
+    url = System.normalResolve(url);
     modules[url] = new PendingModule(url, func, self);
   }
+
+  Object.defineProperty(System, 'baseURL', {
+    get: function() {
+      return baseURL;
+    },
+    set: function(v) {
+      baseURL = String(v);
+    },
+    enumerable: true,
+    configurable: true
+  });
+
+  System.normalize = function(requestedModuleName, options) {
+    var importingModuleName = options && options.referer && options.referer.name;
+    importingModuleName = importingModuleName || refererUrl;
+    if (importingModuleName && requestedModuleName)
+      return resolveUrl(importingModuleName, requestedModuleName);
+    return requestedModuleName;
+  };
+
+  System.resolve = function(normalizedModuleName) {
+    if (isStandardModuleUrl(normalizedModuleName))
+      return normalizedModuleName;
+    var asJS = normalizedModuleName + '.js';
+    // ----- Hack for self-hosting compiler -----
+    if (/\.js$/.test(normalizedModuleName))
+      asJS = normalizedModuleName;
+    // ----------------------------------------------------
+    if (baseURL)
+      return resolveUrl(baseURL, asJS);
+    return asJS;
+  };
 
   // Now it is safe to override System.{get,set} to use resolveUrl.
   var $get = System.get;
   var $set = System.set;
 
+  // Non-standard API, remove see issue #393
+  System.normalResolve = function(name, importingModuleName) {
+    if (/@.*\.js/.test(name))
+      throw new Error(`System.normalResolve illegal standard module name ${name}`);
+    var options = {
+      referer: {
+        name: importingModuleName || refererUrl
+      }
+    };
+    return System.resolve(System.normalize(name, options));
+  };
+
   System.get = function(name) {
+    if (!name)
+      return;
     if (isStandardModuleUrl(name))
       return $get(name);
-
-    var url = resolveUrl(refererUrl, name);
+    var url = System.normalResolve(name);
     var module = modules[url];
     if (module instanceof PendingModule)
       return modules[url] = module.toModule();
@@ -66,10 +120,15 @@ System.set('@traceur/module', (function() {
   };
 
   System.set = function(name, object) {
-    if (isStandardModuleUrl(name))
+    if (!name)
+      return;
+    if (isStandardModuleUrl(name)) {
       $set(name, object);
-    else
-      modules[resolveUrl(refererUrl, name)] = object;
+    } else {
+      var url = System.normalResolve(name);
+      if (url)
+        modules[url] = object;
+    }
   };
 
   return {
@@ -77,4 +136,4 @@ System.set('@traceur/module', (function() {
     registerModule,
     setRefererUrl,
   };
-})());
+})(this));

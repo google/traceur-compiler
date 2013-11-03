@@ -26,10 +26,7 @@ import {TreeWriter} from '../outputgeneration/TreeWriter.js';
 import {WebLoader} from './WebLoader.js';
 import {assert} from '../util/assert.js';
 import {getUid} from '../util/uid.js';
-import {
-  isStandardModuleUrl,
-  resolveUrl
-} from '../util/url.js';
+import {isStandardModuleUrl} from '../util/url.js';
 import {
   getRefererUrl,
   setRefererUrl
@@ -291,7 +288,7 @@ class InternalLoader {
   }
 
   load(url, type = 'script') {
-    url = resolveUrl(this.url, url);
+    url = System.normalResolve(url, this.url);
     var codeUnit = this.getCodeUnit(url, type);
     if (codeUnit.state != NOT_STARTED || codeUnit.state == ERROR) {
       return codeUnit;
@@ -383,7 +380,7 @@ class InternalLoader {
     requireVisitor.visit(codeUnit.tree);
     var baseUrl = codeUnit.url;
     codeUnit.dependencies = requireVisitor.requireUrls.map((url) => {
-      url = resolveUrl(baseUrl, url);
+      url = System.normalResolve(url, baseUrl);
       return this.getCodeUnit(url, 'module');
     });
     codeUnit.dependencies.forEach((dependency) => {
@@ -503,7 +500,10 @@ class InternalLoader {
       }
 
       var currentUrl = getRefererUrl();
-      setRefererUrl(codeUnit.url);
+      // Modules are wrapped in registerModule call which sets the referrer
+      // as needed.
+      if (codeUnit.type !== 'module')
+        setRefererUrl(codeUnit.url);
       var result;
 
       try {

@@ -322,6 +322,7 @@
       assertNotName(name);
       $defineProperty(object, name, descriptor);
     }
+    return object;
   }
 
   function $getPropertyDescriptor(obj, name) {

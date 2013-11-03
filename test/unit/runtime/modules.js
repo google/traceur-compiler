@@ -17,14 +17,18 @@ suite('modules.js', function() {
   var MutedErrorReporter =
       System.get('../src/util/MutedErrorReporter.js').MutedErrorReporter;
 
-  var reporter;
+  var reporter, baseURL, refererUrl;
 
   setup(function() {
     reporter = new traceur.util.ErrorReporter();
+    baseURL = System.baseURL;
+    refererUrl = System.get('@traceur/module').getRefererUrl();
   });
 
   teardown(function() {
     assert.isFalse(reporter.hadError());
+    System.baseURL = baseURL;
+    System.get('@traceur/module').setRefererUrl(refererUrl);
   });
 
   var url;
@@ -126,6 +130,41 @@ suite('modules.js', function() {
       fail(error);
       done();
     });
+  });
+
+  test('System.normalize', function() {
+    var m = System.get('@traceur/module');
+
+    m.setRefererUrl('http://example.org/a/b.html');
+    assert.equal('http://example.org/a/d/e/f', System.normalize('d/e/f'));
+    assert.equal('http://example.org/e/f', System.normalize('../e/f'));
+
+    m.setRefererUrl('/dir/file.js');
+    assert.equal('/dir/d/e/f', System.normalize('d/e/f'));
+    assert.equal('/e/f', System.normalize('../e/f'));
+
+    var base = 'http://ecmascipt.org/x/y';
+    assert.equal('http://ecmascipt.org/x/d/e/f',
+                 System.normalize('d/e/f', {referer: {name: base}}));
+  });
+
+  test('System.resolve', function() {
+    System.baseURL = 'http://example.org/a/b.html';
+    assert.equal(System.resolve('@abc/def'), '@abc/def');
+    assert.equal(System.resolve('abc/def'), 'http://example.org/a/abc/def.js');
+
+    // Backwards compat
+    assert.equal(System.resolve('abc/def.js'),
+                 'http://example.org/a/abc/def.js');
+
+    var importer = './src/syntax/Parser.js';
+    var options = {referer: {name: importer}};
+    var normalized = System.normalize('./IdentifierToken', options);
+    assert.equal(normalized, 'src/syntax/IdentifierToken');
+    var resolved = System.resolve(normalized);
+    assert.equal(resolved,
+                 'http://example.org/a/src/syntax/IdentifierToken.js');
+
   });
 
 });
