@@ -81,7 +81,6 @@ import {
   LITERAL_PROPERTY_NAME,
   MODULE_DECLARATION,
   MODULE_DECLARATION,
-  MODULE_DEFINITION,
   MODULE_SPECIFIER,
   OBJECT_PATTERN,
   OBJECT_PATTERN_FIELD,
@@ -425,7 +424,6 @@ export class ParseTreeValidator extends ParseTreeVisitor {
     this.checkVisit_(
         declType == VARIABLE_STATEMENT ||
         declType == FUNCTION_DECLARATION ||
-        declType == MODULE_DEFINITION ||
         declType == MODULE_DECLARATION ||
         declType == CLASS_DECLARATION ||
         declType == NAMED_EXPORT,
@@ -679,24 +677,6 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    */
   visitSyntaxErrorTree(tree) {
     this.fail_(tree, `parse tree contains SyntaxError: ${tree.message}`);
-  }
-
-  /**
-   * @param {ModuleDefinition} tree
-   */
-  visitModuleDefinition(tree) {
-    for (var i = 0; i < tree.elements.length; i++) {
-      var element = tree.elements[i];
-      this.checkVisit_(
-          (element.isStatement() && element.type !== BLOCK) ||
-          element.type === CLASS_DECLARATION ||
-          element.type === EXPORT_DECLARATION ||
-          element.type === IMPORT_DECLARATION ||
-          element.type === MODULE_DEFINITION ||
-          element.type === MODULE_DECLARATION,
-          element,
-          'module element expected');
-    }
   }
 
   /**
