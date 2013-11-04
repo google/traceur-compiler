@@ -1,6 +1,6 @@
 {
   "name": "traceur",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Experimental ES6 to ES5 compiler",
   "keywords": [
     "javascript",
