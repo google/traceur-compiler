@@ -23,7 +23,6 @@ suite('parser.js', function() {
     var program = 'export var x = 42;\n' +
                   'module M from \'url\';\n' +
                   'import {z} from \'x\';\n' +
-                  'import * from \'M\';\n' +
                   'import {a as b, c} from \'M\';\n';
     var sourceFile = new traceur.syntax.SourceFile('Name', program);
     var parser = new traceur.syntax.Parser(errorReporter, sourceFile);
