@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import {ExportSymbol} from '../../semantics/symbols/ExportSymbol';
-import {IDENTIFIER_EXPRESSION} from '../../syntax/trees/ParseTreeType';
 import {ModuleVisitor} from './ModuleVisitor';
 import {assert} from '../../util/assert';
 

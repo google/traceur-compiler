@@ -19,16 +19,7 @@ import {
   EXPORT_DECLARATION,
   IMPORT_DECLARATION
 } from '../../syntax/trees/ParseTreeType';
-import {
-  IDENTIFIER,
-  STRING
-} from '../../syntax/TokenType';
 import {Symbol} from '../../semantics/symbols/Symbol';
-import {assert} from '../../util/assert';
-
-function getFriendlyName(module) {
-  return module.name || module.url;
-}
 
 /**
  * A specialized parse tree visitor for use with modules.

@@ -44,11 +44,11 @@ var createStringLiteralToken = ParseTreeFactory.createStringLiteralToken;
 /**
  * This resolves imported URLs for Script trees.
  *
- *   import * from "url"
+ *   import {x} from "url"
  *
  * with
  *
- *   import * from "resolved_url"
+ *   import {x} from "resolved_url"
  *
  * @param {string} url The base URL that all the modules should be relative to.
  */

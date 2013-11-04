@@ -172,22 +172,10 @@ export class Project {
     return this.modulesByResolvedUrl_[url];
   }
 
-  hasModuleForUrl(url) {
-    return this.hasModuleForResolvedUrl(System.normalResolve(url, this.url));
-  }
-
   hasModuleForResolvedUrl(url) {
     if (isStandardModuleUrl(url))
       return System.get(url) != null;
 
     return url in this.modulesByResolvedUrl_;
-  }
-
-  setModuleForStarTree(tree, symbol) {
-    this.moduleExports_.set(tree, symbol);
-  }
-
-  getModuleForStarTree(tree) {
-    return this.moduleExports_.get(tree);
   }
 }
