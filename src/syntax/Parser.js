@@ -62,8 +62,217 @@ import {
   parseOptions,
   options
 } from '../options';
-import * from './TokenType';
-import * from './trees/ParseTrees';
+module TokenType from './TokenType';
+module ParseTrees from './trees/ParseTrees';
+
+var {
+  AMPERSAND,
+  AMPERSAND_EQUAL,
+  AND,
+  ARROW,
+  AT_NAME,
+  AWAIT,
+  BACK_QUOTE,
+  BANG,
+  BAR,
+  BAR_EQUAL,
+  BREAK,
+  CARET,
+  CARET_EQUAL,
+  CASE,
+  CATCH,
+  CLASS,
+  CLOSE_ANGLE,
+  CLOSE_CURLY,
+  CLOSE_PAREN,
+  CLOSE_SQUARE,
+  COLON,
+  COMMA,
+  CONST,
+  CONTINUE,
+  DEBUGGER,
+  DEFAULT,
+  DELETE,
+  DO,
+  DOT_DOT_DOT,
+  ELSE,
+  END_OF_FILE,
+  ENUM,
+  EQUAL,
+  EQUAL_EQUAL,
+  EQUAL_EQUAL_EQUAL,
+  ERROR,
+  EXPORT,
+  EXTENDS,
+  FALSE,
+  FINALLY,
+  FOR,
+  FUNCTION,
+  GREATER_EQUAL,
+  IDENTIFIER,
+  IF,
+  IMPLEMENTS,
+  IMPORT,
+  IN,
+  INSTANCEOF,
+  INTERFACE,
+  LEFT_SHIFT,
+  LEFT_SHIFT_EQUAL,
+  LESS_EQUAL,
+  LET,
+  MINUS,
+  MINUS_EQUAL,
+  MINUS_MINUS,
+  NEW,
+  NO_SUBSTITUTION_TEMPLATE,
+  NOT_EQUAL,
+  NOT_EQUAL_EQUAL,
+  NULL,
+  NUMBER,
+  OPEN_ANGLE,
+  OPEN_CURLY,
+  OPEN_PAREN,
+  OPEN_SQUARE,
+  OR,
+  PACKAGE,
+  PERCENT,
+  PERCENT_EQUAL,
+  PERIOD,
+  PERIOD_OPEN_CURLY,
+  PLUS,
+  PLUS_EQUAL,
+  PLUS_PLUS,
+  PRIVATE,
+  PROTECTED,
+  PUBLIC,
+  QUESTION,
+  REGULAR_EXPRESSION,
+  RETURN,
+  RIGHT_SHIFT,
+  RIGHT_SHIFT_EQUAL,
+  SEMI_COLON,
+  SLASH,
+  SLASH_EQUAL,
+  STAR,
+  STAR_EQUAL,
+  STATIC,
+  STRING,
+  SUPER,
+  SWITCH,
+  TEMPLATE_HEAD,
+  TEMPLATE_MIDDLE,
+  TEMPLATE_TAIL,
+  THIS,
+  THROW,
+  TILDE,
+  TRUE,
+  TRY,
+  TYPEOF,
+  UNSIGNED_RIGHT_SHIFT,
+  UNSIGNED_RIGHT_SHIFT_EQUAL,
+  VAR,
+  VOID,
+  WHILE,
+  WITH,
+  YIELD
+} = TokenType;
+
+var {
+  ArgumentList,
+  ArrayComprehension,
+  ArrayLiteralExpression,
+  ArrayPattern,
+  ArrowFunctionExpression,
+  AtNameDeclaration,
+  AtNameExpression,
+  AwaitStatement,
+  BinaryOperator,
+  BindingElement,
+  BindingIdentifier,
+  Block,
+  BreakStatement,
+  CallExpression,
+  CascadeExpression,
+  CaseClause,
+  Catch,
+  ClassDeclaration,
+  ClassExpression,
+  CommaExpression,
+  ComprehensionFor,
+  ComprehensionIf,
+  ComputedPropertyName,
+  ConditionalExpression,
+  ContinueStatement,
+  CoverFormals,
+  CoverInitialisedName,
+  DebuggerStatement,
+  DefaultClause,
+  DoWhileStatement,
+  EmptyStatement,
+  ExportDeclaration,
+  ExportSpecifier,
+  ExportSpecifierSet,
+  ExportStar,
+  ExpressionStatement,
+  Finally,
+  ForInStatement,
+  ForOfStatement,
+  ForStatement,
+  FormalParameterList,
+  FunctionBody,
+  FunctionDeclaration,
+  FunctionExpression,
+  GeneratorComprehension,
+  GetAccessor,
+  IdentifierExpression,
+  IfStatement,
+  ImportDeclaration,
+  ImportSpecifier,
+  ImportSpecifierSet,
+  LabelledStatement,
+  LiteralExpression,
+  LiteralPropertyName,
+  MemberExpression,
+  MemberLookupExpression,
+  Module,
+  ModuleDeclaration,
+  ModuleSpecifier,
+  NamedExport,
+  NameStatement,
+  NewExpression,
+  ObjectLiteralExpression,
+  ObjectPattern,
+  ObjectPatternField,
+  ParenExpression,
+  PostfixExpression,
+  PredefinedType,
+  Script,
+  PropertyMethodAssignment,
+  PropertyNameAssignment,
+  PropertyNameShorthand,
+  RestParameter,
+  ReturnStatement,
+  SetAccessor,
+  SpreadExpression,
+  SpreadPatternElement,
+  SuperExpression,
+  SwitchStatement,
+  SyntaxErrorTree,
+  TemplateLiteralExpression,
+  TemplateLiteralPortion,
+  TemplateSubstitution,
+  ThisExpression,
+  ThrowStatement,
+  TryStatement,
+  TypeName,
+  UnaryExpression,
+  VariableDeclaration,
+  VariableDeclarationList,
+  VariableStatement,
+  WhileStatement,
+  WithStatement,
+  YieldExpression
+} = ParseTrees;
 
 /**
  * Differentiates between parsing for 'In' vs. 'NoIn'
@@ -274,8 +483,8 @@ export class Parser {
         importSpecifierSet, moduleSpecifier);
   }
 
-  //ImportSpecifierSet ::= "*"
-  //                  | "{" (ImportSpecifier ("," ImportSpecifier)*)? ","? "}"
+  //ImportSpecifierSet :
+  //  "{" (ImportSpecifier ("," ImportSpecifier)*)? ","? "}"
   /**
    * @param {SourcePosition} start
    * @param {Array.<IdentifierToken>} qualifiedPath
@@ -284,22 +493,17 @@ export class Parser {
    */
   parseImportSpecifierSet_() {
     var start = this.getTreeStartLocation_();
-    if (this.peek_(OPEN_CURLY)) {
-      this.eat_(OPEN_CURLY);
+    this.eat_(OPEN_CURLY);
 
-      var specifiers = [this.parseImportSpecifier_()];
-      while (this.eatIf_(COMMA)) {
-        if (this.peek_(CLOSE_CURLY))
-          break;
-        specifiers.push(this.parseImportSpecifier_());
-      }
-      this.eat_(CLOSE_CURLY);
-
-      return new ImportSpecifierSet(this.getTreeLocation_(start), specifiers);
+    var specifiers = [this.parseImportSpecifier_()];
+    while (this.eatIf_(COMMA)) {
+      if (this.peek_(CLOSE_CURLY))
+        break;
+      specifiers.push(this.parseImportSpecifier_());
     }
+    this.eat_(CLOSE_CURLY);
 
-    var star = this.eat_(STAR);
-    return new ImportSpecifierSet(this.getTreeLocation_(start), star);
+    return new ImportSpecifierSet(this.getTreeLocation_(start), specifiers);
   }
 
   // ImportSpecifier ::= IdentifierName ("as" Identifier)?

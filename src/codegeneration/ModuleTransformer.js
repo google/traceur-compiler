@@ -200,16 +200,7 @@ export class ModuleTransformer extends TempVarTransformer {
   }
 
   transformImportSpecifierSet(tree) {
-    var fields;
-    if (tree.specifiers.type === STAR) {
-      var module = this.project.getModuleForStarTree(tree);
-      var fields = module.getExports().map((exportSymbol) => {
-        return new BindingElement(tree.location,
-            createBindingIdentifier(exportSymbol.name), null);
-      });
-    } else {
-      fields = this.transformList(tree.specifiers);
-    }
+    var fields = this.transformList(tree.specifiers);
     return new ObjectPattern(null, fields);
   }
 
