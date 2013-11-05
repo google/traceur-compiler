@@ -93,40 +93,25 @@ function getGetterExport(transformer, symbol) {
 export class ModuleTransformer extends TempVarTransformer {
   /**
    * @param {Project} project
+   * @param {string} url
+   * @param {ModuleSymbol=} module
    */
-  constructor(project, module = null) {
+  constructor(project, url, module = undefined) {
     super(project.identifierGenerator);
     this.project = project;
+    this.url = url;
     this.module = module;
-    this.idMappingStack_ = [Object.create(null)];
-  }
-
-  get url() {
-    if (this.module)
-      return this.module.url;
-    return this.project.url;
+    assert(this.url);
   }
 
   getTempVarNameForModuleSpecifier(moduleSpecifier) {
     var moduleName = moduleSpecifier.token.processedValue;
-    var idMapping = this.idMappingStack_[this.idMappingStack_.length - 1]
-    var id = idMapping[moduleName];
-    return id || (idMapping[moduleName] = this.getTempIdentifier());
-  }
-
-  pushTempVarState() {
-    super.pushTempVarState();
-    this.idMappingStack_.push(Object.create(null));
-  }
-
-  popTempVarState() {
-    super.popTempVarState();
-    this.idMappingStack_.pop();
+    return '$__' + moduleName.replace(/[^a-zA-Z0-9$]/g, function(c) {
+      return '_' + c.charCodeAt(0) + '_';
+    }) + '__';
   }
 
   transformModule(tree) {
-    assert(this.url);
-
     this.pushTempVarState();
 
     var statements = [
@@ -175,7 +160,16 @@ export class ModuleTransformer extends TempVarTransformer {
    */
   transformModuleSpecifier(tree) {
     var token = tree.token;
-    return parseExpression `System.get(${token})`;
+
+    var name = tree.token.processedValue;
+    var url;
+    if (name[0] === '@') {
+      url = name;
+    } else {
+      // import/module {x} from 'name' is relative to the current file.
+      url = System.normalResolve(name, this.url);
+    }
+    return parseExpression `System.get(${url})`;
   }
 
   /**
@@ -218,22 +212,23 @@ export class ModuleTransformer extends TempVarTransformer {
   /**
    * @param {Project} project
    * @param {Script} tree
+   * @param {string} url
    * @return {Script}
    */
-  static transform(project, tree) {
+  static transform(project, tree, url) {
     assert(tree.type === SCRIPT);
-    return new ModuleTransformer(project).transformAny(tree);
+    return new ModuleTransformer(project, url).transformAny(tree);
   }
 
   /**
    * @param {Project} project
-   * @param {Module} module
    * @param {Script} tree
+   * @param {Module} module
    * @return {Script}
    */
-  static transformAsModule(project, module, tree) {
+  static transformAsModule(project, tree, module) {
     assert(tree.type === MODULE);
     assert(module);
-    return new ModuleTransformer(project, module).transformAny(tree);
+    return new ModuleTransformer(project, module.url, module).transformAny(tree);
   }
 }

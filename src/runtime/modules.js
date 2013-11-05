@@ -18,16 +18,6 @@ System.set('@traceur/module', (function(global) {
 
   var modules = Object.create(null);
 
-  var refererUrl = './';
-
-  function setRefererUrl(url) {
-    refererUrl = url || './';
-  }
-
-  function getRefererUrl() {
-    return refererUrl;
-  }
-
   // Until ecmascript defines System.normalize/resolve we follow requirejs
   // for module ids, http://requirejs.org/docs/api.html
   // "default baseURL is the directory that contains the HTML page"
@@ -38,25 +28,18 @@ System.set('@traceur/module', (function(global) {
     baseURL = '';
 
   class PendingModule {
-    constructor(url, func, self) {
-      this.url = url;
+    constructor(func, self) {
       this.func = func;
       this.self = self;
     }
     toModule() {
-      var oldUrl = refererUrl;
-      refererUrl = this.url;
-      try {
-        return this.func.call(this.self);
-      } finally {
-        refererUrl = oldUrl;
-      }
+      return this.func.call(this.self);
     }
   }
 
   function registerModule(url, func, self) {
     url = System.normalResolve(url);
-    modules[url] = new PendingModule(url, func, self);
+    modules[url] = new PendingModule(func, self);
   }
 
   Object.defineProperty(System, 'baseURL', {
@@ -72,7 +55,7 @@ System.set('@traceur/module', (function(global) {
 
   System.normalize = function(requestedModuleName, options) {
     var importingModuleName = options && options.referer && options.referer.name;
-    importingModuleName = importingModuleName || refererUrl;
+    importingModuleName = importingModuleName || baseURL;
     if (importingModuleName && requestedModuleName)
       return resolveUrl(importingModuleName, requestedModuleName);
     return requestedModuleName;
@@ -101,7 +84,7 @@ System.set('@traceur/module', (function(global) {
       throw new Error(`System.normalResolve illegal standard module name ${name}`);
     var options = {
       referer: {
-        name: importingModuleName || refererUrl
+        name: importingModuleName || baseURL
       }
     };
     return System.resolve(System.normalize(name, options));
@@ -116,7 +99,8 @@ System.set('@traceur/module', (function(global) {
     var module = modules[url];
     if (module instanceof PendingModule)
       return modules[url] = module.toModule();
-    return module;
+
+    return module || null;
   };
 
   System.set = function(name, object) {
@@ -132,8 +116,6 @@ System.set('@traceur/module', (function(global) {
   };
 
   return {
-    getRefererUrl,
-    registerModule,
-    setRefererUrl,
+    registerModule
   };
 })(this));
