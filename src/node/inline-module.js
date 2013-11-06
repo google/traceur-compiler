@@ -21,55 +21,10 @@ var normalizePath = require('./file-util.js').normalizePath;
 
 var ErrorReporter = traceur.util.ErrorReporter;
 var InternalLoader = traceur.modules.internals.InternalLoader;
-var ModuleAnalyzer = traceur.semantics.ModuleAnalyzer;
-var ModuleRequireVisitor = traceur.codegeneration.module.ModuleRequireVisitor;
-var ModuleSymbol = traceur.semantics.symbols.ModuleSymbol;
-var ModuleTransformer = traceur.codegeneration.ModuleTransformer;
-var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
-var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
-var Parser = traceur.syntax.Parser;
 var Script = traceur.syntax.trees.Script;
-var ModuleSpecifier = traceur.syntax.trees.ModuleSpecifier;
-var ProgramTransformer = traceur.codegeneration.ProgramTransformer;
 var Project = traceur.semantics.symbols.Project;
 var SourceFile = traceur.syntax.SourceFile
 var SourceMapGenerator = traceur.outputgeneration.SourceMapGenerator;
-var TreeWriter = traceur.outputgeneration.TreeWriter;
-var IDENTIFIER = traceur.syntax.TokenType.IDENTIFIER;
-
-var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
-var createIdentifierToken = ParseTreeFactory.createIdentifierToken;
-var createStringLiteralToken = ParseTreeFactory.createStringLiteralToken;
-
-/**
- * This resolves imported URLs for Script trees.
- *
- *   import {x} from "url"
- *
- * with
- *
- *   import {x} from "resolved_url"
- *
- * @param {string} url The base URL that all the modules should be relative to.
- */
-function ResolveImportUrlTransformer(url) {
-  ParseTreeTransformer.call(this);
-  this.url = url;
-}
-
-ResolveImportUrlTransformer.prototype = {
-  __proto__: ParseTreeTransformer.prototype,
-  transformModuleSpecifier: function(tree) {
-    var url = tree.token.processedValue;
-
-     // Don't handle builtin modules.
-    if (url.charAt(0) === '@')
-      return tree;
-
-    url = System.normalResolve(url, this.url);
-    return new ModuleSpecifier(tree.location, createStringLiteralToken(url));
-  }
-};
 
 /**
  * @param {ErrorReporter} reporter
@@ -100,12 +55,6 @@ InlineCodeLoader.prototype = {
       console.log('%s: %s', this.depTarget,
                   normalizePath(path.relative(path.join(__dirname, '../..'),
                   codeUnit.url)));
-    }
-
-    if (codeUnit.type === 'script') {
-      var transformer = new ResolveImportUrlTransformer(codeUnit.url);
-      var tree = transformer.transformAny(codeUnit.tree);
-      this.project.setParseTree(codeUnit.file, tree);
     }
 
     return InternalLoader.prototype.transformCodeUnit.call(this, codeUnit);

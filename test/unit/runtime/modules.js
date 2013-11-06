@@ -17,18 +17,16 @@ suite('modules.js', function() {
   var MutedErrorReporter =
       System.get('../src/util/MutedErrorReporter.js').MutedErrorReporter;
 
-  var reporter, baseURL, refererUrl;
+  var reporter, baseURL;
 
   setup(function() {
     reporter = new traceur.util.ErrorReporter();
     baseURL = System.baseURL;
-    refererUrl = System.get('@traceur/module').getRefererUrl();
   });
 
   teardown(function() {
     assert.isFalse(reporter.hadError());
     System.baseURL = baseURL;
-    System.get('@traceur/module').setRefererUrl(refererUrl);
   });
 
   var url;
@@ -135,11 +133,11 @@ suite('modules.js', function() {
   test('System.normalize', function() {
     var m = System.get('@traceur/module');
 
-    m.setRefererUrl('http://example.org/a/b.html');
+    System.baseURL = 'http://example.org/a/b.html';
     assert.equal('http://example.org/a/d/e/f', System.normalize('d/e/f'));
     assert.equal('http://example.org/e/f', System.normalize('../e/f'));
 
-    m.setRefererUrl('/dir/file.js');
+    System.baseURL = '/dir/file.js';
     assert.equal('/dir/d/e/f', System.normalize('d/e/f'));
     assert.equal('/e/f', System.normalize('../e/f'));
 

@@ -27,10 +27,6 @@ import {WebLoader} from './WebLoader';
 import {assert} from '../util/assert';
 import {getUid} from '../util/uid';
 import {isStandardModuleUrl} from '../util/url';
-import {
-  getRefererUrl,
-  setRefererUrl
-} from '@traceur/module';
 
 // TODO(arv): I stripped the resolvers to make this simpler for now.
 
@@ -499,13 +495,7 @@ class InternalLoader {
         continue;
       }
 
-      var currentUrl = getRefererUrl();
-      // Modules are wrapped in registerModule call which sets the referrer
-      // as needed.
-      if (codeUnit.type !== 'module')
-        setRefererUrl(codeUnit.url);
       var result;
-
       try {
         result = this.evalCodeUnit(codeUnit);
       } catch (ex) {
@@ -513,8 +503,6 @@ class InternalLoader {
         this.reporter.reportError(null, String(ex));
         this.abortAll();
         return;
-      } finally {
-        setRefererUrl(currentUrl);
       }
 
       codeUnit.result = result;
