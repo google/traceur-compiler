@@ -517,11 +517,11 @@ System.set('@traceur/url', (function() {
     resolveUrl: resolveUrl
   };
 })());
-var $__getDescriptors = function(object) {
-  var descriptors = {}, name, names = Object.getOwnPropertyNames(object);
+var $__Object = Object, $__getOwnPropertyNames = $__Object.getOwnPropertyNames, $__getOwnPropertyDescriptor = $__Object.getOwnPropertyDescriptor, $__getDescriptors = function(object) {
+  var descriptors = {}, name, names = $__getOwnPropertyNames(object);
   for (var i = 0; i < names.length; i++) {
     var name = names[i];
-    descriptors[name] = Object.getOwnPropertyDescriptor(object, name);
+    descriptors[name] = $__getOwnPropertyDescriptor(object, name);
   }
   return descriptors;
 }, $__createClassNoExtends = function(object, staticObject) {
@@ -11637,11 +11637,11 @@ System.get('@traceur/module').registerModule("../src/semantics/VariableBinder.js
 }, this);
 System.get('@traceur/module').registerModule("../src/codegeneration/AlphaRenamer.js", function() {
   "use strict";
-  var $__173 = System.get("../src/syntax/trees/ParseTrees.js"), FunctionDeclaration = $__173.FunctionDeclaration, FunctionExpression = $__173.FunctionExpression;
+  var $__175 = System.get("../src/syntax/trees/ParseTrees.js"), FunctionDeclaration = $__175.FunctionDeclaration, FunctionExpression = $__175.FunctionExpression;
   var ParseTreeTransformer = System.get("../src/codegeneration/ParseTreeTransformer.js").ParseTreeTransformer;
-  var $__173 = System.get("../src/syntax/PredefinedName.js"), ARGUMENTS = $__173.ARGUMENTS, THIS = $__173.THIS;
+  var $__175 = System.get("../src/syntax/PredefinedName.js"), ARGUMENTS = $__175.ARGUMENTS, THIS = $__175.THIS;
   var createIdentifierExpression = System.get("../src/codegeneration/ParseTreeFactory.js").createIdentifierExpression;
-  var $__173 = System.get("../src/semantics/VariableBinder.js"), variablesInBlock = $__173.variablesInBlock, variablesInFunction = $__173.variablesInFunction;
+  var $__175 = System.get("../src/semantics/VariableBinder.js"), variablesInBlock = $__175.variablesInBlock, variablesInFunction = $__175.variablesInFunction;
   var AlphaRenamer = function($__super) {
     'use strict';
     var $__proto = $__getProtoParent($__super);
@@ -12051,8 +12051,8 @@ System.get('@traceur/module').registerModule("../src/util/ArrayMap.js", function
     }}));
 }, this);
 var $__toObject = function(value) {
-  if (value == null) throw TypeError();
-  return Object(value);
+  if (value == null) throw $__TypeError();
+  return $__Object(value);
 }, $__spread = function() {
   var rv = [], k = 0;
   for (var i = 0; i < arguments.length; i++) {
@@ -12590,9 +12590,9 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ArrowFunctio
 }, this);
 System.get('@traceur/module').registerModule("../src/codegeneration/OperatorExpander.js", function() {
   "use strict";
-  var $__171 = System.get("../src/syntax/trees/ParseTreeType.js"), IDENTIFIER_EXPRESSION = $__171.IDENTIFIER_EXPRESSION, SUPER_EXPRESSION = $__171.SUPER_EXPRESSION;
-  var $__171 = System.get("../src/syntax/TokenType.js"), AMPERSAND = $__171.AMPERSAND, AMPERSAND_EQUAL = $__171.AMPERSAND_EQUAL, BAR = $__171.BAR, BAR_EQUAL = $__171.BAR_EQUAL, CARET = $__171.CARET, CARET_EQUAL = $__171.CARET_EQUAL, LEFT_SHIFT = $__171.LEFT_SHIFT, LEFT_SHIFT_EQUAL = $__171.LEFT_SHIFT_EQUAL, MINUS = $__171.MINUS, MINUS_EQUAL = $__171.MINUS_EQUAL, PERCENT = $__171.PERCENT, PERCENT_EQUAL = $__171.PERCENT_EQUAL, PLUS = $__171.PLUS, PLUS_EQUAL = $__171.PLUS_EQUAL, RIGHT_SHIFT = $__171.RIGHT_SHIFT, RIGHT_SHIFT_EQUAL = $__171.RIGHT_SHIFT_EQUAL, SLASH = $__171.SLASH, SLASH_EQUAL = $__171.SLASH_EQUAL, STAR = $__171.STAR, STAR_EQUAL = $__171.STAR_EQUAL, UNSIGNED_RIGHT_SHIFT = $__171.UNSIGNED_RIGHT_SHIFT, UNSIGNED_RIGHT_SHIFT_EQUAL = $__171.UNSIGNED_RIGHT_SHIFT_EQUAL;
-  var $__171 = System.get("../src/codegeneration/ParseTreeFactory.js"), createAssignmentExpression = $__171.createAssignmentExpression, createBinaryOperator = $__171.createBinaryOperator, createCommaExpression = $__171.createCommaExpression, createIdentifierExpression = $__171.createIdentifierExpression, createMemberExpression = $__171.createMemberExpression, createMemberLookupExpression = $__171.createMemberLookupExpression, createOperatorToken = $__171.createOperatorToken, createParenExpression = $__171.createParenExpression;
+  var $__173 = System.get("../src/syntax/trees/ParseTreeType.js"), IDENTIFIER_EXPRESSION = $__173.IDENTIFIER_EXPRESSION, SUPER_EXPRESSION = $__173.SUPER_EXPRESSION;
+  var $__173 = System.get("../src/syntax/TokenType.js"), AMPERSAND = $__173.AMPERSAND, AMPERSAND_EQUAL = $__173.AMPERSAND_EQUAL, BAR = $__173.BAR, BAR_EQUAL = $__173.BAR_EQUAL, CARET = $__173.CARET, CARET_EQUAL = $__173.CARET_EQUAL, LEFT_SHIFT = $__173.LEFT_SHIFT, LEFT_SHIFT_EQUAL = $__173.LEFT_SHIFT_EQUAL, MINUS = $__173.MINUS, MINUS_EQUAL = $__173.MINUS_EQUAL, PERCENT = $__173.PERCENT, PERCENT_EQUAL = $__173.PERCENT_EQUAL, PLUS = $__173.PLUS, PLUS_EQUAL = $__173.PLUS_EQUAL, RIGHT_SHIFT = $__173.RIGHT_SHIFT, RIGHT_SHIFT_EQUAL = $__173.RIGHT_SHIFT_EQUAL, SLASH = $__173.SLASH, SLASH_EQUAL = $__173.SLASH_EQUAL, STAR = $__173.STAR, STAR_EQUAL = $__173.STAR_EQUAL, UNSIGNED_RIGHT_SHIFT = $__173.UNSIGNED_RIGHT_SHIFT, UNSIGNED_RIGHT_SHIFT_EQUAL = $__173.UNSIGNED_RIGHT_SHIFT_EQUAL;
+  var $__173 = System.get("../src/codegeneration/ParseTreeFactory.js"), createAssignmentExpression = $__173.createAssignmentExpression, createBinaryOperator = $__173.createBinaryOperator, createCommaExpression = $__173.createCommaExpression, createIdentifierExpression = $__173.createIdentifierExpression, createMemberExpression = $__173.createMemberExpression, createMemberLookupExpression = $__173.createMemberLookupExpression, createOperatorToken = $__173.createOperatorToken, createParenExpression = $__173.createParenExpression;
   function getBinaryOperator(type) {
     switch (type) {
       case STAR_EQUAL:
@@ -13129,10 +13129,10 @@ System.get('@traceur/module').registerModule("../src/codegeneration/SuperTransfo
   var $__181 = System.get("../src/codegeneration/ParseTreeFactory.js"), createArrayLiteralExpression = $__181.createArrayLiteralExpression, createIdentifierExpression = $__181.createIdentifierExpression, createStringLiteral = $__181.createStringLiteral, createThisExpression = $__181.createThisExpression;
   var $__181 = System.get("../src/codegeneration/OperatorExpander.js"), expandMemberExpression = $__181.expandMemberExpression, expandMemberLookupExpression = $__181.expandMemberLookupExpression;
   var parseExpression = System.get("../src/codegeneration/PlaceholderParser.js").parseExpression;
-  var SUPER_DESCRIPTOR_CODE = "function (proto, name) {\n      if (!proto)\n        throw new TypeError('super is null');\n      return Object.getPropertyDescriptor(proto, name);\n    }";
-  var SUPER_CALL_CODE = "function(self, proto, name, args) {\n      var descriptor = %superDescriptor(proto, name);\n      if (descriptor) {\n        if ('value' in descriptor)\n          return descriptor.value.apply(self, args);\n        if (descriptor.get)\n          return descriptor.get.call(self).apply(self, args);\n      }\n      throw new TypeError(\"Object has no method '\" + name + \"'.\");\n    }";
+  var SUPER_DESCRIPTOR_CODE = "function (proto, name) {\n      if (!proto)\n        throw new %TypeError('super is null');\n      return %getPropertyDescriptor(proto, name);\n    }";
+  var SUPER_CALL_CODE = "function(self, proto, name, args) {\n      var descriptor = %superDescriptor(proto, name);\n      if (descriptor) {\n        if ('value' in descriptor)\n          return descriptor.value.apply(self, args);\n        if (descriptor.get)\n          return descriptor.get.call(self).apply(self, args);\n      }\n      throw new %TypeError(\"Object has no method '\" + name + \"'.\");\n    }";
   var SUPER_GET_CODE = "function(self, proto, name) {\n      var descriptor = %superDescriptor(proto, name);\n      if (descriptor) {\n        if (descriptor.get)\n          return descriptor.get.call(self);\n        else if ('value' in descriptor)\n          return descriptor.value;\n      }\n      return undefined;\n    }";
-  var SUPER_SET_CODE = "function(self, proto, name, value) {\n      var descriptor = %superDescriptor(proto, name);\n      if (descriptor && descriptor.set) {\n        descriptor.set.call(self, value);\n        return;\n      }\n      throw new TypeError(\"Object has no setter '\" + name + \"'.\");\n    }";
+  var SUPER_SET_CODE = "function(self, proto, name, value) {\n      var descriptor = %superDescriptor(proto, name);\n      if (descriptor && descriptor.set) {\n        descriptor.set.call(self, value);\n        return;\n      }\n      throw new %TypeError(\"Object has no setter '\" + name + \"'.\");\n    }";
   var SuperTransformer = function($__super) {
     'use strict';
     var $__proto = $__getProtoParent($__super);
@@ -18242,8 +18242,14 @@ System.get('@traceur/module').registerModule("../src/codegeneration/RuntimeInlin
   var $__72 = System.get("../src/codegeneration/ParseTreeFactory.js"), createIdentifierExpression = $__72.createIdentifierExpression, createVariableDeclaration = $__72.createVariableDeclaration, createVariableDeclarationList = $__72.createVariableDeclarationList, createVariableStatement = $__72.createVariableStatement;
   var prependStatements = System.get("../src/codegeneration/PrependStatements.js").prependStatements;
   var shared = {
-    toObject: "function(value) {\n        if (value == null)\n          throw TypeError();\n        return Object(value);\n      }",
-    getDescriptors: "function(object) {\n        var descriptors = {}, name, names = Object.getOwnPropertyNames(object);\n        for (var i = 0; i < names.length; i++) {\n          var name = names[i];\n          descriptors[name] = Object.getOwnPropertyDescriptor(object, name);\n        }\n        return descriptors;\n      }"
+    TypeError: "TypeError",
+    Object: "Object",
+    getOwnPropertyNames: "%Object.getOwnPropertyNames",
+    getOwnPropertyDescriptor: "%Object.getOwnPropertyDescriptor",
+    getPrototypeOf: "%Object.getPrototypeOf",
+    toObject: "function(value) {\n        if (value == null)\n          throw %TypeError();\n        return %Object(value);\n      }",
+    getDescriptors: "function(object) {\n        var descriptors = {}, name, names = %getOwnPropertyNames(object);\n        for (var i = 0; i < names.length; i++) {\n          var name = names[i];\n          descriptors[name] = %getOwnPropertyDescriptor(object, name);\n        }\n        return descriptors;\n      }",
+    getPropertyDescriptor: "function(object, name) {\n        while (object !== null) {\n          var result = %getOwnPropertyDescriptor(object, name);\n          if (result)\n            return result;\n          object = %getPrototypeOf(object);\n        }\n        return undefined;\n      }"
   };
   function parse(source, name) {
     var file = new SourceFile('@traceur/generated/' + name, source);
@@ -18550,7 +18556,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/Compiler.js"
       compile: function(reporter, project) {
         return new Compiler(reporter, project).compile_();
       },
-      compileFile: function(reporter, sourceFile, url) {
+      compileFile: function(reporter, sourceFile) {
+        var url = arguments[2] !== (void 0) ? arguments[2]: sourceFile.name;
         var project = arguments[3] !== (void 0) ? arguments[3]: new Project(url);
         project.addFile(sourceFile);
         return new Compiler(reporter, project).compileFile_(sourceFile);
@@ -18565,16 +18572,23 @@ System.get('@traceur/module').registerModule("../src/codegeneration/Compiler.js"
       enumerable: true
     }}));
 }, this);
-var $__superDescriptor = function(proto, name) {
-  if (!proto) throw new TypeError('super is null');
-  return Object.getPropertyDescriptor(proto, name);
+var $__TypeError = TypeError, $__getPrototypeOf = $__Object.getPrototypeOf, $__getPropertyDescriptor = function(object, name) {
+  while (object !== null) {
+    var result = $__getOwnPropertyDescriptor(object, name);
+    if (result) return result;
+    object = $__getPrototypeOf(object);
+  }
+  return undefined;
+}, $__superDescriptor = function(proto, name) {
+  if (!proto) throw new $__TypeError('super is null');
+  return $__getPropertyDescriptor(proto, name);
 }, $__superCall = function(self, proto, name, args) {
   var descriptor = $__superDescriptor(proto, name);
   if (descriptor) {
     if ('value'in descriptor) return descriptor.value.apply(self, args);
     if (descriptor.get) return descriptor.get.call(self).apply(self, args);
   }
-  throw new TypeError("Object has no method '" + name + "'.");
+  throw new $__TypeError("Object has no method '" + name + "'.");
 }, $__getProtoParent = function(superClass) {
   if (typeof superClass === 'function') {
     var prototype = superClass.prototype;

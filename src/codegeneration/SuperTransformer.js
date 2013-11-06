@@ -40,8 +40,8 @@ import {parseExpression} from './PlaceholderParser';
 var SUPER_DESCRIPTOR_CODE =
     `function (proto, name) {
       if (!proto)
-        throw new TypeError('super is null');
-      return Object.getPropertyDescriptor(proto, name);
+        throw new %TypeError('super is null');
+      return %getPropertyDescriptor(proto, name);
     }`;
 
 var SUPER_CALL_CODE =
@@ -53,7 +53,7 @@ var SUPER_CALL_CODE =
         if (descriptor.get)
           return descriptor.get.call(self).apply(self, args);
       }
-      throw new TypeError("Object has no method '" + name + "'.");
+      throw new %TypeError("Object has no method '" + name + "'.");
     }`;
 
 var SUPER_GET_CODE =
@@ -75,7 +75,7 @@ var SUPER_SET_CODE =
         descriptor.set.call(self, value);
         return;
       }
-      throw new TypeError("Object has no setter '" + name + "'.");
+      throw new %TypeError("Object has no setter '" + name + "'.");
     }`;
 
 /**

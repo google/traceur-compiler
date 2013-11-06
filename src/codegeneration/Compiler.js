@@ -175,7 +175,7 @@ export class Compiler {
    * @return {ParseTree} A map from input file name to
    *     translated results. Returns null if there was a compile error.
    */
-  static compileFile(reporter, sourceFile, url, project = new Project(url)) {
+  static compileFile(reporter, sourceFile, url = sourceFile.name, project = new Project(url)) {
     project.addFile(sourceFile);
     return new Compiler(reporter, project).compileFile_(sourceFile);
   }
