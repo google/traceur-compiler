@@ -37,6 +37,7 @@
   "devDependencies": {
     "source-map": "0.1.30",
     "mocha": ">=1.9",
-    "chai": ">=1.5"
+    "chai": ">=1.5",
+    "node-uuid": ">=1.4"
   }
 }

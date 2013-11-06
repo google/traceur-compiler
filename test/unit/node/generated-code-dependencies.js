@@ -17,10 +17,29 @@ suite('context test', function() {
   var vm = require('vm');
   var fs = require('fs');
   var path = require('path');
+  var uuid = require('node-uuid');
+  var exec = require('child_process').exec;
 
-  test('class', function() {
+  var tempFileName;
+
+  teardown(function() {
+    if (fs.existsSync(tempFileName))
+      fs.unlinkSync(tempFileName);
+  });
+
+  function resolve(name) {
+    return path.resolve(__dirname, '../../../' + name);
+  }
+
+  function executeFileWithRuntime(fileName) {
+    var runtimePath = resolve('src/runtime/runtime.js');
+    var runtime = fs.readFileSync(runtimePath, 'utf-8');
+    return executeFile(fileName, runtime);
+  }
+
+  function executeFile(fileName, runtime) {
+    runtime = runtime || '';
     var reporter = new traceur.util.TestErrorReporter();
-    var fileName = path.resolve(__dirname, 'resources/class.js');
     var source = fs.readFileSync(fileName, 'utf-8');
     var file = new traceur.syntax.SourceFile(fileName, source);
 
@@ -30,10 +49,29 @@ suite('context test', function() {
     var output = traceur.outputgeneration.TreeWriter.write(tree);
 
     var context = vm.createContext();
-    vm.runInNewContext(output, context, fileName);
+    vm.runInNewContext(runtime + output, context, fileName);
 
-    assert.equal(context.result, 2);
+    return context.result;
+  }
 
+  test('class', function() {
+    var fileName = path.resolve(__dirname, 'resources/class.js');
+    var result = executeFile(fileName);
+    assert.equal(result, 2);
+  });
+
+  test('compiled modules', function(done) {
+    tempFileName = resolve(uuid.v4() + '.js');
+    var executable = 'node ' + resolve('src/node/command.js');
+    var inputFileName = resolve('test/unit/node/resources/import-x.js');
+
+    exec(executable + ' --out ' + tempFileName + ' -- ' + inputFileName,
+        function(error, stdout, stderr) {
+          assert.isNull(error);
+          var result = executeFileWithRuntime(tempFileName);
+          assert.equal(result, 'x');
+          done();
+        });
   });
 
 });
