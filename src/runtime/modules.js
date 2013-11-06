@@ -14,6 +14,8 @@
 System.set('@traceur/module', (function(global) {
   'use strict';
 
+  var {PendingModule} = System.get('@traceur/module');
+
   var {resolveUrl, isStandardModuleUrl} = System.get('@traceur/url');
 
   var modules = Object.create(null);
@@ -26,16 +28,6 @@ System.set('@traceur/module', (function(global) {
     baseURL = resolveUrl(global.location.href, './');
   else
     baseURL = '';
-
-  class PendingModule {
-    constructor(func, self) {
-      this.func = func;
-      this.self = self;
-    }
-    toModule() {
-      return this.func.call(this.self);
-    }
-  }
 
   function registerModule(url, func, self) {
     url = System.normalResolve(url);
@@ -99,7 +91,6 @@ System.set('@traceur/module', (function(global) {
     var module = modules[url];
     if (module instanceof PendingModule)
       return modules[url] = module.toModule();
-
     return module || null;
   };
 
