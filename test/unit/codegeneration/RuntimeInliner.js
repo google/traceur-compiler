@@ -24,9 +24,9 @@ suite('RuntimeInliner.js', function() {
   });
 
   var expextedResult = '\n\
-      var $__toObject = function(value) {\n\
-        if (value == null) throw TypeError();\n\
-        return Object(value);\n\
+      var $__TypeError = TypeError, $__Object = Object, $__toObject = function(value) {\n\
+        if (value == null) throw $__TypeError();\n\
+        return $__Object(value);\n\
       }, $__spread = function() {\n\
         var rv = [], k = 0;\n\
         for (var i = 0; i < arguments.length; i++) {\n\
