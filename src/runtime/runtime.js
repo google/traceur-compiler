@@ -520,19 +520,40 @@
     }
   };
 
+  // System.get/set and @traceur/module gets overridden in @traceur/modules to
+  // be more correct.
+
+  function PendingModule(func, self) {
+    this.func = func;
+    this.self = self;
+  }
+  PendingModule.prototype = {
+    toModule: function() {
+      return this.func.call(this.self);
+    }
+  };
+
   var modules = {
     get '@name'() {
       return NameModule;
     },
     get '@iter'() {
       return IterModule;
+    },
+    '@traceur/module': {
+      PendingModule: PendingModule,
+      registerModule: function(url, func, self) {
+        modules[url] = new PendingModule(func, self);
+      }
     }
   };
 
-  // This gets overridden in @traceur/modules to be more correct.
   var System = {
     get: function(name) {
-      return modules[name] || null;
+      var module = modules[name];
+      if (module instanceof PendingModule)
+        return modules[name] = module.toModule();
+      return module || null;
     },
     set: function(name, object) {
       modules[name] = object;
