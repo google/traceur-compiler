@@ -15,7 +15,6 @@
 import {ParseTreeTransformer} from './ParseTreeTransformer';
 
 import {
-  AtNameExpression,
   BindingIdentifier,
   BreakStatement,
   ContinueStatement,
@@ -41,14 +40,6 @@ import {
  * thus create new branch nodes. 
  */
 export class CloneTreeTransformer extends ParseTreeTransformer {
-
-  /**
-   * @param {AtNameExpression} tree
-   * @return {ParseTree}
-   */
-  transformAtNameExpression(tree) {
-    return new AtNameExpression(tree.location, tree.atNameToken);
-  }
 
   /**
    * @param {BindingIdentifier} tree

@@ -262,7 +262,6 @@ addFeatureOption('templateLiterals', ON_BY_DEFAULT);   // 7.6.8
 
 // EXPERIMENTAL
 addFeatureOption('blockBinding', EXPERIMENTAL);       // 12.1
-addFeatureOption('privateNameSyntax', EXPERIMENTAL);
 addFeatureOption('privateNames', EXPERIMENTAL);
 addFeatureOption('cascadeExpression', EXPERIMENTAL);
 addFeatureOption('trapMemberLookup', EXPERIMENTAL);

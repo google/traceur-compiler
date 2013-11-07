@@ -15,7 +15,6 @@
 import {ArrayComprehensionTransformer} from
     './ArrayComprehensionTransformer';
 import {ArrowFunctionTransformer} from './ArrowFunctionTransformer';
-import {AtNameMemberTransformer} from './AtNameMemberTransformer';
 import {BlockBindingTransformer} from './BlockBindingTransformer';
 import {CascadeExpressionTransformer} from './CascadeExpressionTransformer';
 import {ClassTransformer} from './ClassTransformer';
@@ -32,7 +31,6 @@ import {NumericLiteralTransformer} from './NumericLiteralTransformer';
 import {ObjectLiteralTransformer} from './ObjectLiteralTransformer';
 import {ObjectMap} from '../util/ObjectMap';
 import {ParseTreeValidator} from '../syntax/ParseTreeValidator';
-import {PrivateNameSyntaxTransformer} from './PrivateNameSyntaxTransformer';
 import {PropertyNameShorthandTransformer} from
     'PropertyNameShorthandTransformer';
 import {TemplateLiteralTransformer} from './TemplateLiteralTransformer';
@@ -151,9 +149,7 @@ export class ProgramTransformer {
     transform(transformOptions.propertyNameShorthand,
               PropertyNameShorthandTransformer);
     transform(transformOptions.propertyMethods ||
-              transformOptions.computedPropertyNames ||
-              transformOptions.privateNameSyntax &&
-              transformOptions.privateNames,
+              transformOptions.computedPropertyNames,
               ObjectLiteralTransformer,
               identifierGenerator);
 
@@ -195,16 +191,6 @@ export class ProgramTransformer {
               identifierGenerator,
               runtimeInliner,
               reporter);
-
-    transform(transformOptions.privateNames &&
-              transformOptions.privateNameSyntax,
-              AtNameMemberTransformer,
-              identifierGenerator);
-
-    transform(transformOptions.privateNames &&
-              transformOptions.privateNameSyntax,
-              PrivateNameSyntaxTransformer,
-              identifierGenerator);
 
     transform(transformOptions.spread,
               SpreadTransformer,

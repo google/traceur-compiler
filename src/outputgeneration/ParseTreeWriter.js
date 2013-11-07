@@ -252,24 +252,6 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
-   * @param {AtNameExpression} tree
-   */
-  visitAtNameExpression(tree) {
-    this.write_(tree.atNameToken);
-  }
-
-  /**
-   * @param {AtNameDeclaration} tree
-   */
-  visitAtNameDeclaration(tree) {
-    this.write_(tree.atNameToken);
-    if (tree.initializer) {
-      this.write_(EQUAL);
-      this.visitAny(tree.initializer);
-    }
-  }
-
-  /**
    * @param {AwaitStatement} tree
    */
   visitAwaitStatement(tree) {
@@ -785,15 +767,6 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.write_(tree.identifier);
     this.write_(FROM);
     this.visitAny(tree.expression);
-    this.write_(SEMI_COLON);
-  }
-
-  /**
-   * @param {NameStatement} tree
-   */
-  visitNameStatement(tree) {
-    this.write_(PRIVATE);
-    this.writeList_(tree.declarations, COMMA, false);
     this.write_(SEMI_COLON);
   }
 

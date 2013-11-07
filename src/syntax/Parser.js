@@ -183,8 +183,6 @@ var {
   ArrayLiteralExpression,
   ArrayPattern,
   ArrowFunctionExpression,
-  AtNameDeclaration,
-  AtNameExpression,
   AwaitStatement,
   BinaryOperator,
   BindingElement,
@@ -793,10 +791,6 @@ export class Parser {
         break;
       case OPEN_CURLY:
         return this.parseBlock_();
-      case PRIVATE:
-        if (parseOptions.privateNameSyntax)
-          return this.parseNameStatement_();
-        break;
       case SEMI_COLON:
         return this.parseEmptyStatement_();
       case TRY:
@@ -1090,39 +1084,6 @@ export class Parser {
   parseInitializer_(expressionIn) {
     this.eat_(EQUAL);
     return this.parseAssignmentExpression(expressionIn);
-  }
-
-  /**
-   * NameStatement :
-   *   name NameDeclarationList
-   *
-   * NameDeclarationList :
-   *   AtName Initializeropt
-   *   AtName Initializeropt , NameDeclarationList
-   *
-   * @return {AtNameDeclaration}
-   */
-  parseNameStatement_() {
-    var start = this.getTreeStartLocation_();
-    this.eat_(PRIVATE);
-
-    var declarations = [];
-    declarations.push(this.parseAtNameDeclaration_());
-    while (this.eatIf_(COMMA)) {
-      declarations.push(this.parseAtNameDeclaration_());
-    }
-    this.eatPossibleImplicitSemiColon_();
-    return new NameStatement(this.getTreeLocation_(start), declarations);
-  }
-
-  parseAtNameDeclaration_() {
-    var start = this.getTreeStartLocation_();
-    var atName = this.eat_(AT_NAME);
-    var initializer = null;
-    if (this.peek_(EQUAL))
-      initializer = this.parseInitializer_(Expression.IN);
-    return new AtNameDeclaration(this.getTreeLocation_(start), atName,
-                                 initializer);
   }
 
   // 12.3 Empty Statement
@@ -1729,8 +1690,6 @@ export class Parser {
       case NO_SUBSTITUTION_TEMPLATE:
       case TEMPLATE_HEAD:
         return this.parseTemplateLiteral_(null);
-      case AT_NAME:
-        return this.parseAtNameExpression_();
 
       case IMPLEMENTS:
       case INTERFACE:
@@ -1802,12 +1761,6 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     var identifier = this.eatIdName_();
     return new IdentifierExpression(this.getTreeLocation_(start), identifier);
-  }
-
-  parseAtNameExpression_() {
-    var start = this.getTreeStartLocation_();
-    var atName = this.eat_(AT_NAME);
-    return new AtNameExpression(this.getTreeLocation_(start), atName);
   }
 
   /**
@@ -2184,8 +2137,6 @@ export class Parser {
    */
   peekPropertyName_(type) {
     switch (type) {
-      case AT_NAME:
-        return parseOptions.privateNameSyntax;
       case IDENTIFIER:
       case STRING:
       case NUMBER:
@@ -2260,8 +2211,6 @@ export class Parser {
       case NO_SUBSTITUTION_TEMPLATE:
       case TEMPLATE_HEAD:
         return parseOptions.templateLiterals;
-      case AT_NAME:
-        return parseOptions.privateNameSyntax;
       case BANG:
       case CLASS:
       case DELETE:
@@ -2873,10 +2822,7 @@ export class Parser {
         case PERIOD:
           this.nextToken_();
           var name;
-          if (parseOptions.privateNameSyntax && this.peek_(AT_NAME))
-            name = this.nextToken_();
-          else
-            name = this.eatIdName_();
+          name = this.eatIdName_();
           operand = new MemberExpression(this.getTreeLocation_(start),
                                          operand, name);
           break;
