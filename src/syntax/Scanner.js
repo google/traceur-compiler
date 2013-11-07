@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AtNameToken} from './AtNameToken';
 import {IdentifierToken} from './IdentifierToken';
 import {KeywordToken} from './KeywordToken';
 import {LiteralToken} from './LiteralToken';
@@ -30,7 +29,6 @@ var {
   AMPERSAND_EQUAL,
   AND,
   ARROW,
-  AT_NAME,
   AWAIT,
   BACK_QUOTE,
   BANG,
@@ -823,8 +821,6 @@ function scanToken() {
       }
     case 96:  // `
       return scanTemplateStart(beginIndex);
-    case 64:  // @
-      return scanAtName(beginIndex);
 
       // TODO: add NumberToken
       // TODO: character following NumericLiteral must not be an
@@ -1004,22 +1000,6 @@ function scanIdentifierOrKeyword(beginIndex, code) {
   }
 
   return new IdentifierToken(getTokenRange(beginIndex), value);
-}
-
-function scanAtName(beginIndex) {
-  if (isAtEnd()) {
-    reportError('Expected identifier start character', beginIndex);
-    return createToken(ERROR, beginIndex);
-  }
-
-  // TODO(arv): Refactor to not create an intermediate token.
-  var code = currentCharCode;
-  next();
-  var identifierToken = scanIdentifierOrKeyword(beginIndex, code);
-  if (identifierToken.type === ERROR)
-    return identifierToken;
-  var value = identifierToken.value;
-  return new AtNameToken(getTokenRange(beginIndex), value);
 }
 
 /**

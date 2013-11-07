@@ -65,13 +65,6 @@ class AdvancedPropertyFinder extends FindVisitor {
       super.visitPropertyNameAssignment(tree);
   }
 
-  visitLiteralPropertyName(tree) {
-    if (transformOptions.privateNameSyntax &&
-        tree.literalToken.type === AT_NAME) {
-      this.found = true;
-    }
-  }
-
   visitComputedPropertyName(tree) {
     if (transformOptions.computedPropertyNames)
       this.found = true;
@@ -83,8 +76,7 @@ function isProtoName(tree) {
 }
 
 /**
- * Transforms object literals, both for the propertyMethods and the
- * privateNameSyntax passes.
+ * Transforms object literals for the propertyMethods pass.
  *
  * If the object liteal contains an at name then we need to use a temporary
  * object and then use Object.defineProperty.
