@@ -31,9 +31,12 @@ import {prependStatements} from './PrependStatements';
 var shared = {
   TypeError: `TypeError`,
   Object: `Object`,
-  getOwnPropertyNames: `%Object.getOwnPropertyNames`,
+  defineProperty: `%Object.defineProperty`,
   getOwnPropertyDescriptor: `%Object.getOwnPropertyDescriptor`,
+  getOwnPropertyNames: `%Object.getOwnPropertyNames`,
   getPrototypeOf: `%Object.getPrototypeOf`,
+  iterator: `'@@iterator'`,
+  returnThis: `function() { return this; }`,
   toObject:
       `function(value) {
         if (value == null)

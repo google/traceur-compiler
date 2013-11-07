@@ -16,11 +16,20 @@ import {TRACEUR_RUNTIME} from '../syntax/PredefinedName';
 import {VARIABLE_DECLARATION_LIST} from '../syntax/trees/ParseTreeType';
 import {TempVarTransformer} from './TempVarTransformer';
 import {
-  createIdentifierExpression,
+  createIdentifierExpression as id,
   createMemberExpression,
   createVariableStatement
 } from './ParseTreeFactory';
 import {parseStatement} from './PlaceholderParser';
+import {transformOptions} from '../options';
+
+var GET_ITERATOR_CODE = `function(object) {
+  return object[%iterator]();
+}`;
+
+var GET_ITERATOR_RUNTIME_CODE = `function(object) {
+  return ${TRACEUR_RUNTIME}.getIterator(object);
+}`;
 
 /**
  * Desugars for-of statement.
@@ -28,13 +37,22 @@ import {parseStatement} from './PlaceholderParser';
 export class ForOfTransformer extends TempVarTransformer {
 
   /**
+   * @param {UniqueIdentifierGenerator} identifierGenerator
+   * @param {RuntimeInliner} runtimeInliner
+   */
+  constructor(identifierGenerator, runtimeInliner) {
+    super(identifierGenerator);
+    this.runtimeInliner_ = runtimeInliner;
+  }
+
+  /**
    * @param {ForOfStatement} original
    * @return {ParseTree}
    */
   transformForOfStatement(original) {
     var tree = super.transformForOfStatement(original);
-    var iter = createIdentifierExpression(this.getTempIdentifier());
-    var result = createIdentifierExpression(this.getTempIdentifier());
+    var iter = id(this.getTempIdentifier());
+    var result = id(this.getTempIdentifier());
 
     var assignment;
     if (tree.initializer.type === VARIABLE_DECLARATION_LIST) {
@@ -46,11 +64,10 @@ export class ForOfTransformer extends TempVarTransformer {
     } else {
       assignment = parseStatement `${tree.initializer} = ${result}.value;`;
     }
-    var id = createIdentifierExpression;
 
     return parseStatement `
         for (var ${iter} =
-                 ${id(TRACEUR_RUNTIME)}.getIterator(${tree.collection}),
+                 ${this.getIterator_}(${tree.collection}),
                  ${result};
              !(${result} = ${iter}.next()).done; ) {
           ${assignment};
@@ -58,11 +75,20 @@ export class ForOfTransformer extends TempVarTransformer {
         }`;
   }
 
+  get getIterator_() {
+    if (transformOptions.privateNames) {
+      return this.runtimeInliner_.get('getIterator', GET_ITERATOR_RUNTIME_CODE);
+    } else {
+      return this.runtimeInliner_.get('getIterator', GET_ITERATOR_CODE);
+    }
+  }
+
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
+   * @param {RuntimeInliner} runtimeInliner
    * @param {ParseTree} tree
    */
-  static transformTree(identifierGenerator, tree) {
-    return new ForOfTransformer(identifierGenerator).transformAny(tree);
+  static transformTree(identifierGenerator, runtimeInliner, tree) {
+    return new ForOfTransformer(identifierGenerator, runtimeInliner).transformAny(tree);
   }
 }

@@ -231,8 +231,12 @@
     return $hasOwnProperty.call(this, name);
   }
 
+  function getOption(name) {
+    return global.traceur && global.traceur.options[name];
+  }
+
   function elementDelete(object, name) {
-    if (traceur.options.trapMemberLookup &&
+    if (getOption('trapMemberLookup') &&
         hasPrivateNameProperty(object, elementDeleteName)) {
       return getProperty(object, elementDeleteName).call(object, name);
     }
@@ -240,7 +244,7 @@
   }
 
   function elementGet(object, name) {
-    if (traceur.options.trapMemberLookup &&
+    if (getOption('trapMemberLookup') &&
         hasPrivateNameProperty(object, elementGetName)) {
       return getProperty(object, elementGetName).call(object, name);
     }
@@ -253,7 +257,7 @@
   }
 
   function elementSet(object, name, value) {
-    if (traceur.options.trapMemberLookup &&
+    if (getOption('trapMemberLookup') &&
         hasPrivateNameProperty(object, elementSetName)) {
       getProperty(object, elementSetName).call(object, name, value);
     } else {
@@ -397,14 +401,14 @@
 
   var IterModule = {
     get iterator() {
-      return iteratorName;
+      return getOption('privateNames') ? iteratorName : '@@iterator';
     },
     // TODO: Implement the rest of @iter and move it to a different file that
     // gets compiled.
   };
 
   function getIterator(collection) {
-    return getProperty(collection, iteratorName).call(collection);
+    return getProperty(collection, IterModule.iterator).call(collection);
   }
 
   function returnThis() {
@@ -413,12 +417,15 @@
 
   function addIterator(object) {
     // Generator instances are iterable.
-    setProperty(object, iteratorName, returnThis);
+    setProperty(object, IterModule.iterator, returnThis);
     return object;
   }
 
   function polyfillArray(Array) {
     // Make arrays iterable.
+    // TODO(arv): This is not very robust to changes in the private names
+    // option but fortunately this is not something that is expected to change
+    // at runtime outside of tests.
     defineProperty(Array.prototype, IterModule.iterator, method(function() {
       var index = 0;
       var array = this;
