@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {CPSTransformer} from './CPSTransformer.js';
-import {EndState} from './EndState.js';
-import {FallThroughState} from './FallThroughState.js';
+import {CPSTransformer} from './CPSTransformer';
+import {EndState} from './EndState';
+import {FallThroughState} from './FallThroughState';
 import {
   $VALUE,
   CALLBACK,
@@ -31,11 +31,11 @@ import {
   STORED_EXCEPTION,
   THEN,
   WAIT_TASK
-} from '../../syntax/PredefinedName.js';
-import {STATE_MACHINE} from '../../syntax/trees/ParseTreeType.js';
-import {parseStatement} from '../PlaceholderParser.js';
-import {StateMachine} from '../../syntax/trees/StateMachine.js';
-import {VAR} from '../../syntax/TokenType.js';
+} from '../../syntax/PredefinedName';
+import {STATE_MACHINE} from '../../syntax/trees/ParseTreeType';
+import {parseStatement} from '../PlaceholderParser';
+import {StateMachine} from '../../syntax/trees/StateMachine';
+import {VAR} from '../../syntax/TokenType';
 import {
   createArgumentList,
   createAssignStateStatement,
@@ -58,7 +58,7 @@ import {
   createThrowStatement,
   createUndefinedExpression,
   createVariableStatement
-} from '../ParseTreeFactory.js';
+} from '../ParseTreeFactory';
 
 /**
  * Desugars async function bodies. Async function bodies contain 'async' statements.

@@ -45,25 +45,6 @@
       "ParseTree"
     ]
   },
-  "AtNameDeclaration": {
-    "location": [
-      "SourceRange"
-    ],
-    "atNameToken": [
-      "AtNameToken"
-    ],
-    "initializer": [
-      "ParseTree"
-    ]
-  },
-  "AtNameExpression": {
-    "location": [
-      "SourceRange"
-    ],
-    "atNameToken": [
-      "AtNameToken"
-    ]
-  },
   "AwaitStatement": {
     "location": [
       "SourceRange"
@@ -582,7 +563,6 @@
       "ParseTree"
     ],
     "memberName": [
-      "AtNameToken",
       "IdentifierToken"
     ]
   },
@@ -616,17 +596,6 @@
       "ParseTree"
     ]
   },
-  "ModuleDefinition": {
-    "location": [
-      "SourceRange"
-    ],
-    "name": [
-      "IdentifierToken"
-    ],
-    "elements": [
-      "Array.<ParseTree>"
-    ]
-  },
   "ModuleSpecifier": {
     "location": [
       "SourceRange"
@@ -644,14 +613,6 @@
     ],
     "specifierSet": [
       "ParseTree"
-    ]
-  },
-  "NameStatement": {
-    "location": [
-      "SourceRange"
-    ],
-    "declarations": [
-      "Array.<AtNameDeclaration>"
     ]
   },
   "NewExpression": {

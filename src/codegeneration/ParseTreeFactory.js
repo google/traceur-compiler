@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {IdentifierToken} from '../syntax/IdentifierToken.js';
-import {LiteralToken} from '../syntax/LiteralToken.js';
+import {IdentifierToken} from '../syntax/IdentifierToken';
+import {LiteralToken} from '../syntax/LiteralToken';
 import {
   ParseTree,
   ParseTreeType
-} from '../syntax/trees/ParseTree.js';
+} from '../syntax/trees/ParseTree';
 import {
   BIND,
   CALL,
@@ -29,8 +29,8 @@ import {
   STATE,
   UNDEFINED,
   getParameterName
-} from '../syntax/PredefinedName.js';
-import {Token} from '../syntax/Token.js';
+} from '../syntax/PredefinedName';
+import {Token} from '../syntax/Token';
 import {
   EQUAL,
   FALSE,
@@ -39,9 +39,103 @@ import {
   STRING,
   TRUE,
   VOID
-} from '../syntax/TokenType.js';
-import {assert} from '../util/assert.js';
-import * from '../syntax/trees/ParseTrees.js';
+} from '../syntax/TokenType';
+import {assert} from '../util/assert';
+module ParseTrees from '../syntax/trees/ParseTrees';
+
+var {
+  ArgumentList,
+  ArrayComprehension,
+  ArrayLiteralExpression,
+  ArrayPattern,
+  ArrowFunctionExpression,
+  AwaitStatement,
+  BinaryOperator,
+  BindingElement,
+  BindingIdentifier,
+  Block,
+  BreakStatement,
+  CallExpression,
+  CascadeExpression,
+  CaseClause,
+  Catch,
+  ClassDeclaration,
+  ClassExpression,
+  CommaExpression,
+  ComprehensionFor,
+  ComprehensionIf,
+  ComputedPropertyName,
+  ConditionalExpression,
+  ContinueStatement,
+  CoverFormals,
+  CoverInitialisedName,
+  DebuggerStatement,
+  DefaultClause,
+  DoWhileStatement,
+  EmptyStatement,
+  ExportDeclaration,
+  ExportSpecifier,
+  ExportSpecifierSet,
+  ExportStar,
+  ExpressionStatement,
+  Finally,
+  ForInStatement,
+  ForOfStatement,
+  ForStatement,
+  FormalParameterList,
+  FunctionBody,
+  FunctionDeclaration,
+  FunctionExpression,
+  GeneratorComprehension,
+  GetAccessor,
+  IdentifierExpression,
+  IfStatement,
+  ImportDeclaration,
+  ImportSpecifier,
+  ImportSpecifierSet,
+  LabelledStatement,
+  LiteralExpression,
+  LiteralPropertyName,
+  MemberExpression,
+  MemberLookupExpression,
+  Module,
+  ModuleDeclaration,
+  ModuleSpecifier,
+  NamedExport,
+  NewExpression,
+  ObjectLiteralExpression,
+  ObjectPattern,
+  ObjectPatternField,
+  ParenExpression,
+  PostfixExpression,
+  PredefinedType,
+  Script,
+  PropertyMethodAssignment,
+  PropertyNameAssignment,
+  PropertyNameShorthand,
+  RestParameter,
+  ReturnStatement,
+  SetAccessor,
+  SpreadExpression,
+  SpreadPatternElement,
+  SuperExpression,
+  SwitchStatement,
+  SyntaxErrorTree,
+  TemplateLiteralExpression,
+  TemplateLiteralPortion,
+  TemplateSubstitution,
+  ThisExpression,
+  ThrowStatement,
+  TryStatement,
+  TypeName,
+  UnaryExpression,
+  VariableDeclaration,
+  VariableDeclarationList,
+  VariableStatement,
+  WhileStatement,
+  WithStatement,
+  YieldExpression
+} = ParseTrees;
 
 // Helpers so we can use these on Arguments objects.
 var slice = Array.prototype.slice.call.bind(Array.prototype.slice);

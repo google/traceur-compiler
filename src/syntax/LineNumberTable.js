@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {SourcePosition} from '../util/SourcePosition.js';
-import {SourceRange} from '../util/SourceRange.js';
-import {isLineTerminator} from './Scanner.js';
+import {SourcePosition} from '../util/SourcePosition';
+import {SourceRange} from '../util/SourceRange';
+import {isLineTerminator} from './Scanner';
 
 // Largest int that can be distinguished
 // assert(n + 1 === n)

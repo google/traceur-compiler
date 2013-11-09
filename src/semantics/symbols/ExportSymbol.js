@@ -12,18 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Symbol} from './Symbol.js';
-import {SymbolType} from './SymbolType.js';
+import {Symbol} from './Symbol';
+import {EXPORT} from './SymbolType';
 
 export class ExportSymbol extends Symbol {
   /**
-   * @param {ParseTree} tree
    * @param {string} name
+   * @param {ParseTree} tree
    * @param {ParseTree=} relatedTree
    */
-  constructor(tree, name, relatedTree) {
-    super(SymbolType.EXPORT, tree, name);
+  constructor(name, tree, relatedTree) {
+    super(EXPORT, tree);
+    this.name = name;
     this.relatedTree = relatedTree;
   }
 }
-

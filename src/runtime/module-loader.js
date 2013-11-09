@@ -12,25 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ArrayMap} from '../util/ArrayMap.js';
-import {ModuleAnalyzer} from '../semantics/ModuleAnalyzer.js';
+import {ArrayMap} from '../util/ArrayMap';
+import {ModuleAnalyzer} from '../semantics/ModuleAnalyzer';
 import {ModuleRequireVisitor} from
-    '../codegeneration/module/ModuleRequireVisitor.js';
-import {ModuleSymbol} from '../semantics/symbols/ModuleSymbol.js';
-import {ObjectMap} from '../util/ObjectMap.js';
-import {Parser} from '../syntax/Parser.js';
-import {ProgramTransformer} from '../codegeneration/ProgramTransformer.js';
-import {Project} from '../semantics/symbols/Project.js';
-import {SourceFile} from '../syntax/SourceFile.js';
-import {TreeWriter} from '../outputgeneration/TreeWriter.js';
-import {WebLoader} from './WebLoader.js';
-import {assert} from '../util/assert.js';
-import {getUid} from '../util/uid.js';
-import {isStandardModuleUrl} from '../util/url.js';
-import {
-  getRefererUrl,
-  setRefererUrl
-} from '@traceur/module';
+    '../codegeneration/module/ModuleRequireVisitor';
+import {ModuleSymbol} from '../semantics/symbols/ModuleSymbol';
+import {ObjectMap} from '../util/ObjectMap';
+import {Parser} from '../syntax/Parser';
+import {ProgramTransformer} from '../codegeneration/ProgramTransformer';
+import {Project} from '../semantics/symbols/Project';
+import {SourceFile} from '../syntax/SourceFile';
+import {TreeWriter} from '../outputgeneration/TreeWriter';
+import {WebLoader} from './WebLoader';
+import {assert} from '../util/assert';
+import {getUid} from '../util/uid';
+import {isStandardModuleUrl} from '../util/url';
 
 // TODO(arv): I stripped the resolvers to make this simpler for now.
 
@@ -74,11 +70,14 @@ class CodeUnit {
    * @param {InternalLoader} loader The loader that is managing this dependency.
    * @param {string} url The URL of this dependency. If this is evaluated code
    *     the URL is the URL of the loader.
+   * @param {string} type Either 'script' or 'module'. This determinse how to
+   *     parse the code.
    * @param {number} state
    */
-  constructor(loader, url, state) {
+  constructor(loader, url, type, state) {
     this.loader = loader;
     this.url = url;
+    this.type = type;
     this.state = state;
     this.uid = getUid();
     this.state_ = NOT_STARTED;
@@ -197,8 +196,7 @@ class LoadCodeUnit extends CodeUnit {
    * @param {string} url
    */
   constructor(loader, url) {
-    super(loader, url, NOT_STARTED);
-    this.type = 'module';
+    super(loader, url, 'module', NOT_STARTED);
     if (isStandardModuleUrl(url)) {
       this.state = COMPLETE;
       this.dependencies = [];
@@ -223,7 +221,7 @@ class LoadCodeUnit extends CodeUnit {
     var tree = this.tree;
     var url = this.url;
     // External modules have no parent module.
-    var moduleSymbol = new ModuleSymbol(null, null, tree, url);
+    var moduleSymbol = new ModuleSymbol(tree, url);
     project.addExternalModule(moduleSymbol);
 
     return true;
@@ -248,9 +246,8 @@ class EvalCodeUnit extends CodeUnit {
    * @param {string} code
    */
   constructor(loader, code) {
-    super(loader, loader.url, LOADED);
+    super(loader, loader.url, 'script', LOADED);
     this.text = code;
-    this.type = 'script'
   }
 }
 
@@ -286,7 +283,7 @@ class InternalLoader {
     return this.fileLoader.loadSync(url);
   }
 
-  load(url, type) {
+  load(url, type = 'script') {
     url = System.normalResolve(url, this.url);
     var codeUnit = this.getCodeUnit(url, type);
     if (codeUnit.state != NOT_STARTED || codeUnit.state == ERROR) {
@@ -318,7 +315,7 @@ class InternalLoader {
     return codeUnit;
   }
 
-  loadSync(url, type) {
+  loadSync(url, type = 'script') {
     this.sync_ = true;
     var loaded = this.load(url, type);
     this.sync_ = false;
@@ -498,10 +495,7 @@ class InternalLoader {
         continue;
       }
 
-      var currentUrl = getRefererUrl();
-      setRefererUrl(codeUnit.url);
       var result;
-
       try {
         result = this.evalCodeUnit(codeUnit);
       } catch (ex) {
@@ -509,8 +503,6 @@ class InternalLoader {
         this.reporter.reportError(null, String(ex));
         this.abortAll();
         return;
-      } finally {
-        setRefererUrl(currentUrl);
       }
 
       codeUnit.result = result;

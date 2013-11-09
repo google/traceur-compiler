@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ParseTreeTransformer} from './ParseTreeTransformer.js';
+import {ParseTreeTransformer} from './ParseTreeTransformer';
 import {
-  ModuleDefinition,
+  Module,
   Script
-} from '../syntax/trees/ParseTrees.js';
-import {VAR} from '../syntax/TokenType.js';
+} from '../syntax/trees/ParseTrees';
+import {VAR} from '../syntax/TokenType';
 import {
   createFunctionBody,
   createVariableDeclaration,
   createVariableDeclarationList,
   createVariableStatement
-} from './ParseTreeFactory.js';
-import {prependStatements} from './PrependStatements.js';
+} from './ParseTreeFactory';
+import {prependStatements} from './PrependStatements';
 
 function getVars(self) {
     var vars = self.tempVarStack_[self.tempVarStack_.length - 1];
@@ -110,7 +110,7 @@ export class TempVarTransformer extends ParseTreeTransformer {
     if (scriptItemList == tree.scriptItemList) {
       return tree;
     }
-    return new Script(tree.location, scriptItemList);
+    return new Module(tree.location, scriptItemList);
   }
 
   transformFunctionBody(tree) {
@@ -120,15 +120,6 @@ export class TempVarTransformer extends ParseTreeTransformer {
     if (statements == tree.statements)
       return tree;
     return createFunctionBody(statements);
-  }
-
-  transformModuleDefinition(tree) {
-    this.pushTempVarState();
-    var elements = this.transformStatements_(tree.elements);
-    this.popTempVarState();
-    if (elements == tree.elements)
-      return tree;
-    return new ModuleDefinition(tree.location, tree.name, elements);
   }
 
   /**

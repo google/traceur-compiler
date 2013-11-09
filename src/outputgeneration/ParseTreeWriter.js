@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor.js';
+import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor';
 import {
   AS,
   FROM,
@@ -21,10 +21,122 @@ import {
   MODULE,
   REQUIRES,
   SET
-} from '../syntax/PredefinedName.js';
-import {Token} from '../syntax/Token.js';
-import {getKeywordType} from '../syntax/Keywords.js';
-import * from '../syntax/TokenType.js';
+} from '../syntax/PredefinedName';
+import {Token} from '../syntax/Token';
+import {getKeywordType} from '../syntax/Keywords';
+module TokenType from '../syntax/TokenType';
+
+var {
+  AMPERSAND,
+  AMPERSAND_EQUAL,
+  AND,
+  ARROW,
+  AT_NAME,
+  AWAIT,
+  BACK_QUOTE,
+  BANG,
+  BAR,
+  BAR_EQUAL,
+  BREAK,
+  CARET,
+  CARET_EQUAL,
+  CASE,
+  CATCH,
+  CLASS,
+  CLOSE_ANGLE,
+  CLOSE_CURLY,
+  CLOSE_PAREN,
+  CLOSE_SQUARE,
+  COLON,
+  COMMA,
+  CONST,
+  CONTINUE,
+  DEBUGGER,
+  DEFAULT,
+  DELETE,
+  DO,
+  DOT_DOT_DOT,
+  ELSE,
+  END_OF_FILE,
+  ENUM,
+  EQUAL,
+  EQUAL_EQUAL,
+  EQUAL_EQUAL_EQUAL,
+  ERROR,
+  EXPORT,
+  EXTENDS,
+  FALSE,
+  FINALLY,
+  FOR,
+  FUNCTION,
+  GREATER_EQUAL,
+  IDENTIFIER,
+  IF,
+  IMPLEMENTS,
+  IMPORT,
+  IN,
+  INSTANCEOF,
+  INTERFACE,
+  LEFT_SHIFT,
+  LEFT_SHIFT_EQUAL,
+  LESS_EQUAL,
+  LET,
+  MINUS,
+  MINUS_EQUAL,
+  MINUS_MINUS,
+  NEW,
+  NO_SUBSTITUTION_TEMPLATE,
+  NOT_EQUAL,
+  NOT_EQUAL_EQUAL,
+  NULL,
+  NUMBER,
+  OPEN_ANGLE,
+  OPEN_CURLY,
+  OPEN_PAREN,
+  OPEN_SQUARE,
+  OR,
+  PACKAGE,
+  PERCENT,
+  PERCENT_EQUAL,
+  PERIOD,
+  PERIOD_OPEN_CURLY,
+  PLUS,
+  PLUS_EQUAL,
+  PLUS_PLUS,
+  PRIVATE,
+  PROTECTED,
+  PUBLIC,
+  QUESTION,
+  REGULAR_EXPRESSION,
+  RETURN,
+  RIGHT_SHIFT,
+  RIGHT_SHIFT_EQUAL,
+  SEMI_COLON,
+  SLASH,
+  SLASH_EQUAL,
+  STAR,
+  STAR_EQUAL,
+  STATIC,
+  STRING,
+  SUPER,
+  SWITCH,
+  TEMPLATE_HEAD,
+  TEMPLATE_MIDDLE,
+  TEMPLATE_TAIL,
+  THIS,
+  THROW,
+  TILDE,
+  TRUE,
+  TRY,
+  TYPEOF,
+  UNSIGNED_RIGHT_SHIFT,
+  UNSIGNED_RIGHT_SHIFT_EQUAL,
+  VAR,
+  VOID,
+  WHILE,
+  WITH,
+  YIELD
+} = TokenType;
 
 // constants
 var NEW_LINE = '\n';
@@ -137,24 +249,6 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.write_(CLOSE_PAREN);
     this.write_(ARROW);
     this.visitAny(tree.functionBody);
-  }
-
-  /**
-   * @param {AtNameExpression} tree
-   */
-  visitAtNameExpression(tree) {
-    this.write_(tree.atNameToken);
-  }
-
-  /**
-   * @param {AtNameDeclaration} tree
-   */
-  visitAtNameDeclaration(tree) {
-    this.write_(tree.atNameToken);
-    if (tree.initializer) {
-      this.write_(EQUAL);
-      this.visitAny(tree.initializer);
-    }
   }
 
   /**
@@ -659,19 +753,6 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
-   * @param {ModuleDefinition} tree
-   */
-  visitModuleDefinition(tree) {
-    this.write_(MODULE);
-    this.write_(tree.name);
-    this.write_(OPEN_CURLY);
-    this.writeln_();
-    this.writelnList_(tree.elements);
-    this.write_(CLOSE_CURLY);
-    this.writeln_();
-  }
-
-  /**
    * @param {ModuleSpecifier} tree
    */
   visitModuleSpecifier(tree) {
@@ -686,15 +767,6 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.write_(tree.identifier);
     this.write_(FROM);
     this.visitAny(tree.expression);
-    this.write_(SEMI_COLON);
-  }
-
-  /**
-   * @param {NameStatement} tree
-   */
-  visitNameStatement(tree) {
-    this.write_(PRIVATE);
-    this.writeList_(tree.declarations, COMMA, false);
     this.write_(SEMI_COLON);
   }
 

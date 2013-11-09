@@ -6,8 +6,8 @@
 // Error: :13:9: 'bar' is not exported by '@name'
 // Error: :13:14: 'baz' is not exported by '@name'
 
-import {x, y, z} from './resources/x.js';
-import {w} from './resources/x.js';
+import {x, y, z} from './resources/x';
+import {w} from './resources/x';
 
 import {foo} from '@name';
 import {bar, baz} from '@name';

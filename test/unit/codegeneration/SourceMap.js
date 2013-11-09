@@ -89,7 +89,7 @@ suite('SourceMap.js', function() {
   });
 
   test('ImportSpecifierSetSourceMap', function() {
-    var src = "  import * from 'WrapNewObjectTransformer.js';";
+    var src = "  import {x} from 'WrapNewObjectTransformer';";
 
     var filename = 'sourceMapImportSpecifierSet.js';
     var tree = parse(filename, src);

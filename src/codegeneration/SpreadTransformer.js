@@ -17,13 +17,13 @@ import {
   BIND,
   FUNCTION,
   PROTOTYPE
-} from '../syntax/PredefinedName.js';
+} from '../syntax/PredefinedName';
 import {
   MEMBER_EXPRESSION,
   MEMBER_LOOKUP_EXPRESSION,
   SPREAD_EXPRESSION
-} from  '../syntax/trees/ParseTreeType.js';
-import {TempVarTransformer} from './TempVarTransformer.js';
+} from  '../syntax/trees/ParseTreeType';
+import {TempVarTransformer} from './TempVarTransformer';
 import {
   createArgumentList,
   createArrayLiteralExpression,
@@ -36,7 +36,7 @@ import {
   createNewExpression,
   createNullLiteral,
   createParenExpression
-} from './ParseTreeFactory.js';
+} from './ParseTreeFactory';
 
 // Spreads the elements in the arguments into a single array.
 // @return {Array}

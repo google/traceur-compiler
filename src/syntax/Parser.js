@@ -15,12 +15,12 @@
 import {
   AssignmentPatternTransformer,
   AssignmentPatternTransformerError
-} from '../codegeneration/AssignmentPatternTransformer.js';
+} from '../codegeneration/AssignmentPatternTransformer';
 import {
   CoverFormalsTransformer,
   CoverFormalsTransformerError
-} from '../codegeneration/CoverFormalsTransformer.js';
-import {IdentifierToken} from './IdentifierToken.js';
+} from '../codegeneration/CoverFormalsTransformer';
+import {IdentifierToken} from './IdentifierToken';
 import {
   ARRAY_LITERAL_EXPRESSION,
   BINARY_OPERATOR,
@@ -38,7 +38,7 @@ import {
   PROPERTY_NAME_ASSIGNMENT,
   REST_PARAMETER,
   SYNTAX_ERROR_TREE
-} from './trees/ParseTreeType.js';
+} from './trees/ParseTreeType';
 import {
   ANY,
   AS,
@@ -50,20 +50,227 @@ import {
   OF,
   SET,
   STRING
-} from './PredefinedName.js';
-import {Scanner} from './Scanner.js';
-import {SourceRange} from '../util/SourceRange.js';
-import {StrictParams} from '../staticsemantics/StrictParams.js';
+} from './PredefinedName';
+import {Scanner} from './Scanner';
+import {SourceRange} from '../util/SourceRange';
+import {StrictParams} from '../staticsemantics/StrictParams';
 import {
   Token,
   isAssignmentOperator
-} from './Token.js';
+} from './Token';
 import {
   parseOptions,
   options
-} from '../options.js';
-import * from './TokenType.js';
-import * from './trees/ParseTrees.js';
+} from '../options';
+module TokenType from './TokenType';
+module ParseTrees from './trees/ParseTrees';
+
+var {
+  AMPERSAND,
+  AMPERSAND_EQUAL,
+  AND,
+  ARROW,
+  AT_NAME,
+  AWAIT,
+  BACK_QUOTE,
+  BANG,
+  BAR,
+  BAR_EQUAL,
+  BREAK,
+  CARET,
+  CARET_EQUAL,
+  CASE,
+  CATCH,
+  CLASS,
+  CLOSE_ANGLE,
+  CLOSE_CURLY,
+  CLOSE_PAREN,
+  CLOSE_SQUARE,
+  COLON,
+  COMMA,
+  CONST,
+  CONTINUE,
+  DEBUGGER,
+  DEFAULT,
+  DELETE,
+  DO,
+  DOT_DOT_DOT,
+  ELSE,
+  END_OF_FILE,
+  ENUM,
+  EQUAL,
+  EQUAL_EQUAL,
+  EQUAL_EQUAL_EQUAL,
+  ERROR,
+  EXPORT,
+  EXTENDS,
+  FALSE,
+  FINALLY,
+  FOR,
+  FUNCTION,
+  GREATER_EQUAL,
+  IDENTIFIER,
+  IF,
+  IMPLEMENTS,
+  IMPORT,
+  IN,
+  INSTANCEOF,
+  INTERFACE,
+  LEFT_SHIFT,
+  LEFT_SHIFT_EQUAL,
+  LESS_EQUAL,
+  LET,
+  MINUS,
+  MINUS_EQUAL,
+  MINUS_MINUS,
+  NEW,
+  NO_SUBSTITUTION_TEMPLATE,
+  NOT_EQUAL,
+  NOT_EQUAL_EQUAL,
+  NULL,
+  NUMBER,
+  OPEN_ANGLE,
+  OPEN_CURLY,
+  OPEN_PAREN,
+  OPEN_SQUARE,
+  OR,
+  PACKAGE,
+  PERCENT,
+  PERCENT_EQUAL,
+  PERIOD,
+  PERIOD_OPEN_CURLY,
+  PLUS,
+  PLUS_EQUAL,
+  PLUS_PLUS,
+  PRIVATE,
+  PROTECTED,
+  PUBLIC,
+  QUESTION,
+  REGULAR_EXPRESSION,
+  RETURN,
+  RIGHT_SHIFT,
+  RIGHT_SHIFT_EQUAL,
+  SEMI_COLON,
+  SLASH,
+  SLASH_EQUAL,
+  STAR,
+  STAR_EQUAL,
+  STATIC,
+  STRING,
+  SUPER,
+  SWITCH,
+  TEMPLATE_HEAD,
+  TEMPLATE_MIDDLE,
+  TEMPLATE_TAIL,
+  THIS,
+  THROW,
+  TILDE,
+  TRUE,
+  TRY,
+  TYPEOF,
+  UNSIGNED_RIGHT_SHIFT,
+  UNSIGNED_RIGHT_SHIFT_EQUAL,
+  VAR,
+  VOID,
+  WHILE,
+  WITH,
+  YIELD
+} = TokenType;
+
+var {
+  ArgumentList,
+  ArrayComprehension,
+  ArrayLiteralExpression,
+  ArrayPattern,
+  ArrowFunctionExpression,
+  AwaitStatement,
+  BinaryOperator,
+  BindingElement,
+  BindingIdentifier,
+  Block,
+  BreakStatement,
+  CallExpression,
+  CascadeExpression,
+  CaseClause,
+  Catch,
+  ClassDeclaration,
+  ClassExpression,
+  CommaExpression,
+  ComprehensionFor,
+  ComprehensionIf,
+  ComputedPropertyName,
+  ConditionalExpression,
+  ContinueStatement,
+  CoverFormals,
+  CoverInitialisedName,
+  DebuggerStatement,
+  DefaultClause,
+  DoWhileStatement,
+  EmptyStatement,
+  ExportDeclaration,
+  ExportSpecifier,
+  ExportSpecifierSet,
+  ExportStar,
+  ExpressionStatement,
+  Finally,
+  ForInStatement,
+  ForOfStatement,
+  ForStatement,
+  FormalParameterList,
+  FunctionBody,
+  FunctionDeclaration,
+  FunctionExpression,
+  GeneratorComprehension,
+  GetAccessor,
+  IdentifierExpression,
+  IfStatement,
+  ImportDeclaration,
+  ImportSpecifier,
+  ImportSpecifierSet,
+  LabelledStatement,
+  LiteralExpression,
+  LiteralPropertyName,
+  MemberExpression,
+  MemberLookupExpression,
+  Module,
+  ModuleDeclaration,
+  ModuleSpecifier,
+  NamedExport,
+  NameStatement,
+  NewExpression,
+  ObjectLiteralExpression,
+  ObjectPattern,
+  ObjectPatternField,
+  ParenExpression,
+  PostfixExpression,
+  PredefinedType,
+  Script,
+  PropertyMethodAssignment,
+  PropertyNameAssignment,
+  PropertyNameShorthand,
+  RestParameter,
+  ReturnStatement,
+  SetAccessor,
+  SpreadExpression,
+  SpreadPatternElement,
+  SuperExpression,
+  SwitchStatement,
+  SyntaxErrorTree,
+  TemplateLiteralExpression,
+  TemplateLiteralPortion,
+  TemplateSubstitution,
+  ThisExpression,
+  ThrowStatement,
+  TryStatement,
+  TypeName,
+  UnaryExpression,
+  VariableDeclaration,
+  VariableDeclarationList,
+  VariableStatement,
+  WhileStatement,
+  WithStatement,
+  YieldExpression
+} = ParseTrees;
 
 /**
  * Differentiates between parsing for 'In' vs. 'NoIn'
@@ -274,8 +481,8 @@ export class Parser {
         importSpecifierSet, moduleSpecifier);
   }
 
-  //ImportSpecifierSet ::= "*"
-  //                  | "{" (ImportSpecifier ("," ImportSpecifier)*)? ","? "}"
+  //ImportSpecifierSet :
+  //  "{" (ImportSpecifier ("," ImportSpecifier)*)? ","? "}"
   /**
    * @param {SourcePosition} start
    * @param {Array.<IdentifierToken>} qualifiedPath
@@ -284,22 +491,17 @@ export class Parser {
    */
   parseImportSpecifierSet_() {
     var start = this.getTreeStartLocation_();
-    if (this.peek_(OPEN_CURLY)) {
-      this.eat_(OPEN_CURLY);
+    this.eat_(OPEN_CURLY);
 
-      var specifiers = [this.parseImportSpecifier_()];
-      while (this.eatIf_(COMMA)) {
-        if (this.peek_(CLOSE_CURLY))
-          break;
-        specifiers.push(this.parseImportSpecifier_());
-      }
-      this.eat_(CLOSE_CURLY);
-
-      return new ImportSpecifierSet(this.getTreeLocation_(start), specifiers);
+    var specifiers = [this.parseImportSpecifier_()];
+    while (this.eatIf_(COMMA)) {
+      if (this.peek_(CLOSE_CURLY))
+        break;
+      specifiers.push(this.parseImportSpecifier_());
     }
+    this.eat_(CLOSE_CURLY);
 
-    var star = this.eat_(STAR);
-    return new ImportSpecifierSet(this.getTreeLocation_(start), star);
+    return new ImportSpecifierSet(this.getTreeLocation_(start), specifiers);
   }
 
   // ImportSpecifier ::= IdentifierName ("as" Identifier)?
@@ -327,7 +529,7 @@ export class Parser {
   // export  FunctionDeclaration
   // export  ConstStatement
   // export  ClassDeclaration
-  // export  module ModuleDefinition
+  // export  ModuleDeclaration
 
   /**
    * @return {ParseTree}
@@ -593,10 +795,6 @@ export class Parser {
         break;
       case OPEN_CURLY:
         return this.parseBlock_();
-      case PRIVATE:
-        if (parseOptions.privateNameSyntax)
-          return this.parseNameStatement_();
-        break;
       case SEMI_COLON:
         return this.parseEmptyStatement_();
       case TRY:
@@ -892,39 +1090,6 @@ export class Parser {
     return this.parseAssignmentExpression(expressionIn);
   }
 
-  /**
-   * NameStatement :
-   *   name NameDeclarationList
-   *
-   * NameDeclarationList :
-   *   AtName Initializeropt
-   *   AtName Initializeropt , NameDeclarationList
-   *
-   * @return {AtNameDeclaration}
-   */
-  parseNameStatement_() {
-    var start = this.getTreeStartLocation_();
-    this.eat_(PRIVATE);
-
-    var declarations = [];
-    declarations.push(this.parseAtNameDeclaration_());
-    while (this.eatIf_(COMMA)) {
-      declarations.push(this.parseAtNameDeclaration_());
-    }
-    this.eatPossibleImplicitSemiColon_();
-    return new NameStatement(this.getTreeLocation_(start), declarations);
-  }
-
-  parseAtNameDeclaration_() {
-    var start = this.getTreeStartLocation_();
-    var atName = this.eat_(AT_NAME);
-    var initializer = null;
-    if (this.peek_(EQUAL))
-      initializer = this.parseInitializer_(Expression.IN);
-    return new AtNameDeclaration(this.getTreeLocation_(start), atName,
-                                 initializer);
-  }
-
   // 12.3 Empty Statement
   /**
    * @return {EmptyStatement}
@@ -938,7 +1103,7 @@ export class Parser {
 
   // Expression Statement and Module declaration.
   /**
-   * @return {ExpressionStatement|ModuleDeclaration|ModuleDefinition}
+   * @return {ExpressionStatement|ModuleDeclaration}
    * @private
    */
   parseFallThroughStatement_(allowScriptItem) {
@@ -955,38 +1120,22 @@ export class Parser {
                                      statement);
       }
 
-      // Modules
+      // ModuleDeclaration :
+      //     module [no LineTerminator here] ImportedBinding FromClause ;
       //
-      // ModuleDefinition(load) ::=
-      //     module [NoNewLine] StringLiteral { ModuleBody(load) }
-      // ModuleDeclaration(load) ::=
-      //     module [NoNewLine] Identifier from ModuleSpecifier(load)
-      //
-      // ModuleDefinition is legacy. It will be removed soon.
       if (allowScriptItem && nameToken.value === MODULE &&
           parseOptions.modules) {
         var token = this.peekTokenNoLineTerminator_();
-        if (token !== null) {
-          if (token.type === STRING) {
-            var name = this.eat_(STRING);
-            this.eat_(OPEN_CURLY);
-            var elements = this.parseModuleItemList_();
-            this.eat_(CLOSE_CURLY);
-            return new ModuleDefinition(this.getTreeLocation_(start), name,
-                                        elements);
-          }
-
-          if (token.type === IDENTIFIER) {
-            var name = this.eatId_();
-            this.eatId_(FROM);
-            var moduleSpecifier = this.parseModuleSpecifier_();
-            this.eatPossibleImplicitSemiColon_();
-            return new ModuleDeclaration(this.getTreeLocation_(start), name,
-                                         moduleSpecifier);
-          }
-
-          // Fall through.
+        if (token !== null && token.type === IDENTIFIER) {
+          var name = this.eatId_();
+          this.eatId_(FROM);
+          var moduleSpecifier = this.parseModuleSpecifier_();
+          this.eatPossibleImplicitSemiColon_();
+          return new ModuleDeclaration(this.getTreeLocation_(start), name,
+                                       moduleSpecifier);
         }
+
+        // Fall through.
       }
     }
 
@@ -1545,8 +1694,6 @@ export class Parser {
       case NO_SUBSTITUTION_TEMPLATE:
       case TEMPLATE_HEAD:
         return this.parseTemplateLiteral_(null);
-      case AT_NAME:
-        return this.parseAtNameExpression_();
 
       case IMPLEMENTS:
       case INTERFACE:
@@ -1618,12 +1765,6 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     var identifier = this.eatIdName_();
     return new IdentifierExpression(this.getTreeLocation_(start), identifier);
-  }
-
-  parseAtNameExpression_() {
-    var start = this.getTreeStartLocation_();
-    var atName = this.eat_(AT_NAME);
-    return new AtNameExpression(this.getTreeLocation_(start), atName);
   }
 
   /**
@@ -2000,8 +2141,6 @@ export class Parser {
    */
   peekPropertyName_(type) {
     switch (type) {
-      case AT_NAME:
-        return parseOptions.privateNameSyntax;
       case IDENTIFIER:
       case STRING:
       case NUMBER:
@@ -2076,8 +2215,6 @@ export class Parser {
       case NO_SUBSTITUTION_TEMPLATE:
       case TEMPLATE_HEAD:
         return parseOptions.templateLiterals;
-      case AT_NAME:
-        return parseOptions.privateNameSyntax;
       case BANG:
       case CLASS:
       case DELETE:
@@ -2689,10 +2826,7 @@ export class Parser {
         case PERIOD:
           this.nextToken_();
           var name;
-          if (parseOptions.privateNameSyntax && this.peek_(AT_NAME))
-            name = this.nextToken_();
-          else
-            name = this.eatIdName_();
+          name = this.eatIdName_();
           operand = new MemberExpression(this.getTreeLocation_(start),
                                          operand, name);
           break;

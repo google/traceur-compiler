@@ -14,23 +14,23 @@
 
 import {
   CONSTRUCTOR
-} from '../syntax/PredefinedName.js';
+} from '../syntax/PredefinedName';
 import {
   GetAccessor,
   PropertyMethodAssignment,
   SetAccessor
-} from '../syntax/trees/ParseTrees.js';
+} from '../syntax/trees/ParseTrees';
 import {
   GET_ACCESSOR,
   PROPERTY_METHOD_ASSIGNMENT,
   SET_ACCESSOR
-} from '../syntax/trees/ParseTreeType.js';
-import {SuperTransformer} from './SuperTransformer.js';
-import {TempVarTransformer} from './TempVarTransformer.js';
+} from '../syntax/trees/ParseTreeType';
+import {SuperTransformer} from './SuperTransformer';
+import {TempVarTransformer} from './TempVarTransformer';
 import {
   LET,
   VAR
-} from '../syntax/TokenType.js';
+} from '../syntax/TokenType';
 import {
   createFunctionBody,
   createIdentifierExpression,
@@ -39,13 +39,13 @@ import {
   createParenExpression,
   createThisExpression,
   createVariableStatement
-} from './ParseTreeFactory.js';
-import {parseOptions} from '../options.js';
+} from './ParseTreeFactory';
+import {parseOptions} from '../options';
 import {
   parseExpression,
   parsePropertyDefinition
-} from './PlaceholderParser.js';
-import {propName} from '../staticsemantics/PropName.js';
+} from './PlaceholderParser';
+import {propName} from '../staticsemantics/PropName';
 
 // This code is more or less identical to ClassDefinitionEvaluation in the ES6
 // draft.

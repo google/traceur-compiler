@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ParseTreeTransformer} from './ParseTreeTransformer.js';
+import {ParseTreeTransformer} from './ParseTreeTransformer';
 import {
   ArrayPattern,
   BindingElement,
@@ -22,13 +22,13 @@ import {
   ObjectPatternField,
   RestParameter,
   SpreadPatternElement
-} from '../syntax/trees/ParseTrees.js';
-import {EQUAL} from '../syntax/TokenType.js';
+} from '../syntax/trees/ParseTrees';
+import {EQUAL} from '../syntax/TokenType';
 import {
   IDENTIFIER_EXPRESSION,
-} from '../syntax/trees/ParseTreeType.js';
+} from '../syntax/trees/ParseTreeType';
 import {AssignmentPatternTransformerError} from
-    './AssignmentPatternTransformer.js';
+    './AssignmentPatternTransformer';
 
 /**
  * @fileoverview This transformer is used by the parser to transform a

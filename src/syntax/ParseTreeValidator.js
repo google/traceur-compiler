@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {NewExpression} from '../syntax/trees/ParseTrees.js';
-import {ParseTreeVisitor} from './ParseTreeVisitor.js';
-import {TreeWriter} from '../outputgeneration/TreeWriter.js';
+import {NewExpression} from '../syntax/trees/ParseTrees';
+import {ParseTreeVisitor} from './ParseTreeVisitor';
+import {TreeWriter} from '../outputgeneration/TreeWriter';
 import {
   AMPERSAND,
   AMPERSAND_EQUAL,
@@ -55,7 +55,7 @@ import {
   STRING,
   UNSIGNED_RIGHT_SHIFT,
   UNSIGNED_RIGHT_SHIFT_EQUAL
-} from './TokenType.js';
+} from './TokenType';
 import {
   ARRAY_PATTERN,
   BINDING_ELEMENT,
@@ -81,7 +81,6 @@ import {
   LITERAL_PROPERTY_NAME,
   MODULE_DECLARATION,
   MODULE_DECLARATION,
-  MODULE_DEFINITION,
   MODULE_SPECIFIER,
   OBJECT_PATTERN,
   OBJECT_PATTERN_FIELD,
@@ -94,7 +93,7 @@ import {
   TEMPLATE_SUBSTITUTION,
   VARIABLE_DECLARATION_LIST,
   VARIABLE_STATEMENT
-} from './trees/ParseTreeType.js';
+} from './trees/ParseTreeType';
 
 /*
 TODO: add contextual information to the validator so we can check
@@ -425,7 +424,6 @@ export class ParseTreeValidator extends ParseTreeVisitor {
     this.checkVisit_(
         declType == VARIABLE_STATEMENT ||
         declType == FUNCTION_DECLARATION ||
-        declType == MODULE_DEFINITION ||
         declType == MODULE_DECLARATION ||
         declType == CLASS_DECLARATION ||
         declType == NAMED_EXPORT,
@@ -679,24 +677,6 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    */
   visitSyntaxErrorTree(tree) {
     this.fail_(tree, `parse tree contains SyntaxError: ${tree.message}`);
-  }
-
-  /**
-   * @param {ModuleDefinition} tree
-   */
-  visitModuleDefinition(tree) {
-    for (var i = 0; i < tree.elements.length; i++) {
-      var element = tree.elements[i];
-      this.checkVisit_(
-          (element.isStatement() && element.type !== BLOCK) ||
-          element.type === CLASS_DECLARATION ||
-          element.type === EXPORT_DECLARATION ||
-          element.type === IMPORT_DECLARATION ||
-          element.type === MODULE_DEFINITION ||
-          element.type === MODULE_DECLARATION,
-          element,
-          'module element expected');
-    }
   }
 
   /**

@@ -12,27 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ArrayMap} from '../util/ArrayMap.js';
+import {ArrayMap} from '../util/ArrayMap';
 import {
   BLOCK,
   EXPRESSION_STATEMENT,
   IDENTIFIER_EXPRESSION
-} from '../syntax/trees/ParseTreeType.js';
-import {IdentifierToken} from '../syntax/IdentifierToken.js';
-import {LiteralToken} from '../syntax/LiteralToken.js';
-import {MutedErrorReporter} from '../util/MutedErrorReporter.js';
-import {ParseTree} from '../syntax/trees/ParseTree.js';
-import {ParseTreeTransformer} from './ParseTreeTransformer.js';
-import {Parser} from '../syntax/Parser.js';
+} from '../syntax/trees/ParseTreeType';
+import {IdentifierToken} from '../syntax/IdentifierToken';
+import {LiteralToken} from '../syntax/LiteralToken';
+import {MutedErrorReporter} from '../util/MutedErrorReporter';
+import {ParseTree} from '../syntax/trees/ParseTree';
+import {ParseTreeTransformer} from './ParseTreeTransformer';
+import {Parser} from '../syntax/Parser';
 import {
   LiteralExpression,
   LiteralPropertyName,
   PropertyMethodAssignment,
   PropertyNameAssignment,
   PropertyNameShorthand
-} from '../syntax/trees/ParseTrees.js';
-import {SourceFile} from '../syntax/SourceFile.js';
-import {IDENTIFIER} from '../syntax/TokenType.js';
+} from '../syntax/trees/ParseTrees';
+import {SourceFile} from '../syntax/SourceFile';
+import {IDENTIFIER} from '../syntax/TokenType';
 import {
   createArrayLiteralExpression,
   createBindingIdentifier,
@@ -51,7 +51,7 @@ import {
   createSetAccessor,
   createStringLiteral,
   createVoid0
-} from './ParseTreeFactory.js';
+} from './ParseTreeFactory';
 
 /**
  * @fileoverview This file provides two template string functions,

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor.js';
-import {isStrictKeyword} from '../syntax/Keywords.js';
+import {ParseTreeVisitor} from '../syntax/ParseTreeVisitor';
+import {isStrictKeyword} from '../syntax/Keywords';
 
 /**
  * This matches the "Static Semantics: BoundNames" in the ES6 spec.

@@ -15,33 +15,33 @@
 import {
   FunctionDeclaration,
   FunctionExpression
-} from '../syntax/trees/ParseTrees.js';
+} from '../syntax/trees/ParseTrees';
 import {
   LITERAL_PROPERTY_NAME,
   MEMBER_EXPRESSION,
   MEMBER_LOOKUP_EXPRESSION,
   SUPER_EXPRESSION
-} from '../syntax/trees/ParseTreeType.js';
-import {ParseTreeTransformer} from './ParseTreeTransformer.js';
-import {EQUAL} from '../syntax/TokenType.js';
-import {assert} from '../util/assert.js';
+} from '../syntax/trees/ParseTreeType';
+import {ParseTreeTransformer} from './ParseTreeTransformer';
+import {EQUAL} from '../syntax/TokenType';
+import {assert} from '../util/assert';
 import {
   createArrayLiteralExpression,
   createIdentifierExpression,
   createStringLiteral,
   createThisExpression
-} from './ParseTreeFactory.js';
+} from './ParseTreeFactory';
 import {
   expandMemberExpression,
   expandMemberLookupExpression
-} from './OperatorExpander.js';
-import {parseExpression} from './PlaceholderParser.js';
+} from './OperatorExpander';
+import {parseExpression} from './PlaceholderParser';
 
 var SUPER_DESCRIPTOR_CODE =
     `function (proto, name) {
       if (!proto)
-        throw new TypeError('super is null');
-      return Object.getPropertyDescriptor(proto, name);
+        throw new %TypeError('super is null');
+      return %getPropertyDescriptor(proto, name);
     }`;
 
 var SUPER_CALL_CODE =
@@ -53,7 +53,7 @@ var SUPER_CALL_CODE =
         if (descriptor.get)
           return descriptor.get.call(self).apply(self, args);
       }
-      throw new TypeError("Object has no method '" + name + "'.");
+      throw new %TypeError("Object has no method '" + name + "'.");
     }`;
 
 var SUPER_GET_CODE =
@@ -75,7 +75,7 @@ var SUPER_SET_CODE =
         descriptor.set.call(self, value);
         return;
       }
-      throw new TypeError("Object has no setter '" + name + "'.");
+      throw new %TypeError("Object has no setter '" + name + "'.");
     }`;
 
 /**

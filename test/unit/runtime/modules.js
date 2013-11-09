@@ -17,14 +17,16 @@ suite('modules.js', function() {
   var MutedErrorReporter =
       System.get('../src/util/MutedErrorReporter.js').MutedErrorReporter;
 
-  var reporter;
+  var reporter, baseURL;
 
   setup(function() {
     reporter = new traceur.util.ErrorReporter();
+    baseURL = System.baseURL;
   });
 
   teardown(function() {
     assert.isFalse(reporter.hadError());
+    System.baseURL = baseURL;
   });
 
   var url;
@@ -128,50 +130,39 @@ suite('modules.js', function() {
     });
   });
 
-  function removeUpToTest(url) {
-    var testDir = '/test/';
-    var i = url.indexOf(testDir);
-    if (i === -1)
-      return url;
-    i += testDir.length;
-    return url.substring(i);
-  }
+  test('System.normalize', function() {
+    var m = System.get('@traceur/module');
 
-  function baseUrl() {
-      var globalURL;
-      if (typeof __filename !== 'undefined') {
-        globalURL = __filename;
-        return traceur.util.resolveUrl(globalURL, '../../');
-      } else {
-        globalURL = window.location.href;
-        return traceur.util.resolveUrl(globalURL, './');
-      }
-  }
+    System.baseURL = 'http://example.org/a/b.html';
+    assert.equal('http://example.org/a/d/e/f', System.normalize('d/e/f'));
+    assert.equal('http://example.org/e/f', System.normalize('../e/f'));
 
-  test('SystemResolve', function() {
-    assert.equal(removeUpToTest('asdas;dflj/test/foo'), 'foo');
-    assert.equal(removeUpToTest('bax'), 'bax');
+    System.baseURL = '/dir/file.js';
+    assert.equal('/dir/d/e/f', System.normalize('d/e/f'));
+    assert.equal('/e/f', System.normalize('../e/f'));
 
-    var sourceCodeAddress = System.resolve(System.normalize('foo'));
-    assert.equal(removeUpToTest(sourceCodeAddress), 'foo.js');
+    var base = 'http://ecmascipt.org/x/y';
+    assert.equal('http://ecmascipt.org/x/d/e/f',
+                 System.normalize('d/e/f', {referer: {name: base}}));
+  });
 
-    sourceCodeAddress = System.resolve(System.normalize('foo', {name: baseUrl()}));
-    assert.equal(removeUpToTest(sourceCodeAddress), 'foo.js');
+  test('System.resolve', function() {
+    System.baseURL = 'http://example.org/a/b.html';
+    assert.equal(System.resolve('@abc/def'), '@abc/def');
+    assert.equal(System.resolve('abc/def'), 'http://example.org/a/abc/def.js');
 
-    var importer = baseUrl() + 'src/syntax/Parser.js';
-    var options = {
-        referer: {
-          name: importer
-        }
-      };
-    sourceCodeAddress = System.resolve(System.normalize('./IdentifierToken', options));
-    assert.equal(removeUpToTest(sourceCodeAddress), 'src/syntax/IdentifierToken.js');
+    // Backwards compat
+    assert.equal(System.resolve('abc/def.js'),
+                 'http://example.org/a/abc/def.js');
 
-    sourceCodeAddress = System.resolve(System.normalize('../codegeneration/AssignmentPatternTransformer', options));
-    assert.equal(removeUpToTest(sourceCodeAddress), 'src/codegeneration/AssignmentPatternTransformer.js');
+    var importer = './src/syntax/Parser.js';
+    var options = {referer: {name: importer}};
+    var normalized = System.normalize('./IdentifierToken', options);
+    assert.equal(normalized, 'src/syntax/IdentifierToken');
+    var resolved = System.resolve(normalized);
+    assert.equal(resolved,
+                 'http://example.org/a/src/syntax/IdentifierToken.js');
 
-    sourceCodeAddress = System.resolve(System.normalize('@traceur/module', options));
-    assert.equal(removeUpToTest(sourceCodeAddress), '@traceur/module');
   });
 
 });

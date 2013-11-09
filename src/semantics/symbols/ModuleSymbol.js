@@ -12,59 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Symbol} from './Symbol.js';
-import {SymbolType} from './SymbolType.js';
+import {Symbol} from './Symbol';
+import {MODULE} from './SymbolType';
+import {assert} from '../../util/assert';
 
 export class ModuleSymbol extends Symbol {
   /**
-   * @param {string} name
-   * @param {ModuleSymbol} parent
-   * @param {ModuleDefinition} tree
+   * @param {Module} tree
+   * @param {string} url
    */
-  constructor(name, parent, tree, url) {
-    super(SymbolType.MODULE, tree, name);
-    this.children_ = Object.create(null);
+  constructor(tree, url) {
+    // assert(tree === null || tree.type === 'module');
+    super(MODULE, tree);
     this.exports_ = Object.create(null);
-    this.parent = parent;
-    this.tree = tree;
-    if (!url) {
-      // TODO(arv): Find offensive callers.
-      console.error('Missing URL');
-    }
+    assert(url);
     this.url = url.replace(/\\/g, '/');
-  }
-
-  /**
-   * @param {ModuleSymbol} module
-   * @return {void}
-   */
-  addModule(module) {
-    this.addModuleWithName(module, module.name);
-  }
-
-  /**
-   * @param {ModuleSymbol} module
-   * @param {string} name
-   * @return {void}
-   */
-  addModuleWithName(module, name) {
-    this.children_[name] = module;
-  }
-
-  /**
-   * @param {string} name
-   * @return {boolean}
-   */
-  hasModule(name) {
-    return name in this.children_;
-  }
-
-  /**
-   * @param {string} name
-   * @return {ModuleSymbol}
-   */
-  getModule(name) {
-    return this.children_[name];
   }
 
   /**
@@ -84,12 +46,11 @@ export class ModuleSymbol extends Symbol {
   }
 
   /**
-   * @param {string} name
    * @param {ExportSymbol} export
    * @return {void}
    */
-  addExport(name, exp) {
-    this.exports_[name] = exp;
+  addExport(exp) {
+    this.exports_[exp.name] = exp;
   }
 
   /**

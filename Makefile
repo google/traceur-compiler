@@ -18,11 +18,12 @@ TFLAGS = --
 TESTS = \
 	test/node-feature-test.js \
 	test/unit/codegeneration/ \
-	test/unit/syntax/ \
+	test/unit/node/ \
+	test/unit/runtime/modules.js \
 	test/unit/semantics/ \
-	test/unit/util/ \
+	test/unit/syntax/ \
 	test/unit/system/ \
-	test/unit/runtime/modules.js
+	test/unit/util/
 
 build: bin/traceur.js
 

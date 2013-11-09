@@ -12,18 +12,128 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AtNameToken} from './AtNameToken.js';
-import {IdentifierToken} from './IdentifierToken.js';
-import {KeywordToken} from './KeywordToken.js';
-import {LiteralToken} from './LiteralToken.js';
-import {Token} from './Token.js';
-import {getKeywordType} from './Keywords.js';
+import {IdentifierToken} from './IdentifierToken';
+import {KeywordToken} from './KeywordToken';
+import {LiteralToken} from './LiteralToken';
+import {Token} from './Token';
+import {getKeywordType} from './Keywords';
 import {
   idContinueTable,
   idStartTable
-} from './unicode-tables.js';
-import {parseOptions} from '../options.js';
-import * from './TokenType.js';
+} from './unicode-tables';
+import {parseOptions} from '../options';
+module TokenType from './TokenType'
+
+var {
+  AMPERSAND,
+  AMPERSAND_EQUAL,
+  AND,
+  ARROW,
+  AWAIT,
+  BACK_QUOTE,
+  BANG,
+  BAR,
+  BAR_EQUAL,
+  BREAK,
+  CARET,
+  CARET_EQUAL,
+  CASE,
+  CATCH,
+  CLASS,
+  CLOSE_ANGLE,
+  CLOSE_CURLY,
+  CLOSE_PAREN,
+  CLOSE_SQUARE,
+  COLON,
+  COMMA,
+  CONST,
+  CONTINUE,
+  DEBUGGER,
+  DEFAULT,
+  DELETE,
+  DO,
+  DOT_DOT_DOT,
+  ELSE,
+  END_OF_FILE,
+  ENUM,
+  EQUAL,
+  EQUAL_EQUAL,
+  EQUAL_EQUAL_EQUAL,
+  ERROR,
+  EXPORT,
+  EXTENDS,
+  FALSE,
+  FINALLY,
+  FOR,
+  FUNCTION,
+  GREATER_EQUAL,
+  IDENTIFIER,
+  IF,
+  IMPLEMENTS,
+  IMPORT,
+  IN,
+  INSTANCEOF,
+  INTERFACE,
+  LEFT_SHIFT,
+  LEFT_SHIFT_EQUAL,
+  LESS_EQUAL,
+  LET,
+  MINUS,
+  MINUS_EQUAL,
+  MINUS_MINUS,
+  NEW,
+  NO_SUBSTITUTION_TEMPLATE,
+  NOT_EQUAL,
+  NOT_EQUAL_EQUAL,
+  NULL,
+  NUMBER,
+  OPEN_ANGLE,
+  OPEN_CURLY,
+  OPEN_PAREN,
+  OPEN_SQUARE,
+  OR,
+  PACKAGE,
+  PERCENT,
+  PERCENT_EQUAL,
+  PERIOD,
+  PERIOD_OPEN_CURLY,
+  PLUS,
+  PLUS_EQUAL,
+  PLUS_PLUS,
+  PRIVATE,
+  PROTECTED,
+  PUBLIC,
+  QUESTION,
+  REGULAR_EXPRESSION,
+  RETURN,
+  RIGHT_SHIFT,
+  RIGHT_SHIFT_EQUAL,
+  SEMI_COLON,
+  SLASH,
+  SLASH_EQUAL,
+  STAR,
+  STAR_EQUAL,
+  STATIC,
+  STRING,
+  SUPER,
+  SWITCH,
+  TEMPLATE_HEAD,
+  TEMPLATE_MIDDLE,
+  TEMPLATE_TAIL,
+  THIS,
+  THROW,
+  TILDE,
+  TRUE,
+  TRY,
+  TYPEOF,
+  UNSIGNED_RIGHT_SHIFT,
+  UNSIGNED_RIGHT_SHIFT_EQUAL,
+  VAR,
+  VOID,
+  WHILE,
+  WITH,
+  YIELD
+} = TokenType;
 
 // Some of these is* functions use an array as a lookup table for the lower 7
 // bit code points.
@@ -712,8 +822,6 @@ function scanToken() {
     case 96:  // `
       return scanTemplateStart(beginIndex);
     case 64:  // @
-      return scanAtName(beginIndex);
-    case 35:  // #
       return createToken(NUMBER_SIGN, beginIndex);
 
       // TODO: add NumberToken
@@ -894,22 +1002,6 @@ function scanIdentifierOrKeyword(beginIndex, code) {
   }
 
   return new IdentifierToken(getTokenRange(beginIndex), value);
-}
-
-function scanAtName(beginIndex) {
-  if (isAtEnd()) {
-    reportError('Expected identifier start character', beginIndex);
-    return createToken(ERROR, beginIndex);
-  }
-
-  // TODO(arv): Refactor to not create an intermediate token.
-  var code = currentCharCode;
-  next();
-  var identifierToken = scanIdentifierOrKeyword(beginIndex, code);
-  if (identifierToken.type === ERROR)
-    return identifierToken;
-  var value = identifierToken.value;
-  return new AtNameToken(getTokenRange(beginIndex), value);
 }
 
 /**

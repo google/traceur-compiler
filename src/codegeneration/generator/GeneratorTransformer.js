@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {CPSTransformer} from './CPSTransformer.js';
-import {EndState} from './EndState.js';
+import {CPSTransformer} from './CPSTransformer';
+import {EndState} from './EndState';
 import {
   ACTION_SEND,
   ACTION_THROW,
@@ -24,16 +24,16 @@ import {
   STORED_EXCEPTION,
   TRACEUR_RUNTIME,
   YIELD_RETURN
-} from '../../syntax/PredefinedName.js';
+} from '../../syntax/PredefinedName';
 import {
   STATE_MACHINE,
   YIELD_EXPRESSION
-} from '../../syntax/trees/ParseTreeType.js';
-import {parseStatement} from '../PlaceholderParser.js';
-import {StateMachine} from '../../syntax/trees/StateMachine.js';
-import {VAR} from '../../syntax/TokenType.js';
-import {YieldState} from './YieldState.js';
-import {ReturnState} from './ReturnState.js';
+} from '../../syntax/trees/ParseTreeType';
+import {parseStatement} from '../PlaceholderParser';
+import {StateMachine} from '../../syntax/trees/StateMachine';
+import {VAR} from '../../syntax/TokenType';
+import {YieldState} from './YieldState';
+import {ReturnState} from './ReturnState';
 import {
   createAssignStateStatement,
   createAssignmentStatement,
@@ -51,7 +51,7 @@ import {
   createThrowStatement,
   createUndefinedExpression,
   createVariableStatement
-} from '../ParseTreeFactory.js';
+} from '../ParseTreeFactory';
 
 // Generator states. Terminology roughly matches that of
 //   http://wiki.ecmascript.org/doku.php?id=harmony:generators

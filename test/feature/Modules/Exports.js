@@ -1,4 +1,4 @@
-module a from './resources/i.js';
+module a from './resources/i';
 
 (function() {
   'use strict';
@@ -13,5 +13,5 @@ module a from './resources/i.js';
 
 assert.equal(1, a.i);
 
-module d from './resources/d.js';
+module d from './resources/d';
 assert.equal('A', d.a);

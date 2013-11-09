@@ -12,14 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ExportVisitor} from '../codegeneration/module/ExportVisitor.js';
-import {ImportStarVisitor} from '../codegeneration/module/ImportStarVisitor.js';
-import {ModuleDeclarationVisitor} from
-    '../codegeneration/module/ModuleDeclarationVisitor.js';
-import {ModuleDefinitionVisitor} from
-    '../codegeneration/module/ModuleDefinitionVisitor.js';
-import {ValidationVisitor} from '../codegeneration/module/ValidationVisitor.js';
-import {transformOptions} from '../options.js';
+import {ExportVisitor} from '../codegeneration/module/ExportVisitor';
+import {ValidationVisitor} from '../codegeneration/module/ValidationVisitor';
+import {transformOptions} from '../options';
 
 // TODO(arv): Validate that there are no free variables
 // TODO(arv): Validate that the exported reference exists
@@ -84,13 +79,8 @@ export class ModuleAnalyzer {
       }
     }
 
-    doVisit(ModuleDefinitionVisitor);
-
     // TODO(arv): Export star needs to be done in dependency order.
     reverseVisit(ExportVisitor);
-
-    doVisit(ModuleDeclarationVisitor);
     doVisit(ValidationVisitor);
-    doVisit(ImportStarVisitor);
   }
 }

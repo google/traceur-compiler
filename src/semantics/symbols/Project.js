@@ -12,15 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ArrayMap} from '../../util/ArrayMap.js';
-import {ExportSymbol} from './ExportSymbol.js';
-import {ModuleSymbol} from './ModuleSymbol.js';
-import {ObjectMap} from '../../util/ObjectMap.js';
-import {RuntimeInliner} from '../../codegeneration/RuntimeInliner.js';
+import {ArrayMap} from '../../util/ArrayMap';
+import {ExportSymbol} from './ExportSymbol';
+import {ModuleSymbol} from './ModuleSymbol';
+import {ObjectMap} from '../../util/ObjectMap';
+import {RuntimeInliner} from '../../codegeneration/RuntimeInliner';
 import {UniqueIdentifierGenerator} from
-    '../../codegeneration/UniqueIdentifierGenerator.js';
-import {assert} from '../../util/assert.js';
-import {isStandardModuleUrl} from '../../util/url.js';
+    '../../codegeneration/UniqueIdentifierGenerator';
+import {assert} from '../../util/assert';
+import {isStandardModuleUrl} from '../../util/url';
+
 
 function addAll(self, other) {
   for (var key in other) {
@@ -42,12 +43,12 @@ var standardModuleCache = Object.create(null);
  */
 function getStandardModule(url) {
   if (!(url in standardModuleCache)) {
-    var symbol = new ModuleSymbol(null, null, null, url);
+    var symbol = new ModuleSymbol(null, url);
     var moduleInstance = System.get(url);
     if (!moduleInstance)
       throw new Error(`Internal error, no standard module for ${url}`);
     Object.keys(moduleInstance).forEach((name) => {
-      symbol.addExport(name, new ExportSymbol(null, name, null));
+      symbol.addExport(new ExportSymbol(name, null, null));
     });
     standardModuleCache[url] = symbol;
   }
@@ -69,7 +70,7 @@ export class Project {
 
     this.sourceFiles_ = Object.create(null);
     this.parseTrees_ = new ObjectMap();
-    this.rootModule_ = new ModuleSymbol(null, null, null, url);
+    this.rootModule_ = new ModuleSymbol(null, url);
     this.modulesByResolvedUrl_ = Object.create(null);
     this.moduleExports_ = new ArrayMap();
   }
@@ -171,22 +172,10 @@ export class Project {
     return this.modulesByResolvedUrl_[url];
   }
 
-  hasModuleForUrl(url) {
-    return this.hasModuleForResolvedUrl(System.normalResolve(url, this.url));
-  }
-
   hasModuleForResolvedUrl(url) {
     if (isStandardModuleUrl(url))
       return System.get(url) != null;
 
     return url in this.modulesByResolvedUrl_;
-  }
-
-  setModuleForStarTree(tree, symbol) {
-    this.moduleExports_.set(tree, symbol);
-  }
-
-  getModuleForStarTree(tree) {
-    return this.moduleExports_.get(tree);
   }
 }

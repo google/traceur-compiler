@@ -12,37 +12,52 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {MutedErrorReporter} from '../util/MutedErrorReporter.js';
-import {ParseTreeTransformer} from './ParseTreeTransformer.js';
-import {Parser} from '../syntax/Parser.js';
-import {Script} from '../syntax/trees/ParseTrees.js';
-import {SourceFile} from '../syntax/SourceFile.js';
-import {VAR} from '../syntax/TokenType.js';
-import {assert} from '../util/assert.js';
+import {MutedErrorReporter} from '../util/MutedErrorReporter';
+import {ParseTreeTransformer} from './ParseTreeTransformer';
+import {Parser} from '../syntax/Parser';
+import {Script} from '../syntax/trees/ParseTrees';
+import {SourceFile} from '../syntax/SourceFile';
+import {VAR} from '../syntax/TokenType';
+import {assert} from '../util/assert';
 import {
   createIdentifierExpression,
   createVariableDeclaration,
   createVariableDeclarationList,
   createVariableStatement
-} from './ParseTreeFactory.js';
-import {prependStatements} from './PrependStatements.js';
+} from './ParseTreeFactory';
+import {prependStatements} from './PrependStatements';
 
 // Some helper functions that other runtime functions may depend on.
 var shared = {
+  TypeError: `TypeError`,
+  Object: `Object`,
+  getOwnPropertyNames: `%Object.getOwnPropertyNames`,
+  getOwnPropertyDescriptor: `%Object.getOwnPropertyDescriptor`,
+  getPrototypeOf: `%Object.getPrototypeOf`,
   toObject:
       `function(value) {
         if (value == null)
-          throw TypeError();
-        return Object(value);
+          throw %TypeError();
+        return %Object(value);
       }`,
   getDescriptors:
       `function(object) {
-        var descriptors = {}, name, names = Object.getOwnPropertyNames(object);
+        var descriptors = {}, name, names = %getOwnPropertyNames(object);
         for (var i = 0; i < names.length; i++) {
           var name = names[i];
-          descriptors[name] = Object.getOwnPropertyDescriptor(object, name);
+          descriptors[name] = %getOwnPropertyDescriptor(object, name);
         }
         return descriptors;
+      }`,
+  getPropertyDescriptor:
+      `function(object, name) {
+        while (object !== null) {
+          var result = %getOwnPropertyDescriptor(object, name);
+          if (result)
+            return result;
+          object = %getPrototypeOf(object);
+        }
+        return undefined;
       }`
 };
 

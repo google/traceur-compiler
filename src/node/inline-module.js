@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+'use strict';
+
 var fs = require('fs');
 var path = require('path');
 var NodeLoader = require('./NodeLoader.js');
@@ -19,68 +21,10 @@ var normalizePath = require('./file-util.js').normalizePath;
 
 var ErrorReporter = traceur.util.ErrorReporter;
 var InternalLoader = traceur.modules.internals.InternalLoader;
-var ModuleAnalyzer = traceur.semantics.ModuleAnalyzer;
-var ModuleDefinition = traceur.syntax.trees.ModuleDefinition;
-var ModuleRequireVisitor = traceur.codegeneration.module.ModuleRequireVisitor;
-var ModuleSymbol = traceur.semantics.symbols.ModuleSymbol;
-var ModuleTransformer = traceur.codegeneration.ModuleTransformer;
-var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
-var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
-var Parser = traceur.syntax.Parser;
 var Script = traceur.syntax.trees.Script;
-var ModuleSpecifier = traceur.syntax.trees.ModuleSpecifier;
-var ProgramTransformer = traceur.codegeneration.ProgramTransformer;
 var Project = traceur.semantics.symbols.Project;
 var SourceFile = traceur.syntax.SourceFile
 var SourceMapGenerator = traceur.outputgeneration.SourceMapGenerator;
-var TreeWriter = traceur.outputgeneration.TreeWriter;
-var IDENTIFIER = traceur.syntax.TokenType.IDENTIFIER;
-
-var createIdentifierExpression = ParseTreeFactory.createIdentifierExpression;
-var createIdentifierToken = ParseTreeFactory.createIdentifierToken;
-var createStringLiteralToken = ParseTreeFactory.createStringLiteralToken;
-
-/**
- * This transformer replaces
- *
- *   import * from "url"
- *
- * with
- *
- *   import * from $_name_associated_with_url
- *
- * @param {string} url The base URL that all the modules should be relative
- *     to.
- */
-function ModuleRequireTransformer(url) {
-  ParseTreeTransformer.call(this);
-  this.url = url;
-}
-
-ModuleRequireTransformer.prototype = {
-  __proto__: ParseTreeTransformer.prototype,
-  transformModuleSpecifier: function(tree) {
-    var url = tree.token.processedValue;
-
-     // Don't handle builtin modules.
-    if (url.charAt(0) === '@')
-      return tree;
-
-    url = System.normalResolve(url, this.url);
-
-    return new ModuleSpecifier(tree.location, createStringLiteralToken(url));
-  },
-
-  transformModule: function(tree) {
-    // Transform top level Module into a script with a single top level
-    // ModuleDefinition
-    return new Script(tree.location, [
-      new ModuleDefinition(tree.location,
-                           createStringLiteralToken(this.url),
-                           tree.scriptItemList)
-    ]);
-  }
-};
 
 /**
  * @param {ErrorReporter} reporter
@@ -113,24 +57,12 @@ InlineCodeLoader.prototype = {
                   codeUnit.url)));
     }
 
-    var transformer = new ModuleRequireTransformer(codeUnit.url);
-    return transformer.transformAny(codeUnit.tree);
+    return InternalLoader.prototype.transformCodeUnit.call(this, codeUnit);
   }
 };
 
 function allLoaded(url, reporter, elements) {
-  var project = new Project(url);
-  var programTree = new Script(null, elements);
-
-  var file = new SourceFile(project.url, '/* dummy */');
-  project.addFile(file);
-  project.setParseTree(file, programTree);
-
-  var analyzer = new ModuleAnalyzer(reporter, project);
-  analyzer.analyze();
-
-  var transformer = new ProgramTransformer(reporter, project);
-  return transformer.transform(programTree);
+  return new Script(null, elements);
 }
 
 /**

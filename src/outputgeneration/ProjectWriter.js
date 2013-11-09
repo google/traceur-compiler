@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {TreeWriter} from './TreeWriter.js';
+import {TreeWriter} from './TreeWriter';
 
 // TODO(arv): This should just export the static function instead.
 
