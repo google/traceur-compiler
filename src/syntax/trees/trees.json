@@ -263,15 +263,17 @@
       "SourceRange"
     ]
   },
-  "DecoratedClassDeclaration": {
+  "DecoratedDeclaration": {
     "location": [
       "SourceRange"
     ],
     "decorations": [
       "Array.<DecoratorExpression>"
     ],
-    "decoratedClass": [
-      "ClassDeclaration"
+    "declaration": [
+      "ClassDeclaration", 
+      "ExportDeclaration",
+      "FunctionDeclaration"
     ]
   },  
   "DecoratorExpression": {

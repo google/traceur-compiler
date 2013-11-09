@@ -19,7 +19,7 @@ import {BlockBindingTransformer} from './BlockBindingTransformer';
 import {CascadeExpressionTransformer} from './CascadeExpressionTransformer';
 import {ClassTransformer} from './ClassTransformer';
 import {CollectionTransformer} from './CollectionTransformer';
-import {DecoratedClassTransformer} from './DecoratedClassTransformer.js';
+import {DecoratedDeclarationTransformer} from './DecoratedDeclarationTransformer.js';
 import {DefaultParametersTransformer} from './DefaultParametersTransformer';
 import {DestructuringTransformer} from './DestructuringTransformer';
 import {ForOfTransformer} from './ForOfTransformer';
@@ -140,12 +140,12 @@ export class ProgramTransformer {
     transform(transformOptions.arrowFunctions,
               ArrowFunctionTransformer, reporter);
 
-    // ClassTransformer needs to come before ObjectLiteralTransformer.
     transform(transformOptions.decorators,
-              DecoratedClassTransformer,
+              DecoratedDeclarationTransformer,
               identifierGenerator,
               runtimeInliner,
               reporter);
+    // ClassTransformer needs to come before ObjectLiteralTransformer.
     transform(transformOptions.classes,
               ClassTransformer,
               identifierGenerator,

@@ -205,6 +205,8 @@ var {
   CoverFormals,
   CoverInitialisedName,
   DebuggerStatement,
+  DecoratedDeclaration,
+  DecoratorExpression,
   DefaultClause,
   DoWhileStatement,
   EmptyStatement,
@@ -768,6 +770,10 @@ export class Parser {
         return this.parseFunctionDeclaration_();
 
       // Rest are just alphabetical order.
+      case AT:
+        if (parseOptions.decorators)
+          return this.parseDecoratorDeclarations_();
+        break;
       case AWAIT:
         if (parseOptions.deferredFunctions)
           return this.parseAwaitStatement_();
@@ -789,10 +795,6 @@ export class Parser {
       case IMPORT:
         if (allowScriptItem && parseOptions.modules)
           return this.parseImportDeclaration_();
-        break;
-      case AT:
-        if (parseOptions.decorators)
-          return this.parseDecorators_();
         break;
       case OPEN_CURLY:
         return this.parseBlock_();
@@ -3531,22 +3533,43 @@ export class Parser {
    * @return {ParseTree}
    * @private
    */
-  parseDecorators_() {
+  parseDecoratorDeclarations_() {
     var start = this.getTreeStartLocation_();
     var decorators = [];
-    var name;
-    var clazz;
-
+    var type;
+    var declaration;
 
     while (this.eatIf_(AT)) {
       decorators.push(this.parseDecorator_());
     } 
     
-    if (this.peek_(CLASS)) {
-      return new DecoratedClassDeclaration(this.getTreeLocation_(start), decorators, this.parseClassDeclaration_());
-    } 
+    type = this.peekType_();
+    if (this.peekDecoratedDeclaration_(type)) {
+      switch (type) {
+        case CLASS:
+          declaration = this.parseClassDeclaration_();
+          break;
+        case EXPORT:
+          declaration = this.parseExportDeclaration_();
+          break;
+        case FUNCTION:
+          declaration = this.parseFunctionDeclaration_();
+          break;
+      }
+
+      if (declaration) {
+        return new DecoratedDeclaration(this.getTreeLocation_(start), decorators, declaration);
+      }
+    }
 
     return this.parseSyntaxError_('Unsupported decorated expression');
+  }
+
+  peekDecoratedDeclaration_(type) {
+    if (type === EXPORT) {
+      return this.peek_(CLASS, 1) || this.peek(FUNCTION, 1);
+    }
+    return type === CLASS || type === FUNCTION;
   }
 
   parseDecorator_() {

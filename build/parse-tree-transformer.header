@@ -29,6 +29,8 @@ var {
   CoverFormals,
   CoverInitialisedName,
   DebuggerStatement,
+  DecoratedDeclaration,
+  DecoratorExpression,
   DefaultClause,
   DoWhileStatement,
   EmptyStatement,
