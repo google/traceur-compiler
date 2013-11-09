@@ -71,6 +71,7 @@ var {
   AND,
   ARROW,
   AT_NAME,
+  AT,
   AWAIT,
   BACK_QUOTE,
   BANG,
@@ -789,7 +790,7 @@ export class Parser {
         if (allowScriptItem && parseOptions.modules)
           return this.parseImportDeclaration_();
         break;
-      case NUMBER_SIGN:
+      case AT:
         if (parseOptions.decorators)
           return this.parseDecorators_();
         break;
@@ -3537,7 +3538,7 @@ export class Parser {
     var clazz;
 
 
-    while (this.eatIf_(NUMBER_SIGN)) {
+    while (this.eatIf_(AT)) {
       decorators.push(this.parseDecorator_());
     } 
     
