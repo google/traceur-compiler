@@ -21,6 +21,8 @@ import {
   SetAccessor
 } from '../syntax/trees/ParseTrees';
 import {
+  CALL_EXPRESSION,
+  DECORATED_CLASS_ELEMENT,
   GET_ACCESSOR,
   PROPERTY_METHOD_ASSIGNMENT,
   SET_ACCESSOR
@@ -32,11 +34,18 @@ import {
   VAR
 } from '../syntax/TokenType';
 import {
+  createArgumentList,
+  createBlock,
+  createCallExpression,
+  createExpressionStatement,
   createFunctionBody,
   createIdentifierExpression,
   createMemberExpression,
   createObjectLiteralExpression,
   createParenExpression,
+  createPropertyNameAssignment,
+  createScript,
+  createStringLiteral,
   createThisExpression,
   createVariableStatement
 } from './ParseTreeFactory';
@@ -140,7 +149,7 @@ export class ClassTransformer extends TempVarTransformer{
     var nameIdent = createIdentifierExpression(name);
     var protoName = createIdentifierExpression('$__proto');
     var hasConstructor = false;
-    var protoElements = [], staticElements = [];
+    var protoElements = [], staticElements = [], decoratorStatements = [];
     // For static methods the base for super calls is the RHS of the
     // extends (or Function.prototype if there is no extends clause).
     var staticSuperRef = superClass ?
@@ -149,6 +158,11 @@ export class ClassTransformer extends TempVarTransformer{
 
     tree.elements.forEach((tree) => {
       var elements, proto;
+
+      if (tree.type === DECORATED_CLASS_ELEMENT) {
+        tree = this.transformDecoratedElement_(decoratorStatements, nameIdent, tree);
+      }
+
       if (tree.isStatic) {
         elements = staticElements;
         proto = staticSuperRef;
@@ -175,6 +189,7 @@ export class ClassTransformer extends TempVarTransformer{
         default:
           throw new Error(`Unexpected class element: ${tree.type}`);
       }
+
     });
 
     // Create constructor if it does not already exist.
@@ -185,6 +200,7 @@ export class ClassTransformer extends TempVarTransformer{
 
     var object = createObjectLiteralExpression(protoElements);
     var staticObject = createObjectLiteralExpression(staticElements);
+    var classExpression;
 
     // We branch on whether we have an extends expression or not since when
     // there is one, setting up the prototype chains gets a lot more
@@ -199,22 +215,28 @@ export class ClassTransformer extends TempVarTransformer{
     // The extra parentheses around createClass_ is to make the V8 heuristic
     // ignore that part in the name to use in its stack traces.
     if (superClass) {
-      return parseExpression `function($__super) {
+      classExpression = parseExpression `function($__super) {
         'use strict';
         var $__proto = ${this.getProtoParent_}($__super);
         var ${nameIdent} =
             (${this.createClass_})(${object}, ${staticObject}, $__proto,
                                    $__super, ${hasConstructor});
+        
         return ${nameIdent};
       }(${superClass})`;
+    } else {
+      classExpression = parseExpression `function() {
+        'use strict';
+        var ${nameIdent} = (${this.createClassNoExtends_})(
+            ${object}, ${staticObject});
+        
+        return ${nameIdent};
+      }()`;      
     }
 
-    return parseExpression `function() {
-      'use strict';
-      var ${nameIdent} = (${this.createClassNoExtends_})(
-          ${object}, ${staticObject});
-      return ${nameIdent};
-    }()`;
+    // TODO(tpodom) is there a better way to insert these statements in the expression template?    
+    Array.prototype.splice.apply(classExpression.operand.functionBody.statements, [-1, 0].concat(decoratorStatements));
+    return classExpression;
   }
 
   get createClass_() {
@@ -229,6 +251,11 @@ export class ClassTransformer extends TempVarTransformer{
     return this.runtimeInliner_.get('createClassNoExtends',
                                     CREATE_CLASS_NO_EXTENDS_CODE);
   }
+
+  get getPropertyDescriptor() {
+    return this.runtimeInliner_.get('getPropertyDescriptor');
+  }
+
 
   /**
    * Transforms a single class declaration
@@ -321,6 +348,34 @@ export class ClassTransformer extends TempVarTransformer{
     return parsePropertyDefinition `constructor: function() {
       ${superCall};
     }`;
+  }
+
+  transformDecoratedElement_(statements, nameIdent, tree) {
+    var contextExpression;
+    var contextProperties = [];
+    var target = tree.element.isStatic ? nameIdent : 
+      createMemberExpression(nameIdent, 'prototype'); 
+
+    contextProperties.push(createPropertyNameAssignment('target', target));
+    contextProperties.push(createPropertyNameAssignment('constructor', nameIdent));
+    contextProperties.push(createPropertyNameAssignment('name', 
+      createStringLiteral(tree.element.name.literalToken.value)));
+    contextProperties.push(createPropertyNameAssignment('descriptor', 
+      createCallExpression(this.getPropertyDescriptor, 
+        createArgumentList([target, createStringLiteral(tree.element.name.literalToken.value)]))));
+
+    contextExpression = createObjectLiteralExpression(contextProperties);
+    tree.decorations.forEach((decorator) => {
+      if (decorator.expression.type === CALL_EXPRESSION) {
+        decorator.expression.args.args.unshift(contextExpression);
+      } else {
+        decorator = createCallExpression(decorator, createArgumentList([contextExpression]));
+      }
+
+      statements.push(createExpressionStatement(decorator));
+    });
+
+    return tree.element;
   }
 
   /**

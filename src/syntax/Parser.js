@@ -205,6 +205,7 @@ var {
   CoverFormals,
   CoverInitialisedName,
   DebuggerStatement,
+  DecoratedClassElement,
   DecoratedDeclaration,
   DecoratorExpression,
   DefaultClause,
@@ -705,7 +706,8 @@ export class Parser {
   peekClassElement_(type) {
     // PropertyName covers get, set and static too.
     return this.peekPropertyName_(type) ||
-        type === STAR && parseOptions.generators;
+        type === STAR && parseOptions.generators ||
+        type === AT && parseOptions.decorators;
   }
 
   // PropertyName :
@@ -2064,6 +2066,9 @@ export class Parser {
 
       case STAR:
         return this.parseGeneratorMethod_(start, isStatic);
+      
+      case AT:
+        return this.parseDecoratedClassElement_();
 
       default:
         return this.parseGetSetOrMethod_(start, isStatic);
@@ -3533,15 +3538,22 @@ export class Parser {
    * @return {ParseTree}
    * @private
    */
+  parseDecoratedClassElement_(start) {
+    return new DecoratedClassElement(start, this.collectDecorators_(), this.parseClassElement_());
+  }
+
+  /**
+   * Decorators extension
+   *
+   * @return {ParseTree}
+   * @private
+   */
   parseDecoratorDeclarations_() {
     var start = this.getTreeStartLocation_();
-    var decorators = [];
+    var decorators = this.collectDecorators_();
     var type;
     var declaration;
 
-    while (this.eatIf_(AT)) {
-      decorators.push(this.parseDecorator_());
-    } 
     
     type = this.peekType_();
     if (this.peekDecoratedDeclaration_(type)) {
@@ -3565,6 +3577,14 @@ export class Parser {
     return this.parseSyntaxError_('Unsupported decorated expression');
   }
 
+  collectDecorators_() {
+    var decorators = [];
+    while (this.eatIf_(AT)) {
+      decorators.push(this.parseDecoratorExpression_());
+    } 
+    return decorators;
+  }
+
   peekDecoratedDeclaration_(type) {
     if (type === EXPORT) {
       return this.peek_(CLASS, 1) || this.peek(FUNCTION, 1);
@@ -3572,7 +3592,7 @@ export class Parser {
     return type === CLASS || type === FUNCTION;
   }
 
-  parseDecorator_() {
+  parseDecoratorExpression_() {
     return new DecoratorExpression(this.getTreeStartLocation_(), this.parseExpression());
   }
 

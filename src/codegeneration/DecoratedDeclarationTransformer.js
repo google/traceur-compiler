@@ -14,11 +14,13 @@
 
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {
-  CallExpression,
   ClassDeclaration,
   FunctionDeclaration,
   ExportDeclaration
 } from '../syntax/trees/ParseTrees';
+import {
+  CALL_EXPRESSION
+} from '../syntax/trees/ParseTreeType';
 import {
   createArgumentList,
   createCallExpression,
@@ -54,12 +56,10 @@ export class DecoratedDeclarationTransformer extends ParseTreeTransformer {
       context = tree.declaration.declaration;
     }
     
-
     contextExpression = this.createContextExpression_(context);;
+
     for (var decorator of tree.decorations) {      
-      // TODO inject context
-      console.log(decorator.toJSON());
-      if (decorator.expression instanceof CallExpression) {
+      if (decorator.expression.type === CALL_EXPRESSION) {
         decorator.expression.args.args.unshift(contextExpression);
       } else {
         decorator = createCallExpression(decorator, createArgumentList([contextExpression]));
@@ -77,7 +77,7 @@ export class DecoratedDeclarationTransformer extends ParseTreeTransformer {
     contextProperties.push(createPropertyNameAssignment('target', context.name));
     return createObjectLiteralExpression(contextProperties);
   }
-  
+
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
    * @param {RuntimeInliner} runtimeInliner

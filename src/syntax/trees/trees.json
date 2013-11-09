@@ -276,6 +276,17 @@
       "FunctionDeclaration"
     ]
   },  
+  "DecoratedClassElement": {
+    "location": [
+      "SourceRange"
+    ],
+    "decorations": [
+      "Array.<DecoratorExpression>"
+    ],
+    "element": [
+      "ParseTree"
+    ]
+  },
   "DecoratorExpression": {
     "location": [
       "SourceRange"
