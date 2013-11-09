@@ -21,7 +21,6 @@ import {
 } from '../syntax/trees/ParseTrees';
 import {TempVarTransformer} from './TempVarTransformer';
 import {
-  AT_NAME,
   IDENTIFIER,
   STRING
 } from '../syntax/TokenType';
@@ -165,9 +164,6 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
     // TODO(arv): Computed property names
     var token = nameTree.literalToken;
     switch (token.type) {
-      case AT_NAME:
-        return createIdentifierExpression(
-            this.identifierGenerator.getUniqueIdentifier(token.value));
       case IDENTIFIER:
         return createStringLiteral(token.value);
       default:
