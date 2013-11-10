@@ -14,21 +14,24 @@
 
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {
+  ClassDeclaration,
+  FunctionDeclaration,
+  ExportDeclaration
+} from '../syntax/trees/ParseTrees';
+import {
   CALL_EXPRESSION,
-  EXPORT_DECLARATION
+  MEMBER_EXPRESSION
 } from '../syntax/trees/ParseTreeType';
 import {
-  createCallDecoratorStatement,
-  createObjectLiteralExpression,
-  createPropertyNameAssignment,
-  createScript
+  createArgumentList,
+  createCallExpression,
 } from './ParseTreeFactory.js';
 
 /**
  * Decorator extension  
  *
  */
-export class DecoratedDeclarationTransformer extends ParseTreeTransformer {
+export class DecoratorCallTransformer extends ParseTreeTransformer {
   /**
    * @param {ErrorReporter} reporter
    */
@@ -37,29 +40,20 @@ export class DecoratedDeclarationTransformer extends ParseTreeTransformer {
     this.reporter_ = reporter;
   }
 
-  transformDecoratedDeclaration(tree) {    
-    var declaration = tree.declaration;
-    var contextExpression, statements;
+  transformCallDecoratorExpression(tree) { 
+    var expression = tree.decorator.expression;
 
-    if (declaration.type === EXPORT_DECLARATION) {
-      declaration = tree.declaration.declaration;
-    }
-    
-    contextExpression = this.createContextExpression_(declaration);
+    if (expression.type === CALL_EXPRESSION) {
+      while (expression.operand.type === MEMBER_EXPRESSION && 
+        expression.operand.operand.type === CALL_EXPRESSION) {
+        expression = expression.operand.operand;
+      }
 
-    statements = tree.decorations.map((decorator) => {
-      return createCallDecoratorStatement(contextExpression, decorator);
-    });
+      expression.args.args.unshift(tree.context);
+      return tree.decorator.expression;
+    } 
 
-    statements.unshift(declaration);
-    return createScript(statements);
-  }
-
-
-  createContextExpression_(context) {
-    var contextProperties = [];
-    contextProperties.push(createPropertyNameAssignment('target', context.name));
-    return createObjectLiteralExpression(contextProperties);
+    return createCallExpression(expression, createArgumentList([tree.context]));
   }
 
   /**
@@ -68,6 +62,6 @@ export class DecoratedDeclarationTransformer extends ParseTreeTransformer {
    * @return {Script}
    */
   static transformTree(reporter, tree) {
-    return new DecoratedDeclarationTransformer(reporter).transformAny(tree);
+    return new DecoratorCallTransformer(reporter).transformAny(tree);
   }
 }

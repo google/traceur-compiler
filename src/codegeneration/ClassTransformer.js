@@ -37,6 +37,7 @@ import {
   createArgumentList,
   createBlock,
   createCallExpression,
+  createCallDecoratorStatement,
   createExpressionStatement,
   createFunctionBody,
   createIdentifierExpression,
@@ -366,13 +367,7 @@ export class ClassTransformer extends TempVarTransformer{
 
     contextExpression = createObjectLiteralExpression(contextProperties);
     tree.decorations.forEach((decorator) => {
-      if (decorator.expression.type === CALL_EXPRESSION) {
-        decorator.expression.args.args.unshift(contextExpression);
-      } else {
-        decorator = createCallExpression(decorator, createArgumentList([contextExpression]));
-      }
-
-      statements.push(createExpressionStatement(decorator));
+      statements.push(createCallDecoratorStatement(contextExpression, decorator));
     });
 
     return tree.element;

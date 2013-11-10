@@ -107,6 +107,17 @@
       "IdentifierToken"
     ]
   },
+  "CallDecoratorExpression": {
+    "location": [
+      "SourceRange"
+    ],
+    "context": [
+      "ObjectLiteralExpression"
+    ],
+    "decorator": [
+      "DecoratorExpression"
+    ]
+  },
   "CallExpression": {
     "location": [
       "SourceRange"

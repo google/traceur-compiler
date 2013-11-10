@@ -19,6 +19,7 @@ import {BlockBindingTransformer} from './BlockBindingTransformer';
 import {CascadeExpressionTransformer} from './CascadeExpressionTransformer';
 import {ClassTransformer} from './ClassTransformer';
 import {CollectionTransformer} from './CollectionTransformer';
+import {DecoratorCallTransformer} from './DecoratorCallTransformer.js';
 import {DecoratedDeclarationTransformer} from './DecoratedDeclarationTransformer.js';
 import {DefaultParametersTransformer} from './DefaultParametersTransformer';
 import {DestructuringTransformer} from './DestructuringTransformer';
@@ -142,9 +143,8 @@ export class ProgramTransformer {
 
     transform(transformOptions.decorators,
               DecoratedDeclarationTransformer,
-              identifierGenerator,
-              runtimeInliner,
               reporter);
+
     // ClassTransformer needs to come before ObjectLiteralTransformer.
     transform(transformOptions.classes,
               ClassTransformer,
@@ -202,6 +202,10 @@ export class ProgramTransformer {
               SpreadTransformer,
               identifierGenerator,
               runtimeInliner);
+
+    transform(transformOptions.decorators,
+              DecoratorCallTransformer,
+              reporter);
 
     chain(true, () => runtimeInliner.transformAny(tree));
 
