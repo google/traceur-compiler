@@ -50,6 +50,8 @@ clean:
 distclean: clean
 	rm -f build/dep.mk
 	rm -f $(GENSRC) $(TPL_GENSRC_DEPS)
+	rm -f test/test-list.js
+	@echo '*************>>> Run "make build" to rebuild dep.mk makefile'
 
 initbench:
 	rm -rf test/bench/esprima
