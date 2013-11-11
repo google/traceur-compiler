@@ -1,7 +1,9 @@
-SRC = \
+RUNTIME_SRC = \
   src/runtime/runtime.js \
   src/runtime/url.js \
-  src/runtime/modules.js \
+  src/runtime/modules.js
+SRC = \
+  $(RUNTIME_SRC) \
   src/traceur-import.js
 TPL_GENSRC = \
   src/outputgeneration/SourceMapIntegration.js
@@ -33,7 +35,7 @@ min: bin/traceur.min.js
 #   npm install uglify-js -g
 ugly: bin/traceur.ugly.js
 
-test: build test/test-list.js
+test: build test/test-list.js wiki
 	node_modules/.bin/mocha --ignore-leaks --ui tdd --require test/node-env.js $(TESTS)
 
 test-list: test/test-list.js
@@ -43,7 +45,7 @@ test/test-list.js: build/build-test-list.js
 
 boot: clean build
 
-clean:
+clean: wikiclean
 	git checkout bin
 	touch -t 197001010000.00 bin/traceur.js
 
@@ -109,6 +111,18 @@ node_modules: package.json
 
 bin/traceur.ugly.js: bin/traceur.js
 	uglifyjs bin/traceur.js --compress -m -o $@
+
+WIKI_OUT = \
+  test/wiki/CompilingOffline/out/greeter.js
+
+wiki: $(WIKI_OUT)
+
+wikiclean:
+	rm -f -r test/wiki/CompilingOffline/out
+
+test/wiki/CompilingOffline/out/greeter.js: test/wiki/CompilingOffline/greeter.js
+	./traceur --out $@ $?
+
 
 .PHONY: build min test test-list force boot clean distclean unicode-tables
 
