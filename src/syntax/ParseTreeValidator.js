@@ -19,7 +19,6 @@ import {
   AMPERSAND,
   AMPERSAND_EQUAL,
   AND,
-  AT_NAME,
   BAR,
   BAR_EQUAL,
   CARET,
@@ -828,8 +827,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
     this.check_(tree.literalToken.isKeyword() ||
         type === IDENTIFIER ||
         type === NUMBER ||
-        type === STRING ||
-        type === AT_NAME,
+        type === STRING,
         tree,
         'unexpected token in literal property name');
   }

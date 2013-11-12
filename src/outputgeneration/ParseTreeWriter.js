@@ -31,7 +31,6 @@ var {
   AMPERSAND_EQUAL,
   AND,
   ARROW,
-  AT_NAME,
   AWAIT,
   BACK_QUOTE,
   BANG,
