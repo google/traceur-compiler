@@ -1,0 +1,14 @@
+<html>
+  <head>
+    <script src="out/moodMusic.js" type="text/javascript"></script>
+    <script>
+      window.addEventListener('load', function(){
+        // Example of using a global imported from a module
+        document.querySelector('body > span').textContent = moodMusic;
+      });
+    </script>
+  </head>
+  <body>
+  Please play some <span>music</span>.
+  </body>
+</html>
