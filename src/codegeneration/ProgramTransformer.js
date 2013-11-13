@@ -166,7 +166,8 @@ export class ProgramTransformer {
     // that wants to use VariableBinder
     transform(transformOptions.forOf,
               ForOfTransformer,
-              identifierGenerator);
+              identifierGenerator,
+              runtimeInliner);
 
     // rest parameters must come before generator
     transform(transformOptions.restParameters,

@@ -25,6 +25,7 @@ suite('context test', function() {
   teardown(function() {
     if (fs.existsSync(tempFileName))
       fs.unlinkSync(tempFileName);
+    traceur.options.reset();
   });
 
   function resolve(name) {
@@ -58,6 +59,19 @@ suite('context test', function() {
     var fileName = path.resolve(__dirname, 'resources/class.js');
     var result = executeFile(fileName);
     assert.equal(result, 2);
+  });
+
+  test('generator', function() {
+    var fileName = path.resolve(__dirname, 'resources/generator.js');
+    var result = executeFile(fileName);
+    assert.deepEqual(result, [1, 2, 9, 16]);
+  });
+
+  test('generator (private names)', function() {
+    var fileName = path.resolve(__dirname, 'resources/generator.js');
+    traceur.options.privateNames = true;
+    var result = executeFileWithRuntime(fileName);
+    assert.deepEqual(result, [1, 2, 9, 16]);
   });
 
   test('compiled modules', function(done) {
