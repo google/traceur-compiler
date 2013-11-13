@@ -2351,10 +2351,10 @@ System.get('@traceur/module').registerModule("../src/util/JSON.js", function() {
 System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTree.js", function() {
   "use strict";
   var ParseTreeType = System.get("../src/syntax/trees/ParseTreeType.js");
-  var $__86 = System.get("../src/syntax/TokenType.js"), STRING = $__86.STRING, VAR = $__86.VAR;
+  var $__87 = System.get("../src/syntax/TokenType.js"), STRING = $__87.STRING, VAR = $__87.VAR;
   var Token = System.get("../src/syntax/Token.js").Token;
   var utilJSON = System.get("../src/util/JSON.js");
-  var $__86 = ParseTreeType, ARGUMENT_LIST = $__86.ARGUMENT_LIST, ARRAY_COMPREHENSION = $__86.ARRAY_COMPREHENSION, ARRAY_LITERAL_EXPRESSION = $__86.ARRAY_LITERAL_EXPRESSION, ARRAY_PATTERN = $__86.ARRAY_PATTERN, ARROW_FUNCTION_EXPRESSION = $__86.ARROW_FUNCTION_EXPRESSION, AWAIT_STATEMENT = $__86.AWAIT_STATEMENT, BINARY_OPERATOR = $__86.BINARY_OPERATOR, BINDING_ELEMENT = $__86.BINDING_ELEMENT, BINDING_IDENTIFIER = $__86.BINDING_IDENTIFIER, BLOCK = $__86.BLOCK, BREAK_STATEMENT = $__86.BREAK_STATEMENT, CALL_EXPRESSION = $__86.CALL_EXPRESSION, CASCADE_EXPRESSION = $__86.CASCADE_EXPRESSION, CASE_CLAUSE = $__86.CASE_CLAUSE, CATCH = $__86.CATCH, CLASS_DECLARATION = $__86.CLASS_DECLARATION, CLASS_EXPRESSION = $__86.CLASS_EXPRESSION, COMMA_EXPRESSION = $__86.COMMA_EXPRESSION, COMPREHENSION_FOR = $__86.COMPREHENSION_FOR, COMPREHENSION_IF = $__86.COMPREHENSION_IF, COMPUTED_PROPERTY_NAME = $__86.COMPUTED_PROPERTY_NAME, CONDITIONAL_EXPRESSION = $__86.CONDITIONAL_EXPRESSION, CONTINUE_STATEMENT = $__86.CONTINUE_STATEMENT, COVER_FORMALS = $__86.COVER_FORMALS, COVER_INITIALISED_NAME = $__86.COVER_INITIALISED_NAME, DEBUGGER_STATEMENT = $__86.DEBUGGER_STATEMENT, DEFAULT_CLAUSE = $__86.DEFAULT_CLAUSE, DO_WHILE_STATEMENT = $__86.DO_WHILE_STATEMENT, EMPTY_STATEMENT = $__86.EMPTY_STATEMENT, EXPORT_DECLARATION = $__86.EXPORT_DECLARATION, EXPORT_SPECIFIER = $__86.EXPORT_SPECIFIER, EXPORT_SPECIFIER_SET = $__86.EXPORT_SPECIFIER_SET, EXPORT_STAR = $__86.EXPORT_STAR, EXPRESSION_STATEMENT = $__86.EXPRESSION_STATEMENT, FINALLY = $__86.FINALLY, FOR_IN_STATEMENT = $__86.FOR_IN_STATEMENT, FOR_OF_STATEMENT = $__86.FOR_OF_STATEMENT, FOR_STATEMENT = $__86.FOR_STATEMENT, FORMAL_PARAMETER_LIST = $__86.FORMAL_PARAMETER_LIST, FUNCTION_BODY = $__86.FUNCTION_BODY, FUNCTION_DECLARATION = $__86.FUNCTION_DECLARATION, FUNCTION_EXPRESSION = $__86.FUNCTION_EXPRESSION, GENERATOR_COMPREHENSION = $__86.GENERATOR_COMPREHENSION, GET_ACCESSOR = $__86.GET_ACCESSOR, IDENTIFIER_EXPRESSION = $__86.IDENTIFIER_EXPRESSION, IF_STATEMENT = $__86.IF_STATEMENT, IMPORT_DECLARATION = $__86.IMPORT_DECLARATION, IMPORT_SPECIFIER = $__86.IMPORT_SPECIFIER, IMPORT_SPECIFIER_SET = $__86.IMPORT_SPECIFIER_SET, LABELLED_STATEMENT = $__86.LABELLED_STATEMENT, LITERAL_EXPRESSION = $__86.LITERAL_EXPRESSION, LITERAL_PROPERTY_NAME = $__86.LITERAL_PROPERTY_NAME, MEMBER_EXPRESSION = $__86.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__86.MEMBER_LOOKUP_EXPRESSION, MODULE = $__86.MODULE, MODULE_DECLARATION = $__86.MODULE_DECLARATION, MODULE_SPECIFIER = $__86.MODULE_SPECIFIER, NAME_STATEMENT = $__86.NAME_STATEMENT, NAMED_EXPORT = $__86.NAMED_EXPORT, NEW_EXPRESSION = $__86.NEW_EXPRESSION, OBJECT_LITERAL_EXPRESSION = $__86.OBJECT_LITERAL_EXPRESSION, OBJECT_PATTERN = $__86.OBJECT_PATTERN, OBJECT_PATTERN_FIELD = $__86.OBJECT_PATTERN_FIELD, PAREN_EXPRESSION = $__86.PAREN_EXPRESSION, POSTFIX_EXPRESSION = $__86.POSTFIX_EXPRESSION, PREDEFINED_TYPE = $__86.PREDEFINED_TYPE, PROPERTY_METHOD_ASSIGNMENT = $__86.PROPERTY_METHOD_ASSIGNMENT, PROPERTY_NAME_ASSIGNMENT = $__86.PROPERTY_NAME_ASSIGNMENT, PROPERTY_NAME_SHORTHAND = $__86.PROPERTY_NAME_SHORTHAND, REST_PARAMETER = $__86.REST_PARAMETER, RETURN_STATEMENT = $__86.RETURN_STATEMENT, SCRIPT = $__86.SCRIPT, SET_ACCESSOR = $__86.SET_ACCESSOR, SPREAD_EXPRESSION = $__86.SPREAD_EXPRESSION, SPREAD_PATTERN_ELEMENT = $__86.SPREAD_PATTERN_ELEMENT, STATE_MACHINE = $__86.STATE_MACHINE, SUPER_EXPRESSION = $__86.SUPER_EXPRESSION, SWITCH_STATEMENT = $__86.SWITCH_STATEMENT, SYNTAX_ERROR_TREE = $__86.SYNTAX_ERROR_TREE, TEMPLATE_LITERAL_EXPRESSION = $__86.TEMPLATE_LITERAL_EXPRESSION, TEMPLATE_LITERAL_PORTION = $__86.TEMPLATE_LITERAL_PORTION, TEMPLATE_SUBSTITUTION = $__86.TEMPLATE_SUBSTITUTION, THIS_EXPRESSION = $__86.THIS_EXPRESSION, THROW_STATEMENT = $__86.THROW_STATEMENT, TRY_STATEMENT = $__86.TRY_STATEMENT, TYPE_NAME = $__86.TYPE_NAME, UNARY_EXPRESSION = $__86.UNARY_EXPRESSION, VARIABLE_DECLARATION = $__86.VARIABLE_DECLARATION, VARIABLE_DECLARATION_LIST = $__86.VARIABLE_DECLARATION_LIST, VARIABLE_STATEMENT = $__86.VARIABLE_STATEMENT, WHILE_STATEMENT = $__86.WHILE_STATEMENT, WITH_STATEMENT = $__86.WITH_STATEMENT, YIELD_EXPRESSION = $__86.YIELD_EXPRESSION;
+  var $__87 = ParseTreeType, ARGUMENT_LIST = $__87.ARGUMENT_LIST, ARRAY_COMPREHENSION = $__87.ARRAY_COMPREHENSION, ARRAY_LITERAL_EXPRESSION = $__87.ARRAY_LITERAL_EXPRESSION, ARRAY_PATTERN = $__87.ARRAY_PATTERN, ARROW_FUNCTION_EXPRESSION = $__87.ARROW_FUNCTION_EXPRESSION, AWAIT_STATEMENT = $__87.AWAIT_STATEMENT, BINARY_OPERATOR = $__87.BINARY_OPERATOR, BINDING_ELEMENT = $__87.BINDING_ELEMENT, BINDING_IDENTIFIER = $__87.BINDING_IDENTIFIER, BLOCK = $__87.BLOCK, BREAK_STATEMENT = $__87.BREAK_STATEMENT, CALL_EXPRESSION = $__87.CALL_EXPRESSION, CASCADE_EXPRESSION = $__87.CASCADE_EXPRESSION, CASE_CLAUSE = $__87.CASE_CLAUSE, CATCH = $__87.CATCH, CLASS_DECLARATION = $__87.CLASS_DECLARATION, CLASS_EXPRESSION = $__87.CLASS_EXPRESSION, COMMA_EXPRESSION = $__87.COMMA_EXPRESSION, COMPREHENSION_FOR = $__87.COMPREHENSION_FOR, COMPREHENSION_IF = $__87.COMPREHENSION_IF, COMPUTED_PROPERTY_NAME = $__87.COMPUTED_PROPERTY_NAME, CONDITIONAL_EXPRESSION = $__87.CONDITIONAL_EXPRESSION, CONTINUE_STATEMENT = $__87.CONTINUE_STATEMENT, COVER_FORMALS = $__87.COVER_FORMALS, COVER_INITIALISED_NAME = $__87.COVER_INITIALISED_NAME, DEBUGGER_STATEMENT = $__87.DEBUGGER_STATEMENT, DEFAULT_CLAUSE = $__87.DEFAULT_CLAUSE, DO_WHILE_STATEMENT = $__87.DO_WHILE_STATEMENT, EMPTY_STATEMENT = $__87.EMPTY_STATEMENT, EXPORT_DECLARATION = $__87.EXPORT_DECLARATION, EXPORT_SPECIFIER = $__87.EXPORT_SPECIFIER, EXPORT_SPECIFIER_SET = $__87.EXPORT_SPECIFIER_SET, EXPORT_STAR = $__87.EXPORT_STAR, EXPRESSION_STATEMENT = $__87.EXPRESSION_STATEMENT, FINALLY = $__87.FINALLY, FOR_IN_STATEMENT = $__87.FOR_IN_STATEMENT, FOR_OF_STATEMENT = $__87.FOR_OF_STATEMENT, FOR_STATEMENT = $__87.FOR_STATEMENT, FORMAL_PARAMETER_LIST = $__87.FORMAL_PARAMETER_LIST, FUNCTION_BODY = $__87.FUNCTION_BODY, FUNCTION_DECLARATION = $__87.FUNCTION_DECLARATION, FUNCTION_EXPRESSION = $__87.FUNCTION_EXPRESSION, GENERATOR_COMPREHENSION = $__87.GENERATOR_COMPREHENSION, GET_ACCESSOR = $__87.GET_ACCESSOR, IDENTIFIER_EXPRESSION = $__87.IDENTIFIER_EXPRESSION, IF_STATEMENT = $__87.IF_STATEMENT, IMPORT_DECLARATION = $__87.IMPORT_DECLARATION, IMPORT_SPECIFIER = $__87.IMPORT_SPECIFIER, IMPORT_SPECIFIER_SET = $__87.IMPORT_SPECIFIER_SET, LABELLED_STATEMENT = $__87.LABELLED_STATEMENT, LITERAL_EXPRESSION = $__87.LITERAL_EXPRESSION, LITERAL_PROPERTY_NAME = $__87.LITERAL_PROPERTY_NAME, MEMBER_EXPRESSION = $__87.MEMBER_EXPRESSION, MEMBER_LOOKUP_EXPRESSION = $__87.MEMBER_LOOKUP_EXPRESSION, MODULE = $__87.MODULE, MODULE_DECLARATION = $__87.MODULE_DECLARATION, MODULE_SPECIFIER = $__87.MODULE_SPECIFIER, NAME_STATEMENT = $__87.NAME_STATEMENT, NAMED_EXPORT = $__87.NAMED_EXPORT, NEW_EXPRESSION = $__87.NEW_EXPRESSION, OBJECT_LITERAL_EXPRESSION = $__87.OBJECT_LITERAL_EXPRESSION, OBJECT_PATTERN = $__87.OBJECT_PATTERN, OBJECT_PATTERN_FIELD = $__87.OBJECT_PATTERN_FIELD, PAREN_EXPRESSION = $__87.PAREN_EXPRESSION, POSTFIX_EXPRESSION = $__87.POSTFIX_EXPRESSION, PREDEFINED_TYPE = $__87.PREDEFINED_TYPE, PROPERTY_METHOD_ASSIGNMENT = $__87.PROPERTY_METHOD_ASSIGNMENT, PROPERTY_NAME_ASSIGNMENT = $__87.PROPERTY_NAME_ASSIGNMENT, PROPERTY_NAME_SHORTHAND = $__87.PROPERTY_NAME_SHORTHAND, REST_PARAMETER = $__87.REST_PARAMETER, RETURN_STATEMENT = $__87.RETURN_STATEMENT, SCRIPT = $__87.SCRIPT, SET_ACCESSOR = $__87.SET_ACCESSOR, SPREAD_EXPRESSION = $__87.SPREAD_EXPRESSION, SPREAD_PATTERN_ELEMENT = $__87.SPREAD_PATTERN_ELEMENT, STATE_MACHINE = $__87.STATE_MACHINE, SUPER_EXPRESSION = $__87.SUPER_EXPRESSION, SWITCH_STATEMENT = $__87.SWITCH_STATEMENT, SYNTAX_ERROR_TREE = $__87.SYNTAX_ERROR_TREE, TEMPLATE_LITERAL_EXPRESSION = $__87.TEMPLATE_LITERAL_EXPRESSION, TEMPLATE_LITERAL_PORTION = $__87.TEMPLATE_LITERAL_PORTION, TEMPLATE_SUBSTITUTION = $__87.TEMPLATE_SUBSTITUTION, THIS_EXPRESSION = $__87.THIS_EXPRESSION, THROW_STATEMENT = $__87.THROW_STATEMENT, TRY_STATEMENT = $__87.TRY_STATEMENT, TYPE_NAME = $__87.TYPE_NAME, UNARY_EXPRESSION = $__87.UNARY_EXPRESSION, VARIABLE_DECLARATION = $__87.VARIABLE_DECLARATION, VARIABLE_DECLARATION_LIST = $__87.VARIABLE_DECLARATION_LIST, VARIABLE_STATEMENT = $__87.VARIABLE_STATEMENT, WHILE_STATEMENT = $__87.WHILE_STATEMENT, WITH_STATEMENT = $__87.WITH_STATEMENT, YIELD_EXPRESSION = $__87.YIELD_EXPRESSION;
   ;
   var ParseTree = function() {
     'use strict';
@@ -2911,7 +2911,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/module/Modul
   "use strict";
   var ParseTree = System.get("../src/syntax/trees/ParseTree.js").ParseTree;
   var ParseTreeVisitor = System.get("../src/syntax/ParseTreeVisitor.js").ParseTreeVisitor;
-  var $__160 = System.get("../src/syntax/trees/ParseTreeType.js"), MODULE_DECLARATION = $__160.MODULE_DECLARATION, EXPORT_DECLARATION = $__160.EXPORT_DECLARATION, IMPORT_DECLARATION = $__160.IMPORT_DECLARATION;
+  var $__154 = System.get("../src/syntax/trees/ParseTreeType.js"), MODULE_DECLARATION = $__154.MODULE_DECLARATION, EXPORT_DECLARATION = $__154.EXPORT_DECLARATION, IMPORT_DECLARATION = $__154.IMPORT_DECLARATION;
   var Symbol = System.get("../src/semantics/symbols/Symbol.js").Symbol;
   var ModuleVisitor = function($__super) {
     'use strict';
@@ -2967,15 +2967,15 @@ System.get('@traceur/module').registerModule("../src/codegeneration/module/Modul
         return true;
       },
       reportError_: function(symbolOrTree, format) {
-        var $__161;
-        for (var args = [], $__159 = 2; $__159 < arguments.length; $__159++) args[$__159 - 2] = arguments[$__159];
+        var $__155;
+        for (var args = [], $__153 = 2; $__153 < arguments.length; $__153++) args[$__153 - 2] = arguments[$__153];
         var tree;
         if (symbolOrTree instanceof Symbol) {
           tree = symbolOrTree.tree;
         } else {
           tree = symbolOrTree;
         }
-        ($__161 = this.reporter_).reportError.apply($__161, $__spread([tree.location.start, format], args));
+        ($__155 = this.reporter_).reportError.apply($__155, $__spread([tree.location.start, format], args));
       },
       reportRelatedError_: function(symbolOrTree) {
         if (symbolOrTree instanceof ParseTree) {
@@ -3057,8 +3057,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/module/Expor
       },
       visitExportStar: function(tree) {
         var module = this.getModuleForModuleSpecifier(this.relatedTree_);
-        module.getExports().forEach((function($__71) {
-          var name = $__71.name;
+        module.getExports().forEach((function($__61) {
+          var name = $__61.name;
           this.addExport_(name, tree);
         }).bind(this));
       },
@@ -6385,7 +6385,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ParseTreeTra
 System.get('@traceur/module').registerModule("../src/codegeneration/AssignmentPatternTransformer.js", function() {
   "use strict";
   var ParseTreeTransformer = System.get("../src/codegeneration/ParseTreeTransformer.js").ParseTreeTransformer;
-  var $__75 = System.get("../src/syntax/trees/ParseTrees.js"), ArrayPattern = $__75.ArrayPattern, BindingElement = $__75.BindingElement, BindingIdentifier = $__75.BindingIdentifier, IdentifierExpression = $__75.IdentifierExpression, ObjectPattern = $__75.ObjectPattern, ObjectPatternField = $__75.ObjectPatternField, SpreadPatternElement = $__75.SpreadPatternElement;
+  var $__79 = System.get("../src/syntax/trees/ParseTrees.js"), ArrayPattern = $__79.ArrayPattern, BindingElement = $__79.BindingElement, BindingIdentifier = $__79.BindingIdentifier, IdentifierExpression = $__79.IdentifierExpression, ObjectPattern = $__79.ObjectPattern, ObjectPatternField = $__79.ObjectPatternField, SpreadPatternElement = $__79.SpreadPatternElement;
   var EQUAL = System.get("../src/syntax/TokenType.js").EQUAL;
   var AssignmentPatternTransformerError = function($__super) {
     'use strict';
@@ -6452,7 +6452,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/AssignmentPa
 System.get('@traceur/module').registerModule("../src/codegeneration/CoverFormalsTransformer.js", function() {
   "use strict";
   var ParseTreeTransformer = System.get("../src/codegeneration/ParseTreeTransformer.js").ParseTreeTransformer;
-  var $__77 = System.get("../src/syntax/trees/ParseTrees.js"), ArrayPattern = $__77.ArrayPattern, BindingElement = $__77.BindingElement, BindingIdentifier = $__77.BindingIdentifier, FormalParameterList = $__77.FormalParameterList, ObjectPattern = $__77.ObjectPattern, ObjectPatternField = $__77.ObjectPatternField, RestParameter = $__77.RestParameter, SpreadPatternElement = $__77.SpreadPatternElement;
+  var $__81 = System.get("../src/syntax/trees/ParseTrees.js"), ArrayPattern = $__81.ArrayPattern, BindingElement = $__81.BindingElement, BindingIdentifier = $__81.BindingIdentifier, FormalParameterList = $__81.FormalParameterList, ObjectPattern = $__81.ObjectPattern, ObjectPatternField = $__81.ObjectPatternField, RestParameter = $__81.RestParameter, SpreadPatternElement = $__81.SpreadPatternElement;
   var EQUAL = System.get("../src/syntax/TokenType.js").EQUAL;
   var IDENTIFIER_EXPRESSION = System.get("../src/syntax/trees/ParseTreeType.js").IDENTIFIER_EXPRESSION;
   var AssignmentPatternTransformerError = System.get("../src/codegeneration/AssignmentPatternTransformer.js").AssignmentPatternTransformerError;
@@ -6563,7 +6563,6 @@ System.get('@traceur/module').registerModule("../src/syntax/IdentifierToken.js",
 }, this);
 System.get('@traceur/module').registerModule("../src/syntax/PredefinedName.js", function() {
   "use strict";
-  var ADD_ITERATOR = 'addIterator';
   var ANY = 'any';
   var $ARGUMENTS = '$arguments';
   var $THAT = '$that';
@@ -6578,8 +6577,6 @@ System.get('@traceur/module').registerModule("../src/syntax/PredefinedName.js", 
   var BOOL = 'bool';
   var CALL = 'call';
   var CALLBACK = 'callback';
-  var CAPTURED_ARGUMENTS = '$arguments';
-  var CAPTURED_THIS = '$this';
   var CAUGHT_EXCEPTION = '$caughtException';
   var CLOSE = 'close';
   var CONFIGURABLE = 'configurable';
@@ -6587,9 +6584,7 @@ System.get('@traceur/module').registerModule("../src/syntax/PredefinedName.js", 
   var CONTINUATION = '$continuation';
   var CREATE = 'create';
   var CREATE_CALLBACK = '$createCallback';
-  var CREATE_CLASS = 'createClass';
   var CREATE_ERRBACK = '$createErrback';
-  var CREATE_NAME = 'createName';
   var CREATE_PROMISE = 'createPromise';
   var CURRENT = 'current';
   var DEFERRED = 'Deferred';
@@ -6603,59 +6598,36 @@ System.get('@traceur/module').registerModule("../src/syntax/PredefinedName.js", 
   var ENUMERABLE = 'enumerable';
   var ERR = '$err';
   var ERRBACK = 'errback';
-  var FIELD_INITIALIZER_METHOD = '$field_initializer_';
   var FINALLY_FALL_THROUGH = '$finallyFallThrough';
   var FREEZE = 'freeze';
   var FROM = 'from';
   var FUNCTION = 'Function';
   var GET = 'get';
-  var GET_ITERATOR = 'getIterator';
-  var GET_PROPERTY = 'getProperty';
   var HAS = 'has';
-  var INIT = '$init';
-  var IS_DONE = 'isDone';
-  var ITERATOR = 'iterator';
-  var INNER_FUNCTION = 'innerFunction';
   var LENGTH = 'length';
   var MODULE = 'module';
-  var MODULES = 'modules';
-  var MOVE_NEXT = 'moveNext';
   var NEW = 'new';
   var NEW_STATE = '$newState';
   var NUMBER = 'number';
   var OBJECT = 'Object';
   var OBJECT_NAME = 'Object';
   var OF = 'of';
-  var PARAM = '$param';
   var PREVENT_EXTENSIONS = 'preventExtensions';
-  var PROTO = '__proto__';
   var PROTOTYPE = 'prototype';
   var PUSH = 'push';
   var RAW = 'raw';
-  var REQUIRE = 'require';
-  var REQUIRED = 'required';
-  var REQUIRES = 'requires';
-  var RESOLVE = 'resolve';
   var RESULT = '$result';
-  var RUNTIME = 'runtime';
   var SET = 'set';
-  var SET_PROPERTY = 'setProperty';
   var SLICE = 'slice';
   var SPREAD = 'spread';
   var SPREAD_NEW = 'spreadNew';
   var STATE = '$state';
   var STORED_EXCEPTION = '$storedException';
   var STRING = 'string';
-  var SUPER_CALL = 'superCall';
-  var SUPER_GET = 'superGet';
-  var SUPER_SET = 'superSet';
   var THEN = 'then';
   var THIS = 'this';
-  var TRACEUR = 'traceur';
   var TRACEUR_RUNTIME = '$traceurRuntime';
-  var TYPE_ERROR = 'TypeError';
   var UNDEFINED = 'undefined';
-  var VALUE = 'value';
   var WAIT_TASK = '$waitTask';
   var WRITABLE = 'writable';
   var YIELD_ACTION = '$yieldAction';
@@ -6668,12 +6640,6 @@ System.get('@traceur/module').registerModule("../src/syntax/PredefinedName.js", 
   var ACTION_SEND = 0;
   var ACTION_THROW = 1;
   return Object.preventExtensions(Object.create(null, {
-    ADD_ITERATOR: {
-      get: function() {
-        return ADD_ITERATOR;
-      },
-      enumerable: true
-    },
     ANY: {
       get: function() {
         return ANY;
@@ -6758,18 +6724,6 @@ System.get('@traceur/module').registerModule("../src/syntax/PredefinedName.js", 
       },
       enumerable: true
     },
-    CAPTURED_ARGUMENTS: {
-      get: function() {
-        return CAPTURED_ARGUMENTS;
-      },
-      enumerable: true
-    },
-    CAPTURED_THIS: {
-      get: function() {
-        return CAPTURED_THIS;
-      },
-      enumerable: true
-    },
     CAUGHT_EXCEPTION: {
       get: function() {
         return CAUGHT_EXCEPTION;
@@ -6812,21 +6766,9 @@ System.get('@traceur/module').registerModule("../src/syntax/PredefinedName.js", 
       },
       enumerable: true
     },
-    CREATE_CLASS: {
-      get: function() {
-        return CREATE_CLASS;
-      },
-      enumerable: true
-    },
     CREATE_ERRBACK: {
       get: function() {
         return CREATE_ERRBACK;
-      },
-      enumerable: true
-    },
-    CREATE_NAME: {
-      get: function() {
-        return CREATE_NAME;
       },
       enumerable: true
     },
@@ -6908,12 +6850,6 @@ System.get('@traceur/module').registerModule("../src/syntax/PredefinedName.js", 
       },
       enumerable: true
     },
-    FIELD_INITIALIZER_METHOD: {
-      get: function() {
-        return FIELD_INITIALIZER_METHOD;
-      },
-      enumerable: true
-    },
     FINALLY_FALL_THROUGH: {
       get: function() {
         return FINALLY_FALL_THROUGH;
@@ -6944,45 +6880,9 @@ System.get('@traceur/module').registerModule("../src/syntax/PredefinedName.js", 
       },
       enumerable: true
     },
-    GET_ITERATOR: {
-      get: function() {
-        return GET_ITERATOR;
-      },
-      enumerable: true
-    },
-    GET_PROPERTY: {
-      get: function() {
-        return GET_PROPERTY;
-      },
-      enumerable: true
-    },
     HAS: {
       get: function() {
         return HAS;
-      },
-      enumerable: true
-    },
-    INIT: {
-      get: function() {
-        return INIT;
-      },
-      enumerable: true
-    },
-    IS_DONE: {
-      get: function() {
-        return IS_DONE;
-      },
-      enumerable: true
-    },
-    ITERATOR: {
-      get: function() {
-        return ITERATOR;
-      },
-      enumerable: true
-    },
-    INNER_FUNCTION: {
-      get: function() {
-        return INNER_FUNCTION;
       },
       enumerable: true
     },
@@ -6995,18 +6895,6 @@ System.get('@traceur/module').registerModule("../src/syntax/PredefinedName.js", 
     MODULE: {
       get: function() {
         return MODULE;
-      },
-      enumerable: true
-    },
-    MODULES: {
-      get: function() {
-        return MODULES;
-      },
-      enumerable: true
-    },
-    MOVE_NEXT: {
-      get: function() {
-        return MOVE_NEXT;
       },
       enumerable: true
     },
@@ -7046,21 +6934,9 @@ System.get('@traceur/module').registerModule("../src/syntax/PredefinedName.js", 
       },
       enumerable: true
     },
-    PARAM: {
-      get: function() {
-        return PARAM;
-      },
-      enumerable: true
-    },
     PREVENT_EXTENSIONS: {
       get: function() {
         return PREVENT_EXTENSIONS;
-      },
-      enumerable: true
-    },
-    PROTO: {
-      get: function() {
-        return PROTO;
       },
       enumerable: true
     },
@@ -7082,51 +6958,15 @@ System.get('@traceur/module').registerModule("../src/syntax/PredefinedName.js", 
       },
       enumerable: true
     },
-    REQUIRE: {
-      get: function() {
-        return REQUIRE;
-      },
-      enumerable: true
-    },
-    REQUIRED: {
-      get: function() {
-        return REQUIRED;
-      },
-      enumerable: true
-    },
-    REQUIRES: {
-      get: function() {
-        return REQUIRES;
-      },
-      enumerable: true
-    },
-    RESOLVE: {
-      get: function() {
-        return RESOLVE;
-      },
-      enumerable: true
-    },
     RESULT: {
       get: function() {
         return RESULT;
       },
       enumerable: true
     },
-    RUNTIME: {
-      get: function() {
-        return RUNTIME;
-      },
-      enumerable: true
-    },
     SET: {
       get: function() {
         return SET;
-      },
-      enumerable: true
-    },
-    SET_PROPERTY: {
-      get: function() {
-        return SET_PROPERTY;
       },
       enumerable: true
     },
@@ -7166,24 +7006,6 @@ System.get('@traceur/module').registerModule("../src/syntax/PredefinedName.js", 
       },
       enumerable: true
     },
-    SUPER_CALL: {
-      get: function() {
-        return SUPER_CALL;
-      },
-      enumerable: true
-    },
-    SUPER_GET: {
-      get: function() {
-        return SUPER_GET;
-      },
-      enumerable: true
-    },
-    SUPER_SET: {
-      get: function() {
-        return SUPER_SET;
-      },
-      enumerable: true
-    },
     THEN: {
       get: function() {
         return THEN;
@@ -7196,33 +7018,15 @@ System.get('@traceur/module').registerModule("../src/syntax/PredefinedName.js", 
       },
       enumerable: true
     },
-    TRACEUR: {
-      get: function() {
-        return TRACEUR;
-      },
-      enumerable: true
-    },
     TRACEUR_RUNTIME: {
       get: function() {
         return TRACEUR_RUNTIME;
       },
       enumerable: true
     },
-    TYPE_ERROR: {
-      get: function() {
-        return TYPE_ERROR;
-      },
-      enumerable: true
-    },
     UNDEFINED: {
       get: function() {
         return UNDEFINED;
-      },
-      enumerable: true
-    },
-    VALUE: {
-      get: function() {
-        return VALUE;
       },
       enumerable: true
     },
@@ -11552,21 +11356,21 @@ System.get('@traceur/module').registerModule("../src/codegeneration/FindInFuncti
 }, this);
 System.get('@traceur/module').registerModule("../src/codegeneration/PrependStatements.js", function() {
   "use strict";
-  var $__156 = System.get("../src/syntax/trees/ParseTreeType.js"), EXPRESSION_STATEMENT = $__156.EXPRESSION_STATEMENT, LITERAL_EXPRESSION = $__156.LITERAL_EXPRESSION;
+  var $__160 = System.get("../src/syntax/trees/ParseTreeType.js"), EXPRESSION_STATEMENT = $__160.EXPRESSION_STATEMENT, LITERAL_EXPRESSION = $__160.LITERAL_EXPRESSION;
   var STRING = System.get("../src/syntax/TokenType.js").STRING;
   function isStringExpressionStatement(tree) {
     return tree.type === EXPRESSION_STATEMENT && tree.expression.type === LITERAL_EXPRESSION && tree.expression.literalToken.type === STRING;
   }
   function prependStatements(statements) {
-    for (var statementsToPrepend = [], $__155 = 1; $__155 < arguments.length; $__155++) statementsToPrepend[$__155 - 1] = arguments[$__155];
+    for (var statementsToPrepend = [], $__159 = 1; $__159 < arguments.length; $__159++) statementsToPrepend[$__159 - 1] = arguments[$__159];
     if (!statements.length) return statementsToPrepend;
     if (!statementsToPrepend.length) return statements;
     var transformed = [];
     var inProlog = true;
     statements.forEach((function(statement) {
-      var $__157;
+      var $__161;
       if (inProlog && !isStringExpressionStatement(statement)) {
-        ($__157 = transformed).push.apply($__157, $__toObject(statementsToPrepend));
+        ($__161 = transformed).push.apply($__161, $__toObject(statementsToPrepend));
         inProlog = false;
       }
       transformed.push(statement);
@@ -13142,7 +12946,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ClassTransfo
 }, this);
 System.get('@traceur/module').registerModule("../src/codegeneration/CollectionTransformer.js", function() {
   "use strict";
-  var $__113 = System.get("../src/syntax/PredefinedName.js"), ELEMENT_DELETE = $__113.ELEMENT_DELETE, ELEMENT_GET = $__113.ELEMENT_GET, ELEMENT_HAS = $__113.ELEMENT_HAS, ELEMENT_SET = $__113.ELEMENT_SET, RUNTIME = $__113.RUNTIME, TRACEUR_RUNTIME = $__113.TRACEUR_RUNTIME;
+  var $__113 = System.get("../src/syntax/PredefinedName.js"), ELEMENT_DELETE = $__113.ELEMENT_DELETE, ELEMENT_GET = $__113.ELEMENT_GET, ELEMENT_HAS = $__113.ELEMENT_HAS, ELEMENT_SET = $__113.ELEMENT_SET, TRACEUR_RUNTIME = $__113.TRACEUR_RUNTIME;
   var MEMBER_LOOKUP_EXPRESSION = System.get("../src/syntax/trees/ParseTreeType.js").MEMBER_LOOKUP_EXPRESSION;
   var TempVarTransformer = System.get("../src/codegeneration/TempVarTransformer.js").TempVarTransformer;
   var $__113 = System.get("../src/syntax/TokenType.js"), DELETE = $__113.DELETE, EQUAL = $__113.EQUAL, IN = $__113.IN;
@@ -14464,7 +14268,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/CP
   var ParseTreeTransformer = System.get("../src/codegeneration/ParseTreeTransformer.js").ParseTreeTransformer;
   var assert = System.get("../src/util/assert.js").assert;
   var parseStatement = System.get("../src/codegeneration/PlaceholderParser.js").parseStatement;
-  var $__199 = System.get("../src/syntax/PredefinedName.js"), $ARGUMENTS = $__199.$ARGUMENTS, $THAT = $__199.$THAT, ARGUMENTS = $__199.ARGUMENTS, CAUGHT_EXCEPTION = $__199.CAUGHT_EXCEPTION, FINALLY_FALL_THROUGH = $__199.FINALLY_FALL_THROUGH, INNER_FUNCTION = $__199.INNER_FUNCTION, STATE = $__199.STATE, STORED_EXCEPTION = $__199.STORED_EXCEPTION, YIELD_ACTION = $__199.YIELD_ACTION, YIELD_SENT = $__199.YIELD_SENT;
+  var $__199 = System.get("../src/syntax/PredefinedName.js"), $ARGUMENTS = $__199.$ARGUMENTS, $THAT = $__199.$THAT, ARGUMENTS = $__199.ARGUMENTS, CAUGHT_EXCEPTION = $__199.CAUGHT_EXCEPTION, FINALLY_FALL_THROUGH = $__199.FINALLY_FALL_THROUGH, STATE = $__199.STATE, STORED_EXCEPTION = $__199.STORED_EXCEPTION, YIELD_ACTION = $__199.YIELD_ACTION, YIELD_SENT = $__199.YIELD_SENT;
   var State = System.get("../src/codegeneration/generator/State.js").State;
   var StateAllocator = System.get("../src/codegeneration/generator/StateAllocator.js").StateAllocator;
   var StateMachine = System.get("../src/syntax/trees/StateMachine.js").StateMachine;
@@ -15252,7 +15056,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Ge
   var $__188 = Object.freeze(Object.defineProperties(["\n        var ", " = {\n          GState: ", ",\n          current: undefined,\n          yieldReturn: undefined,\n          innerFunction: ", ",\n          moveNext: ", "\n        };\n        "], {raw: {value: Object.freeze(["\n        var ", " = {\n          GState: ", ",\n          current: undefined,\n          yieldReturn: undefined,\n          innerFunction: ", ",\n          moveNext: ", "\n        };\n        "])}})), $__189 = Object.freeze(Object.defineProperties(["return ", "(", ");"], {raw: {value: Object.freeze(["return ", "(", ");"])}}));
   var CPSTransformer = System.get("../src/codegeneration/generator/CPSTransformer.js").CPSTransformer;
   var EndState = System.get("../src/codegeneration/generator/EndState.js").EndState;
-  var $__191 = System.get("../src/syntax/PredefinedName.js"), ACTION_SEND = $__191.ACTION_SEND, ACTION_THROW = $__191.ACTION_THROW, ADD_ITERATOR = $__191.ADD_ITERATOR, MOVE_NEXT = $__191.MOVE_NEXT, RESULT = $__191.RESULT, RUNTIME = $__191.RUNTIME, STORED_EXCEPTION = $__191.STORED_EXCEPTION, TRACEUR_RUNTIME = $__191.TRACEUR_RUNTIME, YIELD_RETURN = $__191.YIELD_RETURN;
+  var $__191 = System.get("../src/syntax/PredefinedName.js"), ACTION_SEND = $__191.ACTION_SEND, ACTION_THROW = $__191.ACTION_THROW, RESULT = $__191.RESULT, STORED_EXCEPTION = $__191.STORED_EXCEPTION, TRACEUR_RUNTIME = $__191.TRACEUR_RUNTIME, YIELD_RETURN = $__191.YIELD_RETURN;
   var $__191 = System.get("../src/syntax/trees/ParseTreeType.js"), STATE_MACHINE = $__191.STATE_MACHINE, YIELD_EXPRESSION = $__191.YIELD_EXPRESSION;
   var parseStatement = System.get("../src/codegeneration/PlaceholderParser.js").parseStatement;
   var StateMachine = System.get("../src/syntax/trees/StateMachine.js").StateMachine;
@@ -15951,7 +15755,7 @@ System.get('@traceur/module').registerModule("../src/util/ObjectMap.js", functio
 System.get('@traceur/module').registerModule("../src/outputgeneration/ParseTreeWriter.js", function() {
   "use strict";
   var ParseTreeVisitor = System.get("../src/syntax/ParseTreeVisitor.js").ParseTreeVisitor;
-  var $__31 = System.get("../src/syntax/PredefinedName.js"), AS = $__31.AS, FROM = $__31.FROM, GET = $__31.GET, OF = $__31.OF, MODULE = $__31.MODULE, REQUIRES = $__31.REQUIRES, SET = $__31.SET;
+  var $__31 = System.get("../src/syntax/PredefinedName.js"), AS = $__31.AS, FROM = $__31.FROM, GET = $__31.GET, OF = $__31.OF, MODULE = $__31.MODULE, SET = $__31.SET;
   var Token = System.get("../src/syntax/Token.js").Token;
   var getKeywordType = System.get("../src/syntax/Keywords.js").getKeywordType;
   var TokenType = System.get("../src/syntax/TokenType.js");
@@ -16597,7 +16401,6 @@ System.get('@traceur/module').registerModule("../src/outputgeneration/ParseTreeW
           case GET:
           case OF:
           case MODULE:
-          case REQUIRES:
           case SET:
             return true;
         }
@@ -16681,7 +16484,6 @@ System.get('@traceur/module').registerModule("../src/outputgeneration/ParseTreeW
           case FROM:
           case OF:
           case MODULE:
-          case REQUIRES:
             return PRETTY_PRINT || this.isIdentifierNameOrNumber_(token);
         }
         if ((lastValue == PLUS || lastValue == PLUS_PLUS) && (value == PLUS || value == PLUS_PLUS) || (lastValue == MINUS || lastValue == MINUS_MINUS) && (value == MINUS || value == MINUS_MINUS)) {
@@ -17897,7 +17699,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/RuntimeInlin
   var SourceFile = System.get("../src/syntax/SourceFile.js").SourceFile;
   var VAR = System.get("../src/syntax/TokenType.js").VAR;
   var assert = System.get("../src/util/assert.js").assert;
-  var $__67 = System.get("../src/codegeneration/ParseTreeFactory.js"), createIdentifierExpression = $__67.createIdentifierExpression, createVariableDeclaration = $__67.createVariableDeclaration, createVariableDeclarationList = $__67.createVariableDeclarationList, createVariableStatement = $__67.createVariableStatement;
+  var $__71 = System.get("../src/codegeneration/ParseTreeFactory.js"), createIdentifierExpression = $__71.createIdentifierExpression, createVariableDeclaration = $__71.createVariableDeclaration, createVariableDeclarationList = $__71.createVariableDeclarationList, createVariableStatement = $__71.createVariableStatement;
   var prependStatements = System.get("../src/codegeneration/PrependStatements.js").prependStatements;
   var shared = {
     TypeError: "TypeError",

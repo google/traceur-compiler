@@ -17,7 +17,6 @@ import {
   ELEMENT_GET,
   ELEMENT_HAS,
   ELEMENT_SET,
-  RUNTIME,
   TRACEUR_RUNTIME
 } from '../syntax/PredefinedName';
 import {MEMBER_LOOKUP_EXPRESSION} from '../syntax/trees/ParseTreeType';

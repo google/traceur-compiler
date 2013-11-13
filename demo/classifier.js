@@ -121,9 +121,6 @@ var classifyTraceurTokens = function() {};
           switch (token.value) {
             case PredefinedName.GET:
             case PredefinedName.MODULE:
-            case PredefinedName.MODULE:
-            case PredefinedName.REQUIRE:
-            case PredefinedName.REQUIRES:
             case PredefinedName.SET:
               c = Classification.CONTEXTUAL;
               break;

@@ -19,7 +19,6 @@ import {
   GET,
   OF,
   MODULE,
-  REQUIRES,
   SET
 } from '../syntax/PredefinedName';
 import {Token} from '../syntax/Token';
@@ -1204,7 +1203,6 @@ export class ParseTreeWriter extends ParseTreeVisitor {
       case GET:
       case OF:
       case MODULE:
-      case REQUIRES:
       case SET:
         return true;
     }
@@ -1306,7 +1304,6 @@ export class ParseTreeWriter extends ParseTreeVisitor {
       case FROM:
       case OF:
       case MODULE:
-      case REQUIRES:
         return PRETTY_PRINT || this.isIdentifierNameOrNumber_(token);
     }
 

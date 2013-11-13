@@ -17,10 +17,7 @@ import {EndState} from './EndState';
 import {
   ACTION_SEND,
   ACTION_THROW,
-  ADD_ITERATOR,
-  MOVE_NEXT,
   RESULT,
-  RUNTIME,
   STORED_EXCEPTION,
   TRACEUR_RUNTIME,
   YIELD_RETURN

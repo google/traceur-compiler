@@ -68,7 +68,7 @@ export class WebPageProject extends Project {
 
   /**
    * Invent a name for inline script tags:
-   *   @return {string} the page URL, drop .html, add eg "_1.js"
+   * @return {string} the page URL, drop .html, add eg "_1.js"
    */
   nextInlineScriptName_() {
     this.numberInlined_ += 1;
