@@ -1939,20 +1939,11 @@ export class Parser {
     while (this.peekPropertyDefinition_(this.peekType_())) {
       var propertyDefinition = this.parsePropertyDefinition();
       result.push(propertyDefinition);
-      if (propertyDefinition.type === PROPERTY_NAME_ASSIGNMENT) {
-        // Comma is required after name assignment.
-        if (!this.eatIf_(COMMA))
-          break;
-      } else if (!this.eatPropertyOptionalComma_()) {
+      if (!this.eatIf_(COMMA))
         break;
-      }
     }
     this.eat_(CLOSE_CURLY);
     return new ObjectLiteralExpression(this.getTreeLocation_(start), result);
-  }
-
-  eatPropertyOptionalComma_() {
-    return this.eatIf_(COMMA) || parseOptions.propertyOptionalComma;
   }
 
   /**
