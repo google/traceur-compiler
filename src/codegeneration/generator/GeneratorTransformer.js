@@ -40,7 +40,7 @@ import {
   createExpressionStatement,
   createFalseLiteral,
   createFunctionBody,
-  createIdentifierExpression,
+  createIdentifierExpression as id,
   createMemberExpression,
   createNumberLiteral,
   createObjectLiteralExpression,
@@ -52,6 +52,7 @@ import {
   createUndefinedExpression,
   createVariableStatement
 } from '../ParseTreeFactory';
+import {transformOptions} from '../../options';
 
 // Generator states. Terminology roughly matches that of
 //   http://wiki.ecmascript.org/doku.php?id=harmony:generators
@@ -62,6 +63,61 @@ var ST_EXECUTING = 1;
 var ST_SUSPENDED = 2;
 var ST_CLOSED = 3;
 var GSTATE = 'GState';
+
+var GENERATOR_WRAP_CODE = `function(generator) {
+  return %addIterator({
+    next: function(x) {
+      switch (generator.GState) {
+        case ${ST_EXECUTING}:
+          throw new Error('"next" on executing generator');
+        case ${ST_CLOSED}:
+          throw new Error('"next" on closed generator');
+        case ${ST_NEWBORN}:
+          if (x !== undefined) {
+            throw new TypeError('Sent value to newborn generator');
+          }
+          // fall through
+        case ${ST_SUSPENDED}:
+          generator.GState = ${ST_EXECUTING};
+          if (generator.moveNext(x, ${ACTION_SEND})) {
+            generator.GState = ${ST_SUSPENDED};
+            return {value: generator.current, done: false};
+          }
+          generator.GState = ${ST_CLOSED};
+          return {value: generator.yieldReturn, done: true};
+      }
+    },
+
+    'throw': function(x) {
+      switch (generator.GState) {
+        case ${ST_EXECUTING}:
+          throw new Error('"throw" on executing generator');
+        case ${ST_CLOSED}:
+          throw new Error('"throw" on closed generator');
+        case ${ST_NEWBORN}:
+          generator.GState = ${ST_CLOSED};
+          throw x;
+        case ${ST_SUSPENDED}:
+          generator.GState = ${ST_EXECUTING};
+          if (generator.moveNext(x, ${ACTION_THROW})) {
+            generator.GState = ${ST_SUSPENDED};
+            return {value: generator.current, done: false};
+          }
+          generator.GState = ${ST_CLOSED};
+          return {value: generator.yieldReturn, done: true};
+      }
+    }
+  });
+}`;
+
+var ADD_ITERATOR_CODE = `function(object) {
+  object[%iterator] = %returnThis;
+  return %defineProperty(object, %iterator, {enumerable: false});
+}`;
+
+var ADD_ITERATOR_RUNTIME_CODE = `function(object) {
+  return ${TRACEUR_RUNTIME}.addIterator(object);
+}`;
 
 /**
  * Desugars generator function bodies. Generator function bodies contain
@@ -234,57 +290,17 @@ export class GeneratorTransformer extends CPSTransformer {
 
     // TODO(arv): The result should be an instance of Generator.
     // https://code.google.com/p/traceur-compiler/issues/detail?id=109
-    var generatorWrap = this.runtimeInliner_.get('generatorWrap',
-        `
-        function (generator) {
-          return ${TRACEUR_RUNTIME}.addIterator({
-            next: function(x) {
-              switch (generator.GState) {
-                case ${ST_EXECUTING}:
-                  throw new Error('"next" on executing generator');
-                case ${ST_CLOSED}:
-                  throw new Error('"next" on closed generator');
-                case ${ST_NEWBORN}:
-                  if (x !== undefined) {
-                    throw new TypeError('Sent value to newborn generator');
-                  }
-                  // fall through
-                case ${ST_SUSPENDED}:
-                  generator.GState = ${ST_EXECUTING};
-                  if (generator.moveNext(x, ${ACTION_SEND})) {
-                    generator.GState = ${ST_SUSPENDED};
-                    return {value: generator.current, done: false};
-                  }
-                  generator.GState = ${ST_CLOSED};
-                  return {value: generator.yieldReturn, done: true};
-              }
-            },
-
-            'throw': function(x) {
-              switch (generator.GState) {
-                case ${ST_EXECUTING}:
-                  throw new Error('"throw" on executing generator');
-                case ${ST_CLOSED}:
-                  throw new Error('"throw" on closed generator');
-                case ${ST_NEWBORN}:
-                  generator.GState = ${ST_CLOSED};
-                  throw x;
-                case ${ST_SUSPENDED}:
-                  generator.GState = ${ST_EXECUTING};
-                  if (generator.moveNext(x, ${ACTION_THROW})) {
-                    generator.GState = ${ST_SUSPENDED};
-                    return {value: generator.current, done: false};
-                  }
-                  generator.GState = ${ST_CLOSED};
-                  return {value: generator.yieldReturn, done: true};
-              }
-            }
-          });
-        }`);
-    var id = createIdentifierExpression;
-    statements.push(parseStatement `return ${generatorWrap}(${id(G)});`);
+    statements.push(parseStatement `return ${this.generatorWrap_}(${id(G)});`);
 
     return createFunctionBody(statements);
+  }
+
+  get generatorWrap_() {
+    if (transformOptions.privateNames)
+      this.runtimeInliner_.register('addIterator', ADD_ITERATOR_RUNTIME_CODE);
+    else
+      this.runtimeInliner_.register('addIterator', ADD_ITERATOR_CODE);
+    return this.runtimeInliner_.get('generatorWrap', GENERATOR_WRAP_CODE);
   }
 
   /**
@@ -298,7 +314,7 @@ export class GeneratorTransformer extends CPSTransformer {
             createMemberExpression(createThisExpression(), GSTATE),
             createNumberLiteral(ST_CLOSED)),
         createAssignStateStatement(machineEndState),
-        createThrowStatement(createIdentifierExpression(STORED_EXCEPTION)));
+        createThrowStatement(id(STORED_EXCEPTION)));
   }
 
   /**
@@ -307,7 +323,7 @@ export class GeneratorTransformer extends CPSTransformer {
    */
   machineRethrowStatements(machineEndState) {
     return createStatementList(
-        createThrowStatement(createIdentifierExpression(STORED_EXCEPTION)));
+        createThrowStatement(id(STORED_EXCEPTION)));
   }
 
   /**
