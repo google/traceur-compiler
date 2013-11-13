@@ -1,7 +1,6 @@
 Traceur Compiler is an open source project. It is licensed using the
 [Apache Software License 2.0](http://www.apache.org/licenses/LICENSE-2.0.html).
-We do accept pull request but before you send a pull request please ensure that
-you do all the following things:
+We appreciate pull requests, here are our guidelines:
 
 1. File a bug at https://github.com/google/traceur-compiler/issues (if there
 isn’t one already). If your patch is going to be large it might be a good idea
@@ -17,5 +16,9 @@ agreement, either for an
 [http://code.google.com/legal/corporate-cla-v1.0.html corporation], before a
 patch can be accepted.
 1. Add an entry to the `AUTHORS` file with your name and email.
+2. Please use the google javascript style, http://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml
 1. We will squash all the commits together before pushing. The pull request
-message body will be used as the commit message. 
+message body will be used as the commit message.
+
+Committers will use 'pulley' created from https://github.com/arv/pulley/tree/codereview-tweaks
+(Build by using git clone / grunt / sudo npm install -g .) 
