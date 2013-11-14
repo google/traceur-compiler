@@ -375,7 +375,7 @@ class InternalLoader {
     var requireVisitor = new ModuleRequireVisitor(this.reporter);
     requireVisitor.visit(codeUnit.tree);
     var baseUrl = codeUnit.url;
-    codeUnit.dependencies = requireVisitor.requireUrls.map((url) => {
+    codeUnit.dependencies = requireVisitor.requireUrls.sort().map((url) => {
       url = System.normalResolve(url, baseUrl);
       return this.getCodeUnit(url, 'module');
     });
@@ -455,7 +455,10 @@ class InternalLoader {
   }
 
   transform() {
-    var dependencies = this.cache.values();
+    this.transformDependencies(this.cache.values());
+  }
+
+  transformDependencies(dependencies) {
     for (var i = 0; i < dependencies.length; i++) {
       var codeUnit = dependencies[i];
       if (codeUnit.state >= TRANSFORMED) {
@@ -468,6 +471,8 @@ class InternalLoader {
   }
 
   transformCodeUnit(codeUnit) {
+    this.transformDependencies(codeUnit.dependencies); // depth first
+
     var results = codeUnit.transform();
     return results.get(codeUnit.file);
   }
