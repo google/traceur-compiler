@@ -375,7 +375,7 @@ class InternalLoader {
     var requireVisitor = new ModuleRequireVisitor(this.reporter);
     requireVisitor.visit(codeUnit.tree);
     var baseUrl = codeUnit.url;
-    codeUnit.dependencies = requireVisitor.requireUrls.map((url) => {
+    codeUnit.dependencies = requireVisitor.requireUrls.sort().map((url) => {
       url = System.normalResolve(url, baseUrl);
       return this.getCodeUnit(url, 'module');
     });
