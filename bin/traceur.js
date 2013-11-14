@@ -374,12 +374,8 @@
       return this.func.call(this.self);
     }};
   var modules = {
-    get'@name'() {
-      return NameModule;
-    },
-    get'@iter'() {
-      return IterModule;
-    },
+    '@name': NameModule,
+    '@iter': IterModule,
     '@traceur/module': {
       PendingModule: PendingModule,
       registerModule: function(url, func, self) {
