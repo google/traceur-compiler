@@ -62,10 +62,8 @@ import {
   parseOptions,
   options
 } from '../options';
-module TokenType from './TokenType';
-module ParseTrees from './trees/ParseTrees';
 
-var {
+import {
   AMPERSAND,
   AMPERSAND_EQUAL,
   AND,
@@ -174,9 +172,9 @@ var {
   WHILE,
   WITH,
   YIELD
-} = TokenType;
+} from './TokenType';
 
-var {
+import {
   ArgumentList,
   ArrayComprehension,
   ArrayLiteralExpression,
@@ -235,7 +233,6 @@ var {
   ModuleDeclaration,
   ModuleSpecifier,
   NamedExport,
-  NameStatement,
   NewExpression,
   ObjectLiteralExpression,
   ObjectPattern,
@@ -269,7 +266,7 @@ var {
   WhileStatement,
   WithStatement,
   YieldExpression
-} = ParseTrees;
+}  from './trees/ParseTrees';
 
 /**
  * Differentiates between parsing for 'In' vs. 'NoIn'

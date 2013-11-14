@@ -1,13 +1,9 @@
-module ParseTrees from '../syntax/trees/ParseTrees';
-
-var {
+import {
   ArgumentList,
   ArrayComprehension,
   ArrayLiteralExpression,
   ArrayPattern,
   ArrowFunctionExpression,
-  AtNameDeclaration,
-  AtNameExpression,
   AwaitStatement,
   BinaryOperator,
   BindingElement,
@@ -61,7 +57,6 @@ var {
   ModuleDeclaration,
   ModuleSpecifier,
   NamedExport,
-  NameStatement,
   NewExpression,
   ObjectLiteralExpression,
   ObjectPattern,
@@ -95,7 +90,7 @@ var {
   WhileStatement,
   WithStatement,
   YieldExpression
-} = ParseTrees;
+} from '../syntax/trees/ParseTrees';
 
 export class ParseTreeTransformer {
   transformAny(tree) {
