@@ -23,9 +23,8 @@ import {
 } from '../syntax/PredefinedName';
 import {Token} from '../syntax/Token';
 import {getKeywordType} from '../syntax/Keywords';
-module TokenType from '../syntax/TokenType';
 
-var {
+import {
   AMPERSAND,
   AMPERSAND_EQUAL,
   AND,
@@ -134,7 +133,7 @@ var {
   WHILE,
   WITH,
   YIELD
-} = TokenType;
+} from '../syntax/TokenType';
 
 // constants
 var NEW_LINE = '\n';

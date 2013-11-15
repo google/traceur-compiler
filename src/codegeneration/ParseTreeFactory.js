@@ -41,9 +41,8 @@ import {
   VOID
 } from '../syntax/TokenType';
 import {assert} from '../util/assert';
-module ParseTrees from '../syntax/trees/ParseTrees';
 
-var {
+import {
   ArgumentList,
   ArrayComprehension,
   ArrayLiteralExpression,
@@ -135,7 +134,7 @@ var {
   WhileStatement,
   WithStatement,
   YieldExpression
-} = ParseTrees;
+} from '../syntax/trees/ParseTrees';
 
 // Helpers so we can use these on Arguments objects.
 var slice = Array.prototype.slice.call.bind(Array.prototype.slice);
