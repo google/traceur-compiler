@@ -66,7 +66,7 @@ import {
   COMPUTED_PROPERTY_NAME,
   DEFAULT_CLAUSE,
   EXPORT_DECLARATION,
-  NAMED_EXPORT,
+  EXPORT_DEFAULT,
   EXPORT_SPECIFIER,
   EXPORT_SPECIFIER_SET,
   EXPORT_STAR,
@@ -81,6 +81,7 @@ import {
   MODULE_DECLARATION,
   MODULE_DECLARATION,
   MODULE_SPECIFIER,
+  NAMED_EXPORT,
   OBJECT_PATTERN,
   OBJECT_PATTERN_FIELD,
   PROPERTY_METHOD_ASSIGNMENT,
@@ -425,7 +426,8 @@ export class ParseTreeValidator extends ParseTreeVisitor {
         declType == FUNCTION_DECLARATION ||
         declType == MODULE_DECLARATION ||
         declType == CLASS_DECLARATION ||
-        declType == NAMED_EXPORT,
+        declType == NAMED_EXPORT ||
+        declType == EXPORT_DEFAULT,
         tree.declaration,
         'expected valid export tree');
   }

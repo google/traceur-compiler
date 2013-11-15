@@ -295,6 +295,14 @@
       "ParseTree"
     ]
   },
+  "ExportDefault": {
+    "location": [
+      "SourceRange"
+    ],
+    "expression": [
+      "ParseTree"
+    ]
+  },
   "ExportSpecifier": {
     "location": [
       "SourceRange"
@@ -478,11 +486,19 @@
       "ParseTree"
     ]
   },
+  "ImportedBinding": {
+    "location": [
+      "SourceRange"
+    ],
+    "binding": [
+      "ParseTree"
+    ]
+  },
   "ImportDeclaration": {
     "location": [
       "SourceRange"
     ],
-    "importSpecifierSet": [
+    "importClause": [
       "ParseTree"
     ],
     "moduleSpecifier": [

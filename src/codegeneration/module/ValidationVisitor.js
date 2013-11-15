@@ -19,9 +19,12 @@ function getFriendlyName(module) {
 }
 
 /**
- * Visits a parse tree and validates all module expressions.
+ * Validates that symbols are exported when we extract them.
  *
- *   module m from n, o from p.q.r
+ *   export {a as b} from 'm'
+ *   import {c as d} from 'n'
+ *
+ * validates that 'm' exports a and that 'n' exports c.
  */
 export class ValidationVisitor extends ModuleVisitor {
 
@@ -50,7 +53,6 @@ export class ValidationVisitor extends ModuleVisitor {
     // Ensures that the module expression exports the names we want to
     // re-export.
     if (tree.moduleSpecifier) {
-      this.visitAny(tree.moduleSpecifier);
       var module = this.getModuleForModuleSpecifier(tree.moduleSpecifier,
           true /* reportErrors */);
       this.visitAndValidate_(module, tree.specifierSet);
@@ -60,11 +62,8 @@ export class ValidationVisitor extends ModuleVisitor {
   }
 
   visitExportSpecifier(tree) {
+    // export {a as b} from 'm'
     this.checkExport_(tree, tree.lhs.value);
-  }
-
-  visitIdentifierExpression(tree) {
-    this.checkExport_(tree, tree.identifierToken.value);
   }
 
   visitModuleSpecifier(tree) {
@@ -74,10 +73,14 @@ export class ValidationVisitor extends ModuleVisitor {
   visitImportDeclaration(tree) {
     var module = this.getModuleForModuleSpecifier(tree.moduleSpecifier,
         true /* reportErrors */);
-    this.visitAndValidate_(module, tree.importSpecifierSet);
+    this.visitAndValidate_(module, tree.importClause);
   }
 
   visitImportSpecifier(tree) {
     this.checkExport_(tree, tree.lhs.value);
+  }
+
+  visitImportedBinding(tree) {
+    this.checkExport_(tree, 'default');
   }
 }
