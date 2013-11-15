@@ -27,7 +27,7 @@ TESTS = \
 	test/unit/system/ \
 	test/unit/util/
 
-build: bin/traceur.js
+build: bin/traceur.js wiki
 
 min: bin/traceur.min.js
 
@@ -35,7 +35,7 @@ min: bin/traceur.min.js
 #   npm install uglify-js -g
 ugly: bin/traceur.ugly.js
 
-test: build test/test-list.js wiki
+test: build test/test-list.js
 	node_modules/.bin/mocha --ignore-leaks --ui tdd --require test/node-env.js $(TESTS)
 
 test-list: test/test-list.js
