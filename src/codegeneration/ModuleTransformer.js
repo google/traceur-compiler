@@ -23,6 +23,7 @@ import {
 } from '../syntax/trees/ParseTrees';
 import {TempVarTransformer} from './TempVarTransformer';
 import {
+  EXPORT_DEFAULT,
   EXPORT_SPECIFIER,
   EXPORT_STAR,
   MODULE,
@@ -36,6 +37,7 @@ import {assert} from '../util/assert';
 import {
   createBindingIdentifier,
   createIdentifierExpression,
+  createIdentifierToken,
   createMemberExpression,
   createObjectLiteralExpression,
   createUseStrictDirective,
@@ -59,6 +61,10 @@ function getGetterExport(transformer, symbol) {
   var tree = symbol.tree;
   var returnExpression;
   switch (tree.type) {
+    case EXPORT_DEFAULT:
+      returnExpression = createIdentifierExpression('$__default');
+      break;
+
     case EXPORT_SPECIFIER:
       var moduleSpecifier = symbol.relatedTree;
       if (moduleSpecifier) {
@@ -144,6 +150,10 @@ export class ModuleTransformer extends TempVarTransformer {
     return this.transformAny(tree.declaration);
   }
 
+  transformExportDefault(tree) {
+    return parseStatement `var $__default = ${tree.expression}`;
+  }
+
   transformNamedExport(tree) {
     var moduleSpecifier = tree.moduleSpecifier;
     if (moduleSpecifier) {
@@ -183,11 +193,22 @@ export class ModuleTransformer extends TempVarTransformer {
     return createVariableStatement(VAR, tree.identifier, initializer);
   }
 
+  transformImportedBinding(tree) {
+    var bindingElement = new BindingElement(tree.location, tree.binding, null);
+    var name = new LiteralPropertyName(null, createIdentifierToken('default'));
+    return new ObjectPattern(null,
+        [new ObjectPatternField(null, name, bindingElement)]);
+  }
+
   transformImportDeclaration(tree) {
     // import {id} from 'module';
     //  =>
     // var {id} = moduleInstance
-    var binding = this.transformAny(tree.importSpecifierSet);
+    //
+    // import id from 'module';
+    //  =>
+    // var {default: id} = moduleInstance
+    var binding = this.transformAny(tree.importClause);
     var initializer = this.transformAny(tree.moduleSpecifier);
 
     return createVariableStatement(VAR, binding, initializer);

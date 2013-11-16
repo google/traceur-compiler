@@ -473,6 +473,12 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.visitAny(tree.declaration);
   }
 
+  visitExportDefault(tree) {
+    this.write_(EXPORT);
+    this.write_(DEFAULT);
+    this.visitAny(tree.expression);
+  }
+
   /**
    * @param {NamedExport} tree
    */
@@ -669,7 +675,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitImportDeclaration(tree) {
     this.write_(IMPORT);
-    this.visitAny(tree.importSpecifierSet);
+    this.visitAny(tree.importClause);
     if (tree.moduleSpecifier) {
       this.write_(FROM);
       this.visitAny(tree.moduleSpecifier);

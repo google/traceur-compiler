@@ -66,6 +66,10 @@ export class ExportVisitor extends ModuleVisitor {
     this.relatedTree_ = null;
   }
 
+  visitExportDefault(tree) {
+    this.addExport_('default', tree);
+  }
+
   visitExportSpecifier(tree) {
     this.addExport_((tree.rhs || tree.lhs).value, tree);
   }
@@ -79,10 +83,6 @@ export class ExportVisitor extends ModuleVisitor {
 
   visitFunctionDeclaration(tree) {
     this.addExport_(tree.name.identifierToken.value, tree);
-  }
-
-  visitIdentifierExpression(tree) {
-    this.addExport_(tree.identifierToken.value, tree);
   }
 
   visitModuleDeclaration(tree) {
