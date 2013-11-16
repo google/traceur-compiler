@@ -205,6 +205,7 @@ import {
   DoWhileStatement,
   EmptyStatement,
   ExportDeclaration,
+  ExportDefault,
   ExportSpecifier,
   ExportSpecifierSet,
   ExportStar,
@@ -224,6 +225,7 @@ import {
   ImportDeclaration,
   ImportSpecifier,
   ImportSpecifierSet,
+  ImportedBinding,
   LabelledStatement,
   LiteralExpression,
   LiteralPropertyName,
@@ -469,35 +471,35 @@ export class Parser {
   parseImportDeclaration_() {
     var start = this.getTreeStartLocation_();
     this.eat_(IMPORT);
-    var importSpecifierSet = this.parseImportSpecifierSet_();
+    var importClause = this.parseImportClause_();
     this.eatId_(FROM);
     var moduleSpecifier = this.parseModuleSpecifier_();
     this.eatPossibleImplicitSemiColon_();
     return new ImportDeclaration(this.getTreeLocation_(start),
-        importSpecifierSet, moduleSpecifier);
+        importClause, moduleSpecifier);
   }
 
-  //ImportSpecifierSet :
-  //  "{" (ImportSpecifier ("," ImportSpecifier)*)? ","? "}"
-  /**
-   * @param {SourcePosition} start
-   * @param {Array.<IdentifierToken>} qualifiedPath
-   * @return {ParseTree|Token|Array.<Token>}
-   * @private
-   */
-  parseImportSpecifierSet_() {
+  // https://bugs.ecmascript.org/show_bug.cgi?id=2287
+  // ImportClause :
+  //   ImportedBinding
+  //   NamedImports
+
+  parseImportClause_() {
     var start = this.getTreeStartLocation_();
-    this.eat_(OPEN_CURLY);
+    if (this.eatIf_(OPEN_CURLY)) {
+      var specifiers = [this.parseImportSpecifier_()];
+      while (this.eatIf_(COMMA)) {
+        if (this.peek_(CLOSE_CURLY))
+          break;
+        specifiers.push(this.parseImportSpecifier_());
+      }
+      this.eat_(CLOSE_CURLY);
 
-    var specifiers = [this.parseImportSpecifier_()];
-    while (this.eatIf_(COMMA)) {
-      if (this.peek_(CLOSE_CURLY))
-        break;
-      specifiers.push(this.parseImportSpecifier_());
+      return new ImportSpecifierSet(this.getTreeLocation_(start), specifiers);
     }
-    this.eat_(CLOSE_CURLY);
 
-    return new ImportSpecifierSet(this.getTreeLocation_(start), specifiers);
+    var binding = this.parseBindingIdentifier_();
+    return new ImportedBinding(this.getTreeLocation_(start), binding);
   }
 
   // ImportSpecifier ::= IdentifierName ("as" Identifier)?
@@ -548,6 +550,9 @@ export class Parser {
       case CLASS:
         exportTree = this.parseClassDeclaration_();
         break;
+      case DEFAULT:
+        exportTree = this.parseExportDefault_();
+        break;
       case OPEN_CURLY:
       case STAR:
         exportTree = this.parseNamedExport_();
@@ -556,6 +561,15 @@ export class Parser {
         return this.parseUnexpectedToken_(type);
     }
     return new ExportDeclaration(this.getTreeLocation_(start), exportTree);
+  }
+
+  parseExportDefault_() {
+    // export default AssignmentExpression ;
+    var start = this.getTreeStartLocation_();
+    this.eat_(DEFAULT);
+    var expression = this.parseAssignmentExpression();
+    this.eatPossibleImplicitSemiColon_();
+    return new ExportDefault(this.getTreeLocation_(start), expression);
   }
 
   parseNamedExport_() {
