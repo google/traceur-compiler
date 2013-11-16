@@ -29,8 +29,12 @@ import {prependStatements} from './PrependStatements';
 
 // Some helper functions that other runtime functions may depend on.
 var shared = {
-  TypeError: `TypeError`,
+  Function: `Function`,
+  FunctionPrototype: `%Function.prototype`,
   Object: `Object`,
+  ObjectPrototype: `%Object.prototype`,
+  TypeError: `TypeError`,
+  defineProperties: `%Object.defineProperties`,
   defineProperty: `%Object.defineProperty`,
   getOwnPropertyDescriptor: `%Object.getOwnPropertyDescriptor`,
   getOwnPropertyNames: `%Object.getOwnPropertyNames`,
