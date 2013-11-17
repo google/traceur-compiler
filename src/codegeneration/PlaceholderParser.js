@@ -14,7 +14,6 @@
 
 import {ArrayMap} from '../util/ArrayMap';
 import {
-  ANON_BLOCK,
   BLOCK,
   EXPRESSION_STATEMENT,
   IDENTIFIER_EXPRESSION
@@ -312,7 +311,6 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
       if (transformedStatement.type === BLOCK)
         return createFunctionBody(transformedStatement.statements);
     }
-
     return super.transformFunctionBody(tree);
   }
 

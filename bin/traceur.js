@@ -13264,7 +13264,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/Comprehensio
 System.get('@traceur/module').registerModule("../src/codegeneration/PlaceholderParser.js", function() {
   "use strict";
   var ArrayMap = System.get("../src/util/ArrayMap.js").ArrayMap;
-  var $__97 = System.get("../src/syntax/trees/ParseTreeType.js"), ANON_BLOCK = $__97.ANON_BLOCK, BLOCK = $__97.BLOCK, EXPRESSION_STATEMENT = $__97.EXPRESSION_STATEMENT, IDENTIFIER_EXPRESSION = $__97.IDENTIFIER_EXPRESSION;
+  var $__97 = System.get("../src/syntax/trees/ParseTreeType.js"), BLOCK = $__97.BLOCK, EXPRESSION_STATEMENT = $__97.EXPRESSION_STATEMENT, IDENTIFIER_EXPRESSION = $__97.IDENTIFIER_EXPRESSION;
   var IdentifierToken = System.get("../src/syntax/IdentifierToken.js").IdentifierToken;
   var LiteralToken = System.get("../src/syntax/LiteralToken.js").LiteralToken;
   var MutedErrorReporter = System.get("../src/util/MutedErrorReporter.js").MutedErrorReporter;
