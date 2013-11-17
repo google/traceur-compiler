@@ -15,7 +15,7 @@
 import {MutedErrorReporter} from '../util/MutedErrorReporter';
 import {ParseTreeTransformer} from './ParseTreeTransformer';
 import {Parser} from '../syntax/Parser';
-import {Script} from '../syntax/trees/ParseTrees';
+import {Script, Module} from '../syntax/trees/ParseTrees';
 import {SourceFile} from '../syntax/SourceFile';
 import {VAR} from '../syntax/TokenType';
 import {assert} from '../util/assert';
@@ -109,6 +109,32 @@ export class RuntimeInliner extends ParseTreeTransformer {
     var scriptItemList = prependStatements(
         tree.scriptItemList, variableStatement);
     return new Script(tree.location, scriptItemList);
+  }
+
+  /**
+   *
+   *
+   *
+   */
+  transformModule(tree) {
+    var names = Object.keys(this.map_);
+    if (!names.length)
+      return tree;
+
+    var vars = names.filter((name) => !this.map_[name].inserted).map((name) => {
+      var item = this.map_[name];
+      item.inserted = true;
+      return createVariableDeclaration(item.uid, item.expression);
+    });
+    if (!vars.length)
+      return tree;
+
+    var variableStatement = createVariableStatement(
+        createVariableDeclarationList(VAR, vars));
+
+    var scriptItemList = prependStatements(
+        tree.scriptItemList, variableStatement);
+    return new Module(tree.location, scriptItemList);
   }
 
   /**

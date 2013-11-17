@@ -11402,7 +11402,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/RuntimeInlin
   var MutedErrorReporter = System.get("../src/util/MutedErrorReporter.js").MutedErrorReporter;
   var ParseTreeTransformer = System.get("../src/codegeneration/ParseTreeTransformer.js").ParseTreeTransformer;
   var Parser = System.get("../src/syntax/Parser.js").Parser;
-  var Script = System.get("../src/syntax/trees/ParseTrees.js").Script;
+  var $__61 = System.get("../src/syntax/trees/ParseTrees.js"), Script = $__61.Script, Module = $__61.Module;
   var SourceFile = System.get("../src/syntax/SourceFile.js").SourceFile;
   var VAR = System.get("../src/syntax/TokenType.js").VAR;
   var assert = System.get("../src/util/assert.js").assert;
@@ -11449,6 +11449,21 @@ System.get('@traceur/module').registerModule("../src/codegeneration/RuntimeInlin
         var variableStatement = createVariableStatement(createVariableDeclarationList(VAR, vars));
         var scriptItemList = prependStatements(tree.scriptItemList, variableStatement);
         return new Script(tree.location, scriptItemList);
+      },
+      transformModule: function(tree) {
+        var names = Object.keys(this.map_);
+        if (!names.length) return tree;
+        var vars = names.filter((function(name) {
+          return !this.map_[name].inserted;
+        }).bind(this)).map((function(name) {
+          var item = this.map_[name];
+          item.inserted = true;
+          return createVariableDeclaration(item.uid, item.expression);
+        }).bind(this));
+        if (!vars.length) return tree;
+        var variableStatement = createVariableStatement(createVariableDeclarationList(VAR, vars));
+        var scriptItemList = prependStatements(tree.scriptItemList, variableStatement);
+        return new Module(tree.location, scriptItemList);
       },
       register: function(name, source) {
         if (name in this.map_) return;
