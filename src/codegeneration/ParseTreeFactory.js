@@ -54,6 +54,7 @@ import {
   BindingIdentifier,
   Block,
   BreakStatement,
+  CallDecoratorExpression,
   CallExpression,
   CascadeExpression,
   CaseClause,
@@ -1149,4 +1150,22 @@ export function createAssignStateStatement(state) {
   return createAssignmentStatement(
       createIdentifierExpression(STATE),
       createNumberLiteral(state));
+}
+
+/**
+ * @param {ObjectLiteralExpression} context
+ * @param {DecoratorExpression} decorator
+ * @return {DecoratorStatement}
+ */
+export function createCallDecoratorExpression(context, decorator) {
+  return new CallDecoratorExpression(null, context, decorator);
+}
+
+/**
+ * @param {ObjectLiteralExpression} context
+ * @param {DecoratorExpression} decorator
+ * @return {DecoratorStatement}
+ */
+export function createCallDecoratorStatement(context, decorator) {
+  return createExpressionStatement(createCallDecoratorExpression(context, decorator));
 }

@@ -68,6 +68,7 @@ import {
   AMPERSAND_EQUAL,
   AND,
   ARROW,
+  AT,
   AWAIT,
   BACK_QUOTE,
   BANG,
@@ -201,6 +202,9 @@ import {
   CoverFormals,
   CoverInitialisedName,
   DebuggerStatement,
+  DecoratedClassElement,
+  DecoratedDeclaration,
+  DecoratorExpression,
   DefaultClause,
   DoWhileStatement,
   EmptyStatement,
@@ -712,7 +716,8 @@ export class Parser {
   peekClassElement_(type) {
     // PropertyName covers get, set and static too.
     return this.peekPropertyName_(type) ||
-        type === STAR && parseOptions.generators;
+        type === STAR && parseOptions.generators ||
+        type === AT && parseOptions.decorators;
   }
 
   // PropertyName :
@@ -777,6 +782,10 @@ export class Parser {
         return this.parseFunctionDeclaration_();
 
       // Rest are just alphabetical order.
+      case AT:
+        if (parseOptions.decorators)
+          return this.parseDecoratorDeclarations_();
+        break;
       case AWAIT:
         if (parseOptions.deferredFunctions)
           return this.parseAwaitStatement_();
@@ -2058,6 +2067,9 @@ export class Parser {
 
       case STAR:
         return this.parseGeneratorMethod_(start, isStatic);
+      
+      case AT:
+        return this.parseDecoratedClassElement_();
 
       default:
         return this.parseGetSetOrMethod_(start, isStatic);
@@ -3519,6 +3531,70 @@ export class Parser {
       memberName);
     }
     return typeName;
+  }
+
+  /**
+   * Decorators extension
+   *
+   * @return {ParseTree}
+   * @private
+   */
+  parseDecoratedClassElement_(start) {
+    return new DecoratedClassElement(start, this.collectDecorators_(), this.parseClassElement_());
+  }
+
+  /**
+   * Decorators extension
+   *
+   * @return {ParseTree}
+   * @private
+   */
+  parseDecoratorDeclarations_() {
+    var start = this.getTreeStartLocation_();
+    var decorators = this.collectDecorators_();
+    var type;
+    var declaration;
+
+    
+    type = this.peekType_();
+    if (this.peekDecoratedDeclaration_(type)) {
+      switch (type) {
+        case CLASS:
+          declaration = this.parseClassDeclaration_();
+          break;
+        case EXPORT:
+          declaration = this.parseExportDeclaration_();
+          break;
+        case FUNCTION:
+          declaration = this.parseFunctionDeclaration_();
+          break;
+      }
+
+      if (declaration) {
+        return new DecoratedDeclaration(this.getTreeLocation_(start), decorators, declaration);
+      }
+    }
+
+    return this.parseSyntaxError_('Unsupported decorated expression');
+  }
+
+  collectDecorators_() {
+    var decorators = [];
+    while (this.eatIf_(AT)) {
+      decorators.push(this.parseDecoratorExpression_());
+    } 
+    return decorators;
+  }
+
+  peekDecoratedDeclaration_(type) {
+    if (type === EXPORT) {
+      return this.peek_(CLASS, 1) || this.peek(FUNCTION, 1);
+    }
+    return type === CLASS || type === FUNCTION;
+  }
+
+  parseDecoratorExpression_() {
+    return new DecoratorExpression(this.getTreeStartLocation_(), this.parseExpression());
   }
 
   /**

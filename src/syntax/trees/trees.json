@@ -107,6 +107,17 @@
       "IdentifierToken"
     ]
   },
+  "CallDecoratorExpression": {
+    "location": [
+      "SourceRange"
+    ],
+    "context": [
+      "ObjectLiteralExpression"
+    ],
+    "decorator": [
+      "DecoratorExpression"
+    ]
+  },
   "CallExpression": {
     "location": [
       "SourceRange"
@@ -261,6 +272,38 @@
   "DebuggerStatement": {
     "location": [
       "SourceRange"
+    ]
+  },
+  "DecoratedDeclaration": {
+    "location": [
+      "SourceRange"
+    ],
+    "decorations": [
+      "Array.<DecoratorExpression>"
+    ],
+    "declaration": [
+      "ClassDeclaration", 
+      "ExportDeclaration",
+      "FunctionDeclaration"
+    ]
+  },  
+  "DecoratedClassElement": {
+    "location": [
+      "SourceRange"
+    ],
+    "decorations": [
+      "Array.<DecoratorExpression>"
+    ],
+    "element": [
+      "ParseTree"
+    ]
+  },
+  "DecoratorExpression": {
+    "location": [
+      "SourceRange"
+    ],
+    "expression": [
+      "ExpressionStatement"
     ]
   },
   "DefaultClause": {
