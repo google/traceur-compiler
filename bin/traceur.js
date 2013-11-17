@@ -11711,9 +11711,9 @@ System.get('@traceur/module').registerModule("../src/outputgeneration/ParseTreeW
       this.visitAny(tree.declaration);
     },
     visitExportDefault: function(tree) {
-      this.write_(EXPORT);
       this.write_(DEFAULT);
       this.visitAny(tree.expression);
+      this.write_(SEMI_COLON);
     },
     visitNamedExport: function(tree) {
       this.visitAny(tree.specifierSet);
@@ -11721,6 +11721,7 @@ System.get('@traceur/module').registerModule("../src/outputgeneration/ParseTreeW
         this.write_(FROM);
         this.visitAny(tree.moduleSpecifier);
       }
+      this.write_(SEMI_COLON);
     },
     visitExportSpecifier: function(tree) {
       this.write_(tree.lhs);
@@ -11885,6 +11886,9 @@ System.get('@traceur/module').registerModule("../src/outputgeneration/ParseTreeW
     },
     visitSyntaxErrorTree: function(tree) {
       this.write_('(function() {' + ("throw SyntaxError(" + JSON.stringify(tree.message) + ");") + '})()');
+    },
+    visitModule: function(tree) {
+      this.writelnList_(tree.scriptItemList, null);
     },
     visitModuleSpecifier: function(tree) {
       this.write_(tree.token);
