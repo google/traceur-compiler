@@ -474,9 +474,9 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   visitExportDefault(tree) {
-    this.write_(EXPORT);
     this.write_(DEFAULT);
     this.visitAny(tree.expression);
+    this.write_(SEMI_COLON);
   }
 
   /**
@@ -488,6 +488,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
       this.write_(FROM);
       this.visitAny(tree.moduleSpecifier);
     }
+    this.write_(SEMI_COLON);
   }
 
   /**
@@ -753,6 +754,10 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.write_('(function() {' +
         `throw SyntaxError(${JSON.stringify(tree.message)});` +
         '})()');
+  }
+
+  visitModule(tree) {
+    this.writelnList_(tree.scriptItemList, null);
   }
 
   /**
