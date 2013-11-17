@@ -11515,6 +11515,19 @@ System.get('@traceur/module').registerModule("../src/codegeneration/RuntimeInlin
     var errorReporter = new MutedErrorReporter();
     return new Parser(errorReporter, file).parseAssignmentExpression();
   }
+  function createRuntimeVariableStatement(map) {
+    var names = Object.keys(map);
+    if (!names.length) return;
+    var vars = names.filter((function(name) {
+      return !map[name].inserted;
+    })).map((function(name) {
+      var item = map[name];
+      item.inserted = true;
+      return createVariableDeclaration(item.uid, item.expression);
+    }));
+    if (!vars.length) return;
+    return createVariableStatement(createVariableDeclarationList(VAR, vars));
+  }
   var RuntimeInliner = function($__super) {
     'use strict';
     var $__proto = $__getProtoParent($__super);
@@ -11525,32 +11538,14 @@ System.get('@traceur/module').registerModule("../src/codegeneration/RuntimeInlin
         this.map_ = Object.create(null);
       },
       transformScript: function(tree) {
-        var names = Object.keys(this.map_);
-        if (!names.length) return tree;
-        var vars = names.filter((function(name) {
-          return !this.map_[name].inserted;
-        }).bind(this)).map((function(name) {
-          var item = this.map_[name];
-          item.inserted = true;
-          return createVariableDeclaration(item.uid, item.expression);
-        }).bind(this));
-        if (!vars.length) return tree;
-        var variableStatement = createVariableStatement(createVariableDeclarationList(VAR, vars));
+        var variableStatement = createRuntimeVariableStatement(this.map_);
+        if (!variableStatement) return tree;
         var scriptItemList = prependStatements(tree.scriptItemList, variableStatement);
         return new Script(tree.location, scriptItemList);
       },
       transformModule: function(tree) {
-        var names = Object.keys(this.map_);
-        if (!names.length) return tree;
-        var vars = names.filter((function(name) {
-          return !this.map_[name].inserted;
-        }).bind(this)).map((function(name) {
-          var item = this.map_[name];
-          item.inserted = true;
-          return createVariableDeclaration(item.uid, item.expression);
-        }).bind(this));
-        if (!vars.length) return tree;
-        var variableStatement = createVariableStatement(createVariableDeclarationList(VAR, vars));
+        var variableStatement = createRuntimeVariableStatement(this.map_);
+        if (!variableStatement) return tree;
         var scriptItemList = prependStatements(tree.scriptItemList, variableStatement);
         return new Module(tree.location, scriptItemList);
       },

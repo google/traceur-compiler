@@ -70,6 +70,24 @@ function parse(source, name) {
   return new Parser(errorReporter, file).parseAssignmentExpression();
 }
 
+function createRuntimeVariableStatement(map) {
+  var names = Object.keys(map);
+
+  if (!names.length)
+    return;
+
+  var vars = names.filter((name) => !map[name].inserted).map((name) => {
+    var item = map[name];
+    item.inserted = true;
+    return createVariableDeclaration(item.uid, item.expression);
+  });
+
+  if (!vars.length)
+    return;
+
+  return createVariableStatement(createVariableDeclarationList(VAR, vars));
+}
+
 /**
  * Class responsible for keeping track of inlined runtime functions and to
  * do the actual inlining of the function into the head of the program.
@@ -91,20 +109,10 @@ export class RuntimeInliner extends ParseTreeTransformer {
    * @return {Script}
    */
   transformScript(tree) {
-    var names = Object.keys(this.map_);
-    if (!names.length)
-      return tree;
+    var variableStatement = createRuntimeVariableStatement(this.map_);
 
-    var vars = names.filter((name) => !this.map_[name].inserted).map((name) => {
-      var item = this.map_[name];
-      item.inserted = true;
-      return createVariableDeclaration(item.uid, item.expression);
-    });
-    if (!vars.length)
+    if (!variableStatement)
       return tree;
-
-    var variableStatement = createVariableStatement(
-        createVariableDeclarationList(VAR, vars));
 
     var scriptItemList = prependStatements(
         tree.scriptItemList, variableStatement);
@@ -117,20 +125,10 @@ export class RuntimeInliner extends ParseTreeTransformer {
    *
    */
   transformModule(tree) {
-    var names = Object.keys(this.map_);
-    if (!names.length)
-      return tree;
+    var variableStatement = createRuntimeVariableStatement(this.map_);
 
-    var vars = names.filter((name) => !this.map_[name].inserted).map((name) => {
-      var item = this.map_[name];
-      item.inserted = true;
-      return createVariableDeclaration(item.uid, item.expression);
-    });
-    if (!vars.length)
+    if (!variableStatement)
       return tree;
-
-    var variableStatement = createVariableStatement(
-        createVariableDeclarationList(VAR, vars));
 
     var scriptItemList = prependStatements(
         tree.scriptItemList, variableStatement);
