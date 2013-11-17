@@ -15,7 +15,7 @@
 import {MutedErrorReporter} from '../util/MutedErrorReporter';
 import {ParseTreeTransformer} from './ParseTreeTransformer';
 import {Parser} from '../syntax/Parser';
-import {Script} from '../syntax/trees/ParseTrees';
+import {Script, Module} from '../syntax/trees/ParseTrees';
 import {SourceFile} from '../syntax/SourceFile';
 import {VAR} from '../syntax/TokenType';
 import {assert} from '../util/assert';
@@ -70,6 +70,24 @@ function parse(source, name) {
   return new Parser(errorReporter, file).parseAssignmentExpression();
 }
 
+function createRuntimeVariableStatement(map) {
+  var names = Object.keys(map);
+
+  if (!names.length)
+    return;
+
+  var vars = names.filter((name) => !map[name].inserted).map((name) => {
+    var item = map[name];
+    item.inserted = true;
+    return createVariableDeclaration(item.uid, item.expression);
+  });
+
+  if (!vars.length)
+    return;
+
+  return createVariableStatement(createVariableDeclarationList(VAR, vars));
+}
+
 /**
  * Class responsible for keeping track of inlined runtime functions and to
  * do the actual inlining of the function into the head of the program.
@@ -91,24 +109,30 @@ export class RuntimeInliner extends ParseTreeTransformer {
    * @return {Script}
    */
   transformScript(tree) {
-    var names = Object.keys(this.map_);
-    if (!names.length)
-      return tree;
+    var variableStatement = createRuntimeVariableStatement(this.map_);
 
-    var vars = names.filter((name) => !this.map_[name].inserted).map((name) => {
-      var item = this.map_[name];
-      item.inserted = true;
-      return createVariableDeclaration(item.uid, item.expression);
-    });
-    if (!vars.length)
+    if (!variableStatement)
       return tree;
-
-    var variableStatement = createVariableStatement(
-        createVariableDeclarationList(VAR, vars));
 
     var scriptItemList = prependStatements(
         tree.scriptItemList, variableStatement);
     return new Script(tree.location, scriptItemList);
+  }
+
+  /**
+   *
+   *
+   *
+   */
+  transformModule(tree) {
+    var variableStatement = createRuntimeVariableStatement(this.map_);
+
+    if (!variableStatement)
+      return tree;
+
+    var scriptItemList = prependStatements(
+        tree.scriptItemList, variableStatement);
+    return new Module(tree.location, scriptItemList);
   }
 
   /**
