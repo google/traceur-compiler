@@ -70,11 +70,11 @@ function parse(source, name) {
   return new Parser(errorReporter, file).parseAssignmentExpression();
 }
 
-function createRuntimeVariableStatement(map) {
+function prependRuntimeVariables(map, statements) {
   var names = Object.keys(map);
 
   if (!names.length)
-    return;
+    return statements;
 
   var vars = names.filter((name) => !map[name].inserted).map((name) => {
     var item = map[name];
@@ -83,9 +83,10 @@ function createRuntimeVariableStatement(map) {
   });
 
   if (!vars.length)
-    return;
+    return statements;
 
-  return createVariableStatement(createVariableDeclarationList(VAR, vars));
+  return prependStatements(statements,
+      createVariableStatement(createVariableDeclarationList(VAR, vars)));
 }
 
 /**
@@ -109,14 +110,10 @@ export class RuntimeInliner extends ParseTreeTransformer {
    * @return {Script}
    */
   transformScript(tree) {
-    var variableStatement = createRuntimeVariableStatement(this.map_);
-
-    if (!variableStatement)
+    var statements = prependRuntimeVariables(this.map_, tree.scriptItemList);
+    if (statements === tree.scriptItemList)
       return tree;
-
-    var scriptItemList = prependStatements(
-        tree.scriptItemList, variableStatement);
-    return new Script(tree.location, scriptItemList);
+    return new Script(tree.location, statements);
   }
 
   /**
@@ -125,14 +122,10 @@ export class RuntimeInliner extends ParseTreeTransformer {
    *
    */
   transformModule(tree) {
-    var variableStatement = createRuntimeVariableStatement(this.map_);
-
-    if (!variableStatement)
+    var statements = prependRuntimeVariables(this.map_, tree.scriptItemList);
+    if (statements === tree.scriptItemList)
       return tree;
-
-    var scriptItemList = prependStatements(
-        tree.scriptItemList, variableStatement);
-    return new Module(tree.location, scriptItemList);
+    return new Module(tree.location, statements);
   }
 
   /**
