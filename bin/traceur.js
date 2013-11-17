@@ -11515,9 +11515,9 @@ System.get('@traceur/module').registerModule("../src/codegeneration/RuntimeInlin
     var errorReporter = new MutedErrorReporter();
     return new Parser(errorReporter, file).parseAssignmentExpression();
   }
-  function createRuntimeVariableStatement(map) {
+  function prependRuntimeVariables(map, statements) {
     var names = Object.keys(map);
-    if (!names.length) return;
+    if (!names.length) return statements;
     var vars = names.filter((function(name) {
       return !map[name].inserted;
     })).map((function(name) {
@@ -11525,8 +11525,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/RuntimeInlin
       item.inserted = true;
       return createVariableDeclaration(item.uid, item.expression);
     }));
-    if (!vars.length) return;
-    return createVariableStatement(createVariableDeclarationList(VAR, vars));
+    if (!vars.length) return statements;
+    return prependStatements(statements, createVariableStatement(createVariableDeclarationList(VAR, vars)));
   }
   var RuntimeInliner = function($__super) {
     'use strict';
@@ -11538,16 +11538,14 @@ System.get('@traceur/module').registerModule("../src/codegeneration/RuntimeInlin
         this.map_ = Object.create(null);
       },
       transformScript: function(tree) {
-        var variableStatement = createRuntimeVariableStatement(this.map_);
-        if (!variableStatement) return tree;
-        var scriptItemList = prependStatements(tree.scriptItemList, variableStatement);
-        return new Script(tree.location, scriptItemList);
+        var statements = prependRuntimeVariables(this.map_, tree.scriptItemList);
+        if (statements === tree.scriptItemList) return tree;
+        return new Script(tree.location, statements);
       },
       transformModule: function(tree) {
-        var variableStatement = createRuntimeVariableStatement(this.map_);
-        if (!variableStatement) return tree;
-        var scriptItemList = prependStatements(tree.scriptItemList, variableStatement);
-        return new Module(tree.location, scriptItemList);
+        var statements = prependRuntimeVariables(this.map_, tree.scriptItemList);
+        if (statements === tree.scriptItemList) return tree;
+        return new Module(tree.location, statements);
       },
       register: function(name, source) {
         if (name in this.map_) return;
