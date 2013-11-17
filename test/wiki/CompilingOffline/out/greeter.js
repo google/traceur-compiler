@@ -1,26 +1,26 @@
-var $__Object = Object, $__getOwnPropertyNames = $__Object.getOwnPropertyNames, $__getOwnPropertyDescriptor = $__Object.getOwnPropertyDescriptor, $__getDescriptors = function(object) {
+var $__Object = Object, $__ObjectPrototype = $__Object.prototype, $__Function = Function, $__FunctionPrototype = $__Function.prototype, $__defineProperty = $__Object.defineProperty, $__defineProperties = $__Object.defineProperties, $__getOwnPropertyNames = $__Object.getOwnPropertyNames, $__getOwnPropertyDescriptor = $__Object.getOwnPropertyDescriptor, $__getDescriptors = function(object) {
   var descriptors = {}, name, names = $__getOwnPropertyNames(object);
   for (var i = 0; i < names.length; i++) {
     var name = names[i];
     descriptors[name] = $__getOwnPropertyDescriptor(object, name);
   }
   return descriptors;
-}, $__createClassNoExtends = function(object, staticObject) {
-  var ctor = object.constructor;
-  Object.defineProperty(object, 'constructor', {enumerable: false});
+}, $__class = function(ctor, object, staticObject) {
+  $__defineProperty(object, 'constructor', {
+    value: ctor,
+    configurable: true,
+    writable: true,
+    enumerable: false
+  });
   ctor.prototype = object;
-  Object.defineProperties(ctor, $__getDescriptors(staticObject));
-  return ctor;
+  return $__defineProperties(ctor, $__getDescriptors(staticObject));
 };
-var Greeter = function() {
-  'use strict';
-  var $Greeter = ($__createClassNoExtends)({
-    constructor: function() {},
-    sayHi: function() {
-      console.log('Hi!');
-    }
-  }, {});
-  return $Greeter;
-}();
+function Greeter() {
+  "use strict";
+}
+$__class(Greeter, {sayHi: function() {
+    "use strict";
+    console.log('Hi!');
+  }}, {});
 var greeter = new Greeter();
 greeter.sayHi();
