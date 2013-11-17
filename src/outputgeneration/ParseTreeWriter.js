@@ -23,9 +23,8 @@ import {
 } from '../syntax/PredefinedName';
 import {Token} from '../syntax/Token';
 import {getKeywordType} from '../syntax/Keywords';
-module TokenType from '../syntax/TokenType';
 
-var {
+import {
   AMPERSAND,
   AMPERSAND_EQUAL,
   AND,
@@ -134,7 +133,7 @@ var {
   WHILE,
   WITH,
   YIELD
-} = TokenType;
+} from '../syntax/TokenType';
 
 // constants
 var NEW_LINE = '\n';
@@ -474,6 +473,12 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.visitAny(tree.declaration);
   }
 
+  visitExportDefault(tree) {
+    this.write_(EXPORT);
+    this.write_(DEFAULT);
+    this.visitAny(tree.expression);
+  }
+
   /**
    * @param {NamedExport} tree
    */
@@ -670,7 +675,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitImportDeclaration(tree) {
     this.write_(IMPORT);
-    this.visitAny(tree.importSpecifierSet);
+    this.visitAny(tree.importClause);
     if (tree.moduleSpecifier) {
       this.write_(FROM);
       this.visitAny(tree.moduleSpecifier);

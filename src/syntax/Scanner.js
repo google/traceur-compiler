@@ -22,9 +22,8 @@ import {
   idStartTable
 } from './unicode-tables';
 import {parseOptions} from '../options';
-module TokenType from './TokenType'
 
-var {
+import {
   AMPERSAND,
   AMPERSAND_EQUAL,
   AND,
@@ -133,7 +132,7 @@ var {
   WHILE,
   WITH,
   YIELD
-} = TokenType;
+} from './TokenType';
 
 // Some of these is* functions use an array as a lookup table for the lower 7
 // bit code points.

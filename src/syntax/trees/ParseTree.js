@@ -20,7 +20,7 @@ import {
 import {Token} from '../Token';
 module utilJSON from '../../util/JSON';
 
-var {
+import {
   ARGUMENT_LIST,
   ARRAY_COMPREHENSION,
   ARRAY_LITERAL_EXPRESSION,
@@ -78,7 +78,6 @@ var {
   MODULE,
   MODULE_DECLARATION,
   MODULE_SPECIFIER,
-  NAME_STATEMENT,
   NAMED_EXPORT,
   NEW_EXPRESSION,
   OBJECT_LITERAL_EXPRESSION,
@@ -114,7 +113,7 @@ var {
   WHILE_STATEMENT,
   WITH_STATEMENT,
   YIELD_EXPRESSION
-} = ParseTreeType;
+} from './ParseTreeType';
 
 export {ParseTreeType};
 
@@ -313,7 +312,6 @@ export class ParseTree {
       case FUNCTION_DECLARATION:
       // GeneratorDeclaration is covered by FUNCTION_DECLARATION.
       case CLASS_DECLARATION:
-      case NAME_STATEMENT:
        return true;
     }
 
@@ -359,7 +357,6 @@ export class ParseTree {
       case FUNCTION_DECLARATION:
       case IMPORT_DECLARATION:
       case MODULE_DECLARATION:
-      case NAME_STATEMENT:
       case VARIABLE_DECLARATION:
         return true;
     }
