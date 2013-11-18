@@ -19,6 +19,7 @@ import {
   AnonBlock,
   BindingIdentifier,
   Block,
+  ClassExpression,
   ExportDeclaration,
   FunctionDeclaration,
   FunctionExpression,
@@ -65,7 +66,7 @@ var GET_PROTO_PARENT_CODE =
       if (typeof superClass === 'function') {
         var prototype = superClass.prototype;
         if (Object(prototype) === prototype || prototype === null)
-          return superClass.prototype;
+          return prototype;
       }
       if (superClass === null)
         return null;
@@ -73,27 +74,16 @@ var GET_PROTO_PARENT_CODE =
     }`;
 
 var CLASS_CODE =
-    `function(ctor, object, staticObject) {
+    `function(ctor, object, staticObject, superClass, protoParent) {
       %defineProperty(object, 'constructor', {value: ctor, configurable: true, writable: true, enumerable: false});
-      ctor.prototype = object;
+      if (arguments.length > 3) {
+        if (typeof superClass === 'function')
+          ctor.__proto__ = superClass;
+        ctor.prototype = Object.create(protoParent || %getProtoParent(superClass), %getDescriptors(object));
+      } else {
+        ctor.prototype = object;
+      }
       return %defineProperties(ctor, %getDescriptors(staticObject));
-    }`;
-
-var CLASS_EXTENDS_CODE =
-    `function(ctor, object, staticObject, superClass) {
-      var protoParent = %getProtoParent(superClass);
-
-      %defineProperty(object, 'constructor', {value: ctor, configurable: true, writable: true, enumerable: false});
-
-      if (typeof superClass === 'function')
-        ctor.__proto__ = superClass;
-
-      var descriptors = %getDescriptors(object);
-      descriptors.constructor.enumerable = false;
-      ctor.prototype = Object.create(protoParent, descriptors);
-      %defineProperties(ctor, %getDescriptors(staticObject));
-
-      return protoParent;
     }`;
 
 // Interaction between ClassTransformer and SuperTransformer:
@@ -127,7 +117,7 @@ var CLASS_EXTENDS_CODE =
  *   function C(x) {
  *     $__superCall(this, $__C__proto, "constructor", []);
  *   }
- *   var $__C__proto = $__classExt(C, {
+ *   var $__C__proto = $__class(C, {
  *     method: function() {
  *       $__superCall(this, $__C__proto, "m", []);
  *     }
@@ -268,12 +258,8 @@ export class ClassTransformer extends TempVarTransformer{
   }
 
   get class_() {
-    return this.runtimeInliner_.get('class', CLASS_CODE);
-  }
-
-  get classExt_() {
     this.runtimeInliner_.register('getProtoParent', GET_PROTO_PARENT_CODE);
-    return this.runtimeInliner_.get('classExt', CLASS_EXTENDS_CODE);
+    return this.runtimeInliner_.get('class', CLASS_CODE);
   }
 
   get getProtoParent_() {
@@ -322,26 +308,31 @@ export class ClassTransformer extends TempVarTransformer{
     var statements = [func];
 
     if (!superClass) {
-      statements.push(parseStatement `${this.class_}(${name}, ${object},
-                                                     ${staticObject})`);
+      statements.push(parseStatement `(${this.class_})(${name}, ${object},
+                                                       ${staticObject})`);
       return new AnonBlock(null, statements);
     }
 
-    if (hasStaticSuper) {
+    // If ClassExpression the superClass is a param to the IIFE.
+    if (tree instanceof ClassExpression) {
+      superClass = superName;
+    } else if (hasStaticSuper || hasSuper) {
       statements.push(parseStatement `var ${superName} = ${superClass}`);
       // In the rest of the code gen just use the id instead.
       superClass = superName;
     }
 
     if (hasSuper) {
+      statements.push(
+          parseStatement `var ${protoName} = ${this.getProtoParent_}(${superClass})`);
       // We only need a binding to the proto parent if super occurs in the code.
-      statements.push(parseStatement `var ${protoName} =
-          ${this.classExt_}(${name}, ${object}, ${staticObject},
-                            ${superClass})`);
+      statements.push(parseStatement
+          `(${this.class_})(${name}, ${object}, ${staticObject},
+                            ${superClass}, ${protoName})`);
     } else {
        statements.push(parseStatement
-          `${this.classExt_}(${name}, ${object}, ${staticObject},
-                             ${superClass})`);
+          `(${this.class_})(${name}, ${object}, ${staticObject},
+                            ${superClass})`);
     }
 
     return new AnonBlock(null, statements);
@@ -387,8 +378,8 @@ export class ClassTransformer extends TempVarTransformer{
     if (!tree.name && !superClass && !hasSuper && !hasStaticSuper) {
       var func = new FunctionExpression(tree.location, tree.name, false,
                                         constructorParams, constructorBody);
-      return parseExpression `${this.class_}(${func}, ${object},
-                                             ${staticObject})`;
+      return parseExpression `(${this.class_})(${func}, ${object},
+                                               ${staticObject})`;
     }
 
     // Otherwise we need an IIFE and we use the same transformation as for
