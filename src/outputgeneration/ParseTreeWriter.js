@@ -474,9 +474,9 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   visitExportDefault(tree) {
-    this.write_(EXPORT);
     this.write_(DEFAULT);
     this.visitAny(tree.expression);
+    this.write_(SEMI_COLON);
   }
 
   /**
@@ -488,6 +488,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
       this.write_(FROM);
       this.visitAny(tree.moduleSpecifier);
     }
+    this.write_(SEMI_COLON);
   }
 
   /**
@@ -753,6 +754,10 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.write_('(function() {' +
         `throw SyntaxError(${JSON.stringify(tree.message)});` +
         '})()');
+  }
+
+  visitModule(tree) {
+    this.writelnList_(tree.scriptItemList, null);
   }
 
   /**
@@ -1030,7 +1035,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitVariableDeclarationList(tree) {
     this.write_(tree.declarationType);
-    this.writeList_(tree.declarations, COMMA, false);
+    this.writeList_(tree.declarations, COMMA, true, 2);
   }
 
   /**
@@ -1129,7 +1134,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {boolean} writeNewLine
    * @private
    */
-  writeList_(list, delimiter, writeNewLine) {
+  writeList_(list, delimiter, writeNewLine, indent = 0) {
     var first = true;
     for (var i = 0; i < list.length; i++) {
       var element = list[i];
@@ -1140,11 +1145,15 @@ export class ParseTreeWriter extends ParseTreeVisitor {
           this.write_(delimiter);
         }
         if (writeNewLine) {
+          if (i === 1)
+            this.indentDepth_ += indent;
           this.writeln_();
         }
       }
       this.visitAny(element);
     }
+    if (writeNewLine && list.length > 1)
+        this.indentDepth_ -= indent;
   }
 
   /**

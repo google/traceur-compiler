@@ -24,19 +24,23 @@ suite('RuntimeInliner.js', function() {
   });
 
   var expextedResult = '\n\
-      var $__TypeError = TypeError, $__Object = Object, $__toObject = function(value) {\n\
-        if (value == null) throw $__TypeError();\n\
-        return $__Object(value);\n\
-      }, $__spread = function() {\n\
-        var rv = [], k = 0;\n\
-        for (var i = 0; i < arguments.length; i++) {\n\
-          var value = $__toObject(arguments[i]);\n\
-          for (var j = 0; j < value.length; j++) {\n\
-            rv[k++] = value[j];\n\
-          }\n\
-        }\n\
-        return rv;\n\
-      };\n\
+      var $__TypeError = TypeError,\n\
+          $__Object = Object,\n\
+          $__toObject = function(value) {\n\
+            if (value == null) throw $__TypeError();\n\
+            return $__Object(value);\n\
+          },\n\
+          $__spread = function() {\n\
+            var rv = [],\n\
+                k = 0;\n\
+            for (var i = 0; i < arguments.length; i++) {\n\
+              var value = $__toObject(arguments[i]);\n\
+              for (var j = 0; j < value.length; j++) {\n\
+                rv[k++] = value[j];\n\
+              }\n\
+            }\n\
+            return rv;\n\
+          };\n\
       var a = $__spread([0, 1]);\n\
       var b = $__spread(a, [2]);\n\
       ';
