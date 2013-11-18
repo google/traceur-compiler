@@ -1035,7 +1035,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitVariableDeclarationList(tree) {
     this.write_(tree.declarationType);
-    this.writeList_(tree.declarations, COMMA, false);
+    this.writeList_(tree.declarations, COMMA, true, 2);
   }
 
   /**
@@ -1134,7 +1134,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {boolean} writeNewLine
    * @private
    */
-  writeList_(list, delimiter, writeNewLine) {
+  writeList_(list, delimiter, writeNewLine, indent = 0) {
     var first = true;
     for (var i = 0; i < list.length; i++) {
       var element = list[i];
@@ -1145,11 +1145,15 @@ export class ParseTreeWriter extends ParseTreeVisitor {
           this.write_(delimiter);
         }
         if (writeNewLine) {
+          if (i === 1)
+            this.indentDepth_ += indent;
           this.writeln_();
         }
       }
       this.visitAny(element);
     }
+    if (writeNewLine && list.length > 1)
+        this.indentDepth_ -= indent;
   }
 
   /**
