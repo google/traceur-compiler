@@ -49,7 +49,7 @@ var shared = {
       }`,
   getDescriptors:
       `function(object) {
-        var descriptors = {}, name, names = %getOwnPropertyNames(object);
+        var descriptors = {}, names = %getOwnPropertyNames(object);
         for (var i = 0; i < names.length; i++) {
           var name = names[i];
           descriptors[name] = %getOwnPropertyDescriptor(object, name);
