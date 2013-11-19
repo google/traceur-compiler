@@ -14,11 +14,11 @@
 System.set('@traceur/module', (function(global) {
   'use strict';
 
-  var {PendingModule} = System.get('@traceur/module');
+  var {ModuleImpl} = System.get('@traceur/module');
 
   var {resolveUrl, isStandardModuleUrl} = System.get('@traceur/url');
 
-  var modules = Object.create(null);
+  var moduleImplementations = Object.create(null);
 
   // Until ecmascript defines System.normalize/resolve we follow requirejs
   // for module ids, http://requirejs.org/docs/api.html
@@ -31,7 +31,7 @@ System.set('@traceur/module', (function(global) {
 
   function registerModule(url, func, self) {
     url = System.normalResolve(url);
-    modules[url] = new PendingModule(func, self);
+    moduleImplementations[url] = new ModuleImpl(url, func, self);
   }
 
   Object.defineProperty(System, 'baseURL', {
@@ -82,16 +82,47 @@ System.set('@traceur/module', (function(global) {
     return System.resolve(System.normalize(name, options));
   };
 
-  System.get = function(name) {
+  function getModuleImpl(name) {
     if (!name)
       return;
     if (isStandardModuleUrl(name))
-      return $get(name);
+      return {url: name, value: $get(name)};
     var url = System.normalResolve(name);
-    var module = modules[url];
-    if (module instanceof PendingModule)
-      return modules[url] = module.toModule();
-    return module || null;
+    return moduleImplementations[url];
+  };
+
+  System.get_ = function(name) {
+    var m = getModuleImpl(name);
+    return m && m.value;
+  };
+
+  var moduleInstances = Object.create(null);
+
+  function Module(obj) {
+    Object.getOwnPropertyNames(obj).forEach((name) => {
+      var value = obj[name];
+      Object.defineProperty(this, name, {
+        get: function() {
+          return value;
+        },
+        enumerable: true
+      });
+    });
+    this.__proto__ = null;
+    Object.preventExtensions(this);
+  }
+
+  System.get = function(name) {
+    var m = getModuleImpl(name);
+    if (!m)
+      return null;  // or undefined?
+    var moduleInstance = moduleInstances[m.url];
+    if (moduleInstance)
+      return moduleInstance;
+
+    var value = m.value;
+    moduleInstance = new Module(value);
+    return moduleInstances[m.url] = moduleInstance;
   };
 
   System.set = function(name, object) {
@@ -101,8 +132,12 @@ System.set('@traceur/module', (function(global) {
       $set(name, object);
     } else {
       var url = System.normalResolve(name);
-      if (url)
-        modules[url] = object;
+      if (url) {
+        moduleImplementations[url] = {
+          url: url,
+          value: object
+        };
+      }
     }
   };
 
