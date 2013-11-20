@@ -1,3 +1,5 @@
+import './resources/m';
+
 import {a as renamedX, b} from './resources/m';
 import {a} from './resources/m';
 module m2 from './resources/m';
