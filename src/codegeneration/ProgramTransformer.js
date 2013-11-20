@@ -137,7 +137,7 @@ export class ProgramTransformer {
           () => this.transformModules_(tree, module));
 
     transform(transformOptions.arrowFunctions,
-              ArrowFunctionTransformer, reporter);
+              ArrowFunctionTransformer, identifierGenerator);
 
     // ClassTransformer needs to come before ObjectLiteralTransformer.
     transform(transformOptions.classes,

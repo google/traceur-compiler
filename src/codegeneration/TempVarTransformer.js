@@ -17,9 +17,12 @@ import {
   Module,
   Script
 } from '../syntax/trees/ParseTrees';
+import {ARGUMENTS} from '../syntax/PredefinedName';
 import {VAR} from '../syntax/TokenType';
 import {
   createFunctionBody,
+  createThisExpression,
+  createIdentifierExpression,
   createVariableDeclaration,
   createVariableDeclarationList,
   createVariableStatement
@@ -40,6 +43,28 @@ class TempVarStatement {
   }
 }
 
+class TempScope {
+  constructor() {
+    this.thisName = null;
+    this.argumentName = null;
+    this.identifiers = [];
+  }
+
+  push(identifier) {
+    this.identifiers.push(identifier);
+  }
+
+  pop() {
+    return this.identifiers.pop();
+  }
+
+  release(obj) {
+    for (var i = this.identifiers.length - 1; i >= 0; i--) {
+      obj.release_(this.identifiers[i]);
+    }
+  }
+}
+
 /**
  * A generic transformer that allows you to easily create a expression with
  * temporary variables.
@@ -54,7 +79,7 @@ export class TempVarTransformer extends ParseTreeTransformer {
     // Stack used for variable declarations.
     this.tempVarStack_ = [[]];
     // Stack used for the temporary names currently being used.
-    this.tempIdentifierStack_ = [[]];
+    this.tempIdentifierStack_ = [new TempScope()];
     // Names that can be reused.
     this.pool_ = [];
   }
@@ -147,17 +172,29 @@ export class TempVarTransformer extends ParseTreeTransformer {
     return uid;
   }
 
+  addTempVarForThis() {
+    var last = this.tempIdentifierStack_[this.tempIdentifierStack_.length - 1];
+    return last.thisName ||
+        (last.thisName = this.addTempVar(createThisExpression()));
+  }
+
+  addTempVarForArguments() {
+    var last = this.tempIdentifierStack_[this.tempIdentifierStack_.length - 1];
+    return last.argumentName || (last.argumentName =
+        this.addTempVar(createIdentifierExpression(ARGUMENTS)));
+  }
+
   /**
    * Pushes a new temporary variable state. This is useful if you know that
    * your temporary variable can be reused sooner than after the current
    * lexical scope has been exited.
    */
   pushTempVarState() {
-    this.tempIdentifierStack_.push([]);
+    this.tempIdentifierStack_.push(new TempScope());
   }
 
   popTempVarState() {
-    this.tempIdentifierStack_.pop().forEach(this.release_, this);
+    this.tempIdentifierStack_.pop().release(this);
   }
 
   /**

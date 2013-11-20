@@ -37,7 +37,7 @@ var $__Object = Object,
       } else {
         ctor.prototype = object;
       }
-      $__defineProperties(ctor, $__getDescriptors(staticObject));
+      return $__defineProperties(ctor, $__getDescriptors(staticObject));
     };
 function Greeter() {
   "use strict";
