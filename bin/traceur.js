@@ -369,27 +369,27 @@
       }
     }
   };
-  function PendingModule(func, self) {
+  function LazyInitializedModule(func, self) {
     this.func = func;
     this.self = self;
   }
-  PendingModule.prototype = {toModule: function() {
+  LazyInitializedModule.prototype = {toModule: function() {
       return this.func.call(this.self);
     }};
   var modules = {
     '@name': NameModule,
     '@iter': IterModule,
     '@traceur/module': {
-      PendingModule: PendingModule,
+      LazyInitializedModule: LazyInitializedModule,
       registerModule: function(url, func, self) {
-        modules[url] = new PendingModule(func, self);
+        modules[url] = new LazyInitializedModule(func, self);
       }
     }
   };
   var System = {
     get: function(name) {
       var module = modules[name];
-      if (module instanceof PendingModule) return modules[name] = module.toModule();
+      if (module instanceof LazyInitializedModule) return modules[name] = module.toModule();
       return module || null;
     },
     set: function(name, object) {
@@ -536,7 +536,7 @@ System.set('@traceur/url', (function() {
 })());
 System.set('@traceur/module', (function(global) {
   'use strict';
-  var PendingModule = System.get('@traceur/module').PendingModule;
+  var LazyInitializedModule = System.get('@traceur/module').LazyInitializedModule;
   var $__0 = System.get('@traceur/url'),
       resolveUrl = $__0.resolveUrl,
       isStandardModuleUrl = $__0.isStandardModuleUrl;
@@ -545,7 +545,7 @@ System.set('@traceur/module', (function(global) {
   if (global.location && global.location.href) baseURL = resolveUrl(global.location.href, './'); else baseURL = '';
   function registerModule(url, func, self) {
     url = System.normalResolve(url);
-    modules[url] = new PendingModule(func, self);
+    modules[url] = new LazyInitializedModule(func, self);
   }
   Object.defineProperty(System, 'baseURL', {
     get: function() {
@@ -582,7 +582,7 @@ System.set('@traceur/module', (function(global) {
     if (isStandardModuleUrl(name)) return $get(name);
     var url = System.normalResolve(name);
     var module = modules[url];
-    if (module instanceof PendingModule) return modules[url] = module.toModule();
+    if (module instanceof LazyInitializedModule) return modules[url] = module.toModule();
     return module || null;
   };
   System.set = function(name, object) {

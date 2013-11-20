@@ -14,7 +14,7 @@
 System.set('@traceur/module', (function(global) {
   'use strict';
 
-  var {PendingModule} = System.get('@traceur/module');
+  var {LazyInitializedModule} = System.get('@traceur/module');
 
   var {resolveUrl, isStandardModuleUrl} = System.get('@traceur/url');
 
@@ -31,7 +31,7 @@ System.set('@traceur/module', (function(global) {
 
   function registerModule(url, func, self) {
     url = System.normalResolve(url);
-    modules[url] = new PendingModule(func, self);
+    modules[url] = new LazyInitializedModule(func, self);
   }
 
   Object.defineProperty(System, 'baseURL', {
@@ -89,7 +89,7 @@ System.set('@traceur/module', (function(global) {
       return $get(name);
     var url = System.normalResolve(name);
     var module = modules[url];
-    if (module instanceof PendingModule)
+    if (module instanceof LazyInitializedModule)
       return modules[url] = module.toModule();
     return module || null;
   };
