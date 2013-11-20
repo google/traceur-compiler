@@ -530,11 +530,11 @@
   // System.get/set and @traceur/module gets overridden in @traceur/modules to
   // be more correct.
 
-  function PendingModule(func, self) {
+  function LazyInitializedModule(func, self) {
     this.func = func;
     this.self = self;
   }
-  PendingModule.prototype = {
+  LazyInitializedModule.prototype = {
     toModule: function() {
       return this.func.call(this.self);
     }
@@ -544,9 +544,9 @@
     '@name': NameModule,
     '@iter': IterModule,
     '@traceur/module': {
-      PendingModule: PendingModule,
+      LazyInitializedModule: LazyInitializedModule,
       registerModule: function(url, func, self) {
-        modules[url] = new PendingModule(func, self);
+        modules[url] = new LazyInitializedModule(func, self);
       }
     }
   };
@@ -554,7 +554,7 @@
   var System = {
     get: function(name) {
       var module = modules[name];
-      if (module instanceof PendingModule)
+      if (module instanceof LazyInitializedModule)
         return modules[name] = module.toModule();
       return module || null;
     },
