@@ -13854,8 +13854,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/TempVarTrans
     $__superCall(this, $__TempVarTransformer__proto, "constructor", []);
     this.identifierGenerator = identifierGenerator;
     this.tempVarStack_ = [[]];
-    this.tempIdentifierStack_ = [new TempScope()];
-    this.pool_ = [];
+    this.tempScopeStack_ = [new TempScope()];
+    this.namePool_ = [];
   }
   var $__TempVarTransformer__super = ParseTreeTransformer;
   var $__TempVarTransformer__proto = $__getProtoParent($__TempVarTransformer__super);
@@ -13906,8 +13906,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/TempVarTrans
       return createFunctionBody(statements);
     },
     getTempIdentifier: function() {
-      var name = this.pool_.length ? this.pool_.pop(): this.identifierGenerator.generateUniqueIdentifier();
-      this.tempIdentifierStack_[this.tempIdentifierStack_.length - 1].push(name);
+      var name = this.namePool_.length ? this.namePool_.pop(): this.identifierGenerator.generateUniqueIdentifier();
+      this.tempScopeStack_[this.tempScopeStack_.length - 1].push(name);
       return name;
     },
     addTempVar: function() {
@@ -13918,21 +13918,21 @@ System.get('@traceur/module').registerModule("../src/codegeneration/TempVarTrans
       return uid;
     },
     addTempVarForThis: function() {
-      var last = this.tempIdentifierStack_[this.tempIdentifierStack_.length - 1];
-      return last.thisName || (last.thisName = this.addTempVar(createThisExpression()));
+      var tempScope = this.tempScopeStack_[this.tempScopeStack_.length - 1];
+      return tempScope.thisName || (tempScope.thisName = this.addTempVar(createThisExpression()));
     },
     addTempVarForArguments: function() {
-      var last = this.tempIdentifierStack_[this.tempIdentifierStack_.length - 1];
-      return last.argumentName || (last.argumentName = this.addTempVar(createIdentifierExpression(ARGUMENTS)));
+      var tempScope = this.tempScopeStack_[this.tempScopeStack_.length - 1];
+      return tempScope.argumentName || (tempScope.argumentName = this.addTempVar(createIdentifierExpression(ARGUMENTS)));
     },
     pushTempVarState: function() {
-      this.tempIdentifierStack_.push(new TempScope());
+      this.tempScopeStack_.push(new TempScope());
     },
     popTempVarState: function() {
-      this.tempIdentifierStack_.pop().release(this);
+      this.tempScopeStack_.pop().release(this);
     },
     release_: function(name) {
-      this.pool_.push(name);
+      this.namePool_.push(name);
     }
   }, {}, $__TempVarTransformer__super, $__TempVarTransformer__proto);
   return Object.preventExtensions(Object.create(null, {TempVarTransformer: {
@@ -14151,7 +14151,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/FindVisitor.
   "use strict";
   var ParseTreeVisitor = System.get("../src/syntax/ParseTreeVisitor.js").ParseTreeVisitor;
   var foundSentinel = {};
-  function FindVisitor(tree, keepOnGoing) {
+  function FindVisitor(tree) {
+    var keepOnGoing = arguments[1];
     this.found_ = false;
     this.keepOnGoing_ = keepOnGoing;
     try {
@@ -14207,14 +14208,14 @@ System.get('@traceur/module').registerModule("../src/codegeneration/alphaRenameT
       THIS = $__97.THIS;
   var AlphaRenamer = System.get("../src/codegeneration/AlphaRenamer.js").AlphaRenamer;
   var FindInFunctionScope = System.get("../src/codegeneration/FindInFunctionScope.js").FindInFunctionScope;
-  function ThisOrArgumentsFinder(tree) {
+  function FindThisOrArguments(tree) {
     this.foundThis = false;
     this.foundArguments = false;
-    $__superCall(this, $__ThisOrArgumentsFinder__proto, "constructor", [tree]);
+    $__superCall(this, $__FindThisOrArguments__proto, "constructor", [tree]);
   }
-  var $__ThisOrArgumentsFinder__super = FindInFunctionScope;
-  var $__ThisOrArgumentsFinder__proto = $__getProtoParent($__ThisOrArgumentsFinder__super);
-  ($__class)(ThisOrArgumentsFinder, {
+  var $__FindThisOrArguments__super = FindInFunctionScope;
+  var $__FindThisOrArguments__proto = $__getProtoParent($__FindThisOrArguments__super);
+  ($__class)(FindThisOrArguments, {
     visitThisExpression: function(tree) {
       this.foundThis = true;
       this.found = this.foundArguments;
@@ -14225,9 +14226,9 @@ System.get('@traceur/module').registerModule("../src/codegeneration/alphaRenameT
         this.found = this.foundThis;
       }
     }
-  }, {}, $__ThisOrArgumentsFinder__super, $__ThisOrArgumentsFinder__proto);
+  }, {}, $__FindThisOrArguments__super, $__FindThisOrArguments__proto);
   var $__default = function alphaRenameThisAndArguments(tempVarTransformer, tree) {
-    var finder = new ThisOrArgumentsFinder(tree);
+    var finder = new FindThisOrArguments(tree);
     if (finder.foundArguments) {
       var argumentsTempName = tempVarTransformer.addTempVarForArguments();
       tree = AlphaRenamer.rename(tree, ARGUMENTS, argumentsTempName);
@@ -18304,20 +18305,20 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ObjectLitera
       createStringLiteral = $__225.createStringLiteral;
   var propName = System.get("../src/staticsemantics/PropName.js").propName;
   var transformOptions = System.get("../src/options.js").transformOptions;
-  function AdvancedPropertyFinder(tree) {
+  function FindAdvancedProperty(tree) {
     this.protoExpression = null;
-    $__superCall(this, $__AdvancedPropertyFinder__proto, "constructor", [tree, true]);
+    $__superCall(this, $__FindAdvancedProperty__proto, "constructor", [tree, true]);
   }
-  var $__AdvancedPropertyFinder__super = FindVisitor;
-  var $__AdvancedPropertyFinder__proto = $__getProtoParent($__AdvancedPropertyFinder__super);
-  ($__class)(AdvancedPropertyFinder, {
+  var $__FindAdvancedProperty__super = FindVisitor;
+  var $__FindAdvancedProperty__proto = $__getProtoParent($__FindAdvancedProperty__super);
+  ($__class)(FindAdvancedProperty, {
     visitPropertyNameAssignment: function(tree) {
-      if (isProtoName(tree.name)) this.protoExpression = tree.value; else $__superCall(this, $__AdvancedPropertyFinder__proto, "visitPropertyNameAssignment", [tree]);
+      if (isProtoName(tree.name)) this.protoExpression = tree.value; else $__superCall(this, $__FindAdvancedProperty__proto, "visitPropertyNameAssignment", [tree]);
     },
     visitComputedPropertyName: function(tree) {
       if (transformOptions.computedPropertyNames) this.found = true;
     }
-  }, {}, $__AdvancedPropertyFinder__super, $__AdvancedPropertyFinder__proto);
+  }, {}, $__FindAdvancedProperty__super, $__FindAdvancedProperty__proto);
   function isProtoName(tree) {
     return propName(tree) === '__proto__';
   }
@@ -18379,7 +18380,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ObjectLitera
       var oldNeedsTransform = this.needsAdvancedTransform;
       var oldSeenAccessors = this.seenAccessors;
       try {
-        var finder = new AdvancedPropertyFinder(tree);
+        var finder = new FindAdvancedProperty(tree);
         if (!finder.found) {
           this.needsAdvancedTransform = false;
           return $__superCall(this, $__ObjectLiteralTransformer__proto, "transformObjectLiteralExpression", [tree]);

@@ -1,4 +1,4 @@
-// Copyright 2012 Traceur Authors.
+// Copyright 2013 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import {FindInFunctionScope} from './FindInFunctionScope';
  * This is used to find whether a function contains a reference to 'this' or
  * 'arguments'.
  */
-class ThisOrArgumentsFinder extends FindInFunctionScope {
+class FindThisOrArguments extends FindInFunctionScope {
   constructor(tree) {
     this.foundThis = false;
     this.foundArguments = false;
@@ -42,7 +42,7 @@ class ThisOrArgumentsFinder extends FindInFunctionScope {
 }
 
 export default function alphaRenameThisAndArguments(tempVarTransformer, tree) {
-  var finder = new ThisOrArgumentsFinder(tree);
+  var finder = new FindThisOrArguments(tree);
   if (finder.foundArguments) {
     var argumentsTempName = tempVarTransformer.addTempVarForArguments();
     tree = AlphaRenamer.rename(tree, ARGUMENTS, argumentsTempName);
