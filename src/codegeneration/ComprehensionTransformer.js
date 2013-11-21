@@ -12,12 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  ARGUMENTS,
-  THIS
-} from '../syntax/PredefinedName';
-import {AlphaRenamer} from './AlphaRenamer';
-import {FindInFunctionScope} from './FindInFunctionScope';
+import alphaRenameThisAndArguments from './alphaRenameThisAndArguments';
 import {FunctionExpression} from '../syntax/trees/ParseTrees';
 import {TempVarTransformer} from './TempVarTransformer';
 import {
@@ -33,33 +28,11 @@ import {
   createEmptyParameterList,
   createForOfStatement,
   createFunctionBody,
-  createIdentifierExpression,
   createIfStatement,
   createParenExpression,
-  createThisExpression,
   createVariableDeclarationList
 } from './ParseTreeFactory';
 import {options} from '../options';
-
-/**
- * This is used to find whether a function contains a reference to 'this'.
- */
-class ThisFinder extends FindInFunctionScope {
-  visitThisExpression(tree) {
-    this.found = true;
-  }
-}
-
-/**
- * This is used to find whether a function contains a reference to
- * 'arguments'.
- */
-class ArgumentsFinder extends FindInFunctionScope {
-  visitIdentifierExpression(tree) {
-    if (tree.identifierToken.value === ARGUMENTS)
-      this.found = true;
-  }
-}
 
 /**
  * Base class for GeneratorComprehensionTransformer and
@@ -107,20 +80,7 @@ export class ComprehensionTransformer extends TempVarTransformer {
       }
     }
 
-    var argumentsFinder = new ArgumentsFinder(statement);
-    if (argumentsFinder.found) {
-      var tempVar = this.addTempVar(
-          createIdentifierExpression(ARGUMENTS));
-      statement = AlphaRenamer.rename(statement, ARGUMENTS,
-                                      tempVar);
-    }
-
-    var thisFinder = new ThisFinder(statement);
-    if (thisFinder.found) {
-      var tempVar = this.addTempVar(createThisExpression());
-      statement = AlphaRenamer.rename(statement, THIS,
-                                      tempVar);
-    }
+    statement = alphaRenameThisAndArguments(this, statement);
 
     statements.push(statement);
     if (suffix)

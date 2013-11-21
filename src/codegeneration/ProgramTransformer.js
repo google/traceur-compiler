@@ -127,7 +127,7 @@ export class ProgramTransformer {
       multi.append((tree) => this.transformModules_(tree, module));
 
     if (transformOptions.arrowFunctions)
-      append(ArrowFunctionTransformer, reporter);
+      append(ArrowFunctionTransformer, identifierGenerator);
 
     // ClassTransformer needs to come before ObjectLiteralTransformer.
     if (transformOptions.classes)

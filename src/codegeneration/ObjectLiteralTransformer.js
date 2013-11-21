@@ -45,10 +45,10 @@ import {propName} from '../staticsemantics/PropName';
 import {transformOptions} from '../options';
 
 /**
- * AdvancedPropertyFinder class that finds if an object literal contains a
+ * FindAdvancedProperty class that finds if an object literal contains a
  * computed property name, an at name or a __proto__ property.
  */
-class AdvancedPropertyFinder extends FindVisitor {
+class FindAdvancedProperty extends FindVisitor {
   /**
    * @param {ObjectLiteralTree} tree
    */
@@ -184,7 +184,7 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
     var oldSeenAccessors = this.seenAccessors;
 
     try {
-      var finder = new AdvancedPropertyFinder(tree);
+      var finder = new FindAdvancedProperty(tree);
       if (!finder.found) {
         this.needsAdvancedTransform = false;
         return super.transformObjectLiteralExpression(tree);

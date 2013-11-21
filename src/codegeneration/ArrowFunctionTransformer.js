@@ -12,46 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {BIND} from '../syntax/PredefinedName';
-import {FindInFunctionScope} from './FindInFunctionScope';
 import {
   FormalParameterList
 } from '../syntax/trees/ParseTrees';
-import {ParseTreeTransformer} from './ParseTreeTransformer';
-import {FUNCTION_BODY} from '../syntax/trees/ParseTreeType';
+import {TempVarTransformer} from './TempVarTransformer';
+
 import {
-  createArgumentList,
-  createCallExpression,
+  FUNCTION_BODY,
+  FUNCTION_EXPRESSION
+} from '../syntax/trees/ParseTreeType';
+import alphaRenameThisAndArguments from './alphaRenameThisAndArguments';
+import {
   createFunctionBody,
   createFunctionExpression,
-  createMemberExpression,
   createParenExpression,
-  createReturnStatement,
-  createThisExpression
+  createReturnStatement
 } from './ParseTreeFactory';
 
-/**
- * This is used to find whether a function contains a reference to 'this'.
- */
-class ThisFinder extends FindInFunctionScope {
-  visitThisExpression(tree) {
-    this.found = true;
-  }
-}
 
 /**
  * Desugars arrow function expressions
  *
  * @see <a href="http://wiki.ecmascript.org/doku.php?id=strawman:arrow_function_syntax">strawman:arrow_function_syntax</a>
  */
-export class ArrowFunctionTransformer extends ParseTreeTransformer {
-  /**
-   * @param {ErrorReporter} reporter
-   */
-  constructor(reporter) {
-    super();
-    this.reporter_ = reporter;
-  }
+export class ArrowFunctionTransformer extends TempVarTransformer {
 
   /**
    * Transforms an arrow function expression into a function declaration.
@@ -72,24 +56,15 @@ export class ArrowFunctionTransformer extends ParseTreeTransformer {
       functionBody = createFunctionBody([createReturnStatement(functionBody)]);
     }
 
+    functionBody = alphaRenameThisAndArguments(this, functionBody);
+
     // function(params) { ... }
-    var result = createParenExpression(
+    return createParenExpression(
         createFunctionExpression(
             new FormalParameterList(null, parameters), functionBody));
-
-    // If we have a reference to 'this' in the body we need to bind this.
-    var finder = new ThisFinder(functionBody);
-    if (finder.found) {
-      // (function(params) { ... }).bind(thisBinding);
-      return createCallExpression(
-          createMemberExpression(result, BIND),
-          createArgumentList(createThisExpression()));
-    }
-
-    return result;
   }
 
-  static transformTree(reporter, tree) {
-    return new ArrowFunctionTransformer(reporter).transformAny(tree);
+  static transformTree(identifierGenerator, tree) {
+    return new ArrowFunctionTransformer(identifierGenerator).transformAny(tree);
   }
 }
