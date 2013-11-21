@@ -18133,10 +18133,10 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ModuleTransf
     }
     return parsePropertyDefinition($__214, name, returnExpression);
   }
-  function ModuleTransformer(project, url) {
+  function ModuleTransformer(identifierGenerator, url) {
     var module = arguments[2];
-    $__superCall(this, $__ModuleTransformer__proto, "constructor", [project.identifierGenerator]);
-    this.project = project;
+    $__superCall(this, $__ModuleTransformer__proto, "constructor", [identifierGenerator]);
+    this.identifierGenerator = identifierGenerator;
     this.url = url;
     this.module = module;
     assert(this.url);
@@ -18219,14 +18219,14 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ModuleTransf
       return new BindingElement(tree.location, createBindingIdentifier(tree.lhs), null);
     }
   }, {
-    transform: function(project, tree, url) {
+    transform: function(identifierGenerator, tree, url) {
       assert(tree.type === SCRIPT);
-      return new ModuleTransformer(project, url).transformAny(tree);
+      return new ModuleTransformer(identifierGenerator, url).transformAny(tree);
     },
-    transformAsModule: function(project, tree, module) {
+    transformAsModule: function(identifierGenerator, tree, module) {
       assert(tree.type === MODULE);
       assert(module);
-      return new ModuleTransformer(project, module.url, module).transformAny(tree);
+      return new ModuleTransformer(identifierGenerator, module.url, module).transformAny(tree);
     }
   }, $__ModuleTransformer__super, $__ModuleTransformer__proto);
   return Object.preventExtensions(Object.create(null, {ModuleTransformer: {
@@ -19033,8 +19033,9 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ProgramTrans
     },
     transformModules_: function(tree) {
       var module = arguments[1];
-      if (module) return ModuleTransformer.transformAsModule(this.project_, tree, module);
-      return ModuleTransformer.transform(this.project_, tree, this.url);
+      var idGenerator = this.project_.identifierGenerator;
+      if (module) return ModuleTransformer.transformAsModule(idGenerator, tree, module);
+      return ModuleTransformer.transform(idGenerator, tree, this.url);
     }
   }, {});
   ProgramTransformer.transform = function(reporter, project) {
