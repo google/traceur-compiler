@@ -220,9 +220,10 @@ export class ProgramTransformer {
    * @private
    */
   transformModules_(tree, module = undefined) {
+    var idGenerator = this.project_.identifierGenerator;
     if (module)
-      return ModuleTransformer.transformAsModule(this.project_, tree, module);
-    return ModuleTransformer.transform(this.project_, tree, this.url);
+      return ModuleTransformer.transformAsModule(idGenerator, tree, module);
+    return ModuleTransformer.transform(idGenerator, tree, this.url);
   }
 }
 

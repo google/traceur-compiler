@@ -98,13 +98,13 @@ function getGetterExport(transformer, symbol) {
 
 export class ModuleTransformer extends TempVarTransformer {
   /**
-   * @param {Project} project
+   * @param {identifierGenerator} identifierGenerator
    * @param {string} url
    * @param {ModuleSymbol=} module
    */
-  constructor(project, url, module = undefined) {
-    super(project.identifierGenerator);
-    this.project = project;
+  constructor(identifierGenerator, url, module = undefined) {
+    super(identifierGenerator);
+    this.identifierGenerator = identifierGenerator;
     this.url = url;
     this.module = module;
     assert(this.url);
@@ -231,25 +231,25 @@ export class ModuleTransformer extends TempVarTransformer {
   }
 
   /**
-   * @param {Project} project
+   * @param {identifierGenerator} identifierGenerator
    * @param {Script} tree
    * @param {string} url
    * @return {Script}
    */
-  static transform(project, tree, url) {
+  static transform(identifierGenerator, tree, url) {
     assert(tree.type === SCRIPT);
-    return new ModuleTransformer(project, url).transformAny(tree);
+    return new ModuleTransformer(identifierGenerator, url).transformAny(tree);
   }
 
   /**
-   * @param {Project} project
+   * @param {identifierGenerator} identifierGenerator
    * @param {Script} tree
    * @param {Module} module
    * @return {Script}
    */
-  static transformAsModule(project, tree, module) {
+  static transformAsModule(identifierGenerator, tree, module) {
     assert(tree.type === MODULE);
     assert(module);
-    return new ModuleTransformer(project, module.url, module).transformAny(tree);
+    return new ModuleTransformer(identifierGenerator, module.url, module).transformAny(tree);
   }
 }
