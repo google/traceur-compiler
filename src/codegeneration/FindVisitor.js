@@ -27,10 +27,10 @@ var foundSentinel = {};
 export class FindVisitor extends ParseTreeVisitor {
   /**
    * @param {ParseTree} tree
-   * @param {boolean} keepOnGoing Whether to stop searching after the first
+   * @param {boolean=} keepOnGoing Whether to stop searching after the first
    *     found condition.
    */
-  constructor(tree, keepOnGoing) {
+  constructor(tree, keepOnGoing = undefined) {
     this.found_ = false;
     this.keepOnGoing_ = keepOnGoing;
     try {
