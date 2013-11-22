@@ -29,12 +29,8 @@ import {prependStatements} from './PrependStatements';
 
 // Some helper functions that other runtime functions may depend on.
 var shared = {
-  Function: `Function`,
-  FunctionPrototype: `%Function.prototype`,
-  Object: `Object`,
-  ObjectPrototype: `%Object.prototype`,
   TypeError: `TypeError`,
-  defineProperties: `%Object.defineProperties`,
+  Object: `Object`,
   defineProperty: `%Object.defineProperty`,
   getOwnPropertyDescriptor: `%Object.getOwnPropertyDescriptor`,
   getOwnPropertyNames: `%Object.getOwnPropertyNames`,
@@ -49,7 +45,7 @@ var shared = {
       }`,
   getDescriptors:
       `function(object) {
-        var descriptors = {}, names = %getOwnPropertyNames(object);
+        var descriptors = {}, name, names = %getOwnPropertyNames(object);
         for (var i = 0; i < names.length; i++) {
           var name = names[i];
           descriptors[name] = %getOwnPropertyDescriptor(object, name);
