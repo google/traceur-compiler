@@ -11,10 +11,7 @@ export class ParseTreeTransformer {
         if (builder == null) {
           builder = list.slice(0, index);
         }
-        if (transformed instanceof AnonBlock)
-          builder.push(...transformed.statements);
-        else
-          builder.push(transformed);
+        builder.push(transformed);
       }
     }
     return builder || list;
