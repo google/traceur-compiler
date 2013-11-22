@@ -228,10 +228,6 @@ class LoadCodeUnit extends CodeUnit {
   }
 
   transform() {
-    if (this.type === 'module') {
-      return ProgramTransformer.transformFileAsModule(this.reporter,
-          this.project, this.moduleSymbol, this.file);
-    }
     return ProgramTransformer.transformFile(this.reporter, this.project,
         this.file);
   }
@@ -473,8 +469,7 @@ class InternalLoader {
   transformCodeUnit(codeUnit) {
     this.transformDependencies(codeUnit.dependencies); // depth first
 
-    var results = codeUnit.transform();
-    return results.get(codeUnit.file);
+    return codeUnit.transform();
   }
 
   evaluate() {
