@@ -10,7 +10,7 @@
       "ParseTree"
     ]
   },
-  "AnnotatedDeclaration": {
+  "AnnotatedClassDeclaration": {
     "location": [
       "SourceRange"
     ],
@@ -18,17 +18,31 @@
       "Array.<Annotation>"
     ],
     "declaration": [
-      "ClassDeclaration", 
+      "ClassDeclaration",
+      "ExportDeclaration"
+    ]
+  },
+  "AnnotatedFunctionDeclaration": {
+    "location": [
+      "SourceRange"
+    ],
+    "annotations": [
+      "Array.<Annotation>"
+    ],
+    "declaration": [
       "ExportDeclaration",
       "FunctionDeclaration"
     ]
-  },  
+  },
   "Annotation": {
     "location": [
       "SourceRange"
     ],
     "name": [
       "IdentifierToken"
+    ],
+    "args": [
+      "ArgumentList"
     ]
   },
   "ArgumentList": {

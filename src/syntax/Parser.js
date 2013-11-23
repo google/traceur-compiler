@@ -26,9 +26,11 @@ import {
   BINARY_OPERATOR,
   CALL_EXPRESSION,
   CASCADE_EXPRESSION,
+  CLASS_DECLARATION,
   COMMA_EXPRESSION,
   COMPUTED_PROPERTY_NAME,
   FORMAL_PARAMETER_LIST,
+  FUNCTION_DECLARATION,
   IDENTIFIER_EXPRESSION,
   LITERAL_PROPERTY_NAME,
   MEMBER_EXPRESSION,
@@ -202,8 +204,9 @@ import {
   CoverFormals,
   CoverInitialisedName,
   DebuggerStatement,
+  AnnotatedClassDeclaration,
   AnnotatedClassElement,
-  AnnotatedDeclaration,
+  AnnotatedFunctionDeclaration,
   Annotation,
   DefaultClause,
   DoWhileStatement,
@@ -2067,7 +2070,7 @@ export class Parser {
 
       case STAR:
         return this.parseGeneratorMethod_(start, isStatic);
-      
+
       case AT:
         return this.parseAnnotatedClassElement_();
 
@@ -3555,23 +3558,23 @@ export class Parser {
     var type;
     var declaration;
 
-    
+
     type = this.peekType_();
     if (this.peekAnnotatedDeclaration_(type)) {
-      switch (type) {
-        case CLASS:
-          declaration = this.parseClassDeclaration_();
-          break;
-        case EXPORT:
-          declaration = this.parseExportDeclaration_();
-          break;
-        case FUNCTION:
-          declaration = this.parseFunctionDeclaration_();
-          break;
-      }
+      if (type === EXPORT) {
+        declaration = this.parseExportDeclaration_();
 
-      if (declaration) {
-        return new AnnotatedDeclaration(this.getTreeLocation_(start), annotations, declaration);
+        if (declaration.declaration.type === CLASS_DECLARATION) {
+          return new AnnotatedClassDeclaration(this.getTreeLocation_(start), annotations, declaration);
+        } else if (declaration.declaration.type === FUNCTION_DECLARATION) {
+          return new AnnotatedFunctionDeclaration(this.getTreeLocation_(start), annotations, declaration);
+        }
+      } else if (type === CLASS) {
+        return new AnnotatedClassDeclaration(this.getTreeLocation_(start), annotations,
+          this.parseClassDeclaration_());
+      } else if (type === FUNCTION) {
+        return new AnnotatedFunctionDeclaration(this.getTreeLocation_(start), annotations,
+          this.parseFunctionDeclaration_());
       }
     }
 
@@ -3582,19 +3585,26 @@ export class Parser {
     var annotations = [];
     while (this.eatIf_(AT)) {
       annotations.push(this.parseAnnotation_());
-    } 
+    }
     return annotations;
   }
 
   peekAnnotatedDeclaration_(type) {
     if (type === EXPORT) {
-      return this.peek_(CLASS, 1) || this.peek(FUNCTION, 1);
+      return this.peek_(CLASS, 1) || this.peek_(FUNCTION, 1);
     }
     return type === CLASS || type === FUNCTION;
   }
 
   parseAnnotation_() {
-    return new Annotation(this.getTreeStartLocation_(), this.parseExpression());
+    var name = this.parseIdentifierExpression_();
+    var args = null;
+
+    if (this.peek_(OPEN_PAREN)) {
+      args = this.parseArguments_();
+    }
+
+    return new Annotation(this.getTreeStartLocation_(), name, args);
   }
 
   /**

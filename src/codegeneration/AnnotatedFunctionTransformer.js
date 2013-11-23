@@ -14,29 +14,20 @@
 
 import {ParseTreeTransformer} from './ParseTreeTransformer.js';
 import {
-  CONSTRUCTOR
-} from '../syntax/PredefinedName.js';
-import {
   FunctionMetadata
 } from '../syntax/trees/ParseTrees';
 import {
-  ANNOTATED_CLASS_ELEMENT,
-  CLASS_DECLARATION,
   EXPORT_DECLARATION,
-  FUNCTION_DECLARATION
 } from '../syntax/trees/ParseTreeType';
 import {
-  createObjectLiteralExpression,
-  createPropertyNameAssignment,
   createScript
 } from './ParseTreeFactory.js';
-import {propName} from '../staticsemantics/PropName';
 
 /**
- * Annotation extension  
+ * Annotation extension
  *
  */
-export class AnnotatedDeclarationTransformer extends ParseTreeTransformer {
+export class AnnotatedFunctionTransformer extends ParseTreeTransformer {
   /**
    * @param {ErrorReporter} reporter
    */
@@ -45,43 +36,16 @@ export class AnnotatedDeclarationTransformer extends ParseTreeTransformer {
     this.reporter_ = reporter;
   }
 
-  transformAnnotatedDeclaration(tree) {    
+  transformAnnotatedFunctionDeclaration(tree) {
     var declaration = tree.declaration;
     var annotations = tree.annotations;
-    var contextExpression, ctor, parameters = [];
 
     if (declaration.type === EXPORT_DECLARATION) {
       declaration = tree.declaration.declaration;
     }
-    
-    if (declaration.type === CLASS_DECLARATION) {
-      ctor = this.findConstructor_(declaration);
 
-      if (ctor) { 
-        if (ctor.type === ANNOTATED_CLASS_ELEMENT) {
-          annotations = annotations.concat(ctor.annotations);
-          ctor = ctor.element;
-        }
-        parameters = ctor.formalParameterList;
-      }      
-    } else if (declaration.type === FUNCTION_DECLARATION) {
-      parameters = declaration.formalParameterList;
-    }
-
-    return createScript([declaration, 
-      new FunctionMetadata(null, declaration.name, annotations, parameters)]);
-  }
-
-  findConstructor_(declaration) {
-    var tree;
-
-    for (tree of declaration.elements) {
-      if (!tree.isStatic && propName(tree) === CONSTRUCTOR) {
-        return tree;
-      }
-    }
-
-    return null;
+    return createScript([tree.declaration,
+      new FunctionMetadata(null, declaration.name, annotations, declaration.formalParameterList.parameters)]);
   }
 
   /**
@@ -90,6 +54,6 @@ export class AnnotatedDeclarationTransformer extends ParseTreeTransformer {
    * @return {Script}
    */
   static transformTree(reporter, tree) {
-    return new AnnotatedDeclarationTransformer(reporter).transformAny(tree);
+    return new AnnotatedFunctionTransformer(reporter).transformAny(tree);
   }
 }

@@ -16,14 +16,11 @@ import {
   CONSTRUCTOR
 } from '../syntax/PredefinedName';
 import {
-  ClassMemberMetadata,
   GetAccessor,
   PropertyMethodAssignment,
   SetAccessor
 } from '../syntax/trees/ParseTrees';
 import {
-  CALL_EXPRESSION,
-  ANNOTATED_CLASS_ELEMENT,
   GET_ACCESSOR,
   PROPERTY_METHOD_ASSIGNMENT,
   SET_ACCESSOR
@@ -35,8 +32,6 @@ import {
   VAR
 } from '../syntax/TokenType';
 import {
-  createScript,
-  createStatementList,
   createFunctionBody,
   createIdentifierExpression,
   createMemberExpression,
@@ -140,11 +135,10 @@ export class ClassTransformer extends TempVarTransformer{
     this.reporter_ = reporter;
   }
 
-  transformClassShared_(tree, name, metadata) {
+  transformClassShared_(tree, name) {
     var superClass = this.transformAny(tree.superClass);
     var nameIdent = createIdentifierExpression(name);
     var protoName = createIdentifierExpression('$__proto');
-    var className = tree.name;
     var hasConstructor = false;
     var protoElements = [], staticElements = [];
     // For static methods the base for super calls is the RHS of the
@@ -155,11 +149,6 @@ export class ClassTransformer extends TempVarTransformer{
 
     tree.elements.forEach((tree) => {
       var elements, proto;
-
-      if (tree.type === ANNOTATED_CLASS_ELEMENT) {
-        tree = this.transformAnnotatedElement_(metadata, className, tree);
-      }
-
       if (tree.isStatic) {
         elements = staticElements;
         proto = staticSuperRef;
@@ -178,7 +167,7 @@ export class ClassTransformer extends TempVarTransformer{
           break;
 
         case PROPERTY_METHOD_ASSIGNMENT:
-          if (this.isConstructor_(tree)) 
+          if (!tree.isStatic && propName(tree) === CONSTRUCTOR)
             hasConstructor = true;
           elements.push(this.transformPropertyMethodAssignment_(tree, proto));
           break;
@@ -186,7 +175,6 @@ export class ClassTransformer extends TempVarTransformer{
         default:
           throw new Error(`Unexpected class element: ${tree.type}`);
       }
-
     });
 
     // Create constructor if it does not already exist.
@@ -242,10 +230,6 @@ export class ClassTransformer extends TempVarTransformer{
                                     CREATE_CLASS_NO_EXTENDS_CODE);
   }
 
-  isConstructor_(tree) {
-    return !tree.isStatic && propName(tree) === CONSTRUCTOR;
-  }
-
   /**
    * Transforms a single class declaration
    *
@@ -253,25 +237,21 @@ export class ClassTransformer extends TempVarTransformer{
    * @return {ParseTree}
    */
   transformClassDeclaration(tree) {
-    var metadata = [];
-
     // let <className> = ...
     // The name needs to be different from the class name but similar enough
     // that we can make sense out of our stack traces.
     var name = '$' + tree.name.identifierToken.value;
-    var statement = createVariableStatement(
+    return createVariableStatement(
         // If we allow let in the parser; use let. This let will be transformed
         // by the block binding transformer as needed.
         parseOptions.blockBinding ? LET : VAR,
         tree.name,
-        this.transformClassShared_(tree, name, metadata));
-    return createScript(createStatementList([statement].concat(metadata)));
+        this.transformClassShared_(tree, name));
   }
 
   transformClassExpression(tree) {
-    var metadata = [], ident = tree.name ? tree.name.identifierToken.value : this.addTempVar();
-    var statement = createParenExpression(this.transformClassShared_(tree, ident, metadata));
-    return createScript(createStatementList([statement].concat(metadata)));
+    var ident = tree.name ? tree.name.identifierToken.value : this.addTempVar();
+    return createParenExpression(this.transformClassShared_(tree, ident));
   }
 
   transformPropertyMethodAssignment_(tree, protoName) {
@@ -341,20 +321,6 @@ export class ClassTransformer extends TempVarTransformer{
     return parsePropertyDefinition `constructor: function() {
       ${superCall};
     }`;
-  }
-
-  transformAnnotatedElement_(metadata, className, tree) {
-    var parameters, elem = tree.element;
-
-    // Constructor metadata is rolled up into the top-level class metadata 
-    // so we can ignore it here.
-    if (!this.isConstructor_(tree)) {      
-      metadata.push(new ClassMemberMetadata(null, elem.name, className, 
-        elem.isStatic, elem.type === GET_ACCESSOR, elem.type === SET_ACCESSOR,
-        tree.annotations, elem.formalParameterList));
-    }
-
-    return elem;
   }
 
   /**

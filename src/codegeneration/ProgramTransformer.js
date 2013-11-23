@@ -20,7 +20,8 @@ import {CascadeExpressionTransformer} from './CascadeExpressionTransformer';
 import {ClassTransformer} from './ClassTransformer';
 import {CollectionTransformer} from './CollectionTransformer';
 import {MetadataTransformer} from './MetadataTransformer.js';
-import {AnnotatedDeclarationTransformer} from './AnnotatedDeclarationTransformer.js';
+import {AnnotatedClassTransformer} from './AnnotatedClassTransformer.js';
+import {AnnotatedFunctionTransformer} from './AnnotatedFunctionTransformer.js';
 import {DefaultParametersTransformer} from './DefaultParametersTransformer';
 import {DestructuringTransformer} from './DestructuringTransformer';
 import {ForOfTransformer} from './ForOfTransformer';
@@ -131,9 +132,10 @@ export class ProgramTransformer {
     if (transformOptions.arrowFunctions)
       append(ArrowFunctionTransformer, identifierGenerator);
 
-    if (transformOptions.annotations)
-      append(AnnotatedDeclarationTransformer,
-              reporter);
+    if (transformOptions.annotations) {
+      append(AnnotatedClassTransformer, reporter);
+      append(AnnotatedFunctionTransformer, reporter);
+    }
 
     // ClassTransformer needs to come before ObjectLiteralTransformer.
     if (transformOptions.classes)
@@ -144,6 +146,7 @@ export class ProgramTransformer {
 
     if (transformOptions.annotations)
       append(MetadataTransformer,
+              runtimeInliner,
               reporter);
 
     if (transformOptions.propertyNameShorthand)
