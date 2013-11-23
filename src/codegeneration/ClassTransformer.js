@@ -24,12 +24,13 @@ import {
   FunctionDeclaration,
   FunctionExpression,
   GetAccessor,
+  MetadataAssignment,
   PropertyMethodAssignment,
   SetAccessor
 } from '../syntax/trees/ParseTrees';
 import {
   CALL_EXPRESSION,
-  DECORATED_CLASS_ELEMENT,
+  ANNOTATED_CLASS_ELEMENT,
   GET_ACCESSOR,
   PROPERTY_METHOD_ASSIGNMENT,
   SET_ACCESSOR
@@ -184,9 +185,9 @@ export class ClassTransformer extends TempVarTransformer{
     var oldState = this.state_;
     this.state_ = {hasStaticSuper: false, hasSuper: false};
     var superClass = this.transformAny(tree.superClass);
-
+    var className = tree.name;
     var hasConstructor = false;
-    var protoElements = [], staticElements = [];
+    var protoElements = [], staticElements = [], metadata = [];
     var constructorBody, constructorParams;
 
     if (!superClass) {
@@ -197,8 +198,8 @@ export class ClassTransformer extends TempVarTransformer{
     tree.elements.forEach((tree) => {
       var elements, proto;
 
-      if (tree.type === DECORATED_CLASS_ELEMENT) {
-        tree = this.transformDecoratedElement_(decoratorStatements, nameIdent, tree);
+      if (tree.type === ANNOTATED_CLASS_ELEMENT) {
+        tree = this.transformAnnotatedElement_(metadata, className, tree);
       }
 
       if (tree.isStatic) {
@@ -221,7 +222,7 @@ export class ClassTransformer extends TempVarTransformer{
         case PROPERTY_METHOD_ASSIGNMENT:
           var transformed =
               this.transformPropertyMethodAssignment_(tree, proto);
-          if (!tree.isStatic && propName(tree) === CONSTRUCTOR) {
+          if (this.isConstructor_(tree)) {
             hasConstructor = true;
             constructorParams = transformed.formalParameterList;
             constructorBody = transformed.functionBody;
@@ -262,7 +263,8 @@ export class ClassTransformer extends TempVarTransformer{
       object,
       staticObject,
       hasSuper: state.hasSuper,
-      hasStaticSuper: state.hasStaticSuper
+      hasStaticSuper: state.hasStaticSuper,
+      metadata
     };
   }
 
@@ -273,6 +275,10 @@ export class ClassTransformer extends TempVarTransformer{
 
   get getProtoParent_() {
     return this.runtimeInliner_.get('getProtoParent', GET_PROTO_PARENT_CODE);
+  }
+
+  isConstructor_(tree) {
+    return !tree.isStatic && propName(tree) === CONSTRUCTOR;
   }
 
   /**
@@ -307,7 +313,8 @@ export class ClassTransformer extends TempVarTransformer{
       hasSuper,
       object,
       staticObject,
-      superClass
+      superClass,
+      metadata
     } = options;
 
     var nameAsBinding = new BindingIdentifier(name.location,
@@ -344,6 +351,7 @@ export class ClassTransformer extends TempVarTransformer{
                             ${superClass})`);
     }
 
+    statements = statements.concat(metadata);
     return new AnonBlock(null, statements);
   }
 
@@ -496,26 +504,18 @@ export class ClassTransformer extends TempVarTransformer{
     return parseStatement `${protoName} !== null && ${superCall}`;
   }
 
-  transformDecoratedElement_(statements, nameIdent, tree) {
-    var contextExpression;
-    var contextProperties = [];
-    var target = tree.element.isStatic ? nameIdent : 
-      createMemberExpression(nameIdent, 'prototype'); 
+  transformAnnotatedElement_(metadata, className, tree) {
+    var parameters, elem = tree.element;
 
-    contextProperties.push(createPropertyNameAssignment('target', target));
-    contextProperties.push(createPropertyNameAssignment('constructor', nameIdent));
-    contextProperties.push(createPropertyNameAssignment('name', 
-      createStringLiteral(tree.element.name.literalToken.value)));
-    contextProperties.push(createPropertyNameAssignment('descriptor', 
-      createCallExpression(this.getPropertyDescriptor, 
-        createArgumentList([target, createStringLiteral(tree.element.name.literalToken.value)]))));
+    // Constructor metadata is rolled up into the top-level class metadata 
+    // so we can ignore it here.
+    if (!this.isConstructor_(tree)) {      
+      metadata.push(new MetadataAssignment(null, elem.name, className, 
+        elem.isStatic, elem.type === GET_ACCESSOR, elem.type === SET_ACCESSOR,
+        tree.annotations, elem.formalParameterList));
+    }
 
-    contextExpression = createObjectLiteralExpression(contextProperties);
-    tree.decorations.forEach((decorator) => {
-      statements.push(createCallDecoratorStatement(contextExpression, decorator));
-    });
-
-    return tree.element;
+    return elem;
   }
 
   /**

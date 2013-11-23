@@ -268,7 +268,7 @@ addFeatureOption('trapMemberLookup', EXPERIMENTAL);
 addFeatureOption('deferredFunctions', EXPERIMENTAL);
 addFeatureOption('propertyOptionalComma', EXPERIMENTAL);
 addFeatureOption('types', EXPERIMENTAL);
-addFeatureOption('decorators', EXPERIMENTAL);
+addFeatureOption('annotations', EXPERIMENTAL);
 
 addBoolOption('debug');
 addBoolOption('sourceMaps');

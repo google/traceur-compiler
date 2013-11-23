@@ -1,4 +1,36 @@
 {
+  "AnnotatedClassElement": {
+    "location": [
+      "SourceRange"
+    ],
+    "annotations": [
+      "Array.<Annotation>"
+    ],
+    "element": [
+      "ParseTree"
+    ]
+  },
+  "AnnotatedDeclaration": {
+    "location": [
+      "SourceRange"
+    ],
+    "annotations": [
+      "Array.<Annotation>"
+    ],
+    "declaration": [
+      "ClassDeclaration", 
+      "ExportDeclaration",
+      "FunctionDeclaration"
+    ]
+  },  
+  "Annotation": {
+    "location": [
+      "SourceRange"
+    ],
+    "name": [
+      "IdentifierToken"
+    ]
+  },
   "AnonBlock": {
     "location": [
       "SourceRange"
@@ -113,17 +145,6 @@
     ],
     "name": [
       "IdentifierToken"
-    ]
-  },
-  "CallDecoratorExpression": {
-    "location": [
-      "SourceRange"
-    ],
-    "context": [
-      "ObjectLiteralExpression"
-    ],
-    "decorator": [
-      "DecoratorExpression"
     ]
   },
   "CallExpression": {
@@ -280,38 +301,6 @@
   "DebuggerStatement": {
     "location": [
       "SourceRange"
-    ]
-  },
-  "DecoratedDeclaration": {
-    "location": [
-      "SourceRange"
-    ],
-    "decorations": [
-      "Array.<DecoratorExpression>"
-    ],
-    "declaration": [
-      "ClassDeclaration", 
-      "ExportDeclaration",
-      "FunctionDeclaration"
-    ]
-  },  
-  "DecoratedClassElement": {
-    "location": [
-      "SourceRange"
-    ],
-    "decorations": [
-      "Array.<DecoratorExpression>"
-    ],
-    "element": [
-      "ParseTree"
-    ]
-  },
-  "DecoratorExpression": {
-    "location": [
-      "SourceRange"
-    ],
-    "expression": [
-      "ExpressionStatement"
     ]
   },
   "DefaultClause": {
@@ -623,6 +612,32 @@
     ],
     "memberExpression": [
       "ParseTree"
+    ]
+  },
+  "MetadataAssignment": {
+    "location": [
+      "SourceRange"
+    ],
+    "name": [
+      "BindingIdentifier"
+    ],
+    "className": [
+      "BindingIdentifier"
+    ],
+    "isStatic": [
+      "boolean"
+    ],
+    "isGetAccessor": [
+      "boolean"
+    ],
+    "isSetAccessor": [
+      "boolean"
+    ],
+    "annotations": [
+      "Array.<Annotation>"
+    ],
+    "parameters": [
+      "Array.<ParseTree>"
     ]
   },
   "Module": {

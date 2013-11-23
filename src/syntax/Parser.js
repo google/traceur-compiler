@@ -202,9 +202,9 @@ import {
   CoverFormals,
   CoverInitialisedName,
   DebuggerStatement,
-  DecoratedClassElement,
-  DecoratedDeclaration,
-  DecoratorExpression,
+  AnnotatedClassElement,
+  AnnotatedDeclaration,
+  Annotation,
   DefaultClause,
   DoWhileStatement,
   EmptyStatement,
@@ -717,7 +717,7 @@ export class Parser {
     // PropertyName covers get, set and static too.
     return this.peekPropertyName_(type) ||
         type === STAR && parseOptions.generators ||
-        type === AT && parseOptions.decorators;
+        type === AT && parseOptions.annotations;
   }
 
   // PropertyName :
@@ -783,8 +783,8 @@ export class Parser {
 
       // Rest are just alphabetical order.
       case AT:
-        if (parseOptions.decorators)
-          return this.parseDecoratorDeclarations_();
+        if (parseOptions.annotations)
+          return this.parseAnnotatedDeclarations_();
         break;
       case AWAIT:
         if (parseOptions.deferredFunctions)
@@ -2069,7 +2069,7 @@ export class Parser {
         return this.parseGeneratorMethod_(start, isStatic);
       
       case AT:
-        return this.parseDecoratedClassElement_();
+        return this.parseAnnotatedClassElement_();
 
       default:
         return this.parseGetSetOrMethod_(start, isStatic);
@@ -3534,30 +3534,30 @@ export class Parser {
   }
 
   /**
-   * Decorators extension
+   * Annotations extension
    *
    * @return {ParseTree}
    * @private
    */
-  parseDecoratedClassElement_(start) {
-    return new DecoratedClassElement(start, this.collectDecorators_(), this.parseClassElement_());
+  parseAnnotatedClassElement_(start) {
+    return new AnnotatedClassElement(start, this.collectAnnotations_(), this.parseClassElement_());
   }
 
   /**
-   * Decorators extension
+   * Annotations extension
    *
    * @return {ParseTree}
    * @private
    */
-  parseDecoratorDeclarations_() {
+  parseAnnotatedDeclarations_() {
     var start = this.getTreeStartLocation_();
-    var decorators = this.collectDecorators_();
+    var annotations = this.collectAnnotations_();
     var type;
     var declaration;
 
     
     type = this.peekType_();
-    if (this.peekDecoratedDeclaration_(type)) {
+    if (this.peekAnnotatedDeclaration_(type)) {
       switch (type) {
         case CLASS:
           declaration = this.parseClassDeclaration_();
@@ -3571,30 +3571,30 @@ export class Parser {
       }
 
       if (declaration) {
-        return new DecoratedDeclaration(this.getTreeLocation_(start), decorators, declaration);
+        return new AnnotatedDeclaration(this.getTreeLocation_(start), annotations, declaration);
       }
     }
 
-    return this.parseSyntaxError_('Unsupported decorated expression');
+    return this.parseSyntaxError_('Unsupported annotated expression');
   }
 
-  collectDecorators_() {
-    var decorators = [];
+  collectAnnotations_() {
+    var annotations = [];
     while (this.eatIf_(AT)) {
-      decorators.push(this.parseDecoratorExpression_());
+      annotations.push(this.parseAnnotation_());
     } 
-    return decorators;
+    return annotations;
   }
 
-  peekDecoratedDeclaration_(type) {
+  peekAnnotatedDeclaration_(type) {
     if (type === EXPORT) {
       return this.peek_(CLASS, 1) || this.peek(FUNCTION, 1);
     }
     return type === CLASS || type === FUNCTION;
   }
 
-  parseDecoratorExpression_() {
-    return new DecoratorExpression(this.getTreeStartLocation_(), this.parseExpression());
+  parseAnnotation_() {
+    return new Annotation(this.getTreeStartLocation_(), this.parseExpression());
   }
 
   /**
