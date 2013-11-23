@@ -80,7 +80,7 @@ export class MetadataTransformer extends ParseTreeTransformer {
     return createMemberExpression(descriptor, accessor);
   }
 
-  transformAnnotations_(target, annotations, statements) {
+  transformAnnotations_(target, annotations) {
     annotations = annotations.map((annotation) => {
       return createNewExpression(annotation.name, annotation.args);
     });
@@ -89,14 +89,24 @@ export class MetadataTransformer extends ParseTreeTransformer {
   }
 
   transformParameters_(target, parameters) {
-    return [];
+    var hasParameterMetadata = false;
+
+    parameters = parameters.map((param) => {
+      if (param.annotations && param.annotations.length > 0) {
+        hasParameterMetadata = true;
+        return createArrayLiteralExpression(this.transformAnnotations_(target, param.annotations));
+      }
+      return [];
+    });
+
+    return hasParameterMetadata ? parameters : [];
   }
 
   transformMetadata_(target, annotations, parameters) {
     var statements = [];
 
     if (annotations) {
-      annotations = this.transformAnnotations_(target, annotations, statements);
+      annotations = this.transformAnnotations_(target, annotations);
 
       if (annotations.length > 0) {
         statements.push(createAssignmentStatement(createMemberExpression(target, 'annotations'),
@@ -105,7 +115,7 @@ export class MetadataTransformer extends ParseTreeTransformer {
     }
 
     if (parameters) {
-      parameters = this.transformParameters_(target, parameters, statements);
+      parameters = this.transformParameters_(target, parameters);
 
       if (parameters.length > 0) {
         statements.push(createAssignmentStatement(createMemberExpression(target, 'parameters'),

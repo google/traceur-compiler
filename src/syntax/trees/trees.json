@@ -838,6 +838,7 @@
       "ParseTree"
     ],
     "parameter": [
+      "AnnotatedBindingElement",
       "BindingElement"
     ],
     "body": [
