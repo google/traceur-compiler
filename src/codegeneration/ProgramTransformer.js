@@ -19,7 +19,7 @@ import {BlockBindingTransformer} from './BlockBindingTransformer';
 import {CascadeExpressionTransformer} from './CascadeExpressionTransformer';
 import {ClassTransformer} from './ClassTransformer';
 import {CollectionTransformer} from './CollectionTransformer';
-import {MetadataAssignmentTransformer} from './MetadataAssignmentTransformer.js';
+import {MetadataTransformer} from './MetadataTransformer.js';
 import {AnnotatedDeclarationTransformer} from './AnnotatedDeclarationTransformer.js';
 import {DefaultParametersTransformer} from './DefaultParametersTransformer';
 import {DestructuringTransformer} from './DestructuringTransformer';
@@ -131,8 +131,8 @@ export class ProgramTransformer {
     if (transformOptions.arrowFunctions)
       append(ArrowFunctionTransformer, identifierGenerator);
 
-    transform(transformOptions.annotations,
-              AnnotatedDeclarationTransformer,
+    if (transformOptions.annotations)
+      append(AnnotatedDeclarationTransformer,
               reporter);
 
     // ClassTransformer needs to come before ObjectLiteralTransformer.
@@ -140,6 +140,10 @@ export class ProgramTransformer {
       append(ClassTransformer,
               identifierGenerator,
               runtimeInliner,
+              reporter);
+
+    if (transformOptions.annotations)
+      append(MetadataTransformer,
               reporter);
 
     if (transformOptions.propertyNameShorthand)
@@ -194,9 +198,7 @@ export class ProgramTransformer {
               identifierGenerator,
               runtimeInliner);
 
-    transform(transformOptions.annotations,
-              MetadataAssignmentTransformer,
-              reporter);
+    multi.append((tree) => runtimeInliner.transformAny(tree));
 
     if (transformOptions.blockBinding)
       append(BlockBindingTransformer);

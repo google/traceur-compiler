@@ -16,8 +16,8 @@ import {
   CONSTRUCTOR
 } from '../syntax/PredefinedName';
 import {
+  ClassMemberMetadata,
   GetAccessor,
-  MetadataAssignment,
   PropertyMethodAssignment,
   SetAccessor
 } from '../syntax/trees/ParseTrees';
@@ -35,6 +35,8 @@ import {
   VAR
 } from '../syntax/TokenType';
 import {
+  createScript,
+  createStatementList,
   createFunctionBody,
   createIdentifierExpression,
   createMemberExpression,
@@ -142,6 +144,7 @@ export class ClassTransformer extends TempVarTransformer{
     var superClass = this.transformAny(tree.superClass);
     var nameIdent = createIdentifierExpression(name);
     var protoName = createIdentifierExpression('$__proto');
+    var className = tree.name;
     var hasConstructor = false;
     var protoElements = [], staticElements = [];
     // For static methods the base for super calls is the RHS of the
@@ -154,7 +157,7 @@ export class ClassTransformer extends TempVarTransformer{
       var elements, proto;
 
       if (tree.type === ANNOTATED_CLASS_ELEMENT) {
-        tree = this.transformAnnotatedElement_(metadata, name, tree);
+        tree = this.transformAnnotatedElement_(metadata, className, tree);
       }
 
       if (tree.isStatic) {
@@ -194,7 +197,6 @@ export class ClassTransformer extends TempVarTransformer{
 
     var object = createObjectLiteralExpression(protoElements);
     var staticObject = createObjectLiteralExpression(staticElements);
-    var classExpression;
 
     // We branch on whether we have an extends expression or not since when
     // there is one, setting up the prototype chains gets a lot more
@@ -224,7 +226,7 @@ export class ClassTransformer extends TempVarTransformer{
       var ${nameIdent} = (${this.createClassNoExtends_})(
           ${object}, ${staticObject});
       return ${nameIdent};
-    }()`;    
+    }()`;
   }
 
   get createClass_() {
@@ -263,13 +265,13 @@ export class ClassTransformer extends TempVarTransformer{
         parseOptions.blockBinding ? LET : VAR,
         tree.name,
         this.transformClassShared_(tree, name, metadata));
-    return createScript([statement].concat(metadata));
+    return createScript(createStatementList([statement].concat(metadata)));
   }
 
   transformClassExpression(tree) {
     var metadata = [], ident = tree.name ? tree.name.identifierToken.value : this.addTempVar();
     var statement = createParenExpression(this.transformClassShared_(tree, ident, metadata));
-    return createScript([statement].concat(metadata));
+    return createScript(createStatementList([statement].concat(metadata)));
   }
 
   transformPropertyMethodAssignment_(tree, protoName) {

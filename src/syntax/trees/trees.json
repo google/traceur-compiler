@@ -211,6 +211,33 @@
       "Array.<ParseTree>"
     ]
   },
+  "ClassMemberMetadata": {
+    "location": [
+      "SourceRange"
+    ],
+    "name": [
+      "BindingIdentifier"
+    ],
+    "className": [
+      "BindingIdentifier"
+    ],
+    "isStatic": [
+      "boolean"
+    ],
+    "isGetAccessor": [
+      "boolean"
+    ],
+    "isSetAccessor": [
+      "boolean"
+    ],
+    "annotations": [
+      "Array.<Annotation>"
+    ],
+    "parameters": [
+      "Array.<ParseTree>"
+    ]
+  },
+
   "CommaExpression": {
     "location": [
       "SourceRange"
@@ -471,6 +498,20 @@
       "FunctionBody"
     ]
   },
+  "FunctionMetadata": {
+    "location": [
+      "SourceRange"
+    ],
+    "name": [
+      "BindingIdentifier"
+    ],
+    "annotations": [
+      "Array.<Annotation>"
+    ],
+    "parameters": [
+      "Array.<ParseTree>"
+    ]
+  },
   "GeneratorComprehension": {
     "location": [
       "SourceRange"
@@ -604,32 +645,6 @@
     ],
     "memberExpression": [
       "ParseTree"
-    ]
-  },
-  "MetadataAssignment": {
-    "location": [
-      "SourceRange"
-    ],
-    "name": [
-      "BindingIdentifier"
-    ],
-    "className": [
-      "BindingIdentifier"
-    ],
-    "isStatic": [
-      "boolean"
-    ],
-    "isGetAccessor": [
-      "boolean"
-    ],
-    "isSetAccessor": [
-      "boolean"
-    ],
-    "annotations": [
-      "Array.<Annotation>"
-    ],
-    "parameters": [
-      "Array.<ParseTree>"
     ]
   },
   "Module": {
