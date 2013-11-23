@@ -31,14 +31,6 @@
       "IdentifierToken"
     ]
   },
-  "AnonBlock": {
-    "location": [
-      "SourceRange"
-    ],
-    "statements": [
-      "Array.<ParseTree>"
-    ]
-  },
   "ArgumentList": {
     "location": [
       "SourceRange"

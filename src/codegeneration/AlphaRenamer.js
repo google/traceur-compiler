@@ -138,34 +138,35 @@ export class AlphaRenamer extends ParseTreeTransformer {
     // TODO(arv): Compare the old name to the bindings in the pattern.
     return super.transformCatch(tree);
   }
+
+  /**
+   * Alpha-renames {@code oldName} to {@code newName} in {@code tree}
+   * and returns the new {@code ParseTree}.
+   *
+   * <p>Renaming is applied throughout the lexical scope of the
+   * variable. If the old name is freshly bound alpha-renaming doesn't
+   * propagate there; for example, renaming {@code "a"} to {@code "b"}
+   * in the following program:
+   *
+   * <pre>
+   * function a(a) {
+   *   ...
+   * }
+   * </pre>
+   * Will produce:
+   * <pre>
+   * function b(a) {
+   *   ...
+   * }
+   * </pre>
+   *
+   * @param {ParseTree} tree the tree to substitute names in.
+   * @param {string} oldName the identifier to be replaced.
+   * @param {string} newName the identifier that will appear instead of |oldName|.
+   * @return {ParseTree} a copy of {@code tree} with replacements.
+   */
+  static rename(tree, oldName, newName) {
+    return new AlphaRenamer(oldName, newName).transformAny(tree);
+  }
 }
 
-/**
- * Alpha-renames {@code oldName} to {@code newName} in {@code tree}
- * and returns the new {@code ParseTree}.
- *
- * <p>Renaming is applied throughout the lexical scope of the
- * variable. If the old name is freshly bound alpha-renaming doesn't
- * propagate there; for example, renaming {@code "a"} to {@code "b"}
- * in the following program:
- *
- * <pre>
- * function a(a) {
- *   ...
- * }
- * </pre>
- * Will produce:
- * <pre>
- * function b(a) {
- *   ...
- * }
- * </pre>
- *
- * @param {ParseTree} tree the tree to substitute names in.
- * @param {string} oldName the identifier to be replaced.
- * @param {string} newName the identifier that will appear instead of |oldName|.
- * @return {ParseTree} a copy of {@code tree} with replacements.
- */
-AlphaRenamer.rename = function(tree, oldName, newName) {
-  return new AlphaRenamer(oldName, newName).transformAny(tree);
-};
