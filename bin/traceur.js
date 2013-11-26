@@ -15204,11 +15204,11 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ArrowFunctio
         } else {
           parameters = [];
         }
-        var functionBody = this.transformAny(tree.functionBody);
+        var alphaRenamed = alphaRenameThisAndArguments(this, tree);
+        var functionBody = this.transformAny(alphaRenamed.functionBody);
         if (functionBody.type != FUNCTION_BODY) {
           functionBody = createFunctionBody([createReturnStatement(functionBody)]);
         }
-        functionBody = alphaRenameThisAndArguments(this, functionBody);
         return createParenExpression(createFunctionExpression(new FormalParameterList(null, parameters), functionBody));
       }
     }, {transformTree: function(identifierGenerator, tree) {
@@ -19864,7 +19864,6 @@ System.get('@traceur/module').registerModule("../src/WebPageProject.js", functio
         var done = arguments[0] !== (void 0) ? arguments[0]: (function() {});
         var $__235 = this;
         document.addEventListener('DOMContentLoaded', (function() {
-          var $__235 = $__235;
           var selector = 'script[type="text/traceur"]';
           var scripts = document.querySelectorAll(selector);
           if (!scripts.length) {
