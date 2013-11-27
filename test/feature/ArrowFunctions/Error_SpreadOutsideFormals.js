@@ -1,6 +1,4 @@
 // Should not compile.
-// Error: :5:21: '=>' expected
+// Error: :4:13: Unexpected token ...
 
-{
-  let f = (x, ...xs);
-}
+var f = (x, ...xs);
