@@ -46,16 +46,15 @@ import {options, transformOptions} from '../options';
 export class FromOptionsTransformer extends MultiTransformer {
   /**
    * @param {ErrorReporter} reporter
-   * @param {idGenerator} idGenerator
+   * @param {UniqueIdGenerator} idGenerator
    * @param {RuntimeInliner} runtimeInliner
    */
   constructor(reporter, idGenerator, runtimeInliner) {
     super(reporter, options.validate);
 
-    var multi = this;
-    function append(transformer, ...args) {
-      multi.append((tree) => transformer.transformTree(...args, tree));
-    }
+    var append = (transformer, ...args) => this.append (
+        (tree) => transformer.transformTree(...args, tree)
+      );
     // TODO: many of these simple, local transforms could happen in the same
     // tree pass
 
@@ -75,82 +74,62 @@ export class FromOptionsTransformer extends MultiTransformer {
 
     // ClassTransformer needs to come before ObjectLiteralTransformer.
     if (transformOptions.classes)
-      append(ClassTransformer,
-              idGenerator,
-              runtimeInliner,
-              reporter);
+      append(ClassTransformer, idGenerator, runtimeInliner, reporter);
 
     if (transformOptions.propertyNameShorthand)
       append(PropertyNameShorthandTransformer);
     if (transformOptions.propertyMethods ||
               transformOptions.computedPropertyNames)
-      append(ObjectLiteralTransformer,
-              idGenerator);
+      append(ObjectLiteralTransformer, idGenerator);
 
     // Generator/ArrayComprehensionTransformer must come before for-of and
     // destructuring.
     if (transformOptions.generatorComprehension)
-      append(GeneratorComprehensionTransformer,
-              idGenerator);
+      append(GeneratorComprehensionTransformer, idGenerator);
     if (transformOptions.arrayComprehension)
-      append(ArrayComprehensionTransformer,
-              idGenerator);
+      append(ArrayComprehensionTransformer, idGenerator);
 
     // for of must come before destructuring and generator, or anything
     // that wants to use VariableBinder
     if (transformOptions.forOf)
-      append(ForOfTransformer,
-              idGenerator,
-              runtimeInliner);
+      append(ForOfTransformer, idGenerator, runtimeInliner);
 
     // rest parameters must come before generator
     if (transformOptions.restParameters)
-      append(RestParameterTransformer,
-              idGenerator);
+      append(RestParameterTransformer, idGenerator);
 
     // default parameters should come after rest parameter to get the
     // expected order in the transformed code.
     if (transformOptions.defaultParameters)
-      append(DefaultParametersTransformer,
-              idGenerator);
+      append(DefaultParametersTransformer, idGenerator);
 
     // destructuring must come after for of and before block binding and
     // generator
     if (transformOptions.destructuring)
-      append(DestructuringTransformer,
-              idGenerator);
+      append(DestructuringTransformer, idGenerator);
 
     // generator must come after for of and rest parameters
     if (transformOptions.generators || transformOptions.deferredFunctions)
-      append(GeneratorTransformPass,
-              idGenerator,
-              runtimeInliner,
-              reporter);
+      append(GeneratorTransformPass, idGenerator, runtimeInliner, reporter);
 
     if (transformOptions.spread)
-      append(SpreadTransformer,
-              idGenerator,
-              runtimeInliner);
+      append(SpreadTransformer, idGenerator, runtimeInliner);
 
-    multi.append((tree) => runtimeInliner.transformAny(tree));
+    this.append((tree) => runtimeInliner.transformAny(tree));
 
     if (transformOptions.blockBinding)
       append(BlockBindingTransformer);
 
     // Cascade must come before CollectionTransformer.
     if (transformOptions.cascadeExpression)
-      append(CascadeExpressionTransformer,
-              idGenerator,
-              reporter);
+      append(CascadeExpressionTransformer, idGenerator, reporter);
 
-    if (transformOptions.trapMemberLookup ||
-              transformOptions.privateNames)
-      append(CollectionTransformer,
-              idGenerator);
+    if (transformOptions.trapMemberLookup ||  transformOptions.privateNames)
+      append(CollectionTransformer, idGenerator);
 
     // Issue errors for any unbound variables
     if (options.freeVariableChecker)
-      multi.append((tree) => FreeVariableChecker.checkScript(reporter, tree));
+      this.append((tree) => FreeVariableChecker.checkScript(reporter, tree));
   }
 
 }

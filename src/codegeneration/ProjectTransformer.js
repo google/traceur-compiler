@@ -29,17 +29,9 @@ export class ProjectTransformer {
   constructor(reporter, project, transformer = undefined) {
     this.project_ = project;
     this.reporter_ = reporter;
-    this.treeTransformer_ = transformer;
+    this.treeTransformer = transformer;
 
     this.results_ = new ObjectMap();
-  }
-
-  get treeTransformer() {
-    return this.treeTransformer_;
-  }
-
-  set treeTransformer(treeTransformer) {
-    this.treeTransformer_ = treeTransformer;
   }
 
   /**
