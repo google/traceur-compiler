@@ -395,6 +395,14 @@ export class ParseTreeValidator extends ParseTreeVisitor {
         'expression expected');
   }
 
+  visitCoverFormals(tree) {
+    this.fail_(tree, 'CoverFormals should have been removed');
+  }
+
+  visitCoverInitialisedName(tree) {
+    this.fail_(tree, 'CoverInitialisedName should have been removed');
+  }
+
   /**
    * @param {DefaultClause} tree
    */
@@ -831,7 +839,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
         type === NUMBER ||
         type === STRING,
         tree,
-        'unexpected token in literal property name');
+        'Unexpected token in literal property name');
   }
 
   /**
