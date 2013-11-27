@@ -589,13 +589,4 @@ export class DestructuringTransformer extends ParameterTransformer {
 
     return initializerFound;
   }
-
-  /**
-   * @param {UniqueIdentifierGenerator} identifierGenerator
-   * @param {ParseTree} tree
-   * @return {ParseTree}
-   */
-  static transformTree(identifierGenerator, tree) {
-    return new DestructuringTransformer(identifierGenerator).transformAny(tree);
-  }
 }

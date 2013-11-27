@@ -286,14 +286,4 @@ export class TemplateLiteralTransformer extends TempVarTransformer {
 
     return new ParenExpression(null, binaryExpression);
   }
-
-  /**
-   * @param {UniqueIdentifierGenerator} identifierGenerator
-   * @param {ParseTree} tree
-   * @return {ParseTree}
-   */
-  static transformTree(identifierGenerator, tree) {
-    return new TemplateLiteralTransformer(identifierGenerator).
-        transformAny(tree);
-  }
 }
