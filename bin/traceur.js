@@ -19564,7 +19564,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/FromOptionsT
         var append = (function(transformer) {
           for (var args = [],
               $__230 = 1; $__230 < arguments.length; $__230++) args[$__230 - 1] = arguments[$__230];
-          return $__228.append((function(tree) {
+          $__228.append((function(tree) {
             var $__232;
             return ($__232 = transformer).transformTree.apply($__232, $__spread(args, [tree]));
           }));
