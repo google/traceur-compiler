@@ -125,7 +125,7 @@ export class RuntimeInliner extends ParseTreeTransformer {
     var statements = prependRuntimeVariables(this.map_, tree.scriptItemList);
     if (statements === tree.scriptItemList)
       return tree;
-    return new Module(tree.location, statements);
+    return new Module(tree.location, statements, tree.moduleSymbol);
   }
 
   /**

@@ -29,8 +29,8 @@ function addAll(self, other) {
   }
 }
 
-function values(map) {
-  return Object.keys(map).map((key) => map[key]);
+function values(objectMap) {
+  return Object.keys(objectMap).map((key) => objectMap[key]);
 }
 
 var standardModuleCache = Object.create(null);

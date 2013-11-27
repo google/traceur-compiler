@@ -49,7 +49,7 @@ export class ModuleAnalyzer {
   }
 
   /**
-   * @param {ParseTree} tree
+   * @param {Array.<ParseTree>} trees
    * @param {Array.<ModuleSymbol>=} roots
    * @return {void}
    */

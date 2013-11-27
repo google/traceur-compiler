@@ -99,15 +99,10 @@ function getGetterExport(transformer, symbol) {
 export class ModuleTransformer extends TempVarTransformer {
   /**
    * @param {identifierGenerator} identifierGenerator
-   * @param {string} url
-   * @param {ModuleSymbol=} module
    */
-  constructor(identifierGenerator, url, module = undefined) {
+  constructor(identifierGenerator) {
     super(identifierGenerator);
     this.identifierGenerator = identifierGenerator;
-    this.url = url;
-    this.module = module;
-    assert(this.url);
   }
 
   getTempVarNameForModuleSpecifier(moduleSpecifier) {
@@ -117,13 +112,21 @@ export class ModuleTransformer extends TempVarTransformer {
     }) + '__';
   }
 
+  transformScript(tree) {
+    this.url = tree.url;
+    return super.transformScript(tree);
+  }
+
   transformModule(tree) {
     this.pushTempVarState();
+
+    var moduleSymbol = tree.moduleSymbol;
+    this.url = moduleSymbol.url;
 
     var statements = [
       createUseStrictDirective(),
       ...this.transformList(tree.scriptItemList),
-      this.createExportStatement()
+      this.createExportStatement(moduleSymbol)
     ];
 
     this.popTempVarState();
@@ -136,8 +139,8 @@ export class ModuleTransformer extends TempVarTransformer {
     return new Script(tree.location, [registerStatement]);
   }
 
-  createExportStatement() {
-    var properties = this.module.getExports().map((exp) => {
+  createExportStatement(moduleSymbol) {
+    var properties = moduleSymbol.getExports().map((exp) => {
       // export_name: {get: function() { return export_name },
       return getGetterExport(this, exp);
     });
@@ -176,6 +179,7 @@ export class ModuleTransformer extends TempVarTransformer {
     if (name[0] === '@') {
       url = name;
     } else {
+      assert(this.url);
       // import/module {x} from 'name' is relative to the current file.
       url = System.normalResolve(name, this.url);
     }
@@ -233,23 +237,9 @@ export class ModuleTransformer extends TempVarTransformer {
   /**
    * @param {identifierGenerator} identifierGenerator
    * @param {Script} tree
-   * @param {string} url
    * @return {Script}
    */
-  static transform(identifierGenerator, tree, url) {
-    assert(tree.type === SCRIPT);
-    return new ModuleTransformer(identifierGenerator, url).transformAny(tree);
-  }
-
-  /**
-   * @param {identifierGenerator} identifierGenerator
-   * @param {Script} tree
-   * @param {Module} module
-   * @return {Script}
-   */
-  static transformAsModule(identifierGenerator, tree, module) {
-    assert(tree.type === MODULE);
-    assert(module);
-    return new ModuleTransformer(identifierGenerator, module.url, module).transformAny(tree);
+  static transformTree(identifierGenerator, tree) {
+    return new ModuleTransformer(identifierGenerator).transformAny(tree);
   }
 }
