@@ -776,12 +776,4 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
     }
     throw new Error('Unexpected destructuring declaration found.');
   }
-
-  /**
-   * @param {Script} tree
-   * @return {Script}
-   */
-  static transformTree(tree) {
-    return new BlockBindingTransformer().transformAny(tree);
-  }
 }

@@ -63,8 +63,4 @@ export class ArrowFunctionTransformer extends TempVarTransformer {
         createFunctionExpression(
             new FormalParameterList(null, parameters), functionBody));
   }
-
-  static transformTree(identifierGenerator, tree) {
-    return new ArrowFunctionTransformer(identifierGenerator).transformAny(tree);
-  }
 }

@@ -154,13 +154,4 @@ export class CollectionTransformer extends TempVarTransformer {
         createMemberExpression(TRACEUR_RUNTIME, ELEMENT_DELETE),
         createArgumentList(operand, memberExpression));
   }
-
-  /**
-   * @param {UniqueIdentifierGenerator} identifierGenerator
-   * @param {ParseTree} tree
-   * @return {ParseTree}
-   */
-  static transformTree(identifierGenerator, tree) {
-    return new CollectionTransformer(identifierGenerator).transformAny(tree);
-  }
 }

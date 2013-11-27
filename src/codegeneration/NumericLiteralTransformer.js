@@ -46,12 +46,4 @@ export class NumericLiteralTransformer extends ParseTreeTransformer {
       return new LiteralPropertyName(tree.location, transformToken(token));
     return tree;
   }
-
-  /**
-   * @param {ParseTree} tree
-   * @return {ParseTree}
-   */
-  static transformTree(tree) {
-    return new NumericLiteralTransformer().transformAny(tree);
-  }
 }

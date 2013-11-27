@@ -66,14 +66,3 @@ export class ArrayComprehensionTransformer extends ComprehensionTransformer {
     return result;
   }
 }
-
-/**
- * @param {UniqueIdentifierGenerator} identifierGenerator
- * @param {ParseTree} tree
- * @return {ParseTree}
- */
-ArrayComprehensionTransformer.transformTree =
-    function(identifierGenerator, tree) {
-  return new ArrayComprehensionTransformer(identifierGenerator).
-      transformAny(tree);
-};

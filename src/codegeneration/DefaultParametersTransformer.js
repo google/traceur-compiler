@@ -102,13 +102,4 @@ export class DefaultParametersTransformer extends ParameterTransformer {
 
     return new FormalParameterList(tree.location, parameters);
   }
-
-  /**
-   * @param {UniqueIdentifierGenerator} identifierGenerator
-   * @param {ParseTree} tree
-   * @return {ParseTree}
-   */
-  static transformTree(identifierGenerator, tree) {
-    return new DefaultParametersTransformer(identifierGenerator).transformAny(tree);
-  }
 }
