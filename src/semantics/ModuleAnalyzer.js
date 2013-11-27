@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ExportVisitor} from '../codegeneration/module/ExportVisitor';
+import {ExportValidationVisitor} from '../codegeneration/module/ExportValidationVisitor';
 import {ValidationVisitor} from '../codegeneration/module/ValidationVisitor';
 import {transformOptions} from '../options';
 
@@ -80,7 +80,7 @@ export class ModuleAnalyzer {
     }
 
     // TODO(arv): Export star needs to be done in dependency order.
-    reverseVisit(ExportVisitor);
+    reverseVisit(ExportValidationVisitor);
     doVisit(ValidationVisitor);
   }
 }

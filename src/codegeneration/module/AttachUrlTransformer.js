@@ -24,7 +24,7 @@ import {
  * Annotates a tree with its ModuleSymbol or URL
  */
 
-export class ModuleSymbolTransformer extends ParseTreeTransformer {
+export class AttachUrlTransformer extends ParseTreeTransformer {
   /**
    * @param {SourceFile} file
    * @param {Project} project
@@ -35,10 +35,7 @@ export class ModuleSymbolTransformer extends ParseTreeTransformer {
   }
 
   transformModule(tree) {
-    var moduleSymbol = this.project_.getModuleForUrl(this.url_);
-    var annotatedTree = new Module(tree.location,
-                                    tree.scriptItemList, moduleSymbol);
-    return annotatedTree;
+    return new Module(tree.location, tree.scriptItemList, this.url_);
   }
 
   transformScript(tree) {
@@ -51,7 +48,7 @@ export class ModuleSymbolTransformer extends ParseTreeTransformer {
    */
   static transformFile(file, project) {
     var tree = project.getParseTree(file);
-    return new ModuleSymbolTransformer(project, file.name).transformAny(tree);
+    return new AttachUrlTransformer(project, file.name).transformAny(tree);
   }
 }
 

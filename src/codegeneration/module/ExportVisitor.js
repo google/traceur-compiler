@@ -17,37 +17,34 @@ import {ModuleVisitor} from './ModuleVisitor';
 import {assert} from '../../util/assert';
 
 /**
- * Visits a parse tree and adds all the module definitions.
+ * Visits a parse tree and adds all the exports.
  *
- *   module 'm' { ... }
+ *   export {x, y as z};
+ *   export {a, b as c} from 'd'
+ *   export class C {}
+ *   export var v = 1;
+ *   export default 42;
+ *   ...
  *
+ * This does not follow export *.
  */
 export class ExportVisitor extends ModuleVisitor {
-  /**
-   * @param {traceur.util.ErrorReporter} reporter
-   * @param {ProjectSymbol} project
-   * @param {ModuleSymbol} module The root of the module system.
-   */
-  constructor(reporter, project, module) {
+  constructor(reporter = undefined, project = undefined, module = undefined) {
     super(reporter, project, module);
     this.inExport_ = false;
-    this.relatedTree_ = null;
+    this.moduleSpecifier = null;
+    this.namedExports = [];
+    this.starExports = [];
   }
 
   addExport_(name, tree) {
-    if (!this.inExport_) {
-      return;
-    }
-
     assert(typeof name == 'string');
+    if (this.inExport_)
+      this.addExport(name, tree);
+  }
 
-    var parent = this.currentModule;
-    if (parent.hasExport(name)) {
-      this.reportError_(tree, 'Duplicate export declaration \'%s\'', name);
-      this.reportRelatedError_(parent.getExport(name));
-      return;
-    }
-    parent.addExport(new ExportSymbol(name, tree, this.relatedTree_));
+  addExport(name, tree) {
+    this.namedExports.push({name, tree, moduleSpecifier: this.moduleSpecifier});
   }
 
   visitClassDeclaration(tree) {
@@ -61,9 +58,9 @@ export class ExportVisitor extends ModuleVisitor {
   }
 
   visitNamedExport(tree) {
-    this.relatedTree_ = tree.moduleSpecifier;
+    this.moduleSpecifier = tree.moduleSpecifier;
     this.visitAny(tree.specifierSet);
-    this.relatedTree_ = null;
+    this.moduleSpecifier = null;
   }
 
   visitExportDefault(tree) {
@@ -75,10 +72,7 @@ export class ExportVisitor extends ModuleVisitor {
   }
 
   visitExportStar(tree) {
-    var module = this.getModuleForModuleSpecifier(this.relatedTree_);
-    module.getExports().forEach(({name}) => {
-      this.addExport_(name, tree);
-    });
+    this.starExports.push(this.moduleSpecifier);
   }
 
   visitFunctionDeclaration(tree) {
