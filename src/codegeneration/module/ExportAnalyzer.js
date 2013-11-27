@@ -19,7 +19,7 @@ import {assert} from '../../util/assert';
 /**
  * Visits a parse tree and adds all the export definitions, including export *.
  */
-export class ExportValidationVisitor extends ExportVisitor {
+export class ExportAnalyzer extends ExportVisitor {
   addExport(name, tree) {
     super(name, tree);
 

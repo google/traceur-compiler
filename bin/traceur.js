@@ -2679,15 +2679,15 @@ System.get('@traceur/module').registerModule("../src/codegeneration/module/Expor
       return ExportVisitor;
     }};
 }, this);
-System.get('@traceur/module').registerModule("../src/codegeneration/module/ExportValidationVisitor.js", function() {
+System.get('@traceur/module').registerModule("../src/codegeneration/module/ExportAnalyzer.js", function() {
   "use strict";
   var ExportSymbol = System.get('@traceur/module').getModuleImpl("../src/semantics/symbols/ExportSymbol.js").ExportSymbol;
   var ExportVisitor = System.get('@traceur/module').getModuleImpl("../src/codegeneration/module/ExportVisitor.js").ExportVisitor;
   var assert = System.get('@traceur/module').getModuleImpl("../src/util/assert.js").assert;
-  var ExportValidationVisitor = function($__super) {
+  var ExportAnalyzer = function($__super) {
     'use strict';
     var $__proto = $__getProtoParent($__super);
-    var $ExportValidationVisitor = ($__createClass)({
+    var $ExportAnalyzer = ($__createClass)({
       constructor: function() {
         $__superCall(this, $__proto, "constructor", arguments);
       },
@@ -2710,10 +2710,10 @@ System.get('@traceur/module').registerModule("../src/codegeneration/module/Expor
         }));
       }
     }, {}, $__proto, $__super, false);
-    return $ExportValidationVisitor;
+    return $ExportAnalyzer;
   }(ExportVisitor);
-  return {get ExportValidationVisitor() {
-      return ExportValidationVisitor;
+  return {get ExportAnalyzer() {
+      return ExportAnalyzer;
     }};
 }, this);
 System.get('@traceur/module').registerModule("../src/codegeneration/module/ValidationVisitor.js", function() {
@@ -2771,7 +2771,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/module/Valid
 }, this);
 System.get('@traceur/module').registerModule("../src/semantics/ModuleAnalyzer.js", function() {
   "use strict";
-  var ExportValidationVisitor = System.get('@traceur/module').getModuleImpl("../src/codegeneration/module/ExportValidationVisitor.js").ExportValidationVisitor;
+  var ExportAnalyzer = System.get('@traceur/module').getModuleImpl("../src/codegeneration/module/ExportAnalyzer.js").ExportAnalyzer;
   var ValidationVisitor = System.get('@traceur/module').getModuleImpl("../src/codegeneration/module/ValidationVisitor.js").ValidationVisitor;
   var transformOptions = System.get('@traceur/module').getModuleImpl("../src/options.js").transformOptions;
   var ModuleAnalyzer = function() {
@@ -2809,7 +2809,7 @@ System.get('@traceur/module').registerModule("../src/semantics/ModuleAnalyzer.js
             visitor.visitAny(trees[i]);
           }
         }
-        reverseVisit(ExportValidationVisitor);
+        reverseVisit(ExportAnalyzer);
         doVisit(ValidationVisitor);
       }
     }, {});
