@@ -67,6 +67,9 @@ bin/traceur.min.js: bin/traceur.js
 bin/traceur.js force:
 	./traceur --out bin/traceur.js $(TFLAGS) $(SRC)
 
+debug: clean $(SRC)
+	./traceur --out bin/traceur.js --sourcemap $(SRC)
+
 # Prerequisites following '|' are rebuilt just like ordinary prerequisites.
 # However, they don't cause remakes if they're newer than the target. See:
 # http://www.gnu.org/software/make/manual/html_node/Prerequisite-Types.html

@@ -580,6 +580,9 @@
     ],
     "scriptItemList": [
       "Array.<ParseTree>"
+    ],
+    "moduleSymbol": [
+      "ModuleSymbol"
     ]
   },
   "ModuleDeclaration": {
@@ -683,6 +686,9 @@
     ],
     "scriptItemList": [
       "Array.<ParseTree>"
+    ],
+    "url": [
+      "string"
     ]
   },
   "PropertyMethodAssignment": {
