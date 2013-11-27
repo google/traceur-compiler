@@ -173,12 +173,4 @@ export class ForInTransformPass extends TempVarTransformer {
 
     return createBlock(elements);
   }
-
-  /*
-   * @param {UniqueIdentifierGenerator} identifierGenerator
-   * @param {ParseTree} tree
-   */
-  static transformTree(identifierGenerator, tree) {
-    return new ForInTransformPass(identifierGenerator).transformAny(tree);
-  }
 }

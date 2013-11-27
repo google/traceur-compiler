@@ -224,9 +224,4 @@ export class SpreadTransformer extends TempVarTransformer {
     }
     return super.transformNewExpression(tree);
   }
-
-  static transformTree(identifierGenerator, runtimeInliner, tree) {
-    return new SpreadTransformer(identifierGenerator, runtimeInliner).
-        transformAny(tree);
-  }
 }

@@ -309,12 +309,4 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
           writable: true
         });
   }
-
-  /**
-   * @param {UniqueIdentifierGenerator} identifierGenerator
-   * @param {ParseTree} tree
-   */
-  static transformTree(identifierGenerator, tree) {
-    return new ObjectLiteralTransformer(identifierGenerator).transformAny(tree);
-  }
 }

@@ -50,14 +50,3 @@ export class GeneratorComprehensionTransformer extends
     return this.transformComprehension(tree, statement, isGenerator);
   }
 }
-
-/**
- * @param {UniqueIdentifierGenerator} identifierGenerator
- * @param {ParseTree} tree
- * @return {ParseTree}
- */
-GeneratorComprehensionTransformer.transformTree =
-    function(identifierGenerator, tree) {
-  return new GeneratorComprehensionTransformer(identifierGenerator).
-      transformAny(tree);
-};
