@@ -92,11 +92,6 @@ System.set('@traceur/module', (function(global) {
     return moduleImplementations[url];
   };
 
-  System.get_ = function(name) {
-    var m = getModuleImpl(name);
-    return m && m.value;
-  };
-
   var moduleInstances = Object.create(null);
 
   function Module(obj) {
@@ -143,6 +138,9 @@ System.set('@traceur/module', (function(global) {
   };
 
   return {
-    registerModule
+    registerModule,
+    getModuleImpl(name) {
+      return getModuleImpl(name).value;
+    }
   };
 })(this));

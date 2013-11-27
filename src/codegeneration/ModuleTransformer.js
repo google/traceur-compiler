@@ -178,7 +178,7 @@ export class ModuleTransformer extends TempVarTransformer {
     }
     if (this.moduleSpecifierKind_ === 'module')
       return parseExpression `System.get(${url})`;
-    return parseExpression `System.get_(${url})`;
+    return parseExpression `System.get('@traceur/module').getModuleImpl(${url})`;
   }
 
   /**

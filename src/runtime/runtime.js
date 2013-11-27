@@ -551,6 +551,9 @@
       ModuleImpl: ModuleImpl,
       registerModule: function(url, func, self) {
         modules[url] = new ModuleImpl(url, func, self);
+      },
+      getModuleImpl: function(url) {
+        return modules[url].value;
       }
     }
   };
@@ -566,7 +569,6 @@
       modules[name] = object;
     }
   };
-  System.get_ = System.get;
 
   function setupGlobals(global) {
     polyfillString(global.String);
