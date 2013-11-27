@@ -41,7 +41,8 @@ assert.equal(42, f());
   assertArrayEquals([0, 1, true], g(0, 1, true));
 }
 
-// TODO(arv): We require the arrow function to be wrapped in parens. Is that
-// correct?
-assert.equal(typeof (() => {}),'function');
+var h = (x, ...xs) => xs;
+assertArrayEquals([-1, 0, 1, true], h(0, 1, true));
+
+assert.equal(typeof (() => {}), 'function');
 assert.equal(Object.getPrototypeOf(() => {}), Function.prototype);

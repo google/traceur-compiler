@@ -3026,10 +3026,10 @@ export class Parser {
     //
     //   The leading OPEN_PAREN has already been consumed.
 
-    var type = this.peekType_();
     var expressions = [];
-    if (type !== CLOSE_PAREN) {
+    if (!this.peek_(CLOSE_PAREN)) {
       do {
+        var type = this.peekType_();
         if (this.peekRest_(type)) {
           expressions.push(this.parseRestParameter_());
           break;

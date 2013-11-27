@@ -10514,10 +10514,10 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
         return new ArrowFunctionExpression(this.getTreeLocation_(start), formals, body);
       },
       parseCoverFormals_: function(start) {
-        var type = this.peekType_();
         var expressions = [];
-        if (type !== CLOSE_PAREN) {
+        if (!this.peek_(CLOSE_PAREN)) {
           do {
+            var type = this.peekType_();
             if (this.peekRest_(type)) {
               expressions.push(this.parseRestParameter_());
               break;
