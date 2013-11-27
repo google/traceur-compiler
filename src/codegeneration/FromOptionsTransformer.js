@@ -52,11 +52,13 @@ export class FromOptionsTransformer extends MultiTransformer {
   constructor(reporter, idGenerator, runtimeInliner) {
     super(reporter, options.validate);
 
-    var append = (transformer, ...args) => {
-      this.append(
-        (tree) => transformer.transformTree(...args, tree)
-      );
-    }
+    var append = (transformer) => {
+      this.append((tree) => {
+        return new transformer(idGenerator, runtimeInliner, reporter).
+            transformAny(tree);
+      });
+    };
+
     // TODO: many of these simple, local transforms could happen in the same
     // tree pass
 
@@ -66,56 +68,57 @@ export class FromOptionsTransformer extends MultiTransformer {
       append(NumericLiteralTransformer);
 
     if (transformOptions.templateLiterals)
-      append(TemplateLiteralTransformer, idGenerator);
+      append(TemplateLiteralTransformer);
 
     if (transformOptions.modules)
-      append(ModuleTransformer, idGenerator);
+      append(ModuleTransformer);
 
     if (transformOptions.arrowFunctions)
-      append(ArrowFunctionTransformer, idGenerator);
+      append(ArrowFunctionTransformer);
 
     // ClassTransformer needs to come before ObjectLiteralTransformer.
     if (transformOptions.classes)
-      append(ClassTransformer, idGenerator, runtimeInliner, reporter);
+      append(ClassTransformer);
 
     if (transformOptions.propertyNameShorthand)
       append(PropertyNameShorthandTransformer);
     if (transformOptions.propertyMethods ||
-              transformOptions.computedPropertyNames)
-      append(ObjectLiteralTransformer, idGenerator);
+              transformOptions.computedPropertyNames) {
+      append(ObjectLiteralTransformer);
+    }
 
     // Generator/ArrayComprehensionTransformer must come before for-of and
     // destructuring.
     if (transformOptions.generatorComprehension)
-      append(GeneratorComprehensionTransformer, idGenerator);
+      append(GeneratorComprehensionTransformer);
     if (transformOptions.arrayComprehension)
-      append(ArrayComprehensionTransformer, idGenerator);
+      append(ArrayComprehensionTransformer);
 
     // for of must come before destructuring and generator, or anything
     // that wants to use VariableBinder
     if (transformOptions.forOf)
-      append(ForOfTransformer, idGenerator, runtimeInliner);
+      append(ForOfTransformer);
 
     // rest parameters must come before generator
     if (transformOptions.restParameters)
-      append(RestParameterTransformer, idGenerator);
+      append(RestParameterTransformer);
 
     // default parameters should come after rest parameter to get the
     // expected order in the transformed code.
     if (transformOptions.defaultParameters)
-      append(DefaultParametersTransformer, idGenerator);
+      append(DefaultParametersTransformer);
 
     // destructuring must come after for of and before block binding and
     // generator
     if (transformOptions.destructuring)
-      append(DestructuringTransformer, idGenerator);
+      append(DestructuringTransformer);
 
     // generator must come after for of and rest parameters
     if (transformOptions.generators || transformOptions.deferredFunctions)
-      append(GeneratorTransformPass, idGenerator, runtimeInliner, reporter);
+      append(GeneratorTransformPass);
 
     if (transformOptions.spread)
-      append(SpreadTransformer, idGenerator, runtimeInliner);
+      append(SpreadTransformer);
 
     this.append((tree) => runtimeInliner.transformAny(tree));
 
@@ -124,10 +127,10 @@ export class FromOptionsTransformer extends MultiTransformer {
 
     // Cascade must come before CollectionTransformer.
     if (transformOptions.cascadeExpression)
-      append(CascadeExpressionTransformer, idGenerator, reporter);
+      append(CascadeExpressionTransformer);
 
     if (transformOptions.trapMemberLookup ||  transformOptions.privateNames)
-      append(CollectionTransformer, idGenerator);
+      append(CollectionTransformer);
 
     // Issue errors for any unbound variables
     if (options.freeVariableChecker)

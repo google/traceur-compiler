@@ -97,13 +97,6 @@ function getGetterExport(transformer, symbol) {
 }
 
 export class ModuleTransformer extends TempVarTransformer {
-  /**
-   * @param {identifierGenerator} identifierGenerator
-   */
-  constructor(identifierGenerator) {
-    super(identifierGenerator);
-    this.identifierGenerator = identifierGenerator;
-  }
 
   getTempVarNameForModuleSpecifier(moduleSpecifier) {
     var moduleName = moduleSpecifier.token.processedValue;
@@ -232,14 +225,5 @@ export class ModuleTransformer extends TempVarTransformer {
     }
     return new BindingElement(tree.location,
         createBindingIdentifier(tree.lhs), null);
-  }
-
-  /**
-   * @param {identifierGenerator} identifierGenerator
-   * @param {Script} tree
-   * @return {Script}
-   */
-  static transformTree(identifierGenerator, tree) {
-    return new ModuleTransformer(identifierGenerator).transformAny(tree);
   }
 }

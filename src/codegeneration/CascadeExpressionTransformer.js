@@ -167,15 +167,4 @@ export class CascadeExpressionTransformer extends TempVarTransformer {
     var newOperand = prependMemberExpression(ident, tree.operand);
     return createCascadeExpression(newOperand, tree.expressions);
   }
-
-  /**
-   * @param {UniqueIdentifierGenerator} identifierGenerator
-   * @param {ErrorReporter} reporter
-   * @param {ParseTree} tree
-   * @return {ParseTree}
-   */
-  static transformTree(identifierGenerator, reporter, tree) {
-    return new CascadeExpressionTransformer(identifierGenerator, reporter).
-        transformAny(tree);
-  }
 }

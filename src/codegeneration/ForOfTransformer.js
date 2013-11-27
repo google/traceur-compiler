@@ -82,13 +82,4 @@ export class ForOfTransformer extends TempVarTransformer {
       return this.runtimeInliner_.get('getIterator', GET_ITERATOR_CODE);
     }
   }
-
-  /**
-   * @param {UniqueIdentifierGenerator} identifierGenerator
-   * @param {RuntimeInliner} runtimeInliner
-   * @param {ParseTree} tree
-   */
-  static transformTree(identifierGenerator, runtimeInliner, tree) {
-    return new ForOfTransformer(identifierGenerator, runtimeInliner).transformAny(tree);
-  }
 }

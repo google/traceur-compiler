@@ -31,8 +31,8 @@ export class MultiTransformer {
   }
 
   /**
-   * Append a transformation function (tree) -> tree
-   * @param {function} treeTransformer, eg ATransformer.transformTree.bind....
+   * Appends a function that transforms a tree.
+   * @param {function(ParseTree) : ParseTree} treeTransformer
    * @return {void}
    */
   append(treeTransformer) {
