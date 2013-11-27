@@ -32,6 +32,7 @@ System.set('@traceur/module', (function(global) {
   function registerModule(url, func, self) {
     url = System.normalResolve(url);
     moduleImplementations[url] = new ModuleImpl(url, func, self);
+
   }
 
   Object.defineProperty(System, 'baseURL', {
