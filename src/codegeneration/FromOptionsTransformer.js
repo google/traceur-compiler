@@ -52,9 +52,11 @@ export class FromOptionsTransformer extends MultiTransformer {
   constructor(reporter, idGenerator, runtimeInliner) {
     super(reporter, options.validate);
 
-    var append = (transformer, ...args) => this.append (
+    var append = (transformer, ...args) => {
+      this.append(
         (tree) => transformer.transformTree(...args, tree)
       );
+    }
     // TODO: many of these simple, local transforms could happen in the same
     // tree pass
 
