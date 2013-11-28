@@ -530,13 +530,17 @@
   // System.get/set and @traceur/module gets overridden in @traceur/modules to
   // be more correct.
 
-  function LazyInitializedModule(func, self) {
+  function ModuleImpl(url, func, self) {
+    this.url = url;
     this.func = func;
     this.self = self;
+    this.value_ = null;
   }
-  LazyInitializedModule.prototype = {
-    toModule: function() {
-      return this.func.call(this.self);
+  ModuleImpl.prototype = {
+    get value() {
+      if (this.value_)
+        return this.value_;
+      return this.value_ = this.func.call(this.self);
     }
   };
 
@@ -544,9 +548,12 @@
     '@name': NameModule,
     '@iter': IterModule,
     '@traceur/module': {
-      LazyInitializedModule: LazyInitializedModule,
+      ModuleImpl: ModuleImpl,
       registerModule: function(url, func, self) {
-        modules[url] = new LazyInitializedModule(func, self);
+        modules[url] = new ModuleImpl(url, func, self);
+      },
+      getModuleImpl: function(url) {
+        return modules[url].value;
       }
     }
   };
@@ -554,9 +561,9 @@
   var System = {
     get: function(name) {
       var module = modules[name];
-      if (module instanceof LazyInitializedModule)
-        return modules[name] = module.toModule();
-      return module || null;
+      if (module instanceof ModuleImpl)
+        return modules[name] = module.value;
+      return module;
     },
     set: function(name, object) {
       modules[name] = object;
