@@ -32,13 +32,12 @@ import {
  */
 export class MetadataTransformer extends ParseTreeTransformer {
   /**
+   * @param {UniqueIdentifierGenerator} identifierGenerator
    * @param {RuntimeInliner} runtimeInliner
-   * @param {ErrorReporter} reporter
    */
-  constructor(runtimeInliner, reporter) {
+  constructor(identifierGenerator, runtimeInliner) {
     super();
     this.runtimeInliner_ = runtimeInliner;
-    this.reporter_ = reporter;
   }
 
   transformClassMemberMetadata(tree) {
@@ -124,15 +123,5 @@ export class MetadataTransformer extends ParseTreeTransformer {
     }
 
     return createScript(createStatementList(statements));
-  }
-
-  /**
-   * @param {RuntimeInliner} runtimeInliner
-   * @param {ErrorReporter} reporter
-   * @param {Script} tree
-   * @return {Script}
-   */
-  static transformTree(runtimeInliner, reporter, tree) {
-    return new MetadataTransformer(runtimeInliner, reporter).transformAny(tree);
   }
 }

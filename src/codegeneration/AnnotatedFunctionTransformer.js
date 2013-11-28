@@ -28,14 +28,6 @@ import {
  *
  */
 export class AnnotatedFunctionTransformer extends ParseTreeTransformer {
-  /**
-   * @param {ErrorReporter} reporter
-   */
-  constructor(reporter) {
-    super();
-    this.reporter_ = reporter;
-  }
-
   transformAnnotatedFunctionDeclaration(tree) {
     var declaration = tree.declaration;
     var annotations = tree.annotations;
@@ -46,14 +38,5 @@ export class AnnotatedFunctionTransformer extends ParseTreeTransformer {
 
     return createScript([tree.declaration,
       new FunctionMetadata(null, declaration.name, annotations, declaration.formalParameterList.parameters)]);
-  }
-
-  /**
-   * @param {ErrorReporter} reporter
-   * @param {Script} tree
-   * @return {Script}
-   */
-  static transformTree(reporter, tree) {
-    return new AnnotatedFunctionTransformer(reporter).transformAny(tree);
   }
 }

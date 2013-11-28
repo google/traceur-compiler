@@ -37,14 +37,6 @@ import {propName} from '../staticsemantics/PropName';
  *
  */
 export class AnnotatedClassTransformer extends ParseTreeTransformer {
-  /**
-   * @param {ErrorReporter} reporter
-   */
-  constructor(reporter) {
-    super();
-    this.reporter_ = reporter;
-  }
-
   transformAnnotatedClassDeclaration(tree) {
     var declaration = tree.declaration;
     var elements = [], metadata = [], classParameters = [], classAnnotations = [];
@@ -114,14 +106,5 @@ export class AnnotatedClassTransformer extends ParseTreeTransformer {
       constructorAnnotations: constructorAnnotations,
       constructorParameters: constructorParameters
     };
-  }
-
-  /**
-   * @param {ErrorReporter} reporter
-   * @param {Script} tree
-   * @return {Script}
-   */
-  static transformTree(reporter, tree) {
-    return new AnnotatedClassTransformer(reporter).transformAny(tree);
   }
 }

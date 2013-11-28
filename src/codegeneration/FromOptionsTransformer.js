@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {AnnotatedClassTransformer} from './AnnotatedClassTransformer';
+import {AnnotatedFunctionTransformer} from './AnnotatedFunctionTransformer';
 import {ArrayComprehensionTransformer} from
     './ArrayComprehensionTransformer';
 import {ArrowFunctionTransformer} from './ArrowFunctionTransformer';
@@ -26,6 +28,7 @@ import {FreeVariableChecker} from '../semantics/FreeVariableChecker';
 import {GeneratorComprehensionTransformer} from
     'GeneratorComprehensionTransformer';
 import {GeneratorTransformPass} from './GeneratorTransformPass';
+import {MetadataTransformer} from './MetadataTransformer';
 import {ModuleTransformer} from './ModuleTransformer';
 import {MultiTransformer} from './MultiTransformer';
 import {NumericLiteralTransformer} from './NumericLiteralTransformer';
@@ -75,6 +78,12 @@ export class FromOptionsTransformer extends MultiTransformer {
 
     if (transformOptions.arrowFunctions)
       append(ArrowFunctionTransformer);
+
+    if (transformOptions.annotations) {
+      append(AnnotatedClassTransformer);
+      append(AnnotatedFunctionTransformer);
+      append(MetadataTransformer);
+    }
 
     // ClassTransformer needs to come before ObjectLiteralTransformer.
     if (transformOptions.classes)
