@@ -214,6 +214,7 @@ import {
   ForInStatement,
   ForOfStatement,
   ForStatement,
+  FormalParameter,
   FormalParameterList,
   FunctionBody,
   FunctionDeclaration,
@@ -913,7 +914,9 @@ export class Parser {
   }
 
   parseFormalParameter_(initializerAllowed = undefined) {
-    return this.parseBindingElement_(initializerAllowed);
+    var start = this.getTreeStartLocation_();
+    return new FormalParameter(this.getTreeLocation_(start),
+      this.parseBindingElement_(initializerAllowed));
   }
 
   parseRestParameter_() {

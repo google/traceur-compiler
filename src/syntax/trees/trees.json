@@ -388,6 +388,15 @@
       "ParseTree"
     ]
   },
+  "FormalParameter": {
+    "location": [
+      "SourceRange"
+    ],
+    "element": [
+      "BindingElement",
+      "RestParameter"
+    ]
+  },
   "FormalParameterList": {
     "location": [
       "SourceRange"
