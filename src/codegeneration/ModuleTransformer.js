@@ -90,13 +90,17 @@ function getGetterExport(transformer, symbol) {
   }
 
   return parsePropertyDefinition
-      `${name}: {
-         get: function() { return ${returnExpression}; },
-         enumerable: true
-       }`;
+      `get ${name}() { return ${returnExpression}; }`;
 }
 
 export class ModuleTransformer extends TempVarTransformer {
+  /**
+   * @param {UniqueIdentifierGenerator} identifierGenerator
+   */
+  constructor(identifierGenerator) {
+    super(identifierGenerator);
+    this.moduleSpecifierKind_ = null;
+  }
 
   getTempVarNameForModuleSpecifier(moduleSpecifier) {
     var moduleName = moduleSpecifier.token.processedValue;
@@ -137,9 +141,8 @@ export class ModuleTransformer extends TempVarTransformer {
       // export_name: {get: function() { return export_name },
       return getGetterExport(this, exp);
     });
-    var descriptors = createObjectLiteralExpression(properties);
-    return parseStatement
-        `return Object.preventExtensions(Object.create(null, ${descriptors}));`;
+    var object = createObjectLiteralExpression(properties);
+    return parseStatement `return ${object}`;
   }
 
   transformExportDeclaration(tree) {
@@ -176,7 +179,9 @@ export class ModuleTransformer extends TempVarTransformer {
       // import/module {x} from 'name' is relative to the current file.
       url = System.normalResolve(name, this.url);
     }
-    return parseExpression `System.get(${url})`;
+    if (this.moduleSpecifierKind_ === 'module')
+      return parseExpression `System.get(${url})`;
+    return parseExpression `System.get('@traceur/module').getModuleImpl(${url})`;
   }
 
   /**
@@ -184,6 +189,7 @@ export class ModuleTransformer extends TempVarTransformer {
    * @return {VariableDeclaration}
    */
   transformModuleDeclaration(tree) {
+    this.moduleSpecifierKind_ = 'module';
     var initializer = this.transformAny(tree.expression);
     // const a = b.c, d = e.f;
     // TODO(arv): const is not allowed in ES5 strict
@@ -205,6 +211,7 @@ export class ModuleTransformer extends TempVarTransformer {
     // import id from 'module';
     //  =>
     // var {default: id} = moduleInstance
+    this.moduleSpecifierKind_ = 'import';
     var binding = this.transformAny(tree.importClause);
     var initializer = this.transformAny(tree.moduleSpecifier);
 
