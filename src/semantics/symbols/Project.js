@@ -48,7 +48,7 @@ function getStandardModule(url) {
     if (!moduleInstance)
       throw new Error(`Internal error, no standard module for ${url}`);
     Object.keys(moduleInstance).forEach((name) => {
-      symbol.addExport(new ExportSymbol(name, null, null));
+      symbol.addExport(new ExportSymbol(name, null));
     });
     standardModuleCache[url] = symbol;
   }

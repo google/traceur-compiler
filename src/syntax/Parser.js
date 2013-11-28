@@ -432,7 +432,6 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     var scriptItemList = this.parseModuleItemList_();
     this.eat_(END_OF_FILE);
-    // TODO(arv): Use Module instead.
     return new Module(this.getTreeLocation_(start), scriptItemList);
   }
 
@@ -441,8 +440,7 @@ export class Parser {
     var result = [];
     var type;
 
-    // TODO(arv): Remove CLOSE_CURLY when we no longer supports inline modules.
-    while ((type = this.peekType_()) !== END_OF_FILE && type !== CLOSE_CURLY) {
+    while ((type = this.peekType_()) !== END_OF_FILE) {
       var scriptItem = this.parseScriptItem_(type, true);
       result.push(scriptItem);
     }

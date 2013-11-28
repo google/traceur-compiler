@@ -14,7 +14,7 @@
 
 
 import {ObjectMap} from '../util/ObjectMap';
-import {ModuleSymbolTransformer} from 'module/ModuleSymbolTransformer';
+import {AttachUrlTransformer} from 'module/AttachUrlTransformer';
 import {MODULE} from '../syntax/trees/ParseTreeType';
 
 /**
@@ -51,12 +51,9 @@ export class ProjectTransformer {
    * @return {ParseTree}
    */
   transformFile(file) {
-    var tree = ModuleSymbolTransformer.transformFile(file, this.project_);
+    var tree = AttachUrlTransformer.transformFile(file, this.project_);
     var result = this.treeTransformer.transform(tree);
     this.results_.set(file, result);
     return result
   }
-
 }
-
-

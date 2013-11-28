@@ -581,8 +581,8 @@
     "scriptItemList": [
       "Array.<ParseTree>"
     ],
-    "moduleSymbol": [
-      "ModuleSymbol"
+    "url": [
+      "string"
     ]
   },
   "ModuleDeclaration": {

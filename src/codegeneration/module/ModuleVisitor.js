@@ -31,14 +31,9 @@ export class ModuleVisitor extends ParseTreeVisitor {
    * @param {ModuleSymbol} module The root of the module system.
    */
   constructor(reporter, project, module) {
-    super();
-    this.reporter_ = reporter;
+    this.reporter = reporter;
     this.project = project;
-    this.currentModule_ = module;
-  }
-
-  get currentModule() {
-    return this.currentModule_;
+    this.module = module;
   }
 
   /**
@@ -46,14 +41,14 @@ export class ModuleVisitor extends ParseTreeVisitor {
    * @param {boolean=} reportErrors If false no errors are reported.
    * @return {ModuleSymbol}
    */
-  getModuleForModuleSpecifier(tree, reportErrors) {
-    var url = System.normalResolve(tree.token.processedValue, this.currentModule.url);
+  getModuleForModuleSpecifier(tree) {
+    var name = tree.token.processedValue;
+    var referrer = this.module.url;
+    var url = System.normalResolve(name, referrer);
     var module = this.project.getModuleForResolvedUrl(url);
 
     if (!module) {
-      if (reportErrors) {
-        this.reportError_(tree, '\'%s\' is not a module', url || name);
-      }
+      this.reportError(tree, '\'%s\' is not a module', url);
       return null;
     }
 
@@ -63,10 +58,10 @@ export class ModuleVisitor extends ParseTreeVisitor {
   // Limit the trees to visit.
   visitFunctionDeclaration(tree) {}
   visitFunctionExpression(tree) {}
-  visitSetAccessor(tree) {}
-  visitGetAccessor(tree) {}
+  visitSFunctionBody(tree) {}
   visitBlock(tree) {}
   visitClassDeclaration(tree) {}
+  visitClassExpression(tree) {}
 
   visitModuleElement_(element) {
     switch (element.type) {
@@ -85,50 +80,13 @@ export class ModuleVisitor extends ParseTreeVisitor {
     tree.scriptItemList.forEach(this.visitModuleElement_, this);
   }
 
-  checkForDuplicateModule_(name, tree) {
-    var parent = this.currentModule;
-    if (parent.hasModule(name)) {
-      this.reportError_(tree, 'Duplicate module declaration \'%s\'', name);
-      this.reportRelatedError_(parent.getModule(name).tree);
-      return false;
-    }
-    return true;
-  }
-
   /**
-   * @param {Symbol|ParseTree} symbolOrTree
+   * @param {ParseTree} tree
    * @param {string} format
    * @param {...Object} args
    * @return {void}
-   * @private
    */
-  reportError_(symbolOrTree, format, ...args) {
-    var tree;
-    if (symbolOrTree instanceof Symbol) {
-      tree = symbolOrTree.tree;
-    } else {
-      tree = symbolOrTree;
-    }
-
-    this.reporter_.reportError(tree.location.start, format, ...args);
-  }
-
-  /**
-   * @param {Symbol|ParseTree} symbolOrTree
-   * @return {void}
-   * @private
-   */
-  reportRelatedError_(symbolOrTree) {
-    if (symbolOrTree instanceof ParseTree) {
-      this.reportError_(symbolOrTree, 'Location related to previous error');
-    } else {
-      var tree = symbolOrTree.tree;
-      if (tree) {
-        this.reportRelatedError_(tree);
-      } else {
-        this.reporter_.reportError(null,
-            `Module related to previous error: ${symbolOrTree.url}`);
-      }
-    }
+  reportError(tree, format, ...args) {
+    this.reporter.reportError(tree.location.start, format, ...args);
   }
 }
