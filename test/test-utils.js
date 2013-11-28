@@ -219,7 +219,7 @@
       }
 
       var CloneTreeTransformer = traceur.codegeneration.CloneTreeTransformer;
-      var clone = cloneTest = CloneTreeTransformer.cloneTree(tree);
+      var clone = CloneTreeTransformer.cloneTree(tree);
       var code = traceur.outputgeneration.TreeWriter.write(tree);
       var cloneCode = traceur.outputgeneration.TreeWriter.write(clone);
       assert.equal(code, cloneCode);
@@ -227,7 +227,6 @@
       // Parse again to ensure that writer generates valid code.
       clone = parse(cloneCode);
       if (reporter.hadError()) {
-        console.log(cloneTest.toJSON());
         fail('Error compiling generated code for ' + name + '.\n' +
              reporter.errors.join('\n'));
         return;

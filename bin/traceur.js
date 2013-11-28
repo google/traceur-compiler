@@ -12743,8 +12743,6 @@ System.get('@traceur/module').registerModule("../src/syntax/ParseTreeValidator.j
         this.visitFunction_(tree);
       },
       visitFunction_: function(tree) {
-        if (!tree.formalParameterList) console.log('no formal parameter list');
-        if (!tree.functionBody) console.log('no function body: ', tree.toJSON());
         this.checkType_(FORMAL_PARAMETER_LIST, tree.formalParameterList, 'formal parameters expected');
         this.checkType_(FUNCTION_BODY, tree.functionBody, 'function body expected');
       },
@@ -13752,7 +13750,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ArrowFunctio
         if (functionBody.type != FUNCTION_BODY) {
           functionBody = createFunctionBody([createReturnStatement(functionBody)]);
         }
-        return createParenExpression(createFunctionExpression(new FormalParameterList(null, parameters), functionBody, tree.typeAnnotation));
+        return createParenExpression(createFunctionExpression(new FormalParameterList(null, parameters), functionBody));
       }
     }, {}, $__proto, $__super, false);
     return $ArrowFunctionTransformer;

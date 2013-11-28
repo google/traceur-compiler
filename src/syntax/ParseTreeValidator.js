@@ -621,12 +621,6 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   }
 
   visitFunction_(tree) {
-    if (!tree.formalParameterList)
-      console.log('no formal parameter list');
-
-    if (!tree.functionBody)
-      console.log('no function body: ', tree.toJSON());
-
     this.checkType_(FORMAL_PARAMETER_LIST,
                     tree.formalParameterList,
                     'formal parameters expected');

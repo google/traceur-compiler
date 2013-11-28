@@ -61,6 +61,6 @@ export class ArrowFunctionTransformer extends TempVarTransformer {
     // function(params) { ... }
     return createParenExpression(
         createFunctionExpression(
-            new FormalParameterList(null, parameters), functionBody, tree.typeAnnotation));
+            new FormalParameterList(null, parameters), functionBody));
   }
 }
