@@ -49,7 +49,7 @@ export class ModuleAnalyzer {
   }
 
   /**
-   * @param {ParseTree} tree
+   * @param {Array.<ParseTree>} trees
    * @param {Array.<ModuleSymbol>=} roots
    * @return {void}
    */
@@ -79,7 +79,7 @@ export class ModuleAnalyzer {
       }
     }
 
-    // TODO(arv): Export star needs to be done in dependency order.
+    // Export star needs to be done in dependency order.
     reverseVisit(ExportVisitor);
     doVisit(ValidationVisitor);
   }

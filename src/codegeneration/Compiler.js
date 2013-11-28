@@ -39,12 +39,9 @@ export class Compiler {
   compile_() {
     this.parse_();
     this.analyze_();
-    this.transform_();
+    var results = this.transform_();
 
-    if (this.hadError_()) {
-      return null;
-    }
-    return this.results_;
+    return this.hadError_() ? null : results;
   }
 
   /**
@@ -55,12 +52,9 @@ export class Compiler {
   compileFile_(file) {
     this.parseFile_(file);
     this.analyzeFile_(file);
-    this.transformFile_(file);
+    var results = this.transformFile_(file);
 
-    if (this.hadError_()) {
-      return null;
-    }
-    return this.results_.get(file);
+    return this.hadError_() ? null : results;
   }
 
   /**
@@ -73,8 +67,7 @@ export class Compiler {
     if (this.hadError_()) {
       return;
     }
-    this.results_ = ProgramTransformer.transform(this.reporter_,
-                                                 this.project_);
+    return ProgramTransformer.transform(this.reporter_, this.project_);
   }
 
   /**
@@ -88,9 +81,9 @@ export class Compiler {
     if (this.hadError_()) {
       return;
     }
-    this.results_ = ProgramTransformer.transformFile(this.reporter_,
-                                                     this.project_,
-                                                     sourceFile);
+    return ProgramTransformer.transformFile(this.reporter_,
+                                             this.project_,
+                                             sourceFile);
   }
 
   /**

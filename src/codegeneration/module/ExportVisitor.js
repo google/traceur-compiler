@@ -1,4 +1,4 @@
-// Copyright 2012 Traceur Authors.
+// Copyright 2013 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,10 +17,7 @@ import {ModuleVisitor} from './ModuleVisitor';
 import {assert} from '../../util/assert';
 
 /**
- * Visits a parse tree and adds all the module definitions.
- *
- *   module 'm' { ... }
- *
+ * Visits a parse tree and adds all the export definitions, including export *.
  */
 export class ExportVisitor extends ModuleVisitor {
   /**
@@ -31,23 +28,26 @@ export class ExportVisitor extends ModuleVisitor {
   constructor(reporter, project, module) {
     super(reporter, project, module);
     this.inExport_ = false;
-    this.relatedTree_ = null;
+    this.moduleSpecifier = null;
   }
 
   addExport_(name, tree) {
-    if (!this.inExport_) {
-      return;
-    }
-
     assert(typeof name == 'string');
+    if (this.inExport_)
+      this.addExport(name, tree);
+  }
 
-    var parent = this.currentModule;
-    if (parent.hasExport(name)) {
-      this.reportError_(tree, 'Duplicate export declaration \'%s\'', name);
-      this.reportRelatedError_(parent.getExport(name));
+  addExport(name, tree) {
+    var module = this.module;
+    if (module.hasExport(name)) {
+      var previousExport = module.getExport(name).tree;
+      this.reportError(tree, `Duplicate export of '${name}'`);
+      this.reportError(previousExport,
+                       `'${name}' was previously exported here`);
       return;
     }
-    parent.addExport(new ExportSymbol(name, tree, this.relatedTree_));
+
+    module.addExport(new ExportSymbol(name, tree));
   }
 
   visitClassDeclaration(tree) {
@@ -61,9 +61,9 @@ export class ExportVisitor extends ModuleVisitor {
   }
 
   visitNamedExport(tree) {
-    this.relatedTree_ = tree.moduleSpecifier;
+    this.moduleSpecifier = tree.moduleSpecifier;
     this.visitAny(tree.specifierSet);
-    this.relatedTree_ = null;
+    this.moduleSpecifier = null;
   }
 
   visitExportDefault(tree) {
@@ -75,9 +75,9 @@ export class ExportVisitor extends ModuleVisitor {
   }
 
   visitExportStar(tree) {
-    var module = this.getModuleForModuleSpecifier(this.relatedTree_);
+    var module = this.getModuleForModuleSpecifier(this.moduleSpecifier);
     module.getExports().forEach(({name}) => {
-      this.addExport_(name, tree);
+      this.addExport(name, tree);
     });
   }
 

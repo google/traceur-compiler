@@ -19,11 +19,9 @@ export class ExportSymbol extends Symbol {
   /**
    * @param {string} name
    * @param {ParseTree} tree
-   * @param {ParseTree=} relatedTree
    */
-  constructor(name, tree, relatedTree) {
+  constructor(name, tree) {
     super(EXPORT, tree);
     this.name = name;
-    this.relatedTree = relatedTree;
   }
 }

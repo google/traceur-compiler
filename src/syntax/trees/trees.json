@@ -589,6 +589,9 @@
     ],
     "scriptItemList": [
       "Array.<ParseTree>"
+    ],
+    "url": [
+      "string"
     ]
   },
   "ModuleDeclaration": {
@@ -692,6 +695,9 @@
     ],
     "scriptItemList": [
       "Array.<ParseTree>"
+    ],
+    "url": [
+      "string"
     ]
   },
   "PropertyMethodAssignment": {
