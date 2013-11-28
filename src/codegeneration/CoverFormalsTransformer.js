@@ -130,7 +130,7 @@ class ToFormalParametersTransformer extends ParseTreeTransformer {
 
     if (this.inArrayPattern_)
       return new SpreadPatternElement(tree.location, bindingIdentifier);
-    return new RestParameter(tree.location, bindingIdentifier);
+    return new RestParameter(tree.location, bindingIdentifier, null);
   }
 
   transformSyntaxErrorTree(tree) {

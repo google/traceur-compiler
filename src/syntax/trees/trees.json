@@ -392,9 +392,11 @@
     "location": [
       "SourceRange"
     ],
-    "element": [
-      "BindingElement",
-      "RestParameter"
+    "parameter": [
+      "BindingElement"
+    ],
+    "typeAnnotation": [
+      "ParseTree"
     ]
   },
   "FormalParameterList": {
@@ -427,6 +429,9 @@
     "formalParameterList": [
       "FormalParameterList"
     ],
+    "typeAnnotation": [
+      "ParseTree"
+    ],
     "functionBody": [
       "FunctionBody"
     ]
@@ -443,6 +448,9 @@
     ],
     "formalParameterList": [
       "FormalParameterList"
+    ],
+    "typeAnnotation": [
+      "ParseTree"
     ],
     "functionBody": [
       "FunctionBody"
@@ -467,6 +475,9 @@
       "boolean"
     ],
     "name": [
+      "ParseTree"
+    ],
+    "typeAnnotation": [
       "ParseTree"
     ],
     "body": [
@@ -716,6 +727,9 @@
     "formalParameterList": [
       "FormalParameterList"
     ],
+    "typeAnnotation": [
+      "ParseTree"
+    ],
     "functionBody": [
       "FunctionBody"
     ]
@@ -745,6 +759,9 @@
     ],
     "identifier": [
       "BindingIdentifier"
+    ],
+    "typeAnnotation": [
+      "ParseTree"
     ]
   },
   "ReturnStatement": {
@@ -766,7 +783,7 @@
       "ParseTree"
     ],
     "parameter": [
-      "BindingElement"
+      "FormalParameter"
     ],
     "body": [
       "FunctionBody"

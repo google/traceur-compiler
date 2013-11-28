@@ -595,6 +595,18 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
+   * @param {FormalParameter} tree
+   */
+  visitFormalParameter(tree) {
+    this.visitAny(tree.parameter);
+
+    if (tree.typeAnnotation) {
+      this.write_(COLON);
+      this.visitAny(tree.typeAnnotation);
+    }
+  }
+
+  /**
    * @param {FunctionBody} tree
    */
   visitFunctionBody(tree) {
@@ -626,6 +638,12 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.write_(OPEN_PAREN);
     this.visitAny(tree.formalParameterList);
     this.write_(CLOSE_PAREN);
+
+    if (tree.typeAnnotation !== null) {
+      this.write_(COLON);
+      this.visitAny(tree.typeAnnotation);
+    }
+
     this.visitAny(tree.functionBody);
   }
 
@@ -646,6 +664,12 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.visitAny(tree.name);
     this.write_(OPEN_PAREN);
     this.write_(CLOSE_PAREN);
+
+    if (tree.typeAnnotation !== null) {
+      this.write_(COLON);
+      this.visitAny(tree.typeAnnotation);
+    }
+
     this.visitAny(tree.body);
   }
 
@@ -863,6 +887,12 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.write_(OPEN_PAREN);
     this.visitAny(tree.formalParameterList);
     this.write_(CLOSE_PAREN);
+
+    if (tree.typeAnnotation !== null) {
+      this.write_(COLON);
+      this.visitAny(tree.typeAnnotation);
+    }
+
     this.visitAny(tree.functionBody);
   }
 
@@ -926,6 +956,11 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   visitRestParameter(tree) {
     this.write_(DOT_DOT_DOT);
     this.write_(tree.identifier.identifierToken);
+
+    if (tree.typeAnnotation) {
+      this.write_(COLON);
+      this.visitAny(tree.typeAnnotation);
+    }
   }
 
   /**

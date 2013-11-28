@@ -835,10 +835,11 @@ export class Parser {
     this.eat_(OPEN_PAREN);
     var formalParameterList = this.parseFormalParameterList_();
     this.eat_(CLOSE_PAREN);
+    var typeAnnotation = this.parseTypeAnnotationOpt_();
     var functionBody = this.parseFunctionBody_(isGenerator,
                                                formalParameterList);
     return new FunctionDeclaration(this.getTreeLocation_(start), name,
-                                   isGenerator, formalParameterList,
+                                   isGenerator, formalParameterList, typeAnnotation,
                                    functionBody);
   }
 
@@ -857,10 +858,11 @@ export class Parser {
     this.eat_(OPEN_PAREN);
     var formalParameterList = this.parseFormalParameterList_();
     this.eat_(CLOSE_PAREN);
+    var typeAnnotation = this.parseTypeAnnotationOpt_();
     var functionBody = this.parseFunctionBody_(isGenerator,
                                                formalParameterList);
     return new FunctionExpression(this.getTreeLocation_(start), name,
-                                  isGenerator, formalParameterList,
+                                  isGenerator, formalParameterList, typeAnnotation,
                                   functionBody);
   }
 
@@ -915,15 +917,21 @@ export class Parser {
 
   parseFormalParameter_(initializerAllowed = undefined) {
     var start = this.getTreeStartLocation_();
+    var binding = this.parseBindingElementBinding_();
+    var typeAnnotation = this.parseTypeAnnotationOpt_();
+    var initializer = this.parseBindingElementInitializer_(initializerAllowed);
+
     return new FormalParameter(this.getTreeLocation_(start),
-      this.parseBindingElement_(initializerAllowed));
+      new BindingElement(this.getTreeLocation_(start), binding, initializer),
+      typeAnnotation);
   }
 
   parseRestParameter_() {
     var start = this.getTreeStartLocation_();
     this.eat_(DOT_DOT_DOT);
     var id = this.parseBindingIdentifier_();
-    return new RestParameter(this.getTreeLocation_(start), id);
+    var typeAnnotation = this.parseTypeAnnotationOpt_();
+    return new RestParameter(this.getTreeLocation_(start), id, typeAnnotation);
   }
 
   /**
@@ -2078,10 +2086,11 @@ export class Parser {
     this.eat_(OPEN_PAREN);
     var formalParameterList = this.parseFormalParameterList_();
     this.eat_(CLOSE_PAREN);
+    var typeAnnotation = this.parseTypeAnnotationOpt_();
     var functionBody = this.parseFunctionBody_(isGenerator,
                                                formalParameterList);
     return new PropertyMethodAssignment(this.getTreeLocation_(start),
-        isStatic, isGenerator, name, formalParameterList, functionBody);
+        isStatic, isGenerator, name, formalParameterList, typeAnnotation, functionBody);
   }
 
   parseGetSetOrMethod_(start, isStatic) {
@@ -2111,8 +2120,9 @@ export class Parser {
     var name = this.parsePropertyName_();
     this.eat_(OPEN_PAREN);
     this.eat_(CLOSE_PAREN);
+    var typeAnnotation = this.parseTypeAnnotationOpt_();
     var body = this.parseFunctionBody_(isGenerator, null);
-    return new GetAccessor(this.getTreeLocation_(start), isStatic, name, body);
+    return new GetAccessor(this.getTreeLocation_(start), isStatic, name, typeAnnotation, body);
   }
 
   parseSetAccessor_(start, isStatic) {
@@ -2175,7 +2185,10 @@ export class Parser {
     else
       binding = this.parseBindingIdentifier_();
 
-    return new BindingElement(this.getTreeLocation_(start), binding, null);
+    var typeAnnotation = this.parseTypeAnnotationOpt_();
+    return new FormalParameter(this.getTreeLocation_(start),
+      new BindingElement(this.getTreeLocation_(start), binding, null),
+      typeAnnotation);
   }
 
   /**
@@ -3265,18 +3278,26 @@ export class Parser {
    */
   parseBindingElement_(initializer = Initializer.OPTIONAL) {
     var start = this.getTreeStartLocation_();
-    var binding;
-    if (this.peekPattern_(this.peekType_()))
-      binding = this.parseBindingPattern_();
-    else
-      binding = this.parseBindingIdentifier_();
-    var initializer = null;
-    if (this.peek_(EQUAL) ||
-        initializer === Initializer.REQUIRED) {
-      initializer = this.parseInitializer_();
-    }
+
+    var binding = this.parseBindingElementBinding_();
+    var initializer = this.parseBindingElementInitializer_(initializer);
     return new BindingElement(this.getTreeLocation_(start), binding,
                                                     initializer);
+  }
+
+  parseBindingElementBinding_() {
+    if (this.peekPattern_(this.peekType_()))
+      return this.parseBindingPattern_();
+    return this.parseBindingIdentifier_();
+  }
+
+  parseBindingElementInitializer_(initializer = Initializer.OPTIONAL) {
+    if (this.peek_(EQUAL) ||
+        initializer === Initializer.REQUIRED) {
+      return this.parseInitializer_();
+    }
+
+    return null;
   }
 
   /**

@@ -22,6 +22,9 @@ var stack = [];
  * Base class for rest, default and destructuring parameters.
  */
 export class ParameterTransformer extends TempVarTransformer {
+  transformFormalParameter(tree) {
+    return this.transformAny(tree.parameter);
+  }
 
   transformFunctionDeclaration(tree) {
     // The stack is popped in transformFunctionBody.

@@ -266,7 +266,7 @@ export class ClassTransformer extends TempVarTransformer{
 
     var isStatic = false;
     return new PropertyMethodAssignment(tree.location, isStatic,
-        tree.isGenerator, tree.name, formalParameterList, functionBody);
+        tree.isGenerator, tree.name, formalParameterList, tree.typeAnnotation, functionBody);
   }
 
   transformGetAccessor_(tree, protoName) {
@@ -274,7 +274,7 @@ export class ClassTransformer extends TempVarTransformer{
     if (!tree.isStatic && body === tree.body)
       return tree;
     // not static
-    return new GetAccessor(tree.location, false, tree.name, body);
+    return new GetAccessor(tree.location, false, tree.name, tree.typeAnnotation, body);
   }
 
   transformSetAccessor_(tree, protoName) {
