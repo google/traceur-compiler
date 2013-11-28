@@ -111,7 +111,7 @@ System.set('@traceur/module', (function(global) {
   System.get = function(name) {
     var m = getModuleImpl(name);
     if (!m)
-      return null;  // or undefined?
+      return undefined;
     var moduleInstance = moduleInstances[m.url];
     if (moduleInstance)
       return moduleInstance;
@@ -122,18 +122,14 @@ System.set('@traceur/module', (function(global) {
   };
 
   System.set = function(name, object) {
-    if (!name)
-      return;
+    name = String(name);
     if (isStandardModuleUrl(name)) {
       $set(name, object);
     } else {
-      var url = System.normalResolve(name);
-      if (url) {
-        moduleImplementations[url] = {
-          url: url,
-          value: object
-        };
-      }
+      moduleImplementations[name] = {
+        url: name,
+        value: object
+      };
     }
   };
 
