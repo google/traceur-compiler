@@ -21,7 +21,7 @@ import {
   ObjectPatternField,
   Script
 } from '../syntax/trees/ParseTrees';
-import {ExportVisitor} from './module/ExportVisitor';
+import {DirectExportVisitor} from './module/DirectExportVisitor';
 import {TempVarTransformer} from './TempVarTransformer';
 import {
   EXPORT_DEFAULT,
@@ -108,7 +108,7 @@ export class ModuleTransformer extends TempVarTransformer {
   constructor(identifierGenerator, runtimeInliner) {
     super(identifierGenerator);
     this.runtimeInliner_ = runtimeInliner;
-    this.exportVisitor_ = new ExportVisitor();
+    this.exportVisitor_ = new DirectExportVisitor();
     this.moduleSpecifierKind_ = null;
     this.url = null;
   }

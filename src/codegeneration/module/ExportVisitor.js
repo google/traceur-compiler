@@ -1,4 +1,4 @@
-// Copyright 2012 Traceur Authors.
+// Copyright 2013 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,24 +17,18 @@ import {ModuleVisitor} from './ModuleVisitor';
 import {assert} from '../../util/assert';
 
 /**
- * Visits a parse tree and adds all the exports.
- *
- *   export {x, y as z};
- *   export {a, b as c} from 'd'
- *   export class C {}
- *   export var v = 1;
- *   export default 42;
- *   ...
- *
- * This does not follow export *.
+ * Visits a parse tree and adds all the export definitions, including export *.
  */
 export class ExportVisitor extends ModuleVisitor {
-  constructor(reporter = undefined, project = undefined, module = undefined) {
+  /**
+   * @param {traceur.util.ErrorReporter} reporter
+   * @param {ProjectSymbol} project
+   * @param {ModuleSymbol} module The root of the module system.
+   */
+  constructor(reporter, project, module) {
     super(reporter, project, module);
     this.inExport_ = false;
     this.moduleSpecifier = null;
-    this.namedExports = [];
-    this.starExports = [];
   }
 
   addExport_(name, tree) {
@@ -44,7 +38,16 @@ export class ExportVisitor extends ModuleVisitor {
   }
 
   addExport(name, tree) {
-    this.namedExports.push({name, tree, moduleSpecifier: this.moduleSpecifier});
+    var module = this.module;
+    if (module.hasExport(name)) {
+      var previousExport = module.getExport(name).tree;
+      this.reportError(tree, `Duplicate export of '${name}'`);
+      this.reportError(previousExport,
+                       `'${name}' was previously exported here`);
+      return;
+    }
+
+    module.addExport(new ExportSymbol(name, tree));
   }
 
   visitClassDeclaration(tree) {
@@ -72,7 +75,10 @@ export class ExportVisitor extends ModuleVisitor {
   }
 
   visitExportStar(tree) {
-    this.starExports.push(this.moduleSpecifier);
+    var module = this.getModuleForModuleSpecifier(this.moduleSpecifier);
+    module.getExports().forEach(({name}) => {
+      this.addExport(name, tree);
+    });
   }
 
   visitFunctionDeclaration(tree) {

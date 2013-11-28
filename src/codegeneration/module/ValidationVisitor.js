@@ -14,10 +14,6 @@
 
 import {ModuleVisitor} from './ModuleVisitor';
 
-function getFriendlyName(module) {
-  return "'" + module.url + "'";
-}
-
 /**
  * Validates that symbols are exported when we extract them.
  *
@@ -29,9 +25,10 @@ function getFriendlyName(module) {
 export class ValidationVisitor extends ModuleVisitor {
 
   checkExport_(tree, name) {
-    if (this.validatingModule_ && !this.validatingModule_.hasExport(name)) {
-      this.reportError_(tree, '\'%s\' is not exported by %s', name,
-          getFriendlyName(this.validatingModule_));
+    var module = this.validatingModule_;
+    if (module && !module.hasExport(name)) {
+      var url = module.url;
+      this.reportError(tree, `'${name}' is not exported by '${url}'`);
     }
   }
 
@@ -53,8 +50,7 @@ export class ValidationVisitor extends ModuleVisitor {
     // Ensures that the module expression exports the names we want to
     // re-export.
     if (tree.moduleSpecifier) {
-      var module = this.getModuleForModuleSpecifier(tree.moduleSpecifier,
-          true /* reportErrors */);
+      var module = this.getModuleForModuleSpecifier(tree.moduleSpecifier);
       this.visitAndValidate_(module, tree.specifierSet);
     }
     // The else case is checked else where and duplicate exports are caught
@@ -67,12 +63,11 @@ export class ValidationVisitor extends ModuleVisitor {
   }
 
   visitModuleSpecifier(tree) {
-    this.getModuleForModuleSpecifier(tree, true /* reportErrors */);
+    this.getModuleForModuleSpecifier(tree);
   }
 
   visitImportDeclaration(tree) {
-    var module = this.getModuleForModuleSpecifier(tree.moduleSpecifier,
-        true /* reportErrors */);
+    var module = this.getModuleForModuleSpecifier(tree.moduleSpecifier);
     this.visitAndValidate_(module, tree.importClause);
   }
 
