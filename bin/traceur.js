@@ -5939,6 +5939,9 @@ System.get('@traceur/module').registerModule("../src/codegeneration/CoverFormals
         var propertyNameAndValues = this.transformList(tree.propertyNameAndValues);
         return new BindingElement(tree.location, new ObjectPattern(tree.location, propertyNameAndValues), null);
       },
+      transformCoverInitialisedName: function(tree) {
+        return new BindingElement(tree.location, new BindingIdentifier(tree.location, tree.name), tree.initializer);
+      },
       transformPropertyNameAssignment: function(tree) {
         return new ObjectPatternField(tree.location, tree.name, this.transformAny(tree.value));
       },
@@ -7721,7 +7724,6 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
         this.noLintChanged_ = false;
         this.strictSemicolons_ = options.strictSemicolons;
         this.coverInitialisedName_ = null;
-        this.assignmentExpressionDepth_ = 0;
       },
       parseScript: function() {
         this.strictMode_ = false;
@@ -8861,33 +8863,34 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
       },
       parseAssignmentExpression: function() {
         var expressionIn = arguments[0] !== (void 0) ? arguments[0]: Expression.NORMAL;
+        var allowCoverGrammar = arguments[1];
         if (this.allowYield_ && this.peek_(YIELD)) return this.parseYieldExpression_();
-        this.assignmentExpressionDepth_++;
         var start = this.getTreeStartLocation_();
         var left = this.parseConditional_(expressionIn);
         var type = this.peekType_();
         if (type === ARROW && (left.type === COVER_FORMALS || left.type === IDENTIFIER_EXPRESSION)) {
           return this.parseArrowFunction_(start, left);
         }
-        left = this.toParenExpression_(left);
         if (this.peekAssignmentOperator_(type)) {
-          if (type === EQUAL) left = this.transformLeftHandSideExpression_(left);
+          if (type === EQUAL) left = this.transformLeftHandSideExpression_(left); else left = this.toParenExpression_(left);
+          if (!allowCoverGrammar) this.ensureAssignmenExpression_();
           if (!left.isLeftHandSideExpression() && !left.isPattern()) {
             this.reportError_('Left hand side of assignment must be new, call, member, function, primary expressions or destructuring pattern');
           }
           var operator = this.nextToken_();
           var right = this.parseAssignmentExpression(expressionIn);
-          this.assignmentExpressionDepth_--;
-          this.coverInitialisedName_ = null;
           return new BinaryOperator(this.getTreeLocation_(start), left, operator, right);
         }
-        this.assignmentExpressionDepth_--;
-        if (this.assignmentExpressionDepth_ === 0 && this.coverInitialisedName_) {
+        left = this.toParenExpression_(left);
+        if (!allowCoverGrammar) this.ensureAssignmenExpression_();
+        return left;
+      },
+      ensureAssignmenExpression_: function() {
+        if (this.coverInitialisedName_) {
           var token = this.coverInitialisedName_.equalToken;
           this.reportError_(token.location, ("Unexpected token '" + token + "'"));
           this.coverInitialisedName_ = null;
         }
-        return left;
       },
       transformLeftHandSideExpression_: function(tree) {
         switch (tree.type) {
@@ -8900,7 +8903,10 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
             } catch (ex) {
               if (!(ex instanceof AssignmentPatternTransformerError)) throw ex;
             }
-            if (transformedTree) return transformedTree;
+            if (transformedTree) {
+              this.coverInitialisedName_ = null;
+              return transformedTree;
+            }
             break;
           case PAREN_EXPRESSION:
             var expression = this.transformLeftHandSideExpression_(tree.expression);
@@ -9314,7 +9320,7 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
               expressions.push(this.parseRestParameter_());
               break;
             } else {
-              expressions.push(this.parseAssignmentExpression());
+              expressions.push(this.parseAssignmentExpression(Expression.NORMAL, true));
             }
             if (this.eatIf_(COMMA)) continue;
           } while (!this.peek_(CLOSE_PAREN) && !this.isAtEnd());
@@ -9337,7 +9343,9 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
       },
       toFormalParameters_: function(tree) {
         if (tree.type !== COVER_FORMALS) return tree;
-        return this.transformCoverFormals_(toFormalParameters, tree);
+        var transformed = this.transformCoverFormals_(toFormalParameters, tree);
+        this.coverInitialisedName_ = null;
+        return transformed;
       },
       transformCoverFormalsToArrowFormals_: function(coverFormals) {
         var formals = null;

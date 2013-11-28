@@ -365,7 +365,6 @@ export class Parser {
     this.strictSemicolons_ = options.strictSemicolons;
 
     this.coverInitialisedName_ = null;
-    this.assignmentExpressionDepth_ = 0;
   }
 
   // 14 Script
@@ -2298,14 +2297,14 @@ export class Parser {
    *   LeftHandSideExpression = AssignmentExpressionNoIn
    *   LeftHandSideExpression AssignmentOperator AssignmentExpressionNoIn
    *
-   * @param {Expression} expressionIn
+   * @param {Expression=} expressionIn
+   * @param {boolean=} allowCoverGrammar
    * @return {ParseTree}
    */
-  parseAssignmentExpression(expressionIn = Expression.NORMAL) {
+  parseAssignmentExpression(expressionIn = Expression.NORMAL,
+                            allowCoverGrammar = undefined) {
     if (this.allowYield_ && this.peek_(YIELD))
       return this.parseYieldExpression_();
-
-    this.assignmentExpressionDepth_++;
 
     var start = this.getTreeStartLocation_();
     var left = this.parseConditional_(expressionIn);
@@ -2316,12 +2315,14 @@ export class Parser {
       return this.parseArrowFunction_(start, left);
     }
 
-    left = this.toParenExpression_(left);
-
     if (this.peekAssignmentOperator_(type)) {
       if (type === EQUAL)
         left = this.transformLeftHandSideExpression_(left);
+      else
+        left = this.toParenExpression_(left);
 
+      if (!allowCoverGrammar)
+        this.ensureAssignmenExpression_();
 
       if (!left.isLeftHandSideExpression() && !left.isPattern()) {
         this.reportError_('Left hand side of assignment must be new, call, member, function, primary expressions or destructuring pattern');
@@ -2329,21 +2330,22 @@ export class Parser {
 
       var operator = this.nextToken_();
       var right = this.parseAssignmentExpression(expressionIn);
-      this.assignmentExpressionDepth_--;
-      this.coverInitialisedName_ = null;
 
       return new BinaryOperator(this.getTreeLocation_(start), left, operator, right);
     }
 
-    this.assignmentExpressionDepth_--;
+    left = this.toParenExpression_(left);
+    if (!allowCoverGrammar)
+      this.ensureAssignmenExpression_();
+    return left;
+  }
 
-    if (this.assignmentExpressionDepth_ === 0 && this.coverInitialisedName_) {
+  ensureAssignmenExpression_() {
+    if (this.coverInitialisedName_) {
       var token = this.coverInitialisedName_.equalToken;
       this.reportError_(token.location, `Unexpected token '${token}'`);
       this.coverInitialisedName_ = null;
     }
-
-    return left;
   }
 
   /**
@@ -2365,8 +2367,10 @@ export class Parser {
           if (!(ex instanceof AssignmentPatternTransformerError))
             throw ex;
         }
-        if (transformedTree)
+        if (transformedTree) {
+          this.coverInitialisedName_ = null;
           return transformedTree;
+        }
         break;
 
       case PAREN_EXPRESSION:
@@ -3032,7 +3036,8 @@ export class Parser {
           expressions.push(this.parseRestParameter_());
           break;
         } else {
-          expressions.push(this.parseAssignmentExpression());
+          expressions.push(
+              this.parseAssignmentExpression(Expression.NORMAL, true));
         }
 
         if (this.eatIf_(COMMA))
@@ -3069,7 +3074,9 @@ export class Parser {
     if (tree.type !== COVER_FORMALS)
       return tree;
 
-    return this.transformCoverFormals_(toFormalParameters, tree);
+    var transformed = this.transformCoverFormals_(toFormalParameters, tree);
+    this.coverInitialisedName_ = null;
+    return transformed;
   }
 
   /**
