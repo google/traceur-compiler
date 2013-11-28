@@ -922,8 +922,8 @@ export class Parser {
     var initializer = this.parseBindingElementInitializer_(initializerAllowed);
 
     return new FormalParameter(this.getTreeLocation_(start),
-      new BindingElement(this.getTreeLocation_(start), binding, initializer),
-      typeAnnotation);
+        new BindingElement(this.getTreeLocation_(start), binding, initializer),
+        typeAnnotation);
   }
 
   parseRestParameter_() {
@@ -2187,8 +2187,8 @@ export class Parser {
 
     var typeAnnotation = this.parseTypeAnnotationOpt_();
     return new FormalParameter(this.getTreeLocation_(start),
-      new BindingElement(this.getTreeLocation_(start), binding, null),
-      typeAnnotation);
+        new BindingElement(this.getTreeLocation_(start), binding, null),
+        typeAnnotation);
   }
 
   /**
@@ -3282,7 +3282,7 @@ export class Parser {
     var binding = this.parseBindingElementBinding_();
     var initializer = this.parseBindingElementInitializer_(initializer);
     return new BindingElement(this.getTreeLocation_(start), binding,
-                                                    initializer);
+        initializer);
   }
 
   parseBindingElementBinding_() {
