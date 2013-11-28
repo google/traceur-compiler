@@ -2542,7 +2542,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/module/Modul
       },
       visitFunctionDeclaration: function(tree) {},
       visitFunctionExpression: function(tree) {},
-      visitSFunctionBody: function(tree) {},
+      visitFunctionBody: function(tree) {},
       visitBlock: function(tree) {},
       visitClassDeclaration: function(tree) {},
       visitClassExpression: function(tree) {},

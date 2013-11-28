@@ -58,7 +58,7 @@ export class ModuleVisitor extends ParseTreeVisitor {
   // Limit the trees to visit.
   visitFunctionDeclaration(tree) {}
   visitFunctionExpression(tree) {}
-  visitSFunctionBody(tree) {}
+  visitFunctionBody(tree) {}
   visitBlock(tree) {}
   visitClassDeclaration(tree) {}
   visitClassExpression(tree) {}
