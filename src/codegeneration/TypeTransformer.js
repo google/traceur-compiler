@@ -31,8 +31,4 @@ export class TypeTransformer extends ParseTreeTransformer {
     }
     return super.transformVariableDeclaration(tree);
   }
-
-  static transformTree(tree) {
-    return new TypeTransformer().transformAny(tree);
-  }
 }

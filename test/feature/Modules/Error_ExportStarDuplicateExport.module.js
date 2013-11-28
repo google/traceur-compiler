@@ -1,6 +1,6 @@
 // Should not compile.
-// Error: :6:8: Duplicate export declaration 'a'
-// Error: :5:8: Location related to previous error
+// Error: :6:8: Duplicate export of 'a'
+// Error: :5:8: 'a' was previously exported here
 
 export * from './resources/a';
 export * from './resources/a2';

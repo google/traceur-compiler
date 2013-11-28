@@ -64,13 +64,4 @@ export class RestParameterTransformer extends ParameterTransformer {
 
     return transformed;
   }
-
-  /**
-   * @param {UniqueIdentifierGenerator} identifierGenerator
-   * @param {ParseTree} tree
-   * @return {ParseTree}
-   */
-  static transformTree(identifierGenerator, tree) {
-    return new RestParameterTransformer(identifierGenerator).transformAny(tree);
-  }
 }

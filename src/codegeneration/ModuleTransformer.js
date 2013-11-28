@@ -21,6 +21,7 @@ import {
   ObjectPatternField,
   Script
 } from '../syntax/trees/ParseTrees';
+import {DirectExportVisitor} from './module/DirectExportVisitor';
 import {TempVarTransformer} from './TempVarTransformer';
 import {
   EXPORT_DEFAULT,
@@ -35,11 +36,14 @@ import {
 } from '../syntax/TokenType';
 import {assert} from '../util/assert';
 import {
+  createArgumentList,
   createBindingIdentifier,
+  createCallExpression,
   createIdentifierExpression,
   createIdentifierToken,
   createMemberExpression,
   createObjectLiteralExpression,
+  createReturnStatement,
   createUseStrictDirective,
   createVariableStatement
 } from './ParseTreeFactory';
@@ -49,16 +53,29 @@ import {
   parseStatement
 } from './PlaceholderParser';
 
+var EXPORT_STAR_CODE = `
+    function(object) {
+      for (var i = 1; i < arguments.length; i++) {
+        var names = %getOwnPropertyNames(arguments[i]);
+        for (var j = 0; j < names.length; j++) {
+          (function(mod, name) {
+            %defineProperty(object, name, {
+              get: function() { return mod[name]; },
+              enumerable: true
+            });
+          })(arguments[i], names[j]);
+      }
+
+      return object;
+    }`;
+
 /**
  * This creates the code that defines the getter for an export.
  * @param {ModuleTransformer} transformer
- * @param {ExportSymbol} symbol
+ * @param {{string, ParseTree, ModuleSpecifier}} symbol
  * @return {ParseTree}
  */
-function getGetterExport(transformer, symbol) {
-  // NAME: {get: function() { return <returnExpression> },
-  var name = symbol.name;
-  var tree = symbol.tree;
+function getGetterExport(transformer, {name, tree, moduleSpecifier}) {
   var returnExpression;
   switch (tree.type) {
     case EXPORT_DEFAULT:
@@ -66,7 +83,6 @@ function getGetterExport(transformer, symbol) {
       break;
 
     case EXPORT_SPECIFIER:
-      var moduleSpecifier = symbol.relatedTree;
       if (moduleSpecifier) {
         var idName =
             transformer.getTempVarNameForModuleSpecifier(moduleSpecifier);
@@ -76,38 +92,25 @@ function getGetterExport(transformer, symbol) {
       }
       break;
 
-    case EXPORT_STAR:
-      assert(symbol.relatedTree);
-      var moduleSpecifier = symbol.relatedTree;
-      var idName =
-          transformer.getTempVarNameForModuleSpecifier(moduleSpecifier);
-      returnExpression = createMemberExpression(idName, symbol.name);
-      break;
-
     default:
       returnExpression = createIdentifierExpression(name);
       break;
   }
 
   return parsePropertyDefinition
-      `${name}: {
-         get: function() { return ${returnExpression}; },
-         enumerable: true
-       }`;
+      `get ${name}() { return ${returnExpression}; }`;
 }
 
 export class ModuleTransformer extends TempVarTransformer {
   /**
-   * @param {identifierGenerator} identifierGenerator
-   * @param {string} url
-   * @param {ModuleSymbol=} module
+   * @param {UniqueIdentifierGenerator} identifierGenerator
    */
-  constructor(identifierGenerator, url, module = undefined) {
+  constructor(identifierGenerator, runtimeInliner) {
     super(identifierGenerator);
-    this.identifierGenerator = identifierGenerator;
-    this.url = url;
-    this.module = module;
-    assert(this.url);
+    this.runtimeInliner_ = runtimeInliner;
+    this.exportVisitor_ = new DirectExportVisitor();
+    this.moduleSpecifierKind_ = null;
+    this.url = null;
   }
 
   getTempVarNameForModuleSpecifier(moduleSpecifier) {
@@ -117,7 +120,14 @@ export class ModuleTransformer extends TempVarTransformer {
     }) + '__';
   }
 
+  transformScript(tree) {
+    this.url = tree.url;
+    return super.transformScript(tree);
+  }
+
   transformModule(tree) {
+    this.url = tree.url;
+
     this.pushTempVarState();
 
     var statements = [
@@ -136,17 +146,34 @@ export class ModuleTransformer extends TempVarTransformer {
     return new Script(tree.location, [registerStatement]);
   }
 
+  get exportStar_() {
+    return this.runtimeInliner_.get('exportStar', EXPORT_STAR_CODE);
+  }
+
   createExportStatement() {
-    var properties = this.module.getExports().map((exp) => {
+    var properties = this.exportVisitor_.namedExports.map((exp) => {
       // export_name: {get: function() { return export_name },
       return getGetterExport(this, exp);
     });
-    var descriptors = createObjectLiteralExpression(properties);
-    return parseStatement
-        `return Object.preventExtensions(Object.create(null, ${descriptors}));`;
+    var object = createObjectLiteralExpression(properties);
+
+    var starExports = this.exportVisitor_.starExports;
+    if (starExports.length) {
+      var starIdents = starExports.map((moduleSpecifier) => {
+        return createIdentifierExpression(
+            this.getTempVarNameForModuleSpecifier(moduleSpecifier));
+      });
+      return createReturnStatement(
+          createCallExpression(
+              this.exportStar_,
+              createArgumentList([object, ...starIdents])));
+    }
+
+    return parseStatement `return ${object}`;
   }
 
   transformExportDeclaration(tree) {
+    this.exportVisitor_.visitAny(tree);
     return this.transformAny(tree.declaration);
   }
 
@@ -156,11 +183,13 @@ export class ModuleTransformer extends TempVarTransformer {
 
   transformNamedExport(tree) {
     var moduleSpecifier = tree.moduleSpecifier;
+
     if (moduleSpecifier) {
       var expression = this.transformAny(moduleSpecifier);
       var idName = this.getTempVarNameForModuleSpecifier(moduleSpecifier);
       return createVariableStatement(VAR, idName, expression);
     }
+
     return new EmptyStatement(null);
   }
 
@@ -176,10 +205,13 @@ export class ModuleTransformer extends TempVarTransformer {
     if (name[0] === '@') {
       url = name;
     } else {
+      assert(this.url);
       // import/module {x} from 'name' is relative to the current file.
       url = System.normalResolve(name, this.url);
     }
-    return parseExpression `System.get(${url})`;
+    if (this.moduleSpecifierKind_ === 'module')
+      return parseExpression `System.get(${url})`;
+    return parseExpression `System.get('@traceur/module').getModuleImpl(${url})`;
   }
 
   /**
@@ -187,6 +219,7 @@ export class ModuleTransformer extends TempVarTransformer {
    * @return {VariableDeclaration}
    */
   transformModuleDeclaration(tree) {
+    this.moduleSpecifierKind_ = 'module';
     var initializer = this.transformAny(tree.expression);
     // const a = b.c, d = e.f;
     // TODO(arv): const is not allowed in ES5 strict
@@ -208,6 +241,7 @@ export class ModuleTransformer extends TempVarTransformer {
     // import id from 'module';
     //  =>
     // var {default: id} = moduleInstance
+    this.moduleSpecifierKind_ = 'import';
     var binding = this.transformAny(tree.importClause);
     var initializer = this.transformAny(tree.moduleSpecifier);
 
@@ -228,28 +262,5 @@ export class ModuleTransformer extends TempVarTransformer {
     }
     return new BindingElement(tree.location,
         createBindingIdentifier(tree.lhs), null);
-  }
-
-  /**
-   * @param {identifierGenerator} identifierGenerator
-   * @param {Script} tree
-   * @param {string} url
-   * @return {Script}
-   */
-  static transform(identifierGenerator, tree, url) {
-    assert(tree.type === SCRIPT);
-    return new ModuleTransformer(identifierGenerator, url).transformAny(tree);
-  }
-
-  /**
-   * @param {identifierGenerator} identifierGenerator
-   * @param {Script} tree
-   * @param {Module} module
-   * @return {Script}
-   */
-  static transformAsModule(identifierGenerator, tree, module) {
-    assert(tree.type === MODULE);
-    assert(module);
-    return new ModuleTransformer(identifierGenerator, module.url, module).transformAny(tree);
   }
 }

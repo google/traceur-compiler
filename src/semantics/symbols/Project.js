@@ -29,8 +29,8 @@ function addAll(self, other) {
   }
 }
 
-function values(map) {
-  return Object.keys(map).map((key) => map[key]);
+function values(objectMap) {
+  return Object.keys(objectMap).map((key) => objectMap[key]);
 }
 
 var standardModuleCache = Object.create(null);
@@ -48,7 +48,7 @@ function getStandardModule(url) {
     if (!moduleInstance)
       throw new Error(`Internal error, no standard module for ${url}`);
     Object.keys(moduleInstance).forEach((name) => {
-      symbol.addExport(new ExportSymbol(name, null, null));
+      symbol.addExport(new ExportSymbol(name, null));
     });
     standardModuleCache[url] = symbol;
   }

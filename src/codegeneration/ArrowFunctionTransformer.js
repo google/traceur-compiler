@@ -50,21 +50,17 @@ export class ArrowFunctionTransformer extends TempVarTransformer {
       parameters = [];
     }
 
-    var functionBody = this.transformAny(tree.functionBody);
+    var alphaRenamed = alphaRenameThisAndArguments(this, tree);
+
+    var functionBody = this.transformAny(alphaRenamed.functionBody);
     if (functionBody.type != FUNCTION_BODY) {
       // { return expr; }
       functionBody = createFunctionBody([createReturnStatement(functionBody)]);
     }
 
-    functionBody = alphaRenameThisAndArguments(this, functionBody);
-
     // function(params) { ... }
     return createParenExpression(
         createFunctionExpression(
             new FormalParameterList(null, parameters), functionBody));
-  }
-
-  static transformTree(identifierGenerator, tree) {
-    return new ArrowFunctionTransformer(identifierGenerator).transformAny(tree);
   }
 }

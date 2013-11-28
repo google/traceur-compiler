@@ -17,7 +17,8 @@ import {
   AssignmentPatternTransformerError
 } from '../codegeneration/AssignmentPatternTransformer';
 import {
-  CoverFormalsTransformer,
+  toFormalParameters,
+  toParenExpression,
   CoverFormalsTransformerError
 } from '../codegeneration/CoverFormalsTransformer';
 import {IdentifierToken} from './IdentifierToken';
@@ -29,6 +30,7 @@ import {
   CLASS_DECLARATION,
   COMMA_EXPRESSION,
   COMPUTED_PROPERTY_NAME,
+  COVER_FORMALS,
   FORMAL_PARAMETER_LIST,
   FUNCTION_DECLARATION,
   IDENTIFIER_EXPRESSION,
@@ -437,7 +439,6 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     var scriptItemList = this.parseModuleItemList_();
     this.eat_(END_OF_FILE);
-    // TODO(arv): Use Module instead.
     return new Module(this.getTreeLocation_(start), scriptItemList);
   }
 
@@ -446,8 +447,7 @@ export class Parser {
     var result = [];
     var type;
 
-    // TODO(arv): Remove CLOSE_CURLY when we no longer supports inline modules.
-    while ((type = this.peekType_()) !== END_OF_FILE && type !== CLOSE_CURLY) {
+    while ((type = this.peekType_()) !== END_OF_FILE) {
       var scriptItem = this.parseScriptItem_(type, true);
       result.push(scriptItem);
     }
@@ -1717,7 +1717,7 @@ export class Parser {
       case OPEN_CURLY:
         return this.parseObjectLiteral_();
       case OPEN_PAREN:
-        return this.parseParenExpression_();
+        return this.parsePrimaryExpressionStartingWithParen_();
       case SLASH:
       case SLASH_EQUAL:
         return this.parseRegularExpressionLiteral_();
@@ -2208,10 +2208,15 @@ export class Parser {
    * @return {ParseTree}
    * @private
    */
-  parseParenExpression_() {
-    // Parse arrow function will return a ParenExpression if there isn't an
-    // arrow after the ( CoverFormals ).
-    return this.parseArrowFunction_();
+  parsePrimaryExpressionStartingWithParen_() {
+    var start = this.getTreeStartLocation_();
+
+    this.eat_(OPEN_PAREN);
+
+    if (this.peek_(FOR) && parseOptions.generatorComprehension)
+      return this.parseGeneratorComprehension_(start);
+
+    return this.parseCoverFormals_(start);
   }
 
   parseSyntaxError_(message) {
@@ -2227,7 +2232,7 @@ export class Parser {
    * @return {SyntaxErrorTree}
    */
   parseUnexpectedToken_(name) {
-    return this.parseSyntaxError_(`unexpected token ${name}`);
+    return this.parseSyntaxError_(`Unexpected token ${name}`);
   }
 
   // 11.14 Expressions
@@ -2297,21 +2302,6 @@ export class Parser {
     return result;
   }
 
-  parseExpressionForCoverFormals_(expressionIn = Expression.IN) {
-    var start = this.getTreeStartLocation_();
-    var exprs = [this.parseAssignmentExpression(expressionIn)];
-    if (this.peek_(COMMA)) {
-      while (this.eatIf_(COMMA)) {
-        if (this.peekRest_(this.peekType_())) {
-          exprs.push(this.parseRestParameter_());
-          break;
-        }
-        exprs.push(this.parseAssignmentExpression(expressionIn));
-      }
-    }
-    return new CoverFormals(this.getTreeLocation_(start), exprs);
-  }
-
   // 11.13 Assignment expressions
 
   /**
@@ -2350,6 +2340,13 @@ export class Parser {
     var left = this.parseConditional_(expressionIn);
     var type = this.peekType_();
 
+    if (type === ARROW && (left.type === COVER_FORMALS ||
+        left.type === IDENTIFIER_EXPRESSION)) {
+      return this.parseArrowFunction_(start, left);
+    }
+
+    left = this.toParenExpression_(left);
+
     if (this.peekAssignmentOperator_(type)) {
       if (type === EQUAL)
         left = this.transformLeftHandSideExpression_(left);
@@ -2373,18 +2370,6 @@ export class Parser {
       var token = this.coverInitialisedName_.equalToken;
       this.reportError_(token.location, `Unexpected token '${token}'`);
       this.coverInitialisedName_ = null;
-    }
-
-    // Handle arrow function.
-    if (left && left.type === IDENTIFIER_EXPRESSION && this.peekArrow_(type)) {
-      this.nextToken_();
-      var id = new BindingIdentifier(left.location, left.identifierToken);
-      var formals = [new BindingElement(id.location, id, null)];
-      var body = this.parseConciseBody_();
-      var startLoc = left.location;
-      return new ArrowFunctionExpression(startLoc,
-          new FormalParameterList(startLoc, formals),
-          body);
     }
 
     return left;
@@ -2440,12 +2425,19 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     var condition = this.parseLogicalOR_(expressionIn);
     if (this.eatIf_(QUESTION)) {
+      condition = this.toParenExpression_(condition);
       var left = this.parseAssignmentExpression();
       this.eat_(COLON);
       var right = this.parseAssignmentExpression(expressionIn);
       return new ConditionalExpression(this.getTreeLocation_(start), condition, left, right);
     }
     return condition;
+  }
+
+  newBinaryOperator_(start, left, operator, right) {
+    left = this.toParenExpression_(left);
+    right = this.toParenExpression_(right);
+    return new BinaryOperator(this.getTreeLocation_(start), left, operator, right);
   }
 
   // 11.11 Logical OR
@@ -2460,7 +2452,7 @@ export class Parser {
     var operator;
     while (operator = this.eatOpt_(OR)) {
       var right = this.parseLogicalAND_(expressionIn);
-      left = new BinaryOperator(this.getTreeLocation_(start), left, operator, right);
+      left = this.newBinaryOperator_(start, left, operator, right);
     }
     return left;
   }
@@ -2477,7 +2469,7 @@ export class Parser {
     var operator;
     while (operator = this.eatOpt_(AND)) {
       var right = this.parseBitwiseOR_(expressionIn);
-      left = new BinaryOperator(this.getTreeLocation_(start), left, operator, right);
+      left = this.newBinaryOperator_(start, left, operator, right);
     }
     return left;
   }
@@ -2494,7 +2486,7 @@ export class Parser {
     var operator;
     while (operator = this.eatOpt_(BAR)) {
       var right = this.parseBitwiseXOR_(expressionIn);
-      left = new BinaryOperator(this.getTreeLocation_(start), left, operator, right);
+      left = this.newBinaryOperator_(start, left, operator, right);
     }
     return left;
   }
@@ -2511,7 +2503,7 @@ export class Parser {
     var operator;
     while (operator = this.eatOpt_(CARET)) {
       var right = this.parseBitwiseAND_(expressionIn);
-      left = new BinaryOperator(this.getTreeLocation_(start), left, operator, right);
+      left = this.newBinaryOperator_(start, left, operator, right);
     }
     return left;
   }
@@ -2528,7 +2520,7 @@ export class Parser {
     var operator;
     while (operator = this.eatOpt_(AMPERSAND)) {
       var right = this.parseEquality_(expressionIn);
-      left = new BinaryOperator(this.getTreeLocation_(start), left, operator, right);
+      left = this.newBinaryOperator_(start, left, operator, right);
     }
     return left;
   }
@@ -2545,7 +2537,7 @@ export class Parser {
     while (this.peekEqualityOperator_(this.peekType_())) {
       var operator = this.nextToken_();
       var right = this.parseRelational_(expressionIn);
-      left = new BinaryOperator(this.getTreeLocation_(start), left, operator, right);
+      left = this.newBinaryOperator_(start, left, operator, right);
     }
     return left;
   }
@@ -2577,7 +2569,7 @@ export class Parser {
     while (this.peekRelationalOperator_(expressionIn)) {
       var operator = this.nextToken_();
       var right = this.parseShiftExpression_();
-      left = new BinaryOperator(this.getTreeLocation_(start), left, operator, right);
+      left = this.newBinaryOperator_(start, left, operator, right);
     }
     return left;
   }
@@ -2613,7 +2605,7 @@ export class Parser {
     while (this.peekShiftOperator_(this.peekType_())) {
       var operator = this.nextToken_();
       var right = this.parseAdditiveExpression_();
-      left = new BinaryOperator(this.getTreeLocation_(start), left, operator, right);
+      left = this.newBinaryOperator_(start, left, operator, right);
     }
     return left;
   }
@@ -2644,7 +2636,7 @@ export class Parser {
     while (this.peekAdditiveOperator_(this.peekType_())) {
       var operator = this.nextToken_();
       var right = this.parseMultiplicativeExpression_();
-      left = new BinaryOperator(this.getTreeLocation_(start), left, operator, right);
+      left = this.newBinaryOperator_(start, left, operator, right);
     }
     return left;
   }
@@ -2674,7 +2666,7 @@ export class Parser {
     while (this.peekMultiplicativeOperator_(this.peekType_())) {
       var operator = this.nextToken_();
       var right = this.parseUnaryExpression_();
-      left = new BinaryOperator(this.getTreeLocation_(start), left, operator, right);
+      left = this.newBinaryOperator_(start, left, operator, right);
     }
     return left;
   }
@@ -2704,6 +2696,7 @@ export class Parser {
     if (this.peekUnaryOperator_(this.peekType_())) {
       var operator = this.nextToken_();
       var operand = this.parseUnaryExpression_();
+      operand = this.toParenExpression_(operand);
       return new UnaryExpression(this.getTreeLocation_(start), operator, operand);
     }
     return this.parsePostfixExpression_();
@@ -2739,6 +2732,7 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     var operand = this.parseLeftHandSideExpression_();
     while (this.peekPostfixOperator_(this.peekType_())) {
+      operand = this.toParenExpression_(operand);
       var operator = this.nextToken_();
       operand = new PostfixExpression(this.getTreeLocation_(start), operand, operator);
     }
@@ -2782,12 +2776,14 @@ export class Parser {
       loop: while (true) {
         switch (this.peekType_()) {
           case OPEN_PAREN:
+            operand = this.toParenExpression_(operand);
             var args = this.parseArguments_();
             operand = new CallExpression(this.getTreeLocation_(start),
                                          operand, args);
             break;
 
           case OPEN_SQUARE:
+            operand = this.toParenExpression_(operand);
             this.nextToken_();
             var member = this.parseExpression();
             this.eat_(CLOSE_SQUARE);
@@ -2796,6 +2792,7 @@ export class Parser {
             break;
 
           case PERIOD:
+            operand = this.toParenExpression_(operand);
             this.nextToken_();
             var memberName = this.eatIdName_();
             operand = new MemberExpression(this.getTreeLocation_(start),
@@ -2805,6 +2802,7 @@ export class Parser {
           case PERIOD_OPEN_CURLY:
             if (!parseOptions.cascadeExpression)
               break loop;
+            operand = this.toParenExpression_(operand);
             var expressions = this.parseCascadeExpressions_();
             operand = new CascadeExpression(this.getTreeLocation_(start),
                                             operand, expressions);
@@ -2814,6 +2812,7 @@ export class Parser {
           case TEMPLATE_HEAD:
             if (!parseOptions.templateLiterals)
               break loop;
+            operand = this.toParenExpression_(operand);
             operand = this.parseTemplateLiteral_(operand);
             break;
 
@@ -2842,6 +2841,7 @@ export class Parser {
     loop: while (true) {
       switch (this.peekType_()) {
         case OPEN_SQUARE:
+          operand = this.toParenExpression_(operand);
           this.nextToken_();
           var member = this.parseExpression();
           this.eat_(CLOSE_SQUARE);
@@ -2850,6 +2850,7 @@ export class Parser {
           break;
 
         case PERIOD:
+          operand = this.toParenExpression_(operand);
           this.nextToken_();
           var name;
           name = this.eatIdName_();
@@ -2860,6 +2861,7 @@ export class Parser {
         case PERIOD_OPEN_CURLY:
           if (!parseOptions.cascadeExpression)
             break loop;
+          operand = this.toParenExpression_(operand);
           var expressions = this.parseCascadeExpressions_();
           operand = new CascadeExpression(this.getTreeLocation_(start),
                                           operand, expressions);
@@ -2869,6 +2871,7 @@ export class Parser {
         case TEMPLATE_HEAD:
           if (!parseOptions.templateLiterals)
             break loop;
+          operand = this.toParenExpression_(operand);
           operand = this.parseTemplateLiteral_(operand);
           break;
 
@@ -2942,6 +2945,7 @@ export class Parser {
       var start = this.getTreeStartLocation_();
       this.eat_(NEW);
       var operand = this.parseNewExpression_();
+      operand = this.toParenExpression_(operand);
       var args = null;
       if (this.peek_(OPEN_PAREN)) {
         args = this.parseArguments_();
@@ -3024,69 +3028,77 @@ export class Parser {
    * @return {ParseTree}
    * @private
    */
-  parseArrowFunction_(expressionIn) {
-    var start = this.getTreeStartLocation_();
-
-    this.eat_(OPEN_PAREN);
-
-    if (this.peek_(FOR) && parseOptions.generatorComprehension)
-      return this.parseGeneratorComprehension_(start);
-
+  parseArrowFunction_(start, tree) {
     var formals;
-    var coverFormals = this.parseCoverFormals_();
-    var expressions = coverFormals.expressions;
-
-    this.eat_(CLOSE_PAREN);
-
-    // ()
-    // ( ... ident )
-    var mustBeArrow = expressions.length === 0 ||
-        expressions[expressions.length - 1].type === REST_PARAMETER;
-
-    if (mustBeArrow || this.peekArrow_(this.peekType_())) {
-      formals = this.transformCoverFormals_(coverFormals);
-      if (!formals && mustBeArrow) {
-        return this.parseUnexpectedToken_(DOT_DOT_DOT);
-      }
-    }
-
-    if (!formals) {
-      var expression;
-      if (expressions.length > 1)
-        expression = new CommaExpression(coverFormals.location, expressions);
-      else
-        expression = expressions[0];
-      return new ParenExpression(this.getTreeLocation_(start), expression);
+    if (tree.type === IDENTIFIER_EXPRESSION) {
+      var id = new BindingIdentifier(tree.location, tree.identifierToken);
+      var formals = new FormalParameterList(this.getTreeLocation_(start),
+          [new BindingElement(id.location, id, null)]);
+    } else {
+      formals = this.toFormalParameters_(tree);
     }
 
     this.eat_(ARROW);
-
     var body = this.parseConciseBody_();
-    var startLoc = this.getTreeLocation_(start);
-    return new ArrowFunctionExpression(startLoc, formals, body);
+    return new ArrowFunctionExpression(this.getTreeLocation_(start),
+                                       formals, body);
   }
 
-  parseCoverFormals_() {
+  parseCoverFormals_(start) {
     // CoverParenthesizedExpressionAndArrowParameterList :
     //   ( Expression )
     //   ()
     //   ( ... Identifier)
     //   (Expression, ... Identifier)
     //
-    //  The surrounding parens are handled by the caller.
+    //   The leading OPEN_PAREN has already been consumed.
 
-    var start = this.getTreeStartLocation_();
-    var type = this.peekType_();
-    if (type === CLOSE_PAREN)
-      return new CoverFormals(this.getTreeLocation_(start), []);
+    var expressions = [];
+    if (!this.peek_(CLOSE_PAREN)) {
+      do {
+        var type = this.peekType_();
+        if (this.peekRest_(type)) {
+          expressions.push(this.parseRestParameter_());
+          break;
+        } else {
+          expressions.push(this.parseAssignmentExpression());
+        }
 
-    // ( ... Identifier )
-    if (this.peekRest_(type)) {
-      var parameter = this.parseRestParameter_();
-      return new CoverFormals(this.getTreeLocation_(start), [parameter]);
+        if (this.eatIf_(COMMA))
+          continue;
+
+      } while (!this.peek_(CLOSE_PAREN) && !this.isAtEnd())
     }
 
-    return this.parseExpressionForCoverFormals_();
+    this.eat_(CLOSE_PAREN);
+    return new CoverFormals(this.getTreeLocation_(start), expressions);
+  }
+
+  transformCoverFormals_(f, tree) {
+    // We could do the tree.type check here but try/catch causes deopt so
+    // doing the test in the caller prevents that deopt.
+    try {
+      return f(tree);
+    } catch (ex) {
+      if (!(ex instanceof CoverFormalsTransformerError))
+        throw ex;
+      this.reportError_(ex.location, ex.message);
+      return new SyntaxErrorTree(ex.location, null, ex.message);
+    }
+  }
+
+  toParenExpression_(tree) {
+    if (tree.type !== COVER_FORMALS)
+      return tree;
+
+    return this.transformCoverFormals_(toParenExpression, tree);
+  }
+
+  toFormalParameters_(tree) {
+    if (tree.type !== COVER_FORMALS)
+      return tree;
+
+    return this.transformCoverFormals_(toFormalParameters, tree);
   }
 
   /**
@@ -3097,11 +3109,10 @@ export class Parser {
    * @return {Array.<ParseTree>} An aray with the items to use in a
    *     FormalsList or {@code null} if there was an error.
    */
-  transformCoverFormals_(coverFormals) {
-    var transformer = new CoverFormalsTransformer();
+  transformCoverFormalsToArrowFormals_(coverFormals) {
     var formals = null;
     try {
-      formals = transformer.transformAny(coverFormals);
+      formals = toFormalParameters(coverFormals);
     } catch (ex) {
       if (!(ex instanceof CoverFormalsTransformerError))
         throw ex;
