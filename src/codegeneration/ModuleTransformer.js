@@ -104,6 +104,7 @@ function getGetterExport(transformer, {name, tree, moduleSpecifier}) {
 export class ModuleTransformer extends TempVarTransformer {
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
+   * @param {RuntimeInliner} runtimeInliner
    */
   constructor(identifierGenerator, runtimeInliner) {
     super(identifierGenerator);
