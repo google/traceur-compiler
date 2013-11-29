@@ -44,7 +44,10 @@ class StringParser {
   constructor(value) {
     this.value = value;
     this.index = 0;  // value is wrapped in " or '
-    Object.setProperty(this, iterator, () => this);
+  }
+
+  [iterator]() {
+    return this;
   }
 
   next() {
