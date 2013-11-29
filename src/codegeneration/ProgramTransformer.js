@@ -14,7 +14,6 @@
 
 import {FromOptionsTransformer} from './FromOptionsTransformer';
 import {ProjectTransformer} from './ProjectTransformer';
-import {ObjectMap} from '../util/ObjectMap';
 
 /**
  * Use FromOptionsTransformer to transforms Traceur Project or
@@ -27,14 +26,10 @@ export class ProgramTransformer extends ProjectTransformer {
    * @param {Project} project
    */
   constructor(reporter, project) {
-    super(reporter, project);
-    this.treeTransformer = this.transformerFromOptions_();
-  }
-
-  transformerFromOptions_() {
-    return new FromOptionsTransformer(this.reporter_,
-        this.project_.identifierGenerator,
-        this.project_.runtimeInliner);
+    var transformer = new FromOptionsTransformer(reporter,
+                                                 project.identifierGenerator,
+                                                 project.runtimeInliner);
+    super(reporter, project, transformer);
   }
 }
 
