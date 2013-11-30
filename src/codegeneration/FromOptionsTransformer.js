@@ -24,7 +24,7 @@ import {DestructuringTransformer} from './DestructuringTransformer';
 import {ForOfTransformer} from './ForOfTransformer';
 import {FreeVariableChecker} from '../semantics/FreeVariableChecker';
 import {GeneratorComprehensionTransformer} from
-    'GeneratorComprehensionTransformer';
+    './GeneratorComprehensionTransformer';
 import {GeneratorTransformPass} from './GeneratorTransformPass';
 import {ModuleTransformer} from './ModuleTransformer';
 import {MultiTransformer} from './MultiTransformer';
@@ -33,11 +33,13 @@ import {ObjectLiteralTransformer} from './ObjectLiteralTransformer';
 import {ObjectMap} from '../util/ObjectMap';
 import {ParseTreeValidator} from '../syntax/ParseTreeValidator';
 import {PropertyNameShorthandTransformer} from
-    'PropertyNameShorthandTransformer';
-import {TemplateLiteralTransformer} from './TemplateLiteralTransformer';
+    './PropertyNameShorthandTransformer';
 import {RestParameterTransformer} from './RestParameterTransformer';
+import {RuntimeInliner} from './RuntimeInliner';
 import {SpreadTransformer} from './SpreadTransformer';
+import {TemplateLiteralTransformer} from './TemplateLiteralTransformer';
 import {TypeTransformer} from './TypeTransformer';
+import {UniqueIdentifierGenerator} from './UniqueIdentifierGenerator';
 import {options, transformOptions} from '../options';
 
 /**
@@ -46,10 +48,11 @@ import {options, transformOptions} from '../options';
 export class FromOptionsTransformer extends MultiTransformer {
   /**
    * @param {ErrorReporter} reporter
-   * @param {UniqueIdGenerator} idGenerator
-   * @param {RuntimeInliner} runtimeInliner
+   * @param {UniqueIdGenerator=} idGenerator
+   * @param {RuntimeInliner=} runtimeInliner
    */
-  constructor(reporter, idGenerator, runtimeInliner) {
+  constructor(reporter, idGenerator = new UniqueIdentifierGenerator(),
+              runtimeInliner = new RuntimeInliner(idGenerator)) {
     super(reporter, options.validate);
 
     var append = (transformer) => {
@@ -136,7 +139,4 @@ export class FromOptionsTransformer extends MultiTransformer {
     if (options.freeVariableChecker)
       this.append((tree) => FreeVariableChecker.checkScript(reporter, tree));
   }
-
 }
-
-

@@ -24,11 +24,10 @@ function existsSync(p) {
  * @param {string} dir
  */
 function mkdirRecursive(dir) {
-  var parts = path.normalize(dir).split('/');
-
+  var parts = path.normalize(dir).split(path.sep);
   dir = '';
   for (var i = 0; i < parts.length; i++) {
-    dir += parts[i] + '/';
+    dir += parts[i] + path.sep;
     if (!existsSync(dir)) {
       fs.mkdirSync(dir, 0x1FD); // 0775 permissions
     }
@@ -41,14 +40,14 @@ function mkdirRecursive(dir) {
  * @param {string} filedir
  */
 function removeCommonPrefix(basedir, filedir) {
-  var baseparts = basedir.split('/');
-  var fileparts = filedir.split('/');
+  var baseparts = basedir.split(path.sep);
+  var fileparts = filedir.split(path.sep);
 
   var i = 0;
   while (i < fileparts.length && fileparts[i] === baseparts[i]) {
     i++;
   }
-  return fileparts.slice(i).join('/');
+  return fileparts.slice(i).join(path.sep);
 }
 
 function writeFile(filename, contents) {
