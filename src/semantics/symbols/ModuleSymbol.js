@@ -31,7 +31,6 @@ export class ModuleSymbol extends Symbol {
   }
 
   get url() {
-   // console.log((new Error('ModuleSymbol url').stack));
     return this.url_;
   }
 
