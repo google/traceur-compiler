@@ -19,14 +19,20 @@ import {assert} from '../../util/assert';
 export class ModuleSymbol extends Symbol {
   /**
    * @param {Module} tree
-   * @param {string} url
+   * @param {string} absolute url
    */
   constructor(tree, url) {
     // assert(tree === null || tree.type === 'module');
     super(MODULE, tree);
     this.exports_ = Object.create(null);
     assert(url);
-    this.url = url.replace(/\\/g, '/');
+    this.url_ = url;
+    this.name = url.replace(/\\/g, '/').replace(/\.js$/, '');
+  }
+
+  get url() {
+   // console.log((new Error('ModuleSymbol url').stack));
+    return this.url_;
   }
 
   /**
