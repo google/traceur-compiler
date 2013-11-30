@@ -894,14 +894,14 @@ export class Parser {
     var formals = [];
     var type = this.peekType_();
     if (this.peekRest_(type)) {
-      formals.push(this.parseRestParameter_());
+      formals.push(this.parseFormalRestParameter_());
     } else {
       if (this.peekFormalParameter_(this.peekType_()))
         formals.push(this.parseFormalParameter_());
 
       while (this.eatIf_(COMMA)) {
         if (this.peekRest_(this.peekType_())) {
-          formals.push(this.parseRestParameter_());
+          formals.push(this.parseFormalRestParameter_());
           break;
         }
         formals.push(this.parseFormalParameter_());
@@ -926,13 +926,18 @@ export class Parser {
         typeAnnotation);
   }
 
+  parseFormalRestParameter_() {
+    var start = this.getTreeStartLocation_();
+    var restParameter = this.parseRestParameter_();
+    var typeAnnotation = this.parseTypeAnnotationOpt_();
+    return new FormalParameter(this.getTreeLocation_(start), restParameter, typeAnnotation);
+  }
+
   parseRestParameter_() {
     var start = this.getTreeStartLocation_();
     this.eat_(DOT_DOT_DOT);
     var id = this.parseBindingIdentifier_();
-    var typeAnnotation = this.parseTypeAnnotationOpt_();
-    return new FormalParameter(this.getTreeLocation_(start),
-        new RestParameter(this.getTreeLocation_(start), id), typeAnnotation);
+    return new RestParameter(this.getTreeLocation_(start), id);
   }
 
   /**

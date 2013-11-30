@@ -5967,7 +5967,6 @@ System.get('@traceur/module').registerModule("../src/codegeneration/CoverFormals
       },
       transformCoverFormals: function(tree) {
         var expressions = this.transformList(tree.expressions).map((function(expression) {
-          if (expression instanceof FormalParameter) return expression;
           return new FormalParameter(expression.location, expression, null);
         }));
         return new FormalParameterList(tree.location, expressions);
@@ -8118,12 +8117,12 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
         var formals = [];
         var type = this.peekType_();
         if (this.peekRest_(type)) {
-          formals.push(this.parseRestParameter_());
+          formals.push(this.parseFormalRestParameter_());
         } else {
           if (this.peekFormalParameter_(this.peekType_())) formals.push(this.parseFormalParameter_());
           while (this.eatIf_(COMMA)) {
             if (this.peekRest_(this.peekType_())) {
-              formals.push(this.parseRestParameter_());
+              formals.push(this.parseFormalRestParameter_());
               break;
             }
             formals.push(this.parseFormalParameter_());
@@ -8142,12 +8141,17 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
         var initializer = this.parseBindingElementInitializer_(initializerAllowed);
         return new FormalParameter(this.getTreeLocation_(start), new BindingElement(this.getTreeLocation_(start), binding, initializer), typeAnnotation);
       },
+      parseFormalRestParameter_: function() {
+        var start = this.getTreeStartLocation_();
+        var restParameter = this.parseRestParameter_();
+        var typeAnnotation = this.parseTypeAnnotationOpt_();
+        return new FormalParameter(this.getTreeLocation_(start), restParameter, typeAnnotation);
+      },
       parseRestParameter_: function() {
         var start = this.getTreeStartLocation_();
         this.eat_(DOT_DOT_DOT);
         var id = this.parseBindingIdentifier_();
-        var typeAnnotation = this.parseTypeAnnotationOpt_();
-        return new FormalParameter(this.getTreeLocation_(start), new RestParameter(this.getTreeLocation_(start), id), typeAnnotation);
+        return new RestParameter(this.getTreeLocation_(start), id);
       },
       parseFunctionBody_: function(isGenerator, params) {
         var start = this.getTreeStartLocation_();

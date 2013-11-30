@@ -57,8 +57,6 @@ class ToFormalParametersTransformer extends ParseTreeTransformer {
 
   transformCoverFormals(tree) {
     var expressions = this.transformList(tree.expressions).map((expression) => {
-      if (expression instanceof FormalParameter)
-        return expression;
       return new FormalParameter(expression.location, expression, null);
     });
     return new FormalParameterList(tree.location, expressions);
