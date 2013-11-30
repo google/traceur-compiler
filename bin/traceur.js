@@ -17920,13 +17920,13 @@ System.get('@traceur/module').registerModule("../src/codegeneration/TemplateLite
 }, this);
 System.get('@traceur/module').registerModule("../src/codegeneration/TypeTransformer.js", function() {
   "use strict";
-  var $__231 = System.get('@traceur/module').getModuleImpl("../src/syntax/trees/ParseTrees.js"),
-      FormalParameter = $__231.FormalParameter,
-      FunctionDeclaration = $__231.FunctionDeclaration,
-      FunctionExpression = $__231.FunctionExpression,
-      GetAccessor = $__231.GetAccessor,
-      PropertyMethodAssignment = $__231.PropertyMethodAssignment,
-      VariableDeclaration = $__231.VariableDeclaration;
+  var $__232 = System.get('@traceur/module').getModuleImpl("../src/syntax/trees/ParseTrees.js"),
+      FormalParameter = $__232.FormalParameter,
+      FunctionDeclaration = $__232.FunctionDeclaration,
+      FunctionExpression = $__232.FunctionExpression,
+      GetAccessor = $__232.GetAccessor,
+      PropertyMethodAssignment = $__232.PropertyMethodAssignment,
+      VariableDeclaration = $__232.VariableDeclaration;
   var ParseTreeTransformer = System.get('@traceur/module').getModuleImpl("../src/codegeneration/ParseTreeTransformer.js").ParseTreeTransformer;
   var TypeTransformer = function($__super) {
     'use strict';
@@ -17942,33 +17942,23 @@ System.get('@traceur/module').registerModule("../src/codegeneration/TypeTransfor
         return $__superCall(this, $__proto, "transformVariableDeclaration", [tree]);
       },
       transformFormalParameter: function(tree) {
-        if (tree.typeAnnotation !== null) {
-          return new FormalParameter(tree.location, tree.parameter, null);
-        }
+        if (tree.typeAnnotation !== null) return new FormalParameter(tree.location, tree.parameter, null);
         return tree;
       },
       transformFunctionDeclaration: function(tree) {
-        if (tree.typeAnnotation) {
-          tree = new FunctionDeclaration(tree.location, tree.name, tree.isGenerator, tree.formalParameterList, null, tree.functionBody);
-        }
+        if (tree.typeAnnotation) tree = new FunctionDeclaration(tree.location, tree.name, tree.isGenerator, tree.formalParameterList, null, tree.functionBody);
         return $__superCall(this, $__proto, "transformFunctionDeclaration", [tree]);
       },
       transformFunctionExpression: function(tree) {
-        if (tree.typeAnnotation) {
-          tree = new FunctionExpression(tree.location, tree.name, tree.isGenerator, tree.formalParameterList, null, tree.functionBody);
-        }
+        if (tree.typeAnnotation) tree = new FunctionExpression(tree.location, tree.name, tree.isGenerator, tree.formalParameterList, null, tree.functionBody);
         return $__superCall(this, $__proto, "transformFunctionExpression", [tree]);
       },
       transformPropertyMethodAssignment: function(tree) {
-        if (tree.typeAnnotation) {
-          tree = new PropertyMethodAssignment(tree.location, tree.isStatic, tree.isGenerator, tree.name, tree.formalParameterList, null, tree.functionBody);
-        }
+        if (tree.typeAnnotation) tree = new PropertyMethodAssignment(tree.location, tree.isStatic, tree.isGenerator, tree.name, tree.formalParameterList, null, tree.functionBody);
         return $__superCall(this, $__proto, "transformPropertyMethodAssignment", [tree]);
       },
       transformGetAccessor: function(tree) {
-        if (tree.typeAnnotation) {
-          tree = new GetAccessor(tree.location, tree.isStatic, tree.name, null, tree.body);
-        }
+        if (tree.typeAnnotation) tree = new GetAccessor(tree.location, tree.isStatic, tree.name, null, tree.body);
         return $__superCall(this, $__proto, "transformGetAccessor", [tree]);
       }
     }, {}, $__proto, $__super, false);

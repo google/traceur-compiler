@@ -44,9 +44,8 @@ export class TypeTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformFormalParameter(tree) {
-    if (tree.typeAnnotation !== null) {
+    if (tree.typeAnnotation !== null)
       return new FormalParameter(tree.location, tree.parameter, null);
-    }
     return tree;
   }
 
@@ -55,10 +54,9 @@ export class TypeTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformFunctionDeclaration(tree) {
-    if (tree.typeAnnotation) {
+    if (tree.typeAnnotation)
       tree = new FunctionDeclaration(tree.location, tree.name, tree.isGenerator,
-        tree.formalParameterList, null, tree.functionBody);
-    }
+          tree.formalParameterList, null, tree.functionBody);
     return super.transformFunctionDeclaration(tree);
   }
 
@@ -67,10 +65,9 @@ export class TypeTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformFunctionExpression(tree) {
-    if (tree.typeAnnotation) {
+    if (tree.typeAnnotation)
       tree = new FunctionExpression(tree.location, tree.name, tree.isGenerator,
-        tree.formalParameterList, null, tree.functionBody);
-    }
+          tree.formalParameterList, null, tree.functionBody);
     return super.transformFunctionExpression(tree);
   }
 
@@ -79,10 +76,9 @@ export class TypeTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformPropertyMethodAssignment(tree) {
-    if (tree.typeAnnotation) {
+    if (tree.typeAnnotation)
       tree = new PropertyMethodAssignment(tree.location, tree.isStatic, tree.isGenerator, tree.name,
-        tree.formalParameterList, null, tree.functionBody);
-    }
+          tree.formalParameterList, null, tree.functionBody);
     return super.transformPropertyMethodAssignment(tree);
   }
 
@@ -91,9 +87,8 @@ export class TypeTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformGetAccessor(tree) {
-    if (tree.typeAnnotation) {
+    if (tree.typeAnnotation)
       tree = new GetAccessor(tree.location, tree.isStatic, tree.name, null, tree.body);
-    }
     return super.transformGetAccessor(tree);
   }
 }
