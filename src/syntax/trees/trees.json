@@ -404,7 +404,7 @@
       "SourceRange"
     ],
     "parameters": [
-      "Array.<ParseTree>"
+      "Array.<FormalParameter>"
     ]
   },
   "FunctionBody": {
@@ -759,9 +759,6 @@
     ],
     "identifier": [
       "BindingIdentifier"
-    ],
-    "typeAnnotation": [
-      "ParseTree"
     ]
   },
   "ReturnStatement": {

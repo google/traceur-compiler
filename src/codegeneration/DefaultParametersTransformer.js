@@ -19,7 +19,10 @@ import {
 import {FormalParameterList} from '../syntax/trees/ParseTrees';
 import {ParameterTransformer} from './ParameterTransformer';
 import {ARGUMENTS} from '../syntax/PredefinedName';
-import {REST_PARAMETER} from '../syntax/trees/ParseTreeType';
+import {
+  FORMAL_PARAMETER,
+  REST_PARAMETER
+} from '../syntax/trees/ParseTreeType';
 import {
   NOT_EQUAL_EQUAL,
   VAR
@@ -79,8 +82,8 @@ export class DefaultParametersTransformer extends ParameterTransformer {
       if (param !== tree.parameters[i])
         changed = true;
 
-      if (param.type === REST_PARAMETER ||
-          !param.initializer && !defaultToUndefined) {
+      if (param.isRestParameter() ||
+          !param.parameter.initializer && !defaultToUndefined) {
         parameters.push(param);
 
       // binding = initializer
@@ -93,7 +96,7 @@ export class DefaultParametersTransformer extends ParameterTransformer {
         defaultToUndefined = true;
         changed = true;
         this.parameterStatements.push(
-            createDefaultAssignment(i, param.binding, param.initializer));
+            createDefaultAssignment(i, param.parameter.binding, param.parameter.initializer));
       }
     }
 

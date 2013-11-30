@@ -931,7 +931,8 @@ export class Parser {
     this.eat_(DOT_DOT_DOT);
     var id = this.parseBindingIdentifier_();
     var typeAnnotation = this.parseTypeAnnotationOpt_();
-    return new RestParameter(this.getTreeLocation_(start), id, typeAnnotation);
+    return new FormalParameter(this.getTreeLocation_(start),
+        new RestParameter(this.getTreeLocation_(start), id), typeAnnotation);
   }
 
   /**
@@ -3020,7 +3021,7 @@ export class Parser {
     if (tree.type === IDENTIFIER_EXPRESSION) {
       var id = new BindingIdentifier(tree.location, tree.identifierToken);
       var formals = new FormalParameterList(this.getTreeLocation_(start),
-          [new BindingElement(id.location, id, null)]);
+          [new FormalParameter(id.location, new BindingElement(id.location, id, null), null)]);
     } else {
       formals = this.toFormalParameters_(tree);
     }

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {
+  FormalParameter,
   FunctionDeclaration,
   FunctionExpression,
   GetAccessor,
@@ -43,7 +44,10 @@ export class TypeTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformFormalParameter(tree) {
-    return tree.parameter;
+    if (tree.typeAnnotation !== null) {
+      return new FormalParameter(tree.location, tree.parameter, null);
+    }
+    return tree;
   }
 
   /**

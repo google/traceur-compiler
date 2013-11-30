@@ -537,10 +537,8 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   visitFormalParameterList(tree) {
     for (var i = 0; i < tree.parameters.length; i++) {
       var parameter = tree.parameters[i];
-
-      if (parameter.type === FORMAL_PARAMETER) {
-        parameter = parameter.parameter;
-      }
+      assert(parameter.type === FORMAL_PARAMETER)
+      parameter = parameter.parameter;
 
       switch (parameter.type) {
         case BINDING_ELEMENT:

@@ -599,11 +599,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitFormalParameter(tree) {
     this.visitAny(tree.parameter);
-
-    if (tree.typeAnnotation) {
-      this.write_(COLON);
-      this.visitAny(tree.typeAnnotation);
-    }
+    this.writeTypeAnnotation_(tree.typeAnnotation);
   }
 
   /**
@@ -639,11 +635,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.visitAny(tree.formalParameterList);
     this.write_(CLOSE_PAREN);
 
-    if (tree.typeAnnotation !== null) {
-      this.write_(COLON);
-      this.visitAny(tree.typeAnnotation);
-    }
-
+    this.writeTypeAnnotation_(tree.typeAnnotation);
     this.visitAny(tree.functionBody);
   }
 
@@ -664,11 +656,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.visitAny(tree.name);
     this.write_(OPEN_PAREN);
     this.write_(CLOSE_PAREN);
-
-    if (tree.typeAnnotation !== null) {
-      this.write_(COLON);
-      this.visitAny(tree.typeAnnotation);
-    }
+    this.writeTypeAnnotation_(tree.typeAnnotation);
 
     this.visitAny(tree.body);
   }
@@ -887,11 +875,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.write_(OPEN_PAREN);
     this.visitAny(tree.formalParameterList);
     this.write_(CLOSE_PAREN);
-
-    if (tree.typeAnnotation !== null) {
-      this.write_(COLON);
-      this.visitAny(tree.typeAnnotation);
-    }
+    this.writeTypeAnnotation_(tree.typeAnnotation);
 
     this.visitAny(tree.functionBody);
   }
@@ -956,11 +940,6 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   visitRestParameter(tree) {
     this.write_(DOT_DOT_DOT);
     this.write_(tree.identifier.identifierToken);
-
-    if (tree.typeAnnotation) {
-      this.write_(COLON);
-      this.visitAny(tree.typeAnnotation);
-    }
   }
 
   /**
@@ -1078,10 +1057,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitVariableDeclaration(tree) {
     this.visitAny(tree.lvalue);
-    if (tree.typeAnnotation !== null) {
-      this.write_(COLON);
-      this.visitAny(tree.typeAnnotation);
-    }
+    this.writeTypeAnnotation_(tree.typeAnnotation);
     if (tree.initializer !== null) {
       this.write_(EQUAL);
       this.visitAny(tree.initializer);
@@ -1226,6 +1202,13 @@ export class ParseTreeWriter extends ParseTreeVisitor {
 
     if (value === OPEN_CURLY) {
       this.indentDepth_++;
+    }
+  }
+
+  writeTypeAnnotation_(typeAnnotation) {
+    if (typeAnnotation !== null) {
+      this.write_(COLON);
+      this.visitAny(typeAnnotation);
     }
   }
 

@@ -59,6 +59,7 @@ import {
   FOR_IN_STATEMENT,
   FOR_OF_STATEMENT,
   FOR_STATEMENT,
+  FORMAL_PARAMETER,
   FORMAL_PARAMETER_LIST,
   FUNCTION_BODY,
   FUNCTION_DECLARATION,
@@ -267,7 +268,8 @@ export class ParseTree {
 
   /** @return {boolean} */
   isRestParameter() {
-    return this.type == REST_PARAMETER;
+    return this.type == REST_PARAMETER ||
+      (this.type == FORMAL_PARAMETER && this.parameter.isRestParameter());
   }
 
   /** @return {boolean} */

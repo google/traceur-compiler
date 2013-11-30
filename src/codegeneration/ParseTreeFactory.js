@@ -81,6 +81,7 @@ import {
   ForInStatement,
   ForOfStatement,
   ForStatement,
+  FormalParameter,
   FormalParameterList,
   FunctionBody,
   FunctionDeclaration,
@@ -222,6 +223,15 @@ export function createBindingElement(arg) {
 }
 
 /**
+ * @param {string|IdentifierToken|IdentifierExpression|BindingIdentifier}
+ *           identifier
+ * @return {FormalParameter}
+ */
+export function createFormalParameter(arg) {
+  return new FormalParameter(null, createBindingElement(arg), null);
+}
+
+/**
  * TODO(arv): Make this less overloaded.
  *
  * @param {string|number|IdentifierToken|Array.<string>} arg0
@@ -231,7 +241,7 @@ export function createBindingElement(arg) {
 export function createParameterList(arg0, var_args) {
   if (typeof arg0 == 'string') {
     // var_args of strings
-    var parameterList = map(arguments, createBindingElement);
+    var parameterList = map(arguments, createFormalParameter);
     return new FormalParameterList(null, parameterList);
   }
 
@@ -240,11 +250,11 @@ export function createParameterList(arg0, var_args) {
 
   if (arg0 instanceof IdentifierToken) {
     return new FormalParameterList(
-        null, [createBindingElement(arg0)]);
+        null, [createFormalParameter(arg0)]);
   }
 
   // Array.<string>
-  var builder = arg0.map(createBindingElement);
+  var builder = arg0.map(createFormalParameter);
   return new FormalParameterList(null, builder);
 }
 
@@ -262,8 +272,8 @@ function createParameterListHelper(numberOfParameters, hasRestParams) {
     var isRestParameter = index == numberOfParameters - 1 && hasRestParams;
     builder.push(
         isRestParameter ?
-            createRestParameter(parameterName) :
-            createBindingElement(parameterName));
+            new FormalParameter(null, createRestParameter(parameterName), null) :
+            createFormalParameter(parameterName));
   }
 
   return new FormalParameterList(null, builder);
