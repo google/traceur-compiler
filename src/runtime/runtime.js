@@ -549,10 +549,15 @@
     '@iter': IterModule,
     '@traceur/module': {
       ModuleImpl: ModuleImpl,
-      registerModule: function(url, func, self) {
-        modules[url] = new ModuleImpl(url, func, self);
+      registerModule: function(name, func, self) {
+        modules[name] = new ModuleImpl(name, func, self);
       },
       getModuleImpl: function(url) {
+        var name = url;
+
+        var moduleImpl = modules[name];
+        if (!moduleImpl)
+          throw new Error(Object.keys(modules).join(','))
         return modules[url].value;
       }
     }

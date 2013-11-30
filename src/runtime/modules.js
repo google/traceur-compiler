@@ -29,8 +29,8 @@ System.set('@traceur/module', (function(global) {
   else
     baseURL = '';
 
-  function registerModule(url, func, self) {
-    url = System.normalResolve(url);
+  function registerModule(name, func, self) {
+    var url = System.normalResolve(name);
     moduleImplementations[url] = new ModuleImpl(url, func, self);
 
   }
@@ -82,6 +82,10 @@ System.set('@traceur/module', (function(global) {
     };
     return System.resolve(System.normalize(name, options));
   };
+
+  System.urlToName = function(url) {
+    return url.replace(/\.js$/,'');
+  }
 
   function getModuleImpl(name) {
     if (!name)

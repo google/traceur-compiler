@@ -112,8 +112,9 @@ export class ModuleTransformer extends TempVarTransformer {
   }
 
   wrapModuleFunction(tree) {
+    var name = System.urlToName(this.url);
     return parseExpression
-      `System.get('@traceur/module').registerModule(${this.url}, ${tree}, this)`;
+      `System.get('@traceur/module').registerModule(${name}, ${tree}, this)`;
   }
 
   get exportStar_() {
@@ -209,14 +210,14 @@ export class ModuleTransformer extends TempVarTransformer {
       // import/module {x} from 'name' is relative to the current file.
       url = System.normalResolve(name, this.url);
     }
-
-    return this.getModuleReference(url, this.moduleSpecifierKind_);
+    var relativeName = System.urlToName(url);
+    return this.getModuleReference(relativeName, this.moduleSpecifierKind_);
   }
 
-  getModuleReference(url, kind = undefined) {
+  getModuleReference(name, kind = undefined) {
     if (kind === 'module')
-      return parseExpression `System.get(${url})`;
-    return parseExpression `System.get('@traceur/module').getModuleImpl(${url})`;
+      return parseExpression `System.get(${name})`;
+    return parseExpression `System.get('@traceur/module').getModuleImpl(${name})`;
   }
 
   /**
