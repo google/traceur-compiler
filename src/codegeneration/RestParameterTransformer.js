@@ -25,7 +25,7 @@ function hasRestParameter(formalParameterList) {
 
 function getRestParameterLiteralToken(formalParameterList) {
   var parameters = formalParameterList.parameters;
-  return parameters[parameters.length - 1].identifier.identifierToken;
+  return parameters[parameters.length - 1].parameter.identifier.identifierToken;
 }
 
 /**
