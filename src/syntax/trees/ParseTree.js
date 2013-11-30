@@ -269,7 +269,7 @@ export class ParseTree {
   /** @return {boolean} */
   isRestParameter() {
     return this.type == REST_PARAMETER ||
-      (this.type == FORMAL_PARAMETER && this.parameter.isRestParameter());
+        (this.type == FORMAL_PARAMETER && this.parameter.isRestParameter());
   }
 
   /** @return {boolean} */

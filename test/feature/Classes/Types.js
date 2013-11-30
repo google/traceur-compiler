@@ -1,4 +1,4 @@
-// Options: --types=true
+// Options: --types
 
 class Typed {
   constructor(x : number) {
