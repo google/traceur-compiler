@@ -595,6 +595,14 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
+   * @param {FormalParameter} tree
+   */
+  visitFormalParameter(tree) {
+    this.visitAny(tree.parameter);
+    this.writeTypeAnnotation_(tree.typeAnnotation);
+  }
+
+  /**
    * @param {FunctionBody} tree
    */
   visitFunctionBody(tree) {
@@ -626,6 +634,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.write_(OPEN_PAREN);
     this.visitAny(tree.formalParameterList);
     this.write_(CLOSE_PAREN);
+    this.writeTypeAnnotation_(tree.typeAnnotation);
     this.visitAny(tree.functionBody);
   }
 
@@ -646,6 +655,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.visitAny(tree.name);
     this.write_(OPEN_PAREN);
     this.write_(CLOSE_PAREN);
+    this.writeTypeAnnotation_(tree.typeAnnotation);
     this.visitAny(tree.body);
   }
 
@@ -863,6 +873,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.write_(OPEN_PAREN);
     this.visitAny(tree.formalParameterList);
     this.write_(CLOSE_PAREN);
+    this.writeTypeAnnotation_(tree.typeAnnotation);
     this.visitAny(tree.functionBody);
   }
 
@@ -1043,10 +1054,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitVariableDeclaration(tree) {
     this.visitAny(tree.lvalue);
-    if (tree.typeAnnotation !== null) {
-      this.write_(COLON);
-      this.visitAny(tree.typeAnnotation);
-    }
+    this.writeTypeAnnotation_(tree.typeAnnotation);
     if (tree.initializer !== null) {
       this.write_(EQUAL);
       this.visitAny(tree.initializer);
@@ -1191,6 +1199,13 @@ export class ParseTreeWriter extends ParseTreeVisitor {
 
     if (value === OPEN_CURLY) {
       this.indentDepth_++;
+    }
+  }
+
+  writeTypeAnnotation_(typeAnnotation) {
+    if (typeAnnotation !== null) {
+      this.write_(COLON);
+      this.visitAny(typeAnnotation);
     }
   }
 

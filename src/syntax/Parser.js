@@ -216,6 +216,7 @@ import {
   ForInStatement,
   ForOfStatement,
   ForStatement,
+  FormalParameter,
   FormalParameterList,
   FunctionBody,
   FunctionDeclaration,
@@ -834,10 +835,11 @@ export class Parser {
     this.eat_(OPEN_PAREN);
     var formalParameterList = this.parseFormalParameterList_();
     this.eat_(CLOSE_PAREN);
+    var typeAnnotation = this.parseTypeAnnotationOpt_();
     var functionBody = this.parseFunctionBody_(isGenerator,
                                                formalParameterList);
     return new FunctionDeclaration(this.getTreeLocation_(start), name,
-                                   isGenerator, formalParameterList,
+                                   isGenerator, formalParameterList, typeAnnotation,
                                    functionBody);
   }
 
@@ -856,10 +858,11 @@ export class Parser {
     this.eat_(OPEN_PAREN);
     var formalParameterList = this.parseFormalParameterList_();
     this.eat_(CLOSE_PAREN);
+    var typeAnnotation = this.parseTypeAnnotationOpt_();
     var functionBody = this.parseFunctionBody_(isGenerator,
                                                formalParameterList);
     return new FunctionExpression(this.getTreeLocation_(start), name,
-                                  isGenerator, formalParameterList,
+                                  isGenerator, formalParameterList, typeAnnotation,
                                   functionBody);
   }
 
@@ -891,14 +894,14 @@ export class Parser {
     var formals = [];
     var type = this.peekType_();
     if (this.peekRest_(type)) {
-      formals.push(this.parseRestParameter_());
+      formals.push(this.parseFormalRestParameter_());
     } else {
       if (this.peekFormalParameter_(this.peekType_()))
         formals.push(this.parseFormalParameter_());
 
       while (this.eatIf_(COMMA)) {
         if (this.peekRest_(this.peekType_())) {
-          formals.push(this.parseRestParameter_());
+          formals.push(this.parseFormalRestParameter_());
           break;
         }
         formals.push(this.parseFormalParameter_());
@@ -913,7 +916,21 @@ export class Parser {
   }
 
   parseFormalParameter_(initializerAllowed = undefined) {
-    return this.parseBindingElement_(initializerAllowed);
+    var start = this.getTreeStartLocation_();
+    var binding = this.parseBindingElementBinding_();
+    var typeAnnotation = this.parseTypeAnnotationOpt_();
+    var initializer = this.parseBindingElementInitializer_(initializerAllowed);
+
+    return new FormalParameter(this.getTreeLocation_(start),
+        new BindingElement(this.getTreeLocation_(start), binding, initializer),
+        typeAnnotation);
+  }
+
+  parseFormalRestParameter_() {
+    var start = this.getTreeStartLocation_();
+    var restParameter = this.parseRestParameter_();
+    var typeAnnotation = this.parseTypeAnnotationOpt_();
+    return new FormalParameter(this.getTreeLocation_(start), restParameter, typeAnnotation);
   }
 
   parseRestParameter_() {
@@ -2075,10 +2092,11 @@ export class Parser {
     this.eat_(OPEN_PAREN);
     var formalParameterList = this.parseFormalParameterList_();
     this.eat_(CLOSE_PAREN);
+    var typeAnnotation = this.parseTypeAnnotationOpt_();
     var functionBody = this.parseFunctionBody_(isGenerator,
                                                formalParameterList);
     return new PropertyMethodAssignment(this.getTreeLocation_(start),
-        isStatic, isGenerator, name, formalParameterList, functionBody);
+        isStatic, isGenerator, name, formalParameterList, typeAnnotation, functionBody);
   }
 
   parseGetSetOrMethod_(start, isStatic) {
@@ -2108,8 +2126,9 @@ export class Parser {
     var name = this.parsePropertyName_();
     this.eat_(OPEN_PAREN);
     this.eat_(CLOSE_PAREN);
+    var typeAnnotation = this.parseTypeAnnotationOpt_();
     var body = this.parseFunctionBody_(isGenerator, null);
-    return new GetAccessor(this.getTreeLocation_(start), isStatic, name, body);
+    return new GetAccessor(this.getTreeLocation_(start), isStatic, name, typeAnnotation, body);
   }
 
   parseSetAccessor_(start, isStatic) {
@@ -2172,7 +2191,10 @@ export class Parser {
     else
       binding = this.parseBindingIdentifier_();
 
-    return new BindingElement(this.getTreeLocation_(start), binding, null);
+    var typeAnnotation = this.parseTypeAnnotationOpt_();
+    return new FormalParameter(this.getTreeLocation_(start),
+        new BindingElement(this.getTreeLocation_(start), binding, null),
+        typeAnnotation);
   }
 
   /**
@@ -3004,7 +3026,7 @@ export class Parser {
     if (tree.type === IDENTIFIER_EXPRESSION) {
       var id = new BindingIdentifier(tree.location, tree.identifierToken);
       var formals = new FormalParameterList(this.getTreeLocation_(start),
-          [new BindingElement(id.location, id, null)]);
+          [new FormalParameter(id.location, new BindingElement(id.location, id, null), null)]);
     } else {
       formals = this.toFormalParameters_(tree);
     }
@@ -3262,18 +3284,26 @@ export class Parser {
    */
   parseBindingElement_(initializer = Initializer.OPTIONAL) {
     var start = this.getTreeStartLocation_();
-    var binding;
+
+    var binding = this.parseBindingElementBinding_();
+    var initializer = this.parseBindingElementInitializer_(initializer);
+    return new BindingElement(this.getTreeLocation_(start), binding,
+        initializer);
+  }
+
+  parseBindingElementBinding_() {
     if (this.peekPattern_(this.peekType_()))
-      binding = this.parseBindingPattern_();
-    else
-      binding = this.parseBindingIdentifier_();
-    var initializer = null;
+      return this.parseBindingPattern_();
+    return this.parseBindingIdentifier_();
+  }
+
+  parseBindingElementInitializer_(initializer = Initializer.OPTIONAL) {
     if (this.peek_(EQUAL) ||
         initializer === Initializer.REQUIRED) {
-      initializer = this.parseInitializer_();
+      return this.parseInitializer_();
     }
-    return new BindingElement(this.getTreeLocation_(start), binding,
-                                                    initializer);
+
+    return null;
   }
 
   /**

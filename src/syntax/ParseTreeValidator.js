@@ -71,6 +71,7 @@ import {
   EXPORT_SPECIFIER_SET,
   EXPORT_STAR,
   FINALLY,
+  FORMAL_PARAMETER,
   FORMAL_PARAMETER_LIST,
   FUNCTION_BODY,
   FUNCTION_DECLARATION,
@@ -536,6 +537,9 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   visitFormalParameterList(tree) {
     for (var i = 0; i < tree.parameters.length; i++) {
       var parameter = tree.parameters[i];
+      assert(parameter.type === FORMAL_PARAMETER)
+      parameter = parameter.parameter;
+
       switch (parameter.type) {
         case BINDING_ELEMENT:
           break;
@@ -757,7 +761,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {ObjectPatternField} tree
    */
   visitObjectPatternField(tree) {
-    this.checkPropertyName_(tree.name); 
+    this.checkPropertyName_(tree.name);
    this.checkVisit_(tree.element.type === BINDING_ELEMENT ||
                      tree.element.isPattern() ||
                      tree.element.isLeftHandSideExpression(),
