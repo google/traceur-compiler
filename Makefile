@@ -79,14 +79,9 @@ build/master-traceur.js:
 	mv bin/traceur.js build/master-traceur.js
 	mv build/traceur.js bin/traceur.js
 
-up:
-	git diff-index --quiet HEAD # check if the current tree has changes
-	git checkout master; git fetch upstream; git merge --ff-only upstream/master
-	git rebase master $(GIT_BRANCH)
-
 debug: build/master-compiled-traceur.js $(SRC)
 	cp $< $@; touch -t 197001010000.00 bin/traceur.js
-	./traceur --debug --out bin/traceur.js --sourcemap $(SRC)
+	./traceur --debug --out bin/traceur.js --sourcemap $(TFLAGS) $(SRC)
 
 # Prerequisites following '|' are rebuilt just like ordinary prerequisites.
 # However, they don't cause remakes if they're newer than the target. See:
