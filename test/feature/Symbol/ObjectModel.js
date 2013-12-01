@@ -10,3 +10,4 @@ assert.throws(() => {
 });
 
 assert.equal(s.toString(), 'Symbol(s)');
+assert.equal(s.valueOf(), s);

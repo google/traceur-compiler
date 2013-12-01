@@ -199,7 +199,7 @@
 
     // To fully support this we would have to override Object so that
     // Object(symbolValue) would return a Symbol object.
-    // Since new Symbol is supposed to throw this is covers that case at least.
+    // Since new Symbol is supposed to throw we can at least do that.
     throw new TypeError('Symbol cannot be new\'ed');
 
     $defineProperty(this, symbolDataProperty, {value: value});

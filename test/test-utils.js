@@ -122,8 +122,6 @@
 
   function featureTest(name, url) {
 
-    if (/Symbol\.js/.test(url)) debugger
-
     teardown(function() {
       traceur.options.reset();
     });
