@@ -97,13 +97,17 @@ System.set('@traceur/module', (function(global) {
   var liveModuleSentinel = {};
 
   function Module(obj, isLive = undefined) {
+    // Module instances acquired using `module m from 'name'` should have live
+    // references so when we create these internally we pass a sentinel.
     Object.getOwnPropertyNames(obj).forEach((name) => {
       var getter, value;
       if (isLive === liveModuleSentinel) {
-        getter = function() {
-          return obj[name];
-        };
-      } else {
+        var descr = Object.getOwnPropertyDescriptor(obj, name);
+        // Some internal modules do not use getters at this point.
+        if (descr.get)
+          getter = descr.get;
+      }
+      if (!getter) {
         value = obj[name];
         getter = function() {
           return value;
@@ -118,8 +122,6 @@ System.set('@traceur/module', (function(global) {
     this.__proto__ = null;
     Object.preventExtensions(this);
   }
-
-
 
   System.get = function(name) {
     var m = getModuleImpl(name);
