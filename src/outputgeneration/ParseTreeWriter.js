@@ -96,7 +96,6 @@ import {
   PERCENT,
   PERCENT_EQUAL,
   PERIOD,
-  PERIOD_OPEN_CURLY,
   PLUS,
   PLUS_EQUAL,
   PLUS_PLUS,
@@ -337,16 +336,6 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     this.visitAny(tree.binding);
     this.write_(CLOSE_PAREN);
     this.visitAny(tree.catchBody);
-  }
-
-  /**
-   * @param {ChaineExpression} tree
-   */
-  visitCascadeExpression(tree) {
-    this.visitAny(tree.operand);
-    this.write_(PERIOD_OPEN_CURLY);
-    this.writelnList_(tree.expressions, SEMI_COLON);
-    this.write_(CLOSE_CURLY);
   }
 
   visitClassShared_(tree) {
@@ -1264,7 +1253,6 @@ export class ParseTreeWriter extends ParseTreeVisitor {
                              // conditional expression.
       case COMMA:
       case PERIOD:
-      case PERIOD_OPEN_CURLY:
       case SEMI_COLON:
         return false;
       case CATCH:

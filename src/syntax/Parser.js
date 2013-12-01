@@ -26,7 +26,6 @@ import {
   ARRAY_LITERAL_EXPRESSION,
   BINARY_OPERATOR,
   CALL_EXPRESSION,
-  CASCADE_EXPRESSION,
   COMMA_EXPRESSION,
   COMPUTED_PROPERTY_NAME,
   COVER_FORMALS,
@@ -137,7 +136,6 @@ import {
   PERCENT,
   PERCENT_EQUAL,
   PERIOD,
-  PERIOD_OPEN_CURLY,
   PLUS,
   PLUS_EQUAL,
   PLUS_PLUS,
@@ -189,7 +187,6 @@ import {
   Block,
   BreakStatement,
   CallExpression,
-  CascadeExpression,
   CaseClause,
   Catch,
   ClassDeclaration,
@@ -2796,15 +2793,6 @@ export class Parser {
                                            operand, memberName);
             break;
 
-          case PERIOD_OPEN_CURLY:
-            if (!parseOptions.cascadeExpression)
-              break loop;
-            operand = this.toParenExpression_(operand);
-            var expressions = this.parseCascadeExpressions_();
-            operand = new CascadeExpression(this.getTreeLocation_(start),
-                                            operand, expressions);
-            break;
-
           case NO_SUBSTITUTION_TEMPLATE:
           case TEMPLATE_HEAD:
             if (!parseOptions.templateLiterals)
@@ -2855,15 +2843,6 @@ export class Parser {
                                          operand, name);
           break;
 
-        case PERIOD_OPEN_CURLY:
-          if (!parseOptions.cascadeExpression)
-            break loop;
-          operand = this.toParenExpression_(operand);
-          var expressions = this.parseCascadeExpressions_();
-          operand = new CascadeExpression(this.getTreeLocation_(start),
-                                          operand, expressions);
-          break;
-
         case NO_SUBSTITUTION_TEMPLATE:
         case TEMPLATE_HEAD:
           if (!parseOptions.templateLiterals)
@@ -2877,59 +2856,6 @@ export class Parser {
       }
     }
     return operand;
-  }
-
-  parseCascadeExpressions_() {
-    this.eat_(PERIOD_OPEN_CURLY);
-    var expressions = [];
-    var type;
-    while (this.peekId_(type = this.peekType_()) &&
-           this.peekAssignmentExpression_(type)) {
-      expressions.push(this.parseCascadeExpression_());
-      this.eatPossibleImplicitSemiColon_();
-    }
-    this.eat_(CLOSE_CURLY);
-    return expressions;
-  }
-
-  parseCascadeExpression_() {
-    var expr = this.parseAssignmentExpression();
-    var operand;
-    switch (expr.type) {
-      case CALL_EXPRESSION:
-      case MEMBER_EXPRESSION:
-      case MEMBER_LOOKUP_EXPRESSION:
-      case CASCADE_EXPRESSION:
-        operand = expr.operand;
-        break;
-      case BINARY_OPERATOR:
-        operand = expr.left;
-        break;
-      default:
-        this.reportError_(expr.location,
-                          `Invalid expression. Type: ${expr.type}`);
-    }
-
-    if (operand) {
-      switch (operand.type) {
-        case MEMBER_EXPRESSION:
-        case MEMBER_LOOKUP_EXPRESSION:
-        case CALL_EXPRESSION:
-        case CASCADE_EXPRESSION:
-        case IDENTIFIER_EXPRESSION:
-          break;
-        default:
-          this.reportError_(operand.location,
-                            `Invalid expression: ${operand.type}`);
-      }
-    }
-
-    if (expr.type == BINARY_OPERATOR &&
-        !expr.operator.isAssignmentOperator()) {
-      this.reportError_(expr.operator, `Invalid operator: ${expr.operator}`);
-    }
-
-    return expr;
   }
 
   // 11.2 New Expression

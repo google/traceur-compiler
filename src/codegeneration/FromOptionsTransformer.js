@@ -16,7 +16,6 @@ import {ArrayComprehensionTransformer} from
     './ArrayComprehensionTransformer';
 import {ArrowFunctionTransformer} from './ArrowFunctionTransformer';
 import {BlockBindingTransformer} from './BlockBindingTransformer';
-import {CascadeExpressionTransformer} from './CascadeExpressionTransformer';
 import {ClassTransformer} from './ClassTransformer';
 import {CollectionTransformer} from './CollectionTransformer';
 import {DefaultParametersTransformer} from './DefaultParametersTransformer';
@@ -127,10 +126,6 @@ export class FromOptionsTransformer extends MultiTransformer {
 
     if (transformOptions.blockBinding)
       append(BlockBindingTransformer);
-
-    // Cascade must come before CollectionTransformer.
-    if (transformOptions.cascadeExpression)
-      append(CascadeExpressionTransformer);
 
     if (transformOptions.trapMemberLookup ||  transformOptions.privateNames)
       append(CollectionTransformer);
