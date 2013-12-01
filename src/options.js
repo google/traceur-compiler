@@ -264,7 +264,6 @@ addFeatureOption('templateLiterals', ON_BY_DEFAULT);   // 7.6.8
 addFeatureOption('blockBinding', EXPERIMENTAL);       // 12.1
 addFeatureOption('privateNames', EXPERIMENTAL);
 addFeatureOption('deferredFunctions', EXPERIMENTAL);
-addFeatureOption('propertyOptionalComma', EXPERIMENTAL);
 addFeatureOption('types', EXPERIMENTAL);
 
 addBoolOption('debug');

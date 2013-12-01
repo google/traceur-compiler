@@ -854,7 +854,6 @@ System.get('@traceur/module').registerModule("../src/options.js", function() {
   addFeatureOption('blockBinding', EXPERIMENTAL);
   addFeatureOption('privateNames', EXPERIMENTAL);
   addFeatureOption('deferredFunctions', EXPERIMENTAL);
-  addFeatureOption('propertyOptionalComma', EXPERIMENTAL);
   addFeatureOption('types', EXPERIMENTAL);
   addBoolOption('debug');
   addBoolOption('sourceMaps');
