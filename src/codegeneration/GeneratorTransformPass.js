@@ -124,7 +124,7 @@ class YieldExpressionTransformer extends TempVarTransformer {
   constructor(identifierGenerator) {
     super(identifierGenerator);
 
-    // Initialize unless already cached.
+    // Initialise unless already cached.
     if (!throwClose) {
       // Inserted after every simple yield expression in order to handle
       // 'throw'. No extra action is needed to handle 'next'.
@@ -351,7 +351,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
     var isGenerator = false;
 
     return new constructor(null, tree.name, isGenerator,
-                           tree.formalParameterList, body);
+                           tree.formalParameterList, tree.typeAnnotation, body);
   }
 
   /**
@@ -408,6 +408,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
         tree.location,
         tree.isStatic,
         tree.name,
+        tree.typeAnnotation,
         body);
   }
 

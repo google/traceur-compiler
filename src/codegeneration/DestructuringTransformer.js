@@ -254,7 +254,7 @@ export class DestructuringTransformer extends ParameterTransformer {
    *
    * We do it this way (as opposed to a block with a declaration and
    * initialization statements) so that we can translate const
-   * declarations, which must be initialized at declaration.
+   * declarations, which must be initialised at declaration.
    *
    * Nested patterns are desugared by recursive calls to transform.
    *

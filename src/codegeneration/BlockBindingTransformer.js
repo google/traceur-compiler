@@ -60,7 +60,7 @@ import {
  * Given how uncommon the let block unaffected by any of these is, all blocks
  * are transformed using catch:
  *
- * try { throw uninitialized; } catch (let_var) { ... }
+ * try { throw uninitialised; } catch (let_var) { ... }
  *
  * const variables and nested function declarations are handled the same way,
  * the final solution for const is to be implemented.
@@ -564,7 +564,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
           createAssignmentExpression(
               createIdentifierExpression(tree.name.identifierToken),
               new FunctionExpression(tree.location, null, tree.isGenerator,
-                                     formalParameterList, body)));
+                                     formalParameterList, tree.typeAnnotation, body)));
     }
 
     if (body === tree.functionBody &&
@@ -573,7 +573,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
     }
 
     return new FunctionDeclaration(tree.location, tree.name, tree.isGenerator,
-                                   formalParameterList, body);
+                                   formalParameterList, tree.typeAnnotation, body);
   }
 
   /**

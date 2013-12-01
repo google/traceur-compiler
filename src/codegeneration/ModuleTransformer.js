@@ -25,20 +25,15 @@ import {DirectExportVisitor} from './module/DirectExportVisitor';
 import {TempVarTransformer} from './TempVarTransformer';
 import {
   EXPORT_DEFAULT,
-  EXPORT_SPECIFIER,
-  EXPORT_STAR,
-  MODULE,
-  SCRIPT
+  EXPORT_SPECIFIER
 } from '../syntax/trees/ParseTreeType';
-import {
-  STAR,
-  VAR
-} from '../syntax/TokenType';
+import {VAR} from '../syntax/TokenType';
 import {assert} from '../util/assert';
 import {
   createArgumentList,
   createBindingIdentifier,
   createCallExpression,
+  createExpressionStatement,
   createIdentifierExpression,
   createIdentifierToken,
   createMemberExpression,
@@ -69,41 +64,10 @@ var EXPORT_STAR_CODE = `
       return object;
     }`;
 
-/**
- * This creates the code that defines the getter for an export.
- * @param {ModuleTransformer} transformer
- * @param {{string, ParseTree, ModuleSpecifier}} symbol
- * @return {ParseTree}
- */
-function getGetterExport(transformer, {name, tree, moduleSpecifier}) {
-  var returnExpression;
-  switch (tree.type) {
-    case EXPORT_DEFAULT:
-      returnExpression = createIdentifierExpression('$__default');
-      break;
-
-    case EXPORT_SPECIFIER:
-      if (moduleSpecifier) {
-        var idName =
-            transformer.getTempVarNameForModuleSpecifier(moduleSpecifier);
-        returnExpression = createMemberExpression(idName, tree.lhs);
-      } else {
-        returnExpression = createIdentifierExpression(tree.lhs)
-      }
-      break;
-
-    default:
-      returnExpression = createIdentifierExpression(name);
-      break;
-  }
-
-  return parsePropertyDefinition
-      `get ${name}() { return ${returnExpression}; }`;
-}
-
 export class ModuleTransformer extends TempVarTransformer {
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
+   * @param {RuntimeInliner} runtimeInliner
    */
   constructor(identifierGenerator, runtimeInliner) {
     super(identifierGenerator);
@@ -138,22 +102,58 @@ export class ModuleTransformer extends TempVarTransformer {
 
     this.popTempVarState();
 
-    var registerStatement = parseStatement
-        `System.get('@traceur/module').registerModule(${this.url}, function() {
-          ${statements}
-        }, this);`;
+    var funcExpr = parseExpression `function() {
+      ${statements}
+    }`;
 
-    return new Script(tree.location, [registerStatement]);
+    funcExpr = this.wrapModuleFunction(funcExpr);
+
+    return new Script(tree.location, [createExpressionStatement(funcExpr)]);
+  }
+
+  wrapModuleFunction(tree) {
+    return parseExpression
+      `System.get('@traceur/module').registerModule(${this.url}, ${tree}, this)`;
   }
 
   get exportStar_() {
     return this.runtimeInliner_.get('exportStar', EXPORT_STAR_CODE);
   }
 
+  /**
+   * This creates the code that defines the getter for an export.
+   * @param {{string, ParseTree, ModuleSpecifier}} symbol
+   * @return {ParseTree}
+   */
+  getGetterExport({name, tree, moduleSpecifier}) {
+    var returnExpression;
+    switch (tree.type) {
+      case EXPORT_DEFAULT:
+        returnExpression = createIdentifierExpression('$__default');
+        break;
+
+      case EXPORT_SPECIFIER:
+        if (moduleSpecifier) {
+          var idName = this.getTempVarNameForModuleSpecifier(moduleSpecifier);
+          returnExpression = createMemberExpression(idName, tree.lhs);
+        } else {
+          returnExpression = createIdentifierExpression(tree.lhs)
+        }
+        break;
+
+      default:
+        returnExpression = createIdentifierExpression(name);
+        break;
+    }
+
+    return parsePropertyDefinition
+        `get ${name}() { return ${returnExpression}; }`;
+  }
+
   createExportStatement() {
     var properties = this.exportVisitor_.namedExports.map((exp) => {
       // export_name: {get: function() { return export_name },
-      return getGetterExport(this, exp);
+      return this.getGetterExport(exp);
     });
     var object = createObjectLiteralExpression(properties);
 
@@ -209,7 +209,12 @@ export class ModuleTransformer extends TempVarTransformer {
       // import/module {x} from 'name' is relative to the current file.
       url = System.normalResolve(name, this.url);
     }
-    if (this.moduleSpecifierKind_ === 'module')
+
+    return this.getModuleReference(url, this.moduleSpecifierKind_);
+  }
+
+  getModuleReference(url, kind = undefined) {
+    if (kind === 'module')
       return parseExpression `System.get(${url})`;
     return parseExpression `System.get('@traceur/module').getModuleImpl(${url})`;
   }

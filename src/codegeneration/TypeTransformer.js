@@ -12,7 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {VariableDeclaration} from '../syntax/trees/ParseTrees';
+import {
+  FormalParameter,
+  FunctionDeclaration,
+  FunctionExpression,
+  GetAccessor,
+  PropertyMethodAssignment,
+  VariableDeclaration
+} from '../syntax/trees/ParseTrees';
 import {ParseTreeTransformer} from './ParseTreeTransformer';
 
 /**
@@ -30,5 +37,58 @@ export class TypeTransformer extends ParseTreeTransformer {
           tree.initialiser);
     }
     return super.transformVariableDeclaration(tree);
+  }
+
+  /**
+   * @param {FormalParameter} tree
+   * @return {ParseTree}
+   */
+  transformFormalParameter(tree) {
+    if (tree.typeAnnotation !== null)
+      return new FormalParameter(tree.location, tree.parameter, null);
+    return tree;
+  }
+
+  /**
+   * @param {FunctionDeclaration} tree
+   * @return {ParseTree}
+   */
+  transformFunctionDeclaration(tree) {
+    if (tree.typeAnnotation)
+      tree = new FunctionDeclaration(tree.location, tree.name, tree.isGenerator,
+          tree.formalParameterList, null, tree.functionBody);
+    return super.transformFunctionDeclaration(tree);
+  }
+
+  /**
+   * @param {FunctionExpression} tree
+   * @return {ParseTree}
+   */
+  transformFunctionExpression(tree) {
+    if (tree.typeAnnotation)
+      tree = new FunctionExpression(tree.location, tree.name, tree.isGenerator,
+          tree.formalParameterList, null, tree.functionBody);
+    return super.transformFunctionExpression(tree);
+  }
+
+  /**
+   * @param {PropertyMethodAssignemnt} tree
+   * @return {ParseTree}
+   */
+  transformPropertyMethodAssignment(tree) {
+    if (tree.typeAnnotation)
+      tree = new PropertyMethodAssignment(tree.location, tree.isStatic, tree.isGenerator, tree.name,
+          tree.formalParameterList, null, tree.functionBody);
+    return super.transformPropertyMethodAssignment(tree);
+  }
+
+  /**
+   * @param {GetAccessor} tree
+   * @return {ParseTree}
+   */
+  transformGetAccessor(tree) {
+    if (tree.typeAnnotation)
+      tree = new GetAccessor(tree.location, tree.isStatic, tree.name, null, tree.body);
+    return super.transformGetAccessor(tree);
   }
 }

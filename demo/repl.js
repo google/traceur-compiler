@@ -138,7 +138,7 @@ function isWrapped(cmd) {
  * Or to be more specific, the globals from the current context are copied
  * into the repl context -- except for the core JS objects such as Object,
  * String, Array, etc.
- * @param {object} ctx The context to initialize.
+ * @param {object} ctx The context to initialise.
  * @param {string} filename The filename to use when reporting errors.
  */
 function init(ctx, filename) {
