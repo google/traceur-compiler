@@ -188,18 +188,7 @@
   $freeze(Name);
   $freeze(Name.prototype);
 
-  function assertName(val) {
-    if (!NameModule.isName(val))
-      throw new TypeError(val + ' is not a Name');
-    return val;
-  }
-
   // Private name.
-
-  // Collection getters and setters
-  var elementDeleteName = new Name();
-  var elementGetName = new Name();
-  var elementSetName = new Name();
 
   // HACK: We should use runtime/modules/std/name.js or something like that.
   var NameModule = $freeze({
@@ -208,10 +197,7 @@
     },
     isName: function(x) {
       return x instanceof Name;
-    },
-    elementGet: elementGetName,
-    elementSet: elementSetName,
-    elementDelete: elementDeleteName
+    }
   });
 
   var filter = Array.prototype.filter.call.bind(Array.prototype.filter);
@@ -235,34 +221,8 @@
     return global.traceur && global.traceur.options[name];
   }
 
-  function elementDelete(object, name) {
-    if (getOption('trapMemberLookup') &&
-        hasPrivateNameProperty(object, elementDeleteName)) {
-      return getProperty(object, elementDeleteName).call(object, name);
-    }
-    return deleteProperty(object, name);
-  }
-
-  function elementGet(object, name) {
-    if (getOption('trapMemberLookup') &&
-        hasPrivateNameProperty(object, elementGetName)) {
-      return getProperty(object, elementGetName).call(object, name);
-    }
-    return getProperty(object, name);
-  }
-
-  function elementHas(object, name) {
-    // Should we allow trapping this too?
-    return has(object, name);
-  }
-
   function elementSet(object, name, value) {
-    if (getOption('trapMemberLookup') &&
-        hasPrivateNameProperty(object, elementSetName)) {
-      getProperty(object, elementSetName).call(object, name, value);
-    } else {
-      setProperty(object, name, value);
-    }
+    setProperty(object, name, value);
     return value;
   }
 
@@ -285,10 +245,6 @@
     if (nameRe.test(name))
       return undefined;
     return object[name];
-  }
-
-  function hasPrivateNameProperty(object, name) {
-    return name[internalStringValueName] in Object(object);
   }
 
   function has(object, name) {
@@ -348,14 +304,8 @@
 
   function polyfillObject(Object) {
     $defineProperty(Object, 'defineProperty', {value: defineProperty});
-    $defineProperty(Object, 'deleteProperty', method(deleteProperty));
     $defineProperty(Object, 'getOwnPropertyNames',
                     {value: getOwnPropertyNames});
-    $defineProperty(Object, 'getProperty', method(getProperty));
-    $defineProperty(Object, 'getPropertyDescriptor',
-                    method(getPropertyDescriptor));
-    $defineProperty(Object, 'has', method(has));
-    $defineProperty(Object, 'setProperty', method(setProperty));
     $defineProperty(Object.prototype, 'hasOwnProperty',
                     {value: hasOwnProperty});
 
@@ -581,25 +531,17 @@
 
   setupGlobals(global);
 
-  // Return the runtime namespace.
-  var runtime = {
+  // This file is sometimes used without traceur.js so make it a new global.
+  global.$traceurRuntime = {
     Deferred: Deferred,
     addIterator: addIterator,
-    assertName: assertName,
     createName: NameModule.Name,
-    deleteProperty: deleteProperty,
-    elementDelete: elementDelete,
-    elementGet: elementGet,
-    elementHas: elementHas,
+    elementDelete: deleteProperty,
+    elementGet: getProperty,
+    elementHas: has,
     elementSet: elementSet,
     getIterator: getIterator,
-    getProperty: getProperty,
-    setProperty: setProperty,
-    setupGlobals: setupGlobals,
-    has: has,
+    setupGlobals: setupGlobals
   };
-
-  // This file is sometimes used without traceur.js.
-  global.$traceurRuntime = runtime;
 
 })(typeof global !== 'undefined' ? global : this);
