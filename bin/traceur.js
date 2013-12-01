@@ -559,10 +559,10 @@ System.set('@traceur/module', (function(global) {
       var getter,
           value;
       if (isLive === liveModuleSentinel) {
-        getter = function() {
-          return obj[name];
-        };
-      } else {
+        var descr = Object.getOwnPropertyDescriptor(obj, name);
+        if (descr.get) getter = descr.get;
+      }
+      if (!getter) {
         value = obj[name];
         getter = function() {
           return value;
