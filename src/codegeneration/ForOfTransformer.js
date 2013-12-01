@@ -55,14 +55,14 @@ export class ForOfTransformer extends TempVarTransformer {
     var result = id(this.getTempIdentifier());
 
     var assignment;
-    if (tree.initializer.type === VARIABLE_DECLARATION_LIST) {
-      // {var,let} initializer = $result.value;
+    if (tree.initialiser.type === VARIABLE_DECLARATION_LIST) {
+      // {var,let} initialiser = $result.value;
       assignment = createVariableStatement(
-          tree.initializer.declarationType,
-          tree.initializer.declarations[0].lvalue,
+          tree.initialiser.declarationType,
+          tree.initialiser.declarations[0].lvalue,
           createMemberExpression(result, 'value'));
     } else {
-      assignment = parseStatement `${tree.initializer} = ${result}.value;`;
+      assignment = parseStatement `${tree.initialiser} = ${result}.value;`;
     }
 
     return parseStatement `

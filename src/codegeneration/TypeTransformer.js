@@ -34,7 +34,7 @@ export class TypeTransformer extends ParseTreeTransformer {
   transformVariableDeclaration(tree) {
     if (tree.typeAnnotation) {
       tree = new VariableDeclaration(tree.location, tree.lvalue, null,
-          tree.initializer);
+          tree.initialiser);
     }
     return super.transformVariableDeclaration(tree);
   }

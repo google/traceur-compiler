@@ -225,10 +225,10 @@ export class ModuleTransformer extends TempVarTransformer {
    */
   transformModuleDeclaration(tree) {
     this.moduleSpecifierKind_ = 'module';
-    var initializer = this.transformAny(tree.expression);
+    var initialiser = this.transformAny(tree.expression);
     // const a = b.c, d = e.f;
     // TODO(arv): const is not allowed in ES5 strict
-    return createVariableStatement(VAR, tree.identifier, initializer);
+    return createVariableStatement(VAR, tree.identifier, initialiser);
   }
 
   transformImportedBinding(tree) {
@@ -248,9 +248,9 @@ export class ModuleTransformer extends TempVarTransformer {
     // var {default: id} = moduleInstance
     this.moduleSpecifierKind_ = 'import';
     var binding = this.transformAny(tree.importClause);
-    var initializer = this.transformAny(tree.moduleSpecifier);
+    var initialiser = this.transformAny(tree.moduleSpecifier);
 
-    return createVariableStatement(VAR, binding, initializer);
+    return createVariableStatement(VAR, binding, initialiser);
   }
 
   transformImportSpecifierSet(tree) {

@@ -60,7 +60,7 @@ import {
  * Given how uncommon the let block unaffected by any of these is, all blocks
  * are transformed using catch:
  *
- * try { throw uninitialized; } catch (let_var) { ... }
+ * try { throw uninitialised; } catch (let_var) { ... }
  *
  * const variables and nested function declarations are handled the same way,
  * the final solution for const is to be implemented.
@@ -290,12 +290,12 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
     // Save it here because tree may change in the variable rewrite
     var treeBody = tree.body;
 
-    var initializer;
-    if (tree.initializer != null &&
-        tree.initializer.type == VARIABLE_DECLARATION_LIST) {
+    var initialiser;
+    if (tree.initialiser != null &&
+        tree.initialiser.type == VARIABLE_DECLARATION_LIST) {
 
       // for (var/let/const x [ = ...] in ...)
-      var variables = tree.initializer;
+      var variables = tree.initialiser;
 
       // Only one declaration allowed.
       if (variables.declarations.length != 1) {
@@ -308,11 +308,11 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
       switch (variables.declarationType) {
         case LET:
         case CONST: {
-          // initializer is illegal in for (const/let x in ...)
+          // initialiser is illegal in for (const/let x in ...)
           // this should have been caught in the parser.
-          if (variable.initializer != null) {
+          if (variable.initialiser != null) {
             throw new Error(
-                'const/let in for-in may not have an initializer');
+                'const/let in for-in may not have an initialiser');
           }
 
           // Build the result
@@ -321,7 +321,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
           //   ...
           // }
           // TODO: Use temp allocator.
-          initializer = createVariableDeclarationList(
+          initialiser = createVariableDeclarationList(
               VAR, `$${variableName}`, null);
 
           // Add the let statement into the block and rewrite it next.
@@ -337,24 +337,24 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
 
         case VAR:
           // No special work for var
-          initializer = this.transformVariables_(variables);
+          initialiser = this.transformVariables_(variables);
           break;
 
         default:
           throw new Error('Unreachable.');
       }
     } else {
-      initializer = this.transformAny(tree.initializer);
+      initialiser = this.transformAny(tree.initialiser);
     }
 
     var result = tree;
     var collection = this.transformAny(tree.collection);
     var body = this.transformAny(treeBody);
 
-    if (initializer != tree.initializer ||
+    if (initialiser != tree.initialiser ||
         collection != tree.collection ||
         body != tree.body) {
-      result = createForInStatement(initializer, collection, body);
+      result = createForInStatement(initialiser, collection, body);
     }
 
     return result;
@@ -382,12 +382,12 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformForStatement(tree) {
-    var initializer;
-    if (tree.initializer != null &&
-        tree.initializer.type == VARIABLE_DECLARATION_LIST) {
+    var initialiser;
+    if (tree.initialiser != null &&
+        tree.initialiser.type == VARIABLE_DECLARATION_LIST) {
 
       // for (var/let/const ... ; ; ) { ... }
-      var variables = tree.initializer;
+      var variables = tree.initialiser;
 
       switch (variables.declarationType) {
         case LET:
@@ -397,7 +397,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
 
         case VAR:
           // No special work for var.
-          initializer = this.transformVariables_(variables);
+          initialiser = this.transformVariables_(variables);
           break;
 
         default:
@@ -405,7 +405,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
       }
     } else {
       // The non-var case: for (x = ...; ; ) { ... }
-      initializer = this.transformAny(tree.initializer);
+      initialiser = this.transformAny(tree.initialiser);
     }
 
     // Finish transforming the body.
@@ -415,12 +415,12 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
 
     var result = tree;
 
-    if (initializer != tree.initializer ||
+    if (initialiser != tree.initialiser ||
         condition != tree.condition ||
         increment != tree.increment ||
         body != tree.body) {
       // Create new for statement.
-      result = createForStatement(initializer, condition, increment, body);
+      result = createForStatement(initialiser, condition, increment, body);
     }
 
     return result;
@@ -449,7 +449,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
    * translates into:
    *
    * {
-   *   let $x = 1, $y = $x + 2;     // initializer dependencies
+   *   let $x = 1, $y = $x + 2;     // initialiser dependencies
    *   for ( ; $x + $y < 10; $x++, $y++) {
    *     let x = $x, y = $y;
    *     try {
@@ -485,11 +485,11 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
       var variableName = this.getVariableName_(variable);
       var hoistedName = `$${variableName}`;
 
-      // perform renames in the initializer
-      var initializer = renameAll(renames, variable.initializer);
+      // perform renames in the initialiser
+      var initialiser = renameAll(renames, variable.initialiser);
 
       // hoisted declaration: let $x = 1
-      hoisted.push(createVariableDeclaration(hoistedName, initializer));
+      hoisted.push(createVariableDeclaration(hoistedName, initialiser));
 
       // copy forward: let x = $x;
       copyFwd.push(
@@ -504,7 +504,7 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
                   createIdentifierExpression(hoistedName),
                   createIdentifierExpression(variableName))));
 
-      // Remember rename for the subsequent initializers
+      // Remember rename for the subsequent initialisers
       renames.push(new Rename(variableName, hoistedName));
     });
 
@@ -664,14 +664,14 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
 
       // Store the block scoped variable for future 'declaration'.
       this.scope_.addBlockScopedVariable(variableName);
-      var initializer = this.transformAny(variable.initializer);
+      var initialiser = this.transformAny(variable.initialiser);
 
-      if (initializer != null) {
-        // varname = initializer, ...
+      if (initialiser != null) {
+        // varname = initialiser, ...
         comma.push(
             createAssignmentExpression(
                 createIdentifierExpression(variableName),
-                initializer));
+                initialiser));
       }
     });
 
@@ -703,19 +703,19 @@ export class BlockBindingTransformer extends ParseTreeTransformer {
       var variable = variables[index];
       var variableName = this.getVariableName_(variable);
 
-      // Transform the initializer.
-      var initializer = this.transformAny(variable.initializer);
+      // Transform the initialiser.
+      var initialiser = this.transformAny(variable.initialiser);
 
-      if (transformed != null || initializer != variable.initializer) {
+      if (transformed != null || initialiser != variable.initialiser) {
         // Variable was rewritten.
         if (transformed == null) {
           transformed = variables.slice(0, index);
         }
 
-        // var/const x = <initializer>;
+        // var/const x = <initialiser>;
         transformed.push(
             createVariableDeclaration(
-                createIdentifierToken(variableName), initializer));
+                createIdentifierToken(variableName), initialiser));
       }
     }
 
