@@ -306,20 +306,20 @@ export class CPSTransformer extends ParseTreeTransformer {
             incrementState :
             this.allocateState();
     var startState =
-        result.initializer == null ?
+        result.initialiser == null ?
             (result.condition == null ?
                 loopBodyMachine.startState : conditionState) :
             this.allocateState();
     var fallThroughState = this.allocateState();
 
     var states = [];
-    if (result.initializer != null) {
+    if (result.initialiser != null) {
       states.push(
           new FallThroughState(
               startState,
               conditionState,
               createStatementList(
-                  createExpressionStatement(result.initializer))));
+                  createExpressionStatement(result.initialiser))));
     }
     if (result.condition != null) {
       states.push(
@@ -679,8 +679,8 @@ export class CPSTransformer extends ParseTreeTransformer {
   }
 
   /**
-   * This is the initializer of a for loop. Convert into an expression
-   * containing the initializers.
+   * This is the initialiser of a for loop. Convert into an expression
+   * containing the initialisers.
    *
    * @param {VariableDeclarationList} tree
    * @return {ParseTree}
@@ -690,12 +690,12 @@ export class CPSTransformer extends ParseTreeTransformer {
       var expressions = [];
       for (var i = 0; i < tree.declarations.length; i++) {
         var declaration = tree.declarations[i];
-        if (declaration.initializer != null) {
+        if (declaration.initialiser != null) {
           expressions.push(
               createAssignmentExpression(
                   createIdentifierExpression(
                       this.transformAny(declaration.lvalue)),
-                  this.transformAny(declaration.initializer)));
+                  this.transformAny(declaration.initialiser)));
         }
       }
       var list = expressions;

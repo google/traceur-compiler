@@ -275,9 +275,9 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitBindingElement(tree) {
     this.visitAny(tree.binding);
-    if (tree.initializer) {
+    if (tree.initialiser) {
       this.write_(EQUAL);
-      this.visitAny(tree.initializer);
+      this.visitAny(tree.initialiser);
     }
   }
 
@@ -540,7 +540,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   visitForOfStatement(tree) {
     this.write_(FOR);
     this.write_(OPEN_PAREN);
-    this.visitAny(tree.initializer);
+    this.visitAny(tree.initialiser);
     this.write_(OF);
     this.visitAny(tree.collection);
     this.write_(CLOSE_PAREN);
@@ -553,7 +553,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   visitForInStatement(tree) {
     this.write_(FOR);
     this.write_(OPEN_PAREN);
-    this.visitAny(tree.initializer);
+    this.visitAny(tree.initialiser);
     this.write_(IN);
     this.visitAny(tree.collection);
     this.write_(CLOSE_PAREN);
@@ -566,7 +566,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   visitForStatement(tree) {
     this.write_(FOR);
     this.write_(OPEN_PAREN);
-    this.visitAny(tree.initializer);
+    this.visitAny(tree.initialiser);
     this.write_(SEMI_COLON);
     this.visitAny(tree.condition);
     this.write_(SEMI_COLON);
@@ -1055,9 +1055,9 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   visitVariableDeclaration(tree) {
     this.visitAny(tree.lvalue);
     this.writeTypeAnnotation_(tree.typeAnnotation);
-    if (tree.initializer !== null) {
+    if (tree.initialiser !== null) {
       this.write_(EQUAL);
-      this.visitAny(tree.initializer);
+      this.visitAny(tree.initialiser);
     }
   }
 

@@ -124,7 +124,7 @@ class YieldExpressionTransformer extends TempVarTransformer {
   constructor(identifierGenerator) {
     super(identifierGenerator);
 
-    // Initialize unless already cached.
+    // Initialise unless already cached.
     if (!throwClose) {
       // Inserted after every simple yield expression in order to handle
       // 'throw'. No extra action is needed to handle 'next'.
@@ -180,7 +180,7 @@ class YieldExpressionTransformer extends TempVarTransformer {
     var tdd = tree.declarations.declarations;
 
     function isYieldVarAssign(tree) {
-      return tree.initializer && tree.initializer.type === YIELD_EXPRESSION;
+      return tree.initialiser && tree.initialiser.type === YIELD_EXPRESSION;
     }
 
     function varWrap(lhs, rhs) {
@@ -191,7 +191,7 @@ class YieldExpressionTransformer extends TempVarTransformer {
     }
 
     if (isYieldVarAssign(tdd[0]))
-      return this.factorAssign_(tdd[0].lvalue, tdd[0].initializer, varWrap);
+      return this.factorAssign_(tdd[0].lvalue, tdd[0].initialiser, varWrap);
 
     return tree;
   }
