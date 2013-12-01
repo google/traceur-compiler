@@ -42,26 +42,9 @@ import {expandMemberLookupExpression} from './OperatorExpander';
  * Transforms expr[expr] into traceurRuntime.elementGet(expr, expr). It also
  * transforms []=, delete and the in operator in similar fashion.
  *
- * This pass is used for private names as well as for the reformed object
- * model.
+ * This pass is used for private names.
  *
  * http://wiki.ecmascript.org/doku.php?id=harmony:private_name_objects
- * http://wiki.ecmascript.org/doku.php?id=strawman:object_model_reformation
- *
- * The reformed object model allows user defined traps for [], []= and delete.
- * For example:
- *
- *   module Name from '@name';
- *   var storage = Object.create(null);
- *   var object = {};
- *   object[Name.elementGet] = function(key) {
- *     return storage[hashCode(key)];
- *   };
- *   object[Name.elementSet] = function(key, value) {
- *     storage[hashCode(key)] = value;
- *   };
- *   var key = {};
- *   object[key] = 42;
  */
 export class CollectionTransformer extends TempVarTransformer {
 
