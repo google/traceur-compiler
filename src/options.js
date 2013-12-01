@@ -263,7 +263,6 @@ addFeatureOption('templateLiterals', ON_BY_DEFAULT);   // 7.6.8
 // EXPERIMENTAL
 addFeatureOption('blockBinding', EXPERIMENTAL);       // 12.1
 addFeatureOption('privateNames', EXPERIMENTAL);
-addFeatureOption('trapMemberLookup', EXPERIMENTAL);
 addFeatureOption('deferredFunctions', EXPERIMENTAL);
 addFeatureOption('propertyOptionalComma', EXPERIMENTAL);
 addFeatureOption('types', EXPERIMENTAL);

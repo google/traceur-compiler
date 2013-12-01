@@ -123,23 +123,13 @@
   ;
   $freeze(Name);
   $freeze(Name.prototype);
-  function assertName(val) {
-    if (!NameModule.isName(val)) throw new TypeError(val + ' is not a Name');
-    return val;
-  }
-  var elementDeleteName = new Name();
-  var elementGetName = new Name();
-  var elementSetName = new Name();
   var NameModule = $freeze({
     Name: function(str) {
       return new Name(str);
     },
     isName: function(x) {
       return x instanceof Name;
-    },
-    elementGet: elementGetName,
-    elementSet: elementSetName,
-    elementDelete: elementDeleteName
+    }
   });
   var filter = Array.prototype.filter.call.bind(Array.prototype.filter);
   function getOwnPropertyNames(object) {
@@ -154,27 +144,8 @@
   function getOption(name) {
     return global.traceur && global.traceur.options[name];
   }
-  function elementDelete(object, name) {
-    if (getOption('trapMemberLookup') && hasPrivateNameProperty(object, elementDeleteName)) {
-      return getProperty(object, elementDeleteName).call(object, name);
-    }
-    return deleteProperty(object, name);
-  }
-  function elementGet(object, name) {
-    if (getOption('trapMemberLookup') && hasPrivateNameProperty(object, elementGetName)) {
-      return getProperty(object, elementGetName).call(object, name);
-    }
-    return getProperty(object, name);
-  }
-  function elementHas(object, name) {
-    return has(object, name);
-  }
   function elementSet(object, name, value) {
-    if (getOption('trapMemberLookup') && hasPrivateNameProperty(object, elementSetName)) {
-      getProperty(object, elementSetName).call(object, name, value);
-    } else {
-      setProperty(object, name, value);
-    }
+    setProperty(object, name, value);
     return value;
   }
   function assertNotName(s) {
@@ -189,9 +160,6 @@
     if (NameModule.isName(name)) return object[name[internalStringValueName]];
     if (nameRe.test(name)) return undefined;
     return object[name];
-  }
-  function hasPrivateNameProperty(object, name) {
-    return name[internalStringValueName]in Object(object);
   }
   function has(object, name) {
     if (NameModule.isName(name) || nameRe.test(name)) return false;
@@ -233,12 +201,7 @@
   }
   function polyfillObject(Object) {
     $defineProperty(Object, 'defineProperty', {value: defineProperty});
-    $defineProperty(Object, 'deleteProperty', method(deleteProperty));
     $defineProperty(Object, 'getOwnPropertyNames', {value: getOwnPropertyNames});
-    $defineProperty(Object, 'getProperty', method(getProperty));
-    $defineProperty(Object, 'getPropertyDescriptor', method(getPropertyDescriptor));
-    $defineProperty(Object, 'has', method(has));
-    $defineProperty(Object, 'setProperty', method(setProperty));
     $defineProperty(Object.prototype, 'hasOwnProperty', {value: hasOwnProperty});
     function is(left, right) {
       if (left === right) return left !== 0 || 1 / left === 1 / right;
@@ -410,23 +373,17 @@
     global.Deferred = Deferred;
   }
   setupGlobals(global);
-  var runtime = {
+  global.$traceurRuntime = {
     Deferred: Deferred,
     addIterator: addIterator,
-    assertName: assertName,
     createName: NameModule.Name,
-    deleteProperty: deleteProperty,
-    elementDelete: elementDelete,
-    elementGet: elementGet,
-    elementHas: elementHas,
+    elementDelete: deleteProperty,
+    elementGet: getProperty,
+    elementHas: has,
     elementSet: elementSet,
     getIterator: getIterator,
-    getProperty: getProperty,
-    setProperty: setProperty,
-    setupGlobals: setupGlobals,
-    has: has
+    setupGlobals: setupGlobals
   };
-  global.$traceurRuntime = runtime;
 })(typeof global !== 'undefined' ? global: this);
 System.set('@traceur/url', (function() {
   function buildFromEncodedParts(opt_scheme, opt_userInfo, opt_domain, opt_port, opt_path, opt_queryData, opt_fragment) {
@@ -896,7 +853,6 @@ System.get('@traceur/module').registerModule("../src/options.js", function() {
   addFeatureOption('templateLiterals', ON_BY_DEFAULT);
   addFeatureOption('blockBinding', EXPERIMENTAL);
   addFeatureOption('privateNames', EXPERIMENTAL);
-  addFeatureOption('trapMemberLookup', EXPERIMENTAL);
   addFeatureOption('deferredFunctions', EXPERIMENTAL);
   addFeatureOption('propertyOptionalComma', EXPERIMENTAL);
   addFeatureOption('types', EXPERIMENTAL);
@@ -6108,7 +6064,6 @@ System.get('@traceur/module').registerModule("../src/syntax/PredefinedName.js", 
   var ARGUMENTS = 'arguments';
   var ARRAY = 'Array';
   var AS = 'as';
-  var ASSERT_NAME = 'assertName';
   var BIND = 'bind';
   var BOOL = 'bool';
   var CALL = 'call';
@@ -6126,7 +6081,6 @@ System.get('@traceur/module').registerModule("../src/syntax/PredefinedName.js", 
   var DEFERRED = 'Deferred';
   var DEFINE_PROPERTIES = 'defineProperties';
   var DEFINE_PROPERTY = 'defineProperty';
-  var DELETE_PROPERTY = 'deleteProperty';
   var ELEMENT_DELETE = 'elementDelete';
   var ELEMENT_GET = 'elementGet';
   var ELEMENT_HAS = 'elementHas';
@@ -6203,9 +6157,6 @@ System.get('@traceur/module').registerModule("../src/syntax/PredefinedName.js", 
     get AS() {
       return AS;
     },
-    get ASSERT_NAME() {
-      return ASSERT_NAME;
-    },
     get BIND() {
       return BIND;
     },
@@ -6256,9 +6207,6 @@ System.get('@traceur/module').registerModule("../src/syntax/PredefinedName.js", 
     },
     get DEFINE_PROPERTY() {
       return DEFINE_PROPERTY;
-    },
-    get DELETE_PROPERTY() {
-      return DELETE_PROPERTY;
     },
     get ELEMENT_DELETE() {
       return ELEMENT_DELETE;
@@ -17832,7 +17780,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/FromOptionsT
           return runtimeInliner.transformAny(tree);
         }));
         if (transformOptions.blockBinding) append(BlockBindingTransformer);
-        if (transformOptions.trapMemberLookup || transformOptions.privateNames) append(CollectionTransformer);
+        if (transformOptions.privateNames) append(CollectionTransformer);
         if (options.freeVariableChecker) this.append((function(tree) {
           return FreeVariableChecker.checkScript(reporter, tree);
         }));

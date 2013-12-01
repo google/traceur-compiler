@@ -127,7 +127,7 @@ export class FromOptionsTransformer extends MultiTransformer {
     if (transformOptions.blockBinding)
       append(BlockBindingTransformer);
 
-    if (transformOptions.trapMemberLookup ||  transformOptions.privateNames)
+    if (transformOptions.privateNames)
       append(CollectionTransformer);
 
     // Issue errors for any unbound variables
