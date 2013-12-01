@@ -33,7 +33,6 @@ import {
   BLOCK,
   BREAK_STATEMENT,
   CALL_EXPRESSION,
-  CASCADE_EXPRESSION,
   CASE_CLAUSE,
   CATCH,
   CLASS_DECLARATION,
@@ -191,7 +190,6 @@ export class ParseTree {
       case ARROW_FUNCTION_EXPRESSION:
       case BINARY_OPERATOR:
       case CALL_EXPRESSION:
-      case CASCADE_EXPRESSION:
       case CLASS_EXPRESSION:
       case CONDITIONAL_EXPRESSION:
       case FUNCTION_EXPRESSION:
@@ -243,7 +241,6 @@ export class ParseTree {
       // CallExpression:
       //   CallExpression . IdentifierName
       case CALL_EXPRESSION:
-      case CASCADE_EXPRESSION:
         return true;
 
       // new MemberExpression Arguments

@@ -118,17 +118,6 @@
       "ArgumentList"
     ]
   },
-  "CascadeExpression": {
-    "location": [
-      "SourceRange"
-    ],
-    "operand": [
-      "ParseTree"
-    ],
-    "expressions": [
-      "Array.<ParseTree>"
-    ]
-  },
   "CaseClause": {
     "location": [
       "SourceRange"
