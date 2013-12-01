@@ -59,8 +59,8 @@ var EXPORT_STAR_CODE = `
               enumerable: true
             });
           })(arguments[i], names[j]);
+        }
       }
-
       return object;
     }`;
 
