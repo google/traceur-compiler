@@ -55,7 +55,6 @@ import {
   Block,
   BreakStatement,
   CallExpression,
-  CascadeExpression,
   CaseClause,
   Catch,
   ClassDeclaration,
@@ -544,10 +543,6 @@ export function createCaseClause(expression, statements) {
 export function createCatch(identifier, catchBody) {
   identifier = createBindingIdentifier(identifier);
   return new Catch(null, identifier, catchBody);
-}
-
-export function createCascadeExpression(operand, expressions) {
-  return new CascadeExpression(null, operand, expressions);
 }
 
 /**
