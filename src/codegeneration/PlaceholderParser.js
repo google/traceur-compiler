@@ -14,6 +14,7 @@
 
 import {ArrayMap} from '../util/ArrayMap';
 import {
+  ARGUMENT_LIST,
   BLOCK,
   EXPRESSION_STATEMENT,
   IDENTIFIER_EXPRESSION
@@ -285,7 +286,7 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
         return transformedExpression;
       return createExpressionStatement(transformedExpression);
     }
-    return super.transformExpressionStatement(tree);
+    return super(tree);
   }
 
   transformBlock(tree) {
@@ -298,7 +299,7 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
       if (transformedStatement.type === BLOCK)
         return transformedStatement;
     }
-    return super.transformBlock(tree);
+    return super(tree);
   }
 
   transformFunctionBody(tree) {
@@ -311,13 +312,13 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
       if (transformedStatement.type === BLOCK)
         return createFunctionBody(transformedStatement.statements);
     }
-    return super.transformFunctionBody(tree);
+    return super(tree);
   }
 
   transformMemberExpression(tree) {
     var value = this.getValue_(tree.memberName.value);
     if (value === NOT_FOUND)
-      return super.transformMemberExpression(tree);
+      return super(tree);
     var operand = this.transformAny(tree.operand);
     return createMemberExpression(operand, value);
   }
@@ -330,6 +331,18 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
             convertValueToIdentifierToken(value));
       }
     }
-    return super.transformPropertyNameAssignment(tree);
+    return super(tree);
+  }
+
+  transformArgumentList(tree) {
+    if (tree.args.length === 1 &&
+        tree.args[0].type === IDENTIFIER_EXPRESSION) {
+      var arg0 = this.transformAny(tree.args[0]);
+      if (arg0 === tree.args[0])
+        return tree;
+      if (arg0.type === ARGUMENT_LIST)
+        return arg0;
+    }
+    return super(tree);
   }
 }

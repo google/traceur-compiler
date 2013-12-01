@@ -12,13 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  ELEMENT_DELETE,
-  ELEMENT_GET,
-  ELEMENT_HAS,
-  ELEMENT_SET,
-  TRACEUR_RUNTIME
-} from '../syntax/PredefinedName';
 import {MEMBER_LOOKUP_EXPRESSION} from '../syntax/trees/ParseTreeType';
 import {TempVarTransformer} from './TempVarTransformer';
 import {
@@ -28,23 +21,16 @@ import {
 } from '../syntax/TokenType';
 import {
   createArgumentList,
-  createAssignmentExpression,
-  createCallCall,
-  createCallExpression,
-  createCommaExpression,
-  createIdentifierExpression,
-  createMemberExpression,
-  createParenExpression
+  createIdentifierExpression
 } from './ParseTreeFactory';
 import {expandMemberLookupExpression} from './OperatorExpander';
+import {parseExpression} from './PlaceholderParser';
 
 /**
- * Transforms expr[expr] into traceurRuntime.elementGet(expr, expr). It also
+ * Transforms expr[expr] into traceurRuntime.getPropert(expr, expr). It also
  * transforms []=, delete and the in operator in similar fashion.
  *
- * This pass is used for private names.
- *
- * http://wiki.ecmascript.org/doku.php?id=harmony:private_name_objects
+ * This pass is used for Symbols.
  */
 export class CollectionTransformer extends TempVarTransformer {
 
@@ -54,10 +40,7 @@ export class CollectionTransformer extends TempVarTransformer {
       var object = this.transformAny(tree.right);
       // name in object
       // =>
-      // traceurRuntime.elementHas(object, name)
-      return createCallExpression(
-          createMemberExpression(TRACEUR_RUNTIME, ELEMENT_HAS),
-          createArgumentList(object, name));
+      return parseExpression `$traceurRuntime.hasProperty(${object}, ${names})`;
     }
 
     if (tree.left.type === MEMBER_LOOKUP_EXPRESSION &&
@@ -74,10 +57,8 @@ export class CollectionTransformer extends TempVarTransformer {
 
       // operand[memberExpr] = value
       // =>
-      // traceurRuntime.elementSet(operand, memberExpr, value)
-      return createCallExpression(
-          createMemberExpression(TRACEUR_RUNTIME, ELEMENT_SET),
-          createArgumentList(operand, memberExpression, value));
+      return parseExpression `$traceurRuntime.setProperty(${operand},
+            ${memberExpression}, ${value})`;
     }
 
     return super.transformBinaryOperator(tree);
@@ -90,35 +71,25 @@ export class CollectionTransformer extends TempVarTransformer {
     var operand = this.transformAny(tree.operand.operand);
     var memberExpression = this.transformAny(tree.operand.memberExpression);
 
+    var tmp = createIdentifierExpression(this.addTempVar());
+    var elements = this.transformAny(tree.args);
+    var args = createArgumentList(tmp, ...elements.args);
+
     // operand[memberExpr](args)
     // =>
-    // ($tmp = operand,
-    //  traceurRuntime.elementGet($tmp, memberExpr).call($tmp, args))
-
-    var ident = createIdentifierExpression(this.addTempVar());
-    var elements = tree.args.args.map(this.transformAny, this);
-    var callExpr = createCallCall(
-        createCallExpression(
-          createMemberExpression(TRACEUR_RUNTIME, ELEMENT_GET),
-          createArgumentList(ident, memberExpression)),
-        ident,
-        elements);
-
-    var expressions = [
-      createAssignmentExpression(ident, operand),
-      callExpr
-    ];
-
-    return createParenExpression(createCommaExpression(expressions));
+    return parseExpression `(${tmp} = ${operand},
+        $traceurRuntime.getProperty(${tmp}, ${memberExpression}).
+            call(${args}))`;
   }
 
   transformMemberLookupExpression(tree) {
+    var operand = this.transformAny(tree.operand);
+    var memberExpression = this.transformAny(tree.memberExpression);
+
     // operand[memberExpr]
     // =>
-    // traceurRuntime.elementGet(operand, memberExpr)
-    return createCallExpression(
-        createMemberExpression(TRACEUR_RUNTIME, ELEMENT_GET),
-        createArgumentList(tree.operand, tree.memberExpression));
+    return parseExpression
+        `$traceurRuntime.getProperty(${operand}, ${memberExpression})`;
   }
 
   transformUnaryExpression(tree) {
@@ -132,9 +103,7 @@ export class CollectionTransformer extends TempVarTransformer {
 
     // delete operand[memberExpr]
     // =>
-    // traceurRuntime.elementDelete(operand, memberExpr)
-    return createCallExpression(
-        createMemberExpression(TRACEUR_RUNTIME, ELEMENT_DELETE),
-        createArgumentList(operand, memberExpression));
+    return parseExpression
+        `$traceurRuntime.deleteProperty(${operand}, ${memberExpression})`;
   }
 }

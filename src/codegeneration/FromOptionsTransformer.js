@@ -38,6 +38,7 @@ import {RuntimeInliner} from './RuntimeInliner';
 import {SpreadTransformer} from './SpreadTransformer';
 import {TemplateLiteralTransformer} from './TemplateLiteralTransformer';
 import {TypeTransformer} from './TypeTransformer';
+import {TypeofTransformer} from './TypeofTransformer';
 import {UniqueIdentifierGenerator} from './UniqueIdentifierGenerator';
 import {options, transformOptions} from '../options';
 
@@ -84,6 +85,7 @@ export class FromOptionsTransformer extends MultiTransformer {
 
     if (transformOptions.propertyNameShorthand)
       append(PropertyNameShorthandTransformer);
+
     if (transformOptions.propertyMethods ||
               transformOptions.computedPropertyNames) {
       append(ObjectLiteralTransformer);
@@ -127,8 +129,10 @@ export class FromOptionsTransformer extends MultiTransformer {
     if (transformOptions.blockBinding)
       append(BlockBindingTransformer);
 
-    if (transformOptions.privateNames)
+    if (transformOptions.symbols) {
       append(CollectionTransformer);
+      append(TypeofTransformer);
+    }
 
     // Issue errors for any unbound variables
     if (options.freeVariableChecker) {

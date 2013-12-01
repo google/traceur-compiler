@@ -1,12 +1,10 @@
 
 // Example 1. Writing an iterator over an array
 
-import {iterator} from '@iter';
-
 function iterateElements(array) {
   var index = 0;
   var rv = {};
-  rv[iterator] = {
+  rv[Symbol.iterator] = {
       next() {
         if (index < array.length)
           return {value: array[index++], done: false};

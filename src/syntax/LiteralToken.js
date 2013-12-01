@@ -30,7 +30,6 @@ import {
   NUMBER,
   STRING
 } from './TokenType';
-import {iterator} from '@iter';
 
 /**
  * Helper class for getting the processed value out of a string literal token.
@@ -46,7 +45,7 @@ class StringParser {
     this.index = 0;  // value is wrapped in " or '
   }
 
-  [iterator]() {
+  [Symbol.iterator]() {
     return this;
   }
 
