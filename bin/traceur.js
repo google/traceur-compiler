@@ -551,14 +551,25 @@ System.set('@traceur/module', (function(global) {
   }
   ;
   var moduleInstances = Object.create(null);
+  var liveModuleSentinel = {};
   function Module(obj) {
+    var isLive = arguments[1];
     var $__0 = this;
     Object.getOwnPropertyNames(obj).forEach((function(name) {
-      var value = obj[name];
-      Object.defineProperty($__0, name, {
-        get: function() {
+      var getter,
+          value;
+      if (isLive === liveModuleSentinel) {
+        getter = function() {
+          return obj[name];
+        };
+      } else {
+        value = obj[name];
+        getter = function() {
           return value;
-        },
+        };
+      }
+      Object.defineProperty($__0, name, {
+        get: getter,
         enumerable: true
       });
     }));
@@ -570,8 +581,7 @@ System.set('@traceur/module', (function(global) {
     if (!m) return undefined;
     var moduleInstance = moduleInstances[m.url];
     if (moduleInstance) return moduleInstance;
-    var value = m.value;
-    moduleInstance = new Module(value);
+    moduleInstance = new Module(m.value, liveModuleSentinel);
     return moduleInstances[m.url] = moduleInstance;
   };
   System.set = function(name, object) {
@@ -10914,8 +10924,8 @@ var $__defineProperty = $__Object.defineProperty,
             });
           })(arguments[i], names[j]);
         }
-        return object;
       }
+      return object;
     };
 System.get('@traceur/module').registerModule("../src/util/url.js", function() {
   "use strict";
@@ -16854,7 +16864,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ModuleTransf
       parseExpression = $__212.parseExpression,
       parsePropertyDefinition = $__212.parsePropertyDefinition,
       parseStatement = $__212.parseStatement;
-  var EXPORT_STAR_CODE = "\n    function(object) {\n      for (var i = 1; i < arguments.length; i++) {\n        var names = %getOwnPropertyNames(arguments[i]);\n        for (var j = 0; j < names.length; j++) {\n          (function(mod, name) {\n            %defineProperty(object, name, {\n              get: function() { return mod[name]; },\n              enumerable: true\n            });\n          })(arguments[i], names[j]);\n      }\n\n      return object;\n    }";
+  var EXPORT_STAR_CODE = "\n    function(object) {\n      for (var i = 1; i < arguments.length; i++) {\n        var names = %getOwnPropertyNames(arguments[i]);\n        for (var j = 0; j < names.length; j++) {\n          (function(mod, name) {\n            %defineProperty(object, name, {\n              get: function() { return mod[name]; },\n              enumerable: true\n            });\n          })(arguments[i], names[j]);\n        }\n      }\n      return object;\n    }";
   var ModuleTransformer = function($__super) {
     'use strict';
     var $__proto = $__getProtoParent($__super);
@@ -17780,9 +17790,12 @@ System.get('@traceur/module').registerModule("../src/codegeneration/FromOptionsT
         }));
         if (transformOptions.blockBinding) append(BlockBindingTransformer);
         if (transformOptions.privateNames) append(CollectionTransformer);
-        if (options.freeVariableChecker) this.append((function(tree) {
-          return FreeVariableChecker.checkScript(reporter, tree);
-        }));
+        if (options.freeVariableChecker) {
+          this.append((function(tree) {
+            FreeVariableChecker.checkScript(reporter, tree);
+            return tree;
+          }));
+        }
       }}, {}, $__proto, $__super, true);
     return $FromOptionsTransformer;
   }(MultiTransformer);

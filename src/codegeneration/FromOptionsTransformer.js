@@ -131,7 +131,11 @@ export class FromOptionsTransformer extends MultiTransformer {
       append(CollectionTransformer);
 
     // Issue errors for any unbound variables
-    if (options.freeVariableChecker)
-      this.append((tree) => FreeVariableChecker.checkScript(reporter, tree));
+    if (options.freeVariableChecker) {
+      this.append((tree) => {
+        FreeVariableChecker.checkScript(reporter, tree);
+        return tree;
+      });
+    }
   }
 }
