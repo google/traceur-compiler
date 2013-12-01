@@ -2,7 +2,7 @@
 
 class Typed {
   constructor(x : number) {
-    this.x;
+    this.x_ = x;
   }
 
   addTo(y : number) : number {
@@ -11,11 +11,11 @@ class Typed {
   }
 
   get x() : number {
-    return this.x;
+    return this.x_;
   }
 
   set x(x : number) {
-    this.x = x;
+    this.x_ = x;
   }
 }
 

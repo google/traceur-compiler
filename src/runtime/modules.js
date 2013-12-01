@@ -94,19 +94,32 @@ System.set('@traceur/module', (function(global) {
 
   var moduleInstances = Object.create(null);
 
-  function Module(obj) {
+  var liveModuleSentinel = {};
+
+  function Module(obj, isLive = undefined) {
     Object.getOwnPropertyNames(obj).forEach((name) => {
-      var value = obj[name];
-      Object.defineProperty(this, name, {
-        get: function() {
+      var getter, value;
+      if (isLive === liveModuleSentinel) {
+        getter = function() {
+          return obj[name];
+        };
+      } else {
+        value = obj[name];
+        getter = function() {
           return value;
-        },
+        };
+      }
+
+      Object.defineProperty(this, name, {
+        get: getter,
         enumerable: true
       });
     });
     this.__proto__ = null;
     Object.preventExtensions(this);
   }
+
+
 
   System.get = function(name) {
     var m = getModuleImpl(name);
@@ -116,8 +129,7 @@ System.set('@traceur/module', (function(global) {
     if (moduleInstance)
       return moduleInstance;
 
-    var value = m.value;
-    moduleInstance = new Module(value);
+    moduleInstance = new Module(m.value, liveModuleSentinel);
     return moduleInstances[m.url] = moduleInstance;
   };
 
