@@ -247,6 +247,12 @@
 
   Symbol.iterator = Symbol();
 
+  function toProperty(name) {
+    if (isSymbol(name))
+      return name[symbolInternalProperty];
+    return name;
+  }
+
   // Override getOwnPropertyNames to filter out private name keys.
   function getOwnPropertyNames(object) {
     var rv = [];
@@ -257,6 +263,10 @@
         rv.push(names[i]);
     }
     return rv;
+  }
+
+  function getOwnPropertyDescriptor(object, name) {
+    return $getOwnPropertyDescriptor(object, toProperty(name));
   }
 
   function getOwnPropertySymbols(object) {
@@ -273,48 +283,30 @@
   // Override Object.prototpe.hasOwnProperty to always return false for
   // private names.
   function hasOwnProperty(name) {
-    return $hasOwnProperty.call(this, isSymbol(name) ?
-        name[symbolInternalProperty] : name);
+    return $hasOwnProperty.call(this, toProperty(name));
   }
 
   function getOption(name) {
     return global.traceur && global.traceur.options[name];
   }
 
-  function deleteProperty(object, name) {
-    if (isSymbol(name))
-      return delete object[name[symbolInternalProperty]];
-    return delete object[name];
-  }
-
-  function getProperty(object, name) {
-    if (isSymbol(name))
-      return object[name[symbolInternalProperty]];
-    return object[name];
-  }
-
-  function has(object, name) {
-    return (isSymbol(name) ? name[symbolInternalProperty] : name) in
-        Object(object);
-  }
-
   function setProperty(object, name, value) {
+    var sym, desc;
     if (isSymbol(name)) {
-      var descriptor = $getPropertyDescriptor(object,
-                                              [name[symbolInternalProperty]]);
-      if (descriptor)
-        object[name[symbolInternalProperty]] = value;
-      else
-        $defineProperty(object, name[symbolInternalProperty], nonEnum(value));
-    } else {
-      object[name] = value;
+      sym = name;
+      name = name[symbolInternalProperty];
     }
+    object[name] = value;
+    if (sym && (desc = $getOwnPropertyDescriptor(object, name)))
+      $defineProperty(object, name, {enumerable: false});
     return value;
   }
 
   function defineProperty(object, name, descriptor) {
     if (isSymbol(name)) {
-      // Symbols should not be enumerable.
+      // Symbols should not be enumerable. We need to create a new descriptor
+      // before calling the original defineProperty because the property might
+      // be made non configurable.
       if (descriptor.enumerable) {
         descriptor = Object.create(descriptor, {
           enumerable: {value: false}
@@ -327,26 +319,12 @@
     return object;
   }
 
-  function $getPropertyDescriptor(obj, name) {
-    while (obj !== null) {
-      var result = $getOwnPropertyDescriptor(obj, name);
-      if (result)
-        return result;
-      obj = $getPrototypeOf(obj);
-    }
-    return undefined;
-  }
-
-  function getPropertyDescriptor(obj, name) {
-    if (isSymbol(name))
-      return undefined;
-    return $getPropertyDescriptor(obj, name);
-  }
-
   function polyfillObject(Object) {
     $defineProperty(Object, 'defineProperty', {value: defineProperty});
     $defineProperty(Object, 'getOwnPropertyNames',
                     {value: getOwnPropertyNames});
+    $defineProperty(Object, 'getOwnPropertyDescriptor',
+                    {value: getOwnPropertyDescriptor});
     $defineProperty(Object.prototype, 'hasOwnProperty',
                     {value: hasOwnProperty});
 
@@ -555,12 +533,10 @@
   // This file is sometimes used without traceur.js so make it a new global.
   global.$traceurRuntime = {
     Deferred: Deferred,
-    deleteProperty: deleteProperty,
-    getProperty: getProperty,
-    hasProperty: has,
     setProperty: setProperty,
     setupGlobals: setupGlobals,
-    typeof: typeOf
+    toProperty: toProperty,
+    typeof: typeOf,
   };
 
 })(typeof global !== 'undefined' ? global : this);

@@ -27,7 +27,7 @@ import {expandMemberLookupExpression} from './OperatorExpander';
 import {parseExpression} from './PlaceholderParser';
 
 /**
- * Transforms expr[expr] into traceurRuntime.getPropert(expr, expr). It also
+ * Transforms expr[expr] into expr[$traceurRuntime.toProperty(expr)]. It also
  * transforms []=, delete and the in operator in similar fashion.
  *
  * This pass is used for Symbols.
@@ -40,7 +40,7 @@ export class CollectionTransformer extends TempVarTransformer {
       var object = this.transformAny(tree.right);
       // name in object
       // =>
-      return parseExpression `$traceurRuntime.hasProperty(${object}, ${names})`;
+      return parseExpression `$traceurRuntime.toProperty(${name}) in ${object}`;
     }
 
     if (tree.left.type === MEMBER_LOOKUP_EXPRESSION &&
@@ -58,28 +58,10 @@ export class CollectionTransformer extends TempVarTransformer {
       // operand[memberExpr] = value
       // =>
       return parseExpression `$traceurRuntime.setProperty(${operand},
-            ${memberExpression}, ${value})`;
+          ${memberExpression}, ${value})`;
     }
 
     return super.transformBinaryOperator(tree);
-  }
-
-  transformCallExpression(tree) {
-    if (tree.operand.type !== MEMBER_LOOKUP_EXPRESSION)
-      return super.transformCallExpression(tree);
-
-    var operand = this.transformAny(tree.operand.operand);
-    var memberExpression = this.transformAny(tree.operand.memberExpression);
-
-    var tmp = createIdentifierExpression(this.addTempVar());
-    var elements = this.transformAny(tree.args);
-    var args = createArgumentList(tmp, ...elements.args);
-
-    // operand[memberExpr](args)
-    // =>
-    return parseExpression `(${tmp} = ${operand},
-        $traceurRuntime.getProperty(${tmp}, ${memberExpression}).
-            call(${args}))`;
   }
 
   transformMemberLookupExpression(tree) {
@@ -88,22 +70,9 @@ export class CollectionTransformer extends TempVarTransformer {
 
     // operand[memberExpr]
     // =>
+
     return parseExpression
-        `$traceurRuntime.getProperty(${operand}, ${memberExpression})`;
-  }
+        `${operand}[$traceurRuntime.toProperty(${memberExpression})]`;
 
-  transformUnaryExpression(tree) {
-    if (tree.operator.type !== DELETE ||
-        tree.operand.type !== MEMBER_LOOKUP_EXPRESSION) {
-      return super.transformUnaryExpression(tree);
-    }
-
-    var operand = this.transformAny(tree.operand.operand);
-    var memberExpression = this.transformAny(tree.operand.memberExpression);
-
-    // delete operand[memberExpr]
-    // =>
-    return parseExpression
-        `$traceurRuntime.deleteProperty(${operand}, ${memberExpression})`;
   }
 }
