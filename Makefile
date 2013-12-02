@@ -27,6 +27,8 @@ TESTS = \
 	test/unit/system/ \
 	test/unit/util/
 
+GIT_BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
+
 build: bin/traceur.js wiki
 
 min: bin/traceur.min.js
@@ -35,7 +37,7 @@ min: bin/traceur.min.js
 #   npm install uglify-js -g
 ugly: bin/traceur.ugly.js
 
-test: build test/test-list.js
+test: bin/traceur.js test/test-list.js
 	node_modules/.bin/mocha --ignore-leaks --ui tdd --require test/node-env.js $(TESTS)
 
 test-list: test/test-list.js
@@ -46,14 +48,12 @@ test/test-list.js: build/build-test-list.js
 boot: clean build
 
 clean: wikiclean
-	git checkout bin
-	touch -t 197001010000.00 bin/traceur.js
-
-distclean: clean
+	rm -f build/compiled-by-previous-traceur.js
 	rm -f build/dep.mk
 	rm -f $(GENSRC) $(TPL_GENSRC_DEPS)
 	rm -f test/test-list.js
-	@echo '*************>>> Run "make build" to rebuild dep.mk makefile'
+	git checkout master -- bin/
+	mv bin/traceur.js build/previous-commit-traceur.js
 
 initbench:
 	rm -rf test/bench/esprima
@@ -64,17 +64,31 @@ initbench:
 bin/traceur.min.js: bin/traceur.js
 	node build/minifier.js $? $@
 
-bin/traceur.js force:
+bin/traceur.js: build/compiled-by-previous-traceur.js
+	cp $< $@; touch -t 197001010000.00 bin/traceur.js
 	./traceur --out bin/traceur.js $(TFLAGS) $(SRC)
 
-debug: clean $(SRC)
-	./traceur --out bin/traceur.js --sourcemap $(SRC)
+# Use last-known-good compiler to compile current source
+build/compiled-by-previous-traceur.js: build/previous-commit-traceur.js $(SRC)
+	cp build/previous-commit-traceur.js bin/traceur.js
+	./traceur --out $@ $(TFLAGS) $(SRC)
+
+build/previous-commit-traceur.js:
+	mv bin/traceur.js build/traceur.js
+	git checkout -- bin/traceur.js
+	mv bin/traceur.js build/previous-commit-traceur.js
+	mv build/traceur.js bin/traceur.js
+
+debug: build/compiled-by-previous-traceur.js $(SRC)
+	cp $< $@; touch -t 197001010000.00 bin/traceur.js
+	./traceur --debug --out bin/traceur.js --sourcemap $(TFLAGS) $(SRC)
 
 # Prerequisites following '|' are rebuilt just like ordinary prerequisites.
 # However, they don't cause remakes if they're newer than the target. See:
 # http://www.gnu.org/software/make/manual/html_node/Prerequisite-Types.html
-build/dep.mk: | $(GENSRC) node_modules
-	node build/makedep.js --depTarget bin/traceur.js $(TFLAGS) $(SRC) > $@
+build/dep.mk: build/previous-commit-traceur.js | $(GENSRC) node_modules
+	cp build/previous-commit-traceur.js bin/traceur.js  # use a known-good compiler
+	node build/makedep.js --depTarget build/compiled-by-previous-traceur.js $(TFLAGS) $(SRC) > $@
 
 $(TPL_GENSRC_DEPS): | node_modules
 
