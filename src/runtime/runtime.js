@@ -197,12 +197,13 @@
     if (!(this instanceof Symbol))
       return value;
 
-    // To fully support this we would have to override Object so that
-    // Object(symbolValue) would return a Symbol object.
-    // Since new Symbol is supposed to throw we can at least do that.
+    // new Symbol should throw.
+    //
+    // There are two ways to get a wrapper to a symbol. Either by doing
+    // Object(symbol) or call a non strict function using a symbol value as
+    // this. To correctly handle these two would require a lot of work for very
+    // little gain so we are not doing those at the moment.
     throw new TypeError('Symbol cannot be new\'ed');
-
-    $defineProperty(this, symbolDataProperty, {value: value});
   }
 
   $defineProperty(Symbol.prototype, 'constructor', nonEnum(Symbol));
@@ -260,7 +261,7 @@
     for (var i = 0; i < names.length; i++) {
       var name = names[i];
       if (!symbolValues[name])
-        rv.push(names[i]);
+        rv.push(name);
     }
     return rv;
   }
@@ -273,9 +274,9 @@
     var rv = [];
     var names = $getOwnPropertyNames(object);
     for (var i = 0; i < names.length; i++) {
-      var sym = symbolValues[names[i]];
-      if (sym)
-        rv.push(sym);
+      var symbol = symbolValues[names[i]];
+      if (symbol)
+        rv.push(symbol);
     }
     return rv;
   }

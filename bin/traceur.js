@@ -117,7 +117,6 @@
     var value = new SymbolValue(description);
     if (!(this instanceof Symbol)) return value;
     throw new TypeError('Symbol cannot be new\'ed');
-    $defineProperty(this, symbolDataProperty, {value: value});
   }
   $defineProperty(Symbol.prototype, 'constructor', nonEnum(Symbol));
   $defineProperty(Symbol.prototype, 'toString', method(function() {
@@ -162,7 +161,7 @@
     var names = $getOwnPropertyNames(object);
     for (var i = 0; i < names.length; i++) {
       var name = names[i];
-      if (!symbolValues[name]) rv.push(names[i]);
+      if (!symbolValues[name]) rv.push(name);
     }
     return rv;
   }
@@ -173,8 +172,9 @@
     var rv = [];
     var names = $getOwnPropertyNames(object);
     for (var i = 0; i < names.length; i++) {
-      var sym = symbolValues[names[i]];
-      if (sym) rv.push(sym);
+      var name = names[i];
+      var symbol = symbolValues[name];
+      if (symbol) rv.push(symbol);
     }
     return rv;
   }
