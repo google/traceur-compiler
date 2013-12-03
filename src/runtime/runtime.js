@@ -23,14 +23,16 @@
     return;
   }
 
-  var $create = Object.create;
-  var $defineProperty = Object.defineProperty;
-  var $defineProperties = Object.defineProperties;
-  var $freeze = Object.freeze;
-  var $getOwnPropertyNames = Object.getOwnPropertyNames;
-  var $getPrototypeOf = Object.getPrototypeOf;
-  var $hasOwnProperty = Object.prototype.hasOwnProperty;
-  var $getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+  var $Object = Object;
+  var $TypeError = TypeError;
+  var $create = $Object.create;
+  var $defineProperty = $Object.defineProperty;
+  var $defineProperties = $Object.defineProperties;
+  var $freeze = $Object.freeze;
+  var $getOwnPropertyNames = $Object.getOwnPropertyNames;
+  var $getPrototypeOf = $Object.getPrototypeOf;
+  var $hasOwnProperty = $Object.prototype.hasOwnProperty;
+  var $getOwnPropertyDescriptor = $Object.getOwnPropertyDescriptor;
 
   function nonEnum(value) {
     return {
@@ -175,7 +177,7 @@
 
   // All symbol values are kept in this map. This is so that we can get back to
   // the symbol object if all we have is the string key representing the symbol.
-  var symbolValues = Object.create(null);
+  var symbolValues = $create(null);
 
   function isSymbol(symbol) {
     return typeof symbol === 'object' && symbol instanceof SymbolValue;
@@ -309,7 +311,7 @@
       // before calling the original defineProperty because the property might
       // be made non configurable.
       if (descriptor.enumerable) {
-        descriptor = Object.create(descriptor, {
+        descriptor = $create(descriptor, {
           enumerable: {value: false}
         });
       }
@@ -530,6 +532,23 @@
     return object;
   }
 
+  function toObject(value) {
+    if (value == null)
+      throw $TypeError();
+    return $Object(value);
+  }
+
+  function spread() {
+    var rv = [], k = 0;
+    for (var i = 0; i < arguments.length; i++) {
+      var valueToSpread = toObject(arguments[i]);
+      for (var j = 0; j < valueToSpread.length; j++) {
+        rv[k++] = valueToSpread[j];
+      }
+    }
+    return rv;
+  }
+
   function setupGlobals(global) {
     if (!global.Symbol)
       global.Symbol = Symbol;
@@ -552,6 +571,8 @@
     exportStar: exportStar,
     setProperty: setProperty,
     setupGlobals: setupGlobals,
+    spread: spread,
+    toObject: toObject,
     toProperty: toProperty,
     typeof: typeOf,
   };
