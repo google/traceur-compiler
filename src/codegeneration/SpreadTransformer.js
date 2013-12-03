@@ -99,9 +99,8 @@ export class SpreadTransformer extends TempVarTransformer {
     if (lastArray)
       args.push(createArrayLiteralExpression(lastArray));
 
-    // _spread(args)
     return parseExpression
-      `$traceurRuntime.spread(${createArgumentList(args)})`;
+        `$traceurRuntime.spread(${createArgumentList(args)})`;
   }
 
   desugarCallSpread_(tree) {

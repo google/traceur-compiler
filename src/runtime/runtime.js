@@ -517,6 +517,21 @@
     }
   };
 
+  function exportStar(object) {
+    for (var i = 1; i < arguments.length; i++) {
+      var names = $getOwnPropertyNames(arguments[i]);
+      for (var j = 0; j < names.length; j++) {
+        (function(mod, name) {
+          $defineProperty(object, name, {
+            get: function() { return mod[name]; },
+            enumerable: true
+          });
+        })(arguments[i], names[j]);
+      }
+    }
+    return object;
+  }
+
   function toObject(value) {
     if (value == null)
       throw $TypeError();
@@ -553,6 +568,7 @@
   // This file is sometimes used without traceur.js so make it a new global.
   global.$traceurRuntime = {
     Deferred: Deferred,
+    exportStar: exportStar,
     setProperty: setProperty,
     setupGlobals: setupGlobals,
     spread: spread,
