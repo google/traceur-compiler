@@ -50,7 +50,6 @@ import {
 import {
   ACTION_SEND,
   ACTION_THROW,
-  TRACEUR_RUNTIME,
   YIELD_ACTION,
   YIELD_SENT
 } from '../syntax/PredefinedName';
@@ -121,8 +120,9 @@ class YieldExpressionTransformer extends TempVarTransformer {
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
    */
-  constructor(identifierGenerator) {
+  constructor(identifierGenerator, runtimeInliner) {
     super(identifierGenerator);
+    this.runtimeInliner_ = runtimeInliner;
 
     // Initialise unless already cached.
     if (!throwClose) {
@@ -245,6 +245,10 @@ class YieldExpressionTransformer extends TempVarTransformer {
         wrap(id(YIELD_SENT))]);
   }
 
+  get iterator_() {
+    return this.runtimeInliner_.get('iterator');
+  }
+
   /**
    * Turns "yield* E" into what is essentially, a generator-specific ForOf.
    * @param {YieldExpression} tree Must be a 'yield *'.
@@ -279,7 +283,7 @@ class YieldExpressionTransformer extends TempVarTransformer {
 
     return parseStatement `
         {
-          var ${g} = ${id(TRACEUR_RUNTIME)}.getIterator(${tree.expression});
+          var ${g} = ${tree.expression}[${this.iterator_}]();
           var ${next};
 
           // TODO: Should 'yield *' handle non-generator iterators? A strict
@@ -382,7 +386,8 @@ export class GeneratorTransformPass extends TempVarTransformer {
 
     if (finder.hasYield || isGenerator) {
       if (transformOptions.generators) {
-        body = new YieldExpressionTransformer(this.identifierGenerator).
+        body = new YieldExpressionTransformer(this.identifierGenerator,
+                                              this.runtimeInliner_).
             transformAny(body);
 
         body = GeneratorTransformer.transformGeneratorBody(this.runtimeInliner_,

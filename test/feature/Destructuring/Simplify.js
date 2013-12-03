@@ -1,4 +1,4 @@
-// Options: --private-names=false
+// Options: --symbols=false
 //
 // It probably doesn't make a difference to the results, but the private name
 // transformation turns array lookup and member access into function calls, and
