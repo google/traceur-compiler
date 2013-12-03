@@ -35,6 +35,6 @@ try {
 }
 
 assert.equal(actualF, expectedF);
-assert.isTrue(expectedM instanceof TypeError);
-assert.isTrue(actualM instanceof TypeError);
+assert.instanceOf(expectedM, TypeError);
+assert.instanceOf(actualM, TypeError);
 assert.equal(Object.getPrototypeOf(actualM), Object.getPrototypeOf(expectedM));
