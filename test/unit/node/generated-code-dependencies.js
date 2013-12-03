@@ -67,9 +67,9 @@ suite('context test', function() {
     assert.deepEqual(result, [1, 2, 9, 16]);
   });
 
-  test('generator (private names)', function() {
+  test('generator (symbols)', function() {
     var fileName = path.resolve(__dirname, 'resources/generator.js');
-    traceur.options.privateNames = true;
+    traceur.options.symbols = true;
     var result = executeFileWithRuntime(fileName);
     assert.deepEqual(result, [1, 2, 9, 16]);
   });

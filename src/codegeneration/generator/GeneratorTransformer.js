@@ -112,10 +112,6 @@ var ADD_ITERATOR_CODE = `function(object) {
   return %defineProperty(object, %iterator, {enumerable: false});
 }`;
 
-var ADD_ITERATOR_RUNTIME_CODE = `function(object) {
-  return ${TRACEUR_RUNTIME}.addIterator(object);
-}`;
-
 /**
  * Desugars generator function bodies. Generator function bodies contain
  * 'yield' statements.
@@ -293,10 +289,7 @@ export class GeneratorTransformer extends CPSTransformer {
   }
 
   get generatorWrap_() {
-    if (transformOptions.privateNames)
-      this.runtimeInliner_.register('addIterator', ADD_ITERATOR_RUNTIME_CODE);
-    else
-      this.runtimeInliner_.register('addIterator', ADD_ITERATOR_CODE);
+    this.runtimeInliner_.register('addIterator', ADD_ITERATOR_CODE);
     return this.runtimeInliner_.get('generatorWrap', GENERATOR_WRAP_CODE);
   }
 

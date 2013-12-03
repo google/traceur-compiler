@@ -1,10 +1,8 @@
-// Options: --private-names
+// Options: --symbols
 
-import {Name} from '@name';
-
-var n = new Name;
+var s = Symbol();
 var p = {};
-Object.defineProperty(p, n, {
+Object.defineProperty(p, s, {
   get: function() {
     return 42;
   },
@@ -12,18 +10,18 @@ Object.defineProperty(p, n, {
 });
 
 var o = Object.create(p);
-assert.equal(42, o[n]);
+assert.equal(42, o[s]);
 assertThrows(function() {
-  o[n] = 1;
+  o[s] = 1;
 });
 
 var val;
-Object.defineProperty(p, n, {
+Object.defineProperty(p, s, {
   set: function(v) {
     val = v;
   },
   configurable: true
 });
 
-o[n] = 33;
+o[s] = 33;
 assert.equal(33, val);

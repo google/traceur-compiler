@@ -35,7 +35,9 @@ var shared = {
   getOwnPropertyDescriptor: `%Object.getOwnPropertyDescriptor`,
   getOwnPropertyNames: `%Object.getOwnPropertyNames`,
   getPrototypeOf: `%Object.getPrototypeOf`,
-  iterator: `'@@iterator'`,
+  iterator: `typeof Symbol === 'function' ?
+      (Symbol.iterator || (Symbol.iterator = Symbol()), Symbol.iterator) :
+      '@@iterator'`,
   returnThis: `function() { return this; }`,
   toObject:
       `function(value) {

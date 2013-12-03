@@ -17,7 +17,6 @@ import {ArrayComprehensionTransformer} from
 import {ArrowFunctionTransformer} from './ArrowFunctionTransformer';
 import {BlockBindingTransformer} from './BlockBindingTransformer';
 import {ClassTransformer} from './ClassTransformer';
-import {CollectionTransformer} from './CollectionTransformer';
 import {DefaultParametersTransformer} from './DefaultParametersTransformer';
 import {DestructuringTransformer} from './DestructuringTransformer';
 import {ForOfTransformer} from './ForOfTransformer';
@@ -36,8 +35,10 @@ import {PropertyNameShorthandTransformer} from
 import {RestParameterTransformer} from './RestParameterTransformer';
 import {RuntimeInliner} from './RuntimeInliner';
 import {SpreadTransformer} from './SpreadTransformer';
+import {SymbolTransformer} from './SymbolTransformer';
 import {TemplateLiteralTransformer} from './TemplateLiteralTransformer';
 import {TypeTransformer} from './TypeTransformer';
+import {TypeofTransformer} from './TypeofTransformer';
 import {UniqueIdentifierGenerator} from './UniqueIdentifierGenerator';
 import {options, transformOptions} from '../options';
 
@@ -84,6 +85,7 @@ export class FromOptionsTransformer extends MultiTransformer {
 
     if (transformOptions.propertyNameShorthand)
       append(PropertyNameShorthandTransformer);
+
     if (transformOptions.propertyMethods ||
               transformOptions.computedPropertyNames) {
       append(ObjectLiteralTransformer);
@@ -127,8 +129,10 @@ export class FromOptionsTransformer extends MultiTransformer {
     if (transformOptions.blockBinding)
       append(BlockBindingTransformer);
 
-    if (transformOptions.privateNames)
-      append(CollectionTransformer);
+    if (transformOptions.symbols) {
+      append(SymbolTransformer);
+      append(TypeofTransformer);
+    }
 
     // Issue errors for any unbound variables
     if (options.freeVariableChecker) {

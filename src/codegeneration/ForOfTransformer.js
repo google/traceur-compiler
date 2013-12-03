@@ -27,10 +27,6 @@ var GET_ITERATOR_CODE = `function(object) {
   return object[%iterator]();
 }`;
 
-var GET_ITERATOR_RUNTIME_CODE = `function(object) {
-  return ${TRACEUR_RUNTIME}.getIterator(object);
-}`;
-
 /**
  * Desugars for-of statement.
  */
@@ -67,7 +63,7 @@ export class ForOfTransformer extends TempVarTransformer {
 
     return parseStatement `
         for (var ${iter} =
-                 ${this.getIterator_}(${tree.collection}),
+                 ${tree.collection}[${this.iterator_}](),
                  ${result};
              !(${result} = ${iter}.next()).done; ) {
           ${assignment};
@@ -75,11 +71,7 @@ export class ForOfTransformer extends TempVarTransformer {
         }`;
   }
 
-  get getIterator_() {
-    if (transformOptions.privateNames) {
-      return this.runtimeInliner_.get('getIterator', GET_ITERATOR_RUNTIME_CODE);
-    } else {
-      return this.runtimeInliner_.get('getIterator', GET_ITERATOR_CODE);
-    }
+  get iterator_() {
+    return this.runtimeInliner_.get('iterator');
   }
 }

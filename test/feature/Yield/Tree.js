@@ -1,6 +1,4 @@
-// Options: --private-names
-
-import {iterator} from '@iter';
+// Options: --symbols
 
 // A binary tree class.
 class Tree {
@@ -9,7 +7,7 @@ class Tree {
     this.left = left;
     this.right = right;
   }
-  *[iterator]() {
+  *[Symbol.iterator]() {
     if (this.left) {
       yield* this.left;
     }
