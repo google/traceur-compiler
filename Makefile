@@ -42,8 +42,8 @@ test: bin/traceur.js test/test-list.js
 
 test-list: test/test-list.js
 
-test/test-list.js: build/build-test-list.js
-	git ls-files test/feature | node $? > $@
+test/test-list.js: force
+	git ls-files test/feature | node build/build-test-list.js > $@
 
 boot: clean build
 
