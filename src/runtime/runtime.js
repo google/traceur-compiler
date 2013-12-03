@@ -31,6 +31,7 @@
   var $getPrototypeOf = Object.getPrototypeOf;
   var $hasOwnProperty = Object.prototype.hasOwnProperty;
   var $getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+  var $TypeError = TypeError;
 
   function nonEnum(value) {
     return {
@@ -515,6 +516,53 @@
     }
   };
 
+  function getPropertyDescriptor(object, name) {
+    while (object !== null) {
+      var result = $getOwnPropertyDescriptor(object, name);
+      if (result)
+        return result;
+      object = $getPrototypeOf(object);
+    }
+    return undefined;
+  }
+
+  function superDescriptor(proto, name) {
+    if (!proto)
+      throw $TypeError('super is null');
+    return getPropertyDescriptor(proto, name);
+  }
+
+  function superCall(self, proto, name, args) {
+    var descriptor = superDescriptor(proto, name);
+    if (descriptor) {
+      if ('value' in descriptor)
+        return descriptor.value.apply(self, args);
+      if (descriptor.get)
+        return descriptor.get.call(self).apply(self, args);
+    }
+    throw $TypeError("Object has no method '" + name + "'.");
+  }
+
+  function superGet(self, proto, name) {
+    var descriptor = superDescriptor(proto, name);
+    if (descriptor) {
+      if (descriptor.get)
+        return descriptor.get.call(self);
+      else if ('value' in descriptor)
+        return descriptor.value;
+    }
+    return undefined;
+  }
+
+  function superSet(self, proto, name, value) {
+    var descriptor = superDescriptor(proto, name);
+    if (descriptor && descriptor.set) {
+      descriptor.set.call(self, value);
+      return;
+    }
+    throw $TypeError("Object has no setter '" + name + "'.");
+  }
+
   function setupGlobals(global) {
     if (!global.Symbol)
       global.Symbol = Symbol;
@@ -536,6 +584,9 @@
     Deferred: Deferred,
     setProperty: setProperty,
     setupGlobals: setupGlobals,
+    superCall: superCall,
+    superGet: superGet,
+    superSet: superSet,
     toProperty: toProperty,
     typeof: typeOf,
   };

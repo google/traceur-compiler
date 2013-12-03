@@ -291,8 +291,8 @@ export class ClassTransformer extends TempVarTransformer{
     var thisName = this.getTempIdentifier();
     var thisDecl = createVariableStatement(VAR, thisName,
                                            createThisExpression());
-    var superTransformer = new SuperTransformer(this, this.runtimeInliner_,
-        this.reporter_, protoName, methodTree, thisName);
+    var superTransformer = new SuperTransformer(this, this.reporter_, protoName,
+                                                methodTree, thisName);
     // ref_1: the inner transformFunctionBody call is key to proper super nesting.
     var transformedTree =
         superTransformer.transformFunctionBody(this.transformFunctionBody(tree));
@@ -309,8 +309,8 @@ export class ClassTransformer extends TempVarTransformer{
     if (!hasSuper)
       return parsePropertyDefinition `constructor: function() {}`;
 
-    var superTransformer = new SuperTransformer(this, this.runtimeInliner_,
-        this.reporter_, protoName, null, null);
+    var superTransformer = new SuperTransformer(this, this.reporter_, protoName,
+                                                null, null);
     var superCall = superTransformer.createSuperCallExpression(
         createThisExpression(),
         protoName,
