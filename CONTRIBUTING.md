@@ -20,5 +20,5 @@ patch can be accepted.
 1. We will squash all the commits together before pushing. The pull request
 message body will be used as the commit message.
 
-Committers will use 'pulley' created from https://github.com/arv/pulley/tree/codereview-tweaks
-(Build by using git clone / grunt / sudo npm install -g .) 
+Committers will use 'pulley' created from the codereview-tweaks branch of https://github.com/arv/pulley
+(Build by using git clone / git checkout codereview-tweaks / grunt / sudo npm install -g .) 
