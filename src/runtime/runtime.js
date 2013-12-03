@@ -23,15 +23,16 @@
     return;
   }
 
-  var $create = Object.create;
-  var $defineProperty = Object.defineProperty;
-  var $defineProperties = Object.defineProperties;
-  var $freeze = Object.freeze;
-  var $getOwnPropertyNames = Object.getOwnPropertyNames;
-  var $getPrototypeOf = Object.getPrototypeOf;
-  var $hasOwnProperty = Object.prototype.hasOwnProperty;
-  var $getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+  var $Object = Object;
   var $TypeError = TypeError;
+  var $create = $Object.create;
+  var $defineProperties = $Object.defineProperties;
+  var $defineProperty = $Object.defineProperty;
+  var $freeze = $Object.freeze;
+  var $getOwnPropertyDescriptor = $Object.getOwnPropertyDescriptor;
+  var $getOwnPropertyNames = $Object.getOwnPropertyNames;
+  var $getPrototypeOf = $Object.getPrototypeOf;
+  var $hasOwnProperty = $Object.prototype.hasOwnProperty;
 
   function nonEnum(value) {
     return {
@@ -176,7 +177,7 @@
 
   // All symbol values are kept in this map. This is so that we can get back to
   // the symbol object if all we have is the string key representing the symbol.
-  var symbolValues = Object.create(null);
+  var symbolValues = $create(null);
 
   function isSymbol(symbol) {
     return typeof symbol === 'object' && symbol instanceof SymbolValue;
@@ -310,7 +311,7 @@
       // before calling the original defineProperty because the property might
       // be made non configurable.
       if (descriptor.enumerable) {
-        descriptor = Object.create(descriptor, {
+        descriptor = $create(descriptor, {
           enumerable: {value: false}
         });
       }
@@ -516,6 +517,38 @@
     }
   };
 
+  function exportStar(object) {
+    for (var i = 1; i < arguments.length; i++) {
+      var names = $getOwnPropertyNames(arguments[i]);
+      for (var j = 0; j < names.length; j++) {
+        (function(mod, name) {
+          $defineProperty(object, name, {
+            get: function() { return mod[name]; },
+            enumerable: true
+          });
+        })(arguments[i], names[j]);
+      }
+    }
+    return object;
+  }
+
+  function toObject(value) {
+    if (value == null)
+      throw $TypeError();
+    return $Object(value);
+  }
+
+  function spread() {
+    var rv = [], k = 0;
+    for (var i = 0; i < arguments.length; i++) {
+      var valueToSpread = toObject(arguments[i]);
+      for (var j = 0; j < valueToSpread.length; j++) {
+        rv[k++] = valueToSpread[j];
+      }
+    }
+    return rv;
+  }
+
   function getPropertyDescriptor(object, name) {
     while (object !== null) {
       var result = $getOwnPropertyDescriptor(object, name);
@@ -540,7 +573,7 @@
       if (descriptor.get)
         return descriptor.get.call(self).apply(self, args);
     }
-    throw $TypeError("Object has no method '" + name + "'.");
+    throw $TypeError("super has no method '" + name + "'.");
   }
 
   function superGet(self, proto, name) {
@@ -560,7 +593,7 @@
       descriptor.set.call(self, value);
       return;
     }
-    throw $TypeError("Object has no setter '" + name + "'.");
+    throw $TypeError("super has no setter '" + name + "'.");
   }
 
   function setupGlobals(global) {
@@ -582,11 +615,14 @@
   // This file is sometimes used without traceur.js so make it a new global.
   global.$traceurRuntime = {
     Deferred: Deferred,
+    exportStar: exportStar,
     setProperty: setProperty,
     setupGlobals: setupGlobals,
+    spread: spread,
     superCall: superCall,
     superGet: superGet,
     superSet: superSet,
+    toObject: toObject,
     toProperty: toProperty,
     typeof: typeOf,
   };

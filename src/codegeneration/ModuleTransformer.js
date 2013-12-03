@@ -32,13 +32,11 @@ import {assert} from '../util/assert';
 import {
   createArgumentList,
   createBindingIdentifier,
-  createCallExpression,
   createExpressionStatement,
   createIdentifierExpression,
   createIdentifierToken,
   createMemberExpression,
   createObjectLiteralExpression,
-  createReturnStatement,
   createUseStrictDirective,
   createVariableStatement
 } from './ParseTreeFactory';
@@ -48,30 +46,12 @@ import {
   parseStatement
 } from './PlaceholderParser';
 
-var EXPORT_STAR_CODE = `
-    function(object) {
-      for (var i = 1; i < arguments.length; i++) {
-        var names = %getOwnPropertyNames(arguments[i]);
-        for (var j = 0; j < names.length; j++) {
-          (function(mod, name) {
-            %defineProperty(object, name, {
-              get: function() { return mod[name]; },
-              enumerable: true
-            });
-          })(arguments[i], names[j]);
-        }
-      }
-      return object;
-    }`;
-
 export class ModuleTransformer extends TempVarTransformer {
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
-   * @param {RuntimeInliner} runtimeInliner
    */
-  constructor(identifierGenerator, runtimeInliner) {
+  constructor(identifierGenerator) {
     super(identifierGenerator);
-    this.runtimeInliner_ = runtimeInliner;
     this.exportVisitor_ = new DirectExportVisitor();
     this.moduleSpecifierKind_ = null;
     this.url = null;
@@ -114,10 +94,6 @@ export class ModuleTransformer extends TempVarTransformer {
   wrapModuleFunction(tree) {
     return parseExpression
       `System.get('@traceur/module').registerModule(${this.url}, ${tree}, this)`;
-  }
-
-  get exportStar_() {
-    return this.runtimeInliner_.get('exportStar', EXPORT_STAR_CODE);
   }
 
   /**
@@ -163,10 +139,8 @@ export class ModuleTransformer extends TempVarTransformer {
         return createIdentifierExpression(
             this.getTempVarNameForModuleSpecifier(moduleSpecifier));
       });
-      return createReturnStatement(
-          createCallExpression(
-              this.exportStar_,
-              createArgumentList([object, ...starIdents])));
+      var args = createArgumentList(object, ...starIdents);
+      return parseStatement `return $traceurRuntime.exportStar(${args})`;
     }
 
     return parseStatement `return ${object}`;
