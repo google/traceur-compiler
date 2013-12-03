@@ -17,7 +17,6 @@ import {ArrayComprehensionTransformer} from
 import {ArrowFunctionTransformer} from './ArrowFunctionTransformer';
 import {BlockBindingTransformer} from './BlockBindingTransformer';
 import {ClassTransformer} from './ClassTransformer';
-import {CollectionTransformer} from './CollectionTransformer';
 import {DefaultParametersTransformer} from './DefaultParametersTransformer';
 import {DestructuringTransformer} from './DestructuringTransformer';
 import {ForOfTransformer} from './ForOfTransformer';
@@ -36,6 +35,7 @@ import {PropertyNameShorthandTransformer} from
 import {RestParameterTransformer} from './RestParameterTransformer';
 import {RuntimeInliner} from './RuntimeInliner';
 import {SpreadTransformer} from './SpreadTransformer';
+import {SymbolTransformer} from './SymbolTransformer';
 import {TemplateLiteralTransformer} from './TemplateLiteralTransformer';
 import {TypeTransformer} from './TypeTransformer';
 import {TypeofTransformer} from './TypeofTransformer';
@@ -130,7 +130,7 @@ export class FromOptionsTransformer extends MultiTransformer {
       append(BlockBindingTransformer);
 
     if (transformOptions.symbols) {
-      append(CollectionTransformer);
+      append(SymbolTransformer);
       append(TypeofTransformer);
     }
 

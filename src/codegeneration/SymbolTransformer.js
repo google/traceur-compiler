@@ -27,12 +27,20 @@ import {expandMemberLookupExpression} from './OperatorExpander';
 import {parseExpression} from './PlaceholderParser';
 
 /**
- * Transforms expr[expr] into expr[$traceurRuntime.toProperty(expr)]. It also
- * transforms []=, delete and the in operator in similar fashion.
+ * This transformer is used with symbol values to ensure that symbols can be
+ * used as member expressions.
  *
- * This pass is used for Symbols.
+ * It does the following transformations:
+ *
+ *   operand[memberExpression]
+ *   =>
+ *   operand[$traceurRuntime.toProperty(memberExpression)]
+ *
+ *   operand[memberExpression] = value
+ *   =>
+ *   $traceurRuntime.setProperty(operand, memberExpression}, value)
  */
-export class CollectionTransformer extends TempVarTransformer {
+export class SymbolTransformer extends TempVarTransformer {
 
   transformBinaryOperator(tree) {
     if (tree.operator.type === IN) {
@@ -75,4 +83,6 @@ export class CollectionTransformer extends TempVarTransformer {
         `${operand}[$traceurRuntime.toProperty(${memberExpression})]`;
 
   }
+
+  // TODO(arv): operand[memberExpression]++ etc.
 }

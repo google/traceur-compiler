@@ -178,7 +178,7 @@
   var symbolValues = Object.create(null);
 
   function isSymbol(symbol) {
-    return symbol instanceof SymbolValue;
+    return typeof symbol === 'object' && symbol instanceof SymbolValue;
   }
 
   function typeOf(v) {
