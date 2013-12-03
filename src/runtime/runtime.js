@@ -526,9 +526,9 @@
   function spread() {
     var rv = [], k = 0;
     for (var i = 0; i < arguments.length; i++) {
-      var value = toObject(arguments[i]);
-      for (var j = 0; j < value.length; j++) {
-        rv[k++] = value[j];
+      var valueToSpread = toObject(arguments[i]);
+      for (var j = 0; j < valueToSpread.length; j++) {
+        rv[k++] = valueToSpread[j];
       }
     }
     return rv;
