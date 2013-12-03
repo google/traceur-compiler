@@ -596,6 +596,51 @@
     throw $TypeError("super has no setter '" + name + "'.");
   }
 
+  function getDescriptors(object) {
+    var descriptors = {}, name, names = $getOwnPropertyNames(object);
+    for (var i = 0; i < names.length; i++) {
+      var name = names[i];
+      descriptors[name] = $getOwnPropertyDescriptor(object, name);
+    }
+    return descriptors;
+  }
+
+  // The next three functions are more or less identical to ClassDefinitionEvaluation
+  // in the ES6 draft.
+  function createClass(object, staticObject, protoParent, superClass, hasConstructor) {
+    var ctor = object.constructor;
+    if (typeof superClass === 'function')
+      ctor.__proto__ = superClass;
+    if (!hasConstructor && protoParent === null)
+      ctor = object.constructor = function() {};
+
+    var descriptors = getDescriptors(object);
+    descriptors.constructor.enumerable = false;
+    ctor.prototype = Object.create(protoParent, descriptors);
+    Object.defineProperties(ctor, getDescriptors(staticObject));
+
+    return ctor;
+  };
+
+  function getProtoParent(superClass) {
+    if (typeof superClass === 'function') {
+      var prototype = superClass.prototype;
+      if (Object(prototype) === prototype || prototype === null)
+        return superClass.prototype;
+    }
+    if (superClass === null)
+      return null;
+    throw new TypeError();
+  };
+
+  function createClassNoExtends(object, staticObject) {
+    var ctor = object.constructor;
+    Object.defineProperty(object, 'constructor', {enumerable: false});
+    ctor.prototype = object;
+    Object.defineProperties(ctor, getDescriptors(staticObject));
+    return ctor;
+  };
+
   function setupGlobals(global) {
     if (!global.Symbol)
       global.Symbol = Symbol;
@@ -612,8 +657,10 @@
 
   setupGlobals(global);
 
-  // This file is sometimes used without traceur.js so make it a new global.
   global.$traceurRuntime = {
+    createClass: createClass,
+    createClassNoExtends: createClassNoExtends,
+    getProtoParent: getProtoParent,
     Deferred: Deferred,
     exportStar: exportStar,
     setProperty: setProperty,

@@ -47,45 +47,6 @@ import {
 } from './PlaceholderParser';
 import {propName} from '../staticsemantics/PropName';
 
-// This code is more or less identical to ClassDefinitionEvaluation in the ES6
-// draft.
-var CREATE_CLASS_CODE =
-    `function(object, staticObject, protoParent, superClass, hasConstructor) {
-      var ctor = object.constructor;
-      if (typeof superClass === 'function')
-        ctor.__proto__ = superClass;
-      if (!hasConstructor && protoParent === null)
-        ctor = object.constructor = function() {};
-
-      var descriptors = %getDescriptors(object);
-      descriptors.constructor.enumerable = false;
-      ctor.prototype = Object.create(protoParent, descriptors);
-      Object.defineProperties(ctor, %getDescriptors(staticObject));
-
-      return ctor;
-    }`;
-
-var GET_PROTO_PARENT_CODE =
-    `function(superClass) {
-      if (typeof superClass === 'function') {
-        var prototype = superClass.prototype;
-        if (Object(prototype) === prototype || prototype === null)
-          return superClass.prototype;
-      }
-      if (superClass === null)
-        return null;
-      throw new TypeError();
-    }`;
-
-var CREATE_CLASS_NO_EXTENDS_CODE =
-    `function(object, staticObject) {
-      var ctor = object.constructor;
-      Object.defineProperty(object, 'constructor', {enumerable: false});
-      ctor.prototype = object;
-      Object.defineProperties(ctor, %getDescriptors(staticObject));
-      return ctor;
-    }`;
-
 // Interaction between ClassTransformer and SuperTransformer:
 // - The initial call to SuperTransformer will always be a transformBlock on
 //   the body of a function -- method, getter, setter, or constructor.
@@ -126,12 +87,10 @@ var CREATE_CLASS_NO_EXTENDS_CODE =
 export class ClassTransformer extends TempVarTransformer{
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
-   * @param {RuntimeInliner} runtimeInliner
    * @param {ErrorReporter} reporter
    */
-  constructor(identifierGenerator, runtimeInliner, reporter) {
+  constructor(identifierGenerator, reporter) {
     super(identifierGenerator);
-    this.runtimeInliner_ = runtimeInliner;
     this.reporter_ = reporter;
   }
 
@@ -195,15 +154,14 @@ export class ClassTransformer extends TempVarTransformer{
     // change the default constructor to not call super. That is an just an
     // optimization, we could let the default constructor do this check at
     // runtime.
-    //
     // The extra parentheses around createClass_ is to make the V8 heuristic
     // ignore that part in the name to use in its stack traces.
     if (superClass) {
       return parseExpression `function($__super) {
         'use strict';
-        var $__proto = ${this.getProtoParent_}($__super);
+        var $__proto = $traceurRuntime.getProtoParent($__super);
         var ${nameIdent} =
-            (${this.createClass_})(${object}, ${staticObject}, $__proto,
+            ($traceurRuntime.createClass)(${object}, ${staticObject}, $__proto,
                                    $__super, ${hasConstructor});
         return ${nameIdent};
       }(${superClass})`;
@@ -211,23 +169,10 @@ export class ClassTransformer extends TempVarTransformer{
 
     return parseExpression `function() {
       'use strict';
-      var ${nameIdent} = (${this.createClassNoExtends_})(
+      var ${nameIdent} = ($traceurRuntime.createClassNoExtends)(
           ${object}, ${staticObject});
       return ${nameIdent};
     }()`;
-  }
-
-  get createClass_() {
-    return this.runtimeInliner_.get('createClass', CREATE_CLASS_CODE);
-  }
-
-  get getProtoParent_() {
-    return this.runtimeInliner_.get('getProtoParent', GET_PROTO_PARENT_CODE);
-  }
-
-  get createClassNoExtends_() {
-    return this.runtimeInliner_.get('createClassNoExtends',
-                                    CREATE_CLASS_NO_EXTENDS_CODE);
   }
 
   /**
