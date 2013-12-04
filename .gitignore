@@ -20,4 +20,5 @@ src/outputgeneration/SourceMapIntegration.js
 test/errsfile.json
 test/bench/esprima
 test/test-list.js
+test/wiki/CompilingOffline/out/*
 *.dep

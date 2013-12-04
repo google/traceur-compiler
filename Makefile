@@ -43,7 +43,7 @@ test: bin/traceur.js test/test-list.js
 test-list: test/test-list.js
 
 test/test-list.js: force
-	git ls-files test/feature | node build/build-test-list.js > $@
+	git ls-files -o -c test/feature | node build/build-test-list.js > $@
 
 boot: clean build
 
@@ -69,7 +69,7 @@ bin/traceur.js: build/compiled-by-previous-traceur.js
 	./traceur --out bin/traceur.js $(TFLAGS) $(SRC)
 
 # Use last-known-good compiler to compile current source
-build/compiled-by-previous-traceur.js: build/previous-commit-traceur.js $(SRC)
+build/compiled-by-previous-traceur.js: build/previous-commit-traceur.js $(SRC) build/dep.mk
 	cp build/previous-commit-traceur.js bin/traceur.js
 	./traceur --out $@ $(TFLAGS) $(SRC)
 
