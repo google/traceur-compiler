@@ -130,16 +130,24 @@ bin/traceur.ugly.js: bin/traceur.js
 	uglifyjs bin/traceur.js --compress -m -o $@
 
 WIKI_OUT = \
-  test/wiki/CompilingOffline/out/greeter.js
+  test/wiki/CompilingOffline/out/greeter.js \
+  test/wiki/CompilingOffline/out/moodMusic.js
 
 wiki: $(WIKI_OUT)
 
 wikiclean:
 	rm -f -r test/wiki/CompilingOffline/out
 
-test/wiki/CompilingOffline/out/greeter.js: test/wiki/CompilingOffline/greeter.js
+test/wiki/CompilingOffline/out/%: test/wiki/CompilingOffline/%
 	./traceur --out $@ $?
 
+test/wiki/CompilingOffline/myMood-import.js: test/wiki/CompilingOffline/myMood.js
+	touch $@
+
+test/wiki/CompilingOffline/out/moodMusic.js: \
+	$(RUNTIME_SRC) \
+	test/wiki/CompilingOffline/moodMusic.js
+	./traceur --out $@ $?
 
 .PHONY: build min test test-list force boot clean distclean unicode-tables
 
