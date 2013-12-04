@@ -442,7 +442,6 @@
     $defineProperties(ctor, getDescriptors(staticObject));
     return ctor;
   }
-  ;
   function getProtoParent(superClass) {
     if (typeof superClass === 'function') {
       var prototype = superClass.prototype;
@@ -451,7 +450,6 @@
     if (superClass === null) return null;
     throw new TypeError();
   }
-  ;
   function createClassNoExtends(object, staticObject) {
     var ctor = object.constructor;
     $defineProperty(object, 'constructor', {enumerable: false});
@@ -459,7 +457,72 @@
     $defineProperties(ctor, getDescriptors(staticObject));
     return ctor;
   }
-  ;
+  var ST_NEWBORN = 0;
+  var ST_EXECUTING = 1;
+  var ST_SUSPENDED = 2;
+  var ST_CLOSED = 3;
+  var ACTION_SEND = 0;
+  var ACTION_THROW = 1;
+  function addIterator(object) {
+    return defineProperty(object, Symbol.iterator, nonEnum(function() {
+      return this;
+    }));
+  }
+  function generatorWrap(generator) {
+    return addIterator({
+      next: function(x) {
+        switch (generator.GState) {
+          case ST_EXECUTING:
+            throw new Error('"next" on executing generator');
+          case ST_CLOSED:
+            throw new Error('"next" on closed generator');
+          case ST_NEWBORN:
+            if (x !== undefined) {
+              throw $TypeError('Sent value to newborn generator');
+            }
+          case ST_SUSPENDED:
+            generator.GState = ST_EXECUTING;
+            if (generator.moveNext(x, ACTION_SEND)) {
+              generator.GState = ST_SUSPENDED;
+              return {
+                value: generator.current,
+                done: false
+              };
+            }
+            generator.GState = ST_CLOSED;
+            return {
+              value: generator.yieldReturn,
+              done: true
+            };
+        }
+      },
+      throw: function(x) {
+        switch (generator.GState) {
+          case ST_EXECUTING:
+            throw new Error('"throw" on executing generator');
+          case ST_CLOSED:
+            throw new Error('"throw" on closed generator');
+          case ST_NEWBORN:
+            generator.GState = ST_CLOSED;
+            throw x;
+          case ST_SUSPENDED:
+            generator.GState = ST_EXECUTING;
+            if (generator.moveNext(x, ACTION_THROW)) {
+              generator.GState = ST_SUSPENDED;
+              return {
+                value: generator.current,
+                done: false
+              };
+            }
+            generator.GState = ST_CLOSED;
+            return {
+              value: generator.yieldReturn,
+              done: true
+            };
+        }
+      }
+    });
+  }
   function setupGlobals(global) {
     if (!global.Symbol) global.Symbol = Symbol;
     if (!global.Symbol.iterator) global.Symbol.iterator = Symbol();
@@ -476,6 +539,7 @@
     getProtoParent: getProtoParent,
     Deferred: Deferred,
     exportStar: exportStar,
+    generatorWrap: generatorWrap,
     setProperty: setProperty,
     setupGlobals: setupGlobals,
     spread: spread,
@@ -16337,7 +16401,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Re
 System.get('@traceur/module').registerModule("../src/codegeneration/generator/GeneratorTransformer.js", function() {
   "use strict";
   var $__190 = Object.freeze(Object.defineProperties(["\n        var ", " = {\n          GState: ", ",\n          current: undefined,\n          yieldReturn: undefined,\n          innerFunction: ", ",\n          moveNext: ", "\n        };\n        "], {raw: {value: Object.freeze(["\n        var ", " = {\n          GState: ", ",\n          current: undefined,\n          yieldReturn: undefined,\n          innerFunction: ", ",\n          moveNext: ", "\n        };\n        "])}})),
-      $__191 = Object.freeze(Object.defineProperties(["return ", "(", ");"], {raw: {value: Object.freeze(["return ", "(", ");"])}}));
+      $__191 = Object.freeze(Object.defineProperties(["return $traceurRuntime.generatorWrap(", ");"], {raw: {value: Object.freeze(["return $traceurRuntime.generatorWrap(", ");"])}}));
   var CPSTransformer = System.get('@traceur/module').getModuleImpl("../src/codegeneration/generator/CPSTransformer.js").CPSTransformer;
   var EndState = System.get('@traceur/module').getModuleImpl("../src/codegeneration/generator/EndState.js").EndState;
   var $__193 = System.get('@traceur/module').getModuleImpl("../src/syntax/PredefinedName.js"),
@@ -16378,15 +16442,12 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Ge
   var ST_SUSPENDED = 2;
   var ST_CLOSED = 3;
   var GSTATE = 'GState';
-  var GENERATOR_WRAP_CODE = ("function(generator) {\n  return %addIterator({\n    next: function(x) {\n      switch (generator.GState) {\n        case " + ST_EXECUTING + ":\n          throw new Error('\"next\" on executing generator');\n        case " + ST_CLOSED + ":\n          throw new Error('\"next\" on closed generator');\n        case " + ST_NEWBORN + ":\n          if (x !== undefined) {\n            throw new TypeError('Sent value to newborn generator');\n          }\n          // fall through\n        case " + ST_SUSPENDED + ":\n          generator.GState = " + ST_EXECUTING + ";\n          if (generator.moveNext(x, " + ACTION_SEND + ")) {\n            generator.GState = " + ST_SUSPENDED + ";\n            return {value: generator.current, done: false};\n          }\n          generator.GState = " + ST_CLOSED + ";\n          return {value: generator.yieldReturn, done: true};\n      }\n    },\n\n    'throw': function(x) {\n      switch (generator.GState) {\n        case " + ST_EXECUTING + ":\n          throw new Error('\"throw\" on executing generator');\n        case " + ST_CLOSED + ":\n          throw new Error('\"throw\" on closed generator');\n        case " + ST_NEWBORN + ":\n          generator.GState = " + ST_CLOSED + ";\n          throw x;\n        case " + ST_SUSPENDED + ":\n          generator.GState = " + ST_EXECUTING + ";\n          if (generator.moveNext(x, " + ACTION_THROW + ")) {\n            generator.GState = " + ST_SUSPENDED + ";\n            return {value: generator.current, done: false};\n          }\n          generator.GState = " + ST_CLOSED + ";\n          return {value: generator.yieldReturn, done: true};\n      }\n    }\n  });\n}");
-  var ADD_ITERATOR_CODE = "function(object) {\n  object[%iterator] = %returnThis;\n  return %defineProperty(object, %iterator, {enumerable: false});\n}";
   var GeneratorTransformer = function($__super) {
     'use strict';
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $GeneratorTransformer = ($traceurRuntime.createClass)({
-      constructor: function(runtimeInliner, reporter) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", [reporter]);
-        this.runtimeInliner_ = runtimeInliner;
+      constructor: function() {
+        $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
       },
       transformYieldExpression_: function(tree) {
         var e = tree.expression || createUndefinedExpression();
@@ -16434,12 +16495,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Ge
         statements.push(this.generateHoistedArguments());
         ($__194 = statements).push.apply($__194, $traceurRuntime.toObject(this.getMachineVariables(tree, machine)));
         statements.push(parseStatement($__190, G, ST_NEWBORN, this.generateMachineInnerFunction(machine), this.generateMachineMethod(machine)));
-        statements.push(parseStatement($__191, this.generatorWrap_, id(G)));
+        statements.push(parseStatement($__191, id(G)));
         return createFunctionBody(statements);
-      },
-      get generatorWrap_() {
-        this.runtimeInliner_.register('addIterator', ADD_ITERATOR_CODE);
-        return this.runtimeInliner_.get('generatorWrap', GENERATOR_WRAP_CODE);
       },
       machineUncaughtExceptionStatements: function(rethrowState, machineEndState) {
         return createStatementList(createAssignmentStatement(createMemberExpression(createThisExpression(), GSTATE), createNumberLiteral(ST_CLOSED)), createAssignStateStatement(machineEndState), createThrowStatement(id(STORED_EXCEPTION)));
@@ -16453,9 +16510,9 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Ge
       machineEndStatements: function() {
         return [createReturnStatement(createFalseLiteral())];
       }
-    }, {transformGeneratorBody: function(runtimeInliner, reporter, body) {
-        return new GeneratorTransformer(runtimeInliner, reporter).transformGeneratorBody(body);
-      }}, $__proto, $__super, true);
+    }, {transformGeneratorBody: function(reporter, body) {
+        return new GeneratorTransformer(reporter).transformGeneratorBody(body);
+      }}, $__proto, $__super, false);
     return $GeneratorTransformer;
   }(CPSTransformer);
   ;
@@ -16647,7 +16704,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/GeneratorTra
         if (finder.hasYield || isGenerator) {
           if (transformOptions.generators) {
             body = new YieldExpressionTransformer(this.identifierGenerator, this.reporter_, this.runtimeInliner_).transformAny(body);
-            body = GeneratorTransformer.transformGeneratorBody(this.runtimeInliner_, this.reporter_, body);
+            body = GeneratorTransformer.transformGeneratorBody(this.reporter_, body);
           }
         } else if (transformOptions.deferredFunctions) {
           body = AsyncTransformer.transformAsyncBody(this.reporter_, body);
