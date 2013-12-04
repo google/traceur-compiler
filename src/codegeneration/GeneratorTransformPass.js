@@ -120,7 +120,7 @@ class YieldExpressionTransformer extends TempVarTransformer {
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
    */
-  constructor(identifierGenerator, runtimeInliner) {
+  constructor(identifierGenerator, reporter, runtimeInliner) {
     super(identifierGenerator);
     this.runtimeInliner_ = runtimeInliner;
 
@@ -324,7 +324,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
    * @param {RuntimeInliner} runtimeInliner
    * @param {ErrorReporter} reporter
    */
-  constructor(identifierGenerator, runtimeInliner, reporter) {
+  constructor(identifierGenerator, reporter, runtimeInliner) {
     super(identifierGenerator);
     this.runtimeInliner_ = runtimeInliner;
     this.reporter_ = reporter;
@@ -387,6 +387,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
     if (finder.hasYield || isGenerator) {
       if (transformOptions.generators) {
         body = new YieldExpressionTransformer(this.identifierGenerator,
+                                              this.reporter_,
                                               this.runtimeInliner_).
             transformAny(body);
 
