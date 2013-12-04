@@ -266,7 +266,6 @@ export class GeneratorTransformer extends CPSTransformer {
   }
 
   /**
-   * @param {RuntimeInliner} runtimeInliner
    * @param {ErrorReporter} reporter
    * @param {Block} body
    * @return {Block}

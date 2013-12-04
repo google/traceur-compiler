@@ -16,7 +16,6 @@ import {ArrayMap} from '../../util/ArrayMap';
 import {ExportSymbol} from './ExportSymbol';
 import {ModuleSymbol} from './ModuleSymbol';
 import {ObjectMap} from '../../util/ObjectMap';
-import {RuntimeInliner} from '../../codegeneration/RuntimeInliner';
 import {UniqueIdentifierGenerator} from
     '../../codegeneration/UniqueIdentifierGenerator';
 import {assert} from '../../util/assert';
@@ -66,7 +65,6 @@ export class Project {
    */
   constructor(url) {
     this.identifierGenerator = new UniqueIdentifierGenerator();
-    this.runtimeInliner = new RuntimeInliner(this.identifierGenerator);
 
     this.sourceFiles_ = Object.create(null);
     this.parseTrees_ = new ObjectMap();
