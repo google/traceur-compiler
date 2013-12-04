@@ -413,7 +413,7 @@ class InternalLoader {
     });
   }
 
-  checkForErrors(dependencies, phaseErrorMessage) {
+  checkForErrors(dependencies, phase) {
     if (this.reporter.hadError()) {
       for (var i = 0; i < dependencies.length; i++) {
         var codeUnit = dependencies[i];
@@ -426,7 +426,7 @@ class InternalLoader {
       for (var i = 0; i < dependencies.length; i++) {
         var codeUnit = dependencies[i];
         if (codeUnit.state == ERROR) {
-          codeUnit.dispatchError(phaseErrorMessage);
+          codeUnit.dispatchError(phase);
         }
       }
     }
@@ -450,7 +450,7 @@ class InternalLoader {
 
     var analyzer = new ModuleAnalyzer(this.reporter, this.project);
     analyzer.analyzeTrees(trees, modules);
-    this.checkForErrors(dependencies, 'Failed to analyze');
+    this.checkForErrors(dependencies, 'analyze');
   }
 
   transform() {
@@ -467,7 +467,7 @@ class InternalLoader {
       codeUnit.transformedTree = this.transformCodeUnit(codeUnit);
       codeUnit.state = TRANSFORMED;
     }
-    this.checkForErrors(dependencies, 'Failed to transform');
+    this.checkForErrors(dependencies, 'transform');
   }
 
   transformCodeUnit(codeUnit) {

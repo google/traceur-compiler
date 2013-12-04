@@ -19532,7 +19532,7 @@ System.get('@traceur/module').registerModule("../src/runtime/module-loader.js", 
           codeUnit.dispatchError(codeUnit.error);
         }));
       },
-      checkForErrors: function(dependencies, phaseErrorMessage) {
+      checkForErrors: function(dependencies, phase) {
         if (this.reporter.hadError()) {
           for (var i = 0; i < dependencies.length; i++) {
             var codeUnit = dependencies[i];
@@ -19544,7 +19544,7 @@ System.get('@traceur/module').registerModule("../src/runtime/module-loader.js", 
           for (var i = 0; i < dependencies.length; i++) {
             var codeUnit = dependencies[i];
             if (codeUnit.state == ERROR) {
-              codeUnit.dispatchError(phaseErrorMessage);
+              codeUnit.dispatchError(phase);
             }
           }
         }
@@ -19563,7 +19563,7 @@ System.get('@traceur/module').registerModule("../src/runtime/module-loader.js", 
         }
         var analyzer = new ModuleAnalyzer(this.reporter, this.project);
         analyzer.analyzeTrees(trees, modules);
-        this.checkForErrors(dependencies, 'Failed to analyze');
+        this.checkForErrors(dependencies, 'analyze');
       },
       transform: function() {
         this.transformDependencies(this.cache.values());
@@ -19577,7 +19577,7 @@ System.get('@traceur/module').registerModule("../src/runtime/module-loader.js", 
           codeUnit.transformedTree = this.transformCodeUnit(codeUnit);
           codeUnit.state = TRANSFORMED;
         }
-        this.checkForErrors(dependencies, 'Failed to transform');
+        this.checkForErrors(dependencies, 'transform');
       },
       transformCodeUnit: function(codeUnit) {
         this.transformDependencies(codeUnit.dependencies);

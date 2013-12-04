@@ -1,4 +1,4 @@
-// Options: --types=true --freeVariableChecker=false
+// Options: --types=true
 
 var a : any;
 var b : bool;
@@ -7,6 +7,8 @@ var v : void;
 var n : number;
 
 var named : namespace.type;
+
+class Test {}
 
 function abc(x : Test) : Test {
   var a : Test = new Test();
