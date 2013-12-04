@@ -27,30 +27,29 @@ export class ProgramTransformer extends ProjectTransformer {
    */
   constructor(reporter, project) {
     var transformer = new FromOptionsTransformer(reporter,
-                                                 project.identifierGenerator,
-                                                 project.runtimeInliner);
+                                                 project.identifierGenerator);
     super(reporter, project, transformer);
   }
+
+  /**
+   * @param {ErrorReporter} reporter
+   * @param {Project} project
+   * @return {ObjectMap}
+   */
+  static transform(reporter, project) {
+    var transformer = new ProgramTransformer(reporter, project);
+    return transformer.transform();
+  }
+
+  /**
+   * @param {ErrorReporter} reporter
+   * @param {Project} project
+   * @param {SourceFile} sourceFile
+   * @param {string} url
+   * @return {ParseTree}
+   */
+  static transformFile(reporter, project, sourceFile) {
+    var transformer = new ProgramTransformer(reporter, project);
+    return transformer.transformFile(sourceFile);
+  }
 }
-
-/**
- * @param {ErrorReporter} reporter
- * @param {Project} project
- * @return {ObjectMap}
- */
-ProgramTransformer.transform = function(reporter, project) {
-  var transformer = new ProgramTransformer(reporter, project);
-  return transformer.transform();
-};
-
-/**
- * @param {ErrorReporter} reporter
- * @param {Project} project
- * @param {SourceFile} sourceFile
- * @param {string} url
- * @return {ParseTree}
- */
-ProgramTransformer.transformFile = function(reporter, project, sourceFile) {
-  var transformer = new ProgramTransformer(reporter, project);
-  return transformer.transformFile(sourceFile);
-};

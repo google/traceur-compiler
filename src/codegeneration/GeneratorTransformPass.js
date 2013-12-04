@@ -120,9 +120,8 @@ class YieldExpressionTransformer extends TempVarTransformer {
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
    */
-  constructor(identifierGenerator, reporter, runtimeInliner) {
+  constructor(identifierGenerator, reporter) {
     super(identifierGenerator);
-    this.runtimeInliner_ = runtimeInliner;
 
     // Initialise unless already cached.
     if (!throwClose) {
@@ -245,10 +244,6 @@ class YieldExpressionTransformer extends TempVarTransformer {
         wrap(id(YIELD_SENT))]);
   }
 
-  get iterator_() {
-    return this.runtimeInliner_.get('iterator');
-  }
-
   /**
    * Turns "yield* E" into what is essentially, a generator-specific ForOf.
    * @param {YieldExpression} tree Must be a 'yield *'.
@@ -283,7 +278,7 @@ class YieldExpressionTransformer extends TempVarTransformer {
 
     return parseStatement `
         {
-          var ${g} = ${tree.expression}[${this.iterator_}]();
+          var ${g} = ${tree.expression}[Symbol.iterator]();
           var ${next};
 
           // TODO: Should 'yield *' handle non-generator iterators? A strict
@@ -321,12 +316,10 @@ class YieldExpressionTransformer extends TempVarTransformer {
 export class GeneratorTransformPass extends TempVarTransformer {
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
-   * @param {RuntimeInliner} runtimeInliner
    * @param {ErrorReporter} reporter
    */
-  constructor(identifierGenerator, reporter, runtimeInliner) {
+  constructor(identifierGenerator, reporter) {
     super(identifierGenerator);
-    this.runtimeInliner_ = runtimeInliner;
     this.reporter_ = reporter;
   }
 
@@ -387,8 +380,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
     if (finder.hasYield || isGenerator) {
       if (transformOptions.generators) {
         body = new YieldExpressionTransformer(this.identifierGenerator,
-                                              this.reporter_,
-                                              this.runtimeInliner_).
+                                              this.reporter_).
             transformAny(body);
 
         body = GeneratorTransformer.transformGeneratorBody(this.reporter_,

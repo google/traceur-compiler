@@ -33,7 +33,6 @@ import {ParseTreeValidator} from '../syntax/ParseTreeValidator';
 import {PropertyNameShorthandTransformer} from
     './PropertyNameShorthandTransformer';
 import {RestParameterTransformer} from './RestParameterTransformer';
-import {RuntimeInliner} from './RuntimeInliner';
 import {SpreadTransformer} from './SpreadTransformer';
 import {SymbolTransformer} from './SymbolTransformer';
 import {TemplateLiteralTransformer} from './TemplateLiteralTransformer';
@@ -49,16 +48,13 @@ export class FromOptionsTransformer extends MultiTransformer {
   /**
    * @param {ErrorReporter} reporter
    * @param {UniqueIdGenerator=} idGenerator
-   * @param {RuntimeInliner=} runtimeInliner
    */
-  constructor(reporter, idGenerator = new UniqueIdentifierGenerator(),
-              runtimeInliner = new RuntimeInliner(idGenerator)) {
+  constructor(reporter, idGenerator = new UniqueIdentifierGenerator()) {
     super(reporter, options.validate);
 
     var append = (transformer) => {
       this.append((tree) => {
-        return new transformer(idGenerator, reporter, runtimeInliner).
-            transformAny(tree);
+        return new transformer(idGenerator, reporter).transformAny(tree);
       });
     };
 
@@ -123,8 +119,6 @@ export class FromOptionsTransformer extends MultiTransformer {
 
     if (transformOptions.spread)
       append(SpreadTransformer);
-
-    this.append((tree) => runtimeInliner.transformAny(tree));
 
     if (transformOptions.blockBinding)
       append(BlockBindingTransformer);
