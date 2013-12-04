@@ -616,8 +616,8 @@
 
     var descriptors = getDescriptors(object);
     descriptors.constructor.enumerable = false;
-    ctor.prototype = Object.create(protoParent, descriptors);
-    Object.defineProperties(ctor, getDescriptors(staticObject));
+    ctor.prototype = $create(protoParent, descriptors);
+    $defineProperties(ctor, getDescriptors(staticObject));
 
     return ctor;
   };
@@ -625,7 +625,7 @@
   function getProtoParent(superClass) {
     if (typeof superClass === 'function') {
       var prototype = superClass.prototype;
-      if (Object(prototype) === prototype || prototype === null)
+      if ($Object(prototype) === prototype || prototype === null)
         return superClass.prototype;
     }
     if (superClass === null)
@@ -635,9 +635,9 @@
 
   function createClassNoExtends(object, staticObject) {
     var ctor = object.constructor;
-    Object.defineProperty(object, 'constructor', {enumerable: false});
+    $defineProperty(object, 'constructor', {enumerable: false});
     ctor.prototype = object;
-    Object.defineProperties(ctor, getDescriptors(staticObject));
+    $defineProperties(ctor, getDescriptors(staticObject));
     return ctor;
   };
 
