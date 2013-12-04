@@ -620,7 +620,7 @@
     $defineProperties(ctor, getDescriptors(staticObject));
 
     return ctor;
-  };
+  }
 
   function getProtoParent(superClass) {
     if (typeof superClass === 'function') {
@@ -631,7 +631,7 @@
     if (superClass === null)
       return null;
     throw new TypeError();
-  };
+  }
 
   function createClassNoExtends(object, staticObject) {
     var ctor = object.constructor;
@@ -639,7 +639,67 @@
     ctor.prototype = object;
     $defineProperties(ctor, getDescriptors(staticObject));
     return ctor;
-  };
+  }
+
+  var ST_NEWBORN = 0;
+  var ST_EXECUTING = 1;
+  var ST_SUSPENDED = 2;
+  var ST_CLOSED = 3;
+  var ACTION_SEND = 0;
+  var ACTION_THROW = 1;
+
+  function addIterator(object) {
+    // This needs the non native defineProperty to handle symbols correctly.
+    return defineProperty(object, Symbol.iterator, nonEnum(function() {
+      return this;
+    }));
+  }
+
+  function generatorWrap(generator) {
+    return addIterator({
+      next: function(x) {
+        switch (generator.GState) {
+          case ST_EXECUTING:
+            throw new Error('"next" on executing generator');
+          case ST_CLOSED:
+            throw new Error('"next" on closed generator');
+          case ST_NEWBORN:
+            if (x !== undefined) {
+              throw $TypeError('Sent value to newborn generator');
+            }
+            // fall through
+          case ST_SUSPENDED:
+            generator.GState = ST_EXECUTING;
+            if (generator.moveNext(x, ACTION_SEND)) {
+              generator.GState = ST_SUSPENDED;
+              return {value: generator.current, done: false};
+            }
+            generator.GState = ST_CLOSED;
+            return {value: generator.yieldReturn, done: true};
+        }
+      },
+
+      throw: function(x) {
+        switch (generator.GState) {
+          case ST_EXECUTING:
+            throw new Error('"throw" on executing generator');
+          case ST_CLOSED:
+            throw new Error('"throw" on closed generator');
+          case ST_NEWBORN:
+            generator.GState = ST_CLOSED;
+            throw x;
+          case ST_SUSPENDED:
+            generator.GState = ST_EXECUTING;
+            if (generator.moveNext(x, ACTION_THROW)) {
+              generator.GState = ST_SUSPENDED;
+              return {value: generator.current, done: false};
+            }
+            generator.GState = ST_CLOSED;
+            return {value: generator.yieldReturn, done: true};
+        }
+      }
+    });
+  }
 
   function setupGlobals(global) {
     if (!global.Symbol)
@@ -663,6 +723,7 @@
     getProtoParent: getProtoParent,
     Deferred: Deferred,
     exportStar: exportStar,
+    generatorWrap: generatorWrap,
     setProperty: setProperty,
     setupGlobals: setupGlobals,
     spread: spread,
