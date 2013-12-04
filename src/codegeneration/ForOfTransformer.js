@@ -34,11 +34,9 @@ export class ForOfTransformer extends TempVarTransformer {
 
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
-   * @param {RuntimeInliner} runtimeInliner
    */
-  constructor(identifierGenerator, runtimeInliner) {
+  constructor(identifierGenerator) {
     super(identifierGenerator);
-    this.runtimeInliner_ = runtimeInliner;
   }
 
   /**
@@ -63,7 +61,7 @@ export class ForOfTransformer extends TempVarTransformer {
 
     return parseStatement `
         for (var ${iter} =
-                 ${tree.collection}[${this.iterator_}](),
+                 ${tree.collection}[Symbol.iterator](),
                  ${result};
              !(${result} = ${iter}.next()).done; ) {
           ${assignment};
@@ -71,7 +69,4 @@ export class ForOfTransformer extends TempVarTransformer {
         }`;
   }
 
-  get iterator_() {
-    return this.runtimeInliner_.get('iterator');
-  }
 }
