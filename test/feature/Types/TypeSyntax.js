@@ -1,4 +1,4 @@
-// Options: --types=true
+// Options: --types=true --freeVariableChecker=false
 
 var a : any;
 var b : bool;

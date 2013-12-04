@@ -19532,6 +19532,23 @@ System.get('@traceur/module').registerModule("../src/runtime/module-loader.js", 
           codeUnit.dispatchError(codeUnit.error);
         }));
       },
+      checkForErrors: function(dependencies, phaseErrorMessage) {
+        if (this.reporter.hadError()) {
+          for (var i = 0; i < dependencies.length; i++) {
+            var codeUnit = dependencies[i];
+            if (codeUnit.state >= COMPLETE) {
+              continue;
+            }
+            codeUnit.state = ERROR;
+          }
+          for (var i = 0; i < dependencies.length; i++) {
+            var codeUnit = dependencies[i];
+            if (codeUnit.state == ERROR) {
+              codeUnit.dispatchError(phaseErrorMessage);
+            }
+          }
+        }
+      },
       analyze: function() {
         var dependencies = this.cache.values();
         var trees = [];
@@ -19546,21 +19563,7 @@ System.get('@traceur/module').registerModule("../src/runtime/module-loader.js", 
         }
         var analyzer = new ModuleAnalyzer(this.reporter, this.project);
         analyzer.analyzeTrees(trees, modules);
-        if (this.reporter.hadError()) {
-          for (var i = 0; i < dependencies.length; i++) {
-            var codeUnit = dependencies[i];
-            if (codeUnit.state >= COMPLETE) {
-              continue;
-            }
-            codeUnit.state = ERROR;
-          }
-          for (var i = 0; i < dependencies.length; i++) {
-            var codeUnit = dependencies[i];
-            if (codeUnit.state == ERROR) {
-              codeUnit.dispatchError('Failed to analyze');
-            }
-          }
-        }
+        this.checkForErrors(dependencies, 'Failed to analyze');
       },
       transform: function() {
         this.transformDependencies(this.cache.values());
@@ -19574,6 +19577,7 @@ System.get('@traceur/module').registerModule("../src/runtime/module-loader.js", 
           codeUnit.transformedTree = this.transformCodeUnit(codeUnit);
           codeUnit.state = TRANSFORMED;
         }
+        this.checkForErrors(dependencies, 'Failed to transform');
       },
       transformCodeUnit: function(codeUnit) {
         this.transformDependencies(codeUnit.dependencies);
