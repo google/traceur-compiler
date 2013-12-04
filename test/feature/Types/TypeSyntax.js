@@ -8,6 +8,8 @@ var n : number;
 
 var named : namespace.type;
 
+class Test {}
+
 function abc(x : Test) : Test {
   var a : Test = new Test();
 }
