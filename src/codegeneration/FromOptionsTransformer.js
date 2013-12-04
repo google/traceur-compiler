@@ -57,7 +57,7 @@ export class FromOptionsTransformer extends MultiTransformer {
 
     var append = (transformer) => {
       this.append((tree) => {
-        return new transformer(idGenerator, runtimeInliner, reporter).
+        return new transformer(idGenerator, reporter, runtimeInliner).
             transformAny(tree);
       });
     };
