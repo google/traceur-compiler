@@ -23,24 +23,10 @@ import {
 import {parseStatement} from './PlaceholderParser';
 import {transformOptions} from '../options';
 
-var GET_ITERATOR_CODE = `function(object) {
-  return object[%iterator]();
-}`;
-
 /**
  * Desugars for-of statement.
  */
 export class ForOfTransformer extends TempVarTransformer {
-
-  /**
-   * @param {UniqueIdentifierGenerator} identifierGenerator
-   * @param {RuntimeInliner} runtimeInliner
-   */
-  constructor(identifierGenerator, runtimeInliner) {
-    super(identifierGenerator);
-    this.runtimeInliner_ = runtimeInliner;
-  }
-
   /**
    * @param {ForOfStatement} original
    * @return {ParseTree}
@@ -63,15 +49,11 @@ export class ForOfTransformer extends TempVarTransformer {
 
     return parseStatement `
         for (var ${iter} =
-                 ${tree.collection}[${this.iterator_}](),
+                 ${tree.collection}[Symbol.iterator](),
                  ${result};
              !(${result} = ${iter}.next()).done; ) {
           ${assignment};
           ${tree.body};
         }`;
-  }
-
-  get iterator_() {
-    return this.runtimeInliner_.get('iterator');
   }
 }

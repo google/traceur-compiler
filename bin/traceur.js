@@ -6391,7 +6391,6 @@ System.get('@traceur/module').registerModule("../src/syntax/KeywordToken.js", fu
       return KeywordToken;
     }};
 }, this);
-var $__iterator = typeof Symbol === 'function' ? (Symbol.iterator || (Symbol.iterator = Symbol()), Symbol.iterator): '@@iterator';
 System.get('@traceur/module').registerModule("../src/syntax/LiteralToken.js", function() {
   "use strict";
   var Token = System.get('@traceur/module').getModuleImpl("../src/syntax/Token.js").Token;
@@ -6435,7 +6434,7 @@ System.get('@traceur/module').registerModule("../src/syntax/LiteralToken.js", fu
       value: function() {
         if (this.value.indexOf('\\') === - 1) return this.value.slice(1, - 1);
         var result = '';
-        for (var $__39 = this[$__iterator](),
+        for (var $__39 = this[Symbol.iterator](),
             $__40; !($__40 = $__39.next()).done;) {
           var ch = $__40.value;
           {
@@ -14841,7 +14840,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/Destructurin
 System.get('@traceur/module').registerModule("../src/codegeneration/ForOfTransformer.js", function() {
   "use strict";
   var $__140 = Object.freeze(Object.defineProperties(["", " = ", ".value;"], {raw: {value: Object.freeze(["", " = ", ".value;"])}})),
-      $__141 = Object.freeze(Object.defineProperties(["\n        for (var ", " =\n                 ", "[", "](),\n                 ", ";\n             !(", " = ", ".next()).done; ) {\n          ", ";\n          ", ";\n        }"], {raw: {value: Object.freeze(["\n        for (var ", " =\n                 ", "[", "](),\n                 ", ";\n             !(", " = ", ".next()).done; ) {\n          ", ";\n          ", ";\n        }"])}}));
+      $__141 = Object.freeze(Object.defineProperties(["\n        for (var ", " =\n                 ", "[Symbol.iterator](),\n                 ", ";\n             !(", " = ", ".next()).done; ) {\n          ", ";\n          ", ";\n        }"], {raw: {value: Object.freeze(["\n        for (var ", " =\n                 ", "[Symbol.iterator](),\n                 ", ";\n             !(", " = ", ".next()).done; ) {\n          ", ";\n          ", ";\n        }"])}}));
   var TRACEUR_RUNTIME = System.get('@traceur/module').getModuleImpl("../src/syntax/PredefinedName.js").TRACEUR_RUNTIME;
   var VARIABLE_DECLARATION_LIST = System.get('@traceur/module').getModuleImpl("../src/syntax/trees/ParseTreeType.js").VARIABLE_DECLARATION_LIST;
   var TempVarTransformer = System.get('@traceur/module').getModuleImpl("../src/codegeneration/TempVarTransformer.js").TempVarTransformer;
@@ -14851,14 +14850,12 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ForOfTransfo
       createVariableStatement = $__143.createVariableStatement;
   var parseStatement = System.get('@traceur/module').getModuleImpl("../src/codegeneration/PlaceholderParser.js").parseStatement;
   var transformOptions = System.get('@traceur/module').getModuleImpl("../src/options.js").transformOptions;
-  var GET_ITERATOR_CODE = "function(object) {\n  return object[%iterator]();\n}";
   var ForOfTransformer = function($__super) {
     'use strict';
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $ForOfTransformer = ($traceurRuntime.createClass)({
-      constructor: function(identifierGenerator, runtimeInliner) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", [identifierGenerator]);
-        this.runtimeInliner_ = runtimeInliner;
+      constructor: function() {
+        $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
       },
       transformForOfStatement: function(original) {
         var tree = $traceurRuntime.superCall(this, $__proto, "transformForOfStatement", [original]);
@@ -14870,12 +14867,9 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ForOfTransfo
         } else {
           assignment = parseStatement($__140, tree.initialiser, result);
         }
-        return parseStatement($__141, iter, tree.collection, this.iterator_, result, result, iter, assignment, tree.body);
-      },
-      get iterator_() {
-        return this.runtimeInliner_.get('iterator');
+        return parseStatement($__141, iter, tree.collection, result, result, iter, assignment, tree.body);
       }
-    }, {}, $__proto, $__super, true);
+    }, {}, $__proto, $__super, false);
     return $ForOfTransformer;
   }(TempVarTransformer);
   return {get ForOfTransformer() {
