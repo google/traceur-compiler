@@ -422,6 +422,44 @@
     }
     throw $TypeError("super has no setter '" + name + "'.");
   }
+  function getDescriptors(object) {
+    var descriptors = {},
+        name,
+        names = $getOwnPropertyNames(object);
+    for (var i = 0; i < names.length; i++) {
+      var name = names[i];
+      descriptors[name] = $getOwnPropertyDescriptor(object, name);
+    }
+    return descriptors;
+  }
+  function createClass(object, staticObject, protoParent, superClass, hasConstructor) {
+    var ctor = object.constructor;
+    if (typeof superClass === 'function') ctor.__proto__ = superClass;
+    if (!hasConstructor && protoParent === null) ctor = object.constructor = function() {};
+    var descriptors = getDescriptors(object);
+    descriptors.constructor.enumerable = false;
+    ctor.prototype = $create(protoParent, descriptors);
+    $defineProperties(ctor, getDescriptors(staticObject));
+    return ctor;
+  }
+  ;
+  function getProtoParent(superClass) {
+    if (typeof superClass === 'function') {
+      var prototype = superClass.prototype;
+      if ($Object(prototype) === prototype || prototype === null) return superClass.prototype;
+    }
+    if (superClass === null) return null;
+    throw new TypeError();
+  }
+  ;
+  function createClassNoExtends(object, staticObject) {
+    var ctor = object.constructor;
+    $defineProperty(object, 'constructor', {enumerable: false});
+    ctor.prototype = object;
+    $defineProperties(ctor, getDescriptors(staticObject));
+    return ctor;
+  }
+  ;
   function setupGlobals(global) {
     if (!global.Symbol) global.Symbol = Symbol;
     if (!global.Symbol.iterator) global.Symbol.iterator = Symbol();
@@ -433,6 +471,9 @@
   }
   setupGlobals(global);
   global.$traceurRuntime = {
+    createClass: createClass,
+    createClassNoExtends: createClassNoExtends,
+    getProtoParent: getProtoParent,
     Deferred: Deferred,
     exportStar: exportStar,
     setProperty: setProperty,
@@ -663,31 +704,11 @@ System.set('@traceur/module', (function(global) {
     }
   };
 })(this));
-var $__Object = Object,
-    $__getOwnPropertyNames = $__Object.getOwnPropertyNames,
-    $__getOwnPropertyDescriptor = $__Object.getOwnPropertyDescriptor,
-    $__getDescriptors = function(object) {
-      var descriptors = {},
-          name,
-          names = $__getOwnPropertyNames(object);
-      for (var i = 0; i < names.length; i++) {
-        var name = names[i];
-        descriptors[name] = $__getOwnPropertyDescriptor(object, name);
-      }
-      return descriptors;
-    },
-    $__createClassNoExtends = function(object, staticObject) {
-      var ctor = object.constructor;
-      Object.defineProperty(object, 'constructor', {enumerable: false});
-      ctor.prototype = object;
-      Object.defineProperties(ctor, $__getDescriptors(staticObject));
-      return ctor;
-    };
 System.get('@traceur/module').registerModule("../src/semantics/symbols/Symbol.js", function() {
   "use strict";
   var Symbol = function() {
     'use strict';
-    var $Symbol = ($__createClassNoExtends)({constructor: function(type, tree) {
+    var $Symbol = ($traceurRuntime.createClassNoExtends)({constructor: function(type, tree) {
         this.type = type;
         this.tree = tree;
       }}, {});
@@ -710,32 +731,14 @@ System.get('@traceur/module').registerModule("../src/semantics/symbols/SymbolTyp
     }
   };
 }, this);
-var $__getProtoParent = function(superClass) {
-  if (typeof superClass === 'function') {
-    var prototype = superClass.prototype;
-    if (Object(prototype) === prototype || prototype === null) return superClass.prototype;
-  }
-  if (superClass === null) return null;
-  throw new TypeError();
-},
-    $__createClass = function(object, staticObject, protoParent, superClass, hasConstructor) {
-      var ctor = object.constructor;
-      if (typeof superClass === 'function') ctor.__proto__ = superClass;
-      if (!hasConstructor && protoParent === null) ctor = object.constructor = function() {};
-      var descriptors = $__getDescriptors(object);
-      descriptors.constructor.enumerable = false;
-      ctor.prototype = Object.create(protoParent, descriptors);
-      Object.defineProperties(ctor, $__getDescriptors(staticObject));
-      return ctor;
-    };
 System.get('@traceur/module').registerModule("../src/semantics/symbols/ExportSymbol.js", function() {
   "use strict";
   var Symbol = System.get('@traceur/module').getModuleImpl("../src/semantics/symbols/Symbol.js").Symbol;
   var EXPORT = System.get('@traceur/module').getModuleImpl("../src/semantics/symbols/SymbolType.js").EXPORT;
   var ExportSymbol = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ExportSymbol = ($__createClass)({constructor: function(name, tree) {
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ExportSymbol = ($traceurRuntime.createClass)({constructor: function(name, tree) {
         $traceurRuntime.superCall(this, $__proto, "constructor", [EXPORT, tree]);
         this.name = name;
       }}, {}, $__proto, $__super, true);
@@ -937,7 +940,7 @@ System.get('@traceur/module').registerModule("../src/syntax/ParseTreeVisitor.js"
   "use strict";
   var ParseTreeVisitor = function() {
     'use strict';
-    var $ParseTreeVisitor = ($__createClassNoExtends)({
+    var $ParseTreeVisitor = ($traceurRuntime.createClassNoExtends)({
       constructor: function() {},
       visitAny: function(tree) {
         tree && tree.visit(this);
@@ -1744,7 +1747,7 @@ System.get('@traceur/module').registerModule("../src/syntax/Token.js", function(
       UNSIGNED_RIGHT_SHIFT_EQUAL = $__8.UNSIGNED_RIGHT_SHIFT_EQUAL;
   var Token = function() {
     'use strict';
-    var $Token = ($__createClassNoExtends)({
+    var $Token = ($traceurRuntime.createClassNoExtends)({
       constructor: function(type, location) {
         this.type = type;
         this.location = location;
@@ -2276,7 +2279,7 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTree.js",
   ;
   var ParseTree = function() {
     'use strict';
-    var $ParseTree = ($__createClassNoExtends)({
+    var $ParseTree = ($traceurRuntime.createClassNoExtends)({
       constructor: function(type, location) {
         throw new Error("Don't use for now. 'super' is currently very slow.");
         this.type = type;
@@ -2508,8 +2511,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/module/Modul
   var Symbol = System.get('@traceur/module').getModuleImpl("../src/semantics/symbols/Symbol.js").Symbol;
   var ModuleVisitor = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ModuleVisitor = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ModuleVisitor = ($traceurRuntime.createClass)({
       constructor: function(reporter, project, module) {
         this.reporter = reporter;
         this.project = project;
@@ -2566,8 +2569,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/module/Expor
   var assert = System.get('@traceur/module').getModuleImpl("../src/util/assert.js").assert;
   var ExportVisitor = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ExportVisitor = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ExportVisitor = ($traceurRuntime.createClass)({
       constructor: function(reporter, project, module) {
         $traceurRuntime.superCall(this, $__proto, "constructor", [reporter, project, module]);
         this.inExport_ = false;
@@ -2635,8 +2638,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/module/Valid
   var ModuleVisitor = System.get('@traceur/module').getModuleImpl("../src/codegeneration/module/ModuleVisitor.js").ModuleVisitor;
   var ValidationVisitor = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ValidationVisitor = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ValidationVisitor = ($traceurRuntime.createClass)({
       constructor: function() {
         $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
       },
@@ -2689,7 +2692,7 @@ System.get('@traceur/module').registerModule("../src/semantics/ModuleAnalyzer.js
   var transformOptions = System.get('@traceur/module').getModuleImpl("../src/options.js").transformOptions;
   var ModuleAnalyzer = function() {
     'use strict';
-    var $ModuleAnalyzer = ($__createClassNoExtends)({
+    var $ModuleAnalyzer = ($traceurRuntime.createClassNoExtends)({
       constructor: function(reporter, project) {
         this.reporter_ = reporter;
         this.project_ = project;
@@ -2739,8 +2742,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var ARGUMENT_LIST = ParseTreeType.ARGUMENT_LIST;
   var ArgumentList = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ArgumentList = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ArgumentList = ($traceurRuntime.createClass)({
       constructor: function(location, args) {
         this.location = location;
         this.args = args;
@@ -2760,8 +2763,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var ARRAY_COMPREHENSION = ParseTreeType.ARRAY_COMPREHENSION;
   var ArrayComprehension = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ArrayComprehension = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ArrayComprehension = ($traceurRuntime.createClass)({
       constructor: function(location, comprehensionList, expression) {
         this.location = location;
         this.comprehensionList = comprehensionList;
@@ -2782,8 +2785,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var ARRAY_LITERAL_EXPRESSION = ParseTreeType.ARRAY_LITERAL_EXPRESSION;
   var ArrayLiteralExpression = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ArrayLiteralExpression = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ArrayLiteralExpression = ($traceurRuntime.createClass)({
       constructor: function(location, elements) {
         this.location = location;
         this.elements = elements;
@@ -2803,8 +2806,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var ARRAY_PATTERN = ParseTreeType.ARRAY_PATTERN;
   var ArrayPattern = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ArrayPattern = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ArrayPattern = ($traceurRuntime.createClass)({
       constructor: function(location, elements) {
         this.location = location;
         this.elements = elements;
@@ -2824,8 +2827,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var ARROW_FUNCTION_EXPRESSION = ParseTreeType.ARROW_FUNCTION_EXPRESSION;
   var ArrowFunctionExpression = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ArrowFunctionExpression = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ArrowFunctionExpression = ($traceurRuntime.createClass)({
       constructor: function(location, formalParameters, functionBody) {
         this.location = location;
         this.formalParameters = formalParameters;
@@ -2846,8 +2849,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var AWAIT_STATEMENT = ParseTreeType.AWAIT_STATEMENT;
   var AwaitStatement = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $AwaitStatement = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $AwaitStatement = ($traceurRuntime.createClass)({
       constructor: function(location, identifier, expression) {
         this.location = location;
         this.identifier = identifier;
@@ -2868,8 +2871,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var BINARY_OPERATOR = ParseTreeType.BINARY_OPERATOR;
   var BinaryOperator = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $BinaryOperator = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $BinaryOperator = ($traceurRuntime.createClass)({
       constructor: function(location, left, operator, right) {
         this.location = location;
         this.left = left;
@@ -2891,8 +2894,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var BINDING_ELEMENT = ParseTreeType.BINDING_ELEMENT;
   var BindingElement = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $BindingElement = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $BindingElement = ($traceurRuntime.createClass)({
       constructor: function(location, binding, initialiser) {
         this.location = location;
         this.binding = binding;
@@ -2913,8 +2916,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var BINDING_IDENTIFIER = ParseTreeType.BINDING_IDENTIFIER;
   var BindingIdentifier = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $BindingIdentifier = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $BindingIdentifier = ($traceurRuntime.createClass)({
       constructor: function(location, identifierToken) {
         this.location = location;
         this.identifierToken = identifierToken;
@@ -2934,8 +2937,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var BLOCK = ParseTreeType.BLOCK;
   var Block = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $Block = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $Block = ($traceurRuntime.createClass)({
       constructor: function(location, statements) {
         this.location = location;
         this.statements = statements;
@@ -2955,8 +2958,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var BREAK_STATEMENT = ParseTreeType.BREAK_STATEMENT;
   var BreakStatement = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $BreakStatement = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $BreakStatement = ($traceurRuntime.createClass)({
       constructor: function(location, name) {
         this.location = location;
         this.name = name;
@@ -2976,8 +2979,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var CALL_EXPRESSION = ParseTreeType.CALL_EXPRESSION;
   var CallExpression = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $CallExpression = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $CallExpression = ($traceurRuntime.createClass)({
       constructor: function(location, operand, args) {
         this.location = location;
         this.operand = operand;
@@ -2998,8 +3001,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var CASE_CLAUSE = ParseTreeType.CASE_CLAUSE;
   var CaseClause = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $CaseClause = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $CaseClause = ($traceurRuntime.createClass)({
       constructor: function(location, expression, statements) {
         this.location = location;
         this.expression = expression;
@@ -3020,8 +3023,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var CATCH = ParseTreeType.CATCH;
   var Catch = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $Catch = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $Catch = ($traceurRuntime.createClass)({
       constructor: function(location, binding, catchBody) {
         this.location = location;
         this.binding = binding;
@@ -3042,8 +3045,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var CLASS_DECLARATION = ParseTreeType.CLASS_DECLARATION;
   var ClassDeclaration = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ClassDeclaration = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ClassDeclaration = ($traceurRuntime.createClass)({
       constructor: function(location, name, superClass, elements) {
         this.location = location;
         this.name = name;
@@ -3065,8 +3068,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var CLASS_EXPRESSION = ParseTreeType.CLASS_EXPRESSION;
   var ClassExpression = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ClassExpression = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ClassExpression = ($traceurRuntime.createClass)({
       constructor: function(location, name, superClass, elements) {
         this.location = location;
         this.name = name;
@@ -3088,8 +3091,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var COMMA_EXPRESSION = ParseTreeType.COMMA_EXPRESSION;
   var CommaExpression = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $CommaExpression = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $CommaExpression = ($traceurRuntime.createClass)({
       constructor: function(location, expressions) {
         this.location = location;
         this.expressions = expressions;
@@ -3109,8 +3112,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var COMPREHENSION_FOR = ParseTreeType.COMPREHENSION_FOR;
   var ComprehensionFor = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ComprehensionFor = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ComprehensionFor = ($traceurRuntime.createClass)({
       constructor: function(location, left, iterator) {
         this.location = location;
         this.left = left;
@@ -3131,8 +3134,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var COMPREHENSION_IF = ParseTreeType.COMPREHENSION_IF;
   var ComprehensionIf = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ComprehensionIf = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ComprehensionIf = ($traceurRuntime.createClass)({
       constructor: function(location, expression) {
         this.location = location;
         this.expression = expression;
@@ -3152,8 +3155,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var COMPUTED_PROPERTY_NAME = ParseTreeType.COMPUTED_PROPERTY_NAME;
   var ComputedPropertyName = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ComputedPropertyName = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ComputedPropertyName = ($traceurRuntime.createClass)({
       constructor: function(location, expression) {
         this.location = location;
         this.expression = expression;
@@ -3173,8 +3176,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var CONDITIONAL_EXPRESSION = ParseTreeType.CONDITIONAL_EXPRESSION;
   var ConditionalExpression = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ConditionalExpression = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ConditionalExpression = ($traceurRuntime.createClass)({
       constructor: function(location, condition, left, right) {
         this.location = location;
         this.condition = condition;
@@ -3196,8 +3199,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var CONTINUE_STATEMENT = ParseTreeType.CONTINUE_STATEMENT;
   var ContinueStatement = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ContinueStatement = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ContinueStatement = ($traceurRuntime.createClass)({
       constructor: function(location, name) {
         this.location = location;
         this.name = name;
@@ -3217,8 +3220,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var COVER_FORMALS = ParseTreeType.COVER_FORMALS;
   var CoverFormals = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $CoverFormals = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $CoverFormals = ($traceurRuntime.createClass)({
       constructor: function(location, expressions) {
         this.location = location;
         this.expressions = expressions;
@@ -3238,8 +3241,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var COVER_INITIALISED_NAME = ParseTreeType.COVER_INITIALISED_NAME;
   var CoverInitialisedName = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $CoverInitialisedName = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $CoverInitialisedName = ($traceurRuntime.createClass)({
       constructor: function(location, name, equalToken, initialiser) {
         this.location = location;
         this.name = name;
@@ -3261,8 +3264,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var DEBUGGER_STATEMENT = ParseTreeType.DEBUGGER_STATEMENT;
   var DebuggerStatement = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $DebuggerStatement = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $DebuggerStatement = ($traceurRuntime.createClass)({
       constructor: function(location) {
         this.location = location;
       },
@@ -3281,8 +3284,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var DEFAULT_CLAUSE = ParseTreeType.DEFAULT_CLAUSE;
   var DefaultClause = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $DefaultClause = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $DefaultClause = ($traceurRuntime.createClass)({
       constructor: function(location, statements) {
         this.location = location;
         this.statements = statements;
@@ -3302,8 +3305,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var DO_WHILE_STATEMENT = ParseTreeType.DO_WHILE_STATEMENT;
   var DoWhileStatement = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $DoWhileStatement = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $DoWhileStatement = ($traceurRuntime.createClass)({
       constructor: function(location, body, condition) {
         this.location = location;
         this.body = body;
@@ -3324,8 +3327,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var EMPTY_STATEMENT = ParseTreeType.EMPTY_STATEMENT;
   var EmptyStatement = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $EmptyStatement = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $EmptyStatement = ($traceurRuntime.createClass)({
       constructor: function(location) {
         this.location = location;
       },
@@ -3344,8 +3347,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var EXPORT_DECLARATION = ParseTreeType.EXPORT_DECLARATION;
   var ExportDeclaration = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ExportDeclaration = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ExportDeclaration = ($traceurRuntime.createClass)({
       constructor: function(location, declaration) {
         this.location = location;
         this.declaration = declaration;
@@ -3365,8 +3368,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var EXPORT_DEFAULT = ParseTreeType.EXPORT_DEFAULT;
   var ExportDefault = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ExportDefault = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ExportDefault = ($traceurRuntime.createClass)({
       constructor: function(location, expression) {
         this.location = location;
         this.expression = expression;
@@ -3386,8 +3389,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var EXPORT_SPECIFIER = ParseTreeType.EXPORT_SPECIFIER;
   var ExportSpecifier = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ExportSpecifier = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ExportSpecifier = ($traceurRuntime.createClass)({
       constructor: function(location, lhs, rhs) {
         this.location = location;
         this.lhs = lhs;
@@ -3408,8 +3411,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var EXPORT_SPECIFIER_SET = ParseTreeType.EXPORT_SPECIFIER_SET;
   var ExportSpecifierSet = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ExportSpecifierSet = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ExportSpecifierSet = ($traceurRuntime.createClass)({
       constructor: function(location, specifiers) {
         this.location = location;
         this.specifiers = specifiers;
@@ -3429,8 +3432,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var EXPORT_STAR = ParseTreeType.EXPORT_STAR;
   var ExportStar = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ExportStar = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ExportStar = ($traceurRuntime.createClass)({
       constructor: function(location) {
         this.location = location;
       },
@@ -3449,8 +3452,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var EXPRESSION_STATEMENT = ParseTreeType.EXPRESSION_STATEMENT;
   var ExpressionStatement = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ExpressionStatement = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ExpressionStatement = ($traceurRuntime.createClass)({
       constructor: function(location, expression) {
         this.location = location;
         this.expression = expression;
@@ -3470,8 +3473,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var FINALLY = ParseTreeType.FINALLY;
   var Finally = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $Finally = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $Finally = ($traceurRuntime.createClass)({
       constructor: function(location, block) {
         this.location = location;
         this.block = block;
@@ -3491,8 +3494,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var FOR_IN_STATEMENT = ParseTreeType.FOR_IN_STATEMENT;
   var ForInStatement = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ForInStatement = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ForInStatement = ($traceurRuntime.createClass)({
       constructor: function(location, initialiser, collection, body) {
         this.location = location;
         this.initialiser = initialiser;
@@ -3514,8 +3517,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var FOR_OF_STATEMENT = ParseTreeType.FOR_OF_STATEMENT;
   var ForOfStatement = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ForOfStatement = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ForOfStatement = ($traceurRuntime.createClass)({
       constructor: function(location, initialiser, collection, body) {
         this.location = location;
         this.initialiser = initialiser;
@@ -3537,8 +3540,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var FOR_STATEMENT = ParseTreeType.FOR_STATEMENT;
   var ForStatement = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ForStatement = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ForStatement = ($traceurRuntime.createClass)({
       constructor: function(location, initialiser, condition, increment, body) {
         this.location = location;
         this.initialiser = initialiser;
@@ -3561,8 +3564,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var FORMAL_PARAMETER = ParseTreeType.FORMAL_PARAMETER;
   var FormalParameter = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $FormalParameter = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $FormalParameter = ($traceurRuntime.createClass)({
       constructor: function(location, parameter, typeAnnotation) {
         this.location = location;
         this.parameter = parameter;
@@ -3583,8 +3586,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var FORMAL_PARAMETER_LIST = ParseTreeType.FORMAL_PARAMETER_LIST;
   var FormalParameterList = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $FormalParameterList = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $FormalParameterList = ($traceurRuntime.createClass)({
       constructor: function(location, parameters) {
         this.location = location;
         this.parameters = parameters;
@@ -3604,8 +3607,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var FUNCTION_BODY = ParseTreeType.FUNCTION_BODY;
   var FunctionBody = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $FunctionBody = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $FunctionBody = ($traceurRuntime.createClass)({
       constructor: function(location, statements) {
         this.location = location;
         this.statements = statements;
@@ -3625,8 +3628,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var FUNCTION_DECLARATION = ParseTreeType.FUNCTION_DECLARATION;
   var FunctionDeclaration = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $FunctionDeclaration = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $FunctionDeclaration = ($traceurRuntime.createClass)({
       constructor: function(location, name, isGenerator, formalParameterList, typeAnnotation, functionBody) {
         this.location = location;
         this.name = name;
@@ -3650,8 +3653,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var FUNCTION_EXPRESSION = ParseTreeType.FUNCTION_EXPRESSION;
   var FunctionExpression = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $FunctionExpression = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $FunctionExpression = ($traceurRuntime.createClass)({
       constructor: function(location, name, isGenerator, formalParameterList, typeAnnotation, functionBody) {
         this.location = location;
         this.name = name;
@@ -3675,8 +3678,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var GENERATOR_COMPREHENSION = ParseTreeType.GENERATOR_COMPREHENSION;
   var GeneratorComprehension = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $GeneratorComprehension = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $GeneratorComprehension = ($traceurRuntime.createClass)({
       constructor: function(location, comprehensionList, expression) {
         this.location = location;
         this.comprehensionList = comprehensionList;
@@ -3697,8 +3700,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var GET_ACCESSOR = ParseTreeType.GET_ACCESSOR;
   var GetAccessor = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $GetAccessor = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $GetAccessor = ($traceurRuntime.createClass)({
       constructor: function(location, isStatic, name, typeAnnotation, body) {
         this.location = location;
         this.isStatic = isStatic;
@@ -3721,8 +3724,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var IDENTIFIER_EXPRESSION = ParseTreeType.IDENTIFIER_EXPRESSION;
   var IdentifierExpression = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $IdentifierExpression = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $IdentifierExpression = ($traceurRuntime.createClass)({
       constructor: function(location, identifierToken) {
         this.location = location;
         this.identifierToken = identifierToken;
@@ -3742,8 +3745,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var IF_STATEMENT = ParseTreeType.IF_STATEMENT;
   var IfStatement = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $IfStatement = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $IfStatement = ($traceurRuntime.createClass)({
       constructor: function(location, condition, ifClause, elseClause) {
         this.location = location;
         this.condition = condition;
@@ -3765,8 +3768,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var IMPORTED_BINDING = ParseTreeType.IMPORTED_BINDING;
   var ImportedBinding = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ImportedBinding = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ImportedBinding = ($traceurRuntime.createClass)({
       constructor: function(location, binding) {
         this.location = location;
         this.binding = binding;
@@ -3786,8 +3789,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var IMPORT_DECLARATION = ParseTreeType.IMPORT_DECLARATION;
   var ImportDeclaration = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ImportDeclaration = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ImportDeclaration = ($traceurRuntime.createClass)({
       constructor: function(location, importClause, moduleSpecifier) {
         this.location = location;
         this.importClause = importClause;
@@ -3808,8 +3811,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var IMPORT_SPECIFIER = ParseTreeType.IMPORT_SPECIFIER;
   var ImportSpecifier = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ImportSpecifier = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ImportSpecifier = ($traceurRuntime.createClass)({
       constructor: function(location, lhs, rhs) {
         this.location = location;
         this.lhs = lhs;
@@ -3830,8 +3833,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var IMPORT_SPECIFIER_SET = ParseTreeType.IMPORT_SPECIFIER_SET;
   var ImportSpecifierSet = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ImportSpecifierSet = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ImportSpecifierSet = ($traceurRuntime.createClass)({
       constructor: function(location, specifiers) {
         this.location = location;
         this.specifiers = specifiers;
@@ -3851,8 +3854,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var LABELLED_STATEMENT = ParseTreeType.LABELLED_STATEMENT;
   var LabelledStatement = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $LabelledStatement = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $LabelledStatement = ($traceurRuntime.createClass)({
       constructor: function(location, name, statement) {
         this.location = location;
         this.name = name;
@@ -3873,8 +3876,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var LITERAL_EXPRESSION = ParseTreeType.LITERAL_EXPRESSION;
   var LiteralExpression = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $LiteralExpression = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $LiteralExpression = ($traceurRuntime.createClass)({
       constructor: function(location, literalToken) {
         this.location = location;
         this.literalToken = literalToken;
@@ -3894,8 +3897,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var LITERAL_PROPERTY_NAME = ParseTreeType.LITERAL_PROPERTY_NAME;
   var LiteralPropertyName = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $LiteralPropertyName = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $LiteralPropertyName = ($traceurRuntime.createClass)({
       constructor: function(location, literalToken) {
         this.location = location;
         this.literalToken = literalToken;
@@ -3915,8 +3918,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var MEMBER_EXPRESSION = ParseTreeType.MEMBER_EXPRESSION;
   var MemberExpression = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $MemberExpression = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $MemberExpression = ($traceurRuntime.createClass)({
       constructor: function(location, operand, memberName) {
         this.location = location;
         this.operand = operand;
@@ -3937,8 +3940,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var MEMBER_LOOKUP_EXPRESSION = ParseTreeType.MEMBER_LOOKUP_EXPRESSION;
   var MemberLookupExpression = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $MemberLookupExpression = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $MemberLookupExpression = ($traceurRuntime.createClass)({
       constructor: function(location, operand, memberExpression) {
         this.location = location;
         this.operand = operand;
@@ -3959,8 +3962,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var MODULE = ParseTreeType.MODULE;
   var Module = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $Module = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $Module = ($traceurRuntime.createClass)({
       constructor: function(location, scriptItemList, url) {
         this.location = location;
         this.scriptItemList = scriptItemList;
@@ -3981,8 +3984,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var MODULE_DECLARATION = ParseTreeType.MODULE_DECLARATION;
   var ModuleDeclaration = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ModuleDeclaration = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ModuleDeclaration = ($traceurRuntime.createClass)({
       constructor: function(location, identifier, expression) {
         this.location = location;
         this.identifier = identifier;
@@ -4003,8 +4006,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var MODULE_SPECIFIER = ParseTreeType.MODULE_SPECIFIER;
   var ModuleSpecifier = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ModuleSpecifier = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ModuleSpecifier = ($traceurRuntime.createClass)({
       constructor: function(location, token) {
         this.location = location;
         this.token = token;
@@ -4024,8 +4027,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var NAMED_EXPORT = ParseTreeType.NAMED_EXPORT;
   var NamedExport = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $NamedExport = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $NamedExport = ($traceurRuntime.createClass)({
       constructor: function(location, moduleSpecifier, specifierSet) {
         this.location = location;
         this.moduleSpecifier = moduleSpecifier;
@@ -4046,8 +4049,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var NEW_EXPRESSION = ParseTreeType.NEW_EXPRESSION;
   var NewExpression = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $NewExpression = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $NewExpression = ($traceurRuntime.createClass)({
       constructor: function(location, operand, args) {
         this.location = location;
         this.operand = operand;
@@ -4068,8 +4071,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var OBJECT_LITERAL_EXPRESSION = ParseTreeType.OBJECT_LITERAL_EXPRESSION;
   var ObjectLiteralExpression = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ObjectLiteralExpression = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ObjectLiteralExpression = ($traceurRuntime.createClass)({
       constructor: function(location, propertyNameAndValues) {
         this.location = location;
         this.propertyNameAndValues = propertyNameAndValues;
@@ -4089,8 +4092,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var OBJECT_PATTERN = ParseTreeType.OBJECT_PATTERN;
   var ObjectPattern = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ObjectPattern = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ObjectPattern = ($traceurRuntime.createClass)({
       constructor: function(location, fields) {
         this.location = location;
         this.fields = fields;
@@ -4110,8 +4113,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var OBJECT_PATTERN_FIELD = ParseTreeType.OBJECT_PATTERN_FIELD;
   var ObjectPatternField = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ObjectPatternField = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ObjectPatternField = ($traceurRuntime.createClass)({
       constructor: function(location, name, element) {
         this.location = location;
         this.name = name;
@@ -4132,8 +4135,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var PAREN_EXPRESSION = ParseTreeType.PAREN_EXPRESSION;
   var ParenExpression = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ParenExpression = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ParenExpression = ($traceurRuntime.createClass)({
       constructor: function(location, expression) {
         this.location = location;
         this.expression = expression;
@@ -4153,8 +4156,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var POSTFIX_EXPRESSION = ParseTreeType.POSTFIX_EXPRESSION;
   var PostfixExpression = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $PostfixExpression = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $PostfixExpression = ($traceurRuntime.createClass)({
       constructor: function(location, operand, operator) {
         this.location = location;
         this.operand = operand;
@@ -4175,8 +4178,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var PREDEFINED_TYPE = ParseTreeType.PREDEFINED_TYPE;
   var PredefinedType = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $PredefinedType = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $PredefinedType = ($traceurRuntime.createClass)({
       constructor: function(location, typeToken) {
         this.location = location;
         this.typeToken = typeToken;
@@ -4196,8 +4199,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var SCRIPT = ParseTreeType.SCRIPT;
   var Script = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $Script = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $Script = ($traceurRuntime.createClass)({
       constructor: function(location, scriptItemList, url) {
         this.location = location;
         this.scriptItemList = scriptItemList;
@@ -4218,8 +4221,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var PROPERTY_METHOD_ASSIGNMENT = ParseTreeType.PROPERTY_METHOD_ASSIGNMENT;
   var PropertyMethodAssignment = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $PropertyMethodAssignment = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $PropertyMethodAssignment = ($traceurRuntime.createClass)({
       constructor: function(location, isStatic, isGenerator, name, formalParameterList, typeAnnotation, functionBody) {
         this.location = location;
         this.isStatic = isStatic;
@@ -4244,8 +4247,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var PROPERTY_NAME_ASSIGNMENT = ParseTreeType.PROPERTY_NAME_ASSIGNMENT;
   var PropertyNameAssignment = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $PropertyNameAssignment = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $PropertyNameAssignment = ($traceurRuntime.createClass)({
       constructor: function(location, name, value) {
         this.location = location;
         this.name = name;
@@ -4266,8 +4269,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var PROPERTY_NAME_SHORTHAND = ParseTreeType.PROPERTY_NAME_SHORTHAND;
   var PropertyNameShorthand = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $PropertyNameShorthand = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $PropertyNameShorthand = ($traceurRuntime.createClass)({
       constructor: function(location, name) {
         this.location = location;
         this.name = name;
@@ -4287,8 +4290,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var REST_PARAMETER = ParseTreeType.REST_PARAMETER;
   var RestParameter = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $RestParameter = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $RestParameter = ($traceurRuntime.createClass)({
       constructor: function(location, identifier) {
         this.location = location;
         this.identifier = identifier;
@@ -4308,8 +4311,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var RETURN_STATEMENT = ParseTreeType.RETURN_STATEMENT;
   var ReturnStatement = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ReturnStatement = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ReturnStatement = ($traceurRuntime.createClass)({
       constructor: function(location, expression) {
         this.location = location;
         this.expression = expression;
@@ -4329,8 +4332,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var SET_ACCESSOR = ParseTreeType.SET_ACCESSOR;
   var SetAccessor = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $SetAccessor = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $SetAccessor = ($traceurRuntime.createClass)({
       constructor: function(location, isStatic, name, parameter, body) {
         this.location = location;
         this.isStatic = isStatic;
@@ -4353,8 +4356,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var SPREAD_EXPRESSION = ParseTreeType.SPREAD_EXPRESSION;
   var SpreadExpression = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $SpreadExpression = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $SpreadExpression = ($traceurRuntime.createClass)({
       constructor: function(location, expression) {
         this.location = location;
         this.expression = expression;
@@ -4374,8 +4377,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var SPREAD_PATTERN_ELEMENT = ParseTreeType.SPREAD_PATTERN_ELEMENT;
   var SpreadPatternElement = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $SpreadPatternElement = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $SpreadPatternElement = ($traceurRuntime.createClass)({
       constructor: function(location, lvalue) {
         this.location = location;
         this.lvalue = lvalue;
@@ -4395,8 +4398,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var SUPER_EXPRESSION = ParseTreeType.SUPER_EXPRESSION;
   var SuperExpression = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $SuperExpression = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $SuperExpression = ($traceurRuntime.createClass)({
       constructor: function(location) {
         this.location = location;
       },
@@ -4415,8 +4418,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var SWITCH_STATEMENT = ParseTreeType.SWITCH_STATEMENT;
   var SwitchStatement = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $SwitchStatement = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $SwitchStatement = ($traceurRuntime.createClass)({
       constructor: function(location, expression, caseClauses) {
         this.location = location;
         this.expression = expression;
@@ -4437,8 +4440,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var SYNTAX_ERROR_TREE = ParseTreeType.SYNTAX_ERROR_TREE;
   var SyntaxErrorTree = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $SyntaxErrorTree = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $SyntaxErrorTree = ($traceurRuntime.createClass)({
       constructor: function(location, nextToken, message) {
         this.location = location;
         this.nextToken = nextToken;
@@ -4459,8 +4462,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var TEMPLATE_LITERAL_EXPRESSION = ParseTreeType.TEMPLATE_LITERAL_EXPRESSION;
   var TemplateLiteralExpression = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $TemplateLiteralExpression = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $TemplateLiteralExpression = ($traceurRuntime.createClass)({
       constructor: function(location, operand, elements) {
         this.location = location;
         this.operand = operand;
@@ -4481,8 +4484,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var TEMPLATE_LITERAL_PORTION = ParseTreeType.TEMPLATE_LITERAL_PORTION;
   var TemplateLiteralPortion = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $TemplateLiteralPortion = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $TemplateLiteralPortion = ($traceurRuntime.createClass)({
       constructor: function(location, value) {
         this.location = location;
         this.value = value;
@@ -4502,8 +4505,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var TEMPLATE_SUBSTITUTION = ParseTreeType.TEMPLATE_SUBSTITUTION;
   var TemplateSubstitution = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $TemplateSubstitution = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $TemplateSubstitution = ($traceurRuntime.createClass)({
       constructor: function(location, expression) {
         this.location = location;
         this.expression = expression;
@@ -4523,8 +4526,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var THIS_EXPRESSION = ParseTreeType.THIS_EXPRESSION;
   var ThisExpression = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ThisExpression = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ThisExpression = ($traceurRuntime.createClass)({
       constructor: function(location) {
         this.location = location;
       },
@@ -4543,8 +4546,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var THROW_STATEMENT = ParseTreeType.THROW_STATEMENT;
   var ThrowStatement = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ThrowStatement = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ThrowStatement = ($traceurRuntime.createClass)({
       constructor: function(location, value) {
         this.location = location;
         this.value = value;
@@ -4564,8 +4567,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var TRY_STATEMENT = ParseTreeType.TRY_STATEMENT;
   var TryStatement = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $TryStatement = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $TryStatement = ($traceurRuntime.createClass)({
       constructor: function(location, body, catchBlock, finallyBlock) {
         this.location = location;
         this.body = body;
@@ -4587,8 +4590,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var TYPE_NAME = ParseTreeType.TYPE_NAME;
   var TypeName = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $TypeName = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $TypeName = ($traceurRuntime.createClass)({
       constructor: function(location, moduleName, name) {
         this.location = location;
         this.moduleName = moduleName;
@@ -4609,8 +4612,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var UNARY_EXPRESSION = ParseTreeType.UNARY_EXPRESSION;
   var UnaryExpression = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $UnaryExpression = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $UnaryExpression = ($traceurRuntime.createClass)({
       constructor: function(location, operator, operand) {
         this.location = location;
         this.operator = operator;
@@ -4631,8 +4634,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var VARIABLE_DECLARATION = ParseTreeType.VARIABLE_DECLARATION;
   var VariableDeclaration = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $VariableDeclaration = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $VariableDeclaration = ($traceurRuntime.createClass)({
       constructor: function(location, lvalue, typeAnnotation, initialiser) {
         this.location = location;
         this.lvalue = lvalue;
@@ -4654,8 +4657,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var VARIABLE_DECLARATION_LIST = ParseTreeType.VARIABLE_DECLARATION_LIST;
   var VariableDeclarationList = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $VariableDeclarationList = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $VariableDeclarationList = ($traceurRuntime.createClass)({
       constructor: function(location, declarationType, declarations) {
         this.location = location;
         this.declarationType = declarationType;
@@ -4676,8 +4679,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var VARIABLE_STATEMENT = ParseTreeType.VARIABLE_STATEMENT;
   var VariableStatement = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $VariableStatement = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $VariableStatement = ($traceurRuntime.createClass)({
       constructor: function(location, declarations) {
         this.location = location;
         this.declarations = declarations;
@@ -4697,8 +4700,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var WHILE_STATEMENT = ParseTreeType.WHILE_STATEMENT;
   var WhileStatement = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $WhileStatement = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $WhileStatement = ($traceurRuntime.createClass)({
       constructor: function(location, condition, body) {
         this.location = location;
         this.condition = condition;
@@ -4719,8 +4722,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var WITH_STATEMENT = ParseTreeType.WITH_STATEMENT;
   var WithStatement = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $WithStatement = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $WithStatement = ($traceurRuntime.createClass)({
       constructor: function(location, expression, body) {
         this.location = location;
         this.expression = expression;
@@ -4741,8 +4744,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/ParseTrees.js"
   var YIELD_EXPRESSION = ParseTreeType.YIELD_EXPRESSION;
   var YieldExpression = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $YieldExpression = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $YieldExpression = ($traceurRuntime.createClass)({
       constructor: function(location, expression, isYieldFor) {
         this.location = location;
         this.expression = expression;
@@ -5140,7 +5143,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ParseTreeTra
       YieldExpression = $__25.YieldExpression;
   var ParseTreeTransformer = function() {
     'use strict';
-    var $ParseTreeTransformer = ($__createClassNoExtends)({
+    var $ParseTreeTransformer = ($traceurRuntime.createClassNoExtends)({
       constructor: function() {},
       transformAny: function(tree) {
         return tree && tree.transform(this);
@@ -5815,16 +5818,16 @@ System.get('@traceur/module').registerModule("../src/codegeneration/AssignmentPa
   var EQUAL = System.get('@traceur/module').getModuleImpl("../src/syntax/TokenType.js").EQUAL;
   var AssignmentPatternTransformerError = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $AssignmentPatternTransformerError = ($__createClass)({constructor: function() {
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $AssignmentPatternTransformerError = ($traceurRuntime.createClass)({constructor: function() {
         $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
       }}, {}, $__proto, $__super, false);
     return $AssignmentPatternTransformerError;
   }(Error);
   var AssignmentPatternTransformer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $AssignmentPatternTransformer = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $AssignmentPatternTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
         $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
       },
@@ -5889,8 +5892,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/CoverFormals
   var AssignmentPatternTransformerError = System.get('@traceur/module').getModuleImpl("../src/codegeneration/AssignmentPatternTransformer.js").AssignmentPatternTransformerError;
   var CoverFormalsTransformerError = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $CoverFormalsTransformerError = ($__createClass)({constructor: function(location, message) {
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $CoverFormalsTransformerError = ($traceurRuntime.createClass)({constructor: function(location, message) {
         this.location = location;
         this.message = message;
       }}, {}, $__proto, $__super, true);
@@ -5898,8 +5901,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/CoverFormals
   }(Error);
   var ToFormalParametersTransformer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ToFormalParametersTransformer = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ToFormalParametersTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
         this.isValid = true;
         this.inArrayPattern_ = false;
@@ -6026,8 +6029,8 @@ System.get('@traceur/module').registerModule("../src/staticsemantics/StrictParam
   var isStrictKeyword = System.get('@traceur/module').getModuleImpl("../src/syntax/Keywords.js").isStrictKeyword;
   var StrictParams = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $StrictParams = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $StrictParams = ($traceurRuntime.createClass)({
       constructor: function(errorReporter) {
         $traceurRuntime.superCall(this, $__proto, "constructor", []);
         this.errorReporter = errorReporter;
@@ -6051,7 +6054,7 @@ System.get('@traceur/module').registerModule("../src/util/SourceRange.js", funct
   "use strict";
   var SourceRange = function() {
     'use strict';
-    var $SourceRange = ($__createClassNoExtends)({constructor: function(start, end) {
+    var $SourceRange = ($traceurRuntime.createClassNoExtends)({constructor: function(start, end) {
         this.start = start;
         this.end = end;
       }}, {});
@@ -6067,8 +6070,8 @@ System.get('@traceur/module').registerModule("../src/syntax/IdentifierToken.js",
   var IDENTIFIER = System.get('@traceur/module').getModuleImpl("../src/syntax/TokenType.js").IDENTIFIER;
   var IdentifierToken = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $IdentifierToken = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $IdentifierToken = ($traceurRuntime.createClass)({
       constructor: function(location, value) {
         this.location = location;
         this.value = value;
@@ -6368,8 +6371,8 @@ System.get('@traceur/module').registerModule("../src/syntax/KeywordToken.js", fu
   var Token = System.get('@traceur/module').getModuleImpl("../src/syntax/Token.js").Token;
   var KeywordToken = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $KeywordToken = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $KeywordToken = ($traceurRuntime.createClass)({
       constructor: function(type, keywordType, location) {
         this.type = type;
         this.location = location;
@@ -6399,7 +6402,7 @@ System.get('@traceur/module').registerModule("../src/syntax/LiteralToken.js", fu
   var StringParser = function() {
     'use strict';
     var $__38;
-    var $StringParser = ($__createClassNoExtends)(($__38 = {}, Object.defineProperty($__38, "constructor", {
+    var $StringParser = ($traceurRuntime.createClassNoExtends)(($__38 = {}, Object.defineProperty($__38, "constructor", {
       value: function(value) {
         this.value = value;
         this.index = 0;
@@ -6484,8 +6487,8 @@ System.get('@traceur/module').registerModule("../src/syntax/LiteralToken.js", fu
   }();
   var LiteralToken = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $LiteralToken = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $LiteralToken = ($traceurRuntime.createClass)({
       constructor: function(type, value, location) {
         this.type = type;
         this.location = location;
@@ -6748,7 +6751,7 @@ System.get('@traceur/module').registerModule("../src/syntax/Scanner.js", functio
       currentParser;
   var Scanner = function() {
     'use strict';
-    var $Scanner = ($__createClassNoExtends)({
+    var $Scanner = ($traceurRuntime.createClassNoExtends)({
       constructor: function(reporter, file, parser) {
         errorReporter = reporter;
         lineNumberTable = file.lineNumberTable;
@@ -7694,7 +7697,7 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
   };
   var Parser = function() {
     'use strict';
-    var $Parser = ($__createClassNoExtends)({
+    var $Parser = ($traceurRuntime.createClassNoExtends)({
       constructor: function(errorReporter, file) {
         this.errorReporter_ = errorReporter;
         this.scanner_ = new Scanner(errorReporter, file, this);
@@ -9665,7 +9668,7 @@ System.get('@traceur/module').registerModule("../src/util/SourcePosition.js", fu
   "use strict";
   var SourcePosition = function() {
     'use strict';
-    var $SourcePosition = ($__createClassNoExtends)({
+    var $SourcePosition = ($traceurRuntime.createClassNoExtends)({
       constructor: function(source, offset) {
         this.source = source;
         this.offset = offset;
@@ -9714,7 +9717,7 @@ System.get('@traceur/module').registerModule("../src/syntax/LineNumberTable.js",
   }
   var LineNumberTable = function() {
     'use strict';
-    var $LineNumberTable = ($__createClassNoExtends)({
+    var $LineNumberTable = ($traceurRuntime.createClassNoExtends)({
       constructor: function(sourceFile) {
         this.sourceFile_ = sourceFile;
         this.lineStartOffsets_ = null;
@@ -9777,7 +9780,7 @@ System.get('@traceur/module').registerModule("../src/syntax/SourceFile.js", func
   var getUid = System.get('@traceur/module').getModuleImpl("../src/util/uid.js").getUid;
   var SourceFile = function() {
     'use strict';
-    var $SourceFile = ($__createClassNoExtends)({constructor: function(name, contents) {
+    var $SourceFile = ($traceurRuntime.createClassNoExtends)({constructor: function(name, contents) {
         this.name = name;
         this.contents = contents;
         this.lineNumberTable = new LineNumberTable(this);
@@ -9793,7 +9796,7 @@ System.get('@traceur/module').registerModule("../src/util/ErrorReporter.js", fun
   "use strict";
   var ErrorReporter = function() {
     'use strict';
-    var $ErrorReporter = ($__createClassNoExtends)({
+    var $ErrorReporter = ($traceurRuntime.createClassNoExtends)({
       constructor: function() {
         this.hadError_ = false;
       },
@@ -9841,8 +9844,8 @@ System.get('@traceur/module').registerModule("../src/util/MutedErrorReporter.js"
   var ErrorReporter = System.get('@traceur/module').getModuleImpl("../src/util/ErrorReporter.js").ErrorReporter;
   var MutedErrorReporter = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $MutedErrorReporter = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $MutedErrorReporter = ($traceurRuntime.createClass)({
       constructor: function() {
         $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
       },
@@ -10731,8 +10734,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/RuntimeInlin
   }
   var RuntimeInliner = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $RuntimeInliner = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $RuntimeInliner = ($traceurRuntime.createClass)({
       constructor: function(identifierGenerator) {
         $traceurRuntime.superCall(this, $__proto, "constructor", []);
         this.identifierGenerator = identifierGenerator;
@@ -10790,7 +10793,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/UniqueIdenti
   "use strict";
   var UniqueIdentifierGenerator = function() {
     'use strict';
-    var $UniqueIdentifierGenerator = ($__createClassNoExtends)({
+    var $UniqueIdentifierGenerator = ($traceurRuntime.createClassNoExtends)({
       constructor: function() {
         this.identifierIndex = 0;
       },
@@ -10812,7 +10815,7 @@ System.get('@traceur/module').registerModule("../src/util/ArrayMap.js", function
   "use strict";
   var ArrayMap = function() {
     'use strict';
-    var $ArrayMap = ($__createClassNoExtends)({
+    var $ArrayMap = ($traceurRuntime.createClassNoExtends)({
       constructor: function() {
         this.values_ = [];
         this.keys_ = [];
@@ -10868,7 +10871,7 @@ System.get('@traceur/module').registerModule("../src/util/ObjectMap.js", functio
   "use strict";
   var ObjectMap = function() {
     'use strict';
-    var $ObjectMap = ($__createClassNoExtends)({
+    var $ObjectMap = ($traceurRuntime.createClassNoExtends)({
       constructor: function() {
         this.keys_ = Object.create(null);
         this.values_ = Object.create(null);
@@ -10926,8 +10929,8 @@ System.get('@traceur/module').registerModule("../src/semantics/symbols/ModuleSym
   var assert = System.get('@traceur/module').getModuleImpl("../src/util/assert.js").assert;
   var ModuleSymbol = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ModuleSymbol = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ModuleSymbol = ($traceurRuntime.createClass)({
       constructor: function(tree, url) {
         $traceurRuntime.superCall(this, $__proto, "constructor", [MODULE, tree]);
         this.exports_ = Object.create(null);
@@ -10991,7 +10994,7 @@ System.get('@traceur/module').registerModule("../src/semantics/symbols/Project.j
   }
   var Project = function() {
     'use strict';
-    var $Project = ($__createClassNoExtends)({
+    var $Project = ($traceurRuntime.createClassNoExtends)({
       constructor: function(url) {
         this.identifierGenerator = new UniqueIdentifierGenerator();
         this.runtimeInliner = new RuntimeInliner(this.identifierGenerator);
@@ -11073,7 +11076,7 @@ System.get('@traceur/module').registerModule("../src/semantics/FreeVariableCheck
   var global = this;
   var Scope = function() {
     'use strict';
-    var $Scope = ($__createClassNoExtends)({constructor: function(parent) {
+    var $Scope = ($traceurRuntime.createClassNoExtends)({constructor: function(parent) {
         this.parent = parent;
         this.references = Object.create(null);
         this.declarations = Object.create(null);
@@ -11093,8 +11096,8 @@ System.get('@traceur/module').registerModule("../src/semantics/FreeVariableCheck
   }
   var FreeVariableChecker = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $FreeVariableChecker = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $FreeVariableChecker = ($traceurRuntime.createClass)({
       constructor: function(reporter) {
         $traceurRuntime.superCall(this, $__proto, "constructor", []);
         this.reporter_ = reporter;
@@ -11354,8 +11357,8 @@ System.get('@traceur/module').registerModule("../src/outputgeneration/ParseTreeW
   var PRETTY_PRINT = true;
   var ParseTreeWriter = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ParseTreeWriter = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ParseTreeWriter = ($traceurRuntime.createClass)({
       constructor: function(highlighted, showLineNumbers) {
         $traceurRuntime.superCall(this, $__proto, "constructor", []);
         this.highlighted_ = highlighted;
@@ -12155,8 +12158,8 @@ System.get('@traceur/module').registerModule("../src/outputgeneration/ParseTreeM
   var ParseTreeWriter = System.get('@traceur/module').getModuleImpl("../src/outputgeneration/ParseTreeWriter.js").ParseTreeWriter;
   var ParseTreeMapWriter = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ParseTreeMapWriter = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ParseTreeMapWriter = ($traceurRuntime.createClass)({
       constructor: function(highlighted, showLineNumbers, sourceMapGenerator) {
         $traceurRuntime.superCall(this, $__proto, "constructor", [highlighted, showLineNumbers]);
         this.sourceMapGenerator_ = sourceMapGenerator;
@@ -12226,7 +12229,7 @@ System.get('@traceur/module').registerModule("../src/outputgeneration/TreeWriter
   }
   var TreeWriter = function() {
     'use strict';
-    var $TreeWriter = ($__createClassNoExtends)({constructor: function() {}}, {});
+    var $TreeWriter = ($traceurRuntime.createClassNoExtends)({constructor: function() {}}, {});
     return $TreeWriter;
   }();
   TreeWriter.write = write;
@@ -12324,8 +12327,8 @@ System.get('@traceur/module').registerModule("../src/syntax/ParseTreeValidator.j
       VARIABLE_STATEMENT = $__85.VARIABLE_STATEMENT;
   var ValidationError = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ValidationError = ($__createClass)({constructor: function(tree, message) {
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ValidationError = ($traceurRuntime.createClass)({constructor: function(tree, message) {
         this.tree = tree;
         this.message = message;
       }}, {}, $__proto, $__super, true);
@@ -12333,8 +12336,8 @@ System.get('@traceur/module').registerModule("../src/syntax/ParseTreeValidator.j
   }(Error);
   var ParseTreeValidator = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ParseTreeValidator = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ParseTreeValidator = ($traceurRuntime.createClass)({
       constructor: function() {
         $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
       },
@@ -12819,7 +12822,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/TempVarTrans
   }
   var TempVarStatement = function() {
     'use strict';
-    var $TempVarStatement = ($__createClassNoExtends)({constructor: function(name, initialiser) {
+    var $TempVarStatement = ($traceurRuntime.createClassNoExtends)({constructor: function(name, initialiser) {
         this.name = name;
         this.initialiser = initialiser;
       }}, {});
@@ -12827,7 +12830,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/TempVarTrans
   }();
   var TempScope = function() {
     'use strict';
-    var $TempScope = ($__createClassNoExtends)({
+    var $TempScope = ($traceurRuntime.createClassNoExtends)({
       constructor: function() {
         this.thisName = null;
         this.argumentName = null;
@@ -12849,8 +12852,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/TempVarTrans
   }();
   var TempVarTransformer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $TempVarTransformer = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $TempVarTransformer = ($traceurRuntime.createClass)({
       constructor: function(identifierGenerator) {
         $traceurRuntime.superCall(this, $__proto, "constructor", []);
         this.identifierGenerator = identifierGenerator;
@@ -12966,8 +12969,8 @@ System.get('@traceur/module').registerModule("../src/semantics/VariableBinder.js
   ;
   var VariableBinder = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $VariableBinder = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $VariableBinder = ($traceurRuntime.createClass)({
       constructor: function(includeFunctionScope, scope) {
         $traceurRuntime.superCall(this, $__proto, "constructor", []);
         this.includeFunctionScope_ = includeFunctionScope;
@@ -13083,8 +13086,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/AlphaRenamer
       variablesInFunction = $__91.variablesInFunction;
   var AlphaRenamer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $AlphaRenamer = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $AlphaRenamer = ($traceurRuntime.createClass)({
       constructor: function(oldName, newName) {
         $traceurRuntime.superCall(this, $__proto, "constructor", []);
         this.oldName_ = oldName;
@@ -13146,8 +13149,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/FindVisitor.
   var foundSentinel = {};
   var FindVisitor = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $FindVisitor = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $FindVisitor = ($traceurRuntime.createClass)({
       constructor: function(tree) {
         var keepOnGoing = arguments[1];
         this.found_ = false;
@@ -13179,8 +13182,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/FindInFuncti
   var FindVisitor = System.get('@traceur/module').getModuleImpl("../src/codegeneration/FindVisitor.js").FindVisitor;
   var FindInFunctionScope = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $FindInFunctionScope = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $FindInFunctionScope = ($traceurRuntime.createClass)({
       constructor: function() {
         $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
       },
@@ -13205,8 +13208,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/alphaRenameT
   var FindInFunctionScope = System.get('@traceur/module').getModuleImpl("../src/codegeneration/FindInFunctionScope.js").FindInFunctionScope;
   var FindThisOrArguments = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $FindThisOrArguments = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $FindThisOrArguments = ($traceurRuntime.createClass)({
       constructor: function(tree) {
         this.foundThis = false;
         this.foundArguments = false;
@@ -13263,8 +13266,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/Comprehensio
   var options = System.get('@traceur/module').getModuleImpl("../src/options.js").options;
   var ComprehensionTransformer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ComprehensionTransformer = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ComprehensionTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
         $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
       },
@@ -13379,7 +13382,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/PlaceholderP
   var counter = 0;
   var PlaceholderParser = function() {
     'use strict';
-    var $PlaceholderParser = ($__createClassNoExtends)({
+    var $PlaceholderParser = ($traceurRuntime.createClassNoExtends)({
       constructor: function() {},
       parseExpression: function(sourceLiterals) {
         return this.parse_(sourceLiterals, (function(p) {
@@ -13440,8 +13443,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/PlaceholderP
   }
   var PlaceholderTransformer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $PlaceholderTransformer = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $PlaceholderTransformer = ($traceurRuntime.createClass)({
       constructor: function(values) {
         $traceurRuntime.superCall(this, $__proto, "constructor", []);
         this.values = values;
@@ -13542,8 +13545,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ArrayCompreh
   var parseStatement = System.get('@traceur/module').getModuleImpl("../src/codegeneration/PlaceholderParser.js").parseStatement;
   var ArrayComprehensionTransformer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ArrayComprehensionTransformer = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ArrayComprehensionTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
         $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
       },
@@ -13582,8 +13585,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ArrowFunctio
       createReturnStatement = $__111.createReturnStatement;
   var ArrowFunctionTransformer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ArrowFunctionTransformer = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ArrowFunctionTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
         $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
       },
@@ -13649,7 +13652,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/BlockBinding
   };
   var Scope = function() {
     'use strict';
-    var $Scope = ($__createClassNoExtends)({
+    var $Scope = ($traceurRuntime.createClassNoExtends)({
       constructor: function(parent, type) {
         this.parent = parent;
         this.type = type;
@@ -13667,7 +13670,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/BlockBinding
   ;
   var Rename = function() {
     'use strict';
-    var $Rename = ($__createClassNoExtends)({constructor: function(oldName, newName) {
+    var $Rename = ($traceurRuntime.createClassNoExtends)({constructor: function(oldName, newName) {
         this.oldName = oldName;
         this.newName = newName;
       }}, {});
@@ -13684,8 +13687,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/BlockBinding
   }
   var BlockBindingTransformer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $BlockBindingTransformer = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $BlockBindingTransformer = ($traceurRuntime.createClass)({
       constructor: function(stateAllocator) {
         $traceurRuntime.superCall(this, $__proto, "constructor", []);
         this.scope_ = null;
@@ -14107,8 +14110,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/SuperTransfo
   var parseExpression = System.get('@traceur/module').getModuleImpl("../src/codegeneration/PlaceholderParser.js").parseExpression;
   var SuperTransformer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $SuperTransformer = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $SuperTransformer = ($traceurRuntime.createClass)({
       constructor: function(tempVarTransformer, reporter, protoName, methodTree, thisName) {
         this.tempVarTransformer_ = tempVarTransformer;
         this.reporter_ = reporter;
@@ -14223,8 +14226,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/SuperTransfo
 }, this);
 System.get('@traceur/module').registerModule("../src/codegeneration/ClassTransformer.js", function() {
   "use strict";
-  var $__124 = Object.freeze(Object.defineProperties(["function($__super) {\n        'use strict';\n        var $__proto = ", "($__super);\n        var ", " =\n            (", ")(", ", ", ", $__proto,\n                                   $__super, ", ");\n        return ", ";\n      }(", ")"], {raw: {value: Object.freeze(["function($__super) {\n        'use strict';\n        var $__proto = ", "($__super);\n        var ", " =\n            (", ")(", ", ", ", $__proto,\n                                   $__super, ", ");\n        return ", ";\n      }(", ")"])}})),
-      $__125 = Object.freeze(Object.defineProperties(["function() {\n      'use strict';\n      var ", " = (", ")(\n          ", ", ", ");\n      return ", ";\n    }()"], {raw: {value: Object.freeze(["function() {\n      'use strict';\n      var ", " = (", ")(\n          ", ", ", ");\n      return ", ";\n    }()"])}})),
+  var $__124 = Object.freeze(Object.defineProperties(["function($__super) {\n        'use strict';\n        var $__proto = $traceurRuntime.getProtoParent($__super);\n        var ", " =\n            ($traceurRuntime.createClass)(", ", ", ", $__proto,\n                                   $__super, ", ");\n        return ", ";\n      }(", ")"], {raw: {value: Object.freeze(["function($__super) {\n        'use strict';\n        var $__proto = $traceurRuntime.getProtoParent($__super);\n        var ", " =\n            ($traceurRuntime.createClass)(", ", ", ", $__proto,\n                                   $__super, ", ");\n        return ", ";\n      }(", ")"])}})),
+      $__125 = Object.freeze(Object.defineProperties(["function() {\n      'use strict';\n      var ", " = ($traceurRuntime.createClassNoExtends)(\n          ", ", ", ");\n      return ", ";\n    }()"], {raw: {value: Object.freeze(["function() {\n      'use strict';\n      var ", " = ($traceurRuntime.createClassNoExtends)(\n          ", ", ", ");\n      return ", ";\n    }()"])}})),
       $__126 = Object.freeze(Object.defineProperties(["constructor: function() {}"], {raw: {value: Object.freeze(["constructor: function() {}"])}})),
       $__127 = Object.freeze(Object.defineProperties(["constructor: function() {\n      ", ";\n    }"], {raw: {value: Object.freeze(["constructor: function() {\n      ", ";\n    }"])}}));
   var CONSTRUCTOR = System.get('@traceur/module').getModuleImpl("../src/syntax/PredefinedName.js").CONSTRUCTOR;
@@ -14254,16 +14257,12 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ClassTransfo
       parseExpression = $__130.parseExpression,
       parsePropertyDefinition = $__130.parsePropertyDefinition;
   var propName = System.get('@traceur/module').getModuleImpl("../src/staticsemantics/PropName.js").propName;
-  var CREATE_CLASS_CODE = "function(object, staticObject, protoParent, superClass, hasConstructor) {\n      var ctor = object.constructor;\n      if (typeof superClass === 'function')\n        ctor.__proto__ = superClass;\n      if (!hasConstructor && protoParent === null)\n        ctor = object.constructor = function() {};\n\n      var descriptors = %getDescriptors(object);\n      descriptors.constructor.enumerable = false;\n      ctor.prototype = Object.create(protoParent, descriptors);\n      Object.defineProperties(ctor, %getDescriptors(staticObject));\n\n      return ctor;\n    }";
-  var GET_PROTO_PARENT_CODE = "function(superClass) {\n      if (typeof superClass === 'function') {\n        var prototype = superClass.prototype;\n        if (Object(prototype) === prototype || prototype === null)\n          return superClass.prototype;\n      }\n      if (superClass === null)\n        return null;\n      throw new TypeError();\n    }";
-  var CREATE_CLASS_NO_EXTENDS_CODE = "function(object, staticObject) {\n      var ctor = object.constructor;\n      Object.defineProperty(object, 'constructor', {enumerable: false});\n      ctor.prototype = object;\n      Object.defineProperties(ctor, %getDescriptors(staticObject));\n      return ctor;\n    }";
   var ClassTransformer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ClassTransformer = ($__createClass)({
-      constructor: function(identifierGenerator, runtimeInliner, reporter) {
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ClassTransformer = ($traceurRuntime.createClass)({
+      constructor: function(identifierGenerator, reporter) {
         $traceurRuntime.superCall(this, $__proto, "constructor", [identifierGenerator]);
-        this.runtimeInliner_ = runtimeInliner;
         this.reporter_ = reporter;
       },
       transformClassShared_: function(tree, name) {
@@ -14306,18 +14305,9 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ClassTransfo
         var object = createObjectLiteralExpression(protoElements);
         var staticObject = createObjectLiteralExpression(staticElements);
         if (superClass) {
-          return parseExpression($__124, this.getProtoParent_, nameIdent, this.createClass_, object, staticObject, hasConstructor, nameIdent, superClass);
+          return parseExpression($__124, nameIdent, object, staticObject, hasConstructor, nameIdent, superClass);
         }
-        return parseExpression($__125, nameIdent, this.createClassNoExtends_, object, staticObject, nameIdent);
-      },
-      get createClass_() {
-        return this.runtimeInliner_.get('createClass', CREATE_CLASS_CODE);
-      },
-      get getProtoParent_() {
-        return this.runtimeInliner_.get('getProtoParent', GET_PROTO_PARENT_CODE);
-      },
-      get createClassNoExtends_() {
-        return this.runtimeInliner_.get('createClassNoExtends', CREATE_CLASS_NO_EXTENDS_CODE);
+        return parseExpression($__125, nameIdent, object, staticObject, nameIdent);
       },
       transformClassDeclaration: function(tree) {
         var name = '$' + tree.name.identifierToken.value;
@@ -14421,8 +14411,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ParameterTra
   var stack = [];
   var ParameterTransformer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ParameterTransformer = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ParameterTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
         $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
       },
@@ -14499,8 +14489,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/DefaultParam
   }
   var DefaultParametersTransformer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $DefaultParametersTransformer = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $DefaultParametersTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
         $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
       },
@@ -14589,15 +14579,15 @@ System.get('@traceur/module').registerModule("../src/codegeneration/Destructurin
   var options = System.get('@traceur/module').getModuleImpl("../src/options.js").options;
   var Desugaring = function() {
     'use strict';
-    var $Desugaring = ($__createClassNoExtends)({constructor: function(rvalue) {
+    var $Desugaring = ($traceurRuntime.createClassNoExtends)({constructor: function(rvalue) {
         this.rvalue = rvalue;
       }}, {});
     return $Desugaring;
   }();
   var AssignmentExpressionDesugaring = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $AssignmentExpressionDesugaring = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $AssignmentExpressionDesugaring = ($traceurRuntime.createClass)({
       constructor: function(rvalue) {
         $traceurRuntime.superCall(this, $__proto, "constructor", [rvalue]);
         this.expressions = [];
@@ -14611,8 +14601,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/Destructurin
   }(Desugaring);
   var VariableDeclarationDesugaring = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $VariableDeclarationDesugaring = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $VariableDeclarationDesugaring = ($traceurRuntime.createClass)({
       constructor: function(rvalue) {
         $traceurRuntime.superCall(this, $__proto, "constructor", [rvalue]);
         this.declarations = [];
@@ -14650,8 +14640,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/Destructurin
   }
   var DestructuringTransformer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $DestructuringTransformer = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $DestructuringTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
         $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
       },
@@ -14864,8 +14854,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ForOfTransfo
   var GET_ITERATOR_CODE = "function(object) {\n  return object[%iterator]();\n}";
   var ForOfTransformer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ForOfTransformer = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ForOfTransformer = ($traceurRuntime.createClass)({
       constructor: function(identifierGenerator, runtimeInliner) {
         $traceurRuntime.superCall(this, $__proto, "constructor", [identifierGenerator]);
         this.runtimeInliner_ = runtimeInliner;
@@ -14898,8 +14888,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/GeneratorCom
   var createYieldStatement = System.get('@traceur/module').getModuleImpl("../src/codegeneration/ParseTreeFactory.js").createYieldStatement;
   var GeneratorComprehensionTransformer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $GeneratorComprehensionTransformer = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $GeneratorComprehensionTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
         $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
       },
@@ -14929,7 +14919,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/St
       createStatementList = $__147.createStatementList;
   var State = function() {
     'use strict';
-    var $State = ($__createClassNoExtends)({
+    var $State = ($traceurRuntime.createClassNoExtends)({
       constructor: function(id) {
         this.id = id;
       },
@@ -15003,7 +14993,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Tr
   };
   var TryState = function() {
     'use strict';
-    var $TryState = ($__createClassNoExtends)({
+    var $TryState = ($traceurRuntime.createClassNoExtends)({
       constructor: function(kind, tryStates, nestedTrys) {
         this.kind = kind;
         this.tryStates = tryStates;
@@ -15055,8 +15045,8 @@ System.get('@traceur/module').registerModule("../src/syntax/trees/StateMachine.j
   }
   var StateMachine = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $StateMachine = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $StateMachine = ($traceurRuntime.createClass)({
       constructor: function(startState, fallThroughState, states, exceptionBlocks) {
         this.location = null;
         this.startState = startState;
@@ -15110,8 +15100,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Fa
   var State = System.get('@traceur/module').getModuleImpl("../src/codegeneration/generator/State.js").State;
   var FallThroughState = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $FallThroughState = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $FallThroughState = ($traceurRuntime.createClass)({
       constructor: function(id, fallThroughState, statements) {
         $traceurRuntime.superCall(this, $__proto, "constructor", [id]);
         this.fallThroughState = fallThroughState;
@@ -15137,8 +15127,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Br
   var createStatementList = System.get('@traceur/module').getModuleImpl("../src/codegeneration/ParseTreeFactory.js").createStatementList;
   var BreakState = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $BreakState = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $BreakState = ($traceurRuntime.createClass)({
       constructor: function(id, label) {
         $traceurRuntime.superCall(this, $__proto, "constructor", [id]);
         this.label = label;
@@ -15172,8 +15162,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Co
   var createStatementList = System.get('@traceur/module').getModuleImpl("../src/codegeneration/ParseTreeFactory.js").createStatementList;
   var ContinueState = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ContinueState = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ContinueState = ($traceurRuntime.createClass)({
       constructor: function(id, label) {
         $traceurRuntime.superCall(this, $__proto, "constructor", [id]);
         this.label = label;
@@ -15208,8 +15198,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Br
   }
   var BreakContinueTransformer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $BreakContinueTransformer = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $BreakContinueTransformer = ($traceurRuntime.createClass)({
       constructor: function(stateAllocator) {
         $traceurRuntime.superCall(this, $__proto, "constructor", []);
         this.transformBreaks_ = true;
@@ -15269,8 +15259,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Ca
   var TryState = System.get('@traceur/module').getModuleImpl("../src/codegeneration/generator/TryState.js").TryState;
   var CatchState = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $CatchState = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $CatchState = ($traceurRuntime.createClass)({
       constructor: function(identifier, catchState, fallThroughState, allStates, nestedTrys) {
         $traceurRuntime.superCall(this, $__proto, "constructor", [TryState.Kind.CATCH, allStates, nestedTrys]);
         this.identifier = identifier;
@@ -15295,8 +15285,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Co
       createIfStatement = $__163.createIfStatement;
   var ConditionalState = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ConditionalState = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ConditionalState = ($traceurRuntime.createClass)({
       constructor: function(id, ifState, elseState, condition) {
         $traceurRuntime.superCall(this, $__proto, "constructor", [id]);
         this.ifState = ifState;
@@ -15321,8 +15311,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Fi
   var State = System.get('@traceur/module').getModuleImpl("../src/codegeneration/generator/State.js").State;
   var FinallyFallThroughState = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $FinallyFallThroughState = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $FinallyFallThroughState = ($traceurRuntime.createClass)({
       constructor: function() {
         $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
       },
@@ -15348,8 +15338,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Fi
   var TryState = System.get('@traceur/module').getModuleImpl("../src/codegeneration/generator/TryState.js").TryState;
   var FinallyState = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $FinallyState = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $FinallyState = ($traceurRuntime.createClass)({
       constructor: function(finallyState, fallThroughState, allStates, nestedTrys) {
         $traceurRuntime.superCall(this, $__proto, "constructor", [TryState.Kind.FINALLY, allStates, nestedTrys]);
         this.finallyState = finallyState;
@@ -15370,7 +15360,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/St
   var State = System.get('@traceur/module').getModuleImpl("../src/codegeneration/generator/State.js").State;
   var StateAllocator = function() {
     'use strict';
-    var $StateAllocator = ($__createClassNoExtends)({
+    var $StateAllocator = ($traceurRuntime.createClassNoExtends)({
       constructor: function() {
         this.nextState_ = State.INVALID_STATE + 1;
       },
@@ -15396,7 +15386,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Sw
       createStatementList = $__171.createStatementList;
   var SwitchClause = function() {
     'use strict';
-    var $SwitchClause = ($__createClassNoExtends)({constructor: function(first, second) {
+    var $SwitchClause = ($traceurRuntime.createClassNoExtends)({constructor: function(first, second) {
         this.first = first;
         this.second = second;
       }}, {});
@@ -15404,8 +15394,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Sw
   }();
   var SwitchState = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $SwitchState = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $SwitchState = ($traceurRuntime.createClass)({
       constructor: function(id, expression, clauses) {
         $traceurRuntime.superCall(this, $__proto, "constructor", [id]);
         this.expression = expression;
@@ -15515,8 +15505,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/CP
   var variablesInBlock = System.get('@traceur/module').getModuleImpl("../src/semantics/VariableBinder.js").variablesInBlock;
   var CPSTransformer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $CPSTransformer = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $CPSTransformer = ($traceurRuntime.createClass)({
       constructor: function(reporter) {
         $traceurRuntime.superCall(this, $__proto, "constructor", []);
         this.reporter = reporter;
@@ -16029,8 +16019,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/En
   var State = System.get('@traceur/module').getModuleImpl("../src/codegeneration/generator/State.js").State;
   var EndState = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $EndState = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $EndState = ($traceurRuntime.createClass)({
       constructor: function() {
         $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
       },
@@ -16098,8 +16088,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/As
       createVariableStatement = $__181.createVariableStatement;
   var AsyncTransformer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $AsyncTransformer = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $AsyncTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
         $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
       },
@@ -16232,8 +16222,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Fo
       createVariableStatement = $__184.createVariableStatement;
   var ForInTransformPass = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ForInTransformPass = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ForInTransformPass = ($traceurRuntime.createClass)({
       constructor: function() {
         $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
       },
@@ -16295,8 +16285,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Yi
       createTrueLiteral = $__187.createTrueLiteral;
   var YieldState = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $YieldState = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $YieldState = ($traceurRuntime.createClass)({
       constructor: function(id, fallThroughState, expression) {
         $traceurRuntime.superCall(this, $__proto, "constructor", [id]);
         this.fallThroughState = fallThroughState;
@@ -16329,8 +16319,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Re
       createThisExpression = $__189.createThisExpression;
   var ReturnState = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ReturnState = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ReturnState = ($traceurRuntime.createClass)({
       constructor: function() {
         $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
       },
@@ -16397,8 +16387,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Ge
   var ADD_ITERATOR_CODE = "function(object) {\n  object[%iterator] = %returnThis;\n  return %defineProperty(object, %iterator, {enumerable: false});\n}";
   var GeneratorTransformer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $GeneratorTransformer = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $GeneratorTransformer = ($traceurRuntime.createClass)({
       constructor: function(runtimeInliner, reporter) {
         $traceurRuntime.superCall(this, $__proto, "constructor", [reporter]);
         this.runtimeInliner_ = runtimeInliner;
@@ -16527,8 +16517,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/GeneratorTra
   var id = createIdentifierExpression;
   var YieldFinder = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $YieldFinder = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $YieldFinder = ($traceurRuntime.createClass)({
       constructor: function(tree) {
         this.hasYield = false;
         this.hasYieldFor = false;
@@ -16560,8 +16550,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/GeneratorTra
   var throwClose;
   var YieldExpressionTransformer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $YieldExpressionTransformer = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $YieldExpressionTransformer = ($traceurRuntime.createClass)({
       constructor: function(identifierGenerator, runtimeInliner) {
         $traceurRuntime.superCall(this, $__proto, "constructor", [identifierGenerator]);
         this.runtimeInliner_ = runtimeInliner;
@@ -16628,8 +16618,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/GeneratorTra
   }(TempVarTransformer);
   var GeneratorTransformPass = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $GeneratorTransformPass = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $GeneratorTransformPass = ($traceurRuntime.createClass)({
       constructor: function(identifierGenerator, runtimeInliner, reporter) {
         $traceurRuntime.superCall(this, $__proto, "constructor", [identifierGenerator]);
         this.runtimeInliner_ = runtimeInliner;
@@ -16692,8 +16682,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/module/Direc
   var ExportVisitor = System.get('@traceur/module').getModuleImpl("../src/codegeneration/module/ExportVisitor.js").ExportVisitor;
   var DirectExportVisitor = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $DirectExportVisitor = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $DirectExportVisitor = ($traceurRuntime.createClass)({
       constructor: function() {
         $traceurRuntime.superCall(this, $__proto, "constructor", [null, null, null]);
         this.namedExports = [];
@@ -16757,8 +16747,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ModuleTransf
       parseStatement = $__211.parseStatement;
   var ModuleTransformer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ModuleTransformer = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ModuleTransformer = ($traceurRuntime.createClass)({
       constructor: function(identifierGenerator) {
         $traceurRuntime.superCall(this, $__proto, "constructor", [identifierGenerator]);
         this.exportVisitor_ = new DirectExportVisitor();
@@ -16900,7 +16890,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/MultiTransfo
   var ParseTreeValidator = System.get('@traceur/module').getModuleImpl("../src/syntax/ParseTreeValidator.js").ParseTreeValidator;
   var MultiTransformer = function() {
     'use strict';
-    var $MultiTransformer = ($__createClassNoExtends)({
+    var $MultiTransformer = ($traceurRuntime.createClassNoExtends)({
       constructor: function(reporter, validate) {
         this.reporter_ = reporter;
         this.validate_ = validate;
@@ -16943,8 +16933,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/NumericLiter
   }
   var NumericLiteralTransformer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $NumericLiteralTransformer = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $NumericLiteralTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
         $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
       },
@@ -16996,8 +16986,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ObjectLitera
   var transformOptions = System.get('@traceur/module').getModuleImpl("../src/options.js").transformOptions;
   var FindAdvancedProperty = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $FindAdvancedProperty = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $FindAdvancedProperty = ($traceurRuntime.createClass)({
       constructor: function(tree) {
         this.protoExpression = null;
         $traceurRuntime.superCall(this, $__proto, "constructor", [tree, true]);
@@ -17016,8 +17006,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ObjectLitera
   }
   var ObjectLiteralTransformer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ObjectLiteralTransformer = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ObjectLiteralTransformer = ($traceurRuntime.createClass)({
       constructor: function(identifierGenerator) {
         $traceurRuntime.superCall(this, $__proto, "constructor", [identifierGenerator]);
         this.protoExpression = null;
@@ -17173,8 +17163,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/PropertyName
   var ParseTreeTransformer = System.get('@traceur/module').getModuleImpl("../src/codegeneration/ParseTreeTransformer.js").ParseTreeTransformer;
   var PropertyNameShorthandTransformer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $PropertyNameShorthandTransformer = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $PropertyNameShorthandTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
         $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
       },
@@ -17206,8 +17196,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/RestParamete
   }
   var RestParameterTransformer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $RestParameterTransformer = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $RestParameterTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
         $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
       },
@@ -17270,8 +17260,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/SpreadTransf
   }
   var SpreadTransformer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $SpreadTransformer = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $SpreadTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
         $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
       },
@@ -17371,8 +17361,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/SymbolTransf
   var parseExpression = System.get('@traceur/module').getModuleImpl("../src/codegeneration/PlaceholderParser.js").parseExpression;
   var SymbolTransformer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $SymbolTransformer = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $SymbolTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
         $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
       },
@@ -17545,8 +17535,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/TemplateLite
   }
   var TemplateLiteralTransformer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $TemplateLiteralTransformer = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $TemplateLiteralTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
         $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
       },
@@ -17623,8 +17613,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/TypeTransfor
   var ParseTreeTransformer = System.get('@traceur/module').getModuleImpl("../src/codegeneration/ParseTreeTransformer.js").ParseTreeTransformer;
   var TypeTransformer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $TypeTransformer = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $TypeTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
         $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
       },
@@ -17671,8 +17661,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/TypeofTransf
   var parseExpression = System.get('@traceur/module').getModuleImpl("../src/codegeneration/PlaceholderParser.js").parseExpression;
   var TypeofTransformer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $TypeofTransformer = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $TypeofTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
         $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
       },
@@ -17724,8 +17714,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/FromOptionsT
       transformOptions = $__243.transformOptions;
   var FromOptionsTransformer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $FromOptionsTransformer = ($__createClass)({constructor: function(reporter) {
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $FromOptionsTransformer = ($traceurRuntime.createClass)({constructor: function(reporter) {
         var idGenerator = arguments[1] !== (void 0) ? arguments[1]: new UniqueIdentifierGenerator();
         var runtimeInliner = arguments[2] !== (void 0) ? arguments[2]: new RuntimeInliner(idGenerator);
         var $__241 = this;
@@ -17782,8 +17772,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/module/Attac
       Script = $__245.Script;
   var AttachUrlTransformer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $AttachUrlTransformer = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $AttachUrlTransformer = ($traceurRuntime.createClass)({
       constructor: function(project, url) {
         this.project_ = project;
         this.url_ = url;
@@ -17811,7 +17801,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ProjectTrans
   var MODULE = System.get('@traceur/module').getModuleImpl("../src/syntax/trees/ParseTreeType.js").MODULE;
   var ProjectTransformer = function() {
     'use strict';
-    var $ProjectTransformer = ($__createClassNoExtends)({
+    var $ProjectTransformer = ($traceurRuntime.createClassNoExtends)({
       constructor: function(reporter, project) {
         var transformer = arguments[2];
         this.project_ = project;
@@ -17845,8 +17835,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ProgramTrans
   var ProjectTransformer = System.get('@traceur/module').getModuleImpl("../src/codegeneration/ProjectTransformer.js").ProjectTransformer;
   var ProgramTransformer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ProgramTransformer = ($__createClass)({constructor: function(reporter, project) {
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ProgramTransformer = ($traceurRuntime.createClass)({constructor: function(reporter, project) {
         var transformer = new FromOptionsTransformer(reporter, project.identifierGenerator, project.runtimeInliner);
         $traceurRuntime.superCall(this, $__proto, "constructor", [reporter, project, transformer]);
       }}, {}, $__proto, $__super, true);
@@ -17872,7 +17862,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/Compiler.js"
   var Project = System.get('@traceur/module').getModuleImpl("../src/semantics/symbols/Project.js").Project;
   var Compiler = function() {
     'use strict';
-    var $Compiler = ($__createClassNoExtends)({
+    var $Compiler = ($traceurRuntime.createClassNoExtends)({
       constructor: function(reporter, project) {
         this.reporter_ = reporter;
         this.project_ = project;
@@ -17942,8 +17932,8 @@ System.get('@traceur/module').registerModule("../src/WebPageProject.js", functio
   var TreeWriter = System.get('@traceur/module').getModuleImpl("../src/outputgeneration/TreeWriter.js").TreeWriter;
   var WebPageProject = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $WebPageProject = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $WebPageProject = ($traceurRuntime.createClass)({
       constructor: function(url) {
         $traceurRuntime.superCall(this, $__proto, "constructor", [url]);
         this.numPending_ = 0;
@@ -18088,8 +18078,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/CloneTreeTra
       ThisExpression = $__257.ThisExpression;
   var CloneTreeTransformer = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $CloneTreeTransformer = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $CloneTreeTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
         $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
       },
@@ -18167,8 +18157,8 @@ System.get('@traceur/module').registerModule("../src/codegeneration/module/Modul
   var canonicalizeUrl = System.get('@traceur/module').getModuleImpl("../src/util/url.js").canonicalizeUrl;
   var ModuleRequireVisitor = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $ModuleRequireVisitor = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $ModuleRequireVisitor = ($traceurRuntime.createClass)({
       constructor: function(reporter) {
         $traceurRuntime.superCall(this, $__proto, "constructor", []);
         this.urls_ = Object.create(null);
@@ -18191,7 +18181,7 @@ System.get('@traceur/module').registerModule("../src/outputgeneration/ProjectWri
   var TreeWriter = System.get('@traceur/module').getModuleImpl("../src/outputgeneration/TreeWriter.js").TreeWriter;
   var ProjectWriter = function() {
     'use strict';
-    var $ProjectWriter = ($__createClassNoExtends)({constructor: function() {}}, {});
+    var $ProjectWriter = ($traceurRuntime.createClassNoExtends)({constructor: function() {}}, {});
     return $ProjectWriter;
   }();
   ProjectWriter.write = function(results) {
@@ -19206,7 +19196,7 @@ System.get('@traceur/module').registerModule("../src/runtime/WebLoader.js", func
   "use strict";
   var WebLoader = function() {
     'use strict';
-    var $WebLoader = ($__createClassNoExtends)({
+    var $WebLoader = ($traceurRuntime.createClassNoExtends)({
       constructor: function() {},
       load: function(url, callback, errback) {
         var xhr = new XMLHttpRequest();
@@ -19288,7 +19278,7 @@ System.get('@traceur/module').registerModule("../src/runtime/module-loader.js", 
   var ERROR = 6;
   var CodeUnit = function() {
     'use strict';
-    var $CodeUnit = ($__createClassNoExtends)({
+    var $CodeUnit = ($traceurRuntime.createClassNoExtends)({
       constructor: function(loader, url, type, state) {
         this.loader = loader;
         this.url = url;
@@ -19372,8 +19362,8 @@ System.get('@traceur/module').registerModule("../src/runtime/module-loader.js", 
   }();
   var LoadCodeUnit = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $LoadCodeUnit = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $LoadCodeUnit = ($traceurRuntime.createClass)({
       constructor: function(loader, url) {
         $traceurRuntime.superCall(this, $__proto, "constructor", [loader, url, 'module', NOT_STARTED]);
         if (isStandardModuleUrl(url)) {
@@ -19403,8 +19393,8 @@ System.get('@traceur/module').registerModule("../src/runtime/module-loader.js", 
   }(CodeUnit);
   var EvalCodeUnit = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $EvalCodeUnit = ($__createClass)({constructor: function(loader, code) {
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $EvalCodeUnit = ($traceurRuntime.createClass)({constructor: function(loader, code) {
         $traceurRuntime.superCall(this, $__proto, "constructor", [loader, loader.url, 'script', LOADED]);
         this.text = code;
       }}, {}, $__proto, $__super, true);
@@ -19412,7 +19402,7 @@ System.get('@traceur/module').registerModule("../src/runtime/module-loader.js", 
   }(CodeUnit);
   var InternalLoader = function() {
     'use strict';
-    var $InternalLoader = ($__createClassNoExtends)({
+    var $InternalLoader = ($traceurRuntime.createClassNoExtends)({
       constructor: function(reporter, project) {
         var fileLoader = arguments[2] !== (void 0) ? arguments[2]: new InternalLoader.FileLoader;
         var options = arguments[3] !== (void 0) ? arguments[3]: {};
@@ -19648,7 +19638,7 @@ System.get('@traceur/module').registerModule("../src/runtime/module-loader.js", 
   }
   var CodeLoader = function() {
     'use strict';
-    var $CodeLoader = ($__createClassNoExtends)({
+    var $CodeLoader = ($traceurRuntime.createClassNoExtends)({
       constructor: function(reporter, project, parentLoader) {
         var options = arguments[3] !== (void 0) ? arguments[3]: {};
         this.internalLoader_ = new InternalLoader(reporter, project, undefined, options);
@@ -19723,8 +19713,8 @@ System.get('@traceur/module').registerModule("../src/util/TestErrorReporter.js",
   var ErrorReporter = System.get('@traceur/module').getModuleImpl("../src/util/ErrorReporter.js").ErrorReporter;
   var TestErrorReporter = function($__super) {
     'use strict';
-    var $__proto = $__getProtoParent($__super);
-    var $TestErrorReporter = ($__createClass)({
+    var $__proto = $traceurRuntime.getProtoParent($__super);
+    var $TestErrorReporter = ($traceurRuntime.createClass)({
       constructor: function() {
         this.errors = [];
       },
