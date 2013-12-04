@@ -97,14 +97,10 @@ export class ClassTransformer extends TempVarTransformer{
   transformClassShared_(tree, name) {
     var superClass = this.transformAny(tree.superClass);
     var nameIdent = createIdentifierExpression(name);
-    var protoName = createIdentifierExpression('$__proto');
+    var protoName = createMemberExpression(name, 'prototype');
     var hasConstructor = false;
     var protoElements = [], staticElements = [];
-    // For static methods the base for super calls is the RHS of the
-    // extends (or Function.prototype if there is no extends clause).
-    var staticSuperRef = superClass ?
-        createIdentifierExpression('$__super') :
-        createMemberExpression('Function', 'prototype');
+    var staticSuperRef = createIdentifierExpression(name)
 
     tree.elements.forEach((tree) => {
       var elements, proto;
