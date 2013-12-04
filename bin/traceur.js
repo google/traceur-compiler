@@ -16546,7 +16546,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/GeneratorTra
     'use strict';
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $YieldExpressionTransformer = ($traceurRuntime.createClass)({
-      constructor: function(identifierGenerator, runtimeInliner) {
+      constructor: function(identifierGenerator, reporter, runtimeInliner) {
         $traceurRuntime.superCall(this, $__proto, "constructor", [identifierGenerator]);
         this.runtimeInliner_ = runtimeInliner;
         if (!throwClose) {
@@ -16614,7 +16614,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/GeneratorTra
     'use strict';
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $GeneratorTransformPass = ($traceurRuntime.createClass)({
-      constructor: function(identifierGenerator, runtimeInliner, reporter) {
+      constructor: function(identifierGenerator, reporter, runtimeInliner) {
         $traceurRuntime.superCall(this, $__proto, "constructor", [identifierGenerator]);
         this.runtimeInliner_ = runtimeInliner;
         this.reporter_ = reporter;
@@ -16645,7 +16645,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/GeneratorTra
         }
         if (finder.hasYield || isGenerator) {
           if (transformOptions.generators) {
-            body = new YieldExpressionTransformer(this.identifierGenerator, this.runtimeInliner_).transformAny(body);
+            body = new YieldExpressionTransformer(this.identifierGenerator, this.reporter_, this.runtimeInliner_).transformAny(body);
             body = GeneratorTransformer.transformGeneratorBody(this.runtimeInliner_, this.reporter_, body);
           }
         } else if (transformOptions.deferredFunctions) {
@@ -17716,7 +17716,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/FromOptionsT
         $traceurRuntime.superCall(this, $__proto, "constructor", [reporter, options.validate]);
         var append = (function(transformer) {
           $__241.append((function(tree) {
-            return new transformer(idGenerator, runtimeInliner, reporter).transformAny(tree);
+            return new transformer(idGenerator, reporter, runtimeInliner).transformAny(tree);
           }));
         });
         if (transformOptions.types) append(TypeTransformer);
