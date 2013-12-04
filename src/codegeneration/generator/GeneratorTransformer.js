@@ -61,57 +61,6 @@ var ST_SUSPENDED = 2;
 var ST_CLOSED = 3;
 var GSTATE = 'GState';
 
-var GENERATOR_WRAP_CODE = `function(generator) {
-  return %addIterator({
-    next: function(x) {
-      switch (generator.GState) {
-        case ${ST_EXECUTING}:
-          throw new Error('"next" on executing generator');
-        case ${ST_CLOSED}:
-          throw new Error('"next" on closed generator');
-        case ${ST_NEWBORN}:
-          if (x !== undefined) {
-            throw new TypeError('Sent value to newborn generator');
-          }
-          // fall through
-        case ${ST_SUSPENDED}:
-          generator.GState = ${ST_EXECUTING};
-          if (generator.moveNext(x, ${ACTION_SEND})) {
-            generator.GState = ${ST_SUSPENDED};
-            return {value: generator.current, done: false};
-          }
-          generator.GState = ${ST_CLOSED};
-          return {value: generator.yieldReturn, done: true};
-      }
-    },
-
-    'throw': function(x) {
-      switch (generator.GState) {
-        case ${ST_EXECUTING}:
-          throw new Error('"throw" on executing generator');
-        case ${ST_CLOSED}:
-          throw new Error('"throw" on closed generator');
-        case ${ST_NEWBORN}:
-          generator.GState = ${ST_CLOSED};
-          throw x;
-        case ${ST_SUSPENDED}:
-          generator.GState = ${ST_EXECUTING};
-          if (generator.moveNext(x, ${ACTION_THROW})) {
-            generator.GState = ${ST_SUSPENDED};
-            return {value: generator.current, done: false};
-          }
-          generator.GState = ${ST_CLOSED};
-          return {value: generator.yieldReturn, done: true};
-      }
-    }
-  });
-}`;
-
-var ADD_ITERATOR_CODE = `function(object) {
-  object[%iterator] = %returnThis;
-  return %defineProperty(object, %iterator, {enumerable: false});
-}`;
-
 /**
  * Desugars generator function bodies. Generator function bodies contain
  * 'yield' statements.
@@ -127,15 +76,6 @@ var ADD_ITERATOR_CODE = `function(object) {
  * }
  */
 export class GeneratorTransformer extends CPSTransformer {
-  /**
-   * @param {RuntimeInliner} runtimeInliner
-   * @param {ErrorReporter} reporter
-   */
-  constructor(runtimeInliner, reporter) {
-    super(reporter);
-    this.runtimeInliner_ = runtimeInliner;
-  }
-
   /**
    * Simple form yield expressions (direct children of an ExpressionStatement)
    * are translated into a state machine with a single state.
@@ -283,14 +223,10 @@ export class GeneratorTransformer extends CPSTransformer {
 
     // TODO(arv): The result should be an instance of Generator.
     // https://code.google.com/p/traceur-compiler/issues/detail?id=109
-    statements.push(parseStatement `return ${this.generatorWrap_}(${id(G)});`);
+    statements.push(
+        parseStatement `return $traceurRuntime.generatorWrap(${id(G)});`);
 
     return createFunctionBody(statements);
-  }
-
-  get generatorWrap_() {
-    this.runtimeInliner_.register('addIterator', ADD_ITERATOR_CODE);
-    return this.runtimeInliner_.get('generatorWrap', GENERATOR_WRAP_CODE);
   }
 
   /**
@@ -335,8 +271,8 @@ export class GeneratorTransformer extends CPSTransformer {
    * @param {Block} body
    * @return {Block}
    */
-  static transformGeneratorBody(runtimeInliner, reporter, body) {
-    return new GeneratorTransformer(runtimeInliner, reporter).
+  static transformGeneratorBody(reporter, body) {
+    return new GeneratorTransformer(reporter).
         transformGeneratorBody(body);
   }
 };

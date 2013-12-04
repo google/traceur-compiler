@@ -390,8 +390,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
                                               this.runtimeInliner_).
             transformAny(body);
 
-        body = GeneratorTransformer.transformGeneratorBody(this.runtimeInliner_,
-                                                           this.reporter_,
+        body = GeneratorTransformer.transformGeneratorBody(this.reporter_,
                                                            body);
       }
     } else if (transformOptions.deferredFunctions) {
