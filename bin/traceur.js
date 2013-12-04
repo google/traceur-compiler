@@ -14914,13 +14914,12 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ForOfTransfo
       createVariableStatement = $__143.createVariableStatement;
   var parseStatement = System.get('@traceur/module').getModuleImpl("../src/codegeneration/PlaceholderParser.js").parseStatement;
   var transformOptions = System.get('@traceur/module').getModuleImpl("../src/options.js").transformOptions;
-  var GET_ITERATOR_CODE = "function(object) {\n  return object[%iterator]();\n}";
   var ForOfTransformer = function($__super) {
     'use strict';
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $ForOfTransformer = ($traceurRuntime.createClass)({
-      constructor: function(identifierGenerator) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", [identifierGenerator]);
+      constructor: function() {
+        $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
       },
       transformForOfStatement: function(original) {
         var tree = $traceurRuntime.superCall(this, $__proto, "transformForOfStatement", [original]);
@@ -14934,7 +14933,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ForOfTransfo
         }
         return parseStatement($__141, iter, tree.collection, result, result, iter, assignment, tree.body);
       }
-    }, {}, $__proto, $__super, true);
+    }, {}, $__proto, $__super, false);
     return $ForOfTransformer;
   }(TempVarTransformer);
   return {get ForOfTransformer() {
