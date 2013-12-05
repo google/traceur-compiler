@@ -68,10 +68,10 @@ bin/%.min.js: bin/%.js
 bin/traceur-runtime.js: $(RUNTIME_SRC)
 	./traceur --out $@ $(TFLAGS) $?
 
-bin/traceur-bald.js: src/traceur-import.js build/compiled-by-previous-traceur.js
+bin/traceur-bare.js: src/traceur-import.js build/compiled-by-previous-traceur.js
 	./traceur --out $@ $(TFLAGS) $<
 
-concat: bin/traceur-runtime.js bin/traceur-bald.js
+concat: bin/traceur-runtime.js bin/traceur-bare.js
 	cat $? > bin/traceur.js
 
 bin/traceur.js: build/compiled-by-previous-traceur.js
