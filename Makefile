@@ -52,7 +52,8 @@ clean: wikiclean
 	rm -f build/dep.mk
 	rm -f $(GENSRC) $(TPL_GENSRC_DEPS)
 	rm -f test/test-list.js
-	git checkout master -- bin/
+	rm -f bin/*
+	git checkout -- bin/
 	mv bin/traceur.js build/previous-commit-traceur.js
 
 initbench:
@@ -61,8 +62,17 @@ initbench:
 	cd test/bench/esprima; git reset --hard 1ddd7e0524d09475
 	git apply test/bench/esprima-compare.patch
 
-bin/traceur.min.js: bin/traceur.js
+bin/%.min.js: bin/%.js
 	node build/minifier.js $? $@
+
+bin/traceur-runtime.js: $(RUNTIME_SRC)
+	./traceur --out $@ $(TFLAGS) $?
+
+bin/traceur-bare.js: src/traceur-import.js build/compiled-by-previous-traceur.js
+	./traceur --out $@ $(TFLAGS) $<
+
+concat: bin/traceur-runtime.js bin/traceur-bare.js
+	cat $? > bin/traceur.js
 
 bin/traceur.js: build/compiled-by-previous-traceur.js
 	cp $< $@; touch -t 197001010000.00 bin/traceur.js
