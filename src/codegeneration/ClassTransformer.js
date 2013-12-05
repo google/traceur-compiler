@@ -77,10 +77,10 @@ import {propName} from '../staticsemantics/PropName';
  *
  *   let C = traceurRuntime.createClass({
  *      constructor: function C(x) {
- *         traceurRuntime.superCall(this, C, 'constructor', [x]);
+ *         traceurRuntime.superCall(this, C.prototype, 'constructor', [x]);
  *      },
  *      method: function method() {
- *        traceurRuntime.superCall(this, C, 'm', []);
+ *        traceurRuntime.superCall(this, C.prototype, 'm', []);
  *      }
  *   });
  */
