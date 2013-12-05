@@ -395,27 +395,28 @@
     }
     return undefined;
   }
-  function superDescriptor(proto, name) {
+  function superDescriptor(homeObject, name) {
+    var proto = homeObject.__proto__;
     if (!proto) throw $TypeError('super is null');
     return getPropertyDescriptor(proto, name);
   }
-  function superCall(self, proto, name, args) {
-    var descriptor = superDescriptor(proto, name);
+  function superCall(self, homeObject, name, args) {
+    var descriptor = superDescriptor(homeObject, name);
     if (descriptor) {
       if ('value'in descriptor) return descriptor.value.apply(self, args);
       if (descriptor.get) return descriptor.get.call(self).apply(self, args);
     }
     throw $TypeError("super has no method '" + name + "'.");
   }
-  function superGet(self, proto, name) {
-    var descriptor = superDescriptor(proto, name);
+  function superGet(self, homeObject, name) {
+    var descriptor = superDescriptor(homeObject, name);
     if (descriptor) {
       if (descriptor.get) return descriptor.get.call(self); else if ('value'in descriptor) return descriptor.value;
     }
     return undefined;
   }
-  function superSet(self, proto, name, value) {
-    var descriptor = superDescriptor(proto, name);
+  function superSet(self, homeObject, name, value) {
+    var descriptor = superDescriptor(homeObject, name);
     if (descriptor && descriptor.set) {
       descriptor.set.call(self, value);
       return;
@@ -440,6 +441,10 @@
     descriptors.constructor.enumerable = false;
     ctor.prototype = $create(protoParent, descriptors);
     $defineProperties(ctor, getDescriptors(staticObject));
+    $defineProperty(ctor, 'prototype', {
+      configurable: false,
+      writable: false
+    });
     return ctor;
   }
   function getProtoParent(superClass) {
@@ -455,6 +460,10 @@
     $defineProperty(object, 'constructor', {enumerable: false});
     ctor.prototype = object;
     $defineProperties(ctor, getDescriptors(staticObject));
+    $defineProperty(ctor, 'prototype', {
+      configurable: false,
+      writable: false
+    });
     return ctor;
   }
   var ST_NEWBORN = 0;
@@ -803,7 +812,7 @@ System.get('@traceur/module').registerModule("../src/semantics/symbols/ExportSym
     'use strict';
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $ExportSymbol = ($traceurRuntime.createClass)({constructor: function(name, tree) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", [EXPORT, tree]);
+        $traceurRuntime.superCall(this, $ExportSymbol.prototype, "constructor", [EXPORT, tree]);
         this.name = name;
       }}, {}, $__proto, $__super, true);
     return $ExportSymbol;
@@ -2636,7 +2645,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/module/Expor
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $ExportVisitor = ($traceurRuntime.createClass)({
       constructor: function(reporter, project, module) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", [reporter, project, module]);
+        $traceurRuntime.superCall(this, $ExportVisitor.prototype, "constructor", [reporter, project, module]);
         this.inExport_ = false;
         this.moduleSpecifier = null;
       },
@@ -2705,7 +2714,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/module/Valid
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $ValidationVisitor = ($traceurRuntime.createClass)({
       constructor: function() {
-        $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
+        $traceurRuntime.superCall(this, $ValidationVisitor.prototype, "constructor", arguments);
       },
       checkExport_: function(tree, name) {
         var module = this.validatingModule_;
@@ -2942,7 +2951,7 @@ System.get('@traceur/module').registerModule("../src/semantics/symbols/ModuleSym
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $ModuleSymbol = ($traceurRuntime.createClass)({
       constructor: function(tree, url) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", [MODULE, tree]);
+        $traceurRuntime.superCall(this, $ModuleSymbol.prototype, "constructor", [MODULE, tree]);
         this.exports_ = Object.create(null);
         assert(url);
         this.url = url.replace(/\\/g, '/');
@@ -6156,7 +6165,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/AssignmentPa
     'use strict';
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $AssignmentPatternTransformerError = ($traceurRuntime.createClass)({constructor: function() {
-        $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
+        $traceurRuntime.superCall(this, $AssignmentPatternTransformerError.prototype, "constructor", arguments);
       }}, {}, $__proto, $__super, false);
     return $AssignmentPatternTransformerError;
   }(Error);
@@ -6165,7 +6174,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/AssignmentPa
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $AssignmentPatternTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
-        $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
+        $traceurRuntime.superCall(this, $AssignmentPatternTransformer.prototype, "constructor", arguments);
       },
       transformBinaryOperator: function(tree) {
         if (tree.operator.type !== EQUAL) throw new AssignmentPatternTransformerError();
@@ -6368,7 +6377,7 @@ System.get('@traceur/module').registerModule("../src/staticsemantics/StrictParam
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $StrictParams = ($traceurRuntime.createClass)({
       constructor: function(errorReporter) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", []);
+        $traceurRuntime.superCall(this, $StrictParams.prototype, "constructor", []);
         this.errorReporter = errorReporter;
       },
       visitBindingIdentifier: function(tree) {
@@ -10025,7 +10034,7 @@ System.get('@traceur/module').registerModule("../src/semantics/FreeVariableCheck
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $FreeVariableChecker = ($traceurRuntime.createClass)({
       constructor: function(reporter) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", []);
+        $traceurRuntime.superCall(this, $FreeVariableChecker.prototype, "constructor", []);
         this.reporter_ = reporter;
         this.scope_ = null;
         this.disableChecksLevel_ = 0;
@@ -10070,17 +10079,17 @@ System.get('@traceur/module').registerModule("../src/semantics/FreeVariableCheck
       },
       visitGetAccessor: function(tree) {
         var scope = this.pushScope_();
-        $traceurRuntime.superCall(this, $__proto, "visitGetAccessor", [tree]);
+        $traceurRuntime.superCall(this, $FreeVariableChecker.prototype, "visitGetAccessor", [tree]);
         this.pop_(scope);
       },
       visitSetAccessor: function(tree) {
         var scope = this.pushScope_();
-        $traceurRuntime.superCall(this, $__proto, "visitSetAccessor", [tree]);
+        $traceurRuntime.superCall(this, $FreeVariableChecker.prototype, "visitSetAccessor", [tree]);
         this.pop_(scope);
       },
       visitCatch: function(tree) {
         var scope = this.pushScope_();
-        $traceurRuntime.superCall(this, $__proto, "visitCatch", [tree]);
+        $traceurRuntime.superCall(this, $FreeVariableChecker.prototype, "visitCatch", [tree]);
         this.pop_(scope);
       },
       visitBindingIdentifier: function(tree) {
@@ -10098,7 +10107,7 @@ System.get('@traceur/module').registerModule("../src/semantics/FreeVariableCheck
         if (tree.operator.type === TYPEOF && tree.operand.type === IDENTIFIER_EXPRESSION) {
           this.declareVariable_(tree.operand);
         } else {
-          $traceurRuntime.superCall(this, $__proto, "visitUnaryExpression", [tree]);
+          $traceurRuntime.superCall(this, $FreeVariableChecker.prototype, "visitUnaryExpression", [tree]);
         }
       },
       visitWithStatement: function(tree) {
@@ -10286,7 +10295,7 @@ System.get('@traceur/module').registerModule("../src/outputgeneration/ParseTreeW
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $ParseTreeWriter = ($traceurRuntime.createClass)({
       constructor: function(highlighted, showLineNumbers) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", []);
+        $traceurRuntime.superCall(this, $ParseTreeWriter.prototype, "constructor", []);
         this.highlighted_ = highlighted;
         this.showLineNumbers_ = showLineNumbers;
         this.result_ = '';
@@ -10308,7 +10317,7 @@ System.get('@traceur/module').registerModule("../src/outputgeneration/ParseTreeW
           this.currentLineComment_ = ("Line: " + line + "." + column);
         }
         this.currentLocation = tree.location;
-        $traceurRuntime.superCall(this, $__proto, "visitAny", [tree]);
+        $traceurRuntime.superCall(this, $ParseTreeWriter.prototype, "visitAny", [tree]);
         if (tree === this.highlighted_) {
           this.write_('\x1B[0m');
         }
@@ -10698,7 +10707,7 @@ System.get('@traceur/module').registerModule("../src/outputgeneration/ParseTreeW
       },
       visitParenExpression: function(tree) {
         this.write_(OPEN_PAREN);
-        $traceurRuntime.superCall(this, $__proto, "visitParenExpression", [tree]);
+        $traceurRuntime.superCall(this, $ParseTreeWriter.prototype, "visitParenExpression", [tree]);
         this.write_(CLOSE_PAREN);
       },
       visitPostfixExpression: function(tree) {
@@ -10823,7 +10832,7 @@ System.get('@traceur/module').registerModule("../src/outputgeneration/ParseTreeW
         }
       },
       visitVariableStatement: function(tree) {
-        $traceurRuntime.superCall(this, $__proto, "visitVariableStatement", [tree]);
+        $traceurRuntime.superCall(this, $ParseTreeWriter.prototype, "visitVariableStatement", [tree]);
         this.write_(SEMI_COLON);
       },
       visitWhileStatement: function(tree) {
@@ -11087,7 +11096,7 @@ System.get('@traceur/module').registerModule("../src/outputgeneration/ParseTreeM
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $ParseTreeMapWriter = ($traceurRuntime.createClass)({
       constructor: function(highlighted, showLineNumbers, sourceMapGenerator) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", [highlighted, showLineNumbers]);
+        $traceurRuntime.superCall(this, $ParseTreeMapWriter.prototype, "constructor", [highlighted, showLineNumbers]);
         this.sourceMapGenerator_ = sourceMapGenerator;
         this.outputLineCount_ = 1;
       },
@@ -11095,10 +11104,10 @@ System.get('@traceur/module').registerModule("../src/outputgeneration/ParseTreeM
         if (this.currentLocation) {
           this.addMapping();
         }
-        $traceurRuntime.superCall(this, $__proto, "write_", [value]);
+        $traceurRuntime.superCall(this, $ParseTreeMapWriter.prototype, "write_", [value]);
       },
       writeCurrentln_: function() {
-        $traceurRuntime.superCall(this, $__proto, "writeCurrentln_", []);
+        $traceurRuntime.superCall(this, $ParseTreeMapWriter.prototype, "writeCurrentln_", []);
         this.outputLineCount_++;
       },
       addMapping: function() {
@@ -11265,7 +11274,7 @@ System.get('@traceur/module').registerModule("../src/syntax/ParseTreeValidator.j
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $ParseTreeValidator = ($traceurRuntime.createClass)({
       constructor: function() {
-        $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
+        $traceurRuntime.superCall(this, $ParseTreeValidator.prototype, "constructor", arguments);
       },
       fail_: function(tree, message) {
         throw new ValidationError(tree, message);
@@ -12608,7 +12617,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/TempVarTrans
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $TempVarTransformer = ($traceurRuntime.createClass)({
       constructor: function(identifierGenerator) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", []);
+        $traceurRuntime.superCall(this, $TempVarTransformer.prototype, "constructor", []);
         this.identifierGenerator = identifierGenerator;
         this.tempVarStack_ = [[]];
         this.tempScopeStack_ = [new TempScope()];
@@ -12725,7 +12734,7 @@ System.get('@traceur/module').registerModule("../src/semantics/VariableBinder.js
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $VariableBinder = ($traceurRuntime.createClass)({
       constructor: function(includeFunctionScope, scope) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", []);
+        $traceurRuntime.superCall(this, $VariableBinder.prototype, "constructor", []);
         this.includeFunctionScope_ = includeFunctionScope;
         this.scope_ = scope || null;
         this.block_ = null;
@@ -12750,7 +12759,7 @@ System.get('@traceur/module').registerModule("../src/semantics/VariableBinder.js
       visitFunctionExpression: function(tree) {},
       visitVariableDeclarationList: function(tree) {
         if ((tree.declarationType == VAR && this.includeFunctionScope_) || (tree.declarationType != VAR && this.block_ == this.scope_)) {
-          $traceurRuntime.superCall(this, $__proto, "visitVariableDeclarationList", [tree]);
+          $traceurRuntime.superCall(this, $VariableBinder.prototype, "visitVariableDeclarationList", [tree]);
         } else {
           var decls = tree.declarations;
           for (var i = 0; i < decls.length; i++) {
@@ -12760,7 +12769,7 @@ System.get('@traceur/module').registerModule("../src/semantics/VariableBinder.js
       },
       visitVariableDeclaration: function(tree) {
         this.bindVariableDeclaration_(tree.lvalue);
-        $traceurRuntime.superCall(this, $__proto, "visitVariableDeclaration", [tree]);
+        $traceurRuntime.superCall(this, $VariableBinder.prototype, "visitVariableDeclaration", [tree]);
       },
       bind_: function(identifier) {
         assert(typeof identifier.value == 'string');
@@ -12842,7 +12851,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/AlphaRenamer
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $AlphaRenamer = ($traceurRuntime.createClass)({
       constructor: function(oldName, newName) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", []);
+        $traceurRuntime.superCall(this, $AlphaRenamer.prototype, "constructor", []);
         this.oldName_ = oldName;
         this.newName_ = newName;
       },
@@ -12850,7 +12859,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/AlphaRenamer
         if (this.oldName_ in variablesInBlock(tree)) {
           return tree;
         } else {
-          return $traceurRuntime.superCall(this, $__proto, "transformBlock", [tree]);
+          return $traceurRuntime.superCall(this, $AlphaRenamer.prototype, "transformBlock", [tree]);
         }
       },
       transformIdentifierExpression: function(tree) {
@@ -12869,14 +12878,14 @@ System.get('@traceur/module').registerModule("../src/codegeneration/AlphaRenamer
           tree = new FunctionDeclaration(tree.location, this.newName_, tree.isGenerator, tree.formalParameterList, tree.typeAnnotation, tree.functionBody);
         }
         if (this.getDoNotRecurse(tree)) return tree;
-        return $traceurRuntime.superCall(this, $__proto, "transformFunctionDeclaration", [tree]);
+        return $traceurRuntime.superCall(this, $AlphaRenamer.prototype, "transformFunctionDeclaration", [tree]);
       },
       transformFunctionExpression: function(tree) {
         if (this.oldName_ === tree.name) {
           tree = new FunctionExpression(tree.location, this.newName_, tree.isGenerator, tree.formalParameterList, tree.typeAnnotation, tree.functionBody);
         }
         if (this.getDoNotRecurse(tree)) return tree;
-        return $traceurRuntime.superCall(this, $__proto, "transformFunctionExpression", [tree]);
+        return $traceurRuntime.superCall(this, $AlphaRenamer.prototype, "transformFunctionExpression", [tree]);
       },
       getDoNotRecurse: function(tree) {
         return this.oldName_ === ARGUMENTS || this.oldName_ === THIS || this.oldName_ in variablesInFunction(tree);
@@ -12885,7 +12894,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/AlphaRenamer
         if (!tree.binding.isPattern() && this.oldName_ === tree.binding.identifierToken.value) {
           return tree;
         }
-        return $traceurRuntime.superCall(this, $__proto, "transformCatch", [tree]);
+        return $traceurRuntime.superCall(this, $AlphaRenamer.prototype, "transformCatch", [tree]);
       }
     }, {rename: function(tree, oldName, newName) {
         return new AlphaRenamer(oldName, newName).transformAny(tree);
@@ -12938,7 +12947,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/FindInFuncti
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $FindInFunctionScope = ($traceurRuntime.createClass)({
       constructor: function() {
-        $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
+        $traceurRuntime.superCall(this, $FindInFunctionScope.prototype, "constructor", arguments);
       },
       visitFunctionDeclaration: function(tree) {},
       visitFunctionExpression: function(tree) {},
@@ -12966,7 +12975,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/alphaRenameT
       constructor: function(tree) {
         this.foundThis = false;
         this.foundArguments = false;
-        $traceurRuntime.superCall(this, $__proto, "constructor", [tree]);
+        $traceurRuntime.superCall(this, $FindThisOrArguments.prototype, "constructor", [tree]);
       },
       visitThisExpression: function(tree) {
         this.foundThis = true;
@@ -13022,7 +13031,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/Comprehensio
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $ComprehensionTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
-        $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
+        $traceurRuntime.superCall(this, $ComprehensionTransformer.prototype, "constructor", arguments);
       },
       transformComprehension: function(tree, statement, isGenerator) {
         var prefix = arguments[3];
@@ -13252,7 +13261,7 @@ System.get('@traceur/module').registerModule("../src/util/MutedErrorReporter.js"
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $MutedErrorReporter = ($traceurRuntime.createClass)({
       constructor: function() {
-        $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
+        $traceurRuntime.superCall(this, $MutedErrorReporter.prototype, "constructor", arguments);
       },
       reportMessageInternal: function(location, format, args) {}
     }, {}, $__proto, $__super, false);
@@ -13402,7 +13411,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/PlaceholderP
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $PlaceholderTransformer = ($traceurRuntime.createClass)({
       constructor: function(values) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", []);
+        $traceurRuntime.superCall(this, $PlaceholderTransformer.prototype, "constructor", []);
         this.values = values;
       },
       getValueAt: function(index) {
@@ -13429,7 +13438,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/PlaceholderP
           if (transformedExpression.isStatement()) return transformedExpression;
           return createExpressionStatement(transformedExpression);
         }
-        return $traceurRuntime.superCall(this, $__proto, "transformExpressionStatement", [tree]);
+        return $traceurRuntime.superCall(this, $PlaceholderTransformer.prototype, "transformExpressionStatement", [tree]);
       },
       transformBlock: function(tree) {
         if (tree.statements.length === 1 && tree.statements[0].type === EXPRESSION_STATEMENT) {
@@ -13437,7 +13446,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/PlaceholderP
           if (transformedStatement === tree.statements[0]) return tree;
           if (transformedStatement.type === BLOCK) return transformedStatement;
         }
-        return $traceurRuntime.superCall(this, $__proto, "transformBlock", [tree]);
+        return $traceurRuntime.superCall(this, $PlaceholderTransformer.prototype, "transformBlock", [tree]);
       },
       transformFunctionBody: function(tree) {
         if (tree.statements.length === 1 && tree.statements[0].type === EXPRESSION_STATEMENT) {
@@ -13445,11 +13454,11 @@ System.get('@traceur/module').registerModule("../src/codegeneration/PlaceholderP
           if (transformedStatement === tree.statements[0]) return tree;
           if (transformedStatement.type === BLOCK) return createFunctionBody(transformedStatement.statements);
         }
-        return $traceurRuntime.superCall(this, $__proto, "transformFunctionBody", [tree]);
+        return $traceurRuntime.superCall(this, $PlaceholderTransformer.prototype, "transformFunctionBody", [tree]);
       },
       transformMemberExpression: function(tree) {
         var value = this.getValue_(tree.memberName.value);
-        if (value === NOT_FOUND) return $traceurRuntime.superCall(this, $__proto, "transformMemberExpression", [tree]);
+        if (value === NOT_FOUND) return $traceurRuntime.superCall(this, $PlaceholderTransformer.prototype, "transformMemberExpression", [tree]);
         var operand = this.transformAny(tree.operand);
         return createMemberExpression(operand, value);
       },
@@ -13460,7 +13469,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/PlaceholderP
             return new LiteralPropertyName(null, convertValueToIdentifierToken(value));
           }
         }
-        return $traceurRuntime.superCall(this, $__proto, "transformLiteralPropertyName", [tree]);
+        return $traceurRuntime.superCall(this, $PlaceholderTransformer.prototype, "transformLiteralPropertyName", [tree]);
       },
       transformArgumentList: function(tree) {
         if (tree.args.length === 1 && tree.args[0].type === IDENTIFIER_EXPRESSION) {
@@ -13468,7 +13477,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/PlaceholderP
           if (arg0 === tree.args[0]) return tree;
           if (arg0.type === ARGUMENT_LIST) return arg0;
         }
-        return $traceurRuntime.superCall(this, $__proto, "transformArgumentList", [tree]);
+        return $traceurRuntime.superCall(this, $PlaceholderTransformer.prototype, "transformArgumentList", [tree]);
       }
     }, {}, $__proto, $__super, true);
     return $PlaceholderTransformer;
@@ -13504,7 +13513,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ArrayCompreh
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $ArrayComprehensionTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
-        $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
+        $traceurRuntime.superCall(this, $ArrayComprehensionTransformer.prototype, "constructor", arguments);
       },
       transformArrayComprehension: function(tree) {
         this.pushTempVarState();
@@ -13544,7 +13553,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ArrowFunctio
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $ArrowFunctionTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
-        $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
+        $traceurRuntime.superCall(this, $ArrowFunctionTransformer.prototype, "constructor", arguments);
       },
       transformArrowFunctionExpression: function(tree) {
         var parameters;
@@ -13646,7 +13655,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/BlockBinding
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $BlockBindingTransformer = ($traceurRuntime.createClass)({
       constructor: function(stateAllocator) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", []);
+        $traceurRuntime.superCall(this, $BlockBindingTransformer.prototype, "constructor", []);
         this.scope_ = null;
       },
       createScriptScope_: function() {
@@ -13801,7 +13810,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/BlockBinding
       },
       transformScript: function(tree) {
         var scope = this.push_(this.createScriptScope_());
-        var result = $traceurRuntime.superCall(this, $__proto, "transformScript", [tree]);
+        var result = $traceurRuntime.superCall(this, $BlockBindingTransformer.prototype, "transformScript", [tree]);
         this.pop_(scope);
         return result;
       },
@@ -14093,7 +14102,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/SuperTransfo
       transformFunction_: function(tree, constructor) {
         var oldSuperCount = this.superCount_;
         this.inNestedFunc_++;
-        var transformedTree = constructor === FunctionExpression ? $traceurRuntime.superCall(this, $__proto, "transformFunctionExpression", [tree]): $traceurRuntime.superCall(this, $__proto, "transformFunctionDeclaration", [tree]);
+        var transformedTree = constructor === FunctionExpression ? $traceurRuntime.superCall(this, $SuperTransformer.prototype, "transformFunctionExpression", [tree]): $traceurRuntime.superCall(this, $SuperTransformer.prototype, "transformFunctionDeclaration", [tree]);
         this.inNestedFunc_--;
         if (oldSuperCount !== this.superCount_) this.nestedSuperCount_ += this.superCount_ - oldSuperCount;
         return transformedTree;
@@ -14120,7 +14129,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/SuperTransfo
           if (tree.operand.type == MEMBER_EXPRESSION) name = tree.operand.memberName.value; else name = tree.operand.memberExpression;
           return this.createSuperCallExpression_(name, tree);
         }
-        return $traceurRuntime.superCall(this, $__proto, "transformCallExpression", [tree]);
+        return $traceurRuntime.superCall(this, $SuperTransformer.prototype, "transformCallExpression", [tree]);
       },
       createSuperCallExpression_: function(methodName, tree) {
         var thisExpr = this.inNestedFunc_ ? this.thisVar_: createThisExpression();
@@ -14139,11 +14148,11 @@ System.get('@traceur/module').registerModule("../src/codegeneration/SuperTransfo
           this.superCount_++;
           return this.transformMemberShared_(tree, createStringLiteral(tree.memberName.value));
         }
-        return $traceurRuntime.superCall(this, $__proto, "transformMemberExpression", [tree]);
+        return $traceurRuntime.superCall(this, $SuperTransformer.prototype, "transformMemberExpression", [tree]);
       },
       transformMemberLookupExpression: function(tree) {
         if (tree.operand.type === SUPER_EXPRESSION) return this.transformMemberShared_(tree, tree.memberExpression);
-        return $traceurRuntime.superCall(this, $__proto, "transformMemberLookupExpression", [tree]);
+        return $traceurRuntime.superCall(this, $SuperTransformer.prototype, "transformMemberLookupExpression", [tree]);
       },
       transformBinaryOperator: function(tree) {
         if (tree.operator.isAssignmentOperator() && (tree.left.type === MEMBER_EXPRESSION || tree.left.type === MEMBER_LOOKUP_EXPRESSION) && tree.left.operand.type === SUPER_EXPRESSION) {
@@ -14161,7 +14170,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/SuperTransfo
           var right = this.transformAny(tree.right);
           return parseExpression($__117, thisExpr, this.protoName_, name, right);
         }
-        return $traceurRuntime.superCall(this, $__proto, "transformBinaryOperator", [tree]);
+        return $traceurRuntime.superCall(this, $SuperTransformer.prototype, "transformBinaryOperator", [tree]);
       },
       transformSuperExpression: function(tree) {
         this.reportError_(tree, '"super" may only be used on the LHS of a member ' + 'access expression before a call (TODO wording)');
@@ -14218,18 +14227,18 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ClassTransfo
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $ClassTransformer = ($traceurRuntime.createClass)({
       constructor: function(identifierGenerator, reporter) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", [identifierGenerator]);
+        $traceurRuntime.superCall(this, $ClassTransformer.prototype, "constructor", [identifierGenerator]);
         this.reporter_ = reporter;
       },
       transformClassShared_: function(tree, name) {
         var $__126 = this;
         var superClass = this.transformAny(tree.superClass);
         var nameIdent = createIdentifierExpression(name);
-        var protoName = createIdentifierExpression('$__proto');
+        var protoName = createMemberExpression(name, 'prototype');
         var hasConstructor = false;
         var protoElements = [],
             staticElements = [];
-        var staticSuperRef = superClass ? createIdentifierExpression('$__super'): createMemberExpression('Function', 'prototype');
+        var staticSuperRef = createIdentifierExpression(name);
         tree.elements.forEach((function(tree) {
           var elements,
               proto;
@@ -14370,30 +14379,30 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ParameterTra
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $ParameterTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
-        $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
+        $traceurRuntime.superCall(this, $ParameterTransformer.prototype, "constructor", arguments);
       },
       transformFunctionDeclaration: function(tree) {
         stack.push([]);
-        return $traceurRuntime.superCall(this, $__proto, "transformFunctionDeclaration", [tree]);
+        return $traceurRuntime.superCall(this, $ParameterTransformer.prototype, "transformFunctionDeclaration", [tree]);
       },
       transformFunctionExpression: function(tree) {
         stack.push([]);
-        return $traceurRuntime.superCall(this, $__proto, "transformFunctionExpression", [tree]);
+        return $traceurRuntime.superCall(this, $ParameterTransformer.prototype, "transformFunctionExpression", [tree]);
       },
       transformGetAccessor: function(tree) {
         stack.push([]);
-        return $traceurRuntime.superCall(this, $__proto, "transformGetAccessor", [tree]);
+        return $traceurRuntime.superCall(this, $ParameterTransformer.prototype, "transformGetAccessor", [tree]);
       },
       transformSetAccessor: function(tree) {
         stack.push([]);
-        return $traceurRuntime.superCall(this, $__proto, "transformSetAccessor", [tree]);
+        return $traceurRuntime.superCall(this, $ParameterTransformer.prototype, "transformSetAccessor", [tree]);
       },
       transformPropertyMethodAssignment: function(tree) {
         stack.push([]);
-        return $traceurRuntime.superCall(this, $__proto, "transformPropertyMethodAssignment", [tree]);
+        return $traceurRuntime.superCall(this, $ParameterTransformer.prototype, "transformPropertyMethodAssignment", [tree]);
       },
       transformFunctionBody: function(tree) {
-        var transformedTree = $traceurRuntime.superCall(this, $__proto, "transformFunctionBody", [tree]);
+        var transformedTree = $traceurRuntime.superCall(this, $ParameterTransformer.prototype, "transformFunctionBody", [tree]);
         var statements = stack.pop();
         if (!statements.length) return transformedTree;
         statements = prependStatements.apply(null, $traceurRuntime.spread([transformedTree.statements], statements));
@@ -14448,7 +14457,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/DefaultParam
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $DefaultParametersTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
-        $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
+        $traceurRuntime.superCall(this, $DefaultParametersTransformer.prototype, "constructor", arguments);
       },
       transformFormalParameterList: function(tree) {
         var parameters = [];
@@ -14545,7 +14554,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/Destructurin
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $AssignmentExpressionDesugaring = ($traceurRuntime.createClass)({
       constructor: function(rvalue) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", [rvalue]);
+        $traceurRuntime.superCall(this, $AssignmentExpressionDesugaring.prototype, "constructor", [rvalue]);
         this.expressions = [];
       },
       assign: function(lvalue, rvalue) {
@@ -14560,7 +14569,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/Destructurin
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $VariableDeclarationDesugaring = ($traceurRuntime.createClass)({
       constructor: function(rvalue) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", [rvalue]);
+        $traceurRuntime.superCall(this, $VariableDeclarationDesugaring.prototype, "constructor", [rvalue]);
         this.declarations = [];
       },
       assign: function(lvalue, rvalue) {
@@ -14599,7 +14608,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/Destructurin
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $DestructuringTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
-        $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
+        $traceurRuntime.superCall(this, $DestructuringTransformer.prototype, "constructor", arguments);
       },
       transformArrayPattern: function(tree) {
         throw new Error('unreachable');
@@ -14611,7 +14620,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/Destructurin
         if (tree.operator.type == EQUAL && tree.left.isPattern()) {
           return this.transformAny(this.desugarAssignment_(tree.left, tree.right));
         } else {
-          return $traceurRuntime.superCall(this, $__proto, "transformBinaryOperator", [tree]);
+          return $traceurRuntime.superCall(this, $DestructuringTransformer.prototype, "transformBinaryOperator", [tree]);
         }
       },
       desugarAssignment_: function(lvalue, rvalue) {
@@ -14625,7 +14634,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/Destructurin
       transformVariableDeclarationList: function(tree) {
         var $__134 = this;
         if (!this.destructuringInDeclaration_(tree)) {
-          return $traceurRuntime.superCall(this, $__proto, "transformVariableDeclarationList", [tree]);
+          return $traceurRuntime.superCall(this, $DestructuringTransformer.prototype, "transformVariableDeclarationList", [tree]);
         }
         this.pushTempVarState();
         var desugaredDeclarations = [];
@@ -14642,10 +14651,10 @@ System.get('@traceur/module').registerModule("../src/codegeneration/Destructurin
         return transformedTree;
       },
       transformForInStatement: function(tree) {
-        return this.transformForInOrOf_(tree, $traceurRuntime.superGet(this, $__proto, "transformForInStatement"), ForInStatement);
+        return this.transformForInOrOf_(tree, $traceurRuntime.superGet(this, $DestructuringTransformer.prototype, "transformForInStatement"), ForInStatement);
       },
       transformForOfStatement: function(tree) {
-        return this.transformForInOrOf_(tree, $traceurRuntime.superGet(this, $__proto, "transformForOfStatement"), ForOfStatement);
+        return this.transformForInOrOf_(tree, $traceurRuntime.superGet(this, $DestructuringTransformer.prototype, "transformForOfStatement"), ForOfStatement);
       },
       transformForInOrOf_: function(tree, superMethod, constr) {
         var $__137;
@@ -14681,7 +14690,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/Destructurin
       },
       transformCatch: function(tree) {
         var $__137;
-        if (!tree.binding.isPattern()) return $traceurRuntime.superCall(this, $__proto, "transformCatch", [tree]);
+        if (!tree.binding.isPattern()) return $traceurRuntime.superCall(this, $DestructuringTransformer.prototype, "transformCatch", [tree]);
         var body = this.transformAny(tree.catchBody);
         var statements = [];
         var kind = options.blockBinding ? LET: VAR;
@@ -14812,10 +14821,10 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ForOfTransfo
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $ForOfTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
-        $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
+        $traceurRuntime.superCall(this, $ForOfTransformer.prototype, "constructor", arguments);
       },
       transformForOfStatement: function(original) {
-        var tree = $traceurRuntime.superCall(this, $__proto, "transformForOfStatement", [original]);
+        var tree = $traceurRuntime.superCall(this, $ForOfTransformer.prototype, "transformForOfStatement", [original]);
         var iter = id(this.getTempIdentifier());
         var result = id(this.getTempIdentifier());
         var assignment;
@@ -14842,7 +14851,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/GeneratorCom
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $GeneratorComprehensionTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
-        $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
+        $traceurRuntime.superCall(this, $GeneratorComprehensionTransformer.prototype, "constructor", arguments);
       },
       transformGeneratorComprehension: function(tree) {
         var expression = this.transformAny(tree.expression);
@@ -15054,7 +15063,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Fa
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $FallThroughState = ($traceurRuntime.createClass)({
       constructor: function(id, fallThroughState, statements) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", [id]);
+        $traceurRuntime.superCall(this, $FallThroughState.prototype, "constructor", [id]);
         this.fallThroughState = fallThroughState;
         this.statements = statements;
       },
@@ -15081,7 +15090,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Br
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $BreakState = ($traceurRuntime.createClass)({
       constructor: function(id, label) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", [id]);
+        $traceurRuntime.superCall(this, $BreakState.prototype, "constructor", [id]);
         this.label = label;
       },
       replaceState: function(oldState, newState) {
@@ -15116,7 +15125,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Co
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $ContinueState = ($traceurRuntime.createClass)({
       constructor: function(id, label) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", [id]);
+        $traceurRuntime.superCall(this, $ContinueState.prototype, "constructor", [id]);
         this.label = label;
       },
       replaceState: function(oldState, newState) {
@@ -15152,7 +15161,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Br
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $BreakContinueTransformer = ($traceurRuntime.createClass)({
       constructor: function(stateAllocator) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", []);
+        $traceurRuntime.superCall(this, $BreakContinueTransformer.prototype, "constructor", []);
         this.transformBreaks_ = true;
         this.stateAllocator_ = stateAllocator;
       },
@@ -15190,7 +15199,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Br
       transformSwitchStatement: function(tree) {
         var oldState = this.transformBreaks_;
         this.transformBreaks_ = false;
-        var result = $traceurRuntime.superCall(this, $__proto, "transformSwitchStatement", [tree]);
+        var result = $traceurRuntime.superCall(this, $BreakContinueTransformer.prototype, "transformSwitchStatement", [tree]);
         this.transformBreaks_ = oldState;
         return result;
       },
@@ -15213,7 +15222,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Ca
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $CatchState = ($traceurRuntime.createClass)({
       constructor: function(identifier, catchState, fallThroughState, allStates, nestedTrys) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", [TryState.Kind.CATCH, allStates, nestedTrys]);
+        $traceurRuntime.superCall(this, $CatchState.prototype, "constructor", [TryState.Kind.CATCH, allStates, nestedTrys]);
         this.identifier = identifier;
         this.catchState = catchState;
         this.fallThroughState = fallThroughState;
@@ -15239,7 +15248,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Co
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $ConditionalState = ($traceurRuntime.createClass)({
       constructor: function(id, ifState, elseState, condition) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", [id]);
+        $traceurRuntime.superCall(this, $ConditionalState.prototype, "constructor", [id]);
         this.ifState = ifState;
         this.elseState = elseState;
         this.condition = condition;
@@ -15265,7 +15274,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Fi
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $FinallyFallThroughState = ($traceurRuntime.createClass)({
       constructor: function() {
-        $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
+        $traceurRuntime.superCall(this, $FinallyFallThroughState.prototype, "constructor", arguments);
       },
       replaceState: function(oldState, newState) {
         return new FinallyFallThroughState(State.replaceStateId(this.id, oldState, newState));
@@ -15292,7 +15301,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Fi
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $FinallyState = ($traceurRuntime.createClass)({
       constructor: function(finallyState, fallThroughState, allStates, nestedTrys) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", [TryState.Kind.FINALLY, allStates, nestedTrys]);
+        $traceurRuntime.superCall(this, $FinallyState.prototype, "constructor", [TryState.Kind.FINALLY, allStates, nestedTrys]);
         this.finallyState = finallyState;
         this.fallThroughState = fallThroughState;
       },
@@ -15348,7 +15357,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Sw
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $SwitchState = ($traceurRuntime.createClass)({
       constructor: function(id, expression, clauses) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", [id]);
+        $traceurRuntime.superCall(this, $SwitchState.prototype, "constructor", [id]);
         this.expression = expression;
         this.clauses = clauses;
       },
@@ -15459,7 +15468,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/CP
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $CPSTransformer = ($traceurRuntime.createClass)({
       constructor: function(reporter) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", []);
+        $traceurRuntime.superCall(this, $CPSTransformer.prototype, "constructor", []);
         this.reporter = reporter;
         this.stateAllocator_ = new StateAllocator();
         this.labelSet_ = Object.create(null);
@@ -15469,13 +15478,13 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/CP
       },
       transformBlock: function(tree) {
         this.clearLabels_();
-        var transformedTree = $traceurRuntime.superCall(this, $__proto, "transformBlock", [tree]);
+        var transformedTree = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformBlock", [tree]);
         var machine = this.transformStatementList_(transformedTree.statements);
         return machine == null ? transformedTree: machine;
       },
       transformFunctionBody: function(tree) {
         this.clearLabels_();
-        var transformedTree = $traceurRuntime.superCall(this, $__proto, "transformFunctionBody", [tree]);
+        var transformedTree = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformFunctionBody", [tree]);
         var machine = this.transformStatementList_(transformedTree.statements);
         return machine == null ? transformedTree: machine;
       },
@@ -15514,13 +15523,13 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/CP
         return false;
       },
       transformCaseClause: function(tree) {
-        var result = $traceurRuntime.superCall(this, $__proto, "transformCaseClause", [tree]);
+        var result = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformCaseClause", [tree]);
         var machine = this.transformStatementList_(result.statements);
         return machine == null ? result: new CaseClause(null, result.expression, createStatementList(machine));
       },
       transformDoWhileStatement: function(tree) {
         var labels = this.clearLabels_();
-        var result = $traceurRuntime.superCall(this, $__proto, "transformDoWhileStatement", [tree]);
+        var result = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformDoWhileStatement", [tree]);
         if (result.body.type != STATE_MACHINE) {
           return result;
         }
@@ -15541,7 +15550,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/CP
       },
       transformForStatement: function(tree) {
         var labels = this.clearLabels_();
-        var result = $traceurRuntime.superCall(this, $__proto, "transformForStatement", [tree]);
+        var result = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformForStatement", [tree]);
         if (result.body.type != STATE_MACHINE) {
           return result;
         }
@@ -15574,7 +15583,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/CP
       transformIfStatement: function(tree) {
         var $__173;
         this.clearLabels_();
-        var result = $traceurRuntime.superCall(this, $__proto, "transformIfStatement", [tree]);
+        var result = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformIfStatement", [tree]);
         if (result.ifClause.type != STATE_MACHINE && (result.elseClause == null || result.elseClause.type != STATE_MACHINE)) {
           return result;
         }
@@ -15645,7 +15654,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/CP
       },
       transformSwitchStatement: function(tree) {
         var labels = this.clearLabels_();
-        var result = $traceurRuntime.superCall(this, $__proto, "transformSwitchStatement", [tree]);
+        var result = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformSwitchStatement", [tree]);
         if (!this.containsStateMachine_(result)) {
           return result;
         }
@@ -15688,7 +15697,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/CP
       },
       transformTryStatement: function(tree) {
         this.clearLabels_();
-        var result = $traceurRuntime.superCall(this, $__proto, "transformTryStatement", [tree]);
+        var result = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformTryStatement", [tree]);
         if (result.body.type != STATE_MACHINE && (result.catchBlock == null || result.catchBlock.catchBody.type != STATE_MACHINE)) {
           return result;
         }
@@ -15746,11 +15755,11 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/CP
             return createCommaExpression(expressions);
           }
         }
-        return $traceurRuntime.superCall(this, $__proto, "transformVariableDeclarationList", [tree]);
+        return $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformVariableDeclarationList", [tree]);
       },
       transformWhileStatement: function(tree) {
         var labels = this.clearLabels_();
-        var result = $traceurRuntime.superCall(this, $__proto, "transformWhileStatement", [tree]);
+        var result = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformWhileStatement", [tree]);
         if (result.body.type != STATE_MACHINE) {
           return result;
         }
@@ -15763,7 +15772,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/CP
         return new StateMachine(startState, fallThroughState, states, loopBodyMachine.exceptionBlocks);
       },
       transformWithStatement: function(tree) {
-        var result = $traceurRuntime.superCall(this, $__proto, "transformWithStatement", [tree]);
+        var result = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformWithStatement", [tree]);
         if (result.body.type != STATE_MACHINE) {
           return result;
         }
@@ -15973,7 +15982,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/En
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $EndState = ($traceurRuntime.createClass)({
       constructor: function() {
-        $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
+        $traceurRuntime.superCall(this, $EndState.prototype, "constructor", arguments);
       },
       replaceState: function(oldState, newState) {
         return new EndState(State.replaceStateId(this.id, oldState, newState));
@@ -16042,7 +16051,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/As
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $AsyncTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
-        $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
+        $traceurRuntime.superCall(this, $AsyncTransformer.prototype, "constructor", arguments);
       },
       transformYieldExpression: function(tree) {
         this.reporter.reportError(tree.location.start, 'Async function may not have a yield expression.');
@@ -16066,7 +16075,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/As
         return new StateMachine(createTaskState, fallThroughState, states, []);
       },
       transformFinally: function(tree) {
-        var result = $traceurRuntime.superCall(this, $__proto, "transformFinally", [tree]);
+        var result = $traceurRuntime.superCall(this, $AsyncTransformer.prototype, "transformFinally", [tree]);
         if (result.block.type != STATE_MACHINE) {
           return result;
         }
@@ -16176,7 +16185,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Fo
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $ForInTransformPass = ($traceurRuntime.createClass)({
       constructor: function() {
-        $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
+        $traceurRuntime.superCall(this, $ForInTransformPass.prototype, "constructor", arguments);
       },
       transformForInStatement: function(original) {
         var $__183;
@@ -16239,7 +16248,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Yi
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $YieldState = ($traceurRuntime.createClass)({
       constructor: function(id, fallThroughState, expression) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", [id]);
+        $traceurRuntime.superCall(this, $YieldState.prototype, "constructor", [id]);
         this.fallThroughState = fallThroughState;
         this.expression = expression;
       },
@@ -16273,7 +16282,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Re
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $ReturnState = ($traceurRuntime.createClass)({
       constructor: function() {
-        $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
+        $traceurRuntime.superCall(this, $ReturnState.prototype, "constructor", arguments);
       },
       transform: function(enclosingFinally, machineEndState, reporter) {
         var e = this.expression;
@@ -16339,7 +16348,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Ge
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $GeneratorTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
-        $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
+        $traceurRuntime.superCall(this, $GeneratorTransformer.prototype, "constructor", arguments);
       },
       transformYieldExpression_: function(tree) {
         var e = tree.expression || createUndefinedExpression();
@@ -16354,14 +16363,14 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Ge
       transformExpressionStatement: function(tree) {
         var e = tree.expression;
         if (e.type === YIELD_EXPRESSION) return this.transformYieldExpression_(e);
-        return $traceurRuntime.superCall(this, $__proto, "transformExpressionStatement", [tree]);
+        return $traceurRuntime.superCall(this, $GeneratorTransformer.prototype, "transformExpressionStatement", [tree]);
       },
       transformAwaitStatement: function(tree) {
         this.reporter.reportError(tree.location.start, 'Generator function may not have an async statement.');
         return tree;
       },
       transformFinally: function(tree) {
-        var result = $traceurRuntime.superCall(this, $__proto, "transformFinally", [tree]);
+        var result = $traceurRuntime.superCall(this, $GeneratorTransformer.prototype, "transformFinally", [tree]);
         if (result.block.type != STATE_MACHINE) {
           return result;
         }
@@ -16482,7 +16491,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/GeneratorTra
       },
       visitForInStatement: function(tree) {
         this.hasForIn = true;
-        $traceurRuntime.superCall(this, $__proto, "visitForInStatement", [tree]);
+        $traceurRuntime.superCall(this, $YieldFinder.prototype, "visitForInStatement", [tree]);
       },
       visitFunctionDeclaration: function(tree) {},
       visitFunctionExpression: function(tree) {},
@@ -16497,7 +16506,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/GeneratorTra
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $YieldExpressionTransformer = ($traceurRuntime.createClass)({
       constructor: function(identifierGenerator, reporter) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", [identifierGenerator]);
+        $traceurRuntime.superCall(this, $YieldExpressionTransformer.prototype, "constructor", [identifierGenerator]);
         if (!throwClose) {
           throwClose = parseStatement($__193, id(YIELD_ACTION), ACTION_THROW, id(YIELD_ACTION), ACTION_SEND, id(YIELD_SENT));
         }
@@ -16561,7 +16570,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/GeneratorTra
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $GeneratorTransformPass = ($traceurRuntime.createClass)({
       constructor: function(identifierGenerator, reporter) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", [identifierGenerator]);
+        $traceurRuntime.superCall(this, $GeneratorTransformPass.prototype, "constructor", [identifierGenerator]);
         this.reporter_ = reporter;
       },
       transformFunctionDeclaration: function(tree) {
@@ -16578,7 +16587,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/GeneratorTra
       },
       transformBody_: function(tree, isGenerator) {
         var finder;
-        var body = $traceurRuntime.superCall(this, $__proto, "transformFunctionBody", [tree]);
+        var body = $traceurRuntime.superCall(this, $GeneratorTransformPass.prototype, "transformFunctionBody", [tree]);
         if (isGenerator || (options.unstarredGenerators || transformOptions.deferredFunctions)) {
           finder = new YieldFinder(tree);
           if (!(finder.hasYield || isGenerator || finder.hasAsync)) return body;
@@ -16624,7 +16633,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/module/Direc
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $DirectExportVisitor = ($traceurRuntime.createClass)({
       constructor: function() {
-        $traceurRuntime.superCall(this, $__proto, "constructor", [null, null, null]);
+        $traceurRuntime.superCall(this, $DirectExportVisitor.prototype, "constructor", [null, null, null]);
         this.namedExports = [];
         this.starExports = [];
       },
@@ -16689,7 +16698,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ModuleTransf
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $ModuleTransformer = ($traceurRuntime.createClass)({
       constructor: function(identifierGenerator) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", [identifierGenerator]);
+        $traceurRuntime.superCall(this, $ModuleTransformer.prototype, "constructor", [identifierGenerator]);
         this.exportVisitor_ = new DirectExportVisitor();
         this.moduleSpecifierKind_ = null;
         this.url = null;
@@ -16702,7 +16711,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ModuleTransf
       },
       transformScript: function(tree) {
         this.url = tree.url;
-        return $traceurRuntime.superCall(this, $__proto, "transformScript", [tree]);
+        return $traceurRuntime.superCall(this, $ModuleTransformer.prototype, "transformScript", [tree]);
       },
       transformModule: function(tree) {
         this.url = tree.url;
@@ -16875,7 +16884,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/NumericLiter
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $NumericLiteralTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
-        $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
+        $traceurRuntime.superCall(this, $NumericLiteralTransformer.prototype, "constructor", arguments);
       },
       transformLiteralExpression: function(tree) {
         var token = tree.literalToken;
@@ -16929,10 +16938,10 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ObjectLitera
     var $FindAdvancedProperty = ($traceurRuntime.createClass)({
       constructor: function(tree) {
         this.protoExpression = null;
-        $traceurRuntime.superCall(this, $__proto, "constructor", [tree, true]);
+        $traceurRuntime.superCall(this, $FindAdvancedProperty.prototype, "constructor", [tree, true]);
       },
       visitPropertyNameAssignment: function(tree) {
-        if (isProtoName(tree.name)) this.protoExpression = tree.value; else $traceurRuntime.superCall(this, $__proto, "visitPropertyNameAssignment", [tree]);
+        if (isProtoName(tree.name)) this.protoExpression = tree.value; else $traceurRuntime.superCall(this, $FindAdvancedProperty.prototype, "visitPropertyNameAssignment", [tree]);
       },
       visitComputedPropertyName: function(tree) {
         if (transformOptions.computedPropertyNames) this.found = true;
@@ -16948,7 +16957,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ObjectLitera
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $ObjectLiteralTransformer = ($traceurRuntime.createClass)({
       constructor: function(identifierGenerator) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", [identifierGenerator]);
+        $traceurRuntime.superCall(this, $ObjectLiteralTransformer.prototype, "constructor", [identifierGenerator]);
         this.protoExpression = null;
         this.needsAdvancedTransform = false;
         this.seenAccessors = null;
@@ -17005,7 +17014,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ObjectLitera
           var finder = new FindAdvancedProperty(tree);
           if (!finder.found) {
             this.needsAdvancedTransform = false;
-            return $traceurRuntime.superCall(this, $__proto, "transformObjectLiteralExpression", [tree]);
+            return $traceurRuntime.superCall(this, $ObjectLiteralTransformer.prototype, "transformObjectLiteralExpression", [tree]);
           }
           this.needsAdvancedTransform = true;
           this.seenAccessors = Object.create(null);
@@ -17032,7 +17041,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ObjectLitera
         }
       },
       transformPropertyNameAssignment: function(tree) {
-        if (!this.needsAdvancedTransform) return $traceurRuntime.superCall(this, $__proto, "transformPropertyNameAssignment", [tree]);
+        if (!this.needsAdvancedTransform) return $traceurRuntime.superCall(this, $ObjectLiteralTransformer.prototype, "transformPropertyNameAssignment", [tree]);
         if (isProtoName(tree.name)) return null;
         return this.createProperty_(tree.name, {
           value: this.transformAny(tree.value),
@@ -17042,7 +17051,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ObjectLitera
         });
       },
       transformGetAccessor: function(tree) {
-        if (!this.needsAdvancedTransform) return $traceurRuntime.superCall(this, $__proto, "transformGetAccessor", [tree]);
+        if (!this.needsAdvancedTransform) return $traceurRuntime.superCall(this, $ObjectLiteralTransformer.prototype, "transformGetAccessor", [tree]);
         var body = this.transformAny(tree.body);
         var func = createFunctionExpression(createEmptyParameterList(), body);
         return this.createProperty_(tree.name, {
@@ -17052,7 +17061,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ObjectLitera
         });
       },
       transformSetAccessor: function(tree) {
-        if (!this.needsAdvancedTransform) return $traceurRuntime.superCall(this, $__proto, "transformSetAccessor", [tree]);
+        if (!this.needsAdvancedTransform) return $traceurRuntime.superCall(this, $ObjectLiteralTransformer.prototype, "transformSetAccessor", [tree]);
         var body = this.transformAny(tree.body);
         var parameter = this.transformAny(tree.parameter);
         var parameterList = new FormalParameterList(parameter.location, [parameter]);
@@ -17077,7 +17086,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ObjectLitera
         });
       },
       transformPropertyNameShorthand: function(tree) {
-        if (!this.needsAdvancedTransform) return $traceurRuntime.superCall(this, $__proto, "transformPropertyNameShorthand", [tree]);
+        if (!this.needsAdvancedTransform) return $traceurRuntime.superCall(this, $ObjectLiteralTransformer.prototype, "transformPropertyNameShorthand", [tree]);
         var expression = this.transformAny(tree.name);
         return this.createProperty_(tree.name, {
           value: new IdentifierExpression(tree.location, tree.name.identifierToken),
@@ -17105,7 +17114,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/PropertyName
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $PropertyNameShorthandTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
-        $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
+        $traceurRuntime.superCall(this, $PropertyNameShorthandTransformer.prototype, "constructor", arguments);
       },
       transformPropertyNameShorthand: function(tree) {
         return new PropertyNameAssignment(tree.location, new LiteralPropertyName(tree.location, tree.name), new IdentifierExpression(tree.location, tree.name));
@@ -17138,10 +17147,10 @@ System.get('@traceur/module').registerModule("../src/codegeneration/RestParamete
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $RestParameterTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
-        $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
+        $traceurRuntime.superCall(this, $RestParameterTransformer.prototype, "constructor", arguments);
       },
       transformFormalParameterList: function(tree) {
-        var transformed = $traceurRuntime.superCall(this, $__proto, "transformFormalParameterList", [tree]);
+        var transformed = $traceurRuntime.superCall(this, $RestParameterTransformer.prototype, "transformFormalParameterList", [tree]);
         if (hasRestParameter(transformed)) {
           var parametersWithoutRestParam = new FormalParameterList(transformed.location, transformed.parameters.slice(0, - 1));
           var startIndex = transformed.parameters.length - 1;
@@ -17202,7 +17211,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/SpreadTransf
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $SpreadTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
-        $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
+        $traceurRuntime.superCall(this, $SpreadTransformer.prototype, "constructor", arguments);
       },
       createArrayFromElements_: function(elements, needsNewArray) {
         var length = elements.length;
@@ -17261,19 +17270,19 @@ System.get('@traceur/module').registerModule("../src/codegeneration/SpreadTransf
         if (hasSpreadMember(tree.elements)) {
           return this.createArrayFromElements_(tree.elements, true);
         }
-        return $traceurRuntime.superCall(this, $__proto, "transformArrayLiteralExpression", [tree]);
+        return $traceurRuntime.superCall(this, $SpreadTransformer.prototype, "transformArrayLiteralExpression", [tree]);
       },
       transformCallExpression: function(tree) {
         if (hasSpreadMember(tree.args.args)) {
           return this.desugarCallSpread_(tree);
         }
-        return $traceurRuntime.superCall(this, $__proto, "transformCallExpression", [tree]);
+        return $traceurRuntime.superCall(this, $SpreadTransformer.prototype, "transformCallExpression", [tree]);
       },
       transformNewExpression: function(tree) {
         if (tree.args != null && hasSpreadMember(tree.args.args)) {
           return this.desugarNewSpread_(tree);
         }
-        return $traceurRuntime.superCall(this, $__proto, "transformNewExpression", [tree]);
+        return $traceurRuntime.superCall(this, $SpreadTransformer.prototype, "transformNewExpression", [tree]);
       }
     }, {}, $__proto, $__super, false);
     return $SpreadTransformer;
@@ -17303,7 +17312,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/SymbolTransf
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $SymbolTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
-        $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
+        $traceurRuntime.superCall(this, $SymbolTransformer.prototype, "constructor", arguments);
       },
       transformBinaryOperator: function(tree) {
         if (tree.operator.type === IN) {
@@ -17321,7 +17330,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/SymbolTransf
           var value = this.transformAny(tree.right);
           return parseExpression($__227, operand, memberExpression, value);
         }
-        return $traceurRuntime.superCall(this, $__proto, "transformBinaryOperator", [tree]);
+        return $traceurRuntime.superCall(this, $SymbolTransformer.prototype, "transformBinaryOperator", [tree]);
       },
       transformMemberLookupExpression: function(tree) {
         var operand = this.transformAny(tree.operand);
@@ -17477,7 +17486,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/TemplateLite
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $TemplateLiteralTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
-        $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
+        $traceurRuntime.superCall(this, $TemplateLiteralTransformer.prototype, "constructor", arguments);
       },
       transformFunctionBody: function(tree) {
         return ParseTreeTransformer.prototype.transformFunctionBody.call(this, tree);
@@ -17555,13 +17564,13 @@ System.get('@traceur/module').registerModule("../src/codegeneration/TypeTransfor
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $TypeTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
-        $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
+        $traceurRuntime.superCall(this, $TypeTransformer.prototype, "constructor", arguments);
       },
       transformVariableDeclaration: function(tree) {
         if (tree.typeAnnotation) {
           tree = new VariableDeclaration(tree.location, tree.lvalue, null, tree.initialiser);
         }
-        return $traceurRuntime.superCall(this, $__proto, "transformVariableDeclaration", [tree]);
+        return $traceurRuntime.superCall(this, $TypeTransformer.prototype, "transformVariableDeclaration", [tree]);
       },
       transformFormalParameter: function(tree) {
         if (tree.typeAnnotation !== null) return new FormalParameter(tree.location, tree.parameter, null);
@@ -17569,19 +17578,19 @@ System.get('@traceur/module').registerModule("../src/codegeneration/TypeTransfor
       },
       transformFunctionDeclaration: function(tree) {
         if (tree.typeAnnotation) tree = new FunctionDeclaration(tree.location, tree.name, tree.isGenerator, tree.formalParameterList, null, tree.functionBody);
-        return $traceurRuntime.superCall(this, $__proto, "transformFunctionDeclaration", [tree]);
+        return $traceurRuntime.superCall(this, $TypeTransformer.prototype, "transformFunctionDeclaration", [tree]);
       },
       transformFunctionExpression: function(tree) {
         if (tree.typeAnnotation) tree = new FunctionExpression(tree.location, tree.name, tree.isGenerator, tree.formalParameterList, null, tree.functionBody);
-        return $traceurRuntime.superCall(this, $__proto, "transformFunctionExpression", [tree]);
+        return $traceurRuntime.superCall(this, $TypeTransformer.prototype, "transformFunctionExpression", [tree]);
       },
       transformPropertyMethodAssignment: function(tree) {
         if (tree.typeAnnotation) tree = new PropertyMethodAssignment(tree.location, tree.isStatic, tree.isGenerator, tree.name, tree.formalParameterList, null, tree.functionBody);
-        return $traceurRuntime.superCall(this, $__proto, "transformPropertyMethodAssignment", [tree]);
+        return $traceurRuntime.superCall(this, $TypeTransformer.prototype, "transformPropertyMethodAssignment", [tree]);
       },
       transformGetAccessor: function(tree) {
         if (tree.typeAnnotation) tree = new GetAccessor(tree.location, tree.isStatic, tree.name, null, tree.body);
-        return $traceurRuntime.superCall(this, $__proto, "transformGetAccessor", [tree]);
+        return $traceurRuntime.superCall(this, $TypeTransformer.prototype, "transformGetAccessor", [tree]);
       }
     }, {}, $__proto, $__super, false);
     return $TypeTransformer;
@@ -17603,10 +17612,10 @@ System.get('@traceur/module').registerModule("../src/codegeneration/TypeofTransf
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $TypeofTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
-        $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
+        $traceurRuntime.superCall(this, $TypeofTransformer.prototype, "constructor", arguments);
       },
       transformUnaryExpression: function(tree) {
-        if (tree.operator.type !== TYPEOF) return $traceurRuntime.superCall(this, $__proto, "transformUnaryExpression", [tree]);
+        if (tree.operator.type !== TYPEOF) return $traceurRuntime.superCall(this, $TypeofTransformer.prototype, "transformUnaryExpression", [tree]);
         var operand = this.transformAny(tree.operand);
         var expression = parseExpression($__235, operand);
         if (operand.type === IDENTIFIER_EXPRESSION) {
@@ -17656,7 +17665,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/FromOptionsT
     var $FromOptionsTransformer = ($traceurRuntime.createClass)({constructor: function(reporter) {
         var idGenerator = arguments[1] !== (void 0) ? arguments[1]: new UniqueIdentifierGenerator();
         var $__239 = this;
-        $traceurRuntime.superCall(this, $__proto, "constructor", [reporter, options.validate]);
+        $traceurRuntime.superCall(this, $FromOptionsTransformer.prototype, "constructor", [reporter, options.validate]);
         var append = (function(transformer) {
           $__239.append((function(tree) {
             return new transformer(idGenerator, reporter).transformAny(tree);
@@ -17772,7 +17781,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/ProgramTrans
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $ProgramTransformer = ($traceurRuntime.createClass)({constructor: function(reporter, project) {
         var transformer = new FromOptionsTransformer(reporter, project.identifierGenerator);
-        $traceurRuntime.superCall(this, $__proto, "constructor", [reporter, project, transformer]);
+        $traceurRuntime.superCall(this, $ProgramTransformer.prototype, "constructor", [reporter, project, transformer]);
       }}, {
       transform: function(reporter, project) {
         var transformer = new ProgramTransformer(reporter, project);
@@ -17870,7 +17879,7 @@ System.get('@traceur/module').registerModule("../src/WebPageProject.js", functio
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $WebPageProject = ($traceurRuntime.createClass)({
       constructor: function(url) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", [url]);
+        $traceurRuntime.superCall(this, $WebPageProject.prototype, "constructor", [url]);
         this.numPending_ = 0;
         this.numberInlined_ = 0;
       },
@@ -18016,7 +18025,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/CloneTreeTra
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $CloneTreeTransformer = ($traceurRuntime.createClass)({
       constructor: function() {
-        $traceurRuntime.superCall(this, $__proto, "constructor", arguments);
+        $traceurRuntime.superCall(this, $CloneTreeTransformer.prototype, "constructor", arguments);
       },
       transformBindingIdentifier: function(tree) {
         return new BindingIdentifier(tree.location, tree.identifierToken);
@@ -18051,7 +18060,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/CloneTreeTra
         } else if (list.length == 0) {
           return [];
         } else {
-          return $traceurRuntime.superCall(this, $__proto, "transformList", [list]);
+          return $traceurRuntime.superCall(this, $CloneTreeTransformer.prototype, "transformList", [list]);
         }
       },
       transformLiteralExpression: function(tree) {
@@ -18095,7 +18104,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/module/Modul
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $ModuleRequireVisitor = ($traceurRuntime.createClass)({
       constructor: function(reporter) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", []);
+        $traceurRuntime.superCall(this, $ModuleRequireVisitor.prototype, "constructor", []);
         this.urls_ = Object.create(null);
       },
       get requireUrls() {
@@ -19300,7 +19309,7 @@ System.get('@traceur/module').registerModule("../src/runtime/module-loader.js", 
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $LoadCodeUnit = ($traceurRuntime.createClass)({
       constructor: function(loader, url) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", [loader, url, 'module', NOT_STARTED]);
+        $traceurRuntime.superCall(this, $LoadCodeUnit.prototype, "constructor", [loader, url, 'module', NOT_STARTED]);
         if (isStandardModuleUrl(url)) {
           this.state = COMPLETE;
           this.dependencies = [];
@@ -19310,7 +19319,7 @@ System.get('@traceur/module').registerModule("../src/runtime/module-loader.js", 
         return this.project.getModuleForUrl(this.url);
       },
       parse: function() {
-        if (!$traceurRuntime.superCall(this, $__proto, "parse", [])) {
+        if (!$traceurRuntime.superCall(this, $LoadCodeUnit.prototype, "parse", [])) {
           return false;
         }
         var project = this.loader.project;
@@ -19330,7 +19339,7 @@ System.get('@traceur/module').registerModule("../src/runtime/module-loader.js", 
     'use strict';
     var $__proto = $traceurRuntime.getProtoParent($__super);
     var $EvalCodeUnit = ($traceurRuntime.createClass)({constructor: function(loader, code) {
-        $traceurRuntime.superCall(this, $__proto, "constructor", [loader, loader.url, 'script', LOADED]);
+        $traceurRuntime.superCall(this, $EvalCodeUnit.prototype, "constructor", [loader, loader.url, 'script', LOADED]);
         this.text = code;
       }}, {}, $__proto, $__super, true);
     return $EvalCodeUnit;

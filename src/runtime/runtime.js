@@ -559,14 +559,15 @@
     return undefined;
   }
 
-  function superDescriptor(proto, name) {
+  function superDescriptor(homeObject, name) {
+    var proto = homeObject.__proto__;
     if (!proto)
       throw $TypeError('super is null');
     return getPropertyDescriptor(proto, name);
   }
 
-  function superCall(self, proto, name, args) {
-    var descriptor = superDescriptor(proto, name);
+  function superCall(self, homeObject, name, args) {
+    var descriptor = superDescriptor(homeObject, name);
     if (descriptor) {
       if ('value' in descriptor)
         return descriptor.value.apply(self, args);
@@ -576,8 +577,8 @@
     throw $TypeError("super has no method '" + name + "'.");
   }
 
-  function superGet(self, proto, name) {
-    var descriptor = superDescriptor(proto, name);
+  function superGet(self, homeObject, name) {
+    var descriptor = superDescriptor(homeObject, name);
     if (descriptor) {
       if (descriptor.get)
         return descriptor.get.call(self);
@@ -587,8 +588,8 @@
     return undefined;
   }
 
-  function superSet(self, proto, name, value) {
-    var descriptor = superDescriptor(proto, name);
+  function superSet(self, homeObject, name, value) {
+    var descriptor = superDescriptor(homeObject, name);
     if (descriptor && descriptor.set) {
       descriptor.set.call(self, value);
       return;
@@ -608,6 +609,8 @@
   // The next three functions are more or less identical to ClassDefinitionEvaluation
   // in the ES6 draft.
   function createClass(object, staticObject, protoParent, superClass, hasConstructor) {
+    // TODO(arv): protoParent does not need to be in lexical scope any more so
+    // we can remove that parameter and make it a local variable.
     var ctor = object.constructor;
     if (typeof superClass === 'function')
       ctor.__proto__ = superClass;
@@ -618,7 +621,7 @@
     descriptors.constructor.enumerable = false;
     ctor.prototype = $create(protoParent, descriptors);
     $defineProperties(ctor, getDescriptors(staticObject));
-
+    $defineProperty(ctor, 'prototype', {configurable: false, writable: false});
     return ctor;
   }
 
@@ -633,11 +636,13 @@
     throw new TypeError();
   }
 
+  // TODO(arv): Unify the two createClass functions.
   function createClassNoExtends(object, staticObject) {
     var ctor = object.constructor;
     $defineProperty(object, 'constructor', {enumerable: false});
     ctor.prototype = object;
     $defineProperties(ctor, getDescriptors(staticObject));
+    $defineProperty(ctor, 'prototype', {configurable: false, writable: false});
     return ctor;
   }
 
