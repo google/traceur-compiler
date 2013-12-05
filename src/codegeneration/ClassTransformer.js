@@ -155,9 +155,8 @@ export class ClassTransformer extends TempVarTransformer{
     if (superClass) {
       return parseExpression `function($__super) {
         'use strict';
-        var $__proto = $traceurRuntime.getProtoParent($__super);
         var ${nameIdent} =
-            ($traceurRuntime.createClass)(${object}, ${staticObject}, $__proto,
+            ($traceurRuntime.createClass)(${object}, ${staticObject},
                                    $__super, ${hasConstructor});
         return ${nameIdent};
       }(${superClass})`;
