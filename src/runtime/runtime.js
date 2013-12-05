@@ -608,12 +608,11 @@
 
   // The next three functions are more or less identical to ClassDefinitionEvaluation
   // in the ES6 draft.
-  function createClass(object, staticObject, protoParent, superClass, hasConstructor) {
-    // TODO(arv): protoParent does not need to be in lexical scope any more so
-    // we can remove that parameter and make it a local variable.
+  function createClass(object, staticObject, superClass, hasConstructor) {
     var ctor = object.constructor;
     if (typeof superClass === 'function')
       ctor.__proto__ = superClass;
+    var protoParent = getProtoParent(superClass);
     if (!hasConstructor && protoParent === null)
       ctor = object.constructor = function() {};
 
@@ -725,7 +724,6 @@
   global.$traceurRuntime = {
     createClass: createClass,
     createClassNoExtends: createClassNoExtends,
-    getProtoParent: getProtoParent,
     Deferred: Deferred,
     exportStar: exportStar,
     generatorWrap: generatorWrap,
