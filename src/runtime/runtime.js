@@ -560,7 +560,7 @@
   }
 
   function superDescriptor(homeObject, name) {
-    var proto = homeObject.__proto__;
+    var proto = $getPrototypeOf(homeObject);
     if (!proto)
       throw $TypeError('super is null');
     return getPropertyDescriptor(proto, name);
@@ -606,22 +606,27 @@
     return descriptors;
   }
 
-  // The next three functions are more or less identical to ClassDefinitionEvaluation
-  // in the ES6 draft.
-  function createClass(object, staticObject, superClass, hasConstructor) {
-    var ctor = object.constructor;
-    if (typeof superClass === 'function')
-      ctor.__proto__ = superClass;
-    var protoParent = getProtoParent(superClass);
-    if (!hasConstructor && protoParent === null)
-      ctor = object.constructor = function() {};
+  // The next three functions are more or less identical to
+  // ClassDefinitionEvaluation in the ES6 draft.
 
-    var descriptors = getDescriptors(object);
-    descriptors.constructor.enumerable = false;
-    ctor.prototype = $create(protoParent, descriptors);
-    $defineProperties(ctor, getDescriptors(staticObject));
+  function createClass(ctor, object, staticObject, superClass) {
+    $defineProperty(object, 'constructor', {
+      value: ctor,
+       configurable: true,
+       enumerable: false,
+       writable: true
+    });
+
+    if (arguments.length > 3) {
+      if (typeof superClass === 'function')
+        ctor.__proto__ = superClass;
+      ctor.prototype = $create(getProtoParent(superClass),
+                               getDescriptors(object));
+    } else {
+      ctor.prototype = object;
+    }
     $defineProperty(ctor, 'prototype', {configurable: false, writable: false});
-    return ctor;
+    return $defineProperties(ctor, getDescriptors(staticObject));
   }
 
   function getProtoParent(superClass) {
@@ -635,14 +640,9 @@
     throw new TypeError();
   }
 
-  // TODO(arv): Unify the two createClass functions.
-  function createClassNoExtends(object, staticObject) {
-    var ctor = object.constructor;
-    $defineProperty(object, 'constructor', {enumerable: false});
-    ctor.prototype = object;
-    $defineProperties(ctor, getDescriptors(staticObject));
-    $defineProperty(ctor, 'prototype', {configurable: false, writable: false});
-    return ctor;
+  function defaultSuperCall(self, homeObject, args) {
+    if ($getPrototypeOf(homeObject) !== null)
+      superCall(self, homeObject, 'constructor', args);
   }
 
   var ST_NEWBORN = 0;
@@ -722,9 +722,9 @@
   setupGlobals(global);
 
   global.$traceurRuntime = {
-    createClass: createClass,
-    createClassNoExtends: createClassNoExtends,
     Deferred: Deferred,
+    class: createClass,
+    defaultSuperCall: defaultSuperCall,
     exportStar: exportStar,
     generatorWrap: generatorWrap,
     setProperty: setProperty,
