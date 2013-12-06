@@ -81,7 +81,7 @@ import {propName} from '../staticsemantics/PropName';
 //   var C = function(x) {
 //     $__superCall(this, $C.prototype, 'constructor', []);
 //   };
-//   var $C = $traceurRuntime.class(C, {
+//   var $C = $traceurRuntime.createClass(C, {
 //     method: function() {
 //       $traceurRuntime.superCall(this, $C.prototype, 'm', []);
 //     }
@@ -91,11 +91,11 @@ import {propName} from '../staticsemantics/PropName';
 function classCall(func, object, staticObject, superClass) {
   if (superClass) {
     return parseExpression
-        `($traceurRuntime.class)(${func}, ${object}, ${staticObject},
-                                 ${superClass})`;
+        `($traceurRuntime.createClass)(${func}, ${object}, ${staticObject},
+                                       ${superClass})`;
   }
   return parseExpression
-      `($traceurRuntime.class)(${func}, ${object}, ${staticObject})`;
+      `($traceurRuntime.createClass)(${func}, ${object}, ${staticObject})`;
 }
 
 export class ClassTransformer extends TempVarTransformer{
@@ -277,13 +277,13 @@ export class ClassTransformer extends TempVarTransformer{
     if (hasSuper) {
       expression = parseExpression `function($__super) {
         var ${name} = ${func};
-        return ($traceurRuntime.class)(${name}, ${object}, ${staticObject},
-                                       $__super);
+        return ($traceurRuntime.createClass)(${name}, ${object}, ${staticObject},
+                                             $__super);
       }(${superClass})`;
     } else if (tree.name) {
       expression = parseExpression `function() {
         var ${name} = ${func};
-        return ($traceurRuntime.class)(${name}, ${object}, ${staticObject});
+        return ($traceurRuntime.createClass)(${name}, ${object}, ${staticObject});
       }()`;
     } else {
       expression = classCall(func, object, staticObject, superClass);

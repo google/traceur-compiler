@@ -723,7 +723,7 @@
 
   global.$traceurRuntime = {
     Deferred: Deferred,
-    class: createClass,
+    createClass: createClass,
     defaultSuperCall: defaultSuperCall,
     exportStar: exportStar,
     generatorWrap: generatorWrap,
