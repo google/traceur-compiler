@@ -9600,9 +9600,14 @@ System.get('@traceur/module').registerModule("../src/semantics/FreeVariableCheck
   }, {checkScript: function(reporter, tree) {
       new FreeVariableChecker(reporter).visitScript(tree, global);
     }}, ParseTreeVisitor);
-  return {get FreeVariableChecker() {
+  return {
+    get getVariableName() {
+      return getVariableName;
+    },
+    get FreeVariableChecker() {
       return FreeVariableChecker;
-    }};
+    }
+  };
 }, this);
 System.get('@traceur/module').registerModule("../src/outputgeneration/ParseTreeWriter.js", function() {
   "use strict";

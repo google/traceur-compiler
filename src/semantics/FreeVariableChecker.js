@@ -43,7 +43,7 @@ class Scope {
  * @param {BindingIdentifier|IdentifierToken|string} name
  * @returns {string}
  */
-function getVariableName(name) {
+export function getVariableName(name) {
   if (name instanceof IdentifierExpression) {
     name = name.identifierToken;
   } else if (name instanceof BindingIdentifier) {
