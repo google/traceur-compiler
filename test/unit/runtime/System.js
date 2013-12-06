@@ -14,6 +14,7 @@
 
 suite('System.js', function() {
 
+  var saveBaseURL = System.baseURL;
 
   test('System.normalize', function() {
     var m = System.get('@traceur/module');
@@ -29,6 +30,7 @@ suite('System.js', function() {
     var base = 'http://ecmascipt.org/x/y';
     assert.equal('http://ecmascipt.org/x/d/e/f',
                  System.normalize('d/e/f', {referer: {name: base}}));
+    System.baseURL = saveBaseURL;
   });
 
   test('System.resolve', function() {
@@ -47,7 +49,7 @@ suite('System.js', function() {
     var resolved = System.resolve(normalized);
     assert.equal(resolved,
                  'http://example.org/a/src/syntax/IdentifierToken.js');
-
+    System.baseURL = saveBaseURL;
   });
 
 });

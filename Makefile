@@ -17,11 +17,15 @@ TPL_GENSRC_DEPS = $(addsuffix -template.js.dep, $(TPL_GENSRC))
 
 TFLAGS = --
 
+RUNTIME_TESTS = \
+  test/unit/runtime/System.js \
+  test/unit/runtime/Loader.js
+
 TESTS = \
 	test/node-feature-test.js \
+  $(RUNTIME_TESTS) \
 	test/unit/codegeneration/ \
 	test/unit/node/ \
-	test/unit/runtime/modules.js \
 	test/unit/semantics/ \
 	test/unit/syntax/ \
 	test/unit/system/ \
@@ -36,6 +40,10 @@ min: bin/traceur.min.js
 # Uses uglifyjs to compress. Make sure you have it installed
 #   npm install uglify-js -g
 ugly: bin/traceur.ugly.js
+
+test-runtime: bin/traceur-runtime.js $(RUNTIME_TESTS)
+	node_modules/.bin/mocha --ignore-leaks --ui tdd --require test/node-env.js \
+	 $(RUNTIME_TESTS)
 
 test: bin/traceur.js test/test-list.js
 	node_modules/.bin/mocha --ignore-leaks --ui tdd --require test/node-env.js $(TESTS)
