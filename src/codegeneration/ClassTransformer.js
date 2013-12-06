@@ -110,6 +110,7 @@ export class ClassTransformer extends TempVarTransformer{
     this.state_ = null;
   }
 
+  // Override to handle AnonBlock
   transformExportDeclaration(tree) {
     var transformed = super(tree);
     if (transformed === tree)
@@ -237,6 +238,7 @@ export class ClassTransformer extends TempVarTransformer{
       superClass
     } = this.transformClassElements_(tree, internalName);
 
+    // TODO(arv): Use let.
     var statements = [parseStatement `var ${name} = ${func}`];
     var expr = classCall(name, object, staticObject, superClass);
 
@@ -273,17 +275,22 @@ export class ClassTransformer extends TempVarTransformer{
 
     var expression;
 
-    // We need an IIFE
     if (hasSuper) {
+      // We need a binding name that can be referenced in the super calls and
+      // we hide this name in an IIFE.
+      // TODO(arv): Use const.
       expression = parseExpression `function($__super) {
         var ${name} = ${func};
-        return ($traceurRuntime.createClass)(${name}, ${object}, ${staticObject},
-                                             $__super);
+        return ($traceurRuntime.createClass)(${name}, ${object},
+                                             ${staticObject}, $__super);
       }(${superClass})`;
     } else if (tree.name) {
+      // The name should be locally bound in the class body.
+      // TODO(arv): Use const.
       expression = parseExpression `function() {
         var ${name} = ${func};
-        return ($traceurRuntime.createClass)(${name}, ${object}, ${staticObject});
+        return ($traceurRuntime.createClass)(${name}, ${object},
+                                             ${staticObject});
       }()`;
     } else {
       expression = classCall(func, object, staticObject, superClass);
