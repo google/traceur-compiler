@@ -16,6 +16,9 @@ import {
   CONSTRUCTOR
 } from '../syntax/PredefinedName';
 import {
+  AnonBlock,
+  ExportDeclaration,
+  FunctionExpression,
   GetAccessor,
   PropertyMethodAssignment,
   SetAccessor
@@ -27,23 +30,23 @@ import {
 } from '../syntax/trees/ParseTreeType';
 import {SuperTransformer} from './SuperTransformer';
 import {TempVarTransformer} from './TempVarTransformer';
+import {VAR} from '../syntax/TokenType';
+import {MakeStrictTransformer} from './MakeStrictTransformer';
 import {
-  LET,
-  VAR
-} from '../syntax/TokenType';
-import {
+  createEmptyParameterList,
   createFunctionBody,
-  createIdentifierExpression,
+  createIdentifierExpression as id,
   createMemberExpression,
   createObjectLiteralExpression,
   createParenExpression,
   createThisExpression,
   createVariableStatement
 } from './ParseTreeFactory';
+import {hasUseStrict} from '../semantics/util.js';
 import {parseOptions} from '../options';
 import {
   parseExpression,
-  parsePropertyDefinition
+  parseStatement
 } from './PlaceholderParser';
 import {propName} from '../staticsemantics/PropName';
 
@@ -57,33 +60,44 @@ import {propName} from '../staticsemantics/PropName';
 //   declarations, and should never see any super expressions that refer to
 //   any inner (or outer) classes.
 
-/**
- * Maximally minimal classes
- *
- *   http://wiki.ecmascript.org/doku.php?id=strawman:maximally_minimal_classes
- *
- * This transforms class declarations and class expressions.
- *
- *   class C extends B {
- *     constructor(x) {
- *       super();
- *     }
- *     method() {
- *       super.m();
- *     }
- *   }
- *
- *   =>
- *
- *   let C = traceurRuntime.createClass({
- *      constructor: function C(x) {
- *         traceurRuntime.superCall(this, C.prototype, 'constructor', [x]);
- *      },
- *      method: function method() {
- *        traceurRuntime.superCall(this, C.prototype, 'm', []);
- *      }
- *   });
- */
+
+// Maximally minimal classes
+//
+//   http://wiki.ecmascript.org/doku.php?id=strawman:maximally_minimal_classes
+//
+// This transforms class declarations and class expressions.
+//
+//   class C extends B {
+//     constructor(x) {
+//       super();
+//     }
+//     method() {
+//       super.m();
+//     }
+//   }
+//
+//   =>
+//
+//   var C = function(x) {
+//     $__superCall(this, $C.prototype, 'constructor', []);
+//   };
+//   var $C = $traceurRuntime.createClass(C, {
+//     method: function() {
+//       $traceurRuntime.superCall(this, $C.prototype, 'm', []);
+//     }
+//   }, {}, B);
+//
+
+function classCall(func, object, staticObject, superClass) {
+  if (superClass) {
+    return parseExpression
+        `($traceurRuntime.createClass)(${func}, ${object}, ${staticObject},
+                                       ${superClass})`;
+  }
+  return parseExpression
+      `($traceurRuntime.createClass)(${func}, ${object}, ${staticObject})`;
+}
+
 export class ClassTransformer extends TempVarTransformer{
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
@@ -92,39 +106,90 @@ export class ClassTransformer extends TempVarTransformer{
   constructor(identifierGenerator, reporter) {
     super(identifierGenerator);
     this.reporter_ = reporter;
+    this.strictCount_ = 0;
+    this.state_ = null;
   }
 
-  transformClassShared_(tree, name) {
+  // Override to handle AnonBlock
+  transformExportDeclaration(tree) {
+    var transformed = super(tree);
+    if (transformed === tree)
+      return tree;
+
+    var declaration = transformed.declaration;
+    if (declaration instanceof AnonBlock) {
+      var statements = [
+        new ExportDeclaration(null, declaration.statements[0]),
+        ...declaration.statements.slice(1)
+      ];
+      return new AnonBlock(null, statements);
+    }
+    return transformed;
+  }
+
+  transformModule(tree) {
+    this.strictCount_ = 1;
+    return super(tree);
+  }
+
+  transformScript(tree) {
+    this.strictCount_ = +hasUseStrict(tree.scriptItemList);
+    return super(tree);
+  }
+
+  transformFunctionBody(tree) {
+    var useStrict = +hasUseStrict(tree.statements);
+    this.strictCount_ += useStrict;
+    var result = super(tree);
+    this.strictCount_ -= useStrict;
+    return result;
+  }
+
+  makeStrict_(tree) {
+    if (this.strictCount_)
+      return tree;
+
+    return MakeStrictTransformer.transformTree(tree);
+  }
+
+  transformClassElements_(tree, internalName) {
+    var oldState = this.state_;
+    this.state_ = {hasSuper: false};
     var superClass = this.transformAny(tree.superClass);
-    var nameIdent = createIdentifierExpression(name);
-    var protoName = createMemberExpression(name, 'prototype');
+
     var hasConstructor = false;
     var protoElements = [], staticElements = [];
-    var staticSuperRef = createIdentifierExpression(name)
+    var constructorBody, constructorParams;
 
     tree.elements.forEach((tree) => {
-      var elements, proto;
+      var elements, homeObject;
       if (tree.isStatic) {
         elements = staticElements;
-        proto = staticSuperRef;
+        homeObject = internalName;
       } else {
         elements = protoElements;
-        proto = protoName;
+        homeObject = createMemberExpression(internalName, 'prototype');
       }
 
       switch (tree.type) {
         case GET_ACCESSOR:
-          elements.push(this.transformGetAccessor_(tree, proto));
+          elements.push(this.transformGetAccessor_(tree, homeObject));
           break;
 
         case SET_ACCESSOR:
-          elements.push(this.transformSetAccessor_(tree, proto));
+          elements.push(this.transformSetAccessor_(tree, homeObject));
           break;
 
         case PROPERTY_METHOD_ASSIGNMENT:
-          if (!tree.isStatic && propName(tree) === CONSTRUCTOR)
+          var transformed =
+              this.transformPropertyMethodAssignment_(tree, homeObject);
+          if (!tree.isStatic && propName(tree) === CONSTRUCTOR) {
             hasConstructor = true;
-          elements.push(this.transformPropertyMethodAssignment_(tree, proto));
+            constructorParams = transformed.formalParameterList;
+            constructorBody = transformed.functionBody;
+          } else {
+            elements.push(transformed);
+          }
           break;
 
         default:
@@ -132,42 +197,27 @@ export class ClassTransformer extends TempVarTransformer{
       }
     });
 
-    // Create constructor if it does not already exist.
-    if (!hasConstructor) {
-      protoElements.unshift(this.getDefaultConstructor_(tree, superClass,
-                                                        protoName));
-    }
-
     var object = createObjectLiteralExpression(protoElements);
     var staticObject = createObjectLiteralExpression(staticElements);
 
-    // We branch on whether we have an extends expression or not since when
-    // there is one, setting up the prototype chains gets a lot more
-    // complicated.
-    //
-    // We also need to keep track if there was a user provided constructor or
-    // not in case the extends expression evaluates to null; in that case we
-    // change the default constructor to not call super. That is an just an
-    // optimization, we could let the default constructor do this check at
-    // runtime.
-    // The extra parentheses around createClass_ is to make the V8 heuristic
-    // ignore that part in the name to use in its stack traces.
-    if (superClass) {
-      return parseExpression `function($__super) {
-        'use strict';
-        var ${nameIdent} =
-            ($traceurRuntime.createClass)(${object}, ${staticObject},
-                                   $__super, ${hasConstructor});
-        return ${nameIdent};
-      }(${superClass})`;
+    var func;
+    if (!hasConstructor) {
+      func = this.getDefaultConstructor_(tree, internalName);
+    } else {
+      func = new FunctionExpression(tree.location, null, false,
+                                    constructorParams, null, constructorBody);
     }
 
-    return parseExpression `function() {
-      'use strict';
-      var ${nameIdent} = ($traceurRuntime.createClassNoExtends)(
-          ${object}, ${staticObject});
-      return ${nameIdent};
-    }()`;
+    var state = this.state_;
+    this.state_ = oldState;
+
+    return {
+      func,
+      superClass,
+      object,
+      staticObject,
+      hasSuper: state.hasSuper,
+    };
   }
 
   /**
@@ -177,27 +227,84 @@ export class ClassTransformer extends TempVarTransformer{
    * @return {ParseTree}
    */
   transformClassDeclaration(tree) {
-    // let <className> = ...
-    // The name needs to be different from the class name but similar enough
-    // that we can make sense out of our stack traces.
-    var name = '$' + tree.name.identifierToken.value;
-    return createVariableStatement(
-        // If we allow let in the parser; use let. This let will be transformed
-        // by the block binding transformer as needed.
-        parseOptions.blockBinding ? LET : VAR,
-        tree.name,
-        this.transformClassShared_(tree, name));
+    var name = tree.name.identifierToken;
+    var internalName = id(`$${name}`);
+
+    var {
+      func,
+      hasSuper,
+      object,
+      staticObject,
+      superClass
+    } = this.transformClassElements_(tree, internalName);
+
+    // TODO(arv): Use let.
+    var statements = [parseStatement `var ${name} = ${func}`];
+    var expr = classCall(name, object, staticObject, superClass);
+
+    if (hasSuper) {
+      // The internal name is so that super lookups continue to work even in
+      // case someone overrides the class binding name
+      statements.push(parseStatement `var ${internalName} = ${expr}`);
+    } else {
+      // The extra assignment is so that the stack trace contains the class
+      // name.
+      statements.push(parseStatement `${name} = ${expr}`);
+    }
+
+    var anonBlock = new AnonBlock(null, statements);
+    return this.makeStrict_(anonBlock);
   }
 
   transformClassExpression(tree) {
-    var ident = tree.name ? tree.name.identifierToken.value : this.addTempVar();
-    return createParenExpression(this.transformClassShared_(tree, ident));
+    this.pushTempVarState();
+
+    var name;
+    if (tree.name)
+      name = tree.name.identifierToken;
+    else
+      name = id(this.getTempIdentifier());
+
+    var {
+      func,
+      hasSuper,
+      object,
+      staticObject,
+      superClass
+    } = this.transformClassElements_(tree, name);
+
+    var expression;
+
+    if (hasSuper) {
+      // We need a binding name that can be referenced in the super calls and
+      // we hide this name in an IIFE.
+      // TODO(arv): Use const.
+      expression = parseExpression `function($__super) {
+        var ${name} = ${func};
+        return ($traceurRuntime.createClass)(${name}, ${object},
+                                             ${staticObject}, $__super);
+      }(${superClass})`;
+    } else if (tree.name) {
+      // The name should be locally bound in the class body.
+      // TODO(arv): Use const.
+      expression = parseExpression `function() {
+        var ${name} = ${func};
+        return ($traceurRuntime.createClass)(${name}, ${object},
+                                             ${staticObject});
+      }()`;
+    } else {
+      expression = classCall(func, object, staticObject, superClass);
+    }
+
+    this.popTempVarState();
+
+    return createParenExpression(this.makeStrict_(expression));
   }
 
-  transformPropertyMethodAssignment_(tree, protoName) {
+  transformPropertyMethodAssignment_(tree, internalName) {
     var formalParameterList = this.transformAny(tree.formalParameterList);
-    var functionBody = this.transformSuperInFunctionBody_(tree, tree.functionBody,
-                                                   protoName);
+    var functionBody = this.transformSuperInFunctionBody_(tree,
+        tree.functionBody, internalName);
     if (!tree.isStatic &&
         formalParameterList === tree.formalParameterList &&
         functionBody === tree.functionBody) {
@@ -206,36 +313,42 @@ export class ClassTransformer extends TempVarTransformer{
 
     var isStatic = false;
     return new PropertyMethodAssignment(tree.location, isStatic,
-        tree.isGenerator, tree.name, formalParameterList, tree.typeAnnotation, functionBody);
+        tree.isGenerator, tree.name, formalParameterList, tree.typeAnnotation,
+        functionBody);
   }
 
-  transformGetAccessor_(tree, protoName) {
-    var body = this.transformSuperInFunctionBody_(tree, tree.body, protoName);
+  transformGetAccessor_(tree, internalName) {
+    var body = this.transformSuperInFunctionBody_(tree, tree.body, internalName);
     if (!tree.isStatic && body === tree.body)
       return tree;
     // not static
-    return new GetAccessor(tree.location, false, tree.name, tree.typeAnnotation, body);
+    return new GetAccessor(tree.location, false, tree.name, tree.typeAnnotation,
+                           body);
   }
 
-  transformSetAccessor_(tree, protoName) {
+  transformSetAccessor_(tree, internalName) {
     var parameter = this.transformAny(tree.parameter);
-    var body = this.transformSuperInFunctionBody_(tree, tree.body, protoName);
+    var body = this.transformSuperInFunctionBody_(tree, tree.body, internalName);
     if (!tree.isStatic && body === tree.body)
       return tree;
     return new SetAccessor(tree.location, false, tree.name, parameter,
                            body);
   }
 
-  transformSuperInFunctionBody_(methodTree, tree, protoName) {
+  transformSuperInFunctionBody_(methodTree, tree, internalName) {
     this.pushTempVarState();
     var thisName = this.getTempIdentifier();
     var thisDecl = createVariableStatement(VAR, thisName,
                                            createThisExpression());
-    var superTransformer = new SuperTransformer(this, this.reporter_, protoName,
-                                                methodTree, thisName);
+    var superTransformer = new SuperTransformer(this, this.reporter_,
+                                                internalName, methodTree,
+                                                thisName);
     // ref_1: the inner transformFunctionBody call is key to proper super nesting.
     var transformedTree =
         superTransformer.transformFunctionBody(this.transformFunctionBody(tree));
+
+    if (superTransformer.hasSuper)
+      this.state_.hasSuper = true;
 
     this.popTempVarState();
 
@@ -244,22 +357,20 @@ export class ClassTransformer extends TempVarTransformer{
     return transformedTree;
   }
 
-  getDefaultConstructor_(tree, hasSuper, protoName) {
-    // constructor(...args) { super(...args); }
-    if (!hasSuper)
-      return parsePropertyDefinition `constructor: function() {}`;
+  getDefaultConstructor_(tree, internalName) {
+    var constructorParams = createEmptyParameterList();
+    var constructorBody;
+    if (tree.superClass) {
+      var statement = parseStatement
+          `$traceurRuntime.defaultSuperCall(this, ${internalName}.prototype,
+                                            arguments)`;
+      constructorBody = createFunctionBody([statement]);
+      this.state_.hasSuper = true;
+    } else {
+      constructorBody = createFunctionBody([]);
+    }
 
-    var superTransformer = new SuperTransformer(this, this.reporter_, protoName,
-                                                null, null);
-    var superCall = superTransformer.createSuperCallExpression(
-        createThisExpression(),
-        protoName,
-        'constructor',
-        createIdentifierExpression('arguments'));
-
-    // Manually handle rest+spread to remove slice.
-    return parsePropertyDefinition `constructor: function() {
-      ${superCall};
-    }`;
+    return new FunctionExpression(tree.location, null, false, constructorParams,
+                                  null, constructorBody);
   }
 }
