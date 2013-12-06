@@ -9459,6 +9459,17 @@ System.get('@traceur/module').registerModule("../src/semantics/FreeVariableCheck
     this.declarations = Object.create(null);
   };
   Scope = ($traceurRuntime.createClass)(Scope, {}, {});
+  function getVariableName(name) {
+    if (name instanceof IdentifierExpression) {
+      name = name.identifierToken;
+    } else if (name instanceof BindingIdentifier) {
+      name = name.identifierToken;
+    }
+    if (name instanceof IdentifierToken) {
+      name = name.value;
+    }
+    return name;
+  }
   var FreeVariableChecker = function(reporter) {
     $traceurRuntime.superCall(this, $FreeVariableChecker.prototype, "constructor", []);
     this.reporter_ = reporter;
@@ -9524,7 +9535,7 @@ System.get('@traceur/module').registerModule("../src/semantics/FreeVariableCheck
     },
     visitIdentifierExpression: function(tree) {
       if (this.disableChecksLevel_) return;
-      var name = FreeVariableChecker.getVariableName(tree);
+      var name = getVariableName(tree);
       var scope = this.scope_;
       if (!(name in scope.references)) {
         scope.references[name] = tree.location;
@@ -9544,7 +9555,7 @@ System.get('@traceur/module').registerModule("../src/semantics/FreeVariableCheck
       this.disableChecksLevel_--;
     },
     declareVariable_: function(tree) {
-      var name = FreeVariableChecker.getVariableName(tree);
+      var name = getVariableName(tree);
       if (name) {
         var scope = this.scope_;
         if (!(name in scope.declarations)) {
@@ -9586,25 +9597,17 @@ System.get('@traceur/module').registerModule("../src/semantics/FreeVariableCheck
           $__58 = 0; $__58 < arguments.length; $__58++) args[$__58] = arguments[$__58];
       ($__60 = this.reporter_).reportError.apply($__60, $traceurRuntime.toObject(args));
     }
-  }, {
-    checkScript: function(reporter, tree) {
+  }, {checkScript: function(reporter, tree) {
       new FreeVariableChecker(reporter).visitScript(tree, global);
+    }}, ParseTreeVisitor);
+  return {
+    get getVariableName() {
+      return getVariableName;
     },
-    getVariableName: function(name) {
-      if (name instanceof IdentifierExpression) {
-        name = name.identifierToken;
-      } else if (name instanceof BindingIdentifier) {
-        name = name.identifierToken;
-      }
-      if (name instanceof IdentifierToken) {
-        name = name.value;
-      }
-      return name;
-    }
-  }, ParseTreeVisitor);
-  return {get FreeVariableChecker() {
+    get FreeVariableChecker() {
       return FreeVariableChecker;
-    }};
+    }
+  };
 }, this);
 System.get('@traceur/module').registerModule("../src/outputgeneration/ParseTreeWriter.js", function() {
   "use strict";
