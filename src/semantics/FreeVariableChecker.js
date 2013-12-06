@@ -39,23 +39,6 @@ class Scope {
 }
 
 /**
- * Gets the name of an identifier expression or token
- * @param {BindingIdentifier|IdentifierToken|string} name
- * @returns {string}
- */
-function getVariableName(name) {
-  if (name instanceof IdentifierExpression) {
-    name = name.identifierToken;
-  } else if (name instanceof BindingIdentifier) {
-    name = name.identifierToken;
-  }
-  if (name instanceof IdentifierToken) {
-    name = name.value;
-  }
-  return name;
-}
-
-/**
  * Finds the identifiers that are not bound in a program. Run this after all
  * module imports have been resolved.
  *
@@ -182,7 +165,7 @@ export class FreeVariableChecker extends ParseTreeVisitor {
   visitIdentifierExpression(tree) {
     if (this.disableChecksLevel_)
       return;
-    var name = getVariableName(tree);
+    var name = FreeVariableChecker.getVariableName(tree);
     var scope = this.scope_;
     if (!(name in scope.references)) {
       scope.references[name] = tree.location;
@@ -212,7 +195,7 @@ export class FreeVariableChecker extends ParseTreeVisitor {
   }
 
   declareVariable_(tree) {
-    var name = getVariableName(tree);
+    var name = FreeVariableChecker.getVariableName(tree);
     if (name) {
       var scope = this.scope_;
       if (!(name in scope.declarations)) {
@@ -278,5 +261,22 @@ export class FreeVariableChecker extends ParseTreeVisitor {
    */
   static checkScript(reporter, tree) {
     new FreeVariableChecker(reporter).visitScript(tree, global);
+  }
+
+  /**
+   * Gets the name of an identifier expression or token
+   * @param {BindingIdentifier|IdentifierToken|string} name
+   * @returns {string}
+   */
+  static getVariableName(name) {
+    if (name instanceof IdentifierExpression) {
+      name = name.identifierToken;
+    } else if (name instanceof BindingIdentifier) {
+      name = name.identifierToken;
+    }
+    if (name instanceof IdentifierToken) {
+      name = name.value;
+    }
+    return name;
   }
 }
