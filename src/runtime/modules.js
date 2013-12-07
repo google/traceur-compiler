@@ -16,7 +16,12 @@ System.set('@traceur/module', (function(global) {
 
   var {ModuleImpl} = System.get('@traceur/module');
 
-  var {resolveUrl, isStandardModuleUrl} = System.get('@traceur/url');
+  var {
+    canonicalizeUrl,
+    resolveUrl,
+    isAbsolute,
+    isStandardModuleUrl
+  } = System.get('@traceur/url');
 
   var moduleImplementations = Object.create(null);
 
@@ -46,22 +51,33 @@ System.set('@traceur/module', (function(global) {
     configurable: true
   });
 
-  System.normalize = function(requestedModuleName, options) {
-    var importingModuleName = options && options.referer && options.referer.name;
-    importingModuleName = importingModuleName || baseURL;
-    if (importingModuleName && requestedModuleName)
-      return resolveUrl(importingModuleName, requestedModuleName);
-    return requestedModuleName;
+  System.normalize = function(name, refererName, refererAddress) {
+    if (typeof name !== "string")
+        throw new TypeError("module name must be a string, not " + typeof name);
+    if (isStandardModuleUrl(name))
+      return name;
+    if (isAbsolute(name))
+      return canonicalizeUrl(name);
+    if(/[^\.]\/\.\.\//.test(name)) {
+      throw new Error('module name embeds /../: ' + name);
+    }
+    if (refererName)
+      return resolveUrl(refererName, name);
+    return canonicalizeUrl(name);
   };
 
-  System.resolve = function(normalizedModuleName) {
+  System.locate = function(load) {
+    var normalizedModuleName = load.name;
     if (isStandardModuleUrl(normalizedModuleName))
+      return normalizedModuleName;
+    if (isAbsolute(normalizedModuleName))
       return normalizedModuleName;
     var asJS = normalizedModuleName + '.js';
     // ----- Hack for self-hosting compiler -----
     if (/\.js$/.test(normalizedModuleName))
       asJS = normalizedModuleName;
-    // ----------------------------------------------------
+    // ------------------------------------------
+    var baseURL = load.metadata && load.metadata.baseURL;
     if (baseURL)
       return resolveUrl(baseURL, asJS);
     return asJS;
@@ -72,15 +88,22 @@ System.set('@traceur/module', (function(global) {
   var $set = System.set;
 
   // Non-standard API, remove see issue #393
-  System.normalResolve = function(name, importingModuleName) {
+  System.normalResolve = function(name, refererName) {
     if (/@.*\.js/.test(name))
       throw new Error(`System.normalResolve illegal standard module name ${name}`);
     var options = {
-      referer: {
-        name: importingModuleName || baseURL
-      }
+      baseURL: baseURL
     };
-    return System.resolve(System.normalize(name, options));
+    if (isAbsolute(refererName)) {
+      options.baseURL = refererName;
+      refererName = undefined;
+    }
+
+    var load = {
+      name: System.normalize(name, refererName),
+      metadata: options
+    }
+    return System.locate(load);
   };
 
   function getModuleImpl(name) {
