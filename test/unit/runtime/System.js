@@ -32,12 +32,19 @@ suite('System.js', function() {
     // below referer
     assert.equal(System.normalize('../../e/f', refererName), '../e/f');
 
-    var refererName = './x/y';
-    assert.equal(System.normalize('./d/e/f', refererName),'./x/d/e/f');
+    var refererName = '../x/y';
+    assert.equal(System.normalize('./d/e/f', refererName),'../x/d/e/f');
     // internal system module
     assert.equal(System.normalize('@abc/def'), '@abc/def');
     // backwards compat
     assert.equal(System.normalize('./a.js'), './a.js');
+    // URL
+    assert.equal(System.normalize('http://example.org/a/b.html'),
+      'http://example.org/a/b.html');
+    // Canonicalize URL
+    assert.equal(System.normalize('http://example.org/a/../b.html'),
+      'http://example.org/b.html');
+
     System.baseURL = saveBaseURL;
   });
 

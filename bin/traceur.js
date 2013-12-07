@@ -680,6 +680,7 @@ System.set('@traceur/module', (function(global) {
   'use strict';
   var ModuleImpl = System.get('@traceur/module').ModuleImpl;
   var $__1 = System.get('@traceur/url'),
+      canonicalizeUrl = $__1.canonicalizeUrl,
       resolveUrl = $__1.resolveUrl,
       isAddress = $__1.isAddress,
       isStandardModuleUrl = $__1.isStandardModuleUrl;
@@ -702,7 +703,7 @@ System.set('@traceur/module', (function(global) {
   });
   System.normalize = function(name, refererName, refererAddress) {
     if (isStandardModuleUrl(name)) return name;
-    if (isAddress(name)) return name;
+    if (isAddress(name)) return canonicalizeUrl(name);
     var normalizedModuleName = name;
     if (refererName && name) normalizedModuleName = resolveUrl(refererName, name);
     if (normalizedModuleName[0] === '.') {

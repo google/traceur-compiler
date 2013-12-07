@@ -16,7 +16,12 @@ System.set('@traceur/module', (function(global) {
 
   var {ModuleImpl} = System.get('@traceur/module');
 
-  var {resolveUrl, isAddress, isStandardModuleUrl} = System.get('@traceur/url');
+  var {
+    canonicalizeUrl,
+    resolveUrl,
+    isAddress,
+    isStandardModuleUrl
+  } = System.get('@traceur/url');
 
   var moduleImplementations = Object.create(null);
 
@@ -50,7 +55,7 @@ System.set('@traceur/module', (function(global) {
     if (isStandardModuleUrl(name))
       return name;
     if (isAddress(name))
-      return name;
+      return canonicalizeUrl(name);
 
     var normalizedModuleName = name;
     if (refererName && name)
