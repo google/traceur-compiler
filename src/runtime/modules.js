@@ -16,7 +16,7 @@ System.set('@traceur/module', (function(global) {
 
   var {ModuleImpl} = System.get('@traceur/module');
 
-  var {resolveUrl, isStandardModuleUrl} = System.get('@traceur/url');
+  var {resolveUrl, isAddress, isStandardModuleUrl} = System.get('@traceur/url');
 
   var moduleImplementations = Object.create(null);
 
@@ -45,23 +45,36 @@ System.set('@traceur/module', (function(global) {
     enumerable: true,
     configurable: true
   });
-// name, refererName, refererAddress
+
   System.normalize = function(name, refererName, refererAddress) {
-    refererName = refererName || baseURL;
+    if (isStandardModuleUrl(name))
+      return name;
+    if (isAddress(name))
+      return name;
+
+    var normalizedModuleName = name;
     if (refererName && name)
-      return resolveUrl(refererName, name);
-    return name;
+      normalizedModuleName = resolveUrl(refererName, name);
+    // We need to be consistent in use or not use of ./ prefix.
+    if (normalizedModuleName[0] === '.') {
+      if (normalizedModuleName[1] === '/' || normalizedModuleName[1] === '.')
+        return normalizedModuleName;
+    }
+    return './' + normalizedModuleName;
   };
 
   System.locate = function(load) {
     var normalizedModuleName = load.name;
     if (isStandardModuleUrl(normalizedModuleName))
       return normalizedModuleName;
+    if (isAddress(normalizedModuleName))
+      return normalizedModuleName;
     var asJS = normalizedModuleName + '.js';
     // ----- Hack for self-hosting compiler -----
     if (/\.js$/.test(normalizedModuleName))
       asJS = normalizedModuleName;
-    // ----------------------------------------------------
+    // ------------------------------------------
+    var baseURL = load.metadata && load.metadata.baseURL;
     if (baseURL)
       return resolveUrl(baseURL, asJS);
     return asJS;
@@ -78,6 +91,11 @@ System.set('@traceur/module', (function(global) {
     var options = {
       baseURL: baseURL
     };
+    if (isAddress(refererName)) {
+      options.baseURL = refererName;
+      refererName = undefined;
+    }
+
     var load = {
       name: System.normalize(name, refererName),
       metadata: options

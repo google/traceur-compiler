@@ -71,16 +71,16 @@ initbench:
 	git apply test/bench/esprima-compare.patch
 
 bin/%.min.js: bin/%.js
-	node build/minifier.js $? $@
+	node build/minifier.js $^ $@
 
 bin/traceur-runtime.js: $(RUNTIME_SRC)
-	./traceur --out $@ $(TFLAGS) $?
+	./traceur --out $@ $(TFLAGS) $^
 
 bin/traceur-bare.js: src/traceur-import.js build/compiled-by-previous-traceur.js
 	./traceur --out $@ $(TFLAGS) $<
 
 concat: bin/traceur-runtime.js bin/traceur-bare.js
-	cat $? > bin/traceur.js
+	cat $^ > bin/traceur.js
 
 bin/traceur.js: build/compiled-by-previous-traceur.js
 	cp $< $@; touch -t 197001010000.00 bin/traceur.js
@@ -156,7 +156,7 @@ wikiclean:
 	rm -f -r test/wiki/CompilingOffline/out
 
 test/wiki/CompilingOffline/out/greeter.js: test/wiki/CompilingOffline/greeter.js
-	./traceur --out $@ $?
+	./traceur --out $@ $^
 
 
 .PHONY: build min test test-list force boot clean distclean unicode-tables

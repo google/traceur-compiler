@@ -314,8 +314,25 @@ System.set('@traceur/url', (function() {
     return joinAndCanonicalizePath(parts);
   }
 
+  /**
+   * True if the name looks like an absolute file name or URL
+   * @param {string} candiate to be an address.
+   * @return {boolean}
+  */
+  function isAddress(name) {
+    if (!name)
+      return false;
+    if (name[0] === '/')
+      return true;
+    var parts = split(name);
+    if (parts[ComponentIndex.SCHEME])
+      return true;
+    return false;
+  }
+
   return {
     canonicalizeUrl,
+    isAddress,
     isStandardModuleUrl,
     removeDotSegments,
     resolveUrl,

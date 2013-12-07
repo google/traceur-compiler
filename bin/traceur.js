@@ -661,8 +661,16 @@ System.set('@traceur/url', (function() {
     parts[ComponentIndex.PATH] = path;
     return joinAndCanonicalizePath(parts);
   }
+  function isAddress(name) {
+    if (!name) return false;
+    if (name[0] === '/') return true;
+    var parts = split(name);
+    if (parts[ComponentIndex.SCHEME]) return true;
+    return false;
+  }
   return {
     canonicalizeUrl: canonicalizeUrl,
+    isAddress: isAddress,
     isStandardModuleUrl: isStandardModuleUrl,
     removeDotSegments: removeDotSegments,
     resolveUrl: resolveUrl
@@ -673,6 +681,7 @@ System.set('@traceur/module', (function(global) {
   var ModuleImpl = System.get('@traceur/module').ModuleImpl;
   var $__1 = System.get('@traceur/url'),
       resolveUrl = $__1.resolveUrl,
+      isAddress = $__1.isAddress,
       isStandardModuleUrl = $__1.isStandardModuleUrl;
   var moduleImplementations = Object.create(null);
   var baseURL;
@@ -692,15 +701,22 @@ System.set('@traceur/module', (function(global) {
     configurable: true
   });
   System.normalize = function(name, refererName, refererAddress) {
-    refererName = refererName || baseURL;
-    if (refererName && name) return resolveUrl(refererName, name);
-    return name;
+    if (isStandardModuleUrl(name)) return name;
+    if (isAddress(name)) return name;
+    var normalizedModuleName = name;
+    if (refererName && name) normalizedModuleName = resolveUrl(refererName, name);
+    if (normalizedModuleName[0] === '.') {
+      if (normalizedModuleName[1] === '/' || normalizedModuleName[1] === '.') return normalizedModuleName;
+    }
+    return './' + normalizedModuleName;
   };
   System.locate = function(load) {
     var normalizedModuleName = load.name;
     if (isStandardModuleUrl(normalizedModuleName)) return normalizedModuleName;
+    if (isAddress(normalizedModuleName)) return normalizedModuleName;
     var asJS = normalizedModuleName + '.js';
     if (/\.js$/.test(normalizedModuleName)) asJS = normalizedModuleName;
+    var baseURL = load.metadata && load.metadata.baseURL;
     if (baseURL) return resolveUrl(baseURL, asJS);
     return asJS;
   };
@@ -709,6 +725,10 @@ System.set('@traceur/module', (function(global) {
   System.normalResolve = function(name, refererName) {
     if (/@.*\.js/.test(name)) throw new Error(("System.normalResolve illegal standard module name " + name));
     var options = {baseURL: baseURL};
+    if (isAddress(refererName)) {
+      options.baseURL = refererName;
+      refererName = undefined;
+    }
     var load = {
       name: System.normalize(name, refererName),
       metadata: options

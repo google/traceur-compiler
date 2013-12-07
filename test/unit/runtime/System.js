@@ -19,35 +19,39 @@ suite('System.js', function() {
   test('System.normalize', function() {
     var m = System.get('@traceur/module');
 
+    // Set the baseURL to verify it does not alter normalize results.
     System.baseURL = 'http://example.org/a/b.html';
-    assert.equal('http://example.org/a/d/e/f', System.normalize('d/e/f'));
-    assert.equal('http://example.org/e/f', System.normalize('../e/f'));
+    // no referer
+    assert.equal(System.normalize('d/e/f'), './d/e/f');
+    // below baseURL
+    assert.equal('../e/f', System.normalize('../e/f'));
 
-    System.baseURL = '/dir/file.js';
-    assert.equal('/dir/d/e/f', System.normalize('d/e/f'));
-    assert.equal('/e/f', System.normalize('../e/f'));
+    var refererName = './dir/file';
+    assert.equal(System.normalize('./d/e/f', refererName), './dir/d/e/f');
+    assert.equal(System.normalize('../e/f', refererName), './e/f');
+    // below referer
+    assert.equal(System.normalize('../../e/f', refererName), '../e/f');
 
-    var base = 'http://ecmascipt.org/x/y';
-    assert.equal('http://ecmascipt.org/x/d/e/f',
-                 System.normalize('d/e/f', base));
+    var refererName = './x/y';
+    assert.equal(System.normalize('./d/e/f', refererName),'./x/d/e/f');
+    // internal system module
+    assert.equal(System.normalize('@abc/def'), '@abc/def');
+    // backwards compat
+    assert.equal(System.normalize('./a.js'), './a.js');
     System.baseURL = saveBaseURL;
   });
 
   test('System.locate', function() {
-    System.baseURL = 'http://example.org/a/b.html';
-    assert.equal(System.locate({name:'@abc/def'}), '@abc/def');
-    assert.equal(System.locate({name:'abc/def'}), 'http://example.org/a/abc/def.js');
+    var load = {
+      metadata: {
+        baseURL: 'http://example.org/a/'
+      }
+    }
+    load.name = '@abc/def';
+    assert.equal(System.locate(load), '@abc/def');
+    load.name = './abc/def';
+    assert.equal(System.locate(load), 'http://example.org/a/abc/def.js');
 
-    // Backwards compat
-    assert.equal(System.locate({name:'abc/def.js'}),
-                 'http://example.org/a/abc/def.js');
-
-    var importer = './src/syntax/Parser.js';
-    var normalized = System.normalize('./IdentifierToken', importer);
-    assert.equal(normalized, 'src/syntax/IdentifierToken');
-    var resolved = System.locate({name:normalized});
-    assert.equal(resolved,
-                 'http://example.org/a/src/syntax/IdentifierToken.js');
     System.baseURL = saveBaseURL;
   });
 
