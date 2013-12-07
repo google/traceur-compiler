@@ -319,7 +319,7 @@ System.set('@traceur/url', (function() {
    * @param {string} candiate to be an address.
    * @return {boolean}
   */
-  function isAddress(name) {
+  function isAbsolute(name) {
     if (!name)
       return false;
     if (name[0] === '/')
@@ -332,7 +332,7 @@ System.set('@traceur/url', (function() {
 
   return {
     canonicalizeUrl,
-    isAddress,
+    isAbsolute,
     isStandardModuleUrl,
     removeDotSegments,
     resolveUrl,

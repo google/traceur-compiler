@@ -19,7 +19,7 @@ System.set('@traceur/module', (function(global) {
   var {
     canonicalizeUrl,
     resolveUrl,
-    isAddress,
+    isAbsolute,
     isStandardModuleUrl
   } = System.get('@traceur/url');
 
@@ -52,27 +52,25 @@ System.set('@traceur/module', (function(global) {
   });
 
   System.normalize = function(name, refererName, refererAddress) {
+    if (typeof name !== "string")
+        throw new TypeError("module name must be a string, not " + typeof name);
     if (isStandardModuleUrl(name))
       return name;
-    if (isAddress(name))
+    if (isAbsolute(name))
       return canonicalizeUrl(name);
-
-    var normalizedModuleName = name;
-    if (refererName && name)
-      normalizedModuleName = resolveUrl(refererName, name);
-    // We need to be consistent in use or not use of ./ prefix.
-    if (normalizedModuleName[0] === '.') {
-      if (normalizedModuleName[1] === '/' || normalizedModuleName[1] === '.')
-        return normalizedModuleName;
+    if(/[^\.]\/\.\.\//.test(name)) {
+      throw new Error('module name embeds /../: ' + name);
     }
-    return './' + normalizedModuleName;
+    if (refererName)
+      return resolveUrl(refererName, name);
+    return canonicalizeUrl(name);
   };
 
   System.locate = function(load) {
     var normalizedModuleName = load.name;
     if (isStandardModuleUrl(normalizedModuleName))
       return normalizedModuleName;
-    if (isAddress(normalizedModuleName))
+    if (isAbsolute(normalizedModuleName))
       return normalizedModuleName;
     var asJS = normalizedModuleName + '.js';
     // ----- Hack for self-hosting compiler -----
@@ -96,7 +94,7 @@ System.set('@traceur/module', (function(global) {
     var options = {
       baseURL: baseURL
     };
-    if (isAddress(refererName)) {
+    if (isAbsolute(refererName)) {
       options.baseURL = refererName;
       refererName = undefined;
     }
