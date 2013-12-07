@@ -691,13 +691,13 @@ System.set('@traceur/module', (function(global) {
     enumerable: true,
     configurable: true
   });
-  System.normalize = function(requestedModuleName, options) {
-    var importingModuleName = options && options.referer && options.referer.name;
-    importingModuleName = importingModuleName || baseURL;
-    if (importingModuleName && requestedModuleName) return resolveUrl(importingModuleName, requestedModuleName);
-    return requestedModuleName;
+  System.normalize = function(name, refererName, refererAddress) {
+    refererName = refererName || baseURL;
+    if (refererName && name) return resolveUrl(refererName, name);
+    return name;
   };
-  System.resolve = function(normalizedModuleName) {
+  System.locate = function(load) {
+    var normalizedModuleName = load.name;
     if (isStandardModuleUrl(normalizedModuleName)) return normalizedModuleName;
     var asJS = normalizedModuleName + '.js';
     if (/\.js$/.test(normalizedModuleName)) asJS = normalizedModuleName;
@@ -706,10 +706,14 @@ System.set('@traceur/module', (function(global) {
   };
   var $get = System.get;
   var $set = System.set;
-  System.normalResolve = function(name, importingModuleName) {
+  System.normalResolve = function(name, refererName) {
     if (/@.*\.js/.test(name)) throw new Error(("System.normalResolve illegal standard module name " + name));
-    var options = {referer: {name: importingModuleName || baseURL}};
-    return System.resolve(System.normalize(name, options));
+    var options = {baseURL: baseURL};
+    var load = {
+      name: System.normalize(name, refererName),
+      metadata: options
+    };
+    return System.locate(load);
   };
   function getModuleImpl(name) {
     if (!name) return;

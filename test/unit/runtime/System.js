@@ -29,24 +29,23 @@ suite('System.js', function() {
 
     var base = 'http://ecmascipt.org/x/y';
     assert.equal('http://ecmascipt.org/x/d/e/f',
-                 System.normalize('d/e/f', {referer: {name: base}}));
+                 System.normalize('d/e/f', base));
     System.baseURL = saveBaseURL;
   });
 
-  test('System.resolve', function() {
+  test('System.locate', function() {
     System.baseURL = 'http://example.org/a/b.html';
-    assert.equal(System.resolve('@abc/def'), '@abc/def');
-    assert.equal(System.resolve('abc/def'), 'http://example.org/a/abc/def.js');
+    assert.equal(System.locate({name:'@abc/def'}), '@abc/def');
+    assert.equal(System.locate({name:'abc/def'}), 'http://example.org/a/abc/def.js');
 
     // Backwards compat
-    assert.equal(System.resolve('abc/def.js'),
+    assert.equal(System.locate({name:'abc/def.js'}),
                  'http://example.org/a/abc/def.js');
 
     var importer = './src/syntax/Parser.js';
-    var options = {referer: {name: importer}};
-    var normalized = System.normalize('./IdentifierToken', options);
+    var normalized = System.normalize('./IdentifierToken', importer);
     assert.equal(normalized, 'src/syntax/IdentifierToken');
-    var resolved = System.resolve(normalized);
+    var resolved = System.locate({name:normalized});
     assert.equal(resolved,
                  'http://example.org/a/src/syntax/IdentifierToken.js');
     System.baseURL = saveBaseURL;
