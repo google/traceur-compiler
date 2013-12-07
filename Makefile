@@ -1,7 +1,8 @@
 RUNTIME_SRC = \
   src/runtime/runtime.js \
   src/runtime/url.js \
-  src/runtime/modules.js
+  src/runtime/modules.js \
+  src/runtime/promise-bootstrap.js
 SRC = \
   $(RUNTIME_SRC) \
   src/traceur-import.js

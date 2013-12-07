@@ -1,6 +1,6 @@
 {
   "name": "traceur",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Experimental ES6 to ES5 compiler",
   "keywords": [
     "javascript",
@@ -38,6 +38,7 @@
     "source-map": "0.1.30",
     "mocha": ">=1.9",
     "chai": ">=1.5",
-    "node-uuid": ">=1.4"
+    "node-uuid": ">=1.4",
+    "rsvp": ">=2.0"
   }
 }
