@@ -661,8 +661,16 @@ System.set('@traceur/url', (function() {
     parts[ComponentIndex.PATH] = path;
     return joinAndCanonicalizePath(parts);
   }
+  function isAbsolute(name) {
+    if (!name) return false;
+    if (name[0] === '/') return true;
+    var parts = split(name);
+    if (parts[ComponentIndex.SCHEME]) return true;
+    return false;
+  }
   return {
     canonicalizeUrl: canonicalizeUrl,
+    isAbsolute: isAbsolute,
     isStandardModuleUrl: isStandardModuleUrl,
     removeDotSegments: removeDotSegments,
     resolveUrl: resolveUrl
@@ -672,7 +680,9 @@ System.set('@traceur/module', (function(global) {
   'use strict';
   var ModuleImpl = System.get('@traceur/module').ModuleImpl;
   var $__1 = System.get('@traceur/url'),
+      canonicalizeUrl = $__1.canonicalizeUrl,
       resolveUrl = $__1.resolveUrl,
+      isAbsolute = $__1.isAbsolute,
       isStandardModuleUrl = $__1.isStandardModuleUrl;
   var moduleImplementations = Object.create(null);
   var baseURL;
@@ -691,25 +701,40 @@ System.set('@traceur/module', (function(global) {
     enumerable: true,
     configurable: true
   });
-  System.normalize = function(requestedModuleName, options) {
-    var importingModuleName = options && options.referer && options.referer.name;
-    importingModuleName = importingModuleName || baseURL;
-    if (importingModuleName && requestedModuleName) return resolveUrl(importingModuleName, requestedModuleName);
-    return requestedModuleName;
+  System.normalize = function(name, refererName, refererAddress) {
+    if (typeof name !== "string") throw new TypeError("module name must be a string, not " + typeof name);
+    if (isStandardModuleUrl(name)) return name;
+    if (isAbsolute(name)) return canonicalizeUrl(name);
+    if (/[^\.]\/\.\.\//.test(name)) {
+      throw new Error('module name embeds /../: ' + name);
+    }
+    if (refererName) return resolveUrl(refererName, name);
+    return canonicalizeUrl(name);
   };
-  System.resolve = function(normalizedModuleName) {
+  System.locate = function(load) {
+    var normalizedModuleName = load.name;
     if (isStandardModuleUrl(normalizedModuleName)) return normalizedModuleName;
+    if (isAbsolute(normalizedModuleName)) return normalizedModuleName;
     var asJS = normalizedModuleName + '.js';
     if (/\.js$/.test(normalizedModuleName)) asJS = normalizedModuleName;
+    var baseURL = load.metadata && load.metadata.baseURL;
     if (baseURL) return resolveUrl(baseURL, asJS);
     return asJS;
   };
   var $get = System.get;
   var $set = System.set;
-  System.normalResolve = function(name, importingModuleName) {
+  System.normalResolve = function(name, refererName) {
     if (/@.*\.js/.test(name)) throw new Error(("System.normalResolve illegal standard module name " + name));
-    var options = {referer: {name: importingModuleName || baseURL}};
-    return System.resolve(System.normalize(name, options));
+    var options = {baseURL: baseURL};
+    if (isAbsolute(refererName)) {
+      options.baseURL = refererName;
+      refererName = undefined;
+    }
+    var load = {
+      name: System.normalize(name, refererName),
+      metadata: options
+    };
+    return System.locate(load);
   };
   function getModuleImpl(name) {
     if (!name) return;
