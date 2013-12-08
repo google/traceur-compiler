@@ -864,8 +864,40 @@ System.get('@traceur/module').registerModule("../node_modules/rsvp/lib/rsvp/asyn
 System.get('@traceur/module').registerModule("../src/runtime/polyfills/Promise.js", function() {
   "use strict";
   var async = System.get('@traceur/module').getModuleImpl("../node_modules/rsvp/lib/rsvp/async.js").async;
-  function IsPromise(x) {
-    return x && 'status_'in Object(x);
+  function isPromise(x) {
+    return x && typeof x === 'object' && x.status_ !== undefined;
+  }
+  function chain(promise) {
+    var onResolve = arguments[1] !== (void 0) ? arguments[1]: (function(x) {
+      return x;
+    });
+    var onReject = arguments[2] !== (void 0) ? arguments[2]: (function(e) {
+      throw e;
+    });
+    var deferred = getDeferred(promise.constructor);
+    switch (promise.status_) {
+      case undefined:
+        throw TypeError;
+      case 'pending':
+        promise.onResolve_.push([deferred, onResolve]);
+        promise.onReject_.push([deferred, onReject]);
+        break;
+      case 'resolved':
+        promiseReact(deferred, onResolve, promise.value_);
+        break;
+      case 'rejected':
+        promiseReact(deferred, onReject, promise.value_);
+        break;
+    }
+    return deferred.promise;
+  }
+  function getDeferred(C) {
+    var result = {};
+    result.promise = new C((function(resolve, reject) {
+      result.resolve = resolve;
+      result.reject = reject;
+    }));
+    return result;
   }
   var Promise = function(resolver) {
     var $__2 = this;
@@ -879,32 +911,8 @@ System.get('@traceur/module').registerModule("../src/runtime/polyfills/Promise.j
     }));
   };
   Promise = ($traceurRuntime.createClass)(Promise, {
-    chain: function() {
-      var onResolve = arguments[0] !== (void 0) ? arguments[0]: (function(x) {
-        return x;
-      });
-      var onReject = arguments[1] !== (void 0) ? arguments[1]: (function(e) {
-        throw e;
-      });
-      var deferred = Promise.deferred.call(this.constructor);
-      switch (this.status_) {
-        case undefined:
-          throw TypeError;
-        case 'pending':
-          this.onResolve_.push([deferred, onResolve]);
-          this.onReject_.push([deferred, onReject]);
-          break;
-        case 'resolved':
-          promiseReact(deferred, onResolve, this.value_);
-          break;
-        case 'rejected':
-          promiseReact(deferred, onReject, this.value_);
-          break;
-      }
-      return deferred.promise;
-    },
     catch: function(onReject) {
-      return this.chain(undefined, onReject);
+      return this.then(undefined, onReject);
     },
     then: function() {
       var onResolve = arguments[0] !== (void 0) ? arguments[0]: (function(x) {
@@ -913,46 +921,38 @@ System.get('@traceur/module').registerModule("../src/runtime/polyfills/Promise.j
       var onReject = arguments[1];
       var $__2 = this;
       var constructor = this.constructor;
-      return this.chain((function(x) {
+      return chain(this, (function(x) {
         x = promiseCoerce(constructor, x);
-        return x === $__2 ? onReject(new TypeError): IsPromise(x) ? x.then(onResolve, onReject): onResolve(x);
+        return x === $__2 ? onReject(new TypeError): isPromise(x) ? x.then(onResolve, onReject): onResolve(x);
       }), onReject);
     }
   }, {
-    resolved: function(x) {
+    resolve: function(x) {
       return new this((function(resolve, reject) {
         resolve(x);
       }));
     },
-    rejected: function(r) {
+    reject: function(r) {
       return new this((function(resolve, reject) {
         reject(r);
       }));
     },
-    deferred: function() {
-      var result = {};
-      result.promise = new this((function(resolve, reject) {
-        result.resolve = resolve;
-        result.reject = reject;
-      }));
-      return result;
-    },
     cast: function(x) {
       if (x instanceof this) return x;
-      if (IsPromise(x)) {
-        var result = this.deferred();
-        x.chain(result.resolve, result.reject);
+      if (isPromise(x)) {
+        var result = getDeferred(this);
+        chain(x, result.resolve, result.reject);
         return result.promise;
       }
-      return this.resolved(x);
+      return this.resolve(x);
     },
     all: function(values) {
-      var deferred = this.deferred();
+      var deferred = getDeferred(this);
       var count = 0;
       var resolutions = [];
-      for (var i in values) {
+      for (var i = 0; i < values.length; i++) {
         ++count;
-        this.cast(values[i]).chain(function(i, x) {
+        this.cast(values[i]).then(function(i, x) {
           resolutions[i] = x;
           if (--count === 0) deferred.resolve(resolutions);
         }.bind(undefined, i), (function(r) {
@@ -963,11 +963,11 @@ System.get('@traceur/module').registerModule("../src/runtime/polyfills/Promise.j
       if (count === 0) deferred.resolve(resolutions);
       return deferred.promise;
     },
-    one: function(values) {
-      var deferred = this.deferred();
+    race: function(values) {
+      var deferred = getDeferred(this);
       var done = false;
-      for (var i in values) {
-        this.cast(values[i]).chain((function(x) {
+      for (var i = 0; i < values.length; i++) {
+        this.cast(values[i]).then((function(x) {
           if (!done) {
             done = true;
             deferred.resolve(x);
@@ -990,7 +990,7 @@ System.get('@traceur/module').registerModule("../src/runtime/polyfills/Promise.j
   }
   function promiseDone(promise, status, value, reactions) {
     if (promise.status_ !== 'pending') return;
-    for (var i in reactions) {
+    for (var i = 0; i < reactions.length; i++) {
       promiseReact(reactions[i][0], reactions[i][1], value);
     }
     promise.status_ = status;
@@ -1001,7 +1001,7 @@ System.get('@traceur/module').registerModule("../src/runtime/polyfills/Promise.j
     async((function() {
       try {
         var y = handler(x);
-        if (y === deferred.promise) throw new TypeError; else if (IsPromise(y)) y.chain(deferred.resolve, deferred.reject); else deferred.resolve(y);
+        if (y === deferred.promise) throw new TypeError; else if (isPromise(y)) chain(y, deferred.resolve, deferred.reject); else deferred.resolve(y);
       } catch (e) {
         deferred.reject(e);
       }
@@ -1009,14 +1009,14 @@ System.get('@traceur/module').registerModule("../src/runtime/polyfills/Promise.j
   }
   var thenableSymbol = '@@thenable';
   function promiseCoerce(constructor, x) {
-    if (IsPromise(x)) {
+    if (isPromise(x)) {
       return x;
     } else if (x && 'then'in Object(x)) {
       var p = x[thenableSymbol];
       if (p) {
         return p;
       } else {
-        var deferred = constructor.deferred();
+        var deferred = getDeferred(constructor);
         x[thenableSymbol] = deferred.promise;
         try {
           x.then(deferred.resolve, deferred.reject);
