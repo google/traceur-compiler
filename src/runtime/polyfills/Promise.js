@@ -103,42 +103,39 @@ export class Promise {
     var deferred = getDeferred(this);
     var count = 0;
     var resolutions = [];
-    for (var i = 0; i < values.length; i++) {
-      ++count;
-      this.cast(values[i]).then(
-          function(i, x) {
-            resolutions[i] = x;
-            if (--count === 0)
-              deferred.resolve(resolutions);
-          }.bind(undefined, i),
-          (r) => {
-            if (count > 0)
-              count = 0;
-            deferred.reject(r);
-          });
+    try {
+      for (var i = 0; i < values.length; i++) {
+        ++count;
+        this.cast(values[i]).then(
+            function(i, x) {
+              resolutions[i] = x;
+              if (--count === 0)
+                deferred.resolve(resolutions);
+            }.bind(undefined, i),
+            (r) => {
+              if (count > 0)
+                count = 0;
+              deferred.reject(r);
+            });
+      }
+      if (count === 0)
+        deferred.resolve(resolutions);
+    } catch (e) {
+      deferred.reject(e);
     }
-    if (count === 0)
-      deferred.resolve(resolutions);
     return deferred.promise;
   }
 
   static race(values) {
     var deferred = getDeferred(this);
-    var done = false;
-    for (var i = 0; i < values.length; i++) {
-      this.cast(values[i]).then(
-          (x) => {
-            if (!done) {
-              done = true;
-              deferred.resolve(x);
-            }
-          },
-          (r) => {
-            if (!done) {
-              done = true;
-              deferred.reject(r);
-            }
-          });
+    try {
+      for (var i = 0; i < values.length; i++) {
+        this.cast(values[i]).then(
+            (x) => { deferred.resolve(x); },
+            (r) => { deferred.reject(r); });
+      }
+    } catch (e) {
+      deferred.reject(e);
     }
     return deferred.promise;
   }
@@ -185,7 +182,7 @@ var thenableSymbol = '@@thenable';
 function promiseCoerce(constructor, x) {
   if (isPromise(x)) {
     return x;
-  } else if (x && 'then' in Object(x)) {  // can't test for callable
+  } else if (x && typeof x.then === 'function') {
     var p = x[thenableSymbol];
     if (p) {
       return p;
