@@ -281,7 +281,7 @@ export class DestructuringTransformer extends ParameterTransformer {
     });
 
     // Desugar more.
-    var transformedTree =  this.transformVariableDeclarationList(
+    var transformedTree = this.transformVariableDeclarationList(
         createVariableDeclarationList(
             tree.declarationType,
             desugaredDeclarations));
@@ -585,6 +585,16 @@ export class DestructuringTransformer extends ParameterTransformer {
 
       default:
         throw new Error('unreachable');
+    }
+
+    // In case we have `var {} = expr` or `var [] = expr` we use a temp
+    // variable name so that the expression still gets executed.
+    //
+    // AssignmentExpressionDesugaring already works.
+    if (desugaring instanceof VariableDeclarationDesugaring &&
+        desugaring.declarations.length === 0) {
+      desugaring.assign(createBindingIdentifier(this.getTempIdentifier()),
+                        desugaring.rvalue);
     }
 
     return initialiserFound;
