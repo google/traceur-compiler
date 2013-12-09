@@ -32,11 +32,9 @@ traceur.options.deferredFunctions = true;
 <script type="text/traceur">
 
 function awaitTimeout(ms) {
-  var d = new Deferred();
-  window.setTimeout(function() {
-    d.callback(undefined);
-  }, ms);
-  return d.createPromise();
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 }
 
 function animateAsync() {

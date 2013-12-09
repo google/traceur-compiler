@@ -388,94 +388,6 @@
       };
     }));
   }
-
-  /**
-   * @param {Function} canceller
-   * @constructor
-   */
-  function Deferred(canceller) {
-    this.canceller_ = canceller;
-    this.listeners_ = [];
-  }
-
-  function notify(self) {
-    while (self.listeners_.length > 0) {
-      var current = self.listeners_.shift();
-      var currentResult = undefined;
-      try {
-        try {
-          if (self.result_[1]) {
-            if (current.errback)
-              currentResult = current.errback.call(undefined, self.result_[0]);
-          } else {
-            if (current.callback)
-              currentResult = current.callback.call(undefined, self.result_[0]);
-          }
-          current.deferred.callback(currentResult);
-        } catch (err) {
-          current.deferred.errback(err);
-        }
-      } catch (unused) {}
-    }
-  }
-
-  function fire(self, value, isError) {
-    if (self.fired_)
-      throw new Error('already fired');
-
-    self.fired_ = true;
-    self.result_ = [value, isError];
-    notify(self);
-  }
-
-  Deferred.prototype = {
-    constructor: Deferred,
-
-    fired_: false,
-    result_: undefined,
-
-    createPromise: function() {
-      return {then: this.then.bind(this), cancel: this.cancel.bind(this)};
-    },
-
-    callback: function(value) {
-      fire(this, value, false);
-    },
-
-    errback: function(err) {
-      fire(this, err, true);
-    },
-
-    then: function(callback, errback) {
-      var result = new Deferred(this.cancel.bind(this));
-      this.listeners_.push({
-        deferred: result,
-        callback: callback,
-        errback: errback
-      });
-      if (this.fired_)
-        notify(this);
-      return result.createPromise();
-    },
-
-    cancel: function() {
-      if (this.fired_)
-        throw new Error('already finished');
-      var result;
-      if (this.canceller_) {
-        result = this.canceller_(this);
-        if (!result instanceof Error)
-          result = new Error(result);
-      } else {
-        result = new Error('cancelled');
-      }
-      if (!this.fired_) {
-        this.result_ = [result, true];
-        notify(this);
-      }
-    }
-  };
-
   // System.get/set and @traceur/module gets overridden in @traceur/modules to
   // be more correct.
 
@@ -715,14 +627,11 @@
     polyfillObject(global.Object);
     polyfillArray(global.Array);
     global.System = System;
-    // TODO(arv): Don't export this.
-    global.Deferred = Deferred;
   }
 
   setupGlobals(global);
 
   global.$traceurRuntime = {
-    Deferred: Deferred,
     createClass: createClass,
     defaultSuperCall: defaultSuperCall,
     exportStar: exportStar,

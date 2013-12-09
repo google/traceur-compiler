@@ -180,8 +180,14 @@
       }
 
       function handleSuccess(result) {
+        if (options.skip) {
+          done();
+          return;
+        }
+
         if (options.async)
           return;
+
         handleShouldCompile();
         done();
       }
