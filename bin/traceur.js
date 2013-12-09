@@ -153,7 +153,6 @@
     enumerable: false
   });
   $freeze(SymbolValue.prototype);
-  Symbol.iterator = Symbol();
   function toProperty(name) {
     if (isSymbol(name)) return name[symbolInternalProperty];
     return name;
@@ -530,8 +529,8 @@
     });
   }
   function setupGlobals(global) {
-    if (!global.Symbol) global.Symbol = Symbol;
-    if (!global.Symbol.iterator) global.Symbol.iterator = Symbol();
+    global.Symbol = Symbol;
+    global.Symbol.iterator = Symbol();
     polyfillString(global.String);
     polyfillObject(global.Object);
     polyfillArray(global.Array);
