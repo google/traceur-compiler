@@ -484,11 +484,11 @@ export class Parser {
   parseImportClause_() {
     var start = this.getTreeStartLocation_();
     if (this.eatIf_(OPEN_CURLY)) {
-      var specifiers = [this.parseImportSpecifier_()];
-      while (this.eatIf_(COMMA)) {
-        if (this.peek_(CLOSE_CURLY))
-          break;
+      var specifiers = [];
+      while (!this.peek_(CLOSE_CURLY) && !this.isAtEnd()) {
         specifiers.push(this.parseImportSpecifier_());
+        if (!this.eatIf_(COMMA))
+          break;
       }
       this.eat_(CLOSE_CURLY);
 
