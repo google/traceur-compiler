@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(exports) {
+(function(exports, global) {
   'use strict';
 
   function forEachPrologLine(s, f) {
@@ -38,7 +38,8 @@
       onlyInBrowser: false,
       skip: false,
       shouldCompile: true,
-      expectedErrors: []
+      expectedErrors: [],
+      async: false
     };
     forEachPrologLine(source, function(line) {
       var m;
@@ -48,6 +49,8 @@
         returnValue.shouldCompile = false;
       } else if (line.indexOf('// Skip.') === 0) {
         returnValue.skip = true;
+      } else if (line.indexOf('// Async.') === 0) {
+        returnValue.async = true;
       } else if ((m = /\/\ Options:\s*(.+)/.exec(line))) {
         traceur.options.fromString(m[1]);
       } else if ((m = /\/\/ Error:\s*(.+)/.exec(line))) {
@@ -137,8 +140,17 @@
           // Only top level file can set options.
           if (!options)
             options = parseProlog(source);
+
           if (options.skip)
             return '';
+
+          if (options.async) {
+            global.done = function() {
+              handleShouldCompile();
+              done();
+            };
+          }
+
           return source;
         }
       };
@@ -168,6 +180,8 @@
       }
 
       function handleSuccess(result) {
+        if (options.async)
+          return;
         handleShouldCompile();
         done();
       }
@@ -280,17 +294,16 @@
     });
   }
 
-  var g = typeof global !== 'undefined' ? global : exports;
-
-  g.assert = assert;
-  g.assertArrayEquals = assertArrayEquals;
-  g.assertHasOwnProperty = assertHasOwnProperty;
-  g.assertLacksOwnProperty = assertLacksOwnProperty;
-  g.assertNoOwnProperties = assertNoOwnProperties;
-  g.assertThrows = assertThrows;
-  g.fail = fail;
+  global.assert = assert;
+  global.assertArrayEquals = assertArrayEquals;
+  global.assertHasOwnProperty = assertHasOwnProperty;
+  global.assertLacksOwnProperty = assertLacksOwnProperty;
+  global.assertNoOwnProperties = assertNoOwnProperties;
+  global.assertThrows = assertThrows;
+  global.fail = fail;
 
   exports.parseProlog = parseProlog;
   exports.featureSuite = featureSuite;
 
-})(typeof exports !== 'undefined' ? exports : this);
+})(typeof exports !== 'undefined' ? exports : this,
+   typeof global !== 'undefined' ? global : this);
