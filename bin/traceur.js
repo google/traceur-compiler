@@ -7584,10 +7584,10 @@ System.get('@traceur/module').registerModule("../src/syntax/Parser.js", function
     parseImportClause_: function() {
       var start = this.getTreeStartLocation_();
       if (this.eatIf_(OPEN_CURLY)) {
-        var specifiers = [this.parseImportSpecifier_()];
-        while (this.eatIf_(COMMA)) {
-          if (this.peek_(CLOSE_CURLY)) break;
+        var specifiers = [];
+        while (!this.peek_(CLOSE_CURLY) && !this.isAtEnd()) {
           specifiers.push(this.parseImportSpecifier_());
+          if (!this.eatIf_(COMMA)) break;
         }
         this.eat_(CLOSE_CURLY);
         return new ImportSpecifierSet(this.getTreeLocation_(start), specifiers);
@@ -14221,6 +14221,9 @@ System.get('@traceur/module').registerModule("../src/codegeneration/Destructurin
           return this.desugarPattern_(desugaring, tree.expression);
         default:
           throw new Error('unreachable');
+      }
+      if (desugaring instanceof VariableDeclarationDesugaring && desugaring.declarations.length === 0) {
+        desugaring.assign(createBindingIdentifier(this.getTempIdentifier()), desugaring.rvalue);
       }
       return initialiserFound;
     }
