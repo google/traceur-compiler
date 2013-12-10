@@ -82,13 +82,13 @@ class YieldFinder extends ParseTreeVisitor {
     this.hasYield = false;
     this.hasYieldFor = false;
     this.hasForIn = false;
-    this.hasAsync = false;
+    this.hasAwait = false;
     this.visitAny(tree);
   }
 
   /** @return {boolean} */
   hasAnyGenerator() {
-    return this.hasYield || this.hasAsync;
+    return this.hasYield || this.hasAwait;
   }
 
   visitYieldExpression(tree) {
@@ -98,7 +98,7 @@ class YieldFinder extends ParseTreeVisitor {
 
   /** @param {AwaitStatement} tree */
   visitAwaitStatement(tree) {
-    this.hasAsync = true;
+    this.hasAwait = true;
   }
 
   /** @param {ForInStatement} tree */
@@ -364,7 +364,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
     if (isGenerator ||
         (options.unstarredGenerators || transformOptions.deferredFunctions)) {
       finder = new YieldFinder(tree);
-      if (!(finder.hasYield || isGenerator || finder.hasAsync))
+      if (!(finder.hasYield || isGenerator || finder.hasAwait))
         return body;
     } else if (!isGenerator) {
       return body;

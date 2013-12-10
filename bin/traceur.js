@@ -15511,7 +15511,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/As
       if (result.block.type != STATE_MACHINE) {
         return result;
       }
-      this.reporter.reportError(tree.location.start, 'async not permitted within a finally block.');
+      this.reporter.reportError(tree.location.start, 'await not permitted within a finally block.');
       return result;
     },
     transformReturnStatement: function(tree) {
@@ -15768,7 +15768,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/generator/Ge
       return $traceurRuntime.superCall(this, $GeneratorTransformer.prototype, "transformExpressionStatement", [tree]);
     },
     transformAwaitStatement: function(tree) {
-      this.reporter.reportError(tree.location.start, 'Generator function may not have an async statement.');
+      this.reporter.reportError(tree.location.start, 'Generator function may not have an await statement.');
       return tree;
     },
     transformFinally: function(tree) {
@@ -15872,19 +15872,19 @@ System.get('@traceur/module').registerModule("../src/codegeneration/GeneratorTra
     this.hasYield = false;
     this.hasYieldFor = false;
     this.hasForIn = false;
-    this.hasAsync = false;
+    this.hasAwait = false;
     this.visitAny(tree);
   };
   var $YieldFinder = ($traceurRuntime.createClass)(YieldFinder, {
     hasAnyGenerator: function() {
-      return this.hasYield || this.hasAsync;
+      return this.hasYield || this.hasAwait;
     },
     visitYieldExpression: function(tree) {
       this.hasYield = true;
       this.hasYieldFor = tree.isYieldFor;
     },
     visitAwaitStatement: function(tree) {
-      this.hasAsync = true;
+      this.hasAwait = true;
     },
     visitForInStatement: function(tree) {
       this.hasForIn = true;
@@ -15977,7 +15977,7 @@ System.get('@traceur/module').registerModule("../src/codegeneration/GeneratorTra
       var body = $traceurRuntime.superCall(this, $GeneratorTransformPass.prototype, "transformFunctionBody", [tree]);
       if (isGenerator || (options.unstarredGenerators || transformOptions.deferredFunctions)) {
         finder = new YieldFinder(tree);
-        if (!(finder.hasYield || isGenerator || finder.hasAsync)) return body;
+        if (!(finder.hasYield || isGenerator || finder.hasAwait)) return body;
       } else if (!isGenerator) {
         return body;
       }

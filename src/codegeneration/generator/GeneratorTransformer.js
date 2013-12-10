@@ -123,7 +123,7 @@ export class GeneratorTransformer extends CPSTransformer {
    */
   transformAwaitStatement(tree) {
     this.reporter.reportError(tree.location.start,
-        'Generator function may not have an async statement.');
+        'Generator function may not have an await statement.');
     return tree;
   }
 
