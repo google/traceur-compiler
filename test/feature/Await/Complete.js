@@ -1,9 +1,10 @@
 // Options: --deferred-functions
+// Async.
 
 function asyncComplete() {
-  var task = new Deferred();
-  task.callback('complete');
-  return task.createPromise();
+  return new Promise((resolve) => {
+    resolve('complete');
+  });
 }
 
 // ----------------------------------------------------------------------------
@@ -12,4 +13,5 @@ function asyncComplete() {
   var value;
   await value = asyncComplete();
   assert.equal('complete', value);
+  done();
 })();

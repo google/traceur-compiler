@@ -2,9 +2,9 @@
 // Disabled by default.
 
 function asyncComplete() {
-  var task = new Deferred();
-  task.callback('complete');
-  return task.createPromise();
+  return new Promise((resolve) => {
+    resolve('complete');
+  });
 }
 
 // ----------------------------------------------------------------------------
