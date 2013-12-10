@@ -26,7 +26,6 @@ import {TreeWriter} from '../outputgeneration/TreeWriter';
 import {WebLoader} from './WebLoader';
 import {assert} from '../util/assert';
 import {getUid} from '../util/uid';
-import {isStandardModuleUrl} from '../util/url';
 
 // TODO(arv): I stripped the resolvers to make this simpler for now.
 
@@ -197,10 +196,6 @@ class LoadCodeUnit extends CodeUnit {
    */
   constructor(loader, url) {
     super(loader, url, 'module', NOT_STARTED);
-    if (isStandardModuleUrl(url)) {
-      this.state = COMPLETE;
-      this.dependencies = [];
-    }
   }
 
   get moduleSymbol() {

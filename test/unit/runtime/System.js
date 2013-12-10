@@ -17,8 +17,6 @@ suite('System.js', function() {
   var saveBaseURL = System.baseURL;
 
   test('System.normalize', function() {
-    var m = System.get('@traceur/module');
-
     // Set the baseURL to verify it does not alter normalize results.
     System.baseURL = 'http://example.org/a/b.html';
     // no referer
@@ -54,8 +52,7 @@ suite('System.js', function() {
     // below referer
     assert.equal(System.normalize('../../e/f', refererName), '../e/f');
 
-    // internal system module
-    assert.equal(System.normalize('@abc/def'), '@abc/def');
+    assert.equal(System.normalize('abc/def'), 'abc/def');
     // backwards compat
     assert.equal(System.normalize('./a.js'), 'a.js');
     // URL
@@ -75,7 +72,7 @@ suite('System.js', function() {
       }
     }
     load.name = '@abc/def';
-    assert.equal(System.locate(load), '@abc/def');
+    assert.equal(System.locate(load), 'http://example.org/a/@abc/def.js');
     load.name = 'abc/def';
     assert.equal(System.locate(load), 'http://example.org/a/abc/def.js');
 
