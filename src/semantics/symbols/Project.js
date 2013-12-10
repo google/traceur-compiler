@@ -19,8 +19,6 @@ import {ObjectMap} from '../../util/ObjectMap';
 import {UniqueIdentifierGenerator} from
     '../../codegeneration/UniqueIdentifierGenerator';
 import {assert} from '../../util/assert';
-import {isStandardModuleUrl} from '../../util/url';
-
 
 function addAll(self, other) {
   for (var key in other) {
@@ -30,28 +28,6 @@ function addAll(self, other) {
 
 function values(objectMap) {
   return Object.keys(objectMap).map((key) => objectMap[key]);
-}
-
-var standardModuleCache = Object.create(null);
-
-/**
- * Gets a ModuleSymbol for a standard module. We cache the Symbol so that
- * future accesses to this returns the same symbol.
- * @param  {string} url
- * @return {ModuleSymbol}
- */
-function getStandardModule(url) {
-  if (!(url in standardModuleCache)) {
-    var symbol = new ModuleSymbol(null, url);
-    var moduleInstance = System.get(url);
-    if (!moduleInstance)
-      throw new Error(`Internal error, no standard module for ${url}`);
-    Object.keys(moduleInstance).forEach((name) => {
-      symbol.addExport(new ExportSymbol(name, null));
-    });
-    standardModuleCache[url] = symbol;
-  }
-  return standardModuleCache[url];
 }
 
 /**
@@ -164,16 +140,10 @@ export class Project {
   }
 
   getModuleForResolvedUrl(url) {
-    if (isStandardModuleUrl(url))
-      return getStandardModule(url);
-
     return this.modulesByResolvedUrl_[url];
   }
 
   hasModuleForResolvedUrl(url) {
-    if (isStandardModuleUrl(url))
-      return System.get(url) != null;
-
     return url in this.modulesByResolvedUrl_;
   }
 }
