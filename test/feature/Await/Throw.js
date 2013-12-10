@@ -1,4 +1,5 @@
 // Options: --deferred-functions
+// Async.
 
 function asyncThrow(e) {
   if (true)
@@ -11,39 +12,12 @@ function asyncYield() {
 }
 
 function asyncTimeout(ms) {
-  var task = new Deferred();
-  messageQueue.push(function() {
-    task.callback(undefined);
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
   });
-  return task.createPromise();
 }
 
-var done = false;
-var messageQueue = [];
-
-function run(f) {
-  return function() {
-    done = false;
-    f();
-    while (dequeue()) {
-      // intentionally empty
-    }
-    assert.isTrue(done);
-  };
-}
-
-function dequeue() {
-  var f = messageQueue.shift();
-  if (f) {
-    f();
-    return true;
-  }
-  return false;
-}
-
-// ----------------------------------------------------------------------------
-
-run(function() {
+(function() {
   var value;
   try {
     await value = asyncThrow(1);
@@ -52,5 +26,5 @@ run(function() {
     assert.equal(1, e);
   }
 
-  done = true;
+  done();
 })();
