@@ -33,7 +33,7 @@ suite('context test', function() {
   }
 
   function executeFileWithRuntime(fileName) {
-    var runtimePath = resolve('src/runtime/runtime.js');
+    var runtimePath = resolve('bin/traceur-runtime.js');
     var runtime = fs.readFileSync(runtimePath, 'utf-8');
     var reporter = new traceur.util.TestErrorReporter();
     var source = fs.readFileSync(fileName, 'utf-8');

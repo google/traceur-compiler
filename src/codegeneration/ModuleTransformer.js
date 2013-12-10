@@ -93,7 +93,7 @@ export class ModuleTransformer extends TempVarTransformer {
 
   wrapModuleFunction(tree) {
     return parseExpression
-      `System.get('@traceur/module').registerModule(${this.url}, ${tree}, this)`;
+        `$traceurRuntime.registerModule(${this.url}, ${tree}, this)`;
   }
 
   /**
@@ -190,7 +190,7 @@ export class ModuleTransformer extends TempVarTransformer {
   getModuleReference(url, kind = undefined) {
     if (kind === 'module')
       return parseExpression `System.get(${url})`;
-    return parseExpression `System.get('@traceur/module').getModuleImpl(${url})`;
+    return parseExpression `$traceurRuntime.getModuleImpl(${url})`;
   }
 
   /**

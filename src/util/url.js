@@ -12,4 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from '@traceur/url';
+export var canonicalizeUrl = global.$traceurRuntime.canonicalizeUrl;
+export var isAbsolute = global.$traceurRuntime.isAbsolute;
+export var removeDotSegments = global.$traceurRuntime.removeDotSegments;
+export var resolveUrl = global.$traceurRuntime.resolveUrl;

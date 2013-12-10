@@ -45,7 +45,7 @@ ugly: bin/traceur.ugly.js
 test-runtime: bin/traceur-runtime.js $(RUNTIME_TESTS)
 	@echo 'Open test/runtime.html to test runtime only'
 
-test: bin/traceur.js test/test-list.js
+test: bin/traceur.js bin/traceur-runtime.js test/test-list.js
 	node_modules/.bin/mocha --ignore-leaks --ui tdd --require test/node-env.js $(TESTS)
 
 test-list: test/test-list.js

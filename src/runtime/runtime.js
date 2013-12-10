@@ -476,47 +476,6 @@
     }
   };
 
-  // System.get/set and @traceur/module gets overridden in @traceur/modules to
-  // be more correct.
-
-  function ModuleImpl(url, func, self) {
-    this.url = url;
-    this.func = func;
-    this.self = self;
-    this.value_ = null;
-  }
-  ModuleImpl.prototype = {
-    get value() {
-      if (this.value_)
-        return this.value_;
-      return this.value_ = this.func.call(this.self);
-    }
-  };
-
-  var modules = {
-    '@traceur/module': {
-      ModuleImpl: ModuleImpl,
-      registerModule: function(url, func, self) {
-        modules[url] = new ModuleImpl(url, func, self);
-      },
-      getModuleImpl: function(url) {
-        return modules[url].value;
-      }
-    }
-  };
-
-  var System = {
-    get: function(name) {
-      var module = modules[name];
-      if (module instanceof ModuleImpl)
-        return modules[name] = module.value;
-      return module;
-    },
-    set: function(name, object) {
-      modules[name] = object;
-    }
-  };
-
   function exportStar(object) {
     for (var i = 1; i < arguments.length; i++) {
       var names = $getOwnPropertyNames(arguments[i]);
@@ -714,7 +673,7 @@
     polyfillString(global.String);
     polyfillObject(global.Object);
     polyfillArray(global.Array);
-    global.System = System;
+
     // TODO(arv): Don't export this.
     global.Deferred = Deferred;
   }
