@@ -17465,10 +17465,10 @@ $traceurRuntime.registerModule("../src/codegeneration/CloneTreeTransformer.js", 
 }, this);
 $traceurRuntime.registerModule("../src/util/url.js", function() {
   "use strict";
-  var canonicalizeUrl = global.$traceurRuntime.canonicalizeUrl;
-  var isAbsolute = global.$traceurRuntime.isAbsolute;
-  var removeDotSegments = global.$traceurRuntime.removeDotSegments;
-  var resolveUrl = global.$traceurRuntime.resolveUrl;
+  var canonicalizeUrl = $traceurRuntime.canonicalizeUrl;
+  var isAbsolute = $traceurRuntime.isAbsolute;
+  var removeDotSegments = $traceurRuntime.removeDotSegments;
+  var resolveUrl = $traceurRuntime.resolveUrl;
   return {
     get canonicalizeUrl() {
       return canonicalizeUrl;
