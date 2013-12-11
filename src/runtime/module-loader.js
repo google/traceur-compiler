@@ -541,14 +541,12 @@ function defaultTranslate(source) {
 
 export class CodeLoader {
   /**
-   * @param {ErrorReporter} reporter
-   * @param {Project} project
-   * @param {CodeLoader} parentLoader The parent loader or null if this is
-   *     the initial loader.
+   * ES6 Loader Constructor
    * @param {!Object=} options
    */
-  constructor(reporter, project, parentLoader, options = {}) {
+  constructor(options) {
     // TODO(arv): Implement parent loader
+    var {reporter, project} = options;
     this.internalLoader_ = new InternalLoader(reporter, project,
                                               undefined, options);
   }
@@ -636,19 +634,18 @@ export class CodeLoader {
    * The create method creates a child loader, i.e. a new loader whose parent
    * is this loader.
    *
-   * The first argument is a module instance object representing the base
-   * library (containing the Object, Array, String, etc. standard libraries).
-   * This module must contain bindings for all the global functions and
-   * constructors of the standard library.
-   * The second, optional argument is a resolver, which may contain
-   * compilation hooks (see below).
    *
    * @return {CodeLoader}
    */
-  create(moduleInstanceObject, resolver = undefined) {
+  create(traceurOptions) {
     var url = this.project_.url;
     var project = new Project(url);
-    var loader = new CodeLoader(this.reporter, project, this, resolver);
+    var loader = new CodeLoader({
+      reporter: this.reporter,
+      project: project,
+      parentLoader: this,
+      traceurOptions: traceurOptions
+    });
     // TODO(arv): Implement globals
     // TODO(arv): Implement resolver
     return loader;

@@ -18804,8 +18804,10 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
   function defaultTranslate(source) {
     return source;
   }
-  var CodeLoader = function(reporter, project, parentLoader) {
-    var options = arguments[3] !== (void 0) ? arguments[3]: {};
+  var CodeLoader = function(options) {
+    var $__288 = options,
+        reporter = $__288.reporter,
+        project = $__288.project;
     this.internalLoader_ = new InternalLoader(reporter, project, undefined, options);
   };
   CodeLoader = ($traceurRuntime.createClass)(CodeLoader, {
@@ -18846,11 +18848,15 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
       var cacheKey = arguments[2];
       throw Error('Not implemented');
     },
-    create: function(moduleInstanceObject) {
-      var resolver = arguments[1];
+    create: function(traceurOptions) {
       var url = this.project_.url;
       var project = new Project(url);
-      var loader = new CodeLoader(this.reporter, project, this, resolver);
+      var loader = new CodeLoader({
+        reporter: this.reporter,
+        project: project,
+        parentLoader: this,
+        traceurOptions: traceurOptions
+      });
       return loader;
     },
     createBase: function() {

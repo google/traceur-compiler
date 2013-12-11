@@ -38,8 +38,11 @@ suite('modules.js', function() {
 
   function getLoader(opt_reporter) {
     var project = new traceur.semantics.symbols.Project(url);
-    var parentLoader = null;
-    return new traceur.modules.CodeLoader(opt_reporter || reporter, project);
+    var loaderOptions = {
+      reporter: opt_reporter || reporter,
+      project: project
+    };
+    return new traceur.modules.CodeLoader(loaderOptions);
   }
 
   test('LoaderEval', function() {

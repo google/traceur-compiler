@@ -134,6 +134,9 @@
       traceur.options.freeVariableChecker = true;
       traceur.options.validate = true;
 
+      var reporter = new traceur.util.TestErrorReporter();
+      var project =  new traceur.semantics.symbols.Project('./');
+
       var options;
       var loaderOptions = {
         translate: function(source) {
@@ -152,18 +155,15 @@
           }
 
           return source;
-        }
-      };
-
-      var reporter = new traceur.util.TestErrorReporter();
+        },
+        reporter: reporter,
+        project: project
+      }
       // TODO(arv): We really need a better way to generate unique names that
       // works across multiple projects.
-      var project = new traceur.semantics.symbols.Project('./');
-      project.identifierGenerator.identifierIndex = Date.now();
-      var parentLoader = null;
-      var moduleLoader = new traceur.modules.CodeLoader(reporter, project,
-                                                        parentLoader,
-                                                        loaderOptions);
+      loaderOptions.project.identifierGenerator.identifierIndex = Date.now();
+
+      var moduleLoader = new traceur.modules.CodeLoader(loaderOptions);
 
       function handleShouldCompile() {
         if (!options.shouldCompile) {
