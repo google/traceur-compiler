@@ -32,7 +32,8 @@
     "url": "https://github.com/google/traceur-compiler"
   },
   "dependencies": {
-    "commander": ">=1.1"
+    "commander": ">=1.1",
+    "q-io": "~1.10.6"
   },
   "devDependencies": {
     "source-map": "0.1.30",
