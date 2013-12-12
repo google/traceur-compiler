@@ -22,16 +22,19 @@ RUNTIME_TESTS = \
   test/unit/runtime/System.js \
   test/unit/runtime/Loader.js
 
-TESTS = \
-  test/node-requirejs-test.js \
-	test/node-feature-test.js \
-  $(RUNTIME_TESTS) \
+UNIT_TESTS = \
 	test/unit/codegeneration/ \
 	test/unit/node/ \
 	test/unit/semantics/ \
 	test/unit/syntax/ \
 	test/unit/system/ \
 	test/unit/util/
+
+TESTS = \
+	test/node-requirejs-test.js \
+	test/node-feature-test.js \
+	$(RUNTIME_TESTS) \
+	$(UNIT_TESTS)
 
 GIT_BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
 
@@ -48,6 +51,15 @@ test-runtime: bin/traceur-runtime.js $(RUNTIME_TESTS)
 
 test: bin/traceur.js bin/traceur-runtime.js test/test-list.js test/requirejs-compiled
 	node_modules/.bin/mocha --ignore-leaks --ui tdd --require test/node-env.js $(TESTS)
+
+test/unit: bin/traceur.js bin/traceur-runtime.js
+	node_modules/.bin/mocha --ignore-leaks --ui tdd --require test/node-env.js $(UNIT_TESTS)
+
+test/requirejs: test/requirejs-compiled
+	node_modules/.bin/mocha --ignore-leaks --ui tdd test/node-env.js test/node-requirejs-test.js
+
+test/features: bin/traceur.js bin/traceur-runtime.js test/test-list.js
+	node_modules/.bin/mocha --ignore-leaks --ui tdd --require test/node-env.js test/node-feature-test.js
 
 test-list: test/test-list.js
 
