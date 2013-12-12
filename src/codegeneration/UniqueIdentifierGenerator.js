@@ -23,15 +23,4 @@ export class UniqueIdentifierGenerator {
   generateUniqueIdentifier() {
     return `$__${this.identifierIndex++}`;
   }
-
-  /**
-   * Gets a unique identifier that is reused based on the name passed in.
-   * @param {string} name
-   * @return {string}
-   */
-  getUniqueIdentifier(name) {
-    if (name[0] === '@')
-      return `$___${name.slice(1)}`;
-    return `$__${name}`;
-  }
 }

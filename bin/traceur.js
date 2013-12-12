@@ -2933,15 +2933,9 @@ $traceurRuntime.registerModule("../src/codegeneration/UniqueIdentifierGenerator.
   var UniqueIdentifierGenerator = function() {
     this.identifierIndex = 0;
   };
-  UniqueIdentifierGenerator = ($traceurRuntime.createClass)(UniqueIdentifierGenerator, {
-    generateUniqueIdentifier: function() {
+  UniqueIdentifierGenerator = ($traceurRuntime.createClass)(UniqueIdentifierGenerator, {generateUniqueIdentifier: function() {
       return ("$__" + this.identifierIndex++);
-    },
-    getUniqueIdentifier: function(name) {
-      if (name[0] === '@') return ("$___" + name.slice(1));
-      return ("$__" + name);
-    }
-  }, {});
+    }}, {});
   return {get UniqueIdentifierGenerator() {
       return UniqueIdentifierGenerator;
     }};
@@ -16094,15 +16088,9 @@ $traceurRuntime.registerModule("../src/codegeneration/ModuleTransformer.js", fun
       return new EmptyStatement(null);
     },
     transformModuleSpecifier: function(tree) {
-      var token = tree.token;
+      assert(this.url);
       var name = tree.token.processedValue;
-      var url;
-      if (name[0] === '@') {
-        url = name;
-      } else {
-        assert(this.url);
-        url = System.normalResolve(name, this.url);
-      }
+      var url = System.normalResolve(name, this.url);
       return this.getModuleReference(url, this.moduleSpecifierKind_);
     },
     getModuleReference: function(url) {

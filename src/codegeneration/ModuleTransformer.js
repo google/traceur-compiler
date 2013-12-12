@@ -170,17 +170,11 @@ export class ModuleTransformer extends TempVarTransformer {
    * @return {ParseTree}
    */
   transformModuleSpecifier(tree) {
-    var token = tree.token;
-
+    assert(this.url);
     var name = tree.token.processedValue;
-    var url;
-    if (name[0] === '@') {
-      url = name;
-    } else {
-      assert(this.url);
-      // import/module {x} from 'name' is relative to the current file.
-      url = System.normalResolve(name, this.url);
-    }
+    // import/module {x} from 'name' is relative to the current file.
+    // TODO(arv): We should resolve this relative to the name of current module.
+    var url = System.normalResolve(name, this.url);
 
     return this.getModuleReference(url, this.moduleSpecifierKind_);
   }
