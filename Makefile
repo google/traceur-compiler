@@ -23,6 +23,7 @@ RUNTIME_TESTS = \
   test/unit/runtime/Loader.js
 
 TESTS = \
+  test/node-requirejs-test.js \
 	test/node-feature-test.js \
   $(RUNTIME_TESTS) \
 	test/unit/codegeneration/ \
@@ -45,13 +46,17 @@ ugly: bin/traceur.ugly.js
 test-runtime: bin/traceur-runtime.js $(RUNTIME_TESTS)
 	@echo 'Open test/runtime.html to test runtime only'
 
-test: bin/traceur.js bin/traceur-runtime.js test/test-list.js
+test: bin/traceur.js bin/traceur-runtime.js test/test-list.js test/requirejs-compiled
 	node_modules/.bin/mocha --ignore-leaks --ui tdd --require test/node-env.js $(TESTS)
 
 test-list: test/test-list.js
 
 test/test-list.js: force
 	git ls-files -o -c test/feature | node build/build-test-list.js > $@
+
+# TODO(vojta): Trick make to only compile when necesarry.
+test/requirejs-compiled: force
+	node src/node/to-requirejs-compiler.js test/requirejs test/requirejs-compiled
 
 boot: clean build
 
@@ -60,6 +65,7 @@ clean: wikiclean
 	rm -f build/dep.mk
 	rm -f $(GENSRC) $(TPL_GENSRC_DEPS)
 	rm -f test/test-list.js
+	rm -rf test/requirejs-compiled/*
 	rm -f bin/*
 	git checkout -- bin/
 	mv bin/traceur.js build/previous-commit-traceur.js
