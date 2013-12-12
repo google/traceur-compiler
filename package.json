@@ -18,7 +18,7 @@
   "engines": {
     "node": ">=0.8"
   },
-  "main": "./src/node/traceur.js",
+  "main": "./src/node/api.js",
   "bin": {
     "traceur": "./traceur"
   },
@@ -32,13 +32,15 @@
     "url": "https://github.com/google/traceur-compiler"
   },
   "dependencies": {
-    "commander": ">=1.1"
+    "commander": ">=1.1",
+    "q-io": "~1.10.6"
   },
   "devDependencies": {
     "source-map": "0.1.30",
     "mocha": ">=1.9",
     "chai": ">=1.5",
     "node-uuid": ">=1.4",
-    "rsvp": ">=2.0"
+    "rsvp": ">=2.0",
+    "requirejs": "~2.1.9"
   }
 }

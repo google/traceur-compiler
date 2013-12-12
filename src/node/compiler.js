@@ -109,3 +109,4 @@ function compileToDirectory(outputFile, includes, useSourceMaps) {
 
 exports.compileToSingleFile = compileToSingleFile;
 exports.compileToDirectory = compileToDirectory;
+exports.writeTreeToFile = writeTreeToFile;

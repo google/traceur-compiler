@@ -25,6 +25,7 @@ import {GeneratorComprehensionTransformer} from
     './GeneratorComprehensionTransformer';
 import {GeneratorTransformPass} from './GeneratorTransformPass';
 import {ModuleTransformer} from './ModuleTransformer';
+import {RequireJsTransformer} from './RequireJsTransformer';
 import {MultiTransformer} from './MultiTransformer';
 import {NumericLiteralTransformer} from './NumericLiteralTransformer';
 import {ObjectLiteralTransformer} from './ObjectLiteralTransformer';
@@ -69,8 +70,11 @@ export class FromOptionsTransformer extends MultiTransformer {
     if (transformOptions.templateLiterals)
       append(TemplateLiteralTransformer);
 
-    if (transformOptions.modules)
+    if (transformOptions.modules && !transformOptions.requireJsModules)
       append(ModuleTransformer);
+
+    if (transformOptions.requireJsModules)
+      append(RequireJsTransformer);
 
     if (transformOptions.arrowFunctions)
       append(ArrowFunctionTransformer);

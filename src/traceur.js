@@ -79,6 +79,7 @@ import {Compiler} from './codegeneration/Compiler';
 import {FromOptionsTransformer} from './codegeneration/FromOptionsTransformer';
 import {ModuleRequireVisitor} from './codegeneration/module/ModuleRequireVisitor';
 import {ModuleTransformer} from './codegeneration/ModuleTransformer';
+import {RequireJsTransformer} from './codegeneration/RequireJsTransformer';
 import {ParseTreeTransformer} from './codegeneration/ParseTreeTransformer';
 import {ProgramTransformer} from './codegeneration/ProgramTransformer';
 module ParseTreeFactory from './codegeneration/ParseTreeFactory';
@@ -91,6 +92,7 @@ export var codegeneration = {
   ParseTreeFactory,
   ParseTreeTransformer,
   ProgramTransformer,
+  RequireJsTransformer,
   module: {
     ModuleRequireVisitor
   }
