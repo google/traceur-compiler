@@ -13,42 +13,32 @@
 // limitations under the License.
 
 import {CPSTransformer} from './CPSTransformer';
-import {EndState} from './EndState';
-import {
-  ACTION_SEND,
-  ACTION_THROW,
-  STORED_EXCEPTION,
-  TRACEUR_RUNTIME,
-  YIELD_RETURN
-} from '../../syntax/PredefinedName';
+import {STORED_EXCEPTION} from '../../syntax/PredefinedName';
 import {
   STATE_MACHINE,
   YIELD_EXPRESSION
 } from '../../syntax/trees/ParseTreeType';
-import {parseStatement} from '../PlaceholderParser';
+import {
+  parseStatement,
+  parseStatements
+} from '../PlaceholderParser';
 import {StateMachine} from '../../syntax/trees/StateMachine';
-import {VAR} from '../../syntax/TokenType';
 import {YieldState} from './YieldState';
 import {ReturnState} from './ReturnState';
 import {
   createAssignStateStatement,
   createAssignmentStatement,
-  createExpressionStatement,
   createFalseLiteral,
   createFunctionBody,
   createIdentifierExpression as id,
   createMemberExpression,
   createNumberLiteral,
-  createObjectLiteralExpression,
-  createPropertyNameAssignment,
   createReturnStatement,
   createStatementList,
   createThisExpression,
   createThrowStatement,
-  createUndefinedExpression,
-  createVariableStatement
+  createUndefinedExpression
 } from '../ParseTreeFactory';
-import {transformOptions} from '../../options';
 
 // Generator states. Terminology roughly matches that of
 //   http://wiki.ecmascript.org/doku.php?id=harmony:generators
@@ -189,41 +179,24 @@ export class GeneratorTransformer extends CPSTransformer {
                                this.removeEmptyStates(machine.states),
                                machine.exceptionBlocks);
 
-    var statements = [];
-
-    var G = '$G';
-
-    // TODO(arv): Simplify the outputted code by only alpha renaming this and
-    // arguments if needed.
-    // https://code.google.com/p/traceur-compiler/issues/detail?id=108
-    //
-    // var $that = this;
-    statements.push(this.generateHoistedThis());
-
-    // var $arguments = arguments;
-    statements.push(this.generateHoistedArguments());
-
     // TODO(arv): Simplify for the common case where there is no try/catch?
     // https://code.google.com/p/traceur-compiler/issues/detail?id=110
     //
-    // Lifted machine variables.
-    statements.push(...this.getMachineVariables(tree, machine));
-
-    statements.push(
-        parseStatement `
-        var ${G} = {
-          GState: ${ST_NEWBORN},
-          current: undefined,
-          yieldReturn: undefined,
-          innerFunction: ${this.generateMachineInnerFunction(machine)},
-          moveNext: ${this.generateMachineMethod(machine)}
-        };
-        `);
-
     // TODO(arv): The result should be an instance of Generator.
     // https://code.google.com/p/traceur-compiler/issues/detail?id=109
-    statements.push(
-        parseStatement `return $traceurRuntime.generatorWrap(${id(G)});`);
+    var statements = [
+      ...this.getMachineVariables(tree, machine),
+      ...parseStatements
+          `var $that = this, $arguments = arguments,
+              $G = {
+                GState: ${ST_NEWBORN},
+                current: undefined,
+                yieldReturn: undefined,
+                innerFunction: ${this.generateMachineInnerFunction(machine)},
+                moveNext: ${this.generateMachineMethod(machine)}
+              };
+          return $traceurRuntime.generatorWrap($G);`
+    ];
 
     return createFunctionBody(statements);
   }
