@@ -15,6 +15,7 @@
 'use strict';
 
 var fs = require('q-io/fs');
+var path = require('path');
 
 var writeTreeToFile = require('./compiler.js').writeTreeToFile;
 
@@ -48,12 +49,10 @@ if (process.argv.length < 4) {
 
 // Nasty, we should rather pass the options to FromOptionsTransformer
 var options = traceur.options;
-options.modules = 'parse';
-options.requireJsModules = true;
+options.modules = 'requirejs';
 
-
-var inputDir = process.argv[2];
-var outputDir = process.argv[3];
+var inputDir = path.normalize(process.argv[2]);
+var outputDir = path.normalize(process.argv[3]);
 
 function onlyJsFiles(path, stat) {
   return stat.isFile() && /\.js$/.test(path) || false;

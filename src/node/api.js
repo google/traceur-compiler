@@ -12,12 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/**
- * Node.js API
- *
- * This is what you get when you `require('traceur')`.
- * It's suppose to be used by custom scripts or tools such as Grunt or Karma.
- */
+// Node.js API
+//
+// This is what you get when you `require('traceur')`.
+// It's suppose to be used by custom scripts or tools such as Grunt or Karma.
 
 'use strict';
 
@@ -57,18 +55,11 @@ function compile(content, options) {
     filename: '<unknown file>'
   }, options || {});
 
-  if (options.modules === 'requirejs') {
-    options.modules = 'parse';
-    options.requireJsModules = true;
-  } else if (options.modules === 'traceur') {
-    options.modules = true;
-  }
-
   traceurOptions.reset();
   merge(traceurOptions, options);
 
   var errorReporter = new ErrorReporter();
-  var sourceFile = new SourceFile(options.filename || '<unknown file>', content);
+  var sourceFile = new SourceFile(options.filename, content);
   var parser = new Parser(errorReporter, sourceFile);
   var tree = parser.parseModule();
   var transformer = new FromOptionsTransformer(errorReporter);
