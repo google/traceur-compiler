@@ -21,22 +21,24 @@ var normalizePath = require('./file-util.js').normalizePath;
 
 var ErrorReporter = traceur.util.ErrorReporter;
 var InternalLoader = traceur.modules.internals.InternalLoader;
+var InternalCompiler = traceur.modules.internals.InternalCompiler;
 var Script = traceur.syntax.trees.Script;
-var Project = traceur.semantics.symbols.Project;
 var SourceFile = traceur.syntax.SourceFile
 var SourceMapGenerator = traceur.outputgeneration.SourceMapGenerator;
+var ModuleAnalyzer = traceur.semantics.ModuleAnalyzer;
+var Project = traceur.semantics.symbols.Project;
 
 /**
  * @param {ErrorReporter} reporter
- * @param {Project} project
  * @param {Array.<ParseTree>} elements
  * @param {string|undefined} depTarget A valid depTarget means dependency
  *     printing was requested.
  */
-function InlineCodeLoader(reporter, project, elements, depTarget) {
-  InternalLoader.call(this, reporter, project, new NodeLoader);
+function InlineCodeLoader(reporter, url, elements, depTarget) {
+  var compiler = new InternalCompiler(reporter, new Project(url));
+  InternalLoader.call(this, compiler, url, new NodeLoader);
   this.elements = elements;
-  this.dirname = project.url;
+  this.dirname = url;
   this.depTarget = depTarget && normalizePath(path.relative('.', depTarget));
   this.codeUnitList = [];
 }
@@ -87,8 +89,7 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
 
   var loadCount = 0;
   var elements = [];
-  var project = new Project(basePath);
-  var loader = new InlineCodeLoader(reporter, project, elements, depTarget);
+  var loader = new InlineCodeLoader(reporter, basePath, elements, depTarget);
 
   function loadNext() {
     var codeUnit = loader.load(filenames[loadCount]);
@@ -119,8 +120,7 @@ function inlineAndCompileSync(filenames, options, reporter) {
 
   var loadCount = 0;
   var elements = [];
-  var project = new Project(basePath);
-  var loader = new InlineCodeLoader(reporter, project, elements, depTarget);
+  var loader = new InlineCodeLoader(reporter, basePath, elements, depTarget);
 
   filenames.forEach(function(filename) {
     filename = System.normalResolve(filename, basePath);
