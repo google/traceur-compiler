@@ -49,9 +49,7 @@ if (process.argv.length < 4) {
 
 // Nasty, we should rather pass the options to FromOptionsTransformer
 var options = traceur.options;
-options.modules = 'parse';
-options.requireJsModules = true;
-
+options.modules = 'requirejs';
 
 var inputDir = path.normalize(process.argv[2]);
 var outputDir = path.normalize(process.argv[3]);
