@@ -967,6 +967,10 @@ export class Parser {
     return new FunctionBody(this.getTreeLocation_(start), result);
   }
 
+  parseStatements() {
+    return this.parseStatementList_(false);
+  }
+
   /**
    * @return {Array.<ParseTree>}
    * @private

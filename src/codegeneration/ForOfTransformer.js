@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {TRACEUR_RUNTIME} from '../syntax/PredefinedName';
 import {VARIABLE_DECLARATION_LIST} from '../syntax/trees/ParseTreeType';
 import {TempVarTransformer} from './TempVarTransformer';
 import {
@@ -21,7 +20,6 @@ import {
   createVariableStatement
 } from './ParseTreeFactory';
 import {parseStatement} from './PlaceholderParser';
-import {transformOptions} from '../options';
 
 /**
  * Desugars for-of statement.

@@ -108,6 +108,17 @@ export function parseStatement(sourceLiterals, ...values) {
 /**
  * @param {Array.<string>} sourceLiterals
  * @param {Array} values An array containing values or parse trees.
+ * @return {Array.<ParseTree>}
+ */
+export function parseStatements(sourceLiterals, ...values) {
+  return parse(sourceLiterals, values, () => {
+    return new PlaceholderParser().parseStatements(sourceLiterals);
+  });
+}
+
+/**
+ * @param {Array.<string>} sourceLiterals
+ * @param {Array} values An array containing values or parse trees.
  * @return {ParseTree}
  */
 export function parsePropertyDefinition(sourceLiterals, ...values) {
@@ -124,7 +135,12 @@ function parse(sourceLiterals, values, doParse) {
   }
   if (!values.length)
     return tree;
-  return new PlaceholderTransformer(values).transformAny(tree);
+
+  // We allow either a ParseTree or an Array as the result of doParse. An
+  // array is returned for parseStatements.
+  if (tree instanceof ParseTree)
+    return new PlaceholderTransformer(values).transformAny(tree);
+  return new PlaceholderTransformer(values).transformList(tree);
 }
 
 var counter = 0;
@@ -150,6 +166,14 @@ export class PlaceholderParser {
    */
   parseStatement(sourceLiterals) {
     return this.parse_(sourceLiterals, (p) => p.parseStatement());
+  }
+
+  /**
+   * @param {Array.<string>} sourceLiterals
+   * @return {Array.<ParseTree>}
+   */
+  parseStatements(sourceLiterals) {
+    return this.parse_(sourceLiterals, (p) => p.parseStatements());
   }
 
   /**

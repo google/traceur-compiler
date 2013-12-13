@@ -79,7 +79,6 @@ import {
   createStatementList,
   createStringLiteral,
   createSwitchStatement,
-  createThisExpression,
   createThrowStatement,
   createTrueLiteral,
   createTryStatement,
@@ -813,21 +812,6 @@ export class CPSTransformer extends ParseTreeTransformer {
                 createWhileStatement(
                     createTrueLiteral(),
                     this.generateMachine(machine))]));
-  }
-
-  /** @return {VariableStatement} */
-  generateHoistedThis() {
-    // Hoist 'this' argument for later bind-ing.
-    //   var $that = this;
-    return createVariableStatement(VAR, $THAT,
-                                   createThisExpression());
-  }
-
-  /** @return {VariableStatement} */
-  generateHoistedArguments() {
-    // var $arguments = argument;
-    return createVariableStatement(VAR, $ARGUMENTS,
-                                   createIdentifierExpression(ARGUMENTS));
   }
 
   generateMachineInnerFunction(machine) {
