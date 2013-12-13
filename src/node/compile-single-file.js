@@ -15,7 +15,7 @@
 'use strict';
 
 var fs = require('q-io/fs');
-
+var path = require('path');
 var writeTreeToFile = require('./compiler.js').writeTreeToFile;
 
 var traceur = require('./traceur.js');
@@ -44,6 +44,8 @@ function onlyJsFiles(path, stat) {
 }
 
 function compileAllJsFilesInDir(inputDir, outputDir) {
+  inputDir = path.normalize(inputDir);
+  outputDir = path.normalize(outputDir);
   fs.listTree(inputDir, onlyJsFiles).then(function(files) {
     files.forEach(function(inputFilePath) {
       var outputFilePath = inputFilePath.replace(inputDir, outputDir);

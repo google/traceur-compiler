@@ -1016,12 +1016,12 @@ $traceurRuntime.registerModule("../src/options.js", function() {
   function coerceOptionValue(v) {
     switch (v) {
       case 'false':
-      case false:
         return false;
-      case 'parse':
-        return 'parse';
-      default:
+      case 'true':
+      case true:
         return true;
+      default:
+        return !!v && String(v);
     }
   }
   function setOption(name, value) {
@@ -1033,14 +1033,13 @@ $traceurRuntime.registerModule("../src/options.js", function() {
       throw Error('Unknown option: ' + name);
     }
   }
-  function optionCallback(name, value) {
-    setOption(name, value);
-  }
   function addOptions(flags) {
     Object.keys(options).forEach(function(name) {
       var dashedName = toDashCase(name);
       if ((name in parseOptions) && (name in transformOptions)) flags.option('--' + dashedName + ' [true|false|parse]', descriptions[name]); else flags.option('--' + dashedName, descriptions[name]);
-      flags.on(dashedName, optionCallback.bind(null, dashedName));
+      flags.on(dashedName, (function(value) {
+        return setOption(dashedName, value);
+      }));
     });
   }
   function filterOption(dashedName) {
@@ -1048,8 +1047,6 @@ $traceurRuntime.registerModule("../src/options.js", function() {
     return name === 'experimental' || !(name in options);
   }
   Object.defineProperties(options, {
-    parse: {value: parseOptions},
-    transform: {value: transformOptions},
     reset: {value: reset},
     fromString: {value: fromString},
     fromArgv: {value: fromArgv},
@@ -1060,7 +1057,7 @@ $traceurRuntime.registerModule("../src/options.js", function() {
   function parseCommand(s) {
     var re = /--([^=]+)(?:=(.+))?/;
     var m = re.exec(s);
-    if (m) setOption(m[1], m[2]);
+    if (m) setOption(m[1], m[2] || true);
   }
   function toCamelCase(s) {
     return s.replace(/-\w/g, function(ch) {
@@ -1076,28 +1073,25 @@ $traceurRuntime.registerModule("../src/options.js", function() {
   var ON_BY_DEFAULT = 1;
   function addFeatureOption(name, kind) {
     if (kind === EXPERIMENTAL) experimentalOptions[name] = true;
-    Object.defineProperty(options, name, {
+    Object.defineProperty(parseOptions, name, {
       get: function() {
-        if (parseOptions[name] === transformOptions[name]) {
-          return parseOptions[name];
-        }
-        return 'parse';
+        return !!options[name];
       },
-      set: function(v) {
-        if (v === 'parse') {
-          parseOptions[name] = true;
-          transformOptions[name] = false;
-        } else {
-          parseOptions[name] = transformOptions[name] = Boolean(v);
-        }
+      enumerable: true,
+      configurable: true
+    });
+    Object.defineProperty(transformOptions, name, {
+      get: function() {
+        var v = options[name];
+        if (v === 'parse') return false;
+        return v;
       },
       enumerable: true,
       configurable: true
     });
     var defaultValue = kind === ON_BY_DEFAULT;
+    options[name] = defaultValue;
     defaultValues[name] = defaultValue;
-    parseOptions[name] = defaultValue;
-    transformOptions[name] = defaultValue;
   }
   function addBoolOption(name) {
     defaultValues[name] = false;
@@ -1123,8 +1117,6 @@ $traceurRuntime.registerModule("../src/options.js", function() {
   addFeatureOption('symbols', EXPERIMENTAL);
   addFeatureOption('deferredFunctions', EXPERIMENTAL);
   addFeatureOption('types', EXPERIMENTAL);
-  addFeatureOption('nodeJsModules', EXPERIMENTAL);
-  addFeatureOption('requireJsModules', EXPERIMENTAL);
   addBoolOption('debug');
   addBoolOption('sourceMaps');
   addBoolOption('freeVariableChecker');
@@ -16991,11 +16983,18 @@ $traceurRuntime.registerModule("../src/codegeneration/FromOptionsTransformer.js"
     if (transformOptions.types) append(TypeTransformer);
     if (transformOptions.numericLiterals) append(NumericLiteralTransformer);
     if (transformOptions.templateLiterals) append(TemplateLiteralTransformer);
-    if (transformOptions.modules && !transformOptions.nodeJsModules && !transformOptions.requireJsModules) {
-      append(ModuleTransformer);
+    if (transformOptions.modules) {
+      switch (transformOptions.modules) {
+        case 'nodejs':
+          append(NodeJsTransformer);
+          break;
+        case 'requirejs':
+          append(RequireJsTransformer);
+          break;
+        default:
+          append(ModuleTransformer);
+      }
     }
-    if (transformOptions.nodeJsModules) append(NodeJsTransformer);
-    if (transformOptions.requireJsModules && !transformOptions.nodeJsModules) append(RequireJsTransformer);
     if (transformOptions.arrowFunctions) append(ArrowFunctionTransformer);
     if (transformOptions.classes) append(ClassTransformer);
     if (transformOptions.propertyNameShorthand) append(PropertyNameShorthandTransformer);

@@ -31,7 +31,7 @@ UNIT_TESTS = \
 	test/unit/util/
 
 TESTS = \
-  test/node-nodejs-test.js \
+	test/node-nodejs-test.js \
 	test/node-requirejs-test.js \
 	test/node-feature-test.js \
 	$(RUNTIME_TESTS) \

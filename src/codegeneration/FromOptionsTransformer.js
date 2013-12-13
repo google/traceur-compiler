@@ -71,15 +71,18 @@ export class FromOptionsTransformer extends MultiTransformer {
     if (transformOptions.templateLiterals)
       append(TemplateLiteralTransformer);
 
-    if (transformOptions.modules &&
-        !transformOptions.nodeJsModules &&
-        !transformOptions.requireJsModules) {
-      append(ModuleTransformer);
+    if (transformOptions.modules) {
+      switch (transformOptions.modules) {
+        case 'nodejs':
+          append(NodeJsTransformer);
+          break;
+        case 'requirejs':
+          append(RequireJsTransformer);
+          break;
+        default:
+          append(ModuleTransformer);
+      }
     }
-    if (transformOptions.nodeJsModules)
-      append(NodeJsTransformer);
-    if (transformOptions.requireJsModules && !transformOptions.nodeJsModules)
-      append(RequireJsTransformer);
 
     if (transformOptions.arrowFunctions)
       append(ArrowFunctionTransformer);

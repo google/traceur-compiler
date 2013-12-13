@@ -9,6 +9,7 @@ build/dep.mk
 build/local.mk
 build/previous-commit-traceur.js
 build/compiled-by-previous-traceur.js
+bin/traceur-runtime.js
 bin/traceur.map
 bin/traceur.min.js
 bin/traceur.ugly.js
