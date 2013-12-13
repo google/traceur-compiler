@@ -95,6 +95,7 @@ import {
   VARIABLE_DECLARATION_LIST,
   VARIABLE_STATEMENT
 } from './trees/ParseTreeType';
+import {assert} from '../util/assert';
 
 /*
 TODO: add contextual information to the validator so we can check

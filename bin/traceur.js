@@ -10770,6 +10770,7 @@ $traceurRuntime.registerModule("../src/syntax/ParseTreeValidator.js", function()
       TEMPLATE_SUBSTITUTION = $__74.TEMPLATE_SUBSTITUTION,
       VARIABLE_DECLARATION_LIST = $__74.VARIABLE_DECLARATION_LIST,
       VARIABLE_STATEMENT = $__74.VARIABLE_STATEMENT;
+  var assert = $traceurRuntime.getModuleImpl("../src/util/assert.js").assert;
   var ValidationError = function(tree, message) {
     this.tree = tree;
     this.message = message;
