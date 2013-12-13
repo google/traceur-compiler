@@ -135,7 +135,6 @@
       traceur.options.validate = true;
 
       var reporter = new traceur.util.TestErrorReporter();
-      var project =  new traceur.semantics.symbols.Project('./');
 
       var options;
       var loaderOptions = {
@@ -157,11 +156,11 @@
           return source;
         },
         reporter: reporter,
-        project: project
+        rootURL: './'
       }
       // TODO(arv): We really need a better way to generate unique names that
       // works across multiple projects.
-      loaderOptions.project.identifierGenerator.identifierIndex = Date.now();
+      loaderOptions.identifierIndex = Date.now();
 
       var moduleLoader = new traceur.modules.CodeLoader(loaderOptions);
 

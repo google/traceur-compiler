@@ -14,8 +14,8 @@
 
 import {ArrayMap} from '../util/ArrayMap';
 import {ModuleAnalyzer} from '../semantics/ModuleAnalyzer';
-import {ModuleRequireVisitor} from
-    '../codegeneration/module/ModuleRequireVisitor';
+import {ModuleSpecifierVisitor} from
+    '../codegeneration/module/ModuleSpecifierVisitor';
 import {ModuleSymbol} from '../semantics/symbols/ModuleSymbol';
 import {ObjectMap} from '../util/ObjectMap';
 import {Parser} from '../syntax/Parser';
@@ -63,10 +63,11 @@ var ERROR = 6;
 
  // TODO Pick a better name, these are functions on System?
 export class InternalCompiler {
-  constructor(reporter, project) {
+  constructor(reporter, rootURL, identifierIndex) {
     this.reporter = reporter;
-    this.project = project;
-    this.analyzer_ = new ModuleAnalyzer(reporter, project);
+    this.project = new Project(rootURL);
+    this.project.identifierGenerator.identifierIndex = identifierIndex || 0;
+    this.analyzer_ = new ModuleAnalyzer(reporter, this.project);
   }
 
   parse(codeUnit) {
@@ -414,15 +415,15 @@ class InternalLoader {
   }
 
   // To System
-  getModulesRequired(codeUnit) {
+  getModuleSpecifiers(codeUnit) {
     // Parse
     if (!codeUnit.parse())
       return;
 
     // Analyze to find dependencies
-    var requireVisitor = new ModuleRequireVisitor(this.reporter);
-    requireVisitor.visit(codeUnit.tree);
-    return requireVisitor.requireUrls;
+    var moduleSpecifierVisitor = new ModuleSpecifierVisitor(this.reporter);
+    moduleSpecifierVisitor.visit(codeUnit.tree);
+    return moduleSpecifierVisitor.moduleSpecifiers;
   }
 
   /**
@@ -431,14 +432,14 @@ class InternalLoader {
    */
   handleCodeUnitLoaded(codeUnit) {
     var baseUrl = codeUnit.url;
-    var requireUrls = this.getModulesRequired(codeUnit);
-    if (!requireUrls) {
+    var moduleSpecifiers = this.getModuleSpecifiers(codeUnit);
+    if (!moduleSpecifiers) {
       this.abortAll()
       return;
     }
-    codeUnit.dependencies = requireUrls.sort().map((url) => {
-      url = System.normalResolve(url, baseUrl);
-      return this.getCodeUnit(url, 'module');
+    codeUnit.dependencies = moduleSpecifiers.sort().map((name) => {
+      name = System.normalResolve(name, baseUrl);
+      return this.getCodeUnit(name, 'module');
     });
     codeUnit.dependencies.forEach((dependency) => {
       this.load(dependency.url, 'module');
@@ -561,10 +562,10 @@ export class CodeLoader {
    */
   constructor(options) {
     // TODO(arv): Implement parent loader
-    var {reporter, project} = options;
-    var internalCompiler = new InternalCompiler(reporter, project);
-    var url = project.url;
-    this.internalLoader_ = new InternalLoader(internalCompiler, url,
+    var {reporter, identifierIndex, rootURL} = options;
+    var internalCompiler = new InternalCompiler(reporter, rootURL,
+                                                                                identifierIndex);
+    this.internalLoader_ = new InternalLoader(internalCompiler, rootURL,
                                               undefined, options);
   }
 
@@ -645,27 +646,6 @@ export class CodeLoader {
    */
   defineModule(name, moduleInstanceObject, cacheKey = undefined) {
     throw Error('Not implemented');
-  }
-
-  /**
-   * The create method creates a child loader, i.e. a new loader whose parent
-   * is this loader.
-   *
-   *
-   * @return {CodeLoader}
-   */
-  create(traceurOptions) {
-    var url = this.project_.url;
-    var project = new Project(url);
-    var loader = new CodeLoader({
-      reporter: this.reporter,
-      project: project,
-      parentLoader: this,
-      traceurOptions: traceurOptions
-    });
-    // TODO(arv): Implement globals
-    // TODO(arv): Implement resolver
-    return loader;
   }
 
   /**

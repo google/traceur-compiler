@@ -37,10 +37,9 @@ suite('modules.js', function() {
                                   'unit/runtime/modules.js');
 
   function getLoader(opt_reporter) {
-    var project = new traceur.semantics.symbols.Project(url);
     var loaderOptions = {
       reporter: opt_reporter || reporter,
-      project: project
+      rootURL: url
     };
     return new traceur.modules.CodeLoader(loaderOptions);
   }

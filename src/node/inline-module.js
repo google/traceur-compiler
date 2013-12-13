@@ -26,7 +26,6 @@ var Script = traceur.syntax.trees.Script;
 var SourceFile = traceur.syntax.SourceFile
 var SourceMapGenerator = traceur.outputgeneration.SourceMapGenerator;
 var ModuleAnalyzer = traceur.semantics.ModuleAnalyzer;
-var Project = traceur.semantics.symbols.Project;
 
 /**
  * @param {ErrorReporter} reporter
@@ -35,7 +34,7 @@ var Project = traceur.semantics.symbols.Project;
  *     printing was requested.
  */
 function InlineCodeLoader(reporter, url, elements, depTarget) {
-  var compiler = new InternalCompiler(reporter, new Project(url));
+  var compiler = new InternalCompiler(reporter, url);
   InternalLoader.call(this, compiler, url, new NodeLoader);
   this.elements = elements;
   this.dirname = url;
