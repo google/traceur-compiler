@@ -7626,11 +7626,17 @@ $traceurRuntime.registerModule("../src/syntax/Parser.js", function() {
     parseImportDeclaration_: function() {
       var start = this.getTreeStartLocation_();
       this.eat_(IMPORT);
-      var importClause = this.parseImportClause_();
-      this.eatId_(FROM);
+      var importClause = null;
+      if (this.peekImportClause_(this.peekType_())) {
+        importClause = this.parseImportClause_();
+        this.eatId_(FROM);
+      }
       var moduleSpecifier = this.parseModuleSpecifier_();
       this.eatPossibleImplicitSemiColon_();
       return new ImportDeclaration(this.getTreeLocation_(start), importClause, moduleSpecifier);
+    },
+    peekImportClause_: function(type) {
+      return type === OPEN_CURLY || this.peekBindingIdentifier_(type);
     },
     parseImportClause_: function() {
       var start = this.getTreeStartLocation_();
@@ -10134,11 +10140,11 @@ $traceurRuntime.registerModule("../src/outputgeneration/ParseTreeWriter.js", fun
     },
     visitImportDeclaration: function(tree) {
       this.write_(IMPORT);
-      this.visitAny(tree.importClause);
-      if (tree.moduleSpecifier) {
+      if (this.importClause) {
+        this.visitAny(tree.importClause);
         this.write_(FROM);
-        this.visitAny(tree.moduleSpecifier);
       }
+      this.visitAny(tree.moduleSpecifier);
       this.write_(SEMI_COLON);
     },
     visitImportSpecifier: function(tree) {
@@ -15993,6 +15999,7 @@ $traceurRuntime.registerModule("../src/codegeneration/ModuleTransformer.js", fun
   var $__234 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
       createArgumentList = $__234.createArgumentList,
       createBindingIdentifier = $__234.createBindingIdentifier,
+      createEmptyStatement = $__234.createEmptyStatement,
       createExpressionStatement = $__234.createExpressionStatement,
       createIdentifierExpression = $__234.createIdentifierExpression,
       createIdentifierToken = $__234.createIdentifierToken,
@@ -16110,6 +16117,7 @@ $traceurRuntime.registerModule("../src/codegeneration/ModuleTransformer.js", fun
     },
     transformImportDeclaration: function(tree) {
       this.moduleSpecifierKind_ = 'import';
+      if (!tree.importClause) return createEmptyStatement();
       var binding = this.transformAny(tree.importClause);
       var initialiser = this.transformAny(tree.moduleSpecifier);
       return createVariableStatement(VAR, binding, initialiser);

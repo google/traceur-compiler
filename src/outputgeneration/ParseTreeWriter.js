@@ -675,11 +675,11 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitImportDeclaration(tree) {
     this.write_(IMPORT);
-    this.visitAny(tree.importClause);
-    if (tree.moduleSpecifier) {
+    if (this.importClause) {
+      this.visitAny(tree.importClause);
       this.write_(FROM);
-      this.visitAny(tree.moduleSpecifier);
     }
+    this.visitAny(tree.moduleSpecifier);
     this.write_(SEMI_COLON);
   }
 
