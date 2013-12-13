@@ -83,16 +83,19 @@ export class ModuleTransformer extends TempVarTransformer {
 
     this.popTempVarState();
 
-    var funcExpr = this.wrapModule(statements);
+    statements = this.wrapModule(statements);
 
-    return new Script(tree.location, [createExpressionStatement(funcExpr)]);
+    return new Script(tree.location, statements);
   }
 
-  wrapModule(tree) {
-    return parseExpression
-        `$traceurRuntime.registerModule(${this.url}, function() {
-          ${tree}
-        }, this)`;
+  wrapModule(statements) {
+    // TODO(arv): Have this be parseStatements
+    return [
+      parseStatement
+          `$traceurRuntime.registerModule(${this.url}, function() {
+            ${statements}
+          }, this);`
+      ];
   }
 
   /**

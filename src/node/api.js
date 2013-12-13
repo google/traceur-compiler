@@ -52,12 +52,14 @@ function merge(dest) {
  */
 function compile(content, options) {
   options = merge({
-    // TODO(vojta): make nodejs default once we have it
-    modules: 'requirejs',
+    modules: 'nodejs',
     filename: '<unknown file>'
   }, options || {});
 
-  if (options.modules === 'requirejs') {
+  if (options.modules === 'nodejs') {
+    options.modules = 'parse';
+    options.nodeJsModules = true;
+  } else if (options.modules === 'requirejs') {
     options.modules = 'parse';
     options.requireJsModules = true;
   } else if (options.modules === 'traceur') {

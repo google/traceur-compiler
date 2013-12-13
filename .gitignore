@@ -21,5 +21,6 @@ test/errsfile.json
 test/bench/esprima
 test/test-list.js
 test/wiki/CompilingOffline/out/*
+test/nodejs-compiled
 test/requirejs-compiled
 *.dep

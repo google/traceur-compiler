@@ -266,6 +266,7 @@ addFeatureOption('symbols', EXPERIMENTAL);
 addFeatureOption('deferredFunctions', EXPERIMENTAL);
 addFeatureOption('types', EXPERIMENTAL);
 
+addFeatureOption('nodeJsModules', EXPERIMENTAL);
 addFeatureOption('requireJsModules', EXPERIMENTAL);
 
 addBoolOption('debug');

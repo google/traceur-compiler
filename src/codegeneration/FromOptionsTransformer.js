@@ -17,6 +17,7 @@ import {ArrayComprehensionTransformer} from
 import {ArrowFunctionTransformer} from './ArrowFunctionTransformer';
 import {BlockBindingTransformer} from './BlockBindingTransformer';
 import {ClassTransformer} from './ClassTransformer';
+import {NodeJsTransformer} from './NodeJsTransformer';
 import {DefaultParametersTransformer} from './DefaultParametersTransformer';
 import {DestructuringTransformer} from './DestructuringTransformer';
 import {ForOfTransformer} from './ForOfTransformer';
@@ -70,10 +71,14 @@ export class FromOptionsTransformer extends MultiTransformer {
     if (transformOptions.templateLiterals)
       append(TemplateLiteralTransformer);
 
-    if (transformOptions.modules && !transformOptions.requireJsModules)
+    if (transformOptions.modules &&
+        !transformOptions.nodeJsModules &&
+        !transformOptions.requireJsModules) {
       append(ModuleTransformer);
-
-    if (transformOptions.requireJsModules)
+    }
+    if (transformOptions.nodeJsModules)
+      append(NodeJsTransformer);
+    if (transformOptions.requireJsModules && !transformOptions.nodeJsModules)
       append(RequireJsTransformer);
 
     if (transformOptions.arrowFunctions)
