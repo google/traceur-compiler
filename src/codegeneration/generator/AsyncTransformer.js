@@ -163,7 +163,7 @@ export class AsyncTransformer extends CPSTransformer {
    * {
    *   var $that = this;
    *   machine variables
-   *   ...
+   *   // and more
    * }
    * TODO: add close() method which executes pending finally clauses
    * @param {FunctionBody} tree
