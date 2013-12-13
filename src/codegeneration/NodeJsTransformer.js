@@ -15,20 +15,17 @@
 import {ModuleTransformer} from './ModuleTransformer';
 import {
   parseExpression,
-  parseStatement
+  parseStatements
 } from './PlaceholderParser';
 
 export class NodeJsTransformer extends ModuleTransformer {
 
   wrapModule(statements) {
     // TODO(arv): Check for top level this and if not present skip the IIFE?
-    // TODO(arv): Have this be parseStatements
-    return [
-      parseStatement
-          `module.exports = function() {
-            ${statements}
-          }.call(typeof global !== 'undefined' ? global : this);`
-    ];
+    return parseStatements
+        `module.exports = function() {
+          ${statements}
+        }.call(typeof global !== 'undefined' ? global : this);`;
   }
 
   getModuleReference(name) {

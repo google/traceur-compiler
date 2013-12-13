@@ -44,7 +44,8 @@ import {
 import {
   parseExpression,
   parsePropertyDefinition,
-  parseStatement
+  parseStatement,
+  parseStatements
 } from './PlaceholderParser';
 
 export class ModuleTransformer extends TempVarTransformer {
@@ -89,13 +90,10 @@ export class ModuleTransformer extends TempVarTransformer {
   }
 
   wrapModule(statements) {
-    // TODO(arv): Have this be parseStatements
-    return [
-      parseStatement
-          `$traceurRuntime.registerModule(${this.url}, function() {
-            ${statements}
-          }, this);`
-      ];
+    return parseStatements
+        `$traceurRuntime.registerModule(${this.url}, function() {
+          ${statements}
+        }, this);`;
   }
 
   /**

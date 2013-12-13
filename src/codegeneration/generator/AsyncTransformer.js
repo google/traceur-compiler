@@ -16,7 +16,10 @@ import {CPSTransformer} from './CPSTransformer';
 import {EndState} from './EndState';
 import {FallThroughState} from './FallThroughState';
 import {STATE_MACHINE} from '../../syntax/trees/ParseTreeType';
-import {parseStatement} from '../PlaceholderParser';
+import {
+  parseStatement,
+  parseStatements
+} from '../PlaceholderParser';
 import {StateMachine} from '../../syntax/trees/StateMachine';
 import {VAR} from '../../syntax/TokenType';
 import {
@@ -76,11 +79,12 @@ export class AsyncTransformer extends CPSTransformer {
     //    $waitTask = expression;
     //    $waitTask.then($createCallback(callbackState), $createErrback(errbackState));
     //    return;
-    states.push(new FallThroughState(createTaskState, callbackState, createStatementList(
-        parseStatement `$waitTask = ${expression}`,
-        parseStatement `$waitTask.then($createCallback(${callbackState}),
-                                       $createErrback(${errbackState}))`,
-        parseStatement `return`)));
+    states.push(new FallThroughState(createTaskState, callbackState,
+        parseStatements
+            `$waitTask = ${expression};
+            $waitTask.then($createCallback(${callbackState}),
+                           $createErrback(${errbackState}));
+            return`));
 
     //  case callbackState:
     //    identifier = $value;
@@ -159,16 +163,7 @@ export class AsyncTransformer extends CPSTransformer {
    * {
    *   var $that = this;
    *   machine variables
-   *   var $value;
-   *   var $err;
-   *   var $continuation = machineMethod;
-   *   var $resolve, $reject;
-   *   var $result = new Promise(...);
-   *   var $waitTask;
-   *   var $createCallback = function(newState) { return function (value) { $state = newState; $value = value; $continuation(); }}
-   *   var $createErrback = function(newState) { return function (err) { $state = newState; $err = err; $continuation(); }}
-   *   $continuation();
-   *   return $result;
+   *   // and more
    * }
    * TODO: add close() method which executes pending finally clauses
    * @param {FunctionBody} tree
@@ -182,54 +177,42 @@ export class AsyncTransformer extends CPSTransformer {
     }
     var machine = transformedTree;
 
-    var statements = [];
-
-    //   var $that = this;
-    statements.push(this.generateHoistedThis());
-    // var $arguments = arguments;
-    statements.push(this.generateHoistedArguments());
-    //     lifted machine variables
-    statements.push(...this.getMachineVariables(tree, machine));
-
-    statements.push(parseStatement `var $value, $err, $waitTask, $resolve,
-        $reject, $result = new Promise(function(resolve, reject) {
-          $resolve = resolve;
-          $reject = reject;
-        })`);
-
-    statements.push(
-        parseStatement `
-        var $G = {
-          GState: 0,
-          current: undefined,
-          yieldReturn: undefined,
-          innerFunction: ${this.generateMachineInnerFunction(machine)},
-          moveNext: ${this.generateMachineMethod(machine)}
-        };
-        `);
-
-    statements.push(parseStatement `var $continuation = $G.moveNext.bind($G);`);
-
-    statements.push(parseStatement
-        `var $createCallback = function(newState) {
-          return function (value) {
-            $state = newState;
-            $value = value;
-            $continuation();
-          };
-        }`);
-
-    statements.push(parseStatement
-      `var $createErrback = function(newState) {
-        return function (err) {
-          $state = newState;
-          $err = err;
-          $continuation();
-        };
-      }`);
-
-    statements.push(parseStatement `$continuation()`);
-    statements.push(parseStatement `return $result`);
+    var statements = [
+      // lifted machine variables
+      ...this.getMachineVariables(tree, machine),
+      ...parseStatements
+          `var $that = this, $arguments = arguments,
+              $value, $err, $waitTask, $resolve,
+              $reject,
+              $result = new Promise(function(resolve, reject) {
+                $resolve = resolve;
+                $reject = reject;
+              }),
+              $G = {
+                GState: 0,
+                current: undefined,
+                yieldReturn: undefined,
+                innerFunction: ${this.generateMachineInnerFunction(machine)},
+                moveNext: ${this.generateMachineMethod(machine)}
+              },
+              $continuation = $G.moveNext.bind($G),
+              $createCallback = function(newState) {
+                return function (value) {
+                  $state = newState;
+                  $value = value;
+                  $continuation();
+                };
+              },
+              $createErrback = function(newState) {
+                return function (err) {
+                  $state = newState;
+                  $err = err;
+                  $continuation();
+                };
+              };
+              $continuation();
+              return $result`
+    ];
 
     return createFunctionBody(statements);
   }
