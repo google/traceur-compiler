@@ -116,7 +116,6 @@ build/previous-commit-traceur.js:
 	mv build/traceur.js bin/traceur.js
 
 debug: build/compiled-by-previous-traceur.js $(SRC)
-	cp $< $@; touch -t 197001010000.00 bin/traceur.js
 	./traceur --debug --out bin/traceur.js --sourcemap $(TFLAGS) $(SRC)
 
 # Prerequisites following '|' are rebuilt just like ordinary prerequisites.
