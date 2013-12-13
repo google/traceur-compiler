@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Tracuer self-compile in Web page for debugging.</title>
+    <script src="../bin/traceur.js"></script>
+    <script src="../src/bootstrap.js"></script>
+    <script>
+    // Settings the same as the tests
+    traceur.options.debug = true;
+    // Because of issue 534 we cannot self-compile with freeVariableChecker.
+    // traceur.options.freeVariableChecker = true;
+    traceur.options.validate = true;
+    var url = window.location.href;
+
+    function getLoader() {
+      var reporter = new traceur.util.ErrorReporter();
+      var project = new traceur.semantics.symbols.Project(url);
+      return new traceur.modules.CodeLoader(reporter, project, traceur.options);
+    }
+    getLoader().import('../src/traceur.js',
+        function(mod) {
+          console.log('DONE');
+        },
+        function(error) {
+          console.error(error);
+        }
+    );
+    </script>
+  </head>
+  <body>
+    First issue <code>make debug</code>
+  </body>
+</html>
