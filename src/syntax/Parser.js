@@ -460,7 +460,7 @@ export class Parser {
   // Statement (other than BlockStatement)
   // FunctionDeclaration
 
-  // ImportDeclaration(load) ::= "import" ImportDeclaration(load) ";"
+  // ImportDeclaration ::= "import" ImportDeclaration
   /**
    * @return {ParseTree}
    * @private
@@ -468,12 +468,19 @@ export class Parser {
   parseImportDeclaration_() {
     var start = this.getTreeStartLocation_();
     this.eat_(IMPORT);
-    var importClause = this.parseImportClause_();
-    this.eatId_(FROM);
+    var importClause = null;
+    if (this.peekImportClause_(this.peekType_())) {
+      importClause = this.parseImportClause_();
+      this.eatId_(FROM);
+    }
     var moduleSpecifier = this.parseModuleSpecifier_();
     this.eatPossibleImplicitSemiColon_();
     return new ImportDeclaration(this.getTreeLocation_(start),
         importClause, moduleSpecifier);
+  }
+
+  peekImportClause_(type) {
+    return type === OPEN_CURLY || this.peekBindingIdentifier_(type);
   }
 
   // https://bugs.ecmascript.org/show_bug.cgi?id=2287
