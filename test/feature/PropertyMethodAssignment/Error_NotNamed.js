@@ -5,3 +5,5 @@ var object = {
     return notNamedField;
   }
 };
+
+object.notNamedField();

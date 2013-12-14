@@ -267,7 +267,6 @@ addFeatureOption('types', EXPERIMENTAL);
 
 addBoolOption('debug');
 addBoolOption('sourceMaps');
-addBoolOption('freeVariableChecker');
 addBoolOption('validate');
 addBoolOption('strictSemicolons');
 addBoolOption('unstarredGenerators');

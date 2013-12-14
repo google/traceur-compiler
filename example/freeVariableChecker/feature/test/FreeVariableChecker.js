@@ -1,5 +1,4 @@
 // Should not compile.
-// Options: --freeVariableChecker
 try {
   var y = xxx;
 } catch (e) {}

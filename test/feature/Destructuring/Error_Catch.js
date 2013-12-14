@@ -1,10 +1,12 @@
 // Should not compile.
 // Error: innerX is not defined
+(function() {
+  try {
+    throw [0];
+  } catch ([innerX]) {
 
-try {
-  throw [0];
-} catch ([innerX]) {
-
-}
-
-innerX;
+  }
+}());
+(function() {
+  innerX;
+}());

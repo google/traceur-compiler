@@ -24,8 +24,6 @@ var transformFile = traceur.codegeneration.ProgramTransformer.transformFile;
 var SourceFile = traceur.syntax.SourceFile;
 var Project = traceur.semantics.symbols.Project;
 
-traceur.options.freeVariableChecker = false;
-
 // Debug functions.
 
 var debug, debug2, debug3, debugTree;

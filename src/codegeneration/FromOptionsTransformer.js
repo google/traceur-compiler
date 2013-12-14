@@ -20,7 +20,6 @@ import {ClassTransformer} from './ClassTransformer';
 import {DefaultParametersTransformer} from './DefaultParametersTransformer';
 import {DestructuringTransformer} from './DestructuringTransformer';
 import {ForOfTransformer} from './ForOfTransformer';
-import {FreeVariableChecker} from '../semantics/FreeVariableChecker';
 import {GeneratorComprehensionTransformer} from
     './GeneratorComprehensionTransformer';
 import {GeneratorTransformPass} from './GeneratorTransformPass';
@@ -131,14 +130,6 @@ export class FromOptionsTransformer extends MultiTransformer {
     if (transformOptions.symbols) {
       append(SymbolTransformer);
       append(TypeofTransformer);
-    }
-
-    // Issue errors for any unbound variables
-    if (options.freeVariableChecker) {
-      this.append((tree) => {
-        FreeVariableChecker.checkScript(reporter, tree);
-        return tree;
-      });
     }
   }
 }

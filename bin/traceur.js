@@ -1119,7 +1119,6 @@ $traceurRuntime.registerModule("../src/options.js", function() {
   addFeatureOption('types', EXPERIMENTAL);
   addBoolOption('debug');
   addBoolOption('sourceMaps');
-  addBoolOption('freeVariableChecker');
   addBoolOption('validate');
   addBoolOption('strictSemicolons');
   addBoolOption('unstarredGenerators');
@@ -9520,293 +9519,126 @@ $traceurRuntime.registerModule("../src/syntax/Parser.js", function() {
       return Parser;
     }};
 }, this);
-$traceurRuntime.registerModule("../src/semantics/FreeVariableChecker.js", function() {
-  "use strict";
-  var ARGUMENTS = $traceurRuntime.getModuleImpl("../src/syntax/PredefinedName.js").ARGUMENTS;
-  var $__66 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
-      BindingIdentifier = $__66.BindingIdentifier,
-      IdentifierExpression = $__66.IdentifierExpression;
-  var IdentifierToken = $traceurRuntime.getModuleImpl("../src/syntax/IdentifierToken.js").IdentifierToken;
-  var IDENTIFIER_EXPRESSION = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js").IDENTIFIER_EXPRESSION;
-  var ParseTreeVisitor = $traceurRuntime.getModuleImpl("../src/syntax/ParseTreeVisitor.js").ParseTreeVisitor;
-  var TYPEOF = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js").TYPEOF;
-  var global = this;
-  var Scope = function(parent) {
-    this.parent = parent;
-    this.references = Object.create(null);
-    this.declarations = Object.create(null);
-  };
-  Scope = ($traceurRuntime.createClass)(Scope, {}, {});
-  function getVariableName(name) {
-    if (name instanceof IdentifierExpression) {
-      name = name.identifierToken;
-    } else if (name instanceof BindingIdentifier) {
-      name = name.identifierToken;
-    }
-    if (name instanceof IdentifierToken) {
-      name = name.value;
-    }
-    return name;
-  }
-  var FreeVariableChecker = function(reporter) {
-    $traceurRuntime.superCall(this, $FreeVariableChecker.prototype, "constructor", []);
-    this.reporter_ = reporter;
-    this.scope_ = null;
-    this.disableChecksLevel_ = 0;
-  };
-  var $FreeVariableChecker = ($traceurRuntime.createClass)(FreeVariableChecker, {
-    pushScope_: function() {
-      return this.scope_ = new Scope(this.scope_);
-    },
-    pop_: function(scope) {
-      if (this.scope_ != scope) {
-        throw new Error('FreeVariableChecker scope mismatch');
-      }
-      this.validateScope_();
-      this.scope_ = scope.parent;
-    },
-    visitScript: function(tree, global) {
-      var scope = this.pushScope_();
-      var object = global;
-      while (object) {
-        Object.getOwnPropertyNames(object).forEach(this.declareVariable_, this);
-        object = Object.getPrototypeOf(object);
-      }
-      this.visitList(tree.scriptItemList);
-      this.pop_(scope);
-    },
-    visitFunction_: function(name, formalParameterList, body) {
-      var scope = this.pushScope_();
-      this.visitAny(name);
-      this.declareVariable_(ARGUMENTS);
-      this.visitAny(formalParameterList);
-      this.visitAny(body);
-      this.pop_(scope);
-    },
-    visitFunctionDeclaration: function(tree) {
-      this.declareVariable_(tree.name);
-      this.visitFunction_(null, tree.formalParameterList, tree.functionBody);
-    },
-    visitFunctionExpression: function(tree) {
-      this.visitFunction_(tree.name, tree.formalParameterList, tree.functionBody);
-    },
-    visitArrowFunctionExpression: function(tree) {
-      this.visitFunction_(null, tree.formalParameters, tree.functionBody);
-    },
-    visitGetAccessor: function(tree) {
-      var scope = this.pushScope_();
-      $traceurRuntime.superCall(this, $FreeVariableChecker.prototype, "visitGetAccessor", [tree]);
-      this.pop_(scope);
-    },
-    visitSetAccessor: function(tree) {
-      var scope = this.pushScope_();
-      $traceurRuntime.superCall(this, $FreeVariableChecker.prototype, "visitSetAccessor", [tree]);
-      this.pop_(scope);
-    },
-    visitCatch: function(tree) {
-      var scope = this.pushScope_();
-      $traceurRuntime.superCall(this, $FreeVariableChecker.prototype, "visitCatch", [tree]);
-      this.pop_(scope);
-    },
-    visitBindingIdentifier: function(tree) {
-      this.declareVariable_(tree);
-    },
-    visitIdentifierExpression: function(tree) {
-      if (this.disableChecksLevel_) return;
-      var name = getVariableName(tree);
-      var scope = this.scope_;
-      if (!(name in scope.references)) {
-        scope.references[name] = tree.location;
-      }
-    },
-    visitUnaryExpression: function(tree) {
-      if (tree.operator.type === TYPEOF && tree.operand.type === IDENTIFIER_EXPRESSION) {
-        this.declareVariable_(tree.operand);
-      } else {
-        $traceurRuntime.superCall(this, $FreeVariableChecker.prototype, "visitUnaryExpression", [tree]);
-      }
-    },
-    visitWithStatement: function(tree) {
-      this.visitAny(tree.expression);
-      this.disableChecksLevel_++;
-      this.visitAny(tree.body);
-      this.disableChecksLevel_--;
-    },
-    declareVariable_: function(tree) {
-      var name = getVariableName(tree);
-      if (name) {
-        var scope = this.scope_;
-        if (!(name in scope.declarations)) {
-          scope.declarations[name] = tree.location;
-        }
-      }
-    },
-    validateScope_: function() {
-      var $__63 = this;
-      if (this.disableChecksLevel_) return;
-      var scope = this.scope_;
-      var errors = [];
-      for (var name in scope.references) {
-        if (!(name in scope.declarations)) {
-          var location = scope.references[name];
-          if (!scope.parent) {
-            if (!location) {
-              throw new Error(("generated variable " + name + " is not defined"));
-            }
-            errors.push([location.start, '%s is not defined', name]);
-          } else if (!(name in scope.parent.references)) {
-            scope.parent.references[name] = location;
-          }
-        }
-      }
-      if (errors.length) {
-        errors.sort((function(x, y) {
-          return x[0].offset - y[0].offset;
-        }));
-        errors.forEach((function(e) {
-          var $__67;
-          ($__67 = $__63).reportError_.apply($__67, $traceurRuntime.toObject(e));
-        }));
-      }
-    },
-    reportError_: function() {
-      var $__67;
-      for (var args = [],
-          $__65 = 0; $__65 < arguments.length; $__65++) args[$__65] = arguments[$__65];
-      ($__67 = this.reporter_).reportError.apply($__67, $traceurRuntime.toObject(args));
-    }
-  }, {checkScript: function(reporter, tree) {
-      new FreeVariableChecker(reporter).visitScript(tree, global);
-    }}, ParseTreeVisitor);
-  return {
-    get getVariableName() {
-      return getVariableName;
-    },
-    get FreeVariableChecker() {
-      return FreeVariableChecker;
-    }
-  };
-}, this);
 $traceurRuntime.registerModule("../src/outputgeneration/ParseTreeWriter.js", function() {
   "use strict";
   var ParseTreeVisitor = $traceurRuntime.getModuleImpl("../src/syntax/ParseTreeVisitor.js").ParseTreeVisitor;
-  var $__69 = $traceurRuntime.getModuleImpl("../src/syntax/PredefinedName.js"),
-      AS = $__69.AS,
-      FROM = $__69.FROM,
-      GET = $__69.GET,
-      OF = $__69.OF,
-      MODULE = $__69.MODULE,
-      SET = $__69.SET;
+  var $__64 = $traceurRuntime.getModuleImpl("../src/syntax/PredefinedName.js"),
+      AS = $__64.AS,
+      FROM = $__64.FROM,
+      GET = $__64.GET,
+      OF = $__64.OF,
+      MODULE = $__64.MODULE,
+      SET = $__64.SET;
   var Token = $traceurRuntime.getModuleImpl("../src/syntax/Token.js").Token;
   var getKeywordType = $traceurRuntime.getModuleImpl("../src/syntax/Keywords.js").getKeywordType;
-  var $__69 = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js"),
-      AMPERSAND = $__69.AMPERSAND,
-      AMPERSAND_EQUAL = $__69.AMPERSAND_EQUAL,
-      AND = $__69.AND,
-      ARROW = $__69.ARROW,
-      AWAIT = $__69.AWAIT,
-      BACK_QUOTE = $__69.BACK_QUOTE,
-      BANG = $__69.BANG,
-      BAR = $__69.BAR,
-      BAR_EQUAL = $__69.BAR_EQUAL,
-      BREAK = $__69.BREAK,
-      CARET = $__69.CARET,
-      CARET_EQUAL = $__69.CARET_EQUAL,
-      CASE = $__69.CASE,
-      CATCH = $__69.CATCH,
-      CLASS = $__69.CLASS,
-      CLOSE_ANGLE = $__69.CLOSE_ANGLE,
-      CLOSE_CURLY = $__69.CLOSE_CURLY,
-      CLOSE_PAREN = $__69.CLOSE_PAREN,
-      CLOSE_SQUARE = $__69.CLOSE_SQUARE,
-      COLON = $__69.COLON,
-      COMMA = $__69.COMMA,
-      CONST = $__69.CONST,
-      CONTINUE = $__69.CONTINUE,
-      DEBUGGER = $__69.DEBUGGER,
-      DEFAULT = $__69.DEFAULT,
-      DELETE = $__69.DELETE,
-      DO = $__69.DO,
-      DOT_DOT_DOT = $__69.DOT_DOT_DOT,
-      ELSE = $__69.ELSE,
-      END_OF_FILE = $__69.END_OF_FILE,
-      ENUM = $__69.ENUM,
-      EQUAL = $__69.EQUAL,
-      EQUAL_EQUAL = $__69.EQUAL_EQUAL,
-      EQUAL_EQUAL_EQUAL = $__69.EQUAL_EQUAL_EQUAL,
-      ERROR = $__69.ERROR,
-      EXPORT = $__69.EXPORT,
-      EXTENDS = $__69.EXTENDS,
-      FALSE = $__69.FALSE,
-      FINALLY = $__69.FINALLY,
-      FOR = $__69.FOR,
-      FUNCTION = $__69.FUNCTION,
-      GREATER_EQUAL = $__69.GREATER_EQUAL,
-      IDENTIFIER = $__69.IDENTIFIER,
-      IF = $__69.IF,
-      IMPLEMENTS = $__69.IMPLEMENTS,
-      IMPORT = $__69.IMPORT,
-      IN = $__69.IN,
-      INSTANCEOF = $__69.INSTANCEOF,
-      INTERFACE = $__69.INTERFACE,
-      LEFT_SHIFT = $__69.LEFT_SHIFT,
-      LEFT_SHIFT_EQUAL = $__69.LEFT_SHIFT_EQUAL,
-      LESS_EQUAL = $__69.LESS_EQUAL,
-      LET = $__69.LET,
-      MINUS = $__69.MINUS,
-      MINUS_EQUAL = $__69.MINUS_EQUAL,
-      MINUS_MINUS = $__69.MINUS_MINUS,
-      NEW = $__69.NEW,
-      NO_SUBSTITUTION_TEMPLATE = $__69.NO_SUBSTITUTION_TEMPLATE,
-      NOT_EQUAL = $__69.NOT_EQUAL,
-      NOT_EQUAL_EQUAL = $__69.NOT_EQUAL_EQUAL,
-      NULL = $__69.NULL,
-      NUMBER = $__69.NUMBER,
-      OPEN_ANGLE = $__69.OPEN_ANGLE,
-      OPEN_CURLY = $__69.OPEN_CURLY,
-      OPEN_PAREN = $__69.OPEN_PAREN,
-      OPEN_SQUARE = $__69.OPEN_SQUARE,
-      OR = $__69.OR,
-      PACKAGE = $__69.PACKAGE,
-      PERCENT = $__69.PERCENT,
-      PERCENT_EQUAL = $__69.PERCENT_EQUAL,
-      PERIOD = $__69.PERIOD,
-      PLUS = $__69.PLUS,
-      PLUS_EQUAL = $__69.PLUS_EQUAL,
-      PLUS_PLUS = $__69.PLUS_PLUS,
-      PRIVATE = $__69.PRIVATE,
-      PROTECTED = $__69.PROTECTED,
-      PUBLIC = $__69.PUBLIC,
-      QUESTION = $__69.QUESTION,
-      REGULAR_EXPRESSION = $__69.REGULAR_EXPRESSION,
-      RETURN = $__69.RETURN,
-      RIGHT_SHIFT = $__69.RIGHT_SHIFT,
-      RIGHT_SHIFT_EQUAL = $__69.RIGHT_SHIFT_EQUAL,
-      SEMI_COLON = $__69.SEMI_COLON,
-      SLASH = $__69.SLASH,
-      SLASH_EQUAL = $__69.SLASH_EQUAL,
-      STAR = $__69.STAR,
-      STAR_EQUAL = $__69.STAR_EQUAL,
-      STATIC = $__69.STATIC,
-      STRING = $__69.STRING,
-      SUPER = $__69.SUPER,
-      SWITCH = $__69.SWITCH,
-      TEMPLATE_HEAD = $__69.TEMPLATE_HEAD,
-      TEMPLATE_MIDDLE = $__69.TEMPLATE_MIDDLE,
-      TEMPLATE_TAIL = $__69.TEMPLATE_TAIL,
-      THIS = $__69.THIS,
-      THROW = $__69.THROW,
-      TILDE = $__69.TILDE,
-      TRUE = $__69.TRUE,
-      TRY = $__69.TRY,
-      TYPEOF = $__69.TYPEOF,
-      UNSIGNED_RIGHT_SHIFT = $__69.UNSIGNED_RIGHT_SHIFT,
-      UNSIGNED_RIGHT_SHIFT_EQUAL = $__69.UNSIGNED_RIGHT_SHIFT_EQUAL,
-      VAR = $__69.VAR,
-      VOID = $__69.VOID,
-      WHILE = $__69.WHILE,
-      WITH = $__69.WITH,
-      YIELD = $__69.YIELD;
+  var $__64 = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js"),
+      AMPERSAND = $__64.AMPERSAND,
+      AMPERSAND_EQUAL = $__64.AMPERSAND_EQUAL,
+      AND = $__64.AND,
+      ARROW = $__64.ARROW,
+      AWAIT = $__64.AWAIT,
+      BACK_QUOTE = $__64.BACK_QUOTE,
+      BANG = $__64.BANG,
+      BAR = $__64.BAR,
+      BAR_EQUAL = $__64.BAR_EQUAL,
+      BREAK = $__64.BREAK,
+      CARET = $__64.CARET,
+      CARET_EQUAL = $__64.CARET_EQUAL,
+      CASE = $__64.CASE,
+      CATCH = $__64.CATCH,
+      CLASS = $__64.CLASS,
+      CLOSE_ANGLE = $__64.CLOSE_ANGLE,
+      CLOSE_CURLY = $__64.CLOSE_CURLY,
+      CLOSE_PAREN = $__64.CLOSE_PAREN,
+      CLOSE_SQUARE = $__64.CLOSE_SQUARE,
+      COLON = $__64.COLON,
+      COMMA = $__64.COMMA,
+      CONST = $__64.CONST,
+      CONTINUE = $__64.CONTINUE,
+      DEBUGGER = $__64.DEBUGGER,
+      DEFAULT = $__64.DEFAULT,
+      DELETE = $__64.DELETE,
+      DO = $__64.DO,
+      DOT_DOT_DOT = $__64.DOT_DOT_DOT,
+      ELSE = $__64.ELSE,
+      END_OF_FILE = $__64.END_OF_FILE,
+      ENUM = $__64.ENUM,
+      EQUAL = $__64.EQUAL,
+      EQUAL_EQUAL = $__64.EQUAL_EQUAL,
+      EQUAL_EQUAL_EQUAL = $__64.EQUAL_EQUAL_EQUAL,
+      ERROR = $__64.ERROR,
+      EXPORT = $__64.EXPORT,
+      EXTENDS = $__64.EXTENDS,
+      FALSE = $__64.FALSE,
+      FINALLY = $__64.FINALLY,
+      FOR = $__64.FOR,
+      FUNCTION = $__64.FUNCTION,
+      GREATER_EQUAL = $__64.GREATER_EQUAL,
+      IDENTIFIER = $__64.IDENTIFIER,
+      IF = $__64.IF,
+      IMPLEMENTS = $__64.IMPLEMENTS,
+      IMPORT = $__64.IMPORT,
+      IN = $__64.IN,
+      INSTANCEOF = $__64.INSTANCEOF,
+      INTERFACE = $__64.INTERFACE,
+      LEFT_SHIFT = $__64.LEFT_SHIFT,
+      LEFT_SHIFT_EQUAL = $__64.LEFT_SHIFT_EQUAL,
+      LESS_EQUAL = $__64.LESS_EQUAL,
+      LET = $__64.LET,
+      MINUS = $__64.MINUS,
+      MINUS_EQUAL = $__64.MINUS_EQUAL,
+      MINUS_MINUS = $__64.MINUS_MINUS,
+      NEW = $__64.NEW,
+      NO_SUBSTITUTION_TEMPLATE = $__64.NO_SUBSTITUTION_TEMPLATE,
+      NOT_EQUAL = $__64.NOT_EQUAL,
+      NOT_EQUAL_EQUAL = $__64.NOT_EQUAL_EQUAL,
+      NULL = $__64.NULL,
+      NUMBER = $__64.NUMBER,
+      OPEN_ANGLE = $__64.OPEN_ANGLE,
+      OPEN_CURLY = $__64.OPEN_CURLY,
+      OPEN_PAREN = $__64.OPEN_PAREN,
+      OPEN_SQUARE = $__64.OPEN_SQUARE,
+      OR = $__64.OR,
+      PACKAGE = $__64.PACKAGE,
+      PERCENT = $__64.PERCENT,
+      PERCENT_EQUAL = $__64.PERCENT_EQUAL,
+      PERIOD = $__64.PERIOD,
+      PLUS = $__64.PLUS,
+      PLUS_EQUAL = $__64.PLUS_EQUAL,
+      PLUS_PLUS = $__64.PLUS_PLUS,
+      PRIVATE = $__64.PRIVATE,
+      PROTECTED = $__64.PROTECTED,
+      PUBLIC = $__64.PUBLIC,
+      QUESTION = $__64.QUESTION,
+      REGULAR_EXPRESSION = $__64.REGULAR_EXPRESSION,
+      RETURN = $__64.RETURN,
+      RIGHT_SHIFT = $__64.RIGHT_SHIFT,
+      RIGHT_SHIFT_EQUAL = $__64.RIGHT_SHIFT_EQUAL,
+      SEMI_COLON = $__64.SEMI_COLON,
+      SLASH = $__64.SLASH,
+      SLASH_EQUAL = $__64.SLASH_EQUAL,
+      STAR = $__64.STAR,
+      STAR_EQUAL = $__64.STAR_EQUAL,
+      STATIC = $__64.STATIC,
+      STRING = $__64.STRING,
+      SUPER = $__64.SUPER,
+      SWITCH = $__64.SWITCH,
+      TEMPLATE_HEAD = $__64.TEMPLATE_HEAD,
+      TEMPLATE_MIDDLE = $__64.TEMPLATE_MIDDLE,
+      TEMPLATE_TAIL = $__64.TEMPLATE_TAIL,
+      THIS = $__64.THIS,
+      THROW = $__64.THROW,
+      TILDE = $__64.TILDE,
+      TRUE = $__64.TRUE,
+      TRY = $__64.TRY,
+      TYPEOF = $__64.TYPEOF,
+      UNSIGNED_RIGHT_SHIFT = $__64.UNSIGNED_RIGHT_SHIFT,
+      UNSIGNED_RIGHT_SHIFT_EQUAL = $__64.UNSIGNED_RIGHT_SHIFT_EQUAL,
+      VAR = $__64.VAR,
+      VOID = $__64.VOID,
+      WHILE = $__64.WHILE,
+      WITH = $__64.WITH,
+      YIELD = $__64.YIELD;
   var NEW_LINE = '\n';
   var PRETTY_PRINT = true;
   var ParseTreeWriter = function(highlighted, showLineNumbers) {
@@ -10688,84 +10520,84 @@ $traceurRuntime.registerModule("../src/syntax/ParseTreeValidator.js", function()
   var NewExpression = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js").NewExpression;
   var ParseTreeVisitor = $traceurRuntime.getModuleImpl("../src/syntax/ParseTreeVisitor.js").ParseTreeVisitor;
   var TreeWriter = $traceurRuntime.getModuleImpl("../src/outputgeneration/TreeWriter.js").TreeWriter;
-  var $__74 = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js"),
-      AMPERSAND = $__74.AMPERSAND,
-      AMPERSAND_EQUAL = $__74.AMPERSAND_EQUAL,
-      AND = $__74.AND,
-      BAR = $__74.BAR,
-      BAR_EQUAL = $__74.BAR_EQUAL,
-      CARET = $__74.CARET,
-      CARET_EQUAL = $__74.CARET_EQUAL,
-      CLOSE_ANGLE = $__74.CLOSE_ANGLE,
-      EQUAL = $__74.EQUAL,
-      EQUAL_EQUAL = $__74.EQUAL_EQUAL,
-      EQUAL_EQUAL_EQUAL = $__74.EQUAL_EQUAL_EQUAL,
-      GREATER_EQUAL = $__74.GREATER_EQUAL,
-      IDENTIFIER = $__74.IDENTIFIER,
-      IN = $__74.IN,
-      INSTANCEOF = $__74.INSTANCEOF,
-      LEFT_SHIFT = $__74.LEFT_SHIFT,
-      LEFT_SHIFT_EQUAL = $__74.LEFT_SHIFT_EQUAL,
-      LESS_EQUAL = $__74.LESS_EQUAL,
-      MINUS = $__74.MINUS,
-      MINUS_EQUAL = $__74.MINUS_EQUAL,
-      NOT_EQUAL = $__74.NOT_EQUAL,
-      NOT_EQUAL_EQUAL = $__74.NOT_EQUAL_EQUAL,
-      NUMBER = $__74.NUMBER,
-      OPEN_ANGLE = $__74.OPEN_ANGLE,
-      OR = $__74.OR,
-      PERCENT = $__74.PERCENT,
-      PERCENT_EQUAL = $__74.PERCENT_EQUAL,
-      PLUS = $__74.PLUS,
-      PLUS_EQUAL = $__74.PLUS_EQUAL,
-      RIGHT_SHIFT = $__74.RIGHT_SHIFT,
-      RIGHT_SHIFT_EQUAL = $__74.RIGHT_SHIFT_EQUAL,
-      SLASH = $__74.SLASH,
-      SLASH_EQUAL = $__74.SLASH_EQUAL,
-      STAR = $__74.STAR,
-      STAR_EQUAL = $__74.STAR_EQUAL,
-      STRING = $__74.STRING,
-      UNSIGNED_RIGHT_SHIFT = $__74.UNSIGNED_RIGHT_SHIFT,
-      UNSIGNED_RIGHT_SHIFT_EQUAL = $__74.UNSIGNED_RIGHT_SHIFT_EQUAL;
-  var $__74 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
-      ARRAY_PATTERN = $__74.ARRAY_PATTERN,
-      BINDING_ELEMENT = $__74.BINDING_ELEMENT,
-      BINDING_IDENTIFIER = $__74.BINDING_IDENTIFIER,
-      BLOCK = $__74.BLOCK,
-      CASE_CLAUSE = $__74.CASE_CLAUSE,
-      CATCH = $__74.CATCH,
-      CLASS_DECLARATION = $__74.CLASS_DECLARATION,
-      COMPUTED_PROPERTY_NAME = $__74.COMPUTED_PROPERTY_NAME,
-      DEFAULT_CLAUSE = $__74.DEFAULT_CLAUSE,
-      EXPORT_DECLARATION = $__74.EXPORT_DECLARATION,
-      EXPORT_DEFAULT = $__74.EXPORT_DEFAULT,
-      EXPORT_SPECIFIER = $__74.EXPORT_SPECIFIER,
-      EXPORT_SPECIFIER_SET = $__74.EXPORT_SPECIFIER_SET,
-      EXPORT_STAR = $__74.EXPORT_STAR,
-      FINALLY = $__74.FINALLY,
-      FORMAL_PARAMETER = $__74.FORMAL_PARAMETER,
-      FORMAL_PARAMETER_LIST = $__74.FORMAL_PARAMETER_LIST,
-      FUNCTION_BODY = $__74.FUNCTION_BODY,
-      FUNCTION_DECLARATION = $__74.FUNCTION_DECLARATION,
-      GET_ACCESSOR = $__74.GET_ACCESSOR,
-      IDENTIFIER_EXPRESSION = $__74.IDENTIFIER_EXPRESSION,
-      IMPORT_DECLARATION = $__74.IMPORT_DECLARATION,
-      LITERAL_PROPERTY_NAME = $__74.LITERAL_PROPERTY_NAME,
-      MODULE_DECLARATION = $__74.MODULE_DECLARATION,
-      MODULE_DECLARATION = $__74.MODULE_DECLARATION,
-      MODULE_SPECIFIER = $__74.MODULE_SPECIFIER,
-      NAMED_EXPORT = $__74.NAMED_EXPORT,
-      OBJECT_PATTERN = $__74.OBJECT_PATTERN,
-      OBJECT_PATTERN_FIELD = $__74.OBJECT_PATTERN_FIELD,
-      PROPERTY_METHOD_ASSIGNMENT = $__74.PROPERTY_METHOD_ASSIGNMENT,
-      PROPERTY_NAME_ASSIGNMENT = $__74.PROPERTY_NAME_ASSIGNMENT,
-      PROPERTY_NAME_SHORTHAND = $__74.PROPERTY_NAME_SHORTHAND,
-      REST_PARAMETER = $__74.REST_PARAMETER,
-      SET_ACCESSOR = $__74.SET_ACCESSOR,
-      TEMPLATE_LITERAL_PORTION = $__74.TEMPLATE_LITERAL_PORTION,
-      TEMPLATE_SUBSTITUTION = $__74.TEMPLATE_SUBSTITUTION,
-      VARIABLE_DECLARATION_LIST = $__74.VARIABLE_DECLARATION_LIST,
-      VARIABLE_STATEMENT = $__74.VARIABLE_STATEMENT;
+  var $__69 = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js"),
+      AMPERSAND = $__69.AMPERSAND,
+      AMPERSAND_EQUAL = $__69.AMPERSAND_EQUAL,
+      AND = $__69.AND,
+      BAR = $__69.BAR,
+      BAR_EQUAL = $__69.BAR_EQUAL,
+      CARET = $__69.CARET,
+      CARET_EQUAL = $__69.CARET_EQUAL,
+      CLOSE_ANGLE = $__69.CLOSE_ANGLE,
+      EQUAL = $__69.EQUAL,
+      EQUAL_EQUAL = $__69.EQUAL_EQUAL,
+      EQUAL_EQUAL_EQUAL = $__69.EQUAL_EQUAL_EQUAL,
+      GREATER_EQUAL = $__69.GREATER_EQUAL,
+      IDENTIFIER = $__69.IDENTIFIER,
+      IN = $__69.IN,
+      INSTANCEOF = $__69.INSTANCEOF,
+      LEFT_SHIFT = $__69.LEFT_SHIFT,
+      LEFT_SHIFT_EQUAL = $__69.LEFT_SHIFT_EQUAL,
+      LESS_EQUAL = $__69.LESS_EQUAL,
+      MINUS = $__69.MINUS,
+      MINUS_EQUAL = $__69.MINUS_EQUAL,
+      NOT_EQUAL = $__69.NOT_EQUAL,
+      NOT_EQUAL_EQUAL = $__69.NOT_EQUAL_EQUAL,
+      NUMBER = $__69.NUMBER,
+      OPEN_ANGLE = $__69.OPEN_ANGLE,
+      OR = $__69.OR,
+      PERCENT = $__69.PERCENT,
+      PERCENT_EQUAL = $__69.PERCENT_EQUAL,
+      PLUS = $__69.PLUS,
+      PLUS_EQUAL = $__69.PLUS_EQUAL,
+      RIGHT_SHIFT = $__69.RIGHT_SHIFT,
+      RIGHT_SHIFT_EQUAL = $__69.RIGHT_SHIFT_EQUAL,
+      SLASH = $__69.SLASH,
+      SLASH_EQUAL = $__69.SLASH_EQUAL,
+      STAR = $__69.STAR,
+      STAR_EQUAL = $__69.STAR_EQUAL,
+      STRING = $__69.STRING,
+      UNSIGNED_RIGHT_SHIFT = $__69.UNSIGNED_RIGHT_SHIFT,
+      UNSIGNED_RIGHT_SHIFT_EQUAL = $__69.UNSIGNED_RIGHT_SHIFT_EQUAL;
+  var $__69 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
+      ARRAY_PATTERN = $__69.ARRAY_PATTERN,
+      BINDING_ELEMENT = $__69.BINDING_ELEMENT,
+      BINDING_IDENTIFIER = $__69.BINDING_IDENTIFIER,
+      BLOCK = $__69.BLOCK,
+      CASE_CLAUSE = $__69.CASE_CLAUSE,
+      CATCH = $__69.CATCH,
+      CLASS_DECLARATION = $__69.CLASS_DECLARATION,
+      COMPUTED_PROPERTY_NAME = $__69.COMPUTED_PROPERTY_NAME,
+      DEFAULT_CLAUSE = $__69.DEFAULT_CLAUSE,
+      EXPORT_DECLARATION = $__69.EXPORT_DECLARATION,
+      EXPORT_DEFAULT = $__69.EXPORT_DEFAULT,
+      EXPORT_SPECIFIER = $__69.EXPORT_SPECIFIER,
+      EXPORT_SPECIFIER_SET = $__69.EXPORT_SPECIFIER_SET,
+      EXPORT_STAR = $__69.EXPORT_STAR,
+      FINALLY = $__69.FINALLY,
+      FORMAL_PARAMETER = $__69.FORMAL_PARAMETER,
+      FORMAL_PARAMETER_LIST = $__69.FORMAL_PARAMETER_LIST,
+      FUNCTION_BODY = $__69.FUNCTION_BODY,
+      FUNCTION_DECLARATION = $__69.FUNCTION_DECLARATION,
+      GET_ACCESSOR = $__69.GET_ACCESSOR,
+      IDENTIFIER_EXPRESSION = $__69.IDENTIFIER_EXPRESSION,
+      IMPORT_DECLARATION = $__69.IMPORT_DECLARATION,
+      LITERAL_PROPERTY_NAME = $__69.LITERAL_PROPERTY_NAME,
+      MODULE_DECLARATION = $__69.MODULE_DECLARATION,
+      MODULE_DECLARATION = $__69.MODULE_DECLARATION,
+      MODULE_SPECIFIER = $__69.MODULE_SPECIFIER,
+      NAMED_EXPORT = $__69.NAMED_EXPORT,
+      OBJECT_PATTERN = $__69.OBJECT_PATTERN,
+      OBJECT_PATTERN_FIELD = $__69.OBJECT_PATTERN_FIELD,
+      PROPERTY_METHOD_ASSIGNMENT = $__69.PROPERTY_METHOD_ASSIGNMENT,
+      PROPERTY_NAME_ASSIGNMENT = $__69.PROPERTY_NAME_ASSIGNMENT,
+      PROPERTY_NAME_SHORTHAND = $__69.PROPERTY_NAME_SHORTHAND,
+      REST_PARAMETER = $__69.REST_PARAMETER,
+      SET_ACCESSOR = $__69.SET_ACCESSOR,
+      TEMPLATE_LITERAL_PORTION = $__69.TEMPLATE_LITERAL_PORTION,
+      TEMPLATE_SUBSTITUTION = $__69.TEMPLATE_SUBSTITUTION,
+      VARIABLE_DECLARATION_LIST = $__69.VARIABLE_DECLARATION_LIST,
+      VARIABLE_STATEMENT = $__69.VARIABLE_STATEMENT;
   var assert = $traceurRuntime.getModuleImpl("../src/util/assert.js").assert;
   var ValidationError = function(tree, message) {
     this.tree = tree;
@@ -11236,122 +11068,122 @@ $traceurRuntime.registerModule("../src/codegeneration/ParseTreeFactory.js", func
   "use strict";
   var IdentifierToken = $traceurRuntime.getModuleImpl("../src/syntax/IdentifierToken.js").IdentifierToken;
   var LiteralToken = $traceurRuntime.getModuleImpl("../src/syntax/LiteralToken.js").LiteralToken;
-  var $__77 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTree.js"),
-      ParseTree = $__77.ParseTree,
-      ParseTreeType = $__77.ParseTreeType;
-  var $__77 = $traceurRuntime.getModuleImpl("../src/syntax/PredefinedName.js"),
-      BIND = $__77.BIND,
-      CALL = $__77.CALL,
-      CREATE = $__77.CREATE,
-      DEFINE_PROPERTY = $__77.DEFINE_PROPERTY,
-      FREEZE = $__77.FREEZE,
-      OBJECT = $__77.OBJECT,
-      PREVENT_EXTENSIONS = $__77.PREVENT_EXTENSIONS,
-      STATE = $__77.STATE,
-      UNDEFINED = $__77.UNDEFINED,
-      getParameterName = $__77.getParameterName;
+  var $__72 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTree.js"),
+      ParseTree = $__72.ParseTree,
+      ParseTreeType = $__72.ParseTreeType;
+  var $__72 = $traceurRuntime.getModuleImpl("../src/syntax/PredefinedName.js"),
+      BIND = $__72.BIND,
+      CALL = $__72.CALL,
+      CREATE = $__72.CREATE,
+      DEFINE_PROPERTY = $__72.DEFINE_PROPERTY,
+      FREEZE = $__72.FREEZE,
+      OBJECT = $__72.OBJECT,
+      PREVENT_EXTENSIONS = $__72.PREVENT_EXTENSIONS,
+      STATE = $__72.STATE,
+      UNDEFINED = $__72.UNDEFINED,
+      getParameterName = $__72.getParameterName;
   var Token = $traceurRuntime.getModuleImpl("../src/syntax/Token.js").Token;
-  var $__77 = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js"),
-      EQUAL = $__77.EQUAL,
-      FALSE = $__77.FALSE,
-      NULL = $__77.NULL,
-      NUMBER = $__77.NUMBER,
-      STRING = $__77.STRING,
-      TRUE = $__77.TRUE,
-      VOID = $__77.VOID;
+  var $__72 = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js"),
+      EQUAL = $__72.EQUAL,
+      FALSE = $__72.FALSE,
+      NULL = $__72.NULL,
+      NUMBER = $__72.NUMBER,
+      STRING = $__72.STRING,
+      TRUE = $__72.TRUE,
+      VOID = $__72.VOID;
   var assert = $traceurRuntime.getModuleImpl("../src/util/assert.js").assert;
-  var $__77 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
-      ArgumentList = $__77.ArgumentList,
-      ArrayComprehension = $__77.ArrayComprehension,
-      ArrayLiteralExpression = $__77.ArrayLiteralExpression,
-      ArrayPattern = $__77.ArrayPattern,
-      ArrowFunctionExpression = $__77.ArrowFunctionExpression,
-      AwaitStatement = $__77.AwaitStatement,
-      BinaryOperator = $__77.BinaryOperator,
-      BindingElement = $__77.BindingElement,
-      BindingIdentifier = $__77.BindingIdentifier,
-      Block = $__77.Block,
-      BreakStatement = $__77.BreakStatement,
-      CallExpression = $__77.CallExpression,
-      CaseClause = $__77.CaseClause,
-      Catch = $__77.Catch,
-      ClassDeclaration = $__77.ClassDeclaration,
-      ClassExpression = $__77.ClassExpression,
-      CommaExpression = $__77.CommaExpression,
-      ComprehensionFor = $__77.ComprehensionFor,
-      ComprehensionIf = $__77.ComprehensionIf,
-      ComputedPropertyName = $__77.ComputedPropertyName,
-      ConditionalExpression = $__77.ConditionalExpression,
-      ContinueStatement = $__77.ContinueStatement,
-      CoverFormals = $__77.CoverFormals,
-      CoverInitialisedName = $__77.CoverInitialisedName,
-      DebuggerStatement = $__77.DebuggerStatement,
-      DefaultClause = $__77.DefaultClause,
-      DoWhileStatement = $__77.DoWhileStatement,
-      EmptyStatement = $__77.EmptyStatement,
-      ExportDeclaration = $__77.ExportDeclaration,
-      ExportSpecifier = $__77.ExportSpecifier,
-      ExportSpecifierSet = $__77.ExportSpecifierSet,
-      ExportStar = $__77.ExportStar,
-      ExpressionStatement = $__77.ExpressionStatement,
-      Finally = $__77.Finally,
-      ForInStatement = $__77.ForInStatement,
-      ForOfStatement = $__77.ForOfStatement,
-      ForStatement = $__77.ForStatement,
-      FormalParameter = $__77.FormalParameter,
-      FormalParameterList = $__77.FormalParameterList,
-      FunctionBody = $__77.FunctionBody,
-      FunctionDeclaration = $__77.FunctionDeclaration,
-      FunctionExpression = $__77.FunctionExpression,
-      GeneratorComprehension = $__77.GeneratorComprehension,
-      GetAccessor = $__77.GetAccessor,
-      IdentifierExpression = $__77.IdentifierExpression,
-      IfStatement = $__77.IfStatement,
-      ImportDeclaration = $__77.ImportDeclaration,
-      ImportSpecifier = $__77.ImportSpecifier,
-      ImportSpecifierSet = $__77.ImportSpecifierSet,
-      LabelledStatement = $__77.LabelledStatement,
-      LiteralExpression = $__77.LiteralExpression,
-      LiteralPropertyName = $__77.LiteralPropertyName,
-      MemberExpression = $__77.MemberExpression,
-      MemberLookupExpression = $__77.MemberLookupExpression,
-      Module = $__77.Module,
-      ModuleDeclaration = $__77.ModuleDeclaration,
-      ModuleSpecifier = $__77.ModuleSpecifier,
-      NamedExport = $__77.NamedExport,
-      NewExpression = $__77.NewExpression,
-      ObjectLiteralExpression = $__77.ObjectLiteralExpression,
-      ObjectPattern = $__77.ObjectPattern,
-      ObjectPatternField = $__77.ObjectPatternField,
-      ParenExpression = $__77.ParenExpression,
-      PostfixExpression = $__77.PostfixExpression,
-      PredefinedType = $__77.PredefinedType,
-      Script = $__77.Script,
-      PropertyMethodAssignment = $__77.PropertyMethodAssignment,
-      PropertyNameAssignment = $__77.PropertyNameAssignment,
-      PropertyNameShorthand = $__77.PropertyNameShorthand,
-      RestParameter = $__77.RestParameter,
-      ReturnStatement = $__77.ReturnStatement,
-      SetAccessor = $__77.SetAccessor,
-      SpreadExpression = $__77.SpreadExpression,
-      SpreadPatternElement = $__77.SpreadPatternElement,
-      SuperExpression = $__77.SuperExpression,
-      SwitchStatement = $__77.SwitchStatement,
-      SyntaxErrorTree = $__77.SyntaxErrorTree,
-      TemplateLiteralExpression = $__77.TemplateLiteralExpression,
-      TemplateLiteralPortion = $__77.TemplateLiteralPortion,
-      TemplateSubstitution = $__77.TemplateSubstitution,
-      ThisExpression = $__77.ThisExpression,
-      ThrowStatement = $__77.ThrowStatement,
-      TryStatement = $__77.TryStatement,
-      TypeName = $__77.TypeName,
-      UnaryExpression = $__77.UnaryExpression,
-      VariableDeclaration = $__77.VariableDeclaration,
-      VariableDeclarationList = $__77.VariableDeclarationList,
-      VariableStatement = $__77.VariableStatement,
-      WhileStatement = $__77.WhileStatement,
-      WithStatement = $__77.WithStatement,
-      YieldExpression = $__77.YieldExpression;
+  var $__72 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
+      ArgumentList = $__72.ArgumentList,
+      ArrayComprehension = $__72.ArrayComprehension,
+      ArrayLiteralExpression = $__72.ArrayLiteralExpression,
+      ArrayPattern = $__72.ArrayPattern,
+      ArrowFunctionExpression = $__72.ArrowFunctionExpression,
+      AwaitStatement = $__72.AwaitStatement,
+      BinaryOperator = $__72.BinaryOperator,
+      BindingElement = $__72.BindingElement,
+      BindingIdentifier = $__72.BindingIdentifier,
+      Block = $__72.Block,
+      BreakStatement = $__72.BreakStatement,
+      CallExpression = $__72.CallExpression,
+      CaseClause = $__72.CaseClause,
+      Catch = $__72.Catch,
+      ClassDeclaration = $__72.ClassDeclaration,
+      ClassExpression = $__72.ClassExpression,
+      CommaExpression = $__72.CommaExpression,
+      ComprehensionFor = $__72.ComprehensionFor,
+      ComprehensionIf = $__72.ComprehensionIf,
+      ComputedPropertyName = $__72.ComputedPropertyName,
+      ConditionalExpression = $__72.ConditionalExpression,
+      ContinueStatement = $__72.ContinueStatement,
+      CoverFormals = $__72.CoverFormals,
+      CoverInitialisedName = $__72.CoverInitialisedName,
+      DebuggerStatement = $__72.DebuggerStatement,
+      DefaultClause = $__72.DefaultClause,
+      DoWhileStatement = $__72.DoWhileStatement,
+      EmptyStatement = $__72.EmptyStatement,
+      ExportDeclaration = $__72.ExportDeclaration,
+      ExportSpecifier = $__72.ExportSpecifier,
+      ExportSpecifierSet = $__72.ExportSpecifierSet,
+      ExportStar = $__72.ExportStar,
+      ExpressionStatement = $__72.ExpressionStatement,
+      Finally = $__72.Finally,
+      ForInStatement = $__72.ForInStatement,
+      ForOfStatement = $__72.ForOfStatement,
+      ForStatement = $__72.ForStatement,
+      FormalParameter = $__72.FormalParameter,
+      FormalParameterList = $__72.FormalParameterList,
+      FunctionBody = $__72.FunctionBody,
+      FunctionDeclaration = $__72.FunctionDeclaration,
+      FunctionExpression = $__72.FunctionExpression,
+      GeneratorComprehension = $__72.GeneratorComprehension,
+      GetAccessor = $__72.GetAccessor,
+      IdentifierExpression = $__72.IdentifierExpression,
+      IfStatement = $__72.IfStatement,
+      ImportDeclaration = $__72.ImportDeclaration,
+      ImportSpecifier = $__72.ImportSpecifier,
+      ImportSpecifierSet = $__72.ImportSpecifierSet,
+      LabelledStatement = $__72.LabelledStatement,
+      LiteralExpression = $__72.LiteralExpression,
+      LiteralPropertyName = $__72.LiteralPropertyName,
+      MemberExpression = $__72.MemberExpression,
+      MemberLookupExpression = $__72.MemberLookupExpression,
+      Module = $__72.Module,
+      ModuleDeclaration = $__72.ModuleDeclaration,
+      ModuleSpecifier = $__72.ModuleSpecifier,
+      NamedExport = $__72.NamedExport,
+      NewExpression = $__72.NewExpression,
+      ObjectLiteralExpression = $__72.ObjectLiteralExpression,
+      ObjectPattern = $__72.ObjectPattern,
+      ObjectPatternField = $__72.ObjectPatternField,
+      ParenExpression = $__72.ParenExpression,
+      PostfixExpression = $__72.PostfixExpression,
+      PredefinedType = $__72.PredefinedType,
+      Script = $__72.Script,
+      PropertyMethodAssignment = $__72.PropertyMethodAssignment,
+      PropertyNameAssignment = $__72.PropertyNameAssignment,
+      PropertyNameShorthand = $__72.PropertyNameShorthand,
+      RestParameter = $__72.RestParameter,
+      ReturnStatement = $__72.ReturnStatement,
+      SetAccessor = $__72.SetAccessor,
+      SpreadExpression = $__72.SpreadExpression,
+      SpreadPatternElement = $__72.SpreadPatternElement,
+      SuperExpression = $__72.SuperExpression,
+      SwitchStatement = $__72.SwitchStatement,
+      SyntaxErrorTree = $__72.SyntaxErrorTree,
+      TemplateLiteralExpression = $__72.TemplateLiteralExpression,
+      TemplateLiteralPortion = $__72.TemplateLiteralPortion,
+      TemplateSubstitution = $__72.TemplateSubstitution,
+      ThisExpression = $__72.ThisExpression,
+      ThrowStatement = $__72.ThrowStatement,
+      TryStatement = $__72.TryStatement,
+      TypeName = $__72.TypeName,
+      UnaryExpression = $__72.UnaryExpression,
+      VariableDeclaration = $__72.VariableDeclaration,
+      VariableDeclarationList = $__72.VariableDeclarationList,
+      VariableStatement = $__72.VariableStatement,
+      WhileStatement = $__72.WhileStatement,
+      WithStatement = $__72.WithStatement,
+      YieldExpression = $__72.YieldExpression;
   var slice = Array.prototype.slice.call.bind(Array.prototype.slice);
   var map = Array.prototype.map.call.bind(Array.prototype.map);
   function createOperatorToken(operator) {
@@ -11380,7 +11212,7 @@ $traceurRuntime.registerModule("../src/codegeneration/ParseTreeFactory.js", func
   }
   function createStatementList(statementsOrHead) {
     for (var args = [],
-        $__75 = 1; $__75 < arguments.length; $__75++) args[$__75 - 1] = arguments[$__75];
+        $__70 = 1; $__70 < arguments.length; $__70++) args[$__70 - 1] = arguments[$__70];
     if (statementsOrHead instanceof Array) return $traceurRuntime.spread(statementsOrHead, args);
     return slice(arguments);
   }
@@ -11493,15 +11325,15 @@ $traceurRuntime.registerModule("../src/codegeneration/ParseTreeFactory.js", func
     return new BreakStatement(null, name);
   }
   function createCallCall(func, thisExpression, args, var_args) {
-    var $__78;
+    var $__73;
     if (args instanceof ParseTree) args = slice(arguments, 2);
     var builder = [thisExpression];
-    if (args)($__78 = builder).push.apply($__78, $traceurRuntime.toObject(args));
+    if (args)($__73 = builder).push.apply($__73, $traceurRuntime.toObject(args));
     return createCallExpression(createMemberExpression(func, CALL), createArgumentList(builder));
   }
   function createCallCallStatement(func, thisExpression) {
     for (var args = [],
-        $__76 = 2; $__76 < arguments.length; $__76++) args[$__76 - 2] = arguments[$__76];
+        $__71 = 2; $__71 < arguments.length; $__71++) args[$__71 - 2] = arguments[$__71];
     return createExpressionStatement(createCallCall(func, thisExpression, args));
   }
   function createCaseClause(expression, statements) {
@@ -12031,24 +11863,24 @@ $traceurRuntime.registerModule("../src/codegeneration/ParseTreeFactory.js", func
 }, this);
 $traceurRuntime.registerModule("../src/codegeneration/PrependStatements.js", function() {
   "use strict";
-  var $__80 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
-      EXPRESSION_STATEMENT = $__80.EXPRESSION_STATEMENT,
-      LITERAL_EXPRESSION = $__80.LITERAL_EXPRESSION;
+  var $__75 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
+      EXPRESSION_STATEMENT = $__75.EXPRESSION_STATEMENT,
+      LITERAL_EXPRESSION = $__75.LITERAL_EXPRESSION;
   var STRING = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js").STRING;
   function isStringExpressionStatement(tree) {
     return tree.type === EXPRESSION_STATEMENT && tree.expression.type === LITERAL_EXPRESSION && tree.expression.literalToken.type === STRING;
   }
   function prependStatements(statements) {
     for (var statementsToPrepend = [],
-        $__79 = 1; $__79 < arguments.length; $__79++) statementsToPrepend[$__79 - 1] = arguments[$__79];
+        $__74 = 1; $__74 < arguments.length; $__74++) statementsToPrepend[$__74 - 1] = arguments[$__74];
     if (!statements.length) return statementsToPrepend;
     if (!statementsToPrepend.length) return statements;
     var transformed = [];
     var inProlog = true;
     statements.forEach((function(statement) {
-      var $__81;
+      var $__76;
       if (inProlog && !isStringExpressionStatement(statement)) {
-        ($__81 = transformed).push.apply($__81, $traceurRuntime.toObject(statementsToPrepend));
+        ($__76 = transformed).push.apply($__76, $traceurRuntime.toObject(statementsToPrepend));
         inProlog = false;
       }
       transformed.push(statement);
@@ -12062,18 +11894,18 @@ $traceurRuntime.registerModule("../src/codegeneration/PrependStatements.js", fun
 $traceurRuntime.registerModule("../src/codegeneration/TempVarTransformer.js", function() {
   "use strict";
   var ParseTreeTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeTransformer.js").ParseTreeTransformer;
-  var $__83 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
-      Module = $__83.Module,
-      Script = $__83.Script;
+  var $__78 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
+      Module = $__78.Module,
+      Script = $__78.Script;
   var ARGUMENTS = $traceurRuntime.getModuleImpl("../src/syntax/PredefinedName.js").ARGUMENTS;
   var VAR = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js").VAR;
-  var $__83 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
-      createFunctionBody = $__83.createFunctionBody,
-      createThisExpression = $__83.createThisExpression,
-      createIdentifierExpression = $__83.createIdentifierExpression,
-      createVariableDeclaration = $__83.createVariableDeclaration,
-      createVariableDeclarationList = $__83.createVariableDeclarationList,
-      createVariableStatement = $__83.createVariableStatement;
+  var $__78 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
+      createFunctionBody = $__78.createFunctionBody,
+      createThisExpression = $__78.createThisExpression,
+      createIdentifierExpression = $__78.createIdentifierExpression,
+      createVariableDeclaration = $__78.createVariableDeclaration,
+      createVariableDeclarationList = $__78.createVariableDeclarationList,
+      createVariableStatement = $__78.createVariableStatement;
   var prependStatements = $traceurRuntime.getModuleImpl("../src/codegeneration/PrependStatements.js").prependStatements;
   function getVars(self) {
     var vars = self.tempVarStack_[self.tempVarStack_.length - 1];
@@ -12118,9 +11950,9 @@ $traceurRuntime.registerModule("../src/codegeneration/TempVarTransformer.js", fu
       if (!vars.length) return transformedStatements;
       var seenNames = Object.create(null);
       vars = vars.filter((function(tempVarStatement) {
-        var $__83 = tempVarStatement,
-            name = $__83.name,
-            initialiser = $__83.initialiser;
+        var $__78 = tempVarStatement,
+            name = $__78.name,
+            initialiser = $__78.initialiser;
         if (name in seenNames) {
           if (seenNames[name].initialiser || initialiser) throw new Error('Invalid use of TempVarTransformer');
           return false;
@@ -12128,9 +11960,9 @@ $traceurRuntime.registerModule("../src/codegeneration/TempVarTransformer.js", fu
         seenNames[name] = tempVarStatement;
         return true;
       }));
-      var variableStatement = createVariableStatement(createVariableDeclarationList(VAR, vars.map((function($__83) {
-        var name = $__83.name,
-            initialiser = $__83.initialiser;
+      var variableStatement = createVariableStatement(createVariableDeclarationList(VAR, vars.map((function($__78) {
+        var name = $__78.name,
+            initialiser = $__78.initialiser;
         return createVariableDeclaration(name, initialiser);
       }))));
       return prependStatements(transformedStatements, variableStatement);
@@ -12192,14 +12024,14 @@ $traceurRuntime.registerModule("../src/codegeneration/TempVarTransformer.js", fu
 }, this);
 $traceurRuntime.registerModule("../src/semantics/VariableBinder.js", function() {
   "use strict";
-  var $__85 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
-      ARRAY_PATTERN = $__85.ARRAY_PATTERN,
-      BINDING_IDENTIFIER = $__85.BINDING_IDENTIFIER,
-      FORMAL_PARAMETER = $__85.FORMAL_PARAMETER,
-      OBJECT_PATTERN = $__85.OBJECT_PATTERN,
-      OBJECT_PATTERN_FIELD = $__85.OBJECT_PATTERN_FIELD,
-      PAREN_EXPRESSION = $__85.PAREN_EXPRESSION,
-      SPREAD_PATTERN_ELEMENT = $__85.SPREAD_PATTERN_ELEMENT;
+  var $__80 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
+      ARRAY_PATTERN = $__80.ARRAY_PATTERN,
+      BINDING_IDENTIFIER = $__80.BINDING_IDENTIFIER,
+      FORMAL_PARAMETER = $__80.FORMAL_PARAMETER,
+      OBJECT_PATTERN = $__80.OBJECT_PATTERN,
+      OBJECT_PATTERN_FIELD = $__80.OBJECT_PATTERN_FIELD,
+      PAREN_EXPRESSION = $__80.PAREN_EXPRESSION,
+      SPREAD_PATTERN_ELEMENT = $__80.SPREAD_PATTERN_ELEMENT;
   var ParseTreeVisitor = $traceurRuntime.getModuleImpl("../src/syntax/ParseTreeVisitor.js").ParseTreeVisitor;
   var VAR = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js").VAR;
   var assert = $traceurRuntime.getModuleImpl("../src/util/assert.js").assert;
@@ -12316,17 +12148,17 @@ $traceurRuntime.registerModule("../src/semantics/VariableBinder.js", function() 
 }, this);
 $traceurRuntime.registerModule("../src/codegeneration/AlphaRenamer.js", function() {
   "use strict";
-  var $__87 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
-      FunctionDeclaration = $__87.FunctionDeclaration,
-      FunctionExpression = $__87.FunctionExpression;
+  var $__82 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
+      FunctionDeclaration = $__82.FunctionDeclaration,
+      FunctionExpression = $__82.FunctionExpression;
   var ParseTreeTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeTransformer.js").ParseTreeTransformer;
-  var $__87 = $traceurRuntime.getModuleImpl("../src/syntax/PredefinedName.js"),
-      ARGUMENTS = $__87.ARGUMENTS,
-      THIS = $__87.THIS;
+  var $__82 = $traceurRuntime.getModuleImpl("../src/syntax/PredefinedName.js"),
+      ARGUMENTS = $__82.ARGUMENTS,
+      THIS = $__82.THIS;
   var createIdentifierExpression = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js").createIdentifierExpression;
-  var $__87 = $traceurRuntime.getModuleImpl("../src/semantics/VariableBinder.js"),
-      variablesInBlock = $__87.variablesInBlock,
-      variablesInFunction = $__87.variablesInFunction;
+  var $__82 = $traceurRuntime.getModuleImpl("../src/semantics/VariableBinder.js"),
+      variablesInBlock = $__82.variablesInBlock,
+      variablesInFunction = $__82.variablesInFunction;
   var AlphaRenamer = function(oldName, newName) {
     $traceurRuntime.superCall(this, $AlphaRenamer.prototype, "constructor", []);
     this.oldName_ = oldName;
@@ -12429,9 +12261,9 @@ $traceurRuntime.registerModule("../src/codegeneration/FindInFunctionScope.js", f
 }, this);
 $traceurRuntime.registerModule("../src/codegeneration/alphaRenameThisAndArguments.js", function() {
   "use strict";
-  var $__93 = $traceurRuntime.getModuleImpl("../src/syntax/PredefinedName.js"),
-      ARGUMENTS = $__93.ARGUMENTS,
-      THIS = $__93.THIS;
+  var $__88 = $traceurRuntime.getModuleImpl("../src/syntax/PredefinedName.js"),
+      ARGUMENTS = $__88.ARGUMENTS,
+      THIS = $__88.THIS;
   var AlphaRenamer = $traceurRuntime.getModuleImpl("../src/codegeneration/AlphaRenamer.js").AlphaRenamer;
   var FindInFunctionScope = $traceurRuntime.getModuleImpl("../src/codegeneration/FindInFunctionScope.js").FindInFunctionScope;
   var FindThisOrArguments = function(tree) {
@@ -12472,20 +12304,20 @@ $traceurRuntime.registerModule("../src/codegeneration/ComprehensionTransformer.j
   var alphaRenameThisAndArguments = $traceurRuntime.getModuleImpl("../src/codegeneration/alphaRenameThisAndArguments.js").default;
   var FunctionExpression = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js").FunctionExpression;
   var TempVarTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/TempVarTransformer.js").TempVarTransformer;
-  var $__95 = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js"),
-      LET = $__95.LET,
-      VAR = $__95.VAR;
-  var $__95 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
-      COMPREHENSION_FOR = $__95.COMPREHENSION_FOR,
-      COMPREHENSION_IF = $__95.COMPREHENSION_IF;
-  var $__95 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
-      createCallExpression = $__95.createCallExpression,
-      createEmptyParameterList = $__95.createEmptyParameterList,
-      createForOfStatement = $__95.createForOfStatement,
-      createFunctionBody = $__95.createFunctionBody,
-      createIfStatement = $__95.createIfStatement,
-      createParenExpression = $__95.createParenExpression,
-      createVariableDeclarationList = $__95.createVariableDeclarationList;
+  var $__90 = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js"),
+      LET = $__90.LET,
+      VAR = $__90.VAR;
+  var $__90 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
+      COMPREHENSION_FOR = $__90.COMPREHENSION_FOR,
+      COMPREHENSION_IF = $__90.COMPREHENSION_IF;
+  var $__90 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
+      createCallExpression = $__90.createCallExpression,
+      createEmptyParameterList = $__90.createEmptyParameterList,
+      createForOfStatement = $__90.createForOfStatement,
+      createFunctionBody = $__90.createFunctionBody,
+      createIfStatement = $__90.createIfStatement,
+      createParenExpression = $__90.createParenExpression,
+      createVariableDeclarationList = $__90.createVariableDeclarationList;
   var options = $traceurRuntime.getModuleImpl("../src/options.js").options;
   var ComprehensionTransformer = function() {
     $traceurRuntime.defaultSuperCall(this, $ComprehensionTransformer.prototype, arguments);
@@ -12657,14 +12489,14 @@ $traceurRuntime.registerModule("../src/util/ErrorReporter.js", function() {
   ErrorReporter = ($traceurRuntime.createClass)(ErrorReporter, {
     reportError: function(location, format) {
       for (var args = [],
-          $__102 = 2; $__102 < arguments.length; $__102++) args[$__102 - 2] = arguments[$__102];
+          $__97 = 2; $__97 < arguments.length; $__97++) args[$__97 - 2] = arguments[$__97];
       this.hadError_ = true;
       this.reportMessageInternal(location, format, args);
     },
     reportMessageInternal: function(location, format, args) {
-      var $__103;
+      var $__98;
       if (location) format = (location + ": " + format);
-      ($__103 = console).error.apply($__103, $traceurRuntime.spread([format], args));
+      ($__98 = console).error.apply($__98, $traceurRuntime.spread([format], args));
     },
     hadError: function() {
       return this.hadError_;
@@ -12706,70 +12538,70 @@ $traceurRuntime.registerModule("../src/util/MutedErrorReporter.js", function() {
 $traceurRuntime.registerModule("../src/codegeneration/PlaceholderParser.js", function() {
   "use strict";
   var ArrayMap = $traceurRuntime.getModuleImpl("../src/util/ArrayMap.js").ArrayMap;
-  var $__111 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
-      ARGUMENT_LIST = $__111.ARGUMENT_LIST,
-      BLOCK = $__111.BLOCK,
-      EXPRESSION_STATEMENT = $__111.EXPRESSION_STATEMENT,
-      IDENTIFIER_EXPRESSION = $__111.IDENTIFIER_EXPRESSION;
+  var $__106 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
+      ARGUMENT_LIST = $__106.ARGUMENT_LIST,
+      BLOCK = $__106.BLOCK,
+      EXPRESSION_STATEMENT = $__106.EXPRESSION_STATEMENT,
+      IDENTIFIER_EXPRESSION = $__106.IDENTIFIER_EXPRESSION;
   var IdentifierToken = $traceurRuntime.getModuleImpl("../src/syntax/IdentifierToken.js").IdentifierToken;
   var LiteralToken = $traceurRuntime.getModuleImpl("../src/syntax/LiteralToken.js").LiteralToken;
   var MutedErrorReporter = $traceurRuntime.getModuleImpl("../src/util/MutedErrorReporter.js").MutedErrorReporter;
   var ParseTree = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTree.js").ParseTree;
   var ParseTreeTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeTransformer.js").ParseTreeTransformer;
   var Parser = $traceurRuntime.getModuleImpl("../src/syntax/Parser.js").Parser;
-  var $__111 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
-      LiteralExpression = $__111.LiteralExpression,
-      LiteralPropertyName = $__111.LiteralPropertyName,
-      PropertyMethodAssignment = $__111.PropertyMethodAssignment,
-      PropertyNameAssignment = $__111.PropertyNameAssignment,
-      PropertyNameShorthand = $__111.PropertyNameShorthand;
+  var $__106 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
+      LiteralExpression = $__106.LiteralExpression,
+      LiteralPropertyName = $__106.LiteralPropertyName,
+      PropertyMethodAssignment = $__106.PropertyMethodAssignment,
+      PropertyNameAssignment = $__106.PropertyNameAssignment,
+      PropertyNameShorthand = $__106.PropertyNameShorthand;
   var SourceFile = $traceurRuntime.getModuleImpl("../src/syntax/SourceFile.js").SourceFile;
   var IDENTIFIER = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js").IDENTIFIER;
-  var $__111 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
-      createArrayLiteralExpression = $__111.createArrayLiteralExpression,
-      createBindingIdentifier = $__111.createBindingIdentifier,
-      createBlock = $__111.createBlock,
-      createBooleanLiteral = $__111.createBooleanLiteral,
-      createCommaExpression = $__111.createCommaExpression,
-      createExpressionStatement = $__111.createExpressionStatement,
-      createFunctionBody = $__111.createFunctionBody,
-      createGetAccessor = $__111.createGetAccessor,
-      createIdentifierExpression = $__111.createIdentifierExpression,
-      createIdentifierToken = $__111.createIdentifierToken,
-      createMemberExpression = $__111.createMemberExpression,
-      createNullLiteral = $__111.createNullLiteral,
-      createNumberLiteral = $__111.createNumberLiteral,
-      createParenExpression = $__111.createParenExpression,
-      createSetAccessor = $__111.createSetAccessor,
-      createStringLiteral = $__111.createStringLiteral,
-      createVoid0 = $__111.createVoid0;
+  var $__106 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
+      createArrayLiteralExpression = $__106.createArrayLiteralExpression,
+      createBindingIdentifier = $__106.createBindingIdentifier,
+      createBlock = $__106.createBlock,
+      createBooleanLiteral = $__106.createBooleanLiteral,
+      createCommaExpression = $__106.createCommaExpression,
+      createExpressionStatement = $__106.createExpressionStatement,
+      createFunctionBody = $__106.createFunctionBody,
+      createGetAccessor = $__106.createGetAccessor,
+      createIdentifierExpression = $__106.createIdentifierExpression,
+      createIdentifierToken = $__106.createIdentifierToken,
+      createMemberExpression = $__106.createMemberExpression,
+      createNullLiteral = $__106.createNullLiteral,
+      createNumberLiteral = $__106.createNumberLiteral,
+      createParenExpression = $__106.createParenExpression,
+      createSetAccessor = $__106.createSetAccessor,
+      createStringLiteral = $__106.createStringLiteral,
+      createVoid0 = $__106.createVoid0;
   var NOT_FOUND = {};
   var PREFIX = '$__placeholder__';
   var cache = new ArrayMap();
   function parseExpression(sourceLiterals) {
     for (var values = [],
-        $__107 = 1; $__107 < arguments.length; $__107++) values[$__107 - 1] = arguments[$__107];
+        $__102 = 1; $__102 < arguments.length; $__102++) values[$__102 - 1] = arguments[$__102];
     return parse(sourceLiterals, values, (function() {
       return new PlaceholderParser().parseExpression(sourceLiterals);
     }));
   }
   function parseStatement(sourceLiterals) {
     for (var values = [],
-        $__108 = 1; $__108 < arguments.length; $__108++) values[$__108 - 1] = arguments[$__108];
+        $__103 = 1; $__103 < arguments.length; $__103++) values[$__103 - 1] = arguments[$__103];
     return parse(sourceLiterals, values, (function() {
       return new PlaceholderParser().parseStatement(sourceLiterals);
     }));
   }
   function parseStatements(sourceLiterals) {
     for (var values = [],
-        $__109 = 1; $__109 < arguments.length; $__109++) values[$__109 - 1] = arguments[$__109];
+        $__104 = 1; $__104 < arguments.length; $__104++) values[$__104 - 1] = arguments[$__104];
     return parse(sourceLiterals, values, (function() {
       return new PlaceholderParser().parseStatements(sourceLiterals);
     }));
   }
   function parsePropertyDefinition(sourceLiterals) {
     for (var values = [],
-        $__110 = 1; $__110 < arguments.length; $__110++) values[$__110 - 1] = arguments[$__110];
+        $__105 = 1; $__105 < arguments.length; $__105++) values[$__105 - 1] = arguments[$__105];
     return parse(sourceLiterals, values, (function() {
       return new PlaceholderParser().parsePropertyDefinition(sourceLiterals);
     }));
@@ -12941,9 +12773,9 @@ $traceurRuntime.registerModule("../src/codegeneration/PlaceholderParser.js", fun
 }, this);
 $traceurRuntime.registerModule("../src/codegeneration/ArrayComprehensionTransformer.js", function() {
   "use strict";
-  var $__112 = Object.freeze(Object.defineProperties(["var ", " = 0, ", " = [];"], {raw: {value: Object.freeze(["var ", " = 0, ", " = [];"])}})),
-      $__113 = Object.freeze(Object.defineProperties(["", "[", "++] = ", ";"], {raw: {value: Object.freeze(["", "[", "++] = ", ";"])}})),
-      $__114 = Object.freeze(Object.defineProperties(["return ", ";"], {raw: {value: Object.freeze(["return ", ";"])}}));
+  var $__107 = Object.freeze(Object.defineProperties(["var ", " = 0, ", " = [];"], {raw: {value: Object.freeze(["var ", " = 0, ", " = [];"])}})),
+      $__108 = Object.freeze(Object.defineProperties(["", "[", "++] = ", ";"], {raw: {value: Object.freeze(["", "[", "++] = ", ";"])}})),
+      $__109 = Object.freeze(Object.defineProperties(["return ", ";"], {raw: {value: Object.freeze(["return ", ";"])}}));
   var ComprehensionTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ComprehensionTransformer.js").ComprehensionTransformer;
   var createIdentifierExpression = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js").createIdentifierExpression;
   var parseStatement = $traceurRuntime.getModuleImpl("../src/codegeneration/PlaceholderParser.js").parseStatement;
@@ -12955,9 +12787,9 @@ $traceurRuntime.registerModule("../src/codegeneration/ArrayComprehensionTransfor
       var expression = this.transformAny(tree.expression);
       var index = createIdentifierExpression(this.getTempIdentifier());
       var result = createIdentifierExpression(this.getTempIdentifier());
-      var tempVarsStatatement = parseStatement($__112, index, result);
-      var statement = parseStatement($__113, result, index, expression);
-      var returnStatement = parseStatement($__114, result);
+      var tempVarsStatatement = parseStatement($__107, index, result);
+      var statement = parseStatement($__108, result, index, expression);
+      var returnStatement = parseStatement($__109, result);
       var isGenerator = false;
       var result = this.transformComprehension(tree, statement, isGenerator, tempVarsStatatement, returnStatement);
       this.popTempVarState();
@@ -12971,15 +12803,15 @@ $traceurRuntime.registerModule("../src/codegeneration/ArrowFunctionTransformer.j
   "use strict";
   var FormalParameterList = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js").FormalParameterList;
   var TempVarTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/TempVarTransformer.js").TempVarTransformer;
-  var $__118 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
-      FUNCTION_BODY = $__118.FUNCTION_BODY,
-      FUNCTION_EXPRESSION = $__118.FUNCTION_EXPRESSION;
+  var $__113 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
+      FUNCTION_BODY = $__113.FUNCTION_BODY,
+      FUNCTION_EXPRESSION = $__113.FUNCTION_EXPRESSION;
   var alphaRenameThisAndArguments = $traceurRuntime.getModuleImpl("../src/codegeneration/alphaRenameThisAndArguments.js").default;
-  var $__118 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
-      createFunctionBody = $__118.createFunctionBody,
-      createFunctionExpression = $__118.createFunctionExpression,
-      createParenExpression = $__118.createParenExpression,
-      createReturnStatement = $__118.createReturnStatement;
+  var $__113 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
+      createFunctionBody = $__113.createFunctionBody,
+      createFunctionExpression = $__113.createFunctionExpression,
+      createParenExpression = $__113.createParenExpression,
+      createReturnStatement = $__113.createReturnStatement;
   var ArrowFunctionTransformer = function() {
     $traceurRuntime.defaultSuperCall(this, $ArrowFunctionTransformer.prototype, arguments);
   };
@@ -13004,37 +12836,37 @@ $traceurRuntime.registerModule("../src/codegeneration/ArrowFunctionTransformer.j
 $traceurRuntime.registerModule("../src/codegeneration/BlockBindingTransformer.js", function() {
   "use strict";
   var AlphaRenamer = $traceurRuntime.getModuleImpl("../src/codegeneration/AlphaRenamer.js").AlphaRenamer;
-  var $__121 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
-      BINDING_IDENTIFIER = $__121.BINDING_IDENTIFIER,
-      BLOCK = $__121.BLOCK,
-      VARIABLE_DECLARATION_LIST = $__121.VARIABLE_DECLARATION_LIST;
-  var $__121 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
-      FunctionDeclaration = $__121.FunctionDeclaration,
-      FunctionExpression = $__121.FunctionExpression;
+  var $__116 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
+      BINDING_IDENTIFIER = $__116.BINDING_IDENTIFIER,
+      BLOCK = $__116.BLOCK,
+      VARIABLE_DECLARATION_LIST = $__116.VARIABLE_DECLARATION_LIST;
+  var $__116 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
+      FunctionDeclaration = $__116.FunctionDeclaration,
+      FunctionExpression = $__116.FunctionExpression;
   var ParseTreeTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeTransformer.js").ParseTreeTransformer;
-  var $__121 = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js"),
-      CONST = $__121.CONST,
-      LET = $__121.LET,
-      VAR = $__121.VAR;
-  var $__121 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
-      createAssignmentExpression = $__121.createAssignmentExpression,
-      createBindingIdentifier = $__121.createBindingIdentifier,
-      createBlock = $__121.createBlock,
-      createCatch = $__121.createCatch,
-      createEmptyStatement = $__121.createEmptyStatement,
-      createExpressionStatement = $__121.createExpressionStatement,
-      createFinally = $__121.createFinally,
-      createForInStatement = $__121.createForInStatement,
-      createForStatement = $__121.createForStatement,
-      createFunctionBody = $__121.createFunctionBody,
-      createIdentifierExpression = $__121.createIdentifierExpression,
-      createIdentifierToken = $__121.createIdentifierToken,
-      createThrowStatement = $__121.createThrowStatement,
-      createTryStatement = $__121.createTryStatement,
-      createUndefinedExpression = $__121.createUndefinedExpression,
-      createVariableDeclaration = $__121.createVariableDeclaration,
-      createVariableDeclarationList = $__121.createVariableDeclarationList,
-      createVariableStatement = $__121.createVariableStatement;
+  var $__116 = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js"),
+      CONST = $__116.CONST,
+      LET = $__116.LET,
+      VAR = $__116.VAR;
+  var $__116 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
+      createAssignmentExpression = $__116.createAssignmentExpression,
+      createBindingIdentifier = $__116.createBindingIdentifier,
+      createBlock = $__116.createBlock,
+      createCatch = $__116.createCatch,
+      createEmptyStatement = $__116.createEmptyStatement,
+      createExpressionStatement = $__116.createExpressionStatement,
+      createFinally = $__116.createFinally,
+      createForInStatement = $__116.createForInStatement,
+      createForStatement = $__116.createForStatement,
+      createFunctionBody = $__116.createFunctionBody,
+      createIdentifierExpression = $__116.createIdentifierExpression,
+      createIdentifierToken = $__116.createIdentifierToken,
+      createThrowStatement = $__116.createThrowStatement,
+      createTryStatement = $__116.createTryStatement,
+      createUndefinedExpression = $__116.createUndefinedExpression,
+      createVariableDeclaration = $__116.createVariableDeclaration,
+      createVariableDeclarationList = $__116.createVariableDeclarationList,
+      createVariableStatement = $__116.createVariableStatement;
   var ScopeType = {
     SCRIPT: 'SCRIPT',
     FUNCTION: 'FUNCTION',
@@ -13190,13 +13022,13 @@ $traceurRuntime.registerModule("../src/codegeneration/BlockBindingTransformer.js
       return result;
     },
     transformForLet_: function(tree, variables) {
-      var $__119 = this;
+      var $__114 = this;
       var copyFwd = [];
       var copyBak = [];
       var hoisted = [];
       var renames = [];
       variables.declarations.forEach((function(variable) {
-        var variableName = $__119.getVariableName_(variable);
+        var variableName = $__114.getVariableName_(variable);
         var hoistedName = ("$" + variableName);
         var initialiser = renameAll(renames, variable.initialiser);
         hoisted.push(createVariableDeclaration(hoistedName, initialiser));
@@ -13250,7 +13082,7 @@ $traceurRuntime.registerModule("../src/codegeneration/BlockBindingTransformer.js
       return tree;
     },
     transformBlockVariables_: function(tree) {
-      var $__119 = this;
+      var $__114 = this;
       var variables = tree.declarations;
       var comma = [];
       variables.forEach((function(variable) {
@@ -13261,9 +13093,9 @@ $traceurRuntime.registerModule("../src/codegeneration/BlockBindingTransformer.js
           default:
             throw new Error('Only let/const allowed here.');
         }
-        var variableName = $__119.getVariableName_(variable);
-        $__119.scope_.addBlockScopedVariable(variableName);
-        var initialiser = $__119.transformAny(variable.initialiser);
+        var variableName = $__114.getVariableName_(variable);
+        $__114.scope_.addBlockScopedVariable(variableName);
+        var initialiser = $__114.transformAny(variable.initialiser);
         if (initialiser != null) {
           comma.push(createAssignmentExpression(createIdentifierExpression(variableName), initialiser));
         }
@@ -13330,11 +13162,11 @@ $traceurRuntime.registerModule("../src/codegeneration/BlockBindingTransformer.js
 }, this);
 $traceurRuntime.registerModule("../src/semantics/util.js", function() {
   "use strict";
-  var $__122 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
-      IDENTIFIER_EXPRESSION = $__122.IDENTIFIER_EXPRESSION,
-      LITERAL_EXPRESSION = $__122.LITERAL_EXPRESSION,
-      PAREN_EXPRESSION = $__122.PAREN_EXPRESSION,
-      UNARY_EXPRESSION = $__122.UNARY_EXPRESSION;
+  var $__117 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
+      IDENTIFIER_EXPRESSION = $__117.IDENTIFIER_EXPRESSION,
+      LITERAL_EXPRESSION = $__117.LITERAL_EXPRESSION,
+      PAREN_EXPRESSION = $__117.PAREN_EXPRESSION,
+      UNARY_EXPRESSION = $__117.UNARY_EXPRESSION;
   var UNDEFINED = $traceurRuntime.getModuleImpl("../src/syntax/PredefinedName.js").UNDEFINED;
   var VOID = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js").VOID;
   function hasUseStrict(list) {
@@ -13373,14 +13205,14 @@ $traceurRuntime.registerModule("../src/semantics/util.js", function() {
 }, this);
 $traceurRuntime.registerModule("../src/staticsemantics/PropName.js", function() {
   "use strict";
-  var $__123 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
-      COMPUTED_PROPERTY_NAME = $__123.COMPUTED_PROPERTY_NAME,
-      GET_ACCESSOR = $__123.GET_ACCESSOR,
-      LITERAL_PROPERTY_NAME = $__123.LITERAL_PROPERTY_NAME,
-      PROPERTY_METHOD_ASSIGNMENT = $__123.PROPERTY_METHOD_ASSIGNMENT,
-      PROPERTY_NAME_ASSIGNMENT = $__123.PROPERTY_NAME_ASSIGNMENT,
-      PROPERTY_NAME_SHORTHAND = $__123.PROPERTY_NAME_SHORTHAND,
-      SET_ACCESSOR = $__123.SET_ACCESSOR;
+  var $__118 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
+      COMPUTED_PROPERTY_NAME = $__118.COMPUTED_PROPERTY_NAME,
+      GET_ACCESSOR = $__118.GET_ACCESSOR,
+      LITERAL_PROPERTY_NAME = $__118.LITERAL_PROPERTY_NAME,
+      PROPERTY_METHOD_ASSIGNMENT = $__118.PROPERTY_METHOD_ASSIGNMENT,
+      PROPERTY_NAME_ASSIGNMENT = $__118.PROPERTY_NAME_ASSIGNMENT,
+      PROPERTY_NAME_SHORTHAND = $__118.PROPERTY_NAME_SHORTHAND,
+      SET_ACCESSOR = $__118.SET_ACCESSOR;
   var IDENTIFIER = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js").IDENTIFIER;
   function propName(tree) {
     switch (tree.type) {
@@ -13405,9 +13237,9 @@ $traceurRuntime.registerModule("../src/staticsemantics/PropName.js", function() 
 }, this);
 $traceurRuntime.registerModule("../src/codegeneration/MakeStrictTransformer.js", function() {
   "use strict";
-  var $__125 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
-      FunctionBody = $__125.FunctionBody,
-      Script = $__125.Script;
+  var $__120 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
+      FunctionBody = $__120.FunctionBody,
+      Script = $__120.Script;
   var ParseTreeTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeTransformer.js").ParseTreeTransformer;
   var createUseStrictDirective = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js").createUseStrictDirective;
   var hasUseStrict = $traceurRuntime.getModuleImpl("../src/semantics/util.js").hasUseStrict;
@@ -13435,41 +13267,41 @@ $traceurRuntime.registerModule("../src/codegeneration/MakeStrictTransformer.js",
 }, this);
 $traceurRuntime.registerModule("../src/codegeneration/OperatorExpander.js", function() {
   "use strict";
-  var $__126 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
-      IDENTIFIER_EXPRESSION = $__126.IDENTIFIER_EXPRESSION,
-      SUPER_EXPRESSION = $__126.SUPER_EXPRESSION;
-  var $__126 = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js"),
-      AMPERSAND = $__126.AMPERSAND,
-      AMPERSAND_EQUAL = $__126.AMPERSAND_EQUAL,
-      BAR = $__126.BAR,
-      BAR_EQUAL = $__126.BAR_EQUAL,
-      CARET = $__126.CARET,
-      CARET_EQUAL = $__126.CARET_EQUAL,
-      LEFT_SHIFT = $__126.LEFT_SHIFT,
-      LEFT_SHIFT_EQUAL = $__126.LEFT_SHIFT_EQUAL,
-      MINUS = $__126.MINUS,
-      MINUS_EQUAL = $__126.MINUS_EQUAL,
-      PERCENT = $__126.PERCENT,
-      PERCENT_EQUAL = $__126.PERCENT_EQUAL,
-      PLUS = $__126.PLUS,
-      PLUS_EQUAL = $__126.PLUS_EQUAL,
-      RIGHT_SHIFT = $__126.RIGHT_SHIFT,
-      RIGHT_SHIFT_EQUAL = $__126.RIGHT_SHIFT_EQUAL,
-      SLASH = $__126.SLASH,
-      SLASH_EQUAL = $__126.SLASH_EQUAL,
-      STAR = $__126.STAR,
-      STAR_EQUAL = $__126.STAR_EQUAL,
-      UNSIGNED_RIGHT_SHIFT = $__126.UNSIGNED_RIGHT_SHIFT,
-      UNSIGNED_RIGHT_SHIFT_EQUAL = $__126.UNSIGNED_RIGHT_SHIFT_EQUAL;
-  var $__126 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
-      createAssignmentExpression = $__126.createAssignmentExpression,
-      createBinaryOperator = $__126.createBinaryOperator,
-      createCommaExpression = $__126.createCommaExpression,
-      createIdentifierExpression = $__126.createIdentifierExpression,
-      createMemberExpression = $__126.createMemberExpression,
-      createMemberLookupExpression = $__126.createMemberLookupExpression,
-      createOperatorToken = $__126.createOperatorToken,
-      createParenExpression = $__126.createParenExpression;
+  var $__121 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
+      IDENTIFIER_EXPRESSION = $__121.IDENTIFIER_EXPRESSION,
+      SUPER_EXPRESSION = $__121.SUPER_EXPRESSION;
+  var $__121 = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js"),
+      AMPERSAND = $__121.AMPERSAND,
+      AMPERSAND_EQUAL = $__121.AMPERSAND_EQUAL,
+      BAR = $__121.BAR,
+      BAR_EQUAL = $__121.BAR_EQUAL,
+      CARET = $__121.CARET,
+      CARET_EQUAL = $__121.CARET_EQUAL,
+      LEFT_SHIFT = $__121.LEFT_SHIFT,
+      LEFT_SHIFT_EQUAL = $__121.LEFT_SHIFT_EQUAL,
+      MINUS = $__121.MINUS,
+      MINUS_EQUAL = $__121.MINUS_EQUAL,
+      PERCENT = $__121.PERCENT,
+      PERCENT_EQUAL = $__121.PERCENT_EQUAL,
+      PLUS = $__121.PLUS,
+      PLUS_EQUAL = $__121.PLUS_EQUAL,
+      RIGHT_SHIFT = $__121.RIGHT_SHIFT,
+      RIGHT_SHIFT_EQUAL = $__121.RIGHT_SHIFT_EQUAL,
+      SLASH = $__121.SLASH,
+      SLASH_EQUAL = $__121.SLASH_EQUAL,
+      STAR = $__121.STAR,
+      STAR_EQUAL = $__121.STAR_EQUAL,
+      UNSIGNED_RIGHT_SHIFT = $__121.UNSIGNED_RIGHT_SHIFT,
+      UNSIGNED_RIGHT_SHIFT_EQUAL = $__121.UNSIGNED_RIGHT_SHIFT_EQUAL;
+  var $__121 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
+      createAssignmentExpression = $__121.createAssignmentExpression,
+      createBinaryOperator = $__121.createBinaryOperator,
+      createCommaExpression = $__121.createCommaExpression,
+      createIdentifierExpression = $__121.createIdentifierExpression,
+      createMemberExpression = $__121.createMemberExpression,
+      createMemberLookupExpression = $__121.createMemberLookupExpression,
+      createOperatorToken = $__121.createOperatorToken,
+      createParenExpression = $__121.createParenExpression;
   function getBinaryOperator(type) {
     switch (type) {
       case STAR_EQUAL:
@@ -13534,28 +13366,28 @@ $traceurRuntime.registerModule("../src/codegeneration/OperatorExpander.js", func
 }, this);
 $traceurRuntime.registerModule("../src/codegeneration/SuperTransformer.js", function() {
   "use strict";
-  var $__127 = Object.freeze(Object.defineProperties(["$traceurRuntime.superCall(", ",\n                                                      ", ",\n                                                      ", ",\n                                                      ", ")"], {raw: {value: Object.freeze(["$traceurRuntime.superCall(", ",\n                                                      ", ",\n                                                      ", ",\n                                                      ", ")"])}})),
-      $__128 = Object.freeze(Object.defineProperties(["$traceurRuntime.superGet(", ",\n                                                     ", ",\n                                                     ", ")"], {raw: {value: Object.freeze(["$traceurRuntime.superGet(", ",\n                                                     ", ",\n                                                     ", ")"])}})),
-      $__129 = Object.freeze(Object.defineProperties(["$traceurRuntime.superSet(", ",\n                                                       ", ",\n                                                       ", ",\n                                                       ", ")"], {raw: {value: Object.freeze(["$traceurRuntime.superSet(", ",\n                                                       ", ",\n                                                       ", ",\n                                                       ", ")"])}}));
-  var $__132 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
-      FunctionDeclaration = $__132.FunctionDeclaration,
-      FunctionExpression = $__132.FunctionExpression;
-  var $__132 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
-      LITERAL_PROPERTY_NAME = $__132.LITERAL_PROPERTY_NAME,
-      MEMBER_EXPRESSION = $__132.MEMBER_EXPRESSION,
-      MEMBER_LOOKUP_EXPRESSION = $__132.MEMBER_LOOKUP_EXPRESSION,
-      SUPER_EXPRESSION = $__132.SUPER_EXPRESSION;
+  var $__122 = Object.freeze(Object.defineProperties(["$traceurRuntime.superCall(", ",\n                                                      ", ",\n                                                      ", ",\n                                                      ", ")"], {raw: {value: Object.freeze(["$traceurRuntime.superCall(", ",\n                                                      ", ",\n                                                      ", ",\n                                                      ", ")"])}})),
+      $__123 = Object.freeze(Object.defineProperties(["$traceurRuntime.superGet(", ",\n                                                     ", ",\n                                                     ", ")"], {raw: {value: Object.freeze(["$traceurRuntime.superGet(", ",\n                                                     ", ",\n                                                     ", ")"])}})),
+      $__124 = Object.freeze(Object.defineProperties(["$traceurRuntime.superSet(", ",\n                                                       ", ",\n                                                       ", ",\n                                                       ", ")"], {raw: {value: Object.freeze(["$traceurRuntime.superSet(", ",\n                                                       ", ",\n                                                       ", ",\n                                                       ", ")"])}}));
+  var $__127 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
+      FunctionDeclaration = $__127.FunctionDeclaration,
+      FunctionExpression = $__127.FunctionExpression;
+  var $__127 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
+      LITERAL_PROPERTY_NAME = $__127.LITERAL_PROPERTY_NAME,
+      MEMBER_EXPRESSION = $__127.MEMBER_EXPRESSION,
+      MEMBER_LOOKUP_EXPRESSION = $__127.MEMBER_LOOKUP_EXPRESSION,
+      SUPER_EXPRESSION = $__127.SUPER_EXPRESSION;
   var ParseTreeTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeTransformer.js").ParseTreeTransformer;
   var EQUAL = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js").EQUAL;
   var assert = $traceurRuntime.getModuleImpl("../src/util/assert.js").assert;
-  var $__132 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
-      createArrayLiteralExpression = $__132.createArrayLiteralExpression,
-      createIdentifierExpression = $__132.createIdentifierExpression,
-      createStringLiteral = $__132.createStringLiteral,
-      createThisExpression = $__132.createThisExpression;
-  var $__132 = $traceurRuntime.getModuleImpl("../src/codegeneration/OperatorExpander.js"),
-      expandMemberExpression = $__132.expandMemberExpression,
-      expandMemberLookupExpression = $__132.expandMemberLookupExpression;
+  var $__127 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
+      createArrayLiteralExpression = $__127.createArrayLiteralExpression,
+      createIdentifierExpression = $__127.createIdentifierExpression,
+      createStringLiteral = $__127.createStringLiteral,
+      createThisExpression = $__127.createThisExpression;
+  var $__127 = $traceurRuntime.getModuleImpl("../src/codegeneration/OperatorExpander.js"),
+      expandMemberExpression = $__127.expandMemberExpression,
+      expandMemberLookupExpression = $__127.expandMemberLookupExpression;
   var parseExpression = $traceurRuntime.getModuleImpl("../src/codegeneration/PlaceholderParser.js").parseExpression;
   var SuperTransformer = function(tempVarTransformer, reporter, protoName, methodTree, thisName) {
     this.tempVarTransformer_ = tempVarTransformer;
@@ -13618,11 +13450,11 @@ $traceurRuntime.registerModule("../src/codegeneration/SuperTransformer.js", func
       return this.createSuperCallExpression(thisExpr, this.protoName_, methodName, args);
     },
     createSuperCallExpression: function(thisExpr, protoName, methodName, args) {
-      return parseExpression($__127, thisExpr, protoName, methodName, args);
+      return parseExpression($__122, thisExpr, protoName, methodName, args);
     },
     transformMemberShared_: function(tree, name) {
       var thisExpr = this.inNestedFunc_ ? this.thisVar_: createThisExpression();
-      return parseExpression($__128, thisExpr, this.protoName_, name);
+      return parseExpression($__123, thisExpr, this.protoName_, name);
     },
     transformMemberExpression: function(tree) {
       if (tree.operand.type === SUPER_EXPRESSION) {
@@ -13649,7 +13481,7 @@ $traceurRuntime.registerModule("../src/codegeneration/SuperTransformer.js", func
         var name = tree.left.type === MEMBER_LOOKUP_EXPRESSION ? tree.left.memberExpression: createStringLiteral(tree.left.memberName.value);
         var thisExpr = this.inNestedFunc_ ? this.thisVar_: createThisExpression();
         var right = this.transformAny(tree.right);
-        return parseExpression($__129, thisExpr, this.protoName_, name, right);
+        return parseExpression($__124, thisExpr, this.protoName_, name, right);
       }
       return $traceurRuntime.superCall(this, $SuperTransformer.prototype, "transformBinaryOperator", [tree]);
     },
@@ -13658,10 +13490,10 @@ $traceurRuntime.registerModule("../src/codegeneration/SuperTransformer.js", func
       return tree;
     },
     reportError_: function(tree) {
-      var $__133;
+      var $__128;
       for (var args = [],
-          $__131 = 1; $__131 < arguments.length; $__131++) args[$__131 - 1] = arguments[$__131];
-      ($__133 = this.reporter_).reportError.apply($__133, $traceurRuntime.spread([tree.location.start], args));
+          $__126 = 1; $__126 < arguments.length; $__126++) args[$__126 - 1] = arguments[$__126];
+      ($__128 = this.reporter_).reportError.apply($__128, $traceurRuntime.spread([tree.location.start], args));
     }
   }, {}, ParseTreeTransformer);
   return {get SuperTransformer() {
@@ -13670,50 +13502,50 @@ $traceurRuntime.registerModule("../src/codegeneration/SuperTransformer.js", func
 }, this);
 $traceurRuntime.registerModule("../src/codegeneration/ClassTransformer.js", function() {
   "use strict";
-  var $__134 = Object.freeze(Object.defineProperties(["($traceurRuntime.createClass)(", ", ", ", ", ",\n                                       ", ")"], {raw: {value: Object.freeze(["($traceurRuntime.createClass)(", ", ", ", ", ",\n                                       ", ")"])}})),
-      $__135 = Object.freeze(Object.defineProperties(["($traceurRuntime.createClass)(", ", ", ", ", ")"], {raw: {value: Object.freeze(["($traceurRuntime.createClass)(", ", ", ", ", ")"])}})),
-      $__136 = Object.freeze(Object.defineProperties(["var ", " = ", ""], {raw: {value: Object.freeze(["var ", " = ", ""])}})),
-      $__137 = Object.freeze(Object.defineProperties(["var ", " = ", ""], {raw: {value: Object.freeze(["var ", " = ", ""])}})),
-      $__138 = Object.freeze(Object.defineProperties(["", " = ", ""], {raw: {value: Object.freeze(["", " = ", ""])}})),
-      $__139 = Object.freeze(Object.defineProperties(["function($__super) {\n        var ", " = ", ";\n        return ($traceurRuntime.createClass)(", ", ", ",\n                                             ", ", $__super);\n      }(", ")"], {raw: {value: Object.freeze(["function($__super) {\n        var ", " = ", ";\n        return ($traceurRuntime.createClass)(", ", ", ",\n                                             ", ", $__super);\n      }(", ")"])}})),
-      $__140 = Object.freeze(Object.defineProperties(["function() {\n        var ", " = ", ";\n        return ($traceurRuntime.createClass)(", ", ", ",\n                                             ", ");\n      }()"], {raw: {value: Object.freeze(["function() {\n        var ", " = ", ";\n        return ($traceurRuntime.createClass)(", ", ", ",\n                                             ", ");\n      }()"])}})),
-      $__141 = Object.freeze(Object.defineProperties(["$traceurRuntime.defaultSuperCall(this, ", ".prototype,\n                                            arguments)"], {raw: {value: Object.freeze(["$traceurRuntime.defaultSuperCall(this, ", ".prototype,\n                                            arguments)"])}}));
+  var $__129 = Object.freeze(Object.defineProperties(["($traceurRuntime.createClass)(", ", ", ", ", ",\n                                       ", ")"], {raw: {value: Object.freeze(["($traceurRuntime.createClass)(", ", ", ", ", ",\n                                       ", ")"])}})),
+      $__130 = Object.freeze(Object.defineProperties(["($traceurRuntime.createClass)(", ", ", ", ", ")"], {raw: {value: Object.freeze(["($traceurRuntime.createClass)(", ", ", ", ", ")"])}})),
+      $__131 = Object.freeze(Object.defineProperties(["var ", " = ", ""], {raw: {value: Object.freeze(["var ", " = ", ""])}})),
+      $__132 = Object.freeze(Object.defineProperties(["var ", " = ", ""], {raw: {value: Object.freeze(["var ", " = ", ""])}})),
+      $__133 = Object.freeze(Object.defineProperties(["", " = ", ""], {raw: {value: Object.freeze(["", " = ", ""])}})),
+      $__134 = Object.freeze(Object.defineProperties(["function($__super) {\n        var ", " = ", ";\n        return ($traceurRuntime.createClass)(", ", ", ",\n                                             ", ", $__super);\n      }(", ")"], {raw: {value: Object.freeze(["function($__super) {\n        var ", " = ", ";\n        return ($traceurRuntime.createClass)(", ", ", ",\n                                             ", ", $__super);\n      }(", ")"])}})),
+      $__135 = Object.freeze(Object.defineProperties(["function() {\n        var ", " = ", ";\n        return ($traceurRuntime.createClass)(", ", ", ",\n                                             ", ");\n      }()"], {raw: {value: Object.freeze(["function() {\n        var ", " = ", ";\n        return ($traceurRuntime.createClass)(", ", ", ",\n                                             ", ");\n      }()"])}})),
+      $__136 = Object.freeze(Object.defineProperties(["$traceurRuntime.defaultSuperCall(this, ", ".prototype,\n                                            arguments)"], {raw: {value: Object.freeze(["$traceurRuntime.defaultSuperCall(this, ", ".prototype,\n                                            arguments)"])}}));
   var CONSTRUCTOR = $traceurRuntime.getModuleImpl("../src/syntax/PredefinedName.js").CONSTRUCTOR;
-  var $__144 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
-      AnonBlock = $__144.AnonBlock,
-      ExportDeclaration = $__144.ExportDeclaration,
-      FunctionExpression = $__144.FunctionExpression,
-      GetAccessor = $__144.GetAccessor,
-      PropertyMethodAssignment = $__144.PropertyMethodAssignment,
-      SetAccessor = $__144.SetAccessor;
-  var $__144 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
-      GET_ACCESSOR = $__144.GET_ACCESSOR,
-      PROPERTY_METHOD_ASSIGNMENT = $__144.PROPERTY_METHOD_ASSIGNMENT,
-      SET_ACCESSOR = $__144.SET_ACCESSOR;
+  var $__139 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
+      AnonBlock = $__139.AnonBlock,
+      ExportDeclaration = $__139.ExportDeclaration,
+      FunctionExpression = $__139.FunctionExpression,
+      GetAccessor = $__139.GetAccessor,
+      PropertyMethodAssignment = $__139.PropertyMethodAssignment,
+      SetAccessor = $__139.SetAccessor;
+  var $__139 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
+      GET_ACCESSOR = $__139.GET_ACCESSOR,
+      PROPERTY_METHOD_ASSIGNMENT = $__139.PROPERTY_METHOD_ASSIGNMENT,
+      SET_ACCESSOR = $__139.SET_ACCESSOR;
   var SuperTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/SuperTransformer.js").SuperTransformer;
   var TempVarTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/TempVarTransformer.js").TempVarTransformer;
   var VAR = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js").VAR;
   var MakeStrictTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/MakeStrictTransformer.js").MakeStrictTransformer;
-  var $__144 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
-      createEmptyParameterList = $__144.createEmptyParameterList,
-      createFunctionBody = $__144.createFunctionBody,
-      id = $__144.createIdentifierExpression,
-      createMemberExpression = $__144.createMemberExpression,
-      createObjectLiteralExpression = $__144.createObjectLiteralExpression,
-      createParenExpression = $__144.createParenExpression,
-      createThisExpression = $__144.createThisExpression,
-      createVariableStatement = $__144.createVariableStatement;
+  var $__139 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
+      createEmptyParameterList = $__139.createEmptyParameterList,
+      createFunctionBody = $__139.createFunctionBody,
+      id = $__139.createIdentifierExpression,
+      createMemberExpression = $__139.createMemberExpression,
+      createObjectLiteralExpression = $__139.createObjectLiteralExpression,
+      createParenExpression = $__139.createParenExpression,
+      createThisExpression = $__139.createThisExpression,
+      createVariableStatement = $__139.createVariableStatement;
   var hasUseStrict = $traceurRuntime.getModuleImpl("../src/semantics/util.js").hasUseStrict;
   var parseOptions = $traceurRuntime.getModuleImpl("../src/options.js").parseOptions;
-  var $__144 = $traceurRuntime.getModuleImpl("../src/codegeneration/PlaceholderParser.js"),
-      parseExpression = $__144.parseExpression,
-      parseStatement = $__144.parseStatement;
+  var $__139 = $traceurRuntime.getModuleImpl("../src/codegeneration/PlaceholderParser.js"),
+      parseExpression = $__139.parseExpression,
+      parseStatement = $__139.parseStatement;
   var propName = $traceurRuntime.getModuleImpl("../src/staticsemantics/PropName.js").propName;
   function classCall(func, object, staticObject, superClass) {
     if (superClass) {
-      return parseExpression($__134, func, object, staticObject, superClass);
+      return parseExpression($__129, func, object, staticObject, superClass);
     }
-    return parseExpression($__135, func, object, staticObject);
+    return parseExpression($__130, func, object, staticObject);
   }
   var ClassTransformer = function(identifierGenerator, reporter) {
     $traceurRuntime.superCall(this, $ClassTransformer.prototype, "constructor", [identifierGenerator]);
@@ -13752,7 +13584,7 @@ $traceurRuntime.registerModule("../src/codegeneration/ClassTransformer.js", func
       return MakeStrictTransformer.transformTree(tree);
     },
     transformClassElements_: function(tree, internalName) {
-      var $__142 = this;
+      var $__137 = this;
       var oldState = this.state_;
       this.state_ = {hasSuper: false};
       var superClass = this.transformAny(tree.superClass);
@@ -13773,13 +13605,13 @@ $traceurRuntime.registerModule("../src/codegeneration/ClassTransformer.js", func
         }
         switch (tree.type) {
           case GET_ACCESSOR:
-            elements.push($__142.transformGetAccessor_(tree, homeObject));
+            elements.push($__137.transformGetAccessor_(tree, homeObject));
             break;
           case SET_ACCESSOR:
-            elements.push($__142.transformSetAccessor_(tree, homeObject));
+            elements.push($__137.transformSetAccessor_(tree, homeObject));
             break;
           case PROPERTY_METHOD_ASSIGNMENT:
-            var transformed = $__142.transformPropertyMethodAssignment_(tree, homeObject);
+            var transformed = $__137.transformPropertyMethodAssignment_(tree, homeObject);
             if (!tree.isStatic && propName(tree) === CONSTRUCTOR) {
               hasConstructor = true;
               constructorParams = transformed.formalParameterList;
@@ -13813,18 +13645,18 @@ $traceurRuntime.registerModule("../src/codegeneration/ClassTransformer.js", func
     transformClassDeclaration: function(tree) {
       var name = tree.name.identifierToken;
       var internalName = id(("$" + name));
-      var $__144 = this.transformClassElements_(tree, internalName),
-          func = $__144.func,
-          hasSuper = $__144.hasSuper,
-          object = $__144.object,
-          staticObject = $__144.staticObject,
-          superClass = $__144.superClass;
-      var statements = [parseStatement($__136, name, func)];
+      var $__139 = this.transformClassElements_(tree, internalName),
+          func = $__139.func,
+          hasSuper = $__139.hasSuper,
+          object = $__139.object,
+          staticObject = $__139.staticObject,
+          superClass = $__139.superClass;
+      var statements = [parseStatement($__131, name, func)];
       var expr = classCall(name, object, staticObject, superClass);
       if (hasSuper) {
-        statements.push(parseStatement($__137, internalName, expr));
+        statements.push(parseStatement($__132, internalName, expr));
       } else {
-        statements.push(parseStatement($__138, name, expr));
+        statements.push(parseStatement($__133, name, expr));
       }
       var anonBlock = new AnonBlock(null, statements);
       return this.makeStrict_(anonBlock);
@@ -13833,17 +13665,17 @@ $traceurRuntime.registerModule("../src/codegeneration/ClassTransformer.js", func
       this.pushTempVarState();
       var name;
       if (tree.name) name = tree.name.identifierToken; else name = id(this.getTempIdentifier());
-      var $__144 = this.transformClassElements_(tree, name),
-          func = $__144.func,
-          hasSuper = $__144.hasSuper,
-          object = $__144.object,
-          staticObject = $__144.staticObject,
-          superClass = $__144.superClass;
+      var $__139 = this.transformClassElements_(tree, name),
+          func = $__139.func,
+          hasSuper = $__139.hasSuper,
+          object = $__139.object,
+          staticObject = $__139.staticObject,
+          superClass = $__139.superClass;
       var expression;
       if (hasSuper) {
-        expression = parseExpression($__139, name, func, name, object, staticObject, superClass);
+        expression = parseExpression($__134, name, func, name, object, staticObject, superClass);
       } else if (tree.name) {
-        expression = parseExpression($__140, name, func, name, object, staticObject);
+        expression = parseExpression($__135, name, func, name, object, staticObject);
       } else {
         expression = classCall(func, object, staticObject, superClass);
       }
@@ -13885,7 +13717,7 @@ $traceurRuntime.registerModule("../src/codegeneration/ClassTransformer.js", func
       var constructorParams = createEmptyParameterList();
       var constructorBody;
       if (tree.superClass) {
-        var statement = parseStatement($__141, internalName);
+        var statement = parseStatement($__136, internalName);
         constructorBody = createFunctionBody([statement]);
         this.state_.hasSuper = true;
       } else {
@@ -13945,27 +13777,27 @@ $traceurRuntime.registerModule("../src/codegeneration/ParameterTransformer.js", 
 }, this);
 $traceurRuntime.registerModule("../src/codegeneration/DefaultParametersTransformer.js", function() {
   "use strict";
-  var $__148 = $traceurRuntime.getModuleImpl("../src/semantics/util.js"),
-      isUndefined = $__148.isUndefined,
-      isVoidExpression = $__148.isVoidExpression;
+  var $__143 = $traceurRuntime.getModuleImpl("../src/semantics/util.js"),
+      isUndefined = $__143.isUndefined,
+      isVoidExpression = $__143.isVoidExpression;
   var FormalParameterList = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js").FormalParameterList;
   var ParameterTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ParameterTransformer.js").ParameterTransformer;
   var ARGUMENTS = $traceurRuntime.getModuleImpl("../src/syntax/PredefinedName.js").ARGUMENTS;
-  var $__148 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
-      FORMAL_PARAMETER = $__148.FORMAL_PARAMETER,
-      REST_PARAMETER = $__148.REST_PARAMETER;
-  var $__148 = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js"),
-      NOT_EQUAL_EQUAL = $__148.NOT_EQUAL_EQUAL,
-      VAR = $__148.VAR;
-  var $__148 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
-      createBinaryOperator = $__148.createBinaryOperator,
-      createConditionalExpression = $__148.createConditionalExpression,
-      createIdentifierExpression = $__148.createIdentifierExpression,
-      createMemberLookupExpression = $__148.createMemberLookupExpression,
-      createNumberLiteral = $__148.createNumberLiteral,
-      createOperatorToken = $__148.createOperatorToken,
-      createVariableStatement = $__148.createVariableStatement,
-      createVoid0 = $__148.createVoid0;
+  var $__143 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
+      FORMAL_PARAMETER = $__143.FORMAL_PARAMETER,
+      REST_PARAMETER = $__143.REST_PARAMETER;
+  var $__143 = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js"),
+      NOT_EQUAL_EQUAL = $__143.NOT_EQUAL_EQUAL,
+      VAR = $__143.VAR;
+  var $__143 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
+      createBinaryOperator = $__143.createBinaryOperator,
+      createConditionalExpression = $__143.createConditionalExpression,
+      createIdentifierExpression = $__143.createIdentifierExpression,
+      createMemberLookupExpression = $__143.createMemberLookupExpression,
+      createNumberLiteral = $__143.createNumberLiteral,
+      createOperatorToken = $__143.createOperatorToken,
+      createVariableStatement = $__143.createVariableStatement,
+      createVoid0 = $__143.createVoid0;
   var prependStatements = $traceurRuntime.getModuleImpl("../src/codegeneration/PrependStatements.js").prependStatements;
   function createDefaultAssignment(index, binding, initialiser) {
     var argumentsExpression = createMemberLookupExpression(createIdentifierExpression(ARGUMENTS), createNumberLiteral(index));
@@ -14004,61 +13836,61 @@ $traceurRuntime.registerModule("../src/codegeneration/DefaultParametersTransform
 }, this);
 $traceurRuntime.registerModule("../src/codegeneration/DestructuringTransformer.js", function() {
   "use strict";
-  var $__151 = $traceurRuntime.getModuleImpl("../src/syntax/PredefinedName.js"),
-      ARRAY = $__151.ARRAY,
-      CALL = $__151.CALL,
-      PROTOTYPE = $__151.PROTOTYPE,
-      SLICE = $__151.SLICE;
-  var $__151 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
-      ARRAY_LITERAL_EXPRESSION = $__151.ARRAY_LITERAL_EXPRESSION,
-      ARRAY_PATTERN = $__151.ARRAY_PATTERN,
-      BINDING_ELEMENT = $__151.BINDING_ELEMENT,
-      BINDING_IDENTIFIER = $__151.BINDING_IDENTIFIER,
-      BLOCK = $__151.BLOCK,
-      CALL_EXPRESSION = $__151.CALL_EXPRESSION,
-      COMPUTED_PROPERTY_NAME = $__151.COMPUTED_PROPERTY_NAME,
-      IDENTIFIER_EXPRESSION = $__151.IDENTIFIER_EXPRESSION,
-      LITERAL_EXPRESSION = $__151.LITERAL_EXPRESSION,
-      MEMBER_EXPRESSION = $__151.MEMBER_EXPRESSION,
-      MEMBER_LOOKUP_EXPRESSION = $__151.MEMBER_LOOKUP_EXPRESSION,
-      OBJECT_LITERAL_EXPRESSION = $__151.OBJECT_LITERAL_EXPRESSION,
-      OBJECT_PATTERN = $__151.OBJECT_PATTERN,
-      OBJECT_PATTERN_FIELD = $__151.OBJECT_PATTERN_FIELD,
-      PAREN_EXPRESSION = $__151.PAREN_EXPRESSION,
-      VARIABLE_DECLARATION_LIST = $__151.VARIABLE_DECLARATION_LIST;
-  var $__151 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
-      BindingElement = $__151.BindingElement,
-      Catch = $__151.Catch,
-      ForInStatement = $__151.ForInStatement,
-      ForOfStatement = $__151.ForOfStatement,
-      LiteralExpression = $__151.LiteralExpression;
+  var $__146 = $traceurRuntime.getModuleImpl("../src/syntax/PredefinedName.js"),
+      ARRAY = $__146.ARRAY,
+      CALL = $__146.CALL,
+      PROTOTYPE = $__146.PROTOTYPE,
+      SLICE = $__146.SLICE;
+  var $__146 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
+      ARRAY_LITERAL_EXPRESSION = $__146.ARRAY_LITERAL_EXPRESSION,
+      ARRAY_PATTERN = $__146.ARRAY_PATTERN,
+      BINDING_ELEMENT = $__146.BINDING_ELEMENT,
+      BINDING_IDENTIFIER = $__146.BINDING_IDENTIFIER,
+      BLOCK = $__146.BLOCK,
+      CALL_EXPRESSION = $__146.CALL_EXPRESSION,
+      COMPUTED_PROPERTY_NAME = $__146.COMPUTED_PROPERTY_NAME,
+      IDENTIFIER_EXPRESSION = $__146.IDENTIFIER_EXPRESSION,
+      LITERAL_EXPRESSION = $__146.LITERAL_EXPRESSION,
+      MEMBER_EXPRESSION = $__146.MEMBER_EXPRESSION,
+      MEMBER_LOOKUP_EXPRESSION = $__146.MEMBER_LOOKUP_EXPRESSION,
+      OBJECT_LITERAL_EXPRESSION = $__146.OBJECT_LITERAL_EXPRESSION,
+      OBJECT_PATTERN = $__146.OBJECT_PATTERN,
+      OBJECT_PATTERN_FIELD = $__146.OBJECT_PATTERN_FIELD,
+      PAREN_EXPRESSION = $__146.PAREN_EXPRESSION,
+      VARIABLE_DECLARATION_LIST = $__146.VARIABLE_DECLARATION_LIST;
+  var $__146 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
+      BindingElement = $__146.BindingElement,
+      Catch = $__146.Catch,
+      ForInStatement = $__146.ForInStatement,
+      ForOfStatement = $__146.ForOfStatement,
+      LiteralExpression = $__146.LiteralExpression;
   var ParameterTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ParameterTransformer.js").ParameterTransformer;
-  var $__151 = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js"),
-      EQUAL = $__151.EQUAL,
-      IDENTIFIER = $__151.IDENTIFIER,
-      IN = $__151.IN,
-      LET = $__151.LET,
-      VAR = $__151.VAR;
-  var $__151 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
-      createArgumentList = $__151.createArgumentList,
-      createAssignmentExpression = $__151.createAssignmentExpression,
-      createBinaryOperator = $__151.createBinaryOperator,
-      createBindingIdentifier = $__151.createBindingIdentifier,
-      createBlock = $__151.createBlock,
-      createCallExpression = $__151.createCallExpression,
-      createCommaExpression = $__151.createCommaExpression,
-      createConditionalExpression = $__151.createConditionalExpression,
-      createExpressionStatement = $__151.createExpressionStatement,
-      createIdentifierExpression = $__151.createIdentifierExpression,
-      createMemberExpression = $__151.createMemberExpression,
-      createMemberLookupExpression = $__151.createMemberLookupExpression,
-      createNumberLiteral = $__151.createNumberLiteral,
-      createOperatorToken = $__151.createOperatorToken,
-      createParenExpression = $__151.createParenExpression,
-      createStringLiteral = $__151.createStringLiteral,
-      createVariableDeclaration = $__151.createVariableDeclaration,
-      createVariableDeclarationList = $__151.createVariableDeclarationList,
-      createVariableStatement = $__151.createVariableStatement;
+  var $__146 = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js"),
+      EQUAL = $__146.EQUAL,
+      IDENTIFIER = $__146.IDENTIFIER,
+      IN = $__146.IN,
+      LET = $__146.LET,
+      VAR = $__146.VAR;
+  var $__146 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
+      createArgumentList = $__146.createArgumentList,
+      createAssignmentExpression = $__146.createAssignmentExpression,
+      createBinaryOperator = $__146.createBinaryOperator,
+      createBindingIdentifier = $__146.createBindingIdentifier,
+      createBlock = $__146.createBlock,
+      createCallExpression = $__146.createCallExpression,
+      createCommaExpression = $__146.createCommaExpression,
+      createConditionalExpression = $__146.createConditionalExpression,
+      createExpressionStatement = $__146.createExpressionStatement,
+      createIdentifierExpression = $__146.createIdentifierExpression,
+      createMemberExpression = $__146.createMemberExpression,
+      createMemberLookupExpression = $__146.createMemberLookupExpression,
+      createNumberLiteral = $__146.createNumberLiteral,
+      createOperatorToken = $__146.createOperatorToken,
+      createParenExpression = $__146.createParenExpression,
+      createStringLiteral = $__146.createStringLiteral,
+      createVariableDeclaration = $__146.createVariableDeclaration,
+      createVariableDeclarationList = $__146.createVariableDeclarationList,
+      createVariableStatement = $__146.createVariableStatement;
   var options = $traceurRuntime.getModuleImpl("../src/options.js").options;
   var Desugaring = function(rvalue) {
     this.rvalue = rvalue;
@@ -14130,16 +13962,16 @@ $traceurRuntime.registerModule("../src/codegeneration/DestructuringTransformer.j
       return createParenExpression(createCommaExpression(desugaring.expressions));
     },
     transformVariableDeclarationList: function(tree) {
-      var $__149 = this;
+      var $__144 = this;
       if (!this.destructuringInDeclaration_(tree)) {
         return $traceurRuntime.superCall(this, $DestructuringTransformer.prototype, "transformVariableDeclarationList", [tree]);
       }
       this.pushTempVarState();
       var desugaredDeclarations = [];
       tree.declarations.forEach((function(declaration) {
-        var $__152;
+        var $__147;
         if (declaration.lvalue.isPattern()) {
-          ($__152 = desugaredDeclarations).push.apply($__152, $traceurRuntime.toObject($__149.desugarVariableDeclaration_(declaration)));
+          ($__147 = desugaredDeclarations).push.apply($__147, $traceurRuntime.toObject($__144.desugarVariableDeclaration_(declaration)));
         } else {
           desugaredDeclarations.push(declaration);
         }
@@ -14155,7 +13987,7 @@ $traceurRuntime.registerModule("../src/codegeneration/DestructuringTransformer.j
       return this.transformForInOrOf_(tree, $traceurRuntime.superGet(this, $DestructuringTransformer.prototype, "transformForOfStatement"), ForOfStatement);
     },
     transformForInOrOf_: function(tree, superMethod, constr) {
-      var $__152;
+      var $__147;
       if (!tree.initialiser.isPattern() && (tree.initialiser.type !== VARIABLE_DECLARATION_LIST || !this.destructuringInDeclaration_(tree.initialiser))) {
         return superMethod.call(this, tree);
       }
@@ -14175,7 +14007,7 @@ $traceurRuntime.registerModule("../src/codegeneration/DestructuringTransformer.j
       var collection = this.transformAny(tree.collection);
       var body = this.transformAny(tree.body);
       if (body.type !== BLOCK) body = createBlock(body);
-      ($__152 = statements).push.apply($__152, $traceurRuntime.toObject(body.statements));
+      ($__147 = statements).push.apply($__147, $traceurRuntime.toObject(body.statements));
       body = createBlock(statements);
       this.popTempVarState();
       return new constr(tree.location, initialiser, collection, body);
@@ -14187,13 +14019,13 @@ $traceurRuntime.registerModule("../src/codegeneration/DestructuringTransformer.j
       return new BindingElement(null, binding, null);
     },
     transformCatch: function(tree) {
-      var $__152;
+      var $__147;
       if (!tree.binding.isPattern()) return $traceurRuntime.superCall(this, $DestructuringTransformer.prototype, "transformCatch", [tree]);
       var body = this.transformAny(tree.catchBody);
       var statements = [];
       var kind = options.blockBinding ? LET: VAR;
       var binding = this.desugarBinding_(tree.binding, statements, kind);
-      ($__152 = statements).push.apply($__152, $traceurRuntime.toObject(body.statements));
+      ($__147 = statements).push.apply($__147, $traceurRuntime.toObject(body.statements));
       return new Catch(tree.location, binding, createBlock(statements));
     },
     desugarBinding_: function(bindingTree, statements, declarationType) {
@@ -14304,14 +14136,14 @@ $traceurRuntime.registerModule("../src/codegeneration/DestructuringTransformer.j
 }, this);
 $traceurRuntime.registerModule("../src/codegeneration/ForOfTransformer.js", function() {
   "use strict";
-  var $__153 = Object.freeze(Object.defineProperties(["", " = ", ".value;"], {raw: {value: Object.freeze(["", " = ", ".value;"])}})),
-      $__154 = Object.freeze(Object.defineProperties(["\n        for (var ", " =\n                 ", "[Symbol.iterator](),\n                 ", ";\n             !(", " = ", ".next()).done; ) {\n          ", ";\n          ", ";\n        }"], {raw: {value: Object.freeze(["\n        for (var ", " =\n                 ", "[Symbol.iterator](),\n                 ", ";\n             !(", " = ", ".next()).done; ) {\n          ", ";\n          ", ";\n        }"])}}));
+  var $__148 = Object.freeze(Object.defineProperties(["", " = ", ".value;"], {raw: {value: Object.freeze(["", " = ", ".value;"])}})),
+      $__149 = Object.freeze(Object.defineProperties(["\n        for (var ", " =\n                 ", "[Symbol.iterator](),\n                 ", ";\n             !(", " = ", ".next()).done; ) {\n          ", ";\n          ", ";\n        }"], {raw: {value: Object.freeze(["\n        for (var ", " =\n                 ", "[Symbol.iterator](),\n                 ", ";\n             !(", " = ", ".next()).done; ) {\n          ", ";\n          ", ";\n        }"])}}));
   var VARIABLE_DECLARATION_LIST = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js").VARIABLE_DECLARATION_LIST;
   var TempVarTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/TempVarTransformer.js").TempVarTransformer;
-  var $__156 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
-      id = $__156.createIdentifierExpression,
-      createMemberExpression = $__156.createMemberExpression,
-      createVariableStatement = $__156.createVariableStatement;
+  var $__151 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
+      id = $__151.createIdentifierExpression,
+      createMemberExpression = $__151.createMemberExpression,
+      createVariableStatement = $__151.createVariableStatement;
   var parseStatement = $traceurRuntime.getModuleImpl("../src/codegeneration/PlaceholderParser.js").parseStatement;
   var ForOfTransformer = function() {
     $traceurRuntime.defaultSuperCall(this, $ForOfTransformer.prototype, arguments);
@@ -14324,9 +14156,9 @@ $traceurRuntime.registerModule("../src/codegeneration/ForOfTransformer.js", func
       if (tree.initialiser.type === VARIABLE_DECLARATION_LIST) {
         assignment = createVariableStatement(tree.initialiser.declarationType, tree.initialiser.declarations[0].lvalue, createMemberExpression(result, 'value'));
       } else {
-        assignment = parseStatement($__153, tree.initialiser, result);
+        assignment = parseStatement($__148, tree.initialiser, result);
       }
-      return parseStatement($__154, iter, tree.collection, result, result, iter, assignment, tree.body);
+      return parseStatement($__149, iter, tree.collection, result, result, iter, assignment, tree.body);
     }}, {}, TempVarTransformer);
   return {get ForOfTransformer() {
       return ForOfTransformer;
@@ -14352,14 +14184,14 @@ $traceurRuntime.registerModule("../src/codegeneration/GeneratorComprehensionTran
 $traceurRuntime.registerModule("../src/codegeneration/generator/State.js", function() {
   "use strict";
   var FINALLY_FALL_THROUGH = $traceurRuntime.getModuleImpl("../src/syntax/PredefinedName.js").FINALLY_FALL_THROUGH;
-  var $__160 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
-      createAssignStateStatement = $__160.createAssignStateStatement,
-      createAssignmentStatement = $__160.createAssignmentStatement,
-      createBreakStatement = $__160.createBreakStatement,
-      createCaseClause = $__160.createCaseClause,
-      createIdentifierExpression = $__160.createIdentifierExpression,
-      createNumberLiteral = $__160.createNumberLiteral,
-      createStatementList = $__160.createStatementList;
+  var $__155 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
+      createAssignStateStatement = $__155.createAssignStateStatement,
+      createAssignmentStatement = $__155.createAssignmentStatement,
+      createBreakStatement = $__155.createBreakStatement,
+      createCaseClause = $__155.createCaseClause,
+      createIdentifierExpression = $__155.createIdentifierExpression,
+      createNumberLiteral = $__155.createNumberLiteral,
+      createStatementList = $__155.createStatementList;
   var State = function(id) {
     this.id = id;
   };
@@ -14683,9 +14515,9 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/CatchState.js", 
 $traceurRuntime.registerModule("../src/codegeneration/generator/ConditionalState.js", function() {
   "use strict";
   var State = $traceurRuntime.getModuleImpl("../src/codegeneration/generator/State.js").State;
-  var $__176 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
-      createBlock = $__176.createBlock,
-      createIfStatement = $__176.createIfStatement;
+  var $__171 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
+      createBlock = $__171.createBlock,
+      createIfStatement = $__171.createIfStatement;
   var ConditionalState = function(id, ifState, elseState, condition) {
     $traceurRuntime.superCall(this, $ConditionalState.prototype, "constructor", [id]);
     this.ifState = ifState;
@@ -14756,14 +14588,14 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/StateAllocator.j
 }, this);
 $traceurRuntime.registerModule("../src/codegeneration/generator/SwitchState.js", function() {
   "use strict";
-  var $__184 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
-      CaseClause = $__184.CaseClause,
-      DefaultClause = $__184.DefaultClause,
-      SwitchStatement = $__184.SwitchStatement;
+  var $__179 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
+      CaseClause = $__179.CaseClause,
+      DefaultClause = $__179.DefaultClause,
+      SwitchStatement = $__179.SwitchStatement;
   var State = $traceurRuntime.getModuleImpl("../src/codegeneration/generator/State.js").State;
-  var $__184 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
-      createBreakStatement = $__184.createBreakStatement,
-      createStatementList = $__184.createStatementList;
+  var $__179 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
+      createBreakStatement = $__179.createBreakStatement,
+      createStatementList = $__179.createStatementList;
   var SwitchClause = function(first, second) {
     this.first = first;
     this.second = second;
@@ -14805,17 +14637,17 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/SwitchState.js",
 }, this);
 $traceurRuntime.registerModule("../src/codegeneration/generator/CPSTransformer.js", function() {
   "use strict";
-  var $__185 = Object.freeze(Object.defineProperties(["\n        return this.innerFunction($yieldSent, $yieldAction);"], {raw: {value: Object.freeze(["\n        return this.innerFunction($yieldSent, $yieldAction);"])}}));
+  var $__180 = Object.freeze(Object.defineProperties(["\n        return this.innerFunction($yieldSent, $yieldAction);"], {raw: {value: Object.freeze(["\n        return this.innerFunction($yieldSent, $yieldAction);"])}}));
   var BreakContinueTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/generator/BreakContinueTransformer.js").BreakContinueTransformer;
-  var $__187 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
-      CASE_CLAUSE = $__187.CASE_CLAUSE,
-      STATE_MACHINE = $__187.STATE_MACHINE,
-      VARIABLE_DECLARATION_LIST = $__187.VARIABLE_DECLARATION_LIST,
-      VARIABLE_STATEMENT = $__187.VARIABLE_STATEMENT;
-  var $__187 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
-      CaseClause = $__187.CaseClause,
-      IdentifierExpression = $__187.IdentifierExpression,
-      SwitchStatement = $__187.SwitchStatement;
+  var $__182 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
+      CASE_CLAUSE = $__182.CASE_CLAUSE,
+      STATE_MACHINE = $__182.STATE_MACHINE,
+      VARIABLE_DECLARATION_LIST = $__182.VARIABLE_DECLARATION_LIST,
+      VARIABLE_STATEMENT = $__182.VARIABLE_STATEMENT;
+  var $__182 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
+      CaseClause = $__182.CaseClause,
+      IdentifierExpression = $__182.IdentifierExpression,
+      SwitchStatement = $__182.SwitchStatement;
   var CatchState = $traceurRuntime.getModuleImpl("../src/codegeneration/generator/CatchState.js").CatchState;
   var ConditionalState = $traceurRuntime.getModuleImpl("../src/codegeneration/generator/ConditionalState.js").ConditionalState;
   var FallThroughState = $traceurRuntime.getModuleImpl("../src/codegeneration/generator/FallThroughState.js").FallThroughState;
@@ -14825,54 +14657,54 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/CPSTransformer.j
   var ParseTreeTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeTransformer.js").ParseTreeTransformer;
   var assert = $traceurRuntime.getModuleImpl("../src/util/assert.js").assert;
   var parseStatement = $traceurRuntime.getModuleImpl("../src/codegeneration/PlaceholderParser.js").parseStatement;
-  var $__187 = $traceurRuntime.getModuleImpl("../src/syntax/PredefinedName.js"),
-      $ARGUMENTS = $__187.$ARGUMENTS,
-      $THAT = $__187.$THAT,
-      ARGUMENTS = $__187.ARGUMENTS,
-      CAUGHT_EXCEPTION = $__187.CAUGHT_EXCEPTION,
-      FINALLY_FALL_THROUGH = $__187.FINALLY_FALL_THROUGH,
-      STATE = $__187.STATE,
-      STORED_EXCEPTION = $__187.STORED_EXCEPTION,
-      YIELD_ACTION = $__187.YIELD_ACTION,
-      YIELD_SENT = $__187.YIELD_SENT;
+  var $__182 = $traceurRuntime.getModuleImpl("../src/syntax/PredefinedName.js"),
+      $ARGUMENTS = $__182.$ARGUMENTS,
+      $THAT = $__182.$THAT,
+      ARGUMENTS = $__182.ARGUMENTS,
+      CAUGHT_EXCEPTION = $__182.CAUGHT_EXCEPTION,
+      FINALLY_FALL_THROUGH = $__182.FINALLY_FALL_THROUGH,
+      STATE = $__182.STATE,
+      STORED_EXCEPTION = $__182.STORED_EXCEPTION,
+      YIELD_ACTION = $__182.YIELD_ACTION,
+      YIELD_SENT = $__182.YIELD_SENT;
   var State = $traceurRuntime.getModuleImpl("../src/codegeneration/generator/State.js").State;
   var StateAllocator = $traceurRuntime.getModuleImpl("../src/codegeneration/generator/StateAllocator.js").StateAllocator;
   var StateMachine = $traceurRuntime.getModuleImpl("../src/syntax/trees/StateMachine.js").StateMachine;
-  var $__187 = $traceurRuntime.getModuleImpl("../src/codegeneration/generator/SwitchState.js"),
-      SwitchClause = $__187.SwitchClause,
-      SwitchState = $__187.SwitchState;
-  var $__187 = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js"),
-      PLUS = $__187.PLUS,
-      VAR = $__187.VAR;
+  var $__182 = $traceurRuntime.getModuleImpl("../src/codegeneration/generator/SwitchState.js"),
+      SwitchClause = $__182.SwitchClause,
+      SwitchState = $__182.SwitchState;
+  var $__182 = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js"),
+      PLUS = $__182.PLUS,
+      VAR = $__182.VAR;
   var TryState = $traceurRuntime.getModuleImpl("../src/codegeneration/generator/TryState.js").TryState;
-  var $__187 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
-      createAssignStateStatement = $__187.createAssignStateStatement,
-      createAssignmentExpression = $__187.createAssignmentExpression,
-      createAssignmentStatement = $__187.createAssignmentStatement,
-      createBinaryOperator = $__187.createBinaryOperator,
-      createBindingIdentifier = $__187.createBindingIdentifier,
-      createBlock = $__187.createBlock,
-      createBreakStatement = $__187.createBreakStatement,
-      createCaseClause = $__187.createCaseClause,
-      createCatch = $__187.createCatch,
-      createCommaExpression = $__187.createCommaExpression,
-      createDefaultClause = $__187.createDefaultClause,
-      createEmptyStatement = $__187.createEmptyStatement,
-      createFunctionBody = $__187.createFunctionBody,
-      createExpressionStatement = $__187.createExpressionStatement,
-      createFunctionExpression = $__187.createFunctionExpression,
-      createIdentifierExpression = $__187.createIdentifierExpression,
-      createNumberLiteral = $__187.createNumberLiteral,
-      createOperatorToken = $__187.createOperatorToken,
-      createParameterList = $__187.createParameterList,
-      createStatementList = $__187.createStatementList,
-      createStringLiteral = $__187.createStringLiteral,
-      createSwitchStatement = $__187.createSwitchStatement,
-      createThrowStatement = $__187.createThrowStatement,
-      createTrueLiteral = $__187.createTrueLiteral,
-      createTryStatement = $__187.createTryStatement,
-      createVariableStatement = $__187.createVariableStatement,
-      createWhileStatement = $__187.createWhileStatement;
+  var $__182 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
+      createAssignStateStatement = $__182.createAssignStateStatement,
+      createAssignmentExpression = $__182.createAssignmentExpression,
+      createAssignmentStatement = $__182.createAssignmentStatement,
+      createBinaryOperator = $__182.createBinaryOperator,
+      createBindingIdentifier = $__182.createBindingIdentifier,
+      createBlock = $__182.createBlock,
+      createBreakStatement = $__182.createBreakStatement,
+      createCaseClause = $__182.createCaseClause,
+      createCatch = $__182.createCatch,
+      createCommaExpression = $__182.createCommaExpression,
+      createDefaultClause = $__182.createDefaultClause,
+      createEmptyStatement = $__182.createEmptyStatement,
+      createFunctionBody = $__182.createFunctionBody,
+      createExpressionStatement = $__182.createExpressionStatement,
+      createFunctionExpression = $__182.createFunctionExpression,
+      createIdentifierExpression = $__182.createIdentifierExpression,
+      createNumberLiteral = $__182.createNumberLiteral,
+      createOperatorToken = $__182.createOperatorToken,
+      createParameterList = $__182.createParameterList,
+      createStatementList = $__182.createStatementList,
+      createStringLiteral = $__182.createStringLiteral,
+      createSwitchStatement = $__182.createSwitchStatement,
+      createThrowStatement = $__182.createThrowStatement,
+      createTrueLiteral = $__182.createTrueLiteral,
+      createTryStatement = $__182.createTryStatement,
+      createVariableStatement = $__182.createVariableStatement,
+      createWhileStatement = $__182.createWhileStatement;
   var variablesInBlock = $traceurRuntime.getModuleImpl("../src/semantics/VariableBinder.js").variablesInBlock;
   var CPSTransformer = function(reporter) {
     $traceurRuntime.superCall(this, $CPSTransformer.prototype, "constructor", []);
@@ -14989,7 +14821,7 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/CPSTransformer.j
       throw new Error('for of statements should be transformed before this pass');
     },
     transformIfStatement: function(tree) {
-      var $__188;
+      var $__183;
       this.clearLabels_();
       var result = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformIfStatement", [tree]);
       if (result.ifClause.type != STATE_MACHINE && (result.elseClause == null || result.elseClause.type != STATE_MACHINE)) {
@@ -15004,11 +14836,11 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/CPSTransformer.j
       var states = [];
       var exceptionBlocks = [];
       states.push(new ConditionalState(startState, ifState, elseState, result.condition));
-      ($__188 = states).push.apply($__188, $traceurRuntime.toObject(ifClause.states));
-      ($__188 = exceptionBlocks).push.apply($__188, $traceurRuntime.toObject(ifClause.exceptionBlocks));
+      ($__183 = states).push.apply($__183, $traceurRuntime.toObject(ifClause.states));
+      ($__183 = exceptionBlocks).push.apply($__183, $traceurRuntime.toObject(ifClause.exceptionBlocks));
       if (elseClause != null) {
         this.replaceAndAddStates_(elseClause.states, elseClause.fallThroughState, fallThroughState, states);
-        ($__188 = exceptionBlocks).push.apply($__188, $traceurRuntime.toObject(State.replaceAllStates(elseClause.exceptionBlocks, elseClause.fallThroughState, fallThroughState)));
+        ($__183 = exceptionBlocks).push.apply($__183, $traceurRuntime.toObject(State.replaceAllStates(elseClause.exceptionBlocks, elseClause.fallThroughState, fallThroughState)));
       }
       return new StateMachine(startState, fallThroughState, states, exceptionBlocks);
     },
@@ -15023,9 +14855,9 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/CPSTransformer.j
         }
       }
       for (i = 0; i < newStates.length; i++) {
-        newStates[i] = emptyStates.reduce((function(state, $__187) {
-          var id = $__187.id,
-              fallThroughState = $__187.fallThroughState;
+        newStates[i] = emptyStates.reduce((function(state, $__182) {
+          var id = $__182.id,
+              fallThroughState = $__182.fallThroughState;
           return state.replaceState(id, fallThroughState);
         }), newStates[i]);
       }
@@ -15093,14 +14925,14 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/CPSTransformer.j
       return new StateMachine(startState, fallThroughState, states.reverse(), tryStates);
     },
     addSwitchClauseStates_: function(nextState, fallThroughState, labels, statements, states, tryStates) {
-      var $__188;
+      var $__183;
       var machine = this.ensureTransformedList_(statements);
       for (var i = 0; i < machine.states.length; i++) {
         var state = machine.states[i];
         var transformedState = state.transformBreak(labels, fallThroughState);
         states.push(transformedState.replaceState(machine.fallThroughState, nextState));
       }
-      ($__188 = tryStates).push.apply($__188, $traceurRuntime.toObject(machine.exceptionBlocks));
+      ($__183 = tryStates).push.apply($__183, $traceurRuntime.toObject(machine.exceptionBlocks));
       return machine.startState;
     },
     transformTryStatement: function(tree) {
@@ -15209,7 +15041,7 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/CPSTransformer.j
     generateMachine: function(machine) {
       var enclosingFinallyState = machine.getEnclosingFinallyMap();
       var enclosingCatchState = machine.getEnclosingCatchMap();
-      var body = parseStatement($__185);
+      var body = parseStatement($__180);
       var caseClauses = [];
       this.addExceptionCases_(State.RETHROW_STATE, enclosingFinallyState, enclosingCatchState, machine.states, caseClauses);
       caseClauses.push(createDefaultClause(this.machineUncaughtExceptionStatements(State.RETHROW_STATE, State.END_STATE)));
@@ -15394,28 +15226,28 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/EndState.js", fu
 }, this);
 $traceurRuntime.registerModule("../src/codegeneration/generator/AsyncTransformer.js", function() {
   "use strict";
-  var $__191 = Object.freeze(Object.defineProperties(["$waitTask = ", ";\n            $waitTask.then($createCallback(", "),\n                           $createErrback(", "));\n            return"], {raw: {value: Object.freeze(["$waitTask = ", ";\n            $waitTask.then($createCallback(", "),\n                           $createErrback(", "));\n            return"])}})),
-      $__192 = Object.freeze(Object.defineProperties(["", " = $value"], {raw: {value: Object.freeze(["", " = $value"])}})),
-      $__193 = Object.freeze(Object.defineProperties(["throw $err"], {raw: {value: Object.freeze(["throw $err"])}})),
-      $__194 = Object.freeze(Object.defineProperties(["$resolve(", ")"], {raw: {value: Object.freeze(["$resolve(", ")"])}})),
-      $__195 = Object.freeze(Object.defineProperties(["var $that = this, $arguments = arguments,\n              $value, $err, $waitTask, $resolve,\n              $reject,\n              $result = new Promise(function(resolve, reject) {\n                $resolve = resolve;\n                $reject = reject;\n              }),\n              $G = {\n                GState: 0,\n                current: undefined,\n                yieldReturn: undefined,\n                innerFunction: ", ",\n                moveNext: ", "\n              },\n              $continuation = $G.moveNext.bind($G),\n              $createCallback = function(newState) {\n                return function (value) {\n                  $state = newState;\n                  $value = value;\n                  $continuation();\n                };\n              },\n              $createErrback = function(newState) {\n                return function (err) {\n                  $state = newState;\n                  $err = err;\n                  $continuation();\n                };\n              };\n              $continuation();\n              return $result"], {raw: {value: Object.freeze(["var $that = this, $arguments = arguments,\n              $value, $err, $waitTask, $resolve,\n              $reject,\n              $result = new Promise(function(resolve, reject) {\n                $resolve = resolve;\n                $reject = reject;\n              }),\n              $G = {\n                GState: 0,\n                current: undefined,\n                yieldReturn: undefined,\n                innerFunction: ", ",\n                moveNext: ", "\n              },\n              $continuation = $G.moveNext.bind($G),\n              $createCallback = function(newState) {\n                return function (value) {\n                  $state = newState;\n                  $value = value;\n                  $continuation();\n                };\n              },\n              $createErrback = function(newState) {\n                return function (err) {\n                  $state = newState;\n                  $err = err;\n                  $continuation();\n                };\n              };\n              $continuation();\n              return $result"])}})),
-      $__196 = Object.freeze(Object.defineProperties(["$reject($storedException)"], {raw: {value: Object.freeze(["$reject($storedException)"])}}));
+  var $__186 = Object.freeze(Object.defineProperties(["$waitTask = ", ";\n            $waitTask.then($createCallback(", "),\n                           $createErrback(", "));\n            return"], {raw: {value: Object.freeze(["$waitTask = ", ";\n            $waitTask.then($createCallback(", "),\n                           $createErrback(", "));\n            return"])}})),
+      $__187 = Object.freeze(Object.defineProperties(["", " = $value"], {raw: {value: Object.freeze(["", " = $value"])}})),
+      $__188 = Object.freeze(Object.defineProperties(["throw $err"], {raw: {value: Object.freeze(["throw $err"])}})),
+      $__189 = Object.freeze(Object.defineProperties(["$resolve(", ")"], {raw: {value: Object.freeze(["$resolve(", ")"])}})),
+      $__190 = Object.freeze(Object.defineProperties(["var $that = this, $arguments = arguments,\n              $value, $err, $waitTask, $resolve,\n              $reject,\n              $result = new Promise(function(resolve, reject) {\n                $resolve = resolve;\n                $reject = reject;\n              }),\n              $G = {\n                GState: 0,\n                current: undefined,\n                yieldReturn: undefined,\n                innerFunction: ", ",\n                moveNext: ", "\n              },\n              $continuation = $G.moveNext.bind($G),\n              $createCallback = function(newState) {\n                return function (value) {\n                  $state = newState;\n                  $value = value;\n                  $continuation();\n                };\n              },\n              $createErrback = function(newState) {\n                return function (err) {\n                  $state = newState;\n                  $err = err;\n                  $continuation();\n                };\n              };\n              $continuation();\n              return $result"], {raw: {value: Object.freeze(["var $that = this, $arguments = arguments,\n              $value, $err, $waitTask, $resolve,\n              $reject,\n              $result = new Promise(function(resolve, reject) {\n                $resolve = resolve;\n                $reject = reject;\n              }),\n              $G = {\n                GState: 0,\n                current: undefined,\n                yieldReturn: undefined,\n                innerFunction: ", ",\n                moveNext: ", "\n              },\n              $continuation = $G.moveNext.bind($G),\n              $createCallback = function(newState) {\n                return function (value) {\n                  $state = newState;\n                  $value = value;\n                  $continuation();\n                };\n              },\n              $createErrback = function(newState) {\n                return function (err) {\n                  $state = newState;\n                  $err = err;\n                  $continuation();\n                };\n              };\n              $continuation();\n              return $result"])}})),
+      $__191 = Object.freeze(Object.defineProperties(["$reject($storedException)"], {raw: {value: Object.freeze(["$reject($storedException)"])}}));
   var CPSTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/generator/CPSTransformer.js").CPSTransformer;
   var EndState = $traceurRuntime.getModuleImpl("../src/codegeneration/generator/EndState.js").EndState;
   var FallThroughState = $traceurRuntime.getModuleImpl("../src/codegeneration/generator/FallThroughState.js").FallThroughState;
   var STATE_MACHINE = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js").STATE_MACHINE;
-  var $__198 = $traceurRuntime.getModuleImpl("../src/codegeneration/PlaceholderParser.js"),
-      parseStatement = $__198.parseStatement,
-      parseStatements = $__198.parseStatements;
+  var $__193 = $traceurRuntime.getModuleImpl("../src/codegeneration/PlaceholderParser.js"),
+      parseStatement = $__193.parseStatement,
+      parseStatements = $__193.parseStatements;
   var StateMachine = $traceurRuntime.getModuleImpl("../src/syntax/trees/StateMachine.js").StateMachine;
   var VAR = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js").VAR;
-  var $__198 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
-      createAssignStateStatement = $__198.createAssignStateStatement,
-      createBreakStatement = $__198.createBreakStatement,
-      createFunctionBody = $__198.createFunctionBody,
-      createReturnStatement = $__198.createReturnStatement,
-      createStatementList = $__198.createStatementList,
-      createUndefinedExpression = $__198.createUndefinedExpression;
+  var $__193 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
+      createAssignStateStatement = $__193.createAssignStateStatement,
+      createBreakStatement = $__193.createBreakStatement,
+      createFunctionBody = $__193.createFunctionBody,
+      createReturnStatement = $__193.createReturnStatement,
+      createStatementList = $__193.createStatementList,
+      createUndefinedExpression = $__193.createUndefinedExpression;
   var AsyncTransformer = function() {
     $traceurRuntime.defaultSuperCall(this, $AsyncTransformer.prototype, arguments);
   };
@@ -15431,15 +15263,15 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/AsyncTransformer
       var fallThroughState = this.allocateState();
       var states = [];
       var expression = this.transformAny(tree.expression);
-      states.push(new FallThroughState(createTaskState, callbackState, parseStatements($__191, expression, callbackState, errbackState)));
+      states.push(new FallThroughState(createTaskState, callbackState, parseStatements($__186, expression, callbackState, errbackState)));
       var assignment;
       if (tree.identifier != null) {
-        assignment = createStatementList(parseStatement($__192, tree.identifier));
+        assignment = createStatementList(parseStatement($__187, tree.identifier));
       } else {
         assignment = createStatementList();
       }
       states.push(new FallThroughState(callbackState, fallThroughState, assignment));
-      states.push(new FallThroughState(errbackState, fallThroughState, createStatementList(parseStatement($__193))));
+      states.push(new FallThroughState(errbackState, fallThroughState, createStatementList(parseStatement($__188))));
       return new StateMachine(createTaskState, fallThroughState, states, []);
     },
     transformFinally: function(tree) {
@@ -15462,7 +15294,7 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/AsyncTransformer
       return new StateMachine(startState, this.allocateState(), [completeState, end], []);
     },
     createCompleteTask_: function(result) {
-      return parseStatement($__194, result);
+      return parseStatement($__189, result);
     },
     transformAsyncBody: function(tree) {
       var transformedTree = this.transformAny(tree);
@@ -15470,7 +15302,7 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/AsyncTransformer
         return tree;
       }
       var machine = transformedTree;
-      var statements = $traceurRuntime.spread(this.getMachineVariables(tree, machine), parseStatements($__195, this.generateMachineInnerFunction(machine), this.generateMachineMethod(machine)));
+      var statements = $traceurRuntime.spread(this.getMachineVariables(tree, machine), parseStatements($__190, this.generateMachineInnerFunction(machine), this.generateMachineMethod(machine)));
       return createFunctionBody(statements);
     },
     machineUncaughtExceptionStatements: function(rethrowState, machineEndState) {
@@ -15483,7 +15315,7 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/AsyncTransformer
       return createStatementList(this.createCompleteTask_(createUndefinedExpression()), createAssignStateStatement(machineEndState), createBreakStatement());
     },
     machineRethrowStatements: function(machineEndState) {
-      return createStatementList(parseStatement($__196), createAssignStateStatement(machineEndState), createBreakStatement());
+      return createStatementList(parseStatement($__191), createAssignStateStatement(machineEndState), createBreakStatement());
     }
   }, {}, CPSTransformer);
   AsyncTransformer.transformAsyncBody = function(reporter, body) {
@@ -15495,51 +15327,51 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/AsyncTransformer
 }, this);
 $traceurRuntime.registerModule("../src/codegeneration/generator/ForInTransformPass.js", function() {
   "use strict";
-  var $__200 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
-      BLOCK = $__200.BLOCK,
-      VARIABLE_DECLARATION_LIST = $__200.VARIABLE_DECLARATION_LIST,
-      IDENTIFIER_EXPRESSION = $__200.IDENTIFIER_EXPRESSION;
-  var $__200 = $traceurRuntime.getModuleImpl("../src/syntax/PredefinedName.js"),
-      LENGTH = $__200.LENGTH,
-      PUSH = $__200.PUSH;
+  var $__195 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
+      BLOCK = $__195.BLOCK,
+      VARIABLE_DECLARATION_LIST = $__195.VARIABLE_DECLARATION_LIST,
+      IDENTIFIER_EXPRESSION = $__195.IDENTIFIER_EXPRESSION;
+  var $__195 = $traceurRuntime.getModuleImpl("../src/syntax/PredefinedName.js"),
+      LENGTH = $__195.LENGTH,
+      PUSH = $__195.PUSH;
   var TempVarTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/TempVarTransformer.js").TempVarTransformer;
-  var $__200 = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js"),
-      BANG = $__200.BANG,
-      IN = $__200.IN,
-      OPEN_ANGLE = $__200.OPEN_ANGLE,
-      PLUS_PLUS = $__200.PLUS_PLUS,
-      VAR = $__200.VAR;
-  var $__200 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
-      createArgumentList = $__200.createArgumentList,
-      createAssignmentStatement = $__200.createAssignmentStatement,
-      createBinaryOperator = $__200.createBinaryOperator,
-      createBlock = $__200.createBlock,
-      createCallStatement = $__200.createCallStatement,
-      createContinueStatement = $__200.createContinueStatement,
-      createEmptyArrayLiteralExpression = $__200.createEmptyArrayLiteralExpression,
-      createForInStatement = $__200.createForInStatement,
-      createForStatement = $__200.createForStatement,
-      createIdentifierExpression = $__200.createIdentifierExpression,
-      createIfStatement = $__200.createIfStatement,
-      createMemberExpression = $__200.createMemberExpression,
-      createMemberLookupExpression = $__200.createMemberLookupExpression,
-      createNumberLiteral = $__200.createNumberLiteral,
-      createOperatorToken = $__200.createOperatorToken,
-      createParenExpression = $__200.createParenExpression,
-      createPostfixExpression = $__200.createPostfixExpression,
-      createUnaryExpression = $__200.createUnaryExpression,
-      createVariableDeclarationList = $__200.createVariableDeclarationList,
-      createVariableStatement = $__200.createVariableStatement;
+  var $__195 = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js"),
+      BANG = $__195.BANG,
+      IN = $__195.IN,
+      OPEN_ANGLE = $__195.OPEN_ANGLE,
+      PLUS_PLUS = $__195.PLUS_PLUS,
+      VAR = $__195.VAR;
+  var $__195 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
+      createArgumentList = $__195.createArgumentList,
+      createAssignmentStatement = $__195.createAssignmentStatement,
+      createBinaryOperator = $__195.createBinaryOperator,
+      createBlock = $__195.createBlock,
+      createCallStatement = $__195.createCallStatement,
+      createContinueStatement = $__195.createContinueStatement,
+      createEmptyArrayLiteralExpression = $__195.createEmptyArrayLiteralExpression,
+      createForInStatement = $__195.createForInStatement,
+      createForStatement = $__195.createForStatement,
+      createIdentifierExpression = $__195.createIdentifierExpression,
+      createIfStatement = $__195.createIfStatement,
+      createMemberExpression = $__195.createMemberExpression,
+      createMemberLookupExpression = $__195.createMemberLookupExpression,
+      createNumberLiteral = $__195.createNumberLiteral,
+      createOperatorToken = $__195.createOperatorToken,
+      createParenExpression = $__195.createParenExpression,
+      createPostfixExpression = $__195.createPostfixExpression,
+      createUnaryExpression = $__195.createUnaryExpression,
+      createVariableDeclarationList = $__195.createVariableDeclarationList,
+      createVariableStatement = $__195.createVariableStatement;
   var ForInTransformPass = function() {
     $traceurRuntime.defaultSuperCall(this, $ForInTransformPass.prototype, arguments);
   };
   var $ForInTransformPass = ($traceurRuntime.createClass)(ForInTransformPass, {transformForInStatement: function(original) {
-      var $__201;
+      var $__196;
       var tree = original;
       var bodyStatements = [];
       var body = this.transformAny(tree.body);
       if (body.type == BLOCK) {
-        ($__201 = bodyStatements).push.apply($__201, $traceurRuntime.toObject(body.statements));
+        ($__196 = bodyStatements).push.apply($__196, $traceurRuntime.toObject(body.statements));
       } else {
         bodyStatements.push(body);
       }
@@ -15567,7 +15399,7 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/ForInTransformPa
       var innerBlock = [];
       innerBlock.push(assignOriginalKey);
       innerBlock.push(createIfStatement(createUnaryExpression(createOperatorToken(BANG), createParenExpression(createBinaryOperator(originalKey, createOperatorToken(IN), createIdentifierExpression(collection)))), createContinueStatement(), null));
-      ($__201 = innerBlock).push.apply($__201, $traceurRuntime.toObject(bodyStatements));
+      ($__196 = innerBlock).push.apply($__196, $traceurRuntime.toObject(bodyStatements));
       elements.push(createForStatement(createVariableDeclarationList(VAR, i, createNumberLiteral(0)), createBinaryOperator(createIdentifierExpression(i), createOperatorToken(OPEN_ANGLE), createMemberExpression(keys, LENGTH)), createPostfixExpression(createIdentifierExpression(i), createOperatorToken(PLUS_PLUS)), createBlock(innerBlock)));
       return createBlock(elements);
     }}, {}, TempVarTransformer);
@@ -15579,13 +15411,13 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/YieldState.js", 
   "use strict";
   var CURRENT = $traceurRuntime.getModuleImpl("../src/syntax/PredefinedName.js").CURRENT;
   var State = $traceurRuntime.getModuleImpl("../src/codegeneration/generator/State.js").State;
-  var $__203 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
-      createAssignmentStatement = $__203.createAssignmentStatement,
-      createIdentifierExpression = $__203.createIdentifierExpression,
-      createMemberExpression = $__203.createMemberExpression,
-      createReturnStatement = $__203.createReturnStatement,
-      createThisExpression = $__203.createThisExpression,
-      createTrueLiteral = $__203.createTrueLiteral;
+  var $__198 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
+      createAssignmentStatement = $__198.createAssignmentStatement,
+      createIdentifierExpression = $__198.createIdentifierExpression,
+      createMemberExpression = $__198.createMemberExpression,
+      createReturnStatement = $__198.createReturnStatement,
+      createThisExpression = $__198.createThisExpression,
+      createTrueLiteral = $__198.createTrueLiteral;
   var YieldState = function(id, fallThroughState, expression) {
     $traceurRuntime.superCall(this, $YieldState.prototype, "constructor", [id]);
     this.fallThroughState = fallThroughState;
@@ -15605,16 +15437,16 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/YieldState.js", 
 }, this);
 $traceurRuntime.registerModule("../src/codegeneration/generator/ReturnState.js", function() {
   "use strict";
-  var $__205 = $traceurRuntime.getModuleImpl("../src/semantics/util.js"),
-      isUndefined = $__205.isUndefined,
-      isVoidExpression = $__205.isVoidExpression;
+  var $__200 = $traceurRuntime.getModuleImpl("../src/semantics/util.js"),
+      isUndefined = $__200.isUndefined,
+      isVoidExpression = $__200.isVoidExpression;
   var YIELD_RETURN = $traceurRuntime.getModuleImpl("../src/syntax/PredefinedName.js").YIELD_RETURN;
   var YieldState = $traceurRuntime.getModuleImpl("../src/codegeneration/generator/YieldState.js").YieldState;
   var State = $traceurRuntime.getModuleImpl("../src/codegeneration/generator/State.js").State;
-  var $__205 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
-      createAssignmentStatement = $__205.createAssignmentStatement,
-      createMemberExpression = $__205.createMemberExpression,
-      createThisExpression = $__205.createThisExpression;
+  var $__200 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
+      createAssignmentStatement = $__200.createAssignmentStatement,
+      createMemberExpression = $__200.createMemberExpression,
+      createThisExpression = $__200.createThisExpression;
   var ReturnState = function() {
     $traceurRuntime.defaultSuperCall(this, $ReturnState.prototype, arguments);
   };
@@ -15632,31 +15464,31 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/ReturnState.js",
 }, this);
 $traceurRuntime.registerModule("../src/codegeneration/generator/GeneratorTransformer.js", function() {
   "use strict";
-  var $__206 = Object.freeze(Object.defineProperties(["var $that = this, $arguments = arguments,\n              $G = {\n                GState: ", ",\n                current: undefined,\n                yieldReturn: undefined,\n                innerFunction: ", ",\n                moveNext: ", "\n              };\n          return $traceurRuntime.generatorWrap($G);"], {raw: {value: Object.freeze(["var $that = this, $arguments = arguments,\n              $G = {\n                GState: ", ",\n                current: undefined,\n                yieldReturn: undefined,\n                innerFunction: ", ",\n                moveNext: ", "\n              };\n          return $traceurRuntime.generatorWrap($G);"])}}));
+  var $__201 = Object.freeze(Object.defineProperties(["var $that = this, $arguments = arguments,\n              $G = {\n                GState: ", ",\n                current: undefined,\n                yieldReturn: undefined,\n                innerFunction: ", ",\n                moveNext: ", "\n              };\n          return $traceurRuntime.generatorWrap($G);"], {raw: {value: Object.freeze(["var $that = this, $arguments = arguments,\n              $G = {\n                GState: ", ",\n                current: undefined,\n                yieldReturn: undefined,\n                innerFunction: ", ",\n                moveNext: ", "\n              };\n          return $traceurRuntime.generatorWrap($G);"])}}));
   var CPSTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/generator/CPSTransformer.js").CPSTransformer;
   var STORED_EXCEPTION = $traceurRuntime.getModuleImpl("../src/syntax/PredefinedName.js").STORED_EXCEPTION;
-  var $__208 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
-      STATE_MACHINE = $__208.STATE_MACHINE,
-      YIELD_EXPRESSION = $__208.YIELD_EXPRESSION;
-  var $__208 = $traceurRuntime.getModuleImpl("../src/codegeneration/PlaceholderParser.js"),
-      parseStatement = $__208.parseStatement,
-      parseStatements = $__208.parseStatements;
+  var $__203 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
+      STATE_MACHINE = $__203.STATE_MACHINE,
+      YIELD_EXPRESSION = $__203.YIELD_EXPRESSION;
+  var $__203 = $traceurRuntime.getModuleImpl("../src/codegeneration/PlaceholderParser.js"),
+      parseStatement = $__203.parseStatement,
+      parseStatements = $__203.parseStatements;
   var StateMachine = $traceurRuntime.getModuleImpl("../src/syntax/trees/StateMachine.js").StateMachine;
   var YieldState = $traceurRuntime.getModuleImpl("../src/codegeneration/generator/YieldState.js").YieldState;
   var ReturnState = $traceurRuntime.getModuleImpl("../src/codegeneration/generator/ReturnState.js").ReturnState;
-  var $__208 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
-      createAssignStateStatement = $__208.createAssignStateStatement,
-      createAssignmentStatement = $__208.createAssignmentStatement,
-      createFalseLiteral = $__208.createFalseLiteral,
-      createFunctionBody = $__208.createFunctionBody,
-      id = $__208.createIdentifierExpression,
-      createMemberExpression = $__208.createMemberExpression,
-      createNumberLiteral = $__208.createNumberLiteral,
-      createReturnStatement = $__208.createReturnStatement,
-      createStatementList = $__208.createStatementList,
-      createThisExpression = $__208.createThisExpression,
-      createThrowStatement = $__208.createThrowStatement,
-      createUndefinedExpression = $__208.createUndefinedExpression;
+  var $__203 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
+      createAssignStateStatement = $__203.createAssignStateStatement,
+      createAssignmentStatement = $__203.createAssignmentStatement,
+      createFalseLiteral = $__203.createFalseLiteral,
+      createFunctionBody = $__203.createFunctionBody,
+      id = $__203.createIdentifierExpression,
+      createMemberExpression = $__203.createMemberExpression,
+      createNumberLiteral = $__203.createNumberLiteral,
+      createReturnStatement = $__203.createReturnStatement,
+      createStatementList = $__203.createStatementList,
+      createThisExpression = $__203.createThisExpression,
+      createThrowStatement = $__203.createThrowStatement,
+      createUndefinedExpression = $__203.createUndefinedExpression;
   var ST_NEWBORN = 0;
   var ST_EXECUTING = 1;
   var ST_SUSPENDED = 2;
@@ -15705,7 +15537,7 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/GeneratorTransfo
       }
       var machine = transformedTree;
       machine = new StateMachine(machine.startState, machine.fallThroughState, this.removeEmptyStates(machine.states), machine.exceptionBlocks);
-      var statements = $traceurRuntime.spread(this.getMachineVariables(tree, machine), parseStatements($__206, ST_NEWBORN, this.generateMachineInnerFunction(machine), this.generateMachineMethod(machine)));
+      var statements = $traceurRuntime.spread(this.getMachineVariables(tree, machine), parseStatements($__201, ST_NEWBORN, this.generateMachineInnerFunction(machine), this.generateMachineMethod(machine)));
       return createFunctionBody(statements);
     },
     machineUncaughtExceptionStatements: function(rethrowState, machineEndState) {
@@ -15730,47 +15562,47 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/GeneratorTransfo
 }, this);
 $traceurRuntime.registerModule("../src/codegeneration/GeneratorTransformPass.js", function() {
   "use strict";
-  var $__209 = Object.freeze(Object.defineProperties(["\n          if (", " == ", ") {\n            ", " = ", ";\n            throw ", ";\n          }"], {raw: {value: Object.freeze(["\n          if (", " == ", ") {\n            ", " = ", ";\n            throw ", ";\n          }"])}})),
-      $__210 = Object.freeze(Object.defineProperties(["\n        {\n          var ", " = ", "[Symbol.iterator]();\n          var ", ";\n\n          // TODO: Should 'yield *' handle non-generator iterators? A strict\n          // interpretation of harmony:generators would indicate 'no', but\n          // 'yes' seems makes more sense from a language-user's perspective.\n\n          // received = void 0;\n          ", " = void 0;\n          // send = true; // roughly equivalent\n          ", " = ", ";\n\n          while (true) {\n            if (", " == ", ") {\n              ", " = ", ".next(", ");\n            } else {\n              ", " = ", ".throw(", ");\n            }\n            if (", ".done) {\n              ", " = ", ".value;\n              break;\n            }\n            // Normally, this would go through transformYieldForExpression_\n            // which would rethrow and we would catch it and set up the states\n            // again.\n            ", ";\n          }\n        }"], {raw: {value: Object.freeze(["\n        {\n          var ", " = ", "[Symbol.iterator]();\n          var ", ";\n\n          // TODO: Should 'yield *' handle non-generator iterators? A strict\n          // interpretation of harmony:generators would indicate 'no', but\n          // 'yes' seems makes more sense from a language-user's perspective.\n\n          // received = void 0;\n          ", " = void 0;\n          // send = true; // roughly equivalent\n          ", " = ", ";\n\n          while (true) {\n            if (", " == ", ") {\n              ", " = ", ".next(", ");\n            } else {\n              ", " = ", ".throw(", ");\n            }\n            if (", ".done) {\n              ", " = ", ".value;\n              break;\n            }\n            // Normally, this would go through transformYieldForExpression_\n            // which would rethrow and we would catch it and set up the states\n            // again.\n            ", ";\n          }\n        }"])}}));
+  var $__204 = Object.freeze(Object.defineProperties(["\n          if (", " == ", ") {\n            ", " = ", ";\n            throw ", ";\n          }"], {raw: {value: Object.freeze(["\n          if (", " == ", ") {\n            ", " = ", ";\n            throw ", ";\n          }"])}})),
+      $__205 = Object.freeze(Object.defineProperties(["\n        {\n          var ", " = ", "[Symbol.iterator]();\n          var ", ";\n\n          // TODO: Should 'yield *' handle non-generator iterators? A strict\n          // interpretation of harmony:generators would indicate 'no', but\n          // 'yes' seems makes more sense from a language-user's perspective.\n\n          // received = void 0;\n          ", " = void 0;\n          // send = true; // roughly equivalent\n          ", " = ", ";\n\n          while (true) {\n            if (", " == ", ") {\n              ", " = ", ".next(", ");\n            } else {\n              ", " = ", ".throw(", ");\n            }\n            if (", ".done) {\n              ", " = ", ".value;\n              break;\n            }\n            // Normally, this would go through transformYieldForExpression_\n            // which would rethrow and we would catch it and set up the states\n            // again.\n            ", ";\n          }\n        }"], {raw: {value: Object.freeze(["\n        {\n          var ", " = ", "[Symbol.iterator]();\n          var ", ";\n\n          // TODO: Should 'yield *' handle non-generator iterators? A strict\n          // interpretation of harmony:generators would indicate 'no', but\n          // 'yes' seems makes more sense from a language-user's perspective.\n\n          // received = void 0;\n          ", " = void 0;\n          // send = true; // roughly equivalent\n          ", " = ", ";\n\n          while (true) {\n            if (", " == ", ") {\n              ", " = ", ".next(", ");\n            } else {\n              ", " = ", ".throw(", ");\n            }\n            if (", ".done) {\n              ", " = ", ".value;\n              break;\n            }\n            // Normally, this would go through transformYieldForExpression_\n            // which would rethrow and we would catch it and set up the states\n            // again.\n            ", ";\n          }\n        }"])}}));
   var AsyncTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/generator/AsyncTransformer.js").AsyncTransformer;
   var ForInTransformPass = $traceurRuntime.getModuleImpl("../src/codegeneration/generator/ForInTransformPass.js").ForInTransformPass;
-  var $__212 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
-      GetAccessor = $__212.GetAccessor,
-      SetAccessor = $__212.SetAccessor;
+  var $__207 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
+      GetAccessor = $__207.GetAccessor,
+      SetAccessor = $__207.SetAccessor;
   var GeneratorTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/generator/GeneratorTransformer.js").GeneratorTransformer;
   var ParseTreeVisitor = $traceurRuntime.getModuleImpl("../src/syntax/ParseTreeVisitor.js").ParseTreeVisitor;
   var parseStatement = $traceurRuntime.getModuleImpl("../src/codegeneration/PlaceholderParser.js").parseStatement;
   var TempVarTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/TempVarTransformer.js").TempVarTransformer;
   var EQUAL = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js").EQUAL;
-  var $__212 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
-      BINARY_OPERATOR = $__212.BINARY_OPERATOR,
-      COMMA_EXPRESSION = $__212.COMMA_EXPRESSION,
-      PAREN_EXPRESSION = $__212.PAREN_EXPRESSION,
-      YIELD_EXPRESSION = $__212.YIELD_EXPRESSION;
-  var $__212 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
-      FunctionDeclaration = $__212.FunctionDeclaration,
-      FunctionExpression = $__212.FunctionExpression;
-  var $__212 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
-      createAssignmentExpression = $__212.createAssignmentExpression,
-      createAssignmentStatement = $__212.createAssignmentStatement,
-      createBlock = $__212.createBlock,
-      createCommaExpression = $__212.createCommaExpression,
-      createExpressionStatement = $__212.createExpressionStatement,
-      createIdentifierExpression = $__212.createIdentifierExpression,
-      createReturnStatement = $__212.createReturnStatement,
-      createMemberExpression = $__212.createMemberExpression,
-      createVariableDeclaration = $__212.createVariableDeclaration,
-      createVariableDeclarationList = $__212.createVariableDeclarationList,
-      createVariableStatement = $__212.createVariableStatement,
-      createYieldStatement = $__212.createYieldStatement;
-  var $__212 = $traceurRuntime.getModuleImpl("../src/syntax/PredefinedName.js"),
-      ACTION_SEND = $__212.ACTION_SEND,
-      ACTION_THROW = $__212.ACTION_THROW,
-      YIELD_ACTION = $__212.YIELD_ACTION,
-      YIELD_SENT = $__212.YIELD_SENT;
-  var $__212 = $traceurRuntime.getModuleImpl("../src/options.js"),
-      transformOptions = $__212.transformOptions,
-      options = $__212.options;
+  var $__207 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
+      BINARY_OPERATOR = $__207.BINARY_OPERATOR,
+      COMMA_EXPRESSION = $__207.COMMA_EXPRESSION,
+      PAREN_EXPRESSION = $__207.PAREN_EXPRESSION,
+      YIELD_EXPRESSION = $__207.YIELD_EXPRESSION;
+  var $__207 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
+      FunctionDeclaration = $__207.FunctionDeclaration,
+      FunctionExpression = $__207.FunctionExpression;
+  var $__207 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
+      createAssignmentExpression = $__207.createAssignmentExpression,
+      createAssignmentStatement = $__207.createAssignmentStatement,
+      createBlock = $__207.createBlock,
+      createCommaExpression = $__207.createCommaExpression,
+      createExpressionStatement = $__207.createExpressionStatement,
+      createIdentifierExpression = $__207.createIdentifierExpression,
+      createReturnStatement = $__207.createReturnStatement,
+      createMemberExpression = $__207.createMemberExpression,
+      createVariableDeclaration = $__207.createVariableDeclaration,
+      createVariableDeclarationList = $__207.createVariableDeclarationList,
+      createVariableStatement = $__207.createVariableStatement,
+      createYieldStatement = $__207.createYieldStatement;
+  var $__207 = $traceurRuntime.getModuleImpl("../src/syntax/PredefinedName.js"),
+      ACTION_SEND = $__207.ACTION_SEND,
+      ACTION_THROW = $__207.ACTION_THROW,
+      YIELD_ACTION = $__207.YIELD_ACTION,
+      YIELD_SENT = $__207.YIELD_SENT;
+  var $__207 = $traceurRuntime.getModuleImpl("../src/options.js"),
+      transformOptions = $__207.transformOptions,
+      options = $__207.options;
   function isYieldAssign(tree) {
     return tree.operator.type === EQUAL && tree.right.type === YIELD_EXPRESSION && tree.left.isLeftHandSideExpression();
   }
@@ -15806,7 +15638,7 @@ $traceurRuntime.registerModule("../src/codegeneration/GeneratorTransformPass.js"
   var YieldExpressionTransformer = function(identifierGenerator, reporter) {
     $traceurRuntime.superCall(this, $YieldExpressionTransformer.prototype, "constructor", [identifierGenerator]);
     if (!throwClose) {
-      throwClose = parseStatement($__209, id(YIELD_ACTION), ACTION_THROW, id(YIELD_ACTION), ACTION_SEND, id(YIELD_SENT));
+      throwClose = parseStatement($__204, id(YIELD_ACTION), ACTION_THROW, id(YIELD_ACTION), ACTION_SEND, id(YIELD_SENT));
     }
   };
   var $YieldExpressionTransformer = ($traceurRuntime.createClass)(YieldExpressionTransformer, {
@@ -15859,7 +15691,7 @@ $traceurRuntime.registerModule("../src/codegeneration/GeneratorTransformPass.js"
     transformYieldForExpression_: function(tree) {
       var g = id(this.getTempIdentifier());
       var next = id(this.getTempIdentifier());
-      return parseStatement($__210, g, tree.expression, next, id(YIELD_SENT), id(YIELD_ACTION), ACTION_SEND, id(YIELD_ACTION), ACTION_SEND, next, g, id(YIELD_SENT), next, g, id(YIELD_SENT), next, id(YIELD_SENT), next, createYieldStatement(createMemberExpression(next, 'value')));
+      return parseStatement($__205, g, tree.expression, next, id(YIELD_SENT), id(YIELD_ACTION), ACTION_SEND, id(YIELD_ACTION), ACTION_SEND, next, g, id(YIELD_SENT), next, g, id(YIELD_SENT), next, id(YIELD_SENT), next, createYieldStatement(createMemberExpression(next, 'value')));
     }
   }, {}, TempVarTransformer);
   var GeneratorTransformPass = function(identifierGenerator, reporter) {
@@ -15943,43 +15775,43 @@ $traceurRuntime.registerModule("../src/codegeneration/module/DirectExportVisitor
 }, this);
 $traceurRuntime.registerModule("../src/codegeneration/ModuleTransformer.js", function() {
   "use strict";
-  var $__215 = Object.freeze(Object.defineProperties(["$traceurRuntime.registerModule(", ", function() {\n          ", "\n        }, this)"], {raw: {value: Object.freeze(["$traceurRuntime.registerModule(", ", function() {\n          ", "\n        }, this)"])}})),
-      $__216 = Object.freeze(Object.defineProperties(["get ", "() { return ", "; }"], {raw: {value: Object.freeze(["get ", "() { return ", "; }"])}})),
-      $__217 = Object.freeze(Object.defineProperties(["return $traceurRuntime.exportStar(", ")"], {raw: {value: Object.freeze(["return $traceurRuntime.exportStar(", ")"])}})),
-      $__218 = Object.freeze(Object.defineProperties(["return ", ""], {raw: {value: Object.freeze(["return ", ""])}})),
-      $__219 = Object.freeze(Object.defineProperties(["var $__default = ", ""], {raw: {value: Object.freeze(["var $__default = ", ""])}})),
-      $__220 = Object.freeze(Object.defineProperties(["System.get(", ")"], {raw: {value: Object.freeze(["System.get(", ")"])}})),
-      $__221 = Object.freeze(Object.defineProperties(["$traceurRuntime.getModuleImpl(", ")"], {raw: {value: Object.freeze(["$traceurRuntime.getModuleImpl(", ")"])}}));
-  var $__224 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
-      BindingElement = $__224.BindingElement,
-      BindingIdentifier = $__224.BindingIdentifier,
-      EmptyStatement = $__224.EmptyStatement,
-      LiteralPropertyName = $__224.LiteralPropertyName,
-      ObjectPattern = $__224.ObjectPattern,
-      ObjectPatternField = $__224.ObjectPatternField,
-      Script = $__224.Script;
+  var $__210 = Object.freeze(Object.defineProperties(["$traceurRuntime.registerModule(", ", function() {\n          ", "\n        }, this)"], {raw: {value: Object.freeze(["$traceurRuntime.registerModule(", ", function() {\n          ", "\n        }, this)"])}})),
+      $__211 = Object.freeze(Object.defineProperties(["get ", "() { return ", "; }"], {raw: {value: Object.freeze(["get ", "() { return ", "; }"])}})),
+      $__212 = Object.freeze(Object.defineProperties(["return $traceurRuntime.exportStar(", ")"], {raw: {value: Object.freeze(["return $traceurRuntime.exportStar(", ")"])}})),
+      $__213 = Object.freeze(Object.defineProperties(["return ", ""], {raw: {value: Object.freeze(["return ", ""])}})),
+      $__214 = Object.freeze(Object.defineProperties(["var $__default = ", ""], {raw: {value: Object.freeze(["var $__default = ", ""])}})),
+      $__215 = Object.freeze(Object.defineProperties(["System.get(", ")"], {raw: {value: Object.freeze(["System.get(", ")"])}})),
+      $__216 = Object.freeze(Object.defineProperties(["$traceurRuntime.getModuleImpl(", ")"], {raw: {value: Object.freeze(["$traceurRuntime.getModuleImpl(", ")"])}}));
+  var $__219 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
+      BindingElement = $__219.BindingElement,
+      BindingIdentifier = $__219.BindingIdentifier,
+      EmptyStatement = $__219.EmptyStatement,
+      LiteralPropertyName = $__219.LiteralPropertyName,
+      ObjectPattern = $__219.ObjectPattern,
+      ObjectPatternField = $__219.ObjectPatternField,
+      Script = $__219.Script;
   var DirectExportVisitor = $traceurRuntime.getModuleImpl("../src/codegeneration/module/DirectExportVisitor.js").DirectExportVisitor;
   var TempVarTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/TempVarTransformer.js").TempVarTransformer;
-  var $__224 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
-      EXPORT_DEFAULT = $__224.EXPORT_DEFAULT,
-      EXPORT_SPECIFIER = $__224.EXPORT_SPECIFIER;
+  var $__219 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
+      EXPORT_DEFAULT = $__219.EXPORT_DEFAULT,
+      EXPORT_SPECIFIER = $__219.EXPORT_SPECIFIER;
   var VAR = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js").VAR;
   var assert = $traceurRuntime.getModuleImpl("../src/util/assert.js").assert;
-  var $__224 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
-      createArgumentList = $__224.createArgumentList,
-      createBindingIdentifier = $__224.createBindingIdentifier,
-      createEmptyStatement = $__224.createEmptyStatement,
-      createExpressionStatement = $__224.createExpressionStatement,
-      createIdentifierExpression = $__224.createIdentifierExpression,
-      createIdentifierToken = $__224.createIdentifierToken,
-      createMemberExpression = $__224.createMemberExpression,
-      createObjectLiteralExpression = $__224.createObjectLiteralExpression,
-      createUseStrictDirective = $__224.createUseStrictDirective,
-      createVariableStatement = $__224.createVariableStatement;
-  var $__224 = $traceurRuntime.getModuleImpl("../src/codegeneration/PlaceholderParser.js"),
-      parseExpression = $__224.parseExpression,
-      parsePropertyDefinition = $__224.parsePropertyDefinition,
-      parseStatement = $__224.parseStatement;
+  var $__219 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
+      createArgumentList = $__219.createArgumentList,
+      createBindingIdentifier = $__219.createBindingIdentifier,
+      createEmptyStatement = $__219.createEmptyStatement,
+      createExpressionStatement = $__219.createExpressionStatement,
+      createIdentifierExpression = $__219.createIdentifierExpression,
+      createIdentifierToken = $__219.createIdentifierToken,
+      createMemberExpression = $__219.createMemberExpression,
+      createObjectLiteralExpression = $__219.createObjectLiteralExpression,
+      createUseStrictDirective = $__219.createUseStrictDirective,
+      createVariableStatement = $__219.createVariableStatement;
+  var $__219 = $traceurRuntime.getModuleImpl("../src/codegeneration/PlaceholderParser.js"),
+      parseExpression = $__219.parseExpression,
+      parsePropertyDefinition = $__219.parsePropertyDefinition,
+      parseStatement = $__219.parseStatement;
   var ModuleTransformer = function(identifierGenerator) {
     $traceurRuntime.superCall(this, $ModuleTransformer.prototype, "constructor", [identifierGenerator]);
     this.exportVisitor_ = new DirectExportVisitor();
@@ -16006,12 +15838,12 @@ $traceurRuntime.registerModule("../src/codegeneration/ModuleTransformer.js", fun
       return new Script(tree.location, [createExpressionStatement(funcExpr)]);
     },
     wrapModule: function(tree) {
-      return parseExpression($__215, this.url, tree);
+      return parseExpression($__210, this.url, tree);
     },
-    getGetterExport: function($__224) {
-      var name = $__224.name,
-          tree = $__224.tree,
-          moduleSpecifier = $__224.moduleSpecifier;
+    getGetterExport: function($__219) {
+      var name = $__219.name,
+          tree = $__219.tree,
+          moduleSpecifier = $__219.moduleSpecifier;
       var returnExpression;
       switch (tree.type) {
         case EXPORT_DEFAULT:
@@ -16029,30 +15861,30 @@ $traceurRuntime.registerModule("../src/codegeneration/ModuleTransformer.js", fun
           returnExpression = createIdentifierExpression(name);
           break;
       }
-      return parsePropertyDefinition($__216, name, returnExpression);
+      return parsePropertyDefinition($__211, name, returnExpression);
     },
     createExportStatement: function() {
-      var $__222 = this;
+      var $__217 = this;
       var properties = this.exportVisitor_.namedExports.map((function(exp) {
-        return $__222.getGetterExport(exp);
+        return $__217.getGetterExport(exp);
       }));
       var object = createObjectLiteralExpression(properties);
       var starExports = this.exportVisitor_.starExports;
       if (starExports.length) {
         var starIdents = starExports.map((function(moduleSpecifier) {
-          return createIdentifierExpression($__222.getTempVarNameForModuleSpecifier(moduleSpecifier));
+          return createIdentifierExpression($__217.getTempVarNameForModuleSpecifier(moduleSpecifier));
         }));
         var args = createArgumentList.apply(null, $traceurRuntime.spread([object], starIdents));
-        return parseStatement($__217, args);
+        return parseStatement($__212, args);
       }
-      return parseStatement($__218, object);
+      return parseStatement($__213, object);
     },
     transformExportDeclaration: function(tree) {
       this.exportVisitor_.visitAny(tree);
       return this.transformAny(tree.declaration);
     },
     transformExportDefault: function(tree) {
-      return parseStatement($__219, tree.expression);
+      return parseStatement($__214, tree.expression);
     },
     transformNamedExport: function(tree) {
       var moduleSpecifier = tree.moduleSpecifier;
@@ -16071,8 +15903,8 @@ $traceurRuntime.registerModule("../src/codegeneration/ModuleTransformer.js", fun
     },
     getModuleReference: function(url) {
       var kind = arguments[1];
-      if (kind === 'module') return parseExpression($__220, url);
-      return parseExpression($__221, url);
+      if (kind === 'module') return parseExpression($__215, url);
+      return parseExpression($__216, url);
     },
     transformModuleDeclaration: function(tree) {
       this.moduleSpecifierKind_ = 'module';
@@ -16140,9 +15972,9 @@ $traceurRuntime.registerModule("../src/codegeneration/MultiTransformer.js", func
 $traceurRuntime.registerModule("../src/codegeneration/NumericLiteralTransformer.js", function() {
   "use strict";
   var ParseTreeTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeTransformer.js").ParseTreeTransformer;
-  var $__228 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
-      LiteralExpression = $__228.LiteralExpression,
-      LiteralPropertyName = $__228.LiteralPropertyName;
+  var $__223 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
+      LiteralExpression = $__223.LiteralExpression,
+      LiteralPropertyName = $__223.LiteralPropertyName;
   var LiteralToken = $traceurRuntime.getModuleImpl("../src/syntax/LiteralToken.js").LiteralToken;
   var NUMBER = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js").NUMBER;
   function needsTransform(token) {
@@ -16173,30 +16005,30 @@ $traceurRuntime.registerModule("../src/codegeneration/NumericLiteralTransformer.
 $traceurRuntime.registerModule("../src/codegeneration/ObjectLiteralTransformer.js", function() {
   "use strict";
   var FindVisitor = $traceurRuntime.getModuleImpl("../src/codegeneration/FindVisitor.js").FindVisitor;
-  var $__230 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
-      FormalParameterList = $__230.FormalParameterList,
-      FunctionExpression = $__230.FunctionExpression,
-      IdentifierExpression = $__230.IdentifierExpression,
-      LiteralExpression = $__230.LiteralExpression;
+  var $__225 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
+      FormalParameterList = $__225.FormalParameterList,
+      FunctionExpression = $__225.FunctionExpression,
+      IdentifierExpression = $__225.IdentifierExpression,
+      LiteralExpression = $__225.LiteralExpression;
   var TempVarTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/TempVarTransformer.js").TempVarTransformer;
-  var $__230 = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js"),
-      IDENTIFIER = $__230.IDENTIFIER,
-      STRING = $__230.STRING;
-  var $__230 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
-      COMPUTED_PROPERTY_NAME = $__230.COMPUTED_PROPERTY_NAME,
-      LITERAL_PROPERTY_NAME = $__230.LITERAL_PROPERTY_NAME;
-  var $__230 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
-      createAssignmentExpression = $__230.createAssignmentExpression,
-      createCommaExpression = $__230.createCommaExpression,
-      createDefineProperty = $__230.createDefineProperty,
-      createEmptyParameterList = $__230.createEmptyParameterList,
-      createFunctionExpression = $__230.createFunctionExpression,
-      createIdentifierExpression = $__230.createIdentifierExpression,
-      createObjectCreate = $__230.createObjectCreate,
-      createObjectLiteralExpression = $__230.createObjectLiteralExpression,
-      createParenExpression = $__230.createParenExpression,
-      createPropertyNameAssignment = $__230.createPropertyNameAssignment,
-      createStringLiteral = $__230.createStringLiteral;
+  var $__225 = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js"),
+      IDENTIFIER = $__225.IDENTIFIER,
+      STRING = $__225.STRING;
+  var $__225 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
+      COMPUTED_PROPERTY_NAME = $__225.COMPUTED_PROPERTY_NAME,
+      LITERAL_PROPERTY_NAME = $__225.LITERAL_PROPERTY_NAME;
+  var $__225 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
+      createAssignmentExpression = $__225.createAssignmentExpression,
+      createCommaExpression = $__225.createCommaExpression,
+      createDefineProperty = $__225.createDefineProperty,
+      createEmptyParameterList = $__225.createEmptyParameterList,
+      createFunctionExpression = $__225.createFunctionExpression,
+      createIdentifierExpression = $__225.createIdentifierExpression,
+      createObjectCreate = $__225.createObjectCreate,
+      createObjectLiteralExpression = $__225.createObjectLiteralExpression,
+      createParenExpression = $__225.createParenExpression,
+      createPropertyNameAssignment = $__225.createPropertyNameAssignment,
+      createStringLiteral = $__225.createStringLiteral;
   var propName = $traceurRuntime.getModuleImpl("../src/staticsemantics/PropName.js").propName;
   var transformOptions = $traceurRuntime.getModuleImpl("../src/options.js").transformOptions;
   var FindAdvancedProperty = function(tree) {
@@ -16361,10 +16193,10 @@ $traceurRuntime.registerModule("../src/codegeneration/ObjectLiteralTransformer.j
 }, this);
 $traceurRuntime.registerModule("../src/codegeneration/PropertyNameShorthandTransformer.js", function() {
   "use strict";
-  var $__232 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
-      IdentifierExpression = $__232.IdentifierExpression,
-      LiteralPropertyName = $__232.LiteralPropertyName,
-      PropertyNameAssignment = $__232.PropertyNameAssignment;
+  var $__227 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
+      IdentifierExpression = $__227.IdentifierExpression,
+      LiteralPropertyName = $__227.LiteralPropertyName,
+      PropertyNameAssignment = $__227.PropertyNameAssignment;
   var ParseTreeTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeTransformer.js").ParseTreeTransformer;
   var PropertyNameShorthandTransformer = function() {
     $traceurRuntime.defaultSuperCall(this, $PropertyNameShorthandTransformer.prototype, arguments);
@@ -16378,7 +16210,7 @@ $traceurRuntime.registerModule("../src/codegeneration/PropertyNameShorthandTrans
 }, this);
 $traceurRuntime.registerModule("../src/codegeneration/RequireJsTransformer.js", function() {
   "use strict";
-  var $__233 = Object.freeze(Object.defineProperties(["define(", ", function(", ") {\n        ", "\n      });"], {raw: {value: Object.freeze(["define(", ", function(", ") {\n        ", "\n      });"])}}));
+  var $__228 = Object.freeze(Object.defineProperties(["define(", ", function(", ") {\n        ", "\n      });"], {raw: {value: Object.freeze(["define(", ", function(", ") {\n        ", "\n      });"])}}));
   var ModuleTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ModuleTransformer.js").ModuleTransformer;
   var VAR = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js").VAR;
   var parseExpression = $traceurRuntime.getModuleImpl("../src/codegeneration/PlaceholderParser.js").parseExpression;
@@ -16395,7 +16227,7 @@ $traceurRuntime.registerModule("../src/codegeneration/RequireJsTransformer.js", 
       var depLocals = this.dependencies.map((function(dep) {
         return dep.local;
       }));
-      return parseExpression($__233, depPaths, depLocals, tree);
+      return parseExpression($__228, depPaths, depLocals, tree);
     },
     transformModuleSpecifier: function(tree) {
       var depPath = this.normalizeDependencyPath(tree.token.processedValue);
@@ -16423,8 +16255,8 @@ $traceurRuntime.registerModule("../src/codegeneration/RequireJsTransformer.js", 
 }, this);
 $traceurRuntime.registerModule("../src/codegeneration/RestParameterTransformer.js", function() {
   "use strict";
-  var $__236 = Object.freeze(Object.defineProperties(["\n            for (var ", " = [], ", " = ", ";\n                 ", " < arguments.length; ", "++)\n              ", "[", " - ", "] = arguments[", "];"], {raw: {value: Object.freeze(["\n            for (var ", " = [], ", " = ", ";\n                 ", " < arguments.length; ", "++)\n              ", "[", " - ", "] = arguments[", "];"])}})),
-      $__237 = Object.freeze(Object.defineProperties(["\n            for (var ", " = [], ", " = 0;\n                 ", " < arguments.length; ", "++)\n              ", "[", "] = arguments[", "];"], {raw: {value: Object.freeze(["\n            for (var ", " = [], ", " = 0;\n                 ", " < arguments.length; ", "++)\n              ", "[", "] = arguments[", "];"])}}));
+  var $__231 = Object.freeze(Object.defineProperties(["\n            for (var ", " = [], ", " = ", ";\n                 ", " < arguments.length; ", "++)\n              ", "[", " - ", "] = arguments[", "];"], {raw: {value: Object.freeze(["\n            for (var ", " = [], ", " = ", ";\n                 ", " < arguments.length; ", "++)\n              ", "[", " - ", "] = arguments[", "];"])}})),
+      $__232 = Object.freeze(Object.defineProperties(["\n            for (var ", " = [], ", " = 0;\n                 ", " < arguments.length; ", "++)\n              ", "[", "] = arguments[", "];"], {raw: {value: Object.freeze(["\n            for (var ", " = [], ", " = 0;\n                 ", " < arguments.length; ", "++)\n              ", "[", "] = arguments[", "];"])}}));
   var FormalParameterList = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js").FormalParameterList;
   var ParameterTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ParameterTransformer.js").ParameterTransformer;
   var createIdentifierToken = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js").createIdentifierToken;
@@ -16449,9 +16281,9 @@ $traceurRuntime.registerModule("../src/codegeneration/RestParameterTransformer.j
         var name = getRestParameterLiteralToken(transformed);
         var loop;
         if (startIndex) {
-          loop = parseStatement($__236, name, i, startIndex, i, i, name, i, startIndex, i);
+          loop = parseStatement($__231, name, i, startIndex, i, i, name, i, startIndex, i);
         } else {
-          loop = parseStatement($__237, name, i, i, i, name, i, i);
+          loop = parseStatement($__232, name, i, i, i, name, i, i);
         }
         this.parameterStatements.push(loop);
         return parametersWithoutRestParam;
@@ -16464,30 +16296,30 @@ $traceurRuntime.registerModule("../src/codegeneration/RestParameterTransformer.j
 }, this);
 $traceurRuntime.registerModule("../src/codegeneration/SpreadTransformer.js", function() {
   "use strict";
-  var $__240 = Object.freeze(Object.defineProperties(["$traceurRuntime.toObject(", ")"], {raw: {value: Object.freeze(["$traceurRuntime.toObject(", ")"])}})),
-      $__241 = Object.freeze(Object.defineProperties(["$traceurRuntime.spread(", ")"], {raw: {value: Object.freeze(["$traceurRuntime.spread(", ")"])}}));
-  var $__243 = $traceurRuntime.getModuleImpl("../src/syntax/PredefinedName.js"),
-      APPLY = $__243.APPLY,
-      BIND = $__243.BIND,
-      FUNCTION = $__243.FUNCTION,
-      PROTOTYPE = $__243.PROTOTYPE;
-  var $__243 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
-      MEMBER_EXPRESSION = $__243.MEMBER_EXPRESSION,
-      MEMBER_LOOKUP_EXPRESSION = $__243.MEMBER_LOOKUP_EXPRESSION,
-      SPREAD_EXPRESSION = $__243.SPREAD_EXPRESSION;
+  var $__235 = Object.freeze(Object.defineProperties(["$traceurRuntime.toObject(", ")"], {raw: {value: Object.freeze(["$traceurRuntime.toObject(", ")"])}})),
+      $__236 = Object.freeze(Object.defineProperties(["$traceurRuntime.spread(", ")"], {raw: {value: Object.freeze(["$traceurRuntime.spread(", ")"])}}));
+  var $__238 = $traceurRuntime.getModuleImpl("../src/syntax/PredefinedName.js"),
+      APPLY = $__238.APPLY,
+      BIND = $__238.BIND,
+      FUNCTION = $__238.FUNCTION,
+      PROTOTYPE = $__238.PROTOTYPE;
+  var $__238 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
+      MEMBER_EXPRESSION = $__238.MEMBER_EXPRESSION,
+      MEMBER_LOOKUP_EXPRESSION = $__238.MEMBER_LOOKUP_EXPRESSION,
+      SPREAD_EXPRESSION = $__238.SPREAD_EXPRESSION;
   var TempVarTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/TempVarTransformer.js").TempVarTransformer;
-  var $__243 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
-      createArgumentList = $__243.createArgumentList,
-      createArrayLiteralExpression = $__243.createArrayLiteralExpression,
-      createAssignmentExpression = $__243.createAssignmentExpression,
-      createCallExpression = $__243.createCallExpression,
-      createEmptyArgumentList = $__243.createEmptyArgumentList,
-      createIdentifierExpression = $__243.createIdentifierExpression,
-      createMemberExpression = $__243.createMemberExpression,
-      createMemberLookupExpression = $__243.createMemberLookupExpression,
-      createNewExpression = $__243.createNewExpression,
-      createNullLiteral = $__243.createNullLiteral,
-      createParenExpression = $__243.createParenExpression;
+  var $__238 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
+      createArgumentList = $__238.createArgumentList,
+      createArrayLiteralExpression = $__238.createArrayLiteralExpression,
+      createAssignmentExpression = $__238.createAssignmentExpression,
+      createCallExpression = $__238.createCallExpression,
+      createEmptyArgumentList = $__238.createEmptyArgumentList,
+      createIdentifierExpression = $__238.createIdentifierExpression,
+      createMemberExpression = $__238.createMemberExpression,
+      createMemberLookupExpression = $__238.createMemberLookupExpression,
+      createNewExpression = $__238.createNewExpression,
+      createNullLiteral = $__238.createNullLiteral,
+      createParenExpression = $__238.createParenExpression;
   var parseExpression = $traceurRuntime.getModuleImpl("../src/codegeneration/PlaceholderParser.js").parseExpression;
   function hasSpreadMember(trees) {
     return trees.some((function(tree) {
@@ -16502,7 +16334,7 @@ $traceurRuntime.registerModule("../src/codegeneration/SpreadTransformer.js", fun
       var length = elements.length;
       if (length === 1 && !needsNewArray) {
         var args = createArgumentList(this.transformAny(elements[0].expression));
-        return parseExpression($__240, args);
+        return parseExpression($__235, args);
       }
       var args = [];
       var lastArray;
@@ -16519,7 +16351,7 @@ $traceurRuntime.registerModule("../src/codegeneration/SpreadTransformer.js", fun
         }
       }
       if (lastArray) args.push(createArrayLiteralExpression(lastArray));
-      return parseExpression($__241, createArgumentList(args));
+      return parseExpression($__236, createArgumentList(args));
     },
     desugarCallSpread_: function(tree) {
       var operand = this.transformAny(tree.operand);
@@ -16576,18 +16408,18 @@ $traceurRuntime.registerModule("../src/codegeneration/SpreadTransformer.js", fun
 }, this);
 $traceurRuntime.registerModule("../src/codegeneration/SymbolTransformer.js", function() {
   "use strict";
-  var $__244 = Object.freeze(Object.defineProperties(["$traceurRuntime.toProperty(", ") in ", ""], {raw: {value: Object.freeze(["$traceurRuntime.toProperty(", ") in ", ""])}})),
-      $__245 = Object.freeze(Object.defineProperties(["$traceurRuntime.setProperty(", ",\n          ", ", ", ")"], {raw: {value: Object.freeze(["$traceurRuntime.setProperty(", ",\n          ", ", ", ")"])}})),
-      $__246 = Object.freeze(Object.defineProperties(["", "[$traceurRuntime.toProperty(", ")]"], {raw: {value: Object.freeze(["", "[$traceurRuntime.toProperty(", ")]"])}}));
+  var $__239 = Object.freeze(Object.defineProperties(["$traceurRuntime.toProperty(", ") in ", ""], {raw: {value: Object.freeze(["$traceurRuntime.toProperty(", ") in ", ""])}})),
+      $__240 = Object.freeze(Object.defineProperties(["$traceurRuntime.setProperty(", ",\n          ", ", ", ")"], {raw: {value: Object.freeze(["$traceurRuntime.setProperty(", ",\n          ", ", ", ")"])}})),
+      $__241 = Object.freeze(Object.defineProperties(["", "[$traceurRuntime.toProperty(", ")]"], {raw: {value: Object.freeze(["", "[$traceurRuntime.toProperty(", ")]"])}}));
   var MEMBER_LOOKUP_EXPRESSION = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js").MEMBER_LOOKUP_EXPRESSION;
   var TempVarTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/TempVarTransformer.js").TempVarTransformer;
-  var $__248 = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js"),
-      DELETE = $__248.DELETE,
-      EQUAL = $__248.EQUAL,
-      IN = $__248.IN;
-  var $__248 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
-      createArgumentList = $__248.createArgumentList,
-      createIdentifierExpression = $__248.createIdentifierExpression;
+  var $__243 = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js"),
+      DELETE = $__243.DELETE,
+      EQUAL = $__243.EQUAL,
+      IN = $__243.IN;
+  var $__243 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
+      createArgumentList = $__243.createArgumentList,
+      createIdentifierExpression = $__243.createIdentifierExpression;
   var expandMemberLookupExpression = $traceurRuntime.getModuleImpl("../src/codegeneration/OperatorExpander.js").expandMemberLookupExpression;
   var parseExpression = $traceurRuntime.getModuleImpl("../src/codegeneration/PlaceholderParser.js").parseExpression;
   var SymbolTransformer = function() {
@@ -16598,7 +16430,7 @@ $traceurRuntime.registerModule("../src/codegeneration/SymbolTransformer.js", fun
       if (tree.operator.type === IN) {
         var name = this.transformAny(tree.left);
         var object = this.transformAny(tree.right);
-        return parseExpression($__244, name, object);
+        return parseExpression($__239, name, object);
       }
       if (tree.left.type === MEMBER_LOOKUP_EXPRESSION && tree.operator.isAssignmentOperator()) {
         if (tree.operator.type !== EQUAL) {
@@ -16608,14 +16440,14 @@ $traceurRuntime.registerModule("../src/codegeneration/SymbolTransformer.js", fun
         var operand = this.transformAny(tree.left.operand);
         var memberExpression = this.transformAny(tree.left.memberExpression);
         var value = this.transformAny(tree.right);
-        return parseExpression($__245, operand, memberExpression, value);
+        return parseExpression($__240, operand, memberExpression, value);
       }
       return $traceurRuntime.superCall(this, $SymbolTransformer.prototype, "transformBinaryOperator", [tree]);
     },
     transformMemberLookupExpression: function(tree) {
       var operand = this.transformAny(tree.operand);
       var memberExpression = this.transformAny(tree.memberExpression);
-      return parseExpression($__246, operand, memberExpression);
+      return parseExpression($__241, operand, memberExpression);
     }
   }, {}, TempVarTransformer);
   return {get SymbolTransformer() {
@@ -16624,40 +16456,40 @@ $traceurRuntime.registerModule("../src/codegeneration/SymbolTransformer.js", fun
 }, this);
 $traceurRuntime.registerModule("../src/codegeneration/TemplateLiteralTransformer.js", function() {
   "use strict";
-  var $__250 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
-      BINARY_OPERATOR = $__250.BINARY_OPERATOR,
-      COMMA_EXPRESSION = $__250.COMMA_EXPRESSION,
-      CONDITIONAL_EXPRESSION = $__250.CONDITIONAL_EXPRESSION,
-      TEMPLATE_LITERAL_PORTION = $__250.TEMPLATE_LITERAL_PORTION;
-  var $__250 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
-      LiteralExpression = $__250.LiteralExpression,
-      ParenExpression = $__250.ParenExpression;
+  var $__245 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
+      BINARY_OPERATOR = $__245.BINARY_OPERATOR,
+      COMMA_EXPRESSION = $__245.COMMA_EXPRESSION,
+      CONDITIONAL_EXPRESSION = $__245.CONDITIONAL_EXPRESSION,
+      TEMPLATE_LITERAL_PORTION = $__245.TEMPLATE_LITERAL_PORTION;
+  var $__245 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
+      LiteralExpression = $__245.LiteralExpression,
+      ParenExpression = $__245.ParenExpression;
   var LiteralToken = $traceurRuntime.getModuleImpl("../src/syntax/LiteralToken.js").LiteralToken;
-  var $__250 = $traceurRuntime.getModuleImpl("../src/syntax/PredefinedName.js"),
-      DEFINE_PROPERTIES = $__250.DEFINE_PROPERTIES,
-      OBJECT = $__250.OBJECT,
-      RAW = $__250.RAW;
+  var $__245 = $traceurRuntime.getModuleImpl("../src/syntax/PredefinedName.js"),
+      DEFINE_PROPERTIES = $__245.DEFINE_PROPERTIES,
+      OBJECT = $__245.OBJECT,
+      RAW = $__245.RAW;
   var ParseTreeTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeTransformer.js").ParseTreeTransformer;
   var TempVarTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/TempVarTransformer.js").TempVarTransformer;
-  var $__250 = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js"),
-      PERCENT = $__250.PERCENT,
-      PLUS = $__250.PLUS,
-      SLASH = $__250.SLASH,
-      STAR = $__250.STAR,
-      STRING = $__250.STRING;
-  var $__250 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
-      createArgumentList = $__250.createArgumentList,
-      createArrayLiteralExpression = $__250.createArrayLiteralExpression,
-      createBinaryOperator = $__250.createBinaryOperator,
-      createCallExpression = $__250.createCallExpression,
-      createIdentifierExpression = $__250.createIdentifierExpression,
-      createMemberExpression = $__250.createMemberExpression,
-      createObjectFreeze = $__250.createObjectFreeze,
-      createObjectLiteralExpression = $__250.createObjectLiteralExpression,
-      createOperatorToken = $__250.createOperatorToken,
-      createPropertyDescriptor = $__250.createPropertyDescriptor,
-      createPropertyNameAssignment = $__250.createPropertyNameAssignment,
-      createStringLiteral = $__250.createStringLiteral;
+  var $__245 = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js"),
+      PERCENT = $__245.PERCENT,
+      PLUS = $__245.PLUS,
+      SLASH = $__245.SLASH,
+      STAR = $__245.STAR,
+      STRING = $__245.STRING;
+  var $__245 = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js"),
+      createArgumentList = $__245.createArgumentList,
+      createArrayLiteralExpression = $__245.createArrayLiteralExpression,
+      createBinaryOperator = $__245.createBinaryOperator,
+      createCallExpression = $__245.createCallExpression,
+      createIdentifierExpression = $__245.createIdentifierExpression,
+      createMemberExpression = $__245.createMemberExpression,
+      createObjectFreeze = $__245.createObjectFreeze,
+      createObjectLiteralExpression = $__245.createObjectLiteralExpression,
+      createOperatorToken = $__245.createOperatorToken,
+      createPropertyDescriptor = $__245.createPropertyDescriptor,
+      createPropertyNameAssignment = $__245.createPropertyNameAssignment,
+      createStringLiteral = $__245.createStringLiteral;
   function createCallSiteIdObject(tree) {
     var elements = tree.elements;
     return createObjectFreeze(createCallExpression(createMemberExpression(OBJECT, DEFINE_PROPERTIES), createArgumentList(createCookedStringArray(elements), createObjectLiteralExpression(createPropertyNameAssignment(RAW, createPropertyDescriptor({value: createObjectFreeze(createRawStringArray(elements))}))))));
@@ -16824,13 +16656,13 @@ $traceurRuntime.registerModule("../src/codegeneration/TemplateLiteralTransformer
 }, this);
 $traceurRuntime.registerModule("../src/codegeneration/TypeTransformer.js", function() {
   "use strict";
-  var $__252 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
-      FormalParameter = $__252.FormalParameter,
-      FunctionDeclaration = $__252.FunctionDeclaration,
-      FunctionExpression = $__252.FunctionExpression,
-      GetAccessor = $__252.GetAccessor,
-      PropertyMethodAssignment = $__252.PropertyMethodAssignment,
-      VariableDeclaration = $__252.VariableDeclaration;
+  var $__247 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
+      FormalParameter = $__247.FormalParameter,
+      FunctionDeclaration = $__247.FunctionDeclaration,
+      FunctionExpression = $__247.FunctionExpression,
+      GetAccessor = $__247.GetAccessor,
+      PropertyMethodAssignment = $__247.PropertyMethodAssignment,
+      VariableDeclaration = $__247.VariableDeclaration;
   var ParseTreeTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeTransformer.js").ParseTreeTransformer;
   var TypeTransformer = function() {
     $traceurRuntime.defaultSuperCall(this, $TypeTransformer.prototype, arguments);
@@ -16869,8 +16701,8 @@ $traceurRuntime.registerModule("../src/codegeneration/TypeTransformer.js", funct
 }, this);
 $traceurRuntime.registerModule("../src/codegeneration/TypeofTransformer.js", function() {
   "use strict";
-  var $__253 = Object.freeze(Object.defineProperties(["$traceurRuntime.typeof(", ")"], {raw: {value: Object.freeze(["$traceurRuntime.typeof(", ")"])}})),
-      $__254 = Object.freeze(Object.defineProperties(["(typeof ", " === 'undefined' ?\n          'undefined' : ", ")"], {raw: {value: Object.freeze(["(typeof ", " === 'undefined' ?\n          'undefined' : ", ")"])}}));
+  var $__248 = Object.freeze(Object.defineProperties(["$traceurRuntime.typeof(", ")"], {raw: {value: Object.freeze(["$traceurRuntime.typeof(", ")"])}})),
+      $__249 = Object.freeze(Object.defineProperties(["(typeof ", " === 'undefined' ?\n          'undefined' : ", ")"], {raw: {value: Object.freeze(["(typeof ", " === 'undefined' ?\n          'undefined' : ", ")"])}}));
   var IDENTIFIER_EXPRESSION = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js").IDENTIFIER_EXPRESSION;
   var ParseTreeTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeTransformer.js").ParseTreeTransformer;
   var TYPEOF = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js").TYPEOF;
@@ -16881,9 +16713,9 @@ $traceurRuntime.registerModule("../src/codegeneration/TypeofTransformer.js", fun
   var $TypeofTransformer = ($traceurRuntime.createClass)(TypeofTransformer, {transformUnaryExpression: function(tree) {
       if (tree.operator.type !== TYPEOF) return $traceurRuntime.superCall(this, $TypeofTransformer.prototype, "transformUnaryExpression", [tree]);
       var operand = this.transformAny(tree.operand);
-      var expression = parseExpression($__253, operand);
+      var expression = parseExpression($__248, operand);
       if (operand.type === IDENTIFIER_EXPRESSION) {
-        return parseExpression($__254, operand, expression);
+        return parseExpression($__249, operand, expression);
       }
       return expression;
     }}, {}, ParseTreeTransformer);
@@ -16900,7 +16732,6 @@ $traceurRuntime.registerModule("../src/codegeneration/FromOptionsTransformer.js"
   var DefaultParametersTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/DefaultParametersTransformer.js").DefaultParametersTransformer;
   var DestructuringTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/DestructuringTransformer.js").DestructuringTransformer;
   var ForOfTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ForOfTransformer.js").ForOfTransformer;
-  var FreeVariableChecker = $traceurRuntime.getModuleImpl("../src/semantics/FreeVariableChecker.js").FreeVariableChecker;
   var GeneratorComprehensionTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/GeneratorComprehensionTransformer.js").GeneratorComprehensionTransformer;
   var GeneratorTransformPass = $traceurRuntime.getModuleImpl("../src/codegeneration/GeneratorTransformPass.js").GeneratorTransformPass;
   var ModuleTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ModuleTransformer.js").ModuleTransformer;
@@ -16918,15 +16749,15 @@ $traceurRuntime.registerModule("../src/codegeneration/FromOptionsTransformer.js"
   var TypeTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/TypeTransformer.js").TypeTransformer;
   var TypeofTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/TypeofTransformer.js").TypeofTransformer;
   var UniqueIdentifierGenerator = $traceurRuntime.getModuleImpl("../src/codegeneration/UniqueIdentifierGenerator.js").UniqueIdentifierGenerator;
-  var $__259 = $traceurRuntime.getModuleImpl("../src/options.js"),
-      options = $__259.options,
-      transformOptions = $__259.transformOptions;
+  var $__254 = $traceurRuntime.getModuleImpl("../src/options.js"),
+      options = $__254.options,
+      transformOptions = $__254.transformOptions;
   var FromOptionsTransformer = function(reporter) {
     var idGenerator = arguments[1] !== (void 0) ? arguments[1]: new UniqueIdentifierGenerator();
-    var $__257 = this;
+    var $__252 = this;
     $traceurRuntime.superCall(this, $FromOptionsTransformer.prototype, "constructor", [reporter, options.validate]);
     var append = (function(transformer) {
-      $__257.append((function(tree) {
+      $__252.append((function(tree) {
         return new transformer(idGenerator, reporter).transformAny(tree);
       }));
     });
@@ -16955,12 +16786,6 @@ $traceurRuntime.registerModule("../src/codegeneration/FromOptionsTransformer.js"
       append(SymbolTransformer);
       append(TypeofTransformer);
     }
-    if (options.freeVariableChecker) {
-      this.append((function(tree) {
-        FreeVariableChecker.checkScript(reporter, tree);
-        return tree;
-      }));
-    }
   };
   var $FromOptionsTransformer = ($traceurRuntime.createClass)(FromOptionsTransformer, {}, {}, MultiTransformer);
   return {get FromOptionsTransformer() {
@@ -16970,9 +16795,9 @@ $traceurRuntime.registerModule("../src/codegeneration/FromOptionsTransformer.js"
 $traceurRuntime.registerModule("../src/codegeneration/module/AttachUrlTransformer.js", function() {
   "use strict";
   var ParseTreeTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeTransformer.js").ParseTreeTransformer;
-  var $__261 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
-      Module = $__261.Module,
-      Script = $__261.Script;
+  var $__256 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
+      Module = $__256.Module,
+      Script = $__256.Script;
   var AttachUrlTransformer = function(project, url) {
     this.project_ = project;
     this.url_ = url;
@@ -17006,9 +16831,9 @@ $traceurRuntime.registerModule("../src/codegeneration/ProjectTransformer.js", fu
   };
   ProjectTransformer = ($traceurRuntime.createClass)(ProjectTransformer, {
     transform: function() {
-      var $__262 = this;
+      var $__257 = this;
       this.project_.getSourceFiles().forEach((function(file) {
-        $__262.transformFile(file);
+        $__257.transformFile(file);
       }));
       return this.results_;
     },
@@ -17124,11 +16949,11 @@ $traceurRuntime.registerModule("../src/WebPageProject.js", function() {
   };
   var $WebPageProject = ($traceurRuntime.createClass)(WebPageProject, {
     asyncLoad_: function(url, fncOfContent, onScriptsReady) {
-      var $__269 = this;
+      var $__264 = this;
       this.numPending_++;
       this.loadResource(url, (function(content) {
         if (content) fncOfContent(content); else console.warn('Failed to load', url);
-        if (--$__269.numPending_ <= 0) onScriptsReady();
+        if (--$__264.numPending_ <= 0) onScriptsReady();
       }));
     },
     loadResource: function(url, fncOfContentOrNull) {
@@ -17217,7 +17042,7 @@ $traceurRuntime.registerModule("../src/WebPageProject.js", function() {
     },
     run: function() {
       var done = arguments[0] !== (void 0) ? arguments[0]: (function() {});
-      var $__269 = this;
+      var $__264 = this;
       document.addEventListener('DOMContentLoaded', (function() {
         var selector = 'script[type="text/traceur"]';
         var scripts = document.querySelectorAll(selector);
@@ -17225,9 +17050,9 @@ $traceurRuntime.registerModule("../src/WebPageProject.js", function() {
           done();
           return;
         }
-        $__269.addFilesFromScriptElements(scripts, (function() {
-          var trees = $__269.compile();
-          $__269.runInWebPage(trees);
+        $__264.addFilesFromScriptElements(scripts, (function() {
+          var trees = $__264.compile();
+          $__264.runInWebPage(trees);
           done();
         }));
       }), false);
@@ -17240,24 +17065,24 @@ $traceurRuntime.registerModule("../src/WebPageProject.js", function() {
 $traceurRuntime.registerModule("../src/codegeneration/CloneTreeTransformer.js", function() {
   "use strict";
   var ParseTreeTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeTransformer.js").ParseTreeTransformer;
-  var $__273 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
-      BindingIdentifier = $__273.BindingIdentifier,
-      BreakStatement = $__273.BreakStatement,
-      ContinueStatement = $__273.ContinueStatement,
-      DebuggerStatement = $__273.DebuggerStatement,
-      EmptyStatement = $__273.EmptyStatement,
-      ExportSpecifier = $__273.ExportSpecifier,
-      ExportStar = $__273.ExportStar,
-      IdentifierExpression = $__273.IdentifierExpression,
-      ImportSpecifier = $__273.ImportSpecifier,
-      LiteralExpression = $__273.LiteralExpression,
-      ModuleSpecifier = $__273.ModuleSpecifier,
-      PredefinedType = $__273.PredefinedType,
-      PropertyNameShorthand = $__273.PropertyNameShorthand,
-      TemplateLiteralPortion = $__273.TemplateLiteralPortion,
-      RestParameter = $__273.RestParameter,
-      SuperExpression = $__273.SuperExpression,
-      ThisExpression = $__273.ThisExpression;
+  var $__268 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
+      BindingIdentifier = $__268.BindingIdentifier,
+      BreakStatement = $__268.BreakStatement,
+      ContinueStatement = $__268.ContinueStatement,
+      DebuggerStatement = $__268.DebuggerStatement,
+      EmptyStatement = $__268.EmptyStatement,
+      ExportSpecifier = $__268.ExportSpecifier,
+      ExportStar = $__268.ExportStar,
+      IdentifierExpression = $__268.IdentifierExpression,
+      ImportSpecifier = $__268.ImportSpecifier,
+      LiteralExpression = $__268.LiteralExpression,
+      ModuleSpecifier = $__268.ModuleSpecifier,
+      PredefinedType = $__268.PredefinedType,
+      PropertyNameShorthand = $__268.PropertyNameShorthand,
+      TemplateLiteralPortion = $__268.TemplateLiteralPortion,
+      RestParameter = $__268.RestParameter,
+      SuperExpression = $__268.SuperExpression,
+      ThisExpression = $__268.ThisExpression;
   var CloneTreeTransformer = function() {
     $traceurRuntime.defaultSuperCall(this, $CloneTreeTransformer.prototype, arguments);
   };
@@ -18717,7 +18542,7 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
       return moduleSpecifierVisitor.moduleSpecifiers;
     },
     handleCodeUnitLoaded: function(codeUnit) {
-      var $__278 = this;
+      var $__273 = this;
       var baseUrl = codeUnit.url;
       var moduleSpecifiers = this.getModuleSpecifiers(codeUnit);
       if (!moduleSpecifiers) {
@@ -18726,10 +18551,10 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
       }
       codeUnit.dependencies = moduleSpecifiers.sort().map((function(name) {
         name = System.normalResolve(name, baseUrl);
-        return $__278.getCodeUnit(name, 'module');
+        return $__273.getCodeUnit(name, 'module');
       }));
       codeUnit.dependencies.forEach((function(dependency) {
-        $__278.load(dependency.url, 'module');
+        $__273.load(dependency.url, 'module');
       }));
       if (this.areAll(PARSED)) {
         this.analyze();
@@ -18815,10 +18640,10 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
     return source;
   }
   var CodeLoader = function(options) {
-    var $__280 = options,
-        reporter = $__280.reporter,
-        identifierIndex = $__280.identifierIndex,
-        rootURL = $__280.rootURL;
+    var $__275 = options,
+        reporter = $__275.reporter,
+        identifierIndex = $__275.identifierIndex,
+        rootURL = $__275.rootURL;
     var internalCompiler = new InternalCompiler(reporter, rootURL, identifierIndex);
     this.internalLoader_ = new InternalLoader(internalCompiler, rootURL, undefined, options);
   };
