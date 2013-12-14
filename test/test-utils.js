@@ -131,7 +131,6 @@
 
     test(name, function(done) {
       traceur.options.debug = true;
-      traceur.options.freeVariableChecker = true;
       traceur.options.validate = true;
 
       var reporter = new traceur.util.TestErrorReporter();
@@ -165,7 +164,7 @@
       var moduleLoader = new traceur.modules.CodeLoader(loaderOptions);
 
       function handleShouldCompile() {
-        if (!options.shouldCompile) {
+        if (options && !options.shouldCompile) {
           assert.isTrue(reporter.hadError(),
               'Expected error compiling ' + name + ', but got none.');
 
@@ -194,7 +193,7 @@
       function handleFailure(error) {
         handleShouldCompile();
         // TODO(arv): Improve how errors are passed through the module loader.
-        if (options.shouldCompile)
+        if (!options || options.shouldCompile)
           throw reporter.errors[0];
         done();
       }
