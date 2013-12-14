@@ -120,11 +120,11 @@ debug: build/compiled-by-previous-traceur.js $(SRC)
 
 self: force
 	mkdir -p build/node
-	mv src/node/* build/node
-	git checkout -- src/node
-	-make debug
-	mv build/node/* src/node
-	rmdir build/node
+	mv src/node/* build/node # Save in case of src diffs.
+	git checkout -- src/node # Over-write with last-good node compiler front.
+	-make debug              # Build with last-good node compiler front.
+	mv build/node/* src/node # Restore possible src diffs.
+	rmdir build/node         # Clean up.
 
 # Prerequisites following '|' are rebuilt just like ordinary prerequisites.
 # However, they don't cause remakes if they're newer than the target. See:
