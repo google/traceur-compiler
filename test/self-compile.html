@@ -13,9 +13,9 @@
     var url = window.location.href;
 
     function getLoader() {
-      var reporter = new traceur.util.ErrorReporter();
-      var project = new traceur.semantics.symbols.Project(url);
-      return new traceur.modules.CodeLoader(reporter, project, traceur.options);
+      traceur.options.reporter = new traceur.util.ErrorReporter();
+      traceur.options.rootURL = url;
+      return new traceur.modules.CodeLoader(traceur.options);
     }
     getLoader().import('../src/traceur.js',
         function(mod) {
@@ -28,6 +28,6 @@
     </script>
   </head>
   <body>
-    First issue <code>make debug</code>
+    For Self-hosted compilation: <code>make self</code>. Open DevTools.  Reload. Repeat.
   </body>
 </html>

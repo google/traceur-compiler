@@ -118,6 +118,14 @@ build/previous-commit-traceur.js:
 debug: build/compiled-by-previous-traceur.js $(SRC)
 	./traceur --debug --out bin/traceur.js --sourcemap $(TFLAGS) $(SRC)
 
+self: force
+	mkdir -p build/node
+	mv src/node/* build/node
+	git checkout -- src/node
+	-make debug
+	mv build/node/* src/node
+	rmdir build/node
+
 # Prerequisites following '|' are rebuilt just like ordinary prerequisites.
 # However, they don't cause remakes if they're newer than the target. See:
 # http://www.gnu.org/software/make/manual/html_node/Prerequisite-Types.html
