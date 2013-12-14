@@ -20,24 +20,24 @@ import {canonicalizeUrl} from '../../util/url';
 // modules.
 
 /**
- * Visits a parse tree and finds all required URLs in it.
+ * Visits a parse tree and finds all ModuleSpecifiers in it.
  *
  *   module m from "url"
  */
-export class ModuleRequireVisitor extends ParseTreeVisitor {
+export class ModuleSpecifierVisitor extends ParseTreeVisitor {
   /**
    * @param {traceur.util.ErrorReporter} reporter
    */
   constructor(reporter) {
     super();
-    this.urls_ = Object.create(null);
+    this.moduleSpecifiers_ = Object.create(null);
   }
 
-  get requireUrls() {
-    return Object.keys(this.urls_);
+  get moduleSpecifiers() {
+    return Object.keys(this.moduleSpecifiers_);
   }
 
   visitModuleSpecifier(tree) {
-    this.urls_[canonicalizeUrl(tree.token.processedValue)] = true;
+    this.moduleSpecifiers_[tree.token.processedValue] = true;
   }
 }
