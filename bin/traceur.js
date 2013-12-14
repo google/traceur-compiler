@@ -17348,25 +17348,25 @@ $traceurRuntime.registerModule("../src/util/url.js", function() {
     }
   };
 }, this);
-$traceurRuntime.registerModule("../src/codegeneration/module/ModuleRequireVisitor.js", function() {
+$traceurRuntime.registerModule("../src/codegeneration/module/ModuleSpecifierVisitor.js", function() {
   "use strict";
   var ParseTreeVisitor = $traceurRuntime.getModuleImpl("../src/syntax/ParseTreeVisitor.js").ParseTreeVisitor;
   var STRING = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js").STRING;
   var canonicalizeUrl = $traceurRuntime.getModuleImpl("../src/util/url.js").canonicalizeUrl;
-  var ModuleRequireVisitor = function(reporter) {
-    $traceurRuntime.superCall(this, $ModuleRequireVisitor.prototype, "constructor", []);
-    this.urls_ = Object.create(null);
+  var ModuleSpecifierVisitor = function(reporter) {
+    $traceurRuntime.superCall(this, $ModuleSpecifierVisitor.prototype, "constructor", []);
+    this.moduleSpecifiers_ = Object.create(null);
   };
-  var $ModuleRequireVisitor = ($traceurRuntime.createClass)(ModuleRequireVisitor, {
-    get requireUrls() {
-      return Object.keys(this.urls_);
+  var $ModuleSpecifierVisitor = ($traceurRuntime.createClass)(ModuleSpecifierVisitor, {
+    get moduleSpecifiers() {
+      return Object.keys(this.moduleSpecifiers_);
     },
     visitModuleSpecifier: function(tree) {
-      this.urls_[canonicalizeUrl(tree.token.processedValue)] = true;
+      this.moduleSpecifiers_[tree.token.processedValue] = true;
     }
   }, {}, ParseTreeVisitor);
-  return {get ModuleRequireVisitor() {
-      return ModuleRequireVisitor;
+  return {get ModuleSpecifierVisitor() {
+      return ModuleSpecifierVisitor;
     }};
 }, this);
 $traceurRuntime.registerModule("../src/outputgeneration/ProjectWriter.js", function() {
@@ -18423,7 +18423,7 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
   "use strict";
   var ArrayMap = $traceurRuntime.getModuleImpl("../src/util/ArrayMap.js").ArrayMap;
   var ModuleAnalyzer = $traceurRuntime.getModuleImpl("../src/semantics/ModuleAnalyzer.js").ModuleAnalyzer;
-  var ModuleRequireVisitor = $traceurRuntime.getModuleImpl("../src/codegeneration/module/ModuleRequireVisitor.js").ModuleRequireVisitor;
+  var ModuleSpecifierVisitor = $traceurRuntime.getModuleImpl("../src/codegeneration/module/ModuleSpecifierVisitor.js").ModuleSpecifierVisitor;
   var ModuleSymbol = $traceurRuntime.getModuleImpl("../src/semantics/symbols/ModuleSymbol.js").ModuleSymbol;
   var ObjectMap = $traceurRuntime.getModuleImpl("../src/util/ObjectMap.js").ObjectMap;
   var Parser = $traceurRuntime.getModuleImpl("../src/syntax/Parser.js").Parser;
@@ -18461,8 +18461,88 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
   var TRANSFORMED = 4;
   var COMPLETE = 5;
   var ERROR = 6;
-  var CodeUnit = function(loader, url, type, state) {
-    this.loader = loader;
+  var InternalCompiler = function(reporter, rootURL, identifierIndex) {
+    this.reporter = reporter;
+    this.project = new Project(rootURL);
+    this.project.identifierGenerator.identifierIndex = identifierIndex || 0;
+    this.analyzer_ = new ModuleAnalyzer(reporter, this.project);
+  };
+  InternalCompiler = ($traceurRuntime.createClass)(InternalCompiler, {
+    parse: function(codeUnit) {
+      var reporter = this.reporter;
+      var project = this.project;
+      var url = codeUnit.url;
+      var program = codeUnit.text;
+      var file = new SourceFile(url, program);
+      project.addFile(file);
+      codeUnit.file = file;
+      var parser = new Parser(reporter, file);
+      if (codeUnit.type == 'module') codeUnit.tree = parser.parseModule(); else codeUnit.tree = parser.parseScript();
+      if (reporter.hadError()) {
+        return false;
+      }
+      project.setParseTree(file, codeUnit.tree);
+      return true;
+    },
+    transform: function(codeUnit) {
+      return ProgramTransformer.transformFile(this.reporter, this.project, codeUnit.file);
+    },
+    addExternalModule: function(codeUnit) {
+      var project = this.project;
+      var tree = codeUnit.tree;
+      var url = codeUnit.url;
+      codeUnit.moduleSymbol = new ModuleSymbol(tree, url);
+      project.addExternalModule(codeUnit.moduleSymbol);
+    },
+    analyzeDependencies: function(dependencies) {
+      var trees = [];
+      var modules = [];
+      for (var i = 0; i < dependencies.length; i++) {
+        var codeUnit = dependencies[i];
+        assert(codeUnit.state >= PARSED);
+        if (codeUnit.state == PARSED) {
+          trees.push(codeUnit.tree);
+          modules.push(codeUnit.moduleSymbol);
+        }
+      }
+      this.analyzer_.analyzeTrees(trees, modules);
+      this.checkForErrors(dependencies, 'analyze');
+    },
+    transformDependencies: function(dependencies) {
+      for (var i = 0; i < dependencies.length; i++) {
+        var codeUnit = dependencies[i];
+        if (codeUnit.state >= TRANSFORMED) {
+          continue;
+        }
+        codeUnit.transformedTree = this.transformCodeUnit(codeUnit);
+        codeUnit.state = TRANSFORMED;
+      }
+      this.checkForErrors(dependencies, 'transform');
+    },
+    transformCodeUnit: function(codeUnit) {
+      this.transformDependencies(codeUnit.dependencies);
+      return codeUnit.transform();
+    },
+    checkForErrors: function(dependencies, phase) {
+      if (this.reporter.hadError()) {
+        for (var i = 0; i < dependencies.length; i++) {
+          var codeUnit = dependencies[i];
+          if (codeUnit.state >= COMPLETE) {
+            continue;
+          }
+          codeUnit.state = ERROR;
+        }
+        for (var i = 0; i < dependencies.length; i++) {
+          var codeUnit = dependencies[i];
+          if (codeUnit.state == ERROR) {
+            codeUnit.dispatchError(phase);
+          }
+        }
+      }
+    }
+  }, {});
+  var CodeUnit = function(compiler, url, type, state) {
+    this.compiler = compiler;
     this.url = url;
     this.type = type;
     this.state = state;
@@ -18478,18 +18558,6 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
         throw new Error('Invalid state change');
       }
       this.state_ = state;
-    },
-    get reporter() {
-      return this.loader.reporter;
-    },
-    get project() {
-      return this.loader.project;
-    },
-    get tree() {
-      return this.project.getParseTree(this.file);
-    },
-    get moduleSymbol() {
-      return this.project.getRootModule();
     },
     addListener: function(callback, errback) {
       if (this.state >= COMPLETE) throw Error((this.url + " is already loaded"));
@@ -18519,60 +18587,45 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
       }
     },
     parse: function() {
-      var reporter = this.reporter;
-      var project = this.project;
-      var url = this.url;
-      var program = this.text;
-      var file = new SourceFile(url, program);
-      project.addFile(file);
-      this.file = file;
-      var parser = new Parser(reporter, file);
-      var tree;
-      if (this.type == 'module') tree = parser.parseModule(); else tree = parser.parseScript();
-      if (reporter.hadError()) {
+      if (this.compiler.parse(this)) {
+        this.state = PARSED;
+        return true;
+      } else {
         this.error = 'Parse error';
         return false;
       }
-      project.setParseTree(file, tree);
-      this.state = PARSED;
-      return true;
     },
     transform: function() {
-      return ProgramTransformer.transformFile(this.reporter, this.project, this.file);
+      return this.compiler.transform(this);
     }
   }, {});
-  var LoadCodeUnit = function(loader, url) {
-    $traceurRuntime.superCall(this, $LoadCodeUnit.prototype, "constructor", [loader, url, 'module', NOT_STARTED]);
+  var LoadCodeUnit = function(compiler, url) {
+    $traceurRuntime.superCall(this, $LoadCodeUnit.prototype, "constructor", [compiler, url, 'module', NOT_STARTED]);
   };
-  var $LoadCodeUnit = ($traceurRuntime.createClass)(LoadCodeUnit, {
-    get moduleSymbol() {
-      return this.project.getModuleForUrl(this.url);
-    },
-    parse: function() {
+  var $LoadCodeUnit = ($traceurRuntime.createClass)(LoadCodeUnit, {parse: function() {
       if (!$traceurRuntime.superCall(this, $LoadCodeUnit.prototype, "parse", [])) {
         return false;
       }
-      var project = this.loader.project;
-      var tree = this.tree;
-      var url = this.url;
-      var moduleSymbol = new ModuleSymbol(tree, url);
-      project.addExternalModule(moduleSymbol);
+      this.compiler.addExternalModule(this);
       return true;
-    },
-    transform: function() {
-      return ProgramTransformer.transformFile(this.reporter, this.project, this.file);
-    }
-  }, {}, CodeUnit);
-  var EvalCodeUnit = function(loader, code) {
-    $traceurRuntime.superCall(this, $EvalCodeUnit.prototype, "constructor", [loader, loader.url, 'script', LOADED]);
+    }}, {}, CodeUnit);
+  var EvalCodeUnit = function(compiler, url, code) {
+    $traceurRuntime.superCall(this, $EvalCodeUnit.prototype, "constructor", [compiler, url, 'script', LOADED]);
     this.text = code;
   };
-  var $EvalCodeUnit = ($traceurRuntime.createClass)(EvalCodeUnit, {}, {}, CodeUnit);
-  var InternalLoader = function(reporter, project) {
+  var $EvalCodeUnit = ($traceurRuntime.createClass)(EvalCodeUnit, {parse: function() {
+      if (!$traceurRuntime.superCall(this, $EvalCodeUnit.prototype, "parse", [])) {
+        return false;
+      }
+      this.compiler.addExternalModule(this);
+      return true;
+    }}, {}, CodeUnit);
+  var InternalLoader = function(compiler, url) {
     var fileLoader = arguments[2] !== (void 0) ? arguments[2]: new InternalLoader.FileLoader;
     var options = arguments[3] !== (void 0) ? arguments[3]: {};
-    this.reporter = reporter;
-    this.project = project;
+    this.compiler = compiler;
+    this.reporter = compiler.reporter;
+    this.url = url;
     this.fileLoader = fileLoader;
     this.cache = new ArrayMap();
     this.urlToKey = Object.create(null);
@@ -18580,9 +18633,6 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
     this.translateHook = options.translate || defaultTranslate;
   };
   InternalLoader = ($traceurRuntime.createClass)(InternalLoader, {
-    get url() {
-      return this.project.url;
-    },
     loadTextFile: function(url, callback, errback) {
       return this.fileLoader.load(url, callback, errback);
     },
@@ -18628,12 +18678,12 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
       return loaded;
     },
     evalAsync: function(code) {
-      var codeUnit = new EvalCodeUnit(this, code);
+      var codeUnit = new EvalCodeUnit(this.compiler, this.url, code);
       this.cache.set({}, codeUnit);
       return codeUnit;
     },
     eval: function(code) {
-      var codeUnit = new EvalCodeUnit(this, code);
+      var codeUnit = new EvalCodeUnit(this.compiler, this.url, code);
       this.cache.set({}, codeUnit);
       this.handleCodeUnitLoaded(codeUnit);
       return codeUnit;
@@ -18649,7 +18699,7 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
       var key = this.getKey(url, type);
       var cacheObject = this.cache.get(key);
       if (!cacheObject) {
-        cacheObject = new LoadCodeUnit(this, url);
+        cacheObject = new LoadCodeUnit(this.compiler, url);
         cacheObject.type = type;
         this.cache.set(key, cacheObject);
       }
@@ -18660,18 +18710,23 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
         return codeUnit.state >= state;
       }));
     },
+    getModuleSpecifiers: function(codeUnit) {
+      if (!codeUnit.parse()) return;
+      var moduleSpecifierVisitor = new ModuleSpecifierVisitor(this.reporter);
+      moduleSpecifierVisitor.visit(codeUnit.tree);
+      return moduleSpecifierVisitor.moduleSpecifiers;
+    },
     handleCodeUnitLoaded: function(codeUnit) {
       var $__278 = this;
-      if (!codeUnit.parse()) {
+      var baseUrl = codeUnit.url;
+      var moduleSpecifiers = this.getModuleSpecifiers(codeUnit);
+      if (!moduleSpecifiers) {
         this.abortAll();
         return;
       }
-      var requireVisitor = new ModuleRequireVisitor(this.reporter);
-      requireVisitor.visit(codeUnit.tree);
-      var baseUrl = codeUnit.url;
-      codeUnit.dependencies = requireVisitor.requireUrls.sort().map((function(url) {
-        url = System.normalResolve(url, baseUrl);
-        return $__278.getCodeUnit(url, 'module');
+      codeUnit.dependencies = moduleSpecifiers.sort().map((function(name) {
+        name = System.normalResolve(name, baseUrl);
+        return $__278.getCodeUnit(name, 'module');
       }));
       codeUnit.dependencies.forEach((function(dependency) {
         $__278.load(dependency.url, 'module');
@@ -18698,56 +18753,11 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
         codeUnit.dispatchError(codeUnit.error);
       }));
     },
-    checkForErrors: function(dependencies, phase) {
-      if (this.reporter.hadError()) {
-        for (var i = 0; i < dependencies.length; i++) {
-          var codeUnit = dependencies[i];
-          if (codeUnit.state >= COMPLETE) {
-            continue;
-          }
-          codeUnit.state = ERROR;
-        }
-        for (var i = 0; i < dependencies.length; i++) {
-          var codeUnit = dependencies[i];
-          if (codeUnit.state == ERROR) {
-            codeUnit.dispatchError(phase);
-          }
-        }
-      }
-    },
     analyze: function() {
-      var dependencies = this.cache.values();
-      var trees = [];
-      var modules = [];
-      for (var i = 0; i < dependencies.length; i++) {
-        var codeUnit = dependencies[i];
-        assert(codeUnit.state >= PARSED);
-        if (codeUnit.state == PARSED) {
-          trees.push(codeUnit.tree);
-          modules.push(codeUnit.moduleSymbol);
-        }
-      }
-      var analyzer = new ModuleAnalyzer(this.reporter, this.project);
-      analyzer.analyzeTrees(trees, modules);
-      this.checkForErrors(dependencies, 'analyze');
+      this.compiler.analyzeDependencies(this.cache.values());
     },
     transform: function() {
-      this.transformDependencies(this.cache.values());
-    },
-    transformDependencies: function(dependencies) {
-      for (var i = 0; i < dependencies.length; i++) {
-        var codeUnit = dependencies[i];
-        if (codeUnit.state >= TRANSFORMED) {
-          continue;
-        }
-        codeUnit.transformedTree = this.transformCodeUnit(codeUnit);
-        codeUnit.state = TRANSFORMED;
-      }
-      this.checkForErrors(dependencies, 'transform');
-    },
-    transformCodeUnit: function(codeUnit) {
-      this.transformDependencies(codeUnit.dependencies);
-      return codeUnit.transform();
+      this.compiler.transformDependencies(this.cache.values());
     },
     evaluate: function() {
       var visited = new ObjectMap();
@@ -18804,9 +18814,13 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
   function defaultTranslate(source) {
     return source;
   }
-  var CodeLoader = function(reporter, project, parentLoader) {
-    var options = arguments[3] !== (void 0) ? arguments[3]: {};
-    this.internalLoader_ = new InternalLoader(reporter, project, undefined, options);
+  var CodeLoader = function(options) {
+    var $__280 = options,
+        reporter = $__280.reporter,
+        identifierIndex = $__280.identifierIndex,
+        rootURL = $__280.rootURL;
+    var internalCompiler = new InternalCompiler(reporter, rootURL, identifierIndex);
+    this.internalLoader_ = new InternalLoader(internalCompiler, rootURL, undefined, options);
   };
   CodeLoader = ($traceurRuntime.createClass)(CodeLoader, {
     load: function(url) {
@@ -18846,13 +18860,6 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
       var cacheKey = arguments[2];
       throw Error('Not implemented');
     },
-    create: function(moduleInstanceObject) {
-      var resolver = arguments[1];
-      var url = this.project_.url;
-      var project = new Project(url);
-      var loader = new CodeLoader(this.reporter, project, this, resolver);
-      return loader;
-    },
     createBase: function() {
       return base;
     }
@@ -18860,10 +18867,14 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
   var internals = {
     CodeUnit: CodeUnit,
     EvalCodeUnit: EvalCodeUnit,
+    InternalCompiler: InternalCompiler,
     InternalLoader: InternalLoader,
     LoadCodeUnit: LoadCodeUnit
   };
   return {
+    get InternalCompiler() {
+      return InternalCompiler;
+    },
     get CodeLoader() {
       return CodeLoader;
     },
@@ -18947,7 +18958,7 @@ $traceurRuntime.registerModule("../src/traceur.js", function() {
   var CloneTreeTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/CloneTreeTransformer.js").CloneTreeTransformer;
   var Compiler = $traceurRuntime.getModuleImpl("../src/codegeneration/Compiler.js").Compiler;
   var FromOptionsTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/FromOptionsTransformer.js").FromOptionsTransformer;
-  var ModuleRequireVisitor = $traceurRuntime.getModuleImpl("../src/codegeneration/module/ModuleRequireVisitor.js").ModuleRequireVisitor;
+  var ModuleSpecifierVisitor = $traceurRuntime.getModuleImpl("../src/codegeneration/module/ModuleSpecifierVisitor.js").ModuleSpecifierVisitor;
   var ModuleTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ModuleTransformer.js").ModuleTransformer;
   var RequireJsTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/RequireJsTransformer.js").RequireJsTransformer;
   var ParseTreeTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeTransformer.js").ParseTreeTransformer;
@@ -18962,7 +18973,7 @@ $traceurRuntime.registerModule("../src/traceur.js", function() {
     ParseTreeTransformer: ParseTreeTransformer,
     ProgramTransformer: ProgramTransformer,
     RequireJsTransformer: RequireJsTransformer,
-    module: {ModuleRequireVisitor: ModuleRequireVisitor}
+    module: {ModuleSpecifierVisitor: ModuleSpecifierVisitor}
   };
   var modules = System.get("../src/runtime/module-loader.js");
   ;
