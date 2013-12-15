@@ -14,7 +14,15 @@
 
 suite('System.js', function() {
 
-  var saveBaseURL = System.baseURL;
+  var saveBaseURL;
+
+  setup(function() {
+    saveBaseURL = System.baseURL;
+  });
+
+  teardown(function() {
+     System.baseURL = saveBaseURL;
+  });
 
   test('System.normalize', function() {
     // Set the baseURL to verify it does not alter normalize results.
@@ -61,8 +69,6 @@ suite('System.js', function() {
     // Canonicalize URL
     assert.equal(System.normalize('http://example.org/a/../b.html'),
       'http://example.org/b.html');
-
-    System.baseURL = saveBaseURL;
   });
 
   test('System.locate', function() {
@@ -75,8 +81,6 @@ suite('System.js', function() {
     assert.equal(System.locate(load), 'http://example.org/a/@abc/def.js');
     load.name = 'abc/def';
     assert.equal(System.locate(load), 'http://example.org/a/abc/def.js');
-
-    System.baseURL = saveBaseURL;
   });
 
 });
