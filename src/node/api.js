@@ -50,8 +50,7 @@ function merge(dest) {
  */
 function compile(content, options) {
   options = merge({
-    // TODO(vojta): make nodejs default once we have it
-    modules: 'requirejs',
+    modules: 'nodejs',
     filename: '<unknown file>'
   }, options || {});
 

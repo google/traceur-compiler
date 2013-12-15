@@ -31,6 +31,7 @@ UNIT_TESTS = \
 	test/unit/util/
 
 TESTS = \
+	test/node-nodejs-test.js \
 	test/node-requirejs-test.js \
 	test/node-feature-test.js \
 	$(RUNTIME_TESTS) \
@@ -49,11 +50,14 @@ ugly: bin/traceur.ugly.js
 test-runtime: bin/traceur-runtime.js $(RUNTIME_TESTS)
 	@echo 'Open test/runtime.html to test runtime only'
 
-test: bin/traceur.js bin/traceur-runtime.js test/test-list.js test/requirejs-compiled
+test: bin/traceur.js bin/traceur-runtime.js test/test-list.js test/requirejs-compiled test/nodejs-compiled
 	node_modules/.bin/mocha --ignore-leaks --ui tdd --require test/node-env.js $(TESTS)
 
 test/unit: bin/traceur.js bin/traceur-runtime.js
 	node_modules/.bin/mocha --ignore-leaks --ui tdd --require test/node-env.js $(UNIT_TESTS)
+
+test/nodejs: test/nodejs-compiled
+	node_modules/.bin/mocha --ignore-leaks --ui tdd test/node-env.js test/node-nodejs-test.js
 
 test/requirejs: test/requirejs-compiled
 	node_modules/.bin/mocha --ignore-leaks --ui tdd test/node-env.js test/node-requirejs-test.js
@@ -64,23 +68,27 @@ test/features: bin/traceur.js bin/traceur-runtime.js test/test-list.js
 test-list: test/test-list.js
 
 test/test-list.js: force
-	git ls-files -o -c test/feature | node build/build-test-list.js > $@
+	@git ls-files -o -c test/feature | node build/build-test-list.js > $@
 
 # TODO(vojta): Trick make to only compile when necesarry.
+test/nodejs-compiled: force
+	node src/node/to-nodejs-compiler.js test/nodejs test/nodejs-compiled
+
 test/requirejs-compiled: force
 	node src/node/to-requirejs-compiler.js test/requirejs test/requirejs-compiled
 
 boot: clean build
 
 clean: wikiclean
-	rm -f build/compiled-by-previous-traceur.js
-	rm -f build/dep.mk
-	rm -f $(GENSRC) $(TPL_GENSRC_DEPS)
-	rm -f test/test-list.js
-	rm -rf test/requirejs-compiled/*
-	rm -f bin/*
-	git checkout -- bin/
-	mv bin/traceur.js build/previous-commit-traceur.js
+	@rm -f build/compiled-by-previous-traceur.js
+	@rm -f build/dep.mk
+	@rm -f $(GENSRC) $(TPL_GENSRC_DEPS)
+	@rm -f test/test-list.js
+	@rm -rf test/nodejs-compiled/*
+	@rm -rf test/requirejs-compiled/*
+	@rm -f bin/*
+	@git checkout -- bin/
+	@mv bin/traceur.js build/previous-commit-traceur.js
 
 initbench:
 	rm -rf test/bench/esprima
@@ -101,12 +109,12 @@ concat: bin/traceur-runtime.js bin/traceur-bare.js
 	cat $^ > bin/traceur.js
 
 bin/traceur.js: build/compiled-by-previous-traceur.js
-	cp $< $@; touch -t 197001010000.00 bin/traceur.js
+	@cp $< $@; touch -t 197001010000.00 bin/traceur.js
 	./traceur --out bin/traceur.js $(TFLAGS) $(SRC)
 
 # Use last-known-good compiler to compile current source
 build/compiled-by-previous-traceur.js: build/previous-commit-traceur.js $(SRC) build/dep.mk
-	cp build/previous-commit-traceur.js bin/traceur.js
+	@cp build/previous-commit-traceur.js bin/traceur.js
 	./traceur --out $@ $(TFLAGS) $(SRC)
 
 build/previous-commit-traceur.js:
@@ -130,7 +138,7 @@ self: force
 # However, they don't cause remakes if they're newer than the target. See:
 # http://www.gnu.org/software/make/manual/html_node/Prerequisite-Types.html
 build/dep.mk: build/previous-commit-traceur.js | $(GENSRC) node_modules
-	cp build/previous-commit-traceur.js bin/traceur.js  # use a known-good compiler
+	@cp build/previous-commit-traceur.js bin/traceur.js  # ` known-good compiler
 	node build/makedep.js --depTarget build/compiled-by-previous-traceur.js $(TFLAGS) $(SRC) > $@
 
 $(TPL_GENSRC_DEPS): | node_modules
@@ -178,7 +186,7 @@ WIKI_OUT = \
 wiki: $(WIKI_OUT)
 
 wikiclean:
-	rm -f -r test/wiki/CompilingOffline/out
+	@rm -rf test/wiki/CompilingOffline/out
 
 test/wiki/CompilingOffline/out/greeter.js: test/wiki/CompilingOffline/greeter.js
 	./traceur --out $@ $^

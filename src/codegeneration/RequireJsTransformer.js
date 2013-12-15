@@ -14,7 +14,7 @@
 
 import {ModuleTransformer} from './ModuleTransformer';
 import {VAR} from '../syntax/TokenType';
-import {parseExpression} from './PlaceholderParser';
+import {parseStatements} from './PlaceholderParser';
 import {createBindingIdentifier} from './ParseTreeFactory';
 
 
@@ -25,14 +25,14 @@ export class RequireJsTransformer extends ModuleTransformer {
     this.dependencies = [];
   }
 
-  wrapModule(tree) {
+  wrapModule(statements) {
     var depPaths = this.dependencies.map((dep) => dep.path);
     var depLocals = this.dependencies.map((dep) => dep.local);
 
-    return parseExpression
-      `define(${depPaths}, function(${depLocals}) {
-        ${tree}
-      });`;
+    return parseStatements
+        `define(${depPaths}, function(${depLocals}) {
+          ${statements}
+        });`;
   }
 
   transformModuleSpecifier(tree) {
