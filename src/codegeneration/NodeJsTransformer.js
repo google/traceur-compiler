@@ -12,20 +12,45 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {FindInFunctionScope} from './FindInFunctionScope';
 import {ModuleTransformer} from './ModuleTransformer';
+import {RETURN_STATEMENT} from '../syntax/trees/ParseTreeType';
+import {assert} from '../util/assert';
 import {
   parseExpression,
+  parseStatement,
   parseStatements
 } from './PlaceholderParser';
+
+class FindThis extends FindInFunctionScope {
+  visitThisExpression(tree) {
+    this.found = true;
+  }
+}
+
+function containsThis(tree) {
+  var visitor = new FindThis(tree);
+  return visitor.found;
+}
 
 export class NodeJsTransformer extends ModuleTransformer {
 
   wrapModule(statements) {
-    // TODO(arv): Check for top level this and if not present skip the IIFE?
-    return parseStatements
-        `module.exports = function() {
-          ${statements}
-        }.call(typeof global !== 'undefined' ? global : this);`;
+    var needsIife = statements.some(containsThis);
+
+    if (needsIife) {
+      return parseStatements
+          `module.exports = function() {
+            ${statements}
+          }.call(typeof global !== 'undefined' ? global : this);`;
+    }
+
+    var last = statements[statements.length - 1];
+    statements = statements.slice(0, -1);
+    assert(last.type === RETURN_STATEMENT);
+    var exportObject = last.expression;
+    statements.push(parseStatement `module.exports = ${exportObject};`);
+    return statements;
   }
 
   getModuleReference(name) {
