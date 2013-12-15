@@ -25,8 +25,7 @@ if (process.argv.length < 4) {
 }
 
 // Nasty, we should rather pass the options to FromOptionsTransformer
-var options = traceur.options;
-options.modules = 'requirejs';
+traceur.options.modules = 'requirejs';
 
 var inputDir = process.argv[2];
 var outputDir = process.argv[3];
