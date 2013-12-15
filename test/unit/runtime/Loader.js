@@ -30,11 +30,14 @@ suite('modules.js', function() {
   });
 
   var url;
-  if (typeof __filename !== 'undefined')
-    url = __filename;
-  else
+  if (typeof __filename !== 'undefined') {
+    // TOD(arv): Make the system work better with file paths, especially
+    // Windows file paths.
+    url = __filename.replace(/\\/g, '/');
+  } else {
     url = traceur.util.resolveUrl(window.location.href,
                                   'unit/runtime/modules.js');
+  }
 
   function getLoader(opt_reporter) {
     var loaderOptions = {
