@@ -14,7 +14,6 @@
 
 import {FromOptionsTransformer} from './FromOptionsTransformer';
 import {ProjectTransformer} from './ProjectTransformer';
-import {ObjectMap} from '../util/ObjectMap';
 
 /**
  * Use FromOptionsTransformer to transforms Traceur Project or
@@ -27,35 +26,30 @@ export class ProgramTransformer extends ProjectTransformer {
    * @param {Project} project
    */
   constructor(reporter, project) {
-    super(reporter, project);
-    this.treeTransformer = this.transformerFromOptions_();
+    var transformer = new FromOptionsTransformer(reporter,
+                                                 project.identifierGenerator);
+    super(reporter, project, transformer);
   }
 
-  transformerFromOptions_() {
-    return new FromOptionsTransformer(this.reporter_,
-        this.project_.identifierGenerator,
-        this.project_.runtimeInliner);
+  /**
+   * @param {ErrorReporter} reporter
+   * @param {Project} project
+   * @return {ObjectMap}
+   */
+  static transform(reporter, project) {
+    var transformer = new ProgramTransformer(reporter, project);
+    return transformer.transform();
+  }
+
+  /**
+   * @param {ErrorReporter} reporter
+   * @param {Project} project
+   * @param {SourceFile} sourceFile
+   * @param {string} url
+   * @return {ParseTree}
+   */
+  static transformFile(reporter, project, sourceFile) {
+    var transformer = new ProgramTransformer(reporter, project);
+    return transformer.transformFile(sourceFile);
   }
 }
-
-/**
- * @param {ErrorReporter} reporter
- * @param {Project} project
- * @return {ObjectMap}
- */
-ProgramTransformer.transform = function(reporter, project) {
-  var transformer = new ProgramTransformer(reporter, project);
-  return transformer.transform();
-};
-
-/**
- * @param {ErrorReporter} reporter
- * @param {Project} project
- * @param {SourceFile} sourceFile
- * @param {string} url
- * @return {ParseTree}
- */
-ProgramTransformer.transformFile = function(reporter, project, sourceFile) {
-  var transformer = new ProgramTransformer(reporter, project);
-  return transformer.transformFile(sourceFile);
-};

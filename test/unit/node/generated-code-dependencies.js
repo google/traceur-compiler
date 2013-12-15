@@ -33,13 +33,8 @@ suite('context test', function() {
   }
 
   function executeFileWithRuntime(fileName) {
-    var runtimePath = resolve('src/runtime/runtime.js');
+    var runtimePath = resolve('bin/traceur-runtime.js');
     var runtime = fs.readFileSync(runtimePath, 'utf-8');
-    return executeFile(fileName, runtime);
-  }
-
-  function executeFile(fileName, runtime) {
-    runtime = runtime || '';
     var reporter = new traceur.util.TestErrorReporter();
     var source = fs.readFileSync(fileName, 'utf-8');
     var file = new traceur.syntax.SourceFile(fileName, source);
@@ -57,19 +52,19 @@ suite('context test', function() {
 
   test('class', function() {
     var fileName = path.resolve(__dirname, 'resources/class.js');
-    var result = executeFile(fileName);
+    var result = executeFileWithRuntime(fileName);
     assert.equal(result, 2);
   });
 
   test('generator', function() {
     var fileName = path.resolve(__dirname, 'resources/generator.js');
-    var result = executeFile(fileName);
+    var result = executeFileWithRuntime(fileName);
     assert.deepEqual(result, [1, 2, 9, 16]);
   });
 
-  test('generator (private names)', function() {
+  test('generator (symbols)', function() {
     var fileName = path.resolve(__dirname, 'resources/generator.js');
-    traceur.options.privateNames = true;
+    traceur.options.symbols = true;
     var result = executeFileWithRuntime(fileName);
     assert.deepEqual(result, [1, 2, 9, 16]);
   });

@@ -12,9 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ObjectMap} from '../util/ObjectMap';
 import {ParseTreeValidator} from '../syntax/ParseTreeValidator';
-
 
 /**
  * Applies an ordered series of transforms

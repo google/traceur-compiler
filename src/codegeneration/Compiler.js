@@ -64,9 +64,9 @@ export class Compiler {
    * @private
    */
   transform_() {
-    if (this.hadError_()) {
+    if (this.hadError_())
       return;
-    }
+
     return ProgramTransformer.transform(this.reporter_, this.project_);
   }
 
@@ -74,16 +74,16 @@ export class Compiler {
    * Transform the analyzed project to standard JS.
    *
    * @param {SourceFile} sourceFile
-   * @return {void}
+   * @return {ParseTree}
    * @private
    */
   transformFile_(sourceFile) {
-    if (this.hadError_()) {
+    if (this.hadError_())
       return;
-    }
+
     return ProgramTransformer.transformFile(this.reporter_,
-                                             this.project_,
-                                             sourceFile);
+                                            this.project_,
+                                            sourceFile);
   }
 
   /**
@@ -93,11 +93,10 @@ export class Compiler {
    * @private
    */
   analyze_() {
-    if (this.hadError_()) {
+    if (this.hadError_())
       return;
-    }
-    var analyzer = new ModuleAnalyzer(this.reporter_, this.project_);
-    analyzer.analyze();
+
+    new ModuleAnalyzer(this.reporter_, this.project_).analyze();
   }
 
   /**
@@ -108,11 +107,10 @@ export class Compiler {
    * @private
    */
   analyzeFile_(sourceFile) {
-    if (this.hadError_()) {
+    if (this.hadError_())
       return;
-    }
-    var analyzer = new ModuleAnalyzer(this.reporter_, this.project_);
-    analyzer.analyzeFile(sourceFile);
+
+    new ModuleAnalyzer(this.reporter_, this.project_).analyzeFile(sourceFile);
   }
 
   /**
@@ -134,12 +132,11 @@ export class Compiler {
    * @private
    */
   parseFile_(file) {
-    if (this.hadError_()) {
+    if (this.hadError_())
       return;
-    }
 
-    this.project_.setParseTree(
-        file, new Parser(this.reporter_, file).parseScript());
+    var tree = new Parser(this.reporter_, file).parseScript();
+    this.project_.setParseTree(file, tree);
   }
 
   /**

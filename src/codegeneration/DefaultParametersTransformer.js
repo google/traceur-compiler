@@ -19,7 +19,10 @@ import {
 import {FormalParameterList} from '../syntax/trees/ParseTrees';
 import {ParameterTransformer} from './ParameterTransformer';
 import {ARGUMENTS} from '../syntax/PredefinedName';
-import {REST_PARAMETER} from '../syntax/trees/ParseTreeType';
+import {
+  FORMAL_PARAMETER,
+  REST_PARAMETER
+} from '../syntax/trees/ParseTreeType';
 import {
   NOT_EQUAL_EQUAL,
   VAR
@@ -36,7 +39,7 @@ import {
 } from './ParseTreeFactory';
 import {prependStatements} from './PrependStatements';
 
-function createDefaultAssignment(index, binding, initializer) {
+function createDefaultAssignment(index, binding, initialiser) {
   var argumentsExpression =
       createMemberLookupExpression(
           createIdentifierExpression(ARGUMENTS),
@@ -45,12 +48,12 @@ function createDefaultAssignment(index, binding, initializer) {
   var assignmentExpression;
   // If the default value is undefined we can skip testing if arguments[i] is
   // undefined.
-  if (initializer === null || isUndefined(initializer) ||
-      isVoidExpression(initializer)) {
+  if (initialiser === null || isUndefined(initialiser) ||
+      isVoidExpression(initialiser)) {
     // var binding = arguments[i];
     assignmentExpression = argumentsExpression;
   } else {
-    // var binding = arguments[i] !== (void 0) ? arguments[i] : initializer;
+    // var binding = arguments[i] !== (void 0) ? arguments[i] : initialiser;
     assignmentExpression =
         createConditionalExpression(
             createBinaryOperator(
@@ -58,7 +61,7 @@ function createDefaultAssignment(index, binding, initializer) {
                 createOperatorToken(NOT_EQUAL_EQUAL),
                 createVoid0()),
             argumentsExpression,
-            initializer);
+            initialiser);
   }
   return createVariableStatement(VAR, binding, assignmentExpression);
 }
@@ -79,12 +82,12 @@ export class DefaultParametersTransformer extends ParameterTransformer {
       if (param !== tree.parameters[i])
         changed = true;
 
-      if (param.type === REST_PARAMETER ||
-          !param.initializer && !defaultToUndefined) {
+      if (param.isRestParameter() ||
+          !param.parameter.initialiser && !defaultToUndefined) {
         parameters.push(param);
 
-      // binding = initializer
-      // binding  // with default undefined initializer
+      // binding = initialiser
+      // binding  // with default undefined initialiser
       //
       // =>
       //
@@ -93,7 +96,7 @@ export class DefaultParametersTransformer extends ParameterTransformer {
         defaultToUndefined = true;
         changed = true;
         this.parameterStatements.push(
-            createDefaultAssignment(i, param.binding, param.initializer));
+            createDefaultAssignment(i, param.parameter.binding, param.parameter.initialiser));
       }
     }
 

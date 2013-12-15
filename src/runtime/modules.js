@@ -11,12 +11,14 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-System.set('@traceur/module', (function(global) {
+(function(global) {
   'use strict';
 
-  var {ModuleImpl} = System.get('@traceur/module');
-
-  var {resolveUrl, isStandardModuleUrl} = System.get('@traceur/url');
+  var {
+    canonicalizeUrl,
+    resolveUrl,
+    isAbsolute,
+  } = $traceurRuntime;
 
   var moduleImplementations = Object.create(null);
 
@@ -29,78 +31,57 @@ System.set('@traceur/module', (function(global) {
   else
     baseURL = '';
 
+  class ModuleImpl {
+    constructor(url, func, self) {
+      this.url = url;
+      this.func = func;
+      this.self = self;
+      this.value_ = null;
+    }
+
+    get value() {
+      if (this.value_)
+        return this.value_;
+      return this.value_ = this.func.call(this.self);
+    }
+  }
+
   function registerModule(url, func, self) {
     url = System.normalResolve(url);
     moduleImplementations[url] = new ModuleImpl(url, func, self);
-
   }
-
-  Object.defineProperty(System, 'baseURL', {
-    get: function() {
-      return baseURL;
-    },
-    set: function(v) {
-      baseURL = String(v);
-    },
-    enumerable: true,
-    configurable: true
-  });
-
-  System.normalize = function(requestedModuleName, options) {
-    var importingModuleName = options && options.referer && options.referer.name;
-    importingModuleName = importingModuleName || baseURL;
-    if (importingModuleName && requestedModuleName)
-      return resolveUrl(importingModuleName, requestedModuleName);
-    return requestedModuleName;
-  };
-
-  System.resolve = function(normalizedModuleName) {
-    if (isStandardModuleUrl(normalizedModuleName))
-      return normalizedModuleName;
-    var asJS = normalizedModuleName + '.js';
-    // ----- Hack for self-hosting compiler -----
-    if (/\.js$/.test(normalizedModuleName))
-      asJS = normalizedModuleName;
-    // ----------------------------------------------------
-    if (baseURL)
-      return resolveUrl(baseURL, asJS);
-    return asJS;
-  };
-
-  // Now it is safe to override System.{get,set} to use resolveUrl.
-  var $get = System.get;
-  var $set = System.set;
-
-  // Non-standard API, remove see issue #393
-  System.normalResolve = function(name, importingModuleName) {
-    if (/@.*\.js/.test(name))
-      throw new Error(`System.normalResolve illegal standard module name ${name}`);
-    var options = {
-      referer: {
-        name: importingModuleName || baseURL
-      }
-    };
-    return System.resolve(System.normalize(name, options));
-  };
 
   function getModuleImpl(name) {
     if (!name)
       return;
-    if (isStandardModuleUrl(name))
-      return {url: name, value: $get(name)};
     var url = System.normalResolve(name);
     return moduleImplementations[url];
   };
 
   var moduleInstances = Object.create(null);
 
-  function Module(obj) {
+  var liveModuleSentinel = {};
+
+  function Module(obj, isLive = undefined) {
+    // Module instances acquired using `module m from 'name'` should have live
+    // references so when we create these internally we pass a sentinel.
     Object.getOwnPropertyNames(obj).forEach((name) => {
-      var value = obj[name];
-      Object.defineProperty(this, name, {
-        get: function() {
+      var getter, value;
+      if (isLive === liveModuleSentinel) {
+        var descr = Object.getOwnPropertyDescriptor(obj, name);
+        // Some internal modules do not use getters at this point.
+        if (descr.get)
+          getter = descr.get;
+      }
+      if (!getter) {
+        value = obj[name];
+        getter = function() {
           return value;
-        },
+        };
+      }
+
+      Object.defineProperty(this, name, {
+        get: getter,
         enumerable: true
       });
     });
@@ -108,24 +89,74 @@ System.set('@traceur/module', (function(global) {
     Object.preventExtensions(this);
   }
 
-  System.get = function(name) {
-    var m = getModuleImpl(name);
-    if (!m)
-      return undefined;
-    var moduleInstance = moduleInstances[m.url];
-    if (moduleInstance)
-      return moduleInstance;
+  var System = {
+    get baseURL() {
+      return baseURL;
+    },
 
-    var value = m.value;
-    moduleInstance = new Module(value);
-    return moduleInstances[m.url] = moduleInstance;
-  };
+    set baseURL(v) {
+      baseURL = String(v);
+    },
 
-  System.set = function(name, object) {
-    name = String(name);
-    if (isStandardModuleUrl(name)) {
-      $set(name, object);
-    } else {
+    normalize(name, refererName, refererAddress) {
+      if (typeof name !== "string")
+          throw new TypeError("module name must be a string, not " + typeof name);
+      if (isAbsolute(name))
+        return canonicalizeUrl(name);
+      if(/[^\.]\/\.\.\//.test(name)) {
+        throw new Error('module name embeds /../: ' + name);
+      }
+      if (refererName)
+        return resolveUrl(refererName, name);
+      return canonicalizeUrl(name);
+    },
+
+    locate(load) {
+      var normalizedModuleName = load.name;
+      if (isAbsolute(normalizedModuleName))
+        return normalizedModuleName;
+      var asJS = normalizedModuleName + '.js';
+      // ----- Hack for self-hosting compiler -----
+      if (/\.js$/.test(normalizedModuleName))
+        asJS = normalizedModuleName;
+      // ------------------------------------------
+      var baseURL = load.metadata && load.metadata.baseURL;
+      if (baseURL)
+        return resolveUrl(baseURL, asJS);
+      return asJS;
+    },
+
+    // Non-standard API, remove see issue #393
+    normalResolve(name, refererName) {
+      var options = {
+        baseURL: baseURL
+      };
+      if (isAbsolute(refererName)) {
+        options.baseURL = refererName;
+        refererName = undefined;
+      }
+
+      var load = {
+        name: System.normalize(name, refererName),
+        metadata: options
+      }
+      return System.locate(load);
+    },
+
+    get(name) {
+      var m = getModuleImpl(name);
+      if (!m)
+        return undefined;
+      var moduleInstance = moduleInstances[m.url];
+      if (moduleInstance)
+        return moduleInstance;
+
+      moduleInstance = new Module(m.value, liveModuleSentinel);
+      return moduleInstances[m.url] = moduleInstance;
+    },
+
+    set(name, object) {
+      name = String(name);
       moduleImplementations[name] = {
         url: name,
         value: object
@@ -133,10 +164,16 @@ System.set('@traceur/module', (function(global) {
     }
   };
 
-  return {
-    registerModule,
-    getModuleImpl(name) {
-      return getModuleImpl(name).value;
-    }
+  // Override setupGlobals so that System is added to future globals.
+  var setupGlobals = $traceurRuntime.setupGlobals;
+  $traceurRuntime.setupGlobals = function(global) {
+    setupGlobals(global);
   };
-})(this));
+  global.System = System;
+
+  $traceurRuntime.registerModule = registerModule;
+  $traceurRuntime.getModuleImpl = function(name) {
+    return getModuleImpl(name).value;
+  };
+
+})(typeof global !== 'undefined' ? global : this);

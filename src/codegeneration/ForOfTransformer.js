@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {TRACEUR_RUNTIME} from '../syntax/PredefinedName';
 import {VARIABLE_DECLARATION_LIST} from '../syntax/trees/ParseTreeType';
 import {TempVarTransformer} from './TempVarTransformer';
 import {
@@ -21,30 +20,11 @@ import {
   createVariableStatement
 } from './ParseTreeFactory';
 import {parseStatement} from './PlaceholderParser';
-import {transformOptions} from '../options';
-
-var GET_ITERATOR_CODE = `function(object) {
-  return object[%iterator]();
-}`;
-
-var GET_ITERATOR_RUNTIME_CODE = `function(object) {
-  return ${TRACEUR_RUNTIME}.getIterator(object);
-}`;
 
 /**
  * Desugars for-of statement.
  */
 export class ForOfTransformer extends TempVarTransformer {
-
-  /**
-   * @param {UniqueIdentifierGenerator} identifierGenerator
-   * @param {RuntimeInliner} runtimeInliner
-   */
-  constructor(identifierGenerator, runtimeInliner) {
-    super(identifierGenerator);
-    this.runtimeInliner_ = runtimeInliner;
-  }
-
   /**
    * @param {ForOfStatement} original
    * @return {ParseTree}
@@ -55,31 +35,23 @@ export class ForOfTransformer extends TempVarTransformer {
     var result = id(this.getTempIdentifier());
 
     var assignment;
-    if (tree.initializer.type === VARIABLE_DECLARATION_LIST) {
-      // {var,let} initializer = $result.value;
+    if (tree.initialiser.type === VARIABLE_DECLARATION_LIST) {
+      // {var,let} initialiser = $result.value;
       assignment = createVariableStatement(
-          tree.initializer.declarationType,
-          tree.initializer.declarations[0].lvalue,
+          tree.initialiser.declarationType,
+          tree.initialiser.declarations[0].lvalue,
           createMemberExpression(result, 'value'));
     } else {
-      assignment = parseStatement `${tree.initializer} = ${result}.value;`;
+      assignment = parseStatement `${tree.initialiser} = ${result}.value;`;
     }
 
     return parseStatement `
         for (var ${iter} =
-                 ${this.getIterator_}(${tree.collection}),
+                 ${tree.collection}[Symbol.iterator](),
                  ${result};
              !(${result} = ${iter}.next()).done; ) {
           ${assignment};
           ${tree.body};
         }`;
-  }
-
-  get getIterator_() {
-    if (transformOptions.privateNames) {
-      return this.runtimeInliner_.get('getIterator', GET_ITERATOR_RUNTIME_CODE);
-    } else {
-      return this.runtimeInliner_.get('getIterator', GET_ITERATOR_CODE);
-    }
   }
 }

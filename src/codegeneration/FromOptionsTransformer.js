@@ -18,29 +18,31 @@ import {ArrayComprehensionTransformer} from
     './ArrayComprehensionTransformer';
 import {ArrowFunctionTransformer} from './ArrowFunctionTransformer';
 import {BlockBindingTransformer} from './BlockBindingTransformer';
-import {CascadeExpressionTransformer} from './CascadeExpressionTransformer';
 import {ClassTransformer} from './ClassTransformer';
-import {CollectionTransformer} from './CollectionTransformer';
 import {DefaultParametersTransformer} from './DefaultParametersTransformer';
 import {DestructuringTransformer} from './DestructuringTransformer';
 import {ForOfTransformer} from './ForOfTransformer';
 import {FreeVariableChecker} from '../semantics/FreeVariableChecker';
 import {GeneratorComprehensionTransformer} from
-    'GeneratorComprehensionTransformer';
+    './GeneratorComprehensionTransformer';
 import {GeneratorTransformPass} from './GeneratorTransformPass';
 import {MetadataTransformer} from './MetadataTransformer';
 import {ModuleTransformer} from './ModuleTransformer';
+import {RequireJsTransformer} from './RequireJsTransformer';
 import {MultiTransformer} from './MultiTransformer';
 import {NumericLiteralTransformer} from './NumericLiteralTransformer';
 import {ObjectLiteralTransformer} from './ObjectLiteralTransformer';
 import {ObjectMap} from '../util/ObjectMap';
 import {ParseTreeValidator} from '../syntax/ParseTreeValidator';
 import {PropertyNameShorthandTransformer} from
-    'PropertyNameShorthandTransformer';
-import {TemplateLiteralTransformer} from './TemplateLiteralTransformer';
+    './PropertyNameShorthandTransformer';
 import {RestParameterTransformer} from './RestParameterTransformer';
 import {SpreadTransformer} from './SpreadTransformer';
+import {SymbolTransformer} from './SymbolTransformer';
+import {TemplateLiteralTransformer} from './TemplateLiteralTransformer';
 import {TypeTransformer} from './TypeTransformer';
+import {TypeofTransformer} from './TypeofTransformer';
+import {UniqueIdentifierGenerator} from './UniqueIdentifierGenerator';
 import {options, transformOptions} from '../options';
 
 /**
@@ -49,16 +51,14 @@ import {options, transformOptions} from '../options';
 export class FromOptionsTransformer extends MultiTransformer {
   /**
    * @param {ErrorReporter} reporter
-   * @param {UniqueIdGenerator} idGenerator
-   * @param {RuntimeInliner} runtimeInliner
+   * @param {UniqueIdGenerator=} idGenerator
    */
-  constructor(reporter, idGenerator, runtimeInliner) {
+  constructor(reporter, idGenerator = new UniqueIdentifierGenerator()) {
     super(reporter, options.validate);
 
     var append = (transformer) => {
       this.append((tree) => {
-        return new transformer(idGenerator, runtimeInliner, reporter).
-            transformAny(tree);
+        return new transformer(idGenerator, reporter).transformAny(tree);
       });
     };
 
@@ -73,8 +73,12 @@ export class FromOptionsTransformer extends MultiTransformer {
     if (transformOptions.templateLiterals)
       append(TemplateLiteralTransformer);
 
-    if (transformOptions.modules)
-      append(ModuleTransformer);
+    if (transformOptions.modules) {
+      if (transformOptions.modules === 'requirejs')
+        append(RequireJsTransformer);
+      else
+        append(ModuleTransformer);
+    }
 
     if (transformOptions.arrowFunctions)
       append(ArrowFunctionTransformer);
@@ -91,6 +95,7 @@ export class FromOptionsTransformer extends MultiTransformer {
 
     if (transformOptions.propertyNameShorthand)
       append(PropertyNameShorthandTransformer);
+
     if (transformOptions.propertyMethods ||
               transformOptions.computedPropertyNames) {
       append(ObjectLiteralTransformer);
@@ -129,23 +134,20 @@ export class FromOptionsTransformer extends MultiTransformer {
     if (transformOptions.spread)
       append(SpreadTransformer);
 
-    this.append((tree) => runtimeInliner.transformAny(tree));
-
     if (transformOptions.blockBinding)
       append(BlockBindingTransformer);
 
-    // Cascade must come before CollectionTransformer.
-    if (transformOptions.cascadeExpression)
-      append(CascadeExpressionTransformer);
-
-    if (transformOptions.trapMemberLookup ||  transformOptions.privateNames)
-      append(CollectionTransformer);
+    if (transformOptions.symbols) {
+      append(SymbolTransformer);
+      append(TypeofTransformer);
+    }
 
     // Issue errors for any unbound variables
-    if (options.freeVariableChecker)
-      this.append((tree) => FreeVariableChecker.checkScript(reporter, tree));
+    if (options.freeVariableChecker) {
+      this.append((tree) => {
+        FreeVariableChecker.checkScript(reporter, tree);
+        return tree;
+      });
+    }
   }
-
 }
-
-

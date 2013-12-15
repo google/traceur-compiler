@@ -58,39 +58,43 @@ export var syntax = {
   trees
 };
 
-import {ParseTreeWriter} from './outputgeneration/ParseTreeWriter';
 import {ParseTreeMapWriter} from './outputgeneration/ParseTreeMapWriter';
+import {ParseTreeWriter} from './outputgeneration/ParseTreeWriter';
 import {ProjectWriter} from './outputgeneration/ProjectWriter';
 import {SourceMapConsumer} from './outputgeneration/SourceMapIntegration';
 import {SourceMapGenerator} from './outputgeneration/SourceMapIntegration';
 import {TreeWriter} from './outputgeneration/TreeWriter';
 
 export var outputgeneration = {
-  ParseTreeWriter,
   ParseTreeMapWriter,
+  ParseTreeWriter,
   ProjectWriter,
   SourceMapConsumer,
   SourceMapGenerator,
   TreeWriter
 };
 
+import {CloneTreeTransformer} from './codegeneration/CloneTreeTransformer';
 import {Compiler} from './codegeneration/Compiler';
+import {FromOptionsTransformer} from './codegeneration/FromOptionsTransformer';
+import {ModuleSpecifierVisitor} from './codegeneration/module/ModuleSpecifierVisitor';
 import {ModuleTransformer} from './codegeneration/ModuleTransformer';
+import {RequireJsTransformer} from './codegeneration/RequireJsTransformer';
 import {ParseTreeTransformer} from './codegeneration/ParseTreeTransformer';
 import {ProgramTransformer} from './codegeneration/ProgramTransformer';
-import {CloneTreeTransformer} from './codegeneration/CloneTreeTransformer';
 module ParseTreeFactory from './codegeneration/ParseTreeFactory';
-import {ModuleRequireVisitor} from './codegeneration/module/ModuleRequireVisitor';
 
 export var codegeneration = {
+  CloneTreeTransformer,
   Compiler,
+  FromOptionsTransformer,
   ModuleTransformer,
+  ParseTreeFactory,
   ParseTreeTransformer,
   ProgramTransformer,
-  CloneTreeTransformer,
-  ParseTreeFactory,
+  RequireJsTransformer,
   module: {
-    ModuleRequireVisitor
+    ModuleSpecifierVisitor
   }
 };
 

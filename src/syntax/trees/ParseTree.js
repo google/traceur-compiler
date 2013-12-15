@@ -33,7 +33,6 @@ import {
   BLOCK,
   BREAK_STATEMENT,
   CALL_EXPRESSION,
-  CASCADE_EXPRESSION,
   CASE_CLAUSE,
   CATCH,
   CLASS_DECLARATION,
@@ -59,6 +58,7 @@ import {
   FOR_IN_STATEMENT,
   FOR_OF_STATEMENT,
   FOR_STATEMENT,
+  FORMAL_PARAMETER,
   FORMAL_PARAMETER_LIST,
   FUNCTION_BODY,
   FUNCTION_DECLARATION,
@@ -190,7 +190,6 @@ export class ParseTree {
       case ARROW_FUNCTION_EXPRESSION:
       case BINARY_OPERATOR:
       case CALL_EXPRESSION:
-      case CASCADE_EXPRESSION:
       case CLASS_EXPRESSION:
       case CONDITIONAL_EXPRESSION:
       case FUNCTION_EXPRESSION:
@@ -242,7 +241,6 @@ export class ParseTree {
       // CallExpression:
       //   CallExpression . IdentifierName
       case CALL_EXPRESSION:
-      case CASCADE_EXPRESSION:
         return true;
 
       // new MemberExpression Arguments
@@ -267,7 +265,8 @@ export class ParseTree {
 
   /** @return {boolean} */
   isRestParameter() {
-    return this.type == REST_PARAMETER;
+    return this.type == REST_PARAMETER ||
+        (this.type == FORMAL_PARAMETER && this.parameter.isRestParameter());
   }
 
   /** @return {boolean} */

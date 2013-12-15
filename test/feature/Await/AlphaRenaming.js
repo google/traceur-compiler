@@ -1,9 +1,10 @@
 // Options: --deferred-functions
+// Async.
 
 function asyncComplete(self, arg) {
-  var task = new Deferred();
-  task.callback([self, arg]);
-  return task.createPromise();
+  return new Promise((resolve) => {
+    resolve([self, arg]);
+  });
 }
 
 var self = {};
@@ -13,7 +14,8 @@ var value;
 function A() {
   assert.equal(this, self);
   await value = asyncComplete(this, arguments[0]);
+  assert.deepEqual([self, obj], value);
+  done();
 }
 
 A.call(self, obj);
-assert.deepEqual([self, obj], value);

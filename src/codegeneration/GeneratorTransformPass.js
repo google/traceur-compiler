@@ -50,7 +50,6 @@ import {
 import {
   ACTION_SEND,
   ACTION_THROW,
-  TRACEUR_RUNTIME,
   YIELD_ACTION,
   YIELD_SENT
 } from '../syntax/PredefinedName';
@@ -83,13 +82,13 @@ class YieldFinder extends ParseTreeVisitor {
     this.hasYield = false;
     this.hasYieldFor = false;
     this.hasForIn = false;
-    this.hasAsync = false;
+    this.hasAwait = false;
     this.visitAny(tree);
   }
 
   /** @return {boolean} */
   hasAnyGenerator() {
-    return this.hasYield || this.hasAsync;
+    return this.hasYield || this.hasAwait;
   }
 
   visitYieldExpression(tree) {
@@ -99,7 +98,7 @@ class YieldFinder extends ParseTreeVisitor {
 
   /** @param {AwaitStatement} tree */
   visitAwaitStatement(tree) {
-    this.hasAsync = true;
+    this.hasAwait = true;
   }
 
   /** @param {ForInStatement} tree */
@@ -121,10 +120,10 @@ class YieldExpressionTransformer extends TempVarTransformer {
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
    */
-  constructor(identifierGenerator) {
+  constructor(identifierGenerator, reporter) {
     super(identifierGenerator);
 
-    // Initialize unless already cached.
+    // Initialise unless already cached.
     if (!throwClose) {
       // Inserted after every simple yield expression in order to handle
       // 'throw'. No extra action is needed to handle 'next'.
@@ -180,7 +179,7 @@ class YieldExpressionTransformer extends TempVarTransformer {
     var tdd = tree.declarations.declarations;
 
     function isYieldVarAssign(tree) {
-      return tree.initializer && tree.initializer.type === YIELD_EXPRESSION;
+      return tree.initialiser && tree.initialiser.type === YIELD_EXPRESSION;
     }
 
     function varWrap(lhs, rhs) {
@@ -191,7 +190,7 @@ class YieldExpressionTransformer extends TempVarTransformer {
     }
 
     if (isYieldVarAssign(tdd[0]))
-      return this.factorAssign_(tdd[0].lvalue, tdd[0].initializer, varWrap);
+      return this.factorAssign_(tdd[0].lvalue, tdd[0].initialiser, varWrap);
 
     return tree;
   }
@@ -279,7 +278,7 @@ class YieldExpressionTransformer extends TempVarTransformer {
 
     return parseStatement `
         {
-          var ${g} = ${id(TRACEUR_RUNTIME)}.getIterator(${tree.expression});
+          var ${g} = ${tree.expression}[Symbol.iterator]();
           var ${next};
 
           // TODO: Should 'yield *' handle non-generator iterators? A strict
@@ -317,12 +316,10 @@ class YieldExpressionTransformer extends TempVarTransformer {
 export class GeneratorTransformPass extends TempVarTransformer {
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
-   * @param {RuntimeInliner} runtimeInliner
    * @param {ErrorReporter} reporter
    */
-  constructor(identifierGenerator, runtimeInliner, reporter) {
+  constructor(identifierGenerator, reporter) {
     super(identifierGenerator);
-    this.runtimeInliner_ = runtimeInliner;
     this.reporter_ = reporter;
   }
 
@@ -351,7 +348,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
     var isGenerator = false;
 
     return new constructor(null, tree.name, isGenerator,
-                           tree.formalParameterList, body);
+                           tree.formalParameterList, tree.typeAnnotation, body);
   }
 
   /**
@@ -367,7 +364,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
     if (isGenerator ||
         (options.unstarredGenerators || transformOptions.deferredFunctions)) {
       finder = new YieldFinder(tree);
-      if (!(finder.hasYield || isGenerator || finder.hasAsync))
+      if (!(finder.hasYield || isGenerator || finder.hasAwait))
         return body;
     } else if (!isGenerator) {
       return body;
@@ -382,11 +379,11 @@ export class GeneratorTransformPass extends TempVarTransformer {
 
     if (finder.hasYield || isGenerator) {
       if (transformOptions.generators) {
-        body = new YieldExpressionTransformer(this.identifierGenerator).
+        body = new YieldExpressionTransformer(this.identifierGenerator,
+                                              this.reporter_).
             transformAny(body);
 
-        body = GeneratorTransformer.transformGeneratorBody(this.runtimeInliner_,
-                                                           this.reporter_,
+        body = GeneratorTransformer.transformGeneratorBody(this.reporter_,
                                                            body);
       }
     } else if (transformOptions.deferredFunctions) {
@@ -408,6 +405,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
         tree.location,
         tree.isStatic,
         tree.name,
+        tree.typeAnnotation,
         body);
   }
 

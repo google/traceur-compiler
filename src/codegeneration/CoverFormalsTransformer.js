@@ -18,6 +18,7 @@ import {
   BindingElement,
   BindingIdentifier,
   CommaExpression,
+  FormalParameter,
   FormalParameterList,
   ObjectPattern,
   ObjectPatternField,
@@ -27,8 +28,7 @@ import {
 } from '../syntax/trees/ParseTrees';
 import {EQUAL} from '../syntax/TokenType';
 import {
-  IDENTIFIER_EXPRESSION,
-  REST_PARAMETER
+  IDENTIFIER_EXPRESSION
 } from '../syntax/trees/ParseTreeType';
 import {AssignmentPatternTransformerError} from
     './AssignmentPatternTransformer';
@@ -56,7 +56,9 @@ class ToFormalParametersTransformer extends ParseTreeTransformer {
   }
 
   transformCoverFormals(tree) {
-    var expressions = this.transformList(tree.expressions);
+    var expressions = this.transformList(tree.expressions).map((expression) => {
+      return new FormalParameter(expression.location, expression, null);
+    });
     return new FormalParameterList(tree.location, expressions);
   }
 
@@ -107,6 +109,12 @@ class ToFormalParametersTransformer extends ParseTreeTransformer {
         new ObjectPattern(tree.location, propertyNameAndValues), null);
   }
 
+  transformCoverInitialisedName(tree) {
+    return new BindingElement(tree.location,
+                              new BindingIdentifier(tree.location, tree.name),
+                              tree.initialiser);
+  }
+
   transformPropertyNameAssignment(tree) {
     return new ObjectPatternField(tree.location, tree.name,
                                   this.transformAny(tree.value));
@@ -152,7 +160,7 @@ export function toParenExpression(tree) {
         'Unexpected token )');
 
   for (var i = 0; i < length; i++) {
-    if (expressions[i].type === REST_PARAMETER)
+    if (expressions[i].isRestParameter())
       throw new CoverFormalsTransformerError(expressions[i].location,
           'Unexpected token ...');
   }

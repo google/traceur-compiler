@@ -71,6 +71,7 @@ import {
   EXPORT_SPECIFIER_SET,
   EXPORT_STAR,
   FINALLY,
+  FORMAL_PARAMETER,
   FORMAL_PARAMETER_LIST,
   FUNCTION_BODY,
   FUNCTION_DECLARATION,
@@ -94,6 +95,7 @@ import {
   VARIABLE_DECLARATION_LIST,
   VARIABLE_STATEMENT
 } from './trees/ParseTreeType';
+import {assert} from '../util/assert';
 
 /*
 TODO: add contextual information to the validator so we can check
@@ -301,7 +303,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
         binding.type == ARRAY_PATTERN,
         binding,
         'expected valid binding element');
-    this.visitAny(tree.initializer);
+    this.visitAny(tree.initialiser);
   }
 
   /**
@@ -495,11 +497,11 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    */
   visitForOfStatement(tree) {
     this.checkVisit_(
-      tree.initializer.isPattern() ||
-      tree.initializer.type === IDENTIFIER_EXPRESSION ||
-      tree.initializer.type === VARIABLE_DECLARATION_LIST &&
-      tree.initializer.declarations.length === 1,
-        tree.initializer,
+      tree.initialiser.isPattern() ||
+      tree.initialiser.type === IDENTIFIER_EXPRESSION ||
+      tree.initialiser.type === VARIABLE_DECLARATION_LIST &&
+      tree.initialiser.declarations.length === 1,
+        tree.initialiser,
         'for-each statement may not have more than one variable declaration');
     this.checkVisit_(tree.collection.isExpression(), tree.collection,
         'expression expected');
@@ -511,16 +513,16 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {ForInStatement} tree
    */
   visitForInStatement(tree) {
-    if (tree.initializer.type === VARIABLE_DECLARATION_LIST) {
+    if (tree.initialiser.type === VARIABLE_DECLARATION_LIST) {
       this.checkVisit_(
-          tree.initializer.declarations.length <=
+          tree.initialiser.declarations.length <=
               1,
-          tree.initializer,
+          tree.initialiser,
           'for-in statement may not have more than one variable declaration');
     } else {
-      this.checkVisit_(tree.initializer.isPattern() ||
-                       tree.initializer.isExpression(),
-                       tree.initializer,
+      this.checkVisit_(tree.initialiser.isPattern() ||
+                       tree.initialiser.isExpression(),
+                       tree.initialiser,
                        'variable declaration, expression or ' +
                        'pattern expected');
     }
@@ -536,6 +538,9 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   visitFormalParameterList(tree) {
     for (var i = 0; i < tree.parameters.length; i++) {
       var parameter = tree.parameters[i];
+      assert(parameter.type === FORMAL_PARAMETER)
+      parameter = parameter.parameter;
+
       switch (parameter.type) {
         case BINDING_ELEMENT:
           break;
@@ -562,11 +567,11 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {ForStatement} tree
    */
   visitForStatement(tree) {
-    if (tree.initializer !== null) {
+    if (tree.initialiser !== null) {
       this.checkVisit_(
-          tree.initializer.isExpression() ||
-          tree.initializer.type === VARIABLE_DECLARATION_LIST,
-          tree.initializer,
+          tree.initialiser.isExpression() ||
+          tree.initialiser.type === VARIABLE_DECLARATION_LIST,
+          tree.initialiser,
           'variable declaration list or expression expected');
     }
     if (tree.condition !== null) {
@@ -757,7 +762,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {ObjectPatternField} tree
    */
   visitObjectPatternField(tree) {
-    this.checkPropertyName_(tree.name); 
+    this.checkPropertyName_(tree.name);
    this.checkVisit_(tree.element.type === BINDING_ELEMENT ||
                      tree.element.isPattern() ||
                      tree.element.isLeftHandSideExpression(),
@@ -975,9 +980,9 @@ export class ParseTreeValidator extends ParseTreeVisitor {
                      tree.lvalue.type == BINDING_IDENTIFIER,
                      tree.lvalue,
                      'binding identifier expected, found: ' + tree.lvalue.type);
-    if (tree.initializer !== null) {
-      this.checkVisit_(tree.initializer.isArrowFunctionExpression(),
-          tree.initializer, 'assignment expression expected');
+    if (tree.initialiser !== null) {
+      this.checkVisit_(tree.initialiser.isArrowFunctionExpression(),
+          tree.initialiser, 'assignment expression expected');
     }
   }
 

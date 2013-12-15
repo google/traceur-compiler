@@ -7,6 +7,10 @@ out
 node_modules
 build/dep.mk
 build/local.mk
+build/previous-commit-traceur.js
+build/compiled-by-previous-traceur.js
+bin/traceur-runtime.js
+bin/traceur.map
 bin/traceur.min.js
 bin/traceur.ugly.js
 src/syntax/trees/ParseTreeType.js
@@ -17,4 +21,6 @@ src/outputgeneration/SourceMapIntegration.js
 test/errsfile.json
 test/bench/esprima
 test/test-list.js
+test/wiki/CompilingOffline/out/*
+test/requirejs-compiled
 *.dep

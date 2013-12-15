@@ -42,7 +42,11 @@ assert.equal(42, f());
 }
 
 var h = (x, ...xs) => xs;
-assertArrayEquals([-1, 0, 1, true], h(0, 1, true));
+assertArrayEquals([0, 1, true], h(-1, 0, 1, true));
 
 assert.equal(typeof (() => {}), 'function');
 assert.equal(Object.getPrototypeOf(() => {}), Function.prototype);
+
+var i = ({a = 1}) => a;
+assert.equal(i({}), 1);
+assert.equal(i({a: 2}), 2);

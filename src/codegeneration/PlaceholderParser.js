@@ -14,6 +14,7 @@
 
 import {ArrayMap} from '../util/ArrayMap';
 import {
+  ARGUMENT_LIST,
   BLOCK,
   EXPRESSION_STATEMENT,
   IDENTIFIER_EXPRESSION
@@ -107,6 +108,17 @@ export function parseStatement(sourceLiterals, ...values) {
 /**
  * @param {Array.<string>} sourceLiterals
  * @param {Array} values An array containing values or parse trees.
+ * @return {Array.<ParseTree>}
+ */
+export function parseStatements(sourceLiterals, ...values) {
+  return parse(sourceLiterals, values, () => {
+    return new PlaceholderParser().parseStatements(sourceLiterals);
+  });
+}
+
+/**
+ * @param {Array.<string>} sourceLiterals
+ * @param {Array} values An array containing values or parse trees.
  * @return {ParseTree}
  */
 export function parsePropertyDefinition(sourceLiterals, ...values) {
@@ -123,7 +135,12 @@ function parse(sourceLiterals, values, doParse) {
   }
   if (!values.length)
     return tree;
-  return new PlaceholderTransformer(values).transformAny(tree);
+
+  // We allow either a ParseTree or an Array as the result of doParse. An
+  // array is returned for parseStatements.
+  if (tree instanceof ParseTree)
+    return new PlaceholderTransformer(values).transformAny(tree);
+  return new PlaceholderTransformer(values).transformList(tree);
 }
 
 var counter = 0;
@@ -149,6 +166,14 @@ export class PlaceholderParser {
    */
   parseStatement(sourceLiterals) {
     return this.parse_(sourceLiterals, (p) => p.parseStatement());
+  }
+
+  /**
+   * @param {Array.<string>} sourceLiterals
+   * @return {Array.<ParseTree>}
+   */
+  parseStatements(sourceLiterals) {
+    return this.parse_(sourceLiterals, (p) => p.parseStatements());
   }
 
   /**
@@ -285,7 +310,7 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
         return transformedExpression;
       return createExpressionStatement(transformedExpression);
     }
-    return super.transformExpressionStatement(tree);
+    return super(tree);
   }
 
   transformBlock(tree) {
@@ -298,7 +323,7 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
       if (transformedStatement.type === BLOCK)
         return transformedStatement;
     }
-    return super.transformBlock(tree);
+    return super(tree);
   }
 
   transformFunctionBody(tree) {
@@ -311,13 +336,13 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
       if (transformedStatement.type === BLOCK)
         return createFunctionBody(transformedStatement.statements);
     }
-    return super.transformFunctionBody(tree);
+    return super(tree);
   }
 
   transformMemberExpression(tree) {
     var value = this.getValue_(tree.memberName.value);
     if (value === NOT_FOUND)
-      return super.transformMemberExpression(tree);
+      return super(tree);
     var operand = this.transformAny(tree.operand);
     return createMemberExpression(operand, value);
   }
@@ -330,6 +355,18 @@ export class PlaceholderTransformer extends ParseTreeTransformer {
             convertValueToIdentifierToken(value));
       }
     }
-    return super.transformPropertyNameAssignment(tree);
+    return super(tree);
+  }
+
+  transformArgumentList(tree) {
+    if (tree.args.length === 1 &&
+        tree.args[0].type === IDENTIFIER_EXPRESSION) {
+      var arg0 = this.transformAny(tree.args[0]);
+      if (arg0 === tree.args[0])
+        return tree;
+      if (arg0.type === ARGUMENT_LIST)
+        return arg0;
+    }
+    return super(tree);
   }
 }

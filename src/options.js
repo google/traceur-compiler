@@ -12,14 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Options are just a plain old object. There are two read only views on this
+// object, parseOptions and transformOptions.
+//
+// To set an option you do `options.classes = true`.
+//
+// An option value is either true, false or a string. If the value is set to
+// the string "parse" then the transformOption for that option will return
+// false. For example:
+//
+//   options.destructuring = 'parse';
+//   transformOptions.destructuring === false;
+
 export var parseOptions = Object.create(null);
 export var transformOptions = Object.create(null);
+
 var defaultValues = Object.create(null);
 var experimentalOptions = Object.create(null);
 
-/**
- * The options object.
- */
 export var options = {
 
   /**
@@ -86,11 +96,6 @@ function fromArgv(args) {
 
 /**
  * Sets the options based on an object.
- * setFromObject({
- *   spread: true,
- *   defaultParameters: false,
- *   desctructuring: 'parse'
- * });
  */
 function setFromObject(object) {
   Object.keys(object).forEach((name) => {
@@ -101,12 +106,13 @@ function setFromObject(object) {
 function coerceOptionValue(v) {
   switch (v) {
     case 'false':
-    case false:
       return false;
-    case 'parse':
-      return 'parse';
-    default:
+    case 'true':
+    case true:
       return true;
+    default:
+      // Falsey values will be false.
+      return !!v && String(v);
   }
 }
 
@@ -118,10 +124,6 @@ function setOption(name, value) {
   } else {
     throw Error('Unknown option: ' + name);
   }
-}
-
-function optionCallback(name, value) {
-  setOption(name, value);
 }
 
 /**
@@ -137,7 +139,7 @@ function addOptions(flags) {
                    descriptions[name]);
     else
       flags.option('--' + dashedName, descriptions[name]);
-    flags.on(dashedName, optionCallback.bind(null, dashedName));
+    flags.on(dashedName, (value) => setOption(dashedName, value));
   });
 }
 
@@ -152,8 +154,6 @@ function filterOption(dashedName) {
 
 // Make sure non option fields are non enumerable.
 Object.defineProperties(options, {
-  parse: {value: parseOptions},
-  transform: {value: transformOptions},
   reset: {value: reset},
   fromString: {value: fromString},
   fromArgv: {value: fromArgv},
@@ -168,14 +168,15 @@ Object.defineProperties(options, {
  *
  *   --spread, --spread=true
  *   --spread=parse
- *   --spead=false
+ *   --spread=false
  *   --arrowFunctions --arrow-functions
+ *   --modules=requirejs
  */
 function parseCommand(s) {
   var re = /--([^=]+)(?:=(.+))?/;
   var m = re.exec(s);
   if (m)
-    setOption(m[1], m[2]);
+    setOption(m[1], m[2] || true);
 }
 
 /**
@@ -201,37 +202,35 @@ var ON_BY_DEFAULT = 1;
 
 /**
  * Adds a feature option.
- * Each feature option is represented by the parse and transform
- * option with the same name.
- * Setting a feature option sets the parse and transform option.
+ * This also adds a view from the parseOption and the transformOption to the
+ * underlying value.
  */
 function addFeatureOption(name, kind) {
   if (kind === EXPERIMENTAL)
     experimentalOptions[name] = true;
 
-  Object.defineProperty(options, name, {
+  Object.defineProperty(parseOptions, name, {
     get: function() {
-      if (parseOptions[name] === transformOptions[name]) {
-        return parseOptions[name];
-      }
-      return 'parse';
+      return !!options[name];
     },
-    set: function(v) {
-      if (v === 'parse') {
-        parseOptions[name] = true;
-        transformOptions[name] = false;
-      } else {
-        parseOptions[name] = transformOptions[name] = Boolean(v);
-      }
+    enumerable: true,
+    configurable: true
+  });
+
+  Object.defineProperty(transformOptions, name, {
+    get: function() {
+      var v = options[name];
+      if (v === 'parse')
+        return false;
+      return v;
     },
     enumerable: true,
     configurable: true
   });
 
   var defaultValue = kind === ON_BY_DEFAULT;
+  options[name] = defaultValue;
   defaultValues[name] = defaultValue;
-  parseOptions[name] = defaultValue;
-  transformOptions[name] = defaultValue;
 }
 
 /**
@@ -262,11 +261,8 @@ addFeatureOption('templateLiterals', ON_BY_DEFAULT);   // 7.6.8
 
 // EXPERIMENTAL
 addFeatureOption('blockBinding', EXPERIMENTAL);       // 12.1
-addFeatureOption('privateNames', EXPERIMENTAL);
-addFeatureOption('cascadeExpression', EXPERIMENTAL);
-addFeatureOption('trapMemberLookup', EXPERIMENTAL);
+addFeatureOption('symbols', EXPERIMENTAL);
 addFeatureOption('deferredFunctions', EXPERIMENTAL);
-addFeatureOption('propertyOptionalComma', EXPERIMENTAL);
 addFeatureOption('types', EXPERIMENTAL);
 addFeatureOption('annotations', EXPERIMENTAL);
 

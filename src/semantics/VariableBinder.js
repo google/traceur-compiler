@@ -15,6 +15,7 @@
 import {
   ARRAY_PATTERN,
   BINDING_IDENTIFIER,
+  FORMAL_PARAMETER,
   OBJECT_PATTERN,
   OBJECT_PATTERN_FIELD,
   PAREN_EXPRESSION,
@@ -188,7 +189,7 @@ export class VariableBinder extends ParseTreeVisitor {
       // skipping let/const declarations in nested blocks
       var decls = tree.declarations;
       for (var i = 0; i < decls.length; i++) {
-        this.visitAny(decls[i].initializer);
+        this.visitAny(decls[i].initialiser);
       }
     }
   }
@@ -207,6 +208,9 @@ export class VariableBinder extends ParseTreeVisitor {
 
   /** @param {ParseTree} parameter */
   bindParameter_(parameter) {
+    if (parameter.type === FORMAL_PARAMETER)
+      parameter = parameter.parameter;
+
     if (parameter.isRestParameter()) {
       this.bind_(parameter.identifier);
     } else {

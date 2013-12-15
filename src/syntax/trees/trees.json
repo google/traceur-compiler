@@ -45,6 +45,14 @@
       "ArgumentList"
     ]
   },
+  "AnonBlock": {
+    "location": [
+      "SourceRange"
+    ],
+    "statements": [
+      "Array.<ParseTree>"
+    ]
+  },
   "ArgumentList": {
     "location": [
       "SourceRange"
@@ -125,7 +133,7 @@
       "ObjectPattern",
       "ArrayPattern"
     ],
-    "initializer": [
+    "initialiser": [
       "ParseTree"
     ]
   },
@@ -162,17 +170,6 @@
     ],
     "args": [
       "ArgumentList"
-    ]
-  },
-  "CascadeExpression": {
-    "location": [
-      "SourceRange"
-    ],
-    "operand": [
-      "ParseTree"
-    ],
-    "expressions": [
-      "Array.<ParseTree>"
     ]
   },
   "CaseClause": {
@@ -327,7 +324,7 @@
     "equalToken": [
       "Token"
     ],
-    "initializer": [
+    "initialiser": [
       "ParseTree"
     ]
   },
@@ -420,7 +417,7 @@
     "location": [
       "SourceRange"
     ],
-    "initializer": [
+    "initialiser": [
       "ParseTree"
     ],
     "collection": [
@@ -434,7 +431,7 @@
     "location": [
       "SourceRange"
     ],
-    "initializer": [
+    "initialiser": [
       "ParseTree"
     ],
     "collection": [
@@ -448,7 +445,7 @@
     "location": [
       "SourceRange"
     ],
-    "initializer": [
+    "initialiser": [
       "ParseTree"
     ],
     "condition": [
@@ -461,12 +458,26 @@
       "ParseTree"
     ]
   },
+  "FormalParameter": {
+    "location": [
+      "SourceRange"
+    ],
+    "parameter": [
+      "BindingElement"
+    ],
+    "typeAnnotation": [
+      "ParseTree"
+    ],
+    "annotations": [
+      "Array.<Annotation>"
+    ],
+  },
   "FormalParameterList": {
     "location": [
       "SourceRange"
     ],
     "parameters": [
-      "Array.<ParseTree>"
+      "Array.<FormalParameter>"
     ]
   },
   "FunctionBody": {
@@ -491,6 +502,9 @@
     "formalParameterList": [
       "FormalParameterList"
     ],
+    "typeAnnotation": [
+      "ParseTree"
+    ],
     "functionBody": [
       "FunctionBody"
     ]
@@ -507,6 +521,9 @@
     ],
     "formalParameterList": [
       "FormalParameterList"
+    ],
+    "typeAnnotation": [
+      "ParseTree"
     ],
     "functionBody": [
       "FunctionBody"
@@ -545,6 +562,9 @@
       "boolean"
     ],
     "name": [
+      "ParseTree"
+    ],
+    "typeAnnotation": [
       "ParseTree"
     ],
     "body": [
@@ -794,6 +814,9 @@
     "formalParameterList": [
       "FormalParameterList"
     ],
+    "typeAnnotation": [
+      "ParseTree"
+    ],
     "functionBody": [
       "FunctionBody"
     ]
@@ -844,8 +867,7 @@
       "ParseTree"
     ],
     "parameter": [
-      "AnnotatedBindingElement",
-      "BindingElement"
+      "FormalParameter"
     ],
     "body": [
       "FunctionBody"
@@ -980,7 +1002,7 @@
     "typeAnnotation": [
       "ParseTree"
     ],
-    "initializer": [
+    "initialiser": [
       "ParseTree"
     ]
   },

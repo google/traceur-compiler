@@ -13,43 +13,32 @@
 // limitations under the License.
 
 import {CPSTransformer} from './CPSTransformer';
-import {EndState} from './EndState';
-import {
-  ACTION_SEND,
-  ACTION_THROW,
-  RESULT,
-  STORED_EXCEPTION,
-  TRACEUR_RUNTIME,
-  YIELD_RETURN
-} from '../../syntax/PredefinedName';
+import {STORED_EXCEPTION} from '../../syntax/PredefinedName';
 import {
   STATE_MACHINE,
   YIELD_EXPRESSION
 } from '../../syntax/trees/ParseTreeType';
-import {parseStatement} from '../PlaceholderParser';
+import {
+  parseStatement,
+  parseStatements
+} from '../PlaceholderParser';
 import {StateMachine} from '../../syntax/trees/StateMachine';
-import {VAR} from '../../syntax/TokenType';
 import {YieldState} from './YieldState';
 import {ReturnState} from './ReturnState';
 import {
   createAssignStateStatement,
   createAssignmentStatement,
-  createExpressionStatement,
   createFalseLiteral,
   createFunctionBody,
   createIdentifierExpression as id,
   createMemberExpression,
   createNumberLiteral,
-  createObjectLiteralExpression,
-  createPropertyNameAssignment,
   createReturnStatement,
   createStatementList,
   createThisExpression,
   createThrowStatement,
-  createUndefinedExpression,
-  createVariableStatement
+  createUndefinedExpression
 } from '../ParseTreeFactory';
-import {transformOptions} from '../../options';
 
 // Generator states. Terminology roughly matches that of
 //   http://wiki.ecmascript.org/doku.php?id=harmony:generators
@@ -60,61 +49,6 @@ var ST_EXECUTING = 1;
 var ST_SUSPENDED = 2;
 var ST_CLOSED = 3;
 var GSTATE = 'GState';
-
-var GENERATOR_WRAP_CODE = `function(generator) {
-  return %addIterator({
-    next: function(x) {
-      switch (generator.GState) {
-        case ${ST_EXECUTING}:
-          throw new Error('"next" on executing generator');
-        case ${ST_CLOSED}:
-          throw new Error('"next" on closed generator');
-        case ${ST_NEWBORN}:
-          if (x !== undefined) {
-            throw new TypeError('Sent value to newborn generator');
-          }
-          // fall through
-        case ${ST_SUSPENDED}:
-          generator.GState = ${ST_EXECUTING};
-          if (generator.moveNext(x, ${ACTION_SEND})) {
-            generator.GState = ${ST_SUSPENDED};
-            return {value: generator.current, done: false};
-          }
-          generator.GState = ${ST_CLOSED};
-          return {value: generator.yieldReturn, done: true};
-      }
-    },
-
-    'throw': function(x) {
-      switch (generator.GState) {
-        case ${ST_EXECUTING}:
-          throw new Error('"throw" on executing generator');
-        case ${ST_CLOSED}:
-          throw new Error('"throw" on closed generator');
-        case ${ST_NEWBORN}:
-          generator.GState = ${ST_CLOSED};
-          throw x;
-        case ${ST_SUSPENDED}:
-          generator.GState = ${ST_EXECUTING};
-          if (generator.moveNext(x, ${ACTION_THROW})) {
-            generator.GState = ${ST_SUSPENDED};
-            return {value: generator.current, done: false};
-          }
-          generator.GState = ${ST_CLOSED};
-          return {value: generator.yieldReturn, done: true};
-      }
-    }
-  });
-}`;
-
-var ADD_ITERATOR_CODE = `function(object) {
-  object[%iterator] = %returnThis;
-  return %defineProperty(object, %iterator, {enumerable: false});
-}`;
-
-var ADD_ITERATOR_RUNTIME_CODE = `function(object) {
-  return ${TRACEUR_RUNTIME}.addIterator(object);
-}`;
 
 /**
  * Desugars generator function bodies. Generator function bodies contain
@@ -131,15 +65,6 @@ var ADD_ITERATOR_RUNTIME_CODE = `function(object) {
  * }
  */
 export class GeneratorTransformer extends CPSTransformer {
-  /**
-   * @param {RuntimeInliner} runtimeInliner
-   * @param {ErrorReporter} reporter
-   */
-  constructor(runtimeInliner, reporter) {
-    super(reporter);
-    this.runtimeInliner_ = runtimeInliner;
-  }
-
   /**
    * Simple form yield expressions (direct children of an ExpressionStatement)
    * are translated into a state machine with a single state.
@@ -188,7 +113,7 @@ export class GeneratorTransformer extends CPSTransformer {
    */
   transformAwaitStatement(tree) {
     this.reporter.reportError(tree.location.start,
-        'Generator function may not have an async statement.');
+        'Generator function may not have an await statement.');
     return tree;
   }
 
@@ -254,50 +179,26 @@ export class GeneratorTransformer extends CPSTransformer {
                                this.removeEmptyStates(machine.states),
                                machine.exceptionBlocks);
 
-    var statements = [];
-
-    var G = '$G';
-
-    // TODO(arv): Simplify the outputted code by only alpha renaming this and
-    // arguments if needed.
-    // https://code.google.com/p/traceur-compiler/issues/detail?id=108
-    //
-    // var $that = this;
-    statements.push(this.generateHoistedThis());
-
-    // var $arguments = arguments;
-    statements.push(this.generateHoistedArguments());
-
     // TODO(arv): Simplify for the common case where there is no try/catch?
     // https://code.google.com/p/traceur-compiler/issues/detail?id=110
     //
-    // Lifted machine variables.
-    statements.push(...this.getMachineVariables(tree, machine));
-
-    statements.push(
-        parseStatement `
-        var ${G} = {
-          GState: ${ST_NEWBORN},
-          current: undefined,
-          yieldReturn: undefined,
-          innerFunction: ${this.generateMachineInnerFunction(machine)},
-          moveNext: ${this.generateMachineMethod(machine)}
-        };
-        `);
-
     // TODO(arv): The result should be an instance of Generator.
     // https://code.google.com/p/traceur-compiler/issues/detail?id=109
-    statements.push(parseStatement `return ${this.generatorWrap_}(${id(G)});`);
+    var statements = [
+      ...this.getMachineVariables(tree, machine),
+      ...parseStatements
+          `var $that = this, $arguments = arguments,
+              $G = {
+                GState: ${ST_NEWBORN},
+                current: undefined,
+                yieldReturn: undefined,
+                innerFunction: ${this.generateMachineInnerFunction(machine)},
+                moveNext: ${this.generateMachineMethod(machine)}
+              };
+          return $traceurRuntime.generatorWrap($G);`
+    ];
 
     return createFunctionBody(statements);
-  }
-
-  get generatorWrap_() {
-    if (transformOptions.privateNames)
-      this.runtimeInliner_.register('addIterator', ADD_ITERATOR_RUNTIME_CODE);
-    else
-      this.runtimeInliner_.register('addIterator', ADD_ITERATOR_CODE);
-    return this.runtimeInliner_.get('generatorWrap', GENERATOR_WRAP_CODE);
   }
 
   /**
@@ -337,13 +238,12 @@ export class GeneratorTransformer extends CPSTransformer {
   }
 
   /**
-   * @param {RuntimeInliner} runtimeInliner
    * @param {ErrorReporter} reporter
    * @param {Block} body
    * @return {Block}
    */
-  static transformGeneratorBody(runtimeInliner, reporter, body) {
-    return new GeneratorTransformer(runtimeInliner, reporter).
+  static transformGeneratorBody(reporter, body) {
+    return new GeneratorTransformer(reporter).
         transformGeneratorBody(body);
   }
 };

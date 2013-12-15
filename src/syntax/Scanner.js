@@ -96,7 +96,6 @@ import {
   PERCENT,
   PERCENT_EQUAL,
   PERIOD,
-  PERIOD_OPEN_CURLY,
   PLUS,
   PLUS_EQUAL,
   PLUS_PLUS,
@@ -667,10 +666,6 @@ function scanToken() {
             return createToken(DOT_DOT_DOT, beginIndex);
           }
           break;
-        case 123:  // {
-          // .{ chain operator
-          next();
-          return createToken(PERIOD_OPEN_CURLY, beginIndex);
         default:
           if (isDecimalDigit(currentCharCode))
             return scanNumberPostPeriod(beginIndex);

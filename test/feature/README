@@ -11,6 +11,10 @@ starting with "Error_".
 If any of the first lines of a feature script starts with "// Skip." we ignore
 the test.
 
+If any of the first lines of a feature script starts with "// Async." there
+will be a global function called 'done' that is expected to be called when the
+test is done.
+
 If any of the first lines of a feature script starts with "// Only in browser."
 we ignore the test if it is run using the Node.js test runner.
 

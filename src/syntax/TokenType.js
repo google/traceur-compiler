@@ -85,7 +85,6 @@ export var PACKAGE = 'package';
 export var PERCENT = '%';
 export var PERCENT_EQUAL = '%=';
 export var PERIOD = '.';
-export var PERIOD_OPEN_CURLY = '.{';
 export var PLUS = '+';
 export var PLUS_EQUAL = '+=';
 export var PLUS_PLUS = '++';

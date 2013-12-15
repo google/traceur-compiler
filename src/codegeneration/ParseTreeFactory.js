@@ -55,7 +55,6 @@ import {
   Block,
   BreakStatement,
   CallExpression,
-  CascadeExpression,
   CaseClause,
   Catch,
   ClassDeclaration,
@@ -81,6 +80,7 @@ import {
   ForInStatement,
   ForOfStatement,
   ForStatement,
+  FormalParameter,
   FormalParameterList,
   FunctionBody,
   FunctionDeclaration,
@@ -222,6 +222,15 @@ export function createBindingElement(arg) {
 }
 
 /**
+ * @param {string|IdentifierToken|IdentifierExpression|BindingIdentifier}
+ *           identifier
+ * @return {FormalParameter}
+ */
+export function createFormalParameter(arg) {
+  return new FormalParameter(null, createBindingElement(arg), null);
+}
+
+/**
  * TODO(arv): Make this less overloaded.
  *
  * @param {string|number|IdentifierToken|Array.<string>} arg0
@@ -231,7 +240,7 @@ export function createBindingElement(arg) {
 export function createParameterList(arg0, var_args) {
   if (typeof arg0 == 'string') {
     // var_args of strings
-    var parameterList = map(arguments, createBindingElement);
+    var parameterList = map(arguments, createFormalParameter);
     return new FormalParameterList(null, parameterList);
   }
 
@@ -240,11 +249,11 @@ export function createParameterList(arg0, var_args) {
 
   if (arg0 instanceof IdentifierToken) {
     return new FormalParameterList(
-        null, [createBindingElement(arg0)]);
+        null, [createFormalParameter(arg0)]);
   }
 
   // Array.<string>
-  var builder = arg0.map(createBindingElement);
+  var builder = arg0.map(createFormalParameter);
   return new FormalParameterList(null, builder);
 }
 
@@ -262,8 +271,8 @@ function createParameterListHelper(numberOfParameters, hasRestParams) {
     var isRestParameter = index == numberOfParameters - 1 && hasRestParams;
     builder.push(
         isRestParameter ?
-            createRestParameter(parameterName) :
-            createBindingElement(parameterName));
+            new FormalParameter(null, createRestParameter(parameterName), null) :
+            createFormalParameter(parameterName));
   }
 
   return new FormalParameterList(null, builder);
@@ -536,10 +545,6 @@ export function createCatch(identifier, catchBody) {
   return new Catch(null, identifier, catchBody);
 }
 
-export function createCascadeExpression(operand, expressions) {
-  return new CascadeExpression(null, operand, expressions);
-}
-
 /**
  * @param {IdentifierToken} name
  * @param {ParseTree} superClass
@@ -627,23 +632,23 @@ export function createFinally(block) {
 }
 
 /**
- * @param {VariableDeclarationList} initializer
+ * @param {VariableDeclarationList} initialiser
  * @param {ParseTree} collection
  * @param {ParseTree} body
  * @return {ForOfStatement}
  */
-export function createForOfStatement(initializer, collection, body) {
-  return new ForOfStatement(null, initializer, collection, body);
+export function createForOfStatement(initialiser, collection, body) {
+  return new ForOfStatement(null, initialiser, collection, body);
 }
 
 /**
- * @param {ParseTree} initializer
+ * @param {ParseTree} initialiser
  * @param {ParseTree} collection
  * @param {ParseTree} body
  * @return {ForInStatement}
  */
-export function createForInStatement(initializer, collection, body) {
-  return new ForInStatement(null, initializer, collection, body);
+export function createForInStatement(initialiser, collection, body) {
+  return new ForInStatement(null, initialiser, collection, body);
 }
 
 /**
@@ -665,7 +670,7 @@ export function createForStatement(variables, condition, increment, body) {
 export function createFunctionExpression(formalParameterList, body) {
   assert(body.type === 'FUNCTION_BODY');
   return new FunctionExpression(null, null, false,
-                                formalParameterList, body);
+                                formalParameterList, null, body);
 }
 
 // get name () { ... }
@@ -678,7 +683,7 @@ export function createGetAccessor(name, body) {
   if (typeof name == 'string')
     name = createPropertyNameToken(name);
   var isStatic = false;
-  return new GetAccessor(null, isStatic, name, body);
+  return new GetAccessor(null, isStatic, name, null, body);
 }
 
 /**
@@ -1064,12 +1069,12 @@ export function createUseStrictDirective() {
 /**
  * @param {TokenType} binding
  * @param {IdentifierToken|Array.<VariableDeclaration>} identifierOrDeclarations
- * @param {ParseTree=} initializer
+ * @param {ParseTree=} initialiser
  * @return {VariableDeclarationList}
  */
 export function createVariableDeclarationList(binding,
                                               identifierOrDeclarations,
-                                              initializer) {
+                                              initialiser) {
   if (identifierOrDeclarations instanceof Array) {
     var declarations = identifierOrDeclarations;
     return new VariableDeclarationList(null, binding, declarations);
@@ -1077,15 +1082,15 @@ export function createVariableDeclarationList(binding,
 
   var identifier = identifierOrDeclarations;
   return createVariableDeclarationList(
-      binding, [createVariableDeclaration(identifier, initializer)]);
+      binding, [createVariableDeclaration(identifier, initialiser)]);
 }
 
 /**
  * @param {string|IdentifierToken|ParseTree} identifier
- * @param {ParseTree} initializer
+ * @param {ParseTree} initialiser
  * @return {VariableDeclaration}
  */
-export function createVariableDeclaration(identifier, initializer) {
+export function createVariableDeclaration(identifier, initialiser) {
   if (!(identifier instanceof ParseTree) ||
       identifier.type !== ParseTreeType.BINDING_IDENTIFIER &&
       identifier.type !== ParseTreeType.OBJECT_PATTERN &&
@@ -1093,22 +1098,22 @@ export function createVariableDeclaration(identifier, initializer) {
     identifier = createBindingIdentifier(identifier);
   }
 
-  return new VariableDeclaration(null, identifier, null, initializer);
+  return new VariableDeclaration(null, identifier, null, initialiser);
 }
 
 /**
  * @param {VariableDeclarationList|TokenType} listOrBinding
  * @param {string|IdentifierToken=} identifier
- * @param {ParseTree=} initializer
+ * @param {ParseTree=} initialiser
  * @return {VariableStatement}
  */
 export function createVariableStatement(listOrBinding,
                                         identifier,
-                                        initializer) {
+                                        initialiser) {
   if (listOrBinding instanceof VariableDeclarationList)
     return new VariableStatement(null, listOrBinding);
   var binding = listOrBinding;
-  var list = createVariableDeclarationList(binding, identifier, initializer);
+  var list = createVariableDeclarationList(binding, identifier, initialiser);
   return createVariableStatement(list);
 }
 

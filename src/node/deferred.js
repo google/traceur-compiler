@@ -16,9 +16,9 @@
 
 /**
  * Wrap a single async function to make the callback optional and hook it to
- * trigger errback/callback on a Deferred object that it creates a promise
- * from, which it returns (this ignores the async function's return value).
- * This enables the use of await with the wrapped function.
+ * trigger reject/resolve of the Promise, which it returns (this ignores the
+ * async function's return value). This enables the use of await with the
+ * wrapped function.
  *
  * @param {Function} fn Function to wrap.
  * @param {boolean} firstArg True if the async callback is the first argument.
@@ -26,7 +26,11 @@
  */
 function wrapFunction(fn, firstArg) {
   return function() {
-    var deferred = new Deferred;
+    var resolve, reject;
+    var promise = new Promise(function(res, rej) {
+      resolve = res;
+      reject = rej;
+    });
 
     var args = [].slice.call(arguments);
     var originalCallback = args[firstArg ? 0 : args.length - 1];
@@ -36,9 +40,9 @@ function wrapFunction(fn, firstArg) {
         originalCallback.apply(this, arguments);
 
       if (err)
-        deferred.errback(err);
+        reject(err);
       else
-        deferred.callback(value);
+        resolve(value);
     }
 
     if (typeof originalCallback !== 'function') {
@@ -55,7 +59,7 @@ function wrapFunction(fn, firstArg) {
 
     fn.apply(this, args);
 
-    return deferred.createPromise();
+    return promise;
   };
 }
 

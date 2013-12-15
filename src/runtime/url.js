@@ -20,7 +20,7 @@
 //   split
 //   removeDotSegments
 
-System.set('@traceur/url', (function() {
+(function() {
 
   /**
    * Builds a URI string from already-encoded parts.
@@ -274,10 +274,6 @@ System.set('@traceur/url', (function() {
     return joinAndCanonicalizePath(parts);
   }
 
-  function isStandardModuleUrl(s) {
-    return s[0] === '@';
-  }
-
   /**
    * Resolves a URL.
    * @param {string} base The URL acting as the base URL.
@@ -285,9 +281,6 @@ System.set('@traceur/url', (function() {
    * @return {string}
    */
   function resolveUrl(base, url) {
-    if (isStandardModuleUrl(url))
-      return url;
-
     var parts = split(url);
     var baseParts = split(base);
 
@@ -314,11 +307,25 @@ System.set('@traceur/url', (function() {
     return joinAndCanonicalizePath(parts);
   }
 
-  return {
-    canonicalizeUrl,
-    isStandardModuleUrl,
-    removeDotSegments,
-    resolveUrl,
-  };
-})());
+  /**
+   * True if the name looks like an absolute file name or URL
+   * @param {string} candiate to be an address.
+   * @return {boolean}
+  */
+  function isAbsolute(name) {
+    if (!name)
+      return false;
+    if (name[0] === '/')
+      return true;
+    var parts = split(name);
+    if (parts[ComponentIndex.SCHEME])
+      return true;
+    return false;
+  }
 
+  $traceurRuntime.canonicalizeUrl = canonicalizeUrl;
+  $traceurRuntime.isAbsolute = isAbsolute;
+  $traceurRuntime.removeDotSegments = removeDotSegments;
+  $traceurRuntime.resolveUrl = resolveUrl;
+
+})();

@@ -30,7 +30,6 @@ import {
   NUMBER,
   STRING
 } from './TokenType';
-import {iterator} from '@iter';
 
 /**
  * Helper class for getting the processed value out of a string literal token.
@@ -44,7 +43,10 @@ class StringParser {
   constructor(value) {
     this.value = value;
     this.index = 0;  // value is wrapped in " or '
-    Object.setProperty(this, iterator, () => this);
+  }
+
+  [Symbol.iterator]() {
+    return this;
   }
 
   next() {

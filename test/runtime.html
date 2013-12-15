@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../node_modules/mocha/mocha.css">
+<script src="../node_modules/mocha/mocha.js"></script>
+<script src="../node_modules/chai/chai.js"></script>
+<script src="../bin/traceur-runtime.js"></script>
+<script src="test-utils.js"></script>
+<script>
+
+mocha.setup({ui: 'tdd'});
+
+</script>
+<script src="unit/runtime/System.js"></script>
+<div id="mocha"></div>
+<script>
+
+(function() {
+  'use strict';
+
+  function optionsOnURL() {
+    var params = window.location.search.substring(1);
+    var nameValuePairs = params.split('&');
+    var options = {};
+    nameValuePairs.forEach(function(pair){
+      var segments = pair.split('=');
+      options[segments[0]] = segments[1];
+    });
+    return options;
+  }
+
+  var urlOptions = optionsOnURL();
+  mocha.run();
+
+})();
+
+</script>
