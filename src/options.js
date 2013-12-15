@@ -265,6 +265,7 @@ addFeatureOption('symbols', EXPERIMENTAL);
 addFeatureOption('deferredFunctions', EXPERIMENTAL);
 addFeatureOption('types', EXPERIMENTAL);
 
+
 addBoolOption('debug');
 addBoolOption('sourceMaps');
 addBoolOption('freeVariableChecker');

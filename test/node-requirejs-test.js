@@ -3,9 +3,9 @@ var fs = require('fs');
 
 var COMPILED_DIR = __dirname + '/requirejs-compiled';
 
-var onlyJsFiles = function(path) {
+function onlyJsFiles(path) {
   return /\.js$/.test(path);
-};
+}
 
 var testFiles = fs.readdirSync(COMPILED_DIR).filter(onlyJsFiles);
 

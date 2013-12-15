@@ -44,7 +44,8 @@ import {
 import {
   parseExpression,
   parsePropertyDefinition,
-  parseStatement
+  parseStatement,
+  parseStatements
 } from './PlaceholderParser';
 
 export class ModuleTransformer extends TempVarTransformer {
@@ -83,16 +84,16 @@ export class ModuleTransformer extends TempVarTransformer {
 
     this.popTempVarState();
 
-    var funcExpr = this.wrapModule(statements);
+    statements = this.wrapModule(statements);
 
-    return new Script(tree.location, [createExpressionStatement(funcExpr)]);
+    return new Script(tree.location, statements);
   }
 
-  wrapModule(tree) {
-    return parseExpression
+  wrapModule(statements) {
+    return parseStatements
         `$traceurRuntime.registerModule(${this.url}, function() {
-          ${tree}
-        }, this)`;
+          ${statements}
+        }, this);`;
   }
 
   /**
