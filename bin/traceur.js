@@ -16068,11 +16068,7 @@ $traceurRuntime.registerModule("../src/codegeneration/ModuleTransformer.js", fun
       assert(this.url);
       var name = tree.token.processedValue;
       var url = System.normalResolve(name, this.url);
-      return this.getModuleReference(url, this.moduleSpecifierKind_);
-    },
-    getModuleReference: function(url) {
-      var kind = arguments[1];
-      if (kind === 'module') return parseExpression($__220, url);
+      if (this.moduleSpecifierKind_ === 'module') return parseExpression($__220, url);
       return parseExpression($__221, url);
     },
     transformModuleDeclaration: function(tree) {
@@ -16177,9 +16173,8 @@ $traceurRuntime.registerModule("../src/codegeneration/NodeJsTransformer.js", fun
       statements.push(parseStatement($__228, exportObject));
       return statements;
     },
-    getModuleReference: function(name) {
-      if (name[0] !== '.') name = './' + name;
-      return parseExpression($__229, name);
+    transformModuleSpecifier: function(tree) {
+      return parseExpression($__229, tree.token);
     }
   }, {}, ModuleTransformer);
   return {get NodeJsTransformer() {
@@ -16447,23 +16442,12 @@ $traceurRuntime.registerModule("../src/codegeneration/RequireJsTransformer.js", 
       return parseStatements($__238, depPaths, depLocals, statements);
     },
     transformModuleSpecifier: function(tree) {
-      var depPath = this.normalizeDependencyPath(tree.token.processedValue);
       var localName = this.getTempIdentifier();
       this.dependencies.push({
-        path: depPath,
+        path: tree.token,
         local: localName
       });
       return createBindingIdentifier(localName);
-    },
-    normalizeDependencyPath: function(path) {
-      if (/^https?\:\/\//.test(path)) {
-        return path;
-      }
-      if (path[0] !== '.') {
-        path = './' + path;
-      }
-      path = path.replace(/\.js$/, '');
-      return path;
     }
   }, {}, ModuleTransformer);
   return {get RequireJsTransformer() {

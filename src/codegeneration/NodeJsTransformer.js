@@ -53,9 +53,7 @@ export class NodeJsTransformer extends ModuleTransformer {
     return statements;
   }
 
-  getModuleReference(name) {
-    if (name[0] !== '.')
-      name = './' + name;
-    return parseExpression `require(${name})`;
+  transformModuleSpecifier(tree) {
+    return parseExpression `require(${tree.token})`;
   }
 }

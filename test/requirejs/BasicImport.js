@@ -1,3 +1,3 @@
-import {Foo} from 'deps/foo.js';
+import {Foo} from './deps/foo';
 
 assert.equal('Foo from foo.js', Foo);

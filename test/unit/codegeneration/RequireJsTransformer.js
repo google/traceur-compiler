@@ -35,18 +35,4 @@ suite('RequireJsTransformer.js', function() {
     });
   });
 
-
-  suite('normalizeDependencyPath', function() {
-    test('should ignore urls', function() {
-      assert.equal('http://domain.com/path.js',
-          transformer.normalizeDependencyPath('http://domain.com/path.js'));
-      assert.equal('https://domain.com/path.js',
-          transformer.normalizeDependencyPath('https://domain.com/path.js'));
-    });
-
-    test('should remove .js suffix', function() {
-      assert.equal('../foo/bar',
-          transformer.normalizeDependencyPath('../foo/bar.js'));
-    });
-  });
 });
