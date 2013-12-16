@@ -42,6 +42,11 @@ export class LoaderHooks {
     this.analyzer_ = new ModuleAnalyzer(reporter, this.project);
   }
 
+  // TODO Used for eval(): can we get the function call to supply callerURL?
+  rootURL() {
+    return this.project.url;
+  }
+
   parse(codeUnit) {
     var reporter = this.reporter;
     var project = this.project;
@@ -78,7 +83,7 @@ export class LoaderHooks {
   addExternalModule(codeUnit) {
     var project = this.project;
     var tree = codeUnit.tree;
-    var url = codeUnit.url;
+    var url = codeUnit.url || this.project.url; // eval needs this.
     // External modules have no parent module.
     codeUnit.moduleSymbol = new ModuleSymbol(tree, url);
     project.addExternalModule(codeUnit.moduleSymbol);

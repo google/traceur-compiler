@@ -101,7 +101,7 @@
   }
 
   function fail(message) {
-    throw new chai.AssertionError({message: message});
+    throw new chai.AssertionError(message);
   }
 
   function assertThrows(fn) {
@@ -136,33 +136,34 @@
 
       var reporter = new traceur.util.TestErrorReporter();
 
-      var options;
-      var loaderOptions = {
-        translate: function(source) {
-          // Only top level file can set options.
-          if (!options)
-            options = parseProlog(source);
 
-          if (options.skip)
-            return '';
-
-          if (options.async) {
-            global.done = function() {
-              handleShouldCompile();
-              done();
-            };
-          }
-
-          return source;
-        },
-        reporter: reporter,
-        rootURL: './'
-      }
       // TODO(arv): We really need a better way to generate unique names that
       // works across multiple projects.
-      loaderOptions.identifierIndex = Date.now();
+      var identifierIndex = Date.now();
+      var LoaderHooks = traceur.modules.LoaderHooks;
+      var loaderHooks = new LoaderHooks(reporter, './', identifierIndex);
 
-      var moduleLoader = new traceur.modules.CodeLoader(loaderOptions);
+      // TODO (jjb) TestLoaderHooks extends LoaderHooks. But this file is ES5.
+      var options;
+      loaderHooks.translate = function(source) {
+        // Only top level file can set options.
+        if (!options)
+          options = parseProlog(source);
+
+        if (options.skip)
+          return '';
+
+        if (options.async) {
+          global.done = function() {
+            handleShouldCompile();
+            done();
+          };
+        }
+
+        return source;
+      }
+
+      var moduleLoader = new traceur.modules.CodeLoader(loaderHooks);
 
       function handleShouldCompile() {
         if (!options.shouldCompile) {

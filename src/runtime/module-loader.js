@@ -177,8 +177,8 @@ class EvalCodeUnit extends CodeUnit {
    * @param {LoaderHooks} loaderHooks
    * @param {string} code
    */
-  constructor(loaderHooks, url, code) {
-    super(loaderHooks, url, 'script', LOADED);
+  constructor(loaderHooks, code) {
+    super(loaderHooks, loaderHooks.rootURL(), 'script', LOADED);
     this.text = code;
   }
 
@@ -204,17 +204,14 @@ class InternalLoader {
    * @param {ErrorReporter} reporter
    * @param {Project} project.
    */
-  constructor(loaderHooks, url,
-              fileLoader = new InternalLoader.FileLoader,
-              options = {}) {
+  constructor(loaderHooks) {
     this.loaderHooks = loaderHooks;
     this.reporter = loaderHooks.reporter;
-    this.url = url;
-    this.fileLoader = fileLoader;
+    this.fileLoader = loaderHooks.fileLoader || new InternalLoader.FileLoader;
     this.cache = new ArrayMap();
     this.urlToKey = Object.create(null);
     this.sync_ = false;
-    this.translateHook = options.translate || defaultTranslate;
+    this.translateHook = loaderHooks.translate || defaultTranslate;
   }
 
   loadTextFile(url, callback, errback) {
@@ -226,7 +223,7 @@ class InternalLoader {
   }
 
   load(url, type = 'script') {
-    url = System.normalResolve(url, this.url);
+    url = System.normalResolve(url, this.loaderHooks.rootURL());
     var codeUnit = this.getCodeUnit(url, type);
     if (codeUnit.state != NOT_STARTED || codeUnit.state == ERROR) {
       return codeUnit;
@@ -265,13 +262,13 @@ class InternalLoader {
   }
 
   evalAsync(code) {
-    var codeUnit = new EvalCodeUnit(this.loaderHooks, this.url, code);
+    var codeUnit = new EvalCodeUnit(this.loaderHooks, code);
     this.cache.set({}, codeUnit);
     return codeUnit;
   }
 
   eval(code) {
-    var codeUnit = new EvalCodeUnit(this.loaderHooks, this.url, code);
+    var codeUnit = new EvalCodeUnit(this.loaderHooks, code);
     this.cache.set({}, codeUnit);
     // assert that there are no dependencies that are loading?
     this.handleCodeUnitLoaded(codeUnit);
@@ -349,6 +346,7 @@ class InternalLoader {
     codeUnit.error = 'Failed to load \'' + codeUnit.url + '\'';
     this.reporter.reportError(null, codeUnit.error);
     this.abortAll();
+    codeUnit.dispatchError(codeUnit.error);
   }
 
   /**
@@ -361,7 +359,7 @@ class InternalLoader {
         codeUnit.state = ERROR;
       }
     });
-
+    // Notify all codeUnit listeners (else tests hang til timeout).
     this.cache.values().forEach((codeUnit) => {
       codeUnit.dispatchError(codeUnit.error);
     });
@@ -405,6 +403,7 @@ class InternalLoader {
         codeUnit.error = ex;
         this.reporter.reportError(null, String(ex));
         this.abortAll();
+        codeUnit.dispatchError(codeUnit.error);
         return;
       }
 
@@ -451,13 +450,8 @@ export class CodeLoader {
    * ES6 Loader Constructor
    * @param {!Object=} options
    */
-  constructor(options) {
-    // TODO(arv): Implement parent loader
-    var {reporter, identifierIndex, rootURL} = options;
-    var LoaderHooks = new SystemLoaderHooks(reporter, rootURL,
-                                                                                identifierIndex);
-    this.internalLoader_ = new InternalLoader(LoaderHooks, rootURL,
-                                              undefined, options);
+  constructor(loaderHooks) {
+    this.internalLoader_ = new InternalLoader(loaderHooks);
   }
 
   /**
@@ -550,6 +544,8 @@ export class CodeLoader {
     return base;
   }
 }
+
+export {LoaderHooks};
 
 export var internals = {
   CodeUnit,
