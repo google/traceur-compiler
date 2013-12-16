@@ -13,18 +13,11 @@
 // limitations under the License.
 
 import {ArrayMap} from '../util/ArrayMap';
-import {ModuleAnalyzer} from '../semantics/ModuleAnalyzer';
+import {LoaderHooks} from '../runtime/System';
 import {ModuleSpecifierVisitor} from
     '../codegeneration/module/ModuleSpecifierVisitor';
-import {ModuleSymbol} from '../semantics/symbols/ModuleSymbol';
 import {ObjectMap} from '../util/ObjectMap';
-import {Parser} from '../syntax/Parser';
-import {ProgramTransformer} from '../codegeneration/ProgramTransformer';
-import {Project} from '../semantics/symbols/Project';
-import {SourceFile} from '../syntax/SourceFile';
-import {TreeWriter} from '../outputgeneration/TreeWriter';
 import {WebLoader} from './WebLoader';
-import {assert} from '../util/assert';
 import {getUid} from '../util/uid';
 
 // TODO(arv): I stripped the resolvers to make this simpler for now.
@@ -61,126 +54,21 @@ var TRANSFORMED = 4;
 var COMPLETE = 5;
 var ERROR = 6;
 
- // TODO Pick a better name, these are functions on System?
-export class InternalCompiler {
-  constructor(reporter, rootURL, identifierIndex) {
-    this.reporter = reporter;
-    this.project = new Project(rootURL);
-    this.project.identifierGenerator.identifierIndex = identifierIndex || 0;
-    this.analyzer_ = new ModuleAnalyzer(reporter, this.project);
-  }
-
-  parse(codeUnit) {
-    var reporter = this.reporter;
-    var project = this.project;
-    var url = codeUnit.url;
-    var program = codeUnit.text;
-    var file = new SourceFile(url, program);
-    project.addFile(file);
-    codeUnit.file = file;  // TODO avoid this
-
-    var parser = new Parser(reporter, file);
-    if (codeUnit.type == 'module')
-      codeUnit.tree = parser.parseModule();
-    else
-      codeUnit.tree = parser.parseScript();
-
-    if (reporter.hadError()) {
-      return false;
-    }
-
-    project.setParseTree(file, codeUnit.tree);
-    return true;
-  }
-
-  transform(codeUnit) {
-    return ProgramTransformer.transformFile(this.reporter, this.project,
-                                            codeUnit.file);
-  }
-
-  addExternalModule(codeUnit) {
-    var project = this.project;
-    var tree = codeUnit.tree;
-    var url = codeUnit.url;
-    // External modules have no parent module.
-    codeUnit.moduleSymbol = new ModuleSymbol(tree, url);
-    project.addExternalModule(codeUnit.moduleSymbol);
-  }
-
-  analyzeDependencies(dependencies) {
-    var trees = [];
-    var modules = [];
-    for (var i = 0; i < dependencies.length; i++) {
-      var codeUnit = dependencies[i];
-
-      // We should not have gotten here if not all are PARSED or larget.
-      assert(codeUnit.state >= PARSED);
-
-      if (codeUnit.state == PARSED) {
-        trees.push(codeUnit.tree);
-        modules.push(codeUnit.moduleSymbol);
-      }
-    }
-
-    this.analyzer_.analyzeTrees(trees, modules);
-    this.checkForErrors(dependencies, 'analyze');
-  }
-
-  transformDependencies(dependencies) {
-    for (var i = 0; i < dependencies.length; i++) {
-      var codeUnit = dependencies[i];
-      if (codeUnit.state >= TRANSFORMED) {
-        continue;
-      }
-
-      codeUnit.transformedTree = this.transformCodeUnit(codeUnit);
-      codeUnit.state = TRANSFORMED;
-    }
-    this.checkForErrors(dependencies, 'transform');
-  }
-
-  transformCodeUnit(codeUnit) {
-    this.transformDependencies(codeUnit.dependencies); // depth first
-
-    return codeUnit.transform();
-  }
-
-  checkForErrors(dependencies, phase) {
-    if (this.reporter.hadError()) {
-      for (var i = 0; i < dependencies.length; i++) {
-        var codeUnit = dependencies[i];
-        if (codeUnit.state >= COMPLETE) {
-          continue;
-        }
-        codeUnit.state = ERROR;
-      }
-
-      for (var i = 0; i < dependencies.length; i++) {
-        var codeUnit = dependencies[i];
-        if (codeUnit.state == ERROR) {
-          codeUnit.dispatchError(phase);
-        }
-      }
-    }
-  }
-
-}
-
 /**
  * Base class representing a piece of code that is to be loaded or evaluated.
  * Similar to js-loader Load object
  */
 class CodeUnit {
   /**
-   * @param {InternalCompiler} compiler, callbacks for parsing/transforming.
+   * @param {LoaderHooks} loaderHooks, callbacks for parsing/transforming.
    * @param {string} url The URL of this dependency. If this is evaluated code
    *     the URL is the URL of the loader.
    * @param {string} type Either 'script' or 'module'. This determinse how to
    *     parse the code.
    * @param {number} state
    */
-  constructor(compiler, url, type, state) {
-    this.compiler = compiler;
+  constructor(loaderHooks, url, type, state) {
+    this.loaderHooks = loaderHooks;
     this.url = url;
     this.type = type;
     this.state = state;
@@ -241,7 +129,7 @@ class CodeUnit {
    * @return {boolean} Whether the parse succeeded.
    */
   parse() {
-    if (this.compiler.parse(this)) {
+    if (this.loaderHooks.parse(this)) {
       this.state = PARSED;
       return true;
     } else {
@@ -251,7 +139,7 @@ class CodeUnit {
   }
 
   transform() {
-    return this.compiler.transform(this);
+    return this.loaderHooks.transform(this);
   }
 }
 
@@ -263,8 +151,8 @@ class LoadCodeUnit extends CodeUnit {
    * @param {InternalLoader} loader
    * @param {string} url
    */
-  constructor(compiler, url) {
-    super(compiler, url, 'module', NOT_STARTED);
+  constructor(loaderHooks, url) {
+    super(loaderHooks, url, 'module', NOT_STARTED);
   }
 
   /**
@@ -276,7 +164,7 @@ class LoadCodeUnit extends CodeUnit {
     if (!super.parse()) {
       return false;
     }
-    this.compiler.addExternalModule(this);
+    this.loaderHooks.addExternalModule(this);
     return true;
   }
 }
@@ -286,11 +174,11 @@ class LoadCodeUnit extends CodeUnit {
  */
 class EvalCodeUnit extends CodeUnit {
   /**
-   * @param {InternalCompiler} compiler
+   * @param {LoaderHooks} loaderHooks
    * @param {string} code
    */
-  constructor(compiler, url, code) {
-    super(compiler, url, 'script', LOADED);
+  constructor(loaderHooks, url, code) {
+    super(loaderHooks, url, 'script', LOADED);
     this.text = code;
   }
 
@@ -303,7 +191,7 @@ class EvalCodeUnit extends CodeUnit {
     if (!super.parse()) {
       return false;
     }
-    this.compiler.addExternalModule(this);
+    this.loaderHooks.addExternalModule(this);
     return true;
   }
 }
@@ -316,11 +204,11 @@ class InternalLoader {
    * @param {ErrorReporter} reporter
    * @param {Project} project.
    */
-  constructor(compiler, url,
+  constructor(loaderHooks, url,
               fileLoader = new InternalLoader.FileLoader,
               options = {}) {
-    this.compiler = compiler;
-    this.reporter = compiler.reporter;
+    this.loaderHooks = loaderHooks;
+    this.reporter = loaderHooks.reporter;
     this.url = url;
     this.fileLoader = fileLoader;
     this.cache = new ArrayMap();
@@ -377,13 +265,13 @@ class InternalLoader {
   }
 
   evalAsync(code) {
-    var codeUnit = new EvalCodeUnit(this.compiler, this.url, code);
+    var codeUnit = new EvalCodeUnit(this.loaderHooks, this.url, code);
     this.cache.set({}, codeUnit);
     return codeUnit;
   }
 
   eval(code) {
-    var codeUnit = new EvalCodeUnit(this.compiler, this.url, code);
+    var codeUnit = new EvalCodeUnit(this.loaderHooks, this.url, code);
     this.cache.set({}, codeUnit);
     // assert that there are no dependencies that are loading?
     this.handleCodeUnitLoaded(codeUnit);
@@ -403,7 +291,7 @@ class InternalLoader {
     var key = this.getKey(url, type);
     var cacheObject = this.cache.get(key);
     if (!cacheObject) {
-      cacheObject = new LoadCodeUnit(this.compiler, url);
+      cacheObject = new LoadCodeUnit(this.loaderHooks, url);
       cacheObject.type = type;
       this.cache.set(key, cacheObject);
     }
@@ -480,11 +368,11 @@ class InternalLoader {
   }
 
   analyze() {
-    this.compiler.analyzeDependencies(this.cache.values());
+    this.loaderHooks.analyzeDependencies(this.cache.values());
   }
 
   transform() {
-    this.compiler.transformDependencies(this.cache.values());
+    this.loaderHooks.transformDependencies(this.cache.values());
   }
 
   evaluate() {
@@ -536,8 +424,8 @@ class InternalLoader {
   }
 
   evalCodeUnit(codeUnit) {
-    // TODO(arv): Eval in the right context.
-    return ('global', eval)(TreeWriter.write(codeUnit.transformedTree));
+    // TODO correct loaderHooks function
+    return this.loaderHooks.evaluate(codeUnit);
   }
 
   static set FileLoader(v) {
@@ -555,6 +443,9 @@ function defaultTranslate(source) {
   return source;
 }
 
+// jjb I don't understand why this is needed.
+var SystemLoaderHooks = LoaderHooks;
+
 export class CodeLoader {
   /**
    * ES6 Loader Constructor
@@ -563,9 +454,9 @@ export class CodeLoader {
   constructor(options) {
     // TODO(arv): Implement parent loader
     var {reporter, identifierIndex, rootURL} = options;
-    var internalCompiler = new InternalCompiler(reporter, rootURL,
+    var LoaderHooks = new SystemLoaderHooks(reporter, rootURL,
                                                                                 identifierIndex);
-    this.internalLoader_ = new InternalLoader(internalCompiler, rootURL,
+    this.internalLoader_ = new InternalLoader(LoaderHooks, rootURL,
                                               undefined, options);
   }
 
@@ -663,7 +554,7 @@ export class CodeLoader {
 export var internals = {
   CodeUnit,
   EvalCodeUnit,
-  InternalCompiler,
   InternalLoader,
-  LoadCodeUnit
+  LoadCodeUnit,
+  LoaderHooks
 };

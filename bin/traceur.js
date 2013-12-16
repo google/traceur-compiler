@@ -18441,78 +18441,16 @@ $traceurRuntime.registerModule("../src/outputgeneration/SourceMapIntegration.js"
     }
   };
 }, this);
-$traceurRuntime.registerModule("../src/runtime/WebLoader.js", function() {
+$traceurRuntime.registerModule("../src/runtime/System.js", function() {
   "use strict";
-  var WebLoader = function() {};
-  WebLoader = ($traceurRuntime.createClass)(WebLoader, {
-    load: function(url, callback, errback) {
-      var xhr = new XMLHttpRequest();
-      xhr.onload = function() {
-        if (xhr.status == 200 || xhr.status == 0) {
-          callback(xhr.responseText);
-        } else {
-          errback();
-        }
-        xhr = null;
-      };
-      xhr.onerror = function() {
-        errback();
-      };
-      xhr.open('GET', url, true);
-      xhr.send();
-      return (function() {
-        return xhr && xhr.abort();
-      });
-    },
-    loadSync: function(url) {
-      var xhr = new XMLHttpRequest();
-      xhr.onerror = function(e) {
-        throw new Error(xhr.statusText);
-      };
-      xhr.open('GET', url, false);
-      xhr.send();
-      if (xhr.status == 200 || xhr.status == 0) return xhr.responseText;
-    }
-  }, {});
-  return {get WebLoader() {
-      return WebLoader;
-    }};
-}, this);
-$traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
-  "use strict";
-  var ArrayMap = $traceurRuntime.getModuleImpl("../src/util/ArrayMap.js").ArrayMap;
   var ModuleAnalyzer = $traceurRuntime.getModuleImpl("../src/semantics/ModuleAnalyzer.js").ModuleAnalyzer;
-  var ModuleSpecifierVisitor = $traceurRuntime.getModuleImpl("../src/codegeneration/module/ModuleSpecifierVisitor.js").ModuleSpecifierVisitor;
   var ModuleSymbol = $traceurRuntime.getModuleImpl("../src/semantics/symbols/ModuleSymbol.js").ModuleSymbol;
-  var ObjectMap = $traceurRuntime.getModuleImpl("../src/util/ObjectMap.js").ObjectMap;
   var Parser = $traceurRuntime.getModuleImpl("../src/syntax/Parser.js").Parser;
   var ProgramTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ProgramTransformer.js").ProgramTransformer;
   var Project = $traceurRuntime.getModuleImpl("../src/semantics/symbols/Project.js").Project;
   var SourceFile = $traceurRuntime.getModuleImpl("../src/syntax/SourceFile.js").SourceFile;
   var TreeWriter = $traceurRuntime.getModuleImpl("../src/outputgeneration/TreeWriter.js").TreeWriter;
-  var WebLoader = $traceurRuntime.getModuleImpl("../src/runtime/WebLoader.js").WebLoader;
   var assert = $traceurRuntime.getModuleImpl("../src/util/assert.js").assert;
-  var getUid = $traceurRuntime.getModuleImpl("../src/util/uid.js").getUid;
-  var base = Object.freeze(Object.create(null, {
-    Array: {value: Array},
-    Boolean: {value: Boolean},
-    Date: {value: Date},
-    Error: {value: Error},
-    EvalError: {value: EvalError},
-    Function: {value: Function},
-    JSON: {value: JSON},
-    Math: {value: Math},
-    Number: {value: Number},
-    Object: {value: Object},
-    RangeError: {value: RangeError},
-    ReferenceError: {value: ReferenceError},
-    RegExp: {value: RegExp},
-    String: {value: String},
-    SyntaxError: {value: SyntaxError},
-    TypeError: {value: TypeError},
-    URIError: {value: URIError},
-    undefined: {value: void 0}
-  }));
   var NOT_STARTED = 0;
   var LOADING = 1;
   var LOADED = 2;
@@ -18520,13 +18458,13 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
   var TRANSFORMED = 4;
   var COMPLETE = 5;
   var ERROR = 6;
-  var InternalCompiler = function(reporter, rootURL, identifierIndex) {
+  var LoaderHooks = function(reporter, rootURL, identifierIndex) {
     this.reporter = reporter;
     this.project = new Project(rootURL);
     this.project.identifierGenerator.identifierIndex = identifierIndex || 0;
     this.analyzer_ = new ModuleAnalyzer(reporter, this.project);
   };
-  InternalCompiler = ($traceurRuntime.createClass)(InternalCompiler, {
+  LoaderHooks = ($traceurRuntime.createClass)(LoaderHooks, {
     parse: function(codeUnit) {
       var reporter = this.reporter;
       var project = this.project;
@@ -18545,6 +18483,9 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
     },
     transform: function(codeUnit) {
       return ProgramTransformer.transformFile(this.reporter, this.project, codeUnit.file);
+    },
+    evaluate: function(codeUnit) {
+      return ('global', eval)(TreeWriter.write(codeUnit.transformedTree));
     },
     addExternalModule: function(codeUnit) {
       var project = this.project;
@@ -18600,8 +18541,84 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
       }
     }
   }, {});
-  var CodeUnit = function(compiler, url, type, state) {
-    this.compiler = compiler;
+  return {get LoaderHooks() {
+      return LoaderHooks;
+    }};
+}, this);
+$traceurRuntime.registerModule("../src/runtime/WebLoader.js", function() {
+  "use strict";
+  var WebLoader = function() {};
+  WebLoader = ($traceurRuntime.createClass)(WebLoader, {
+    load: function(url, callback, errback) {
+      var xhr = new XMLHttpRequest();
+      xhr.onload = function() {
+        if (xhr.status == 200 || xhr.status == 0) {
+          callback(xhr.responseText);
+        } else {
+          errback();
+        }
+        xhr = null;
+      };
+      xhr.onerror = function() {
+        errback();
+      };
+      xhr.open('GET', url, true);
+      xhr.send();
+      return (function() {
+        return xhr && xhr.abort();
+      });
+    },
+    loadSync: function(url) {
+      var xhr = new XMLHttpRequest();
+      xhr.onerror = function(e) {
+        throw new Error(xhr.statusText);
+      };
+      xhr.open('GET', url, false);
+      xhr.send();
+      if (xhr.status == 200 || xhr.status == 0) return xhr.responseText;
+    }
+  }, {});
+  return {get WebLoader() {
+      return WebLoader;
+    }};
+}, this);
+$traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
+  "use strict";
+  var ArrayMap = $traceurRuntime.getModuleImpl("../src/util/ArrayMap.js").ArrayMap;
+  var LoaderHooks = $traceurRuntime.getModuleImpl("../src/runtime/System.js").LoaderHooks;
+  var ModuleSpecifierVisitor = $traceurRuntime.getModuleImpl("../src/codegeneration/module/ModuleSpecifierVisitor.js").ModuleSpecifierVisitor;
+  var ObjectMap = $traceurRuntime.getModuleImpl("../src/util/ObjectMap.js").ObjectMap;
+  var WebLoader = $traceurRuntime.getModuleImpl("../src/runtime/WebLoader.js").WebLoader;
+  var getUid = $traceurRuntime.getModuleImpl("../src/util/uid.js").getUid;
+  var base = Object.freeze(Object.create(null, {
+    Array: {value: Array},
+    Boolean: {value: Boolean},
+    Date: {value: Date},
+    Error: {value: Error},
+    EvalError: {value: EvalError},
+    Function: {value: Function},
+    JSON: {value: JSON},
+    Math: {value: Math},
+    Number: {value: Number},
+    Object: {value: Object},
+    RangeError: {value: RangeError},
+    ReferenceError: {value: ReferenceError},
+    RegExp: {value: RegExp},
+    String: {value: String},
+    SyntaxError: {value: SyntaxError},
+    TypeError: {value: TypeError},
+    URIError: {value: URIError},
+    undefined: {value: void 0}
+  }));
+  var NOT_STARTED = 0;
+  var LOADING = 1;
+  var LOADED = 2;
+  var PARSED = 3;
+  var TRANSFORMED = 4;
+  var COMPLETE = 5;
+  var ERROR = 6;
+  var CodeUnit = function(loaderHooks, url, type, state) {
+    this.loaderHooks = loaderHooks;
     this.url = url;
     this.type = type;
     this.state = state;
@@ -18646,7 +18663,7 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
       }
     },
     parse: function() {
-      if (this.compiler.parse(this)) {
+      if (this.loaderHooks.parse(this)) {
         this.state = PARSED;
         return true;
       } else {
@@ -18655,35 +18672,35 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
       }
     },
     transform: function() {
-      return this.compiler.transform(this);
+      return this.loaderHooks.transform(this);
     }
   }, {});
-  var LoadCodeUnit = function(compiler, url) {
-    $traceurRuntime.superCall(this, $LoadCodeUnit.prototype, "constructor", [compiler, url, 'module', NOT_STARTED]);
+  var LoadCodeUnit = function(loaderHooks, url) {
+    $traceurRuntime.superCall(this, $LoadCodeUnit.prototype, "constructor", [loaderHooks, url, 'module', NOT_STARTED]);
   };
   var $LoadCodeUnit = ($traceurRuntime.createClass)(LoadCodeUnit, {parse: function() {
       if (!$traceurRuntime.superCall(this, $LoadCodeUnit.prototype, "parse", [])) {
         return false;
       }
-      this.compiler.addExternalModule(this);
+      this.loaderHooks.addExternalModule(this);
       return true;
     }}, {}, CodeUnit);
-  var EvalCodeUnit = function(compiler, url, code) {
-    $traceurRuntime.superCall(this, $EvalCodeUnit.prototype, "constructor", [compiler, url, 'script', LOADED]);
+  var EvalCodeUnit = function(loaderHooks, url, code) {
+    $traceurRuntime.superCall(this, $EvalCodeUnit.prototype, "constructor", [loaderHooks, url, 'script', LOADED]);
     this.text = code;
   };
   var $EvalCodeUnit = ($traceurRuntime.createClass)(EvalCodeUnit, {parse: function() {
       if (!$traceurRuntime.superCall(this, $EvalCodeUnit.prototype, "parse", [])) {
         return false;
       }
-      this.compiler.addExternalModule(this);
+      this.loaderHooks.addExternalModule(this);
       return true;
     }}, {}, CodeUnit);
-  var InternalLoader = function(compiler, url) {
+  var InternalLoader = function(loaderHooks, url) {
     var fileLoader = arguments[2] !== (void 0) ? arguments[2]: new InternalLoader.FileLoader;
     var options = arguments[3] !== (void 0) ? arguments[3]: {};
-    this.compiler = compiler;
-    this.reporter = compiler.reporter;
+    this.loaderHooks = loaderHooks;
+    this.reporter = loaderHooks.reporter;
     this.url = url;
     this.fileLoader = fileLoader;
     this.cache = new ArrayMap();
@@ -18737,12 +18754,12 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
       return loaded;
     },
     evalAsync: function(code) {
-      var codeUnit = new EvalCodeUnit(this.compiler, this.url, code);
+      var codeUnit = new EvalCodeUnit(this.loaderHooks, this.url, code);
       this.cache.set({}, codeUnit);
       return codeUnit;
     },
     eval: function(code) {
-      var codeUnit = new EvalCodeUnit(this.compiler, this.url, code);
+      var codeUnit = new EvalCodeUnit(this.loaderHooks, this.url, code);
       this.cache.set({}, codeUnit);
       this.handleCodeUnitLoaded(codeUnit);
       return codeUnit;
@@ -18758,7 +18775,7 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
       var key = this.getKey(url, type);
       var cacheObject = this.cache.get(key);
       if (!cacheObject) {
-        cacheObject = new LoadCodeUnit(this.compiler, url);
+        cacheObject = new LoadCodeUnit(this.loaderHooks, url);
         cacheObject.type = type;
         this.cache.set(key, cacheObject);
       }
@@ -18776,7 +18793,7 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
       return moduleSpecifierVisitor.moduleSpecifiers;
     },
     handleCodeUnitLoaded: function(codeUnit) {
-      var $__283 = this;
+      var $__285 = this;
       var baseUrl = codeUnit.url;
       var moduleSpecifiers = this.getModuleSpecifiers(codeUnit);
       if (!moduleSpecifiers) {
@@ -18785,10 +18802,10 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
       }
       codeUnit.dependencies = moduleSpecifiers.sort().map((function(name) {
         name = System.normalResolve(name, baseUrl);
-        return $__283.getCodeUnit(name, 'module');
+        return $__285.getCodeUnit(name, 'module');
       }));
       codeUnit.dependencies.forEach((function(dependency) {
-        $__283.load(dependency.url, 'module');
+        $__285.load(dependency.url, 'module');
       }));
       if (this.areAll(PARSED)) {
         this.analyze();
@@ -18813,10 +18830,10 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
       }));
     },
     analyze: function() {
-      this.compiler.analyzeDependencies(this.cache.values());
+      this.loaderHooks.analyzeDependencies(this.cache.values());
     },
     transform: function() {
-      this.compiler.transformDependencies(this.cache.values());
+      this.loaderHooks.transformDependencies(this.cache.values());
     },
     evaluate: function() {
       var visited = new ObjectMap();
@@ -18859,7 +18876,7 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
       }
     },
     evalCodeUnit: function(codeUnit) {
-      return ('global', eval)(TreeWriter.write(codeUnit.transformedTree));
+      return this.loaderHooks.evaluate(codeUnit);
     }
   }, {
     set FileLoader(v) {
@@ -18873,13 +18890,14 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
   function defaultTranslate(source) {
     return source;
   }
+  var SystemLoaderHooks = LoaderHooks;
   var CodeLoader = function(options) {
-    var $__285 = options,
-        reporter = $__285.reporter,
-        identifierIndex = $__285.identifierIndex,
-        rootURL = $__285.rootURL;
-    var internalCompiler = new InternalCompiler(reporter, rootURL, identifierIndex);
-    this.internalLoader_ = new InternalLoader(internalCompiler, rootURL, undefined, options);
+    var $__287 = options,
+        reporter = $__287.reporter,
+        identifierIndex = $__287.identifierIndex,
+        rootURL = $__287.rootURL;
+    var LoaderHooks = new SystemLoaderHooks(reporter, rootURL, identifierIndex);
+    this.internalLoader_ = new InternalLoader(LoaderHooks, rootURL, undefined, options);
   };
   CodeLoader = ($traceurRuntime.createClass)(CodeLoader, {
     load: function(url) {
@@ -18926,14 +18944,11 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
   var internals = {
     CodeUnit: CodeUnit,
     EvalCodeUnit: EvalCodeUnit,
-    InternalCompiler: InternalCompiler,
     InternalLoader: InternalLoader,
-    LoadCodeUnit: LoadCodeUnit
+    LoadCodeUnit: LoadCodeUnit,
+    LoaderHooks: LoaderHooks
   };
   return {
-    get InternalCompiler() {
-      return InternalCompiler;
-    },
     get CodeLoader() {
       return CodeLoader;
     },
@@ -19064,3 +19079,5 @@ $traceurRuntime.registerModule("../src/traceur.js", function() {
   };
 }, this);
 var traceur = System.get("../src/traceur.js");
+
+//# sourceMappingURL=traceur.map

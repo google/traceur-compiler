@@ -21,7 +21,7 @@ var normalizePath = require('./file-util.js').normalizePath;
 
 var ErrorReporter = traceur.util.ErrorReporter;
 var InternalLoader = traceur.modules.internals.InternalLoader;
-var InternalCompiler = traceur.modules.internals.InternalCompiler;
+var LoaderHooks = traceur.modules.internals.LoaderHooks;
 var Script = traceur.syntax.trees.Script;
 var SourceFile = traceur.syntax.SourceFile
 var SourceMapGenerator = traceur.outputgeneration.SourceMapGenerator;
@@ -34,8 +34,8 @@ var ModuleAnalyzer = traceur.semantics.ModuleAnalyzer;
  *     printing was requested.
  */
 function InlineCodeLoader(reporter, url, elements, depTarget) {
-  var compiler = new InternalCompiler(reporter, url);
-  InternalLoader.call(this, compiler, url, new NodeLoader);
+  var loaderHooks = new LoaderHooks(reporter, url);
+  InternalLoader.call(this, loaderHooks, url, new NodeLoader);
   this.elements = elements;
   this.dirname = url;
   this.depTarget = depTarget && normalizePath(path.relative('.', depTarget));
