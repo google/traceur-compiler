@@ -13,11 +13,11 @@ assert.equal(16, object[s] /= 2);
 assert.equal(16, object[s]);
 
 var n = Symbol();
-assert.equal(o[n] = 1, 1);
-assert.equal(o[n] += 2, 3);
+assert.equal(object[n] = 1, 1);
+assert.equal(object[n] += 2, 3);
 
-assert.isFalse(Object.getOwnPropertyDescriptor(o, n).enumerable);
+assert.isFalse(Object.getOwnPropertyDescriptor(object, n).enumerable);
 
-assert.isTrue(n in o);
-assert.isTrue(delete o[n]);
-assert.isFalse(n in o);
+assert.isTrue(n in object);
+assert.isTrue(delete object[n]);
+assert.isFalse(n in object);
