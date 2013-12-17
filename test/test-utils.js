@@ -135,13 +135,8 @@
       traceur.options.validate = true;
 
       var reporter = new traceur.util.TestErrorReporter();
-
-
-      // TODO(arv): We really need a better way to generate unique names that
-      // works across multiple projects.
-      var identifierIndex = Date.now();
       var LoaderHooks = traceur.modules.LoaderHooks;
-      var loaderHooks = new LoaderHooks(reporter, './', identifierIndex);
+      var loaderHooks = new LoaderHooks(reporter, './');
 
       // TODO(jjb): TestLoaderHooks extends LoaderHooks. But this file is ES5.
       var options;
