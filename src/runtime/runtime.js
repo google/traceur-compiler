@@ -99,8 +99,24 @@
         }
         return $lastIndexOf.call(string, searchString, start) == start;
       }),
-      contains: method(function(s) {
-        return this.indexOf(s) !== -1;
+      // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-string.prototype.contains
+      contains: method(function(search) {
+        /*! http://mths.be/contains v0.1.0 by @mathias */
+        if (this == null) {
+          throw TypeError();
+        }
+        var string = String(this);
+        var stringLength = string.length;
+        var searchString = String(search);
+        var searchLength = searchString.length;
+        var position = arguments[1];
+        // `ToInteger`
+        var pos = position ? Number(position) : 0;
+        if (isNaN(pos)) {
+          pos = 0;
+        }
+        var start = Math.min(Math.max(pos, 0), stringLength);
+        return $indexOf.call(string, searchString, pos) != -1;
       }),
       codePointAt: method(function(position) {
         /*! http://mths.be/codepointat v0.1.0 by @mathias */
