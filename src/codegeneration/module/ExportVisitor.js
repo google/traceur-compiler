@@ -22,11 +22,11 @@ import {assert} from '../../util/assert';
 export class ExportVisitor extends ModuleVisitor {
   /**
    * @param {traceur.util.ErrorReporter} reporter
-   * @param {ProjectSymbol} project
+   * @param {LoaderHooks} loaderHooks
    * @param {ModuleSymbol} module The root of the module system.
    */
-  constructor(reporter, project, module) {
-    super(reporter, project, module);
+  constructor(reporter, loaderHooks, module) {
+    super(reporter, loaderHooks, module);
     this.inExport_ = false;
     this.moduleSpecifier = null;
   }

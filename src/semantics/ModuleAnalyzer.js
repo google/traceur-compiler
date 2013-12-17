@@ -27,9 +27,10 @@ export class ModuleAnalyzer {
    * @param {ErrorReporter} reporter
    * @param {Project} project
    */
-  constructor(reporter, project) {
+  constructor(reporter, project, loaderHooks) {
     this.reporter_ = reporter;
     this.project_ = project;
+    this.loaderHooks_ = loaderHooks;
   }
 
   /**
@@ -58,8 +59,8 @@ export class ModuleAnalyzer {
       return;
 
     var reporter = this.reporter_;
-    var project = this.project_;
-    var root = project.getRootModule();
+    var loaderHooks = this.loaderHooks_;
+    var root = this.project_.getRootModule();
 
     function getRoot(i) {
       return roots ? roots[i] : root;
@@ -67,14 +68,14 @@ export class ModuleAnalyzer {
 
     function doVisit(ctor) {
       for (var i = 0; i < trees.length; i++) {
-        var visitor = new ctor(reporter, project, getRoot(i));
+        var visitor = new ctor(reporter, loaderHooks, getRoot(i));
         visitor.visitAny(trees[i]);
       }
     }
 
     function reverseVisit(ctor) {
       for (var i = trees.length - 1; i >= 0; i--) {
-        var visitor = new ctor(reporter, project, getRoot(i));
+        var visitor = new ctor(reporter, loaderHooks, getRoot(i));
         visitor.visitAny(trees[i]);
       }
     }

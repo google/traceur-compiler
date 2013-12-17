@@ -37,19 +37,19 @@ var ERROR = 6;
 export class LoaderHooks {
   constructor(reporter, rootUrl, identifierIndex = 0) {
     this.reporter = reporter;
-    this.project = new Project(rootUrl);
-    this.project.identifierGenerator.identifierIndex = identifierIndex;
-    this.analyzer_ = new ModuleAnalyzer(reporter, this.project);
+    this.project_ = new Project(rootUrl);
+    this.project_.identifierGenerator.identifierIndex = identifierIndex;
+    this.analyzer_ = new ModuleAnalyzer(reporter, this.project_, this);
   }
 
   // TODO Used for eval(): can we get the function call to supply callerURL?
   rootUrl() {
-    return this.project.url;
+    return this.project_.url;
   }
 
   parse(codeUnit) {
     var reporter = this.reporter;
-    var project = this.project;
+    var project = this.project_;
     var url = codeUnit.url;
     var program = codeUnit.text;
     var file = new SourceFile(url, program);
@@ -71,7 +71,7 @@ export class LoaderHooks {
   }
 
   transform(codeUnit) {
-    return ProgramTransformer.transformFile(this.reporter, this.project,
+    return ProgramTransformer.transformFile(this.reporter, this.project_,
                                             codeUnit.file);
   }
 
@@ -81,9 +81,9 @@ export class LoaderHooks {
   }
 
   addExternalModule(codeUnit) {
-    var project = this.project;
+    var project = this.project_;
     var tree = codeUnit.tree;
-    var url = codeUnit.url || this.project.url; // eval needs this.
+    var url = codeUnit.url || this.project_.url; // eval needs this.
     // External modules have no parent module.
     codeUnit.moduleSymbol = new ModuleSymbol(tree, url);
     project.addExternalModule(codeUnit.moduleSymbol);
@@ -146,4 +146,8 @@ export class LoaderHooks {
     }
   }
 
+  getModuleForModuleSpecifier(name, referrer) {
+    var url = System.normalResolve(name, referrer);
+    return this.project_.getModuleForResolvedUrl(url);
+  }
 }
