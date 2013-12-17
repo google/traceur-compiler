@@ -40,11 +40,9 @@ suite('modules.js', function() {
   }
 
   function getLoader(opt_reporter) {
-    var loaderOptions = {
-      reporter: opt_reporter || reporter,
-      rootURL: url
-    };
-    return new traceur.modules.CodeLoader(loaderOptions);
+    var LoaderHooks = traceur.modules.LoaderHooks;
+    var loaderHooks = new LoaderHooks(opt_reporter || reporter, url);
+    return new traceur.modules.CodeLoader(loaderHooks);
   }
 
   test('LoaderEval', function() {
