@@ -25,6 +25,7 @@
   var method = nonEnum;
   function polyfillString(String) {
     var $indexOf = String.prototype.indexOf;
+    var $lastIndexOf = String.prototype.lastIndexOf;
     $defineProperties(String.prototype, {
       startsWith: method(function(search) {
         if (this == null || $toString.call(search) == '[object RegExp]') {
@@ -42,10 +43,30 @@
         var start = Math.min(Math.max(pos, 0), stringLength);
         return $indexOf.call(string, searchString, pos) == start;
       }),
-      endsWith: method(function(s) {
-        var t = String(s);
-        var l = this.length - t.length;
-        return l >= 0 && this.indexOf(t, l) === l;
+      endsWith: method(function(search) {
+        if (this == null || $toString.call(search) == '[object RegExp]') {
+          throw TypeError();
+        }
+        var string = String(this);
+        var stringLength = string.length;
+        var searchString = String(search);
+        var searchLength = searchString.length;
+        var pos = stringLength;
+        if (arguments.length > 1) {
+          var position = arguments[1];
+          if (position !== undefined) {
+            pos = position ? Number(position): 0;
+            if (isNaN(pos)) {
+              pos = 0;
+            }
+          }
+        }
+        var end = Math.min(Math.max(pos, 0), stringLength);
+        var start = end - searchLength;
+        if (start < 0) {
+          return false;
+        }
+        return $lastIndexOf.call(string, searchString, start) == start;
       }),
       contains: method(function(s) {
         return this.indexOf(s) !== - 1;
