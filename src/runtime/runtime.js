@@ -60,9 +60,6 @@
       contains: method(function(s) {
         return this.indexOf(s) !== -1;
       }),
-      toArray: method(function() {
-        return this.split('');
-      }),
       codePointAt: method(function(position) {
         /*! http://mths.be/codepointat v0.1.0 by @mathias */
         var string = String(this);
