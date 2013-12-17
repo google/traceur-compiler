@@ -13,6 +13,7 @@
   var $getOwnPropertyNames = $Object.getOwnPropertyNames;
   var $getPrototypeOf = $Object.getPrototypeOf;
   var $hasOwnProperty = $Object.prototype.hasOwnProperty;
+  var $toString = $Object.prototype.toString;
   function nonEnum(value) {
     return {
       configurable: true,
@@ -23,9 +24,23 @@
   }
   var method = nonEnum;
   function polyfillString(String) {
+    var $indexOf = String.prototype.indexOf;
     $defineProperties(String.prototype, {
-      startsWith: method(function(s) {
-        return this.lastIndexOf(s, 0) === 0;
+      startsWith: method(function(search) {
+        if (this == null || $toString.call(search) == '[object RegExp]') {
+          throw TypeError();
+        }
+        var string = String(this);
+        var stringLength = string.length;
+        var searchString = String(search);
+        var searchLength = searchString.length;
+        var position = arguments[1];
+        var pos = position ? Number(position): 0;
+        if (isNaN(pos)) {
+          pos = 0;
+        }
+        var start = Math.min(Math.max(pos, 0), stringLength);
+        return $indexOf.call(string, searchString, pos) == start;
       }),
       endsWith: method(function(s) {
         var t = String(s);

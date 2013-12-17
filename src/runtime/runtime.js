@@ -33,6 +33,7 @@
   var $getOwnPropertyNames = $Object.getOwnPropertyNames;
   var $getPrototypeOf = $Object.getPrototypeOf;
   var $hasOwnProperty = $Object.prototype.hasOwnProperty;
+  var $toString = $Object.prototype.toString;
 
   function nonEnum(value) {
     return {
@@ -46,11 +47,28 @@
   var method = nonEnum;
 
   function polyfillString(String) {
+    var $indexOf = String.prototype.indexOf;
     // Harmony String Extras
     // http://wiki.ecmascript.org/doku.php?id=harmony:string_extras
     $defineProperties(String.prototype, {
-      startsWith: method(function(s) {
-       return this.lastIndexOf(s, 0) === 0;
+      // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-string.prototype.startswith
+      startsWith: method(function(search) {
+        /*! http://mths.be/startswith v0.1.0 by @mathias */
+        if (this == null || $toString.call(search) == '[object RegExp]') {
+          throw TypeError();
+        }
+        var string = String(this);
+        var stringLength = string.length;
+        var searchString = String(search);
+        var searchLength = searchString.length;
+        var position = arguments[1];
+        // `ToInteger`
+        var pos = position ? Number(position) : 0;
+        if (isNaN(pos)) {
+          pos = 0;
+        }
+        var start = Math.min(Math.max(pos, 0), stringLength);
+        return $indexOf.call(string, searchString, pos) == start;
       }),
       endsWith: method(function(s) {
         var t = String(s);
