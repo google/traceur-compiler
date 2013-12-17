@@ -35,9 +35,6 @@
       contains: method(function(s) {
         return this.indexOf(s) !== - 1;
       }),
-      toArray: method(function() {
-        return this.split('');
-      }),
       codePointAt: method(function(position) {
         var string = String(this);
         var size = string.length;
