@@ -33,7 +33,7 @@ function containsThis(tree) {
   return visitor.found;
 }
 
-export class NodeJsTransformer extends ModuleTransformer {
+export class CommonJsModuleTransformer extends ModuleTransformer {
 
   wrapModule(statements) {
     var needsIife = statements.some(containsThis);

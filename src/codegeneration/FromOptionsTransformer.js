@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ArrayComprehensionTransformer} from
-    './ArrayComprehensionTransformer';
+import {AmdTransformer} from './AmdTransformer';
+import {ArrayComprehensionTransformer} from './ArrayComprehensionTransformer';
 import {ArrowFunctionTransformer} from './ArrowFunctionTransformer';
 import {BlockBindingTransformer} from './BlockBindingTransformer';
 import {ClassTransformer} from './ClassTransformer';
-import {NodeJsTransformer} from './NodeJsTransformer';
+import {CommonJsModuleTransformer} from './CommonJsModuleTransformer';
 import {DefaultParametersTransformer} from './DefaultParametersTransformer';
 import {DestructuringTransformer} from './DestructuringTransformer';
 import {ForOfTransformer} from './ForOfTransformer';
@@ -26,7 +26,6 @@ import {GeneratorComprehensionTransformer} from
     './GeneratorComprehensionTransformer';
 import {GeneratorTransformPass} from './GeneratorTransformPass';
 import {ModuleTransformer} from './ModuleTransformer';
-import {RequireJsTransformer} from './RequireJsTransformer';
 import {MultiTransformer} from './MultiTransformer';
 import {NumericLiteralTransformer} from './NumericLiteralTransformer';
 import {ObjectLiteralTransformer} from './ObjectLiteralTransformer';
@@ -73,11 +72,11 @@ export class FromOptionsTransformer extends MultiTransformer {
 
     if (transformOptions.modules) {
       switch (transformOptions.modules) {
-        case 'nodejs':
-          append(NodeJsTransformer);
+        case 'commonjs':
+          append(CommonJsModuleTransformer);
           break;
-        case 'requirejs':
-          append(RequireJsTransformer);
+        case 'amd':
+          append(AmdTransformer);
           break;
         default:
           append(ModuleTransformer);
