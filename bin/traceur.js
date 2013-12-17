@@ -23,129 +23,6 @@
     };
   }
   var method = nonEnum;
-  function polyfillString(String) {
-    var $indexOf = String.prototype.indexOf;
-    var $lastIndexOf = String.prototype.lastIndexOf;
-    $defineProperties(String.prototype, {
-      startsWith: method(function(search) {
-        if (this == null || $toString.call(search) == '[object RegExp]') {
-          throw TypeError();
-        }
-        var string = String(this);
-        var stringLength = string.length;
-        var searchString = String(search);
-        var searchLength = searchString.length;
-        var position = arguments[1];
-        var pos = position ? Number(position): 0;
-        if (isNaN(pos)) {
-          pos = 0;
-        }
-        var start = Math.min(Math.max(pos, 0), stringLength);
-        return $indexOf.call(string, searchString, pos) == start;
-      }),
-      endsWith: method(function(search) {
-        if (this == null || $toString.call(search) == '[object RegExp]') {
-          throw TypeError();
-        }
-        var string = String(this);
-        var stringLength = string.length;
-        var searchString = String(search);
-        var searchLength = searchString.length;
-        var pos = stringLength;
-        if (arguments.length > 1) {
-          var position = arguments[1];
-          if (position !== undefined) {
-            pos = position ? Number(position): 0;
-            if (isNaN(pos)) {
-              pos = 0;
-            }
-          }
-        }
-        var end = Math.min(Math.max(pos, 0), stringLength);
-        var start = end - searchLength;
-        if (start < 0) {
-          return false;
-        }
-        return $lastIndexOf.call(string, searchString, start) == start;
-      }),
-      contains: method(function(search) {
-        if (this == null) {
-          throw TypeError();
-        }
-        var string = String(this);
-        var stringLength = string.length;
-        var searchString = String(search);
-        var searchLength = searchString.length;
-        var position = arguments[1];
-        var pos = position ? Number(position): 0;
-        if (isNaN(pos)) {
-          pos = 0;
-        }
-        var start = Math.min(Math.max(pos, 0), stringLength);
-        return $indexOf.call(string, searchString, pos) != - 1;
-      }),
-      codePointAt: method(function(position) {
-        var string = String(this);
-        var size = string.length;
-        var index = position ? Number(position): 0;
-        if (isNaN(index)) {
-          index = 0;
-        }
-        if (index < 0 || index >= size) {
-          return undefined;
-        }
-        var first = string.charCodeAt(index);
-        var second;
-        if (first >= 0xD800 && first <= 0xDBFF && size > index + 1) {
-          second = string.charCodeAt(index + 1);
-          if (second >= 0xDC00 && second <= 0xDFFF) {
-            return (first - 0xD800) * 0x400 + second - 0xDC00 + 0x10000;
-          }
-        }
-        return first;
-      })
-    });
-    $defineProperties(String, {
-      raw: method(function(callsite) {
-        var raw = callsite.raw;
-        var len = raw.length >>> 0;
-        if (len === 0) return '';
-        var s = '';
-        var i = 0;
-        while (true) {
-          s += raw[i];
-          if (i + 1 === len) return s;
-          s += arguments[++i];
-        }
-      }),
-      fromCodePoint: method(function() {
-        var codeUnits = [];
-        var floor = Math.floor;
-        var highSurrogate;
-        var lowSurrogate;
-        var index = - 1;
-        var length = arguments.length;
-        if (!length) {
-          return '';
-        }
-        while (++index < length) {
-          var codePoint = Number(arguments[index]);
-          if (!isFinite(codePoint) || codePoint < 0 || codePoint > 0x10FFFF || floor(codePoint) != codePoint) {
-            throw RangeError('Invalid code point: ' + codePoint);
-          }
-          if (codePoint <= 0xFFFF) {
-            codeUnits.push(codePoint);
-          } else {
-            codePoint -= 0x10000;
-            highSurrogate = (codePoint >> 10) + 0xD800;
-            lowSurrogate = (codePoint % 0x400) + 0xDC00;
-            codeUnits.push(highSurrogate, lowSurrogate);
-          }
-        }
-        return String.fromCharCode.apply(null, codeUnits);
-      })
-    });
-  }
   var counter = 0;
   function newUniqueString() {
     return '__$' + Math.floor(Math.random() * 1e9) + '$' + ++counter + '$__';
@@ -479,7 +356,6 @@
   function setupGlobals(global) {
     global.Symbol = Symbol;
     global.Symbol.iterator = Symbol();
-    polyfillString(global.String);
     polyfillObject(global.Object);
     polyfillArray(global.Array);
   }
@@ -966,10 +842,191 @@ $traceurRuntime.registerModule("../src/runtime/polyfills/Promise.js", function()
       return Promise;
     }};
 }, this);
+$traceurRuntime.registerModule("../src/runtime/polyfills/String.js", function() {
+  "use strict";
+  var $toString = Object.prototype.toString;
+  var $indexOf = String.prototype.indexOf;
+  var $lastIndexOf = String.prototype.lastIndexOf;
+  function startsWith(search) {
+    if (this == null || $toString.call(search) == '[object RegExp]') {
+      throw TypeError();
+    }
+    var string = String(this);
+    var stringLength = string.length;
+    var searchString = String(search);
+    var searchLength = searchString.length;
+    var position = arguments[1];
+    var pos = position ? Number(position): 0;
+    if (isNaN(pos)) {
+      pos = 0;
+    }
+    var start = Math.min(Math.max(pos, 0), stringLength);
+    return $indexOf.call(string, searchString, pos) == start;
+  }
+  function endsWith(search) {
+    if (this == null || $toString.call(search) == '[object RegExp]') {
+      throw TypeError();
+    }
+    var string = String(this);
+    var stringLength = string.length;
+    var searchString = String(search);
+    var searchLength = searchString.length;
+    var pos = stringLength;
+    if (arguments.length > 1) {
+      var position = arguments[1];
+      if (position !== undefined) {
+        pos = position ? Number(position): 0;
+        if (isNaN(pos)) {
+          pos = 0;
+        }
+      }
+    }
+    var end = Math.min(Math.max(pos, 0), stringLength);
+    var start = end - searchLength;
+    if (start < 0) {
+      return false;
+    }
+    return $lastIndexOf.call(string, searchString, start) == start;
+  }
+  function contains(search) {
+    if (this == null) {
+      throw TypeError();
+    }
+    var string = String(this);
+    var stringLength = string.length;
+    var searchString = String(search);
+    var searchLength = searchString.length;
+    var position = arguments[1];
+    var pos = position ? Number(position): 0;
+    if (isNaN(pos)) {
+      pos = 0;
+    }
+    var start = Math.min(Math.max(pos, 0), stringLength);
+    return $indexOf.call(string, searchString, pos) != - 1;
+  }
+  function codePointAt(position) {
+    var string = String(this);
+    var size = string.length;
+    var index = position ? Number(position): 0;
+    if (isNaN(index)) {
+      index = 0;
+    }
+    if (index < 0 || index >= size) {
+      return undefined;
+    }
+    var first = string.charCodeAt(index);
+    var second;
+    if (first >= 0xD800 && first <= 0xDBFF && size > index + 1) {
+      second = string.charCodeAt(index + 1);
+      if (second >= 0xDC00 && second <= 0xDFFF) {
+        return (first - 0xD800) * 0x400 + second - 0xDC00 + 0x10000;
+      }
+    }
+    return first;
+  }
+  function raw(callsite) {
+    var raw = callsite.raw;
+    var len = raw.length >>> 0;
+    if (len === 0) return '';
+    var s = '';
+    var i = 0;
+    while (true) {
+      s += raw[i];
+      if (i + 1 === len) return s;
+      s += arguments[++i];
+    }
+  }
+  function fromCodePoint() {
+    var codeUnits = [];
+    var floor = Math.floor;
+    var highSurrogate;
+    var lowSurrogate;
+    var index = - 1;
+    var length = arguments.length;
+    if (!length) {
+      return '';
+    }
+    while (++index < length) {
+      var codePoint = Number(arguments[index]);
+      if (!isFinite(codePoint) || codePoint < 0 || codePoint > 0x10FFFF || floor(codePoint) != codePoint) {
+        throw RangeError('Invalid code point: ' + codePoint);
+      }
+      if (codePoint <= 0xFFFF) {
+        codeUnits.push(codePoint);
+      } else {
+        codePoint -= 0x10000;
+        highSurrogate = (codePoint >> 10) + 0xD800;
+        lowSurrogate = (codePoint % 0x400) + 0xDC00;
+        codeUnits.push(highSurrogate, lowSurrogate);
+      }
+    }
+    return String.fromCharCode.apply(null, codeUnits);
+  }
+  return {
+    get startsWith() {
+      return startsWith;
+    },
+    get endsWith() {
+      return endsWith;
+    },
+    get contains() {
+      return contains;
+    },
+    get codePointAt() {
+      return codePointAt;
+    },
+    get raw() {
+      return raw;
+    },
+    get fromCodePoint() {
+      return fromCodePoint;
+    }
+  };
+}, this);
 $traceurRuntime.registerModule("../src/runtime/polyfills/polyfills.js", function() {
   "use strict";
   var Promise = $traceurRuntime.getModuleImpl("../src/runtime/polyfills/Promise.js").Promise;
-  if (!this.Promise) this.Promise = Promise;
+  var $__6 = $traceurRuntime.getModuleImpl("../src/runtime/polyfills/String.js"),
+      codePointAt = $__6.codePointAt,
+      contains = $__6.contains,
+      endsWith = $__6.endsWith,
+      fromCodePoint = $__6.fromCodePoint,
+      raw = $__6.raw,
+      startsWith = $__6.startsWith;
+  function maybeDefineMethod(object, name, value) {
+    if (!(name in object)) {
+      Object.defineProperty(object, name, {
+        value: value,
+        configurable: true,
+        enumerable: false,
+        writable: true
+      });
+    }
+  }
+  function maybeAddFunctions(object, functions) {
+    for (var i = 0; i < functions.length; i += 2) {
+      var name = functions[i];
+      var value = functions[i + 1];
+      maybeDefineMethod(object, name, value);
+    }
+  }
+  function polyfillPromise(global) {
+    if (!global.Promise) global.Promise = Promise;
+  }
+  function polyfillString($String) {
+    maybeAddFunctions($String.prototype, ['codePointAt', codePointAt, 'contains', contains, 'endsWith', endsWith, 'startsWith', startsWith]);
+    maybeAddFunctions($String, ['fromCodePoint', fromCodePoint, 'raw', raw]);
+  }
+  function polyfill(global) {
+    polyfillPromise(global);
+    polyfillString(global.String);
+  }
+  polyfill(this);
+  var setupGlobals = $traceurRuntime.setupGlobals;
+  $traceurRuntime.setupGlobals = function(global) {
+    setupGlobals(global);
+    polyfill(global);
+  };
   return {};
 }, this);
 var $__8 = $traceurRuntime.getModuleImpl("../src/runtime/polyfills/polyfills.js");
