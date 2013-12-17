@@ -18458,14 +18458,15 @@ $traceurRuntime.registerModule("../src/runtime/System.js", function() {
   var TRANSFORMED = 4;
   var COMPLETE = 5;
   var ERROR = 6;
-  var LoaderHooks = function(reporter, rootURL, identifierIndex) {
+  var LoaderHooks = function(reporter, rootUrl) {
+    var identifierIndex = arguments[2] !== (void 0) ? arguments[2]: 0;
     this.reporter = reporter;
-    this.project = new Project(rootURL);
-    this.project.identifierGenerator.identifierIndex = identifierIndex || 0;
+    this.project = new Project(rootUrl);
+    this.project.identifierGenerator.identifierIndex = identifierIndex;
     this.analyzer_ = new ModuleAnalyzer(reporter, this.project);
   };
   LoaderHooks = ($traceurRuntime.createClass)(LoaderHooks, {
-    rootURL: function() {
+    rootUrl: function() {
       return this.project.url;
     },
     parse: function(codeUnit) {
@@ -18689,7 +18690,7 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
       return true;
     }}, {}, CodeUnit);
   var EvalCodeUnit = function(loaderHooks, code) {
-    $traceurRuntime.superCall(this, $EvalCodeUnit.prototype, "constructor", [loaderHooks, loaderHooks.rootURL(), 'script', LOADED]);
+    $traceurRuntime.superCall(this, $EvalCodeUnit.prototype, "constructor", [loaderHooks, loaderHooks.rootUrl(), 'script', LOADED]);
     this.text = code;
   };
   var $EvalCodeUnit = ($traceurRuntime.createClass)(EvalCodeUnit, {parse: function() {
@@ -18717,7 +18718,7 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
     },
     load: function(url) {
       var type = arguments[1] !== (void 0) ? arguments[1]: 'script';
-      url = System.normalResolve(url, this.loaderHooks.rootURL());
+      url = System.normalResolve(url, this.loaderHooks.rootUrl());
       var codeUnit = this.getCodeUnit(url, type);
       if (codeUnit.state != NOT_STARTED || codeUnit.state == ERROR) {
         return codeUnit;
@@ -19080,5 +19081,3 @@ $traceurRuntime.registerModule("../src/traceur.js", function() {
   };
 }, this);
 var traceur = System.get("../src/traceur.js");
-
-//# sourceMappingURL=traceur.map

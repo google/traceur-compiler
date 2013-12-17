@@ -143,7 +143,7 @@
       var LoaderHooks = traceur.modules.LoaderHooks;
       var loaderHooks = new LoaderHooks(reporter, './', identifierIndex);
 
-      // TODO (jjb) TestLoaderHooks extends LoaderHooks. But this file is ES5.
+      // TODO(jjb): TestLoaderHooks extends LoaderHooks. But this file is ES5.
       var options;
       loaderHooks.translate = function(source) {
         // Only top level file can set options.

@@ -178,7 +178,7 @@ class EvalCodeUnit extends CodeUnit {
    * @param {string} code
    */
   constructor(loaderHooks, code) {
-    super(loaderHooks, loaderHooks.rootURL(), 'script', LOADED);
+    super(loaderHooks, loaderHooks.rootUrl(), 'script', LOADED);
     this.text = code;
   }
 
@@ -223,7 +223,7 @@ class InternalLoader {
   }
 
   load(url, type = 'script') {
-    url = System.normalResolve(url, this.loaderHooks.rootURL());
+    url = System.normalResolve(url, this.loaderHooks.rootUrl());
     var codeUnit = this.getCodeUnit(url, type);
     if (codeUnit.state != NOT_STARTED || codeUnit.state == ERROR) {
       return codeUnit;

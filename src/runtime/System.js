@@ -35,15 +35,15 @@ var ERROR = 6;
 
  // TODO Pick a better name, these are functions on System?
 export class LoaderHooks {
-  constructor(reporter, rootURL, identifierIndex) {
+  constructor(reporter, rootUrl, identifierIndex = 0) {
     this.reporter = reporter;
-    this.project = new Project(rootURL);
-    this.project.identifierGenerator.identifierIndex = identifierIndex || 0;
+    this.project = new Project(rootUrl);
+    this.project.identifierGenerator.identifierIndex = identifierIndex;
     this.analyzer_ = new ModuleAnalyzer(reporter, this.project);
   }
 
   // TODO Used for eval(): can we get the function call to supply callerURL?
-  rootURL() {
+  rootUrl() {
     return this.project.url;
   }
 
