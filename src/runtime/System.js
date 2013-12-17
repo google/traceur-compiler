@@ -19,6 +19,8 @@ import {ProgramTransformer} from '../codegeneration/ProgramTransformer';
 import {Project} from '../semantics/symbols/Project';
 import {SourceFile} from '../syntax/SourceFile';
 import {TreeWriter} from '../outputgeneration/TreeWriter';
+import {UniqueIdentifierGenerator} from
+    '../codegeneration/UniqueIdentifierGenerator';
 
 import {assert} from '../util/assert';
 
@@ -32,13 +34,13 @@ var TRANSFORMED = 4;
 var COMPLETE = 5;
 var ERROR = 6;
 
+var identifierGenerator = new UniqueIdentifierGenerator();
 
  // TODO Pick a better name, these are functions on System?
 export class LoaderHooks {
-  constructor(reporter, rootUrl, identifierIndex = 0) {
+  constructor(reporter, rootUrl) {
     this.reporter = reporter;
-    this.project_ = new Project(rootUrl);
-    this.project_.identifierGenerator.identifierIndex = identifierIndex;
+    this.project_ = new Project(rootUrl, identifierGenerator);
     this.analyzer_ = new ModuleAnalyzer(reporter, this.project_, this);
   }
 

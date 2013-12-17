@@ -105,8 +105,8 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
         callback(tree);
       }
     }, function() {
-      console.error(codeUnit.loader.error);
-      errback(codeUnit.loader.error);
+      console.error(codeUnit.error);
+      errback(codeUnit.error);
     });
   }
 

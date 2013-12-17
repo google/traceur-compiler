@@ -3082,7 +3082,8 @@ $traceurRuntime.registerModule("../src/semantics/symbols/Project.js", function()
     }));
   }
   var Project = function(url) {
-    this.identifierGenerator = new UniqueIdentifierGenerator();
+    var identifierGenerator = arguments[1] !== (void 0) ? arguments[1]: new UniqueIdentifierGenerator();
+    this.identifierGenerator = identifierGenerator;
     this.sourceFiles_ = Object.create(null);
     this.parseTrees_ = new ObjectMap();
     this.rootModule_ = new ModuleSymbol(null, url);
@@ -18450,6 +18451,7 @@ $traceurRuntime.registerModule("../src/runtime/System.js", function() {
   var Project = $traceurRuntime.getModuleImpl("../src/semantics/symbols/Project.js").Project;
   var SourceFile = $traceurRuntime.getModuleImpl("../src/syntax/SourceFile.js").SourceFile;
   var TreeWriter = $traceurRuntime.getModuleImpl("../src/outputgeneration/TreeWriter.js").TreeWriter;
+  var UniqueIdentifierGenerator = $traceurRuntime.getModuleImpl("../src/codegeneration/UniqueIdentifierGenerator.js").UniqueIdentifierGenerator;
   var assert = $traceurRuntime.getModuleImpl("../src/util/assert.js").assert;
   var NOT_STARTED = 0;
   var LOADING = 1;
@@ -18458,11 +18460,10 @@ $traceurRuntime.registerModule("../src/runtime/System.js", function() {
   var TRANSFORMED = 4;
   var COMPLETE = 5;
   var ERROR = 6;
+  var identifierGenerator = new UniqueIdentifierGenerator();
   var LoaderHooks = function(reporter, rootUrl) {
-    var identifierIndex = arguments[2] !== (void 0) ? arguments[2]: 0;
     this.reporter = reporter;
-    this.project_ = new Project(rootUrl);
-    this.project_.identifierGenerator.identifierIndex = identifierIndex;
+    this.project_ = new Project(rootUrl, identifierGenerator);
     this.analyzer_ = new ModuleAnalyzer(reporter, this.project_, this);
   };
   LoaderHooks = ($traceurRuntime.createClass)(LoaderHooks, {
