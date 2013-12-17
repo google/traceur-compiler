@@ -170,7 +170,7 @@ Object.defineProperties(options, {
  *   --spread=parse
  *   --spread=false
  *   --arrowFunctions --arrow-functions
- *   --modules=requirejs
+ *   --modules=amd
  */
 function parseCommand(s) {
   var re = /--([^=]+)(?:=(.+))?/;

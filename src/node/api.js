@@ -50,7 +50,7 @@ function merge(dest) {
  */
 function compile(content, options) {
   options = merge({
-    modules: 'nodejs',
+    modules: 'commonjs',
     filename: '<unknown file>'
   }, options || {});
 

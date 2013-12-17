@@ -31,8 +31,8 @@ UNIT_TESTS = \
 	test/unit/util/
 
 TESTS = \
-	test/node-nodejs-test.js \
-	test/node-requirejs-test.js \
+	test/node-commonjs-test.js \
+	test/node-amd-test.js \
 	test/node-feature-test.js \
 	$(RUNTIME_TESTS) \
 	$(UNIT_TESTS)
@@ -50,17 +50,17 @@ ugly: bin/traceur.ugly.js
 test-runtime: bin/traceur-runtime.js $(RUNTIME_TESTS)
 	@echo 'Open test/runtime.html to test runtime only'
 
-test: bin/traceur.js bin/traceur-runtime.js test/test-list.js test/requirejs-compiled test/nodejs-compiled
+test: bin/traceur.js bin/traceur-runtime.js test/test-list.js test/amd-compiled test/commonjs-compiled
 	node_modules/.bin/mocha --ignore-leaks --ui tdd --require test/node-env.js $(TESTS)
 
 test/unit: bin/traceur.js bin/traceur-runtime.js
 	node_modules/.bin/mocha --ignore-leaks --ui tdd --require test/node-env.js $(UNIT_TESTS)
 
-test/nodejs: test/nodejs-compiled
-	node_modules/.bin/mocha --ignore-leaks --ui tdd test/node-env.js test/node-nodejs-test.js
+test/commonjs: test/commonjs-compiled
+	node_modules/.bin/mocha --ignore-leaks --ui tdd test/node-env.js test/node-commonjs-test.js
 
-test/requirejs: test/requirejs-compiled
-	node_modules/.bin/mocha --ignore-leaks --ui tdd test/node-env.js test/node-requirejs-test.js
+test/amd: test/amd-compiled
+	node_modules/.bin/mocha --ignore-leaks --ui tdd test/node-env.js test/node-amd-test.js
 
 test/features: bin/traceur.js bin/traceur-runtime.js test/test-list.js
 	node_modules/.bin/mocha --ignore-leaks --ui tdd --require test/node-env.js test/node-feature-test.js
@@ -71,11 +71,11 @@ test/test-list.js: force
 	@git ls-files -o -c test/feature | node build/build-test-list.js > $@
 
 # TODO(vojta): Trick make to only compile when necesarry.
-test/nodejs-compiled: force
-	node src/node/to-nodejs-compiler.js test/nodejs test/nodejs-compiled
+test/commonjs-compiled: force
+	node src/node/to-commonjs-compiler.js test/commonjs test/commonjs-compiled
 
-test/requirejs-compiled: force
-	node src/node/to-requirejs-compiler.js test/requirejs test/requirejs-compiled
+test/amd-compiled: force
+	node src/node/to-amd-compiler.js test/amd test/amd-compiled
 
 boot: clean build
 
@@ -84,8 +84,8 @@ clean: wikiclean
 	@rm -f build/dep.mk
 	@rm -f $(GENSRC) $(TPL_GENSRC_DEPS)
 	@rm -f test/test-list.js
-	@rm -rf test/nodejs-compiled/*
-	@rm -rf test/requirejs-compiled/*
+	@rm -rf test/commonjs-compiled/*
+	@rm -rf test/amd-compiled/*
 	@rm -f bin/*
 	@git checkout -- bin/
 	@mv bin/traceur.js build/previous-commit-traceur.js

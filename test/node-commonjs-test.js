@@ -1,6 +1,6 @@
 var fs = require('fs');
 
-var COMPILED_DIR = __dirname + '/nodejs-compiled';
+var COMPILED_DIR = __dirname + '/commonjs-compiled';
 
 function onlyJsFiles(path) {
   return /\.js$/.test(path);
@@ -8,10 +8,10 @@ function onlyJsFiles(path) {
 
 var testFiles = fs.readdirSync(COMPILED_DIR).filter(onlyJsFiles);
 
-suite('nodejs', function() {
+suite('commonjs', function() {
   testFiles.forEach(function(testFile) {
     test(testFile, function() {
-      require('./nodejs-compiled/' + testFile.replace(/\.js$/, ''));
+      require('./commonjs-compiled/' + testFile.replace(/\.js$/, ''));
     });
   });
 });
