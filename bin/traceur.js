@@ -2711,17 +2711,16 @@ $traceurRuntime.registerModule("../src/codegeneration/module/ModuleVisitor.js", 
       EXPORT_DECLARATION = $__20.EXPORT_DECLARATION,
       IMPORT_DECLARATION = $__20.IMPORT_DECLARATION;
   var Symbol = $traceurRuntime.getModuleImpl("../src/semantics/symbols/Symbol.js").Symbol;
-  var ModuleVisitor = function(reporter, project, module) {
+  var ModuleVisitor = function(reporter, loaderHooks, module) {
     this.reporter = reporter;
-    this.project = project;
+    this.loaderHooks_ = loaderHooks;
     this.module = module;
   };
   ModuleVisitor = ($traceurRuntime.createClass)(ModuleVisitor, {
     getModuleForModuleSpecifier: function(tree) {
       var name = tree.token.processedValue;
       var referrer = this.module.url;
-      var url = System.normalResolve(name, referrer);
-      var module = this.project.getModuleForResolvedUrl(url);
+      var module = this.loaderHooks_.getModuleForModuleSpecifier(name, referrer);
       if (!module) {
         this.reportError(tree, '\'%s\' is not a module', url);
         return null;
@@ -2764,8 +2763,8 @@ $traceurRuntime.registerModule("../src/codegeneration/module/ExportVisitor.js", 
   var ExportSymbol = $traceurRuntime.getModuleImpl("../src/semantics/symbols/ExportSymbol.js").ExportSymbol;
   var ModuleVisitor = $traceurRuntime.getModuleImpl("../src/codegeneration/module/ModuleVisitor.js").ModuleVisitor;
   var assert = $traceurRuntime.getModuleImpl("../src/util/assert.js").assert;
-  var ExportVisitor = function(reporter, project, module) {
-    $traceurRuntime.superCall(this, $ExportVisitor.prototype, "constructor", [reporter, project, module]);
+  var ExportVisitor = function(reporter, loaderHooks, module) {
+    $traceurRuntime.superCall(this, $ExportVisitor.prototype, "constructor", [reporter, loaderHooks, module]);
     this.inExport_ = false;
     this.moduleSpecifier = null;
   };
@@ -2877,9 +2876,10 @@ $traceurRuntime.registerModule("../src/semantics/ModuleAnalyzer.js", function() 
   var ExportVisitor = $traceurRuntime.getModuleImpl("../src/codegeneration/module/ExportVisitor.js").ExportVisitor;
   var ValidationVisitor = $traceurRuntime.getModuleImpl("../src/codegeneration/module/ValidationVisitor.js").ValidationVisitor;
   var transformOptions = $traceurRuntime.getModuleImpl("../src/options.js").transformOptions;
-  var ModuleAnalyzer = function(reporter, project) {
+  var ModuleAnalyzer = function(reporter, project, loaderHooks) {
     this.reporter_ = reporter;
     this.project_ = project;
+    this.loaderHooks_ = loaderHooks;
   };
   ModuleAnalyzer = ($traceurRuntime.createClass)(ModuleAnalyzer, {
     analyze: function() {
@@ -2893,20 +2893,20 @@ $traceurRuntime.registerModule("../src/semantics/ModuleAnalyzer.js", function() 
       var roots = arguments[1];
       if (!transformOptions.modules) return;
       var reporter = this.reporter_;
-      var project = this.project_;
-      var root = project.getRootModule();
+      var loaderHooks = this.loaderHooks_;
+      var root = this.project_.getRootModule();
       function getRoot(i) {
         return roots ? roots[i]: root;
       }
       function doVisit(ctor) {
         for (var i = 0; i < trees.length; i++) {
-          var visitor = new ctor(reporter, project, getRoot(i));
+          var visitor = new ctor(reporter, loaderHooks, getRoot(i));
           visitor.visitAny(trees[i]);
         }
       }
       function reverseVisit(ctor) {
         for (var i = trees.length - 1; i >= 0; i--) {
-          var visitor = new ctor(reporter, project, getRoot(i));
+          var visitor = new ctor(reporter, loaderHooks, getRoot(i));
           visitor.visitAny(trees[i]);
         }
       }
@@ -3079,7 +3079,8 @@ $traceurRuntime.registerModule("../src/semantics/symbols/Project.js", function()
     }));
   }
   var Project = function(url) {
-    this.identifierGenerator = new UniqueIdentifierGenerator();
+    var identifierGenerator = arguments[1] !== (void 0) ? arguments[1]: new UniqueIdentifierGenerator();
+    this.identifierGenerator = identifierGenerator;
     this.sourceFiles_ = Object.create(null);
     this.parseTrees_ = new ObjectMap();
     this.rootModule_ = new ModuleSymbol(null, url);
@@ -18431,6 +18432,7 @@ $traceurRuntime.registerModule("../src/runtime/System.js", function() {
   var Project = $traceurRuntime.getModuleImpl("../src/semantics/symbols/Project.js").Project;
   var SourceFile = $traceurRuntime.getModuleImpl("../src/syntax/SourceFile.js").SourceFile;
   var TreeWriter = $traceurRuntime.getModuleImpl("../src/outputgeneration/TreeWriter.js").TreeWriter;
+  var UniqueIdentifierGenerator = $traceurRuntime.getModuleImpl("../src/codegeneration/UniqueIdentifierGenerator.js").UniqueIdentifierGenerator;
   var assert = $traceurRuntime.getModuleImpl("../src/util/assert.js").assert;
   var NOT_STARTED = 0;
   var LOADING = 1;
@@ -18439,20 +18441,19 @@ $traceurRuntime.registerModule("../src/runtime/System.js", function() {
   var TRANSFORMED = 4;
   var COMPLETE = 5;
   var ERROR = 6;
+  var identifierGenerator = new UniqueIdentifierGenerator();
   var LoaderHooks = function(reporter, rootUrl) {
-    var identifierIndex = arguments[2] !== (void 0) ? arguments[2]: 0;
     this.reporter = reporter;
-    this.project = new Project(rootUrl);
-    this.project.identifierGenerator.identifierIndex = identifierIndex;
-    this.analyzer_ = new ModuleAnalyzer(reporter, this.project);
+    this.project_ = new Project(rootUrl, identifierGenerator);
+    this.analyzer_ = new ModuleAnalyzer(reporter, this.project_, this);
   };
   LoaderHooks = ($traceurRuntime.createClass)(LoaderHooks, {
     rootUrl: function() {
-      return this.project.url;
+      return this.project_.url;
     },
     parse: function(codeUnit) {
       var reporter = this.reporter;
-      var project = this.project;
+      var project = this.project_;
       var url = codeUnit.url;
       var program = codeUnit.text;
       var file = new SourceFile(url, program);
@@ -18467,15 +18468,15 @@ $traceurRuntime.registerModule("../src/runtime/System.js", function() {
       return true;
     },
     transform: function(codeUnit) {
-      return ProgramTransformer.transformFile(this.reporter, this.project, codeUnit.file);
+      return ProgramTransformer.transformFile(this.reporter, this.project_, codeUnit.file);
     },
     evaluate: function(codeUnit) {
       return ('global', eval)(TreeWriter.write(codeUnit.transformedTree));
     },
     addExternalModule: function(codeUnit) {
-      var project = this.project;
+      var project = this.project_;
       var tree = codeUnit.tree;
-      var url = codeUnit.url || this.project.url;
+      var url = codeUnit.url || this.project_.url;
       codeUnit.moduleSymbol = new ModuleSymbol(tree, url);
       project.addExternalModule(codeUnit.moduleSymbol);
     },
@@ -18524,6 +18525,10 @@ $traceurRuntime.registerModule("../src/runtime/System.js", function() {
           }
         }
       }
+    },
+    getModuleForModuleSpecifier: function(name, referrer) {
+      var url = System.normalResolve(name, referrer);
+      return this.project_.getModuleForResolvedUrl(url);
     }
   }, {});
   return {get LoaderHooks() {
