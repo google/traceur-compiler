@@ -36,28 +36,8 @@ export class RequireJsTransformer extends ModuleTransformer {
   }
 
   transformModuleSpecifier(tree) {
-    var depPath = this.normalizeDependencyPath(tree.token.processedValue);
     var localName = this.getTempIdentifier();
-
-    this.dependencies.push({path: depPath, local: localName});
-
+    this.dependencies.push({path: tree.token, local: localName});
     return createBindingIdentifier(localName);
-  }
-
-  normalizeDependencyPath(path) {
-    // Ignore urls.
-    if (/^https?\:\/\//.test(path)) {
-      return path;
-    }
-
-    // "http.js" -> "./http.js"
-    if (path[0] !== '.') {
-      path = './' + path;
-    }
-
-    // Remove ".js" suffix, otherwise RequireJS will treat the dependency as a script.
-    path = path.replace(/\.js$/, '');
-
-    return path;
   }
 }

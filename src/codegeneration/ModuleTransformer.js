@@ -178,11 +178,7 @@ export class ModuleTransformer extends TempVarTransformer {
     // TODO(arv): We should resolve this relative to the name of current module.
     var url = System.normalResolve(name, this.url);
 
-    return this.getModuleReference(url, this.moduleSpecifierKind_);
-  }
-
-  getModuleReference(url, kind = undefined) {
-    if (kind === 'module')
+    if (this.moduleSpecifierKind_ === 'module')
       return parseExpression `System.get(${url})`;
     return parseExpression `$traceurRuntime.getModuleImpl(${url})`;
   }
