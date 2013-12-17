@@ -68,8 +68,21 @@
         }
         return $lastIndexOf.call(string, searchString, start) == start;
       }),
-      contains: method(function(s) {
-        return this.indexOf(s) !== - 1;
+      contains: method(function(search) {
+        if (this == null) {
+          throw TypeError();
+        }
+        var string = String(this);
+        var stringLength = string.length;
+        var searchString = String(search);
+        var searchLength = searchString.length;
+        var position = arguments[1];
+        var pos = position ? Number(position): 0;
+        if (isNaN(pos)) {
+          pos = 0;
+        }
+        var start = Math.min(Math.max(pos, 0), stringLength);
+        return $indexOf.call(string, searchString, pos) != - 1;
       }),
       codePointAt: method(function(position) {
         var string = String(this);
