@@ -6,9 +6,9 @@ module a from './resources/i';
   a.inc();
   assert.equal(1, a.i);
 
-  assertThrows(function() {
+  assert.throws(function() {
     a.i = 2;
-  });
+  }, TypeError);
 })();
 
 assert.equal(1, a.i);

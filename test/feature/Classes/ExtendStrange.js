@@ -16,9 +16,9 @@ class D extends null {
   }
 }
 
-assertThrows(function() {
+assert.throw(function() {
   new D();
-});
+}, TypeError);
 
 class E extends function() { return null }() {
   constructor(...args) {
@@ -26,9 +26,9 @@ class E extends function() { return null }() {
   }
 }
 
-assertThrows(function() {
+assert.throw(function() {
   new E();
-});
+}, TypeError);
 
 
 function f() {};

@@ -1,13 +1,5 @@
-function assertThrownErrorIs(str, fn) {
-  var e = assertThrows(fn);
-  if (!e instanceof Error)
-    fail('expected Error object');
-
-  assert.equal(str, e.message);
-}
-
 function assertClosed(g) {
-  assertThrownErrorIs('"next" on closed generator', () => g.next());
+  assert.throw(() => g.next(), '"next" on closed generator');
 }
 
 //-----------------------------------------------------------------------------
