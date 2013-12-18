@@ -45,7 +45,7 @@ export class TypeTransformer extends ParseTreeTransformer {
    */
   transformFormalParameter(tree) {
     if (tree.typeAnnotation !== null)
-      return new FormalParameter(tree.location, tree.parameter, null);
+      return new FormalParameter(tree.location, tree.parameter, null, tree.annotations);
     return tree;
   }
 

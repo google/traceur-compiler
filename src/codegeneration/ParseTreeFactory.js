@@ -227,7 +227,7 @@ export function createBindingElement(arg) {
  * @return {FormalParameter}
  */
 export function createFormalParameter(arg) {
-  return new FormalParameter(null, createBindingElement(arg), null);
+  return new FormalParameter(null, createBindingElement(arg), null, []);
 }
 
 /**
@@ -271,7 +271,7 @@ function createParameterListHelper(numberOfParameters, hasRestParams) {
     var isRestParameter = index == numberOfParameters - 1 && hasRestParams;
     builder.push(
         isRestParameter ?
-            new FormalParameter(null, createRestParameter(parameterName), null) :
+            new FormalParameter(null, createRestParameter(parameterName), null, []) :
             createFormalParameter(parameterName));
   }
 
