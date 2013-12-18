@@ -104,16 +104,6 @@
     throw new chai.AssertionError(message);
   }
 
-  function assertThrows(fn) {
-    try {
-      fn();
-    } catch (e) {
-      // Do nothing.
-      return e;
-    }
-    fail('Function should have thrown and did not.');
-  }
-
   function runCode(code, name) {
     try {
       ('global', eval)(code);
@@ -300,7 +290,6 @@
   global.assertHasOwnProperty = assertHasOwnProperty;
   global.assertLacksOwnProperty = assertLacksOwnProperty;
   global.assertNoOwnProperties = assertNoOwnProperties;
-  global.assertThrows = assertThrows;
   global.fail = fail;
 
   exports.parseProlog = parseProlog;
