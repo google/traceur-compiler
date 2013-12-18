@@ -38,10 +38,11 @@ var identifierGenerator = new UniqueIdentifierGenerator();
 
  // TODO Pick a better name, these are functions on System?
 export class LoaderHooks {
-  constructor(reporter, rootUrl) {
+  constructor(reporter, rootUrl, outputOptions) {
     this.reporter = reporter;
     this.project_ = new Project(rootUrl, identifierGenerator);
     this.analyzer_ = new ModuleAnalyzer(reporter, this.project_, this);
+    this.outputOptions_ = outputOptions;
   }
 
   // TODO Used for eval(): can we get the function call to supply callerURL?
@@ -77,9 +78,13 @@ export class LoaderHooks {
                                             codeUnit.file);
   }
 
+  instantiate({name, metadata, address, source, sourceMap}) {
+    return undefined;
+  }
+
   evaluate(codeUnit) {
     // TODO(arv): Eval in the right context.
-    return ('global', eval)(TreeWriter.write(codeUnit.transformedTree));
+    return ('global', eval)(codeUnit.transcoded);
   }
 
   addExternalModule(codeUnit) {
@@ -110,24 +115,31 @@ export class LoaderHooks {
     this.checkForErrors(dependencies, 'analyze');
   }
 
+  // TODO(jjb): this function belongs in module-loader
   transformDependencies(dependencies) {
     for (var i = 0; i < dependencies.length; i++) {
       var codeUnit = dependencies[i];
       if (codeUnit.state >= TRANSFORMED) {
         continue;
       }
-
-      codeUnit.transformedTree = this.transformCodeUnit(codeUnit);
-      codeUnit.state = TRANSFORMED;
+      this.transformCodeUnit(codeUnit);
+      this.instantiate(codeUnit);
     }
     this.checkForErrors(dependencies, 'transform');
   }
 
   transformCodeUnit(codeUnit) {
     this.transformDependencies(codeUnit.dependencies); // depth first
-
-    return codeUnit.transform();
+    codeUnit.transformedTree = codeUnit.transform();
+    codeUnit.state = TRANSFORMED;
+    codeUnit.transcoded =  TreeWriter.write(codeUnit.transformedTree,
+        this.outputOptions_);
+    if (codeUnit.url)
+      codeUnit.transcoded += '//# sourceURL=' + codeUnit.url;
+    // TODO(jjb): return sourcemaps not sideeffect
+    codeUnit.sourceMap = this.outputOptions_ && this.outputOptions_.sourceMap;
   }
+
 
   checkForErrors(dependencies, phase) {
     if (this.reporter.hadError()) {

@@ -18576,10 +18576,11 @@ $traceurRuntime.registerModule("../src/runtime/System.js", function() {
   var COMPLETE = 5;
   var ERROR = 6;
   var identifierGenerator = new UniqueIdentifierGenerator();
-  var LoaderHooks = function(reporter, rootUrl) {
+  var LoaderHooks = function(reporter, rootUrl, outputOptions) {
     this.reporter = reporter;
     this.project_ = new Project(rootUrl, identifierGenerator);
     this.analyzer_ = new ModuleAnalyzer(reporter, this.project_, this);
+    this.outputOptions_ = outputOptions;
   };
   LoaderHooks = ($traceurRuntime.createClass)(LoaderHooks, {
     rootUrl: function() {
@@ -18604,8 +18605,16 @@ $traceurRuntime.registerModule("../src/runtime/System.js", function() {
     transform: function(codeUnit) {
       return ProgramTransformer.transformFile(this.reporter, this.project_, codeUnit.file);
     },
+    instantiate: function($__283) {
+      var name = $__283.name,
+          metadata = $__283.metadata,
+          address = $__283.address,
+          source = $__283.source,
+          sourceMap = $__283.sourceMap;
+      return undefined;
+    },
     evaluate: function(codeUnit) {
-      return ('global', eval)(TreeWriter.write(codeUnit.transformedTree));
+      return ('global', eval)(codeUnit.transcoded);
     },
     addExternalModule: function(codeUnit) {
       var project = this.project_;
@@ -18634,14 +18643,18 @@ $traceurRuntime.registerModule("../src/runtime/System.js", function() {
         if (codeUnit.state >= TRANSFORMED) {
           continue;
         }
-        codeUnit.transformedTree = this.transformCodeUnit(codeUnit);
-        codeUnit.state = TRANSFORMED;
+        this.transformCodeUnit(codeUnit);
+        this.instantiate(codeUnit);
       }
       this.checkForErrors(dependencies, 'transform');
     },
     transformCodeUnit: function(codeUnit) {
       this.transformDependencies(codeUnit.dependencies);
-      return codeUnit.transform();
+      codeUnit.transformedTree = codeUnit.transform();
+      codeUnit.state = TRANSFORMED;
+      codeUnit.transcoded = TreeWriter.write(codeUnit.transformedTree, this.outputOptions_);
+      if (codeUnit.url) codeUnit.transcoded += '//# sourceURL=' + codeUnit.url;
+      codeUnit.sourceMap = this.outputOptions_ && this.outputOptions_.sourceMap;
     },
     checkForErrors: function(dependencies, phase) {
       if (this.reporter.hadError()) {
@@ -18797,6 +18810,9 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
     },
     transform: function() {
       return this.loaderHooks.transform(this);
+    },
+    instantiate: function() {
+      if (this.loaderHooks.instantiate(this)) throw new Error('instantiate() with factory return not implemented.');
     }
   }, {});
   var LoadCodeUnit = function(loaderHooks, url) {
@@ -18810,7 +18826,8 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
       return true;
     }}, {}, CodeUnit);
   var EvalCodeUnit = function(loaderHooks, code) {
-    $traceurRuntime.superCall(this, $EvalCodeUnit.prototype, "constructor", [loaderHooks, loaderHooks.rootUrl(), 'script', LOADED]);
+    var name = arguments[2] !== (void 0) ? arguments[2]: loaderHooks.rootUrl();
+    $traceurRuntime.superCall(this, $EvalCodeUnit.prototype, "constructor", [loaderHooks, name, LOADED]);
     this.text = code;
   };
   var $EvalCodeUnit = ($traceurRuntime.createClass)(EvalCodeUnit, {parse: function() {
@@ -18874,13 +18891,13 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
       this.sync_ = false;
       return loaded;
     },
-    evalAsync: function(code) {
-      var codeUnit = new EvalCodeUnit(this.loaderHooks, code);
+    module: function(code, options) {
+      var codeUnit = new EvalCodeUnit(this.loaderHooks, code, options.address);
       this.cache.set({}, codeUnit);
       return codeUnit;
     },
-    eval: function(code) {
-      var codeUnit = new EvalCodeUnit(this.loaderHooks, code);
+    eval: function(code, name) {
+      var codeUnit = new EvalCodeUnit(this.loaderHooks, code, name);
       this.cache.set({}, codeUnit);
       this.handleCodeUnitLoaded(codeUnit);
       return codeUnit;
@@ -19028,13 +19045,13 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
         callback(result);
       }, errback);
     },
-    eval: function(program) {
-      var codeUnit = this.internalLoader_.eval(program);
+    eval: function(source, name) {
+      var codeUnit = this.internalLoader_.eval(source, name);
       return codeUnit.result;
     },
-    evalAsync: function(program, callback) {
-      var errback = arguments[2];
-      var codeUnit = this.internalLoader_.evalAsync(program);
+    module: function(source, options, callback) {
+      var errback = arguments[3];
+      var codeUnit = this.internalLoader_.module (source, options);
       codeUnit.addListener(callback, errback);
       this.internalLoader_.handleCodeUnitLoaded(codeUnit);
     },
