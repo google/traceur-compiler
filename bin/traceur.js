@@ -905,6 +905,9 @@ $traceurRuntime.registerModule("../src/runtime/polyfills/String.js", function() 
     return $indexOf.call(string, searchString, pos) != - 1;
   }
   function codePointAt(position) {
+    if (this == null) {
+      throw TypeError();
+    }
     var string = String(this);
     var size = string.length;
     var index = position ? Number(position): 0;

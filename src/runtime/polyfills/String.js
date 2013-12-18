@@ -87,6 +87,9 @@ export function contains(search) {
 
 export function codePointAt(position) {
   /*! http://mths.be/codepointat v0.1.0 by @mathias */
+  if (this == null) {
+    throw TypeError();
+  }
   var string = String(this);
   var size = string.length;
   // `ToInteger`
