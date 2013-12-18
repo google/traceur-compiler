@@ -869,6 +869,10 @@ export class Parser {
                                   functionBody);
   }
 
+  peekRest_(type) {
+    return type === DOT_DOT_DOT && parseOptions.restParameters;
+  }
+
   /**
    * @return {FormalParameterList}
    * @private
@@ -2907,26 +2911,23 @@ export class Parser {
     var args = [];
 
     this.eat_(OPEN_PAREN);
-    while (true) {
-      var type = this.peekType_();
-      if (this.peekRest_(type)) {
-        args.push(this.parseSpreadExpression_());
-      } else if (this.peekAssignmentExpression_(type)) {
-        args.push(this.parseAssignmentExpression());
-      } else {
-        break;
-      }
 
-      if (!this.peek_(CLOSE_PAREN)) {
-        this.eat_(COMMA);
+    if (!this.peek_(CLOSE_PAREN)) {
+      args.push(this.parseArgument_());
+
+      while (this.eatIf_(COMMA)) {
+        args.push(this.parseArgument_());
       }
     }
+
     this.eat_(CLOSE_PAREN);
     return new ArgumentList(this.getTreeLocation_(start), args);
   }
 
-  peekRest_(type) {
-    return type === DOT_DOT_DOT && parseOptions.restParameters;
+  parseArgument_() {
+    if (this.peekSpread_(this.peekType_()))
+      return this.parseSpreadExpression_();
+    return this.parseAssignmentExpression();
   }
 
   /**

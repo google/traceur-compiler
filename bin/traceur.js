@@ -8018,6 +8018,9 @@ $traceurRuntime.registerModule("../src/syntax/Parser.js", function() {
       var functionBody = this.parseFunctionBody_(isGenerator, formalParameterList);
       return new FunctionExpression(this.getTreeLocation_(start), name, isGenerator, formalParameterList, typeAnnotation, functionBody);
     },
+    peekRest_: function(type) {
+      return type === DOT_DOT_DOT && parseOptions.restParameters;
+    },
     parseFormalParameterList_: function() {
       var start = this.getTreeStartLocation_();
       var formals = [];
@@ -9222,24 +9225,18 @@ $traceurRuntime.registerModule("../src/syntax/Parser.js", function() {
       var start = this.getTreeStartLocation_();
       var args = [];
       this.eat_(OPEN_PAREN);
-      while (true) {
-        var type = this.peekType_();
-        if (this.peekRest_(type)) {
-          args.push(this.parseSpreadExpression_());
-        } else if (this.peekAssignmentExpression_(type)) {
-          args.push(this.parseAssignmentExpression());
-        } else {
-          break;
-        }
-        if (!this.peek_(CLOSE_PAREN)) {
-          this.eat_(COMMA);
+      if (!this.peek_(CLOSE_PAREN)) {
+        args.push(this.parseArgument_());
+        while (this.eatIf_(COMMA)) {
+          args.push(this.parseArgument_());
         }
       }
       this.eat_(CLOSE_PAREN);
       return new ArgumentList(this.getTreeLocation_(start), args);
     },
-    peekRest_: function(type) {
-      return type === DOT_DOT_DOT && parseOptions.restParameters;
+    parseArgument_: function() {
+      if (this.peekSpread_(this.peekType_())) return this.parseSpreadExpression_();
+      return this.parseAssignmentExpression();
     },
     parseArrowFunction_: function(start, tree) {
       var formals;
