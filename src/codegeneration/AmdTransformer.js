@@ -17,8 +17,7 @@ import {VAR} from '../syntax/TokenType';
 import {parseStatements} from './PlaceholderParser';
 import {createBindingIdentifier} from './ParseTreeFactory';
 
-
-export class RequireJsTransformer extends ModuleTransformer {
+export class AmdTransformer extends ModuleTransformer {
 
   constructor(identifierGenerator) {
     super(identifierGenerator);

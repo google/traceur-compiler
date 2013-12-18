@@ -74,25 +74,27 @@ export var outputgeneration = {
   TreeWriter
 };
 
+import {AmdTransformer} from './codegeneration/AmdTransformer';
 import {CloneTreeTransformer} from './codegeneration/CloneTreeTransformer';
+import {CommonJsModuleTransformer} from './codegeneration/CommonJsModuleTransformer';
 import {Compiler} from './codegeneration/Compiler';
 import {FromOptionsTransformer} from './codegeneration/FromOptionsTransformer';
 import {ModuleSpecifierVisitor} from './codegeneration/module/ModuleSpecifierVisitor';
 import {ModuleTransformer} from './codegeneration/ModuleTransformer';
-import {RequireJsTransformer} from './codegeneration/RequireJsTransformer';
 import {ParseTreeTransformer} from './codegeneration/ParseTreeTransformer';
 import {ProgramTransformer} from './codegeneration/ProgramTransformer';
 module ParseTreeFactory from './codegeneration/ParseTreeFactory';
 
 export var codegeneration = {
+  AmdTransformer,
   CloneTreeTransformer,
+  CommonJsModuleTransformer,
   Compiler,
   FromOptionsTransformer,
   ModuleTransformer,
   ParseTreeFactory,
   ParseTreeTransformer,
   ProgramTransformer,
-  RequireJsTransformer,
   module: {
     ModuleSpecifierVisitor
   }

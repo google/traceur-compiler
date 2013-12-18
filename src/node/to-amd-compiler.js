@@ -20,12 +20,12 @@ var compileAllJsFilesInDir =
 
 if (process.argv.length < 4) {
   console.log('Not enough arguments!\n' +
-              '  Usage node src/node/to-nodejs-compiler.js <inputDirectory> <outputDirectory>');
+              '  Usage node src/node/to-amd-compiler.js <inputDirectory> <outputDirectory>');
   process.exit(1);
 }
 
 // Nasty, we should rather pass the options to FromOptionsTransformer
-traceur.options.modules = 'nodejs';
+traceur.options.modules = 'amd';
 
 var inputDir = process.argv[2];
 var outputDir = process.argv[3];

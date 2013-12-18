@@ -1,9 +1,9 @@
-suite('RequireJsTransformer.js', function() {
+suite('AmdTransformer.js', function() {
   var write = traceur.outputgeneration.TreeWriter.write;
   var transformer = null
 
   setup(function() {
-    transformer = new traceur.codegeneration.RequireJsTransformer();
+    transformer = new traceur.codegeneration.AmdTransformer();
   });
 
   suite('wrapModule', function() {
