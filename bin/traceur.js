@@ -18577,14 +18577,16 @@ $traceurRuntime.registerModule("../src/runtime/System.js", function() {
     transform: function(codeUnit) {
       return ProgramTransformer.transformFile(this.reporter, this.project_, codeUnit.file);
     },
-    translated: function(source, sourceMap) {
-      return source;
+    instantiate: function($__283) {
+      var name = $__283.name,
+          metadata = $__283.metadata,
+          address = $__283.address,
+          source = $__283.source,
+          sourceMap = $__283.sourceMap;
+      return undefined;
     },
     evaluate: function(codeUnit) {
-      var output = TreeWriter.write(codeUnit.transformedTree, this.outputOptions_);
-      output += '//# sourceURL=' + codeUnit.url;
-      var sourceMap = this.outputOptions_ && this.outputOptions_.sourceMap;
-      return ('global', eval)(this.translated(output, sourceMap));
+      return ('global', eval)(codeUnit.transcoded);
     },
     addExternalModule: function(codeUnit) {
       var project = this.project_;
@@ -18613,14 +18615,18 @@ $traceurRuntime.registerModule("../src/runtime/System.js", function() {
         if (codeUnit.state >= TRANSFORMED) {
           continue;
         }
-        codeUnit.transformedTree = this.transformCodeUnit(codeUnit);
-        codeUnit.state = TRANSFORMED;
+        this.transformCodeUnit(codeUnit);
+        this.instantiate(codeUnit);
       }
       this.checkForErrors(dependencies, 'transform');
     },
     transformCodeUnit: function(codeUnit) {
       this.transformDependencies(codeUnit.dependencies);
-      return codeUnit.transform();
+      codeUnit.transformedTree = codeUnit.transform();
+      codeUnit.state = TRANSFORMED;
+      codeUnit.transcoded = TreeWriter.write(codeUnit.transformedTree, this.outputOptions_);
+      if (codeUnit.url) codeUnit.transcoded += '//# sourceURL=' + codeUnit.url;
+      codeUnit.sourceMap = this.outputOptions_ && this.outputOptions_.sourceMap;
     },
     checkForErrors: function(dependencies, phase) {
       if (this.reporter.hadError()) {
@@ -18776,6 +18782,9 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
     },
     transform: function() {
       return this.loaderHooks.transform(this);
+    },
+    instantiate: function() {
+      if (this.loaderHooks.instantiate(this)) throw new Error('instantiate() with factory return not implemented.');
     }
   }, {});
   var LoadCodeUnit = function(loaderHooks, url) {
@@ -18788,8 +18797,9 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
       this.loaderHooks.addExternalModule(this);
       return true;
     }}, {}, CodeUnit);
-  var EvalCodeUnit = function(loaderHooks, code, name) {
-    $traceurRuntime.superCall(this, $EvalCodeUnit.prototype, "constructor", [loaderHooks, name || loaderHooks.rootUrl(), 'script', LOADED]);
+  var EvalCodeUnit = function(loaderHooks, code) {
+    var name = arguments[2] !== (void 0) ? arguments[2]: loaderHooks.rootUrl();
+    $traceurRuntime.superCall(this, $EvalCodeUnit.prototype, "constructor", [loaderHooks, name, LOADED]);
     this.text = code;
   };
   var $EvalCodeUnit = ($traceurRuntime.createClass)(EvalCodeUnit, {parse: function() {
@@ -18853,8 +18863,8 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
       this.sync_ = false;
       return loaded;
     },
-    evalAsync: function(code, name) {
-      var codeUnit = new EvalCodeUnit(this.loaderHooks, code, name);
+    module: function(code, options) {
+      var codeUnit = new EvalCodeUnit(this.loaderHooks, code, options.address);
       this.cache.set({}, codeUnit);
       return codeUnit;
     },
@@ -19011,10 +19021,9 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
       var codeUnit = this.internalLoader_.eval(source, name);
       return codeUnit.result;
     },
-    evalAsync: function(source, callback) {
-      var errback = arguments[2];
-      var name = arguments[3];
-      var codeUnit = this.internalLoader_.evalAsync(source, name);
+    module: function(source, options, callback) {
+      var errback = arguments[3];
+      var codeUnit = this.internalLoader_.module (source, options);
       codeUnit.addListener(callback, errback);
       this.internalLoader_.handleCodeUnitLoaded(codeUnit);
     },

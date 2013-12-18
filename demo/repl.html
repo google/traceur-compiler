@@ -149,6 +149,8 @@ pre,
 
   // Do not show source maps by default.
   traceur.options.sourceMaps = false;
+  var transcode;
+  var renderSourceMap;
 
   function getLoader() {
     var LoaderHooks = traceur.modules.LoaderHooks;
@@ -156,10 +158,11 @@ pre,
     var loaderHooks = new LoaderHooks(new traceur.util.ErrorReporter(), url);
     return new traceur.modules.CodeLoader(loaderHooks);
   }
+  // TODO(arv): Use Promise then/catch?
   getLoader().import('./transcode.js',
       function(mod) {
-        window.transcode = mod.transcode;
-        window.renderSourceMap = mod.renderSourceMap;
+        transcode = mod.transcode;
+        renderSourceMap = mod.renderSourceMap;
         compile();
       },
       function(error) {
@@ -280,8 +283,8 @@ pre,
        errorElement.hidden = false;
        errorElement.textContent = errors.join('\n');
     }
-    if (window.transcode)
-      window.transcode(contents, name, onSuccess, onFailure);
+    if (transcode)
+      transcode(contents, name, onSuccess, onFailure);
   }
 
   function createOptionRow(name) {

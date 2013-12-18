@@ -50,7 +50,7 @@ suite('modules.js', function() {
     assert.equal(42, result);
   });
 
-  test('LoaderEvalAsync', function(done) {
+  test('LoaderModule', function(done) {
     var code =
         'module a from "./test_a.js";\n' +
         'module b from "./test_b.js";\n' +
@@ -58,7 +58,7 @@ suite('modules.js', function() {
         '\n' +
         '[\'test\', a.name, b.name, c.name];\n';
 
-    var result = getLoader().evalAsync(code, function(value) {
+    var result = getLoader().module(code, {}, function(value) {
       assert.equal('test', value[0]);
       assert.equal('A', value[1]);
       assert.equal('B', value[2]);
@@ -70,13 +70,13 @@ suite('modules.js', function() {
     });
   });
 
-  test('LoaderEvalLoadWithSubdir', function(done) {
+  test('LoaderModuleWithSubdir', function(done) {
     var code =
         'module d from "./subdir/test_d.js";\n' +
         '\n' +
         '[d.name, d.e.name];\n';
 
-    var result = getLoader().evalAsync(code, function(value) {
+    var result = getLoader().module(code, {}, function(value) {
       assert.equal('D', value[0]);
       assert.equal('E', value[1]);
       done();
@@ -86,7 +86,7 @@ suite('modules.js', function() {
     });
   });
 
-  test('LoaderEvalLoadFail', function(done) {
+  test('LoaderModuleFail', function(done) {
     var code =
         'module a from "./test_a.js";\n' +
         'module b from "./test_b.js";\n' +
@@ -96,7 +96,7 @@ suite('modules.js', function() {
 
     var reporter = new MutedErrorReporter();
 
-    var result = getLoader(reporter).evalAsync(code, function(value) {
+    var result = getLoader(reporter).module(code, {}, function(value) {
       fail('Should not have succeeded');
       done();
     }, function(error) {

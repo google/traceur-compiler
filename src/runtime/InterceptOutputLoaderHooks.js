@@ -15,8 +15,14 @@
 import {LoaderHooks} from './System';
 
 export class InterceptOutputLoaderHooks extends LoaderHooks {
-  translated(source, sourceMap) {
+  constructor(...args) {
+    super(...args);
+    this.sourceMap = null;
+    this.transcoded = null;
+  }
+  instantiate({sourceMap, transcoded}) {
     this.sourceMap = sourceMap;
-    return this.transcoded = source;
+    this.transcoded = transcoded;
+    return undefined;
   }
 }

@@ -50,7 +50,7 @@ export function transcode(contents, name, onSuccess, onFailure) {
     onSuccess(loaderHooks.transcoded, loaderHooks.sourceMap);
   }
   var loader = new Loader(loaderHooks);
-  loader.evalAsync(contents, reportTranscoding, reportErrors, name);
+  loader.module(contents, {address: name}, reportTranscoding, reportErrors);
 }
 
 export function renderSourceMap(source, sourceMap) {

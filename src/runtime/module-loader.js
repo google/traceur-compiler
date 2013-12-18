@@ -141,6 +141,11 @@ class CodeUnit {
   transform() {
     return this.loaderHooks.transform(this);
   }
+
+  instantiate() {
+    if (this.loaderHooks.instantiate(this))
+      throw new Error('instantiate() with factory return not implemented.');
+  }
 }
 
 /**
@@ -170,7 +175,7 @@ class LoadCodeUnit extends CodeUnit {
 }
 
 /**
- * CodeUnit used for {@code Loader.eval} and {@code Loader.evalAsync}.
+ * CodeUnit used for {@code Loader.eval} and {@code Loader.module}.
  */
 class EvalCodeUnit extends CodeUnit {
   /**
@@ -178,8 +183,8 @@ class EvalCodeUnit extends CodeUnit {
    * @param {string} code
    * @param {string} root script name
    */
-  constructor(loaderHooks, code, name) {
-    super(loaderHooks, name || loaderHooks.rootUrl(), 'script', LOADED);
+  constructor(loaderHooks, code, name = loaderHooks.rootUrl()) {
+    super(loaderHooks, name, LOADED);
     this.text = code;
   }
 
@@ -262,8 +267,8 @@ class InternalLoader {
     return loaded;
   }
 
-  evalAsync(code, name) {
-    var codeUnit = new EvalCodeUnit(this.loaderHooks, code, name);
+  module(code, options) {
+    var codeUnit = new EvalCodeUnit(this.loaderHooks, code, options.address);
     this.cache.set({}, codeUnit);
     return codeUnit;
   }
@@ -489,14 +494,14 @@ export class CodeLoader {
   }
 
   /**
-   * evalAsync - Asynchronously run the script src, first loading any imported
+   * module - Asynchronously run the script src, first loading any imported
    * modules that aren't already loaded.
    *
    * This is the same as load but without fetching the initial script. On
    * success, the result of evaluating the source is passed to callback.
    */
-  evalAsync(source, callback, errback = undefined, name) {
-    var codeUnit = this.internalLoader_.evalAsync(source, name);
+  module(source, options, callback, errback = undefined) {
+    var codeUnit = this.internalLoader_.module(source, options);
     codeUnit.addListener(callback, errback);
     this.internalLoader_.handleCodeUnitLoaded(codeUnit);
   }
