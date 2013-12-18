@@ -114,6 +114,9 @@ export function repeat(count) {
 // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-string.prototype.codepointat
 export function codePointAt(position) {
   /*! http://mths.be/codepointat v0.1.0 by @mathias */
+  if (this == null) {
+    throw TypeError();
+  }
   var string = String(this);
   var size = string.length;
   // `ToInteger`

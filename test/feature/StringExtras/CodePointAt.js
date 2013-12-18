@@ -1,5 +1,6 @@
 assert.equal(String.prototype.codePointAt.length, 1);
 
+// String that starts with a BMP symbol
 assert.equal('abc\uD834\uDF06def'.codePointAt(''), 0x61);
 assert.equal('abc\uD834\uDF06def'.codePointAt('_'), 0x61);
 assert.equal('abc\uD834\uDF06def'.codePointAt(), 0x61);
@@ -55,3 +56,19 @@ assert.equal('\uDF06abc'.codePointAt(false), 0xDF06);
 assert.equal('\uDF06abc'.codePointAt(NaN), 0xDF06);
 assert.equal('\uDF06abc'.codePointAt(null), 0xDF06);
 assert.equal('\uDF06abc'.codePointAt(undefined), 0xDF06);
+
+assertThrows(function() { String.prototype.codePointAt.call(undefined); }, TypeError);
+assertThrows(function() { String.prototype.codePointAt.call(undefined, 4); }, TypeError);
+assertThrows(function() { String.prototype.codePointAt.call(null); }, TypeError);
+assertThrows(function() { String.prototype.codePointAt.call(null, 4); }, TypeError);
+assert.equal(String.prototype.codePointAt.call(42, 0), 0x34);
+assert.equal(String.prototype.codePointAt.call(42, 1), 0x32);
+assert.equal(String.prototype.codePointAt.call({ 'toString': function() { return 'abc'; } }, 2), 0x63);
+
+assertThrows(function() { String.prototype.codePointAt.apply(undefined); }, TypeError);
+assertThrows(function() { String.prototype.codePointAt.apply(undefined, [4]); }, TypeError);
+assertThrows(function() { String.prototype.codePointAt.apply(null); }, TypeError);
+assertThrows(function() { String.prototype.codePointAt.apply(null, [4]); }, TypeError);
+assert.equal(String.prototype.codePointAt.apply(42, [0]), 0x34);
+assert.equal(String.prototype.codePointAt.apply(42, [1]), 0x32);
+assert.equal(String.prototype.codePointAt.apply({ 'toString': function() { return 'abc'; } }, [2]), 0x63);
