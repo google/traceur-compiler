@@ -848,14 +848,14 @@ $traceurRuntime.registerModule("../src/runtime/polyfills/String.js", function() 
   var $indexOf = String.prototype.indexOf;
   var $lastIndexOf = String.prototype.lastIndexOf;
   function startsWith(search) {
+    var string = String(this);
     if (this == null || $toString.call(search) == '[object RegExp]') {
       throw TypeError();
     }
-    var string = String(this);
     var stringLength = string.length;
     var searchString = String(search);
     var searchLength = searchString.length;
-    var position = arguments[1];
+    var position = arguments.length > 1 ? arguments[1]: undefined;
     var pos = position ? Number(position): 0;
     if (isNaN(pos)) {
       pos = 0;
@@ -864,10 +864,10 @@ $traceurRuntime.registerModule("../src/runtime/polyfills/String.js", function() 
     return $indexOf.call(string, searchString, pos) == start;
   }
   function endsWith(search) {
+    var string = String(this);
     if (this == null || $toString.call(search) == '[object RegExp]') {
       throw TypeError();
     }
-    var string = String(this);
     var stringLength = string.length;
     var searchString = String(search);
     var searchLength = searchString.length;
@@ -896,7 +896,7 @@ $traceurRuntime.registerModule("../src/runtime/polyfills/String.js", function() 
     var stringLength = string.length;
     var searchString = String(search);
     var searchLength = searchString.length;
-    var position = arguments[1];
+    var position = arguments.length > 1 ? arguments[1]: undefined;
     var pos = position ? Number(position): 0;
     if (isNaN(pos)) {
       pos = 0;

@@ -1,3 +1,7 @@
+// Tests taken from http://mths.be/contains
+
+Object.prototype[1] = 2; // try to break `arguments[1]`
+
 assert.equal(String.prototype.contains.length, 1);
 
 assert.equal('abc'.contains(), false);
@@ -80,12 +84,12 @@ assert.equal(string.contains('\xF8n\u2603\uD83D\uDCA9'), true);
 assert.equal(string.contains('\u2603'), true);
 assert.equal(string.contains('\uD83D\uDCA9'), true);
 
-assertThrows(function() { String.prototype.contains.call(undefined); }, TypeError);
-assertThrows(function() { String.prototype.contains.call(undefined, 'b'); }, TypeError);
-assertThrows(function() { String.prototype.contains.call(undefined, 'b', 4); }, TypeError);
-assertThrows(function() { String.prototype.contains.call(null); }, TypeError);
-assertThrows(function() { String.prototype.contains.call(null, 'b'); }, TypeError);
-assertThrows(function() { String.prototype.contains.call(null, 'b', 4); }, TypeError);
+assert.throw(function() { String.prototype.contains.call(undefined); }, TypeError);
+assert.throw(function() { String.prototype.contains.call(undefined, 'b'); }, TypeError);
+assert.throw(function() { String.prototype.contains.call(undefined, 'b', 4); }, TypeError);
+assert.throw(function() { String.prototype.contains.call(null); }, TypeError);
+assert.throw(function() { String.prototype.contains.call(null, 'b'); }, TypeError);
+assert.throw(function() { String.prototype.contains.call(null, 'b', 4); }, TypeError);
 assert.equal(String.prototype.contains.call(42, '2'), true);
 assert.equal(String.prototype.contains.call(42, 'b', 4), false);
 assert.equal(String.prototype.contains.call(42, '2', 4), false);
@@ -93,15 +97,17 @@ assert.equal(String.prototype.contains.call({ 'toString': function() { return 'a
 assert.equal(String.prototype.contains.call({ 'toString': function() { return 'abc'; } }, 'b', 1), true);
 assert.equal(String.prototype.contains.call({ 'toString': function() { return 'abc'; } }, 'b', 2), false);
 
-assertThrows(function() { String.prototype.contains.apply(undefined); }, TypeError);
-assertThrows(function() { String.prototype.contains.apply(undefined, ['b']); }, TypeError);
-assertThrows(function() { String.prototype.contains.apply(undefined, ['b', 4]); }, TypeError);
-assertThrows(function() { String.prototype.contains.apply(null); }, TypeError);
-assertThrows(function() { String.prototype.contains.apply(null, ['b']); }, TypeError);
-assertThrows(function() { String.prototype.contains.apply(null, ['b', 4]); }, TypeError);
+assert.throw(function() { String.prototype.contains.apply(undefined); }, TypeError);
+assert.throw(function() { String.prototype.contains.apply(undefined, ['b']); }, TypeError);
+assert.throw(function() { String.prototype.contains.apply(undefined, ['b', 4]); }, TypeError);
+assert.throw(function() { String.prototype.contains.apply(null); }, TypeError);
+assert.throw(function() { String.prototype.contains.apply(null, ['b']); }, TypeError);
+assert.throw(function() { String.prototype.contains.apply(null, ['b', 4]); }, TypeError);
 assert.equal(String.prototype.contains.apply(42, ['2']), true);
 assert.equal(String.prototype.contains.apply(42, ['b', 4]), false);
 assert.equal(String.prototype.contains.apply(42, ['2', 4]), false);
 assert.equal(String.prototype.contains.apply({ 'toString': function() { return 'abc'; } }, ['b', 0]), true);
 assert.equal(String.prototype.contains.apply({ 'toString': function() { return 'abc'; } }, ['b', 1]), true);
 assert.equal(String.prototype.contains.apply({ 'toString': function() { return 'abc'; } }, ['b', 2]), false);
+
+delete Object.prototype[1];
