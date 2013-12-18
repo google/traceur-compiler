@@ -19,14 +19,14 @@ var $lastIndexOf = String.prototype.lastIndexOf;
 // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-string.prototype.startswith
 export function startsWith(search) {
   /*! http://mths.be/startswith v0.1.0 by @mathias */
+  var string = String(this);
   if (this == null || $toString.call(search) == '[object RegExp]') {
     throw TypeError();
   }
-  var string = String(this);
   var stringLength = string.length;
   var searchString = String(search);
   var searchLength = searchString.length;
-  var position = arguments[1];
+  var position = arguments.length > 1 ? arguments[1] : undefined;
   // `ToInteger`
   var pos = position ? Number(position) : 0;
   if (isNaN(pos)) {
@@ -39,10 +39,10 @@ export function startsWith(search) {
 // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-string.prototype.endswith
 export function endsWith(search) {
   /*! http://mths.be/endswith v0.1.0 by @mathias */
+  var string = String(this);
   if (this == null || $toString.call(search) == '[object RegExp]') {
     throw TypeError();
   }
-  var string = String(this);
   var stringLength = string.length;
   var searchString = String(search);
   var searchLength = searchString.length;
@@ -75,7 +75,7 @@ export function contains(search) {
   var stringLength = string.length;
   var searchString = String(search);
   var searchLength = searchString.length;
-  var position = arguments[1];
+  var position = arguments.length > 1 ? arguments[1] : undefined;
   // `ToInteger`
   var pos = position ? Number(position) : 0;
   if (isNaN(pos)) {

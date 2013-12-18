@@ -1,3 +1,5 @@
+// Tests taken from http://mths.be/repeat
+
 assert.equal(String.prototype.repeat.length, 1);
 
 assert.equal('abc'.repeat(), '');
