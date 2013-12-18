@@ -14,7 +14,7 @@
 
 import {ModuleTransformer} from './ModuleTransformer';
 import {VAR} from '../syntax/TokenType';
-import {parseExpression} from './PlaceholderParser';
+import {parseStatements} from './PlaceholderParser';
 import {createBindingIdentifier} from './ParseTreeFactory';
 
 
@@ -25,39 +25,19 @@ export class RequireJsTransformer extends ModuleTransformer {
     this.dependencies = [];
   }
 
-  wrapModule(tree) {
+  wrapModule(statements) {
     var depPaths = this.dependencies.map((dep) => dep.path);
     var depLocals = this.dependencies.map((dep) => dep.local);
 
-    return parseExpression
-      `define(${depPaths}, function(${depLocals}) {
-        ${tree}
-      });`;
+    return parseStatements
+        `define(${depPaths}, function(${depLocals}) {
+          ${statements}
+        });`;
   }
 
   transformModuleSpecifier(tree) {
-    var depPath = this.normalizeDependencyPath(tree.token.processedValue);
     var localName = this.getTempIdentifier();
-
-    this.dependencies.push({path: depPath, local: localName});
-
+    this.dependencies.push({path: tree.token, local: localName});
     return createBindingIdentifier(localName);
-  }
-
-  normalizeDependencyPath(path) {
-    // Ignore urls.
-    if (/^https?\:\/\//.test(path)) {
-      return path;
-    }
-
-    // "http.js" -> "./http.js"
-    if (path[0] !== '.') {
-      path = './' + path;
-    }
-
-    // Remove ".js" suffix, otherwise RequireJS will treat the dependency as a script.
-    path = path.replace(/\.js$/, '');
-
-    return path;
   }
 }

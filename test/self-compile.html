@@ -13,11 +13,9 @@
     var url = window.location.href;
 
     function getLoader() {
-      var loaderOptions = {
-        reporter: new traceur.util.ErrorReporter(),
-        rootURL: url
-      };
-      return new traceur.modules.CodeLoader(loaderOptions);
+      var LoaderHooks = traceur.modules.LoaderHooks;
+      var loaderHooks = new LoaderHooks(new traceur.util.ErrorReporter(), url);
+      return new traceur.modules.CodeLoader(loaderHooks);
     }
     getLoader().import('../src/traceur.js',
         function(mod) {

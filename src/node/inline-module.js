@@ -21,7 +21,7 @@ var normalizePath = require('./file-util.js').normalizePath;
 
 var ErrorReporter = traceur.util.ErrorReporter;
 var InternalLoader = traceur.modules.internals.InternalLoader;
-var InternalCompiler = traceur.modules.internals.InternalCompiler;
+var LoaderHooks = traceur.modules.internals.LoaderHooks;
 var Script = traceur.syntax.trees.Script;
 var SourceFile = traceur.syntax.SourceFile
 var SourceMapGenerator = traceur.outputgeneration.SourceMapGenerator;
@@ -34,8 +34,9 @@ var ModuleAnalyzer = traceur.semantics.ModuleAnalyzer;
  *     printing was requested.
  */
 function InlineCodeLoader(reporter, url, elements, depTarget) {
-  var compiler = new InternalCompiler(reporter, url);
-  InternalLoader.call(this, compiler, url, new NodeLoader);
+  var loaderHooks = new LoaderHooks(reporter, url);
+  loaderHooks.fileLoader = new NodeLoader;
+  InternalLoader.call(this, loaderHooks);
   this.elements = elements;
   this.dirname = url;
   this.depTarget = depTarget && normalizePath(path.relative('.', depTarget));
@@ -104,8 +105,8 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
         callback(tree);
       }
     }, function() {
-      console.error(codeUnit.loader.error);
-      errback(codeUnit.loader.error);
+      console.error(codeUnit.error);
+      errback(codeUnit.error);
     });
   }
 

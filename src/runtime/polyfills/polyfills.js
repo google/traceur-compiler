@@ -13,6 +13,63 @@
 // limitations under the License.
 
 import {Promise} from './Promise';
+import {
+  codePointAt,
+  contains,
+  endsWith,
+  fromCodePoint,
+  raw,
+  startsWith
+} from './String';
 
-if (!this.Promise)
-  this.Promise = Promise;
+function maybeDefineMethod(object, name, value) {
+  if (!(name in object)) {
+    Object.defineProperty(object, name, {
+      value: value,
+      configurable: true,
+      enumerable: false,
+      writable: true
+    });
+  }
+}
+
+function maybeAddFunctions(object, functions) {
+  for (var i = 0; i < functions.length; i += 2) {
+    var name = functions[i];
+    var value = functions[i + 1];
+    maybeDefineMethod(object, name, value);
+  }
+}
+
+function polyfillPromise(global) {
+  if (!global.Promise)
+    global.Promise = Promise;
+}
+
+function polyfillString($String) {
+  maybeAddFunctions($String.prototype, [
+    'codePointAt', codePointAt,
+    'contains', contains,
+    'endsWith', endsWith,
+    'startsWith', startsWith,
+  ]);
+
+  maybeAddFunctions($String, [
+    'fromCodePoint', fromCodePoint,
+    'raw', raw,
+  ]);
+}
+
+function polyfill(global) {
+  polyfillPromise(global);
+  polyfillString(global.String);
+}
+
+polyfill(this);
+
+// Override setupGlobals so that we can add our polyfills.
+var setupGlobals = $traceurRuntime.setupGlobals;
+$traceurRuntime.setupGlobals = function(global) {
+  setupGlobals(global);
+  polyfill(global);
+};

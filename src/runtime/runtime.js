@@ -33,6 +33,7 @@
   var $getOwnPropertyNames = $Object.getOwnPropertyNames;
   var $getPrototypeOf = $Object.getPrototypeOf;
   var $hasOwnProperty = $Object.prototype.hasOwnProperty;
+  var $toString = $Object.prototype.toString;
 
   function nonEnum(value) {
     return {
@@ -44,107 +45,6 @@
   }
 
   var method = nonEnum;
-
-  function polyfillString(String) {
-    // Harmony String Extras
-    // http://wiki.ecmascript.org/doku.php?id=harmony:string_extras
-    $defineProperties(String.prototype, {
-      startsWith: method(function(s) {
-       return this.lastIndexOf(s, 0) === 0;
-      }),
-      endsWith: method(function(s) {
-        var t = String(s);
-        var l = this.length - t.length;
-        return l >= 0 && this.indexOf(t, l) === l;
-      }),
-      contains: method(function(s) {
-        return this.indexOf(s) !== -1;
-      }),
-      toArray: method(function() {
-        return this.split('');
-      }),
-      codePointAt: method(function(position) {
-        /*! http://mths.be/codepointat v0.1.0 by @mathias */
-        var string = String(this);
-        var size = string.length;
-        // `ToInteger`
-        var index = position ? Number(position) : 0;
-        if (isNaN(index)) {
-          index = 0;
-        }
-        // Account for out-of-bounds indices:
-        if (index < 0 || index >= size) {
-          return undefined;
-        }
-        // Get the first code unit
-        var first = string.charCodeAt(index);
-        var second;
-        if ( // check if it’s the start of a surrogate pair
-          first >= 0xD800 && first <= 0xDBFF && // high surrogate
-          size > index + 1 // there is a next code unit
-        ) {
-          second = string.charCodeAt(index + 1);
-          if (second >= 0xDC00 && second <= 0xDFFF) { // low surrogate
-            // http://mathiasbynens.be/notes/javascript-encoding#surrogate-formulae
-            return (first - 0xD800) * 0x400 + second - 0xDC00 + 0x10000;
-          }
-        }
-        return first;
-      })
-    });
-
-    $defineProperties(String, {
-      // 21.1.2.4 String.raw(callSite, ...substitutions)
-      raw: method(function(callsite) {
-        var raw = callsite.raw;
-        var len = raw.length >>> 0;  // ToUint
-        if (len === 0)
-          return '';
-        var s = '';
-        var i = 0;
-        while (true) {
-          s += raw[i];
-          if (i + 1 === len)
-            return s;
-          s += arguments[++i];
-        }
-      }),
-      // 21.1.2.2 String.fromCodePoint(...codePoints)
-      fromCodePoint: method(function() {
-        // http://mths.be/fromcodepoint v0.1.0 by @mathias
-        var codeUnits = [];
-        var floor = Math.floor;
-        var highSurrogate;
-        var lowSurrogate;
-        var index = -1;
-        var length = arguments.length;
-        if (!length) {
-          return '';
-        }
-        while (++index < length) {
-          var codePoint = Number(arguments[index]);
-          if (
-            !isFinite(codePoint) ||  // `NaN`, `+Infinity`, or `-Infinity`
-            codePoint < 0 ||  // not a valid Unicode code point
-            codePoint > 0x10FFFF ||  // not a valid Unicode code point
-            floor(codePoint) != codePoint  // not an integer
-          ) {
-            throw RangeError('Invalid code point: ' + codePoint);
-          }
-          if (codePoint <= 0xFFFF) {  // BMP code point
-            codeUnits.push(codePoint);
-          } else {  // Astral code point; split in surrogate halves
-            // http://mathiasbynens.be/notes/javascript-encoding#surrogate-formulae
-            codePoint -= 0x10000;
-            highSurrogate = (codePoint >> 10) + 0xD800;
-            lowSurrogate = (codePoint % 0x400) + 0xDC00;
-            codeUnits.push(highSurrogate, lowSurrogate);
-          }
-        }
-        return String.fromCharCode.apply(null, codeUnits);
-      })
-    });
-  }
 
   // ### Symbols
   //
@@ -579,7 +479,6 @@
     global.Symbol = Symbol;
     global.Symbol.iterator = Symbol();
 
-    polyfillString(global.String);
     polyfillObject(global.Object);
     polyfillArray(global.Array);
   }

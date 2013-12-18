@@ -39,8 +39,8 @@ export class Project {
    * @param {string} url The base URL of the project. This is used for resolving
    *    URLs for external modules.
    */
-  constructor(url) {
-    this.identifierGenerator = new UniqueIdentifierGenerator();
+  constructor(url, identifierGenerator = new UniqueIdentifierGenerator()) {
+    this.identifierGenerator = identifierGenerator;
 
     this.sourceFiles_ = Object.create(null);
     this.parseTrees_ = new ObjectMap();
