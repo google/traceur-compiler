@@ -2,4 +2,5 @@
 !src/runtime/runtime.js
 !src/node/*.js
 !bin/traceur.js
+!bin/traceur-runtime.js
 !traceur
