@@ -13,7 +13,9 @@
 // limitations under the License.
 
 import {CodeLoader as Loader} from '../src/runtime/module-loader';
-import {LoaderHooks} from '../src/runtime/System';
+import {
+  InterceptOutputLoaderHooks
+} from '../src/runtime/InterceptOutputLoaderHooks';
 import {ErrorReporter} from '../src/util/ErrorReporter';
 import {
   SourceMapGenerator,
@@ -26,13 +28,6 @@ class BatchErrorReporter extends ErrorReporter {
   }
   reportMessageInternal(location, format, args) {
     this.errors.push(ErrorReporter.format(location, format, args));
-  }
-}
-
-class InterceptOutputLoaderHooks extends LoaderHooks {
-  translated(source, sourceMap) {
-    this.sourceMap = sourceMap;
-    return this.transcoded = source;
   }
 }
 
