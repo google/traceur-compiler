@@ -176,9 +176,10 @@ class EvalCodeUnit extends CodeUnit {
   /**
    * @param {LoaderHooks} loaderHooks
    * @param {string} code
+   * @param {string} root script name
    */
-  constructor(loaderHooks, code) {
-    super(loaderHooks, loaderHooks.rootUrl(), 'script', LOADED);
+  constructor(loaderHooks, code, name) {
+    super(loaderHooks, name || loaderHooks.rootUrl(), 'script', LOADED);
     this.text = code;
   }
 
@@ -261,14 +262,14 @@ class InternalLoader {
     return loaded;
   }
 
-  evalAsync(code) {
-    var codeUnit = new EvalCodeUnit(this.loaderHooks, code);
+  evalAsync(code, name) {
+    var codeUnit = new EvalCodeUnit(this.loaderHooks, code, name);
     this.cache.set({}, codeUnit);
     return codeUnit;
   }
 
-  eval(code) {
-    var codeUnit = new EvalCodeUnit(this.loaderHooks, code);
+  eval(code, name) {
+    var codeUnit = new EvalCodeUnit(this.loaderHooks, code, name);
     this.cache.set({}, codeUnit);
     // assert that there are no dependencies that are loading?
     this.handleCodeUnitLoaded(codeUnit);
@@ -478,11 +479,12 @@ export class CodeLoader {
    * src may import modules, but if it directly or indirectly imports a module
    * that is not already loaded, a SyntaxError is thrown.
    *
-   * @param {string} program The source code to eval.
+   * @param {string} source The source code to eval.
+   * @param {string} name  name for the script
    * @return {*} The completion value of evaluating the code.
    */
-  eval(program) {
-    var codeUnit = this.internalLoader_.eval(program);
+  eval(source, name) {
+    var codeUnit = this.internalLoader_.eval(source, name);
     return codeUnit.result;
   }
 
@@ -491,10 +493,10 @@ export class CodeLoader {
    * modules that aren't already loaded.
    *
    * This is the same as load but without fetching the initial script. On
-   * success, the result of evaluating the program is passed to callback.
+   * success, the result of evaluating the source is passed to callback.
    */
-  evalAsync(program, callback, errback = undefined) {
-    var codeUnit = this.internalLoader_.evalAsync(program);
+  evalAsync(source, callback, errback = undefined, name) {
+    var codeUnit = this.internalLoader_.evalAsync(source, name);
     codeUnit.addListener(callback, errback);
     this.internalLoader_.handleCodeUnitLoaded(codeUnit);
   }

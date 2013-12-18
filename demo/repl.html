@@ -150,10 +150,22 @@ pre,
   // Do not show source maps by default.
   traceur.options.sourceMaps = false;
 
-  var SourceMapConsumer = traceur.outputgeneration.SourceMapConsumer;
-  var SourceMapGenerator = traceur.outputgeneration.SourceMapGenerator;
-  var ProjectWriter = traceur.outputgeneration.ProjectWriter;
-  var ErrorReporter = traceur.util.ErrorReporter;
+  function getLoader() {
+    var LoaderHooks = traceur.modules.LoaderHooks;
+    var url = window.location.href;
+    var loaderHooks = new LoaderHooks(new traceur.util.ErrorReporter(), url);
+    return new traceur.modules.CodeLoader(loaderHooks);
+  }
+  getLoader().import('./transcode.js',
+      function(mod) {
+        window.transcode = mod.transcode;
+        window.renderSourceMap = mod.renderSourceMap;
+        compile();
+      },
+      function(error) {
+        console.error(error);
+      }
+  );
 
   var hasError = false;
   var debouncedCompile = debounced(compile, 200, 2000);
@@ -235,54 +247,39 @@ pre,
   function compile() {
     hasError = false;
     output.setValue('');
-    errorElement.textContent = sourceMapElement.textContent = '';
 
-    var reporter = new ErrorReporter();
-    reporter.reportMessageInternal = function(location, format, args) {
-      errorElement.textContent +=
-         ErrorReporter.format(location, format, args) + '\n';
-    };
-
-    var url = location.href;
-    var project = new traceur.semantics.symbols.Project(url);
     var name = 'repl';
     var contents = input.getValue();
     if (history.replaceState)
       history.replaceState(null, document.title,
                            '#' + encodeURIComponent(contents));
+
     setOptionsFromSource(contents);
-    var sourceFile = new traceur.syntax.SourceFile(name, contents);
-    project.addFile(sourceFile);
-    var res = traceur.codegeneration.Compiler.compile(reporter, project, false);
-    if (reporter.hadError()) {
-      hasError = true;
-    } else {
-      var options;
-      if (traceur.options.sourceMaps) {
-        var config = {file: 'traceured.js'};
-        var sourceMapGenerator = new SourceMapGenerator(config);
-        options = {sourceMapGenerator: sourceMapGenerator};
-      }
 
-      var source = ProjectWriter.write(res, options);
-      output.setValue(source);
-
+    errorElement.hidden = true;
+    function onSuccess(transcoded, sourceMap) {
       if (evalCheckbox.checked) {
         try {
-          evalElement.textContent = ('global', eval)(source);
+          evalElement.textContent = ('global', eval)(transcoded);
         } catch(ex) {
           hasError = true;
           errorElement.textContent = ex;
+          errorElement.hidden = false;
         }
       }
-
-      if (traceur.options.sourceMaps) {
-        var renderedMap = renderSourceMap(source, options.sourceMap);
+      output.setValue(transcoded);
+      if (sourceMap) {
+        var renderedMap = renderSourceMap(transcoded, sourceMap);
         sourceMapElement.textContent = renderedMap;
       }
     }
-
-    errorElement.hidden = !hasError;
+    function onFailure(errors) {
+       hasError = true;
+       errorElement.hidden = false;
+       errorElement.textContent = errors.join('\n');
+    }
+    if (window.transcode)
+      window.transcode(contents, name, onSuccess, onFailure);
   }
 
   function createOptionRow(name) {
@@ -362,21 +359,6 @@ pre,
         var optionsDiv = document.querySelector('.options');
         optionsDiv.hidden = !optionsDiv.hidden;
       });
-
-  function renderSourceMap(source, sourceMap) {
-    var consumer = new SourceMapConsumer(sourceMap);
-    var lines = source.split('\n');
-    var lineNumberTable = lines.map(function(line, lineNo) {
-      var generatedPosition = {
-        line: lineNo + 1,
-        column: 0
-      };
-      var position = consumer.originalPositionFor(generatedPosition);
-      var lineDotColumn = position.line + '.' + position.column;
-      return (lineNo + 1) + ': ' + line + ' -> ' + lineDotColumn;
-    });
-    return 'SourceMap:\n' + lineNumberTable.join('\n');
-  }
 
   var codeCur = 0;
   var code = 'UUDDLRLRBA'.split('').map(function(k) {

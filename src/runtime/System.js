@@ -38,10 +38,11 @@ var identifierGenerator = new UniqueIdentifierGenerator();
 
  // TODO Pick a better name, these are functions on System?
 export class LoaderHooks {
-  constructor(reporter, rootUrl) {
+  constructor(reporter, rootUrl, outputOptions) {
     this.reporter = reporter;
     this.project_ = new Project(rootUrl, identifierGenerator);
     this.analyzer_ = new ModuleAnalyzer(reporter, this.project_, this);
+    this.outputOptions_ = outputOptions;
   }
 
   // TODO Used for eval(): can we get the function call to supply callerURL?
@@ -77,9 +78,17 @@ export class LoaderHooks {
                                             codeUnit.file);
   }
 
+  translated(source, sourceMap) {
+    return source;
+  }
+
   evaluate(codeUnit) {
+    var output = TreeWriter.write(codeUnit.transformedTree,
+                                                        this.outputOptions_);
+    // TODO(jjb): return sourcemaps not sideeffect
+    var sourceMap = this.outputOptions_ && this.outputOptions_.sourceMap;
     // TODO(arv): Eval in the right context.
-    return ('global', eval)(TreeWriter.write(codeUnit.transformedTree));
+    return ('global', eval)(this.translated(output, sourceMap));
   }
 
   addExternalModule(codeUnit) {
