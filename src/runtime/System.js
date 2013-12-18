@@ -85,6 +85,7 @@ export class LoaderHooks {
   evaluate(codeUnit) {
     var output = TreeWriter.write(codeUnit.transformedTree,
                                                         this.outputOptions_);
+    output += '//# sourceURL=' + codeUnit.url;
     // TODO(jjb): return sourcemaps not sideeffect
     var sourceMap = this.outputOptions_ && this.outputOptions_.sourceMap;
     // TODO(arv): Eval in the right context.

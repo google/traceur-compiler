@@ -18582,6 +18582,7 @@ $traceurRuntime.registerModule("../src/runtime/System.js", function() {
     },
     evaluate: function(codeUnit) {
       var output = TreeWriter.write(codeUnit.transformedTree, this.outputOptions_);
+      output += '//# sourceURL=' + codeUnit.url;
       var sourceMap = this.outputOptions_ && this.outputOptions_.sourceMap;
       return ('global', eval)(this.translated(output, sourceMap));
     },
