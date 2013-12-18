@@ -904,6 +904,27 @@ $traceurRuntime.registerModule("../src/runtime/polyfills/String.js", function() 
     var start = Math.min(Math.max(pos, 0), stringLength);
     return $indexOf.call(string, searchString, pos) != - 1;
   }
+  function repeat(count) {
+    if (this == null) {
+      throw TypeError();
+    }
+    var string = String(this);
+    var n = count ? Number(count): 0;
+    if (isNaN(n)) {
+      n = 0;
+    }
+    if (n < 0 || n == Infinity) {
+      throw RangeError();
+    }
+    if (n == 0) {
+      return '';
+    }
+    var result = '';
+    while (n--) {
+      result += string;
+    }
+    return result;
+  }
   function codePointAt(position) {
     var string = String(this);
     var size = string.length;
@@ -972,6 +993,9 @@ $traceurRuntime.registerModule("../src/runtime/polyfills/String.js", function() 
     get contains() {
       return contains;
     },
+    get repeat() {
+      return repeat;
+    },
     get codePointAt() {
       return codePointAt;
     },
@@ -991,6 +1015,7 @@ $traceurRuntime.registerModule("../src/runtime/polyfills/polyfills.js", function
       contains = $__6.contains,
       endsWith = $__6.endsWith,
       fromCodePoint = $__6.fromCodePoint,
+      repeat = $__6.repeat,
       raw = $__6.raw,
       startsWith = $__6.startsWith;
   function maybeDefineMethod(object, name, value) {
@@ -1014,7 +1039,7 @@ $traceurRuntime.registerModule("../src/runtime/polyfills/polyfills.js", function
     if (!global.Promise) global.Promise = Promise;
   }
   function polyfillString($String) {
-    maybeAddFunctions($String.prototype, ['codePointAt', codePointAt, 'contains', contains, 'endsWith', endsWith, 'startsWith', startsWith]);
+    maybeAddFunctions($String.prototype, ['codePointAt', codePointAt, 'contains', contains, 'endsWith', endsWith, 'startsWith', startsWith, 'repeat', repeat]);
     maybeAddFunctions($String, ['fromCodePoint', fromCodePoint, 'raw', raw]);
   }
   function polyfill(global) {

@@ -18,6 +18,7 @@ import {
   contains,
   endsWith,
   fromCodePoint,
+  repeat,
   raw,
   startsWith
 } from './String';
@@ -52,6 +53,7 @@ function polyfillString($String) {
     'contains', contains,
     'endsWith', endsWith,
     'startsWith', startsWith,
+    'repeat', repeat,
   ]);
 
   maybeAddFunctions($String, [
