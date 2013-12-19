@@ -16,7 +16,7 @@
 
 var fs = require('fs');
 var path = require('path');
-var NodeLoader = require('./NodeLoader.js');
+var nodeLoader = require('./nodeLoader.js');
 var normalizePath = require('./file-util.js').normalizePath;
 
 var ErrorReporter = traceur.util.ErrorReporter;
@@ -35,7 +35,7 @@ var ModuleAnalyzer = traceur.semantics.ModuleAnalyzer;
  */
 function InlineCodeLoader(reporter, url, elements, depTarget) {
   var loaderHooks = new LoaderHooks(reporter, url);
-  loaderHooks.fileLoader = new NodeLoader;
+  loaderHooks.fileLoader = nodeLoader;
   InternalLoader.call(this, loaderHooks);
   this.elements = elements;
   this.dirname = url;

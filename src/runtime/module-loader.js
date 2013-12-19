@@ -17,7 +17,7 @@ import {LoaderHooks} from '../runtime/System';
 import {ModuleSpecifierVisitor} from
     '../codegeneration/module/ModuleSpecifierVisitor';
 import {ObjectMap} from '../util/ObjectMap';
-import {WebLoader} from './WebLoader';
+import {webLoader} from './webLoader';
 import {getUid} from '../util/uid';
 
 // TODO(arv): I stripped the resolvers to make this simpler for now.
@@ -213,7 +213,7 @@ class InternalLoader {
   constructor(loaderHooks) {
     this.loaderHooks = loaderHooks;
     this.reporter = loaderHooks.reporter;
-    this.fileLoader = loaderHooks.fileLoader || new InternalLoader.FileLoader;
+    this.fileLoader = loaderHooks.fileLoader || InternalLoader.fileLoader;
     this.cache = new ArrayMap();
     this.urlToKey = Object.create(null);
     this.sync_ = false;
@@ -433,16 +433,16 @@ class InternalLoader {
     return this.loaderHooks.evaluate(codeUnit);
   }
 
-  static set FileLoader(v) {
-    FileLoader = v;
+  static set fileLoader(v) {
+    fileLoader = v;
   }
 
-  static get FileLoader() {
-    return FileLoader;
+  static get fileLoader() {
+    return fileLoader;
   }
 }
 
-var FileLoader = WebLoader;
+var fileLoader = webLoader;
 
 function defaultTranslate(source) {
   return source;

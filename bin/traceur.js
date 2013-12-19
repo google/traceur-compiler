@@ -18679,10 +18679,9 @@ $traceurRuntime.registerModule("../src/runtime/System.js", function() {
       return LoaderHooks;
     }};
 }, this);
-$traceurRuntime.registerModule("../src/runtime/WebLoader.js", function() {
+$traceurRuntime.registerModule("../src/runtime/webLoader.js", function() {
   "use strict";
-  var WebLoader = function() {};
-  WebLoader = ($traceurRuntime.createClass)(WebLoader, {
+  var webLoader = {
     load: function(url, callback, errback) {
       var xhr = new XMLHttpRequest();
       xhr.onload = function() {
@@ -18711,9 +18710,9 @@ $traceurRuntime.registerModule("../src/runtime/WebLoader.js", function() {
       xhr.send();
       if (xhr.status == 200 || xhr.status == 0) return xhr.responseText;
     }
-  }, {});
-  return {get WebLoader() {
-      return WebLoader;
+  };
+  return {get webLoader() {
+      return webLoader;
     }};
 }, this);
 $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
@@ -18722,7 +18721,7 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
   var LoaderHooks = $traceurRuntime.getModuleImpl("../src/runtime/System.js").LoaderHooks;
   var ModuleSpecifierVisitor = $traceurRuntime.getModuleImpl("../src/codegeneration/module/ModuleSpecifierVisitor.js").ModuleSpecifierVisitor;
   var ObjectMap = $traceurRuntime.getModuleImpl("../src/util/ObjectMap.js").ObjectMap;
-  var WebLoader = $traceurRuntime.getModuleImpl("../src/runtime/WebLoader.js").WebLoader;
+  var webLoader = $traceurRuntime.getModuleImpl("../src/runtime/webLoader.js").webLoader;
   var getUid = $traceurRuntime.getModuleImpl("../src/util/uid.js").getUid;
   var base = Object.freeze(Object.create(null, {
     Array: {value: Array},
@@ -18837,7 +18836,7 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
   var InternalLoader = function(loaderHooks) {
     this.loaderHooks = loaderHooks;
     this.reporter = loaderHooks.reporter;
-    this.fileLoader = loaderHooks.fileLoader || new InternalLoader.FileLoader;
+    this.fileLoader = loaderHooks.fileLoader || InternalLoader.fileLoader;
     this.cache = new ArrayMap();
     this.urlToKey = Object.create(null);
     this.sync_ = false;
@@ -18928,7 +18927,7 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
       return moduleSpecifierVisitor.moduleSpecifiers;
     },
     handleCodeUnitLoaded: function(codeUnit) {
-      var $__285 = this;
+      var $__284 = this;
       var baseUrl = codeUnit.url;
       var moduleSpecifiers = this.getModuleSpecifiers(codeUnit);
       if (!moduleSpecifiers) {
@@ -18937,10 +18936,10 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
       }
       codeUnit.dependencies = moduleSpecifiers.sort().map((function(name) {
         name = System.normalResolve(name, baseUrl);
-        return $__285.getCodeUnit(name, 'module');
+        return $__284.getCodeUnit(name, 'module');
       }));
       codeUnit.dependencies.forEach((function(dependency) {
-        $__285.load(dependency.url, 'module');
+        $__284.load(dependency.url, 'module');
       }));
       if (this.areAll(PARSED)) {
         this.analyze();
@@ -19016,14 +19015,14 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
       return this.loaderHooks.evaluate(codeUnit);
     }
   }, {
-    set FileLoader(v) {
-      FileLoader = v;
+    set fileLoader(v) {
+      fileLoader = v;
     },
-    get FileLoader() {
-      return FileLoader;
+    get fileLoader() {
+      return fileLoader;
     }
   });
-  var FileLoader = WebLoader;
+  var fileLoader = webLoader;
   function defaultTranslate(source) {
     return source;
   }
