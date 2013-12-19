@@ -14,7 +14,7 @@
 
 export {options} from './options';
 
-export {WebPageProject} from './WebPageProject';
+export {WebPageTranscoder} from './WebPageTranscoder';
 
 import {ModuleAnalyzer} from './semantics/ModuleAnalyzer';
 import {Project} from './semantics/symbols/Project';
