@@ -18,7 +18,7 @@
 import {CodeLoader as Loader} from './runtime/module-loader';
 import {ErrorReporter} from './util/ErrorReporter';
 import {InterceptOutputLoaderHooks} from './runtime/InterceptOutputLoaderHooks';
-import {WebLoader} from './runtime/WebLoader';
+import {webLoader} from './runtime/webLoader';
 
 export class WebPageTranscoder {
   constructor(url) {
@@ -29,7 +29,7 @@ export class WebPageTranscoder {
 
   asyncLoad_(url, fncOfContent, onScriptsReady) {
     this.numPending_++;
-    this.webloader.load(url, (content) => {
+    webLoader.load(url, (content) => {
       if (content)
         fncOfContent(content);
       else
@@ -94,11 +94,6 @@ export class WebPageTranscoder {
       this.loader_ = new Loader(loaderHooks);
     }
     return this.loader_;
-  }
-
-  // workaround bug: static methods of exported classes
-  get webloader() {
-    return new WebLoader();
   }
 
   putFile(file) {
