@@ -18,7 +18,6 @@
 import {CodeLoader as Loader} from './runtime/module-loader';
 import {ErrorReporter} from './util/ErrorReporter';
 import {InterceptOutputLoaderHooks} from './runtime/InterceptOutputLoaderHooks';
-import {TreeWriter} from './outputgeneration/TreeWriter';
 import {WebLoader} from './runtime/WebLoader';
 
 export class WebPageTranscoder {
@@ -113,7 +112,7 @@ export class WebPageTranscoder {
 
   run(done = () => {}) {
     document.addEventListener('DOMContentLoaded', () => {
-      var selector = 'script[type="text/traceur"]';
+      var selector = 'script[type="module"]';
       var scripts = document.querySelectorAll(selector);
 
       if (!scripts.length) {
