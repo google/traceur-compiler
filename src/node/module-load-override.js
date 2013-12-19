@@ -13,6 +13,6 @@
 // limitations under the License.
 
 var traceur = require('./traceur.js');
-var NodeLoader = require('./NodeLoader.js');
+var nodeLoader = require('./nodeLoader.js');
 
-traceur.modules.internals.InternalLoader.FileLoader = NodeLoader;
+traceur.modules.internals.InternalLoader.fileLoader = nodeLoader;
