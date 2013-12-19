@@ -35,7 +35,7 @@ var ModuleAnalyzer = traceur.semantics.ModuleAnalyzer;
  */
 function InlineCodeLoader(reporter, url, elements, depTarget) {
   var loaderHooks = new LoaderHooks(reporter, url);
-  loaderHooks.fileLoader = new NodeLoader;
+  loaderHooks.fileLoader = NodeLoader;
   InternalLoader.call(this, loaderHooks);
   this.elements = elements;
   this.dirname = url;

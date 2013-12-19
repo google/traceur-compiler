@@ -18682,7 +18682,7 @@ $traceurRuntime.registerModule("../src/runtime/System.js", function() {
 $traceurRuntime.registerModule("../src/runtime/WebLoader.js", function() {
   "use strict";
   var WebLoader = function() {};
-  WebLoader = ($traceurRuntime.createClass)(WebLoader, {
+  WebLoader = ($traceurRuntime.createClass)(WebLoader, {}, {
     load: function(url, callback, errback) {
       var xhr = new XMLHttpRequest();
       xhr.onload = function() {
@@ -18711,7 +18711,7 @@ $traceurRuntime.registerModule("../src/runtime/WebLoader.js", function() {
       xhr.send();
       if (xhr.status == 200 || xhr.status == 0) return xhr.responseText;
     }
-  }, {});
+  });
   return {get WebLoader() {
       return WebLoader;
     }};
@@ -18837,7 +18837,7 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
   var InternalLoader = function(loaderHooks) {
     this.loaderHooks = loaderHooks;
     this.reporter = loaderHooks.reporter;
-    this.fileLoader = loaderHooks.fileLoader || new InternalLoader.FileLoader;
+    this.fileLoader = loaderHooks.fileLoader || InternalLoader.FileLoader;
     this.cache = new ArrayMap();
     this.urlToKey = Object.create(null);
     this.sync_ = false;

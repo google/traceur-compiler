@@ -24,10 +24,8 @@ var featureSuite = testUtil.featureSuite;
 var testList = require('./test-list.js').testList;
 var NodeLoader = require('../src/node/NodeLoader.js');
 
-var loader = new NodeLoader();
-
 var urlOptions = {};
 
 process.chdir('test');
 
-featureSuite(testList, loader, urlOptions);
+featureSuite(testList, NodeLoader, urlOptions);

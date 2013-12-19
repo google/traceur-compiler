@@ -43,7 +43,7 @@ mocha.setup({ui: 'tdd'});
     return options;
   }
 
-  var loader = new traceur.modules.internals.InternalLoader.FileLoader;
+  var loader = traceur.modules.internals.InternalLoader.FileLoader;
   var urlOptions = optionsOnURL();
 
   featureSuite(testList, loader, urlOptions);

@@ -213,7 +213,7 @@ class InternalLoader {
   constructor(loaderHooks) {
     this.loaderHooks = loaderHooks;
     this.reporter = loaderHooks.reporter;
-    this.fileLoader = loaderHooks.fileLoader || new InternalLoader.FileLoader;
+    this.fileLoader = loaderHooks.fileLoader || InternalLoader.FileLoader;
     this.cache = new ArrayMap();
     this.urlToKey = Object.create(null);
     this.sync_ = false;
