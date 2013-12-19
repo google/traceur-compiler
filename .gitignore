@@ -4,7 +4,6 @@
 *.swp
 .DS_Store
 .svn
-bin/traceur-runtime.js
 bin/traceur.map
 bin/traceur.min.js
 bin/traceur.ugly.js
@@ -14,11 +13,6 @@ build/local.mk
 build/previous-commit-traceur.js
 node_modules
 out
-src/codegeneration/ParseTreeTransformer.js
-src/outputgeneration/SourceMapIntegration.js
-src/syntax/ParseTreeVisitor.js
-src/syntax/trees/ParseTreeType.js
-src/syntax/trees/ParseTrees.js
 test/amd-compiled
 test/bench/esprima
 test/commonjs-compiled
