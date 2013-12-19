@@ -11,13 +11,12 @@
 mocha.setup({ui: 'tdd'});
 
 </script>
-<script src="unit/codegeneration/PlaceholderParser.traceur.js" type="text/traceur"></script>
+<script src="unit/codegeneration/PlaceholderParser.traceur.js" type="module"></script>
 <script src="unit/codegeneration/SourceMap.js"></script>
 <script src="unit/codegeneration/low_level_tests.js"></script>
 <script src="unit/codegeneration/writer.js"></script>
-<script src="unit/runtime/modules.js"></script>
 <script src="unit/runtime/Loader.js"></script>
-<script src="unit/semantics/FreeVariableChecker.traceur.js" type="text/traceur"  ></script>
+<script src="unit/semantics/FreeVariableChecker.traceur.js" type="module"  ></script>
 <script src="unit/semantics/VariableBinder.js"></script>
 <script src="unit/syntax/LineNumbers.js"></script>
 <script src="unit/syntax/ParseTreeValidator.js"></script>
@@ -48,7 +47,7 @@ mocha.setup({ui: 'tdd'});
 
   featureSuite(testList, loader, urlOptions);
 
-  new traceur.WebPageProject(document.location.href).run(function() {
+  new traceur.WebPageTranscoder(document.location.href).run(function() {
     mocha.run();
   });
 
