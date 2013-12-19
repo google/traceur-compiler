@@ -16,7 +16,7 @@ export var webLoader = {
   /**
    * @return {Function} A function that aborts the async loading.
    */
-  load: function(url, callback, errback) {
+  load(url, callback, errback) {
     var xhr = new XMLHttpRequest();
     xhr.onload = function() {
       if (xhr.status == 200 || xhr.status == 0) {
@@ -34,7 +34,7 @@ export var webLoader = {
     return () => xhr && xhr.abort();
   },
 
-  loadSync: function(url) {
+  loadSync(url) {
     var xhr = new XMLHttpRequest();
     xhr.onerror = function(e) {
       throw new Error(xhr.statusText);
