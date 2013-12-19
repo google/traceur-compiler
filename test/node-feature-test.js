@@ -22,10 +22,10 @@ var testUtil = require('./test-utils.js');
 var parseProlog = testUtil.parseProlog;
 var featureSuite = testUtil.featureSuite;
 var testList = require('./test-list.js').testList;
-var NodeLoader = require('../src/node/NodeLoader.js');
+var nodeLoader = require('../src/node/nodeLoader.js');
 
 var urlOptions = {};
 
 process.chdir('test');
 
-featureSuite(testList, NodeLoader, urlOptions);
+featureSuite(testList, nodeLoader, urlOptions);

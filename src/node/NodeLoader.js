@@ -20,7 +20,7 @@ function stripShebang(data) {
   return data;
 }
 
-var NodeLoader = {
+var nodeLoader = {
   loadSync: function(url) {
     return stripShebang(fs.readFileSync(url, 'utf8'));
   },
@@ -40,4 +40,4 @@ var NodeLoader = {
   }
 };
 
-module.exports = NodeLoader;
+module.exports = nodeLoader;
