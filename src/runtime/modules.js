@@ -20,7 +20,7 @@
     isAbsolute,
   } = $traceurRuntime;
 
-  var moduleImplementations = Object.create(null);
+  var moduleInstantiators = Object.create(null);
 
   // Until ecmascript defines System.normalize/resolve we follow requirejs
   // for module ids, http://requirejs.org/docs/api.html
@@ -31,15 +31,21 @@
   else
     baseURL = '';
 
-  class ModuleImpl {
-    constructor(url, func, self) {
+  class UncoatedModuleEntry {
+    constructor(url, uncoatedModule) {
       this.url = url;
+      this.value_ = uncoatedModule;
+    }
+  }
+
+  class UncoatedModuleInstantiator extends UncoatedModuleEntry {
+    constructor(url, func, self) {
+      super(url, null);
       this.func = func;
       this.self = self;
-      this.value_ = null;
     }
 
-    get value() {
+    getUncoatedModule() {
       if (this.value_)
         return this.value_;
       return this.value_ = this.func.call(this.self);
@@ -48,45 +54,46 @@
 
   function registerModule(url, func, self) {
     url = System.normalResolve(url);
-    moduleImplementations[url] = new ModuleImpl(url, func, self);
+    moduleInstantiators[url] = new UncoatedModuleInstantiator(url, func, self);
   }
 
-  function getModuleImpl(name) {
+  function getUncoatedModuleInstantiator(name) {
     if (!name)
       return;
     var url = System.normalResolve(name);
-    return moduleImplementations[url];
+    return moduleInstantiators[url];
   };
 
   var moduleInstances = Object.create(null);
 
   var liveModuleSentinel = {};
 
-  function Module(obj, isLive = undefined) {
-    // Module instances acquired using `module m from 'name'` should have live
-    // references so when we create these internally we pass a sentinel.
-    Object.getOwnPropertyNames(obj).forEach((name) => {
+  function coatModule(uncoatedModule, isLive = undefined) {
+    var coatedModule = Object.create(null);
+    Object.getOwnPropertyNames(uncoatedModule).forEach((name) => {
       var getter, value;
+      // Module instances acquired using `module m from 'name'` should have live
+      // references so when we create these internally we pass a sentinel.
       if (isLive === liveModuleSentinel) {
-        var descr = Object.getOwnPropertyDescriptor(obj, name);
+        var descr = Object.getOwnPropertyDescriptor(uncoatedModule, name);
         // Some internal modules do not use getters at this point.
         if (descr.get)
           getter = descr.get;
       }
       if (!getter) {
-        value = obj[name];
+        value = uncoatedModule[name];
         getter = function() {
           return value;
         };
       }
 
-      Object.defineProperty(this, name, {
+      Object.defineProperty(coatedModule, name, {
         get: getter,
         enumerable: true
       });
     });
-    this.__proto__ = null;
-    Object.preventExtensions(this);
+    Object.preventExtensions(coatedModule);
+    return coatedModule;
   }
 
   var System = {
@@ -144,23 +151,20 @@
     },
 
     get(name) {
-      var m = getModuleImpl(name);
+      var m = getUncoatedModuleInstantiator(name);
       if (!m)
         return undefined;
       var moduleInstance = moduleInstances[m.url];
       if (moduleInstance)
         return moduleInstance;
 
-      moduleInstance = new Module(m.value, liveModuleSentinel);
+      moduleInstance = coatModule(m.getUncoatedModule(), liveModuleSentinel);
       return moduleInstances[m.url] = moduleInstance;
     },
 
-    set(name, object) {
+    set(name, uncoatedModule) {
       name = String(name);
-      moduleImplementations[name] = {
-        url: name,
-        value: object
-      };
+      moduleInstantiators[name] = new UncoatedModuleEntry(name, uncoatedModule);
     }
   };
 
@@ -173,7 +177,7 @@
 
   $traceurRuntime.registerModule = registerModule;
   $traceurRuntime.getModuleImpl = function(name) {
-    return getModuleImpl(name).value;
+    return getUncoatedModuleInstantiator(name).getUncoatedModule();
   };
 
 })(typeof global !== 'undefined' ? global : this);
