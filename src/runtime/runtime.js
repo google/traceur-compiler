@@ -148,6 +148,8 @@
   });
   $freeze(SymbolValue.prototype);
 
+  Symbol.iterator = Symbol();
+
   function toProperty(name) {
     if (isSymbol(name))
       return name[symbolInternalProperty];
@@ -266,25 +268,6 @@
     }
 
     $defineProperty(Object, 'mixin', method(mixin));
-  }
-
-  function polyfillArray(Array) {
-    // Make arrays iterable.
-    // TODO(arv): This is not very robust to changes in the private names
-    // option but fortunately this is not something that is expected to change
-    // at runtime outside of tests.
-    defineProperty(Array.prototype, Symbol.iterator, method(function() {
-      var index = 0;
-      var array = this;
-      return {
-        next: function() {
-          if (index < array.length) {
-            return {value: array[index++], done: false};
-          }
-          return {value: undefined, done: true};
-        }
-      };
-    }));
   }
 
   function exportStar(object) {
@@ -475,12 +458,11 @@
     });
   }
 
+
   function setupGlobals(global) {
     global.Symbol = Symbol;
-    global.Symbol.iterator = Symbol();
 
     polyfillObject(global.Object);
-    polyfillArray(global.Array);
   }
 
   setupGlobals(global);
