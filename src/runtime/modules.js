@@ -68,7 +68,7 @@
 
   var liveModuleSentinel = {};
 
-  function coatModule(uncoatedModule, isLive = undefined) {
+  function Module(uncoatedModule, isLive = undefined) {
     var coatedModule = Object.create(null);
     Object.getOwnPropertyNames(uncoatedModule).forEach((name) => {
       var getter, value;
@@ -158,7 +158,7 @@
       if (moduleInstance)
         return moduleInstance;
 
-      moduleInstance = coatModule(m.getUncoatedModule(), liveModuleSentinel);
+      moduleInstance = Module(m.getUncoatedModule(), liveModuleSentinel);
       return moduleInstances[m.url] = moduleInstance;
     },
 
