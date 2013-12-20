@@ -27,10 +27,8 @@ import {
 export class AttachUrlTransformer extends ParseTreeTransformer {
   /**
    * @param {SourceFile} file
-   * @param {Project} project
    */
-  constructor(project, url) {
-    this.project_ = project;
+  constructor(url) {
     this.url_ = url;
   }
 
@@ -48,7 +46,7 @@ export class AttachUrlTransformer extends ParseTreeTransformer {
    */
   static transformFile(file, project) {
     var tree = project.getParseTree(file);
-    return new AttachUrlTransformer(project, file.name).transformAny(tree);
+    return new AttachUrlTransformer(file.name).transformAny(tree);
   }
 }
 

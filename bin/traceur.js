@@ -17024,8 +17024,7 @@ $traceurRuntime.registerModule("../src/codegeneration/module/AttachUrlTransforme
   var $__260 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
       Module = $__260.Module,
       Script = $__260.Script;
-  var AttachUrlTransformer = function(project, url) {
-    this.project_ = project;
+  var AttachUrlTransformer = function(url) {
     this.url_ = url;
   };
   AttachUrlTransformer = ($traceurRuntime.createClass)(AttachUrlTransformer, {
@@ -17037,7 +17036,7 @@ $traceurRuntime.registerModule("../src/codegeneration/module/AttachUrlTransforme
     }
   }, {transformFile: function(file, project) {
       var tree = project.getParseTree(file);
-      return new AttachUrlTransformer(project, file.name).transformAny(tree);
+      return new AttachUrlTransformer(file.name).transformAny(tree);
     }}, ParseTreeTransformer);
   return {get AttachUrlTransformer() {
       return AttachUrlTransformer;
