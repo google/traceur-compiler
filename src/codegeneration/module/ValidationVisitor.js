@@ -25,20 +25,20 @@ import {ModuleVisitor} from './ModuleVisitor';
 export class ValidationVisitor extends ModuleVisitor {
 
   checkExport_(tree, name) {
-    var module = this.validatingModule_;
-    if (module && !module.hasExport(name)) {
-      var url = module.url;
+    var moduleSymbol = this.validatingModule_;
+    if (moduleSymbol && !moduleSymbol.hasExport(name)) {
+      var url = moduleSymbol.url;
       this.reportError(tree, `'${name}' is not exported by '${url}'`);
     }
   }
 
   /**
-   * @param {ModuleSymbol} module
+   * @param {ModuleSymbol} moduleSymbol
    * @param {ParseTree} tree
    */
-  visitAndValidate_(module, tree) {
+  visitAndValidate_(moduleSymbol, tree) {
     var validatingModule = this.validatingModule_;
-    this.validatingModule_ = module;
+    this.validatingModule_ = moduleSymbol;
     this.visitAny(tree);
     this.validatingModule_ = validatingModule;
   }
@@ -50,8 +50,9 @@ export class ValidationVisitor extends ModuleVisitor {
     // Ensures that the module expression exports the names we want to
     // re-export.
     if (tree.moduleSpecifier) {
-      var module = this.getModuleForModuleSpecifier(tree.moduleSpecifier);
-      this.visitAndValidate_(module, tree.specifierSet);
+      var moduleSymbol =
+        this.getModuleSymbolForModuleSpecifier(tree.moduleSpecifier);
+      this.visitAndValidate_(moduleSymbol, tree.specifierSet);
     }
     // The else case is checked else where and duplicate exports are caught
     // as well as undefined variables.
@@ -63,12 +64,13 @@ export class ValidationVisitor extends ModuleVisitor {
   }
 
   visitModuleSpecifier(tree) {
-    this.getModuleForModuleSpecifier(tree);
+    this.getModuleSymbolForModuleSpecifier(tree);
   }
 
   visitImportDeclaration(tree) {
-    var module = this.getModuleForModuleSpecifier(tree.moduleSpecifier);
-    this.visitAndValidate_(module, tree.importClause);
+    var moduleSymbol =
+      this.getModuleSymbolForModuleSpecifier(tree.moduleSpecifier);
+    this.visitAndValidate_(moduleSymbol, tree.importClause);
   }
 
   visitImportSpecifier(tree) {

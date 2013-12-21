@@ -33,17 +33,19 @@ suite('context test', function() {
   }
 
   function executeFileWithRuntime(fileName) {
+    var InterceptOutputLoaderHooks = traceur.runtime.InterceptOutputLoaderHooks;
+    var Loader = traceur.modules.CodeLoader;
+
+    var source = fs.readFileSync(fileName, 'utf-8');
+    var reporter = new traceur.util.TestErrorReporter();
+    var loaderHooks = new InterceptOutputLoaderHooks(reporter, fileName);
+    var loader = new Loader(loaderHooks);
+    loader.eval(source, fileName);
+    assert.ok(!reporter.hadError(), reporter.errors.join('\n'));
+    var output = loaderHooks.transcoded;
+
     var runtimePath = resolve('bin/traceur-runtime.js');
     var runtime = fs.readFileSync(runtimePath, 'utf-8');
-    var reporter = new traceur.util.TestErrorReporter();
-    var source = fs.readFileSync(fileName, 'utf-8');
-    var file = new traceur.syntax.SourceFile(fileName, source);
-
-    var tree = traceur.codegeneration.Compiler.compileFile(reporter, file);
-    assert.ok(!reporter.hadError(), reporter.errors.join('\n'));
-
-    var output = traceur.outputgeneration.TreeWriter.write(tree);
-
     var context = vm.createContext();
     vm.runInNewContext(runtime + output, context, fileName);
 

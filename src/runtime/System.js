@@ -20,7 +20,6 @@ import {ModuleAnalyzer} from '../semantics/ModuleAnalyzer';
 import {ModuleSymbol} from '../semantics/symbols/ModuleSymbol';
 import {Parser} from '../syntax/Parser';
 import {ProgramTransformer} from '../codegeneration/ProgramTransformer';
-import {Project} from '../semantics/symbols/Project';
 import {SourceFile} from '../syntax/SourceFile';
 import {TreeWriter} from '../outputgeneration/TreeWriter';
 import {UniqueIdentifierGenerator} from
@@ -40,23 +39,26 @@ var ERROR = 6;
 
 var identifierGenerator = new UniqueIdentifierGenerator();
 
- // TODO Pick a better name, these are functions on System?
+ // TODO(jjb): Pick a better name, these are functions on System?
 export class LoaderHooks {
   constructor(reporter, rootUrl, outputOptions) {
     this.reporter = reporter;
-    this.project_ = new Project(rootUrl, identifierGenerator);
-    this.analyzer_ = new ModuleAnalyzer(reporter, this.project_, this);
+    this.rootUrl_ = rootUrl;
     this.outputOptions_ = outputOptions;
+  }
+
+  // TODO(jjb): temp workaround until the Loader/LoaderHook API is fixed.
+  setLoader(loader) {
+    this.analyzer_ = new ModuleAnalyzer(this.reporter, loader);
   }
 
   // TODO Used for eval(): can we get the function call to supply callerURL?
   rootUrl() {
-    return this.project_.url;
+    return this.rootUrl_;
   }
 
   parse(codeUnit) {
     var reporter = this.reporter;
-    var project = this.project_;
     var url = codeUnit.url;
     var program = codeUnit.text;
     var file = new SourceFile(url, program);
@@ -91,12 +93,10 @@ export class LoaderHooks {
   }
 
   addExternalModule(codeUnit) {
-    var project = this.project_;
     var tree = codeUnit.tree;
-    var url = codeUnit.url || this.project_.url; // eval needs this.
+    var url = codeUnit.url || this.rootUrl_; // eval needs this.
     // External modules have no parent module.
     codeUnit.moduleSymbol = new ModuleSymbol(tree, url);
-    project.addExternalModule(codeUnit.moduleSymbol);
   }
 
   analyzeDependencies(dependencies) {
@@ -163,8 +163,4 @@ export class LoaderHooks {
     }
   }
 
-  getModuleForModuleSpecifier(name, referrer) {
-    var url = System.normalResolve(name, referrer);
-    return this.project_.getModuleForResolvedUrl(url);
-  }
 }

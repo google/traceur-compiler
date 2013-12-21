@@ -102,3 +102,8 @@ export var codegeneration = {
 
 module modules from './runtime/module-loader';
 export {modules};
+
+import {InterceptOutputLoaderHooks} from './runtime/InterceptOutputLoaderHooks';
+export var runtime = {
+  InterceptOutputLoaderHooks
+}

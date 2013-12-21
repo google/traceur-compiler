@@ -39,15 +39,6 @@ export class AttachUrlTransformer extends ParseTreeTransformer {
   transformScript(tree) {
     return new Script(tree.location, tree.scriptItemList, this.url_);
   }
-  /**
-   * @param {SourceFile} file
-   * @param {Project} project
-   * @return {ParseTree}
-   */
-  static transformFile(file, project) {
-    var tree = project.getParseTree(file);
-    return new AttachUrlTransformer(file.name).transformAny(tree);
-  }
 }
 
 
