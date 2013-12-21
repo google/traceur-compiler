@@ -25,28 +25,11 @@ import {transformOptions} from '../options';
 export class ModuleAnalyzer {
   /**
    * @param {ErrorReporter} reporter
-   * @param {Project} project
+   * @param {Loader} loader
    */
-  constructor(reporter, project, loaderHooks) {
+  constructor(reporter, loader) {
     this.reporter_ = reporter;
-    this.project_ = project;
-    this.loaderHooks_ = loaderHooks;
-  }
-
-  /**
-   * @return {void}
-   */
-  analyze() {
-    this.analyzeTrees(this.project_.getParseTrees());
-  }
-
-  /**
-   * @param {SourceFile} sourceFile
-   * @return {void}
-   */
-  analyzeFile(sourceFile) {
-    var trees = [this.project_.getParseTree(sourceFile)];
-    this.analyzeTrees(trees);
+    this.loader_ = loader;
   }
 
   /**
@@ -54,28 +37,26 @@ export class ModuleAnalyzer {
    * @param {Array.<ModuleSymbol>=} roots
    * @return {void}
    */
-  analyzeTrees(trees, roots = undefined) {
+  analyzeTrees(trees, roots) {
     if (!transformOptions.modules)
       return;
 
     var reporter = this.reporter_;
-    var loaderHooks = this.loaderHooks_;
-    var root = this.project_.getRootModule();
-
+    var loader = this.loader_;
     function getRoot(i) {
-      return roots ? roots[i] : root;
+      return roots.length ? roots[i] : roots;
     }
 
     function doVisit(ctor) {
       for (var i = 0; i < trees.length; i++) {
-        var visitor = new ctor(reporter, loaderHooks, getRoot(i));
+        var visitor = new ctor(reporter, loader, getRoot(i));
         visitor.visitAny(trees[i]);
       }
     }
 
     function reverseVisit(ctor) {
       for (var i = trees.length - 1; i >= 0; i--) {
-        var visitor = new ctor(reporter, loaderHooks, getRoot(i));
+        var visitor = new ctor(reporter, loader, getRoot(i));
         visitor.visitAny(trees[i]);
       }
     }

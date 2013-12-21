@@ -74,6 +74,12 @@ class CodeUnit {
     this.state = state;
     this.uid = getUid();
     this.state_ = NOT_STARTED;
+    this.error = null;
+    this.result = null;
+    this.transformedTree = null;
+    this.transcoded = null;
+    this.sourceMap = null;
+    this.moduleSymbol = null;
   }
 
   get state() {
@@ -207,11 +213,12 @@ class EvalCodeUnit extends CodeUnit {
  */
 class InternalLoader {
   /**
-   * @param {ErrorReporter} reporter
-   * @param {Project} project.
+   * @param {loaderHooks} loaderHooks
    */
   constructor(loaderHooks) {
     this.loaderHooks = loaderHooks;
+    // TODO(jjb): fix API
+    this.loaderHooks.setLoader(this);
     this.reporter = loaderHooks.reporter;
     this.fileLoader = loaderHooks.fileLoader || InternalLoader.fileLoader;
     this.cache = new ArrayMap();
@@ -315,6 +322,12 @@ class InternalLoader {
     var moduleSpecifierVisitor = new ModuleSpecifierVisitor(this.reporter);
     moduleSpecifierVisitor.visit(codeUnit.tree);
     return moduleSpecifierVisitor.moduleSpecifiers;
+  }
+
+  getModuleSymbolForModuleSpecifier(name, referrer) {
+    var url = System.normalResolve(name, referrer);
+    var codeUnit = this.getCodeUnit(url, 'module');
+    return codeUnit.moduleSymbol;
   }
 
   /**
