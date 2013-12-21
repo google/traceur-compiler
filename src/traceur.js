@@ -17,13 +17,9 @@ export {options} from './options';
 export {WebPageTranscoder} from './WebPageTranscoder';
 
 import {ModuleAnalyzer} from './semantics/ModuleAnalyzer';
-import {Project} from './semantics/symbols/Project';
 
 export var semantics = {
   ModuleAnalyzer,
-  symbols: {
-    Project
-  }
 };
 
 import {ErrorReporter} from './util/ErrorReporter';
@@ -60,7 +56,6 @@ export var syntax = {
 
 import {ParseTreeMapWriter} from './outputgeneration/ParseTreeMapWriter';
 import {ParseTreeWriter} from './outputgeneration/ParseTreeWriter';
-import {ProjectWriter} from './outputgeneration/ProjectWriter';
 import {SourceMapConsumer} from './outputgeneration/SourceMapIntegration';
 import {SourceMapGenerator} from './outputgeneration/SourceMapIntegration';
 import {TreeWriter} from './outputgeneration/TreeWriter';
@@ -68,7 +63,6 @@ import {TreeWriter} from './outputgeneration/TreeWriter';
 export var outputgeneration = {
   ParseTreeMapWriter,
   ParseTreeWriter,
-  ProjectWriter,
   SourceMapConsumer,
   SourceMapGenerator,
   TreeWriter
@@ -77,24 +71,20 @@ export var outputgeneration = {
 import {AmdTransformer} from './codegeneration/AmdTransformer';
 import {CloneTreeTransformer} from './codegeneration/CloneTreeTransformer';
 import {CommonJsModuleTransformer} from './codegeneration/CommonJsModuleTransformer';
-import {Compiler} from './codegeneration/Compiler';
 import {FromOptionsTransformer} from './codegeneration/FromOptionsTransformer';
 import {ModuleSpecifierVisitor} from './codegeneration/module/ModuleSpecifierVisitor';
 import {ModuleTransformer} from './codegeneration/ModuleTransformer';
 import {ParseTreeTransformer} from './codegeneration/ParseTreeTransformer';
-import {ProgramTransformer} from './codegeneration/ProgramTransformer';
 module ParseTreeFactory from './codegeneration/ParseTreeFactory';
 
 export var codegeneration = {
   AmdTransformer,
   CloneTreeTransformer,
   CommonJsModuleTransformer,
-  Compiler,
   FromOptionsTransformer,
   ModuleTransformer,
   ParseTreeFactory,
   ParseTreeTransformer,
-  ProgramTransformer,
   module: {
     ModuleSpecifierVisitor
   }
@@ -102,3 +92,8 @@ export var codegeneration = {
 
 module modules from './runtime/module-loader';
 export {modules};
+
+import {InterceptOutputLoaderHooks} from './runtime/InterceptOutputLoaderHooks';
+export var runtime = {
+  InterceptOutputLoaderHooks
+}

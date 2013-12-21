@@ -25,8 +25,8 @@ export class ExportVisitor extends ModuleVisitor {
    * @param {LoaderHooks} loaderHooks
    * @param {ModuleSymbol} module The root of the module system.
    */
-  constructor(reporter, loaderHooks, module) {
-    super(reporter, loaderHooks, module);
+  constructor(...args) {
+    super(...args);
     this.inExport_ = false;
     this.moduleSpecifier = null;
   }
@@ -75,7 +75,7 @@ export class ExportVisitor extends ModuleVisitor {
   }
 
   visitExportStar(tree) {
-    var module = this.getModuleForModuleSpecifier(this.moduleSpecifier);
+    var module = this.getModuleSymbolForModuleSpecifier(this.moduleSpecifier);
     module.getExports().forEach(({name}) => {
       this.addExport(name, tree);
     });
