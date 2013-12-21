@@ -19,7 +19,6 @@ import {FromOptionsTransformer} from '../codegeneration/FromOptionsTransformer';
 import {ModuleAnalyzer} from '../semantics/ModuleAnalyzer';
 import {ModuleSymbol} from '../semantics/symbols/ModuleSymbol';
 import {Parser} from '../syntax/Parser';
-import {ProgramTransformer} from '../codegeneration/ProgramTransformer';
 import {SourceFile} from '../syntax/SourceFile';
 import {TreeWriter} from '../outputgeneration/TreeWriter';
 import {UniqueIdentifierGenerator} from

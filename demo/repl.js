@@ -20,9 +20,7 @@ var traceur = require('../src/node/traceur.js');
 
 var TreeWriter = traceur.outputgeneration.TreeWriter;
 var Parser = traceur.syntax.Parser;
-var transformFile = traceur.codegeneration.ProgramTransformer.transformFile;
 var SourceFile = traceur.syntax.SourceFile;
-var Project = traceur.semantics.symbols.Project;
 
 traceur.options.freeVariableChecker = false;
 
@@ -83,26 +81,19 @@ function compile(cmd, url) {
     }
   };
 
-  var project, src, parser, tree, transformedTree, written;
+  var src, parser, tree, transformedTree, output;
 
   try {
     debug('traceur-input: %s', cmd);
-
-    project = new Project(url);
-    src = new SourceFile(url, cmd);
-    project.addFile(src);
-
-    parser = new Parser(reporter, src);
-    tree = parser.parseScript(true);
-    debugTree('traceur-input-tree:\n%s', tree);
-    project.setParseTree(src, tree);
-
-    transformedTree = transformFile(reporter, project, src).get(src);
-    debugTree('traceur-output-tree:\n%s', transformedTree);
-
-    written = TreeWriter.write(transformedTree);
-    debug('traceur-output: %s', written);
-    return written;
+    var InterceptOutputLoaderHooks = traceur.runtime.InterceptOutputLoaderHooks;
+    var Loader = traceur.modules.CodeLoader;
+    var reporter = new traceur.util.TestErrorReporter();
+    var loaderHooks = new InterceptOutputLoaderHooks(reporter, url);
+    var loader = new Loader(loaderHooks);
+    loader.eval(cmd, url);
+    var output = loaderHooks.transcoded;
+    debug('traceur-output: %s', output);
+    return output;
   } catch(e) {
     debug3('traceur-compile-exception: %s', e.stack || e);
 
@@ -124,7 +115,7 @@ function compile(cmd, url) {
  * Needless to say, this code will break if someone decides to randomly add
  * whitespace to that part of node's lib/repl.js -- but that seems unlikely.
  * More likely is that the whole interface changes, which means everything
- * has to be rewritten anyway.
+ * has to be reoutput anyway.
  * @param cmd The command passed to the custom eval function.
  */
 function isWrapped(cmd) {

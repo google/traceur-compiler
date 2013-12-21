@@ -17041,59 +17041,6 @@ $traceurRuntime.registerModule("../src/codegeneration/module/AttachUrlTransforme
       return AttachUrlTransformer;
     }};
 }, this);
-$traceurRuntime.registerModule("../src/codegeneration/ProjectTransformer.js", function() {
-  "use strict";
-  var ObjectMap = $traceurRuntime.getModuleImpl("../src/util/ObjectMap.js").ObjectMap;
-  var AttachUrlTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/module/AttachUrlTransformer.js").AttachUrlTransformer;
-  var MODULE = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js").MODULE;
-  var ProjectTransformer = function(reporter, project) {
-    var transformer = arguments[2];
-    this.project_ = project;
-    this.reporter_ = reporter;
-    this.treeTransformer = transformer;
-    this.results_ = new ObjectMap();
-  };
-  ProjectTransformer = ($traceurRuntime.createClass)(ProjectTransformer, {
-    transform: function() {
-      var $__262 = this;
-      this.project_.getSourceFiles().forEach((function(file) {
-        $__262.transformFile(file);
-      }));
-      return this.results_;
-    },
-    transformFile: function(file) {
-      var tree = AttachUrlTransformer.transformFile(file, this.project_);
-      var result = this.treeTransformer.transform(tree);
-      this.results_.set(file, result);
-      return result;
-    }
-  }, {});
-  return {get ProjectTransformer() {
-      return ProjectTransformer;
-    }};
-}, this);
-$traceurRuntime.registerModule("../src/codegeneration/ProgramTransformer.js", function() {
-  "use strict";
-  var FromOptionsTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/FromOptionsTransformer.js").FromOptionsTransformer;
-  var ProjectTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ProjectTransformer.js").ProjectTransformer;
-  var ProgramTransformer = function(reporter, project) {
-    var transformer = new FromOptionsTransformer(reporter, project.identifierGenerator);
-    $traceurRuntime.superCall(this, $ProgramTransformer.prototype, "constructor", [reporter, project, transformer]);
-  };
-  var $ProgramTransformer = ($traceurRuntime.createClass)(ProgramTransformer, {}, {
-    transform: function(reporter, project) {
-      var transformer = new ProgramTransformer(reporter, project);
-      return transformer.transform();
-    },
-    transformFile: function(reporter, project, sourceFile) {
-      var transformer = new ProgramTransformer(reporter, project);
-      return transformer.transformFile(sourceFile);
-    }
-  }, ProjectTransformer);
-  return {get ProgramTransformer() {
-      return ProgramTransformer;
-    }};
-}, this);
 $traceurRuntime.registerModule("../src/codegeneration/module/ValidationVisitor.js", function() {
   "use strict";
   var ModuleVisitor = $traceurRuntime.getModuleImpl("../src/codegeneration/module/ModuleVisitor.js").ModuleVisitor;
@@ -17215,7 +17162,6 @@ $traceurRuntime.registerModule("../src/runtime/System.js", function() {
   var ModuleAnalyzer = $traceurRuntime.getModuleImpl("../src/semantics/ModuleAnalyzer.js").ModuleAnalyzer;
   var ModuleSymbol = $traceurRuntime.getModuleImpl("../src/semantics/symbols/ModuleSymbol.js").ModuleSymbol;
   var Parser = $traceurRuntime.getModuleImpl("../src/syntax/Parser.js").Parser;
-  var ProgramTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ProgramTransformer.js").ProgramTransformer;
   var SourceFile = $traceurRuntime.getModuleImpl("../src/syntax/SourceFile.js").SourceFile;
   var TreeWriter = $traceurRuntime.getModuleImpl("../src/outputgeneration/TreeWriter.js").TreeWriter;
   var UniqueIdentifierGenerator = $traceurRuntime.getModuleImpl("../src/codegeneration/UniqueIdentifierGenerator.js").UniqueIdentifierGenerator;
@@ -17257,12 +17203,12 @@ $traceurRuntime.registerModule("../src/runtime/System.js", function() {
       transformer = new FromOptionsTransformer(this.reporter, identifierGenerator);
       return transformer.transform(transformedTree);
     },
-    instantiate: function($__274) {
-      var name = $__274.name,
-          metadata = $__274.metadata,
-          address = $__274.address,
-          source = $__274.source,
-          sourceMap = $__274.sourceMap;
+    instantiate: function($__269) {
+      var name = $__269.name,
+          metadata = $__269.metadata,
+          address = $__269.address,
+          source = $__269.source,
+          sourceMap = $__269.sourceMap;
       return undefined;
     },
     evaluate: function(codeUnit) {
@@ -17333,14 +17279,14 @@ $traceurRuntime.registerModule("../src/runtime/InterceptOutputLoaderHooks.js", f
   var LoaderHooks = $traceurRuntime.getModuleImpl("../src/runtime/System.js").LoaderHooks;
   var InterceptOutputLoaderHooks = function() {
     for (var args = [],
-        $__276 = 0; $__276 < arguments.length; $__276++) args[$__276] = arguments[$__276];
+        $__271 = 0; $__271 < arguments.length; $__271++) args[$__271] = arguments[$__271];
     $traceurRuntime.superCall(this, $InterceptOutputLoaderHooks.prototype, "constructor", $traceurRuntime.spread(args));
     this.sourceMap = null;
     this.transcoded = null;
   };
-  var $InterceptOutputLoaderHooks = ($traceurRuntime.createClass)(InterceptOutputLoaderHooks, {instantiate: function($__277) {
-      var sourceMap = $__277.sourceMap,
-          transcoded = $__277.transcoded;
+  var $InterceptOutputLoaderHooks = ($traceurRuntime.createClass)(InterceptOutputLoaderHooks, {instantiate: function($__272) {
+      var sourceMap = $__272.sourceMap,
+          transcoded = $__272.transcoded;
       this.sourceMap = sourceMap;
       this.transcoded = transcoded;
       return undefined;
@@ -17651,7 +17597,7 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
       return codeUnit.moduleSymbol;
     },
     handleCodeUnitLoaded: function(codeUnit) {
-      var $__280 = this;
+      var $__275 = this;
       var baseUrl = codeUnit.url;
       var moduleSpecifiers = this.getModuleSpecifiers(codeUnit);
       if (!moduleSpecifiers) {
@@ -17660,10 +17606,10 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
       }
       codeUnit.dependencies = moduleSpecifiers.sort().map((function(name) {
         name = System.normalResolve(name, baseUrl);
-        return $__280.getCodeUnit(name, 'module');
+        return $__275.getCodeUnit(name, 'module');
       }));
       codeUnit.dependencies.forEach((function(dependency) {
-        $__280.load(dependency.url, 'module');
+        $__275.load(dependency.url, 'module');
       }));
       if (this.areAll(PARSED)) {
         this.analyze();
@@ -17829,11 +17775,11 @@ $traceurRuntime.registerModule("../src/WebPageTranscoder.js", function() {
   };
   WebPageTranscoder = ($traceurRuntime.createClass)(WebPageTranscoder, {
     asyncLoad_: function(url, fncOfContent, onScriptsReady) {
-      var $__283 = this;
+      var $__278 = this;
       this.numPending_++;
       webLoader.load(url, (function(content) {
         if (content) fncOfContent(content); else console.warn('Failed to load', url);
-        if (--$__283.numPending_ <= 0) onScriptsReady();
+        if (--$__278.numPending_ <= 0) onScriptsReady();
       }), (function(error) {
         console.error('WebPageTranscoder FAILED to load ' + url, error);
       }));
@@ -17887,7 +17833,7 @@ $traceurRuntime.registerModule("../src/WebPageTranscoder.js", function() {
     },
     run: function() {
       var done = arguments[0] !== (void 0) ? arguments[0]: (function() {});
-      var $__283 = this;
+      var $__278 = this;
       document.addEventListener('DOMContentLoaded', (function() {
         var selector = 'script[type="module"]';
         var scripts = document.querySelectorAll(selector);
@@ -17895,7 +17841,7 @@ $traceurRuntime.registerModule("../src/WebPageTranscoder.js", function() {
           done();
           return;
         }
-        $__283.addFilesFromScriptElements(scripts, (function() {
+        $__278.addFilesFromScriptElements(scripts, (function() {
           done();
         }));
       }), false);
@@ -17908,24 +17854,24 @@ $traceurRuntime.registerModule("../src/WebPageTranscoder.js", function() {
 $traceurRuntime.registerModule("../src/codegeneration/CloneTreeTransformer.js", function() {
   "use strict";
   var ParseTreeTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeTransformer.js").ParseTreeTransformer;
-  var $__287 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
-      BindingIdentifier = $__287.BindingIdentifier,
-      BreakStatement = $__287.BreakStatement,
-      ContinueStatement = $__287.ContinueStatement,
-      DebuggerStatement = $__287.DebuggerStatement,
-      EmptyStatement = $__287.EmptyStatement,
-      ExportSpecifier = $__287.ExportSpecifier,
-      ExportStar = $__287.ExportStar,
-      IdentifierExpression = $__287.IdentifierExpression,
-      ImportSpecifier = $__287.ImportSpecifier,
-      LiteralExpression = $__287.LiteralExpression,
-      ModuleSpecifier = $__287.ModuleSpecifier,
-      PredefinedType = $__287.PredefinedType,
-      PropertyNameShorthand = $__287.PropertyNameShorthand,
-      TemplateLiteralPortion = $__287.TemplateLiteralPortion,
-      RestParameter = $__287.RestParameter,
-      SuperExpression = $__287.SuperExpression,
-      ThisExpression = $__287.ThisExpression;
+  var $__282 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
+      BindingIdentifier = $__282.BindingIdentifier,
+      BreakStatement = $__282.BreakStatement,
+      ContinueStatement = $__282.ContinueStatement,
+      DebuggerStatement = $__282.DebuggerStatement,
+      EmptyStatement = $__282.EmptyStatement,
+      ExportSpecifier = $__282.ExportSpecifier,
+      ExportStar = $__282.ExportStar,
+      IdentifierExpression = $__282.IdentifierExpression,
+      ImportSpecifier = $__282.ImportSpecifier,
+      LiteralExpression = $__282.LiteralExpression,
+      ModuleSpecifier = $__282.ModuleSpecifier,
+      PredefinedType = $__282.PredefinedType,
+      PropertyNameShorthand = $__282.PropertyNameShorthand,
+      TemplateLiteralPortion = $__282.TemplateLiteralPortion,
+      RestParameter = $__282.RestParameter,
+      SuperExpression = $__282.SuperExpression,
+      ThisExpression = $__282.ThisExpression;
   var CloneTreeTransformer = function() {
     $traceurRuntime.defaultSuperCall(this, $CloneTreeTransformer.prototype, arguments);
   };
@@ -17993,169 +17939,6 @@ $traceurRuntime.registerModule("../src/codegeneration/CloneTreeTransformer.js", 
   };
   return {get CloneTreeTransformer() {
       return CloneTreeTransformer;
-    }};
-}, this);
-$traceurRuntime.registerModule("../src/semantics/symbols/Project.js", function() {
-  "use strict";
-  var ArrayMap = $traceurRuntime.getModuleImpl("../src/util/ArrayMap.js").ArrayMap;
-  var ExportSymbol = $traceurRuntime.getModuleImpl("../src/semantics/symbols/ExportSymbol.js").ExportSymbol;
-  var ModuleSymbol = $traceurRuntime.getModuleImpl("../src/semantics/symbols/ModuleSymbol.js").ModuleSymbol;
-  var ObjectMap = $traceurRuntime.getModuleImpl("../src/util/ObjectMap.js").ObjectMap;
-  var UniqueIdentifierGenerator = $traceurRuntime.getModuleImpl("../src/codegeneration/UniqueIdentifierGenerator.js").UniqueIdentifierGenerator;
-  var assert = $traceurRuntime.getModuleImpl("../src/util/assert.js").assert;
-  function addAll(self, other) {
-    for (var key in other) {
-      self[key] = other[key];
-    }
-  }
-  function values(objectMap) {
-    return Object.keys(objectMap).map((function(key) {
-      return objectMap[key];
-    }));
-  }
-  var Project = function(url) {
-    var identifierGenerator = arguments[1] !== (void 0) ? arguments[1]: new UniqueIdentifierGenerator();
-    this.identifierGenerator = identifierGenerator;
-    this.sourceFiles_ = Object.create(null);
-    this.parseTrees_ = new ObjectMap();
-    this.rootModule_ = new ModuleSymbol(null, url);
-    this.modulesByResolvedUrl_ = Object.create(null);
-    this.moduleExports_ = new ArrayMap();
-  };
-  Project = ($traceurRuntime.createClass)(Project, {
-    get url() {
-      return this.rootModule_.url;
-    },
-    createClone: function() {
-      var p = new Project(this.url);
-      addAll(p.sourceFiles_, this.sourceFiles_);
-      p.parseTrees_.addAll(this.parseTrees_);
-      p.objectClass_ = this.objectClass_;
-      return p;
-    },
-    hasFile: function(name) {
-      return name in this.sourceFiles_;
-    },
-    addFile: function(file) {
-      this.sourceFiles_[file.name] = file;
-    },
-    getFile: function(name) {
-      return this.sourceFiles_[name];
-    },
-    getSourceFiles: function() {
-      return values(this.sourceFiles_);
-    },
-    getParseTrees: function() {
-      return this.parseTrees_.values();
-    },
-    setParseTree: function(file, tree) {
-      if (this.sourceFiles_[file.name] != file) {
-        throw new Error();
-      }
-      this.parseTrees_.set(file, tree);
-    },
-    getParseTree: function(file) {
-      return this.parseTrees_.get(file);
-    },
-    getRootModule: function() {
-      return this.rootModule_;
-    },
-    addExternalModule: function(module) {
-      assert(!this.hasModuleForResolvedUrl(module.url));
-      this.modulesByResolvedUrl_[module.url] = module;
-    },
-    getModuleForUrl: function(url) {
-      return this.getModuleForResolvedUrl(System.normalResolve(url, this.url));
-    },
-    getModuleForResolvedUrl: function(url) {
-      return this.modulesByResolvedUrl_[url];
-    },
-    hasModuleForResolvedUrl: function(url) {
-      return url in this.modulesByResolvedUrl_;
-    }
-  }, {});
-  return {get Project() {
-      return Project;
-    }};
-}, this);
-$traceurRuntime.registerModule("../src/codegeneration/Compiler.js", function() {
-  "use strict";
-  var ModuleAnalyzer = $traceurRuntime.getModuleImpl("../src/semantics/ModuleAnalyzer.js").ModuleAnalyzer;
-  var Parser = $traceurRuntime.getModuleImpl("../src/syntax/Parser.js").Parser;
-  var ProgramTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ProgramTransformer.js").ProgramTransformer;
-  var Project = $traceurRuntime.getModuleImpl("../src/semantics/symbols/Project.js").Project;
-  var Compiler = function(reporter, project) {
-    this.reporter_ = reporter;
-    this.project_ = project;
-  };
-  Compiler = ($traceurRuntime.createClass)(Compiler, {
-    compile_: function() {
-      this.parse_();
-      this.analyze_();
-      var results = this.transform_();
-      return this.hadError_() ? null: results;
-    },
-    compileFile_: function(file) {
-      this.parseFile_(file);
-      this.analyzeFile_(file);
-      var results = this.transformFile_(file);
-      return this.hadError_() ? null: results;
-    },
-    transform_: function() {
-      if (this.hadError_()) return;
-      return ProgramTransformer.transform(this.reporter_, this.project_);
-    },
-    transformFile_: function(sourceFile) {
-      if (this.hadError_()) return;
-      return ProgramTransformer.transformFile(this.reporter_, this.project_, sourceFile);
-    },
-    analyze_: function() {
-      if (this.hadError_()) return;
-      new ModuleAnalyzer(this.reporter_, this.project_).analyze();
-    },
-    analyzeFile_: function(sourceFile) {
-      if (this.hadError_()) return;
-      new ModuleAnalyzer(this.reporter_, this.project_).analyzeFile(sourceFile);
-    },
-    parse_: function() {
-      this.project_.getSourceFiles().forEach(this.parseFile_, this);
-    },
-    parseFile_: function(file) {
-      if (this.hadError_()) return;
-      var tree = new Parser(this.reporter_, file).parseScript();
-      this.project_.setParseTree(file, tree);
-    },
-    hadError_: function() {
-      return this.reporter_.hadError();
-    }
-  }, {
-    compile: function(reporter, project) {
-      return new Compiler(reporter, project).compile_();
-    },
-    compileFile: function(reporter, sourceFile) {
-      var url = arguments[2] !== (void 0) ? arguments[2]: sourceFile.name;
-      var project = arguments[3] !== (void 0) ? arguments[3]: new Project(url);
-      project.addFile(sourceFile);
-      return new Compiler(reporter, project).compileFile_(sourceFile);
-    }
-  });
-  return {get Compiler() {
-      return Compiler;
-    }};
-}, this);
-$traceurRuntime.registerModule("../src/outputgeneration/ProjectWriter.js", function() {
-  "use strict";
-  var TreeWriter = $traceurRuntime.getModuleImpl("../src/outputgeneration/TreeWriter.js").TreeWriter;
-  var ProjectWriter = function() {};
-  ProjectWriter = ($traceurRuntime.createClass)(ProjectWriter, {}, {});
-  ProjectWriter.write = function(results) {
-    var options = arguments[1];
-    return results.keys().map((function(file) {
-      return TreeWriter.write(results.get(file), options);
-    })).join('');
-  };
-  return {get ProjectWriter() {
-      return ProjectWriter;
     }};
 }, this);
 $traceurRuntime.registerModule("../src/outputgeneration/SourceMapIntegration.js", function() {
@@ -19181,11 +18964,7 @@ $traceurRuntime.registerModule("../src/traceur.js", function() {
   var $___46__47_options__ = $traceurRuntime.getModuleImpl("../src/options.js");
   var $___46__47_WebPageTranscoder__ = $traceurRuntime.getModuleImpl("../src/WebPageTranscoder.js");
   var ModuleAnalyzer = $traceurRuntime.getModuleImpl("../src/semantics/ModuleAnalyzer.js").ModuleAnalyzer;
-  var Project = $traceurRuntime.getModuleImpl("../src/semantics/symbols/Project.js").Project;
-  var semantics = {
-    ModuleAnalyzer: ModuleAnalyzer,
-    symbols: {Project: Project}
-  };
+  var semantics = {ModuleAnalyzer: ModuleAnalyzer};
   var ErrorReporter = $traceurRuntime.getModuleImpl("../src/util/ErrorReporter.js").ErrorReporter;
   var SourcePosition = $traceurRuntime.getModuleImpl("../src/util/SourcePosition.js").SourcePosition;
   var TestErrorReporter = $traceurRuntime.getModuleImpl("../src/util/TestErrorReporter.js").TestErrorReporter;
@@ -19216,14 +18995,12 @@ $traceurRuntime.registerModule("../src/traceur.js", function() {
   };
   var ParseTreeMapWriter = $traceurRuntime.getModuleImpl("../src/outputgeneration/ParseTreeMapWriter.js").ParseTreeMapWriter;
   var ParseTreeWriter = $traceurRuntime.getModuleImpl("../src/outputgeneration/ParseTreeWriter.js").ParseTreeWriter;
-  var ProjectWriter = $traceurRuntime.getModuleImpl("../src/outputgeneration/ProjectWriter.js").ProjectWriter;
   var SourceMapConsumer = $traceurRuntime.getModuleImpl("../src/outputgeneration/SourceMapIntegration.js").SourceMapConsumer;
   var SourceMapGenerator = $traceurRuntime.getModuleImpl("../src/outputgeneration/SourceMapIntegration.js").SourceMapGenerator;
   var TreeWriter = $traceurRuntime.getModuleImpl("../src/outputgeneration/TreeWriter.js").TreeWriter;
   var outputgeneration = {
     ParseTreeMapWriter: ParseTreeMapWriter,
     ParseTreeWriter: ParseTreeWriter,
-    ProjectWriter: ProjectWriter,
     SourceMapConsumer: SourceMapConsumer,
     SourceMapGenerator: SourceMapGenerator,
     TreeWriter: TreeWriter
@@ -19231,23 +19008,19 @@ $traceurRuntime.registerModule("../src/traceur.js", function() {
   var AmdTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/AmdTransformer.js").AmdTransformer;
   var CloneTreeTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/CloneTreeTransformer.js").CloneTreeTransformer;
   var CommonJsModuleTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/CommonJsModuleTransformer.js").CommonJsModuleTransformer;
-  var Compiler = $traceurRuntime.getModuleImpl("../src/codegeneration/Compiler.js").Compiler;
   var FromOptionsTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/FromOptionsTransformer.js").FromOptionsTransformer;
   var ModuleSpecifierVisitor = $traceurRuntime.getModuleImpl("../src/codegeneration/module/ModuleSpecifierVisitor.js").ModuleSpecifierVisitor;
   var ModuleTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ModuleTransformer.js").ModuleTransformer;
   var ParseTreeTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeTransformer.js").ParseTreeTransformer;
-  var ProgramTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ProgramTransformer.js").ProgramTransformer;
   var ParseTreeFactory = System.get("../src/codegeneration/ParseTreeFactory.js");
   var codegeneration = {
     AmdTransformer: AmdTransformer,
     CloneTreeTransformer: CloneTreeTransformer,
     CommonJsModuleTransformer: CommonJsModuleTransformer,
-    Compiler: Compiler,
     FromOptionsTransformer: FromOptionsTransformer,
     ModuleTransformer: ModuleTransformer,
     ParseTreeFactory: ParseTreeFactory,
     ParseTreeTransformer: ParseTreeTransformer,
-    ProgramTransformer: ProgramTransformer,
     module: {ModuleSpecifierVisitor: ModuleSpecifierVisitor}
   };
   var modules = System.get("../src/runtime/module-loader.js");
