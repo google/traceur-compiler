@@ -74,6 +74,12 @@ class CodeUnit {
     this.state = state;
     this.uid = getUid();
     this.state_ = NOT_STARTED;
+    this.error = null;
+    this.result = null;
+    this.transformedTree = null;
+    this.transcoded = null;
+    this.sourceMap = null;
+    this.moduleSymbol = null;
   }
 
   get state() {

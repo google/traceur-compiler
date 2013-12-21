@@ -17306,6 +17306,8 @@ $traceurRuntime.registerModule("../src/semantics/symbols/Project.js", function()
 }, this);
 $traceurRuntime.registerModule("../src/runtime/System.js", function() {
   "use strict";
+  var AttachUrlTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/module/AttachUrlTransformer.js").AttachUrlTransformer;
+  var FromOptionsTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/FromOptionsTransformer.js").FromOptionsTransformer;
   var ModuleAnalyzer = $traceurRuntime.getModuleImpl("../src/semantics/ModuleAnalyzer.js").ModuleAnalyzer;
   var ModuleSymbol = $traceurRuntime.getModuleImpl("../src/semantics/symbols/ModuleSymbol.js").ModuleSymbol;
   var Parser = $traceurRuntime.getModuleImpl("../src/syntax/Parser.js").Parser;
@@ -17339,18 +17341,17 @@ $traceurRuntime.registerModule("../src/runtime/System.js", function() {
       var url = codeUnit.url;
       var program = codeUnit.text;
       var file = new SourceFile(url, program);
-      project.addFile(file);
-      codeUnit.file = file;
       var parser = new Parser(reporter, file);
       if (codeUnit.type == 'module') codeUnit.tree = parser.parseModule(); else codeUnit.tree = parser.parseScript();
-      if (reporter.hadError()) {
-        return false;
-      }
-      project.setParseTree(file, codeUnit.tree);
-      return true;
+      return !reporter.hadError();
     },
     transform: function(codeUnit) {
-      return ProgramTransformer.transformFile(this.reporter, this.project_, codeUnit.file);
+      if (!codeUnit.tree) throw new Error('LoaderHooks.transform codeUnit has no tree');
+      var transformer = new AttachUrlTransformer(codeUnit.url);
+      var transformedTree = transformer.transformAny(codeUnit.tree);
+      if (!transformedTree) throw new Error('LoaderHooks.transform codeUnit has no transformedTree');
+      transformer = new FromOptionsTransformer(this.reporter, identifierGenerator);
+      return transformer.transform(transformedTree);
     },
     instantiate: function($__275) {
       var name = $__275.name,
@@ -17400,7 +17401,7 @@ $traceurRuntime.registerModule("../src/runtime/System.js", function() {
       codeUnit.transformedTree = codeUnit.transform();
       codeUnit.state = TRANSFORMED;
       codeUnit.transcoded = TreeWriter.write(codeUnit.transformedTree, this.outputOptions_);
-      if (codeUnit.url) codeUnit.transcoded += '//# sourceURL=' + codeUnit.url;
+      if (codeUnit.url && codeUnit.transcoded) codeUnit.transcoded += '//# sourceURL=' + codeUnit.url;
       codeUnit.sourceMap = this.outputOptions_ && this.outputOptions_.sourceMap;
     },
     checkForErrors: function(dependencies, phase) {
@@ -17570,6 +17571,12 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
     this.state = state;
     this.uid = getUid();
     this.state_ = NOT_STARTED;
+    this.error = null;
+    this.result = null;
+    this.transformedTree = null;
+    this.transcoded = null;
+    this.sourceMap = null;
+    this.moduleSymbol = null;
   };
   CodeUnit = ($traceurRuntime.createClass)(CodeUnit, {
     get state() {

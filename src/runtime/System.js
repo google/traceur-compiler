@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {
+  AttachUrlTransformer
+} from '../codegeneration/module/AttachUrlTransformer';
+import {FromOptionsTransformer} from '../codegeneration/FromOptionsTransformer';
 import {ModuleAnalyzer} from '../semantics/ModuleAnalyzer';
 import {ModuleSymbol} from '../semantics/symbols/ModuleSymbol';
 import {Parser} from '../syntax/Parser';
@@ -56,26 +60,25 @@ export class LoaderHooks {
     var url = codeUnit.url;
     var program = codeUnit.text;
     var file = new SourceFile(url, program);
-    project.addFile(file);
-    codeUnit.file = file;  // TODO avoid this
-
     var parser = new Parser(reporter, file);
     if (codeUnit.type == 'module')
       codeUnit.tree = parser.parseModule();
     else
       codeUnit.tree = parser.parseScript();
 
-    if (reporter.hadError()) {
-      return false;
-    }
-
-    project.setParseTree(file, codeUnit.tree);
-    return true;
+    return !reporter.hadError();
   }
 
   transform(codeUnit) {
-    return ProgramTransformer.transformFile(this.reporter, this.project_,
-                                            codeUnit.file);
+    if (!codeUnit.tree)
+      throw new Error('LoaderHooks.transform codeUnit has no tree');
+    var transformer = new AttachUrlTransformer(codeUnit.url);
+    var transformedTree = transformer.transformAny(codeUnit.tree);
+    if (!transformedTree)
+      throw new Error('LoaderHooks.transform codeUnit has no transformedTree');
+    transformer = new FromOptionsTransformer(this.reporter,
+                                                  identifierGenerator);
+    return transformer.transform(transformedTree);
   }
 
   instantiate({name, metadata, address, source, sourceMap}) {
@@ -134,7 +137,7 @@ export class LoaderHooks {
     codeUnit.state = TRANSFORMED;
     codeUnit.transcoded =  TreeWriter.write(codeUnit.transformedTree,
         this.outputOptions_);
-    if (codeUnit.url)
+    if (codeUnit.url && codeUnit.transcoded)
       codeUnit.transcoded += '//# sourceURL=' + codeUnit.url;
     // TODO(jjb): return sourcemaps not sideeffect
     codeUnit.sourceMap = this.outputOptions_ && this.outputOptions_.sourceMap;
