@@ -17,11 +17,6 @@ var vm = require('vm');
 var util = require('util');
 
 var traceur = require('../src/node/traceur.js');
-
-var TreeWriter = traceur.outputgeneration.TreeWriter;
-var Parser = traceur.syntax.Parser;
-var SourceFile = traceur.syntax.SourceFile;
-
 traceur.options.freeVariableChecker = false;
 
 // Debug functions.
@@ -81,13 +76,10 @@ function compile(cmd, url) {
     }
   };
 
-  var src, parser, tree, transformedTree, output;
-
   try {
     debug('traceur-input: %s', cmd);
     var InterceptOutputLoaderHooks = traceur.runtime.InterceptOutputLoaderHooks;
     var Loader = traceur.modules.CodeLoader;
-    var reporter = new traceur.util.TestErrorReporter();
     var loaderHooks = new InterceptOutputLoaderHooks(reporter, url);
     var loader = new Loader(loaderHooks);
     loader.eval(cmd, url);
@@ -115,7 +107,7 @@ function compile(cmd, url) {
  * Needless to say, this code will break if someone decides to randomly add
  * whitespace to that part of node's lib/repl.js -- but that seems unlikely.
  * More likely is that the whole interface changes, which means everything
- * has to be reoutput anyway.
+ * has to be rewritten anyway.
  * @param cmd The command passed to the custom eval function.
  */
 function isWrapped(cmd) {

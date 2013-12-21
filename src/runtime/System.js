@@ -71,12 +71,8 @@ export class LoaderHooks {
   }
 
   transform(codeUnit) {
-    if (!codeUnit.tree)
-      throw new Error('LoaderHooks.transform codeUnit has no tree');
     var transformer = new AttachUrlTransformer(codeUnit.url);
     var transformedTree = transformer.transformAny(codeUnit.tree);
-    if (!transformedTree)
-      throw new Error('LoaderHooks.transform codeUnit has no transformedTree');
     transformer = new FromOptionsTransformer(this.reporter,
                                                   identifierGenerator);
     return transformer.transform(transformedTree);
