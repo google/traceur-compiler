@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Loader as Loader} from '../src/runtime/Loader';
+import {Loader} from '../src/runtime/Loader';
 import {
   InterceptOutputLoaderHooks
 } from '../src/runtime/InterceptOutputLoaderHooks';
