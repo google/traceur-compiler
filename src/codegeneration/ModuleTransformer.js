@@ -93,7 +93,7 @@ export class ModuleTransformer extends TempVarTransformer {
     return parseStatements
         `$traceurRuntime.registerModule(${this.url}, function() {
           ${statements}
-        }, this);`;
+        }, typeof global !== 'undefined' ? global : this);`;
   }
 
   /**
