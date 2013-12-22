@@ -90,7 +90,7 @@ export var codegeneration = {
   }
 };
 
-module modules from './runtime/module-loader';
+module modules from './runtime/Loader';
 export {modules};
 
 import {InterceptOutputLoaderHooks} from './runtime/InterceptOutputLoaderHooks';

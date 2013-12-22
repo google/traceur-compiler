@@ -27,7 +27,7 @@ import {UniqueIdentifierGenerator} from
 import {assert} from '../util/assert';
 
 // TODO These CodeUnit (aka Load) states are used by code in this file
-// that belongs in module-loader.
+// that belongs in Loader.
 var NOT_STARTED = 0;
 var LOADING = 1;
 var LOADED = 2;
@@ -113,7 +113,7 @@ export class LoaderHooks {
     this.checkForErrors(dependencies, 'analyze');
   }
 
-  // TODO(jjb): this function belongs in module-loader
+  // TODO(jjb): this function belongs in Loader
   transformDependencies(dependencies) {
     for (var i = 0; i < dependencies.length; i++) {
       var codeUnit = dependencies[i];

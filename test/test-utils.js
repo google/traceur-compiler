@@ -148,7 +148,7 @@
         return source;
       }
 
-      var moduleLoader = new traceur.modules.CodeLoader(loaderHooks);
+      var moduleLoader = new traceur.modules.Loader(loaderHooks);
 
       function handleShouldCompile() {
         if (!options.shouldCompile) {
