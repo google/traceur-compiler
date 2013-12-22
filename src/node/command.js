@@ -140,13 +140,6 @@ flags.parse(argv);
 
 var includes = flags.args;
 
-if (!includes.length) {
-  // TODO: Start trepl
-  console.error('\n  Error: At least one input file is needed');
-  flags.help();
-  process.exit(1);
-}
-
 var interpret = require('./interpreter.js');
 var compiler = require('./compiler.js');
 var compileToSingleFile = compiler.compileToSingleFile;
@@ -159,6 +152,9 @@ if (out) {
     compileToSingleFile(out, includes, flags.sourceMaps);
   else
     compileToDirectory(out, includes, flags.sourceMaps);
-} else {
+} else if (includes.length) {
   interpret(includes[0], includes.slice(1), argv.flags);
+} else {
+  var repl = require('./repl.js');
+  repl.start();
 }
