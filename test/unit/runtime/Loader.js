@@ -42,7 +42,7 @@ suite('modules.js', function() {
   function getLoader(opt_reporter) {
     var LoaderHooks = traceur.modules.LoaderHooks;
     var loaderHooks = new LoaderHooks(opt_reporter || reporter, url);
-    return new traceur.modules.CodeLoader(loaderHooks);
+    return new traceur.modules.Loader(loaderHooks);
   }
 
   test('LoaderEval', function() {

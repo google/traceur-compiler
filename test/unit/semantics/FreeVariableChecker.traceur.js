@@ -24,7 +24,7 @@ suite('FreeVariableChecker.traceur.js', function() {
 
   function compileAndReturnErrors(contents, name) {
     var LoaderHooks = traceur.modules.LoaderHooks;
-    var Loader = traceur.modules.CodeLoader;
+    var Loader = traceur.modules.Loader;
     var reporter = new traceur.util.ErrorReporter();
     var errors = [];
     reporter.reportMessageInternal = function() {

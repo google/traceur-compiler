@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {CodeLoader as Loader} from '../src/runtime/module-loader';
+import {Loader as Loader} from '../src/runtime/module-loader';
 import {
   InterceptOutputLoaderHooks
 } from '../src/runtime/InterceptOutputLoaderHooks';

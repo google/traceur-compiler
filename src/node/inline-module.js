@@ -33,7 +33,7 @@ var ModuleAnalyzer = traceur.semantics.ModuleAnalyzer;
  * @param {string|undefined} depTarget A valid depTarget means dependency
  *     printing was requested.
  */
-function InlineCodeLoader(reporter, url, elements, depTarget) {
+function InlineLoader(reporter, url, elements, depTarget) {
   var loaderHooks = new LoaderHooks(reporter, url);
   loaderHooks.fileLoader = nodeLoader;
   InternalLoader.call(this, loaderHooks);
@@ -43,7 +43,7 @@ function InlineCodeLoader(reporter, url, elements, depTarget) {
   this.codeUnitList = [];
 }
 
-InlineCodeLoader.prototype = {
+InlineLoader.prototype = {
   __proto__: InternalLoader.prototype,
 
   evalCodeUnit: function(codeUnit) {
@@ -89,7 +89,7 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
 
   var loadCount = 0;
   var elements = [];
-  var loader = new InlineCodeLoader(reporter, basePath, elements, depTarget);
+  var loader = new InlineLoader(reporter, basePath, elements, depTarget);
 
   function loadNext() {
     var codeUnit = loader.load(filenames[loadCount]);
@@ -120,7 +120,7 @@ function inlineAndCompileSync(filenames, options, reporter) {
 
   var loadCount = 0;
   var elements = [];
-  var loader = new InlineCodeLoader(reporter, basePath, elements, depTarget);
+  var loader = new InlineLoader(reporter, basePath, elements, depTarget);
 
   filenames.forEach(function(filename) {
     filename = System.normalResolve(filename, basePath);

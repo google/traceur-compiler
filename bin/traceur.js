@@ -17695,10 +17695,10 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
     return source;
   }
   var SystemLoaderHooks = LoaderHooks;
-  var CodeLoader = function(loaderHooks) {
+  var Loader = function(loaderHooks) {
     this.internalLoader_ = new InternalLoader(loaderHooks);
   };
-  CodeLoader = ($traceurRuntime.createClass)(CodeLoader, {
+  Loader = ($traceurRuntime.createClass)(Loader, {
     load: function(url) {
       var callback = arguments[1] !== (void 0) ? arguments[1]: (function(result) {});
       var errback = arguments[2] !== (void 0) ? arguments[2]: (function(ex) {
@@ -17749,8 +17749,8 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
     LoaderHooks: LoaderHooks
   };
   return {
-    get CodeLoader() {
-      return CodeLoader;
+    get Loader() {
+      return Loader;
     },
     get LoaderHooks() {
       return LoaderHooks;
@@ -17762,7 +17762,7 @@ $traceurRuntime.registerModule("../src/runtime/module-loader.js", function() {
 }, this);
 $traceurRuntime.registerModule("../src/WebPageTranscoder.js", function() {
   "use strict";
-  var Loader = $traceurRuntime.getModuleImpl("../src/runtime/module-loader.js").CodeLoader;
+  var Loader = $traceurRuntime.getModuleImpl("../src/runtime/module-loader.js").Loader;
   var ErrorReporter = $traceurRuntime.getModuleImpl("../src/util/ErrorReporter.js").ErrorReporter;
   var InterceptOutputLoaderHooks = $traceurRuntime.getModuleImpl("../src/runtime/InterceptOutputLoaderHooks.js").InterceptOutputLoaderHooks;
   var webLoader = $traceurRuntime.getModuleImpl("../src/runtime/webLoader.js").webLoader;

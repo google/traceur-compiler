@@ -79,7 +79,7 @@ function compile(cmd, url) {
   try {
     debug('traceur-input: %s', cmd);
     var InterceptOutputLoaderHooks = traceur.runtime.InterceptOutputLoaderHooks;
-    var Loader = traceur.modules.CodeLoader;
+    var Loader = traceur.modules.Loader;
     var loaderHooks = new InterceptOutputLoaderHooks(reporter, url);
     var loader = new Loader(loaderHooks);
     loader.eval(cmd, url);

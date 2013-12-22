@@ -34,7 +34,7 @@ suite('context test', function() {
 
   function executeFileWithRuntime(fileName) {
     var InterceptOutputLoaderHooks = traceur.runtime.InterceptOutputLoaderHooks;
-    var Loader = traceur.modules.CodeLoader;
+    var Loader = traceur.modules.Loader;
 
     var source = fs.readFileSync(fileName, 'utf-8');
     var reporter = new traceur.util.TestErrorReporter();
