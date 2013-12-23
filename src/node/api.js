@@ -19,6 +19,7 @@
 
 'use strict';
 
+var compiler = require('./compiler.js');
 var traceur = require('./traceur.js');
 var ErrorReporter = traceur.util.TestErrorReporter;
 var FromOptionsTransformer = traceur.codegeneration.FromOptionsTransformer;
@@ -42,8 +43,6 @@ function merge(dest) {
 /**
  * Compile ES6 source code with Traceur.
  *
- * TODO(vojta): Support source maps.
- *
  * @param  {string} content ES6 source code.
  * @param  {Object=} options Traceur options.
  * @return {string} Transpiled ES5 code.
@@ -63,12 +62,15 @@ function compile(content, options) {
   var tree = parser.parseModule();
   var transformer = new FromOptionsTransformer(errorReporter);
   var transformedTree = transformer.transform(tree);
-  var code = errorReporter.hadError() ? null : TreeWriter.write(transformedTree, null);
 
-  return {
-    js: code,
-    errors: errorReporter.errors
-  };
+  if (errorReporter.hadError()) {
+    return {js: null, errors: errorReporter.errors};
+  }
+
+  var result = Object.create(compiler.writeTreeAndMap(transformedTree,
+      options.filename, options.sourceMap, options.sourceRoot));
+  result.errors = errorReporter.errors;
+  return result;
 };
 
 // extend traceur module

@@ -33,12 +33,14 @@ function getSourceMapFileName(name) {
   return name.replace(/\.js$/, '.map');
 }
 
-function writeTreeToFile(tree, filename, useSourceMaps, opt_sourceRoot) {
+function writeTreeAndMap(tree, filename, useSourceMaps, opt_sourceRoot) {
+  var basename = path.basename(filename);
+
   var options = null;
   if (useSourceMaps) {
-    var sourceMapFilePath = getSourceMapFileName(filename);
+    var sourceMapBasename = getSourceMapFileName(basename);
     var config = {
-      file: path.basename(filename),
+      file: basename,
       sourceRoot: opt_sourceRoot
     };
     var sourceMapGenerator = new SourceMapGenerator(config);
@@ -47,12 +49,22 @@ function writeTreeToFile(tree, filename, useSourceMaps, opt_sourceRoot) {
 
   var compiledCode = TreeWriter.write(tree, options);
   if (useSourceMaps) {
-    compiledCode += '\n//# sourceMappingURL=' +
-        path.basename(sourceMapFilePath) + '\n';
+    compiledCode += '\n//# sourceMappingURL=' + sourceMapBasename + '\n';
   }
-  writeFile(filename, compiledCode);
+
+  return {
+    js: compiledCode,
+    sourceMap: useSourceMaps ? options.sourceMap : null,
+    sourceMapBasename: useSourceMaps ? sourceMapBasename : null
+  };
+}
+
+function writeTreeToFile(tree, filename, useSourceMaps, opt_sourceRoot) {
+  var result = writeTreeAndMap(tree, filename, useSourceMaps, opt_sourceRoot);
+
+  writeFile(filename, result.js);
   if (useSourceMaps)
-    writeFile(sourceMapFilePath, options.sourceMap);
+    writeFile(getSourceMapFileName(filename), result.sourceMap);
 }
 
 function compileToSingleFile(outputFile, includes, useSourceMaps) {
@@ -109,4 +121,5 @@ function compileToDirectory(outputFile, includes, useSourceMaps) {
 
 exports.compileToSingleFile = compileToSingleFile;
 exports.compileToDirectory = compileToDirectory;
+exports.writeTreeAndMap = writeTreeAndMap;
 exports.writeTreeToFile = writeTreeToFile;
