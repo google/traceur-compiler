@@ -68,7 +68,7 @@ function compile(content, options) {
   }
 
   var result = Object.create(compiler.writeTreeAndMap(transformedTree,
-      options.filename, options.sourceMap, options.sourceRoot));
+      options.filename, options.sourceMaps, options.sourceRoot));
   result.errors = errorReporter.errors;
   return result;
 };
