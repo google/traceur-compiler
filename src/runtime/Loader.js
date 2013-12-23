@@ -464,7 +464,7 @@ function defaultTranslate(source) {
 // jjb I don't understand why this is needed.
 var SystemLoaderHooks = LoaderHooks;
 
-export class CodeLoader {
+export class Loader {
   /**
    * ES6 Loader Constructor
    * @param {!Object=} options

@@ -15,7 +15,7 @@
 
 // Applies Traceur to all scripts in a Web page.
 
-import {CodeLoader as Loader} from './runtime/module-loader';
+import {Loader} from './runtime/Loader';
 import {ErrorReporter} from './util/ErrorReporter';
 import {InterceptOutputLoaderHooks} from './runtime/InterceptOutputLoaderHooks';
 import {webLoader} from './runtime/webLoader';

@@ -156,7 +156,7 @@ pre,
     var LoaderHooks = traceur.modules.LoaderHooks;
     var url = window.location.href;
     var loaderHooks = new LoaderHooks(new traceur.util.ErrorReporter(), url);
-    return new traceur.modules.CodeLoader(loaderHooks);
+    return new traceur.modules.Loader(loaderHooks);
   }
   // TODO(arv): Use Promise then/catch?
   getLoader().import('./transcode.js',
