@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {LoaderHooks} from './System';
+import {LoaderHooks} from './LoaderHooks';
 
 export class InterceptOutputLoaderHooks extends LoaderHooks {
   constructor(...args) {
