@@ -19,6 +19,7 @@
 
 'use strict';
 
+var path = require('path');
 var traceur = require('./traceur.js');
 var ErrorReporter = traceur.util.TestErrorReporter;
 var FromOptionsTransformer = traceur.codegeneration.FromOptionsTransformer;
@@ -38,6 +39,10 @@ function merge(dest) {
 
   return dest;
 }
+
+// The absolute path to traceur-runtime.js -- the file that should be executed
+// if you want to run Traceur-compiled scripts when the compiler isn't present.
+var TRACEUR_RUNTIME = path.join(__dirname, '../../bin/traceur-runtime.js');
 
 /**
  * Compile ES6 source code with Traceur.
@@ -74,3 +79,4 @@ function compile(content, options) {
 // extend traceur module
 module.exports = Object.create(traceur);
 module.exports.compile = compile;
+module.exports.TRACEUR_RUNTIME = TRACEUR_RUNTIME;
