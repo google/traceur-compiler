@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {ArrayMap} from '../util/ArrayMap';
-import {LoaderHooks} from '../runtime/System';
+import {LoaderHooks} from '../runtime/LoaderHooks';
 import {ModuleSpecifierVisitor} from
     '../codegeneration/module/ModuleSpecifierVisitor';
 import {ObjectMap} from '../util/ObjectMap';

@@ -17155,7 +17155,7 @@ $traceurRuntime.registerModule("../src/semantics/symbols/ModuleSymbol.js", funct
       return ModuleSymbol;
     }};
 }, this);
-$traceurRuntime.registerModule("../src/runtime/System.js", function() {
+$traceurRuntime.registerModule("../src/runtime/LoaderHooks.js", function() {
   "use strict";
   var AttachUrlTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/module/AttachUrlTransformer.js").AttachUrlTransformer;
   var FromOptionsTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/FromOptionsTransformer.js").FromOptionsTransformer;
@@ -17274,7 +17274,7 @@ $traceurRuntime.registerModule("../src/runtime/System.js", function() {
 }, this);
 $traceurRuntime.registerModule("../src/runtime/InterceptOutputLoaderHooks.js", function() {
   "use strict";
-  var LoaderHooks = $traceurRuntime.getModuleImpl("../src/runtime/System.js").LoaderHooks;
+  var LoaderHooks = $traceurRuntime.getModuleImpl("../src/runtime/LoaderHooks.js").LoaderHooks;
   var InterceptOutputLoaderHooks = function() {
     for (var args = [],
         $__271 = 0; $__271 < arguments.length; $__271++) args[$__271] = arguments[$__271];
@@ -17374,7 +17374,7 @@ $traceurRuntime.registerModule("../src/runtime/webLoader.js", function() {
 $traceurRuntime.registerModule("../src/runtime/Loader.js", function() {
   "use strict";
   var ArrayMap = $traceurRuntime.getModuleImpl("../src/util/ArrayMap.js").ArrayMap;
-  var LoaderHooks = $traceurRuntime.getModuleImpl("../src/runtime/System.js").LoaderHooks;
+  var LoaderHooks = $traceurRuntime.getModuleImpl("../src/runtime/LoaderHooks.js").LoaderHooks;
   var ModuleSpecifierVisitor = $traceurRuntime.getModuleImpl("../src/codegeneration/module/ModuleSpecifierVisitor.js").ModuleSpecifierVisitor;
   var ObjectMap = $traceurRuntime.getModuleImpl("../src/util/ObjectMap.js").ObjectMap;
   var webLoader = $traceurRuntime.getModuleImpl("../src/runtime/webLoader.js").webLoader;
