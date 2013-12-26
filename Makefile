@@ -113,9 +113,15 @@ bin/traceur.js: build/compiled-by-previous-traceur.js
 	./traceur --out bin/traceur.js $(TFLAGS) $(SRC)
 
 # Use last-known-good compiler to compile current source
-build/compiled-by-previous-traceur.js: build/previous-commit-traceur.js $(SRC) build/dep.mk
+build/compiled-by-previous-traceur.js: build/previous-commit-traceur.js $(SRC)  | $(GENSRC) node_modules
 	@cp build/previous-commit-traceur.js bin/traceur.js
-	./traceur --out $@ $(TFLAGS) $(SRC)
+	mkdir -p build/node
+	mv src/node/* build/node # Save in case of src diffs.
+	git checkout -- src/node # Over-write with last-good node compiler front.
+	node build/makedep.js --depTarget build/compiled-by-previous-traceur.js $(TFLAGS) $(SRC) > build/dep.mk
+	./traceur --debug --out $@ $(TFLAGS) $(SRC) # Build with last-good node compiler front.
+	mv build/node/* src/node # Restore possible src diffs.
+	rmdir build/node         # Clean up.
 
 build/previous-commit-traceur.js:
 	mv bin/traceur.js build/traceur.js
@@ -134,12 +140,7 @@ self: force
 	mv build/node/* src/node # Restore possible src diffs.
 	rmdir build/node         # Clean up.
 
-# Prerequisites following '|' are rebuilt just like ordinary prerequisites.
-# However, they don't cause remakes if they're newer than the target. See:
-# http://www.gnu.org/software/make/manual/html_node/Prerequisite-Types.html
-build/dep.mk: build/previous-commit-traceur.js | $(GENSRC) node_modules
-	@cp build/previous-commit-traceur.js bin/traceur.js  # ` known-good compiler
-	node build/makedep.js --depTarget build/compiled-by-previous-traceur.js $(TFLAGS) $(SRC) > $@
+build/dep.mk: ;
 
 $(TPL_GENSRC_DEPS): | node_modules
 
