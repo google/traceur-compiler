@@ -53,7 +53,7 @@ InlineLoader.prototype = {
                   codeUnit.url)));
     }
     // Don't eval. Instead append the trees to the output.
-    var tree = codeUnit.transformedTree;
+    var tree = codeUnit.data.transformedTree;
     this.elements.push.apply(this.elements, tree.scriptItemList);
   },
 };
