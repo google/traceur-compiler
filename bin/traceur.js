@@ -12501,7 +12501,8 @@ $traceurRuntime.registerModule("../src/codegeneration/module/ModuleVisitor.js", 
       var referrer = this.module.url;
       var module = this.loader_.getModuleSymbolForModuleSpecifier(name, referrer);
       if (!module) {
-        this.reportError(tree, '\'%s\' is not a module', url);
+        var msg = (name + " is not a module, required by " + referrer);
+        this.reportError(tree, msg);
         return null;
       }
       return module;
@@ -17210,12 +17211,14 @@ $traceurRuntime.registerModule("../src/runtime/LoaderHooks.js", function() {
       return undefined;
     },
     evaluate: function(codeUnit) {
-      return ('global', eval)(codeUnit.transcoded);
+      var result = ('global', eval)(codeUnit.data.transcoded);
+      codeUnit.data.transformedTree = null;
+      return result;
     },
     addExternalModule: function(codeUnit) {
       var tree = codeUnit.tree;
       var url = codeUnit.url || this.rootUrl_;
-      codeUnit.moduleSymbol = new ModuleSymbol(tree, url);
+      codeUnit.data.moduleSymbol = new ModuleSymbol(tree, url);
     },
     analyzeDependencies: function(dependencies) {
       var trees = [];
@@ -17225,7 +17228,7 @@ $traceurRuntime.registerModule("../src/runtime/LoaderHooks.js", function() {
         assert(codeUnit.state >= PARSED);
         if (codeUnit.state == PARSED) {
           trees.push(codeUnit.tree);
-          modules.push(codeUnit.moduleSymbol);
+          modules.push(codeUnit.data.moduleSymbol);
         }
       }
       this.analyzer_.analyzeTrees(trees, modules);
@@ -17244,10 +17247,10 @@ $traceurRuntime.registerModule("../src/runtime/LoaderHooks.js", function() {
     },
     transformCodeUnit: function(codeUnit) {
       this.transformDependencies(codeUnit.dependencies);
-      codeUnit.transformedTree = codeUnit.transform();
+      codeUnit.data.transformedTree = codeUnit.transform();
       codeUnit.state = TRANSFORMED;
-      codeUnit.transcoded = TreeWriter.write(codeUnit.transformedTree, this.outputOptions_);
-      if (codeUnit.url && codeUnit.transcoded) codeUnit.transcoded += '//# sourceURL=' + codeUnit.url;
+      codeUnit.data.transcoded = TreeWriter.write(codeUnit.data.transformedTree, this.outputOptions_);
+      if (codeUnit.url && codeUnit.data.transcoded) codeUnit.data.transcoded += '//# sourceURL=' + codeUnit.url;
       codeUnit.sourceMap = this.outputOptions_ && this.outputOptions_.sourceMap;
     },
     checkForErrors: function(dependencies, phase) {
@@ -17283,10 +17286,9 @@ $traceurRuntime.registerModule("../src/runtime/InterceptOutputLoaderHooks.js", f
     this.transcoded = null;
   };
   var $InterceptOutputLoaderHooks = ($traceurRuntime.createClass)(InterceptOutputLoaderHooks, {instantiate: function($__272) {
-      var sourceMap = $__272.sourceMap,
-          transcoded = $__272.transcoded;
-      this.sourceMap = sourceMap;
-      this.transcoded = transcoded;
+      var data = $__272.data;
+      this.sourceMap = data.sourceMap;
+      this.transcoded = data.transcoded;
       return undefined;
     }}, {}, LoaderHooks);
   return {get InterceptOutputLoaderHooks() {
@@ -17415,10 +17417,7 @@ $traceurRuntime.registerModule("../src/runtime/Loader.js", function() {
     this.state_ = NOT_STARTED;
     this.error = null;
     this.result = null;
-    this.transformedTree = null;
-    this.transcoded = null;
-    this.sourceMap = null;
-    this.moduleSymbol = null;
+    this.data_ = {};
   };
   CodeUnit = ($traceurRuntime.createClass)(CodeUnit, {
     get state() {
@@ -17429,6 +17428,9 @@ $traceurRuntime.registerModule("../src/runtime/Loader.js", function() {
         throw new Error('Invalid state change');
       }
       this.state_ = state;
+    },
+    get data() {
+      return this.data_;
     },
     addListener: function(callback, errback) {
       if (this.state >= COMPLETE) throw Error((this.url + " is already loaded"));
@@ -17592,7 +17594,7 @@ $traceurRuntime.registerModule("../src/runtime/Loader.js", function() {
     getModuleSymbolForModuleSpecifier: function(name, referrer) {
       var url = System.normalResolve(name, referrer);
       var codeUnit = this.getCodeUnit(url, 'module');
-      return codeUnit.moduleSymbol;
+      return codeUnit.data.moduleSymbol;
     },
     handleCodeUnitLoaded: function(codeUnit) {
       var $__275 = this;
@@ -17667,7 +17669,6 @@ $traceurRuntime.registerModule("../src/runtime/Loader.js", function() {
           return;
         }
         codeUnit.result = result;
-        codeUnit.transformedTree = null;
         codeUnit.text = null;
       }
       for (var i = 0; i < dependencies.length; i++) {
