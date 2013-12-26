@@ -76,10 +76,7 @@ class CodeUnit {
     this.state_ = NOT_STARTED;
     this.error = null;
     this.result = null;
-    this.transformedTree = null;
-    this.transcoded = null;
-    this.sourceMap = null;
-    this.moduleSymbol = null;
+    this.data_ = {};
   }
 
   get state() {
@@ -90,6 +87,13 @@ class CodeUnit {
       throw new Error('Invalid state change');
     }
     this.state_ = state;
+  }
+
+  /**
+   * @return opaque value set and used by loaderHooks
+   */
+  get data() {
+    return this.data_;
   }
 
   /**
@@ -327,7 +331,7 @@ class InternalLoader {
   getModuleSymbolForModuleSpecifier(name, referrer) {
     var url = System.normalResolve(name, referrer);
     var codeUnit = this.getCodeUnit(url, 'module');
-    return codeUnit.moduleSymbol;
+    return codeUnit.data.moduleSymbol;
   }
 
   /**
@@ -427,7 +431,6 @@ class InternalLoader {
       }
 
       codeUnit.result = result;
-      codeUnit.transformedTree = null;
       codeUnit.text = null;
     }
 

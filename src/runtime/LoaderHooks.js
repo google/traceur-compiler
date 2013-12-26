@@ -84,14 +84,16 @@ export class LoaderHooks {
 
   evaluate(codeUnit) {
     // TODO(arv): Eval in the right context.
-    return ('global', eval)(codeUnit.transcoded);
+    var result = ('global', eval)(codeUnit.data.transcoded);
+    codeUnit.data.transformedTree = null;
+    return result;
   }
 
   addExternalModule(codeUnit) {
     var tree = codeUnit.tree;
     var url = codeUnit.url || this.rootUrl_; // eval needs this.
     // External modules have no parent module.
-    codeUnit.moduleSymbol = new ModuleSymbol(tree, url);
+    codeUnit.data.moduleSymbol = new ModuleSymbol(tree, url);
   }
 
   analyzeDependencies(dependencies) {
@@ -105,7 +107,7 @@ export class LoaderHooks {
 
       if (codeUnit.state == PARSED) {
         trees.push(codeUnit.tree);
-        modules.push(codeUnit.moduleSymbol);
+        modules.push(codeUnit.data.moduleSymbol);
       }
     }
 
@@ -128,14 +130,15 @@ export class LoaderHooks {
 
   transformCodeUnit(codeUnit) {
     this.transformDependencies(codeUnit.dependencies); // depth first
-    codeUnit.transformedTree = codeUnit.transform();
+    codeUnit.data.transformedTree = codeUnit.transform();
     codeUnit.state = TRANSFORMED;
-    codeUnit.transcoded =  TreeWriter.write(codeUnit.transformedTree,
+    codeUnit.data.transcoded =  TreeWriter.write(codeUnit.data.transformedTree,
         this.outputOptions_);
-    if (codeUnit.url && codeUnit.transcoded)
-      codeUnit.transcoded += '//# sourceURL=' + codeUnit.url;
+    if (codeUnit.url && codeUnit.data.transcoded)
+      codeUnit.data.transcoded += '//# sourceURL=' + codeUnit.url;
     // TODO(jjb): return sourcemaps not sideeffect
-    codeUnit.sourceMap = this.outputOptions_ && this.outputOptions_.sourceMap;
+    codeUnit.sourceMap =
+      this.outputOptions_ && this.outputOptions_.sourceMap;
   }
 
 

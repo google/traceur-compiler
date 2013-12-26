@@ -47,7 +47,8 @@ export class ModuleVisitor extends ParseTreeVisitor {
     var module = this.loader_.getModuleSymbolForModuleSpecifier(name, referrer);
 
     if (!module) {
-      this.reportError(tree, '\'%s\' is not a module', url);
+      var msg = `${name} is not a module, required by ${referrer}`;
+      this.reportError(tree, msg);
       return null;
     }
 
