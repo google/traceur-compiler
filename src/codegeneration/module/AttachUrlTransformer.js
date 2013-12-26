@@ -21,7 +21,7 @@ import {
 
 
 /**
- * Annotates a tree with its ModuleSymbol or URL
+ * Annotates a tree with its URL
  */
 
 export class AttachUrlTransformer extends ParseTreeTransformer {

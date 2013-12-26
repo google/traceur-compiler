@@ -38,16 +38,16 @@ export class ExportVisitor extends ModuleVisitor {
   }
 
   addExport(name, tree) {
-    var module = this.module;
-    if (module.hasExport(name)) {
-      var previousExport = module.getExport(name).tree;
+    var moduleSymbol = this.moduleSymbol;
+    if (moduleSymbol.hasExport(name)) {
+      var previousExport = moduleSymbol.getExport(name).tree;
       this.reportError(tree, `Duplicate export of '${name}'`);
       this.reportError(previousExport,
                        `'${name}' was previously exported here`);
       return;
     }
 
-    module.addExport(new ExportSymbol(name, tree));
+    moduleSymbol.addExport(new ExportSymbol(name, tree));
   }
 
   visitClassDeclaration(tree) {
@@ -75,8 +75,8 @@ export class ExportVisitor extends ModuleVisitor {
   }
 
   visitExportStar(tree) {
-    var module = this.getModuleSymbolForModuleSpecifier(this.moduleSpecifier);
-    module.getExports().forEach(({name}) => {
+    var moduleSymbol = this.getModuleSymbolForModuleSpecifier(this.moduleSpecifier);
+    moduleSymbol.getExports().forEach(({name}) => {
       this.addExport(name, tree);
     });
   }

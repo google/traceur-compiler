@@ -27,36 +27,34 @@ export class ModuleAnalyzer {
    * @param {ErrorReporter} reporter
    * @param {Loader} loader
    */
-  constructor(reporter, loader) {
+  constructor(reporter) {
     this.reporter_ = reporter;
-    this.loader_ = loader;
   }
 
   /**
    * @param {Array.<ParseTree>} trees
-   * @param {Array.<ModuleSymbol>=} roots
+   * @param {Array.<ModuleSymbol>=} moduleSymbols
    * @return {void}
    */
-  analyzeTrees(trees, roots) {
+  analyzeTrees(trees, moduleSymbols, loader) {
     if (!transformOptions.modules)
       return;
 
     var reporter = this.reporter_;
-    var loader = this.loader_;
-    function getRoot(i) {
-      return roots.length ? roots[i] : roots;
+    function getModuleSymbol(i) {
+      return moduleSymbols.length ? moduleSymbols[i] : moduleSymbols;
     }
 
     function doVisit(ctor) {
       for (var i = 0; i < trees.length; i++) {
-        var visitor = new ctor(reporter, loader, getRoot(i));
+        var visitor = new ctor(reporter, loader, getModuleSymbol(i));
         visitor.visitAny(trees[i]);
       }
     }
 
     function reverseVisit(ctor) {
       for (var i = trees.length - 1; i >= 0; i--) {
-        var visitor = new ctor(reporter, loader, getRoot(i));
+        var visitor = new ctor(reporter, loader, getModuleSymbol(i));
         visitor.visitAny(trees[i]);
       }
     }
