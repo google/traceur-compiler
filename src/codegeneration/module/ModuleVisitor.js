@@ -28,12 +28,12 @@ export class ModuleVisitor extends ParseTreeVisitor {
   /**
    * @param {traceur.util.ErrorReporter} reporter
    * @param {Loader} loader
-   * @param {ModuleSymbol} module The root of the module system.
+   * @param {ModuleSymbol} moduleSymbol The root of the module system.
    */
-  constructor(reporter, loader, module) {
+  constructor(reporter, loader, moduleSymbol) {
     this.reporter = reporter;
     this.loader_ = loader;
-    this.module = module;
+    this.moduleSymbol = moduleSymbol;
   }
 
   /**
@@ -43,16 +43,16 @@ export class ModuleVisitor extends ParseTreeVisitor {
    */
   getModuleSymbolForModuleSpecifier(tree) {
     var name = tree.token.processedValue;
-    var referrer = this.module.url;
-    var module = this.loader_.getModuleSymbolForModuleSpecifier(name, referrer);
-
-    if (!module) {
+    var referrer = this.moduleSymbol.url;
+    var codeUnit = this.loader_.getCodeUnitForModuleSpecifier(name, referrer);
+    var moduleSymbol = codeUnit.data.moduleSymbol;
+    if (!moduleSymbol) {
       var msg = `${name} is not a module, required by ${referrer}`;
       this.reportError(tree, msg);
       return null;
     }
 
-    return module;
+    return moduleSymbol;
   }
 
   // Limit the trees to visit.

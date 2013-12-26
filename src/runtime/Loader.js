@@ -14,8 +14,6 @@
 
 import {ArrayMap} from '../util/ArrayMap';
 import {LoaderHooks} from '../runtime/LoaderHooks';
-import {ModuleSpecifierVisitor} from
-    '../codegeneration/module/ModuleSpecifierVisitor';
 import {ObjectMap} from '../util/ObjectMap';
 import {webLoader} from './webLoader';
 import {getUid} from '../util/uid';
@@ -170,18 +168,6 @@ class LoadCodeUnit extends CodeUnit {
     super(loaderHooks, url, 'module', NOT_STARTED);
   }
 
-  /**
-   * Override to add parse tree as an external module symbol.
-   * @return {boolean}
-   * @override
-   */
-  parse() {
-    if (!super.parse()) {
-      return false;
-    }
-    this.loaderHooks.addExternalModule(this);
-    return true;
-  }
 }
 
 /**
@@ -197,19 +183,6 @@ class EvalCodeUnit extends CodeUnit {
     super(loaderHooks, name, LOADED);
     this.text = code;
   }
-
-  /**
-   * Override to add parse tree as an external module symbol.
-   * @return {boolean}
-   * @override
-   */
-  parse() {
-    if (!super.parse()) {
-      return false;
-    }
-    this.loaderHooks.addExternalModule(this);
-    return true;
-  }
 }
 
 /**
@@ -221,8 +194,6 @@ class InternalLoader {
    */
   constructor(loaderHooks) {
     this.loaderHooks = loaderHooks;
-    // TODO(jjb): fix API
-    this.loaderHooks.setLoader(this);
     this.reporter = loaderHooks.reporter;
     this.fileLoader = loaderHooks.fileLoader || InternalLoader.fileLoader;
     this.cache = new ArrayMap();
@@ -316,22 +287,9 @@ class InternalLoader {
     return this.cache.values().every((codeUnit) => codeUnit.state >= state);
   }
 
-  // To System
-  getModuleSpecifiers(codeUnit) {
-    // Parse
-    if (!codeUnit.parse())
-      return;
-
-    // Analyze to find dependencies
-    var moduleSpecifierVisitor = new ModuleSpecifierVisitor(this.reporter);
-    moduleSpecifierVisitor.visit(codeUnit.tree);
-    return moduleSpecifierVisitor.moduleSpecifiers;
-  }
-
-  getModuleSymbolForModuleSpecifier(name, referrer) {
+  getCodeUnitForModuleSpecifier(name, referrer) {
     var url = System.normalResolve(name, referrer);
-    var codeUnit = this.getCodeUnit(url, 'module');
-    return codeUnit.data.moduleSymbol;
+    return this.getCodeUnit(url, 'module');
   }
 
   /**
@@ -340,7 +298,7 @@ class InternalLoader {
    */
   handleCodeUnitLoaded(codeUnit) {
     var baseUrl = codeUnit.url;
-    var moduleSpecifiers = this.getModuleSpecifiers(codeUnit);
+    var moduleSpecifiers = this.loaderHooks.getModuleSpecifiers(codeUnit);
     if (!moduleSpecifiers) {
       this.abortAll()
       return;
@@ -389,7 +347,7 @@ class InternalLoader {
   }
 
   analyze() {
-    this.loaderHooks.analyzeDependencies(this.cache.values());
+    this.loaderHooks.analyzeDependencies(this.cache.values(), this);
   }
 
   transform() {
