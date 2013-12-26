@@ -47,20 +47,15 @@ InlineLoader.prototype = {
   __proto__: InternalLoader.prototype,
 
   evalCodeUnit: function(codeUnit) {
-    // Don't eval. Instead append the trees to the output.
-    var tree = codeUnit.transformedTree;
-    this.elements.push.apply(this.elements, tree.scriptItemList);
-  },
-
-  transformCodeUnit: function(codeUnit) {
     if (this.depTarget) {
       console.log('%s: %s', this.depTarget,
                   normalizePath(path.relative(path.join(__dirname, '../..'),
                   codeUnit.url)));
     }
-
-    return InternalLoader.prototype.transformCodeUnit.call(this, codeUnit);
-  }
+    // Don't eval. Instead append the trees to the output.
+    var tree = codeUnit.transformedTree;
+    this.elements.push.apply(this.elements, tree.scriptItemList);
+  },
 };
 
 function allLoaded(url, reporter, elements) {
