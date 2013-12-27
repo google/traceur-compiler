@@ -354,7 +354,7 @@ class InternalLoader {
     this.loaderHooks.transformDependencies(this.cache.values());
   }
 
-  evaluate() {
+  orderDependencies(codeUnit) {
     // Order the dependencies.
     var visited = new ObjectMap();
     var ordered = [];
@@ -369,7 +369,11 @@ class InternalLoader {
       ordered.push(codeUnit);
     }
     this.cache.values().forEach(orderCodeUnits);
-    var dependencies = ordered;
+    return ordered;
+  }
+
+  evaluate() {
+    var dependencies = this.orderDependencies(codeUnit);
 
     for (var i = 0; i < dependencies.length; i++) {
       var codeUnit = dependencies[i];

@@ -17619,7 +17619,7 @@ $traceurRuntime.registerModule("../src/runtime/Loader.js", function() {
     transform: function() {
       this.loaderHooks.transformDependencies(this.cache.values());
     },
-    evaluate: function() {
+    orderDependencies: function(codeUnit) {
       var visited = new ObjectMap();
       var ordered = [];
       function orderCodeUnits(codeUnit) {
@@ -17631,7 +17631,10 @@ $traceurRuntime.registerModule("../src/runtime/Loader.js", function() {
         ordered.push(codeUnit);
       }
       this.cache.values().forEach(orderCodeUnits);
-      var dependencies = ordered;
+      return ordered;
+    },
+    evaluate: function() {
+      var dependencies = this.orderDependencies(codeUnit);
       for (var i = 0; i < dependencies.length; i++) {
         var codeUnit = dependencies[i];
         if (codeUnit.state >= COMPLETE) {
