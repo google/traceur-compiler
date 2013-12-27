@@ -37,6 +37,13 @@ TESTS = \
 	$(RUNTIME_TESTS) \
 	$(UNIT_TESTS)
 
+COMPILE_BEFORE_TEST = \
+	test/unit/semantics/FreeVariableChecker.generated.js \
+	test/unit/codegeneration/PlaceholderParser.generated.js
+
+MOCHA_OPTIONS = \
+	--ignore-leaks --ui tdd --require test/node-env.js
+
 GIT_BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
 
 build: bin/traceur.js wiki
@@ -51,20 +58,20 @@ test-runtime: bin/traceur-runtime.js $(RUNTIME_TESTS)
 	@echo 'Open test/runtime.html to test runtime only'
 
 test: test/test-list.js bin/traceur.js bin/traceur-runtime.js \
-	wiki test/amd-compiled test/commonjs-compiled
-	node_modules/.bin/mocha --ignore-leaks --ui tdd --require test/node-env.js $(TESTS)
+	wiki test/amd-compiled test/commonjs-compiled $(COMPILE_BEFORE_TEST)
+	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(TESTS)
 
 test/unit: bin/traceur.js bin/traceur-runtime.js
-	node_modules/.bin/mocha --ignore-leaks --ui tdd --require test/node-env.js $(UNIT_TESTS)
+	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(UNIT_TESTS)
 
 test/commonjs: test/commonjs-compiled
-	node_modules/.bin/mocha --ignore-leaks --ui tdd test/node-env.js test/node-commonjs-test.js
+	node_modules/.bin/mocha $(MOCHA_OPTIONS) test/node-commonjs-test.js
 
 test/amd: test/amd-compiled
-	node_modules/.bin/mocha --ignore-leaks --ui tdd test/node-env.js test/node-amd-test.js
+	node_modules/.bin/mocha $(MOCHA_OPTIONS) test/node-amd-test.js
 
 test/features: bin/traceur.js bin/traceur-runtime.js test/test-list.js
-	node_modules/.bin/mocha --ignore-leaks --ui tdd --require test/node-env.js test/node-feature-test.js
+	node_modules/.bin/mocha $(MOCHA_OPTIONS) test/node-feature-test.js
 
 test-list: test/test-list.js
 
@@ -78,12 +85,16 @@ test/commonjs-compiled: force
 test/amd-compiled: force
 	node src/node/to-amd-compiler.js test/amd test/amd-compiled
 
+test/unit/%.generated.js: test/unit/es6/%.js
+	./traceur --out $@ $(TFLAGS) $<
+
 boot: clean build
 
 clean: wikiclean
 	@rm -f build/compiled-by-previous-traceur.js
 	@rm -f build/dep.mk
 	@rm -f $(GENSRC) $(TPL_GENSRC_DEPS)
+	@rm -f $(COMPILE_BEFORE_TEST)
 	@rm -f test/test-list.js
 	@rm -rf test/commonjs-compiled/*
 	@rm -rf test/amd-compiled/*

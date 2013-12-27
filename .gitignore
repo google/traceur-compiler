@@ -19,6 +19,8 @@ src/outputgeneration/SourceMapIntegration.js
 src/syntax/ParseTreeVisitor.js
 src/syntax/trees/ParseTreeType.js
 src/syntax/trees/ParseTrees.js
+test/unit/codegeneration/PlaceholderParser.generated.js
+test/unit/semantics/FreeVariableChecker.generated.js
 test/amd-compiled
 test/bench/esprima
 test/commonjs-compiled
