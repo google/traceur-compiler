@@ -50,7 +50,8 @@ ugly: bin/traceur.ugly.js
 test-runtime: bin/traceur-runtime.js $(RUNTIME_TESTS)
 	@echo 'Open test/runtime.html to test runtime only'
 
-test: bin/traceur.js bin/traceur-runtime.js test/test-list.js test/amd-compiled test/commonjs-compiled
+test: test/test-list.js bin/traceur.js bin/traceur-runtime.js \
+	wiki test/amd-compiled test/commonjs-compiled
 	node_modules/.bin/mocha --ignore-leaks --ui tdd --require test/node-env.js $(TESTS)
 
 test/unit: bin/traceur.js bin/traceur-runtime.js
@@ -116,7 +117,7 @@ bin/traceur.js: build/compiled-by-previous-traceur.js
 build/compiled-by-previous-traceur.js: build/previous-commit-traceur.js $(SRC)  | $(GENSRC) node_modules
 	@cp build/previous-commit-traceur.js bin/traceur.js
 	mkdir -p build/node
-	mv src/node/* build/node # Save in case of src diffs.
+	cp src/node/* build/node # Save in case of src diffs.
 	git checkout -- src/node # Over-write with last-good node compiler front.
 	node build/makedep.js --depTarget build/compiled-by-previous-traceur.js $(TFLAGS) $(SRC) > build/dep.mk
 	./traceur --debug --out $@ $(TFLAGS) $(SRC) # Build with last-good node compiler front.
@@ -134,13 +135,13 @@ debug: build/compiled-by-previous-traceur.js $(SRC)
 
 self: force
 	mkdir -p build/node
-	mv src/node/* build/node # Save in case of src diffs.
+	cp src/node/* build/node # Save in case of src diffs.
 	git checkout -- src/node # Over-write with last-good node compiler front.
 	-make debug              # Build with last-good node compiler front.
 	mv build/node/* src/node # Restore possible src diffs.
 	rmdir build/node         # Clean up.
 
-build/dep.mk: ;
+build/dep.mk: ;  # Do not rebuild dep.mk before including it.
 
 $(TPL_GENSRC_DEPS): | node_modules
 
