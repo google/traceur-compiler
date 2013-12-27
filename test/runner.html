@@ -11,12 +11,12 @@
 mocha.setup({ui: 'tdd'});
 
 </script>
-<script src="unit/codegeneration/PlaceholderParser.traceur.js" type="module"></script>
+<script src="unit/codegeneration/PlaceholderParser.generated.js" type="module"></script>
 <script src="unit/codegeneration/SourceMap.js"></script>
 <script src="unit/codegeneration/low_level_tests.js"></script>
 <script src="unit/codegeneration/writer.js"></script>
 <script src="unit/runtime/Loader.js"></script>
-<script src="unit/semantics/FreeVariableChecker.traceur.js" type="module"  ></script>
+<script src="unit/semantics/FreeVariableChecker.generated.js" type="module"  ></script>
 <script src="unit/semantics/VariableBinder.js"></script>
 <script src="unit/syntax/LineNumbers.js"></script>
 <script src="unit/syntax/ParseTreeValidator.js"></script>
@@ -31,21 +31,9 @@ mocha.setup({ui: 'tdd'});
 (function() {
   'use strict';
 
-  function optionsOnURL() {
-    var params = window.location.search.substring(1);
-    var nameValuePairs = params.split('&');
-    var options = {};
-    nameValuePairs.forEach(function(pair){
-      var segments = pair.split('=');
-      options[segments[0]] = segments[1];
-    });
-    return options;
-  }
-
   var loader = traceur.modules.internals.InternalLoader.fileLoader;
-  var urlOptions = optionsOnURL();
 
-  featureSuite(testList, loader, urlOptions);
+  featureSuite(testList, loader);
 
   new traceur.WebPageTranscoder(document.location.href).run(function() {
     mocha.run();
