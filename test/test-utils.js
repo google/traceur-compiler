@@ -113,7 +113,7 @@
     }
   }
 
-  function featureTest(name, url) {
+  function featureTest(name, url, loader) {
 
     teardown(function() {
       traceur.options.reset();
@@ -126,7 +126,7 @@
 
       var reporter = new traceur.util.TestErrorReporter();
       var LoaderHooks = traceur.modules.LoaderHooks;
-      var loaderHooks = new LoaderHooks(reporter, './');
+      var loaderHooks = new LoaderHooks(reporter, './', null, loader);
 
       // TODO(jjb): TestLoaderHooks extends LoaderHooks. But this file is ES5.
       var options;
@@ -268,7 +268,7 @@
       for (var suiteName in tree) {
         suite(suiteName, function() {
           tree[suiteName].forEach(function(tuple) {
-            featureTest(tuple.name, 'feature/' + tuple.path);
+            featureTest(tuple.name, 'feature/' + tuple.path, loader);
           });
         });
       }

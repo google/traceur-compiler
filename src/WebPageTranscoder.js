@@ -105,27 +105,35 @@ export class WebPageTranscoder {
     parent.insertBefore(scriptElement, file.scriptElement || null);
   }
 
+  selectAndProcessScripts(done) {
+    var selector = 'script[type="module"]';
+    var scripts = document.querySelectorAll(selector);
+
+    if (!scripts.length) {
+      done();
+      return;  // nothing to do
+    }
+
+    /* TODO: add traceur runtime library here
+    scriptsToRun.push(
+      { scriptElement: null,
+        parentNode: scripts[0].parentNode,
+        name: 'Runtime Library',
+        contents: runtime });
+    */
+
+    this.addFilesFromScriptElements(scripts, () => {
+      done();
+    });
+  }
+
   run(done = () => {}) {
-    document.addEventListener('DOMContentLoaded', () => {
-      var selector = 'script[type="module"]';
-      var scripts = document.querySelectorAll(selector);
-
-      if (!scripts.length) {
-        done();
-        return;  // nothing to do
-      }
-
-      /* TODO: add traceur runtime library here
-      scriptsToRun.push(
-        { scriptElement: null,
-          parentNode: scripts[0].parentNode,
-          name: 'Runtime Library',
-          contents: runtime });
-      */
-
-      this.addFilesFromScriptElements(scripts, () => {
-        done();
-      });
-    }, false);
+    var ready = document.readyState;
+    if (ready === 'complete' || ready === 'loaded') {
+      this.selectAndProcessScripts(done);
+    } else {
+      document.addEventListener('DOMContentLoaded',
+        () => this.selectAndProcessScripts(done), false);
+    }
   }
 }
