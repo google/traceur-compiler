@@ -12,20 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {
+  AttachUrlTransformer
+} from '../codegeneration/module/AttachUrlTransformer';
+import {FromOptionsTransformer} from '../codegeneration/FromOptionsTransformer';
 import {ModuleAnalyzer} from '../semantics/ModuleAnalyzer';
+import {ModuleSpecifierVisitor} from
+    '../codegeneration/module/ModuleSpecifierVisitor';
 import {ModuleSymbol} from '../semantics/symbols/ModuleSymbol';
 import {Parser} from '../syntax/Parser';
-import {ProgramTransformer} from '../codegeneration/ProgramTransformer';
-import {Project} from '../semantics/symbols/Project';
 import {SourceFile} from '../syntax/SourceFile';
 import {TreeWriter} from '../outputgeneration/TreeWriter';
 import {UniqueIdentifierGenerator} from
     '../codegeneration/UniqueIdentifierGenerator';
+import {webLoader} from './webLoader';
+
 
 import {assert} from '../util/assert';
 
 // TODO These CodeUnit (aka Load) states are used by code in this file
-// that belongs in module-loader.
+// that belongs in Loader.
 var NOT_STARTED = 0;
 var LOADING = 1;
 var LOADED = 2;
@@ -36,64 +42,78 @@ var ERROR = 6;
 
 var identifierGenerator = new UniqueIdentifierGenerator();
 
- // TODO Pick a better name, these are functions on System?
 export class LoaderHooks {
-  constructor(reporter, rootUrl) {
+  constructor(reporter, rootUrl, outputOptions, fileLoader = webLoader) {
     this.reporter = reporter;
-    this.project_ = new Project(rootUrl, identifierGenerator);
-    this.analyzer_ = new ModuleAnalyzer(reporter, this.project_, this);
+    this.rootUrl_ = rootUrl;
+    this.outputOptions_ = outputOptions;
+    this.fileLoader = fileLoader;
+    this.analyzer_ = new ModuleAnalyzer(this.reporter);
   }
 
   // TODO Used for eval(): can we get the function call to supply callerURL?
   rootUrl() {
-    return this.project_.url;
+    return this.rootUrl_;
+  }
+
+  getModuleSpecifiers(codeUnit) {
+    // Parse
+    if (!this.parse(codeUnit))
+      return;
+
+    codeUnit.state = PARSED;
+
+    // Analyze to find dependencies
+    var moduleSpecifierVisitor = new ModuleSpecifierVisitor(this.reporter);
+    moduleSpecifierVisitor.visit(codeUnit.data.tree);
+    return moduleSpecifierVisitor.moduleSpecifiers;
   }
 
   parse(codeUnit) {
+    assert(!codeUnit.data.tree);
     var reporter = this.reporter;
-    var project = this.project_;
     var url = codeUnit.url;
     var program = codeUnit.text;
     var file = new SourceFile(url, program);
-    project.addFile(file);
-    codeUnit.file = file;  // TODO avoid this
-
     var parser = new Parser(reporter, file);
     if (codeUnit.type == 'module')
-      codeUnit.tree = parser.parseModule();
+      codeUnit.data.tree = parser.parseModule();
     else
-      codeUnit.tree = parser.parseScript();
+      codeUnit.data.tree = parser.parseScript();
 
-    if (reporter.hadError()) {
-      return false;
-    }
+    codeUnit.data.moduleSymbol = new ModuleSymbol(codeUnit.data.tree, url);
 
-    project.setParseTree(file, codeUnit.tree);
-    return true;
+    return !reporter.hadError();
   }
 
   transform(codeUnit) {
-    return ProgramTransformer.transformFile(this.reporter, this.project_,
-                                            codeUnit.file);
+    var transformer = new AttachUrlTransformer(codeUnit.url);
+    var transformedTree = transformer.transformAny(codeUnit.data.tree);
+    transformer = new FromOptionsTransformer(this.reporter,
+                                                  identifierGenerator);
+    return transformer.transform(transformedTree);
   }
 
-  evaluate(codeUnit) {
+  fetch({address}, callback, errback) {
+    this.fileLoader.load(address, callback, errback);
+  }
+
+  instantiate({name, metadata, address, source, sourceMap}) {
+    return undefined;
+  }
+
+  evaluateModuleBody(codeUnit) {
+    // Source for modules compile into calls to registerModule(url, fnc).
+    //
     // TODO(arv): Eval in the right context.
-    return ('global', eval)(TreeWriter.write(codeUnit.transformedTree));
+    var result = ('global', eval)(codeUnit.data.transcoded);
+    codeUnit.data.transformedTree = null;
+    return result;
   }
 
-  addExternalModule(codeUnit) {
-    var project = this.project_;
-    var tree = codeUnit.tree;
-    var url = codeUnit.url || this.project_.url; // eval needs this.
-    // External modules have no parent module.
-    codeUnit.moduleSymbol = new ModuleSymbol(tree, url);
-    project.addExternalModule(codeUnit.moduleSymbol);
-  }
-
-  analyzeDependencies(dependencies) {
+  analyzeDependencies(dependencies, loader) {
     var trees = [];
-    var modules = [];
+    var moduleSymbols = [];
     for (var i = 0; i < dependencies.length; i++) {
       var codeUnit = dependencies[i];
 
@@ -101,33 +121,41 @@ export class LoaderHooks {
       assert(codeUnit.state >= PARSED);
 
       if (codeUnit.state == PARSED) {
-        trees.push(codeUnit.tree);
-        modules.push(codeUnit.moduleSymbol);
+        trees.push(codeUnit.data.tree);
+        moduleSymbols.push(codeUnit.data.moduleSymbol);
       }
     }
 
-    this.analyzer_.analyzeTrees(trees, modules);
+    this.analyzer_.analyzeTrees(trees, moduleSymbols, loader);
     this.checkForErrors(dependencies, 'analyze');
   }
 
+  // TODO(jjb): this function belongs in Loader
   transformDependencies(dependencies) {
     for (var i = 0; i < dependencies.length; i++) {
       var codeUnit = dependencies[i];
       if (codeUnit.state >= TRANSFORMED) {
         continue;
       }
-
-      codeUnit.transformedTree = this.transformCodeUnit(codeUnit);
-      codeUnit.state = TRANSFORMED;
+      this.transformCodeUnit(codeUnit);
+      this.instantiate(codeUnit);
     }
     this.checkForErrors(dependencies, 'transform');
   }
 
   transformCodeUnit(codeUnit) {
     this.transformDependencies(codeUnit.dependencies); // depth first
-
-    return codeUnit.transform();
+    codeUnit.data.transformedTree = codeUnit.transform();
+    codeUnit.state = TRANSFORMED;
+    codeUnit.data.transcoded =  TreeWriter.write(codeUnit.data.transformedTree,
+        this.outputOptions_);
+    if (codeUnit.url && codeUnit.data.transcoded)
+      codeUnit.data.transcoded += '//# sourceURL=' + codeUnit.url;
+    // TODO(jjb): return sourcemaps not sideeffect
+    codeUnit.sourceMap =
+      this.outputOptions_ && this.outputOptions_.sourceMap;
   }
+
 
   checkForErrors(dependencies, phase) {
     if (this.reporter.hadError()) {
@@ -148,8 +176,4 @@ export class LoaderHooks {
     }
   }
 
-  getModuleForModuleSpecifier(name, referrer) {
-    var url = System.normalResolve(name, referrer);
-    return this.project_.getModuleForResolvedUrl(url);
-  }
 }

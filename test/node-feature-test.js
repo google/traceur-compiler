@@ -22,12 +22,8 @@ var testUtil = require('./test-utils.js');
 var parseProlog = testUtil.parseProlog;
 var featureSuite = testUtil.featureSuite;
 var testList = require('./test-list.js').testList;
-var NodeLoader = require('../src/node/NodeLoader.js');
-
-var loader = new NodeLoader();
-
-var urlOptions = {};
+var nodeLoader = require('../src/node/nodeLoader.js');
 
 process.chdir('test');
 
-featureSuite(testList, loader, urlOptions);
+featureSuite(testList, nodeLoader);

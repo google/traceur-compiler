@@ -23,17 +23,17 @@ suite('FreeVariableChecker.traceur.js', function() {
   });
 
   function compileAndReturnErrors(contents, name) {
-    var sourceFile = new traceur.syntax.SourceFile(name, contents);
+    var LoaderHooks = traceur.modules.LoaderHooks;
+    var Loader = traceur.modules.Loader;
     var reporter = new traceur.util.ErrorReporter();
     var errors = [];
     reporter.reportMessageInternal = function() {
       errors.push(arguments);
     };
-
     var url = 'http://www.test.com/';
-    var project = new traceur.semantics.symbols.Project(url);
-    project.addFile(sourceFile)
-    traceur.codegeneration.Compiler.compile(reporter, project);
+    var loaderHooks = new LoaderHooks(reporter, url);
+    var loader = new Loader(loaderHooks);
+    loader.eval(contents, url);
     return errors;
   }
 

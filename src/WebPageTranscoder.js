@@ -13,24 +13,23 @@
 // limitations under the License.
 
 
-// A Project that can compile all of script elements in a page
+// Applies Traceur to all scripts in a Web page.
 
-import {Compiler} from './codegeneration/Compiler';
+import {Loader} from './runtime/Loader';
 import {ErrorReporter} from './util/ErrorReporter';
-import {Project} from './semantics/symbols/Project';
-import {SourceFile} from './syntax/SourceFile';
-import {TreeWriter} from './outputgeneration/TreeWriter';
+import {InterceptOutputLoaderHooks} from './runtime/InterceptOutputLoaderHooks';
+import {webLoader} from './runtime/webLoader';
 
-export class WebPageProject extends Project {
+export class WebPageTranscoder {
   constructor(url) {
-    super(url);
+    this.url = url;
     this.numPending_ = 0;
     this.numberInlined_ = 0;
   }
 
   asyncLoad_(url, fncOfContent, onScriptsReady) {
     this.numPending_++;
-    this.loadResource(url, (content) => {
+    webLoader.load(url, (content) => {
       if (content)
         fncOfContent(content);
       else
@@ -38,32 +37,13 @@ export class WebPageProject extends Project {
 
       if (--this.numPending_ <= 0)
         onScriptsReady();
+    }, (error) => {
+      console.error('WebPageTranscoder FAILED to load ' + url, error);
     });
-  }
-
-  /** over-ride-able
-   * @param {string} url Uniform Resource Locator
-   * @param {function(string) | null} callback
-   */
-  loadResource(url, fncOfContentOrNull) {
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', url);
-    xhr.addEventListener('load', (e) => {
-      if (xhr.status == 200 || xhr.status == 0)
-        fncOfContentOrNull(xhr.responseText);
-    });
-    var onFailure = () => {
-      fncOfContentOrNull(null);
-    };
-    xhr.addEventListener('error', onFailure, false);
-    xhr.addEventListener('abort', onFailure, false);
-    xhr.send();
   }
 
   addFileFromScriptElement(scriptElement, name, content) {
-    var file = new SourceFile(name, content);
-    file.scriptElement = scriptElement;
-    this.addFile(file);
+    this.loader.module(content, {address: name});
   }
 
   /**
@@ -108,20 +88,12 @@ export class WebPageProject extends Project {
     return this.reporter_;
   }
 
-  get compiler() {
-    if (!this.compiler_) {
-      this.compiler_ = new Compiler(this.reporter, this);
+  get loader() {
+    if (!this.loader_) {
+      var loaderHooks = new InterceptOutputLoaderHooks(this.reporter, this.url);
+      this.loader_ = new Loader(loaderHooks);
     }
-    return this.compiler_;
-  }
-
-  compile() {
-    var trees = this.compiler.compile_();
-    if (this.reporter.hadError()) {
-      console.warn('Traceur compilation errors', this.reporter);
-      return;
-    }
-    return trees;
+    return this.loader_;
   }
 
   putFile(file) {
@@ -133,47 +105,35 @@ export class WebPageProject extends Project {
     parent.insertBefore(scriptElement, file.scriptElement || null);
   }
 
-  putFiles(files) {
-    files.forEach(this.putFile, this);
-  }
+  selectAndProcessScripts(done) {
+    var selector = 'script[type="module"]';
+    var scripts = document.querySelectorAll(selector);
 
-  runInWebPage(trees) {
-    var files = this.generateSourceFromTrees(trees);
-    this.putFiles(files);
-  }
+    if (!scripts.length) {
+      done();
+      return;  // nothing to do
+    }
 
-  generateSourceFromTrees(trees) {
-    return trees.keys().map((file) => {
-        var tree = trees.get(file);
-        var opts = {showLineNumbers: false};
-        file.generatedSource = TreeWriter.write(tree, opts);
-        return file;
+    /* TODO: add traceur runtime library here
+    scriptsToRun.push(
+      { scriptElement: null,
+        parentNode: scripts[0].parentNode,
+        name: 'Runtime Library',
+        contents: runtime });
+    */
+
+    this.addFilesFromScriptElements(scripts, () => {
+      done();
     });
   }
 
   run(done = () => {}) {
-    document.addEventListener('DOMContentLoaded', () => {
-      var selector = 'script[type="text/traceur"]';
-      var scripts = document.querySelectorAll(selector);
-
-      if (!scripts.length) {
-        done();
-        return;  // nothing to do
-      }
-
-      /* TODO: add traceur runtime library here
-      scriptsToRun.push(
-        { scriptElement: null,
-          parentNode: scripts[0].parentNode,
-          name: 'Runtime Library',
-          contents: runtime });
-      */
-
-      this.addFilesFromScriptElements(scripts, () => {
-        var trees = this.compile();
-        this.runInWebPage(trees);
-        done();
-      });
-    }, false);
+    var ready = document.readyState;
+    if (ready === 'complete' || ready === 'loaded') {
+      this.selectAndProcessScripts(done);
+    } else {
+      document.addEventListener('DOMContentLoaded',
+        () => this.selectAndProcessScripts(done), false);
+    }
   }
 }

@@ -16,11 +16,11 @@
 
 var fs = require('fs');
 var path = require('path');
-var NodeLoader = require('./NodeLoader.js');
+var nodeLoader = require('./nodeLoader.js');
 var normalizePath = require('./file-util.js').normalizePath;
 
 var ErrorReporter = traceur.util.ErrorReporter;
-var InternalLoader = traceur.modules.internals.InternalLoader;
+var Loader = traceur.modules.internals.Loader;
 var LoaderHooks = traceur.modules.internals.LoaderHooks;
 var Script = traceur.syntax.trees.Script;
 var SourceFile = traceur.syntax.SourceFile
@@ -33,34 +33,27 @@ var ModuleAnalyzer = traceur.semantics.ModuleAnalyzer;
  * @param {string|undefined} depTarget A valid depTarget means dependency
  *     printing was requested.
  */
-function InlineCodeLoader(reporter, url, elements, depTarget) {
-  var loaderHooks = new LoaderHooks(reporter, url);
-  loaderHooks.fileLoader = new NodeLoader;
-  InternalLoader.call(this, loaderHooks);
-  this.elements = elements;
+function InlineLoaderHooks(reporter, url, elements, depTarget) {
+  LoaderHooks.call(this, reporter, url, null, nodeLoader);
   this.dirname = url;
+  this.elements = elements;
   this.depTarget = depTarget && normalizePath(path.relative('.', depTarget));
   this.codeUnitList = [];
 }
 
-InlineCodeLoader.prototype = {
-  __proto__: InternalLoader.prototype,
+InlineLoaderHooks.prototype = {
+  __proto__: LoaderHooks.prototype,
 
-  evalCodeUnit: function(codeUnit) {
-    // Don't eval. Instead append the trees to the output.
-    var tree = codeUnit.transformedTree;
-    this.elements.push.apply(this.elements, tree.scriptItemList);
-  },
-
-  transformCodeUnit: function(codeUnit) {
+  evaluateModuleBody: function(codeUnit) {
     if (this.depTarget) {
       console.log('%s: %s', this.depTarget,
                   normalizePath(path.relative(path.join(__dirname, '../..'),
                   codeUnit.url)));
     }
-
-    return InternalLoader.prototype.transformCodeUnit.call(this, codeUnit);
-  }
+    // Don't eval. Instead append the trees to the output.
+    var tree = codeUnit.data.transformedTree;
+    this.elements.push.apply(this.elements, tree.scriptItemList);
+  },
 };
 
 function allLoaded(url, reporter, elements) {
@@ -89,12 +82,11 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
 
   var loadCount = 0;
   var elements = [];
-  var loader = new InlineCodeLoader(reporter, basePath, elements, depTarget);
+  var hooks = new InlineLoaderHooks(reporter, basePath, elements, depTarget);
+  var loader = new Loader(hooks);
 
   function loadNext() {
-    var codeUnit = loader.load(filenames[loadCount]);
-
-    codeUnit.addListener(function() {
+    var codeUnit = loader.load(filenames[loadCount],function() {
       loadCount++;
       if (loadCount < filenames.length) {
         loadNext();
@@ -112,22 +104,4 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
 
   loadNext();
 }
-
-function inlineAndCompileSync(filenames, options, reporter) {
-  // The caller needs to do a chdir.
-  var basePath = './';
-  var depTarget = options && options.depTarget;
-
-  var loadCount = 0;
-  var elements = [];
-  var loader = new InlineCodeLoader(reporter, basePath, elements, depTarget);
-
-  filenames.forEach(function(filename) {
-    filename = System.normalResolve(filename, basePath);
-    loader.loadSync(filename);
-  });
-  return allLoaded(basePath, reporter, elements);
-}
-
 exports.inlineAndCompile = inlineAndCompile;
-exports.inlineAndCompileSync = inlineAndCompileSync;

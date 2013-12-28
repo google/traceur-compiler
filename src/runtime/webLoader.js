@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export class WebLoader {
+export var webLoader = {
   /**
    * @return {Function} A function that aborts the async loading.
    */
@@ -32,7 +32,7 @@ export class WebLoader {
     xhr.open('GET', url, true);
     xhr.send();
     return () => xhr && xhr.abort();
-  }
+  },
 
   loadSync(url) {
     var xhr = new XMLHttpRequest();
@@ -44,4 +44,4 @@ export class WebLoader {
     if (xhr.status == 200 || xhr.status == 0)
       return xhr.responseText;
   }
-}
+};

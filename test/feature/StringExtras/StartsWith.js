@@ -1,3 +1,7 @@
+// Tests taken from http://mths.be/startswith
+
+Object.prototype[1] = 2; // try to break `arguments[1]`
+
 assert.equal(String.prototype.startsWith.length, 1);
 
 assert.equal('undefined'.startsWith(), true);
@@ -152,10 +156,10 @@ assert.equal('abc'.startsWith('abcd', 'x'), false);
 assert.equal('abc'.startsWith('bcde', 'x'), false);
 
 assert.equal('[a-z]+(bar)?'.startsWith('[a-z]+'), true);
-assertThrows(function() { '[a-z]+(bar)?'.startsWith(/[a-z]+/); }, TypeError);
+assert.throw(function() { '[a-z]+(bar)?'.startsWith(/[a-z]+/); }, TypeError);
 assert.equal('[a-z]+(bar)?'.startsWith('(bar)?', 6), true);
-assertThrows(function() { '[a-z]+(bar)?'.startsWith(/(bar)?/); }, TypeError);
-assertThrows(function() { '[a-z]+/(bar)?/'.startsWith(/(bar)?/); }, TypeError);
+assert.throw(function() { '[a-z]+(bar)?'.startsWith(/(bar)?/); }, TypeError);
+assert.throw(function() { '[a-z]+/(bar)?/'.startsWith(/(bar)?/); }, TypeError);
 
 // http://mathiasbynens.be/notes/javascript-unicode#poo-test
 var string = 'I\xF1t\xEBrn\xE2ti\xF4n\xE0liz\xE6ti\xF8n\u2603\uD83D\uDCA9';
@@ -171,12 +175,12 @@ assert.equal(string.startsWith('\u2603', 20), true);
 assert.equal(string.startsWith('\uD83D\uDCA9'), false);
 assert.equal(string.startsWith('\uD83D\uDCA9', 21), true);
 
-assertThrows(function() { String.prototype.startsWith.call(undefined); }, TypeError);
-assertThrows(function() { String.prototype.startsWith.call(undefined, 'b'); }, TypeError);
-assertThrows(function() { String.prototype.startsWith.call(undefined, 'b', 4); }, TypeError);
-assertThrows(function() { String.prototype.startsWith.call(null); }, TypeError);
-assertThrows(function() { String.prototype.startsWith.call(null, 'b'); }, TypeError);
-assertThrows(function() { String.prototype.startsWith.call(null, 'b', 4); }, TypeError);
+assert.throw(function() { String.prototype.startsWith.call(undefined); }, TypeError);
+assert.throw(function() { String.prototype.startsWith.call(undefined, 'b'); }, TypeError);
+assert.throw(function() { String.prototype.startsWith.call(undefined, 'b', 4); }, TypeError);
+assert.throw(function() { String.prototype.startsWith.call(null); }, TypeError);
+assert.throw(function() { String.prototype.startsWith.call(null, 'b'); }, TypeError);
+assert.throw(function() { String.prototype.startsWith.call(null, 'b', 4); }, TypeError);
 assert.equal(String.prototype.startsWith.call(42, '2'), false);
 assert.equal(String.prototype.startsWith.call(42, '4'), true);
 assert.equal(String.prototype.startsWith.call(42, 'b', 4), false);
@@ -185,13 +189,14 @@ assert.equal(String.prototype.startsWith.call(42, '2', 4), false);
 assert.equal(String.prototype.startsWith.call({ 'toString': function() { return 'abc'; } }, 'b', 0), false);
 assert.equal(String.prototype.startsWith.call({ 'toString': function() { return 'abc'; } }, 'b', 1), true);
 assert.equal(String.prototype.startsWith.call({ 'toString': function() { return 'abc'; } }, 'b', 2), false);
+assert.throw(function() { String.prototype.startsWith.call({ 'toString': function() { throw RangeError(); } }, /./); }, RangeError);
 
-assertThrows(function() { String.prototype.startsWith.apply(undefined); }, TypeError);
-assertThrows(function() { String.prototype.startsWith.apply(undefined, ['b']); }, TypeError);
-assertThrows(function() { String.prototype.startsWith.apply(undefined, ['b', 4]); }, TypeError);
-assertThrows(function() { String.prototype.startsWith.apply(null); }, TypeError);
-assertThrows(function() { String.prototype.startsWith.apply(null, ['b']); }, TypeError);
-assertThrows(function() { String.prototype.startsWith.apply(null, ['b', 4]); }, TypeError);
+assert.throw(function() { String.prototype.startsWith.apply(undefined); }, TypeError);
+assert.throw(function() { String.prototype.startsWith.apply(undefined, ['b']); }, TypeError);
+assert.throw(function() { String.prototype.startsWith.apply(undefined, ['b', 4]); }, TypeError);
+assert.throw(function() { String.prototype.startsWith.apply(null); }, TypeError);
+assert.throw(function() { String.prototype.startsWith.apply(null, ['b']); }, TypeError);
+assert.throw(function() { String.prototype.startsWith.apply(null, ['b', 4]); }, TypeError);
 assert.equal(String.prototype.startsWith.apply(42, ['2']), false);
 assert.equal(String.prototype.startsWith.apply(42, ['4']), true);
 assert.equal(String.prototype.startsWith.apply(42, ['b', 4]), false);
@@ -200,3 +205,6 @@ assert.equal(String.prototype.startsWith.apply(42, ['2', 4]), false);
 assert.equal(String.prototype.startsWith.apply({ 'toString': function() { return 'abc'; } }, ['b', 0]), false);
 assert.equal(String.prototype.startsWith.apply({ 'toString': function() { return 'abc'; } }, ['b', 1]), true);
 assert.equal(String.prototype.startsWith.apply({ 'toString': function() { return 'abc'; } }, ['b', 2]), false);
+assert.throw(function() { String.prototype.startsWith.apply({ 'toString': function() { throw RangeError(); } }, [/./]); }, RangeError);
+
+delete Object.prototype[1];

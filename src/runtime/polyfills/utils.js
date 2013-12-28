@@ -12,34 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var fs = require('fs');
+export var toObject = $traceurRuntime.toObject;
 
-function stripShebang(data) {
-  if (/^#!/.test(data))
-    data = '//' + data;
-  return data;
+export function toUint32(x) {
+  return x | 0;
 }
-
-function NodeLoader() {}
-
-NodeLoader.prototype = {
-  loadSync: function(url) {
-    return stripShebang(fs.readFileSync(url, 'utf8'));
-  },
-
-  load: function(url, callback, errback) {
-    fs.readFile(url, 'utf8', function(err, data) {
-      if (err)
-        errback(err);
-      else
-        callback(stripShebang(data));
-    });
-
-    // Returns an abort function.
-    return function() {
-      callback = function() {};
-    };
-  }
-};
-
-module.exports = NodeLoader;

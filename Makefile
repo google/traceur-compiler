@@ -31,11 +31,18 @@ UNIT_TESTS = \
 	test/unit/util/
 
 TESTS = \
-	test/node-nodejs-test.js \
-	test/node-requirejs-test.js \
+	test/node-commonjs-test.js \
+	test/node-amd-test.js \
 	test/node-feature-test.js \
 	$(RUNTIME_TESTS) \
 	$(UNIT_TESTS)
+
+COMPILE_BEFORE_TEST = \
+	test/unit/semantics/FreeVariableChecker.generated.js \
+	test/unit/codegeneration/PlaceholderParser.generated.js
+
+MOCHA_OPTIONS = \
+	--ignore-leaks --ui tdd --require test/node-env.js
 
 GIT_BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
 
@@ -50,20 +57,21 @@ ugly: bin/traceur.ugly.js
 test-runtime: bin/traceur-runtime.js $(RUNTIME_TESTS)
 	@echo 'Open test/runtime.html to test runtime only'
 
-test: bin/traceur.js bin/traceur-runtime.js test/test-list.js test/requirejs-compiled test/nodejs-compiled
-	node_modules/.bin/mocha --ignore-leaks --ui tdd --require test/node-env.js $(TESTS)
+test: test/test-list.js bin/traceur.js $(COMPILE_BEFORE_TEST) bin/traceur-runtime.js \
+	wiki test/amd-compiled test/commonjs-compiled
+	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(TESTS)
 
 test/unit: bin/traceur.js bin/traceur-runtime.js
-	node_modules/.bin/mocha --ignore-leaks --ui tdd --require test/node-env.js $(UNIT_TESTS)
+	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(UNIT_TESTS)
 
-test/nodejs: test/nodejs-compiled
-	node_modules/.bin/mocha --ignore-leaks --ui tdd test/node-env.js test/node-nodejs-test.js
+test/commonjs: test/commonjs-compiled
+	node_modules/.bin/mocha $(MOCHA_OPTIONS) test/node-commonjs-test.js
 
-test/requirejs: test/requirejs-compiled
-	node_modules/.bin/mocha --ignore-leaks --ui tdd test/node-env.js test/node-requirejs-test.js
+test/amd: test/amd-compiled
+	node_modules/.bin/mocha $(MOCHA_OPTIONS) test/node-amd-test.js
 
 test/features: bin/traceur.js bin/traceur-runtime.js test/test-list.js
-	node_modules/.bin/mocha --ignore-leaks --ui tdd --require test/node-env.js test/node-feature-test.js
+	node_modules/.bin/mocha $(MOCHA_OPTIONS) test/node-feature-test.js
 
 test-list: test/test-list.js
 
@@ -71,24 +79,28 @@ test/test-list.js: force
 	@git ls-files -o -c test/feature | node build/build-test-list.js > $@
 
 # TODO(vojta): Trick make to only compile when necesarry.
-test/nodejs-compiled: force
-	node src/node/to-nodejs-compiler.js test/nodejs test/nodejs-compiled
+test/commonjs-compiled: force
+	node src/node/to-commonjs-compiler.js test/commonjs test/commonjs-compiled
 
-test/requirejs-compiled: force
-	node src/node/to-requirejs-compiler.js test/requirejs test/requirejs-compiled
+test/amd-compiled: force
+	node src/node/to-amd-compiler.js test/amd test/amd-compiled
+
+test/unit/%.generated.js: test/unit/es6/%.js
+	./traceur --out $@ $(TFLAGS) $<
 
 boot: clean build
 
 clean: wikiclean
 	@rm -f build/compiled-by-previous-traceur.js
+	@rm -f build/previous-commit-traceur.js
 	@rm -f build/dep.mk
 	@rm -f $(GENSRC) $(TPL_GENSRC_DEPS)
+	@rm -f $(COMPILE_BEFORE_TEST)
 	@rm -f test/test-list.js
-	@rm -rf test/nodejs-compiled/*
-	@rm -rf test/requirejs-compiled/*
+	@rm -rf test/commonjs-compiled/*
+	@rm -rf test/amd-compiled/*
 	@rm -f bin/*
 	@git checkout -- bin/
-	@mv bin/traceur.js build/previous-commit-traceur.js
 
 initbench:
 	rm -rf test/bench/esprima
@@ -111,13 +123,21 @@ concat: bin/traceur-runtime.js bin/traceur-bare.js
 bin/traceur.js: build/compiled-by-previous-traceur.js
 	@cp $< $@; touch -t 197001010000.00 bin/traceur.js
 	./traceur --out bin/traceur.js $(TFLAGS) $(SRC)
+	@rm -rf build/node
 
 # Use last-known-good compiler to compile current source
-build/compiled-by-previous-traceur.js: build/previous-commit-traceur.js $(SRC) build/dep.mk
+build/compiled-by-previous-traceur.js: build/previous-commit-traceur.js $(SRC)  | $(GENSRC) node_modules
 	@cp build/previous-commit-traceur.js bin/traceur.js
-	./traceur --out $@ $(TFLAGS) $(SRC)
+	node build/makedep.js --depTarget build/compiled-by-previous-traceur.js $(TFLAGS) $(SRC) > build/dep.mk
+	./traceur-build --debug --out $@ $(TFLAGS) $(SRC) # Build with last-good node compiler front.
 
 build/previous-commit-traceur.js:
+	mkdir -p build/node-save build/node
+	cp src/node/* build/node-save # Save in case of src diffs.
+	git checkout -- src/node      # Over-write with last-good node compiler front.
+	cp src/node/* build/node       # Store for traceur-build
+	mv build/node-save/* src/node # restore
+	rmdir build/node-save
 	mv bin/traceur.js build/traceur.js
 	git checkout -- bin/traceur.js
 	mv bin/traceur.js build/previous-commit-traceur.js
@@ -126,20 +146,11 @@ build/previous-commit-traceur.js:
 debug: build/compiled-by-previous-traceur.js $(SRC)
 	./traceur --debug --out bin/traceur.js --sourcemap $(TFLAGS) $(SRC)
 
-self: force
-	mkdir -p build/node
-	mv src/node/* build/node # Save in case of src diffs.
-	git checkout -- src/node # Over-write with last-good node compiler front.
-	-make debug              # Build with last-good node compiler front.
-	mv build/node/* src/node # Restore possible src diffs.
-	rmdir build/node         # Clean up.
+self: build/previous-commit-traceur.js force
+	./traceur-build --debug --out bin/traceur.js $(TFLAGS) $(SRC)
 
-# Prerequisites following '|' are rebuilt just like ordinary prerequisites.
-# However, they don't cause remakes if they're newer than the target. See:
-# http://www.gnu.org/software/make/manual/html_node/Prerequisite-Types.html
-build/dep.mk: build/previous-commit-traceur.js | $(GENSRC) node_modules
-	@cp build/previous-commit-traceur.js bin/traceur.js  # ` known-good compiler
-	node build/makedep.js --depTarget build/compiled-by-previous-traceur.js $(TFLAGS) $(SRC) > $@
+# Do not rebuild dep.mk before including it.
+build/dep.mk: ;
 
 $(TPL_GENSRC_DEPS): | node_modules
 

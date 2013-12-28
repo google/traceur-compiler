@@ -1,12 +1,11 @@
 function assertThrownEquals(x, func) {
-  assert.equal(x, assertThrows(func));
-}
-
-function assertThrownErrorIs(str, func) {
-  var e = assertThrows(func);
-  assert.isTrue(e instanceof Error);
-
-  assert.equal(str, e.message);
+  var actualError;
+  try {
+    func();
+  } catch (err) {
+    actualError = err;
+  }
+  assert.equal(x, actualError);
 }
 
 //-----------------------------------------------------------------------------
@@ -57,7 +56,7 @@ function* G1() {
 g = W(G1)();
 // To be nitpicky, ionmonkey throws TypeError, and not Error. I'm not checking
 // things quite that closely at this point in time.
-assertThrownErrorIs('"next" on executing generator', () => g.next());
+assert.throw(() => g.next(), '"next" on executing generator');
 
 //-----------------------------------------------------------------------------
 //
@@ -84,7 +83,7 @@ closeMethods.forEach((closeMethod) => {
   g = W(G2)();
   closeMethod(g);
   for (var i = 0; i < 8; i++) {
-    assertThrownErrorIs('"next" on closed generator', () => g.next());
+    assert.throw(() => g.next(), '"next" on closed generator');
   }
 });
 
@@ -95,7 +94,7 @@ closeMethods.forEach((closeMethod) => {
 
 g = W(G2)();
 for (var i = 0; i < 8; i++) {
-  assertThrownErrorIs('Sent value to newborn generator', () => g.next(42));
+  assert.throw(() => g.next(42), 'Sent value to newborn generator');
 }
 
 assert.deepEqual({value: 1, done: false}, g.next(undefined));

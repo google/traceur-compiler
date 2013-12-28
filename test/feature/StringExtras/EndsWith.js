@@ -1,3 +1,5 @@
+// Tests taken from http://mths.be/endswith
+
 assert.equal(String.prototype.endsWith.length, 1);
 
 assert.equal('undefined'.endsWith(), true);
@@ -163,10 +165,10 @@ assert.equal('abc'.endsWith('abcd', 'x'), false);
 assert.equal('abc'.endsWith('bcde', 'x'), false);
 
 assert.equal('[a-z]+(bar)?'.endsWith('(bar)?'), true);
-assertThrows(function() { '[a-z]+(bar)?'.endsWith(/(bar)?/); }, TypeError);
+assert.throw(function() { '[a-z]+(bar)?'.endsWith(/(bar)?/); }, TypeError);
 assert.equal('[a-z]+(bar)?'.endsWith('[a-z]+', 6), true);
-assertThrows(function() { '[a-z]+(bar)?'.endsWith(/(bar)?/); }, TypeError);
-assertThrows(function() { '[a-z]+/(bar)?/'.endsWith(/(bar)?/); }, TypeError);
+assert.throw(function() { '[a-z]+(bar)?'.endsWith(/(bar)?/); }, TypeError);
+assert.throw(function() { '[a-z]+/(bar)?/'.endsWith(/(bar)?/); }, TypeError);
 
 // http://mathiasbynens.be/notes/javascript-unicode#poo-test
 var string = 'I\xF1t\xEBrn\xE2ti\xF4n\xE0liz\xE6ti\xF8n\u2603\uD83D\uDCA9';
@@ -182,12 +184,12 @@ assert.equal(string.endsWith('\u2603', 21), true);
 assert.equal(string.endsWith('\uD83D\uDCA9'), true);
 assert.equal(string.endsWith('\uD83D\uDCA9', 23), true);
 
-assertThrows(function() { String.prototype.endsWith.call(undefined); }, TypeError);
-assertThrows(function() { String.prototype.endsWith.call(undefined, 'b'); }, TypeError);
-assertThrows(function() { String.prototype.endsWith.call(undefined, 'b', 4); }, TypeError);
-assertThrows(function() { String.prototype.endsWith.call(null); }, TypeError);
-assertThrows(function() { String.prototype.endsWith.call(null, 'b'); }, TypeError);
-assertThrows(function() { String.prototype.endsWith.call(null, 'b', 4); }, TypeError);
+assert.throw(function() { String.prototype.endsWith.call(undefined); }, TypeError);
+assert.throw(function() { String.prototype.endsWith.call(undefined, 'b'); }, TypeError);
+assert.throw(function() { String.prototype.endsWith.call(undefined, 'b', 4); }, TypeError);
+assert.throw(function() { String.prototype.endsWith.call(null); }, TypeError);
+assert.throw(function() { String.prototype.endsWith.call(null, 'b'); }, TypeError);
+assert.throw(function() { String.prototype.endsWith.call(null, 'b', 4); }, TypeError);
 assert.equal(String.prototype.endsWith.call(42, '2'), true);
 assert.equal(String.prototype.endsWith.call(42, '4'), false);
 assert.equal(String.prototype.endsWith.call(42, 'b', 4), false);
@@ -196,13 +198,14 @@ assert.equal(String.prototype.endsWith.call(42, '2', 4), true);
 assert.equal(String.prototype.endsWith.call({ 'toString': function() { return 'abc'; } }, 'b', 0), false);
 assert.equal(String.prototype.endsWith.call({ 'toString': function() { return 'abc'; } }, 'b', 1), false);
 assert.equal(String.prototype.endsWith.call({ 'toString': function() { return 'abc'; } }, 'b', 2), true);
+assert.throw(function() { String.prototype.endsWith.call({ 'toString': function() { throw RangeError(); } }, /./); }, RangeError);
 
-assertThrows(function() { String.prototype.endsWith.apply(undefined); }, TypeError);
-assertThrows(function() { String.prototype.endsWith.apply(undefined, ['b']); }, TypeError);
-assertThrows(function() { String.prototype.endsWith.apply(undefined, ['b', 4]); }, TypeError);
-assertThrows(function() { String.prototype.endsWith.apply(null); }, TypeError);
-assertThrows(function() { String.prototype.endsWith.apply(null, ['b']); }, TypeError);
-assertThrows(function() { String.prototype.endsWith.apply(null, ['b', 4]); }, TypeError);
+assert.throw(function() { String.prototype.endsWith.apply(undefined); }, TypeError);
+assert.throw(function() { String.prototype.endsWith.apply(undefined, ['b']); }, TypeError);
+assert.throw(function() { String.prototype.endsWith.apply(undefined, ['b', 4]); }, TypeError);
+assert.throw(function() { String.prototype.endsWith.apply(null); }, TypeError);
+assert.throw(function() { String.prototype.endsWith.apply(null, ['b']); }, TypeError);
+assert.throw(function() { String.prototype.endsWith.apply(null, ['b', 4]); }, TypeError);
 assert.equal(String.prototype.endsWith.apply(42, ['2']), true);
 assert.equal(String.prototype.endsWith.apply(42, ['4']), false);
 assert.equal(String.prototype.endsWith.apply(42, ['b', 4]), false);
@@ -211,3 +214,4 @@ assert.equal(String.prototype.endsWith.apply(42, ['2', 4]), true);
 assert.equal(String.prototype.endsWith.apply({ 'toString': function() { return 'abc'; } }, ['b', 0]), false);
 assert.equal(String.prototype.endsWith.apply({ 'toString': function() { return 'abc'; } }, ['b', 1]), false);
 assert.equal(String.prototype.endsWith.apply({ 'toString': function() { return 'abc'; } }, ['b', 2]), true);
+assert.throw(function() { String.prototype.endsWith.apply({ 'toString': function() { throw RangeError(); } }, [/./]); }, RangeError);

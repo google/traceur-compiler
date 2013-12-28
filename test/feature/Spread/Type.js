@@ -9,11 +9,11 @@ assertArrayEquals([0, 1],[0, ...function() {}, 1]);
 assertArrayEquals([0, undefined, undefined, 1],[0, ...function(x, y) {}, 1]);
 assertArrayEquals([0, 1],[0, ...{}, 1]);
 
-assertThrows(function() {
+assert.throw(function() {
   [0, ...null, 1];
-});
+}, TypeError);
 
-assertThrows(function() {
+assert.throw(function() {
   [0, ...undefined, 1];
-});
+}, TypeError);
 

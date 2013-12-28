@@ -30,10 +30,12 @@ suite('modules.js', function() {
   });
 
   var url;
+  var loader;
   if (typeof __filename !== 'undefined') {
     // TOD(arv): Make the system work better with file paths, especially
     // Windows file paths.
     url = __filename.replace(/\\/g, '/');
+    loader = require('../../../src/node/nodeLoader.js');
   } else {
     url = traceur.util.resolveUrl(window.location.href,
                                   'unit/runtime/modules.js');
@@ -41,8 +43,9 @@ suite('modules.js', function() {
 
   function getLoader(opt_reporter) {
     var LoaderHooks = traceur.modules.LoaderHooks;
-    var loaderHooks = new LoaderHooks(opt_reporter || reporter, url);
-    return new traceur.modules.CodeLoader(loaderHooks);
+    opt_reporter = opt_reporter || reporter;
+    var loaderHooks = new LoaderHooks(opt_reporter, url, null, loader);
+    return new traceur.modules.Loader(loaderHooks);
   }
 
   test('LoaderEval', function() {
@@ -50,7 +53,7 @@ suite('modules.js', function() {
     assert.equal(42, result);
   });
 
-  test('LoaderEvalAsync', function(done) {
+  test('LoaderModule', function(done) {
     var code =
         'module a from "./test_a.js";\n' +
         'module b from "./test_b.js";\n' +
@@ -58,7 +61,7 @@ suite('modules.js', function() {
         '\n' +
         '[\'test\', a.name, b.name, c.name];\n';
 
-    var result = getLoader().evalAsync(code, function(value) {
+    var result = getLoader().module(code, {}, function(value) {
       assert.equal('test', value[0]);
       assert.equal('A', value[1]);
       assert.equal('B', value[2]);
@@ -70,13 +73,13 @@ suite('modules.js', function() {
     });
   });
 
-  test('LoaderEvalLoadWithSubdir', function(done) {
+  test('LoaderModuleWithSubdir', function(done) {
     var code =
         'module d from "./subdir/test_d.js";\n' +
         '\n' +
         '[d.name, d.e.name];\n';
 
-    var result = getLoader().evalAsync(code, function(value) {
+    var result = getLoader().module(code, {}, function(value) {
       assert.equal('D', value[0]);
       assert.equal('E', value[1]);
       done();
@@ -86,7 +89,7 @@ suite('modules.js', function() {
     });
   });
 
-  test('LoaderEvalLoadFail', function(done) {
+  test('LoaderModuleFail', function(done) {
     var code =
         'module a from "./test_a.js";\n' +
         'module b from "./test_b.js";\n' +
@@ -96,7 +99,7 @@ suite('modules.js', function() {
 
     var reporter = new MutedErrorReporter();
 
-    var result = getLoader(reporter).evalAsync(code, function(value) {
+    var result = getLoader(reporter).module(code, {}, function(value) {
       fail('Should not have succeeded');
       done();
     }, function(error) {

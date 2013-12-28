@@ -18,9 +18,11 @@ import {
   contains,
   endsWith,
   fromCodePoint,
+  repeat,
   raw,
   startsWith
 } from './String';
+import {entries, keys, values} from './ArrayIterator';
 
 function maybeDefineMethod(object, name, value) {
   if (!(name in object)) {
@@ -46,23 +48,43 @@ function polyfillPromise(global) {
     global.Promise = Promise;
 }
 
-function polyfillString($String) {
-  maybeAddFunctions($String.prototype, [
+function polyfillString(String) {
+  maybeAddFunctions(String.prototype, [
     'codePointAt', codePointAt,
     'contains', contains,
     'endsWith', endsWith,
     'startsWith', startsWith,
+    'repeat', repeat,
   ]);
 
-  maybeAddFunctions($String, [
+  maybeAddFunctions(String, [
     'fromCodePoint', fromCodePoint,
     'raw', raw,
   ]);
 }
 
+function polyfillArray(Array, Symbol) {
+  maybeAddFunctions(Array.prototype, [
+    'entries', entries,
+    'keys', keys,
+    'values', values,
+  ]);
+
+  if (Symbol && Symbol.iterator) {
+    // Use Object.defineProperty so that the Symbol override can do its thing.
+    Object.defineProperty(Array.prototype, Symbol.iterator, {
+      value: values,
+      configurable: true,
+      enumerable: false,
+      writable: true
+    });
+  }
+}
+
 function polyfill(global) {
   polyfillPromise(global);
   polyfillString(global.String);
+  polyfillArray(global.Array, global.Symbol);
 }
 
 polyfill(this);

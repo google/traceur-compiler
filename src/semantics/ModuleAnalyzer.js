@@ -25,57 +25,36 @@ import {transformOptions} from '../options';
 export class ModuleAnalyzer {
   /**
    * @param {ErrorReporter} reporter
-   * @param {Project} project
+   * @param {Loader} loader
    */
-  constructor(reporter, project, loaderHooks) {
+  constructor(reporter) {
     this.reporter_ = reporter;
-    this.project_ = project;
-    this.loaderHooks_ = loaderHooks;
-  }
-
-  /**
-   * @return {void}
-   */
-  analyze() {
-    this.analyzeTrees(this.project_.getParseTrees());
-  }
-
-  /**
-   * @param {SourceFile} sourceFile
-   * @return {void}
-   */
-  analyzeFile(sourceFile) {
-    var trees = [this.project_.getParseTree(sourceFile)];
-    this.analyzeTrees(trees);
   }
 
   /**
    * @param {Array.<ParseTree>} trees
-   * @param {Array.<ModuleSymbol>=} roots
+   * @param {Array.<ModuleSymbol>=} moduleSymbols
    * @return {void}
    */
-  analyzeTrees(trees, roots = undefined) {
+  analyzeTrees(trees, moduleSymbols, loader) {
     if (!transformOptions.modules)
       return;
 
     var reporter = this.reporter_;
-    var loaderHooks = this.loaderHooks_;
-    var root = this.project_.getRootModule();
-
-    function getRoot(i) {
-      return roots ? roots[i] : root;
+    function getModuleSymbol(i) {
+      return moduleSymbols.length ? moduleSymbols[i] : moduleSymbols;
     }
 
     function doVisit(ctor) {
       for (var i = 0; i < trees.length; i++) {
-        var visitor = new ctor(reporter, loaderHooks, getRoot(i));
+        var visitor = new ctor(reporter, loader, getModuleSymbol(i));
         visitor.visitAny(trees[i]);
       }
     }
 
     function reverseVisit(ctor) {
       for (var i = trees.length - 1; i >= 0; i--) {
-        var visitor = new ctor(reporter, loaderHooks, getRoot(i));
+        var visitor = new ctor(reporter, loader, getModuleSymbol(i));
         visitor.visitAny(trees[i]);
       }
     }

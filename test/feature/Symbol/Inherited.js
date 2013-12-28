@@ -11,9 +11,9 @@ Object.defineProperty(p, s, {
 
 var o = Object.create(p);
 assert.equal(42, o[s]);
-assertThrows(function() {
+assert.throws(function() {
   o[s] = 1;
-});
+}, TypeError);
 
 var val;
 Object.defineProperty(p, s, {

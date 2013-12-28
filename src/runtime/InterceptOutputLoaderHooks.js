@@ -1,4 +1,4 @@
-// Copyright 2012 Traceur Authors.
+ // Copyright 2013 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,23 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {TreeWriter} from './TreeWriter';
+import {LoaderHooks} from './LoaderHooks';
 
-// TODO(arv): This should just export the static function instead.
-
-/**
- * Writes all the files in the project to a stream.
- */
-export class ProjectWriter {}
-
-/**
- * @param {traceur.util.ObjectMap} results
- * @param {Object=} options to ParseTreeWriter.write
- * @return {string}
- */
-ProjectWriter.write = function(results, options = undefined) {
-  return results.keys().map((file) => {
-    return TreeWriter.write(results.get(file), options);
-  }).join('');
-};
-
+export class InterceptOutputLoaderHooks extends LoaderHooks {
+  constructor(...args) {
+    super(...args);
+    this.sourceMap = null;
+    this.transcoded = null;
+  }
+  instantiate({data}) {
+    this.sourceMap = data.sourceMap;
+    this.transcoded = data.transcoded;
+    return undefined;
+  }
+}

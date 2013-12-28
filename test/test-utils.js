@@ -104,16 +104,6 @@
     throw new chai.AssertionError(message);
   }
 
-  function assertThrows(fn) {
-    try {
-      fn();
-    } catch (e) {
-      // Do nothing.
-      return e;
-    }
-    fail('Function should have thrown and did not.');
-  }
-
   function runCode(code, name) {
     try {
       ('global', eval)(code);
@@ -123,7 +113,7 @@
     }
   }
 
-  function featureTest(name, url) {
+  function featureTest(name, url, loader) {
 
     teardown(function() {
       traceur.options.reset();
@@ -136,7 +126,7 @@
 
       var reporter = new traceur.util.TestErrorReporter();
       var LoaderHooks = traceur.modules.LoaderHooks;
-      var loaderHooks = new LoaderHooks(reporter, './');
+      var loaderHooks = new LoaderHooks(reporter, './', null, loader);
 
       // TODO(jjb): TestLoaderHooks extends LoaderHooks. But this file is ES5.
       var options;
@@ -158,7 +148,7 @@
         return source;
       }
 
-      var moduleLoader = new traceur.modules.CodeLoader(loaderHooks);
+      var moduleLoader = new traceur.modules.Loader(loaderHooks);
 
       function handleShouldCompile() {
         if (!options.shouldCompile) {
@@ -278,7 +268,7 @@
       for (var suiteName in tree) {
         suite(suiteName, function() {
           tree[suiteName].forEach(function(tuple) {
-            featureTest(tuple.name, 'feature/' + tuple.path);
+            featureTest(tuple.name, 'feature/' + tuple.path, loader);
           });
         });
       }
@@ -300,7 +290,6 @@
   global.assertHasOwnProperty = assertHasOwnProperty;
   global.assertLacksOwnProperty = assertLacksOwnProperty;
   global.assertNoOwnProperties = assertNoOwnProperties;
-  global.assertThrows = assertThrows;
   global.fail = fail;
 
   exports.parseProlog = parseProlog;

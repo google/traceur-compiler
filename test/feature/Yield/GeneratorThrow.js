@@ -1,17 +1,15 @@
-function assertThrownEquals(x, fn) {
-  assert.equal(x, assertThrows(fn));
-}
-
-function assertThrownErrorIs(str, fn) {
-  var e = assertThrows(fn);
-  if (!e instanceof Error)
-    fail('expected Error object');
-
-  assert.equal(str, e.message);
+function assertThrownEquals(x, func) {
+  var actualError;
+  try {
+    func();
+  } catch (err) {
+    actualError = err;
+  }
+  assert.equal(x, actualError);
 }
 
 function assertClosed(g) {
-  assertThrownErrorIs('"next" on closed generator', () => g.next());
+  assert.throw(() => g.next(), '"next" on closed generator');
 }
 
 //-----------------------------------------------------------------------------
@@ -56,7 +54,7 @@ function* G1() {
   yield g.throw();
 }
 g = W(G1)();
-assertThrownErrorIs('"throw" on executing generator', () => g.next());
+assert.throw(() => g.next(), '"throw" on executing generator');
 
 //-----------------------------------------------------------------------------
 //
@@ -95,7 +93,7 @@ closeMethods.forEach((closeMethod) => {
   g = W(G2)();
   closeMethod(g);
   for (var i = 0; i < 8; i++) {
-    assertThrownErrorIs('"throw" on closed generator', () => g.throw(44));
+    assert.throw(() => g.throw(44), '"throw" on closed generator');
   }
 });
 

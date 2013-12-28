@@ -13,11 +13,8 @@
 // limitations under the License.
 
 import {ArrayMap} from '../util/ArrayMap';
-import {LoaderHooks} from '../runtime/System';
-import {ModuleSpecifierVisitor} from
-    '../codegeneration/module/ModuleSpecifierVisitor';
+import {LoaderHooks} from '../runtime/LoaderHooks';
 import {ObjectMap} from '../util/ObjectMap';
-import {WebLoader} from './WebLoader';
 import {getUid} from '../util/uid';
 
 // TODO(arv): I stripped the resolvers to make this simpler for now.
@@ -74,6 +71,9 @@ class CodeUnit {
     this.state = state;
     this.uid = getUid();
     this.state_ = NOT_STARTED;
+    this.error = null;
+    this.result = null;
+    this.data_ = {};
   }
 
   get state() {
@@ -84,6 +84,13 @@ class CodeUnit {
       throw new Error('Invalid state change');
     }
     this.state_ = state;
+  }
+
+  /**
+   * @return opaque value set and used by loaderHooks
+   */
+  get data() {
+    return this.data_;
   }
 
   /**
@@ -124,22 +131,13 @@ class CodeUnit {
     }
   }
 
-  /**
-   * Parses the codeUnit
-   * @return {boolean} Whether the parse succeeded.
-   */
-  parse() {
-    if (this.loaderHooks.parse(this)) {
-      this.state = PARSED;
-      return true;
-    } else {
-      this.error = 'Parse error';
-      return false;
-    }
-  }
-
   transform() {
     return this.loaderHooks.transform(this);
+  }
+
+  instantiate() {
+    if (this.loaderHooks.instantiate(this))
+      throw new Error('instantiate() with factory return not implemented.');
   }
 }
 
@@ -155,44 +153,20 @@ class LoadCodeUnit extends CodeUnit {
     super(loaderHooks, url, 'module', NOT_STARTED);
   }
 
-  /**
-   * Override to add parse tree as an external module symbol.
-   * @return {boolean}
-   * @override
-   */
-  parse() {
-    if (!super.parse()) {
-      return false;
-    }
-    this.loaderHooks.addExternalModule(this);
-    return true;
-  }
 }
 
 /**
- * CodeUnit used for {@code Loader.eval} and {@code Loader.evalAsync}.
+ * CodeUnit used for {@code Loader.eval} and {@code Loader.module}.
  */
 class EvalCodeUnit extends CodeUnit {
   /**
    * @param {LoaderHooks} loaderHooks
    * @param {string} code
+   * @param {string} root script name
    */
-  constructor(loaderHooks, code) {
-    super(loaderHooks, loaderHooks.rootUrl(), 'script', LOADED);
+  constructor(loaderHooks, code, name = loaderHooks.rootUrl()) {
+    super(loaderHooks, name, LOADED);
     this.text = code;
-  }
-
-  /**
-   * Override to add parse tree as an external module symbol.
-   * @return {boolean}
-   * @override
-   */
-  parse() {
-    if (!super.parse()) {
-      return false;
-    }
-    this.loaderHooks.addExternalModule(this);
-    return true;
   }
 }
 
@@ -201,13 +175,11 @@ class EvalCodeUnit extends CodeUnit {
  */
 class InternalLoader {
   /**
-   * @param {ErrorReporter} reporter
-   * @param {Project} project.
+   * @param {loaderHooks} loaderHooks
    */
   constructor(loaderHooks) {
     this.loaderHooks = loaderHooks;
     this.reporter = loaderHooks.reporter;
-    this.fileLoader = loaderHooks.fileLoader || new InternalLoader.FileLoader;
     this.cache = new ArrayMap();
     this.urlToKey = Object.create(null);
     this.sync_ = false;
@@ -215,11 +187,7 @@ class InternalLoader {
   }
 
   loadTextFile(url, callback, errback) {
-    return this.fileLoader.load(url, callback, errback);
-  }
-
-  loadTextFileSync(url) {
-    return this.fileLoader.loadSync(url);
+    return this.loaderHooks.fetch({address:url}, callback, errback);
   }
 
   load(url, type = 'script') {
@@ -254,21 +222,14 @@ class InternalLoader {
     return codeUnit;
   }
 
-  loadSync(url, type = 'script') {
-    this.sync_ = true;
-    var loaded = this.load(url, type);
-    this.sync_ = false;
-    return loaded;
-  }
-
-  evalAsync(code) {
-    var codeUnit = new EvalCodeUnit(this.loaderHooks, code);
+  module(code, options) {
+    var codeUnit = new EvalCodeUnit(this.loaderHooks, code, options.address);
     this.cache.set({}, codeUnit);
     return codeUnit;
   }
 
-  eval(code) {
-    var codeUnit = new EvalCodeUnit(this.loaderHooks, code);
+  eval(code, name) {
+    var codeUnit = new EvalCodeUnit(this.loaderHooks, code, name);
     this.cache.set({}, codeUnit);
     // assert that there are no dependencies that are loading?
     this.handleCodeUnitLoaded(codeUnit);
@@ -299,16 +260,9 @@ class InternalLoader {
     return this.cache.values().every((codeUnit) => codeUnit.state >= state);
   }
 
-  // To System
-  getModuleSpecifiers(codeUnit) {
-    // Parse
-    if (!codeUnit.parse())
-      return;
-
-    // Analyze to find dependencies
-    var moduleSpecifierVisitor = new ModuleSpecifierVisitor(this.reporter);
-    moduleSpecifierVisitor.visit(codeUnit.tree);
-    return moduleSpecifierVisitor.moduleSpecifiers;
+  getCodeUnitForModuleSpecifier(name, referrer) {
+    var url = System.normalResolve(name, referrer);
+    return this.getCodeUnit(url, 'module');
   }
 
   /**
@@ -317,7 +271,7 @@ class InternalLoader {
    */
   handleCodeUnitLoaded(codeUnit) {
     var baseUrl = codeUnit.url;
-    var moduleSpecifiers = this.getModuleSpecifiers(codeUnit);
+    var moduleSpecifiers = this.loaderHooks.getModuleSpecifiers(codeUnit);
     if (!moduleSpecifiers) {
       this.abortAll()
       return;
@@ -366,14 +320,14 @@ class InternalLoader {
   }
 
   analyze() {
-    this.loaderHooks.analyzeDependencies(this.cache.values());
+    this.loaderHooks.analyzeDependencies(this.cache.values(), this);
   }
 
   transform() {
     this.loaderHooks.transformDependencies(this.cache.values());
   }
 
-  evaluate() {
+  orderDependencies(codeUnit) {
     // Order the dependencies.
     var visited = new ObjectMap();
     var ordered = [];
@@ -388,7 +342,11 @@ class InternalLoader {
       ordered.push(codeUnit);
     }
     this.cache.values().forEach(orderCodeUnits);
-    var dependencies = ordered;
+    return ordered;
+  }
+
+  evaluate() {
+    var dependencies = this.orderDependencies(codeUnit);
 
     for (var i = 0; i < dependencies.length; i++) {
       var codeUnit = dependencies[i];
@@ -398,7 +356,7 @@ class InternalLoader {
 
       var result;
       try {
-        result = this.evalCodeUnit(codeUnit);
+        result = this.loaderHooks.evaluateModuleBody(codeUnit);
       } catch (ex) {
         codeUnit.error = ex;
         this.reporter.reportError(null, String(ex));
@@ -408,7 +366,6 @@ class InternalLoader {
       }
 
       codeUnit.result = result;
-      codeUnit.transformedTree = null;
       codeUnit.text = null;
     }
 
@@ -421,22 +378,7 @@ class InternalLoader {
       codeUnit.dispatchComplete(codeUnit.result);
     }
   }
-
-  evalCodeUnit(codeUnit) {
-    // TODO correct loaderHooks function
-    return this.loaderHooks.evaluate(codeUnit);
-  }
-
-  static set FileLoader(v) {
-    FileLoader = v;
-  }
-
-  static get FileLoader() {
-    return FileLoader;
-  }
 }
-
-var FileLoader = WebLoader;
 
 function defaultTranslate(source) {
   return source;
@@ -445,7 +387,7 @@ function defaultTranslate(source) {
 // jjb I don't understand why this is needed.
 var SystemLoaderHooks = LoaderHooks;
 
-export class CodeLoader {
+export class Loader {
   /**
    * ES6 Loader Constructor
    * @param {!Object=} options
@@ -478,23 +420,24 @@ export class CodeLoader {
    * src may import modules, but if it directly or indirectly imports a module
    * that is not already loaded, a SyntaxError is thrown.
    *
-   * @param {string} program The source code to eval.
+   * @param {string} source The source code to eval.
+   * @param {string} name  name for the script
    * @return {*} The completion value of evaluating the code.
    */
-  eval(program) {
-    var codeUnit = this.internalLoader_.eval(program);
+  eval(source, name) {
+    var codeUnit = this.internalLoader_.eval(source, name);
     return codeUnit.result;
   }
 
   /**
-   * evalAsync - Asynchronously run the script src, first loading any imported
+   * module - Asynchronously run the script src, first loading any imported
    * modules that aren't already loaded.
    *
    * This is the same as load but without fetching the initial script. On
-   * success, the result of evaluating the program is passed to callback.
+   * success, the result of evaluating the source is passed to callback.
    */
-  evalAsync(program, callback, errback = undefined) {
-    var codeUnit = this.internalLoader_.evalAsync(program);
+  module(source, options, callback, errback = undefined) {
+    var codeUnit = this.internalLoader_.module(source, options);
     codeUnit.addListener(callback, errback);
     this.internalLoader_.handleCodeUnitLoaded(codeUnit);
   }
@@ -550,7 +493,7 @@ export {LoaderHooks};
 export var internals = {
   CodeUnit,
   EvalCodeUnit,
-  InternalLoader,
+  Loader,
   LoadCodeUnit,
   LoaderHooks
 };

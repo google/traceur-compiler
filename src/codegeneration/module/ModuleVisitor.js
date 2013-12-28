@@ -27,13 +27,13 @@ import {Symbol} from '../../semantics/symbols/Symbol';
 export class ModuleVisitor extends ParseTreeVisitor {
   /**
    * @param {traceur.util.ErrorReporter} reporter
-   * @param {LoaderHooks} loaderHooks
-   * @param {ModuleSymbol} module The root of the module system.
+   * @param {Loader} loader
+   * @param {ModuleSymbol} moduleSymbol The root of the module system.
    */
-  constructor(reporter, loaderHooks, module) {
+  constructor(reporter, loader, moduleSymbol) {
     this.reporter = reporter;
-    this.loaderHooks_ = loaderHooks;
-    this.module = module;
+    this.loader_ = loader;
+    this.moduleSymbol = moduleSymbol;
   }
 
   /**
@@ -41,17 +41,18 @@ export class ModuleVisitor extends ParseTreeVisitor {
    * @param {boolean=} reportErrors If false no errors are reported.
    * @return {ModuleSymbol}
    */
-  getModuleForModuleSpecifier(tree) {
+  getModuleSymbolForModuleSpecifier(tree) {
     var name = tree.token.processedValue;
-    var referrer = this.module.url;
-    var module = this.loaderHooks_.getModuleForModuleSpecifier(name, referrer);
-
-    if (!module) {
-      this.reportError(tree, '\'%s\' is not a module', url);
+    var referrer = this.moduleSymbol.url;
+    var codeUnit = this.loader_.getCodeUnitForModuleSpecifier(name, referrer);
+    var moduleSymbol = codeUnit.data.moduleSymbol;
+    if (!moduleSymbol) {
+      var msg = `${name} is not a module, required by ${referrer}`;
+      this.reportError(tree, msg);
       return null;
     }
 
-    return module;
+    return moduleSymbol;
   }
 
   // Limit the trees to visit.

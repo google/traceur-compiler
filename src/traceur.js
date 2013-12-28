@@ -14,16 +14,12 @@
 
 export {options} from './options';
 
-export {WebPageProject} from './WebPageProject';
+export {WebPageTranscoder} from './WebPageTranscoder';
 
 import {ModuleAnalyzer} from './semantics/ModuleAnalyzer';
-import {Project} from './semantics/symbols/Project';
 
 export var semantics = {
   ModuleAnalyzer,
-  symbols: {
-    Project
-  }
 };
 
 import {ErrorReporter} from './util/ErrorReporter';
@@ -60,7 +56,6 @@ export var syntax = {
 
 import {ParseTreeMapWriter} from './outputgeneration/ParseTreeMapWriter';
 import {ParseTreeWriter} from './outputgeneration/ParseTreeWriter';
-import {ProjectWriter} from './outputgeneration/ProjectWriter';
 import {SourceMapConsumer} from './outputgeneration/SourceMapIntegration';
 import {SourceMapGenerator} from './outputgeneration/SourceMapIntegration';
 import {TreeWriter} from './outputgeneration/TreeWriter';
@@ -68,35 +63,37 @@ import {TreeWriter} from './outputgeneration/TreeWriter';
 export var outputgeneration = {
   ParseTreeMapWriter,
   ParseTreeWriter,
-  ProjectWriter,
   SourceMapConsumer,
   SourceMapGenerator,
   TreeWriter
 };
 
+import {AmdTransformer} from './codegeneration/AmdTransformer';
 import {CloneTreeTransformer} from './codegeneration/CloneTreeTransformer';
-import {Compiler} from './codegeneration/Compiler';
+import {CommonJsModuleTransformer} from './codegeneration/CommonJsModuleTransformer';
 import {FromOptionsTransformer} from './codegeneration/FromOptionsTransformer';
 import {ModuleSpecifierVisitor} from './codegeneration/module/ModuleSpecifierVisitor';
 import {ModuleTransformer} from './codegeneration/ModuleTransformer';
-import {RequireJsTransformer} from './codegeneration/RequireJsTransformer';
 import {ParseTreeTransformer} from './codegeneration/ParseTreeTransformer';
-import {ProgramTransformer} from './codegeneration/ProgramTransformer';
 module ParseTreeFactory from './codegeneration/ParseTreeFactory';
 
 export var codegeneration = {
+  AmdTransformer,
   CloneTreeTransformer,
-  Compiler,
+  CommonJsModuleTransformer,
   FromOptionsTransformer,
   ModuleTransformer,
   ParseTreeFactory,
   ParseTreeTransformer,
-  ProgramTransformer,
-  RequireJsTransformer,
   module: {
     ModuleSpecifierVisitor
   }
 };
 
-module modules from './runtime/module-loader';
+module modules from './runtime/Loader';
 export {modules};
+
+import {InterceptOutputLoaderHooks} from './runtime/InterceptOutputLoaderHooks';
+export var runtime = {
+  InterceptOutputLoaderHooks
+}
