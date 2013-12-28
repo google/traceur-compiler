@@ -30,10 +30,12 @@ suite('modules.js', function() {
   });
 
   var url;
+  var loader;
   if (typeof __filename !== 'undefined') {
     // TOD(arv): Make the system work better with file paths, especially
     // Windows file paths.
     url = __filename.replace(/\\/g, '/');
+    loader = require('../../../src/node/nodeLoader.js');
   } else {
     url = traceur.util.resolveUrl(window.location.href,
                                   'unit/runtime/modules.js');
@@ -41,7 +43,8 @@ suite('modules.js', function() {
 
   function getLoader(opt_reporter) {
     var LoaderHooks = traceur.modules.LoaderHooks;
-    var loaderHooks = new LoaderHooks(opt_reporter || reporter, url);
+    opt_reporter = opt_reporter || reporter;
+    var loaderHooks = new LoaderHooks(opt_reporter, url, null, loader);
     return new traceur.modules.Loader(loaderHooks);
   }
 

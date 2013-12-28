@@ -25,6 +25,8 @@ import {SourceFile} from '../syntax/SourceFile';
 import {TreeWriter} from '../outputgeneration/TreeWriter';
 import {UniqueIdentifierGenerator} from
     '../codegeneration/UniqueIdentifierGenerator';
+import {webLoader} from './webLoader';
+
 
 import {assert} from '../util/assert';
 
@@ -41,10 +43,11 @@ var ERROR = 6;
 var identifierGenerator = new UniqueIdentifierGenerator();
 
 export class LoaderHooks {
-  constructor(reporter, rootUrl, outputOptions) {
+  constructor(reporter, rootUrl, outputOptions, fileLoader = webLoader) {
     this.reporter = reporter;
     this.rootUrl_ = rootUrl;
     this.outputOptions_ = outputOptions;
+    this.fileLoader = fileLoader;
     this.analyzer_ = new ModuleAnalyzer(this.reporter);
   }
 
@@ -55,8 +58,10 @@ export class LoaderHooks {
 
   getModuleSpecifiers(codeUnit) {
     // Parse
-    if (!codeUnit.parse())
+    if (!this.parse(codeUnit))
       return;
+
+    codeUnit.state = PARSED;
 
     // Analyze to find dependencies
     var moduleSpecifierVisitor = new ModuleSpecifierVisitor(this.reporter);
@@ -65,6 +70,7 @@ export class LoaderHooks {
   }
 
   parse(codeUnit) {
+    assert(!codeUnit.data.tree);
     var reporter = this.reporter;
     var url = codeUnit.url;
     var program = codeUnit.text;
@@ -88,11 +94,17 @@ export class LoaderHooks {
     return transformer.transform(transformedTree);
   }
 
+  fetch({address}, callback, errback) {
+    this.fileLoader.load(address, callback, errback);
+  }
+
   instantiate({name, metadata, address, source, sourceMap}) {
     return undefined;
   }
 
-  evaluate(codeUnit) {
+  evaluateModuleBody(codeUnit) {
+    // Source for modules compile into calls to registerModule(url, fnc).
+    //
     // TODO(arv): Eval in the right context.
     var result = ('global', eval)(codeUnit.data.transcoded);
     codeUnit.data.transformedTree = null;

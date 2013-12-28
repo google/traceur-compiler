@@ -15,7 +15,6 @@
 import {ArrayMap} from '../util/ArrayMap';
 import {LoaderHooks} from '../runtime/LoaderHooks';
 import {ObjectMap} from '../util/ObjectMap';
-import {webLoader} from './webLoader';
 import {getUid} from '../util/uid';
 
 // TODO(arv): I stripped the resolvers to make this simpler for now.
@@ -132,20 +131,6 @@ class CodeUnit {
     }
   }
 
-  /**
-   * Parses the codeUnit
-   * @return {boolean} Whether the parse succeeded.
-   */
-  parse() {
-    if (this.loaderHooks.parse(this)) {
-      this.state = PARSED;
-      return true;
-    } else {
-      this.error = 'Parse error';
-      return false;
-    }
-  }
-
   transform() {
     return this.loaderHooks.transform(this);
   }
@@ -195,7 +180,6 @@ class InternalLoader {
   constructor(loaderHooks) {
     this.loaderHooks = loaderHooks;
     this.reporter = loaderHooks.reporter;
-    this.fileLoader = loaderHooks.fileLoader || InternalLoader.fileLoader;
     this.cache = new ArrayMap();
     this.urlToKey = Object.create(null);
     this.sync_ = false;
@@ -203,11 +187,7 @@ class InternalLoader {
   }
 
   loadTextFile(url, callback, errback) {
-    return this.fileLoader.load(url, callback, errback);
-  }
-
-  loadTextFileSync(url) {
-    return this.fileLoader.loadSync(url);
+    return this.loaderHooks.fetch({address:url}, callback, errback);
   }
 
   load(url, type = 'script') {
@@ -240,13 +220,6 @@ class InternalLoader {
       loader.handleCodeUnitLoadError(codeUnit);
     });
     return codeUnit;
-  }
-
-  loadSync(url, type = 'script') {
-    this.sync_ = true;
-    var loaded = this.load(url, type);
-    this.sync_ = false;
-    return loaded;
   }
 
   module(code, options) {
@@ -383,7 +356,7 @@ class InternalLoader {
 
       var result;
       try {
-        result = this.evalCodeUnit(codeUnit);
+        result = this.loaderHooks.evaluateModuleBody(codeUnit);
       } catch (ex) {
         codeUnit.error = ex;
         this.reporter.reportError(null, String(ex));
@@ -405,22 +378,7 @@ class InternalLoader {
       codeUnit.dispatchComplete(codeUnit.result);
     }
   }
-
-  evalCodeUnit(codeUnit) {
-    // TODO correct loaderHooks function
-    return this.loaderHooks.evaluate(codeUnit);
-  }
-
-  static set fileLoader(v) {
-    fileLoader = v;
-  }
-
-  static get fileLoader() {
-    return fileLoader;
-  }
 }
-
-var fileLoader = webLoader;
 
 function defaultTranslate(source) {
   return source;
@@ -535,7 +493,7 @@ export {LoaderHooks};
 export var internals = {
   CodeUnit,
   EvalCodeUnit,
-  InternalLoader,
+  Loader,
   LoadCodeUnit,
   LoaderHooks
 };
