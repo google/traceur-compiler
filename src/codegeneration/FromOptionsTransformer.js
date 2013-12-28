@@ -65,8 +65,6 @@ export class FromOptionsTransformer extends MultiTransformer {
     // TODO: many of these simple, local transforms could happen in the same
     // tree pass
 
-    if (transformOptions.types)
-      append(TypeTransformer);
     if (transformOptions.numericLiterals)
       append(NumericLiteralTransformer);
 
@@ -94,6 +92,9 @@ export class FromOptionsTransformer extends MultiTransformer {
       append(AnnotatedFunctionTransformer);
       append(MetadataTransformer);
     }
+
+    if (transformOptions.types)
+      append(TypeTransformer);
 
     // ClassTransformer needs to come before ObjectLiteralTransformer.
     if (transformOptions.classes)

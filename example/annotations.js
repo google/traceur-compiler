@@ -58,23 +58,23 @@ export class ExportedFoo {
 @NgDirective('[ng-bind]')
 class Foo {
   @Inject
-  constructor(@Inject a, @Test('b') b) {
+  constructor(@Inject a:Foo, @Test('b') b) {
     this.foo = a;
   }
 
   @Test('helloWorld')
-  helloWorld(@Test('a')...a) {
+  helloWorld(@Test('a')...a:Foo) {
     console.log('Hello from ' + this.name, a);
   }
 
   @NgMapAttr('expr')
   @Test('name')
-  get name() {
+  get name():Foo {
     return this.foo;
   }
 
   @NgMapAttr('expr2')
-  set value(x) {
+  set value(x:Foo) {
     this.x = x;
   }
 }

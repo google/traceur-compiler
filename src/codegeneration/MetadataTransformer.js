@@ -25,6 +25,9 @@ import {
   createStatementList,
   createStringLiteral
 } from './ParseTreeFactory.js';
+import {
+  parseExpression
+} from './PlaceholderParser';
 
 /**
  * Annotations extension
@@ -33,11 +36,9 @@ import {
 export class MetadataTransformer extends ParseTreeTransformer {
   /**
    * @param {UniqueIdentifierGenerator} identifierGenerator
-   * @param {RuntimeInliner} runtimeInliner
    */
-  constructor(identifierGenerator, runtimeInliner) {
+  constructor(identifierGenerator) {
     super();
-    this.runtimeInliner_ = runtimeInliner;
   }
 
   transformClassMemberMetadata(tree) {
@@ -47,10 +48,6 @@ export class MetadataTransformer extends ParseTreeTransformer {
 
   transformFunctionMetadata(tree) {
     return this.transformMetadata_(tree.name, tree.annotations, tree.parameters);
-  }
-
-  get getPropertyDescriptor() {
-    return this.runtimeInliner_.get('getPropertyDescriptor');
   }
 
   transformClassReference_(tree) {
@@ -72,10 +69,10 @@ export class MetadataTransformer extends ParseTreeTransformer {
   }
 
   transformAccessor_(tree, accessor) {
-    var descriptor = createCallExpression(this.getPropertyDescriptor,
-      createArgumentList([this.transformClassReference_(tree),
-        createStringLiteral(tree.name.literalToken.value)]));
+    var args = createArgumentList([this.transformClassReference_(tree),
+        createStringLiteral(tree.name.literalToken.value)]);
 
+    var descriptor = parseExpression `$traceurRuntime.getPropertyDescriptor(${args})`;
     return createMemberExpression(descriptor, accessor);
   }
 
@@ -91,9 +88,19 @@ export class MetadataTransformer extends ParseTreeTransformer {
     var hasParameterMetadata = false;
 
     parameters = parameters.map((param) => {
+      var metadata = [];
+      if (param.typeAnnotation) {
+        metadata.push(param.typeAnnotation);
+      }
+
       if (param.annotations && param.annotations.length > 0) {
         hasParameterMetadata = true;
-        return createArrayLiteralExpression(this.transformAnnotations_(target, param.annotations));
+        metadata.push.apply(metadata, this.transformAnnotations_(target, param.annotations));
+      }
+
+      if (metadata.length > 0) {
+        hasParameterMetadata = true;
+        return createArrayLiteralExpression(metadata);
       }
       return [];
     });
