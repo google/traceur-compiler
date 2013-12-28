@@ -15,5 +15,3 @@
 var traceur = global.traceur = require('../src/node/traceur.js');
 global.chai = require('chai');
 var testUtil = require('./test-utils.js');
-
-require('../src/node/module-load-override.js');

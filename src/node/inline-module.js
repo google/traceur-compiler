@@ -20,7 +20,7 @@ var nodeLoader = require('./nodeLoader.js');
 var normalizePath = require('./file-util.js').normalizePath;
 
 var ErrorReporter = traceur.util.ErrorReporter;
-var InternalLoader = traceur.modules.internals.InternalLoader;
+var Loader = traceur.modules.internals.Loader;
 var LoaderHooks = traceur.modules.internals.LoaderHooks;
 var Script = traceur.syntax.trees.Script;
 var SourceFile = traceur.syntax.SourceFile
@@ -33,20 +33,18 @@ var ModuleAnalyzer = traceur.semantics.ModuleAnalyzer;
  * @param {string|undefined} depTarget A valid depTarget means dependency
  *     printing was requested.
  */
-function InlineLoader(reporter, url, elements, depTarget) {
-  var loaderHooks = new LoaderHooks(reporter, url);
-  loaderHooks.fileLoader = nodeLoader;
-  InternalLoader.call(this, loaderHooks);
-  this.elements = elements;
+function InlineLoaderHooks(reporter, url, elements, depTarget) {
+  LoaderHooks.call(this, reporter, url, null, nodeLoader);
   this.dirname = url;
+  this.elements = elements;
   this.depTarget = depTarget && normalizePath(path.relative('.', depTarget));
   this.codeUnitList = [];
 }
 
-InlineLoader.prototype = {
-  __proto__: InternalLoader.prototype,
+InlineLoaderHooks.prototype = {
+  __proto__: LoaderHooks.prototype,
 
-  evalCodeUnit: function(codeUnit) {
+  evaluateModuleBody: function(codeUnit) {
     if (this.depTarget) {
       console.log('%s: %s', this.depTarget,
                   normalizePath(path.relative(path.join(__dirname, '../..'),
@@ -84,12 +82,11 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
 
   var loadCount = 0;
   var elements = [];
-  var loader = new InlineLoader(reporter, basePath, elements, depTarget);
+  var hooks = new InlineLoaderHooks(reporter, basePath, elements, depTarget);
+  var loader = new Loader(hooks);
 
   function loadNext() {
-    var codeUnit = loader.load(filenames[loadCount]);
-
-    codeUnit.addListener(function() {
+    var codeUnit = loader.load(filenames[loadCount],function() {
       loadCount++;
       if (loadCount < filenames.length) {
         loadNext();
@@ -107,5 +104,4 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
 
   loadNext();
 }
-
 exports.inlineAndCompile = inlineAndCompile;
