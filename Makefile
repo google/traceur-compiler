@@ -16,6 +16,15 @@ GENSRC = \
   src/syntax/ParseTreeVisitor.js
 TPL_GENSRC_DEPS = $(addsuffix -template.js.dep, $(TPL_GENSRC))
 
+SRC_NODE = \
+	src/node/command.js \
+	src/node/compiler.js \
+	src/node/deferred.js \
+	src/node/file-util.js \
+	src/node/inline-module.js \
+	src/node/nodeLoader.js \
+	src/node/traceur.js
+
 TFLAGS = --
 
 RUNTIME_TESTS = \
@@ -94,6 +103,7 @@ clean: wikiclean
 	@rm -f build/compiled-by-previous-traceur.js
 	@rm -f build/previous-commit-traceur.js
 	@rm -f build/dep.mk
+	@rm -rf build/node
 	@rm -f $(GENSRC) $(TPL_GENSRC_DEPS)
 	@rm -f $(COMPILE_BEFORE_TEST)
 	@rm -f test/test-list.js
@@ -120,24 +130,27 @@ bin/traceur-bare.js: src/traceur-import.js build/compiled-by-previous-traceur.js
 concat: bin/traceur-runtime.js bin/traceur-bare.js
 	cat $^ > bin/traceur.js
 
-bin/traceur.js: build/compiled-by-previous-traceur.js
+bin/traceur.js: build/compiled-by-previous-traceur.js $(SRC_NODE)
 	@cp $< $@; touch -t 197001010000.00 bin/traceur.js
 	./traceur --out bin/traceur.js $(TFLAGS) $(SRC)
-	@rm -rf build/node
 
 # Use last-known-good compiler to compile current source
-build/compiled-by-previous-traceur.js: build/previous-commit-traceur.js $(SRC)  | $(GENSRC) node_modules
+build/compiled-by-previous-traceur.js: \
+	  $(subst src/node,build/node,$(SRC_NODE)) \
+	  build/previous-commit-traceur.js $(SRC)  | $(GENSRC) node_modules
 	@cp build/previous-commit-traceur.js bin/traceur.js
 	node build/makedep.js --depTarget build/compiled-by-previous-traceur.js $(TFLAGS) $(SRC) > build/dep.mk
 	./traceur-build --debug --out $@ $(TFLAGS) $(SRC) # Build with last-good node compiler front.
 
-build/previous-commit-traceur.js:
+build/node/%: src/node/%
 	mkdir -p build/node-save build/node
 	cp src/node/* build/node-save # Save in case of src diffs.
 	git checkout -- src/node      # Over-write with last-good node compiler front.
 	cp src/node/* build/node       # Store for traceur-build
 	mv build/node-save/* src/node # restore
 	rmdir build/node-save
+
+build/previous-commit-traceur.js:
 	mv bin/traceur.js build/traceur.js
 	git checkout -- bin/traceur.js
 	mv bin/traceur.js build/previous-commit-traceur.js
