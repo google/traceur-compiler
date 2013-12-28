@@ -11,6 +11,7 @@ bin/traceur.ugly.js
 build/compiled-by-previous-traceur.js
 build/dep.mk
 build/local.mk
+build/node
 build/previous-commit-traceur.js
 node_modules
 out
