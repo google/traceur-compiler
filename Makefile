@@ -57,8 +57,8 @@ ugly: bin/traceur.ugly.js
 test-runtime: bin/traceur-runtime.js $(RUNTIME_TESTS)
 	@echo 'Open test/runtime.html to test runtime only'
 
-test: test/test-list.js bin/traceur.js bin/traceur-runtime.js \
-	wiki test/amd-compiled test/commonjs-compiled $(COMPILE_BEFORE_TEST)
+test: test/test-list.js bin/traceur.js $(COMPILE_BEFORE_TEST) bin/traceur-runtime.js \
+	wiki test/amd-compiled test/commonjs-compiled
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(TESTS)
 
 test/unit: bin/traceur.js bin/traceur-runtime.js
@@ -92,6 +92,7 @@ boot: clean build
 
 clean: wikiclean
 	@rm -f build/compiled-by-previous-traceur.js
+	@rm -f build/previous-commit-traceur.js
 	@rm -f build/dep.mk
 	@rm -f $(GENSRC) $(TPL_GENSRC_DEPS)
 	@rm -f $(COMPILE_BEFORE_TEST)
@@ -100,7 +101,6 @@ clean: wikiclean
 	@rm -rf test/amd-compiled/*
 	@rm -f bin/*
 	@git checkout -- bin/
-	@mv bin/traceur.js build/previous-commit-traceur.js
 
 initbench:
 	rm -rf test/bench/esprima
@@ -123,19 +123,21 @@ concat: bin/traceur-runtime.js bin/traceur-bare.js
 bin/traceur.js: build/compiled-by-previous-traceur.js
 	@cp $< $@; touch -t 197001010000.00 bin/traceur.js
 	./traceur --out bin/traceur.js $(TFLAGS) $(SRC)
+	@rm -rf build/node
 
 # Use last-known-good compiler to compile current source
 build/compiled-by-previous-traceur.js: build/previous-commit-traceur.js $(SRC)  | $(GENSRC) node_modules
 	@cp build/previous-commit-traceur.js bin/traceur.js
-	mkdir -p build/node
-	cp src/node/* build/node # Save in case of src diffs.
-	git checkout -- src/node # Over-write with last-good node compiler front.
 	node build/makedep.js --depTarget build/compiled-by-previous-traceur.js $(TFLAGS) $(SRC) > build/dep.mk
-	./traceur --debug --out $@ $(TFLAGS) $(SRC) # Build with last-good node compiler front.
-	mv build/node/* src/node # Restore possible src diffs.
-	rmdir build/node         # Clean up.
+	./traceur-build --debug --out $@ $(TFLAGS) $(SRC) # Build with last-good node compiler front.
 
 build/previous-commit-traceur.js:
+	mkdir -p build/node-save build/node
+	cp src/node/* build/node-save # Save in case of src diffs.
+	git checkout -- src/node      # Over-write with last-good node compiler front.
+	cp src/node/* build/node       # Store for traceur-build
+	mv build/node-save/* src/node # restore
+	rmdir build/node-save
 	mv bin/traceur.js build/traceur.js
 	git checkout -- bin/traceur.js
 	mv bin/traceur.js build/previous-commit-traceur.js
@@ -144,15 +146,11 @@ build/previous-commit-traceur.js:
 debug: build/compiled-by-previous-traceur.js $(SRC)
 	./traceur --debug --out bin/traceur.js --sourcemap $(TFLAGS) $(SRC)
 
-self: force
-	mkdir -p build/node
-	cp src/node/* build/node # Save in case of src diffs.
-	git checkout -- src/node # Over-write with last-good node compiler front.
-	-make debug              # Build with last-good node compiler front.
-	mv build/node/* src/node # Restore possible src diffs.
-	rmdir build/node         # Clean up.
+self: build/previous-commit-traceur.js force
+	./traceur-build --debug --out bin/traceur.js $(TFLAGS) $(SRC)
 
-build/dep.mk: ;  # Do not rebuild dep.mk before including it.
+# Do not rebuild dep.mk before including it.
+build/dep.mk: ;
 
 $(TPL_GENSRC_DEPS): | node_modules
 

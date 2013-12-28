@@ -24,7 +24,7 @@
 
 var fs = require('fs');
 var path = require('path');
-var normalizePath = require('../src/node/file-util.js').normalizePath;
+var normalizePath = require('../build/node/file-util.js').normalizePath;
 
 var flags;
 var cmdName = path.basename(process.argv[1]);
@@ -37,7 +37,7 @@ try {
 }
 flags.setMaxListeners(100);
 
-var traceur = require('../src/node/traceur.js');
+var traceur = require('../build/node/traceur.js');
 
 flags.option('--depTarget <FILE>', 'path to the dependency target');
 
@@ -64,7 +64,7 @@ var resolvedIncludes = includes.map(function(include) {
 
 var reporter = new ErrorReporter();
 
-var inlineAndCompile = require('../src/node/inline-module.js').inlineAndCompile;
+var inlineAndCompile = require('../build/node/inline-module.js').inlineAndCompile;
 
 inlineAndCompile(resolvedIncludes, flags, reporter, function(tree) {
   process.exit(0);
