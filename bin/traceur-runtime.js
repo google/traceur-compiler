@@ -76,6 +76,7 @@
     enumerable: false
   });
   $freeze(SymbolValue.prototype);
+  Symbol.iterator = Symbol();
   function toProperty(name) {
     if (isSymbol(name)) return name[symbolInternalProperty];
     return name;
@@ -161,24 +162,6 @@
       return target;
     }
     $defineProperty(Object, 'mixin', method(mixin));
-  }
-  function polyfillArray(Array) {
-    defineProperty(Array.prototype, Symbol.iterator, method(function() {
-      var index = 0;
-      var array = this;
-      return {next: function() {
-          if (index < array.length) {
-            return {
-              value: array[index++],
-              done: false
-            };
-          }
-          return {
-            value: undefined,
-            done: true
-          };
-        }};
-    }));
   }
   function exportStar(object) {
     for (var i = 1; i < arguments.length; i++) {
@@ -355,9 +338,7 @@
   }
   function setupGlobals(global) {
     global.Symbol = Symbol;
-    global.Symbol.iterator = Symbol();
     polyfillObject(global.Object);
-    polyfillArray(global.Array);
   }
   setupGlobals(global);
   global.$traceurRuntime = {
@@ -491,58 +472,62 @@
 })();
 (function(global) {
   'use strict';
-  var $__2 = $traceurRuntime,
-      canonicalizeUrl = $__2.canonicalizeUrl,
-      resolveUrl = $__2.resolveUrl,
-      isAbsolute = $__2.isAbsolute;
-  var moduleImplementations = Object.create(null);
+  var $__1 = $traceurRuntime,
+      canonicalizeUrl = $__1.canonicalizeUrl,
+      resolveUrl = $__1.resolveUrl,
+      isAbsolute = $__1.isAbsolute;
+  var moduleInstantiators = Object.create(null);
   var baseURL;
   if (global.location && global.location.href) baseURL = resolveUrl(global.location.href, './'); else baseURL = '';
-  var ModuleImpl = function(url, func, self) {
+  var UncoatedModuleEntry = function(url, uncoatedModule) {
     this.url = url;
+    this.value_ = uncoatedModule;
+  };
+  UncoatedModuleEntry = ($traceurRuntime.createClass)(UncoatedModuleEntry, {}, {});
+  var UncoatedModuleInstantiator = function(url, func, self) {
+    $traceurRuntime.superCall(this, $UncoatedModuleInstantiator.prototype, "constructor", [url, null]);
     this.func = func;
     this.self = self;
-    this.value_ = null;
   };
-  ModuleImpl = ($traceurRuntime.createClass)(ModuleImpl, {get value() {
+  var $UncoatedModuleInstantiator = ($traceurRuntime.createClass)(UncoatedModuleInstantiator, {getUncoatedModule: function() {
       if (this.value_) return this.value_;
       return this.value_ = this.func.call(this.self);
-    }}, {});
+    }}, {}, UncoatedModuleEntry);
   function registerModule(url, func, self) {
     url = System.normalResolve(url);
-    moduleImplementations[url] = new ModuleImpl(url, func, self);
+    moduleInstantiators[url] = new UncoatedModuleInstantiator(url, func, self);
   }
-  function getModuleImpl(name) {
+  function getUncoatedModuleInstantiator(name) {
     if (!name) return;
     var url = System.normalResolve(name);
-    return moduleImplementations[url];
+    return moduleInstantiators[url];
   }
   ;
   var moduleInstances = Object.create(null);
   var liveModuleSentinel = {};
-  function Module(obj) {
+  function Module(uncoatedModule) {
     var isLive = arguments[1];
-    var $__0 = this;
-    Object.getOwnPropertyNames(obj).forEach((function(name) {
+    var coatedModule = Object.create(null);
+    Object.getOwnPropertyNames(uncoatedModule).forEach((function(name) {
       var getter,
           value;
       if (isLive === liveModuleSentinel) {
-        var descr = Object.getOwnPropertyDescriptor(obj, name);
+        var descr = Object.getOwnPropertyDescriptor(uncoatedModule, name);
         if (descr.get) getter = descr.get;
       }
       if (!getter) {
-        value = obj[name];
+        value = uncoatedModule[name];
         getter = function() {
           return value;
         };
       }
-      Object.defineProperty($__0, name, {
+      Object.defineProperty(coatedModule, name, {
         get: getter,
         enumerable: true
       });
     }));
-    this.__proto__ = null;
-    Object.preventExtensions(this);
+    Object.preventExtensions(coatedModule);
+    return coatedModule;
   }
   var System = {
     get baseURL() {
@@ -582,19 +567,16 @@
       return System.locate(load);
     },
     get: function(name) {
-      var m = getModuleImpl(name);
+      var m = getUncoatedModuleInstantiator(name);
       if (!m) return undefined;
       var moduleInstance = moduleInstances[m.url];
       if (moduleInstance) return moduleInstance;
-      moduleInstance = new Module(m.value, liveModuleSentinel);
+      moduleInstance = Module(m.getUncoatedModule(), liveModuleSentinel);
       return moduleInstances[m.url] = moduleInstance;
     },
-    set: function(name, object) {
+    set: function(name, uncoatedModule) {
       name = String(name);
-      moduleImplementations[name] = {
-        url: name,
-        value: object
-      };
+      moduleInstantiators[name] = new UncoatedModuleEntry(name, uncoatedModule);
     }
   };
   var setupGlobals = $traceurRuntime.setupGlobals;
@@ -604,9 +586,107 @@
   global.System = System;
   $traceurRuntime.registerModule = registerModule;
   $traceurRuntime.getModuleImpl = function(name) {
-    return getModuleImpl(name).value;
+    return getUncoatedModuleInstantiator(name).getUncoatedModule();
   };
 })(typeof global !== 'undefined' ? global: this);
+(function(global) {
+  'use strict';
+  function assertType(expression, Type) {
+    return expression;
+  }
+  global.assert = global.assert || {};
+  global.assert.type = assertType;
+})(typeof global !== 'undefined' ? global: this);
+$traceurRuntime.registerModule("../src/runtime/polyfills/utils.js", function() {
+  "use strict";
+  var toObject = $traceurRuntime.toObject;
+  function toUint32(x) {
+    return x | 0;
+  }
+  return {
+    get toObject() {
+      return toObject;
+    },
+    get toUint32() {
+      return toUint32;
+    }
+  };
+}, this);
+$traceurRuntime.registerModule("../src/runtime/polyfills/ArrayIterator.js", function() {
+  "use strict";
+  var $__3;
+  var $__4 = $traceurRuntime.getModuleImpl("../src/runtime/polyfills/utils.js"),
+      toObject = $__4.toObject,
+      toUint32 = $__4.toUint32;
+  var ARRAY_ITERATOR_KIND_KEYS = 1;
+  var ARRAY_ITERATOR_KIND_VALUES = 2;
+  var ARRAY_ITERATOR_KIND_ENTRIES = 3;
+  var ArrayIterator = function() {};
+  ArrayIterator = ($traceurRuntime.createClass)(ArrayIterator, ($__3 = {}, Object.defineProperty($__3, "next", {
+    value: function() {
+      var iterator = toObject(this);
+      var array = iterator.iteratorObject_;
+      if (!array) {
+        throw new TypeError('Object is not an ArrayIterator');
+      }
+      var index = iterator.arrayIteratorNextIndex_;
+      var itemKind = iterator.arrayIterationKind_;
+      var length = toUint32(array.length);
+      if (index >= length) {
+        iterator.arrayIteratorNextIndex_ = Infinity;
+        return createIteratorResultObject(undefined, true);
+      }
+      iterator.arrayIteratorNextIndex_ = index + 1;
+      if (itemKind == ARRAY_ITERATOR_KIND_VALUES) return createIteratorResultObject(array[index], false);
+      if (itemKind == ARRAY_ITERATOR_KIND_ENTRIES) return createIteratorResultObject([index, array[index]], false);
+      return createIteratorResultObject(index, false);
+    },
+    configurable: true,
+    enumerable: true,
+    writable: true
+  }), Object.defineProperty($__3, Symbol.iterator, {
+    value: function() {
+      return this;
+    },
+    configurable: true,
+    enumerable: true,
+    writable: true
+  }), $__3), {});
+  function createArrayIterator(array, kind) {
+    var object = toObject(array);
+    var iterator = new ArrayIterator;
+    iterator.iteratorObject_ = object;
+    iterator.arrayIteratorNextIndex_ = 0;
+    iterator.arrayIterationKind_ = kind;
+    return iterator;
+  }
+  function createIteratorResultObject(value, done) {
+    return {
+      value: value,
+      done: done
+    };
+  }
+  function entries() {
+    return createArrayIterator(this, ARRAY_ITERATOR_KIND_ENTRIES);
+  }
+  function keys() {
+    return createArrayIterator(this, ARRAY_ITERATOR_KIND_KEYS);
+  }
+  function values() {
+    return createArrayIterator(this, ARRAY_ITERATOR_KIND_VALUES);
+  }
+  return {
+    get entries() {
+      return entries;
+    },
+    get keys() {
+      return keys;
+    },
+    get values() {
+      return values;
+    }
+  };
+}, this);
 $traceurRuntime.registerModule("../node_modules/rsvp/lib/rsvp/async.js", function() {
   "use strict";
   var browserGlobal = (typeof window !== 'undefined') ? window: {};
@@ -709,14 +789,14 @@ $traceurRuntime.registerModule("../src/runtime/polyfills/Promise.js", function()
     return result;
   }
   var Promise = function(resolver) {
-    var $__3 = this;
+    var $__5 = this;
     this.status_ = 'pending';
     this.onResolve_ = [];
     this.onReject_ = [];
     resolver((function(x) {
-      promiseResolve($__3, x);
+      promiseResolve($__5, x);
     }), (function(r) {
-      promiseReject($__3, r);
+      promiseReject($__5, r);
     }));
   };
   Promise = ($traceurRuntime.createClass)(Promise, {
@@ -728,11 +808,11 @@ $traceurRuntime.registerModule("../src/runtime/polyfills/Promise.js", function()
         return x;
       });
       var onReject = arguments[1];
-      var $__3 = this;
+      var $__5 = this;
       var constructor = this.constructor;
       return chain(this, (function(x) {
         x = promiseCoerce(constructor, x);
-        return x === $__3 ? onReject(new TypeError): isPromise(x) ? x.then(onResolve, onReject): onResolve(x);
+        return x === $__5 ? onReject(new TypeError): isPromise(x) ? x.then(onResolve, onReject): onResolve(x);
       }), onReject);
     }
   }, {
@@ -848,14 +928,14 @@ $traceurRuntime.registerModule("../src/runtime/polyfills/String.js", function() 
   var $indexOf = String.prototype.indexOf;
   var $lastIndexOf = String.prototype.lastIndexOf;
   function startsWith(search) {
+    var string = String(this);
     if (this == null || $toString.call(search) == '[object RegExp]') {
       throw TypeError();
     }
-    var string = String(this);
     var stringLength = string.length;
     var searchString = String(search);
     var searchLength = searchString.length;
-    var position = arguments[1];
+    var position = arguments.length > 1 ? arguments[1]: undefined;
     var pos = position ? Number(position): 0;
     if (isNaN(pos)) {
       pos = 0;
@@ -864,10 +944,10 @@ $traceurRuntime.registerModule("../src/runtime/polyfills/String.js", function() 
     return $indexOf.call(string, searchString, pos) == start;
   }
   function endsWith(search) {
+    var string = String(this);
     if (this == null || $toString.call(search) == '[object RegExp]') {
       throw TypeError();
     }
-    var string = String(this);
     var stringLength = string.length;
     var searchString = String(search);
     var searchLength = searchString.length;
@@ -896,7 +976,7 @@ $traceurRuntime.registerModule("../src/runtime/polyfills/String.js", function() 
     var stringLength = string.length;
     var searchString = String(search);
     var searchLength = searchString.length;
-    var position = arguments[1];
+    var position = arguments.length > 1 ? arguments[1]: undefined;
     var pos = position ? Number(position): 0;
     if (isNaN(pos)) {
       pos = 0;
@@ -904,7 +984,31 @@ $traceurRuntime.registerModule("../src/runtime/polyfills/String.js", function() 
     var start = Math.min(Math.max(pos, 0), stringLength);
     return $indexOf.call(string, searchString, pos) != - 1;
   }
+  function repeat(count) {
+    if (this == null) {
+      throw TypeError();
+    }
+    var string = String(this);
+    var n = count ? Number(count): 0;
+    if (isNaN(n)) {
+      n = 0;
+    }
+    if (n < 0 || n == Infinity) {
+      throw RangeError();
+    }
+    if (n == 0) {
+      return '';
+    }
+    var result = '';
+    while (n--) {
+      result += string;
+    }
+    return result;
+  }
   function codePointAt(position) {
+    if (this == null) {
+      throw TypeError();
+    }
     var string = String(this);
     var size = string.length;
     var index = position ? Number(position): 0;
@@ -972,6 +1076,9 @@ $traceurRuntime.registerModule("../src/runtime/polyfills/String.js", function() 
     get contains() {
       return contains;
     },
+    get repeat() {
+      return repeat;
+    },
     get codePointAt() {
       return codePointAt;
     },
@@ -986,13 +1093,18 @@ $traceurRuntime.registerModule("../src/runtime/polyfills/String.js", function() 
 $traceurRuntime.registerModule("../src/runtime/polyfills/polyfills.js", function() {
   "use strict";
   var Promise = $traceurRuntime.getModuleImpl("../src/runtime/polyfills/Promise.js").Promise;
-  var $__6 = $traceurRuntime.getModuleImpl("../src/runtime/polyfills/String.js"),
-      codePointAt = $__6.codePointAt,
-      contains = $__6.contains,
-      endsWith = $__6.endsWith,
-      fromCodePoint = $__6.fromCodePoint,
-      raw = $__6.raw,
-      startsWith = $__6.startsWith;
+  var $__8 = $traceurRuntime.getModuleImpl("../src/runtime/polyfills/String.js"),
+      codePointAt = $__8.codePointAt,
+      contains = $__8.contains,
+      endsWith = $__8.endsWith,
+      fromCodePoint = $__8.fromCodePoint,
+      repeat = $__8.repeat,
+      raw = $__8.raw,
+      startsWith = $__8.startsWith;
+  var $__8 = $traceurRuntime.getModuleImpl("../src/runtime/polyfills/ArrayIterator.js"),
+      entries = $__8.entries,
+      keys = $__8.keys,
+      values = $__8.values;
   function maybeDefineMethod(object, name, value) {
     if (!(name in object)) {
       Object.defineProperty(object, name, {
@@ -1013,13 +1125,25 @@ $traceurRuntime.registerModule("../src/runtime/polyfills/polyfills.js", function
   function polyfillPromise(global) {
     if (!global.Promise) global.Promise = Promise;
   }
-  function polyfillString($String) {
-    maybeAddFunctions($String.prototype, ['codePointAt', codePointAt, 'contains', contains, 'endsWith', endsWith, 'startsWith', startsWith]);
-    maybeAddFunctions($String, ['fromCodePoint', fromCodePoint, 'raw', raw]);
+  function polyfillString(String) {
+    maybeAddFunctions(String.prototype, ['codePointAt', codePointAt, 'contains', contains, 'endsWith', endsWith, 'startsWith', startsWith, 'repeat', repeat]);
+    maybeAddFunctions(String, ['fromCodePoint', fromCodePoint, 'raw', raw]);
+  }
+  function polyfillArray(Array, Symbol) {
+    maybeAddFunctions(Array.prototype, ['entries', entries, 'keys', keys, 'values', values]);
+    if (Symbol && Symbol.iterator) {
+      Object.defineProperty(Array.prototype, Symbol.iterator, {
+        value: values,
+        configurable: true,
+        enumerable: false,
+        writable: true
+      });
+    }
   }
   function polyfill(global) {
     polyfillPromise(global);
     polyfillString(global.String);
+    polyfillArray(global.Array, global.Symbol);
   }
   polyfill(this);
   var setupGlobals = $traceurRuntime.setupGlobals;
@@ -1029,4 +1153,4 @@ $traceurRuntime.registerModule("../src/runtime/polyfills/polyfills.js", function
   };
   return {};
 }, this);
-var $__8 = $traceurRuntime.getModuleImpl("../src/runtime/polyfills/polyfills.js");
+var $__10 = $traceurRuntime.getModuleImpl("../src/runtime/polyfills/polyfills.js");

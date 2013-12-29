@@ -33,6 +33,7 @@ import {MultiTransformer} from './MultiTransformer';
 import {NumericLiteralTransformer} from './NumericLiteralTransformer';
 import {ObjectLiteralTransformer} from './ObjectLiteralTransformer';
 import {ObjectMap} from '../util/ObjectMap';
+import {ParameterTypeTransformer} from './ParameterTypeTransformer';
 import {ParseTreeValidator} from '../syntax/ParseTreeValidator';
 import {PropertyNameShorthandTransformer} from
     './PropertyNameShorthandTransformer';
@@ -93,9 +94,6 @@ export class FromOptionsTransformer extends MultiTransformer {
       append(MetadataTransformer);
     }
 
-    if (transformOptions.types)
-      append(TypeTransformer);
-
     // ClassTransformer needs to come before ObjectLiteralTransformer.
     if (transformOptions.classes)
       append(ClassTransformer);
@@ -133,6 +131,11 @@ export class FromOptionsTransformer extends MultiTransformer {
     // generator
     if (transformOptions.destructuring)
       append(DestructuringTransformer);
+
+    if (transformOptions.types) {
+      append(ParameterTypeTransformer);
+      append(TypeTransformer);
+    }
 
     // generator must come after for of and rest parameters
     if (transformOptions.generators || transformOptions.deferredFunctions)

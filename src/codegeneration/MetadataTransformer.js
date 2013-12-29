@@ -12,32 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ParseTreeTransformer} from './ParseTreeTransformer.js';
+import {ParseTreeTransformer} from './ParseTreeTransformer';
 import {
   createArgumentList,
   createArrayLiteralExpression,
   createAssignmentStatement,
-  createCallExpression,
-  createIdentifierExpression,
   createMemberExpression,
   createNewExpression,
   createScript,
   createStatementList,
   createStringLiteral
-} from './ParseTreeFactory.js';
-import {
-  parseExpression
-} from './PlaceholderParser';
+} from './ParseTreeFactory';
+import {parseExpression} from './PlaceholderParser';
 
 /**
  * Annotations extension
  *
  */
 export class MetadataTransformer extends ParseTreeTransformer {
-  /**
-   * @param {UniqueIdentifierGenerator} identifierGenerator
-   */
-  constructor(identifierGenerator) {
+  constructor() {
     super();
   }
 
@@ -94,7 +87,6 @@ export class MetadataTransformer extends ParseTreeTransformer {
       }
 
       if (param.annotations && param.annotations.length > 0) {
-        hasParameterMetadata = true;
         metadata.push.apply(metadata, this.transformAnnotations_(target, param.annotations));
       }
 

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ParseTreeTransformer} from './ParseTreeTransformer.js';
+import {ParseTreeTransformer} from './ParseTreeTransformer';
 import {
   FunctionMetadata
 } from '../syntax/trees/ParseTrees';
@@ -21,7 +21,7 @@ import {
 } from '../syntax/trees/ParseTreeType';
 import {
   createScript
-} from './ParseTreeFactory.js';
+} from './ParseTreeFactory';
 
 /**
  * Annotation extension

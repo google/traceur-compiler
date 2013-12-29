@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ParseTreeTransformer} from './ParseTreeTransformer.js';
+import {ParseTreeTransformer} from './ParseTreeTransformer';
 import {
   CONSTRUCTOR
-} from '../syntax/PredefinedName.js';
+} from '../syntax/PredefinedName';
 import {
   ClassMemberMetadata,
   FunctionMetadata
@@ -29,7 +29,7 @@ import {
 } from '../syntax/trees/ParseTreeType';
 import {
   createScript
-} from './ParseTreeFactory.js';
+} from './ParseTreeFactory';
 import {propName} from '../staticsemantics/PropName';
 
 /**

@@ -12,10 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import assertType from './assertType';
 import {FormalParameterList} from '../syntax/trees/ParseTrees';
 import {ParameterTransformer} from './ParameterTransformer';
 import {createIdentifierToken} from './ParseTreeFactory';
-import {parseStatement} from './PlaceholderParser';
+import {
+  parseExpression,
+  parseStatement
+} from './PlaceholderParser';
 
 function hasRestParameter(formalParameterList) {
   var parameters = formalParameterList.parameters;
@@ -38,6 +42,7 @@ export class RestParameterTransformer extends ParameterTransformer {
   transformFormalParameterList(tree) {
     var transformed = super(tree);
     if (hasRestParameter(transformed)) {
+      var restParameter = transformed.parameters[transformed.parameters.length - 1];
       var parametersWithoutRestParam = new FormalParameterList(
           transformed.location,
           transformed.parameters.slice(0, -1));
@@ -45,18 +50,23 @@ export class RestParameterTransformer extends ParameterTransformer {
       var startIndex = transformed.parameters.length - 1;
       var i = createIdentifierToken(this.getTempIdentifier());
       var name = getRestParameterLiteralToken(transformed);
+      var currentArgument = parseExpression `arguments[${i}]`;
       var loop;
+
+      if (restParameter.typeAnnotation !== null)
+        currentArgument = assertType(currentArgument, restParameter.typeAnnotation);
+
       if (startIndex) {
         // If startIndex is 0 we can generate slightly cleaner code.
         loop = parseStatement `
             for (var ${name} = [], ${i} = ${startIndex};
                  ${i} < arguments.length; ${i}++)
-              ${name}[${i} - ${startIndex}] = arguments[${i}];`;
+              ${name}[${i} - ${startIndex}] = ${currentArgument};`;
       } else {
         loop = parseStatement `
             for (var ${name} = [], ${i} = 0;
                  ${i} < arguments.length; ${i}++)
-              ${name}[${i}] = arguments[${i}];`;
+              ${name}[${i}] = ${currentArgument};`;
       }
       this.parameterStatements.push(loop);
       return parametersWithoutRestParam;

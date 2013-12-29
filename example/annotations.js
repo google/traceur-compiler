@@ -25,8 +25,17 @@ export function ExportedFn(a, b) {
 }
 
 @Inject
-function Fn(a, b) {
+function Fn(a:Foo, b:Foo):Foo {
+  var x:Foo = a || b, c = [a, b];
+
+  c.forEach((x) => {
+    return x;
+  });
   console.log("Exported Fn: " + a + ", " + b);
+
+  if (a)
+    return a;
+  return b || a;
 }
 
 
@@ -64,6 +73,7 @@ class Foo {
 
   @Test('helloWorld')
   helloWorld(@Test('a')...a:Foo) {
+    var x:Foo = new Foo();
     console.log('Hello from ' + this.name, a);
   }
 

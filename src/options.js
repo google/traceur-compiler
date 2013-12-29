@@ -274,3 +274,4 @@ addBoolOption('validate');
 addBoolOption('strictSemicolons');
 addBoolOption('unstarredGenerators');
 addBoolOption('ignoreNolint');
+addBoolOption('typeAssertions');
