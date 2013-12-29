@@ -28,9 +28,9 @@ function isTypeAssertion(tree) {
       tree.operand.memberName.value === 'type';
 }
 
-export default function assertType(tree, type) {
+export default function assertType(tree, typeAnnotation) {
   if (!options.typeAssertions || isTypeAssertion(tree))
     return tree;
-  return parseExpression `assert.type(${tree}, ${type})`;
+  return parseExpression `assert.type(${tree}, ${typeAnnotation.name})`;
 }
 

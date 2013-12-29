@@ -32,7 +32,7 @@ export class ParameterTypeTransformer extends ParameterTransformer {
     if (tree.typeAnnotation !== null) {
       if (options.typeAssertions)
         this.parameterStatements.push(
-            createExpressionStatement(assertType(tree.parameter, tree.typeAnnotation)));
+            createExpressionStatement(assertType(tree.parameter.binding.identifierToken, tree.typeAnnotation)));
       tree = new FormalParameter(tree.location, tree.parameter, null, tree.annotations);
     }
     return super.transformFormalParameter(tree);

@@ -16964,9 +16964,9 @@ $traceurRuntime.registerModule("../src/codegeneration/assertType.js", function()
   function isTypeAssertion(tree) {
     return tree.type === CALL_EXPRESSION && tree.operand.type === MEMBER_EXPRESSION && tree.operand.operand.type === IDENTIFIER_EXPRESSION && tree.operand.operand.identifierToken.value === 'assert' && tree.operand.memberName.value === 'type';
   }
-  var $__default = function assertType(tree, type) {
+  var $__default = function assertType(tree, typeAnnotation) {
     if (!options.typeAssertions || isTypeAssertion(tree)) return tree;
-    return parseExpression($__242, tree, type);
+    return parseExpression($__242, tree, typeAnnotation.name);
   };
   return {get default() {
       return $__default;
@@ -16984,7 +16984,7 @@ $traceurRuntime.registerModule("../src/codegeneration/ParameterTypeTransformer.j
   };
   var $ParameterTypeTransformer = ($traceurRuntime.createClass)(ParameterTypeTransformer, {transformFormalParameter: function(tree) {
       if (tree.typeAnnotation !== null) {
-        if (options.typeAssertions) this.parameterStatements.push(createExpressionStatement(assertType(tree.parameter, tree.typeAnnotation)));
+        if (options.typeAssertions) this.parameterStatements.push(createExpressionStatement(assertType(tree.parameter.binding.identifierToken, tree.typeAnnotation)));
         tree = new FormalParameter(tree.location, tree.parameter, null, tree.annotations);
       }
       return $traceurRuntime.superCall(this, $ParameterTypeTransformer.prototype, "transformFormalParameter", [tree]);
