@@ -1226,10 +1226,17 @@ $traceurRuntime.registerModule("../src/options.js", function() {
   function addOptions(flags) {
     Object.keys(options).forEach(function(name) {
       var dashedName = toDashCase(name);
-      if ((name in parseOptions) && (name in transformOptions)) flags.option('--' + dashedName + ' [true|false|parse]', descriptions[name]); else flags.option('--' + dashedName, descriptions[name]);
-      flags.on(dashedName, (function(value) {
-        return setOption(dashedName, value);
-      }));
+      if ((name in parseOptions) && (name in transformOptions)) {
+        flags.option('--' + dashedName + ' [true|false|parse]', descriptions[name]);
+        flags.on(dashedName, (function(value) {
+          return setOption(dashedName, value);
+        }));
+      } else {
+        flags.option('--' + dashedName, descriptions[name]);
+        flags.on(dashedName, (function() {
+          return setOption(dashedName, true);
+        }));
+      }
     });
   }
   function filterOption(dashedName) {
@@ -16953,11 +16960,12 @@ $traceurRuntime.registerModule("../src/codegeneration/assertType.js", function()
       IDENTIFIER_EXPRESSION = $__243.IDENTIFIER_EXPRESSION,
       MEMBER_EXPRESSION = $__243.MEMBER_EXPRESSION;
   var parseExpression = $traceurRuntime.getModuleImpl("../src/codegeneration/PlaceholderParser.js").parseExpression;
+  var options = $traceurRuntime.getModuleImpl("../src/options.js").options;
   function isTypeAssertion(tree) {
     return tree.type === CALL_EXPRESSION && tree.operand.type === MEMBER_EXPRESSION && tree.operand.operand.type === IDENTIFIER_EXPRESSION && tree.operand.operand.identifierToken.value === 'assert' && tree.operand.memberName.value === 'type';
   }
   var $__default = function assertType(tree, type) {
-    if (isTypeAssertion(tree)) return tree;
+    if (!options.typeAssertions || isTypeAssertion(tree)) return tree;
     return parseExpression($__242, tree, type);
   };
   return {get default() {
@@ -16970,12 +16978,13 @@ $traceurRuntime.registerModule("../src/codegeneration/ParameterTypeTransformer.j
   var FormalParameter = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js").FormalParameter;
   var createExpressionStatement = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory.js").createExpressionStatement;
   var ParameterTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ParameterTransformer.js").ParameterTransformer;
+  var options = $traceurRuntime.getModuleImpl("../src/options.js").options;
   var ParameterTypeTransformer = function() {
     $traceurRuntime.defaultSuperCall(this, $ParameterTypeTransformer.prototype, arguments);
   };
   var $ParameterTypeTransformer = ($traceurRuntime.createClass)(ParameterTypeTransformer, {transformFormalParameter: function(tree) {
       if (tree.typeAnnotation !== null) {
-        this.parameterStatements.push(createExpressionStatement(assertType(tree.parameter, tree.typeAnnotation)));
+        if (options.typeAssertions) this.parameterStatements.push(createExpressionStatement(assertType(tree.parameter, tree.typeAnnotation)));
         tree = new FormalParameter(tree.location, tree.parameter, null, tree.annotations);
       }
       return $traceurRuntime.superCall(this, $ParameterTypeTransformer.prototype, "transformFormalParameter", [tree]);

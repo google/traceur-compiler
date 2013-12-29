@@ -134,12 +134,15 @@ function setOption(name, value) {
 function addOptions(flags) {
   Object.keys(options).forEach(function(name) {
     var dashedName = toDashCase(name);
-    if ((name in parseOptions) && (name in transformOptions))
+    if ((name in parseOptions) && (name in transformOptions)) {
       flags.option('--' + dashedName + ' [true|false|parse]',
                    descriptions[name]);
-    else
+      flags.on(dashedName, (value) => setOption(dashedName, value));
+    }
+    else {
       flags.option('--' + dashedName, descriptions[name]);
-    flags.on(dashedName, (value) => setOption(dashedName, value));
+      flags.on(dashedName, () => setOption(dashedName, true));
+    }
   });
 }
 

@@ -18,6 +18,7 @@ import {
   MEMBER_EXPRESSION
 } from '../syntax/trees/ParseTreeType';
 import {parseExpression} from './PlaceholderParser';
+import {options} from '../options';
 
 function isTypeAssertion(tree) {
   return tree.type === CALL_EXPRESSION &&
@@ -28,7 +29,7 @@ function isTypeAssertion(tree) {
 }
 
 export default function assertType(tree, type) {
-  if (isTypeAssertion(tree))
+  if (!options.typeAssertions || isTypeAssertion(tree))
     return tree;
   return parseExpression `assert.type(${tree}, ${type})`;
 }

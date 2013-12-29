@@ -16,6 +16,7 @@ import assertType from './assertType';
 import {FormalParameter} from '../syntax/trees/ParseTrees';
 import {createExpressionStatement} from './ParseTreeFactory';
 import {ParameterTransformer} from './ParameterTransformer';
+import {options} from '../options';
 
 /**
  * Removes type annotation on formal parameter and prepends a type assertion into
@@ -29,7 +30,9 @@ export class ParameterTypeTransformer extends ParameterTransformer {
    */
   transformFormalParameter(tree) {
     if (tree.typeAnnotation !== null) {
-      this.parameterStatements.push(createExpressionStatement(assertType(tree.parameter, tree.typeAnnotation)));
+      if (options.typeAssertions)
+        this.parameterStatements.push(
+            createExpressionStatement(assertType(tree.parameter, tree.typeAnnotation)));
       tree = new FormalParameter(tree.location, tree.parameter, null, tree.annotations);
     }
     return super.transformFormalParameter(tree);
