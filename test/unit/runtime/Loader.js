@@ -49,7 +49,7 @@ suite('modules.js', function() {
   }
 
   test('LoaderEval', function() {
-    var result = getLoader().eval('(function(x = 42) { return x; })()');
+    var result = getLoader().script('(function(x = 42) { return x; })()');
     assert.equal(42, result);
   });
 
@@ -112,7 +112,7 @@ suite('modules.js', function() {
   });
 
   test('LoaderLoad', function(done) {
-    getLoader().load('./test_script.js', function(result) {
+    getLoader().loadAsScript('./test_script.js', function(result) {
       assert.equal('A', result[0]);
       assert.equal('B', result[1]);
       assert.equal('C', result[2]);

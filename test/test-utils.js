@@ -188,7 +188,7 @@
       if (/\.module\.js$/.test(url))
         moduleLoader.import(url, handleSuccess, handleFailure);
       else
-        moduleLoader.load(url, handleSuccess, handleFailure);
+        moduleLoader.loadAsScript(url, handleSuccess, handleFailure);
     });
   }
 
