@@ -86,7 +86,7 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
   var loader = new Loader(hooks);
 
   function loadNext() {
-    var codeUnit = loader.load(filenames[loadCount],function() {
+    var codeUnit = loader.loadAsScript(filenames[loadCount],function() {
       loadCount++;
       if (loadCount < filenames.length) {
         loadNext();

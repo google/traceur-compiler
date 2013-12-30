@@ -33,7 +33,7 @@ suite('FreeVariableChecker.traceur.js', function() {
     var url = 'http://www.test.com/';
     var loaderHooks = new LoaderHooks(reporter, url);
     var loader = new Loader(loaderHooks);
-    loader.eval(contents, url);
+    loader.script(contents, url);
     return errors;
   }
 

@@ -228,7 +228,7 @@ class InternalLoader {
     return codeUnit;
   }
 
-  eval(code, name) {
+  script(code, name) {
     var codeUnit = new EvalCodeUnit(this.loaderHooks, code, name);
     this.cache.set({}, codeUnit);
     // assert that there are no dependencies that are loading?
@@ -395,53 +395,6 @@ export class Loader {
   constructor(loaderHooks) {
     this.internalLoader_ = new InternalLoader(loaderHooks);
   }
-
-  /**
-   * load - Asynchronously load and run a script. If the script contains import
-   * declarations, this can cause modules to be loaded, linked, and evaluated.
-   *
-   * On success, pass the result of evaluating the script to the success
-   * callback.
-   *
-   * This is the same as asyncEval, but first fetching the script.
-   */
-  load(url,
-       callback = (result) => {},
-       errback = (ex) => { throw ex; }) {
-    var codeUnit = this.internalLoader_.load(url, 'script');
-    codeUnit.addListener(function(result) {
-      callback(result);
-    }, errback);
-  }
-
-  /**
-   * eval - Evaluate the script src.
-   *
-   * src may import modules, but if it directly or indirectly imports a module
-   * that is not already loaded, a SyntaxError is thrown.
-   *
-   * @param {string} source The source code to eval.
-   * @param {string} name  name for the script
-   * @return {*} The completion value of evaluating the code.
-   */
-  eval(source, name) {
-    var codeUnit = this.internalLoader_.eval(source, name);
-    return codeUnit.result;
-  }
-
-  /**
-   * module - Asynchronously run the script src, first loading any imported
-   * modules that aren't already loaded.
-   *
-   * This is the same as load but without fetching the initial script. On
-   * success, the result of evaluating the source is passed to callback.
-   */
-  module(source, options, callback, errback = undefined) {
-    var codeUnit = this.internalLoader_.module(source, options);
-    codeUnit.addListener(callback, errback);
-    this.internalLoader_.handleCodeUnitLoaded(codeUnit);
-  }
-
   /**
    * import - Asynchronously load, link, and evaluate a module and any
    * dependencies it imports. On success, pass the Module object to the success
@@ -457,35 +410,60 @@ export class Loader {
   }
 
   /**
-   * The defineGlobal method defines a global binding in the global namespace
-   * encapsulated by this loader.
-   */
-  defineGlobal(name, value) {
-    throw Error('Not implemented');
-  }
-
-  /**
-   * The defineModule method takes a string name and a module instance object
-   * and defines a global module binding in the global namespace encapsulated
-   * by this loader. If the optional third argument is provided, it is used as
-   * a key and the module instance is stored in the module instance cache with
-   * that key.
-   * @return {void}
-   */
-  defineModule(name, moduleInstanceObject, cacheKey = undefined) {
-    throw Error('Not implemented');
-  }
-
-  /**
-   * The createBase method creates a fresh base library.
+   * module - Asynchronously run the script src, first loading any imported
+   * modules that aren't already loaded.
    *
-   * Note that this does not include a Loader binding. When creating a child
-   * loader, no loader is exposed to its global namespace by default. A loader
-   * can easily be shared via defineGlobal.
+   * This is the same as import but without fetching the source. On
+   * success, the result of evaluating the source is passed to callback.
    */
-  createBase() {
-    return base;
+  module(source, options, callback, errback = undefined) {
+    var codeUnit = this.internalLoader_.module(source, options);
+    codeUnit.addListener(callback, errback);
+    this.internalLoader_.handleCodeUnitLoaded(codeUnit);
   }
+
+  /**
+   * Not part of current spec.
+   * See https://github.com/jorendorff/js-loaders/issues/92
+   * loadAsScript - Asynchronously load and run a script. If the script contains
+   * import declarations, this can cause modules to be loaded, linked,
+   * and evaluated.
+   *
+   * This function is the same as import(), with one exception: the text of
+   * the initial load is parsed to goal 'Script' rather than 'Module'
+   *
+   * On success, pass the result of evaluating the script to the success
+   * callback.
+   */
+  loadAsScript(url,
+       callback = (result) => {},
+       errback = (ex) => { throw ex; }) {
+    var codeUnit = this.internalLoader_.load(url, 'script');
+    codeUnit.addListener(function(result) {
+      callback(result);
+    }, errback);
+  }
+
+  /**
+   * Not part of current spec.
+   * script - Evaluate the source as a 'script'. Same as function module(),
+   * but the source is parsed as 'script' rather than 'module'.
+   *
+   * This function is similar to built-in eval() except that all the Loader
+   * callbacks, eg translate() are applied before evaluation.
+   *
+   * src may import modules, but if it directly or indirectly imports a module
+   * that is not already loaded, a SyntaxError is thrown.
+   *
+   * @param {string} source The source code to eval.
+   * @param {string} name  name for the script
+   * @return {*} The completion value of evaluating the code.
+   */
+  script(source, name) {
+    var codeUnit = this.internalLoader_.script(source, name);
+    return codeUnit.result;
+  }
+
 }
 
 export {LoaderHooks};

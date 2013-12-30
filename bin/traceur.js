@@ -17531,7 +17531,7 @@ $traceurRuntime.registerModule("../src/runtime/Loader.js", function() {
       this.cache.set({}, codeUnit);
       return codeUnit;
     },
-    eval: function(code, name) {
+    script: function(code, name) {
       var codeUnit = new EvalCodeUnit(this.loaderHooks, code, name);
       this.cache.set({}, codeUnit);
       this.handleCodeUnitLoaded(codeUnit);
@@ -17659,26 +17659,6 @@ $traceurRuntime.registerModule("../src/runtime/Loader.js", function() {
     this.internalLoader_ = new InternalLoader(loaderHooks);
   };
   Loader = ($traceurRuntime.createClass)(Loader, {
-    load: function(url) {
-      var callback = arguments[1] !== (void 0) ? arguments[1]: (function(result) {});
-      var errback = arguments[2] !== (void 0) ? arguments[2]: (function(ex) {
-        throw ex;
-      });
-      var codeUnit = this.internalLoader_.load(url, 'script');
-      codeUnit.addListener(function(result) {
-        callback(result);
-      }, errback);
-    },
-    eval: function(source, name) {
-      var codeUnit = this.internalLoader_.eval(source, name);
-      return codeUnit.result;
-    },
-    module: function(source, options, callback) {
-      var errback = arguments[3];
-      var codeUnit = this.internalLoader_.module (source, options);
-      codeUnit.addListener(callback, errback);
-      this.internalLoader_.handleCodeUnitLoaded(codeUnit);
-    },
     import: function(url) {
       var callback = arguments[1] !== (void 0) ? arguments[1]: (function(module) {});
       var errback = arguments[2] !== (void 0) ? arguments[2]: (function(ex) {
@@ -17689,15 +17669,25 @@ $traceurRuntime.registerModule("../src/runtime/Loader.js", function() {
         callback(System.get(codeUnit.url));
       }, errback);
     },
-    defineGlobal: function(name, value) {
-      throw Error('Not implemented');
+    module: function(source, options, callback) {
+      var errback = arguments[3];
+      var codeUnit = this.internalLoader_.module (source, options);
+      codeUnit.addListener(callback, errback);
+      this.internalLoader_.handleCodeUnitLoaded(codeUnit);
     },
-    defineModule: function(name, moduleInstanceObject) {
-      var cacheKey = arguments[2];
-      throw Error('Not implemented');
+    loadAsScript: function(url) {
+      var callback = arguments[1] !== (void 0) ? arguments[1]: (function(result) {});
+      var errback = arguments[2] !== (void 0) ? arguments[2]: (function(ex) {
+        throw ex;
+      });
+      var codeUnit = this.internalLoader_.load(url, 'script');
+      codeUnit.addListener(function(result) {
+        callback(result);
+      }, errback);
     },
-    createBase: function() {
-      return base;
+    script: function(source, name) {
+      var codeUnit = this.internalLoader_.script(source, name);
+      return codeUnit.result;
     }
   }, {});
   ;
