@@ -39,6 +39,7 @@ import {
 import {
   BindingElement,
   Catch,
+  FormalParameter,
   ForInStatement,
   ForOfStatement,
   LiteralExpression
@@ -72,6 +73,7 @@ import {
   createVariableDeclarationList,
   createVariableStatement
 } from './ParseTreeFactory';
+import assertType from './assertType';
 import {options} from '../options';
 
 /**
@@ -99,9 +101,9 @@ class AssignmentExpressionDesugaring extends Desugaring {
     this.expressions = [];
   }
 
-  assign(lvalue, rvalue) {
+  assign(lvalue, rvalue, typeAnnotation = null) {
     lvalue = lvalue instanceof BindingElement ? lvalue.binding : lvalue;
-    this.expressions.push(createAssignmentExpression(lvalue, rvalue));
+    this.expressions.push(createAssignmentExpression(lvalue, assertType(rvalue, typeAnnotation)));
   }
 }
 
@@ -118,7 +120,7 @@ class VariableDeclarationDesugaring extends Desugaring {
     this.declarations = [];
   }
 
-  assign(lvalue, rvalue) {
+  assign(lvalue, rvalue, typeAnnotation = null) {
     if (lvalue instanceof BindingElement) {
       this.declarations.push(createVariableDeclaration(lvalue.binding,
           rvalue));
@@ -128,7 +130,7 @@ class VariableDeclarationDesugaring extends Desugaring {
     if (lvalue.type == IDENTIFIER_EXPRESSION)
       lvalue = createBindingIdentifier(lvalue);
 
-    this.declarations.push(createVariableDeclaration(lvalue, rvalue));
+    this.declarations.push(createVariableDeclaration(lvalue, assertType(rvalue, typeAnnotation)));
   }
 }
 
@@ -365,7 +367,14 @@ export class DestructuringTransformer extends ParameterTransformer {
     return new constr(tree.location, initialiser, collection, body);
   }
 
-  transformBindingElement(tree) {
+  transformFormalParameter(tree) {
+    if (tree.typeAnnotation === null)
+      return super.transformFormalParameter(tree);
+
+    return new FormalParameter(null, this.transformBindingElement(tree.parameter, tree.typeAnnotation), null, []);
+  }
+
+  transformBindingElement(tree, typeAnnotation = null) {
     // If this has an initialiser the default parameter transformer moves the
     // pattern into the function body and it will be taken care of by the
     // variable pass.
@@ -381,7 +390,7 @@ export class DestructuringTransformer extends ParameterTransformer {
     // }
 
     var statements = this.parameterStatements;
-    var binding = this.desugarBinding_(tree.binding, statements, VAR);
+    var binding = this.desugarBinding_(tree.binding, statements, VAR, typeAnnotation);
 
     return new BindingElement(null, binding, null);
   }
@@ -414,9 +423,11 @@ export class DestructuringTransformer extends ParameterTransformer {
    *     declaration to.
    * @param {TokenType?} declarationType The kind of variable declaration to
    *     generate or null if an assignment expression is to be used.
+   * @param {ParseTree?} typeAnnotation Optional type annotation information to
+   *     generate type assertions.
    * @return {BindingIdentifier} The binding tree.
    */
-  desugarBinding_(bindingTree, statements, declarationType) {
+  desugarBinding_(bindingTree, statements, declarationType, typeAnnotation = null) {
     var varName = this.getTempIdentifier();
     var binding = createBindingIdentifier(varName);
     var idExpr = createIdentifierExpression(varName);
@@ -427,7 +438,7 @@ export class DestructuringTransformer extends ParameterTransformer {
     else
       desugaring = new VariableDeclarationDesugaring(idExpr);
 
-    this.desugarPattern_(desugaring, bindingTree);
+    this.desugarPattern_(desugaring, bindingTree, typeAnnotation);
 
     if (declarationType === null) {
       statements.push(createExpressionStatement(
@@ -505,9 +516,10 @@ export class DestructuringTransformer extends ParameterTransformer {
   /**
    * @param {Desugaring} desugaring
    * @param {ParseTree} tree
+   * @param {ParseTree?} typeAnnotation
    * @return {boolean} True if any of the patterns have an initialiser.
    */
-  desugarPattern_(desugaring, tree) {
+  desugarPattern_(desugaring, tree, typeAnnotation) {
     var initialiserFound = false;
     switch (tree.type) {
       case ARRAY_PATTERN: {
@@ -526,7 +538,8 @@ export class DestructuringTransformer extends ParameterTransformer {
                     createMemberExpression(ARRAY, PROTOTYPE, SLICE, CALL),
                     createArgumentList(
                         desugaring.rvalue,
-                        createNumberLiteral(i))));
+                        createNumberLiteral(i))),
+                typeAnnotation);
           } else {
             if (lvalue.initialiser)
               initialiserFound = true;
@@ -535,7 +548,8 @@ export class DestructuringTransformer extends ParameterTransformer {
                 createConditionalMemberLookupExpression(
                     desugaring.rvalue,
                     createNumberLiteral(i),
-                    lvalue.initialiser));
+                    lvalue.initialiser),
+                typeAnnotation);
           }
         }
         break;
@@ -554,7 +568,8 @@ export class DestructuringTransformer extends ParameterTransformer {
                   field.binding, field.initialiser);
               desugaring.assign(
                   createIdentifierExpression(field.binding),
-                  lookup);
+                  lookup,
+                  typeAnnotation);
               break;
 
             case OBJECT_PATTERN_FIELD:
@@ -563,14 +578,14 @@ export class DestructuringTransformer extends ParameterTransformer {
               var name = field.name;
               lookup = createConditionalMemberExpression(desugaring.rvalue,
                   name, field.element.initialiser);
-              desugaring.assign(field.element, lookup);
+              desugaring.assign(field.element, lookup, typeAnnotation);
               break;
 
             case IDENTIFIER_EXPRESSION:
               lookup = createMemberExpression(
                   desugaring.rvalue, field.identifierToken);
 
-              desugaring.assign(field, lookup);
+              desugaring.assign(field, lookup, typeAnnotation);
               break;
 
             default:
@@ -581,7 +596,7 @@ export class DestructuringTransformer extends ParameterTransformer {
       }
 
       case PAREN_EXPRESSION:
-        return this.desugarPattern_(desugaring, tree.expression);
+        return this.desugarPattern_(desugaring, tree.expression, typeAnnotation);
 
       default:
         throw new Error('unreachable');
@@ -594,7 +609,7 @@ export class DestructuringTransformer extends ParameterTransformer {
     if (desugaring instanceof VariableDeclarationDesugaring &&
         desugaring.declarations.length === 0) {
       desugaring.assign(createBindingIdentifier(this.getTempIdentifier()),
-                        desugaring.rvalue);
+                        desugaring.rvalue, typeAnnotation);
     }
 
     return initialiserFound;

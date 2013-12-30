@@ -29,7 +29,7 @@ function isTypeAssertion(tree) {
 }
 
 export default function assertType(tree, typeAnnotation) {
-  if (!options.typeAssertions || isTypeAssertion(tree))
+  if (typeAnnotation === null || !options.typeAssertions || isTypeAssertion(tree))
     return tree;
   return parseExpression `assert.type(${tree}, ${typeAnnotation.name})`;
 }
