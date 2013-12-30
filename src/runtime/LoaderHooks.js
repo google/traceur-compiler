@@ -15,6 +15,7 @@
 import {
   AttachModuleNameTransformer
 } from '../codegeneration/module/AttachModuleNameTransformer';
+import {ExportSymbol} from '../semantics/symbols/ExportSymbol';
 import {FromOptionsTransformer} from '../codegeneration/FromOptionsTransformer';
 import {ModuleAnalyzer} from '../semantics/ModuleAnalyzer';
 import {ModuleSpecifierVisitor} from
@@ -40,6 +41,21 @@ var PARSED = 3;
 var TRANSFORMED = 4;
 var COMPLETE = 5;
 var ERROR = 6;
+
+/**
+ * A ModuleDescription::Module instance as ModuleSymbol::Tree
+ */
+class ModuleDescription extends ModuleSymbol {
+  constructor(url, module) {
+    super(null, url);
+    this.url_ = url;
+    this.exports_ = Object.create(null);
+    Object.keys(module).forEach(
+      (name) => this.exports_[name] = new ExportSymbol(name, null)
+    );
+    Object.preventExtensions(this.exports_);
+  }
+}
 
 var identifierGenerator = new UniqueIdentifierGenerator();
 
@@ -132,7 +148,20 @@ export class LoaderHooks {
     return result;
   }
 
+  getModuleDescriptionForSpecifier(name, referrer) {
+    var normalizedName = System.normalize(name, referrer);
+    var module = System.get(normalizedName);
+    if (module)
+      return new ModuleDescription(normalizedName, module);
+
+    var codeUnit = this.loader.getCodeUnit(normalizedName, 'module');
+    return codeUnit.data.moduleSymbol;
+  }
+
   analyzeDependencies(dependencies, loader) {
+    // TODO(jjb): the loader is passed so we can get codeUnits. Here we
+    // are passing it to getModuleDescriptionForSpecfier in a lame way.
+    this.loader = loader;
     var trees = [];
     var moduleSymbols = [];
     for (var i = 0; i < dependencies.length; i++) {
@@ -147,11 +176,11 @@ export class LoaderHooks {
       }
     }
 
-    this.analyzer_.analyzeTrees(trees, moduleSymbols, loader);
+    this.analyzer_.analyzeTrees(trees, moduleSymbols, this);
     this.checkForErrors(dependencies, 'analyze');
+    this.loader = null;
   }
 
-  // TODO(jjb): this function belongs in Loader
   transformDependencies(dependencies) {
     for (var i = 0; i < dependencies.length; i++) {
       var codeUnit = dependencies[i];

@@ -250,11 +250,6 @@ class InternalLoader {
     return this.cache.values().every((codeUnit) => codeUnit.state >= state);
   }
 
-  getCodeUnitForModuleSpecifier(name, referrerName) {
-    var name = System.normalize(name, referrerName);
-    return this.getCodeUnit(name, 'module');
-  }
-
   /**
    * This is called when a codeUnit is loaded.
    * @param {CodeUnit} codeUnit
