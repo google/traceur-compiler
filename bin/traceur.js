@@ -1218,10 +1218,17 @@ $traceurRuntime.registerModule("../src/options.js", function() {
   function addOptions(flags) {
     Object.keys(options).forEach(function(name) {
       var dashedName = toDashCase(name);
-      if ((name in parseOptions) && (name in transformOptions)) flags.option('--' + dashedName + ' [true|false|parse]', descriptions[name]); else flags.option('--' + dashedName, descriptions[name]);
-      flags.on(dashedName, (function(value) {
-        return setOption(dashedName, value);
-      }));
+      if ((name in parseOptions) && (name in transformOptions)) {
+        flags.option('--' + dashedName + ' [true|false|parse]', descriptions[name]);
+        flags.on(dashedName, (function(value) {
+          return setOption(dashedName, value);
+        }));
+      } else {
+        flags.option('--' + dashedName, descriptions[name]);
+        flags.on(dashedName, (function() {
+          return setOption(dashedName, true);
+        }));
+      }
     });
   }
   function filterOption(dashedName) {
