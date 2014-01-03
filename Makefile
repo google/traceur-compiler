@@ -181,7 +181,7 @@ node_modules: package.json
 bin/traceur.ugly.js: bin/traceur.js
 	uglifyjs bin/traceur.js --compress -m -o $@
 
-prepublish: bin/traceur-runtime.js
+prepublish: bin/traceur.js bin/traceur-runtime.js
 
 WIKI_OUT = \
   test/wiki/CompilingOffline/out/greeter.js
