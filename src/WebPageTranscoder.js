@@ -114,14 +114,6 @@ export class WebPageTranscoder {
       return;  // nothing to do
     }
 
-    /* TODO: add traceur runtime library here
-    scriptsToRun.push(
-      { scriptElement: null,
-        parentNode: scripts[0].parentNode,
-        name: 'Runtime Library',
-        contents: runtime });
-    */
-
     this.addFilesFromScriptElements(scripts, () => {
       done();
     });

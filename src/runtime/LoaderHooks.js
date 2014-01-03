@@ -90,7 +90,8 @@ export class LoaderHooks {
     var transformer = new AttachUrlTransformer(codeUnit.url);
     var transformedTree = transformer.transformAny(codeUnit.data.tree);
     transformer = new FromOptionsTransformer(this.reporter,
-                                                  identifierGenerator);
+        identifierGenerator);
+
     return transformer.transform(transformedTree);
   }
 
@@ -102,7 +103,7 @@ export class LoaderHooks {
     return undefined;
   }
 
-  evaluateModuleBody(codeUnit) {
+  evaluateCodeUnit(codeUnit) {
     // Source for modules compile into calls to registerModule(url, fnc).
     //
     // TODO(arv): Eval in the right context.

@@ -38,7 +38,7 @@ mocha.setup({ui: 'tdd'});
     return new traceur.modules.Loader(loaderHooks);
   }
 
-  getLoader().import('../src/runtime/webLoader',function(module) {
+  getLoader().import('../src/runtime/webLoader', function(module) {
 	  featureSuite(testList, module.webLoader);
 
 	  new traceur.WebPageTranscoder(document.location.href).run(function() {

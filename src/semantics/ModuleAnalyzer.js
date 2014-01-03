@@ -25,7 +25,6 @@ import {transformOptions} from '../options';
 export class ModuleAnalyzer {
   /**
    * @param {ErrorReporter} reporter
-   * @param {Loader} loader
    */
   constructor(reporter) {
     this.reporter_ = reporter;
@@ -34,6 +33,7 @@ export class ModuleAnalyzer {
   /**
    * @param {Array.<ParseTree>} trees
    * @param {Array.<ModuleSymbol>=} moduleSymbols
+   * @param {Loader} loader
    * @return {void}
    */
   analyzeTrees(trees, moduleSymbols, loader) {
