@@ -603,7 +603,7 @@ $traceurRuntime.registerModule("../src/runtime/polyfills/utils.js", function() {
       return toUint32;
     }
   };
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/runtime/polyfills/ArrayIterator.js", function() {
   "use strict";
   var $__3;
@@ -678,7 +678,7 @@ $traceurRuntime.registerModule("../src/runtime/polyfills/ArrayIterator.js", func
       return values;
     }
   };
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../node_modules/rsvp/lib/rsvp/async.js", function() {
   "use strict";
   var browserGlobal = (typeof window !== 'undefined') ? window: {};
@@ -741,7 +741,7 @@ $traceurRuntime.registerModule("../node_modules/rsvp/lib/rsvp/async.js", functio
   return {get async() {
       return async;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/runtime/polyfills/Promise.js", function() {
   "use strict";
   var async = $traceurRuntime.getModuleImpl("../node_modules/rsvp/lib/rsvp/async.js").async;
@@ -913,7 +913,7 @@ $traceurRuntime.registerModule("../src/runtime/polyfills/Promise.js", function()
   return {get Promise() {
       return Promise;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/runtime/polyfills/String.js", function() {
   "use strict";
   var $toString = Object.prototype.toString;
@@ -1081,7 +1081,7 @@ $traceurRuntime.registerModule("../src/runtime/polyfills/String.js", function() 
       return fromCodePoint;
     }
   };
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/runtime/polyfills/polyfills.js", function() {
   "use strict";
   var Promise = $traceurRuntime.getModuleImpl("../src/runtime/polyfills/Promise.js").Promise;
@@ -1144,7 +1144,7 @@ $traceurRuntime.registerModule("../src/runtime/polyfills/polyfills.js", function
     polyfill(global);
   };
   return {};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 var $__10 = $traceurRuntime.getModuleImpl("../src/runtime/polyfills/polyfills.js");
 $traceurRuntime.registerModule("../src/options.js", function() {
   "use strict";
@@ -1324,7 +1324,7 @@ $traceurRuntime.registerModule("../src/options.js", function() {
       return options;
     }
   };
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/syntax/TokenType.js", function() {
   "use strict";
   var AMPERSAND = '&';
@@ -1757,7 +1757,7 @@ $traceurRuntime.registerModule("../src/syntax/TokenType.js", function() {
       return YIELD;
     }
   };
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/syntax/Token.js", function() {
   "use strict";
   var $__12 = $traceurRuntime.getModuleImpl("../src/syntax/TokenType.js"),
@@ -1817,7 +1817,7 @@ $traceurRuntime.registerModule("../src/syntax/Token.js", function() {
       return isAssignmentOperator;
     }
   };
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/syntax/IdentifierToken.js", function() {
   "use strict";
   var Token = $traceurRuntime.getModuleImpl("../src/syntax/Token.js").Token;
@@ -1837,7 +1837,7 @@ $traceurRuntime.registerModule("../src/syntax/IdentifierToken.js", function() {
   return {get IdentifierToken() {
       return IdentifierToken;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/syntax/ParseTreeVisitor.js", function() {
   "use strict";
   var ParseTreeVisitor = function() {};
@@ -2161,7 +2161,7 @@ $traceurRuntime.registerModule("../src/syntax/ParseTreeVisitor.js", function() {
   return {get ParseTreeVisitor() {
       return ParseTreeVisitor;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/syntax/PredefinedName.js", function() {
   "use strict";
   var ANY = 'any';
@@ -2385,7 +2385,7 @@ $traceurRuntime.registerModule("../src/syntax/PredefinedName.js", function() {
       return ACTION_THROW;
     }
   };
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/syntax/trees/ParseTreeType.js", function() {
   "use strict";
   var ANON_BLOCK = 'ANON_BLOCK';
@@ -2770,7 +2770,7 @@ $traceurRuntime.registerModule("../src/syntax/trees/ParseTreeType.js", function(
       return YIELD_EXPRESSION;
     }
   };
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/util/JSON.js", function() {
   "use strict";
   function transform(v) {
@@ -2806,7 +2806,7 @@ $traceurRuntime.registerModule("../src/util/JSON.js", function() {
   return {get transform() {
       return transform;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/syntax/trees/ParseTree.js", function() {
   "use strict";
   var ParseTreeType = System.get("../src/syntax/trees/ParseTreeType.js");
@@ -3127,7 +3127,7 @@ $traceurRuntime.registerModule("../src/syntax/trees/ParseTree.js", function() {
       return ParseTree;
     }
   };
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/syntax/trees/ParseTrees.js", function() {
   "use strict";
   var ParseTree = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTree.js").ParseTree;
@@ -4991,7 +4991,7 @@ $traceurRuntime.registerModule("../src/syntax/trees/ParseTrees.js", function() {
       return YieldExpression;
     }
   };
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/semantics/FreeVariableChecker.js", function() {
   "use strict";
   var ARGUMENTS = $traceurRuntime.getModuleImpl("../src/syntax/PredefinedName.js").ARGUMENTS;
@@ -5158,7 +5158,7 @@ $traceurRuntime.registerModule("../src/semantics/FreeVariableChecker.js", functi
       return FreeVariableChecker;
     }
   };
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/syntax/Keywords.js", function() {
   "use strict";
   var keywords = ['break', 'case', 'catch', 'class', 'const', 'continue', 'debugger', 'default', 'delete', 'do', 'else', 'export', 'finally', 'for', 'function', 'if', 'import', 'in', 'instanceof', 'let', 'new', 'return', 'super', 'switch', 'this', 'throw', 'try', 'typeof', 'var', 'void', 'while', 'with', 'enum', 'extends', 'null', 'true', 'false', 'await'];
@@ -5192,7 +5192,7 @@ $traceurRuntime.registerModule("../src/syntax/Keywords.js", function() {
       return isStrictKeyword;
     }
   };
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/outputgeneration/ParseTreeWriter.js", function() {
   "use strict";
   var ParseTreeVisitor = $traceurRuntime.getModuleImpl("../src/syntax/ParseTreeVisitor.js").ParseTreeVisitor;
@@ -6107,7 +6107,7 @@ $traceurRuntime.registerModule("../src/outputgeneration/ParseTreeWriter.js", fun
   return {get ParseTreeWriter() {
       return ParseTreeWriter;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/outputgeneration/ParseTreeMapWriter.js", function() {
   "use strict";
   var ParseTreeWriter = $traceurRuntime.getModuleImpl("../src/outputgeneration/ParseTreeWriter.js").ParseTreeWriter;
@@ -6147,7 +6147,7 @@ $traceurRuntime.registerModule("../src/outputgeneration/ParseTreeMapWriter.js", 
   return {get ParseTreeMapWriter() {
       return ParseTreeMapWriter;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/outputgeneration/TreeWriter.js", function() {
   "use strict";
   var ParseTreeMapWriter = $traceurRuntime.getModuleImpl("../src/outputgeneration/ParseTreeMapWriter.js").ParseTreeMapWriter;
@@ -6188,7 +6188,7 @@ $traceurRuntime.registerModule("../src/outputgeneration/TreeWriter.js", function
       return TreeWriter;
     }
   };
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/util/assert.js", function() {
   "use strict";
   var options = $traceurRuntime.getModuleImpl("../src/options.js").options;
@@ -6198,7 +6198,7 @@ $traceurRuntime.registerModule("../src/util/assert.js", function() {
   return {get assert() {
       return assert;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/syntax/ParseTreeValidator.js", function() {
   "use strict";
   var NewExpression = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js").NewExpression;
@@ -6747,7 +6747,7 @@ $traceurRuntime.registerModule("../src/syntax/ParseTreeValidator.js", function()
   return {get ParseTreeValidator() {
       return ParseTreeValidator;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/util/ObjectMap.js", function() {
   "use strict";
   var ObjectMap = function() {
@@ -6793,7 +6793,7 @@ $traceurRuntime.registerModule("../src/util/ObjectMap.js", function() {
   return {get ObjectMap() {
       return ObjectMap;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/syntax/LiteralToken.js", function() {
   "use strict";
   var $__36;
@@ -6916,7 +6916,7 @@ $traceurRuntime.registerModule("../src/syntax/LiteralToken.js", function() {
   return {get LiteralToken() {
       return LiteralToken;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/ParseTreeFactory.js", function() {
   "use strict";
   var IdentifierToken = $traceurRuntime.getModuleImpl("../src/syntax/IdentifierToken.js").IdentifierToken;
@@ -7713,7 +7713,7 @@ $traceurRuntime.registerModule("../src/codegeneration/ParseTreeFactory.js", func
       return createAssignStateStatement;
     }
   };
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/ParseTreeTransformer.js", function() {
   "use strict";
   var $__45 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
@@ -8477,7 +8477,7 @@ $traceurRuntime.registerModule("../src/codegeneration/ParseTreeTransformer.js", 
   return {get ParseTreeTransformer() {
       return ParseTreeTransformer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/AssignmentPatternTransformer.js", function() {
   "use strict";
   var ParseTreeTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeTransformer.js").ParseTreeTransformer;
@@ -8536,7 +8536,7 @@ $traceurRuntime.registerModule("../src/codegeneration/AssignmentPatternTransform
       return AssignmentPatternTransformer;
     }
   };
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/CoverFormalsTransformer.js", function() {
   "use strict";
   var ParseTreeTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeTransformer.js").ParseTreeTransformer;
@@ -8644,7 +8644,7 @@ $traceurRuntime.registerModule("../src/codegeneration/CoverFormalsTransformer.js
       return toFormalParameters;
     }
   };
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/staticsemantics/StrictParams.js", function() {
   "use strict";
   var ParseTreeVisitor = $traceurRuntime.getModuleImpl("../src/syntax/ParseTreeVisitor.js").ParseTreeVisitor;
@@ -8664,7 +8664,7 @@ $traceurRuntime.registerModule("../src/staticsemantics/StrictParams.js", functio
   return {get StrictParams() {
       return StrictParams;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/util/SourceRange.js", function() {
   "use strict";
   var SourceRange = function(start, end) {
@@ -8675,7 +8675,7 @@ $traceurRuntime.registerModule("../src/util/SourceRange.js", function() {
   return {get SourceRange() {
       return SourceRange;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/syntax/KeywordToken.js", function() {
   "use strict";
   var STRICT_KEYWORD = $traceurRuntime.getModuleImpl("../src/syntax/Keywords.js").STRICT_KEYWORD;
@@ -8696,7 +8696,7 @@ $traceurRuntime.registerModule("../src/syntax/KeywordToken.js", function() {
   return {get KeywordToken() {
       return KeywordToken;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/syntax/unicode-tables.js", function() {
   "use strict";
   var idStartTable = [170, 170, 181, 181, 186, 186, 192, 214, 216, 246, 248, 442, 443, 443, 444, 447, 448, 451, 452, 659, 660, 660, 661, 687, 688, 705, 710, 721, 736, 740, 748, 748, 750, 750, 880, 883, 884, 884, 886, 887, 890, 890, 891, 893, 902, 902, 904, 906, 908, 908, 910, 929, 931, 1013, 1015, 1153, 1162, 1319, 1329, 1366, 1369, 1369, 1377, 1415, 1488, 1514, 1520, 1522, 1568, 1599, 1600, 1600, 1601, 1610, 1646, 1647, 1649, 1747, 1749, 1749, 1765, 1766, 1774, 1775, 1786, 1788, 1791, 1791, 1808, 1808, 1810, 1839, 1869, 1957, 1969, 1969, 1994, 2026, 2036, 2037, 2042, 2042, 2048, 2069, 2074, 2074, 2084, 2084, 2088, 2088, 2112, 2136, 2208, 2208, 2210, 2220, 2308, 2361, 2365, 2365, 2384, 2384, 2392, 2401, 2417, 2417, 2418, 2423, 2425, 2431, 2437, 2444, 2447, 2448, 2451, 2472, 2474, 2480, 2482, 2482, 2486, 2489, 2493, 2493, 2510, 2510, 2524, 2525, 2527, 2529, 2544, 2545, 2565, 2570, 2575, 2576, 2579, 2600, 2602, 2608, 2610, 2611, 2613, 2614, 2616, 2617, 2649, 2652, 2654, 2654, 2674, 2676, 2693, 2701, 2703, 2705, 2707, 2728, 2730, 2736, 2738, 2739, 2741, 2745, 2749, 2749, 2768, 2768, 2784, 2785, 2821, 2828, 2831, 2832, 2835, 2856, 2858, 2864, 2866, 2867, 2869, 2873, 2877, 2877, 2908, 2909, 2911, 2913, 2929, 2929, 2947, 2947, 2949, 2954, 2958, 2960, 2962, 2965, 2969, 2970, 2972, 2972, 2974, 2975, 2979, 2980, 2984, 2986, 2990, 3001, 3024, 3024, 3077, 3084, 3086, 3088, 3090, 3112, 3114, 3123, 3125, 3129, 3133, 3133, 3160, 3161, 3168, 3169, 3205, 3212, 3214, 3216, 3218, 3240, 3242, 3251, 3253, 3257, 3261, 3261, 3294, 3294, 3296, 3297, 3313, 3314, 3333, 3340, 3342, 3344, 3346, 3386, 3389, 3389, 3406, 3406, 3424, 3425, 3450, 3455, 3461, 3478, 3482, 3505, 3507, 3515, 3517, 3517, 3520, 3526, 3585, 3632, 3634, 3635, 3648, 3653, 3654, 3654, 3713, 3714, 3716, 3716, 3719, 3720, 3722, 3722, 3725, 3725, 3732, 3735, 3737, 3743, 3745, 3747, 3749, 3749, 3751, 3751, 3754, 3755, 3757, 3760, 3762, 3763, 3773, 3773, 3776, 3780, 3782, 3782, 3804, 3807, 3840, 3840, 3904, 3911, 3913, 3948, 3976, 3980, 4096, 4138, 4159, 4159, 4176, 4181, 4186, 4189, 4193, 4193, 4197, 4198, 4206, 4208, 4213, 4225, 4238, 4238, 4256, 4293, 4295, 4295, 4301, 4301, 4304, 4346, 4348, 4348, 4349, 4680, 4682, 4685, 4688, 4694, 4696, 4696, 4698, 4701, 4704, 4744, 4746, 4749, 4752, 4784, 4786, 4789, 4792, 4798, 4800, 4800, 4802, 4805, 4808, 4822, 4824, 4880, 4882, 4885, 4888, 4954, 4992, 5007, 5024, 5108, 5121, 5740, 5743, 5759, 5761, 5786, 5792, 5866, 5870, 5872, 5888, 5900, 5902, 5905, 5920, 5937, 5952, 5969, 5984, 5996, 5998, 6000, 6016, 6067, 6103, 6103, 6108, 6108, 6176, 6210, 6211, 6211, 6212, 6263, 6272, 6312, 6314, 6314, 6320, 6389, 6400, 6428, 6480, 6509, 6512, 6516, 6528, 6571, 6593, 6599, 6656, 6678, 6688, 6740, 6823, 6823, 6917, 6963, 6981, 6987, 7043, 7072, 7086, 7087, 7098, 7141, 7168, 7203, 7245, 7247, 7258, 7287, 7288, 7293, 7401, 7404, 7406, 7409, 7413, 7414, 7424, 7467, 7468, 7530, 7531, 7543, 7544, 7544, 7545, 7578, 7579, 7615, 7680, 7957, 7960, 7965, 7968, 8005, 8008, 8013, 8016, 8023, 8025, 8025, 8027, 8027, 8029, 8029, 8031, 8061, 8064, 8116, 8118, 8124, 8126, 8126, 8130, 8132, 8134, 8140, 8144, 8147, 8150, 8155, 8160, 8172, 8178, 8180, 8182, 8188, 8305, 8305, 8319, 8319, 8336, 8348, 8450, 8450, 8455, 8455, 8458, 8467, 8469, 8469, 8472, 8472, 8473, 8477, 8484, 8484, 8486, 8486, 8488, 8488, 8490, 8493, 8494, 8494, 8495, 8500, 8501, 8504, 8505, 8505, 8508, 8511, 8517, 8521, 8526, 8526, 8544, 8578, 8579, 8580, 8581, 8584, 11264, 11310, 11312, 11358, 11360, 11387, 11388, 11389, 11390, 11492, 11499, 11502, 11506, 11507, 11520, 11557, 11559, 11559, 11565, 11565, 11568, 11623, 11631, 11631, 11648, 11670, 11680, 11686, 11688, 11694, 11696, 11702, 11704, 11710, 11712, 11718, 11720, 11726, 11728, 11734, 11736, 11742, 12293, 12293, 12294, 12294, 12295, 12295, 12321, 12329, 12337, 12341, 12344, 12346, 12347, 12347, 12348, 12348, 12353, 12438, 12443, 12444, 12445, 12446, 12447, 12447, 12449, 12538, 12540, 12542, 12543, 12543, 12549, 12589, 12593, 12686, 12704, 12730, 12784, 12799, 13312, 19893, 19968, 40908, 40960, 40980, 40981, 40981, 40982, 42124, 42192, 42231, 42232, 42237, 42240, 42507, 42508, 42508, 42512, 42527, 42538, 42539, 42560, 42605, 42606, 42606, 42623, 42623, 42624, 42647, 42656, 42725, 42726, 42735, 42775, 42783, 42786, 42863, 42864, 42864, 42865, 42887, 42888, 42888, 42891, 42894, 42896, 42899, 42912, 42922, 43000, 43001, 43002, 43002, 43003, 43009, 43011, 43013, 43015, 43018, 43020, 43042, 43072, 43123, 43138, 43187, 43250, 43255, 43259, 43259, 43274, 43301, 43312, 43334, 43360, 43388, 43396, 43442, 43471, 43471, 43520, 43560, 43584, 43586, 43588, 43595, 43616, 43631, 43632, 43632, 43633, 43638, 43642, 43642, 43648, 43695, 43697, 43697, 43701, 43702, 43705, 43709, 43712, 43712, 43714, 43714, 43739, 43740, 43741, 43741, 43744, 43754, 43762, 43762, 43763, 43764, 43777, 43782, 43785, 43790, 43793, 43798, 43808, 43814, 43816, 43822, 43968, 44002, 44032, 55203, 55216, 55238, 55243, 55291, 63744, 64109, 64112, 64217, 64256, 64262, 64275, 64279, 64285, 64285, 64287, 64296, 64298, 64310, 64312, 64316, 64318, 64318, 64320, 64321, 64323, 64324, 64326, 64433, 64467, 64829, 64848, 64911, 64914, 64967, 65008, 65019, 65136, 65140, 65142, 65276, 65313, 65338, 65345, 65370, 65382, 65391, 65392, 65392, 65393, 65437, 65438, 65439, 65440, 65470, 65474, 65479, 65482, 65487, 65490, 65495, 65498, 65500, 65536, 65547, 65549, 65574, 65576, 65594, 65596, 65597, 65599, 65613, 65616, 65629, 65664, 65786, 65856, 65908, 66176, 66204, 66208, 66256, 66304, 66334, 66352, 66368, 66369, 66369, 66370, 66377, 66378, 66378, 66432, 66461, 66464, 66499, 66504, 66511, 66513, 66517, 66560, 66639, 66640, 66717, 67584, 67589, 67592, 67592, 67594, 67637, 67639, 67640, 67644, 67644, 67647, 67669, 67840, 67861, 67872, 67897, 67968, 68023, 68030, 68031, 68096, 68096, 68112, 68115, 68117, 68119, 68121, 68147, 68192, 68220, 68352, 68405, 68416, 68437, 68448, 68466, 68608, 68680, 69635, 69687, 69763, 69807, 69840, 69864, 69891, 69926, 70019, 70066, 70081, 70084, 71296, 71338, 73728, 74606, 74752, 74850, 77824, 78894, 92160, 92728, 93952, 94020, 94032, 94032, 94099, 94111, 110592, 110593, 119808, 119892, 119894, 119964, 119966, 119967, 119970, 119970, 119973, 119974, 119977, 119980, 119982, 119993, 119995, 119995, 119997, 120003, 120005, 120069, 120071, 120074, 120077, 120084, 120086, 120092, 120094, 120121, 120123, 120126, 120128, 120132, 120134, 120134, 120138, 120144, 120146, 120485, 120488, 120512, 120514, 120538, 120540, 120570, 120572, 120596, 120598, 120628, 120630, 120654, 120656, 120686, 120688, 120712, 120714, 120744, 120746, 120770, 120772, 120779, 126464, 126467, 126469, 126495, 126497, 126498, 126500, 126500, 126503, 126503, 126505, 126514, 126516, 126519, 126521, 126521, 126523, 126523, 126530, 126530, 126535, 126535, 126537, 126537, 126539, 126539, 126541, 126543, 126545, 126546, 126548, 126548, 126551, 126551, 126553, 126553, 126555, 126555, 126557, 126557, 126559, 126559, 126561, 126562, 126564, 126564, 126567, 126570, 126572, 126578, 126580, 126583, 126585, 126588, 126590, 126590, 126592, 126601, 126603, 126619, 126625, 126627, 126629, 126633, 126635, 126651, 131072, 173782, 173824, 177972, 177984, 178205, 194560, 195101];
@@ -8709,7 +8709,7 @@ $traceurRuntime.registerModule("../src/syntax/unicode-tables.js", function() {
       return idContinueTable;
     }
   };
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/syntax/Scanner.js", function() {
   "use strict";
   var IdentifierToken = $traceurRuntime.getModuleImpl("../src/syntax/IdentifierToken.js").IdentifierToken;
@@ -9598,7 +9598,7 @@ $traceurRuntime.registerModule("../src/syntax/Scanner.js", function() {
       return Scanner;
     }
   };
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/syntax/Parser.js", function() {
   "use strict";
   var $__60 = $traceurRuntime.getModuleImpl("../src/codegeneration/AssignmentPatternTransformer.js"),
@@ -11820,7 +11820,7 @@ $traceurRuntime.registerModule("../src/syntax/Parser.js", function() {
   return {get Parser() {
       return Parser;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/util/uid.js", function() {
   "use strict";
   var uidCounter = 0;
@@ -11830,7 +11830,7 @@ $traceurRuntime.registerModule("../src/util/uid.js", function() {
   return {get getUid() {
       return getUid;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/util/SourcePosition.js", function() {
   "use strict";
   var SourcePosition = function(source, offset) {
@@ -11856,7 +11856,7 @@ $traceurRuntime.registerModule("../src/util/SourcePosition.js", function() {
   return {get SourcePosition() {
       return SourcePosition;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/syntax/LineNumberTable.js", function() {
   "use strict";
   var SourcePosition = $traceurRuntime.getModuleImpl("../src/util/SourcePosition.js").SourcePosition;
@@ -11932,7 +11932,7 @@ $traceurRuntime.registerModule("../src/syntax/LineNumberTable.js", function() {
   return {get LineNumberTable() {
       return LineNumberTable;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/syntax/SourceFile.js", function() {
   "use strict";
   var LineNumberTable = $traceurRuntime.getModuleImpl("../src/syntax/LineNumberTable.js").LineNumberTable;
@@ -11947,7 +11947,7 @@ $traceurRuntime.registerModule("../src/syntax/SourceFile.js", function() {
   return {get SourceFile() {
       return SourceFile;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/util/ArrayMap.js", function() {
   "use strict";
   var ArrayMap = function() {
@@ -11999,7 +11999,7 @@ $traceurRuntime.registerModule("../src/util/ArrayMap.js", function() {
   return {get ArrayMap() {
       return ArrayMap;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/util/ErrorReporter.js", function() {
   "use strict";
   var ErrorReporter = function() {
@@ -12042,7 +12042,7 @@ $traceurRuntime.registerModule("../src/util/ErrorReporter.js", function() {
   return {get ErrorReporter() {
       return ErrorReporter;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/util/MutedErrorReporter.js", function() {
   "use strict";
   var ErrorReporter = $traceurRuntime.getModuleImpl("../src/util/ErrorReporter.js").ErrorReporter;
@@ -12053,7 +12053,7 @@ $traceurRuntime.registerModule("../src/util/MutedErrorReporter.js", function() {
   return {get MutedErrorReporter() {
       return MutedErrorReporter;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/PlaceholderParser.js", function() {
   "use strict";
   var ArrayMap = $traceurRuntime.getModuleImpl("../src/util/ArrayMap.js").ArrayMap;
@@ -12289,7 +12289,7 @@ $traceurRuntime.registerModule("../src/codegeneration/PlaceholderParser.js", fun
       return PlaceholderTransformer;
     }
   };
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/PrependStatements.js", function() {
   "use strict";
   var $__79 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
@@ -12319,7 +12319,7 @@ $traceurRuntime.registerModule("../src/codegeneration/PrependStatements.js", fun
   return {get prependStatements() {
       return prependStatements;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/TempVarTransformer.js", function() {
   "use strict";
   var ParseTreeTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeTransformer.js").ParseTreeTransformer;
@@ -12450,7 +12450,7 @@ $traceurRuntime.registerModule("../src/codegeneration/TempVarTransformer.js", fu
   return {get TempVarTransformer() {
       return TempVarTransformer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/semantics/symbols/Symbol.js", function() {
   "use strict";
   var Symbol = function(type, tree) {
@@ -12461,7 +12461,7 @@ $traceurRuntime.registerModule("../src/semantics/symbols/Symbol.js", function() 
   return {get Symbol() {
       return Symbol;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/semantics/symbols/SymbolType.js", function() {
   "use strict";
   var EXPORT = 'EXPORT';
@@ -12474,7 +12474,7 @@ $traceurRuntime.registerModule("../src/semantics/symbols/SymbolType.js", functio
       return MODULE;
     }
   };
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/semantics/symbols/ExportSymbol.js", function() {
   "use strict";
   var Symbol = $traceurRuntime.getModuleImpl("../src/semantics/symbols/Symbol.js").Symbol;
@@ -12487,7 +12487,7 @@ $traceurRuntime.registerModule("../src/semantics/symbols/ExportSymbol.js", funct
   return {get ExportSymbol() {
       return ExportSymbol;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/module/ModuleVisitor.js", function() {
   "use strict";
   var ParseTree = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTree.js").ParseTree;
@@ -12545,7 +12545,7 @@ $traceurRuntime.registerModule("../src/codegeneration/module/ModuleVisitor.js", 
   return {get ModuleVisitor() {
       return ModuleVisitor;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/module/ExportVisitor.js", function() {
   "use strict";
   var ExportSymbol = $traceurRuntime.getModuleImpl("../src/semantics/symbols/ExportSymbol.js").ExportSymbol;
@@ -12613,7 +12613,7 @@ $traceurRuntime.registerModule("../src/codegeneration/module/ExportVisitor.js", 
   return {get ExportVisitor() {
       return ExportVisitor;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/module/DirectExportVisitor.js", function() {
   "use strict";
   var ExportSymbol = $traceurRuntime.getModuleImpl("../src/semantics/symbols/ExportSymbol.js").ExportSymbol;
@@ -12638,10 +12638,10 @@ $traceurRuntime.registerModule("../src/codegeneration/module/DirectExportVisitor
   return {get DirectExportVisitor() {
       return DirectExportVisitor;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/ModuleTransformer.js", function() {
   "use strict";
-  var $__96 = Object.freeze(Object.defineProperties(["$traceurRuntime.registerModule(", ", function() {\n          ", "\n        }, this);"], {raw: {value: Object.freeze(["$traceurRuntime.registerModule(", ", function() {\n          ", "\n        }, this);"])}})),
+  var $__96 = Object.freeze(Object.defineProperties(["$traceurRuntime.registerModule(", ", function() {\n          ", "\n        }, typeof global !== 'undefined' ? global : this);"], {raw: {value: Object.freeze(["$traceurRuntime.registerModule(", ", function() {\n          ", "\n        }, typeof global !== 'undefined' ? global : this);"])}})),
       $__97 = Object.freeze(Object.defineProperties(["get ", "() { return ", "; }"], {raw: {value: Object.freeze(["get ", "() { return ", "; }"])}})),
       $__98 = Object.freeze(Object.defineProperties(["return $traceurRuntime.exportStar(", ")"], {raw: {value: Object.freeze(["return $traceurRuntime.exportStar(", ")"])}})),
       $__99 = Object.freeze(Object.defineProperties(["return ", ""], {raw: {value: Object.freeze(["return ", ""])}})),
@@ -12803,7 +12803,7 @@ $traceurRuntime.registerModule("../src/codegeneration/ModuleTransformer.js", fun
   return {get ModuleTransformer() {
       return ModuleTransformer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/AmdTransformer.js", function() {
   "use strict";
   var $__106 = Object.freeze(Object.defineProperties(["define(", ", function(", ") {\n          ", "\n        });"], {raw: {value: Object.freeze(["define(", ", function(", ") {\n          ", "\n        });"])}}));
@@ -12837,7 +12837,7 @@ $traceurRuntime.registerModule("../src/codegeneration/AmdTransformer.js", functi
   return {get AmdTransformer() {
       return AmdTransformer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/semantics/VariableBinder.js", function() {
   "use strict";
   var $__110 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
@@ -12961,7 +12961,7 @@ $traceurRuntime.registerModule("../src/semantics/VariableBinder.js", function() 
       return VariableBinder;
     }
   };
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/AlphaRenamer.js", function() {
   "use strict";
   var $__112 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
@@ -13028,7 +13028,7 @@ $traceurRuntime.registerModule("../src/codegeneration/AlphaRenamer.js", function
   return {get AlphaRenamer() {
       return AlphaRenamer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/FindVisitor.js", function() {
   "use strict";
   var ParseTreeVisitor = $traceurRuntime.getModuleImpl("../src/syntax/ParseTreeVisitor.js").ParseTreeVisitor;
@@ -13057,7 +13057,7 @@ $traceurRuntime.registerModule("../src/codegeneration/FindVisitor.js", function(
   return {get FindVisitor() {
       return FindVisitor;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/FindInFunctionScope.js", function() {
   "use strict";
   var FindVisitor = $traceurRuntime.getModuleImpl("../src/codegeneration/FindVisitor.js").FindVisitor;
@@ -13074,7 +13074,7 @@ $traceurRuntime.registerModule("../src/codegeneration/FindInFunctionScope.js", f
   return {get FindInFunctionScope() {
       return FindInFunctionScope;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/alphaRenameThisAndArguments.js", function() {
   "use strict";
   var $__118 = $traceurRuntime.getModuleImpl("../src/syntax/PredefinedName.js"),
@@ -13114,7 +13114,7 @@ $traceurRuntime.registerModule("../src/codegeneration/alphaRenameThisAndArgument
   return {get default() {
       return $__default;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/ComprehensionTransformer.js", function() {
   "use strict";
   var alphaRenameThisAndArguments = $traceurRuntime.getModuleImpl("../src/codegeneration/alphaRenameThisAndArguments.js").default;
@@ -13169,7 +13169,7 @@ $traceurRuntime.registerModule("../src/codegeneration/ComprehensionTransformer.j
   return {get ComprehensionTransformer() {
       return ComprehensionTransformer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/ArrayComprehensionTransformer.js", function() {
   "use strict";
   var $__121 = Object.freeze(Object.defineProperties(["var ", " = 0, ", " = [];"], {raw: {value: Object.freeze(["var ", " = 0, ", " = [];"])}})),
@@ -13197,7 +13197,7 @@ $traceurRuntime.registerModule("../src/codegeneration/ArrayComprehensionTransfor
   return {get ArrayComprehensionTransformer() {
       return ArrayComprehensionTransformer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/ArrowFunctionTransformer.js", function() {
   "use strict";
   var FormalParameterList = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js").FormalParameterList;
@@ -13231,7 +13231,7 @@ $traceurRuntime.registerModule("../src/codegeneration/ArrowFunctionTransformer.j
   return {get ArrowFunctionTransformer() {
       return ArrowFunctionTransformer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/BlockBindingTransformer.js", function() {
   "use strict";
   var AlphaRenamer = $traceurRuntime.getModuleImpl("../src/codegeneration/AlphaRenamer.js").AlphaRenamer;
@@ -13558,7 +13558,7 @@ $traceurRuntime.registerModule("../src/codegeneration/BlockBindingTransformer.js
   return {get BlockBindingTransformer() {
       return BlockBindingTransformer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/semantics/util.js", function() {
   "use strict";
   var $__131 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
@@ -13601,7 +13601,7 @@ $traceurRuntime.registerModule("../src/semantics/util.js", function() {
       return isLiteralExpression;
     }
   };
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/staticsemantics/PropName.js", function() {
   "use strict";
   var $__132 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
@@ -13633,7 +13633,7 @@ $traceurRuntime.registerModule("../src/staticsemantics/PropName.js", function() 
   return {get propName() {
       return propName;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/MakeStrictTransformer.js", function() {
   "use strict";
   var $__134 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
@@ -13663,7 +13663,7 @@ $traceurRuntime.registerModule("../src/codegeneration/MakeStrictTransformer.js",
   return {get MakeStrictTransformer() {
       return MakeStrictTransformer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/OperatorExpander.js", function() {
   "use strict";
   var $__135 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
@@ -13762,7 +13762,7 @@ $traceurRuntime.registerModule("../src/codegeneration/OperatorExpander.js", func
       return expandMemberExpression;
     }
   };
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/SuperTransformer.js", function() {
   "use strict";
   var $__136 = Object.freeze(Object.defineProperties(["$traceurRuntime.superCall(", ",\n                                                      ", ",\n                                                      ", ",\n                                                      ", ")"], {raw: {value: Object.freeze(["$traceurRuntime.superCall(", ",\n                                                      ", ",\n                                                      ", ",\n                                                      ", ")"])}})),
@@ -13898,7 +13898,7 @@ $traceurRuntime.registerModule("../src/codegeneration/SuperTransformer.js", func
   return {get SuperTransformer() {
       return SuperTransformer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/ClassTransformer.js", function() {
   "use strict";
   var $__143 = Object.freeze(Object.defineProperties(["($traceurRuntime.createClass)(", ", ", ", ", ",\n                                       ", ")"], {raw: {value: Object.freeze(["($traceurRuntime.createClass)(", ", ", ", ", ",\n                                       ", ")"])}})),
@@ -14128,7 +14128,7 @@ $traceurRuntime.registerModule("../src/codegeneration/ClassTransformer.js", func
   return {get ClassTransformer() {
       return ClassTransformer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/CommonJsModuleTransformer.js", function() {
   "use strict";
   var $__154 = Object.freeze(Object.defineProperties(["module.exports = function() {\n            ", "\n          }.call(typeof global !== 'undefined' ? global : this);"], {raw: {value: Object.freeze(["module.exports = function() {\n            ", "\n          }.call(typeof global !== 'undefined' ? global : this);"])}})),
@@ -14175,7 +14175,7 @@ $traceurRuntime.registerModule("../src/codegeneration/CommonJsModuleTransformer.
   return {get CommonJsModuleTransformer() {
       return CommonJsModuleTransformer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/ParameterTransformer.js", function() {
   "use strict";
   var FunctionBody = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js").FunctionBody;
@@ -14220,7 +14220,7 @@ $traceurRuntime.registerModule("../src/codegeneration/ParameterTransformer.js", 
   return {get ParameterTransformer() {
       return ParameterTransformer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/DefaultParametersTransformer.js", function() {
   "use strict";
   var $__162 = $traceurRuntime.getModuleImpl("../src/semantics/util.js"),
@@ -14279,7 +14279,7 @@ $traceurRuntime.registerModule("../src/codegeneration/DefaultParametersTransform
   return {get DefaultParametersTransformer() {
       return DefaultParametersTransformer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/DestructuringTransformer.js", function() {
   "use strict";
   var $__165 = $traceurRuntime.getModuleImpl("../src/syntax/PredefinedName.js"),
@@ -14579,7 +14579,7 @@ $traceurRuntime.registerModule("../src/codegeneration/DestructuringTransformer.j
   return {get DestructuringTransformer() {
       return DestructuringTransformer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/ForOfTransformer.js", function() {
   "use strict";
   var $__167 = Object.freeze(Object.defineProperties(["", " = ", ".value;"], {raw: {value: Object.freeze(["", " = ", ".value;"])}})),
@@ -14609,7 +14609,7 @@ $traceurRuntime.registerModule("../src/codegeneration/ForOfTransformer.js", func
   return {get ForOfTransformer() {
       return ForOfTransformer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/GeneratorComprehensionTransformer.js", function() {
   "use strict";
   var ComprehensionTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ComprehensionTransformer.js").ComprehensionTransformer;
@@ -14626,7 +14626,7 @@ $traceurRuntime.registerModule("../src/codegeneration/GeneratorComprehensionTran
   return {get GeneratorComprehensionTransformer() {
       return GeneratorComprehensionTransformer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/generator/State.js", function() {
   "use strict";
   var FINALLY_FALL_THROUGH = $traceurRuntime.getModuleImpl("../src/syntax/PredefinedName.js").FINALLY_FALL_THROUGH;
@@ -14700,7 +14700,7 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/State.js", funct
   return {get State() {
       return State;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/generator/TryState.js", function() {
   "use strict";
   var State = $traceurRuntime.getModuleImpl("../src/codegeneration/generator/State.js").State;
@@ -14729,7 +14729,7 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/TryState.js", fu
   return {get TryState() {
       return TryState;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/syntax/trees/StateMachine.js", function() {
   "use strict";
   var ParseTree = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTree.js").ParseTree;
@@ -14802,7 +14802,7 @@ $traceurRuntime.registerModule("../src/syntax/trees/StateMachine.js", function()
   return {get StateMachine() {
       return StateMachine;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/generator/FallThroughState.js", function() {
   "use strict";
   var State = $traceurRuntime.getModuleImpl("../src/codegeneration/generator/State.js").State;
@@ -14822,7 +14822,7 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/FallThroughState
   return {get FallThroughState() {
       return FallThroughState;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/generator/BreakState.js", function() {
   "use strict";
   var FallThroughState = $traceurRuntime.getModuleImpl("../src/codegeneration/generator/FallThroughState.js").FallThroughState;
@@ -14852,7 +14852,7 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/BreakState.js", 
   return {get BreakState() {
       return BreakState;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/generator/ContinueState.js", function() {
   "use strict";
   var FallThroughState = $traceurRuntime.getModuleImpl("../src/codegeneration/generator/FallThroughState.js").FallThroughState;
@@ -14879,7 +14879,7 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/ContinueState.js
   return {get ContinueState() {
       return ContinueState;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/generator/BreakContinueTransformer.js", function() {
   "use strict";
   var BreakState = $traceurRuntime.getModuleImpl("../src/codegeneration/generator/BreakState.js").BreakState;
@@ -14940,7 +14940,7 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/BreakContinueTra
   return {get BreakContinueTransformer() {
       return BreakContinueTransformer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/generator/CatchState.js", function() {
   "use strict";
   var State = $traceurRuntime.getModuleImpl("../src/codegeneration/generator/State.js").State;
@@ -14957,7 +14957,7 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/CatchState.js", 
   return {get CatchState() {
       return CatchState;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/generator/ConditionalState.js", function() {
   "use strict";
   var State = $traceurRuntime.getModuleImpl("../src/codegeneration/generator/State.js").State;
@@ -14981,7 +14981,7 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/ConditionalState
   return {get ConditionalState() {
       return ConditionalState;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/generator/FinallyFallThroughState.js", function() {
   "use strict";
   var State = $traceurRuntime.getModuleImpl("../src/codegeneration/generator/State.js").State;
@@ -15002,7 +15002,7 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/FinallyFallThrou
   return {get FinallyFallThroughState() {
       return FinallyFallThroughState;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/generator/FinallyState.js", function() {
   "use strict";
   var State = $traceurRuntime.getModuleImpl("../src/codegeneration/generator/State.js").State;
@@ -15018,7 +15018,7 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/FinallyState.js"
   return {get FinallyState() {
       return FinallyState;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/generator/StateAllocator.js", function() {
   "use strict";
   var State = $traceurRuntime.getModuleImpl("../src/codegeneration/generator/State.js").State;
@@ -15031,7 +15031,7 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/StateAllocator.j
   return {get StateAllocator() {
       return StateAllocator;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/generator/SwitchState.js", function() {
   "use strict";
   var $__198 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
@@ -15080,7 +15080,7 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/SwitchState.js",
       return SwitchState;
     }
   };
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/generator/CPSTransformer.js", function() {
   "use strict";
   var $__199 = Object.freeze(Object.defineProperties(["\n        return this.innerFunction($yieldSent, $yieldAction);"], {raw: {value: Object.freeze(["\n        return this.innerFunction($yieldSent, $yieldAction);"])}}));
@@ -15651,7 +15651,7 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/CPSTransformer.j
   return {get CPSTransformer() {
       return CPSTransformer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/generator/EndState.js", function() {
   "use strict";
   var State = $traceurRuntime.getModuleImpl("../src/codegeneration/generator/State.js").State;
@@ -15669,7 +15669,7 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/EndState.js", fu
   return {get EndState() {
       return EndState;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/generator/AsyncTransformer.js", function() {
   "use strict";
   var $__205 = Object.freeze(Object.defineProperties(["$waitTask = ", ";\n            $waitTask.then($createCallback(", "),\n                           $createErrback(", "));\n            return"], {raw: {value: Object.freeze(["$waitTask = ", ";\n            $waitTask.then($createCallback(", "),\n                           $createErrback(", "));\n            return"])}})),
@@ -15770,7 +15770,7 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/AsyncTransformer
   return {get AsyncTransformer() {
       return AsyncTransformer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/generator/ForInTransformPass.js", function() {
   "use strict";
   var $__214 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
@@ -15852,7 +15852,7 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/ForInTransformPa
   return {get ForInTransformPass() {
       return ForInTransformPass;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/generator/YieldState.js", function() {
   "use strict";
   var CURRENT = $traceurRuntime.getModuleImpl("../src/syntax/PredefinedName.js").CURRENT;
@@ -15880,7 +15880,7 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/YieldState.js", 
   return {get YieldState() {
       return YieldState;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/generator/ReturnState.js", function() {
   "use strict";
   var $__219 = $traceurRuntime.getModuleImpl("../src/semantics/util.js"),
@@ -15907,7 +15907,7 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/ReturnState.js",
   return {get ReturnState() {
       return ReturnState;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/generator/GeneratorTransformer.js", function() {
   "use strict";
   var $__220 = Object.freeze(Object.defineProperties(["var $that = this, $arguments = arguments,\n              $G = {\n                GState: ", ",\n                current: undefined,\n                yieldReturn: undefined,\n                innerFunction: ", ",\n                moveNext: ", "\n              };\n          return $traceurRuntime.generatorWrap($G);"], {raw: {value: Object.freeze(["var $that = this, $arguments = arguments,\n              $G = {\n                GState: ", ",\n                current: undefined,\n                yieldReturn: undefined,\n                innerFunction: ", ",\n                moveNext: ", "\n              };\n          return $traceurRuntime.generatorWrap($G);"])}}));
@@ -16005,7 +16005,7 @@ $traceurRuntime.registerModule("../src/codegeneration/generator/GeneratorTransfo
   return {get GeneratorTransformer() {
       return GeneratorTransformer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/GeneratorTransformPass.js", function() {
   "use strict";
   var $__223 = Object.freeze(Object.defineProperties(["\n          if (", " == ", ") {\n            ", " = ", ";\n            throw ", ";\n          }"], {raw: {value: Object.freeze(["\n          if (", " == ", ") {\n            ", " = ", ";\n            throw ", ";\n          }"])}})),
@@ -16193,7 +16193,7 @@ $traceurRuntime.registerModule("../src/codegeneration/GeneratorTransformPass.js"
   return {get GeneratorTransformPass() {
       return GeneratorTransformPass;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/MultiTransformer.js", function() {
   "use strict";
   var ParseTreeValidator = $traceurRuntime.getModuleImpl("../src/syntax/ParseTreeValidator.js").ParseTreeValidator;
@@ -16221,7 +16221,7 @@ $traceurRuntime.registerModule("../src/codegeneration/MultiTransformer.js", func
   return {get MultiTransformer() {
       return MultiTransformer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/NumericLiteralTransformer.js", function() {
   "use strict";
   var ParseTreeTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeTransformer.js").ParseTreeTransformer;
@@ -16254,7 +16254,7 @@ $traceurRuntime.registerModule("../src/codegeneration/NumericLiteralTransformer.
   return {get NumericLiteralTransformer() {
       return NumericLiteralTransformer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/ObjectLiteralTransformer.js", function() {
   "use strict";
   var FindVisitor = $traceurRuntime.getModuleImpl("../src/codegeneration/FindVisitor.js").FindVisitor;
@@ -16443,7 +16443,7 @@ $traceurRuntime.registerModule("../src/codegeneration/ObjectLiteralTransformer.j
   return {get ObjectLiteralTransformer() {
       return ObjectLiteralTransformer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/PropertyNameShorthandTransformer.js", function() {
   "use strict";
   var $__234 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
@@ -16460,7 +16460,7 @@ $traceurRuntime.registerModule("../src/codegeneration/PropertyNameShorthandTrans
   return {get PropertyNameShorthandTransformer() {
       return PropertyNameShorthandTransformer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/RestParameterTransformer.js", function() {
   "use strict";
   var $__235 = Object.freeze(Object.defineProperties(["\n            for (var ", " = [], ", " = ", ";\n                 ", " < arguments.length; ", "++)\n              ", "[", " - ", "] = arguments[", "];"], {raw: {value: Object.freeze(["\n            for (var ", " = [], ", " = ", ";\n                 ", " < arguments.length; ", "++)\n              ", "[", " - ", "] = arguments[", "];"])}})),
@@ -16501,7 +16501,7 @@ $traceurRuntime.registerModule("../src/codegeneration/RestParameterTransformer.j
   return {get RestParameterTransformer() {
       return RestParameterTransformer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/SpreadTransformer.js", function() {
   "use strict";
   var $__239 = Object.freeze(Object.defineProperties(["$traceurRuntime.toObject(", ")"], {raw: {value: Object.freeze(["$traceurRuntime.toObject(", ")"])}})),
@@ -16613,7 +16613,7 @@ $traceurRuntime.registerModule("../src/codegeneration/SpreadTransformer.js", fun
   return {get SpreadTransformer() {
       return SpreadTransformer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/SymbolTransformer.js", function() {
   "use strict";
   var $__243 = Object.freeze(Object.defineProperties(["$traceurRuntime.toProperty(", ") in ", ""], {raw: {value: Object.freeze(["$traceurRuntime.toProperty(", ") in ", ""])}})),
@@ -16661,7 +16661,7 @@ $traceurRuntime.registerModule("../src/codegeneration/SymbolTransformer.js", fun
   return {get SymbolTransformer() {
       return SymbolTransformer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/TemplateLiteralTransformer.js", function() {
   "use strict";
   var $__249 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
@@ -16861,7 +16861,7 @@ $traceurRuntime.registerModule("../src/codegeneration/TemplateLiteralTransformer
   return {get TemplateLiteralTransformer() {
       return TemplateLiteralTransformer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/TypeTransformer.js", function() {
   "use strict";
   var $__251 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees.js"),
@@ -16906,7 +16906,7 @@ $traceurRuntime.registerModule("../src/codegeneration/TypeTransformer.js", funct
   return {get TypeTransformer() {
       return TypeTransformer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/TypeofTransformer.js", function() {
   "use strict";
   var $__252 = Object.freeze(Object.defineProperties(["$traceurRuntime.typeof(", ")"], {raw: {value: Object.freeze(["$traceurRuntime.typeof(", ")"])}})),
@@ -16930,7 +16930,7 @@ $traceurRuntime.registerModule("../src/codegeneration/TypeofTransformer.js", fun
   return {get TypeofTransformer() {
       return TypeofTransformer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/UniqueIdentifierGenerator.js", function() {
   "use strict";
   var UniqueIdentifierGenerator = function() {
@@ -16942,7 +16942,7 @@ $traceurRuntime.registerModule("../src/codegeneration/UniqueIdentifierGenerator.
   return {get UniqueIdentifierGenerator() {
       return UniqueIdentifierGenerator;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/FromOptionsTransformer.js", function() {
   "use strict";
   var AmdTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/AmdTransformer.js").AmdTransformer;
@@ -17028,7 +17028,7 @@ $traceurRuntime.registerModule("../src/codegeneration/FromOptionsTransformer.js"
   return {get FromOptionsTransformer() {
       return FromOptionsTransformer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/module/AttachUrlTransformer.js", function() {
   "use strict";
   var ParseTreeTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeTransformer.js").ParseTreeTransformer;
@@ -17049,7 +17049,7 @@ $traceurRuntime.registerModule("../src/codegeneration/module/AttachUrlTransforme
   return {get AttachUrlTransformer() {
       return AttachUrlTransformer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/util/url.js", function() {
   "use strict";
   var canonicalizeUrl = $traceurRuntime.canonicalizeUrl;
@@ -17070,7 +17070,7 @@ $traceurRuntime.registerModule("../src/util/url.js", function() {
       return resolveUrl;
     }
   };
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/module/ModuleSpecifierVisitor.js", function() {
   "use strict";
   var ParseTreeVisitor = $traceurRuntime.getModuleImpl("../src/syntax/ParseTreeVisitor.js").ParseTreeVisitor;
@@ -17091,7 +17091,7 @@ $traceurRuntime.registerModule("../src/codegeneration/module/ModuleSpecifierVisi
   return {get ModuleSpecifierVisitor() {
       return ModuleSpecifierVisitor;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/module/ValidationVisitor.js", function() {
   "use strict";
   var ModuleVisitor = $traceurRuntime.getModuleImpl("../src/codegeneration/module/ModuleVisitor.js").ModuleVisitor;
@@ -17138,7 +17138,7 @@ $traceurRuntime.registerModule("../src/codegeneration/module/ValidationVisitor.j
   return {get ValidationVisitor() {
       return ValidationVisitor;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/semantics/ModuleAnalyzer.js", function() {
   "use strict";
   var ExportVisitor = $traceurRuntime.getModuleImpl("../src/codegeneration/module/ExportVisitor.js").ExportVisitor;
@@ -17171,7 +17171,7 @@ $traceurRuntime.registerModule("../src/semantics/ModuleAnalyzer.js", function() 
   return {get ModuleAnalyzer() {
       return ModuleAnalyzer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/semantics/symbols/ModuleSymbol.js", function() {
   "use strict";
   var Symbol = $traceurRuntime.getModuleImpl("../src/semantics/symbols/Symbol.js").Symbol;
@@ -17203,7 +17203,7 @@ $traceurRuntime.registerModule("../src/semantics/symbols/ModuleSymbol.js", funct
   return {get ModuleSymbol() {
       return ModuleSymbol;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/runtime/webLoader.js", function() {
   "use strict";
   var webLoader = {
@@ -17239,7 +17239,7 @@ $traceurRuntime.registerModule("../src/runtime/webLoader.js", function() {
   return {get webLoader() {
       return webLoader;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/runtime/LoaderHooks.js", function() {
   "use strict";
   var AttachUrlTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/module/AttachUrlTransformer.js").AttachUrlTransformer;
@@ -17368,7 +17368,7 @@ $traceurRuntime.registerModule("../src/runtime/LoaderHooks.js", function() {
   return {get LoaderHooks() {
       return LoaderHooks;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/runtime/InterceptOutputLoaderHooks.js", function() {
   "use strict";
   var LoaderHooks = $traceurRuntime.getModuleImpl("../src/runtime/LoaderHooks.js").LoaderHooks;
@@ -17388,7 +17388,7 @@ $traceurRuntime.registerModule("../src/runtime/InterceptOutputLoaderHooks.js", f
   return {get InterceptOutputLoaderHooks() {
       return InterceptOutputLoaderHooks;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/runtime/Loader.js", function() {
   "use strict";
   var ArrayMap = $traceurRuntime.getModuleImpl("../src/util/ArrayMap.js").ArrayMap;
@@ -17716,7 +17716,7 @@ $traceurRuntime.registerModule("../src/runtime/Loader.js", function() {
       return internals;
     }
   };
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/WebPageTranscoder.js", function() {
   "use strict";
   var Loader = $traceurRuntime.getModuleImpl("../src/runtime/Loader.js").Loader;
@@ -17813,7 +17813,7 @@ $traceurRuntime.registerModule("../src/WebPageTranscoder.js", function() {
   return {get WebPageTranscoder() {
       return WebPageTranscoder;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/codegeneration/CloneTreeTransformer.js", function() {
   "use strict";
   var ParseTreeTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeTransformer.js").ParseTreeTransformer;
@@ -17903,7 +17903,7 @@ $traceurRuntime.registerModule("../src/codegeneration/CloneTreeTransformer.js", 
   return {get CloneTreeTransformer() {
       return CloneTreeTransformer;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/outputgeneration/SourceMapIntegration.js", function() {
   "use strict";
   function makeDefine(mapping, id) {
@@ -18901,7 +18901,7 @@ $traceurRuntime.registerModule("../src/outputgeneration/SourceMapIntegration.js"
       return SourceNode;
     }
   };
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/util/TestErrorReporter.js", function() {
   "use strict";
   var ErrorReporter = $traceurRuntime.getModuleImpl("../src/util/ErrorReporter.js").ErrorReporter;
@@ -18921,7 +18921,7 @@ $traceurRuntime.registerModule("../src/util/TestErrorReporter.js", function() {
   return {get TestErrorReporter() {
       return TestErrorReporter;
     }};
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 $traceurRuntime.registerModule("../src/traceur.js", function() {
   "use strict";
   var $___46__47_options__ = $traceurRuntime.getModuleImpl("../src/options.js");
@@ -19019,5 +19019,5 @@ $traceurRuntime.registerModule("../src/traceur.js", function() {
       return runtime;
     }
   };
-}, this);
+}, typeof global !== 'undefined' ? global: this);
 var traceur = System.get("../src/traceur.js");
