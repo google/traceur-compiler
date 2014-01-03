@@ -23,10 +23,10 @@ export class ExportVisitor extends ModuleVisitor {
   /**
    * @param {traceur.util.ErrorReporter} reporter
    * @param {LoaderHooks} loaderHooks
-   * @param {ModuleSymbol} module The root of the module system.
+   * @param {ModuleSymbol} moduleSymbol The root of the module system.
    */
-  constructor(...args) {
-    super(...args);
+  constructor(reporter, loaderHooks, moduleSymbol) {
+    super(reporter, loaderHooks, moduleSymbol);
     this.inExport_ = false;
     this.moduleSpecifier = null;
   }

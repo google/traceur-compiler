@@ -187,7 +187,7 @@ class InternalLoader {
   }
 
   loadTextFile(url, callback, errback) {
-    return this.loaderHooks.fetch({address:url}, callback, errback);
+    return this.loaderHooks.fetch({address: url}, callback, errback);
   }
 
   load(url, type = 'script') {
@@ -356,7 +356,7 @@ class InternalLoader {
 
       var result;
       try {
-        result = this.loaderHooks.evaluateModuleBody(codeUnit);
+        result = this.loaderHooks.evaluateCodeUnit(codeUnit);
       } catch (ex) {
         codeUnit.error = ex;
         this.reporter.reportError(null, String(ex));
@@ -400,10 +400,10 @@ export class Loader {
    * dependencies it imports. On success, pass the Module object to the success
    * callback.
    */
-  import(url,
+  import(name,
          callback = (module) => {},
          errback = (ex) => { throw ex; }) {
-    var codeUnit = this.internalLoader_.load(url, 'module');
+    var codeUnit = this.internalLoader_.load(name, 'module');
     codeUnit.addListener(function() {
       callback(System.get(codeUnit.url));
     }, errback);
@@ -425,8 +425,8 @@ export class Loader {
   /**
    * Not part of current spec.
    * See https://github.com/jorendorff/js-loaders/issues/92
-   * loadAsScript - Asynchronously load and run a script. If the script contains
-   * import declarations, this can cause modules to be loaded, linked,
+   * loadAsScript - Asynchronously load and run a script. If the script
+   * calls Loader.import(),  this can cause modules to be loaded, linked,
    * and evaluated.
    *
    * This function is the same as import(), with one exception: the text of
