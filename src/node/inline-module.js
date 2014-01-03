@@ -44,7 +44,7 @@ function InlineLoaderHooks(reporter, url, elements, depTarget) {
 InlineLoaderHooks.prototype = {
   __proto__: LoaderHooks.prototype,
 
-  evaluateModuleBody: function(codeUnit) {
+  evaluateCodeUnit: function(codeUnit) {
     if (this.depTarget) {
       console.log('%s: %s', this.depTarget,
                   normalizePath(path.relative(path.join(__dirname, '../..'),
@@ -86,7 +86,7 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
   var loader = new Loader(hooks);
 
   function loadNext() {
-    var codeUnit = loader.loadAsScript(filenames[loadCount],function() {
+    var codeUnit = loader.loadAsScript(filenames[loadCount], function() {
       loadCount++;
       if (loadCount < filenames.length) {
         loadNext();

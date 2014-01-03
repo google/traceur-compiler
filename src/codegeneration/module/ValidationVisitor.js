@@ -51,7 +51,7 @@ export class ValidationVisitor extends ModuleVisitor {
     // re-export.
     if (tree.moduleSpecifier) {
       var moduleSymbol =
-        this.getModuleSymbolForModuleSpecifier(tree.moduleSpecifier);
+          this.getModuleSymbolForModuleSpecifier(tree.moduleSpecifier);
       this.visitAndValidate_(moduleSymbol, tree.specifierSet);
     }
     // The else case is checked else where and duplicate exports are caught
