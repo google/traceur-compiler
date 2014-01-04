@@ -194,7 +194,8 @@ unicode-tables: \
 %.js-template.js.dep: | %.js-template.js
 	node build/expand-js-template.js --deps $| > $@
 
-NPM_INSTALL = npm install --local && touch node_modules
+# set NO_PREPUBLISH=1 to prevent endless loop of makes and npm installs.
+NPM_INSTALL = NO_PREPUBLISH=1 npm install --local && touch node_modules
 
 node_modules/%:
 	$(NPM_INSTALL)
@@ -204,6 +205,8 @@ node_modules: package.json
 
 bin/traceur.ugly.js: bin/traceur.js
 	uglifyjs bin/traceur.js --compress -m -o $@
+
+prepublish: bin/traceur.js bin/traceur-runtime.js
 
 WIKI_OUT = \
   test/wiki/CompilingOffline/out/greeter.js
@@ -217,7 +220,7 @@ test/wiki/CompilingOffline/out/greeter.js: test/wiki/CompilingOffline/greeter.js
 	./traceur --out $@ $^
 
 
-.PHONY: build min test test-list force boot clean distclean unicode-tables
+.PHONY: build min test test-list force boot clean distclean unicode-tables prepublish
 
 -include build/dep.mk
 -include $(TPL_GENSRC_DEPS)

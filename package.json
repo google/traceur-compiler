@@ -23,6 +23,7 @@
     "traceur": "./traceur"
   },
   "scripts": {
+    "prepublish": "if [ -z \"$NO_PREPUBLISH\" ]; then make prepublish; fi",
     "test": "make test"
   },
   "homepage": "https://github.com/google/traceur-compiler",
@@ -40,7 +41,7 @@
     "mocha": ">=1.9",
     "chai": ">=1.5",
     "node-uuid": ">=1.4",
-    "rsvp": ">=2.0",
+    "rsvp": ">=3.0.1",
     "requirejs": "~2.1.9"
   }
 }

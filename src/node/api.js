@@ -19,11 +19,13 @@
 
 'use strict';
 
+var path = require('path');
 var traceur = require('./traceur.js');
 var ErrorReporter = traceur.util.TestErrorReporter;
 var FromOptionsTransformer = traceur.codegeneration.FromOptionsTransformer;
 var Parser = traceur.syntax.Parser;
 var SourceFile = traceur.syntax.SourceFile;
+var SourceMapGenerator = traceur.outputgeneration.SourceMapGenerator;
 var TreeWriter = traceur.outputgeneration.TreeWriter;
 var traceurOptions = traceur.options;
 
@@ -39,6 +41,10 @@ function merge(dest) {
   return dest;
 }
 
+// The absolute path to traceur-runtime.js -- the file that should be executed
+// if you want to run Traceur-compiled scripts when the compiler isn't present.
+var RUNTIME_PATH = path.join(__dirname, '../../bin/traceur-runtime.js');
+
 /**
  * Compile ES6 source code with Traceur.
  *
@@ -51,7 +57,8 @@ function merge(dest) {
 function compile(content, options) {
   options = merge({
     modules: 'commonjs',
-    filename: '<unknown file>'
+    filename: '<unknown file>',
+    sourceMap: false
   }, options || {});
 
   traceurOptions.reset();
@@ -63,14 +70,32 @@ function compile(content, options) {
   var tree = parser.parseModule();
   var transformer = new FromOptionsTransformer(errorReporter);
   var transformedTree = transformer.transform(tree);
-  var code = errorReporter.hadError() ? null : TreeWriter.write(transformedTree, null);
+
+  if (errorReporter.hadError()) {
+    return {
+      js: null,
+      errors: errorReporter.errors,
+      sourceMap: null
+    };
+  }
+
+  var treeWriterOptions = {};
+
+  if (options.sourceMap) {
+    treeWriterOptions.sourceMapGenerator = new SourceMapGenerator({
+      file: options.filename,
+      sourceRoot: null
+    });
+  }
 
   return {
-    js: code,
-    errors: errorReporter.errors
+    js: TreeWriter.write(transformedTree, treeWriterOptions),
+    errors: errorReporter.errors,
+    sourceMap: treeWriterOptions.sourceMap || null
   };
 };
 
 // extend traceur module
 module.exports = Object.create(traceur);
 module.exports.compile = compile;
+module.exports.RUNTIME_PATH = RUNTIME_PATH;

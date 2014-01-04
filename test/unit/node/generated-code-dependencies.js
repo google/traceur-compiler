@@ -40,7 +40,7 @@ suite('context test', function() {
     var reporter = new traceur.util.TestErrorReporter();
     var loaderHooks = new InterceptOutputLoaderHooks(reporter, fileName);
     var loader = new Loader(loaderHooks);
-    loader.eval(source, fileName);
+    loader.script(source, fileName);
     assert.ok(!reporter.hadError(), reporter.errors.join('\n'));
     var output = loaderHooks.transcoded;
 
