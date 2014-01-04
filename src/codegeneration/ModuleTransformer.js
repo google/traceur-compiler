@@ -146,6 +146,13 @@ export class ModuleTransformer extends TempVarTransformer {
     return parseStatement `return ${object}`;
   }
 
+  /**
+   * @return {boolean}
+   */
+  hasExports() {
+    return this.exportVisitor_.hasExports();
+  }
+
   transformExportDeclaration(tree) {
     this.exportVisitor_.visitAny(tree);
     return this.transformAny(tree.declaration);

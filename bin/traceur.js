@@ -13440,6 +13440,9 @@ $traceurRuntime.registerModule("../src/codegeneration/module/DirectExportVisitor
     },
     visitExportStar: function(tree) {
       this.starExports.push(this.moduleSpecifier);
+    },
+    hasExports: function() {
+      return this.namedExports.length != 0 || this.starExports.length != 0;
     }
   }, {}, ExportVisitor);
   return {get DirectExportVisitor() {
@@ -13552,6 +13555,9 @@ $traceurRuntime.registerModule("../src/codegeneration/ModuleTransformer.js", fun
         return parseStatement($__112, args);
       }
       return parseStatement($__113, object);
+    },
+    hasExports: function() {
+      return this.exportVisitor_.hasExports();
     },
     transformExportDeclaration: function(tree) {
       this.exportVisitor_.visitAny(tree);
@@ -14943,9 +14949,7 @@ $traceurRuntime.registerModule("../src/codegeneration/CommonJsModuleTransformer.
       $__170 = Object.freeze(Object.defineProperties(["require(", ")"], {raw: {value: Object.freeze(["require(", ")"])}}));
   var FindInFunctionScope = $traceurRuntime.getModuleImpl("../src/codegeneration/FindInFunctionScope.js").FindInFunctionScope;
   var ModuleTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ModuleTransformer.js").ModuleTransformer;
-  var $__172 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
-      OBJECT_LITERAL_EXPRESSION = $__172.OBJECT_LITERAL_EXPRESSION,
-      RETURN_STATEMENT = $__172.RETURN_STATEMENT;
+  var RETURN_STATEMENT = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js").RETURN_STATEMENT;
   var assert = $traceurRuntime.getModuleImpl("../src/util/assert.js").assert;
   var $__172 = $traceurRuntime.getModuleImpl("../src/codegeneration/PlaceholderParser.js"),
       parseExpression = $__172.parseExpression,
@@ -14974,7 +14978,7 @@ $traceurRuntime.registerModule("../src/codegeneration/CommonJsModuleTransformer.
       statements = statements.slice(0, - 1);
       assert(last.type === RETURN_STATEMENT);
       var exportObject = last.expression;
-      if (!(exportObject.type == OBJECT_LITERAL_EXPRESSION && exportObject.propertyNameAndValues.length == 0)) {
+      if (this.hasExports()) {
         statements.push(parseStatement($__169, exportObject));
       }
       return statements;
