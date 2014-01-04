@@ -17,7 +17,7 @@
 //   https://github.com/slightlyoff/Promises/blob/master/src/Promise.js
 //   https://github.com/domenic/promises-unwrapping/blob/master/testable-implementation.js
 
-import {async} from '../../../node_modules/rsvp/lib/rsvp/async';
+import {async} from '../../../node_modules/rsvp/lib/rsvp';
 
 function isPromise(x) {
   return x && typeof x === 'object' && x.status_ !== undefined;
