@@ -14943,7 +14943,9 @@ $traceurRuntime.registerModule("../src/codegeneration/CommonJsModuleTransformer.
       $__170 = Object.freeze(Object.defineProperties(["require(", ")"], {raw: {value: Object.freeze(["require(", ")"])}}));
   var FindInFunctionScope = $traceurRuntime.getModuleImpl("../src/codegeneration/FindInFunctionScope.js").FindInFunctionScope;
   var ModuleTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ModuleTransformer.js").ModuleTransformer;
-  var RETURN_STATEMENT = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js").RETURN_STATEMENT;
+  var $__172 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType.js"),
+      OBJECT_LITERAL_EXPRESSION = $__172.OBJECT_LITERAL_EXPRESSION,
+      RETURN_STATEMENT = $__172.RETURN_STATEMENT;
   var assert = $traceurRuntime.getModuleImpl("../src/util/assert.js").assert;
   var $__172 = $traceurRuntime.getModuleImpl("../src/codegeneration/PlaceholderParser.js"),
       parseExpression = $__172.parseExpression,
@@ -14972,7 +14974,9 @@ $traceurRuntime.registerModule("../src/codegeneration/CommonJsModuleTransformer.
       statements = statements.slice(0, - 1);
       assert(last.type === RETURN_STATEMENT);
       var exportObject = last.expression;
-      statements.push(parseStatement($__169, exportObject));
+      if (!(exportObject.type == OBJECT_LITERAL_EXPRESSION && exportObject.propertyNameAndValues.length == 0)) {
+        statements.push(parseStatement($__169, exportObject));
+      }
       return statements;
     },
     transformModuleSpecifier: function(tree) {

@@ -14,7 +14,10 @@
 
 import {FindInFunctionScope} from './FindInFunctionScope';
 import {ModuleTransformer} from './ModuleTransformer';
-import {RETURN_STATEMENT} from '../syntax/trees/ParseTreeType';
+import {
+  OBJECT_LITERAL_EXPRESSION,
+  RETURN_STATEMENT
+} from '../syntax/trees/ParseTreeType';
 import {assert} from '../util/assert';
 import {
   parseExpression,
@@ -49,7 +52,14 @@ export class CommonJsModuleTransformer extends ModuleTransformer {
     statements = statements.slice(0, -1);
     assert(last.type === RETURN_STATEMENT);
     var exportObject = last.expression;
-    statements.push(parseStatement `module.exports = ${exportObject};`);
+
+    // If the module doesn't use any export statements, it might be because it
+    // wants to make its own changes to "exports" or "module.exports", so we
+    // don't append "module.exports = {}" to the output.
+    if (!(exportObject.type == OBJECT_LITERAL_EXPRESSION &&
+          exportObject.propertyNameAndValues.length == 0)) {
+      statements.push(parseStatement `module.exports = ${exportObject};`);
+    }
     return statements;
   }
 
