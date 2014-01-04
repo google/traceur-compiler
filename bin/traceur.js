@@ -13440,6 +13440,9 @@ $traceurRuntime.registerModule("../src/codegeneration/module/DirectExportVisitor
     },
     visitExportStar: function(tree) {
       this.starExports.push(this.moduleSpecifier);
+    },
+    hasExports: function() {
+      return this.namedExports.length != 0 || this.starExports.length != 0;
     }
   }, {}, ExportVisitor);
   return {get DirectExportVisitor() {
@@ -13552,6 +13555,9 @@ $traceurRuntime.registerModule("../src/codegeneration/ModuleTransformer.js", fun
         return parseStatement($__112, args);
       }
       return parseStatement($__113, object);
+    },
+    hasExports: function() {
+      return this.exportVisitor_.hasExports();
     },
     transformExportDeclaration: function(tree) {
       this.exportVisitor_.visitAny(tree);
@@ -14972,7 +14978,9 @@ $traceurRuntime.registerModule("../src/codegeneration/CommonJsModuleTransformer.
       statements = statements.slice(0, - 1);
       assert(last.type === RETURN_STATEMENT);
       var exportObject = last.expression;
-      statements.push(parseStatement($__169, exportObject));
+      if (this.hasExports()) {
+        statements.push(parseStatement($__169, exportObject));
+      }
       return statements;
     },
     transformModuleSpecifier: function(tree) {
