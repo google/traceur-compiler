@@ -16,14 +16,7 @@ GENSRC = \
   src/syntax/ParseTreeVisitor.js
 TPL_GENSRC_DEPS = $(addsuffix -template.js.dep, $(TPL_GENSRC))
 
-SRC_NODE = \
-	src/node/command.js \
-	src/node/compiler.js \
-	src/node/deferred.js \
-	src/node/file-util.js \
-	src/node/inline-module.js \
-	src/node/nodeLoader.js \
-	src/node/traceur.js
+SRC_NODE = $(wildcard src/node/*.js)
 
 TFLAGS = --
 
@@ -143,18 +136,11 @@ build/compiled-by-previous-traceur.js: \
 	./traceur-build --debug --out $@ $(TFLAGS) $(SRC) # Build with last-good node compiler front.
 
 build/node/%: src/node/%
-	mkdir -p build/node-save build/node
-	cp src/node/* build/node-save # Save in case of src diffs.
-	git checkout -- src/node      # Over-write with last-good node compiler front.
-	cp src/node/* build/node       # Store for traceur-build
-	mv build/node-save/* src/node # restore
-	rmdir build/node-save
+	@mkdir -p build/node
+	git show HEAD:$< > $@
 
 build/previous-commit-traceur.js:
-	mv bin/traceur.js build/traceur.js
-	git checkout -- bin/traceur.js
-	mv bin/traceur.js build/previous-commit-traceur.js
-	mv build/traceur.js bin/traceur.js
+	git show HEAD:bin/traceur.js > $@
 
 debug: build/compiled-by-previous-traceur.js $(SRC)
 	./traceur --debug --out bin/traceur.js --sourcemap $(TFLAGS) $(SRC)
