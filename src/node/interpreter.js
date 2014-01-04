@@ -16,6 +16,7 @@
 
 var fs = require('fs');
 var traceur = require('./traceur.js');
+var nodeLoader = require('./nodeLoader.js');
 
 function interpret(filename, argv, flags) {
   var execArgv = [require.main.filename].concat(flags || []);
@@ -27,7 +28,15 @@ function interpret(filename, argv, flags) {
   if (traceur.options.deferredFunctions)
     require('./deferred.js').wrap();
 
-  return traceur.require(filename);
+  // TODO(jjb): Should be system loader.
+  function getLoader() {
+    var LoaderHooks = traceur.modules.LoaderHooks;
+    var url = './';
+    var reporter = new traceur.util.ErrorReporter();
+    var loaderHooks = new LoaderHooks(reporter, url, null, nodeLoader);
+    return new traceur.modules.Loader(loaderHooks);
+  }
+  getLoader().import(filename);
 }
 
 module.exports = interpret;
