@@ -42,4 +42,8 @@ export class DirectExportVisitor extends ExportVisitor {
   visitExportStar(tree) {
     this.starExports.push(this.moduleSpecifier);
   }
+
+  hasExports() {
+    return this.namedExports.length != 0 || this.starExports.length != 0;
+  }
 }
