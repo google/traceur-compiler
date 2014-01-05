@@ -24,5 +24,7 @@ var spawn = require('child_process').spawn;
 // endless loop of makes and npm installs.
 if (!process.env.NO_PREPUBLISH) {
   spawn('make', ['prepublish'], {stdio: 'inherit'}).
-      on('close', process.exit.bind(process));
+      on('close', function(code) {
+        process.exit(code);
+      });
 }
