@@ -18,7 +18,13 @@
 // in package.json uses platform specific code (cmd.exe on Windows etc) so these
 // need to be as simple as possible.
 
+var spawn = require('child_process').spawn;
+
 // We set the NO_PREPUBLISH environment flag in the Makefile to prevent
 // endless loop of makes and npm installs.
-if (!process.env.NO_PREPUBLISH)
-  require('child_process').exec('make prepublish');
+if (!process.env.NO_PREPUBLISH) {
+  spawn('make', ['prepublish'], {stdio: 'inherit'}).
+      on('close', function(code) {
+        process.exit(code);
+      });
+}
