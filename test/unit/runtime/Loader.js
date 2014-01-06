@@ -41,12 +41,28 @@ suite('modules.js', function() {
                                   'unit/runtime/modules.js');
   }
 
-  function getLoader(opt_reporter) {
+  function getLoaderHooks(opt_reporter) {
     var LoaderHooks = traceur.modules.LoaderHooks;
     opt_reporter = opt_reporter || reporter;
-    var loaderHooks = new LoaderHooks(opt_reporter, url, null, loader);
-    return new traceur.modules.Loader(loaderHooks);
+    return new LoaderHooks(opt_reporter, url, null, loader);
   }
+
+  function getLoader(opt_reporter) {
+    return new traceur.modules.Loader(getLoaderHooks(opt_reporter));
+  }
+
+  test('LoaderHooks.locate', function() {
+    var loaderHooks = getLoaderHooks();
+    var load = {
+      metadata: {
+        baseURL: 'http://example.org/a/'
+      }
+    }
+    load.name = '@abc/def';
+    assert.equal(loaderHooks.locate(load), 'http://example.org/a/@abc/def.js');
+    load.name = 'abc/def';
+    assert.equal(loaderHooks.locate(load), 'http://example.org/a/abc/def.js');
+  });
 
   test('LoaderEval', function() {
     var result = getLoader().script('(function(x = 42) { return x; })()');
