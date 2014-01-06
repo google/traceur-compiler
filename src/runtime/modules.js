@@ -52,9 +52,10 @@
     }
   }
 
-  function registerModule(url, func, self) {
-    url = System.normalize(url);
-    moduleInstantiators[url] = new UncoatedModuleInstantiator(url, func, self);
+  function registerModule(name, func, self) {
+    var normalizedName = System.normalize(name);
+    moduleInstantiators[normalizedName] =
+        new UncoatedModuleInstantiator(normalizedName, func, self);
   }
 
   function getUncoatedModuleInstantiator(name) {

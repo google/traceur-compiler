@@ -59,7 +59,6 @@ class CodeUnit {
   /**
    * @param {LoaderHooks} loaderHooks, callbacks for parsing/transforming.
    * @param {string} name The normalized name of this dependency.
-   *  If this is evaluated code the URL is the URL of the loader.
    * @param {string} type Either 'script' or 'module'. This determinse how to
    *     parse the code.
    * @param {number} state
@@ -163,7 +162,7 @@ class EvalCodeUnit extends CodeUnit {
   /**
    * @param {LoaderHooks} loaderHooks
    * @param {string} code
-   * @param {string} root script name
+   * @param {string} caller script or module name
    */
   constructor(loaderHooks, code, name = loaderHooks.rootUrl()) {
     super(loaderHooks, name, LOADED);
@@ -192,8 +191,8 @@ class InternalLoader {
   }
 
   load(name, type = 'script') {
-    name = System.normalize(name, this.loaderHooks.rootUrl());
-    var codeUnit = this.getCodeUnit(name, type);
+    var normalizedName = System.normalize(name, this.loaderHooks.rootUrl());
+    var codeUnit = this.getCodeUnit(normalizedName, type);
     if (codeUnit.state != NOT_STARTED || codeUnit.state == ERROR) {
       return codeUnit;
     }
@@ -251,8 +250,8 @@ class InternalLoader {
     return this.cache.values().every((codeUnit) => codeUnit.state >= state);
   }
 
-  getCodeUnitForModuleSpecifier(name, referrer) {
-    var name = System.normalize(name, referrer);
+  getCodeUnitForModuleSpecifier(name, referrerName) {
+    var name = System.normalize(name, referrerName);
     return this.getCodeUnit(name, 'module');
   }
 
@@ -261,14 +260,14 @@ class InternalLoader {
    * @param {CodeUnit} codeUnit
    */
   handleCodeUnitLoaded(codeUnit) {
-    var referrer = codeUnit.name;
+    var referrerName = codeUnit.name;
     var moduleSpecifiers = this.loaderHooks.getModuleSpecifiers(codeUnit);
     if (!moduleSpecifiers) {
       this.abortAll()
       return;
     }
     codeUnit.dependencies = moduleSpecifiers.sort().map((name) => {
-      name = System.normalize(name, referrer);
+      name = System.normalize(name, referrerName);
       return this.getCodeUnit(name, 'module');
     });
     codeUnit.dependencies.forEach((dependency) => {

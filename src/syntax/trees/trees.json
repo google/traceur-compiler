@@ -598,7 +598,7 @@
     "scriptItemList": [
       "Array.<ParseTree>"
     ],
-    "url": [
+    "referrerName": [
       "string"
     ]
   },
@@ -704,7 +704,7 @@
     "scriptItemList": [
       "Array.<ParseTree>"
     ],
-    "url": [
+    "referrerName": [
       "string"
     ]
   },

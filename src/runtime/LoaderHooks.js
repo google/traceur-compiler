@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {
-  AttachUrlTransformer
-} from '../codegeneration/module/AttachUrlTransformer';
+  AttachReferrerNameTransformer
+} from '../codegeneration/module/AttachReferrerNameTransformer';
 import {FromOptionsTransformer} from '../codegeneration/FromOptionsTransformer';
 import {ModuleAnalyzer} from '../semantics/ModuleAnalyzer';
 import {ModuleSpecifierVisitor} from
@@ -87,7 +87,7 @@ export class LoaderHooks {
   }
 
   transform(codeUnit) {
-    var transformer = new AttachUrlTransformer(codeUnit.name);
+    var transformer = new AttachReferrerNameTransformer(codeUnit.name);
     var transformedTree = transformer.transformAny(codeUnit.data.tree);
     transformer = new FromOptionsTransformer(this.reporter,
         identifierGenerator);
