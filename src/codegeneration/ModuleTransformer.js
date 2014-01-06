@@ -56,7 +56,7 @@ export class ModuleTransformer extends TempVarTransformer {
     super(identifierGenerator);
     this.exportVisitor_ = new DirectExportVisitor();
     this.moduleSpecifierKind_ = null;
-    this.url = null;
+    this.referrerName = null;
   }
 
   getTempVarNameForModuleSpecifier(moduleSpecifier) {
@@ -67,12 +67,12 @@ export class ModuleTransformer extends TempVarTransformer {
   }
 
   transformScript(tree) {
-    this.url = tree.url;
+    this.referrerName = tree.moduleName;
     return super.transformScript(tree);
   }
 
   transformModule(tree) {
-    this.url = tree.url;
+    this.referrerName = tree.moduleName;
 
     this.pushTempVarState();
 
@@ -91,7 +91,7 @@ export class ModuleTransformer extends TempVarTransformer {
 
   wrapModule(statements) {
     return parseStatements
-        `$traceurRuntime.registerModule(${this.url}, function() {
+        `$traceurRuntime.registerModule(${this.referrerName}, function() {
           ${statements}
         }, typeof global !== 'undefined' ? global : this);`;
   }
@@ -179,15 +179,14 @@ export class ModuleTransformer extends TempVarTransformer {
    * @return {ParseTree}
    */
   transformModuleSpecifier(tree) {
-    assert(this.url);
+    assert(this.referrerName);
     var name = tree.token.processedValue;
     // import/module {x} from 'name' is relative to the current file.
-    // TODO(arv): We should resolve this relative to the name of current module.
-    var url = System.normalResolve(name, this.url);
+    var normalizedName = System.normalize(name, this.referrerName);
 
     if (this.moduleSpecifierKind_ === 'module')
-      return parseExpression `System.get(${url})`;
-    return parseExpression `$traceurRuntime.getModuleImpl(${url})`;
+      return parseExpression `System.get(${normalizedName})`;
+    return parseExpression `$traceurRuntime.getModuleImpl(${normalizedName})`;
   }
 
   /**
