@@ -73,7 +73,7 @@ export class ModuleVisitor extends ParseTreeVisitor {
   }
 
   visitScript(tree) {
-    return tree;
+    tree.scriptItemList.forEach(this.visitModuleElement_, this);
   }
 
   visitModule(tree) {

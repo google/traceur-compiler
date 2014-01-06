@@ -76,12 +76,13 @@ export class LoaderHooks {
     var program = codeUnit.text;
     var file = new SourceFile(url, program);
     var parser = new Parser(reporter, file);
-    if (codeUnit.type == 'module') {
+    if (codeUnit.type == 'module')
       codeUnit.data.tree = parser.parseModule();
-      codeUnit.data.moduleSymbol = new ModuleSymbol(codeUnit.data.tree, url);
-    } else {
+    else
       codeUnit.data.tree = parser.parseScript();
-    }
+
+    codeUnit.data.moduleSymbol = new ModuleSymbol(codeUnit.data.tree, url);
+
     return !reporter.hadError();
   }
 
@@ -138,6 +139,7 @@ export class LoaderHooks {
         continue;
       }
       this.transformCodeUnit(codeUnit);
+      this.instantiate(codeUnit);
     }
     this.checkForErrors(dependencies, 'transform');
   }
@@ -153,7 +155,6 @@ export class LoaderHooks {
     // TODO(jjb): return sourcemaps not sideeffect
     codeUnit.sourceMap =
       this.outputOptions_ && this.outputOptions_.sourceMap;
-    this.instantiate(codeUnit);
   }
 
 
