@@ -111,10 +111,10 @@ function compile() {
   setOptionsFromSource(contents);
 
   errorElement.hidden = true;
-  function onSuccess(transcoded, result, sourceMap) {
+  function onSuccess(transcoded, sourceMap) {
     if (evalCheckbox.checked) {
       try {
-        evalElement.textContent = result;
+        evalElement.textContent = ('global', eval)(transcoded);
       } catch(ex) {
         hasError = true;
         errorElement.textContent = ex;

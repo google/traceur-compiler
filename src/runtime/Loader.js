@@ -70,7 +70,6 @@ class CodeUnit {
     this.state = state;
     this.uid = getUid();
     this.state_ = NOT_STARTED;
-    this.dependencies = [];
     this.error = null;
     this.result = null;
     this.data_ = {};
@@ -165,8 +164,8 @@ class EvalCodeUnit extends CodeUnit {
    * @param {string} code
    * @param {string} caller script or module name
    */
-  constructor(loaderHooks, code, name = loaderHooks.rootUrl(), type) {
-    super(loaderHooks, name, type, LOADED);
+  constructor(loaderHooks, code, name = loaderHooks.rootUrl()) {
+    super(loaderHooks, name, LOADED);
     this.text = code;
   }
 }
@@ -213,31 +212,18 @@ class InternalLoader {
     return codeUnit;
   }
 
-  module(code, options = {}) {
-    var codeUnit =
-        new EvalCodeUnit(this.loaderHooks, code, options.address, 'module');
+  module(code, options) {
+    var codeUnit = new EvalCodeUnit(this.loaderHooks, code, options.address);
     this.cache.set({}, codeUnit);
     return codeUnit;
   }
 
-  script(code, name, callback, errback) {
-    var codeUnit = new EvalCodeUnit(this.loaderHooks, code, name, 'script');
+  script(code, name) {
+    var codeUnit = new EvalCodeUnit(this.loaderHooks, code, name);
     this.cache.set({}, codeUnit);
-    if (this.loaderHooks.parse(codeUnit)) {
-      this.loaderHooks.transformCodeUnit(codeUnit);
-      try {
-        codeUnit.result = this.loaderHooks.evaluateCodeUnit(codeUnit);
-        callback(codeUnit.result);
-      } catch(ex) {
-        errback(ex);
-      }
-    } else {
-      if (errback) {
-        errback();
-      } else {
-        throw new Error(codeUnit.error);
-      }
-    }
+    // assert that there are no dependencies that are loading?
+    this.handleCodeUnitLoaded(codeUnit);
+    return codeUnit;
   }
 
   getKey(url, type) {
@@ -463,10 +449,9 @@ export class Loader {
    * @param {string} name  name for the script
    * @return {*} The completion value of evaluating the code.
    */
-  script(source, name,
-      callback = (result) => {},
-      errback = (ex) => { throw ex; }) {
-    this.internalLoader_.script(source, name, callback, errback);
+  script(source, name) {
+    var codeUnit = this.internalLoader_.script(source, name);
+    return codeUnit.result;
   }
 
 }

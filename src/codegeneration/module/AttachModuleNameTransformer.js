@@ -24,7 +24,7 @@ import {
  * Annotates a tree with its URL
  */
 
-export class AttachReferrerNameTransformer extends ParseTreeTransformer {
+export class AttachModuleNameTransformer extends ParseTreeTransformer {
   /**
    * @param {SourceFile} file
    */
