@@ -200,7 +200,7 @@ class InternalLoader {
     codeUnit.state = LOADING;
     var loader = this;
     var translate = this.translateHook;
-    var url = System.locate(codeUnit);
+    var url = this.loaderHooks.locate(codeUnit);
     codeUnit.abort = this.loadTextFile(url, function(text) {
       codeUnit.text = translate(text);
       codeUnit.state = LOADED;
