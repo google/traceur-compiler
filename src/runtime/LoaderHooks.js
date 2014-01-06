@@ -25,6 +25,7 @@ import {SourceFile} from '../syntax/SourceFile';
 import {TreeWriter} from '../outputgeneration/TreeWriter';
 import {UniqueIdentifierGenerator} from
     '../codegeneration/UniqueIdentifierGenerator';
+import {isAbsolute, resolveUrl} from '../util/url';
 import {webLoader} from './webLoader';
 
 
@@ -101,6 +102,25 @@ export class LoaderHooks {
 
   instantiate({name, metadata, address, source, sourceMap}) {
     return undefined;
+  }
+
+  locate(load) {
+    load.url = this.locate_(load);
+    return load.url;
+  }
+
+  locate_(load) {
+    var normalizedModuleName = load.name;
+    var asJS = normalizedModuleName + '.js';
+    // Tolerate .js endings
+    if (/\.js$/.test(normalizedModuleName))
+      asJS = normalizedModuleName;
+    if (isAbsolute(asJS))
+      return asJS;
+    var baseURL = load.metadata && load.metadata.baseURL;
+    if (baseURL)
+      return resolveUrl(baseURL, asJS);
+    return asJS;
   }
 
   evaluateCodeUnit(codeUnit) {

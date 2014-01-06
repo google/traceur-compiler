@@ -545,19 +545,6 @@
       if (refererName) return resolveUrl(refererName, name);
       return canonicalizeUrl(name);
     },
-    locate: function(load) {
-      load.url = this.locate_(load);
-      return load.url;
-    },
-    locate_: function(load) {
-      var normalizedModuleName = load.name;
-      var asJS = normalizedModuleName + '.js';
-      if (/\.js$/.test(normalizedModuleName)) asJS = normalizedModuleName;
-      if (isAbsolute(asJS)) return asJS;
-      var baseURL = load.metadata && load.metadata.baseURL;
-      if (baseURL) return resolveUrl(baseURL, asJS);
-      return asJS;
-    },
     get: function(name) {
       var m = getUncoatedModuleInstantiator(name);
       if (!m) return undefined;
@@ -19747,6 +19734,9 @@ $traceurRuntime.registerModule("../src/runtime/LoaderHooks", function() {
   var SourceFile = $traceurRuntime.getModuleImpl("../src/syntax/SourceFile").SourceFile;
   var TreeWriter = $traceurRuntime.getModuleImpl("../src/outputgeneration/TreeWriter").TreeWriter;
   var UniqueIdentifierGenerator = $traceurRuntime.getModuleImpl("../src/codegeneration/UniqueIdentifierGenerator").UniqueIdentifierGenerator;
+  var $__290 = $traceurRuntime.getModuleImpl("../src/util/url"),
+      isAbsolute = $__290.isAbsolute,
+      resolveUrl = $__290.resolveUrl;
   var webLoader = $traceurRuntime.getModuleImpl("../src/runtime/webLoader").webLoader;
   var assert = $traceurRuntime.getModuleImpl("../src/util/assert").assert;
   var NOT_STARTED = 0;
@@ -19804,6 +19794,19 @@ $traceurRuntime.registerModule("../src/runtime/LoaderHooks", function() {
           source = $__291.source,
           sourceMap = $__291.sourceMap;
       return undefined;
+    },
+    locate: function(load) {
+      load.url = this.locate_(load);
+      return load.url;
+    },
+    locate_: function(load) {
+      var normalizedModuleName = load.name;
+      var asJS = normalizedModuleName + '.js';
+      if (/\.js$/.test(normalizedModuleName)) asJS = normalizedModuleName;
+      if (isAbsolute(asJS)) return asJS;
+      var baseURL = load.metadata && load.metadata.baseURL;
+      if (baseURL) return resolveUrl(baseURL, asJS);
+      return asJS;
     },
     evaluateCodeUnit: function(codeUnit) {
       var result = ('global', eval)(codeUnit.data.transcoded);
@@ -20008,7 +20011,7 @@ $traceurRuntime.registerModule("../src/runtime/Loader", function() {
       codeUnit.state = LOADING;
       var loader = this;
       var translate = this.translateHook;
-      var url = System.locate(codeUnit);
+      var url = this.loaderHooks.locate(codeUnit);
       codeUnit.abort = this.loadTextFile(url, function(text) {
         codeUnit.text = translate(text);
         codeUnit.state = LOADED;

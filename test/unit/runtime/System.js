@@ -71,16 +71,4 @@ suite('System.js', function() {
       'http://example.org/b.html');
   });
 
-  test('System.locate', function() {
-    var load = {
-      metadata: {
-        baseURL: 'http://example.org/a/'
-      }
-    }
-    load.name = '@abc/def';
-    assert.equal(System.locate(load), 'http://example.org/a/@abc/def.js');
-    load.name = 'abc/def';
-    assert.equal(System.locate(load), 'http://example.org/a/abc/def.js');
-  });
-
 });
