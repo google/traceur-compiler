@@ -43,14 +43,14 @@ export function transcode(contents, name, onSuccess, onFailure) {
   var loaderHooks = new InterceptOutputLoaderHooks(reporter,
     url, options);
 
-  function reportErrors() {
-    onFailure(reporter.errors);
+  function reportErrors(ex) {
+    onFailure([ex] || reporter.errors);
   }
-  function reportTranscoding() {
-    onSuccess(loaderHooks.transcoded, loaderHooks.sourceMap);
+  function reportTranscoding(result) {
+    onSuccess(loaderHooks.transcoded, result, loaderHooks.sourceMap);
   }
   var loader = new Loader(loaderHooks);
-  loader.module(contents, {address: name}, reportTranscoding, reportErrors);
+  loader.script(contents, {address: name}, reportTranscoding, reportErrors);
 }
 
 export function renderSourceMap(source, sourceMap) {
