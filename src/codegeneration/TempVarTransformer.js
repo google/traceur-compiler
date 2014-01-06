@@ -127,7 +127,7 @@ export class TempVarTransformer extends ParseTreeTransformer {
     if (scriptItemList == tree.scriptItemList) {
       return tree;
     }
-    return new Script(tree.location, scriptItemList, tree.referrerName);
+    return new Script(tree.location, scriptItemList, tree.moduleName);
   }
 
   transformModule(tree) {
@@ -135,7 +135,7 @@ export class TempVarTransformer extends ParseTreeTransformer {
     if (scriptItemList == tree.scriptItemList) {
       return tree;
     }
-    return new Module(tree.location, scriptItemList, tree.referrerName);
+    return new Module(tree.location, scriptItemList, tree.moduleName);
   }
 
   transformFunctionBody(tree) {

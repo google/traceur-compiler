@@ -4890,10 +4890,10 @@ $traceurRuntime.registerModule("../src/syntax/trees/ParseTrees", function() {
     }
   }, {}, ParseTree);
   var MODULE = ParseTreeType.MODULE;
-  var Module = function(location, scriptItemList, referrerName) {
+  var Module = function(location, scriptItemList, moduleName) {
     this.location = location;
     this.scriptItemList = scriptItemList;
-    this.referrerName = referrerName;
+    this.moduleName = moduleName;
   };
   Module = ($traceurRuntime.createClass)(Module, {
     transform: function(transformer) {
@@ -5072,10 +5072,10 @@ $traceurRuntime.registerModule("../src/syntax/trees/ParseTrees", function() {
     }
   }, {}, ParseTree);
   var SCRIPT = ParseTreeType.SCRIPT;
-  var Script = function(location, scriptItemList, referrerName) {
+  var Script = function(location, scriptItemList, moduleName) {
     this.location = location;
     this.scriptItemList = scriptItemList;
-    this.referrerName = referrerName;
+    this.moduleName = moduleName;
   };
   Script = ($traceurRuntime.createClass)(Script, {
     transform: function(transformer) {
@@ -7373,7 +7373,7 @@ $traceurRuntime.registerModule("../src/syntax/ParseTreeValidator", function() {
       this.fail_(tree, ("parse tree contains SyntaxError: " + tree.message));
     },
     visitModuleSpecifier: function(tree) {
-      this.check_(tree.token.type == STRING || tree.referrerName, 'string or identifier expected');
+      this.check_(tree.token.type == STRING || tree.moduleName, 'string or identifier expected');
     },
     visitModuleDeclaration: function(tree) {
       this.checkType_(MODULE_SPECIFIER, tree.expression, 'module expression expected');
@@ -9031,7 +9031,7 @@ $traceurRuntime.registerModule("../src/codegeneration/ParseTreeTransformer", fun
       if (scriptItemList === tree.scriptItemList) {
         return tree;
       }
-      return new Module(tree.location, scriptItemList, tree.referrerName);
+      return new Module(tree.location, scriptItemList, tree.moduleName);
     },
     transformModuleDeclaration: function(tree) {
       var expression = this.transformAny(tree.expression);
@@ -9103,7 +9103,7 @@ $traceurRuntime.registerModule("../src/codegeneration/ParseTreeTransformer", fun
       if (scriptItemList === tree.scriptItemList) {
         return tree;
       }
-      return new Script(tree.location, scriptItemList, tree.referrerName);
+      return new Script(tree.location, scriptItemList, tree.moduleName);
     },
     transformPropertyMethodAssignment: function(tree) {
       var name = this.transformAny(tree.name);
@@ -13202,14 +13202,14 @@ $traceurRuntime.registerModule("../src/codegeneration/TempVarTransformer", funct
       if (scriptItemList == tree.scriptItemList) {
         return tree;
       }
-      return new Script(tree.location, scriptItemList, tree.referrerName);
+      return new Script(tree.location, scriptItemList, tree.moduleName);
     },
     transformModule: function(tree) {
       var scriptItemList = this.transformStatements_(tree.scriptItemList);
       if (scriptItemList == tree.scriptItemList) {
         return tree;
       }
-      return new Module(tree.location, scriptItemList, tree.referrerName);
+      return new Module(tree.location, scriptItemList, tree.moduleName);
     },
     transformFunctionBody: function(tree) {
       this.pushTempVarState();
@@ -13495,11 +13495,11 @@ $traceurRuntime.registerModule("../src/codegeneration/ModuleTransformer", functi
       }) + '__';
     },
     transformScript: function(tree) {
-      this.referrerName = tree.referrerName;
+      this.referrerName = tree.moduleName;
       return $traceurRuntime.superCall(this, $ModuleTransformer.prototype, "transformScript", [tree]);
     },
     transformModule: function(tree) {
-      this.referrerName = tree.referrerName;
+      this.referrerName = tree.moduleName;
       this.pushTempVarState();
       var statements = $traceurRuntime.spread([createUseStrictDirective()], this.transformList(tree.scriptItemList), [this.createExportStatement()]);
       this.popTempVarState();
@@ -13570,9 +13570,9 @@ $traceurRuntime.registerModule("../src/codegeneration/ModuleTransformer", functi
     transformModuleSpecifier: function(tree) {
       assert(this.referrerName);
       var name = tree.token.processedValue;
-      var name = System.normalize(name, this.referrerName);
-      if (this.moduleSpecifierKind_ === 'module') return parseExpression($__115, name);
-      return parseExpression($__116, name);
+      var normalizedName = System.normalize(name, this.referrerName);
+      if (this.moduleSpecifierKind_ === 'module') return parseExpression($__115, normalizedName);
+      return parseExpression($__116, normalizedName);
     },
     transformModuleDeclaration: function(tree) {
       this.moduleSpecifierKind_ = 'module';
@@ -19091,7 +19091,7 @@ $traceurRuntime.registerModule("../src/codegeneration/ParseTreeTransformer.js", 
       if (scriptItemList === tree.scriptItemList) {
         return tree;
       }
-      return new Module(tree.location, scriptItemList, tree.referrerName);
+      return new Module(tree.location, scriptItemList, tree.moduleName);
     },
     transformModuleDeclaration: function(tree) {
       var expression = this.transformAny(tree.expression);
@@ -19163,7 +19163,7 @@ $traceurRuntime.registerModule("../src/codegeneration/ParseTreeTransformer.js", 
       if (scriptItemList === tree.scriptItemList) {
         return tree;
       }
-      return new Script(tree.location, scriptItemList, tree.referrerName);
+      return new Script(tree.location, scriptItemList, tree.moduleName);
     },
     transformPropertyMethodAssignment: function(tree) {
       var name = this.transformAny(tree.name);
@@ -19467,15 +19467,15 @@ $traceurRuntime.registerModule("../src/codegeneration/module/AttachReferrerNameT
   var $__279 = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTrees"),
       Module = $__279.Module,
       Script = $__279.Script;
-  var AttachReferrerNameTransformer = function(url) {
-    this.referrerName_ = url;
+  var AttachReferrerNameTransformer = function(moduleName) {
+    this.moduleName_ = moduleName;
   };
   AttachReferrerNameTransformer = ($traceurRuntime.createClass)(AttachReferrerNameTransformer, {
     transformModule: function(tree) {
-      return new Module(tree.location, tree.scriptItemList, this.referrerName_);
+      return new Module(tree.location, tree.scriptItemList, this.moduleName_);
     },
     transformScript: function(tree) {
-      return new Script(tree.location, tree.scriptItemList, this.referrerName_);
+      return new Script(tree.location, tree.scriptItemList, this.moduleName_);
     }
   }, {}, ParseTreeTransformer);
   return {get AttachReferrerNameTransformer() {

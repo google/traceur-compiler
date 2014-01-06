@@ -67,12 +67,12 @@ export class ModuleTransformer extends TempVarTransformer {
   }
 
   transformScript(tree) {
-    this.referrerName = tree.referrerName;
+    this.referrerName = tree.moduleName;
     return super.transformScript(tree);
   }
 
   transformModule(tree) {
-    this.referrerName = tree.referrerName;
+    this.referrerName = tree.moduleName;
 
     this.pushTempVarState();
 
@@ -182,11 +182,11 @@ export class ModuleTransformer extends TempVarTransformer {
     assert(this.referrerName);
     var name = tree.token.processedValue;
     // import/module {x} from 'name' is relative to the current file.
-    var name = System.normalize(name, this.referrerName);
+    var normalizedName = System.normalize(name, this.referrerName);
 
     if (this.moduleSpecifierKind_ === 'module')
-      return parseExpression `System.get(${name})`;
-    return parseExpression `$traceurRuntime.getModuleImpl(${name})`;
+      return parseExpression `System.get(${normalizedName})`;
+    return parseExpression `$traceurRuntime.getModuleImpl(${normalizedName})`;
   }
 
   /**
