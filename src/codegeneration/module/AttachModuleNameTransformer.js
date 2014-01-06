@@ -24,20 +24,20 @@ import {
  * Annotates a tree with its URL
  */
 
-export class AttachUrlTransformer extends ParseTreeTransformer {
+export class AttachReferrerNameTransformer extends ParseTreeTransformer {
   /**
    * @param {SourceFile} file
    */
-  constructor(url) {
-    this.url_ = url;
+  constructor(moduleName) {
+    this.moduleName_ = moduleName;
   }
 
   transformModule(tree) {
-    return new Module(tree.location, tree.scriptItemList, this.url_);
+    return new Module(tree.location, tree.scriptItemList, this.moduleName_);
   }
 
   transformScript(tree) {
-    return new Script(tree.location, tree.scriptItemList, this.url_);
+    return new Script(tree.location, tree.scriptItemList, this.moduleName_);
   }
 }
 

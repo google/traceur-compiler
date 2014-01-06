@@ -16,7 +16,7 @@ suite('low_level_tests.js', function() {
   var TreeWriter = traceur.outputgeneration.TreeWriter;
   var ParseTreeTransformer = traceur.codegeneration.ParseTreeTransformer;
   var ParseTreeValidator =
-      System.get('../src/syntax/ParseTreeValidator.js').ParseTreeValidator;
+      System.get('../src/syntax/ParseTreeValidator').ParseTreeValidator;
 
   var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
   var createBreakStatement = ParseTreeFactory.createBreakStatement;

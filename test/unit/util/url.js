@@ -15,7 +15,7 @@
 suite('url.js', function() {
   test('removeDotSegments', function() {
 
-    var removeDotSegments = System.get('../src/util/url.js').removeDotSegments;
+    var removeDotSegments = System.get('../src/util/url').removeDotSegments;
 
     assert.equal('/', removeDotSegments('/'));
     assert.equal('.', removeDotSegments('.'));
