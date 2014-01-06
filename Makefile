@@ -60,7 +60,7 @@ test-runtime: bin/traceur-runtime.js $(RUNTIME_TESTS)
 	@echo 'Open test/runtime.html to test runtime only'
 
 test: test/test-list.js bin/traceur.js $(COMPILE_BEFORE_TEST) bin/traceur-runtime.js \
-	wiki test/amd-compiled test/commonjs-compiled 	test-interpret
+	wiki test/amd-compiled test/commonjs-compiled test-interpret
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(TESTS)
 
 test/unit: bin/traceur.js bin/traceur-runtime.js
@@ -80,8 +80,8 @@ test-list: test/test-list.js
 test/test-list.js: force
 	@git ls-files -o -c test/feature | node build/build-test-list.js > $@
 
-test-interpret: test/unit/runtime/test_a.js
-	./traceur  $^
+test-interpret: test/unit/runtime/test_interpret.js
+	./traceur $^
 
 # TODO(vojta): Trick make to only compile when necessary.
 test/commonjs-compiled: force

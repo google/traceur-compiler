@@ -31,12 +31,13 @@ function interpret(filename, argv, flags) {
   // TODO(jjb): Should be system loader.
   function getLoader() {
     var LoaderHooks = traceur.modules.LoaderHooks;
-    var url = './';
+    var url = __filename.replace(/\\/g, '/');
     var reporter = new traceur.util.ErrorReporter();
     var loaderHooks = new LoaderHooks(reporter, url, null, nodeLoader);
     return new traceur.modules.Loader(loaderHooks);
   }
-  getLoader().import(filename);
+  global.system = getLoader();
+  global.system.import(filename);
 }
 
 module.exports = interpret;
