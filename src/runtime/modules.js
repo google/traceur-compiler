@@ -53,14 +53,14 @@
   }
 
   function registerModule(url, func, self) {
-    url = System.normalResolve(url);
+    url = System.normalize(url);
     moduleInstantiators[url] = new UncoatedModuleInstantiator(url, func, self);
   }
 
   function getUncoatedModuleInstantiator(name) {
     if (!name)
       return;
-    var url = System.normalResolve(name);
+    var url = System.normalize(name);
     return moduleInstantiators[url];
   };
 
@@ -118,36 +118,24 @@
       return canonicalizeUrl(name);
     },
 
+    // Should only be called just before 'fetch'
     locate(load) {
+      load.url = this.locate_(load);
+      return load.url;
+    },
+
+    locate_(load) {
       var normalizedModuleName = load.name;
-      if (isAbsolute(normalizedModuleName))
-        return normalizedModuleName;
       var asJS = normalizedModuleName + '.js';
-      // ----- Hack for self-hosting compiler -----
+      // Tolerate .js endings
       if (/\.js$/.test(normalizedModuleName))
         asJS = normalizedModuleName;
-      // ------------------------------------------
+      if (isAbsolute(asJS))
+        return asJS;
       var baseURL = load.metadata && load.metadata.baseURL;
       if (baseURL)
         return resolveUrl(baseURL, asJS);
       return asJS;
-    },
-
-    // Non-standard API, remove see issue #393
-    normalResolve(name, refererName) {
-      var options = {
-        baseURL: baseURL
-      };
-      if (isAbsolute(refererName)) {
-        options.baseURL = refererName;
-        refererName = undefined;
-      }
-
-      var load = {
-        name: System.normalize(name, refererName),
-        metadata: options
-      }
-      return System.locate(load);
     },
 
     get(name) {

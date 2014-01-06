@@ -182,12 +182,11 @@ export class ModuleTransformer extends TempVarTransformer {
     assert(this.url);
     var name = tree.token.processedValue;
     // import/module {x} from 'name' is relative to the current file.
-    // TODO(arv): We should resolve this relative to the name of current module.
-    var url = System.normalResolve(name, this.url);
+    var name = System.normalize(name, this.url);
 
     if (this.moduleSpecifierKind_ === 'module')
-      return parseExpression `System.get(${url})`;
-    return parseExpression `$traceurRuntime.getModuleImpl(${url})`;
+      return parseExpression `System.get(${name})`;
+    return parseExpression `$traceurRuntime.getModuleImpl(${name})`;
   }
 
   /**

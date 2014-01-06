@@ -58,15 +58,15 @@ var ERROR = 6;
 class CodeUnit {
   /**
    * @param {LoaderHooks} loaderHooks, callbacks for parsing/transforming.
-   * @param {string} url The URL of this dependency. If this is evaluated code
-   *     the URL is the URL of the loader.
+   * @param {string} name The normalized name of this dependency.
+   *  If this is evaluated code the URL is the URL of the loader.
    * @param {string} type Either 'script' or 'module'. This determinse how to
    *     parse the code.
    * @param {number} state
    */
-  constructor(loaderHooks, url, type, state) {
+  constructor(loaderHooks, name, type, state) {
     this.loaderHooks = loaderHooks;
-    this.url = url;
+    this.name = name;
     this.type = type;
     this.state = state;
     this.uid = getUid();
@@ -79,6 +79,7 @@ class CodeUnit {
   get state() {
     return this.state_;
   }
+
   set state(state) {
     if (state < this.state_) {
       throw new Error('Invalid state change');
@@ -99,7 +100,7 @@ class CodeUnit {
   addListener(callback, errback) {
     // TODO(arv): Handle this case?
     if (this.state >= COMPLETE)
-      throw Error(`${this.url} is already loaded`);
+      throw Error(`${this.name} is already loaded`);
     if (!this.listeners) {
       this.listeners = [];
     }
@@ -147,10 +148,10 @@ class CodeUnit {
 class LoadCodeUnit extends CodeUnit {
   /**
    * @param {InternalLoader} loader
-   * @param {string} url
+   * @param {string} name
    */
-  constructor(loaderHooks, url) {
-    super(loaderHooks, url, 'module', NOT_STARTED);
+  constructor(loaderHooks, name) {
+    super(loaderHooks, name, 'module', NOT_STARTED);
   }
 
 }
@@ -190,27 +191,17 @@ class InternalLoader {
     return this.loaderHooks.fetch({address: url}, callback, errback);
   }
 
-  load(url, type = 'script') {
-    url = System.normalResolve(url, this.loaderHooks.rootUrl());
-    var codeUnit = this.getCodeUnit(url, type);
+  load(name, type = 'script') {
+    name = System.normalize(name, this.loaderHooks.rootUrl());
+    var codeUnit = this.getCodeUnit(name, type);
     if (codeUnit.state != NOT_STARTED || codeUnit.state == ERROR) {
       return codeUnit;
     }
 
     codeUnit.state = LOADING;
-    if (this.sync_) {
-      try {
-        codeUnit.text = this.loadTextFileSync(url);
-        codeUnit.state = LOADED;
-        this.handleCodeUnitLoaded(codeUnit);
-      } catch(e) {
-        codeUnit.state = ERROR;
-        this.handleCodeUnitLoadError(codeUnit);
-      }
-      return codeUnit;
-    }
     var loader = this;
     var translate = this.translateHook;
+    var url = System.locate(codeUnit);
     codeUnit.abort = this.loadTextFile(url, function(text) {
       codeUnit.text = translate(text);
       codeUnit.state = LOADED;
@@ -245,11 +236,11 @@ class InternalLoader {
     return this.urlToKey[combined] = {};
   }
 
-  getCodeUnit(url, type) {
-    var key = this.getKey(url, type);
+  getCodeUnit(name, type) {
+    var key = this.getKey(name, type);
     var cacheObject = this.cache.get(key);
     if (!cacheObject) {
-      cacheObject = new LoadCodeUnit(this.loaderHooks, url);
+      cacheObject = new LoadCodeUnit(this.loaderHooks, name);
       cacheObject.type = type;
       this.cache.set(key, cacheObject);
     }
@@ -261,8 +252,8 @@ class InternalLoader {
   }
 
   getCodeUnitForModuleSpecifier(name, referrer) {
-    var url = System.normalResolve(name, referrer);
-    return this.getCodeUnit(url, 'module');
+    var name = System.normalize(name, referrer);
+    return this.getCodeUnit(name, 'module');
   }
 
   /**
@@ -270,18 +261,18 @@ class InternalLoader {
    * @param {CodeUnit} codeUnit
    */
   handleCodeUnitLoaded(codeUnit) {
-    var baseUrl = codeUnit.url;
+    var referrer = codeUnit.name;
     var moduleSpecifiers = this.loaderHooks.getModuleSpecifiers(codeUnit);
     if (!moduleSpecifiers) {
       this.abortAll()
       return;
     }
     codeUnit.dependencies = moduleSpecifiers.sort().map((name) => {
-      name = System.normalResolve(name, baseUrl);
+      name = System.normalize(name, referrer);
       return this.getCodeUnit(name, 'module');
     });
     codeUnit.dependencies.forEach((dependency) => {
-      this.load(dependency.url, 'module');
+      this.load(dependency.name, 'module');
     });
 
     if (this.areAll(PARSED)) {
@@ -405,7 +396,7 @@ export class Loader {
          errback = (ex) => { throw ex; }) {
     var codeUnit = this.internalLoader_.load(name, 'module');
     codeUnit.addListener(function() {
-      callback(System.get(codeUnit.url));
+      callback(System.get(codeUnit.name));
     }, errback);
   }
 
