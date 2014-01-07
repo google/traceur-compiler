@@ -12,12 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 import {assert} from '../../../src/util/assert';
 import {resolveUrl} from '../../../src/util/url';
 
 var testScriptName = '../../test/unit/runtime/test_script.js';
-global.system.loadAsScript(testScriptName, function(result) {
+global.SystemLoader.loadAsScript(testScriptName, function(result) {
   assert('A', result[0]);
   assert('B', result[1]);
   assert('C', result[2]);
@@ -26,7 +25,7 @@ global.system.loadAsScript(testScriptName, function(result) {
 });
 
 var testModuleName = '../../test/unit/runtime/test_module.js';
-global.system.import(testModuleName, function(mod) {
+global.SystemLoader.import(testModuleName, function(mod) {
   assert('test', mod.name);
   assert('A', mod.a);
   assert('B', mod.b);

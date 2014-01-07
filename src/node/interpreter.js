@@ -36,8 +36,8 @@ function interpret(filename, argv, flags) {
     var loaderHooks = new LoaderHooks(reporter, url, null, nodeLoader);
     return new traceur.modules.Loader(loaderHooks);
   }
-  global.system = getLoader();
-  global.system.import(filename);
+  global.SystemLoader = getLoader();
+  global.SystemLoader.import(filename);
 }
 
 module.exports = interpret;
