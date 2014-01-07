@@ -21,6 +21,7 @@ import {
   SourceMapGenerator,
   SourceMapConsumer
 } from '../src/outputgeneration/SourceMapIntegration';
+import {options as traceurOptions} from '../src/options';
 
 class BatchErrorReporter extends ErrorReporter {
   constructor() {
@@ -33,15 +34,14 @@ class BatchErrorReporter extends ErrorReporter {
 
 export function transcode(contents, name, onSuccess, onFailure) {
   var options;
-  if (traceur.options.sourceMaps) {
+  if (traceurOptions.sourceMaps) {
     var config = {file: 'traceured.js'};
     var sourceMapGenerator = new SourceMapGenerator(config);
     options = {sourceMapGenerator: sourceMapGenerator};
   }
   var reporter = new BatchErrorReporter();
   var url = location.href;
-  var loaderHooks = new InterceptOutputLoaderHooks(reporter,
-    url, options);
+  var loaderHooks = new InterceptOutputLoaderHooks(reporter, url, options);
 
   function reportErrors() {
     onFailure(reporter.errors);
