@@ -51,7 +51,7 @@ export class ValidationVisitor extends ModuleVisitor {
     // re-export.
     if (tree.moduleSpecifier) {
       var moduleDescription =
-        this.getModuleDescriptionForSpecifier(tree.moduleSpecifier);
+          this.getModuleDescriptionForSpecifier(tree.moduleSpecifier);
       this.visitAndValidate_(moduleDescription, tree.specifierSet);
     }
     // The else case is checked else where and duplicate exports are caught
@@ -69,7 +69,7 @@ export class ValidationVisitor extends ModuleVisitor {
 
   visitImportDeclaration(tree) {
     var moduleDescription =
-      this.getModuleDescriptionForSpecifier(tree.moduleSpecifier);
+        this.getModuleDescriptionForSpecifier(tree.moduleSpecifier);
     this.visitAndValidate_(moduleDescription, tree.importClause);
   }
 

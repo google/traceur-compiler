@@ -46,12 +46,14 @@ var ERROR = 6;
  * A ModuleDescription::Module instance as ModuleSymbol::Tree
  */
 class ModuleDescription extends ModuleSymbol {
-  constructor(url, module) {
-    super(null, url);
-    this.url_ = url;
-    this.exports_ = Object.create(null);
+  /**
+   * @param {string} Normalized module name
+   * @param {Module} Instance of Module() factory function
+   */
+  constructor(name, module) {
+    super(null, name);
     Object.keys(module).forEach(
-      (name) => this.exports_[name] = new ExportSymbol(name, null)
+      (name) => { this.addExport(new ExportSymbol(name, null)); }
     );
     Object.preventExtensions(this.exports_);
   }

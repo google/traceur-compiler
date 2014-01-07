@@ -45,7 +45,7 @@ export class ModuleVisitor extends ParseTreeVisitor {
     var name = tree.token.processedValue;
     var referrer = this.moduleSymbol.url;
     var description =
-      this.loaderHooks_.getModuleDescriptionForSpecifier(name, referrer);
+        this.loaderHooks_.getModuleDescriptionForSpecifier(name, referrer);
 
     if (!description) {
       var msg = `${name} is not a module, required by ${referrer}`;
