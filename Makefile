@@ -180,7 +180,7 @@ unicode-tables: \
 	node $^ > src/syntax/unicode-tables.js
 
 %.js: %.js-template.js
-	node build/expand-js-template.js --nolint=^node_modules $< $@
+	node build/expand-js-template.js $< $@
 
 %.js-template.js.dep: | %.js-template.js
 	node build/expand-js-template.js --deps $| > $@
