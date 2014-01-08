@@ -13357,7 +13357,7 @@ $traceurRuntime.registerModule("../src/codegeneration/module/ModuleVisitor", fun
   ModuleVisitor = ($traceurRuntime.createClass)(ModuleVisitor, {
     getModuleSymbolForModuleSpecifier: function(tree) {
       var name = tree.token.processedValue;
-      var referrer = this.moduleSymbol.moduleName;
+      var referrer = this.moduleSymbol.normalizedName;
       var codeUnit = this.loader_.getCodeUnitForModuleSpecifier(name, referrer);
       var moduleSymbol = codeUnit.data.moduleSymbol;
       if (!moduleSymbol) {
@@ -19585,7 +19585,7 @@ $traceurRuntime.registerModule("../src/codegeneration/module/ValidationVisitor",
     checkExport_: function(tree, name) {
       var moduleSymbol = this.validatingModule_;
       if (moduleSymbol && !moduleSymbol.hasExport(name)) {
-        var moduleName = moduleSymbol.moduleName;
+        var moduleName = moduleSymbol.normalizedName;
         this.reportError(tree, ("'" + name + "' is not exported by '" + moduleName + "'"));
       }
     },
@@ -19660,11 +19660,11 @@ $traceurRuntime.registerModule("../src/semantics/symbols/ModuleSymbol", function
   var Symbol = $traceurRuntime.getModuleImpl("../src/semantics/symbols/Symbol").Symbol;
   var MODULE = $traceurRuntime.getModuleImpl("../src/semantics/symbols/SymbolType").MODULE;
   var assert = $traceurRuntime.getModuleImpl("../src/util/assert").assert;
-  var ModuleSymbol = function(tree, moduleName) {
+  var ModuleSymbol = function(tree, normalizedName) {
     $traceurRuntime.superCall(this, $ModuleSymbol.prototype, "constructor", [MODULE, tree]);
     this.exports_ = Object.create(null);
-    assert(moduleName);
-    this.moduleName = moduleName.replace(/\\/g, '/');
+    assert(normalizedName);
+    this.normalizedName = normalizedName.replace(/\\/g, '/');
   };
   var $ModuleSymbol = ($traceurRuntime.createClass)(ModuleSymbol, {
     hasExport: function(name) {
@@ -20015,8 +20015,8 @@ $traceurRuntime.registerModule("../src/runtime/Loader", function() {
       var type = arguments[1] !== (void 0) ? arguments[1]: 'script';
       return this.load(this.normalize(name), type);
     },
-    load: function(name, type) {
-      var codeUnit = this.getCodeUnit(name, type);
+    load: function(normalizedName, type) {
+      var codeUnit = this.getCodeUnit(normalizedName, type);
       if (codeUnit.state != NOT_STARTED || codeUnit.state == ERROR) {
         return codeUnit;
       }
@@ -20039,8 +20039,8 @@ $traceurRuntime.registerModule("../src/runtime/Loader", function() {
       this.cache.set({}, codeUnit);
       return codeUnit;
     },
-    script: function(code, name) {
-      name = name || this.loaderHooks.rootUrl();
+    script: function(code) {
+      var name = arguments[1] !== (void 0) ? arguments[1]: this.loaderHooks.rootUrl();
       var codeUnit = new EvalCodeUnit(this.loaderHooks, code, this.normalize(name));
       this.cache.set({}, codeUnit);
       this.handleCodeUnitLoaded(codeUnit);

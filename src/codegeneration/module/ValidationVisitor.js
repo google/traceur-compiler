@@ -27,7 +27,7 @@ export class ValidationVisitor extends ModuleVisitor {
   checkExport_(tree, name) {
     var moduleSymbol = this.validatingModule_;
     if (moduleSymbol && !moduleSymbol.hasExport(name)) {
-      var moduleName = moduleSymbol.moduleName;
+      var moduleName = moduleSymbol.normalizedName;
       this.reportError(tree, `'${name}' is not exported by '${moduleName}'`);
     }
   }

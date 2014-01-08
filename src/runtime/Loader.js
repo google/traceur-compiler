@@ -199,8 +199,8 @@ class InternalLoader {
     return this.load(this.normalize(name), type);
   }
 
-  load(name, type) {
-    var codeUnit = this.getCodeUnit(name, type);
+  load(normalizedName, type) {
+    var codeUnit = this.getCodeUnit(normalizedName, type);
     if (codeUnit.state != NOT_STARTED || codeUnit.state == ERROR) {
       return codeUnit;
     }
@@ -226,8 +226,11 @@ class InternalLoader {
     return codeUnit;
   }
 
-  script(code, name) {
-    name = name || this.loaderHooks.rootUrl();  // anonymous eval
+  /**
+   * @param {string} code, source to be compiled as 'Script'
+   * @param {string} name,  ModuleSpecifier-like name, not normalized.
+   */
+  script(code, name = this.loaderHooks.rootUrl()) {
     var codeUnit =
         new EvalCodeUnit(this.loaderHooks, code, this.normalize(name));
     this.cache.set({}, codeUnit);
@@ -399,7 +402,7 @@ export class Loader {
    * import - Asynchronously load, link, and evaluate a module and any
    * dependencies it imports. On success, pass the Module object to the success
    * callback.
-   * @param {string} ModuleSpecifier-like name, not normalized.
+   * @param {string} name, ModuleSpecifier-like name, not normalized.
    */
   import(name,
          callback = (module) => {},
@@ -435,7 +438,7 @@ export class Loader {
    *
    * On success, pass the result of evaluating the script to the success
    * callback.
-   * @param {string} ModuleSpecifier-like name, not normalized.
+   * @param {string} name, ModuleSpecifier-like name, not normalized.
    */
   loadAsScript(name,
        callback = (result) => {},
@@ -458,7 +461,7 @@ export class Loader {
    * that is not already loaded, a SyntaxError is thrown.
    *
    * @param {string} source The source code to eval.
-   * @param {string} name  name for the script
+   * @param {string} name name for the script
    * @return {*} The completion value of evaluating the code.
    */
   script(source, name) {

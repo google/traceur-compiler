@@ -19,14 +19,14 @@ import {assert} from '../../util/assert';
 export class ModuleSymbol extends Symbol {
   /**
    * @param {Module} tree
-   * @param {string} moduleName
+   * @param {string} normalizedName
    */
-  constructor(tree, moduleName) {
+  constructor(tree, normalizedName) {
     // assert(tree === null || tree.type === 'module');
     super(MODULE, tree);
     this.exports_ = Object.create(null);
-    assert(moduleName);
-    this.moduleName = moduleName.replace(/\\/g, '/');
+    assert(normalizedName);
+    this.normalizedName = normalizedName.replace(/\\/g, '/');
   }
 
   /**
