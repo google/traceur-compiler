@@ -15,18 +15,18 @@
 import {ModuleTransformer} from './ModuleTransformer';
 import {RETURN_STATEMENT} from '../syntax/trees/ParseTreeType';
 import {assert} from '../util/assert';
-import containsTopLevelThis from './containsTopLevelThis';
 import globalThis from './globalThis';
 import {
   parseExpression,
   parseStatement,
   parseStatements
 } from './PlaceholderParser';
+import scopeContainsThis from './scopeContainsThis';
 
 export class CommonJsModuleTransformer extends ModuleTransformer {
 
   wrapModule(statements) {
-    var needsIife = statements.some(containsTopLevelThis);
+    var needsIife = statements.some(scopeContainsThis);
 
     if (needsIife) {
       return parseStatements

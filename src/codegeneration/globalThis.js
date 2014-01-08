@@ -17,9 +17,8 @@ import {parseExpression} from './PlaceholderParser'
 var expr;
 
 function globalThis() {
-  if (!expr) {
+  if (!expr)
     expr = parseExpression `typeof global !== 'undefined' ? global : this`;
-  }
   return expr;
 }
 

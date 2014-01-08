@@ -20,9 +20,9 @@ class FindThis extends FindInFunctionScope {
   }
 }
 
-function containsTopLevelThis(tree) {
+function scopeContainsThis(tree) {
   var visitor = new FindThis(tree);
   return visitor.found;
 }
 
-export default containsTopLevelThis;
+export default scopeContainsThis;

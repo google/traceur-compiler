@@ -14,13 +14,13 @@
 
 import {ModuleTransformer} from './ModuleTransformer';
 import {VAR} from '../syntax/TokenType';
-import containsTopLevelThis from './containsTopLevelThis';
 import {createBindingIdentifier} from './ParseTreeFactory';
 import globalThis from './globalThis';
 import {
   parseExpression,
   parseStatements
 } from './PlaceholderParser';
+import scopeContainsThis from './scopeContainsThis';
 
 export class AmdTransformer extends ModuleTransformer {
 
@@ -33,7 +33,7 @@ export class AmdTransformer extends ModuleTransformer {
     var depPaths = this.dependencies.map((dep) => dep.path);
     var depLocals = this.dependencies.map((dep) => dep.local);
 
-    var hasTopLevelThis = statements.some(containsTopLevelThis);
+    var hasTopLevelThis = statements.some(scopeContainsThis);
     var func = parseExpression `function(${depLocals}) {
       ${statements}
     }`;

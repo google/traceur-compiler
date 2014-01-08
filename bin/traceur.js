@@ -13638,6 +13638,20 @@ System.registerModule("../src/codegeneration/ModuleTransformer", function() {
       return ModuleTransformer;
     }};
 });
+System.registerModule("../src/codegeneration/globalThis", function() {
+  "use strict";
+  var $__121 = Object.freeze(Object.defineProperties(["typeof global !== 'undefined' ? global : this"], {raw: {value: Object.freeze(["typeof global !== 'undefined' ? global : this"])}}));
+  var parseExpression = $traceurRuntime.getModuleImpl("../src/codegeneration/PlaceholderParser").parseExpression;
+  var expr;
+  function globalThis() {
+    if (!expr) expr = parseExpression($__121);
+    return expr;
+  }
+  var $__default = globalThis;
+  return {get default() {
+      return $__default;
+    }};
+});
 System.registerModule("../src/codegeneration/FindVisitor", function() {
   "use strict";
   var ParseTreeVisitor = $traceurRuntime.getModuleImpl("../src/syntax/ParseTreeVisitor").ParseTreeVisitor;
@@ -13684,7 +13698,7 @@ System.registerModule("../src/codegeneration/FindInFunctionScope", function() {
       return FindInFunctionScope;
     }};
 });
-System.registerModule("../src/codegeneration/containsTopLevelThis", function() {
+System.registerModule("../src/codegeneration/scopeContainsThis", function() {
   "use strict";
   var FindInFunctionScope = $traceurRuntime.getModuleImpl("../src/codegeneration/FindInFunctionScope").FindInFunctionScope;
   var FindThis = function() {
@@ -13693,27 +13707,11 @@ System.registerModule("../src/codegeneration/containsTopLevelThis", function() {
   var $FindThis = ($traceurRuntime.createClass)(FindThis, {visitThisExpression: function(tree) {
       this.found = true;
     }}, {}, FindInFunctionScope);
-  function containsTopLevelThis(tree) {
+  function scopeContainsThis(tree) {
     var visitor = new FindThis(tree);
     return visitor.found;
   }
-  var $__default = containsTopLevelThis;
-  return {get default() {
-      return $__default;
-    }};
-});
-System.registerModule("../src/codegeneration/globalThis", function() {
-  "use strict";
-  var $__127 = Object.freeze(Object.defineProperties(["typeof global !== 'undefined' ? global : this"], {raw: {value: Object.freeze(["typeof global !== 'undefined' ? global : this"])}}));
-  var parseExpression = $traceurRuntime.getModuleImpl("../src/codegeneration/PlaceholderParser").parseExpression;
-  var expr;
-  function globalThis() {
-    if (!expr) {
-      expr = parseExpression($__127);
-    }
-    return expr;
-  }
-  var $__default = globalThis;
+  var $__default = scopeContainsThis;
   return {get default() {
       return $__default;
     }};
@@ -13725,12 +13723,12 @@ System.registerModule("../src/codegeneration/AmdTransformer", function() {
       $__131 = Object.freeze(Object.defineProperties(["define(", ", ", ");"], {raw: {value: Object.freeze(["define(", ", ", ");"])}}));
   var ModuleTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ModuleTransformer").ModuleTransformer;
   var VAR = $traceurRuntime.getModuleImpl("../src/syntax/TokenType").VAR;
-  var containsTopLevelThis = $traceurRuntime.getModuleImpl("../src/codegeneration/containsTopLevelThis").default;
   var createBindingIdentifier = $traceurRuntime.getModuleImpl("../src/codegeneration/ParseTreeFactory").createBindingIdentifier;
   var globalThis = $traceurRuntime.getModuleImpl("../src/codegeneration/globalThis").default;
   var $__133 = $traceurRuntime.getModuleImpl("../src/codegeneration/PlaceholderParser"),
       parseExpression = $__133.parseExpression,
       parseStatements = $__133.parseStatements;
+  var scopeContainsThis = $traceurRuntime.getModuleImpl("../src/codegeneration/scopeContainsThis").default;
   var AmdTransformer = function(identifierGenerator) {
     $traceurRuntime.superCall(this, $AmdTransformer.prototype, "constructor", [identifierGenerator]);
     this.dependencies = [];
@@ -13743,7 +13741,7 @@ System.registerModule("../src/codegeneration/AmdTransformer", function() {
       var depLocals = this.dependencies.map((function(dep) {
         return dep.local;
       }));
-      var hasTopLevelThis = statements.some(containsTopLevelThis);
+      var hasTopLevelThis = statements.some(scopeContainsThis);
       var func = parseExpression($__129, depLocals, statements);
       if (hasTopLevelThis) func = parseExpression($__130, func, globalThis());
       return parseStatements($__131, depPaths, func);
@@ -15057,18 +15055,18 @@ System.registerModule("../src/codegeneration/CommonJsModuleTransformer", functio
   var ModuleTransformer = $traceurRuntime.getModuleImpl("../src/codegeneration/ModuleTransformer").ModuleTransformer;
   var RETURN_STATEMENT = $traceurRuntime.getModuleImpl("../src/syntax/trees/ParseTreeType").RETURN_STATEMENT;
   var assert = $traceurRuntime.getModuleImpl("../src/util/assert").assert;
-  var containsTopLevelThis = $traceurRuntime.getModuleImpl("../src/codegeneration/containsTopLevelThis").default;
   var globalThis = $traceurRuntime.getModuleImpl("../src/codegeneration/globalThis").default;
   var $__180 = $traceurRuntime.getModuleImpl("../src/codegeneration/PlaceholderParser"),
       parseExpression = $__180.parseExpression,
       parseStatement = $__180.parseStatement,
       parseStatements = $__180.parseStatements;
+  var scopeContainsThis = $traceurRuntime.getModuleImpl("../src/codegeneration/scopeContainsThis").default;
   var CommonJsModuleTransformer = function() {
     $traceurRuntime.defaultSuperCall(this, $CommonJsModuleTransformer.prototype, arguments);
   };
   var $CommonJsModuleTransformer = ($traceurRuntime.createClass)(CommonJsModuleTransformer, {
     wrapModule: function(statements) {
-      var needsIife = statements.some(containsTopLevelThis);
+      var needsIife = statements.some(scopeContainsThis);
       if (needsIife) {
         return parseStatements($__176, statements, globalThis());
       }
