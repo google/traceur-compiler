@@ -21,7 +21,6 @@ import {ModuleSpecifierVisitor} from
     '../codegeneration/module/ModuleSpecifierVisitor';
 import {ModuleSymbol} from '../semantics/symbols/ModuleSymbol';
 import {Parser} from '../syntax/Parser';
-import {parseStatement} from '../codegeneration/PlaceholderParser';
 import {SourceFile} from '../syntax/SourceFile';
 import {TreeWriter} from '../outputgeneration/TreeWriter';
 import {UniqueIdentifierGenerator} from
@@ -185,6 +184,7 @@ export class LoaderHooks {
       this.outputOptions_ && this.outputOptions_.sourceMap;
   }
 
+
   checkForErrors(dependencies, phase) {
     if (this.reporter.hadError()) {
       for (var i = 0; i < dependencies.length; i++) {
@@ -203,4 +203,5 @@ export class LoaderHooks {
       }
     }
   }
+
 }

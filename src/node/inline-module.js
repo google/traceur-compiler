@@ -30,8 +30,6 @@ var ModuleAnalyzer = traceur.semantics.ModuleAnalyzer;
 /**
  * @param {ErrorReporter} reporter
  * @param {Array.<ParseTree>} elements
- * @param {string|undefined} referrer second argument to System.normalize()
- *     in generated calls to System.registerModule.
  * @param {string|undefined} depTarget A valid depTarget means dependency
  *     printing was requested.
  */

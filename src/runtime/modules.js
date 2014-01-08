@@ -123,8 +123,6 @@
       moduleInstantiators[name] = new UncoatedModuleEntry(name, uncoatedModule);
     },
 
-    // -- Non standard extensions to System.
-
     get baseURL() {
       return baseURL;
     },
@@ -132,6 +130,8 @@
     set baseURL(v) {
       baseURL = String(v);
     },
+
+    // -- Non standard extensions to System.
 
     registerModule(name, func) {
       var normalizedName = System.normalize(name);
@@ -148,6 +148,7 @@
   };
   global.System = System;
 
+  // TODO(jjb): remove
   $traceurRuntime.registerModule = System.registerModule;
   $traceurRuntime.getModuleImpl = function(name) {
     var instantiator = getUncoatedModuleInstantiator(name);

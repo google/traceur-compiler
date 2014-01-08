@@ -150,7 +150,6 @@ function addOptions(flags) {
       setOption('referrer', name);
       return name;
     });
-  options.referrer = './';
 }
 
 /**
@@ -282,3 +281,6 @@ addBoolOption('validate');
 addBoolOption('strictSemicolons');
 addBoolOption('unstarredGenerators');
 addBoolOption('ignoreNolint');
+
+defaultValues.referrer = '';
+options.referrer = './';

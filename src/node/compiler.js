@@ -59,6 +59,7 @@ function compileToSingleFile(outputFile, includes, useSourceMaps) {
   var reporter = new ErrorReporter();
   var resolvedOutputFile = path.resolve(outputFile);
   var outputDir = path.dirname(resolvedOutputFile);
+
   // Resolve includes before changing directory.
   var resolvedIncludes = includes.map(function(include) {
     return path.resolve(include);
