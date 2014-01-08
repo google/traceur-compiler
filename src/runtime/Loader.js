@@ -190,13 +190,10 @@ class InternalLoader {
     return this.loaderHooks.fetch({address: url}, callback, errback);
   }
 
-  normalize(name) {
-    var referrerName = System.referrerName || this.loaderHooks.rootUrl();
-    return System.normalize(name, referrerName);
-  }
-
-  loadUnnormalized(name, type = 'script') {
-    return this.load(this.normalize(name), type);
+  loadUnnormalized(name, referrerName = this.loaderHooks.rootUrl(),
+      address, type = 'script') {
+    var normalizedName = System.normalize(name, referrerName, address);
+    return this.load(normalizedName, type);
   }
 
   load(normalizedName, type) {
@@ -220,8 +217,9 @@ class InternalLoader {
     return codeUnit;
   }
 
-  module(code, options) {
-    var codeUnit = new EvalCodeUnit(this.loaderHooks, code, options.address);
+  module(code, name, referrerName, address) {
+    var normalizedName = System.normalize(name, referrerName, address);
+    var codeUnit = new EvalCodeUnit(this.loaderHooks, code, normalizedName);
     this.cache.set({}, codeUnit);
     return codeUnit;
   }
@@ -230,9 +228,10 @@ class InternalLoader {
    * @param {string} code, source to be compiled as 'Script'
    * @param {string} name,  ModuleSpecifier-like name, not normalized.
    */
-  script(code, name = this.loaderHooks.rootUrl()) {
+  script(code, name = this.loaderHooks.rootUrl(), referrerName, address) {
+    var normalizedName = System.normalize(name, referrerName, address);
     var codeUnit =
-        new EvalCodeUnit(this.loaderHooks, code, this.normalize(name));
+        new EvalCodeUnit(this.loaderHooks, code, normalizedName);
     this.cache.set({}, codeUnit);
     // assert that there are no dependencies that are loading?
     this.handleCodeUnitLoaded(codeUnit);
@@ -405,9 +404,11 @@ export class Loader {
    * @param {string} name, ModuleSpecifier-like name, not normalized.
    */
   import(name,
+         {referrerName, address} = {},
          callback = (module) => {},
          errback = (ex) => { throw ex; }) {
-    var codeUnit = this.internalLoader_.loadUnnormalized(name, 'module');
+    var codeUnit = this.internalLoader_.loadUnnormalized(name, referrerName,
+        address, 'module');
     codeUnit.addListener(function() {
       callback(System.get(codeUnit.name));
     }, errback);
@@ -420,8 +421,12 @@ export class Loader {
    * This is the same as import but without fetching the source. On
    * success, the result of evaluating the source is passed to callback.
    */
-  module(source, options, callback, errback = undefined) {
-    var codeUnit = this.internalLoader_.module(source, options);
+  module(source, name,
+      {referrerName, address} = {},
+      callback = (module) => {},
+      errback = (ex) => { throw ex; }) {
+    var codeUnit = this.internalLoader_.module(source, name,
+        referrerName, address);
     codeUnit.addListener(callback, errback);
     this.internalLoader_.handleCodeUnitLoaded(codeUnit);
   }
@@ -441,9 +446,11 @@ export class Loader {
    * @param {string} name, ModuleSpecifier-like name, not normalized.
    */
   loadAsScript(name,
+       {referrerName, address} = {},
        callback = (result) => {},
        errback = (ex) => { throw ex; }) {
-    var codeUnit = this.internalLoader_.loadUnnormalized(name, 'script');
+    var codeUnit = this.internalLoader_.loadUnnormalized(name, referrerName,
+        address, 'script');
     codeUnit.addListener(function(result) {
       callback(result);
     }, errback);
@@ -464,9 +471,17 @@ export class Loader {
    * @param {string} name name for the script
    * @return {*} The completion value of evaluating the code.
    */
-  script(source, name) {
-    var codeUnit = this.internalLoader_.script(source, name);
-    return codeUnit.result;
+  script(source, name,
+      {referrerName, address} = {},
+      callback = (result) => {},
+      errback = (ex) => { throw ex; }) {
+    try {
+      var codeUnit =
+          this.internalLoader_.script(source, name, referrerName, address);
+      callback(codeUnit.result);
+    } catch (ex) {
+      errback(ex);
+    }
   }
 
 }

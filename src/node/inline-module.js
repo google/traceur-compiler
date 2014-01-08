@@ -80,7 +80,7 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
   // The caller needs to do a chdir.
   var basePath = './';
   var depTarget = options && options.depTarget;
-  System.referrerName = options && options.referrer;
+  var referrerName = options && options.referrer;
 
   var loadCount = 0;
   var elements = [];
@@ -88,20 +88,22 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
   var loader = new Loader(hooks);
 
   function loadNext() {
-    var codeUnit = loader.loadAsScript(filenames[loadCount], function() {
-      loadCount++;
-      if (loadCount < filenames.length) {
-        loadNext();
-      } else if (depTarget) {
-        callback(null);
-      } else {
-        var tree = allLoaded(basePath, reporter, elements);
-        callback(tree);
-      }
-    }, function() {
-      console.error(codeUnit.error);
-      errback(codeUnit.error);
-    });
+    var codeUnit = loader.loadAsScript(filenames[loadCount],
+      {referrerName: referrerName},
+      function() {
+        loadCount++;
+        if (loadCount < filenames.length) {
+          loadNext();
+        } else if (depTarget) {
+          callback(null);
+        } else {
+          var tree = allLoaded(basePath, reporter, elements);
+          callback(tree);
+        }
+      }, function() {
+        console.error(codeUnit.error);
+        errback(codeUnit.error);
+      });
   }
 
   loadNext();

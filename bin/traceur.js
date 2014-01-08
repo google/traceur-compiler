@@ -562,7 +562,6 @@
     setupGlobals(global);
   };
   global.System = System;
-  $traceurRuntime.registerModule = System.registerModule;
   $traceurRuntime.getModuleImpl = function(name) {
     var instantiator = getUncoatedModuleInstantiator(name);
     return instantiator && instantiator.getUncoatedModule();
@@ -19781,7 +19780,8 @@ System.registerModule("../src/runtime/LoaderHooks", function() {
       var reporter = this.reporter;
       var normalizedName = codeUnit.name;
       var program = codeUnit.text;
-      var file = new SourceFile(codeUnit.url, program);
+      var url = codeUnit.url || normalizedName;
+      var file = new SourceFile(url, program);
       var parser = new Parser(reporter, file);
       if (codeUnit.type == 'module') codeUnit.data.tree = parser.parseModule(); else codeUnit.data.tree = parser.parseScript();
       codeUnit.data.moduleSymbol = new ModuleSymbol(codeUnit.data.tree, normalizedName);
@@ -20017,13 +20017,12 @@ System.registerModule("../src/runtime/Loader", function() {
     loadTextFile: function(url, callback, errback) {
       return this.loaderHooks.fetch({address: url}, callback, errback);
     },
-    normalize: function(name) {
-      var referrerName = System.referrerName || this.loaderHooks.rootUrl();
-      return System.normalize(name, referrerName);
-    },
     loadUnnormalized: function(name) {
-      var type = arguments[1] !== (void 0) ? arguments[1]: 'script';
-      return this.load(this.normalize(name), type);
+      var referrerName = arguments[1] !== (void 0) ? arguments[1]: this.loaderHooks.rootUrl();
+      var address = arguments[2];
+      var type = arguments[3] !== (void 0) ? arguments[3]: 'script';
+      var normalizedName = System.normalize(name, referrerName, address);
+      return this.load(normalizedName, type);
     },
     load: function(normalizedName, type) {
       var codeUnit = this.getCodeUnit(normalizedName, type);
@@ -20044,14 +20043,18 @@ System.registerModule("../src/runtime/Loader", function() {
       });
       return codeUnit;
     },
-    module: function(code, options) {
-      var codeUnit = new EvalCodeUnit(this.loaderHooks, code, options.address);
+    module: function(code, name, referrerName, address) {
+      var normalizedName = System.normalize(name, referrerName, address);
+      var codeUnit = new EvalCodeUnit(this.loaderHooks, code, normalizedName);
       this.cache.set({}, codeUnit);
       return codeUnit;
     },
     script: function(code) {
       var name = arguments[1] !== (void 0) ? arguments[1]: this.loaderHooks.rootUrl();
-      var codeUnit = new EvalCodeUnit(this.loaderHooks, code, this.normalize(name));
+      var referrerName = arguments[2];
+      var address = arguments[3];
+      var normalizedName = System.normalize(name, referrerName, address);
+      var codeUnit = new EvalCodeUnit(this.loaderHooks, code, normalizedName);
       this.cache.set({}, codeUnit);
       this.handleCodeUnitLoaded(codeUnit);
       return codeUnit;
@@ -20179,34 +20182,57 @@ System.registerModule("../src/runtime/Loader", function() {
   };
   Loader = ($traceurRuntime.createClass)(Loader, {
     import: function(name) {
-      var callback = arguments[1] !== (void 0) ? arguments[1]: (function(module) {});
-      var errback = arguments[2] !== (void 0) ? arguments[2]: (function(ex) {
+      var $__296 = arguments[1] !== (void 0) ? arguments[1]: {},
+          referrerName = $__296.referrerName,
+          address = $__296.address;
+      var callback = arguments[2] !== (void 0) ? arguments[2]: (function(module) {});
+      var errback = arguments[3] !== (void 0) ? arguments[3]: (function(ex) {
         throw ex;
       });
-      var codeUnit = this.internalLoader_.loadUnnormalized(name, 'module');
+      var codeUnit = this.internalLoader_.loadUnnormalized(name, referrerName, address, 'module');
       codeUnit.addListener(function() {
         callback(System.get(codeUnit.name));
       }, errback);
     },
-    module: function(source, options, callback) {
-      var errback = arguments[3];
-      var codeUnit = this.internalLoader_.module (source, options);
+    module: function(source, name) {
+      var $__296 = arguments[2] !== (void 0) ? arguments[2]: {},
+          referrerName = $__296.referrerName,
+          address = $__296.address;
+      var callback = arguments[3] !== (void 0) ? arguments[3]: (function(module) {});
+      var errback = arguments[4] !== (void 0) ? arguments[4]: (function(ex) {
+        throw ex;
+      });
+      var codeUnit = this.internalLoader_.module (source, name, referrerName, address);
       codeUnit.addListener(callback, errback);
       this.internalLoader_.handleCodeUnitLoaded(codeUnit);
     },
     loadAsScript: function(name) {
-      var callback = arguments[1] !== (void 0) ? arguments[1]: (function(result) {});
-      var errback = arguments[2] !== (void 0) ? arguments[2]: (function(ex) {
+      var $__296 = arguments[1] !== (void 0) ? arguments[1]: {},
+          referrerName = $__296.referrerName,
+          address = $__296.address;
+      var callback = arguments[2] !== (void 0) ? arguments[2]: (function(result) {});
+      var errback = arguments[3] !== (void 0) ? arguments[3]: (function(ex) {
         throw ex;
       });
-      var codeUnit = this.internalLoader_.loadUnnormalized(name, 'script');
+      var codeUnit = this.internalLoader_.loadUnnormalized(name, referrerName, address, 'script');
       codeUnit.addListener(function(result) {
         callback(result);
       }, errback);
     },
     script: function(source, name) {
-      var codeUnit = this.internalLoader_.script(source, name);
-      return codeUnit.result;
+      var $__296 = arguments[2] !== (void 0) ? arguments[2]: {},
+          referrerName = $__296.referrerName,
+          address = $__296.address;
+      var callback = arguments[3] !== (void 0) ? arguments[3]: (function(result) {});
+      var errback = arguments[4] !== (void 0) ? arguments[4]: (function(ex) {
+        throw ex;
+      });
+      try {
+        var codeUnit = this.internalLoader_.script(source, name, referrerName, address);
+        callback(codeUnit.result);
+      } catch (ex) {
+        errback(ex);
+      }
     }
   }, {});
   ;
@@ -20252,7 +20278,7 @@ System.registerModule("../src/WebPageTranscoder", function() {
       }));
     },
     addFileFromScriptElement: function(scriptElement, name, content) {
-      this.loader.module (content, {address: name});
+      this.loader.module (content, name);
     },
     nextInlineScriptName_: function() {
       this.numberInlined_ += 1;
