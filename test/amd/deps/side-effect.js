@@ -1,1 +1,1 @@
-this.sideEffect++;
+this.sideEffect = 1;
