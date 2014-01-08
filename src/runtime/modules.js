@@ -148,8 +148,6 @@
   };
   global.System = System;
 
-  // TODO(jjb): remove
-  $traceurRuntime.registerModule = System.registerModule;
   $traceurRuntime.getModuleImpl = function(name) {
     var instantiator = getUncoatedModuleInstantiator(name);
     return instantiator && instantiator.getUncoatedModule();

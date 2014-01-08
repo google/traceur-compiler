@@ -75,7 +75,9 @@ export class LoaderHooks {
     var reporter = this.reporter;
     var normalizedName = codeUnit.name;
     var program = codeUnit.text;
-    var file = new SourceFile(codeUnit.url, program);
+    // For error reporting, prefer loader URL, fallback if we did not load text.
+    var url = codeUnit.url || normalizedName;
+    var file = new SourceFile(url, program);
     var parser = new Parser(reporter, file);
     if (codeUnit.type == 'module')
       codeUnit.data.tree = parser.parseModule();
