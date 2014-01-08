@@ -278,9 +278,8 @@ addBoolOption('debug');
 addBoolOption('sourceMaps');
 addBoolOption('freeVariableChecker');
 addBoolOption('validate');
-addBoolOption('strictSemicolons');
 addBoolOption('unstarredGenerators');
-addBoolOption('ignoreNolint');
 
 defaultValues.referrer = '';
 options.referrer = './';
+
