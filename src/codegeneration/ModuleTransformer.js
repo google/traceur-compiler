@@ -32,7 +32,6 @@ import {assert} from '../util/assert';
 import {
   createArgumentList,
   createBindingIdentifier,
-  createEmptyStatement,
   createExpressionStatement,
   createIdentifierExpression,
   createIdentifierToken,
@@ -220,10 +219,10 @@ export class ModuleTransformer extends TempVarTransformer {
     //
     // import 'module'
     //  =>
-    // ;
+    // moduleInstance;
     this.moduleSpecifierKind_ = 'import';
     if (!tree.importClause)
-      return createEmptyStatement();
+      return createExpressionStatement(this.transformAny(tree.moduleSpecifier));
 
     var binding = this.transformAny(tree.importClause);
     var initialiser = this.transformAny(tree.moduleSpecifier);
