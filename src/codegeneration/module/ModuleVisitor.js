@@ -43,7 +43,7 @@ export class ModuleVisitor extends ParseTreeVisitor {
    */
   getModuleSymbolForModuleSpecifier(tree) {
     var name = tree.token.processedValue;
-    var referrer = this.moduleSymbol.url;
+    var referrer = this.moduleSymbol.moduleName;
     var codeUnit = this.loader_.getCodeUnitForModuleSpecifier(name, referrer);
     var moduleSymbol = codeUnit.data.moduleSymbol;
     if (!moduleSymbol) {

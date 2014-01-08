@@ -190,9 +190,17 @@ class InternalLoader {
     return this.loaderHooks.fetch({address: url}, callback, errback);
   }
 
-  load(name, type = 'script') {
-    var normalizedName = System.normalize(name, this.loaderHooks.rootUrl());
-    var codeUnit = this.getCodeUnit(normalizedName, type);
+  normalize(name) {
+    var referrerName = System.referrerName || this.loaderHooks.rootUrl();
+    return System.normalize(name, referrerName);
+  }
+
+  loadUnnormalized(name, type = 'script') {
+    return this.load(this.normalize(name), type);
+  }
+
+  load(name, type) {
+    var codeUnit = this.getCodeUnit(name, type);
     if (codeUnit.state != NOT_STARTED || codeUnit.state == ERROR) {
       return codeUnit;
     }
@@ -219,7 +227,9 @@ class InternalLoader {
   }
 
   script(code, name) {
-    var codeUnit = new EvalCodeUnit(this.loaderHooks, code, name);
+    name = name || this.loaderHooks.rootUrl();  // anonymous eval
+    var codeUnit =
+        new EvalCodeUnit(this.loaderHooks, code, this.normalize(name));
     this.cache.set({}, codeUnit);
     // assert that there are no dependencies that are loading?
     this.handleCodeUnitLoaded(codeUnit);
@@ -389,11 +399,12 @@ export class Loader {
    * import - Asynchronously load, link, and evaluate a module and any
    * dependencies it imports. On success, pass the Module object to the success
    * callback.
+   * @param {string} ModuleSpecifier-like name, not normalized.
    */
   import(name,
          callback = (module) => {},
          errback = (ex) => { throw ex; }) {
-    var codeUnit = this.internalLoader_.load(name, 'module');
+    var codeUnit = this.internalLoader_.loadUnnormalized(name, 'module');
     codeUnit.addListener(function() {
       callback(System.get(codeUnit.name));
     }, errback);
@@ -424,11 +435,12 @@ export class Loader {
    *
    * On success, pass the result of evaluating the script to the success
    * callback.
+   * @param {string} ModuleSpecifier-like name, not normalized.
    */
-  loadAsScript(url,
+  loadAsScript(name,
        callback = (result) => {},
        errback = (ex) => { throw ex; }) {
-    var codeUnit = this.internalLoader_.load(url, 'script');
+    var codeUnit = this.internalLoader_.loadUnnormalized(name, 'script');
     codeUnit.addListener(function(result) {
       callback(result);
     }, errback);

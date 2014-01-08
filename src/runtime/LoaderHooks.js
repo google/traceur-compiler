@@ -73,16 +73,17 @@ export class LoaderHooks {
   parse(codeUnit) {
     assert(!codeUnit.data.tree);
     var reporter = this.reporter;
-    var url = codeUnit.url || codeUnit.name;
+    var normalizedName = codeUnit.name;
     var program = codeUnit.text;
-    var file = new SourceFile(url, program);
+    var file = new SourceFile(codeUnit.url, program);
     var parser = new Parser(reporter, file);
     if (codeUnit.type == 'module')
       codeUnit.data.tree = parser.parseModule();
     else
       codeUnit.data.tree = parser.parseScript();
 
-    codeUnit.data.moduleSymbol = new ModuleSymbol(codeUnit.data.tree, url);
+    codeUnit.data.moduleSymbol =
+      new ModuleSymbol(codeUnit.data.tree, normalizedName);
 
     return !reporter.hadError();
   }
@@ -115,9 +116,15 @@ export class LoaderHooks {
     // Tolerate .js endings
     if (/\.js$/.test(normalizedModuleName))
       asJS = normalizedModuleName;
+    if (System.referrerName) {
+      if (asJS.indexOf(System.referrerName) === 0) {
+        asJS = asJS.substring(System.referrerName.length);
+      }
+    }
     if (isAbsolute(asJS))
       return asJS;
     var baseURL = load.metadata && load.metadata.baseURL;
+    baseURL = baseURL || this.rootUrl();
     if (baseURL)
       return resolveUrl(baseURL, asJS);
     return asJS;
