@@ -33,10 +33,10 @@ export class ModuleAnalyzer {
   /**
    * @param {Array.<ParseTree>} trees
    * @param {Array.<ModuleSymbol>=} moduleSymbols
-   * @param {Loader} loader
+   * @param {LoaderHooks} loaderHooks
    * @return {void}
    */
-  analyzeTrees(trees, moduleSymbols, loader) {
+  analyzeTrees(trees, moduleSymbols, loaderHooks) {
     if (!transformOptions.modules)
       return;
 
@@ -47,14 +47,14 @@ export class ModuleAnalyzer {
 
     function doVisit(ctor) {
       for (var i = 0; i < trees.length; i++) {
-        var visitor = new ctor(reporter, loader, getModuleSymbol(i));
+        var visitor = new ctor(reporter, loaderHooks, getModuleSymbol(i));
         visitor.visitAny(trees[i]);
       }
     }
 
     function reverseVisit(ctor) {
       for (var i = trees.length - 1; i >= 0; i--) {
-        var visitor = new ctor(reporter, loader, getModuleSymbol(i));
+        var visitor = new ctor(reporter, loaderHooks, getModuleSymbol(i));
         visitor.visitAny(trees[i]);
       }
     }
