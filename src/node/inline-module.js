@@ -54,6 +54,7 @@ InlineLoaderHooks.prototype = {
     var tree = codeUnit.data.transformedTree;
     this.elements.push.apply(this.elements, tree.scriptItemList);
   },
+
 };
 
 function allLoaded(url, reporter, elements) {
@@ -79,6 +80,7 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
   // The caller needs to do a chdir.
   var basePath = './';
   var depTarget = options && options.depTarget;
+  System.referrerName = options && options.referrer;
 
   var loadCount = 0;
   var elements = [];

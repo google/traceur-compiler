@@ -140,11 +140,12 @@ suite('modules.js', function() {
   });
 
   test('LoaderLoadWithReferrer', function(done) {
-    System.referrerName = 'traceur@0.0.1/';
-    getLoader().loadAsScript('./test_script.js', function(result) {
+    System.referrerName = 'traceur@0.0.1/bin';
+    getLoader().loadAsScript('../test_script.js', function(result) {
       assert.equal('A', result[0]);
       assert.equal('B', result[1]);
       assert.equal('C', result[2]);
+      delete System.referrerName;
       done();
     }, function(error) {
       fail(error);
@@ -166,12 +167,13 @@ suite('modules.js', function() {
   });
 
   test('LoaderImportWithReferrer', function(done) {
-    System.referrerName = 'traceur@0.0.0/';
-    getLoader().import('./test_module.js', function(mod) {
+    System.referrerName = 'traceur@0.0.0/bin';
+    getLoader().import('../test_module.js', function(mod) {
       assert.equal('test', mod.name);
       assert.equal('A', mod.a);
       assert.equal('B', mod.b);
       assert.equal('C', mod.c);
+      delete System.referrerName;
       done();
     }, function(error) {
       fail(error);
