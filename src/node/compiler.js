@@ -59,7 +59,6 @@ function compileToSingleFile(outputFile, includes, useSourceMaps) {
   var reporter = new ErrorReporter();
   var resolvedOutputFile = path.resolve(outputFile);
   var outputDir = path.dirname(resolvedOutputFile);
-
   // Resolve includes before changing directory.
   var resolvedIncludes = includes.map(function(include) {
     return path.resolve(include);
@@ -73,7 +72,7 @@ function compileToSingleFile(outputFile, includes, useSourceMaps) {
     return normalizePath(path.relative(outputDir, include));
   });
 
-  inlineAndCompile(resolvedIncludes, {}, reporter, function(tree) {
+  inlineAndCompile(resolvedIncludes, traceur.options, reporter, function(tree) {
     writeTreeToFile(tree, resolvedOutputFile, useSourceMaps);
     process.exit(0);
   }, function(err) {
@@ -91,7 +90,8 @@ function compileToDirectory(outputFile, includes, useSourceMaps) {
     if (current === includes.length)
       process.exit(0);
 
-    inlineAndCompile(includes.slice(current, current + 1), {}, reporter,
+    inlineAndCompile(includes.slice(current, current + 1), traceur.options,
+        reporter,
         function(tree) {
           var outputFile = path.join(outputDir, includes[current]);
           var sourceRoot = path.relative(path.dirname(outputFile), '.');

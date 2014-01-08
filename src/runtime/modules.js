@@ -39,23 +39,16 @@
   }
 
   class UncoatedModuleInstantiator extends UncoatedModuleEntry {
-    constructor(url, func, self) {
+    constructor(url, func) {
       super(url, null);
       this.func = func;
-      this.self = self;
     }
 
     getUncoatedModule() {
       if (this.value_)
         return this.value_;
-      return this.value_ = this.func.call(this.self);
+      return this.value_ = this.func.call(global);
     }
-  }
-
-  function registerModule(name, func, self) {
-    var normalizedName = System.normalize(name);
-    moduleInstantiators[normalizedName] =
-        new UncoatedModuleInstantiator(normalizedName, func, self);
   }
 
   function getUncoatedModuleInstantiator(name) {
@@ -98,13 +91,6 @@
   }
 
   var System = {
-    get baseURL() {
-      return baseURL;
-    },
-
-    set baseURL(v) {
-      baseURL = String(v);
-    },
 
     normalize(name, refererName, refererAddress) {
       if (typeof name !== "string")
@@ -120,6 +106,7 @@
     },
 
     get(name) {
+
       var m = getUncoatedModuleInstantiator(name);
       if (!m)
         return undefined;
@@ -134,7 +121,24 @@
     set(name, uncoatedModule) {
       name = String(name);
       moduleInstantiators[name] = new UncoatedModuleEntry(name, uncoatedModule);
+    },
+
+    // -- Non standard extensions to System.
+
+    get baseURL() {
+      return baseURL;
+    },
+
+    set baseURL(v) {
+      baseURL = String(v);
+    },
+
+    registerModule(name, func) {
+      var normalizedName = System.normalize(name);
+      moduleInstantiators[normalizedName] =
+          new UncoatedModuleInstantiator(normalizedName, func);
     }
+
   };
 
   // Override setupGlobals so that System is added to future globals.
@@ -144,9 +148,10 @@
   };
   global.System = System;
 
-  $traceurRuntime.registerModule = registerModule;
+  $traceurRuntime.registerModule = System.registerModule;
   $traceurRuntime.getModuleImpl = function(name) {
-    return getUncoatedModuleInstantiator(name).getUncoatedModule();
+    var instantiator = getUncoatedModuleInstantiator(name);
+    return instantiator && instantiator.getUncoatedModule();
   };
 
 })(typeof global !== 'undefined' ? global : this);

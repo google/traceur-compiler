@@ -29,6 +29,8 @@ flags.setMaxListeners(100);
 var traceur = require('./traceur.js');
 
 flags.option('--out <FILE>', 'Compile all input files into a single file');
+flags.option('--referrer <name>',
+    'Prefix compiled code with System.referrName');
 
 flags.option('--sourcemap', 'Generate source maps');
 flags.on('sourcemap', function() {
@@ -104,7 +106,6 @@ function processArguments(argv) {
     if (option) {
       if (arg === '--out')
         interpretMode = false;
-
       if (option.required)
         i++;
       else if (option.optional) {
@@ -137,7 +138,6 @@ function processArguments(argv) {
 
 var argv = processArguments(process.argv);
 flags.parse(argv);
-
 var includes = flags.args;
 
 if (!includes.length) {

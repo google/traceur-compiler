@@ -30,6 +30,8 @@ var ModuleAnalyzer = traceur.semantics.ModuleAnalyzer;
 /**
  * @param {ErrorReporter} reporter
  * @param {Array.<ParseTree>} elements
+ * @param {string|undefined} referrer second argument to System.normalize()
+ *     in generated calls to System.registerModule.
  * @param {string|undefined} depTarget A valid depTarget means dependency
  *     printing was requested.
  */
@@ -54,6 +56,7 @@ InlineLoaderHooks.prototype = {
     var tree = codeUnit.data.transformedTree;
     this.elements.push.apply(this.elements, tree.scriptItemList);
   },
+
 };
 
 function allLoaded(url, reporter, elements) {
@@ -79,6 +82,7 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
   // The caller needs to do a chdir.
   var basePath = './';
   var depTarget = options && options.depTarget;
+  System.referrerName = options && options.referrer;
 
   var loadCount = 0;
   var elements = [];

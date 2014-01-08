@@ -144,6 +144,13 @@ function addOptions(flags) {
       flags.on(dashedName, () => setOption(dashedName, true));
     }
   });
+  flags.option('--referrer <name>',
+    'Bracket output code with System.referrerName=<name>',
+    (name) => {
+      setOption('referrer', name);
+      return name;
+    });
+  options.referrer = './';
 }
 
 /**
@@ -267,7 +274,6 @@ addFeatureOption('blockBinding', EXPERIMENTAL);       // 12.1
 addFeatureOption('symbols', EXPERIMENTAL);
 addFeatureOption('deferredFunctions', EXPERIMENTAL);
 addFeatureOption('types', EXPERIMENTAL);
-
 
 addBoolOption('debug');
 addBoolOption('sourceMaps');
