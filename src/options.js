@@ -144,6 +144,12 @@ function addOptions(flags) {
       flags.on(dashedName, () => setOption(dashedName, true));
     }
   });
+  flags.option('--referrer <name>',
+    'Bracket output code with System.referrerName=<name>',
+    (name) => {
+      setOption('referrer', name);
+      return name;
+    });
 }
 
 /**
@@ -268,7 +274,6 @@ addFeatureOption('symbols', EXPERIMENTAL);
 addFeatureOption('deferredFunctions', EXPERIMENTAL);
 addFeatureOption('types', EXPERIMENTAL);
 
-
 addBoolOption('debug');
 addBoolOption('sourceMaps');
 addBoolOption('freeVariableChecker');
@@ -276,3 +281,6 @@ addBoolOption('validate');
 addBoolOption('strictSemicolons');
 addBoolOption('unstarredGenerators');
 addBoolOption('ignoreNolint');
+
+defaultValues.referrer = '';
+options.referrer = './';
