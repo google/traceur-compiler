@@ -11013,25 +11013,17 @@ System.registerModule("../src/syntax/Parser", function() {
       return this.parseFallThroughStatement_(allowScriptItem);
     },
     parseFunctionDeclaration_: function() {
-      var start = this.getTreeStartLocation_();
-      this.nextToken_();
-      var isGenerator = parseOptions.generators && this.eatIf_(STAR);
-      return this.parseFunctionDeclarationTail_(start, isGenerator, this.parseBindingIdentifier_());
-    },
-    parseFunctionDeclarationTail_: function(start, isGenerator, name) {
-      this.eat_(OPEN_PAREN);
-      var formalParameterList = this.parseFormalParameterList_();
-      this.eat_(CLOSE_PAREN);
-      var typeAnnotation = this.parseTypeAnnotationOpt_();
-      var functionBody = this.parseFunctionBody_(isGenerator, formalParameterList);
-      return new FunctionDeclaration(this.getTreeLocation_(start), name, isGenerator, formalParameterList, typeAnnotation, functionBody);
+      return this.parseFuntion_(FunctionDeclaration);
     },
     parseFunctionExpression_: function() {
+      return this.parseFuntion_(FunctionExpression);
+    },
+    parseFuntion_: function(ctor) {
       var start = this.getTreeStartLocation_();
-      this.nextToken_();
+      this.eat_(FUNCTION);
       var isGenerator = parseOptions.generators && this.eatIf_(STAR);
       var name = null;
-      if (this.peekBindingIdentifier_(this.peekType_())) {
+      if (ctor === FunctionDeclaration || this.peekBindingIdentifier_(this.peekType_())) {
         name = this.parseBindingIdentifier_();
       }
       this.eat_(OPEN_PAREN);
@@ -11039,7 +11031,7 @@ System.registerModule("../src/syntax/Parser", function() {
       this.eat_(CLOSE_PAREN);
       var typeAnnotation = this.parseTypeAnnotationOpt_();
       var functionBody = this.parseFunctionBody_(isGenerator, formalParameterList);
-      return new FunctionExpression(this.getTreeLocation_(start), name, isGenerator, formalParameterList, typeAnnotation, functionBody);
+      return new ctor(this.getTreeLocation_(start), name, isGenerator, formalParameterList, typeAnnotation, functionBody);
     },
     peekRest_: function(type) {
       return type === DOT_DOT_DOT && parseOptions.restParameters;
