@@ -281,5 +281,5 @@ addBoolOption('validate');
 addBoolOption('unstarredGenerators');
 
 defaultValues.referrer = '';
-options.referrer = './';
+options.referrer = null;
 

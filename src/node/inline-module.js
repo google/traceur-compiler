@@ -81,6 +81,11 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
   var basePath = './';
   var depTarget = options && options.depTarget;
   var referrerName = options && options.referrer;
+  if (referrerName) {
+    // The compile occurs two directories down from root.
+    referrerName = referrerName && referrerName + 'src/node';
+    basePath = path.join(__dirname, '../../');
+  }
 
   var loadCount = 0;
   var elements = [];

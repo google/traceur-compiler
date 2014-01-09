@@ -131,14 +131,14 @@ concat: bin/traceur-runtime.js bin/traceur-bare.js
 
 bin/traceur.js: build/compiled-by-previous-traceur.js $(SRC_NODE)
 	@cp $< $@; touch -t 197001010000.00 bin/traceur.js
-	./traceur --out bin/traceur.js $(TFLAGS) $(SRC)
+	./traceur --out bin/traceur.js --referrer='traceur@0.0.Y/' $(TFLAGS) $(SRC)
 
 # Use last-known-good compiler to compile current source
 build/compiled-by-previous-traceur.js: \
 	  $(subst src/node,build/node,$(SRC_NODE)) \
 	  build/previous-commit-traceur.js $(SRC_ALL)  | $(GENSRC) node_modules
 	@cp build/previous-commit-traceur.js bin/traceur.js
-	./traceur-build --debug --out $@ $(TFLAGS) $(SRC) # Build with last-good node compiler front.
+	./traceur-build --debug --out $@  $(TFLAGS) $(SRC)
 
 build/node/%: src/node/%
 	@mkdir -p build/node
