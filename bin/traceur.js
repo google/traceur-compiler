@@ -20174,9 +20174,9 @@ System.registerModule("../src/runtime/Loader", function() {
   };
   Loader = ($traceurRuntime.createClass)(Loader, {
     import: function(name) {
-      var $__296 = arguments[1] !== (void 0) ? arguments[1]: {},
-          referrerName = $__296.referrerName,
-          address = $__296.address;
+      var $__303 = arguments[1] !== (void 0) ? arguments[1]: {},
+          referrerName = $__303.referrerName,
+          address = $__303.address;
       var callback = arguments[2] !== (void 0) ? arguments[2]: (function(module) {});
       var errback = arguments[3] !== (void 0) ? arguments[3]: (function(ex) {
         throw ex;
@@ -20187,9 +20187,9 @@ System.registerModule("../src/runtime/Loader", function() {
       }, errback);
     },
     module: function(source, name) {
-      var $__296 = arguments[2] !== (void 0) ? arguments[2]: {},
-          referrerName = $__296.referrerName,
-          address = $__296.address;
+      var $__303 = arguments[2] !== (void 0) ? arguments[2]: {},
+          referrerName = $__303.referrerName,
+          address = $__303.address;
       var callback = arguments[3] !== (void 0) ? arguments[3]: (function(module) {});
       var errback = arguments[4] !== (void 0) ? arguments[4]: (function(ex) {
         throw ex;
@@ -20199,9 +20199,9 @@ System.registerModule("../src/runtime/Loader", function() {
       this.internalLoader_.handleCodeUnitLoaded(codeUnit);
     },
     loadAsScript: function(name) {
-      var $__296 = arguments[1] !== (void 0) ? arguments[1]: {},
-          referrerName = $__296.referrerName,
-          address = $__296.address;
+      var $__303 = arguments[1] !== (void 0) ? arguments[1]: {},
+          referrerName = $__303.referrerName,
+          address = $__303.address;
       var callback = arguments[2] !== (void 0) ? arguments[2]: (function(result) {});
       var errback = arguments[3] !== (void 0) ? arguments[3]: (function(ex) {
         throw ex;
@@ -20212,9 +20212,9 @@ System.registerModule("../src/runtime/Loader", function() {
       }, errback);
     },
     script: function(source, name) {
-      var $__296 = arguments[2] !== (void 0) ? arguments[2]: {},
-          referrerName = $__296.referrerName,
-          address = $__296.address;
+      var $__303 = arguments[2] !== (void 0) ? arguments[2]: {},
+          referrerName = $__303.referrerName,
+          address = $__303.address;
       var callback = arguments[3] !== (void 0) ? arguments[3]: (function(result) {});
       var errback = arguments[4] !== (void 0) ? arguments[4]: (function(ex) {
         throw ex;

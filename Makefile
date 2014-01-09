@@ -17,6 +17,7 @@ GENSRC = \
 TPL_GENSRC_DEPS = $(addsuffix -template.js.dep, $(TPL_GENSRC))
 
 SRC_NODE = $(wildcard src/node/*.js)
+SRC_ALL = $(wildcard src/**/*.js)
 
 TFLAGS = --
 
@@ -101,7 +102,6 @@ boot: clean build
 clean: wikiclean
 	@rm -f build/compiled-by-previous-traceur.js
 	@rm -f build/previous-commit-traceur.js
-	@rm -f build/dep.mk
 	@rm -rf build/node
 	@rm -f $(GENSRC) $(TPL_GENSRC_DEPS)
 	@rm -f $(COMPILE_BEFORE_TEST)
@@ -136,9 +136,8 @@ bin/traceur.js: build/compiled-by-previous-traceur.js $(SRC_NODE)
 # Use last-known-good compiler to compile current source
 build/compiled-by-previous-traceur.js: \
 	  $(subst src/node,build/node,$(SRC_NODE)) \
-	  build/previous-commit-traceur.js $(SRC)  | $(GENSRC) node_modules
+	  build/previous-commit-traceur.js $(SRC_ALL)  | $(GENSRC) node_modules
 	@cp build/previous-commit-traceur.js bin/traceur.js
-	node build/makedep.js --depTarget build/compiled-by-previous-traceur.js $(TFLAGS) $(SRC) > build/dep.mk
 	./traceur-build --debug --out $@ $(TFLAGS) $(SRC) # Build with last-good node compiler front.
 
 build/node/%: src/node/%
@@ -153,9 +152,6 @@ debug: build/compiled-by-previous-traceur.js $(SRC)
 
 self: build/previous-commit-traceur.js force
 	./traceur-build --debug --out bin/traceur.js $(TFLAGS) $(SRC)
-
-# Do not rebuild dep.mk before including it.
-build/dep.mk: ;
 
 $(TPL_GENSRC_DEPS): | node_modules
 
@@ -213,6 +209,5 @@ test/wiki/CompilingOffline/out/greeter.js: test/wiki/CompilingOffline/greeter.js
 
 .PHONY: build min test test-list force boot clean distclean unicode-tables prepublish
 
--include build/dep.mk
 -include $(TPL_GENSRC_DEPS)
 -include build/local.mk
