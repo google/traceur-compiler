@@ -39,28 +39,22 @@
   }
 
   class UncoatedModuleInstantiator extends UncoatedModuleEntry {
-    constructor(url, func, self) {
+    constructor(url, func) {
       super(url, null);
       this.func = func;
-      this.self = self;
     }
 
     getUncoatedModule() {
       if (this.value_)
         return this.value_;
-      return this.value_ = this.func.call(this.self);
+      return this.value_ = this.func.call(global);
     }
-  }
-
-  function registerModule(url, func, self) {
-    url = System.normalResolve(url);
-    moduleInstantiators[url] = new UncoatedModuleInstantiator(url, func, self);
   }
 
   function getUncoatedModuleInstantiator(name) {
     if (!name)
       return;
-    var url = System.normalResolve(name);
+    var url = System.normalize(name);
     return moduleInstantiators[url];
   };
 
@@ -97,13 +91,6 @@
   }
 
   var System = {
-    get baseURL() {
-      return baseURL;
-    },
-
-    set baseURL(v) {
-      baseURL = String(v);
-    },
 
     normalize(name, refererName, refererAddress) {
       if (typeof name !== "string")
@@ -118,39 +105,8 @@
       return canonicalizeUrl(name);
     },
 
-    locate(load) {
-      var normalizedModuleName = load.name;
-      if (isAbsolute(normalizedModuleName))
-        return normalizedModuleName;
-      var asJS = normalizedModuleName + '.js';
-      // ----- Hack for self-hosting compiler -----
-      if (/\.js$/.test(normalizedModuleName))
-        asJS = normalizedModuleName;
-      // ------------------------------------------
-      var baseURL = load.metadata && load.metadata.baseURL;
-      if (baseURL)
-        return resolveUrl(baseURL, asJS);
-      return asJS;
-    },
-
-    // Non-standard API, remove see issue #393
-    normalResolve(name, refererName) {
-      var options = {
-        baseURL: baseURL
-      };
-      if (isAbsolute(refererName)) {
-        options.baseURL = refererName;
-        refererName = undefined;
-      }
-
-      var load = {
-        name: System.normalize(name, refererName),
-        metadata: options
-      }
-      return System.locate(load);
-    },
-
     get(name) {
+
       var m = getUncoatedModuleInstantiator(name);
       if (!m)
         return undefined;
@@ -165,7 +121,24 @@
     set(name, uncoatedModule) {
       name = String(name);
       moduleInstantiators[name] = new UncoatedModuleEntry(name, uncoatedModule);
+    },
+
+    get baseURL() {
+      return baseURL;
+    },
+
+    set baseURL(v) {
+      baseURL = String(v);
+    },
+
+    // -- Non standard extensions to System.
+
+    registerModule(name, func) {
+      var normalizedName = System.normalize(name);
+      moduleInstantiators[normalizedName] =
+          new UncoatedModuleInstantiator(normalizedName, func);
     }
+
   };
 
   // Override setupGlobals so that System is added to future globals.
@@ -175,9 +148,9 @@
   };
   global.System = System;
 
-  $traceurRuntime.registerModule = registerModule;
   $traceurRuntime.getModuleImpl = function(name) {
-    return getUncoatedModuleInstantiator(name).getUncoatedModule();
+    var instantiator = getUncoatedModuleInstantiator(name);
+    return instantiator && instantiator.getUncoatedModule();
   };
 
 })(typeof global !== 'undefined' ? global : this);

@@ -1,10 +1,16 @@
 suite('AmdTransformer.js', function() {
+  var ParseTreeFactory = traceur.codegeneration.ParseTreeFactory;
   var write = traceur.outputgeneration.TreeWriter.write;
   var transformer = null
 
   setup(function() {
     transformer = new traceur.codegeneration.AmdTransformer();
   });
+
+  function str(s) {
+    return ParseTreeFactory.createExpressionStatement(
+        ParseTreeFactory.createStringLiteral(s));
+  }
 
   suite('wrapModule', function() {
     function writeArray(arr) {
@@ -22,7 +28,7 @@ suite('AmdTransformer.js', function() {
     test('with no dependencies', function() {
       assertEqualIgnoringWhiteSpaces(
           'define([], function() {"CODE";});',
-          writeArray(transformer.wrapModule('CODE')));
+          writeArray(transformer.wrapModule([str('CODE')])));
     });
 
     test('with dependencies', function() {
@@ -31,7 +37,7 @@ suite('AmdTransformer.js', function() {
 
       assertEqualIgnoringWhiteSpaces(
           'define(["./foo", "./bar"], function(__dep0, __dep1) {"CODE";});',
-          writeArray(transformer.wrapModule('CODE')));
+          writeArray(transformer.wrapModule([str('CODE')])));
     });
   });
 

@@ -15,7 +15,7 @@
 suite('modules.js', function() {
 
   var MutedErrorReporter =
-      System.get('../src/util/MutedErrorReporter.js').MutedErrorReporter;
+      System.get('../src/util/MutedErrorReporter').MutedErrorReporter;
 
   var reporter, baseURL;
 
@@ -41,16 +41,35 @@ suite('modules.js', function() {
                                   'unit/runtime/modules.js');
   }
 
-  function getLoader(opt_reporter) {
+  function getLoaderHooks(opt_reporter) {
     var LoaderHooks = traceur.modules.LoaderHooks;
     opt_reporter = opt_reporter || reporter;
-    var loaderHooks = new LoaderHooks(opt_reporter, url, null, loader);
-    return new traceur.modules.Loader(loaderHooks);
+    return new LoaderHooks(opt_reporter, url, null, loader);
   }
 
-  test('LoaderEval', function() {
-    var result = getLoader().script('(function(x = 42) { return x; })()');
-    assert.equal(42, result);
+  function getLoader(opt_reporter) {
+    return new traceur.modules.Loader(getLoaderHooks(opt_reporter));
+  }
+
+  test('LoaderHooks.locate', function() {
+    var loaderHooks = getLoaderHooks();
+    var load = {
+      metadata: {
+        baseURL: 'http://example.org/a/'
+      }
+    }
+    load.name = '@abc/def';
+    assert.equal(loaderHooks.locate(load), 'http://example.org/a/@abc/def.js');
+    load.name = 'abc/def';
+    assert.equal(loaderHooks.locate(load), 'http://example.org/a/abc/def.js');
+  });
+
+  test('LoaderEval', function(done) {
+    getLoader().script('(function(x = 42) { return x; })()', './LoaderEval', {},
+      function(result) {
+        assert.equal(42, result);
+        done();
+      });
   });
 
   test('LoaderModule', function(done) {
@@ -61,16 +80,17 @@ suite('modules.js', function() {
         '\n' +
         '[\'test\', a.name, b.name, c.name];\n';
 
-    var result = getLoader().module(code, {}, function(value) {
-      assert.equal('test', value[0]);
-      assert.equal('A', value[1]);
-      assert.equal('B', value[2]);
-      assert.equal('C', value[3]);
-      done();
-    }, function(error) {
-      fail(error);
-      done();
-    });
+    var result = getLoader().module(code, './LoaderModule', {},
+      function(value) {
+        assert.equal('test', value[0]);
+        assert.equal('A', value[1]);
+        assert.equal('B', value[2]);
+        assert.equal('C', value[3]);
+        done();
+      }, function(error) {
+        fail(error);
+        done();
+      });
   });
 
   test('LoaderModuleWithSubdir', function(done) {
@@ -79,14 +99,15 @@ suite('modules.js', function() {
         '\n' +
         '[d.name, d.e.name];\n';
 
-    var result = getLoader().module(code, {}, function(value) {
-      assert.equal('D', value[0]);
-      assert.equal('E', value[1]);
-      done();
-    }, function(error) {
-      fail(error);
-      done();
-    });
+    var result = getLoader().module(code, 'LoaderModuleWithSubdir', {},
+      function(value) {
+        assert.equal('D', value[0]);
+        assert.equal('E', value[1]);
+        done();
+      }, function(error) {
+        fail(error);
+        done();
+      });
   });
 
   test('LoaderModuleFail', function(done) {
@@ -99,20 +120,21 @@ suite('modules.js', function() {
 
     var reporter = new MutedErrorReporter();
 
-    var result = getLoader(reporter).module(code, {}, function(value) {
-      fail('Should not have succeeded');
-      done();
-    }, function(error) {
-      // We should probably get some meaningful error here.
+    var result = getLoader(reporter).module(code, 'LoaderModuleFail', {},
+      function(value) {
+        fail('Should not have succeeded');
+        done();
+      }, function(error) {
+        // We should probably get some meaningful error here.
 
-      //assert.isTrue(reporter.hadError());
-      assert.isTrue(true);
-      done();
-    });
+        //assert.isTrue(reporter.hadError());
+        assert.isTrue(true);
+        done();
+      });
   });
 
   test('LoaderLoad', function(done) {
-    getLoader().loadAsScript('./test_script.js', function(result) {
+    getLoader().loadAsScript('./test_script.js', {}, function(result) {
       assert.equal('A', result[0]);
       assert.equal('B', result[1]);
       assert.equal('C', result[2]);
@@ -123,8 +145,22 @@ suite('modules.js', function() {
     });
   });
 
+  test('LoaderLoadWithReferrer', function(done) {
+    getLoader().loadAsScript('../test_script.js',
+      {referrerName: 'traceur@0.0.1/bin'},
+      function(result) {
+        assert.equal('A', result[0]);
+        assert.equal('B', result[1]);
+        assert.equal('C', result[2]);
+        done();
+      }, function(error) {
+        fail(error);
+        done();
+      });
+  });
+
   test('LoaderImport', function(done) {
-    getLoader().import('./test_module.js', function(mod) {
+    getLoader().import('./test_module.js', {}, function(mod) {
       assert.equal('test', mod.name);
       assert.equal('A', mod.a);
       assert.equal('B', mod.b);
@@ -136,4 +172,18 @@ suite('modules.js', function() {
     });
   });
 
+  test('LoaderImportWithReferrer', function(done) {
+    getLoader().import('../test_module.js',
+      {referrerName: 'traceur@0.0.1/bin'},
+      function(mod) {
+        assert.equal('test', mod.name);
+        assert.equal('A', mod.a);
+        assert.equal('B', mod.b);
+        assert.equal('C', mod.c);
+        done();
+      }, function(error) {
+        fail(error);
+        done();
+      });
+  });
 });

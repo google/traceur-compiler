@@ -23,7 +23,7 @@
     "traceur": "./traceur"
   },
   "scripts": {
-    "prepublish": "if [ -z \"$NO_PREPUBLISH\" ]; then make prepublish; fi",
+    "prepublish": "node build/prepublish.js",
     "test": "make test"
   },
   "homepage": "https://github.com/google/traceur-compiler",

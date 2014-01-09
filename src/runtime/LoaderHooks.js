@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {
-  AttachUrlTransformer
-} from '../codegeneration/module/AttachUrlTransformer';
+  AttachModuleNameTransformer
+} from '../codegeneration/module/AttachModuleNameTransformer';
 import {FromOptionsTransformer} from '../codegeneration/FromOptionsTransformer';
 import {ModuleAnalyzer} from '../semantics/ModuleAnalyzer';
 import {ModuleSpecifierVisitor} from
@@ -25,6 +25,7 @@ import {SourceFile} from '../syntax/SourceFile';
 import {TreeWriter} from '../outputgeneration/TreeWriter';
 import {UniqueIdentifierGenerator} from
     '../codegeneration/UniqueIdentifierGenerator';
+import {isAbsolute, resolveUrl} from '../util/url';
 import {webLoader} from './webLoader';
 
 
@@ -72,8 +73,10 @@ export class LoaderHooks {
   parse(codeUnit) {
     assert(!codeUnit.data.tree);
     var reporter = this.reporter;
-    var url = codeUnit.url;
+    var normalizedName = codeUnit.name;
     var program = codeUnit.text;
+    // For error reporting, prefer loader URL, fallback if we did not load text.
+    var url = codeUnit.url || normalizedName;
     var file = new SourceFile(url, program);
     var parser = new Parser(reporter, file);
     if (codeUnit.type == 'module')
@@ -81,13 +84,14 @@ export class LoaderHooks {
     else
       codeUnit.data.tree = parser.parseScript();
 
-    codeUnit.data.moduleSymbol = new ModuleSymbol(codeUnit.data.tree, url);
+    codeUnit.data.moduleSymbol =
+      new ModuleSymbol(codeUnit.data.tree, normalizedName);
 
     return !reporter.hadError();
   }
 
   transform(codeUnit) {
-    var transformer = new AttachUrlTransformer(codeUnit.url);
+    var transformer = new AttachModuleNameTransformer(codeUnit.name);
     var transformedTree = transformer.transformAny(codeUnit.data.tree);
     transformer = new FromOptionsTransformer(this.reporter,
         identifierGenerator);
@@ -101,6 +105,31 @@ export class LoaderHooks {
 
   instantiate({name, metadata, address, source, sourceMap}) {
     return undefined;
+  }
+
+  locate(load) {
+    load.url = this.locate_(load);
+    return load.url;
+  }
+
+  locate_(load) {
+    var normalizedModuleName = load.name;
+    var asJS = normalizedModuleName + '.js';
+    // Tolerate .js endings
+    if (/\.js$/.test(normalizedModuleName))
+      asJS = normalizedModuleName;
+    if (System.referrerName) {
+      if (asJS.indexOf(System.referrerName) === 0) {
+        asJS = asJS.substring(System.referrerName.length);
+      }
+    }
+    if (isAbsolute(asJS))
+      return asJS;
+    var baseURL = load.metadata && load.metadata.baseURL;
+    baseURL = baseURL || this.rootUrl();
+    if (baseURL)
+      return resolveUrl(baseURL, asJS);
+    return asJS;
   }
 
   evaluateCodeUnit(codeUnit) {

@@ -15,7 +15,7 @@
 suite('ErrorReporter.js', function() {
 
   var MutedErrorReporter =
-      System.get('../src/util/MutedErrorReporter.js').MutedErrorReporter;
+      System.get('../src/util/MutedErrorReporter').MutedErrorReporter;
 
   var originalConsoleError = console.error;
   var args;

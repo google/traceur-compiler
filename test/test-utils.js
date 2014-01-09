@@ -56,7 +56,7 @@
       } else if ((m = /\/\/ Error:\s*(.+)/.exec(line))) {
         var errLine = m[1];
         var resolvedError = errLine.replace(reDirectoryResources, function(match, p1) {
-          return '\'' + System.normalResolve(p1) + '\'';
+          return '\'' + System.normalize(p1) + '\'';
         });
         returnValue.expectedErrors.push(resolvedError);
       }
@@ -186,9 +186,9 @@
       }
 
       if (/\.module\.js$/.test(url))
-        moduleLoader.import(url, handleSuccess, handleFailure);
+        moduleLoader.import(url, {}, handleSuccess, handleFailure);
       else
-        moduleLoader.loadAsScript(url, handleSuccess, handleFailure);
+        moduleLoader.loadAsScript(url, {}, handleSuccess, handleFailure);
     });
   }
 

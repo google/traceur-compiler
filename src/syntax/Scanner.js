@@ -614,12 +614,10 @@ function skipComment() {
 }
 
 function skipSingleLineComment() {
-  var start = index;
   // skip '//'
   index += 2;
   while (!isAtEnd() && !isLineTerminator(input.charCodeAt(index++))) {}
   updateCurrentCharCode();
-  currentParser.handleSingleLineComment(input, start, index - 1);
 }
 
 function skipMultiLineComment() {

@@ -32,7 +32,6 @@ import {assert} from '../util/assert';
 import {
   createArgumentList,
   createBindingIdentifier,
-  createEmptyStatement,
   createExpressionStatement,
   createIdentifierExpression,
   createIdentifierToken,
@@ -56,7 +55,7 @@ export class ModuleTransformer extends TempVarTransformer {
     super(identifierGenerator);
     this.exportVisitor_ = new DirectExportVisitor();
     this.moduleSpecifierKind_ = null;
-    this.url = null;
+    this.moduleName = null;
   }
 
   getTempVarNameForModuleSpecifier(moduleSpecifier) {
@@ -67,12 +66,12 @@ export class ModuleTransformer extends TempVarTransformer {
   }
 
   transformScript(tree) {
-    this.url = tree.url;
+    this.moduleName = tree.moduleName;
     return super.transformScript(tree);
   }
 
   transformModule(tree) {
-    this.url = tree.url;
+    this.moduleName = tree.moduleName;
 
     this.pushTempVarState();
 
@@ -91,9 +90,11 @@ export class ModuleTransformer extends TempVarTransformer {
 
   wrapModule(statements) {
     return parseStatements
-        `$traceurRuntime.registerModule(${this.url}, function() {
-          ${statements}
-        }, typeof global !== 'undefined' ? global : this);`;
+        `System.registerModule(${this.moduleName},
+            function() {
+              ${statements}
+            }
+        );`;
   }
 
   /**
@@ -146,6 +147,13 @@ export class ModuleTransformer extends TempVarTransformer {
     return parseStatement `return ${object}`;
   }
 
+  /**
+   * @return {boolean}
+   */
+  hasExports() {
+    return this.exportVisitor_.hasExports();
+  }
+
   transformExportDeclaration(tree) {
     this.exportVisitor_.visitAny(tree);
     return this.transformAny(tree.declaration);
@@ -172,15 +180,13 @@ export class ModuleTransformer extends TempVarTransformer {
    * @return {ParseTree}
    */
   transformModuleSpecifier(tree) {
-    assert(this.url);
+    assert(this.moduleName);
     var name = tree.token.processedValue;
     // import/module {x} from 'name' is relative to the current file.
-    // TODO(arv): We should resolve this relative to the name of current module.
-    var url = System.normalResolve(name, this.url);
-
+    var normalizedName = System.normalize(name, this.moduleName);
     if (this.moduleSpecifierKind_ === 'module')
-      return parseExpression `System.get(${url})`;
-    return parseExpression `$traceurRuntime.getModuleImpl(${url})`;
+      return parseExpression `System.get(${normalizedName})`;
+    return parseExpression `$traceurRuntime.getModuleImpl(${normalizedName})`;
   }
 
   /**
@@ -213,10 +219,10 @@ export class ModuleTransformer extends TempVarTransformer {
     //
     // import 'module'
     //  =>
-    // ;
+    // moduleInstance;
     this.moduleSpecifierKind_ = 'import';
     if (!tree.importClause)
-      return createEmptyStatement();
+      return createExpressionStatement(this.transformAny(tree.moduleSpecifier));
 
     var binding = this.transformAny(tree.importClause);
     var initialiser = this.transformAny(tree.moduleSpecifier);

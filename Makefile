@@ -17,14 +17,7 @@ GENSRC = \
   src/syntax/ParseTreeVisitor.js
 TPL_GENSRC_DEPS = $(addsuffix -template.js.dep, $(TPL_GENSRC))
 
-SRC_NODE = \
-	src/node/command.js \
-	src/node/compiler.js \
-	src/node/deferred.js \
-	src/node/file-util.js \
-	src/node/inline-module.js \
-	src/node/nodeLoader.js \
-	src/node/traceur.js
+SRC_NODE = $(wildcard src/node/*.js)
 
 TFLAGS = --
 
@@ -68,11 +61,14 @@ test-runtime: bin/traceur-runtime.js $(RUNTIME_TESTS)
 	@echo 'Open test/runtime.html to test runtime only'
 
 test: test/test-list.js bin/traceur.js $(COMPILE_BEFORE_TEST) bin/traceur-runtime.js \
-	wiki test/amd-compiled test/commonjs-compiled
+	wiki test/amd-compiled test/commonjs-compiled test-interpret
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(TESTS)
 
 test/unit: bin/traceur.js bin/traceur-runtime.js
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(UNIT_TESTS)
+
+test/unit/%-run: test/unit/% bin/traceur.js bin/traceur-runtime.js
+	node_modules/.bin/mocha $(MOCHA_OPTIONS) $<
 
 test/commonjs: test/commonjs-compiled
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) test/node-commonjs-test.js
@@ -88,7 +84,10 @@ test-list: test/test-list.js
 test/test-list.js: force
 	@git ls-files -o -c test/feature | node build/build-test-list.js > $@
 
-# TODO(vojta): Trick make to only compile when necesarry.
+test-interpret: test/unit/runtime/test_interpret.js
+	./traceur $^
+
+# TODO(vojta): Trick make to only compile when necessary.
 test/commonjs-compiled: force
 	node src/node/to-commonjs-compiler.js test/commonjs test/commonjs-compiled
 
@@ -144,18 +143,11 @@ build/compiled-by-previous-traceur.js: \
 	./traceur-build --debug --out $@ $(TFLAGS) $(SRC) # Build with last-good node compiler front.
 
 build/node/%: src/node/%
-	mkdir -p build/node-save build/node
-	cp src/node/* build/node-save # Save in case of src diffs.
-	git checkout -- src/node      # Over-write with last-good node compiler front.
-	cp src/node/* build/node       # Store for traceur-build
-	mv build/node-save/* src/node # restore
-	rmdir build/node-save
+	@mkdir -p build/node
+	git show HEAD:$< > $@
 
 build/previous-commit-traceur.js:
-	mv bin/traceur.js build/traceur.js
-	git checkout -- bin/traceur.js
-	mv bin/traceur.js build/previous-commit-traceur.js
-	mv build/traceur.js bin/traceur.js
+	git show HEAD:bin/traceur.js > $@
 
 debug: build/compiled-by-previous-traceur.js $(SRC)
 	./traceur --debug --out bin/traceur.js --sourcemap $(TFLAGS) $(SRC)
@@ -189,7 +181,7 @@ unicode-tables: \
 	node $^ > src/syntax/unicode-tables.js
 
 %.js: %.js-template.js
-	node build/expand-js-template.js --nolint=^node_modules $< $@
+	node build/expand-js-template.js $< $@
 
 %.js-template.js.dep: | %.js-template.js
 	node build/expand-js-template.js --deps $| > $@

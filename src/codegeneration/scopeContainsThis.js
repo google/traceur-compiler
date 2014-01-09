@@ -1,4 +1,4 @@
-// Copyright 2011 Traceur Authors.
+// Copyright 2014 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,13 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-suite('ParseTreeValidator.js', function() {
+import {FindInFunctionScope} from './FindInFunctionScope'
 
-  var ParseTreeValidator =
-      System.get('../src/syntax/ParseTreeValidator').ParseTreeValidator;
+class FindThis extends FindInFunctionScope {
+  visitThisExpression(tree) {
+    this.found = true;
+  }
+}
 
-  test('Validate null', function() {
-    ParseTreeValidator.validate(null);
-  });
+function scopeContainsThis(tree) {
+  var visitor = new FindThis(tree);
+  return visitor.found;
+}
 
-});
+export default scopeContainsThis;

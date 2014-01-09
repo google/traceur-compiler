@@ -12,44 +12,40 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {FindInFunctionScope} from './FindInFunctionScope';
 import {ModuleTransformer} from './ModuleTransformer';
 import {RETURN_STATEMENT} from '../syntax/trees/ParseTreeType';
 import {assert} from '../util/assert';
+import globalThis from './globalThis';
 import {
   parseExpression,
   parseStatement,
   parseStatements
 } from './PlaceholderParser';
-
-class FindThis extends FindInFunctionScope {
-  visitThisExpression(tree) {
-    this.found = true;
-  }
-}
-
-function containsThis(tree) {
-  var visitor = new FindThis(tree);
-  return visitor.found;
-}
+import scopeContainsThis from './scopeContainsThis';
 
 export class CommonJsModuleTransformer extends ModuleTransformer {
 
   wrapModule(statements) {
-    var needsIife = statements.some(containsThis);
+    var needsIife = statements.some(scopeContainsThis);
 
     if (needsIife) {
       return parseStatements
           `module.exports = function() {
             ${statements}
-          }.call(typeof global !== 'undefined' ? global : this);`;
+          }.call(${globalThis()});`;
     }
 
     var last = statements[statements.length - 1];
     statements = statements.slice(0, -1);
     assert(last.type === RETURN_STATEMENT);
     var exportObject = last.expression;
-    statements.push(parseStatement `module.exports = ${exportObject};`);
+
+    // If the module doesn't use any export statements, nor global "this", it
+    // might be because it wants to make its own changes to "exports" or
+    // "module.exports", so we don't append "module.exports = {}" to the output.
+    if (this.hasExports()) {
+      statements.push(parseStatement `module.exports = ${exportObject};`);
+    }
     return statements;
   }
 

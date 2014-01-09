@@ -1,5 +1,4 @@
-
-// Copyright 2013 Traceur Authors.
+// Copyright 2014 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,32 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ParseTreeTransformer} from '../ParseTreeTransformer';
-import {
-  Module,
-  Script
-} from '../../syntax/trees/ParseTrees';
+import {parseExpression} from './PlaceholderParser'
 
+var expr;
 
-/**
- * Annotates a tree with its URL
- */
-
-export class AttachUrlTransformer extends ParseTreeTransformer {
-  /**
-   * @param {SourceFile} file
-   */
-  constructor(url) {
-    this.url_ = url;
-  }
-
-  transformModule(tree) {
-    return new Module(tree.location, tree.scriptItemList, this.url_);
-  }
-
-  transformScript(tree) {
-    return new Script(tree.location, tree.scriptItemList, this.url_);
-  }
+function globalThis() {
+  if (!expr)
+    expr = parseExpression `typeof global !== 'undefined' ? global : this`;
+  return expr;
 }
 
-
+export default globalThis;

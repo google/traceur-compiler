@@ -365,10 +365,6 @@ export class Parser {
      */
     this.strictMode_ = false;
 
-    this.noLint = false;
-    this.noLintChanged_ = false;
-    this.strictSemicolons_ = options.strictSemicolons;
-
     this.coverInitialisedName_ = null;
   }
 
@@ -833,29 +829,7 @@ export class Parser {
    * @private
    */
   parseFunctionDeclaration_() {
-    var start = this.getTreeStartLocation_();
-    this.nextToken_(); // function or #
-    var isGenerator = parseOptions.generators && this.eatIf_(STAR);
-    return this.parseFunctionDeclarationTail_(start, isGenerator,
-                                              this.parseBindingIdentifier_());
-  }
-
-  /**
-   * @param {SourcePosition} start
-   * @param {IdentifierToken} name
-   * @return {ParseTree}
-   * @private
-   */
-  parseFunctionDeclarationTail_(start, isGenerator, name) {
-    this.eat_(OPEN_PAREN);
-    var formalParameterList = this.parseFormalParameterList_();
-    this.eat_(CLOSE_PAREN);
-    var typeAnnotation = this.parseTypeAnnotationOpt_();
-    var functionBody = this.parseFunctionBody_(isGenerator,
-                                               formalParameterList);
-    return new FunctionDeclaration(this.getTreeLocation_(start), name,
-                                   isGenerator, formalParameterList, typeAnnotation,
-                                   functionBody);
+    return this.parseFuntion_(FunctionDeclaration);
   }
 
   /**
@@ -863,22 +837,27 @@ export class Parser {
    * @private
    */
   parseFunctionExpression_() {
+    return this.parseFuntion_(FunctionExpression);
+  }
+
+  parseFuntion_(ctor) {
     var start = this.getTreeStartLocation_();
-    this.nextToken_(); // function or #
+    this.eat_(FUNCTION);
     var isGenerator = parseOptions.generators && this.eatIf_(STAR);
     var name = null;
-    if (this.peekBindingIdentifier_(this.peekType_())) {
+    if (ctor === FunctionDeclaration ||
+        this.peekBindingIdentifier_(this.peekType_())) {
       name = this.parseBindingIdentifier_();
     }
+
     this.eat_(OPEN_PAREN);
     var formalParameterList = this.parseFormalParameterList_();
     this.eat_(CLOSE_PAREN);
     var typeAnnotation = this.parseTypeAnnotationOpt_();
     var functionBody = this.parseFunctionBody_(isGenerator,
                                                formalParameterList);
-    return new FunctionExpression(this.getTreeLocation_(start), name,
-                                  isGenerator, formalParameterList, typeAnnotation,
-                                  functionBody);
+    return new ctor(this.getTreeLocation_(start), name, isGenerator,
+                    formalParameterList, typeAnnotation, functionBody);
   }
 
   peekRest_(type) {
@@ -3603,34 +3582,24 @@ export class Parser {
   }
 
   /**
-   * Consume a (possibly implicit) semi-colon. Reports an error if a semi-colon is not present.
+   * Consume a (possibly implicit) semi-colon. Reports an error if a semi-colon
+   * is not present.
    *
    * @return {void}
    * @private
    */
   eatPossibleImplicitSemiColon_() {
-    var strictSemicolons = this.strictSemicolons_;
     var token = this.peekTokenNoLineTerminator_();
-    if (!token) {
-      // We delay changes in lint-nolint checking until the next token. This is
-      // needed to properly handle (or ignore) semicolon errors occurring at the
-      // boundary of a changeover.
-      if (this.noLintChanged_)
-        strictSemicolons = !strictSemicolons;
-      if (!strictSemicolons)
+    if (!token)
+      return;
+
+    switch (token.type) {
+      case SEMI_COLON:
+        this.nextToken_();
         return;
-    } else {
-      switch (token.type) {
-        case SEMI_COLON:
-          this.nextToken_();
-          return;
-        case END_OF_FILE:
-        case CLOSE_CURLY:
-          if (this.noLintChanged_)
-            strictSemicolons = !strictSemicolons;
-          if (!strictSemicolons)
-            return;
-      }
+      case END_OF_FILE:
+      case CLOSE_CURLY:
+        return;
     }
 
     this.reportError_('Semi-colon expected');
@@ -3799,24 +3768,6 @@ export class Parser {
     return new SourceRange(start, this.getTreeEndLocation_());
   }
 
-  handleSingleLineComment(input, start, end) {
-    // Check for '//:' and 'options.ignoreNolint' first so that we can
-    // immediately skip the expensive slice and regexp if it's not needed.
-    if (input.charCodeAt(start += 2) === 58 && !options.ignoreNolint) {
-      // We slice one more than the length of 'nolint' so that we can properly
-      // check for the presence or absence of a word boundary.
-      var text = input.slice(start + 1, start + 8);
-      if (text.search(/^(?:no)?lint\b/) === 0) {
-        var noLint = text[0] === 'n';
-        if (noLint !== this.noLint) {
-          this.noLintChanged_ = !this.noLintChanged_;
-          this.noLint = noLint;
-          this.strictSemicolons_ = options.strictSemicolons && !this.noLint;
-        }
-      }
-    }
-  }
-
   /**
    * Consumes the next token and returns it. Will return a never ending stream of
    * END_OF_FILE at the end of the file so callers don't have to check for EOF explicitly.
@@ -3827,7 +3778,6 @@ export class Parser {
    * @private
    */
   nextToken_() {
-    this.noLintChanged_ = false;
     return this.scanner_.nextToken();
   }
 
