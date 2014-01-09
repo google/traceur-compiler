@@ -817,7 +817,7 @@ export class Parser {
    * @private
    */
   parseFunctionDeclaration_() {
-    return this.parseFuntion_(FunctionDeclaration);
+    return this.parseFunction_(FunctionDeclaration);
   }
 
   /**
@@ -825,10 +825,10 @@ export class Parser {
    * @private
    */
   parseFunctionExpression_() {
-    return this.parseFuntion_(FunctionExpression);
+    return this.parseFunction_(FunctionExpression);
   }
 
-  parseFuntion_(ctor) {
+  parseFunction_(ctor) {
     var start = this.getTreeStartLocation_();
     this.eat_(FUNCTION);
     var isGenerator = parseOptions.generators && this.eatIf_(STAR);

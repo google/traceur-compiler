@@ -11012,12 +11012,12 @@ System.registerModule("../src/syntax/Parser", function() {
       return this.parseFallThroughStatement_(allowScriptItem);
     },
     parseFunctionDeclaration_: function() {
-      return this.parseFuntion_(FunctionDeclaration);
+      return this.parseFunction_(FunctionDeclaration);
     },
     parseFunctionExpression_: function() {
-      return this.parseFuntion_(FunctionExpression);
+      return this.parseFunction_(FunctionExpression);
     },
-    parseFuntion_: function(ctor) {
+    parseFunction_: function(ctor) {
       var start = this.getTreeStartLocation_();
       this.eat_(FUNCTION);
       var isGenerator = parseOptions.generators && this.eatIf_(STAR);
