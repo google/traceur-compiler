@@ -162,6 +162,5 @@ if (out) {
   else
     compileToDirectory(out, includes, flags.sourceMaps);
 } else {
-  console.log('pathresolve ' + path.resolve(includes[0]))
   interpret(path.resolve(includes[0]), includes.slice(1), argv.flags);
 }
