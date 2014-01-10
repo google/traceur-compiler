@@ -37,7 +37,7 @@ function interpret(filename, argv, flags) {
     return new traceur.modules.Loader(loaderHooks);
   }
   global.SystemLoader = getLoader();
-  global.SystemLoader.import(filename);
+  global.SystemLoader.import(filename.replace(/\\/g, '/'));
 }
 
 module.exports = interpret;
