@@ -15,7 +15,7 @@
 suite('modules.js', function() {
 
   var MutedErrorReporter =
-      System.get('../src/util/MutedErrorReporter').MutedErrorReporter;
+      System.get('traceur@0.0.Y/src/util/MutedErrorReporter').MutedErrorReporter;
 
   var reporter, baseURL;
 

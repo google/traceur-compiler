@@ -21,6 +21,7 @@ import {ModuleSpecifierVisitor} from
     '../codegeneration/module/ModuleSpecifierVisitor';
 import {ModuleSymbol} from '../semantics/symbols/ModuleSymbol';
 import {Parser} from '../syntax/Parser';
+import {options} from '../options';
 import {SourceFile} from '../syntax/SourceFile';
 import {TreeWriter} from '../outputgeneration/TreeWriter';
 import {UniqueIdentifierGenerator} from
@@ -118,10 +119,9 @@ export class LoaderHooks {
     // Tolerate .js endings
     if (/\.js$/.test(normalizedModuleName))
       asJS = normalizedModuleName;
-    if (System.referrerName) {
-      if (asJS.indexOf(System.referrerName) === 0) {
-        asJS = asJS.substring(System.referrerName.length);
-      }
+    if (options.referrer) {
+      if (asJS.indexOf(options.referrer) === 0)
+        asJS = asJS.slice(options.referrer.length);
     }
     if (isAbsolute(asJS))
       return asJS;

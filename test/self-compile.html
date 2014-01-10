@@ -16,7 +16,7 @@
       var loaderHooks = new LoaderHooks(new traceur.util.ErrorReporter(), url);
       return new traceur.modules.Loader(loaderHooks);
     }
-    getLoader().import('../src/traceur.js', {}
+    getLoader().import('../src/traceur.js', {},
         function(mod) {
           console.log('DONE');
         },
