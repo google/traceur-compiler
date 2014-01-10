@@ -19807,10 +19807,7 @@ System.registerModule("traceur@0.0.Y/src/runtime/LoaderHooks", function() {
       var asJS = normalizedModuleName + '.js';
       if (/\.js$/.test(normalizedModuleName)) asJS = normalizedModuleName;
       if (options.referrer) {
-        if (asJS.indexOf(options.referrer) === 0) {
-          var slash = options.referrer.indexOf('/');
-          asJS = asJS.substring(slash + 1);
-        }
+        if (asJS.indexOf(options.referrer) === 0) asJS = asJS.slice(options.referrer.length);
       }
       if (isAbsolute(asJS)) return asJS;
       var baseURL = load.metadata && load.metadata.baseURL;

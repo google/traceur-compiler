@@ -138,7 +138,7 @@ build/compiled-by-previous-traceur.js: \
 	  $(subst src/node,build/node,$(SRC_NODE)) \
 	  build/previous-commit-traceur.js $(SRC_ALL)  | $(GENSRC) node_modules
 	@cp build/previous-commit-traceur.js bin/traceur.js
-	./traceur-build --debug --out $@  $(TFLAGS) $(SRC)
+	./traceur-build --debug --out $@  --referrer='traceur@0.0.X/' $(TFLAGS) $(SRC)
 
 build/node/%: src/node/%
 	@mkdir -p build/node

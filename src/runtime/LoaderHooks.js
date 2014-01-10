@@ -120,10 +120,8 @@ export class LoaderHooks {
     if (/\.js$/.test(normalizedModuleName))
       asJS = normalizedModuleName;
     if (options.referrer) {
-      if (asJS.indexOf(options.referrer) === 0) {
-        var slash = options.referrer.indexOf('/');
-        asJS = asJS.substring(slash + 1);
-      }
+      if (asJS.indexOf(options.referrer) === 0)
+        asJS = asJS.slice(options.referrer.length);
     }
     if (isAbsolute(asJS))
       return asJS;
