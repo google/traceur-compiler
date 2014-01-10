@@ -15,7 +15,7 @@
 import {assert} from '../../../src/util/assert';
 import {resolveUrl} from '../../../src/util/url';
 
-var testScriptName = '../../test/unit/runtime/test_script.js';
+var testScriptName = '../../unit/runtime/test_script.js';
 global.SystemLoader.loadAsScript(testScriptName, {}, function(result) {
   assert('A', result[0]);
   assert('B', result[1]);
@@ -24,7 +24,7 @@ global.SystemLoader.loadAsScript(testScriptName, {}, function(result) {
   throw new Error('test_interpret loadAsScript FAILED: ' + error);
 });
 
-var testModuleName = '../../test/unit/runtime/test_module.js';
+var testModuleName = '../../unit/runtime/test_module.js';
 global.SystemLoader.import(testModuleName, {}, function(mod) {
   assert('test', mod.name);
   assert('A', mod.a);
