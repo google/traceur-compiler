@@ -17,26 +17,5 @@
 // (Similar to npm version)
 
 
-var fs = require('fs');
-var path = require('path');
-var semver = require('semver');
-
-function editProperties(data) {
-	var version = data.version;
-	var incrementVersion = semver.inc(version, 'patch');
-	data.version = incrementVersion;
-	data.devDependencies.traceur = version;
-	return data;
-}
-
-function semverIncrement() {
-	var filename = 'package.json';
-	var json = fs.readFileSync(filename);
-	var data = JSON.parse(json);
-	data = editProperties(data);
-	fs.writeFileSync(filename, JSON.stringify(data, null, 2) + '\n');
-	console.log('PACKAGE_VERSION=\"' + data.version + '\"');	
-}
-
-module.exports = semverIncrement;
-semverIncrement();
+var semverPrint = require('./semverPrint.js');
+semverPrint.semverIncrement();

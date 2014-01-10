@@ -49,7 +49,7 @@ MOCHA_OPTIONS = \
 
 GIT_BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
 
-PACKAGE_VERSION=$(shell npm ls traceur -l -p | sed -e 's/[^:]*://;s/://')
+PACKAGE_VERSION=$(shell node build/semverPrint.js)
 
 build: bin/traceur.js wiki
 
@@ -132,7 +132,7 @@ bin/%.min.js: bin/%.js
 	node build/minifier.js $^ $@
 
 bin/traceur-runtime.js: $(RUNTIME_SRC)
-	./traceur --out $@ --referrer='traceur@0.0.Y/' $(TFLAGS) $^
+	./traceur --out $@ --referrer='traceur@$(PACKAGE_VERSION)/' $(TFLAGS) $^
 
 bin/traceur-bare.js: src/traceur-import.js build/compiled-by-previous-traceur.js
 	./traceur --out $@ $(TFLAGS) $<
@@ -142,7 +142,7 @@ concat: bin/traceur-runtime.js bin/traceur-bare.js
 
 bin/traceur.js: build/compiled-by-previous-traceur.js $(SRC_NODE)
 	@cp $< $@; touch -t 197001010000.00 bin/traceur.js
-	./traceur --out bin/traceur.js --referrer='traceur@0.0.Y/'  $(TFLAGS) $(SRC)
+	./traceur --out bin/traceur.js --referrer='traceur@$(PACKAGE_VERSION)/' $(TFLAGS) $(SRC)
 
 # Use last-known-good compiler to compile current source
 build/compiled-by-previous-traceur.js: \
@@ -204,10 +204,10 @@ node_modules: package.json
 bin/traceur.ugly.js: bin/traceur.js
 	uglifyjs bin/traceur.js --compress -m -o $@
 
-build/currentSemVer.mk: 
-	git diff --quiet -- package.json && node build/semverIncrement.js > $@
+updateSemVer: 
+	git diff --quiet -- package.json && node build/semverIncrement.js
 
-prepublish: bin/traceur.js bin/traceur-runtime.js build/currentSemVer.mk
+prepublish: bin/traceur.js bin/traceur-runtime.js 
 
 WIKI_OUT = \
   test/wiki/CompilingOffline/out/greeter.js
