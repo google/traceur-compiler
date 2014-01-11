@@ -84,7 +84,7 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
   if (referrerName) {
     // The compile occurs two directories down from current directory,
     // in src/node.  Thus the names will appear as eg ../src/x.
-    // We want something like referrerName/src/x. So we need to give 
+    // We want something like referrerName/src/x. So we need to give
     // the normalize() the 'package' or root name with src/node append
     // to represent the referrer from here.
     referrerName = referrerName && referrerName + 'src/node';
@@ -92,6 +92,8 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
     // Since we are in src/node, we need to back up two directories.
     basePath = path.join(__dirname, '../../');
   }
+
+  basePath = basePath.replace(/\\/g, '/');
 
   var loadCount = 0;
   var elements = [];
