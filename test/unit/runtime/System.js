@@ -35,6 +35,8 @@ suite('System.js', function() {
     var refererName = 'dir/file';  // assume referer is normalized
     assert.equal(System.normalize('./d/e/f', refererName), 'dir/d/e/f');
     assert.equal(System.normalize('../e/f', refererName), 'e/f');
+    assert.equal(System.normalize('../src/options.js',
+        'traceur@0.0.Y/src/node'), 'traceur@0.0.Y/src/options.js')
 
     try {
       assert.equal(System.normalize(undefined, refererName), 'should throw');

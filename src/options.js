@@ -283,5 +283,5 @@ addBoolOption('unstarredGenerators');
 addBoolOption('typeAssertions');
 
 defaultValues.referrer = '';
-options.referrer = './';
+options.referrer = null;
 
