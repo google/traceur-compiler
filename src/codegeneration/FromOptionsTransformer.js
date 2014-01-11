@@ -91,7 +91,6 @@ export class FromOptionsTransformer extends MultiTransformer {
     if (transformOptions.annotations) {
       append(AnnotatedClassTransformer);
       append(AnnotatedFunctionTransformer);
-      append(MetadataTransformer);
     }
 
     // ClassTransformer needs to come before ObjectLiteralTransformer.

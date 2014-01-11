@@ -24,6 +24,7 @@ import {
   SetAccessor
 } from '../syntax/trees/ParseTrees';
 import {
+  ANNOTATED_CLASS_ELEMENT,
   GET_ACCESSOR,
   PROPERTY_METHOD_ASSIGNMENT,
   SET_ACCESSOR
@@ -170,6 +171,11 @@ export class ClassTransformer extends TempVarTransformer{
         elements = protoElements;
         homeObject = createMemberExpression(internalName, 'prototype');
       }
+
+      // If it's still an annotated class element we'll just drop the annotation
+      // because there's not really any place to store it in the transformed class.
+      if (tree.type === ANNOTATED_CLASS_ELEMENT)
+        tree = tree.element;
 
       switch (tree.type) {
         case GET_ACCESSOR:

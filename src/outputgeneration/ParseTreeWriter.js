@@ -29,6 +29,7 @@ import {
   AMPERSAND_EQUAL,
   AND,
   ARROW,
+  AT,
   AWAIT,
   BACK_QUOTE,
   BANG,
@@ -199,6 +200,32 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     // set background color to normal
     if (tree === this.highlighted_) {
       this.write_('\x1B[0m');
+    }
+  }
+
+  visitAnnotatedClassDeclaration(tree) {
+    this.writeList_(tree.annotations, null, true);
+    this.writeln_();
+    this.visitAny(tree.declaration);
+  }
+
+  visitAnnotatedFunctionDeclaration(tree) {
+    this.writeList_(tree.annotations, null, true);
+    this.writeln_();
+    this.visitAny(tree.declaration);
+  }
+
+  /**
+   * @param {Annotation} tree
+   */
+  visitAnnotation(tree) {
+    this.write_(AT);
+    this.visitAny(tree.name);
+
+    if (tree.args !== null) {
+      this.write_(OPEN_PAREN);
+      this.writeList_(tree.args, COMMA, false);
+      this.write_(CLOSE_PAREN);
     }
   }
 

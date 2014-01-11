@@ -17,7 +17,10 @@ import {
   CONSTRUCTOR
 } from '../syntax/PredefinedName';
 import {
+  AnonBlock,
+  ClassDeclaration,
   ClassMemberMetadata,
+  ExportDeclaration,
   FunctionMetadata
 } from '../syntax/trees/ParseTrees';
 import {
@@ -27,10 +30,8 @@ import {
   PROPERTY_METHOD_ASSIGNMENT,
   SET_ACCESSOR
 } from '../syntax/trees/ParseTreeType';
-import {
-  createScript
-} from './ParseTreeFactory';
 import {propName} from '../staticsemantics/PropName';
+import {MetadataTransformer} from './MetadataTransformer';
 
 /**
  * Annotation extension
@@ -39,36 +40,88 @@ import {propName} from '../staticsemantics/PropName';
 export class AnnotatedClassTransformer extends ParseTreeTransformer {
   transformAnnotatedClassDeclaration(tree) {
     var declaration = tree.declaration;
-    var elements = [], metadata = [], classParameters = [], classAnnotations = [];
 
-    classAnnotations = tree.annotations;
-
-    if (declaration.type === EXPORT_DECLARATION) {
+    if (declaration.type === EXPORT_DECLARATION)
       declaration = tree.declaration.declaration;
-    }
 
-    declaration.elements.forEach((tree) => {
-      var result = this.transformClassElement_(tree, declaration.name);
-      elements.push(result.element);
+    var {
+      transformedClass,
+      metadataStatements
+    } = this.transformClass_(declaration, tree.annotations);
 
-      if (result.metadata)
-        metadata.push(result.metadata)
+    if (declaration.type === EXPORT_DECLARATION &&
+        transformedClass !== declaration)
+      transformedClass = new ExportDeclaration(tree.location, transformedClass);
 
-      if (result.constructorAnnotations)
-        classAnnotations = classAnnotations.concat(result.constructorAnnotations);
+    if (metadataStatements.length > 0)
+      return new AnonBlock(null, [transformedClass].concat(metadataStatements));
 
-      if (result.constructorParameters)
-        classParameters = result.constructorParameters;
+    return transformedClass;
+  }
+
+  transformClassDeclaration(tree) {
+    var {
+      transformedClass,
+      metadataStatements
+    } = this.transformClass_(tree, []);
+
+    if (metadataStatements.length > 0)
+      return new AnonBlock(null, [transformedClass].concat(metadataStatements));
+
+    return transformedClass;
+  }
+
+  transformClass_(declaration, classAnnotations) {
+    var metadataList = [], metadataStatements = [];
+    var classParameters = [], elements = [];
+    var elementsChanged = false;
+
+    declaration.elements.forEach((element) => {
+      var {
+        transformedElement,
+        metadata,
+        constructorAnnotations,
+        constructorParameters
+      } = this.transformClassElement_(element, declaration.name);
+
+      elements.push(transformedElement);
+
+      if (transformedElement !== element)
+        elementsChanged = true;
+
+      if (metadata)
+        metadataList.push(metadata)
+
+      // Constructor annotations end up getting merged with the top-level class
+      // annotations since the resulting transformation is a single function.
+      if (constructorAnnotations)
+        classAnnotations.push(...constructorAnnotations);
+
+      if (constructorParameters)
+        classParameters = constructorParameters;
     });
 
-    declaration.elements = elements;
-    metadata.unshift(new FunctionMetadata(null, declaration.name, classAnnotations, classParameters));
-    return createScript([tree.declaration].concat(metadata));
+    metadataList.unshift(new FunctionMetadata(null, declaration.name,
+        classAnnotations, classParameters));
+    metadataList.forEach((meta) => {
+      var transformedMetadata = MetadataTransformer.transformTree(meta);
+      metadataStatements.push(...transformedMetadata.statements);
+    });
+
+    if (elementsChanged)
+      declaration = new ClassDeclaration(declaration.location, declaration.name,
+          declaration.superClass, elements);
+
+    return {
+      metadataStatements,
+      transformedClass: declaration
+    };
   }
 
 
   transformClassElement_(tree, className, metadata) {
-    var annotations = [], constructorAnnotations, constructorParameters, metadata;
+    var constructorAnnotations, constructorParameters, metadata;
+    var annotations = [];
 
     if (tree.type === ANNOTATED_CLASS_ELEMENT) {
       annotations = tree.annotations;
@@ -92,7 +145,8 @@ export class AnnotatedClassTransformer extends ParseTreeTransformer {
           constructorParameters = tree.formalParameterList.parameters;
         } else {
           metadata = new ClassMemberMetadata(null, tree.name, className,
-            tree.isStatic, false, false, annotations, tree.formalParameterList.parameters);
+            tree.isStatic, false, false, annotations,
+            tree.formalParameterList.parameters);
         }
         break;
 
@@ -101,10 +155,10 @@ export class AnnotatedClassTransformer extends ParseTreeTransformer {
     }
 
     return {
-      element: tree,
-      metadata: metadata,
-      constructorAnnotations: constructorAnnotations,
-      constructorParameters: constructorParameters
+      metadata,
+      constructorAnnotations,
+      constructorParameters,
+      transformedElement: tree
     };
   }
 }

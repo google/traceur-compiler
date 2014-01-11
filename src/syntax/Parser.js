@@ -2088,7 +2088,7 @@ export class Parser {
         return this.parseGeneratorMethod_(start, isStatic);
 
       case AT:
-        return this.parseAnnotatedClassElement_();
+        return this.parseAnnotatedClassElement_(start);
 
       default:
         return this.parseGetSetOrMethod_(start, isStatic);
@@ -3517,7 +3517,9 @@ export class Parser {
    * @private
    */
   parseAnnotatedClassElement_(start) {
-    return new AnnotatedClassElement(start, this.collectAnnotations_(), this.parseClassElement_());
+    var annotations = this.collectAnnotations_(),
+        element = this.parseClassElement_();
+    return new AnnotatedClassElement(this.getTreeLocation_(start), annotations, element);
   }
 
   /**
@@ -3571,6 +3573,7 @@ export class Parser {
   }
 
   parseAnnotation_() {
+    var start = this.getTreeStartLocation_();
     var name = this.parseIdentifierExpression_();
     var args = null;
 
@@ -3578,7 +3581,7 @@ export class Parser {
       args = this.parseArguments_();
     }
 
-    return new Annotation(this.getTreeStartLocation_(), name, args);
+    return new Annotation(this.getTreeLocation_(start), name, args);
   }
 
   /**

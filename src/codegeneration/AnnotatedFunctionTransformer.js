@@ -14,14 +14,14 @@
 
 import {ParseTreeTransformer} from './ParseTreeTransformer';
 import {
+  AnonBlock,
+  ExportDeclaration,
+  FormalParameter,
+  FunctionDeclaration,
   FunctionMetadata
 } from '../syntax/trees/ParseTrees';
-import {
-  EXPORT_DECLARATION,
-} from '../syntax/trees/ParseTreeType';
-import {
-  createScript
-} from './ParseTreeFactory';
+import {EXPORT_DECLARATION} from '../syntax/trees/ParseTreeType';
+import {MetadataTransformer} from './MetadataTransformer';
 
 /**
  * Annotation extension
@@ -30,13 +30,62 @@ import {
 export class AnnotatedFunctionTransformer extends ParseTreeTransformer {
   transformAnnotatedFunctionDeclaration(tree) {
     var declaration = tree.declaration;
-    var annotations = tree.annotations;
+    var statements = [tree.declaration];
 
-    if (declaration.type === EXPORT_DECLARATION) {
+    if (declaration.type === EXPORT_DECLARATION)
       declaration = tree.declaration.declaration;
-    }
 
-    return createScript([tree.declaration,
-      new FunctionMetadata(null, declaration.name, annotations, declaration.formalParameterList.parameters)]);
+    var {
+      transformedFunction,
+      metadataStatements
+    } = this.transformFunction_(declaration, tree.annotations);
+
+    if (declaration.type === EXPORT_DECLARATION &&
+        transformedFunction !== declaration)
+      transformedFunction = new ExportDeclaration(tree.location,
+          transformedFunction)
+
+    if (metadataStatements.length > 0)
+      return new AnonBlock(null,
+          [transformedFunction].concat(metadataStatements));
+
+    return transformedFunction;
+  }
+
+  transformFunctionDeclaration(tree) {
+    var {
+      transformedFunction,
+      metadataStatements
+    } = this.transformFunction_(tree, []);
+
+    if (metadataStatements.length > 0)
+      return new AnonBlock(null,
+          [transformedFunction].concat(metadataStatements));
+
+    return transformedFunction;
+  }
+
+  transformFormalParameter(tree) {
+    if (tree.annotations.length > 0)
+      return new FormalParameter(tree.location, tree.parameter,
+          tree.typeAnnotation, []);
+    return tree;
+  }
+
+  transformFunction_(tree, annotations) {
+    var transformedMetadata = MetadataTransformer.transformTree(
+        new FunctionMetadata(null,
+            tree.name, annotations,
+            tree.formalParameterList.parameters));
+
+    var formalParameters = super.transformList(tree.formalParameterList);
+    if (formalParameters !== tree.formalParameterList)
+      tree = new FunctionDeclaration(tree.location, tree.name, tree.isGenerator,
+          formalParameters, tree.typeAnnotation, tree.functionBody);
+
+    return {
+      transformedFunction: tree,
+      metadataStatements: transformedMetadata.statements
+    };
   }
 }

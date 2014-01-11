@@ -13,13 +13,18 @@
 // limitations under the License.
 
 import {ParseTreeTransformer} from './ParseTreeTransformer';
+import {AnonBlock} from '../syntax/trees/ParseTrees';
+import {
+  BINDING_IDENTIFIER,
+  IDENTIFIER_EXPRESSION
+} from '../syntax/trees/ParseTreeType';
 import {
   createArgumentList,
   createArrayLiteralExpression,
   createAssignmentStatement,
+  createIdentifierExpression,
   createMemberExpression,
   createNewExpression,
-  createScript,
   createStatementList,
   createStringLiteral
 } from './ParseTreeFactory';
@@ -36,36 +41,39 @@ export class MetadataTransformer extends ParseTreeTransformer {
 
   transformClassMemberMetadata(tree) {
     return this.transformMetadata_(this.transformClassMemberTarget_(tree),
-      tree.annotations, tree.parameters);
+        tree.annotations, tree.parameters);
   }
 
   transformFunctionMetadata(tree) {
-    return this.transformMetadata_(tree.name, tree.annotations, tree.parameters);
+    return this.transformMetadata_(tree.name, tree.annotations,
+        tree.parameters);
   }
 
   transformClassReference_(tree) {
-    var parent = tree.className;
+    var parent = this.getIdentifier_(tree.className);
 
-    if (!tree.isStatic) {
+    if (tree.isStatic)
+      parent = createIdentifierExpression(parent);
+    else
       parent = createMemberExpression(parent, 'prototype');
-    }
     return parent;
   }
 
   transformClassMemberTarget_(tree) {
-    if (tree.isGetAccessor) {
+    if (tree.isGetAccessor)
       return this.transformAccessor_(tree, 'get');
-    } else if (tree.isSetAccessor) {
+    else if (tree.isSetAccessor)
       return this.transformAccessor_(tree, 'set');
-    }
-    return createMemberExpression(this.transformClassReference_(tree), tree.name.literalToken);
+
+    return createMemberExpression(this.transformClassReference_(tree),
+        tree.name.literalToken);
   }
 
   transformAccessor_(tree, accessor) {
     var args = createArgumentList([this.transformClassReference_(tree),
         createStringLiteral(tree.name.literalToken.value)]);
 
-    var descriptor = parseExpression `$traceurRuntime.getPropertyDescriptor(${args})`;
+    var descriptor = parseExpression `Object.getOwnPropertyDescriptor(${args})`;
     return createMemberExpression(descriptor, accessor);
   }
 
@@ -82,19 +90,18 @@ export class MetadataTransformer extends ParseTreeTransformer {
 
     parameters = parameters.map((param) => {
       var metadata = [];
-      if (param.typeAnnotation) {
-        metadata.push(param.typeAnnotation);
-      }
+      if (param.typeAnnotation)
+        metadata.push(createIdentifierExpression(param.typeAnnotation.name));
 
-      if (param.annotations && param.annotations.length > 0) {
-        metadata.push.apply(metadata, this.transformAnnotations_(target, param.annotations));
-      }
+      if (param.annotations && param.annotations.length > 0)
+        metadata.push.apply(metadata,
+            this.transformAnnotations_(target, param.annotations));
 
       if (metadata.length > 0) {
         hasParameterMetadata = true;
         return createArrayLiteralExpression(metadata);
       }
-      return [];
+      return createArrayLiteralExpression([]);
     });
 
     return hasParameterMetadata ? parameters : [];
@@ -107,8 +114,9 @@ export class MetadataTransformer extends ParseTreeTransformer {
       annotations = this.transformAnnotations_(target, annotations);
 
       if (annotations.length > 0) {
-        statements.push(createAssignmentStatement(createMemberExpression(target, 'annotations'),
-          createArrayLiteralExpression(annotations)));
+        statements.push(createAssignmentStatement(
+            createMemberExpression(this.getIdentifier_(target), 'annotations'),
+            createArrayLiteralExpression(annotations)));
       }
     }
 
@@ -116,11 +124,26 @@ export class MetadataTransformer extends ParseTreeTransformer {
       parameters = this.transformParameters_(target, parameters);
 
       if (parameters.length > 0) {
-        statements.push(createAssignmentStatement(createMemberExpression(target, 'parameters'),
-          createArrayLiteralExpression(parameters)));
+        statements.push(createAssignmentStatement(
+            createMemberExpression(this.getIdentifier_(target), 'parameters'),
+            createArrayLiteralExpression(parameters)));
       }
     }
 
-    return createScript(createStatementList(statements));
+    return new AnonBlock(null, statements);
+  }
+
+  getIdentifier_(tree) {
+    switch(tree.type) {
+      case BINDING_IDENTIFIER:
+      case IDENTIFIER_EXPRESSION:
+        return tree.identifierToken;
+      default:
+        return tree;
+    }
+  }
+
+  static transformTree(tree) {
+    return new MetadataTransformer().transformAny(tree);
   }
 }
