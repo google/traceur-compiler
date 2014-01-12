@@ -105,9 +105,8 @@
       return canonicalizeUrl(name);
     },
 
-    get(name) {
-
-      var m = getUncoatedModuleInstantiator(name);
+    get(normalizedName) {
+      var m = getUncoatedModuleInstantiator(normalizedName);
       if (!m)
         return undefined;
       var moduleInstance = moduleInstances[m.url];
@@ -118,9 +117,11 @@
       return moduleInstances[m.url] = moduleInstance;
     },
 
-    set(name, uncoatedModule) {
-      name = String(name);
-      moduleInstantiators[name] = new UncoatedModuleEntry(name, uncoatedModule);
+    set(normalizedName, module) {
+      normalizedName = String(normalizedName);  // Req. by spec., why?
+      moduleInstantiators[normalizedName] = 
+          new UncoatedModuleInstantiator(normalizedName, () => module);
+      moduleInstances[normalizedName] = module;
     },
 
     get baseURL() {
@@ -137,6 +138,18 @@
       var normalizedName = System.normalize(name);
       moduleInstantiators[normalizedName] =
           new UncoatedModuleInstantiator(normalizedName, func);
+    },
+
+    getForTesting(name) {
+      if (!this.testingPrefix_) {
+        Object.keys(moduleInstances).forEach( (key) => {
+          var m = /(traceur@[^\/]*\/)/.exec(key);
+          if (m) {
+            this.testingPrefix_ = m[1];
+          }
+        });
+      }
+      return this.get(this.testingPrefix_ + name);
     }
 
   };
