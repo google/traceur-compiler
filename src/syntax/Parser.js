@@ -3529,12 +3529,9 @@ export class Parser {
   parseAnnotatedDeclarations_() {
     var start = this.getTreeStartLocation_();
     var annotations = this.collectAnnotations_();
-    var type;
+    var type = this.peekType_();
     var declaration;
     var isExport = false;
-
-
-    type = this.peekType_();
 
     if (this.peekAnnotatedDeclaration_(type)) {
       if (type === EXPORT) {
