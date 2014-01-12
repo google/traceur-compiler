@@ -42,7 +42,8 @@ export class RestParameterTransformer extends ParameterTransformer {
   transformFormalParameterList(tree) {
     var transformed = super(tree);
     if (hasRestParameter(transformed)) {
-      var restParameter = transformed.parameters[transformed.parameters.length - 1];
+      var restParameter =
+          transformed.parameters[transformed.parameters.length - 1];
       var parametersWithoutRestParam = new FormalParameterList(
           transformed.location,
           transformed.parameters.slice(0, -1));
@@ -54,7 +55,8 @@ export class RestParameterTransformer extends ParameterTransformer {
       var loop;
 
       if (restParameter.typeAnnotation !== null)
-        currentArgument = assertType(currentArgument, restParameter.typeAnnotation);
+        currentArgument = assertType(currentArgument,
+            restParameter.typeAnnotation);
 
       if (startIndex) {
         // If startIndex is 0 we can generate slightly cleaner code.

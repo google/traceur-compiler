@@ -103,7 +103,8 @@ class AssignmentExpressionDesugaring extends Desugaring {
 
   assign(lvalue, rvalue, typeAnnotation = null) {
     lvalue = lvalue instanceof BindingElement ? lvalue.binding : lvalue;
-    this.expressions.push(createAssignmentExpression(lvalue, assertType(rvalue, typeAnnotation)));
+    this.expressions.push(createAssignmentExpression(lvalue,
+        assertType(rvalue, typeAnnotation)));
   }
 }
 
@@ -130,7 +131,8 @@ class VariableDeclarationDesugaring extends Desugaring {
     if (lvalue.type == IDENTIFIER_EXPRESSION)
       lvalue = createBindingIdentifier(lvalue);
 
-    this.declarations.push(createVariableDeclaration(lvalue, assertType(rvalue, typeAnnotation)));
+    this.declarations.push(createVariableDeclaration(lvalue,
+        assertType(rvalue, typeAnnotation)));
   }
 }
 
@@ -368,10 +370,13 @@ export class DestructuringTransformer extends ParameterTransformer {
   }
 
   transformFormalParameter(tree) {
-    if (tree.typeAnnotation === null)
-      return super.transformFormalParameter(tree);
-
-    return new FormalParameter(null, this.transformBindingElement(tree.parameter, tree.typeAnnotation), null, []);
+    if (tree.typeAnnotation !== null &&
+        tree.parameter.type === BINDING_ELEMENT &&
+        tree.parameter.binding.type === OBJECT_PATTERN)
+      tree = new FormalParameter(null,
+        this.transformBindingElement(tree.parameter, tree.typeAnnotation),
+        null, []);
+    return super.transformFormalParameter(tree);
   }
 
   transformBindingElement(tree, typeAnnotation = null) {
@@ -390,7 +395,8 @@ export class DestructuringTransformer extends ParameterTransformer {
     // }
 
     var statements = this.parameterStatements;
-    var binding = this.desugarBinding_(tree.binding, statements, VAR, typeAnnotation);
+    var binding = this.desugarBinding_(tree.binding,
+        statements, VAR, typeAnnotation);
 
     return new BindingElement(null, binding, null);
   }
@@ -427,7 +433,8 @@ export class DestructuringTransformer extends ParameterTransformer {
    *     generate type assertions.
    * @return {BindingIdentifier} The binding tree.
    */
-  desugarBinding_(bindingTree, statements, declarationType, typeAnnotation = null) {
+  desugarBinding_(bindingTree, statements, declarationType,
+                  typeAnnotation = null) {
     var varName = this.getTempIdentifier();
     var binding = createBindingIdentifier(varName);
     var idExpr = createIdentifierExpression(varName);
@@ -596,7 +603,8 @@ export class DestructuringTransformer extends ParameterTransformer {
       }
 
       case PAREN_EXPRESSION:
-        return this.desugarPattern_(desugaring, tree.expression, typeAnnotation);
+        return this.desugarPattern_(desugaring, tree.expression,
+                                    typeAnnotation);
 
       default:
         throw new Error('unreachable');

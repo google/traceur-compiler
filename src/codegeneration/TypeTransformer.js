@@ -75,8 +75,8 @@ export class TypeTransformer extends ParseTreeTransformer {
    */
   transformPropertyMethodAssignment(tree) {
     if (tree.typeAnnotation) {
-      tree = new PropertyMethodAssignment(tree.location, tree.isStatic, tree.isGenerator, tree.name,
-          tree.formalParameterList, null,
+      tree = new PropertyMethodAssignment(tree.location, tree.isStatic,
+          tree.isGenerator, tree.name, tree.formalParameterList, null,
           ReturnTypeAsserter.assertTypes(tree.functionBody,
               tree.typeAnnotation, tree.formalParameterList));
     }

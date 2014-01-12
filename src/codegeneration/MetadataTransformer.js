@@ -50,11 +50,9 @@ export class MetadataTransformer extends ParseTreeTransformer {
   }
 
   transformClassReference_(tree) {
-    var parent = this.getIdentifier_(tree.className);
+    var parent = this.createIdentifier_(tree.className);
 
-    if (tree.isStatic)
-      parent = createIdentifierExpression(parent);
-    else
+    if (!tree.isStatic)
       parent = createMemberExpression(parent, 'prototype');
     return parent;
   }
@@ -91,7 +89,7 @@ export class MetadataTransformer extends ParseTreeTransformer {
     parameters = parameters.map((param) => {
       var metadata = [];
       if (param.typeAnnotation)
-        metadata.push(createIdentifierExpression(param.typeAnnotation.name));
+        metadata.push(this.createIdentifier_(param.typeAnnotation.name.value));
 
       if (param.annotations && param.annotations.length > 0)
         metadata.push.apply(metadata,
@@ -115,7 +113,7 @@ export class MetadataTransformer extends ParseTreeTransformer {
 
       if (annotations.length > 0) {
         statements.push(createAssignmentStatement(
-            createMemberExpression(this.getIdentifier_(target), 'annotations'),
+            createMemberExpression(this.createIdentifier_(target), 'annotations'),
             createArrayLiteralExpression(annotations)));
       }
     }
@@ -125,7 +123,7 @@ export class MetadataTransformer extends ParseTreeTransformer {
 
       if (parameters.length > 0) {
         statements.push(createAssignmentStatement(
-            createMemberExpression(this.getIdentifier_(target), 'parameters'),
+            createMemberExpression(this.createIdentifier_(target), 'parameters'),
             createArrayLiteralExpression(parameters)));
       }
     }
@@ -133,14 +131,12 @@ export class MetadataTransformer extends ParseTreeTransformer {
     return new AnonBlock(null, statements);
   }
 
-  getIdentifier_(tree) {
-    switch(tree.type) {
-      case BINDING_IDENTIFIER:
-      case IDENTIFIER_EXPRESSION:
-        return tree.identifierToken;
-      default:
-        return tree;
-    }
+  createIdentifier_(tree) {
+    if (typeof tree == 'string')
+      tree = createIdentifierExpression(tree);
+    else if (tree.type === BINDING_IDENTIFIER)
+      tree = createIdentifierExpression(tree.identifierToken);
+    return tree;
   }
 
   static transformTree(tree) {

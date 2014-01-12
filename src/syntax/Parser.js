@@ -935,7 +935,8 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     var restParameter = this.parseRestParameter_();
     var typeAnnotation = this.parseTypeAnnotationOpt_();
-    return new FormalParameter(this.getTreeLocation_(start), restParameter, typeAnnotation, annotations);
+    return new FormalParameter(this.getTreeLocation_(start), restParameter,
+        typeAnnotation, annotations);
   }
 
   parseRestParameter_(annotations) {
@@ -3519,7 +3520,8 @@ export class Parser {
   parseAnnotatedClassElement_(start) {
     var annotations = this.collectAnnotations_(),
         element = this.parseClassElement_();
-    return new AnnotatedClassElement(this.getTreeLocation_(start), annotations, element);
+    return new AnnotatedClassElement(
+        this.getTreeLocation_(start), annotations, element);
   }
 
   /**
@@ -3541,16 +3543,18 @@ export class Parser {
         declaration = this.parseExportDeclaration_();
 
         if (declaration.declaration.type === CLASS_DECLARATION) {
-          return new AnnotatedClassDeclaration(this.getTreeLocation_(start), annotations, declaration);
+          return new AnnotatedClassDeclaration(this.getTreeLocation_(start),
+              annotations, declaration);
         } else if (declaration.declaration.type === FUNCTION_DECLARATION) {
-          return new AnnotatedFunctionDeclaration(this.getTreeLocation_(start), annotations, declaration);
+          return new AnnotatedFunctionDeclaration(this.getTreeLocation_(start),
+              annotations, declaration);
         }
       } else if (type === CLASS) {
-        return new AnnotatedClassDeclaration(this.getTreeLocation_(start), annotations,
-          this.parseClassDeclaration_());
+        return new AnnotatedClassDeclaration(this.getTreeLocation_(start),
+          annotations, this.parseClassDeclaration_());
       } else if (type === FUNCTION) {
-        return new AnnotatedFunctionDeclaration(this.getTreeLocation_(start), annotations,
-          this.parseFunctionDeclaration_());
+        return new AnnotatedFunctionDeclaration(this.getTreeLocation_(start),
+          annotations, this.parseFunctionDeclaration_());
       }
     }
 

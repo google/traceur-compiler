@@ -101,7 +101,8 @@ export class DefaultParametersTransformer extends ParameterTransformer {
         defaultToUndefined = true;
         changed = true;
         this.parameterStatements.push(
-            createDefaultAssignment(i, param.parameter.binding, param.parameter.initialiser, param.typeAnnotation));
+            createDefaultAssignment(i, param.parameter.binding,
+                param.parameter.initialiser, param.typeAnnotation));
       }
     }
 

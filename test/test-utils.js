@@ -66,6 +66,11 @@
 
   var assert = chai.assert;
 
+  assert.type = function (actual, type) {
+    assert.typeOf(actual, type.name);
+    return actual;
+  };
+
   function assertNoOwnProperties(o) {
     var m = Object.getOwnPropertyNames(o);
     if (m.length) {

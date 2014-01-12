@@ -14096,8 +14096,8 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/MetadataTransformer", fu
       return this.transformMetadata_(tree.name, tree.annotations, tree.parameters);
     },
     transformClassReference_: function(tree) {
-      var parent = this.getIdentifier_(tree.className);
-      if (tree.isStatic) parent = createIdentifierExpression(parent); else parent = createMemberExpression(parent, 'prototype');
+      var parent = this.createIdentifier_(tree.className);
+      if (!tree.isStatic) parent = createMemberExpression(parent, 'prototype');
       return parent;
     },
     transformClassMemberTarget_: function(tree) {
@@ -14120,7 +14120,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/MetadataTransformer", fu
       var hasParameterMetadata = false;
       parameters = parameters.map((function(param) {
         var metadata = [];
-        if (param.typeAnnotation) metadata.push(createIdentifierExpression(param.typeAnnotation.name));
+        if (param.typeAnnotation) metadata.push($__135.createIdentifier_(param.typeAnnotation.name.value));
         if (param.annotations && param.annotations.length > 0) metadata.push.apply(metadata, $__135.transformAnnotations_(target, param.annotations));
         if (metadata.length > 0) {
           hasParameterMetadata = true;
@@ -14135,25 +14135,20 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/MetadataTransformer", fu
       if (annotations) {
         annotations = this.transformAnnotations_(target, annotations);
         if (annotations.length > 0) {
-          statements.push(createAssignmentStatement(createMemberExpression(this.getIdentifier_(target), 'annotations'), createArrayLiteralExpression(annotations)));
+          statements.push(createAssignmentStatement(createMemberExpression(this.createIdentifier_(target), 'annotations'), createArrayLiteralExpression(annotations)));
         }
       }
       if (parameters) {
         parameters = this.transformParameters_(target, parameters);
         if (parameters.length > 0) {
-          statements.push(createAssignmentStatement(createMemberExpression(this.getIdentifier_(target), 'parameters'), createArrayLiteralExpression(parameters)));
+          statements.push(createAssignmentStatement(createMemberExpression(this.createIdentifier_(target), 'parameters'), createArrayLiteralExpression(parameters)));
         }
       }
       return new AnonBlock(null, statements);
     },
-    getIdentifier_: function(tree) {
-      switch (tree.type) {
-        case BINDING_IDENTIFIER:
-        case IDENTIFIER_EXPRESSION:
-          return tree.identifierToken;
-        default:
-          return tree;
-      }
+    createIdentifier_: function(tree) {
+      if (typeof tree == 'string') tree = createIdentifierExpression(tree); else if (tree.type === BINDING_IDENTIFIER) tree = createIdentifierExpression(tree.identifierToken);
+      return tree;
     }
   }, {transformTree: function(tree) {
       return new MetadataTransformer().transformAny(tree);
@@ -15676,11 +15671,11 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/assertType", function() 
   var parseExpression = $traceurRuntime.getModuleImpl("traceur@0.0.Y/src/codegeneration/PlaceholderParser").parseExpression;
   var options = $traceurRuntime.getModuleImpl("traceur@0.0.Y/src/options").options;
   function isTypeAssertion(tree) {
-    return tree.type === CALL_EXPRESSION && tree.operand.type === MEMBER_EXPRESSION && tree.operand.operand.type === IDENTIFIER_EXPRESSION && tree.operand.operand.identifierToken.value === 'assert' && tree.operand.memberName.value === 'type';
+    return tree !== null && tree.type === CALL_EXPRESSION && tree.operand.type === MEMBER_EXPRESSION && tree.operand.operand.type === IDENTIFIER_EXPRESSION && tree.operand.operand.identifierToken.value === 'assert' && tree.operand.memberName.value === 'type';
   }
-  var $__default = function assertType(tree, typeAnnotation) {
-    if (typeAnnotation === null || !options.typeAssertions || isTypeAssertion(tree)) return tree;
-    return parseExpression($__192, tree, typeAnnotation.name);
+  var $__default = function assertType(expression, typeAnnotation) {
+    if (expression === null || typeAnnotation === null || !options.typeAssertions || isTypeAssertion(expression)) return expression;
+    return parseExpression($__192, expression, typeAnnotation.name);
   };
   return {get default() {
       return $__default;
@@ -15930,8 +15925,8 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/DestructuringTransformer
       return new constr(tree.location, initialiser, collection, body);
     },
     transformFormalParameter: function(tree) {
-      if (tree.typeAnnotation === null) return $traceurRuntime.superCall(this, $DestructuringTransformer.prototype, "transformFormalParameter", [tree]);
-      return new FormalParameter(null, this.transformBindingElement(tree.parameter, tree.typeAnnotation), null, []);
+      if (tree.typeAnnotation !== null && tree.parameter.type === BINDING_ELEMENT && tree.parameter.binding.type === OBJECT_PATTERN) tree = new FormalParameter(null, this.transformBindingElement(tree.parameter, tree.typeAnnotation), null, []);
+      return $traceurRuntime.superCall(this, $DestructuringTransformer.prototype, "transformFormalParameter", [tree]);
     },
     transformBindingElement: function(tree) {
       var typeAnnotation = arguments[1] !== (void 0) ? arguments[1]: null;
