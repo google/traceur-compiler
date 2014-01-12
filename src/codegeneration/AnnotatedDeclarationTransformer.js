@@ -74,26 +74,23 @@ import {
  *    b.parameters = [[T, new A], [T]];
  */
 export class AnnotatedDeclarationTransformer extends ParseTreeTransformer {
+  constructor() {
+    this.annotations = null;
+  }
+
   transformAnnotatedDeclaration(tree) {
-    switch (tree.declaration.type) {
-      case CLASS_DECLARATION:
-        tree = this.transformClassDeclaration(tree.declaration,
-            tree.annotations);
-        break;
-      case FUNCTION_DECLARATION:
-        tree = this.transformFunctionDeclaration(tree.declaration,
-            tree.annotations);
-        break;
-    }
+    this.annotations = tree.annotations;
+    tree = this.transformAny(tree.declaration);
+    this.annotations = null;
     return tree;
   }
 
-  transformClassDeclaration(tree, annotations = null) {
-    return AnnotatedClassTransformer.transformTree(tree, annotations);
+  transformClassDeclaration(tree) {
+    return AnnotatedClassTransformer.transformTree(tree, this.annotations);
   }
 
 
-  transformFunctionDeclaration(tree, annotations = null) {
-    return AnnotatedFunctionTransformer.transformTree(tree, annotations);
+  transformFunctionDeclaration(tree) {
+    return AnnotatedFunctionTransformer.transformTree(tree, this.annotations);
   }
 }

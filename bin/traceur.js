@@ -14273,27 +14273,20 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/AnnotatedDeclarationTran
       CLASS_DECLARATION = $__145.CLASS_DECLARATION,
       FUNCTION_DECLARATION = $__145.FUNCTION_DECLARATION;
   var AnnotatedDeclarationTransformer = function() {
-    $traceurRuntime.defaultSuperCall(this, $AnnotatedDeclarationTransformer.prototype, arguments);
+    this.annotations = null;
   };
-  var $AnnotatedDeclarationTransformer = ($traceurRuntime.createClass)(AnnotatedDeclarationTransformer, {
+  AnnotatedDeclarationTransformer = ($traceurRuntime.createClass)(AnnotatedDeclarationTransformer, {
     transformAnnotatedDeclaration: function(tree) {
-      switch (tree.declaration.type) {
-        case CLASS_DECLARATION:
-          tree = this.transformClassDeclaration(tree.declaration, tree.annotations);
-          break;
-        case FUNCTION_DECLARATION:
-          tree = this.transformFunctionDeclaration(tree.declaration, tree.annotations);
-          break;
-      }
+      this.annotations = tree.annotations;
+      tree = this.transformAny(tree.declaration);
+      this.annotations = null;
       return tree;
     },
     transformClassDeclaration: function(tree) {
-      var annotations = arguments[1] !== (void 0) ? arguments[1]: null;
-      return AnnotatedClassTransformer.transformTree(tree, annotations);
+      return AnnotatedClassTransformer.transformTree(tree, this.annotations);
     },
     transformFunctionDeclaration: function(tree) {
-      var annotations = arguments[1] !== (void 0) ? arguments[1]: null;
-      return AnnotatedFunctionTransformer.transformTree(tree, annotations);
+      return AnnotatedFunctionTransformer.transformTree(tree, this.annotations);
     }
   }, {}, ParseTreeTransformer);
   return {get AnnotatedDeclarationTransformer() {
