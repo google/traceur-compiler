@@ -23,6 +23,7 @@ import {
 } from '../syntax/PredefinedName';
 import {Token} from '../syntax/Token';
 import {getKeywordType} from '../syntax/Keywords';
+import {BINDING_ELEMENT} from '../syntax/trees/ParseTreeType';
 
 import {
   AMPERSAND,
@@ -298,9 +299,11 @@ export class ParseTreeWriter extends ParseTreeVisitor {
 
   /**
    * @param {BindingElement} tree
+   * @param {ParseTree} typeAnnotation
    */
-  visitBindingElement(tree) {
+  visitBindingElement(tree, typeAnnotation = null) {
     this.visitAny(tree.binding);
+    this.writeTypeAnnotation_(typeAnnotation);
     if (tree.initialiser) {
       this.write_(EQUAL);
       this.visitAny(tree.initialiser);
@@ -614,8 +617,12 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {FormalParameter} tree
    */
   visitFormalParameter(tree) {
-    this.visitAny(tree.parameter);
-    this.writeTypeAnnotation_(tree.typeAnnotation);
+    if (tree.parameter.type === BINDING_ELEMENT)
+      this.visitBindingElement(tree.parameter, tree.typeAnnotation);
+    else {
+      this.visitAny(tree.parameter);
+      this.writeTypeAnnotation_(tree.typeAnnotation);
+    }
   }
 
   /**

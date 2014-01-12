@@ -36,6 +36,43 @@ import {MetadataTransformer} from './MetadataTransformer';
 /**
  * Annotation extension
  *
+ * This transforms class annotations into class metadata.  The metadata is
+ * stored as an array in one of two properties, either "annotations" or
+ * "parameters".  Each annotation stored is constructed and any parameters
+ * specified on the annotation are passed to the annotation's constructor.
+ *
+ * Annotations on a class, method, or accessor are stored in the "annotations"
+ * array on the corresponding element.
+ *
+ * Annotations on parameters are stored in the "parameters" array on the parent
+ * element.  The parameters metadata array is a two dimensional array where
+ * each entry is an array of metadata for each parameter in the method
+ * declaration.  If the parameter is typed then the first entry in its
+ * corresponding metadata will be the type followed by any annotations.
+ *
+ *   @A
+ *   class B {
+ *     constructor(@A x:T) {
+ *       super();
+ *     }
+ *     @A
+ *     method(@A x:T) {
+ *     }
+ *   }
+ *
+ *   =>
+ *
+ *    var B = function(x) {
+ *      "use strict";
+ *      $traceurRuntime.superCall(this, $B.prototype, "constructor", []);
+ *    };
+ *    var $B = ($traceurRuntime.createClass)(B, {method: function(x) {
+ *        "use strict";
+ *      }}, {});
+ *    B.annotations = [new A];
+ *    B.parameters = [[T, new A]];
+ *    B.prototype.method.annotations = [new A];
+ *    B.prototype.method.parameters = [[T, new A]];
  */
 export class AnnotatedClassTransformer extends ParseTreeTransformer {
   transformAnnotatedClassDeclaration(tree) {

@@ -567,14 +567,6 @@
     return instantiator && instantiator.getUncoatedModule();
   };
 })(typeof global !== 'undefined' ? global: this);
-(function(global) {
-  'use strict';
-  function assertType(expression, Type) {
-    return expression;
-  }
-  global.assert = global.assert || {};
-  global.assert.type = assertType;
-})(typeof global !== 'undefined' ? global: this);
 System.registerModule("traceur@0.0.Y/src/runtime/polyfills/utils", function() {
   "use strict";
   var toObject = $traceurRuntime.toObject;
@@ -6195,6 +6187,7 @@ System.registerModule("traceur@0.0.Y/src/outputgeneration/ParseTreeWriter", func
       SET = $__41.SET;
   var Token = $traceurRuntime.getModuleImpl("traceur@0.0.Y/src/syntax/Token").Token;
   var getKeywordType = $traceurRuntime.getModuleImpl("traceur@0.0.Y/src/syntax/Keywords").getKeywordType;
+  var BINDING_ELEMENT = $traceurRuntime.getModuleImpl("traceur@0.0.Y/src/syntax/trees/ParseTreeType").BINDING_ELEMENT;
   var $__41 = $traceurRuntime.getModuleImpl("traceur@0.0.Y/src/syntax/TokenType"),
       AMPERSAND = $__41.AMPERSAND,
       AMPERSAND_EQUAL = $__41.AMPERSAND_EQUAL,
@@ -6397,7 +6390,9 @@ System.registerModule("traceur@0.0.Y/src/outputgeneration/ParseTreeWriter", func
       this.visitAny(tree.right);
     },
     visitBindingElement: function(tree) {
+      var typeAnnotation = arguments[1] !== (void 0) ? arguments[1]: null;
       this.visitAny(tree.binding);
+      this.writeTypeAnnotation_(typeAnnotation);
       if (tree.initialiser) {
         this.write_(EQUAL);
         this.visitAny(tree.initialiser);
@@ -6595,8 +6590,10 @@ System.registerModule("traceur@0.0.Y/src/outputgeneration/ParseTreeWriter", func
       }
     },
     visitFormalParameter: function(tree) {
-      this.visitAny(tree.parameter);
-      this.writeTypeAnnotation_(tree.typeAnnotation);
+      if (tree.parameter.type === BINDING_ELEMENT) this.visitBindingElement(tree.parameter, tree.typeAnnotation); else {
+        this.visitAny(tree.parameter);
+        this.writeTypeAnnotation_(tree.typeAnnotation);
+      }
     },
     visitFunctionBody: function(tree) {
       this.write_(OPEN_CURLY);
@@ -15925,7 +15922,10 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/DestructuringTransformer
       return new constr(tree.location, initialiser, collection, body);
     },
     transformFormalParameter: function(tree) {
-      if (tree.typeAnnotation !== null && tree.parameter.type === BINDING_ELEMENT && tree.parameter.binding.type === OBJECT_PATTERN) tree = new FormalParameter(null, this.transformBindingElement(tree.parameter, tree.typeAnnotation), null, []);
+      if (tree.typeAnnotation !== null && tree.parameter.type === BINDING_ELEMENT) {
+        var parameter = this.transformBindingElement(tree.parameter, tree.typeAnnotation);
+        if (parameter !== tree.parameter) tree = new FormalParameter(null, parameter, null, []);
+      }
       return $traceurRuntime.superCall(this, $DestructuringTransformer.prototype, "transformFormalParameter", [tree]);
     },
     transformBindingElement: function(tree) {

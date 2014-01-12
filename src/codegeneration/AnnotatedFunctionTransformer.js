@@ -26,6 +26,28 @@ import {MetadataTransformer} from './MetadataTransformer';
 /**
  * Annotation extension
  *
+ * This transforms function annotations into function metadata.  The metadata is
+ * stored as an array in one of two properties, either "annotations" or
+ * "parameters".  Each annotation stored is constructed and any parameters
+ * specified on the annotation are passed to the annotation's constructor.
+ *
+ * Annotations on the function are stored as an "annotations" array property
+ * on the function.
+ *
+ * Annotations on parameters are stored in the "parameters" array on the
+ * function.  The parameters metadata array is a two dimensional array where
+ * each entry is an array of metadata for each parameter in the method
+ * declaration.  If the parameter is typed then the first entry in its
+ * corresponding metadata will be the type followed by any annotations.
+ *
+ *   @A
+ *   function b(@A c:T, d:T) {}
+ *
+ *   =>
+ *
+ *    function b(c, d) {}
+ *    b.annotations = [new A];
+ *    b.parameters = [[T, new A], [T]];
  */
 export class AnnotatedFunctionTransformer extends ParseTreeTransformer {
   transformAnnotatedFunctionDeclaration(tree) {

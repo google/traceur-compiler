@@ -238,7 +238,7 @@
       clone = parse(cloneCode);
       if (reporter.hadError()) {
         fail('Error compiling generated code for ' + name + '.\n' +
-             reporter.errors.join('\n'));
+             reporter.errors.join('\n') + "\n" + cloneCode);
         return;
       }
 

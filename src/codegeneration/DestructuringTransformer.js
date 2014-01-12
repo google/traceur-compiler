@@ -371,11 +371,14 @@ export class DestructuringTransformer extends ParameterTransformer {
 
   transformFormalParameter(tree) {
     if (tree.typeAnnotation !== null &&
-        tree.parameter.type === BINDING_ELEMENT &&
-        tree.parameter.binding.type === OBJECT_PATTERN)
-      tree = new FormalParameter(null,
-        this.transformBindingElement(tree.parameter, tree.typeAnnotation),
-        null, []);
+        tree.parameter.type === BINDING_ELEMENT) {
+      // TODO use let
+      var parameter = this.transformBindingElement(tree.parameter,
+                                                   tree.typeAnnotation);
+      if (parameter !== tree.parameter)
+        tree = new FormalParameter(null, parameter, null, []);
+    }
+
     return super.transformFormalParameter(tree);
   }
 
