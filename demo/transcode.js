@@ -32,7 +32,7 @@ class BatchErrorReporter extends ErrorReporter {
   }
 }
 
-export function transcode(contents, name, onSuccess, onFailure) {
+export function transcode(contents, name, script, onSuccess, onFailure) {
   var options;
   if (traceurOptions.sourceMaps) {
     var config = {file: 'traceured.js'};
@@ -50,7 +50,10 @@ export function transcode(contents, name, onSuccess, onFailure) {
     onSuccess(loaderHooks.transcoded, loaderHooks.sourceMap);
   }
   var loader = new Loader(loaderHooks);
-  loader.module(contents, name, {}, reportTranscoding, reportErrors);
+  if (script)
+    loader.script(contents, name, {}, reportTranscoding, reportErrors);
+  else
+    loader.module(contents, name, {}, reportTranscoding, reportErrors);
 }
 
 export function renderSourceMap(source, sourceMap) {

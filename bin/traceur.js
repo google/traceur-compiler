@@ -6299,12 +6299,12 @@ System.registerModule("traceur@0.0.Y/src/outputgeneration/ParseTreeWriter", func
         this.write_('\x1B[0m');
       }
     },
-    visitAnnotatedClassDeclaration: function(tree) {
+    visitAnnotatedClassElement: function(tree) {
       this.writeList_(tree.annotations, null, true);
       this.writeln_();
-      this.visitAny(tree.declaration);
+      this.visitAny(tree.element);
     },
-    visitAnnotatedFunctionDeclaration: function(tree) {
+    visitAnnotatedDeclaration: function(tree) {
       this.writeList_(tree.annotations, null, true);
       this.writeln_();
       this.visitAny(tree.declaration);
@@ -7280,6 +7280,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/ParseTreeValidator", function() 
   };
   var $ParseTreeValidator = ($traceurRuntime.createClass)(ParseTreeValidator, {
     fail_: function(tree, message) {
+      console.log(tree.toJSON());
       throw new ValidationError(tree, message);
     },
     check_: function(condition, tree, message) {
@@ -17814,6 +17815,12 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/ObjectLiteralTransformer
           return new LiteralExpression(token.location, token);
       }
     },
+    transformClassDeclaration: function(tree) {
+      return tree;
+    },
+    transformClassExpression: function(tree) {
+      return tree;
+    },
     transformObjectLiteralExpression: function(tree) {
       var oldNeedsTransform = this.needsAdvancedTransform;
       var oldSeenAccessors = this.seenAccessors;
@@ -18397,33 +18404,23 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/TypeTransformer", functi
   };
   var $TypeTransformer = ($traceurRuntime.createClass)(TypeTransformer, {
     transformVariableDeclaration: function(tree) {
-      if (tree.typeAnnotation) {
-        tree = new VariableDeclaration(tree.location, tree.lvalue, null, assertType(tree.initialiser, tree.typeAnnotation));
-      }
+      if (tree.typeAnnotation) tree = new VariableDeclaration(tree.location, tree.lvalue, null, assertType(tree.initialiser, tree.typeAnnotation));
       return $traceurRuntime.superCall(this, $TypeTransformer.prototype, "transformVariableDeclaration", [tree]);
     },
     transformFunctionDeclaration: function(tree) {
-      if (tree.typeAnnotation) {
-        tree = new FunctionDeclaration(tree.location, tree.name, tree.isGenerator, tree.formalParameterList, null, ReturnTypeAsserter.assertTypes(tree.functionBody, tree.typeAnnotation, tree.formalParameterList));
-      }
+      if (tree.typeAnnotation) tree = new FunctionDeclaration(tree.location, tree.name, tree.isGenerator, tree.formalParameterList, null, ReturnTypeAsserter.assertTypes(tree.functionBody, tree.typeAnnotation, tree.formalParameterList));
       return $traceurRuntime.superCall(this, $TypeTransformer.prototype, "transformFunctionDeclaration", [tree]);
     },
     transformFunctionExpression: function(tree) {
-      if (tree.typeAnnotation) {
-        tree = new FunctionExpression(tree.location, tree.name, tree.isGenerator, tree.formalParameterList, null, ReturnTypeAsserter.assertTypes(tree.functionBody, tree.typeAnnotation, tree.formalParameterList));
-      }
+      if (tree.typeAnnotation) tree = new FunctionExpression(tree.location, tree.name, tree.isGenerator, tree.formalParameterList, null, ReturnTypeAsserter.assertTypes(tree.functionBody, tree.typeAnnotation, tree.formalParameterList));
       return $traceurRuntime.superCall(this, $TypeTransformer.prototype, "transformFunctionExpression", [tree]);
     },
     transformPropertyMethodAssignment: function(tree) {
-      if (tree.typeAnnotation) {
-        tree = new PropertyMethodAssignment(tree.location, tree.isStatic, tree.isGenerator, tree.name, tree.formalParameterList, null, ReturnTypeAsserter.assertTypes(tree.functionBody, tree.typeAnnotation, tree.formalParameterList));
-      }
+      if (tree.typeAnnotation) tree = new PropertyMethodAssignment(tree.location, tree.isStatic, tree.isGenerator, tree.name, tree.formalParameterList, null, ReturnTypeAsserter.assertTypes(tree.functionBody, tree.typeAnnotation, tree.formalParameterList));
       return $traceurRuntime.superCall(this, $TypeTransformer.prototype, "transformPropertyMethodAssignment", [tree]);
     },
     transformGetAccessor: function(tree) {
-      if (tree.typeAnnotation) {
-        tree = new GetAccessor(tree.location, tree.isStatic, tree.name, null, ReturnTypeAsserter.assertTypes(tree.body, tree.typeAnnotation, null));
-      }
+      if (tree.typeAnnotation) tree = new GetAccessor(tree.location, tree.isStatic, tree.name, null, ReturnTypeAsserter.assertTypes(tree.body, tree.typeAnnotation, null));
       return $traceurRuntime.superCall(this, $TypeTransformer.prototype, "transformGetAccessor", [tree]);
     }
   }, {}, ParseTreeTransformer);

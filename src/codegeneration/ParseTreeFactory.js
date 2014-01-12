@@ -1155,4 +1155,3 @@ export function createAssignStateStatement(state) {
       createIdentifierExpression(STATE),
       createNumberLiteral(state));
 }
-

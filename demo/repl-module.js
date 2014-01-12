@@ -135,7 +135,7 @@ function compile() {
      errorElement.textContent = errors.join('\n');
   }
   if (transcode)
-    transcode(contents, name, onSuccess, onFailure);
+    transcode(contents, name, !evalCheckbox.checked, onSuccess, onFailure);
 }
 
 function createOptionRow(name) {

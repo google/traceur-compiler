@@ -207,13 +207,13 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     }
   }
 
-  visitAnnotatedClassDeclaration(tree) {
+  visitAnnotatedClassElement(tree) {
     this.writeList_(tree.annotations, null, true);
     this.writeln_();
-    this.visitAny(tree.declaration);
+    this.visitAny(tree.element);
   }
 
-  visitAnnotatedFunctionDeclaration(tree) {
+  visitAnnotatedDeclaration(tree) {
     this.writeList_(tree.annotations, null, true);
     this.writeln_();
     this.visitAny(tree.declaration);

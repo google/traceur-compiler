@@ -173,6 +173,10 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
     }
   }
 
+  // don't traverse into classes
+  transformClassDeclaration(tree) { return tree; }
+  transformClassExpression(tree) { return tree; }
+
   transformObjectLiteralExpression(tree) {
     // If the object literal needs to be transformed this calls the
     // transformation of the individual transformations of the property names
