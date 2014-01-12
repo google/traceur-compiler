@@ -1,4 +1,4 @@
-// Copyright 2012 Traceur Authors.
+// Copyright 2014 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ export class AnnotatedClassTransformer extends ParseTreeTransformer {
     } = this.transformClass_(tree, this.annotations);
 
     if (metadataStatements.length > 0)
-      return new AnonBlock(null, [transformedClass].concat(metadataStatements));
+      return new AnonBlock(null, [transformedClass, ...metadataStatements]);
 
     return transformedClass;
   }

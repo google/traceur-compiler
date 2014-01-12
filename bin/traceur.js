@@ -14148,7 +14148,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/AnnotatedClassTransforme
       var $__140 = this.transformClass_(tree, this.annotations),
           transformedClass = $__140.transformedClass,
           metadataStatements = $__140.metadataStatements;
-      if (metadataStatements.length > 0) return new AnonBlock(null, [transformedClass].concat(metadataStatements));
+      if (metadataStatements.length > 0) return new AnonBlock(null, $traceurRuntime.spread([transformedClass], metadataStatements));
       return transformedClass;
     },
     transformClass_: function(declaration, classAnnotations) {
@@ -14241,7 +14241,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/AnnotatedFunctionTransfo
       var $__143 = this.transformFunction_(tree, this.annotations),
           transformedFunction = $__143.transformedFunction,
           metadataStatements = $__143.metadataStatements;
-      if (metadataStatements.length > 0) return new AnonBlock(null, [transformedFunction].concat(metadataStatements));
+      if (metadataStatements.length > 0) return new AnonBlock(null, $traceurRuntime.spread([transformedFunction], metadataStatements));
       return transformedFunction;
     },
     transformFormalParameter: function(tree) {
