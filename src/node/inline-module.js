@@ -93,6 +93,8 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
     basePath = path.join(__dirname, '../../');
   }
 
+  basePath = basePath.replace(/\\/g, '/');
+
   var loadCount = 0;
   var elements = [];
   var hooks = new InlineLoaderHooks(reporter, basePath, elements, depTarget);
