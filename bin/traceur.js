@@ -6480,15 +6480,14 @@ System.registerModule("traceur@0.0.Y/src/outputgeneration/ParseTreeWriter", func
       this.write_(SEMI_COLON);
     },
     visitExportDeclaration: function(tree) {
+      var declaration = tree.declaration;
       if (tree.declaration.type === ANNOTATED_DECLARATION) {
         this.writeList_(tree.declaration.annotations, null, true);
         this.writeln_();
-        this.write_(EXPORT);
-        this.visitAny(tree.declaration.declaration);
-      } else {
-        this.write_(EXPORT);
-        this.visitAny(tree.declaration);
+        declaration = tree.declaration.declaration;
       }
+      this.write_(EXPORT);
+      this.visitAny(declaration);
     },
     visitExportDefault: function(tree) {
       this.write_(DEFAULT);
@@ -7280,7 +7279,6 @@ System.registerModule("traceur@0.0.Y/src/syntax/ParseTreeValidator", function() 
   };
   var $ParseTreeValidator = ($traceurRuntime.createClass)(ParseTreeValidator, {
     fail_: function(tree, message) {
-      console.log(tree.toJSON());
       throw new ValidationError(tree, message);
     },
     check_: function(condition, tree, message) {
@@ -11239,9 +11237,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/Parser", function() {
       if (this.peekRest_(type)) {
         formals.push(this.parseFormalRestParameter_(annotations));
       } else {
-        if (this.peekFormalParameter_(this.peekType_())) {
-          formals.push(this.parseFormalParameter_(annotations));
-        }
+        if (this.peekFormalParameter_(this.peekType_())) formals.push(this.parseFormalParameter_(annotations));
         while (this.eatIf_(COMMA)) {
           annotations = this.collectAnnotations_();
           if (this.peekRest_(this.peekType_())) {
@@ -11274,9 +11270,7 @@ System.registerModule("traceur@0.0.Y/src/syntax/Parser", function() {
       var start = this.getTreeStartLocation_();
       this.eat_(DOT_DOT_DOT);
       var id = this.parseBindingIdentifier_();
-      var parameter = new RestParameter(this.getTreeLocation_(start), id);
-      parameter.annotations = annotations;
-      return parameter;
+      return new RestParameter(this.getTreeLocation_(start), id);
     },
     parseFunctionBody_: function(isGenerator, params) {
       var start = this.getTreeStartLocation_();

@@ -491,15 +491,15 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {ExportDeclaration} tree
    */
   visitExportDeclaration(tree) {
+    var declaration = tree.declaration;
     if (tree.declaration.type === ANNOTATED_DECLARATION) {
       this.writeList_(tree.declaration.annotations, null, true);
       this.writeln_();
-      this.write_(EXPORT);
-      this.visitAny(tree.declaration.declaration);
-    } else {
-      this.write_(EXPORT);
-      this.visitAny(tree.declaration);
+      declaration = tree.declaration.declaration;
     }
+
+    this.write_(EXPORT);
+    this.visitAny(declaration);
   }
 
   visitExportDefault(tree) {
