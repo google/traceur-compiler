@@ -13,8 +13,7 @@
 // limitations under the License.
 
 import {AmdTransformer} from './AmdTransformer';
-import {AnnotatedClassTransformer} from './AnnotatedClassTransformer';
-import {AnnotatedFunctionTransformer} from './AnnotatedFunctionTransformer';
+import {AnnotatedDeclarationTransformer} from './AnnotatedDeclarationTransformer';
 import {ArrayComprehensionTransformer} from './ArrayComprehensionTransformer';
 import {ArrowFunctionTransformer} from './ArrowFunctionTransformer';
 import {BlockBindingTransformer} from './BlockBindingTransformer';
@@ -88,10 +87,8 @@ export class FromOptionsTransformer extends MultiTransformer {
     if (transformOptions.arrowFunctions)
       append(ArrowFunctionTransformer);
 
-    if (transformOptions.annotations) {
-      append(AnnotatedClassTransformer);
-      append(AnnotatedFunctionTransformer);
-    }
+    if (transformOptions.annotations)
+      append(AnnotatedDeclarationTransformer);
 
     // ClassTransformer needs to come before ObjectLiteralTransformer.
     if (transformOptions.classes)

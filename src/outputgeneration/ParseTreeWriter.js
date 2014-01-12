@@ -23,7 +23,10 @@ import {
 } from '../syntax/PredefinedName';
 import {Token} from '../syntax/Token';
 import {getKeywordType} from '../syntax/Keywords';
-import {BINDING_ELEMENT} from '../syntax/trees/ParseTreeType';
+import {
+  ANNOTATED_DECLARATION,
+  BINDING_ELEMENT
+} from '../syntax/trees/ParseTreeType';
 
 import {
   AMPERSAND,
@@ -488,8 +491,15 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {ExportDeclaration} tree
    */
   visitExportDeclaration(tree) {
-    this.write_(EXPORT);
-    this.visitAny(tree.declaration);
+    if (tree.declaration.type === ANNOTATED_DECLARATION) {
+      this.writeList_(tree.declaration.annotations, null, true);
+      this.writeln_();
+      this.write_(EXPORT);
+      this.visitAny(tree.declaration.declaration);
+    } else {
+      this.write_(EXPORT);
+      this.visitAny(tree.declaration);
+    }
   }
 
   visitExportDefault(tree) {

@@ -20,12 +20,10 @@ import {
   AnonBlock,
   ClassDeclaration,
   ClassMemberMetadata,
-  ExportDeclaration,
   FunctionMetadata
 } from '../syntax/trees/ParseTrees';
 import {
   ANNOTATED_CLASS_ELEMENT,
-  EXPORT_DECLARATION,
   GET_ACCESSOR,
   PROPERTY_METHOD_ASSIGNMENT,
   SET_ACCESSOR
@@ -36,71 +34,20 @@ import {MetadataTransformer} from './MetadataTransformer';
 /**
  * Annotation extension
  *
- * This transforms class annotations into class metadata.  The metadata is
- * stored as an array in one of two properties, either "annotations" or
- * "parameters".  Each annotation stored is constructed and any parameters
- * specified on the annotation are passed to the annotation's constructor.
- *
- * Annotations on a class, method, or accessor are stored in the "annotations"
- * array on the corresponding element.
- *
- * Annotations on parameters are stored in the "parameters" array on the parent
- * element.  The parameters metadata array is a two dimensional array where
- * each entry is an array of metadata for each parameter in the method
- * declaration.  If the parameter is typed then the first entry in its
- * corresponding metadata will be the type followed by any annotations.
- *
- *   @A
- *   class B {
- *     constructor(@A x:T) {
- *       super();
- *     }
- *     @A
- *     method(@A x:T) {
- *     }
- *   }
- *
- *   =>
- *
- *    var B = function(x) {
- *      "use strict";
- *      $traceurRuntime.superCall(this, $B.prototype, "constructor", []);
- *    };
- *    var $B = ($traceurRuntime.createClass)(B, {method: function(x) {
- *        "use strict";
- *      }}, {});
- *    B.annotations = [new A];
- *    B.parameters = [[T, new A]];
- *    B.prototype.method.annotations = [new A];
- *    B.prototype.method.parameters = [[T, new A]];
  */
 export class AnnotatedClassTransformer extends ParseTreeTransformer {
-  transformAnnotatedClassDeclaration(tree) {
-    var declaration = tree.declaration;
-
-    if (declaration.type === EXPORT_DECLARATION)
-      declaration = tree.declaration.declaration;
-
-    var {
-      transformedClass,
-      metadataStatements
-    } = this.transformClass_(declaration, tree.annotations);
-
-    if (declaration.type === EXPORT_DECLARATION &&
-        transformedClass !== declaration)
-      transformedClass = new ExportDeclaration(tree.location, transformedClass);
-
-    if (metadataStatements.length > 0)
-      return new AnonBlock(null, [transformedClass].concat(metadataStatements));
-
-    return transformedClass;
+  /**
+   * @param {Array.<ParseTree>} annotations
+   */
+  constructor(annotations) {
+    this.annotations = annotations;
   }
 
   transformClassDeclaration(tree) {
     var {
       transformedClass,
       metadataStatements
-    } = this.transformClass_(tree, []);
+    } = this.transformClass_(tree, this.annotations);
 
     if (metadataStatements.length > 0)
       return new AnonBlock(null, [transformedClass].concat(metadataStatements));
@@ -109,19 +56,19 @@ export class AnnotatedClassTransformer extends ParseTreeTransformer {
   }
 
   transformClass_(declaration, classAnnotations) {
-    var metadataList = [], metadataStatements = [];
-    var classParameters = [], elements = [];
+    var metadataList = [], metadataStatements = [], classParameters = [];
     var elementsChanged = false;
 
-    declaration.elements.forEach((element) => {
+    if (classAnnotations === null)
+      classAnnotations = [];
+
+    var elements = declaration.elements.map((element) => {
       var {
         transformedElement,
         metadata,
         constructorAnnotations,
         constructorParameters
       } = this.transformClassElement_(element, declaration.name);
-
-      elements.push(transformedElement);
 
       if (transformedElement !== element)
         elementsChanged = true;
@@ -136,6 +83,8 @@ export class AnnotatedClassTransformer extends ParseTreeTransformer {
 
       if (constructorParameters)
         classParameters = constructorParameters;
+
+      return transformedElement;
     });
 
     metadataList.unshift(new FunctionMetadata(null, declaration.name,
@@ -197,5 +146,13 @@ export class AnnotatedClassTransformer extends ParseTreeTransformer {
       constructorParameters,
       transformedElement: tree
     };
+  }
+
+  /**
+   * @param {ClassDeclaration} tree
+   * @Param {Array.<ParseTree>} annotations
+   */
+  static transformTree(tree, annotations) {
+    return new AnnotatedClassTransformer(annotations).transformAny(tree);
   }
 }

@@ -10,7 +10,7 @@
       "ParseTree"
     ]
   },
-  "AnnotatedClassDeclaration": {
+  "AnnotatedDeclaration": {
     "location": [
       "SourceRange"
     ],
@@ -19,18 +19,6 @@
     ],
     "declaration": [
       "ClassDeclaration",
-      "ExportDeclaration"
-    ]
-  },
-  "AnnotatedFunctionDeclaration": {
-    "location": [
-      "SourceRange"
-    ],
-    "annotations": [
-      "Array.<Annotation>"
-    ],
-    "declaration": [
-      "ExportDeclaration",
       "FunctionDeclaration"
     ]
   },

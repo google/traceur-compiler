@@ -84,7 +84,7 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
   if (referrerName) {
     // The compile occurs two directories down from current directory,
     // in src/node.  Thus the names will appear as eg ../src/x.
-    // We want something like referrerName/src/x. So we need to give 
+    // We want something like referrerName/src/x. So we need to give
     // the normalize() the 'package' or root name with src/node append
     // to represent the referrer from here.
     referrerName = referrerName && referrerName + 'src/node';
@@ -99,7 +99,7 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
   var loader = new Loader(hooks);
 
   function loadNext() {
-    var codeUnit = loader.loadAsScript(filenames[loadCount],
+    loader.loadAsScript(filenames[loadCount],
       {referrerName: referrerName},
       function() {
         loadCount++;
@@ -111,10 +111,7 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
           var tree = allLoaded(basePath, reporter, elements);
           callback(tree);
         }
-      }, function() {
-        console.error(codeUnit.error);
-        errback(codeUnit.error);
-      });
+      }, errback);
   }
 
   loadNext();

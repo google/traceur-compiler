@@ -57,6 +57,7 @@ import {
 } from './TokenType';
 import {
   ANNOTATED_CLASS_ELEMENT,
+  ANNOTATED_DECLARATION,
   ARRAY_PATTERN,
   BINDING_ELEMENT,
   BINDING_IDENTIFIER,
@@ -434,7 +435,11 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {ExportDeclaration} tree
    */
   visitExportDeclaration(tree) {
-    var declType = tree.declaration.type;
+    var declaration = tree.declaration;
+    if (declaration.type === ANNOTATED_DECLARATION)
+      declaration= declaration.declaration;
+
+    var declType = declaration.type;
     this.checkVisit_(
         declType == VARIABLE_STATEMENT ||
         declType == FUNCTION_DECLARATION ||

@@ -178,9 +178,8 @@ import {
 } from './TokenType';
 
 import {
-  AnnotatedClassDeclaration,
   AnnotatedClassElement,
-  AnnotatedFunctionDeclaration,
+  AnnotatedDeclaration,
   ArgumentList,
   ArrayComprehension,
   ArrayLiteralExpression,
@@ -3535,27 +3534,35 @@ export class Parser {
     var annotations = this.collectAnnotations_();
     var type;
     var declaration;
+    var isExport = false;
 
 
     type = this.peekType_();
+
     if (this.peekAnnotatedDeclaration_(type)) {
       if (type === EXPORT) {
-        declaration = this.parseExportDeclaration_();
-
-        if (declaration.declaration.type === CLASS_DECLARATION) {
-          return new AnnotatedClassDeclaration(this.getTreeLocation_(start),
-              annotations, declaration);
-        } else if (declaration.declaration.type === FUNCTION_DECLARATION) {
-          return new AnnotatedFunctionDeclaration(this.getTreeLocation_(start),
-              annotations, declaration);
-        }
-      } else if (type === CLASS) {
-        return new AnnotatedClassDeclaration(this.getTreeLocation_(start),
-          annotations, this.parseClassDeclaration_());
-      } else if (type === FUNCTION) {
-        return new AnnotatedFunctionDeclaration(this.getTreeLocation_(start),
-          annotations, this.parseFunctionDeclaration_());
+        isExport = true;
+        this.eat_(EXPORT);
+        type = this.peekType_();
       }
+
+      switch (type) {
+        case CLASS:
+          declaration = this.parseClassDeclaration_();
+          break;
+        case FUNCTION:
+          declaration = this.parseFunctionDeclaration_();
+          break;
+      }
+
+      declaration = new AnnotatedDeclaration(
+          this.getTreeLocation_(start),
+          annotations, declaration);
+
+      if (isExport)
+        declaration = new ExportDeclaration(this.getTreeLocation_(start),
+            declaration);
+      return declaration;
     }
 
     return this.parseSyntaxError_('Unsupported annotated expression');
