@@ -101,7 +101,7 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
   var loader = new Loader(hooks);
 
   function loadNext() {
-    loader.loadAsScript(filenames[loadCount],
+    var codeUnit = loader.loadAsScript(filenames[loadCount],
       {referrerName: referrerName},
       function() {
         loadCount++;
@@ -113,7 +113,11 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
           var tree = allLoaded(basePath, reporter, elements);
           callback(tree);
         }
-      }, errback);
+      }, function () {
+        // TODO codeUnit is not returned by loadAsScript
+        console.error(codeUnit.error);
+        errback(codeUnit.error);
+      });
   }
 
   loadNext();
