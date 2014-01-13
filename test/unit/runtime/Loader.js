@@ -64,6 +64,12 @@ suite('modules.js', function() {
     assert.equal(loaderHooks.locate(load), 'http://example.org/a/abc/def.js');
   });
 
+  test('traceur@', function() {
+    var traceur = System.get('traceur@');
+    var optionsModule = System.getForTesting('src/options');
+    assert.equal(traceur.options, optionsModule.options);
+  });
+
   test('LoaderEval', function(done) {
     getLoader().script('(function(x = 42) { return x; })()', './LoaderEval', {},
       function(result) {

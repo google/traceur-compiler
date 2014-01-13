@@ -17,7 +17,7 @@ GENSRC = \
 TPL_GENSRC_DEPS = $(addsuffix -template.js.dep, $(TPL_GENSRC))
 
 SRC_NODE = $(wildcard src/node/*.js)
-SRC_ALL = $(wildcard src/**/*.js)
+SRC_ALL = $(wildcard src/**/*.js src/*.js) 
 
 TFLAGS = --
 
@@ -121,7 +121,7 @@ bin/%.min.js: bin/%.js
 	node build/minifier.js $^ $@
 
 bin/traceur-runtime.js: $(RUNTIME_SRC)
-	./traceur --out $@ $(TFLAGS) $^
+	./traceur --out $@ --referrer='traceur@0.0.Y/' $(TFLAGS) $^
 
 bin/traceur-bare.js: src/traceur-import.js build/compiled-by-previous-traceur.js
 	./traceur --out $@ $(TFLAGS) $<
