@@ -162,5 +162,5 @@ if (out) {
   else
     compileToDirectory(out, includes, flags.sourceMaps);
 } else {
-  interpret(includes[0], includes.slice(1), argv.flags);
+  interpret(path.resolve(includes[0]), includes.slice(1), argv.flags);
 }

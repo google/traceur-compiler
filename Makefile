@@ -62,7 +62,7 @@ test-runtime: bin/traceur-runtime.js $(RUNTIME_TESTS)
 
 test: test/test-list.js bin/traceur.js $(COMPILE_BEFORE_TEST) bin/traceur-runtime.js \
 	wiki test/amd-compiled test/commonjs-compiled test-interpret \
-	test-inline-module-error
+	test-interpret-absolute test-inline-module-error
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(TESTS)
 
 test/unit: bin/traceur.js bin/traceur-runtime.js
@@ -86,6 +86,9 @@ test/test-list.js: force
 	@git ls-files -o -c test/feature | node build/build-test-list.js > $@
 
 test-interpret: test/unit/runtime/test_interpret.js
+	./traceur $^
+
+test-interpret-absolute: $(CURDIR)/test/unit/runtime/test_interpret.js
 	./traceur $^
 
 test-inline-module-error:
