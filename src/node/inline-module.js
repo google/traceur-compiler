@@ -113,9 +113,8 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
           var tree = allLoaded(basePath, reporter, elements);
           callback(tree);
         }
-      }, function() {
-        console.error(codeUnit.error);
-        errback(codeUnit.error);
+      }, function(err) {
+        errback(err);
       });
   }
 
