@@ -562,10 +562,11 @@
     getForTesting: function(name) {
       var $__0 = this;
       if (!this.testingPrefix_) {
-        Object.keys(moduleInstances).forEach((function(key) {
+        Object.keys(moduleInstances).some((function(key) {
           var m = /(traceur@[^\/]*\/)/.exec(key);
           if (m) {
             $__0.testingPrefix_ = m[1];
+            return true;
           }
         }));
       }
