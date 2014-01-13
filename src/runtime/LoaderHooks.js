@@ -74,7 +74,7 @@ export class LoaderHooks {
   parse(codeUnit) {
     assert(!codeUnit.data.tree);
     var reporter = this.reporter;
-    var normalizedName = codeUnit.name;
+    var normalizedName = codeUnit.normalizedName;
     var program = codeUnit.text;
     // For error reporting, prefer loader URL, fallback if we did not load text.
     var url = codeUnit.url || normalizedName;
@@ -92,7 +92,7 @@ export class LoaderHooks {
   }
 
   transform(codeUnit) {
-    var transformer = new AttachModuleNameTransformer(codeUnit.name);
+    var transformer = new AttachModuleNameTransformer(codeUnit.normalizedName);
     var transformedTree = transformer.transformAny(codeUnit.data.tree);
     transformer = new FromOptionsTransformer(this.reporter,
         identifierGenerator);
@@ -114,22 +114,50 @@ export class LoaderHooks {
   }
 
   locate_(load) {
-    var normalizedModuleName = load.name;
+    var normalizedModuleName = load.normalizedName;
     var asJS = normalizedModuleName + '.js';
     // Tolerate .js endings
     if (/\.js$/.test(normalizedModuleName))
       asJS = normalizedModuleName;
     if (options.referrer) {
-      if (asJS.indexOf(options.referrer) === 0)
+      if (asJS.indexOf(options.referrer) === 0) {
         asJS = asJS.slice(options.referrer.length);
+        load.data.locateMap = {
+          pattern: options.referrer,
+          replacement: ''
+        };
+      }
     }
     if (isAbsolute(asJS))
       return asJS;
     var baseURL = load.metadata && load.metadata.baseURL;
     baseURL = baseURL || this.rootUrl();
-    if (baseURL)
+    if (baseURL) {
+      load.data.baseURL = baseURL;
       return resolveUrl(baseURL, asJS);
+    }
     return asJS;
+  }
+
+  nameTrace(load) {
+    var trace = '';
+    if (load.data.locateMap) {
+      trace += this.locateMapTrace(load);
+    }
+    if (load.data.baseURL) {
+      trace += this.baseURLTrace(load);
+    }
+    return trace;
+  }
+
+  locateMapTrace(load) {
+    var map = load.data.locateMap;
+    return 'LoaderHooks.locate found \'' + map.pattern + '\' -> \'' 
+        + map.replacement + '\n';
+  }
+
+  baseURLTrace(load) {
+    return 'LoaderHooks.locate resolved against \'' + load.data.baseURL + '\'\n';
   }
 
   evaluateCodeUnit(codeUnit) {
