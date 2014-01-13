@@ -61,7 +61,8 @@ test-runtime: bin/traceur-runtime.js $(RUNTIME_TESTS)
 	@echo 'Open test/runtime.html to test runtime only'
 
 test: test/test-list.js bin/traceur.js $(COMPILE_BEFORE_TEST) bin/traceur-runtime.js \
-	wiki test/amd-compiled test/commonjs-compiled test-interpret
+	wiki test/amd-compiled test/commonjs-compiled test-interpret \
+	test-inline-module-error
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(TESTS)
 
 test/unit: bin/traceur.js bin/traceur-runtime.js
@@ -86,6 +87,10 @@ test/test-list.js: force
 
 test-interpret: test/unit/runtime/test_interpret.js
 	./traceur $^
+
+test-inline-module-error:
+	./traceur --out not-written.js \
+		test/feature/Modules/Error_ImportDefault.js  2>&1 | sed '1d'
 
 # TODO(vojta): Trick make to only compile when necessary.
 test/commonjs-compiled: force
