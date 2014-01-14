@@ -13346,7 +13346,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/module/ModuleVisitor", f
       var name = tree.token.processedValue;
       var referrer = this.moduleSymbol.normalizedName;
       var codeUnit = this.loader_.getCodeUnitForModuleSpecifier(name, referrer);
-      var moduleSymbol = codeUnit.data.moduleSymbol;
+      var moduleSymbol = codeUnit.metadata.moduleSymbol;
       if (!moduleSymbol) {
         var msg = (name + " is not a module, required by " + referrer);
         this.reportError(tree, msg);
@@ -19782,24 +19782,24 @@ System.registerModule("traceur@0.0.Y/src/runtime/LoaderHooks", function() {
       if (!this.parse(codeUnit)) return;
       codeUnit.state = PARSED;
       var moduleSpecifierVisitor = new ModuleSpecifierVisitor(this.reporter);
-      moduleSpecifierVisitor.visit(codeUnit.data.tree);
+      moduleSpecifierVisitor.visit(codeUnit.metadata.tree);
       return moduleSpecifierVisitor.moduleSpecifiers;
     },
     parse: function(codeUnit) {
-      assert(!codeUnit.data.tree);
+      assert(!codeUnit.metadata.tree);
       var reporter = this.reporter;
-      var normalizedName = codeUnit.name;
+      var normalizedName = codeUnit.normalizedName;
       var program = codeUnit.text;
       var url = codeUnit.url || normalizedName;
       var file = new SourceFile(url, program);
       var parser = new Parser(reporter, file);
-      if (codeUnit.type == 'module') codeUnit.data.tree = parser.parseModule(); else codeUnit.data.tree = parser.parseScript();
-      codeUnit.data.moduleSymbol = new ModuleSymbol(codeUnit.data.tree, normalizedName);
+      if (codeUnit.type == 'module') codeUnit.metadata.tree = parser.parseModule(); else codeUnit.metadata.tree = parser.parseScript();
+      codeUnit.metadata.moduleSymbol = new ModuleSymbol(codeUnit.metadata.tree, normalizedName);
       return !reporter.hadError();
     },
     transform: function(codeUnit) {
-      var transformer = new AttachModuleNameTransformer(codeUnit.name);
-      var transformedTree = transformer.transformAny(codeUnit.data.tree);
+      var transformer = new AttachModuleNameTransformer(codeUnit.normalizedName);
+      var transformedTree = transformer.transformAny(codeUnit.metadata.tree);
       transformer = new FromOptionsTransformer(this.reporter, identifierGenerator);
       return transformer.transform(transformedTree);
     },
@@ -19820,21 +19820,47 @@ System.registerModule("traceur@0.0.Y/src/runtime/LoaderHooks", function() {
       return load.url;
     },
     locate_: function(load) {
-      var normalizedModuleName = load.name;
+      var normalizedModuleName = load.normalizedName;
       var asJS = normalizedModuleName + '.js';
       if (/\.js$/.test(normalizedModuleName)) asJS = normalizedModuleName;
       if (options.referrer) {
-        if (asJS.indexOf(options.referrer) === 0) asJS = asJS.slice(options.referrer.length);
+        if (asJS.indexOf(options.referrer) === 0) {
+          asJS = asJS.slice(options.referrer.length);
+          load.metadata.locateMap = {
+            pattern: options.referrer,
+            replacement: ''
+          };
+        }
       }
       if (isAbsolute(asJS)) return asJS;
       var baseURL = load.metadata && load.metadata.baseURL;
       baseURL = baseURL || this.rootUrl();
-      if (baseURL) return resolveUrl(baseURL, asJS);
+      if (baseURL) {
+        load.metadata.baseURL = baseURL;
+        return resolveUrl(baseURL, asJS);
+      }
       return asJS;
     },
+    nameTrace: function(load) {
+      var trace = '';
+      if (load.metadata.locateMap) {
+        trace += this.locateMapTrace(load);
+      }
+      if (load.metadata.baseURL) {
+        trace += this.baseURLTrace(load);
+      }
+      return trace;
+    },
+    locateMapTrace: function(load) {
+      var map = load.metadata.locateMap;
+      return ("LoaderHooks.locate found \'" + map.pattern + "\' -> \'" + map.replacement + "\'\n");
+    },
+    baseURLTrace: function(load) {
+      return 'LoaderHooks.locate resolved against \'' + load.metadata.baseURL + '\'\n';
+    },
     evaluateCodeUnit: function(codeUnit) {
-      var result = ('global', eval)(codeUnit.data.transcoded);
-      codeUnit.data.transformedTree = null;
+      var result = ('global', eval)(codeUnit.metadata.transcoded);
+      codeUnit.metadata.transformedTree = null;
       return result;
     },
     analyzeDependencies: function(dependencies, loader) {
@@ -19844,8 +19870,8 @@ System.registerModule("traceur@0.0.Y/src/runtime/LoaderHooks", function() {
         var codeUnit = dependencies[i];
         assert(codeUnit.state >= PARSED);
         if (codeUnit.state == PARSED) {
-          trees.push(codeUnit.data.tree);
-          moduleSymbols.push(codeUnit.data.moduleSymbol);
+          trees.push(codeUnit.metadata.tree);
+          moduleSymbols.push(codeUnit.metadata.moduleSymbol);
         }
       }
       this.analyzer_.analyzeTrees(trees, moduleSymbols, loader);
@@ -19864,10 +19890,10 @@ System.registerModule("traceur@0.0.Y/src/runtime/LoaderHooks", function() {
     },
     transformCodeUnit: function(codeUnit) {
       this.transformDependencies(codeUnit.dependencies);
-      codeUnit.data.transformedTree = codeUnit.transform();
+      codeUnit.metadata.transformedTree = codeUnit.transform();
       codeUnit.state = TRANSFORMED;
-      codeUnit.data.transcoded = TreeWriter.write(codeUnit.data.transformedTree, this.outputOptions_);
-      if (codeUnit.url && codeUnit.data.transcoded) codeUnit.data.transcoded += '//# sourceURL=' + codeUnit.url;
+      codeUnit.metadata.transcoded = TreeWriter.write(codeUnit.metadata.transformedTree, this.outputOptions_);
+      if (codeUnit.url && codeUnit.metadata.transcoded) codeUnit.metadata.transcoded += '//# sourceURL=' + codeUnit.url;
       codeUnit.sourceMap = this.outputOptions_ && this.outputOptions_.sourceMap;
     },
     checkForErrors: function(dependencies, phase) {
@@ -19903,9 +19929,9 @@ System.registerModule("traceur@0.0.Y/src/runtime/InterceptOutputLoaderHooks", fu
     this.transcoded = null;
   };
   var $InterceptOutputLoaderHooks = ($traceurRuntime.createClass)(InterceptOutputLoaderHooks, {instantiate: function($__301) {
-      var data = $__301.data;
-      this.sourceMap = data.sourceMap;
-      this.transcoded = data.transcoded;
+      var metadata = $__301.metadata;
+      this.sourceMap = metadata.sourceMap;
+      this.transcoded = metadata.transcoded;
       return undefined;
     }}, {}, LoaderHooks);
   return {get InterceptOutputLoaderHooks() {
@@ -19917,6 +19943,10 @@ System.registerModule("traceur@0.0.Y/src/runtime/Loader", function() {
   var ArrayMap = $traceurRuntime.getModuleImpl("traceur@0.0.Y/src/util/ArrayMap").ArrayMap;
   var LoaderHooks = $traceurRuntime.getModuleImpl("traceur@0.0.Y/src/runtime/LoaderHooks").LoaderHooks;
   var ObjectMap = $traceurRuntime.getModuleImpl("traceur@0.0.Y/src/util/ObjectMap").ObjectMap;
+  var $__304 = $traceurRuntime.getModuleImpl("traceur@0.0.Y/src/util/url"),
+      canonicalizeUrl = $__304.canonicalizeUrl,
+      isAbsolute = $__304.isAbsolute,
+      resolveUrl = $__304.resolveUrl;
   var getUid = $traceurRuntime.getModuleImpl("traceur@0.0.Y/src/util/uid").getUid;
   var base = Object.freeze(Object.create(null, {
     Array: {value: Array},
@@ -19945,11 +19975,14 @@ System.registerModule("traceur@0.0.Y/src/runtime/Loader", function() {
   var TRANSFORMED = 4;
   var COMPLETE = 5;
   var ERROR = 6;
-  var CodeUnit = function(loaderHooks, name, type, state) {
+  var CodeUnit = function(loaderHooks, normalizedName, type, state, name, referrerName, address) {
     this.loaderHooks = loaderHooks;
-    this.name = name;
+    this.normalizedName = normalizedName;
     this.type = type;
     this.state = state;
+    this.name_ = name;
+    this.referrerName_ = referrerName;
+    this.address_ = address;
     this.uid = getUid();
     this.state_ = NOT_STARTED;
     this.error = null;
@@ -19966,8 +19999,27 @@ System.registerModule("traceur@0.0.Y/src/runtime/Loader", function() {
       }
       this.state_ = state;
     },
-    get data() {
+    get metadata() {
       return this.data_;
+    },
+    nameTrace: function() {
+      var trace = this.specifiedAs();
+      if (isAbsolute(this.name_)) {
+        return trace + 'An absolute name.\n';
+      }
+      if (this.referrerName_) {
+        return trace + this.importedBy() + this.normalizesTo();
+      }
+      return trace + this.normalizesTo();
+    },
+    specifiedAs: function() {
+      return ("Specified as " + this.name_ + ".\n");
+    },
+    importedBy: function() {
+      return ("Imported by " + this.referrerName_ + ".\n");
+    },
+    normalizesTo: function(name) {
+      return 'Normalizes to ' + this.normalizedName + '\n';
     },
     addListener: function(callback, errback) {
       if (this.state >= COMPLETE) throw Error((this.name + " is already loaded"));
@@ -20003,13 +20055,16 @@ System.registerModule("traceur@0.0.Y/src/runtime/Loader", function() {
       if (this.loaderHooks.instantiate(this)) throw new Error('instantiate() with factory return not implemented.');
     }
   }, {});
-  var LoadCodeUnit = function(loaderHooks, name) {
-    $traceurRuntime.superCall(this, $LoadCodeUnit.prototype, "constructor", [loaderHooks, name, 'module', NOT_STARTED]);
+  var LoadCodeUnit = function(loaderHooks, normalizedName, name, referrerName, address) {
+    $traceurRuntime.superCall(this, $LoadCodeUnit.prototype, "constructor", [loaderHooks, normalizedName, 'module', NOT_STARTED, name, referrerName, address]);
   };
   var $LoadCodeUnit = ($traceurRuntime.createClass)(LoadCodeUnit, {}, {}, CodeUnit);
   var EvalCodeUnit = function(loaderHooks, code) {
-    var name = arguments[2] !== (void 0) ? arguments[2]: loaderHooks.rootUrl();
-    $traceurRuntime.superCall(this, $EvalCodeUnit.prototype, "constructor", [loaderHooks, name, LOADED]);
+    var normalizedName = arguments[2] !== (void 0) ? arguments[2]: loaderHooks.rootUrl();
+    var name = arguments[3];
+    var referrerName = arguments[4];
+    var address = arguments[5];
+    $traceurRuntime.superCall(this, $EvalCodeUnit.prototype, "constructor", [loaderHooks, normalizedName, 'script', LOADED, name, referrerName, address]);
     this.text = code;
   };
   var $EvalCodeUnit = ($traceurRuntime.createClass)(EvalCodeUnit, {}, {}, CodeUnit);
@@ -20025,15 +20080,11 @@ System.registerModule("traceur@0.0.Y/src/runtime/Loader", function() {
     loadTextFile: function(url, callback, errback) {
       return this.loaderHooks.fetch({address: url}, callback, errback);
     },
-    loadUnnormalized: function(name) {
+    load: function(name) {
       var referrerName = arguments[1] !== (void 0) ? arguments[1]: this.loaderHooks.rootUrl();
       var address = arguments[2];
       var type = arguments[3] !== (void 0) ? arguments[3]: 'script';
-      var normalizedName = System.normalize(name, referrerName, address);
-      return this.load(normalizedName, type);
-    },
-    load: function(normalizedName, type) {
-      var codeUnit = this.getCodeUnit(normalizedName, type);
+      var codeUnit = this.getCodeUnit_(name, referrerName, address, type);
       if (codeUnit.state != NOT_STARTED || codeUnit.state == ERROR) {
         return codeUnit;
       }
@@ -20053,7 +20104,7 @@ System.registerModule("traceur@0.0.Y/src/runtime/Loader", function() {
     },
     module: function(code, name, referrerName, address) {
       var normalizedName = System.normalize(name, referrerName, address);
-      var codeUnit = new EvalCodeUnit(this.loaderHooks, code, normalizedName);
+      var codeUnit = new EvalCodeUnit(this.loaderHooks, code, normalizedName, name, referrerName, address);
       this.cache.set({}, codeUnit);
       return codeUnit;
     },
@@ -20062,7 +20113,7 @@ System.registerModule("traceur@0.0.Y/src/runtime/Loader", function() {
       var referrerName = arguments[2];
       var address = arguments[3];
       var normalizedName = System.normalize(name, referrerName, address);
-      var codeUnit = new EvalCodeUnit(this.loaderHooks, code, normalizedName);
+      var codeUnit = new EvalCodeUnit(this.loaderHooks, code, normalizedName, name, referrerName, address);
       this.cache.set({}, codeUnit);
       this.handleCodeUnitLoaded(codeUnit);
       return codeUnit;
@@ -20074,11 +20125,12 @@ System.registerModule("traceur@0.0.Y/src/runtime/Loader", function() {
       }
       return this.urlToKey[combined] = {};
     },
-    getCodeUnit: function(name, type) {
-      var key = this.getKey(name, type);
+    getCodeUnit_: function(name, referrerName, address, type) {
+      var normalizedName = System.normalize(name, referrerName, address);
+      var key = this.getKey(normalizedName, type);
       var cacheObject = this.cache.get(key);
       if (!cacheObject) {
-        cacheObject = new LoadCodeUnit(this.loaderHooks, name);
+        cacheObject = new LoadCodeUnit(this.loaderHooks, normalizedName, name, referrerName, address);
         cacheObject.type = type;
         this.cache.set(key, cacheObject);
       }
@@ -20090,23 +20142,21 @@ System.registerModule("traceur@0.0.Y/src/runtime/Loader", function() {
       }));
     },
     getCodeUnitForModuleSpecifier: function(name, referrerName) {
-      var name = System.normalize(name, referrerName);
-      return this.getCodeUnit(name, 'module');
+      return this.getCodeUnit_(name, referrerName, null, 'module');
     },
     handleCodeUnitLoaded: function(codeUnit) {
       var $__302 = this;
-      var referrerName = codeUnit.name;
+      var referrerName = codeUnit.normalizedName;
       var moduleSpecifiers = this.loaderHooks.getModuleSpecifiers(codeUnit);
       if (!moduleSpecifiers) {
         this.abortAll();
         return;
       }
       codeUnit.dependencies = moduleSpecifiers.sort().map((function(name) {
-        name = System.normalize(name, referrerName);
-        return $__302.getCodeUnit(name, 'module');
+        return $__302.getCodeUnit_(name, referrerName, null, 'module');
       }));
       codeUnit.dependencies.forEach((function(dependency) {
-        $__302.load(dependency.name, 'module');
+        $__302.load(dependency.normalizedName, null, null, 'module');
       }));
       if (this.areAll(PARSED)) {
         this.analyze();
@@ -20115,10 +20165,11 @@ System.registerModule("traceur@0.0.Y/src/runtime/Loader", function() {
       }
     },
     handleCodeUnitLoadError: function(codeUnit) {
-      codeUnit.error = 'Failed to load \'' + codeUnit.url + '\'';
-      this.reporter.reportError(null, codeUnit.error);
+      var message = ("Failed to load '" + codeUnit.url + "'.\n") + codeUnit.nameTrace() + this.loaderHooks.nameTrace(codeUnit);
+      this.reporter.reportError(null, message);
       this.abortAll();
-      codeUnit.dispatchError(codeUnit.error);
+      codeUnit.error = message;
+      codeUnit.dispatchError(message);
     },
     abortAll: function() {
       this.cache.values().forEach((function(codeUnit) {
@@ -20197,9 +20248,9 @@ System.registerModule("traceur@0.0.Y/src/runtime/Loader", function() {
       var errback = arguments[3] !== (void 0) ? arguments[3]: (function(ex) {
         throw ex;
       });
-      var codeUnit = this.internalLoader_.loadUnnormalized(name, referrerName, address, 'module');
+      var codeUnit = this.internalLoader_.load(name, referrerName, address, 'module');
       codeUnit.addListener(function() {
-        callback(System.get(codeUnit.name));
+        callback(System.get(codeUnit.normalizedName));
       }, errback);
     },
     module: function(source, name) {
@@ -20222,7 +20273,7 @@ System.registerModule("traceur@0.0.Y/src/runtime/Loader", function() {
       var errback = arguments[3] !== (void 0) ? arguments[3]: (function(ex) {
         throw ex;
       });
-      var codeUnit = this.internalLoader_.loadUnnormalized(name, referrerName, address, 'script');
+      var codeUnit = this.internalLoader_.load(name, referrerName, address, 'script');
       codeUnit.addListener(function(result) {
         callback(result);
       }, errback);
