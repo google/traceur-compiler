@@ -3046,7 +3046,6 @@ System.registerModule("traceur@0.0.Y/src/syntax/PredefinedName", function() {
   var ARRAY = 'Array';
   var AS = 'as';
   var BIND = 'bind';
-  var BOOL = 'bool';
   var CALL = 'call';
   var CAUGHT_EXCEPTION = '$caughtException';
   var CLOSE = 'close';
@@ -3066,7 +3065,6 @@ System.registerModule("traceur@0.0.Y/src/syntax/PredefinedName", function() {
   var LENGTH = 'length';
   var MODULE = 'module';
   var NEW = 'new';
-  var NUMBER = 'number';
   var OBJECT = 'Object';
   var OBJECT_NAME = 'Object';
   var OF = 'of';
@@ -3078,7 +3076,6 @@ System.registerModule("traceur@0.0.Y/src/syntax/PredefinedName", function() {
   var SLICE = 'slice';
   var STATE = '$state';
   var STORED_EXCEPTION = '$storedException';
-  var STRING = 'string';
   var THEN = 'then';
   var THIS = 'this';
   var TRACEUR_RUNTIME = '$traceurRuntime';
@@ -3123,9 +3120,6 @@ System.registerModule("traceur@0.0.Y/src/syntax/PredefinedName", function() {
     },
     get BIND() {
       return BIND;
-    },
-    get BOOL() {
-      return BOOL;
     },
     get CALL() {
       return CALL;
@@ -3184,9 +3178,6 @@ System.registerModule("traceur@0.0.Y/src/syntax/PredefinedName", function() {
     get NEW() {
       return NEW;
     },
-    get NUMBER() {
-      return NUMBER;
-    },
     get OBJECT() {
       return OBJECT;
     },
@@ -3219,9 +3210,6 @@ System.registerModule("traceur@0.0.Y/src/syntax/PredefinedName", function() {
     },
     get STORED_EXCEPTION() {
       return STORED_EXCEPTION;
-    },
-    get STRING() {
-      return STRING;
     },
     get THEN() {
       return THEN;
@@ -7135,7 +7123,6 @@ System.registerModule("traceur@0.0.Y/src/syntax/ParseTreeValidator", function() 
       IMPORT_DECLARATION = $__49.IMPORT_DECLARATION,
       LITERAL_PROPERTY_NAME = $__49.LITERAL_PROPERTY_NAME,
       MODULE_DECLARATION = $__49.MODULE_DECLARATION,
-      MODULE_DECLARATION = $__49.MODULE_DECLARATION,
       MODULE_SPECIFIER = $__49.MODULE_SPECIFIER,
       NAMED_EXPORT = $__49.NAMED_EXPORT,
       OBJECT_PATTERN = $__49.OBJECT_PATTERN,
@@ -10492,16 +10479,12 @@ System.registerModule("traceur@0.0.Y/src/syntax/Parser", function() {
       REST_PARAMETER = $__77.REST_PARAMETER,
       SYNTAX_ERROR_TREE = $__77.SYNTAX_ERROR_TREE;
   var $__77 = $traceurRuntime.getModuleImpl("traceur@0.0.Y/src/syntax/PredefinedName"),
-      ANY = $__77.ANY,
       AS = $__77.AS,
-      BOOL = $__77.BOOL,
       FROM = $__77.FROM,
       GET = $__77.GET,
       MODULE = $__77.MODULE,
-      NUMBER = $__77.NUMBER,
       OF = $__77.OF,
-      SET = $__77.SET,
-      STRING = $__77.STRING;
+      SET = $__77.SET;
   var Scanner = $traceurRuntime.getModuleImpl("traceur@0.0.Y/src/syntax/Scanner").Scanner;
   var SourceRange = $traceurRuntime.getModuleImpl("traceur@0.0.Y/src/util/SourceRange").SourceRange;
   var StrictParams = $traceurRuntime.getModuleImpl("traceur@0.0.Y/src/staticsemantics/StrictParams").StrictParams;
@@ -12506,10 +12489,10 @@ System.registerModule("traceur@0.0.Y/src/syntax/Parser", function() {
     parseNamedOrPredefinedType_: function() {
       var start = this.getTreeStartLocation_();
       switch (this.peekToken_().value) {
-        case ANY:
-        case NUMBER:
-        case BOOL:
-        case STRING:
+        case 'any':
+        case 'number':
+        case 'boolean':
+        case 'string':
           var token = this.nextToken_();
           return new PredefinedType(this.getTreeLocation_(start), token);
         default:
@@ -13397,13 +13380,12 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/module/ExportVisitor", f
     },
     addExport: function(name, tree) {
       var moduleSymbol = this.moduleSymbol;
-      if (moduleSymbol.hasExport(name)) {
-        var previousExport = moduleSymbol.getExport(name).tree;
-        this.reportError(tree, ("Duplicate export of '" + name + "'"));
-        this.reportError(previousExport, ("'" + name + "' was previously exported here"));
-        return;
+      var existingExport = moduleSymbol.getExport(name);
+      if (existingExport) {
+        this.reportError(tree, ("Duplicate export. '" + name + "' was previously exported at " + existingExport.tree.location.start));
+      } else {
+        moduleSymbol.addExport(new ExportSymbol(name, tree));
       }
-      moduleSymbol.addExport(new ExportSymbol(name, tree));
     },
     visitClassDeclaration: function(tree) {
       this.addExport_(tree.name.identifierToken.value, tree);
@@ -13448,7 +13430,6 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/module/ExportVisitor", f
 });
 System.registerModule("traceur@0.0.Y/src/codegeneration/module/DirectExportVisitor", function() {
   "use strict";
-  var ExportSymbol = $traceurRuntime.getModuleImpl("traceur@0.0.Y/src/semantics/symbols/ExportSymbol").ExportSymbol;
   var ExportVisitor = $traceurRuntime.getModuleImpl("traceur@0.0.Y/src/codegeneration/module/ExportVisitor").ExportVisitor;
   var DirectExportVisitor = function() {
     $traceurRuntime.superCall(this, $DirectExportVisitor.prototype, "constructor", [null, null, null]);
@@ -19597,9 +19578,17 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/module/ValidationVisitor
   var $ValidationVisitor = ($traceurRuntime.createClass)(ValidationVisitor, {
     checkExport_: function(tree, name) {
       var moduleSymbol = this.validatingModule_;
-      if (moduleSymbol && !moduleSymbol.hasExport(name)) {
+      if (moduleSymbol && !moduleSymbol.getExport(name)) {
         var moduleName = moduleSymbol.normalizedName;
         this.reportError(tree, ("'" + name + "' is not exported by '" + moduleName + "'"));
+      }
+    },
+    checkImport_: function(tree, name) {
+      var existingImport = this.moduleSymbol.getImport(name);
+      if (existingImport) {
+        this.reportError(tree, ("'" + name + "' was previously imported at " + existingImport.location.start));
+      } else {
+        this.moduleSymbol.addImport(name, tree);
       }
     },
     visitAndValidate_: function(moduleSymbol, tree) {
@@ -19625,9 +19614,13 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/module/ValidationVisitor
       this.visitAndValidate_(moduleSymbol, tree.importClause);
     },
     visitImportSpecifier: function(tree) {
+      var importName = tree.rhs ? tree.rhs.value: tree.lhs.value;
+      this.checkImport_(tree, importName);
       this.checkExport_(tree, tree.lhs.value);
     },
     visitImportedBinding: function(tree) {
+      var importName = tree.binding.identifierToken.value;
+      this.checkImport_(tree, importName);
       this.checkExport_(tree, 'default');
     }
   }, {}, ModuleVisitor);
@@ -19676,12 +19669,13 @@ System.registerModule("traceur@0.0.Y/src/semantics/symbols/ModuleSymbol", functi
   var ModuleSymbol = function(tree, normalizedName) {
     $traceurRuntime.superCall(this, $ModuleSymbol.prototype, "constructor", [MODULE, tree]);
     this.exports_ = Object.create(null);
+    this.imports_ = Object.create(null);
     assert(normalizedName);
     this.normalizedName = normalizedName.replace(/\\/g, '/');
   };
   var $ModuleSymbol = ($traceurRuntime.createClass)(ModuleSymbol, {
     hasExport: function(name) {
-      return name in this.exports_;
+      return !!this.exports_[name];
     },
     getExport: function(name) {
       return this.exports_[name];
@@ -19694,6 +19688,12 @@ System.registerModule("traceur@0.0.Y/src/semantics/symbols/ModuleSymbol", functi
       return Object.keys(exports).map((function(key) {
         return exports[key];
       }));
+    },
+    addImport: function(name, tree) {
+      this.imports_[name] = tree;
+    },
+    getImport: function(name) {
+      return this.imports_[name];
     }
   }, {}, Symbol);
   return {get ModuleSymbol() {
