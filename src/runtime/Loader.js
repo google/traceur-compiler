@@ -15,8 +15,8 @@
 import {ArrayMap} from '../util/ArrayMap';
 import {LoaderHooks} from '../runtime/LoaderHooks';
 import {ObjectMap} from '../util/ObjectMap';
-import {getUid} from '../util/uid';
 import {canonicalizeUrl, isAbsolute, resolveUrl} from '../util/url';
+import {getUid} from '../util/uid';
 
 // TODO(arv): I stripped the resolvers to make this simpler for now.
 
@@ -94,12 +94,12 @@ class CodeUnit {
   /**
    * @return opaque value set and used by loaderHooks
    */
-  get data() {
+  get metadata() {
     return this.data_;
   }
 
   nameTrace() {
-    var trace = this.specifiedAs();;
+    var trace = this.specifiedAs();
     if (isAbsolute(this.name_)) {
       return trace + 'An absolute name.\n';
     }
@@ -326,8 +326,8 @@ class InternalLoader {
    * @param {CodeUnit} codeUnit
    */
   handleCodeUnitLoadError(codeUnit) {
-    var message = `Failed to load '${codeUnit.url}'.\n`;
-    message += codeUnit.nameTrace() + this.loaderHooks.nameTrace(codeUnit);
+    var message = `Failed to load '${codeUnit.url}'.\n` +
+        codeUnit.nameTrace() + this.loaderHooks.nameTrace(codeUnit);
 
     this.reporter.reportError(null, message);
     this.abortAll();

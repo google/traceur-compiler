@@ -20,9 +20,9 @@ export class InterceptOutputLoaderHooks extends LoaderHooks {
     this.sourceMap = null;
     this.transcoded = null;
   }
-  instantiate({data}) {
-    this.sourceMap = data.sourceMap;
-    this.transcoded = data.transcoded;
+  instantiate({metadata}) {
+    this.sourceMap = metadata.sourceMap;
+    this.transcoded = metadata.transcoded;
     return undefined;
   }
 }

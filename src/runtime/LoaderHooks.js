@@ -67,12 +67,12 @@ export class LoaderHooks {
 
     // Analyze to find dependencies
     var moduleSpecifierVisitor = new ModuleSpecifierVisitor(this.reporter);
-    moduleSpecifierVisitor.visit(codeUnit.data.tree);
+    moduleSpecifierVisitor.visit(codeUnit.metadata.tree);
     return moduleSpecifierVisitor.moduleSpecifiers;
   }
 
   parse(codeUnit) {
-    assert(!codeUnit.data.tree);
+    assert(!codeUnit.metadata.tree);
     var reporter = this.reporter;
     var normalizedName = codeUnit.normalizedName;
     var program = codeUnit.text;
@@ -81,19 +81,19 @@ export class LoaderHooks {
     var file = new SourceFile(url, program);
     var parser = new Parser(reporter, file);
     if (codeUnit.type == 'module')
-      codeUnit.data.tree = parser.parseModule();
+      codeUnit.metadata.tree = parser.parseModule();
     else
-      codeUnit.data.tree = parser.parseScript();
+      codeUnit.metadata.tree = parser.parseScript();
 
-    codeUnit.data.moduleSymbol =
-      new ModuleSymbol(codeUnit.data.tree, normalizedName);
+    codeUnit.metadata.moduleSymbol =
+      new ModuleSymbol(codeUnit.metadata.tree, normalizedName);
 
     return !reporter.hadError();
   }
 
   transform(codeUnit) {
     var transformer = new AttachModuleNameTransformer(codeUnit.normalizedName);
-    var transformedTree = transformer.transformAny(codeUnit.data.tree);
+    var transformedTree = transformer.transformAny(codeUnit.metadata.tree);
     transformer = new FromOptionsTransformer(this.reporter,
         identifierGenerator);
 
@@ -122,7 +122,7 @@ export class LoaderHooks {
     if (options.referrer) {
       if (asJS.indexOf(options.referrer) === 0) {
         asJS = asJS.slice(options.referrer.length);
-        load.data.locateMap = {
+        load.metadata.locateMap = {
           pattern: options.referrer,
           replacement: ''
         };
@@ -133,7 +133,7 @@ export class LoaderHooks {
     var baseURL = load.metadata && load.metadata.baseURL;
     baseURL = baseURL || this.rootUrl();
     if (baseURL) {
-      load.data.baseURL = baseURL;
+      load.metadata.baseURL = baseURL;
       return resolveUrl(baseURL, asJS);
     }
     return asJS;
@@ -141,31 +141,30 @@ export class LoaderHooks {
 
   nameTrace(load) {
     var trace = '';
-    if (load.data.locateMap) {
+    if (load.metadata.locateMap) {
       trace += this.locateMapTrace(load);
     }
-    if (load.data.baseURL) {
+    if (load.metadata.baseURL) {
       trace += this.baseURLTrace(load);
     }
     return trace;
   }
 
   locateMapTrace(load) {
-    var map = load.data.locateMap;
-    return 'LoaderHooks.locate found \'' + map.pattern + '\' -> \'' 
-        + map.replacement + '\n';
+    var map = load.metadata.locateMap;
+    return `LoaderHooks.locate found \'${map.pattern}\' -> \'${map.replacement}\'\n`;
   }
 
   baseURLTrace(load) {
-    return 'LoaderHooks.locate resolved against \'' + load.data.baseURL + '\'\n';
+    return 'LoaderHooks.locate resolved against \'' + load.metadata.baseURL + '\'\n';
   }
 
   evaluateCodeUnit(codeUnit) {
     // Source for modules compile into calls to registerModule(url, fnc).
     //
     // TODO(arv): Eval in the right context.
-    var result = ('global', eval)(codeUnit.data.transcoded);
-    codeUnit.data.transformedTree = null;
+    var result = ('global', eval)(codeUnit.metadata.transcoded);
+    codeUnit.metadata.transformedTree = null;
     return result;
   }
 
@@ -179,8 +178,8 @@ export class LoaderHooks {
       assert(codeUnit.state >= PARSED);
 
       if (codeUnit.state == PARSED) {
-        trees.push(codeUnit.data.tree);
-        moduleSymbols.push(codeUnit.data.moduleSymbol);
+        trees.push(codeUnit.metadata.tree);
+        moduleSymbols.push(codeUnit.metadata.moduleSymbol);
       }
     }
 
@@ -203,12 +202,12 @@ export class LoaderHooks {
 
   transformCodeUnit(codeUnit) {
     this.transformDependencies(codeUnit.dependencies); // depth first
-    codeUnit.data.transformedTree = codeUnit.transform();
+    codeUnit.metadata.transformedTree = codeUnit.transform();
     codeUnit.state = TRANSFORMED;
-    codeUnit.data.transcoded =  TreeWriter.write(codeUnit.data.transformedTree,
+    codeUnit.metadata.transcoded =  TreeWriter.write(codeUnit.metadata.transformedTree,
         this.outputOptions_);
-    if (codeUnit.url && codeUnit.data.transcoded)
-      codeUnit.data.transcoded += '//# sourceURL=' + codeUnit.url;
+    if (codeUnit.url && codeUnit.metadata.transcoded)
+      codeUnit.metadata.transcoded += '//# sourceURL=' + codeUnit.url;
     // TODO(jjb): return sourcemaps not sideeffect
     codeUnit.sourceMap =
       this.outputOptions_ && this.outputOptions_.sourceMap;
