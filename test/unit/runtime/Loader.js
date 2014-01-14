@@ -56,11 +56,12 @@ suite('modules.js', function() {
     var load = {
       metadata: {
         baseURL: 'http://example.org/a/'
-      }
+      },
+      data: {}
     }
-    load.name = '@abc/def';
+    load.normalizedName = '@abc/def';
     assert.equal(loaderHooks.locate(load), 'http://example.org/a/@abc/def.js');
-    load.name = 'abc/def';
+    load.normalizedName = 'abc/def';
     assert.equal(loaderHooks.locate(load), 'http://example.org/a/abc/def.js');
   });
 
