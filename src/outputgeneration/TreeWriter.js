@@ -19,41 +19,27 @@ import {ParseTreeWriter} from './ParseTreeWriter';
  * Create a ParseTreeWriter configured with options, apply it to tree
  * @param {ParseTree} tree
  * @param {Object=} options:
- *   highlighted: {ParseTree} branch of tree to highlight
- *   showLineNumbers: {boolean} add comments giving input line numbers
- *   sourceMapGenerator: {SourceMapGenerator} see third-party/source-maps
+ *     highlighted: {ParseTree} branch of tree to highlight
+ *     showLineNumbers: {boolean} add comments giving input line numbers
+ *     prettyPrint: {boolean}
+ *     sourceMapGenerator: {SourceMapGenerator} see third-party/source-maps
  * @return source code; optional side-effect options.sourceMap set
  */
 export function write(tree, options = undefined) {
-  var showLineNumbers;
-  var highlighted = null;
-  var sourceMapGenerator;
-  if (options) {
-    showLineNumbers = options.showLineNumbers;
-    highlighted = options.highlighted || null;
-    sourceMapGenerator = options.sourceMapGenerator;
-  }
-
+  var sourceMapGenerator = options && options.sourceMapGenerator;
   var writer;
-  if (sourceMapGenerator) {
-    writer = new ParseTreeMapWriter(highlighted, showLineNumbers,
-        sourceMapGenerator);
-  } else {
-    writer = new ParseTreeWriter(highlighted, showLineNumbers);
-  }
+  if (sourceMapGenerator)
+    writer = new ParseTreeMapWriter(sourceMapGenerator, options);
+  else
+    writer = new ParseTreeWriter(options);
 
   writer.visitAny(tree);
-  if (writer.currentLine_.length > 0) {
-    writer.writeln_();
-  }
 
-  if (sourceMapGenerator) {
+  if (sourceMapGenerator)
     options.sourceMap = sourceMapGenerator.toString();
-  }
 
-  return writer.result_.toString();
+  return writer.toString();
 }
-
 
 // TODO(arv): This should just export the static function instead.
 export class TreeWriter {}

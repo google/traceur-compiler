@@ -67,12 +67,15 @@ suite('writer.js', function() {
     }
   };
 
-  function parseAndWrite(name, source) {
+  function parse(name, source) {
     var sourceFile = new traceur.syntax.SourceFile(name, source);
     var parser = new traceur.syntax.Parser(errorReporter, sourceFile);
-    var tree = parser.parseScript();
-    var result = TreeWriter.write(tree, false);
-    return result;
+    return parser.parseScript();
+  }
+
+  function parseAndWrite(name, source) {
+    var tree = parse(name, source);
+    return TreeWriter.write(tree);
   }
 
   test('ParseAndWriteKeywords', function() {
@@ -80,6 +83,23 @@ suite('writer.js', function() {
     assert.equal('x.case = 5;\n', result);
     var result = parseAndWrite('test', 'var obj = {var: 42};\n');
     assert.equal('var obj = {var: 42};\n', result);
+  });
+
+  test('pretty print', function() {
+    var tree = parse('test', 'function f() { return 42; }');
+    var result = TreeWriter.write(tree);
+    assert.equal(result, 'function f() {\n  return 42;\n}\n');
+
+    result = TreeWriter.write(tree, {prettyPrint: false});
+    assert.equal(result, 'function f(){\nreturn 42;\n}\n');
+
+    tree = parse('test', 'aaa.bbb');
+    result = TreeWriter.write(tree, {prettyPrint: false});
+    assert.equal(result, 'aaa.bbb;\n');
+
+    tree = tree.scriptItemList[0].expression;
+    result = TreeWriter.write(tree, {prettyPrint: false});
+    assert.equal(result, 'aaa.bbb');
   });
 
 });

@@ -126,7 +126,7 @@
 
       var reporter = new traceur.util.TestErrorReporter();
       var LoaderHooks = traceur.modules.LoaderHooks;
-      var loaderHooks = new LoaderHooks(reporter, './', null, loader);
+      var loaderHooks = new LoaderHooks(reporter, './', undefined, loader);
 
       // TODO(jjb): TestLoaderHooks extends LoaderHooks. But this file is ES5.
       var options;

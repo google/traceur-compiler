@@ -34,7 +34,7 @@ function getSourceMapFileName(name) {
 }
 
 function writeTreeToFile(tree, filename, useSourceMaps, opt_sourceRoot) {
-  var options = null;
+  var options;
   if (useSourceMaps) {
     var sourceMapFilePath = getSourceMapFileName(filename);
     var config = {

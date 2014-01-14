@@ -44,7 +44,7 @@ suite('modules.js', function() {
   function getLoaderHooks(opt_reporter) {
     var LoaderHooks = traceur.modules.LoaderHooks;
     opt_reporter = opt_reporter || reporter;
-    return new LoaderHooks(opt_reporter, url, null, loader);
+    return new LoaderHooks(opt_reporter, url, undefined, loader);
   }
 
   function getLoader(opt_reporter) {
