@@ -36,7 +36,9 @@ suite('System.js', function() {
     assert.equal(System.normalize('./d/e/f', refererName), 'dir/d/e/f');
     assert.equal(System.normalize('../e/f', refererName), 'e/f');
     assert.equal(System.normalize('../src/options.js',
-        'traceur@/src/node'), 'traceur@/src/options.js')
+        'traceur@/b/node'), 'traceur@/src/options.js');
+    // not relative
+    assert.equal(System.normalize('d/e/f', refererName), 'd/e/f');
 
     try {
       assert.equal(System.normalize(undefined, refererName), 'should throw');
