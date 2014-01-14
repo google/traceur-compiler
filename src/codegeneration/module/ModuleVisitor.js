@@ -19,7 +19,6 @@ import {
   EXPORT_DECLARATION,
   IMPORT_DECLARATION
 } from '../../syntax/trees/ParseTreeType';
-import {Symbol} from '../../semantics/symbols/Symbol';
 
 /**
  * A specialized parse tree visitor for use with modules.
