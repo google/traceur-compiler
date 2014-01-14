@@ -19,8 +19,8 @@ var traceur = require('./traceur.js');
 var nodeLoader = require('./nodeLoader.js');
 
 function interpret(filename, argv, flags) {
-  // Interpret the filename argument as a platform-independent, 
-  // normalized module name. 
+  // Interpret the filename argument as a platform-independent,
+  // normalized module name.
   var moduleName = filename.replace(/\\/g, '/').replace(/\.js$/,'');
 
   // TODO(jjb): Should be system loader.
@@ -28,7 +28,8 @@ function interpret(filename, argv, flags) {
     var LoaderHooks = traceur.modules.LoaderHooks;
     var reporter = new traceur.util.ErrorReporter();
     // Load dependencies as relative to the argument.
-    var loaderHooks = new LoaderHooks(reporter, moduleName, null, nodeLoader);
+    var loaderHooks = new LoaderHooks(reporter, moduleName, undefined,
+                                      nodeLoader);
     return new traceur.modules.Loader(loaderHooks);
   }
   global.SystemLoader = getLoader();

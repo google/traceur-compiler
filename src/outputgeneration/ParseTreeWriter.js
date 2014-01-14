@@ -134,9 +134,8 @@ import {
   YIELD
 } from '../syntax/TokenType';
 
-// constants
 var NEW_LINE = '\n';
-var PRETTY_PRINT = true;
+var LINE_LENGTH = 80;
 
 /**
  * Converts a ParseTree to text.
@@ -146,10 +145,15 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {ParseTree} highlighted
    * @param {boolean} showLineNumbers
    */
-  constructor(highlighted, showLineNumbers) {
+  constructor({
+    highlighted = false,
+    showLineNumbers = false,
+    prettyPrint = true
+  } = {}) {
     super();
     this.highlighted_ = highlighted;
     this.showLineNumbers_ = showLineNumbers;
+    this.prettyPrint_ = prettyPrint;
     this.result_ = '';
     this.currentLine_ = '';
 
@@ -170,6 +174,15 @@ export class ParseTreeWriter extends ParseTreeVisitor {
      * @private
      */
     this.lastToken_ = null;
+  }
+
+  toString() {
+    if (this.currentLine_.length > 0) {
+      this.result_ += this.currentLine_;
+      this.currentLine_ = '';
+    }
+
+    return this.result_;
   }
 
   /**
@@ -1097,7 +1110,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
 
   writeln_() {
     if (this.currentLineComment_) {
-      while (this.currentLine_.length < 80) {
+      while (this.currentLine_.length < LINE_LENGTH) {
         this.currentLine_ += ' ';
       }
       this.currentLine_ += ' // ' + this.currentLineComment_;
@@ -1172,7 +1185,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     }
 
     if (value !== null) {
-      if (PRETTY_PRINT) {
+      if (this.prettyPrint_) {
         if (!this.currentLine_) {
           this.lastToken_ = '';
           for (var i = 0, indent = this.indentDepth_; i < indent; i++) {
@@ -1259,7 +1272,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
       case ELSE:
       case FINALLY:
       case WHILE:
-        return PRETTY_PRINT;
+        return this.prettyPrint_;
 
       case OPEN_CURLY:
         switch (lastValue) {
@@ -1268,7 +1281,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
           case OPEN_SQUARE:
             return false;
         }
-        return PRETTY_PRINT;
+        return this.prettyPrint_;
     }
 
     switch (lastValue) {
@@ -1289,7 +1302,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
       case TRY:
       case WHILE:
       case WITH:
-        return PRETTY_PRINT;
+        return this.prettyPrint_;
 
       case CASE:
       case CLASS:
@@ -1321,7 +1334,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
       case FROM:
       case OF:
       case MODULE:
-        return PRETTY_PRINT || this.isIdentifierNameOrNumber_(token);
+        return this.prettyPrint_ || this.isIdentifierNameOrNumber_(token);
     }
 
     if ((lastValue == PLUS || lastValue == PLUS_PLUS) &&
@@ -1337,7 +1350,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     if (this.isIdentifierNameOrNumber_(token)) {
       // This should really line break and indent until ;
       if (lastValue === CLOSE_PAREN)
-        return PRETTY_PRINT;
+        return this.prettyPrint_;
 
       return this.isIdentifierNameOrNumber_(this.lastToken_);
     }
@@ -1388,7 +1401,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
       case STAR_EQUAL:
       case UNSIGNED_RIGHT_SHIFT:
       case UNSIGNED_RIGHT_SHIFT_EQUAL:
-        return PRETTY_PRINT;
+        return this.prettyPrint_;
     }
     return false;
   }

@@ -14,7 +14,9 @@ suite('AmdTransformer.js', function() {
 
   suite('wrapModule', function() {
     function writeArray(arr) {
-      return arr.map(write).join('');
+      return arr.map(function(item) {
+        return write(item);
+      }).join('');
     }
 
     function removeWhiteSpaces(str) {
