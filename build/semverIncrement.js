@@ -30,16 +30,12 @@ function editProperties(data) {
 }
 
 function semverIncrement() {
-	var filename = path.join(__dirname, '../', 'package.json');
-	fs.readFile(filename, function (err, json) {
-		if (err)
-			throw err;
-
-		var data = JSON.parse(json);
-		data = editProperties(data);
-		fs.writeFileSync(filename, JSON.stringify(data, null, 2) + '\n');
-		console.log('PACKAGE_VERSION=\"' + data.version + '\"');
-	});
+	var filename = 'package.json';
+	var json = fs.readFileSync(filename);
+	var data = JSON.parse(json);
+	data = editProperties(data);
+	fs.writeFileSync(filename, JSON.stringify(data, null, 2) + '\n');
+	console.log('PACKAGE_VERSION=\"' + data.version + '\"');	
 }
 
 module.exports = semverIncrement;

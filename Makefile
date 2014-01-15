@@ -137,10 +137,10 @@ bin/traceur-bare.js: src/traceur-import.js build/compiled-by-previous-traceur.js
 concat: bin/traceur-runtime.js bin/traceur-bare.js
 	cat $^ > bin/traceur.js
 
-build/currentSemVer.mk: 
+build/currentSemVer.mk: force
 	git diff --quiet -- package.json && node build/semverIncrement.js > $@
 
-bin/traceur.js: build/compiled-by-previous-traceur.js $(SRC_NODE) build/currentSemVer.mk 
+bin/traceur.js: build/compiled-by-previous-traceur.js $(SRC_NODE)
 	@cp $< $@; touch -t 197001010000.00 bin/traceur.js
 	./traceur --out bin/traceur.js --referrer='traceur@'$(PACKAGE_VERSION)'/' $(TFLAGS) $(SRC)
 
