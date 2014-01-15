@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// semverIncrement:
+// incrementSemver:
 // update package.json to the semver number for the next PATCH level 
-// (Similar to npm version)
+// (Similar to npm version, but also changes devDependency)
 
 
 var fs = require('fs');
 var path = require('path');
 var semver = require('semver');
 
-function editProperties(data) {
+function incrementPatchVersion(data) {
 	var version = data.version;
 	var incrementVersion = semver.inc(version, 'patch');
 	data.version = incrementVersion;
@@ -29,14 +29,21 @@ function editProperties(data) {
 	return data;
 }
 
-function semverIncrement() {
-	var filename = 'package.json';
-	var json = fs.readFileSync(filename);
-	var data = JSON.parse(json);
-	data = editProperties(data);
-	fs.writeFileSync(filename, JSON.stringify(data, null, 2) + '\n');
-	console.log('PACKAGE_VERSION=\"' + data.version + '\"');	
+function printSemver() {
+	var filename = '../package.json';
+	var data = require(filename);
+	console.log(data.version);	
 }
 
-module.exports = semverIncrement;
-semverIncrement();
+function incrementSemver() {
+	var filename = '../package.json';
+	var data = require(filename);
+	data = incrementPatchVersion(data);
+	fs.writeFileSync(filename, JSON.stringify(data, null, 2) + '\n');
+}
+
+module.exports = {
+	printSemver: printSemver,
+	incrementSemver: incrementSemver
+};
+printSemver();

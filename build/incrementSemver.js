@@ -1,4 +1,4 @@
-// Copyright 2011 Traceur Authors.
+// Copyright 2014 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,13 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-suite('ParseTreeValidator.js', function() {
+// semverIncrement:
+// update package.json to the semver number for the next PATCH level 
+// (Similar to npm version)
 
-  var ParseTreeValidator =
-      System.getForTesting('src/syntax/ParseTreeValidator').ParseTreeValidator;
 
-  test('Validate null', function() {
-    ParseTreeValidator.validate(null);
-  });
-
-});
+var printSemver = require('./printSemver.js');
+printSemver.semverIncrement();

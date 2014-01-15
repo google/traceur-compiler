@@ -347,7 +347,7 @@ class InternalLoader {
     });
     // Notify all codeUnit listeners (else tests hang til timeout).
     this.cache.values().forEach((codeUnit) => {
-      codeUnit.dispatchError(codeUnit.error);
+      codeUnit.dispatchError(codeUnit.error || 'Error in dependency');
     });
   }
 
