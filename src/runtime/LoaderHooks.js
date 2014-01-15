@@ -19,7 +19,7 @@ import {FromOptionsTransformer} from '../codegeneration/FromOptionsTransformer';
 import {ModuleAnalyzer} from '../semantics/ModuleAnalyzer';
 import {ModuleSpecifierVisitor} from
     '../codegeneration/module/ModuleSpecifierVisitor';
-import {ModuleSymbol} from '../semantics/symbols/ModuleSymbol';
+import {ModuleSymbol} from '../semantics/ModuleSymbol';
 import {Parser} from '../syntax/Parser';
 import {options} from '../options';
 import {SourceFile} from '../syntax/SourceFile';
