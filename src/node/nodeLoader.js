@@ -21,10 +21,6 @@ function stripShebang(data) {
 }
 
 var nodeLoader = {
-  loadSync: function(url) {
-    return stripShebang(fs.readFileSync(url, 'utf8'));
-  },
-
   load: function(url, callback, errback) {
     fs.readFile(url, 'utf8', function(err, data) {
       if (err)

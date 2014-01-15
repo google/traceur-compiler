@@ -18,7 +18,7 @@ export var webLoader = {
    */
   load(url, callback, errback) {
     var xhr = new XMLHttpRequest();
-    xhr.onload = function() {
+    xhr.onload = () => {
       if (xhr.status == 200 || xhr.status == 0) {
         callback(xhr.responseText);
       } else {
@@ -26,22 +26,13 @@ export var webLoader = {
       }
       xhr = null;
     };
-    xhr.onerror = function() {
+    xhr.onerror = () => {
       errback();
     };
     xhr.open('GET', url, true);
     xhr.send();
-    return () => xhr && xhr.abort();
-  },
-
-  loadSync(url) {
-    var xhr = new XMLHttpRequest();
-    xhr.onerror = function(e) {
-      throw new Error(xhr.statusText);
+    return () => {
+      xhr && xhr.abort();
     };
-    xhr.open('GET', url, false);
-    xhr.send();
-    if (xhr.status == 200 || xhr.status == 0)
-      return xhr.responseText;
   }
 };
