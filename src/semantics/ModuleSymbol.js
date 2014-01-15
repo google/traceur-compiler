@@ -32,6 +32,8 @@ export class ModuleSymbol {
    * @param {ParseTree} tree
    */
   addExport(name, tree) {
+    // Duplicate exports should have been checked already.
+    assert(!this.exports_[name]);
     this.exports_[name] = tree;
   }
 
@@ -55,6 +57,8 @@ export class ModuleSymbol {
    * @param {ParseTree} tree
    */
   addImport(name, tree) {
+    // Duplicate imports should have been checked already.
+    assert(!this.imports_[name]);
     this.imports_[name] = tree;
   }
 

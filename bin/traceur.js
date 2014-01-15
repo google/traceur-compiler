@@ -13343,7 +13343,7 @@ System.registerModule("traceur@0.0.Y/src/codegeneration/module/ExportVisitor", f
       var moduleSymbol = this.moduleSymbol;
       var existingExport = moduleSymbol.getExport(name);
       if (existingExport) {
-        this.reportError(tree, ("Duplicate export. '" + name + "' was previously exported at " + existingExport.location.start));
+        this.reportError(tree, ("Duplicate export. '" + name + "' was previously ") + ("exported at " + existingExport.location.start));
       } else {
         moduleSymbol.addExport(name, tree);
       }
@@ -19633,6 +19633,7 @@ System.registerModule("traceur@0.0.Y/src/semantics/ModuleSymbol", function() {
   };
   ModuleSymbol = ($traceurRuntime.createClass)(ModuleSymbol, {
     addExport: function(name, tree) {
+      assert(!this.exports_[name]);
       this.exports_[name] = tree;
     },
     getExport: function(name) {
@@ -19642,6 +19643,7 @@ System.registerModule("traceur@0.0.Y/src/semantics/ModuleSymbol", function() {
       return Object.keys(this.exports_);
     },
     addImport: function(name, tree) {
+      assert(!this.imports_[name]);
       this.imports_[name] = tree;
     },
     getImport: function(name) {
