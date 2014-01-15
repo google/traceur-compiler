@@ -21,7 +21,7 @@ var fs = require('fs');
 var path = require('path');
 var semver = require('semver');
 
-function editProperties(data) {
+function incrementPatchVersion(data) {
 	var version = data.version;
 	var incrementVersion = semver.inc(version, 'patch');
 	data.version = incrementVersion;
@@ -37,10 +37,9 @@ function semverPrint() {
 }
 
 function semverIncrement() {
-	var filename = 'package.json';
-	var json = fs.readFileSync(filename);
-	var data = JSON.parse(json);
-	data = editProperties(data);
+	var filename = '../package.json';
+	var data = require(filename);
+	data = incrementPatchVersion(data);
 	fs.writeFileSync(filename, JSON.stringify(data, null, 2) + '\n');
 }
 

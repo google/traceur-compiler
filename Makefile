@@ -204,7 +204,7 @@ node_modules: package.json
 bin/traceur.ugly.js: bin/traceur.js
 	uglifyjs bin/traceur.js --compress -m -o $@
 
-updateSemVer: 
+updateSemVer: # unless the package.json has been manually edited.
 	git diff --quiet -- package.json && node build/semverIncrement.js
 
 prepublish: bin/traceur.js bin/traceur-runtime.js 
