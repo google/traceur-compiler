@@ -25,6 +25,7 @@ export class ModuleSymbol extends Symbol {
     // assert(tree === null || tree.type === 'module');
     super(MODULE, tree);
     this.exports_ = Object.create(null);
+    this.imports_ = Object.create(null);
     assert(normalizedName);
     this.normalizedName = normalizedName.replace(/\\/g, '/');
   }
@@ -34,7 +35,7 @@ export class ModuleSymbol extends Symbol {
    * @return {boolean}
    */
   hasExport(name) {
-    return name in this.exports_;
+    return !!this.exports_[name];
   }
 
   /**
@@ -59,5 +60,13 @@ export class ModuleSymbol extends Symbol {
   getExports() {
     var exports = this.exports_;
     return Object.keys(exports).map((key) => exports[key]);
+  }
+
+  addImport(name, tree) {
+    this.imports_[name] = tree;
+  }
+
+  getImport(name) {
+    return this.imports_[name];
   }
 }
