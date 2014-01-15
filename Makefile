@@ -49,6 +49,11 @@ MOCHA_OPTIONS = \
 
 GIT_BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
 
+NEXT_VERSION = $(shell node bin/printReversion.js)
+
+reversion: 
+	git diff --quiet -- package.json && node build/writeReversion.js
+
 build: bin/traceur.js wiki
 
 min: bin/traceur.min.js
