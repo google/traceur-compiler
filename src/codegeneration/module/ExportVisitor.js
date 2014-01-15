@@ -41,9 +41,8 @@ export class ExportVisitor extends ModuleVisitor {
     var moduleSymbol = this.moduleSymbol;
     var existingExport = moduleSymbol.getExport(name);
     if (existingExport) {
-      this.reportError(tree, `Duplicate export. '${
-          name}' was previously exported at ${
-          existingExport.tree.location.start}`);
+      this.reportError(tree, `Duplicate export. '${name}' was previously ` +
+          `exported at ${existingExport.tree.location.start}`);
     } else {
       moduleSymbol.addExport(new ExportSymbol(name, tree));
     }
