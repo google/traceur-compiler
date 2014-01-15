@@ -49,11 +49,6 @@ MOCHA_OPTIONS = \
 
 GIT_BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
 
-NEXT_VERSION = $(shell node bin/printReversion.js)
-
-reversion: 
-	git diff --quiet -- package.json && node build/writeReversion.js
-
 build: bin/traceur.js wiki
 
 min: bin/traceur.min.js
@@ -142,9 +137,12 @@ bin/traceur-bare.js: src/traceur-import.js build/compiled-by-previous-traceur.js
 concat: bin/traceur-runtime.js bin/traceur-bare.js
 	cat $^ > bin/traceur.js
 
-bin/traceur.js: build/compiled-by-previous-traceur.js $(SRC_NODE)
+build/currentSemVer.mk: 
+	git diff --quiet -- package.json && node build/semverIncrement.js > $@
+
+bin/traceur.js: build/compiled-by-previous-traceur.js $(SRC_NODE) build/currentSemVer.mk 
 	@cp $< $@; touch -t 197001010000.00 bin/traceur.js
-	./traceur --out bin/traceur.js --referrer='traceur@0.0.Y/' $(TFLAGS) $(SRC)
+	./traceur --out bin/traceur.js --referrer='traceur@'$(PACKAGE_VERSION)'/' $(TFLAGS) $(SRC)
 
 # Use last-known-good compiler to compile current source
 build/compiled-by-previous-traceur.js: \
@@ -223,4 +221,5 @@ test/wiki/CompilingOffline/out/greeter.js: test/wiki/CompilingOffline/greeter.js
 .PHONY: build min test test-list force boot clean distclean unicode-tables prepublish
 
 -include $(TPL_GENSRC_DEPS)
--include build/local.mk
+# include to ensure that node_module dependencies are updated after semverIncrement
+-include build/currentSemVer.mk
