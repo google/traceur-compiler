@@ -17,5 +17,5 @@
 // (Similar to npm version)
 
 
-var semverPrint = require('./semverPrint.js');
-semverPrint.semverIncrement();
+var printSemver = require('./printSemver.js');
+printSemver.semverIncrement();

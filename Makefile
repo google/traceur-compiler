@@ -49,7 +49,7 @@ MOCHA_OPTIONS = \
 
 GIT_BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
 
-PACKAGE_VERSION=$(shell node build/semverPrint.js)
+PACKAGE_VERSION=$(shell node build/printSemver.js)
 
 build: bin/traceur.js wiki
 
@@ -205,7 +205,7 @@ bin/traceur.ugly.js: bin/traceur.js
 	uglifyjs bin/traceur.js --compress -m -o $@
 
 updateSemVer: # unless the package.json has been manually edited.
-	git diff --quiet -- package.json && node build/semverIncrement.js
+	git diff --quiet -- package.json && node build/incrementSemver.js
 
 prepublish: bin/traceur.js bin/traceur-runtime.js 
 
