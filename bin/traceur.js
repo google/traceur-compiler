@@ -16828,8 +16828,8 @@ System.registerModule("traceur@0.0.10/src/codegeneration/generator/GeneratorTran
     },
     convertFunctionBodyToStateMachine_: function(tree) {
       var startState = this.allocateState();
-      var fallThroughState = this.allocateState();
-      if (tree.statements.length === 0) fallThroughState = startState;
+      var fallThroughState;
+      if (tree.statements.length === 0) fallThroughState = startState; else fallThroughState = this.allocateState();
       return this.stateToStateMachine_(new FallThroughState(startState, fallThroughState, tree.statements), fallThroughState);
     },
     transformGeneratorBody: function(tree) {

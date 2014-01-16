@@ -156,11 +156,13 @@ export class GeneratorTransformer extends CPSTransformer {
    */
   convertFunctionBodyToStateMachine_(tree) {
     var startState = this.allocateState();
-    var fallThroughState = this.allocateState();
+    var fallThroughState;
 
-    // If the body is empty the start and fallThrough are the same
+    // If the body is empty the start and fallThrough are the same.
     if (tree.statements.length === 0)
       fallThroughState = startState;
+    else
+      fallThroughState = this.allocateState();
 
     return this.stateToStateMachine_(
         new FallThroughState(startState, fallThroughState, tree.statements),
@@ -192,7 +194,8 @@ export class GeneratorTransformer extends CPSTransformer {
     if (this.reporter.hadError())
       return tree;
 
-    // If the FunctionBody has no yield or return no state machine gets created.
+    // If the FunctionBody has no yield or return no state machine got created
+    // in the above transformation. We therefore convert it below.
     var machine;
     if (transformedTree.type !== STATE_MACHINE)
       machine = this.convertFunctionBodyToStateMachine_(transformedTree);
