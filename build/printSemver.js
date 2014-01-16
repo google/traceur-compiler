@@ -39,7 +39,10 @@ function incrementSemver() {
 	var filename = '../package.json';
 	var data = require(filename);
 	data = incrementPatchVersion(data);
-	fs.writeFileSync(filename, JSON.stringify(data, null, 2) + '\n');
+	var b = fs.writeFileSync(filename, JSON.stringify(data, null, 2) + '\n');
+	var json = fs.readFileSync(filename);
+	var reData = JSON.parse(json);
+	console.log('readback ' + reData.version + ' b ' + b)
 	console.log(' -> ' + data.version)
 }
 
