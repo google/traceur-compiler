@@ -18,4 +18,4 @@
 
 
 var printSemver = require('./printSemver.js');
-printSemver.semverIncrement();
+printSemver.incrementSemver();
