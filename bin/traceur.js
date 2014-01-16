@@ -16051,14 +16051,8 @@ System.registerModule("traceur@0.0.10/src/codegeneration/generator/CPSTransforme
       assert(statements instanceof SwitchStatement);
       for (var i = 0; i < statements.caseClauses.length; i++) {
         var clause = statements.caseClauses[i];
-        if (clause.type == CASE_CLAUSE) {
-          if (this.containsStateMachine_(clause.statements)) {
-            return true;
-          }
-        } else {
-          if (this.containsStateMachine_(clause.statements)) {
-            return true;
-          }
+        if (this.containsStateMachine_(clause.statements)) {
+          return true;
         }
       }
       return false;
@@ -16774,9 +16768,10 @@ System.registerModule("traceur@0.0.10/src/codegeneration/generator/GeneratorTran
   var $__242 = $traceurRuntime.getModuleImpl("traceur@0.0.10/src/codegeneration/PlaceholderParser"),
       parseStatement = $__242.parseStatement,
       parseStatements = $__242.parseStatements;
+  var FallThroughState = $traceurRuntime.getModuleImpl("traceur@0.0.10/src/codegeneration/generator/FallThroughState").FallThroughState;
+  var ReturnState = $traceurRuntime.getModuleImpl("traceur@0.0.10/src/codegeneration/generator/ReturnState").ReturnState;
   var StateMachine = $traceurRuntime.getModuleImpl("traceur@0.0.10/src/syntax/trees/StateMachine").StateMachine;
   var YieldState = $traceurRuntime.getModuleImpl("traceur@0.0.10/src/codegeneration/generator/YieldState").YieldState;
-  var ReturnState = $traceurRuntime.getModuleImpl("traceur@0.0.10/src/codegeneration/generator/ReturnState").ReturnState;
   var $__242 = $traceurRuntime.getModuleImpl("traceur@0.0.10/src/codegeneration/ParseTreeFactory"),
       createAssignStateStatement = $__242.createAssignStateStatement,
       createAssignmentStatement = $__242.createAssignmentStatement,
@@ -16831,12 +16826,17 @@ System.registerModule("traceur@0.0.10/src/codegeneration/generator/GeneratorTran
       var fallThroughState = this.allocateState();
       return this.stateToStateMachine_(new ReturnState(startState, fallThroughState, this.transformAny(tree.expression)), fallThroughState);
     },
+    convertFunctionBodyToStateMachine_: function(tree) {
+      var startState = this.allocateState();
+      var fallThroughState = this.allocateState();
+      if (tree.statements.length === 0) fallThroughState = startState;
+      return this.stateToStateMachine_(new FallThroughState(startState, fallThroughState, tree.statements), fallThroughState);
+    },
     transformGeneratorBody: function(tree) {
       var transformedTree = this.transformAny(tree);
-      if (this.reporter.hadError()) {
-        return tree;
-      }
-      var machine = transformedTree;
+      if (this.reporter.hadError()) return tree;
+      var machine;
+      if (transformedTree.type !== STATE_MACHINE) machine = this.convertFunctionBodyToStateMachine_(transformedTree); else machine = transformedTree;
       machine = new StateMachine(machine.startState, machine.fallThroughState, this.removeEmptyStates(machine.states), machine.exceptionBlocks);
       var statements = $traceurRuntime.spread(this.getMachineVariables(tree, machine), parseStatements($__240, ST_NEWBORN, this.generateMachineInnerFunction(machine), this.generateMachineMethod(machine)));
       return createFunctionBody(statements);
