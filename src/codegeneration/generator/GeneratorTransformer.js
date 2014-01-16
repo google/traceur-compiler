@@ -22,9 +22,10 @@ import {
   parseStatement,
   parseStatements
 } from '../PlaceholderParser';
+import {FallThroughState} from './FallThroughState';
+import {ReturnState} from './ReturnState';
 import {StateMachine} from '../../syntax/trees/StateMachine';
 import {YieldState} from './YieldState';
-import {ReturnState} from './ReturnState';
 import {
   createAssignStateStatement,
   createAssignmentStatement,
@@ -148,6 +149,27 @@ export class GeneratorTransformer extends CPSTransformer {
   }
 
   /**
+   * Forces a FunctionBody without any yield/return into a state machine.
+   * @param {FunctionBody} tree
+   * @return {StateMachine} tree
+   * @private
+   */
+  convertFunctionBodyToStateMachine_(tree) {
+    var startState = this.allocateState();
+    var fallThroughState;
+
+    // If the body is empty the start and fallThrough are the same.
+    if (tree.statements.length === 0)
+      fallThroughState = startState;
+    else
+      fallThroughState = this.allocateState();
+
+    return this.stateToStateMachine_(
+        new FallThroughState(startState, fallThroughState, tree.statements),
+            fallThroughState);
+  }
+
+  /**
    * Transform a generator function body - removing yield statements.
    * The transformation is in two stages. First the statements are converted
    * into a single state machine by merging state machines via a bottom up
@@ -162,7 +184,6 @@ export class GeneratorTransformer extends CPSTransformer {
    *   $result[iterator] = function() { return this; };
    *   return $result;
    * }
-   * TODO: add close() method which executes pending finally clauses
    *
    * @param {FunctionBody} tree
    * @return {FunctionBody}
@@ -170,10 +191,19 @@ export class GeneratorTransformer extends CPSTransformer {
   transformGeneratorBody(tree) {
     // transform to a state machine
     var transformedTree = this.transformAny(tree);
-    if (this.reporter.hadError()) {
+    if (this.reporter.hadError())
       return tree;
-    }
-    var machine = transformedTree;
+
+    // If the FunctionBody has no yield or return no state machine got created
+    // in the above transformation. We therefore convert it below.
+    var machine;
+    if (transformedTree.type !== STATE_MACHINE)
+      machine = this.convertFunctionBodyToStateMachine_(transformedTree);
+    else
+      machine = transformedTree;
+
+    // TODO(arv): This is broken if removeEmptyStates removes the start or the
+    // fallThrough state.
     machine = new StateMachine(machine.startState,
                                machine.fallThroughState,
                                this.removeEmptyStates(machine.states),
