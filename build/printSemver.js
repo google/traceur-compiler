@@ -40,6 +40,7 @@ function incrementSemver() {
 	var data = require(filename);
 	data = incrementPatchVersion(data);
 	fs.writeFileSync(filename, JSON.stringify(data, null, 2) + '\n');
+	console.log(' -> ' + data.version)
 }
 
 module.exports = {
