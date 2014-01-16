@@ -29,17 +29,19 @@ function incrementPatchVersion(data) {
 	return data;
 }
 
+function filename() {
+	return path.join(__dirname, '..', 'package.json');
+}
+
 function printSemver() {
-	var filename = '../package.json';
-	var data = require(filename);
+	var data = require(filename());
 	console.log(data.version);	
 }
 
 function incrementSemver() {
-	var filename = '../package.json';
-	var data = require(filename);
+	var data = require(filename());
 	data = incrementPatchVersion(data);
-	fs.writeFileSync(filename, JSON.stringify(data, null, 2) + '\n');
+	fs.writeFileSync(filename(), JSON.stringify(data, null, 2) + '\n');
 }
 
 module.exports = {
