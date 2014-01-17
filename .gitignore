@@ -4,10 +4,7 @@
 *.swp
 .DS_Store
 .svn
-bin/traceur-runtime.js
-bin/traceur.map
-bin/traceur.min.js
-bin/traceur.ugly.js
+bin/*
 build/compiled-by-previous-traceur.js
 build/currentSemVer.mk
 build/local.mk
