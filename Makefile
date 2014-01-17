@@ -120,7 +120,6 @@ clean: wikiclean
 	@rm -rf test/commonjs-compiled/*
 	@rm -rf test/amd-compiled/*
 	@rm -f bin/*
-	@git checkout -- bin/
 
 initbench:
 	rm -rf test/bench/esprima
@@ -148,15 +147,16 @@ bin/traceur.js: build/compiled-by-previous-traceur.js $(SRC_NODE)
 build/compiled-by-previous-traceur.js: \
 	  $(subst src/node,build/node,$(SRC_NODE)) \
 	  build/previous-commit-traceur.js $(SRC_ALL)  | $(GENSRC) node_modules
+	@mkdir -p bin/
 	@cp build/previous-commit-traceur.js bin/traceur.js
 	./traceur-build --debug --out $@  --referrer='traceur@0.0.X/' $(TFLAGS) $(SRC)
 
-build/node/%: src/node/%
+build/node/%: node_modules/traceur/src/node/%
 	@mkdir -p build/node
-	git show HEAD:$< > $@
+	cp $< $@
 
 build/previous-commit-traceur.js:
-	git show HEAD:bin/traceur.js > $@
+	cp node_modules/traceur/bin/traceur.js $@
 
 debug: build/compiled-by-previous-traceur.js $(SRC)
 	./traceur --debug --out bin/traceur.js --sourcemap $(TFLAGS) $(SRC)
