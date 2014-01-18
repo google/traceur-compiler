@@ -100,14 +100,13 @@
       if(/[^\.]\/\.\.\//.test(name)) {
         throw new Error('module name embeds /../: ' + name);
       }
-      if (refererName)
+      if (name[0] === '.' && refererName)
         return resolveUrl(refererName, name);
       return canonicalizeUrl(name);
     },
 
-    get(name) {
-
-      var m = getUncoatedModuleInstantiator(name);
+    get(normalizedName) {
+      var m = getUncoatedModuleInstantiator(normalizedName);
       if (!m)
         return undefined;
       var moduleInstance = moduleInstances[m.url];
@@ -118,9 +117,11 @@
       return moduleInstances[m.url] = moduleInstance;
     },
 
-    set(name, uncoatedModule) {
-      name = String(name);
-      moduleInstantiators[name] = new UncoatedModuleEntry(name, uncoatedModule);
+    set(normalizedName, module) {
+      normalizedName = String(normalizedName);  // Req. by spec., why?
+      moduleInstantiators[normalizedName] = 
+          new UncoatedModuleInstantiator(normalizedName, () => module);
+      moduleInstances[normalizedName] = module;
     },
 
     get baseURL() {
@@ -137,6 +138,28 @@
       var normalizedName = System.normalize(name);
       moduleInstantiators[normalizedName] =
           new UncoatedModuleInstantiator(normalizedName, func);
+    },
+
+    /**
+     *  A 'backdoor' access function for traceur's own modules. Our
+     * modules are stored under names like 'traceur@0.0.n/<path>', 
+     * where n varies with every commit to master. Rather than send
+     * the verion number to every test, we allow tests to call this
+     * function with just th <path> part of the name.
+    **/
+    getForTesting(name) {
+      if (!this.testingPrefix_) {
+        Object.keys(moduleInstances).some( (key) => {
+          // Extract the version-dependent prefix from the first traceur
+          // module matching our naming convention.
+          var m = /(traceur@[^\/]*\/)/.exec(key);
+          if (m) {
+            this.testingPrefix_ = m[1];
+            return true;
+          }
+        });
+      }
+      return this.get(this.testingPrefix_ + name);
     }
 
   };

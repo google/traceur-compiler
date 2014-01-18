@@ -15,7 +15,7 @@
 suite('modules.js', function() {
 
   var MutedErrorReporter =
-      System.get('traceur@0.0.Y/src/util/MutedErrorReporter').MutedErrorReporter;
+      System.getForTesting('src/util/MutedErrorReporter').MutedErrorReporter;
 
   var reporter, baseURL;
 
@@ -44,7 +44,7 @@ suite('modules.js', function() {
   function getLoaderHooks(opt_reporter) {
     var LoaderHooks = traceur.modules.LoaderHooks;
     opt_reporter = opt_reporter || reporter;
-    return new LoaderHooks(opt_reporter, url, null, loader);
+    return new LoaderHooks(opt_reporter, url, undefined, loader);
   }
 
   function getLoader(opt_reporter) {
@@ -56,12 +56,19 @@ suite('modules.js', function() {
     var load = {
       metadata: {
         baseURL: 'http://example.org/a/'
-      }
+      },
+      data: {}
     }
-    load.name = '@abc/def';
+    load.normalizedName = '@abc/def';
     assert.equal(loaderHooks.locate(load), 'http://example.org/a/@abc/def.js');
-    load.name = 'abc/def';
+    load.normalizedName = 'abc/def';
     assert.equal(loaderHooks.locate(load), 'http://example.org/a/abc/def.js');
+  });
+
+  test('traceur@', function() {
+    var traceur = System.get('traceur@');
+    var optionsModule = System.getForTesting('src/options');
+    assert.equal(traceur.options, optionsModule.options);
   });
 
   test('LoaderEval', function(done) {

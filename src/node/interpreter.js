@@ -19,25 +19,21 @@ var traceur = require('./traceur.js');
 var nodeLoader = require('./nodeLoader.js');
 
 function interpret(filename, argv, flags) {
-  var execArgv = [require.main.filename].concat(flags || []);
-
-  filename = fs.realpathSync(filename);
-  process.argv = ['traceur', filename].concat(argv || []);
-  process.execArgv = process.execArgv.concat(execArgv);
-
-  if (traceur.options.deferredFunctions)
-    require('./deferred.js').wrap();
+  // Interpret the filename argument as a platform-independent,
+  // normalized module name.
+  var moduleName = filename.replace(/\\/g, '/').replace(/\.js$/,'');
 
   // TODO(jjb): Should be system loader.
   function getLoader() {
     var LoaderHooks = traceur.modules.LoaderHooks;
-    var url = __filename.replace(/\\/g, '/');
     var reporter = new traceur.util.ErrorReporter();
-    var loaderHooks = new LoaderHooks(reporter, url, null, nodeLoader);
+    // Load dependencies as relative to the argument.
+    var loaderHooks = new LoaderHooks(reporter, moduleName, undefined,
+                                      nodeLoader);
     return new traceur.modules.Loader(loaderHooks);
   }
   global.SystemLoader = getLoader();
-  global.SystemLoader.import(filename.replace(/\\/g, '/'));
+  global.SystemLoader.import(moduleName);
 }
 
 module.exports = interpret;

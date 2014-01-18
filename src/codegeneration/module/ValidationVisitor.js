@@ -26,9 +26,19 @@ export class ValidationVisitor extends ModuleVisitor {
 
   checkExport_(tree, name) {
     var moduleSymbol = this.validatingModule_;
-    if (moduleSymbol && !moduleSymbol.hasExport(name)) {
+    if (moduleSymbol && !moduleSymbol.getExport(name)) {
       var moduleName = moduleSymbol.normalizedName;
       this.reportError(tree, `'${name}' is not exported by '${moduleName}'`);
+    }
+  }
+
+  checkImport_(tree, name) {
+    var existingImport = this.moduleSymbol.getImport(name);
+    if (existingImport) {
+      this.reportError(tree, `'${name}' was previously imported at ${
+          existingImport.location.start}`);
+    } else {
+      this.moduleSymbol.addImport(name, tree);
     }
   }
 
@@ -69,15 +79,19 @@ export class ValidationVisitor extends ModuleVisitor {
 
   visitImportDeclaration(tree) {
     var moduleSymbol =
-      this.getModuleSymbolForModuleSpecifier(tree.moduleSpecifier);
+        this.getModuleSymbolForModuleSpecifier(tree.moduleSpecifier);
     this.visitAndValidate_(moduleSymbol, tree.importClause);
   }
 
   visitImportSpecifier(tree) {
+    var importName = tree.rhs ? tree.rhs.value : tree.lhs.value;
+    this.checkImport_(tree, importName);
     this.checkExport_(tree, tree.lhs.value);
   }
 
   visitImportedBinding(tree) {
+    var importName = tree.binding.identifierToken.value;
+    this.checkImport_(tree, importName);
     this.checkExport_(tree, 'default');
   }
 }

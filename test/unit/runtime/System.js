@@ -36,7 +36,9 @@ suite('System.js', function() {
     assert.equal(System.normalize('./d/e/f', refererName), 'dir/d/e/f');
     assert.equal(System.normalize('../e/f', refererName), 'e/f');
     assert.equal(System.normalize('../src/options.js',
-        'traceur@0.0.Y/src/node'), 'traceur@0.0.Y/src/options.js')
+        'traceur@/b/node'), 'traceur@/src/options.js');
+    // not relative
+    assert.equal(System.normalize('d/e/f', refererName), 'd/e/f');
 
     try {
       assert.equal(System.normalize(undefined, refererName), 'should throw');
@@ -71,6 +73,12 @@ suite('System.js', function() {
     // Canonicalize URL
     assert.equal(System.normalize('http://example.org/a/../b.html'),
       'http://example.org/b.html');
+  });
+
+  test('System.set', function() {
+    var polyfills = System.getForTesting('src/runtime/polyfills/polyfills');
+    System.set('traceur-testing-System@', polyfills);
+    assert.equal(polyfills, System.get('traceur-testing-System@'));
   });
 
 });

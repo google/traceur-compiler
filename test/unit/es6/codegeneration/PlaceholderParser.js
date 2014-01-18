@@ -15,103 +15,103 @@
 suite('PlaceholderParser.traceur.js', function() {
 
   var ParseTreeType =
-      System.get('traceur@0.0.Y/src/syntax/trees/ParseTreeType');
+      System.getForTesting('src/syntax/trees/ParseTreeType');
   var {parseExpression, parseStatement} =
-      System.get('traceur@0.0.Y/src/codegeneration/PlaceholderParser');
-  var {write} = System.get('traceur@0.0.Y/src/outputgeneration/TreeWriter');
+      System.getForTesting('src/codegeneration/PlaceholderParser');
+  var {write} = System.getForTesting('src/outputgeneration/TreeWriter');
 
   test('ParseExpressionIdentifierExpression', function() {
     var id = new traceur.syntax.IdentifierToken(null, 'x');
     var tree = parseExpression `1 + ${id}`;
-    assert.equal('1 + x\n', write(tree));
+    assert.equal('1 + x', write(tree));
   });
 
   test('ParseExpressionNumber', function() {
     var tree = parseExpression `1 + ${42}`;
-    assert.equal('1 + 42\n', write(tree));
+    assert.equal('1 + 42', write(tree));
   });
 
   test('ParseExpressionBoolean', function() {
     var tree = parseExpression `1 + ${true}`;
-    assert.equal('1 + true\n', write(tree));
+    assert.equal('1 + true', write(tree));
   });
 
   test('ParseExpressionString', function() {
     var s = 'Hello';
     var tree = parseExpression `1 + ${s}`;
-    assert.equal('1 + "Hello"\n', write(tree));
+    assert.equal('1 + "Hello"', write(tree));
   });
 
   test('ParseExpressionNull', function() {
     var tree = parseExpression `1 + ${null}`;
-    assert.equal('1 + null\n', write(tree));
+    assert.equal('1 + null', write(tree));
   });
 
   test('ParseExpressionUndefined', function() {
     var tree = parseExpression `1 + ${undefined}`;
-    assert.equal('1 + (void 0)\n', write(tree));
+    assert.equal('1 + (void 0)', write(tree));
   });
 
   test('ParseExpressionTree', function() {
     var xTree = parseExpression `x`;
     var tree = parseExpression `1 + ${xTree}`;
-    assert.equal('1 + x\n', write(tree));
+    assert.equal('1 + x', write(tree));
   });
 
   test('ParseExpressionFunction', function() {
     var tree = parseExpression `function() {}`;
-    assert.equal('function() {}\n', write(tree));
+    assert.equal('function() {}', write(tree));
   });
 
   test('ParseExpressionPropertyName', function() {
     var id = 'x';
     var tree = parseExpression `{${id}: ${id}}`;
-    assert.equal('{x: "x"}\n', write(tree));
+    assert.equal('{x: "x"}', write(tree));
   });
 
   test('ParseExpressionPropertyNameIdentifier', function() {
     var id = new traceur.syntax.IdentifierToken(null, 'x');
     var tree = parseExpression `{${id}: ${id}}`;
-    assert.equal('{x: x}\n', write(tree));
+    assert.equal('{x: x}', write(tree));
   });
 
   test('ParseExpressionMethodName', function() {
     var id = 'm';
     var tree = parseExpression `{${id}() {}}`;
-    assert.equal('{m() {}}\n', write(tree));
+    assert.equal('{m() {}}', write(tree));
   });
 
   test('ParseExpressionMemberExpression', function() {
     var id = 'm';
     var tree = parseExpression `obj.${id}`;
-    assert.equal('obj.m\n', write(tree));
+    assert.equal('obj.m', write(tree));
   });
 
   test('ParseStatementVarBinding', function() {
     var id = 'x';
     var tree = parseStatement `var ${id}`;
-    assert.equal('var x;\n', write(tree));
+    assert.equal('var x;', write(tree));
 
     tree = parseStatement `var [${id}] = [42]`;
-    assert.equal('var [x] = [42];\n', write(tree));
+    assert.equal('var [x] = [42];', write(tree));
   });
 
   test('ParseStatementFunctionBinding', function() {
     var id = 'x';
     var tree = parseStatement `function ${id}(){}`;
-    assert.equal('function x() {}\n', write(tree));
+    assert.equal('function x() {}', write(tree));
   });
 
   test('StatementLifting', function() {
     var returnTree = parseStatement `return 42`;
     var tree = parseStatement `${returnTree}`;
     assert.equal(ParseTreeType.RETURN_STATEMENT, tree.type);
-    assert.equal('return 42;\n', write(tree));
+    assert.equal('return 42;', write(tree));
 
     var blockTree = parseStatement `{}`;
     assert.equal(ParseTreeType.BLOCK, blockTree.type);
     tree = parseExpression `function() { ${blockTree} }`;
-    assert.equal('function() {}\n', write(tree));
+    assert.equal('function() {}', write(tree));
   });
 
 });

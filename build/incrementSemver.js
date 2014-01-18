@@ -1,4 +1,4 @@
-// Copyright 2012 Traceur Authors.
+// Copyright 2014 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,20 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/**
- * A symbol is a named program element.
- *
- * Symbols are plain old data structures only. They have methods for querying
- * their contents, but symbols do not implement more sophisticated semantics
- * than simple data access.
- */
-export class Symbol {
-  /**
-   * @param {string} type
-   * @param {ParseTree} tree
-   */
-  constructor(type, tree) {
-    this.type = type;
-    this.tree = tree;
-  }
-}
+// semverIncrement:
+// update package.json to the semver number for the next PATCH level 
+// (Similar to npm version)
+
+
+var printSemver = require('./printSemver.js');
+printSemver.incrementSemver();

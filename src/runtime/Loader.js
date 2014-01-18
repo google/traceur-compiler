@@ -15,6 +15,7 @@
 import {ArrayMap} from '../util/ArrayMap';
 import {LoaderHooks} from '../runtime/LoaderHooks';
 import {ObjectMap} from '../util/ObjectMap';
+import {canonicalizeUrl, isAbsolute, resolveUrl} from '../util/url';
 import {getUid} from '../util/uid';
 
 // TODO(arv): I stripped the resolvers to make this simpler for now.
@@ -63,11 +64,15 @@ class CodeUnit {
    *     parse the code.
    * @param {number} state
    */
-  constructor(loaderHooks, name, type, state) {
+  constructor(loaderHooks, normalizedName, type, state, 
+      name, referrerName, address) {
     this.loaderHooks = loaderHooks;
-    this.name = name;
+    this.normalizedName = normalizedName;
     this.type = type;
     this.state = state;
+    this.name_ = name;
+    this.referrerName_ = referrerName;
+    this.address_ = address;
     this.uid = getUid();
     this.state_ = NOT_STARTED;
     this.error = null;
@@ -89,8 +94,31 @@ class CodeUnit {
   /**
    * @return opaque value set and used by loaderHooks
    */
-  get data() {
+  get metadata() {
     return this.data_;
+  }
+
+  nameTrace() {
+    var trace = this.specifiedAs();
+    if (isAbsolute(this.name_)) {
+      return trace + 'An absolute name.\n';
+    }
+    if (this.referrerName_) {
+      return trace + this.importedBy() + this.normalizesTo();
+    }
+    return trace + this.normalizesTo();
+  }
+
+  specifiedAs() {
+    return `Specified as ${this.name_}.\n`;
+  }
+
+  importedBy() {
+    return `Imported by ${this.referrerName_}.\n`;
+  }
+
+  normalizesTo(name) {
+    return 'Normalizes to ' + this.normalizedName + '\n';
   }
 
   /**
@@ -147,10 +175,11 @@ class CodeUnit {
 class LoadCodeUnit extends CodeUnit {
   /**
    * @param {InternalLoader} loader
-   * @param {string} name
+   * @param {string} normalizedName
    */
-  constructor(loaderHooks, name) {
-    super(loaderHooks, name, 'module', NOT_STARTED);
+  constructor(loaderHooks, normalizedName, name, referrerName, address) {
+    super(loaderHooks, normalizedName, 'module', NOT_STARTED, 
+        name, referrerName, address);
   }
 
 }
@@ -164,8 +193,10 @@ class EvalCodeUnit extends CodeUnit {
    * @param {string} code
    * @param {string} caller script or module name
    */
-  constructor(loaderHooks, code, name = loaderHooks.rootUrl()) {
-    super(loaderHooks, name, LOADED);
+  constructor(loaderHooks, code, normalizedName = loaderHooks.rootUrl(),
+      name, referrerName, address) {
+    super(loaderHooks, normalizedName, 'script', LOADED, 
+        name, referrerName, address);
     this.text = code;
   }
 }
@@ -190,14 +221,9 @@ class InternalLoader {
     return this.loaderHooks.fetch({address: url}, callback, errback);
   }
 
-  loadUnnormalized(name, referrerName = this.loaderHooks.rootUrl(),
+  load(name, referrerName = this.loaderHooks.rootUrl(),
       address, type = 'script') {
-    var normalizedName = System.normalize(name, referrerName, address);
-    return this.load(normalizedName, type);
-  }
-
-  load(normalizedName, type) {
-    var codeUnit = this.getCodeUnit(normalizedName, type);
+    var codeUnit = this.getCodeUnit_(name, referrerName, address, type);
     if (codeUnit.state != NOT_STARTED || codeUnit.state == ERROR) {
       return codeUnit;
     }
@@ -219,7 +245,8 @@ class InternalLoader {
 
   module(code, name, referrerName, address) {
     var normalizedName = System.normalize(name, referrerName, address);
-    var codeUnit = new EvalCodeUnit(this.loaderHooks, code, normalizedName);
+    var codeUnit = new EvalCodeUnit(this.loaderHooks, code, normalizedName,
+        name, referrerName, address);
     this.cache.set({}, codeUnit);
     return codeUnit;
   }
@@ -231,7 +258,8 @@ class InternalLoader {
   script(code, name = this.loaderHooks.rootUrl(), referrerName, address) {
     var normalizedName = System.normalize(name, referrerName, address);
     var codeUnit =
-        new EvalCodeUnit(this.loaderHooks, code, normalizedName);
+        new EvalCodeUnit(this.loaderHooks, code, normalizedName,
+            name, referrerName, address);
     this.cache.set({}, codeUnit);
     // assert that there are no dependencies that are loading?
     this.handleCodeUnitLoaded(codeUnit);
@@ -247,11 +275,13 @@ class InternalLoader {
     return this.urlToKey[combined] = {};
   }
 
-  getCodeUnit(name, type) {
-    var key = this.getKey(name, type);
+  getCodeUnit_(name, referrerName, address, type) {
+    var normalizedName = System.normalize(name, referrerName, address);
+    var key = this.getKey(normalizedName, type);
     var cacheObject = this.cache.get(key);
     if (!cacheObject) {
-      cacheObject = new LoadCodeUnit(this.loaderHooks, name);
+      cacheObject = new LoadCodeUnit(this.loaderHooks, normalizedName,
+          name, referrerName, address);
       cacheObject.type = type;
       this.cache.set(key, cacheObject);
     }
@@ -263,8 +293,7 @@ class InternalLoader {
   }
 
   getCodeUnitForModuleSpecifier(name, referrerName) {
-    var name = System.normalize(name, referrerName);
-    return this.getCodeUnit(name, 'module');
+    return this.getCodeUnit_(name, referrerName, null, 'module');
   }
 
   /**
@@ -272,18 +301,17 @@ class InternalLoader {
    * @param {CodeUnit} codeUnit
    */
   handleCodeUnitLoaded(codeUnit) {
-    var referrerName = codeUnit.name;
+    var referrerName = codeUnit.normalizedName;
     var moduleSpecifiers = this.loaderHooks.getModuleSpecifiers(codeUnit);
     if (!moduleSpecifiers) {
       this.abortAll()
       return;
     }
     codeUnit.dependencies = moduleSpecifiers.sort().map((name) => {
-      name = System.normalize(name, referrerName);
-      return this.getCodeUnit(name, 'module');
+      return this.getCodeUnit_(name, referrerName, null, 'module');
     });
     codeUnit.dependencies.forEach((dependency) => {
-      this.load(dependency.name, 'module');
+      this.load(dependency.normalizedName, null, null, 'module');
     });
 
     if (this.areAll(PARSED)) {
@@ -298,11 +326,13 @@ class InternalLoader {
    * @param {CodeUnit} codeUnit
    */
   handleCodeUnitLoadError(codeUnit) {
-    // TODO(arv): Store location for load.
-    codeUnit.error = 'Failed to load \'' + codeUnit.url + '\'';
-    this.reporter.reportError(null, codeUnit.error);
+    var message = `Failed to load '${codeUnit.url}'.\n` +
+        codeUnit.nameTrace() + this.loaderHooks.nameTrace(codeUnit);
+
+    this.reporter.reportError(null, message);
     this.abortAll();
-    codeUnit.dispatchError(codeUnit.error);
+    codeUnit.error = message;
+    codeUnit.dispatchError(message);
   }
 
   /**
@@ -317,7 +347,7 @@ class InternalLoader {
     });
     // Notify all codeUnit listeners (else tests hang til timeout).
     this.cache.values().forEach((codeUnit) => {
-      codeUnit.dispatchError(codeUnit.error);
+      codeUnit.dispatchError(codeUnit.error || 'Error in dependency');
     });
   }
 
@@ -407,10 +437,10 @@ export class Loader {
          {referrerName, address} = {},
          callback = (module) => {},
          errback = (ex) => { throw ex; }) {
-    var codeUnit = this.internalLoader_.loadUnnormalized(name, referrerName,
+    var codeUnit = this.internalLoader_.load(name, referrerName,
         address, 'module');
     codeUnit.addListener(function() {
-      callback(System.get(codeUnit.name));
+      callback(System.get(codeUnit.normalizedName));
     }, errback);
   }
 
@@ -449,7 +479,7 @@ export class Loader {
        {referrerName, address} = {},
        callback = (result) => {},
        errback = (ex) => { throw ex; }) {
-    var codeUnit = this.internalLoader_.loadUnnormalized(name, referrerName,
+    var codeUnit = this.internalLoader_.load(name, referrerName,
         address, 'script');
     codeUnit.addListener(function(result) {
       callback(result);

@@ -210,14 +210,8 @@ export class CPSTransformer extends ParseTreeTransformer {
     assert(statements instanceof SwitchStatement);
     for (var i = 0; i < statements.caseClauses.length; i++) {
       var clause = statements.caseClauses[i];
-      if (clause.type == CASE_CLAUSE) {
-        if (this.containsStateMachine_(clause.statements)) {
-          return true;
-        }
-      } else {
-        if (this.containsStateMachine_(clause.statements)) {
-          return true;
-        }
+      if (this.containsStateMachine_(clause.statements)) {
+        return true;
       }
     }
     return false;

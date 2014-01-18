@@ -17,7 +17,7 @@ GENSRC = \
 TPL_GENSRC_DEPS = $(addsuffix -template.js.dep, $(TPL_GENSRC))
 
 SRC_NODE = $(wildcard src/node/*.js)
-SRC_ALL = $(wildcard src/**/*.js)
+SRC_ALL = $(wildcard src/**/*.js src/*.js) 
 
 TFLAGS = --
 
@@ -49,6 +49,8 @@ MOCHA_OPTIONS = \
 
 GIT_BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
 
+PACKAGE_VERSION=$(shell node build/printSemver.js)
+
 build: bin/traceur.js wiki
 
 min: bin/traceur.min.js
@@ -61,7 +63,8 @@ test-runtime: bin/traceur-runtime.js $(RUNTIME_TESTS)
 	@echo 'Open test/runtime.html to test runtime only'
 
 test: test/test-list.js bin/traceur.js $(COMPILE_BEFORE_TEST) bin/traceur-runtime.js \
-	wiki test/amd-compiled test/commonjs-compiled test-interpret
+	wiki test/amd-compiled test/commonjs-compiled test-interpret \
+	test-interpret-absolute test-inline-module-error
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(TESTS)
 
 test/unit: bin/traceur.js bin/traceur-runtime.js
@@ -87,6 +90,13 @@ test/test-list.js: force
 test-interpret: test/unit/runtime/test_interpret.js
 	./traceur $^
 
+test-interpret-absolute: $(CURDIR)/test/unit/runtime/test_interpret.js
+	./traceur $^
+
+test-inline-module-error:
+	./traceur --out not-written.js \
+		test/feature/Modules/Error_ImportDefault.js  2>&1 | sed '1d'
+
 # TODO(vojta): Trick make to only compile when necessary.
 test/commonjs-compiled: force
 	node src/node/to-commonjs-compiler.js test/commonjs test/commonjs-compiled
@@ -103,13 +113,13 @@ clean: wikiclean
 	@rm -f build/compiled-by-previous-traceur.js
 	@rm -f build/previous-commit-traceur.js
 	@rm -rf build/node
+	@rm -rf build/currentSemVer.mk
 	@rm -f $(GENSRC) $(TPL_GENSRC_DEPS)
 	@rm -f $(COMPILE_BEFORE_TEST)
 	@rm -f test/test-list.js
 	@rm -rf test/commonjs-compiled/*
 	@rm -rf test/amd-compiled/*
 	@rm -f bin/*
-	@git checkout -- bin/
 
 initbench:
 	rm -rf test/bench/esprima
@@ -121,7 +131,7 @@ bin/%.min.js: bin/%.js
 	node build/minifier.js $^ $@
 
 bin/traceur-runtime.js: $(RUNTIME_SRC)
-	./traceur --out $@ $(TFLAGS) $^
+	./traceur --out $@ --referrer='traceur@$(PACKAGE_VERSION)/' $(TFLAGS) $^
 
 bin/traceur-bare.js: src/traceur-import.js build/compiled-by-previous-traceur.js
 	./traceur --out $@ $(TFLAGS) $<
@@ -131,21 +141,22 @@ concat: bin/traceur-runtime.js bin/traceur-bare.js
 
 bin/traceur.js: build/compiled-by-previous-traceur.js $(SRC_NODE)
 	@cp $< $@; touch -t 197001010000.00 bin/traceur.js
-	./traceur --out bin/traceur.js --referrer='traceur@0.0.Y/' $(TFLAGS) $(SRC)
+	./traceur --out bin/traceur.js --referrer='traceur@$(PACKAGE_VERSION)/' $(TFLAGS) $(SRC)
 
 # Use last-known-good compiler to compile current source
 build/compiled-by-previous-traceur.js: \
 	  $(subst src/node,build/node,$(SRC_NODE)) \
 	  build/previous-commit-traceur.js $(SRC_ALL)  | $(GENSRC) node_modules
+	@mkdir -p bin/
 	@cp build/previous-commit-traceur.js bin/traceur.js
 	./traceur-build --debug --out $@  --referrer='traceur@0.0.X/' $(TFLAGS) $(SRC)
 
-build/node/%: src/node/%
+build/node/%: node_modules/traceur/src/node/%
 	@mkdir -p build/node
-	git show HEAD:$< > $@
+	cp $< $@
 
 build/previous-commit-traceur.js:
-	git show HEAD:bin/traceur.js > $@
+	cp node_modules/traceur/bin/traceur.js $@
 
 debug: build/compiled-by-previous-traceur.js $(SRC)
 	./traceur --debug --out bin/traceur.js --sourcemap $(TFLAGS) $(SRC)
@@ -193,7 +204,10 @@ node_modules: package.json
 bin/traceur.ugly.js: bin/traceur.js
 	uglifyjs bin/traceur.js --compress -m -o $@
 
-prepublish: bin/traceur.js bin/traceur-runtime.js
+updateSemver: # unless the package.json has been manually edited.
+	git diff --quiet -- package.json && node build/incrementSemver.js
+
+prepublish: bin/traceur.js bin/traceur-runtime.js 
 
 WIKI_OUT = \
   test/wiki/CompilingOffline/out/greeter.js
@@ -210,4 +224,3 @@ test/wiki/CompilingOffline/out/greeter.js: test/wiki/CompilingOffline/greeter.js
 .PHONY: build min test test-list force boot clean distclean unicode-tables prepublish
 
 -include $(TPL_GENSRC_DEPS)
--include build/local.mk

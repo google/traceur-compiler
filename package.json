@@ -1,6 +1,6 @@
 {
   "name": "traceur",
-  "version": "0.0.9",
+  "version": "0.0.11",
   "description": "Experimental ES6 to ES5 compiler",
   "keywords": [
     "javascript",
@@ -23,8 +23,8 @@
     "traceur": "./traceur"
   },
   "scripts": {
-    "prepublish": "node build/prepublish.js",
-    "test": "make test"
+    "test": "make test",
+    "start": "node ./demo/expressServer.js"
   },
   "homepage": "https://github.com/google/traceur-compiler",
   "bugs": "https://github.com/google/traceur-compiler/issues",
@@ -34,14 +34,18 @@
   },
   "dependencies": {
     "commander": ">=1.1",
-    "q-io": "~1.10.6"
+    "q-io": "~1.10.6",
+    "semver": "*"
   },
   "devDependencies": {
     "source-map": "0.1.30",
     "mocha": ">=1.9",
     "chai": ">=1.5",
     "node-uuid": ">=1.4",
-    "rsvp": ">=3.0.1",
-    "requirejs": "~2.1.9"
-  }
+    "rsvp": "3.0.3",
+    "requirejs": "~2.1.9",
+    "semver": "2.2.1",
+    "traceur": "0.0.10"
+  },
+  "subdomain": "traceur"
 }

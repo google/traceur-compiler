@@ -13,3 +13,4 @@
 // limitations under the License.
 
 module traceur from './traceur';
+System.set('traceur@', traceur);

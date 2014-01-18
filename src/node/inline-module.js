@@ -34,7 +34,7 @@ var ModuleAnalyzer = traceur.semantics.ModuleAnalyzer;
  *     printing was requested.
  */
 function InlineLoaderHooks(reporter, url, elements, depTarget) {
-  LoaderHooks.call(this, reporter, url, null, nodeLoader);
+  LoaderHooks.call(this, reporter, url, undefined, nodeLoader);
   this.dirname = url;
   this.elements = elements;
   this.depTarget = depTarget && normalizePath(path.relative('.', depTarget));
@@ -51,7 +51,7 @@ InlineLoaderHooks.prototype = {
                   codeUnit.url)));
     }
     // Don't eval. Instead append the trees to the output.
-    var tree = codeUnit.data.transformedTree;
+    var tree = codeUnit.metadata.transformedTree;
     this.elements.push.apply(this.elements, tree.scriptItemList);
   },
 
@@ -113,10 +113,8 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
           var tree = allLoaded(basePath, reporter, elements);
           callback(tree);
         }
-      }, function () {
-        // TODO codeUnit is not returned by loadAsScript
-        console.error(codeUnit.error);
-        errback(codeUnit.error);
+      }, function(err) {
+        errback(err);
       });
   }
 

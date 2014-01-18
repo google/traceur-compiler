@@ -12,52 +12,61 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Symbol} from './Symbol';
-import {MODULE} from './SymbolType';
-import {assert} from '../../util/assert';
+import {assert} from '../util/assert';
 
-export class ModuleSymbol extends Symbol {
+export class ModuleSymbol {
   /**
    * @param {Module} tree
    * @param {string} normalizedName
    */
   constructor(tree, normalizedName) {
-    // assert(tree === null || tree.type === 'module');
-    super(MODULE, tree);
+    this.tree = tree;
     this.exports_ = Object.create(null);
+    this.imports_ = Object.create(null);
     assert(normalizedName);
     this.normalizedName = normalizedName.replace(/\\/g, '/');
   }
 
   /**
    * @param {string} name
-   * @return {boolean}
+   * @param {ParseTree} tree
    */
-  hasExport(name) {
-    return name in this.exports_;
+  addExport(name, tree) {
+    // Duplicate exports should have been checked already.
+    assert(!this.exports_[name]);
+    this.exports_[name] = tree;
   }
 
   /**
    * @param {string} name
-   * @return {ExportSymbol}
+   * @return {ParseTree}
    */
   getExport(name) {
     return this.exports_[name];
   }
 
   /**
-   * @param {ExportSymbol} export
-   * @return {void}
+   * @return {Array.<string>}
    */
-  addExport(exp) {
-    this.exports_[exp.name] = exp;
+  getExports() {
+    return Object.keys(this.exports_);
   }
 
   /**
-   * @return {Array.<ExportSymbol>}
+   * @param {string} name
+   * @param {ParseTree} tree
    */
-  getExports() {
-    var exports = this.exports_;
-    return Object.keys(exports).map((key) => exports[key]);
+  addImport(name, tree) {
+    // Duplicate imports should have been checked already.
+    assert(!this.imports_[name]);
+    this.imports_[name] = tree;
+  }
+
+  /**
+   * @param {string} name
+   * @return {ParseTree}
+   */
+  getImport(name) {
+    return this.imports_[name];
   }
 }

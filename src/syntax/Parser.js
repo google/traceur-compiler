@@ -43,16 +43,12 @@ import {
   SYNTAX_ERROR_TREE
 } from './trees/ParseTreeType';
 import {
-  ANY,
   AS,
-  BOOL,
   FROM,
   GET,
   MODULE,
-  NUMBER,
   OF,
-  SET,
-  STRING
+  SET
 } from './PredefinedName';
 import {Scanner} from './Scanner';
 import {SourceRange} from '../util/SourceRange';
@@ -3481,10 +3477,10 @@ export class Parser {
     var start = this.getTreeStartLocation_();
 
     switch (this.peekToken_().value) {
-      case ANY:
-      case NUMBER:
-      case BOOL:
-      case STRING:
+      case 'any':
+      case 'number':
+      case 'boolean':
+      case 'string':
         var token = this.nextToken_();
         return new PredefinedType(this.getTreeLocation_(start), token);
       default:

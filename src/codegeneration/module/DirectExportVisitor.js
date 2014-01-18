@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ExportSymbol} from '../../semantics/symbols/ExportSymbol';
 import {ExportVisitor} from './ExportVisitor';
 
 /**

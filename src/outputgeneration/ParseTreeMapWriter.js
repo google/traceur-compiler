@@ -23,16 +23,15 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
    * @param {boolean} showLineNumbers
    * @param {SourceMapGenerator} sourceMapGenerator
    */
-  constructor(highlighted, showLineNumbers, sourceMapGenerator) {
-    super(highlighted, showLineNumbers);
+  constructor(sourceMapGenerator, options = undefined) {
+    super(options);
     this.sourceMapGenerator_ = sourceMapGenerator;
     this.outputLineCount_ = 1;
   }
 
   write_(value) {
-    if (this.currentLocation) {
+    if (this.currentLocation)
       this.addMapping();
-    }
     super.write_(value);
   }
 

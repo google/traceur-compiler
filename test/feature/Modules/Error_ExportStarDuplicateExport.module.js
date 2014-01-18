@@ -1,6 +1,5 @@
 // Should not compile.
-// Error: :6:8: Duplicate export of 'a'
-// Error: :5:8: 'a' was previously exported here
+// Error: feature/Modules/Error_ExportStarDuplicateExport.module.js:5:8: Duplicate export. 'a' was previously exported at feature/Modules/Error_ExportStarDuplicateExport.module.js:4:8
 
 export * from './resources/a';
 export * from './resources/a2';

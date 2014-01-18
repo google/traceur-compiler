@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ExportSymbol} from '../../semantics/symbols/ExportSymbol';
 import {ModuleVisitor} from './ModuleVisitor';
 import {assert} from '../../util/assert';
 
@@ -39,15 +38,13 @@ export class ExportVisitor extends ModuleVisitor {
 
   addExport(name, tree) {
     var moduleSymbol = this.moduleSymbol;
-    if (moduleSymbol.hasExport(name)) {
-      var previousExport = moduleSymbol.getExport(name).tree;
-      this.reportError(tree, `Duplicate export of '${name}'`);
-      this.reportError(previousExport,
-                       `'${name}' was previously exported here`);
-      return;
+    var existingExport = moduleSymbol.getExport(name);
+    if (existingExport) {
+      this.reportError(tree, `Duplicate export. '${name}' was previously ` +
+          `exported at ${existingExport.location.start}`);
+    } else {
+      moduleSymbol.addExport(name, tree);
     }
-
-    moduleSymbol.addExport(new ExportSymbol(name, tree));
   }
 
   visitClassDeclaration(tree) {
@@ -76,7 +73,7 @@ export class ExportVisitor extends ModuleVisitor {
 
   visitExportStar(tree) {
     var moduleSymbol = this.getModuleSymbolForModuleSpecifier(this.moduleSpecifier);
-    moduleSymbol.getExports().forEach(({name}) => {
+    moduleSymbol.getExports().forEach((name) => {
       this.addExport(name, tree);
     });
   }
