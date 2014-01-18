@@ -1,27 +1,4 @@
 {
-  "AnnotatedClassElement": {
-    "location": [
-      "SourceRange"
-    ],
-    "annotations": [
-      "Array.<Annotation>"
-    ],
-    "element": [
-      "ParseTree"
-    ]
-  },
-  "AnnotatedDeclaration": {
-    "location": [
-      "SourceRange"
-    ],
-    "annotations": [
-      "Array.<Annotation>"
-    ],
-    "declaration": [
-      "ClassDeclaration",
-      "FunctionDeclaration"
-    ]
-  },
   "Annotation": {
     "location": [
       "SourceRange"
@@ -194,6 +171,9 @@
     ],
     "elements": [
       "Array.<ParseTree>"
+    ],
+    "annotations": [
+      "Array.<ParseTree>"
     ]
   },
   "ClassExpression": {
@@ -208,35 +188,11 @@
     ],
     "elements": [
       "Array.<ParseTree>"
-    ]
-  },
-  "ClassMemberMetadata": {
-    "location": [
-      "SourceRange"
-    ],
-    "name": [
-      "BindingIdentifier"
-    ],
-    "className": [
-      "BindingIdentifier"
-    ],
-    "isStatic": [
-      "boolean"
-    ],
-    "isGetAccessor": [
-      "boolean"
-    ],
-    "isSetAccessor": [
-      "boolean"
     ],
     "annotations": [
-      "Array.<Annotation>"
-    ],
-    "parameters": [
       "Array.<ParseTree>"
     ]
   },
-
   "CommaExpression": {
     "location": [
       "SourceRange"
@@ -351,6 +307,9 @@
     ],
     "declaration": [
       "ParseTree"
+    ],
+    "annotations": [
+      "Array.<ParseTree>"
     ]
   },
   "ExportDefault": {
@@ -493,6 +452,9 @@
     "typeAnnotation": [
       "ParseTree"
     ],
+    "annotations": [
+      "Array.<ParseTree>"
+    ],
     "functionBody": [
       "FunctionBody"
     ]
@@ -513,22 +475,11 @@
     "typeAnnotation": [
       "ParseTree"
     ],
+    "annotations": [
+      "Array.<ParseTree>"
+    ],
     "functionBody": [
       "FunctionBody"
-    ]
-  },
-  "FunctionMetadata": {
-    "location": [
-      "SourceRange"
-    ],
-    "name": [
-      "BindingIdentifier"
-    ],
-    "annotations": [
-      "Array.<Annotation>"
-    ],
-    "parameters": [
-      "Array.<ParseTree>"
     ]
   },
   "GeneratorComprehension": {
@@ -554,6 +505,9 @@
     ],
     "typeAnnotation": [
       "ParseTree"
+    ],
+    "annotations": [
+      "Array.<ParseTree>"
     ],
     "body": [
       "FunctionBody"
@@ -805,6 +759,9 @@
     "typeAnnotation": [
       "ParseTree"
     ],
+    "annotations": [
+      "Array.<ParseTree>"
+    ],
     "functionBody": [
       "FunctionBody"
     ]
@@ -856,6 +813,9 @@
     ],
     "parameter": [
       "FormalParameter"
+    ],
+    "annotations": [
+      "Array.<ParseTree>"
     ],
     "body": [
       "FunctionBody"

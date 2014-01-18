@@ -21,7 +21,6 @@ import {Token} from '../Token';
 module utilJSON from '../../util/JSON';
 
 import {
-  ANNOTATED_DECLARATION,
   ARGUMENT_LIST,
   ARRAY_COMPREHENSION,
   ARRAY_LITERAL_EXPRESSION,
@@ -309,7 +308,6 @@ export class ParseTree {
   //   LexicalDeclaration
   isDeclaration() {
     switch (this.type) {
-      case ANNOTATED_DECLARATION:
       case FUNCTION_DECLARATION:
       // GeneratorDeclaration is covered by FUNCTION_DECLARATION.
       case CLASS_DECLARATION:
@@ -353,7 +351,6 @@ export class ParseTree {
   /** @return {boolean} */
   isScriptElement() {
     switch (this.type) {
-      case ANNOTATED_DECLARATION:
       case CLASS_DECLARATION:
       case EXPORT_DECLARATION:
       case FUNCTION_DECLARATION:

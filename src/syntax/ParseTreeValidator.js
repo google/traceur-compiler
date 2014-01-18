@@ -56,8 +56,6 @@ import {
   UNSIGNED_RIGHT_SHIFT_EQUAL
 } from './TokenType';
 import {
-  ANNOTATED_CLASS_ELEMENT,
-  ANNOTATED_DECLARATION,
   ARRAY_PATTERN,
   BINDING_ELEMENT,
   BINDING_IDENTIFIER,
@@ -364,8 +362,6 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   visitClassDeclaration(tree) {
     for (var i = 0; i < tree.elements.length; i++) {
       var element = tree.elements[i];
-      if (element.type === ANNOTATED_CLASS_ELEMENT)
-        element = element.element;
 
       switch (element.type) {
         case GET_ACCESSOR:
@@ -436,9 +432,6 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    */
   visitExportDeclaration(tree) {
     var declaration = tree.declaration;
-    if (declaration.type === ANNOTATED_DECLARATION)
-      declaration= declaration.declaration;
-
     var declType = declaration.type;
     this.checkVisit_(
         declType == VARIABLE_STATEMENT ||

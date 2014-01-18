@@ -178,8 +178,6 @@ import {
 } from './TokenType';
 
 import {
-  AnnotatedClassElement,
-  AnnotatedDeclaration,
   ArgumentList,
   ArrayComprehension,
   ArrayLiteralExpression,
@@ -365,6 +363,8 @@ export class Parser {
     this.strictMode_ = false;
 
     this.coverInitialisedName_ = null;
+
+    this.annotations_ = [];
   }
 
   // 14 Script
@@ -543,6 +543,7 @@ export class Parser {
     var start = this.getTreeStartLocation_();
     this.eat_(EXPORT);
     var exportTree;
+    var annotations = this.popAnnotations_();
     var type = this.peekType_();
     switch (type) {
       case CONST:
@@ -566,7 +567,8 @@ export class Parser {
       default:
         return this.parseUnexpectedToken_(type);
     }
-    return new ExportDeclaration(this.getTreeLocation_(start), exportTree);
+    return new ExportDeclaration(this.getTreeLocation_(start), exportTree,
+        annotations);
   }
 
   parseExportDefault_() {
@@ -661,10 +663,12 @@ export class Parser {
     this.strictMode_ = true;
     this.eat_(CLASS);
     var name = null;
+    var annotations = [];
     // Name is optional for ClassExpression
     if (constr == ClassDeclaration ||
         !this.peek_(EXTENDS) && !this.peek_(OPEN_CURLY)) {
       name = this.parseBindingIdentifier_();
+      annotations = this.popAnnotations_();
     }
     var superClass = null;
     if (this.eatIf_(EXTENDS)) {
@@ -675,7 +679,7 @@ export class Parser {
     this.eat_(CLOSE_CURLY);
     this.strictMode_ = strictMode;
     return new constr(this.getTreeLocation_(start), name, superClass,
-                      elements);
+                      elements, annotations);
   }
 
   /**
@@ -785,8 +789,9 @@ export class Parser {
 
       // Rest are just alphabetical order.
       case AT:
+      console.log('parseStatement annotation: ' + allowModuleItem);
         if (parseOptions.annotations)
-          return this.parseAnnotatedDeclarations_();
+          return this.parseAnnotatedDeclarations_(allowModuleItem, allowScriptItem);
         break;
       case AWAIT:
         if (parseOptions.deferredFunctions)
@@ -844,9 +849,11 @@ export class Parser {
     this.eat_(FUNCTION);
     var isGenerator = parseOptions.generators && this.eatIf_(STAR);
     var name = null;
+    var annotations = [];
     if (ctor === FunctionDeclaration ||
         this.peekBindingIdentifier_(this.peekType_())) {
       name = this.parseBindingIdentifier_();
+      annotations = this.popAnnotations_();
     }
 
     this.eat_(OPEN_PAREN);
@@ -856,7 +863,8 @@ export class Parser {
     var functionBody = this.parseFunctionBody_(isGenerator,
                                                formalParameterList);
     return new ctor(this.getTreeLocation_(start), name, isGenerator,
-                    formalParameterList, typeAnnotation, functionBody);
+                    formalParameterList, typeAnnotation, annotations,
+                    functionBody);
   }
 
   peekRest_(type) {
@@ -889,25 +897,25 @@ export class Parser {
     //   BindingPattern Initialiseropt
     var start = this.getTreeStartLocation_();
     var formals = [];
-    var annotations = this.collectAnnotations_();
+    this.pushAnnotations_();
     var type = this.peekType_();
 
 
     if (this.peekRest_(type)) {
-      formals.push(this.parseFormalRestParameter_(annotations));
+      formals.push(this.parseFormalRestParameter_());
     } else {
       if (this.peekFormalParameter_(this.peekType_()))
-        formals.push(this.parseFormalParameter_(annotations));
+        formals.push(this.parseFormalParameter_());
 
       while (this.eatIf_(COMMA)) {
-        annotations = this.collectAnnotations_();
+        this.pushAnnotations_();
 
         if (this.peekRest_(this.peekType_())) {
-          formals.push(this.parseFormalRestParameter_(annotations));
+          formals.push(this.parseFormalRestParameter_());
           break;
         }
 
-        formals.push(this.parseFormalParameter_(annotations));
+        formals.push(this.parseFormalParameter_());
       }
     }
 
@@ -918,7 +926,7 @@ export class Parser {
     return this.peekBindingElement_(type);
   }
 
-  parseFormalParameter_(annotations, initialiserAllowed = undefined) {
+  parseFormalParameter_(initialiserAllowed = undefined) {
     var start = this.getTreeStartLocation_();
     var binding = this.parseBindingElementBinding_();
     var typeAnnotation = this.parseTypeAnnotationOpt_();
@@ -926,18 +934,18 @@ export class Parser {
 
     return new FormalParameter(this.getTreeLocation_(start),
         new BindingElement(this.getTreeLocation_(start), binding, initialiser),
-        typeAnnotation, annotations);
+        typeAnnotation, this.popAnnotations_());
   }
 
-  parseFormalRestParameter_(annotations) {
+  parseFormalRestParameter_() {
     var start = this.getTreeStartLocation_();
     var restParameter = this.parseRestParameter_();
     var typeAnnotation = this.parseTypeAnnotationOpt_();
     return new FormalParameter(this.getTreeLocation_(start), restParameter,
-        typeAnnotation, annotations);
+        typeAnnotation, this.popAnnotations_());
   }
 
-  parseRestParameter_(annotations) {
+  parseRestParameter_() {
     var start = this.getTreeStartLocation_();
     this.eat_(DOT_DOT_DOT);
     var id = this.parseBindingIdentifier_();
@@ -2107,7 +2115,8 @@ export class Parser {
     var functionBody = this.parseFunctionBody_(isGenerator,
                                                formalParameterList);
     return new PropertyMethodAssignment(this.getTreeLocation_(start),
-        isStatic, isGenerator, name, formalParameterList, typeAnnotation, functionBody);
+        isStatic, isGenerator, name, formalParameterList, typeAnnotation,
+        this.popAnnotations_(), functionBody);
   }
 
   parseGetSetOrMethod_(start, isStatic) {
@@ -2139,7 +2148,8 @@ export class Parser {
     this.eat_(CLOSE_PAREN);
     var typeAnnotation = this.parseTypeAnnotationOpt_();
     var body = this.parseFunctionBody_(isGenerator, null);
-    return new GetAccessor(this.getTreeLocation_(start), isStatic, name, typeAnnotation, body);
+    return new GetAccessor(this.getTreeLocation_(start), isStatic, name,
+                            typeAnnotation, this.popAnnotations_(), body);
   }
 
   parseSetAccessor_(start, isStatic) {
@@ -2150,7 +2160,7 @@ export class Parser {
     this.eat_(CLOSE_PAREN);
     var body = this.parseFunctionBody_(isGenerator, parameter);
     return new SetAccessor(this.getTreeLocation_(start), isStatic, name,
-                           parameter, body);
+                           parameter, this.popAnnotations_(), body);
   }
 
   /**
@@ -2196,7 +2206,8 @@ export class Parser {
   parsePropertySetParameterList_() {
     var start = this.getTreeStartLocation_();
 
-    var binding, annotations = this.collectAnnotations_();
+    var binding;
+    this.pushAnnotations_();
     if (this.peekPattern_(this.peekType_()))
       binding = this.parseBindingPattern_();
     else
@@ -2205,7 +2216,7 @@ export class Parser {
     var typeAnnotation = this.parseTypeAnnotationOpt_();
     return new FormalParameter(this.getTreeLocation_(start),
         new BindingElement(this.getTreeLocation_(start), binding, null),
-        typeAnnotation, annotations);
+        typeAnnotation, this.popAnnotations_());
   }
 
   /**
@@ -3513,11 +3524,12 @@ export class Parser {
    * @return {ParseTree}
    * @private
    */
-  parseAnnotatedClassElement_(start) {
-    var annotations = this.collectAnnotations_(),
-        element = this.parseClassElement_();
-    return new AnnotatedClassElement(this.getTreeLocation_(start),
-                                     annotations, element);
+  parseAnnotatedClassElement_() {
+    this.pushAnnotations_();
+    var element = this.parseClassElement_();
+    if (this.annotations_.length > 0)
+      return this.parseSyntaxError_('Unsupported annotated expression');
+    return element;
   }
 
   /**
@@ -3526,47 +3538,26 @@ export class Parser {
    * @return {ParseTree}
    * @private
    */
-  parseAnnotatedDeclarations_() {
-    var start = this.getTreeStartLocation_();
-    var annotations = this.collectAnnotations_();
-    var type = this.peekType_();
-    var declaration;
-    var isExport = false;
-
-    if (this.peekAnnotatedDeclaration_(type)) {
-      if (type === EXPORT) {
-        isExport = true;
-        this.eat_(EXPORT);
-        type = this.peekType_();
-      }
-
-      switch (type) {
-        case CLASS:
-          declaration = this.parseClassDeclaration_();
-          break;
-        case FUNCTION:
-          declaration = this.parseFunctionDeclaration_();
-          break;
-      }
-
-      declaration = new AnnotatedDeclaration(
-          this.getTreeLocation_(start),
-          annotations, declaration);
-
-      if (isExport)
-        declaration = new ExportDeclaration(this.getTreeLocation_(start),
-            declaration);
-      return declaration;
-    }
-
-    return this.parseSyntaxError_('Unsupported annotated expression');
+  parseAnnotatedDeclarations_(allowModuleItem, allowScriptItem) {
+    this.pushAnnotations_();
+    console.log('annotation: ' + allowModuleItem);
+    var declaration = this.parseStatement_(this.peekType_(),
+                                            allowModuleItem, allowScriptItem);
+    if (this.annotations_.length > 0)
+      return this.parseSyntaxError_('Unsupported annotated expression');
+    return declaration;
   }
 
-  collectAnnotations_() {
-    var annotations = [];
+  pushAnnotations_() {
+    this.annotations_ = [];
     while (this.eatIf_(AT)) {
-      annotations.push(this.parseAnnotation_());
+      this.annotations_.push(this.parseAnnotation_());
     }
+  }
+
+  popAnnotations_() {
+    var annotations = this.annotations_;
+    this.annotations_ = [];
     return annotations;
   }
 

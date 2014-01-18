@@ -552,7 +552,7 @@ export function createCatch(identifier, catchBody) {
  * @return {ClassDeclaration}
  */
 export function createClassDeclaration(name, superClass, elements) {
-  return new ClassDeclaration(null, name, superClass, elements);
+  return new ClassDeclaration(null, name, superClass, elements, []);
 }
 
 /**
@@ -670,7 +670,7 @@ export function createForStatement(variables, condition, increment, body) {
 export function createFunctionExpression(formalParameterList, body) {
   assert(body.type === 'FUNCTION_BODY');
   return new FunctionExpression(null, null, false,
-                                formalParameterList, null, body);
+                                formalParameterList, null, [], body);
 }
 
 // get name () { ... }
@@ -683,7 +683,7 @@ export function createGetAccessor(name, body) {
   if (typeof name == 'string')
     name = createPropertyNameToken(name);
   var isStatic = false;
-  return new GetAccessor(null, isStatic, name, null, body);
+  return new GetAccessor(null, isStatic, name, null, [], body);
 }
 
 /**
@@ -1004,7 +1004,7 @@ export function createSetAccessor(name, parameter, body) {
   if (typeof parameter == 'string')
     parameter = createIdentifierToken(parameter);
   var isStatic = false;
-  return new SetAccessor(null, isStatic, name, parameter, body);
+  return new SetAccessor(null, isStatic, name, parameter, [], body);
 }
 
 /**
