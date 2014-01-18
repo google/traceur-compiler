@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {AmdTransformer} from './AmdTransformer';
-// import {AnnotatedDeclarationTransformer} from './AnnotatedDeclarationTransformer';
+import {AnnotationsTransformer} from './AnnotationsTransformer';
 import {ArrayComprehensionTransformer} from './ArrayComprehensionTransformer';
 import {ArrowFunctionTransformer} from './ArrowFunctionTransformer';
 import {BlockBindingTransformer} from './BlockBindingTransformer';
@@ -26,7 +26,6 @@ import {FreeVariableChecker} from '../semantics/FreeVariableChecker';
 import {GeneratorComprehensionTransformer} from
     './GeneratorComprehensionTransformer';
 import {GeneratorTransformPass} from './GeneratorTransformPass';
-import {MetadataTransformer} from './MetadataTransformer';
 import {ModuleTransformer} from './ModuleTransformer';
 import {MultiTransformer} from './MultiTransformer';
 import {NumericLiteralTransformer} from './NumericLiteralTransformer';
@@ -71,6 +70,9 @@ export class FromOptionsTransformer extends MultiTransformer {
     if (transformOptions.templateLiterals)
       append(TemplateLiteralTransformer);
 
+    if (transformOptions.annotations)
+      append(AnnotationsTransformer);
+
     if (transformOptions.modules) {
       switch (transformOptions.modules) {
         case 'commonjs':
@@ -87,8 +89,6 @@ export class FromOptionsTransformer extends MultiTransformer {
     if (transformOptions.arrowFunctions)
       append(ArrowFunctionTransformer);
 
-    // if (transformOptions.annotations)
-    //   append(AnnotatedDeclarationTransformer);
 
     // ClassTransformer needs to come before ObjectLiteralTransformer.
     if (transformOptions.classes)

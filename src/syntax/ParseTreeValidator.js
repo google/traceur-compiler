@@ -132,6 +132,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {string} message
    */
   fail_(tree, message) {
+    console.log(tree.toJSON());
     throw new ValidationError(tree, message);
   }
 

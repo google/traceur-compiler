@@ -1,5 +1,7 @@
 // Options: --annotations
 import {Anno} from './resources/setup';
+import defaultExportedFunction from './resources/exported-default-function';
+
 import {
   exportedAnnotated,
   exportedUnannotated

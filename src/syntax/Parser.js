@@ -564,7 +564,7 @@ export class Parser {
         return this.parseUnexpectedToken_(type);
     }
     return new ExportDeclaration(this.getTreeLocation_(start), exportTree,
-        annotations);
+                                  annotations);
   }
 
   parseExportDefault_() {
@@ -785,7 +785,6 @@ export class Parser {
 
       // Rest are just alphabetical order.
       case AT:
-      console.log('parseStatement annotation: ' + allowModuleItem);
         if (parseOptions.annotations)
           return this.parseAnnotatedDeclarations_(allowModuleItem, allowScriptItem);
         break;
@@ -2104,6 +2103,7 @@ export class Parser {
   }
 
   parseMethod_(start, isStatic, isGenerator, name) {
+    var annotations = this.popAnnotations_();
     this.eat_(OPEN_PAREN);
     var formalParameterList = this.parseFormalParameterList_();
     this.eat_(CLOSE_PAREN);
@@ -2112,7 +2112,7 @@ export class Parser {
                                                formalParameterList);
     return new PropertyMethodAssignment(this.getTreeLocation_(start),
         isStatic, isGenerator, name, formalParameterList, typeAnnotation,
-        this.popAnnotations_(), functionBody);
+        annotations, functionBody);
   }
 
   parseGetSetOrMethod_(start, isStatic) {
@@ -2150,13 +2150,14 @@ export class Parser {
 
   parseSetAccessor_(start, isStatic) {
     var isGenerator = false;
+    var annotations = this.popAnnotations_();
     var name = this.parsePropertyName_();
     this.eat_(OPEN_PAREN);
     var parameter = this.parsePropertySetParameterList_();
     this.eat_(CLOSE_PAREN);
     var body = this.parseFunctionBody_(isGenerator, parameter);
     return new SetAccessor(this.getTreeLocation_(start), isStatic, name,
-                           parameter, this.popAnnotations_(), body);
+                           parameter, annotations, body);
   }
 
   /**
@@ -3536,7 +3537,6 @@ export class Parser {
    */
   parseAnnotatedDeclarations_(allowModuleItem, allowScriptItem) {
     this.pushAnnotations_();
-    console.log('annotation: ' + allowModuleItem);
     var declaration = this.parseStatement_(this.peekType_(),
                                             allowModuleItem, allowScriptItem);
     if (this.annotations_.length > 0)
