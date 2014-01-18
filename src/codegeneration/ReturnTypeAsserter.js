@@ -19,10 +19,8 @@ import {
 import {ParseTreeTransformer} from './ParseTreeTransformer';
 
 /*
- * Adds {@code assert.type} calls around variable expressions
- * and return values.  If the tree has formal parameters and a body then
- * then type asserts are prepended to the function for any parameter with
- * a type annotation.
+ * Traverses a single function body and adds {@code assert.type} calls
+ * around return expressions.
  */
 export class ReturnTypeAsserter extends ParseTreeTransformer {
   /**
@@ -42,22 +40,24 @@ export class ReturnTypeAsserter extends ParseTreeTransformer {
   }
 
   transformFunctionDeclaration(tree) {
-    // do no recurse into functions
+    // Don't recurse into functions, we're processing a single function body.
     return tree;
   }
 
   transformFunctionExpression(tree) {
-    // do no recurse into functions
+    // Don't recurse into functions, we're processing a single function body.
     return tree;
   }
 
   /**
-   * @param {ParseTree} tree the tree to add type assertions in.
-   * @param {ParseTree} returnType the return type
-   * @return {ParseTree} a copy of {@code tree} with type assertions added.
+   * @param {ParseTree} body The function body to traverse for return statements
+   * @param {ParseTree} typeAnnotation The return type of the enclosing function
+   *    to use for the type assertion.
+   * @return {ParseTree} A copy of {@code body} with type assertions wrapping
+   *    the return expressions.
    */
-  static assertTypes(tree, returnType) {
-    return new ReturnTypeAsserter(returnType).transformAny(tree);
+  static assertTypes(body, typeAnnotation) {
+    return new ReturnTypeAsserter(typeAnnotation).transformAny(body);
   }
 }
 

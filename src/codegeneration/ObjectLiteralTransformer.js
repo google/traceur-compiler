@@ -173,7 +173,9 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
     }
   }
 
-  // don't traverse into classes
+  // Don't traverse into classes, let the class transformer handle classes.
+  // Traversing into a class will transform the methods into:
+  //     method: function () {...}.
   transformClassDeclaration(tree) { return tree; }
   transformClassExpression(tree) { return tree; }
 

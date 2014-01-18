@@ -3582,9 +3582,8 @@ export class Parser {
     var name = this.parseIdentifierExpression_();
     var args = null;
 
-    if (this.peek_(OPEN_PAREN)) {
+    if (this.peek_(OPEN_PAREN))
       args = this.parseArguments_();
-    }
 
     return new Annotation(this.getTreeLocation_(start), name, args);
   }

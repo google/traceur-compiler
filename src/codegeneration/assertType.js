@@ -20,18 +20,8 @@ import {
 import {parseExpression} from './PlaceholderParser';
 import {options} from '../options';
 
-function isTypeAssertion(tree) {
-  return tree !== null &&
-      tree.type === CALL_EXPRESSION &&
-      tree.operand.type === MEMBER_EXPRESSION &&
-      tree.operand.operand.type === IDENTIFIER_EXPRESSION &&
-      tree.operand.operand.identifierToken.value === 'assert' &&
-      tree.operand.memberName.value === 'type';
-}
-
 export default function assertType(expression, typeAnnotation) {
-  if (expression === null || typeAnnotation === null || !options.typeAssertions ||
-      isTypeAssertion(expression))
+  if (expression === null || typeAnnotation === null || !options.typeAssertions)
     return expression;
   return parseExpression `assert.type(${expression}, ${typeAnnotation.name})`;
 }

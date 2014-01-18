@@ -94,9 +94,10 @@ export class AnnotatedClassTransformer extends ParseTreeTransformer {
       metadataStatements.push(...transformedMetadata.statements);
     });
 
-    if (elementsChanged)
+    if (elementsChanged) {
       declaration = new ClassDeclaration(declaration.location, declaration.name,
           declaration.superClass, elements);
+    }
 
     return {
       metadataStatements,

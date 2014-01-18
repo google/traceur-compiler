@@ -33,9 +33,10 @@ export class TypeTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformVariableDeclaration(tree) {
-    if (tree.typeAnnotation)
+    if (tree.typeAnnotation) {
       tree = new VariableDeclaration(tree.location, tree.lvalue, null,
           assertType(tree.initialiser, tree.typeAnnotation));
+    }
 
     return super.transformVariableDeclaration(tree);
   }
@@ -45,11 +46,12 @@ export class TypeTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformFunctionDeclaration(tree) {
-    if (tree.typeAnnotation)
+    if (tree.typeAnnotation) {
       tree = new FunctionDeclaration(tree.location, tree.name, tree.isGenerator,
           tree.formalParameterList, null,
           ReturnTypeAsserter.assertTypes(tree.functionBody,
               tree.typeAnnotation, tree.formalParameterList));
+    }
 
     return super.transformFunctionDeclaration(tree);
   }
@@ -59,11 +61,12 @@ export class TypeTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformFunctionExpression(tree) {
-    if (tree.typeAnnotation)
+    if (tree.typeAnnotation) {
       tree = new FunctionExpression(tree.location, tree.name, tree.isGenerator,
           tree.formalParameterList, null,
           ReturnTypeAsserter.assertTypes(tree.functionBody,
               tree.typeAnnotation, tree.formalParameterList));
+    }
 
     return super.transformFunctionExpression(tree);
   }
@@ -73,11 +76,12 @@ export class TypeTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformPropertyMethodAssignment(tree) {
-    if (tree.typeAnnotation)
+    if (tree.typeAnnotation) {
       tree = new PropertyMethodAssignment(tree.location, tree.isStatic,
           tree.isGenerator, tree.name, tree.formalParameterList, null,
           ReturnTypeAsserter.assertTypes(tree.functionBody,
               tree.typeAnnotation, tree.formalParameterList));
+    }
 
     return super.transformPropertyMethodAssignment(tree);
   }
@@ -87,9 +91,10 @@ export class TypeTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformGetAccessor(tree) {
-    if (tree.typeAnnotation)
+    if (tree.typeAnnotation) {
       tree = new GetAccessor(tree.location, tree.isStatic, tree.name, null,
           ReturnTypeAsserter.assertTypes(tree.body, tree.typeAnnotation, null));
+    }
 
     return super.transformGetAccessor(tree);
   }

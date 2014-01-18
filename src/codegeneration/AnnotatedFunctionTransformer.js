@@ -39,17 +39,19 @@ export class AnnotatedFunctionTransformer extends ParseTreeTransformer {
       metadataStatements
     } = this.transformFunction_(tree, this.annotations);
 
-    if (metadataStatements.length > 0)
+    if (metadataStatements.length > 0) {
       return new AnonBlock(null,
           [transformedFunction, ...metadataStatements]);
+    }
 
     return transformedFunction;
   }
 
   transformFormalParameter(tree) {
-    if (tree.annotations.length > 0)
+    if (tree.annotations.length > 0) {
       return new FormalParameter(tree.location, tree.parameter,
           tree.typeAnnotation, []);
+    }
     return tree;
   }
 
@@ -60,9 +62,10 @@ export class AnnotatedFunctionTransformer extends ParseTreeTransformer {
             tree.formalParameterList.parameters));
 
     var formalParameters = super.transformList(tree.formalParameterList);
-    if (formalParameters !== tree.formalParameterList)
+    if (formalParameters !== tree.formalParameterList) {
       tree = new FunctionDeclaration(tree.location, tree.name, tree.isGenerator,
           formalParameters, tree.typeAnnotation, tree.functionBody);
+    }
 
     return {
       transformedFunction: tree,

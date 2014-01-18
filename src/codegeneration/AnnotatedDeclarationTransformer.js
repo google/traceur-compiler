@@ -75,22 +75,22 @@ import {
  */
 export class AnnotatedDeclarationTransformer extends ParseTreeTransformer {
   constructor() {
-    this.annotations = null;
+    this.annotations_ = null;
   }
 
   transformAnnotatedDeclaration(tree) {
-    this.annotations = tree.annotations;
+    this.annotations_ = tree.annotations;
     tree = this.transformAny(tree.declaration);
-    this.annotations = null;
+    this.annotations_ = null;
     return tree;
   }
 
   transformClassDeclaration(tree) {
-    return AnnotatedClassTransformer.transformTree(tree, this.annotations);
+    return AnnotatedClassTransformer.transformTree(tree, this.annotations_);
   }
 
 
   transformFunctionDeclaration(tree) {
-    return AnnotatedFunctionTransformer.transformTree(tree, this.annotations);
+    return AnnotatedFunctionTransformer.transformTree(tree, this.annotations_);
   }
 }

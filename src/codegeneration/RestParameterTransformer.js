@@ -54,9 +54,10 @@ export class RestParameterTransformer extends ParameterTransformer {
       var currentArgument = parseExpression `arguments[${i}]`;
       var loop;
 
-      if (restParameter.typeAnnotation !== null)
+      if (restParameter.typeAnnotation !== null) {
         currentArgument = assertType(currentArgument,
             restParameter.typeAnnotation);
+      }
 
       if (startIndex) {
         // If startIndex is 0 we can generate slightly cleaner code.

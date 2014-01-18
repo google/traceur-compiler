@@ -35,10 +35,6 @@ import {parseExpression} from './PlaceholderParser';
  *
  */
 export class MetadataTransformer extends ParseTreeTransformer {
-  constructor() {
-    super();
-  }
-
   transformClassMemberMetadata(tree) {
     return this.transformMetadata_(this.transformClassMemberTarget_(tree),
         tree.annotations, tree.parameters);
@@ -92,8 +88,7 @@ export class MetadataTransformer extends ParseTreeTransformer {
         metadata.push(this.createIdentifier_(param.typeAnnotation.name.value));
 
       if (param.annotations && param.annotations.length > 0)
-        metadata.push.apply(metadata,
-            this.transformAnnotations_(target, param.annotations));
+        metadata.push(...this.transformAnnotations_(target, param.annotations));
 
       if (metadata.length > 0) {
         hasParameterMetadata = true;
