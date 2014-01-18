@@ -45,12 +45,27 @@ var ERROR = 6;
 var identifierGenerator = new UniqueIdentifierGenerator();
 
 export class LoaderHooks {
-  constructor(reporter, rootUrl, outputOptions = undefined, fileLoader = webLoader) {
+  constructor(reporter, rootUrl, outputOptions = undefined, 
+      fileLoader = webLoader, moduleStore = $traceurRuntime.ModuleStore) {
     this.reporter = reporter;
     this.rootUrl_ = rootUrl;
     this.outputOptions_ = outputOptions;
+    this.moduleStore_ = moduleStore;
     this.fileLoader = fileLoader;
     this.analyzer_ = new ModuleAnalyzer(this.reporter);
+    this.recursionDepth_ = 0;
+  }
+
+  get(normalizedName) {
+    return this.moduleStore_.get(normalizedName);
+  }
+
+  set(normalizedName, module) {
+    this.moduleStore_.set(normalizedName, module);
+  }
+
+  normalize(name, referrerName, referrerAddress) {
+    return this.moduleStore_.normalize(name, referrerName, referrerAddress);
   }
 
   // TODO Used for eval(): can we get the function call to supply callerURL?
@@ -189,6 +204,9 @@ export class LoaderHooks {
 
   // TODO(jjb): this function belongs in Loader
   transformDependencies(dependencies) {
+    this.recursionDepth_++;
+    if (this.recursionDepth_ > 500)
+      throw new Error('too deep');
     for (var i = 0; i < dependencies.length; i++) {
       var codeUnit = dependencies[i];
       if (codeUnit.state >= TRANSFORMED) {
@@ -198,6 +216,7 @@ export class LoaderHooks {
       this.instantiate(codeUnit);
     }
     this.checkForErrors(dependencies, 'transform');
+    this.recursionDepth_--;
   }
 
   transformCodeUnit(codeUnit) {

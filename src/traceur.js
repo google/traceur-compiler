@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {System} from './runtime/System';
+export {System};
+
 export {options} from './options';
 
 export {WebPageTranscoder} from './WebPageTranscoder';

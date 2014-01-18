@@ -1,4 +1,4 @@
-// Copyright 2011 Traceur Authors.
+// Copyright 2014 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,14 +11,19 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+'use strict';
 
-suite('ParseTreeValidator.js', function() {
+var fs = require('fs');
+var traceur = require('./traceur.js');
+var nodeLoader = require('./nodeLoader.js');
 
-  var ParseTreeValidator =
-      $traceurRuntime.ModuleStore.getForTesting('src/syntax/ParseTreeValidator').ParseTreeValidator;
+var LoaderHooks = traceur.modules.LoaderHooks;
+var reporter = new traceur.util.ErrorReporter();
+var url = './';
+var loaderHooks = new LoaderHooks(reporter, moduleName, undefined,
+                                      nodeLoader);
+ 
+var System = return new traceur.modules.Loader(loaderHooks);
 
-  test('Validate null', function() {
-    ParseTreeValidator.validate(null);
-  });
-
-});
+global.System = System;  
+module.exports = System;
