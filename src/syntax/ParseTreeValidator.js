@@ -361,7 +361,6 @@ export class ParseTreeValidator extends ParseTreeVisitor {
   visitClassDeclaration(tree) {
     for (var i = 0; i < tree.elements.length; i++) {
       var element = tree.elements[i];
-
       switch (element.type) {
         case GET_ACCESSOR:
         case SET_ACCESSOR:
