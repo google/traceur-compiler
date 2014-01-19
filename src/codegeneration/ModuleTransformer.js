@@ -90,7 +90,7 @@ export class ModuleTransformer extends TempVarTransformer {
 
   wrapModule(statements) {
     return parseStatements
-        `System.registerModule(${this.moduleName},
+        `$traceurRuntime.ModuleStore.registerModule(${this.moduleName},
             function() {
               ${statements}
             }
@@ -185,7 +185,7 @@ export class ModuleTransformer extends TempVarTransformer {
     // import/module {x} from 'name' is relative to the current file.
     var normalizedName = System.normalize(name, this.moduleName);
     if (this.moduleSpecifierKind_ === 'module')
-      return parseExpression `System.get(${normalizedName})`;
+      return parseExpression `$traceurRuntime.ModuleStore.get(${normalizedName})`;
     return parseExpression `$traceurRuntime.getModuleImpl(${normalizedName})`;
   }
 

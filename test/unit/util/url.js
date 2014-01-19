@@ -16,7 +16,7 @@ suite('url.js', function() {
   test('removeDotSegments', function() {
 
     var removeDotSegments =
-            System.getForTesting('src/util/url').removeDotSegments;
+            $traceurRuntime.ModuleStore.getForTesting('src/util/url').removeDotSegments;
 
     assert.equal('/', removeDotSegments('/'));
     assert.equal('.', removeDotSegments('.'));
