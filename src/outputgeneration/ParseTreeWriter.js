@@ -620,6 +620,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {FormalParameter} tree
    */
   visitFormalParameter(tree) {
+    this.writeAnnotations_(tree.annotations, false);
     if (tree.parameter.type === BINDING_ELEMENT)
       this.visitBindingElement(tree.parameter, tree.typeAnnotation);
     else {
@@ -1241,12 +1242,14 @@ export class ParseTreeWriter extends ParseTreeVisitor {
 
   /**
    * @param {Array.<ParseTree>} annotations
+   * @param {boolean} writeNewLine
    * @private
    */
-  writeAnnotations_(annotations) {
+  writeAnnotations_(annotations, writeNewLine = true) {
     if (annotations.length > 0) {
-      this.writeList_(annotations, null, true);
-      this.writeln_();
+      this.writeList_(annotations, null, writeNewLine);
+      if (writeNewLine)
+        this.writeln_();
     }
   }
 

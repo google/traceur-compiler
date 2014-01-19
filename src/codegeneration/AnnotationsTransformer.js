@@ -168,7 +168,7 @@ class AnnotationsScope {
         this.scope.annotations,
         tree.formalParameterList.parameters));
 
-    var formalParameters = super.transformList(tree.formalParameterList);
+    var formalParameters = this.transformAny(tree.formalParameterList);
     if (formalParameters !== tree.formalParameterList ||
         tree.annotations.length > 0) {
       tree = new FunctionDeclaration(tree.location, tree.name, tree.isGenerator,
@@ -180,7 +180,7 @@ class AnnotationsScope {
 
   transformFormalParameter(tree) {
     if (tree.annotations.length > 0) {
-      return new FormalParameter(tree.location, tree.parameter,
+      tree = new FormalParameter(tree.location, tree.parameter,
           tree.typeAnnotation, []);
     }
     return tree;
@@ -215,9 +215,10 @@ class AnnotationsScope {
         tree.annotations,
         [tree.parameter]));
 
-    if (tree.annotations.length > 0) {
+    var parameter = this.transformAny(tree.parameter);
+    if (parameter !== tree.parameter || tree.annotations.length > 0) {
       tree = new SetAccessor(tree.location, tree.isStatic, tree.name,
-          tree.parameter, [], tree.body);
+          parameter, [], tree.body);
     }
     return tree;
   }
@@ -238,9 +239,11 @@ class AnnotationsScope {
           tree.formalParameterList.parameters));
     }
 
-    if (tree.annotations.length > 0) {
+    var formalParameters = this.transformAny(tree.formalParameterList);
+    if (formalParameters !== tree.formalParameterList ||
+        tree.annotations.length > 0) {
       tree = new PropertyMethodAssignment(tree.location, tree.isStatic,
-          tree.isGenerator, tree.name, tree.formalParameterList,
+          tree.isGenerator, tree.name, formalParameters,
           tree.typeAnnotation, [], tree.functionBody);
     }
     return tree;

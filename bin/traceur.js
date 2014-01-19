@@ -6523,6 +6523,7 @@ System.registerModule("traceur@0.0.11/src/outputgeneration/ParseTreeWriter", fun
       }
     },
     visitFormalParameter: function(tree) {
+      this.writeAnnotations_(tree.annotations, false);
       if (tree.parameter.type === BINDING_ELEMENT) this.visitBindingElement(tree.parameter, tree.typeAnnotation); else {
         this.visitAny(tree.parameter);
         this.writeTypeAnnotation_(tree.typeAnnotation);
@@ -6897,9 +6898,10 @@ System.registerModule("traceur@0.0.11/src/outputgeneration/ParseTreeWriter", fun
       }
     },
     writeAnnotations_: function(annotations) {
+      var writeNewLine = arguments[1] !== (void 0) ? arguments[1]: true;
       if (annotations.length > 0) {
-        this.writeList_(annotations, null, true);
-        this.writeln_();
+        this.writeList_(annotations, null, writeNewLine);
+        if (writeNewLine) this.writeln_();
       }
     },
     isIdentifierNameOrNumber_: function(token) {
@@ -13933,7 +13935,7 @@ System.registerModule("traceur@0.0.11/src/codegeneration/AnnotationsTransformer"
   var AnnotationsTransformer = function() {
     this.stack_ = [new AnnotationsScope()];
   };
-  var $AnnotationsTransformer = ($traceurRuntime.createClass)(AnnotationsTransformer, {
+  AnnotationsTransformer = ($traceurRuntime.createClass)(AnnotationsTransformer, {
     transformExportDeclaration: function(tree) {
       var $__137;
       var declaration;
@@ -13970,7 +13972,7 @@ System.registerModule("traceur@0.0.11/src/codegeneration/AnnotationsTransformer"
       ($__137 = this.scope.annotations).push.apply($__137, $traceurRuntime.toObject(annotations));
       ($__137 = this.scope.annotations).push.apply($__137, $traceurRuntime.toObject(tree.annotations));
       ($__137 = this.scope.metadata).push.apply($__137, $traceurRuntime.toObject(this.transformMetadata_(tree.name, this.scope.annotations, tree.formalParameterList.parameters)));
-      var formalParameters = $traceurRuntime.superCall(this, $AnnotationsTransformer.prototype, "transformList", [tree.formalParameterList]);
+      var formalParameters = this.transformAny(tree.formalParameterList);
       if (formalParameters !== tree.formalParameterList || tree.annotations.length > 0) {
         tree = new FunctionDeclaration(tree.location, tree.name, tree.isGenerator, formalParameters, tree.typeAnnotation, [], tree.functionBody);
       }
@@ -13978,7 +13980,7 @@ System.registerModule("traceur@0.0.11/src/codegeneration/AnnotationsTransformer"
     },
     transformFormalParameter: function(tree) {
       if (tree.annotations.length > 0) {
-        return new FormalParameter(tree.location, tree.parameter, tree.typeAnnotation, []);
+        tree = new FormalParameter(tree.location, tree.parameter, tree.typeAnnotation, []);
       }
       return tree;
     },
@@ -13999,8 +14001,9 @@ System.registerModule("traceur@0.0.11/src/codegeneration/AnnotationsTransformer"
         return tree;
       }
       ($__137 = this.scope.metadata).push.apply($__137, $traceurRuntime.toObject(this.transformMetadata_(this.transformAccessor_(tree, this.scope.className, 'set'), tree.annotations, [tree.parameter])));
-      if (tree.annotations.length > 0) {
-        tree = new SetAccessor(tree.location, tree.isStatic, tree.name, tree.parameter, [], tree.body);
+      var parameter = this.transformAny(tree.parameter);
+      if (parameter !== tree.parameter || tree.annotations.length > 0) {
+        tree = new SetAccessor(tree.location, tree.isStatic, tree.name, parameter, [], tree.body);
       }
       return tree;
     },
@@ -14015,8 +14018,9 @@ System.registerModule("traceur@0.0.11/src/codegeneration/AnnotationsTransformer"
       } else {
         ($__137 = this.scope.metadata).push.apply($__137, $traceurRuntime.toObject(this.transformMetadata_(this.transformPropertyMethod_(tree, this.scope.className), tree.annotations, tree.formalParameterList.parameters)));
       }
-      if (tree.annotations.length > 0) {
-        tree = new PropertyMethodAssignment(tree.location, tree.isStatic, tree.isGenerator, tree.name, tree.formalParameterList, tree.typeAnnotation, [], tree.functionBody);
+      var formalParameters = this.transformAny(tree.formalParameterList);
+      if (formalParameters !== tree.formalParameterList || tree.annotations.length > 0) {
+        tree = new PropertyMethodAssignment(tree.location, tree.isStatic, tree.isGenerator, tree.name, formalParameters, tree.typeAnnotation, [], tree.functionBody);
       }
       return tree;
     },
