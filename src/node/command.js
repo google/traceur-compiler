@@ -29,10 +29,8 @@ flags.setMaxListeners(100);
 var traceur = require('./traceur.js');
 
 // The System object requires traceur, but we want it set for everything that 
-// follows.
-
-var System = require('./System.js');
-global.System = System;
+// follows. The module sets global.System as a side-effect.
+require('./System.js');
 
 flags.option('--out <FILE>', 'Compile all input files into a single file');
 flags.option('--referrer <name>',

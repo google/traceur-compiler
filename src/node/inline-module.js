@@ -36,8 +36,8 @@ var moduleStore = traceur.runtime.ModuleStore;
  */
 function InlineLoaderHooks(reporter, url, elements, depTarget) {
   LoaderHooks.call(this, reporter, url, undefined, 
-      nodeLoader, // Load modules using node fs.
-      moduleStore); // Look up modules in our static module store
+      nodeLoader,  // Load modules using node fs.
+      moduleStore);  // Look up modules in our static module store
   this.dirname = url;
   this.elements = elements;
   this.depTarget = depTarget && normalizePath(path.relative('.', depTarget));
