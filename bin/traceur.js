@@ -6243,6 +6243,7 @@ System.registerModule("traceur@0.0.11/src/outputgeneration/ParseTreeWriter", fun
     this.currentLineComment_ = null;
     this.indentDepth_ = 0;
     this.lastToken_ = null;
+    this.currentTypeAnnotation_ = null;
   };
   var $ParseTreeWriter = ($traceurRuntime.createClass)(ParseTreeWriter, {
     toString: function() {
@@ -6322,9 +6323,7 @@ System.registerModule("traceur@0.0.11/src/outputgeneration/ParseTreeWriter", fun
       this.visitAny(tree.right);
     },
     visitBindingElement: function(tree) {
-      var typeAnnotation = arguments[1] !== (void 0) ? arguments[1]: null;
       this.visitAny(tree.binding);
-      this.writeTypeAnnotation_(typeAnnotation);
       if (tree.initialiser) {
         this.write_(EQUAL);
         this.visitAny(tree.initialiser);
@@ -6525,10 +6524,10 @@ System.registerModule("traceur@0.0.11/src/outputgeneration/ParseTreeWriter", fun
     },
     visitFormalParameter: function(tree) {
       this.writeAnnotations_(tree.annotations, false);
-      if (tree.parameter.type === BINDING_ELEMENT) this.visitBindingElement(tree.parameter, tree.typeAnnotation); else {
-        this.visitAny(tree.parameter);
-        this.writeTypeAnnotation_(tree.typeAnnotation);
-      }
+      this.currentTypeAnnotation_ = tree.typeAnnotation;
+      this.visitAny(tree.parameter);
+      this.writeTypeAnnotation_(this.currentTypeAnnotation_);
+      this.currentTypeAnnotation_ = null;
     },
     visitFunctionBody: function(tree) {
       this.write_(OPEN_CURLY);
