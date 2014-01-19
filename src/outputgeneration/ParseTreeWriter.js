@@ -176,12 +176,6 @@ export class ParseTreeWriter extends ParseTreeVisitor {
      * @private
      */
     this.lastToken_ = null;
-
-    /**
-     * @type {TypeAnnotation}
-     * @private
-     */
-    this.currentTypeAnnotation_ = null;
   }
 
   toString() {
@@ -309,10 +303,6 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitBindingElement(tree) {
     this.visitAny(tree.binding);
-    this.writeTypeAnnotation_(this.currentTypeAnnotation_);
-    // reset the type annotation since it was written here to keep the
-    // formal parameter from attempting to write it as well.
-    this.currentTypeAnnotation_ = null;
     if (tree.initialiser) {
       this.write_(EQUAL);
       this.visitAny(tree.initialiser);
@@ -629,10 +619,8 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitFormalParameter(tree) {
     this.writeAnnotations_(tree.annotations, false);
-    this.currentTypeAnnotation_ = tree.typeAnnotation;
     this.visitAny(tree.parameter);
-    this.writeTypeAnnotation_(this.currentTypeAnnotation_);
-    this.currentTypeAnnotation_ = null;
+    this.writeTypeAnnotation_(tree.typeAnnotation);
   }
 
   /**

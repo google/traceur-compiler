@@ -38,9 +38,8 @@ import {
   createVoid0
 } from './ParseTreeFactory';
 import {prependStatements} from './PrependStatements';
-import assertType from './assertType';
 
-function createDefaultAssignment(index, binding, initialiser, typeAnnotation) {
+function createDefaultAssignment(index, binding, initialiser) {
   var argumentsExpression =
       createMemberLookupExpression(
           createIdentifierExpression(ARGUMENTS),
@@ -64,10 +63,6 @@ function createDefaultAssignment(index, binding, initialiser, typeAnnotation) {
             argumentsExpression,
             initialiser);
   }
-
-  if (typeAnnotation)
-    assignmentExpression = assertType(assignmentExpression, typeAnnotation);
-
   return createVariableStatement(VAR, binding, assignmentExpression);
 }
 
@@ -101,8 +96,7 @@ export class DefaultParametersTransformer extends ParameterTransformer {
         defaultToUndefined = true;
         changed = true;
         this.parameterStatements.push(
-            createDefaultAssignment(i, param.parameter.binding,
-                param.parameter.initialiser, param.typeAnnotation));
+            createDefaultAssignment(i, param.parameter.binding, param.parameter.initialiser));
       }
     }
 
