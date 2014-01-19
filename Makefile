@@ -16,7 +16,9 @@ GENSRC = \
   src/syntax/ParseTreeVisitor.js
 TPL_GENSRC_DEPS = $(addsuffix -template.js.dep, $(TPL_GENSRC))
 
+PREV_NODE = $(wildcard node_modules/traceur/src/node/*.js)
 SRC_NODE = $(wildcard src/node/*.js)
+
 SRC_ALL = $(wildcard src/**/*.js src/*.js) 
 
 TFLAGS = --
@@ -145,7 +147,7 @@ bin/traceur.js: build/compiled-by-previous-traceur.js $(SRC_NODE)
 
 # Use last-known-good compiler to compile current source
 build/compiled-by-previous-traceur.js: \
-	  $(subst src/node,build/node,$(SRC_NODE)) \
+	  $(subst node_modules/traceur/src/node,build/node,$(PREV_NODE)) \
 	  build/previous-commit-traceur.js $(SRC_ALL)  | $(GENSRC) node_modules
 	@mkdir -p bin/
 	@cp build/previous-commit-traceur.js bin/traceur.js
