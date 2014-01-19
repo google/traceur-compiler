@@ -488,6 +488,12 @@ export class CPSTransformer extends ParseTreeTransformer {
    * @return {ParseTree}
    */
   transformLabelledStatement(tree) {
+    // Any statement can be preceeded by a label. Labels have lexical scope so
+    // we keep track of the opened labels and their states.
+
+    // We create an object to hold the state of the currrent label. This is then
+    // used directly inside the statement if it is a loop and the loop machines
+    // state IDs are updated to use the allocated states below.
     var startState = this.allocateState();
     var continueState = this.allocateState();
     var fallThroughState = this.allocateState();
@@ -514,7 +520,7 @@ export class CPSTransformer extends ParseTreeTransformer {
   }
 
   restoreLabels_(oldLabels) {
-    this.labelSet_ = oldLabels
+    this.labelSet_ = oldLabels;
   }
 
   /**
