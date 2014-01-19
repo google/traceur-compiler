@@ -39,7 +39,6 @@ import {
 import {
   BindingElement,
   Catch,
-  FormalParameter,
   ForInStatement,
   ForOfStatement,
   LiteralExpression

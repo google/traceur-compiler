@@ -121,10 +121,8 @@ class AnnotationsScope {
     this.stack_.push(new AnnotationsScope());
     this.scope.annotations.push(...tree.annotations);
     declaration = this.transformAny(tree.declaration);
-
     if (declaration !== tree.declaration)
       tree = new ExportDeclaration(tree.location, declaration, []);
-
     return this.appendMetadata_(tree, this.stack_.pop().metadata);
   }
 
@@ -138,10 +136,8 @@ class AnnotationsScope {
 
     var elements = tree.elements.map((element) => {
       var transformedElement = this.transformAny(element);
-
       if (transformedElement !== element)
         elementsChanged = true;
-
       return transformedElement;
     });
 
@@ -154,7 +150,6 @@ class AnnotationsScope {
       tree = new ClassDeclaration(tree.location, tree.name,
           tree.superClass, elements, []);
     }
-
     return this.appendMetadata_(tree, this.stack_.pop().metadata);
   }
 
@@ -164,7 +159,8 @@ class AnnotationsScope {
     this.scope.annotations.push(...annotations);
     this.scope.annotations.push(...tree.annotations);
 
-    this.scope.metadata.push(...this.transformMetadata_(tree.name,
+    this.scope.metadata.push(...this.transformMetadata_(
+        tree.name,
         this.scope.annotations,
         tree.formalParameterList.parameters));
 
@@ -174,7 +170,6 @@ class AnnotationsScope {
       tree = new FunctionDeclaration(tree.location, tree.name, tree.isGenerator,
           formalParameters, tree.typeAnnotation, [], tree.functionBody);
     }
-
     return this.appendMetadata_(tree, this.stack_.pop().metadata);
   }
 
@@ -188,9 +183,8 @@ class AnnotationsScope {
 
   transformGetAccessor(tree) {
     // We only want to process if we're within a class scope
-    if (this.scope.className === null) {
+    if (this.scope.className === null)
       return tree;
-    }
 
     this.scope.metadata.push(...this.transformMetadata_(
         this.transformAccessor_(tree, this.scope.className, 'get'),
@@ -206,9 +200,8 @@ class AnnotationsScope {
 
   transformSetAccessor(tree) {
     // We only want to process if we're within a class scope
-    if (this.scope.className === null) {
+    if (this.scope.className === null)
       return tree;
-    }
 
     this.scope.metadata.push(...this.transformMetadata_(
         this.transformAccessor_(tree, this.scope.className, 'set'),
@@ -225,9 +218,8 @@ class AnnotationsScope {
 
   transformPropertyMethodAssignment(tree) {
     // We only want to process if we're within a class scope
-    if (this.scope.className === null) {
+    if (this.scope.className === null)
       return tree;
-    }
 
     if (!tree.isStatic && propName(tree) === CONSTRUCTOR) {
       this.scope.annotations.push(...tree.annotations);
@@ -259,13 +251,11 @@ class AnnotationsScope {
         this.scope.metadata.push(...metadata);
       }
     }
-
     return tree;
   }
 
   transformClassReference_(tree, className) {
     var parent = this.createIdentifier_(className);
-
     if (!tree.isStatic)
       parent = createMemberExpression(parent, 'prototype');
     return parent;
@@ -291,10 +281,8 @@ class AnnotationsScope {
       var metadata = [];
       if (param.typeAnnotation)
         metadata.push(this.createIdentifier_(param.typeAnnotation.name.value));
-
       if (param.annotations && param.annotations.length > 0)
         metadata.push(...this.transformAnnotations_(param.annotations));
-
       if (metadata.length > 0) {
         hasParameterMetadata = true;
         return createArrayLiteralExpression(metadata);
@@ -306,11 +294,9 @@ class AnnotationsScope {
   }
 
   transformAnnotations_(annotations) {
-    annotations = annotations.map((annotation) => {
+    return annotations.map((annotation) => {
       return createNewExpression(annotation.name, annotation.args);
     });
-
-    return annotations;
   }
 
   transformMetadata_(target, annotations, parameters) {
@@ -328,7 +314,6 @@ class AnnotationsScope {
 
     if (parameters !== null) {
       parameters = this.transformParameters_(parameters);
-
       if (parameters.length > 0) {
         metadataStatements.push(createAssignmentStatement(
             createMemberExpression(targetIdentifier, 'parameters'),

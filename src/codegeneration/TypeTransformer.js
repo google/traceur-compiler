@@ -36,7 +36,6 @@ export class TypeTransformer extends ParseTreeTransformer {
       tree = new VariableDeclaration(tree.location, tree.lvalue, null,
           tree.initialiser);
     }
-
     return super.transformVariableDeclaration(tree);
   }
 

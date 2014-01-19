@@ -132,7 +132,6 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {string} message
    */
   fail_(tree, message) {
-    console.log(tree.toJSON());
     throw new ValidationError(tree, message);
   }
 
@@ -431,8 +430,7 @@ export class ParseTreeValidator extends ParseTreeVisitor {
    * @param {ExportDeclaration} tree
    */
   visitExportDeclaration(tree) {
-    var declaration = tree.declaration;
-    var declType = declaration.type;
+    var declType = tree.declaration.type;
     this.checkVisit_(
         declType == VARIABLE_STATEMENT ||
         declType == FUNCTION_DECLARATION ||

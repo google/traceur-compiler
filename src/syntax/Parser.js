@@ -894,8 +894,6 @@ export class Parser {
     var formals = [];
     this.pushAnnotations_();
     var type = this.peekType_();
-
-
     if (this.peekRest_(type)) {
       formals.push(this.parseFormalRestParameter_());
     } else {
@@ -904,12 +902,10 @@ export class Parser {
 
       while (this.eatIf_(COMMA)) {
         this.pushAnnotations_();
-
         if (this.peekRest_(this.peekType_())) {
           formals.push(this.parseFormalRestParameter_());
           break;
         }
-
         formals.push(this.parseFormalParameter_());
       }
     }
@@ -3555,13 +3551,6 @@ export class Parser {
     var annotations = this.annotations_;
     this.annotations_ = [];
     return annotations;
-  }
-
-  peekAnnotatedDeclaration_(type) {
-    if (type === EXPORT) {
-      return this.peek_(CLASS, 1) || this.peek_(FUNCTION, 1);
-    }
-    return type === CLASS || type === FUNCTION;
   }
 
   parseAnnotation_() {

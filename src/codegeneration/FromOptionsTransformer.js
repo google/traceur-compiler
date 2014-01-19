@@ -88,7 +88,6 @@ export class FromOptionsTransformer extends MultiTransformer {
     if (transformOptions.arrowFunctions)
       append(ArrowFunctionTransformer);
 
-
     // ClassTransformer needs to come before ObjectLiteralTransformer.
     if (transformOptions.classes)
       append(ClassTransformer);

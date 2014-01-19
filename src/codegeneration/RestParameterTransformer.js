@@ -46,7 +46,6 @@ export class RestParameterTransformer extends ParameterTransformer {
       var i = createIdentifierToken(this.getTempIdentifier());
       var name = getRestParameterLiteralToken(transformed);
       var loop;
-
       if (startIndex) {
         // If startIndex is 0 we can generate slightly cleaner code.
         loop = parseStatement `

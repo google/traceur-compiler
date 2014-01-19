@@ -23,7 +23,6 @@ import {
 } from '../syntax/PredefinedName';
 import {Token} from '../syntax/Token';
 import {getKeywordType} from '../syntax/Keywords';
-import {BINDING_ELEMENT} from '../syntax/trees/ParseTreeType';
 
 import {
   AMPERSAND,
