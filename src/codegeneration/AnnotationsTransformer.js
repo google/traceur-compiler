@@ -17,21 +17,23 @@ import {
   CONSTRUCTOR
 } from '../syntax/PredefinedName';
 import {
+  IDENTIFIER,
+  STRING
+} from '../syntax/TokenType';
+import {
   AnonBlock,
   ClassDeclaration,
   ExportDeclaration,
   FormalParameter,
   FunctionDeclaration,
   GetAccessor,
+  LiteralExpression,
   PropertyMethodAssignment,
   SetAccessor
 } from '../syntax/trees/ParseTrees';
 import {
   BINDING_IDENTIFIER,
-  GET_ACCESSOR,
-  IDENTIFIER_EXPRESSION,
-  PROPERTY_METHOD_ASSIGNMENT,
-  SET_ACCESSOR
+  IDENTIFIER_EXPRESSION
 } from '../syntax/trees/ParseTreeType';
 import {propName} from '../staticsemantics/PropName';
 import {
@@ -42,7 +44,7 @@ import {
   createMemberExpression,
   createNewExpression,
   createStatementList,
-  createStringLiteral
+  createStringLiteralToken
 } from './ParseTreeFactory';
 import {parseExpression} from './PlaceholderParser';
 
@@ -273,7 +275,7 @@ class AnnotationsScope {
 
   transformAccessor_(tree, className, accessor) {
     var args = createArgumentList([this.transformClassReference_(tree, className),
-        createStringLiteral(tree.name.literalToken.value)]);
+        this.createLiteralStringExpression_(tree.name)]);
 
     var descriptor = parseExpression `Object.getOwnPropertyDescriptor(${args})`;
     return createMemberExpression(descriptor, accessor);
@@ -331,6 +333,13 @@ class AnnotationsScope {
       }
     }
     return metadataStatements;
+  }
+
+  createLiteralStringExpression_(tree) {
+    var token = tree.literalToken;
+    if (tree.literalToken.type !== STRING)
+      token = createStringLiteralToken(tree.literalToken.value);
+    return new LiteralExpression(null, token);
   }
 
   createIdentifier_(tree) {

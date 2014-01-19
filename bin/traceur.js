@@ -13896,6 +13896,9 @@ System.registerModule("traceur@0.0.11/src/codegeneration/AnnotationsTransformer"
   var $__133 = Object.freeze(Object.defineProperties(["Object.getOwnPropertyDescriptor(", ")"], {raw: {value: Object.freeze(["Object.getOwnPropertyDescriptor(", ")"])}}));
   var ParseTreeTransformer = $traceurRuntime.getModuleImpl("traceur@0.0.11/src/codegeneration/ParseTreeTransformer").ParseTreeTransformer;
   var CONSTRUCTOR = $traceurRuntime.getModuleImpl("traceur@0.0.11/src/syntax/PredefinedName").CONSTRUCTOR;
+  var $__136 = $traceurRuntime.getModuleImpl("traceur@0.0.11/src/syntax/TokenType"),
+      IDENTIFIER = $__136.IDENTIFIER,
+      STRING = $__136.STRING;
   var $__136 = $traceurRuntime.getModuleImpl("traceur@0.0.11/src/syntax/trees/ParseTrees"),
       AnonBlock = $__136.AnonBlock,
       ClassDeclaration = $__136.ClassDeclaration,
@@ -13903,14 +13906,12 @@ System.registerModule("traceur@0.0.11/src/codegeneration/AnnotationsTransformer"
       FormalParameter = $__136.FormalParameter,
       FunctionDeclaration = $__136.FunctionDeclaration,
       GetAccessor = $__136.GetAccessor,
+      LiteralExpression = $__136.LiteralExpression,
       PropertyMethodAssignment = $__136.PropertyMethodAssignment,
       SetAccessor = $__136.SetAccessor;
   var $__136 = $traceurRuntime.getModuleImpl("traceur@0.0.11/src/syntax/trees/ParseTreeType"),
       BINDING_IDENTIFIER = $__136.BINDING_IDENTIFIER,
-      GET_ACCESSOR = $__136.GET_ACCESSOR,
-      IDENTIFIER_EXPRESSION = $__136.IDENTIFIER_EXPRESSION,
-      PROPERTY_METHOD_ASSIGNMENT = $__136.PROPERTY_METHOD_ASSIGNMENT,
-      SET_ACCESSOR = $__136.SET_ACCESSOR;
+      IDENTIFIER_EXPRESSION = $__136.IDENTIFIER_EXPRESSION;
   var propName = $traceurRuntime.getModuleImpl("traceur@0.0.11/src/staticsemantics/PropName").propName;
   var $__136 = $traceurRuntime.getModuleImpl("traceur@0.0.11/src/codegeneration/ParseTreeFactory"),
       createArgumentList = $__136.createArgumentList,
@@ -13920,7 +13921,7 @@ System.registerModule("traceur@0.0.11/src/codegeneration/AnnotationsTransformer"
       createMemberExpression = $__136.createMemberExpression,
       createNewExpression = $__136.createNewExpression,
       createStatementList = $__136.createStatementList,
-      createStringLiteral = $__136.createStringLiteral;
+      createStringLiteralToken = $__136.createStringLiteralToken;
   var parseExpression = $traceurRuntime.getModuleImpl("traceur@0.0.11/src/codegeneration/PlaceholderParser").parseExpression;
   var AnnotationsScope = function() {
     this.className = null;
@@ -14039,7 +14040,7 @@ System.registerModule("traceur@0.0.11/src/codegeneration/AnnotationsTransformer"
       return createMemberExpression(this.transformClassReference_(tree, className), tree.name.literalToken);
     },
     transformAccessor_: function(tree, className, accessor) {
-      var args = createArgumentList([this.transformClassReference_(tree, className), createStringLiteral(tree.name.literalToken.value)]);
+      var args = createArgumentList([this.transformClassReference_(tree, className), this.createLiteralStringExpression_(tree.name)]);
       var descriptor = parseExpression($__133, args);
       return createMemberExpression(descriptor, accessor);
     },
@@ -14081,6 +14082,11 @@ System.registerModule("traceur@0.0.11/src/codegeneration/AnnotationsTransformer"
         }
       }
       return metadataStatements;
+    },
+    createLiteralStringExpression_: function(tree) {
+      var token = tree.literalToken;
+      if (tree.literalToken.type !== STRING) token = createStringLiteralToken(tree.literalToken.value);
+      return new LiteralExpression(null, token);
     },
     createIdentifier_: function(tree) {
       if (typeof tree == 'string') tree = createIdentifierExpression(tree); else if (tree.type === BINDING_IDENTIFIER) tree = createIdentifierExpression(tree.identifierToken);
