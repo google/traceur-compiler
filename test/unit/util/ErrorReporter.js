@@ -15,7 +15,7 @@
 suite('ErrorReporter.js', function() {
 
   var MutedErrorReporter =
-      System.getForTesting('src/util/MutedErrorReporter').MutedErrorReporter;
+      $traceurRuntime.ModuleStore.getForTesting('src/util/MutedErrorReporter').MutedErrorReporter;
 
   var originalConsoleError = console.error;
   var args;

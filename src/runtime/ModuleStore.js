@@ -54,7 +54,7 @@
   function getUncoatedModuleInstantiator(name) {
     if (!name)
       return;
-    var url = System.normalize(name);
+    var url = ModuleStore.normalize(name);
     return moduleInstantiators[url];
   };
 
@@ -90,7 +90,7 @@
     return coatedModule;
   }
 
-  var System = {
+  var ModuleStore = {
 
     normalize(name, refererName, refererAddress) {
       if (typeof name !== "string")
@@ -132,10 +132,10 @@
       baseURL = String(v);
     },
 
-    // -- Non standard extensions to System.
+    // -- Non standard extensions to ModuleStore.
 
     registerModule(name, func) {
-      var normalizedName = System.normalize(name);
+      var normalizedName = ModuleStore.normalize(name);
       moduleInstantiators[normalizedName] =
           new UncoatedModuleInstantiator(normalizedName, func);
     },
@@ -164,12 +164,25 @@
 
   };
 
+
+  ModuleStore.set('@traceur/src/runtime/ModuleStore', 
+      new Module({ModuleStore: ModuleStore}));
+
   // Override setupGlobals so that System is added to future globals.
   var setupGlobals = $traceurRuntime.setupGlobals;
   $traceurRuntime.setupGlobals = function(global) {
     setupGlobals(global);
   };
-  global.System = System;
+  $traceurRuntime.ModuleStore = ModuleStore;
+
+  // Todo: Remove after the next npm publish, needed because the current
+  // node_module/traceur generates calls to System.registerModule.
+  global.System = {
+    registerModule: ModuleStore.registerModule,
+    get: ModuleStore.get,
+    set: ModuleStore.set,
+    normalize: ModuleStore.normalize,
+  };
 
   $traceurRuntime.getModuleImpl = function(name) {
     var instantiator = getUncoatedModuleInstantiator(name);

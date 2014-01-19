@@ -15,7 +15,7 @@
 suite('modules.js', function() {
 
   var MutedErrorReporter =
-      System.getForTesting('src/util/MutedErrorReporter').MutedErrorReporter;
+      $traceurRuntime.ModuleStore.getForTesting('src/util/MutedErrorReporter').MutedErrorReporter;
 
   var reporter, baseURL;
 
@@ -67,7 +67,7 @@ suite('modules.js', function() {
 
   test('traceur@', function() {
     var traceur = System.get('traceur@');
-    var optionsModule = System.getForTesting('src/options');
+    var optionsModule = $traceurRuntime.ModuleStore.getForTesting('src/options');
     assert.equal(traceur.options, optionsModule.options);
   });
 

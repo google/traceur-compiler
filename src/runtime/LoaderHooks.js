@@ -45,12 +45,26 @@ var ERROR = 6;
 var identifierGenerator = new UniqueIdentifierGenerator();
 
 export class LoaderHooks {
-  constructor(reporter, rootUrl, outputOptions = undefined, fileLoader = webLoader) {
+  constructor(reporter, rootUrl, outputOptions = undefined, 
+      fileLoader = webLoader, moduleStore = $traceurRuntime.ModuleStore) {
     this.reporter = reporter;
     this.rootUrl_ = rootUrl;
     this.outputOptions_ = outputOptions;
+    this.moduleStore_ = moduleStore;
     this.fileLoader = fileLoader;
     this.analyzer_ = new ModuleAnalyzer(this.reporter);
+  }
+
+  get(normalizedName) {
+    return this.moduleStore_.get(normalizedName);
+  }
+
+  set(normalizedName, module) {
+    this.moduleStore_.set(normalizedName, module);
+  }
+
+  normalize(name, referrerName, referrerAddress) {
+    return this.moduleStore_.normalize(name, referrerName, referrerAddress);
   }
 
   // TODO Used for eval(): can we get the function call to supply callerURL?
