@@ -15596,6 +15596,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.12/src/syntax/trees/Stat
   "use strict";
   var ParseTree = $traceurRuntime.getModuleImpl("traceur@0.0.12/src/syntax/trees/ParseTree").ParseTree;
   var STATE_MACHINE = $traceurRuntime.getModuleImpl("traceur@0.0.12/src/syntax/trees/ParseTreeType").STATE_MACHINE;
+  var State = $traceurRuntime.getModuleImpl("traceur@0.0.12/src/codegeneration/generator/State").State;
   var TryState = $traceurRuntime.getModuleImpl("traceur@0.0.12/src/codegeneration/generator/TryState").TryState;
   function addCatchOrFinallyStates(kind, enclosingMap, tryStates) {
     for (var i = 0; i < tryStates.length; i++) {
@@ -15659,6 +15660,9 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.12/src/syntax/trees/Stat
       var catches = [];
       addAllCatchStates(this.exceptionBlocks, catches);
       return catches;
+    },
+    replaceStateId: function(oldState, newState) {
+      return new StateMachine(State.replaceStateId(this.startState, oldState, newState), State.replaceStateId(this.fallThroughState, oldState, newState), State.replaceAllStates(this.states, oldState, newState), State.replaceAllStates(this.exceptionBlocks, oldState, newState));
     }
   }, {}, ParseTree);
   return {get StateMachine() {
@@ -15702,8 +15706,9 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.12/src/codegeneration/ge
       throw new Error('These should be removed before the transform step');
     },
     transformBreak: function(labelSet, breakState) {
-      if (this.label == null || this.label in labelSet) {
-        return new FallThroughState(this.id, breakState, createStatementList());
+      if (this.label == null) return new FallThroughState(this.id, breakState, []);
+      if (this.label in labelSet) {
+        return new FallThroughState(this.id, labelSet[this.label].fallThroughState, []);
       }
       return this;
     },
@@ -15732,8 +15737,9 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.12/src/codegeneration/ge
       throw new Error('These should be removed before the transform step');
     },
     transformBreakOrContinue: function(labelSet, breakState, continueState) {
-      if (this.label == null || this.label in labelSet) {
-        return new FallThroughState(this.id, continueState, createStatementList());
+      if (this.label == null) return new FallThroughState(this.id, continueState, []);
+      if (this.label in labelSet) {
+        return new FallThroughState(this.id, labelSet[this.label].continueState, []);
       }
       return this;
     }
@@ -15948,7 +15954,9 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.12/src/codegeneration/ge
   var $__219 = Object.freeze(Object.defineProperties(["\n        return this.innerFunction($yieldSent, $yieldAction);"], {raw: {value: Object.freeze(["\n        return this.innerFunction($yieldSent, $yieldAction);"])}}));
   var BreakContinueTransformer = $traceurRuntime.getModuleImpl("traceur@0.0.12/src/codegeneration/generator/BreakContinueTransformer").BreakContinueTransformer;
   var $__221 = $traceurRuntime.getModuleImpl("traceur@0.0.12/src/syntax/trees/ParseTreeType"),
+      BREAK_STATEMENT = $__221.BREAK_STATEMENT,
       CASE_CLAUSE = $__221.CASE_CLAUSE,
+      CONTINUE_STATEMENT = $__221.CONTINUE_STATEMENT,
       STATE_MACHINE = $__221.STATE_MACHINE,
       VARIABLE_DECLARATION_LIST = $__221.VARIABLE_DECLARATION_LIST,
       VARIABLE_STATEMENT = $__221.VARIABLE_STATEMENT;
@@ -16014,30 +16022,37 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.12/src/codegeneration/ge
       createVariableStatement = $__221.createVariableStatement,
       createWhileStatement = $__221.createWhileStatement;
   var variablesInBlock = $traceurRuntime.getModuleImpl("traceur@0.0.12/src/semantics/VariableBinder").variablesInBlock;
+  var LabelState = function(name, continueState, fallThroughState) {
+    this.name = name;
+    this.continueState = continueState;
+    this.fallThroughState = fallThroughState;
+  };
+  LabelState = ($traceurRuntime.createClass)(LabelState, {}, {});
   var CPSTransformer = function(reporter) {
     $traceurRuntime.superCall(this, $CPSTransformer.prototype, "constructor", []);
     this.reporter = reporter;
     this.stateAllocator_ = new StateAllocator();
     this.labelSet_ = Object.create(null);
+    this.currentLabel_ = null;
   };
   var $CPSTransformer = ($traceurRuntime.createClass)(CPSTransformer, {
     allocateState: function() {
       return this.stateAllocator_.allocateState();
     },
     transformBlock: function(tree) {
-      this.clearLabels_();
       var transformedTree = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformBlock", [tree]);
       var machine = this.transformStatementList_(transformedTree.statements);
       return machine == null ? transformedTree: machine;
     },
     transformFunctionBody: function(tree) {
-      this.clearLabels_();
+      var oldLabels = this.clearLabels_();
       var transformedTree = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformFunctionBody", [tree]);
       var machine = this.transformStatementList_(transformedTree.statements);
+      this.restoreLabels_(oldLabels);
       return machine == null ? transformedTree: machine;
     },
     transformStatementList_: function(someTransformed) {
-      if (!this.containsStateMachine_(someTransformed)) {
+      if (!this.needsStateMachine_(someTransformed)) {
         return null;
       }
       var currentMachine = this.ensureTransformed_(someTransformed[0]);
@@ -16046,11 +16061,16 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.12/src/codegeneration/ge
       }
       return currentMachine;
     },
-    containsStateMachine_: function(statements) {
+    needsStateMachine_: function(statements) {
       if (statements instanceof Array) {
         for (var i = 0; i < statements.length; i++) {
-          if (statements[i].type == STATE_MACHINE) {
-            return true;
+          switch (statements[i].type) {
+            case STATE_MACHINE:
+              return true;
+            case BREAK_STATEMENT:
+            case CONTINUE_STATEMENT:
+              if (statements[i].name) return true;
+              break;
           }
         }
         return false;
@@ -16058,7 +16078,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.12/src/codegeneration/ge
       assert(statements instanceof SwitchStatement);
       for (var i = 0; i < statements.caseClauses.length; i++) {
         var clause = statements.caseClauses[i];
-        if (this.containsStateMachine_(clause.statements)) {
+        if (this.needsStateMachine_(clause.statements)) {
           return true;
         }
       }
@@ -16070,11 +16090,10 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.12/src/codegeneration/ge
       return machine == null ? result: new CaseClause(null, result.expression, createStatementList(machine));
     },
     transformDoWhileStatement: function(tree) {
-      var labels = this.clearLabels_();
+      var labels = this.getLabels_();
+      var label = this.clearCurrentLabel_();
       var result = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformDoWhileStatement", [tree]);
-      if (result.body.type != STATE_MACHINE) {
-        return result;
-      }
+      if (result.body.type != STATE_MACHINE) return result;
       var loopBodyMachine = result.body;
       var startState = loopBodyMachine.startState;
       var conditionState = loopBodyMachine.fallThroughState;
@@ -16082,7 +16101,9 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.12/src/codegeneration/ge
       var states = [];
       this.addLoopBodyStates_(loopBodyMachine, conditionState, fallThroughState, labels, states);
       states.push(new ConditionalState(conditionState, startState, fallThroughState, result.condition));
-      return new StateMachine(startState, fallThroughState, states, loopBodyMachine.exceptionBlocks);
+      var machine = new StateMachine(startState, fallThroughState, states, loopBodyMachine.exceptionBlocks);
+      if (label) machine = machine.replaceStateId(conditionState, label.continueState);
+      return machine;
     },
     addLoopBodyStates_: function(loopBodyMachine, continueState, breakState, labels, states) {
       for (var i = 0; i < loopBodyMachine.states.length; i++) {
@@ -16091,11 +16112,10 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.12/src/codegeneration/ge
       }
     },
     transformForStatement: function(tree) {
-      var labels = this.clearLabels_();
+      var labels = this.getLabels_();
+      var label = this.clearCurrentLabel_();
       var result = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformForStatement", [tree]);
-      if (result.body.type != STATE_MACHINE) {
-        return result;
-      }
+      if (result.body.type != STATE_MACHINE) return result;
       var loopBodyMachine = result.body;
       var incrementState = loopBodyMachine.fallThroughState;
       var conditionState = result.increment == null && result.condition != null ? incrementState: this.allocateState();
@@ -16114,7 +16134,9 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.12/src/codegeneration/ge
         states.push(new FallThroughState(incrementState, conditionState, createStatementList(createExpressionStatement(result.increment))));
       }
       this.addLoopBodyStates_(loopBodyMachine, incrementState, fallThroughState, labels, states);
-      return new StateMachine(startState, fallThroughState, states, loopBodyMachine.exceptionBlocks);
+      var machine = new StateMachine(startState, fallThroughState, states, loopBodyMachine.exceptionBlocks);
+      if (label) machine = machine.replaceStateId(incrementState, label.continueState);
+      return machine;
     },
     transformForInStatement: function(tree) {
       return tree;
@@ -16124,7 +16146,6 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.12/src/codegeneration/ge
     },
     transformIfStatement: function(tree) {
       var $__222;
-      this.clearLabels_();
       var result = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformIfStatement", [tree]);
       if (result.ifClause.type != STATE_MACHINE && (result.elseClause == null || result.elseClause.type != STATE_MACHINE)) {
         return result;
@@ -16171,15 +16192,24 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.12/src/codegeneration/ge
       }
     },
     transformLabelledStatement: function(tree) {
-      var oldLabels = this.addLabel_(tree.name.value);
+      var startState = this.allocateState();
+      var continueState = this.allocateState();
+      var fallThroughState = this.allocateState();
+      var label = new LabelState(tree.name.value, continueState, fallThroughState);
+      var oldLabels = this.addLabel_(label);
+      this.currentLabel_ = label;
       var result = this.transformAny(tree.statement);
+      if (result === tree.statement) {
+        result = tree;
+      } else if (result.type === STATE_MACHINE) {
+        result = result.replaceStateId(result.startState, startState);
+        result = result.replaceStateId(result.fallThroughState, fallThroughState);
+      }
       this.restoreLabels_(oldLabels);
       return result;
     },
-    clearLabels_: function() {
-      var result = this.labelSet_;
-      this.labelSet_ = Object.create(null);
-      return result;
+    getLabels_: function() {
+      return this.labelSet_;
     },
     restoreLabels_: function(oldLabels) {
       this.labelSet_ = oldLabels;
@@ -16188,18 +16218,26 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.12/src/codegeneration/ge
       var oldLabels = this.labelSet_;
       var labelSet = Object.create(null);
       for (var k in this.labelSet_) {
-        labelSet[k] = k;
+        labelSet[k] = this.labelSet_[k];
       }
-      labelSet[label] = label;
+      labelSet[label.name] = label;
       this.labelSet_ = labelSet;
       return oldLabels;
     },
+    clearLabels_: function() {
+      var result = this.labelSet_;
+      this.labelSet_ = Object.create(null);
+      return result;
+    },
+    clearCurrentLabel_: function() {
+      var result = this.currentLabel_;
+      this.currentLabel_ = null;
+      return result;
+    },
     transformSwitchStatement: function(tree) {
-      var labels = this.clearLabels_();
+      var labels = this.getLabels_();
       var result = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformSwitchStatement", [tree]);
-      if (!this.containsStateMachine_(result)) {
-        return result;
-      }
+      if (!this.needsStateMachine_(result)) return result;
       var startState = this.allocateState();
       var fallThroughState = this.allocateState();
       var nextState = fallThroughState;
@@ -16238,7 +16276,6 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.12/src/codegeneration/ge
       return machine.startState;
     },
     transformTryStatement: function(tree) {
-      this.clearLabels_();
       var result = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformTryStatement", [tree]);
       if (result.body.type != STATE_MACHINE && (result.catchBlock == null || result.catchBlock.catchBody.type != STATE_MACHINE)) {
         return result;
@@ -16300,18 +16337,19 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.12/src/codegeneration/ge
       return $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformVariableDeclarationList", [tree]);
     },
     transformWhileStatement: function(tree) {
-      var labels = this.clearLabels_();
+      var labels = this.getLabels_();
+      var label = this.clearCurrentLabel_();
       var result = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformWhileStatement", [tree]);
-      if (result.body.type != STATE_MACHINE) {
-        return result;
-      }
+      if (result.body.type != STATE_MACHINE) return result;
       var loopBodyMachine = result.body;
       var startState = loopBodyMachine.fallThroughState;
       var fallThroughState = this.allocateState();
       var states = [];
       states.push(new ConditionalState(startState, loopBodyMachine.startState, fallThroughState, result.condition));
       this.addLoopBodyStates_(loopBodyMachine, startState, fallThroughState, labels, states);
-      return new StateMachine(startState, fallThroughState, states, loopBodyMachine.exceptionBlocks);
+      var machine = new StateMachine(startState, fallThroughState, states, loopBodyMachine.exceptionBlocks);
+      if (label) machine = machine.replaceStateId(startState, label.continueState);
+      return machine;
     },
     transformWithStatement: function(tree) {
       var result = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformWithStatement", [tree]);
@@ -16384,11 +16422,9 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.12/src/codegeneration/ge
       }
     },
     transformFunctionDeclaration: function(tree) {
-      this.clearLabels_();
       return tree;
     },
     transformFunctionExpression: function(tree) {
-      this.clearLabels_();
       return tree;
     },
     transformGetAccessor: function(tree) {

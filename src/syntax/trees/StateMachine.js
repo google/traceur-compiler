@@ -14,6 +14,7 @@
 
 import {ParseTree} from './ParseTree';
 import {STATE_MACHINE} from './ParseTreeType';
+import {State} from '../../codegeneration/generator/State';
 import {TryState} from '../../codegeneration/generator/TryState';
 
 /**
@@ -152,5 +153,13 @@ export class StateMachine extends ParseTree {
     var catches = [];
     addAllCatchStates(this.exceptionBlocks, catches);
     return catches;
+  }
+
+  replaceStateId(oldState, newState) {
+    return new StateMachine(
+        State.replaceStateId(this.startState, oldState, newState),
+        State.replaceStateId(this.fallThroughState, oldState, newState),
+        State.replaceAllStates(this.states, oldState, newState),
+        State.replaceAllStates(this.exceptionBlocks, oldState, newState));
   }
 }

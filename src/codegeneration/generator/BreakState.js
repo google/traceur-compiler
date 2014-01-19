@@ -52,9 +52,14 @@ export class BreakState extends State {
    * @return {State}
    */
   transformBreak(labelSet, breakState) {
-    if (this.label == null || this.label in labelSet) {
-      return new FallThroughState(this.id, breakState, createStatementList());
+    if (this.label == null)
+      return new FallThroughState(this.id, breakState, []);
+
+    if (this.label in labelSet) {
+      return new FallThroughState(this.id,
+          labelSet[this.label].fallThroughState, []);
     }
+
     return this;
   }
 
