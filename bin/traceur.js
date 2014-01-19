@@ -2737,6 +2737,7 @@ System.registerModule("traceur@0.0.11/src/syntax/ParseTreeVisitor", function() {
       throw Error('State machines should not live outside of the GeneratorTransformer.');
     },
     visitAnnotation: function(tree) {
+      this.visitAny(tree.name);
       this.visitAny(tree.args);
     },
     visitAnonBlock: function(tree) {
@@ -8772,11 +8773,12 @@ System.registerModule("traceur@0.0.11/src/codegeneration/ParseTreeTransformer", 
       throw Error('State machines should not live outside of the GeneratorTransformer.');
     },
     transformAnnotation: function(tree) {
+      var name = this.transformAny(tree.name);
       var args = this.transformAny(tree.args);
-      if (args === tree.args) {
+      if (name === tree.name && args === tree.args) {
         return tree;
       }
-      return new Annotation(tree.location, tree.name, args);
+      return new Annotation(tree.location, name, args);
     },
     transformAnonBlock: function(tree) {
       var statements = this.transformList(tree.statements);
@@ -12661,10 +12663,10 @@ System.registerModule("traceur@0.0.11/src/syntax/Parser", function() {
     },
     parseAnnotation_: function() {
       var start = this.getTreeStartLocation_();
-      var name = this.parseIdentifierExpression_();
+      var expression = this.parseMemberExpressionNoNew_();
       var args = null;
       if (this.peek_(OPEN_PAREN)) args = this.parseArguments_();
-      return new Annotation(this.getTreeLocation_(start), name, args);
+      return new Annotation(this.getTreeLocation_(start), expression, args);
     },
     eatPossibleImplicitSemiColon_: function() {
       var token = this.peekTokenNoLineTerminator_();
@@ -19182,11 +19184,12 @@ System.registerModule("traceur@0.0.11/src/codegeneration/ParseTreeTransformer.js
       throw Error('State machines should not live outside of the GeneratorTransformer.');
     },
     transformAnnotation: function(tree) {
+      var name = this.transformAny(tree.name);
       var args = this.transformAny(tree.args);
-      if (args === tree.args) {
+      if (name === tree.name && args === tree.args) {
         return tree;
       }
-      return new Annotation(tree.location, tree.name, args);
+      return new Annotation(tree.location, name, args);
     },
     transformAnonBlock: function(tree) {
       var statements = this.transformList(tree.statements);

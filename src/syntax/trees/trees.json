@@ -4,7 +4,7 @@
       "SourceRange"
     ],
     "name": [
-      "IdentifierToken"
+      "ParseTree"
     ],
     "args": [
       "ArgumentList"

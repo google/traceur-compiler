@@ -3566,13 +3566,13 @@ export class Parser {
 
   parseAnnotation_() {
     var start = this.getTreeStartLocation_();
-    var name = this.parseIdentifierExpression_();
+    var expression = this.parseMemberExpressionNoNew_();
     var args = null;
 
     if (this.peek_(OPEN_PAREN))
       args = this.parseArguments_();
 
-    return new Annotation(this.getTreeLocation_(start), name, args);
+    return new Annotation(this.getTreeLocation_(start), expression, args);
   }
 
   /**
