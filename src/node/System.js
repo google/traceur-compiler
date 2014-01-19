@@ -11,19 +11,18 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 'use strict';
 
 var fs = require('fs');
 var traceur = require('./traceur.js');
 var nodeLoader = require('./nodeLoader.js');
-
-var LoaderHooks = traceur.modules.LoaderHooks;
 var reporter = new traceur.util.ErrorReporter();
+var LoaderHooks = traceur.runtime.LoaderHooks;
 var url = './';
-var loaderHooks = new LoaderHooks(reporter, moduleName, undefined,
-                                      nodeLoader);
- 
-var System = return new traceur.modules.Loader(loaderHooks);
+var loaderHooks = new LoaderHooks(reporter, url, undefined, nodeLoader);
+
+var System = new traceur.modules.Loader(loaderHooks);
 
 global.System = System;  
 module.exports = System;

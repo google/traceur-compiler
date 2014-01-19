@@ -26,6 +26,7 @@ var Script = traceur.syntax.trees.Script;
 var SourceFile = traceur.syntax.SourceFile
 var SourceMapGenerator = traceur.outputgeneration.SourceMapGenerator;
 var ModuleAnalyzer = traceur.semantics.ModuleAnalyzer;
+var moduleStore = traceur.runtime.ModuleStore;
 
 /**
  * @param {ErrorReporter} reporter
@@ -35,7 +36,8 @@ var ModuleAnalyzer = traceur.semantics.ModuleAnalyzer;
  */
 function InlineLoaderHooks(reporter, url, elements, depTarget) {
   LoaderHooks.call(this, reporter, url, undefined, 
-      nodeLoader, $traceurRuntime.ModuleStore);
+      nodeLoader, // Load modules using node fs.
+      moduleStore); // Look up modules in our static module store
   this.dirname = url;
   this.elements = elements;
   this.depTarget = depTarget && normalizePath(path.relative('.', depTarget));

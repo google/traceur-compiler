@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+export {System} from './runtime/System';
 import {System} from './runtime/System';
-export {System};
+export var ModuleStore = System.get('@traceur/src/runtime/ModuleStore');
 
 export {options} from './options';
 
@@ -96,7 +97,9 @@ export var codegeneration = {
 module modules from './runtime/Loader';
 export {modules};
 
+import {LoaderHooks} from './runtime/LoaderHooks';
 import {InterceptOutputLoaderHooks} from './runtime/InterceptOutputLoaderHooks';
 export var runtime = {
-  InterceptOutputLoaderHooks
+  InterceptOutputLoaderHooks,
+  LoaderHooks
 }

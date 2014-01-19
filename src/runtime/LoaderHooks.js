@@ -53,7 +53,6 @@ export class LoaderHooks {
     this.moduleStore_ = moduleStore;
     this.fileLoader = fileLoader;
     this.analyzer_ = new ModuleAnalyzer(this.reporter);
-    this.recursionDepth_ = 0;
   }
 
   get(normalizedName) {
@@ -204,9 +203,6 @@ export class LoaderHooks {
 
   // TODO(jjb): this function belongs in Loader
   transformDependencies(dependencies) {
-    this.recursionDepth_++;
-    if (this.recursionDepth_ > 500)
-      throw new Error('too deep');
     for (var i = 0; i < dependencies.length; i++) {
       var codeUnit = dependencies[i];
       if (codeUnit.state >= TRANSFORMED) {
@@ -216,7 +212,6 @@ export class LoaderHooks {
       this.instantiate(codeUnit);
     }
     this.checkForErrors(dependencies, 'transform');
-    this.recursionDepth_--;
   }
 
   transformCodeUnit(codeUnit) {

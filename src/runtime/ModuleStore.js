@@ -164,6 +164,10 @@
 
   };
 
+
+  ModuleStore.set('@traceur/src/runtime/ModuleStore', 
+      new Module({ModuleStore: ModuleStore}));
+
   // Override setupGlobals so that System is added to future globals.
   var setupGlobals = $traceurRuntime.setupGlobals;
   $traceurRuntime.setupGlobals = function(global) {
@@ -171,7 +175,8 @@
   };
   $traceurRuntime.ModuleStore = ModuleStore;
 
-  // TODO(jjb): remove
+  // Todo: Remove after the next npm publish, needed because the current
+  // node_module/traceur generates calls to System.registerModule.
   global.System = {
     registerModule: ModuleStore.registerModule,
     get: ModuleStore.get,

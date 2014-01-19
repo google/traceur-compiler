@@ -27,4 +27,6 @@ if (typeof window !== 'undefined' && window.location) {
 
 var loaderHooks = new LoaderHooks(new ErrorReporter(), url, null, fileLoader);
 export var System = new Loader(loaderHooks);
-globalThis().System = System;
+
+if (typeof window !== 'undefined')
+	window.System = System;
