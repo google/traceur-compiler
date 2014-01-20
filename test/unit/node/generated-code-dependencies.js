@@ -93,8 +93,8 @@ suite('context test', function() {
       assert.isNull(error);
       var fileContents = fs.readFileSync(path.resolve(outDir, 'file.js'));
       var depContents = fs.readFileSync(path.resolve(outDir, 'dep.js'));
-      assert.equal(fileContents + '', "define(['./dep'], function($__0) {\n  \"use strict\";\n  var q = ($__0).q;\n  var p = 'module';\n  return {get p() {\n      return p;\n    }};\n});\n");
-      assert.equal(depContents + '', "define([], function() {\n  \"use strict\";\n  var q = 'q';\n  return {get q() {\n      return q;\n    }};\n});\n");
+      assert.equal(fileContents + '', "define(['./dep'], function($__0) {\n  \"use strict\";\n  var q = ($__0).q;\n  var p = 'module';\n  return {\n    get p() {\n      return p;\n    },\n    __transpiledModule: true\n  };\n});\n");
+      assert.equal(depContents + '', "define([], function() {\n  \"use strict\";\n  var q = 'q';\n  return {\n    get q() {\n      return q;\n    },\n    __transpiledModule: true\n  };\n});\n");
       done();
     });
   });
