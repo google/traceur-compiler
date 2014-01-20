@@ -14,22 +14,19 @@
 
 import {assert} from '../util/assert';
 
-export class ModuleSymbol {
+class ExportsList {
   /**
-   * @param {Module} tree
    * @param {string} normalizedName
    */
-  constructor(tree, normalizedName) {
-    this.tree = tree;
+  constructor(normalizedName) {
     this.exports_ = Object.create(null);
-    this.imports_ = Object.create(null);
     assert(normalizedName);
     this.normalizedName = normalizedName.replace(/\\/g, '/');
   }
 
   /**
    * @param {string} name
-   * @param {ParseTree} tree
+   * @param {ParseTree|true} tree
    */
   addExport(name, tree) {
     // Duplicate exports should have been checked already.
@@ -39,7 +36,7 @@ export class ModuleSymbol {
 
   /**
    * @param {string} name
-   * @return {ParseTree}
+   * @return {ParseTree|true}
    */
   getExport(name) {
     return this.exports_[name];
@@ -50,6 +47,27 @@ export class ModuleSymbol {
    */
   getExports() {
     return Object.keys(this.exports_);
+  }
+}
+
+export class ModuleDescription extends ExportsList {
+  constructor(normalizedName, module) {
+    super(normalizedName);
+    Object.getOwnPropertyNames(module).forEach( (name) => {
+      this.addExport(name, true);
+    });
+  }
+}
+
+export class ModuleSymbol extends ExportsList {
+  /**
+   * @param {Module} tree
+   * @param {string} normalizedName
+   */
+  constructor(tree, normalizedName) {
+    super(normalizedName);
+    this.tree = tree;
+    this.imports_ = Object.create(null);
   }
 
   /**

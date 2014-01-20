@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {ModuleDescription} from '../../semantics/ModuleSymbol';
 import {ParseTree} from '../../syntax/trees/ParseTree';
 import {ParseTreeVisitor} from '../../syntax/ParseTreeVisitor';
 import {
@@ -35,23 +36,47 @@ export class ModuleVisitor extends ParseTreeVisitor {
     this.moduleSymbol = moduleSymbol;
   }
 
+
   /**
-   * @param {ModuleSpecifier} tree
-   * @param {boolean=} reportErrors If false no errors are reported.
-   * @return {ModuleSymbol}
+   * @param {string} Module specifier, not normalized.
+   * @param {function} codeUnit -> moduleDescription.
+   * @return {ModuleDescription|null}
    */
-  getModuleSymbolForModuleSpecifier(tree) {
-    var name = tree.token.processedValue;
+  getModuleDescriptionFromCodeUnit_(name, codeUnitToModuleInfo) {
     var referrer = this.moduleSymbol.normalizedName;
     var codeUnit = this.loader_.getCodeUnitForModuleSpecifier(name, referrer);
-    var moduleSymbol = codeUnit.metadata.moduleSymbol;
-    if (!moduleSymbol) {
+    var moduleDescription = codeUnitToModuleInfo(codeUnit);
+    if (!moduleDescription) {
       var msg = `${name} is not a module, required by ${referrer}`;
-      this.reportError(tree, msg);
+      this.reportError(codeUnit.metadata.tree, msg);
       return null;
     }
+    return moduleDescription;
+  }
 
-    return moduleSymbol;
+  /**
+   * @param {string} Module specifier, not normalized.
+   * @return {ModuleSymbol|null}
+   */
+  getModuleSymbolForModuleSpecifier(name) {
+    return this.getModuleDescriptionFromCodeUnit_(name, (codeUnit) => {
+      return codeUnit.metadata.moduleSymbol;
+    });
+  }
+
+  /**
+   * @param {string} Module specifier, not normalized.
+   * @return {ModuleDescription|null}
+   */
+  getModuleDescriptionForModuleSpecifier(name) {
+    return this.getModuleDescriptionFromCodeUnit_(name, (codeUnit) => {
+      var moduleDescription = codeUnit.metadata.moduleSymbol;
+      if (!moduleDescription && codeUnit.result) {
+        moduleDescription =
+          new ModuleDescription(codeUnit.normalizedName, codeUnit.result);
+      }
+      return moduleDescription;
+    });
   }
 
   // Limit the trees to visit.

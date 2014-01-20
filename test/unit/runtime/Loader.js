@@ -30,12 +30,12 @@ suite('modules.js', function() {
   });
 
   var url;
-  var loader;
+  var fileLoader;
   if (typeof __filename !== 'undefined') {
     // TOD(arv): Make the system work better with file paths, especially
     // Windows file paths.
     url = __filename.replace(/\\/g, '/');
-    loader = require('../../../src/node/nodeLoader.js');
+    fileLoader = require('../../../src/node/nodeLoader.js');
   } else {
     url = traceur.util.resolveUrl(window.location.href,
                                   'unit/runtime/modules.js');
@@ -44,7 +44,7 @@ suite('modules.js', function() {
   function getLoaderHooks(opt_reporter) {
     var LoaderHooks = traceur.modules.LoaderHooks;
     opt_reporter = opt_reporter || reporter;
-    return new LoaderHooks(opt_reporter, url, undefined, loader);
+    return new LoaderHooks(opt_reporter, url, undefined, fileLoader);
   }
 
   function getLoader(opt_reporter) {
@@ -69,6 +69,14 @@ suite('modules.js', function() {
     var traceur = System.get('traceur@');
     var optionsModule = $traceurRuntime.ModuleStore.getForTesting('src/options');
     assert.equal(traceur.options, optionsModule.options);
+  });
+
+  test('Loader.PreCompiledModule', function(done) {
+    var traceur = System.get('traceur@');
+    System.import('traceur@', {}, function(module) {
+      assert.equal(traceur.options, module.options);
+      done();
+    });
   });
 
   test('LoaderEval', function(done) {

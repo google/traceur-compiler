@@ -64,20 +64,20 @@ class CodeUnit {
    *     parse the code.
    * @param {number} state
    */
-  constructor(loaderHooks, normalizedName, type, state, 
+  constructor(loaderHooks, normalizedName, type, state,
       name, referrerName, address) {
     this.loaderHooks = loaderHooks;
     this.normalizedName = normalizedName;
     this.type = type;
-    this.state = state;
     this.name_ = name;
     this.referrerName_ = referrerName;
     this.address_ = address;
     this.uid = getUid();
-    this.state_ = NOT_STARTED;
+    this.state_ = state || NOT_STARTED;
     this.error = null;
     this.result = null;
     this.data_ = {};
+    this.dependencies = [];
   }
 
   get state() {
@@ -125,13 +125,13 @@ class CodeUnit {
    * Adds callback for COMPLETE and ERROR.
    */
   addListener(callback, errback) {
-    // TODO(arv): Handle this case?
-    if (this.state >= COMPLETE)
-      throw Error(`${this.name} is already loaded`);
     if (!this.listeners) {
       this.listeners = [];
     }
     this.listeners.push(callback, errback);
+    if (this.state >= COMPLETE) {
+      this.dispatchComplete(this.result);
+    }
   }
 
   dispatchError(value) {
@@ -170,6 +170,19 @@ class CodeUnit {
 }
 
 /**
+ * CodeUnit coming from {@code Loader.set}.
+ */
+class PreCompiledCodeUnit extends CodeUnit {
+  constructor(loaderHooks, normalizedName, name, referrerName, address,
+      module) {
+    super(loaderHooks, normalizedName, 'module', COMPLETE,
+        name, referrerName, address);
+    this.result = module;
+  }
+
+}
+
+/**
  * CodeUnit used for {@code Loader.load}.
  */
 class LoadCodeUnit extends CodeUnit {
@@ -178,7 +191,7 @@ class LoadCodeUnit extends CodeUnit {
    * @param {string} normalizedName
    */
   constructor(loaderHooks, normalizedName, name, referrerName, address) {
-    super(loaderHooks, normalizedName, 'module', NOT_STARTED, 
+    super(loaderHooks, normalizedName, 'module', NOT_STARTED,
         name, referrerName, address);
   }
 
@@ -195,7 +208,7 @@ class EvalCodeUnit extends CodeUnit {
    */
   constructor(loaderHooks, code, normalizedName = loaderHooks.rootUrl(),
       name, referrerName, address) {
-    super(loaderHooks, normalizedName, 'script', LOADED, 
+    super(loaderHooks, normalizedName, 'script', LOADED,
         name, referrerName, address);
     this.text = code;
   }
@@ -280,9 +293,16 @@ class InternalLoader {
     var key = this.getKey(normalizedName, type);
     var cacheObject = this.cache.get(key);
     if (!cacheObject) {
-      cacheObject = new LoadCodeUnit(this.loaderHooks, normalizedName,
-          name, referrerName, address);
-      cacheObject.type = type;
+      var module = this.loaderHooks.get(normalizedName);
+      if (module) {
+        cacheObject = new PreCompiledCodeUnit(this.loaderHooks, normalizedName,
+          name, referrerName, address, module);
+        cacheObject.type = 'module';
+      } else {
+        cacheObject = new LoadCodeUnit(this.loaderHooks, normalizedName,
+            name, referrerName, address);
+        cacheObject.type = type;
+      }
       this.cache.set(key, cacheObject);
     }
     return cacheObject;
