@@ -127,15 +127,18 @@ export class ModuleTransformer extends TempVarTransformer {
         `get ${name}() { return ${returnExpression}; }`;
   }
 
-  createExportStatement() {
-    var properties = this.exportVisitor_.namedExports.map((exp) => {
+  getExportProperties() {
+    return this.exportVisitor_.namedExports.map((exp) => {
       // export_name: {get: function() { return export_name },
       return this.getGetterExport(exp);
     });
-    var object = createObjectLiteralExpression(properties);
+  }
 
-    var starExports = this.exportVisitor_.starExports;
-    if (starExports.length) {
+  createExportStatement() {
+    var object = createObjectLiteralExpression(this.getExportProperties());
+    
+    if (this.exportVisitor_.starExports.length) {
+      var starExports = this.exportVisitor_.starExports;
       var starIdents = starExports.map((moduleSpecifier) => {
         return createIdentifierExpression(
             this.getTempVarNameForModuleSpecifier(moduleSpecifier));
@@ -143,7 +146,6 @@ export class ModuleTransformer extends TempVarTransformer {
       var args = createArgumentList(object, ...starIdents);
       return parseStatement `return $traceurRuntime.exportStar(${args})`;
     }
-
     return parseStatement `return ${object}`;
   }
 
