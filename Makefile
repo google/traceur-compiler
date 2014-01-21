@@ -19,7 +19,7 @@ TPL_GENSRC_DEPS = $(addsuffix -template.js.dep, $(TPL_GENSRC))
 PREV_NODE = $(wildcard node_modules/traceur/src/node/*.js)
 SRC_NODE = $(wildcard src/node/*.js)
 
-SRC_ALL = $(wildcard src/**/*.js src/*.js) 
+SRC_ALL = $(shell find src/ -type f -name "*.js")
 
 TFLAGS = --
 
@@ -122,6 +122,7 @@ clean: wikiclean
 	@rm -rf test/commonjs-compiled/*
 	@rm -rf test/amd-compiled/*
 	@rm -f bin/*
+	$(NPM_INSTALL)
 
 initbench:
 	rm -rf test/bench/esprima
@@ -209,7 +210,7 @@ bin/traceur.ugly.js: bin/traceur.js
 updateSemver: # unless the package.json has been manually edited.
 	git diff --quiet -- package.json && node build/incrementSemver.js
 
-prepublish: bin/traceur.js bin/traceur-runtime.js 
+prepublish: bin/traceur.js bin/traceur-runtime.js
 
 WIKI_OUT = \
   test/wiki/CompilingOffline/out/greeter.js
