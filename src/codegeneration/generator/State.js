@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {FINALLY_FALL_THROUGH} from '../../syntax/PredefinedName';
 import {
   createAssignStateStatement,
   createAssignmentStatement,
@@ -22,6 +21,7 @@ import {
   createNumberLiteral,
   createStatementList
 } from '../ParseTreeFactory';
+import {parseStatement} from '../PlaceholderParser';
 
 /**
  * A State in the generator state machine.
@@ -75,6 +75,7 @@ export class State {
 };
 
 
+State.START_STATE = 0;
 State.INVALID_STATE = -1;
 State.END_STATE = -2;
 State.RETHROW_STATE = -3;
@@ -154,13 +155,11 @@ State.generateAssignStateOutOfFinally = function(enclosingFinally,
  * @return {Array.<ParseTree>}
  */
 State.generateAssignStateOutOfFinally_ = function(destination, finallyState) {
-  // $state = finallyState;
+  // $ctx.state = finallyState;
   // $fallThrough = destination;
   return createStatementList(
       createAssignStateStatement(finallyState),
-      createAssignmentStatement(
-          createIdentifierExpression(FINALLY_FALL_THROUGH),
-          createNumberLiteral(destination)));
+      parseStatement `$ctx.finallyFallThrough = ${destination}`);
 };
 
 /**

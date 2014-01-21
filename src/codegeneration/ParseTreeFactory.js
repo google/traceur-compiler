@@ -26,7 +26,6 @@ import {
   FREEZE,
   OBJECT,
   PREVENT_EXTENSIONS,
-  STATE,
   UNDEFINED,
   getParameterName
 } from '../syntax/PredefinedName';
@@ -1152,6 +1151,6 @@ export function createWithStatement(expression, body) {
  */
 export function createAssignStateStatement(state) {
   return createAssignmentStatement(
-      createIdentifierExpression(STATE),
+      createMemberExpression('$ctx', 'state'),
       createNumberLiteral(state));
 }

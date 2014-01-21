@@ -19,7 +19,7 @@ import {State} from './State';
  */
 export class StateAllocator {
   constructor() {
-    this.nextState_ = State.INVALID_STATE + 1;
+    this.nextState_ = State.START_STATE + 1;
   }
 
   /** @return {number} */
