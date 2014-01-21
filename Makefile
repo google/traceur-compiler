@@ -1,7 +1,7 @@
 RUNTIME_SRC = \
   src/runtime/runtime.js \
   src/runtime/url.js \
-  src/runtime/modules.js \
+  src/runtime/ModuleStore.js \
   src/runtime/polyfill-import.js
 SRC = \
   $(RUNTIME_SRC) \
@@ -16,8 +16,10 @@ GENSRC = \
   src/syntax/ParseTreeVisitor.js
 TPL_GENSRC_DEPS = $(addsuffix -template.js.dep, $(TPL_GENSRC))
 
+PREV_NODE = $(wildcard node_modules/traceur/src/node/*.js)
 SRC_NODE = $(wildcard src/node/*.js)
-SRC_ALL = $(wildcard src/**/*.js src/*.js) 
+
+SRC_ALL = $(shell find src/ -type f -name "*.js")
 
 TFLAGS = --
 
@@ -120,6 +122,7 @@ clean: wikiclean
 	@rm -rf test/commonjs-compiled/*
 	@rm -rf test/amd-compiled/*
 	@rm -f bin/*
+	$(NPM_INSTALL)
 
 initbench:
 	rm -rf test/bench/esprima
@@ -145,7 +148,7 @@ bin/traceur.js: build/compiled-by-previous-traceur.js $(SRC_NODE)
 
 # Use last-known-good compiler to compile current source
 build/compiled-by-previous-traceur.js: \
-	  $(subst src/node,build/node,$(SRC_NODE)) \
+	  $(subst node_modules/traceur/src/node,build/node,$(PREV_NODE)) \
 	  build/previous-commit-traceur.js $(SRC_ALL)  | $(GENSRC) node_modules
 	@mkdir -p bin/
 	@cp build/previous-commit-traceur.js bin/traceur.js
@@ -207,7 +210,7 @@ bin/traceur.ugly.js: bin/traceur.js
 updateSemver: # unless the package.json has been manually edited.
 	git diff --quiet -- package.json && node build/incrementSemver.js
 
-prepublish: bin/traceur.js bin/traceur-runtime.js 
+prepublish: bin/traceur.js bin/traceur-runtime.js
 
 WIKI_OUT = \
   test/wiki/CompilingOffline/out/greeter.js

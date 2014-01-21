@@ -15,10 +15,10 @@
 suite('PlaceholderParser.traceur.js', function() {
 
   var ParseTreeType =
-      System.getForTesting('src/syntax/trees/ParseTreeType');
+      $traceurRuntime.ModuleStore.getForTesting('src/syntax/trees/ParseTreeType');
   var {parseExpression, parseStatement} =
-      System.getForTesting('src/codegeneration/PlaceholderParser');
-  var {write} = System.getForTesting('src/outputgeneration/TreeWriter');
+      $traceurRuntime.ModuleStore.getForTesting('src/codegeneration/PlaceholderParser');
+  var {write} = $traceurRuntime.ModuleStore.getForTesting('src/outputgeneration/TreeWriter');
 
   test('ParseExpressionIdentifierExpression', function() {
     var id = new traceur.syntax.IdentifierToken(null, 'x');

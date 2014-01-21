@@ -18,7 +18,9 @@ import {createBindingIdentifier} from './ParseTreeFactory';
 import globalThis from './globalThis';
 import {
   parseExpression,
-  parseStatements
+  parseStatement,
+  parseStatements,
+  parsePropertyDefinition
 } from './PlaceholderParser';
 import scopeContainsThis from './scopeContainsThis';
 
@@ -29,11 +31,20 @@ export class AmdTransformer extends ModuleTransformer {
     this.dependencies = [];
   }
 
+  getExportProperties() {
+    var properties = super();
+
+    if (this.exportVisitor_.hasExports())
+      properties.push(parsePropertyDefinition `__transpiledModule: true`);
+    return properties;
+  }
+
   wrapModule(statements) {
     var depPaths = this.dependencies.map((dep) => dep.path);
     var depLocals = this.dependencies.map((dep) => dep.local);
 
     var hasTopLevelThis = statements.some(scopeContainsThis);
+
     var func = parseExpression `function(${depLocals}) {
       ${statements}
     }`;

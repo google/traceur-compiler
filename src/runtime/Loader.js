@@ -426,6 +426,7 @@ export class Loader {
    */
   constructor(loaderHooks) {
     this.internalLoader_ = new InternalLoader(loaderHooks);
+    this.loaderHooks_ = loaderHooks;
   }
   /**
    * import - Asynchronously load, link, and evaluate a module and any
@@ -514,6 +515,17 @@ export class Loader {
     }
   }
 
+  get(normalizedName) {
+    return this.loaderHooks_.get(normalizedName);
+  }
+
+  set(normalizedName, module) {
+    this.loaderHooks_.set(normalizedName, module);
+  }
+
+  normalize(name, referrerName, referrerAddress) {
+    return this.loaderHooks_.normalize(name, referrerName, referrerAddress);
+  }
 }
 
 export {LoaderHooks};

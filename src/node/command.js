@@ -28,9 +28,15 @@ flags.setMaxListeners(100);
 
 var traceur = require('./traceur.js');
 
+// The System object requires traceur, but we want it set for everything that 
+// follows. The module sets global.System as a side-effect.
+require('./System.js');
+
 flags.option('--out <FILE>', 'Compile all input files into a single file');
 flags.option('--referrer <name>',
     'Prefix compiled code with System.referrName');
+
+flags.option('--dir <INDIR> <OUTDIR>', 'Compile an input directory of modules into an output directory');
 
 flags.option('--sourcemap', 'Generate source maps');
 flags.on('sourcemap', function() {
@@ -48,6 +54,7 @@ flags.on('--help', function() {
   console.log('');
   console.log('    $ %s a.js [args]', cmdName);
   console.log('    $ %s --out compiled.js b.js c.js', cmdName);
+  console.log('    $ %s --dir indir outdir', cmdName);
   console.log('');
 });
 
@@ -104,7 +111,7 @@ function processArguments(argv) {
 
     var option = flags.optionFor(arg);
     if (option) {
-      if (arg === '--out')
+      if (arg === '--out' || arg === '--dir')
         interpretMode = false;
 
       if (option.required)
@@ -155,12 +162,17 @@ var compileToSingleFile = compiler.compileToSingleFile;
 var compileToDirectory = compiler.compileToDirectory;
 
 var out = flags.out;
+var dir = flags.dir;
 if (out) {
   var isSingleFileCompile = /\.js$/.test(out);
   if (isSingleFileCompile)
     compileToSingleFile(out, includes, flags.sourceMaps);
   else
     compileToDirectory(out, includes, flags.sourceMaps);
-} else {
+} else if (dir) {
+  var compileAllJsFilesInDir = require('./compile-single-file.js').compileAllJsFilesInDir;
+  compileAllJsFilesInDir(dir, includes[0]);
+}
+else {
   interpret(path.resolve(includes[0]), includes.slice(1), argv.flags);
 }

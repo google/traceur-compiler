@@ -13,4 +13,6 @@
 // limitations under the License.
 
 module traceur from './traceur';
-System.set('traceur@', traceur);
+
+// TODO(jjb):  import ModuleStore once we merge the static and dynamic modules.
+$traceurRuntime.ModuleStore.set('traceur@', traceur);
