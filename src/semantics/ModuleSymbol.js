@@ -53,7 +53,7 @@ class ExportsList {
 export class ModuleDescription extends ExportsList {
   constructor(normalizedName, module) {
     super(normalizedName);
-    Object.getOwnPropertyNames(module).forEach( (name) => {
+    Object.getOwnPropertyNames(module).forEach((name) => {
       this.addExport(name, true);
     });
   }
