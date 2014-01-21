@@ -66,6 +66,11 @@
 
   var assert = chai.assert;
 
+  assert.type = function (actual, type) {
+    assert.typeOf(actual, type.name);
+    return actual;
+  };
+
   function assertNoOwnProperties(o) {
     var m = Object.getOwnPropertyNames(o);
     if (m.length) {
@@ -96,8 +101,8 @@
   // Replace the Closure-provided array comparer with our own that doesn't barf
   // because Array.prototype has a __iterator__ method.
   function assertArrayEquals(expected, actual) {
-    assert.equal(JSON.stringify(expected, null, 2),
-                 JSON.stringify(actual, null, 2));
+    assert.equal(JSON.stringify(actual, null, 2),
+                 JSON.stringify(expected, null, 2));
   }
 
   function fail(message) {

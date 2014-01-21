@@ -28,6 +28,7 @@ import {
   AMPERSAND_EQUAL,
   AND,
   ARROW,
+  AT,
   AWAIT,
   BACK_QUOTE,
   BANG,
@@ -813,6 +814,8 @@ function scanToken() {
       }
     case 96:  // `
       return scanTemplateStart(beginIndex);
+    case 64:  // @
+      return createToken(AT, beginIndex);
 
       // TODO: add NumberToken
       // TODO: character following NumericLiteral must not be an

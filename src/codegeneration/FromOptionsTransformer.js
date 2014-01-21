@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {AmdTransformer} from './AmdTransformer';
+import {AnnotationsTransformer} from './AnnotationsTransformer';
 import {ArrayComprehensionTransformer} from './ArrayComprehensionTransformer';
 import {ArrowFunctionTransformer} from './ArrowFunctionTransformer';
 import {BlockBindingTransformer} from './BlockBindingTransformer';
@@ -62,13 +63,14 @@ export class FromOptionsTransformer extends MultiTransformer {
     // TODO: many of these simple, local transforms could happen in the same
     // tree pass
 
-    if (transformOptions.types)
-      append(TypeTransformer);
     if (transformOptions.numericLiterals)
       append(NumericLiteralTransformer);
 
     if (transformOptions.templateLiterals)
       append(TemplateLiteralTransformer);
+
+    if (transformOptions.annotations)
+      append(AnnotationsTransformer);
 
     if (transformOptions.modules) {
       switch (transformOptions.modules) {
@@ -123,6 +125,9 @@ export class FromOptionsTransformer extends MultiTransformer {
     // generator
     if (transformOptions.destructuring)
       append(DestructuringTransformer);
+
+    if (transformOptions.types)
+      append(TypeTransformer);
 
     // generator must come after for of and rest parameters
     if (transformOptions.generators || transformOptions.deferredFunctions)

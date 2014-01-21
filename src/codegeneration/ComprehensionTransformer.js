@@ -87,7 +87,7 @@ export class ComprehensionTransformer extends TempVarTransformer {
       statements.push(suffix);
 
     var func = new FunctionExpression(null, null, isGenerator,
-                                      createEmptyParameterList(), null,
+                                      createEmptyParameterList(), null, [],
                                       createFunctionBody(statements));
 
     return createParenExpression(createCallExpression(func));
