@@ -76,10 +76,10 @@ export class ExportVisitor extends ModuleVisitor {
     var moduleDescription =
         this.getModuleDescriptionForModuleSpecifier(name);
     if (moduleDescription) {
-      moduleDescription.getExports().forEach((name) => {
+      moduleDescription.getExports().forEach( (name) => {
         this.addExport(name, tree);
       });
-    }
+    }  // Else: we already reported an error.
   }
 
   visitFunctionDeclaration(tree) {

@@ -73,7 +73,7 @@ export class ModuleVisitor extends ParseTreeVisitor {
       var moduleDescription = codeUnit.metadata.moduleSymbol;
       if (!moduleDescription && codeUnit.result) {
         moduleDescription =
-          new ModuleDescription(codeUnit.normalizedName, codeUnit.result);
+            new ModuleDescription(codeUnit.normalizedName, codeUnit.result);
       }
       return moduleDescription;
     });

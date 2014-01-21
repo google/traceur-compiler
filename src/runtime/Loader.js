@@ -179,7 +179,6 @@ class PreCompiledCodeUnit extends CodeUnit {
         name, referrerName, address);
     this.result = module;
   }
-
 }
 
 /**
@@ -296,7 +295,7 @@ class InternalLoader {
       var module = this.loaderHooks.get(normalizedName);
       if (module) {
         cacheObject = new PreCompiledCodeUnit(this.loaderHooks, normalizedName,
-          name, referrerName, address, module);
+            name, referrerName, address, module);
         cacheObject.type = 'module';
       } else {
         cacheObject = new LoadCodeUnit(this.loaderHooks, normalizedName,
