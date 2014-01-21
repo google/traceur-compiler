@@ -8210,7 +8210,8 @@ System.registerModule("traceur@0.0.11/src/codegeneration/ParseTreeFactory", func
   function createMemberExpression(operand, memberName, memberNames) {
     if (typeof operand == 'string' || operand instanceof IdentifierToken) operand = createIdentifierExpression(operand);
     if (typeof memberName == 'string') memberName = createIdentifierToken(memberName);
-    var tree = new MemberExpression(null, operand, memberName);
+    if (memberName instanceof LiteralToken) memberName = new LiteralExpression(null, memberName);
+    var tree = memberName instanceof LiteralExpression ? new MemberLookupExpression(null, operand, memberName): new MemberExpression(null, operand, memberName);
     for (var i = 2; i < arguments.length; i++) {
       tree = createMemberExpression(tree, arguments[i]);
     }
@@ -11790,11 +11791,11 @@ System.registerModule("traceur@0.0.11/src/syntax/Parser", function() {
       var isGenerator = false;
       var isStatic = false;
       if (parseOptions.generators && parseOptions.propertyMethods && this.peek_(STAR)) {
-        return this.parseGeneratorMethod_(start, isStatic);
+        return this.parseGeneratorMethod_(start, isStatic, []);
       }
       var token = this.peekToken_();
       var name = this.parsePropertyName_();
-      if (parseOptions.propertyMethods && this.peek_(OPEN_PAREN)) return this.parseMethod_(start, isStatic, isGenerator, name);
+      if (parseOptions.propertyMethods && this.peek_(OPEN_PAREN)) return this.parseMethod_(start, isStatic, isGenerator, name, []);
       if (this.eatIf_(COLON)) {
         var value = this.parseAssignmentExpression();
         return new PropertyNameAssignment(this.getTreeLocation_(start), name, value);
@@ -11803,10 +11804,10 @@ System.registerModule("traceur@0.0.11/src/syntax/Parser", function() {
       if (name.type === LITERAL_PROPERTY_NAME) {
         var nameLiteral = name.literalToken;
         if (nameLiteral.value === GET && this.peekPropertyName_(type)) {
-          return this.parseGetAccessor_(start, isStatic);
+          return this.parseGetAccessor_(start, isStatic, []);
         }
         if (nameLiteral.value === SET && this.peekPropertyName_(type)) {
-          return this.parseSetAccessor_(start, isStatic);
+          return this.parseSetAccessor_(start, isStatic, []);
         }
         if (parseOptions.propertyNameShorthand && nameLiteral.type === IDENTIFIER) {
           if (this.peek_(EQUAL)) {
@@ -11822,6 +11823,7 @@ System.registerModule("traceur@0.0.11/src/syntax/Parser", function() {
     },
     parseClassElement_: function() {
       var start = this.getTreeStartLocation_();
+      var annotations = this.parseAnnotations_();
       var type = this.peekType_();
       var isStatic = false,
           isGenerator = false;
@@ -11832,29 +11834,26 @@ System.registerModule("traceur@0.0.11/src/syntax/Parser", function() {
           switch (type) {
             case OPEN_PAREN:
               var name = new LiteralPropertyName(start, staticToken);
-              return this.parseMethod_(start, isStatic, isGenerator, name);
+              return this.parseMethod_(start, isStatic, isGenerator, name, annotations);
             default:
               isStatic = true;
-              if (type === STAR && parseOptions.generators) return this.parseGeneratorMethod_(start, true);
-              return this.parseGetSetOrMethod_(start, isStatic);
+              if (type === STAR && parseOptions.generators) return this.parseGeneratorMethod_(start, true, annotations);
+              return this.parseGetSetOrMethod_(start, isStatic, annotations);
           }
           break;
         case STAR:
-          return this.parseGeneratorMethod_(start, isStatic);
-        case AT:
-          return this.parseAnnotatedClassElement_(start);
+          return this.parseGeneratorMethod_(start, isStatic, annotations);
         default:
-          return this.parseGetSetOrMethod_(start, isStatic);
+          return this.parseGetSetOrMethod_(start, isStatic, annotations);
       }
     },
-    parseGeneratorMethod_: function(start, isStatic) {
+    parseGeneratorMethod_: function(start, isStatic, annotations) {
       var isGenerator = true;
       this.eat_(STAR);
       var name = this.parsePropertyName_();
-      return this.parseMethod_(start, isStatic, isGenerator, name);
+      return this.parseMethod_(start, isStatic, isGenerator, name, annotations);
     },
-    parseMethod_: function(start, isStatic, isGenerator, name) {
-      var annotations = this.popAnnotations_();
+    parseMethod_: function(start, isStatic, isGenerator, name, annotations) {
       this.eat_(OPEN_PAREN);
       var formalParameterList = this.parseFormalParameterList_();
       this.eat_(CLOSE_PAREN);
@@ -11862,30 +11861,29 @@ System.registerModule("traceur@0.0.11/src/syntax/Parser", function() {
       var functionBody = this.parseFunctionBody_(isGenerator, formalParameterList);
       return new PropertyMethodAssignment(this.getTreeLocation_(start), isStatic, isGenerator, name, formalParameterList, typeAnnotation, annotations, functionBody);
     },
-    parseGetSetOrMethod_: function(start, isStatic) {
+    parseGetSetOrMethod_: function(start, isStatic, annotations) {
       var isGenerator = false;
       var name = this.parsePropertyName_();
       var type = this.peekType_();
       if (name.type === LITERAL_PROPERTY_NAME && name.literalToken.value === GET && this.peekPropertyName_(type)) {
-        return this.parseGetAccessor_(start, isStatic);
+        return this.parseGetAccessor_(start, isStatic, annotations);
       }
       if (name.type === LITERAL_PROPERTY_NAME && name.literalToken.value === SET && this.peekPropertyName_(type)) {
-        return this.parseSetAccessor_(start, isStatic);
+        return this.parseSetAccessor_(start, isStatic, annotations);
       }
-      return this.parseMethod_(start, isStatic, isGenerator, name);
+      return this.parseMethod_(start, isStatic, isGenerator, name, annotations);
     },
-    parseGetAccessor_: function(start, isStatic) {
+    parseGetAccessor_: function(start, isStatic, annotations) {
       var isGenerator = false;
       var name = this.parsePropertyName_();
       this.eat_(OPEN_PAREN);
       this.eat_(CLOSE_PAREN);
       var typeAnnotation = this.parseTypeAnnotationOpt_();
       var body = this.parseFunctionBody_(isGenerator, null);
-      return new GetAccessor(this.getTreeLocation_(start), isStatic, name, typeAnnotation, this.popAnnotations_(), body);
+      return new GetAccessor(this.getTreeLocation_(start), isStatic, name, typeAnnotation, annotations, body);
     },
-    parseSetAccessor_: function(start, isStatic) {
+    parseSetAccessor_: function(start, isStatic, annotations) {
       var isGenerator = false;
-      var annotations = this.popAnnotations_();
       var name = this.parsePropertyName_();
       this.eat_(OPEN_PAREN);
       var parameter = this.parsePropertySetParameterList_();
@@ -12624,23 +12622,21 @@ System.registerModule("traceur@0.0.11/src/syntax/Parser", function() {
       }
       return typeName;
     },
-    parseAnnotatedClassElement_: function() {
-      this.pushAnnotations_();
-      var element = this.parseClassElement_();
-      if (this.annotations_.length > 0) return this.parseSyntaxError_('Unsupported annotated expression');
-      return element;
-    },
     parseAnnotatedDeclarations_: function(allowModuleItem, allowScriptItem) {
       this.pushAnnotations_();
       var declaration = this.parseStatement_(this.peekType_(), allowModuleItem, allowScriptItem);
       if (this.annotations_.length > 0) return this.parseSyntaxError_('Unsupported annotated expression');
       return declaration;
     },
-    pushAnnotations_: function() {
-      this.annotations_ = [];
+    parseAnnotations_: function() {
+      var annotations = [];
       while (this.eatIf_(AT)) {
-        this.annotations_.push(this.parseAnnotation_());
+        annotations.push(this.parseAnnotation_());
       }
+      return annotations;
+    },
+    pushAnnotations_: function() {
+      this.annotations_ = this.parseAnnotations_();
     },
     popAnnotations_: function() {
       var annotations = this.annotations_;
@@ -13915,85 +13911,81 @@ System.registerModule("traceur@0.0.11/src/codegeneration/AnnotationsTransformer"
   var parseExpression = $traceurRuntime.getModuleImpl("traceur@0.0.11/src/codegeneration/PlaceholderParser").parseExpression;
   var AnnotationsScope = function() {
     this.className = null;
+    this.isExport = false;
     this.constructorParameters = [];
     this.annotations = [];
     this.metadata = [];
   };
-  AnnotationsScope = ($traceurRuntime.createClass)(AnnotationsScope, {}, {});
+  AnnotationsScope = ($traceurRuntime.createClass)(AnnotationsScope, {get inClassScope() {
+      return this.className !== null;
+    }}, {});
   var AnnotationsTransformer = function() {
     this.stack_ = [new AnnotationsScope()];
   };
-  AnnotationsTransformer = ($traceurRuntime.createClass)(AnnotationsTransformer, {
+  var $AnnotationsTransformer = ($traceurRuntime.createClass)(AnnotationsTransformer, {
     transformExportDeclaration: function(tree) {
       var $__137;
-      var declaration;
-      this.stack_.push(new AnnotationsScope());
-      ($__137 = this.scope.annotations).push.apply($__137, $traceurRuntime.toObject(tree.annotations));
-      declaration = this.transformAny(tree.declaration);
-      if (declaration !== tree.declaration) tree = new ExportDeclaration(tree.location, declaration, []);
-      return this.appendMetadata_(tree, this.stack_.pop().metadata);
+      var scope = this.pushAnnotationScope_();
+      scope.isExport = true;
+      ($__137 = scope.annotations).push.apply($__137, $traceurRuntime.toObject(tree.annotations));
+      var declaration = this.transformAny(tree.declaration);
+      if (declaration !== tree.declaration || tree.annotations.length > 0) tree = new ExportDeclaration(tree.location, declaration, []);
+      return this.appendMetadata_(tree);
     },
     transformClassDeclaration: function(tree) {
       var $__137;
-      var $__134 = this;
       var elementsChanged = false;
-      var annotations = this.scope.annotations;
-      this.stack_.push(new AnnotationsScope());
-      this.scope.className = tree.name;
-      ($__137 = this.scope.annotations).push.apply($__137, $traceurRuntime.toObject(annotations));
-      ($__137 = this.scope.annotations).push.apply($__137, $traceurRuntime.toObject(tree.annotations));
-      var elements = tree.elements.map((function(element) {
-        var transformedElement = $__134.transformAny(element);
-        if (transformedElement !== element) elementsChanged = true;
-        return transformedElement;
-      }));
-      ($__137 = this.scope.metadata).unshift.apply($__137, $traceurRuntime.toObject(this.transformMetadata_(tree.name, this.scope.annotations, this.scope.constructorParameters)));
-      if (elementsChanged || tree.annotations.length > 0) {
-        tree = new ClassDeclaration(tree.location, tree.name, tree.superClass, elements, []);
+      var exportAnnotations = this.scope.isExport ? this.scope.annotations: [];
+      var scope = this.pushAnnotationScope_();
+      scope.className = tree.name;
+      ($__137 = scope.annotations).push.apply($__137, $traceurRuntime.spread(exportAnnotations, tree.annotations));
+      tree = $traceurRuntime.superCall(this, $AnnotationsTransformer.prototype, "transformClassDeclaration", [tree]);
+      ($__137 = scope.metadata).unshift.apply($__137, $traceurRuntime.toObject(this.transformMetadata_(createIdentifierExpression(tree.name), scope.annotations, scope.constructorParameters)));
+      if (tree.annotations.length > 0) {
+        tree = new ClassDeclaration(tree.location, tree.name, tree.superClass, tree.elements, []);
       }
-      return this.appendMetadata_(tree, this.stack_.pop().metadata);
+      return this.appendMetadata_(tree);
     },
     transformFunctionDeclaration: function(tree) {
       var $__137;
-      var annotations = this.scope.annotations;
-      this.stack_.push(new AnnotationsScope());
-      ($__137 = this.scope.annotations).push.apply($__137, $traceurRuntime.toObject(annotations));
-      ($__137 = this.scope.annotations).push.apply($__137, $traceurRuntime.toObject(tree.annotations));
-      ($__137 = this.scope.metadata).push.apply($__137, $traceurRuntime.toObject(this.transformMetadata_(tree.name, this.scope.annotations, tree.formalParameterList.parameters)));
-      var formalParameters = this.transformAny(tree.formalParameterList);
-      if (formalParameters !== tree.formalParameterList || tree.annotations.length > 0) {
-        tree = new FunctionDeclaration(tree.location, tree.name, tree.isGenerator, formalParameters, tree.typeAnnotation, [], tree.functionBody);
+      var exportAnnotations = this.scope.isExport ? this.scope.annotations: [];
+      var scope = this.pushAnnotationScope_();
+      ($__137 = scope.annotations).push.apply($__137, $traceurRuntime.spread(exportAnnotations, tree.annotations));
+      ($__137 = scope.metadata).push.apply($__137, $traceurRuntime.toObject(this.transformMetadata_(createIdentifierExpression(tree.name), scope.annotations, tree.formalParameterList.parameters)));
+      tree = $traceurRuntime.superCall(this, $AnnotationsTransformer.prototype, "transformFunctionDeclaration", [tree]);
+      if (tree.annotations.length > 0) {
+        tree = new FunctionDeclaration(tree.location, tree.name, tree.isGenerator, tree.formalParameterList, tree.typeAnnotation, [], tree.functionBody);
       }
-      return this.appendMetadata_(tree, this.stack_.pop().metadata);
+      return this.appendMetadata_(tree);
     },
     transformFormalParameter: function(tree) {
       if (tree.annotations.length > 0) {
         tree = new FormalParameter(tree.location, tree.parameter, tree.typeAnnotation, []);
       }
-      return tree;
+      return $traceurRuntime.superCall(this, $AnnotationsTransformer.prototype, "transformFormalParameter", [tree]);
     },
     transformGetAccessor: function(tree) {
       var $__137;
-      if (this.scope.className === null) return tree;
+      if (!this.scope.inClassScope) return $traceurRuntime.superCall(this, $AnnotationsTransformer.prototype, "transformGetAccessor", [tree]);
       ($__137 = this.scope.metadata).push.apply($__137, $traceurRuntime.toObject(this.transformMetadata_(this.transformAccessor_(tree, this.scope.className, 'get'), tree.annotations, [])));
       if (tree.annotations.length > 0) {
         tree = new GetAccessor(tree.location, tree.isStatic, tree.name, tree.typeAnnotation, [], tree.body);
       }
-      return tree;
+      return $traceurRuntime.superCall(this, $AnnotationsTransformer.prototype, "transformGetAccessor", [tree]);
     },
     transformSetAccessor: function(tree) {
       var $__137;
-      if (this.scope.className === null) return tree;
+      if (!this.scope.inClassScope) return $traceurRuntime.superCall(this, $AnnotationsTransformer.prototype, "transformSetAccessor", [tree]);
       ($__137 = this.scope.metadata).push.apply($__137, $traceurRuntime.toObject(this.transformMetadata_(this.transformAccessor_(tree, this.scope.className, 'set'), tree.annotations, [tree.parameter])));
       var parameter = this.transformAny(tree.parameter);
       if (parameter !== tree.parameter || tree.annotations.length > 0) {
         tree = new SetAccessor(tree.location, tree.isStatic, tree.name, parameter, [], tree.body);
       }
-      return tree;
+      return $traceurRuntime.superCall(this, $AnnotationsTransformer.prototype, "transformSetAccessor", [tree]);
     },
     transformPropertyMethodAssignment: function(tree) {
       var $__137;
-      if (this.scope.className === null) return tree;
+      if (!this.scope.inClassScope) return $traceurRuntime.superCall(this, $AnnotationsTransformer.prototype, "transformPropertyMethodAssignment", [tree]);
       if (!tree.isStatic && propName(tree) === CONSTRUCTOR) {
         ($__137 = this.scope.annotations).push.apply($__137, $traceurRuntime.toObject(tree.annotations));
         this.scope.constructorParameters = tree.formalParameterList.parameters;
@@ -14004,21 +13996,22 @@ System.registerModule("traceur@0.0.11/src/codegeneration/AnnotationsTransformer"
       if (formalParameters !== tree.formalParameterList || tree.annotations.length > 0) {
         tree = new PropertyMethodAssignment(tree.location, tree.isStatic, tree.isGenerator, tree.name, formalParameters, tree.typeAnnotation, [], tree.functionBody);
       }
-      return tree;
+      return $traceurRuntime.superCall(this, $AnnotationsTransformer.prototype, "transformPropertyMethodAssignment", [tree]);
     },
-    appendMetadata_: function(tree, metadata) {
+    appendMetadata_: function(tree) {
       var $__137;
+      var metadata = this.stack_.pop().metadata;
       if (metadata.length > 0) {
-        if (this.stack_.length === 1) {
-          tree = new AnonBlock(null, $traceurRuntime.spread([tree], metadata));
-        } else {
+        if (this.scope.isExport) {
           ($__137 = this.scope.metadata).push.apply($__137, $traceurRuntime.toObject(metadata));
+        } else {
+          tree = new AnonBlock(null, $traceurRuntime.spread([tree], metadata));
         }
       }
       return tree;
     },
     transformClassReference_: function(tree, className) {
-      var parent = this.createIdentifier_(className);
+      var parent = createIdentifierExpression(className);
       if (!tree.isStatic) parent = createMemberExpression(parent, 'prototype');
       return parent;
     },
@@ -14036,7 +14029,7 @@ System.registerModule("traceur@0.0.11/src/codegeneration/AnnotationsTransformer"
       parameters = parameters.map((function(param) {
         var $__137;
         var metadata = [];
-        if (param.typeAnnotation) metadata.push($__134.createIdentifier_(param.typeAnnotation.name.value));
+        if (param.typeAnnotation) metadata.push(createIdentifierExpression(param.typeAnnotation.name.value));
         if (param.annotations && param.annotations.length > 0)($__137 = metadata).push.apply($__137, $traceurRuntime.toObject($__134.transformAnnotations_(param.annotations)));
         if (metadata.length > 0) {
           hasParameterMetadata = true;
@@ -14053,17 +14046,16 @@ System.registerModule("traceur@0.0.11/src/codegeneration/AnnotationsTransformer"
     },
     transformMetadata_: function(target, annotations, parameters) {
       var metadataStatements = [];
-      var targetIdentifier = this.createIdentifier_(target);
       if (annotations !== null) {
         annotations = this.transformAnnotations_(annotations);
         if (annotations.length > 0) {
-          metadataStatements.push(createAssignmentStatement(createMemberExpression(targetIdentifier, 'annotations'), createArrayLiteralExpression(annotations)));
+          metadataStatements.push(createAssignmentStatement(createMemberExpression(target, 'annotations'), createArrayLiteralExpression(annotations)));
         }
       }
       if (parameters !== null) {
         parameters = this.transformParameters_(parameters);
         if (parameters.length > 0) {
-          metadataStatements.push(createAssignmentStatement(createMemberExpression(targetIdentifier, 'parameters'), createArrayLiteralExpression(parameters)));
+          metadataStatements.push(createAssignmentStatement(createMemberExpression(target, 'parameters'), createArrayLiteralExpression(parameters)));
         }
       }
       return metadataStatements;
@@ -14073,12 +14065,13 @@ System.registerModule("traceur@0.0.11/src/codegeneration/AnnotationsTransformer"
       if (tree.literalToken.type !== STRING) token = createStringLiteralToken(tree.literalToken.value);
       return new LiteralExpression(null, token);
     },
-    createIdentifier_: function(tree) {
-      if (typeof tree == 'string') tree = createIdentifierExpression(tree); else if (tree.type === BINDING_IDENTIFIER) tree = createIdentifierExpression(tree.identifierToken);
-      return tree;
-    },
     get scope() {
       return this.stack_[this.stack_.length - 1];
+    },
+    pushAnnotationScope_: function() {
+      var scope = new AnnotationsScope();
+      this.stack_.push(scope);
+      return scope;
     }
   }, {}, ParseTreeTransformer);
   return {get AnnotationsTransformer() {

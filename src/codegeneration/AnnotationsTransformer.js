@@ -51,9 +51,14 @@ import {parseExpression} from './PlaceholderParser';
 class AnnotationsScope {
   constructor() {
     this.className = null;
+    this.isExport = false;
     this.constructorParameters = [];
     this.annotations = [];
     this.metadata = [];
+  }
+
+  get inClassScope() {
+    return this.className !== null;
   }
 }
 
@@ -116,61 +121,53 @@ class AnnotationsScope {
   }
 
   transformExportDeclaration(tree) {
-    var declaration;
-
-    this.stack_.push(new AnnotationsScope());
-    this.scope.annotations.push(...tree.annotations);
-    declaration = this.transformAny(tree.declaration);
-    if (declaration !== tree.declaration)
+    var scope = this.pushAnnotationScope_();
+    scope.isExport = true;
+    scope.annotations.push(...tree.annotations);
+    var declaration = this.transformAny(tree.declaration);
+    if (declaration !== tree.declaration || tree.annotations.length > 0)
       tree = new ExportDeclaration(tree.location, declaration, []);
-    return this.appendMetadata_(tree, this.stack_.pop().metadata);
+    return this.appendMetadata_(tree);
   }
 
   transformClassDeclaration(tree) {
     var elementsChanged = false;
-    var annotations = this.scope.annotations;
-    this.stack_.push(new AnnotationsScope());
-    this.scope.className = tree.name;
-    this.scope.annotations.push(...annotations);
-    this.scope.annotations.push(...tree.annotations);
+    var exportAnnotations = this.scope.isExport ? this.scope.annotations : [];
+    var scope = this.pushAnnotationScope_();
+    scope.className = tree.name;
+    scope.annotations.push(...exportAnnotations, ...tree.annotations);
 
-    var elements = tree.elements.map((element) => {
-      var transformedElement = this.transformAny(element);
-      if (transformedElement !== element)
-        elementsChanged = true;
-      return transformedElement;
-    });
+    // we need to recurse to collect the constructor metadata before
+    // we process the class metadata
+    tree = super(tree);
+    scope.metadata.unshift(...this.transformMetadata_(
+        createIdentifierExpression(tree.name),
+        scope.annotations,
+        scope.constructorParameters));
 
-    this.scope.metadata.unshift(...this.transformMetadata_(
-        tree.name,
-        this.scope.annotations,
-        this.scope.constructorParameters));
-
-    if (elementsChanged || tree.annotations.length > 0) {
+    if (tree.annotations.length > 0) {
       tree = new ClassDeclaration(tree.location, tree.name,
-          tree.superClass, elements, []);
+          tree.superClass, tree.elements, []);
     }
-    return this.appendMetadata_(tree, this.stack_.pop().metadata);
+    return this.appendMetadata_(tree);
   }
 
   transformFunctionDeclaration(tree) {
-    var annotations = this.scope.annotations;
-    this.stack_.push(new AnnotationsScope());
-    this.scope.annotations.push(...annotations);
-    this.scope.annotations.push(...tree.annotations);
+    var exportAnnotations = this.scope.isExport ? this.scope.annotations : [];
+    var scope = this.pushAnnotationScope_();
+    scope.annotations.push(...exportAnnotations, ...tree.annotations);
 
-    this.scope.metadata.push(...this.transformMetadata_(
-        tree.name,
-        this.scope.annotations,
+    scope.metadata.push(...this.transformMetadata_(
+        createIdentifierExpression(tree.name),
+        scope.annotations,
         tree.formalParameterList.parameters));
 
-    var formalParameters = this.transformAny(tree.formalParameterList);
-    if (formalParameters !== tree.formalParameterList ||
-        tree.annotations.length > 0) {
+    tree = super(tree);
+    if (tree.annotations.length > 0) {
       tree = new FunctionDeclaration(tree.location, tree.name, tree.isGenerator,
-          formalParameters, tree.typeAnnotation, [], tree.functionBody);
+          tree.formalParameterList, tree.typeAnnotation, [], tree.functionBody);
     }
-    return this.appendMetadata_(tree, this.stack_.pop().metadata);
+    return this.appendMetadata_(tree);
   }
 
   transformFormalParameter(tree) {
@@ -178,13 +175,12 @@ class AnnotationsScope {
       tree = new FormalParameter(tree.location, tree.parameter,
           tree.typeAnnotation, []);
     }
-    return tree;
+    return super(tree);
   }
 
   transformGetAccessor(tree) {
-    // We only want to process if we're within a class scope
-    if (this.scope.className === null)
-      return tree;
+    if (!this.scope.inClassScope)
+      return super(tree);
 
     this.scope.metadata.push(...this.transformMetadata_(
         this.transformAccessor_(tree, this.scope.className, 'get'),
@@ -195,13 +191,12 @@ class AnnotationsScope {
       tree = new GetAccessor(tree.location, tree.isStatic, tree.name,
           tree.typeAnnotation, [], tree.body);
     }
-    return tree;
+    return super(tree);
   }
 
   transformSetAccessor(tree) {
-    // We only want to process if we're within a class scope
-    if (this.scope.className === null)
-      return tree;
+    if (!this.scope.inClassScope)
+      return super(tree);
 
     this.scope.metadata.push(...this.transformMetadata_(
         this.transformAccessor_(tree, this.scope.className, 'set'),
@@ -213,13 +208,12 @@ class AnnotationsScope {
       tree = new SetAccessor(tree.location, tree.isStatic, tree.name,
           parameter, [], tree.body);
     }
-    return tree;
+    return super(tree);
   }
 
   transformPropertyMethodAssignment(tree) {
-    // We only want to process if we're within a class scope
-    if (this.scope.className === null)
-      return tree;
+    if (!this.scope.inClassScope)
+      return super(tree);
 
     if (!tree.isStatic && propName(tree) === CONSTRUCTOR) {
       this.scope.annotations.push(...tree.annotations);
@@ -238,24 +232,23 @@ class AnnotationsScope {
           tree.isGenerator, tree.name, formalParameters,
           tree.typeAnnotation, [], tree.functionBody);
     }
-    return tree;
+    return super(tree);
   }
 
-  appendMetadata_(tree, metadata) {
+  appendMetadata_(tree) {
+    var metadata = this.stack_.pop().metadata;
     if (metadata.length > 0) {
-      // Only return the anon block from the top of the transformation stack.
-      // Otherwise we end up attaching an AnonBlock to an ExportDeclaration.
-      if (this.stack_.length === 1) {
-        tree = new AnonBlock(null, [tree, ...metadata]);
-      } else {
+      if (this.scope.isExport) {
         this.scope.metadata.push(...metadata);
+      } else {
+        tree = new AnonBlock(null, [tree, ...metadata]);
       }
     }
     return tree;
   }
 
   transformClassReference_(tree, className) {
-    var parent = this.createIdentifier_(className);
+    var parent = createIdentifierExpression(className);
     if (!tree.isStatic)
       parent = createMemberExpression(parent, 'prototype');
     return parent;
@@ -280,7 +273,7 @@ class AnnotationsScope {
     parameters = parameters.map((param) => {
       var metadata = [];
       if (param.typeAnnotation)
-        metadata.push(this.createIdentifier_(param.typeAnnotation.name.value));
+        metadata.push(createIdentifierExpression(param.typeAnnotation.name.value));
       if (param.annotations && param.annotations.length > 0)
         metadata.push(...this.transformAnnotations_(param.annotations));
       if (metadata.length > 0) {
@@ -301,13 +294,12 @@ class AnnotationsScope {
 
   transformMetadata_(target, annotations, parameters) {
     var metadataStatements = [];
-    var targetIdentifier = this.createIdentifier_(target);
 
     if (annotations !== null) {
       annotations = this.transformAnnotations_(annotations);
       if (annotations.length > 0) {
         metadataStatements.push(createAssignmentStatement(
-            createMemberExpression(targetIdentifier, 'annotations'),
+            createMemberExpression(target, 'annotations'),
             createArrayLiteralExpression(annotations)));
       }
     }
@@ -316,7 +308,7 @@ class AnnotationsScope {
       parameters = this.transformParameters_(parameters);
       if (parameters.length > 0) {
         metadataStatements.push(createAssignmentStatement(
-            createMemberExpression(targetIdentifier, 'parameters'),
+            createMemberExpression(target, 'parameters'),
             createArrayLiteralExpression(parameters)));
       }
     }
@@ -330,15 +322,13 @@ class AnnotationsScope {
     return new LiteralExpression(null, token);
   }
 
-  createIdentifier_(tree) {
-    if (typeof tree == 'string')
-      tree = createIdentifierExpression(tree);
-    else if (tree.type === BINDING_IDENTIFIER)
-      tree = createIdentifierExpression(tree.identifierToken);
-    return tree;
-  }
-
   get scope() {
     return this.stack_[this.stack_.length - 1];
+  }
+
+  pushAnnotationScope_() {
+    var scope = new AnnotationsScope();
+    this.stack_.push(scope);
+    return scope;
   }
 }

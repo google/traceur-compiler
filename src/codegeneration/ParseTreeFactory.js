@@ -770,18 +770,25 @@ export function createNumberLiteral(value) {
 }
 
 /**
+ * Creates 'operand.memberName' or 'operand[memberName]' if memberName
+ * is a LiteralToken or LiteralExpression.
+ *
  * @param {string|IdentifierToken|ParseTree} operand
- * @param {string|IdentifierToken} memberName
+ * @param {string|IdentifierToken|LiteralToken|LiteralExpression} memberName
  * @param {...string|IdentifierToken} memberNames
- * @return {MemberExpression}
+ * @return {MemberExpression|MemberLookupExpression}
  */
 export function createMemberExpression(operand, memberName, memberNames) {
   if (typeof operand == 'string' || operand instanceof IdentifierToken)
     operand = createIdentifierExpression(operand);
   if (typeof memberName == 'string')
     memberName = createIdentifierToken(memberName);
+  if (memberName instanceof LiteralToken)
+    memberName = new LiteralExpression(null, memberName);
 
-  var tree = new MemberExpression(null, operand, memberName);
+  var tree = memberName instanceof LiteralExpression ?
+      new MemberLookupExpression(null, operand, memberName) :
+      new MemberExpression(null, operand, memberName);
   for (var i = 2; i < arguments.length; i++) {
     tree = createMemberExpression(tree, arguments[i]);
   }

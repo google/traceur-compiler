@@ -2,8 +2,8 @@
 import {Anno} from './resources/setup';
 
 class AnnotatedCtor {
-  @Anno
+  @Anno2
   constructor() {}
 }
 
-assertArrayEquals([new Anno], AnnotatedCtor.annotations);
+assertArrayEquals([new Anno2], AnnotatedCtor.annotations);

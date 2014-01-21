@@ -1,12 +1,13 @@
 // Options: --annotations --types
 import {
   Anno,
+  Anno2,
   X
 } from './resources/setup';
 
-@Anno
+@Anno('class')
 class AnnotatedTypedClass {
-  @Anno
+  @Anno2('ctor')
   constructor(@Anno a:X, @Anno('b') b) {
     this.foo = a;
   }
@@ -14,6 +15,6 @@ class AnnotatedTypedClass {
   bar(a:X) {}
 }
 
-assertArrayEquals([new Anno, new Anno], AnnotatedTypedClass.annotations);
+assertArrayEquals([new Anno('class'), new Anno2('ctor')], AnnotatedTypedClass.annotations);
 assertArrayEquals([[X, new Anno], [new Anno('b')]], AnnotatedTypedClass.parameters);
 assertArrayEquals([[X]], AnnotatedTypedClass.prototype.bar.parameters);

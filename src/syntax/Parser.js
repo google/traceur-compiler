@@ -1996,14 +1996,14 @@ export class Parser {
 
     if (parseOptions.generators && parseOptions.propertyMethods &&
         this.peek_(STAR)) {
-      return this.parseGeneratorMethod_(start, isStatic);
+      return this.parseGeneratorMethod_(start, isStatic, []);
     }
 
     var token = this.peekToken_();
     var name = this.parsePropertyName_();
 
     if (parseOptions.propertyMethods && this.peek_(OPEN_PAREN))
-      return this.parseMethod_(start, isStatic, isGenerator, name);
+      return this.parseMethod_(start, isStatic, isGenerator, name, []);
 
     if (this.eatIf_(COLON)) {
       var value = this.parseAssignmentExpression();
@@ -2016,12 +2016,12 @@ export class Parser {
       var nameLiteral = name.literalToken;
       if (nameLiteral.value === GET &&
           this.peekPropertyName_(type)) {
-        return this.parseGetAccessor_(start, isStatic);
+        return this.parseGetAccessor_(start, isStatic, []);
       }
 
       if (nameLiteral.value === SET &&
           this.peekPropertyName_(type)) {
-        return this.parseSetAccessor_(start, isStatic);
+        return this.parseSetAccessor_(start, isStatic, []);
       }
 
       if (parseOptions.propertyNameShorthand &&
@@ -2060,6 +2060,7 @@ export class Parser {
   parseClassElement_() {
     var start = this.getTreeStartLocation_();
 
+    var annotations = this.parseAnnotations_();
     var type = this.peekType_();
     var isStatic = false, isGenerator = false;
     switch (type) {
@@ -2069,37 +2070,34 @@ export class Parser {
         switch (type) {
           case OPEN_PAREN:
             var name = new LiteralPropertyName(start, staticToken);
-            return this.parseMethod_(start, isStatic, isGenerator, name);
+            return this.parseMethod_(start, isStatic, isGenerator, name,
+                                     annotations);
 
           default:
             isStatic = true;
             if (type === STAR && parseOptions.generators)
-              return this.parseGeneratorMethod_(start, true);
+              return this.parseGeneratorMethod_(start, true, annotations);
 
-            return this.parseGetSetOrMethod_(start, isStatic);
+            return this.parseGetSetOrMethod_(start, isStatic, annotations);
         }
         break;
 
       case STAR:
-        return this.parseGeneratorMethod_(start, isStatic);
-
-      case AT:
-        return this.parseAnnotatedClassElement_(start);
+        return this.parseGeneratorMethod_(start, isStatic, annotations);
 
       default:
-        return this.parseGetSetOrMethod_(start, isStatic);
+        return this.parseGetSetOrMethod_(start, isStatic, annotations);
     }
   }
 
-  parseGeneratorMethod_(start, isStatic) {
+  parseGeneratorMethod_(start, isStatic, annotations) {
     var isGenerator = true;
     this.eat_(STAR);
     var name = this.parsePropertyName_();
-    return this.parseMethod_(start, isStatic, isGenerator, name);
+    return this.parseMethod_(start, isStatic, isGenerator, name, annotations);
   }
 
-  parseMethod_(start, isStatic, isGenerator, name) {
-    var annotations = this.popAnnotations_();
+  parseMethod_(start, isStatic, isGenerator, name, annotations) {
     this.eat_(OPEN_PAREN);
     var formalParameterList = this.parseFormalParameterList_();
     this.eat_(CLOSE_PAREN);
@@ -2111,7 +2109,7 @@ export class Parser {
         annotations, functionBody);
   }
 
-  parseGetSetOrMethod_(start, isStatic) {
+  parseGetSetOrMethod_(start, isStatic, annotations) {
     var isGenerator = false;
     var name = this.parsePropertyName_();
     var type = this.peekType_();
@@ -2121,19 +2119,19 @@ export class Parser {
     if (name.type === LITERAL_PROPERTY_NAME &&
         name.literalToken.value === GET &&
         this.peekPropertyName_(type)) {
-      return this.parseGetAccessor_(start, isStatic);
+      return this.parseGetAccessor_(start, isStatic, annotations);
     }
 
     if (name.type === LITERAL_PROPERTY_NAME &&
         name.literalToken.value === SET &&
         this.peekPropertyName_(type)) {
-      return this.parseSetAccessor_(start, isStatic);
+      return this.parseSetAccessor_(start, isStatic, annotations);
     }
 
-    return this.parseMethod_(start, isStatic, isGenerator, name);
+    return this.parseMethod_(start, isStatic, isGenerator, name, annotations);
   }
 
-  parseGetAccessor_(start, isStatic) {
+  parseGetAccessor_(start, isStatic, annotations) {
     var isGenerator = false;
     var name = this.parsePropertyName_();
     this.eat_(OPEN_PAREN);
@@ -2141,12 +2139,11 @@ export class Parser {
     var typeAnnotation = this.parseTypeAnnotationOpt_();
     var body = this.parseFunctionBody_(isGenerator, null);
     return new GetAccessor(this.getTreeLocation_(start), isStatic, name,
-                            typeAnnotation, this.popAnnotations_(), body);
+                            typeAnnotation, annotations, body);
   }
 
-  parseSetAccessor_(start, isStatic) {
+  parseSetAccessor_(start, isStatic, annotations) {
     var isGenerator = false;
-    var annotations = this.popAnnotations_();
     var name = this.parsePropertyName_();
     this.eat_(OPEN_PAREN);
     var parameter = this.parsePropertySetParameterList_();
@@ -3517,34 +3514,25 @@ export class Parser {
    * @return {ParseTree}
    * @private
    */
-  parseAnnotatedClassElement_() {
-    this.pushAnnotations_();
-    var element = this.parseClassElement_();
-    if (this.annotations_.length > 0)
-      return this.parseSyntaxError_('Unsupported annotated expression');
-    return element;
-  }
-
-  /**
-   * Annotations extension
-   *
-   * @return {ParseTree}
-   * @private
-   */
   parseAnnotatedDeclarations_(allowModuleItem, allowScriptItem) {
     this.pushAnnotations_();
     var declaration = this.parseStatement_(this.peekType_(),
-                                            allowModuleItem, allowScriptItem);
+                                           allowModuleItem, allowScriptItem);
     if (this.annotations_.length > 0)
       return this.parseSyntaxError_('Unsupported annotated expression');
     return declaration;
   }
 
-  pushAnnotations_() {
-    this.annotations_ = [];
+  parseAnnotations_() {
+    var annotations = [];
     while (this.eatIf_(AT)) {
-      this.annotations_.push(this.parseAnnotation_());
+      annotations.push(this.parseAnnotation_());
     }
+    return annotations;
+  }
+
+  pushAnnotations_() {
+    this.annotations_ = this.parseAnnotations_();
   }
 
   popAnnotations_() {
