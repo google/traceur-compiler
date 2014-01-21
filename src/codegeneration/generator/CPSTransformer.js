@@ -941,7 +941,7 @@ export class CPSTransformer extends ParseTreeTransformer {
     } else {
       catchStatements = parseStatements `
           $ctx.GState = ${ST_CLOSED};
-          $ctx.state = -2;
+          $ctx.state = ${State.END_STATE};
           throw ex;`
     }
 

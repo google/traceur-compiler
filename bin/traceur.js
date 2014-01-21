@@ -16012,7 +16012,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.13/src/codegeneration/ge
   var $__224 = Object.freeze(Object.defineProperties(["function($ctx) {\n      while (true) {\n        ", "\n      }\n    }"], {raw: {value: Object.freeze(["function($ctx) {\n      while (true) {\n        ", "\n      }\n    }"])}})),
       $__225 = Object.freeze(Object.defineProperties(["function($ctx) {\n      while (true) ", "\n    }"], {raw: {value: Object.freeze(["function($ctx) {\n      while (true) ", "\n    }"])}})),
       $__226 = Object.freeze(Object.defineProperties(["\n          $ctx.storedException = ex;\n          ", ""], {raw: {value: Object.freeze(["\n          $ctx.storedException = ex;\n          ", ""])}})),
-      $__227 = Object.freeze(Object.defineProperties(["\n          $ctx.GState = ", ";\n          $ctx.state = -2;\n          throw ex;"], {raw: {value: Object.freeze(["\n          $ctx.GState = ", ";\n          $ctx.state = -2;\n          throw ex;"])}})),
+      $__227 = Object.freeze(Object.defineProperties(["\n          $ctx.GState = ", ";\n          $ctx.state = ", ";\n          throw ex;"], {raw: {value: Object.freeze(["\n          $ctx.GState = ", ";\n          $ctx.state = ", ";\n          throw ex;"])}})),
       $__228 = Object.freeze(Object.defineProperties(["try {\n      return innerFunction($ctx);\n    } catch (ex) {\n      ", "\n    }"], {raw: {value: Object.freeze(["try {\n      return innerFunction($ctx);\n    } catch (ex) {\n      ", "\n    }"])}})),
       $__229 = Object.freeze(Object.defineProperties(["\n                  $ctx.state = $ctx.finallyFallThrough;\n                  $ctx.finallyFallThrough = ", ";\n                  break;"], {raw: {value: Object.freeze(["\n                  $ctx.state = $ctx.finallyFallThrough;\n                  $ctx.finallyFallThrough = ", ";\n                  break;"])}})),
       $__230 = Object.freeze(Object.defineProperties(["\n                      $ctx.state = $ctx.finallyFallThrough;\n                      break;"], {raw: {value: Object.freeze(["\n                      $ctx.state = $ctx.finallyFallThrough;\n                      break;"])}}));
@@ -16454,7 +16454,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.13/src/codegeneration/ge
         var switchStatement = createSwitchStatement(createMemberExpression('$ctx', 'state'), caseClauses);
         catchStatements = parseStatements($__226, switchStatement);
       } else {
-        catchStatements = parseStatements($__227, ST_CLOSED);
+        catchStatements = parseStatements($__227, ST_CLOSED, State.END_STATE);
       }
       return parseStatement($__228, catchStatements);
     },
