@@ -29,6 +29,7 @@ import {
   AMPERSAND_EQUAL,
   AND,
   ARROW,
+  AT,
   AWAIT,
   BACK_QUOTE,
   BANG,
@@ -216,6 +217,20 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   /**
+   * @param {Annotation} tree
+   */
+  visitAnnotation(tree) {
+    this.write_(AT);
+    this.visitAny(tree.name);
+
+    if (tree.args !== null) {
+      this.write_(OPEN_PAREN);
+      this.writeList_(tree.args, COMMA, false);
+      this.write_(CLOSE_PAREN);
+    }
+  }
+
+  /**
    * @param {ArgumentList} tree
    */
   visitArgumentList(tree) {
@@ -352,6 +367,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   visitClassShared_(tree) {
+    this.writeAnnotations_(tree.annotations);
     this.write_(CLASS);
     this.visitAny(tree.name);
     if (tree.superClass !== null) {
@@ -471,6 +487,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {ExportDeclaration} tree
    */
   visitExportDeclaration(tree) {
+    this.writeAnnotations_(tree.annotations);
     this.write_(EXPORT);
     this.visitAny(tree.declaration);
   }
@@ -600,6 +617,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {FormalParameter} tree
    */
   visitFormalParameter(tree) {
+    this.writeAnnotations_(tree.annotations, false);
     this.visitAny(tree.parameter);
     this.writeTypeAnnotation_(tree.typeAnnotation);
   }
@@ -628,6 +646,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   }
 
   visitFunction_(tree) {
+    this.writeAnnotations_(tree.annotations);
     this.write_(FUNCTION);
     if (tree.isGenerator) {
       this.write_(STAR);
@@ -651,6 +670,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {GetAccessor} tree
    */
   visitGetAccessor(tree) {
+    this.writeAnnotations_(tree.annotations);
     if (tree.isStatic)
       this.write_(STATIC);
     this.write_(GET);
@@ -867,6 +887,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {PropertyMethodAssignment} tree
    */
   visitPropertyMethodAssignment(tree) {
+    this.writeAnnotations_(tree.annotations);
     if (tree.isStatic)
       this.write_(STATIC);
     if (tree.isGenerator)
@@ -945,6 +966,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {SetAccessor} tree
    */
   visitSetAccessor(tree) {
+    this.writeAnnotations_(tree.annotations);
     if (tree.isStatic)
       this.write_(STATIC);
     this.write_(SET);
@@ -1208,6 +1230,19 @@ export class ParseTreeWriter extends ParseTreeVisitor {
     if (typeAnnotation !== null) {
       this.write_(COLON);
       this.visitAny(typeAnnotation);
+    }
+  }
+
+  /**
+   * @param {Array.<ParseTree>} annotations
+   * @param {boolean} writeNewLine
+   * @private
+   */
+  writeAnnotations_(annotations, writeNewLine = this.prettyPrint_) {
+    if (annotations.length > 0) {
+      this.writeList_(annotations, null, writeNewLine);
+      if (writeNewLine)
+        this.writeln_();
     }
   }
 

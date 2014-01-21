@@ -173,6 +173,12 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
     }
   }
 
+  // Don't traverse into classes, let the class transformer handle classes.
+  // Traversing into a class will transform the methods into:
+  //     method: function () {...}.
+  transformClassDeclaration(tree) { return tree; }
+  transformClassExpression(tree) { return tree; }
+
   transformObjectLiteralExpression(tree) {
     // If the object literal needs to be transformed this calls the
     // transformation of the individual transformations of the property names
@@ -277,7 +283,7 @@ export class ObjectLiteralTransformer extends TempVarTransformer {
 
   transformPropertyMethodAssignment(tree) {
     var func = new FunctionExpression(tree.location, null, tree.isGenerator,
-        this.transformAny(tree.formalParameterList), tree.typeAnnotation,
+        this.transformAny(tree.formalParameterList), tree.typeAnnotation, [],
         this.transformAny(tree.functionBody));
     if (!this.needsAdvancedTransform) {
       // m() { }

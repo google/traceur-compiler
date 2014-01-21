@@ -348,7 +348,8 @@ export class GeneratorTransformPass extends TempVarTransformer {
     var isGenerator = false;
 
     return new constructor(null, tree.name, isGenerator,
-                           tree.formalParameterList, tree.typeAnnotation, body);
+                           tree.formalParameterList, tree.typeAnnotation,
+                           tree.annotations, body);
   }
 
   /**
@@ -406,6 +407,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
         tree.isStatic,
         tree.name,
         tree.typeAnnotation,
+        tree.annotations,
         body);
   }
 
@@ -423,6 +425,7 @@ export class GeneratorTransformPass extends TempVarTransformer {
         tree.isStatic,
         tree.name,
         tree.parameter,
+        tree.annotations,
         body);
   }
 }

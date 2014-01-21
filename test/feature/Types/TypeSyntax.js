@@ -17,3 +17,4 @@ function abc(x : Test) : Test {
 function xyz({x, y} : Test) {}
 
 var x = function (a : Test) : Test {}
+

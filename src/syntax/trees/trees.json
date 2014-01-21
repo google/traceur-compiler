@@ -1,4 +1,15 @@
 {
+  "Annotation": {
+    "location": [
+      "SourceRange"
+    ],
+    "name": [
+      "ParseTree"
+    ],
+    "args": [
+      "ArgumentList"
+    ]
+  },
   "AnonBlock": {
     "location": [
       "SourceRange"
@@ -160,6 +171,9 @@
     ],
     "elements": [
       "Array.<ParseTree>"
+    ],
+    "annotations": [
+      "Array.<ParseTree>"
     ]
   },
   "ClassExpression": {
@@ -173,6 +187,9 @@
       "ParseTree"
     ],
     "elements": [
+      "Array.<ParseTree>"
+    ],
+    "annotations": [
       "Array.<ParseTree>"
     ]
   },
@@ -290,6 +307,9 @@
     ],
     "declaration": [
       "ParseTree"
+    ],
+    "annotations": [
+      "Array.<ParseTree>"
     ]
   },
   "ExportDefault": {
@@ -394,6 +414,9 @@
     ],
     "typeAnnotation": [
       "ParseTree"
+    ],
+    "annotations": [
+      "Array.<Annotation>"
     ]
   },
   "FormalParameterList": {
@@ -429,6 +452,9 @@
     "typeAnnotation": [
       "ParseTree"
     ],
+    "annotations": [
+      "Array.<ParseTree>"
+    ],
     "functionBody": [
       "FunctionBody"
     ]
@@ -448,6 +474,9 @@
     ],
     "typeAnnotation": [
       "ParseTree"
+    ],
+    "annotations": [
+      "Array.<ParseTree>"
     ],
     "functionBody": [
       "FunctionBody"
@@ -476,6 +505,9 @@
     ],
     "typeAnnotation": [
       "ParseTree"
+    ],
+    "annotations": [
+      "Array.<ParseTree>"
     ],
     "body": [
       "FunctionBody"
@@ -727,6 +759,9 @@
     "typeAnnotation": [
       "ParseTree"
     ],
+    "annotations": [
+      "Array.<ParseTree>"
+    ],
     "functionBody": [
       "FunctionBody"
     ]
@@ -778,6 +813,9 @@
     ],
     "parameter": [
       "FormalParameter"
+    ],
+    "annotations": [
+      "Array.<ParseTree>"
     ],
     "body": [
       "FunctionBody"

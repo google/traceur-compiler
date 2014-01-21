@@ -273,6 +273,7 @@ addFeatureOption('blockBinding', EXPERIMENTAL);       // 12.1
 addFeatureOption('symbols', EXPERIMENTAL);
 addFeatureOption('deferredFunctions', EXPERIMENTAL);
 addFeatureOption('types', EXPERIMENTAL);
+addFeatureOption('annotations', EXPERIMENTAL);
 
 addBoolOption('debug');
 addBoolOption('sourceMaps');

@@ -30,7 +30,7 @@
     0B11: 3,
     0B0100: 4
   };
-  assertArrayEquals(Object.keys(o), ['0', '1', '2', '3', '4']);
+  assertArrayEquals(['0', '1', '2', '3', '4'], Object.keys(o));
 
   var o = {
     0o0: 0,
@@ -39,7 +39,7 @@
     0O10: 8,
     0O011: 9
   };
-  assertArrayEquals(Object.keys(o), ['0', '1', '7', '8', '9']);
+  assertArrayEquals(['0', '1', '7', '8', '9'], Object.keys(o));
 
   var o = {
     get 0b0() {},
@@ -48,7 +48,7 @@
     get 0B11() {},
     get 0B0100() {}
   };
-  assertArrayEquals(Object.keys(o), ['0', '1', '2', '3', '4']);
+  assertArrayEquals(['0', '1', '2', '3', '4'], Object.keys(o));
 
   var o = {
     set 0o0(v) {},
@@ -57,7 +57,7 @@
     set 0O10(v) {},
     set 0O011(v) {}
   };
-  assertArrayEquals(Object.keys(o), ['0', '1', '7', '8', '9']);
+  assertArrayEquals(['0', '1', '7', '8', '9'], Object.keys(o));
 
   var o = {
     0b0() {},
@@ -66,7 +66,7 @@
     0B11() {},
     0B0100() {}
   };
-  assertArrayEquals(Object.keys(o), ['0', '1', '2', '3', '4']);
+  assertArrayEquals(['0', '1', '2', '3', '4'], Object.keys(o));
 
   class C {
     0b0() {}
@@ -83,8 +83,6 @@
     static get 0O12() {}
     static set 0O13(v) {}
   }
-  assertArrayEquals(Object.keys(C.prototype),
-      ['0', '1', '2', '6', '7', '8']);
-  assertArrayEquals(Object.keys(C),
-      ['3', '4', '5', '9', '10', '11']);
+  assertArrayEquals(['0', '1', '2', '6', '7', '8'], Object.keys(C.prototype));
+  assertArrayEquals(['3', '4', '5', '9', '10', '11'], Object.keys(C));
 })();

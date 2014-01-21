@@ -119,7 +119,7 @@ export class ClassTransformer extends TempVarTransformer{
     var declaration = transformed.declaration;
     if (declaration instanceof AnonBlock) {
       var statements = [
-        new ExportDeclaration(null, declaration.statements[0]),
+        new ExportDeclaration(null, declaration.statements[0], []),
         ...declaration.statements.slice(1)
       ];
       return new AnonBlock(null, statements);
@@ -205,7 +205,8 @@ export class ClassTransformer extends TempVarTransformer{
       func = this.getDefaultConstructor_(tree, internalName);
     } else {
       func = new FunctionExpression(tree.location, null, false,
-                                    constructorParams, null, constructorBody);
+                                    constructorParams, null, [],
+                                    constructorBody);
     }
 
     var state = this.state_;
@@ -314,7 +315,7 @@ export class ClassTransformer extends TempVarTransformer{
     var isStatic = false;
     return new PropertyMethodAssignment(tree.location, isStatic,
         tree.isGenerator, tree.name, formalParameterList, tree.typeAnnotation,
-        functionBody);
+        tree.annotations, functionBody);
   }
 
   transformGetAccessor_(tree, internalName) {
@@ -323,7 +324,7 @@ export class ClassTransformer extends TempVarTransformer{
       return tree;
     // not static
     return new GetAccessor(tree.location, false, tree.name, tree.typeAnnotation,
-                           body);
+                           tree.annotations, body);
   }
 
   transformSetAccessor_(tree, internalName) {
@@ -332,7 +333,7 @@ export class ClassTransformer extends TempVarTransformer{
     if (!tree.isStatic && body === tree.body)
       return tree;
     return new SetAccessor(tree.location, false, tree.name, parameter,
-                           body);
+                           tree.annotations, body);
   }
 
   transformSuperInFunctionBody_(methodTree, tree, internalName) {
@@ -371,6 +372,6 @@ export class ClassTransformer extends TempVarTransformer{
     }
 
     return new FunctionExpression(tree.location, null, false, constructorParams,
-                                  null, constructorBody);
+                                  null, [], constructorBody);
   }
 }
