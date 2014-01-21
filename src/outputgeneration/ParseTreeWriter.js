@@ -1238,7 +1238,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {boolean} writeNewLine
    * @private
    */
-  writeAnnotations_(annotations, writeNewLine = true) {
+  writeAnnotations_(annotations, writeNewLine = this.prettyPrint_) {
     if (annotations.length > 0) {
       this.writeList_(annotations, null, writeNewLine);
       if (writeNewLine)

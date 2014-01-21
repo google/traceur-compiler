@@ -564,7 +564,7 @@ export class Parser {
         return this.parseUnexpectedToken_(type);
     }
     return new ExportDeclaration(this.getTreeLocation_(start), exportTree,
-                                  annotations);
+                                 annotations);
   }
 
   parseExportDefault_() {
@@ -2139,7 +2139,7 @@ export class Parser {
     var typeAnnotation = this.parseTypeAnnotationOpt_();
     var body = this.parseFunctionBody_(isGenerator, null);
     return new GetAccessor(this.getTreeLocation_(start), isStatic, name,
-                            typeAnnotation, annotations, body);
+                           typeAnnotation, annotations, body);
   }
 
   parseSetAccessor_(start, isStatic, annotations) {

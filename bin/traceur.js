@@ -6900,7 +6900,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.13/src/outputgeneration/
       }
     },
     writeAnnotations_: function(annotations) {
-      var writeNewLine = arguments[1] !== (void 0) ? arguments[1]: true;
+      var writeNewLine = arguments[1] !== (void 0) ? arguments[1]: this.prettyPrint_;
       if (annotations.length > 0) {
         this.writeList_(annotations, null, writeNewLine);
         if (writeNewLine) this.writeln_();
