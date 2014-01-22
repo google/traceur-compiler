@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import assertType from './assertType'
 import {
   FormalParameter,
   FunctionDeclaration,
@@ -81,8 +82,9 @@ export class TypeTransformer extends ParseTreeTransformer {
    */
   transformPropertyMethodAssignment(tree) {
     if (tree.typeAnnotation) {
-      tree = new PropertyMethodAssignment(tree.location, tree.isStatic, tree.isGenerator, tree.name,
-          tree.formalParameterList, null, tree.annotations, tree.functionBody);
+      tree = new PropertyMethodAssignment(tree.location, tree.isStatic,
+          tree.isGenerator, tree.name, tree.formalParameterList, null,
+          tree.annotations, tree.functionBody);
     }
 
     return super.transformPropertyMethodAssignment(tree);

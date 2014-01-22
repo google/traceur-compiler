@@ -39,6 +39,7 @@ import {SpreadTransformer} from './SpreadTransformer';
 import {SymbolTransformer} from './SymbolTransformer';
 import {TemplateLiteralTransformer} from './TemplateLiteralTransformer';
 import {TypeTransformer} from './TypeTransformer';
+import {TypeAssertionTransformer} from './TypeAssertionTransformer';
 import {TypeofTransformer} from './TypeofTransformer';
 import {UniqueIdentifierGenerator} from './UniqueIdentifierGenerator';
 import {options, transformOptions} from '../options';
@@ -71,6 +72,9 @@ export class FromOptionsTransformer extends MultiTransformer {
 
     if (transformOptions.annotations)
       append(AnnotationsTransformer);
+
+    if (options.typeAssertions)
+      append(TypeAssertionTransformer);
 
     if (transformOptions.modules) {
       switch (transformOptions.modules) {

@@ -280,6 +280,7 @@ addBoolOption('sourceMaps');
 addBoolOption('freeVariableChecker');
 addBoolOption('validate');
 addBoolOption('unstarredGenerators');
+addBoolOption('typeAssertions');
 
 defaultValues.referrer = '';
 options.referrer = null;
