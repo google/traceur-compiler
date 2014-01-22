@@ -49,9 +49,7 @@ import {
 } from './ParseTreeFactory';
 import {
   ACTION_SEND,
-  ACTION_THROW,
-  YIELD_ACTION,
-  YIELD_SENT
+  ACTION_THROW
 } from '../syntax/PredefinedName';
 import {
   transformOptions,
@@ -122,17 +120,20 @@ class YieldExpressionTransformer extends TempVarTransformer {
    */
   constructor(identifierGenerator, reporter) {
     super(identifierGenerator);
+  }
 
+  get throwClose() {
     // Initialise unless already cached.
     if (!throwClose) {
       // Inserted after every simple yield expression in order to handle
       // 'throw'. No extra action is needed to handle 'next'.
       throwClose = parseStatement `
-          if (${id(YIELD_ACTION)} == ${ACTION_THROW}) {
-            ${id(YIELD_ACTION)} = ${ACTION_SEND};
-            throw ${id(YIELD_SENT)};
+          if ($ctx.action == ${ACTION_THROW}) {
+            $ctx.action = ${ACTION_SEND};
+            throw $ctx.sent;
           }`;
     }
+    return throwClose;
   }
 
   /**
@@ -169,7 +170,7 @@ class YieldExpressionTransformer extends TempVarTransformer {
       case YIELD_EXPRESSION:
         if (e.isYieldFor)
           return this.transformYieldForExpression_(e);
-        return createBlock(tree, throwClose);
+        return createBlock(tree, this.throwClose);
     }
 
     return tree;
@@ -236,12 +237,12 @@ class YieldExpressionTransformer extends TempVarTransformer {
     if (expression.isYieldFor)
       return createBlock(
           this.transformYieldForExpression_(expression),
-          wrap(id(YIELD_SENT)));
+          wrap(createMemberExpression('$ctx', 'sent')));
 
     return createBlock([
         createExpressionStatement(expression),
-        throwClose,
-        wrap(id(YIELD_SENT))]);
+        this.throwClose,
+        wrap(createMemberExpression('$ctx', 'sent'))]);
   }
 
   /**
@@ -286,18 +287,18 @@ class YieldExpressionTransformer extends TempVarTransformer {
           // 'yes' seems makes more sense from a language-user's perspective.
 
           // received = void 0;
-          ${id(YIELD_SENT)} = void 0;
+          $ctx.sent = void 0;
           // send = true; // roughly equivalent
-          ${id(YIELD_ACTION)} = ${ACTION_SEND};
+          $ctx.action = ${ACTION_SEND};
 
           while (true) {
-            if (${id(YIELD_ACTION)} == ${ACTION_SEND}) {
-              ${next} = ${g}.next(${id(YIELD_SENT)});
+            if ($ctx.action == ${ACTION_SEND}) {
+              ${next} = ${g}.next($ctx.sent);
             } else {
-              ${next} = ${g}.throw(${id(YIELD_SENT)});
+              ${next} = ${g}.throw($ctx.sent);
             }
             if (${next}.done) {
-              ${id(YIELD_SENT)} = ${next}.value;
+              $ctx.sent = ${next}.value;
               break;
             }
             // Normally, this would go through transformYieldForExpression_

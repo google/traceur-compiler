@@ -32,7 +32,6 @@ export var CURRENT = 'current';
 export var DEFINE_PROPERTIES = 'defineProperties';
 export var DEFINE_PROPERTY = 'defineProperty';
 export var ENUMERABLE = 'enumerable';
-export var FINALLY_FALL_THROUGH = '$finallyFallThrough';
 export var FREEZE = 'freeze';
 export var FROM = 'from';
 export var FUNCTION = 'Function';
@@ -51,15 +50,11 @@ export var RAW = 'raw';
 export var SET = 'set';
 export var SLICE = 'slice';
 export var STATE = '$state';
-export var STORED_EXCEPTION = '$storedException';
 export var THEN = 'then';
 export var THIS = 'this';
 export var TRACEUR_RUNTIME = '$traceurRuntime';
 export var UNDEFINED = 'undefined';
 export var WRITABLE = 'writable';
-export var YIELD_ACTION = '$yieldAction';
-export var YIELD_RETURN = 'yieldReturn';
-export var YIELD_SENT = '$yieldSent';
 export function getParameterName(index) {
   // TODO: consider caching these
   return '$' + index;

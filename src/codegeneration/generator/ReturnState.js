@@ -16,7 +16,6 @@ import {
   isUndefined,
   isVoidExpression,
 } from '../../semantics/util';
-import {YIELD_RETURN} from '../../syntax/PredefinedName';
 import {YieldState} from './YieldState';
 import {State} from './State';
 import {
@@ -24,6 +23,7 @@ import {
   createMemberExpression,
   createThisExpression
 } from '../ParseTreeFactory';
+import {parseStatement} from '../PlaceholderParser';
 
 /**
  * Represents a return statement that has been added to a StateMachine.
@@ -37,19 +37,10 @@ export class ReturnState extends YieldState {
    */
   transform(enclosingFinally, machineEndState, reporter) {
     var e = this.expression;
-    if (e && !isUndefined(e) && !isVoidExpression(e)) {
-      return [
-        // 'this' refers to the '$G' object from
-        // GeneratorTransformer.transformGeneratorBody
-        //
-        // this.$yieldReturn = expression;
-        createAssignmentStatement(
-            createMemberExpression(createThisExpression(), YIELD_RETURN),
-            this.expression),
-        ...State.generateJump(enclosingFinally, machineEndState)
-      ];
-    } else {
-      return State.generateJump(enclosingFinally, machineEndState);
-    }
+    var statements = [];
+    if (e && !isUndefined(e) && !isVoidExpression(e))
+      statements.push(parseStatement `$ctx.returnValue = ${this.expression}`);
+    statements.push(...State.generateJump(enclosingFinally, machineEndState));
+    return statements;
   }
 }

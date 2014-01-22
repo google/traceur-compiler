@@ -12,42 +12,45 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {CURRENT} from '../../syntax/PredefinedName';
 import {State} from './State';
-import {
-  createAssignmentStatement,
-  createIdentifierExpression,
-  createMemberExpression,
-  createReturnStatement,
-  createThisExpression,
-  createTrueLiteral
-} from '../ParseTreeFactory';
-import {parseStatement} from '../PlaceholderParser';
+import {parseStatements} from '../PlaceholderParser';
 
-/**
- * Represents a simple yield expression that has been added to a StateMachine.
- */
-export class YieldState extends State {
+export class AwaitState extends State {
   /**
    * @param {number} id
-   * @param {number} fallThroughState
    * @param {ParseTree} expression
+   * @param {number} callbackState
+   * @param {number} errbackState
+   * @param {Array.<ParseTree>} statements
    */
-  constructor(id, fallThroughState, expression) {
-    super(id);
-    this.fallThroughState = fallThroughState;
+  constructor(id, callbackState, errbackState, expression) {
+    super(id),
+    this.callbackState = callbackState;
+    this.errbackState = errbackState;
     this.expression = expression;
+    this.statements_ = null;
+  }
+
+  get statements() {
+    if (!this.statements_) {
+      this.statements_ = parseStatements
+          `(${this.expression}).then($ctx.createCallback(${this.callbackState}),
+                                     $ctx.createErrback(${this.errbackState}));
+          return`;
+    }
+    return this.statements_;
   }
 
   /**
    * @param {number} oldState
    * @param {number} newState
-   * @return {YieldState}
+   * @return {AwaitState}
    */
   replaceState(oldState, newState) {
-    return new this.constructor(
+    return new AwaitState(
         State.replaceStateId(this.id, oldState, newState),
-        State.replaceStateId(this.fallThroughState, oldState, newState),
+        State.replaceStateId(this.callbackState, oldState, newState),
+        State.replaceStateId(this.errbackState, oldState, newState),
         this.expression);
   }
 
@@ -58,15 +61,7 @@ export class YieldState extends State {
    * @return {Array.<ParseTree>}
    */
   transform(enclosingFinally, machineEndState, reporter) {
-    return [
-      // either:
-      //      $ctx.state = this.fallThroughState;
-      // or:
-      //      $ctx.state = enclosingFinally.finallyState;
-      //      $fallThrough = this.fallThroughState;
-      ...State.generateAssignState(enclosingFinally, this.fallThroughState),
-
-      parseStatement `return ${this.expression}`,
-    ];
+    return this.statements;
   }
 }
+
