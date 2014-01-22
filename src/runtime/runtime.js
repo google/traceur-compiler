@@ -413,11 +413,29 @@
     }));
   }
 
+  function Context() {
+    this.state = 0;
+    this.GState = ST_NEWBORN;
+    this.storedException = undefined;
+    this.finallyFallThrough = undefined;
+    this.sent = undefined;
+    this.returnValue = undefined;
+    this.tryStack_ = [];
+  }
+  Context.prototype = {
+    pushTry: function(tryState, finallyState, finallyFallThrough) {
+      this.tryStack_.push([tryState, finallyState, finallyFallThrough]);
+    },
+    popCatch: function() {
+      console.log('popCatch', this.tryStack_);
+    },
+    popFinally: function() {
+      console.log('popFinally', this.tryStack_);
+    }
+  };
+
   function generatorWrap(moveNext) {
-    var ctx = {
-      state: 0,
-      GState: 0
-    };
+    var ctx = new Context();
     return addIterator({
       next: function(x) {
         switch (ctx.GState) {
@@ -469,33 +487,37 @@
     });
   }
 
-  function asyncWrap(moveNext) {
-    var ctx = {
-      state: 0,
-      GState: 0,
-      createCallback: function(newState) {
-        return function (value) {
-          ctx.state = newState;
-          ctx.value = value;
-          moveNext(ctx);
-        };
-      },
-      createErrback: function(newState) {
-        return function (err) {
-          ctx.state = newState;
-          ctx.err = err;
-          moveNext(ctx);
-        };
-      }
-    };
+  function AsyncContext() {
+    Context.call(this);
+    this.err = undefined;
+    var ctx = this;
     ctx.result = new Promise(function(resolve, reject) {
-            ctx.resolve = resolve;
-            ctx.reject = reject;
-          });
+      ctx.resolve = resolve;
+      ctx.reject = reject;
+    });
+  }
+  AsyncContext.prototype = Object.create(Context.prototype);
+
+  function asyncWrap(moveNext) {
+    var ctx = new AsyncContext();
+    ctx.createCallback = function(newState) {
+      return function (value) {
+        ctx.state = newState;
+        ctx.value = value;
+        moveNext(ctx);
+      };
+    }
+    ctx.createErrback = function(newState) {
+      return function (err) {
+        ctx.state = newState;
+        ctx.err = err;
+        moveNext(ctx);
+      };
+    };
+
     moveNext(ctx);
     return ctx.result;
   }
-
 
   function setupGlobals(global) {
     global.Symbol = Symbol;
