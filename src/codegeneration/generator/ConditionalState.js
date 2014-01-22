@@ -60,4 +60,8 @@ export class ConditionalState extends State {
           createBlock(State.generateJump(enclosingFinally, this.ifState)),
           createBlock(State.generateJump(enclosingFinally, this.elseState)))];
   }
+
+  getDestinationStates() {
+    return [this.ifState, this.elseState];
+  }
 }

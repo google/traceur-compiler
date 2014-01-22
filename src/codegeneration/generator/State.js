@@ -72,6 +72,16 @@ export class State {
   transformBreakOrContinue(labelSet, breakState, continueState) {
     return this;
   }
+
+  /**
+   * Returns a list of possible destination states. Subclasses should override
+   * this to include the states where it might go next. For example the
+   * ConditionalState will have 2 possible destinations.
+   * @return {Array.<number>}
+   */
+  getDestinationStates() {
+    return [];
+  }
 };
 
 

@@ -177,6 +177,11 @@ export class CPSTransformer extends ParseTreeTransformer {
     var machine = this.transformStatementList_(transformedTree.statements);
 
     this.restoreLabels_(oldLabels);
+
+    if (machine) {
+      machine = simplifyMachine(machine);
+    }
+
     return machine == null ? transformedTree : machine;
   }
 
@@ -1294,32 +1299,6 @@ export class CPSTransformer extends ParseTreeTransformer {
   }
 
   /**
-   * Returns a new state machine which will run head, then run tail.
-   * @param {StateMachine} head
-   * @param {StateMachine} tail
-   * @return {StateMachine}
-   */
-  createSequence_(head, tail) {
-    var states = [...head.states];
-    for (var i = 0; i < tail.states.length; i++) {
-      var tailState = tail.states[i];
-      states.push(
-          tailState.replaceState(tail.startState, head.fallThroughState));
-    }
-
-    var exceptionBlocks = [...head.exceptionBlocks];
-    for (var i = 0; i < tail.exceptionBlocks.length; i++) {
-      var tryState = tail.exceptionBlocks[i];
-      exceptionBlocks.push(
-          tryState.replaceState(tail.startState, head.fallThroughState));
-    }
-
-    return new StateMachine(head.startState, tail.fallThroughState,
-                            states, exceptionBlocks);
-  }
-
-
-  /**
    * transforms break/continue statements and their parents to state machines
    * @param {ParseTree} maybeTransformedStatement
    * @return {ParseTree}
@@ -1386,4 +1365,68 @@ export class CPSTransformer extends ParseTreeTransformer {
 
     return this.transformStatementList_(maybeTransformedStatements);
   }
+}
+
+
+function simplifyMachine(machine) {
+  var sourceToDestination = {};
+  var destinationToSources = {};
+  var stateMap = {};
+  machine.states.forEach((source) => {
+    stateMap[source.id] = source;
+    var destinations = source.getDestinationStates();
+    console.log(source.id, '->', destinations);
+    sourceToDestination[source.id] = destinations;
+    destinations.forEach((destination) => {
+      var sources = destinationToSources[destination];
+      if (!sources) {
+        sources = destinationToSources[destination] = [];
+      }
+      if (sources.indexOf(source.id) === -1)
+        sources.push(source.id);
+    });
+  });
+
+
+  for (var i = 0; i < machine.states.length; i++) {
+    var state = machine.states[i];
+    if (!(state instanceof FallThroughState))
+      continue;
+    var destinations = state.getDestinationStates();
+    if (destinations.length !== 1)
+      continue;
+    var destination = stateMap[destinations[0]];
+    if (destination === undefined)
+      continue;
+    if (!(destination instanceof FallThroughState))
+      continue;
+    var sourcesInToDestination = destinationToSources[destinations[0]];
+    if (sourcesInToDestination.length !== 1)
+      continue;
+    if (sourcesInToDestination[0] !== state.id)
+      continue;
+    machine = mergeStates(machine, state, destination);
+    return simplifyMachine(machine);
+  }
+
+
+  return machine;
+}
+
+function mergeStates(machine, first, second) {
+  assert(first instanceof FallThroughState);
+  assert(second instanceof FallThroughState);
+  var newState = new FallThroughState(first.id, second.fallThroughState,
+      [...first.statements, ...second.statements]);
+
+  var states = machine.states.filter((state) => {
+    return state !== first && state !== second;
+  });
+  states.push(newState);
+  return new StateMachine(
+      machine.startState,
+      machine.fallThroughState,
+      states,
+      machine.exceptionBlocks);
+
 }

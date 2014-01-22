@@ -69,4 +69,8 @@ export class YieldState extends State {
       parseStatement `return ${this.expression}`,
     ];
   }
+
+  getDestinationStates() {
+    return [this.fallThroughState];
+  }
 }
