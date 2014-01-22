@@ -14,12 +14,14 @@
 
 import {CPSTransformer} from './CPSTransformer';
 import {EndState} from './EndState';
+import {AwaitState} from './AwaitState';
 import {FallThroughState} from './FallThroughState';
 import {STATE_MACHINE} from '../../syntax/trees/ParseTreeType';
 import {
   parseStatement,
   parseStatements
 } from '../PlaceholderParser';
+import {State} from './State';
 import {StateMachine} from '../../syntax/trees/StateMachine';
 import {VAR} from '../../syntax/TokenType';
 import {
@@ -39,14 +41,10 @@ import {
  * {
  *   var $that = this;
  *   machine variables
- *   var $value;
- *   var $err;
  *   var $continuation = machineMethod;
- *   var $resolve, $reject;
  *   var $result = new Promise(...);
- *   var $waitTask;
- *   var $createCallback = function(newState) { function (value) { $state = newState; $value = value; $continuation(); }}
- *   var $createErrback = function(newState) { function (err) { $state = newState; $err = err; $continuation(); }}
+ *   var $createCallback = function(newState) { function (value) { $ctx.state = newState; $ctx.value = value; $continuation(); }}
+ *   var $createErrback = function(newState) { function (err) { $ctx.state = newState; $ctx.err = err; $continuation(); }}
  *   $continuation();
  *   return $result;
  * }
@@ -76,32 +74,24 @@ export class AsyncTransformer extends CPSTransformer {
     var states = [];
     var expression = this.transformAny(tree.expression);
     //  case createTaskState:
-    //    $waitTask = expression;
-    //    $waitTask.then($createCallback(callbackState), $createErrback(errbackState));
-    //    return;
-    states.push(new FallThroughState(createTaskState, callbackState,
-        parseStatements
-            `$waitTask = ${expression};
-            $waitTask.then($createCallback(${callbackState}),
-                           $createErrback(${errbackState}));
-            return`));
+    states.push(new AwaitState(createTaskState, callbackState, errbackState,
+                               expression));
 
     //  case callbackState:
-    //    identifier = $value;
-    //    $state = fallThroughState;
+    //    identifier = $ctx.value;
+    //    $ctx.state = fallThroughState;
     //    break;
     var assignment;
-    if (tree.identifier != null) {
-      assignment = createStatementList(
-          parseStatement `${tree.identifier} = $value`);
-    } else {
+    if (tree.identifier != null)
+      assignment = parseStatements `${tree.identifier} = $ctx.value`;
+    else
       assignment = createStatementList();
-    }
+
     states.push(new FallThroughState(callbackState, fallThroughState, assignment));
     //  case errbackState:
-    //    throw $err;
+    //    throw $ctx.err;
     states.push(new FallThroughState(errbackState, fallThroughState, createStatementList(
-        parseStatement `throw $err`)));
+        parseStatement `throw $ctx.err`)));
 
     return new StateMachine(createTaskState, fallThroughState, states, []);
   }
@@ -133,7 +123,7 @@ export class AsyncTransformer extends CPSTransformer {
     var startState = this.allocateState();
     var endState = this.allocateState();
     var completeState = new FallThroughState(startState, endState,
-        // $result.callback(result);
+        // $ctx.result.callback(result);
         createStatementList(this.createCompleteTask_(result)));
     var end = new EndState(endState);
     return new StateMachine(
@@ -150,7 +140,7 @@ export class AsyncTransformer extends CPSTransformer {
    * @return {ParseTree}
    */
   createCompleteTask_(result) {
-    return parseStatement `$resolve(${result})`;
+    return parseStatement `$ctx.resolve(${result})`;
   }
 
   /**
@@ -177,41 +167,17 @@ export class AsyncTransformer extends CPSTransformer {
     }
     var machine = transformedTree;
 
+    if (machine.startState !== State.START_STATE)
+      machine = machine.replaceStateId(machine.startState, State.START_STATE);
+
     var statements = [
       // lifted machine variables
       ...this.getMachineVariables(tree, machine),
       ...parseStatements
           `var $that = this, $arguments = arguments,
-              $value, $err, $waitTask, $resolve,
-              $reject,
-              $result = new Promise(function(resolve, reject) {
-                $resolve = resolve;
-                $reject = reject;
-              }),
-              $G = {
-                GState: 0,
-                current: undefined,
-                yieldReturn: undefined,
-                innerFunction: ${this.generateMachineInnerFunction(machine)},
-                moveNext: ${this.generateMachineMethod(machine)}
-              },
-              $continuation = $G.moveNext.bind($G),
-              $createCallback = function(newState) {
-                return function (value) {
-                  $state = newState;
-                  $value = value;
-                  $continuation();
-                };
-              },
-              $createErrback = function(newState) {
-                return function (err) {
-                  $state = newState;
-                  $err = err;
-                  $continuation();
-                };
-              };
-              $continuation();
-              return $result`
+              innerFunction = ${this.generateMachineInnerFunction(machine)},
+              moveNext = ${this.generateMachineMethod(machine)};
+          return $traceurRuntime.asyncWrap(moveNext)`
     ];
 
     return createFunctionBody(statements);
@@ -239,8 +205,8 @@ export class AsyncTransformer extends CPSTransformer {
    * @return {Array.<ParseTree>}
    */
   machineFallThroughStatements(machineEndState) {
-    // $waitTask.callback(undefined);
-    // $state = machineEndState;
+    // $ctx.waitTask.callback(undefined);
+    // $ctx.state = machineEndState;
     // break;
     return createStatementList(
         this.createCompleteTask_(createUndefinedExpression()),
@@ -254,8 +220,8 @@ export class AsyncTransformer extends CPSTransformer {
    */
   machineRethrowStatements(machineEndState) {
     return createStatementList(
-        parseStatement `$reject($storedException)`,
-        // $state = machineEndState
+        parseStatement `$ctx.reject($ctx.storedException)`,
+        // $ctx.state = machineEndState
         createAssignStateStatement(machineEndState),
         // break;
         createBreakStatement());

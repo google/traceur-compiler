@@ -402,6 +402,7 @@
   var ST_EXECUTING = 1;
   var ST_SUSPENDED = 2;
   var ST_CLOSED = 3;
+
   var ACTION_SEND = 0;
   var ACTION_THROW = 1;
 
@@ -412,10 +413,14 @@
     }));
   }
 
-  function generatorWrap(generator) {
+  function generatorWrap(moveNext) {
+    var ctx = {
+      state: 0,
+      GState: 0
+    };
     return addIterator({
       next: function(x) {
-        switch (generator.GState) {
+        switch (ctx.GState) {
           case ST_EXECUTING:
             throw new Error('"next" on executing generator');
           case ST_CLOSED:
@@ -426,36 +431,69 @@
             }
             // fall through
           case ST_SUSPENDED:
-            generator.GState = ST_EXECUTING;
-            if (generator.moveNext(x, ACTION_SEND)) {
-              generator.GState = ST_SUSPENDED;
-              return {value: generator.current, done: false};
+            ctx.GState = ST_EXECUTING;
+            ctx.action = ACTION_SEND;
+            ctx.sent = x;
+            var value = moveNext(ctx);
+            if (value !== ctx) {
+              ctx.GState = ST_SUSPENDED;
+              return {value: value, done: false};
             }
-            generator.GState = ST_CLOSED;
-            return {value: generator.yieldReturn, done: true};
+            ctx.GState = ST_CLOSED;
+            return {value: ctx.returnValue, done: true};
         }
       },
 
       throw: function(x) {
-        switch (generator.GState) {
+        switch (ctx.GState) {
           case ST_EXECUTING:
             throw new Error('"throw" on executing generator');
           case ST_CLOSED:
             throw new Error('"throw" on closed generator');
           case ST_NEWBORN:
-            generator.GState = ST_CLOSED;
+            ctx.GState = ST_CLOSED;
             throw x;
           case ST_SUSPENDED:
-            generator.GState = ST_EXECUTING;
-            if (generator.moveNext(x, ACTION_THROW)) {
-              generator.GState = ST_SUSPENDED;
-              return {value: generator.current, done: false};
+            ctx.GState = ST_EXECUTING;
+            ctx.action = ACTION_THROW;
+            ctx.sent = x;
+            var value = moveNext(ctx);
+            if (value !== ctx) {
+              ctx.GState = ST_SUSPENDED;
+              return {value: value, done: false};
             }
-            generator.GState = ST_CLOSED;
-            return {value: generator.yieldReturn, done: true};
+            ctx.GState = ST_CLOSED;
+            return {value: ctx.returnValue, done: true};
         }
       }
     });
+  }
+
+  function asyncWrap(moveNext) {
+    var ctx = {
+      state: 0,
+      GState: 0,
+      createCallback: function(newState) {
+        return function (value) {
+          ctx.state = newState;
+          ctx.value = value;
+          moveNext(ctx);
+        };
+      },
+      createErrback: function(newState) {
+        return function (err) {
+          ctx.state = newState;
+          ctx.err = err;
+          moveNext(ctx);
+        };
+      }
+    };
+    ctx.result = new Promise(function(resolve, reject) {
+            ctx.resolve = resolve;
+            ctx.reject = reject;
+          });
+    moveNext(ctx);
+    return ctx.result;
   }
 
 
@@ -468,6 +506,7 @@
   setupGlobals(global);
 
   global.$traceurRuntime = {
+    asyncWrap: asyncWrap,
     createClass: createClass,
     defaultSuperCall: defaultSuperCall,
     exportStar: exportStar,

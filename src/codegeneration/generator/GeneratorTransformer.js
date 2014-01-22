@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import {CPSTransformer} from './CPSTransformer';
-import {STORED_EXCEPTION} from '../../syntax/PredefinedName';
 import {
   STATE_MACHINE,
   YIELD_EXPRESSION
@@ -24,6 +23,7 @@ import {
 } from '../PlaceholderParser';
 import {FallThroughState} from './FallThroughState';
 import {ReturnState} from './ReturnState';
+import {State} from './State';
 import {StateMachine} from '../../syntax/trees/StateMachine';
 import {YieldState} from './YieldState';
 import {
@@ -49,7 +49,6 @@ var ST_NEWBORN = 0;
 var ST_EXECUTING = 1;
 var ST_SUSPENDED = 2;
 var ST_CLOSED = 3;
-var GSTATE = 'GState';
 
 /**
  * Desugars generator function bodies. Generator function bodies contain
@@ -156,13 +155,7 @@ export class GeneratorTransformer extends CPSTransformer {
    */
   convertFunctionBodyToStateMachine_(tree) {
     var startState = this.allocateState();
-    var fallThroughState;
-
-    // If the body is empty the start and fallThrough are the same.
-    if (tree.statements.length === 0)
-      fallThroughState = startState;
-    else
-      fallThroughState = this.allocateState();
+    var fallThroughState = this.allocateState();
 
     return this.stateToStateMachine_(
         new FallThroughState(startState, fallThroughState, tree.statements),
@@ -197,17 +190,18 @@ export class GeneratorTransformer extends CPSTransformer {
     // If the FunctionBody has no yield or return no state machine got created
     // in the above transformation. We therefore convert it below.
     var machine;
-    if (transformedTree.type !== STATE_MACHINE)
+    if (transformedTree.type !== STATE_MACHINE) {
       machine = this.convertFunctionBodyToStateMachine_(transformedTree);
-    else
+    } else {
       machine = transformedTree;
+      machine = new StateMachine(machine.startState,
+                                 machine.fallThroughState,
+                                 this.removeEmptyStates(machine.states),
+                                 machine.exceptionBlocks);
+    }
 
-    // TODO(arv): This is broken if removeEmptyStates removes the start or the
-    // fallThrough state.
-    machine = new StateMachine(machine.startState,
-                               machine.fallThroughState,
-                               this.removeEmptyStates(machine.states),
-                               machine.exceptionBlocks);
+    if (machine.startState !== State.START_STATE)
+      machine = machine.replaceStateId(machine.startState, State.START_STATE);
 
     // TODO(arv): Simplify for the common case where there is no try/catch?
     // https://code.google.com/p/traceur-compiler/issues/detail?id=110
@@ -218,14 +212,9 @@ export class GeneratorTransformer extends CPSTransformer {
       ...this.getMachineVariables(tree, machine),
       ...parseStatements
           `var $that = this, $arguments = arguments,
-              $G = {
-                GState: ${ST_NEWBORN},
-                current: undefined,
-                yieldReturn: undefined,
-                innerFunction: ${this.generateMachineInnerFunction(machine)},
-                moveNext: ${this.generateMachineMethod(machine)}
-              };
-          return $traceurRuntime.generatorWrap($G);`
+              innerFunction = ${this.generateMachineInnerFunction(machine)},
+              moveNext = ${this.generateMachineMethod(machine)};
+          return $traceurRuntime.generatorWrap(moveNext);`
     ];
 
     return createFunctionBody(statements);
@@ -237,12 +226,10 @@ export class GeneratorTransformer extends CPSTransformer {
    * @return {Array.<ParseTree>}
    */
   machineUncaughtExceptionStatements(rethrowState, machineEndState) {
-    return createStatementList(
-        createAssignmentStatement(
-            createMemberExpression(createThisExpression(), GSTATE),
-            createNumberLiteral(ST_CLOSED)),
-        createAssignStateStatement(machineEndState),
-        createThrowStatement(id(STORED_EXCEPTION)));
+    return parseStatements `
+        $ctx.GState = ${ST_CLOSED};
+        ${createAssignStateStatement(machineEndState)};
+        throw $ctx.storedException;`
   }
 
   /**
@@ -250,8 +237,7 @@ export class GeneratorTransformer extends CPSTransformer {
    * @return {Array.<ParseTree>}
    */
   machineRethrowStatements(machineEndState) {
-    return createStatementList(
-        createThrowStatement(id(STORED_EXCEPTION)));
+    return parseStatements `throw $ctx.storedException`;
   }
 
   /**
@@ -264,7 +250,7 @@ export class GeneratorTransformer extends CPSTransformer {
 
   /** @return {Array.<ParseTree>} */
   machineEndStatements() {
-    return [createReturnStatement(createFalseLiteral())];
+    return parseStatements `return $ctx`;
   }
 
   /**
@@ -273,7 +259,6 @@ export class GeneratorTransformer extends CPSTransformer {
    * @return {Block}
    */
   static transformGeneratorBody(reporter, body) {
-    return new GeneratorTransformer(reporter).
-        transformGeneratorBody(body);
+    return new GeneratorTransformer(reporter).transformGeneratorBody(body);
   }
 };
