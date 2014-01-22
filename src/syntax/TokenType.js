@@ -17,6 +17,7 @@ export var AMPERSAND = '&';
 export var AMPERSAND_EQUAL = '&=';
 export var AND = '&&';
 export var ARROW = '=>';
+export var AT = '@';
 export var AWAIT = 'await';
 export var BACK_QUOTE = '`';
 export var BANG = '!';

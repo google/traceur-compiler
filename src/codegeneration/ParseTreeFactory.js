@@ -226,7 +226,7 @@ export function createBindingElement(arg) {
  * @return {FormalParameter}
  */
 export function createFormalParameter(arg) {
-  return new FormalParameter(null, createBindingElement(arg), null);
+  return new FormalParameter(null, createBindingElement(arg), null, []);
 }
 
 /**
@@ -270,7 +270,7 @@ function createParameterListHelper(numberOfParameters, hasRestParams) {
     var isRestParameter = index == numberOfParameters - 1 && hasRestParams;
     builder.push(
         isRestParameter ?
-            new FormalParameter(null, createRestParameter(parameterName), null) :
+            new FormalParameter(null, createRestParameter(parameterName), null, []) :
             createFormalParameter(parameterName));
   }
 
@@ -551,7 +551,7 @@ export function createCatch(identifier, catchBody) {
  * @return {ClassDeclaration}
  */
 export function createClassDeclaration(name, superClass, elements) {
-  return new ClassDeclaration(null, name, superClass, elements);
+  return new ClassDeclaration(null, name, superClass, elements, []);
 }
 
 /**
@@ -669,7 +669,7 @@ export function createForStatement(variables, condition, increment, body) {
 export function createFunctionExpression(formalParameterList, body) {
   assert(body.type === 'FUNCTION_BODY');
   return new FunctionExpression(null, null, false,
-                                formalParameterList, null, body);
+                                formalParameterList, null, [], body);
 }
 
 // get name () { ... }
@@ -682,7 +682,7 @@ export function createGetAccessor(name, body) {
   if (typeof name == 'string')
     name = createPropertyNameToken(name);
   var isStatic = false;
-  return new GetAccessor(null, isStatic, name, null, body);
+  return new GetAccessor(null, isStatic, name, null, [], body);
 }
 
 /**
@@ -769,18 +769,25 @@ export function createNumberLiteral(value) {
 }
 
 /**
+ * Creates 'operand.memberName' or 'operand[memberName]' if memberName
+ * is a LiteralToken or LiteralExpression.
+ *
  * @param {string|IdentifierToken|ParseTree} operand
- * @param {string|IdentifierToken} memberName
+ * @param {string|IdentifierToken|LiteralToken|LiteralExpression} memberName
  * @param {...string|IdentifierToken} memberNames
- * @return {MemberExpression}
+ * @return {MemberExpression|MemberLookupExpression}
  */
 export function createMemberExpression(operand, memberName, memberNames) {
   if (typeof operand == 'string' || operand instanceof IdentifierToken)
     operand = createIdentifierExpression(operand);
   if (typeof memberName == 'string')
     memberName = createIdentifierToken(memberName);
+  if (memberName instanceof LiteralToken)
+    memberName = new LiteralExpression(null, memberName);
 
-  var tree = new MemberExpression(null, operand, memberName);
+  var tree = memberName instanceof LiteralExpression ?
+      new MemberLookupExpression(null, operand, memberName) :
+      new MemberExpression(null, operand, memberName);
   for (var i = 2; i < arguments.length; i++) {
     tree = createMemberExpression(tree, arguments[i]);
   }
@@ -1003,7 +1010,7 @@ export function createSetAccessor(name, parameter, body) {
   if (typeof parameter == 'string')
     parameter = createIdentifierToken(parameter);
   var isStatic = false;
-  return new SetAccessor(null, isStatic, name, parameter, body);
+  return new SetAccessor(null, isStatic, name, parameter, [], body);
 }
 
 /**
