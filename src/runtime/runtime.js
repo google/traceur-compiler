@@ -423,14 +423,24 @@
     this.tryStack_ = [];
   }
   Context.prototype = {
-    pushTry: function(tryState, finallyState, finallyFallThrough) {
-      this.tryStack_.push([tryState, finallyState, finallyFallThrough]);
+    pushTry: function(catchState, finallyState, finallyFallThrough) {
+      if (finallyState !== null) {
+        this.tryStack_.push({finally: finallyState});
+      }
+
+      if (catchState !== null) {
+        this.tryStack_.push({catch: catchState});
+      }
+
+      // this.tryStack_.push([catchState, finallyState, finallyFallThrough]);
     },
     popCatch: function() {
-      console.log('popCatch', this.tryStack_);
+      var catchState = this.tryStack_.pop().catch;
+      console.log('popCatch', catchState);
     },
     popFinally: function() {
-      console.log('popFinally', this.tryStack_);
+      var finallyState = this.tryStack_.pop().finally;
+      console.log('popFinally', finallyState);
     }
   };
 

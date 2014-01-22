@@ -644,23 +644,26 @@ export class CPSTransformer extends ParseTreeTransformer {
     var outerFinallyState = this.allocateState();
     var outerFinallyFallThroughState = this.allocateState()
 
-    var pushState = this.statementToStateMachine_(
+    var pushTryState = this.statementToStateMachine_(
         parseStatement `$ctx.pushTry(
-            ${outerCatchState},
-            ${outerFinallyState},
+            ${result.catchBlock && outerCatchState},
+            ${result.finallyBlock && outerFinallyState},
             ${outerFinallyFallThroughState});`);
 
     var tryMachine = this.ensureTransformed_(result.body);
-    tryMachine = pushState.append(tryMachine);
+    tryMachine = pushTryState.append(tryMachine);
 
-    var popCatchState = this.statementToStateMachine_(
-        parseStatement `$ctx.popCatch();`);
-    tryMachine = tryMachine.append(popCatchState);
+    if (result.catchBlock !== null) {
+      var popCatchState = this.statementToStateMachine_(
+          parseStatement `$ctx.popCatch();`);
+      tryMachine = tryMachine.append(popCatchState);
+    }
 
     if (result.catchBlock != null) {
       var catchBlock = result.catchBlock;
       var exceptionName = catchBlock.binding.identifierToken.value;
-      var catchMachine = this.ensureTransformed_(catchBlock.catchBody);
+      var catchMachine =
+          this.ensureTransformed_(catchBlock.catchBody);
       var startState = tryMachine.startState;
       var fallThroughState = tryMachine.fallThroughState;
 
@@ -696,9 +699,14 @@ export class CPSTransformer extends ParseTreeTransformer {
     }
     if (result.finallyBlock != null) {
       var finallyBlock = result.finallyBlock;
-      var finallyMachine = this.ensureTransformed_(finallyBlock.block);
+      var finallyMachine =
+          this.ensureTransformed_(finallyBlock.block);
       var startState = tryMachine.startState;
       var fallThroughState = tryMachine.fallThroughState;
+
+      var popFinallyState = this.statementToStateMachine_(
+          parseStatement `$ctx.popFinally();`);
+      finallyMachine = popFinallyState.append(finallyMachine);
 
       var states = [
         ...tryMachine.states,
@@ -718,6 +726,9 @@ export class CPSTransformer extends ParseTreeTransformer {
               finallyMachine.fallThroughState,
               tryMachine.getAllStateIDs(),
               tryMachine.exceptionBlocks)]);
+
+      tryMachine = tryMachine.replaceStateId(finallyMachine.startState,
+                                             outerFinallyState);
     }
 
     return tryMachine;
@@ -1369,6 +1380,9 @@ export class CPSTransformer extends ParseTreeTransformer {
 
 
 function simplifyMachine(machine) {
+  // We need to take exceptionBlocks into account too.
+  return machine;
+
   var sourceToDestination = {};
   var destinationToSources = {};
   var stateMap = {};
@@ -1419,14 +1433,17 @@ function mergeStates(machine, first, second) {
   var newState = new FallThroughState(first.id, second.fallThroughState,
       [...first.statements, ...second.statements]);
 
-  var states = machine.states.filter((state) => {
-    return state !== first && state !== second;
-  });
-  states.push(newState);
+  var states = [];
+  for (var i = 0; i < machine.states.length; i++) {
+    if (machine.states[i] === first)
+      states.push(newState);
+    else if (machine.states[i] !== second)
+      states.push(machine.states[i]);
+  }
+
   return new StateMachine(
       machine.startState,
       machine.fallThroughState,
       states,
       machine.exceptionBlocks);
-
 }
