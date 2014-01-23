@@ -10035,7 +10035,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.14/src/syntax/Scanner", 
   }
   function skipRegularExpressionBackslashSequence() {
     next();
-    if (isLineTerminator(currentCharCode)) {
+    if (isLineTerminator(currentCharCode) || isAtEnd()) {
       reportError('New line not allowed in regular expression literal');
       return false;
     }
