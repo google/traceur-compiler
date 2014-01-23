@@ -77,6 +77,7 @@ export class ModuleTransformer extends TempVarTransformer {
 
     var statements = [
       createUseStrictDirective(),
+      parseStatement `var __moduleName = ${this.moduleName};`,
       ...this.transformList(tree.scriptItemList),
       this.createExportStatement()
     ];
@@ -136,7 +137,7 @@ export class ModuleTransformer extends TempVarTransformer {
 
   createExportStatement() {
     var object = createObjectLiteralExpression(this.getExportProperties());
-    
+
     if (this.exportVisitor_.starExports.length) {
       var starExports = this.exportVisitor_.starExports;
       var starIdents = starExports.map((moduleSpecifier) => {
