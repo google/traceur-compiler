@@ -113,8 +113,14 @@ State.generateJump = function(enclosingFinally, fallThroughState) {
  * @return {Array.<ParseTree>}
  */
 State.generateJumpThroughFinally = function(finallyState, destination) {
+  var log = parseStatement
+      `console.log($ctx.tryStack_[$ctx.tryStack_.length - 1],
+                   'finallyState:', ${finallyState},
+                   'destination:', ${destination})`;
+
   return createStatementList(
-      State.generateAssignStateOutOfFinally_(destination, finallyState),
+      log,
+      ...State.generateAssignStateOutOfFinally_(destination, finallyState),
       createBreakStatement());
 };
 

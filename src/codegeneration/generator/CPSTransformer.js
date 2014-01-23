@@ -642,13 +642,13 @@ export class CPSTransformer extends ParseTreeTransformer {
 
     var outerCatchState = this.allocateState();
     var outerFinallyState = this.allocateState();
-    var outerFinallyFallThroughState = this.allocateState()
+    // var outerFinallyFallThroughState = this.allocateState();
 
     var pushTryState = this.statementToStateMachine_(
         parseStatement `$ctx.pushTry(
             ${result.catchBlock && outerCatchState},
             ${result.finallyBlock && outerFinallyState},
-            ${outerFinallyFallThroughState});`);
+            ${result.catchBlock && outerCatchState});`);
 
     var tryMachine = this.ensureTransformed_(result.body);
     tryMachine = pushTryState.append(tryMachine);
@@ -697,6 +697,7 @@ export class CPSTransformer extends ParseTreeTransformer {
 
       tryMachine = tryMachine.replaceStateId(catchStart, outerCatchState);
     }
+
     if (result.finallyBlock != null) {
       var finallyBlock = result.finallyBlock;
       var finallyMachine =
@@ -715,8 +716,7 @@ export class CPSTransformer extends ParseTreeTransformer {
       ];
 
       // NOTE: finallyMachine.fallThroughState == FinallyState.fallThroughState
-      // is code generated
-      // NOTE: in addFinallyFallThroughDispatches
+      // is code generated in addFinallyFallThroughDispatches
       tryMachine = new StateMachine(
           startState,
           fallThroughState,
@@ -964,7 +964,14 @@ export class CPSTransformer extends ParseTreeTransformer {
 
       catchStatements = parseStatements `
           $ctx.storedException = ex;
-          ${switchStatement}`;
+          ${switchStatement};
+          $ctx.tryStack_[$ctx.tryStack_.length];
+          var last = $ctx.tryStack_[$ctx.tryStack_.length - 1];
+          var nextStateFromStack = last.catch !== undefined ? last.catch : last.finally;
+          console.assert($ctx.state === nextStateFromStack);
+          if (last.finallyFallThrough != null)
+            console.assert($ctx.finallyFallThrough === last.finallyFallThrough);
+          `;
 
     } else {
       catchStatements = parseStatements `
@@ -976,6 +983,21 @@ export class CPSTransformer extends ParseTreeTransformer {
     return parseStatement `try {
       return innerFunction($ctx);
     } catch (ex) {
+      $ctx.storedException = ex;
+      var last = $ctx.tryStack_[$ctx.tryStack_.length - 1];
+      // if (!last) {
+      //   $ctx.GState = ${ST_CLOSED};
+      //   $ctx.state = ${State.END_STATE};
+      //   throw ex;
+      // }
+      // if (last.catch !== undefined) {
+      //   $ctx.state = last.catch;
+      // } else {
+      //   $ctx.state = last.finallyBlock
+      //   $ctx.finallyFallThrough = last.finallyFallThrough;
+      // }
+      // var nextStateFromStack = last.catch !== undefined ? last.catch : last.finally;
+      // $ctx.state = nextStateFromStack;
       ${catchStatements}
     }`;
   }
@@ -1037,7 +1059,7 @@ export class CPSTransformer extends ParseTreeTransformer {
         continue;
 
       if (catchState != null && finallyState != null &&
-          catchState.tryStates.indexOf(finallyState.finallyState) >= 0) {
+          catchState.tryStates.indexOf(finallyState.finallyState) !== -1) {
         // we have:
         //   try { try { ... } finally {} } catch (e) {}
         //
@@ -1053,6 +1075,11 @@ export class CPSTransformer extends ParseTreeTransformer {
                     finallyState.finallyState,
                     catchState.catchState)));
       } else if (catchState != null) {
+
+        var log = parseStatement
+            `console.log($ctx.tryStack_[$ctx.tryStack_.length - 1],
+                         '$ctx.state = ', ${catchState.catchState})`;
+
         // we have:
         //   try { ... } catch (e) {}
         // Generate:
@@ -1063,6 +1090,7 @@ export class CPSTransformer extends ParseTreeTransformer {
             createCaseClause(
                 createNumberLiteral(state),
                 createStatementList(
+                    log,
                     createAssignStateStatement(catchState.catchState),
                     createBreakStatement())));
       } else if (finallyState != null) {
@@ -1252,7 +1280,7 @@ export class CPSTransformer extends ParseTreeTransformer {
             } else {
               statements = parseStatements `
                   $ctx.state = $ctx.finallyFallThrough;
-                  $ctx.FinallyFallThroughState = ${State.INVALID_STATE};
+                  $ctx.finallyFallThrough = ${State.INVALID_STATE};
                   break;`
             }
             caseClauses.push(

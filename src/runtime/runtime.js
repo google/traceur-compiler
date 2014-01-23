@@ -423,9 +423,19 @@
     this.tryStack_ = [];
   }
   Context.prototype = {
-    pushTry: function(catchState, finallyState, finallyFallThrough) {
+    pushTry: function(catchState, finallyState) {
       if (finallyState !== null) {
-        this.tryStack_.push({finally: finallyState});
+        var finallyFallThrough = null;
+        for (var i = this.tryStack_.length - 1; i >= 0; i--) {
+          if (this.tryStack_[i].catch !== undefined) {
+            finallyFallThrough = this.tryStack_[i].catch;
+            break;
+          }
+        }
+        this.tryStack_.push({
+          finally: finallyState,
+          finallyFallThrough: finallyFallThrough
+        });
       }
 
       if (catchState !== null) {
@@ -439,8 +449,8 @@
       console.log('popCatch', catchState);
     },
     popFinally: function() {
-      var finallyState = this.tryStack_.pop().finally;
-      console.log('popFinally', finallyState);
+      var finallyState = this.tryStack_.pop();
+      console.log('popFinally', finallyState.finally, finallyState.finallyFallThrough);
     }
   };
 
