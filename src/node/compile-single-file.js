@@ -32,7 +32,7 @@ function compileSingleFile(inputFilePath, outputFilePath) {
     var sourceFile = new SourceFile(inputFilePath, contents);
     var parser = new Parser(reporter, sourceFile);
     var tree = parser.parseModule();
-    var moduleName = inputFilePath.replace(/\.js$/, '');
+    var moduleName = inputFilePath.replace(/\.js$/, '').replace(/\\/g,'/');
     moduleName = path.relative(__dirname, moduleName);
     var transformer = new AttachModuleNameTransformer(moduleName);
     tree = transformer.transformAny(tree);

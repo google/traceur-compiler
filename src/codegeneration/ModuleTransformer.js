@@ -77,7 +77,7 @@ export class ModuleTransformer extends TempVarTransformer {
 
     var statements = [
       createUseStrictDirective(),
-      parseStatement `var __module_name = ${this.moduleName};`,
+      parseStatement `var __moduleName = ${this.moduleName};`,
       ...this.transformList(tree.scriptItemList),
       this.createExportStatement()
     ];
