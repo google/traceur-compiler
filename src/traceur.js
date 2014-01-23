@@ -73,6 +73,7 @@ export var outputgeneration = {
 };
 
 import {AmdTransformer} from './codegeneration/AmdTransformer';
+import {AttachModuleNameTransformer} from './codegeneration/module/AttachModuleNameTransformer';
 import {CloneTreeTransformer} from './codegeneration/CloneTreeTransformer';
 import {CommonJsModuleTransformer} from './codegeneration/CommonJsModuleTransformer';
 import {FromOptionsTransformer} from './codegeneration/FromOptionsTransformer';
@@ -83,6 +84,7 @@ module ParseTreeFactory from './codegeneration/ParseTreeFactory';
 
 export var codegeneration = {
   AmdTransformer,
+  AttachModuleNameTransformer,
   CloneTreeTransformer,
   CommonJsModuleTransformer,
   FromOptionsTransformer,
