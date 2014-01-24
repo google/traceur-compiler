@@ -183,17 +183,6 @@ export class AsyncTransformer extends CPSTransformer {
     return createFunctionBody(statements);
   }
 
-  /**
-   * @param {number} rethrowState
-   * @param {number} machineEndState
-   * @return {Array.<ParseTree>}
-   */
-  machineUncaughtExceptionStatements(rethrowState, machineEndState) {
-    return createStatementList(
-        createAssignStateStatement(rethrowState),
-        createBreakStatement());
-  }
-
   /** @return {Array.<ParseTree>} */
   machineEndStatements() {
     // return;

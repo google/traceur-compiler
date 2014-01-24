@@ -948,20 +948,8 @@ export class CPSTransformer extends ParseTreeTransformer {
       this.addExceptionCases_(State.RETHROW_STATE, enclosingFinallyState,
                               enclosingCatchState, machine.states,
                               caseClauses);
-      //   default:
-      //     throw $ctx.storedException;
-      caseClauses.push(
-          createDefaultClause(
-              this.machineUncaughtExceptionStatements(State.RETHROW_STATE,
-                                                      State.END_STATE)));
-
-      var switchStatement =
-          createSwitchStatement(
-              createMemberExpression('$ctx', 'state'),
-              caseClauses);
 
       catchStatements = parseStatements `
-          // var oldFinallyFallThrough = $ctx.finallyFallThrough;
           $ctx.storedException = ex;
           var last = $ctx.tryStack_[$ctx.tryStack_.length - 1];
 
@@ -971,22 +959,11 @@ export class CPSTransformer extends ParseTreeTransformer {
             throw ex;
           }
 
-          // ${switchStatement};
-          
           var nextStateFromStack = last.catch !== undefined ? last.catch : last.finally;
-          // console.assert($ctx.state === nextStateFromStack);
           $ctx.state = nextStateFromStack;
 
           if (last.finallyFallThrough !== undefined)
             $ctx.finallyFallThrough = last.finallyFallThrough;
-          // if ($ctx.finallyFallThrough !== last.finallyFallThrough) {
-          //   console.log(oldFinallyFallThrough, $ctx.finallyFallThrough,
-          //               last.finallyFallThrough);
-          // }
-          // if (last.finallyFallThrough != null) {
-            // console.assert($ctx.finallyFallThrough === last.finallyFallThrough);
-            // $ctx.finallyFallThrough = last.finallyFallThrough;
-          // }
           `;
 
     } else {

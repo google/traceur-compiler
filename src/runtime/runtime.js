@@ -444,16 +444,12 @@
       if (catchState !== null) {
         this.tryStack_.push({catch: catchState});
       }
-
-      // this.tryStack_.push([catchState, finallyState, finallyFallThrough]);
     },
     popCatch: function() {
-      var catchState = this.tryStack_.pop().catch;
-      console.log('popCatch', catchState);
+      this.tryStack_.pop();
     },
     popFinally: function() {
-      var finallyState = this.tryStack_.pop();
-      console.log('popFinally', finallyState.finally, finallyState.finallyFallThrough);
+      this.tryStack_.pop();
     }
   };
 

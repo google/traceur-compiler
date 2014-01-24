@@ -221,18 +221,6 @@ export class GeneratorTransformer extends CPSTransformer {
   }
 
   /**
-   * @param {number} rethrowState
-   * @param {number} machineEndState
-   * @return {Array.<ParseTree>}
-   */
-  machineUncaughtExceptionStatements(rethrowState, machineEndState) {
-    return parseStatements `
-        $ctx.GState = ${ST_CLOSED};
-        ${createAssignStateStatement(machineEndState)};
-        throw $ctx.storedException;`
-  }
-
-  /**
    * @param {number} machineEndState
    * @return {Array.<ParseTree>}
    */
