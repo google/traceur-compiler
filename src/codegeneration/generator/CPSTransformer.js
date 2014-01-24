@@ -642,13 +642,11 @@ export class CPSTransformer extends ParseTreeTransformer {
 
     var outerCatchState = this.allocateState();
     var outerFinallyState = this.allocateState();
-    // var outerFinallyFallThroughState = this.allocateState();
 
     var pushTryState = this.statementToStateMachine_(
         parseStatement `$ctx.pushTry(
             ${result.catchBlock && outerCatchState},
-            ${result.finallyBlock && outerFinallyState},
-            ${result.catchBlock && outerCatchState});`);
+            ${result.finallyBlock && outerFinallyState});`);
 
     var tryMachine = this.ensureTransformed_(result.body);
     tryMachine = pushTryState.append(tryMachine);
@@ -963,14 +961,32 @@ export class CPSTransformer extends ParseTreeTransformer {
               caseClauses);
 
       catchStatements = parseStatements `
+          // var oldFinallyFallThrough = $ctx.finallyFallThrough;
           $ctx.storedException = ex;
-          ${switchStatement};
-          $ctx.tryStack_[$ctx.tryStack_.length];
           var last = $ctx.tryStack_[$ctx.tryStack_.length - 1];
+
+          if (!last) {
+            $ctx.GState = ${ST_CLOSED};
+            $ctx.state = ${State.END_STATE};
+            throw ex;
+          }
+
+          // ${switchStatement};
+          
           var nextStateFromStack = last.catch !== undefined ? last.catch : last.finally;
-          console.assert($ctx.state === nextStateFromStack);
-          if (last.finallyFallThrough != null)
-            console.assert($ctx.finallyFallThrough === last.finallyFallThrough);
+          // console.assert($ctx.state === nextStateFromStack);
+          $ctx.state = nextStateFromStack;
+
+          if (last.finallyFallThrough !== undefined)
+            $ctx.finallyFallThrough = last.finallyFallThrough;
+          // if ($ctx.finallyFallThrough !== last.finallyFallThrough) {
+          //   console.log(oldFinallyFallThrough, $ctx.finallyFallThrough,
+          //               last.finallyFallThrough);
+          // }
+          // if (last.finallyFallThrough != null) {
+            // console.assert($ctx.finallyFallThrough === last.finallyFallThrough);
+            // $ctx.finallyFallThrough = last.finallyFallThrough;
+          // }
           `;
 
     } else {
@@ -1417,7 +1433,7 @@ function simplifyMachine(machine) {
   machine.states.forEach((source) => {
     stateMap[source.id] = source;
     var destinations = source.getDestinationStates();
-    console.log(source.id, '->', destinations);
+    // console.log(source.id, '->', destinations);
     sourceToDestination[source.id] = destinations;
     destinations.forEach((destination) => {
       var sources = destinationToSources[destination];

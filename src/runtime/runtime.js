@@ -432,6 +432,9 @@
             break;
           }
         }
+        if (finallyFallThrough === null)
+          finallyFallThrough = -3;
+
         this.tryStack_.push({
           finally: finallyState,
           finallyFallThrough: finallyFallThrough

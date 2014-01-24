@@ -300,6 +300,7 @@
             break;
           }
         }
+        if (finallyFallThrough === null) finallyFallThrough = - 3;
         this.tryStack_.push({
           finally: finallyState,
           finallyFallThrough: finallyFallThrough
@@ -16481,13 +16482,13 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.14/src/codegeneration/ge
 });
 $traceurRuntime.ModuleStore.registerModule("traceur@0.0.14/src/codegeneration/generator/CPSTransformer", function() {
   "use strict";
-  var $__233 = Object.freeze(Object.defineProperties(["$ctx.pushTry(\n            ", ",\n            ", ",\n            ", ");"], {raw: {value: Object.freeze(["$ctx.pushTry(\n            ", ",\n            ", ",\n            ", ");"])}})),
+  var $__233 = Object.freeze(Object.defineProperties(["$ctx.pushTry(\n            ", ",\n            ", ");"], {raw: {value: Object.freeze(["$ctx.pushTry(\n            ", ",\n            ", ");"])}})),
       $__234 = Object.freeze(Object.defineProperties(["$ctx.popCatch();"], {raw: {value: Object.freeze(["$ctx.popCatch();"])}})),
       $__235 = Object.freeze(Object.defineProperties(["\n              $ctx.popCatch();\n              ", " = $ctx.storedException;"], {raw: {value: Object.freeze(["\n              $ctx.popCatch();\n              ", " = $ctx.storedException;"])}})),
       $__236 = Object.freeze(Object.defineProperties(["$ctx.popFinally();"], {raw: {value: Object.freeze(["$ctx.popFinally();"])}})),
       $__237 = Object.freeze(Object.defineProperties(["function($ctx) {\n      while (true) {\n        ", "\n      }\n    }"], {raw: {value: Object.freeze(["function($ctx) {\n      while (true) {\n        ", "\n      }\n    }"])}})),
       $__238 = Object.freeze(Object.defineProperties(["function($ctx) {\n      while (true) ", "\n    }"], {raw: {value: Object.freeze(["function($ctx) {\n      while (true) ", "\n    }"])}})),
-      $__239 = Object.freeze(Object.defineProperties(["\n          $ctx.storedException = ex;\n          ", ";\n          $ctx.tryStack_[$ctx.tryStack_.length];\n          var last = $ctx.tryStack_[$ctx.tryStack_.length - 1];\n          var nextStateFromStack = last.catch !== undefined ? last.catch : last.finally;\n          console.assert($ctx.state === nextStateFromStack);\n          if (last.finallyFallThrough != null)\n            console.assert($ctx.finallyFallThrough === last.finallyFallThrough);\n          "], {raw: {value: Object.freeze(["\n          $ctx.storedException = ex;\n          ", ";\n          $ctx.tryStack_[$ctx.tryStack_.length];\n          var last = $ctx.tryStack_[$ctx.tryStack_.length - 1];\n          var nextStateFromStack = last.catch !== undefined ? last.catch : last.finally;\n          console.assert($ctx.state === nextStateFromStack);\n          if (last.finallyFallThrough != null)\n            console.assert($ctx.finallyFallThrough === last.finallyFallThrough);\n          "])}})),
+      $__239 = Object.freeze(Object.defineProperties(["\n          // var oldFinallyFallThrough = $ctx.finallyFallThrough;\n          $ctx.storedException = ex;\n          var last = $ctx.tryStack_[$ctx.tryStack_.length - 1];\n\n          if (!last) {\n            $ctx.GState = ", ";\n            $ctx.state = ", ";\n            throw ex;\n          }\n\n          // ", ";\n          \n          var nextStateFromStack = last.catch !== undefined ? last.catch : last.finally;\n          // console.assert($ctx.state === nextStateFromStack);\n          $ctx.state = nextStateFromStack;\n\n          if (last.finallyFallThrough !== undefined)\n            $ctx.finallyFallThrough = last.finallyFallThrough;\n          // if ($ctx.finallyFallThrough !== last.finallyFallThrough) {\n          //   console.log(oldFinallyFallThrough, $ctx.finallyFallThrough,\n          //               last.finallyFallThrough);\n          // }\n          // if (last.finallyFallThrough != null) {\n            // console.assert($ctx.finallyFallThrough === last.finallyFallThrough);\n            // $ctx.finallyFallThrough = last.finallyFallThrough;\n          // }\n          "], {raw: {value: Object.freeze(["\n          // var oldFinallyFallThrough = $ctx.finallyFallThrough;\n          $ctx.storedException = ex;\n          var last = $ctx.tryStack_[$ctx.tryStack_.length - 1];\n\n          if (!last) {\n            $ctx.GState = ", ";\n            $ctx.state = ", ";\n            throw ex;\n          }\n\n          // ", ";\n          \n          var nextStateFromStack = last.catch !== undefined ? last.catch : last.finally;\n          // console.assert($ctx.state === nextStateFromStack);\n          $ctx.state = nextStateFromStack;\n\n          if (last.finallyFallThrough !== undefined)\n            $ctx.finallyFallThrough = last.finallyFallThrough;\n          // if ($ctx.finallyFallThrough !== last.finallyFallThrough) {\n          //   console.log(oldFinallyFallThrough, $ctx.finallyFallThrough,\n          //               last.finallyFallThrough);\n          // }\n          // if (last.finallyFallThrough != null) {\n            // console.assert($ctx.finallyFallThrough === last.finallyFallThrough);\n            // $ctx.finallyFallThrough = last.finallyFallThrough;\n          // }\n          "])}})),
       $__240 = Object.freeze(Object.defineProperties(["\n          $ctx.GState = ", ";\n          $ctx.state = ", ";\n          throw ex;"], {raw: {value: Object.freeze(["\n          $ctx.GState = ", ";\n          $ctx.state = ", ";\n          throw ex;"])}})),
       $__241 = Object.freeze(Object.defineProperties(["try {\n      return innerFunction($ctx);\n    } catch (ex) {\n      $ctx.storedException = ex;\n      var last = $ctx.tryStack_[$ctx.tryStack_.length - 1];\n      // if (!last) {\n      //   $ctx.GState = ", ";\n      //   $ctx.state = ", ";\n      //   throw ex;\n      // }\n      // if (last.catch !== undefined) {\n      //   $ctx.state = last.catch;\n      // } else {\n      //   $ctx.state = last.finallyBlock\n      //   $ctx.finallyFallThrough = last.finallyFallThrough;\n      // }\n      // var nextStateFromStack = last.catch !== undefined ? last.catch : last.finally;\n      // $ctx.state = nextStateFromStack;\n      ", "\n    }"], {raw: {value: Object.freeze(["try {\n      return innerFunction($ctx);\n    } catch (ex) {\n      $ctx.storedException = ex;\n      var last = $ctx.tryStack_[$ctx.tryStack_.length - 1];\n      // if (!last) {\n      //   $ctx.GState = ", ";\n      //   $ctx.state = ", ";\n      //   throw ex;\n      // }\n      // if (last.catch !== undefined) {\n      //   $ctx.state = last.catch;\n      // } else {\n      //   $ctx.state = last.finallyBlock\n      //   $ctx.finallyFallThrough = last.finallyFallThrough;\n      // }\n      // var nextStateFromStack = last.catch !== undefined ? last.catch : last.finally;\n      // $ctx.state = nextStateFromStack;\n      ", "\n    }"])}})),
       $__242 = Object.freeze(Object.defineProperties(["console.log($ctx.tryStack_[$ctx.tryStack_.length - 1],\n                         '$ctx.state = ', ", ")"], {raw: {value: Object.freeze(["console.log($ctx.tryStack_[$ctx.tryStack_.length - 1],\n                         '$ctx.state = ', ", ")"])}})),
@@ -16820,7 +16821,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.14/src/codegeneration/ge
       }
       var outerCatchState = this.allocateState();
       var outerFinallyState = this.allocateState();
-      var pushTryState = this.statementToStateMachine_(parseStatement($__233, (result.catchBlock && outerCatchState), (result.finallyBlock && outerFinallyState), (result.catchBlock && outerCatchState)));
+      var pushTryState = this.statementToStateMachine_(parseStatement($__233, (result.catchBlock && outerCatchState), (result.finallyBlock && outerFinallyState)));
       var tryMachine = this.ensureTransformed_(result.body);
       tryMachine = pushTryState.append(tryMachine);
       if (result.catchBlock !== null) {
@@ -16937,7 +16938,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.14/src/codegeneration/ge
         this.addExceptionCases_(State.RETHROW_STATE, enclosingFinallyState, enclosingCatchState, machine.states, caseClauses);
         caseClauses.push(createDefaultClause(this.machineUncaughtExceptionStatements(State.RETHROW_STATE, State.END_STATE)));
         var switchStatement = createSwitchStatement(createMemberExpression('$ctx', 'state'), caseClauses);
-        catchStatements = parseStatements($__239, switchStatement);
+        catchStatements = parseStatements($__239, ST_CLOSED, State.END_STATE, switchStatement);
       } else {
         catchStatements = parseStatements($__240, ST_CLOSED, State.END_STATE);
       }
@@ -17088,7 +17089,6 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.14/src/codegeneration/ge
     machine.states.forEach((function(source) {
       stateMap[source.id] = source;
       var destinations = source.getDestinationStates();
-      console.log(source.id, '->', destinations);
       sourceToDestination[source.id] = destinations;
       destinations.forEach((function(destination) {
         var sources = destinationToSources[destination];
