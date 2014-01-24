@@ -539,7 +539,6 @@
     return ctx.result;
   }
 
-  // TODO(arv): Rename
   function getMoveNext(innerFunction) {
     return function($ctx) {
       while (true) {
@@ -554,8 +553,7 @@
             throw ex;
           }
 
-          var nextStateFromStack = last.catch !== undefined ? last.catch : last.finally;
-          $ctx.state = nextStateFromStack;
+          $ctx.state = last.catch !== undefined ? last.catch : last.finally;
 
           if (last.finallyFallThrough !== undefined)
             $ctx.finallyFallThrough = last.finallyFallThrough;

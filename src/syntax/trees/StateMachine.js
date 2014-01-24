@@ -143,7 +143,6 @@ export class StateMachine extends ParseTree {
         State.replaceAllStates(this.exceptionBlocks, oldState, newState));
   }
 
-
   /**
    * Returns a new state machine which will run this machine first, then run
    * the other.
