@@ -174,24 +174,12 @@ export class AsyncTransformer extends CPSTransformer {
       // lifted machine variables
       ...this.getMachineVariables(tree, machine),
       ...parseStatements
-          `var $that = this, $arguments = arguments,
-              innerFunction = ${this.generateMachineInnerFunction(machine)},
-              moveNext = ${this.generateMachineMethod(machine)};
-          return $traceurRuntime.asyncWrap(moveNext)`
+          `var $that = this, $arguments = arguments;
+          return $traceurRuntime.asyncWrap(
+                ${this.generateMachineInnerFunction(machine)})`
     ];
 
     return createFunctionBody(statements);
-  }
-
-  /**
-   * @param {number} rethrowState
-   * @param {number} machineEndState
-   * @return {Array.<ParseTree>}
-   */
-  machineUncaughtExceptionStatements(rethrowState, machineEndState) {
-    return createStatementList(
-        createAssignStateStatement(rethrowState),
-        createBreakStatement());
   }
 
   /** @return {Array.<ParseTree>} */

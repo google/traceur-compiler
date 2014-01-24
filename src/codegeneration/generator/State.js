@@ -72,8 +72,7 @@ export class State {
   transformBreakOrContinue(labelSet, breakState, continueState) {
     return this;
   }
-};
-
+}
 
 State.START_STATE = 0;
 State.INVALID_STATE = -1;
@@ -92,19 +91,6 @@ State.RETHROW_STATE = -3;
 State.generateJump = function(enclosingFinally, fallThroughState) {
   return createStatementList(
       State.generateAssignState(enclosingFinally, fallThroughState),
-      createBreakStatement());
-};
-
-/**
- * Returns a list of statements which jumps to a given destination state,
- * through a finally block.
- * @param {number} finallyState
- * @param {number} destination
- * @return {Array.<ParseTree>}
- */
-State.generateJumpThroughFinally = function(finallyState, destination) {
-  return createStatementList(
-      State.generateAssignStateOutOfFinally_(destination, finallyState),
       createBreakStatement());
 };
 
