@@ -29,7 +29,7 @@ suite('context test', function() {
   });
 
   function resolve(name) {
-    return path.resolve(__dirname, '../../../' + name);
+    return path.resolve(__dirname, '../../../' + name).replace(/\\/g, '/');
   }
 
   function executeFileWithRuntime(fileName) {
