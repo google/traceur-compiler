@@ -134,7 +134,7 @@ bin/%.min.js: bin/%.js
 	node build/minifier.js $^ $@
 
 bin/traceur-runtime.js: $(RUNTIME_SRC)
-	./traceur --out $@ --referrer='traceur@$(PACKAGE_VERSION)/' $(TFLAGS) $^
+	./traceur --out $@ --referrer='traceur-runtime@$(PACKAGE_VERSION)/' $(TFLAGS) $^
 
 bin/traceur-bare.js: src/traceur-import.js build/compiled-by-previous-traceur.js
 	./traceur --out $@ $(TFLAGS) $<
