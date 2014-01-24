@@ -861,57 +861,32 @@ export class CPSTransformer extends ParseTreeTransformer {
     return tree;
   }
 
-  // With this to $that and arguments to $arguments alpha renaming
-  //     function($ctx) {
-  //       while (true) {
-  //         try {
-  //           return this.innerFunction($ctx);
-  //         } catch ($caughtException) {
-  //           $ctx.storedException = $caughtException;
-  //           switch ($ctx.state) {
-  //           case enclosing_finally:
-  //             $ctx.state = finally.startState;
-  //             $fallThrough = rethrow;
-  //             break;
-  //           case enclosing_catch:
-  //             $ctx.state = catch.startState;
-  //             break;
-  //           case enclosing_catch_around_finally:
-  //             $ctx.state = finally.startState;
-  //             $fallThrough = catch.startState;
-  //             break;
-  //           default:
-  //             throw $ctx.storedException;
-  //           }
-  //         }
-  //       }
-  //     }
   /**
-   * @param {StateMachine} machine
-   * @return {CallExpression}
+   * @return {FunctionExpression}
    */
-  generateMachineMethod(machine) {
-    return parseExpression `function($ctx) {
-      while (true) {
-        try {
-          return innerFunction($ctx);
-        } catch (ex) {
-          $ctx.storedException = ex;
-          var last = $ctx.tryStack_[$ctx.tryStack_.length - 1];
-          if (!last) {
-            $ctx.GState = ${ST_CLOSED};
-            $ctx.state = ${State.END_STATE};
-            throw ex;
-          }
+  generateMachineMethod() {
+    return parseExpression `$traceurRuntime.getMoveNextFunction(innerFunction)`
+    // return parseExpression `function($ctx) {
+    //   while (true) {
+    //     try {
+    //       return innerFunction($ctx);
+    //     } catch (ex) {
+    //       $ctx.storedException = ex;
+    //       var last = $ctx.tryStack_[$ctx.tryStack_.length - 1];
+    //       if (!last) {
+    //         $ctx.GState = ${ST_CLOSED};
+    //         $ctx.state = ${State.END_STATE};
+    //         throw ex;
+    //       }
 
-          var nextStateFromStack = last.catch !== undefined ? last.catch : last.finally;
-          $ctx.state = nextStateFromStack;
+    //       var nextStateFromStack = last.catch !== undefined ? last.catch : last.finally;
+    //       $ctx.state = nextStateFromStack;
 
-          if (last.finallyFallThrough !== undefined)
-            $ctx.finallyFallThrough = last.finallyFallThrough;
-        }
-      }
-    }`;
+    //       if (last.finallyFallThrough !== undefined)
+    //         $ctx.finallyFallThrough = last.finallyFallThrough;
+    //     }
+    //   }
+    // }`;
   }
 
   generateMachineInnerFunction(machine) {

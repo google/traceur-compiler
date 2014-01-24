@@ -406,6 +406,8 @@
   var ACTION_SEND = 0;
   var ACTION_THROW = 1;
 
+  var END_STATE = -3;
+
   function addIterator(object) {
     // This needs the non native defineProperty to handle symbols correctly.
     return defineProperty(object, Symbol.iterator, nonEnum(function() {
@@ -453,7 +455,8 @@
     }
   };
 
-  function generatorWrap(moveNext) {
+  function generatorWrap(innerFunction) {
+    var moveNext = getMoveNextFunction(innerFunction);
     var ctx = new Context();
     return addIterator({
       next: function(x) {
@@ -517,7 +520,8 @@
   }
   AsyncContext.prototype = Object.create(Context.prototype);
 
-  function asyncWrap(moveNext) {
+  function asyncWrap(innerFunction) {
+    var moveNext = getMoveNextFunction(innerFunction);
     var ctx = new AsyncContext();
     ctx.createCallback = function(newState) {
       return function (value) {
@@ -536,6 +540,31 @@
 
     moveNext(ctx);
     return ctx.result;
+  }
+
+  // TODO(arv): Rename
+  function getMoveNextFunction(innerFunction) {
+    return function($ctx) {
+      while (true) {
+        try {
+          return innerFunction($ctx);
+        } catch (ex) {
+          $ctx.storedException = ex;
+          var last = $ctx.tryStack_[$ctx.tryStack_.length - 1];
+          if (!last) {
+            $ctx.GState = ST_CLOSED;
+            $ctx.state = END_STATE;
+            throw ex;
+          }
+
+          var nextStateFromStack = last.catch !== undefined ? last.catch : last.finally;
+          $ctx.state = nextStateFromStack;
+
+          if (last.finallyFallThrough !== undefined)
+            $ctx.finallyFallThrough = last.finallyFallThrough;
+        }
+      }
+    };
   }
 
   function setupGlobals(global) {

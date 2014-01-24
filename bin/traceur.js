@@ -276,6 +276,7 @@
   var ST_CLOSED = 3;
   var ACTION_SEND = 0;
   var ACTION_THROW = 1;
+  var END_STATE = - 3;
   function addIterator(object) {
     return defineProperty(object, Symbol.iterator, nonEnum(function() {
       return this;
@@ -317,7 +318,8 @@
       this.tryStack_.pop();
     }
   };
-  function generatorWrap(moveNext) {
+  function generatorWrap(innerFunction) {
+    var moveNext = getMoveNextFunction(innerFunction);
     var ctx = new Context();
     return addIterator({
       next: function(x) {
@@ -389,7 +391,8 @@
     });
   }
   AsyncContext.prototype = Object.create(Context.prototype);
-  function asyncWrap(moveNext) {
+  function asyncWrap(innerFunction) {
+    var moveNext = getMoveNextFunction(innerFunction);
     var ctx = new AsyncContext();
     ctx.createCallback = function(newState) {
       return function(value) {
@@ -407,6 +410,26 @@
     };
     moveNext(ctx);
     return ctx.result;
+  }
+  function getMoveNextFunction(innerFunction) {
+    return function($ctx) {
+      while (true) {
+        try {
+          return innerFunction($ctx);
+        } catch (ex) {
+          $ctx.storedException = ex;
+          var last = $ctx.tryStack_[$ctx.tryStack_.length - 1];
+          if (!last) {
+            $ctx.GState = ST_CLOSED;
+            $ctx.state = END_STATE;
+            throw ex;
+          }
+          var nextStateFromStack = last. catch !== undefined ? last. catch: last. finally;
+          $ctx.state = nextStateFromStack;
+          if (last.finallyFallThrough !== undefined) $ctx.finallyFallThrough = last.finallyFallThrough;
+        }
+      }
+    };
   }
   function setupGlobals(global) {
     global.Symbol = Symbol;
@@ -16476,7 +16499,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.14/src/codegeneration/ge
       $__234 = Object.freeze(Object.defineProperties(["$ctx.popCatch();"], {raw: {value: Object.freeze(["$ctx.popCatch();"])}})),
       $__235 = Object.freeze(Object.defineProperties(["\n              $ctx.popCatch();\n              ", " = $ctx.storedException;"], {raw: {value: Object.freeze(["\n              $ctx.popCatch();\n              ", " = $ctx.storedException;"])}})),
       $__236 = Object.freeze(Object.defineProperties(["$ctx.popFinally();"], {raw: {value: Object.freeze(["$ctx.popFinally();"])}})),
-      $__237 = Object.freeze(Object.defineProperties(["function($ctx) {\n      while (true) {\n        try {\n          return innerFunction($ctx);\n        } catch (ex) {\n          $ctx.storedException = ex;\n          var last = $ctx.tryStack_[$ctx.tryStack_.length - 1];\n          if (!last) {\n            $ctx.GState = ", ";\n            $ctx.state = ", ";\n            throw ex;\n          }\n\n          var nextStateFromStack = last.catch !== undefined ? last.catch : last.finally;\n          $ctx.state = nextStateFromStack;\n\n          if (last.finallyFallThrough !== undefined)\n            $ctx.finallyFallThrough = last.finallyFallThrough;\n        }\n      }\n    }"], {raw: {value: Object.freeze(["function($ctx) {\n      while (true) {\n        try {\n          return innerFunction($ctx);\n        } catch (ex) {\n          $ctx.storedException = ex;\n          var last = $ctx.tryStack_[$ctx.tryStack_.length - 1];\n          if (!last) {\n            $ctx.GState = ", ";\n            $ctx.state = ", ";\n            throw ex;\n          }\n\n          var nextStateFromStack = last.catch !== undefined ? last.catch : last.finally;\n          $ctx.state = nextStateFromStack;\n\n          if (last.finallyFallThrough !== undefined)\n            $ctx.finallyFallThrough = last.finallyFallThrough;\n        }\n      }\n    }"])}})),
+      $__237 = Object.freeze(Object.defineProperties(["$traceurRuntime.getMoveNextFunction(innerFunction)"], {raw: {value: Object.freeze(["$traceurRuntime.getMoveNextFunction(innerFunction)"])}})),
       $__238 = Object.freeze(Object.defineProperties(["function($ctx) {\n      while (true) ", "\n    }"], {raw: {value: Object.freeze(["function($ctx) {\n      while (true) ", "\n    }"])}})),
       $__239 = Object.freeze(Object.defineProperties(["\n                  $ctx.state = $ctx.finallyFallThrough;\n                  $ctx.finallyFallThrough = ", ";\n                  break;"], {raw: {value: Object.freeze(["\n                  $ctx.state = $ctx.finallyFallThrough;\n                  $ctx.finallyFallThrough = ", ";\n                  break;"])}})),
       $__240 = Object.freeze(Object.defineProperties(["\n                      $ctx.state = $ctx.finallyFallThrough;\n                      break;"], {raw: {value: Object.freeze(["\n                      $ctx.state = $ctx.finallyFallThrough;\n                      break;"])}}));
@@ -16905,8 +16928,8 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.14/src/codegeneration/ge
       }
       return tree;
     },
-    generateMachineMethod: function(machine) {
-      return parseExpression($__237, ST_CLOSED, State.END_STATE);
+    generateMachineMethod: function() {
+      return parseExpression($__237);
     },
     generateMachineInnerFunction: function(machine) {
       var enclosingFinallyState = machine.getEnclosingFinallyMap();
@@ -17102,7 +17125,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.14/src/codegeneration/ge
   var $__246 = Object.freeze(Object.defineProperties(["", " = $ctx.value"], {raw: {value: Object.freeze(["", " = $ctx.value"])}})),
       $__247 = Object.freeze(Object.defineProperties(["throw $ctx.err"], {raw: {value: Object.freeze(["throw $ctx.err"])}})),
       $__248 = Object.freeze(Object.defineProperties(["$ctx.resolve(", ")"], {raw: {value: Object.freeze(["$ctx.resolve(", ")"])}})),
-      $__249 = Object.freeze(Object.defineProperties(["var $that = this, $arguments = arguments,\n              innerFunction = ", ",\n              moveNext = ", ";\n          return $traceurRuntime.asyncWrap(moveNext)"], {raw: {value: Object.freeze(["var $that = this, $arguments = arguments,\n              innerFunction = ", ",\n              moveNext = ", ";\n          return $traceurRuntime.asyncWrap(moveNext)"])}})),
+      $__249 = Object.freeze(Object.defineProperties(["var $that = this, $arguments = arguments;\n          return $traceurRuntime.asyncWrap(\n                ", ")"], {raw: {value: Object.freeze(["var $that = this, $arguments = arguments;\n          return $traceurRuntime.asyncWrap(\n                ", ")"])}})),
       $__250 = Object.freeze(Object.defineProperties(["$ctx.reject($ctx.storedException)"], {raw: {value: Object.freeze(["$ctx.reject($ctx.storedException)"])}}));
   var CPSTransformer = $traceurRuntime.getModuleImpl("traceur@0.0.14/src/codegeneration/generator/CPSTransformer").CPSTransformer;
   var EndState = $traceurRuntime.getModuleImpl("traceur@0.0.14/src/codegeneration/generator/EndState").EndState;
@@ -17173,7 +17196,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.14/src/codegeneration/ge
       }
       var machine = transformedTree;
       if (machine.startState !== State.START_STATE) machine = machine.replaceStateId(machine.startState, State.START_STATE);
-      var statements = $traceurRuntime.spread(this.getMachineVariables(tree, machine), parseStatements($__249, this.generateMachineInnerFunction(machine), this.generateMachineMethod(machine)));
+      var statements = $traceurRuntime.spread(this.getMachineVariables(tree, machine), parseStatements($__249, this.generateMachineInnerFunction(machine)));
       return createFunctionBody(statements);
     },
     machineEndStatements: function() {
@@ -17338,7 +17361,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.14/src/codegeneration/ge
 });
 $traceurRuntime.ModuleStore.registerModule("traceur@0.0.14/src/codegeneration/generator/GeneratorTransformer", function() {
   "use strict";
-  var $__263 = Object.freeze(Object.defineProperties(["var $that = this, $arguments = arguments,\n              innerFunction = ", ",\n              moveNext = ", ";\n          return $traceurRuntime.generatorWrap(moveNext);"], {raw: {value: Object.freeze(["var $that = this, $arguments = arguments,\n              innerFunction = ", ",\n              moveNext = ", ";\n          return $traceurRuntime.generatorWrap(moveNext);"])}})),
+  var $__263 = Object.freeze(Object.defineProperties(["var $that = this, $arguments = arguments;\n          return $traceurRuntime.generatorWrap(\n              ", ");"], {raw: {value: Object.freeze(["var $that = this, $arguments = arguments;\n          return $traceurRuntime.generatorWrap(\n              ", ");"])}})),
       $__264 = Object.freeze(Object.defineProperties(["throw $ctx.storedException"], {raw: {value: Object.freeze(["throw $ctx.storedException"])}})),
       $__265 = Object.freeze(Object.defineProperties(["return $ctx"], {raw: {value: Object.freeze(["return $ctx"])}}));
   var CPSTransformer = $traceurRuntime.getModuleImpl("traceur@0.0.14/src/codegeneration/generator/CPSTransformer").CPSTransformer;
@@ -17422,7 +17445,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.14/src/codegeneration/ge
         machine = new StateMachine(machine.startState, machine.fallThroughState, this.removeEmptyStates(machine.states), machine.exceptionBlocks);
       }
       if (machine.startState !== State.START_STATE) machine = machine.replaceStateId(machine.startState, State.START_STATE);
-      var statements = $traceurRuntime.spread(this.getMachineVariables(tree, machine), parseStatements($__263, this.generateMachineInnerFunction(machine), this.generateMachineMethod(machine)));
+      var statements = $traceurRuntime.spread(this.getMachineVariables(tree, machine), parseStatements($__263, this.generateMachineInnerFunction(machine)));
       return createFunctionBody(statements);
     },
     machineRethrowStatements: function(machineEndState) {
