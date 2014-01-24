@@ -72,18 +72,7 @@ export class State {
   transformBreakOrContinue(labelSet, breakState, continueState) {
     return this;
   }
-
-  /**
-   * Returns a list of possible destination states. Subclasses should override
-   * this to include the states where it might go next. For example the
-   * ConditionalState will have 2 possible destinations.
-   * @return {Array.<number>}
-   */
-  getDestinationStates() {
-    return [];
-  }
-};
-
+}
 
 State.START_STATE = 0;
 State.INVALID_STATE = -1;
@@ -102,25 +91,6 @@ State.RETHROW_STATE = -3;
 State.generateJump = function(enclosingFinally, fallThroughState) {
   return createStatementList(
       State.generateAssignState(enclosingFinally, fallThroughState),
-      createBreakStatement());
-};
-
-/**
- * Returns a list of statements which jumps to a given destination state,
- * through a finally block.
- * @param {number} finallyState
- * @param {number} destination
- * @return {Array.<ParseTree>}
- */
-State.generateJumpThroughFinally = function(finallyState, destination) {
-  var log = parseStatement
-      `console.log($ctx.tryStack_[$ctx.tryStack_.length - 1],
-                   'finallyState:', ${finallyState},
-                   'destination:', ${destination})`;
-
-  return createStatementList(
-      log,
-      ...State.generateAssignStateOutOfFinally_(destination, finallyState),
       createBreakStatement());
 };
 

@@ -453,7 +453,7 @@
   };
 
   function generatorWrap(innerFunction) {
-    var moveNext = getMoveNextFunction(innerFunction);
+    var moveNext = getMoveNext(innerFunction);
     var ctx = new Context();
     return addIterator({
       next: function(x) {
@@ -518,7 +518,7 @@
   AsyncContext.prototype = Object.create(Context.prototype);
 
   function asyncWrap(innerFunction) {
-    var moveNext = getMoveNextFunction(innerFunction);
+    var moveNext = getMoveNext(innerFunction);
     var ctx = new AsyncContext();
     ctx.createCallback = function(newState) {
       return function (value) {
@@ -540,7 +540,7 @@
   }
 
   // TODO(arv): Rename
-  function getMoveNextFunction(innerFunction) {
+  function getMoveNext(innerFunction) {
     return function($ctx) {
       while (true) {
         try {

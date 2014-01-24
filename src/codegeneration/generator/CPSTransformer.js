@@ -851,34 +851,6 @@ export class CPSTransformer extends ParseTreeTransformer {
     return tree;
   }
 
-  /**
-   * @return {FunctionExpression}
-   */
-  generateMachineMethod() {
-    return parseExpression `$traceurRuntime.getMoveNextFunction(innerFunction)`
-    // return parseExpression `function($ctx) {
-    //   while (true) {
-    //     try {
-    //       return innerFunction($ctx);
-    //     } catch (ex) {
-    //       $ctx.storedException = ex;
-    //       var last = $ctx.tryStack_[$ctx.tryStack_.length - 1];
-    //       if (!last) {
-    //         $ctx.GState = ${ST_CLOSED};
-    //         $ctx.state = ${State.END_STATE};
-    //         throw ex;
-    //       }
-
-    //       var nextStateFromStack = last.catch !== undefined ? last.catch : last.finally;
-    //       $ctx.state = nextStateFromStack;
-
-    //       if (last.finallyFallThrough !== undefined)
-    //         $ctx.finallyFallThrough = last.finallyFallThrough;
-    //     }
-    //   }
-    // }`;
-  }
-
   generateMachineInnerFunction(machine) {
     var enclosingFinallyState = machine.getEnclosingFinallyMap();
 
@@ -928,84 +900,6 @@ export class CPSTransformer extends ParseTreeTransformer {
       createVariableStatement(createVariableDeclarationList(VAR, declarations))
     ];
   }
-
-  // /**
-  //  * @param {number} rethrowState
-  //  * @param {Object} enclosingFinallyState
-  //  * @param {Object} enclosingCatchState
-  //  * @param {Array.<State>} allStates
-  //  * @param {Array.<number>} caseClauses
-  //  */
-  // addExceptionCases_(rethrowState, enclosingFinallyState,
-  //                    enclosingCatchState, allStates, caseClauses) {
-  //   for (var i = 0; i < allStates.length; i++) {
-  //     var state = allStates[i].id;
-  //     var statements = allStates[i].statements;
-  //     var finallyState = enclosingFinallyState[state];
-  //     var catchState = enclosingCatchState[state];
-
-  //     // We don't need to add a case clause for the current state if it doesn't
-  //     // contain any statements, since that definitely won't throw. Due to the
-  //     // possibility of global getters and setters, however, just about
-  //     // anything else has the potential to throw.
-  //     if (!statements || statements.length === 0)
-  //       continue;
-
-  //     if (catchState != null && finallyState != null &&
-  //         catchState.tryStates.indexOf(finallyState.finallyState) !== -1) {
-  //       // we have:
-  //       //   try { try { ... } finally {} } catch (e) {}
-  //       //
-  //       // Generate:
-  //       // case state:
-  //       //   $ctx.state = finallyState.finallyState;
-  //       //   $fallThrough = catchState.catchState;
-  //       //   break;
-  //       caseClauses.push(
-  //           createCaseClause(
-  //               createNumberLiteral(state),
-  //               State.generateJumpThroughFinally(
-  //                   finallyState.finallyState,
-  //                   catchState.catchState)));
-  //     } else if (catchState != null) {
-
-  //       var log = parseStatement
-  //           `console.log($ctx.tryStack_[$ctx.tryStack_.length - 1],
-  //                        '$ctx.state = ', ${catchState.catchState})`;
-
-  //       // we have:
-  //       //   try { ... } catch (e) {}
-  //       // Generate:
-  //       // case state:
-  //       //   $ctx.state = catchState.catchState;
-  //       //   break;
-  //       caseClauses.push(
-  //           createCaseClause(
-  //               createNumberLiteral(state),
-  //               createStatementList(
-  //                   log,
-  //                   createAssignStateStatement(catchState.catchState),
-  //                   createBreakStatement())));
-  //     } else if (finallyState != null) {
-  //       // we have:
-  //       //   try { ... } finally {}
-  //       // Generate:
-  //       // case state:
-  //       //   $ctx.state = finallyState.startState;
-  //       //   $fallThrough = rethrowState;
-  //       //   break;
-  //       caseClauses.push(
-  //           createCaseClause(
-  //               createNumberLiteral(state),
-  //               State.generateJumpThroughFinally(
-  //                   finallyState.finallyState,
-  //                   rethrowState)));
-  //     } else {
-  //       // Anything not contained inside a 'try' block.
-  //       // The 'default' case handles this, so don't generate anything.
-  //     }
-  //   }
-  // }
 
   /**
    * @param {FunctionDeclaration} tree
@@ -1114,13 +1008,14 @@ export class CPSTransformer extends ParseTreeTransformer {
     // add finally fallthrough dispatch states
     this.addFinallyFallThroughDispatches(null, machine.exceptionBlocks, cases);
 
-    // case machine.fallThroughState: return false;
+    // $ctx is used as a sentinel for ending the statemachine.
+    // case machine.fallThroughState: return $ctx;
     cases.push(
         createCaseClause(
             createNumberLiteral(machine.fallThroughState),
             this.machineFallThroughStatements(machineEndState)));
 
-    // case machineEndState: return false;
+    // case machineEndState: return $ctx;
     cases.push(
         createCaseClause(
             createNumberLiteral(machineEndState),

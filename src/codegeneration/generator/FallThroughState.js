@@ -50,8 +50,4 @@ export class FallThroughState extends State {
       ...State.generateJump(enclosingFinally, this.fallThroughState)
     ];
   }
-
-  getDestinationStates() {
-    return [this.fallThroughState];
-  }
 }
