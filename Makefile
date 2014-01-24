@@ -64,7 +64,8 @@ ugly: bin/traceur.ugly.js
 test-runtime: bin/traceur-runtime.js $(RUNTIME_TESTS)
 	@echo 'Open test/runtime.html to test runtime only'
 
-test: test/test-list.js bin/traceur.js $(COMPILE_BEFORE_TEST) bin/traceur-runtime.js \
+test: test/test-list.js bin/traceur.js $(COMPILE_BEFORE_TEST) \
+	test/unit/runtime/traceur-runtime \
 	wiki test/amd-compiled test/commonjs-compiled test-interpret \
 	test-interpret-absolute test-inline-module-error
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(TESTS)
@@ -108,6 +109,10 @@ test/amd-compiled: force
 
 test/unit/%.generated.js: test/unit/es6/%.js
 	./traceur --out $@ $(TFLAGS) $<
+
+test/unit/runtime/traceur-runtime: \
+	test/unit/runtime/traceur-runtime.js bin/traceur-runtime.js
+	node $<
 
 boot: clean build
 
