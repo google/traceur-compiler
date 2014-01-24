@@ -72,7 +72,7 @@ test: test/test-list.js bin/traceur.js $(COMPILE_BEFORE_TEST) bin/traceur-runtim
 test/unit: bin/traceur.js bin/traceur-runtime.js
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $(UNIT_TESTS)
 
-test/unit/%-run: test/unit/% bin/traceur.js bin/traceur-runtime.js
+test/unit/%-run: test/unit/% bin/traceur.js
 	node_modules/.bin/mocha $(MOCHA_OPTIONS) $<
 
 test/commonjs: test/commonjs-compiled
