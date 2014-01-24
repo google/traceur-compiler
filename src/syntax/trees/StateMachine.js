@@ -145,26 +145,26 @@ export class StateMachine extends ParseTree {
 
   /**
    * Returns a new state machine which will run this machine first, then run
-   * the other.
-   * @param {StateMachine} other
+   * the next machine.
+   * @param {StateMachine} nextMachine
    * @return {StateMachine}
    */
-  append(other) {
+  append(nextMachine) {
     var states = [...this.states];
-    for (var i = 0; i < other.states.length; i++) {
-      var otherState = other.states[i];
+    for (var i = 0; i < nextMachine.states.length; i++) {
+      var otherState = nextMachine.states[i];
       states.push(
-          otherState.replaceState(other.startState, this.fallThroughState));
+          otherState.replaceState(nextMachine.startState, this.fallThroughState));
     }
 
     var exceptionBlocks = [...this.exceptionBlocks];
-    for (var i = 0; i < other.exceptionBlocks.length; i++) {
-      var tryState = other.exceptionBlocks[i];
+    for (var i = 0; i < nextMachine.exceptionBlocks.length; i++) {
+      var tryState = nextMachine.exceptionBlocks[i];
       exceptionBlocks.push(
-          tryState.replaceState(other.startState, this.fallThroughState));
+          tryState.replaceState(nextMachine.startState, this.fallThroughState));
     }
 
-    return new StateMachine(this.startState, other.fallThroughState,
+    return new StateMachine(this.startState, nextMachine.fallThroughState,
                             states, exceptionBlocks);
   }
 }

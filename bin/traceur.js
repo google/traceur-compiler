@@ -282,7 +282,7 @@
       return this;
     }));
   }
-  function Context() {
+  function GeneratorContext() {
     this.state = 0;
     this.GState = ST_NEWBORN;
     this.storedException = undefined;
@@ -291,7 +291,7 @@
     this.returnValue = undefined;
     this.tryStack_ = [];
   }
-  Context.prototype = {
+  GeneratorContext.prototype = {
     pushTry: function(catchState, finallyState) {
       if (finallyState !== null) {
         var finallyFallThrough = null;
@@ -317,7 +317,7 @@
   };
   function generatorWrap(innerFunction) {
     var moveNext = getMoveNext(innerFunction);
-    var ctx = new Context();
+    var ctx = new GeneratorContext();
     return addIterator({
       next: function(x) {
         switch (ctx.GState) {
@@ -378,8 +378,8 @@
       }
     });
   }
-  function AsyncContext() {
-    Context.call(this);
+  function AsyncFunctionContext() {
+    GeneratorContext.call(this);
     this.err = undefined;
     var ctx = this;
     ctx.result = new Promise(function(resolve, reject) {
@@ -387,10 +387,10 @@
       ctx.reject = reject;
     });
   }
-  AsyncContext.prototype = Object.create(Context.prototype);
+  AsyncFunctionContext.prototype = Object.create(GeneratorContext.prototype);
   function asyncWrap(innerFunction) {
     var moveNext = getMoveNext(innerFunction);
-    var ctx = new AsyncContext();
+    var ctx = new AsyncFunctionContext();
     ctx.createCallback = function(newState) {
       return function(value) {
         ctx.state = newState;
@@ -16249,18 +16249,18 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/syntax/trees/Stat
     replaceStateId: function(oldState, newState) {
       return new StateMachine(State.replaceStateId(this.startState, oldState, newState), State.replaceStateId(this.fallThroughState, oldState, newState), State.replaceAllStates(this.states, oldState, newState), State.replaceAllStates(this.exceptionBlocks, oldState, newState));
     },
-    append: function(other) {
+    append: function(nextMachine) {
       var states = $traceurRuntime.spread(this.states);
-      for (var i = 0; i < other.states.length; i++) {
-        var otherState = other.states[i];
-        states.push(otherState.replaceState(other.startState, this.fallThroughState));
+      for (var i = 0; i < nextMachine.states.length; i++) {
+        var otherState = nextMachine.states[i];
+        states.push(otherState.replaceState(nextMachine.startState, this.fallThroughState));
       }
       var exceptionBlocks = $traceurRuntime.spread(this.exceptionBlocks);
-      for (var i = 0; i < other.exceptionBlocks.length; i++) {
-        var tryState = other.exceptionBlocks[i];
-        exceptionBlocks.push(tryState.replaceState(other.startState, this.fallThroughState));
+      for (var i = 0; i < nextMachine.exceptionBlocks.length; i++) {
+        var tryState = nextMachine.exceptionBlocks[i];
+        exceptionBlocks.push(tryState.replaceState(nextMachine.startState, this.fallThroughState));
       }
-      return new StateMachine(this.startState, other.fallThroughState, states, exceptionBlocks);
+      return new StateMachine(this.startState, nextMachine.fallThroughState, states, exceptionBlocks);
     }
   }, {}, ParseTree);
   return {get StateMachine() {
@@ -16929,8 +16929,6 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/codegeneration/ge
       if (result.catchBlock !== null) {
         var popTry = this.statementToStateMachine_(parseStatement($__234));
         tryMachine = tryMachine.append(popTry);
-      }
-      if (result.catchBlock != null) {
         var catchBlock = result.catchBlock;
         var exceptionName = catchBlock.binding.identifierToken.value;
         var catchMachine = this.ensureTransformed_(catchBlock.catchBody);

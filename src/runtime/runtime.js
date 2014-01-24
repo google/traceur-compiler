@@ -415,7 +415,7 @@
     }));
   }
 
-  function Context() {
+  function GeneratorContext() {
     this.state = 0;
     this.GState = ST_NEWBORN;
     this.storedException = undefined;
@@ -424,7 +424,7 @@
     this.returnValue = undefined;
     this.tryStack_ = [];
   }
-  Context.prototype = {
+  GeneratorContext.prototype = {
     pushTry: function(catchState, finallyState) {
       if (finallyState !== null) {
         var finallyFallThrough = null;
@@ -454,7 +454,7 @@
 
   function generatorWrap(innerFunction) {
     var moveNext = getMoveNext(innerFunction);
-    var ctx = new Context();
+    var ctx = new GeneratorContext();
     return addIterator({
       next: function(x) {
         switch (ctx.GState) {
@@ -506,8 +506,8 @@
     });
   }
 
-  function AsyncContext() {
-    Context.call(this);
+  function AsyncFunctionContext() {
+    GeneratorContext.call(this);
     this.err = undefined;
     var ctx = this;
     ctx.result = new Promise(function(resolve, reject) {
@@ -515,11 +515,11 @@
       ctx.reject = reject;
     });
   }
-  AsyncContext.prototype = Object.create(Context.prototype);
+  AsyncFunctionContext.prototype = Object.create(GeneratorContext.prototype);
 
   function asyncWrap(innerFunction) {
     var moveNext = getMoveNext(innerFunction);
-    var ctx = new AsyncContext();
+    var ctx = new AsyncFunctionContext();
     ctx.createCallback = function(newState) {
       return function (value) {
         ctx.state = newState;

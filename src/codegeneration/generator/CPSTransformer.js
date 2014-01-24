@@ -639,6 +639,20 @@ export class CPSTransformer extends ParseTreeTransformer {
 
     // We inject a pushTry at the beginning of the try block and popTry at the
     // end as well as popTry at the beginning of catch and finally.
+    //
+    // We end up with something like this:
+    //
+    // try {
+    //   pushTry(catchState, finallyState);
+    //   ...
+    //   popTry()
+    // } catch (ex) {
+    //   popTry();
+    //   ...
+    // } finally {
+    //   popTry();
+    //   ...
+    // }
     var outerCatchState = this.allocateState();
     var outerFinallyState = this.allocateState();
 
@@ -654,9 +668,7 @@ export class CPSTransformer extends ParseTreeTransformer {
       var popTry = this.statementToStateMachine_(
           parseStatement `$ctx.popTry();`);
       tryMachine = tryMachine.append(popTry);
-    }
 
-    if (result.catchBlock != null) {
       var catchBlock = result.catchBlock;
       var exceptionName = catchBlock.binding.identifierToken.value;
       var catchMachine = this.ensureTransformed_(catchBlock.catchBody);
