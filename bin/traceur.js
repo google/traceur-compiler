@@ -20699,11 +20699,12 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.14/src/runtime/Loader", 
   };
   var $LoadCodeUnit = ($traceurRuntime.createClass)(LoadCodeUnit, {}, {}, CodeUnit);
   var EvalCodeUnit = function(loaderHooks, code) {
-    var normalizedName = arguments[2] !== (void 0) ? arguments[2]: loaderHooks.rootUrl();
-    var name = arguments[3];
-    var referrerName = arguments[4];
-    var address = arguments[5];
-    $traceurRuntime.superCall(this, $EvalCodeUnit.prototype, "constructor", [loaderHooks, normalizedName, 'script', LOADED, name, referrerName, address]);
+    var type = arguments[2] !== (void 0) ? arguments[2]: 'script';
+    var normalizedName = arguments[3] !== (void 0) ? arguments[3]: loaderHooks.rootUrl();
+    var name = arguments[4];
+    var referrerName = arguments[5];
+    var address = arguments[6];
+    $traceurRuntime.superCall(this, $EvalCodeUnit.prototype, "constructor", [loaderHooks, normalizedName, type, LOADED, name, referrerName, address]);
     this.text = code;
   };
   var $EvalCodeUnit = ($traceurRuntime.createClass)(EvalCodeUnit, {}, {}, CodeUnit);
@@ -20743,7 +20744,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.14/src/runtime/Loader", 
     },
     module: function(code, name, referrerName, address) {
       var normalizedName = System.normalize(name, referrerName, address);
-      var codeUnit = new EvalCodeUnit(this.loaderHooks, code, normalizedName, name, referrerName, address);
+      var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'module', normalizedName, name, referrerName, address);
       this.cache.set({}, codeUnit);
       return codeUnit;
     },
@@ -20752,7 +20753,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.14/src/runtime/Loader", 
       var referrerName = arguments[2];
       var address = arguments[3];
       var normalizedName = System.normalize(name, referrerName, address);
-      var codeUnit = new EvalCodeUnit(this.loaderHooks, code, normalizedName, name, referrerName, address);
+      var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'script', normalizedName, name, referrerName, address);
       this.cache.set({}, codeUnit);
       this.handleCodeUnitLoaded(codeUnit);
       return codeUnit;
@@ -20908,7 +20909,9 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.14/src/runtime/Loader", 
         throw ex;
       });
       var codeUnit = this.internalLoader_.module (source, name, referrerName, address);
-      codeUnit.addListener(callback, errback);
+      codeUnit.addListener(function() {
+        callback(System.get(codeUnit.normalizedName));
+      }, errback);
       this.internalLoader_.handleCodeUnitLoaded(codeUnit);
     },
     loadAsScript: function(name) {

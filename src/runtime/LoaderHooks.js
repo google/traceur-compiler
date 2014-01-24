@@ -45,7 +45,7 @@ var ERROR = 6;
 var identifierGenerator = new UniqueIdentifierGenerator();
 
 export class LoaderHooks {
-  constructor(reporter, rootUrl, outputOptions = undefined, 
+  constructor(reporter, rootUrl, outputOptions = undefined,
       fileLoader = webLoader, moduleStore = $traceurRuntime.ModuleStore) {
     this.reporter = reporter;
     this.rootUrl_ = rootUrl;

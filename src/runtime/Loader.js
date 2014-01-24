@@ -205,9 +205,9 @@ class EvalCodeUnit extends CodeUnit {
    * @param {string} code
    * @param {string} caller script or module name
    */
-  constructor(loaderHooks, code, normalizedName = loaderHooks.rootUrl(),
-      name, referrerName, address) {
-    super(loaderHooks, normalizedName, 'script', LOADED,
+  constructor(loaderHooks, code, type = 'script',
+      normalizedName = loaderHooks.rootUrl(), name, referrerName, address) {
+    super(loaderHooks, normalizedName, type, LOADED,
         name, referrerName, address);
     this.text = code;
   }
@@ -257,8 +257,8 @@ class InternalLoader {
 
   module(code, name, referrerName, address) {
     var normalizedName = System.normalize(name, referrerName, address);
-    var codeUnit = new EvalCodeUnit(this.loaderHooks, code, normalizedName,
-        name, referrerName, address);
+    var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'module',
+        normalizedName,  name, referrerName, address);
     this.cache.set({}, codeUnit);
     return codeUnit;
   }
@@ -270,7 +270,7 @@ class InternalLoader {
   script(code, name = this.loaderHooks.rootUrl(), referrerName, address) {
     var normalizedName = System.normalize(name, referrerName, address);
     var codeUnit =
-        new EvalCodeUnit(this.loaderHooks, code, normalizedName,
+        new EvalCodeUnit(this.loaderHooks, code, 'script', normalizedName,
             name, referrerName, address);
     this.cache.set({}, codeUnit);
     // assert that there are no dependencies that are loading?
@@ -477,7 +477,9 @@ export class Loader {
       errback = (ex) => { throw ex; }) {
     var codeUnit = this.internalLoader_.module(source, name,
         referrerName, address);
-    codeUnit.addListener(callback, errback);
+    codeUnit.addListener(function() {
+      callback(System.get(codeUnit.normalizedName));
+    }, errback);
     this.internalLoader_.handleCodeUnitLoaded(codeUnit);
   }
 
