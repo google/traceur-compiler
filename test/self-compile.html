@@ -11,12 +11,7 @@
     traceur.options.validate = true;
     var url = window.location.href;
 
-    function getLoader() {
-      var LoaderHooks = traceur.modules.LoaderHooks;
-      var loaderHooks = new LoaderHooks(new traceur.util.ErrorReporter(), url);
-      return new traceur.modules.Loader(loaderHooks);
-    }
-    getLoader().import('../src/traceur.js', {},
+    System.import('../src/traceur.js', {},
         function(mod) {
           console.log('DONE');
         },

@@ -31,14 +31,7 @@ mocha.setup({ui: 'tdd'});
 (function() {
   'use strict';
 
-  function getLoader() {
-    var LoaderHooks = traceur.modules.LoaderHooks;
-    var url = window.location.href;
-    var loaderHooks = new LoaderHooks(new traceur.util.ErrorReporter(), url);
-    return new traceur.modules.Loader(loaderHooks);
-  }
-
-  getLoader().import('../src/runtime/webLoader', {}, function(module) {
+  System.import('../src/runtime/webLoader', {}, function(module) {
 	  featureSuite(testList, module.webLoader);
 
 	  new traceur.WebPageTranscoder(document.location.href).run(function() {
