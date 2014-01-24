@@ -1,4 +1,4 @@
-// Copyright 2012 Traceur Authors.
+// Copyright 2014 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -117,7 +117,7 @@ class CodeUnit {
     return `Imported by ${this.referrerName_}.\n`;
   }
 
-  normalizesTo(name) {
+  normalizesTo() {
     return 'Normalizes to ' + this.normalizedName + '\n';
   }
 
