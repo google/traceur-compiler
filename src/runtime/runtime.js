@@ -447,10 +447,7 @@
         this.tryStack_.push({catch: catchState});
       }
     },
-    popCatch: function() {
-      this.tryStack_.pop();
-    },
-    popFinally: function() {
+    popTry: function() {
       this.tryStack_.pop();
     }
   };

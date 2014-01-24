@@ -311,10 +311,7 @@
         this.tryStack_.push({ catch: catchState});
       }
     },
-    popCatch: function() {
-      this.tryStack_.pop();
-    },
-    popFinally: function() {
+    popTry: function() {
       this.tryStack_.pop();
     }
   };
@@ -16496,9 +16493,9 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.14/src/codegeneration/ge
 $traceurRuntime.ModuleStore.registerModule("traceur@0.0.14/src/codegeneration/generator/CPSTransformer", function() {
   "use strict";
   var $__233 = Object.freeze(Object.defineProperties(["$ctx.pushTry(\n            ", ",\n            ", ");"], {raw: {value: Object.freeze(["$ctx.pushTry(\n            ", ",\n            ", ");"])}})),
-      $__234 = Object.freeze(Object.defineProperties(["$ctx.popCatch();"], {raw: {value: Object.freeze(["$ctx.popCatch();"])}})),
-      $__235 = Object.freeze(Object.defineProperties(["\n              $ctx.popCatch();\n              ", " = $ctx.storedException;"], {raw: {value: Object.freeze(["\n              $ctx.popCatch();\n              ", " = $ctx.storedException;"])}})),
-      $__236 = Object.freeze(Object.defineProperties(["$ctx.popFinally();"], {raw: {value: Object.freeze(["$ctx.popFinally();"])}})),
+      $__234 = Object.freeze(Object.defineProperties(["$ctx.popTry();"], {raw: {value: Object.freeze(["$ctx.popTry();"])}})),
+      $__235 = Object.freeze(Object.defineProperties(["\n              $ctx.popTry();\n              ", " = $ctx.storedException;"], {raw: {value: Object.freeze(["\n              $ctx.popTry();\n              ", " = $ctx.storedException;"])}})),
+      $__236 = Object.freeze(Object.defineProperties(["$ctx.popTry();"], {raw: {value: Object.freeze(["$ctx.popTry();"])}})),
       $__237 = Object.freeze(Object.defineProperties(["$traceurRuntime.getMoveNextFunction(innerFunction)"], {raw: {value: Object.freeze(["$traceurRuntime.getMoveNextFunction(innerFunction)"])}})),
       $__238 = Object.freeze(Object.defineProperties(["function($ctx) {\n      while (true) ", "\n    }"], {raw: {value: Object.freeze(["function($ctx) {\n      while (true) ", "\n    }"])}})),
       $__239 = Object.freeze(Object.defineProperties(["\n                  $ctx.state = $ctx.finallyFallThrough;\n                  $ctx.finallyFallThrough = ", ";\n                  break;"], {raw: {value: Object.freeze(["\n                  $ctx.state = $ctx.finallyFallThrough;\n                  $ctx.finallyFallThrough = ", ";\n                  break;"])}})),
@@ -16596,9 +16593,6 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.14/src/codegeneration/ge
       var transformedTree = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformFunctionBody", [tree]);
       var machine = this.transformStatementList_(transformedTree.statements);
       this.restoreLabels_(oldLabels);
-      if (machine) {
-        machine = simplifyMachine(machine);
-      }
       return machine == null ? transformedTree: machine;
     },
     transformStatementList_: function(someTransformed) {
@@ -16836,30 +16830,26 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.14/src/codegeneration/ge
       var tryMachine = this.ensureTransformed_(result.body);
       tryMachine = pushTryState.append(tryMachine);
       if (result.catchBlock !== null) {
-        var popCatchState = this.statementToStateMachine_(parseStatement($__234));
-        tryMachine = tryMachine.append(popCatchState);
+        var popTry = this.statementToStateMachine_(parseStatement($__234));
+        tryMachine = tryMachine.append(popTry);
       }
       if (result.catchBlock != null) {
         var catchBlock = result.catchBlock;
         var exceptionName = catchBlock.binding.identifierToken.value;
         var catchMachine = this.ensureTransformed_(catchBlock.catchBody);
-        var startState = tryMachine.startState;
-        var fallThroughState = tryMachine.fallThroughState;
         var catchStart = this.allocateState();
         var states = $traceurRuntime.spread(tryMachine.states, [new FallThroughState(catchStart, catchMachine.startState, parseStatements($__235, id(exceptionName)))]);
-        this.replaceAndAddStates_(catchMachine.states, catchMachine.fallThroughState, fallThroughState, states);
-        tryMachine = new StateMachine(tryMachine.startState, tryMachine.fallThroughState, states, [new CatchState(exceptionName, catchStart, fallThroughState, tryMachine.getAllStateIDs(), tryMachine.exceptionBlocks)]);
+        this.replaceAndAddStates_(catchMachine.states, catchMachine.fallThroughState, tryMachine.fallThroughState, states);
+        tryMachine = new StateMachine(tryMachine.startState, tryMachine.fallThroughState, states, [new CatchState(exceptionName, catchStart, tryMachine.fallThroughState, tryMachine.getAllStateIDs(), tryMachine.exceptionBlocks)]);
         tryMachine = tryMachine.replaceStateId(catchStart, outerCatchState);
       }
       if (result.finallyBlock != null) {
         var finallyBlock = result.finallyBlock;
         var finallyMachine = this.ensureTransformed_(finallyBlock.block);
-        var startState = tryMachine.startState;
-        var fallThroughState = tryMachine.fallThroughState;
-        var popFinallyState = this.statementToStateMachine_(parseStatement($__236));
-        finallyMachine = popFinallyState.append(finallyMachine);
+        var popTry = this.statementToStateMachine_(parseStatement($__236));
+        finallyMachine = popTry.append(finallyMachine);
         var states = $traceurRuntime.spread(tryMachine.states, finallyMachine.states, [new FinallyFallThroughState(finallyMachine.fallThroughState)]);
-        tryMachine = new StateMachine(startState, fallThroughState, states, [new FinallyState(finallyMachine.startState, finallyMachine.fallThroughState, tryMachine.getAllStateIDs(), tryMachine.exceptionBlocks)]);
+        tryMachine = new StateMachine(tryMachine.startState, tryMachine.fallThroughState, states, [new FinallyState(finallyMachine.startState, finallyMachine.fallThroughState, tryMachine.getAllStateIDs(), tryMachine.exceptionBlocks)]);
         tryMachine = tryMachine.replaceStateId(finallyMachine.startState, outerFinallyState);
       }
       return tryMachine;
@@ -17055,49 +17045,6 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.14/src/codegeneration/ge
       return this.transformStatementList_(maybeTransformedStatements);
     }
   }, {}, ParseTreeTransformer);
-  function simplifyMachine(machine) {
-    return machine;
-    var sourceToDestination = {};
-    var destinationToSources = {};
-    var stateMap = {};
-    machine.states.forEach((function(source) {
-      stateMap[source.id] = source;
-      var destinations = source.getDestinationStates();
-      sourceToDestination[source.id] = destinations;
-      destinations.forEach((function(destination) {
-        var sources = destinationToSources[destination];
-        if (!sources) {
-          sources = destinationToSources[destination] = [];
-        }
-        if (sources.indexOf(source.id) === - 1) sources.push(source.id);
-      }));
-    }));
-    for (var i = 0; i < machine.states.length; i++) {
-      var state = machine.states[i];
-      if (!(state instanceof FallThroughState)) continue;
-      var destinations = state.getDestinationStates();
-      if (destinations.length !== 1) continue;
-      var destination = stateMap[destinations[0]];
-      if (destination === undefined) continue;
-      if (!(destination instanceof FallThroughState)) continue;
-      var sourcesInToDestination = destinationToSources[destinations[0]];
-      if (sourcesInToDestination.length !== 1) continue;
-      if (sourcesInToDestination[0] !== state.id) continue;
-      machine = mergeStates(machine, state, destination);
-      return simplifyMachine(machine);
-    }
-    return machine;
-  }
-  function mergeStates(machine, first, second) {
-    assert(first instanceof FallThroughState);
-    assert(second instanceof FallThroughState);
-    var newState = new FallThroughState(first.id, second.fallThroughState, $traceurRuntime.spread(first.statements, second.statements));
-    var states = [];
-    for (var i = 0; i < machine.states.length; i++) {
-      if (machine.states[i] === first) states.push(newState); else if (machine.states[i] !== second) states.push(machine.states[i]);
-    }
-    return new StateMachine(machine.startState, machine.fallThroughState, states, machine.exceptionBlocks);
-  }
   return {get CPSTransformer() {
       return CPSTransformer;
     }};

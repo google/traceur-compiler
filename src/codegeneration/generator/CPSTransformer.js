@@ -179,11 +179,6 @@ export class CPSTransformer extends ParseTreeTransformer {
     var machine = this.transformStatementList_(transformedTree.statements);
 
     this.restoreLabels_(oldLabels);
-
-    if (machine) {
-      machine = simplifyMachine(machine);
-    }
-
     return machine == null ? transformedTree : machine;
   }
 
@@ -642,6 +637,8 @@ export class CPSTransformer extends ParseTreeTransformer {
     }
     // NOTE: yield inside finally caught in FinallyBlock transform methods
 
+    // We inject a pushTry at the beginning of the try block and popTry at the
+    // end as well as popTry at the beginning of catch and finally.
     var outerCatchState = this.allocateState();
     var outerFinallyState = this.allocateState();
 
@@ -654,19 +651,15 @@ export class CPSTransformer extends ParseTreeTransformer {
     tryMachine = pushTryState.append(tryMachine);
 
     if (result.catchBlock !== null) {
-      var popCatchState = this.statementToStateMachine_(
-          parseStatement `$ctx.popCatch();`);
-      tryMachine = tryMachine.append(popCatchState);
+      var popTry = this.statementToStateMachine_(
+          parseStatement `$ctx.popTry();`);
+      tryMachine = tryMachine.append(popTry);
     }
 
     if (result.catchBlock != null) {
       var catchBlock = result.catchBlock;
       var exceptionName = catchBlock.binding.identifierToken.value;
-      var catchMachine =
-          this.ensureTransformed_(catchBlock.catchBody);
-      var startState = tryMachine.startState;
-      var fallThroughState = tryMachine.fallThroughState;
-
+      var catchMachine = this.ensureTransformed_(catchBlock.catchBody);
       var catchStart = this.allocateState();
 
       var states = [
@@ -675,13 +668,13 @@ export class CPSTransformer extends ParseTreeTransformer {
             catchStart,
             catchMachine.startState,
             parseStatements `
-              $ctx.popCatch();
+              $ctx.popTry();
               ${id(exceptionName)} = $ctx.storedException;`)
       ];
       this.replaceAndAddStates_(
           catchMachine.states,
           catchMachine.fallThroughState,
-          fallThroughState,
+          tryMachine.fallThroughState,
           states);
 
       tryMachine = new StateMachine(
@@ -691,7 +684,7 @@ export class CPSTransformer extends ParseTreeTransformer {
           [new CatchState(
               exceptionName,
               catchStart,
-              fallThroughState,
+              tryMachine.fallThroughState,
               tryMachine.getAllStateIDs(),
               tryMachine.exceptionBlocks)]);
 
@@ -700,14 +693,11 @@ export class CPSTransformer extends ParseTreeTransformer {
 
     if (result.finallyBlock != null) {
       var finallyBlock = result.finallyBlock;
-      var finallyMachine =
-          this.ensureTransformed_(finallyBlock.block);
-      var startState = tryMachine.startState;
-      var fallThroughState = tryMachine.fallThroughState;
+      var finallyMachine = this.ensureTransformed_(finallyBlock.block);
 
-      var popFinallyState = this.statementToStateMachine_(
-          parseStatement `$ctx.popFinally();`);
-      finallyMachine = popFinallyState.append(finallyMachine);
+      var popTry = this.statementToStateMachine_(
+          parseStatement `$ctx.popTry();`);
+      finallyMachine = popTry.append(finallyMachine);
 
       var states = [
         ...tryMachine.states,
@@ -718,8 +708,8 @@ export class CPSTransformer extends ParseTreeTransformer {
       // NOTE: finallyMachine.fallThroughState == FinallyState.fallThroughState
       // is code generated in addFinallyFallThroughDispatches
       tryMachine = new StateMachine(
-          startState,
-          fallThroughState,
+          tryMachine.startState,
+          tryMachine.fallThroughState,
           states,
           [new FinallyState(
               finallyMachine.startState,
@@ -1307,74 +1297,4 @@ export class CPSTransformer extends ParseTreeTransformer {
 
     return this.transformStatementList_(maybeTransformedStatements);
   }
-}
-
-
-function simplifyMachine(machine) {
-  // We need to take exceptionBlocks into account too.
-  return machine;
-
-  var sourceToDestination = {};
-  var destinationToSources = {};
-  var stateMap = {};
-  machine.states.forEach((source) => {
-    stateMap[source.id] = source;
-    var destinations = source.getDestinationStates();
-    // console.log(source.id, '->', destinations);
-    sourceToDestination[source.id] = destinations;
-    destinations.forEach((destination) => {
-      var sources = destinationToSources[destination];
-      if (!sources) {
-        sources = destinationToSources[destination] = [];
-      }
-      if (sources.indexOf(source.id) === -1)
-        sources.push(source.id);
-    });
-  });
-
-
-  for (var i = 0; i < machine.states.length; i++) {
-    var state = machine.states[i];
-    if (!(state instanceof FallThroughState))
-      continue;
-    var destinations = state.getDestinationStates();
-    if (destinations.length !== 1)
-      continue;
-    var destination = stateMap[destinations[0]];
-    if (destination === undefined)
-      continue;
-    if (!(destination instanceof FallThroughState))
-      continue;
-    var sourcesInToDestination = destinationToSources[destinations[0]];
-    if (sourcesInToDestination.length !== 1)
-      continue;
-    if (sourcesInToDestination[0] !== state.id)
-      continue;
-    machine = mergeStates(machine, state, destination);
-    return simplifyMachine(machine);
-  }
-
-
-  return machine;
-}
-
-function mergeStates(machine, first, second) {
-  assert(first instanceof FallThroughState);
-  assert(second instanceof FallThroughState);
-  var newState = new FallThroughState(first.id, second.fallThroughState,
-      [...first.statements, ...second.statements]);
-
-  var states = [];
-  for (var i = 0; i < machine.states.length; i++) {
-    if (machine.states[i] === first)
-      states.push(newState);
-    else if (machine.states[i] !== second)
-      states.push(machine.states[i]);
-  }
-
-  return new StateMachine(
-      machine.startState,
-      machine.fallThroughState,
-      states,
-      machine.exceptionBlocks);
 }
