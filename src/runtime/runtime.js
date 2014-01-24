@@ -406,6 +406,8 @@
   var ACTION_SEND = 0;
   var ACTION_THROW = 1;
 
+  var END_STATE = -3;
+
   function addIterator(object) {
     // This needs the non native defineProperty to handle symbols correctly.
     return defineProperty(object, Symbol.iterator, nonEnum(function() {
@@ -413,11 +415,46 @@
     }));
   }
 
-  function generatorWrap(moveNext) {
-    var ctx = {
-      state: 0,
-      GState: 0
-    };
+  function GeneratorContext() {
+    this.state = 0;
+    this.GState = ST_NEWBORN;
+    this.storedException = undefined;
+    this.finallyFallThrough = undefined;
+    this.sent = undefined;
+    this.returnValue = undefined;
+    this.tryStack_ = [];
+  }
+  GeneratorContext.prototype = {
+    pushTry: function(catchState, finallyState) {
+      if (finallyState !== null) {
+        var finallyFallThrough = null;
+        for (var i = this.tryStack_.length - 1; i >= 0; i--) {
+          if (this.tryStack_[i].catch !== undefined) {
+            finallyFallThrough = this.tryStack_[i].catch;
+            break;
+          }
+        }
+        if (finallyFallThrough === null)
+          finallyFallThrough = -3;
+
+        this.tryStack_.push({
+          finally: finallyState,
+          finallyFallThrough: finallyFallThrough
+        });
+      }
+
+      if (catchState !== null) {
+        this.tryStack_.push({catch: catchState});
+      }
+    },
+    popTry: function() {
+      this.tryStack_.pop();
+    }
+  };
+
+  function generatorWrap(innerFunction) {
+    var moveNext = getMoveNext(innerFunction);
+    var ctx = new GeneratorContext();
     return addIterator({
       next: function(x) {
         switch (ctx.GState) {
@@ -469,33 +506,61 @@
     });
   }
 
-  function asyncWrap(moveNext) {
-    var ctx = {
-      state: 0,
-      GState: 0,
-      createCallback: function(newState) {
-        return function (value) {
-          ctx.state = newState;
-          ctx.value = value;
-          moveNext(ctx);
-        };
-      },
-      createErrback: function(newState) {
-        return function (err) {
-          ctx.state = newState;
-          ctx.err = err;
-          moveNext(ctx);
-        };
-      }
-    };
+  function AsyncFunctionContext() {
+    GeneratorContext.call(this);
+    this.err = undefined;
+    var ctx = this;
     ctx.result = new Promise(function(resolve, reject) {
-            ctx.resolve = resolve;
-            ctx.reject = reject;
-          });
+      ctx.resolve = resolve;
+      ctx.reject = reject;
+    });
+  }
+  AsyncFunctionContext.prototype = Object.create(GeneratorContext.prototype);
+
+  function asyncWrap(innerFunction) {
+    var moveNext = getMoveNext(innerFunction);
+    var ctx = new AsyncFunctionContext();
+    ctx.createCallback = function(newState) {
+      return function (value) {
+        ctx.state = newState;
+        ctx.value = value;
+        moveNext(ctx);
+      };
+    }
+    ctx.createErrback = function(newState) {
+      return function (err) {
+        ctx.state = newState;
+        ctx.err = err;
+        moveNext(ctx);
+      };
+    };
+
     moveNext(ctx);
     return ctx.result;
   }
 
+  function getMoveNext(innerFunction) {
+    return function($ctx) {
+      while (true) {
+        try {
+          return innerFunction($ctx);
+        } catch (ex) {
+          $ctx.storedException = ex;
+          var last = $ctx.tryStack_[$ctx.tryStack_.length - 1];
+          if (!last) {
+            $ctx.GState = ST_CLOSED;
+            $ctx.state = END_STATE;
+            throw ex;
+          }
+
+          $ctx.state = last.catch !== undefined ? last.catch : last.finally;
+
+          if (last.finallyFallThrough !== undefined)
+            $ctx.finallyFallThrough = last.finallyFallThrough;
+        }
+      }
+    };
+  }
 
   function setupGlobals(global) {
     global.Symbol = Symbol;
