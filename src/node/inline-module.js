@@ -20,8 +20,8 @@ var nodeLoader = require('./nodeLoader.js');
 var normalizePath = require('./file-util.js').normalizePath;
 
 var ErrorReporter = traceur.util.ErrorReporter;
-var Loader = traceur.modules.internals.Loader;
-var LoaderHooks = traceur.modules.internals.LoaderHooks;
+var TraceurLoader = traceur.runtime.TraceurLoader;
+var LoaderHooks = traceur.runtime.LoaderHooks;
 var Script = traceur.syntax.trees.Script;
 var SourceFile = traceur.syntax.SourceFile
 var SourceMapGenerator = traceur.outputgeneration.SourceMapGenerator;
@@ -35,7 +35,7 @@ var moduleStore = traceur.runtime.ModuleStore;
  *     printing was requested.
  */
 function InlineLoaderHooks(reporter, url, elements, depTarget) {
-  LoaderHooks.call(this, reporter, url, undefined, 
+  LoaderHooks.call(this, reporter, url, undefined,
       nodeLoader,  // Load modules using node fs.
       moduleStore);  // Look up modules in our static module store
   this.dirname = url;
@@ -101,7 +101,7 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
   var loadCount = 0;
   var elements = [];
   var hooks = new InlineLoaderHooks(reporter, basePath, elements, depTarget);
-  var loader = new Loader(hooks);
+  var loader = new TraceurLoader(hooks);
 
   function loadNext() {
     var codeUnit = loader.loadAsScript(filenames[loadCount],

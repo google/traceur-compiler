@@ -42,13 +42,13 @@ suite('modules.js', function() {
   }
 
   function getLoaderHooks(opt_reporter) {
-    var LoaderHooks = traceur.modules.LoaderHooks;
+    var LoaderHooks = traceur.runtime.LoaderHooks;
     opt_reporter = opt_reporter || reporter;
     return new LoaderHooks(opt_reporter, url, undefined, fileLoader);
   }
 
   function getLoader(opt_reporter) {
-    return new traceur.modules.Loader(getLoaderHooks(opt_reporter));
+    return new traceur.runtime.TraceurLoader(getLoaderHooks(opt_reporter));
   }
 
   test('LoaderHooks.locate', function() {

@@ -22,7 +22,7 @@ var LoaderHooks = traceur.runtime.LoaderHooks;
 var url = './';
 var loaderHooks = new LoaderHooks(reporter, url, undefined, nodeLoader);
 
-var System = new traceur.modules.Loader(loaderHooks);
+var System = new traceur.runtime.TraceurLoader(loaderHooks);
 
-global.System = System;  
+global.System = System;
 module.exports = System;
