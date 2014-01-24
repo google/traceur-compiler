@@ -192,10 +192,12 @@
         done();
       }
 
-      if (/\.module\.js$/.test(url))
-        moduleLoader.import(url, {}, handleSuccess, handleFailure);
-      else
+      if (/\.module\.js$/.test(url)) {
+        moduleLoader.import(url.replace(/\.js$/,''), {},
+            handleSuccess, handleFailure);
+      } else {
         moduleLoader.loadAsScript(url, {}, handleSuccess, handleFailure);
+      }
     });
   }
 
