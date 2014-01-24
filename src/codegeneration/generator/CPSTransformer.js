@@ -891,68 +891,11 @@ export class CPSTransformer extends ParseTreeTransformer {
   generateMachineMethod(machine) {
     return parseExpression `function($ctx) {
       while (true) {
-        ${this.generateMachine(machine)}
-      }
-    }`;
-  }
-
-  generateMachineInnerFunction(machine) {
-    var enclosingFinallyState = machine.getEnclosingFinallyMap();
-    var enclosingCatchState = machine.getEnclosingCatchMap();
-    var rethrowState = this.allocateState();
-    var machineEndState = this.allocateState();
-
-    // while (true) {
-    //   switch ($ctx.state) {
-    //     ... converted states
-    //   case rethrow:
-    //     throw $ctx.storedException;
-    //   }
-    // }
-    var body =
-        createWhileStatement(
-            createTrueLiteral(),
-            createSwitchStatement(
-                createMemberExpression('$ctx', 'state'),
-                this.transformMachineStates(
-                    machine,
-                    State.END_STATE,
-                    State.RETHROW_STATE,
-                    enclosingFinallyState)));
-
-    var SwitchStatement = createSwitchStatement(
-        createMemberExpression('$ctx', 'state'),
-        this.transformMachineStates(
-            machine,
-            State.END_STATE,
-            State.RETHROW_STATE,
-            enclosingFinallyState));
-
-    return parseExpression `function($ctx) {
-      while (true) ${SwitchStatement}
-    }`;
-  }
-
-  /**
-   * @param {StateMachine} machine
-   * @return {ParseTree}
-   */
-  generateMachine(machine) {
-    var catchStatements;
-
-    if (machine.hasExceptionBlocks()) {
-      var enclosingFinallyState = machine.getEnclosingFinallyMap();
-      var enclosingCatchState = machine.getEnclosingCatchMap();
-
-      var caseClauses = [];
-      this.addExceptionCases_(State.RETHROW_STATE, enclosingFinallyState,
-                              enclosingCatchState, machine.states,
-                              caseClauses);
-
-      catchStatements = parseStatements `
+        try {
+          return innerFunction($ctx);
+        } catch (ex) {
           $ctx.storedException = ex;
           var last = $ctx.tryStack_[$ctx.tryStack_.length - 1];
-
           if (!last) {
             $ctx.GState = ${ST_CLOSED};
             $ctx.state = ${State.END_STATE};
@@ -964,34 +907,25 @@ export class CPSTransformer extends ParseTreeTransformer {
 
           if (last.finallyFallThrough !== undefined)
             $ctx.finallyFallThrough = last.finallyFallThrough;
-          `;
+        }
+      }
+    }`;
+  }
 
-    } else {
-      catchStatements = parseStatements `
-          $ctx.GState = ${ST_CLOSED};
-          $ctx.state = ${State.END_STATE};
-          throw ex;`
-    }
+  generateMachineInnerFunction(machine) {
+    var enclosingFinallyState = machine.getEnclosingFinallyMap();
+    var machineEndState = this.allocateState();
 
-    return parseStatement `try {
-      return innerFunction($ctx);
-    } catch (ex) {
-      $ctx.storedException = ex;
-      var last = $ctx.tryStack_[$ctx.tryStack_.length - 1];
-      // if (!last) {
-      //   $ctx.GState = ${ST_CLOSED};
-      //   $ctx.state = ${State.END_STATE};
-      //   throw ex;
-      // }
-      // if (last.catch !== undefined) {
-      //   $ctx.state = last.catch;
-      // } else {
-      //   $ctx.state = last.finallyBlock
-      //   $ctx.finallyFallThrough = last.finallyFallThrough;
-      // }
-      // var nextStateFromStack = last.catch !== undefined ? last.catch : last.finally;
-      // $ctx.state = nextStateFromStack;
-      ${catchStatements}
+    var SwitchStatement = createSwitchStatement(
+        createMemberExpression('$ctx', 'state'),
+        this.transformMachineStates(
+            machine,
+            State.END_STATE,
+            State.RETHROW_STATE,
+            enclosingFinallyState));
+
+    return parseExpression `function($ctx) {
+      while (true) ${SwitchStatement}
     }`;
   }
 
@@ -1029,83 +963,83 @@ export class CPSTransformer extends ParseTreeTransformer {
     return statements;
   }
 
-  /**
-   * @param {number} rethrowState
-   * @param {Object} enclosingFinallyState
-   * @param {Object} enclosingCatchState
-   * @param {Array.<State>} allStates
-   * @param {Array.<number>} caseClauses
-   */
-  addExceptionCases_(rethrowState, enclosingFinallyState,
-                     enclosingCatchState, allStates, caseClauses) {
-    for (var i = 0; i < allStates.length; i++) {
-      var state = allStates[i].id;
-      var statements = allStates[i].statements;
-      var finallyState = enclosingFinallyState[state];
-      var catchState = enclosingCatchState[state];
+  // /**
+  //  * @param {number} rethrowState
+  //  * @param {Object} enclosingFinallyState
+  //  * @param {Object} enclosingCatchState
+  //  * @param {Array.<State>} allStates
+  //  * @param {Array.<number>} caseClauses
+  //  */
+  // addExceptionCases_(rethrowState, enclosingFinallyState,
+  //                    enclosingCatchState, allStates, caseClauses) {
+  //   for (var i = 0; i < allStates.length; i++) {
+  //     var state = allStates[i].id;
+  //     var statements = allStates[i].statements;
+  //     var finallyState = enclosingFinallyState[state];
+  //     var catchState = enclosingCatchState[state];
 
-      // We don't need to add a case clause for the current state if it doesn't
-      // contain any statements, since that definitely won't throw. Due to the
-      // possibility of global getters and setters, however, just about
-      // anything else has the potential to throw.
-      if (!statements || statements.length === 0)
-        continue;
+  //     // We don't need to add a case clause for the current state if it doesn't
+  //     // contain any statements, since that definitely won't throw. Due to the
+  //     // possibility of global getters and setters, however, just about
+  //     // anything else has the potential to throw.
+  //     if (!statements || statements.length === 0)
+  //       continue;
 
-      if (catchState != null && finallyState != null &&
-          catchState.tryStates.indexOf(finallyState.finallyState) !== -1) {
-        // we have:
-        //   try { try { ... } finally {} } catch (e) {}
-        //
-        // Generate:
-        // case state:
-        //   $ctx.state = finallyState.finallyState;
-        //   $fallThrough = catchState.catchState;
-        //   break;
-        caseClauses.push(
-            createCaseClause(
-                createNumberLiteral(state),
-                State.generateJumpThroughFinally(
-                    finallyState.finallyState,
-                    catchState.catchState)));
-      } else if (catchState != null) {
+  //     if (catchState != null && finallyState != null &&
+  //         catchState.tryStates.indexOf(finallyState.finallyState) !== -1) {
+  //       // we have:
+  //       //   try { try { ... } finally {} } catch (e) {}
+  //       //
+  //       // Generate:
+  //       // case state:
+  //       //   $ctx.state = finallyState.finallyState;
+  //       //   $fallThrough = catchState.catchState;
+  //       //   break;
+  //       caseClauses.push(
+  //           createCaseClause(
+  //               createNumberLiteral(state),
+  //               State.generateJumpThroughFinally(
+  //                   finallyState.finallyState,
+  //                   catchState.catchState)));
+  //     } else if (catchState != null) {
 
-        var log = parseStatement
-            `console.log($ctx.tryStack_[$ctx.tryStack_.length - 1],
-                         '$ctx.state = ', ${catchState.catchState})`;
+  //       var log = parseStatement
+  //           `console.log($ctx.tryStack_[$ctx.tryStack_.length - 1],
+  //                        '$ctx.state = ', ${catchState.catchState})`;
 
-        // we have:
-        //   try { ... } catch (e) {}
-        // Generate:
-        // case state:
-        //   $ctx.state = catchState.catchState;
-        //   break;
-        caseClauses.push(
-            createCaseClause(
-                createNumberLiteral(state),
-                createStatementList(
-                    log,
-                    createAssignStateStatement(catchState.catchState),
-                    createBreakStatement())));
-      } else if (finallyState != null) {
-        // we have:
-        //   try { ... } finally {}
-        // Generate:
-        // case state:
-        //   $ctx.state = finallyState.startState;
-        //   $fallThrough = rethrowState;
-        //   break;
-        caseClauses.push(
-            createCaseClause(
-                createNumberLiteral(state),
-                State.generateJumpThroughFinally(
-                    finallyState.finallyState,
-                    rethrowState)));
-      } else {
-        // Anything not contained inside a 'try' block.
-        // The 'default' case handles this, so don't generate anything.
-      }
-    }
-  }
+  //       // we have:
+  //       //   try { ... } catch (e) {}
+  //       // Generate:
+  //       // case state:
+  //       //   $ctx.state = catchState.catchState;
+  //       //   break;
+  //       caseClauses.push(
+  //           createCaseClause(
+  //               createNumberLiteral(state),
+  //               createStatementList(
+  //                   log,
+  //                   createAssignStateStatement(catchState.catchState),
+  //                   createBreakStatement())));
+  //     } else if (finallyState != null) {
+  //       // we have:
+  //       //   try { ... } finally {}
+  //       // Generate:
+  //       // case state:
+  //       //   $ctx.state = finallyState.startState;
+  //       //   $fallThrough = rethrowState;
+  //       //   break;
+  //       caseClauses.push(
+  //           createCaseClause(
+  //               createNumberLiteral(state),
+  //               State.generateJumpThroughFinally(
+  //                   finallyState.finallyState,
+  //                   rethrowState)));
+  //     } else {
+  //       // Anything not contained inside a 'try' block.
+  //       // The 'default' case handles this, so don't generate anything.
+  //     }
+  //   }
+  // }
 
   /**
    * @param {FunctionDeclaration} tree

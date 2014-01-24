@@ -105,14 +105,6 @@ export class StateMachine extends ParseTree {
   }
 
   /**
-   * Does this machine include any try statements.
-   * @return {boolean}
-   */
-  hasExceptionBlocks() {
-    return this.exceptionBlocks.length > 0;
-  }
-
-  /**
    * Returns all the state ids of states in the machine. Note that the
    * fallThroughState is typically not a state in the machine.
    * @return {Array.<number>}
