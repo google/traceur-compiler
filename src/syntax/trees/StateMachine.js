@@ -129,18 +129,6 @@ export class StateMachine extends ParseTree {
     return enclosingMap;
   }
 
-  /**
-   * Return a map from the states in the machine to their nearest enclosing
-   * catch.
-   * @return {Object} map of state IDs to CatchState.
-   */
-  getEnclosingCatchMap() {
-    var enclosingMap = Object.create(null);
-    addCatchOrFinallyStates(TryState.Kind.CATCH, enclosingMap,
-                            this.exceptionBlocks);
-    return enclosingMap;
-  }
-
   allCatchStates() {
     var catches = [];
     addAllCatchStates(this.exceptionBlocks, catches);

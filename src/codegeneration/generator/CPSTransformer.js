@@ -77,6 +77,8 @@ import {
   createSwitchStatement,
   createThrowStatement,
   createTrueLiteral,
+  createVariableDeclaration,
+  createVariableDeclarationList,
   createVariableStatement,
   createWhileStatement
 } from '../ParseTreeFactory';
@@ -914,7 +916,6 @@ export class CPSTransformer extends ParseTreeTransformer {
 
   generateMachineInnerFunction(machine) {
     var enclosingFinallyState = machine.getEnclosingFinallyMap();
-    var machineEndState = this.allocateState();
 
     var SwitchStatement = createSwitchStatement(
         createMemberExpression('$ctx', 'state'),
@@ -929,7 +930,7 @@ export class CPSTransformer extends ParseTreeTransformer {
     }`;
   }
 
-  //   var $ctx.state = machine.startState;
+  //   var $ctx.state = machine.startState,
   //   ... lifted local variables ...
   //   ... caught exception variables ...
   /**
@@ -938,9 +939,6 @@ export class CPSTransformer extends ParseTreeTransformer {
    * @return {Array.<ParseTree>}
    */
   getMachineVariables(tree, machine) {
-
-    var statements = [];
-
     // Lift locals ...
     var liftedIdentifiers = variablesInBlock(tree, true);
 
@@ -954,13 +952,16 @@ export class CPSTransformer extends ParseTreeTransformer {
 
     // Sort identifiers to produce a stable output order
     var liftedIdentifierList = Object.keys(liftedIdentifiers).sort();
-    for (var i = 0; i < liftedIdentifierList.length; i++) {
-      var liftedIdentifier = liftedIdentifierList[i];
-      statements.push(
-          createVariableStatement(VAR, liftedIdentifier, null));
-    }
+    if (liftedIdentifierList.length === 0)
+      return [];
 
-    return statements;
+    var declarations = liftedIdentifierList.map((liftedIdentifier) => {
+      return createVariableDeclaration(liftedIdentifier, null);
+    });
+
+    return [
+      createVariableStatement(createVariableDeclarationList(VAR, declarations))
+    ];
   }
 
   // /**

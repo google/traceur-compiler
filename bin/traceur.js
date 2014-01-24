@@ -16129,11 +16129,6 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.14/src/syntax/trees/Stat
       addCatchOrFinallyStates(TryState.Kind.FINALLY, enclosingMap, this.exceptionBlocks);
       return enclosingMap;
     },
-    getEnclosingCatchMap: function() {
-      var enclosingMap = Object.create(null);
-      addCatchOrFinallyStates(TryState.Kind.CATCH, enclosingMap, this.exceptionBlocks);
-      return enclosingMap;
-    },
     allCatchStates: function() {
       var catches = [];
       addAllCatchStates(this.exceptionBlocks, catches);
@@ -16544,6 +16539,8 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.14/src/codegeneration/ge
       createSwitchStatement = $__242.createSwitchStatement,
       createThrowStatement = $__242.createThrowStatement,
       createTrueLiteral = $__242.createTrueLiteral,
+      createVariableDeclaration = $__242.createVariableDeclaration,
+      createVariableDeclarationList = $__242.createVariableDeclarationList,
       createVariableStatement = $__242.createVariableStatement,
       createWhileStatement = $__242.createWhileStatement;
   var variablesInBlock = $traceurRuntime.getModuleImpl("traceur@0.0.14/src/semantics/VariableBinder").variablesInBlock;
@@ -16913,23 +16910,21 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.14/src/codegeneration/ge
     },
     generateMachineInnerFunction: function(machine) {
       var enclosingFinallyState = machine.getEnclosingFinallyMap();
-      var machineEndState = this.allocateState();
       var SwitchStatement = createSwitchStatement(createMemberExpression('$ctx', 'state'), this.transformMachineStates(machine, State.END_STATE, State.RETHROW_STATE, enclosingFinallyState));
       return parseExpression($__238, SwitchStatement);
     },
     getMachineVariables: function(tree, machine) {
-      var statements = [];
       var liftedIdentifiers = variablesInBlock(tree, true);
       var allCatchStates = machine.allCatchStates();
       for (var i = 0; i < allCatchStates.length; i++) {
         liftedIdentifiers[allCatchStates[i].identifier] = true;
       }
       var liftedIdentifierList = Object.keys(liftedIdentifiers).sort();
-      for (var i = 0; i < liftedIdentifierList.length; i++) {
-        var liftedIdentifier = liftedIdentifierList[i];
-        statements.push(createVariableStatement(VAR, liftedIdentifier, null));
-      }
-      return statements;
+      if (liftedIdentifierList.length === 0) return [];
+      var declarations = liftedIdentifierList.map((function(liftedIdentifier) {
+        return createVariableDeclaration(liftedIdentifier, null);
+      }));
+      return [createVariableStatement(createVariableDeclarationList(VAR, declarations))];
     },
     transformFunctionDeclaration: function(tree) {
       return tree;
