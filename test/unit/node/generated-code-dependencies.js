@@ -85,6 +85,20 @@ suite('context test', function() {
         });
   });
 
+  test('compiled modules inline', function(done) {
+    tempFileName = resolve(uuid.v4() + '.js');
+    var executable = 'node ' + resolve('src/node/command.js');
+    var inputFileName = resolve('test/unit/node/resources/import-x.js');
+
+    exec(executable + ' --out ' + tempFileName + ' --modules=inline -- ' + inputFileName,
+        function(error, stdout, stderr) {
+          assert.isNull(error);
+          var result = executeFileWithRuntime(tempFileName);
+          assert.equal(result, 'x');
+          done();
+        });
+  });
+
   test('compile module dir option AMD', function(done) {
     var executable = 'node ' + resolve('src/node/command.js');
     var inputDir = resolve('test/unit/node/resources/compile-dir');
