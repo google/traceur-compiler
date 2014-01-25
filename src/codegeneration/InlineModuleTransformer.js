@@ -28,7 +28,7 @@ export class InlineModuleTransformer extends ModuleTransformer {
   }
 
   wrapModule(statements) {
-    var moduleVariable = this.getTempVarNameForModuleDefinition(this.moduleName)
+    var moduleVariable = this.getTempVarNameForModuleDefinition(this.moduleName);
     return parseStatements
         `var ${moduleVariable} = (function() {
           ${statements}
@@ -37,7 +37,7 @@ export class InlineModuleTransformer extends ModuleTransformer {
 
   transformModuleSpecifier(tree) {
     var normalizedName = System.normalize(tree.token.processedValue, this.moduleName);
-    var moduleVariable = this.getTempVarNameForModuleDefinition(normalizedName)
+    var moduleVariable = this.getTempVarNameForModuleDefinition(normalizedName);
     return createBindingIdentifier(moduleVariable);
   }
 }
