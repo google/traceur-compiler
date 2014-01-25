@@ -16952,6 +16952,11 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/codegeneration/ge
       }));
       return [createVariableStatement(createVariableDeclarationList(VAR, declarations))];
     },
+    convertFunctionBodyToStateMachine_: function(tree) {
+      var startState = this.allocateState();
+      var fallThroughState = this.allocateState();
+      return this.stateToStateMachine_(new FallThroughState(startState, fallThroughState, tree.statements), fallThroughState);
+    },
     transformCpsFunctionBody: function(tree, runtimeMethod) {
       var alphaRenamedTree = AlphaRenamer.rename(tree, 'arguments', '$arguments');
       var hasArguments = alphaRenamedTree !== tree;
@@ -17392,11 +17397,6 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/codegeneration/ge
       var startState = this.allocateState();
       var fallThroughState = this.allocateState();
       return this.stateToStateMachine_(new ReturnState(startState, fallThroughState, this.transformAny(tree.expression)), fallThroughState);
-    },
-    convertFunctionBodyToStateMachine_: function(tree) {
-      var startState = this.allocateState();
-      var fallThroughState = this.allocateState();
-      return this.stateToStateMachine_(new FallThroughState(startState, fallThroughState, tree.statements), fallThroughState);
     },
     transformGeneratorBody: function(tree) {
       var runtimeFunction = parseExpression($__267);

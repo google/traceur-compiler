@@ -873,6 +873,21 @@ export class CPSTransformer extends ParseTreeTransformer {
     ];
   }
 
+  /**
+   * Forces a FunctionBody without any yield/return into a state machine.
+   * @param {FunctionBody} tree
+   * @return {StateMachine} tree
+   * @private
+   */
+  convertFunctionBodyToStateMachine_(tree) {
+    var startState = this.allocateState();
+    var fallThroughState = this.allocateState();
+
+    return this.stateToStateMachine_(
+        new FallThroughState(startState, fallThroughState, tree.statements),
+            fallThroughState);
+  }
+
   transformCpsFunctionBody(tree, runtimeMethod) {
     var alphaRenamedTree = AlphaRenamer.rename(tree, 'arguments', '$arguments');
     var hasArguments = alphaRenamedTree !== tree;

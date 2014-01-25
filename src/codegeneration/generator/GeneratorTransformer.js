@@ -129,21 +129,6 @@ export class GeneratorTransformer extends CPSTransformer {
   }
 
   /**
-   * Forces a FunctionBody without any yield/return into a state machine.
-   * @param {FunctionBody} tree
-   * @return {StateMachine} tree
-   * @private
-   */
-  convertFunctionBodyToStateMachine_(tree) {
-    var startState = this.allocateState();
-    var fallThroughState = this.allocateState();
-
-    return this.stateToStateMachine_(
-        new FallThroughState(startState, fallThroughState, tree.statements),
-            fallThroughState);
-  }
-
-  /**
    * Transform a generator function body - removing yield statements.
    * The transformation is in two stages. First the statements are converted
    * into a single state machine by merging state machines via a bottom up
