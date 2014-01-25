@@ -181,10 +181,8 @@ class EvalCodeUnit extends CodeUnit {
    * @param {string} code
    * @param {string} caller script or module name
    */
-  constructor(loaderHooks, code, type = 'script',
-      normalizedName = loaderHooks.rootUrl(), name, referrerName, address) {
-    super(loaderHooks, normalizedName, type, LOADED,
-        name, referrerName, address);
+  constructor(loaderHooks, code, type = 'script', referrerName, address) {
+    super(loaderHooks, null, type, LOADED, null, referrerName, address);
     this.text = code;
   }
 }
@@ -233,7 +231,7 @@ export class InternalLoader {
 
   module(code, referrerName, address) {
     var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'module',
-        null, null, referrerName, address);
+                                    referrerName, address);
     this.cache.set({}, codeUnit);
     return codeUnit;
   }
@@ -242,11 +240,9 @@ export class InternalLoader {
    * @param {string} code, source to be compiled as 'Script'
    * @param {string} name,  ModuleSpecifier-like name, not normalized.
    */
-  script(code, name = this.loaderHooks.rootUrl(), referrerName, address) {
-    var normalizedName = System.normalize(name, referrerName, address);
-    var codeUnit =
-        new EvalCodeUnit(this.loaderHooks, code, 'script', normalizedName,
-            name, referrerName, address);
+  script(code, referrerName, address) {
+    var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'script',
+                                    referrerName, address);
     this.cache.set({}, codeUnit);
     // assert that there are no dependencies that are loading?
     this.handleCodeUnitLoaded(codeUnit);

@@ -80,7 +80,7 @@ suite('Loader.js', function() {
   });
 
   test('LoaderEval', function(done) {
-    getLoader().script('(function(x = 42) { return x; })()', './LoaderEval', {},
+    getLoader().script('(function(x = 42) { return x; })()', {},
       function(result) {
         assert.equal(42, result);
         done();

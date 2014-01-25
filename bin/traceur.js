@@ -20648,11 +20648,9 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/runtime/InternalL
   var $LoadCodeUnit = ($traceurRuntime.createClass)(LoadCodeUnit, {}, {}, CodeUnit);
   var EvalCodeUnit = function(loaderHooks, code) {
     var type = arguments[2] !== (void 0) ? arguments[2]: 'script';
-    var normalizedName = arguments[3] !== (void 0) ? arguments[3]: loaderHooks.rootUrl();
-    var name = arguments[4];
-    var referrerName = arguments[5];
-    var address = arguments[6];
-    $traceurRuntime.superCall(this, $EvalCodeUnit.prototype, "constructor", [loaderHooks, normalizedName, type, LOADED, name, referrerName, address]);
+    var referrerName = arguments[3];
+    var address = arguments[4];
+    $traceurRuntime.superCall(this, $EvalCodeUnit.prototype, "constructor", [loaderHooks, null, type, LOADED, null, referrerName, address]);
     this.text = code;
   };
   var $EvalCodeUnit = ($traceurRuntime.createClass)(EvalCodeUnit, {}, {}, CodeUnit);
@@ -20691,16 +20689,12 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/runtime/InternalL
       return codeUnit;
     },
     module: function(code, referrerName, address) {
-      var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'module', null, null, referrerName, address);
+      var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'module', referrerName, address);
       this.cache.set({}, codeUnit);
       return codeUnit;
     },
-    script: function(code) {
-      var name = arguments[1] !== (void 0) ? arguments[1]: this.loaderHooks.rootUrl();
-      var referrerName = arguments[2];
-      var address = arguments[3];
-      var normalizedName = System.normalize(name, referrerName, address);
-      var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'script', normalizedName, name, referrerName, address);
+    script: function(code, referrerName, address) {
+      var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'script', referrerName, address);
       this.cache.set({}, codeUnit);
       this.handleCodeUnitLoaded(codeUnit);
       return codeUnit;
@@ -22110,16 +22104,16 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/runtime/TraceurLo
         callback(result);
       }, errback);
     },
-    script: function(source, name) {
-      var $__334 = arguments[2] !== (void 0) ? arguments[2]: {},
+    script: function(source) {
+      var $__334 = arguments[1] !== (void 0) ? arguments[1]: {},
           referrerName = $__334.referrerName,
           address = $__334.address;
-      var callback = arguments[3] !== (void 0) ? arguments[3]: (function(result) {});
-      var errback = arguments[4] !== (void 0) ? arguments[4]: (function(ex) {
+      var callback = arguments[2] !== (void 0) ? arguments[2]: (function(result) {});
+      var errback = arguments[3] !== (void 0) ? arguments[3]: (function(ex) {
         throw ex;
       });
       try {
-        var codeUnit = this.internalLoader_.script(source, name, referrerName, address);
+        var codeUnit = this.internalLoader_.script(source, null, referrerName, address);
         callback(codeUnit.result);
       } catch (ex) {
         errback(ex);
