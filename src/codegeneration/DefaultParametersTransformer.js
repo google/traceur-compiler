@@ -63,7 +63,6 @@ function createDefaultAssignment(index, binding, initialiser) {
             argumentsExpression,
             initialiser);
   }
-
   return createVariableStatement(VAR, binding, assignmentExpression);
 }
 

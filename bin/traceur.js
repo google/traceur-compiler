@@ -18488,7 +18488,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/codegeneration/Ty
     transformBindingElementParameter_: function(tree, typeAnnotation) {
       var $__297 = this;
       if (!tree.binding.isPattern()) {
-        this.pushParameterAssertion_(tree.binding.identifierToken, typeAnnotation);
+        this.pushParameterAssertion_(tree, typeAnnotation);
         return;
       }
       switch (tree.binding.type) {
@@ -18496,7 +18496,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/codegeneration/Ty
           {
             var pattern = tree.binding;
             pattern.elements.forEach((function(element) {
-              $__297.pushParameterAssertion_(element.binding.identifierToken, typeAnnotation);
+              $__297.pushParameterAssertion_(element, typeAnnotation);
             }));
             break;
           }
@@ -18506,10 +18506,10 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/codegeneration/Ty
             pattern.fields.forEach((function(field) {
               switch (field.type) {
                 case BINDING_ELEMENT:
-                  $__297.pushParameterAssertion_(field.binding.identifierToken, typeAnnotation);
+                  $__297.pushParameterAssertion_(field, typeAnnotation);
                   break;
                 case OBJECT_PATTERN_FIELD:
-                  $__297.pushParameterAssertion_(field.element.binding.identifierToken, typeAnnotation);
+                  $__297.pushParameterAssertion_(field.element, typeAnnotation);
                   break;
                 default:
                   throw Error('unreachable');
@@ -18526,8 +18526,8 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/codegeneration/Ty
       var assertion = this.assertType_(current, typeAnnotation);
       this.parameterStatements.push(parseStatement($__295, i, i, name, i, assertion));
     },
-    pushParameterAssertion_: function(parameter, typeAnnotation) {
-      this.parameterStatements.push(createExpressionStatement(this.assertType_(parameter, typeAnnotation)));
+    pushParameterAssertion_: function(element, typeAnnotation) {
+      this.parameterStatements.push(createExpressionStatement(this.assertType_(element.binding.identifierToken, typeAnnotation)));
     },
     pushReturnType_: function(typeAnnotation) {
       this.returnTypeStack_.push(typeAnnotation);

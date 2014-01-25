@@ -156,7 +156,6 @@ export class TypeAssertionTransformer extends ParameterTransformer {
   transformReturnStatement(tree) {
     tree = super(tree);
     var expression = this.assertType_(tree.expression, this.returnType_);
-
     if (tree.expression !== expression)
       return new ReturnStatement(tree.location, expression);
     return tree;
@@ -164,8 +163,7 @@ export class TypeAssertionTransformer extends ParameterTransformer {
 
   transformBindingElementParameter_(tree, typeAnnotation) {
     if (!tree.binding.isPattern()) {
-        this.pushParameterAssertion_(tree.binding.identifierToken,
-                                     typeAnnotation);
+        this.pushParameterAssertion_(tree, typeAnnotation);
         return;
     }
 
@@ -173,8 +171,7 @@ export class TypeAssertionTransformer extends ParameterTransformer {
       case ARRAY_PATTERN: {
         var pattern = tree.binding;
         pattern.elements.forEach((element) => {
-          this.pushParameterAssertion_(element.binding.identifierToken,
-                                       typeAnnotation);
+          this.pushParameterAssertion_(element, typeAnnotation);
         });
         break;
       }
@@ -184,13 +181,11 @@ export class TypeAssertionTransformer extends ParameterTransformer {
         pattern.fields.forEach((field) => {
           switch (field.type) {
             case BINDING_ELEMENT:
-              this.pushParameterAssertion_(field.binding.identifierToken,
-                                           typeAnnotation);
+              this.pushParameterAssertion_(field, typeAnnotation);
               break;
 
             case OBJECT_PATTERN_FIELD:
-              this.pushParameterAssertion_(field.element.binding.identifierToken,
-                                           typeAnnotation);
+              this.pushParameterAssertion_(field.element, typeAnnotation);
               break;
 
             default:
@@ -215,9 +210,9 @@ export class TypeAssertionTransformer extends ParameterTransformer {
 
   }
 
-  pushParameterAssertion_(parameter, typeAnnotation) {
+  pushParameterAssertion_(element, typeAnnotation) {
     this.parameterStatements.push(createExpressionStatement(
-        this.assertType_(parameter, typeAnnotation)));
+        this.assertType_(element.binding.identifierToken, typeAnnotation)));
   }
 
   pushReturnType_(typeAnnotation) {
