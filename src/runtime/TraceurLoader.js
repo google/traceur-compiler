@@ -60,16 +60,15 @@ export class TraceurLoader extends Loader {
    * that is not already loaded, a SyntaxError is thrown.
    *
    * @param {string} source The source code to eval.
-   * @param {string} name name for the script
    * @return {*} The completion value of evaluating the code.
    */
-  script(source, name,
+  script(source,
       {referrerName, address} = {},
       callback = (result) => {},
       errback = (ex) => { throw ex; }) {
     try {
       var codeUnit =
-          this.internalLoader_.script(source, name, referrerName, address);
+          this.internalLoader_.script(source, null, referrerName, address);
       callback(codeUnit.result);
     } catch (ex) {
       errback(ex);
