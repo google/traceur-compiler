@@ -48,10 +48,6 @@ import {
   createYieldStatement
 } from './ParseTreeFactory';
 import {
-  ACTION_SEND,
-  ACTION_THROW
-} from '../syntax/PredefinedName';
-import {
   transformOptions,
   options
 } from '../options';
@@ -128,8 +124,8 @@ class YieldExpressionTransformer extends TempVarTransformer {
       // Inserted after every simple yield expression in order to handle
       // 'throw'. No extra action is needed to handle 'next'.
       throwClose = parseStatement `
-          if ($ctx.action == ${ACTION_THROW}) {
-            $ctx.action = ${ACTION_SEND};
+          if ($ctx.action === 'throw') {
+            $ctx.action = 'next';
             throw $ctx.sent;
           }`;
     }
@@ -289,14 +285,10 @@ class YieldExpressionTransformer extends TempVarTransformer {
           // received = void 0;
           $ctx.sent = void 0;
           // send = true; // roughly equivalent
-          $ctx.action = ${ACTION_SEND};
+          $ctx.action = 'next';
 
           while (true) {
-            if ($ctx.action == ${ACTION_SEND}) {
-              ${next} = ${g}.next($ctx.sent);
-            } else {
-              ${next} = ${g}.throw($ctx.sent);
-            }
+            ${next} = ${g}[$ctx.action]($ctx.sent);
             if (${next}.done) {
               $ctx.sent = ${next}.value;
               break;
