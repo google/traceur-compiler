@@ -44,7 +44,18 @@ import {ParameterTransformer} from './ParameterTransformer';
 import {options} from '../options';
 
 /**
+ * Inserts runtime type assertions for type annotations.
  *
+ *   function test(a:Number):Number {
+ *     return a * 10;
+ *   }
+ *
+ *   =>
+ *
+ *   function test(a:Number):Number {
+ *     assert.type(a, Number);
+ *     return assert.type(a * 10, Number);
+ *   }
  */
 export class TypeAssertionTransformer extends ParameterTransformer {
   /**
