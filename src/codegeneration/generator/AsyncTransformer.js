@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {AwaitState} from './AwaitState';
 import {CPSTransformer} from './CPSTransformer';
 import {EndState} from './EndState';
-import {AwaitState} from './AwaitState';
 import {FallThroughState} from './FallThroughState';
 import {STATE_MACHINE} from '../../syntax/trees/ParseTreeType';
 import {
+  parseExpression,
   parseStatement,
   parseStatements
 } from '../PlaceholderParser';
@@ -27,7 +28,6 @@ import {VAR} from '../../syntax/TokenType';
 import {
   createAssignStateStatement,
   createBreakStatement,
-  createFunctionBody,
   createReturnStatement,
   createStatementList,
   createUndefinedExpression
@@ -39,14 +39,8 @@ import {
  * At the top level the state machine is translated into this source code:
  *
  * {
- *   var $that = this;
  *   machine variables
- *   var $continuation = machineMethod;
- *   var $result = new Promise(...);
- *   var $createCallback = function(newState) { function (value) { $ctx.state = newState; $ctx.value = value; $continuation(); }}
- *   var $createErrback = function(newState) { function (err) { $ctx.state = newState; $ctx.err = err; $continuation(); }}
- *   $continuation();
- *   return $result;
+ *   return $traceurRuntime.asyncWrap(machineFunction);
  * }
  */
 export class AsyncTransformer extends CPSTransformer {
@@ -151,35 +145,15 @@ export class AsyncTransformer extends CPSTransformer {
    * Then the final state machine is converted into the following code:
    *
    * {
-   *   var $that = this;
    *   machine variables
-   *   // and more
+   *   return $traceurRuntime.asyncWrap(machineFunction);
    * }
-   * TODO: add close() method which executes pending finally clauses
    * @param {FunctionBody} tree
    * @return {FunctionBody}
    */
   transformAsyncBody(tree) {
-    // transform to a state machine
-    var transformedTree = this.transformAny(tree);
-    if (this.reporter.hadError()) {
-      return tree;
-    }
-    var machine = transformedTree;
-
-    if (machine.startState !== State.START_STATE)
-      machine = machine.replaceStateId(machine.startState, State.START_STATE);
-
-    var statements = [
-      // lifted machine variables
-      ...this.getMachineVariables(tree, machine),
-      ...parseStatements
-          `var $that = this, $arguments = arguments;
-          return $traceurRuntime.asyncWrap(
-                ${this.generateMachineInnerFunction(machine)})`
-    ];
-
-    return createFunctionBody(statements);
+    var runtimeFunction = parseExpression `$traceurRuntime.asyncWrap`;
+    return this.transformCpsFunctionBody(tree, runtimeFunction);
   }
 
   /** @return {Array.<ParseTree>} */

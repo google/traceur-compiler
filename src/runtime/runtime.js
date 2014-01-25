@@ -398,6 +398,10 @@
       superCall(self, homeObject, 'constructor', args);
   }
 
+  // Generator states. Terminology roughly matches that of
+  //   http://wiki.ecmascript.org/doku.php?id=harmony:generators
+  // Since 'state' is already taken, use 'GState' instead to denote what's
+  // referred to as "G.[[State]]" on that page.
   var ST_NEWBORN = 0;
   var ST_EXECUTING = 1;
   var ST_SUSPENDED = 2;
@@ -481,8 +485,8 @@
     };
   }
 
-  function generatorWrap(innerFunction) {
-    var moveNext = getMoveNext(innerFunction);
+  function generatorWrap(innerFunction, self) {
+    var moveNext = getMoveNext(innerFunction, self);
     var ctx = new GeneratorContext();
     return addIterator({
       next: getNextOrThrow(ctx, moveNext, 'next'),
@@ -501,8 +505,8 @@
   }
   AsyncFunctionContext.prototype = Object.create(GeneratorContext.prototype);
 
-  function asyncWrap(innerFunction) {
-    var moveNext = getMoveNext(innerFunction);
+  function asyncWrap(innerFunction, self) {
+    var moveNext = getMoveNext(innerFunction, self);
     var ctx = new AsyncFunctionContext();
     ctx.createCallback = function(newState) {
       return function (value) {
@@ -523,11 +527,11 @@
     return ctx.result;
   }
 
-  function getMoveNext(innerFunction) {
+  function getMoveNext(innerFunction, self) {
     return function(ctx) {
       while (true) {
         try {
-          return innerFunction(ctx);
+          return innerFunction.call(self, ctx);
         } catch (ex) {
           ctx.storedException = ex;
           var last = ctx.tryStack_[ctx.tryStack_.length - 1];
