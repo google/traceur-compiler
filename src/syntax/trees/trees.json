@@ -410,7 +410,8 @@
       "SourceRange"
     ],
     "parameter": [
-      "BindingElement"
+      "BindingElement",
+      "RestParameter"
     ],
     "typeAnnotation": [
       "ParseTree"

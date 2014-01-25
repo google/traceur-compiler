@@ -1,4 +1,4 @@
-// Options: --types=true --type-assertions
+// Options: --types=true --type-assertions --type-assertion-module=./resources/assert
 var globalVar:Number = 1;
 var globalUninitializedVar:Number;
 

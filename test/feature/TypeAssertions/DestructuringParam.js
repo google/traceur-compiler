@@ -1,4 +1,4 @@
-// Options: --types=true --type-assertions
+// Options: --types=true --type-assertions --type-assertion-module=./resources/assert
 function objectPattern({a, b}:Number) { return a + b; }
 function objectPatternField({x: a, y: b}:Number) { return a + b; }
 function computedName() { return 'z'; }

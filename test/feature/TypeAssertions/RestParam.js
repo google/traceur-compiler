@@ -1,4 +1,4 @@
-// Options: --types=true --type-assertions
+// Options: --types=true --type-assertions --type-assertion-module=./resources/assert
 function rest(...a:Number) {}
 
 rest(1, 2, 3);

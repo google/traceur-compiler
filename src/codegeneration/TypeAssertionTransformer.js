@@ -13,36 +13,35 @@
 // limitations under the License.
 
 import {
-  ARRAY_LITERAL_EXPRESSION,
   ARRAY_PATTERN,
   BINDING_ELEMENT,
   BINDING_IDENTIFIER,
-  BLOCK,
-  CALL_EXPRESSION,
-  COMPUTED_PROPERTY_NAME,
   IDENTIFIER_EXPRESSION,
-  LITERAL_EXPRESSION,
-  MEMBER_EXPRESSION,
-  MEMBER_LOOKUP_EXPRESSION,
-  OBJECT_LITERAL_EXPRESSION,
   OBJECT_PATTERN,
   OBJECT_PATTERN_FIELD,
-  PAREN_EXPRESSION,
-  REST_PARAMETER,
-  VARIABLE_DECLARATION_LIST
+  REST_PARAMETER
 } from '../syntax/trees/ParseTreeType';
 import {
-  FormalParameter,
-  FunctionDeclaration,
-  FunctionExpression,
-  GetAccessor,
-  PropertyMethodAssignment,
+  ImportDeclaration,
+  ImportSpecifier,
+  ImportSpecifierSet,
+  Module,
+  ModuleSpecifier,
   ReturnStatement,
+  Script,
   VariableDeclaration
 } from '../syntax/trees/ParseTrees';
-import {createExpressionStatement} from './ParseTreeFactory';
+import {
+  createExpressionStatement,
+  createIdentifierToken,
+  createStringLiteralToken
+} from './ParseTreeFactory';
+import {
+  parseExpression,
+  parseStatement
+} from './PlaceholderParser';
 import {ParameterTransformer} from './ParameterTransformer';
-import assertType from './assertType';
+import {options} from '../options';
 
 /**
  *
@@ -54,7 +53,23 @@ export class TypeAssertionTransformer extends ParameterTransformer {
   constructor(identifierGenerator) {
     super(identifierGenerator);
     this.returnTypeStack_ = [];
-    this.currentType_ = null;
+    this.assertionAdded_ = false;
+  }
+
+  /**
+   * @param {Script} tree
+   * @return {ParseTree}
+   */
+  transformScript(tree) {
+    return this.prependAssertionImport_(super(tree), Script);
+  }
+
+  /**
+   * @param {Module} tree
+   * @return {ParseTree}
+   */
+  transformModule(tree) {
+    return this.prependAssertionImport_(super(tree), Module);
   }
 
   /**
@@ -65,7 +80,7 @@ export class TypeAssertionTransformer extends ParameterTransformer {
     if (tree.typeAnnotation) {
       tree = new VariableDeclaration(tree.location, tree.lvalue,
           tree.typeAnnotation,
-          assertType(tree.initialiser, tree.typeAnnotation));
+          this.assertType_(tree.initialiser, tree.typeAnnotation));
     }
     return super(tree);
   }
@@ -83,6 +98,7 @@ export class TypeAssertionTransformer extends ParameterTransformer {
           break;
 
         case REST_PARAMETER:
+          this.transformRestParameter_(tree.parameter, tree.typeAnnotation);
           break;
       }
     }
@@ -139,7 +155,7 @@ export class TypeAssertionTransformer extends ParameterTransformer {
    */
   transformReturnStatement(tree) {
     tree = super(tree);
-    var expression = assertType(tree.expression, this.returnType_);
+    var expression = this.assertType_(tree.expression, this.returnType_);
 
     if (tree.expression !== expression)
       return new ReturnStatement(tree.location, expression);
@@ -177,9 +193,6 @@ export class TypeAssertionTransformer extends ParameterTransformer {
                                            typeAnnotation);
               break;
 
-            case IDENTIFIER_EXPRESSION:
-              break;
-
             default:
               throw Error('unreachable');
           }
@@ -189,13 +202,48 @@ export class TypeAssertionTransformer extends ParameterTransformer {
     }
   }
 
+  transformRestParameter_(tree, typeAnnotation) {
+    // TODO use a single call to assert.type when we support complex types and
+    // can tell it that the type is an array of T.
+    var i = createIdentifierToken(this.getTempIdentifier());
+    var name = tree.identifier.identifierToken;
+    var current = parseExpression `${name}[${i}]`
+    var assertion = this.assertType_(current, typeAnnotation);
+    this.parameterStatements.push(
+        parseStatement `for (var ${i} = 0; ${i} < ${name}.length; ${i}++)
+            ${assertion};`);
+
+  }
+
   pushParameterAssertion_(parameter, typeAnnotation) {
     this.parameterStatements.push(createExpressionStatement(
-        assertType(parameter, typeAnnotation)));
+        this.assertType_(parameter, typeAnnotation)));
   }
 
   pushReturnType_(typeAnnotation) {
     this.returnTypeStack_.push(typeAnnotation);
+  }
+
+  assertType_(expression, typeAnnotation) {
+    if (expression === null || typeAnnotation === null)
+      return expression;
+    this.assertionAdded_ = true;
+    return parseExpression `assert.type(${expression}, ${typeAnnotation.name})`;
+  }
+
+  prependAssertionImport_(tree, Ctor) {
+    if (!this.assertionAdded_ || options.typeAssertionModule === null)
+      return tree;
+
+    var importStatement = new ImportDeclaration(null,
+        new ImportSpecifierSet(null,
+            [new ImportSpecifier(null, createIdentifierToken('assert'), null)]),
+        new ModuleSpecifier(null,
+            createStringLiteralToken(options.typeAssertionModule)));
+    tree = new Ctor(tree.location,
+                    [importStatement, ...tree.scriptItemList],
+                    tree.moduleName);
+    return tree;
   }
 
   popReturnType_() {
