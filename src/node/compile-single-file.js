@@ -20,6 +20,8 @@ var writeTreeToFile = require('./compiler.js').writeTreeToFile;
 
 var traceur = require('./traceur.js');
 var ErrorReporter = traceur.util.ErrorReporter;
+var AttachModuleNameTransformer =
+    traceur.codegeneration.AttachModuleNameTransformer;
 var FromOptionsTransformer = traceur.codegeneration.FromOptionsTransformer;
 var Parser = traceur.syntax.Parser;
 var SourceFile = traceur.syntax.SourceFile;
@@ -30,7 +32,11 @@ function compileSingleFile(inputFilePath, outputFilePath) {
     var sourceFile = new SourceFile(inputFilePath, contents);
     var parser = new Parser(reporter, sourceFile);
     var tree = parser.parseModule();
-    var transformer = new FromOptionsTransformer(reporter);
+    var moduleName = inputFilePath.replace(/\.js$/, '');
+    moduleName = path.relative(__dirname, moduleName).replace(/\\/g,'/');
+    var transformer = new AttachModuleNameTransformer(moduleName);
+    tree = transformer.transformAny(tree);
+    transformer = new FromOptionsTransformer(reporter);
     var transformed = transformer.transform(tree);
 
     if (!reporter.hadError()) {

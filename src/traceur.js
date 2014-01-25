@@ -73,6 +73,7 @@ export var outputgeneration = {
 };
 
 import {AmdTransformer} from './codegeneration/AmdTransformer';
+import {AttachModuleNameTransformer} from './codegeneration/module/AttachModuleNameTransformer';
 import {CloneTreeTransformer} from './codegeneration/CloneTreeTransformer';
 import {CommonJsModuleTransformer} from './codegeneration/CommonJsModuleTransformer';
 import {FromOptionsTransformer} from './codegeneration/FromOptionsTransformer';
@@ -83,6 +84,7 @@ module ParseTreeFactory from './codegeneration/ParseTreeFactory';
 
 export var codegeneration = {
   AmdTransformer,
+  AttachModuleNameTransformer,
   CloneTreeTransformer,
   CommonJsModuleTransformer,
   FromOptionsTransformer,
@@ -94,12 +96,18 @@ export var codegeneration = {
   }
 };
 
-module modules from './runtime/Loader';
+module modules from './runtime/InternalLoader';
 export {modules};
 
+
+import {Loader} from './runtime/Loader';
 import {LoaderHooks} from './runtime/LoaderHooks';
 import {InterceptOutputLoaderHooks} from './runtime/InterceptOutputLoaderHooks';
+import {TraceurLoader} from './runtime/TraceurLoader';
+
 export var runtime = {
   InterceptOutputLoaderHooks,
-  LoaderHooks
+  Loader,
+  LoaderHooks,
+  TraceurLoader
 }

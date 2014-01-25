@@ -25,12 +25,12 @@ function interpret(filename, argv, flags) {
 
   // TODO(jjb): Should be system loader.
   function getLoader() {
-    var LoaderHooks = traceur.modules.LoaderHooks;
+    var LoaderHooks = traceur.runtime.LoaderHooks;
     var reporter = new traceur.util.ErrorReporter();
     // Load dependencies as relative to the argument.
     var loaderHooks = new LoaderHooks(reporter, moduleName, undefined,
                                       nodeLoader);
-    return new traceur.modules.Loader(loaderHooks);
+    return new traceur.runtime.TraceurLoader(loaderHooks);
   }
   global.SystemLoader = getLoader();
   global.SystemLoader.import(moduleName);

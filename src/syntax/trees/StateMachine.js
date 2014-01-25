@@ -105,14 +105,6 @@ export class StateMachine extends ParseTree {
   }
 
   /**
-   * Does this machine include any try statements.
-   * @return {boolean}
-   */
-  hasExceptionBlocks() {
-    return this.exceptionBlocks.length > 0;
-  }
-
-  /**
    * Returns all the state ids of states in the machine. Note that the
    * fallThroughState is typically not a state in the machine.
    * @return {Array.<number>}
@@ -137,18 +129,6 @@ export class StateMachine extends ParseTree {
     return enclosingMap;
   }
 
-  /**
-   * Return a map from the states in the machine to their nearest enclosing
-   * catch.
-   * @return {Object} map of state IDs to CatchState.
-   */
-  getEnclosingCatchMap() {
-    var enclosingMap = Object.create(null);
-    addCatchOrFinallyStates(TryState.Kind.CATCH, enclosingMap,
-                            this.exceptionBlocks);
-    return enclosingMap;
-  }
-
   allCatchStates() {
     var catches = [];
     addAllCatchStates(this.exceptionBlocks, catches);
@@ -161,5 +141,30 @@ export class StateMachine extends ParseTree {
         State.replaceStateId(this.fallThroughState, oldState, newState),
         State.replaceAllStates(this.states, oldState, newState),
         State.replaceAllStates(this.exceptionBlocks, oldState, newState));
+  }
+
+  /**
+   * Returns a new state machine which will run this machine first, then run
+   * the next machine.
+   * @param {StateMachine} nextMachine
+   * @return {StateMachine}
+   */
+  append(nextMachine) {
+    var states = [...this.states];
+    for (var i = 0; i < nextMachine.states.length; i++) {
+      var otherState = nextMachine.states[i];
+      states.push(
+          otherState.replaceState(nextMachine.startState, this.fallThroughState));
+    }
+
+    var exceptionBlocks = [...this.exceptionBlocks];
+    for (var i = 0; i < nextMachine.exceptionBlocks.length; i++) {
+      var tryState = nextMachine.exceptionBlocks[i];
+      exceptionBlocks.push(
+          tryState.replaceState(nextMachine.startState, this.fallThroughState));
+    }
+
+    return new StateMachine(this.startState, nextMachine.fallThroughState,
+                            states, exceptionBlocks);
   }
 }

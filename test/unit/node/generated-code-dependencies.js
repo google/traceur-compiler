@@ -29,17 +29,17 @@ suite('context test', function() {
   });
 
   function resolve(name) {
-    return path.resolve(__dirname, '../../../' + name);
+    return path.resolve(__dirname, '../../../' + name).replace(/\\/g, '/');
   }
 
   function executeFileWithRuntime(fileName) {
     var InterceptOutputLoaderHooks = traceur.runtime.InterceptOutputLoaderHooks;
-    var Loader = traceur.modules.Loader;
+    var TraceurLoader = traceur.runtime.TraceurLoader;
 
     var source = fs.readFileSync(fileName, 'utf-8');
     var reporter = new traceur.util.TestErrorReporter();
     var loaderHooks = new InterceptOutputLoaderHooks(reporter, fileName);
-    var loader = new Loader(loaderHooks);
+    var loader = new TraceurLoader(loaderHooks);
     loader.script(source, fileName);
     assert.ok(!reporter.hadError(), reporter.errors.join('\n'));
     var output = loaderHooks.transcoded;
@@ -93,8 +93,8 @@ suite('context test', function() {
       assert.isNull(error);
       var fileContents = fs.readFileSync(path.resolve(outDir, 'file.js'));
       var depContents = fs.readFileSync(path.resolve(outDir, 'dep.js'));
-      assert.equal(fileContents + '', "define(['./dep'], function($__0) {\n  \"use strict\";\n  var q = ($__0).q;\n  var p = 'module';\n  return {\n    get p() {\n      return p;\n    },\n    __transpiledModule: true\n  };\n});\n");
-      assert.equal(depContents + '', "define([], function() {\n  \"use strict\";\n  var q = 'q';\n  return {\n    get q() {\n      return q;\n    },\n    __transpiledModule: true\n  };\n});\n");
+      assert.equal(fileContents + '', "define(['./dep'], function($__0) {\n  \"use strict\";\n  var __moduleName = \"../../test/unit/node/resources/compile-dir/file\";\n  var q = ($__0).q;\n  var p = 'module';\n  return {\n    get p() {\n      return p;\n    },\n    __transpiledModule: true\n  };\n});\n");
+      assert.equal(depContents + '', "define([], function() {\n  \"use strict\";\n  var __moduleName = \"../../test/unit/node/resources/compile-dir/dep\";\n  var q = 'q';\n  return {\n    get q() {\n      return q;\n    },\n    __transpiledModule: true\n  };\n});\n");
       done();
     });
   });
@@ -107,8 +107,8 @@ suite('context test', function() {
       assert.isNull(error);
       var fileContents = fs.readFileSync(path.resolve(outDir, 'file.js'));
       var depContents = fs.readFileSync(path.resolve(outDir, 'dep.js'));
-      assert.equal(fileContents + '', "\"use strict\";\nvar q = require('./dep').q;\nvar p = 'module';\nmodule.exports = {get p() {\n    return p;\n  }};\n");
-      assert.equal(depContents + '', "\"use strict\";\nvar q = 'q';\nmodule.exports = {get q() {\n    return q;\n  }};\n");
+      assert.equal(fileContents + '', "\"use strict\";\nvar __moduleName = \"../../test/unit/node/resources/compile-dir/file\";\nvar q = require('./dep').q;\nvar p = 'module';\nmodule.exports = {get p() {\n    return p;\n  }};\n");
+      assert.equal(depContents + '', "\"use strict\";\nvar __moduleName = \"../../test/unit/node/resources/compile-dir/dep\";\nvar q = 'q';\nmodule.exports = {get q() {\n    return q;\n  }};\n");
       done();
     });
   })

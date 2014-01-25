@@ -211,25 +211,12 @@ export class GeneratorTransformer extends CPSTransformer {
     var statements = [
       ...this.getMachineVariables(tree, machine),
       ...parseStatements
-          `var $that = this, $arguments = arguments,
-              innerFunction = ${this.generateMachineInnerFunction(machine)},
-              moveNext = ${this.generateMachineMethod(machine)};
-          return $traceurRuntime.generatorWrap(moveNext);`
+          `var $that = this, $arguments = arguments;
+          return $traceurRuntime.generatorWrap(
+              ${this.generateMachineInnerFunction(machine)});`
     ];
 
     return createFunctionBody(statements);
-  }
-
-  /**
-   * @param {number} rethrowState
-   * @param {number} machineEndState
-   * @return {Array.<ParseTree>}
-   */
-  machineUncaughtExceptionStatements(rethrowState, machineEndState) {
-    return parseStatements `
-        $ctx.GState = ${ST_CLOSED};
-        ${createAssignStateStatement(machineEndState)};
-        throw $ctx.storedException;`
   }
 
   /**

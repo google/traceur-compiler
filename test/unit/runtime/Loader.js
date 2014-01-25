@@ -42,13 +42,13 @@ suite('modules.js', function() {
   }
 
   function getLoaderHooks(opt_reporter) {
-    var LoaderHooks = traceur.modules.LoaderHooks;
+    var LoaderHooks = traceur.runtime.LoaderHooks;
     opt_reporter = opt_reporter || reporter;
     return new LoaderHooks(opt_reporter, url, undefined, fileLoader);
   }
 
   function getLoader(opt_reporter) {
-    return new traceur.modules.Loader(getLoaderHooks(opt_reporter));
+    return new traceur.runtime.TraceurLoader(getLoaderHooks(opt_reporter));
   }
 
   test('LoaderHooks.locate', function() {
@@ -93,14 +93,14 @@ suite('modules.js', function() {
         'module b from "./test_b.js";\n' +
         'module c from "./test_c.js";\n' +
         '\n' +
-        '[\'test\', a.name, b.name, c.name];\n';
+        'export var arr = [\'test\', a.name, b.name, c.name];\n';
 
     var result = getLoader().module(code, './LoaderModule', {},
-      function(value) {
-        assert.equal('test', value[0]);
-        assert.equal('A', value[1]);
-        assert.equal('B', value[2]);
-        assert.equal('C', value[3]);
+      function(module) {
+        assert.equal('test', module.arr[0]);
+        assert.equal('A', module.arr[1]);
+        assert.equal('B', module.arr[2]);
+        assert.equal('C', module.arr[3]);
         done();
       }, function(error) {
         fail(error);
@@ -112,12 +112,12 @@ suite('modules.js', function() {
     var code =
         'module d from "./subdir/test_d.js";\n' +
         '\n' +
-        '[d.name, d.e.name];\n';
+        'export var arr = [d.name, d.e.name];\n';
 
     var result = getLoader().module(code, 'LoaderModuleWithSubdir', {},
-      function(value) {
-        assert.equal('D', value[0]);
-        assert.equal('E', value[1]);
+      function(module) {
+        assert.equal('D', module.arr[0]);
+        assert.equal('E', module.arr[1]);
         done();
       }, function(error) {
         fail(error);
