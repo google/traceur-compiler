@@ -274,8 +274,6 @@
   var ST_EXECUTING = 1;
   var ST_SUSPENDED = 2;
   var ST_CLOSED = 3;
-  var ACTION_SEND = 0;
-  var ACTION_THROW = 1;
   var END_STATE = - 3;
   function addIterator(object) {
     return defineProperty(object, Symbol.iterator, nonEnum(function() {
@@ -315,67 +313,40 @@
       this.tryStack_.pop();
     }
   };
+  function getNextOrThrow(ctx, moveNext, action) {
+    return function(x) {
+      switch (ctx.GState) {
+        case ST_EXECUTING:
+          throw new Error(("\"" + action + "\" on executing generator"));
+        case ST_CLOSED:
+          throw new Error(("\"" + action + "\" on closed generator"));
+        case ST_NEWBORN:
+          if (action === 'throw') {
+            ctx.GState = ST_CLOSED;
+            throw x;
+          }
+          if (x !== undefined) throw $TypeError('Sent value to newborn generator');
+        case ST_SUSPENDED:
+          ctx.GState = ST_EXECUTING;
+          ctx.action = action;
+          ctx.sent = x;
+          var value = moveNext(ctx);
+          var done = value === ctx;
+          if (done) value = ctx.returnValue;
+          ctx.GState = done ? ST_CLOSED: ST_SUSPENDED;
+          return {
+            value: value,
+            done: done
+          };
+      }
+    };
+  }
   function generatorWrap(innerFunction) {
     var moveNext = getMoveNext(innerFunction);
     var ctx = new GeneratorContext();
     return addIterator({
-      next: function(x) {
-        switch (ctx.GState) {
-          case ST_EXECUTING:
-            throw new Error('"next" on executing generator');
-          case ST_CLOSED:
-            throw new Error('"next" on closed generator');
-          case ST_NEWBORN:
-            if (x !== undefined) {
-              throw $TypeError('Sent value to newborn generator');
-            }
-          case ST_SUSPENDED:
-            ctx.GState = ST_EXECUTING;
-            ctx.action = ACTION_SEND;
-            ctx.sent = x;
-            var value = moveNext(ctx);
-            if (value !== ctx) {
-              ctx.GState = ST_SUSPENDED;
-              return {
-                value: value,
-                done: false
-              };
-            }
-            ctx.GState = ST_CLOSED;
-            return {
-              value: ctx.returnValue,
-              done: true
-            };
-        }
-      },
-      throw: function(x) {
-        switch (ctx.GState) {
-          case ST_EXECUTING:
-            throw new Error('"throw" on executing generator');
-          case ST_CLOSED:
-            throw new Error('"throw" on closed generator');
-          case ST_NEWBORN:
-            ctx.GState = ST_CLOSED;
-            throw x;
-          case ST_SUSPENDED:
-            ctx.GState = ST_EXECUTING;
-            ctx.action = ACTION_THROW;
-            ctx.sent = x;
-            var value = moveNext(ctx);
-            if (value !== ctx) {
-              ctx.GState = ST_SUSPENDED;
-              return {
-                value: value,
-                done: false
-              };
-            }
-            ctx.GState = ST_CLOSED;
-            return {
-              value: ctx.returnValue,
-              done: true
-            };
-        }
-      }
+      next: getNextOrThrow(ctx, moveNext, 'next'),
+      throw: getNextOrThrow(ctx, moveNext, 'throw')
     });
   }
   function AsyncFunctionContext() {
@@ -409,20 +380,20 @@
     return ctx.result;
   }
   function getMoveNext(innerFunction) {
-    return function($ctx) {
+    return function(ctx) {
       while (true) {
         try {
-          return innerFunction($ctx);
+          return innerFunction(ctx);
         } catch (ex) {
-          $ctx.storedException = ex;
-          var last = $ctx.tryStack_[$ctx.tryStack_.length - 1];
+          ctx.storedException = ex;
+          var last = ctx.tryStack_[ctx.tryStack_.length - 1];
           if (!last) {
-            $ctx.GState = ST_CLOSED;
-            $ctx.state = END_STATE;
+            ctx.GState = ST_CLOSED;
+            ctx.state = END_STATE;
             throw ex;
           }
-          $ctx.state = last. catch !== undefined ? last. catch: last. finally;
-          if (last.finallyFallThrough !== undefined) $ctx.finallyFallThrough = last.finallyFallThrough;
+          ctx.state = last. catch !== undefined ? last. catch: last. finally;
+          if (last.finallyFallThrough !== undefined) ctx.finallyFallThrough = last.finallyFallThrough;
         }
       }
     };
@@ -3234,8 +3205,6 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/syntax/Predefined
     return '$' + index;
   }
   ;
-  var ACTION_SEND = 0;
-  var ACTION_THROW = 1;
   return {
     get ANY() {
       return ANY;
@@ -3368,12 +3337,6 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/syntax/Predefined
     },
     get getParameterName() {
       return getParameterName;
-    },
-    get ACTION_SEND() {
-      return ACTION_SEND;
-    },
-    get ACTION_THROW() {
-      return ACTION_THROW;
     }
   };
 });
@@ -17510,8 +17473,8 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/codegeneration/ge
 $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/codegeneration/GeneratorTransformPass", function() {
   "use strict";
   var __moduleName = "traceur@0.0.16/src/codegeneration/GeneratorTransformPass";
-  var $__267 = Object.freeze(Object.defineProperties(["\n          if ($ctx.action == ", ") {\n            $ctx.action = ", ";\n            throw $ctx.sent;\n          }"], {raw: {value: Object.freeze(["\n          if ($ctx.action == ", ") {\n            $ctx.action = ", ";\n            throw $ctx.sent;\n          }"])}})),
-      $__268 = Object.freeze(Object.defineProperties(["\n        {\n          var ", " = ", "[Symbol.iterator]();\n          var ", ";\n\n          // TODO: Should 'yield *' handle non-generator iterators? A strict\n          // interpretation of harmony:generators would indicate 'no', but\n          // 'yes' seems makes more sense from a language-user's perspective.\n\n          // received = void 0;\n          $ctx.sent = void 0;\n          // send = true; // roughly equivalent\n          $ctx.action = ", ";\n\n          while (true) {\n            if ($ctx.action == ", ") {\n              ", " = ", ".next($ctx.sent);\n            } else {\n              ", " = ", ".throw($ctx.sent);\n            }\n            if (", ".done) {\n              $ctx.sent = ", ".value;\n              break;\n            }\n            // Normally, this would go through transformYieldForExpression_\n            // which would rethrow and we would catch it and set up the states\n            // again.\n            ", ";\n          }\n        }"], {raw: {value: Object.freeze(["\n        {\n          var ", " = ", "[Symbol.iterator]();\n          var ", ";\n\n          // TODO: Should 'yield *' handle non-generator iterators? A strict\n          // interpretation of harmony:generators would indicate 'no', but\n          // 'yes' seems makes more sense from a language-user's perspective.\n\n          // received = void 0;\n          $ctx.sent = void 0;\n          // send = true; // roughly equivalent\n          $ctx.action = ", ";\n\n          while (true) {\n            if ($ctx.action == ", ") {\n              ", " = ", ".next($ctx.sent);\n            } else {\n              ", " = ", ".throw($ctx.sent);\n            }\n            if (", ".done) {\n              $ctx.sent = ", ".value;\n              break;\n            }\n            // Normally, this would go through transformYieldForExpression_\n            // which would rethrow and we would catch it and set up the states\n            // again.\n            ", ";\n          }\n        }"])}}));
+  var $__267 = Object.freeze(Object.defineProperties(["\n          if ($ctx.action === 'throw') {\n            $ctx.action = 'next';\n            throw $ctx.sent;\n          }"], {raw: {value: Object.freeze(["\n          if ($ctx.action === 'throw') {\n            $ctx.action = 'next';\n            throw $ctx.sent;\n          }"])}})),
+      $__268 = Object.freeze(Object.defineProperties(["\n        {\n          var ", " = ", "[Symbol.iterator]();\n          var ", ";\n\n          // TODO: Should 'yield *' handle non-generator iterators? A strict\n          // interpretation of harmony:generators would indicate 'no', but\n          // 'yes' seems makes more sense from a language-user's perspective.\n\n          // received = void 0;\n          $ctx.sent = void 0;\n          // send = true; // roughly equivalent\n          $ctx.action = 'next';\n\n          while (true) {\n            ", " = ", "[$ctx.action]($ctx.sent);\n            if (", ".done) {\n              $ctx.sent = ", ".value;\n              break;\n            }\n            // Normally, this would go through transformYieldForExpression_\n            // which would rethrow and we would catch it and set up the states\n            // again.\n            ", ";\n          }\n        }"], {raw: {value: Object.freeze(["\n        {\n          var ", " = ", "[Symbol.iterator]();\n          var ", ";\n\n          // TODO: Should 'yield *' handle non-generator iterators? A strict\n          // interpretation of harmony:generators would indicate 'no', but\n          // 'yes' seems makes more sense from a language-user's perspective.\n\n          // received = void 0;\n          $ctx.sent = void 0;\n          // send = true; // roughly equivalent\n          $ctx.action = 'next';\n\n          while (true) {\n            ", " = ", "[$ctx.action]($ctx.sent);\n            if (", ".done) {\n              $ctx.sent = ", ".value;\n              break;\n            }\n            // Normally, this would go through transformYieldForExpression_\n            // which would rethrow and we would catch it and set up the states\n            // again.\n            ", ";\n          }\n        }"])}}));
   var AsyncTransformer = $traceurRuntime.getModuleImpl("traceur@0.0.16/src/codegeneration/generator/AsyncTransformer").AsyncTransformer;
   var ForInTransformPass = $traceurRuntime.getModuleImpl("traceur@0.0.16/src/codegeneration/generator/ForInTransformPass").ForInTransformPass;
   var $__270 = $traceurRuntime.getModuleImpl("traceur@0.0.16/src/syntax/trees/ParseTrees"),
@@ -17543,9 +17506,6 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/codegeneration/Ge
       createVariableDeclarationList = $__270.createVariableDeclarationList,
       createVariableStatement = $__270.createVariableStatement,
       createYieldStatement = $__270.createYieldStatement;
-  var $__270 = $traceurRuntime.getModuleImpl("traceur@0.0.16/src/syntax/PredefinedName"),
-      ACTION_SEND = $__270.ACTION_SEND,
-      ACTION_THROW = $__270.ACTION_THROW;
   var $__270 = $traceurRuntime.getModuleImpl("traceur@0.0.16/src/options"),
       transformOptions = $__270.transformOptions,
       options = $__270.options;
@@ -17587,7 +17547,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/codegeneration/Ge
   var $YieldExpressionTransformer = ($traceurRuntime.createClass)(YieldExpressionTransformer, {
     get throwClose() {
       if (!throwClose) {
-        throwClose = parseStatement($__267, ACTION_THROW, ACTION_SEND);
+        throwClose = parseStatement($__267);
       }
       return throwClose;
     },
@@ -17640,7 +17600,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/codegeneration/Ge
     transformYieldForExpression_: function(tree) {
       var g = id(this.getTempIdentifier());
       var next = id(this.getTempIdentifier());
-      return parseStatement($__268, g, tree.expression, next, ACTION_SEND, ACTION_SEND, next, g, next, g, next, next, createYieldStatement(createMemberExpression(next, 'value')));
+      return parseStatement($__268, g, tree.expression, next, next, g, next, next, createYieldStatement(createMemberExpression(next, 'value')));
     }
   }, {}, TempVarTransformer);
   var GeneratorTransformPass = function(identifierGenerator, reporter) {
