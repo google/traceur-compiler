@@ -59,7 +59,3 @@ export function getParameterName(index) {
   // TODO: consider caching these
   return '$' + index;
 };
-
-// constants for generator actions
-export var ACTION_SEND = 0;
-export var ACTION_THROW = 1;
