@@ -201,4 +201,16 @@ suite('Loader.js', function() {
         done();
       });
   });
+
+  test('System.semverMap', function() {
+    var System =
+      $traceurRuntime.ModuleStore.getForTesting('src/runtime/System').System;
+    var version = System.map['traceur@'];
+    assert(version);
+    // This test must be updated if the major or minor version number changes.
+    // If the change is intended, this is a reminder to update the documentation.
+    assert.equal(version, System.map['traceur@0']);
+    assert.equal(version, System.map['traceur@0.0']);
+  });
+
 });
