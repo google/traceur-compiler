@@ -16952,24 +16952,18 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/codegeneration/ge
       }));
       return [createVariableStatement(createVariableDeclarationList(VAR, declarations))];
     },
-    convertFunctionBodyToStateMachine_: function(tree) {
-      var startState = this.allocateState();
-      var fallThroughState = this.allocateState();
-      return this.stateToStateMachine_(new FallThroughState(startState, fallThroughState, tree.statements), fallThroughState);
-    },
     transformCpsFunctionBody: function(tree, runtimeMethod) {
       var alphaRenamedTree = AlphaRenamer.rename(tree, 'arguments', '$arguments');
       var hasArguments = alphaRenamedTree !== tree;
-      var transformedTree = this.transformAny(alphaRenamedTree);
+      var machine = this.transformAny(alphaRenamedTree);
       if (this.reporter.hadError()) return tree;
       var machine;
-      if (transformedTree.type !== STATE_MACHINE) {
-        machine = this.convertFunctionBodyToStateMachine_(transformedTree);
+      if (machine.type !== STATE_MACHINE) {
+        machine = this.statementsToStateMachine_(machine.statements);
       } else {
-        machine = transformedTree;
         machine = new StateMachine(machine.startState, machine.fallThroughState, this.removeEmptyStates(machine.states), machine.exceptionBlocks);
       }
-      if (machine.startState !== State.START_STATE) machine = machine.replaceStateId(machine.startState, State.START_STATE);
+      machine = machine.replaceStateId(machine.fallThroughState, State.END_STATE).replaceStateId(machine.startState, State.START_STATE);
       var statements = this.getMachineVariables(tree, machine);
       if (hasArguments) statements.push(parseStatement($__240));
       statements.push(parseStatement($__241, runtimeMethod, this.generateMachineInnerFunction(machine)));
@@ -17011,7 +17005,6 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/codegeneration/ge
         }
       }
       this.addFinallyFallThroughDispatches(null, machine.exceptionBlocks, cases);
-      cases.push(createCaseClause(createNumberLiteral(machine.fallThroughState), this.machineFallThroughStatements(machineEndState)));
       cases.push(createCaseClause(createNumberLiteral(machineEndState), this.machineEndStatements()));
       cases.push(createCaseClause(createNumberLiteral(rethrowState), this.machineRethrowStatements(machineEndState)));
       cases.push(createDefaultClause(parseStatements($__242)));

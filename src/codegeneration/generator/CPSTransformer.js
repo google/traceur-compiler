@@ -873,45 +873,31 @@ export class CPSTransformer extends ParseTreeTransformer {
     ];
   }
 
-  /**
-   * Forces a FunctionBody without any yield/return into a state machine.
-   * @param {FunctionBody} tree
-   * @return {StateMachine} tree
-   * @private
-   */
-  convertFunctionBodyToStateMachine_(tree) {
-    var startState = this.allocateState();
-    var fallThroughState = this.allocateState();
-
-    return this.stateToStateMachine_(
-        new FallThroughState(startState, fallThroughState, tree.statements),
-            fallThroughState);
-  }
-
   transformCpsFunctionBody(tree, runtimeMethod) {
     var alphaRenamedTree = AlphaRenamer.rename(tree, 'arguments', '$arguments');
     var hasArguments = alphaRenamedTree !== tree;
 
     // transform to a state machine
-    var transformedTree = this.transformAny(alphaRenamedTree);
+    var machine = this.transformAny(alphaRenamedTree);
     if (this.reporter.hadError())
       return tree;
 
     // If the FunctionBody has no yield or return no state machine got created
     // in the above transformation. We therefore convert it below.
     var machine;
-    if (transformedTree.type !== STATE_MACHINE) {
-      machine = this.convertFunctionBodyToStateMachine_(transformedTree);
+    if (machine.type !== STATE_MACHINE) {
+      machine = this.statementsToStateMachine_(machine.statements);
     } else {
-      machine = transformedTree;
       machine = new StateMachine(machine.startState,
                                  machine.fallThroughState,
                                  this.removeEmptyStates(machine.states),
                                  machine.exceptionBlocks);
     }
 
-    if (machine.startState !== State.START_STATE)
-      machine = machine.replaceStateId(machine.startState, State.START_STATE);
+    // Clean up start and end states.
+    machine = machine.
+        replaceStateId(machine.fallThroughState, State.END_STATE).
+        replaceStateId(machine.startState, State.START_STATE);
 
     var statements = this.getMachineVariables(tree, machine);
     if (hasArguments)
@@ -1019,6 +1005,7 @@ export class CPSTransformer extends ParseTreeTransformer {
    */
   transformMachineStates(machine, machineEndState, rethrowState,
                          enclosingFinallyState) {
+
     var cases = [];
 
     for (var i = 0; i < machine.states.length; i++) {
@@ -1035,12 +1022,6 @@ export class CPSTransformer extends ParseTreeTransformer {
     this.addFinallyFallThroughDispatches(null, machine.exceptionBlocks, cases);
 
     // $ctx is used as a sentinel for ending the statemachine.
-    // case machine.fallThroughState: return $ctx;
-    cases.push(
-        createCaseClause(
-            createNumberLiteral(machine.fallThroughState),
-            this.machineFallThroughStatements(machineEndState)));
-
     // case machineEndState: return $ctx;
     cases.push(
         createCaseClause(
