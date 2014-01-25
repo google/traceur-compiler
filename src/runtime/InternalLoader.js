@@ -20,30 +20,6 @@ import {getUid} from '../util/uid';
 
 // TODO(arv): I stripped the resolvers to make this simpler for now.
 
-// TODO(arv): Implement
-var base = Object.freeze(Object.create(null, {
-  Array: {value: Array},
-  Boolean: {value: Boolean},
-  Date: {value: Date},
-  Error: {value: Error},
-  EvalError: {value: EvalError},
-  Function: {value: Function},
-  JSON: {value: JSON},
-  Math: {value: Math},
-  Number: {value: Number},
-  Object: {value: Object},
-  RangeError: {value: RangeError},
-  ReferenceError: {value: ReferenceError},
-  RegExp: {value: RegExp},
-  String: {value: String},
-  SyntaxError: {value: SyntaxError},
-  TypeError: {value: TypeError},
-  URIError: {value: URIError},
-
-  undefined: {value: void 0}
-}));
-
-
 var NOT_STARTED = 0;
 var LOADING = 1;
 var LOADED = 2;
@@ -205,10 +181,8 @@ class EvalCodeUnit extends CodeUnit {
    * @param {string} code
    * @param {string} caller script or module name
    */
-  constructor(loaderHooks, code, type = 'script',
-      normalizedName = loaderHooks.rootUrl(), name, referrerName, address) {
-    super(loaderHooks, normalizedName, type, LOADED,
-        name, referrerName, address);
+  constructor(loaderHooks, code, type = 'script', referrerName, address) {
+    super(loaderHooks, null, type, LOADED, null, referrerName, address);
     this.text = code;
   }
 }
@@ -255,10 +229,9 @@ export class InternalLoader {
     return codeUnit;
   }
 
-  module(code, name, referrerName, address) {
-    var normalizedName = System.normalize(name, referrerName, address);
+  module(code, referrerName, address) {
     var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'module',
-        normalizedName,  name, referrerName, address);
+                                    referrerName, address);
     this.cache.set({}, codeUnit);
     return codeUnit;
   }
@@ -267,11 +240,9 @@ export class InternalLoader {
    * @param {string} code, source to be compiled as 'Script'
    * @param {string} name,  ModuleSpecifier-like name, not normalized.
    */
-  script(code, name = this.loaderHooks.rootUrl(), referrerName, address) {
-    var normalizedName = System.normalize(name, referrerName, address);
-    var codeUnit =
-        new EvalCodeUnit(this.loaderHooks, code, 'script', normalizedName,
-            name, referrerName, address);
+  script(code, referrerName, address) {
+    var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'script',
+                                    referrerName, address);
     this.cache.set({}, codeUnit);
     // assert that there are no dependencies that are loading?
     this.handleCodeUnitLoaded(codeUnit);

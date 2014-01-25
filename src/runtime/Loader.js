@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {InternalLoader} from '../runtime/InternalLoader';
+import {InternalLoader} from './InternalLoader';
 
 export class Loader {
   /**
@@ -47,14 +47,13 @@ export class Loader {
    * This is the same as import but without fetching the source. On
    * success, the result of evaluating the source is passed to callback.
    */
-  module(source, name,
+  module(source,
       {referrerName, address} = {},
       callback = (module) => {},
       errback = (ex) => { throw ex; }) {
-    var codeUnit = this.internalLoader_.module(source, name,
-        referrerName, address);
-    codeUnit.addListener(function() {
-      callback(System.get(codeUnit.normalizedName));
+    var codeUnit = this.internalLoader_.module(source, referrerName, address);
+    codeUnit.addListener(() => {
+      callback(codeUnit.result);
     }, errback);
     this.internalLoader_.handleCodeUnitLoaded(codeUnit);
   }
