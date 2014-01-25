@@ -20,30 +20,6 @@ import {getUid} from '../util/uid';
 
 // TODO(arv): I stripped the resolvers to make this simpler for now.
 
-// TODO(arv): Implement
-var base = Object.freeze(Object.create(null, {
-  Array: {value: Array},
-  Boolean: {value: Boolean},
-  Date: {value: Date},
-  Error: {value: Error},
-  EvalError: {value: EvalError},
-  Function: {value: Function},
-  JSON: {value: JSON},
-  Math: {value: Math},
-  Number: {value: Number},
-  Object: {value: Object},
-  RangeError: {value: RangeError},
-  ReferenceError: {value: ReferenceError},
-  RegExp: {value: RegExp},
-  String: {value: String},
-  SyntaxError: {value: SyntaxError},
-  TypeError: {value: TypeError},
-  URIError: {value: URIError},
-
-  undefined: {value: void 0}
-}));
-
-
 var NOT_STARTED = 0;
 var LOADING = 1;
 var LOADED = 2;
@@ -255,10 +231,9 @@ export class InternalLoader {
     return codeUnit;
   }
 
-  module(code, name, referrerName, address) {
-    var normalizedName = System.normalize(name, referrerName, address);
+  module(code, referrerName, address) {
     var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'module',
-        normalizedName,  name, referrerName, address);
+        null, null, referrerName, address);
     this.cache.set({}, codeUnit);
     return codeUnit;
   }

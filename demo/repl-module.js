@@ -13,8 +13,6 @@
 // limitations under the License.
 
 import {ErrorReporter} from '../src/util/ErrorReporter';
-import {LoaderHooks} from '../src/runtime/LoaderHooks';
-import {Loader} from '../src/runtime/Loader';
 import {options as traceurOptions} from '../src/options';
 import {transcode, renderSourceMap} from './transcode';
 
@@ -36,16 +34,11 @@ var output = CodeMirror.fromTextArea(
     });
 output.getWrapperElement().classList.add('output-wrapper');
 var evalCheckbox = document.querySelector('input.eval');
-var evalElement = document.querySelector('pre.eval');
 var errorElement = document.querySelector('pre.error');
 var sourceMapElement = document.querySelector('pre.source-map');
 
 if (location.hash)
   input.setValue(decodeURIComponent(location.hash.slice(1)));
-
-evalCheckbox.addEventListener('click', function(e) {
-  evalElement.hidden = !evalCheckbox.checked;
-}, false);
 
 outputCheckbox.addEventListener('click', function(e) {
   document.documentElement.classList[
@@ -111,17 +104,18 @@ function compile() {
   setOptionsFromSource(contents);
 
   errorElement.hidden = true;
-  function onSuccess(transcoded, sourceMap) {
-    if (evalCheckbox.checked) {
-      try {
-        evalElement.textContent = ('global', eval)(transcoded);
-      } catch(ex) {
-        hasError = true;
-        errorElement.textContent = ex;
-        errorElement.hidden = false;
-      }
-    }
-    output.setValue(transcoded);
+  function onSuccess(mod) {
+    // Empty for now.
+  }
+  function onFailure(errors) {
+     hasError = true;
+     errorElement.hidden = false;
+     errorElement.textContent = errors.join('\n');
+  }
+
+  function onTranscoded(metadata) {
+    output.setValue(metadata.transcoded);
+    var sourceMap = metadata.sourceMap;
     if (sourceMap) {
       var renderedMap = renderSourceMap(transcoded, sourceMap);
       sourceMapElement.textContent = renderedMap;
@@ -129,13 +123,9 @@ function compile() {
       sourceMapElement.textContent = '';
     }
   }
-  function onFailure(errors) {
-     hasError = true;
-     errorElement.hidden = false;
-     errorElement.textContent = errors.join('\n');
-  }
+
   if (transcode)
-    transcode(contents, name, onSuccess, onFailure);
+    transcode(contents, onSuccess, onFailure, onTranscoded);
 }
 
 function createOptionRow(name) {
@@ -253,5 +243,3 @@ function updateTransition() {
     }
   }
 }
-
-compile();

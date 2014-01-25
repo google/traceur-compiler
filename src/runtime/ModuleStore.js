@@ -119,7 +119,7 @@
 
     set(normalizedName, module) {
       normalizedName = String(normalizedName);  // Req. by spec., why?
-      moduleInstantiators[normalizedName] = 
+      moduleInstantiators[normalizedName] =
           new UncoatedModuleInstantiator(normalizedName, () => module);
       moduleInstances[normalizedName] = module;
     },
@@ -140,9 +140,13 @@
           new UncoatedModuleInstantiator(normalizedName, func);
     },
 
+    getAnonymousModule(func) {
+      return new Module(func.call(global), liveModuleSentinel);
+    },
+
     /**
      *  A 'backdoor' access function for traceur's own modules. Our
-     * modules are stored under names like 'traceur@0.0.n/<path>', 
+     * modules are stored under names like 'traceur@0.0.n/<path>',
      * where n varies with every commit to master. Rather than send
      * the verion number to every test, we allow tests to call this
      * function with just th <path> part of the name.
@@ -165,7 +169,7 @@
   };
 
 
-  ModuleStore.set('@traceur/src/runtime/ModuleStore', 
+  ModuleStore.set('@traceur/src/runtime/ModuleStore',
       new Module({ModuleStore: ModuleStore}));
 
   // Override setupGlobals so that System is added to future globals.
