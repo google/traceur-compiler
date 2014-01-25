@@ -76,8 +76,8 @@ suite('System.js', function() {
   });
 
   test('System.set', function() {
-    var polyfills =
-      $traceurRuntime.ModuleStore.getForTesting('src/runtime/polyfills/polyfills');
+    var store = $traceurRuntime.ModuleStore;
+    var polyfills = store.getForTesting('src/runtime/polyfills/polyfills');
     System.set('traceur-testing-System@', polyfills);
     assert.equal(polyfills, System.get('traceur-testing-System@'));
   });

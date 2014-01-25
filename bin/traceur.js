@@ -22220,22 +22220,24 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/runtime/TraceurLo
         errback(ex);
       }
     },
+    semVerRegExp_: function() {
+      return /^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$/;
+    },
     semverMap: function(normalizedName) {
       var slash = normalizedName.indexOf('/');
       var version = normalizedName.slice(0, slash);
       var at = version.indexOf('@');
       if (at !== - 1) {
-        var reSemVer = /^([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$/;
         var semver = normalizedName.slice(at + 1, slash);
-        var m = reSemVer.exec(semver);
+        var m = this.semVerRegExp_().exec(semver);
         if (m) {
           var major = m[1];
           var minor = m[2];
-          var packageName = version.slice(0, at + 1);
+          var packageName = version.slice(0, at);
           var map = Object.create(null);
           map[packageName] = version;
-          map[packageName + major] = version;
-          map[packageName + major + '.' + minor] = version;
+          map[packageName + '@' + major] = version;
+          map[packageName + '@' + major + '.' + minor] = version;
         }
       }
       return map;
