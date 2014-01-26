@@ -12,17 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-'use strict';
-
 var fs = require('fs');
-var traceur = require('./traceur.js');
-var nodeLoader = require('./nodeLoader.js');
-var reporter = new traceur.util.ErrorReporter();
-var LoaderHooks = traceur.runtime.LoaderHooks;
-var url = './';
-var loaderHooks = new LoaderHooks(reporter, url, undefined, nodeLoader);
+var path = require('path');
 
-var System = new traceur.runtime.TraceurLoader(loaderHooks);
+var filename = '../../../bin/traceur-runtime.js';
+filename = path.join(path.dirname(module.filename), filename);
+var data = fs.readFileSync(filename, 'utf8');
+if (!data)
+  throw new Error('Failed to import ' + filename);
 
-global.System = System;
-module.exports = System;
+('global', eval)(data);
+
+var setupGlobalsSrc = $traceurRuntime.setupGlobals + '';
+if (setupGlobalsSrc.indexOf('polyfill(global);') === -1) 
+	throw new Error('bin/traceur-runtime.js does not contain the polyfill');

@@ -14,8 +14,9 @@
 
 import globalThis from '../codegeneration/globalThis';
 import {ErrorReporter} from '../util/ErrorReporter';
-import {Loader} from '../runtime/Loader';
+import {TraceurLoader} from '../runtime/TraceurLoader';
 import {LoaderHooks} from './LoaderHooks';
+import {options} from '../options';
 import {webLoader} from './webLoader';
 
 var url;
@@ -25,8 +26,8 @@ if (typeof window !== 'undefined' && window.location) {
 	fileLoader = webLoader;
 } // else the node app will override System.
 
-var loaderHooks = new LoaderHooks(new ErrorReporter(), url, null, fileLoader);
-export var System = new Loader(loaderHooks);
+var loaderHooks = new LoaderHooks(new ErrorReporter(), url, options, fileLoader);
+export var System = new TraceurLoader(loaderHooks);
 
 if (typeof window !== 'undefined')
 	window.System = System;

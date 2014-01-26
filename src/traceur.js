@@ -96,12 +96,18 @@ export var codegeneration = {
   }
 };
 
-module modules from './runtime/Loader';
+module modules from './runtime/InternalLoader';
 export {modules};
 
+
+import {Loader} from './runtime/Loader';
 import {LoaderHooks} from './runtime/LoaderHooks';
 import {InterceptOutputLoaderHooks} from './runtime/InterceptOutputLoaderHooks';
+import {TraceurLoader} from './runtime/TraceurLoader';
+
 export var runtime = {
   InterceptOutputLoaderHooks,
-  LoaderHooks
+  Loader,
+  LoaderHooks,
+  TraceurLoader
 }

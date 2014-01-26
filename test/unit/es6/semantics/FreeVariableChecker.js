@@ -23,8 +23,8 @@ suite('FreeVariableChecker.traceur.js', function() {
   });
 
   function compileAndReturnErrors(contents, name) {
-    var LoaderHooks = traceur.modules.LoaderHooks;
-    var Loader = traceur.modules.Loader;
+    var LoaderHooks = traceur.runtime.LoaderHooks;
+    var TraceurLoader = traceur.runtime.TraceurLoader;
     var reporter = new traceur.util.ErrorReporter();
     var errors = [];
     reporter.reportMessageInternal = function() {
@@ -32,7 +32,7 @@ suite('FreeVariableChecker.traceur.js', function() {
     };
     var url = 'http://www.test.com/';
     var loaderHooks = new LoaderHooks(reporter, url);
-    var loader = new Loader(loaderHooks);
+    var loader = new TraceurLoader(loaderHooks);
     loader.script(contents, url);
     return errors;
   }

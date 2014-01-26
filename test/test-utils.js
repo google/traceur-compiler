@@ -130,7 +130,7 @@
       traceur.options.validate = true;
 
       var reporter = new traceur.util.TestErrorReporter();
-      var LoaderHooks = traceur.modules.LoaderHooks;
+      var LoaderHooks = traceur.runtime.LoaderHooks;
       var loaderHooks = new LoaderHooks(reporter, './', undefined, loader);
 
       // TODO(jjb): TestLoaderHooks extends LoaderHooks. But this file is ES5.
@@ -153,7 +153,7 @@
         return source;
       }
 
-      var moduleLoader = new traceur.modules.Loader(loaderHooks);
+      var moduleLoader = new traceur.runtime.TraceurLoader(loaderHooks);
       // When tests run against System we'll use the default Loader.
       global.System = traceur.System;
 

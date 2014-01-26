@@ -90,12 +90,18 @@ export class ModuleTransformer extends TempVarTransformer {
   }
 
   wrapModule(statements) {
+    var functionExpression = parseExpression `function() {
+      ${statements}
+    }`;
+
+    if (this.moduleName === null) {
+      return parseStatements
+          `$traceurRuntime.ModuleStore.getAnonymousModule(
+              ${functionExpression});`;
+    }
     return parseStatements
         `$traceurRuntime.ModuleStore.registerModule(${this.moduleName},
-            function() {
-              ${statements}
-            }
-        );`;
+            ${functionExpression});`;
   }
 
   /**

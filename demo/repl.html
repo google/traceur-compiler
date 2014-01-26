@@ -132,7 +132,6 @@ pre,
 <body>
 <textarea class="input"></textarea>
 <pre class="error"></pre>
-<pre class="eval"></pre>
 
 <textarea class="output"></textarea>
 <pre class="source-map"></pre>
@@ -148,16 +147,7 @@ pre,
 </div>
 
 <script>
-(function() {
-  'use strict';
-
-  var LoaderHooks = traceur.modules.LoaderHooks;
-  var url = window.location.href;
-  var loaderHooks = new LoaderHooks(new traceur.util.ErrorReporter(), url);
-  var loader = new traceur.modules.Loader(loaderHooks);
-  loader.import('./repl-module');
-})();
-
+System.import('./repl-module');
 </script>
 </body>
 </html>
