@@ -26,6 +26,9 @@ import {
 import globalThis from './globalThis';
 import scopeContainsThis from './scopeContainsThis';
 
+/* Inline modules are meant for compilation of all modules to a single file.
+   They require no runtime but have slightly different semantics than ES6
+   modules since the execution is eager. */
 export class InlineModuleTransformer extends ModuleTransformer {
 
   wrapModule(statements) {
