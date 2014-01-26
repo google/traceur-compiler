@@ -878,20 +878,21 @@ export class CPSTransformer extends ParseTreeTransformer {
     var hasArguments = alphaRenamedTree !== tree;
 
     // transform to a state machine
-    var machine = this.transformAny(alphaRenamedTree);
+    var maybeMachine = this.transformAny(alphaRenamedTree);
     if (this.reporter.hadError())
       return tree;
 
-    // If the FunctionBody has no yield or return no state machine got created
+    // If the FunctionBody has no yield or return, no state machine got created
     // in the above transformation. We therefore convert it below.
     var machine;
-    if (machine.type !== STATE_MACHINE) {
-      machine = this.statementsToStateMachine_(machine.statements);
+    if (maybeMachine.type !== STATE_MACHINE) {
+      machine = this.statementsToStateMachine_(maybeMachine.statements);
     } else {
-      machine = new StateMachine(machine.startState,
-                                 machine.fallThroughState,
-                                 this.removeEmptyStates(machine.states),
-                                 machine.exceptionBlocks);
+      // Remove possibly empty states.
+      machine = new StateMachine(maybeMachine.startState,
+                                 maybeMachine.fallThroughState,
+                                 this.removeEmptyStates(maybeMachine.states),
+                                 maybeMachine.exceptionBlocks);
     }
 
     // Clean up start and end states.

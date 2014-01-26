@@ -16955,13 +16955,13 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/codegeneration/ge
     transformCpsFunctionBody: function(tree, runtimeMethod) {
       var alphaRenamedTree = AlphaRenamer.rename(tree, 'arguments', '$arguments');
       var hasArguments = alphaRenamedTree !== tree;
-      var machine = this.transformAny(alphaRenamedTree);
+      var maybeMachine = this.transformAny(alphaRenamedTree);
       if (this.reporter.hadError()) return tree;
       var machine;
-      if (machine.type !== STATE_MACHINE) {
-        machine = this.statementsToStateMachine_(machine.statements);
+      if (maybeMachine.type !== STATE_MACHINE) {
+        machine = this.statementsToStateMachine_(maybeMachine.statements);
       } else {
-        machine = new StateMachine(machine.startState, machine.fallThroughState, this.removeEmptyStates(machine.states), machine.exceptionBlocks);
+        machine = new StateMachine(maybeMachine.startState, maybeMachine.fallThroughState, this.removeEmptyStates(maybeMachine.states), maybeMachine.exceptionBlocks);
       }
       machine = machine.replaceStateId(machine.fallThroughState, State.END_STATE).replaceStateId(machine.startState, State.START_STATE);
       var statements = this.getMachineVariables(tree, machine);
