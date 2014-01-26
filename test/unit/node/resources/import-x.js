@@ -1,3 +1,3 @@
-import {x} from './x';
+import {x} from './reexport-x';
 
 var result = x;

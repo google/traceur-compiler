@@ -12,8 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {assert} from '../util/assert';
 import {ModuleTransformer} from './ModuleTransformer';
-import {createBindingIdentifier} from './ParseTreeFactory';
+import {
+  createBindingIdentifier,
+  createEmptyStatement
+} from './ParseTreeFactory';
 import {
   parseExpression,
   parseStatements
@@ -21,23 +25,21 @@ import {
 
 export class InlineModuleTransformer extends ModuleTransformer {
 
-  getTempVarNameForModuleDefinition(moduleName) {
-    return '$__module__' + moduleName.replace(/[^a-zA-Z0-9$]/g, function(c) {
-      return '_' + c.charCodeAt(0) + '_';
-    }) + '__';
+  wrapModule(statements) {
+    assert(this.moduleName);
+    var moduleExpression = parseExpression `(function() {
+      ${statements}
+    }).call(this)`;
+
+    var moduleVariable = this.getTempVarNameForModuleName(this.moduleName);
+    return parseStatements `var ${moduleVariable} = ${moduleExpression}`;
   }
 
-  wrapModule(statements) {
-    var moduleVariable = this.getTempVarNameForModuleDefinition(this.moduleName);
-    return parseStatements
-        `var ${moduleVariable} = (function() {
-          ${statements}
-        }).call(this);`;
+  transformNamedExport(tree) {
+    return createEmptyStatement();
   }
 
   transformModuleSpecifier(tree) {
-    var normalizedName = System.normalize(tree.token.processedValue, this.moduleName);
-    var moduleVariable = this.getTempVarNameForModuleDefinition(normalizedName);
-    return createBindingIdentifier(moduleVariable);
+    return createBindingIdentifier(this.getTempVarNameForModuleSpecifier(tree));
   }
 }
