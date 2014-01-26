@@ -15649,6 +15649,10 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.16/src/codegeneration/Pa
     $traceurRuntime.defaultSuperCall(this, $ParameterTransformer.prototype, arguments);
   };
   var $ParameterTransformer = ($traceurRuntime.createClass)(ParameterTransformer, {
+    transformArrowFunctionExpression: function(tree) {
+      stack.push([]);
+      return $traceurRuntime.superCall(this, $ParameterTransformer.prototype, "transformArrowFunctionExpression", [tree]);
+    },
     transformFunctionDeclaration: function(tree) {
       stack.push([]);
       return $traceurRuntime.superCall(this, $ParameterTransformer.prototype, "transformFunctionDeclaration", [tree]);

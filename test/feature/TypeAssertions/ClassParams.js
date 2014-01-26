@@ -18,10 +18,10 @@ test.untyped();
 assert.equal(1, test.initialized());
 assert.equal(2, test.initialized(2));
 
-assert.throw(function () { test.single(''); }, chai.AssertionError);
-assert.throw(function () { test.multiple('', false); }, chai.AssertionError);
-assert.throw(function () { test.multiple(false, 1); }, chai.AssertionError);
-assert.throw(function () { test.multiple(1, ''); }, chai.AssertionError);
-assert.throw(function () { test.rest(1, ''); }, chai.AssertionError);
-assert.throw(function () { test.destructuring({a: 1, b: ''}); }, chai.AssertionError);
-assert.throw(function () { test.initialized(''); }, chai.AssertionError);
+assert.throw(() => { test.single(''); }, chai.AssertionError);
+assert.throw(() => { test.multiple('', false); }, chai.AssertionError);
+assert.throw(() => { test.multiple(false, 1); }, chai.AssertionError);
+assert.throw(() => { test.multiple(1, ''); }, chai.AssertionError);
+assert.throw(() => { test.rest(1, ''); }, chai.AssertionError);
+assert.throw(() => { test.destructuring({a: 1, b: ''}); }, chai.AssertionError);
+assert.throw(() => { test.initialized(''); }, chai.AssertionError);

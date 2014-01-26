@@ -11,8 +11,8 @@ function f(value:String, a:Function = function():Function {
 }
 
 assert.equal(5, f('hello'));
-assert.equal(10, f('hello', function () { return function () { return 10; }}));
+assert.equal(10, f('hello', () => { return () => { return 10; }}));
 
-assert.throw(function () { f(1); }, chai.AssertionError);
-assert.throw(function () { f('hello', 1); }, chai.AssertionError);
-assert.throw(function () { f('invalid'); }, chai.AssertionError);
+assert.throw(() => { f(1); }, chai.AssertionError);
+assert.throw(() => { f('hello', 1); }, chai.AssertionError);
+assert.throw(() => { f('invalid'); }, chai.AssertionError);

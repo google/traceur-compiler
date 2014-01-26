@@ -218,7 +218,6 @@ export class TypeAssertionTransformer extends ParameterTransformer {
     this.parameterStatements.push(
         parseStatement `for (var ${i} = 0; ${i} < ${name}.length; ${i}++)
             ${assertion};`);
-
   }
 
   pushParameterAssertion_(element, typeAnnotation) {

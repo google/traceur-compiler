@@ -10,9 +10,9 @@ assert.equal(3, objectPatternField({x: 1, y: 2}));
 assert.equal(10, objectPatternComputed({x: 1, y: 2, z: 10}));
 assert.equal(3, arrayPattern([1, 2]));
 
-assert.throw(function () { objectPattern({a: 1, b: ''}); }, chai.AssertionError);
-assert.throw(function () { objectPatternField({x: 1, y: ''}); },
+assert.throw(() => { objectPattern({a: 1, b: ''}); }, chai.AssertionError);
+assert.throw(() => { objectPatternField({x: 1, y: ''}); },
     chai.AssertionError);
-assert.throw(function () { objectPatternComputed({x: 1, y: '', z: 10}); },
+assert.throw(() => { objectPatternComputed({x: 1, y: '', z: 10}); },
     chai.AssertionError);
-assert.throw(function () { arrayPattern([1, '']); }, chai.AssertionError);
+assert.throw(() => { arrayPattern([1, '']); }, chai.AssertionError);

@@ -13,4 +13,4 @@ function throwsAssertion(value) {
   var x:Number = value;
 }
 
-assert.throw(function () { throwsAssertion('test'); }, chai.AssertionError);
+assert.throw(() => { throwsAssertion('test'); }, chai.AssertionError);

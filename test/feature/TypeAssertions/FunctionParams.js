@@ -7,7 +7,7 @@ single(1);
 multiple(1, true);
 untyped();
 
-assert.throw(function () { single(''); }, chai.AssertionError);
-assert.throw(function () { multiple('', false); }, chai.AssertionError);
-assert.throw(function () { multiple(false, 1); }, chai.AssertionError);
-assert.throw(function () { multiple(1, ''); }, chai.AssertionError);
+assert.throw(() => { single(''); }, chai.AssertionError);
+assert.throw(() => { multiple('', false); }, chai.AssertionError);
+assert.throw(() => { multiple(false, 1); }, chai.AssertionError);
+assert.throw(() => { multiple(1, ''); }, chai.AssertionError);
