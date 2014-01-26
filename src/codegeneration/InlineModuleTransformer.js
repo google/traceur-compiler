@@ -19,7 +19,7 @@ import {
   createBindingIdentifier,
   createEmptyStatement,
   createFunctionBody,
-  createImmediateFunctionExpression,
+  createImmediatelyInvokedFunctionExpression,
   createScopedExpression,
   createVariableStatement
 } from './ParseTreeFactory';
@@ -40,7 +40,7 @@ export class InlineModuleTransformer extends ModuleTransformer {
     if (statements.some(scopeContainsThis)) {
       moduleExpression = createScopedExpression(body, globalThis());
     } else {
-      moduleExpression = createImmediateFunctionExpression(body);
+      moduleExpression = createImmediatelyInvokedFunctionExpression(body);
     }
 
     return [createVariableStatement(VAR, idName, moduleExpression)];

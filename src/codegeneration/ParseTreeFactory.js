@@ -465,7 +465,7 @@ export function createScopedExpression(body, scope = createThisExpression()) {
  * @param {FunctionBody} body
  * @return {CallExpression}
  */
-export function createImmediateFunctionExpression(body) {
+export function createImmediatelyInvokedFunctionExpression(body) {
   assert(body.type === 'FUNCTION_BODY');
   return createCallExpression(createParenExpression(
           createFunctionExpression(createEmptyParameterList(), body)));
