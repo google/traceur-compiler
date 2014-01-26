@@ -36,10 +36,11 @@ export class InlineModuleTransformer extends ModuleTransformer {
     var idName = this.getTempVarNameForModuleName(this.moduleName);
 
     var body = createFunctionBody(statements);
+    var moduleExpression;
     if (statements.some(scopeContainsThis)) {
-      var moduleExpression = createScopedExpression(body, globalThis());
+      moduleExpression = createScopedExpression(body, globalThis());
     } else {
-      var moduleExpression = createImmediateFunctionExpression(body);
+      moduleExpression = createImmediateFunctionExpression(body);
     }
 
     return [createVariableStatement(VAR, idName, moduleExpression)];
