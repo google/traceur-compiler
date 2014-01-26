@@ -453,12 +453,22 @@ export function createFunctionBody(statements) {
  * @param {FunctionBody} body
  * @return {CallExpression}
  */
-export function createScopedExpression(body) {
+export function createScopedExpression(body, scope = createThisExpression()) {
   assert(body.type === 'FUNCTION_BODY');
   return createCallCall(
       createParenExpression(
           createFunctionExpression(createEmptyParameterList(), body)),
-      createThisExpression());
+      scope);
+}
+
+/**
+ * @param {FunctionBody} body
+ * @return {CallExpression}
+ */
+export function createImmediateFunctionExpression(body) {
+  assert(body.type === 'FUNCTION_BODY');
+  return createCallExpression(createParenExpression(
+          createFunctionExpression(createEmptyParameterList(), body)));
 }
 
 /**

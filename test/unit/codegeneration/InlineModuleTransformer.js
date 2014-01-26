@@ -27,11 +27,18 @@ suite('InlineModuleTransformer.js', function() {
       }).join('');
     }
 
-    test('module definition', function() {
+    test('without this', function() {
       transformer.moduleName = "test/module";
       assertEqualIgnoringWhiteSpaces(
-          'var $__test_47_module__ = (function(){"CODE";}).call(this);',
+          'var $__test_47_module__ = (function(){"CODE";})();',
           writeArray(transformer.wrapModule([str('CODE')])));
+    });
+
+    test('with this', function() {
+      transformer.moduleName = "test/module";
+      assertEqualIgnoringWhiteSpaces(
+          "var $__test_47_module__ = (function(){ this }).call(typeof global !== 'undefined' ? global : this);",
+          writeArray(transformer.wrapModule([ParseTreeFactory.createThisExpression()])));
     });
   });
 });

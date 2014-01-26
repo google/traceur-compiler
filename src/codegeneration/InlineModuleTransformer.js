@@ -12,27 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {VAR} from '../syntax/TokenType';
 import {assert} from '../util/assert';
 import {ModuleTransformer} from './ModuleTransformer';
 import {
   createBindingIdentifier,
-  createEmptyStatement
+  createEmptyStatement,
+  createFunctionBody,
+  createImmediateFunctionExpression,
+  createScopedExpression,
+  createVariableStatement
 } from './ParseTreeFactory';
-import {
-  parseExpression,
-  parseStatements
-} from './PlaceholderParser';
+import globalThis from './globalThis';
+import scopeContainsThis from './scopeContainsThis';
 
 export class InlineModuleTransformer extends ModuleTransformer {
 
   wrapModule(statements) {
     assert(this.moduleName);
-    var moduleExpression = parseExpression `(function() {
-      ${statements}
-    }).call(this)`;
+    var idName = this.getTempVarNameForModuleName(this.moduleName);
 
-    var moduleVariable = this.getTempVarNameForModuleName(this.moduleName);
-    return parseStatements `var ${moduleVariable} = ${moduleExpression}`;
+    var body = createFunctionBody(statements);
+    if (statements.some(scopeContainsThis)) {
+      var moduleExpression = createScopedExpression(body, globalThis());
+    } else {
+      var moduleExpression = createImmediateFunctionExpression(body);
+    }
+
+    return [createVariableStatement(VAR, idName, moduleExpression)];
   }
 
   transformNamedExport(tree) {
