@@ -66,7 +66,7 @@ function compile(content, options) {
 
   var errorReporter = new ErrorReporter();
   var sourceFile = new SourceFile(options.filename, content);
-  var parser = new Parser(errorReporter, sourceFile);
+  var parser = new Parser(sourceFile, errorReporter);
   var tree = parser.parseModule();
   var transformer = new FromOptionsTransformer(errorReporter);
   var transformedTree = transformer.transform(tree);

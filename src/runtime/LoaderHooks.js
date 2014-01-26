@@ -93,7 +93,7 @@ export class LoaderHooks {
     // For error reporting, prefer loader URL, fallback if we did not load text.
     var url = codeUnit.url || normalizedName;
     var file = new SourceFile(url, program);
-    var parser = new Parser(reporter, file);
+    var parser = new Parser(file, reporter);
     if (codeUnit.type == 'module')
       codeUnit.metadata.tree = parser.parseModule();
     else

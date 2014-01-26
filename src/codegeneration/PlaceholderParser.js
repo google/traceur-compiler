@@ -199,7 +199,7 @@ export class PlaceholderParser {
     var file = new SourceFile(
         '@traceur/generated/TemplateParser/' + counter++, source);
     var errorReporter = new MutedErrorReporter();
-    var parser = new Parser(errorReporter, file);
+    var parser = new Parser(file, errorReporter);
     var tree = doParse(parser);
     if (errorReporter.hadError() || !tree || !parser.isAtEnd())
       throw new Error(`Internal error trying to parse:\n\n${source}`);

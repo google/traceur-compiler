@@ -18,8 +18,7 @@ suite('tree writer', function() {
   var path = require('path');
 
   function parseFileAsModule(file) {
-    var reporter = new traceur.util.TestErrorReporter();
-    var parser = new traceur.syntax.Parser(reporter, file);
+    var parser = new traceur.syntax.Parser(file);
     var tree = parser.parseModule();
     return traceur.outputgeneration.TreeWriter.write(tree);
   }

@@ -61,7 +61,7 @@ export class ErrorReporter {
  * @return {string} The text where the source position has been prepended and
  *     where the place holders have been replaced.
  */
-ErrorReporter.format = function(location, text, args = undefined) {
+export function format(location, text, args = undefined) {
   var i = 0;
   text = text.replace(/%./g, function(s) {
     switch (s) {
@@ -76,3 +76,5 @@ ErrorReporter.format = function(location, text, args = undefined) {
     text = `${location}: ${text}`;
   return text;
 };
+
+ErrorReporter.format = format;
