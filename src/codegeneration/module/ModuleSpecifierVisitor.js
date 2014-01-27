@@ -14,7 +14,9 @@
 
 import {ParseTreeVisitor} from '../../syntax/ParseTreeVisitor';
 import {STRING} from '../../syntax/TokenType';
+import {LiteralToken} from '../../syntax/LiteralToken';
 import {canonicalizeUrl} from '../../util/url';
+import {options} from '../../options';
 
 // TODO(arv): This is closer to the ModuleVisitor but we don't care about
 // modules.
@@ -39,5 +41,40 @@ export class ModuleSpecifierVisitor extends ParseTreeVisitor {
 
   visitModuleSpecifier(tree) {
     this.moduleSpecifiers_[tree.token.processedValue] = true;
+  }
+
+  visitVariableDeclaration(tree) {
+    this.addTypeAssertionDependency_(tree.typeAnnotation);
+    return super(tree);
+  }
+
+  visitFormalParameter(tree) {
+    this.addTypeAssertionDependency_(tree.typeAnnotation);
+    return super(tree);
+  }
+
+  visitGetAccessor(tree) {
+    this.addTypeAssertionDependency_(tree.typeAnnotation);
+    return super(tree);
+  }
+
+  visitPropertyMethodAssignment(tree) {
+    this.addTypeAssertionDependency_(tree.typeAnnotation);
+    return super(tree);
+  }
+
+  visitFunctionDeclaration(tree) {
+    this.addTypeAssertionDependency_(tree.typeAnnotation);
+    return super(tree);
+  }
+
+  visitFunctionExpression(tree) {
+    this.addTypeAssertionDependency_(tree.typeAnnotation);
+    return super(tree);
+  }
+
+  addTypeAssertionDependency_(typeAnnotation) {
+    if (typeAnnotation !== null && options.typeAssertionModule !== null)
+      this.moduleSpecifiers_[options.typeAssertionModule] = true;
   }
 }

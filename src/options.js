@@ -139,7 +139,9 @@ function addOptions(flags) {
                    descriptions[name]);
       flags.on(dashedName, (value) => setOption(dashedName, value));
     }
-    else {
+    // If the option value is null then it's not a boolean option and should
+    // be added separately.
+    else if (options[name] !== null) {
       flags.option('--' + dashedName, descriptions[name]);
       flags.on(dashedName, () => setOption(dashedName, true));
     }
@@ -150,6 +152,12 @@ function addOptions(flags) {
       setOption('referrer', name);
       return name;
     });
+  flags.option('--type-assertion-module <path>',
+    'Absolute path to the type assertion module.',
+    (path) => {
+      setOption('type-assertion-module', path);
+      return path;
+    })
 }
 
 /**
@@ -280,7 +288,10 @@ addBoolOption('sourceMaps');
 addBoolOption('freeVariableChecker');
 addBoolOption('validate');
 addBoolOption('unstarredGenerators');
+addBoolOption('typeAssertions');
 
 defaultValues.referrer = '';
 options.referrer = null;
 
+defaultValues.typeAssertionModule = null;
+options.typeAssertionModule = null;
