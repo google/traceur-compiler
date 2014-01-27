@@ -23,38 +23,44 @@ var stack = [];
  */
 export class ParameterTransformer extends TempVarTransformer {
 
+  transformArrowFunctionExpression(tree) {
+    // The stack is popped in transformFunctionBody.
+    stack.push([]);
+    return super(tree);
+  }
+
   transformFunctionDeclaration(tree) {
     // The stack is popped in transformFunctionBody.
     stack.push([]);
-    return super.transformFunctionDeclaration(tree);
+    return super(tree);
   }
 
   transformFunctionExpression(tree) {
     // The stack is popped in transformFunctionBody.
     stack.push([]);
-    return super.transformFunctionExpression(tree);
+    return super(tree);
   }
 
   transformGetAccessor(tree) {
     // The stack is popped in transformFunctionBody.
     stack.push([]);
-    return super.transformGetAccessor(tree);
+    return super(tree);
   }
 
   transformSetAccessor(tree) {
     // The stack is popped in transformFunctionBody.
     stack.push([]);
-    return super.transformSetAccessor(tree);
+    return super(tree);
   }
 
   transformPropertyMethodAssignment(tree) {
     // The stack is popped in transformFunctionBody.
     stack.push([]);
-    return super.transformPropertyMethodAssignment(tree);
+    return super(tree);
   }
 
   transformFunctionBody(tree) {
-    var transformedTree = super.transformFunctionBody(tree);
+    var transformedTree = super(tree);
 
     // The stack is pushed onto further up in the call chain
     // (transformFunctionDeclaration, transformFunctionExpression,

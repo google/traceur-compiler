@@ -175,6 +175,12 @@ export class ParseTreeWriter extends ParseTreeVisitor {
      * @private
      */
     this.lastToken_ = null;
+
+    /**
+     * @type {TypeAnnotation}
+     * @private
+     */
+    this.currentParameterTypeAnnotation_ = null;
   }
 
   toString() {
@@ -301,7 +307,11 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    * @param {BindingElement} tree
    */
   visitBindingElement(tree) {
+    var typeAnnotation = this.currentParameterTypeAnnotation_;
+    // resetting type annotation so it doesn't filter down recursively
+    this.currentParameterTypeAnnotation_ = null;
     this.visitAny(tree.binding);
+    this.writeTypeAnnotation_(typeAnnotation);
     if (tree.initialiser) {
       this.write_(EQUAL);
       this.visitAny(tree.initialiser);
@@ -618,8 +628,9 @@ export class ParseTreeWriter extends ParseTreeVisitor {
    */
   visitFormalParameter(tree) {
     this.writeAnnotations_(tree.annotations, false);
+    this.currentParameterTypeAnnotation_ = tree.typeAnnotation;
     this.visitAny(tree.parameter);
-    this.writeTypeAnnotation_(tree.typeAnnotation);
+    this.currentParameterTypeAnnotation_ = null;
   }
 
   /**
@@ -960,6 +971,7 @@ export class ParseTreeWriter extends ParseTreeVisitor {
   visitRestParameter(tree) {
     this.write_(DOT_DOT_DOT);
     this.write_(tree.identifier.identifierToken);
+    this.writeTypeAnnotation_(this.currentParameterTypeAnnotation_);
   }
 
   /**
