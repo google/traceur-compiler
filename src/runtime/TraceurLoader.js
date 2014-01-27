@@ -74,4 +74,33 @@ export class TraceurLoader extends Loader {
       errback(ex);
     }
   }
+
+  semVerRegExp_() {
+    return /^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$/;
+  }
+
+  /**
+   * @param {string} normalizedName, eg traceur@0.0.13/...
+   * @return {Object} 3 properties, eg traceur@, traceur@0, traceur@0.0,
+   *   all set to the first segment of the normalizedName.
+   */
+  semverMap(normalizedName) {
+    var slash = normalizedName.indexOf('/');
+    var version = normalizedName.slice(0, slash);
+    var at = version.indexOf('@');
+    if (at !== -1) {
+      var semver = normalizedName.slice(at + 1, slash);
+      var m = this.semVerRegExp_().exec(semver);
+      if (m) {
+        var major = m[1];
+        var minor = m[2];
+        var packageName = version.slice(0, at);
+        var map = Object.create(null);
+        map[packageName] = version;
+        map[packageName + '@' + major] = version;
+        map[packageName + '@' + major + '.' + minor] = version;
+      }
+    }
+    return map;
+  }
 }
