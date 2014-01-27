@@ -20,8 +20,10 @@ class ExportsList {
    */
   constructor(normalizedName) {
     this.exports_ = Object.create(null);
-    assert(normalizedName);
-    this.normalizedName = normalizedName.replace(/\\/g, '/');
+    if (normalizedName !== null)
+      this.normalizedName = normalizedName.replace(/\\/g, '/');
+    else
+      this.normalizedName = null ;
   }
 
   /**

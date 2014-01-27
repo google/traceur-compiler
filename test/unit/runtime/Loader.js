@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-suite('modules.js', function() {
+suite('Loader.js', function() {
 
   var MutedErrorReporter =
       $traceurRuntime.ModuleStore.getForTesting('src/util/MutedErrorReporter').MutedErrorReporter;
@@ -80,7 +80,7 @@ suite('modules.js', function() {
   });
 
   test('LoaderEval', function(done) {
-    getLoader().script('(function(x = 42) { return x; })()', './LoaderEval', {},
+    getLoader().script('(function(x = 42) { return x; })()', {},
       function(result) {
         assert.equal(42, result);
         done();
@@ -95,7 +95,7 @@ suite('modules.js', function() {
         '\n' +
         'export var arr = [\'test\', a.name, b.name, c.name];\n';
 
-    var result = getLoader().module(code, './LoaderModule', {},
+    var result = getLoader().module(code, {},
       function(module) {
         assert.equal('test', module.arr[0]);
         assert.equal('A', module.arr[1]);
@@ -114,7 +114,7 @@ suite('modules.js', function() {
         '\n' +
         'export var arr = [d.name, d.e.name];\n';
 
-    var result = getLoader().module(code, 'LoaderModuleWithSubdir', {},
+    var result = getLoader().module(code, {},
       function(module) {
         assert.equal('D', module.arr[0]);
         assert.equal('E', module.arr[1]);
@@ -135,7 +135,7 @@ suite('modules.js', function() {
 
     var reporter = new MutedErrorReporter();
 
-    var result = getLoader(reporter).module(code, 'LoaderModuleFail', {},
+    var result = getLoader(reporter).module(code, {},
       function(value) {
         fail('Should not have succeeded');
         done();

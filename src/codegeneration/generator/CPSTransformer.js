@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {AlphaRenamer} from '../AlphaRenamer';
 import {BreakContinueTransformer} from './BreakContinueTransformer';
 import {
   BREAK_STATEMENT,
@@ -23,7 +24,6 @@ import {
 } from '../../syntax/trees/ParseTreeType';
 import {
   CaseClause,
-  IdentifierExpression,
   SwitchStatement
 } from '../../syntax/trees/ParseTrees';
 import {CatchState} from './CatchState';
@@ -31,7 +31,6 @@ import {ConditionalState} from './ConditionalState';
 import {FallThroughState} from './FallThroughState';
 import {FinallyFallThroughState} from './FinallyFallThroughState';
 import {FinallyState} from './FinallyState';
-import {IdentifierToken} from '../../syntax/IdentifierToken';
 import {ParseTreeTransformer} from '../ParseTreeTransformer';
 import {assert} from '../../util/assert';
 import {
@@ -39,12 +38,6 @@ import {
   parseStatement,
   parseStatements
 } from '../PlaceholderParser';
-import {
-  $ARGUMENTS,
-  $THAT,
-  ARGUMENTS,
-  CAUGHT_EXCEPTION
-} from '../../syntax/PredefinedName';
 import {State} from './State';
 import {StateAllocator} from './StateAllocator';
 import {StateMachine} from '../../syntax/trees/StateMachine';
@@ -52,42 +45,28 @@ import {
   SwitchClause,
   SwitchState
 } from './SwitchState';
-import {
-  PLUS,
-  VAR
-} from '../../syntax/TokenType';
+import {VAR} from '../../syntax/TokenType';
 import {TryState} from './TryState';
 import {
   createAssignStateStatement,
   createAssignmentExpression,
-  createAssignmentStatement,
-  createBinaryOperator,
   createBreakStatement,
   createCaseClause,
   createCommaExpression,
   createDefaultClause,
   createEmptyStatement,
   createExpressionStatement,
-  createIdentifierExpression,
+  createFunctionBody,
+  createIdentifierExpression as id,
   createMemberExpression,
   createNumberLiteral,
-  createOperatorToken,
   createStatementList,
-  createStringLiteral,
   createSwitchStatement,
-  createThrowStatement,
-  createTrueLiteral,
   createVariableDeclaration,
   createVariableDeclarationList,
-  createVariableStatement,
-  createWhileStatement
+  createVariableStatement
 } from '../ParseTreeFactory';
 import {variablesInBlock} from '../../semantics/VariableBinder';
-
-var id = createIdentifierExpression;
-
-// TODO(arv): Move to a shared file?
-var ST_CLOSED = 3;
 
 class LabelState {
   constructor(name, continueState, fallThroughState) {
@@ -775,7 +754,7 @@ export class CPSTransformer extends ParseTreeTransformer {
         if (declaration.initialiser != null) {
           expressions.push(
               createAssignmentExpression(
-                  createIdentifierExpression(
+                  id(
                       this.transformAny(declaration.lvalue)),
                   this.transformAny(declaration.initialiser)));
         }
@@ -844,25 +823,6 @@ export class CPSTransformer extends ParseTreeTransformer {
         'Unreachable - with statement not allowed in strict mode/harmony');
   }
 
-  /**
-   * @param {ThisExpression} tree
-   * @return {ParseTree}
-   */
-  transformThisExpression(tree) {
-    return new IdentifierExpression(
-        tree.location,
-        new IdentifierToken(tree.location, $THAT));
-  }
-
-  transformIdentifierExpression(tree) {
-    if (tree.identifierToken.value === ARGUMENTS) {
-      return new IdentifierExpression(
-          tree.location,
-          new IdentifierToken(tree.location, $ARGUMENTS));
-    }
-    return tree;
-  }
-
   generateMachineInnerFunction(machine) {
     var enclosingFinallyState = machine.getEnclosingFinallyMap();
 
@@ -911,6 +871,47 @@ export class CPSTransformer extends ParseTreeTransformer {
     return [
       createVariableStatement(createVariableDeclarationList(VAR, declarations))
     ];
+  }
+
+  transformCpsFunctionBody(tree, runtimeMethod) {
+    var alphaRenamedTree = AlphaRenamer.rename(tree, 'arguments', '$arguments');
+    var hasArguments = alphaRenamedTree !== tree;
+
+    // transform to a state machine
+    var maybeMachine = this.transformAny(alphaRenamedTree);
+    if (this.reporter.hadError())
+      return tree;
+
+    // If the FunctionBody has no yield or return, no state machine got created
+    // in the above transformation. We therefore convert it below.
+    var machine;
+    if (maybeMachine.type !== STATE_MACHINE) {
+      machine = this.statementsToStateMachine_(maybeMachine.statements);
+    } else {
+      // Remove possibly empty states.
+      machine = new StateMachine(maybeMachine.startState,
+                                 maybeMachine.fallThroughState,
+                                 this.removeEmptyStates(maybeMachine.states),
+                                 maybeMachine.exceptionBlocks);
+    }
+
+    // Clean up start and end states.
+    machine = machine.
+        replaceStateId(machine.fallThroughState, State.END_STATE).
+        replaceStateId(machine.startState, State.START_STATE);
+
+    var statements = this.getMachineVariables(tree, machine);
+    if (hasArguments)
+      statements.push(parseStatement `var $arguments = arguments;`);
+    statements.push(parseStatement
+        `return ${runtimeMethod}(
+            ${this.generateMachineInnerFunction(machine)},
+            this);`);
+
+    // TODO(arv): The result should be an instance of Generator.
+    // https://code.google.com/p/traceur-compiler/issues/detail?id=109
+
+    return createFunctionBody(statements);
   }
 
   /**
@@ -1005,6 +1006,7 @@ export class CPSTransformer extends ParseTreeTransformer {
    */
   transformMachineStates(machine, machineEndState, rethrowState,
                          enclosingFinallyState) {
+
     var cases = [];
 
     for (var i = 0; i < machine.states.length; i++) {
@@ -1021,12 +1023,6 @@ export class CPSTransformer extends ParseTreeTransformer {
     this.addFinallyFallThroughDispatches(null, machine.exceptionBlocks, cases);
 
     // $ctx is used as a sentinel for ending the statemachine.
-    // case machine.fallThroughState: return $ctx;
-    cases.push(
-        createCaseClause(
-            createNumberLiteral(machine.fallThroughState),
-            this.machineFallThroughStatements(machineEndState)));
-
     // case machineEndState: return $ctx;
     cases.push(
         createCaseClause(
@@ -1042,14 +1038,9 @@ export class CPSTransformer extends ParseTreeTransformer {
             this.machineRethrowStatements(machineEndState)));
 
     // default: throw "traceur compiler bug invalid state in state machine";
-    cases.push(
-        createDefaultClause(
-            [createThrowStatement(
-                createBinaryOperator(
-                    createStringLiteral(
-                        'traceur compiler bug: invalid state in state machine: '),
-                    createOperatorToken(PLUS),
-                    createMemberExpression('$ctx', 'state')))]));
+    cases.push(createDefaultClause(parseStatements
+        `throw 'traceur compiler bug: invalid state in state machine: ' +
+            $ctx.state;`));
     return cases;
   }
 

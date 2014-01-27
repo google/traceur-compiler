@@ -14,17 +14,12 @@
 
 export var ANY = 'any';
 export var $ARGUMENTS = '$arguments';
-export var $THAT = '$that';
-export var $VALUE = '$value';
-export var ADD_CONTINUATION = 'addContinuation';
 export var APPLY = 'apply';
 export var ARGUMENTS = 'arguments';
 export var ARRAY = 'Array';
 export var AS = 'as';
 export var BIND = 'bind';
 export var CALL = 'call';
-export var CAUGHT_EXCEPTION = '$caughtException';
-export var CLOSE = 'close';
 export var CONFIGURABLE = 'configurable';
 export var CONSTRUCTOR = 'constructor';
 export var CREATE = 'create';
@@ -49,8 +44,6 @@ export var PUSH = 'push';
 export var RAW = 'raw';
 export var SET = 'set';
 export var SLICE = 'slice';
-export var STATE = '$state';
-export var THEN = 'then';
 export var THIS = 'this';
 export var TRACEUR_RUNTIME = '$traceurRuntime';
 export var UNDEFINED = 'undefined';
@@ -59,7 +52,3 @@ export function getParameterName(index) {
   // TODO: consider caching these
   return '$' + index;
 };
-
-// constants for generator actions
-export var ACTION_SEND = 0;
-export var ACTION_THROW = 1;
