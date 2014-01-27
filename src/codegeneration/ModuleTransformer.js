@@ -58,11 +58,15 @@ export class ModuleTransformer extends TempVarTransformer {
     this.moduleName = null;
   }
 
-  getTempVarNameForModuleSpecifier(moduleSpecifier) {
-    var moduleName = moduleSpecifier.token.processedValue;
+  getTempVarNameForModuleName(moduleName) {
     return '$__' + moduleName.replace(/[^a-zA-Z0-9$]/g, function(c) {
       return '_' + c.charCodeAt(0) + '_';
     }) + '__';
+  }
+
+  getTempVarNameForModuleSpecifier(moduleSpecifier) {
+    var normalizedName = System.normalize(moduleSpecifier.token.processedValue, this.moduleName);
+    return this.getTempVarNameForModuleName(normalizedName);
   }
 
   transformScript(tree) {

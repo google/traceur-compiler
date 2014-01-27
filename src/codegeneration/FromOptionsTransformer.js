@@ -26,6 +26,7 @@ import {FreeVariableChecker} from '../semantics/FreeVariableChecker';
 import {GeneratorComprehensionTransformer} from
     './GeneratorComprehensionTransformer';
 import {GeneratorTransformPass} from './GeneratorTransformPass';
+import {InlineModuleTransformer} from './InlineModuleTransformer';
 import {ModuleTransformer} from './ModuleTransformer';
 import {MultiTransformer} from './MultiTransformer';
 import {NumericLiteralTransformer} from './NumericLiteralTransformer';
@@ -83,6 +84,9 @@ export class FromOptionsTransformer extends MultiTransformer {
           break;
         case 'amd':
           append(AmdTransformer);
+          break;
+        case 'inline':
+          append(InlineModuleTransformer);
           break;
         default:
           append(ModuleTransformer);
