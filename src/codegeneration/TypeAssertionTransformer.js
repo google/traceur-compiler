@@ -13,12 +13,7 @@
 // limitations under the License.
 
 import {
-  ARRAY_PATTERN,
   BINDING_ELEMENT,
-  BINDING_IDENTIFIER,
-  IDENTIFIER_EXPRESSION,
-  OBJECT_PATTERN,
-  OBJECT_PATTERN_FIELD,
   REST_PARAMETER
 } from '../syntax/trees/ParseTreeType';
 import {
@@ -109,7 +104,7 @@ export class TypeAssertionTransformer extends ParameterTransformer {
           break;
 
         case REST_PARAMETER:
-          this.transformRestParameter_(tree.parameter, tree.typeAnnotation);
+          // NYI
           break;
       }
     }
@@ -178,46 +173,7 @@ export class TypeAssertionTransformer extends ParameterTransformer {
         return;
     }
 
-    switch (tree.binding.type) {
-      case ARRAY_PATTERN: {
-        var pattern = tree.binding;
-        pattern.elements.forEach((element) => {
-          this.pushParameterAssertion_(element, typeAnnotation);
-        });
-        break;
-      }
-
-      case OBJECT_PATTERN: {
-        var pattern = tree.binding;
-        pattern.fields.forEach((field) => {
-          switch (field.type) {
-            case BINDING_ELEMENT:
-              this.pushParameterAssertion_(field, typeAnnotation);
-              break;
-
-            case OBJECT_PATTERN_FIELD:
-              this.pushParameterAssertion_(field.element, typeAnnotation);
-              break;
-
-            default:
-              throw Error('unreachable');
-          }
-        });
-        break;
-      }
-    }
-  }
-
-  transformRestParameter_(tree, typeAnnotation) {
-    // TODO use a single call to assert.type when we support complex types and
-    // can tell it that the type is an array of T.
-    var i = createIdentifierToken(this.getTempIdentifier());
-    var name = tree.identifier.identifierToken;
-    var current = parseExpression `${name}[${i}]`
-    var assertion = this.assertType_(current, typeAnnotation);
-    this.parameterStatements.push(
-        parseStatement `for (var ${i} = 0; ${i} < ${name}.length; ${i}++)
-            ${assertion};`);
+    // NYI
   }
 
   pushParameterAssertion_(element, typeAnnotation) {
