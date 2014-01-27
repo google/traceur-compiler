@@ -201,4 +201,26 @@ suite('Loader.js', function() {
         done();
       });
   });
+
+  test('System.semverMap', function() {
+    var System =
+        $traceurRuntime.ModuleStore.getForTesting('src/runtime/System').System;
+
+    var semVerRegExp = System.semVerRegExp_();
+    var m = semVerRegExp.exec('1.2.3-a.b.c.5.d.100');
+    assert.equal(1, m[1]);
+    assert.equal(2, m[2]);
+    m = semVerRegExp.exec('1.2.X');
+    assert(!m);
+    m = semVerRegExp.exec('Any');
+    assert(!m);
+
+    var version = System.map['traceur'];
+    assert(version);
+    // This test must be updated if the major or minor version number changes.
+    // If the change is intended, this is a reminder to update the documentation.
+    assert.equal(version, System.map['traceur@0']);
+    assert.equal(version, System.map['traceur@0.0']);
+  });
+
 });
