@@ -20504,9 +20504,10 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.17/src/runtime/LoaderHoo
   var LOADING = 1;
   var LOADED = 2;
   var PARSED = 3;
-  var TRANSFORMED = 4;
-  var COMPLETE = 5;
-  var ERROR = 6;
+  var TRANSFORMING = 4;
+  var TRANSFORMED = 5;
+  var COMPLETE = 6;
+  var ERROR = 7;
   var identifierGenerator = new UniqueIdentifierGenerator();
   var LoaderHooks = function(reporter, rootUrl) {
     var outputOptions = arguments[2];
@@ -20631,19 +20632,27 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.17/src/runtime/LoaderHoo
       this.analyzer_.analyzeTrees(trees, moduleSymbols, loader);
       this.checkForErrors(dependencies, 'analyze');
     },
-    transformDependencies: function(dependencies) {
+    transformDependencies: function(dependencies, dependentName) {
       for (var i = 0; i < dependencies.length; i++) {
         var codeUnit = dependencies[i];
         if (codeUnit.state >= TRANSFORMED) {
           continue;
         }
+        if (codeUnit.state === TRANSFORMING) {
+          var cir = codeUnit.normalizedName;
+          var cle = dependentName;
+          this.reporter.reportError(codeUnit.metadata.tree, ("Unsupported circular dependency between " + cir + " and " + cle));
+          break;
+        }
+        codeUnit.state = TRANSFORMING;
         this.transformCodeUnit(codeUnit);
         this.instantiate(codeUnit);
       }
       this.checkForErrors(dependencies, 'transform');
     },
     transformCodeUnit: function(codeUnit) {
-      this.transformDependencies(codeUnit.dependencies);
+      this.transformDependencies(codeUnit.dependencies, codeUnit.normalizedName);
+      if (codeUnit.state === ERROR) return;
       codeUnit.metadata.transformedTree = codeUnit.transform();
       codeUnit.state = TRANSFORMED;
       codeUnit.metadata.transcoded = write(codeUnit.metadata.transformedTree, this.outputOptions_);
@@ -20665,7 +20674,9 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.17/src/runtime/LoaderHoo
             codeUnit.dispatchError(phase);
           }
         }
+        return true;
       }
+      return false;
     }
   }, {});
   return {get LoaderHooks() {
@@ -20710,9 +20721,10 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.17/src/runtime/InternalL
   var LOADING = 1;
   var LOADED = 2;
   var PARSED = 3;
-  var TRANSFORMED = 4;
-  var COMPLETE = 5;
-  var ERROR = 6;
+  var TRANSFORMING = 4;
+  var TRANSFORMED = 5;
+  var COMPLETE = 6;
+  var ERROR = 7;
   var CodeUnit = function(loaderHooks, normalizedName, type, state, name, referrerName, address) {
     this.loaderHooks = loaderHooks;
     this.normalizedName = normalizedName;
