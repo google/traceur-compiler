@@ -155,7 +155,7 @@
 
       var moduleLoader = new traceur.runtime.TraceurLoader(loaderHooks);
       // When tests run against System we'll use the default Loader.
-      global.System = traceur.System;
+      //global.System = traceur.System;
 
       function handleShouldCompile() {
         if (!options.shouldCompile) {

@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Loader} from '../src/runtime/Loader';
+import {Loader} from 'traceur@0.0/src/runtime/Loader';
 import {
   InterceptOutputLoaderHooks
-} from '../src/runtime/InterceptOutputLoaderHooks';
-import {ErrorReporter} from '../src/util/ErrorReporter';
+} from 'traceur@0.0/src/runtime/InterceptOutputLoaderHooks';
+import {ErrorReporter} from 'traceur@0.0/src/util/ErrorReporter';
 import {
   SourceMapGenerator,
   SourceMapConsumer
-} from '../src/outputgeneration/SourceMapIntegration';
-import {options as traceurOptions} from '../src/options';
+} from 'traceur@0.0/src/outputgeneration/SourceMapIntegration';
+import {options as traceurOptions} from 'traceur@0.0/src/options';
 
 class BatchErrorReporter extends ErrorReporter {
   constructor() {
