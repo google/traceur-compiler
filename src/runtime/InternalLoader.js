@@ -24,9 +24,10 @@ var NOT_STARTED = 0;
 var LOADING = 1;
 var LOADED = 2;
 var PARSED = 3;
-var TRANSFORMED = 4;
-var COMPLETE = 5;
-var ERROR = 6;
+var TRANSFORMING = 4
+var TRANSFORMED = 5;
+var COMPLETE = 6;
+var ERROR = 7;
 
 /**
  * Base class representing a piece of code that is to be loaded or evaluated.
