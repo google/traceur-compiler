@@ -213,7 +213,7 @@ export class LoaderHooks {
         var cir = codeUnit.normalizedName;
         var cle = dependentName;
         this.reporter.reportError(codeUnit.metadata.tree,
-          `Unsupported circular dependency between ${cir} and ${cle}`);
+            `Unsupported circular dependency between ${cir} and ${cle}`);
         break;
       }
       codeUnit.state = TRANSFORMING;
