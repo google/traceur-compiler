@@ -63,6 +63,8 @@ suite('Loader.js', function() {
     assert.equal(loaderHooks.locate(load), 'http://example.org/a/@abc/def.js');
     load.normalizedName = 'abc/def';
     assert.equal(loaderHooks.locate(load), 'http://example.org/a/abc/def.js');
+    load.normalizedName = 'abc/def.js';
+    assert.notEqual(loaderHooks.locate(load), 'http://example.org/a/abc/def.js');
   });
 
   test('traceur@', function() {
@@ -89,9 +91,9 @@ suite('Loader.js', function() {
 
   test('LoaderModule', function(done) {
     var code =
-        'module a from "./test_a.js";\n' +
-        'module b from "./test_b.js";\n' +
-        'module c from "./test_c.js";\n' +
+        'module a from "./test_a";\n' +
+        'module b from "./test_b";\n' +
+        'module c from "./test_c";\n' +
         '\n' +
         'export var arr = [\'test\', a.name, b.name, c.name];\n';
 
@@ -110,7 +112,7 @@ suite('Loader.js', function() {
 
   test('LoaderModuleWithSubdir', function(done) {
     var code =
-        'module d from "./subdir/test_d.js";\n' +
+        'module d from "./subdir/test_d";\n' +
         '\n' +
         'export var arr = [d.name, d.e.name];\n';
 
@@ -127,9 +129,9 @@ suite('Loader.js', function() {
 
   test('LoaderModuleFail', function(done) {
     var code =
-        'module a from "./test_a.js";\n' +
-        'module b from "./test_b.js";\n' +
-        'module c from "./test_c.js";\n' +
+        'module a from "./test_a";\n' +
+        'module b from "./test_b";\n' +
+        'module c from "./test_c";\n' +
         '\n' +
         '[\'test\', SYNTAX ERROR a.name, b.name, c.name];\n';
 
@@ -175,7 +177,7 @@ suite('Loader.js', function() {
   });
 
   test('LoaderImport', function(done) {
-    getLoader().import('./test_module.js', {}, function(mod) {
+    getLoader().import('./test_module', {}, function(mod) {
       assert.equal('test', mod.name);
       assert.equal('A', mod.a);
       assert.equal('B', mod.b);
@@ -188,7 +190,7 @@ suite('Loader.js', function() {
   });
 
   test('LoaderImportWithReferrer', function(done) {
-    getLoader().import('../test_module.js',
+    getLoader().import('../test_module',
       {referrerName: 'traceur@0.0.1/bin'},
       function(mod) {
         assert.equal('test', mod.name);

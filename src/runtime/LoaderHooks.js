@@ -131,9 +131,6 @@ export class LoaderHooks {
   locate_(load) {
     var normalizedModuleName = load.normalizedName;
     var asJS = normalizedModuleName + '.js';
-    // Tolerate .js endings
-    if (/\.js$/.test(normalizedModuleName))
-      asJS = normalizedModuleName;
     if (options.referrer) {
       if (asJS.indexOf(options.referrer) === 0) {
         asJS = asJS.slice(options.referrer.length);
