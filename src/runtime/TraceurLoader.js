@@ -36,12 +36,13 @@ export class TraceurLoader extends Loader {
    *
    * On success, pass the result of evaluating the script to the success
    * callback.
-   * @param {string} name, ModuleSpecifier-like name, not normalized.
+   * @param {string} name, relative path to js file.
    */
-  loadAsScript(name,
+  loadAsScript(filename,
        {referrerName, address} = {},
        callback = (result) => {},
        errback = (ex) => { throw ex; }) {
+    var name = filename.replace(/\.js$/, '');
     var codeUnit = this.internalLoader_.load(name, referrerName,
         address, 'script');
     codeUnit.addListener(function(result) {
