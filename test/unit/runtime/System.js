@@ -82,4 +82,15 @@ suite('System.js', function() {
     assert.equal(polyfills, System.get('traceur-testing-System@'));
   });
 
+  test('ModuleStore.registerModule', function() {
+    var store = $traceurRuntime.ModuleStore;
+    try {
+      store.registerModule('name', function(){});
+      store.registerModule('name', function(){});
+    } catch (ex) {
+      return;
+    }
+    throw new Error('Expected throw before this statement');
+  });
+
 });
