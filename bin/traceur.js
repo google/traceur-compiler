@@ -620,6 +620,7 @@
     },
     registerModule: function(name, func) {
       var normalizedName = ModuleStore.normalize(name);
+      if (moduleInstantiators[normalizedName]) throw new Error('duplicate module named ' + normalizedName);
       moduleInstantiators[normalizedName] = new UncoatedModuleInstantiator(normalizedName, func);
     },
     getAnonymousModule: function(func) {
