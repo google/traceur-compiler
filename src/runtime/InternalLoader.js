@@ -237,6 +237,15 @@ export class InternalLoader {
     return codeUnit;
   }
 
+  define(normalizedName, source, address, metadata) {
+    var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'module',
+                                    referrerName, address);
+    var key = this.getKey(normalizedName, type);
+
+    this.cache.set(key, codeUnit);
+    return codeUnit;
+  }
+
   /**
    * @param {string} code, source to be compiled as 'Script'
    * @param {string} name,  ModuleSpecifier-like name, not normalized.
