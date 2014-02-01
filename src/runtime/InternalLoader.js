@@ -182,8 +182,10 @@ class EvalCodeUnit extends CodeUnit {
    * @param {string} code
    * @param {string} caller script or module name
    */
-  constructor(loaderHooks, code, type = 'script', referrerName, address) {
-    super(loaderHooks, null, type, LOADED, null, referrerName, address);
+  constructor(loaderHooks, code, type = 'script',
+      normalizedName, referrerName, address) {
+    super(loaderHooks, normalizedName, type,
+      LOADED, null, referrerName, address);
     this.text = code;
   }
 }
@@ -232,15 +234,20 @@ export class InternalLoader {
 
   module(code, referrerName, address) {
     var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'module',
-                                    referrerName, address);
+                                      null, referrerName, address);
     this.cache.set({}, codeUnit);
     return codeUnit;
   }
 
-  define(normalizedName, source, address, metadata) {
+  define(normalizedName, code, address, metadata) {
     var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'module',
-                                    referrerName, address);
-    var key = this.getKey(normalizedName, type);
+                                    normalizedName, null, address);
+    if (metadata) {
+      Object.getOwnPropertyNames(metadata).forEach(function(prop) {
+        codeUnit.metadata[prop] = metadata[prop];
+      });
+    }
+    var key = this.getKey(normalizedName, 'module');
 
     this.cache.set(key, codeUnit);
     return codeUnit;
@@ -252,7 +259,7 @@ export class InternalLoader {
    */
   script(code, referrerName, address) {
     var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'script',
-                                    referrerName, address);
+                                    null, referrerName, address);
     this.cache.set({}, codeUnit);
     // assert that there are no dependencies that are loading?
     this.handleCodeUnitLoaded(codeUnit);

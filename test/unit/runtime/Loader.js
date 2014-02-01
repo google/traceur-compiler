@@ -204,6 +204,29 @@ suite('Loader.js', function() {
       });
   });
 
+  test('Loader.define', function(done) {
+    var name = System.normalize('./test_define');
+    getLoader().import('./sideEffect', {}, function(mod) {
+      assert.equal(6, mod.currentSideEffect());  // starting value.
+      getLoader().define(name,
+        'export {name as a} from \'./test_a\';\n' +
+        'export var d = 4;\n' + 'this.sideEffect++;',
+        {},
+        function() {
+          assert.equal(6, mod.currentSideEffect());  // no change
+          var definedModule = System.get(name);
+          assert.equal(7, mod.currentSideEffect());  // module body evaluated
+          assert.equal(4, definedModule.d);  // define does exports
+          assert.equal('A', definedModule.a);  // define does imports
+          done();
+        }, function(error) {
+          fail(error);
+          done();
+        });
+    });
+  });
+
+
   test('System.semverMap', function() {
     var System =
         $traceurRuntime.ModuleStore.getForTesting('src/runtime/System').System;

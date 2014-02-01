@@ -59,19 +59,19 @@ export class Loader {
   }
 
   /**
-  Asynchronously install a new module under `name` from the `source` code.
-  All dependencies are installed in the registry.
-  @param {string} normalizedName
-  @param {string} source, module code
-  @param {Object|undefined} May contain .address and .metadata. Pass to hooks
-  */
-  define (normalizedName, source, {address, metadata} = undefined,
+   * Asynchronously install a new module under `name` from the `source` code.
+   * All dependencies are installed in the registry.
+   * @param {string} normalizedName
+   * @param {string} source, module code
+   * @param {Object|undefined} May contain .address and .metadata. Pass to hooks
+   */
+  define(normalizedName, source, {address, metadata} = undefined,
       callback = (module) => {},
       errback = (ex) => { throw ex; } ) {
     var codeUnit =
         this.internalLoader_.define(normalizedName, source, address, metadata);
     codeUnit.addListener(() => {
-      callback(undefined);
+      callback(undefined); // Module registered but not evaled
     }, errback);
     this.internalLoader_.handleCodeUnitLoaded(codeUnit);
   }
