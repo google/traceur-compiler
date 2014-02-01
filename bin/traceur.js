@@ -19209,13 +19209,8 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.18/src/runtime/InternalL
       this.cache.set({}, codeUnit);
       return codeUnit;
     },
-    define: function(normalizedName, code, address, metadata) {
+    define: function(normalizedName, code, address) {
       var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'module', normalizedName, null, address);
-      if (metadata) {
-        Object.getOwnPropertyNames(metadata).forEach(function(prop) {
-          codeUnit.metadata[prop] = metadata[prop];
-        });
-      }
       var key = this.getKey(normalizedName, 'module');
       this.cache.set(key, codeUnit);
       return codeUnit;

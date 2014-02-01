@@ -206,7 +206,7 @@ suite('Loader.js', function() {
 
   test('Loader.define', function(done) {
     var name = System.normalize('./test_define');
-    getLoader().import('./sideEffect', {}, function(mod) {
+    getLoader().import('./side-effect', {}, function(mod) {
       assert.equal(6, mod.currentSideEffect());  // starting value.
       getLoader().define(name,
         'export {name as a} from \'./test_a\';\n' +

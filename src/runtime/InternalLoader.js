@@ -239,14 +239,9 @@ export class InternalLoader {
     return codeUnit;
   }
 
-  define(normalizedName, code, address, metadata) {
+  define(normalizedName, code, address) {
     var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'module',
                                     normalizedName, null, address);
-    if (metadata) {
-      Object.getOwnPropertyNames(metadata).forEach(function(prop) {
-        codeUnit.metadata[prop] = metadata[prop];
-      });
-    }
     var key = this.getKey(normalizedName, 'module');
 
     this.cache.set(key, codeUnit);
