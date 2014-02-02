@@ -30,4 +30,5 @@ var a = new A();
 var tmpA = A;
 A = 42;
 assert.equal(tmpA, a.classRef());
-assert.equal(tmpA.name, 'A');
+// IE does not have a name property on functions.
+assert.isTrue(tmpA.name === 'A' || tmpA.name === undefined);
