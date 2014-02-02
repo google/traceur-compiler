@@ -24,9 +24,10 @@ var NOT_STARTED = 0;
 var LOADING = 1;
 var LOADED = 2;
 var PARSED = 3;
-var TRANSFORMED = 4;
-var COMPLETE = 5;
-var ERROR = 6;
+var TRANSFORMING = 4
+var TRANSFORMED = 5;
+var COMPLETE = 6;
+var ERROR = 7;
 
 /**
  * Base class representing a piece of code that is to be loaded or evaluated.
@@ -181,8 +182,10 @@ class EvalCodeUnit extends CodeUnit {
    * @param {string} code
    * @param {string} caller script or module name
    */
-  constructor(loaderHooks, code, type = 'script', referrerName, address) {
-    super(loaderHooks, null, type, LOADED, null, referrerName, address);
+  constructor(loaderHooks, code, type = 'script',
+      normalizedName, referrerName, address) {
+    super(loaderHooks, normalizedName, type,
+      LOADED, null, referrerName, address);
     this.text = code;
   }
 }
@@ -231,8 +234,17 @@ export class InternalLoader {
 
   module(code, referrerName, address) {
     var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'module',
-                                    referrerName, address);
+                                      null, referrerName, address);
     this.cache.set({}, codeUnit);
+    return codeUnit;
+  }
+
+  define(normalizedName, code, address) {
+    var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'module',
+                                    normalizedName, null, address);
+    var key = this.getKey(normalizedName, 'module');
+
+    this.cache.set(key, codeUnit);
     return codeUnit;
   }
 
@@ -242,7 +254,7 @@ export class InternalLoader {
    */
   script(code, referrerName, address) {
     var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'script',
-                                    referrerName, address);
+                                    null, referrerName, address);
     this.cache.set({}, codeUnit);
     // assert that there are no dependencies that are loading?
     this.handleCodeUnitLoaded(codeUnit);

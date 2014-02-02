@@ -24,7 +24,7 @@ global.SystemLoader.loadAsScript(testScriptName, {}, function(result) {
   throw new Error('test_interpret loadAsScript FAILED: ' + error);
 });
 
-var testModuleName = '../../unit/runtime/test_module.js';
+var testModuleName = '../../unit/runtime/test_module';
 global.SystemLoader.import(testModuleName, {}, function(mod) {
   assert('test', mod.name);
   assert('A', mod.a);

@@ -63,6 +63,8 @@ suite('Loader.js', function() {
     assert.equal(loaderHooks.locate(load), 'http://example.org/a/@abc/def.js');
     load.normalizedName = 'abc/def';
     assert.equal(loaderHooks.locate(load), 'http://example.org/a/abc/def.js');
+    load.normalizedName = 'abc/def.js';
+    assert.notEqual(loaderHooks.locate(load), 'http://example.org/a/abc/def.js');
   });
 
   test('traceur@', function() {
@@ -89,9 +91,9 @@ suite('Loader.js', function() {
 
   test('LoaderModule', function(done) {
     var code =
-        'module a from "./test_a.js";\n' +
-        'module b from "./test_b.js";\n' +
-        'module c from "./test_c.js";\n' +
+        'module a from "./test_a";\n' +
+        'module b from "./test_b";\n' +
+        'module c from "./test_c";\n' +
         '\n' +
         'export var arr = [\'test\', a.name, b.name, c.name];\n';
 
@@ -110,7 +112,7 @@ suite('Loader.js', function() {
 
   test('LoaderModuleWithSubdir', function(done) {
     var code =
-        'module d from "./subdir/test_d.js";\n' +
+        'module d from "./subdir/test_d";\n' +
         '\n' +
         'export var arr = [d.name, d.e.name];\n';
 
@@ -127,9 +129,9 @@ suite('Loader.js', function() {
 
   test('LoaderModuleFail', function(done) {
     var code =
-        'module a from "./test_a.js";\n' +
-        'module b from "./test_b.js";\n' +
-        'module c from "./test_c.js";\n' +
+        'module a from "./test_a";\n' +
+        'module b from "./test_b";\n' +
+        'module c from "./test_c";\n' +
         '\n' +
         '[\'test\', SYNTAX ERROR a.name, b.name, c.name];\n';
 
@@ -175,7 +177,7 @@ suite('Loader.js', function() {
   });
 
   test('LoaderImport', function(done) {
-    getLoader().import('./test_module.js', {}, function(mod) {
+    getLoader().import('./test_module', {}, function(mod) {
       assert.equal('test', mod.name);
       assert.equal('A', mod.a);
       assert.equal('B', mod.b);
@@ -188,7 +190,7 @@ suite('Loader.js', function() {
   });
 
   test('LoaderImportWithReferrer', function(done) {
-    getLoader().import('../test_module.js',
+    getLoader().import('../test_module',
       {referrerName: 'traceur@0.0.1/bin'},
       function(mod) {
         assert.equal('test', mod.name);
@@ -201,4 +203,71 @@ suite('Loader.js', function() {
         done();
       });
   });
+
+  test('Loader.define', function(done) {
+    var name = System.normalize('./test_define');
+    getLoader().import('./side-effect', {}, function(mod) {
+      assert.equal(6, mod.currentSideEffect());  // starting value.
+      getLoader().define(name,
+        'export {name as a} from \'./test_a\';\n' +
+        'export var d = 4;\n' + 'this.sideEffect++;',
+        {},
+        function() {
+          assert.equal(6, mod.currentSideEffect());  // no change
+          var definedModule = System.get(name);
+          assert.equal(7, mod.currentSideEffect());  // module body evaluated
+          assert.equal(4, definedModule.d);  // define does exports
+          assert.equal('A', definedModule.a);  // define does imports
+          done();
+        }, function(error) {
+          fail(error);
+          done();
+        });
+    });
+  });
+
+
+  test('System.semverMap', function() {
+    var semVerRegExp = System.semVerRegExp_();
+    var m = semVerRegExp.exec('1.2.3-a.b.c.5.d.100');
+    assert.equal(1, m[1]);
+    assert.equal(2, m[2]);
+    m = semVerRegExp.exec('1.2.X');
+    assert(!m);
+    m = semVerRegExp.exec('Any');
+    assert(!m);
+
+    var version = System.map['traceur'];
+    assert(version);
+    // This test must be updated if the major or minor version number changes.
+    // If the change is intended, this is a reminder to update the documentation.
+    assert.equal(version, System.map['traceur@0']);
+    assert.equal(version, System.map['traceur@0.0']);
+  });
+
+  test('System.map', function() {
+    System.map = System.semverMap('traceur@0.0.13/src/runtime/System');
+    var version = System.map['traceur'];
+    var remapped = System.normalize('traceur@0.0/src/runtime/System');
+    var versionSegment = remapped.split('/')[0];
+    assert.equal(version, versionSegment);
+  });
+
+  test('System.applyMap', function() {
+    var originalMap = System.map;
+    System.map['tests/contextual'] = {
+      maptest: 'tests/contextual-map-dep'
+    };
+    var contexualRemap = System.normalize('maptest', 'tests/contextual');
+    assert.equal('tests/contextual-map-dep', contexualRemap);
+    // prefix must match up to segment delimiter '/'
+    System.map = {
+      jquery: 'jquery@2.0.0'
+    };
+    var remap = System.normalize('jquery-ui');
+    assert.equal('jquery-ui', remap);
+    System.map = originalMap;
+  });
+
+
 });

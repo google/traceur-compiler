@@ -25,4 +25,11 @@ var loaderHooks = new LoaderHooks(reporter, url, undefined, nodeLoader);
 var System = new traceur.runtime.TraceurLoader(loaderHooks);
 
 global.System = System;
+
+// If we are compiling into a package namespace, set up an alias table
+// for the versions of the package.
+var referrerName = traceur.options.referrer;
+if (referrerName)
+	System.map = System.semverMap(referrerName);
+
 module.exports = System;

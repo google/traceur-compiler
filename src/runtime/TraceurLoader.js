@@ -36,12 +36,13 @@ export class TraceurLoader extends Loader {
    *
    * On success, pass the result of evaluating the script to the success
    * callback.
-   * @param {string} name, ModuleSpecifier-like name, not normalized.
+   * @param {string} name, relative path to js file.
    */
-  loadAsScript(name,
+  loadAsScript(filename,
        {referrerName, address} = {},
        callback = (result) => {},
        errback = (ex) => { throw ex; }) {
+    var name = filename.replace(/\.js$/, '');
     var codeUnit = this.internalLoader_.load(name, referrerName,
         address, 'script');
     codeUnit.addListener(function(result) {
@@ -73,5 +74,34 @@ export class TraceurLoader extends Loader {
     } catch (ex) {
       errback(ex);
     }
+  }
+
+  semVerRegExp_() {
+    return /^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$/;
+  }
+
+  /**
+   * @param {string} normalizedName, eg traceur@0.0.13/...
+   * @return {Object} 3 properties, eg traceur@, traceur@0, traceur@0.0,
+   *   all set to the first segment of the normalizedName.
+   */
+  semverMap(normalizedName) {
+    var slash = normalizedName.indexOf('/');
+    var version = normalizedName.slice(0, slash);
+    var at = version.indexOf('@');
+    if (at !== -1) {
+      var semver = normalizedName.slice(at + 1, slash);
+      var m = this.semVerRegExp_().exec(semver);
+      if (m) {
+        var major = m[1];
+        var minor = m[2];
+        var packageName = version.slice(0, at);
+        var map = Object.create(null);
+        map[packageName] = version;
+        map[packageName + '@' + major] = version;
+        map[packageName + '@' + major + '.' + minor] = version;
+      }
+    }
+    return map;
   }
 }

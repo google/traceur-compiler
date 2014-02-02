@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {AlphaRenamer} from './AlphaRenamer';
 import {
   CONSTRUCTOR
 } from '../syntax/PredefinedName';
@@ -34,6 +35,7 @@ import {VAR} from '../syntax/TokenType';
 import {MakeStrictTransformer} from './MakeStrictTransformer';
 import {
   createEmptyParameterList,
+  createExpressionStatement,
   createFunctionBody,
   createIdentifierExpression as id,
   createMemberExpression,
@@ -42,11 +44,12 @@ import {
   createThisExpression,
   createVariableStatement
 } from './ParseTreeFactory';
-import {hasUseStrict} from '../semantics/util.js';
+import {hasUseStrict} from '../semantics/util';
 import {parseOptions} from '../options';
 import {
   parseExpression,
-  parseStatement
+  parseStatement,
+  parseStatements
 } from './PlaceholderParser';
 import {propName} from '../staticsemantics/PropName';
 
@@ -204,7 +207,7 @@ export class ClassTransformer extends TempVarTransformer{
     if (!hasConstructor) {
       func = this.getDefaultConstructor_(tree, internalName);
     } else {
-      func = new FunctionExpression(tree.location, null, false,
+      func = new FunctionExpression(tree.location, tree.name, false,
                                     constructorParams, null, [],
                                     constructorBody);
     }
@@ -231,6 +234,10 @@ export class ClassTransformer extends TempVarTransformer{
     var name = tree.name.identifierToken;
     var internalName = id(`$${name}`);
 
+    var renamed = AlphaRenamer.rename(tree, name.value, internalName.identifierToken.value);
+    var referencesClassName = renamed !== tree
+    var tree = renamed;
+
     var {
       func,
       hasSuper,
@@ -240,18 +247,17 @@ export class ClassTransformer extends TempVarTransformer{
     } = this.transformClassElements_(tree, internalName);
 
     // TODO(arv): Use let.
-    var statements = [parseStatement `var ${name} = ${func}`];
+    var statements = parseStatements `var ${name} = ${func}`;
     var expr = classCall(name, object, staticObject, superClass);
 
-    if (hasSuper) {
+    if (hasSuper || referencesClassName) {
       // The internal name is so that super lookups continue to work even in
-      // case someone overrides the class binding name
-      statements.push(parseStatement `var ${internalName} = ${expr}`);
-    } else {
-      // The extra assignment is so that the stack trace contains the class
-      // name.
-      statements.push(parseStatement `${name} = ${expr}`);
+      // case someone overrides the class binding name.
+      // Also, ClassExpression binds the class name in the class body.
+      // TODO(arv): Use const for the internal name.
+      statements.push(parseStatement `var ${internalName} = ${name}`);
     }
+    statements.push(createExpressionStatement(expr));
 
     var anonBlock = new AnonBlock(null, statements);
     return this.makeStrict_(anonBlock);
@@ -362,16 +368,15 @@ export class ClassTransformer extends TempVarTransformer{
     var constructorParams = createEmptyParameterList();
     var constructorBody;
     if (tree.superClass) {
-      var statement = parseStatement
-          `$traceurRuntime.defaultSuperCall(this, ${internalName}.prototype,
-                                            arguments)`;
+      var statement = parseStatement `$traceurRuntime.defaultSuperCall(this,
+                ${internalName}.prototype, arguments)`;
       constructorBody = createFunctionBody([statement]);
       this.state_.hasSuper = true;
     } else {
       constructorBody = createFunctionBody([]);
     }
 
-    return new FunctionExpression(tree.location, null, false, constructorParams,
-                                  null, [], constructorBody);
+    return new FunctionExpression(tree.location, tree.name, false,
+                                  constructorParams, null, [], constructorBody);
   }
 }

@@ -76,9 +76,21 @@ suite('System.js', function() {
   });
 
   test('System.set', function() {
-    var polyfills = $traceurRuntime.ModuleStore.getForTesting('src/runtime/polyfills/polyfills');
+    var store = $traceurRuntime.ModuleStore;
+    var polyfills = store.getForTesting('src/runtime/polyfills/polyfills');
     System.set('traceur-testing-System@', polyfills);
     assert.equal(polyfills, System.get('traceur-testing-System@'));
+  });
+
+  test('ModuleStore.registerModule', function() {
+    var store = $traceurRuntime.ModuleStore;
+    try {
+      store.registerModule('name', function(){});
+      store.registerModule('name', function(){});
+    } catch (ex) {
+      return;
+    }
+    throw new Error('Expected throw before this statement');
   });
 
 });

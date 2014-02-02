@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {IDENTIFIER_EXPRESSION} from '../syntax/trees/ParseTreeType.js';
-import {ParseTreeTransformer} from './ParseTreeTransformer.js';
-import {TYPEOF} from '../syntax/TokenType.js';
+import {IDENTIFIER_EXPRESSION} from '../syntax/trees/ParseTreeType';
+import {ParseTreeTransformer} from './ParseTreeTransformer';
+import {TYPEOF} from '../syntax/TokenType';
 import {parseExpression} from './PlaceholderParser';
 
 export class TypeofTransformer extends ParseTreeTransformer {

@@ -23,6 +23,7 @@ import {ModuleSymbol} from '../semantics/ModuleSymbol';
 import {Parser} from '../syntax/Parser';
 import {options} from '../options';
 import {SourceFile} from '../syntax/SourceFile';
+import {systemjs} from '../runtime/system-map';
 import {write} from '../outputgeneration/TreeWriter';
 import {UniqueIdentifierGenerator} from
     '../codegeneration/UniqueIdentifierGenerator';
@@ -38,9 +39,10 @@ var NOT_STARTED = 0;
 var LOADING = 1;
 var LOADED = 2;
 var PARSED = 3;
-var TRANSFORMED = 4;
-var COMPLETE = 5;
-var ERROR = 6;
+var TRANSFORMING = 4
+var TRANSFORMED = 5;
+var COMPLETE = 6;
+var ERROR = 7;
 
 var identifierGenerator = new UniqueIdentifierGenerator();
 
@@ -64,7 +66,12 @@ export class LoaderHooks {
   }
 
   normalize(name, referrerName, referrerAddress) {
-    return this.moduleStore_.normalize(name, referrerName, referrerAddress);
+    var normalizedName =
+        this.moduleStore_.normalize(name, referrerName, referrerAddress);
+    if (System.map)
+      return systemjs.applyMap(System.map, normalizedName, referrerName);
+    else
+      return normalizedName;
   }
 
   // TODO Used for eval(): can we get the function call to supply callerURL?
@@ -130,9 +137,6 @@ export class LoaderHooks {
   locate_(load) {
     var normalizedModuleName = load.normalizedName;
     var asJS = normalizedModuleName + '.js';
-    // Tolerate .js endings
-    if (/\.js$/.test(normalizedModuleName))
-      asJS = normalizedModuleName;
     if (options.referrer) {
       if (asJS.indexOf(options.referrer) === 0) {
         asJS = asJS.slice(options.referrer.length);
@@ -202,12 +206,20 @@ export class LoaderHooks {
   }
 
   // TODO(jjb): this function belongs in Loader
-  transformDependencies(dependencies) {
+  transformDependencies(dependencies, dependentName) {
     for (var i = 0; i < dependencies.length; i++) {
       var codeUnit = dependencies[i];
       if (codeUnit.state >= TRANSFORMED) {
         continue;
       }
+      if (codeUnit.state === TRANSFORMING) {
+        var cir = codeUnit.normalizedName;
+        var cle = dependentName;
+        this.reporter.reportError(codeUnit.metadata.tree,
+            `Unsupported circular dependency between ${cir} and ${cle}`);
+        break;
+      }
+      codeUnit.state = TRANSFORMING;
       this.transformCodeUnit(codeUnit);
       this.instantiate(codeUnit);
     }
@@ -215,7 +227,9 @@ export class LoaderHooks {
   }
 
   transformCodeUnit(codeUnit) {
-    this.transformDependencies(codeUnit.dependencies); // depth first
+    this.transformDependencies(codeUnit.dependencies, codeUnit.normalizedName);
+    if (codeUnit.state === ERROR)
+      return;
     codeUnit.metadata.transformedTree = codeUnit.transform();
     codeUnit.state = TRANSFORMED;
     codeUnit.metadata.transcoded = write(codeUnit.metadata.transformedTree,
@@ -244,7 +258,9 @@ export class LoaderHooks {
           codeUnit.dispatchError(phase);
         }
       }
+      return true;
     }
+    return false;
   }
 
 }
