@@ -31,5 +31,8 @@ export var System = new TraceurLoader(loaderHooks);
 
 if (typeof window !== 'undefined')
 	window.System = System;
+if (typeof global !== 'undefined')
+	global.System = System;
 
 System.map = System.semverMap(__moduleName);
+
