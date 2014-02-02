@@ -30,7 +30,7 @@ function compileSingleFile(inputFilePath, outputFilePath) {
   return fs.read(inputFilePath).then(function(contents) {
     var reporter = new ErrorReporter();
     var sourceFile = new SourceFile(inputFilePath, contents);
-    var parser = new Parser(reporter, sourceFile);
+    var parser = new Parser(sourceFile, reporter);
     var tree = parser.parseModule();
     var moduleName = inputFilePath.replace(/\.js$/, '');
     moduleName = path.relative(__dirname, moduleName).replace(/\\/g,'/');

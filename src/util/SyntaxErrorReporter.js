@@ -1,4 +1,4 @@
-// Copyright 2012 Traceur Authors.
+// Copyright 2013 Traceur Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,21 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var fs = require('fs');
-var path = require('path');
+import {format} from './ErrorReporter';
 
-var filename = '../../bin/traceur.js';
-filename = path.join(path.dirname(module.filename), filename);
-var data = fs.readFileSync(filename, 'utf8');
-if (!data)
-  throw new Error('Failed to import ' + filename);
+/**
+ * An implementation of the ErrorReporter that throws a SyntaxError on the
+ * first reported error.
+ */
+export class SyntaxErrorReporter {
 
-('global', eval)(data);
-
-// traceur is a module and thus frozen.
-module.exports = {
-  __proto__: traceur,
-  get require() {
-    return require('./require.js');
+  /**
+   * @param {SourcePosition} location
+   * @param {string} format
+   */
+  reportError(location, message, ...args) {
+    var s = format(location, message, ...args);
+    throw new SyntaxError(s);
   }
-};
+}

@@ -28,12 +28,14 @@ export var semantics = {
 
 import {ErrorReporter} from './util/ErrorReporter';
 import {SourcePosition} from './util/SourcePosition';
+import {SyntaxErrorReporter} from './util/SyntaxErrorReporter';
 import {TestErrorReporter} from './util/TestErrorReporter';
 import {resolveUrl} from './util/url';
 
 export var util = {
   ErrorReporter,
   SourcePosition,
+  SyntaxErrorReporter,
   TestErrorReporter,
   resolveUrl
 };
