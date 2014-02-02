@@ -1,7 +1,7 @@
 // Original source from https://github.com/guybedford/systemjs on 2014-01-28
 // at git sha 0beae8195df6a134567dff9458c895116332fb9f
 // License MIT by Guy Bedford
-// Modifications by Traceur Authors 2014.
+// Modifications by traceur Authors 2014.
 
 /*
   SystemJS map support
