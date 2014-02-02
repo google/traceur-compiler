@@ -14,6 +14,7 @@
 
 import {
   ARRAY_PATTERN,
+  BINDING_ELEMENT,
   BINDING_IDENTIFIER,
   FORMAL_PARAMETER,
   OBJECT_PATTERN,
@@ -225,6 +226,10 @@ export class VariableBinder extends ParseTreeVisitor {
     // TODO(arv): This should just visit all the BindingIdentifiers once
     // destructuring has been refactored.
     switch (tree.type) {
+      case BINDING_ELEMENT:
+        this.bindVariableDeclaration_(tree.binding);
+        break;
+
       case BINDING_IDENTIFIER:
         this.bind_(tree.identifierToken);
         break;
