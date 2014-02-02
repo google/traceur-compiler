@@ -3740,6 +3740,10 @@ export class Parser {
     return new SourceRange(start, this.getTreeEndLocation_());
   }
 
+  handleComment(range) {
+    // TODO(arv): Attach to tree nodes.
+  }
+
   /**
    * Consumes the next token and returns it. Will return a never ending stream of
    * END_OF_FILE at the end of the file so callers don't have to check for EOF explicitly.
