@@ -9,6 +9,7 @@ var TempClass = ClassExpr;
 ClassExpr = 42;
 
 assert.equal(42, new TempClass().m());
+assert.equal(TempClass.name, '');
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -22,6 +23,7 @@ TempClass = ClassExpr2;
 ClassExpr2 = 42;
 
 assert.equal(TempClass, new TempClass().m());
+assert.equal(TempClass.name, 'ClassExprInner');
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -34,4 +36,6 @@ class ClassDef {
 var TempClass = ClassDef;
 ClassDef = 42;
 
-assert.equal(42, new TempClass().m());
+assert.equal(TempClass, new TempClass().m());
+// IE does not have a name property on functions.
+assert.isTrue(TempClass.name === 'ClassDef' || TempClass.name === undefined);
