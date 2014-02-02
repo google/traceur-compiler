@@ -30,7 +30,7 @@ index 62a5f44..8694f99 100644
 +                    fn = function () {
 +                        console.reportError = console.error;
 +                        var file = new traceur.syntax.SourceFile('name', source);
-+                        var parser = new traceur.syntax.Parser(console, file);
++                        var parser = new traceur.syntax.Parser(file, console);
 +                        var tree = parser.parseScript();
 +                        window.tree.push(tree.scriptItemList.length);
 +                    };

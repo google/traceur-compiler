@@ -214,7 +214,7 @@
 
       function parse(source) {
         var file = new traceur.syntax.SourceFile(name, source);
-        var parser = new traceur.syntax.Parser(reporter, file);
+        var parser = new traceur.syntax.Parser(file, reporter);
         var isModule = /\.module\.js$/.test(url);
         if (isModule)
           return parser.parseModule();
