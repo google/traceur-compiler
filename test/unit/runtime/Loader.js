@@ -228,9 +228,6 @@ suite('Loader.js', function() {
 
 
   test('System.semverMap', function() {
-    var System =
-        $traceurRuntime.ModuleStore.getForTesting('src/runtime/System').System;
-
     var semVerRegExp = System.semVerRegExp_();
     var m = semVerRegExp.exec('1.2.3-a.b.c.5.d.100');
     assert.equal(1, m[1]);
@@ -247,5 +244,30 @@ suite('Loader.js', function() {
     assert.equal(version, System.map['traceur@0']);
     assert.equal(version, System.map['traceur@0.0']);
   });
+
+  test('System.map', function() {
+    System.map = System.semverMap('traceur@0.0.13/src/runtime/System');
+    var version = System.map['traceur'];
+    var remapped = System.normalize('traceur@0.0/src/runtime/System');
+    var versionSegment = remapped.split('/')[0];
+    assert.equal(version, versionSegment);
+  });
+
+  test('System.applyMap', function() {
+    var originalMap = System.map;
+    System.map['tests/contextual'] = {
+      maptest: 'tests/contextual-map-dep'
+    };
+    var contexualRemap = System.normalize('maptest', 'tests/contextual');
+    assert.equal('tests/contextual-map-dep', contexualRemap);
+    // prefix must match up to segment delimiter '/'
+    System.map = {
+      jquery: 'jquery@2.0.0'
+    };
+    var remap = System.normalize('jquery-ui');
+    assert.equal('jquery-ui', remap);
+    System.map = originalMap;
+  });
+
 
 });

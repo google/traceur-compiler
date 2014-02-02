@@ -23,6 +23,7 @@ import {ModuleSymbol} from '../semantics/ModuleSymbol';
 import {Parser} from '../syntax/Parser';
 import {options} from '../options';
 import {SourceFile} from '../syntax/SourceFile';
+import {systemjs} from '../runtime/system-map';
 import {write} from '../outputgeneration/TreeWriter';
 import {UniqueIdentifierGenerator} from
     '../codegeneration/UniqueIdentifierGenerator';
@@ -65,7 +66,12 @@ export class LoaderHooks {
   }
 
   normalize(name, referrerName, referrerAddress) {
-    return this.moduleStore_.normalize(name, referrerName, referrerAddress);
+    var normalizedName =
+        this.moduleStore_.normalize(name, referrerName, referrerAddress);
+    if (System.map)
+      return systemjs.applyMap(System.map, normalizedName, referrerName);
+    else
+      return normalizedName;
   }
 
   // TODO Used for eval(): can we get the function call to supply callerURL?
