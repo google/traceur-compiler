@@ -1,6 +1,11 @@
+// Original source from https://github.com/guybedford/systemjs on 2014-01-28
+// at git sha 0beae8195df6a134567dff9458c895116332fb9f
+// License MIT by Guy Bedford
+// Modifications by traceur Authors 2014.
+
 /*
   SystemJS map support
-  
+
   Provides map configuration through
     System.map['jquery'] = 'some/module/map'
 
@@ -8,6 +13,8 @@
     System.map['bootstrap'] = {
       jquery: 'some/module/map2'
     }
+
+  String properties are global maps, objects are contextual maps.
 
   Note that this applies for subpaths, just like RequireJS
 
@@ -21,86 +28,81 @@
 
   Maps are carefully applied from most specific contextual map, to least specific global map
 */
-(function() {
 
-  System.map = System.map || {};
-
-
-  // return the number of prefix parts (separated by '/') matching the name
-  // eg prefixMatchLength('jquery/some/thing', 'jquery') -> 1
-  function prefixMatchLength(name, prefix) {
-    var prefixParts = prefix.split('/');
-    var nameParts = name.split('/');
-    if (prefixParts.length > nameParts.length)
+// return the number of prefix parts (separated by '/') matching the name
+// eg prefixMatchLength('jquery/some/thing', 'jquery') -> 1
+function prefixMatchLength(name, prefix) {
+  var prefixParts = prefix.split('/');
+  var nameParts = name.split('/');
+  if (prefixParts.length > nameParts.length)
+    return 0;
+  for (var i = 0; i < prefixParts.length; i++) {
+    if (nameParts[i] != prefixParts[i])
       return 0;
-    for (var i = 0; i < prefixParts.length; i++)
-      if (nameParts[i] != prefixParts[i])
-        return 0;
-    return prefixParts.length;
   }
+  return prefixParts.length;
+}
 
+// given a relative-resolved module name and normalized parent name,
+// apply the map configuration
+function applyMap(map, name, parentName) {
 
-  // given a relative-resolved module name and normalized parent name,
-  // apply the map configuration
-  function applyMap(name, parentName) {
+  var curMatch, curMatchLength = 0;
+  var curParent, curParentMatchLength = 0;
 
-    var curMatch, curMatchLength = 0;
-    var curParent, curParentMatchLength = 0;
-    
-    // first find most specific contextual match
-    if (parentName) {
-      for (var p in System.map) {
-        var curMap = System.map[p];
-        if (typeof curMap != 'object')
-          continue;
-
+  // first find most specific contextual match
+  if (parentName) {
+    var mappedName;
+    Object.getOwnPropertyNames(map).some(function(p) {
+      var curMap = map[p];
+      // Object properties are contextual map entries.
+      if (curMap && typeof curMap === 'object') {
         // most specific parent match wins first
         if (prefixMatchLength(parentName, p) <= curParentMatchLength)
-          continue;
+          return;
 
-        for (var q in curMap) {
+        Object.getOwnPropertyNames(curMap).forEach(function(q) {
           // most specific name match wins
-          if (prefixMatchLength(name, q) <= curMatchLength)
-            continue;
-
-          curMatch = q;
-          curMatchLength = q.split('/').length;
-          curParent = p;
-          curParentMatchLength = p.split('/').length;
-        }
+          if (prefixMatchLength(name, q) > curMatchLength) {
+            curMatch = q;
+            curMatchLength = q.split('/').length;
+            curParent = p;
+            curParentMatchLength = p.split('/').length;
+          }
+        });
       }
       if (curMatch) {
         var subPath = name.split('/').splice(curMatchLength).join('/');
-        return System.map[curParent][curMatch] + (subPath ? '/' + subPath : '');
+        mappedName =
+            map[curParent][curMatch] + (subPath ? '/' + subPath : '');
+        return mappedName;
       }
-    }
-
-    // if we didn't find a contextual match, try the global map
-    for (var p in System.map) {
-      var curMap = System.map[p];
-      if (typeof curMap != 'string')
-        continue;
-
-      if (prefixMatchLength(name, p) <= curMatchLength)
-        continue;
-
-      curMatch = p;
-      curMatchLength = p.split('/').length;
-    }
-    
-    // return a match if any
-    if (!curMatch)
-      return name;
-    
-    var subPath = name.split('/').splice(curMatchLength).join('/');
-    return System.map[curMatch] + (subPath ? '/' + subPath : '');
-  }
-
-  var systemNormalize = System.normalize.bind(System);
-  System.normalize = function(name, parentName, parentAddress) {
-    return Promise.resolve(systemNormalize(name, parentName, parentAddress))
-    .then(function(name) {
-      return applyMap(name, parentName);
     });
   }
-})();
+
+  if (mappedName)
+    return mappedName;
+
+  // if we didn't find a contextual match, try the global map
+  Object.getOwnPropertyNames(map).forEach(function(p) {
+    var curMap = map[p];
+    // String properties are global map entries.
+    if (curMap && typeof curMap === 'string') {
+      if (prefixMatchLength(name, p) > curMatchLength) {
+        curMatch = p;
+        curMatchLength = p.split('/').length;
+      }
+    }
+  });
+
+  // return a match if any
+  if (!curMatch)
+    return name;
+
+  var subPath = name.split('/').splice(curMatchLength).join('/');
+  return map[curMatch] + (subPath ? '/' + subPath : '');
+}
+
+export var systemjs = {
+  applyMap: applyMap
+};
