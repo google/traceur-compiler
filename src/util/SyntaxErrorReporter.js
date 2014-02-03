@@ -12,19 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {format} from './ErrorReporter';
+import {
+  ErrorReporter,
+  format
+} from './ErrorReporter';
 
 /**
  * An implementation of the ErrorReporter that throws a SyntaxError on the
  * first reported error.
  */
-export class SyntaxErrorReporter {
+export class SyntaxErrorReporter extends ErrorReporter {
 
   /**
    * @param {SourcePosition} location
    * @param {string} format
+   * @param {Array} args
    */
-  reportError(location, message, ...args) {
+  reportMessageInternal(location, format, args) {
     var s = format(location, message, ...args);
     throw new SyntaxError(s);
   }
