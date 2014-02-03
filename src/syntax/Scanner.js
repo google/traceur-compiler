@@ -21,7 +21,10 @@ import {
   idContinueTable,
   idStartTable
 } from './unicode-tables';
-import {parseOptions} from '../options';
+import {
+  options,
+  parseOptions
+} from '../options';
 
 import {
   AMPERSAND,
@@ -613,20 +616,29 @@ function skipComment() {
   return false;
 }
 
+function commentCallback(start, index) {
+ if (options.commentCallback)
+    currentParser.handleComment(lineNumberTable.getSourceRange(start, index));
+}
+
 function skipSingleLineComment() {
+  var start = index;
   // skip '//'
   index += 2;
   while (!isAtEnd() && !isLineTerminator(input.charCodeAt(index++))) {}
   updateCurrentCharCode();
+  commentCallback(start, index);
 }
 
 function skipMultiLineComment() {
+  var start = index;
   var i = input.indexOf('*/', index + 2);
   if (i !== -1)
     index = i + 2;
   else
     index = length;
   updateCurrentCharCode();
+  commentCallback(start, index);
 }
 
 /**
