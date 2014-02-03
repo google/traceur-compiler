@@ -19,8 +19,6 @@ export class SourcePosition {
   /**
    * @param {SourceFile} source
    * @param {number} offset
-   * @param {number} line
-   * @param {number} column
    */
   constructor(source, offset) {
     this.source = source;

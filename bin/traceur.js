@@ -2287,12 +2287,13 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/options", functio
   addFeatureOption('deferredFunctions', EXPERIMENTAL);
   addFeatureOption('types', EXPERIMENTAL);
   addFeatureOption('annotations', EXPERIMENTAL);
+  addBoolOption('commentCallback');
   addBoolOption('debug');
-  addBoolOption('sourceMaps');
   addBoolOption('freeVariableChecker');
-  addBoolOption('validate');
-  addBoolOption('unstarredGenerators');
+  addBoolOption('sourceMaps');
   addBoolOption('typeAssertions');
+  addBoolOption('unstarredGenerators');
+  addBoolOption('validate');
   defaultValues.referrer = '';
   options.referrer = null;
   defaultValues.typeAssertionModule = null;
@@ -9719,7 +9720,10 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/util/SourceRange"
     this.start = start;
     this.end = end;
   };
-  ($traceurRuntime.createClass)(SourceRange, {}, {});
+  ($traceurRuntime.createClass)(SourceRange, {toString: function() {
+      var str = this.start.source.contents;
+      return str.slice(this.start.offset, this.end.offset);
+    }}, {});
   return {get SourceRange() {
       return SourceRange;
     }};
@@ -9837,7 +9841,9 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/syntax/Scanner", 
   var $__80 = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/syntax/unicode-tables"),
       idContinueTable = $__80.idContinueTable,
       idStartTable = $__80.idStartTable;
-  var parseOptions = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/options").parseOptions;
+  var $__80 = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/options"),
+      options = $__80.options,
+      parseOptions = $__80.parseOptions;
   var $__80 = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/syntax/TokenType"),
       AMPERSAND = $__80.AMPERSAND,
       AMPERSAND_EQUAL = $__80.AMPERSAND_EQUAL,
@@ -10265,15 +10271,22 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/syntax/Scanner", 
     }
     return false;
   }
+  function commentCallback(start, index) {
+    if (options.commentCallback) currentParser.handleComment(lineNumberTable.getSourceRange(start, index));
+  }
   function skipSingleLineComment() {
+    var start = index;
     index += 2;
     while (!isAtEnd() && !isLineTerminator(input.charCodeAt(index++))) {}
     updateCurrentCharCode();
+    commentCallback(start, index);
   }
   function skipMultiLineComment() {
+    var start = index;
     var i = input.indexOf('*/', index + 2);
     if (i !== - 1) index = i + 2; else index = length;
     updateCurrentCharCode();
+    commentCallback(start, index);
   }
   function scanToken() {
     skipComments();
@@ -12909,6 +12922,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/syntax/Parser", f
     getTreeLocation_: function(start) {
       return new SourceRange(start, this.getTreeEndLocation_());
     },
+    handleComment: function(range) {},
     nextToken_: function() {
       return this.scanner_.nextToken();
     },

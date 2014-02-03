@@ -283,12 +283,13 @@ addFeatureOption('deferredFunctions', EXPERIMENTAL);
 addFeatureOption('types', EXPERIMENTAL);
 addFeatureOption('annotations', EXPERIMENTAL);
 
+addBoolOption('commentCallback');
 addBoolOption('debug');
-addBoolOption('sourceMaps');
 addBoolOption('freeVariableChecker');
-addBoolOption('validate');
-addBoolOption('unstarredGenerators');
+addBoolOption('sourceMaps');
 addBoolOption('typeAssertions');
+addBoolOption('unstarredGenerators');
+addBoolOption('validate');
 
 defaultValues.referrer = '';
 options.referrer = null;
