@@ -20,7 +20,7 @@ var nodeLoader = require('./nodeLoader.js');
 var reporter = new traceur.util.ErrorReporter();
 var LoaderHooks = traceur.runtime.LoaderHooks;
 var url = './';
-var loaderHooks = new LoaderHooks(reporter, url, undefined, nodeLoader);
+var loaderHooks = new LoaderHooks(reporter, url, nodeLoader);
 
 var System = new traceur.runtime.TraceurLoader(loaderHooks);
 

@@ -44,7 +44,7 @@ suite('Loader.js', function() {
   function getLoaderHooks(opt_reporter) {
     var LoaderHooks = traceur.runtime.LoaderHooks;
     opt_reporter = opt_reporter || reporter;
-    return new LoaderHooks(opt_reporter, url, undefined, fileLoader);
+    return new LoaderHooks(opt_reporter, url, fileLoader);
   }
 
   function getLoader(opt_reporter) {
@@ -269,5 +269,18 @@ suite('Loader.js', function() {
     System.map = originalMap;
   });
 
+  test('AnonModuleSourceMap', function() {
+    var src = "  import {name} from './test_a';";
+
+    var loader = getLoader();
+    loader.options.sourceMap = true;
+
+    loader.module(src, {}, function (mod) {
+      assert(mod);
+    }, function(err) {
+      throw new Error('AnonModuleSourceMap FAILED ');
+    });
+
+  });
 
 });

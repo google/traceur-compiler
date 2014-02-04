@@ -24,7 +24,7 @@ import {Parser} from '../syntax/Parser';
 import {options} from '../options';
 import {SourceFile} from '../syntax/SourceFile';
 import {systemjs} from '../runtime/system-map';
-import {write} from '../outputgeneration/TreeWriter';
+import {toSource} from '../outputgeneration/ToSource';
 import {UniqueIdentifierGenerator} from
     '../codegeneration/UniqueIdentifierGenerator';
 import {isAbsolute, resolveUrl} from '../util/url';
@@ -47,11 +47,11 @@ var ERROR = 7;
 var identifierGenerator = new UniqueIdentifierGenerator();
 
 export class LoaderHooks {
-  constructor(reporter, rootUrl, outputOptions = undefined,
-      fileLoader = webLoader, moduleStore = $traceurRuntime.ModuleStore) {
+  constructor(reporter, rootUrl,
+      fileLoader = webLoader,
+      moduleStore = $traceurRuntime.ModuleStore) {
     this.reporter = reporter;
     this.rootUrl_ = rootUrl;
-    this.outputOptions_ = outputOptions;
     this.moduleStore_ = moduleStore;
     this.fileLoader = fileLoader;
     this.analyzer_ = new ModuleAnalyzer(this.reporter);
@@ -232,13 +232,10 @@ export class LoaderHooks {
       return;
     codeUnit.metadata.transformedTree = codeUnit.transform();
     codeUnit.state = TRANSFORMED;
-    codeUnit.metadata.transcoded = write(codeUnit.metadata.transformedTree,
-        this.outputOptions_);
+    [codeUnit.metadata.transcoded, codeUnit.metadata.sourceMap]
+        = toSource(codeUnit.metadata.transformedTree, this.options);
     if (codeUnit.url && codeUnit.metadata.transcoded)
       codeUnit.metadata.transcoded += '//# sourceURL=' + codeUnit.url;
-    // TODO(jjb): return sourcemaps not sideeffect
-    codeUnit.sourceMap =
-      this.outputOptions_ && this.outputOptions_.sourceMap;
   }
 
 
