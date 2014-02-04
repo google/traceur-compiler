@@ -29,7 +29,7 @@ import {SourceMapGenerator} from './SourceMapIntegration';
 export function toSource(tree, options = undefined) {
 
   var sourceMapGenerator = options && options.sourceMapGenerator;
-  if (!sourceMapGenerator && options && options.sourceMap) {
+  if (!sourceMapGenerator && options && options.sourceMaps) {
     sourceMapGenerator = new SourceMapGenerator({
       file: options.filename,
       sourceRoot: null

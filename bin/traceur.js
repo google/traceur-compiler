@@ -19840,7 +19840,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/outputgeneration/
   function toSource(tree) {
     var options = arguments[1];
     var sourceMapGenerator = options && options.sourceMapGenerator;
-    if (!sourceMapGenerator && options && options.sourceMap) {
+    if (!sourceMapGenerator && options && options.sourceMaps) {
       sourceMapGenerator = new SourceMapGenerator({
         file: options.filename,
         sourceRoot: null
