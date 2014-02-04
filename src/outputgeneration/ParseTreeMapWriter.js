@@ -52,7 +52,7 @@ export class ParseTreeMapWriter extends ParseTreeWriter {
         line: start.line + 1,
         column: start.column
        },
-       source: start.source.name
+       source: start.source.name || '(anonymous)'
     };
     this.sourceMapGenerator_.addMapping(mapping);
     this.sourceMapGenerator_.setSourceContent(start.source.name, start.source.contents);

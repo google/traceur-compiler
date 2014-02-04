@@ -261,6 +261,10 @@ export class InternalLoader {
     return codeUnit;
   }
 
+  get options() {
+    return this.loaderHooks.options;
+  }
+
   getKey(url, type) {
     var combined = type + ':' + url;
     if (combined in this.urlToKey) {

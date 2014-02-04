@@ -104,4 +104,8 @@ export class TraceurLoader extends Loader {
     }
     return map;
   }
+
+  get options() {
+    return this.internalLoader_.options;
+  }
 }

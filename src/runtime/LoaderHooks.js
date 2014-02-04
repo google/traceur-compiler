@@ -263,4 +263,8 @@ export class LoaderHooks {
     return false;
   }
 
+  get options() {
+    return options;
+  }
+
 }

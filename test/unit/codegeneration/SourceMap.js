@@ -103,4 +103,22 @@ suite('SourceMap.js', function() {
     var sourceContent = consumer.sourceContentFor(filename);
     assert.equal(sourceContent, src);
   });
+
+  test('AnonModuleSourceMap', function() {
+    var src = "  import {x} from 'WrapNewObjectTransformer';";
+
+    var generator = new SourceMapGenerator({file: filename});
+    var options = {sourceMapGenerator: generator, showLineNumbers: false};
+
+    System.module(src, function (mod) {
+
+    });
+
+    var actual = TreeWriter.write(tree, options);
+
+    var consumer = new SourceMapConsumer(options.sourceMap);
+
+    var sourceContent = consumer.sourceContentFor(filename);
+    assert.equal(sourceContent, src);
+  });
 });
