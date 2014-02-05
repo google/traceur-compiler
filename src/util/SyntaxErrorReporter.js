@@ -14,7 +14,7 @@
 
 import {
   ErrorReporter,
-  format
+  format as formatter
 } from './ErrorReporter';
 
 /**
@@ -29,7 +29,7 @@ export class SyntaxErrorReporter extends ErrorReporter {
    * @param {Array} args
    */
   reportMessageInternal(location, format, args) {
-    var s = format(location, message, ...args);
+    var s = formatter(location, format, args);
     throw new SyntaxError(s);
   }
 }

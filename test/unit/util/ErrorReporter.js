@@ -16,6 +16,8 @@ suite('ErrorReporter.js', function() {
 
   var MutedErrorReporter =
       $traceurRuntime.ModuleStore.getForTesting('src/util/MutedErrorReporter').MutedErrorReporter;
+  var SyntaxErrorReporter =
+      $traceurRuntime.ModuleStore.getForTesting('src/util/SyntaxErrorReporter').SyntaxErrorReporter;
 
   var originalConsoleError = console.error;
   var args;
@@ -62,6 +64,19 @@ suite('ErrorReporter.js', function() {
     var r = new MutedErrorReporter();
     r.reportError(null, 'a%sc%se', 'b', 'd');
     assert.equal(args.length, 0);
+  });
+
+  test('SyntaxErrorReporter', function() {
+    var r = new SyntaxErrorReporter();
+    var thrown;
+    try {
+      r.reportError(null, 'a%sc%se', 'b', 'd');
+    } catch(syntaxError) {
+      thrown = syntaxError;
+    } finally {
+      assert(thrown);
+      assert.equal('SyntaxError: abcde', thrown + '');
+    }
   });
 
   test('Format', function() {
