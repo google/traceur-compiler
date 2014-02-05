@@ -24,7 +24,6 @@ var TraceurLoader = traceur.runtime.TraceurLoader;
 var LoaderHooks = traceur.runtime.LoaderHooks;
 var Script = traceur.syntax.trees.Script;
 var SourceFile = traceur.syntax.SourceFile
-var SourceMapGenerator = traceur.outputgeneration.SourceMapGenerator;
 var ModuleAnalyzer = traceur.semantics.ModuleAnalyzer;
 var moduleStore = traceur.runtime.ModuleStore;
 
@@ -35,7 +34,7 @@ var moduleStore = traceur.runtime.ModuleStore;
  *     printing was requested.
  */
 function InlineLoaderHooks(reporter, url, elements, depTarget) {
-  LoaderHooks.call(this, reporter, url, undefined,
+  LoaderHooks.call(this, reporter, url,
       nodeLoader,  // Load modules using node fs.
       moduleStore);  // Look up modules in our static module store
   this.dirname = url;

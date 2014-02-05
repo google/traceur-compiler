@@ -117,7 +117,7 @@ function compile() {
     output.setValue(metadata.transcoded);
     var sourceMap = metadata.sourceMap;
     if (sourceMap) {
-      var renderedMap = renderSourceMap(transcoded, sourceMap);
+      var renderedMap = renderSourceMap(metadata.transcoded, sourceMap);
       sourceMapElement.textContent = renderedMap;
     } else {
       sourceMapElement.textContent = '';
