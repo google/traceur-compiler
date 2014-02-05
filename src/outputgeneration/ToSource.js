@@ -27,7 +27,6 @@ import {SourceMapGenerator} from './SourceMapIntegration';
  * @return source code; optional side-effect options.sourceMap set
  */
 export function toSource(tree, options = undefined) {
-
   var sourceMapGenerator = options && options.sourceMapGenerator;
   if (!sourceMapGenerator && options && options.sourceMaps) {
     sourceMapGenerator = new SourceMapGenerator({
@@ -44,9 +43,7 @@ export function toSource(tree, options = undefined) {
 
   writer.visitAny(tree);
 
-  if (sourceMapGenerator)
-    options.sourceMap = sourceMapGenerator.toString();
-
-  return [writer.toString(), options.sourceMap];
+  return [writer.toString(),
+      sourceMapGenerator && sourceMapGenerator.toString()];
 }
 

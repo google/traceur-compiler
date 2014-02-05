@@ -24,12 +24,11 @@ import {Parser} from '../syntax/Parser';
 import {options} from '../options';
 import {SourceFile} from '../syntax/SourceFile';
 import {systemjs} from '../runtime/system-map';
-import {toSource} from '../outputgeneration/ToSource';
+import {toSource} from '../outputgeneration/toSource';
 import {UniqueIdentifierGenerator} from
     '../codegeneration/UniqueIdentifierGenerator';
 import {isAbsolute, resolveUrl} from '../util/url';
 import {webLoader} from './webLoader';
-
 
 import {assert} from '../util/assert';
 
@@ -232,8 +231,9 @@ export class LoaderHooks {
       return;
     codeUnit.metadata.transformedTree = codeUnit.transform();
     codeUnit.state = TRANSFORMED;
-    [codeUnit.metadata.transcoded, codeUnit.metadata.sourceMap]
-        = toSource(codeUnit.metadata.transformedTree, this.options);
+    var filename = codeUnit.url || codeUnit.normalizedName;
+    [codeUnit.metadata.transcoded, codeUnit.metadata.sourceMap] =
+        toSource(codeUnit.metadata.transformedTree, this.options, filename);
     if (codeUnit.url && codeUnit.metadata.transcoded)
       codeUnit.metadata.transcoded += '//# sourceURL=' + codeUnit.url;
   }

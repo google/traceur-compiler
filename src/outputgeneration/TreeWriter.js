@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ParseTreeMapWriter} from './ParseTreeMapWriter';
-import {ParseTreeWriter} from './ParseTreeWriter';
+import {toSource} from './toSource';
 
 /**
  * Create a ParseTreeWriter configured with options, apply it to tree
@@ -26,19 +25,10 @@ import {ParseTreeWriter} from './ParseTreeWriter';
  * @return source code; optional side-effect options.sourceMap set
  */
 export function write(tree, options = undefined) {
-  var sourceMapGenerator = options && options.sourceMapGenerator;
-  var writer;
-  if (sourceMapGenerator)
-    writer = new ParseTreeMapWriter(sourceMapGenerator, options);
-  else
-    writer = new ParseTreeWriter(options);
-
-  writer.visitAny(tree);
-
-  if (sourceMapGenerator)
-    options.sourceMap = sourceMapGenerator.toString();
-
-  return writer.toString();
+  var [result, sourceMap] = toSource(tree, options);
+  if (sourceMap)
+    options.sourceMap = sourceMap;
+  return result;
 }
 
 // TODO(arv): This should just export the static function instead.

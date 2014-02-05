@@ -265,6 +265,12 @@ export class InternalLoader {
     return this.loaderHooks.options;
   }
 
+  sourceMap(normalizedName, type) {
+    var key = this.getKey(normalizedName, type);
+    var codeUnit = this.cache.get(key);
+    return codeUnit && codeUnit.metadata && codeUnit.metadata.sourceMap;
+  }
+
   getKey(url, type) {
     var combined = type + ':' + url;
     if (combined in this.urlToKey) {

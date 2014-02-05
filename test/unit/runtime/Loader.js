@@ -226,6 +226,27 @@ suite('Loader.js', function() {
     });
   });
 
+  test('Loader.defineWithSourceMap', function(done) {
+    var normalizedName = System.normalize('./test_define_with_source_map');
+    var loader = getLoader();
+    loader.options.sourceMaps = true;
+    var src = 'export {name as a} from \'./test_a\';\nexport var d = 4;\n';
+    loader.define(normalizedName, src, {},
+      function() {
+        var sourceMap = loader.sourceMap(normalizedName, 'module');
+        assert(sourceMap);
+        var SourceMapConsumer = traceur.outputgeneration.SourceMapConsumer;
+        var consumer = new SourceMapConsumer(sourceMap);
+        var sourceContent = consumer.sourceContentFor(normalizedName);
+        assert.equal(sourceContent, src);
+        done();
+      }, function(error) {
+        fail(error);
+        done();
+      }
+    );
+  });
+
 
   test('System.semverMap', function() {
     var semVerRegExp = System.semVerRegExp_();
