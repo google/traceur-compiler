@@ -103,4 +103,5 @@ suite('SourceMap.js', function() {
     var sourceContent = consumer.sourceContentFor(filename);
     assert.equal(sourceContent, src);
   });
+
 });

@@ -26,8 +26,8 @@ export var webLoader = {
       }
       xhr = null;
     };
-    xhr.onerror = () => {
-      errback();
+    xhr.onerror = (err) => {
+      errback(err);
     };
     xhr.open('GET', url, true);
     xhr.send();

@@ -104,4 +104,19 @@ export class TraceurLoader extends Loader {
     }
     return map;
   }
+
+  /**
+  * @return {Object} traceur-specific options object
+  */
+  get options() {
+    return this.internalLoader_.options;
+  }
+
+  /**
+   * @param {string} normalizedName
+   * @param {string} 'module' or 'script'
+   */
+  sourceMap(normalizedName, type) {
+    return this.internalLoader_.sourceMap(normalizedName, type);
+  }
 }

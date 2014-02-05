@@ -28,8 +28,7 @@ function interpret(filename, argv, flags) {
     var LoaderHooks = traceur.runtime.LoaderHooks;
     var reporter = new traceur.util.ErrorReporter();
     // Load dependencies as relative to the argument.
-    var loaderHooks = new LoaderHooks(reporter, moduleName, undefined,
-                                      nodeLoader);
+    var loaderHooks = new LoaderHooks(reporter, moduleName, nodeLoader);
     return new traceur.runtime.TraceurLoader(loaderHooks);
   }
   global.SystemLoader = getLoader();

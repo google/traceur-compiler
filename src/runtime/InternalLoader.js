@@ -261,6 +261,16 @@ export class InternalLoader {
     return codeUnit;
   }
 
+  get options() {
+    return this.loaderHooks.options;
+  }
+
+  sourceMap(normalizedName, type) {
+    var key = this.getKey(normalizedName, type);
+    var codeUnit = this.cache.get(key);
+    return codeUnit && codeUnit.metadata && codeUnit.metadata.sourceMap;
+  }
+
   getKey(url, type) {
     var combined = type + ':' + url;
     if (combined in this.urlToKey) {
@@ -306,7 +316,7 @@ export class InternalLoader {
     var referrerName = codeUnit.normalizedName;
     var moduleSpecifiers = this.loaderHooks.getModuleSpecifiers(codeUnit);
     if (!moduleSpecifiers) {
-      this.abortAll()
+      this.abortAll(`No module specifiers in ${referrerName}`);
       return;
     }
     codeUnit.dependencies = moduleSpecifiers.sort().map((name) => {
@@ -332,7 +342,7 @@ export class InternalLoader {
         codeUnit.nameTrace() + this.loaderHooks.nameTrace(codeUnit);
 
     this.reporter.reportError(null, message);
-    this.abortAll();
+    this.abortAll(message);
     codeUnit.error = message;
     codeUnit.dispatchError(message);
   }
@@ -340,7 +350,7 @@ export class InternalLoader {
   /**
    * Aborts all loading code units.
    */
-  abortAll() {
+  abortAll(errorMessage) {
     this.cache.values().forEach((codeUnit) => {
       if (codeUnit.abort) {
         codeUnit.abort();
@@ -349,7 +359,7 @@ export class InternalLoader {
     });
     // Notify all codeUnit listeners (else tests hang til timeout).
     this.cache.values().forEach((codeUnit) => {
-      codeUnit.dispatchError(codeUnit.error || 'Error in dependency');
+      codeUnit.dispatchError(codeUnit.error || errorMessage);
     });
   }
 
