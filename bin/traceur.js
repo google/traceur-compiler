@@ -10805,13 +10805,13 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/util/SyntaxErrorR
   var __moduleName = "traceur@0.0.20/src/util/SyntaxErrorReporter";
   var $__76 = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/util/ErrorReporter"),
       ErrorReporter = $__76.ErrorReporter,
-      format = $__76.format;
+      formatter = $__76.format;
   var SyntaxErrorReporter = function SyntaxErrorReporter() {
     $traceurRuntime.defaultSuperCall(this, $SyntaxErrorReporter.prototype, arguments);
   };
   var $SyntaxErrorReporter = SyntaxErrorReporter;
   ($traceurRuntime.createClass)(SyntaxErrorReporter, {reportMessageInternal: function(location, format, args) {
-      var s = format.apply(null, $traceurRuntime.spread([location, message], args));
+      var s = formatter(location, format, args);
       throw new SyntaxError(s);
     }}, {}, ErrorReporter);
   return {get SyntaxErrorReporter() {
