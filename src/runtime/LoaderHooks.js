@@ -24,7 +24,6 @@ import {Parser} from '../syntax/Parser';
 import {options} from '../options';
 import {SourceFile} from '../syntax/SourceFile';
 import {systemjs} from '../runtime/system-map';
-import {toSource} from '../outputgeneration/toSource';
 import {UniqueIdentifierGenerator} from
     '../codegeneration/UniqueIdentifierGenerator';
 import {isAbsolute, resolveUrl} from '../util/url';
@@ -201,41 +200,6 @@ export class LoaderHooks {
     this.exportListBuilder_.buildExportList(deps, loader);
   }
 
-  // TODO(jjb): this function belongs in Loader
-  transformDependencies(dependencies, dependentName) {
-    for (var i = 0; i < dependencies.length; i++) {
-      var codeUnit = dependencies[i];
-      if (codeUnit.state >= TRANSFORMED) {
-        continue;
-      }
-      if (codeUnit.state === TRANSFORMING) {
-        var cir = codeUnit.normalizedName;
-        var cle = dependentName;
-        this.reporter.reportError(codeUnit.metadata.tree,
-            `Unsupported circular dependency between ${cir} and ${cle}`);
-        break;
-      }
-      codeUnit.state = TRANSFORMING;
-      this.transformCodeUnit(codeUnit);
-      this.instantiate(codeUnit);
-    }
-    this.checkForErrors(dependencies, 'transform');
-  }
-
-  transformCodeUnit(codeUnit) {
-    this.transformDependencies(codeUnit.dependencies, codeUnit.normalizedName);
-    if (codeUnit.state === ERROR)
-      return;
-    codeUnit.metadata.transformedTree = codeUnit.transform();
-    codeUnit.state = TRANSFORMED;
-    var filename = codeUnit.url || codeUnit.normalizedName;
-    [codeUnit.metadata.transcoded, codeUnit.metadata.sourceMap] =
-        toSource(codeUnit.metadata.transformedTree, this.options, filename);
-    if (codeUnit.url && codeUnit.metadata.transcoded)
-      codeUnit.metadata.transcoded += '//# sourceURL=' + codeUnit.url;
-  }
-
-
   checkForErrors(dependencies, phase) {
     if (this.reporter.hadError()) {
       for (var i = 0; i < dependencies.length; i++) {
@@ -256,7 +220,6 @@ export class LoaderHooks {
     }
     return false;
   }
-
   get options() {
     return options;
   }

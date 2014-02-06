@@ -17,8 +17,7 @@ import {LoaderHooks} from '../runtime/LoaderHooks';
 import {ObjectMap} from '../util/ObjectMap';
 import {canonicalizeUrl, isAbsolute, resolveUrl} from '../util/url';
 import {getUid} from '../util/uid';
-
-// TODO(arv): I stripped the resolvers to make this simpler for now.
+import {toSource} from '../outputgeneration/toSource';
 
 var NOT_STARTED = 0;
 var LOADING = 1;
@@ -369,8 +368,65 @@ export class InternalLoader {
   }
 
   transform() {
-    this.loaderHooks.transformDependencies(this.cache.values());
+    this.transformDependencies(this.cache.values());
   }
+
+  // TODO(jjb): this function belongs in Loader
+  transformDependencies(dependencies, dependentName) {
+    for (var i = 0; i < dependencies.length; i++) {
+      var codeUnit = dependencies[i];
+      if (codeUnit.state >= TRANSFORMED) {
+        continue;
+      }
+      if (codeUnit.state === TRANSFORMING) {
+        var cir = codeUnit.normalizedName;
+        var cle = dependentName;
+        this.reporter.reportError(codeUnit.metadata.tree,
+            `Unsupported circular dependency between ${cir} and ${cle}`);
+        break;
+      }
+      codeUnit.state = TRANSFORMING;
+      this.transformCodeUnit(codeUnit);
+      codeUnit.instantiate();
+    }
+    this.checkForErrors(dependencies, 'transform');
+  }
+
+  transformCodeUnit(codeUnit) {
+    this.transformDependencies(codeUnit.dependencies, codeUnit.normalizedName);
+    if (codeUnit.state === ERROR)
+      return;
+    codeUnit.metadata.transformedTree = codeUnit.transform();
+    codeUnit.state = TRANSFORMED;
+    var filename = codeUnit.url || codeUnit.normalizedName;
+    [codeUnit.metadata.transcoded, codeUnit.metadata.sourceMap] =
+        toSource(codeUnit.metadata.transformedTree, this.options, filename);
+    if (codeUnit.url && codeUnit.metadata.transcoded)
+      codeUnit.metadata.transcoded += '//# sourceURL=' + codeUnit.url;
+  }
+
+
+  checkForErrors(dependencies, phase) {
+    if (this.reporter.hadError()) {
+      for (var i = 0; i < dependencies.length; i++) {
+        var codeUnit = dependencies[i];
+        if (codeUnit.state >= COMPLETE) {
+          continue;
+        }
+        codeUnit.state = ERROR;
+      }
+
+      for (var i = 0; i < dependencies.length; i++) {
+        var codeUnit = dependencies[i];
+        if (codeUnit.state == ERROR) {
+          codeUnit.dispatchError(phase);
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+
 
   orderDependencies(codeUnit) {
     // Order the dependencies.

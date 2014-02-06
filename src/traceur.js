@@ -100,10 +100,6 @@ export var codegeneration = {
   }
 };
 
-module modules from './runtime/InternalLoader';
-export {modules};
-
-
 import {Loader} from './runtime/Loader';
 import {LoaderHooks} from './runtime/LoaderHooks';
 import {InterceptOutputLoaderHooks} from './runtime/InterceptOutputLoaderHooks';
