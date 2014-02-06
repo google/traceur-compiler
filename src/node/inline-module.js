@@ -104,7 +104,7 @@ function inlineAndCompile(filenames, options, reporter, callback, errback) {
 
   function loadNext() {
     var codeUnit = loader.loadAsScript(filenames[loadCount],
-      {referrerName: referrerName},
+      {referrerName: referrerName}).then(
       function() {
         loadCount++;
         if (loadCount < filenames.length) {
