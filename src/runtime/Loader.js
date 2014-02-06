@@ -63,15 +63,15 @@ export class Loader {
    * @param {string} source, module code
    * @param {Object|undefined} May contain .address and .metadata. Pass to hooks
    */
-  define(normalizedName, source, {address, metadata} = undefined,
-      callback = (module) => {},
-      errback = (ex) => { throw ex; } ) {
-    var codeUnit =
-        this.internalLoader_.define(normalizedName, source, address, metadata);
-    codeUnit.addListener(() => {
-      callback(undefined); // Module registered but not evaled
-    }, errback);
-    this.internalLoader_.handleCodeUnitLoaded(codeUnit);
+  define(normalizedName, source, {address, metadata} = undefined) {
+    return new Promise((resolve, reject) => {
+      var codeUnit =
+          this.internalLoader_.define(normalizedName, source, address, metadata);
+      codeUnit.addListener(() => {
+        resolve(undefined); // Module registered but not evaled
+      }, (ex) => reject(ex));
+      this.internalLoader_.handleCodeUnitLoaded(codeUnit);
+    });
   }
 
   get(normalizedName) {

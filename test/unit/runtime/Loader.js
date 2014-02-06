@@ -207,11 +207,9 @@ suite('Loader.js', function() {
     var name = System.normalize('./test_define');
     getLoader().import('./side-effect', {}).then(function(mod) {
       assert.equal(6, mod.currentSideEffect());  // starting value.
-      getLoader().define(name,
-        'export {name as a} from \'./test_a\';\n' +
-        'export var d = 4;\n' + 'this.sideEffect++;',
-        {},
-        function() {
+      var src = 'export {name as a} from \'./test_a\';\n' +
+        'export var d = 4;\n' + 'this.sideEffect++;';
+      getLoader().define(name, src, {}).then(function() {
           assert.equal(6, mod.currentSideEffect());  // no change
           var definedModule = System.get(name);
           assert.equal(7, mod.currentSideEffect());  // module body evaluated
@@ -230,8 +228,7 @@ suite('Loader.js', function() {
     var loader = getLoader();
     loader.options.sourceMaps = true;
     var src = 'export {name as a} from \'./test_a\';\nexport var d = 4;\n';
-    loader.define(normalizedName, src, {},
-      function() {
+    loader.define(normalizedName, src, {}).then(function() {
         var sourceMap = loader.sourceMap(normalizedName, 'module');
         assert(sourceMap);
         var SourceMapConsumer = traceur.outputgeneration.SourceMapConsumer;
