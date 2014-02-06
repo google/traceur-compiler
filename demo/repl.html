@@ -28,6 +28,7 @@ if (location.host === 'traceur-compiler.googlecode.com') {
 <link rel="stylesheet" href="../third_party/codemirror2/lib/codemirror.css">
 <script src="../third_party/codemirror2/lib/codemirror.js"></script>
 <script src="../third_party/codemirror2/mode/javascript/javascript.js"></script>
+<script src="../bin/traceur.js"></script>
 <style>
 
 @import url(http://fonts.googleapis.com/css?family=Droid+Sans+Mono|Droid+Sans);
@@ -45,10 +46,6 @@ html, body {
   border: 1px solid #ddd;
   height: auto;
   min-height: 300px;
-}
-
-.output-wrapper {
-
 }
 
 html.hide-output .output-wrapper {
@@ -101,8 +98,8 @@ pre,
   font: 13px/20px 'Droid Sans', sans-serif;
   padding: 10px;
   position: absolute;
-  right: 0;
-  top: 25px;
+  right: 10px;
+  top: 50px;
   width: 32ex;
   z-index: 10;
 }
@@ -143,65 +140,46 @@ pre,
   flex-direction: row;
   width: 100%;
   flex: 1;
+  justify-content: space-around;
 }
+
 .stretch {
   flex: 2;
 }
+
 .center {
   align-self: center;
 }
-.hidden {
-  display: none;
-}
+
 </style>
 </head>
 <body>
 
-<div class='vbox'>
 <div class='hbox'>
-  <div class='vbox'>
-    <div class='hbox'>
-      <div class='vbox center'>
-        <div class='options-area'>
-          <div class='repl-button center'>
-            <button class="repl-button source-button" href="http://github.com/google/traceur-compiler">Source</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class='vbox stretch'><h1 class='center'>Traceur Transcoding Demo</h1></div>
-  <div class='vbox'>
-    <div class='hbox'>
-      <div class='vbox center'>
-        <div class='options-area'>
-        <button class="repl-button option-button center">Options</button>
-        <div class="options" hidden>
-          <label><input class="eval" type="checkbox" checked>Evaluate</label>
-          <label><input class="output" type="checkbox" checked>Show generated code</label>
-          <label><input class="show-all-toggle" type="checkbox">Show all options</label>
-          <hr>
-          <div class="traceur-options"></div>
-          <button class="all-on">All Options On</button>
-          <button class="all-off">All Options Off</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <button class="repl-button source-button center" href="http://github.com/google/traceur-compiler">Source</button>
+  <h1 class="center">Traceur Transcoding Demo</h1>
+  <button class="repl-button option-button center">Options</button>
 </div>
+
 <div class='hbox'>
-  <textarea class="input hidden"></textarea>
-  <textarea class="output hidden"></textarea>
+  <textarea class="input" hidden></textarea>
+  <textarea class="output" hidden></textarea>
 </div>
 <div class='hbox'>
   <pre class="error"></pre>
   <pre class="source-map"></pre>
 </div>
+
+<div class="options" hidden>
+  <label><input class="eval" type="checkbox" checked>Evaluate</label>
+  <label><input class="output" type="checkbox" checked>Show generated code</label>
+  <label><input class="show-all-toggle" type="checkbox">Show all options</label>
+  <hr>
+  <div class="traceur-options"></div>
+  <button class="reset-all">Reset All Options</button>
+  <button class="all-off">All Options Off</button>
 </div>
 
-
-<script src="../bin/traceur.js"></script>
 <script>
 System.import('./repl-module');
 </script>
