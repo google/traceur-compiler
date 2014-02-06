@@ -20597,9 +20597,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/Loader", 
         var codeUnit = $__333.internalLoader_.load(name, referrerName, address, 'module');
         codeUnit.addListener(function() {
           resolve(System.get(codeUnit.normalizedName));
-        }, (function(ex) {
-          return reject(ex);
-        }));
+        }, reject);
       }));
     },
     module: function(source) {
@@ -20609,11 +20607,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/Loader", 
       var $__333 = this;
       return new Promise((function(resolve, reject) {
         var codeUnit = $__333.internalLoader_.module (source, referrerName, address);
-        codeUnit.addListener((function() {
-          resolve(codeUnit.result);
-        }), (function(ex) {
-          return reject(ex);
-        }));
+        codeUnit.addListener(resolve, reject);
         $__333.internalLoader_.handleCodeUnitLoaded(codeUnit);
       }));
     },
@@ -20624,11 +20618,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/Loader", 
       var $__333 = this;
       return new Promise((function(resolve, reject) {
         var codeUnit = $__333.internalLoader_.define(normalizedName, source, address, metadata);
-        codeUnit.addListener((function() {
-          resolve(undefined);
-        }), (function(ex) {
-          return reject(ex);
-        }));
+        codeUnit.addListener(resolve, reject);
         $__333.internalLoader_.handleCodeUnitLoaded(codeUnit);
       }));
     },

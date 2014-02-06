@@ -27,7 +27,7 @@ export class Loader {
    * import - Asynchronously load, link, and evaluate a module and any
    * dependencies it imports.
    * @param {string} name, ModuleSpecifier-like name, not normalized.
-   * @return {Promise} fulfilled with module
+   * @return {Promise.<Module>}
    */
   import(name, {referrerName, address} = {}) {
     return new Promise((resolve, reject)  => {
@@ -35,7 +35,7 @@ export class Loader {
           address, 'module');
       codeUnit.addListener(function() {
         resolve(System.get(codeUnit.normalizedName));
-      }, (ex) => reject(ex));
+      }, reject);
     });
   }
 
@@ -46,14 +46,12 @@ export class Loader {
    * This is the same as import but without fetching the source.
    * @param {string} source code
    * @param {Object} properties referrerName and address passed to normalize.
-   * @return {Promise} fulfilled with module.
+   * @return {Promise.<Module>}
    */
   module(source, {referrerName, address} = {}) {
     return new Promise((resolve, reject) => {
       var codeUnit = this.internalLoader_.module(source, referrerName, address);
-      codeUnit.addListener(() => {
-        resolve(codeUnit.result);
-      }, (ex) => reject(ex));
+      codeUnit.addListener(resolve, reject);
       this.internalLoader_.handleCodeUnitLoaded(codeUnit);
     });
   }
@@ -70,9 +68,7 @@ export class Loader {
     return new Promise((resolve, reject) => {
       var codeUnit =
           this.internalLoader_.define(normalizedName, source, address, metadata);
-      codeUnit.addListener(() => {
-        resolve(undefined); // Module registered but not evaled
-      }, (ex) => reject(ex));
+      codeUnit.addListener(resolve, reject);
       this.internalLoader_.handleCodeUnitLoaded(codeUnit);
     });
   }
