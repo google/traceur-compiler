@@ -14589,9 +14589,9 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/codegeneration/Te
       return TempVarTransformer;
     }};
 });
-$traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/semantics/ModuleSymbol", function() {
+$traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/codegeneration/module/ModuleSymbol", function() {
   "use strict";
-  var __moduleName = "traceur@0.0.20/src/semantics/ModuleSymbol";
+  var __moduleName = "traceur@0.0.20/src/codegeneration/module/ModuleSymbol";
   var assert = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/util/assert").assert;
   var ExportsList = function ExportsList(normalizedName) {
     this.exports_ = Object.create(null);
@@ -14645,7 +14645,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/semantics/ModuleS
 $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/codegeneration/module/ModuleVisitor", function() {
   "use strict";
   var __moduleName = "traceur@0.0.20/src/codegeneration/module/ModuleVisitor";
-  var ModuleDescription = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/semantics/ModuleSymbol").ModuleDescription;
+  var ModuleDescription = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/codegeneration/module/ModuleSymbol").ModuleDescription;
   var ParseTree = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/syntax/trees/ParseTree").ParseTree;
   var ParseTreeVisitor = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/syntax/ParseTreeVisitor").ParseTreeVisitor;
   var $__108 = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/syntax/trees/ParseTreeType"),
@@ -19779,6 +19779,100 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/codegeneration/mo
       return AttachModuleNameTransformer;
     }};
 });
+$traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/codegeneration/module/ValidationVisitor", function() {
+  "use strict";
+  var __moduleName = "traceur@0.0.20/src/codegeneration/module/ValidationVisitor";
+  var ModuleVisitor = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/codegeneration/module/ModuleVisitor").ModuleVisitor;
+  var ValidationVisitor = function ValidationVisitor() {
+    $traceurRuntime.defaultSuperCall(this, $ValidationVisitor.prototype, arguments);
+  };
+  var $ValidationVisitor = ValidationVisitor;
+  ($traceurRuntime.createClass)(ValidationVisitor, {
+    checkExport_: function(tree, name) {
+      var description = this.validatingModuleDescription_;
+      if (description && !description.getExport(name)) {
+        var moduleName = description.normalizedName;
+        this.reportError(tree, ("'" + name + "' is not exported by '" + moduleName + "'"));
+      }
+    },
+    checkImport_: function(tree, name) {
+      var existingImport = this.moduleSymbol.getImport(name);
+      if (existingImport) {
+        this.reportError(tree, ("'" + name + "' was previously imported at " + existingImport.location.start));
+      } else {
+        this.moduleSymbol.addImport(name, tree);
+      }
+    },
+    visitAndValidate_: function(moduleDescription, tree) {
+      var validatingModuleDescription = this.validatingModuleDescription_;
+      this.validatingModuleDescription_ = moduleDescription;
+      this.visitAny(tree);
+      this.validatingModuleDescription_ = validatingModuleDescription;
+    },
+    visitNamedExport: function(tree) {
+      if (tree.moduleSpecifier) {
+        var name = tree.moduleSpecifier.token.processedValue;
+        var moduleDescription = this.getModuleDescriptionForModuleSpecifier(name);
+        this.visitAndValidate_(moduleDescription, tree.specifierSet);
+      }
+    },
+    visitExportSpecifier: function(tree) {
+      this.checkExport_(tree, tree.lhs.value);
+    },
+    visitImportDeclaration: function(tree) {
+      var name = tree.moduleSpecifier.token.processedValue;
+      var moduleDescription = this.getModuleDescriptionForModuleSpecifier(name);
+      this.visitAndValidate_(moduleDescription, tree.importClause);
+    },
+    visitImportSpecifier: function(tree) {
+      var importName = tree.rhs ? tree.rhs.value: tree.lhs.value;
+      this.checkImport_(tree, importName);
+      this.checkExport_(tree, tree.lhs.value);
+    },
+    visitImportedBinding: function(tree) {
+      var importName = tree.binding.identifierToken.value;
+      this.checkImport_(tree, importName);
+      this.checkExport_(tree, 'default');
+    }
+  }, {}, ModuleVisitor);
+  return {get ValidationVisitor() {
+      return ValidationVisitor;
+    }};
+});
+$traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/codegeneration/module/ModuleAnalyzer", function() {
+  "use strict";
+  var __moduleName = "traceur@0.0.20/src/codegeneration/module/ModuleAnalyzer";
+  var ExportVisitor = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/codegeneration/module/ExportVisitor").ExportVisitor;
+  var ValidationVisitor = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/codegeneration/module/ValidationVisitor").ValidationVisitor;
+  var transformOptions = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/options").transformOptions;
+  var ModuleAnalyzer = function ModuleAnalyzer(reporter) {
+    this.reporter_ = reporter;
+  };
+  ($traceurRuntime.createClass)(ModuleAnalyzer, {analyzeTrees: function(trees, moduleSymbols, loader) {
+      if (!transformOptions.modules) return;
+      var reporter = this.reporter_;
+      function getModuleSymbol(i) {
+        return moduleSymbols.length ? moduleSymbols[i]: moduleSymbols;
+      }
+      function doVisit(ctor) {
+        for (var i = 0; i < trees.length; i++) {
+          var visitor = new ctor(reporter, loader, getModuleSymbol(i));
+          visitor.visitAny(trees[i]);
+        }
+      }
+      function reverseVisit(ctor) {
+        for (var i = trees.length - 1; i >= 0; i--) {
+          var visitor = new ctor(reporter, loader, getModuleSymbol(i));
+          visitor.visitAny(trees[i]);
+        }
+      }
+      reverseVisit(ExportVisitor);
+      doVisit(ValidationVisitor);
+    }}, {});
+  return {get ModuleAnalyzer() {
+      return ModuleAnalyzer;
+    }};
+});
 $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/util/url", function() {
   "use strict";
   var __moduleName = "traceur@0.0.20/src/util/url";
@@ -19911,100 +20005,6 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/system-ma
       return systemjs;
     }};
 });
-$traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/codegeneration/module/ValidationVisitor", function() {
-  "use strict";
-  var __moduleName = "traceur@0.0.20/src/codegeneration/module/ValidationVisitor";
-  var ModuleVisitor = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/codegeneration/module/ModuleVisitor").ModuleVisitor;
-  var ValidationVisitor = function ValidationVisitor() {
-    $traceurRuntime.defaultSuperCall(this, $ValidationVisitor.prototype, arguments);
-  };
-  var $ValidationVisitor = ValidationVisitor;
-  ($traceurRuntime.createClass)(ValidationVisitor, {
-    checkExport_: function(tree, name) {
-      var description = this.validatingModuleDescription_;
-      if (description && !description.getExport(name)) {
-        var moduleName = description.normalizedName;
-        this.reportError(tree, ("'" + name + "' is not exported by '" + moduleName + "'"));
-      }
-    },
-    checkImport_: function(tree, name) {
-      var existingImport = this.moduleSymbol.getImport(name);
-      if (existingImport) {
-        this.reportError(tree, ("'" + name + "' was previously imported at " + existingImport.location.start));
-      } else {
-        this.moduleSymbol.addImport(name, tree);
-      }
-    },
-    visitAndValidate_: function(moduleDescription, tree) {
-      var validatingModuleDescription = this.validatingModuleDescription_;
-      this.validatingModuleDescription_ = moduleDescription;
-      this.visitAny(tree);
-      this.validatingModuleDescription_ = validatingModuleDescription;
-    },
-    visitNamedExport: function(tree) {
-      if (tree.moduleSpecifier) {
-        var name = tree.moduleSpecifier.token.processedValue;
-        var moduleDescription = this.getModuleDescriptionForModuleSpecifier(name);
-        this.visitAndValidate_(moduleDescription, tree.specifierSet);
-      }
-    },
-    visitExportSpecifier: function(tree) {
-      this.checkExport_(tree, tree.lhs.value);
-    },
-    visitImportDeclaration: function(tree) {
-      var name = tree.moduleSpecifier.token.processedValue;
-      var moduleDescription = this.getModuleDescriptionForModuleSpecifier(name);
-      this.visitAndValidate_(moduleDescription, tree.importClause);
-    },
-    visitImportSpecifier: function(tree) {
-      var importName = tree.rhs ? tree.rhs.value: tree.lhs.value;
-      this.checkImport_(tree, importName);
-      this.checkExport_(tree, tree.lhs.value);
-    },
-    visitImportedBinding: function(tree) {
-      var importName = tree.binding.identifierToken.value;
-      this.checkImport_(tree, importName);
-      this.checkExport_(tree, 'default');
-    }
-  }, {}, ModuleVisitor);
-  return {get ValidationVisitor() {
-      return ValidationVisitor;
-    }};
-});
-$traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/semantics/ModuleAnalyzer", function() {
-  "use strict";
-  var __moduleName = "traceur@0.0.20/src/semantics/ModuleAnalyzer";
-  var ExportVisitor = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/codegeneration/module/ExportVisitor").ExportVisitor;
-  var ValidationVisitor = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/codegeneration/module/ValidationVisitor").ValidationVisitor;
-  var transformOptions = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/options").transformOptions;
-  var ModuleAnalyzer = function ModuleAnalyzer(reporter) {
-    this.reporter_ = reporter;
-  };
-  ($traceurRuntime.createClass)(ModuleAnalyzer, {analyzeTrees: function(trees, moduleSymbols, loader) {
-      if (!transformOptions.modules) return;
-      var reporter = this.reporter_;
-      function getModuleSymbol(i) {
-        return moduleSymbols.length ? moduleSymbols[i]: moduleSymbols;
-      }
-      function doVisit(ctor) {
-        for (var i = 0; i < trees.length; i++) {
-          var visitor = new ctor(reporter, loader, getModuleSymbol(i));
-          visitor.visitAny(trees[i]);
-        }
-      }
-      function reverseVisit(ctor) {
-        for (var i = trees.length - 1; i >= 0; i--) {
-          var visitor = new ctor(reporter, loader, getModuleSymbol(i));
-          visitor.visitAny(trees[i]);
-        }
-      }
-      reverseVisit(ExportVisitor);
-      doVisit(ValidationVisitor);
-    }}, {});
-  return {get ModuleAnalyzer() {
-      return ModuleAnalyzer;
-    }};
-});
 $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/webLoader", function() {
   "use strict";
   var __moduleName = "traceur@0.0.20/src/runtime/webLoader";
@@ -20036,9 +20036,9 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/LoaderHoo
   var __moduleName = "traceur@0.0.20/src/runtime/LoaderHooks";
   var AttachModuleNameTransformer = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/codegeneration/module/AttachModuleNameTransformer").AttachModuleNameTransformer;
   var FromOptionsTransformer = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/codegeneration/FromOptionsTransformer").FromOptionsTransformer;
-  var ModuleAnalyzer = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/semantics/ModuleAnalyzer").ModuleAnalyzer;
+  var ModuleAnalyzer = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/codegeneration/module/ModuleAnalyzer").ModuleAnalyzer;
   var ModuleSpecifierVisitor = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/codegeneration/module/ModuleSpecifierVisitor").ModuleSpecifierVisitor;
-  var ModuleSymbol = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/semantics/ModuleSymbol").ModuleSymbol;
+  var ModuleSymbol = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/codegeneration/module/ModuleSymbol").ModuleSymbol;
   var Parser = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/syntax/Parser").Parser;
   var options = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/options").options;
   var SourceFile = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/syntax/SourceFile").SourceFile;
@@ -20957,7 +20957,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/traceur", functio
   var ModuleStore = System.get('@traceur/src/runtime/ModuleStore');
   var $__traceur_64_0_46_0_46_20_47_src_47_options__ = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/options");
   var $__traceur_64_0_46_0_46_20_47_src_47_WebPageTranscoder__ = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/WebPageTranscoder");
-  var ModuleAnalyzer = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/semantics/ModuleAnalyzer").ModuleAnalyzer;
+  var ModuleAnalyzer = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/codegeneration/module/ModuleAnalyzer").ModuleAnalyzer;
   var semantics = {ModuleAnalyzer: ModuleAnalyzer};
   var ErrorReporter = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/util/ErrorReporter").ErrorReporter;
   var SourcePosition = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/util/SourcePosition").SourcePosition;

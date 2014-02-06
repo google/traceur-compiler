@@ -20,7 +20,7 @@ export {options} from './options';
 
 export {WebPageTranscoder} from './WebPageTranscoder';
 
-import {ModuleAnalyzer} from './semantics/ModuleAnalyzer';
+import {ModuleAnalyzer} from './codegeneration/module/ModuleAnalyzer';
 
 export var semantics = {
   ModuleAnalyzer,

@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ExportVisitor} from '../codegeneration/module/ExportVisitor';
-import {ValidationVisitor} from '../codegeneration/module/ValidationVisitor';
-import {transformOptions} from '../options';
+import {ExportVisitor} from './ExportVisitor';
+import {ValidationVisitor} from './ValidationVisitor';
+import {transformOptions} from '../../options';
 
 // TODO(arv): Validate that there are no free variables
 // TODO(arv): Validate that the exported reference exists

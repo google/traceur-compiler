@@ -16,10 +16,10 @@ import {
   AttachModuleNameTransformer
 } from '../codegeneration/module/AttachModuleNameTransformer';
 import {FromOptionsTransformer} from '../codegeneration/FromOptionsTransformer';
-import {ModuleAnalyzer} from '../semantics/ModuleAnalyzer';
+import {ModuleAnalyzer} from '../codegeneration/module/ModuleAnalyzer';
 import {ModuleSpecifierVisitor} from
     '../codegeneration/module/ModuleSpecifierVisitor';
-import {ModuleSymbol} from '../semantics/ModuleSymbol';
+import {ModuleSymbol} from '../codegeneration/module/ModuleSymbol';
 import {Parser} from '../syntax/Parser';
 import {options} from '../options';
 import {SourceFile} from '../syntax/SourceFile';
