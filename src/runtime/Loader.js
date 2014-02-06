@@ -25,9 +25,9 @@ export class Loader {
   }
   /**
    * import - Asynchronously load, link, and evaluate a module and any
-   * dependencies it imports. On success, pass the Module object to the success
-   * callback.
+   * dependencies it imports.
    * @param {string} name, ModuleSpecifier-like name, not normalized.
+   * @return {Promise} fulfilled with module
    */
   import(name, {referrerName, address} = {}) {
     return new Promise((resolve, reject)  => {
@@ -43,8 +43,10 @@ export class Loader {
    * module - Asynchronously run the script src, first loading any imported
    * modules that aren't already loaded.
    *
-   * This is the same as import but without fetching the source. On
-   * success, the result of evaluating the source is passed to callback.
+   * This is the same as import but without fetching the source.
+   * @param {string} source code
+   * @param {Object} properties referrerName and address passed to normalize.
+   * @return {Promise} fulfilled with module.
    */
   module(source, {referrerName, address} = {}) {
     return new Promise((resolve, reject) => {
@@ -62,6 +64,7 @@ export class Loader {
    * @param {string} normalizedName
    * @param {string} source, module code
    * @param {Object|undefined} May contain .address and .metadata. Pass to hooks
+   * @return {Promise} fulfilled with undefined.
    */
   define(normalizedName, source, {address, metadata} = undefined) {
     return new Promise((resolve, reject) => {
