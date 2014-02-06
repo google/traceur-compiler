@@ -75,14 +75,14 @@ suite('Loader.js', function() {
 
   test('Loader.PreCompiledModule', function(done) {
     var traceur = System.get('traceur@');
-    System.import('traceur@', {}, function(module) {
+    System.import('traceur@', {}).then(function(module) {
       assert.equal(traceur.options, module.options);
       done();
     });
   });
 
   test('LoaderEval', function(done) {
-    getLoader().script('(function(x = 42) { return x; })()', {},
+    getLoader().script('(function(x = 42) { return x; })()', {}).then(
       function(result) {
         assert.equal(42, result);
         done();
@@ -97,7 +97,7 @@ suite('Loader.js', function() {
         '\n' +
         'export var arr = [\'test\', a.name, b.name, c.name];\n';
 
-    var result = getLoader().module(code, {},
+    var result = getLoader().module(code, {}).then(
       function(module) {
         assert.equal('test', module.arr[0]);
         assert.equal('A', module.arr[1]);
@@ -116,7 +116,7 @@ suite('Loader.js', function() {
         '\n' +
         'export var arr = [d.name, d.e.name];\n';
 
-    var result = getLoader().module(code, {},
+    var result = getLoader().module(code, {}).then(
       function(module) {
         assert.equal('D', module.arr[0]);
         assert.equal('E', module.arr[1]);
@@ -137,7 +137,7 @@ suite('Loader.js', function() {
 
     var reporter = new MutedErrorReporter();
 
-    var result = getLoader(reporter).module(code, {},
+    var result = getLoader(reporter).module(code, {}).then(
       function(value) {
         fail('Should not have succeeded');
         done();
@@ -151,7 +151,7 @@ suite('Loader.js', function() {
   });
 
   test('LoaderLoad', function(done) {
-    getLoader().loadAsScript('./test_script.js', {}, function(result) {
+    getLoader().loadAsScript('./test_script.js', {}).then(function(result) {
       assert.equal('A', result[0]);
       assert.equal('B', result[1]);
       assert.equal('C', result[2]);
@@ -164,7 +164,7 @@ suite('Loader.js', function() {
 
   test('LoaderLoadWithReferrer', function(done) {
     getLoader().loadAsScript('../test_script.js',
-      {referrerName: 'traceur@0.0.1/bin'},
+      {referrerName: 'traceur@0.0.1/bin'}).then(
       function(result) {
         assert.equal('A', result[0]);
         assert.equal('B', result[1]);
@@ -177,7 +177,7 @@ suite('Loader.js', function() {
   });
 
   test('LoaderImport', function(done) {
-    getLoader().import('./test_module', {}, function(mod) {
+    getLoader().import('./test_module', {}).then(function(mod) {
       assert.equal('test', mod.name);
       assert.equal('A', mod.a);
       assert.equal('B', mod.b);
@@ -191,8 +191,7 @@ suite('Loader.js', function() {
 
   test('LoaderImportWithReferrer', function(done) {
     getLoader().import('../test_module',
-      {referrerName: 'traceur@0.0.1/bin'},
-      function(mod) {
+      {referrerName: 'traceur@0.0.1/bin'}).then(function(mod) {
         assert.equal('test', mod.name);
         assert.equal('A', mod.a);
         assert.equal('B', mod.b);
@@ -206,13 +205,11 @@ suite('Loader.js', function() {
 
   test('Loader.define', function(done) {
     var name = System.normalize('./test_define');
-    getLoader().import('./side-effect', {}, function(mod) {
+    getLoader().import('./side-effect', {}).then(function(mod) {
       assert.equal(6, mod.currentSideEffect());  // starting value.
-      getLoader().define(name,
-        'export {name as a} from \'./test_a\';\n' +
-        'export var d = 4;\n' + 'this.sideEffect++;',
-        {},
-        function() {
+      var src = 'export {name as a} from \'./test_a\';\n' +
+        'export var d = 4;\n' + 'this.sideEffect++;';
+      getLoader().define(name, src, {}).then(function() {
           assert.equal(6, mod.currentSideEffect());  // no change
           var definedModule = System.get(name);
           assert.equal(7, mod.currentSideEffect());  // module body evaluated
@@ -231,8 +228,7 @@ suite('Loader.js', function() {
     var loader = getLoader();
     loader.options.sourceMaps = true;
     var src = 'export {name as a} from \'./test_a\';\nexport var d = 4;\n';
-    loader.define(normalizedName, src, {},
-      function() {
+    loader.define(normalizedName, src, {}).then(function() {
         var sourceMap = loader.sourceMap(normalizedName, 'module');
         assert(sourceMap);
         var SourceMapConsumer = traceur.outputgeneration.SourceMapConsumer;
