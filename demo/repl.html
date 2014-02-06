@@ -28,13 +28,17 @@ if (location.host === 'traceur-compiler.googlecode.com') {
 <link rel="stylesheet" href="../third_party/codemirror2/lib/codemirror.css">
 <script src="../third_party/codemirror2/lib/codemirror.js"></script>
 <script src="../third_party/codemirror2/mode/javascript/javascript.js"></script>
-<script src="../bin/traceur.js"></script>
 <style>
 
 @import url(http://fonts.googleapis.com/css?family=Droid+Sans+Mono|Droid+Sans);
 
 html, body {
   margin: 0;
+  font-family: 'Lucida Grande', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 .CodeMirror-scroll {
@@ -44,9 +48,7 @@ html, body {
 }
 
 .output-wrapper {
-  position: absolute;
-  right: 0;
-  top: 0;
+
 }
 
 html.hide-output .output-wrapper {
@@ -74,30 +76,35 @@ pre,
   color: red;
 }
 
-.option-button {
+.options-area {
+  align-self: center;
+  position: relative;
+  height: 25px;
+}
+
+.repl-button {
   background: black;
   border: 0;
-  border-bottom-left-radius: 5px;
+  border-radius: 5px;
   box-shadow: 1px 1px 5px rgba(0, 0, 0, .5);
   color: white;
   font: 13px/20px 'Droid Sans', sans-serif;
   height: 25px;
   margin: 0;
-  position: absolute;
-  right: 0;
-  top: 0;
 }
 
 .options {
   background: black;
-  border-radius: 5px 0 5px 5px;
+  border-radius: 5px;
   box-shadow: 1px 1px 5px rgba(0, 0, 0, .5);
   color: white;
   font: 13px/20px 'Droid Sans', sans-serif;
   padding: 10px;
   position: absolute;
   right: 0;
-  top: 20px;
+  top: 25px;
+  width: 32ex;
+  z-index: 10;
 }
 
 .options label {
@@ -126,26 +133,75 @@ pre,
   -webkit-transition: color 1s ease-in-out;
   transition: color 1s ease-in-out
 }
-
+.vbox {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.hbox {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  flex: 1;
+}
+.stretch {
+  flex: 2;
+}
+.center {
+  align-self: center;
+}
+.hidden {
+  display: none;
+}
 </style>
 </head>
 <body>
-<textarea class="input"></textarea>
-<pre class="error"></pre>
 
-<textarea class="output"></textarea>
-<pre class="source-map"></pre>
-<button class="option-button">Options</button>
-<div class="options" hidden>
-<label><input class="eval" type="checkbox" checked>Evaluate</label>
-<label><input class="output" type="checkbox" checked>Show generated code</label>
-<label><input class="show-all-toggle" type="checkbox">Show all options</label>
-<hr>
-<div class="traceur-options"></div>
-<button class="all-on">All Options On</button>
-<button class="all-off">All Options Off</button>
+<div class='vbox'>
+<div class='hbox'>
+  <div class='vbox'>
+    <div class='hbox'>
+      <div class='vbox center'>
+        <div class='options-area'>
+          <div class='repl-button center'>
+            <button class="repl-button source-button" href="http://github.com/google/traceur-compiler">Source</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class='vbox stretch'><h1 class='center'>Traceur Transcoding Demo</h1></div>
+  <div class='vbox'>
+    <div class='hbox'>
+      <div class='vbox center'>
+        <div class='options-area'>
+        <button class="repl-button option-button center">Options</button>
+        <div class="options" hidden>
+          <label><input class="eval" type="checkbox" checked>Evaluate</label>
+          <label><input class="output" type="checkbox" checked>Show generated code</label>
+          <label><input class="show-all-toggle" type="checkbox">Show all options</label>
+          <hr>
+          <div class="traceur-options"></div>
+          <button class="all-on">All Options On</button>
+          <button class="all-off">All Options Off</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class='hbox'>
+  <textarea class="input hidden"></textarea>
+  <textarea class="output hidden"></textarea>
+</div>
+<div class='hbox'>
+  <pre class="error"></pre>
+  <pre class="source-map"></pre>
+</div>
 </div>
 
+
+<script src="../bin/traceur.js"></script>
 <script>
 System.import('./repl-module');
 </script>
