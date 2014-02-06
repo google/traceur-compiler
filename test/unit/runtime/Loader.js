@@ -97,7 +97,7 @@ suite('Loader.js', function() {
         '\n' +
         'export var arr = [\'test\', a.name, b.name, c.name];\n';
 
-    var result = getLoader().module(code, {},
+    var result = getLoader().module(code, {}).then(
       function(module) {
         assert.equal('test', module.arr[0]);
         assert.equal('A', module.arr[1]);
@@ -116,7 +116,7 @@ suite('Loader.js', function() {
         '\n' +
         'export var arr = [d.name, d.e.name];\n';
 
-    var result = getLoader().module(code, {},
+    var result = getLoader().module(code, {}).then(
       function(module) {
         assert.equal('D', module.arr[0]);
         assert.equal('E', module.arr[1]);
@@ -137,7 +137,7 @@ suite('Loader.js', function() {
 
     var reporter = new MutedErrorReporter();
 
-    var result = getLoader(reporter).module(code, {},
+    var result = getLoader(reporter).module(code, {}).then(
       function(value) {
         fail('Should not have succeeded');
         done();

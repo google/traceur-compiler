@@ -46,15 +46,14 @@ export class Loader {
    * This is the same as import but without fetching the source. On
    * success, the result of evaluating the source is passed to callback.
    */
-  module(source,
-      {referrerName, address} = {},
-      callback = (module) => {},
-      errback = (ex) => { throw ex; }) {
-    var codeUnit = this.internalLoader_.module(source, referrerName, address);
-    codeUnit.addListener(() => {
-      callback(codeUnit.result);
-    }, errback);
-    this.internalLoader_.handleCodeUnitLoaded(codeUnit);
+  module(source, {referrerName, address} = {}) {
+    return new Promise((resolve, reject) => {
+      var codeUnit = this.internalLoader_.module(source, referrerName, address);
+      codeUnit.addListener(() => {
+        resolve(codeUnit.result);
+      }, (ex) => reject(ex));
+      this.internalLoader_.handleCodeUnitLoaded(codeUnit);
+    });
   }
 
   /**

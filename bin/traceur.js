@@ -20606,15 +20606,16 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/Loader", 
       var $__335 = arguments[1] !== (void 0) ? arguments[1]: {},
           referrerName = $__335.referrerName,
           address = $__335.address;
-      var callback = arguments[2] !== (void 0) ? arguments[2]: (function(module) {});
-      var errback = arguments[3] !== (void 0) ? arguments[3]: (function(ex) {
-        throw ex;
-      });
-      var codeUnit = this.internalLoader_.module (source, referrerName, address);
-      codeUnit.addListener((function() {
-        callback(codeUnit.result);
-      }), errback);
-      this.internalLoader_.handleCodeUnitLoaded(codeUnit);
+      var $__333 = this;
+      return new Promise((function(resolve, reject) {
+        var codeUnit = $__333.internalLoader_.module (source, referrerName, address);
+        codeUnit.addListener((function() {
+          resolve(codeUnit.result);
+        }), (function(ex) {
+          return reject(ex);
+        }));
+        $__333.internalLoader_.handleCodeUnitLoaded(codeUnit);
+      }));
     },
     define: function(normalizedName, source) {
       var $__335 = arguments[2],
