@@ -75,7 +75,7 @@ suite('Loader.js', function() {
 
   test('Loader.PreCompiledModule', function(done) {
     var traceur = System.get('traceur@');
-    System.import('traceur@', {}, function(module) {
+    System.import('traceur@', {}).then(function(module) {
       assert.equal(traceur.options, module.options);
       done();
     });
@@ -177,7 +177,7 @@ suite('Loader.js', function() {
   });
 
   test('LoaderImport', function(done) {
-    getLoader().import('./test_module', {}, function(mod) {
+    getLoader().import('./test_module', {}).then(function(mod) {
       assert.equal('test', mod.name);
       assert.equal('A', mod.a);
       assert.equal('B', mod.b);
@@ -191,8 +191,7 @@ suite('Loader.js', function() {
 
   test('LoaderImportWithReferrer', function(done) {
     getLoader().import('../test_module',
-      {referrerName: 'traceur@0.0.1/bin'},
-      function(mod) {
+      {referrerName: 'traceur@0.0.1/bin'}).then(function(mod) {
         assert.equal('test', mod.name);
         assert.equal('A', mod.a);
         assert.equal('B', mod.b);
@@ -206,7 +205,7 @@ suite('Loader.js', function() {
 
   test('Loader.define', function(done) {
     var name = System.normalize('./test_define');
-    getLoader().import('./side-effect', {}, function(mod) {
+    getLoader().import('./side-effect', {}).then(function(mod) {
       assert.equal(6, mod.currentSideEffect());  // starting value.
       getLoader().define(name,
         'export {name as a} from \'./test_a\';\n' +

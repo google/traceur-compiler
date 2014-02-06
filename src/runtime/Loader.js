@@ -29,15 +29,14 @@ export class Loader {
    * callback.
    * @param {string} name, ModuleSpecifier-like name, not normalized.
    */
-  import(name,
-         {referrerName, address} = {},
-         callback = (module) => {},
-         errback = (ex) => { throw ex; }) {
-    var codeUnit = this.internalLoader_.load(name, referrerName,
-        address, 'module');
-    codeUnit.addListener(function() {
-      callback(System.get(codeUnit.normalizedName));
-    }, errback);
+  import(name, {referrerName, address} = {}) {
+    return new Promise((resolve, reject)  => {
+      var codeUnit = this.internalLoader_.load(name, referrerName,
+          address, 'module');
+      codeUnit.addListener(function() {
+        resolve(System.get(codeUnit.normalizedName));
+      }, (ex) => reject(ex));
+    });
   }
 
   /**

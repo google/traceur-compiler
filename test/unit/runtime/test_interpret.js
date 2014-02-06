@@ -25,7 +25,7 @@ global.SystemLoader.loadAsScript(testScriptName, {}, function(result) {
 });
 
 var testModuleName = '../../unit/runtime/test_module';
-global.SystemLoader.import(testModuleName, {}, function(mod) {
+global.SystemLoader.import(testModuleName, {}).then(function(mod) {
   assert('test', mod.name);
   assert('A', mod.a);
   assert('B', mod.b);

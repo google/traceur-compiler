@@ -191,7 +191,7 @@
       }
 
       if (/\.module\.js$/.test(url)) {
-        moduleLoader.import(url.replace(/\.js$/,''), {},
+        moduleLoader.import(url.replace(/\.js$/,''), {}).then(
             handleSuccess, handleFailure);
       } else {
         moduleLoader.loadAsScript(url, {}, handleSuccess, handleFailure);
