@@ -82,7 +82,7 @@ suite('Loader.js', function() {
   });
 
   test('LoaderEval', function(done) {
-    getLoader().script('(function(x = 42) { return x; })()', {},
+    getLoader().script('(function(x = 42) { return x; })()', {}).then(
       function(result) {
         assert.equal(42, result);
         done();
@@ -151,7 +151,7 @@ suite('Loader.js', function() {
   });
 
   test('LoaderLoad', function(done) {
-    getLoader().loadAsScript('./test_script.js', {}, function(result) {
+    getLoader().loadAsScript('./test_script.js', {}).then(function(result) {
       assert.equal('A', result[0]);
       assert.equal('B', result[1]);
       assert.equal('C', result[2]);
@@ -164,7 +164,7 @@ suite('Loader.js', function() {
 
   test('LoaderLoadWithReferrer', function(done) {
     getLoader().loadAsScript('../test_script.js',
-      {referrerName: 'traceur@0.0.1/bin'},
+      {referrerName: 'traceur@0.0.1/bin'}).then(
       function(result) {
         assert.equal('A', result[0]);
         assert.equal('B', result[1]);

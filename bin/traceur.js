@@ -20853,33 +20853,33 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/TraceurLo
   var $TraceurLoader = TraceurLoader;
   ($traceurRuntime.createClass)(TraceurLoader, {
     loadAsScript: function(filename) {
-      var $__342 = arguments[1] !== (void 0) ? arguments[1]: {},
-          referrerName = $__342.referrerName,
-          address = $__342.address;
-      var callback = arguments[2] !== (void 0) ? arguments[2]: (function(result) {});
-      var errback = arguments[3] !== (void 0) ? arguments[3]: (function(ex) {
-        throw ex;
-      });
-      var name = filename.replace(/\.js$/, '');
-      var codeUnit = this.internalLoader_.load(name, referrerName, address, 'script');
-      codeUnit.addListener(function(result) {
-        callback(result);
-      }, errback);
+      var $__343 = arguments[1] !== (void 0) ? arguments[1]: {},
+          referrerName = $__343.referrerName,
+          address = $__343.address;
+      var $__341 = this;
+      return new Promise((function(resolve, reject) {
+        var name = filename.replace(/\.js$/, '');
+        var codeUnit = $__341.internalLoader_.load(name, referrerName, address, 'script');
+        codeUnit.addListener(function(result) {
+          resolve(result);
+        }, (function(ex) {
+          return reject(ex);
+        }));
+      }));
     },
     script: function(source) {
-      var $__342 = arguments[1] !== (void 0) ? arguments[1]: {},
-          referrerName = $__342.referrerName,
-          address = $__342.address;
-      var callback = arguments[2] !== (void 0) ? arguments[2]: (function(result) {});
-      var errback = arguments[3] !== (void 0) ? arguments[3]: (function(ex) {
-        throw ex;
-      });
-      try {
-        var codeUnit = this.internalLoader_.script(source, null, referrerName, address);
-        callback(codeUnit.result);
-      } catch (ex) {
-        errback(ex);
-      }
+      var $__343 = arguments[1] !== (void 0) ? arguments[1]: {},
+          referrerName = $__343.referrerName,
+          address = $__343.address;
+      var $__341 = this;
+      return new Promise((function(resolve, reject) {
+        try {
+          var codeUnit = $__341.internalLoader_.script(source, null, referrerName, address);
+          resolve(codeUnit.result);
+        } catch (ex) {
+          reject(ex);
+        }
+      }));
     },
     semVerRegExp_: function() {
       return /^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$/;

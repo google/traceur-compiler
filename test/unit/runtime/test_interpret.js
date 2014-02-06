@@ -16,7 +16,7 @@ import {assert} from '../../../src/util/assert';
 import {resolveUrl} from '../../../src/util/url';
 
 var testScriptName = '../../unit/runtime/test_script.js';
-global.SystemLoader.loadAsScript(testScriptName, {}, function(result) {
+global.SystemLoader.loadAsScript(testScriptName, {}).then(function(result) {
   assert('A', result[0]);
   assert('B', result[1]);
   assert('C', result[2]);
