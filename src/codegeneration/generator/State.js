@@ -65,11 +65,12 @@ export class State {
 
   /**
    * @param {Object} labelSet    set of label strings.
-   * @param {number} breakState
-   * @param {number} continueState
+   * @param {number=} breakState
+   * @param {number=} continueState
    * @return {State}
    */
-  transformBreakOrContinue(labelSet, breakState, continueState) {
+  transformBreakOrContinue(labelSet, breakState = undefined,
+                           continueState = undefined) {
     return this;
   }
 }

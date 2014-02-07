@@ -17141,7 +17141,9 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/codegeneration/ge
     transformBreak: function(labelSet, breakState) {
       return this;
     },
-    transformBreakOrContinue: function(labelSet, breakState, continueState) {
+    transformBreakOrContinue: function(labelSet) {
+      var breakState = arguments[1];
+      var continueState = arguments[2];
       return this;
     }
   }, {});
@@ -17376,14 +17378,17 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/codegeneration/ge
     transform: function(enclosingFinally, machineEndState, reporter) {
       throw new Error('These should be removed before the transform step');
     },
-    transformBreak: function(labelSet, breakState) {
+    transformBreak: function(labelSet) {
+      var breakState = arguments[1];
       if (this.label == null) return new FallThroughState(this.id, breakState, []);
       if (this.label in labelSet) {
         return new FallThroughState(this.id, labelSet[this.label].fallThroughState, []);
       }
       return this;
     },
-    transformBreakOrContinue: function(labelSet, breakState, continueState) {
+    transformBreakOrContinue: function(labelSet) {
+      var breakState = arguments[1];
+      var continueState = arguments[2];
       return this.transformBreak(labelSet, breakState);
     }
   }, {}, State);
@@ -17409,7 +17414,9 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/codegeneration/ge
     transform: function(enclosingFinally, machineEndState, reporter) {
       throw new Error('These should be removed before the transform step');
     },
-    transformBreakOrContinue: function(labelSet, breakState, continueState) {
+    transformBreakOrContinue: function(labelSet) {
+      var breakState = arguments[1];
+      var continueState = arguments[2];
       if (this.label == null) return new FallThroughState(this.id, continueState, []);
       if (this.label in labelSet) {
         return new FallThroughState(this.id, labelSet[this.label].continueState, []);
@@ -17665,6 +17672,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/codegeneration/ge
   var FallThroughState = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/codegeneration/generator/FallThroughState").FallThroughState;
   var FinallyFallThroughState = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/codegeneration/generator/FinallyFallThroughState").FinallyFallThroughState;
   var FinallyState = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/codegeneration/generator/FinallyState").FinallyState;
+  var FindVisitor = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/codegeneration/FindVisitor").FindVisitor;
   var ParseTreeTransformer = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/codegeneration/ParseTreeTransformer").ParseTreeTransformer;
   var assert = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/util/assert").assert;
   var $__247 = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/codegeneration/PlaceholderParser"),
@@ -17704,6 +17712,21 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/codegeneration/ge
     this.fallThroughState = fallThroughState;
   };
   ($traceurRuntime.createClass)(LabelState, {}, {});
+  var NeedsStateMachine = function NeedsStateMachine() {
+    $traceurRuntime.defaultSuperCall(this, $NeedsStateMachine.prototype, arguments);
+  };
+  var $NeedsStateMachine = NeedsStateMachine;
+  ($traceurRuntime.createClass)(NeedsStateMachine, {
+    visitBreakStatement: function(tree) {
+      this.found = tree.name !== null;
+    },
+    visitContinueStatement: function(tree) {
+      this.found = tree.name !== null;
+    },
+    visitStateMachine: function(tree) {
+      this.found = true;
+    }
+  }, {}, FindVisitor);
   var CPSTransformer = function CPSTransformer(reporter) {
     $traceurRuntime.superCall(this, $CPSTransformer.prototype, "constructor", []);
     this.reporter = reporter;
@@ -17717,9 +17740,20 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/codegeneration/ge
       return this.stateAllocator_.allocateState();
     },
     transformBlock: function(tree) {
+      var labels = this.getLabels_();
+      var label = this.clearCurrentLabel_();
       var transformedTree = $traceurRuntime.superCall(this, $CPSTransformer.prototype, "transformBlock", [tree]);
       var machine = this.transformStatementList_(transformedTree.statements);
-      return machine == null ? transformedTree: machine;
+      if (machine === null) return transformedTree;
+      if (label) {
+        var states = [];
+        for (var i = 0; i < machine.states.length; i++) {
+          var state = machine.states[i];
+          states.push(state.transformBreakOrContinue(labels));
+        }
+        machine = new StateMachine(machine.startState, machine.fallThroughState, states, machine.exceptionBlocks);
+      }
+      return machine;
     },
     transformFunctionBody: function(tree) {
       var oldLabels = this.clearLabels_();
@@ -17741,14 +17775,8 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/codegeneration/ge
     needsStateMachine_: function(statements) {
       if (statements instanceof Array) {
         for (var i = 0; i < statements.length; i++) {
-          switch (statements[i].type) {
-            case STATE_MACHINE:
-              return true;
-            case BREAK_STATEMENT:
-            case CONTINUE_STATEMENT:
-              if (statements[i].name) return true;
-              break;
-          }
+          var visitor = new NeedsStateMachine(statements[i]);
+          if (visitor.found) return true;
         }
         return false;
       }
