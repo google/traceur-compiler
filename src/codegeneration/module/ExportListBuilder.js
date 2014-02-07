@@ -35,7 +35,7 @@ export class ExportListBuilder {
    * @param {Loader} loader
    * @return {void}
    */
-  analyzeTrees(deps, loader) {
+  buildExportList(deps, loader) {
     if (!transformOptions.modules)
       return;
 

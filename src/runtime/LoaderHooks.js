@@ -53,7 +53,7 @@ export class LoaderHooks {
     this.rootUrl_ = rootUrl;
     this.moduleStore_ = moduleStore;
     this.fileLoader = fileLoader;
-    this.analyzer_ = new ExportListBuilder(this.reporter);
+    this.exportListBuilder_ = new ExportListBuilder(this.reporter);
   }
 
   get(normalizedName) {
@@ -198,8 +198,7 @@ export class LoaderHooks {
       }
     }
 
-    this.analyzer_.analyzeTrees(deps, loader);
-    this.checkForErrors(dependencies, 'analyze');
+    this.exportListBuilder_.buildExportList(deps, loader);
   }
 
   // TODO(jjb): this function belongs in Loader

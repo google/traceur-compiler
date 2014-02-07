@@ -365,6 +365,7 @@ export class InternalLoader {
 
   analyze() {
     this.loaderHooks.analyzeDependencies(this.cache.values(), this);
+    this.loaderHooks.checkForErrors(this.cache.values(), 'build-export-list');
   }
 
   transform() {

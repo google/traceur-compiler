@@ -19848,7 +19848,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/codegeneration/mo
   var ExportListBuilder = function ExportListBuilder(reporter) {
     this.reporter_ = reporter;
   };
-  ($traceurRuntime.createClass)(ExportListBuilder, {analyzeTrees: function(deps, loader) {
+  ($traceurRuntime.createClass)(ExportListBuilder, {buildExportList: function(deps, loader) {
       if (!transformOptions.modules) return;
       var reporter = this.reporter_;
       function doVisit(ctor) {
@@ -20063,7 +20063,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/LoaderHoo
     this.rootUrl_ = rootUrl;
     this.moduleStore_ = moduleStore;
     this.fileLoader = fileLoader;
-    this.analyzer_ = new ExportListBuilder(this.reporter);
+    this.exportListBuilder_ = new ExportListBuilder(this.reporter);
   };
   ($traceurRuntime.createClass)(LoaderHooks, {
     get: function(normalizedName) {
@@ -20172,8 +20172,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/LoaderHoo
           deps.push(codeUnit.metadata);
         }
       }
-      this.analyzer_.analyzeTrees(deps, loader);
-      this.checkForErrors(dependencies, 'analyze');
+      this.exportListBuilder_.buildExportList(deps, loader);
     },
     transformDependencies: function(dependencies, dependentName) {
       for (var i = 0; i < dependencies.length; i++) {
@@ -20507,6 +20506,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/InternalL
     },
     analyze: function() {
       this.loaderHooks.analyzeDependencies(this.cache.values(), this);
+      this.loaderHooks.checkForErrors(this.cache.values(), 'build-export-list');
     },
     transform: function() {
       this.loaderHooks.transformDependencies(this.cache.values());
