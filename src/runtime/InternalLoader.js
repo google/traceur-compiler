@@ -371,7 +371,6 @@ export class InternalLoader {
     this.transformDependencies(this.cache.values());
   }
 
-  // TODO(jjb): this function belongs in Loader
   transformDependencies(dependencies, dependentName) {
     for (var i = 0; i < dependencies.length; i++) {
       var codeUnit = dependencies[i];
