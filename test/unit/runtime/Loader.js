@@ -89,6 +89,18 @@ suite('Loader.js', function() {
       });
   });
 
+  test('Loader.Script.Fail', function(done) {
+    var reporter = new MutedErrorReporter();
+    getLoader(reporter).script('export var x = 5;', {}).then(
+      function(result) {
+        fail('should not have succeeded');
+        done();
+      }, function(ex) {
+        assert(ex);
+        done();
+      });
+  });
+
   test('LoaderModule', function(done) {
     var code =
         'module a from "./test_a";\n' +
@@ -162,6 +174,17 @@ suite('Loader.js', function() {
     });
   });
 
+  test('LoaderLoad.Fail', function(done) {
+    var reporter = new MutedErrorReporter();
+    getLoader(reporter).loadAsScript('./non_existing.js', {}).then(function(result) {
+      fail('should not have succeeded');
+      done();
+    }, function(error) {
+      assert(error);
+      done();
+    });
+  });
+
   test('LoaderLoadWithReferrer', function(done) {
     getLoader().loadAsScript('../test_script.js',
       {referrerName: 'traceur@0.0.1/bin'}).then(
@@ -185,6 +208,17 @@ suite('Loader.js', function() {
       done();
     }, function(error) {
       fail(error);
+      done();
+    });
+  });
+
+  test('LoaderImport.Fail', function(done) {
+    var reporter = new MutedErrorReporter();
+    getLoader(reporter).import('./non_existing', {}).then(function(mod) {
+      fail('should not have succeeded')
+      done();
+    }, function(error) {
+      assert(error);
       done();
     });
   });
@@ -223,6 +257,21 @@ suite('Loader.js', function() {
     });
   });
 
+  test('Loader.define.Fail', function(done) {
+    var name = System.normalize('./test_define');
+    var reporter = new MutedErrorReporter();
+    getLoader(reporter).import('./side-effect', {}).then(function(mod) {
+      var src = 'syntax error';
+      getLoader(reporter).define(name, src, {}).then(function() {
+          fail('should not have succeeded');
+          done();
+        }, function(error) {
+          assert(error);
+          done();
+        });
+    });
+  });
+
   test('Loader.defineWithSourceMap', function(done) {
     var normalizedName = System.normalize('./test_define_with_source_map');
     var loader = getLoader();
@@ -242,7 +291,6 @@ suite('Loader.js', function() {
       }
     );
   });
-
 
   test('System.semverMap', function() {
     var semVerRegExp = System.semVerRegExp_();
