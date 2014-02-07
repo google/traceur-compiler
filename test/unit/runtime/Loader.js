@@ -25,7 +25,7 @@ suite('Loader.js', function() {
   });
 
   teardown(function() {
-      assert.isFalse(reporter.hadError());
+    assert.isFalse(reporter.hadError());
     System.baseURL = baseURL;
   });
 
@@ -94,6 +94,7 @@ suite('Loader.js', function() {
     getLoader(reporter).script('export var x = 5;', {}).then(
       function(result) {
         fail('should not have succeeded');
+        done();
       }, function(ex) {
         assert(ex);
         done();
