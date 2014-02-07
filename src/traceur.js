@@ -20,10 +20,10 @@ export {options} from './options';
 
 export {WebPageTranscoder} from './WebPageTranscoder';
 
-import {ModuleAnalyzer} from './semantics/ModuleAnalyzer';
+import {ExportListBuilder} from './codegeneration/module/ExportListBuilder';
 
 export var semantics = {
-  ModuleAnalyzer,
+  ExportListBuilder,
 };
 
 import {ErrorReporter} from './util/ErrorReporter';
@@ -99,10 +99,6 @@ export var codegeneration = {
     ModuleSpecifierVisitor
   }
 };
-
-module modules from './runtime/InternalLoader';
-export {modules};
-
 
 import {Loader} from './runtime/Loader';
 import {LoaderHooks} from './runtime/LoaderHooks';
