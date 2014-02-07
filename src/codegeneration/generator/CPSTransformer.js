@@ -77,10 +77,6 @@ class LabelState {
   }
 }
 
-/**
- * This visitor takes a tree that might have been partially transformed and
- * determines if we need to transform into a state machine or not.
- */
 class NeedsStateMachine extends FindVisitor {
   visitBreakStatement(tree) {
     this.found = tree.name !== null;
