@@ -20,10 +20,10 @@ export {options} from './options';
 
 export {WebPageTranscoder} from './WebPageTranscoder';
 
-import {ModuleAnalyzer} from './codegeneration/module/ModuleAnalyzer';
+import {ExportListBuilder} from './codegeneration/module/ExportListBuilder';
 
 export var semantics = {
-  ModuleAnalyzer,
+  ExportListBuilder,
 };
 
 import {ErrorReporter} from './util/ErrorReporter';

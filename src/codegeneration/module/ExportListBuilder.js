@@ -22,7 +22,7 @@ import {transformOptions} from '../../options';
 /**
  * Builds up all module symbols and validates them.
  */
-export class ModuleAnalyzer {
+export class ExportListBuilder {
   /**
    * @param {ErrorReporter} reporter
    */
@@ -31,31 +31,27 @@ export class ModuleAnalyzer {
   }
 
   /**
-   * @param {Array.<ParseTree>} trees
-   * @param {Array.<ModuleSymbol>=} moduleSymbols
+   * @param {Array.<Object>} deps, {moduleSymbol, treee}
    * @param {Loader} loader
    * @return {void}
    */
-  analyzeTrees(trees, moduleSymbols, loader) {
+  analyzeTrees(deps, loader) {
     if (!transformOptions.modules)
       return;
 
     var reporter = this.reporter_;
-    function getModuleSymbol(i) {
-      return moduleSymbols.length ? moduleSymbols[i] : moduleSymbols;
-    }
 
     function doVisit(ctor) {
-      for (var i = 0; i < trees.length; i++) {
-        var visitor = new ctor(reporter, loader, getModuleSymbol(i));
-        visitor.visitAny(trees[i]);
+      for (var i = 0; i < deps.length; i++) {
+        var visitor = new ctor(reporter, loader, deps[i].moduleSymbol);
+        visitor.visitAny(deps[i].tree);
       }
     }
 
     function reverseVisit(ctor) {
-      for (var i = trees.length - 1; i >= 0; i--) {
-        var visitor = new ctor(reporter, loader, getModuleSymbol(i));
-        visitor.visitAny(trees[i]);
+      for (var i = deps.length - 1; i >= 0; i--) {
+        var visitor = new ctor(reporter, loader, deps[i].moduleSymbol);
+        visitor.visitAny(deps[i].tree);
       }
     }
 

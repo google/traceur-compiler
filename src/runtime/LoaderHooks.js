@@ -16,7 +16,7 @@ import {
   AttachModuleNameTransformer
 } from '../codegeneration/module/AttachModuleNameTransformer';
 import {FromOptionsTransformer} from '../codegeneration/FromOptionsTransformer';
-import {ModuleAnalyzer} from '../codegeneration/module/ModuleAnalyzer';
+import {ExportListBuilder} from '../codegeneration/module/ExportListBuilder';
 import {ModuleSpecifierVisitor} from
     '../codegeneration/module/ModuleSpecifierVisitor';
 import {ModuleSymbol} from '../codegeneration/module/ModuleSymbol';
@@ -53,7 +53,7 @@ export class LoaderHooks {
     this.rootUrl_ = rootUrl;
     this.moduleStore_ = moduleStore;
     this.fileLoader = fileLoader;
-    this.analyzer_ = new ModuleAnalyzer(this.reporter);
+    this.analyzer_ = new ExportListBuilder(this.reporter);
   }
 
   get(normalizedName) {
@@ -186,8 +186,7 @@ export class LoaderHooks {
   }
 
   analyzeDependencies(dependencies, loader) {
-    var trees = [];
-    var moduleSymbols = [];
+    var deps = [];  // metadata for each dependency
     for (var i = 0; i < dependencies.length; i++) {
       var codeUnit = dependencies[i];
 
@@ -195,12 +194,11 @@ export class LoaderHooks {
       assert(codeUnit.state >= PARSED);
 
       if (codeUnit.state == PARSED) {
-        trees.push(codeUnit.metadata.tree);
-        moduleSymbols.push(codeUnit.metadata.moduleSymbol);
+        deps.push(codeUnit.metadata);
       }
     }
 
-    this.analyzer_.analyzeTrees(trees, moduleSymbols, loader);
+    this.analyzer_.analyzeTrees(deps, loader);
     this.checkForErrors(dependencies, 'analyze');
   }
 

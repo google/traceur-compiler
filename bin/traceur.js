@@ -19839,38 +19839,35 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/codegeneration/mo
       return ValidationVisitor;
     }};
 });
-$traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/codegeneration/module/ModuleAnalyzer", function() {
+$traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/codegeneration/module/ExportListBuilder", function() {
   "use strict";
-  var __moduleName = "traceur@0.0.20/src/codegeneration/module/ModuleAnalyzer";
+  var __moduleName = "traceur@0.0.20/src/codegeneration/module/ExportListBuilder";
   var ExportVisitor = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/codegeneration/module/ExportVisitor").ExportVisitor;
   var ValidationVisitor = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/codegeneration/module/ValidationVisitor").ValidationVisitor;
   var transformOptions = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/options").transformOptions;
-  var ModuleAnalyzer = function ModuleAnalyzer(reporter) {
+  var ExportListBuilder = function ExportListBuilder(reporter) {
     this.reporter_ = reporter;
   };
-  ($traceurRuntime.createClass)(ModuleAnalyzer, {analyzeTrees: function(trees, moduleSymbols, loader) {
+  ($traceurRuntime.createClass)(ExportListBuilder, {analyzeTrees: function(deps, loader) {
       if (!transformOptions.modules) return;
       var reporter = this.reporter_;
-      function getModuleSymbol(i) {
-        return moduleSymbols.length ? moduleSymbols[i]: moduleSymbols;
-      }
       function doVisit(ctor) {
-        for (var i = 0; i < trees.length; i++) {
-          var visitor = new ctor(reporter, loader, getModuleSymbol(i));
-          visitor.visitAny(trees[i]);
+        for (var i = 0; i < deps.length; i++) {
+          var visitor = new ctor(reporter, loader, deps[i].moduleSymbol);
+          visitor.visitAny(deps[i].tree);
         }
       }
       function reverseVisit(ctor) {
-        for (var i = trees.length - 1; i >= 0; i--) {
-          var visitor = new ctor(reporter, loader, getModuleSymbol(i));
-          visitor.visitAny(trees[i]);
+        for (var i = deps.length - 1; i >= 0; i--) {
+          var visitor = new ctor(reporter, loader, deps[i].moduleSymbol);
+          visitor.visitAny(deps[i].tree);
         }
       }
       reverseVisit(ExportVisitor);
       doVisit(ValidationVisitor);
     }}, {});
-  return {get ModuleAnalyzer() {
-      return ModuleAnalyzer;
+  return {get ExportListBuilder() {
+      return ExportListBuilder;
     }};
 });
 $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/util/url", function() {
@@ -20036,7 +20033,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/LoaderHoo
   var __moduleName = "traceur@0.0.20/src/runtime/LoaderHooks";
   var AttachModuleNameTransformer = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/codegeneration/module/AttachModuleNameTransformer").AttachModuleNameTransformer;
   var FromOptionsTransformer = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/codegeneration/FromOptionsTransformer").FromOptionsTransformer;
-  var ModuleAnalyzer = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/codegeneration/module/ModuleAnalyzer").ModuleAnalyzer;
+  var ExportListBuilder = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/codegeneration/module/ExportListBuilder").ExportListBuilder;
   var ModuleSpecifierVisitor = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/codegeneration/module/ModuleSpecifierVisitor").ModuleSpecifierVisitor;
   var ModuleSymbol = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/codegeneration/module/ModuleSymbol").ModuleSymbol;
   var Parser = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/syntax/Parser").Parser;
@@ -20066,7 +20063,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/LoaderHoo
     this.rootUrl_ = rootUrl;
     this.moduleStore_ = moduleStore;
     this.fileLoader = fileLoader;
-    this.analyzer_ = new ModuleAnalyzer(this.reporter);
+    this.analyzer_ = new ExportListBuilder(this.reporter);
   };
   ($traceurRuntime.createClass)(LoaderHooks, {
     get: function(normalizedName) {
@@ -20167,17 +20164,15 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/LoaderHoo
       return result;
     },
     analyzeDependencies: function(dependencies, loader) {
-      var trees = [];
-      var moduleSymbols = [];
+      var deps = [];
       for (var i = 0; i < dependencies.length; i++) {
         var codeUnit = dependencies[i];
         assert(codeUnit.state >= PARSED);
         if (codeUnit.state == PARSED) {
-          trees.push(codeUnit.metadata.tree);
-          moduleSymbols.push(codeUnit.metadata.moduleSymbol);
+          deps.push(codeUnit.metadata);
         }
       }
-      this.analyzer_.analyzeTrees(trees, moduleSymbols, loader);
+      this.analyzer_.analyzeTrees(deps, loader);
       this.checkForErrors(dependencies, 'analyze');
     },
     transformDependencies: function(dependencies, dependentName) {
@@ -20957,8 +20952,8 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/traceur", functio
   var ModuleStore = System.get('@traceur/src/runtime/ModuleStore');
   var $__traceur_64_0_46_0_46_20_47_src_47_options__ = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/options");
   var $__traceur_64_0_46_0_46_20_47_src_47_WebPageTranscoder__ = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/WebPageTranscoder");
-  var ModuleAnalyzer = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/codegeneration/module/ModuleAnalyzer").ModuleAnalyzer;
-  var semantics = {ModuleAnalyzer: ModuleAnalyzer};
+  var ExportListBuilder = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/codegeneration/module/ExportListBuilder").ExportListBuilder;
+  var semantics = {ExportListBuilder: ExportListBuilder};
   var ErrorReporter = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/util/ErrorReporter").ErrorReporter;
   var SourcePosition = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/util/SourcePosition").SourcePosition;
   var SyntaxErrorReporter = $traceurRuntime.getModuleImpl("traceur@0.0.20/src/util/SyntaxErrorReporter").SyntaxErrorReporter;
