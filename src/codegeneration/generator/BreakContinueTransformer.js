@@ -52,7 +52,7 @@ export class BreakContinueTransformer extends ParseTreeTransformer {
 
   /**
    * @param {State} newState
-   * @return {StateMachibneTree}
+   * @return {StateMachineTree}
    */
   stateToStateMachine_(newState) {
     // TODO: this shouldn't be required, but removing it requires making
