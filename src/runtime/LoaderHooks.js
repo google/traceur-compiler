@@ -200,26 +200,6 @@ export class LoaderHooks {
     this.exportListBuilder_.buildExportList(deps, loader);
   }
 
-  checkForErrors(dependencies, phase) {
-    if (this.reporter.hadError()) {
-      for (var i = 0; i < dependencies.length; i++) {
-        var codeUnit = dependencies[i];
-        if (codeUnit.state >= COMPLETE) {
-          continue;
-        }
-        codeUnit.state = ERROR;
-      }
-
-      for (var i = 0; i < dependencies.length; i++) {
-        var codeUnit = dependencies[i];
-        if (codeUnit.state == ERROR) {
-          codeUnit.dispatchError(phase);
-        }
-      }
-      return true;
-    }
-    return false;
-  }
   get options() {
     return options;
   }

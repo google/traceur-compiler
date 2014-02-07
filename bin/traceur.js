@@ -20173,25 +20173,6 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/LoaderHoo
       }
       this.exportListBuilder_.buildExportList(deps, loader);
     },
-    checkForErrors: function(dependencies, phase) {
-      if (this.reporter.hadError()) {
-        for (var i = 0; i < dependencies.length; i++) {
-          var codeUnit = dependencies[i];
-          if (codeUnit.state >= COMPLETE) {
-            continue;
-          }
-          codeUnit.state = ERROR;
-        }
-        for (var i = 0; i < dependencies.length; i++) {
-          var codeUnit = dependencies[i];
-          if (codeUnit.state == ERROR) {
-            codeUnit.dispatchError(phase);
-          }
-        }
-        return true;
-      }
-      return false;
-    },
     get options() {
       return options;
     }
@@ -20478,7 +20459,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/InternalL
     },
     analyze: function() {
       this.loaderHooks.analyzeDependencies(this.cache.values(), this);
-      this.loaderHooks.checkForErrors(this.cache.values(), 'build-export-list');
+      this.checkForErrors(this.cache.values(), 'build-export-list');
     },
     transform: function() {
       this.transformDependencies(this.cache.values());
