@@ -255,8 +255,6 @@ export class InternalLoader {
     var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'script',
                                     null, referrerName, address);
     this.cache.set({}, codeUnit);
-    // assert that there are no dependencies that are loading?
-    this.handleCodeUnitLoaded(codeUnit);
     return codeUnit;
   }
 

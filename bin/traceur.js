@@ -20404,7 +20404,6 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/InternalL
     script: function(code, referrerName, address) {
       var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'script', null, referrerName, address);
       this.cache.set({}, codeUnit);
-      this.handleCodeUnitLoaded(codeUnit);
       return codeUnit;
     },
     get options() {
@@ -20874,11 +20873,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/TraceurLo
       return new Promise((function(resolve, reject) {
         var name = filename.replace(/\.js$/, '');
         var codeUnit = $__340.internalLoader_.load(name, referrerName, address, 'script');
-        codeUnit.addListener(function(result) {
-          resolve(result);
-        }, (function(ex) {
-          return reject(ex);
-        }));
+        codeUnit.addListener(resolve, reject);
       }));
     },
     script: function(source) {
@@ -20887,12 +20882,9 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/TraceurLo
           address = $__342.address;
       var $__340 = this;
       return new Promise((function(resolve, reject) {
-        try {
-          var codeUnit = $__340.internalLoader_.script(source, null, referrerName, address);
-          resolve(codeUnit.result);
-        } catch (ex) {
-          reject(ex);
-        }
+        var codeUnit = $__340.internalLoader_.script(source, null, referrerName, address);
+        codeUnit.addListener(resolve, reject);
+        $__340.internalLoader_.handleCodeUnitLoaded(codeUnit);
       }));
     },
     semVerRegExp_: function() {

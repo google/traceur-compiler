@@ -43,9 +43,7 @@ export class TraceurLoader extends Loader {
       var name = filename.replace(/\.js$/, '');
       var codeUnit = this.internalLoader_.load(name, referrerName,
           address, 'script');
-      codeUnit.addListener(function(result) {
-        resolve(result);
-      }, (ex) => reject(ex));
+      codeUnit.addListener(resolve, reject);
     });
   }
 
@@ -66,13 +64,10 @@ export class TraceurLoader extends Loader {
    */
   script(source, {referrerName, address} = {}) {
     return new Promise((resolve, reject) => {
-      try {
-        var codeUnit =
-            this.internalLoader_.script(source, null, referrerName, address);
-        resolve(codeUnit.result);
-      } catch (ex) {
-        reject(ex);
-      }
+      var codeUnit =
+          this.internalLoader_.script(source, null, referrerName, address);
+      codeUnit.addListener(resolve, reject);
+      this.internalLoader_.handleCodeUnitLoaded(codeUnit);
     });
   }
 
