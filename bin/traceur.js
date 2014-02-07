@@ -20486,11 +20486,12 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/InternalL
       var $__331;
       this.transformDependencies(codeUnit.dependencies, codeUnit.normalizedName);
       if (codeUnit.state === ERROR) return;
-      codeUnit.metadata.transformedTree = codeUnit.transform();
+      var metadata = codeUnit.metadata;
+      metadata.transformedTree = codeUnit.transform();
       codeUnit.state = TRANSFORMED;
       var filename = codeUnit.url || codeUnit.normalizedName;
-      ($__331 = toSource(codeUnit.metadata.transformedTree, this.options, filename), codeUnit.metadata.transcoded = $__331[0], codeUnit.metadata.sourceMap = $__331[1], $__331);
-      if (codeUnit.url && codeUnit.metadata.transcoded) codeUnit.metadata.transcoded += '//# sourceURL=' + codeUnit.url;
+      ($__331 = toSource(metadata.transformedTree, this.options, filename), metadata.transcoded = $__331[0], metadata.sourceMap = $__331[1], $__331);
+      if (codeUnit.url && metadata.transcoded) metadata.transcoded += '//# sourceURL=' + codeUnit.url;
     },
     checkForErrors: function(dependencies, phase) {
       if (this.reporter.hadError()) {

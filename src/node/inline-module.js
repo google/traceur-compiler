@@ -24,7 +24,6 @@ var TraceurLoader = traceur.runtime.TraceurLoader;
 var LoaderHooks = traceur.runtime.LoaderHooks;
 var Script = traceur.syntax.trees.Script;
 var SourceFile = traceur.syntax.SourceFile
-var ExportListBuilder = traceur.semantics.ExportListBuilder;
 var moduleStore = traceur.runtime.ModuleStore;
 
 /**

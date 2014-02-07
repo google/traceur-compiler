@@ -395,15 +395,15 @@ export class InternalLoader {
     this.transformDependencies(codeUnit.dependencies, codeUnit.normalizedName);
     if (codeUnit.state === ERROR)
       return;
-    codeUnit.metadata.transformedTree = codeUnit.transform();
+    var metadata = codeUnit.metadata;
+    metadata.transformedTree = codeUnit.transform();
     codeUnit.state = TRANSFORMED;
     var filename = codeUnit.url || codeUnit.normalizedName;
-    [codeUnit.metadata.transcoded, codeUnit.metadata.sourceMap] =
-        toSource(codeUnit.metadata.transformedTree, this.options, filename);
-    if (codeUnit.url && codeUnit.metadata.transcoded)
-      codeUnit.metadata.transcoded += '//# sourceURL=' + codeUnit.url;
+    [metadata.transcoded, metadata.sourceMap] =
+        toSource(metadata.transformedTree, this.options, filename);
+    if (codeUnit.url && metadata.transcoded)
+      metadata.transcoded += '//# sourceURL=' + codeUnit.url;
   }
-
 
   checkForErrors(dependencies, phase) {
     if (this.reporter.hadError()) {
