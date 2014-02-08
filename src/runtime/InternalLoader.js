@@ -28,6 +28,8 @@ var TRANSFORMED = 5;
 var COMPLETE = 6;
 var ERROR = 7;
 
+function noop() {}
+
 /**
  * Base class representing a piece of code that is to be loaded or evaluated.
  * Similar to js-loader Load object
@@ -54,6 +56,29 @@ class CodeUnit {
     this.result = null;
     this.data_ = {};
     this.dependencies = [];
+    this.promise_ = null;
+    this.resolve_ = noop;
+    this.reject_ = noop;
+  }
+
+  ensurePromise_() {
+    if (!this.promise_) {
+      if (this.state >= COMPLETE) {
+        this.promise_ = Promise.resolve(this.result);
+      } else if (this.state === ERROR) {
+        this.promise_ = Promise.reject(this.error);
+      } else {
+        this.promise_ = new Promise((resolve, reject) => {
+          this.resolve_ = resolve;
+          this.reject_ = reject;
+        });
+      }
+    }
+  }
+
+  get promise() {
+    this.ensurePromise_();
+    return this.promise_;
   }
 
   get state() {
@@ -97,42 +122,14 @@ class CodeUnit {
     return 'Normalizes to ' + this.normalizedName + '\n';
   }
 
-  /**
-   * Adds callback for COMPLETE and ERROR.
-   */
-  addListener(callback, errback) {
-    if (!this.listeners) {
-      this.listeners = [];
-    }
-    this.listeners.push(callback, errback);
-    if (this.state >= COMPLETE) {
-      this.dispatchComplete(this.result);
-    }
+  dispatchError(err) {
+    this.ensurePromise_();
+    this.reject_(err);
   }
 
-  dispatchError(value) {
-    this.dispatch_(value, 1);
-  }
-
-  dispatchComplete(value) {
-    this.dispatch_(value, 0);
-  }
-
-  dispatch_(value, error) {
-    var listeners = this.listeners;
-    if (!listeners) {
-      return;
-    }
-    // Clone to prevent mutations during dispatch
-    listeners = listeners.concat();
-    this.listeners = [];
-
-    for (var i = error; i < listeners.length; i += 2) {
-      var f = listeners[i];
-      if (f) {
-        f(value);
-      }
-    }
+  dispatchComplete() {
+    this.ensurePromise_();
+    this.resolve_(this.result);
   }
 
   transform() {
@@ -212,11 +209,7 @@ export class InternalLoader {
   load(name, referrerName = this.loaderHooks.rootUrl(),
       address, type = 'script') {
     var codeUnit = this.load_(name, referrerName, address, type);
-    return new Promise((resolve, reject) => {
-      codeUnit.addListener(() => {
-        resolve(codeUnit);
-      }, reject);
-    });
+    return codeUnit.promise.then(() => codeUnit);
   }
 
   load_(name, referrerName, address, type) {
@@ -239,27 +232,12 @@ export class InternalLoader {
     return codeUnit;
   }
 
-  promiseFor(codeUnit) {
-    return new Promise((resolve, reject) => {
-      codeUnit.addListener(resolve, reject);
-    });
-  }
-
-  promiseForAlreadyLoaded(codeUnit) {
-    var p = new Promise((resolve, reject) => {
-      codeUnit.addListener(resolve, reject);
-    });
-    this.handleCodeUnitLoaded(codeUnit);
-    // ?
-    codeUnit.promise = p;
-    return p;
-  }
-
   module(code, referrerName, address) {
     var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'module',
                                       null, referrerName, address);
     this.cache.set({}, codeUnit);
-    return this.promiseForAlreadyLoaded(codeUnit);
+    this.handleCodeUnitLoaded(codeUnit);
+    return codeUnit.promise;
   }
 
   define(normalizedName, code, address) {
@@ -268,7 +246,8 @@ export class InternalLoader {
     var key = this.getKey(normalizedName, 'module');
 
     this.cache.set(key, codeUnit);
-    return this.promiseForAlreadyLoaded(codeUnit);
+    this.handleCodeUnitLoaded(codeUnit);
+    return codeUnit.promise;
   }
 
   /**
@@ -279,7 +258,8 @@ export class InternalLoader {
     var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'script',
                                     null, referrerName, address);
     this.cache.set({}, codeUnit);
-    return this.promiseForAlreadyLoaded(codeUnit);
+    this.handleCodeUnitLoaded(codeUnit);
+    return codeUnit.promise;
   }
 
   get options() {
@@ -344,7 +324,7 @@ export class InternalLoader {
       return this.getCodeUnit_(name, referrerName, null, 'module');
     });
     codeUnit.dependencies.forEach((dependency) => {
-      this.load_(dependency.normalizedName, null, null, 'module');
+      this.load(dependency.normalizedName, null, null, 'module');
     });
 
     if (this.areAll(PARSED)) {
@@ -497,7 +477,7 @@ export class InternalLoader {
         continue;
       }
       codeUnit.state = COMPLETE;
-      codeUnit.dispatchComplete(codeUnit.result);
+      codeUnit.dispatchComplete();
     }
   }
 }

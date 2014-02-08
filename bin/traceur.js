@@ -20253,6 +20253,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/InternalL
   var TRANSFORMED = 5;
   var COMPLETE = 6;
   var ERROR = 7;
+  function noop() {}
   var CodeUnit = function CodeUnit(loaderHooks, normalizedName, type, state, name, referrerName, address) {
     this.loaderHooks = loaderHooks;
     this.normalizedName = normalizedName;
@@ -20266,8 +20267,30 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/InternalL
     this.result = null;
     this.data_ = {};
     this.dependencies = [];
+    this.promise_ = null;
+    this.resolve_ = noop;
+    this.reject_ = noop;
   };
   ($traceurRuntime.createClass)(CodeUnit, {
+    ensurePromise_: function() {
+      var $__329 = this;
+      if (!this.promise_) {
+        if (this.state >= COMPLETE) {
+          this.promise_ = Promise.resolve(this.result);
+        } else if (this.state === ERROR) {
+          this.promise_ = Promise.reject(this.error);
+        } else {
+          this.promise_ = new Promise((function(resolve, reject) {
+            $__329.resolve_ = resolve;
+            $__329.reject_ = reject;
+          }));
+        }
+      }
+    },
+    get promise() {
+      this.ensurePromise_();
+      return this.promise_;
+    },
     get state() {
       return this.state_;
     },
@@ -20299,34 +20322,13 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/InternalL
     normalizesTo: function() {
       return 'Normalizes to ' + this.normalizedName + '\n';
     },
-    addListener: function(callback, errback) {
-      if (!this.listeners) {
-        this.listeners = [];
-      }
-      this.listeners.push(callback, errback);
-      if (this.state >= COMPLETE) {
-        this.dispatchComplete(this.result);
-      }
+    dispatchError: function(err) {
+      this.ensurePromise_();
+      this.reject_(err);
     },
-    dispatchError: function(value) {
-      this.dispatch_(value, 1);
-    },
-    dispatchComplete: function(value) {
-      this.dispatch_(value, 0);
-    },
-    dispatch_: function(value, error) {
-      var listeners = this.listeners;
-      if (!listeners) {
-        return;
-      }
-      listeners = listeners.concat();
-      this.listeners = [];
-      for (var i = error; i < listeners.length; i += 2) {
-        var f = listeners[i];
-        if (f) {
-          f(value);
-        }
-      }
+    dispatchComplete: function() {
+      this.ensurePromise_();
+      this.resolve_(this.result);
     },
     transform: function() {
       return this.loaderHooks.transform(this);
@@ -20373,10 +20375,8 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/InternalL
       var address = arguments[2];
       var type = arguments[3] !== (void 0) ? arguments[3]: 'script';
       var codeUnit = this.load_(name, referrerName, address, type);
-      return new Promise((function(resolve, reject) {
-        codeUnit.addListener((function() {
-          resolve(codeUnit);
-        }), reject);
+      return codeUnit.promise.then((function() {
+        return codeUnit;
       }));
     },
     load_: function(name, referrerName, address, type) {
@@ -20398,34 +20398,24 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/InternalL
       }));
       return codeUnit;
     },
-    promiseFor: function(codeUnit) {
-      return new Promise((function(resolve, reject) {
-        codeUnit.addListener(resolve, reject);
-      }));
-    },
-    promiseForAlreadyLoaded: function(codeUnit) {
-      var p = new Promise((function(resolve, reject) {
-        codeUnit.addListener(resolve, reject);
-      }));
-      this.handleCodeUnitLoaded(codeUnit);
-      codeUnit.promise = p;
-      return p;
-    },
     module: function(code, referrerName, address) {
       var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'module', null, referrerName, address);
       this.cache.set({}, codeUnit);
-      return this.promiseForAlreadyLoaded(codeUnit);
+      this.handleCodeUnitLoaded(codeUnit);
+      return codeUnit.promise;
     },
     define: function(normalizedName, code, address) {
       var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'module', normalizedName, null, address);
       var key = this.getKey(normalizedName, 'module');
       this.cache.set(key, codeUnit);
-      return this.promiseForAlreadyLoaded(codeUnit);
+      this.handleCodeUnitLoaded(codeUnit);
+      return codeUnit.promise;
     },
     script: function(code, referrerName, address) {
       var codeUnit = new EvalCodeUnit(this.loaderHooks, code, 'script', null, referrerName, address);
       this.cache.set({}, codeUnit);
-      return this.promiseForAlreadyLoaded(codeUnit);
+      this.handleCodeUnitLoaded(codeUnit);
+      return codeUnit.promise;
     },
     get options() {
       return this.loaderHooks.options;
@@ -20479,7 +20469,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/InternalL
         return $__329.getCodeUnit_(name, referrerName, null, 'module');
       }));
       codeUnit.dependencies.forEach((function(dependency) {
-        $__329.load_(dependency.normalizedName, null, null, 'module');
+        $__329.load(dependency.normalizedName, null, null, 'module');
       }));
       if (this.areAll(PARSED)) {
         this.analyze();
@@ -20600,7 +20590,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/InternalL
           continue;
         }
         codeUnit.state = COMPLETE;
-        codeUnit.dispatchComplete(codeUnit.result);
+        codeUnit.dispatchComplete();
       }
     }
   }, {});
@@ -20648,7 +20638,7 @@ $traceurRuntime.ModuleStore.registerModule("traceur@0.0.20/src/runtime/Loader", 
       return this.internalLoader_.module (source, referrerName, address);
     },
     define: function(normalizedName, source) {
-      var $__334 = arguments[2],
+      var $__334 = arguments[2] !== (void 0) ? arguments[2]: {},
           address = $__334.address,
           metadata = $__334.metadata;
       return this.internalLoader_.define(normalizedName, source, address, metadata);
